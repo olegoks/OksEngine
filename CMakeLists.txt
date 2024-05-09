@@ -1,18 +1,16 @@
 set(CMAKE_RULE_MESSAGES ON)
 set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-#include(Utils)
 
-cmake_minimum_required(VERSION 3.15)
+cmake_minimum_required(VERSION VERSION 3.29)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
+
 set(CMAKE_SUPPRESS_REGENERATION true) # To exclude ZERO_CHECK target
 
-set(Sources "Sources/")
-
-project("OksEngine0.1"
-    VERSION 1.0.0
+project("OksEngine0_1"
+    VERSION 0.1.0
     DESCRIPTION ""
     LANGUAGES CXX
 )
@@ -23,33 +21,102 @@ project("OksEngine0.1"
 # option(BUILD_DOCS       "Build ${PROJECT_NAME} documentation"               OFF)
 # option(INSTALL          "Generate target for installing ${PROJECT_NAME}"    OFF)
 
-# if (PROJECT_IS_TOP_LEVEL)
-#     message(STATUS "This project is a top-level one")
-# else()
-#     message(STATUS "This project has a top-level one called [${CMAKE_PROJECT_NAME}]")
-# endif()
+include(CMakePrintHelpers)
 
-file(GLOB_RECURSE SOURCES
-    RELATIVE ${CMAKE_SOURCE_DIR}
-    LIST_DIRECTORIES false
-    ${Sources}/*.cpp
-    ${Sources}/*.hpp
-)
+set(SourcesDirectory "Sources/")
+file(GLOB_RECURSE AllSources
+        RELATIVE ${CMAKE_SOURCE_DIR} # If RELATIVE flag is specified, the results will be returned as relative paths to the given path.
+        LIST_DIRECTORIES false # By default GLOB lists directories. Directories are omitted in the result if LIST_DIRECTORIES is set to false.
+        ${SourcesDirectory}/*.cpp
+        ${SourcesDirectory}/*.hpp
+    )
+
+set(SourcesWithoutTestSources)
+cmake_print_variables(AllSources)
+foreach(file ${AllSources})
+    if(NOT file MATCHES "test_*")
+        list(APPEND SourcesWithoutTestSources ${file})
+    endif()
+endforeach()
+
+cmake_print_variables(SourcesWithoutTestSources)
 
 add_executable(${PROJECT_NAME})
 
 target_sources(${PROJECT_NAME}
     PRIVATE
-    ${SOURCES}
+    ${SourcesWithoutTestSources}
 )
 
 source_group(TREE 
     ${CMAKE_CURRENT_SOURCE_DIR}
     FILES  
-    ${SOURCES} 
+    ${SourcesWithoutTestSources} 
 )
 
 target_include_directories(${PROJECT_NAME}
     PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${Sources}>
+        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}>
 )
+
+include(FetchContent)
+FetchContent_Declare(
+    googletest
+    URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+)
+
+FetchContent_GetProperties(googletest)
+
+if(NOT googletest_POPULATED)
+    FetchContent_Populate(googletest)
+
+    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+    set(gtest_disable_pthreads ON CACHE BOOL "" FORCE)
+
+    add_subdirectory(
+        ${googletest_SOURCE_DIR}
+        ${googletest_BINARY_DIR}
+    )
+
+    if(MSVC)
+        foreach(_tgt gtest gtest_main gmock gmock_main)
+            target_compile_definitions(${_tgt}
+                PRIVATE
+                    "_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING"
+                    )
+        endforeach()
+    endif()
+
+endif()
+
+
+enable_testing()
+
+add_executable(TestEngine "")
+
+set(TestSources)
+
+foreach(file ${AllSources})
+    cmake_path(GET file FILENAME FILE_NAME)
+    if(${FILE_NAME} MATCHES "test_*")
+        list(APPEND TestSources ${file})
+    endif()
+endforeach()
+
+cmake_print_variables(TestSources)
+
+target_sources(TestEngine
+    PRIVATE
+        ${TestSources})
+
+target_link_libraries(TestEngine
+    PRIVATE
+        GTest::gtest_main)   
+
+        
+include(GoogleTest)
+gtest_discover_tests(TestEngine)
+
+add_test(
+    NAME EngineTest
+    COMMAND $<TARGET_FILE:TestEngine>)
