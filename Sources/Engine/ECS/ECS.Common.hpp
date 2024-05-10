@@ -1,0 +1,13 @@
+
+#include <optional>
+#include <memory>
+
+namespace ECS {
+
+	template<class Type>
+	using Maybe = std::optional<Type>;
+
+	template<class Type>
+	using Ptr = std::shared_ptr<Type>;
+
+}

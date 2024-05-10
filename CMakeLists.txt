@@ -7,6 +7,7 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
+
 set(CMAKE_SUPPRESS_REGENERATION true) # To exclude ZERO_CHECK target
 
 project("OksEngine0_1"
@@ -23,41 +24,44 @@ project("OksEngine0_1"
 
 include(CMakePrintHelpers)
 
-set(SourcesDirectory "Sources/")
-file(GLOB_RECURSE AllSources
-        RELATIVE ${CMAKE_SOURCE_DIR} # If RELATIVE flag is specified, the results will be returned as relative paths to the given path.
-        LIST_DIRECTORIES false # By default GLOB lists directories. Directories are omitted in the result if LIST_DIRECTORIES is set to false.
-        ${SourcesDirectory}/*.cpp
-        ${SourcesDirectory}/*.hpp
-    )
+#set(SourcesDirectory "Sources/")
+# file(GLOB_RECURSE AllSources
+#         RELATIVE ${CMAKE_SOURCE_DIR} # If RELATIVE flag is specified, the results will be returned as relative paths to the given path.
+#         LIST_DIRECTORIES false # By default GLOB lists directories. Directories are omitted in the result if LIST_DIRECTORIES is set to false.
+#         ${SourcesDirectory}/*.cpp
+#         ${SourcesDirectory}/*.hpp
+#     )
 
-set(SourcesWithoutTestSources)
-cmake_print_variables(AllSources)
-foreach(file ${AllSources})
-    if(NOT file MATCHES "test_*")
-        list(APPEND SourcesWithoutTestSources ${file})
-    endif()
-endforeach()
+# set(SourcesWithoutTestSources)
+# foreach(file ${AllSources})
+#     if(NOT file MATCHES "test_*")
+#         list(APPEND SourcesWithoutTestSources ${file})
+#     endif()
+# endforeach()
 
-cmake_print_variables(SourcesWithoutTestSources)
+# add_executable(${PROJECT_NAME})
 
-add_executable(${PROJECT_NAME})
+# target_sources(${PROJECT_NAME}
+#     PRIVATE
+#     Main.cpp
+# )
 
-target_sources(${PROJECT_NAME}
-    PRIVATE
-    ${SourcesWithoutTestSources}
-)
+# target_link_libraries(${PROJECT_NAME}
+# )
 
-source_group(TREE 
-    ${CMAKE_CURRENT_SOURCE_DIR}
-    FILES  
-    ${SourcesWithoutTestSources} 
-)
+# source_group(TREE 
+#     ${CMAKE_CURRENT_SOURCE_DIR}
+#     FILES  
+#     ${SourcesWithoutTestSources} 
+# )
 
-target_include_directories(${PROJECT_NAME}
-    PUBLIC
-        $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}>
-)
+# target_include_directories(${PROJECT_NAME}
+#     PUBLIC
+#         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}>
+#         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}/Engine/ECS>
+#         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}/Common>
+#         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}/OS>
+# )
 
 include(FetchContent)
 FetchContent_Declare(
@@ -92,31 +96,37 @@ endif()
 
 enable_testing()
 
-add_executable(TestEngine "")
+#add_executable(TestEngine "")
 
-set(TestSources)
+# set(TestSources)
 
-foreach(file ${AllSources})
-    cmake_path(GET file FILENAME FILE_NAME)
-    if(${FILE_NAME} MATCHES "test_*")
-        list(APPEND TestSources ${file})
-    endif()
-endforeach()
+# foreach(file ${AllSources})
+#     cmake_path(GET file FILENAME FILE_NAME)
+#     if(${FILE_NAME} MATCHES "test_*")
+#         list(APPEND TestSources ${file})
+#     endif()
+# endforeach()
 
-cmake_print_variables(TestSources)
+# target_sources(TestEngine
+#     PRIVATE
+#         ${TestSources})
+ 
+# target_link_libraries(TestEngine
+#     PRIVATE
+#         GTest::gtest_main)   
 
-target_sources(TestEngine
-    PRIVATE
-        ${TestSources})
-
-target_link_libraries(TestEngine
-    PRIVATE
-        GTest::gtest_main)   
+# target_include_directories(TestEngine 
+#     PRIVATE
+#     ${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}/Engine/ECS/
+#     ${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}/Common
+#     ${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}/OS)
 
         
-include(GoogleTest)
-gtest_discover_tests(TestEngine)
+# include(GoogleTest)
+# gtest_discover_tests(TestEngine)
 
-add_test(
-    NAME EngineTest
-    COMMAND $<TARGET_FILE:TestEngine>)
+# add_test(
+#     NAME EngineTest
+#     COMMAND $<TARGET_FILE:TestEngine>)
+
+add_subdirectory(Sources)
