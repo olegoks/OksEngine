@@ -1,3 +1,5 @@
+#pragma once 
+
 #include <utility>
 #include <ECS.Entity.hpp>
 #include <ECS.SystemsManager.hpp>

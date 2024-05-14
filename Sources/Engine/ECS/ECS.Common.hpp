@@ -1,6 +1,9 @@
+#pragma once 
 
 #include <optional>
 #include <memory>
+
+#include <OS.Assert.hpp>
 
 namespace ECS {
 

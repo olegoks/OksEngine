@@ -47,7 +47,5 @@ namespace Common {
 		std::string text_;
 	};
 
-	std::ostream& operator<<(std::ostream& os, const Format& format) {
-		return os << static_cast<std::string>(format);
-	}
+	std::ostream& operator<<(std::ostream& os, const Format& format);
 }

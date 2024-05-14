@@ -15,6 +15,7 @@
 #include <Common.Types.hpp>
 
 namespace OS {
+
 	class Logger {
 	public:
 
@@ -177,18 +178,21 @@ namespace OS {
 		};
 	};
 
-	Logger logger;
+	inline Logger logger;
 
-	void LogError(const std::string_view path, const Common::Format format, std::source_location location = std::source_location::current()) {
-		logger.Log(Logger::Severity::Error, path, format, location);
-	}
+	void LogError(
+		const std::string_view path, 
+		const Common::Format format,
+		std::source_location location = std::source_location::current());
 
-	void LogWarning(const std::string_view path, const Common::Format format, std::source_location location = std::source_location::current()) {
-		logger.Log(Logger::Severity::Warning, path, format, location);
-	}
+	void LogWarning(
+		const std::string_view path,
+		const Common::Format format,
+		std::source_location location = std::source_location::current());
 
-	void LogInfo(const std::string_view path, const Common::Format format, std::source_location location = std::source_location::current()) {
-		logger.Log(Logger::Severity::Info, path, format, location);
-	}
+	void LogInfo(
+		const std::string_view path,
+		const Common::Format format,
+		std::source_location location = std::source_location::current());
 
 }

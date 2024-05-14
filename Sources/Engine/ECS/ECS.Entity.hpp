@@ -59,7 +59,7 @@ namespace ECS {
 	};
 
 
-	const Entity::Id Entity::Id::invalid_ = Common::Limits<Entity::Id::ValueType>::Max();
+	inline const Entity::Id Entity::Id::invalid_ = Common::Limits<Entity::Id::ValueType>::Max();
 
 
 }
