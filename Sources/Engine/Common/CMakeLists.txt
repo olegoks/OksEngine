@@ -52,6 +52,14 @@ PRIVATE
     # # Common.Format.cpp
     )
 
+        
+    source_group("Sources"
+    FILES
+    ${PUBLIC_SOURCES}
+    ${PRIVATE_SOURCES})
+
+
+
 target_include_directories(Common
 PUBLIC
     ${CMAKE_CURRENT_LIST_DIR}

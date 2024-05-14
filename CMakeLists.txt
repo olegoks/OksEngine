@@ -16,6 +16,8 @@ project("OksEngine0_1"
     LANGUAGES CXX
 )
 
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
+
 # option(INSTALL_PATH     "Installing path"                                   "${CMAKE_CURRENT_SOURCE_DIR}/build/")
 # option(BUILD_TESTS      "Build ${PROJECT_NAME} tests"                       OFF)
 # option(BUILD_EXAMPLES   "Build ${PROJECT_NAME} examples"                    OFF)
@@ -62,6 +64,10 @@ include(CMakePrintHelpers)
 #         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}/Common>
 #         $<BUILD_INTERFACE:${CMAKE_CURRENT_SOURCE_DIR}/${SourcesDirectory}/OS>
 # )
+
+
+
+
 
 include(FetchContent)
 FetchContent_Declare(

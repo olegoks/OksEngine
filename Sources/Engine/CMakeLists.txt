@@ -18,10 +18,17 @@ target_link_libraries(OksEngine
         ECS
     )   
 
+    source_group("Sources"
+    FILES
+    Engine.hpp
+    Engine.cpp)
+
+
 target_include_directories(OksEngine
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR})
-        
+
+
 add_subdirectory(Common)
 add_subdirectory(OS)
 add_subdirectory(ECS)

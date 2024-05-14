@@ -36,6 +36,12 @@ target_sources(ECS
         ${PRIVATE_SOURCES}
         # ECS.Entity.cpp
     )
+        
+    source_group("Sources"
+    FILES
+    ${PUBLIC_SOURCES}
+    ${PRIVATE_SOURCES})
+
 
 target_link_libraries(ECS
     PUBLIC

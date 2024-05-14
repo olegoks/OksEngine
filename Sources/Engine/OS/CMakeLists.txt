@@ -41,6 +41,13 @@ target_sources(OS
 
 set_target_properties(OS PROPERTIES LINKER_LANGUAGE CXX)
 
+        
+source_group("Sources"
+FILES
+${PUBLIC_SOURCES}
+${PRIVATE_SOURCES})
+
+
 target_include_directories(OS
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR})
