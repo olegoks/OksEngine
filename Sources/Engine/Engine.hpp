@@ -34,7 +34,26 @@ namespace OksEngine {
 
 		explicit Engine() noexcept;
 
+		void Run() {
+			isRunning_ = true;
+			while (IsRunning()) {
+				Update();
+			}
+
+		}
+
+		bool IsRunning() const {
+			return isRunning_;
+		}
+
+		void Update() noexcept {
+			while (IsRunning()) {
+				world_.Process();
+			}
+		}
+
 	private:
+		bool isRunning_ = false;
 		ECS::World world_;
 	};
 
