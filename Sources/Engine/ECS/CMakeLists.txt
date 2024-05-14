@@ -6,21 +6,41 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(ECS STATIC)
 
+file(GLOB PUBLIC_SOURCES
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    *.hpp
+    *.h
+)
+
+file(GLOB PRIVATE_SOURCES
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    *.cpp
+    *.c
+)
+
 target_sources(ECS
     PUBLIC
-        ECS.Common.hpp
-        ECS.Component.hpp
-        ECS.ComponentsManager.hpp
-        ECS.EntitiesManager.hpp
-        ECS.Entity.hpp
-        ECS.hpp
-        ECS.System.hpp
-        ECS.SystemsManager.hpp
-        ECS.World.hpp
+        ${PUBLIC_SOURCES}
+        # ECS.Common.hpp
+        # ECS.Component.hpp
+        # ECS.ComponentsManager.hpp
+        # ECS.EntitiesManager.hpp
+        # ECS.Entity.hpp
+        # ECS.hpp
+        # ECS.System.hpp
+        # ECS.SystemsManager.hpp
+        # ECS.World.hpp
     PRIVATE
-        ECS.Entity.cpp
+        ${PRIVATE_SOURCES}
+        # ECS.Entity.cpp
     )
 
 target_link_libraries(ECS
-    PRIVATE
-        Common)
+    PUBLIC
+        OS)
+
+target_include_directories(ECS
+    PUBLIC
+        ${CMAKE_CURRENT_LIST_DIR})
