@@ -10,6 +10,25 @@
 
 namespace OksEngine {
 
+	class Entity final {
+	public:
+
+		Entity(ECS::World* world, ECS::Entity::Id id) noexcept :
+			world_{ world },
+			id_{ id } {
+
+		}
+
+	private:
+		[[nodiscard]]
+		ECS::World* GetWorld() noexcept { return world_; }
+		[[nodiscard]]
+		ECS::Entity::Id GetId() noexcept { return id_; }
+	private:
+		ECS::World* world_;
+		ECS::Entity::Id id_;
+	};
+
 	class Engine {
 	public:
 
