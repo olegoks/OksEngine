@@ -14,7 +14,7 @@ target_link_libraries(TestEngine
 
 add_test(
   NAME
-    test_engine
+    TestEngine
   COMMAND
     $<TARGET_FILE:TestEngine>
   )
