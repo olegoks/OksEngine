@@ -1,5 +1,5 @@
 #!/bin/bash
-set -x
+#set -x
 cd ../
 mkdir Build
 cmake --build ./Build 
