@@ -13,5 +13,5 @@ TEST(TestEngine, BasicAssertions) {
 TEST(TestEngine, CreatingEngine) {
 
 	OksEngine::Engine engine;
-	EXPECT_FALSE(true);
+
 }

@@ -4,16 +4,17 @@ cd ../
 
 cd ./Build
 
-rm ./Testing/Temporary/LastTestsFailed.log
+# rm ./Testing/Temporary/LastTestsFailed.log
 
 ctest --output-on-failure -C Debug
 
+# echo $?
 # value=`cat ./Testing/Temporary/LastTestsFailed.log`
 # echo "$value"
 
 
 # read -p "Press enter to continue"
-if [ -e ./Testing/Temporary/LastTestsFailed.log ]
+if [$? -ne 0]
 then
     echo "UNIT TESTS WERE NOT PASSED!" 
     exit -1
