@@ -14,7 +14,7 @@ ctest --output-on-failure -C Debug
 
 
 # read -p "Press enter to continue"
-if [$? -ne 0]
+if [ $? -ne 0 ]
 then
     echo "UNIT TESTS WERE NOT PASSED!" 
     exit -1
