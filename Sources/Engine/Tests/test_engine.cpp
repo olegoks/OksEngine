@@ -10,8 +10,15 @@ TEST(TestEngine, BasicAssertions) {
   EXPECT_EQ(7 * 6, 42);
 }
 
-TEST(TestEngine, CreatingEngine) {
+TEST(TestEngine, Creating) {
 
 	OksEngine::Engine engine;
+
+}
+
+TEST(TestEngine, IsRunning) {
+
+	OksEngine::Engine engine;
+	engine.IsRunning();
 
 }
