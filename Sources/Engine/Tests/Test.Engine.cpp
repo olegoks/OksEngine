@@ -1,6 +1,6 @@
 #include <gtest/gtest.h>
 
-#include "Engine.hpp"
+#include <Engine.hpp>
 
 // Demonstrate some basic assertions.
 TEST(TestEngine, BasicAssertions) {
@@ -19,6 +19,6 @@ TEST(TestEngine, Creating) {
 TEST(TestEngine, IsRunning) {
 
 	OksEngine::Engine engine;
-	engine.IsRunning();
+	EXPECT_FALSE(engine.IsRunning());
 
 }

@@ -37,7 +37,7 @@ target_sources(ECS
         # ECS.Entity.cpp
     )
         
-    source_group("Sources"
+source_group("Sources"
     FILES
     ${PUBLIC_SOURCES}
     ${PRIVATE_SOURCES})
@@ -50,3 +50,5 @@ target_link_libraries(ECS
 target_include_directories(ECS
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR})
+
+add_subdirectory(Tests)

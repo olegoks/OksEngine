@@ -5,7 +5,6 @@
 #include <list>
 #include <utility>
 
-
 #include <ECS.hpp>
 
 namespace OksEngine {
@@ -21,9 +20,9 @@ namespace OksEngine {
 
 	private:
 		[[nodiscard]]
-		ECS::World* GetWorld() noexcept { return world_; }
+		inline ECS::World* GetWorld() noexcept { return world_; }
 		[[nodiscard]]
-		ECS::Entity::Id GetId() noexcept { return id_; }
+		inline ECS::Entity::Id GetId() noexcept { return id_; }
 	private:
 		ECS::World* world_;
 		ECS::Entity::Id id_;
@@ -34,6 +33,11 @@ namespace OksEngine {
 
 		explicit Engine() noexcept;
 
+		Entity CreateEntity() noexcept {
+			ECS::Entity::Id id = world_.CreateEntity();
+			return Entity{ &world_, id };
+		}
+
 		void Run() {
 			isRunning_ = true;
 			while (IsRunning()) {
@@ -42,7 +46,7 @@ namespace OksEngine {
 
 		}
 
-		bool IsRunning() const {
+		inline bool IsRunning() const noexcept {
 			return isRunning_;
 		}
 
@@ -114,10 +118,6 @@ namespace OksEngine {
 	//		return isRunning_;
 	//	}
 
-	//	Entity CreateEntity() noexcept {
-	//		ECS::Entity::Id id = world_.CreateEntity();
-	//		return Entity{ &world_, id };
-	//	}
 
 	//	template<class System>
 	//	void RegisterSystem() {
