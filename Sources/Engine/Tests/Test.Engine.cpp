@@ -42,6 +42,8 @@ TEST(TestEngine, AddBehaviour) {
 
 	OksEngine::Engine engine;
 	OksEngine::Entity entity = engine.CreateEntity();
-	entity.AddBehaviour("../../Sources/Scripts/TestObject.lua", "TestObject");
+	auto currentPath = std::filesystem::current_path();
+	auto testScriptsPath = currentPath / "../../../../Sources/Engine/Tests/";
+	entity.AddBehaviour(testScriptsPath, "TestObject.lua", "TestObject");
 
 }

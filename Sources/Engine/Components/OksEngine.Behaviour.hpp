@@ -28,8 +28,9 @@ namespace OksEngine {
 
 
 	struct Behaviour : public ECS::IComponent<Behaviour> {
-		const char* scriptName_;
-		const char* objectName_;
+		std::filesystem::path scriptsPathString_;
+		std::string scriptName_;
+		std::string objectName_;
 		lua_State* state_ = nullptr;
 		luabridge::LuaRef updater_;
 		luabridge::LuaRef object_;
@@ -38,8 +39,9 @@ namespace OksEngine {
 		Behaviour() = default;
 		Behaviour(ECS::World* world,
 			ECS::Entity::Id entityId,
-			const char* scriptName,
-			const char* objectName
+			std::filesystem::path scriptsPathString,
+			std::string scriptName,
+			std::string objectName
 		);
 
 		void CallUpdater();
@@ -47,10 +49,9 @@ namespace OksEngine {
 
 	class BehaviourSystem : public ECS::System {
 	private:
-
 	public:
 
-		BehaviourSystem() {
+		BehaviourSystem() noexcept {
 
 		}
 

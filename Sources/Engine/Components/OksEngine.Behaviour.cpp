@@ -1,18 +1,25 @@
 #include <Components/OksEngine.Behaviour.hpp>
 
+#include <filesystem>
+
 namespace OksEngine {
 
 	Behaviour::Behaviour(
 		ECS::World* world,
 		ECS::Entity::Id entityId,
-		const char* scriptName,
-		const char* objectName) :
+		std::filesystem::path scriptsPath,
+		std::string scriptName,
+		std::string objectName) :
 		scriptName_{ scriptName },
 		objectName_{ objectName },
 		state_{ luaL_newstate() },
 		updater_{ state_ },
 		object_{ state_ },
 		entity_{  } {
+
+		OS::AssertMessage(std::filesystem::exists(scriptsPath), 
+			{ "Scripts path is not exist %s", scriptsPath.c_str()});
+
 
 		luaL_openlibs(state_);
 		lua_pcall(state_, 0, 0, 0);
@@ -34,13 +41,14 @@ namespace OksEngine {
 			.addFunction("SetZ", &Position::SetZ)
 			.endClass();
 
-		if (luaL_dofile(state_, "../../Sources/Scripts/Entity.lua")) {
+		const std::filesystem::path entityScriptPath = scriptsPath / "Entity.lua";
+		if (luaL_dofile(state_, entityScriptPath.string().c_str())) {
 			printf("Error: %s\n", lua_tostring(state_, -1));
 			exit(-1);
 		}
 
-
-		if (luaL_dofile(state_, scriptName_)) {
+		const std::filesystem::path objectScriptPath = scriptsPath / scriptName_;
+		if (luaL_dofile(state_, objectScriptPath.string().c_str())) {
 			printf("Error: %s\n", lua_tostring(state_, -1));
 			exit(-1);
 		}

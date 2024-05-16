@@ -8,7 +8,7 @@ int main(int argc, char** argv){
     Engine engine;
     Entity entity = engine.CreateEntity();
     entity.AddPosition(0, 0, 0);
-    entity.AddBehaviour("../../Sources/Scripts/TestObject.lua", "TestObject");
+    entity.AddBehaviour("../../Sources/Scripts/", "TestObject.lua", "TestObject");
 
     return 0;
 }

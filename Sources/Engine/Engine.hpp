@@ -21,9 +21,16 @@ namespace OksEngine {
 		}
 
 		void AddBehaviour(
+			std::filesystem::path scriptsPath,
 			const char* scriptName,
 			const char* objectName) {
-			world_->CreateComponent<Behaviour>(GetId(), GetWorld(), GetId(), scriptName, objectName);
+			world_->CreateComponent<Behaviour>(
+				GetId(),
+				GetWorld(),
+				GetId(),
+				scriptsPath,
+				scriptName,
+				objectName);
 		}
 
 		void AddPosition(int x, int y, int z) {
@@ -48,7 +55,12 @@ namespace OksEngine {
 	class Engine {
 	public:
 
+		struct Options {
+			const char* scriptsLocation_ = nullptr;
+		};
+
 		explicit Engine() noexcept;
+		explicit Engine(const Options& options) noexcept;
 
 		Entity CreateEntity() noexcept {
 			ECS::Entity::Id id = world_.CreateEntity();
@@ -74,6 +86,7 @@ namespace OksEngine {
 		}
 
 	private:
+		Options options_;
 		bool isRunning_ = false;
 		ECS::World world_;
 	};

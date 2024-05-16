@@ -9,4 +9,11 @@ namespace OksEngine {
 
 	}
 
+	Engine::Engine(const Options& options) noexcept :
+		options_{ options } {
+
+		world_.RegisterSystem<BehaviourSystem>();
+
+	}
+
 }
