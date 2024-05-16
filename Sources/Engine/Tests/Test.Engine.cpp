@@ -22,3 +22,26 @@ TEST(TestEngine, IsRunning) {
 	EXPECT_FALSE(engine.IsRunning());
 
 }
+
+TEST(TestEngine, CreateEntity) {
+
+	OksEngine::Engine engine;
+	OksEngine::Entity entity = engine.CreateEntity();
+
+}
+
+TEST(TestEngine, AddPosition) {
+
+	OksEngine::Engine engine;
+	OksEngine::Entity entity = engine.CreateEntity();
+	entity.AddPosition(0, 0, 0);
+
+}
+
+TEST(TestEngine, AddBehaviour) {
+
+	OksEngine::Engine engine;
+	OksEngine::Entity entity = engine.CreateEntity();
+	entity.AddBehaviour("../../Sources/Scripts/TestObject.lua", "TestObject");
+
+}

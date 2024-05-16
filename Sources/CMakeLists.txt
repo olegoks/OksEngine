@@ -18,6 +18,10 @@ file(GLOB SOURCES
     *.c
 )
 
+source_group("Sources"
+    FILES
+    ${SOURCES})
+
 target_sources(OksEngineGame
     PRIVATE
         ${SOURCES})

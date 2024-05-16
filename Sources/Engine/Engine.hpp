@@ -6,6 +6,8 @@
 #include <utility>
 
 #include <ECS.hpp>
+#include <Components/OksEngine.Behaviour.hpp>
+#include <Components/OksEngine.Position.hpp>
 
 namespace OksEngine {
 
@@ -17,6 +19,21 @@ namespace OksEngine {
 			id_{ id } {
 
 		}
+
+		void AddBehaviour(
+			const char* scriptName,
+			const char* objectName) {
+			world_->CreateComponent<Behaviour>(GetId(), GetWorld(), GetId(), scriptName, objectName);
+		}
+
+		void AddPosition(int x, int y, int z) {
+			world_->CreateComponent<Position>(GetId(), x, y, z);
+		}
+
+		//template<class ...Args>
+		//void AddRenderableGeometry(Args&& ...args) {
+		//	world_->CreateComponent<RenderableGeometry>(GetId(), std::forward<Args>(args)...);
+		//}
 
 	private:
 		[[nodiscard]]
@@ -60,82 +77,5 @@ namespace OksEngine {
 		bool isRunning_ = false;
 		ECS::World world_;
 	};
-
-	//class Entity final {
-	//public:
-
-	//	Entity(ECS::World* world, ECS::Entity::Id id) noexcept :
-	//		world_{ world },
-	//		id_{ id } {
-
-	//	}
-
-
-	//	template<class ...Args>
-	//	void AddBehaviour(Args&& ...args) {
-	//		world_->CreateComponent<Behaviour>(GetId(), GetWorld(), GetId(), std::forward<Args>(args)...);
-	//	}
-
-	//	template<class ...Args>
-	//	void AddPosition(Args&& ...args) {
-	//		world_->CreateComponent<Position>(GetId(), std::forward<Args>(args)...);
-	//	}
-
-	//	template<class ...Args>
-	//	void AddRenderableGeometry(Args&& ...args) {
-	//		world_->CreateComponent<RenderableGeometry>(GetId(), std::forward<Args>(args)...);
-	//	}
-
-	//private:
-	//	[[nodiscard]]
-	//	ECS::World* GetWorld() noexcept { return world_; }
-	//	[[nodiscard]]
-	//	ECS::Entity::Id GetId() noexcept { return id_; }
-	//private:
-	//	ECS::World* world_;
-	//	ECS::Entity::Id id_;
-	//};
-
-	//class EngineInstance {
-	//public:
-
-	//	EngineInstance() {
-
-	//		world_.RegisterSystem<BehaviourSystem>();
-	//		world_.RegisterSystem<RenderSystem>();
-
-	//	}
-
-	//	void Run() {
-	//		isRunning_ = true;
-	//		while (IsRunning()) {
-	//			Update();
-	//		}
-
-	//	}
-
-	//	bool IsRunning() const {
-	//		return isRunning_;
-	//	}
-
-
-	//	template<class System>
-	//	void RegisterSystem() {
-	//		
-	//	}
-
-	//private:
-
-	//	void Update() noexcept {
-	//		while (IsRunning()) {
-	//			world_.Process();
-	//		}
-	//	}
-
-	//private:
-
-	//	bool isRunning_ = false;
-	//	ECS::World world_;
-	//};
 
 }
