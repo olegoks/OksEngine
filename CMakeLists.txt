@@ -1,14 +1,6 @@
-set(CMAKE_RULE_MESSAGES ON)
-set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
-
 cmake_minimum_required(VERSION VERSION 3.29)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED ON)
-set(CMAKE_CXX_EXTENSIONS OFF)
-
-
-set(CMAKE_SUPPRESS_REGENERATION true) # To exclude ZERO_CHECK target
+set(CMAKE_TOOLCHAIN_FILE "D:/vcpkg/scripts/buildsystems/vcpkg.cmake") #For vcpkg
 
 project("OksEngine0_1"
     VERSION 0.1.0
@@ -16,7 +8,15 @@ project("OksEngine0_1"
     LANGUAGES CXX
 )
 
-set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
+set(CMAKE_RULE_MESSAGES ON)
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+
+set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED ON)
+set(CMAKE_CXX_EXTENSIONS OFF)
+
+set(CMAKE_SUPPRESS_REGENERATION true) # To exclude ZERO_CHECK target
+set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets") #To add folder in VS for cmake targets.
 
 # option(INSTALL_PATH     "Installing path"                                   "${CMAKE_CURRENT_SOURCE_DIR}/build/")
 # option(BUILD_TESTS      "Build ${PROJECT_NAME} tests"                       OFF)
@@ -24,7 +24,7 @@ set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets")
 # option(BUILD_DOCS       "Build ${PROJECT_NAME} documentation"               OFF)
 # option(INSTALL          "Generate target for installing ${PROJECT_NAME}"    OFF)
 
-include(CMakePrintHelpers)
+#include(CMakePrintHelpers)
 
 #set(SourcesDirectory "Sources/")
 # file(GLOB_RECURSE AllSources
@@ -69,38 +69,41 @@ include(CMakePrintHelpers)
 
 
 
-include(FetchContent)
-FetchContent_Declare(
-    googletest
-    URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
+# include(FetchContent)
+# FetchContent_Declare(
+#     googletest
+#     URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
+# )
 
-FetchContent_GetProperties(googletest)
+# FetchContent_GetProperties(googletest)
 
-if(NOT googletest_POPULATED)
-    FetchContent_Populate(googletest)
+# if(NOT googletest_POPULATED)
+#     FetchContent_Populate(googletest)
 
-    set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-    set(gtest_disable_pthreads ON CACHE BOOL "" FORCE)
+#     set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
+#     set(gtest_disable_pthreads ON CACHE BOOL "" FORCE)
 
-    add_subdirectory(
-        ${googletest_SOURCE_DIR}
-        ${googletest_BINARY_DIR}
-    )
+#     add_subdirectory(
+#         ${googletest_SOURCE_DIR}
+#         ${googletest_BINARY_DIR}
+#     )
 
-    if(MSVC)
-        foreach(_tgt gtest gtest_main gmock gmock_main)
-            target_compile_definitions(${_tgt}
-                PRIVATE
-                    "_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING"
-                    )
-        endforeach()
-    endif()
+#     if(MSVC)
+#         foreach(_tgt gtest gtest_main gmock gmock_main)
+#             target_compile_definitions(${_tgt}
+#                 PRIVATE
+#                     "_SILENCE_TR1_NAMESPACE_DEPRECATION_WARNING"
+#                     )
+#         endforeach()
+#     endif()
 
-endif()
+# endif()
 
 
 enable_testing()
+
+find_package(GTest CONFIG REQUIRED)
+
 
 #add_executable(TestEngine "")
 
@@ -135,4 +138,4 @@ enable_testing()
 #     NAME EngineTest
 #     COMMAND $<TARGET_FILE:TestEngine>)
 
-add_subdirectory(Sources)
+ add_subdirectory(Sources)
