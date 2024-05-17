@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Lua.hpp>
-#include <Luabridge/LuaBridge.h>
+#include <luabridge3/LuaBridge/LuaBridge.h>
 #include <ECS.hpp>
 #include <Components/OksEngine.Position.hpp>
 

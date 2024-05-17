@@ -12,7 +12,7 @@
 #include <OS.Assert.hpp>
 #include <OS.Exception.hpp>
 
-export namespace OS {
+namespace OS {
 
 	class BinaryFile : public File {
 	public:

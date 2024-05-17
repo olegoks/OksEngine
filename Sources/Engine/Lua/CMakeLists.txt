@@ -5,11 +5,11 @@ set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 
-add_library(LuaStatic STATIC IMPORTED)
-set_property(TARGET LuaStatic PROPERTY
-             IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/Lua54.lib)
+# add_library(LuaStatic STATIC IMPORTED)
+# set_property(TARGET LuaStatic PROPERTY
+#              IMPORTED_LOCATION ${CMAKE_CURRENT_LIST_DIR}/Lua54.lib)
 
-add_library(Lua STATIC)   
+add_library(LuaLayer STATIC)   
 
 file(GLOB_RECURSE SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
@@ -20,7 +20,7 @@ file(GLOB_RECURSE SOURCES
     *.c
 )
 
-target_sources(Lua
+target_sources(LuaLayer
     PUBLIC
         ${SOURCES}
     )
@@ -29,10 +29,9 @@ source_group("Sources"
     FILES
     ${SOURCES})
 
-target_include_directories(Lua
+target_include_directories(LuaLayer
     PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/Include/)
+        ${CMAKE_CURRENT_LIST_DIR})
 
 # target_link_directories(Lua
 #     INTERFACE
@@ -43,8 +42,12 @@ target_include_directories(Lua
 #     INTERFACE
 #         ${CMAKE_CURRENT_LIST_DIR}/Lua54.lib)
 
-set_target_properties(Lua PROPERTIES LINKER_LANGUAGE CXX)
 
-target_link_libraries(Lua
-    PUBLIC
-        LuaStatic)
+
+find_package(Lua REQUIRED)
+target_include_directories(LuaLayer PUBLIC ${LUA_INCLUDE_DIR})
+target_link_libraries(LuaLayer PUBLIC ${LUA_LIBRARIES})
+
+# find_path(LUABRIDGE3_INCLUDE_DIRS ")luabridge3/LuaBridge/Array.h")
+# target_include_directories(LuaLayer PUBLIC ${LUABRIDGE3_INCLUDE_DIRS})
+

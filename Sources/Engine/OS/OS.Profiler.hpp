@@ -10,7 +10,7 @@ import OksEngine.Common.Types;
 import OksEngine.OS.Logger;
 import OksEngine.OS.Clock;
 
-export namespace OS {
+namespace OS {
 
 	using namespace std::chrono;
 

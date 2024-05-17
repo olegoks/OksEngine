@@ -5,7 +5,7 @@
 #include <Common.Types.hpp>
 #include <OS.Assert.hpp>
 
-export namespace OS {
+namespace OS {
 
 	using namespace std::chrono;
 
