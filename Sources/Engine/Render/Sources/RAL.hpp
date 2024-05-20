@@ -4,10 +4,8 @@
 #include <vector>
 #include <string>
 
-export module OksEngine.RAL;
-
-export import OksEngine.RAL.Driver;
-export import OksEngine.RAL.API;
+#include <RAL.Driver.hpp>
+#include <RAL.API.hpp>
 
 namespace RAL {
 

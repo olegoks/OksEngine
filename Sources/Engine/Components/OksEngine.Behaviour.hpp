@@ -60,6 +60,10 @@ namespace OksEngine {
 			behaviour->CallUpdater();
 
 		}
+
+		virtual Common::TypeId GetTypeId() const noexcept override {
+			return Common::TypeInfo<BehaviourSystem>().GetId();
+		}
 	};
 
 

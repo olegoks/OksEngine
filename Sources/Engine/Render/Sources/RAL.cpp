@@ -2,12 +2,12 @@
 
 #include <memory>
 
-module OksEngine.RAL;
-import OksEngine.Render.Vulkan.API;
+#include <RAL.API.hpp>
+#include <Vulkan/Render.Vulkan.API.hpp>
 
 namespace RAL {
 
-	std::shared_ptr<API> CreateAPIObject() {
+	std::shared_ptr<RAL::API> CreateAPIObject() {
 		return std::make_shared<Render::Vulkan::API>();
 	}
 

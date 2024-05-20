@@ -46,23 +46,19 @@
 //#include <Render.Vulkan.Driver.ImageView.hpp>
 //#include <Render.Vulkan.Driver.DeviceMemory.hpp>
 
+#include <RAL.hpp>
+
 namespace Render::Vulkan {
 
-	class Driver /*: public RAL::Driver*/ {
+	class Driver : public RAL::Driver {
 	public:
 
-		class SPIR_V_Shader final {
-		public:
-		private:
-
-		};
-
-		struct CreateInfo {
-			VkSurfaceKHR surface_;
-			//std::shared_ptr<Resource::Resource> vertexShader_ = nullptr;
-			//std::shared_ptr<Resource::Resource> fragmentShader_ = nullptr;
-			//bool enableDepthBuffer_ = false;
-		};
+		//struct CreateInfo {
+		//	VkSurfaceKHR surface_;
+		//	//std::shared_ptr<Resource::Resource> vertexShader_ = nullptr;
+		//	//std::shared_ptr<Resource::Resource> fragmentShader_ = nullptr;
+		//	//bool enableDepthBuffer_ = false;
+		//};
 
 		//struct UniformBufferObject {
 		//	alignas(16) Math::Matrix4x4f model_;
@@ -323,7 +319,7 @@ namespace Render::Vulkan {
 		//	return nullptr;
 		//}
 
-		Driver(const CreateInfo& info) noexcept /*: RAL::Driver{ info }*/{
+		Driver(const CreateInfo& info) noexcept /*: RAL::Driver{ info }*/ : RAL::Driver{ info }{
 
 			//const UIAL::Window::Info windowInfo = info.windowInfo_;
 			//const auto winAPIWindowInfo = std::any_cast<UIRequiredInfo>(windowInfo.info_);
@@ -589,82 +585,82 @@ namespace Render::Vulkan {
 		//	auto buffer = std::make_shared<Buffer>(bufferCreateInfo);
 		//}
 
-		//void StartRender() override {
+		void StartRender() override {
 
-		//	OS::Profiler profiler{ [](const OS:: Profiler::Info& info) {
-		//		
-		//		const Common::Size executionInMs = info.executionTime_.GetValue() / 1'000'000;
-		//		if (executionInMs < 1) {
-		//			return;
-		//		}
-		//		std::string message;
-		//		{
-		//			message += "Profiled function: %s\n";
-		//			message += "Execution time: %d ms";
-		//		}
-		//		OS::LogInfo("render/vulkan", { message.c_str(), info.functionName_.c_str(),executionInMs });
-		//	} };
+			//OS::Profiler profiler{ [](const OS:: Profiler::Info& info) {
+			//	
+			//	const Common::Size executionInMs = info.executionTime_.GetValue() / 1'000'000;
+			//	if (executionInMs < 1) {
+			//		return;
+			//	}
+			//	std::string message;
+			//	{
+			//		message += "Profiled function: %s\n";
+			//		message += "Execution time: %d ms";
+			//	}
+			//	OS::LogInfo("render/vulkan", { message.c_str(), info.functionName_.c_str(),executionInMs });
+			//} };
 
-		//	vertexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, vertices_.GetSizeInBytes());
-		//	vertexStagingBuffer_->Fill(vertices_.GetData()/*, vertices_.GetSizeInBytes()*/);
-		//	vertexBuffer_ = std::make_shared<VertexBuffer/*<Vertex3fnñt>*/>(physicalDevice_, logicDevice_, vertices_.GetVerticesNumber());
+			//vertexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, vertices_.GetSizeInBytes());
+			//vertexStagingBuffer_->Fill(vertices_.GetData()/*, vertices_.GetSizeInBytes()*/);
+			//vertexBuffer_ = std::make_shared<VertexBuffer/*<Vertex3fnñt>*/>(physicalDevice_, logicDevice_, vertices_.GetVerticesNumber());
 
-		//	DataCopy(vertexStagingBuffer_, vertexBuffer_, logicDevice_, commandPool_);
+			//DataCopy(vertexStagingBuffer_, vertexBuffer_, logicDevice_, commandPool_);
 
-		//	indexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indices_.GetSizeInBytes());
-		//	indexStagingBuffer_->Fill(indices_.GetData()/*, indices_.GetSizeInBytes()*/);
-		//	indexBuffer_ = std::make_shared<IndexBuffer>(physicalDevice_, logicDevice_, indices_.GetIndicesNumber());
-		//	DataCopy(indexStagingBuffer_, indexBuffer_, logicDevice_, commandPool_);
+			//indexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indices_.GetSizeInBytes());
+			//indexStagingBuffer_->Fill(indices_.GetData()/*, indices_.GetSizeInBytes()*/);
+			//indexBuffer_ = std::make_shared<IndexBuffer>(physicalDevice_, logicDevice_, indices_.GetIndicesNumber());
+			//DataCopy(indexStagingBuffer_, indexBuffer_, logicDevice_, commandPool_);
 
-		//	for (Common::Index i = 0; i < frameBuffers_.size(); i++) {
+			//for (Common::Index i = 0; i < frameBuffers_.size(); i++) {
 
-		//		auto commandBuffer = std::make_shared<CommandBuffer>(commandPool_, logicDevice_);
+			//	auto commandBuffer = std::make_shared<CommandBuffer>(commandPool_, logicDevice_);
 
-		//		commandBuffer->Begin();
-		//		static VkClearValue clearValue{ 1, 1.0, 0.0, 0.0 };
-		//		CommandBuffer::DepthBufferInfo depthBufferInfo;
-		//		{
-		//			depthBufferInfo.enable = createInfo_.enableDepthBuffer_;
-		//			depthBufferInfo.clearValue_.depthStencil = { 1.f, 0 };
-		//		}
-		//		commandBuffer->BeginRenderPass(
-		//			pipeline_->GetRenderPass()->GetNative(),
-		//			frameBuffers_[i].GetNative(),
-		//			swapChain_->GetExtent(),
-		//			clearValue,
-		//			depthBufferInfo);
-		//		commandBuffer->BindPipeline(pipeline_);
-		//		commandBuffer->BindBuffer(vertexBuffer_);
-		//		commandBuffer->BindBuffer(indexBuffer_);
-		//		commandBuffer->BindDescriptorSet(pipeline_, descriptorSets_[i].GetNative());
-		//		commandBuffer->DrawIndexed(indexBuffer_->GetIndecesNumber());
-		//		commandBuffer->EndRenderPass();
+			//	commandBuffer->Begin();
+			//	static VkClearValue clearValue{ 1, 1.0, 0.0, 0.0 };
+			//	CommandBuffer::DepthBufferInfo depthBufferInfo;
+			//	{
+			//		depthBufferInfo.enable = createInfo_.enableDepthBuffer_;
+			//		depthBufferInfo.clearValue_.depthStencil = { 1.f, 0 };
+			//	}
+			//	commandBuffer->BeginRenderPass(
+			//		pipeline_->GetRenderPass()->GetNative(),
+			//		frameBuffers_[i].GetNative(),
+			//		swapChain_->GetExtent(),
+			//		clearValue,
+			//		depthBufferInfo);
+			//	commandBuffer->BindPipeline(pipeline_);
+			//	commandBuffer->BindBuffer(vertexBuffer_);
+			//	commandBuffer->BindBuffer(indexBuffer_);
+			//	commandBuffer->BindDescriptorSet(pipeline_, descriptorSets_[i].GetNative());
+			//	commandBuffer->DrawIndexed(indexBuffer_->GetIndecesNumber());
+			//	commandBuffer->EndRenderPass();
 
-		//		commandBuffer->End();
+			//	commandBuffer->End();
 
-		//		commandBuffers_.push_back(commandBuffer);
-		//	}
+			//	commandBuffers_.push_back(commandBuffer);
+			//}
 
-		//}
+		}
 
-		//void Render() override {
+		void Render() override {
 
-		//	OS::AssertMessage(camera_ != nullptr, "Camera was not set to the vulkan driver.");
+			/*OS::AssertMessage(camera_ != nullptr, "Camera was not set to the vulkan driver.");
 
-		//	std::shared_ptr<FrameContext> frameContext = frameContexts_[currentFrame];
-		//	auto image = GetNextImage(frameContext->imageAvailableSemaphore_);
-		//	frameContext->SetImage(image);
-		//	frameContext->WaitForRenderToImageFinish();
+			std::shared_ptr<FrameContext> frameContext = frameContexts_[currentFrame];
+			auto image = GetNextImage(frameContext->imageAvailableSemaphore_);
+			frameContext->SetImage(image);
+			frameContext->WaitForRenderToImageFinish();
 
-		//	UpdateUniformBuffers(frameContext->imageContext_->index_);
-		//	frameContext->Render();
-		//	frameContext->ShowImage();
-		//	
-		//	frameContext->WaitForQueueIdle();
+			UpdateUniformBuffers(frameContext->imageContext_->index_);
+			frameContext->Render();
+			frameContext->ShowImage();
+			
+			frameContext->WaitForQueueIdle();
 
-		//	currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+			currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;*/
 
-		//}
+		}
 
 		//void UpdateUniformBuffers(uint32_t currentImage) {
 
@@ -693,11 +689,11 @@ namespace Render::Vulkan {
 		//	//currentUniformBuffer->Fill(&ubo);
 		//}
 
-		//void EndRender() override {
-		//	vertices_.Clear();
-		//	indices_.Clear();
-		//	commandBuffers_.clear();
-		//}
+		void EndRender() override {
+		/*	vertices_.Clear();
+			indices_.Clear();
+			commandBuffers_.clear();*/
+		}
 
 
 		//virtual void DrawIndexed(
@@ -816,7 +812,7 @@ namespace Render::Vulkan {
 
 		//}
 
-		void ShowImage(
+		void ShowImage(){
 
 			//std::shared_ptr<Semaphore> waitBeforeShowing,
 			//std::shared_ptr<SwapChain> swapChain,

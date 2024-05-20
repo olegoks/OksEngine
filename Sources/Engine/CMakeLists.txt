@@ -30,6 +30,8 @@ target_sources(OksEngine
         Components/OksEngine.Behaviour.hpp
         Components/OksEngine.Position.hpp
         Components/OksEngine.RenderableGeometry.hpp
+        OksEngine.UI.Subsystem.hpp
+        OksEngine.Subsystem.hpp
     PRIVATE
         Engine.cpp
         Components/OksEngine.Behaviour.cpp
@@ -41,6 +43,7 @@ target_link_libraries(OksEngine
         LuaLayer
         Render
         OS
+        UI
     )
 
 source_group("Sources"
@@ -49,6 +52,8 @@ source_group("Sources"
     Components/OksEngine.Behaviour.cpp
     Components/OksEngine.Position.hpp
     Components/OksEngine.RenderableGeometry.hpp
+    OksEngine.UI.Subsystem.hpp
+    OksEngine.Subsystem.hpp
     Engine.hpp
     Engine.cpp)
 
@@ -67,4 +72,6 @@ add_subdirectory(Render)
 add_subdirectory(Math)
 add_subdirectory(Geometry)
 add_subdirectory(UI)
-    
+add_subdirectory(Resources)    
+add_subdirectory(Memory)
+add_subdirectory(Datastructures)

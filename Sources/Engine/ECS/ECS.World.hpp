@@ -14,7 +14,7 @@ namespace ECS {
 		[[nodiscard]]
 		Entity::Id CreateEntity() noexcept {
 			Entity::Id entityId = entitiesManager_.CreateEntity();
-		
+
 			return entityId;
 		}
 
@@ -39,11 +39,32 @@ namespace ECS {
 			entitiesManager_.ForEachEntity(
 				[this](Entity::Id entityId) {
 					systemsManager_.ForEachSystem(
-						[entityId, this](std::shared_ptr<System> system) {
+						[entityId, this](std::shared_ptr<System> system)->bool {
 							system->Update(this, entityId);
+							return true;
 						});
 				});
 		}
+
+		template<class SystemType>
+		void RunSystem() {
+			entitiesManager_.ForEachEntity(
+				[this](Entity::Id entityId) {
+					std::shared_ptr<System> system = systemsManager_.GetSystem<SystemType>();
+					system->Update(this, entityId);
+				});
+		}
+
+		[[nodiscard]]
+		Common::Size GetEntitiesNumber() const noexcept {
+			return entitiesManager_.GetEntitiesNumber();
+		}
+
+		[[nodiscard]]
+		World& operator=(const World& copyWorld) const noexcept {
+			OS::NotImplemented();
+		}
+
 
 	private:
 

@@ -8,7 +8,7 @@
 
 namespace ECS {
 
-	using ComponentTypeId = Common::TypeInfoId;
+	using ComponentTypeId = Common::TypeId;
 
 	template<class Type = int>
 	class IComponent {

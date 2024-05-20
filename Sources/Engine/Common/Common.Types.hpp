@@ -31,14 +31,14 @@ namespace Common {
 	private:
 	};
 
-	using TypeInfoId = std::uint64_t;
+	using TypeId = std::uint64_t;
 
 	template<class Type>
 	class TypeInfo final {
 	public:
 		[[nodiscard]]
-		TypeInfoId GetId() const noexcept {
-			return static_cast<TypeInfoId>(typeid(Type).hash_code());
+		TypeId GetId() const noexcept {
+			return static_cast<TypeId>(typeid(Type).hash_code());
 		}
 	};
 

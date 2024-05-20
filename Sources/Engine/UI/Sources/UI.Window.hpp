@@ -7,6 +7,7 @@
 #include <vector>
 #include <string>
 #include <functional>
+#include <algorithm>
 
 
 #include <Math.hpp>
@@ -24,6 +25,7 @@
 
 
 namespace UI {
+
 
 	class Window/* : public UIAL::Window */{
 	public:
@@ -59,7 +61,7 @@ namespace UI {
 				nullptr);
 			OS::AssertMessage(createdWindow != nullptr, "GLFW Windows was not created.");
 			glfwSetWindowUserPointer(createdWindow, this);
-			glfwSetKeyCallback(window_, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
+			glfwSetKeyCallback(createdWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 				Key keyboardKey;
 				Event event;
 
@@ -80,59 +82,20 @@ namespace UI {
 					event = Event::Pressed;
 				}
 
-				//Window* thisWindow = (Window*)glfwGetWindowUserPointer(window);
-				//for (auto& callback : thisWindow->eventCallbacks_) {
-				//	callback(keyboardKey, event);
-				//}
-				});
-		}
+				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
+				windowPtr->CallEventCallbacks(keyboardKey, event);
 
-		//static void key_callback(GLFWwindow* window, int key, int scancode, int action, int mods)
-		//{
-
-		//}
-
-		Window(/*const UIAL::Window::Size& size*/) /*: size_{ size } */{
-			/*glfwSetErrorCallback(&ErrorCallback);
-			[[maybe_unused]]
-			const int result = glfwInit();
-			OS::AssertMessage(result != GLFW_FALSE, "GLFW was not initialized.");
-			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-			glfwWindowHint(GLFW_RESIZABLE, GLFW_FALSE);
-			window_ = glfwCreateWindow(size.GetX(), size.GetY(), "Vulkan", nullptr, nullptr);
-			OS::AssertMessage(window_ != nullptr, "GLFW Windows was not created.");
-			glfwSetWindowUserPointer(window_, this);
-			glfwSetKeyCallback(window_, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-				Key keyboardKey;
-				Event event;
-
-				if (key == GLFW_KEY_W && action == GLFW_PRESS) {
-					keyboardKey = Key::W;
-					event = Event::Pressed;
-				}
-				else if (key == GLFW_KEY_S && action == GLFW_PRESS) {
-				keyboardKey = Key::S;
-				event = Event::Pressed;
-			}
-			else if (key == GLFW_KEY_A && action == GLFW_PRESS) {
-				keyboardKey = Key::A;
-				event = Event::Pressed;
-			}
-			else if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-				keyboardKey = Key::D;
-				event = Event::Pressed;
-			}
-
-				Window* thisWindow = (Window*)glfwGetWindowUserPointer(window);
-			for (auto& callback : thisWindow->eventCallbacks_) {
-				callback(keyboardKey, event);
-			}
 				});
 
-			OS::LogInfo("/Window/", "GLFW Window  initialized successfuly.");*/
-
+			window_ = createdWindow;
 		}
 
+		[[nodiscard]]
+		GLFWwindow* GetGLFWwindow() const noexcept {
+			OS::AssertMessage(window_ != nullptr,
+				"Attempt to get GLFWwindow that was not initialized.");
+			return window_;
+		}
 
 		/*virtual */void SetTitle(const std::string& title) noexcept /*override */{
 			glfwSetWindowTitle(window_, title.c_str());
@@ -143,9 +106,9 @@ namespace UI {
 		}
 
 		void ProcessInput() {
-			/*if (!glfwWindowShouldClose(window_)) {
+			if (!glfwWindowShouldClose(window_)) {
 				glfwPollEvents();
-			}*/
+			}
 		}
 
 		//virtual void RegisterCallback(EventCallback&& eventCallback) noexcept {
@@ -213,7 +176,13 @@ namespace UI {
 			OS::AssertFailMessage(description);
 		}
 	private:
+		void CallEventCallbacks(Key key, Event event) const noexcept {
+			for (const EventCallback& callback : eventCallbacks_) {
+				callback(key, event);
+			}
+		}
 		std::vector<EventCallback> eventCallbacks_;
+	private:
 		//UIAL::Window::Size size_;
 		CreateInfo createInfo_;
 		GLFWwindow* window_ = nullptr;
@@ -233,5 +202,6 @@ namespace UI {
 
 
 	};
+
 
 }

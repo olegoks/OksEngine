@@ -11,19 +11,40 @@ namespace ECS {
 	class SystemsManager {
 	public:
 
-		template<class SystemType>
-		void RegisterSystem() noexcept {
+		template<class SystemType, class ... Args>
+		void RegisterSystem(Args&& ...args) noexcept {
 
-			auto systemPointer = std::make_shared<SystemType>();
+			auto systemPointer = std::make_shared<SystemType>(std::forward<Args>(args)...);
 			systems_.push_back(systemPointer);
 
 		}
 
-		using ProcessSystem = std::function<void(std::shared_ptr<System> system)>;
+		//Return value(bool) - Do continue loop?
+		using ProcessSystem = std::function<bool(std::shared_ptr<System> system)>;
+
 		void ForEachSystem(ProcessSystem&& processSystem) {
 			for (std::shared_ptr<System> system : systems_) {
-				processSystem(system);
+				const bool exit = !processSystem(system);
 			}
+		}
+
+		template<class SystemType>
+		std::shared_ptr<System> GetSystem() const noexcept {
+			std::shared_ptr<System> foundSystem = nullptr;
+			Common::TypeId searchSystemTypeId = Common::TypeInfo<SystemType>().GetId();
+			ForEachSystem([&foundSystem, searchSystemTypeId](std::shared_ptr<System> system) {
+				if (system->GetTypeId() == searchSystemTypeId) {
+					foundSystem = system;
+					return false;
+				}
+				return true;
+				});
+			return system;
+		}
+
+		[[nodiscard]]
+		SystemsManager& operator=(const SystemsManager& copySystemsManager) const noexcept {
+			OS::NotImplemented();
 		}
 
 	private:
