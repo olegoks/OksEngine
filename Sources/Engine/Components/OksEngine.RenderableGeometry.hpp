@@ -20,8 +20,12 @@ namespace OksEngine::Engine {
 		RenderSystem() noexcept {
 
 			Render::Vulkan::API api;
-			api.CreateDriver();
+			RAL::Driver::CreateInfo driverCreateInfo
+			{
 
+			}
+			api.CreateDriver(driverCreateInfo);
+			 
 			//uiApi_ = UIAL::CreateAPIObject();
 			//UIAL::Window::CreateInfo windowCreateInfo;
 			//{

@@ -25,16 +25,16 @@ namespace Math {
 		Angle(const Angle& copyAngle) noexcept = default;
 		
 		[[nodiscard]]
-		float GetValue() const noexcept {
+		inline float GetValue() const noexcept {
 			return value_;
 		}
 
 		[[nodiscard]]
-		Type GetType() const noexcept {
+		inline Type GetType() const noexcept {
 			return type_;
 		}
 
-		Angle& ToDegrees() noexcept {
+		inline Angle& ToDegrees() noexcept {
 
 			if (GetType() == Type::Degree) { return *this; }
 			
@@ -44,17 +44,17 @@ namespace Math {
 			return *this;
 		}
 
-		Angle operator*(Common::UInt64 value) noexcept {
+		inline Angle operator*(Common::UInt64 value) noexcept {
 			value_ *= value;
 			return *this;
 		}
 
-		Angle operator*(float value) noexcept {
+		inline Angle operator*(float value) noexcept {
 			value_ *= value;
 			return *this;
 		}
 
-		Angle& ToRadians() noexcept {
+		inline Angle& ToRadians() noexcept {
 			
 			if (GetType() == Type::Radian) { return *this; }
 
@@ -64,7 +64,7 @@ namespace Math {
 			return *this;
 		}
 
-		operator float() const noexcept {
+		inline operator float() const noexcept {
 			return GetValue();
 		}
 
@@ -74,22 +74,22 @@ namespace Math {
 	};
 
 	[[nodiscard]]
-	Angle operator""_degrees(Common::UInt64 degrees) noexcept {
+	inline Angle operator""_degrees(Common::UInt64 degrees) noexcept {
 		return Angle{ static_cast<float>(degrees) };
 	}
 
 	[[nodiscard]]
-	Angle operator""_degree(Common::UInt64 degrees) noexcept {
+	inline Angle operator""_degree(Common::UInt64 degrees) noexcept {
 		return Angle{ static_cast<float>(degrees) };
 	}
 
 	[[nodiscard]]
-	Angle operator""_degrees(long double degrees) noexcept {
+	inline Angle operator""_degrees(long double degrees) noexcept {
 		return Angle{ static_cast<float>(degrees) };
 	}
 
 	[[nodiscard]]
-	Angle operator""_degree(long double degrees) noexcept {
+	inline Angle operator""_degree(long double degrees) noexcept {
 		return Angle{ static_cast<float>(degrees) };
 	}
 

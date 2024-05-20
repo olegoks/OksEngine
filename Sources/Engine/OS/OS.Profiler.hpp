@@ -4,11 +4,9 @@
 #include <source_location>
 #include <functional>
 
-export module OksEngine.OS.Profiler;
-
-import OksEngine.Common.Types;
-import OksEngine.OS.Logger;
-import OksEngine.OS.Clock;
+#include <Common.hpp>
+#include <OS.Logger.hpp>
+#include <OS.Clock.hpp>
 
 namespace OS {
 

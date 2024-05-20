@@ -2,9 +2,8 @@
 #set -x
 
 cd ../
-rm -d -R Build
 mkdir Build
 cd Build
-cmake ..
+cmake .. --graphviz=foo.dot
 cd ../
 cd Scripts/

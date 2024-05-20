@@ -4,6 +4,8 @@
 #include <cstdint>
 #include <functional>
 
+#include <Common.Types.hpp>
+
 namespace Common {
 
 	class [[nodiscard]] Identifier final {

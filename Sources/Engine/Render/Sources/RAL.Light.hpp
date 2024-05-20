@@ -1,7 +1,7 @@
-export module OksEngine.RAL.Light;
+#pragma once
 
-import OksEngine.Common;
-import OksEngine.Math.Vector;
+#include <Common.hpp>
+#include <Math.Vector.hpp>
 
 namespace RAL {
 

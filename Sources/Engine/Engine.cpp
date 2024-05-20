@@ -4,14 +4,7 @@ namespace OksEngine {
 
 	Engine::Engine() noexcept {
 
-		world_.RegisterSystem<BehaviourSystem>();
-		//world_.RegisterSystem<RenderSystem>();
-
-	}
-
-	Engine::Engine(const Options& options) noexcept :
-		options_{ options } {
-
+		uiSubsystem_ = std::make_shared<UISubsystem>();
 		world_.RegisterSystem<BehaviourSystem>();
 
 	}

@@ -1,5 +1,6 @@
 #pragma once
 
-#include <compare>
-
+#include <OS.FileSystem.File.hpp>
+#include <OS.FileSystem.TextFile.hpp>
+#include <OS.FileSystem.BinaryFile.hpp>
 

@@ -9,6 +9,8 @@
 #include <Components/OksEngine.Behaviour.hpp>
 #include <Components/OksEngine.Position.hpp>
 
+#include <OksEngine.UI.Subsystem.hpp>
+
 namespace OksEngine {
 
 	class Entity final {
@@ -17,6 +19,8 @@ namespace OksEngine {
 		Entity(ECS::World* world, ECS::Entity::Id id) noexcept :
 			world_{ world },
 			id_{ id } {
+
+			
 
 		}
 
@@ -55,12 +59,7 @@ namespace OksEngine {
 	class Engine {
 	public:
 
-		struct Options {
-			const char* scriptsLocation_ = nullptr;
-		};
-
 		explicit Engine() noexcept;
-		explicit Engine(const Options& options) noexcept;
 
 		Entity CreateEntity() noexcept {
 			ECS::Entity::Id id = world_.CreateEntity();
@@ -81,13 +80,15 @@ namespace OksEngine {
 
 		void Update() noexcept {
 			while (IsRunning()) {
+				uiSubsystem_->Update();
 				world_.Process();
 			}
 		}
 
 	private:
-		Options options_;
 		bool isRunning_ = false;
+
+		std::shared_ptr<UISubsystem> uiSubsystem_ = nullptr;
 		ECS::World world_;
 	};
 

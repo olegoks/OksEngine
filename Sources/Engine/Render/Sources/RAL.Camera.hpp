@@ -3,11 +3,8 @@
 #include <OS.Assert.hpp>
 #include <Common.Types.hpp>
 
-import OksEngine.OS.Assert;
-import OksEngine.Common.Types;
-
-import OksEngine.Math.Vector;
-import OksEngine.Math.Matrix;
+#include <Math.Vector.hpp>
+#include <Math.Matrix.hpp>
 
 namespace RAL {
 

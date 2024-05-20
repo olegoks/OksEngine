@@ -1,9 +1,8 @@
-export module OksEngine.RAL.Common;
+#pragma once
 
-import OksEngine.Math.Vector;
-import OksEngine.Common;
-import OksEngine.Geometry.Vertex;
-import OksEngine.Geometry.Texture;
+#include <Math.Vector.hpp>
+#include <Geometry.Vertex.hpp>
+#include <Geometry.Texture.hpp>
 
 namespace RAL {
 

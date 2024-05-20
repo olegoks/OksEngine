@@ -32,6 +32,11 @@ namespace ECS {
 			 }
 		}
 
+		[[nodiscard]]
+		Common::Size GetEntitiesNumber() const noexcept {
+			return idEntity_.size();
+		}
+
 	private:
 		[[nodiscard]]
 		Maybe<Entity::Id> GetFreeId() noexcept {
