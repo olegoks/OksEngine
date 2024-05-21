@@ -16,17 +16,10 @@ namespace Datastructures {
 
 	template<class Type/*, Memory::Allocator allocator = Memory::PoolAllocator<Type>*/>
 	class [[nodiscard]] VersionedMap final {
+
 	public:
 
 		using Id = Common::UInt64;
-
-	private:
-
-		class Slot;
-		using SlotIndex = Common::UInt32;
-		class SlotId;
-		static_assert(sizeof(SlotId) == sizeof(Id));
-	public:
 
 		VersionedMap(Memory::AllocationCallbacks allocationCallbacks = Memory::AllocationCallbacks{}) noexcept;
 
@@ -40,6 +33,12 @@ namespace Datastructures {
 		void ForEachElement(ProcessElement&& processor) noexcept;
 
 	private:
+
+		class Slot;
+		using SlotIndex = Common::UInt32;
+		class SlotId;
+
+		static_assert(sizeof(SlotId) == sizeof(Id));
 
 		Slot& GetSlot(SlotId id) {
 			return GetSlot(id.slotIndex_);

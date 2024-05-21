@@ -8,7 +8,7 @@
 #include <string>
 
 #include <OS.hpp>
-#include <Common.DataStructures.Graph.hpp>
+#include <DataStructures.Graph.hpp>
 
 namespace Resource {
 

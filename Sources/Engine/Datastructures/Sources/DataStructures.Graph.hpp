@@ -10,8 +10,64 @@ namespace DataStructures {
 	template<class Type>
 	class Graph final {
 	public:
-		
-		class Node;
+
+		class [[nodiscard]] Node final {
+		public:
+
+			using Id = Common::UInt64;
+
+			Node(Type&& data) noexcept : data_{ std::move(data) } { }
+			Node(const Type& data) noexcept : data_{ data } { }
+			[[nodiscard]]
+			bool HasLinkTo(Id nodeId) noexcept {
+				return linksTo_.contains(nodeId);
+			}
+			[[nodiscard]]
+			bool HasLinkFrom(Id nodeId) noexcept {
+				return linksFrom_.contains(nodeId);
+			}
+			[[nodiscard]]
+			Common::Size GetLinksToNumber() const noexcept {
+				return linksTo_.size();
+			}
+			[[nodiscard]]
+			Common::Size GetLinksFromNumber() const noexcept {
+				return linksFrom_.size();
+			}
+			void ForEachLinksTo(std::function<void(Id linkTo)> processNode) const noexcept {
+				for (Id linkTo : linksTo_) {
+					processNode(linkTo);
+				}
+			}
+			void ForEachLinksFrom(std::function<void(Id linkFrom)> processNode) const noexcept {
+				for (Id linkFrom : linksFrom_) {
+					processNode(linkFrom);
+				}
+			}
+			Node& operator=(const Node& copyNode) noexcept = delete;
+			Type& GetValue() noexcept { return data_; }
+			const Type& GetValue() const noexcept { const_cast<Node*>(this)->GetValue(); }
+		private:
+			void DeleteLinkTo(Id nodeId) noexcept {
+				auto it = std::find(linksTo_.begin(), linksTo_.end(), nodeId);
+				linksTo_.erase(it);
+			}
+			void DeleteLinkFrom(Id nodeId) noexcept {
+				auto it = std::find(linksFrom_.begin(), linksFrom_.end(), nodeId);
+				linksFrom_.erase(it);
+			}
+			void AddLinkTo(Id nodeId) noexcept {
+				linksTo_.push_back(nodeId);
+			}
+			void AddLinkFrom(Id nodeId) noexcept {
+				linksFrom_.push_back(nodeId);
+			}
+			friend class Graph;
+		private:
+			Type data_;
+			std::vector<Id> linksTo_;
+			std::vector<Id> linksFrom_;
+		};
 
 		Node::Id AddNode(Type&& data) noexcept;
 		Node::Id AddNode(const Type& data) noexcept;
@@ -27,64 +83,6 @@ namespace DataStructures {
 		VersionedMap<Node> nodes_;
 	};
 
-	template<class Type>
-	class [[nodiscard]] Graph<Type>::Node final {
-	public:
-
-		using Id = Common::UInt64;
-
-		Node(Type&& data) noexcept : data_{ std::move(data) } { }
-		Node(const Type& data) noexcept : data_{ data } { }
-		[[nodiscard]]
-		bool HasLinkTo(Id nodeId) noexcept {
-			return linksTo_.contains(nodeId);
-		}
-		[[nodiscard]]
-		bool HasLinkFrom(Id nodeId) noexcept {
-			return linksFrom_.contains(nodeId);
-		}
-		[[nodiscard]]
-		Common::Size GetLinksToNumber() const noexcept {
-			return linksTo_.size();
-		}
-		[[nodiscard]]
-		Common::Size GetLinksFromNumber() const noexcept {
-			return linksFrom_.size();
-		}
-		void ForEachLinksTo(std::function<void(Id linkTo)> processNode) noexcept {
-			for (Id linkTo : linksTo_) {
-				processNode(linkTo);
-			}
-		}
-		void ForEachLinksFrom(std::function<void(Id linkFrom)> processNode) noexcept {
-			for (Id linkFrom : linksFrom_) {
-				processNode(linkFrom);
-			}
-		}
-		Node& operator=(const Node& copyNode) noexcept = delete;
-		Type& GetValue() noexcept { return data_; }
-		const Type& GetValue() const noexcept { const_cast<Node*>(this)->GetValue(); }
-	private:
-		void DeleteLinkTo(Id nodeId) noexcept {
-			auto it = std::find(linksTo_.begin(), linksTo_.end(), nodeId);
-			linksTo_.erase(it);
-		}
-		void DeleteLinkFrom(Id nodeId) noexcept {
-			auto it = std::find(linksFrom_.begin(), linksFrom_.end(), nodeId);
-			linksFrom_.erase(it);
-		}
-		void AddLinkTo(Id nodeId) noexcept {
-			linksTo_.push_back(nodeId);
-		}
-		void AddLinkFrom(Id nodeId) noexcept {
-			linksFrom_.push_back(nodeId);
-		}
-		friend class Graph;
-	private:
-		Type data_;
-		std::vector<Id> linksTo_;
-		std::vector<Id> linksFrom_;
-	};
 
 	template<class Type>
 	struct Graph<Type>::Node::Id {

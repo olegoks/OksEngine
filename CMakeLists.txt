@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION VERSION 3.29)
+cmake_minimum_required(VERSION VERSION  3.26.4)
 
 set(CMAKE_TOOLCHAIN_FILE "D:/vcpkg/scripts/buildsystems/vcpkg.cmake") #For vcpkg
 
