@@ -1,5 +1,5 @@
 #pragma once 
-namespace Common::DataStructures {
+namespace Datastructures {
 
 	//template<class Type, M>
 	//class Vector {

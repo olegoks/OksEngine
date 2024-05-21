@@ -5,7 +5,7 @@
 
 #include <Datastructures.VersionedMap.hpp>
 
-namespace DataStructures {
+namespace Datastructures {
 
 	template<class Type>
 	class Graph final {
@@ -34,14 +34,16 @@ namespace DataStructures {
 			Common::Size GetLinksFromNumber() const noexcept {
 				return linksFrom_.size();
 			}
-			void ForEachLinksTo(std::function<void(Id linkTo)> processNode) const noexcept {
+			void ForEachLinksTo(std::function<bool(Id linkTo)> processNode) const noexcept {
 				for (Id linkTo : linksTo_) {
-					processNode(linkTo);
+					const bool stop = !processNode(linkTo);
+					if (stop) { break; }
 				}
 			}
 			void ForEachLinksFrom(std::function<void(Id linkFrom)> processNode) const noexcept {
 				for (Id linkFrom : linksFrom_) {
-					processNode(linkFrom);
+					const bool stop = processNode(linkFrom);
+					if (stop) { break; }
 				}
 			}
 			Node& operator=(const Node& copyNode) noexcept = delete;
@@ -69,25 +71,27 @@ namespace DataStructures {
 			std::vector<Id> linksFrom_;
 		};
 
+		using NodeId = Node::Id;
+
 		Node::Id AddNode(Type&& data) noexcept;
 		Node::Id AddNode(const Type& data) noexcept;
 		void AddLinkFromTo(Node::Id fromNodeId, Node::Id toNodeId);
 		void DeleteNode(Node::Id nodeId) noexcept;
-		//using ProcessNode = void(*)(Node::Id nodeId, Node& node);
-		using ProcessNode = std::function<void(/*Node::Id nodeId, */Node& node)>;
+		using ProcessNode = std::function<void(NodeId nodeId, Node& node)>;
 		//using ProcessNode = std::function<void(Node::Id nodeId, Node& node)>;
 		void ForEachNode(ProcessNode processor) noexcept;
 		Node& GetNode(Node::Id nodeId) noexcept;
 		void Clear() noexcept;
 	private:
-		VersionedMap<Node> nodes_;
+
+		DS::VersionedMap<Node> nodes_;
 	};
 
 
-	template<class Type>
-	struct Graph<Type>::Node::Id {
-		VersionedMap<Node>::Id id;
-	};
+	//template<class Type>
+	//struct Graph<Type>::Node::Id {
+	//	VersionedMap<Node>::Id id;
+	//};
 
 	template<class Type>
 	Graph<Type>::Node::Id Graph<Type>::AddNode(Type&& data) noexcept {
@@ -123,7 +127,7 @@ namespace DataStructures {
 	template<class Type>
 	void Graph<Type>::ForEachNode(ProcessNode processor) noexcept {
 		nodes_.ForEachElement([&](Node::Id nodeId, Node& node) {
-			processor(/*nodeId,*/ node);
+			processor(nodeId, node);
 			});
 	}
 	template<class Type>
@@ -137,3 +141,5 @@ namespace DataStructures {
 	}
 
 }
+
+namespace DS = Datastructures;

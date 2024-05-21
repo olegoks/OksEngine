@@ -7,7 +7,7 @@
 namespace OksEngine::Resource
 {
 
-	void Resource::Load() {
+	//void Resource::Load() {
 		//file_ = std::make_unique<OS::BinaryFile>(GetPath());
 		//try {
 		//	GetFile()->Open();
@@ -17,15 +17,15 @@ namespace OksEngine::Resource
 		//	const std::string logMessage = "Error while loading resource: " + error.GetMessage() + " Resource skipped.";
 		//	OS::LogError("/resource/", logMessage.c_str());
 		//}
-	}
+	//}
 
-	void ResourceManager::ProcessFiles(const std::filesystem::path& path, const std::function<void(const std::filesystem::path&)>& callback) {
+	//void ResourceManager::ProcessFiles(const std::filesystem::path& path, const std::function<void(const std::filesystem::path&)>& callback) {
 		/*for (const auto& entry : std::filesystem::recursive_directory_iterator(path)) {
 			if (std::filesystem::is_regular_file(entry)) {
 				callback(entry);
 			}
 		}*/
-	}
+	//}
 	//void ResourceManager::Load() {
 
 	//	auto processFile = [this](const std::filesystem::path& path) {
