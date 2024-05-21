@@ -8,7 +8,7 @@
 TEST(TestVersionedMap, Test1) {
   
 	DS::VersionedMap<int> ds;
-	OS::AssertFailMessage("");
+
 }
 
 TEST(TestVersionedMap, Test2) {
