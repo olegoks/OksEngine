@@ -8,7 +8,7 @@
 #include <string>
 
 #include <OS.hpp>
-#include <DataStructures.Graph.hpp>
+#include <Datastructures.Graph.hpp>
 
 namespace Resource {
 
@@ -74,9 +74,8 @@ namespace Resource {
 			std::string name_;
 			Resource resource_;
 		};
-
-		using Graph = Common::DS::Graph<ResourceInfo>;
-		using Node = Graph::Node<ResourceInfo>;
+		
+		using Graph = DS::Graph<ResourceInfo>;
 
 	public:
 		ResourceSystem() {
@@ -101,48 +100,48 @@ namespace Resource {
 				Resource{ resourceFilePath }
 			};
 
-			Node::Id newResourceNodeId = graph_.AddNode(std::move(resourceInfo));
+			Graph::Node::Id newResourceNodeId = graph_.AddNode(std::move(resourceInfo));
 
 			if (root.string() == rootName_) {
 				graph_.AddLinkFromTo(rootNodeId_, newResourceNodeId);
 			} else {
-				Node::Id nodeId = GetNodeId(resourceDependencePath);
+				Graph::Node::Id nodeId = GetNodeId(resourceDependencePath);
 				graph_.AddLinkFromTo(nodeId, newResourceNodeId);
 
 			}
 		}
 	
 	private:
-		Node::Id GetNodeId(std::filesystem::path nodePath) {
+		Graph::Node::Id GetNodeId(std::filesystem::path nodePath) {
 			OS::AssertMessage(
 				(*nodePath.begin()).string() == rootName_,
 				"Attempt to use incorrect resource path.");
 			
-			Node::Id currentNodeId = rootNodeId_;
-			Node& currentNode = graph_.GetNode(currentNodeId);
+			Graph::Node::Id currentNodeId = rootNodeId_;
+			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
 			OS::AssertMessage(
 				currentNode.GetValue().name_ == rootName_,
-				"Root note must have name \"Root\""
+				{ "Root note must have name \"%s\"", rootName_ }
 			);
 			for (const std::filesystem::path path : nodePath) {
 				std::string resourceName = path.string();
 				if (resourceName == rootName_) { continue; }
 
-				currentNode.ForEachLinksTo([this, &resourceName, &currentNodeId](Node::Id nodeId) {
-						Node& node = graph_.GetNode(nodeId);
+				currentNode.ForEachLinksTo([this, &resourceName, &currentNodeId](Graph::Node::Id nodeId) {
+					Graph::Node& node = graph_.GetNode(nodeId);
 						if (node.GetValue().name_ == resourceName) {
 							currentNodeId = nodeId;
+							return false;
 						}
+						return true;
 					});
-
-				currentNode = graph_.GetNode(currentNodeId);
 			}
 			return currentNodeId;
 		}
 		
 	private:
 		static inline std::string rootName_ = "Root";
-		Node::Id rootNodeId_;
+		Graph::Node::Id rootNodeId_;
 		Graph graph_;
 	};
 

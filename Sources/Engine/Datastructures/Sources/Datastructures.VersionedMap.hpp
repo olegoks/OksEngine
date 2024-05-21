@@ -14,9 +14,8 @@
 
 namespace Datastructures {
 
-	template<class Type/*, Memory::Allocator allocator = Memory::PoolAllocator<Type>*/>
+	template<class Type>
 	class [[nodiscard]] VersionedMap final {
-
 	public:
 
 		using Id = Common::UInt64;
@@ -25,11 +24,13 @@ namespace Datastructures {
 
 		void DeleteElement(Id id);
 		void Clear();
-		Id AddElement(Type&& args) noexcept;
+		template<class ...Args>
+		[[nodiscard]]
+		Id AddElement(Args&& ...args) noexcept;
 		[[nodiscard]]
 		bool IsExists(Id id) noexcept;
 		Type& GetElement(Id id) noexcept;
-		using ProcessElement = std::function<void(Id, Type&)>;
+		using ProcessElement = std::function<bool(Id, Type&)>;
 		void ForEachElement(ProcessElement&& processor) noexcept;
 
 	private:
@@ -195,7 +196,8 @@ namespace Datastructures {
 	}
 
 	template<class Type>
-	VersionedMap<Type>::Id VersionedMap<Type>::AddElement(Type&& args) noexcept {
+	template<class ...Args>
+	VersionedMap<Type>::Id VersionedMap<Type>::AddElement(Args&& ...args) noexcept {
 
 		Type* dataPointer = (Type*)allocationCallbacks_.allocationCallback(
 			allocationCallbacks_.userData,
@@ -224,7 +226,7 @@ namespace Datastructures {
 		Slot& slot = GetSlot(id);
 		OS::AssertMessage(!slot.IsFree(),
 			"Attempt to get data of free slot.");
-		return *slot.data_;
+		return *slot.GetData();
 	}
 
 	template<class Type>
@@ -233,7 +235,8 @@ namespace Datastructures {
 			const Slot& slot = slots_[slotIndex];
 			if (!slot.IsFree()) {
 				const SlotId slotId{ slotIndex, slot.version_ };
-				processor(slotId, *slot.GetData());
+				const bool stop = !processor(slotId, *slot.GetData());
+				if (stop) { break; }
 			}
 		}
 	}
@@ -248,6 +251,8 @@ namespace Datastructures {
 		OS::AssertFailMessage("There are no free slots.");
 		return Common::Limits<SlotIndex>::Max();
 	}
+
+	inline static VersionedMap<int> test;
 
 }
 
