@@ -3,6 +3,7 @@
 #include <any>
 
 #include <Common.hpp>
+#include <OS.Assert.hpp>
 
 namespace Memory {
 
