@@ -34,7 +34,9 @@ TEST(TestVersionedMap, Test4) {
 
 TEST(TestVersionedMap, Test5) {
 
-	
+	DS::Graph<int> ds;
+
+	ds.AddNode(0);
 
 }
 

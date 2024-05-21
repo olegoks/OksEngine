@@ -18,8 +18,7 @@ namespace OS {
 	public:
 
 		BinaryFile() = default;
-		BinaryFile(const char* pathStr)  : path_{pathStr} {}
-		BinaryFile(const std::filesystem::path& path) : data_{ nullptr }, path_{ path }, fstream_{} { }
+		BinaryFile(const std::filesystem::path& path) noexcept : path_{ path }, fstream_{} { }
 
 		void Open() override {
 			if (!IsExist()) {
@@ -28,11 +27,14 @@ namespace OS {
 			const std::filesystem::path fullPath = std::filesystem::absolute(GetPath());
 			fstream_.open(fullPath.c_str(), std::ios::ate | std::ios::binary | std::ios::in | std::ios::out);
 			if (!IsOpened()) {
-				const std::error_condition econd = std::system_category().default_error_condition(errno);
-				throw Exception{ { "Error while openning file. %s.", econd.message().c_str() }};
+				const std::error_condition errorCondition = std::system_category().default_error_condition(errno);
+				throw Exception{ {
+						"Error while openning file. %s.", 
+						errorCondition.message()
+					}};
 			}
 
-			OS::LogInfo("/OS/File/", { "File %s was opened successfuly.", GetPath().filename().string().c_str() });
+			OS::LogInfo("/OS/File/", { "File %s was opened successfuly.", GetPath().filename().string() });
 		}
 
 		void Load() override {
@@ -42,50 +44,52 @@ namespace OS {
 			size_t size = (size_t)fstream_.tellg();
 			fstream_.seekg(0);
 
-			dataArray_.resize(size);
-			data_ = std::shared_ptr<Common::Byte>(dataArray_.data());
-			fstream_.read(dataArray_.data(), size);
-			
+			data_.resize(size);
+			fstream_.read(data_.data(), size);
 			
 			if (fstream_.bad()) {
 
-				const std::error_condition econd = std::system_category().default_error_condition(errno);
-				throw Exception{ { "Error while reading file %s . %s", GetName().c_str(), econd.message().c_str()}};
+				const std::error_condition errorCondition = std::system_category().default_error_condition(errno);
+				throw Exception{ { 
+						"Error while reading file %s . %s",
+						GetName(),
+						errorCondition.message()
+					}};
 			}
 			OS::LogInfo("/OS/File/", { "File %s was loaded successfuly.", GetPath().filename().string().c_str() });
 		}
 
 		void Unload() override {
-			OS::AssertMessage(IsOpened(),"Attempt to unload file that wasn't opened." );
+			OS::AssertMessage(IsOpened(), "Attempt to unload file that wasn't opened.");
 			OS::AssertMessage(IsLoaded(), "Attempt to unload file that wasn't loaded.");
-			OS::AssertMessage(!AreThereLinksToData(), "Impossible to undload file if there are links to data.");
-
-
+			data_.clear();
 		}
 
 		void Close() override {
-
+			OS::AssertMessage(IsOpened(), "Attempt to unload file that wasn't opened.");
+			fstream_.close();
 		}
 
-		bool IsLoaded() const { return (data_ != nullptr); }
-		const std::shared_ptr<Common::Byte> GetData() const { return data_; }
-
+		[[nodiscard]]
+		bool IsLoaded() const { return (data_.size() != 0); }
+		[[nodiscard]]
+		const Common::Byte* GetData() const { return data_.data(); }
+		[[nodiscard]]
 		std::string GetName() const { return GetPath().filename().string(); }
+		[[nodiscard]]
 		bool IsOpened() const { return fstream_.is_open(); }
-		bool IsExist() const { return true;/* std::filesystem::exists(GetPath());*/ }
+		[[nodiscard]]
+		bool IsExist() const { return std::filesystem::exists(GetPath()); }
+		[[nodiscard]]
 		Common::Size GetSize() const {
 			OS::AssertMessage(IsExist(), "Attempt to get files size that doesn't exist.");
 			return std::filesystem::file_size(path_);
 		}
+		[[nodiscard]]
 		const std::filesystem::path& GetPath() const { return path_; }
 
-
-		bool AreThereLinksToData() const {
-			return (data_.use_count() > 1);
-		}
 	private:
-		std::vector<Common::Byte> dataArray_;
-		std::shared_ptr<Common::Byte> data_ = nullptr;
+		std::vector<Common::Byte> data_;
 		const std::filesystem::path path_;
 		std::fstream fstream_;
 	};

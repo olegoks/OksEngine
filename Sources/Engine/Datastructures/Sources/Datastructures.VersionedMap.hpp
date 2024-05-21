@@ -252,8 +252,6 @@ namespace Datastructures {
 		return Common::Limits<SlotIndex>::Max();
 	}
 
-	inline static VersionedMap<int> test;
-
 }
 
 namespace DS = Datastructures;

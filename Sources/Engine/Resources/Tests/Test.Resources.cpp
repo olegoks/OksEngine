@@ -17,9 +17,19 @@ TEST(TestResources, CreateResourceSystem) {
 	auto currentPath = std::filesystem::current_path();
 	auto testPath = currentPath / "../../../../Sources/Engine/Resources/Tests/";
 
-	Resource::ResourceSystem resourceSystem;
-
-	
+	Resources::ResourceSystem resourceSystem;
+	resourceSystem.AddResource(
+		"VertexShader",
+		testPath / "TestResources/Shaders/triangle.vert",
+		"Root");
+	resourceSystem.AddResource(
+		"FragmentShader",
+		testPath / "TestResources/Shaders/triangle.frag",
+		"Root"
+	);
+	/*resourceSystem.LoadResource("Root/VertexShader");
+	resourceSystem.LoadResource("Root/FragmentShader");
+	*/
 
 	//resourceSystem.AddResource()
 
