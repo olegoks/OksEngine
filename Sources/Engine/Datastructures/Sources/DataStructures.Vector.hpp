@@ -13,6 +13,18 @@ namespace Datastructures {
 		Vector(Memory::AllocationCallbacks allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
 			allocationCallbacks_{ allocationCallbacks } {}
 
+		Vector(Vector&& moveVector) noexcept :
+			allocationCallbacks_{ moveVector.allocationCallbacks_ },
+			data_{ nullptr },
+			size_{ 0 },
+			capacity_{ 0 } {
+
+			std::swap(data_, moveVector.data_);
+			std::swap(size_, moveVector.size_);
+			std::swap(capacity_, moveVector.capacity_);
+
+		}
+
 		void Resize(Common::Size newSize) {
 			if (newSize == GetCapacity()) { return; }
 			Type* const newData = allocationCallbacks_.CreateArray<Type>(newSize);
@@ -101,6 +113,20 @@ namespace Datastructures {
 			Clear();
 			allocationCallbacks_.Free<Type>(GetData());
 			capacity_ = 0;
+		}
+
+		Vector& operator=(const Vector& copyVector) {
+			if (this == &copyVector) {
+				return *this;
+			}
+
+			Clear();
+			Resize(copyVector.GetSize());
+			for (Common::Index i = 0; i < copyVector.GetSize(); i++) {
+				data_[i] = copyVector.data_[i];
+			}
+
+			return *this;
 		}
 
 		~Vector() noexcept {

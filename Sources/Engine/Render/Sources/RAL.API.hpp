@@ -25,5 +25,5 @@ namespace RAL {
 	};
 
 	[[nodiscard]]
-	std::shared_ptr<API> CreateAPIObject();
+	std::shared_ptr<API> CreateAPI();
 }

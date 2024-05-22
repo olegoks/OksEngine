@@ -6,6 +6,7 @@
 
 #include <Common.Types.hpp>
 
+#undef max
 namespace Common {
 
 	class [[nodiscard]] Identifier final {

@@ -9,6 +9,8 @@
 #include <Components/OksEngine.Behaviour.hpp>
 #include <Components/OksEngine.Position.hpp>
 #include <OksEngine.UI.Subsystem.hpp>
+#include <OksEngine.Render.Subsystem.hpp>
+#include <OksEngine.Resource.Subsystem.hpp>
 
 namespace OksEngine {
 
@@ -79,6 +81,7 @@ namespace OksEngine {
 
 		void Update() noexcept {
 			while (IsRunning()) {
+				renderSubsystem_->Update();
 				uiSubsystem_->Update();
 				world_.Process();
 			}
@@ -87,6 +90,8 @@ namespace OksEngine {
 	private:
 		bool isRunning_ = false;
 
+		std::shared_ptr<ResourceSubsystem> resourceSubsystem_ = nullptr;
+		std::shared_ptr<RenderSubsystem> renderSubsystem_ = nullptr;
 		std::shared_ptr<UISubsystem> uiSubsystem_ = nullptr;
 		ECS::World world_;
 	};

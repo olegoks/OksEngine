@@ -60,6 +60,12 @@ namespace Resources {
 				return resource_;
 			}
 
+			[[nodiscard]]
+			const Resource& GetResource() const noexcept
+			{
+				return resource_;
+			}
+
 		private:
 			std::string name_;
 			Resource resource_;
@@ -110,6 +116,11 @@ namespace Resources {
 			UnloadResource(nodeId);
 		}
 
+		[[nodiscard]]
+		const Resource& GetResource(std::filesystem::path resourcePath) {
+			const ResourceInfo& resourceInfo = GetResourceInfo(resourcePath);
+			return resourceInfo.GetResource();
+		}
 
 		void LoadAllResources() {
 			LoadResource(rootName_);

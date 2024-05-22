@@ -112,24 +112,45 @@ namespace RAL {
 
 namespace RAL {
 	
+	enum class UISubsystem {
+		WinAPI,
+		GLFW
+	};
+
 	class Shader {
 	public:
 
-		Shader(const Common::Byte* spirv, Common::Size size) {
-			spirv_.Resize(size);
-			std::memcpy(spirv_.GetData(), spirv, size);
+		Shader(const Common::Byte* text, Common::Size size) {
+			text_.Resize(size);
+			std::memcpy(text_.GetData(), text, size);
+		}
+
+		Shader(const Shader& copyShader) {
+			text_ = copyShader.text_;
 		}
 
 		const Common::Byte* GetCode() const {
-			return spirv_.GetData();
+			return text_.GetData();
 		}
 
 		Common::Size GetSize() const {
-			return spirv_.GetSize();
+			return text_.GetSize();
 		}
 
 	private:
-		DS::Vector<Common::Byte> spirv_;
+		DS::Vector<Common::Byte> text_;
+	};
+
+	struct RenderSurface {
+		std::any param1_;
+		std::any param2_;
+		std::any param3_;
+		UISubsystem uiSubsystem_;
+		//If WINApi
+		// param1_ == HWND
+		// param2_ == HINSTANCE
+		//If GLFW
+		// param1_ == GLFWwindow*
 	};
 
 	class Driver {
@@ -138,7 +159,7 @@ namespace RAL {
 		struct CreateInfo {
 			Shader vertexShader_;
 			Shader fragmentShader_;
-			GLFWwindow* window_ = nullptr;
+			RenderSurface surface_;
 			bool enableDepthBuffer_ = false;
 		};
 
