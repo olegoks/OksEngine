@@ -1,5 +1,7 @@
 #pragma once
 
+#include <algorithm>
+
 #include <OS.Memory.Common.hpp>
 #include <OS.Memory.AllocationCallbacks.hpp>
 
@@ -14,7 +16,8 @@ namespace Datastructures {
 		void Resize(Common::Size newSize) {
 			if (newSize == GetCapacity()) { return; }
 			Type* const newData = allocationCallbacks_.CreateArray<Type>(newSize);
-			const Common::Size objectsToCopyNumber = std::min(size_, newSize);
+			Common::UInt64 objectsToCopyNumber = GetSize();
+			if (newSize < objectsToCopyNumber) { objectsToCopyNumber = newSize; }
 			for (Common::Index i = 0; i < objectsToCopyNumber; i++) {
 				newData[i] = data_[i];
 			}

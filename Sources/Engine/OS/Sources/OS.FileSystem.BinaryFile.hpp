@@ -6,6 +6,7 @@
 #include <memory>
 #include <filesystem>
 
+#include <Datastructures.Vector.hpp>
 #include <OS.FileSystem.File.hpp>
 #include <Common.Types.hpp>
 #include <OS.Logger.hpp>
@@ -47,8 +48,8 @@ namespace OS {
 			size_t size = (size_t)fstream_.tellg();
 			fstream_.seekg(0);
 
-			data_.resize(size);
-			fstream_.read(data_.data(), size);
+			data_.Resize(size);
+			fstream_.read(data_.GetData(), size);
 			
 			if (fstream_.bad()) {
 
@@ -65,7 +66,7 @@ namespace OS {
 		void Unload() override {
 			OS::AssertMessage(IsOpened(), "Attempt to unload file that wasn't opened.");
 			OS::AssertMessage(IsLoaded(), "Attempt to unload file that wasn't loaded.");
-			data_.clear();
+			data_.Clear();
 		}
 
 		void Close() override {
@@ -74,9 +75,9 @@ namespace OS {
 		}
 
 		[[nodiscard]]
-		bool IsLoaded() const { return (data_.size() != 0); }
+		bool IsLoaded() const { return (data_.GetSize() != 0); }
 		[[nodiscard]]
-		const Common::Byte* GetData() const { return data_.data(); }
+		const Common::Byte* GetData() const { return data_.GetData(); }
 		[[nodiscard]]
 		std::string GetName() const { return GetPath().filename().string(); }
 		[[nodiscard]]
@@ -92,7 +93,7 @@ namespace OS {
 		const std::filesystem::path& GetPath() const { return path_; }
 
 	private:
-		std::vector<Common::Byte> data_;
+		DS::Vector<Common::Byte> data_;
 		std::fstream fstream_;
 	};
 }

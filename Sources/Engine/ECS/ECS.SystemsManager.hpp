@@ -12,11 +12,11 @@ namespace ECS {
 	public:
 
 		template<class SystemType, class ... Args>
-		void RegisterSystem(Args&& ...args) noexcept {
+		std::shared_ptr<SystemType> RegisterSystem(Args&& ...args) noexcept {
 
 			auto systemPointer = std::make_shared<SystemType>(std::forward<Args>(args)...);
 			systems_.push_back(systemPointer);
-
+			return systemPointer;
 		}
 
 		//Return value(bool) - Do continue loop?

@@ -4,6 +4,6 @@ sh LoadDependencies.sh
 cd ../
 mkdir Build
 cd Build
-cmake .. --graphviz=dependenciesGraph.dot
+cmake .. --graphviz=DependenceGraph/dependenciesGraph.dot
 cd ../
 cd Scripts/

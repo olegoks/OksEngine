@@ -130,7 +130,8 @@ namespace Resources {
 			Graph::Node& node = graph_.GetNode(nodeId);
 			const bool stop = !processDependence(nodeId);
 			if (stop) return false;
-			node.ForEachLinksTo([&](Graph::Node::Id nodeId)->bool
+			node.ForEachLinksTo(
+				[&](Graph::Node::Id nodeId)->bool 
 				{
 					return ForEachDependenceNode(nodeId, processDependence);;
 				});
