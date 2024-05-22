@@ -14,11 +14,14 @@
 
 namespace OS {
 
-	class BinaryFile : public File {
+	class [[nodiscard]] BinaryFile : public File {
 	public:
 
 		BinaryFile() = default;
-		BinaryFile(const std::filesystem::path& path) noexcept : path_{ path }, fstream_{} { }
+		BinaryFile(
+			const std::filesystem::path& path,
+			Memory::AllocationCallbacks allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
+				File{ path, allocationCallbacks }, fstream_{} { }
 
 		void Open() override {
 			if (!IsExist()) {
@@ -34,7 +37,7 @@ namespace OS {
 					}};
 			}
 
-			OS::LogInfo("/OS/File/", { "File %s was opened successfuly.", GetPath().filename().string() });
+			OS::LogInfo("/OS/File/", { "File %s was opened successfuly.", GetPath().filename().string().c_str() });
 		}
 
 		void Load() override {
@@ -90,7 +93,6 @@ namespace OS {
 
 	private:
 		std::vector<Common::Byte> data_;
-		const std::filesystem::path path_;
 		std::fstream fstream_;
 	};
 }

@@ -7,12 +7,12 @@ namespace Resources
 {
 
 	void Resource::Load() {
-		file_ = std::make_unique<OS::BinaryFile>(GetPath());
+		file_ = std::make_unique<OS::BinaryFile>(GetPath(), allocationCallbacks_);
 		try {
 			GetFile()->Open();
 			GetFile()->Load();
 			OS::LogInfo("/resources/",
-				{ "Resource %s was loaded", GetPath().string() });
+				{ "Resource %s was loaded", GetPath().string().c_str() });
 		}
 		catch (const OS::Exception& error) {
 			const std::string logMessage = "Error while loading resource: " + error.GetMessage() + " Resource skipped.";

@@ -7,7 +7,7 @@
 #include <unordered_map>
 #include <string>
 
-#include <Memory.AllocationCallbacks.hpp>
+#include <OS.Memory.AllocationCallbacks.hpp>
 #include <OS.hpp>
 #include <Datastructures.Graph.hpp>
 
@@ -29,62 +29,38 @@ namespace Resources {
 		[[nodiscard]]
 		std::shared_ptr<OS::File> GetFile() const { return file_; }
 
-		~Resource() noexcept {
-			OS::AssertMessage(file_.use_count() == 1 || file_.use_count() == 0,
-				{ "Attempt to release resource, but there are links to it. "
-				"Try to delete all links to the file %s to release the resource.",
-				path_.filename().string() });
+		Resource& operator=(const Resource& copyResource) noexcept = default;
 
-		}
+		~Resource() noexcept { }
 
 	private:
+		Memory::AllocationCallbacks allocationCallbacks_;
 		const std::filesystem::path path_;
 		std::shared_ptr<OS::File> file_ = nullptr;
 	};
 
-	//class ResourceManager {
-	//public:
-	//	
-	//	ResourceManager() noexcept {
-
-	//	}
-
-	//	void Load() {
-
-	//		auto processFile = [this](const std::filesystem::path& path) {
-	//			LoadResource(path);
-	//		};
-
-	//		ProcessFiles(GetResourcesPath(), processFile);
-	//	}
-
-	//	void LoadResource(const std::filesystem::path& path) {
-	//		auto resource = std::make_shared<Resource>(path);
-	//		resource->Load();
-	//		const auto resourcePath = resource->GetPath();
-	//		const auto resourceFileName = resourcePath.filename().string();
-	//		resources_.insert({ resourceFileName, resource });
-	//	}
-
-	//	//std::shared_ptr<Resource> GetResource(const Resource::Identifier& resourceId) {
-	//	//	
-	//	//	return resources_[resourceId];
-
-	//	//}
-
-	//	const std::filesystem::path& GetResourcesPath() const { return resourcesPath_; };
-
-	//private:
-	//	void ProcessFiles(const std::filesystem::path& path, const std::function<void(const std::filesystem::path&)>& callback);
-	//private:
-	//	std::unordered_map<std::string, std::shared_ptr<Resource>> resources_;
-	//	const std::filesystem::path resourcesPath_;
-	//};
-
 	class ResourceSystem {
 	private:
 
-		struct ResourceInfo {
+		class ResourceInfo {
+		public:
+
+			ResourceInfo(std::string name, const Resource& resource)noexcept :
+				name_{ name },
+				resource_{ resource } { }
+
+			[[nodiscard]]
+			std::string GetName() const noexcept {
+				return name_;
+			}
+
+			[[nodiscard]]
+			Resource& GetResource() noexcept
+			{
+				return resource_;
+			}
+
+		private:
 			std::string name_;
 			Resource resource_;
 		};
@@ -92,7 +68,9 @@ namespace Resources {
 		using Graph = DS::Graph<ResourceInfo>;
 
 	public:
-		ResourceSystem() {
+
+		ResourceSystem(const Memory::AllocationCallbacks& allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
+			allocationCallbacks_{ allocationCallbacks } {
 			ResourceInfo resourceInfo{
 				"Root",
 				Resource{ "" }
@@ -110,7 +88,10 @@ namespace Resources {
 
 			ResourceInfo resourceInfo{
 				name,
-				Resource{ resourceFilePath }
+				Resource{
+					resourceFilePath,
+					allocationCallbacks_
+				}
 			};
 
 			const Graph::Node::Id newResourceNodeId = graph_.AddNode(std::move(resourceInfo));
@@ -118,19 +99,77 @@ namespace Resources {
 			graph_.AddLinkFromTo(nodeId, newResourceNodeId);
 
 		}
-		
+
 		void LoadResource(std::filesystem::path resourcePath) {
-			ResourceInfo& resourceInfo = GetResourceInfo(resourcePath);
-			resourceInfo.resource_.Load();
+			const Graph::Node::Id nodeId = GetNodeId(resourcePath);
+			LoadResource(nodeId);
+		}
+
+		void UnloadResource(std::filesystem::path resourcePath) {
+			const Graph::Node::Id nodeId = GetNodeId(resourcePath);
+			UnloadResource(nodeId);
+		}
+
+
+		void LoadAllResources() {
+			LoadResource(rootName_);
+		}
+
+		void UnloadAllResources() {
+			UnloadResource(rootName_);
+		}
+
+		~ResourceSystem() {
+			UnloadAllResources();
 		}
 
 	private:
+		using ProcessDependence = std::function<bool(Graph::Node::Id)>;
+
+		bool ForEachDependenceNode(Graph::Node::Id nodeId, ProcessDependence& processDependence) {
+			Graph::Node& node = graph_.GetNode(nodeId);
+			const bool stop = !processDependence(nodeId);
+			if (stop) return false;
+			node.ForEachLinksTo([&](Graph::Node::Id nodeId)->bool
+				{
+					return ForEachDependenceNode(nodeId, processDependence);;
+				});
+			return true;
+		}
+
+		void LoadResource(const Graph::Node::Id nodeId) {
+
+			ProcessDependence processNode = [this](Graph::Node::Id nodeId)->bool {
+				ResourceInfo& resourceInfo = GetResourceInfo(nodeId);
+				if (resourceInfo.GetName() != rootName_) {
+					resourceInfo.GetResource().Load();
+				}
+				return true;
+			};
+
+			ForEachDependenceNode(nodeId, processNode);
+		}
+
+		void UnloadResource(const Graph::Node::Id nodeId) {
+
+			ProcessDependence processNode = [this](Graph::Node::Id nodeId)->bool {
+				ResourceInfo& resourceInfo = GetResourceInfo(nodeId);
+				if (resourceInfo.GetName() != rootName_) {
+					resourceInfo.GetResource().Unload();
+				}
+				return true;
+			};
+
+			ForEachDependenceNode(nodeId, processNode);
+		}
+
 		[[nodiscard]]
 		ResourceInfo& GetResourceInfo(std::filesystem::path resourcePath) {
 			const Graph::Node::Id resourceNodeId = GetNodeId(resourcePath);
 			Graph::Node& resourceNode = graph_.GetNode(resourceNodeId);
 			return resourceNode.GetValue();
 		}
+
 		[[nodiscard]]
 		Graph::Node::Id GetNodeId(std::filesystem::path nodePath) {
 			OS::AssertMessage(
@@ -140,32 +179,34 @@ namespace Resources {
 			Graph::Node::Id currentNodeId = rootNodeId_;
 			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
 			OS::AssertMessage(
-				currentNode.GetValue().name_ == rootName_,
+				currentNode.GetValue().GetName() == rootName_,
 				{ "Root note must have name \"%s\"", rootName_ }
 			);
 			for (const std::filesystem::path path : nodePath) {
 				const std::string resourceName = path.string();
-				if (GetResourceInfo(currentNodeId).name_ != resourceName) {
-					[[maybe_unused]] 
+				if (GetResourceInfo(currentNodeId).GetName() != resourceName) {
+					[[maybe_unused]]
 					bool found = false;
 					currentNode.ForEachLinksTo([&](Graph::Node::Id nodeId) {
 						const ResourceInfo& resourceInfo = GetResourceInfo(nodeId);
-						if (resourceInfo.name_ == resourceName) {
-							currentNodeId = nodeId;
-							found = true;
-							return false;
-						}
-						return true;
+					if (resourceInfo.GetName() == resourceName) {
+						currentNodeId = nodeId;
+						found = true;
+						return false;
+					}
+					return true;
 						});
 					OS::AssertMessage(found,
 						"Attempt to use incorrect resource path.");
-				}				
+				}
 			}
+
+			[[maybe_unsed]]
 			std::string findResourceName = (*(--nodePath.end())).string();
 			OS::AssertMessage(
-				GetResourceInfo(currentNodeId).name_ == findResourceName,
-				{	"Attempt to find node with path that doesn't exist.\n"
-					"Incorrect path:\n%s", nodePath.string().c_str()});
+				GetResourceInfo(currentNodeId).GetName() == findResourceName,
+				{ "Attempt to find node with path that doesn't exist.\n"
+					"Incorrect path:\n%s", nodePath.string().c_str() });
 			return currentNodeId;
 		}
 
@@ -179,6 +220,7 @@ namespace Resources {
 		static inline std::string rootName_ = "Root";
 		Graph::Node::Id rootNodeId_;
 		Graph graph_;
+		Memory::AllocationCallbacks allocationCallbacks_;
 	};
 
 

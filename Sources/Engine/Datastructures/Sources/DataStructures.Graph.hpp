@@ -77,8 +77,7 @@ namespace Datastructures {
 		Node::Id AddNode(const Type& data) noexcept;
 		void AddLinkFromTo(Node::Id fromNodeId, Node::Id toNodeId);
 		void DeleteNode(Node::Id nodeId) noexcept;
-		using ProcessNode = std::function<void(NodeId nodeId, Node& node)>;
-		//using ProcessNode = std::function<void(Node::Id nodeId, Node& node)>;
+		using ProcessNode = std::function<bool(NodeId nodeId, Node& node)>;
 		void ForEachNode(ProcessNode processor) noexcept;
 		Node& GetNode(Node::Id nodeId) noexcept;
 		void Clear() noexcept;
@@ -127,7 +126,7 @@ namespace Datastructures {
 	template<class Type>
 	void Graph<Type>::ForEachNode(ProcessNode processor) noexcept {
 		nodes_.ForEachElement([&](Node::Id nodeId, Node& node) {
-			processor(nodeId, node);
+			return processor(nodeId, node);
 			});
 	}
 	template<class Type>
