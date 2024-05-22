@@ -56,4 +56,5 @@ target_include_directories(OS
     
 target_link_libraries(OS
     PUBLIC
-        Common)
+        Common
+        Datastructures)

@@ -1,5 +1,7 @@
 #pragma once
 
+//#include <Vulkan/Render.Vulkan.hpp>
+
 #include <memory>
 #include <filesystem>
 
@@ -9,22 +11,22 @@
 //import OksEngine.Resource;
 
 #include <ECS.hpp>
-#include <Vulkan/Render.Vulkan.hpp>
 
 
-namespace OksEngine::Engine {
+
+namespace OksEngine {
 
 	class RenderSystem : public ECS::System {
 	public:
 
 		RenderSystem() noexcept {
 
-			Render::Vulkan::API api;
-			RAL::Driver::CreateInfo driverCreateInfo
+			//Render::Vulkan::API api;
+			//RAL::Driver::CreateInfo driverCreateInfo
 			{
 
 			}
-			api.CreateDriver(driverCreateInfo);
+			//api.CreateDriver(driverCreateInfo);
 			 
 			//uiApi_ = UIAL::CreateAPIObject();
 			//UIAL::Window::CreateInfo windowCreateInfo;
@@ -62,6 +64,10 @@ namespace OksEngine::Engine {
 		}
 
 	private:
+
+		virtual Common::TypeId GetTypeId() const noexcept override {
+			return Common::TypeInfo<RenderSystem>().GetId();
+		}
 
 		//std::shared_ptr<RAL::API> renderApi_ = nullptr;
 		//std::shared_ptr<RAL::Driver> renderDriver_ = nullptr;

@@ -24,8 +24,8 @@ namespace ECS {
 		}
 
 		template<class SystemType>
-		void RegisterSystem() noexcept {
-			systemsManager_.RegisterSystem<SystemType>();
+		std::shared_ptr<SystemType> RegisterSystem() noexcept {
+			return systemsManager_.RegisterSystem<SystemType>();
 		}
 
 

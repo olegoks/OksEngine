@@ -13,6 +13,7 @@
 #include <RAL.Light.hpp>
 #include <RAL.Common.hpp>
 #include <Geometry.Vertex.hpp>
+#include <DataStructures.Vector.hpp>
 #include <GLFW\glfw3.h>
 
 namespace RAL {
@@ -115,20 +116,20 @@ namespace RAL {
 	public:
 
 		Shader(const Common::Byte* spirv, Common::Size size) {
-			spirv_.resize(size);
-			std::memcpy(spirv_.data(), spirv, size);
+			spirv_.Resize(size);
+			std::memcpy(spirv_.GetData(), spirv, size);
 		}
 
 		const Common::Byte* GetCode() const {
-			return spirv_.data();
+			return spirv_.GetData();
 		}
 
 		Common::Size GetSize() const {
-			return spirv_.size();
+			return spirv_.GetSize();
 		}
 
 	private:
-		std::vector<Common::Byte> spirv_;
+		DS::Vector<Common::Byte> spirv_;
 	};
 
 	class Driver {

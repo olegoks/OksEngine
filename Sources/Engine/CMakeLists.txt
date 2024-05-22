@@ -31,6 +31,7 @@ target_sources(OksEngine
         Components/OksEngine.Behaviour.hpp
         Components/OksEngine.Position.hpp
         Components/OksEngine.RenderableGeometry.hpp
+        OksEngine.Render.Subsystem.hpp
         OksEngine.UI.Subsystem.hpp
         OksEngine.Subsystem.hpp
     PRIVATE
@@ -53,6 +54,7 @@ source_group("Sources"
     Components/OksEngine.Behaviour.cpp
     Components/OksEngine.Position.hpp
     Components/OksEngine.RenderableGeometry.hpp
+    OksEngine.Render.Subsystem.hpp
     OksEngine.UI.Subsystem.hpp
     OksEngine.Subsystem.hpp
     Engine.hpp
