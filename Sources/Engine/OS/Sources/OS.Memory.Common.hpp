@@ -33,14 +33,30 @@ namespace Memory {
 	[[nodiscard]]
 	constexpr inline Common::Size GetAlignedMemorySize(Common::Size memorySize) noexcept;
 
+
 	template<class Type, class ...Args>
-	inline Type* Construct(void* p, Args&&... args) {
-		return new (p) Type(std::forward<Args>(args)...);
+	Type* Construct(Type* memory, Args&& ...args) {
+		return new (memory) Type(std::forward<Args>(args)...);
+	}
+
+	template<class Type, class ...Args>
+	Type* ConstructArray(Type* memory, Common::Size size, Args&& ...args) {
+		for (Common::Size i = 0; i < size; i++) {
+			new (memory + i) Type(std::forward<Args>(args)...);
+		}
+		return memory;
 	}
 
 	template<class Type>
-	inline void Destroy(void* p) {
-		p->~Type();
+	void Destruct(Type* object) {
+		object->~Type();
+	}
+
+	template<class Type>
+	void DestructArray(Type* memory, Common::Size size) {
+		for (Common::Size i = 0; i < size; i++) {
+			Destruct<Type>(memory + i);
+		}
 	}
 
 }

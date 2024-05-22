@@ -54,8 +54,6 @@ target_include_directories(Datastructures
     
 target_link_libraries(Datastructures
     PUBLIC
-        OS
-        Memory
-        )
+        OS)
 
 add_subdirectory(Tests)

@@ -4,7 +4,7 @@ set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
-add_executable(TestDatastructures Test.Datastructures.cpp)
+add_executable(TestDatastructures Test.Datastructures.cpp Test.Datastructures.Vector.cpp)
 
 target_link_libraries(TestDatastructures
     Datastructures

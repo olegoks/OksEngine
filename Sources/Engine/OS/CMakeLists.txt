@@ -6,19 +6,21 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 add_library(OS STATIC)
+set(SourcesDir "Sources/")
 
-file(GLOB PUBLIC_SOURCES
+file(GLOB_RECURSE PUBLIC_SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
-    *.hpp
-    *.h
+    ${SourcesDir}/*.hpp
+    ${SourcesDir}/*.h
 )
 
-file(GLOB PRIVATE_SOURCES
+file(GLOB_RECURSE
+ PRIVATE_SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
-    *.cpp
-    *.c
+    ${SourcesDir}/*.cpp
+    ${SourcesDir}/*.c
 )
 
 target_sources(OS
@@ -50,7 +52,7 @@ ${PRIVATE_SOURCES})
 
 target_include_directories(OS
     PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR})
+        ${CMAKE_CURRENT_LIST_DIR}/${SourcesDir})
     
 target_link_libraries(OS
     PUBLIC

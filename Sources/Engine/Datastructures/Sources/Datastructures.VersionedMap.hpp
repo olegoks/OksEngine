@@ -8,8 +8,9 @@
 
 #include <Common.Identifier.hpp>
 #include <Common.Types.hpp>
-#include <Memory.Common.hpp>
-#include <Memory.AllocationCallbacks.hpp>
+#include <OS.Memory.Common.hpp>
+#include <Datastructures.Vector.hpp>
+#include <OS.Memory.AllocationCallbacks.hpp>
 #include <OS.Assert.hpp>
 
 namespace Datastructures {
@@ -52,7 +53,8 @@ namespace Datastructures {
 		SlotIndex FindFreeSlot() noexcept;
 
 		Memory::AllocationCallbacks allocationCallbacks_;
-		std::vector<Slot> slots_;
+		DS::Vector<Slot> slots_;
+		//std::vector<Slot> slots_;
 	};
 
 	template<class Type>
@@ -72,7 +74,7 @@ namespace Datastructures {
 		void Free() {
 			OS::AssertMessage(IsFree(),
 				"Attempt to free slot that was free.");
-			Memory::Destroy<Type>(data_);
+			Memory::Destruct<Type>(data_);
 			allocationCallbacks_.freeCallback(
 				allocationCallbacks_.userData,
 				data_);
@@ -103,7 +105,7 @@ namespace Datastructures {
 	VersionedMap<Type>::VersionedMap(Memory::AllocationCallbacks allocationCallbacks) noexcept :
 		allocationCallbacks_{ allocationCallbacks } {
 		Slot freeSlot;
-		slots_.resize(32, freeSlot);
+		slots_.Resize(32);
 	}
 
 	template<class Type>
@@ -199,16 +201,11 @@ namespace Datastructures {
 	template<class ...Args>
 	VersionedMap<Type>::Id VersionedMap<Type>::AddElement(Args&& ...args) noexcept {
 
-		Type* dataPointer = (Type*)allocationCallbacks_.allocationCallback(
-			allocationCallbacks_.userData,
-			sizeof(Type),
-			8);
-
-		Memory::Construct<Type>(dataPointer, std::forward<Type>(args)...);
+		Type* object = allocationCallbacks_.Create<Type>(std::forward<Type>(args)...);
 
 		const SlotIndex slotIndex = FindFreeSlot();
 		Slot& slot = GetSlot(slotIndex);
-		slot.SetData(dataPointer);
+		slot.SetData(object);
 		slot.IncreaseVersion();
 		return SlotId{ slotIndex, slot.GetVersion() };
 	}
@@ -231,7 +228,7 @@ namespace Datastructures {
 
 	template<class Type>
 	void VersionedMap<Type>::ForEachElement(ProcessElement&& processor) noexcept {
-		for (SlotIndex slotIndex = 0; slotIndex < slots_.size(); slotIndex++) {
+		for (SlotIndex slotIndex = 0; slotIndex < slots_.GetSize(); slotIndex++) {
 			const Slot& slot = slots_[slotIndex];
 			if (!slot.IsFree()) {
 				const SlotId slotId{ slotIndex, slot.version_ };
@@ -243,7 +240,7 @@ namespace Datastructures {
 
 	template<class Type>
 	VersionedMap<Type>::SlotIndex VersionedMap<Type>::FindFreeSlot() noexcept {
-		for (SlotIndex slotIndex = 0; slotIndex < slots_.size(); slotIndex++) {
+		for (SlotIndex slotIndex = 0; slotIndex < slots_.GetSize(); slotIndex++) {
 			if (GetSlot(slotIndex).IsFree()) {
 				return slotIndex;
 			}

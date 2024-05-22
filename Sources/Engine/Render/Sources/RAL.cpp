@@ -1,7 +1,5 @@
 #pragma once
 
-#include <memory>
-
 #include <RAL.API.hpp>
 #include <Vulkan/Render.Vulkan.API.hpp>
 
