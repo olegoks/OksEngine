@@ -14,6 +14,8 @@
 #include <Common.Format.hpp>
 #include <Common.Types.hpp>
 
+#include <OS.Assert.hpp>
+
 namespace OS {
 
 	class Logger {
@@ -133,7 +135,9 @@ namespace OS {
 			};
 
 			Entry(Severity severity, const std::string_view path, const Common::Format& format, const std::source_location& location) {
-				
+
+				OS::AssertMessage(!path.empty(), "Attempt to use empty log path.");
+
 				columns_.emplace_back(Column{ 10, severity });
 				columns_.emplace_back(Column{ 30, path.data() });
 				columns_.emplace_back(Column{ 30, format });

@@ -3,27 +3,39 @@
 #include <OksEngine.Subsystem.hpp>
 #include <RAL.hpp>
 
+#include <OksEngine.Resource.Subsystem.hpp>
+
 namespace OksEngine {
 
 	class RenderSubsystem : public Subsystem {
 	public:
 
 		struct CreateInfo {
-			RAL::Shader vertexShader_;
-			RAL::Shader fragmentShader_;
-			RAL::RenderSurface surface;
+			Context& context_;
+			//RAL::Shader vertexShader_;
+			//RAL::Shader fragmentShader_;
+			//RAL::RenderSurface surface;
 		};
 
-		RenderSubsystem(const CreateInfo& createInfo) {
+		RenderSubsystem(const CreateInfo& createInfo) : Subsystem{ createInfo.context_ } {
 			
 			api_ = RAL::CreateAPI();
-			
-			RAL::Driver::CreateInfo driverCreateInfo{
-				createInfo.vertexShader_,
-				createInfo.fragmentShader_,
-				createInfo.surface
-			};
-			driver_ = api_->CreateDriver(driverCreateInfo);
+
+			auto resourceSubsystem = GetResourceSubsystem();
+
+			resourceSubsystem->GetResource("Root/triangle.vert");
+
+			//auto vertexShaderResource = 
+			//auto fragmentShaderResource = resourceSubsystem->GetResource("Root/triangle.frag");
+			//RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
+			//RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
+
+			//RAL::Driver::CreateInfo driverCreateInfo{
+			//	vertexShader,
+			//	fragmentShader,
+			//	/*surface*/
+			//};
+			//driver_ = api_->CreateDriver(driverCreateInfo);
 		}
 
 		virtual void Update() noexcept override {

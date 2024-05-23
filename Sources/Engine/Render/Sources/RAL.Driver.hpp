@@ -159,7 +159,7 @@ namespace RAL {
 		struct CreateInfo {
 			Shader vertexShader_;
 			Shader fragmentShader_;
-			RenderSurface surface_;
+			//RenderSurface surface_;
 			bool enableDepthBuffer_ = false;
 		};
 

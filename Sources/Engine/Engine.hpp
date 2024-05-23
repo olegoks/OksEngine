@@ -8,9 +8,6 @@
 #include <ECS.hpp>
 #include <Components/OksEngine.Behaviour.hpp>
 #include <Components/OksEngine.Position.hpp>
-#include <OksEngine.UI.Subsystem.hpp>
-#include <OksEngine.Render.Subsystem.hpp>
-#include <OksEngine.Resource.Subsystem.hpp>
 
 namespace OksEngine {
 
@@ -62,10 +59,7 @@ namespace OksEngine {
 
 		explicit Engine() noexcept;
 
-		Entity CreateEntity() noexcept {
-			ECS::Entity::Id id = world_.CreateEntity();
-			return Entity{ &world_, id };
-		}
+		Entity CreateEntity() noexcept;
 
 		void Run() {
 			isRunning_ = true;
@@ -79,21 +73,11 @@ namespace OksEngine {
 			return isRunning_;
 		}
 
-		void Update() noexcept {
-			while (IsRunning()) {
-				renderSubsystem_->Update();
-				uiSubsystem_->Update();
-				world_.Process();
-			}
-		}
+		void Update() noexcept;
 
 	private:
 		bool isRunning_ = false;
-
-		std::shared_ptr<ResourceSubsystem> resourceSubsystem_ = nullptr;
-		std::shared_ptr<RenderSubsystem> renderSubsystem_ = nullptr;
-		std::shared_ptr<UISubsystem> uiSubsystem_ = nullptr;
-		ECS::World world_;
+		std::shared_ptr<class Context> context_;
 	};
 
 }
