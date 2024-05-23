@@ -1,5 +1,7 @@
 #include <OS.Assert.hpp>
 
+#include <OS.Logger.hpp>
+
 namespace OS {
 
 	void AssertMessage(bool expression, const Common::Format& format, const std::source_location& location) {
