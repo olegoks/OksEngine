@@ -23,8 +23,8 @@ namespace OksEngine {
 
 			auto resourceSubsystem = GetResourceSubsystem();
 
-			resourceSubsystem->GetResource("Root/triangle.vert");
-
+			const auto taskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.vert");
+			resourceSubsystem->WaitFor(taskId);
 			//auto vertexShaderResource = 
 			//auto fragmentShaderResource = resourceSubsystem->GetResource("Root/triangle.frag");
 			//RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };

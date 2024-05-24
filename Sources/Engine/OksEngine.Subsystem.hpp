@@ -9,6 +9,13 @@ namespace OksEngine {
 	class Subsystem {
 	public:
 
+		enum class Type : Common::UInt64 {
+			Resource,
+			UI,
+			Render,
+			Undefined
+		};
+
 		Subsystem(Context& context) noexcept :
 			context_{ context } { }
 
