@@ -13,7 +13,7 @@ namespace OksEngine {
 		world_.RegisterSystem<BehaviourSystem>();
 
 		auto renderSystem = world_.RegisterSystem<RenderSystem>();
-		resourceSubsystem_ = std::shared_ptr<ResourceSubsystem>();
+		/*resourceSubsystem_ = std::shared_ptr<ResourceSubsystem>();
 
 		auto vertexShaderResource = resourceSubsystem_->GetResource("Root/triangle.vert");
 		auto fragmentShaderResource = resourceSubsystem_->GetResource("Root/triangle.frag");
@@ -23,7 +23,7 @@ namespace OksEngine {
 			vertexShader,
 			fragmentShader
 		};
-		renderSubsystem_ = std::make_shared<RenderSubsystem>(renderSubsystemCreateInfo);
+		renderSubsystem_ = std::make_shared<RenderSubsystem>(renderSubsystemCreateInfo);*/
 	}
 
 }
