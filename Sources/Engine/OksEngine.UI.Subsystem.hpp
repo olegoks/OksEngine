@@ -10,7 +10,11 @@ namespace OksEngine {
 	class UISubsystem : public Subsystem {
 	public:
 
-		UISubsystem() {
+		struct CreateInfo {
+			Context& context_;
+		};
+
+		UISubsystem(const CreateInfo& createInfo) : Subsystem{ createInfo.context_ } {
 
 			api_ = std::make_shared<UI::API>();
 			UI::Window::CreateInfo windowCreateInfo;

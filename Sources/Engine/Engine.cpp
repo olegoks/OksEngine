@@ -1,17 +1,19 @@
 #include <Engine.hpp>
 
+#include <OksEngine.Context.hpp>
 
-
-#include <Components/OksEngine.RenderableGeometry.hpp>
-
+#include <OksEngine.Render.Subsystem.hpp>
+#include <OksEngine.Resource.Subsystem.hpp>
+#include <OksEngine.UI.Subsystem.hpp>
 
 namespace OksEngine {
 
 	Engine::Engine() noexcept {
+		context_ = std::make_shared<Context>();
+	}
 
-		uiSubsystem_ = std::make_shared<UISubsystem>();
-		world_.RegisterSystem<BehaviourSystem>();
 
+<<<<<<< HEAD
 		auto renderSystem = world_.RegisterSystem<RenderSystem>();
 		/*resourceSubsystem_ = std::shared_ptr<ResourceSubsystem>();
 
@@ -24,6 +26,20 @@ namespace OksEngine {
 			fragmentShader
 		};
 		renderSubsystem_ = std::make_shared<RenderSubsystem>(renderSubsystemCreateInfo);*/
+=======
+	void Engine::Update() noexcept {
+		while (IsRunning()) {
+			context_->renderSubsystem_->Update();
+			context_->uiSubsystem_->Update();
+			context_->world_->Process();
+			//OS::LogInfo("Engine/loop", "Loop is running");
+		}
+	}
+
+	Entity Engine::CreateEntity() noexcept {
+		ECS::Entity::Id id = context_->world_->CreateEntity();
+		return Entity{ context_->world_.get(), id };
+>>>>>>> f1c0003fed75d5dbbdc349b4ddfd28017ce8fcef
 	}
 
 }
