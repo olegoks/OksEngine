@@ -64,24 +64,34 @@ namespace Datastructures {
 		}
 
 		Type& Back() {
-			return *const_cast<Vector*>(this).Back();
-		}
-
-		const Type& Back() const {
 			return data_[GetSize() - 1];
 		}
 
+		const Type& Back() const {
+			return *const_cast<Vector*>(this).Back();
+		}
+
 		[[nodiscard]]
-		Type& operator[](Common::Size index) {
+		Type& Get(Common::Index index) {
 			OS::AssertMessage(
 				index < GetSize(),
-				"Incorrect index.");
+				"Out of range.");
 			return data_[index];
 		}
 
 		[[nodiscard]]
+		const Type& Get(Common::Index index) const {
+			return const_cast<Vector*>(this)->Get(index);
+		}
+
+		[[nodiscard]]
+		Type& operator[](Common::Size index) {
+			return Get(index);
+		}
+
+		[[nodiscard]]
 		const Type& operator[](Common::Size index) const {
-			return *const_cast<Vector*>(this)[index];
+			return Get(index);
 		}
 
 		[[nodiscard]]
@@ -123,10 +133,18 @@ namespace Datastructures {
 			Clear();
 			Resize(copyVector.GetSize());
 			for (Common::Index i = 0; i < copyVector.GetSize(); i++) {
-				data_[i] = copyVector.data_[i];
+				Get(i) = copyVector.Get(i);
 			}
 
 			return *this;
+		}
+
+		void Erase(Common::Index index) {
+			for (Common::Index i = index; i < GetSize() - 1; i++) {
+				Get(i) = std::move(Get(i + 1));
+			}
+			Memory::Destruct(&Back());
+			--size_;
 		}
 
 		~Vector() noexcept {

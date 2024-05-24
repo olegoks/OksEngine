@@ -1,5 +1,7 @@
 #pragma once
 
+#include <filesystem>
+
 #include <Lua.hpp>
 #include <luabridge3/LuaBridge/LuaBridge.h>
 #include <ECS.hpp>

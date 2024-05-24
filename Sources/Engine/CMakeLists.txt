@@ -7,37 +7,43 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(OksEngine STATIC)   
 
-# file(GLOB SOURCES
-#     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
-#     LIST_DIRECTORIES false
-#     *.hpp
-#     *.h
-#     *.cpp
-#     *.c
-# )
+file(GLOB PUBLIC_SOURCES
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    *.hpp
+    *.h
+    Components/*.hpp
+    Components/*.h
 
-# file(GLOB COMPONENTS_SOURCES
-#     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
-#     LIST_DIRECTORIES false
-#     Components\*.hpp
-#     Components\*.h
-#     Components\*.cpp
-#     Components\*.c
-# )
+)
+
+file(GLOB PRIVATE_SOURCES
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+
+    Components/*.cpp
+    Components/*.c
+    *.cpp
+    *.c
+)
+
+
 
 target_sources(OksEngine
     PUBLIC
-        Engine.hpp
-        Components/OksEngine.Behaviour.hpp
-        Components/OksEngine.Position.hpp
-        Components/OksEngine.RenderableGeometry.hpp
-        OksEngine.Render.Subsystem.hpp
-        OksEngine.Resource.Subsystem.hpp
-        OksEngine.UI.Subsystem.hpp
-        OksEngine.Subsystem.hpp
+    ${PUBLIC_SOURCES}
+        # Engine.hpp
+        # Components/OksEngine.Behaviour.hpp
+        # Components/OksEngine.Position.hpp
+        # Components/OksEngine.RenderableGeometry.hpp
+        # OksEngine.Render.Subsystem.hpp
+        # OksEngine.Resource.Subsystem.hpp
+        # OksEngine.UI.Subsystem.hpp
+        # OksEngine.Subsystem.hpp
     PRIVATE
-        Engine.cpp
-        Components/OksEngine.Behaviour.cpp
+    ${PRIVATE_SOURCES}
+        # Engine.cpp
+        # Components/OksEngine.Behaviour.cpp
     )
 
 target_link_libraries(OksEngine
@@ -52,21 +58,25 @@ target_link_libraries(OksEngine
 
 source_group("Sources"
     FILES
-    OksEngine.Resource.Subsystem.hpp
-    Components/OksEngine.Behaviour.hpp
-    Components/OksEngine.Behaviour.cpp
-    Components/OksEngine.Position.hpp
-    Components/OksEngine.RenderableGeometry.hpp
-    OksEngine.Render.Subsystem.hpp
-    OksEngine.UI.Subsystem.hpp
-    OksEngine.Subsystem.hpp
-    Engine.hpp
-    Engine.cpp)
+    ${PUBLIC_SOURCES}
+     ${PRIVATE_SOURCES}
+    # OksEngine.Resource.Subsystem.hpp
+    # Components/OksEngine.Behaviour.hpp
+    # Components/OksEngine.Behaviour.cpp
+    # Components/OksEngine.Position.hpp
+    # Components/OksEngine.RenderableGeometry.hpp
+    # OksEngine.Render.Subsystem.hpp
+    # OksEngine.UI.Subsystem.hpp
+    # OksEngine.Subsystem.hpp
+    # Engine.hpp
+    # Engine.cpp
+    )
 
 
 target_include_directories(OksEngine
     PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR})
+        ${CMAKE_CURRENT_LIST_DIR}
+        ${CMAKE_CURRENT_LIST_DIR}/Components)
 
 
 add_subdirectory(Common)
