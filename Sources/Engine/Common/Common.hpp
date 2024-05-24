@@ -19,4 +19,9 @@ namespace Common {
 	template<class Type>
 	using Maybe = std::optional<Type>;
 
+	template<class Type>
+	concept Enum = std::is_enum<Type>::value && requires(Type value) {
+		value = Type::Undefined;
+	};
+
 }
