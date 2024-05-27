@@ -1,5 +1,8 @@
 #pragma once
 
+#include <memory>
+#include <future>
+
 #include <Resource.hpp>
 #include <OksEngine.Subsystem.hpp>
 #include <OksEngine.TaskSystem.hpp>
@@ -60,7 +63,7 @@ namespace OksEngine {
 	};
 
 
-	class ThreadedResourceSubsystem {
+	class AsyncResourceSubsystem {
 	public:
 
 		enum class TaskType : Common::UInt8 {
@@ -91,15 +94,17 @@ namespace OksEngine {
 		};
 
 
-		ThreadedResourceSubsystem(Context& context) {
+		AsyncResourceSubsystem(Context& context) {
 			resourceSubsystem_ = std::make_shared<ResourceSubsystem>(context);
-			thread_ = std::thread{ &ThreadedResourceSubsystem::Loop, this };
+			thread_ = std::jthread{ &AsyncResourceSubsystem::Loop, this };
 		}
 
 		class Task {
 		public:
 			using Id = Common::UInt64;
 
+
+			Task() : Task{ 0 } {}
 			Task(Id id) : id_{ id } { }
 
 			[[nodiscard]]
@@ -128,6 +133,22 @@ namespace OksEngine {
 			Id GetId() const noexcept {
 				return id_;
 			}
+
+			Task& operator=(const Task& copyTask) {
+				if (this == &copyTask) {
+					return *this;
+				}
+
+				senderSubsystem_ = copyTask.senderSubsystem_;
+				receiverSubsystem_ = copyTask.receiverSubsystem_;
+
+				id_ = copyTask.id_;
+
+				std::memcpy(memory, copyTask.memory, sizeof(memory));
+
+				return *this;
+			}
+
 			Subsystem::Type senderSubsystem_ = Subsystem::Type::Undefined;
 			Subsystem::Type receiverSubsystem_ = Subsystem::Type::Undefined;
 		private:
@@ -138,12 +159,22 @@ namespace OksEngine {
 		static_assert(sizeof(Task) == 5 * Common::cacheLineSize_);
 
 		[[nodiscard]]
+		Task::Id GetResource(Subsystem::Type subsystemType, std::filesystem::path resourcePath) {
+			AddTask(
+				subsystemType,
+				Subsystem::Type::Resource,
+				CreateTask<GetResourceTask>(resourcePath)
+			);
+		}
+
+		[[nodiscard]]
 		Task::Id AddTask(Subsystem::Type senderType, Subsystem::Type receiverType, Task&& task) {
 			const Task::Id taskId = task.GetId();
 			exchangeSystem_.AddData(senderType, receiverType, std::move(task));
 			return taskId;
 		}
 
+		[[nodiscard]]
 		std::optional<Task> GetTask(Subsystem::Type senderType, Subsystem::Type receiverType) {
 
 			auto maybeResultTaskDataInfo = exchangeSystem_.GetData(senderType, receiverType);
@@ -155,7 +186,6 @@ namespace OksEngine {
 			resultTaskDataInfo.data_.senderSubsystem_ = resultTaskDataInfo.senderThreadType_;
 			resultTaskDataInfo.data_.receiverSubsystem_ = resultTaskDataInfo.receiverThreadType_;
 			return resultTaskDataInfo.data_;
-
 		}
 
 		template<class Type, class ...Args>
@@ -167,35 +197,13 @@ namespace OksEngine {
 			return newTask;
 		}
 
-		//[[nodiscard]]
-		//Task GetTask(Subsystem::Type senderType, Subsystem::Type receiverType) {
-		//	/*Common::Index foundTaskIndex = Common::Limits<Common::Index>::Max();
-		//	for (Common::Index i = 0; i < resultsCache_.GetSize(); i++) {
-		//		Task& task = resultsCache_[i];
-		//		if(task.GetId() == taskId) {
-		//			foundTaskIndex = i;
-		//			break;
-		//		}
-		//	}
-		//	const bool isResultFound = (foundTaskIndex != Common::Limits<Common::Index>::Max());
-		//	OS::Assert(foundTaskIndex < resultsCache_.GetSize());
-		//	if(isResultFound) {
-		//		Task task = std::move(resultsCache_[foundTaskIndex]);
-		//		resultsCache_.Erase(foundTaskIndex);
-		//		return task;
-		//	}*/
-		//}
-
-
 	private:
 
 
 		void Loop()
 		{
-			while (true)
-			{
-				exchangeSystem_.Update();
-				auto maybeTask = exchangeSystem_.GetData(Subsystem::Type::Undefined, Subsystem::Type::Resource);
+			while (isRunning_){
+				auto maybeTask = exchangeSystem_.GetData(Subsystem::Type::Render, Subsystem::Type::Resource);
 				if (maybeTask.has_value())
 				{
 					auto dataInfo = maybeTask.value();
@@ -216,45 +224,73 @@ namespace OksEngine {
 					}
 					};
 				}
+				exchangeSystem_.Update();
 			}
 		}
 
 	protected:
-
 		MTDataExchangeSystem<Task, Subsystem::Type> exchangeSystem_;
 	private:
-		std::thread thread_;
+		 
+		std::atomic<bool> isRunning_ = false;
+		std::jthread thread_;
 		std::shared_ptr<ResourceSubsystem> resourceSubsystem_ = nullptr;
 	};
+	//  
+	//class ResourceSubsystemAsyncInterface : public ThreadedResourceSubsystem {
+	//public:
 
-	class ResourceSubsystemAsyncInterface : public ThreadedResourceSubsystem {
-	public:
+	//	ResourceSubsystemAsyncInterface(Context& context) : ThreadedResourceSubsystem{ context } {
 
-		ResourceSubsystemAsyncInterface(Context& context) : ThreadedResourceSubsystem{ context } {
-
-		}
+	//	}
 
 
-		[[nodiscard]]
-		Task::Id GetResource(Subsystem::Type requestSystem, std::filesystem::path resourcePath) {
-			/*GetResourceTask* task = new GetResourceTask{ "GetResource", resourcePath};
-			exchangeSystem_.AddData(requestSystem, Subsystem::Type::Resource, (void*)task);*/
+	//	[[nodiscard]]
+	//	Task::Id GetResource(Subsystem::Type requestSystem, std::filesystem::path resourcePath) {
+	//		/*GetResourceTask* task = new GetResourceTask{ "GetResource", resourcePath};
+	//		exchangeSystem_.AddData(requestSystem, Subsystem::Type::Resource, (void*)task);*/
 
-			const Task::Id taskId = AddTask(
-				requestSystem,
-				Subsystem::Type::Resource,
-				CreateTask<GetResourceTask>(resourcePath)
-			);
-			return taskId;
-		}
+	//		const Task::Id taskId = AddTask(
+	//			requestSystem,
+	//			Subsystem::Type::Resource,
+	//			CreateTask<GetResourceTask>(resourcePath)
+	//		);
+	//		return taskId;
+	//	}
+	//	ResourceSubsystem::Resource GetResource(Task::Id taskId) {
+	//		Common::Index foundTaskIndex = Common::Limits<Common::Index>::Max();
+	//		for (Common::Index i = 0; i < resultTasksCache_.GetSize(); i++) {
+	//			if (resultTasksCache_[i].GetId() == taskId) {
+	//				foundTaskIndex = i;
+	//				break;
+	//			}
+	//		}
+	//		OS::AssertMessage(foundTaskIndex != Common::Limits<Common::Index>::Max(), "");
+	//		//if (foundTaskIndex != Common::Limits<Common::Index>::Max()) {
+	//			Task task = resultTasksCache_[foundTaskIndex];
+	//			GetResourceResult& getResourceResult = task.GetData<GetResourceResult>();
+	//			resultTasksCache_.Erase(foundTaskIndex);
+	//			return std::move(getResourceResult.resource_);
+	//		//}
 
-		void WaitFor(Task::Id taskId) {
-			//GetTask()
-		}
+	//	}
 
-	private:
-		DS::Vector<Task> resultTasksCache_;
-	};
+	//	void WaitFor(Subsystem::Type subsystemType, Task::Id taskId) {
+	//		while (true) {
+	//			auto maybeTask = GetTask(Subsystem::Type::Resource, subsystemType);
+	//			if (maybeTask.has_value()) {
+	//				Task task = maybeTask.value();
+	//				resultTasksCache_.PushBack(task);
+	//				if (task.GetId() == taskId) {
+	//					return;
+	//				}
+	//			}
+	//		}
+	//	}
+
+	//private:
+	//	DS::Vector<Task> resultTasksCache_;
+	//};
 
 
 

@@ -1,0 +1,6 @@
+### Description:
+>Semicolon-separated list of directories, represented using forward slashes, specifying a search path for CMake modules to be loaded by the include() or find_package() commands before checking the default modules that come with CMake. By default it is empty. It is intended to be set by the project.
+### Example:
+```cmake
+set(CMAKE_MODULE_PATH "${CMAKE_CURRENT_SOURCE_DIR}/cmake")
+```

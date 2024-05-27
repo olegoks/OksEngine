@@ -59,6 +59,12 @@ namespace OksEngine {
 
 		explicit Engine() noexcept;
 
+		class Scene {
+		public:
+		private:
+
+		};
+
 		Entity CreateEntity() noexcept;
 
 		void Run() {

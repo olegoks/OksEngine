@@ -21,10 +21,12 @@ namespace OksEngine {
 			
 			api_ = RAL::CreateAPI();
 
-			auto resourceSubsystem = GetResourceSubsystem();
+			/*auto resourceSubsystem = GetResourceSubsystem();
 
 			const auto taskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.vert");
-			resourceSubsystem->WaitFor(taskId);
+			resourceSubsystem->WaitFor(Subsystem::Type::Render, taskId);
+			ResourceSubsystem::Resource resource = std::move(resourceSubsystem->GetResource(taskId));
+			const char* shaderText = resource.GetData<char>();*/
 			//auto vertexShaderResource = 
 			//auto fragmentShaderResource = resourceSubsystem->GetResource("Root/triangle.frag");
 			//RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };

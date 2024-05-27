@@ -38,14 +38,14 @@ namespace OS {
 					}};
 			}
 
-			OS::LogInfo("/OS/File/", { "File %s was opened successfuly.", GetPath().filename().string().c_str() });
+			//OS::LogInfo("/OS/File/", { "File %s was opened successfuly.", GetPath().filename().string().c_str() });
 		}
 
 		void Load() override {
 			OS::AssertMessage(IsOpened(), "Attempt to load file that wasn't opened.");
 			OS::AssertMessage(!IsLoaded(), "Attempt to load file that was loaded yet.");
 
-			size_t size = (size_t)fstream_.tellg();
+			size_t size = std::filesystem::file_size(GetPath());//(size_t)fstream_.tellg();
 			fstream_.seekg(0);
 
 			data_.Resize(size);
@@ -60,7 +60,7 @@ namespace OS {
 						errorCondition.message()
 					}};
 			}
-			OS::LogInfo("/OS/File/", { "File %s was loaded successfuly.", GetPath().filename().string().c_str() });
+			//OS::LogInfo("/OS/File/", { "File %s was loaded successfuly.", GetPath().filename().string().c_str() });
 		}
 
 		void Unload() override {

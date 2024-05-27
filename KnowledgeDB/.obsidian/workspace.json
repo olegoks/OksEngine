@@ -1,0 +1,193 @@
+{
+  "main": {
+    "id": "1066f41c2b2febdb",
+    "type": "split",
+    "children": [
+      {
+        "id": "7e449406a3e74125",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "fde23484f0c92c32",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Work/C++/Многопоточность/std_unique_lock.md",
+                "mode": "source",
+                "source": false
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "vertical"
+  },
+  "left": {
+    "id": "b375fc0f6be2e403",
+    "type": "split",
+    "children": [
+      {
+        "id": "a2f2cd0d177f587c",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "d72133a3222606c2",
+            "type": "leaf",
+            "state": {
+              "type": "file-explorer",
+              "state": {
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "c429c8c63893cecd",
+            "type": "leaf",
+            "state": {
+              "type": "search",
+              "state": {
+                "query": "",
+                "matchingCase": false,
+                "explainSearch": false,
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical"
+              }
+            }
+          },
+          {
+            "id": "153cdcdfc278b4f2",
+            "type": "leaf",
+            "state": {
+              "type": "bookmarks",
+              "state": {}
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 236.50692749023438,
+    "collapsed": true
+  },
+  "right": {
+    "id": "492b75a9d817c948",
+    "type": "split",
+    "children": [
+      {
+        "id": "b427c94553512b45",
+        "type": "tabs",
+        "children": [
+          {
+            "id": "4af6c2303bfc80d5",
+            "type": "leaf",
+            "state": {
+              "type": "backlink",
+              "state": {
+                "file": "Work/C++/Многопоточность/std_unique_lock.md",
+                "collapseAll": false,
+                "extraContext": false,
+                "sortOrder": "alphabetical",
+                "showSearch": false,
+                "searchQuery": "",
+                "backlinkCollapsed": true,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "03fab79ed987e590",
+            "type": "leaf",
+            "state": {
+              "type": "outgoing-link",
+              "state": {
+                "file": "Work/C++/Многопоточность/std_unique_lock.md",
+                "linksCollapsed": false,
+                "unlinkedCollapsed": true
+              }
+            }
+          },
+          {
+            "id": "32d59a0b760d8402",
+            "type": "leaf",
+            "state": {
+              "type": "tag",
+              "state": {
+                "sortOrder": "frequency",
+                "useHierarchy": true
+              }
+            }
+          },
+          {
+            "id": "c3c8378ec66198a2",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "Work/C++/Многопоточность/std_unique_lock.md"
+              }
+            }
+          }
+        ]
+      }
+    ],
+    "direction": "horizontal",
+    "width": 200,
+    "collapsed": true
+  },
+  "left-ribbon": {
+    "hiddenItems": {
+      "switcher:Open quick switcher": false,
+      "graph:Open graph view": false,
+      "canvas:Create new canvas": false,
+      "daily-notes:Open today's daily note": false,
+      "templates:Insert template": false,
+      "command-palette:Open command palette": false
+    }
+  },
+  "active": "fde23484f0c92c32",
+  "lastOpenFiles": [
+    "Work/C++/Доступ к private полю.md",
+    "Work/C++/Многопоточность/std_unique_lock.md",
+    "Work/C++/Многопоточность/Работа с std_thread.md",
+    "Work/C++/Многопоточность/Поток.md",
+    "Work/C++/Многопоточность/Разделение данных между потоками.md",
+    "Work/C++/Многопоточность/Мьютекс.md",
+    "Взаимоблокировка(deadlock).md",
+    "Панацея.md",
+    "Примитив синхронизации.md",
+    "Work/C++/Многопоточность/Состояние гонки(race condition).md",
+    "Work/C++/Многопоточность/Гонка за данными(data race).md",
+    "Work/C++/Многопоточность/Инвариант.md",
+    "Work/C++/Most vexing parse.md",
+    "Attachments/learning_modern_3d_graphics_programming.pdf",
+    "Attachments/Game physics cookbook.pdf",
+    "Attachments/CPlusPlusNotesForProfessionals.pdf",
+    "Attachments/112970_824f8da89600da8be9f17c3db02cc722.pdf",
+    "Attachments/s2013_pbs_physics_math_notes.pdf",
+    "Attachments/Pauschenwein_2022-Bachelor thesis.pdf",
+    "Attachments/Ian_Millington-Game_Physics_Engine_Development-EN.pdf",
+    "Attachments/Coding Labs -- Physically Based Rendering.pdf",
+    "Attachments/rend_eq.pdf",
+    "Attachments/chap6.pdf",
+    "Work/C++/Функциональные блоки try.md",
+    "Work/C++/Операторы «указатель на член» (Pointer-to-member operators).md",
+    "Work/C++/Квалификаторы ссылки в методах.md",
+    "Work/C++/Лексемы операторов.md",
+    "Pasted image 20240508170308.png",
+    "Pasted image 20240507141037.png",
+    "Pasted image 20240507140953.png",
+    "Work/Programming/Git, GitHub/git diff --cached.md",
+    "Work/C++/Шаблонный код.md",
+    "Work/C++/Директива препроцессора pragma once.md",
+    "Work/Programming/Git, GitHub/How to exit from a less program (END).md",
+    "Work/Untitled.md",
+    "Work/English/Words/To consider.md",
+    "Work/English/Words/To rely.md",
+    "Work/English/Words/Certain.md",
+    "Work/English/Words/To adjust.md",
+    "Untitled.canvas"
+  ]
+}

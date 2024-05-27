@@ -51,6 +51,11 @@ namespace Datastructures {
 			capacity_ = newCapacity;
 		}
 
+		Type& PushBack(const Type& object) {
+			Resize(GetSize() + 1);
+			return Get(GetSize() - 1) = object;
+		}
+
 		Type& PushBack(Type&& object) {
 			return EmplaceBack(std::move(object));
 		}
