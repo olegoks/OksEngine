@@ -7,6 +7,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
+#include <mutex>
 #include <optional>
 #include <filesystem>
 
@@ -60,12 +61,13 @@ namespace OS {
 		};
 
 		void Log(Severity severity, const std::string_view path, const Common::Format& format, const std::source_location& location = std::source_location::current()) {
-			
+			std::lock_guard lock{ mutex_ };
 			Entry entry{ severity, path, format, location };
 			std::cout << entry;
 		}
 
 	private:
+		std::mutex mutex_;
 		class Entry {
 		public:
 
@@ -179,6 +181,7 @@ namespace OS {
 			char delimiter_ = '|';
 			std::stringstream text_;
 			std::vector<Column> columns_;
+
 		};
 	};
 

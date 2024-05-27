@@ -17,7 +17,7 @@ namespace OksEngine
 		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
 		world_ = std::make_shared<ECS::World>();
 		world_->RegisterSystem<BehaviourSystem>();
-		resourceSubsystem_ = std::make_shared<ResourceSubsystemAsyncInterface>(*this);
+		resourceSubsystem_ = std::make_shared<AsyncResourceSubsystem>(*this);
 
 		auto renderSystem = world_->RegisterSystem<RenderSystem>();
 

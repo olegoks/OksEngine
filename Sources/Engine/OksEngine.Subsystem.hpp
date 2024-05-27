@@ -23,7 +23,7 @@ namespace OksEngine {
 
 		virtual ~Subsystem() = default;
 
-		std::shared_ptr<ResourceSubsystemAsyncInterface> GetResourceSubsystem()
+		std::shared_ptr<AsyncResourceSubsystem> GetResourceSubsystem()
 		{
 			return context_.resourceSubsystem_;
 		}

@@ -11,8 +11,8 @@ namespace Resources
 		try {
 			GetFile()->Open();
 			GetFile()->Load();
-			OS::LogInfo("/resources/",
-				{ "Resource %s was loaded", GetPath().string().c_str() });
+			//OS::LogInfo("/resources/",
+				//{ "Resource %s was loaded", GetPath().string().c_str() });
 		}
 		catch (const OS::Exception& error) {
 			const std::string logMessage = "Error while loading resource: " + error.GetMessage() + " Resource skipped.";

@@ -2,36 +2,41 @@
 
 #include <queue>
 #include <mutex>
+#include <condition_variable>
 
 namespace Datastructures {
 
-	template<class Type>
+	template<typename T>
 	class ThreadSafeQueue {
-	public:
-
-		Type& Push(const Type& object) {
-			std::lock_guard<std::mutex> lockGuard{mutex_};
-			queue_.push(object);
-			return queue_.front();
-		}
-
-		bool IsEmpty()
-		{
-			std::lock_guard<std::mutex> lockGuard{ mutex_ };
-			return queue_.empty();
-		}
-
-		std::optional<Type> Pop() {
-			std::lock_guard<std::mutex> lockGuard{ mutex_ };
-			if (queue_.empty()) { return {}; }
-			Type data = queue_.back();
-			queue_.pop();
-			return std::optional{ data };
-		}
-
 	private:
 		std::mutex mutex_;
-		std::queue<Type> queue_;
+		std::queue<T> dataQueue_;
+		std::condition_variable conditionVariable_;
+	public:
+
+		void Push(T new_value){
+			std::lock_guard lockGuard(mutex_);
+			dataQueue_.push(new_value);
+			conditionVariable_.notify_one();
+		}
+
+		void WaitAndPop(T& value) {
+			std::unique_lock lockGuard(mutex_);
+			conditionVariable_.wait(lockGuard, [this] { return !dataQueue_.empty(); });
+			value = dataQueue_.front();
+			dataQueue_.pop();
+		}
+
+		[[nodiscard]]
+		bool TryPop(T& value) {
+			std::lock_guard lockGuard(mutex_);
+			if (!dataQueue_.empty()) { 
+				value = dataQueue_.back();
+				dataQueue_.pop();
+				return true;
+			}
+			return false;
+		}
 	};
 
 }
