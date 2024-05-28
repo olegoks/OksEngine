@@ -166,7 +166,15 @@ namespace OksEngine {
 			);
 		}
 
-		
+		void WaitForTask(Task::Id taskId) {
+			exchangeSystem_.WaitForData([](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
+				return true;
+			});
+		}
+
+		Resources::Resource GetResource() {
+			
+		}
 
 		[[nodiscard]]
 		Task::Id AddTask(Subsystem::Type senderType, Subsystem::Type receiverType, Task&& task) {
@@ -235,7 +243,7 @@ namespace OksEngine {
 		MTDataExchangeSystem<Task, Subsystem::Type> exchangeSystem_;
 
 	private:
-		std::atomic<bool> isRunning_ = false;
+		std::atomic<bool> isRunning_ = true;
 		std::jthread thread_;
 		std::shared_ptr<ResourceSubsystem> resourceSubsystem_ = nullptr;
 	};
