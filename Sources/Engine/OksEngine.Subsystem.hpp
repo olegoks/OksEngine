@@ -16,19 +16,19 @@ namespace OksEngine {
 			Undefined
 		};
 
-		Subsystem(Context& context) noexcept :
+		Subsystem(Type type, Context& context) noexcept :
 			context_{ context } { }
 
 		virtual void Update() = 0;
 
 		virtual ~Subsystem() = default;
 
-		std::shared_ptr<AsyncResourceSubsystem> GetResourceSubsystem()
-		{
+		std::shared_ptr<AsyncResourceSubsystem> GetResourceSubsystem() {
 			return context_.resourceSubsystem_;
 		}
 
 	private:
+		Type type_;
 		Context& context_;
 	};
 

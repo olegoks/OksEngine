@@ -35,7 +35,7 @@ namespace OksEngine {
 			DS::Vector<Common::Byte> data_;
 		};
 
-		ResourceSubsystem(Context& context) : Subsystem{ context } {
+		ResourceSubsystem(Context& context) : Subsystem{ Subsystem::Type::Resource, context } {
 			std::filesystem::path currentPath = std::filesystem::current_path();
 			std::filesystem::path resourcesPath = currentPath / "../../Resources";
 			for (const auto& entry : std::filesystem::recursive_directory_iterator(resourcesPath)) {
@@ -78,7 +78,7 @@ namespace OksEngine {
 			TaskType type_ = TaskType::Undefined;
 
 			[[nodiscard]]
-			TaskType GetType() { return type_; }
+			inline TaskType GetType() const { return type_; }
 		};
 
 		struct GetResourceTask : public ResourceSystemTask {
@@ -92,7 +92,6 @@ namespace OksEngine {
 			GetResourceResult(ResourceSubsystem::Resource&& resource) : resource_{ std::move(resource) } {}
 			ResourceSubsystem::Resource resource_;
 		};
-
 
 		AsyncResourceSubsystem(Context& context) {
 			resourceSubsystem_ = std::make_shared<ResourceSubsystem>(context);
@@ -160,12 +159,14 @@ namespace OksEngine {
 
 		[[nodiscard]]
 		Task::Id GetResource(Subsystem::Type subsystemType, std::filesystem::path resourcePath) {
-			AddTask(
+			return AddTask(
 				subsystemType,
 				Subsystem::Type::Resource,
 				CreateTask<GetResourceTask>(resourcePath)
 			);
 		}
+
+		
 
 		[[nodiscard]]
 		Task::Id AddTask(Subsystem::Type senderType, Subsystem::Type receiverType, Task&& task) {
@@ -204,8 +205,7 @@ namespace OksEngine {
 		{
 			while (isRunning_){
 				auto maybeTask = exchangeSystem_.GetData(Subsystem::Type::Render, Subsystem::Type::Resource);
-				if (maybeTask.has_value())
-				{
+				if (maybeTask.has_value()) {
 					auto dataInfo = maybeTask.value();
 					Task& task = dataInfo.data_;
 					ResourceSystemTask& resourceSystemTask = task.GetData<ResourceSystemTask>();
@@ -228,10 +228,13 @@ namespace OksEngine {
 			}
 		}
 
+
+
 	protected:
+
 		MTDataExchangeSystem<Task, Subsystem::Type> exchangeSystem_;
+
 	private:
-		 
 		std::atomic<bool> isRunning_ = false;
 		std::jthread thread_;
 		std::shared_ptr<ResourceSubsystem> resourceSubsystem_ = nullptr;

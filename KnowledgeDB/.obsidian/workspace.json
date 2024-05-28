@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "7e449406a3e74125",
+        "id": "04c91ff4418ce276",
         "type": "tabs",
         "children": [
           {
-            "id": "fde23484f0c92c32",
+            "id": "a562b2a8054dcb4a",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/C++/Многопоточность/std_unique_lock.md",
+                "file": "Work/C++/Многопоточность/Защита разделяемых данных во время инициализации.md",
                 "mode": "source",
                 "source": false
               }
@@ -69,8 +69,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 236.50692749023438,
-    "collapsed": true
+    "width": 236.50692749023438
   },
   "right": {
     "id": "492b75a9d817c948",
@@ -86,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/C++/Многопоточность/std_unique_lock.md",
+                "file": "Work/C++/Многопоточность/Защита разделяемых данных во время инициализации.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/C++/Многопоточность/std_unique_lock.md",
+                "file": "Work/C++/Многопоточность/Защита разделяемых данных во время инициализации.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -126,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/C++/Многопоточность/std_unique_lock.md"
+                "file": "Work/C++/Многопоточность/Защита разделяемых данных во время инициализации.md"
               }
             }
           }
@@ -147,21 +146,35 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "fde23484f0c92c32",
+  "active": "a562b2a8054dcb4a",
   "lastOpenFiles": [
-    "Work/C++/Доступ к private полю.md",
+    "Отложенная инициализация.md",
+    "Work/C++/Многопоточность/Защита разделяемых данных во время инициализации.md",
+    "Work/C++/Многопоточность/Разделение данных между потоками.md",
     "Work/C++/Многопоточность/std_unique_lock.md",
+    "Work/C++/Многопоточность/Гранулярность блокировки.md",
+    "Work/C++/Многопоточность/Состояние гонки(race condition).md",
+    "Work/C++/Многопоточность/Условная переменная(std_condition_variable).md",
+    "Work/C++/Доступ к private полю.md",
+    "Work/C++/Most vexing parse.md",
+    "Work/C++/Untitled.md",
     "Work/C++/Многопоточность/Работа с std_thread.md",
     "Work/C++/Многопоточность/Поток.md",
-    "Work/C++/Многопоточность/Разделение данных между потоками.md",
     "Work/C++/Многопоточность/Мьютекс.md",
+    "Work/C++/Многопоточность/Модель памяти С++.md",
+    "Work/C++/Многопоточность/Инвариант.md",
+    "Work/C++/Многопоточность/Гонка за данными(data race).md",
+    "Work/C++/Многопоточность/Взаимоблокировка(deadlock).md",
+    "Программирование без блокировок(lock-free programming).md",
+    "std_lock_guard.md",
+    "Work/C++/Директива препроцессора pragma once.md",
+    "Work/C++/Операторы «указатель на член» (Pointer-to-member operators).md",
+    "Pasted image 20240508170308.png",
+    "Pasted image 20240507141037.png",
+    "Pasted image 20240507140953.png",
     "Взаимоблокировка(deadlock).md",
     "Панацея.md",
     "Примитив синхронизации.md",
-    "Work/C++/Многопоточность/Состояние гонки(race condition).md",
-    "Work/C++/Многопоточность/Гонка за данными(data race).md",
-    "Work/C++/Многопоточность/Инвариант.md",
-    "Work/C++/Most vexing parse.md",
     "Attachments/learning_modern_3d_graphics_programming.pdf",
     "Attachments/Game physics cookbook.pdf",
     "Attachments/CPlusPlusNotesForProfessionals.pdf",
@@ -173,21 +186,7 @@
     "Attachments/rend_eq.pdf",
     "Attachments/chap6.pdf",
     "Work/C++/Функциональные блоки try.md",
-    "Work/C++/Операторы «указатель на член» (Pointer-to-member operators).md",
     "Work/C++/Квалификаторы ссылки в методах.md",
-    "Work/C++/Лексемы операторов.md",
-    "Pasted image 20240508170308.png",
-    "Pasted image 20240507141037.png",
-    "Pasted image 20240507140953.png",
-    "Work/Programming/Git, GitHub/git diff --cached.md",
-    "Work/C++/Шаблонный код.md",
-    "Work/C++/Директива препроцессора pragma once.md",
-    "Work/Programming/Git, GitHub/How to exit from a less program (END).md",
-    "Work/Untitled.md",
-    "Work/English/Words/To consider.md",
-    "Work/English/Words/To rely.md",
-    "Work/English/Words/Certain.md",
-    "Work/English/Words/To adjust.md",
     "Untitled.canvas"
   ]
 }
