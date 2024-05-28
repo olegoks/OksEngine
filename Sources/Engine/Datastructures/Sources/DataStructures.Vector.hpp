@@ -163,6 +163,35 @@ namespace Datastructures {
 		Common::Size capacity_ = 0;
 	};
 
+	//template<class Type>
+	//class ThreadSafeVector {
+	//public:
+
+	//	void PushBack(const Type& copyValue) {
+	//		std::lock_guard guard{ mutex_ };
+	//		vector_.PushBack(copyValue);
+	//	}
+
+	//	void Erase(Common::Index index) {
+	//		std::lock_guard guard{ mutex_ };
+	//		vector_.Erase(index);
+	//	}
+
+	//	[[nodiscard]]
+	//	Common::Size GetSize() {
+	//		std::lock_guard guard{ mutex_ };
+	//		return vector_.GetSize();
+	//	}
+
+	//	[[nodiscard]]
+	//	Type Get(Common::Index index) {
+	//		return vector_.Get(index);
+	//	}
+
+	//private:
+	//	std::mutex mutex_;
+	//	Vector<Type> vector_;
+	//};
 
 }
 

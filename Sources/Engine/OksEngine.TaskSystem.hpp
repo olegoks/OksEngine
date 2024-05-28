@@ -31,10 +31,13 @@ namespace OksEngine {
 		constexpr static inline ThreadId maxThreadId_ = std::numeric_limits<ThreadId>::max();
 
 		struct ThreadInfo {
+			std::atomic<ThreadId> threadId_;
 			std::atomic<ThreadType> sender_ = ThreadType::Undefined;
 			std::atomic<DataQueuePtr> inQueue_ = nullptr;
 			std::atomic<ThreadType> receiver_ = ThreadType::Undefined;
 			std::atomic<DataQueuePtr> outQueue_ = nullptr;
+			std::mutex mutex_;
+			DS::Vector<DataInfo> cachedOutData_;
 		};
 
 		[[nodiscard]]
@@ -60,12 +63,12 @@ namespace OksEngine {
 		void AddInQueue() {
 			ThreadInfo& threadInfo = GetThreadInfo();
 			const ThreadId threadId = GetThreadId();
-			//if(threadInfo.threadId_ != invalidThreadId_) {
-			//	OS::AssertMessage(
-			//		threadInfo.threadId_ == threadId,
-			//		"Incorrect logic of setting thread id.");
-			//}
-			//threadInfo.threadId_ = threadId;
+			if(threadInfo.threadId_.load() != invalidThreadId_) {
+				OS::AssertMessage(
+					threadInfo.threadId_ == threadId,
+					"Incorrect logic of setting thread id.");
+			}
+			threadInfo.threadId_ = threadId;
 			if (!threadInfo.inQueue_.load()) {
 				threadInfo.inQueue_ = std::make_shared<DataQueue>();
 			}
@@ -73,13 +76,13 @@ namespace OksEngine {
 
 		void AddOutQueue() {
 			ThreadInfo& threadInfo = GetThreadInfo();
-			//const ThreadId threadId = GetThreadId();
-			//if (threadInfo.threadId_ != invalidThreadId_) {
-			//	OS::AssertMessage(
-			//		threadInfo.threadId_ == threadId,
-			//		"Incorrect logic of setting thread id.");
-			//}
-			//threadInfo.threadId_ = threadId;
+			const ThreadId threadId = GetThreadId();
+			if (threadInfo.threadId_.load() != invalidThreadId_) {
+				OS::AssertMessage(
+					threadInfo.threadId_.load() == threadId,
+					"Incorrect logic of setting thread id.");
+			}
+			threadInfo.threadId_.store(threadId);
 			if (!threadInfo.outQueue_.load()) {
 				threadInfo.outQueue_ = std::make_shared<DataQueue>();
 			}
@@ -135,6 +138,52 @@ namespace OksEngine {
 			OS::LogInfo("Debug/MTExch", "Added data");
 		}
 
+		std::optional<DataInfo> GetData(std::function<bool(const DataInfo& dataInfo)> filter) {
+			ThreadInfo& threadInfo = GetThreadInfo();
+			std::lock_guard guard{ threadInfo.mutex_ };
+			for(Common::Index i = 0; i < threadInfo.cachedOutData_.GetSize(); i++) {
+				const DataInfo& dataInfo = threadInfo.cachedOutData_[i];
+				const bool isFound = filter(dataInfo);
+				if(isFound){
+					DataInfo foundDataInfo = dataInfo;
+					threadInfo.cachedOutData_.Erase(i);
+					return foundDataInfo;
+				}
+			}
+			//If in cache not found:
+			DataInfo maybeDataInfo;
+			while (threadInfo.outQueue_.load()->TryPop(maybeDataInfo)) {
+				if(filter(maybeDataInfo)) {
+					return maybeDataInfo;
+				} else {
+					threadInfo.cachedOutData_.PushBack(maybeDataInfo);
+				}
+			}
+			return {};
+			
+		}
+
+		[[nodiscard]]
+		DataInfo WaitForData(std::function<bool(const DataInfo& dataInfo)> filter) {
+			while(true) {
+				auto maybeDataInfo = GetData();
+				if(!maybeDataInfo.has_value()) {
+					std::this_thread::yield();
+					continue;
+				}
+				DataInfo dataInfo = maybeDataInfo.value();
+				if(filter(dataInfo)) {
+					return dataInfo;
+				} else {
+					ThreadInfo threadInfo = GetThreadInfo();
+					std::lock_guard guard{threadInfo.mutex_};
+					threadInfo.cachedOutData_.PushBack(dataInfo);
+				}
+			}
+
+		}
+
+
 		[[nodiscard]]
 		std::optional<DataInfo> GetData(ThreadType senderThreadType, ThreadType receiverThreadType) {
 
@@ -144,7 +193,11 @@ namespace OksEngine {
 				senderThreadType != receiverThreadType,
 				"Attempt to use different names for one thread.");
 
+
 			ThreadInfo& receiverThreadInfo = GetThreadInfo();
+			OS::AssertMessage(
+				receiverThreadInfo.threadId_ == GetThreadId(),
+				"Incorrect thread id was set to ThreadInfo.");
 			if (receiverThreadInfo.receiver_ == ThreadType::Undefined) {
 				receiverThreadInfo.receiver_ = receiverThreadType;
 			}
