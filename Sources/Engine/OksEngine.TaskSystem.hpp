@@ -14,7 +14,7 @@ namespace OksEngine {
 
 	template<class Type, Common::Enum ThreadType>
 	class MTDataExchangeSystem {
-	private:
+	public:
 
 		struct DataInfo {
 			ThreadType senderThreadType_ = ThreadType::Undefined;
@@ -67,8 +67,9 @@ namespace OksEngine {
 				OS::AssertMessage(
 					threadInfo.threadId_ == threadId,
 					"Incorrect logic of setting thread id.");
+			} else {
+				threadInfo.threadId_.store(threadId);
 			}
-			threadInfo.threadId_ = threadId;
 			if (!threadInfo.inQueue_.load()) {
 				threadInfo.inQueue_ = std::make_shared<DataQueue>();
 			}
@@ -81,8 +82,9 @@ namespace OksEngine {
 				OS::AssertMessage(
 					threadInfo.threadId_.load() == threadId,
 					"Incorrect logic of setting thread id.");
+			} else {
+				threadInfo.threadId_.store(threadId);
 			}
-			threadInfo.threadId_.store(threadId);
 			if (!threadInfo.outQueue_.load()) {
 				threadInfo.outQueue_ = std::make_shared<DataQueue>();
 			}
@@ -166,7 +168,7 @@ namespace OksEngine {
 		[[nodiscard]]
 		DataInfo WaitForData(std::function<bool(const DataInfo& dataInfo)> filter) {
 			while(true) {
-				auto maybeDataInfo = GetData();
+				auto maybeDataInfo = GetData(filter);
 				if(!maybeDataInfo.has_value()) {
 					std::this_thread::yield();
 					continue;
@@ -175,7 +177,7 @@ namespace OksEngine {
 				if(filter(dataInfo)) {
 					return dataInfo;
 				} else {
-					ThreadInfo threadInfo = GetThreadInfo();
+					ThreadInfo& threadInfo = GetThreadInfo();
 					std::lock_guard guard{threadInfo.mutex_};
 					threadInfo.cachedOutData_.PushBack(dataInfo);
 				}
@@ -195,9 +197,7 @@ namespace OksEngine {
 
 
 			ThreadInfo& receiverThreadInfo = GetThreadInfo();
-			OS::AssertMessage(
-				receiverThreadInfo.threadId_ == GetThreadId(),
-				"Incorrect thread id was set to ThreadInfo.");
+			
 			if (receiverThreadInfo.receiver_ == ThreadType::Undefined) {
 				receiverThreadInfo.receiver_ = receiverThreadType;
 			}
