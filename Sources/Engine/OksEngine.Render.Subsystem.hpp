@@ -23,14 +23,19 @@ namespace OksEngine {
 
 			auto resourceSubsystem = GetResourceSubsystem();
 
-			const auto taskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.vert");
-			//resourceSubsystem->WaitFor(Subsystem::Type::Render, taskId);
-			//ResourceSubsystem::Resource resource = std::move(resourceSubsystem->GetResource(taskId));
-			//const char* shaderText = resource.GetData<char>();
-			//auto vertexShaderResource = 
-			//auto fragmentShaderResource = resourceSubsystem->GetResource("Root/triangle.frag");
-			//RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
-			//RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
+			const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.vert");
+			const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.frag");
+			using namespace std::chrono_literals;
+			std::this_thread::sleep_for(1s);
+			ResourceSubsystem::Resource vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
+			ResourceSubsystem::Resource fragShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
+
+
+			/*const char* shaderText = resource.GetData<char>();
+			auto vertexShaderResource = 
+			auto fragmentShaderResource = resourceSubsystem->GetResource("Root/triangle.frag");
+			RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
+			RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };*/
 
 			//RAL::Driver::CreateInfo driverCreateInfo{
 			//	vertexShader,
