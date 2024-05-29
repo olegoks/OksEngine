@@ -104,8 +104,10 @@ namespace OksEngine {
 			for (ThreadInfo& threadInfo : threadInfos_) {
 				if (!threadInfo.inQueue_.load()) { continue; }
 				DataQueuePtr inQueue = threadInfo.inQueue_;
-				DataInfo dataInfo;
-				while (inQueue->TryPop(dataInfo)) {
+
+				while (inQueue->CanPop()) {
+					DataInfo dataInfo;
+					const bool isPoped = inQueue->TryPop(dataInfo);
 					ThreadType receiverThreadType = dataInfo.receiverThreadType_;
 					for (ThreadInfo& threadInfo : threadInfos_) {
 						if (!threadInfo.outQueue_.load()) { continue; }
@@ -127,8 +129,9 @@ namespace OksEngine {
 
 			ThreadInfo& senderThreadInfo = GetThreadInfo();
 			senderThreadInfo.sender_ = senderThreadType;
-
+			senderThreadInfo.receiver_ = senderThreadType;
 			if (!senderThreadInfo.inQueue_.load()) { AddInQueue(); };
+			if (!senderThreadInfo.outQueue_.load()) { AddOutQueue(); };
 
 			DataInfo dataInfo{
 				senderThreadType,
@@ -152,6 +155,11 @@ namespace OksEngine {
 					return foundDataInfo;
 				}
 			}
+
+			if (!threadInfo.inQueue_.load()) { AddInQueue(); };
+			if (!threadInfo.outQueue_.load()) { AddOutQueue(); };
+
+			//if (threadInfo.outQueue_.load() == nullptr) { return {}; }
 			//If in cache not found:
 			DataInfo maybeDataInfo;
 			while (threadInfo.outQueue_.load()->TryPop(maybeDataInfo)) {

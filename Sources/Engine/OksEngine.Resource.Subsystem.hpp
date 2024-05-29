@@ -7,6 +7,8 @@
 #include <OksEngine.Subsystem.hpp>
 #include <OksEngine.TaskSystem.hpp>
 
+#include <Windows.h>
+
 namespace OksEngine {
 
 
@@ -123,6 +125,11 @@ namespace OksEngine {
 			}
 
 			template<class Type>
+			const Type& GetData() const {
+				return *reinterpret_cast<const Type*>(&memory);
+			}
+
+			template<class Type>
 			void Destruct() {
 				static_assert(sizeof(Type) <= sizeof(memory));
 				return Memory::Destruct<Type>()(&memory);
@@ -166,14 +173,24 @@ namespace OksEngine {
 			);
 		}
 
-		void WaitForTask(Task::Id taskId) {
-			exchangeSystem_.WaitForData([](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
-				return true;
+		Task WaitForTask(Task::Id taskId) {
+			auto dataInfo = exchangeSystem_.WaitForData([&taskId](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
+				if (dataInfo.data_.GetId() == taskId) {
+					return true;
+				}
+				return false;
 			});
+			return std::move(dataInfo.data_);
 		}
 
-		Resources::Resource GetResource() {
-			
+		ResourceSubsystem::Resource GetResource(Subsystem::Type receiverSubsystem, Task::Id taskId) {
+			Task task = WaitForTask(taskId);
+			/*auto task = GetTask(Subsystem::Type::Resource, receiverSubsystem);
+			OS::AssertMessage(
+				task.has_value(),
+				"At the moment task must have value."
+			);*/
+			return std::move(task.GetData<ResourceSubsystem::Resource>());
 		}
 
 		[[nodiscard]]
@@ -199,6 +216,15 @@ namespace OksEngine {
 
 		template<class Type, class ...Args>
 		[[nodiscard]]
+		Task CreateTask(Task::Id taskId, Args&& ... args) {
+			const Task::Id newTaskId = Task::GetNewId();
+			Task newTask{ taskId };
+			newTask.Construct<Type>(std::forward<Args>(args)...);
+			return newTask;
+		}
+
+		template<class Type, class ...Args>
+		[[nodiscard]]
 		Task CreateTask(Args&& ... args) {
 			const Task::Id newTaskId = Task::GetNewId();
 			Task newTask{ newTaskId };
@@ -209,8 +235,12 @@ namespace OksEngine {
 	private:
 
 
-		void Loop()
-		{
+		void Loop() {
+			HRESULT r;
+			r = SetThreadDescription(
+				GetCurrentThread(),
+				L"Resource system loop thread"
+			);
 			while (isRunning_){
 				auto maybeTask = exchangeSystem_.GetData(Subsystem::Type::Render, Subsystem::Type::Resource);
 				if (maybeTask.has_value()) {
@@ -222,9 +252,11 @@ namespace OksEngine {
 					case TaskType::GetResource: {
 						const GetResourceTask& getResourceTask = task.GetData<GetResourceTask>();
 						auto resource = resourceSubsystem_->GetResource(getResourceTask.path_);
+						OS::AssertMessage(dataInfo.senderThreadType_ != Subsystem::Type::Undefined, "Must be sender.");
 						const Task::Id taskId = AddTask(Subsystem::Type::Resource,
 							dataInfo.senderThreadType_,
-							CreateTask<GetResourceResult>(std::move(resource)));
+							CreateTask<GetResourceResult>(task.GetId(), std::move(resource)));
+						OS::LogInfo("ResourceSubsystem/GetResource", { "Task completed to load resource %s. Task id %d", getResourceTask.path_.string().c_str(), task.GetId() });
 						break;
 					}
 					default: {

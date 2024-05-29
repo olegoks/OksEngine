@@ -37,6 +37,26 @@ namespace Datastructures {
 			}
 			return false;
 		}
+
+		//[[nodiscard]]
+		//bool Back(std::function<void(const T&)> check, T& value) {
+		//	std::lock_guard lockGuard(mutex_);
+		//	if (!dataQueue_.empty()) {
+		//		value = dataQueue_.back();
+		//		const bool 
+		//		dataQueue_.pop();
+		//		return true;
+		//	}
+		//}
+
+		[[nodiscard]]
+		bool CanPop() {
+			std::lock_guard lockGuard(mutex_);
+			if (!dataQueue_.empty()) {
+				return true;
+			}
+			return false;
+		}
 	};
 
 }
