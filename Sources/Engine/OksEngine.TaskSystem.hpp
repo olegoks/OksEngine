@@ -7,38 +7,37 @@
 #include <Common.hpp>
 #include <Datastructures.ThreadSafeQueue.hpp>
 
+#include <boost/lockfree/queue.hpp>
+
 namespace OksEngine {
 
 
 	//Система, которая позволяет передавать произвольные данные между разными потоками.
 
-	template<class Type, Common::Enum ThreadType>
+	template<class Type>
 	class MTDataExchangeSystem {
 	public:
 
-		struct DataInfo {
-			ThreadType senderThreadType_ = ThreadType::Undefined;
-			ThreadType receiverThreadType_ = ThreadType::Undefined;
-			Type data_;
-		};
-
-		using DataQueue = DS::ThreadSafeQueue<DataInfo>;
+		using ThreadId = Common::UInt8;
+		using DataQueue = boost::lockfree::queue<Type>;//DS::ThreadSafeQueue<DataInfo>;
 		using DataQueuePtr = std::shared_ptr<DataQueue>;
 
-		using ThreadId = Common::UInt8;
+		struct ThreadInfo {
+			std::atomic<ThreadId> threadId_;
+			//std::atomic<ThreadType> sender_ = ThreadType::Undefined;
+			std::atomic<DataQueuePtr> inDataQueue_ = nullptr;
+			//std::atomic<ThreadType> receiver_ = ThreadType::Undefined;
+			std::atomic<DataQueuePtr> outDataQueue_ = nullptr;
+			DS::Vector<Type> cachedOutData_;
+		};
+
+		MTDataExchangeSystem() {
+			
+		}
 
 		constexpr static inline ThreadId invalidThreadId_ = 0;
 		constexpr static inline ThreadId maxThreadId_ = std::numeric_limits<ThreadId>::max();
 
-		struct ThreadInfo {
-			std::atomic<ThreadId> threadId_;
-			std::atomic<ThreadType> sender_ = ThreadType::Undefined;
-			std::atomic<DataQueuePtr> inQueue_ = nullptr;
-			std::atomic<ThreadType> receiver_ = ThreadType::Undefined;
-			std::atomic<DataQueuePtr> outQueue_ = nullptr;
-			std::mutex mutex_;
-			DS::Vector<DataInfo> cachedOutData_;
-		};
 
 		[[nodiscard]]
 		static ThreadId GetThreadId() {
@@ -70,8 +69,8 @@ namespace OksEngine {
 			} else {
 				threadInfo.threadId_.store(threadId);
 			}
-			if (!threadInfo.inQueue_.load()) {
-				threadInfo.inQueue_ = std::make_shared<DataQueue>();
+			if (!threadInfo.inDataQueue_.load()) {
+				threadInfo.inDataQueue_ = std::make_shared<DataQueue>();
 			}
 		}
 
@@ -85,8 +84,8 @@ namespace OksEngine {
 			} else {
 				threadInfo.threadId_.store(threadId);
 			}
-			if (!threadInfo.outQueue_.load()) {
-				threadInfo.outQueue_ = std::make_shared<DataQueue>();
+			if (!threadInfo.outDataQueue_.load()) {
+				threadInfo.outDataQueue_ = std::make_shared<DataQueue>();
 			}
 		}
 
@@ -95,24 +94,24 @@ namespace OksEngine {
 		[[nodiscard]]
 		bool IsThreadRegistered() const {
 			const ThreadInfo& threadInfo = GetThreadInfo();
-			return (!threadInfo.inQueue_ && !threadInfo.outQueue_);
+			return (!threadInfo.inDataQueue_ && !threadInfo.outDataQueue_);
 		}
 
 
 		void Update() {
 
 			for (ThreadInfo& threadInfo : threadInfos_) {
-				if (!threadInfo.inQueue_.load()) { continue; }
-				DataQueuePtr inQueue = threadInfo.inQueue_;
+				if (!threadInfo.inDataQueue_.load()) { continue; }
+				DataQueuePtr inQueue = threadInfo.inDataQueue_;
 
 				while (inQueue->CanPop()) {
 					DataInfo dataInfo;
 					const bool isPoped = inQueue->TryPop(dataInfo);
 					ThreadType receiverThreadType = dataInfo.receiverThreadType_;
 					for (ThreadInfo& threadInfo : threadInfos_) {
-						if (!threadInfo.outQueue_.load()) { continue; }
+						if (!threadInfo.outDataQueue_.load()) { continue; }
 						if (threadInfo.receiver_ == receiverThreadType) {
-							threadInfo.outQueue_.load()->Push(dataInfo);
+							threadInfo.outDataQueue_.load()->Push(dataInfo);
 						}
 					}
 				}
@@ -130,8 +129,8 @@ namespace OksEngine {
 			ThreadInfo& senderThreadInfo = GetThreadInfo();
 			senderThreadInfo.sender_ = senderThreadType;
 			senderThreadInfo.receiver_ = senderThreadType;
-			if (!senderThreadInfo.inQueue_.load()) { AddInQueue(); };
-			if (!senderThreadInfo.outQueue_.load()) { AddOutQueue(); };
+			if (!senderThreadInfo.inDataQueue_.load()) { AddInQueue(); };
+			if (!senderThreadInfo.outDataQueue_.load()) { AddOutQueue(); };
 
 			DataInfo dataInfo{
 				senderThreadType,
@@ -139,7 +138,7 @@ namespace OksEngine {
 				std::move(data)
 			};
 
-			senderThreadInfo.inQueue_.load()->Push(dataInfo);
+			senderThreadInfo.inDataQueue_.load()->Push(dataInfo);
 			OS::LogInfo("Debug/MTExch", "Added data");
 		}
 
@@ -156,13 +155,13 @@ namespace OksEngine {
 				}
 			}
 
-			if (!threadInfo.inQueue_.load()) { AddInQueue(); };
-			if (!threadInfo.outQueue_.load()) { AddOutQueue(); };
+			if (!threadInfo.inDataQueue_.load()) { AddInQueue(); };
+			if (!threadInfo.outDataQueue_.load()) { AddOutQueue(); };
 
-			//if (threadInfo.outQueue_.load() == nullptr) { return {}; }
+			//if (threadInfo.outDataQueue_.load() == nullptr) { return {}; }
 			//If in cache not found:
 			DataInfo maybeDataInfo;
-			while (threadInfo.outQueue_.load()->TryPop(maybeDataInfo)) {
+			while (threadInfo.outDataQueue_.load()->TryPop(maybeDataInfo)) {
 				if(filter(maybeDataInfo)) {
 					return maybeDataInfo;
 				} else {
@@ -211,7 +210,7 @@ namespace OksEngine {
 			}
 
 			AddOutQueue();
-			DataQueuePtr queue = receiverThreadInfo.outQueue_;
+			DataQueuePtr queue = receiverThreadInfo.outDataQueue_;
 
 			DataInfo dataInfo;
 			bool isPoped = queue->TryPop(dataInfo);

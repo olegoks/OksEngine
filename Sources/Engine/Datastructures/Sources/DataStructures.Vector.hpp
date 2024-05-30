@@ -5,6 +5,8 @@
 #include <OS.Memory.Common.hpp>
 #include <OS.Memory.AllocationCallbacks.hpp>
 
+#include <boost/thread/shared_mutex.hpp>
+
 namespace Datastructures {
 
 	template<class Type>
@@ -163,35 +165,35 @@ namespace Datastructures {
 		Common::Size capacity_ = 0;
 	};
 
-	//template<class Type>
-	//class ThreadSafeVector {
-	//public:
+	template<class Type>
+	class ThreadSafeVector {
+	public:
 
-	//	void PushBack(const Type& copyValue) {
-	//		std::lock_guard guard{ mutex_ };
-	//		vector_.PushBack(copyValue);
-	//	}
+		void PushBack(const Type& copyValue) {
+			std::lock_guard guard{ mutex_ };
+			vector_.PushBack(copyValue);
+		}
 
-	//	void Erase(Common::Index index) {
-	//		std::lock_guard guard{ mutex_ };
-	//		vector_.Erase(index);
-	//	}
+		void Erase(Common::Index index) {
+			std::lock_guard guard{ mutex_ };
+			vector_.Erase(index);
+		}
 
-	//	[[nodiscard]]
-	//	Common::Size GetSize() {
-	//		std::lock_guard guard{ mutex_ };
-	//		return vector_.GetSize();
-	//	}
+		[[nodiscard]]
+		Common::Size GetSize() {
+			std::lock_guard guard{ mutex_ };
+			return vector_.GetSize();
+		}
 
-	//	[[nodiscard]]
-	//	Type Get(Common::Index index) {
-	//		return vector_.Get(index);
-	//	}
+		[[nodiscard]]
+		Type Get(Common::Index index) {
+			return vector_.Get(index);
+		}
 
-	//private:
-	//	std::mutex mutex_;
-	//	Vector<Type> vector_;
-	//};
+	private:
+		boost::shared_mutex mutex_;
+		Vector<Type> vector_;
+	};
 
 }
 
