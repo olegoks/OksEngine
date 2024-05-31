@@ -7,45 +7,42 @@
 #include <Common.hpp>
 #include <Datastructures.ThreadSafeQueue.hpp>
 
+#include <boost/lockfree/queue.hpp>
+
 namespace OksEngine {
 
-
-	//Система, которая позволяет передавать произвольные данные между разными потоками.
-
-	template<class Type, Common::Enum ThreadType>
+	template<class Type, Common::Enum ThreadName>
 	class MTDataExchangeSystem {
 	public:
-
 		struct DataInfo {
-			ThreadType senderThreadType_ = ThreadType::Undefined;
-			ThreadType receiverThreadType_ = ThreadType::Undefined;
-			Type data_;
+			ThreadName				sender_;
+			DS::Vector<ThreadName>	receivers_;
+			Type					data_;
 		};
-
-		using DataQueue = DS::ThreadSafeQueue<DataInfo>;
-		using DataQueuePtr = std::shared_ptr<DataQueue>;
+	private:
 
 		using ThreadId = Common::UInt8;
+		using DataQueue = DS::ThreadSafeQueue<DataInfo>;//boost::lockfree::queue<Type>;
+		using DataQueuePtr = std::shared_ptr<DataQueue>;
+		constexpr static inline Common::Size maxReceiversNumber_ = 8;
+
+
+		struct ThreadInfo {
+			std::atomic<ThreadName>		name_ = ThreadName::Undefined;
+			std::atomic<DataQueuePtr>	inDataQueue_ = nullptr;
+			std::atomic<DataQueuePtr>	outDataQueue_ = nullptr;
+			DS::Vector<DataInfo>		cachedOutDataInfos_;
+		};
 
 		constexpr static inline ThreadId invalidThreadId_ = 0;
 		constexpr static inline ThreadId maxThreadId_ = std::numeric_limits<ThreadId>::max();
-
-		struct ThreadInfo {
-			std::atomic<ThreadId> threadId_;
-			std::atomic<ThreadType> sender_ = ThreadType::Undefined;
-			std::atomic<DataQueuePtr> inQueue_ = nullptr;
-			std::atomic<ThreadType> receiver_ = ThreadType::Undefined;
-			std::atomic<DataQueuePtr> outQueue_ = nullptr;
-			std::mutex mutex_;
-			DS::Vector<DataInfo> cachedOutData_;
-		};
 
 		[[nodiscard]]
 		static ThreadId GetThreadId() {
 			static std::atomic<ThreadId> threadId_ = invalidThreadId_;
 			static thread_local ThreadId id = invalidThreadId_;
 			if (id == invalidThreadId_) {
-				OS::AssertMessage(threadId_.load() != std::numeric_limits<ThreadId>::max(), "");
+				OS::AssertMessage(threadId_.load() != maxThreadId_, "");
 				id = ++threadId_;
 			}
 			return id;
@@ -58,168 +55,169 @@ namespace OksEngine {
 			return threadInfos_[threadId];
 		}
 
+		std::once_flag initializeThreadInfosFlag_;
+		void InitializeThreadInfo() {
+			for (ThreadInfo& threadInfo : threadInfos_) {
+				threadInfo.cachedOutDataInfos_.Reserve(16);
+				threadInfo.inDataQueue_ = std::make_shared<DataQueue>();
+				threadInfo.outDataQueue_ = std::make_shared<DataQueue>();
+			}
+		}
+
 		ThreadInfo threadInfos_[maxThreadId_ + 1];
-
-		void AddInQueue() {
-			ThreadInfo& threadInfo = GetThreadInfo();
-			const ThreadId threadId = GetThreadId();
-			if(threadInfo.threadId_.load() != invalidThreadId_) {
-				OS::AssertMessage(
-					threadInfo.threadId_ == threadId,
-					"Incorrect logic of setting thread id.");
-			} else {
-				threadInfo.threadId_.store(threadId);
-			}
-			if (!threadInfo.inQueue_.load()) {
-				threadInfo.inQueue_ = std::make_shared<DataQueue>();
-			}
+		DS::Vector<DataInfo> dataCache_;
+	public:
+		MTDataExchangeSystem() {
+			std::call_once(initializeThreadInfosFlag_, &MTDataExchangeSystem::InitializeThreadInfo, this);
 		}
-
-		void AddOutQueue() {
-			ThreadInfo& threadInfo = GetThreadInfo();
-			const ThreadId threadId = GetThreadId();
-			if (threadInfo.threadId_.load() != invalidThreadId_) {
-				OS::AssertMessage(
-					threadInfo.threadId_.load() == threadId,
-					"Incorrect logic of setting thread id.");
-			} else {
-				threadInfo.threadId_.store(threadId);
-			}
-			if (!threadInfo.outQueue_.load()) {
-				threadInfo.outQueue_ = std::make_shared<DataQueue>();
-			}
-		}
-
 	public:
 
-		[[nodiscard]]
-		bool IsThreadRegistered() const {
-			const ThreadInfo& threadInfo = GetThreadInfo();
-			return (!threadInfo.inQueue_ && !threadInfo.outQueue_);
-		}
-
-
 		void Update() {
-
 			for (ThreadInfo& threadInfo : threadInfos_) {
-				if (!threadInfo.inQueue_.load()) { continue; }
-				DataQueuePtr inQueue = threadInfo.inQueue_;
-
-				while (inQueue->CanPop()) {
-					DataInfo dataInfo;
-					const bool isPoped = inQueue->TryPop(dataInfo);
-					ThreadType receiverThreadType = dataInfo.receiverThreadType_;
-					for (ThreadInfo& threadInfo : threadInfos_) {
-						if (!threadInfo.outQueue_.load()) { continue; }
-						if (threadInfo.receiver_ == receiverThreadType) {
-							threadInfo.outQueue_.load()->Push(dataInfo);
+				DataInfo dataInfo;
+				const bool isPoped = threadInfo.inDataQueue_.load()->TryPop(dataInfo);
+				if (!isPoped) { continue; }
+				DS::Vector<ThreadName> notFoundReceivers;
+				for (Common::Index i = 0; i < dataInfo.receivers_.GetSize(); i++) {
+					const ThreadName receiver = dataInfo.receivers_[i];
+					ThreadInfo* receiverThreadInfo = nullptr;
+					const bool isFound = GetThreadInfo(&receiverThreadInfo, receiver);
+					if (!isFound) {
+						notFoundReceivers.PushBack(receiver);
+						continue;
+					}
+					receiverThreadInfo->outDataQueue_.load()->Push(dataInfo);
+					OS::LogInfo("MTSystem", { "Update: data moved from one queue to second."  });
+				}
+				if (notFoundReceivers.GetSize() > 0) {
+					dataInfo.receivers_ = notFoundReceivers;
+					dataCache_.PushBack(std::move(dataInfo));
+				}
+				
+				for (Common::Index i = 0; i < dataCache_.GetSize(); i++) {
+					DataInfo& dataInfo = dataCache_[i];
+					auto receivers = dataInfo.receivers_;
+					for (Common::Index i = 0; i < dataInfo.receivers_.GetSize(); i++) {
+						const ThreadName receiver = dataInfo.receivers_[i];
+						ThreadInfo* receiverThreadInfo = nullptr;
+						const bool isFound = GetThreadInfo(&receiverThreadInfo, receiver);
+						if (!isFound) {
+							continue;
 						}
+						receiverThreadInfo->outDataQueue_.load()->Push(dataInfo);
+						OS::LogInfo("MTSystem", { "Update: data moved from one queue to second." });
+						[[maybe_unused]] const Common::Size beforeEraseSize = receivers.GetSize();
+						receivers.Erase(receiver);
+						[[maybe_unused]] const Common::Size afterEraseSize = receivers.GetSize();
+						OS::AssertMessage(beforeEraseSize - afterEraseSize == 1, "");
 					}
 				}
 			}
 		}
 
-		void AddData(ThreadType senderThreadType, ThreadType receiverThreadType, Type&& data) {
-
-			OS::AssertMessage(senderThreadType != ThreadType::Undefined, "");
-			OS::AssertMessage(receiverThreadType != ThreadType::Undefined, "");
-			OS::AssertMessage(
-				senderThreadType != receiverThreadType,
-				"Attempt to use different names for one thread.");
-
-			ThreadInfo& senderThreadInfo = GetThreadInfo();
-			senderThreadInfo.sender_ = senderThreadType;
-			senderThreadInfo.receiver_ = senderThreadType;
-			if (!senderThreadInfo.inQueue_.load()) { AddInQueue(); };
-			if (!senderThreadInfo.outQueue_.load()) { AddOutQueue(); };
-
-			DataInfo dataInfo{
-				senderThreadType,
-				receiverThreadType,
-				std::move(data)
-			};
-
-			senderThreadInfo.inQueue_.load()->Push(dataInfo);
-			OS::LogInfo("Debug/MTExch", "Added data");
-		}
-
-		std::optional<DataInfo> GetData(std::function<bool(const DataInfo& dataInfo)> filter) {
-			ThreadInfo& threadInfo = GetThreadInfo();
-			std::lock_guard guard{ threadInfo.mutex_ };
-			for(Common::Index i = 0; i < threadInfo.cachedOutData_.GetSize(); i++) {
-				const DataInfo& dataInfo = threadInfo.cachedOutData_[i];
-				const bool isFound = filter(dataInfo);
-				if(isFound){
-					DataInfo foundDataInfo = dataInfo;
-					threadInfo.cachedOutData_.Erase(i);
-					return foundDataInfo;
-				}
-			}
-
-			if (!threadInfo.inQueue_.load()) { AddInQueue(); };
-			if (!threadInfo.outQueue_.load()) { AddOutQueue(); };
-
-			//if (threadInfo.outQueue_.load() == nullptr) { return {}; }
-			//If in cache not found:
-			DataInfo maybeDataInfo;
-			while (threadInfo.outQueue_.load()->TryPop(maybeDataInfo)) {
-				if(filter(maybeDataInfo)) {
-					return maybeDataInfo;
-				} else {
-					threadInfo.cachedOutData_.PushBack(maybeDataInfo);
-				}
-			}
-			return {};
-			
-		}
 
 		[[nodiscard]]
-		DataInfo WaitForData(std::function<bool(const DataInfo& dataInfo)> filter) {
-			while(true) {
-				auto maybeDataInfo = GetData(filter);
-				if(!maybeDataInfo.has_value()) {
-					std::this_thread::yield();
-					continue;
-				}
-				DataInfo dataInfo = maybeDataInfo.value();
-				if(filter(dataInfo)) {
-					return dataInfo;
-				} else {
-					ThreadInfo& threadInfo = GetThreadInfo();
-					std::lock_guard guard{threadInfo.mutex_};
-					threadInfo.cachedOutData_.PushBack(dataInfo);
+		bool GetThreadInfo(ThreadInfo** threadInfoPtr, ThreadName receiverName) {
+			for (ThreadInfo& threadInfo : threadInfos_) {
+				if (threadInfo.name_ == receiverName) {
+					*threadInfoPtr = &threadInfo;
+					return true;
 				}
 			}
-
+			return false;
 		}
 
-
-		[[nodiscard]]
-		std::optional<DataInfo> GetData(ThreadType senderThreadType, ThreadType receiverThreadType) {
-
-			OS::AssertMessage(senderThreadType != ThreadType::Undefined, "");
-			OS::AssertMessage(receiverThreadType != ThreadType::Undefined, "");
+		void AddData(ThreadName sender, const DS::Vector<ThreadName>& receivers, Type&& data) {
 			OS::AssertMessage(
-				senderThreadType != receiverThreadType,
-				"Attempt to use different names for one thread.");
-
-
-			ThreadInfo& receiverThreadInfo = GetThreadInfo();
-			
-			if (receiverThreadInfo.receiver_ == ThreadType::Undefined) {
-				receiverThreadInfo.receiver_ = receiverThreadType;
-			}
-
-			AddOutQueue();
-			DataQueuePtr queue = receiverThreadInfo.outQueue_;
-
+				receivers.GetSize() <= maxReceiversNumber_,
+				"Number of receivers is more tham limit value."
+			);
+			OS::AssertMessage(
+				receivers.GetSize() > 0,
+				"Receivers are not set."
+			);
 			DataInfo dataInfo;
-			bool isPoped = queue->TryPop(dataInfo);
-			if (isPoped) {
-				OS::LogInfo("Debug/MTExch", { "GOT data" });
-				return dataInfo/*.data_*/;
+			{
+				dataInfo.sender_ = sender;
+				dataInfo.receivers_ = receivers;
+				dataInfo.data_ = std::move(data);
+			};
+			ThreadInfo& senderThreadInfo = GetThreadInfo();
+			if (senderThreadInfo.name_ == ThreadName::Undefined) { senderThreadInfo.name_ = sender;  }
+			senderThreadInfo.inDataQueue_.load()->Push(std::move(dataInfo));
+		}
+
+
+		void AddData(ThreadName sender, ThreadName receiver, Type&& data) {
+			DS::Vector<ThreadName> receivers;
+			receivers.PushBack(receiver);
+			AddData(sender, receivers, std::forward<Type>(data));
+		}
+
+		[[nodiscard]]
+		bool GetData(ThreadName receiver, Type& outDataInfo, std::function<bool(const DataInfo& dataInfo)> filter) {
+			bool isFound = false;
+			{
+				DataInfo dataInfo;
+				isFound = GetCachedDataInfo(dataInfo, filter);
+				if (isFound) {
+					outDataInfo = std::move(dataInfo.data_);
+					return true;
+				}
 			}
-			return { };
+			{
+				ThreadInfo& threadInfo = GetThreadInfo();
+				if (threadInfo.name_ == ThreadName::Undefined) { threadInfo.name_ = receiver;  }
+				DataInfo dataInfo;
+				while (GetDataInfo(dataInfo)) {
+					if (filter(dataInfo)) {
+						outDataInfo = std::move(dataInfo.data_);
+						return true;
+					}
+					else {
+						threadInfo.cachedOutDataInfos_.PushBack(std::move(dataInfo));
+					}
+				}
+				return false;
+			}
+		}
+
+		[[nodiscard]]
+		bool GetCachedDataInfo(DataInfo& outDataInfo, std::function<bool(const DataInfo& dataInfo)> filter) {
+			ThreadInfo& threadInfo = GetThreadInfo();
+			for (Common::Index i = 0; i < threadInfo.cachedOutDataInfos_.GetSize(); i++) {
+				DataInfo& dataInfo = threadInfo.cachedOutDataInfos_[i];
+				const bool isFound = filter(dataInfo);
+				if (isFound) {
+					outDataInfo = std::move(dataInfo);
+					threadInfo.cachedOutDataInfos_.Erase(i);
+					return true;
+				}
+			}
+			return false;
+		}
+
+		[[nodiscard]]
+		DataInfo WaitForData(ThreadName receiver, std::function<bool(const DataInfo& dataInfo)> filter) {
+			Type data;
+			while (true) {
+				const bool isGot = GetData(receiver, data, filter);
+
+				if (!isGot) { std::this_thread::yield(); }
+			}
+
+		}
+
+
+		[[nodiscard]]
+		bool GetDataInfo(DataInfo& outDataInfo) {
+			ThreadInfo& receiverThreadInfo = GetThreadInfo();
+			DataInfo dataInfo;
+			const bool isPoped = receiverThreadInfo.outDataQueue_.load()->TryPop(dataInfo);
+			if (isPoped) {
+				outDataInfo = std::move(dataInfo);
+			}
+			return isPoped;
 		}
 
 	};

@@ -26,6 +26,7 @@ namespace OksEngine {
 			const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.vert");
 			const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.frag");
 			using namespace std::chrono_literals;
+			OS::LogInfo("Engine/RenderSubsystem/", "Tasks to load resources sent.");
 			std::this_thread::sleep_for(1s);
 			ResourceSubsystem::Resource vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
 			ResourceSubsystem::Resource fragShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);

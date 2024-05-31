@@ -1,5 +1,5 @@
 #!/bin/bash
 
-sh BuildAndTest.sh
+sh ./BuildAndTest.sh
 
 read -p "Press enter to exit."
