@@ -40,7 +40,7 @@ namespace Geometry {
 
 		//	const Common::Size pixelsNumber = createInfo.width_ * createInfo.height_;
 		//	
-		//	RGBA32* pixelsMemory = Common::Memory::memory.Allocate<RGBA32>("texture", pixelsNumber);
+		//	RGBA32* pixelsMemory = Common::Memory::memory_.Allocate<RGBA32>("texture", pixelsNumber);
 		//	pixels_ = pixelsMemory;
 
 		//}
@@ -77,7 +77,7 @@ namespace Geometry {
 		//~Texture() noexcept {
 		//	if (pixels_ != nullptr) {
 		//		OS::AssertMessage(GetPixelsNumber() != 0, "Invalide texture state.");
-		//		Common::Memory::memory.Deallocate(pixels_);
+		//		Common::Memory::memory_.Deallocate(pixels_);
 		//		pixels_ = nullptr;
 		//	} else {
 		//		OS::AssertMessage(GetPixelsNumber() == 0, "Invalide texture state.");
@@ -91,10 +91,10 @@ namespace Geometry {
 	};
 
 	//[[nodiscard]]
-	//Texture CreateTexture(const Common::Byte* memory, Common::Size size) noexcept {
+	//Texture CreateTexture(const Common::Byte* memory_, Common::Size size) noexcept {
 
 	//	int texWidth, texHeight, texChannels;
-	//	stbi_uc* pixels = stbi_load_from_memory((stbi_uc*)memory, size, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
+	//	stbi_uc* pixels = stbi_load_from_memory((stbi_uc*)memory_, size, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
 	//	OS::AssertMessage(pixels != nullptr, { "Error while creating texture. %s.",  stbi_failure_reason() });
 
 	//	Texture::CreateInfo textureCreateInfo;

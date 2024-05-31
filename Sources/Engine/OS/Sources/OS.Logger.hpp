@@ -61,9 +61,10 @@ namespace OS {
 		};
 
 		void Log(Severity severity, const std::string_view path, const Common::Format& format, const std::source_location& location = std::source_location::current()) {
-			std::lock_guard lock{ mutex_ };
+			//std::lock_guard lock{ mutex_ };
 			Entry entry{ severity, path, format, location };
 			std::cout << entry;
+			std::cout.flush();
 		}
 
 	private:

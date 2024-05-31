@@ -13,7 +13,11 @@
             "state": {
               "type": "markdown",
               "state": {
+<<<<<<< HEAD
+                "file": "Work/C++/Вопросы для собеседования по С++.md",
+=======
                 "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+>>>>>>> bc1ce89de3593d812bfe8ee7157121b7291e8027
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +89,11 @@
             "state": {
               "type": "backlink",
               "state": {
+<<<<<<< HEAD
+                "file": "Work/C++/Вопросы для собеседования по С++.md",
+=======
                 "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+>>>>>>> bc1ce89de3593d812bfe8ee7157121b7291e8027
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +110,11 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+<<<<<<< HEAD
+                "file": "Work/C++/Вопросы для собеседования по С++.md",
+=======
                 "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+>>>>>>> bc1ce89de3593d812bfe8ee7157121b7291e8027
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +137,11 @@
             "state": {
               "type": "outline",
               "state": {
+<<<<<<< HEAD
+                "file": "Work/C++/Вопросы для собеседования по С++.md"
+=======
                 "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md"
+>>>>>>> bc1ce89de3593d812bfe8ee7157121b7291e8027
               }
             }
           }
@@ -148,6 +164,38 @@
   },
   "active": "fde23484f0c92c32",
   "lastOpenFiles": [
+<<<<<<< HEAD
+    "Work/C++/Многопоточность/Модель памяти С++.md",
+    "Work/C++/Вопросы для собеседования по С++.md",
+    "Конструктор.md",
+    "Work/English/Words/Dedicated.md",
+    "Work/C++/Ячейка памяти.md",
+    "Work/C++/Отложенная инициализация.md",
+    "Work/C++/Неопределенное поведение.md",
+    "Work/C++/Многопоточность/Программирование без блокировок(lock-free programming).md",
+    "Work/C++/Многопоточность/Примитив синхронизации.md",
+    "Work/C++/Многопоточность/Объект в модели памяти С++.md",
+    "Work/C++/Многопоточность/Взаимоблокировка(deadlock) 1.md",
+    "Work/C++/Многопоточность/Атомарные операции.md",
+    "Work/C++/Многопоточность/std_lock_guard.md",
+    "RAII.md",
+    "Attachments/Pasted image 20240508170308.png",
+    "Attachments/Pasted image 20240507141037.png",
+    "Attachments/Pasted image 20240507140953.png",
+    "Неопределенное поведение.md",
+    "Ячейка памяти.md",
+    "Атомарные операции.md",
+    "Work/C++/Многопоточность/Синхронизация.md",
+    "Attachments/Pasted image 20240528231824.png",
+    "Work/C++/Многопоточность/std_unique_lock.md",
+    "Программирование без блокировок(lock-free programming).md",
+    "Отложенная инициализация.md",
+    "std_lock_guard.md",
+    "Work/C++/Многопоточность/Условная переменная(std_condition_variable).md",
+    "Work/C++/Многопоточность/Защита разделяемых данных во время инициализации.md",
+    "Work/C++/Многопоточность/Гранулярность блокировки.md",
+    "Work/C++/Многопоточность/Взаимоблокировка(deadlock).md",
+=======
     "Work/C++/Многопоточность/Конструкции/Условная переменная(std_condition_variable).md",
     "Work/C++/Многопоточность/Топики/Ожидание события или иного условия.md",
     "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
@@ -181,6 +229,7 @@
     "Attachments/Pasted image 20240507141037.png",
     "Attachments/Pasted image 20240507140953.png",
     "Attachments/Pasted image 20240528231824.png",
+>>>>>>> bc1ce89de3593d812bfe8ee7157121b7291e8027
     "Attachments/learning_modern_3d_graphics_programming.pdf",
     "Attachments/Game physics cookbook.pdf",
     "Attachments/CPlusPlusNotesForProfessionals.pdf",
@@ -188,6 +237,15 @@
     "Attachments/s2013_pbs_physics_math_notes.pdf",
     "Attachments/Pauschenwein_2022-Bachelor thesis.pdf",
     "Attachments/Ian_Millington-Game_Physics_Engine_Development-EN.pdf",
+<<<<<<< HEAD
+    "Attachments/Coding Labs -- Physically Based Rendering.pdf",
+    "Attachments/rend_eq.pdf",
+    "Attachments/chap6.pdf",
+    "Pasted image 20240508170308.png",
+    "Pasted image 20240507141037.png",
+    "Pasted image 20240507140953.png",
+=======
+>>>>>>> bc1ce89de3593d812bfe8ee7157121b7291e8027
     "Untitled.canvas"
   ]
 }

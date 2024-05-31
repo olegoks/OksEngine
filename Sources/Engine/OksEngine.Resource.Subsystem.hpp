@@ -115,24 +115,24 @@ namespace OksEngine {
 			}
 			template<class Type, class ...Args>
 			Type& Construct(Args&& ... args) {
-				static_assert(sizeof(Type) <= sizeof(memory));
-				return *Memory::Construct<Type>(reinterpret_cast<Type*>(&memory), std::forward<Args>(args)...);
+				static_assert(sizeof(Type) <= sizeof(memory_));
+				return *Memory::Construct<Type>(reinterpret_cast<Type*>(&memory_), std::forward<Args>(args)...);
 			}
 
 			template<class Type>
 			Type& GetData() {
-				return *reinterpret_cast<Type*>(&memory);
+				return *reinterpret_cast<Type*>(&memory_);
 			}
 
 			template<class Type>
 			const Type& GetData() const {
-				return *reinterpret_cast<const Type*>(&memory);
+				return *reinterpret_cast<const Type*>(&memory_);
 			}
 
 			template<class Type>
 			void Destruct() {
-				static_assert(sizeof(Type) <= sizeof(memory));
-				return Memory::Destruct<Type>()(&memory);
+				static_assert(sizeof(Type) <= sizeof(memory_));
+				return Memory::Destruct<Type>()(&memory_);
 			}
 
 			[[nodiscard]]
@@ -145,27 +145,33 @@ namespace OksEngine {
 					return *this;
 				}
 
-				senderSubsystem_ = copyTask.senderSubsystem_;
-				receiverSubsystem_ = copyTask.receiverSubsystem_;
+				//senderSubsystem_ = copyTask.senderSubsystem_;
+				//receiverSubsystem_ = copyTask.receiverSubsystem_;
 
 				id_ = copyTask.id_;
 
-				std::memcpy(memory, copyTask.memory, sizeof(memory));
+				std::memcpy(memory_, copyTask.memory_, sizeof(memory_));
 
 				return *this;
 			}
-
-			Subsystem::Type senderSubsystem_ = Subsystem::Type::Undefined;
-			Subsystem::Type receiverSubsystem_ = Subsystem::Type::Undefined;
+			struct Hash {
+				Common::Size operator()(const Task& task){
+					std::string_view bytes{ task.memory_, sizeof(task.memory_)};
+					return std::hash<std::string_view>{}(bytes);
+				}
+			};
+			//Subsystem::Type senderSubsystem_ = Subsystem::Type::Undefined;
+			//Subsystem::Type receiverSubsystem_ = Subsystem::Type::Undefined;
 		private:
 			Id id_ = 0;
-			Common::Byte memory[5 * Common::cacheLineSize_ - sizeof(Id) - 2 * sizeof(Subsystem::Type)] = { 0 };
+			Common::Byte memory_[5 * Common::cacheLineSize_ - sizeof(Id) /* - 2 * sizeof(Subsystem::Type) */ ] = {0};
 		};
 
 		static_assert(sizeof(Task) == 5 * Common::cacheLineSize_);
 
 		[[nodiscard]]
 		Task::Id GetResource(Subsystem::Type subsystemType, std::filesystem::path resourcePath) {
+			OS::LogInfo("Engine/Render", "Task added to MT system.");
 			return AddTask(
 				subsystemType,
 				Subsystem::Type::Resource,
@@ -173,18 +179,19 @@ namespace OksEngine {
 			);
 		}
 
-		Task WaitForTask(Task::Id taskId) {
-			auto dataInfo = exchangeSystem_.WaitForData([&taskId](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
+		Task WaitForTask(Subsystem::Type receiver, Task::Id taskId) {
+			auto dataInfo = exchangeSystem_.WaitForData(receiver, [&taskId](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
 				if (dataInfo.data_.GetId() == taskId) {
 					return true;
 				}
 				return false;
-			});
+				});
 			return std::move(dataInfo.data_);
 		}
 
 		ResourceSubsystem::Resource GetResource(Subsystem::Type receiverSubsystem, Task::Id taskId) {
-			Task task = WaitForTask(taskId);
+			OS::LogInfo("Engine/Render", "Waiting for task.");
+			Task task = WaitForTask(Subsystem::Type::Resource, taskId);
 			/*auto task = GetTask(Subsystem::Type::Resource, receiverSubsystem);
 			OS::AssertMessage(
 				task.has_value(),
@@ -201,17 +208,12 @@ namespace OksEngine {
 		}
 
 		[[nodiscard]]
-		std::optional<Task> GetTask(Subsystem::Type senderType, Subsystem::Type receiverType) {
-
-			auto maybeResultTaskDataInfo = exchangeSystem_.GetData(senderType, receiverType);
-			if (!maybeResultTaskDataInfo.has_value()) {
-				return std::optional<Task>{};
-			}
-
-			auto resultTaskDataInfo = maybeResultTaskDataInfo.value();
-			resultTaskDataInfo.data_.senderSubsystem_ = resultTaskDataInfo.senderThreadType_;
-			resultTaskDataInfo.data_.receiverSubsystem_ = resultTaskDataInfo.receiverThreadType_;
-			return resultTaskDataInfo.data_;
+		bool GetTask(Subsystem::Type receivier, Task& task, std::function<bool(Subsystem::Type sender, const DS::Vector<Subsystem::Type>& receivers, const Task& task)> filter) {
+			const bool isGot = exchangeSystem_.GetData(receivier, task,
+				[&filter](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
+					return filter(dataInfo.sender_, dataInfo.receivers_, dataInfo.data_.GetData<Task>());
+				});
+			return isGot;
 		}
 
 		template<class Type, class ...Args>
@@ -241,30 +243,41 @@ namespace OksEngine {
 				GetCurrentThread(),
 				L"Resource system loop thread"
 			);
-			while (isRunning_){
-				auto maybeTask = exchangeSystem_.GetData(Subsystem::Type::Render, Subsystem::Type::Resource);
-				if (maybeTask.has_value()) {
-					auto dataInfo = maybeTask.value();
-					Task& task = dataInfo.data_;
-					ResourceSystemTask& resourceSystemTask = task.GetData<ResourceSystemTask>();
-					const TaskType taskType = resourceSystemTask.GetType();
-					switch (taskType) {
-					case TaskType::GetResource: {
-						const GetResourceTask& getResourceTask = task.GetData<GetResourceTask>();
-						auto resource = resourceSubsystem_->GetResource(getResourceTask.path_);
-						OS::AssertMessage(dataInfo.senderThreadType_ != Subsystem::Type::Undefined, "Must be sender.");
-						const Task::Id taskId = AddTask(Subsystem::Type::Resource,
-							dataInfo.senderThreadType_,
-							CreateTask<GetResourceResult>(task.GetId(), std::move(resource)));
-						OS::LogInfo("ResourceSubsystem/GetResource", { "Task completed to load resource %s. Task id %d", getResourceTask.path_.string().c_str(), task.GetId() });
-						break;
-					}
-					default: {
-						OS::NotImplemented();
-					}
-					};
-				}
+			while (isRunning_) {
 				exchangeSystem_.Update();
+				Subsystem::Type taskSender = Subsystem::Type::Undefined;
+				Task task;
+				const bool isGot = GetTask(Subsystem::Type::Resource, task, 
+					[&taskSender](
+						Subsystem::Type sender,
+						const DS::Vector<Subsystem::Type>& receivers,
+						const Task& task){
+							taskSender = sender;
+						return true;
+					});
+				if (!isGot) { continue; }
+				//OS::AssertMessage(
+				//	task.receiverSubsystem_ == Subsystem::Type::Resource,
+				//	"WTF"
+				//);
+				ResourceSystemTask& resourceSystemTask = task.GetData<ResourceSystemTask>();
+				const TaskType taskType = resourceSystemTask.GetType();
+				switch (taskType) {
+				case TaskType::GetResource: {
+					const GetResourceTask& getResourceTask = task.GetData<GetResourceTask>();
+					auto resource = resourceSubsystem_->GetResource(getResourceTask.path_);
+
+					const Task::Id taskId = AddTask(
+						Subsystem::Type::Resource, taskSender,
+						CreateTask<GetResourceResult>(task.GetId(), std::move(resource)));
+					//OS::LogInfo("ResourceSubsystem/GetResource", { "Task completed to load resource "/*, getResourceTask.path_.string().c_str(), task.GetId()*/ });
+					break;
+				}
+				default: {
+					OS::NotImplemented();
+				}
+				};
+				
 			}
 		}
 

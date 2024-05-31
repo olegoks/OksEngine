@@ -1,6 +1,7 @@
 #!/bin/bash
 #set -x
-sh LoadDependencies.sh
+scriptDirectory=$(dirname $0)
+sh ${scriptDirectory}/LoadDependencies.sh
 cd ../
 mkdir Build
 cd Build
