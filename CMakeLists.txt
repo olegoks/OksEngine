@@ -1,6 +1,6 @@
 cmake_minimum_required(VERSION VERSION  3.26.4)
 
-set(CMAKE_TOOLCHAIN_FILE "D:/vcpkg/scripts/buildsystems/vcpkg.cmake") #For vcpkg
+set(CMAKE_TOOLCHAIN_FILE "${CMAKE_CURRENT_SOURCE_DIR}/vcpkg/scripts/buildsystems/vcpkg.cmake") #For vcpkg
 
 project("OksEngine0_1"
     VERSION 0.1.0
