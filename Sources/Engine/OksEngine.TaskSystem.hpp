@@ -118,54 +118,29 @@ namespace OksEngine {
 			}
 		}
 
-		void AddData(ThreadType senderThreadType, ThreadType receiverThreadType, Type&& data) {
-
-			OS::AssertMessage(senderThreadType != ThreadType::Undefined, "");
-			OS::AssertMessage(receiverThreadType != ThreadType::Undefined, "");
-			OS::AssertMessage(
-				senderThreadType != receiverThreadType,
-				"Attempt to use different names for one thread.");
-
+		void AddData(Type&& data) {
 			ThreadInfo& senderThreadInfo = GetThreadInfo();
-			senderThreadInfo.sender_ = senderThreadType;
-			senderThreadInfo.receiver_ = senderThreadType;
-			if (!senderThreadInfo.inDataQueue_.load()) { AddInQueue(); };
-			if (!senderThreadInfo.outDataQueue_.load()) { AddOutQueue(); };
-
-			DataInfo dataInfo{
-				senderThreadType,
-				receiverThreadType,
-				std::move(data)
-			};
-
-			senderThreadInfo.inDataQueue_.load()->Push(dataInfo);
-			OS::LogInfo("Debug/MTExch", "Added data");
+			senderThreadInfo.inDataQueue_.load()->Push(std::move(data));
 		}
 
-		std::optional<DataInfo> GetData(std::function<bool(const DataInfo& dataInfo)> filter) {
+		std::optional<Type> GetData(std::function<bool(const DataInfo& dataInfo)> filter) {
 			ThreadInfo& threadInfo = GetThreadInfo();
 			std::lock_guard guard{ threadInfo.mutex_ };
 			for(Common::Index i = 0; i < threadInfo.cachedOutData_.GetSize(); i++) {
-				const DataInfo& dataInfo = threadInfo.cachedOutData_[i];
+				const Type& data = threadInfo.cachedOutData_[i];
 				const bool isFound = filter(dataInfo);
 				if(isFound){
-					DataInfo foundDataInfo = dataInfo;
+					Type foundData = data;
 					threadInfo.cachedOutData_.Erase(i);
-					return foundDataInfo;
+					return foundData;
 				}
 			}
-
-			if (!threadInfo.inDataQueue_.load()) { AddInQueue(); };
-			if (!threadInfo.outDataQueue_.load()) { AddOutQueue(); };
-
-			//if (threadInfo.outDataQueue_.load() == nullptr) { return {}; }
-			//If in cache not found:
-			DataInfo maybeDataInfo;
-			while (threadInfo.outDataQueue_.load()->TryPop(maybeDataInfo)) {
+			Type maybeData;
+			while (threadInfo.outDataQueue_.load()->TryPop(maybeData)) {
 				if(filter(maybeDataInfo)) {
 					return maybeDataInfo;
 				} else {
-					threadInfo.cachedOutData_.PushBack(maybeDataInfo);
+					threadInfo.cachedOutData_.PushBack(std::move(maybeData));
 				}
 			}
 			return {};

@@ -47,19 +47,22 @@ FILES
 ${PUBLIC_SOURCES}
 ${PRIVATE_SOURCES})
 
-
+find_package(Boost CONFIG REQUIRED)
 target_include_directories(Datastructures
     PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/${SourcesDir})
+        ${CMAKE_CURRENT_LIST_DIR}/${SourcesDir}
+        ${Boost_INCLUDE_DIRS})
     
         
-find_package(Boost CONFIG REQUIRED)
+
 target_link_libraries(Datastructures
     PUBLIC
         OS
-        #Boost::Log
-        ${Boost_LIBRARIES}
+        #Boost::chrono
+        #${Boost_LIBRARIES}
         )
+
+        target_link_libraries(Datastructures ${Boost_LIBRARIES})
 
 # Boost::headers
 # Boost::atomic
