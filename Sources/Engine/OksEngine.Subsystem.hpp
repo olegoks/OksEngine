@@ -16,6 +16,23 @@ namespace OksEngine {
 			Undefined
 		};
 
+		static const char* TypeToString(Type type) {
+			switch (type) {
+			case Type::Resource:
+				{
+				return "Resource";
+				}
+			case Type::Render:
+			{
+				return "Render";
+			}
+			case Type::Undefined:
+			{
+				return "Undefined";
+			}
+			};
+		}
+
 		Subsystem(Type type, Context& context) noexcept :
 			context_{ context } { }
 

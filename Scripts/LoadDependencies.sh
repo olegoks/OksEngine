@@ -14,5 +14,6 @@ echo $(pwd)
 ./vcpkg.exe install boost
 ./vcpkg.exe install gtest
 ./vcpkg.exe install tinyobjloader
+./vcpkg.exe install loguru
 cd ../Scripts/
 
