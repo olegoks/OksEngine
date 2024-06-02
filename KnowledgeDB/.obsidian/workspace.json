@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+                "file": "Work/C++/Неопределенное поведение.md",
                 "mode": "source",
                 "source": false
               }
@@ -69,7 +69,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 439.5
+    "width": 236.50692749023438
   },
   "right": {
     "id": "492b75a9d817c948",
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+                "file": "Work/C++/Неопределенное поведение.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+                "file": "Work/C++/Неопределенное поведение.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md"
+                "file": "Work/C++/Неопределенное поведение.md"
               }
             }
           }
@@ -148,35 +148,36 @@
   },
   "active": "fde23484f0c92c32",
   "lastOpenFiles": [
-    "Work/C++/Многопоточность/Конструкции/Условная переменная(std_condition_variable).md",
-    "Work/C++/Многопоточность/Топики/Ожидание события или иного условия.md",
-    "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
-    "Work/C++/Многопоточность/Конструкции/Мьютекс(std_mutex).md",
-    "Work/C++/Многопоточность/Термины/Взаимоблокировка(deadlock).md",
-    "Взаимоблокировка(deadlock) 1.md",
-    "Деструктор.md",
+    "Work/C++/Модель памяти С++.md",
+    "Work/C++/Вопросы для собеседования по С++.md",
+    "Work/C++/Модель памяти С++.md.bak",
     "Шаблон.md",
     "Исключение.md",
-    "Work/C++/Most vexing parse.md",
-    "Work/C++/nullptr.md",
-    "Work/C++/RAII.md",
-    "Work/C++/Директива препроцессора pragma once.md",
-    "Work/C++/Доступ к private полю.md",
-    "Work/C++/Квалификаторы ссылки в методах.md",
-    "Work/C++/Конструктор.md",
-    "Work/C++/Лексемы операторов.md",
-    "Work/C++/Модель памяти С++.md",
-    "Work/C++/Неопределенное поведение.md",
-    "Work/C++/Объект в модели памяти С++.md",
-    "Work/C++/Операторы «указатель на член» (Pointer-to-member operators).md",
+    "Деструктор.md",
     "Work/C++/Ячейка памяти в модели памяти С++.md",
-    "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
-    "Work/C++/Многопоточность/Термины/Атомарные операции.md",
-    "Work/C++/Многопоточность/Конструкции",
-    "Work/C++/Многопоточность/Термины",
-    "Work/C++/Многопоточность/Untitled.md",
+    "Work/C++/Объект в модели памяти С++.md",
     "Work/C++/Многопоточность/Топики/Разделение данных между потоками.md",
+    "Work/C++/Многопоточность/Топики/Программирование без блокировок(lock-free programming).md",
+    "Work/C++/Многопоточность/Топики/Ожидание события или иного условия.md",
+    "Work/C++/Многопоточность/Топики/Защита редко обновляемых структур данных.md",
+    "Work/C++/Многопоточность/Топики/Защита разделяемых данных во время инициализации.md",
     "Work/C++/Многопоточность/Топики",
+    "Work/C++/Многопоточность/Термины/Состояние гонки(race condition).md",
+    "Work/C++/Многопоточность/Термины/Синхронизация.md",
+    "Work/C++/Многопоточность/Термины/Примитив синхронизации.md",
+    "Work/C++/Многопоточность/Термины/Поток.md",
+    "Work/C++/Многопоточность/Термины/Инвариант.md",
+    "Work/C++/Многопоточность/Термины/Гранулярность блокировки.md",
+    "Work/C++/Многопоточность/Термины/Гонка за данными(data race).md",
+    "Work/C++/Многопоточность/Термины/Взаимоблокировка(deadlock).md",
+    "Work/C++/Многопоточность/Термины/Атомарные операции.md",
+    "Work/C++/Многопоточность/Термины",
+    "Work/C++/Многопоточность/Конструкции/Условная переменная(std_condition_variable).md",
+    "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
+    "Work/C++/Многопоточность/Конструкции/Мьютекс(std_mutex).md",
+    "Work/C++/Многопоточность/Конструкции/Мьютекс чтения-записи(reader-writer mutex).md",
+    "Work/C++/Многопоточность/Конструкции/Блокировка с двойной проверкой (Double-Checked Locking).md",
+    "Work/C++/Многопоточность/Конструкции",
     "Attachments/Pasted image 20240508170308.png",
     "Attachments/Pasted image 20240507141037.png",
     "Attachments/Pasted image 20240507140953.png",
@@ -187,7 +188,9 @@
     "Attachments/112970_824f8da89600da8be9f17c3db02cc722.pdf",
     "Attachments/s2013_pbs_physics_math_notes.pdf",
     "Attachments/Pauschenwein_2022-Bachelor thesis.pdf",
-    "Attachments/Ian_Millington-Game_Physics_Engine_Development-EN.pdf",
+    "Pasted image 20240508170308.png",
+    "Pasted image 20240507141037.png",
+    "Pasted image 20240507140953.png",
     "Untitled.canvas"
   ]
 }
