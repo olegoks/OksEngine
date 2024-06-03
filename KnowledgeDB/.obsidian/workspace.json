@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/C++/Модель памяти С++.md",
+                "file": "Процесс.md",
                 "mode": "source",
                 "source": false
               }
@@ -69,7 +69,8 @@
       }
     ],
     "direction": "horizontal",
-    "width": 516.5
+    "width": 200,
+    "collapsed": true
   },
   "right": {
     "id": "492b75a9d817c948",
@@ -85,7 +86,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/C++/Модель памяти С++.md",
+                "file": "Процесс.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +103,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/C++/Модель памяти С++.md",
+                "file": "Процесс.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +126,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/C++/Модель памяти С++.md"
+                "file": "Процесс.md"
               }
             }
           }
@@ -148,23 +149,27 @@
   },
   "active": "5a1a9008de84754f",
   "lastOpenFiles": [
+    "Work/C++/Многопоточность/Термины/Поток.md",
+    "Процесс.md",
+    "Work/C++/Многопоточность/Конструкции/Блокировка с двойной проверкой (Double-Checked Locking).md",
+    "Work/C++/Многопоточность/Конструкции/std_atomic.md",
+    "Work/C++/Многопоточность/Термины/Изменение порядка инструкций.md",
+    "Work/C++/Модель памяти С++.md",
+    "Work/C++/Многопоточность/Термины/Барьеры памяти.md",
+    "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
+    "Work/C++/Многопоточность/Термины/Атомарные инструкции.md",
+    "Work/C++/Многопоточность/Термины/Эксклюзивный доступ к памяти.md",
+    "Инструкция процессора.md",
     "Work/C++/Модель памяти С++.md.bak",
     "Work/C++/Вопросы для собеседования по С++.md",
-    "Work/C++/Многопоточность/Термины/Атомарные инструкции.md",
-    "Work/C++/Многопоточность/Термины/Барьеры памяти.md",
     "Attachments/Pasted image 20240603195500.png",
-    "Work/C++/Многопоточность/Термины/Изменение порядка инструкций.md",
     "Work/C++/Многопоточность/Термины/Состояние гонки(race condition).md",
     "Work/C++/volatile.md",
     "Attachments/Pasted image 20240603193533.png",
-    "Work/C++/Многопоточность/Конструкции/Блокировка с двойной проверкой (Double-Checked Locking).md",
     "Attachments/Pasted image 20240603192841.png",
     "Attachments/Pasted image 20240603192453.png",
     "Attachments/Pasted image 20240603192349.png",
     "Attachments/Pasted image 20240603190649.png",
-    "Work/C++/Многопоточность/Термины/Эксклюзивный доступ к памяти.md",
-    "Work/C++/Многопоточность/Конструкции/std_atomic.md",
-    "Work/C++/Модель памяти С++.md",
     "Attachments/Pasted image 20240603182948.png",
     "Attachments/Pasted image 20240603182940.png",
     "Attachments/Pasted image 20240603182844.png",
@@ -174,44 +179,22 @@
     "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
     "Work/C++/Многопоточность/Конструкции/Условная переменная(std_condition_variable).md",
     "Work/C++/Многопоточность/Топики/Ожидание события или иного условия.md",
-    "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
     "Work/C++/Многопоточность/Конструкции/Мьютекс(std_mutex).md",
     "Work/C++/Многопоточность/Термины/Взаимоблокировка(deadlock).md",
     "Взаимоблокировка(deadlock) 1.md",
     "Деструктор.md",
     "Шаблон.md",
     "Исключение.md",
-    "Work/C++/Most vexing parse.md",
-    "Work/C++/nullptr.md",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
     "Work/C++/Многопоточность/Топики",
-    "Work/C++/Многопоточность/Термины/Состояние гонки(race condition).md",
-    "Work/C++/Многопоточность/Термины/Синхронизация.md",
-    "Work/C++/Многопоточность/Термины/Примитив синхронизации.md",
-    "Work/C++/Многопоточность/Термины/Поток.md",
-    "Work/C++/Многопоточность/Термины/Инвариант.md",
-    "Work/C++/Многопоточность/Термины/Гранулярность блокировки.md",
-    "Work/C++/Многопоточность/Термины/Гонка за данными(data race).md",
-    "Work/C++/Многопоточность/Термины/Взаимоблокировка(deadlock).md",
-    "Work/C++/Многопоточность/Термины/Атомарные операции.md",
     "Work/C++/Многопоточность/Термины",
-    "Work/C++/Многопоточность/Конструкции/Условная переменная(std_condition_variable).md",
-    "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
-    "Work/C++/Многопоточность/Конструкции/Мьютекс(std_mutex).md",
-    "Work/C++/Многопоточность/Конструкции/Мьютекс чтения-записи(reader-writer mutex).md",
-    "Work/C++/Многопоточность/Конструкции/Блокировка с двойной проверкой (Double-Checked Locking).md",
     "Work/C++/Многопоточность/Конструкции",
     "Attachments/Pasted image 20240508170308.png",
     "Attachments/learning_modern_3d_graphics_programming.pdf",
     "Attachments/Game physics cookbook.pdf",
     "Attachments/CPlusPlusNotesForProfessionals.pdf",
     "Attachments/112970_824f8da89600da8be9f17c3db02cc722.pdf",
-    "Attachments/s2013_pbs_physics_math_notes.pdf",
-    "Attachments/Pauschenwein_2022-Bachelor thesis.pdf",
-    "Pasted image 20240508170308.png",
-    "Pasted image 20240507141037.png",
-    "Pasted image 20240507140953.png",
     "Untitled.canvas"
   ]
 }
