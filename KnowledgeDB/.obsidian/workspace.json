@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+                "file": "Work/C++/Модель памяти С++.md",
                 "mode": "source",
                 "source": false
               }
@@ -69,7 +69,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 439.5
+    "width": 516.5
   },
   "right": {
     "id": "492b75a9d817c948",
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+                "file": "Work/C++/Модель памяти С++.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+                "file": "Work/C++/Модель памяти С++.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md"
+                "file": "Work/C++/Модель памяти С++.md"
               }
             }
           }
@@ -148,6 +148,28 @@
   },
   "active": "5a1a9008de84754f",
   "lastOpenFiles": [
+    "Work/C++/Многопоточность/Термины/Атомарные инструкции.md",
+    "Work/C++/Многопоточность/Термины/Барьеры памяти.md",
+    "Attachments/Pasted image 20240603195500.png",
+    "Work/C++/Многопоточность/Термины/Изменение порядка инструкций.md",
+    "Work/C++/Многопоточность/Термины/Состояние гонки(race condition).md",
+    "Work/C++/volatile.md",
+    "Attachments/Pasted image 20240603193533.png",
+    "Work/C++/Многопоточность/Конструкции/Блокировка с двойной проверкой (Double-Checked Locking).md",
+    "Attachments/Pasted image 20240603192841.png",
+    "Attachments/Pasted image 20240603192453.png",
+    "Attachments/Pasted image 20240603192349.png",
+    "Attachments/Pasted image 20240603190649.png",
+    "Work/C++/Многопоточность/Термины/Эксклюзивный доступ к памяти.md",
+    "Work/C++/Многопоточность/Конструкции/std_atomic.md",
+    "Work/C++/Модель памяти С++.md",
+    "Attachments/Pasted image 20240603182948.png",
+    "Attachments/Pasted image 20240603182940.png",
+    "Attachments/Pasted image 20240603182844.png",
+    "Work/C++/Многопоточность/Конструкции/Мьютекс чтения-записи(reader-writer mutex).md",
+    "Work/C++/Многопоточность/Топики/Защита редко обновляемых структур данных.md",
+    "Work/C++/Неопределенное поведение.md",
+    "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
     "Work/C++/Многопоточность/Конструкции/Условная переменная(std_condition_variable).md",
     "Work/C++/Многопоточность/Топики/Ожидание события или иного условия.md",
     "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
@@ -160,27 +182,10 @@
     "Work/C++/Most vexing parse.md",
     "Work/C++/nullptr.md",
     "Work/C++/RAII.md",
-    "Work/C++/Директива препроцессора pragma once.md",
-    "Work/C++/Доступ к private полю.md",
-    "Work/C++/Квалификаторы ссылки в методах.md",
-    "Work/C++/Конструктор.md",
-    "Work/C++/Лексемы операторов.md",
-    "Work/C++/Модель памяти С++.md",
-    "Work/C++/Неопределенное поведение.md",
-    "Work/C++/Объект в модели памяти С++.md",
-    "Work/C++/Операторы «указатель на член» (Pointer-to-member operators).md",
-    "Work/C++/Ячейка памяти в модели памяти С++.md",
-    "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
-    "Work/C++/Многопоточность/Термины/Атомарные операции.md",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
-    "Work/C++/Многопоточность/Untitled.md",
-    "Work/C++/Многопоточность/Топики/Разделение данных между потоками.md",
     "Work/C++/Многопоточность/Топики",
     "Attachments/Pasted image 20240508170308.png",
-    "Attachments/Pasted image 20240507141037.png",
-    "Attachments/Pasted image 20240507140953.png",
-    "Attachments/Pasted image 20240528231824.png",
     "Attachments/learning_modern_3d_graphics_programming.pdf",
     "Attachments/Game physics cookbook.pdf",
     "Attachments/CPlusPlusNotesForProfessionals.pdf",

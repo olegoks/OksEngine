@@ -7,6 +7,7 @@
 #include <Common.hpp>
 #include <Datastructures.ThreadSafeQueue.hpp>
 
+#include <boost/thread/shared_mutex.hpp>
 #include <boost/lockfree/queue.hpp>
 
 namespace OksEngine {
@@ -26,34 +27,54 @@ namespace OksEngine {
 		using DataQueuePtr = std::shared_ptr<DataQueue>;
 		constexpr static inline Common::Size maxReceiversNumber_ = 8;
 
+		class ThreadInfos {
+		private:
 
-		struct ThreadInfo {
-			std::atomic<ThreadName>		name_ = ThreadName::Undefined;
-			std::atomic<DataQueuePtr>	inDataQueue_ = nullptr;
-			std::atomic<DataQueuePtr>	outDataQueue_ = nullptr;
-			DS::Vector<DataInfo>		cachedOutDataInfos_;
+			ThreadInfos() {
+				
+			}
+
+			struct ThreadInfo {
+			private:
+				ThreadName					name_ = ThreadName::Undefined;
+				DataQueuePtr				inDataQueue_ = nullptr;
+				DataQueuePtr				outDataQueue_ = nullptr;
+				DS::Vector<DataInfo>		cachedOutDataInfos_;
+
+				std::lock_guard guard{ mutex_ };
+			};
+
+			void SetThreadName() {
+
+			}
+		private:
+
+			[[nodiscard]]
+			ThreadInfo& GetThreadInfo() {
+				const ThreadId threadId = GetThreadId();
+				OS::AssertMessage(threadId != invalidThreadId_, "Got invalid thread id.");
+				return threadInfos_[threadId];
+			}
+
+			[[nodiscard]]
+			static ThreadId GetThreadId() {
+				static std::atomic<ThreadId> threadId_ = invalidThreadId_;
+				static thread_local ThreadId id = invalidThreadId_;
+				if (id == invalidThreadId_) {
+					OS::AssertMessage(threadId_.load() != maxThreadId_, "");
+					id = ++threadId_;
+				}
+				return id;
+			}
+
+		private:
+			boost::shared_mutex mutex_;
+			ThreadInfo threadInfos_[];
 		};
+
 
 		constexpr static inline ThreadId invalidThreadId_ = 0;
 		constexpr static inline ThreadId maxThreadId_ = std::numeric_limits<ThreadId>::max();
-
-		[[nodiscard]]
-		static ThreadId GetThreadId() {
-			static std::atomic<ThreadId> threadId_ = invalidThreadId_;
-			static thread_local ThreadId id = invalidThreadId_;
-			if (id == invalidThreadId_) {
-				OS::AssertMessage(threadId_.load() != maxThreadId_, "");
-				id = ++threadId_;
-			}
-			return id;
-		}
-
-		[[nodiscard]]
-		ThreadInfo& GetThreadInfo() {
-			const ThreadId threadId = GetThreadId();
-			OS::AssertMessage(threadId != invalidThreadId_, "Got invalid thread id.");
-			return threadInfos_[threadId];
-		}
 
 		std::once_flag initializeThreadInfosFlag_;
 		void InitializeThreadInfo() {
@@ -64,6 +85,7 @@ namespace OksEngine {
 			}
 		}
 
+		
 		ThreadInfo threadInfos_[maxThreadId_ + 1];
 		DS::Vector<DataInfo> dataCache_;
 	public:
@@ -87,13 +109,13 @@ namespace OksEngine {
 						continue;
 					}
 					receiverThreadInfo->outDataQueue_.load()->Push(dataInfo);
-					OS::LogInfo("MTSystem", { "Update: data moved from one queue to second."  });
+					OS::LogInfo("MTSystem", { "Update: data moved from one queue to second." });
 				}
 				if (notFoundReceivers.GetSize() > 0) {
 					dataInfo.receivers_ = notFoundReceivers;
 					dataCache_.PushBack(std::move(dataInfo));
 				}
-				
+
 				for (Common::Index i = 0; i < dataCache_.GetSize(); i++) {
 					DataInfo& dataInfo = dataCache_[i];
 					auto receivers = dataInfo.receivers_;
@@ -143,7 +165,7 @@ namespace OksEngine {
 				dataInfo.data_ = std::move(data);
 			};
 			ThreadInfo& senderThreadInfo = GetThreadInfo();
-			if (senderThreadInfo.name_ == ThreadName::Undefined) { senderThreadInfo.name_ = sender;  }
+			if (senderThreadInfo.name_ == ThreadName::Undefined) { senderThreadInfo.name_ = sender; }
 			senderThreadInfo.inDataQueue_.load()->Push(std::move(dataInfo));
 		}
 
@@ -167,7 +189,7 @@ namespace OksEngine {
 			}
 			{
 				ThreadInfo& threadInfo = GetThreadInfo();
-				if (threadInfo.name_ == ThreadName::Undefined) { threadInfo.name_ = receiver;  }
+				if (threadInfo.name_ == ThreadName::Undefined) { threadInfo.name_ = receiver; }
 				DataInfo dataInfo;
 				while (GetDataInfo(dataInfo)) {
 					if (filter(dataInfo)) {
