@@ -13,6 +13,7 @@ namespace OS {
 		__debugbreak();
 		#pragma message ("__debugbreak() is not cross platform decision.")
 		terminate();
+		exit(-1);
 	}
 
 	void AssertFailMessage(const Common::Format& format, const std::source_location& location) {
