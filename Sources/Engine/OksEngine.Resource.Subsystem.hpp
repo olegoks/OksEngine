@@ -197,6 +197,7 @@ namespace OksEngine {
 				task.has_value(),
 				"At the moment task must have value."
 			);*/
+			OS::LogInfo("Engine/Render", "Task was got.");
 			return std::move(task.GetData<ResourceSubsystem::Resource>());
 		}
 

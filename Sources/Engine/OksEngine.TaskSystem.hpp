@@ -42,8 +42,9 @@ namespace OksEngine {
 			static std::atomic<ThreadId> threadId_ = invalidThreadId_;
 			static thread_local ThreadId id = invalidThreadId_;
 			if (id == invalidThreadId_) {
-				OS::AssertMessage(threadId_.load() != maxThreadId_, "");
+				OS::AssertMessage(threadId_.load() != maxThreadId_, "Too many threads to get id.");
 				id = ++threadId_;
+				OS::AssertMessage(id != invalidThreadId_, "Calculated invalid thread id.");
 			}
 			return id;
 		}
@@ -86,8 +87,9 @@ namespace OksEngine {
 						notFoundReceivers.PushBack(receiver);
 						continue;
 					}
+					OS::LogInfo("MTSystem", { "Update: data moved from one queue %d to second %d.", dataInfo.sender_, receiver });
 					receiverThreadInfo->outDataQueue_.load()->Push(dataInfo);
-					OS::LogInfo("MTSystem", { "Update: data moved from one queue to second."  });
+					
 				}
 				if (notFoundReceivers.GetSize() > 0) {
 					dataInfo.receivers_ = notFoundReceivers;
