@@ -20,3 +20,9 @@ std::lock_guard guard(some_mutex);
 return std::find(some_list.begin(),some_list.end(),value_to_find) != some_list.end(); 
 }
 ```
+
+Синхронизация памяти между потоками:
+
+|   |   |
+|---|---|
+|`std::mutex::lock` vs `std::mutex::unlock`|успешный lock синхронизирует память, которая была изменена до вызова предыдущего unlock.|

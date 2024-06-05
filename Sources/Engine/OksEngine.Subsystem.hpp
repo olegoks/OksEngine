@@ -10,9 +10,9 @@ namespace OksEngine {
 	public:
 
 		enum class Type : Common::UInt64 {
-			Resource,
+			Resource = 100,
 			UI,
-			Render,
+			Render = 200,
 			Undefined
 		};
 

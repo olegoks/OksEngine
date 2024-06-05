@@ -3,6 +3,7 @@
 #include <thread>
 #include <map>
 #include <concepts>
+#include <atomic>
 
 #include <Common.hpp>
 #include <Datastructures.ThreadSafeQueue.hpp>
@@ -15,159 +16,181 @@ namespace OksEngine {
 	template<class Type, Common::Enum ThreadName>
 	class MTDataExchangeSystem {
 	public:
+
 		struct DataInfo {
 			ThreadName				sender_;
 			DS::Vector<ThreadName>	receivers_;
 			Type					data_;
 		};
+
+		struct ThreadData {
+		
+			std::atomic<ThreadName>		name_ = ThreadName::Undefined;
+		private:
+			DS::TS::Queue<DataInfo>		inDataQueue_; // this thread data -> another thread
+			DS::TS::Queue<DataInfo>		outDataQueue_; // this thread <- another thread data
+			DS::TS::Vector<DataInfo>	cachedOutDataInfos_;
+		public:
+
+			void AddIncomeDataInfo(DataInfo&& incomeDataInfo) {
+				inDataQueue_.Push(std::move(incomeDataInfo));
+			}
+
+			[[nodiscard]]
+			bool TryGetIncomeDataInfo(DataInfo& outcomeDataInfo) {
+				return inDataQueue_.TryPop(outcomeDataInfo);
+			}
+
+			void AddOutcomeDataInfo(DataInfo& incomeDataInfo) {
+				if(name_ == ThreadName::Render) {
+					name_ = name_.load();//__debugbreak();
+				}
+				outDataQueue_.Push(incomeDataInfo);
+			}
+
+			[[nodiscard]]
+			bool TryGetOutcomeDataInfo(DataInfo& outDataInfo, std::function<bool(const DataInfo& dataInfo)> filter) {
+				const bool isFoundInCache = FindDataInfoInOutCache(outDataInfo, filter);
+				if (isFoundInCache) {
+					return true;
+				}
+				if (name_ == ThreadName::Render) {
+					name_ = name_.load();//__debugbreak();
+				}
+				DataInfo dataInfo;
+				while (outDataQueue_.TryPop(dataInfo)) {
+					if (filter(dataInfo)) {
+						outDataInfo = std::move(dataInfo);
+						return true;
+					}
+					else {
+						AddDataInfoToOutCache(std::move(dataInfo));
+					}
+				}
+				return false;
+			}
+
+			void WaitForOutcomeDataInfo(DataInfo& outDataInfo, std::function<bool(const DataInfo& dataInfo)> filter) {
+				const bool isGot = TryGetOutcomeDataInfo(outDataInfo, filter);
+				if (isGot) {
+					return;
+				}
+				bool isWaited = false;
+				DataInfo dataInfo;
+				while (!isWaited) {
+					OS::LogInfo("MT", { "Waiting for DataInfo from OutQueue of %d subsystem", name_.load()});
+					outDataQueue_.WaitAndPop(dataInfo);
+					OS::LogInfo("MT", { "DataInfo was poped from OutQueue of %d subsystem", name_.load() });
+					if (filter(dataInfo)) {
+						outDataInfo = std::move(dataInfo);
+						isWaited = true;
+					}
+					else {
+						AddDataInfoToOutCache(std::move(dataInfo));
+					}
+				}
+			}
+
+		private:
+
+			[[nodiscard]]
+			bool FindDataInfoInOutCache(DataInfo& outData, std::function<bool(const DataInfo& dataInfo)> filter) {
+				for (Common::Index i = 0; i < cachedOutDataInfos_.GetSize(); i++) {
+					DataInfo dataInfo;
+					const bool isThereDataInfo = cachedOutDataInfos_.Get(dataInfo, i);
+					if (!isThereDataInfo) { continue; }
+					const bool isFound = filter(dataInfo);
+					if (isFound) {
+						outData = std::move(dataInfo);
+						cachedOutDataInfos_.Erase(i);
+						return true;
+					}
+				}
+				return false;
+			}
+
+			void AddDataInfoToOutCache(DataInfo&& dataInfo) {
+				cachedOutDataInfos_.PushBack(std::move(dataInfo));
+			}
+		};
+
 	private:
 
 		using ThreadId = Common::UInt8;
-		using DataQueue = DS::ThreadSafeQueue<DataInfo>;//boost::lockfree::queue<Type>;
-		using DataQueuePtr = std::shared_ptr<DataQueue>;
 		constexpr static inline Common::Size maxReceiversNumber_ = 8;
-
-		class ThreadInfos {
-		private:
-
-			ThreadInfos() {
-				
-			}
-
-			struct ThreadInfo {
-			private:
-				ThreadName					name_ = ThreadName::Undefined;
-				DataQueuePtr				inDataQueue_ = nullptr;
-				DataQueuePtr				outDataQueue_ = nullptr;
-				DS::Vector<DataInfo>		cachedOutDataInfos_;
-
-				std::lock_guard guard{ mutex_ };
-			};
-
-			void SetThreadName() {
-
-			}
-		private:
-
-			[[nodiscard]]
-			ThreadInfo& GetThreadInfo() {
-				const ThreadId threadId = GetThreadId();
-				OS::AssertMessage(threadId != invalidThreadId_, "Got invalid thread id.");
-				return threadInfos_[threadId];
-			}
-
-			[[nodiscard]]
-			static ThreadId GetThreadId() {
-				static std::atomic<ThreadId> threadId_ = invalidThreadId_;
-				static thread_local ThreadId id = invalidThreadId_;
-				if (id == invalidThreadId_) {
-					OS::AssertMessage(threadId_.load() != maxThreadId_, "");
-					id = ++threadId_;
-				}
-				return id;
-			}
-
-		private:
-			boost::shared_mutex mutex_;
-			ThreadInfo threadInfos_[];
-		};
-
-
 		constexpr static inline ThreadId invalidThreadId_ = 0;
 		constexpr static inline ThreadId maxThreadId_ = std::numeric_limits<ThreadId>::max();
 
-		std::once_flag initializeThreadInfosFlag_;
-		void InitializeThreadInfo() {
-			for (ThreadInfo& threadInfo : threadInfos_) {
-				threadInfo.cachedOutDataInfos_.Reserve(16);
-				threadInfo.inDataQueue_ = std::make_shared<DataQueue>();
-				threadInfo.outDataQueue_ = std::make_shared<DataQueue>();
+		[[nodiscard]]
+		static ThreadId GetThreadId() noexcept {
+			static std::atomic lastThreadId_ = invalidThreadId_;
+			static thread_local ThreadId thisThreadId_ = invalidThreadId_;
+			if(thisThreadId_ == invalidThreadId_) {
+				thisThreadId_ = 1 + lastThreadId_.fetch_add(1, std::memory_order_release);
 			}
+			return thisThreadId_;
 		}
 
-		
-		ThreadInfo threadInfos_[maxThreadId_ + 1];
-		DS::Vector<DataInfo> dataCache_;
+		ThreadData threadInfos_[maxThreadId_ + 1];
+		DS::Vector<DataInfo> cachedDataInfo_; // DataInfo that waits receivers.
 	public:
-		MTDataExchangeSystem() {
-			std::call_once(initializeThreadInfosFlag_, &MTDataExchangeSystem::InitializeThreadInfo, this);
-		}
-	public:
+
+
 
 		void Update() {
-			for (ThreadInfo& threadInfo : threadInfos_) {
+			for (ThreadData& threadInfo : threadInfos_) {
 				DataInfo dataInfo;
-				const bool isPoped = threadInfo.inDataQueue_.load()->TryPop(dataInfo);
-				if (!isPoped) { continue; }
+				const bool isGot = threadInfo.TryGetIncomeDataInfo(dataInfo);
+				if (!isGot) { continue; }
 				DS::Vector<ThreadName> notFoundReceivers;
 				for (Common::Index i = 0; i < dataInfo.receivers_.GetSize(); i++) {
 					const ThreadName receiver = dataInfo.receivers_[i];
-					ThreadInfo* receiverThreadInfo = nullptr;
-					const bool isFound = GetThreadInfo(&receiverThreadInfo, receiver);
-					if (!isFound) {
+					bool receiverIsFound = false;
+					for (ThreadData& threadInfo : threadInfos_) {
+						if (threadInfo.name_ == receiver) {
+							threadInfo.AddOutcomeDataInfo(dataInfo);
+							OS::LogInfo("MT", { "DataInfo was moved from inQueue %d to outQueue of %d", dataInfo.sender_, receiver });
+							receiverIsFound = true;
+							break;
+						}
+					}
+					if (!receiverIsFound) {
 						notFoundReceivers.PushBack(receiver);
 						continue;
 					}
-					OS::LogInfo("MTSystem", { "Update: data moved from one queue %d to second %d.", dataInfo.sender_, receiver });
-					receiverThreadInfo->outDataQueue_.load()->Push(dataInfo);
-					OS::LogInfo("MTSystem", { "Update: data moved from one queue to second." });
 				}
 				if (notFoundReceivers.GetSize() > 0) {
 					dataInfo.receivers_ = notFoundReceivers;
-					dataCache_.PushBack(std::move(dataInfo));
+					cachedDataInfo_.PushBack(std::move(dataInfo));
 				}
+			}
 
-				for (Common::Index i = 0; i < dataCache_.GetSize(); i++) {
-					DataInfo& dataInfo = dataCache_[i];
-					auto receivers = dataInfo.receivers_;
-					for (Common::Index i = 0; i < dataInfo.receivers_.GetSize(); i++) {
-						const ThreadName receiver = dataInfo.receivers_[i];
-						ThreadInfo* receiverThreadInfo = nullptr;
-						const bool isFound = GetThreadInfo(&receiverThreadInfo, receiver);
-						if (!isFound) {
-							continue;
+			DS::Vector<Common::Index> toErase;
+			for (Common::Index i = 0; i < cachedDataInfo_.GetSize(); i++) {
+				DataInfo& dataInfo = cachedDataInfo_[i];
+				auto receivers = dataInfo.receivers_;
+				for (Common::Index i = 0; i < dataInfo.receivers_.GetSize(); i++) {
+					const ThreadName receiver = dataInfo.receivers_[i];
+					bool receiverIsFound = false;
+					for (ThreadData& threadInfo : threadInfos_) {
+						if (threadInfo.name_ == receiver) {
+							threadInfo.AddOutcomeDataInfo(dataInfo);
+							receiverIsFound = true;
+							break;
 						}
-						receiverThreadInfo->outDataQueue_.load()->Push(dataInfo);
-						OS::LogInfo("MTSystem", { "Update: data moved from one queue to second." });
-						[[maybe_unused]] const Common::Size beforeEraseSize = receivers.GetSize();
-						receivers.Erase(receiver);
-						[[maybe_unused]] const Common::Size afterEraseSize = receivers.GetSize();
-						OS::AssertMessage(beforeEraseSize - afterEraseSize == 1, "");
 					}
+					if (!receiverIsFound) {
+						continue;
+					}
+					receivers.Erase(receiver);
+				}
+				if (receivers.GetSize() == 0) {
+					toErase.PushBack(i);
 				}
 			}
-		}
-
-
-		[[nodiscard]]
-		bool GetThreadInfo(ThreadInfo** threadInfoPtr, ThreadName receiverName) {
-			for (ThreadInfo& threadInfo : threadInfos_) {
-				if (threadInfo.name_ == receiverName) {
-					*threadInfoPtr = &threadInfo;
-					return true;
-				}
+			for (Common::Index i = 0; i < toErase.GetSize(); i++) {
+				cachedDataInfo_.Erase(toErase[i]);
 			}
-			return false;
-		}
-
-		void AddData(ThreadName sender, const DS::Vector<ThreadName>& receivers, Type&& data) {
-			OS::AssertMessage(
-				receivers.GetSize() <= maxReceiversNumber_,
-				"Number of receivers is more tham limit value."
-			);
-			OS::AssertMessage(
-				receivers.GetSize() > 0,
-				"Receivers are not set."
-			);
-			DataInfo dataInfo;
-			{
-				dataInfo.sender_ = sender;
-				dataInfo.receivers_ = receivers;
-				dataInfo.data_ = std::move(data);
-			};
-			ThreadInfo& senderThreadInfo = GetThreadInfo();
-			if (senderThreadInfo.name_ == ThreadName::Undefined) { senderThreadInfo.name_ = sender; }
-			senderThreadInfo.inDataQueue_.load()->Push(std::move(dataInfo));
 		}
 
 
@@ -177,71 +200,91 @@ namespace OksEngine {
 			AddData(sender, receivers, std::forward<Type>(data));
 		}
 
+		void AddData(ThreadName sender, const DS::Vector<ThreadName>& receivers, Type&& data) {
+
+			OS::AssertMessage(
+				receivers.GetSize() <= maxReceiversNumber_,
+				"Number of receivers is more tham limit value."
+			);
+			OS::AssertMessage(
+				receivers.GetSize() > 0,
+				"Receivers are not set."
+			);
+			OS::AssertMessage(
+				sender != ThreadName::Undefined,
+				"Sender can't be undefined."
+			);
+
+
+			ThreadData& senderThreadData = GetThreadData();
+
+			if (senderThreadData.name_ == ThreadName::Undefined) {
+				senderThreadData.name_ = sender;
+			}
+
+			DataInfo dataInfo;
+			{
+				dataInfo.sender_ = sender;
+				dataInfo.receivers_ = receivers;
+				dataInfo.data_ = std::move(data);
+			};
+
+			senderThreadData.AddIncomeDataInfo(std::move(dataInfo));
+		}
+
+
 		[[nodiscard]]
-		bool GetData(ThreadName receiver, Type& outDataInfo, std::function<bool(const DataInfo& dataInfo)> filter) {
-			bool isFound = false;
-			{
-				DataInfo dataInfo;
-				isFound = GetCachedDataInfo(dataInfo, filter);
-				if (isFound) {
-					outDataInfo = std::move(dataInfo.data_);
-					return true;
-				}
+		bool TryGetData(ThreadName receiver, Type& outData, std::function<bool(const DataInfo& dataInfo)> filter) {
+			ThreadData& threadData = GetThreadData();
+			threadData.name_ = receiver;
+			DataInfo dataInfo;
+			const bool isGot = threadData.TryGetOutcomeDataInfo(dataInfo, filter);
+			if(isGot) {
+				outData = std::move(dataInfo.data_);
 			}
-			{
-				ThreadInfo& threadInfo = GetThreadInfo();
-				if (threadInfo.name_ == ThreadName::Undefined) { threadInfo.name_ = receiver; }
-				DataInfo dataInfo;
-				while (GetDataInfo(dataInfo)) {
-					if (filter(dataInfo)) {
-						outDataInfo = std::move(dataInfo.data_);
-						return true;
-					}
-					else {
-						threadInfo.cachedOutDataInfos_.PushBack(std::move(dataInfo));
-					}
-				}
-				return false;
-			}
+			return isGot;
 		}
 
 		[[nodiscard]]
-		bool GetCachedDataInfo(DataInfo& outDataInfo, std::function<bool(const DataInfo& dataInfo)> filter) {
-			ThreadInfo& threadInfo = GetThreadInfo();
-			for (Common::Index i = 0; i < threadInfo.cachedOutDataInfos_.GetSize(); i++) {
-				DataInfo& dataInfo = threadInfo.cachedOutDataInfos_[i];
-				const bool isFound = filter(dataInfo);
-				if (isFound) {
-					outDataInfo = std::move(dataInfo);
-					threadInfo.cachedOutDataInfos_.Erase(i);
+		Type WaitForData(ThreadName receiver, std::function<bool(const DataInfo& dataInfo)> filter) {
+			ThreadData& threadData = GetThreadData();
+			DataInfo dataInfo;
+			threadData.WaitForOutcomeDataInfo(dataInfo, filter);
+			return std::move(dataInfo.data_);
+		}
+
+		//void AddCachedDataInfo(DataInfo&& dataInfo) {
+		//	ThreadData& threadInfo = GetThreadData();
+		//	threadInfo.cachedOutDataInfos_.PushBack(std::move(dataInfo));
+		//}
+
+		//[[nodiscard]]
+		//DataInfo WaitForData(ThreadName receiver, std::function<bool(const DataInfo& dataInfo)> filter) {
+		//	Type data;
+		//	while (true) {
+		//		const bool isGot = GetData(receiver, data, filter);
+
+		//		if (!isGot) { std::this_thread::yield(); }
+		//	}
+
+		//}
+	private:
+
+		ThreadData& GetThreadData() {
+			const ThreadId threadId = GetThreadId();
+			return threadInfos_[threadId];
+
+		}
+		/*[[nodiscard]]
+		bool GetThreadData(ThreadData** threadInfoPtr, ThreadName receiverName) {
+			for (ThreadData& threadInfo : threadInfos_) {
+				if (threadInfo.name_ == receiverName) {
+					*threadInfoPtr = &threadInfo;
 					return true;
 				}
 			}
 			return false;
-		}
-
-		[[nodiscard]]
-		DataInfo WaitForData(ThreadName receiver, std::function<bool(const DataInfo& dataInfo)> filter) {
-			Type data;
-			while (true) {
-				const bool isGot = GetData(receiver, data, filter);
-
-				if (!isGot) { std::this_thread::yield(); }
-			}
-
-		}
-
-
-		[[nodiscard]]
-		bool GetDataInfo(DataInfo& outDataInfo) {
-			ThreadInfo& receiverThreadInfo = GetThreadInfo();
-			DataInfo dataInfo;
-			const bool isPoped = receiverThreadInfo.outDataQueue_.load()->TryPop(dataInfo);
-			if (isPoped) {
-				outDataInfo = std::move(dataInfo);
-			}
-			return isPoped;
-		}
+		}*/
 
 	};
 

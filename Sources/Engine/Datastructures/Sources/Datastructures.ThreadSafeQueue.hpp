@@ -4,10 +4,9 @@
 #include <mutex>
 #include <condition_variable>
 
-namespace Datastructures {
-
+namespace DataStructures::ThreadSafe {
 	template<typename T>
-	class ThreadSafeQueue {
+	class Queue {
 	private:
 		std::mutex mutex_;
 		std::queue<T> dataQueue_;
@@ -15,8 +14,9 @@ namespace Datastructures {
 	public:
 
 		void Push(T new_value){
-			std::lock_guard lockGuard(mutex_);
+			std::unique_lock lock(mutex_);
 			dataQueue_.push(new_value);
+			lock.unlock();
 			conditionVariable_.notify_one();
 		}
 
@@ -58,7 +58,8 @@ namespace Datastructures {
 			return false;
 		}
 	};
-
+	namespace TS = ThreadSafe;
 }
 
-namespace DS = Datastructures;
+namespace DS = DataStructures;
+
