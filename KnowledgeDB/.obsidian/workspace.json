@@ -4,16 +4,16 @@
     "type": "split",
     "children": [
       {
-        "id": "69be9badbc3116c0",
+        "id": "da9dd1eec91973b9",
         "type": "tabs",
         "children": [
           {
-            "id": "5a1a9008de84754f",
+            "id": "f6b89e774ae8a967",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Процесс.md",
+                "file": "Work/Programming/Git, GitHub/Как откатить отслеживание.md",
                 "mode": "source",
                 "source": false
               }
@@ -69,8 +69,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200,
-    "collapsed": true
+    "width": 200
   },
   "right": {
     "id": "492b75a9d817c948",
@@ -86,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Процесс.md",
+                "file": "Work/Programming/Git, GitHub/Как откатить отслеживание.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -103,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Процесс.md",
+                "file": "Work/Programming/Git, GitHub/Как откатить отслеживание.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -126,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Процесс.md"
+                "file": "Work/Programming/Git, GitHub/Как откатить отслеживание.md"
               }
             }
           }
@@ -147,54 +146,54 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "5a1a9008de84754f",
+  "active": "f6b89e774ae8a967",
   "lastOpenFiles": [
-    "Work/C++/Многопоточность/Термины/Поток.md",
-    "Процесс.md",
-    "Work/C++/Многопоточность/Конструкции/Блокировка с двойной проверкой (Double-Checked Locking).md",
+    "Work/Programming/Git, GitHub/Отменить последний коммит.md",
+    "Work/Programming/Git, GitHub/Как откатить отслеживание.md",
+    "Work/C++/VisualStudio/Breakpoint для определенного потока.md",
+    "Attachments/Pasted image 20240605112926.png",
+    "Work/C++/VisualStudio/Присоединение к процессу.md",
+    "Work/C++/volatile.md",
+    "Work/C++/VisualStudio",
+    "Work/C++/Многопоточность/Топики/Защита разделяемых данных во время инициализации.md",
+    "Work/C++/Многопоточность/Термины/Атомарные операции.md",
+    "Work/C++/Многопоточность/thread_local.md",
+    "Work/C++/Untitled.md",
     "Work/C++/Многопоточность/Конструкции/std_atomic.md",
-    "Work/C++/Многопоточность/Термины/Изменение порядка инструкций.md",
-    "Work/C++/Модель памяти С++.md",
-    "Work/C++/Многопоточность/Термины/Барьеры памяти.md",
-    "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
-    "Work/C++/Многопоточность/Термины/Атомарные инструкции.md",
-    "Work/C++/Многопоточность/Термины/Эксклюзивный доступ к памяти.md",
     "Инструкция процессора.md",
+    "Work/C++/Многопоточность/Термины/Барьеры памяти.md",
+    "Work/C++/Многопоточность/Конструкции/Мьютекс(std_mutex).md",
+    "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
+    "Attachments/Pasted image 20240604113130.png",
+    "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+    "Work/C++/Многопоточность/Конструкции/std_lock_guard.md",
+    "Work/C++/Многопоточность/Конструкции/std_unique_lock.md",
+    "Work/C++/Модель памяти С++.md",
+    "Процесс.md",
     "Work/C++/Модель памяти С++.md.bak",
     "Work/C++/Вопросы для собеседования по С++.md",
     "Attachments/Pasted image 20240603195500.png",
+    "Work/C++/Многопоточность/Термины/Изменение порядка инструкций.md",
     "Work/C++/Многопоточность/Термины/Состояние гонки(race condition).md",
-    "Work/C++/volatile.md",
     "Attachments/Pasted image 20240603193533.png",
+    "Work/C++/Многопоточность/Конструкции/Блокировка с двойной проверкой (Double-Checked Locking).md",
     "Attachments/Pasted image 20240603192841.png",
     "Attachments/Pasted image 20240603192453.png",
     "Attachments/Pasted image 20240603192349.png",
     "Attachments/Pasted image 20240603190649.png",
+    "Work/C++/Многопоточность/Термины/Эксклюзивный доступ к памяти.md",
     "Attachments/Pasted image 20240603182948.png",
     "Attachments/Pasted image 20240603182940.png",
-    "Attachments/Pasted image 20240603182844.png",
     "Work/C++/Многопоточность/Конструкции/Мьютекс чтения-записи(reader-writer mutex).md",
     "Work/C++/Многопоточность/Топики/Защита редко обновляемых структур данных.md",
-    "Work/C++/Неопределенное поведение.md",
-    "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
-    "Work/C++/Многопоточность/Конструкции/Условная переменная(std_condition_variable).md",
-    "Work/C++/Многопоточность/Топики/Ожидание события или иного условия.md",
-    "Work/C++/Многопоточность/Конструкции/Мьютекс(std_mutex).md",
-    "Work/C++/Многопоточность/Термины/Взаимоблокировка(deadlock).md",
-    "Взаимоблокировка(deadlock) 1.md",
-    "Деструктор.md",
-    "Шаблон.md",
-    "Исключение.md",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
     "Work/C++/Многопоточность/Топики",
-    "Work/C++/Многопоточность/Термины",
-    "Work/C++/Многопоточность/Конструкции",
-    "Attachments/Pasted image 20240508170308.png",
     "Attachments/learning_modern_3d_graphics_programming.pdf",
     "Attachments/Game physics cookbook.pdf",
     "Attachments/CPlusPlusNotesForProfessionals.pdf",
     "Attachments/112970_824f8da89600da8be9f17c3db02cc722.pdf",
+    "Attachments/s2013_pbs_physics_math_notes.pdf",
     "Untitled.canvas"
   ]
 }
