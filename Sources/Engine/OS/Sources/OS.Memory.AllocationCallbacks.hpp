@@ -7,40 +7,44 @@
 
 namespace Memory {
 
-	using AllocationFunction = std::function<void* (
+	using AllocationFunction = void*(*) (
 		void* userData,
 		Common::Size    size,
-		Common::Size    alignment)>;
+		Common::Size    alignment);
 
-	using ReallocationFunction = std::function<void* (
+	using ReallocationFunction = void*(*)(
 		void* userData,
 		void* original,
 		Common::Size    size,
-		Common::Size    alignment)>;
+		Common::Size    alignment);
 
-	using FreeFunction = std::function<void(
+	using FreeFunction = void(*)(
 		void* userData,
-		void* memory)>;
+		void* memory);
+
+	static void* defaultAllocationFunction(
+		void* userData,
+		Common::Size    size,
+		Common::Size    alignment) {
+			return std::malloc(size);
+		};
+
+	static void* defaultReallocationFunction(
+		void* userData,
+		void* original,
+		Common::Size    size,
+		Common::Size    alignment) { OS::NotImplemented(); return nullptr; };
+
+	static void defaultFreeFunction(void* userData, void* memory) {
+		std::free(memory);
+	}
 
 	struct AllocationCallbacks {
 		void*                userData_;
 
-		AllocationFunction      allocationCallback_ = [](
-			void* userData,
-			Common::Size    size,
-			Common::Size    alignment) {
-				return std::malloc(size);
-		};
-
-		ReallocationFunction    reallocationCallback_ = [](
-			void* userData,
-			void* original,
-			Common::Size    size,
-			Common::Size    alignment) { OS::NotImplemented(); return nullptr; };
-
-		FreeFunction            freeCallback_ = [](
-			void* userData,
-			void* memory) { std::free(memory); };
+		AllocationFunction      allocationCallback_ = &defaultAllocationFunction;
+		ReallocationFunction    reallocationCallback_ = &defaultReallocationFunction;
+		FreeFunction            freeCallback_ = &defaultFreeFunction;
 
 		template<class Type>
 		Type* GetUserData() {
