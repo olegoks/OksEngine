@@ -13,7 +13,7 @@
 #include <OS.Memory.AllocationCallbacks.hpp>
 #include <OS.Assert.hpp>
 
-namespace Datastructures {
+namespace DataStructures {
 
 	template<class Type>
 	class [[nodiscard]] VersionedMap final {
@@ -251,4 +251,4 @@ namespace Datastructures {
 
 }
 
-namespace DS = Datastructures;
+namespace DS = DataStructures;

@@ -18,7 +18,7 @@ namespace OksEngine {
 		};
 
 		RenderSubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::Render, createInfo.context_ } {
-			
+
 			api_ = RAL::CreateAPI();
 
 			auto resourceSubsystem = GetResourceSubsystem();
@@ -29,14 +29,10 @@ namespace OksEngine {
 			OS::LogInfo("Engine/RenderSubsystem/", "Tasks to load resources sent.");
 			std::this_thread::sleep_for(1s);
 			ResourceSubsystem::Resource vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
-			ResourceSubsystem::Resource fragShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
+			ResourceSubsystem::Resource fragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
 
-
-			/*const char* shaderText = resource.GetData<char>();
-			auto vertexShaderResource = 
-			auto fragmentShaderResource = resourceSubsystem->GetResource("Root/triangle.frag");
 			RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
-			RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };*/
+			RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
 
 			//RAL::Driver::CreateInfo driverCreateInfo{
 			//	vertexShader,
