@@ -143,7 +143,7 @@ namespace OS {
 
 				columns_.emplace_back(Column{ 10, severity });
 				columns_.emplace_back(Column{ 30, path.data() });
-				columns_.emplace_back(Column{ 30, format });
+				columns_.emplace_back(Column{ 60, format });
 				columns_.emplace_back(Column{ 20, location.function_name() });
 				std::filesystem::path pathToSource{ location.file_name() };
 				columns_.emplace_back(Column{ 30, pathToSource.filename().string() });

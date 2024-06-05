@@ -5,7 +5,7 @@
 
 #include <Datastructures.VersionedMap.hpp>
 
-namespace Datastructures {
+namespace DataStructures {
 
 	template<class Type>
 	class Graph final {
@@ -141,4 +141,4 @@ namespace Datastructures {
 
 }
 
-namespace DS = Datastructures;
+namespace DS = DataStructures;

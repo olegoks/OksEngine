@@ -5,9 +5,11 @@
 #include <OS.Memory.Common.hpp>
 #include <OS.Memory.AllocationCallbacks.hpp>
 
+#include <boost/thread.hpp>
+#include <boost/thread/locks.hpp>
 #include <boost/thread/shared_mutex.hpp>
 
-namespace Datastructures {
+namespace DataStructures {
 
 	template<class Type>
 	class [[nodiscard]] Vector {
@@ -16,11 +18,12 @@ namespace Datastructures {
 			allocationCallbacks_{ allocationCallbacks } {}
 
 		Vector(Vector&& moveVector) noexcept :
-			allocationCallbacks_{ moveVector.allocationCallbacks_ },
+			allocationCallbacks_{ Memory::AllocationCallbacks{} },
 			data_{ nullptr },
 			size_{ 0 },
 			capacity_{ 0 } {
 
+			//std::swap(allocationCallbacks_, moveVector.allocationCallbacks_);
 			std::swap(data_, moveVector.data_);
 			std::swap(size_, moveVector.size_);
 			std::swap(capacity_, moveVector.capacity_);
@@ -136,6 +139,7 @@ namespace Datastructures {
 		void Free() noexcept {
 			Clear();
 			allocationCallbacks_.Free<Type>(GetData());
+			data_ = nullptr;
 			capacity_ = 0;
 		}
 
@@ -149,6 +153,20 @@ namespace Datastructures {
 			for (Common::Index i = 0; i < copyVector.GetSize(); i++) {
 				Get(i) = copyVector.Get(i);
 			}
+
+			return *this;
+		}
+
+		Vector& operator=(Vector&& moveVector) {
+			if (this == &moveVector) {
+				return *this;
+			}
+
+			Free();
+			std::swap(allocationCallbacks_, moveVector.allocationCallbacks_);
+			std::swap(data_, moveVector.data_);
+			std::swap(size_, moveVector.size_);
+			std::swap(capacity_, moveVector.capacity_);
 
 			return *this;
 		}
@@ -190,36 +208,57 @@ namespace Datastructures {
 		Common::Size capacity_ = 0;
 	};
 
-	template<class Type>
-	class ThreadSafeVector {
-	public:
+	namespace ThreadSafe {
+		template<class Type>
+		class Vector {
+		public:
 
-		void PushBack(const Type& copyValue) {
-			std::lock_guard guard{ mutex_ };
-			vector_.PushBack(copyValue);
-		}
+			void PushBack(Type value) {
+				std::lock_guard guard{ mutex_ };
+				vector_.PushBack(value);
+			}
 
-		void Erase(Common::Index index) {
-			std::lock_guard guard{ mutex_ };
-			vector_.Erase(index);
-		}
+			[[nodiscard]]
+			bool Get(Type& outValue, Common::Index index) {
+				boost::shared_lock guard{ mutex_ };
+				if (index < vector_.GetSize()) {
+					outValue = vector_[index];
+					return true;
+				}
+				return false;
+			}
 
-		[[nodiscard]]
-		Common::Size GetSize() {
-			std::lock_guard guard{ mutex_ };
-			return vector_.GetSize();
-		}
+			[[nodiscard]]
+			Common::Size  GetSize() const noexcept {
+				boost::shared_lock guard{ mutex_ };
+				return vector_.GetSize();
+			}
 
-		[[nodiscard]]
-		Type Get(Common::Index index) {
-			return vector_.Get(index);
-		}
+			[[nodiscard]]
+			bool Find(Type& outValue, std::function<bool(const Type& value)> filter) {
+				boost::shared_lock lock{ mutex_ };
+				for (Common::Index i = 0; i < vector_.GetSize(); i++) {
+					if(filter(vector_[i])) {
+						outValue = vector_[i];
+						return true;
+					}
+				}
+				return false;
+			}
 
-	private:
-		boost::shared_mutex mutex_;
-		Vector<Type> vector_;
-	};
+			void Erase(Common::Index index) {
+				std::lock_guard guard{ mutex_ };
+				if (index < vector_.GetSize()) {
+					vector_.Erase(index);
+				}
+			}
 
+		private:
+			mutable boost::shared_mutex mutex_;
+			DataStructures::Vector<Type> vector_;
+		};
+	}
+	namespace TS = ThreadSafe;
 }
 
-namespace DS = Datastructures;
+namespace DS = DataStructures;

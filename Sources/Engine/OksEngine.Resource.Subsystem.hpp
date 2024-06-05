@@ -31,7 +31,13 @@ namespace OksEngine {
 				std::memcpy(data_.GetData(), data, size);
 			}
 
-			Resource(Resource&& moveResource) : data_{ std::move(moveResource.data_) } {}
+			Resource(Resource&& moveResource) : data_{ /*std::move(moveResource.data_)*/} {
+				std::swap(data_, moveResource.data_);
+			}
+
+			~Resource() {
+				
+			}
 
 		private:
 			DS::Vector<Common::Byte> data_;
@@ -171,7 +177,7 @@ namespace OksEngine {
 
 		[[nodiscard]]
 		Task::Id GetResource(Subsystem::Type subsystemType, std::filesystem::path resourcePath) {
-			OS::LogInfo("Engine/Render", "Task added to MT system.");
+			OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
 			return AddTask(
 				subsystemType,
 				Subsystem::Type::Resource,
@@ -181,36 +187,38 @@ namespace OksEngine {
 
 		Task WaitForTask(Subsystem::Type receiver, Task::Id taskId) {
 			auto dataInfo = exchangeSystem_.WaitForData(receiver, [&taskId](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
-				if (dataInfo.data_.GetId() == taskId) {
+				//if (dataInfo.data_.GetId() == taskId) {
 					return true;
-				}
-				return false;
+				//}
+				//return false;
 				});
-			return std::move(dataInfo.data_);
+			return std::move(dataInfo);
 		}
 
 		ResourceSubsystem::Resource GetResource(Subsystem::Type receiverSubsystem, Task::Id taskId) {
 			OS::LogInfo("Engine/Render", "Waiting for task.");
 			Task task = WaitForTask(Subsystem::Type::Resource, taskId);
+			//GetTask()
 			/*auto task = GetTask(Subsystem::Type::Resource, receiverSubsystem);
 			OS::AssertMessage(
 				task.has_value(),
 				"At the moment task must have value."
 			);*/
 			OS::LogInfo("Engine/Render", "Task was got.");
-			return std::move(task.GetData<ResourceSubsystem::Resource>());
+			return std::move(task.GetData<GetResourceResult>().resource_);
 		}
 
 		[[nodiscard]]
 		Task::Id AddTask(Subsystem::Type senderType, Subsystem::Type receiverType, Task&& task) {
 			const Task::Id taskId = task.GetId();
+			OS::LogInfo("Engine/ResourceSubsystem", { "Added task to MT system with id %d by %d subsystem.", taskId, senderType });
 			exchangeSystem_.AddData(senderType, receiverType, std::move(task));
 			return taskId;
 		}
 
 		[[nodiscard]]
 		bool GetTask(Subsystem::Type receivier, Task& task, std::function<bool(Subsystem::Type sender, const DS::Vector<Subsystem::Type>& receivers, const Task& task)> filter) {
-			const bool isGot = exchangeSystem_.GetData(receivier, task,
+			const bool isGot = exchangeSystem_.TryGetData(receivier, task,
 				[&filter](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
 					return filter(dataInfo.sender_, dataInfo.receivers_, dataInfo.data_.GetData<Task>());
 				});
@@ -261,6 +269,7 @@ namespace OksEngine {
 				//	task.receiverSubsystem_ == Subsystem::Type::Resource,
 				//	"WTF"
 				//);
+				OS::LogInfo("Engine/ResourceSubsystem", { "Task with id %d was received from %d subsystem", task.GetId(), taskSender });
 				ResourceSystemTask& resourceSystemTask = task.GetData<ResourceSystemTask>();
 				const TaskType taskType = resourceSystemTask.GetType();
 				switch (taskType) {
@@ -271,6 +280,7 @@ namespace OksEngine {
 					const Task::Id taskId = AddTask(
 						Subsystem::Type::Resource, taskSender,
 						CreateTask<GetResourceResult>(task.GetId(), std::move(resource)));
+					OS::LogInfo("Engine/ResourceSubsystem", { "Task with id %d was sent to %d subsystem", taskId, taskSender });
 					//OS::LogInfo("ResourceSubsystem/GetResource", { "Task completed to load resource "/*, getResourceTask.path_.string().c_str(), task.GetId()*/ });
 					break;
 				}
