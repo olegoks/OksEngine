@@ -187,10 +187,10 @@ namespace OksEngine {
 
 		Task WaitForTask(Subsystem::Type receiver, Task::Id taskId) {
 			auto dataInfo = exchangeSystem_.WaitForData(receiver, [&taskId](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
-				if (dataInfo.data_.GetId() == taskId) {
+				//if (dataInfo.data_.GetId() == taskId) {
 					return true;
-				}
-				return false;
+				//}
+				//return false;
 				});
 			return std::move(dataInfo);
 		}
