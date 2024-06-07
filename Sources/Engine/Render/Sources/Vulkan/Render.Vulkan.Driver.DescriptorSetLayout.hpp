@@ -3,12 +3,10 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.DescriptorSetLayout;
-
-import OksEngine.OS.Assert;
-import OksEngine.OS.Logger;
-import OksEngine.Common.Types;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
+#include <OS.Assert.hpp>
+#include <OS.Logger.hpp>
+#include <Common.Types.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
 
 namespace Render::Vulkan {
 

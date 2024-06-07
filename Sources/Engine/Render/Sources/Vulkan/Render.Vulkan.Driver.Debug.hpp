@@ -3,14 +3,13 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.Debug;
+#include <OS.Logger.hpp>
+#include <OS.Assert.hpp>
 
-import OksEngine.OS.Logger;
-import OksEngine.OS.Assert;
-
-import OksEngine.Render.Vulkan.Common;
-import OksEngine.Render.Vulkan.Driver.Instance;
-//import OksEngine.Render.Vulkan.
+#include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Driver.Instance.hpp>
+//
+// Render.Vulkan.
 
 namespace Render::Vulkan {
 

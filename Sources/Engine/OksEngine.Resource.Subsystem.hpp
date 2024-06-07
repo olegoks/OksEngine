@@ -46,10 +46,14 @@ namespace OksEngine {
 		ResourceSubsystem(Context& context) : Subsystem{ Subsystem::Type::Resource, context } {
 			std::filesystem::path currentPath = std::filesystem::current_path();
 			std::filesystem::path resourcesPath = currentPath / "../../Resources";
-			for (const auto& entry : std::filesystem::recursive_directory_iterator(resourcesPath)) {
-				if (std::filesystem::is_regular_file(entry)) {
-					resourceSystem_.AddResource(entry.path().filename().string(), entry.path(), "Root");
+			try {
+				for (const auto& entry : std::filesystem::recursive_directory_iterator(resourcesPath)) {
+					if (std::filesystem::is_regular_file(entry)) {
+						resourceSystem_.AddResource(entry.path().filename().string(), entry.path(), "Root");
+					}
 				}
+			} catch (std::exception error) {
+				OS::LogInfo("ResourceSystem", error.what());
 			}
 			resourceSystem_.LoadAllResources();
 		}

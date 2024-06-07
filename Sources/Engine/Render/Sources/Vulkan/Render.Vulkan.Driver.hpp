@@ -1,22 +1,9 @@
 #pragma once
 
-#include <windows.h>
-#include <vulkan/vulkan.hpp>
-#include <algorithm>
-#include <optional>
-#include <memory>
-#include <any>
-#include <fstream>
-#include <set>
-#include <chrono>
+#include <Render.Vulkan.Common.hpp>
 
-#include <Math.hpp>
-#include <OS.hpp>
-
-//#include <Render.Vulkan.Common.hpp>
-//
-//#include <Render.Vulkan.Driver.Instance.hpp>
-//#include <Render.Vulkan.Driver.Debug.hpp>
+#include <Render.Vulkan.Driver.Instance.hpp>
+#include <Render.Vulkan.Driver.Debug.hpp>
 //#include <Render.Vulkan.Driver.WindowSurface.hpp>
 //#include <Render.Vulkan.Driver.PhysicalDevice.hpp>
 //#include <Render.Vulkan.Driver.LogicDevice.hpp>
@@ -46,8 +33,6 @@
 //#include <Render.Vulkan.Driver.ImageView.hpp>
 //#include <Render.Vulkan.Driver.DeviceMemory.hpp>
 
-#include <RAL.hpp>
-
 namespace Render::Vulkan {
 
 	class Driver : public RAL::Driver {
@@ -60,21 +45,21 @@ namespace Render::Vulkan {
 		//	//bool enableDepthBuffer_ = false;
 		//};
 
-		//struct UniformBufferObject {
-		//	alignas(16) Math::Matrix4x4f model_;
-		//	alignas(16) Math::Matrix4x4f view_;
-		//	alignas(16) Math::Matrix4x4f proj_;
-		//	alignas(16) Math::Vector3f lightPos_;
-		//	float lightIntensity_;
-		//};
+		struct UniformBufferObject {
+			alignas(16) Math::Matrix4x4f model_;
+			alignas(16) Math::Matrix4x4f view_;
+			alignas(16) Math::Matrix4x4f proj_;
+			alignas(16) Math::Vector3f lightPos_;
+			float lightIntensity_;
+		};
 
-		/*struct Transform {
+		struct Transform {
 			Math::Matrix4x4f model_;
 			Math::Matrix4x4f view_;
 			Math::Matrix4x4f projection_; 
 			Math::Vector3f lightPos_;
 			float lightIntensity_;
-		};*/
+		};
 
 		//class ImageContext {
 		//public:
@@ -167,74 +152,75 @@ namespace Render::Vulkan {
 		//[[nodiscard]]
 		//static PhysicalDevice::Formats GetAvailablePhysicalDeviceSurfaceFormats(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
-		//	uint32_t formatCount;
-		//	VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, nullptr),
-		//		"Error while getting number of available formats.");
+			//uint32_t formatCount;
+			//VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, nullptr),
+			//	"Error while getting number of available formats.");
 
-		//	std::vector<VkSurfaceFormatKHR> formats;
-		//	if (formatCount != 0) {
-		//		formats.resize(formatCount);
-		//		formats.shrink_to_fit();
-		//		VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, formats.data()),
-		//			"Error while getting available formats.");
-		//	}
+			//std::vector<VkSurfaceFormatKHR> formats;
+			//if (formatCount != 0) {
+			//	formats.resize(formatCount);
+			//	formats.shrink_to_fit();
+			//	VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, formats.data()),
+			//		"Error while getting available formats.");
+			//}
 
-		//	return formats;
+			//return formats;
 		//}
 
 		//[[nodiscard]]
 		//static PhysicalDevice::PresentModes GetAvailablePresentModes(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
-		//	std::vector<VkPresentModeKHR> presentModes;
+			//std::vector<VkPresentModeKHR> presentModes;
 
-		//	uint32_t presentModeCount;
-		//	{
-		//		VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, nullptr), 
-		//			"Error while getting number of present modes.");
-		//	}
-		//	if (presentModeCount != 0) {
-		//		presentModes.resize(presentModeCount);
-		//		VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, presentModes.data()), 
-		//			"Error while getting number of present modes.");
-		//	}
+			//uint32_t presentModeCount;
+			//{
+			//	VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, nullptr), 
+			//		"Error while getting number of present modes.");
+			//}
+			//if (presentModeCount != 0) {
+			//	presentModes.resize(presentModeCount);
+			//	VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, presentModes.data()), 
+			//		"Error while getting number of present modes.");
+			//}
 
-		//	return presentModes;
+			//return presentModes;
 		//}
-		//
+		
 		//[[nodiscard]]
 		//static VkPresentModeKHR ChoosePresentMode(const PhysicalDevice::PresentModes& availablePresentModes) noexcept {
 
-		//	for (const auto& availablePresentMode : availablePresentModes) {
-		//		if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-		//			return availablePresentMode;
-		//		}
-		//	}
+			//for (const auto& availablePresentMode : availablePresentModes) {
+			//	if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+			//		return availablePresentMode;
+			//	}
+			//}
 
-		//	return VK_PRESENT_MODE_FIFO_KHR;
+			//return VK_PRESENT_MODE_FIFO_KHR;
 		//}
 
 		//std::pair<QueueFamily, QueueFamily> ChooseQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
-		//	const QueueFamilies graphicsQueueFamilies = physicalDevice->GetGraphicsQueueFamilies();
-		//	OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any graphics queue family.");
+			//const QueueFamilies graphicsQueueFamilies = physicalDevice->GetGraphicsQueueFamilies();
+			//OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any graphics queue family.");
 
-		//	const QueueFamilies presentQueueFamilies = GetPresentQueueFamilies(physicalDevice, windowSurface);
-		//	OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any present queue family.");
+			//const QueueFamilies presentQueueFamilies = GetPresentQueueFamilies(physicalDevice, windowSurface);
+			//OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any present queue family.");
 
-		//	for (const QueueFamily& graphicsQueueFamily : graphicsQueueFamilies) {
-		//		for (const QueueFamily& presentQueueFamily : presentQueueFamilies) {
-		//			if (graphicsQueueFamily.index_ == presentQueueFamily.index_) {
-		//				graphicsQueueFamily_ = graphicsQueueFamily;
-		//				presentQueueFamily_ = presentQueueFamily;
-		//				OS::LogInfo("/render/vulkan/driver/physical device", "Found queue family that supports present and graphics commands.");
-		//			}
-		//		}
-		//	}
+			//for (const QueueFamily& graphicsQueueFamily : graphicsQueueFamilies) {
+			//	for (const QueueFamily& presentQueueFamily : presentQueueFamilies) {
+			//		if (graphicsQueueFamily.index_ == presentQueueFamily.index_) {
+			//			graphicsQueueFamily_ = graphicsQueueFamily;
+			//			presentQueueFamily_ = presentQueueFamily;
+			//			OS::LogInfo("/render/vulkan/driver/physical device", "Found queue family that supports present and graphics commands.");
+			//		}
+			//	}
+			//}
 
-		//	graphicsQueueFamily_ = *graphicsQueueFamilies.begin();
-		//	presentQueueFamily_ = *presentQueueFamilies.begin();
+			//graphicsQueueFamily_ = *graphicsQueueFamilies.begin();
+			//presentQueueFamily_ = *presentQueueFamilies.begin();
 
-		//	return { graphicsQueueFamily_, presentQueueFamily_ };
+			//return { graphicsQueueFamily_, presentQueueFamily_ };
+			//return {};
 		//}
 
 		//[[nodiscard]]
@@ -321,28 +307,31 @@ namespace Render::Vulkan {
 
 		Driver(const CreateInfo& info) noexcept /*: RAL::Driver{ info }*/ : RAL::Driver{ info }{
 
-			//const UIAL::Window::Info windowInfo = info.windowInfo_;
-			//const auto winAPIWindowInfo = std::any_cast<UIRequiredInfo>(windowInfo.info_);
+			auto windowInfo = info.surface_;
 
-			//Extensions requiredExtensions = winAPIWindowInfo.requiredExtensions_;
-			//requiredExtensions.AddExtension("VK_EXT_debug_utils");
-			//requiredExtensions.AddExtension("VK_EXT_debug_report");
 
-			//ValidationLayers requiredValidationLayers;
-			//requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_validation");
-			//requiredValidationLayers.AddLayer("VK_LAYER_LUNARG_api_dump");
-			//requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_profiles");
-			//
-			//Instance::CreateInfo instanceCreateInfo;
-			//{
-			//	instanceCreateInfo.requiredExtensions_ = requiredExtensions;
-			//	instanceCreateInfo.requiredValidationLayers_ = requiredValidationLayers;
-			//	instance_ = std::make_shared<Instance>(instanceCreateInfo);
-			//}
+
+			//auto extensions = std::any_cast<DS::Vector<std::string>>(info.surface_.param2_);
+
+			Extensions requiredExtensions;
+			requiredExtensions.AddExtension("VK_EXT_debug_utils");
+			requiredExtensions.AddExtension("VK_EXT_debug_report");
+
+			ValidationLayers requiredValidationLayers;
+			requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_validation");
+			requiredValidationLayers.AddLayer("VK_LAYER_LUNARG_api_dump");
+			requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_profiles");
+			
+			Instance::CreateInfo instanceCreateInfo;
+			{
+				instanceCreateInfo.requiredExtensions_ = requiredExtensions;
+				instanceCreateInfo.requiredValidationLayers_ = requiredValidationLayers;
+				instance_ = std::make_shared<Instance>(instanceCreateInfo);
+			}
 			//WindowSurface::CreateInfo windowSurfaceCreateInfo;
 			//{
 			//	windowSurfaceCreateInfo.instance_ = instance_;
-			//	windowSurfaceCreateInfo.windowInfo_ = windowInfo;
+			//	windowSurfaceCreateInfo.renderSurface_ = info.surface_;
 			//	windowSurface_ = std::make_shared<WindowSurface>(windowSurfaceCreateInfo);
 			//}
 
@@ -374,7 +363,7 @@ namespace Render::Vulkan {
 
 			//SwapChain::CreateInfo swapChainCreateInfo;
 			//{
-			//	swapChainCreateInfo.imageSize_ = winAPIWindowInfo.frameBufferSize_;
+			//	swapChainCreateInfo.imageSize_ = { 1920, 1080 };
 			//	swapChainCreateInfo.logicDevice_ = logicDevice_;
 			//	swapChainCreateInfo.physicalDevice_ = physicalDevice_;
 			//	swapChainCreateInfo.windowSurface_ = windowSurface_;
@@ -384,21 +373,21 @@ namespace Render::Vulkan {
 			//	swapChainCreateInfo.format_ = ChooseSwapChainSurfaceFormat(availableFormats);
 			//	swapChainCreateInfo.presentMode_ = ChoosePresentMode(GetAvailablePresentModes(physicalDevice_, windowSurface_));
 			//	swapChainCreateInfo.capabilities_ = GetCapabilities(physicalDevice_, windowSurface_);
-			//	swapChainCreateInfo.extent_ = ChooseSwapExtent(physicalDevice_, windowSurface_, winAPIWindowInfo.frameBufferSize_);
+			//	swapChainCreateInfo.extent_ = ChooseSwapExtent(physicalDevice_, windowSurface_, { 1920, 1080 });
 			//	swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
 			//}
 
 			//ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
 			//{
 			//	vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
-			//	vertexShaderModuleCreateInfo.binaryShaderFile_ = std::dynamic_pointer_cast<OS::BinaryFile>(info.vertexShader_->GetFile());
+			//	vertexShaderModuleCreateInfo.text_ = info.vertexShader_;
 			//	vertexShader_ = std::make_shared<ShaderModule>(vertexShaderModuleCreateInfo);
 			//}
 
 			//ShaderModule::CreateInfo fragmentShaderModuleCreateInfo;
 			//{
 			//	fragmentShaderModuleCreateInfo.logicDevice_ = logicDevice_;
-			//	fragmentShaderModuleCreateInfo.binaryShaderFile_ = std::dynamic_pointer_cast<OS::BinaryFile>(info.fragmentShader_->GetFile());
+			//	fragmentShaderModuleCreateInfo.text_ = info.fragmentShader_;// std::dynamic_pointer_cast<OS::BinaryFile>(info.fragmentShader_->GetFile());
 			//	fragmentShader_ = std::make_shared<ShaderModule>(fragmentShaderModuleCreateInfo);
 			//}
 
@@ -535,54 +524,54 @@ namespace Render::Vulkan {
 
 		//void DataCopy(std::shared_ptr<Buffer> bufferFrom, std::shared_ptr<Buffer> bufferTo, std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<CommandPool> commandPool) {
 
-		//	VkCommandBufferAllocateInfo allocInfo{};
-		//	{
-		//		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		//		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		//		allocInfo.commandPool = commandPool->GetNative();
-		//		allocInfo.commandBufferCount = 1;
-		//	}
+			//VkCommandBufferAllocateInfo allocInfo{};
+			//{
+			//	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			//	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			//	allocInfo.commandPool = commandPool->GetNative();
+			//	allocInfo.commandBufferCount = 1;
+			//}
 
-		//	VkCommandBuffer commandBuffer;
-		//	vkAllocateCommandBuffers(logicDevice->GetHandle(), &allocInfo, &commandBuffer);
+			//VkCommandBuffer commandBuffer;
+			//vkAllocateCommandBuffers(logicDevice->GetHandle(), &allocInfo, &commandBuffer);
 
-		//	VkCommandBufferBeginInfo beginInfo{};
-		//	{
-		//		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		//		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-		//	}
+			//VkCommandBufferBeginInfo beginInfo{};
+			//{
+			//	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			//	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+			//}
 
-		//	vkBeginCommandBuffer(commandBuffer, &beginInfo);
-		//	VkBufferCopy copyRegion{};
-		//	{
-		//		copyRegion.srcOffset = 0;
-		//		copyRegion.dstOffset = 0;
-		//		copyRegion.size = bufferFrom->GetSizeInBytes();
-		//	}
-		//	vkCmdCopyBuffer(commandBuffer, bufferFrom->GetNative(), bufferTo->GetNative(), 1, &copyRegion);
-		//	vkEndCommandBuffer(commandBuffer);
+			//vkBeginCommandBuffer(commandBuffer, &beginInfo);
+			//VkBufferCopy copyRegion{};
+			//{
+			//	copyRegion.srcOffset = 0;
+			//	copyRegion.dstOffset = 0;
+			//	copyRegion.size = bufferFrom->GetSizeInBytes();
+			//}
+			//vkCmdCopyBuffer(commandBuffer, bufferFrom->GetNative(), bufferTo->GetNative(), 1, &copyRegion);
+			//vkEndCommandBuffer(commandBuffer);
 
-		//	VkSubmitInfo submitInfo{};
-		//	{
-		//		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		//		submitInfo.commandBufferCount = 1;
-		//		submitInfo.pCommandBuffers = &commandBuffer;
-		//	}
-		//	vkQueueSubmit(logicDevice->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-		//	vkQueueWaitIdle(logicDevice->GetGraphicsQueue());
+			//VkSubmitInfo submitInfo{};
+			//{
+			//	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			//	submitInfo.commandBufferCount = 1;
+			//	submitInfo.pCommandBuffers = &commandBuffer;
+			//}
+			//vkQueueSubmit(logicDevice->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+			//vkQueueWaitIdle(logicDevice->GetGraphicsQueue());
 
-		//	vkFreeCommandBuffers(logicDevice->GetHandle(), commandPool->GetNative(), 1, &commandBuffer);
+			//vkFreeCommandBuffers(logicDevice->GetHandle(), commandPool->GetNative(), 1, &commandBuffer);
 		//}
 
 
 		//void CreateVertexBuffer() const noexcept {
-		//	Buffer::CreateInfo bufferCreateInfo;
-		//	{
-		//		bufferCreateInfo.logicDevice_ = logicDevice_;
-		//		bufferCreateInfo.size_ = 10;
-		//		bufferCreateInfo.usage_ = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
-		//	}
-		//	auto buffer = std::make_shared<Buffer>(bufferCreateInfo);
+			/*Buffer::CreateInfo bufferCreateInfo;
+			{
+				bufferCreateInfo.logicDevice_ = logicDevice_;
+				bufferCreateInfo.size_ = 10;
+				bufferCreateInfo.usage_ = VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT;
+			}
+			auto buffer = std::make_shared<Buffer>(bufferCreateInfo);*/
 		//}
 
 		void StartRender() override {
@@ -662,32 +651,32 @@ namespace Render::Vulkan {
 
 		}
 
-		//void UpdateUniformBuffers(uint32_t currentImage) {
+		void UpdateUniformBuffers(uint32_t currentImage) {
 
-		//	Math::Vector3f vector{ 0.f, 1.f, 0.f };
-		//	UniformBufferObject ubo{};
+			//Math::Vector3f vector{ 0.f, 1.f, 0.f };
+			//UniformBufferObject ubo{};
 
-		//	ubo.lightIntensity_ = light_->GetIntensity();
-		//	ubo.lightPos_ = light_->GetPosition();
+			//ubo.lightIntensity_ = light_->GetIntensity();
+			//ubo.lightPos_ = light_->GetPosition();
 
-		//	static auto startTime = std::chrono::high_resolution_clock::now();
+			//static auto startTime = std::chrono::high_resolution_clock::now();
 
-		//	auto currentTime = std::chrono::high_resolution_clock::now();
-		//	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+			//auto currentTime = std::chrono::high_resolution_clock::now();
+			//float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-		//	ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });Math::Matrix4x4f::GetIdentity();*/ Math::Matrix4x4f::GetRotate(time * 90.f, vector);
-		//	Math::Vector3f position = camera_->GetPosition();
-		//	Math::Vector3f direction = camera_->GetDirection();
-		//	//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
-		//	//ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, swapChain_->GetExtent().width / (float)swapChain_->GetExtent().height, 0.1, 10);
-		//	ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
-		//	ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, camera_->GetWidth() / (float)camera_->GetHeight(), 0.001, 1000);
+			//ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });Math::Matrix4x4f::GetIdentity();*/ Math::Matrix4x4f::GetRotate(time * 90.f, vector);
+			//Math::Vector3f position = camera_->GetPosition();
+			//Math::Vector3f direction = camera_->GetDirection();
+			////ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
+			////ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, swapChain_->GetExtent().width / (float)swapChain_->GetExtent().height, 0.1, 10);
+			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
+			//ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, camera_->GetWidth() / (float)camera_->GetHeight(), 0.001, 1000);
 
-		//	ubo.proj_[1][1] *= -1;
+			//ubo.proj_[1][1] *= -1;
 
-		//	std::shared_ptr<UniformBuffer> currentUniformBuffer = uniformBuffers_[currentImage];
-		//	//currentUniformBuffer->Fill(&ubo);
-		//}
+			//std::shared_ptr<UniformBuffer> currentUniformBuffer = uniformBuffers_[currentImage];
+			////currentUniformBuffer->Fill(&ubo);
+		}
 
 		void EndRender() override {
 		/*	vertices_.Clear();
@@ -696,127 +685,128 @@ namespace Render::Vulkan {
 		}
 
 
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3fnñt* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indicesNumber,
-		//	const RAL::Texture& texture) override {
-		//	
-		//	vertices_.Add(vertices, verticesNumber);
-		//	indices_.Add(indices, indicesNumber, verticesNumber);
+		virtual void DrawIndexed(
+			const RAL::Vertex3fnñt* vertices,
+			Common::Size verticesNumber,
+			const RAL::Index16* indices,
+			Common::Size indicesNumber,
+			const RAL::Texture& texture) override {
+			/*
+			vertices_.Add(vertices, verticesNumber);
+			indices_.Add(indices, indicesNumber, verticesNumber);*/
 
-		//}
+		}
 
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3fnt* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indicesNumber, 
-		//	const RAL::Texture& texture) override {
+		virtual void DrawIndexed(
+			const RAL::Vertex3fnt* vertices,
+			Common::Size verticesNumber,
+			const RAL::Index16* indices,
+			Common::Size indicesNumber, 
+			const RAL::Texture& texture) override {
 
-		//	for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-		//		const RAL::Vertex3fnt& vertex = vertices[vertexIndex];
-		//		vertices_.Add({ vertex.position_, vertex.normal_, Math::Vector3f{ 0, 0, 0 }, vertex.texel_ });
-		//	}
-		//	indices_.Add(indices, indicesNumber, verticesNumber);
+			/*for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+				const RAL::Vertex3fnt& vertex = vertices[vertexIndex];
+				vertices_.Add({ vertex.position_, vertex.normal_, Math::Vector3f{ 0, 0, 0 }, vertex.texel_ });
+			}
+			indices_.Add(indices, indicesNumber, verticesNumber);*/
 
-		//}
+		}
 
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3fnc* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indicesNumber) override {
-		//	for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-		//		const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
-		//		vertices_.Add({ vertex.position_, vertex.normal_, vertex.color_, Math::Vector2f{ 0, 0 } });
-		//	}
-		//	indices_.Add(indices, indicesNumber, verticesNumber);
+		virtual void DrawIndexed(
+			const RAL::Vertex3fnc* vertices,
+			Common::Size verticesNumber,
+			const RAL::Index16* indices,
+			Common::Size indicesNumber) override {
+			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+				const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
+				vertices_.Add({ vertex.position_, vertex.normal_, vertex.color_, Math::Vector2f{ 0, 0 } });
+			}
+			indices_.Add(indices, indicesNumber, verticesNumber);
 
-		//}
+		}
 
 
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3fc* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indiciesNumber) override {
+		virtual void DrawIndexed(
+			const RAL::Vertex3fc* vertices,
+			Common::Size verticesNumber,
+			const RAL::Index16* indices,
+			Common::Size indiciesNumber) override {
 
-		//	for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-		//		const RAL::Vertex3fc& vertex = vertices[vertexIndex];
-		//		vertices_.Add({ vertex.position_, RAL::Vector3f{ 0, 0, 0 }, vertex.color_, Math::Vector2f{ 0, 0 } });
-		//	}
+			/*for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+				const RAL::Vertex3fc& vertex = vertices[vertexIndex];
+				vertices_.Add({ vertex.position_, RAL::Vector3f{ 0, 0, 0 }, vertex.color_, Math::Vector2f{ 0, 0 } });
+			}
 
-		//	indices_.Add(indices, indiciesNumber, verticesNumber);
+			indices_.Add(indices, indiciesNumber, verticesNumber);*/
 
-		//}
+		}
 
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3f* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indiciesNumber,
-		//	const RAL::Color& color) override {
+		virtual void DrawIndexed(
+			const RAL::Vertex3f* vertices,
+			Common::Size verticesNumber,
+			const RAL::Index16* indices,
+			Common::Size indiciesNumber,
+			const RAL::Color& color) override {
 
-		//	for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-		//		vertices_.Add({ vertices[vertexIndex], RAL::Vector3f{ 0, 0, 0 }, color, Math::Vector2f{ 0, 0 } });
-		//	}
+			/*for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+				vertices_.Add({ vertices[vertexIndex], RAL::Vector3f{ 0, 0, 0 }, color, Math::Vector2f{ 0, 0 } });
+			}
 
-		//	indices_.Add(indices, indiciesNumber, verticesNumber);
+			indices_.Add(indices, indiciesNumber, verticesNumber);*/
 
-		//}
+		}
 
 		//std::shared_ptr<ImageContext> GetNextImage(std::shared_ptr<Semaphore> imageAvailableSemaphore) noexcept {
 
-		//	uint32_t imageIndex;
-		//	VkCall(vkAcquireNextImageKHR(
-		//		logicDevice_->GetHandle(),
-		//		swapChain_->GetHandle(),
-		//		UINT64_MAX,
-		//		imageAvailableSemaphore->GetNative(),
-		//		VK_NULL_HANDLE,
-		//		&imageIndex), 
-		//		"Error while getting next swap chain image.");
+		/*	uint32_t imageIndex;
+			VkCall(vkAcquireNextImageKHR(
+				logicDevice_->GetHandle(),
+				swapChain_->GetHandle(),
+				UINT64_MAX,
+				imageAvailableSemaphore->GetNative(),
+				VK_NULL_HANDLE,
+				&imageIndex), 
+				"Error while getting next swap chain image.");
 
-		//	std::shared_ptr<ImageContext> imageContext = imageContexts_[imageIndex];
-		//	imageContext->index_ = imageIndex;
-		//	imageContext->commandBuffer_ = commandBuffers_[imageIndex];
+			std::shared_ptr<ImageContext> imageContext = imageContexts_[imageIndex];
+			imageContext->index_ = imageIndex;
+			imageContext->commandBuffer_ = commandBuffers_[imageIndex];
 
-		//	return imageContext;
+			return imageContext;*/
+			//return nullptr;
 		//}
 
-		//static void ExecuteCommands(
-		//	VkQueue queue,
-		//	std::shared_ptr<Semaphore> waitBeforeExecuting,
-		//	std::shared_ptr<Semaphore> semaphoreExecutionFinish,
-		//	VkPipelineStageFlags waitStages,
-		//	std::shared_ptr<CommandBuffer> commands,
-		//	std::shared_ptr<Fence> fenceExecutionFinished) {
+		/*static void ExecuteCommands(
+			VkQueue queue,
+			std::shared_ptr<Semaphore> waitBeforeExecuting,
+			std::shared_ptr<Semaphore> semaphoreExecutionFinish,
+			VkPipelineStageFlags waitStages,
+			std::shared_ptr<CommandBuffer> commands,
+			std::shared_ptr<Fence> fenceExecutionFinished) {*/
 
-		//	VkSubmitInfo submitInfo{};
-		//	{
-		//		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		//		submitInfo.waitSemaphoreCount = 1;
-		//		submitInfo.pWaitSemaphores = &waitBeforeExecuting->GetNative();
-		//		//VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
-		//		submitInfo.pWaitDstStageMask = &waitStages;//waitStages;
-		//		submitInfo.commandBufferCount = 1;
-		//		submitInfo.pCommandBuffers = &commands->GetNative();
-		//		submitInfo.signalSemaphoreCount = 1;
-		//		submitInfo.pSignalSemaphores = &semaphoreExecutionFinish->GetNative();
+			//VkSubmitInfo submitInfo{};
+			//{
+			//	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+			//	submitInfo.waitSemaphoreCount = 1;
+			//	submitInfo.pWaitSemaphores = &waitBeforeExecuting->GetNative();
+			//	//VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
+			//	submitInfo.pWaitDstStageMask = &waitStages;//waitStages;
+			//	submitInfo.commandBufferCount = 1;
+			//	submitInfo.pCommandBuffers = &commands->GetNative();
+			//	submitInfo.signalSemaphoreCount = 1;
+			//	submitInfo.pSignalSemaphores = &semaphoreExecutionFinish->GetNative();
 
-		//		VkCall(vkQueueSubmit(queue, 1, &submitInfo, fenceExecutionFinished->GetNative()),
-		//			"Error while submitting commands.");
-		//	}
+			//	VkCall(vkQueueSubmit(queue, 1, &submitInfo, fenceExecutionFinished->GetNative()),
+			//		"Error while submitting commands.");
+			//}
 
 		//}
 
-		void ShowImage(){
+		/*void ShowImage(
 
-			//std::shared_ptr<Semaphore> waitBeforeShowing,
-			//std::shared_ptr<SwapChain> swapChain,
-			//uint32_t imageIndex) {
+			std::shared_ptr<Semaphore> waitBeforeShowing,
+			std::shared_ptr<SwapChain> swapChain,
+			uint32_t imageIndex) {*/
 
 			//VkSwapchainKHR swapChainHandle = VK_NULL_HANDLE;
 			//swapChainHandle = swapChain_->GetHandle();
@@ -833,34 +823,34 @@ namespace Render::Vulkan {
 			//	VkCall(vkQueuePresentKHR(logicDevice_->GetPresentQueue(), &presentInfo),
 			//		"Error while showing image.");
 			//}
-		}
+		//}
 
 
 
 	private:
-		//size_t currentFrame = 0;
+		size_t currentFrame = 0;
 
-		//const int MAX_FRAMES_IN_FLIGHT = 2;
+		const int MAX_FRAMES_IN_FLIGHT = 2;
 
-		//std::shared_ptr<Instance> instance_ = nullptr;
-		//std::shared_ptr<Debug> debug_ = nullptr;
+		std::shared_ptr<Instance> instance_ = nullptr;
+		std::shared_ptr<Debug> debug_ = nullptr;
 		//std::shared_ptr<WindowSurface> windowSurface_ = nullptr;
-		//std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-		//std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-		//std::shared_ptr<SwapChain> swapChain_ = nullptr;
-		//std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
-		//std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
-		//std::shared_ptr<Pipeline> pipeline_ = nullptr;
-		//std::vector<FrameBuffer> frameBuffers_;
-		//std::shared_ptr<CommandPool> commandPool_ = nullptr;
-		//std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
-		//std::shared_ptr<VertexBuffer> vertexBuffer_ = nullptr;
-		//std::shared_ptr<StagingBuffer> indexStagingBuffer_ = nullptr;
-		//std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;
-		//std::vector<std::shared_ptr<UniformBuffer>> uniformBuffers_;
-		//std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
-		//std::shared_ptr<DescriptorPool> descriptorPool_ = nullptr;
-		//std::vector<DescriptorSet> descriptorSets_;
+		/*std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+		std::shared_ptr<SwapChain> swapChain_ = nullptr;
+		std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
+		std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
+		std::shared_ptr<Pipeline> pipeline_ = nullptr;
+		std::vector<FrameBuffer> frameBuffers_;
+		std::shared_ptr<CommandPool> commandPool_ = nullptr;
+		std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
+		std::shared_ptr<VertexBuffer> vertexBuffer_ = nullptr;
+		std::shared_ptr<StagingBuffer> indexStagingBuffer_ = nullptr;
+		std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;
+		std::vector<std::shared_ptr<UniformBuffer>> uniformBuffers_;
+		std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
+		std::shared_ptr<DescriptorPool> descriptorPool_ = nullptr;
+		std::vector<DescriptorSet> descriptorSets_;*/
 
 		//QueueFamily graphicsQueueFamily_;
 		//QueueFamily presentQueueFamily_;

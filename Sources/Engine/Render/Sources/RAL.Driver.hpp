@@ -120,6 +120,8 @@ namespace RAL {
 	class Shader {
 	public:
 
+		Shader() noexcept = default;
+
 		Shader(const Common::Byte* text, Common::Size size) {
 			text_.Resize(size);
 			std::memcpy(text_.GetData(), text, size);
@@ -137,6 +139,7 @@ namespace RAL {
 			return text_.GetSize();
 		}
 
+		~Shader() noexcept = default;
 	private:
 		DS::Vector<Common::Byte> text_;
 	};
@@ -159,7 +162,7 @@ namespace RAL {
 		struct CreateInfo {
 			Shader vertexShader_;
 			Shader fragmentShader_;
-			//RenderSurface surface_;
+			RenderSurface surface_;
 			bool enableDepthBuffer_ = false;
 		};
 
@@ -182,38 +185,38 @@ namespace RAL {
 			return camera_;
 		}
 
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3fnñt* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indicesNumber,
-		//	const Texture& texture) = 0;
+		virtual void DrawIndexed(
+			const RAL::Vertex3fnñt* vertices,
+			Common::Size verticesNumber,
+			const RAL::Index16* indices,
+			Common::Size indicesNumber,
+			const Texture& texture) = 0;
 
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3fnt* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indicesNumber,
-		//	const Texture& texture) = 0;
+		virtual void DrawIndexed(
+			const RAL::Vertex3fnt* vertices,
+			Common::Size verticesNumber,
+			const RAL::Index16* indices,
+			Common::Size indicesNumber,
+			const Texture& texture) = 0;
 
-		//virtual void DrawIndexed(
-		//	const Vertex3fnc* vertices,
-		//	Common::Size verticesNumber,
-		//	const Index16* indices,
-		//	Common::Size indicesNumber) = 0;
+		virtual void DrawIndexed(
+			const Vertex3fnc* vertices,
+			Common::Size verticesNumber,
+			const Index16* indices,
+			Common::Size indicesNumber) = 0;
 
-		//virtual void DrawIndexed(
-		//	const Vertex3fc* vertex,
-		//	Common::Size verticesNumber,
-		//	const Index16* indices,
-		//	Common::Size indeciesNumber) = 0;
+		virtual void DrawIndexed(
+			const Vertex3fc* vertex,
+			Common::Size verticesNumber,
+			const Index16* indices,
+			Common::Size indeciesNumber) = 0;
 
-		//virtual void DrawIndexed(
-		//	const Vertex3f* vertex,
-		//	Common::Size verticesNumber,
-		//	const Index16* indices,
-		//	Common::Size indeciesNumber,
-		//	const Color& color) = 0;
+		virtual void DrawIndexed(
+			const Vertex3f* vertex,
+			Common::Size verticesNumber,
+			const Index16* indices,
+			Common::Size indeciesNumber,
+			const Color& color) = 0;
 
 		virtual ~Driver() = default;
 

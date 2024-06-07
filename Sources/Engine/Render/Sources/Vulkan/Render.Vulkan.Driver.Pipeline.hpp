@@ -3,19 +3,17 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.Pipeline;
+#include <OS.Assert.hpp>
+#include <OS.Logger.hpp>
 
-import OksEngine.OS.Assert;
-import OksEngine.OS.Logger;
-
-import OksEngine.Render.Vulkan.Common;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
-import OksEngine.Render.Vulkan.Driver.SwapChain;
-import OksEngine.Render.Vulkan.Driver.ShaderModule;
-import OksEngine.Render.Vulkan.Driver.DescriptorSetLayout;
-import OksEngine.Render.Vulkan.Driver.RenderPass;
-import OksEngine.Render.Vulkan.Driver.PipelineLayout;
-import OksEngine.Render.Vulkan.Driver.Image;
+#include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
+#include <Render.Vulkan.Driver.SwapChain.hpp>
+#include <Render.Vulkan.Driver.ShaderModule.hpp>
+#include <Render.Vulkan.Driver.DescriptorSetLayout.hpp>
+#include <Render.Vulkan.Driver.RenderPass.hpp>
+#include <Render.Vulkan.Driver.PipelineLayout.hpp>
+#include <Render.Vulkan.Driver.Image.hpp>
 
 namespace Render::Vulkan {
 

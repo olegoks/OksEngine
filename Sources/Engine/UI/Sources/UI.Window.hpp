@@ -14,14 +14,14 @@
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
 
-//import OksEngine.RAL;
-//import OksEngine.Render.Vulkan.Common;
+//#include <RAL;
+//#include <Render.Vulkan.Common.hpp>
 //
-//import OksEngine.UIAL;
-//import OksEngine.Common.Types;
-//import OksEngine.Math.Vector;
-//import OksEngine.OS.Logger;
-//import OksEngine.OS.Assert;
+//#include <UIAL;
+//#include <Common.Types.hpp>
+//#include <Math.Vector.hpp>
+//#include <OS.Logger;
+//#include <OS.Assert;
 
 
 namespace UI {
@@ -86,7 +86,7 @@ namespace UI {
 				windowPtr->CallEventCallbacks(keyboardKey, event);
 
 				});
-
+			
 			window_ = createdWindow;
 		}
 
@@ -96,6 +96,8 @@ namespace UI {
 				"Attempt to get GLFWwindow that was not initialized.");
 			return window_;
 		}
+
+
 
 		/*virtual */void SetTitle(const std::string& title) noexcept /*override */{
 			glfwSetWindowTitle(window_, title.c_str());
@@ -170,6 +172,8 @@ namespace UI {
 		/*Size GetSize() const { return size_; }*/
 
 		/*NativeAPI GetNativeType() const override { return NativeAPI::GLFW; }*/
+
+		
 
 	private:
 		static void ErrorCallback(int error_code, const char* description) {

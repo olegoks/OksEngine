@@ -6,9 +6,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(TestRender Test.Render.cpp)
 
+find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(TestRender
   Render
   GTest::gtest_main
+  glfw
   )
 
 add_test(

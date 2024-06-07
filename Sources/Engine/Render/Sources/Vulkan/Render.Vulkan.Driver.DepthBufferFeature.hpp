@@ -4,15 +4,12 @@
 #include <vulkan/vulkan.hpp>
 
 
-export module OksEngine.Render.Vulkan.Driver.DepthBufferFeature;
-
-import OksEngine.OS;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
-import OksEngine.Render.Vulkan.Driver.PhysicalDevice;
-import OksEngine.Render.Vulkan.Driver.SwapChain;
-import OksEngine.Render.Vulkan.Driver.ImageView;
-import OksEngine.Render.Vulkan.Driver.Image;
-import OksEngine.Render.Vulkan.Driver.DeviceMemory;
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
+#include <Render.Vulkan.Driver.PhysicalDevice.hpp>
+#include <Render.Vulkan.Driver.SwapChain.hpp>
+#include <Render.Vulkan.Driver.ImageView.hpp>
+#include <Render.Vulkan.Driver.Image.hpp>
+#include <Render.Vulkan.Driver.DeviceMemory.hpp>
 
 namespace Render::Vulkan {
 

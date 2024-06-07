@@ -3,12 +3,10 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.UniformBuffer;
+#include <Common.Types.hpp>
 
-import OksEngine.Common.Types;
-
-import OksEngine.Render.Vulkan.Common;
-import OksEngine.Render.Vulkan.Driver.Buffer;
+#include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Driver.Buffer.hpp>
 
 namespace Render::Vulkan {
 	class UniformBuffer : public Buffer {

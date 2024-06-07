@@ -4,19 +4,17 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.SwapChain;
+#include <OS.Assert.hpp>
+#include <OS.Logger.hpp>
 
-import OksEngine.OS.Assert;
-import OksEngine.OS.Logger;
+//#include <UIAL.hpp>
 
-import OksEngine.UIAL;
-
-import OksEngine.Render.Vulkan.Common;
-import OksEngine.Render.Vulkan.Abstraction;
-import OksEngine.Render.Vulkan.Driver.WindowSurface;
-import OksEngine.Render.Vulkan.Driver.PhysicalDevice;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
-import OksEngine.Render.Vulkan.Driver.ImageView;
+#include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Abstraction.hpp>
+#include <Render.Vulkan.Driver.WindowSurface.hpp>
+#include <Render.Vulkan.Driver.PhysicalDevice.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
+#include <Render.Vulkan.Driver.ImageView.hpp>
 
 
 
@@ -31,7 +29,8 @@ namespace Render::Vulkan {
 			std::shared_ptr<WindowSurface> windowSurface_;
 			QueueFamily presentQueueFamily_;
 			QueueFamily graphicsQueueFamily_;
-			UIAL::Window::Size imageSize_ = { 0, 0 };
+			Math::Vector2u imageSize_ = { 0, 0 };
+
 			VkSurfaceFormatKHR format_;
 			VkPresentModeKHR presentMode_;
 			VkSurfaceCapabilitiesKHR capabilities_;
@@ -190,7 +189,7 @@ namespace Render::Vulkan {
 	}
 
 	[[nodiscard]]
-	VkExtent2D ChooseSwapExtent(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface, const UIAL::Window::Size& imageSize) noexcept {
+	VkExtent2D ChooseSwapExtent(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface, const Math::Vector2u& imageSize) noexcept {
 
 		const VkSurfaceCapabilitiesKHR capabilities = GetCapabilities(physicalDevice, windowSurface);
 

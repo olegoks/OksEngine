@@ -3,14 +3,12 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.VertexBuffer;
+#include <Common.Types.hpp>
 
-import OksEngine.Common.Types;
-
-import OksEngine.Render.Vulkan.Common;
-import OksEngine.Render.Vulkan.Driver.Buffer;
-import OksEngine.Render.Vulkan.Driver.PhysicalDevice;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
+#include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Driver.Buffer.hpp>
+#include <Render.Vulkan.Driver.PhysicalDevice.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
 
 namespace Render::Vulkan {
 

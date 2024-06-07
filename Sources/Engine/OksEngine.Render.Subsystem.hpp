@@ -5,6 +5,8 @@
 
 #include <OksEngine.Resource.Subsystem.hpp>
 
+#include "OksEngine.UI.Subsystem.hpp"
+
 namespace OksEngine {
 
 	class RenderSubsystem : public Subsystem {
@@ -34,12 +36,20 @@ namespace OksEngine {
 			RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
 			RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
 
-			//RAL::Driver::CreateInfo driverCreateInfo{
-			//	vertexShader,
-			//	fragmentShader,
-			//	/*surface*/
-			//};
-			//driver_ = api_->CreateDriver(driverCreateInfo);
+			auto uiSubsystem = GetUISubsystem();
+			GLFWwindow* glfwWindow = uiSubsystem->GetWindow()->GetGLFWwindow();
+
+			RAL::RenderSurface renderSurface;
+			renderSurface.param1_ = glfwWindow;
+			renderSurface.uiSubsystem_ = RAL::UISubsystem::GLFW;
+
+			RAL::Driver::CreateInfo driverCreateInfo{
+				vertexShader,
+				fragmentShader,
+				renderSurface
+			};
+			driver_ = api_->CreateDriver(driverCreateInfo);
+			
 		}
 
 		virtual void Update() noexcept override {

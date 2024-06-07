@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/Programming/Git, GitHub/Как откатить отслеживание.md",
+                "file": "Work/Programming/Git, GitHub/Работа со стешем.md",
                 "mode": "source",
                 "source": false
               }
@@ -69,7 +69,7 @@
       }
     ],
     "direction": "horizontal",
-    "width": 200
+    "width": 378.5
   },
   "right": {
     "id": "492b75a9d817c948",
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/Programming/Git, GitHub/Как откатить отслеживание.md",
+                "file": "Work/Programming/Git, GitHub/Работа со стешем.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/Programming/Git, GitHub/Как откатить отслеживание.md",
+                "file": "Work/Programming/Git, GitHub/Работа со стешем.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/Programming/Git, GitHub/Как откатить отслеживание.md"
+                "file": "Work/Programming/Git, GitHub/Работа со стешем.md"
               }
             }
           }
@@ -148,9 +148,10 @@
   },
   "active": "f6b89e774ae8a967",
   "lastOpenFiles": [
+    "Work/C++/VisualStudio/Breakpoint для определенного потока.md",
+    "Work/Programming/Git, GitHub/Работа со стешем.md",
     "Work/Programming/Git, GitHub/Отменить последний коммит.md",
     "Work/Programming/Git, GitHub/Как откатить отслеживание.md",
-    "Work/C++/VisualStudio/Breakpoint для определенного потока.md",
     "Attachments/Pasted image 20240605112926.png",
     "Work/C++/VisualStudio/Присоединение к процессу.md",
     "Work/C++/volatile.md",
@@ -185,7 +186,6 @@
     "Attachments/Pasted image 20240603182948.png",
     "Attachments/Pasted image 20240603182940.png",
     "Work/C++/Многопоточность/Конструкции/Мьютекс чтения-записи(reader-writer mutex).md",
-    "Work/C++/Многопоточность/Топики/Защита редко обновляемых структур данных.md",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
     "Work/C++/Многопоточность/Топики",

@@ -32,14 +32,19 @@ target_sources(Render
         Sources/RAL.Driver.hpp
         Sources/RAL.Light.hpp
         Sources/RAL.WindowSurface.hpp
-        Sources/RAL.WindowSurface.cpp
+
         Sources/Vulkan/Render.Vulkan.Common.hpp
         Sources/Vulkan/Render.Vulkan.Driver.hpp
         Sources/Vulkan/Render.Vulkan.Camera.hpp
         Sources/Vulkan/Render.Vulkan.API.hpp
         Sources/Vulkan/Render.Vulkan.Common.hpp
+
+       # Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.cpp
+        
     PRIVATE
-        Sources/RAL.cpp
+         Sources/RAL.cpp
+         Sources/RAL.WindowSurface.cpp
+         #Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.hpp
         #${PRIVATE_SOURCES}
     )
 
@@ -57,24 +62,32 @@ source_group("Sources"
     Sources/Vulkan/Render.Vulkan.Camera.hpp
     Sources/Vulkan/Render.Vulkan.API.hpp
     Sources/Vulkan/Render.Vulkan.Common.hpp
+    #Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.hpp
+    #Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.cpp
     Sources/RAL.cpp
-    # ${PUBLIC_SOURCES}
-    # ${PRIVATE_SOURCES})
+     #${PUBLIC_SOURCES}
+     #${PRIVATE_SOURCES}
     )
 
+find_package(Vulkan REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
 
 target_link_libraries(Render
     PUBLIC
         OS
         Geometry
-        Math)
+        Math
+        glfw
+    PRIVATE 
+        Vulkan::Vulkan)
 
         
-find_package(Vulkan REQUIRED)
-target_link_libraries(Render PRIVATE Vulkan::Vulkan)
-
 target_include_directories(Render
     PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/Sources/)
+        ${CMAKE_CURRENT_LIST_DIR}/Sources/
+        ${CMAKE_CURRENT_LIST_DIR}/Sources/Vulkan)
+
+
+
 
 add_subdirectory(Tests)
