@@ -3,14 +3,12 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.ShaderModule;
+#include <OS.Assert.hpp>
+#include <OS.Logger.hpp>
+#include <OS.FileSystem.BinaryFile.hpp>
 
-import OksEngine.OS.Assert;
-import OksEngine.OS.Logger;
-import OksEngine.OS.FileSystem.BinaryFile;
-
-import OksEngine.Render.Vulkan.Common;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
+#include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
 
 namespace Render::Vulkan {
 
@@ -19,7 +17,8 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> logicDevice_;
-			std::shared_ptr<OS::BinaryFile> binaryShaderFile_;
+			DS::Vector<Common::Byte>	 spirv_;
+			RAL::Shader					 text_;
 		};
 
 		ShaderModule(const CreateInfo& createInfo) noexcept : logicDevice_{ createInfo.logicDevice_ } {
@@ -29,12 +28,12 @@ namespace Render::Vulkan {
 			VkShaderModuleCreateInfo shaderModuleCreateInfo{};
 			{
 				shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-				shaderModuleCreateInfo.codeSize = createInfo.binaryShaderFile_->GetSize();
-				shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(createInfo.binaryShaderFile_->GetData().get());
+				shaderModuleCreateInfo.codeSize = createInfo.spirv_.GetSize();
+				shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(createInfo.spirv_.GetData());
 			}
 			VkCall(vkCreateShaderModule(createInfo.logicDevice_->GetHandle(), &shaderModuleCreateInfo, nullptr, &shaderModule_),
 				"Error while creating shader module.");
-			OS::LogInfo("render/vulkan/driver/shader", { "Shader module %s was created successfuly.", createInfo.binaryShaderFile_->GetName().c_str() });
+			OS::LogInfo("render/vulkan/driver/shader", { "Shader module was created successfuly." });
 		}
 
 		[[nodiscard]]

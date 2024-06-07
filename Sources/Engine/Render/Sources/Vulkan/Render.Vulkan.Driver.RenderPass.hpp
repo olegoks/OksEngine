@@ -2,12 +2,10 @@
 
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.RenderPass;
+#include <OS.Assert.hpp>
 
-import OksEngine.OS.Assert;
-
-import OksEngine.Render.Vulkan.Driver.SwapChain;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
+#include <Render.Vulkan.Driver.SwapChain.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
 
 namespace Render::Vulkan {
 

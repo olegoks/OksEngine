@@ -6,33 +6,55 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_library(Geometry STATIC)   
 
-file(GLOB_RECURSE SOURCES
+set(SourcesDir "Sources/")
+
+file(GLOB_RECURSE PUBLIC_SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
-    *.cpp
-    *.hpp
-    *.h
-    *.c
+    ${SourcesDir}/*.hpp
+    ${SourcesDir}/*.h
 )
+
+file(GLOB_RECURSE
+ PRIVATE_SOURCES
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    ${SourcesDir}/*.cpp
+    ${SourcesDir}/*.c
+)
+
+# file(GLOB_RECURSE SOURCES
+#     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+#     LIST_DIRECTORIES false
+#     *.cpp
+#     *.hpp
+#     *.h
+#     *.c
+# )
 
 target_sources(Geometry
     PUBLIC
-        ${SOURCES}
+        ${PUBLIC_SOURCES}
+    PRIVATE
+        ${PRIVATE_SOURCES}
     )
         
 source_group("Sources"
     FILES
-    ${SOURCES})
+    ${PUBLIC_SOURCES}
+    ${PRIVATE_SOURCES})
 
 target_include_directories(Geometry
     PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR})
+        ${CMAKE_CURRENT_LIST_DIR}/Sources/)
+
+find_package(tinyobjloader CONFIG REQUIRED)
 
 target_link_libraries(Geometry
     PUBLIC
         OS
-        Math)
+        Math
+    PRIVATE 
+        tinyobjloader::tinyobjloader)
 
-find_package(tinyobjloader CONFIG REQUIRED)
-target_link_libraries(Geometry PRIVATE tinyobjloader::tinyobjloader)
 

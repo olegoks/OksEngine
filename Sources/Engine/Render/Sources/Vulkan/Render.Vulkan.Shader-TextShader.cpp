@@ -3,9 +3,8 @@
 #include <vector>
 #include <iostream>
 //#include <shaderc\shaderc.hpp>
+#include <Render.Vulkan.Shader-TextShader.hpp>
 
-
-module OksEngine.Render.Vulkan.Shader:TextShader;
 
 namespace Render::Vulkan
 {

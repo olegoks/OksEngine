@@ -3,14 +3,12 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.FrameBuffer;
+#include <OS.Assert.hpp>
+#include <OS.Logger.hpp>
 
-import OksEngine.OS.Assert;
-import OksEngine.OS.Logger;
-
-import OksEngine.Render.Vulkan.Common;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
-import OksEngine.Render.Vulkan.Driver.ImageView;
+#include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
+#include <Render.Vulkan.Driver.ImageView.hpp>
 
 namespace Render::Vulkan {
 

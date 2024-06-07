@@ -3,19 +3,16 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.DescriptorSet;
+#include <Common.Types.hpp>
+#include <OS.Assert.hpp>
+#include <OS.Logger.hpp>
 
-import OksEngine.Common.Types;
+#include <Render.Vulkan.Common.hpp>
 
-import OksEngine.OS.Assert;
-import OksEngine.OS.Logger;
-
-import OksEngine.Render.Vulkan.Common;
-
-import OksEngine.Render.Vulkan.Driver.DescriptorPool;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
-import OksEngine.Render.Vulkan.Driver.DescriptorSetLayout;
-import OksEngine.Render.Vulkan.Driver.UniformBuffer;
+#include <Render.Vulkan.Driver.DescriptorPool.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
+#include <Render.Vulkan.Driver.DescriptorSetLayout.hpp>
+#include <Render.Vulkan.Driver.UniformBuffer.hpp>
 
 namespace Render::Vulkan {
 

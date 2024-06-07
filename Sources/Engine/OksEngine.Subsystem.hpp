@@ -44,6 +44,10 @@ namespace OksEngine {
 			return context_.resourceSubsystem_;
 		}
 
+		std::shared_ptr<UISubsystem> GetUISubsystem() {
+			return context_.uiSubsystem_;
+		}
+
 	private:
 		Type type_;
 		Context& context_;

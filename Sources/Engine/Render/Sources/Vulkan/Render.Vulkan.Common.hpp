@@ -8,7 +8,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Math.hpp>
-#include <OS.hpp>
+
 #include <Geometry.hpp>
 
 namespace Render::Vulkan {
@@ -17,7 +17,7 @@ namespace Render::Vulkan {
 		OS::AssertMessage(nativeAPICallResult == VK_SUCCESS, format);
 	}
 
-	class Vertex3fnc : public Vertex3fnc {
+	class Vertex3fnc : public Geometry::Vertex3fnc {
 	public:
 
 		static VkVertexInputBindingDescription GetBindingDescription() {
@@ -52,7 +52,7 @@ namespace Render::Vulkan {
 		}
 	};
 
-	class Vertex3fc : public Vertex3fc {
+	class Vertex3fc : public Geometry::Vertex3fc {
 	public:
 
 		static VkVertexInputBindingDescription GetBindingDescription() {
@@ -82,7 +82,7 @@ namespace Render::Vulkan {
 		}
 	};
 
-	class Vertex3fnt : public Vertex3fnt {
+	class Vertex3fnt : public Geometry::Vertex3fnt {
 	public:
 
 
@@ -118,7 +118,7 @@ namespace Render::Vulkan {
 		}
 	};
 
-	class Vertex3fnñt : public Vertex3fnñt {
+	class Vertex3fnñt : public RAL::Vertex3fnñt {
 	public:
 
 
@@ -230,12 +230,12 @@ namespace Render::Vulkan {
 		std::vector<Extension> extensions_;
 	};
 
-	struct UIRequiredInfo {
-		Extensions requiredExtensions_;
-		HWND windowHandle_ = NULL;
-		HINSTANCE instanceHandle_ = NULL;
-		Math::Vector2i frameBufferSize_{ 1920, 1080 };
-	};
+	//struct UIRequiredInfo {
+	//	Extensions requiredExtensions_;
+	//	HWND windowHandle_ = NULL;
+	//	HINSTANCE instanceHandle_ = NULL;
+	//	Math::Vector2i frameBufferSize_{ 1920, 1080 };
+	//};
 
 	class ValidationLayer {
 	public:

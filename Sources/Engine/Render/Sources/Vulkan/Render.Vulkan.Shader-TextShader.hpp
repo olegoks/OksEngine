@@ -1,8 +1,6 @@
 #pragma once
 
-export module OksEngine.Render.Vulkan.Shader:TextShader;
-
-import OksEngine.OS.FileSystem.BinaryFile;
+#include <OS.FileSystem.BinaryFile.hpp>
 
 namespace Render::Vulkan {
 

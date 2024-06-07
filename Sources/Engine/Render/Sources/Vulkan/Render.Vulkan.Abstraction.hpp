@@ -2,9 +2,8 @@
 
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Abstraction;
-
-import OksEngine.OS;
+#include <OS.Assert.hpp>
+#include <OS.Logger.hpp>
 
 namespace Render::Vulkan {
 

@@ -4,12 +4,9 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.PhysicalDevice;
-
-import OksEngine.Common.Types;
-import OksEngine.Render.Vulkan.Abstraction;
-import OksEngine.Render.Vulkan.Common;
-import OksEngine.OS;
+#include <Common.Types.hpp>
+#include <Render.Vulkan.Abstraction.hpp>
+#include <Render.Vulkan.Common.hpp>
 
 namespace Render::Vulkan {
 
@@ -71,6 +68,7 @@ namespace Render::Vulkan {
 				}
 			}
 			OS::AssertFailMessage("Suitable device memory was not found.");
+#undef max
 			return std::numeric_limits<uint32_t>::max();
 		}
 

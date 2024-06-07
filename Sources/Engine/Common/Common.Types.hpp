@@ -27,6 +27,7 @@ namespace Common {
 
 		[[nodiscard]]
 		constexpr static Type Max() noexcept {
+#undef max
 			return std::numeric_limits<Type>::max();
 		}
 

@@ -4,15 +4,11 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.LogicDevice;
-
-import OksEngine.OS.Assert;
-import OksEngine.OS.Logger;
-
-import OksEngine.Render.Vulkan.Common;
-import OksEngine.Render.Vulkan.Abstraction;
-import OksEngine.Render.Vulkan.Driver.PhysicalDevice;
-import OksEngine.Render.Vulkan.Driver.WindowSurface;
+#include <OS.Assert.hpp>
+#include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Abstraction.hpp>
+#include <Render.Vulkan.Driver.PhysicalDevice.hpp>
+#include <Render.Vulkan.Driver.WindowSurface.hpp>
 
 namespace Render::Vulkan {
 

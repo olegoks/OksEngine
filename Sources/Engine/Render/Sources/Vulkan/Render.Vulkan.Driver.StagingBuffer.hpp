@@ -3,12 +3,10 @@
 #include <memory>
 #include <vulkan\vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.StagingBuffer;
-
-import OksEngine.Common.Types;
-import OksEngine.Render.Vulkan.Driver.PhysicalDevice;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
-import OksEngine.Render.Vulkan.Driver.Buffer;
+#include <Common.Types.hpp>
+#include <Render.Vulkan.Driver.PhysicalDevice.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
+#include <Render.Vulkan.Driver.Buffer.hpp>
 
 namespace Render::Vulkan {
 	class StagingBuffer : public Buffer {

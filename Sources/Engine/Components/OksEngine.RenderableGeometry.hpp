@@ -5,10 +5,10 @@
 #include <memory>
 #include <filesystem>
 
-//import OksEngine.Engine.ECS;
-//import OksEngine.RAL;
-//import OksEngine.UIAL;
-//import OksEngine.Resource;
+//#include <Engine.ECS;
+//#include <RAL;
+//#include <UIAL;
+//#include <Resource;
 
 #include <ECS.hpp>
 

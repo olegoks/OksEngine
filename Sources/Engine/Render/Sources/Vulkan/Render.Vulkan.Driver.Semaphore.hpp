@@ -3,13 +3,11 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-export module OksEngine.Render.Vulkan.Driver.Semaphore;
+#include <OS.Assert.hpp>
+#include <OS.Logger.hpp>
 
-import OksEngine.OS.Assert;
-import OksEngine.OS.Logger;
-
-import OksEngine.Render.Vulkan.Common;
-import OksEngine.Render.Vulkan.Driver.LogicDevice;
+#include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
 
 namespace Render::Vulkan {
 
