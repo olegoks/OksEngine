@@ -8,8 +8,8 @@
 
 namespace OksEngine {
 
-	Engine::Engine() noexcept {
-		context_ = std::make_shared<Context>();
+	Engine::Engine(std::filesystem::path configFilePath) noexcept {
+		context_ = std::make_shared<Context>(configFilePath);
 	}
 
 

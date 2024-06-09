@@ -18,6 +18,8 @@ namespace OS {
 		virtual void Load() = 0;
 		virtual void Unload() = 0;
 		virtual void Close() = 0;
+		[[nodiscard]]
+		virtual bool IsLoaded() const noexcept = 0;
 
 		virtual ~File() = default;
 

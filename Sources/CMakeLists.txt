@@ -6,6 +6,11 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(OksEngineGame)
 
+set_target_properties(OksEngineGame
+    PROPERTIES
+        VS_DEBUGGER_COMMAND_ARGUMENTS
+        "D:/Desktop/OksEngine0.1/Resources/config.lua")
+
 file(GLOB SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false

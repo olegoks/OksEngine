@@ -75,7 +75,7 @@ namespace OS {
 		}
 
 		[[nodiscard]]
-		bool IsLoaded() const { return (data_.GetSize() != 0); }
+		bool IsLoaded() const noexcept override { return (data_.GetSize() != 0); }
 		[[nodiscard]]
 		const Common::Byte* GetData() const { return data_.GetData(); }
 		[[nodiscard]]
