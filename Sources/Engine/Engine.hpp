@@ -56,8 +56,7 @@ namespace OksEngine {
 
 	class Engine {
 	public:
-
-		explicit Engine() noexcept;
+		explicit Engine(std::filesystem::path configFilePath) noexcept;
 
 		class Scene {
 		public:

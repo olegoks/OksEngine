@@ -46,7 +46,11 @@ target_include_directories(LuaLayer
 
 find_package(Lua REQUIRED)
 target_include_directories(LuaLayer PUBLIC ${LUA_INCLUDE_DIR})
-target_link_libraries(LuaLayer PUBLIC ${LUA_LIBRARIES})
+target_link_libraries(LuaLayer 
+    PUBLIC 
+        ${LUA_LIBRARIES}
+        OS
+        Datastructures)
 
 # find_path(LUABRIDGE3_INCLUDE_DIRS ")luabridge3/LuaBridge/Array.h")
 # target_include_directories(LuaLayer PUBLIC ${LUABRIDGE3_INCLUDE_DIRS})

@@ -15,11 +15,10 @@ namespace OksEngine {
 		state_{ luaL_newstate() },
 		updater_{ state_ },
 		object_{ state_ },
-		entity_{  } {
+		entity_{  }, context_{ } {
 
 		OS::AssertMessage(std::filesystem::exists(scriptsPath), 
 			{ "Scripts path is not exist %s", scriptsPath.c_str()});
-
 
 		luaL_openlibs(state_);
 		lua_pcall(state_, 0, 0, 0);

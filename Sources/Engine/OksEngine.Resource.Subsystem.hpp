@@ -26,6 +26,8 @@ namespace OksEngine {
 			[[nodiscard]]
 			Common::Size GetSize() const noexcept { return data_.GetSize(); }
 
+			Resource() = default;
+
 			Resource(const Common::Byte* data, Common::Size size) noexcept {
 				data_.Resize(size);
 				std::memcpy(data_.GetData(), data, size);
@@ -33,6 +35,16 @@ namespace OksEngine {
 
 			Resource(Resource&& moveResource) : data_{ /*std::move(moveResource.data_)*/} {
 				std::swap(data_, moveResource.data_);
+			}
+
+			Resource& operator=(Resource&& moveResource) {
+				if (this == &moveResource) {
+					return *this;
+				}
+
+				data_ = std::move(moveResource.data_);
+
+				return *this;
 			}
 
 			~Resource() {
@@ -44,7 +56,7 @@ namespace OksEngine {
 		};
 
 		ResourceSubsystem(Context& context) : Subsystem{ Subsystem::Type::Resource, context } {
-			std::filesystem::path currentPath = std::filesystem::current_path();
+			/*std::filesystem::path currentPath = std::filesystem::current_path();
 			std::filesystem::path resourcesPath = currentPath / "../../Resources";
 			try {
 				for (const auto& entry : std::filesystem::recursive_directory_iterator(resourcesPath)) {
@@ -55,10 +67,22 @@ namespace OksEngine {
 			} catch (std::exception error) {
 				OS::LogInfo("ResourceSystem", error.what());
 			}
-			resourceSystem_.LoadAllResources();
+			resourceSystem_.LoadAllResources();*/
 		}
 
+		Resource ForceGetResource(std::filesystem::path OSResourcePath) {
+			Resources::Resource forceResource = resourceSystem_.ForceGetResource(OSResourcePath);
+			OS::AssertMessage(forceResource.IsLoaded(), "Resource must be loaded at the moment.");
+			auto file = std::dynamic_pointer_cast<OS::BinaryFile>(forceResource.GetFile());
+			return { file->GetData(), file->GetSize() };
+		} 
+
 		Resource GetResource(std::filesystem::path resourcePath) {
+			std::filesystem::path withoutRootPath;
+			for (auto it = ++resourcePath.begin(); it != resourcePath.end(); ++it) {
+				withoutRootPath /= *it;
+			}
+			resourceSystem_.AddResource(resourcePath.filename().string(), rootPath_/ withoutRootPath, "Root");
 			resourceSystem_.LoadResource(resourcePath);
 			Resources::Resource resource = resourceSystem_.GetResource(resourcePath);
 			auto binaryFile = std::dynamic_pointer_cast<OS::BinaryFile>(resource.GetFile());
@@ -66,10 +90,15 @@ namespace OksEngine {
 			return engineResource;
 		}
 
+		void SetRoot(std::filesystem::path rootPath) {
+			rootPath_ = rootPath;
+		}
+
 		virtual void Update() override {
 		}
 
 	private:
+		std::filesystem::path rootPath_;
 		Memory::AllocationCallbacks allocation_callbacks_;
 		Resources::ResourceSystem resourceSystem_;
 	};
@@ -81,6 +110,7 @@ namespace OksEngine {
 		enum class TaskType : Common::UInt8 {
 			GetResource,
 			LoadResource,
+			SetRoot,
 			IsResourceLoaded,
 			IsResourceExists,
 			Undefined
@@ -98,6 +128,13 @@ namespace OksEngine {
 				ResourceSystemTask{ TaskType::GetResource },
 				path_{ path } {}
 			std::filesystem::path path_;
+		};
+
+		struct SetRootTask : public ResourceSystemTask {
+			SetRootTask(const std::filesystem::path& root) :
+				ResourceSystemTask{ TaskType::SetRoot },
+				root_{ root } {}
+			std::filesystem::path root_;
 		};
 
 		struct GetResourceResult {
@@ -189,6 +226,17 @@ namespace OksEngine {
 			);
 		}
 
+		[[nodiscard]]
+		Task::Id SetRoot(Subsystem::Type subsystemType, std::filesystem::path rootPath) {
+			OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
+			return AddTask(
+				subsystemType,
+				Subsystem::Type::Resource,
+				CreateTask<SetRootTask>(rootPath)
+			);
+		}
+
+		[[nodiscard]]
 		Task WaitForTask(Subsystem::Type receiver, Task::Id taskId) {
 			auto dataInfo = exchangeSystem_.WaitForData(receiver, [&taskId](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
 				//if (dataInfo.data_.GetId() == taskId) {
@@ -280,13 +328,22 @@ namespace OksEngine {
 				switch (taskType) {
 				case TaskType::GetResource: {
 					const GetResourceTask& getResourceTask = task.GetData<GetResourceTask>();
-					auto resource = resourceSubsystem_->GetResource(getResourceTask.path_);
-
+					ResourceSubsystem::Resource resource;
+					if (getResourceTask.path_.string().starts_with("Root")) {
+						resource = std::move(resourceSubsystem_->GetResource(getResourceTask.path_));
+					} else {
+						resource = resourceSubsystem_->ForceGetResource(getResourceTask.path_);
+					}
 					const Task::Id taskId = AddTask(
 						Subsystem::Type::Resource, taskSender,
 						CreateTask<GetResourceResult>(task.GetId(), std::move(resource)));
 					OS::LogInfo("Engine/ResourceSubsystem", { "Task with id %d was sent to %d subsystem", taskId, taskSender });
 					//OS::LogInfo("ResourceSubsystem/GetResource", { "Task completed to load resource "/*, getResourceTask.path_.string().c_str(), task.GetId()*/ });
+					break;
+				}
+				case TaskType::SetRoot: {
+					const SetRootTask& setRootTask = task.GetData<SetRootTask>();
+					resourceSubsystem_->SetRoot(setRootTask.root_);
 					break;
 				}
 				default: {

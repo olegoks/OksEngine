@@ -13,6 +13,7 @@ namespace OksEngine {
 			Resource = 100,
 			UI,
 			Render = 200,
+			Engine,
 			Undefined
 		};
 

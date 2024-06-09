@@ -40,7 +40,7 @@ namespace Memory {
 	}
 
 	struct AllocationCallbacks {
-		void*                userData_;
+		void*                userData_ = nullptr;
 
 		AllocationFunction      allocationCallback_ = &defaultAllocationFunction;
 		ReallocationFunction    reallocationCallback_ = &defaultReallocationFunction;

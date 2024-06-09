@@ -1,5 +1,6 @@
 #pragma once
 
+#include <tuple>
 #include <memory>
 #include <filesystem>
 #include <functional>
@@ -18,10 +19,14 @@ namespace Resources {
 		Resource(
 			const std::filesystem::path& path,
 			Memory::AllocationCallbacks allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
-			path_{ path } {}
+			path_{ path } { }
 
 		void Load();
 		void Unload();
+		[[nodiscard]]
+		bool IsLoaded() noexcept {
+			return file_->IsLoaded();
+		}
 
 		[[nodiscard]]
 		const std::filesystem::path& GetPath() const { return path_; }
@@ -120,6 +125,13 @@ namespace Resources {
 		const Resource& GetResource(std::filesystem::path resourcePath) {
 			const ResourceInfo& resourceInfo = GetResourceInfo(resourcePath);
 			return resourceInfo.GetResource();
+		}
+
+		[[nodiscard]]
+		Resource ForceGetResource(std::filesystem::path OSResourcePath) {
+			Resource forceResource{ OSResourcePath };
+			forceResource.Load();
+			return forceResource;
 		}
 
 		void LoadAllResources() {

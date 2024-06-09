@@ -7,6 +7,8 @@
 #include <ECS.hpp>
 #include <Components/OksEngine.Position.hpp>
 
+#include <Lua.Context.hpp>
+
 namespace OksEngine {
 
 	class LuaEntity {
@@ -37,6 +39,7 @@ namespace OksEngine {
 		luabridge::LuaRef updater_;
 		luabridge::LuaRef object_;
 		LuaEntity entity_;
+		Lua::Context  context_;
 
 		Behaviour() = default;
 		Behaviour(ECS::World* world,
