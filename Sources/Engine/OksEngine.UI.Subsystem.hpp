@@ -16,11 +16,16 @@ namespace OksEngine {
 
 		UISubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::UI, createInfo.context_ } {
 
+			auto& config = GetConfig();
+
 			api_ = std::make_shared<UI::API>();
 			UI::Window::CreateInfo windowCreateInfo;
 			{
-				windowCreateInfo.title_ = "OksEngine:Vulkan API, GLFW, IMGUI";
-				windowCreateInfo.windowSize_ = { 1280, 600 };
+				windowCreateInfo.title_ = config.GetValueAs<std::string>("UI.Window.Title");
+				windowCreateInfo.windowSize_ = {
+					config.GetValueAs<int>("UI.Window.Width"),
+					config.GetValueAs<int>("UI.Window.Height")
+				};
 			}
 			window_ = api_->CreateWindow(windowCreateInfo);
 			window_->Show();

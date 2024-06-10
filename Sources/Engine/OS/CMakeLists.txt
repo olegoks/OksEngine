@@ -49,12 +49,18 @@ FILES
 ${PUBLIC_SOURCES}
 ${PRIVATE_SOURCES})
 
+find_path(LOGURU_INCLUDE_DIRS "loguru/")
+
+add_library(loguru
+    ${LOGURU_INCLUDE_DIRS}/loguru/loguru.cpp)
 
 target_include_directories(OS
     PUBLIC
+        ${LOGURU_INCLUDE_DIRS}
         ${CMAKE_CURRENT_LIST_DIR}/${SourcesDir})
     
 target_link_libraries(OS
     PUBLIC
+        loguru
         Common
         Datastructures)

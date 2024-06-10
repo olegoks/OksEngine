@@ -1,5 +1,6 @@
 #pragma once
 
+#include <concepts>
 #include <map>
 #include <filesystem>
 #include <DataStructures.Vector.hpp>
@@ -27,9 +28,6 @@ namespace Lua {
 			state_ = luaL_newstate();
 			OS::AssertMessage(state_ != nullptr, "Error while creating Lua context.");
 			luaL_openlibs(state_);
-			if (!LuaCall(lua_pcall(state_, 0, 0, 0), state_)) {
-				//...
-			}
 
 		}
 
@@ -49,9 +47,9 @@ namespace Lua {
 
 		void LoadScript(const Script& script) {
 			OS::AssertMessage(state_ != nullptr, "");
-			const bool isLoaded = LuaCall(luaL_dostring(state_, script.text_.c_str()), state_);
-
-			OS::AssertMessage(isLoaded,	"Error while loading config script.");
+			if(!LuaCall(luaL_dostring(state_, script.text_.c_str()))){
+				OS::AssertFailMessage("Error while loading config script.");
+			}
 		}
 
 		[[nodiscard]]
@@ -73,9 +71,10 @@ namespace Lua {
 			return lua_isstring(state_, -1);
 		}
 
-		template<>
+		template<class Type>
+		requires std::integral<Type>
 		[[nodiscard]]
-		bool IsTopStackValue<Common::UInt64>() const noexcept {
+		bool IsTopStackValue() const noexcept {
 			OS::AssertMessage(state_ != nullptr, "State must be not nullptr.");
 			return lua_isnumber(state_, -1);
 		}
@@ -99,19 +98,23 @@ namespace Lua {
 			return lua_tostring(state_, -1);
 		}
 
-		template<>
+		template<class Type>
+		requires std::integral<Type>
 		[[nodiscard]]
-		Common::UInt64 ConvertStackTopValueTo<Common::UInt64>() const noexcept {
+		Common::UInt64 ConvertStackTopValueTo() const noexcept {
 			return lua_tonumber(state_, -1);
 		}
 
 		template<class Type>
 		[[nodiscard]]
+
 		Type GetGlobalAs(const char* variableName) const noexcept {
 			char saveVariableScript[256] = "";
 			/* Assign the Lua expression to a Lua global variable. */
 			sprintf(saveVariableScript, "variable=%s", variableName);
-			LuaCall(luaL_dostring(state_, saveVariableScript), state_);
+			if(!LuaCall(luaL_dostring(state_, saveVariableScript))) {
+				OS::AssertFailMessage({ "Attempt to get global value with name %s that is not correct.", variableName });
+			}
 			[[maybe_unused]]
 			const int valueType = lua_getglobal(state_, "variable");
 			//const bool istable = lua_istable(state_, -1);
@@ -132,6 +135,15 @@ namespace Lua {
 		}
 
 
+		[[nodiscard]]
+		bool LuaCall(int returnValue) const {
+			if (returnValue) {
+				OS::LogError("lua/", lua_tostring(state_, -1));
+				lua_pop(state_, 1);
+				return false;
+			}
+			return true;
+		}
 		~Context() noexcept {
 			OS::AssertMessage(state_, "");
 			lua_close(state_);

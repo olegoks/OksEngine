@@ -18,7 +18,7 @@ namespace OksEngine {
 		entity_{  }, context_{ } {
 
 		OS::AssertMessage(std::filesystem::exists(scriptsPath), 
-			{ "Scripts path is not exist %s", scriptsPath.c_str()});
+			{ "Scripts path is not exist %s", scriptsPath.string().c_str() });
 
 		luaL_openlibs(state_);
 		lua_pcall(state_, 0, 0, 0);

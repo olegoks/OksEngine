@@ -9,6 +9,8 @@
 #include <Components/OksEngine.Behaviour.hpp>
 #include <Components/OksEngine.Position.hpp>
 
+#include <OksEngine.CommandLineParameters.hpp>
+
 namespace OksEngine {
 
 	class Entity final {
@@ -56,7 +58,12 @@ namespace OksEngine {
 
 	class Engine {
 	public:
-		explicit Engine(std::filesystem::path configFilePath) noexcept;
+
+		struct CreateInfo {
+			CommandLineParameters commandLineParameters_;
+		};
+
+		explicit Engine(const CreateInfo& createInfo) noexcept;
 
 		class Scene {
 		public:

@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <optional>
-
+#include <magic_enum.hpp>
 #include <Common.Types.hpp>
 #include <Common.Exception.hpp>
 #include <Common.Format.hpp>
@@ -23,5 +23,13 @@ namespace Common {
 	concept Enum = std::is_enum<Type>::value && requires(Type value) {
 		value = Type::Undefined;
 	};
+
+
+#ifdef _DEBUG
+	constexpr static inline Configuration configuration_ = Configuration::Debug;
+#else
+	constexpr static inline Configuration configuration_ = Configuration::Release;
+#endif
+
 
 }

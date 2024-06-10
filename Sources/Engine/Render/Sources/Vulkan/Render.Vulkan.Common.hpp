@@ -13,8 +13,8 @@
 
 namespace Render::Vulkan {
 	
-	inline void VkCall(VkResult nativeAPICallResult, Common::Format format) noexcept {
-		OS::AssertMessage(nativeAPICallResult == VK_SUCCESS, format);
+	inline void VkCall(VkResult nativeAPICallResult, Common::Format&& format) noexcept {
+		OS::AssertMessage(nativeAPICallResult == VK_SUCCESS, std::move(format));
 	}
 
 	class Vertex3fnc : public Geometry::Vertex3fnc {
