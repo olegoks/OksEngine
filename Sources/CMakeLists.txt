@@ -9,7 +9,7 @@ add_executable(OksEngineGame)
 set_target_properties(OksEngineGame
     PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
-        "D:/Desktop/OksEngine0.1/Resources/config.lua")
+        "-cfg D:/Desktop/OksEngine/config.lua")
 
 file(GLOB SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}

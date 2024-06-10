@@ -3,7 +3,6 @@
 #include <OksEngine.Behaviour.hpp>
 
 
-#include <Components/OksEngine.RenderableGeometry.hpp>
 #include <OksEngine.UI.Subsystem.hpp>
 #include <OksEngine.Render.Subsystem.hpp>
 #include <OksEngine.Resource.Subsystem.hpp>
@@ -11,27 +10,38 @@
 
 #include <OksEngine.Config.hpp>
 
+#include <OksEngine.Log.Subsystem.hpp>
+
 namespace OksEngine
 {
-	Context::Context(std::filesystem::path configFilePath) :
+	Context::Context(const CreateInfo& createInfo) :
 		config_{ }
 	{
-		resourceSubsystem_ = std::make_shared<AsyncResourceSubsystem>(*this);
-		auto loadConfigTaskId = resourceSubsystem_->GetResource(Subsystem::Type::Engine, configFilePath);
-		auto configResource = resourceSubsystem_->GetResource(Subsystem::Type::Engine, loadConfigTaskId);
-		const std::string configText{configResource.GetData<char>(), configResource.GetSize() };
-		config_.AddText(configText);
-		auto resourcesRootPath = config_.GetValueAs<std::string>("ResourceSystem.resourcesRootDirectory");
-		resourceSubsystem_->SetRoot(Subsystem::Type::Engine, resourcesRootPath);
+		CommandLineParameters commandLineParameters = createInfo.commandLineParameters_;
+		{
+			LogSubsystem::CreateInfo createInfo{
+				commandLineParameters,
+				*this
+			};
+			logSubsystem_ = std::make_shared<LogSubsystem>(createInfo);
+		}
+		{
+			resourceSubsystem_ = std::make_shared<AsyncResourceSubsystem>(*this);
+			std::filesystem::path configFilePath = commandLineParameters.GetValue("-cfg");
+			auto loadConfigTaskId = resourceSubsystem_->GetResource(Subsystem::Type::Engine, configFilePath);
+			auto configResource = resourceSubsystem_->GetResource(Subsystem::Type::Engine, loadConfigTaskId);
+			config_.AddText({ configResource.GetData<char>(), configResource.GetSize() });
+			auto resourcesRootPath = config_.GetValueAs<std::string>("ResourceSystem.resourcesRootDirectory");
+			auto fullResourcesPath = configFilePath.parent_path() / resourcesRootPath;
+			resourceSubsystem_->SetRoot(Subsystem::Type::Engine, fullResourcesPath);
+		}
 		
+
 
 
 		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
 		world_ = std::make_shared<ECS::World>();
 		world_->RegisterSystem<BehaviourSystem>();
-
-		auto renderSystem = world_->RegisterSystem<RenderSystem>();
-
 
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,

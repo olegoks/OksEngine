@@ -56,23 +56,12 @@ namespace OksEngine {
 		};
 
 		ResourceSubsystem(Context& context) : Subsystem{ Subsystem::Type::Resource, context } {
-			/*std::filesystem::path currentPath = std::filesystem::current_path();
-			std::filesystem::path resourcesPath = currentPath / "../../Resources";
-			try {
-				for (const auto& entry : std::filesystem::recursive_directory_iterator(resourcesPath)) {
-					if (std::filesystem::is_regular_file(entry)) {
-						resourceSystem_.AddResource(entry.path().filename().string(), entry.path(), "Root");
-					}
-				}
-			} catch (std::exception error) {
-				OS::LogInfo("ResourceSystem", error.what());
-			}
-			resourceSystem_.LoadAllResources();*/
+			
 		}
 
 		Resource ForceGetResource(std::filesystem::path OSResourcePath) {
 			Resources::Resource forceResource = resourceSystem_.ForceGetResource(OSResourcePath);
-			OS::AssertMessage(forceResource.IsLoaded(), "Resource must be loaded at the moment.");
+			//OS::AssertMessage(forceResource.IsLoaded(), "Resource must be loaded at the moment.");
 			auto file = std::dynamic_pointer_cast<OS::BinaryFile>(forceResource.GetFile());
 			return { file->GetData(), file->GetSize() };
 		} 
@@ -82,7 +71,6 @@ namespace OksEngine {
 			for (auto it = ++resourcePath.begin(); it != resourcePath.end(); ++it) {
 				withoutRootPath /= *it;
 			}
-			resourceSystem_.AddResource(resourcePath.filename().string(), rootPath_/ withoutRootPath, "Root");
 			resourceSystem_.LoadResource(resourcePath);
 			Resources::Resource resource = resourceSystem_.GetResource(resourcePath);
 			auto binaryFile = std::dynamic_pointer_cast<OS::BinaryFile>(resource.GetFile());
@@ -92,6 +80,15 @@ namespace OksEngine {
 
 		void SetRoot(std::filesystem::path rootPath) {
 			rootPath_ = rootPath;
+			try {
+				for (const auto& entry : std::filesystem::recursive_directory_iterator(rootPath_)) {
+					if (std::filesystem::is_regular_file(entry)) {
+						resourceSystem_.AddResource(entry.path().filename().string(), entry.path(), "Root");
+					}
+				}
+			} catch (std::exception error) {
+				OS::LogInfo("ResourceSystem", error.what());
+			}
 		}
 
 		virtual void Update() override {
@@ -157,8 +154,8 @@ namespace OksEngine {
 
 			[[nodiscard]]
 			static Id GetNewId() {
-				static Id lastTaskId_ = 0;
-				return ++lastTaskId_;
+				static std::atomic<Id> lastTaskId_ = 0;
+				return lastTaskId_.fetch_add(1, std::memory_order_relaxed) + 1;
 			}
 			template<class Type, class ...Args>
 			Type& Construct(Args&& ... args) {
@@ -218,7 +215,7 @@ namespace OksEngine {
 
 		[[nodiscard]]
 		Task::Id GetResource(Subsystem::Type subsystemType, std::filesystem::path resourcePath) {
-			OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
+			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
 			return AddTask(
 				subsystemType,
 				Subsystem::Type::Resource,
@@ -226,9 +223,8 @@ namespace OksEngine {
 			);
 		}
 
-		[[nodiscard]]
 		Task::Id SetRoot(Subsystem::Type subsystemType, std::filesystem::path rootPath) {
-			OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
+			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
 			return AddTask(
 				subsystemType,
 				Subsystem::Type::Resource,
@@ -238,25 +234,28 @@ namespace OksEngine {
 
 		[[nodiscard]]
 		Task WaitForTask(Subsystem::Type receiver, Task::Id taskId) {
-			auto dataInfo = exchangeSystem_.WaitForData(receiver, [&taskId](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
+			Subsystem::Type sender = Subsystem::Type::Undefined;
+			auto dataInfo = exchangeSystem_.WaitForData(receiver, [&taskId, &sender](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
 				//if (dataInfo.data_.GetId() == taskId) {
+				sender = dataInfo.sender_;
 					return true;
 				//}
 				//return false;
 				});
+			OS::LogInfo("Engine/AsyncResourceSubsystem",
+				{ "Task with id {} was waited by {} from {}.",
+					taskId,
+					magic_enum::enum_name(receiver).data(),
+					magic_enum::enum_name(sender).data()
+				});
+
 			return std::move(dataInfo);
 		}
 
 		ResourceSubsystem::Resource GetResource(Subsystem::Type receiverSubsystem, Task::Id taskId) {
-			OS::LogInfo("Engine/Render", "Waiting for task.");
-			Task task = WaitForTask(Subsystem::Type::Resource, taskId);
-			//GetTask()
-			/*auto task = GetTask(Subsystem::Type::Resource, receiverSubsystem);
-			OS::AssertMessage(
-				task.has_value(),
-				"At the moment task must have value."
-			);*/
-			OS::LogInfo("Engine/Render", "Task was got.");
+			//OS::LogInfo("Engine/Render", "Waiting for task.");
+			Task task = WaitForTask(receiverSubsystem, taskId);
+			//OS::LogInfo("Engine/Render", "Task was got.");
 			GetResourceResult getResourceResult = std::move(task.GetData<GetResourceResult>());
 			return std::move(getResourceResult.resource_);
 		}
@@ -264,24 +263,43 @@ namespace OksEngine {
 		[[nodiscard]]
 		Task::Id AddTask(Subsystem::Type senderType, Subsystem::Type receiverType, Task&& task) {
 			const Task::Id taskId = task.GetId();
-			OS::LogInfo("Engine/ResourceSubsystem", { "Added task to MT system with id %d by %d subsystem.", taskId, senderType });
+			OS::LogInfo("Engine/AsyncResourceSubsystem",
+				{ "Task with id {} was sent from {} to {} subsystem by Update function.",
+					taskId,
+					magic_enum::enum_name(senderType).data(),
+					magic_enum::enum_name(receiverType).data()
+				});
+
 			exchangeSystem_.AddData(senderType, receiverType, std::move(task));
 			return taskId;
 		}
 
 		[[nodiscard]]
-		bool GetTask(Subsystem::Type receivier, Task& task, std::function<bool(Subsystem::Type sender, const DS::Vector<Subsystem::Type>& receivers, const Task& task)> filter) {
-			const bool isGot = exchangeSystem_.TryGetData(receivier, task,
-				[&filter](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
-					return filter(dataInfo.sender_, dataInfo.receivers_, dataInfo.data_.GetData<Task>());
+		bool GetTask(Subsystem::Type receiver, Task& task, std::function<bool(Subsystem::Type sender, const DS::Vector<Subsystem::Type>& receivers, const Task& task)> filter) {
+			Subsystem::Type sender = Subsystem::Type::Undefined;
+			const bool isGot = exchangeSystem_.TryGetData(receiver, task,
+				[&filter, &sender](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
+					const bool isSuitable = filter(dataInfo.sender_, dataInfo.receivers_, dataInfo.data_.GetData<Task>());
+					if(isSuitable){
+						sender = dataInfo.sender_;
+						return true;
+					}
+					return false;
 				});
+			if(isGot) {
+				OS::LogInfo("Engine/AsyncResourceSubsystem",
+					{ "Task with id {} was received by {} from {}.",
+						task.GetId(),
+						magic_enum::enum_name(receiver).data(),
+						magic_enum::enum_name(sender).data()
+					});
+			}
 			return isGot;
 		}
 
 		template<class Type, class ...Args>
 		[[nodiscard]]
 		Task CreateTask(Task::Id taskId, Args&& ... args) {
-			const Task::Id newTaskId = Task::GetNewId();
 			Task newTask{ taskId };
 			newTask.Construct<Type>(std::forward<Args>(args)...);
 			return newTask;
@@ -318,11 +336,7 @@ namespace OksEngine {
 						return true;
 					});
 				if (!isGot) { continue; }
-				//OS::AssertMessage(
-				//	task.receiverSubsystem_ == Subsystem::Type::Resource,
-				//	"WTF"
-				//);
-				OS::LogInfo("Engine/ResourceSubsystem", { "Task with id %d was received from %d subsystem", task.GetId(), taskSender });
+				//OS::LogInfo("Engine/ResourceSubsystem", { "Task with id %d was received from %d subsystem", task.GetId(), taskSender });
 				ResourceSystemTask& resourceSystemTask = task.GetData<ResourceSystemTask>();
 				const TaskType taskType = resourceSystemTask.GetType();
 				switch (taskType) {
@@ -337,8 +351,7 @@ namespace OksEngine {
 					const Task::Id taskId = AddTask(
 						Subsystem::Type::Resource, taskSender,
 						CreateTask<GetResourceResult>(task.GetId(), std::move(resource)));
-					OS::LogInfo("Engine/ResourceSubsystem", { "Task with id %d was sent to %d subsystem", taskId, taskSender });
-					//OS::LogInfo("ResourceSubsystem/GetResource", { "Task completed to load resource "/*, getResourceTask.path_.string().c_str(), task.GetId()*/ });
+
 					break;
 				}
 				case TaskType::SetRoot: {

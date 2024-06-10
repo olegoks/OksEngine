@@ -8,17 +8,18 @@
 
 namespace OksEngine {
 
-	Engine::Engine(std::filesystem::path configFilePath) noexcept {
-		context_ = std::make_shared<Context>(configFilePath);
+	Engine::Engine(const CreateInfo& createInfo) noexcept {
+		Context::CreateInfo contextCreateInfo{
+			createInfo.commandLineParameters_
+		};
+		context_ = std::make_shared<Context>(contextCreateInfo);
 	}
-
 
 	void Engine::Update() noexcept {
 		while (IsRunning()) {
 			context_->renderSubsystem_->Update();
 			context_->uiSubsystem_->Update();
 			context_->world_->Process();
-			//OS::LogInfo("Engine/loop", "Loop is running");
 		}
 	}
 

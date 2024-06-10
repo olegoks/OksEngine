@@ -10,29 +10,14 @@ namespace OksEngine {
 	public:
 
 		enum class Type : Common::UInt64 {
-			Resource = 100,
+			Resource,
 			UI,
-			Render = 200,
+			Render,
 			Engine,
+			Log,
 			Undefined
 		};
 
-		static const char* TypeToString(Type type) {
-			switch (type) {
-			case Type::Resource:
-				{
-				return "Resource";
-				}
-			case Type::Render:
-			{
-				return "Render";
-			}
-			case Type::Undefined:
-			{
-				return "Undefined";
-			}
-			};
-		}
 
 		Subsystem(Type type, Context& context) noexcept :
 			context_{ context } { }
@@ -41,11 +26,23 @@ namespace OksEngine {
 
 		virtual ~Subsystem() = default;
 
-		std::shared_ptr<AsyncResourceSubsystem> GetResourceSubsystem() {
+		[[nodiscard]]
+		auto GetResourceSubsystem() {
 			return context_.resourceSubsystem_;
 		}
 
-		std::shared_ptr<UISubsystem> GetUISubsystem() {
+		[[nodiscard]]
+		auto GetECSWorld() {
+			return context_.world_;
+		}
+
+		[[nodiscard]]
+		auto& GetConfig() {
+			return context_.config_;
+		}
+
+		[[nodiscard]]
+		auto GetUISubsystem() {
 			return context_.uiSubsystem_;
 		}
 

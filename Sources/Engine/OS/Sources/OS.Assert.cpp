@@ -1,4 +1,5 @@
 #include <cassert>
+#include <format>
 
 #include <OS.Assert.hpp>
 
@@ -6,22 +7,30 @@
 
 namespace OS {
 
-	void AssertMessage(bool expression, const Common::Format& format, const std::source_location& location) {
+	void AssertMessage(bool expression, Common::Format&& format, const std::source_location& location) {
 
 		if (expression) {
 			return;
 		}
-		LogError("/assert/", format, location);
+		LogError("/assert/", std::move(format), location);
 		assert(expression);
 		__debugbreak();
 	}
 
-	void AssertFailMessage(const Common::Format& format, const std::source_location& location) {
-		AssertMessage(false, format, location);
+	void AssertFailMessage(Common::Format&& format, const std::source_location& location) {
+		AssertMessage(false, std::move(format), location);
 	}
 
-	void Assert(bool expression, const std::source_location& location) {
-		AssertMessage(expression, "", location);
+	void Assert(bool expression) {
+		if (expression) {
+			return;
+		}
+		assert(expression);
+		__debugbreak();
+	}
+
+	void AssertFail() {
+		Assert(false);
 	}
 
 	void NotImplemented(const std::source_location& location) noexcept {

@@ -58,6 +58,8 @@ PRIVATE
     ${PUBLIC_SOURCES}
     ${PRIVATE_SOURCES})
 
+find_package(magic_enum CONFIG REQUIRED)
+target_link_libraries(Common PUBLIC magic_enum::magic_enum)
 
 
 target_include_directories(Common

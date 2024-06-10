@@ -7,6 +7,7 @@
 
 #include "OksEngine.UI.Subsystem.hpp"
 
+#include <Components/OksEngine.RenderableGeometry.hpp>
 namespace OksEngine {
 
 	class RenderSubsystem : public Subsystem {
@@ -20,6 +21,9 @@ namespace OksEngine {
 		};
 
 		RenderSubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::Render, createInfo.context_ } {
+
+			auto ecsWorld = GetECSWorld();
+			ecsWorld->RegisterSystem<RenderSystem>();
 
 			api_ = RAL::CreateAPI();
 

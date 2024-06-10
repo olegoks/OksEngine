@@ -1,5 +1,7 @@
 #pragma once 
 
+#include <format>
+#include <iostream>
 #include <string>
 #include <cstdarg>
 #include <iostream>
@@ -11,28 +13,19 @@ namespace Common {
 	class Format {
 	public:
 
-		Format(const char* format, ...) {
-
-			static char buffer[1024 * 8];
-
-			va_list(args);
-			va_start(args, format);
-
-			const int symbolsWrote = vsprintf_s(buffer, std::size(buffer), format, args);
-			const bool isSuccess = (symbolsWrote >= 0);
-			if (!isSuccess) {
-				#pragma message ("Not processed error.")
-			}
-			va_end(args);
-
-			text_ = buffer;
-
+		template<class ...Args>
+		Format(const char* format, Args&& ...args) {
+			text_ = std::vformat(format, std::make_format_args(args...));
 		}
 
-		Format(const std::string& format, ...) : 
-			Format{ format.c_str() } {
-
+		Format(const std::string format) {
+			text_ = format;
 		}
+
+		Format(const char* format) {
+			text_ = format;
+		}
+
 
 		operator std::string() const {
 			return text_;
@@ -43,7 +36,6 @@ namespace Common {
 		}
 
 	private:
-		static inline constexpr Size maxBufferSize_ = 1024 * 8;
 		std::string text_;
 	};
 

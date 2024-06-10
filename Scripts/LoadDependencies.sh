@@ -15,5 +15,7 @@ echo $(pwd)
 ./vcpkg.exe install gtest
 ./vcpkg.exe install tinyobjloader
 ./vcpkg.exe install loguru
+./vcpkg.exe install magic-enum
+./vcpkg.exe install graphviz
 cd ../Scripts/
 

@@ -78,9 +78,9 @@ namespace OksEngine {
 				bool isWaited = false;
 				DataInfo dataInfo;
 				while (!isWaited) {
-					OS::LogInfo("MT", { "Waiting for DataInfo from OutQueue of %d subsystem", name_.load()});
+					//OS::LogInfo("MT", { "Waiting for DataInfo from OutQueue of %d subsystem", magic_enum::enum_name(name_.load())});
 					outDataQueue_.WaitAndPop(dataInfo);
-					OS::LogInfo("MT", { "DataInfo was poped from OutQueue of %d subsystem", name_.load() });
+					//OS::LogInfo("MT", { "DataInfo was poped from OutQueue of %d subsystem", magic_enum::enum_name(name_.load()) });
 					if (filter(dataInfo)) {
 						outDataInfo = std::move(dataInfo);
 						isWaited = true;
@@ -149,7 +149,7 @@ namespace OksEngine {
 					for (ThreadData& threadInfo : threadInfos_) {
 						if (threadInfo.name_ == receiver) {
 							threadInfo.AddOutcomeDataInfo(dataInfo);
-							OS::LogInfo("MT", { "DataInfo was moved from inQueue %d to outQueue of %d", dataInfo.sender_, receiver });
+							//OS::LogInfo("MT", { "DataInfo was moved from inQueue %d to outQueue of %d", dataInfo.sender_, receiver });
 							receiverIsFound = true;
 							break;
 						}
