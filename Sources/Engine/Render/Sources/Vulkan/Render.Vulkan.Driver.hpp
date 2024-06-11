@@ -8,15 +8,15 @@
 #include <Render.Vulkan.Driver.PhysicalDevice.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.SwapChain.hpp>
-//#include <Render.Vulkan.Driver.ShaderModule.hpp>
-//
-//#include <Render.Vulkan.Driver.CommandPool.hpp>
+#include <Render.Vulkan.Driver.ShaderModule.hpp>
+#include <Render.Vulkan.Driver.CommandPool.hpp>
+
 //#include <Render.Vulkan.Driver.CommandBuffer.hpp>
 //
 //#include <Render.Vulkan.Driver.Buffer.hpp>
 //#include <Render.Vulkan.Driver.VertexBuffer.hpp>
 //#include <Render.Vulkan.Driver.IndexBuffer.hpp>
-//#include <Render.Vulkan.Driver.UniformBuffer.hpp>
+#include <Render.Vulkan.Driver.UniformBuffer.hpp>
 //#include <Render.Vulkan.Driver.StagingBuffer.hpp>
 //
 //#include <Render.Vulkan.Driver.DescriptorPool.hpp>
@@ -383,36 +383,36 @@ namespace Render::Vulkan {
 				swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
 			}
 
-			//ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
-			//{
-			//	vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
-			//	vertexShaderModuleCreateInfo.text_ = info.vertexShader_;
-			//	vertexShader_ = std::make_shared<ShaderModule>(vertexShaderModuleCreateInfo);
-			//}
+			ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
+			{
+				vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
+				vertexShaderModuleCreateInfo.text_ = info.vertexShader_;
+				vertexShader_ = std::make_shared<ShaderModule>(vertexShaderModuleCreateInfo);
+			}
 
-			//ShaderModule::CreateInfo fragmentShaderModuleCreateInfo;
-			//{
-			//	fragmentShaderModuleCreateInfo.logicDevice_ = logicDevice_;
-			//	fragmentShaderModuleCreateInfo.text_ = info.fragmentShader_;// std::dynamic_pointer_cast<OS::BinaryFile>(info.fragmentShader_->GetFile());
-			//	fragmentShader_ = std::make_shared<ShaderModule>(fragmentShaderModuleCreateInfo);
-			//}
+			ShaderModule::CreateInfo fragmentShaderModuleCreateInfo;
+			{
+				fragmentShaderModuleCreateInfo.logicDevice_ = logicDevice_;
+				fragmentShaderModuleCreateInfo.text_ = info.fragmentShader_;// std::dynamic_pointer_cast<OS::BinaryFile>(info.fragmentShader_->GetFile());
+				fragmentShader_ = std::make_shared<ShaderModule>(fragmentShaderModuleCreateInfo);
+			}
 
-			//CommandPool::CreateInfo commandPoolCreateInfo;
-			//{
-			//	commandPoolCreateInfo.logicDevice_ = logicDevice_;
-			//	commandPoolCreateInfo.queueFamily_ = graphicsQueueFamily_;
-			//	commandPool_ = std::make_shared<CommandPool>(commandPoolCreateInfo);
-			//}
+			CommandPool::CreateInfo commandPoolCreateInfo;
+			{
+				commandPoolCreateInfo.logicDevice_ = logicDevice_;
+				commandPoolCreateInfo.queueFamily_ = graphicsQueueFamily_;
+				commandPool_ = std::make_shared<CommandPool>(commandPoolCreateInfo);
+			}
 
-			//{
-			//	const VkDeviceSize bufferSize = sizeof(UniformBufferObject);
-			//	const SwapChain::Images images = swapChain_->GetImages();
-			//	const Common::Size imagesNumber = images.size();
-			//	for (Common::Index i = 0; i < imagesNumber; i++) {
-			//		auto uniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
-			//		uniformBuffers_.push_back(uniformBuffer);
-			//	}
-			//}
+			{
+				const VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+				const SwapChain::Images images = swapChain_->GetImages();
+				const Common::Size imagesNumber = images.size();
+				for (Common::Index i = 0; i < imagesNumber; i++) {
+					auto uniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
+					uniformBuffers_.push_back(uniformBuffer);
+				}
+			}
 
 			//if (createInfo_.enableDepthBuffer_) {
 			//	Image::CreateInfo depthImageCreateInfo;
@@ -844,19 +844,20 @@ namespace Render::Vulkan {
 		std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<SwapChain> swapChain_ = nullptr;
-		/*std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
+		std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
 		std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
-		std::shared_ptr<Pipeline> pipeline_ = nullptr;
-		std::vector<FrameBuffer> frameBuffers_;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
+		/*std::shared_ptr<Pipeline> pipeline_ = nullptr;
+		std::vector<FrameBuffer> frameBuffers_;
+		
 		std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
 		std::shared_ptr<VertexBuffer> vertexBuffer_ = nullptr;
 		std::shared_ptr<StagingBuffer> indexStagingBuffer_ = nullptr;
-		std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;
+		std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;*/
 		std::vector<std::shared_ptr<UniformBuffer>> uniformBuffers_;
-		std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
-		std::shared_ptr<DescriptorPool> descriptorPool_ = nullptr;
-		std::vector<DescriptorSet> descriptorSets_;*/
+		//std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
+		//std::shared_ptr<DescriptorPool> descriptorPool_ = nullptr;
+		//std::vector<DescriptorSet> descriptorSets_;
 
 		QueueFamily graphicsQueueFamily_;
 		QueueFamily presentQueueFamily_;
