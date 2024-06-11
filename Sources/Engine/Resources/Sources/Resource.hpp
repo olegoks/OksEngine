@@ -252,7 +252,7 @@ namespace Resources {
 
 	//	Job::CreateInfo createInfo;
 	//	{
-	//		createInfo.name_ = "InitializeResourceSystemJob";
+	//		createInfo.names_ = "InitializeResourceSystemJob";
 	//		createInfo.function_ = [](Job::ExecutionContext& context) {
 	//			auto resourceManager = std::make_shared<ResourceManager>("D:/Desktop/OksEngine/Resources/");
 	//			resourceManager->Load();

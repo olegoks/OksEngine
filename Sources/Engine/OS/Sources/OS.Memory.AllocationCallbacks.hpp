@@ -26,6 +26,8 @@ namespace Memory {
 		void* userData,
 		Common::Size    size,
 		Common::Size    alignment) {
+			Common::DiscardUnusedParameter(userData);
+			Common::DiscardUnusedParameter(alignment);
 			return std::malloc(size);
 		};
 
@@ -33,9 +35,17 @@ namespace Memory {
 		void* userData,
 		void* original,
 		Common::Size    size,
-		Common::Size    alignment) { OS::NotImplemented(); return nullptr; };
+		Common::Size    alignment)
+	{
+		Common::DiscardUnusedParameter(userData);
+		Common::DiscardUnusedParameter(original);
+		Common::DiscardUnusedParameter(size);
+		Common::DiscardUnusedParameter(alignment);
+		OS::NotImplemented(); return nullptr;
+	};
 
 	static void defaultFreeFunction(void* userData, void* memory) {
+		Common::DiscardUnusedParameter(userData);
 		std::free(memory);
 	}
 

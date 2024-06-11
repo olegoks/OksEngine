@@ -2,8 +2,6 @@
 
 #include <string>
 #include <fstream>
-#include <vector>
-#include <memory>
 #include <filesystem>
 
 #include <Datastructures.Vector.hpp>

@@ -236,11 +236,11 @@ namespace DataStructures {
 			}
 
 			[[nodiscard]]
-			bool Find(Type& outValue, std::function<bool(const Type& value)> filter) {
+			bool Contains(/*Type& outValue, */std::function<bool(const Type& value)> filter) const {
 				boost::shared_lock lock{ mutex_ };
 				for (Common::Index i = 0; i < vector_.GetSize(); i++) {
 					if(filter(vector_[i])) {
-						outValue = vector_[i];
+						/*outValue = vector_[i];*/
 						return true;
 					}
 				}

@@ -15,9 +15,6 @@ namespace OksEngine {
 
 		struct CreateInfo {
 			Context& context_;
-			//RAL::Shader vertexShader_;
-			//RAL::Shader fragmentShader_;
-			//RAL::RenderSurface surface;
 		};
 
 		RenderSubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::Render, createInfo.context_ } {
@@ -41,11 +38,15 @@ namespace OksEngine {
 			RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
 
 			auto uiSubsystem = GetUISubsystem();
-			GLFWwindow* glfwWindow = uiSubsystem->GetWindow()->GetGLFWwindow();
-
+			auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UI::Render::Vulkan);
 			RAL::RenderSurface renderSurface;
-			renderSurface.param1_ = glfwWindow;
-			renderSurface.uiSubsystem_ = RAL::UISubsystem::GLFW;
+			if(windowInfo.subsystem_ == UI::Subsystem::GLFW) {
+				
+				renderSurface.param1_ = windowInfo.param1_;
+				renderSurface.param2_ = windowInfo.param2_;
+				renderSurface.param3_ = windowInfo.param3_;
+				renderSurface.uiSubsystem_ = RAL::UISubsystem::GLFW;
+			}
 
 			RAL::Driver::CreateInfo driverCreateInfo{
 				vertexShader,

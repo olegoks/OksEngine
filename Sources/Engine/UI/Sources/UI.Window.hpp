@@ -23,6 +23,7 @@
 //#include <OS.Logger;
 //#include <OS.Assert;
 
+#include <UI.hpp>
 
 namespace UI {
 
@@ -53,12 +54,15 @@ namespace UI {
 		Window(const CreateInfo& createInfo) : createInfo_{ createInfo } {
 			const int initResult = glfwInit();
 			OS::AssertMessage(initResult != GLFW_FALSE, "Error while initializing GLFW.");
+			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 			GLFWwindow* createdWindow =  glfwCreateWindow(
 				createInfo.windowSize_.GetX(),
 				createInfo.windowSize_.GetY(),
 				"Vulkan",
 				nullptr,
 				nullptr);
+
+
 			OS::AssertMessage(createdWindow != nullptr, "GLFW Windows was not created.");
 			glfwSetWindowUserPointer(createdWindow, this);
 			glfwSetKeyCallback(createdWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -90,13 +94,27 @@ namespace UI {
 			window_ = createdWindow;
 		}
 
-		[[nodiscard]]
-		GLFWwindow* GetGLFWwindow() const noexcept {
-			OS::AssertMessage(window_ != nullptr,
-				"Attempt to get GLFWwindow that was not initialized.");
-			return window_;
-		}
+		struct Info {
+			std::any param1_;
+			std::any param2_;
+			std::any param3_;
+			std::any param4_;
+			Subsystem subsystem_ = Subsystem::Undefined;
+		};
 
+		[[nodiscard]]
+		Info GetInfo(Render render) const noexcept {
+			Info info;
+			{
+				uint32_t count;
+				const char** extensions = glfwGetRequiredInstanceExtensions(&count);
+				info.param1_ = window_;
+				info.param2_ = count;
+				info.param3_ = extensions;
+				info.subsystem_ = Subsystem::GLFW;
+			}
+			return info;
+		}
 
 
 		/*virtual */void SetTitle(const std::string& title) noexcept /*override */{

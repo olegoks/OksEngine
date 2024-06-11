@@ -1,11 +1,6 @@
 #pragma once
 
-#include <memory>
-#include <any>
-
-#include <vulkan/vulkan.h>
-
-#include <Render.Vulkan.Driver.Instance.hpp>
+#include <Render.Vulkan.Abstraction.hpp>
 
 #include <RAL.Driver.hpp>
 
@@ -15,17 +10,12 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
-			std::shared_ptr<Instance> instance_ = nullptr;
+			std::shared_ptr<class Instance> instance_ = nullptr;
 			RAL::RenderSurface renderSurface_;
 		};
 
 		WindowSurface(const CreateInfo& createInfo) noexcept;
-
-		~WindowSurface() noexcept {
-
-			Destroy();
-			
-		}
+		~WindowSurface() noexcept { Destroy(); }
 
 	private:
 
@@ -33,7 +23,7 @@ namespace Render::Vulkan {
 
 	private:
 
-		std::shared_ptr<Instance> instance_ = nullptr;
+		std::shared_ptr<class Instance> instance_ = nullptr;
 
 	};
 

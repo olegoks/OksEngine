@@ -9,10 +9,15 @@ UI = {
         Height = 540,
         FullscreenMode = false,
         Title = "Vulkan"
-    }
+    },
+    Subsystem = "GLFW"
 }
 
 Logging = {
-    Disable = false,
+    Disable = false
 }
 
+
+Render = {
+    API = "Vulkan"
+}

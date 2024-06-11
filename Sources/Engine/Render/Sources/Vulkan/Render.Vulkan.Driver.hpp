@@ -4,10 +4,10 @@
 
 #include <Render.Vulkan.Driver.Instance.hpp>
 #include <Render.Vulkan.Driver.Debug.hpp>
-//#include <Render.Vulkan.Driver.WindowSurface.hpp>
-//#include <Render.Vulkan.Driver.PhysicalDevice.hpp>
-//#include <Render.Vulkan.Driver.LogicDevice.hpp>
-//#include <Render.Vulkan.Driver.SwapChain.hpp>
+#include <Render.Vulkan.Driver.WindowSurface.hpp>
+#include <Render.Vulkan.Driver.PhysicalDevice.hpp>
+#include <Render.Vulkan.Driver.LogicDevice.hpp>
+#include <Render.Vulkan.Driver.SwapChain.hpp>
 //#include <Render.Vulkan.Driver.ShaderModule.hpp>
 //
 //#include <Render.Vulkan.Driver.CommandPool.hpp>
@@ -149,178 +149,183 @@ namespace Render::Vulkan {
 
 		//};
 
-		//[[nodiscard]]
-		//static PhysicalDevice::Formats GetAvailablePhysicalDeviceSurfaceFormats(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
+		[[nodiscard]]
+		static PhysicalDevice::Formats GetAvailablePhysicalDeviceSurfaceFormats(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
-			//uint32_t formatCount;
-			//VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, nullptr),
-			//	"Error while getting number of available formats.");
+			uint32_t formatCount;
+			VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, nullptr),
+				"Error while getting number of available formats.");
 
-			//std::vector<VkSurfaceFormatKHR> formats;
-			//if (formatCount != 0) {
-			//	formats.resize(formatCount);
-			//	formats.shrink_to_fit();
-			//	VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, formats.data()),
-			//		"Error while getting available formats.");
-			//}
+			std::vector<VkSurfaceFormatKHR> formats;
+			if (formatCount != 0) {
+				formats.resize(formatCount);
+				formats.shrink_to_fit();
+				VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, formats.data()),
+					"Error while getting available formats.");
+			}
 
-			//return formats;
-		//}
+			return formats;
+		}
 
-		//[[nodiscard]]
-		//static PhysicalDevice::PresentModes GetAvailablePresentModes(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
+		[[nodiscard]]
+		static PhysicalDevice::PresentModes GetAvailablePresentModes(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
-			//std::vector<VkPresentModeKHR> presentModes;
+			std::vector<VkPresentModeKHR> presentModes;
 
-			//uint32_t presentModeCount;
-			//{
-			//	VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, nullptr), 
-			//		"Error while getting number of present modes.");
-			//}
-			//if (presentModeCount != 0) {
-			//	presentModes.resize(presentModeCount);
-			//	VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, presentModes.data()), 
-			//		"Error while getting number of present modes.");
-			//}
+			uint32_t presentModeCount;
+			{
+				VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, nullptr), 
+					"Error while getting number of present modes.");
+			}
+			if (presentModeCount != 0) {
+				presentModes.resize(presentModeCount);
+				VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, presentModes.data()), 
+					"Error while getting number of present modes.");
+			}
 
-			//return presentModes;
-		//}
+			return presentModes;
+		}
 		
-		//[[nodiscard]]
-		//static VkPresentModeKHR ChoosePresentMode(const PhysicalDevice::PresentModes& availablePresentModes) noexcept {
+		[[nodiscard]]
+		static VkPresentModeKHR ChoosePresentMode(const PhysicalDevice::PresentModes& availablePresentModes) noexcept {
 
-			//for (const auto& availablePresentMode : availablePresentModes) {
-			//	if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-			//		return availablePresentMode;
-			//	}
-			//}
+			for (const auto& availablePresentMode : availablePresentModes) {
+				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
+					return availablePresentMode;
+				}
+			}
 
-			//return VK_PRESENT_MODE_FIFO_KHR;
-		//}
+			return VK_PRESENT_MODE_FIFO_KHR;
+		}
 
-		//std::pair<QueueFamily, QueueFamily> ChooseQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
+		[[nodiscard]]
+		std::pair<QueueFamily, QueueFamily> ChooseQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
-			//const QueueFamilies graphicsQueueFamilies = physicalDevice->GetGraphicsQueueFamilies();
-			//OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any graphics queue family.");
+			const QueueFamilies graphicsQueueFamilies = physicalDevice->GetGraphicsQueueFamilies();
+			OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any graphics queue family.");
 
-			//const QueueFamilies presentQueueFamilies = GetPresentQueueFamilies(physicalDevice, windowSurface);
-			//OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any present queue family.");
+			const QueueFamilies presentQueueFamilies = GetPresentQueueFamilies(physicalDevice, windowSurface);
+			OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any present queue family.");
 
-			//for (const QueueFamily& graphicsQueueFamily : graphicsQueueFamilies) {
-			//	for (const QueueFamily& presentQueueFamily : presentQueueFamilies) {
-			//		if (graphicsQueueFamily.index_ == presentQueueFamily.index_) {
-			//			graphicsQueueFamily_ = graphicsQueueFamily;
-			//			presentQueueFamily_ = presentQueueFamily;
-			//			OS::LogInfo("/render/vulkan/driver/physical device", "Found queue family that supports present and graphics commands.");
-			//		}
-			//	}
-			//}
+			for (const QueueFamily& graphicsQueueFamily : graphicsQueueFamilies) {
+				for (const QueueFamily& presentQueueFamily : presentQueueFamilies) {
+					if (graphicsQueueFamily.index_ == presentQueueFamily.index_) {
+						graphicsQueueFamily_ = graphicsQueueFamily;
+						presentQueueFamily_ = presentQueueFamily;
+						OS::LogInfo("/render/vulkan/driver/physical device", "Found queue family that supports present and graphics commands.");
+					}
+				}
+			}
 
-			//graphicsQueueFamily_ = *graphicsQueueFamilies.begin();
-			//presentQueueFamily_ = *presentQueueFamilies.begin();
+			graphicsQueueFamily_ = *graphicsQueueFamilies.begin();
+			presentQueueFamily_ = *presentQueueFamilies.begin();
 
-			//return { graphicsQueueFamily_, presentQueueFamily_ };
-			//return {};
-		//}
+			return { graphicsQueueFamily_, presentQueueFamily_ };
+		}
 
-		//[[nodiscard]]
-		//static QueueFamilies GetPresentQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
+		[[nodiscard]]
+		static QueueFamilies GetPresentQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
-		//	const QueueFamilies queueFamilies = physicalDevice->GetQueueFamilies();
-		//	QueueFamilies presentQueueFamilies;
+			const QueueFamilies queueFamilies = physicalDevice->GetQueueFamilies();
+			QueueFamilies presentQueueFamilies;
 
-		//	for (const QueueFamily& queueFamily : queueFamilies) {
-		//		VkBool32 presentSupport = false;
-		//		VkCall(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice->GetHandle(), queueFamily.index_, windowSurface->GetHandle(), &presentSupport),
-		//			"Error while checking queue family present commands support.");
-		//		if (presentSupport) {
-		//			presentQueueFamilies.AddQueueFamily(queueFamily);
-		//		}
-		//	}
+			for (const QueueFamily& queueFamily : queueFamilies) {
+				VkBool32 presentSupport = false;
+				VkCall(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice->GetHandle(), queueFamily.index_, windowSurface->GetHandle(), &presentSupport),
+					"Error while checking queue family present commands support.");
+				if (presentSupport) {
+					presentQueueFamilies.AddQueueFamily(queueFamily);
+				}
+			}
 
-		//	return presentQueueFamilies;
-		//}
+			return presentQueueFamilies;
+		}
 
 
-		//std::shared_ptr<PhysicalDevice> ChoosePhysicalDevice(const std::vector<std::shared_ptr<PhysicalDevice>>& availablePhysicalDevices, std::shared_ptr<WindowSurface> windowSurface, const Extensions& requiredExtensions) noexcept {
+		std::shared_ptr<PhysicalDevice> ChoosePhysicalDevice(const std::vector<std::shared_ptr<PhysicalDevice>>& availablePhysicalDevices, std::shared_ptr<WindowSurface> windowSurface, const Extensions& requiredExtensions) noexcept {
 
-		//	auto isDeviceSuitable = [](
-		//		std::shared_ptr<PhysicalDevice> physicalDevice,
-		//		std::shared_ptr<WindowSurface> windowSurface,
-		//		const Extensions& requiredExtensions) noexcept->bool {
+			auto isDeviceSuitable = [](
+				std::shared_ptr<PhysicalDevice> physicalDevice,
+				std::shared_ptr<WindowSurface> windowSurface,
+				const Extensions& requiredExtensions) noexcept->bool {
 
-		//			if (!physicalDevice->IsDiscrete()) {
-		//				return false;
-		//			}
+					if (!physicalDevice->IsDiscrete()) {
+						return false;
+					}
 
-		//			if (!physicalDevice->SupportsGeometryShader()) {
-		//				return false;
-		//			}
+					if (!physicalDevice->SupportsGeometryShader()) {
+						return false;
+					}
 
-		//			auto areRequiredExtensionsAvailable = [](const Extensions& requiredExtensions, const Extensions& availableExtensions)noexcept->bool {
+					auto areRequiredExtensionsAvailable = [](const Extensions& requiredExtensions, const Extensions& availableExtensions)noexcept->bool {
 
-		//				for (const Extension& requiredExtension : requiredExtensions) {
-		//					const bool requiredExtensionAvailable = availableExtensions.Contains(requiredExtension);
-		//					if (!requiredExtensionAvailable) {
-		//						return false;
-		//					}
-		//				}
-		//				return true;
-		//			};
+						for (const Extension& requiredExtension : requiredExtensions) {
+							const bool requiredExtensionAvailable = availableExtensions.Contains(requiredExtension);
+							if (!requiredExtensionAvailable) {
+								return false;
+							}
+						}
+						return true;
+					};
 
-		//			const Extensions availableExtensions = physicalDevice->GetAvailableExtensions();
+					const Extensions availableExtensions = physicalDevice->GetAvailableExtensions();
 
-		//			if (!areRequiredExtensionsAvailable(requiredExtensions, availableExtensions)) {
-		//				return false;
-		//			}
+					if (!areRequiredExtensionsAvailable(requiredExtensions, availableExtensions)) {
+						return false;
+					}
 
-		//			const auto graphicsQueueFamilies = physicalDevice->GetGraphicsQueueFamilies();
-		//			const auto presentQueueFamilies = GetPresentQueueFamilies(physicalDevice, windowSurface);
+					const auto graphicsQueueFamilies = physicalDevice->GetGraphicsQueueFamilies();
+					const auto presentQueueFamilies = GetPresentQueueFamilies(physicalDevice, windowSurface);
 
-		//			if (graphicsQueueFamilies.IsEmpty() || presentQueueFamilies.IsEmpty()) {
-		//				return false;
-		//			}
+					if (graphicsQueueFamilies.IsEmpty() || presentQueueFamilies.IsEmpty()) {
+						return false;
+					}
 
-		//			const PhysicalDevice::Formats formats = GetAvailablePhysicalDeviceSurfaceFormats(physicalDevice, windowSurface);
-		//			if (formats.empty()) {
-		//				return false;
-		//			}
+					const PhysicalDevice::Formats formats = GetAvailablePhysicalDeviceSurfaceFormats(physicalDevice, windowSurface);
+					if (formats.empty()) {
+						return false;
+					}
 
-		//			const PhysicalDevice::PresentModes presentModes = GetAvailablePresentModes(physicalDevice, windowSurface);
-		//			if (presentModes.empty()) {
-		//				return false;
-		//			}
+					const PhysicalDevice::PresentModes presentModes = GetAvailablePresentModes(physicalDevice, windowSurface);
+					if (presentModes.empty()) {
+						return false;
+					}
 
-		//			return true;
-		//	};
+					return true;
+			};
 
-		//	for (const auto& physicalDevice : availablePhysicalDevices) {
-		//		if (isDeviceSuitable(physicalDevice, windowSurface, requiredExtensions)) {
-		//			OS::LogInfo("render/vulkan/driver", { "Found sutable device %s.", physicalDevice->GetName()});
-		//			return physicalDevice;
-		//		}
-		//	}
+			for (const auto& physicalDevice : availablePhysicalDevices) {
+				if (isDeviceSuitable(physicalDevice, windowSurface, requiredExtensions)) {
+					OS::LogInfo("render/vulkan/driver", { "Found sutable device {}.", physicalDevice->GetName()});
+					return physicalDevice;
+				}
+			}
 
-		//	OS::AssertFailMessage("Failed to find a suitable GPU!");
-		//	return nullptr;
-		//}
+			OS::AssertFailMessage("Failed to find a suitable GPU!");
+			return nullptr;
+		}
 
-		Driver(const CreateInfo& info) noexcept /*: RAL::Driver{ info }*/ : RAL::Driver{ info }{
+		Driver(const CreateInfo& info) noexcept : RAL::Driver{ info }{
 
 			auto windowInfo = info.surface_;
-
-
-
-			//auto extensions = std::any_cast<DS::Vector<std::string>>(info.surface_.param2_);
 
 			Extensions requiredExtensions;
 			requiredExtensions.AddExtension("VK_EXT_debug_utils");
 			requiredExtensions.AddExtension("VK_EXT_debug_report");
+			//requiredExtensions.AddExtension("VK_KHR_portability_subset");
+
+			if(windowInfo.uiSubsystem_ == RAL::UISubsystem::GLFW) {
+				const Common::UInt32 extensionsCount = std::any_cast<Common::UInt32>(windowInfo.param2_);
+				const char** extensions = std::any_cast<const char**>(windowInfo.param3_);
+				for (Common::UInt32 i = 0; i < extensionsCount; i++) {
+					requiredExtensions.AddExtension(extensions[i]);
+				}
+			}
 
 			ValidationLayers requiredValidationLayers;
 			requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_validation");
-			requiredValidationLayers.AddLayer("VK_LAYER_LUNARG_api_dump");
-			requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_profiles");
+			//requiredValidationLayers.AddLayer("VK_LAYER_LUNARG_api_dump");
+			//requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_profiles");
 			
 			Instance::CreateInfo instanceCreateInfo;
 			{
@@ -328,54 +333,55 @@ namespace Render::Vulkan {
 				instanceCreateInfo.requiredValidationLayers_ = requiredValidationLayers;
 				instance_ = std::make_shared<Instance>(instanceCreateInfo);
 			}
-			//WindowSurface::CreateInfo windowSurfaceCreateInfo;
-			//{
-			//	windowSurfaceCreateInfo.instance_ = instance_;
-			//	windowSurfaceCreateInfo.renderSurface_ = info.surface_;
-			//	windowSurface_ = std::make_shared<WindowSurface>(windowSurfaceCreateInfo);
-			//}
 
-			//const Extensions requiredDeviceExtensions{ VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+			WindowSurface::CreateInfo windowSurfaceCreateInfo;
+			{
+				windowSurfaceCreateInfo.instance_ = instance_;
+				windowSurfaceCreateInfo.renderSurface_ = info.surface_;
+				windowSurface_ = std::make_shared<WindowSurface>(windowSurfaceCreateInfo);
+			}
 
-			//const auto availablePhysicalDevices = instance_->GetPhysicalDevices();
-			//physicalDevice_ = ChoosePhysicalDevice(availablePhysicalDevices, windowSurface_, requiredDeviceExtensions);
-			//
-			//auto [graphicsQueueFamily, presentQueueFamily] = ChooseQueueFamilies(physicalDevice_, windowSurface_);
-			//graphicsQueueFamily_ = graphicsQueueFamily;
-			//presentQueueFamily_ = presentQueueFamily;
+			const Extensions requiredDeviceExtensions{ VK_KHR_SWAPCHAIN_EXTENSION_NAME };
 
-			//Debug::CreateInfo debugCreateInfo;
-			//{
-			//	debugCreateInfo.instance_ = instance_;
-			//	debugCreateInfo.requiredValidationLayers_ = requiredValidationLayers;
-			//	debug_ = std::make_shared<Debug>(debugCreateInfo);
-			//}
+			const auto availablePhysicalDevices = instance_->GetPhysicalDevices();
+			physicalDevice_ = ChoosePhysicalDevice(availablePhysicalDevices, windowSurface_, requiredDeviceExtensions);
+			
+			auto [graphicsQueueFamily, presentQueueFamily] = ChooseQueueFamilies(physicalDevice_, windowSurface_);
+			graphicsQueueFamily_ = graphicsQueueFamily;
+			presentQueueFamily_ = presentQueueFamily;
 
-			//LogicDevice::CreateInfo logicDeviceCreateInfo;
-			//{
-			//	logicDeviceCreateInfo.physicalDevice_ = physicalDevice_;
-			//	logicDeviceCreateInfo.requiredExtensions_ = requiredDeviceExtensions;
-			//	logicDeviceCreateInfo.requiredValidationLayers_ = requiredValidationLayers;
-			//	logicDeviceCreateInfo.presentQueueFamily_ = presentQueueFamily_;
-			//	logicDeviceCreateInfo.graphicsQueueFamily_ = graphicsQueueFamily_;
-			//	logicDevice_ = std::make_shared<LogicDevice>(logicDeviceCreateInfo);
-			//}
+			Debug::CreateInfo debugCreateInfo;
+			{
+				debugCreateInfo.instance_ = instance_;
+				debugCreateInfo.requiredValidationLayers_ = requiredValidationLayers;
+				debug_ = std::make_shared<Debug>(debugCreateInfo);
+			}
 
-			//SwapChain::CreateInfo swapChainCreateInfo;
-			//{
-			//	swapChainCreateInfo.imageSize_ = { 1920, 1080 };
-			//	swapChainCreateInfo.logicDevice_ = logicDevice_;
-			//	swapChainCreateInfo.physicalDevice_ = physicalDevice_;
-			//	swapChainCreateInfo.windowSurface_ = windowSurface_;
-			//	swapChainCreateInfo.presentQueueFamily_ = presentQueueFamily_;
-			//	swapChainCreateInfo.graphicsQueueFamily_ = graphicsQueueFamily_;
-			//	const PhysicalDevice::Formats& availableFormats = GetAvailablePhysicalDeviceSurfaceFormats(physicalDevice_, windowSurface_);
-			//	swapChainCreateInfo.format_ = ChooseSwapChainSurfaceFormat(availableFormats);
-			//	swapChainCreateInfo.presentMode_ = ChoosePresentMode(GetAvailablePresentModes(physicalDevice_, windowSurface_));
-			//	swapChainCreateInfo.capabilities_ = GetCapabilities(physicalDevice_, windowSurface_);
-			//	swapChainCreateInfo.extent_ = ChooseSwapExtent(physicalDevice_, windowSurface_, { 1920, 1080 });
-			//	swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
-			//}
+			LogicDevice::CreateInfo logicDeviceCreateInfo;
+			{
+				logicDeviceCreateInfo.physicalDevice_ = physicalDevice_;
+				logicDeviceCreateInfo.requiredExtensions_ = requiredDeviceExtensions;
+				logicDeviceCreateInfo.requiredValidationLayers_ = requiredValidationLayers;
+				logicDeviceCreateInfo.presentQueueFamily_ = presentQueueFamily_;
+				logicDeviceCreateInfo.graphicsQueueFamily_ = graphicsQueueFamily_;
+				logicDevice_ = std::make_shared<LogicDevice>(logicDeviceCreateInfo);
+			}
+
+			SwapChain::CreateInfo swapChainCreateInfo;
+			{
+				swapChainCreateInfo.imageSize_ = { 1920, 1080 };
+				swapChainCreateInfo.logicDevice_ = logicDevice_;
+				swapChainCreateInfo.physicalDevice_ = physicalDevice_;
+				swapChainCreateInfo.windowSurface_ = windowSurface_;
+				swapChainCreateInfo.presentQueueFamily_ = presentQueueFamily_;
+				swapChainCreateInfo.graphicsQueueFamily_ = graphicsQueueFamily_;
+				const PhysicalDevice::Formats& availableFormats = GetAvailablePhysicalDeviceSurfaceFormats(physicalDevice_, windowSurface_);
+				swapChainCreateInfo.format_ = ChooseSwapChainSurfaceFormat(availableFormats);
+				swapChainCreateInfo.presentMode_ = ChoosePresentMode(GetAvailablePresentModes(physicalDevice_, windowSurface_));
+				swapChainCreateInfo.capabilities_ = GetCapabilities(physicalDevice_, windowSurface_);
+				swapChainCreateInfo.extent_ = ChooseSwapExtent(physicalDevice_, windowSurface_, { 1920, 1080 });
+				swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
+			}
 
 			//ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
 			//{
@@ -834,11 +840,11 @@ namespace Render::Vulkan {
 
 		std::shared_ptr<Instance> instance_ = nullptr;
 		std::shared_ptr<Debug> debug_ = nullptr;
-		//std::shared_ptr<WindowSurface> windowSurface_ = nullptr;
-		/*std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+		std::shared_ptr<WindowSurface> windowSurface_ = nullptr;
+		std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<SwapChain> swapChain_ = nullptr;
-		std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
+		/*std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
 		std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
 		std::shared_ptr<Pipeline> pipeline_ = nullptr;
 		std::vector<FrameBuffer> frameBuffers_;
@@ -852,8 +858,8 @@ namespace Render::Vulkan {
 		std::shared_ptr<DescriptorPool> descriptorPool_ = nullptr;
 		std::vector<DescriptorSet> descriptorSets_;*/
 
-		//QueueFamily graphicsQueueFamily_;
-		//QueueFamily presentQueueFamily_;
+		QueueFamily graphicsQueueFamily_;
+		QueueFamily presentQueueFamily_;
 
 		//std::shared_ptr<Image> depthImage_ = nullptr;
 		//std::shared_ptr<ImageView> depthImageView_ = nullptr;

@@ -14,8 +14,8 @@ namespace RAL {
 		};
 
 		Light(const CreateInfo& createInfo) noexcept :
-			position_{ createInfo.position_ },
-			intensity_{ createInfo.intensity_ } { }
+			intensity_{ createInfo.intensity_ },
+			position_ { createInfo.position_} { }
 
 		[[nodiscard]]
 		const Math::Vector3f& GetPosition() const noexcept { return position_; }
