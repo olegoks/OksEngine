@@ -4,7 +4,7 @@
 
 namespace Math {
 
-	constexpr float pi = 3.1415926535897932384626433832795028841971;
+	constexpr float pi = 3.1415926535897932384626433832795028841971f;
 
 	template<class Type>
 	Type Abs(Type value) noexcept {

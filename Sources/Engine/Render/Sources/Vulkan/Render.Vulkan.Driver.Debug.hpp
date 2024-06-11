@@ -48,11 +48,11 @@ namespace Render::Vulkan {
 				messengerCreateInfo.pUserData = nullptr; // Optional
 			}
 			{
-				auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(createInfo.instance_->GetNative(), "vkCreateDebugUtilsMessengerEXT");
+				auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(createInfo.instance_->GetHandle(), "vkCreateDebugUtilsMessengerEXT");
 				OS::AssertMessage(func != nullptr, "VK_EXT_debug_utils extension is not enabled.");
 				VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
 				[[maybe_unused]]
-				const VkResult result = func(createInfo.instance_->GetNative(), &messengerCreateInfo, nullptr, &debugMessenger);
+				const VkResult result = func(createInfo.instance_->GetHandle(), &messengerCreateInfo, nullptr, &debugMessenger);
 				OS::AssertMessage(result == VK_SUCCESS, "Error while creating PFN_vkCreateDebugUtilsMessengerEXT.");
 				SetNative(debugMessenger);
 				OS::LogInfo("/render/vulkan/driver/debug", "Debug messenger was created successfuly.");
@@ -87,6 +87,7 @@ namespace Render::Vulkan {
 			VkDebugUtilsMessageTypeFlagsEXT messageType,
 			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 			void* pUserData) {
+			Common::DiscardUnusedParameter(pUserData);
 			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT || messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
 				OS::AssertFailMessage(pCallbackData->pMessage);
 			} else {
@@ -112,11 +113,11 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance_->GetNative(), "vkDestroyDebugUtilsMessengerEXT");
+			auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance_->GetHandle(), "vkDestroyDebugUtilsMessengerEXT");
 			OS::AssertMessage(func != nullptr, "VK_EXT_debug_utils extension is not enabled.");
 			OS::AssertMessage(GetNative() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkDebugUtilsMessengerEXT.");
-			OS::AssertMessage(instance_->GetNative() != VK_NULL_HANDLE, "Attempt to destroy VkDebugUtilsMessengerEXT with VK_NULL_HANDLE VkInstance.");
-			func(instance_->GetNative(), GetNative(), nullptr);
+			OS::AssertMessage(instance_->GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VkDebugUtilsMessengerEXT with VK_NULL_HANDLE VkInstance.");
+			func(instance_->GetHandle(), GetNative(), nullptr);
 			OS::LogError("/render/vulkan/driver", "Debug messenger destroyed.");
 		}
 

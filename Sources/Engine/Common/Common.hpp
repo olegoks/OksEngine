@@ -32,4 +32,8 @@ namespace Common {
 #endif
 
 
+
+	template<class Type>
+	constexpr void DiscardUnusedParameter(Type&& value) { }
+
 }

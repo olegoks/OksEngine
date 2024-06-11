@@ -1,5 +1,7 @@
 #pragma once
 
+#include <filesystem>
+
 #include <OS.Memory.AllocationCallbacks.hpp>
 
 namespace OS {

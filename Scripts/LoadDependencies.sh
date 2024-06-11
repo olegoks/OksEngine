@@ -17,5 +17,6 @@ echo $(pwd)
 ./vcpkg.exe install loguru
 ./vcpkg.exe install magic-enum
 ./vcpkg.exe install graphviz
+./vcpkg.exe install vulkan-utility-libraries
 cd ../Scripts/
 

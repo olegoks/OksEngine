@@ -3,7 +3,7 @@
 #include <OksEngine.Subsystem.hpp>
 
 #include <ECS.hpp>
-#include <UI.hpp>
+#include <UI.Window.hpp>
 
 namespace OksEngine {
 

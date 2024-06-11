@@ -1,6 +1,6 @@
 #pragma once
 
-#include <vulkan/vulkan.hpp>
+#include <Render.Vulkan.Common.hpp>
 
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>

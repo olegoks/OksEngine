@@ -1,12 +1,6 @@
 #pragma once
 
-#include <vector>
-#include <memory>
-#include <vulkan/vulkan.hpp>
-
-#include <Common.Types.hpp>
 #include <Render.Vulkan.Abstraction.hpp>
-#include <Render.Vulkan.Common.hpp>
 
 namespace Render::Vulkan {
 
@@ -23,7 +17,13 @@ namespace Render::Vulkan {
 		PhysicalDevice(const CreateInfo& createInfo) noexcept : 
 			Abstraction{ createInfo.handle_ },
 			properties_{ GetProperties() }, 
-			features_{ GetFeatures() } { }
+			features_{ GetFeatures() }
+		{
+
+			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE,
+				"Attempt to create PhysicalDevice using VK_NULL_HANDLE VkPhysicalDevice.");
+
+		}
 
 		[[nodiscard]]
 		bool IsDiscrete() const noexcept {

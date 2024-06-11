@@ -65,7 +65,7 @@ namespace RAL {
 		//Math::Matrix4x4f projection_;
 		Math::Vector3f position_;
 		Math::Vector3f direction_;
-		float zNear_ = 0.1;
+		float zNear_ = 0.1f;
 		float zFar_ = 10;
 		Common::Size width_ = 1920;
 		Common::Size height_ = 1080;

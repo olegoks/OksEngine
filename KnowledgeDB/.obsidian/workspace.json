@@ -146,8 +146,9 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "f6b89e774ae8a967",
+  "active": "d72133a3222606c2",
   "lastOpenFiles": [
+    "Work/Network",
     "Work/Programming/Git, GitHub/Работа со стешем.md",
     "Work/C++/VisualStudio/Breakpoint для определенного потока.md",
     "Work/Programming/Git, GitHub/Отменить последний коммит.md",
@@ -185,7 +186,6 @@
     "Work/C++/Многопоточность/Термины/Эксклюзивный доступ к памяти.md",
     "Attachments/Pasted image 20240603182948.png",
     "Attachments/Pasted image 20240603182940.png",
-    "Work/C++/Многопоточность/Конструкции/Мьютекс чтения-записи(reader-writer mutex).md",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
     "Work/C++/Многопоточность/Топики",

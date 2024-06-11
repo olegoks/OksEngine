@@ -1,22 +1,14 @@
 #pragma once
 
-#include <string_view>
 #include <source_location>
-#include <iostream>
-#include <vector>
+
 #include <string>
-#include <sstream>
-#include <iomanip>
-#include <mutex>
-#include <optional>
-#include <filesystem>
+#include <magic_enum.hpp>
+
 #include <loguru/loguru.hpp>
 
-#include <Common.StringView.hpp>
+#include <Common.hpp>
 #include <Common.Format.hpp>
-#include <Common.Types.hpp>
-
-#include <OS.Assert.hpp>
 
 namespace OS {
 
@@ -63,6 +55,9 @@ namespace OS {
 		}
 
 		void Log(Severity severity, const std::string_view path, const Common::Format& format, const std::source_location& location = std::source_location::current()) {
+			Common::DiscardUnusedParameter(severity);
+			Common::DiscardUnusedParameter(path);
+			Common::DiscardUnusedParameter(location);
 			LOG_F(INFO, static_cast<std::string>(format).c_str());
 		}
 

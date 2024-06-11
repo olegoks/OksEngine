@@ -24,13 +24,27 @@ namespace OksEngine {
 		};
 
 		struct ThreadData {
-		
-			std::atomic<ThreadName>		name_ = ThreadName::Undefined;
+			DS::TS::Vector<ThreadName>		names_;
 		private:
-			DS::TS::Queue<DataInfo>		inDataQueue_; // this thread data -> another thread
-			DS::TS::Queue<DataInfo>		outDataQueue_; // this thread <- another thread data
-			DS::TS::Vector<DataInfo>	cachedOutDataInfos_;
+			DS::TS::Queue<DataInfo>			inDataQueue_; // this thread data -> another thread
+			DS::TS::Queue<DataInfo>			outDataQueue_; // this thread <- another thread data
+			DS::TS::Vector<DataInfo>		cachedOutDataInfos_;
 		public:
+
+			void AddThreadName(ThreadName name) {
+				if(!IsThreadName(name)) {
+					names_.PushBack(name);
+				}
+			}
+			[[nodiscard]]
+			bool IsThreadName(ThreadName maybeName) const {
+
+				const bool isThreadName = names_.Contains(
+					[&maybeName](ThreadName name) {
+						return (maybeName == name);
+					});
+				return isThreadName;
+			}
 
 			void AddIncomeDataInfo(DataInfo&& incomeDataInfo) {
 				inDataQueue_.Push(std::move(incomeDataInfo));
@@ -42,9 +56,6 @@ namespace OksEngine {
 			}
 
 			void AddOutcomeDataInfo(DataInfo& incomeDataInfo) {
-				if(name_ == ThreadName::Render) {
-					name_ = name_.load();//__debugbreak();
-				}
 				outDataQueue_.Push(incomeDataInfo);
 			}
 
@@ -53,9 +64,6 @@ namespace OksEngine {
 				const bool isFoundInCache = FindDataInfoInOutCache(outDataInfo, filter);
 				if (isFoundInCache) {
 					return true;
-				}
-				if (name_ == ThreadName::Render) {
-					name_ = name_.load();//__debugbreak();
 				}
 				DataInfo dataInfo;
 				while (outDataQueue_.TryPop(dataInfo)) {
@@ -78,9 +86,9 @@ namespace OksEngine {
 				bool isWaited = false;
 				DataInfo dataInfo;
 				while (!isWaited) {
-					//OS::LogInfo("MT", { "Waiting for DataInfo from OutQueue of %d subsystem", magic_enum::enum_name(name_.load())});
+					//OS::LogInfo("MT", { "Waiting for DataInfo from OutQueue of %d subsystem", magic_enum::enum_name(names_.load())});
 					outDataQueue_.WaitAndPop(dataInfo);
-					//OS::LogInfo("MT", { "DataInfo was poped from OutQueue of %d subsystem", magic_enum::enum_name(name_.load()) });
+					//OS::LogInfo("MT", { "DataInfo was poped from OutQueue of %d subsystem", magic_enum::enum_name(names_.load()) });
 					if (filter(dataInfo)) {
 						outDataInfo = std::move(dataInfo);
 						isWaited = true;
@@ -147,9 +155,8 @@ namespace OksEngine {
 					const ThreadName receiver = dataInfo.receivers_[i];
 					bool receiverIsFound = false;
 					for (ThreadData& threadInfo : threadInfos_) {
-						if (threadInfo.name_ == receiver) {
+						if (threadInfo.IsThreadName(receiver)) {
 							threadInfo.AddOutcomeDataInfo(dataInfo);
-							//OS::LogInfo("MT", { "DataInfo was moved from inQueue %d to outQueue of %d", dataInfo.sender_, receiver });
 							receiverIsFound = true;
 							break;
 						}
@@ -173,7 +180,7 @@ namespace OksEngine {
 					const ThreadName receiver = dataInfo.receivers_[i];
 					bool receiverIsFound = false;
 					for (ThreadData& threadInfo : threadInfos_) {
-						if (threadInfo.name_ == receiver) {
+						if (threadInfo.IsThreadName(receiver)) {
 							threadInfo.AddOutcomeDataInfo(dataInfo);
 							receiverIsFound = true;
 							break;
@@ -218,9 +225,7 @@ namespace OksEngine {
 
 			ThreadData& senderThreadData = GetThreadData();
 
-			if (senderThreadData.name_ == ThreadName::Undefined) {
-				senderThreadData.name_ = sender;
-			}
+			senderThreadData.AddThreadName(sender);
 
 			DataInfo dataInfo;
 			{
@@ -236,7 +241,9 @@ namespace OksEngine {
 		[[nodiscard]]
 		bool TryGetData(ThreadName receiver, Type& outData, std::function<bool(const DataInfo& dataInfo)> filter) {
 			ThreadData& threadData = GetThreadData();
-			threadData.name_ = receiver;
+			if(!threadData.IsThreadName(receiver)) {
+				threadData.names_.PushBack(receiver);
+			}
 			DataInfo dataInfo;
 			const bool isGot = threadData.TryGetOutcomeDataInfo(dataInfo, filter);
 			if(isGot) {
@@ -273,12 +280,11 @@ namespace OksEngine {
 		ThreadData& GetThreadData() {
 			const ThreadId threadId = GetThreadId();
 			return threadInfos_[threadId];
-
 		}
 		/*[[nodiscard]]
 		bool GetThreadData(ThreadData** threadInfoPtr, ThreadName receiverName) {
 			for (ThreadData& threadInfo : threadInfos_) {
-				if (threadInfo.name_ == receiverName) {
+				if (threadInfo.names_ == receiverName) {
 					*threadInfoPtr = &threadInfo;
 					return true;
 				}

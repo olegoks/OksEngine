@@ -3,8 +3,6 @@
 #include <chrono>
  
 #include <Common.Types.hpp>
-#include <OS.Assert.hpp>
-
 namespace OS {
 
 	using namespace std::chrono;
@@ -28,7 +26,7 @@ namespace OS {
 
 			Duration(nanoseconds duration = nanoseconds::zero()) noexcept : duration_{ duration } { }
 
-			[[nanoseconds]]
+			[[nodiscard]]
 			static Duration Zero() noexcept {
 				return Duration{ nanoseconds::zero() };
 			}

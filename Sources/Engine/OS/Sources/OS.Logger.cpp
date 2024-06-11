@@ -3,6 +3,8 @@
 #include <mutex>
 #include <memory>
 
+#include <OS.Assert.hpp>
+
 namespace OS {
 
 

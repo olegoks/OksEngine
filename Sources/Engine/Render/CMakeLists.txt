@@ -38,13 +38,18 @@ target_sources(Render
         Sources/Vulkan/Render.Vulkan.Camera.hpp
         Sources/Vulkan/Render.Vulkan.API.hpp
         Sources/Vulkan/Render.Vulkan.Common.hpp
-
-       # Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.cpp
+        Sources/Vulkan/Render.Vulkan.Driver.Instance.hpp
+        Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.hpp
+        Sources/Vulkan/Render.Vulkan.Driver.PhysicalDevice.hpp
+        Sources/Vulkan/Render.Vulkan.Driver.LogicDevice.hpp
         
     PRIVATE
          Sources/RAL.cpp
          Sources/RAL.WindowSurface.cpp
-         #Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.hpp
+         Sources/Vulkan/Render.Vulkan.Common.cpp
+         Sources/Vulkan/Render.Vulkan.Driver.Instance.cpp
+         Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.cpp
+         Sources/Vulkan/Render.Vulkan.Driver.Instance.cpp
         #${PRIVATE_SOURCES}
     )
 
@@ -58,12 +63,15 @@ source_group("Sources"
     Sources/RAL.WindowSurface.hpp
     Sources/RAL.WindowSurface.cpp
     Sources/Vulkan/Render.Vulkan.Common.hpp
+    Sources/Vulkan/Render.Vulkan.Common.cpp
     Sources/Vulkan/Render.Vulkan.Driver.hpp
     Sources/Vulkan/Render.Vulkan.Camera.hpp
     Sources/Vulkan/Render.Vulkan.API.hpp
     Sources/Vulkan/Render.Vulkan.Common.hpp
-    #Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.hpp
-    #Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.cpp
+    Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.hpp
+    Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.cpp
+    Sources/Vulkan/Render.Vulkan.Driver.PhysicalDevice.hpp
+    Sources/Vulkan/Render.Vulkan.Driver.LogicDevice.hpp
     Sources/RAL.cpp
      #${PUBLIC_SOURCES}
      #${PRIVATE_SOURCES}
@@ -71,6 +79,7 @@ source_group("Sources"
 
 find_package(Vulkan REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
+find_package(VulkanUtilityLibraries CONFIG REQUIRED)
 
 target_link_libraries(Render
     PUBLIC
@@ -79,7 +88,10 @@ target_link_libraries(Render
         Math
         glfw
     PRIVATE 
-        Vulkan::Vulkan)
+        Vulkan::Vulkan
+        Vulkan::LayerSettings
+        Vulkan::UtilityHeaders 
+        Vulkan::CompilerConfiguration)
 
         
 target_include_directories(Render

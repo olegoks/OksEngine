@@ -7,7 +7,7 @@
 
 namespace Common {
 
-	class Exception : std::exception {
+	class Exception : public std::exception {
 	public:
 		Exception(Format format) : message_{ format } { }
 		Exception(const char* message) : message_{ message } { }

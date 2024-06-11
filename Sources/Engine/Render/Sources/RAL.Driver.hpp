@@ -148,12 +148,15 @@ namespace RAL {
 		std::any param1_;
 		std::any param2_;
 		std::any param3_;
+		std::any param4_;
 		UISubsystem uiSubsystem_;
 		//If WINApi
 		// param1_ == HWND
 		// param2_ == HINSTANCE
 		//If GLFW
 		// param1_ == GLFWwindow*
+		// param2_ == requiredExtensionsCound uint32
+		// param3_ == requiredExtensions const char**
 	};
 
 	class Driver {

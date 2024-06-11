@@ -4,18 +4,14 @@
 #include <vector>
 #include <algorithm>
 #include <ranges>
-#include <windows.h>
 #include <vulkan/vulkan.hpp>
-
 #include <Math.hpp>
-
 #include <Geometry.hpp>
+#include <RAL.Common.hpp>
 
 namespace Render::Vulkan {
-	
-	inline void VkCall(VkResult nativeAPICallResult, Common::Format&& format) noexcept {
-		OS::AssertMessage(nativeAPICallResult == VK_SUCCESS, std::move(format));
-	}
+
+	void VkCall(VkResult nativeAPICallResult, Common::Format&& format) noexcept;
 
 	class Vertex3fnc : public Geometry::Vertex3fnc {
 	public:
