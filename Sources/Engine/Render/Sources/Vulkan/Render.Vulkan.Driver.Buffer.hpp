@@ -17,7 +17,7 @@ namespace Render::Vulkan {
 	class Buffer {
 	public:
 		Buffer() = delete;
-		Buffer(Buffer&& moveBuffer) : buffer_{ VK_NULL_HANDLE }, logicDevice_{ nullptr } {
+		Buffer(Buffer&& moveBuffer) : logicDevice_{ nullptr }, buffer_{ VK_NULL_HANDLE }{
 
 			std::swap(buffer_, moveBuffer.buffer_);
 			std::swap(size_, moveBuffer.size_);

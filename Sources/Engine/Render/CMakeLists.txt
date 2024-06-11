@@ -42,6 +42,9 @@ target_sources(Render
         Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.hpp
         Sources/Vulkan/Render.Vulkan.Driver.PhysicalDevice.hpp
         Sources/Vulkan/Render.Vulkan.Driver.LogicDevice.hpp
+        Sources/Vulkan/Render.Vulkan.Driver.ShaderModule.hpp
+        Sources/Vulkan/Render.Vulkan.Driver.CommandPool.hpp
+        Sources/Vulkan/Render.Vulkan.Driver.UniformBuffer.hpp
         
     PRIVATE
          Sources/RAL.cpp
@@ -49,7 +52,7 @@ target_sources(Render
          Sources/Vulkan/Render.Vulkan.Common.cpp
          Sources/Vulkan/Render.Vulkan.Driver.Instance.cpp
          Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.cpp
-         Sources/Vulkan/Render.Vulkan.Driver.Instance.cpp
+
         #${PRIVATE_SOURCES}
     )
 
@@ -72,14 +75,19 @@ source_group("Sources"
     Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.cpp
     Sources/Vulkan/Render.Vulkan.Driver.PhysicalDevice.hpp
     Sources/Vulkan/Render.Vulkan.Driver.LogicDevice.hpp
+    Sources/Vulkan/Render.Vulkan.Driver.ShaderModule.hpp
+    Sources/Vulkan/Render.Vulkan.Driver.CommandPool.hpp
+    Sources/Vulkan/Render.Vulkan.Driver.UniformBuffer.hpp
     Sources/RAL.cpp
      #${PUBLIC_SOURCES}
      #${PRIVATE_SOURCES}
     )
 
+
 find_package(Vulkan REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(VulkanUtilityLibraries CONFIG REQUIRED)
+find_package(glslang CONFIG REQUIRED)
 
 target_link_libraries(Render
     PUBLIC
@@ -91,7 +99,11 @@ target_link_libraries(Render
         Vulkan::Vulkan
         Vulkan::LayerSettings
         Vulkan::UtilityHeaders 
-        Vulkan::CompilerConfiguration)
+        Vulkan::CompilerConfiguration
+        glslang::glslang 
+        glslang::glslang-default-resource-limits 
+        glslang::SPIRV 
+        glslang::SPVRemapper)
 
         
 target_include_directories(Render
