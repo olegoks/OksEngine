@@ -369,7 +369,7 @@ namespace Render::Vulkan {
 
 			SwapChain::CreateInfo swapChainCreateInfo;
 			{
-				swapChainCreateInfo.imageSize_ = { 1920, 1080 };
+				swapChainCreateInfo.imageSize_ = { 960, 540 };
 				swapChainCreateInfo.logicDevice_ = logicDevice_;
 				swapChainCreateInfo.physicalDevice_ = physicalDevice_;
 				swapChainCreateInfo.windowSurface_ = windowSurface_;
@@ -379,7 +379,7 @@ namespace Render::Vulkan {
 				swapChainCreateInfo.format_ = ChooseSwapChainSurfaceFormat(availableFormats);
 				swapChainCreateInfo.presentMode_ = ChoosePresentMode(GetAvailablePresentModes(physicalDevice_, windowSurface_));
 				swapChainCreateInfo.capabilities_ = GetCapabilities(physicalDevice_, windowSurface_);
-				swapChainCreateInfo.extent_ = ChooseSwapExtent(physicalDevice_, windowSurface_, { 1920, 1080 });
+				swapChainCreateInfo.extent_ = ChooseSwapExtent(physicalDevice_, windowSurface_, { 960, 540 });
 				swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
 			}
 
