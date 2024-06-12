@@ -16,7 +16,7 @@ namespace OksEngine {
 	class Entity final {
 	public:
 
-		Entity(ECS::World* world, ECS::Entity::Id id) noexcept :
+		Entity(std::shared_ptr<ECS::World> world, ECS::Entity::Id id) noexcept :
 			world_{ world },
 			id_{ id } {
 
@@ -48,11 +48,11 @@ namespace OksEngine {
 
 	private:
 		[[nodiscard]]
-		inline ECS::World* GetWorld() noexcept { return world_; }
+		inline ECS::World* GetWorld() noexcept { return world_.get(); }
 		[[nodiscard]]
 		inline ECS::Entity::Id GetId() noexcept { return id_; }
 	private:
-		ECS::World* world_;
+		std::shared_ptr<ECS::World> world_ = nullptr;
 		ECS::Entity::Id id_;
 	};
 

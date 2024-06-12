@@ -79,8 +79,10 @@ namespace RAL {
 			indices_.resize(newSize);
 			std::memcpy(indices_.data() + offset, indices, indicesNumber * sizeof(IndexType));
 
+			OS::AssertMessage(verticesNumber <= Common::Limits<IndexType>::Max(), 
+				"Number of vertices is more than Index type can contain.");
 			for (Common::Index i = offset; i < newSize; i++) {
-				indices_[i] += GetVerticesNumber();
+				indices_[i] += static_cast<IndexType>(GetVerticesNumber());
 			}
 			verticesNumber_ += verticesNumber;
 			indicesNumber_ += indicesNumber;
@@ -123,25 +125,25 @@ namespace RAL {
 		Shader() noexcept = default;
 
 		Shader(const Common::Byte* text, Common::Size size) {
-			text_.Resize(size);
-			std::memcpy(text_.GetData(), text, size);
+			spirv_.Resize(size);
+			std::memcpy(spirv_.GetData(), text, size);
 		}
 
 		Shader(const Shader& copyShader) {
-			text_ = copyShader.text_;
+			spirv_ = copyShader.spirv_;
 		}
 
 		const Common::Byte* GetCode() const {
-			return text_.GetData();
+			return spirv_.GetData();
 		}
 
 		Common::Size GetSize() const {
-			return text_.GetSize();
+			return spirv_.GetSize();
 		}
 
 		~Shader() noexcept = default;
 	private:
-		DS::Vector<Common::Byte> text_;
+		DS::Vector<Common::Byte> spirv_;
 	};
 
 	struct RenderSurface {

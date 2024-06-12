@@ -16,15 +16,16 @@ namespace OksEngine {
 
 		UISubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::UI, createInfo.context_ } {
 
-			auto& config = GetConfig();
+			auto& context = GetContext();
+			auto config = context.GetConfig();
 
 			api_ = std::make_shared<UI::API>();
 			UI::Window::CreateInfo windowCreateInfo;
 			{
-				windowCreateInfo.title_ = config.GetValueAs<std::string>("UI.Window.Title");
+				windowCreateInfo.title_ = config->GetValueAs<std::string>("UI.Window.Title");
 				windowCreateInfo.windowSize_ = {
-					config.GetValueAs<int>("UI.Window.Width"),
-					config.GetValueAs<int>("UI.Window.Height")
+					config->GetValueAs<int>("UI.Window.Width"),
+					config->GetValueAs<int>("UI.Window.Height")
 				};
 			}
 			window_ = api_->CreateWindow(windowCreateInfo);

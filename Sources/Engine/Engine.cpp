@@ -17,15 +17,15 @@ namespace OksEngine {
 
 	void Engine::Update() noexcept {
 		while (IsRunning()) {
-			context_->renderSubsystem_->Update();
-			context_->uiSubsystem_->Update();
-			context_->world_->Process();
+			context_->GetRenderSubsystem()->Update();
+			context_->GetUISubsystem()->Update();
+			context_->GetECSWorld()->Process();
 		}
 	}
 
 	Entity Engine::CreateEntity() noexcept {
-		ECS::Entity::Id id = context_->world_->CreateEntity();
-		return Entity{ context_->world_.get(), id };
+		ECS::Entity::Id id = context_->GetECSWorld()->CreateEntity();
+		return Entity{ context_->GetECSWorld(), id };
 	}
 
 }

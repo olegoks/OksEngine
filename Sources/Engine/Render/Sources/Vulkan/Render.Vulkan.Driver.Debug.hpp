@@ -88,6 +88,7 @@ namespace Render::Vulkan {
 			const VkDebugUtilsMessengerCallbackDataEXT* pCallbackData,
 			void* pUserData) {
 			Common::DiscardUnusedParameter(pUserData);
+			Common::DiscardUnusedParameter(messageType);
 			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT || messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
 				OS::AssertFailMessage(pCallbackData->pMessage);
 			} else {

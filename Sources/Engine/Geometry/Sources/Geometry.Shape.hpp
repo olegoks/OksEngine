@@ -31,10 +31,10 @@ namespace Geometry {
 			const Common::Size beginVerticesNumber = vertices_.GetVerticesNumber();
 			vertices_.Add(shape.vertices_.GetData(), shape.vertices_.GetVerticesNumber());
 
-			const Common::Size beginIndicesNumber = indices_.GetIndicesNumber();
+			const auto beginIndicesNumber = indices_.GetIndicesNumber();
 			indices_.Add(shape.indices_);
 			for (Common::Index i = beginIndicesNumber; i < indices_.GetIndicesNumber(); i++) {
-				indices_[i] += beginVerticesNumber;
+				indices_[i] += static_cast<IndexType>(beginVerticesNumber);
 			}
 
 		}

@@ -160,20 +160,20 @@ namespace OS {
 		//				line << "";
 		//				line << delimiter_;
 		//			}
-		//			text_ << line.str();
-		//			text_ << std::endl;
+		//			spirv_ << line.str();
+		//			spirv_ << std::endl;
 		//		} while (!isLastLine);
 
 		//	}
 
 		//	friend std::ostream& operator<<(std::ostream& os, Entry& entry) {
-		//		return os << entry.text_.str();
+		//		return os << entry.spirv_.str();
 		//	}
 
 		//private:
 		//	std::vector<Common::Size> columnsWidth_{ 10, 30, 90, 20, 30, 5 };
 		//	char delimiter_ = '|';
-		//	std::stringstream text_;
+		//	std::stringstream spirv_;
 		//	std::vector<Column> columns_;
 
 		//};

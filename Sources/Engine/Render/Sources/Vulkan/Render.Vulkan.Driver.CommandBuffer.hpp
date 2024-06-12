@@ -7,7 +7,7 @@
 
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
-
+#include <Render.Vulkan.Common.hpp>
 #include <Render.Vulkan.Driver.CommandPool.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.Pipeline.hpp>
@@ -68,7 +68,7 @@ namespace Render::Vulkan {
 				VK_SUBPASS_CONTENTS_INLINE);
 		}
 
-		void BindPipeline(std::shared_ptr<Pipeline> pipeline) noexcept {
+		void BindPipeline(std::shared_ptr<Pipeline<Vertex3fnñt>> pipeline) noexcept {
 			vkCmdBindPipeline(
 				GetNative(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
@@ -94,7 +94,7 @@ namespace Render::Vulkan {
 				VK_INDEX_TYPE_UINT16);
 		}
 
-		void BindDescriptorSet(std::shared_ptr<Pipeline> pipeline, VkDescriptorSet descriptorSet) noexcept {
+		void BindDescriptorSet(std::shared_ptr<Pipeline<Vertex3fnñt>> pipeline, VkDescriptorSet descriptorSet) noexcept {
 			vkCmdBindDescriptorSets(
 				GetNative(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS, // Bind to graphics pipeline(not computation pipeline)

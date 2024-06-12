@@ -33,16 +33,17 @@ namespace Render::Vulkan {
 				const float queuePriority = 1.0f;
 				std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
 				{
-					VkDeviceQueueCreateInfo queueCreateInfo{};
 					{
-						queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-						queueCreateInfo.queueFamilyIndex = createInfo.graphicsQueueFamily_.index_;
-						queueCreateInfo.queueCount = 1;
+						VkDeviceQueueCreateInfo queueCreateInfo{};
+						{
+							queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+							queueCreateInfo.queueFamilyIndex = createInfo.graphicsQueueFamily_.index_;
+							queueCreateInfo.queueCount = 1;
 
-						queueCreateInfo.pQueuePriorities = &queuePriority;
+							queueCreateInfo.pQueuePriorities = &queuePriority;
+						}
+						queueCreateInfos.push_back(queueCreateInfo);
 					}
-					queueCreateInfos.push_back(queueCreateInfo);
-
 					if (createInfo.graphicsQueueFamily_.index_ != createInfo.presentQueueFamily_.index_) {
 						VkDeviceQueueCreateInfo queueCreateInfo{};
 						{
@@ -57,7 +58,7 @@ namespace Render::Vulkan {
 				}
 				{
 					logicDeviceCreateInfo.pQueueCreateInfos = queueCreateInfos.data();
-					logicDeviceCreateInfo.queueCreateInfoCount = queueCreateInfos.size();
+					logicDeviceCreateInfo.queueCreateInfoCount = static_cast<Common::UInt32>(queueCreateInfos.size());
 				}
 
 				const VkPhysicalDeviceFeatures deviceFeatures = createInfo.physicalDevice_->GetFeatures();

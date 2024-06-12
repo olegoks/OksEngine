@@ -33,7 +33,7 @@ namespace Render::Vulkan {
 		}
 
 
-		Fence(Fence&& moveFence) noexcept : fence_{ VK_NULL_HANDLE }, logicDevice_{ nullptr } {
+		Fence(Fence&& moveFence) noexcept :  logicDevice_{ nullptr }, fence_{ VK_NULL_HANDLE } {
 			std::swap(fence_, moveFence.fence_);
 			std::swap(logicDevice_, moveFence.logicDevice_);
 		}

@@ -30,8 +30,8 @@ namespace OksEngine
 			std::filesystem::path configFilePath = commandLineParameters.GetValue("-cfg");
 			auto loadConfigTaskId = resourceSubsystem_->GetResource(Subsystem::Type::Engine, configFilePath);
 			auto configResource = resourceSubsystem_->GetResource(Subsystem::Type::Engine, loadConfigTaskId);
-			config_.AddText({ configResource.GetData<char>(), configResource.GetSize() });
-			auto resourcesRootPath = config_.GetValueAs<std::string>("ResourceSystem.resourcesRootDirectory");
+			config_ = std::make_shared<Config>(std::string{ configResource.GetData<char>(), configResource.GetSize() });
+			auto resourcesRootPath = config_->GetValueAs<std::string>("ResourceSystem.resourcesRootDirectory");
 			auto fullResourcesPath = configFilePath.parent_path() / resourcesRootPath;
 			resourceSubsystem_->SetRoot(Subsystem::Type::Engine, fullResourcesPath);
 		}
@@ -49,7 +49,7 @@ namespace OksEngine
 			//fragmentShader
 		};
 		renderSubsystem_ = std::make_shared<RenderSubsystem>(renderSubsystemCreateInfo);
-		
+		renderSubsystem_->Update();
 		//std::string configText(configResource.GetData<char>(), configResource.GetSize());
 		//config_.AddText(configText);
 	}

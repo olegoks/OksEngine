@@ -123,7 +123,7 @@ namespace Render::Vulkan {
 			for (Common::Index i = 0; i < queueFamiliesProperties.size(); i++) {
 				QueueFamily queueFamily;
 				{
-					queueFamily.index_ = i;
+					queueFamily.index_ = static_cast<Common::UInt32>(i);
 					queueFamily.properties_ = queueFamiliesProperties[i];
 				}
 				queueFamilies.AddQueueFamily(queueFamily);
