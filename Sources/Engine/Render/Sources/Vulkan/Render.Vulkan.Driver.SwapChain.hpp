@@ -65,7 +65,7 @@ namespace Render::Vulkan {
 						swapChainCreateInfo.pQueueFamilyIndices = nullptr;
 					} else {
 						swapChainCreateInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
-						swapChainCreateInfo.queueFamilyIndexCount = indices.size();
+						swapChainCreateInfo.queueFamilyIndexCount = static_cast<Common::UInt32>(indices.size());
 						swapChainCreateInfo.pQueueFamilyIndices = indices.data();
 					}
 				}

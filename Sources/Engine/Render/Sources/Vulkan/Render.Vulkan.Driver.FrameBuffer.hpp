@@ -28,7 +28,7 @@ namespace Render::Vulkan {
 			} depthBufferInfo_;
 		};
 
-		FrameBuffer(FrameBuffer&& moveFrameBuffer) : frameBuffer_{ VK_NULL_HANDLE }, logicDevice_{ nullptr } {
+		FrameBuffer(FrameBuffer&& moveFrameBuffer) : logicDevice_{ nullptr }, frameBuffer_{ VK_NULL_HANDLE } {
 			std::swap(frameBuffer_, moveFrameBuffer.frameBuffer_);
 			std::swap(logicDevice_, moveFrameBuffer.logicDevice_);
 		}

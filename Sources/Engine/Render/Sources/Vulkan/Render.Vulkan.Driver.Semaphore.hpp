@@ -15,7 +15,7 @@ namespace Render::Vulkan {
 	public:
 		Semaphore() = delete;
 
-		Semaphore(Semaphore&& moveSemaphore) : semaphore_{ VK_NULL_HANDLE }, logicDevice_{ nullptr } {
+		Semaphore(Semaphore&& moveSemaphore) : logicDevice_{ nullptr }, semaphore_{ VK_NULL_HANDLE }  {
 			std::swap(semaphore_, moveSemaphore.semaphore_);
 			std::swap(logicDevice_, moveSemaphore.logicDevice_);
 		}

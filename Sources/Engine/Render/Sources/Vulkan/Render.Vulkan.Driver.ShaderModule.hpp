@@ -28,8 +28,8 @@ namespace Render::Vulkan {
 			VkShaderModuleCreateInfo shaderModuleCreateInfo{};
 			{
 				shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-				shaderModuleCreateInfo.codeSize = createInfo.spirv_.GetSize();
-				shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(createInfo.spirv_.GetData());
+				shaderModuleCreateInfo.codeSize = createInfo.text_.GetSize();
+				shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(createInfo.text_.GetCode());
 			}
 			VkCall(vkCreateShaderModule(createInfo.logicDevice_->GetHandle(), &shaderModuleCreateInfo, nullptr, &shaderModule_),
 				"Error while creating shader module.");

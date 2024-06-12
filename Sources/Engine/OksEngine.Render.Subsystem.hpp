@@ -4,7 +4,7 @@
 #include <RAL.hpp>
 
 #include <OksEngine.Resource.Subsystem.hpp>
-
+#include <Geometry.Shapes.hpp>
 #include "OksEngine.UI.Subsystem.hpp"
 
 #include <Components/OksEngine.RenderableGeometry.hpp>
@@ -19,15 +19,17 @@ namespace OksEngine {
 
 		RenderSubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::Render, createInfo.context_ } {
 
-			auto ecsWorld = GetECSWorld();
+			auto& context = GetContext();
+
+			auto ecsWorld = context.GetECSWorld();
 			ecsWorld->RegisterSystem<RenderSystem>();
 
 			api_ = RAL::CreateAPI();
 
-			auto resourceSubsystem = GetResourceSubsystem();
+			auto resourceSubsystem = context.GetResourceSubsystem();
 
-			const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.vert");
-			const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.frag");
+			const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleVert.spv");
+			const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleFrag.spv");
 			using namespace std::chrono_literals;
 			OS::LogInfo("Engine/RenderSubsystem/", "Tasks to load resources sent.");
 			std::this_thread::sleep_for(1s);
@@ -37,7 +39,7 @@ namespace OksEngine {
 			RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
 			RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
 
-			auto uiSubsystem = GetUISubsystem();
+			auto uiSubsystem = context.GetUISubsystem();
 			auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UI::Render::Vulkan);
 			RAL::RenderSurface renderSurface;
 			if(windowInfo.subsystem_ == UI::Subsystem::GLFW) {
@@ -54,10 +56,38 @@ namespace OksEngine {
 				renderSurface
 			};
 			driver_ = api_->CreateDriver(driverCreateInfo);
-			
+			RAL::Camera::CreateInfo cameraCreateInfo;
+			{
+				cameraCreateInfo.position_ = Math::Vector3f{ 1.4f, 0.f, 0.f };
+				cameraCreateInfo.direction_ = Math::Vector3f{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
+				
+				cameraCreateInfo.width_ = context.GetConfig()->GetValueAs<int>("UI.Window.Width");
+				cameraCreateInfo.height_ = context.GetConfig()->GetValueAs<int>("UI.Window.Height");
+			}
+
+			std::shared_ptr<RAL::Camera> camera = api_->CreateCamera(cameraCreateInfo);
+			driver_->SetCamera(camera);
+
+			RAL::Light::CreateInfo lightCreateInfo;
+			{
+				lightCreateInfo.intensity_ = 1.f;
+				lightCreateInfo.position_ = { 0.f, 0.f, 0.f };
+			}
+			std::shared_ptr<RAL::Light> light = api_->CreateLight(lightCreateInfo);
+			driver_->AddLight(light);
 		}
 
 		virtual void Update() noexcept override {
+			Geometry::Box box{ 1 };
+
+			driver_->DrawIndexed(
+				(RAL::Vertex3f*)box.GetVertices().GetData(),
+				box.GetVerticesNumber(),
+				box.GetIndices().GetData(),
+				box.GetIndicesNumber(), RAL::Color{ 1.f, 1.f, 1.f });
+			driver_->StartRender();
+			driver_->Render();
+			driver_->EndRender();
 
 		}
 

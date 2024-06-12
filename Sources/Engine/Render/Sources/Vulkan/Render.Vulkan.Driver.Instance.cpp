@@ -38,11 +38,11 @@ namespace Render::Vulkan {
 			createInfo.pApplicationInfo = &appInfo;
 
 			const auto extensionNames = info.requiredExtensions_.GetRawNames();
-			createInfo.enabledExtensionCount = extensionNames.size();
+			createInfo.enabledExtensionCount = static_cast<Common::UInt32>(extensionNames.size());
 			createInfo.ppEnabledExtensionNames = extensionNames.data();
 
 			const auto rawNames = info.requiredValidationLayers_.GetRawNames();
-			createInfo.enabledLayerCount = rawNames.size();
+			createInfo.enabledLayerCount = static_cast<Common::UInt32>(rawNames.size());
 			createInfo.ppEnabledLayerNames = rawNames.data();
 			VkInstance instance = VK_NULL_HANDLE;
 			VkCall(vkCreateInstance(&createInfo, nullptr, &instance), 

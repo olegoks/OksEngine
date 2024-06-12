@@ -27,24 +27,7 @@ namespace OksEngine {
 		virtual ~Subsystem() = default;
 
 		[[nodiscard]]
-		auto GetResourceSubsystem() {
-			return context_.resourceSubsystem_;
-		}
-
-		[[nodiscard]]
-		auto GetECSWorld() {
-			return context_.world_;
-		}
-
-		[[nodiscard]]
-		auto& GetConfig() {
-			return context_.config_;
-		}
-
-		[[nodiscard]]
-		auto GetUISubsystem() {
-			return context_.uiSubsystem_;
-		}
+		Context& GetContext() noexcept { return context_; }
 
 	private:
 		Type type_;

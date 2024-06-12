@@ -19,5 +19,11 @@ Logging = {
 
 
 Render = {
-    API = "Vulkan"
+    API = "Vulkan",
+    Vulkan = {
+
+    },
+    Driver = {
+
+    }
 }
