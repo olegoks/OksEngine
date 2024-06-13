@@ -84,11 +84,18 @@ namespace OksEngine {
 		virtual void Update() noexcept override {
 			Geometry::Box box{ 1 };
 
+			Geometry::VertexCloud<RAL::Vertex3fc> coloredBox;
+			for (Common::Index i = 0; i < box.GetVertices().GetVerticesNumber(); i++) {
+				Math::Vector3f color{ (float)((i * 100) % 255) / 255, (float)((i * 150) % 255) /255, (float)((i * 199) % 255) / 255 };
+				RAL::Vertex3fc coloredVertex = {box.GetVertices()[i], color };
+				coloredBox.Add(coloredVertex);
+			}
+
 			driver_->DrawIndexed(
-				(RAL::Vertex3f*)box.GetVertices().GetData(),
-				box.GetVerticesNumber(),
+				(RAL::Vertex3fc*)coloredBox.GetData(),
+				coloredBox.GetVerticesNumber(),
 				box.GetIndices().GetData(),
-				box.GetIndicesNumber(), RAL::Color{ 1.f, 1.f, 1.f });
+				box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
 			driver_->StartRender();
 			driver_->Render();
 			driver_->EndRender();

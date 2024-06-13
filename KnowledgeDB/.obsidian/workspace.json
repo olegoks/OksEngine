@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+                "file": "Work/C++/RVO(return value optimization).md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+                "file": "Work/C++/RVO(return value optimization).md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+                "file": "Work/C++/RVO(return value optimization).md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md"
+                "file": "Work/C++/RVO(return value optimization).md"
               }
             }
           }
@@ -146,8 +146,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "d72133a3222606c2",
+  "active": "f6b89e774ae8a967",
   "lastOpenFiles": [
+    "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+    "Work/C++/RVO(return value optimization).md",
     "Work/Network",
     "Work/Programming/Git, GitHub/Работа со стешем.md",
     "Work/C++/VisualStudio/Breakpoint для определенного потока.md",
@@ -167,7 +169,6 @@
     "Work/C++/Многопоточность/Конструкции/Мьютекс(std_mutex).md",
     "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
     "Attachments/Pasted image 20240604113130.png",
-    "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
     "Work/C++/Многопоточность/Конструкции/std_lock_guard.md",
     "Work/C++/Многопоточность/Конструкции/std_unique_lock.md",
     "Work/C++/Модель памяти С++.md",
@@ -193,7 +194,6 @@
     "Attachments/Game physics cookbook.pdf",
     "Attachments/CPlusPlusNotesForProfessionals.pdf",
     "Attachments/112970_824f8da89600da8be9f17c3db02cc722.pdf",
-    "Attachments/s2013_pbs_physics_math_notes.pdf",
     "Untitled.canvas"
   ]
 }
