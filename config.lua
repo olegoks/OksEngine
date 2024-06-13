@@ -23,11 +23,15 @@ Logging = {
     Disable = false
 }
 
+Scripts = {
+    scriptsRootDirectory = './Sources/Scripts/'
+}
 
 Render = {
     API = "Vulkan",
     Vulkan = {
-        
+        vertexShader = 'triangleVert.spv',
+        fragmentShader = 'triangleFrag.spv'
     },
     Driver = {
 
