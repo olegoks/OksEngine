@@ -5,8 +5,14 @@ ResourceSystem = {
 
 UI = {
     Window = {
-        Width = 960,
-        Height = 540,
+        Size = {
+            MinWidth = 1280,
+            MinHeight = 720,
+            MaxWidth = 1920,
+            MaxHeight = 1080,
+            StartWidth = 960,
+            StartHeight = 540
+        },
         FullscreenMode = false,
         Title = "Vulkan"
     },
@@ -21,7 +27,7 @@ Logging = {
 Render = {
     API = "Vulkan",
     Vulkan = {
-
+        
     },
     Driver = {
 

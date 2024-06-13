@@ -49,7 +49,7 @@ namespace OksEngine
 			//fragmentShader
 		};
 		renderSubsystem_ = std::make_shared<RenderSubsystem>(renderSubsystemCreateInfo);
-		renderSubsystem_->Update();
+
 		//std::string configText(configResource.GetData<char>(), configResource.GetSize());
 		//config_.AddText(configText);
 	}

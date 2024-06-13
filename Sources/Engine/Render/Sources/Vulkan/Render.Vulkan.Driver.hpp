@@ -341,7 +341,8 @@ namespace Render::Vulkan {
 				windowSurface_ = std::make_shared<WindowSurface>(windowSurfaceCreateInfo);
 			}
 
-			const Extensions requiredDeviceExtensions{ VK_KHR_SWAPCHAIN_EXTENSION_NAME };
+			Extensions requiredDeviceExtensions;
+			requiredDeviceExtensions.AddExtension("VK_KHR_swapchain");
 
 			const auto availablePhysicalDevices = instance_->GetPhysicalDevices();
 			physicalDevice_ = ChoosePhysicalDevice(availablePhysicalDevices, windowSurface_, requiredDeviceExtensions);
@@ -369,7 +370,7 @@ namespace Render::Vulkan {
 
 			SwapChain::CreateInfo swapChainCreateInfo;
 			{
-				swapChainCreateInfo.imageSize_ = { 960, 540 };
+				swapChainCreateInfo.imageSize_ = info.surface_.size_;
 				swapChainCreateInfo.logicDevice_ = logicDevice_;
 				swapChainCreateInfo.physicalDevice_ = physicalDevice_;
 				swapChainCreateInfo.windowSurface_ = windowSurface_;
@@ -379,7 +380,7 @@ namespace Render::Vulkan {
 				swapChainCreateInfo.format_ = ChooseSwapChainSurfaceFormat(availableFormats);
 				swapChainCreateInfo.presentMode_ = ChoosePresentMode(GetAvailablePresentModes(physicalDevice_, windowSurface_));
 				swapChainCreateInfo.capabilities_ = GetCapabilities(physicalDevice_, windowSurface_);
-				swapChainCreateInfo.extent_ = ChooseSwapExtent(physicalDevice_, windowSurface_, { 960, 540 });
+				swapChainCreateInfo.extent_ = ChooseSwapExtent(physicalDevice_, windowSurface_, info.surface_.size_);
 				swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
 			}
 
@@ -443,14 +444,14 @@ namespace Render::Vulkan {
 			const Common::Size descriptorPoolSize = swapChain_->GetImages().size();
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
-			Pipeline<Vertex3fnñt>::CreateInfo pipelineCreateInfo;
+			Pipeline<Vertex3fc>::CreateInfo pipelineCreateInfo;
 			{
 				pipelineCreateInfo.logicDevice_ = logicDevice_;
 				pipelineCreateInfo.swapChain_ = swapChain_;
 				pipelineCreateInfo.descriptorSetLayout_ = descriptorSetLayout_;
 				pipelineCreateInfo.vertexShader_ = vertexShader_;
 				pipelineCreateInfo.fragmentShader_ = fragmentShader_;
-				Pipeline<Vertex3fnñt>::CreateInfo::DepthBufferInfo depthBufferInfo;
+				Pipeline<Vertex3fc>::CreateInfo::DepthBufferInfo depthBufferInfo;
 				{
 					depthBufferInfo.enable_ = createInfo_.enableDepthBuffer_;
 					depthBufferInfo.image_ = depthImage_;
@@ -458,7 +459,7 @@ namespace Render::Vulkan {
 				pipelineCreateInfo.depthBufferInfo_ = depthBufferInfo;
 			}
 
-			pipeline_ = std::make_shared<Pipeline<Vertex3fnñt>>(pipelineCreateInfo);
+			pipeline_ = std::make_shared<Pipeline<Vertex3fc>>(pipelineCreateInfo);
 
 			{
 				VkRenderPass renderPass = pipeline_->GetRenderPass()->GetNative();
@@ -598,7 +599,7 @@ namespace Render::Vulkan {
 
 			vertexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, vertices_.GetSizeInBytes());
 			vertexStagingBuffer_->Fill(vertices_.GetData()/*, vertices_.GetSizeInBytes()*/);
-			vertexBuffer_ = std::make_shared<VertexBuffer/*<Vertex3fnñt>*/>(physicalDevice_, logicDevice_, vertices_.GetVerticesNumber());
+			vertexBuffer_ = std::make_shared<VertexBuffer<Vertex3fc>/*<Vertex3fnñt>*/>(physicalDevice_, logicDevice_, vertices_.GetVerticesNumber());
 
 			DataCopy(vertexStagingBuffer_, vertexBuffer_, logicDevice_, commandPool_);
 
@@ -612,7 +613,7 @@ namespace Render::Vulkan {
 				auto commandBuffer = std::make_shared<CommandBuffer>(commandPool_, logicDevice_);
 
 				commandBuffer->Begin();
-				static VkClearValue clearValue{ 1, 1.0, 0.0, 0.0 };
+				static VkClearValue clearValue{ 0, 1.0, 0.0, 0.0 };
 				CommandBuffer::DepthBufferInfo depthBufferInfo;
 				{
 					depthBufferInfo.enable = createInfo_.enableDepthBuffer_;
@@ -681,7 +682,7 @@ namespace Render::Vulkan {
 			ubo.proj_[1][1] *= -1;
 
 			std::shared_ptr<UniformBuffer> currentUniformBuffer = uniformBuffers_[currentImage];
-			//currentUniformBuffer->Fill(&ubo);
+			currentUniformBuffer->Fill(&ubo);
 		}
 
 		void EndRender() override {
@@ -691,49 +692,49 @@ namespace Render::Vulkan {
 		}
 
 
-		virtual void DrawIndexed(
-			const RAL::Vertex3fnñt* vertices,
-			Common::Size verticesNumber,
-			const RAL::Index16* indices,
-			Common::Size indicesNumber,
-			const RAL::Texture& texture) override {
+		//virtual void DrawIndexed(
+		//	const RAL::Vertex3fnñt* vertices,
+		//	Common::Size verticesNumber,
+		//	const RAL::Index16* indices,
+		//	Common::Size indicesNumber,
+		//	const RAL::Texture& texture) override {
 
-			Common::DiscardUnusedParameter(texture);
+		//	Common::DiscardUnusedParameter(texture);
 
-			vertices_.Add(vertices, verticesNumber);
-			indices_.Add(indices, indicesNumber, verticesNumber);
+		//	vertices_.Add(vertices, verticesNumber);
+		//	indices_.Add(indices, indicesNumber, verticesNumber);
 
-		}
+		//}
 
-		virtual void DrawIndexed(
-			const RAL::Vertex3fnt* vertices,
-			Common::Size verticesNumber,
-			const RAL::Index16* indices,
-			Common::Size indicesNumber, 
-			const RAL::Texture& texture) override {
+		//virtual void DrawIndexed(
+		//	const RAL::Vertex3fnt* vertices,
+		//	Common::Size verticesNumber,
+		//	const RAL::Index16* indices,
+		//	Common::Size indicesNumber, 
+		//	const RAL::Texture& texture) override {
 
-			Common::DiscardUnusedParameter(texture);
+		//	Common::DiscardUnusedParameter(texture);
 
-			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-				const RAL::Vertex3fnt& vertex = vertices[vertexIndex];
-				vertices_.Add({ vertex.position_, vertex.normal_, Math::Vector3f{ 0, 0, 0 }, vertex.texel_ });
-			}
-			indices_.Add(indices, indicesNumber, verticesNumber);
+		//	for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+		//		const RAL::Vertex3fnt& vertex = vertices[vertexIndex];
+		//		vertices_.Add({ vertex.position_, vertex.normal_, Math::Vector3f{ 0, 0, 0 }, vertex.texel_ });
+		//	}
+		//	indices_.Add(indices, indicesNumber, verticesNumber);
 
-		}
+		//}
 
-		virtual void DrawIndexed(
-			const RAL::Vertex3fnc* vertices,
-			Common::Size verticesNumber,
-			const RAL::Index16* indices,
-			Common::Size indicesNumber) override {
-			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-				const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
-				vertices_.Add({ vertex.position_, vertex.normal_, vertex.color_, Math::Vector2f{ 0, 0 } });
-			}
-			indices_.Add(indices, indicesNumber, verticesNumber);
+		//virtual void DrawIndexed(
+		//	const RAL::Vertex3fnc* vertices,
+		//	Common::Size verticesNumber,
+		//	const RAL::Index16* indices,
+		//	Common::Size indicesNumber) override {
+		//	for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+		//		const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
+		//		vertices_.Add({ vertex.position_, vertex.normal_, vertex.color_, Math::Vector2f{ 0, 0 } });
+		//	}
+		//	indices_.Add(indices, indicesNumber, verticesNumber);
 
-		}
+		//}
 
 
 		virtual void DrawIndexed(
@@ -744,7 +745,7 @@ namespace Render::Vulkan {
 
 			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
 				const RAL::Vertex3fc& vertex = vertices[vertexIndex];
-				vertices_.Add({ vertex.position_, RAL::Vector3f{ 0, 0, 0 }, vertex.color_, Math::Vector2f{ 0, 0 } });
+				vertices_.Add({ vertex.position_, /*RAL::Vector3f{ 0, 0, 0 },*/ vertex.color_, /*Math::Vector2f{ 0, 0 } */});
 			}
 
 			indices_.Add(indices, indiciesNumber, verticesNumber);
@@ -759,7 +760,7 @@ namespace Render::Vulkan {
 			const RAL::Color& color) override {
 
 			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-				vertices_.Add({ vertices[vertexIndex], RAL::Vector3f{ 0, 0, 0 }, color, Math::Vector2f{ 0, 0 } });
+				vertices_.Add({ vertices[vertexIndex], /*RAL::Vector3f{ 0, 0, 0 },*/ color, /*Math::Vector2f{ 0, 0 }*/ });
 			}
 
 			indices_.Add(indices, indiciesNumber, verticesNumber);
@@ -783,7 +784,6 @@ namespace Render::Vulkan {
 			imageContext->commandBuffer_ = commandBuffers_[imageIndex];
 
 			return imageContext;
-			return nullptr;
 		}
 
 		static void ExecuteCommands(
@@ -851,11 +851,11 @@ namespace Render::Vulkan {
 		std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
 		std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
-		std::shared_ptr<Pipeline<Vertex3fnñt>> pipeline_ = nullptr;
+		std::shared_ptr<Pipeline<Vertex3fc>> pipeline_ = nullptr;
 		std::vector<FrameBuffer> frameBuffers_;
 		
 		std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
-		std::shared_ptr<VertexBuffer> vertexBuffer_ = nullptr;
+		std::shared_ptr<VertexBuffer<Vertex3fc>> vertexBuffer_ = nullptr;
 		std::shared_ptr<StagingBuffer> indexStagingBuffer_ = nullptr;
 		std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;
 		std::vector<std::shared_ptr<UniformBuffer>> uniformBuffers_;

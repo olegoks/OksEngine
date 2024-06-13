@@ -28,7 +28,7 @@
 namespace UI {
 
 
-	class Window/* : public UIAL::Window */{
+	class Window/* : public UIAL::Window */ {
 	public:
 
 		using Size = Math::Vector2i;
@@ -55,7 +55,7 @@ namespace UI {
 			const int initResult = glfwInit();
 			OS::AssertMessage(initResult != GLFW_FALSE, "Error while initializing GLFW.");
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
-			GLFWwindow* createdWindow =  glfwCreateWindow(
+			GLFWwindow* createdWindow = glfwCreateWindow(
 				createInfo.windowSize_.GetX(),
 				createInfo.windowSize_.GetY(),
 				"Vulkan",
@@ -90,7 +90,7 @@ namespace UI {
 				windowPtr->CallEventCallbacks(keyboardKey, event);
 
 				});
-			
+
 			window_ = createdWindow;
 		}
 
@@ -99,25 +99,35 @@ namespace UI {
 			std::any param2_;
 			std::any param3_;
 			std::any param4_;
+			Math::Vector2u size_{ 0, 0 };
 			Subsystem subsystem_ = Subsystem::Undefined;
 		};
 
 		[[nodiscard]]
 		Info GetInfo(Render render) const noexcept {
 			Info info;
-			{
+			if (render == Render::Vulkan) {
 				uint32_t count;
 				const char** extensions = glfwGetRequiredInstanceExtensions(&count);
 				info.param1_ = window_;
 				info.param2_ = count;
 				info.param3_ = extensions;
+				info.size_ = GetSize();
 				info.subsystem_ = Subsystem::GLFW;
 			}
 			return info;
 		}
 
+		[[nodiscard]]
+		Math::Vector2u GetSize() const noexcept {
+			int width = 0;
+			int height = 0;
+			glfwGetWindowSize(window_, &width, &height);
+			OS::Assert(width > 0 && height > 0);
+			return { static_cast<Common::Size>(width), static_cast<Common::Size>(height) };
+		}
 
-		/*virtual */void SetTitle(const std::string& title) noexcept /*override */{
+		/*virtual */void SetTitle(const std::string& title) noexcept /*override */ {
 			glfwSetWindowTitle(window_, title.c_str());
 		}
 
@@ -191,7 +201,7 @@ namespace UI {
 
 		/*NativeAPI GetNativeType() const override { return NativeAPI::GLFW; }*/
 
-		
+
 
 	private:
 		static void ErrorCallback(int error_code, const char* description) {
@@ -217,10 +227,10 @@ namespace UI {
 			return std::make_shared<Window>(createInfo);
 		}
 
-//
-//		std::shared_ptr<UIAL::Window> CreateWindow(const UIAL::Window::CreateInfo& info) const override {
-//			return std::make_shared<Window>(info.windowSize_);
-//		}
+		//
+		//		std::shared_ptr<UIAL::Window> CreateWindow(const UIAL::Window::CreateInfo& info) const override {
+		//			return std::make_shared<Window>(info.windowSize_);
+		//		}
 
 
 	};
