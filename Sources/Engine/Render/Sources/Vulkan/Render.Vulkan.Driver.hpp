@@ -585,19 +585,19 @@ namespace Render::Vulkan {
 
 		void StartRender() override {
 
-			OS::Profiler profiler{ [](const OS:: Profiler::Info& info) {
-				
-				const Common::Size executionInMs = info.executionTime_.GetValue() / 1'000'000;
-				if (executionInMs < 1) {
-					return;
-				}
-				std::string message;
-				{
-					message += "Profiled function: %s\n";
-					message += "Execution time: %d ms";
-				}
-				OS::LogInfo("render/vulkan", { message.c_str(), info.functionName_.c_str(),executionInMs });
-			} };
+			//OS::Profiler profiler{ [](const OS:: Profiler::Info& info) {
+			//	
+			//	const Common::Size executionInMs = info.executionTime_.GetValue() / 1'000'000;
+			//	if (executionInMs < 1) {
+			//		return;
+			//	}
+			//	std::string message;
+			//	{
+			//		message += "Profiled function: %s\n";
+			//		message += "Execution time: %d ms";
+			//	}
+			//	OS::LogInfo("render/vulkan", { message.c_str(), info.functionName_.c_str(),executionInMs });
+			//} };
 
 			vertexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, vertices_.GetSizeInBytes());
 			vertexStagingBuffer_->Fill(vertices_.GetData()/*, vertices_.GetSizeInBytes()*/);
