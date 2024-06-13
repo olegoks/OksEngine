@@ -22,18 +22,13 @@ namespace OksEngine {
 			auto& context = GetContext();
 			auto config = context.GetConfig();
 
-			auto ecsWorld = context.GetECSWorld();
-			ecsWorld->RegisterSystem<RenderSystem>();
-
-			api_ = RAL::CreateAPI();
-
 			auto resourceSubsystem = context.GetResourceSubsystem();
 
 			const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleVert.spv");
 			const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleFrag.spv");
-			using namespace std::chrono_literals;
-			OS::LogInfo("Engine/RenderSubsystem/", "Tasks to load resources sent.");
-			std::this_thread::sleep_for(1s);
+
+			auto ecsWorld = context.GetECSWorld();
+			ecsWorld->RegisterSystem<RenderSystem>();
 
 			auto uiSubsystem = context.GetUISubsystem();
 			auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UI::Render::Vulkan);
@@ -50,6 +45,24 @@ namespace OksEngine {
 					"Start size in config and got from ui system are different.");
 				renderSurface.uiSubsystem_ = RAL::UISubsystem::GLFW;
 			}
+
+			api_ = RAL::CreateAPI();
+			RAL::Camera::CreateInfo cameraCreateInfo;
+			{
+				cameraCreateInfo.position_ = Math::Vector3f{ 1.4f, 0.f, 0.f };
+				cameraCreateInfo.direction_ = Math::Vector3f{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
+				cameraCreateInfo.size_ = windowInfo.size_;
+			}
+
+			std::shared_ptr<RAL::Camera> camera = api_->CreateCamera(cameraCreateInfo);
+
+			RAL::Light::CreateInfo lightCreateInfo;
+			{
+				lightCreateInfo.intensity_ = 1.f;
+				lightCreateInfo.position_ = { 0.f, 0.f, 0.f };
+			}
+			std::shared_ptr<RAL::Light> light = api_->CreateLight(lightCreateInfo);
+
 			ResourceSubsystem::Resource vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
 			ResourceSubsystem::Resource fragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
 
@@ -61,23 +74,9 @@ namespace OksEngine {
 				fragmentShader,
 				renderSurface
 			};
+
 			driver_ = api_->CreateDriver(driverCreateInfo);
-			RAL::Camera::CreateInfo cameraCreateInfo;
-			{
-				cameraCreateInfo.position_ = Math::Vector3f{ 1.4f, 0.f, 0.f };
-				cameraCreateInfo.direction_ = Math::Vector3f{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
-				cameraCreateInfo.size_ = windowInfo.size_;
-			}
-
-			std::shared_ptr<RAL::Camera> camera = api_->CreateCamera(cameraCreateInfo);
 			driver_->SetCamera(camera);
-
-			RAL::Light::CreateInfo lightCreateInfo;
-			{
-				lightCreateInfo.intensity_ = 1.f;
-				lightCreateInfo.position_ = { 0.f, 0.f, 0.f };
-			}
-			std::shared_ptr<RAL::Light> light = api_->CreateLight(lightCreateInfo);
 			driver_->AddLight(light);
 		}
 
@@ -90,6 +89,8 @@ namespace OksEngine {
 				RAL::Vertex3fc coloredVertex = {box.GetVertices()[i], color };
 				coloredBox.Add(coloredVertex);
 			}
+
+
 
 			driver_->DrawIndexed(
 				(RAL::Vertex3fc*)coloredBox.GetData(),
