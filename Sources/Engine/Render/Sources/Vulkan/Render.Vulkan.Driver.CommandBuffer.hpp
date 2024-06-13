@@ -68,14 +68,15 @@ namespace Render::Vulkan {
 				VK_SUBPASS_CONTENTS_INLINE);
 		}
 
-		void BindPipeline(std::shared_ptr<Pipeline<Vertex3fnñt>> pipeline) noexcept {
+		template<class PipelineType>
+		void BindPipeline(std::shared_ptr<PipelineType> pipeline) noexcept {
 			vkCmdBindPipeline(
 				GetNative(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
 				pipeline->GetNative());
 		}
 
-		void BindBuffer(std::shared_ptr<VertexBuffer> vertexBuffer) noexcept {
+		void BindBuffer(std::shared_ptr<VertexBuffer<Vertex3fc>> vertexBuffer) noexcept {
 			VkDeviceSize offsets[] = { 0 };
 			const VkBuffer bufferHandle = vertexBuffer->GetNative();
 			vkCmdBindVertexBuffers(
@@ -94,7 +95,8 @@ namespace Render::Vulkan {
 				VK_INDEX_TYPE_UINT16);
 		}
 
-		void BindDescriptorSet(std::shared_ptr<Pipeline<Vertex3fnñt>> pipeline, VkDescriptorSet descriptorSet) noexcept {
+		template<class PipelineType>
+		void BindDescriptorSet(std::shared_ptr<PipelineType> pipeline, VkDescriptorSet descriptorSet) noexcept {
 			vkCmdBindDescriptorSets(
 				GetNative(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS, // Bind to graphics pipeline(not computation pipeline)

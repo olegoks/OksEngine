@@ -24,8 +24,8 @@ namespace OksEngine {
 			{
 				windowCreateInfo.title_ = config->GetValueAs<std::string>("UI.Window.Title");
 				windowCreateInfo.windowSize_ = {
-					config->GetValueAs<int>("UI.Window.Width"),
-					config->GetValueAs<int>("UI.Window.Height")
+					config->GetValueAs<int>("UI.Window.Size.StartWidth"),
+					config->GetValueAs<int>("UI.Window.Size.StartHeight")
 				};
 			}
 			window_ = api_->CreateWindow(windowCreateInfo);

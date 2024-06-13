@@ -16,8 +16,7 @@ namespace RAL {
 			Math::Vector3f direction_{ 1.f, 0.f, 0.f };
 			float zNear_ = 0.1f;
 			float zFar_ = 10.f;
-			Common::Size width_ = 1920;
-			Common::Size height_ = 1080;
+			Math::Vector2u size_{ 0, 0 };
 		};
 
 		Camera(const CreateInfo& createInfo) noexcept :

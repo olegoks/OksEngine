@@ -20,6 +20,7 @@ namespace OksEngine {
 		RenderSubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::Render, createInfo.context_ } {
 
 			auto& context = GetContext();
+			auto config = context.GetConfig();
 
 			auto ecsWorld = context.GetECSWorld();
 			ecsWorld->RegisterSystem<RenderSystem>();
@@ -47,6 +48,11 @@ namespace OksEngine {
 				renderSurface.param1_ = windowInfo.param1_;
 				renderSurface.param2_ = windowInfo.param2_;
 				renderSurface.param3_ = windowInfo.param3_;
+				renderSurface.size_ = windowInfo.size_;
+				OS::AssertMessage(renderSurface.size_.GetX() == config->GetValueAs<Common::Size>("UI.Window.Size.StartWidth"),
+					"Start size in config and got from ui system are different.");
+				OS::AssertMessage(renderSurface.size_.GetY() == config->GetValueAs<Common::Size>("UI.Window.Size.StartHeight"),
+					"Start size in config and got from ui system are different.");
 				renderSurface.uiSubsystem_ = RAL::UISubsystem::GLFW;
 			}
 
@@ -60,9 +66,7 @@ namespace OksEngine {
 			{
 				cameraCreateInfo.position_ = Math::Vector3f{ 1.4f, 0.f, 0.f };
 				cameraCreateInfo.direction_ = Math::Vector3f{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
-				
-				cameraCreateInfo.width_ = context.GetConfig()->GetValueAs<int>("UI.Window.Width");
-				cameraCreateInfo.height_ = context.GetConfig()->GetValueAs<int>("UI.Window.Height");
+				cameraCreateInfo.size_ = windowInfo.size_;
 			}
 
 			std::shared_ptr<RAL::Camera> camera = api_->CreateCamera(cameraCreateInfo);

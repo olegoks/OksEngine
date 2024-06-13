@@ -314,4 +314,6 @@ namespace Render::Vulkan {
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<PipelineLayout> pipelineLayout_ = VK_NULL_HANDLE;
 	};
+
 }
+
