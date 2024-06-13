@@ -425,7 +425,6 @@ namespace Render::Vulkan {
 					depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 				}
 				depthImage_ = std::make_shared<Image>(depthImageCreateInfo);
-				depthImageView_ = CreateImageViewByImage(logicDevice_, depthImage_, VK_IMAGE_ASPECT_DEPTH_BIT);
 
 				VkMemoryRequirements depthImageMemoryRequirements = depthImage_->GetMemoryRequirements();
 
@@ -438,6 +437,9 @@ namespace Render::Vulkan {
 				depthImageMemory_ = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
 
 				depthImage_->BindMemory(depthImageMemory_);
+
+				depthImageView_ = CreateImageViewByImage(logicDevice_, depthImage_, VK_IMAGE_ASPECT_DEPTH_BIT);
+
 			}
 
 			descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
@@ -660,7 +662,7 @@ namespace Render::Vulkan {
 
 		void UpdateUniformBuffers(uint32_t currentImage) {
 			Common::DiscardUnusedParameter(currentImage);
-			Math::Vector3f vector{ 0.f, 1.f, 0.f };
+
 			UniformBufferObject ubo{};
 
 			ubo.lightIntensity_ = light_->GetIntensity();
@@ -671,6 +673,7 @@ namespace Render::Vulkan {
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
+			Math::Vector3f vector{ 1.f, 1.f, 0.f };
 			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });Math::Matrix4x4f::GetIdentity();*/ Math::Matrix4x4f::GetRotate(time * 90.f, vector);
 			Math::Vector3f position = camera_->GetPosition();
 			Math::Vector3f direction = camera_->GetDirection();
@@ -743,11 +746,11 @@ namespace Render::Vulkan {
 			const RAL::Index16* indices,
 			Common::Size indiciesNumber) override {
 
-			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-				const RAL::Vertex3fc& vertex = vertices[vertexIndex];
-				vertices_.Add({ vertex.position_, /*RAL::Vector3f{ 0, 0, 0 },*/ vertex.color_, /*Math::Vector2f{ 0, 0 } */});
-			}
-
+			//for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+			//	const RAL::Vertex3fc& vertex = vertices[vertexIndex];
+			//	vertices_.Add({ vertex.position_, /*RAL::Vector3f{ 0, 0, 0 },*/ vertex.color_, /*Math::Vector2f{ 0, 0 } */});
+			//}
+			vertices_.Add(vertices, verticesNumber);
 			indices_.Add(indices, indiciesNumber, verticesNumber);
 
 		}
