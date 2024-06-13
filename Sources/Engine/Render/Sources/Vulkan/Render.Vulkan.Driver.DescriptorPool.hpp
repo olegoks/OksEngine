@@ -13,7 +13,7 @@
 
 namespace Render::Vulkan {
 
-	class DescriptorPool {
+	class DescriptorPool : public Abstraction<VkDescriptorPool> {
 	public:
 		DescriptorPool(std::shared_ptr<LogicDevice> logicDevice, Common::Size size) {
 			VkDescriptorPoolSize poolSize{};
@@ -28,17 +28,16 @@ namespace Render::Vulkan {
 				poolInfo.pPoolSizes = &poolSize;
 				poolInfo.maxSets = static_cast<uint32_t>(size);
 			}
-			if (vkCreateDescriptorPool(logicDevice->GetHandle(), &poolInfo, nullptr, &descriptorPool_) != VK_SUCCESS) {
+			VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+			if (vkCreateDescriptorPool(logicDevice->GetHandle(), &poolInfo, nullptr, &descriptorPool) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create descriptor pool!");
 			}
+			SetHandle(descriptorPool);
 		}
 		~DescriptorPool() {
-			vkDestroyDescriptorPool(logicDevice_->GetHandle(), descriptorPool_, nullptr);
+			vkDestroyDescriptorPool(logicDevice_->GetHandle(), GetHandle(), nullptr);
 		}
-		VkDescriptorPool GetNative() const { return descriptorPool_; }
-
 	private:
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-		VkDescriptorPool descriptorPool_;
 	};
 }

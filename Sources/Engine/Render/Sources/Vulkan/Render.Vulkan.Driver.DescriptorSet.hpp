@@ -31,7 +31,7 @@ namespace Render::Vulkan {
 
 			Allocate(
 				createInfo.logicDevice_->GetHandle(),
-				createInfo.descriptorPool_->GetNative(),
+				createInfo.descriptorPool_->GetHandle(),
 				createInfo.descriptorSetLayout_->GetNative());
 
 			Update(

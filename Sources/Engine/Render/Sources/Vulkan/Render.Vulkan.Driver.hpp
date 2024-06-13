@@ -33,6 +33,8 @@
 #include <Render.Vulkan.Driver.ImageView.hpp>
 #include <Render.Vulkan.Driver.DeviceMemory.hpp>
 
+#include <imgui_impl_vulkan.h>
+
 namespace Render::Vulkan {
 
 	class Driver : public RAL::Driver {
@@ -528,7 +530,26 @@ namespace Render::Vulkan {
 				}
 				frameContexts_.push_back(frameContext);
 			}
+			ImGui_ImplVulkan_InitInfo imguiInitInfo = {};
+			{
+				imguiInitInfo.Instance = *instance_;
+				imguiInitInfo.PhysicalDevice = *physicalDevice_;
+				imguiInitInfo.Device = *logicDevice_;
+				imguiInitInfo.QueueFamily = graphicsQueueFamily_.index_;
+				imguiInitInfo.Queue = logicDevice_->GetGraphicsQueue();
+				imguiInitInfo.PipelineCache = VK_NULL_HANDLE;
+				imguiInitInfo.DescriptorPool = *descriptorPool_;
+				imguiInitInfo.Allocator = nullptr;
+				imguiInitInfo.MinImageCount = 1;
+				imguiInitInfo.ImageCount = swapChain_->GetImagesNumber();
+				imguiInitInfo.CheckVkResultFn = ImGuiCheckVulkanErrorCallback;
+			}
+
 			OS::LogInfo("/render/vulkan/driver/", "Vulkan driver initialized successfuly.");
+		}
+
+		static void ImGuiCheckVulkanErrorCallback(VkResult result) {
+			VkCall(result, "ImGui found an error.");
 		}
 
 		void DataCopy(std::shared_ptr<Buffer> bufferFrom, std::shared_ptr<Buffer> bufferTo, std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<CommandPool> commandPool) {
