@@ -8,6 +8,7 @@
 #include <ECS.hpp>
 #include <Components/OksEngine.Behaviour.hpp>
 #include <Components/OksEngine.Position.hpp>
+#include <Components/OksEngine.RenderableGeometry.hpp>
 
 #include <OksEngine.CommandLineParameters.hpp>
 
@@ -22,6 +23,10 @@ namespace OksEngine {
 
 			
 
+		}
+
+		void AddDebugRenderableGeometry() {
+			world_->CreateComponent<DebugRenderableGeometry>(GetId());
 		}
 
 		void AddBehaviour(

@@ -62,6 +62,7 @@ namespace OksEngine {
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) const override {
 			Behaviour* behaviour = world->GetComponent<Behaviour>(entityId);
+			if (behaviour == nullptr) return;
 			behaviour->CallUpdater();
 
 		}
