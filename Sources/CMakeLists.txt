@@ -31,6 +31,7 @@ target_sources(OksEngineGame
 
 target_link_libraries(OksEngineGame
     PRIVATE
+
         OksEngine
     )   
 

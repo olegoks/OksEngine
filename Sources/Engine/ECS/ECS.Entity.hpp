@@ -31,7 +31,7 @@ namespace ECS {
 			}
 
 			Id operator++(int value) noexcept {
-				return value++;
+				return ++value_;
 			}
 
 			struct Hash {

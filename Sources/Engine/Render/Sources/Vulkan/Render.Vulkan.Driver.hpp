@@ -528,7 +528,7 @@ namespace Render::Vulkan {
 				}
 				frameContexts_.push_back(frameContext);
 			}
-
+			OS::LogInfo("/render/vulkan/driver/", "Vulkan driver initialized successfuly.");
 		}
 
 		void DataCopy(std::shared_ptr<Buffer> bufferFrom, std::shared_ptr<Buffer> bufferTo, std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<CommandPool> commandPool) {
@@ -639,6 +639,8 @@ namespace Render::Vulkan {
 				commandBuffers_.push_back(commandBuffer);
 			}
 
+
+
 		}
 
 		void Render() override {
@@ -744,14 +746,10 @@ namespace Render::Vulkan {
 			const RAL::Vertex3fc* vertices,
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
-			Common::Size indiciesNumber) override {
+			Common::Size indicesNumber) override {
 
-			//for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-			//	const RAL::Vertex3fc& vertex = vertices[vertexIndex];
-			//	vertices_.Add({ vertex.position_, /*RAL::Vector3f{ 0, 0, 0 },*/ vertex.color_, /*Math::Vector2f{ 0, 0 } */});
-			//}
 			vertices_.Add(vertices, verticesNumber);
-			indices_.Add(indices, indiciesNumber, verticesNumber);
+			indices_.Add(indices, indicesNumber, verticesNumber);
 
 		}
 
@@ -759,14 +757,14 @@ namespace Render::Vulkan {
 			const RAL::Vertex3f* vertices,
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
-			Common::Size indiciesNumber,
+			Common::Size indicesNumber,
 			const RAL::Color& color) override {
 
 			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-				vertices_.Add({ vertices[vertexIndex], /*RAL::Vector3f{ 0, 0, 0 },*/ color, /*Math::Vector2f{ 0, 0 }*/ });
+				vertices_.Add({ vertices[vertexIndex], color, });
 			}
 
-			indices_.Add(indices, indiciesNumber, verticesNumber);
+			indices_.Add(indices, indicesNumber, verticesNumber);
 
 		}
 
@@ -859,6 +857,7 @@ namespace Render::Vulkan {
 		
 		std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
 		std::shared_ptr<VertexBuffer<Vertex3fc>> vertexBuffer_ = nullptr;
+
 		std::shared_ptr<StagingBuffer> indexStagingBuffer_ = nullptr;
 		std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;
 		std::vector<std::shared_ptr<UniformBuffer>> uniformBuffers_;

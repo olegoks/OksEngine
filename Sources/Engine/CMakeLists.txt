@@ -48,6 +48,7 @@ target_sources(OksEngine
 
 target_link_libraries(OksEngine
     PUBLIC
+        Geometry
         ECS
         LuaLayer
         Render
