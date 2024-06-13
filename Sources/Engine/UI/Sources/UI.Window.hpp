@@ -8,22 +8,11 @@
 #include <string>
 #include <functional>
 #include <algorithm>
-
-
 #include <Math.hpp>
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
-
-//#include <RAL;
-//#include <Render.Vulkan.Common.hpp>
-//
-//#include <UIAL;
-//#include <Common.Types.hpp>
-//#include <Math.Vector.hpp>
-//#include <OS.Logger;
-//#include <OS.Assert;
-
 #include <UI.hpp>
+#include <imgui.h>
 
 namespace UI {
 
@@ -61,6 +50,20 @@ namespace UI {
 				"Vulkan",
 				nullptr,
 				nullptr);
+
+
+
+			// Setup Dear ImGui context
+			IMGUI_CHECKVERSION();
+			ImGui::CreateContext();
+			ImGuiIO& io = ImGui::GetIO(); (void)io;
+			//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+			//io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+			// Setup Dear ImGui style
+			ImGui::StyleColorsDark();
+			//ImGui::StyleColorsClassic();
+
 
 
 			OS::AssertMessage(createdWindow != nullptr, "GLFW Windows was not created.");

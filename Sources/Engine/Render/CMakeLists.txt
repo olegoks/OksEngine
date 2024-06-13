@@ -115,6 +115,9 @@ find_package(Vulkan REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(VulkanUtilityLibraries CONFIG REQUIRED)
 find_package(glslang CONFIG REQUIRED)
+      
+find_package(imgui CONFIG REQUIRED)
+target_link_libraries(Render PRIVATE imgui::imgui)
 
 target_link_libraries(Render
     PUBLIC
