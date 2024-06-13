@@ -12,7 +12,7 @@
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
 #include <UI.hpp>
-#include <imgui.h>
+#include <imgui_impl_glfw.h>
 
 namespace UI {
 
@@ -141,6 +141,10 @@ namespace UI {
 		void ProcessInput() {
 			if (!glfwWindowShouldClose(window_)) {
 				glfwPollEvents();
+				ImGui_ImplGlfw_NewFrame();
+				ImGui::NewFrame();
+				ImGui::ShowDemoWindow();
+				ImGui::Render();
 			}
 		}
 

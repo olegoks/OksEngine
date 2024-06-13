@@ -446,6 +446,7 @@ namespace Render::Vulkan {
 
 			descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
 			const Common::Size descriptorPoolSize = swapChain_->GetImages().size();
+
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
 			Pipeline<Vertex3fc>::CreateInfo pipelineCreateInfo;
@@ -537,14 +538,16 @@ namespace Render::Vulkan {
 				imguiInitInfo.Device = *logicDevice_;
 				imguiInitInfo.QueueFamily = graphicsQueueFamily_.index_;
 				imguiInitInfo.Queue = logicDevice_->GetGraphicsQueue();
+
 				imguiInitInfo.PipelineCache = VK_NULL_HANDLE;
 				imguiInitInfo.DescriptorPool = *descriptorPool_;
 				imguiInitInfo.Allocator = nullptr;
 				imguiInitInfo.MinImageCount = 1;
 				imguiInitInfo.ImageCount = swapChain_->GetImagesNumber();
+				imguiInitInfo.RenderPass = pipeline_->GetRenderPass()->GetNative();
 				imguiInitInfo.CheckVkResultFn = ImGuiCheckVulkanErrorCallback;
 			}
-
+			ImGui_ImplVulkan_Init(&imguiInitInfo);
 			OS::LogInfo("/render/vulkan/driver/", "Vulkan driver initialized successfuly.");
 		}
 
@@ -606,6 +609,8 @@ namespace Render::Vulkan {
 
 		void StartRender() override {
 
+
+			ImGui_ImplVulkan_NewFrame();
 			//OS::Profiler profiler{ [](const OS:: Profiler::Info& info) {
 			//	
 			//	const Common::Size executionInMs = info.executionTime_.GetValue() / 1'000'000;
