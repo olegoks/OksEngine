@@ -35,7 +35,7 @@ namespace Geometry {
         using const_iterator = const iterator;
 
         iterator begin() noexcept { return shapes_.begin(); }
-        iterator end() noexcept { return shapes_.end(); };
+        iterator end() noexcept { return shapes_.end(); }
 
         const_iterator begin() const noexcept { return const_cast<Model*>(this)->begin(); }
         const_iterator end() const noexcept { return const_cast<Model*>(this)->end(); }

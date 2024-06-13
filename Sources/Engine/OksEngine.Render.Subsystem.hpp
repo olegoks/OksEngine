@@ -34,11 +34,6 @@ namespace OksEngine {
 			using namespace std::chrono_literals;
 			OS::LogInfo("Engine/RenderSubsystem/", "Tasks to load resources sent.");
 			std::this_thread::sleep_for(1s);
-			ResourceSubsystem::Resource vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
-			ResourceSubsystem::Resource fragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
-
-			RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
-			RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
 
 			auto uiSubsystem = context.GetUISubsystem();
 			auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UI::Render::Vulkan);
@@ -55,6 +50,11 @@ namespace OksEngine {
 					"Start size in config and got from ui system are different.");
 				renderSurface.uiSubsystem_ = RAL::UISubsystem::GLFW;
 			}
+			ResourceSubsystem::Resource vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
+			ResourceSubsystem::Resource fragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
+
+			RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
+			RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
 
 			RAL::Driver::CreateInfo driverCreateInfo{
 				vertexShader,
