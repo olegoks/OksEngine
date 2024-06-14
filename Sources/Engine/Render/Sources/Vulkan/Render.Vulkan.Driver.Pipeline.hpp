@@ -191,8 +191,8 @@ namespace Render::Vulkan {
 				}
 				pipelineInfo.pColorBlendState = &colorBlending;
 				pipelineInfo.pDynamicState = nullptr; // Optional
-				pipelineInfo.layout = pipelineLayout_->GetNative();
-				pipelineInfo.renderPass = renderPass_->GetNative();
+				pipelineInfo.layout = *pipelineLayout_;
+				pipelineInfo.renderPass = *renderPass_;
 				pipelineInfo.subpass = 0;
 				pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 				pipelineInfo.basePipelineIndex = -1; 

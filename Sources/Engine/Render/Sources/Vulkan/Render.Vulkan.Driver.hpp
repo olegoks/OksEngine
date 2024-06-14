@@ -464,7 +464,7 @@ namespace Render::Vulkan {
 			pipeline_ = std::make_shared<Pipeline<Vertex3fc>>(pipelineCreateInfo);
 
 			{
-				VkRenderPass renderPass = pipeline_->GetRenderPass()->GetNative();
+				VkRenderPass renderPass = *pipeline_->GetRenderPass();
 				VkExtent2D extent = swapChain_->GetExtent();
 				for (const auto& imageView : swapChain_->GetImageViews()) {
 					FrameBuffer::CreateInfo createInfo;
@@ -622,7 +622,7 @@ namespace Render::Vulkan {
 					depthBufferInfo.clearValue_.depthStencil = { 1.f, 0 };
 				}
 				commandBuffer->BeginRenderPass(
-					pipeline_->GetRenderPass()->GetNative(),
+					*pipeline_->GetRenderPass(),
 					frameBuffers_[i].GetNative(),
 					swapChain_->GetExtent(),
 					clearValue,

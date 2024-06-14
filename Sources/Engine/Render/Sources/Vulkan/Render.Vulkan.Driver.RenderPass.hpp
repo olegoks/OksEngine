@@ -10,7 +10,7 @@
 namespace Render::Vulkan {
 
 
-	class RenderPass {
+	class RenderPass : public Abstraction<VkRenderPass> {
 	public:
 
 		struct CreateInfo {
@@ -20,7 +20,7 @@ namespace Render::Vulkan {
 				bool enable_ = false;
 				VkFormat depthStencilFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
 			} depthBufferInfo_;
-			
+
 		};
 
 		struct Subpass {
@@ -67,7 +67,7 @@ namespace Render::Vulkan {
 					colorAttachmentRef_.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 				}
 
-				if(createInfo.depthBufferInfo_.enable_){
+				if (createInfo.depthBufferInfo_.enable_) {
 					depthBufferAttachment_.format = VK_FORMAT_D32_SFLOAT;//VK_FORMAT_MAX_ENUM;//depthStencilFormat;
 					depthBufferAttachment_.samples = VK_SAMPLE_COUNT_1_BIT;
 					depthBufferAttachment_.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
@@ -96,7 +96,8 @@ namespace Render::Vulkan {
 					dependency_.srcAccessMask = 0;
 					dependency_.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 					dependency_.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-				} else {
+				}
+				else {
 					dependency_.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT /*| VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT*/;
 					dependency_.srcAccessMask = 0;
 					dependency_.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT/* | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT*/;
@@ -129,8 +130,7 @@ namespace Render::Vulkan {
 				OS::AssertMessage(createInfo.depthBufferInfo_.depthStencilFormat_ != VK_FORMAT_UNDEFINED, "Format for depth stencil buffer was not set.");
 			}
 
-			VkRenderPass renderPass;
-			{	
+			{
 				Subpass::CreateInfo subpassCreateInfo{ };
 				{
 					subpassCreateInfo.colorAttachmentFormat_ = createInfo.swapchain_->GetFormat().format;
@@ -157,41 +157,28 @@ namespace Render::Vulkan {
 					renderPassInfo.dependencyCount = 1;
 					renderPassInfo.pDependencies = &subpass.dependency_;
 				}
+				VkRenderPass renderPass = VK_NULL_HANDLE;
 				[[maybe_unused]]
 				const VkResult result = vkCreateRenderPass(createInfo.logicDevice_->GetHandle(), &renderPassInfo, nullptr, &renderPass);
 				OS::AssertMessage(result == VK_SUCCESS, "");
+				SetHandle(renderPass);
 			}
-			SetNative(renderPass);
-		}
 
-		[[nodiscard]]
-		const VkRenderPass& GetNative() const noexcept {
-			return renderPass_;
 		}
 
 		~RenderPass() noexcept {
-			
 			Destroy();
-
 		}
 
 	private:
 
 		void Destroy() noexcept {
 			OS::AssertMessage(logicDevice_ != nullptr, "Logic device is not initialized.");
-			OS::AssertMessage(GetNative() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkRenderPass.");
-			vkDestroyRenderPass(logicDevice_->GetHandle(), renderPass_, nullptr);
-		}
-
-		void SetNative(VkRenderPass renderPass) noexcept {
-			OS::Assert(
-				(renderPass != VK_NULL_HANDLE) && (GetNative() == VK_NULL_HANDLE) ||
-				((renderPass == VK_NULL_HANDLE) && (GetNative() != VK_NULL_HANDLE)));
-			renderPass_ = renderPass;
+			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkRenderPass.");
+			vkDestroyRenderPass(logicDevice_->GetHandle(), GetHandle(), nullptr);
 		}
 
 	private:
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-		VkRenderPass renderPass_ = VK_NULL_HANDLE;
 	};
 }

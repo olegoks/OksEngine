@@ -100,7 +100,7 @@ namespace Render::Vulkan {
 			vkCmdBindDescriptorSets(
 				GetNative(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS, // Bind to graphics pipeline(not computation pipeline)
-				pipeline->GetLayout()->GetNative(),
+				pipeline->GetLayout()->GetHandle(),
 				0,
 				1,
 				&descriptorSet,
