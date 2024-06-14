@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/C++/RVO(return value optimization).md",
+                "file": "Work/OBS save .mp4 files.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/C++/RVO(return value optimization).md",
+                "file": "Work/OBS save .mp4 files.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/C++/RVO(return value optimization).md",
+                "file": "Work/OBS save .mp4 files.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/C++/RVO(return value optimization).md"
+                "file": "Work/OBS save .mp4 files.md"
               }
             }
           }
@@ -148,8 +148,14 @@
   },
   "active": "f6b89e774ae8a967",
   "lastOpenFiles": [
-    "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
+    "Attachments/Pasted image 20240614143058.png",
+    "Attachments/Pasted image 20240614143033.png",
+    "Attachments/Pasted image 20240614143020.png",
+    "Attachments/Pasted image 20240614142952.png",
     "Work/C++/RVO(return value optimization).md",
+    "Work/OBS save .mp4 files.md",
+    "Work/OBS",
+    "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
     "Work/Network",
     "Work/Programming/Git, GitHub/Работа со стешем.md",
     "Work/C++/VisualStudio/Breakpoint для определенного потока.md",
@@ -179,21 +185,15 @@
     "Work/C++/Многопоточность/Термины/Изменение порядка инструкций.md",
     "Work/C++/Многопоточность/Термины/Состояние гонки(race condition).md",
     "Attachments/Pasted image 20240603193533.png",
-    "Work/C++/Многопоточность/Конструкции/Блокировка с двойной проверкой (Double-Checked Locking).md",
     "Attachments/Pasted image 20240603192841.png",
     "Attachments/Pasted image 20240603192453.png",
     "Attachments/Pasted image 20240603192349.png",
-    "Attachments/Pasted image 20240603190649.png",
-    "Work/C++/Многопоточность/Термины/Эксклюзивный доступ к памяти.md",
-    "Attachments/Pasted image 20240603182948.png",
-    "Attachments/Pasted image 20240603182940.png",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
     "Work/C++/Многопоточность/Топики",
     "Attachments/learning_modern_3d_graphics_programming.pdf",
     "Attachments/Game physics cookbook.pdf",
     "Attachments/CPlusPlusNotesForProfessionals.pdf",
-    "Attachments/112970_824f8da89600da8be9f17c3db02cc722.pdf",
     "Untitled.canvas"
   ]
 }
