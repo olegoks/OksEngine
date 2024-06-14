@@ -21,6 +21,13 @@ namespace Render::Vulkan {
 	class Pipeline : public Abstraction<VkPipeline> {
 	public:
 
+		struct DepthTestData {
+			std::shared_ptr<Image> image_ = nullptr;
+			std::shared_ptr<ImageView> imageView_ = nullptr;
+			std::shared_ptr<DeviceMemory> imageMemory_ = nullptr;
+			VkPipelineDepthStencilStateCreateInfo depthStencilState_{ 0 };
+		};
+
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
@@ -34,30 +41,45 @@ namespace Render::Vulkan {
 		Pipeline(const CreateInfo& createInfo) : logicDevice_{ createInfo.logicDevice_ } {
 
 			if (createInfo.depthTest_) {
-				Image::CreateInfo depthImageCreateInfo;
+
+				auto depthTestData_ = std::make_shared<DepthTestData>();
 				{
-					depthImageCreateInfo.logicDevice_ = logicDevice_;
-					depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
-					depthImageCreateInfo.extent_ = createInfo.swapChain_->GetExtent();
-					depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-					depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+					Image::CreateInfo depthImageCreateInfo;
+					{
+						depthImageCreateInfo.logicDevice_ = logicDevice_;
+						depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
+						depthImageCreateInfo.extent_ = createInfo.swapChain_->GetExtent();
+						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+						depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+					}
+					depthTestData_->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
+					//VkMemoryRequirements depthImageMemoryRequirements = depthTestData_->image_->GetMemoryRequirements();
+
+
+					//DeviceMemory::CreateInfo deviceMemoryCreateInfo;
+					//{
+					//	deviceMemoryCreateInfo.logicDevice_ = logicDevice_;
+					//	deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
+					//	deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+					//}
+					//depthImageMemory_ = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
+					depthTestData_->imageView_ = CreateImageViewByImage(logicDevice_, depthTestData_->image_, VK_IMAGE_ASPECT_DEPTH_BIT);
 				}
-				depthImage_ = std::make_shared<Image>(depthImageCreateInfo);
-
-				VkMemoryRequirements depthImageMemoryRequirements = depthImage_->GetMemoryRequirements();
-
-				DeviceMemory::CreateInfo deviceMemoryCreateInfo;
+				
+				VkPipelineDepthStencilStateCreateInfo depthStencil{};
 				{
-					deviceMemoryCreateInfo.logicDevice_ = logicDevice_;
-					deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
-					deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+					depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
+					depthStencil.depthTestEnable = VK_TRUE;
+					depthStencil.depthWriteEnable = VK_TRUE;
+					depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+					depthStencil.depthBoundsTestEnable = VK_FALSE;
+					depthStencil.minDepthBounds = 0.0f;
+					depthStencil.maxDepthBounds = 1.0f;
+					depthStencil.stencilTestEnable = VK_FALSE;
+					depthStencil.front = {};
+					depthStencil.back = {};
 				}
-				depthImageMemory_ = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
-
-				depthImage_->BindMemory(depthImageMemory_);
-
-				depthImageView_ = CreateImageViewByImage(logicDevice_, depthImage_, VK_IMAGE_ASPECT_DEPTH_BIT);
-
+				depthTestData_->depthStencilState_ = depthStencil;
 			}
 
 			VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
@@ -173,30 +195,17 @@ namespace Render::Vulkan {
 				renderPassCreateInfo.logicDevice_ = createInfo.logicDevice_;
 				renderPassCreateInfo.swapchain_ = createInfo.swapChain_;
 				renderPassCreateInfo.depthTest_ = createInfo.depthTest_;
-				renderPassCreateInfo.depthBufferInfo_.depthStencilFormat_ = depthImage_->GetFormat();//VK_FORMAT_MAX_ENUM;//createInfo.depthBufferFeature_->GetDepthImageFormat();
+				renderPassCreateInfo.depthBufferInfo_.depthStencilFormat_ = depthTestData_->image_->GetFormat();//VK_FORMAT_MAX_ENUM;//createInfo.depthBufferFeature_->GetDepthImageFormat();
 				renderPass_ = std::make_shared<RenderPass>(renderPassCreateInfo);
 			}
 
 			PipelineLayout::CreateInfo pipelineLayoutCreateInfo;
 			{
-				pipelineLayoutCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				pipelineLayoutCreateInfo.logicDevice_ = createInfo.logicDevice_;	
 				pipelineLayoutCreateInfo.descriptorSetLayout_ = createInfo.descriptorSetLayout_;
 				pipelineLayout_ = std::make_shared<PipelineLayout>(pipelineLayoutCreateInfo);
 			}
 
-			VkPipelineDepthStencilStateCreateInfo depthStencil{};
-			{
-				depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-				depthStencil.depthTestEnable = VK_TRUE;
-				depthStencil.depthWriteEnable = VK_TRUE;
-				depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
-				depthStencil.depthBoundsTestEnable = VK_FALSE;
-				depthStencil.minDepthBounds = 0.0f;
-				depthStencil.maxDepthBounds = 1.0f;
-				depthStencil.stencilTestEnable = VK_FALSE;
-				depthStencil.front = {};
-				depthStencil.back = {};
-			}
 
 			VkGraphicsPipelineCreateInfo pipelineInfo{};
 			{
@@ -208,7 +217,7 @@ namespace Render::Vulkan {
 				pipelineInfo.pViewportState = &viewportState;
 				pipelineInfo.pRasterizationState = &rasterizer;
 				pipelineInfo.pMultisampleState = &multisampling;
-				pipelineInfo.pDepthStencilState = (createInfo.depthTest_) ? (&depthStencil) : (nullptr);
+				pipelineInfo.pDepthStencilState = (depthTestData_) ? (&depthTestData_->depthStencilState_) : (nullptr);
 				pipelineInfo.pColorBlendState = &colorBlending;
 				pipelineInfo.pDynamicState = nullptr; // Optional
 				pipelineInfo.layout = *pipelineLayout_;
@@ -329,9 +338,7 @@ namespace Render::Vulkan {
 
 	private:
 
-		std::shared_ptr<Image> depthImage_ = nullptr;
-		std::shared_ptr<ImageView> depthImageView_ = nullptr;
-		std::shared_ptr<DeviceMemory> depthImageMemory_ = nullptr;
+		std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
 
 		std::shared_ptr<RenderPass> renderPass_ = nullptr;
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
