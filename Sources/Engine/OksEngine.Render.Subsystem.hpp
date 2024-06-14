@@ -97,6 +97,7 @@ namespace OksEngine {
 				coloredBox.GetVerticesNumber(),
 				box.GetIndices().GetData(),
 				box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
+
 			driver_->StartRender();
 			driver_->Render();
 			driver_->EndRender();

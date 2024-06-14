@@ -59,7 +59,7 @@ namespace Render::Vulkan {
 				renderPassInfo.framebuffer = frameBuffer;
 				renderPassInfo.renderArea.offset = { 0, 0 };
 				renderPassInfo.renderArea.extent = extent;
-				renderPassInfo.clearValueCount = clearValues.size();
+				renderPassInfo.clearValueCount = static_cast<Common::UInt32>(clearValues.size());
 				renderPassInfo.pClearValues = clearValues.data();
 			}
 			vkCmdBeginRenderPass(
@@ -73,7 +73,7 @@ namespace Render::Vulkan {
 			vkCmdBindPipeline(
 				GetNative(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
-				pipeline->GetNative());
+				pipeline->GetHandle());
 		}
 
 		void BindBuffer(std::shared_ptr<VertexBuffer<Vertex3fc>> vertexBuffer) noexcept {

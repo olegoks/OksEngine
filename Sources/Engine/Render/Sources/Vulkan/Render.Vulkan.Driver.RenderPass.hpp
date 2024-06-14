@@ -16,8 +16,8 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<SwapChain> swapchain_ = nullptr;
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			bool depthTest_ = true;
 			struct DepthBufferInfo {
-				bool enable_ = false;
 				VkFormat depthStencilFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
 			} depthBufferInfo_;
 
@@ -126,7 +126,7 @@ namespace Render::Vulkan {
 
 		RenderPass(const CreateInfo& createInfo) noexcept : logicDevice_{ createInfo.logicDevice_ } {
 
-			if (createInfo.depthBufferInfo_.enable_) {
+			if (createInfo.depthTest_) {
 				OS::AssertMessage(createInfo.depthBufferInfo_.depthStencilFormat_ != VK_FORMAT_UNDEFINED, "Format for depth stencil buffer was not set.");
 			}
 
@@ -134,7 +134,7 @@ namespace Render::Vulkan {
 				Subpass::CreateInfo subpassCreateInfo{ };
 				{
 					subpassCreateInfo.colorAttachmentFormat_ = createInfo.swapchain_->GetFormat().format;
-					subpassCreateInfo.depthBufferInfo_.enable_ = createInfo.depthBufferInfo_.enable_;
+					subpassCreateInfo.depthBufferInfo_.enable_ = createInfo.depthTest_;
 					subpassCreateInfo.depthBufferInfo_.depthStencilFormat_ = createInfo.depthBufferInfo_.depthStencilFormat_;
 				}
 				Subpass subpass{ subpassCreateInfo };
@@ -142,7 +142,7 @@ namespace Render::Vulkan {
 				std::vector<VkAttachmentDescription> attachments;
 				{
 					attachments.push_back(subpass.GetColorAttachment());
-					if (createInfo.depthBufferInfo_.enable_) {
+					if (createInfo.depthTest_) {
 						attachments.push_back(subpass.GetDepthStencilAttachment());
 					}
 				}
