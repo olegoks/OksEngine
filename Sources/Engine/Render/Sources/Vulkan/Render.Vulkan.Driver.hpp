@@ -445,7 +445,7 @@ namespace Render::Vulkan {
 			}
 
 			descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
-			const Common::Size descriptorPoolSize = swapChain_->GetImages().size();
+			const Common::Size descriptorPoolSize = swapChain_->GetImages().size() + 10;
 
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
@@ -542,7 +542,7 @@ namespace Render::Vulkan {
 				imguiInitInfo.PipelineCache = VK_NULL_HANDLE;
 				imguiInitInfo.DescriptorPool = *descriptorPool_;
 				imguiInitInfo.Allocator = nullptr;
-				imguiInitInfo.MinImageCount = 1;
+				imguiInitInfo.MinImageCount = 2;
 				imguiInitInfo.ImageCount = swapChain_->GetImagesNumber();
 				imguiInitInfo.RenderPass = pipeline_->GetRenderPass()->GetNative();
 				imguiInitInfo.CheckVkResultFn = ImGuiCheckVulkanErrorCallback;
@@ -611,6 +611,7 @@ namespace Render::Vulkan {
 
 
 			ImGui_ImplVulkan_NewFrame();
+			ImDrawData* draw_data = ImGui::GetDrawData();
 			//OS::Profiler profiler{ [](const OS:: Profiler::Info& info) {
 			//	
 			//	const Common::Size executionInMs = info.executionTime_.GetValue() / 1'000'000;

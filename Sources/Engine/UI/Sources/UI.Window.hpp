@@ -63,7 +63,7 @@ namespace UI {
 			// Setup Dear ImGui style
 			ImGui::StyleColorsDark();
 			//ImGui::StyleColorsClassic();
-
+			ImGui_ImplGlfw_InitForVulkan(createdWindow, true);
 
 
 			OS::AssertMessage(createdWindow != nullptr, "GLFW Windows was not created.");
