@@ -10,7 +10,7 @@
 
 namespace Render::Vulkan {
 
-	class PipelineLayout {
+	class PipelineLayout : public Abstraction<VkPipelineLayout> {
 	public:
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> logicDevice_;
@@ -32,36 +32,23 @@ namespace Render::Vulkan {
 				[[maybe_unused]]
 				const VkResult result = vkCreatePipelineLayout(createInfo.logicDevice_->GetHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout);
 				OS::AssertMessage(result == VK_SUCCESS, "Error while creating pipeline layout.");
-				SetNative(pipelineLayout);
+				SetHandle(pipelineLayout);
 			}
 
 		}
 
-		[[nodiscard]]
-		const VkPipelineLayout& GetNative() const noexcept {
-			return pipelineLayout_;
-		}
-
 	private:
-		
-		void SetNative(VkPipelineLayout pipelineLayout) noexcept {
-			OS::Assert(
-				(pipelineLayout != VK_NULL_HANDLE) && (GetNative() == VK_NULL_HANDLE) ||
-				((pipelineLayout == VK_NULL_HANDLE) && (GetNative() != VK_NULL_HANDLE)));
-			pipelineLayout_ = pipelineLayout;
-		}
 
 		void Destroy() noexcept {
 			OS::AssertMessage(logicDevice_ != nullptr, "Logic device is not initialized.");
-			OS::AssertMessage(GetNative() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkPipelineLayout.");
-			vkDestroyPipelineLayout(logicDevice_->GetHandle(), pipelineLayout_, nullptr);
+			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkPipelineLayout.");
+			vkDestroyPipelineLayout(logicDevice_->GetHandle(), GetHandle(), nullptr);
+			SetHandle(VK_NULL_HANDLE);
 		}
 
 
 	private:
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-		VkPipelineLayout pipelineLayout_ = VK_NULL_HANDLE;
-
 	};
 
 }
