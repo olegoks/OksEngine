@@ -13,10 +13,11 @@
 
 namespace Render::Vulkan {
 
-	class Image final : public Abstraction<VkImage> {
+	class Image : public Abstraction<VkImage> {
 	public:
 
 		struct CreateInfo {
+            std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
             std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
             VkExtent2D extent_ = { 0, 0 };
             VkFormat format_ = VK_FORMAT_MAX_ENUM;
@@ -63,7 +64,7 @@ namespace Render::Vulkan {
         [[nodiscard]]
         VkMemoryRequirements GetMemoryRequirements() const noexcept {
             VkMemoryRequirements memRequirements = { 0 };
-            vkGetImageMemoryRequirements(createInfo_.logicDevice_->GetHandle(), GetHandle(), &memRequirements);
+            vkGetImageMemoryRequirements(*createInfo_.logicDevice_, GetHandle(), &memRequirements);
             return memRequirements;
         }
 
@@ -86,6 +87,29 @@ namespace Render::Vulkan {
         CreateInfo createInfo_{ 0 };
 	};
 
+    class AllocatedImage final : public Image{
+    public:
 
+        AllocatedImage(const CreateInfo& createInfo) :
+    		Image{ createInfo } {
+
+            const VkMemoryRequirements depthImageMemoryRequirements = GetMemoryRequirements();
+
+            DeviceMemory::CreateInfo deviceMemoryCreateInfo;
+            {
+                deviceMemoryCreateInfo.logicDevice_ = createInfo.logicDevice_;
+                deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
+                deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+            }
+            auto imageMemory = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
+
+            BindMemory(imageMemory);
+
+        }
+
+    private:
+        using Image::BindMemory;
+        using Image::GetMemoryRequirements;
+    };
 
 }
