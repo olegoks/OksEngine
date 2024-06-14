@@ -415,32 +415,6 @@ namespace Render::Vulkan {
 				}
 			}
 
-			if (createInfo_.enableDepthBuffer_) {
-				Image::CreateInfo depthImageCreateInfo;
-				{
-					depthImageCreateInfo.logicDevice_ = logicDevice_;
-					depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
-					depthImageCreateInfo.extent_ = swapChain_->GetExtent();
-					depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-					depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-				}
-				depthImage_ = std::make_shared<Image>(depthImageCreateInfo);
-
-				VkMemoryRequirements depthImageMemoryRequirements = depthImage_->GetMemoryRequirements();
-
-				DeviceMemory::CreateInfo deviceMemoryCreateInfo;
-				{
-					deviceMemoryCreateInfo.logicDevice_ = logicDevice_;
-					deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
-					deviceMemoryCreateInfo.memoryTypeIndex_ = physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-				}
-				depthImageMemory_ = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
-
-				depthImage_->BindMemory(depthImageMemory_);
-
-				depthImageView_ = CreateImageViewByImage(logicDevice_, depthImage_, VK_IMAGE_ASPECT_DEPTH_BIT);
-
-			}
 
 			descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
 			const Common::Size descriptorPoolSize = swapChain_->GetImages().size();
@@ -448,17 +422,14 @@ namespace Render::Vulkan {
 
 			Pipeline<Vertex3fc>::CreateInfo pipelineCreateInfo;
 			{
+				pipelineCreateInfo.physicalDevice_ = physicalDevice_;
 				pipelineCreateInfo.logicDevice_ = logicDevice_;
 				pipelineCreateInfo.swapChain_ = swapChain_;
 				pipelineCreateInfo.descriptorSetLayout_ = descriptorSetLayout_;
 				pipelineCreateInfo.vertexShader_ = vertexShader_;
 				pipelineCreateInfo.fragmentShader_ = fragmentShader_;
-				Pipeline<Vertex3fc>::CreateInfo::DepthBufferInfo depthBufferInfo;
-				{
-					depthBufferInfo.enable_ = createInfo_.enableDepthBuffer_;
-					depthBufferInfo.image_ = depthImage_;
-				}
-				pipelineCreateInfo.depthBufferInfo_ = depthBufferInfo;
+				pipelineCreateInfo.depthTest_ = createInfo_.enableDepthBuffer_;
+
 			}
 
 			pipeline_ = std::make_shared<Pipeline<Vertex3fc>>(pipelineCreateInfo);
@@ -473,12 +444,7 @@ namespace Render::Vulkan {
 						createInfo.colorImageView_ = imageView;
 						createInfo.extent_ = extent;
 						createInfo.renderPass_ = renderPass;
-						FrameBuffer::CreateInfo::DepthBufferInfo depthBufferInfo;
-						{
-							depthBufferInfo.enable_ = createInfo_.enableDepthBuffer_;
-							depthBufferInfo.imageView_ = depthImageView_;
-						}
-						createInfo.depthBufferInfo_ = depthBufferInfo;
+						createInfo.depthBufferImageView_ = pipeline_->GetDepthBufferImageView();
 					}
 					FrameBuffer frameBuffer{ createInfo };
 					frameBuffers_.push_back(std::move(frameBuffer));
@@ -504,7 +470,7 @@ namespace Render::Vulkan {
 
 				auto imageContext = std::make_shared<ImageContext>();
 				{
-					imageContext->index_ = i;
+					imageContext->index_ = static_cast<Common::UInt32>(i);
 					imageContext->inRender_ = nullptr;
 				}
 				imageContexts_.push_back(imageContext);
@@ -682,7 +648,7 @@ namespace Render::Vulkan {
 			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
 			//ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, swapChain_->GetExtent().width / (float)swapChain_->GetExtent().height, 0.1, 10);
 			ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
-			ubo.proj_ = Math::Matrix4x4f::GetPerspective(135, camera_->GetWidth() / (float)camera_->GetHeight(), 0.00001, 1000);
+			ubo.proj_ = Math::Matrix4x4f::GetPerspective(135, camera_->GetWidth() / (float)camera_->GetHeight(), 0.00001f, 1000);
 
 			ubo.proj_[1][1] *= -1;
 
@@ -867,10 +833,6 @@ namespace Render::Vulkan {
 
 		QueueFamily graphicsQueueFamily_;
 		QueueFamily presentQueueFamily_;
-
-		std::shared_ptr<Image> depthImage_ = nullptr;
-		std::shared_ptr<ImageView> depthImageView_ = nullptr;
-		std::shared_ptr<DeviceMemory> depthImageMemory_ = nullptr;
 
 		std::vector<std::shared_ptr<CommandBuffer>> commandBuffers_;
 		std::vector<std::shared_ptr<ImageContext>> imageContexts_;
