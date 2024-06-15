@@ -384,19 +384,6 @@ namespace Render::Vulkan {
 				swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
 			}
 
-			ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
-			{
-				vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
-				vertexShaderModuleCreateInfo.text_ = info.vertexShader_;
-				vertexShader_ = std::make_shared<ShaderModule>(vertexShaderModuleCreateInfo);
-			}
-
-			ShaderModule::CreateInfo fragmentShaderModuleCreateInfo;
-			{
-				fragmentShaderModuleCreateInfo.logicDevice_ = logicDevice_;
-				fragmentShaderModuleCreateInfo.text_ = info.fragmentShader_;// std::dynamic_pointer_cast<OS::BinaryFile>(info.fragmentShader_->GetFile());
-				fragmentShader_ = std::make_shared<ShaderModule>(fragmentShaderModuleCreateInfo);
-			}
 
 			CommandPool::CreateInfo commandPoolCreateInfo;
 			{
@@ -420,14 +407,31 @@ namespace Render::Vulkan {
 			const Common::Size descriptorPoolSize = swapChain_->GetImages().size();
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
+
+			ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
+			{
+				vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
+				vertexShaderModuleCreateInfo.spirv_ = info.vertexShader_;
+				
+			}
+			auto vertexShader = std::make_shared<ShaderModule>(vertexShaderModuleCreateInfo);
+			
+			ShaderModule::CreateInfo fragmentShaderModuleCreateInfo;
+			{
+				fragmentShaderModuleCreateInfo.logicDevice_ = logicDevice_;
+				fragmentShaderModuleCreateInfo.spirv_ = info.fragmentShader_;// std::dynamic_pointer_cast<OS::BinaryFile>(info.fragmentShader_->GetFile());
+				
+			}
+			auto fragmentShader = std::make_shared<ShaderModule>(fragmentShaderModuleCreateInfo);
+
 			Pipeline<Vertex3fc>::CreateInfo pipelineCreateInfo;
 			{
 				pipelineCreateInfo.physicalDevice_ = physicalDevice_;
 				pipelineCreateInfo.logicDevice_ = logicDevice_;
 				pipelineCreateInfo.swapChain_ = swapChain_;
 				pipelineCreateInfo.descriptorSetLayout_ = descriptorSetLayout_;
-				pipelineCreateInfo.vertexShader_ = vertexShader_;
-				pipelineCreateInfo.fragmentShader_ = fragmentShader_;
+				pipelineCreateInfo.vertexShader_ = vertexShader;
+				pipelineCreateInfo.fragmentShader_ = fragmentShader;
 				pipelineCreateInfo.depthTest_ = createInfo_.enableDepthBuffer_;
 
 			}
@@ -444,7 +448,9 @@ namespace Render::Vulkan {
 						createInfo.colorImageView_ = imageView;
 						createInfo.extent_ = extent;
 						createInfo.renderPass_ = renderPass;
-						createInfo.depthBufferImageView_ = pipeline_->GetDepthBufferImageView();
+						if (pipeline_->IsDepthTestEnabled()) {
+							createInfo.depthBufferImageView_ = pipeline_->GetDepthBufferImageView();
+						}
 					}
 					FrameBuffer frameBuffer{ createInfo };
 					frameBuffers_.push_back(std::move(frameBuffer));
@@ -648,7 +654,7 @@ namespace Render::Vulkan {
 			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
 			//ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, swapChain_->GetExtent().width / (float)swapChain_->GetExtent().height, 0.1, 10);
 			ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
-			ubo.proj_ = Math::Matrix4x4f::GetPerspective(135, camera_->GetWidth() / (float)camera_->GetHeight(), 0.00001f, 1000);
+			ubo.proj_ = Math::Matrix4x4f::GetPerspective(135, camera_->GetWidth() / (float)camera_->GetHeight(), 0.01f, 100);
 
 			ubo.proj_[1][1] *= -1;
 
@@ -815,8 +821,6 @@ namespace Render::Vulkan {
 		std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<SwapChain> swapChain_ = nullptr;
-		std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
-		std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
 		std::shared_ptr<Pipeline<Vertex3fc>> pipeline_ = nullptr;
 		std::vector<FrameBuffer> frameBuffers_;
