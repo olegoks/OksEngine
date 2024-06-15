@@ -55,6 +55,9 @@ namespace Geometry {
 		using Iterator = std::vector<VertexType>::iterator;
 		using ConstIterator = std::vector<VertexType>::const_iterator;
 
+		Iterator begin() noexcept { return vertices_.begin(); }
+		Iterator end() noexcept { return vertices_.end(); }
+
 		ConstIterator begin() const noexcept{ return vertices_.cbegin(); }
 		ConstIterator end() const noexcept { return vertices_.cend(); }
 

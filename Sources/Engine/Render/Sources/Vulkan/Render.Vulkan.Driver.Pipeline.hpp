@@ -30,11 +30,11 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<SwapChain> swapChain_ = nullptr;
+			std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
 			std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
 			std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-			std::shared_ptr<SwapChain> swapChain_= nullptr;
-			std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
 			bool depthTest_ = true;
 		};
 
@@ -42,27 +42,29 @@ namespace Render::Vulkan {
 
 			if (createInfo.depthTest_) {
 
-				auto depthTestData_ = std::make_shared<DepthTestData>();
+				depthTestData_ = std::make_shared<DepthTestData>();
 				{
 					Image::CreateInfo depthImageCreateInfo;
 					{
+						depthImageCreateInfo.physicalDevice_ = createInfo.physicalDevice_;
 						depthImageCreateInfo.logicDevice_ = logicDevice_;
 						depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
 						depthImageCreateInfo.extent_ = createInfo.swapChain_->GetExtent();
 						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
 						depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 					}
-					depthTestData_->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
-					//VkMemoryRequirements depthImageMemoryRequirements = depthTestData_->image_->GetMemoryRequirements();
+					depthTestData_->image_ = std::make_shared<Image>(depthImageCreateInfo);
+					VkMemoryRequirements depthImageMemoryRequirements = depthTestData_->image_->GetMemoryRequirements();
 
 
-					//DeviceMemory::CreateInfo deviceMemoryCreateInfo;
-					//{
-					//	deviceMemoryCreateInfo.logicDevice_ = logicDevice_;
-					//	deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
-					//	deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-					//}
-					//depthImageMemory_ = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
+					DeviceMemory::CreateInfo deviceMemoryCreateInfo;
+					{
+						deviceMemoryCreateInfo.logicDevice_ = logicDevice_;
+						deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
+						deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+					}
+					depthTestData_->imageMemory_ = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
+					depthTestData_->image_->BindMemory(depthTestData_->imageMemory_);
 					depthTestData_->imageView_ = CreateImageViewByImage(logicDevice_, depthTestData_->image_, VK_IMAGE_ASPECT_DEPTH_BIT);
 				}
 				
@@ -86,17 +88,19 @@ namespace Render::Vulkan {
 			{
 				vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 				vertShaderStageInfo.stage = VK_SHADER_STAGE_VERTEX_BIT;
-				vertShaderStageInfo.module = createInfo.vertexShader_->GetNative();
+				vertShaderStageInfo.module = *createInfo.vertexShader_;
 				vertShaderStageInfo.pName = "main";
 			}
+			vertexShader_ = createInfo.vertexShader_;
 
 			VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
 			{
 				fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 				fragShaderStageInfo.stage = VK_SHADER_STAGE_FRAGMENT_BIT;
-				fragShaderStageInfo.module = createInfo.fragmentShader_->GetNative();
+				fragShaderStageInfo.module = *createInfo.fragmentShader_;
 				fragShaderStageInfo.pName = "main";
 			}
+			fragmentShader_ = createInfo.fragmentShader_;
 
 			VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
@@ -195,7 +199,7 @@ namespace Render::Vulkan {
 				renderPassCreateInfo.logicDevice_ = createInfo.logicDevice_;
 				renderPassCreateInfo.swapchain_ = createInfo.swapChain_;
 				renderPassCreateInfo.depthTest_ = createInfo.depthTest_;
-				renderPassCreateInfo.depthBufferInfo_.depthStencilFormat_ = depthTestData_->image_->GetFormat();//VK_FORMAT_MAX_ENUM;//createInfo.depthBufferFeature_->GetDepthImageFormat();
+				renderPassCreateInfo.depthBufferInfo_.depthStencilFormat_ = (depthTestData_) ? (depthTestData_->image_->GetFormat()) : (VkFormat::VK_FORMAT_UNDEFINED);//VK_FORMAT_MAX_ENUM;//createInfo.depthBufferFeature_->GetDepthImageFormat();
 				renderPass_ = std::make_shared<RenderPass>(renderPassCreateInfo);
 			}
 
@@ -323,7 +327,9 @@ namespace Render::Vulkan {
 		std::shared_ptr<RenderPass> GetRenderPass() const noexcept { return renderPass_; }
 
 		[[nodiscard]]
-		std::shared_ptr<ImageView> GetDepthBufferImageView() noexcept { return depthImageView_; }
+		bool IsDepthTestEnabled() const noexcept { return depthTestData_ != nullptr; }
+		[[nodiscard]]
+		std::shared_ptr<ImageView> GetDepthBufferImageView() noexcept { return depthTestData_->imageView_; }
 
 		[[nodiscard]]
 		std::shared_ptr<PipelineLayout> GetLayout() const noexcept { return pipelineLayout_; }
@@ -338,6 +344,9 @@ namespace Render::Vulkan {
 
 	private:
 
+
+		std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
+		std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
 		std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
 
 		std::shared_ptr<RenderPass> renderPass_ = nullptr;

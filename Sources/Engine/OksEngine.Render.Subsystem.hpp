@@ -49,7 +49,7 @@ namespace OksEngine {
 			api_ = RAL::CreateAPI();
 			RAL::Camera::CreateInfo cameraCreateInfo;
 			{
-				cameraCreateInfo.position_ = Math::Vector3f{ 1.4f, 0.f, 0.f };
+				cameraCreateInfo.position_ = Math::Vector3f{ 2.5f, 0.f, 0.f };
 				cameraCreateInfo.direction_ = Math::Vector3f{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
 				cameraCreateInfo.size_ = windowInfo.size_;
 			}
@@ -72,7 +72,8 @@ namespace OksEngine {
 			RAL::Driver::CreateInfo driverCreateInfo{
 				vertexShader,
 				fragmentShader,
-				renderSurface
+				renderSurface,
+				true
 			};
 
 			driver_ = api_->CreateDriver(driverCreateInfo);
@@ -90,13 +91,42 @@ namespace OksEngine {
 				coloredBox.Add(coloredVertex);
 			}
 
+			DS::Vector<Geometry::VertexCloud<RAL::Vertex3fc>> plane;
+
+			for (int i = 0; i < 25; i++) {
+				plane.PushBack(coloredBox);
+			}
 
 
-			driver_->DrawIndexed(
-				(RAL::Vertex3fc*)coloredBox.GetData(),
-				coloredBox.GetVerticesNumber(),
-				box.GetIndices().GetData(),
-				box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
+			Common::Index i = 0;
+			for (int x = -2; x < 2; x++) {
+				for (int y = -2; y < 2; y++) {
+					Geometry::VertexCloud<RAL::Vertex3fc>& box = plane[i];
+					Math::Vector3f offsetVector{ (float)x, (float)y , 0 };
+					const Math::Matrix4x4f offset = Math::Matrix4x4f::GetTranslate(offsetVector);
+					for (RAL::Vertex3fc& vertex : box) {
+						vertex.position_ = Math::TransformPoint(vertex.position_, offset);
+					}
+					++i;
+				}
+			}
+
+			for (int i = 0; i < 25; i++) {
+				Geometry::VertexCloud<RAL::Vertex3fc>& coloredBox = plane[i];
+				driver_->DrawIndexed(
+					(RAL::Vertex3fc*)coloredBox.GetData(),
+					coloredBox.GetVerticesNumber(),
+					box.GetIndices().GetData(),
+					box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
+			}
+			
+			
+
+			//driver_->DrawIndexed(
+			//	(RAL::Vertex3fc*)coloredBox.GetData(),
+			//	coloredBox.GetVerticesNumber(),
+			//	box.GetIndices().GetData(),
+			//	box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
 
 			driver_->StartRender();
 			driver_->Render();
