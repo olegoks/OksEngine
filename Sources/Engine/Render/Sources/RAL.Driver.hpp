@@ -205,11 +205,11 @@ namespace RAL {
 		//	Common::Size indicesNumber,
 		//	const Texture& texture) = 0;
 
-		//virtual void DrawIndexed(
-		//	const Vertex3fnc* vertices,
-		//	Common::Size verticesNumber,
-		//	const Index16* indices,
-		//	Common::Size indicesNumber) = 0;
+		virtual void DrawIndexed(
+			const Vertex3fnc* vertices,
+			Common::Size verticesNumber,
+			const Index16* indices,
+			Common::Size indicesNumber) = 0;
 
 		virtual void DrawIndexed(
 			const Vertex3fc* vertex,
@@ -232,6 +232,12 @@ namespace RAL {
 		std::shared_ptr<Camera> camera_ = nullptr;
 		Vertices<Geometry::Vertex3fc, Index16> vertices_;
 		Indices<Index16> indices_;
+
+
+
 	};
+
+
+
 
 }

@@ -53,18 +53,7 @@ namespace Render::Vulkan {
 						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
 						depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 					}
-					depthTestData_->image_ = std::make_shared<Image>(depthImageCreateInfo);
-					VkMemoryRequirements depthImageMemoryRequirements = depthTestData_->image_->GetMemoryRequirements();
-
-
-					DeviceMemory::CreateInfo deviceMemoryCreateInfo;
-					{
-						deviceMemoryCreateInfo.logicDevice_ = logicDevice_;
-						deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
-						deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
-					}
-					depthTestData_->imageMemory_ = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
-					depthTestData_->image_->BindMemory(depthTestData_->imageMemory_);
+					depthTestData_->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
 					depthTestData_->imageView_ = CreateImageViewByImage(logicDevice_, depthTestData_->image_, VK_IMAGE_ASPECT_DEPTH_BIT);
 				}
 				

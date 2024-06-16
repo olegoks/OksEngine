@@ -56,6 +56,24 @@ namespace Geometry {
 		IndexBuffer<IndexType> indices_;
 	};
 
+	class Shape3f : public Shape<Vertex3f, Index16> {
+	public:
+	private:
+		Color3f color_;
+	};
 
+	class Shape3fc : public Shape<Vertex3fc, Index16> {
+	public:
+	private:
+
+	};
+
+	class Shape3fnc : public Shape<Vertex3fnc, Index16> {
+
+	};
+
+	class Shape3fnct : public Shape<Vertex3fnct, Index16> {
+
+	};
 
 }

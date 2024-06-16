@@ -30,6 +30,21 @@ namespace DataStructures {
 
 		}
 
+		Vector(const Type* data, 
+			Common::Size size,
+			Memory::AllocationCallbacks allocationCallbacks = Memory::AllocationCallbacks{}) : 
+			allocationCallbacks_{ allocationCallbacks },
+			data_{ nullptr },
+			size_{ 0 },
+			capacity_{ 0 } {
+
+			Resize(size);
+			for (Common::Index i = 0; i < GetSize(); i++) {
+				data_[i] = data[i];
+			}
+
+		}
+
 		Vector(const Vector& copyVector) :
 			allocationCallbacks_{ copyVector.allocationCallbacks_ },
 			data_{ nullptr },

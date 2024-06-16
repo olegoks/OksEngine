@@ -101,13 +101,14 @@ namespace Render::Vulkan {
                 deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
                 deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
             }
-            auto imageMemory = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
+            deviceMemory_ = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
 
-            BindMemory(imageMemory);
+            BindMemory(deviceMemory_);
 
         }
 
     private:
+        std::shared_ptr<DeviceMemory> deviceMemory_ = nullptr;
         using Image::BindMemory;
         using Image::GetMemoryRequirements;
     };

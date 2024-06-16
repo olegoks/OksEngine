@@ -132,7 +132,7 @@ namespace Render::Vulkan {
 
 			{
 				Subpass::CreateInfo subpassCreateInfo{ };
-				{
+				{ 
 					subpassCreateInfo.colorAttachmentFormat_ = createInfo.swapchain_->GetFormat().format;
 					subpassCreateInfo.depthBufferInfo_.enable_ = createInfo.depthTest_;
 					subpassCreateInfo.depthBufferInfo_.depthStencilFormat_ = createInfo.depthBufferInfo_.depthStencilFormat_;
