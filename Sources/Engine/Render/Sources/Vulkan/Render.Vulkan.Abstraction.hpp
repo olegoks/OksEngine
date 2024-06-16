@@ -15,7 +15,7 @@ namespace Render::Vulkan {
 		explicit Abstraction(VkAbstractionType handle) noexcept : handle_ { handle } { }
 
 		[[nodiscard]]
-		VkAbstractionType GetHandle() const noexcept { return handle_; }
+		const VkAbstractionType& GetHandle() const noexcept { return handle_; }
 
 		void SetHandle(VkAbstractionType handle) noexcept {
 

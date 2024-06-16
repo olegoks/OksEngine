@@ -4,19 +4,15 @@
     "type": "split",
     "children": [
       {
-        "id": "da9dd1eec91973b9",
+        "id": "33317edd0009b839",
         "type": "tabs",
         "children": [
           {
-            "id": "f6b89e774ae8a967",
+            "id": "a873fcafaffd09bf",
             "type": "leaf",
             "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Work/OBS save .mp4 files.md",
-                "mode": "source",
-                "source": false
-              }
+              "type": "empty",
+              "state": {}
             }
           }
         ]
@@ -85,7 +81,6 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/OBS save .mp4 files.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +97,6 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/OBS save .mp4 files.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -124,9 +118,7 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {
-                "file": "Work/OBS save .mp4 files.md"
-              }
+              "state": {}
             }
           }
         ]
@@ -146,14 +138,14 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "f6b89e774ae8a967",
+  "active": "a873fcafaffd09bf",
   "lastOpenFiles": [
+    "Work/OBS save .mp4 files.md",
     "Attachments/Pasted image 20240614143058.png",
     "Attachments/Pasted image 20240614143033.png",
     "Attachments/Pasted image 20240614143020.png",
     "Attachments/Pasted image 20240614142952.png",
     "Work/C++/RVO(return value optimization).md",
-    "Work/OBS save .mp4 files.md",
     "Work/OBS",
     "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
     "Work/Network",
@@ -187,7 +179,6 @@
     "Attachments/Pasted image 20240603193533.png",
     "Attachments/Pasted image 20240603192841.png",
     "Attachments/Pasted image 20240603192453.png",
-    "Attachments/Pasted image 20240603192349.png",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
     "Work/C++/Многопоточность/Топики",
