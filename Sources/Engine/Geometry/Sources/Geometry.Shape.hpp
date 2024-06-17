@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Common.hpp>
+#include <Geometry.Common.hpp>
 #include <Geometry.IndexBuffer.hpp>
 #include <Geometry.VertexCloud.hpp>
 #include <Geometry.Polygon.hpp>
@@ -56,24 +57,18 @@ namespace Geometry {
 		IndexBuffer<IndexType> indices_;
 	};
 
-	class Shape3f : public Shape<Vertex3f, Index16> {
-	public:
-	private:
-		Color3f color_;
-	};
+	//class FlexShape {
+	//public:
 
-	class Shape3fc : public Shape<Vertex3fc, Index16> {
-	public:
-	private:
+	//	void AddVertex(const Vertex3f) {
+	//		
+	//	}
 
-	};
-
-	class Shape3fnc : public Shape<Vertex3fnc, Index16> {
-
-	};
-
-	class Shape3fnct : public Shape<Vertex3fnct, Index16> {
-
-	};
+	//private:
+	//	DS::Vector<Vertex3f> vertices_;
+	//	DS::Vector<Color3f> colors_;
+	//	DS::Vector<Normal3f> normals_;
+	//	DS::Vector<UV2f> uvs_;
+	//};
 
 }
