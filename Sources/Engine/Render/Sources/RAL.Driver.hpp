@@ -205,11 +205,11 @@ namespace RAL {
 		//	Common::Size indicesNumber,
 		//	const Texture& texture) = 0;
 
-		virtual void DrawIndexed(
-			const Vertex3fnc* vertices,
-			Common::Size verticesNumber,
-			const Index16* indices,
-			Common::Size indicesNumber) = 0;
+		//virtual void DrawIndexed(
+		//	const Vertex3fnc* vertices,
+		//	Common::Size verticesNumber,
+		//	const Index16* indices,
+		//	Common::Size indicesNumber) = 0;
 
 		virtual void DrawIndexed(
 			const Vertex3fc* vertex,
@@ -222,7 +222,7 @@ namespace RAL {
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indeciesNumber,
-			const Color& color) = 0;
+			const Color3f& color) = 0;
 
 		virtual ~Driver() = default;
 
