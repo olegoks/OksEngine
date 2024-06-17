@@ -61,7 +61,7 @@ namespace RE {
 					Math::Vector3f offsetVector{ (float)x, (float)y , 0 };
 					const Math::Matrix4x4f offset = Math::Matrix4x4f::GetTranslate(offsetVector);
 					for (RAL::Vertex3fc& vertex : box) {
-						vertex.position_ = RAL::Vertex3f{ Math::TransformPoint(vertex.position_.position_, offset) };
+						vertex.position_ = Math::TransformPoint(vertex.position_, offset);
 					}
 					++i;
 				}

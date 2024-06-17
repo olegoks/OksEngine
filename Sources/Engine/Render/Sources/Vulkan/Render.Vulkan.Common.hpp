@@ -108,52 +108,52 @@ namespace Render::Vulkan {
 			attributeDescriptions[1].binding = 0;
 			attributeDescriptions[1].location = 2;
 			attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[1].offset = offsetof(Vertex3fnt, texel_);
+			attributeDescriptions[1].offset = offsetof(Vertex3fnt, uv_);
 
 			return attributeDescriptions;
 		}
 	};
 
-	class Vertex3fnñt : public RAL::Vertex3fnñt {
-	public:
+	//class Vertex3fnñt : public RAL::Vertex3fnñt {
+	//public:
 
 
-		static VkVertexInputBindingDescription GetBindingDescription() {
-			VkVertexInputBindingDescription bindingDescription{};
+	//	static VkVertexInputBindingDescription GetBindingDescription() {
+	//		VkVertexInputBindingDescription bindingDescription{};
 
-			bindingDescription.binding = 0;
-			bindingDescription.stride = sizeof(Vertex3fnñt);
-			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+	//		bindingDescription.binding = 0;
+	//		bindingDescription.stride = sizeof(Vertex3fnñt);
+	//		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 
-			return bindingDescription;
-		}
+	//		return bindingDescription;
+	//	}
 
-		static std::array<VkVertexInputAttributeDescription, 4> GetAttributeDescriptions() {
-			std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
+	//	static std::array<VkVertexInputAttributeDescription, 4> GetAttributeDescriptions() {
+	//		std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
 
-			attributeDescriptions[0].binding = 0;
-			attributeDescriptions[0].location = 0;
-			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[0].offset = offsetof(Vertex3fnñt, position_);
+	//		attributeDescriptions[0].binding = 0;
+	//		attributeDescriptions[0].location = 0;
+	//		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
+	//		attributeDescriptions[0].offset = offsetof(Vertex3fnñt, position_);
 
-			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 1;
-			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[1].offset = offsetof(Vertex3fnñt, normal_);
+	//		attributeDescriptions[1].binding = 0;
+	//		attributeDescriptions[1].location = 1;
+	//		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
+	//		attributeDescriptions[1].offset = offsetof(Vertex3fnñt, normal_);
 
-			attributeDescriptions[2].binding = 0;
-			attributeDescriptions[2].location = 2;
-			attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[2].offset = offsetof(Vertex3fnñt, color_);
+	//		attributeDescriptions[2].binding = 0;
+	//		attributeDescriptions[2].location = 2;
+	//		attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
+	//		attributeDescriptions[2].offset = offsetof(Vertex3fnñt, color_);
 
-			attributeDescriptions[3].binding = 0;
-			attributeDescriptions[3].location = 3;
-			attributeDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[3].offset = offsetof(Vertex3fnñt, texel_);
+	//		attributeDescriptions[3].binding = 0;
+	//		attributeDescriptions[3].location = 3;
+	//		attributeDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
+	//		attributeDescriptions[3].offset = offsetof(Vertex3fnñt, texel_);
 
-			return attributeDescriptions;
-		}
-	};
+	//		return attributeDescriptions;
+	//	}
+	//};
 
 	class Extension {
 	public:

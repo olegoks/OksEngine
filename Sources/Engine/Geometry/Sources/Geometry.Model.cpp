@@ -16,37 +16,37 @@ namespace Geometry {
         return VertexType{};
     }
 
-    template<>
-    inline Vertex3fnct GetVertex<Vertex3fnct>(tinyobj::index_t index, tinyobj::attrib_t& atrributes) noexcept {
-        Vertex3fnct vertex{};
+    //template<>
+    //inline Vertex3fnct GetVertex<Vertex3fnct>(tinyobj::index_t index, tinyobj::attrib_t& atrributes) noexcept {
+    //    Vertex3fnct vertex{};
 
-        if (index.vertex_index >= 0) {
-            vertex.position_ = {
-                atrributes.vertices[3 * index.vertex_index + 0],
-                atrributes.vertices[3 * index.vertex_index + 1],
-                atrributes.vertices[3 * index.vertex_index + 2],
-            };
-            vertex.color_ = {
-                atrributes.colors[3 * index.vertex_index + 0],
-                atrributes.colors[3 * index.vertex_index + 1],
-                atrributes.colors[3 * index.vertex_index + 2],
-            };
-            vertex.texel_ = {
-                atrributes.texcoords[2 * index.texcoord_index + 0],
-                1.0f - atrributes.texcoords[2 * index.texcoord_index + 1]
-            };
-        }
+    //    if (index.vertex_index >= 0) {
+    //        vertex.position_ = {
+    //            atrributes.vertices[3 * index.vertex_index + 0],
+    //            atrributes.vertices[3 * index.vertex_index + 1],
+    //            atrributes.vertices[3 * index.vertex_index + 2],
+    //        };
+    //        vertex.color_ = {
+    //            atrributes.colors[3 * index.vertex_index + 0],
+    //            atrributes.colors[3 * index.vertex_index + 1],
+    //            atrributes.colors[3 * index.vertex_index + 2],
+    //        };
+    //        vertex.texel_ = {
+    //            atrributes.texcoords[2 * index.texcoord_index + 0],
+    //            1.0f - atrributes.texcoords[2 * index.texcoord_index + 1]
+    //        };
+    //    }
 
-        if (index.normal_index >= 0) {
-            vertex.normal_ = {
-                atrributes.normals[3 * index.normal_index + 0],
-                atrributes.normals[3 * index.normal_index + 1],
-                atrributes.normals[3 * index.normal_index + 2],
-            };
-            vertex.normal_.Normalize();
-        }
-        return vertex;
-    }
+    //    if (index.normal_index >= 0) {
+    //        vertex.normal_ = {
+    //            atrributes.normals[3 * index.normal_index + 0],
+    //            atrributes.normals[3 * index.normal_index + 1],
+    //            atrributes.normals[3 * index.normal_index + 2],
+    //        };
+    //        vertex.normal_.Normalize();
+    //    }
+    //    return vertex;
+    //}
 
     template<>
     Vertex3fnt GetVertex<Vertex3fnt>(tinyobj::index_t index, tinyobj::attrib_t& atrributes) noexcept {
@@ -59,7 +59,7 @@ namespace Geometry {
                 atrributes.vertices[3 * index.vertex_index + 2],
             };
 
-            vertex.texel_ = {
+            vertex.uv_ = {
                 atrributes.texcoords[2 * index.texcoord_index + 0],
                 1.0f - atrributes.texcoords[2 * index.texcoord_index + 1]
             };
@@ -106,8 +106,8 @@ namespace Geometry {
     }
 
 
-    template<>
-    inline Vertex3fnct GetVertex<Vertex3fnct>(tinyobj::index_t index, tinyobj::attrib_t& atrributes) noexcept;
+    //template<>
+    //inline Vertex3fnct GetVertex<Vertex3fnct>(tinyobj::index_t index, tinyobj::attrib_t& atrributes) noexcept;
 
     template<>
     Vertex3fnt GetVertex<Vertex3fnt>(tinyobj::index_t index, tinyobj::attrib_t& atrributes) noexcept;
