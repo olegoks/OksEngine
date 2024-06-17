@@ -53,8 +53,10 @@ namespace Geometry {
 		Common::Size GetIndicesNumber() const noexcept { return indices_.GetIndicesNumber(); }
 
 	private:
-		VertexCloud<VertexType> vertices_;
 		IndexBuffer<IndexType> indices_;
+		VertexCloud<VertexType> vertices_;
+		DS::Vector<Normal3f> normals_;
+		DS::Vector<Color3f> colors_;
 	};
 
 	//class FlexShape {
