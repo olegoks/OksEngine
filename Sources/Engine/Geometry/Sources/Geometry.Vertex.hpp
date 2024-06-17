@@ -8,14 +8,23 @@
 
 namespace Geometry {
 
-	template<Common::Size size, class Type>
+	template<Common::Size size, class BaseType>
 	struct Vertex {
 
-	/*	template<class ...Args>
-		Vertex(Args&& ... args) noexcept : position_{ std::forward<Args>(args)... } { }*/
+		enum class Type : Common::UInt64 {
+			V3f = 0,
+			V3f_C3f,
+			V3f_N3f_C3f,
+			V3f_N3f_T3f
+		};
+
 		Vertex() noexcept : position_{ 0.f , 0.f , 0.f }{ }
-		Vertex(const Math::Vector<size, Type>& position) noexcept : position_{ position } {}
-		Vertex(Type x, Type y, Type z) noexcept requires(size == 3) : position_{ x, y, z } {}
+
+		Vertex(const Math::Vector<size, BaseType>& position) noexcept :
+			position_{ position } {}
+
+		Vertex(BaseType x, BaseType y, BaseType z) noexcept requires(size == 3) :
+			position_{ x, y, z } {}
 
 		struct Hash {
 			[[nodiscard]]
@@ -34,16 +43,17 @@ namespace Geometry {
 			return position_ == vertex.position_;
 		}
 
-		Math::Vector<size, Type> position_{ 0, 0, 0 };
+		Vector<size, BaseType> position_{ 0, 0, 0 };
 	};
 
 	using Vertex3f = Vertex<3, float>;
 
-	struct Vertex3fc {
-		Vertex3f position_{ 0.f, 0.f, 0.f };
-		Math::Vector3f color_ = { 1.f, 1.f, 1.f };
+	struct Vertex3fc : public Vertex3f {
+		Color3f color_ = { 1.f, 1.f, 1.f };
 		Vertex3fc() noexcept = default;
-		Vertex3fc(const Vertex3f& position, const Geometry::Color3f& color) noexcept;
+		Vertex3fc(const Vertex3f& position, const Color3f& color) noexcept :
+			Vertex3f{ position }, color_{ color } { }
+
 		struct Hash {
 			[[nodiscard]]
 			Common::UInt64 operator()(const Vertex3fc& vertex) const noexcept {
@@ -60,12 +70,11 @@ namespace Geometry {
 
 	};
 
-	struct Vertex3fn {
-		Vertex3f position_{ 0.f, 0.f, 0.f };
-		Math::Vector3f normal_ = { 1.f, 1.f, 1.f };
+	struct Vertex3fn : public Vertex3f {
+		Normal3f normal_ = { 1.f, 1.f, 1.f };
 		Vertex3fn() noexcept = default;
-		Vertex3fn(const Vertex3f& position, const Math::Vector3f& normal) noexcept :
-			position_{ position }, normal_{ normal } { }
+		Vertex3fn(const Vertex3f& position, const Normal3f& normal) noexcept :
+			Vertex3f{ position }, normal_{ normal } { }
 
 		struct Hash {
 			[[nodiscard]]
@@ -106,13 +115,11 @@ namespace Geometry {
 
 	};
 
-	struct Vertex3fnt {
-		Vertex3f position_{ 0.f, 0.f, 0.f };
-		Math::Vector3f normal_ = { 0.f, 0.f, 0.f };
-		Math::Vector2f texel_ = { 0.f, 0.f };
+	struct Vertex3fnt : public Vertex3fn {
+		UV2f uv_ = { 0.f, 0.f };
 		Vertex3fnt() noexcept = default;
-		Vertex3fnt(const Vertex3f& position, const Math::Vector3f& normal, const Math::Vector2f& texel) noexcept :
-			position_{ position }, normal_{ normal }, texel_{ texel } { }
+		Vertex3fnt(const Vertex3f& position, const Normal3f& normal, const UV2f& texel) noexcept :
+			Vertex3fn{ position , normal }, uv_{ texel } { }
 
 
 		struct Hash {
@@ -121,55 +128,55 @@ namespace Geometry {
 				return
 					vertex.position_.GetHash() ^
 					vertex.normal_.GetHash() ^
-					vertex.texel_.GetHash();
+					vertex.uv_.GetHash();
 			}
 		};
 
 		[[nodiscard]]
 		bool operator==(const Vertex3fnt& vertex) const noexcept {
-			return (position_ == vertex.position_) && (normal_ == vertex.normal_) && (texel_ == vertex.texel_);
+			return (position_ == vertex.position_) && (normal_ == vertex.normal_) && (uv_ == vertex.uv_);
 		}
 
 	};
 
-	struct Vertex3fnct {
-		Vertex3f position_{ 0.f, 0.f, 0.f };
-		Math::Vector3f normal_ = { 0.f, 0.f, 0.f };
-		Math::Vector3f color_ = { 1.f, 1.f, 1.f };
-		Math::Vector2f texel_ = { 0.f, 0.f };
-		Vertex3fnct() noexcept = default;
-		Vertex3fnct(
-			const Vertex3f& position,
-			const Math::Vector3f& normal,
-			const Math::Vector3f& color,
-			const Math::Vector2f& texel) noexcept :
-			position_{ position },
-			normal_{ normal },
-			color_{ color },
-			texel_ { texel } { }
+	//struct Vertex3fnct {
+	//	Vertex3f position_{ 0.f, 0.f, 0.f };
+	//	Math::Vector3f normal_ = { 0.f, 0.f, 0.f };
+	//	Math::Vector3f color_ = { 1.f, 1.f, 1.f };
+	//	Math::Vector2f texel_ = { 0.f, 0.f };
+	//	Vertex3fnct() noexcept = default;
+	//	Vertex3fnct(
+	//		const Vertex3f& position,
+	//		const Math::Vector3f& normal,
+	//		const Math::Vector3f& color,
+	//		const Math::Vector2f& texel) noexcept :
+	//		position_{ position },
+	//		normal_{ normal },
+	//		color_{ color },
+	//		texel_ { texel } { }
 
 
-		struct Hash {
-			[[nodiscard]]
-			Common::UInt64 operator()(const Vertex3fnct& vertex) const noexcept {
-				return
-					vertex.position_.GetHash() ^
-					vertex.normal_.GetHash() ^
-					vertex.color_.GetHash() ^
-					vertex.texel_.GetHash();
-			}
-		};
+	//	struct Hash {
+	//		[[nodiscard]]
+	//		Common::UInt64 operator()(const Vertex3fnct& vertex) const noexcept {
+	//			return
+	//				vertex.position_.GetHash() ^
+	//				vertex.normal_.GetHash() ^
+	//				vertex.color_.GetHash() ^
+	//				vertex.texel_.GetHash();
+	//		}
+	//	};
 
-		[[nodiscard]]
-		bool operator==(const Vertex3fnct& vertex) const noexcept {
-			return 
-				(position_ == vertex.position_) &&
-				(normal_ == vertex.normal_) &&
-				(color_ == vertex.color_) &&
-				(texel_ == vertex.texel_);
-		}
+	//	[[nodiscard]]
+	//	bool operator==(const Vertex3fnct& vertex) const noexcept {
+	//		return 
+	//			(position_ == vertex.position_) &&
+	//			(normal_ == vertex.normal_) &&
+	//			(color_ == vertex.color_) &&
+	//			(texel_ == vertex.texel_);
+	//	}
 
-	};
+	//};
 
 
 }

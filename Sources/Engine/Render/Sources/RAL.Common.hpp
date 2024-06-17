@@ -18,7 +18,7 @@ namespace RAL {
 	using Vertex3fc = Geometry::Vertex3fc;
 
 	using Vertex3fnt = Geometry::Vertex3fnt;
-	using Vertex3fnñt = Geometry::Vertex3fnct;
+	//using Vertex3fnñt = Geometry::Vertex3fnct;
 	using Texture = Geometry::Texture;
 	//struct Vertex3fnc {
 	//	Vertex3f position_{ 0.f, 0.f, 0.f };
