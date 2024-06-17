@@ -707,12 +707,11 @@ namespace Render::Vulkan {
 			Common::Size indicesNumber) override {
 			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
 				const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
-				vertices3fnc_.Add({ vertex.position_, vertex.normal_, vertex.color_, Math::Vector2f{ 0, 0 } });
+				//vertices3fnc_.Add({ vertex.position_, vertex.normal_, vertex.color_, Math::Vector2f{ 0, 0 } });
 			}
 			indices_.Add(indices, indicesNumber, verticesNumber);
 
 		}
-
 
 		virtual void DrawIndexed(
 			const RAL::Vertex3fc* vertices,
@@ -720,7 +719,7 @@ namespace Render::Vulkan {
 			const RAL::Index16* indices,
 			Common::Size indicesNumber) override {
 
-			vertices3fc_.Add(vertices, verticesNumber);
+			vertices_.Add(vertices, verticesNumber);
 			indices_.Add(indices, indicesNumber, verticesNumber);
 
 		}
