@@ -1,7 +1,7 @@
 
 #include <unordered_map>
 #include <Geometry.Model.hpp>
-
+#include <Geometry.Vertex.hpp>
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
@@ -172,8 +172,8 @@ namespace Geometry {
 
 
         Model<VertexType, IndexType> model;
-
-        std::unordered_map<VertexType, IndexType, VertexType::Hash> uniqueVertices{};
+        Vertex3fnc::Hash hasher;
+        /*std::unordered_map<VertexType, IndexType, VertexType::Hash> uniqueVertices{};
         for (const auto& objShape : shapes) {
             VertexCloud<VertexType> vertices;
             IndexBuffer<IndexType> indices;
@@ -195,7 +195,7 @@ namespace Geometry {
             }
             Shape<VertexType, IndexType> shape{ vertices, indices };
             model.AddShape(shape);
-        }
+        }*/
         OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
         return model;
     }

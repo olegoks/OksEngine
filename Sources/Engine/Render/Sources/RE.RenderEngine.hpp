@@ -37,7 +37,7 @@ namespace RE {
 			
 		}
 
-		void Render(const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model) {
+		void Render(/*const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model*/) {
 			Geometry::Box box{ 1 };
 
 			Geometry::VertexCloud<RAL::Vertex3fc> coloredBox;
@@ -61,7 +61,7 @@ namespace RE {
 					Math::Vector3f offsetVector{ (float)x, (float)y , 0 };
 					const Math::Matrix4x4f offset = Math::Matrix4x4f::GetTranslate(offsetVector);
 					for (RAL::Vertex3fc& vertex : box) {
-						vertex.position_ = Math::TransformPoint(vertex.position_, offset);
+						vertex.position_ = RAL::Vertex3f{ Math::TransformPoint(vertex.position_.position_, offset) };
 					}
 					++i;
 				}

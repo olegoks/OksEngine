@@ -700,18 +700,18 @@ namespace Render::Vulkan {
 
 		//}
 
-		virtual void DrawIndexed(
-			const RAL::Vertex3fnc* vertices,
-			Common::Size verticesNumber,
-			const RAL::Index16* indices,
-			Common::Size indicesNumber) override {
-			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-				const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
-				//vertices3fnc_.Add({ vertex.position_, vertex.normal_, vertex.color_, Math::Vector2f{ 0, 0 } });
-			}
-			indices_.Add(indices, indicesNumber, verticesNumber);
+		//virtual void DrawIndexed(
+		//	const RAL::Vertex3fnc* vertices,
+		//	Common::Size verticesNumber,
+		//	const RAL::Index16* indices,
+		//	Common::Size indicesNumber) override {
+		//	for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+		//		const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
+		//		vertices_.Add({ vertex.position_, vertex.normal_, vertex.color_, Math::Vector2f{ 0, 0 } });
+		//	}
+		//	indices_.Add(indices, indicesNumber, verticesNumber);
 
-		}
+		//}
 
 		virtual void DrawIndexed(
 			const RAL::Vertex3fc* vertices,
@@ -729,10 +729,11 @@ namespace Render::Vulkan {
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
 			Common::Size indicesNumber,
-			const RAL::Color& color) override {
+			const RAL::Color3f& color) override {
 
 			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-				vertices_.Add({ vertices[vertexIndex], color, });
+				RAL::Vertex3fc vertex{ vertices[vertexIndex], color };
+				vertices_.Add(vertex);
 			}
 
 			indices_.Add(indices, indicesNumber, verticesNumber);
