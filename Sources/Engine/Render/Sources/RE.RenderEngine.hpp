@@ -75,26 +75,31 @@ namespace RE {
 			//		box.GetIndices().GetData(),
 			//		box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
 			//}
-			Geometry::VertexCloud<Geometry::Vertex3fc> verticesColored;
-
+			
+			Common::Index shapeIndex = 0;
 			for (const auto& shape : model) {
+				Geometry::VertexCloud<Geometry::Vertex3fc> verticesColored;
+				//if (shapeIndex == 0) {
+				//	shapeIndex++;
+				//	continue;
+				//}
 				const auto& vertices = shape.GetVertices();
 				for (const auto& vertex : vertices) {
 					Geom::Vertex3fc vertexColored{ vertex.position_, vertex.color_ };
 					verticesColored.Add(vertexColored);
 				}
-			}
-
-			const auto& shape = *model.begin();
-			//
-			driver_->DrawIndexed(
-				(RAL::Vertex3fc*)verticesColored.GetData(),
+				driver_->DrawIndexed(
+					(RAL::Vertex3fc*)verticesColored.GetData(),
 					verticesColored.GetVerticesNumber(),
-				shape.GetIndices().GetData(),
-				shape.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
+					shape.GetIndices().GetData(),
+					shape.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
+
+			}
 			driver_->StartRender();
 			driver_->Render();
 			driver_->EndRender();
+
+			
 		}
 
 	private:

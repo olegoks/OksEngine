@@ -177,9 +177,11 @@ namespace Geometry {
         for (const auto& objShape : shapes) {
             VertexCloud<Vertex3fnc> vertices;
             IndexBuffer<Index16> indices;
-
+            Common::Index vertexIndex = 0;
             for (const auto& index : objShape.mesh.indices) {
                 auto vertex = GetVertex<Vertex3fnc>(index, attributes);
+                auto& material = materials[objShape.mesh.material_ids[vertexIndex/ 3]];
+                vertex.color_ = Geom::Color3f{ material.diffuse[0], material.diffuse[1], material.diffuse[2] };
                 bool deleteDuplicateVertices = true;
                 if (deleteDuplicateVertices) {
                     if (uniqueVertices.count(vertex) == 0) {
@@ -192,6 +194,7 @@ namespace Geometry {
                     vertices.Add(vertex);
                     indices.Add(vertices.GetVerticesNumber() - 1);
                 }
+                vertexIndex++;
             }
             Shape<Vertex3fnc, Index16> shape{ vertices, indices };
             model.AddShape(shape);

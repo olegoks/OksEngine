@@ -50,7 +50,7 @@ namespace OksEngine {
 
 			RAL::Camera::CreateInfo cameraCreateInfo;
 			{
-				cameraCreateInfo.position_ = Math::Vector3f{ 2.5f, 0.f, 0.f };
+				cameraCreateInfo.position_ = Math::Vector3f{ 5.f, 0.f, 0.f };
 				cameraCreateInfo.direction_ = Math::Vector3f{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
 				cameraCreateInfo.size_ = windowInfo.size_;
 			}
@@ -79,6 +79,20 @@ namespace OksEngine {
 				RECreateInfo.renderSurface_ = std::make_shared<RAL::RenderSurface>(std::move(renderSurface));
 			}
 			engine_ = std::make_shared<RE::RenderEngine>(RECreateInfo);
+
+			//const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/room.obj");
+			//ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
+
+			const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.obj");
+			ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
+
+			const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.mtl");
+			ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
+
+			std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
+			std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
+
+			model_ = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
 		}
 
 		virtual void Update() noexcept override {
@@ -131,27 +145,13 @@ namespace OksEngine {
 			//driver_->StartRender();
 			//driver_->Render();
 			//driver_->EndRender();
-			auto& context = GetContext();
-			auto resourceSubsystem = context.GetResourceSubsystem();
+			
 
-			//const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/room.obj");
-			//ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
-
-			const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet ruchka 3.obj");
-			ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
-
-			const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet ruchka 3.mtl");
-			ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
-
-			std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
-			std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
-
-			auto model = Geometry::ParseObjVertex3fncIndex16(obj, mtl);
-
-			engine_->Render(model);
+			engine_->Render(*model_);
 		}
 
 	private:
+		std::shared_ptr<Geom::Model<Geom::Vertex3fnc, Geom::Index16>> model_ = nullptr;
 		std::shared_ptr<RE::RenderEngine> engine_ = nullptr;
 		std::shared_ptr<RAL::API> api_ = nullptr;
 		std::shared_ptr<RAL::Driver> driver_ = nullptr;
