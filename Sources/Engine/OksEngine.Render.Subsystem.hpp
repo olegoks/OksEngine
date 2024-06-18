@@ -134,10 +134,21 @@ namespace OksEngine {
 			auto& context = GetContext();
 			auto resourceSubsystem = context.GetResourceSubsystem();
 
-			const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/room.obj");
+			//const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/room.obj");
+			//ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
+
+			const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet ruchka 3.obj");
 			ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
 
-			engine_->Render();
+			const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet ruchka 3.mtl");
+			ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
+
+			std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
+			std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
+
+			auto model = Geometry::ParseObjVertex3fncIndex16(obj, mtl);
+
+			engine_->Render(model);
 		}
 
 	private:

@@ -6,8 +6,10 @@
 #include <Geometry.Shapes.hpp>
 #include <Geometry.VertexCloud.hpp>
 
-namespace Geom {
+namespace Geometry {
 
 
 
 }
+
+namespace Geom = Geometry;
