@@ -654,7 +654,7 @@ namespace Render::Vulkan {
 			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
 			//ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, swapChain_->GetExtent().width / (float)swapChain_->GetExtent().height, 0.1, 10);
 			ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
-			ubo.proj_ = Math::Matrix4x4f::GetPerspective(90, camera_->GetWidth() / (float)camera_->GetHeight(), 0.01f, 1000);
+			ubo.proj_ = Math::Matrix4x4f::GetPerspective(30, camera_->GetWidth() / (float)camera_->GetHeight(), 1.f, 1000);
 
 			ubo.proj_[1][1] *= -1;
 
