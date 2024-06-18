@@ -78,18 +78,17 @@ namespace RE {
 			
 			Common::Index shapeIndex = 0;
 			for (const auto& shape : model) {
-				Geometry::VertexCloud<Geometry::Vertex3fc> verticesColored;
+				Geometry::VertexCloud<Geometry::Vertex3fnc> verticesColored;
 				//if (shapeIndex == 0) {
 				//	shapeIndex++;
 				//	continue;
 				//}
 				const auto& vertices = shape.GetVertices();
 				for (const auto& vertex : vertices) {
-					Geom::Vertex3fc vertexColored{ vertex.position_, vertex.color_ };
-					verticesColored.Add(vertexColored);
+					verticesColored.Add(vertex);
 				}
 				driver_->DrawIndexed(
-					(RAL::Vertex3fc*)verticesColored.GetData(),
+					(RAL::Vertex3fnc*)verticesColored.GetData(),
 					verticesColored.GetVerticesNumber(),
 					shape.GetIndices().GetData(),
 					shape.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
