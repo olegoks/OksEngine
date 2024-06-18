@@ -647,7 +647,7 @@ namespace Render::Vulkan {
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-			Math::Vector3f vector{ 0.f, 1.f, 0.f };
+			Math::Vector3f vector{ 1.f, 0.f, 0.f };
 			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });Math::Matrix4x4f::GetIdentity();*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector);
 			Math::Vector3f position = camera_->GetPosition();
 			Math::Vector3f direction = camera_->GetDirection();
