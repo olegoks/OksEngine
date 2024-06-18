@@ -50,7 +50,7 @@ namespace OksEngine {
 
 			RAL::Camera::CreateInfo cameraCreateInfo;
 			{
-				cameraCreateInfo.position_ = Math::Vector3f{ 5.f, 0.f, 0.f };
+				cameraCreateInfo.position_ = Math::Vector3f{ 4.f, 0.f, 0.f };
 				cameraCreateInfo.direction_ = Math::Vector3f{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
 				cameraCreateInfo.size_ = windowInfo.size_;
 			}
