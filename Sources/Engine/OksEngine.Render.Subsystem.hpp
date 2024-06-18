@@ -50,7 +50,7 @@ namespace OksEngine {
 
 			RAL::Camera::CreateInfo cameraCreateInfo;
 			{
-				cameraCreateInfo.position_ = Math::Vector3f{ 4.f, 0.f, 0.f };
+				cameraCreateInfo.position_ = Math::Vector3f{ 5.f, 0.f, 0.f };
 				cameraCreateInfo.direction_ = Math::Vector3f{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
 				cameraCreateInfo.size_ = windowInfo.size_;
 			}
@@ -60,7 +60,7 @@ namespace OksEngine {
 			RAL::Light::CreateInfo lightCreateInfo;
 			{
 				lightCreateInfo.intensity_ = 1.f;
-				lightCreateInfo.position_ = { 0.f, 0.f, 0.f };
+				lightCreateInfo.position_ = camera->GetPosition();//{ 0.f, 0.f, 0.f };
 			}
 			auto light = std::make_shared<RAL::Light>(lightCreateInfo);
 
