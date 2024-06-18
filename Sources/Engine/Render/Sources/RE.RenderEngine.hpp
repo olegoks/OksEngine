@@ -37,53 +37,61 @@ namespace RE {
 			
 		}
 
-		void Render(/*const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model*/) {
-			Geometry::Box box{ 1 };
+		void Render(const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model) {
+			//Geometry::Box box{ 1 };
 
-			Geometry::VertexCloud<RAL::Vertex3fc> coloredBox;
-			for (Common::Index i = 0; i < box.GetVertices().GetVerticesNumber(); i++) {
-				Math::Vector3f color{ (float)((i * 100) % 255) / 255, (float)((i * 150) % 255) / 255, (float)((i * 199) % 255) / 255 };
-				RAL::Vertex3fc coloredVertex = { box.GetVertices()[i], color };
-				coloredBox.Add(coloredVertex);
-			}
+			//Geometry::VertexCloud<RAL::Vertex3fc> coloredBox;
+			//for (Common::Index i = 0; i < box.GetVertices().GetVerticesNumber(); i++) {
+			//	Math::Vector3f color{ (float)((i * 100) % 255) / 255, (float)((i * 150) % 255) / 255, (float)((i * 199) % 255) / 255 };
+			//	RAL::Vertex3fc coloredVertex = { box.GetVertices()[i], color };
+			//	coloredBox.Add(coloredVertex);
+			//}
 
-			DS::Vector<Geometry::VertexCloud<RAL::Vertex3fc>> plane;
+			//DS::Vector<Geometry::VertexCloud<RAL::Vertex3fc>> plane;
 
-			for (int i = 0; i < 25; i++) {
-				plane.PushBack(coloredBox);
-			}
+			//for (int i = 0; i < 25; i++) {
+			//	plane.PushBack(coloredBox);
+			//}
 
 
-			Common::Index i = 0;
-			for (int x = -2; x < 2; x++) {
-				for (int y = -2; y < 2; y++) {
-					Geometry::VertexCloud<RAL::Vertex3fc>& box = plane[i];
-					Math::Vector3f offsetVector{ (float)x, (float)y , 0 };
-					const Math::Matrix4x4f offset = Math::Matrix4x4f::GetTranslate(offsetVector);
-					for (RAL::Vertex3fc& vertex : box) {
-						vertex.position_ = Math::TransformPoint(vertex.position_, offset);
-					}
-					++i;
+			//Common::Index i = 0;
+			//for (int x = -2; x < 2; x++) {
+			//	for (int y = -2; y < 2; y++) {
+			//		Geometry::VertexCloud<RAL::Vertex3fc>& box = plane[i];
+			//		Math::Vector3f offsetVector{ (float)x, (float)y , 0 };
+			//		const Math::Matrix4x4f offset = Math::Matrix4x4f::GetTranslate(offsetVector);
+			//		for (RAL::Vertex3fc& vertex : box) {
+			//			vertex.position_ = Math::TransformPoint(vertex.position_, offset);
+			//		}
+			//		++i;
+			//	}
+			//}
+
+			//for (int i = 0; i < 25; i++) {
+			//	Geometry::VertexCloud<RAL::Vertex3fc>& coloredBox = plane[i];
+			//	driver_->DrawIndexed(
+			//		(RAL::Vertex3fc*)coloredBox.GetData(),
+			//		coloredBox.GetVerticesNumber(),
+			//		box.GetIndices().GetData(),
+			//		box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
+			//}
+			Geometry::VertexCloud<Geometry::Vertex3fc> verticesColored;
+
+			for (const auto& shape : model) {
+				const auto& vertices = shape.GetVertices();
+				for (const auto& vertex : vertices) {
+					Geom::Vertex3fc vertexColored{ vertex.position_, vertex.color_ };
+					verticesColored.Add(vertexColored);
 				}
 			}
 
-			for (int i = 0; i < 25; i++) {
-				Geometry::VertexCloud<RAL::Vertex3fc>& coloredBox = plane[i];
-				driver_->DrawIndexed(
-					(RAL::Vertex3fc*)coloredBox.GetData(),
-					coloredBox.GetVerticesNumber(),
-					box.GetIndices().GetData(),
-					box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
-			}
-
-
-
-			//driver_->DrawIndexed(
-			//	(RAL::Vertex3fc*)coloredBox.GetData(),
-			//	coloredBox.GetVerticesNumber(),
-			//	box.GetIndices().GetData(),
-			//	box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
-
+			const auto& shape = *model.begin();
+			//
+			driver_->DrawIndexed(
+				(RAL::Vertex3fc*)verticesColored.GetData(),
+					verticesColored.GetVerticesNumber(),
+				shape.GetIndices().GetData(),
+				shape.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
 			driver_->StartRender();
 			driver_->Render();
 			driver_->EndRender();

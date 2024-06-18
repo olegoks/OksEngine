@@ -3,7 +3,6 @@
 #include <functional>
 
 #include <Geometry.Common.hpp>
-#include <Common.Types.hpp>
 #include <Math.Vector.hpp>
 
 namespace Geometry {
@@ -93,7 +92,7 @@ namespace Geometry {
 	};
 
 	struct Vertex3fnc : public Vertex3fn {
-		Math::Vector3f color_ = { 1.f, 1.f, 1.f };
+		Color3f color_ = { 1.f, 1.f, 1.f };
 		Vertex3fnc() noexcept = default;
 		Vertex3fnc(const Vertex3f& position, const Math::Vector3f& normal, const Math::Vector3f& color) noexcept :
 			Vertex3fn{ position, normal }, color_ { color } { }
@@ -180,3 +179,5 @@ namespace Geometry {
 
 
 }
+
+namespace Geom = Geometry;
