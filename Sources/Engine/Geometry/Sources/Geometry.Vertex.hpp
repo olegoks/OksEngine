@@ -96,6 +96,9 @@ namespace Geometry {
 		Vertex3fnc() noexcept = default;
 		Vertex3fnc(const Vertex3f& position, const Math::Vector3f& normal, const Math::Vector3f& color) noexcept :
 			Vertex3fn{ position, normal }, color_ { color } { }
+		Vertex3fnc(const Vertex3fc& vertex3fc, const Normal3f& normal) noexcept :
+			Vertex3fn{ vertex3fc.position_, normal }, color_{ vertex3fc.color_ } { }
+
 
 		struct Hash {
 			[[nodiscard]]
