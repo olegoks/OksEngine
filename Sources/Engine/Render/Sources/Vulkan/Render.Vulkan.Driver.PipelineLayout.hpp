@@ -22,7 +22,7 @@ namespace Render::Vulkan {
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 			{
 				pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-				pipelineLayoutInfo.setLayoutCount = createInfo.descriptorSetLayouts_.size(); // Optional
+				pipelineLayoutInfo.setLayoutCount = static_cast<Common::UInt32>(createInfo.descriptorSetLayouts_.size()); // Optional
 				std::vector<VkDescriptorSetLayout> descriptorSetLayoutsHandles;
 				for (auto descriptorSetLayout : createInfo.descriptorSetLayouts_) {
 					descriptorSetLayoutsHandles.push_back(descriptorSetLayout->GetNative());

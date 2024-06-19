@@ -15,6 +15,7 @@
 #include <Geometry.Vertex.hpp>
 #include <DataStructures.Vector.hpp>
 #include <GLFW\glfw3.h>
+#include <RAL.Model.hpp>
 
 namespace RAL {
 
@@ -204,6 +205,8 @@ namespace RAL {
 		//	const RAL::Index16* indices,
 		//	Common::Size indicesNumber,
 		//	const Texture& texture) = 0;
+
+		virtual void DrawShape(const RAL::Shape& shape) = 0;
 
 		virtual void DrawIndexed(
 			const Vertex3fnc* vertices,

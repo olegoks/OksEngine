@@ -109,7 +109,7 @@ namespace Render::Vulkan {
 					VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 					submitInfo.pWaitDstStageMask = waitStages;
 					submitInfo.commandBufferCount = 1;
-					submitInfo.pCommandBuffers = &imageContext_->commandBuffer_->GetNative();
+					submitInfo.pCommandBuffers = &imageContext_->commandBuffer_->GetHandle();
 					submitInfo.signalSemaphoreCount = 1;
 					submitInfo.pSignalSemaphores = &renderFinishedSemaphore_->GetNative();
 
@@ -515,45 +515,54 @@ namespace Render::Vulkan {
 			OS::LogInfo("/render/vulkan/driver/", "Vulkan driver initialized successfuly.");
 		}
 
-		void DataCopy(std::shared_ptr<Buffer> bufferFrom, std::shared_ptr<Buffer> bufferTo, std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<CommandPool> commandPool) {
+		void DataCopy(
+			std::shared_ptr<Buffer> bufferFrom,
+			std::shared_ptr<Buffer> bufferTo,
+			std::shared_ptr<LogicDevice> logicDevice,
+			std::shared_ptr<CommandPool> commandPool) {
 
-			VkCommandBufferAllocateInfo allocInfo{};
-			{
-				allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-				allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-				allocInfo.commandPool = commandPool->GetNative();
-				allocInfo.commandBufferCount = 1;
-			}
+			auto commandBuffer = std::make_shared<CommandBuffer>(commandPool, logicDevice);
+			commandBuffer->Begin();
 
-			VkCommandBuffer commandBuffer;
-			vkAllocateCommandBuffers(logicDevice->GetHandle(), &allocInfo, &commandBuffer);
+			//VkCommandBufferAllocateInfo allocInfo{};
+			//{
+			//	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+			//	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			//	allocInfo.commandPool = *commandPool;
+			//	allocInfo.commandBufferCount = 1;
+			//}
 
-			VkCommandBufferBeginInfo beginInfo{};
-			{
-				beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-				beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-			}
+			//VkCommandBuffer commandBuffer;
+			//vkAllocateCommandBuffers(logicDevice->GetHandle(), &allocInfo, &commandBuffer);
+			// 
+			//VkCommandBufferBeginInfo beginInfo{};
+			//{
+			//	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+			//	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+			//}
 
-			vkBeginCommandBuffer(commandBuffer, &beginInfo);
-			VkBufferCopy copyRegion{};
-			{
-				copyRegion.srcOffset = 0;
-				copyRegion.dstOffset = 0;
-				copyRegion.size = bufferFrom->GetSizeInBytes();
-			}
-			vkCmdCopyBuffer(commandBuffer, bufferFrom->GetNative(), bufferTo->GetNative(), 1, &copyRegion);
-			vkEndCommandBuffer(commandBuffer);
+			//vkBeginCommandBuffer(commandBuffer, &beginInfo);
+			//VkBufferCopy copyRegion{};
+			//{
+			//	copyRegion.srcOffset = 0;
+			//	copyRegion.dstOffset = 0;
+			//	copyRegion.size = bufferFrom->GetSizeInBytes();
+			//}
+			//vkCmdCopyBuffer(commandBuffer, bufferFrom->GetNative(), bufferTo->GetNative(), 1, &copyRegion);
+			commandBuffer->Copy(bufferFrom, bufferTo);
+			commandBuffer->End();
+
 
 			VkSubmitInfo submitInfo{};
 			{
 				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 				submitInfo.commandBufferCount = 1;
-				submitInfo.pCommandBuffers = &commandBuffer;
+				submitInfo.pCommandBuffers = &commandBuffer->GetHandle();
 			}
 			vkQueueSubmit(logicDevice->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
 			vkQueueWaitIdle(logicDevice->GetGraphicsQueue());
 
-			vkFreeCommandBuffers(logicDevice->GetHandle(), commandPool->GetNative(), 1, &commandBuffer);
+			//vkFreeCommandBuffers(*logicDevice, *commandPool, 1, &commandBuffer);
 		}
 
 
@@ -734,6 +743,11 @@ namespace Render::Vulkan {
 
 		//}
 
+
+		virtual void DrawShape(const RAL::Shape& shape) override {
+
+		}
+
 		virtual void DebugDrawIndexed(
 			const RAL::Vertex3fnc* vertices,
 			Common::Size verticesNumber,
@@ -767,7 +781,7 @@ namespace Render::Vulkan {
 
 			auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(RAL::Index16));
 			indexStagingBuffer->Fill(indices);
-			auto indexBuffer = std::make_shared<IndexBuffer>(physicalDevice_, logicDevice_, indicesNumber);
+			auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
 
 			DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
 
@@ -843,7 +857,7 @@ namespace Render::Vulkan {
 				//VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 				submitInfo.pWaitDstStageMask = &waitStages;//waitStages;
 				submitInfo.commandBufferCount = 1;
-				submitInfo.pCommandBuffers = &commands->GetNative();
+				submitInfo.pCommandBuffers = &commands->GetHandle();
 				submitInfo.signalSemaphoreCount = 1;
 				submitInfo.pSignalSemaphores = &semaphoreExecutionFinish->GetNative();
 
@@ -913,7 +927,7 @@ namespace Render::Vulkan {
 		std::shared_ptr<DescriptorSet> modelInfoDescriptorSet_ = nullptr;
 
 		DS::Vector<std::shared_ptr<VertexBuffer<Vertex3fnc>>> vertexBuffers_;
-		DS::Vector<std::shared_ptr<IndexBuffer>> indexBuffers_;
+		DS::Vector<std::shared_ptr<IndexBuffer<RAL::Index16>>> indexBuffers_;
 	};
 
 }
