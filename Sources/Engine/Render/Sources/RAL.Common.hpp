@@ -3,6 +3,7 @@
 #include <Math.Vector.hpp>
 #include <Geometry.Common.hpp>
 #include <Geometry.Vertex.hpp>
+#include <Geometry.Polygon.hpp>
 #include <Geometry.Texture.hpp>
 
 namespace RAL {
@@ -17,9 +18,15 @@ namespace RAL {
 	using Vertex3fnc = Geometry::Vertex3fnc;
 	using Vertex3fc = Geometry::Vertex3fc;
 	using Normal3f = Geom::Normal3f;
+	using UV2f = Geom::UV2f;
 	using Vertex3fnt = Geometry::Vertex3fnt;
 	//using Vertex3fnñt = Geometry::Vertex3fnct;
 	using Texture = Geometry::Texture;
+
+	template<class VertexType>
+	using Polygon = Geom::Polygon<VertexType>;
+
+	using VertexType = Geom::VertexType;
 	//struct Vertex3fnc {
 	//	Vertex3f position_{ 0.f, 0.f, 0.f };
 	//	Math::Vector3f normal_ = { 0.f, 0.f, 0.f };

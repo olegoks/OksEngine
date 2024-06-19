@@ -9,6 +9,7 @@
 #include <Render.Vulkan.Driver.Buffer.hpp>
 
 namespace Render::Vulkan {
+
 	class StagingBuffer : public Buffer {
 	public:
 		StagingBuffer(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<LogicDevice> logicDevice, Common::Size bufferSizeInBytes) :

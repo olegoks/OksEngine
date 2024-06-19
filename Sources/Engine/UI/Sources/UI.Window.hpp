@@ -85,6 +85,9 @@ namespace UI {
 					keyboardKey = Key::D;
 					event = Event::Pressed;
 				}
+				else {
+					return;
+				}
 
 				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
 				windowPtr->CallEventCallbacks(keyboardKey, event);

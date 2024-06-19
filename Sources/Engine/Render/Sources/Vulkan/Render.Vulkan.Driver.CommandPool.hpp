@@ -8,12 +8,13 @@
 #include <OS.Logger.hpp>
 
 #include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Abstraction.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.PhysicalDevice.hpp>
 
 namespace Render::Vulkan {
 
-	class CommandPool {
+	class CommandPool : public Abstraction<VkCommandPool>{
 	public:
 
 		struct CreateInfo {
@@ -22,7 +23,7 @@ namespace Render::Vulkan {
 		};
 
 		CommandPool(const CreateInfo& createInfo) noexcept :
-			logicDevice_{ createInfo.logicDevice_ } {
+			createInfo_{ createInfo } {
 
 			VkCommandPoolCreateInfo poolInfo{};
 			{
@@ -31,36 +32,28 @@ namespace Render::Vulkan {
 				poolInfo.flags = 0; // Optional
 			}
 
-			VkCall(vkCreateCommandPool(createInfo.logicDevice_->GetHandle(), &poolInfo, nullptr, &commandPool_),
+			VkCommandPool commandPool = VK_NULL_HANDLE;
+			VkCall(vkCreateCommandPool(createInfo.logicDevice_->GetHandle(), &poolInfo, nullptr, &commandPool),
 				"Error while creating command pool." );
+			SetHandle(commandPool);
 			OS::LogInfo("/render/vulkan/driver", "Command pool was created successfuly.");
 		}
+
 		~CommandPool() noexcept {
 			Destroy();
 		}
 
-		[[nodiscard]]
-		const VkCommandPool& GetNative() const noexcept { return commandPool_; }
-
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(logicDevice_ != nullptr, "Logic device is nullptr.");
-			OS::AssertMessage(GetNative() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkCommandPool.");
-			vkDestroyCommandPool(logicDevice_->GetHandle(), GetNative(), nullptr);
-			SetNative(VK_NULL_HANDLE);
-		}
-
-		void SetNative(VkCommandPool commandPool) noexcept {
-			OS::Assert((commandPool != VK_NULL_HANDLE) && (GetNative() == VK_NULL_HANDLE) ||
-				((commandPool == VK_NULL_HANDLE) && (GetNative() != VK_NULL_HANDLE)));
-			commandPool_ = commandPool;
+			OS::AssertMessage(createInfo_.logicDevice_ != nullptr, "Logic device is nullptr.");
+			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkCommandPool.");
+			vkDestroyCommandPool(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			SetHandle(VK_NULL_HANDLE);
 		}
 
 	private:
-
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-		VkCommandPool commandPool_;
+		CreateInfo createInfo_;
 	};
 
 

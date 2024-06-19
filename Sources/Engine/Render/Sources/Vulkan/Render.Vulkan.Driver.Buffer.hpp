@@ -71,7 +71,7 @@ namespace Render::Vulkan {
 			{
 				allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 				allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-				allocInfo.commandPool = commandPool->GetNative();
+				allocInfo.commandPool = *commandPool;
 				allocInfo.commandBufferCount = 1;
 			}
 			
@@ -103,7 +103,7 @@ namespace Render::Vulkan {
 			vkQueueSubmit(logicDevice->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
 			vkQueueWaitIdle(logicDevice->GetGraphicsQueue());
 
-			vkFreeCommandBuffers(logicDevice->GetHandle(), commandPool->GetNative(), 1, &commandBuffer);
+			vkFreeCommandBuffers(logicDevice->GetHandle(), *commandPool, 1, &commandBuffer);
 		}
 
 		[[nodiscard]]

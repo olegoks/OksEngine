@@ -7,15 +7,16 @@
 
 namespace Geometry {
 
+	enum class VertexType : Common::UInt64 {
+		V3f = 0,
+		V3f_C3f,
+		V3f_N3f_C3f,
+		V3f_N3f_T3f
+	};
+
 	template<Common::Size size, class BaseType>
 	struct Vertex {
 
-		enum class Type : Common::UInt64 {
-			V3f = 0,
-			V3f_C3f,
-			V3f_N3f_C3f,
-			V3f_N3f_T3f
-		};
 
 		Vertex() noexcept : position_{ 0.f , 0.f , 0.f }{ }
 

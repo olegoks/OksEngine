@@ -8,6 +8,7 @@
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
 #include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Abstraction.hpp>
 #include <Render.Vulkan.Driver.CommandPool.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.Pipeline.hpp>
@@ -18,13 +19,13 @@
 
 namespace Render::Vulkan {
 
-	class CommandBuffer {
+	class CommandBuffer : public Abstraction<VkCommandBuffer>{
 	public:
 		CommandBuffer(std::shared_ptr<CommandPool> commandPool, std::shared_ptr<LogicDevice> logicDevice) :
 			logicDevice_{ logicDevice },
 			commandPool_ { commandPool } {
 
-			Allocate(logicDevice->GetHandle(), commandPool->GetNative());
+			Allocate(*logicDevice, *commandPool);
 
 		}
 
@@ -35,7 +36,7 @@ namespace Render::Vulkan {
 				beginInfo.flags = 0;
 				beginInfo.pInheritanceInfo = nullptr;
 			}
-			VkCall(vkBeginCommandBuffer(GetNative(), &beginInfo), "Error while begin command buffer.");
+			VkCall(vkBeginCommandBuffer(GetHandle(), &beginInfo), "Error while begin command buffer.");
 		}
 
 		struct DepthBufferInfo {
@@ -64,7 +65,7 @@ namespace Render::Vulkan {
 				renderPassInfo.pClearValues = clearValues.data();
 			}
 			vkCmdBeginRenderPass(
-				GetNative(),
+				GetHandle(),
 				&renderPassInfo,
 				VK_SUBPASS_CONTENTS_INLINE);
 		}
@@ -72,7 +73,7 @@ namespace Render::Vulkan {
 		template<class PipelineType>
 		void BindPipeline(std::shared_ptr<PipelineType> pipeline) noexcept {
 			vkCmdBindPipeline(
-				GetNative(),
+				GetHandle(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
 				pipeline->GetHandle());
 		}
@@ -81,16 +82,16 @@ namespace Render::Vulkan {
 			VkDeviceSize offsets[] = { 0 };
 			const VkBuffer bufferHandle = vertexBuffer->GetNative();
 			vkCmdBindVertexBuffers(
-				GetNative(),
+				GetHandle(),
 				0,
 				1,
 				&bufferHandle,
 				offsets);
 		}
 
-		void BindBuffer(std::shared_ptr<IndexBuffer> indexBuffer) noexcept {
+		void BindBuffer(std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer) noexcept {
 			vkCmdBindIndexBuffer(
-				GetNative(),
+				GetHandle(),
 				indexBuffer->GetNative(),
 				0,
 				VK_INDEX_TYPE_UINT16);
@@ -105,35 +106,43 @@ namespace Render::Vulkan {
 			}
 			
 			vkCmdBindDescriptorSets(
-				GetNative(),
+				GetHandle(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS, // Bind to graphics pipeline(not computation pipeline)
 				pipeline->GetLayout()->GetHandle(),
 				0,
-				descriptorSets.size(),
+				static_cast<Common::UInt32>(descriptorSets.size()),
 				descriptorSetsHandles.data(),
 				0,
 				nullptr);
 		}
 
+
+
 		void DrawIndexed(Common::Size indicesNumber) {
-			vkCmdDrawIndexed(GetNative(), static_cast<uint32_t>(indicesNumber), 1, 0, 0, 0);
+			vkCmdDrawIndexed(GetHandle(), static_cast<uint32_t>(indicesNumber), 1, 0, 0, 0);
 		}
 
 		void EndRenderPass() noexcept {
-			vkCmdEndRenderPass(GetNative());
+			vkCmdEndRenderPass(GetHandle());
+		}
+
+		void Copy(std::shared_ptr<Buffer> from, std::shared_ptr<Buffer> to) noexcept {
+			VkBufferCopy copyRegion{};
+			{
+				copyRegion.srcOffset = 0;
+				copyRegion.dstOffset = 0;
+				copyRegion.size = from->GetSizeInBytes();
+			}
+			vkCmdCopyBuffer(GetHandle(), from->GetNative(), to->GetNative(), 1, &copyRegion);
 		}
 
 		void End() noexcept {
-			VkCall(vkEndCommandBuffer(GetNative()),
+			VkCall(vkEndCommandBuffer(GetHandle()),
 				"Error on ending executing commands.");
-		}
-		[[nodiscard]]
-		const VkCommandBuffer& GetNative() const noexcept {
-			return commandBuffer_;
 		}
 
 		~CommandBuffer() noexcept {
-			vkFreeCommandBuffers(logicDevice_->GetHandle(), commandPool_->GetNative(), 1, &GetNative());
+			vkFreeCommandBuffers(*logicDevice_, *commandPool_, 1, &GetHandle());
 		}
 
 	private:
@@ -151,20 +160,20 @@ namespace Render::Vulkan {
 			VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
 			VkCall(vkAllocateCommandBuffers(logicDevice, &allocInfo, &commandBuffer),
 				"Command buffer allocation error.");
-			SetNative(commandBuffer);
+			SetHandle(commandBuffer);
 
 		}
 
-		void SetNative(VkCommandBuffer commandBuffer) noexcept {
-			OS::Assert((commandBuffer != VK_NULL_HANDLE) && (GetNative() == VK_NULL_HANDLE) ||
-				((commandBuffer == VK_NULL_HANDLE) && (GetNative() != VK_NULL_HANDLE)));
-			commandBuffer_ = commandBuffer;
-		}
+		//void SetNative(VkCommandBuffer commandBuffer) noexcept {
+		//	OS::Assert((commandBuffer != VK_NULL_HANDLE) && (GetNative() == VK_NULL_HANDLE) ||
+		//		((commandBuffer == VK_NULL_HANDLE) && (GetNative() != VK_NULL_HANDLE)));
+		//	commandBuffer_ = commandBuffer;
+		//}
 
 	private:
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
-		VkCommandBuffer commandBuffer_ = VK_NULL_HANDLE;
+		//VkCommandBuffer commandBuffer_ = VK_NULL_HANDLE;
 	};
 
 }

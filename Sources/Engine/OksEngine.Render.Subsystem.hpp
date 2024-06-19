@@ -83,10 +83,10 @@ namespace OksEngine {
 			//const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/room.obj");
 			//ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
 
-			const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.obj");
+			const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/SpaceShip.obj");
 			ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
 
-			const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.mtl");
+			const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/SpaceShip.mtl");
 			ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
 
 			std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
