@@ -1,4 +1,5 @@
 #pragma once
+#include <chrono>
 #include <Math.hpp>
 #include <Geometry.Shapes.hpp>
 #include <Geometry.Model.hpp>
@@ -33,11 +34,29 @@ namespace RE {
 			driver_->AddLight(createInfo.light_);
 		}
 
-		void RenderModel() {
-			
+		void RenderModel(const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model) {
+
+			Common::Index shapeIndex = 0;
+			for (const auto& shape : model) {
+				Geometry::VertexCloud<Geometry::Vertex3fnc> verticesColored;
+				//if (shapeIndex == 0) {
+				//	shapeIndex++;
+				//	continue;
+				//}
+				const auto& vertices = shape.GetVertices();
+				for (const auto& vertex : vertices) {
+					verticesColored.Add(vertex);
+				}
+				driver_->DrawIndexed(
+					(RAL::Vertex3fnc*)verticesColored.GetData(),
+					verticesColored.GetVerticesNumber(),
+					shape.GetIndices().GetData(),
+					shape.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
+
+			}
 		}
 
-		void Render(const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model) {
+		void Render() {
 			//Geometry::Box box{ 1 };
 
 			//Geometry::VertexCloud<RAL::Vertex3fc> coloredBox;
@@ -76,29 +95,25 @@ namespace RE {
 			//		box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
 			//}
 			
-			Common::Index shapeIndex = 0;
-			for (const auto& shape : model) {
-				Geometry::VertexCloud<Geometry::Vertex3fnc> verticesColored;
-				//if (shapeIndex == 0) {
-				//	shapeIndex++;
-				//	continue;
-				//}
-				const auto& vertices = shape.GetVertices();
-				for (const auto& vertex : vertices) {
-					verticesColored.Add(vertex);
-				}
-				driver_->DrawIndexed(
-					(RAL::Vertex3fnc*)verticesColored.GetData(),
-					verticesColored.GetVerticesNumber(),
-					shape.GetIndices().GetData(),
-					shape.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
-
-			}
 			driver_->StartRender();
 			driver_->Render();
 			driver_->EndRender();
 
-			
+
+			using namespace std::chrono_literals;
+			std::chrono::high_resolution_clock::time_point now;
+			static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
+
+			now = std::chrono::high_resolution_clock::now();
+			auto delta = now - point;
+			point = now;
+
+			auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
+			Common::Size framesPerSecond = Common::Limits<Common::Size>::Max();
+			if (milliseconds != 0) {
+				framesPerSecond = 1000 / milliseconds;
+			}
+			//OS::LogInfo("renderEngine", { "Frames per second {}", framesPerSecond });
 		}
 
 	private:

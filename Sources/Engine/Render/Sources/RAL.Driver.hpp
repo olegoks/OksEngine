@@ -211,6 +211,12 @@ namespace RAL {
 			const Index16* indices,
 			Common::Size indicesNumber) = 0;
 
+		virtual void DebugDrawIndexed(
+			const Vertex3fnc* vertices,
+			Common::Size verticesNumber,
+			const Index16* indices,
+			Common::Size indicesNumber) = 0;
+
 		virtual void DrawIndexed(
 			const Vertex3fc* vertex,
 			Common::Size verticesNumber,

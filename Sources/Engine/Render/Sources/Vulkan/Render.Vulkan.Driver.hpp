@@ -569,30 +569,16 @@ namespace Render::Vulkan {
 
 		void StartRender() override {
 
-			//OS::Profiler profiler{ [](const OS:: Profiler::Info& info) {
-			//	
-			//	const Common::Size executionInMs = info.executionTime_.GetValue() / 1'000'000;
-			//	if (executionInMs < 1) {
-			//		return;
-			//	}
-			//	std::string message;
-			//	{
-			//		message += "Profiled function: %s\n";
-			//		message += "Execution time: %d ms";
-			//	}
-			//	OS::LogInfo("render/vulkan", { message.c_str(), info.functionName_.c_str(),executionInMs });
-			//} };
+			//vertexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, vertices_.GetSizeInBytes());
+			//vertexStagingBuffer_->Fill(vertices_.GetData()/);
+			//vertex3fncBuffer_ = std::make_shared<VertexBuffer<Vertex3fnc>>(physicalDevice_, logicDevice_, vertices_.GetVerticesNumber());
 
-			vertexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, vertices_.GetSizeInBytes());
-			vertexStagingBuffer_->Fill(vertices_.GetData()/*, vertices_.GetSizeInBytes()*/);
-			vertex3fncBuffer_ = std::make_shared<VertexBuffer<Vertex3fnc>/*<Vertex3fnñt>*/>(physicalDevice_, logicDevice_, vertices_.GetVerticesNumber());
+			//DataCopy(vertexStagingBuffer_, vertex3fncBuffer_, logicDevice_, commandPool_);
 
-			DataCopy(vertexStagingBuffer_, vertex3fncBuffer_, logicDevice_, commandPool_);
-
-			indexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indices_.GetSizeInBytes());
-			indexStagingBuffer_->Fill(indices_.GetData()/*, indices_.GetSizeInBytes()*/);
-			indexBuffer_ = std::make_shared<IndexBuffer>(physicalDevice_, logicDevice_, indices_.GetIndicesNumber());
-			DataCopy(indexStagingBuffer_, indexBuffer_, logicDevice_, commandPool_);
+			//indexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indices_.GetSizeInBytes());
+			//indexStagingBuffer_->Fill(indices_.GetData());
+			//indexBuffer_ = std::make_shared<IndexBuffer>(physicalDevice_, logicDevice_, indices_.GetIndicesNumber());
+			//DataCopy(indexStagingBuffer_, indexBuffer_, logicDevice_, commandPool_);
 
 			for (Common::Index i = 0; i < frameBuffers_.size(); i++) {
 
@@ -611,15 +597,31 @@ namespace Render::Vulkan {
 					swapChain_->GetExtent(),
 					clearValue,
 					depthBufferInfo);
-				commandBuffer->BindPipeline(pipeline3fnc_);
-				commandBuffer->BindBuffer(vertex3fncBuffer_);
-				commandBuffer->BindBuffer(indexBuffer_);
-				std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-				descriptorSets.push_back(descriptorSets_[i]);
-				descriptorSets.push_back(modelInfoDescriptorSet_);
+				//commandBuffer->BindPipeline(pipeline3fnc_);
+				//commandBuffer->BindBuffer(vertex3fncBuffer_);
+				//commandBuffer->BindBuffer(indexBuffer_);
+				//{
+				//	std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+				//	descriptorSets.push_back(descriptorSets_[i]);
+				//	descriptorSets.push_back(modelInfoDescriptorSet_);
+				//	commandBuffer->BindDescriptorSets(pipeline3fnc_, descriptorSets);
+				//}
+				//commandBuffer->DrawIndexed(indexBuffer_->GetIndecesNumber());
 
-				commandBuffer->BindDescriptorSets(pipeline3fnc_, descriptorSets);
-				commandBuffer->DrawIndexed(indexBuffer_->GetIndecesNumber());
+				OS::Assert(vertexBuffers_.GetSize() == indexBuffers_.GetSize());
+				for (Common::Index modelIndex = 0; modelIndex < vertexBuffers_.GetSize(); modelIndex++) {
+					commandBuffer->BindPipeline(pipeline3fnc_);
+					commandBuffer->BindBuffer(vertexBuffers_[modelIndex]);
+					commandBuffer->BindBuffer(indexBuffers_[modelIndex]);
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						descriptorSets.push_back(descriptorSets_[i]);
+						descriptorSets.push_back(modelInfoDescriptorSet_);
+						commandBuffer->BindDescriptorSets(pipeline3fnc_, descriptorSets);
+					}
+					commandBuffer->DrawIndexed(indexBuffers_[modelIndex]->GetIndecesNumber());
+				}
+
 				commandBuffer->EndRenderPass();
 
 				commandBuffer->End();
@@ -732,7 +734,7 @@ namespace Render::Vulkan {
 
 		//}
 
-		virtual void DrawIndexed(
+		virtual void DebugDrawIndexed(
 			const RAL::Vertex3fnc* vertices,
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
@@ -744,6 +746,36 @@ namespace Render::Vulkan {
 			indices_.Add(indices, indicesNumber, verticesNumber);
 
 		}
+
+		virtual void DrawIndexed(
+			const RAL::Vertex3fnc* vertices,
+			Common::Size verticesNumber,
+			const RAL::Index16* indices,
+			Common::Size indicesNumber) override {
+			//for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+			//	const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
+			//	vertices_.Add(vertex);
+			//}
+			//indices_.Add(indices, indicesNumber, verticesNumber);
+
+
+			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(RAL::Vertex3fnc));
+			vertexStagingBuffer->Fill(vertices);
+			auto vertex3fncBuffer = std::make_shared<VertexBuffer<Vertex3fnc>>(physicalDevice_, logicDevice_, verticesNumber);
+
+			DataCopy(vertexStagingBuffer, vertex3fncBuffer, logicDevice_, commandPool_);
+
+			auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(RAL::Index16));
+			indexStagingBuffer->Fill(indices);
+			auto indexBuffer = std::make_shared<IndexBuffer>(physicalDevice_, logicDevice_, indicesNumber);
+
+			DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
+
+			vertexBuffers_.PushBack(vertex3fncBuffer);
+			indexBuffers_.PushBack(indexBuffer);
+		}
+
+
 
 		virtual void DrawIndexed(
 			const RAL::Vertex3fc* vertices,
@@ -857,13 +889,13 @@ namespace Render::Vulkan {
 		std::shared_ptr<Pipeline<Vertex3fnc>> pipeline3fnc_ = nullptr;
 		std::vector<FrameBuffer> frameBuffers_;
 		
-		std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
+		//std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
 
-		std::shared_ptr<VertexBuffer<Vertex3fnc>> vertex3fncBuffer_ = nullptr;
+		//std::shared_ptr<VertexBuffer<Vertex3fnc>> vertex3fncBuffer_ = nullptr;
 		//std::shared_ptr<VertexBuffer<Vertex3fnc>> vertex3fncBuffer_ = nullptr;
 
-		std::shared_ptr<StagingBuffer> indexStagingBuffer_ = nullptr;
-		std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;
+		//std::shared_ptr<StagingBuffer> indexStagingBuffer_ = nullptr;
+		//std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;
 		std::vector<std::shared_ptr<UniformBuffer>> uniformBuffers_;
 		std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
 		std::shared_ptr<DescriptorPool> descriptorPool_ = nullptr;
@@ -879,6 +911,9 @@ namespace Render::Vulkan {
 		std::shared_ptr<UniformBuffer> modelInfoBuffer_ = nullptr;
 		std::shared_ptr<DescriptorSetLayout> modelInfoDescriptorSetLayout_ = nullptr;
 		std::shared_ptr<DescriptorSet> modelInfoDescriptorSet_ = nullptr;
+
+		DS::Vector<std::shared_ptr<VertexBuffer<Vertex3fnc>>> vertexBuffers_;
+		DS::Vector<std::shared_ptr<IndexBuffer>> indexBuffers_;
 	};
 
 }
