@@ -32,7 +32,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
+			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
 			std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
 			bool depthTest_ = true;
@@ -195,7 +195,8 @@ namespace Render::Vulkan {
 			PipelineLayout::CreateInfo pipelineLayoutCreateInfo;
 			{
 				pipelineLayoutCreateInfo.logicDevice_ = createInfo.logicDevice_;	
-				pipelineLayoutCreateInfo.descriptorSetLayout_ = createInfo.descriptorSetLayout_;
+				pipelineLayoutCreateInfo.descriptorSetLayouts_.insert(pipelineLayoutCreateInfo.descriptorSetLayouts_.begin(), 
+					createInfo.descriptorSetLayouts_.begin(), createInfo.descriptorSetLayouts_.end());
 				pipelineLayout_ = std::make_shared<PipelineLayout>(pipelineLayoutCreateInfo);
 			}
 

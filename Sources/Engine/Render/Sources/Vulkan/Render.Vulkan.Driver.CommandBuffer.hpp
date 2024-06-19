@@ -12,6 +12,7 @@
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.Pipeline.hpp>
 #include <Render.Vulkan.Driver.VertexBuffer.hpp>
+#include <Render.Vulkan.Driver.DescriptorSet.hpp>
 #include <Render.Vulkan.Driver.IndexBuffer.hpp>
 
 
@@ -96,14 +97,20 @@ namespace Render::Vulkan {
 		}
 
 		template<class PipelineType>
-		void BindDescriptorSet(std::shared_ptr<PipelineType> pipeline, VkDescriptorSet descriptorSet) noexcept {
+		void BindDescriptorSets(std::shared_ptr<PipelineType> pipeline, std::vector<std::shared_ptr<DescriptorSet>> descriptorSets) noexcept {
+			
+			std::vector<VkDescriptorSet> descriptorSetsHandles;
+			for (auto descriptorSetPtr : descriptorSets) {
+				descriptorSetsHandles.push_back(descriptorSetPtr->GetNative());
+			}
+			
 			vkCmdBindDescriptorSets(
 				GetNative(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS, // Bind to graphics pipeline(not computation pipeline)
 				pipeline->GetLayout()->GetHandle(),
 				0,
-				1,
-				&descriptorSet,
+				descriptorSets.size(),
+				descriptorSetsHandles.data(),
 				0,
 				nullptr);
 		}

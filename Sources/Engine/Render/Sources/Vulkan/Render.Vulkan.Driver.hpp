@@ -54,11 +54,7 @@ namespace Render::Vulkan {
 		};
 
 		struct Transform {
-			Math::Matrix4x4f model_;
-			Math::Matrix4x4f view_;
-			Math::Matrix4x4f projection_; 
-			Math::Vector3f lightPos_;
-			float lightIntensity_;
+			alignas(16) Math::Matrix4x4f model_;
 		};
 
 		class ImageContext {
@@ -403,7 +399,9 @@ namespace Render::Vulkan {
 			}
 
 			descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
-			const Common::Size descriptorPoolSize = swapChain_->GetImages().size();
+			modelInfoDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
+
+			const Common::Size descriptorPoolSize = swapChain_->GetImages().size() + 1;
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
 			Pipeline<Vertex3fnc>::CreateInfo pipelineCreateInfo;
@@ -429,14 +427,16 @@ namespace Render::Vulkan {
 				pipelineCreateInfo.physicalDevice_ = physicalDevice_;
 				pipelineCreateInfo.logicDevice_ = logicDevice_;
 				pipelineCreateInfo.swapChain_ = swapChain_;
-				pipelineCreateInfo.descriptorSetLayout_ = descriptorSetLayout_;
+				pipelineCreateInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
+				pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
 				pipelineCreateInfo.vertexShader_ = vertexShader;
 				pipelineCreateInfo.fragmentShader_ = fragmentShader;
 				pipelineCreateInfo.depthTest_ = createInfo_.enableDepthBuffer_;
 
+				pipeline3fnc_ = std::make_shared<Pipeline<Vertex3fnc>>(pipelineCreateInfo);
 			}
 
-			pipeline3fnc_ = std::make_shared<Pipeline<Vertex3fnc>>(pipelineCreateInfo);
+			
 
 			{
 				VkRenderPass renderPass = *pipeline3fnc_->GetRenderPass();
@@ -468,10 +468,22 @@ namespace Render::Vulkan {
 					createInfo.logicDevice_ = logicDevice_;
 					createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				}
-				DescriptorSet descriptorSet{ createInfo };
-				descriptorSets_.push_back(descriptorSet);
+				descriptorSets_.push_back(std::make_shared<DescriptorSet>(createInfo));
 			}
-
+			{
+				DescriptorSet::CreateInfo createInfo;
+				{
+					const VkDeviceSize bufferSize = sizeof(Transform);
+					modelInfoBuffer_ = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
+					createInfo.buffer_ = modelInfoBuffer_;
+					createInfo.descriptorPool_ = descriptorPool_;
+					createInfo.descriptorSetLayout_ = modelInfoDescriptorSetLayout_;
+					createInfo.logicDevice_ = logicDevice_;
+					createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				}
+				modelInfoDescriptorSet_ = std::make_shared<DescriptorSet>(createInfo);
+				//SetModelTransform(Math::Matrix4x4f::GetRotate(30.f, { 1.f, 0.f, 0.f }));
+			}
 			for (Common::Index i = 0; i < swapChain_->GetImages().size(); i++) {
 
 				auto imageContext = std::make_shared<ImageContext>();
@@ -602,7 +614,11 @@ namespace Render::Vulkan {
 				commandBuffer->BindPipeline(pipeline3fnc_);
 				commandBuffer->BindBuffer(vertex3fncBuffer_);
 				commandBuffer->BindBuffer(indexBuffer_);
-				commandBuffer->BindDescriptorSet(pipeline3fnc_, descriptorSets_[i].GetNative());
+				std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+				descriptorSets.push_back(descriptorSets_[i]);
+				descriptorSets.push_back(modelInfoDescriptorSet_);
+
+				commandBuffer->BindDescriptorSets(pipeline3fnc_, descriptorSets);
 				commandBuffer->DrawIndexed(indexBuffer_->GetIndecesNumber());
 				commandBuffer->EndRenderPass();
 
@@ -625,6 +641,7 @@ namespace Render::Vulkan {
 			frameContext->WaitForRenderToImageFinish();
 
 			UpdateUniformBuffers(frameContext->imageContext_->index_);
+			SetModelTransform();
 			frameContext->Render();
 			frameContext->ShowImage();
 			
@@ -660,6 +677,21 @@ namespace Render::Vulkan {
 
 			std::shared_ptr<UniformBuffer> currentUniformBuffer = uniformBuffers_[currentImage];
 			currentUniformBuffer->Fill(&ubo);
+		}
+
+		void SetModelTransform(/*const Math::Matrix4x4f& transform*/) {
+
+			static auto startTime = std::chrono::high_resolution_clock::now();
+
+			auto currentTime = std::chrono::high_resolution_clock::now();
+			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+			Math::Vector3f vector{ 1.f, 0.f, 0.f };
+			Transform newTransform; 
+			{
+				newTransform.model_ = Math::Matrix4x4f::GetRotate(time * - 30.f, vector);
+			}
+			modelInfoBuffer_->Fill(&newTransform);
 		}
 
 		void EndRender() override {
@@ -835,7 +867,7 @@ namespace Render::Vulkan {
 		std::vector<std::shared_ptr<UniformBuffer>> uniformBuffers_;
 		std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
 		std::shared_ptr<DescriptorPool> descriptorPool_ = nullptr;
-		std::vector<DescriptorSet> descriptorSets_;
+		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets_;
 
 		QueueFamily graphicsQueueFamily_;
 		QueueFamily presentQueueFamily_;
@@ -843,6 +875,10 @@ namespace Render::Vulkan {
 		std::vector<std::shared_ptr<CommandBuffer>> commandBuffers_;
 		std::vector<std::shared_ptr<ImageContext>> imageContexts_;
 		std::vector<std::shared_ptr<FrameContext>> frameContexts_;
+
+		std::shared_ptr<UniformBuffer> modelInfoBuffer_ = nullptr;
+		std::shared_ptr<DescriptorSetLayout> modelInfoDescriptorSetLayout_ = nullptr;
+		std::shared_ptr<DescriptorSet> modelInfoDescriptorSet_ = nullptr;
 	};
 
 }
