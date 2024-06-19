@@ -1,3 +1,5 @@
 Build/
 vcpkg/
 *.bak
+*.pyc
+*/__pycache__/
