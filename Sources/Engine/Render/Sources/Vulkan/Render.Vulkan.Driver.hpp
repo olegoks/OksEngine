@@ -521,12 +521,15 @@ namespace Render::Vulkan {
 			std::shared_ptr<LogicDevice> logicDevice,
 			std::shared_ptr<CommandPool> commandPool) {
 
-			auto commandBuffer = std::make_shared<CommandBuffer>(commandPool, logicDevice);
+			CommandBuffer::CreateInfo commandBufferCreateInfo;
+			{
+				commandBufferCreateInfo.logicDevice_ = logicDevice;
+				commandBufferCreateInfo.commandPool_ = commandPool;
+			}
+			auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 			commandBuffer->Begin();
 			commandBuffer->Copy(bufferFrom, bufferTo);
 			commandBuffer->End();
-
-
 			VkSubmitInfo submitInfo{};
 			{
 				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
@@ -552,7 +555,12 @@ namespace Render::Vulkan {
 
 			for (Common::Index i = 0; i < frameBuffers_.size(); i++) {
 
-				auto commandBuffer = std::make_shared<CommandBuffer>(commandPool_, logicDevice_);
+				CommandBuffer::CreateInfo commandBufferCreateInfo;
+				{
+					commandBufferCreateInfo.logicDevice_ = logicDevice_;
+					commandBufferCreateInfo.commandPool_ = commandPool_;
+				}
+				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
 				commandBuffer->Begin();
 				static VkClearValue clearValue{ 1, 1.0, 0.0, 0.0 };

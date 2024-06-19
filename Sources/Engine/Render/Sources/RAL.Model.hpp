@@ -46,6 +46,10 @@ namespace RAL {
 			OS::NotImplemented();
 		}
 
+		const DS::Vector<RAL::Index16>& GetIndices() const {
+			return indices_;
+		}
+
 		template<>
 		void ForEachVertex<Vertex3fnc>(std::function<void(const Vertex3fnc& vertex)>&& process) const noexcept {
 			for (Common::Index i = 0; i < vertices_.GetSize(); i++) {
