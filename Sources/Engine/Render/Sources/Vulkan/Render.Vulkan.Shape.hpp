@@ -5,6 +5,7 @@
 #include <Render.Vulkan.Driver.VertexBuffer.hpp>
 #include <Render.Vulkan.Driver.IndexBuffer.hpp>
 #include <Render.Vulkan.Driver.StagingBuffer.hpp>
+#include <Render.Vulkan.Driver.CommandBuffer.hpp>
 
 namespace Render::Vulkan {
 
@@ -14,6 +15,7 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<CommandPool> commandPool_ = nullptr;
 			std::shared_ptr<RAL::Shape> shape_ = nullptr;
 		};
 
@@ -38,7 +40,32 @@ namespace Render::Vulkan {
 					createInfo.logicDevice_,
 					vertices.GetSize());
 
-				DataCopy(vertexStagingBuffer, vertex3fncBuffer, logicDevice_, commandPool_);
+				const DS::Vector<RAL::Index16> indices = createInfo.shape_->GetIndices();
+
+				auto indexStagingBuffer = std::make_shared<StagingBuffer>(
+					createInfo.physicalDevice_,
+					createInfo.logicDevice_,
+					indices.GetSize() * sizeof(RAL::Index16));
+
+
+				indexStagingBuffer->Fill(indices.GetData());
+				auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(
+					createInfo.physicalDevice_,
+					createInfo.logicDevice_,
+					indices.GetSize());
+				
+				CommandBuffer::CreateInfo commandBufferCreateInfo;
+				{
+					commandBufferCreateInfo.logicDevice_ = createInfo.logicDevice_;
+					commandBufferCreateInfo.commandPool_ = createInfo.commandPool_;
+				}
+				
+				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+				commandBuffer->Begin();
+				commandBuffer->Copy(vertexStagingBuffer, vertex3fncBuffer);
+				commandBuffer->Copy(indexStagingBuffer, indexBuffer);
+				commandBuffer->End();
+
 			}
 
 			

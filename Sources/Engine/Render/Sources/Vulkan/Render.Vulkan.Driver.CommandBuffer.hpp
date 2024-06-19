@@ -21,11 +21,17 @@ namespace Render::Vulkan {
 
 	class CommandBuffer : public Abstraction<VkCommandBuffer>{
 	public:
-		CommandBuffer(std::shared_ptr<CommandPool> commandPool, std::shared_ptr<LogicDevice> logicDevice) :
-			logicDevice_{ logicDevice },
-			commandPool_ { commandPool } {
 
-			Allocate(*logicDevice, *commandPool);
+
+		struct CreateInfo {
+			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<CommandPool> commandPool_ = nullptr;
+		};
+
+		CommandBuffer(const CreateInfo& createInfo) :
+			createInfo_{ createInfo } {
+
+			Allocate(*createInfo.logicDevice_, *createInfo.commandPool_);
 
 		}
 
@@ -142,7 +148,7 @@ namespace Render::Vulkan {
 		}
 
 		~CommandBuffer() noexcept {
-			vkFreeCommandBuffers(*logicDevice_, *commandPool_, 1, &GetHandle());
+			vkFreeCommandBuffers(*createInfo_.logicDevice_, *createInfo_.commandPool_, 1, &GetHandle());
 		}
 
 	private:
@@ -171,9 +177,7 @@ namespace Render::Vulkan {
 		//}
 
 	private:
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-		std::shared_ptr<CommandPool> commandPool_ = nullptr;
-		//VkCommandBuffer commandBuffer_ = VK_NULL_HANDLE;
+		CreateInfo createInfo_;
 	};
 
 }
