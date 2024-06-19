@@ -523,32 +523,6 @@ namespace Render::Vulkan {
 
 			auto commandBuffer = std::make_shared<CommandBuffer>(commandPool, logicDevice);
 			commandBuffer->Begin();
-
-			//VkCommandBufferAllocateInfo allocInfo{};
-			//{
-			//	allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-			//	allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-			//	allocInfo.commandPool = *commandPool;
-			//	allocInfo.commandBufferCount = 1;
-			//}
-
-			//VkCommandBuffer commandBuffer;
-			//vkAllocateCommandBuffers(logicDevice->GetHandle(), &allocInfo, &commandBuffer);
-			// 
-			//VkCommandBufferBeginInfo beginInfo{};
-			//{
-			//	beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-			//	beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-			//}
-
-			//vkBeginCommandBuffer(commandBuffer, &beginInfo);
-			//VkBufferCopy copyRegion{};
-			//{
-			//	copyRegion.srcOffset = 0;
-			//	copyRegion.dstOffset = 0;
-			//	copyRegion.size = bufferFrom->GetSizeInBytes();
-			//}
-			//vkCmdCopyBuffer(commandBuffer, bufferFrom->GetNative(), bufferTo->GetNative(), 1, &copyRegion);
 			commandBuffer->Copy(bufferFrom, bufferTo);
 			commandBuffer->End();
 
@@ -561,8 +535,6 @@ namespace Render::Vulkan {
 			}
 			vkQueueSubmit(logicDevice->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
 			vkQueueWaitIdle(logicDevice->GetGraphicsQueue());
-
-			//vkFreeCommandBuffers(*logicDevice, *commandPool, 1, &commandBuffer);
 		}
 
 
@@ -577,17 +549,6 @@ namespace Render::Vulkan {
 		}
 
 		void StartRender() override {
-
-			//vertexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, vertices_.GetSizeInBytes());
-			//vertexStagingBuffer_->Fill(vertices_.GetData()/);
-			//vertex3fncBuffer_ = std::make_shared<VertexBuffer<Vertex3fnc>>(physicalDevice_, logicDevice_, vertices_.GetVerticesNumber());
-
-			//DataCopy(vertexStagingBuffer_, vertex3fncBuffer_, logicDevice_, commandPool_);
-
-			//indexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indices_.GetSizeInBytes());
-			//indexStagingBuffer_->Fill(indices_.GetData());
-			//indexBuffer_ = std::make_shared<IndexBuffer>(physicalDevice_, logicDevice_, indices_.GetIndicesNumber());
-			//DataCopy(indexStagingBuffer_, indexBuffer_, logicDevice_, commandPool_);
 
 			for (Common::Index i = 0; i < frameBuffers_.size(); i++) {
 
@@ -606,16 +567,6 @@ namespace Render::Vulkan {
 					swapChain_->GetExtent(),
 					clearValue,
 					depthBufferInfo);
-				//commandBuffer->BindPipeline(pipeline3fnc_);
-				//commandBuffer->BindBuffer(vertex3fncBuffer_);
-				//commandBuffer->BindBuffer(indexBuffer_);
-				//{
-				//	std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-				//	descriptorSets.push_back(descriptorSets_[i]);
-				//	descriptorSets.push_back(modelInfoDescriptorSet_);
-				//	commandBuffer->BindDescriptorSets(pipeline3fnc_, descriptorSets);
-				//}
-				//commandBuffer->DrawIndexed(indexBuffer_->GetIndecesNumber());
 
 				OS::Assert(vertexBuffers_.GetSize() == indexBuffers_.GetSize());
 				for (Common::Index modelIndex = 0; modelIndex < vertexBuffers_.GetSize(); modelIndex++) {
@@ -632,7 +583,6 @@ namespace Render::Vulkan {
 				}
 
 				commandBuffer->EndRenderPass();
-
 				commandBuffer->End();
 
 				commandBuffers_.push_back(commandBuffer);
