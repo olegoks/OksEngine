@@ -93,6 +93,8 @@ namespace OksEngine {
 			std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
 
 			model_ = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
+			engine_->RenderModel(*model_);
+		
 		}
 
 		virtual void Update() noexcept override {
@@ -147,7 +149,7 @@ namespace OksEngine {
 			//driver_->EndRender();
 			
 
-			engine_->Render(*model_);
+			engine_->Render();
 		}
 
 	private:

@@ -97,7 +97,7 @@ namespace Render::Vulkan {
 		}
 
 		template<class PipelineType>
-		void BindDescriptorSets(std::shared_ptr<PipelineType> pipeline, std::vector<std::shared_ptr<DescriptorSet>> descriptorSets) noexcept {
+		void BindDescriptorSets(std::shared_ptr<PipelineType> pipeline, const std::vector<std::shared_ptr<DescriptorSet>>& descriptorSets) noexcept {
 			
 			std::vector<VkDescriptorSet> descriptorSetsHandles;
 			for (auto descriptorSetPtr : descriptorSets) {
