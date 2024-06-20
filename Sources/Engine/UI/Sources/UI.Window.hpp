@@ -102,7 +102,7 @@ namespace UI {
 			std::any param2_;
 			std::any param3_;
 			std::any param4_;
-			Math::Vector2u size_{ 0, 0 };
+			Math::Vector2u32 size_{ 0, 0 };
 			Subsystem subsystem_ = Subsystem::Undefined;
 		};
 
@@ -122,12 +122,12 @@ namespace UI {
 		}
 
 		[[nodiscard]]
-		Math::Vector2u GetSize() const noexcept {
+		Math::Vector2u32 GetSize() const noexcept {
 			int width = 0;
 			int height = 0;
 			glfwGetWindowSize(window_, &width, &height);
 			OS::Assert(width > 0 && height > 0);
-			return { static_cast<Common::Size>(width), static_cast<Common::Size>(height) };
+			return { static_cast<Common::UInt32>(width), static_cast<Common::UInt32>(height) };
 		}
 
 		/*virtual */void SetTitle(const std::string& title) noexcept /*override */ {

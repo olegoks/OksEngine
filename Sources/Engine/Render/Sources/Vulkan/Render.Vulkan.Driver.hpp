@@ -274,9 +274,11 @@ namespace Render::Vulkan {
 			descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
 			modelInfoDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
 
-			const Common::Size descriptorPoolSize = swapChain_->GetImagesNumber() + 1;
+			//DESCRIPTOR_POOL
+			const Common::Size descriptorPoolSize = swapChain_->GetImagesNumber() * 2;
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
+			//DEPTH BUFFER
 			if(info.enableDepthTest_) {
 				auto depthTestData = std::make_shared<DepthTestData>();
 				{
@@ -285,7 +287,7 @@ namespace Render::Vulkan {
 						depthImageCreateInfo.physicalDevice_ = physicalDevice_;
 						depthImageCreateInfo.logicDevice_ = logicDevice_;
 						depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
-						depthImageCreateInfo.size_ = swapChain_->GetExtent();
+						depthImageCreateInfo.size_ = swapChain_->GetSize();
 						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
 						depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 					}
@@ -403,6 +405,12 @@ namespace Render::Vulkan {
 				}
 				frameContexts_.push_back(frameContext);
 			}
+
+
+			{
+				
+			}
+
 			OS::LogInfo("/render/vulkan/driver/", "Vulkan driver initialized successfuly.");
 		}
 
@@ -833,6 +841,7 @@ namespace Render::Vulkan {
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<SwapChain> swapChain_ = nullptr;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
+		std::shared_ptr<CommandBuffer> commandBuffer_ = nullptr;
 		std::shared_ptr<Pipeline<Vertex3fnc>> pipeline3fnc_ = nullptr;
 		std::vector<FrameBuffer> frameBuffers_;
 		

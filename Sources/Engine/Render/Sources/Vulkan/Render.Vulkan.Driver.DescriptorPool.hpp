@@ -27,6 +27,7 @@ namespace Render::Vulkan {
 				poolInfo.poolSizeCount = 1;
 				poolInfo.pPoolSizes = &poolSize;
 				poolInfo.maxSets = static_cast<uint32_t>(size);
+				poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; //If individual descriptor sets can be freed or not
 			}
 			if (vkCreateDescriptorPool(logicDevice->GetHandle(), &poolInfo, nullptr, &descriptorPool_) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create descriptor pool!");
