@@ -8,7 +8,9 @@
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
 #include <Render.Vulkan.Common.hpp>
+#include <Render.Vulkan.Shape.hpp>
 #include <Render.Vulkan.Abstraction.hpp>
+#include <Render.Vulkan.Shader.hpp>
 #include <Render.Vulkan.Driver.CommandPool.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.Pipeline.hpp>
@@ -84,7 +86,7 @@ namespace Render::Vulkan {
 				pipeline->GetHandle());
 		}
 
-		void BindBuffer(std::shared_ptr<VertexBuffer<Vertex3fnc>> vertexBuffer) noexcept {
+		void BindBuffer(std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>> vertexBuffer) noexcept {
 			VkDeviceSize offsets[] = { 0 };
 			const VkBuffer bufferHandle = vertexBuffer->GetNative();
 			vkCmdBindVertexBuffers(
@@ -140,6 +142,15 @@ namespace Render::Vulkan {
 				copyRegion.size = from->GetSizeInBytes();
 			}
 			vkCmdCopyBuffer(GetHandle(), from->GetNative(), to->GetNative(), 1, &copyRegion);
+		}
+
+		void BindShape(std::shared_ptr<Shape> shape) {
+			BindBuffer(shape->GetVertexBuffer());
+			BindBuffer(shape->GetIndexBuffer());
+		}
+
+		void DrawShape(std::shared_ptr<Shape> shape) {
+			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
 		}
 
 		void End() noexcept {

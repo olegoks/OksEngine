@@ -33,6 +33,8 @@
 #include <Render.Vulkan.Driver.ImageView.hpp>
 #include <Render.Vulkan.Driver.DeviceMemory.hpp>
 
+#include <Render.Vulkan.Shape.hpp>
+
 namespace Render::Vulkan {
 
 	class Driver : public RAL::Driver {
@@ -590,6 +592,18 @@ namespace Render::Vulkan {
 					commandBuffer->DrawIndexed(indexBuffers_[modelIndex]->GetIndecesNumber());
 				}
 
+				for (auto shape : shapes_) {
+					commandBuffer->BindPipeline(pipeline3fnc_);
+					commandBuffer->BindShape(shape);
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						descriptorSets.push_back(descriptorSets_[i]);
+						descriptorSets.push_back(modelInfoDescriptorSet_);
+						commandBuffer->BindDescriptorSets(pipeline3fnc_, descriptorSets);
+					}
+					commandBuffer->DrawShape(shape);
+				}
+
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();
 
@@ -704,6 +718,69 @@ namespace Render::Vulkan {
 
 		virtual void DrawShape(const RAL::Shape& shape) override {
 
+			if (shape.GetVertexType() == RAL::VertexType::V3f_N3f_C3f) {
+
+				DS::Vector<RAL::Vertex3fnc> vertices;
+				shape.ForEachVertex<RAL::Vertex3fnc>([&vertices](const RAL::Vertex3fnc& vertex) {
+						vertices.PushBack(vertex);
+					});
+
+				auto vertexStagingBuffer = std::make_shared<StagingBuffer>(
+					physicalDevice_,
+					logicDevice_,
+					vertices.GetSize() * sizeof(RAL::Vertex3fnc));
+
+				vertexStagingBuffer->Fill(vertices.GetData());
+
+				auto vertex3fncBuffer = std::make_shared<VertexBuffer<RAL::Vertex3fnc>>(
+					physicalDevice_,
+					logicDevice_,
+					vertices.GetSize());
+
+				const DS::Vector<RAL::Index16> indices = shape.GetIndices();
+
+				auto indexStagingBuffer = std::make_shared<StagingBuffer>(
+					physicalDevice_,
+					logicDevice_,
+					indices.GetSize() * sizeof(RAL::Index16));
+
+
+				indexStagingBuffer->Fill(indices.GetData());
+				auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(
+					physicalDevice_,
+					logicDevice_,
+					indices.GetSize());
+				
+				CommandBuffer::CreateInfo commandBufferCreateInfo;
+				{
+					commandBufferCreateInfo.logicDevice_ = logicDevice_;
+					commandBufferCreateInfo.commandPool_ = commandPool_;
+				}
+				
+				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+				commandBuffer->Begin();
+				commandBuffer->Copy(vertexStagingBuffer, vertex3fncBuffer);
+				commandBuffer->Copy(indexStagingBuffer, indexBuffer);
+				commandBuffer->End();
+
+				VkSubmitInfo submitInfo{};
+				{
+					submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+					submitInfo.commandBufferCount = 1;
+					submitInfo.pCommandBuffers = &commandBuffer->GetHandle();
+				}
+				vkQueueSubmit(logicDevice_->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+				vkQueueWaitIdle(logicDevice_->GetGraphicsQueue());
+
+				Shape::CreateInfo shapeCreateInfo;
+				{
+					shapeCreateInfo.vertexBuffer_ = vertex3fncBuffer;
+					shapeCreateInfo.indexBuffer_ = indexBuffer;
+				}
+				auto newShape = std::make_shared<Shape>(shapeCreateInfo);
+				shapes_.push_back(newShape);
+			}
+
 		}
 
 		virtual void DebugDrawIndexed(
@@ -733,7 +810,7 @@ namespace Render::Vulkan {
 
 			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(RAL::Vertex3fnc));
 			vertexStagingBuffer->Fill(vertices);
-			auto vertex3fncBuffer = std::make_shared<VertexBuffer<Vertex3fnc>>(physicalDevice_, logicDevice_, verticesNumber);
+			auto vertex3fncBuffer = std::make_shared<VertexBuffer<RAL::Vertex3fnc>>(physicalDevice_, logicDevice_, verticesNumber);
 
 			DataCopy(vertexStagingBuffer, vertex3fncBuffer, logicDevice_, commandPool_);
 
@@ -743,8 +820,17 @@ namespace Render::Vulkan {
 
 			DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
 
-			vertexBuffers_.PushBack(vertex3fncBuffer);
-			indexBuffers_.PushBack(indexBuffer);
+
+			Shape::CreateInfo shapeCreateInfo;
+			{
+				shapeCreateInfo.vertexBuffer_ = vertex3fncBuffer;
+				shapeCreateInfo.indexBuffer_ = indexBuffer;
+			}
+			auto newShape = std::make_shared<Shape>(shapeCreateInfo);
+			shapes_.push_back(newShape);
+
+			//vertexBuffers_.PushBack(vertex3fncBuffer);
+			//indexBuffers_.PushBack(indexBuffer);
 		}
 
 
@@ -884,8 +970,10 @@ namespace Render::Vulkan {
 		std::shared_ptr<DescriptorSetLayout> modelInfoDescriptorSetLayout_ = nullptr;
 		std::shared_ptr<DescriptorSet> modelInfoDescriptorSet_ = nullptr;
 
-		DS::Vector<std::shared_ptr<VertexBuffer<Vertex3fnc>>> vertexBuffers_;
+		DS::Vector<std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>>> vertexBuffers_;
 		DS::Vector<std::shared_ptr<IndexBuffer<RAL::Index16>>> indexBuffers_;
+
+		std::vector<std::shared_ptr<Shape>> shapes_;
 	};
 
 }
