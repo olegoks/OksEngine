@@ -32,7 +32,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
+			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
 			std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
 			bool depthTest_ = true;
@@ -143,7 +143,7 @@ namespace Render::Vulkan {
 				rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 				rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
 				rasterizer.lineWidth = 1.f;
-				rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
+				rasterizer.frontFace = VK_FRONT_FACE_CLOCKWISE;// VK_FRONT_FACE_COUNTER_CLOCKWISE;
 				rasterizer.depthBiasEnable = VK_FALSE;
 				rasterizer.depthBiasConstantFactor = 0.0f;
 				rasterizer.depthBiasClamp = 0.0f;
@@ -195,7 +195,8 @@ namespace Render::Vulkan {
 			PipelineLayout::CreateInfo pipelineLayoutCreateInfo;
 			{
 				pipelineLayoutCreateInfo.logicDevice_ = createInfo.logicDevice_;	
-				pipelineLayoutCreateInfo.descriptorSetLayout_ = createInfo.descriptorSetLayout_;
+				pipelineLayoutCreateInfo.descriptorSetLayouts_.insert(pipelineLayoutCreateInfo.descriptorSetLayouts_.begin(), 
+					createInfo.descriptorSetLayouts_.begin(), createInfo.descriptorSetLayouts_.end());
 				pipelineLayout_ = std::make_shared<PipelineLayout>(pipelineLayoutCreateInfo);
 			}
 

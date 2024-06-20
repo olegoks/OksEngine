@@ -33,6 +33,8 @@
 #include <Render.Vulkan.Driver.ImageView.hpp>
 #include <Render.Vulkan.Driver.DeviceMemory.hpp>
 
+#include <Render.Vulkan.Shape.hpp>
+
 namespace Render::Vulkan {
 
 	class Driver : public RAL::Driver {
@@ -54,11 +56,7 @@ namespace Render::Vulkan {
 		};
 
 		struct Transform {
-			Math::Matrix4x4f model_;
-			Math::Matrix4x4f view_;
-			Math::Matrix4x4f projection_; 
-			Math::Vector3f lightPos_;
-			float lightIntensity_;
+			alignas(16) Math::Matrix4x4f model_;
 		};
 
 		class ImageContext {
@@ -113,7 +111,7 @@ namespace Render::Vulkan {
 					VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 					submitInfo.pWaitDstStageMask = waitStages;
 					submitInfo.commandBufferCount = 1;
-					submitInfo.pCommandBuffers = &imageContext_->commandBuffer_->GetNative();
+					submitInfo.pCommandBuffers = &imageContext_->commandBuffer_->GetHandle();
 					submitInfo.signalSemaphoreCount = 1;
 					submitInfo.pSignalSemaphores = &renderFinishedSemaphore_->GetNative();
 
@@ -403,10 +401,12 @@ namespace Render::Vulkan {
 			}
 
 			descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
-			const Common::Size descriptorPoolSize = swapChain_->GetImages().size();
+			modelInfoDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
+
+			const Common::Size descriptorPoolSize = swapChain_->GetImages().size() + 1;
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
-			Pipeline<Vertex3fc>::CreateInfo pipelineCreateInfo;
+			Pipeline<Vertex3fnc>::CreateInfo pipelineCreateInfo;
 			{
 				ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
 				{
@@ -429,17 +429,19 @@ namespace Render::Vulkan {
 				pipelineCreateInfo.physicalDevice_ = physicalDevice_;
 				pipelineCreateInfo.logicDevice_ = logicDevice_;
 				pipelineCreateInfo.swapChain_ = swapChain_;
-				pipelineCreateInfo.descriptorSetLayout_ = descriptorSetLayout_;
+				pipelineCreateInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
+				pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
 				pipelineCreateInfo.vertexShader_ = vertexShader;
 				pipelineCreateInfo.fragmentShader_ = fragmentShader;
 				pipelineCreateInfo.depthTest_ = createInfo_.enableDepthBuffer_;
 
+				pipeline3fnc_ = std::make_shared<Pipeline<Vertex3fnc>>(pipelineCreateInfo);
 			}
 
-			pipeline3fc_ = std::make_shared<Pipeline<Vertex3fc>>(pipelineCreateInfo);
+			
 
 			{
-				VkRenderPass renderPass = *pipeline3fc_->GetRenderPass();
+				VkRenderPass renderPass = *pipeline3fnc_->GetRenderPass();
 				VkExtent2D extent = swapChain_->GetExtent();
 				for (const auto& imageView : swapChain_->GetImageViews()) {
 					FrameBuffer::CreateInfo createInfo;
@@ -448,8 +450,8 @@ namespace Render::Vulkan {
 						createInfo.colorImageView_ = imageView;
 						createInfo.extent_ = extent;
 						createInfo.renderPass_ = renderPass;
-						if (pipeline3fc_->IsDepthTestEnabled()) {
-							createInfo.depthBufferImageView_ = pipeline3fc_->GetDepthBufferImageView();
+						if (pipeline3fnc_->IsDepthTestEnabled()) {
+							createInfo.depthBufferImageView_ = pipeline3fnc_->GetDepthBufferImageView();
 						}
 					}
 					FrameBuffer frameBuffer{ createInfo };
@@ -468,10 +470,22 @@ namespace Render::Vulkan {
 					createInfo.logicDevice_ = logicDevice_;
 					createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				}
-				DescriptorSet descriptorSet{ createInfo };
-				descriptorSets_.push_back(descriptorSet);
+				descriptorSets_.push_back(std::make_shared<DescriptorSet>(createInfo));
 			}
-
+			{
+				DescriptorSet::CreateInfo createInfo;
+				{
+					const VkDeviceSize bufferSize = sizeof(Transform);
+					modelInfoBuffer_ = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
+					createInfo.buffer_ = modelInfoBuffer_;
+					createInfo.descriptorPool_ = descriptorPool_;
+					createInfo.descriptorSetLayout_ = modelInfoDescriptorSetLayout_;
+					createInfo.logicDevice_ = logicDevice_;
+					createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				}
+				modelInfoDescriptorSet_ = std::make_shared<DescriptorSet>(createInfo);
+				//SetModelTransform(Math::Matrix4x4f::GetRotate(30.f, { 1.f, 0.f, 0.f }));
+			}
 			for (Common::Index i = 0; i < swapChain_->GetImages().size(); i++) {
 
 				auto imageContext = std::make_shared<ImageContext>();
@@ -503,45 +517,29 @@ namespace Render::Vulkan {
 			OS::LogInfo("/render/vulkan/driver/", "Vulkan driver initialized successfuly.");
 		}
 
-		void DataCopy(std::shared_ptr<Buffer> bufferFrom, std::shared_ptr<Buffer> bufferTo, std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<CommandPool> commandPool) {
+		void DataCopy(
+			std::shared_ptr<Buffer> bufferFrom,
+			std::shared_ptr<Buffer> bufferTo,
+			std::shared_ptr<LogicDevice> logicDevice,
+			std::shared_ptr<CommandPool> commandPool) {
 
-			VkCommandBufferAllocateInfo allocInfo{};
+			CommandBuffer::CreateInfo commandBufferCreateInfo;
 			{
-				allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-				allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-				allocInfo.commandPool = commandPool->GetNative();
-				allocInfo.commandBufferCount = 1;
+				commandBufferCreateInfo.logicDevice_ = logicDevice;
+				commandBufferCreateInfo.commandPool_ = commandPool;
 			}
-
-			VkCommandBuffer commandBuffer;
-			vkAllocateCommandBuffers(logicDevice->GetHandle(), &allocInfo, &commandBuffer);
-
-			VkCommandBufferBeginInfo beginInfo{};
-			{
-				beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-				beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-			}
-
-			vkBeginCommandBuffer(commandBuffer, &beginInfo);
-			VkBufferCopy copyRegion{};
-			{
-				copyRegion.srcOffset = 0;
-				copyRegion.dstOffset = 0;
-				copyRegion.size = bufferFrom->GetSizeInBytes();
-			}
-			vkCmdCopyBuffer(commandBuffer, bufferFrom->GetNative(), bufferTo->GetNative(), 1, &copyRegion);
-			vkEndCommandBuffer(commandBuffer);
-
+			auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+			commandBuffer->Begin();
+			commandBuffer->Copy(bufferFrom, bufferTo);
+			commandBuffer->End();
 			VkSubmitInfo submitInfo{};
 			{
 				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
 				submitInfo.commandBufferCount = 1;
-				submitInfo.pCommandBuffers = &commandBuffer;
+				submitInfo.pCommandBuffers = &commandBuffer->GetHandle();
 			}
 			vkQueueSubmit(logicDevice->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
 			vkQueueWaitIdle(logicDevice->GetGraphicsQueue());
-
-			vkFreeCommandBuffers(logicDevice->GetHandle(), commandPool->GetNative(), 1, &commandBuffer);
 		}
 
 
@@ -557,55 +555,56 @@ namespace Render::Vulkan {
 
 		void StartRender() override {
 
-			//OS::Profiler profiler{ [](const OS:: Profiler::Info& info) {
-			//	
-			//	const Common::Size executionInMs = info.executionTime_.GetValue() / 1'000'000;
-			//	if (executionInMs < 1) {
-			//		return;
-			//	}
-			//	std::string message;
-			//	{
-			//		message += "Profiled function: %s\n";
-			//		message += "Execution time: %d ms";
-			//	}
-			//	OS::LogInfo("render/vulkan", { message.c_str(), info.functionName_.c_str(),executionInMs });
-			//} };
-
-			vertexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, vertices_.GetSizeInBytes());
-			vertexStagingBuffer_->Fill(vertices_.GetData()/*, vertices_.GetSizeInBytes()*/);
-			vertex3fcBuffer_ = std::make_shared<VertexBuffer<Vertex3fc>/*<Vertex3fnñt>*/>(physicalDevice_, logicDevice_, vertices_.GetVerticesNumber());
-
-			DataCopy(vertexStagingBuffer_, vertex3fcBuffer_, logicDevice_, commandPool_);
-
-			indexStagingBuffer_ = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indices_.GetSizeInBytes());
-			indexStagingBuffer_->Fill(indices_.GetData()/*, indices_.GetSizeInBytes()*/);
-			indexBuffer_ = std::make_shared<IndexBuffer>(physicalDevice_, logicDevice_, indices_.GetIndicesNumber());
-			DataCopy(indexStagingBuffer_, indexBuffer_, logicDevice_, commandPool_);
-
 			for (Common::Index i = 0; i < frameBuffers_.size(); i++) {
 
-				auto commandBuffer = std::make_shared<CommandBuffer>(commandPool_, logicDevice_);
+				CommandBuffer::CreateInfo commandBufferCreateInfo;
+				{
+					commandBufferCreateInfo.logicDevice_ = logicDevice_;
+					commandBufferCreateInfo.commandPool_ = commandPool_;
+				}
+				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
 				commandBuffer->Begin();
-				static VkClearValue clearValue{ 0, 1.0, 0.0, 0.0 };
+				static VkClearValue clearValue{ 1, 1.0, 0.0, 0.0 };
 				CommandBuffer::DepthBufferInfo depthBufferInfo;
 				{
 					depthBufferInfo.enable = createInfo_.enableDepthBuffer_;
 					depthBufferInfo.clearValue_.depthStencil = { 1.f, 0 };
 				}
 				commandBuffer->BeginRenderPass(
-					*pipeline3fc_->GetRenderPass(),
+					*pipeline3fnc_->GetRenderPass(),
 					frameBuffers_[i].GetNative(),
 					swapChain_->GetExtent(),
 					clearValue,
 					depthBufferInfo);
-				commandBuffer->BindPipeline(pipeline3fc_);
-				commandBuffer->BindBuffer(vertex3fcBuffer_);
-				commandBuffer->BindBuffer(indexBuffer_);
-				commandBuffer->BindDescriptorSet(pipeline3fc_, descriptorSets_[i].GetNative());
-				commandBuffer->DrawIndexed(indexBuffer_->GetIndecesNumber());
-				commandBuffer->EndRenderPass();
 
+				OS::Assert(vertexBuffers_.GetSize() == indexBuffers_.GetSize());
+				for (Common::Index modelIndex = 0; modelIndex < vertexBuffers_.GetSize(); modelIndex++) {
+					commandBuffer->BindPipeline(pipeline3fnc_);
+					commandBuffer->BindBuffer(vertexBuffers_[modelIndex]);
+					commandBuffer->BindBuffer(indexBuffers_[modelIndex]);
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						descriptorSets.push_back(descriptorSets_[i]);
+						descriptorSets.push_back(modelInfoDescriptorSet_);
+						commandBuffer->BindDescriptorSets(pipeline3fnc_, descriptorSets);
+					}
+					commandBuffer->DrawIndexed(indexBuffers_[modelIndex]->GetIndecesNumber());
+				}
+
+				for (auto shape : shapes_) {
+					commandBuffer->BindPipeline(pipeline3fnc_);
+					commandBuffer->BindShape(shape);
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						descriptorSets.push_back(descriptorSets_[i]);
+						descriptorSets.push_back(modelInfoDescriptorSet_);
+						commandBuffer->BindDescriptorSets(pipeline3fnc_, descriptorSets);
+					}
+					commandBuffer->DrawShape(shape);
+				}
+
+				commandBuffer->EndRenderPass();
 				commandBuffer->End();
 
 				commandBuffers_.push_back(commandBuffer);
@@ -625,6 +624,7 @@ namespace Render::Vulkan {
 			frameContext->WaitForRenderToImageFinish();
 
 			UpdateUniformBuffers(frameContext->imageContext_->index_);
+			SetModelTransform();
 			frameContext->Render();
 			frameContext->ShowImage();
 			
@@ -647,19 +647,34 @@ namespace Render::Vulkan {
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-			Math::Vector3f vector{ 1.f, 1.f, 0.f };
-			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });Math::Matrix4x4f::GetIdentity();*/ Math::Matrix4x4f::GetRotate(time * 90.f, vector);
+			Math::Vector3f vector{ 1.f, 0.f, 0.f };
+			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });Math::Matrix4x4f::GetIdentity();*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector);
 			Math::Vector3f position = camera_->GetPosition();
 			Math::Vector3f direction = camera_->GetDirection();
 			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
 			//ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, swapChain_->GetExtent().width / (float)swapChain_->GetExtent().height, 0.1, 10);
 			ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
-			ubo.proj_ = Math::Matrix4x4f::GetPerspective(135, camera_->GetWidth() / (float)camera_->GetHeight(), 0.01f, 100);
+			ubo.proj_ = Math::Matrix4x4f::GetPerspective(30, camera_->GetWidth() / (float)camera_->GetHeight(), 1.f, 1000);
 
 			ubo.proj_[1][1] *= -1;
 
 			std::shared_ptr<UniformBuffer> currentUniformBuffer = uniformBuffers_[currentImage];
 			currentUniformBuffer->Fill(&ubo);
+		}
+
+		void SetModelTransform(/*const Math::Matrix4x4f& transform*/) {
+
+			static auto startTime = std::chrono::high_resolution_clock::now();
+
+			auto currentTime = std::chrono::high_resolution_clock::now();
+			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
+
+			Math::Vector3f vector{ 1.f, 0.f, 0.f };
+			Transform newTransform; 
+			{
+				newTransform.model_ = Math::Matrix4x4f::GetRotate(time * - 30.f, vector);
+			}
+			modelInfoBuffer_->Fill(&newTransform);
 		}
 
 		void EndRender() override {
@@ -700,18 +715,125 @@ namespace Render::Vulkan {
 
 		//}
 
-		virtual void DrawIndexed(
+
+		virtual void DrawShape(const RAL::Shape& shape) override {
+
+			if (shape.GetVertexType() == RAL::VertexType::V3f_N3f_C3f) {
+
+				DS::Vector<RAL::Vertex3fnc> vertices;
+				shape.ForEachVertex<RAL::Vertex3fnc>([&vertices](const RAL::Vertex3fnc& vertex) {
+						vertices.PushBack(vertex);
+					});
+
+				auto vertexStagingBuffer = std::make_shared<StagingBuffer>(
+					physicalDevice_,
+					logicDevice_,
+					vertices.GetSize() * sizeof(RAL::Vertex3fnc));
+
+				vertexStagingBuffer->Fill(vertices.GetData());
+
+				auto vertex3fncBuffer = std::make_shared<VertexBuffer<RAL::Vertex3fnc>>(
+					physicalDevice_,
+					logicDevice_,
+					vertices.GetSize());
+
+				const DS::Vector<RAL::Index16> indices = shape.GetIndices();
+
+				auto indexStagingBuffer = std::make_shared<StagingBuffer>(
+					physicalDevice_,
+					logicDevice_,
+					indices.GetSize() * sizeof(RAL::Index16));
+
+
+				indexStagingBuffer->Fill(indices.GetData());
+				auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(
+					physicalDevice_,
+					logicDevice_,
+					indices.GetSize());
+				
+				CommandBuffer::CreateInfo commandBufferCreateInfo;
+				{
+					commandBufferCreateInfo.logicDevice_ = logicDevice_;
+					commandBufferCreateInfo.commandPool_ = commandPool_;
+				}
+				
+				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+				commandBuffer->Begin();
+				commandBuffer->Copy(vertexStagingBuffer, vertex3fncBuffer);
+				commandBuffer->Copy(indexStagingBuffer, indexBuffer);
+				commandBuffer->End();
+
+				VkSubmitInfo submitInfo{};
+				{
+					submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+					submitInfo.commandBufferCount = 1;
+					submitInfo.pCommandBuffers = &commandBuffer->GetHandle();
+				}
+				vkQueueSubmit(logicDevice_->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+				vkQueueWaitIdle(logicDevice_->GetGraphicsQueue());
+
+				Shape::CreateInfo shapeCreateInfo;
+				{
+					shapeCreateInfo.vertexBuffer_ = vertex3fncBuffer;
+					shapeCreateInfo.indexBuffer_ = indexBuffer;
+				}
+				auto newShape = std::make_shared<Shape>(shapeCreateInfo);
+				shapes_.push_back(newShape);
+			}
+
+		}
+
+		virtual void DebugDrawIndexed(
 			const RAL::Vertex3fnc* vertices,
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
 			Common::Size indicesNumber) override {
 			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
 				const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
-				//vertices3fnc_.Add({ vertex.position_, vertex.normal_, vertex.color_, Math::Vector2f{ 0, 0 } });
+				vertices_.Add(vertex);
 			}
 			indices_.Add(indices, indicesNumber, verticesNumber);
 
 		}
+
+		virtual void DrawIndexed(
+			const RAL::Vertex3fnc* vertices,
+			Common::Size verticesNumber,
+			const RAL::Index16* indices,
+			Common::Size indicesNumber) override {
+			//for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+			//	const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
+			//	vertices_.Add(vertex);
+			//}
+			//indices_.Add(indices, indicesNumber, verticesNumber);
+
+
+			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(RAL::Vertex3fnc));
+			vertexStagingBuffer->Fill(vertices);
+			auto vertex3fncBuffer = std::make_shared<VertexBuffer<RAL::Vertex3fnc>>(physicalDevice_, logicDevice_, verticesNumber);
+
+			DataCopy(vertexStagingBuffer, vertex3fncBuffer, logicDevice_, commandPool_);
+
+			auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(RAL::Index16));
+			indexStagingBuffer->Fill(indices);
+			auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
+
+			DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
+
+
+			Shape::CreateInfo shapeCreateInfo;
+			{
+				shapeCreateInfo.vertexBuffer_ = vertex3fncBuffer;
+				shapeCreateInfo.indexBuffer_ = indexBuffer;
+			}
+			auto newShape = std::make_shared<Shape>(shapeCreateInfo);
+			shapes_.push_back(newShape);
+
+			//vertexBuffers_.PushBack(vertex3fncBuffer);
+			//indexBuffers_.PushBack(indexBuffer);
+		}
+
+
 
 		virtual void DrawIndexed(
 			const RAL::Vertex3fc* vertices,
@@ -719,7 +841,11 @@ namespace Render::Vulkan {
 			const RAL::Index16* indices,
 			Common::Size indicesNumber) override {
 
-			vertices_.Add(vertices, verticesNumber);
+			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
+				const RAL::Vertex3fc& vertex = vertices[vertexIndex];
+				RAL::Vertex3fnc vertex3fnc{ vertex , RAL::Normal3f{ 0.f, 0.f, 0.f } };
+				vertices_.Add(vertex3fnc);
+			}
 			indices_.Add(indices, indicesNumber, verticesNumber);
 
 		}
@@ -729,10 +855,11 @@ namespace Render::Vulkan {
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
 			Common::Size indicesNumber,
-			const RAL::Color& color) override {
+			const RAL::Color3f& color) override {
 
 			for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-				vertices_.Add({ vertices[vertexIndex], color, });
+				RAL::Vertex3fnc vertex{ vertices[vertexIndex], color, RAL::Normal3f{ 0, 0, 0 } };
+				vertices_.Add(vertex);
 			}
 
 			indices_.Add(indices, indicesNumber, verticesNumber);
@@ -774,7 +901,7 @@ namespace Render::Vulkan {
 				//VkPipelineStageFlags waitStages[] = { VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT };
 				submitInfo.pWaitDstStageMask = &waitStages;//waitStages;
 				submitInfo.commandBufferCount = 1;
-				submitInfo.pCommandBuffers = &commands->GetNative();
+				submitInfo.pCommandBuffers = &commands->GetHandle();
 				submitInfo.signalSemaphoreCount = 1;
 				submitInfo.pSignalSemaphores = &semaphoreExecutionFinish->GetNative();
 
@@ -817,20 +944,20 @@ namespace Render::Vulkan {
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<SwapChain> swapChain_ = nullptr;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
-		std::shared_ptr<Pipeline<Vertex3fc>> pipeline3fc_ = nullptr;
+		std::shared_ptr<Pipeline<Vertex3fnc>> pipeline3fnc_ = nullptr;
 		std::vector<FrameBuffer> frameBuffers_;
 		
-		std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
+		//std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
 
-		std::shared_ptr<VertexBuffer<Vertex3fc>> vertex3fcBuffer_ = nullptr;
-		std::shared_ptr<VertexBuffer<Vertex3fnc>> vertex3fncBuffer_ = nullptr;
+		//std::shared_ptr<VertexBuffer<Vertex3fnc>> vertex3fncBuffer_ = nullptr;
+		//std::shared_ptr<VertexBuffer<Vertex3fnc>> vertex3fncBuffer_ = nullptr;
 
-		std::shared_ptr<StagingBuffer> indexStagingBuffer_ = nullptr;
-		std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;
+		//std::shared_ptr<StagingBuffer> indexStagingBuffer_ = nullptr;
+		//std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;
 		std::vector<std::shared_ptr<UniformBuffer>> uniformBuffers_;
 		std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
 		std::shared_ptr<DescriptorPool> descriptorPool_ = nullptr;
-		std::vector<DescriptorSet> descriptorSets_;
+		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets_;
 
 		QueueFamily graphicsQueueFamily_;
 		QueueFamily presentQueueFamily_;
@@ -838,6 +965,15 @@ namespace Render::Vulkan {
 		std::vector<std::shared_ptr<CommandBuffer>> commandBuffers_;
 		std::vector<std::shared_ptr<ImageContext>> imageContexts_;
 		std::vector<std::shared_ptr<FrameContext>> frameContexts_;
+
+		std::shared_ptr<UniformBuffer> modelInfoBuffer_ = nullptr;
+		std::shared_ptr<DescriptorSetLayout> modelInfoDescriptorSetLayout_ = nullptr;
+		std::shared_ptr<DescriptorSet> modelInfoDescriptorSet_ = nullptr;
+
+		DS::Vector<std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>>> vertexBuffers_;
+		DS::Vector<std::shared_ptr<IndexBuffer<RAL::Index16>>> indexBuffers_;
+
+		std::vector<std::shared_ptr<Shape>> shapes_;
 	};
 
 }

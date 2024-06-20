@@ -15,6 +15,7 @@
 #include <Geometry.Vertex.hpp>
 #include <DataStructures.Vector.hpp>
 #include <GLFW\glfw3.h>
+#include <RAL.Model.hpp>
 
 namespace RAL {
 
@@ -205,7 +206,15 @@ namespace RAL {
 		//	Common::Size indicesNumber,
 		//	const Texture& texture) = 0;
 
+		virtual void DrawShape(const RAL::Shape& shape) = 0;
+
 		virtual void DrawIndexed(
+			const Vertex3fnc* vertices,
+			Common::Size verticesNumber,
+			const Index16* indices,
+			Common::Size indicesNumber) = 0;
+
+		virtual void DebugDrawIndexed(
 			const Vertex3fnc* vertices,
 			Common::Size verticesNumber,
 			const Index16* indices,
@@ -222,7 +231,7 @@ namespace RAL {
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indeciesNumber,
-			const Color& color) = 0;
+			const Color3f& color) = 0;
 
 		virtual ~Driver() = default;
 
@@ -230,7 +239,7 @@ namespace RAL {
 		CreateInfo createInfo_;
 		std::shared_ptr<Light> light_ = nullptr;
 		std::shared_ptr<Camera> camera_ = nullptr;
-		Vertices<Geometry::Vertex3fc, Index16> vertices_;
+		Vertices<Geometry::Vertex3fnc, Index16> vertices_;
 		Indices<Index16> indices_;
 
 

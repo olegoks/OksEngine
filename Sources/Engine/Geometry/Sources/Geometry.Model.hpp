@@ -1,16 +1,6 @@
 #pragma once
 
-#include <string>
-#include <unordered_map>
-#include <filesystem>
-
-#include <OS.hpp>
-#include <Math.Scalar.hpp>
-#include <Geometry.Vertex.hpp>
-#include <Geometry.Index.hpp>
 #include <Geometry.Shape.hpp>
-#include <Geometry.VertexCloud.hpp>
-#include <Geometry.IndexBuffer.hpp>
 
 namespace Geometry {
 
@@ -59,6 +49,6 @@ namespace Geometry {
     //    DS::Vector<Shape3f> shapes3f_;
     //};
 
-    Model<Vertex3fnc, Index16> ParseObj(const std::string& obj, const std::string& mtl);
+    Model<Vertex3fnc, Index16> ParseObjVertex3fncIndex16(const std::string& obj, const std::string& mtl);
 
 }

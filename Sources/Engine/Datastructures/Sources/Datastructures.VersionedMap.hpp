@@ -105,7 +105,7 @@ namespace DataStructures {
 	VersionedMap<Type>::VersionedMap(Memory::AllocationCallbacks allocationCallbacks) noexcept :
 		allocationCallbacks_{ allocationCallbacks } {
 		Slot freeSlot;
-		slots_.Resize(32);
+		slots_.Resize(128);
 	}
 
 	template<class Type>
