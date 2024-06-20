@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <array>
 #include <vulkan/vulkan.hpp>
 
 #include <Common.Types.hpp>
@@ -16,16 +17,24 @@ namespace Render::Vulkan {
 	class DescriptorPool {
 	public:
 		DescriptorPool(std::shared_ptr<LogicDevice> logicDevice, Common::Size size) {
-			VkDescriptorPoolSize poolSize{};
-			{
-				poolSize.type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				poolSize.descriptorCount = static_cast<uint32_t>(size);
-			}
+
+			VkDescriptorPoolSize poolSizes[] = {
+				{
+					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+					static_cast<uint32_t>(size)
+				},
+				{
+					VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+					static_cast<uint32_t>(size)
+				}
+
+			};
+
 			VkDescriptorPoolCreateInfo poolInfo{};
 			{
 				poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-				poolInfo.poolSizeCount = 1;
-				poolInfo.pPoolSizes = &poolSize;
+				poolInfo.poolSizeCount = sizeof(poolSizes) / sizeof(VkDescriptorPoolSize);
+				poolInfo.pPoolSizes = &poolSizes[0];
 				poolInfo.maxSets = static_cast<uint32_t>(size);
 				poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; //If individual descriptor sets can be freed or not
 			}

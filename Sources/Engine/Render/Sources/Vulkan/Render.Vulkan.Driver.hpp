@@ -35,6 +35,14 @@
 
 #include <Render.Vulkan.Shape.hpp>
 
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <imconfig.h>
+#include <ImgUtil.h>
+#include <imgui_impl_vulkan.h>
+#include <imgui_impl_glfw.h>
+
+
 namespace Render::Vulkan {
 
 	class Driver : public RAL::Driver {
@@ -271,6 +279,7 @@ namespace Render::Vulkan {
 				}
 			}
 
+			//DESCRIPTOR SET LAYOUT
 			descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
 			modelInfoDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
 
@@ -297,6 +306,7 @@ namespace Render::Vulkan {
 				depthTestData_ = depthTestData;
 			}
 			
+			//PIPELINE
 			Pipeline<Vertex3fnc>::CreateInfo pipelineCreateInfo;
 			{
 				ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
@@ -408,7 +418,27 @@ namespace Render::Vulkan {
 
 
 			{
-				
+				ImGui::CreateContext();
+				//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;//ImGuiConfigFlags_DockingEnable;
+				GLFWwindow* window = std::any_cast<GLFWwindow*>(info.surface_.param1_);
+				ImGui_ImplGlfw_InitForVulkan(window, true);
+				ImGui_ImplVulkan_InitInfo init_info = {};
+				init_info.Instance = *instance_;
+				init_info.PhysicalDevice = *physicalDevice_;
+				init_info.Device = *logicDevice_;
+				init_info.QueueFamily = graphicsQueueFamily_.index_;
+				init_info.Queue = logicDevice_->GetGraphicsQueue();
+				init_info.PipelineCache = nullptr;
+				init_info.DescriptorPool = descriptorPool_->GetNative();
+				init_info.Allocator = nullptr;
+				init_info.MinImageCount = 2;
+				init_info.ImageCount = swapChain_->GetImagesNumber();
+				init_info.CheckVkResultFn = nullptr;
+				init_info.RenderPass = *pipeline3fnc_->GetRenderPass();
+				ImGui_ImplVulkan_Init(&init_info);
+
+				ImGui_ImplVulkan_CreateFontsTexture();
+
 			}
 
 			OS::LogInfo("/render/vulkan/driver/", "Vulkan driver initialized successfuly.");
@@ -501,13 +531,31 @@ namespace Render::Vulkan {
 					commandBuffer->DrawShape(shape);
 				}
 
+				ImGui_ImplVulkan_NewFrame();
+				ImGui_ImplGlfw_NewFrame();
+				ImGui::NewFrame();
+
+				ImGui::Begin("My First ImGui Window");
+
+				if (ImGui::Button("Click me!"))
+				{
+					// Respond to button click
+					std::cout << "Button clicked!" << std::endl;
+				}
+
+				static float slider_value = 0.0f;
+				ImGui::SliderFloat("Slider", &slider_value, 0.0f, 100.0f);
+
+				ImGui::End();
+				ImGui::Render();
+
+				ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, 0);
+
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();
 
 				commandBuffers_.push_back(commandBuffer);
 			}
-
-
 
 		}
 
@@ -528,6 +576,8 @@ namespace Render::Vulkan {
 			frameContext->WaitForQueueIdle();
 
 			currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
+
+
 
 		}
 
@@ -677,7 +727,6 @@ namespace Render::Vulkan {
 				auto newShape = std::make_shared<Shape>(shapeCreateInfo);
 				shapes_.push_back(newShape);
 			}
-
 		}
 
 		virtual void DebugDrawIndexed(
