@@ -41,7 +41,7 @@ namespace Render::Vulkan {
 			VkCommandBufferBeginInfo beginInfo{};
 			{
 				beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-				beginInfo.flags = 0;
+				//beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT; //The command buffer will be rerecorded right after executing it once.
 				beginInfo.pInheritanceInfo = nullptr;
 			}
 			VkCall(vkBeginCommandBuffer(GetHandle(), &beginInfo), "Error while begin command buffer.");

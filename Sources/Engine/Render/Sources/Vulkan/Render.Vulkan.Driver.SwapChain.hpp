@@ -194,7 +194,7 @@ namespace Render::Vulkan {
 	}
 
 	[[nodiscard]]
-	inline VkExtent2D ChooseSwapExtent(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface, const Math::Vector2u& imageSize) noexcept {
+	inline VkExtent2D ChooseSwapExtent(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface, const Math::Vector2u32& imageSize) noexcept {
 
 		const VkSurfaceCapabilitiesKHR capabilities = GetCapabilities(physicalDevice, windowSurface);
 
