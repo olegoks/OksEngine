@@ -34,7 +34,7 @@ namespace Render::Vulkan {
 			{
 				imageCreateInfo.format_ = depthImageFormat;
 				imageCreateInfo.logicDevice_ = createInfo.logicDevice_;
-				imageCreateInfo.extent_ = createInfo.swapChain_->GetExtent();
+				imageCreateInfo.size_ = createInfo.swapChain_->GetExtent();
 				imageCreateInfo.tiling_ = depthImageTiling_;
 				imageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 			}

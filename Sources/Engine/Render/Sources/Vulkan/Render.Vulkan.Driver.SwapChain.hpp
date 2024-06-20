@@ -29,7 +29,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<WindowSurface> windowSurface_;
 			QueueFamily presentQueueFamily_;
 			QueueFamily graphicsQueueFamily_;
-			Math::Vector2u imageSize_ = { 0, 0 };
+			Math::Vector2u32 imageSize_ = { 0, 0 };
 
 			VkSurfaceFormatKHR format_;
 			VkPresentModeKHR presentMode_;
@@ -109,6 +109,11 @@ namespace Render::Vulkan {
 		[[nodiscard]]
 		VkExtent2D GetExtent() const noexcept {
 			return createInfo_.extent_;
+		}
+
+		[[nodiscard]]
+		Math::Vector2u32 GetSize() const noexcept {
+			return { createInfo_.extent_.width, createInfo_.extent_.height };
 		}
 
 		[[nodiscard]]

@@ -254,7 +254,6 @@ namespace Render::Vulkan {
 				swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
 			}
 
-
 			CommandPool::CreateInfo commandPoolCreateInfo;
 			{
 				commandPoolCreateInfo.logicDevice_ = logicDevice_;
@@ -286,7 +285,7 @@ namespace Render::Vulkan {
 						depthImageCreateInfo.physicalDevice_ = physicalDevice_;
 						depthImageCreateInfo.logicDevice_ = logicDevice_;
 						depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
-						depthImageCreateInfo.extent_ = swapChain_->GetExtent();
+						depthImageCreateInfo.size_ = swapChain_->GetExtent();
 						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
 						depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
 					}
@@ -317,7 +316,7 @@ namespace Render::Vulkan {
 				pipelineCreateInfo.physicalDevice_ = physicalDevice_;
 				pipelineCreateInfo.logicDevice_ = logicDevice_;
 				pipelineCreateInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
-				pipelineCreateInfo.colorAttachmentExtent_ = swapChain_->GetExtent();
+				pipelineCreateInfo.colorAttachmentSize_ = swapChain_->GetSize();
 				pipelineCreateInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
 				pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
 				pipelineCreateInfo.vertexShader_ = vertexShader;
@@ -375,7 +374,6 @@ namespace Render::Vulkan {
 					createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				}
 				modelInfoDescriptorSet_ = std::make_shared<DescriptorSet>(createInfo);
-				//SetModelTransform(Math::Matrix4x4f::GetRotate(30.f, { 1.f, 0.f, 0.f }));
 			}
 			for (Common::Index i = 0; i < swapChain_->GetImages().size(); i++) {
 

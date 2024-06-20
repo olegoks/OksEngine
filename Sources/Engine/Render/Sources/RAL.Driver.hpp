@@ -152,7 +152,7 @@ namespace RAL {
 		std::any param2_;
 		std::any param3_;
 		std::any param4_;
-		Math::Vector2u size_{ 0, 0 };
+		Math::Vector2u32 size_{ 0, 0 };
 		UISubsystem uiSubsystem_;
 		//If WINApi
 		// param1_ == HWND
