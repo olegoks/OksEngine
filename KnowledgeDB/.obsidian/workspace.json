@@ -11,8 +11,12 @@
             "id": "a873fcafaffd09bf",
             "type": "leaf",
             "state": {
-              "type": "empty",
-              "state": {}
+              "type": "markdown",
+              "state": {
+                "file": "Work/Open with Visual Studio Code.md",
+                "mode": "source",
+                "source": false
+              }
             }
           }
         ]
@@ -81,6 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
+                "file": "Work/Open with Visual Studio Code.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -97,6 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
+                "file": "Work/Open with Visual Studio Code.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -118,7 +124,9 @@
             "type": "leaf",
             "state": {
               "type": "outline",
-              "state": {}
+              "state": {
+                "file": "Work/Open with Visual Studio Code.md"
+              }
             }
           }
         ]
@@ -140,6 +148,8 @@
   },
   "active": "a873fcafaffd09bf",
   "lastOpenFiles": [
+    "Attachments/Pasted image 20240619110900.png",
+    "Work/Open with Visual Studio Code.md",
     "Work/OBS save .mp4 files.md",
     "Attachments/Pasted image 20240614143058.png",
     "Attachments/Pasted image 20240614143033.png",
@@ -175,7 +185,6 @@
     "Work/C++/Вопросы для собеседования по С++.md",
     "Attachments/Pasted image 20240603195500.png",
     "Work/C++/Многопоточность/Термины/Изменение порядка инструкций.md",
-    "Work/C++/Многопоточность/Термины/Состояние гонки(race condition).md",
     "Attachments/Pasted image 20240603193533.png",
     "Attachments/Pasted image 20240603192841.png",
     "Attachments/Pasted image 20240603192453.png",
