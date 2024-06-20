@@ -39,6 +39,7 @@ namespace RAL {
 			} else {
 				OS::NotImplemented();
 			}
+			return RAL::VertexType::Undefined;
 		}
 
 		template<class VertexType>
