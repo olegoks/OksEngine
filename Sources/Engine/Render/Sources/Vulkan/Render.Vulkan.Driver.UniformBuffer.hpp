@@ -20,4 +20,52 @@ namespace Render::Vulkan {
 
 		}
 	};
+
+	template<class StructureType>
+	class UniformStructure : public UniformBuffer {
+	public:
+		struct CreateInfo {
+			std::shared_ptr<PhysicalDevice> physicalDevice_;
+			std::shared_ptr<LogicDevice> logicDevice_;
+		};
+		UniformStructure(const CreateInfo& createInfo) :
+			Buffer{ Buffer::CreateInfo{
+					createInfo.physicalDevice_,
+				createInfo.logicDevice_,
+				sizeof(StructureType),
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT }
+		} {
+
+		}
+
+		void Fill(const StructureType* structure) {
+			UniformBuffer::Fill(structure);
+		}
+
+	};
+
+	template<class ElementType>
+	class UniformArray : public UniformBuffer {
+	public:
+		struct CreateInfo {
+			std::shared_ptr<PhysicalDevice> physicalDevice_;
+			std::shared_ptr<LogicDevice> logicDevice_;
+			Common::Size size_ = 0;
+		};
+		UniformArray(const CreateInfo& createInfo) : Buffer{
+			Buffer::CreateInfo{
+				createInfo.physicalDevice_,
+				createInfo.logicDevice_,
+				sizeof(ElementType) * createInfo.size_,
+				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
+VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT }
+		} { }
+
+		void Fill(const ElementType* structure) {
+			UniformBuffer::Fill(structure);
+		}
+
+	};
+
 }

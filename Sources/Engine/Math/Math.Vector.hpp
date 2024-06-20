@@ -184,7 +184,8 @@ namespace Math {
 		std::array<Type, size> data_{ 0 };
 	};
 
-	using Vector2u = Vector<2, Common::Size>;
+	using Vector2u64 = Vector<2, Common::UInt64>;
+	using Vector2u32 = Vector<2, Common::UInt32>;
 	using Vector2i = Vector<2, int>;
 	using Vector2f = Vector<2, float>;
 	using Vector3f = Vector<3, float>;

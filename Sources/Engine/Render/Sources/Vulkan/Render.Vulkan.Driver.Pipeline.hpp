@@ -35,7 +35,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
 			std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
 			std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
-			VkExtent2D colorAttachmentExtent_ = { 0, 0 };
+			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
 		};
 
