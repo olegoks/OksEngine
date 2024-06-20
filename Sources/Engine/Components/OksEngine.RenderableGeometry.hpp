@@ -47,7 +47,7 @@ namespace OksEngine {
 			//renderApi_ = RAL::CreateAPIObject();
 			//RAL::Driver::CreateInfo driverCreateInfo;
 			//{
-			//	driverCreateInfo.enableDepthBuffer_ = false;
+			//	driverCreateInfo.enableDepthTest_ = false;
 			//	driverCreateInfo.windowInfo_ = window_->GetInfo();
 			//	driverCreateInfo.vertexShader_ = vertexShader;//resourceManager_->GetResource("triangleFrag.spv");
 			//	driverCreateInfo.fragmentShader_ = fragmentShader;//resourceManager_->GetResource("triangleVert.spv");

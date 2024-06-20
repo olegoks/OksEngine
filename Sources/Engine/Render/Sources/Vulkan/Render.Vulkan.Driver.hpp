@@ -40,13 +40,6 @@ namespace Render::Vulkan {
 	class Driver : public RAL::Driver {
 	public:
 
-		//struct CreateInfo {
-		//	VkSurfaceKHR surface_;
-		//	//std::shared_ptr<Resource::Resource> vertexShader_ = nullptr;
-		//	//std::shared_ptr<Resource::Resource> fragmentShader_ = nullptr;
-		//	//bool enableDepthBuffer_ = false;
-		//};
-
 		struct UniformBufferObject {
 			alignas(16) Math::Matrix4x4f model_;
 			alignas(16) Math::Matrix4x4f view_;
@@ -71,6 +64,11 @@ namespace Render::Vulkan {
 			void WaitForFree() const noexcept { if (IsBusy()) { inRender_->Wait(); inRender_->Reset(); }; }
 		};
 
+		struct DepthTestData {
+			std::shared_ptr<Image> image_ = nullptr;
+			std::shared_ptr<ImageView> imageView_ = nullptr;
+			std::shared_ptr<DeviceMemory> imageMemory_ = nullptr;
+		};
 
 		class FrameContext {
 		public:
@@ -148,160 +146,34 @@ namespace Render::Vulkan {
 		};
 
 		[[nodiscard]]
-		static PhysicalDevice::Formats GetAvailablePhysicalDeviceSurfaceFormats(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
-
-			uint32_t formatCount;
-			VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, nullptr),
-				"Error while getting number of available formats.");
-
-			std::vector<VkSurfaceFormatKHR> formats;
-			if (formatCount != 0) {
-				formats.resize(formatCount);
-				formats.shrink_to_fit();
-				VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, formats.data()),
-					"Error while getting available formats.");
-			}
-
-			return formats;
-		}
+		static PhysicalDevice::Formats GetAvailablePhysicalDeviceSurfaceFormats(
+			std::shared_ptr<PhysicalDevice> physicalDevice,
+			std::shared_ptr<WindowSurface> windowSurface) noexcept;
 
 		[[nodiscard]]
-		static PhysicalDevice::PresentModes GetAvailablePresentModes(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
-
-			std::vector<VkPresentModeKHR> presentModes;
-
-			uint32_t presentModeCount;
-			{
-				VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, nullptr), 
-					"Error while getting number of present modes.");
-			}
-			if (presentModeCount != 0) {
-				presentModes.resize(presentModeCount);
-				VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, presentModes.data()), 
-					"Error while getting number of present modes.");
-			}
-
-			return presentModes;
-		}
+		static PhysicalDevice::PresentModes GetAvailablePresentModes(
+			std::shared_ptr<PhysicalDevice> physicalDevice,
+			std::shared_ptr<WindowSurface> windowSurface) noexcept;
 		
 		[[nodiscard]]
-		static VkPresentModeKHR ChoosePresentMode(const PhysicalDevice::PresentModes& availablePresentModes) noexcept {
-
-			for (const auto& availablePresentMode : availablePresentModes) {
-				if (availablePresentMode == VK_PRESENT_MODE_MAILBOX_KHR) {
-					return availablePresentMode;
-				}
-			}
-
-			return VK_PRESENT_MODE_FIFO_KHR;
-		}
+		static VkPresentModeKHR ChoosePresentMode(
+			const PhysicalDevice::PresentModes& availablePresentModes) noexcept;
 
 		[[nodiscard]]
-		std::pair<QueueFamily, QueueFamily> ChooseQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
-
-			const QueueFamilies graphicsQueueFamilies = physicalDevice->GetGraphicsQueueFamilies();
-			OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any graphics queue family.");
-
-			const QueueFamilies presentQueueFamilies = GetPresentQueueFamilies(physicalDevice, windowSurface);
-			OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any present queue family.");
-
-			for (const QueueFamily& graphicsQueueFamily : graphicsQueueFamilies) {
-				for (const QueueFamily& presentQueueFamily : presentQueueFamilies) {
-					if (graphicsQueueFamily.index_ == presentQueueFamily.index_) {
-						graphicsQueueFamily_ = graphicsQueueFamily;
-						presentQueueFamily_ = presentQueueFamily;
-						OS::LogInfo("/render/vulkan/driver/physical device", "Found queue family that supports present and graphics commands.");
-					}
-				}
-			}
-
-			graphicsQueueFamily_ = *graphicsQueueFamilies.begin();
-			presentQueueFamily_ = *presentQueueFamilies.begin();
-
-			return { graphicsQueueFamily_, presentQueueFamily_ };
-		}
+		std::pair<QueueFamily, QueueFamily> ChooseQueueFamilies(
+			std::shared_ptr<PhysicalDevice> physicalDevice,
+			std::shared_ptr<WindowSurface> windowSurface) noexcept;
 
 		[[nodiscard]]
-		static QueueFamilies GetPresentQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
+		static QueueFamilies GetPresentQueueFamilies(
+			std::shared_ptr<PhysicalDevice> physicalDevice,
+			std::shared_ptr<WindowSurface> windowSurface) noexcept;
 
-			const QueueFamilies queueFamilies = physicalDevice->GetQueueFamilies();
-			QueueFamilies presentQueueFamilies;
-
-			for (const QueueFamily& queueFamily : queueFamilies) {
-				VkBool32 presentSupport = false;
-				VkCall(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice->GetHandle(), queueFamily.index_, windowSurface->GetHandle(), &presentSupport),
-					"Error while checking queue family present commands support.");
-				if (presentSupport) {
-					presentQueueFamilies.AddQueueFamily(queueFamily);
-				}
-			}
-
-			return presentQueueFamilies;
-		}
-
-
-		std::shared_ptr<PhysicalDevice> ChoosePhysicalDevice(const std::vector<std::shared_ptr<PhysicalDevice>>& availablePhysicalDevices, std::shared_ptr<WindowSurface> windowSurface, const Extensions& requiredExtensions) noexcept {
-
-			auto isDeviceSuitable = [](
-				std::shared_ptr<PhysicalDevice> physicalDevice,
-				std::shared_ptr<WindowSurface> windowSurface,
-				const Extensions& requiredExtensions) noexcept->bool {
-
-					if (!physicalDevice->IsDiscrete()) {
-						return false;
-					}
-
-					if (!physicalDevice->SupportsGeometryShader()) {
-						return false;
-					}
-
-					auto areRequiredExtensionsAvailable = [](const Extensions& requiredExtensions, const Extensions& availableExtensions)noexcept->bool {
-
-						for (const Extension& requiredExtension : requiredExtensions) {
-							const bool requiredExtensionAvailable = availableExtensions.Contains(requiredExtension);
-							if (!requiredExtensionAvailable) {
-								return false;
-							}
-						}
-						return true;
-					};
-
-					const Extensions availableExtensions = physicalDevice->GetAvailableExtensions();
-
-					if (!areRequiredExtensionsAvailable(requiredExtensions, availableExtensions)) {
-						return false;
-					}
-
-					const auto graphicsQueueFamilies = physicalDevice->GetGraphicsQueueFamilies();
-					const auto presentQueueFamilies = GetPresentQueueFamilies(physicalDevice, windowSurface);
-
-					if (graphicsQueueFamilies.IsEmpty() || presentQueueFamilies.IsEmpty()) {
-						return false;
-					}
-
-					const PhysicalDevice::Formats formats = GetAvailablePhysicalDeviceSurfaceFormats(physicalDevice, windowSurface);
-					if (formats.empty()) {
-						return false;
-					}
-
-					const PhysicalDevice::PresentModes presentModes = GetAvailablePresentModes(physicalDevice, windowSurface);
-					if (presentModes.empty()) {
-						return false;
-					}
-
-					return true;
-			};
-
-			for (const auto& physicalDevice : availablePhysicalDevices) {
-				if (isDeviceSuitable(physicalDevice, windowSurface, requiredExtensions)) {
-					OS::LogInfo("render/vulkan/driver", { "Found sutable device {}.", physicalDevice->GetName()});
-					return physicalDevice;
-				}
-			}
-
-			OS::AssertFailMessage("Failed to find a suitable GPU!");
-			return nullptr;
-		}
+		[[nodiscard]]
+		static std::shared_ptr<PhysicalDevice> ChoosePhysicalDevice(
+			const std::vector<std::shared_ptr<PhysicalDevice>>& availablePhysicalDevices,
+			std::shared_ptr<WindowSurface> windowSurface,
+			const Extensions& requiredExtensions) noexcept;
 
 		Driver(const CreateInfo& info) noexcept : RAL::Driver{ info }{
 
@@ -403,9 +275,27 @@ namespace Render::Vulkan {
 			descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
 			modelInfoDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
 
-			const Common::Size descriptorPoolSize = swapChain_->GetImages().size() + 1;
+			const Common::Size descriptorPoolSize = swapChain_->GetImagesNumber() + 1;
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
+			if(info.enableDepthTest_) {
+				auto depthTestData = std::make_shared<DepthTestData>();
+				{
+					Image::CreateInfo depthImageCreateInfo;
+					{
+						depthImageCreateInfo.physicalDevice_ = physicalDevice_;
+						depthImageCreateInfo.logicDevice_ = logicDevice_;
+						depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
+						depthImageCreateInfo.extent_ = swapChain_->GetExtent();
+						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+						depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+					}
+					depthTestData->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
+					depthTestData->imageView_ = CreateImageViewByImage(logicDevice_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT);
+				}
+				depthTestData_ = depthTestData;
+			}
+			
 			Pipeline<Vertex3fnc>::CreateInfo pipelineCreateInfo;
 			{
 				ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
@@ -413,7 +303,6 @@ namespace Render::Vulkan {
 					vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
 					DS::Vector<Common::Byte> spirv{ info.vertexShader_.GetCode(), info.vertexShader_.GetSize() };
 					vertexShaderModuleCreateInfo.spirv_ = std::move(spirv);
-
 				}
 				auto vertexShader = std::make_shared<ShaderModule>(vertexShaderModuleCreateInfo);
 
@@ -422,23 +311,25 @@ namespace Render::Vulkan {
 					fragmentShaderModuleCreateInfo.logicDevice_ = logicDevice_;
 					DS::Vector<Common::Byte> spirv{ info.fragmentShader_.GetCode(), info.fragmentShader_.GetSize() };
 					fragmentShaderModuleCreateInfo.spirv_ = std::move(spirv);
-
 				}
 				auto fragmentShader = std::make_shared<ShaderModule>(fragmentShaderModuleCreateInfo);
 
 				pipelineCreateInfo.physicalDevice_ = physicalDevice_;
 				pipelineCreateInfo.logicDevice_ = logicDevice_;
-				pipelineCreateInfo.swapChain_ = swapChain_;
+				pipelineCreateInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+				pipelineCreateInfo.colorAttachmentExtent_ = swapChain_->GetExtent();
 				pipelineCreateInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
 				pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
 				pipelineCreateInfo.vertexShader_ = vertexShader;
 				pipelineCreateInfo.fragmentShader_ = fragmentShader;
-				pipelineCreateInfo.depthTest_ = createInfo_.enableDepthBuffer_;
 
+				if (info.enableDepthTest_) {
+					auto depthTestData = std::make_shared<Pipeline<Vertex3fnc>::DepthTestData>();
+					depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
+					pipelineCreateInfo.depthTestData_ = depthTestData;
+				}
 				pipeline3fnc_ = std::make_shared<Pipeline<Vertex3fnc>>(pipelineCreateInfo);
 			}
-
-			
 
 			{
 				VkRenderPass renderPass = *pipeline3fnc_->GetRenderPass();
@@ -450,8 +341,8 @@ namespace Render::Vulkan {
 						createInfo.colorImageView_ = imageView;
 						createInfo.extent_ = extent;
 						createInfo.renderPass_ = renderPass;
-						if (pipeline3fnc_->IsDepthTestEnabled()) {
-							createInfo.depthBufferImageView_ = pipeline3fnc_->GetDepthBufferImageView();
+						if (depthTestData_ != nullptr) {
+							createInfo.depthBufferImageView_ = depthTestData_->imageView_;
 						}
 					}
 					FrameBuffer frameBuffer{ createInfo };
@@ -568,7 +459,7 @@ namespace Render::Vulkan {
 				static VkClearValue clearValue{ 1, 1.0, 0.0, 0.0 };
 				CommandBuffer::DepthBufferInfo depthBufferInfo;
 				{
-					depthBufferInfo.enable = createInfo_.enableDepthBuffer_;
+					depthBufferInfo.enable = createInfo_.enableDepthTest_;
 					depthBufferInfo.clearValue_.depthStencil = { 1.f, 0 };
 				}
 				commandBuffer->BeginRenderPass(
@@ -974,6 +865,8 @@ namespace Render::Vulkan {
 		DS::Vector<std::shared_ptr<IndexBuffer<RAL::Index16>>> indexBuffers_;
 
 		std::vector<std::shared_ptr<Shape>> shapes_;
+
+		std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
 	};
 
 }

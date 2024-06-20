@@ -13,24 +13,25 @@ namespace Render::Vulkan {
 	class RenderPass : public Abstraction<VkRenderPass> {
 	public:
 
-		struct CreateInfo {
-			std::shared_ptr<SwapChain> swapchain_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-			bool depthTest_ = true;
-			struct DepthBufferInfo {
-				VkFormat depthStencilFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
-			} depthBufferInfo_;
+		struct DepthTestInfo {
+			VkFormat depthStencilBufferFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
+		};
 
+		struct CreateInfo {
+			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
+			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
 
 		struct Subpass {
 
+			struct DepthTestInfo {
+				VkFormat depthStencilBufferFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
+			};
+
 			struct CreateInfo {
-				VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_MAX_ENUM;
-				struct DepthBufferInfo {
-					bool enable_ = false;
-					VkFormat depthStencilFormat_ = VkFormat::VK_FORMAT_MAX_ENUM;
-				} depthBufferInfo_;
+				VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
+				std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 			};
 
 			Subpass(const CreateInfo& createInfo) noexcept {
@@ -67,8 +68,8 @@ namespace Render::Vulkan {
 					colorAttachmentRef_.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 				}
 
-				if (createInfo.depthBufferInfo_.enable_) {
-					depthBufferAttachment_.format = VK_FORMAT_D32_SFLOAT;//VK_FORMAT_MAX_ENUM;//depthStencilFormat;
+				if (createInfo.depthTestInfo_ != nullptr) {
+					depthBufferAttachment_.format = createInfo.depthTestInfo_->depthStencilBufferFormat_;
 					depthBufferAttachment_.samples = VK_SAMPLE_COUNT_1_BIT;
 					depthBufferAttachment_.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 					depthBufferAttachment_.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
@@ -84,14 +85,14 @@ namespace Render::Vulkan {
 				descriptor_.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 				descriptor_.colorAttachmentCount = 1;
 				descriptor_.pColorAttachments = &colorAttachmentRef_;
-				if (createInfo.depthBufferInfo_.enable_) {
+				if (createInfo.depthTestInfo_ != nullptr) {
 					descriptor_.pDepthStencilAttachment = &depthBufferAttachmentRef_;
 				}
 
 				dependency_.srcSubpass = VK_SUBPASS_EXTERNAL;
 				dependency_.dstSubpass = 0;
 
-				if (createInfo.depthBufferInfo_.enable_) {
+				if (createInfo.depthTestInfo_ != nullptr) {
 					dependency_.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 					dependency_.srcAccessMask = 0;
 					dependency_.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
@@ -126,23 +127,22 @@ namespace Render::Vulkan {
 
 		RenderPass(const CreateInfo& createInfo) noexcept : logicDevice_{ createInfo.logicDevice_ } {
 
-			if (createInfo.depthTest_) {
-				OS::AssertMessage(createInfo.depthBufferInfo_.depthStencilFormat_ != VK_FORMAT_UNDEFINED, "Format for depth stencil buffer was not set.");
-			}
-
 			{
 				Subpass::CreateInfo subpassCreateInfo{ };
 				{ 
-					subpassCreateInfo.colorAttachmentFormat_ = createInfo.swapchain_->GetFormat().format;
-					subpassCreateInfo.depthBufferInfo_.enable_ = createInfo.depthTest_;
-					subpassCreateInfo.depthBufferInfo_.depthStencilFormat_ = createInfo.depthBufferInfo_.depthStencilFormat_;
+					subpassCreateInfo.colorAttachmentFormat_ = createInfo.colorAttachmentFormat_;
+					if(createInfo.depthTestInfo_ != nullptr) {
+						auto depthTestInfo = std::make_shared<Subpass::DepthTestInfo>();
+						depthTestInfo->depthStencilBufferFormat_ = createInfo.depthTestInfo_->depthStencilBufferFormat_;
+						subpassCreateInfo.depthTestInfo_ = depthTestInfo;
+					}
 				}
 				Subpass subpass{ subpassCreateInfo };
 
 				std::vector<VkAttachmentDescription> attachments;
 				{
 					attachments.push_back(subpass.GetColorAttachment());
-					if (createInfo.depthTest_) {
+					if (createInfo.depthTestInfo_ != nullptr) {
 						attachments.push_back(subpass.GetDepthStencilAttachment());
 					}
 				}

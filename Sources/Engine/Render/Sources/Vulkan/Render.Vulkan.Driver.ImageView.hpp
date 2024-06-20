@@ -113,7 +113,7 @@ namespace Render::Vulkan {
 	};
 
 	[[nodiscard]]
-	std::shared_ptr<ImageView> CreateImageViewByImage(std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<Image> image, VkImageAspectFlags aspect) noexcept {
+	inline std::shared_ptr<ImageView> CreateImageViewByImage(std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<Image> image, VkImageAspectFlags aspect) noexcept {
 		ImageView::CreateInfo imageViewCreateInfo;
 		{
 			imageViewCreateInfo.logicDevice_ = logicDevice;
@@ -126,7 +126,7 @@ namespace Render::Vulkan {
 	}
 
 	[[nodiscard]]
-	std::shared_ptr<ImageView> CreateImageViewByImage(std::shared_ptr<LogicDevice> logicDevice, VkImage image, VkFormat format, VkImageAspectFlags aspect) noexcept {
+	inline std::shared_ptr<ImageView> CreateImageViewByImage(std::shared_ptr<LogicDevice> logicDevice, VkImage image, VkFormat format, VkImageAspectFlags aspect) noexcept {
 		ImageView::CreateInfo2 imageViewCreateInfo;
 		{
 			imageViewCreateInfo.logicDevice_ = logicDevice;

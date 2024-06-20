@@ -170,7 +170,7 @@ namespace RAL {
 			Shader vertexShader_;
 			Shader fragmentShader_;
 			RenderSurface surface_;
-			bool enableDepthBuffer_ = true;
+			bool enableDepthTest_ = true;
 		};
 
 		Driver(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } { }

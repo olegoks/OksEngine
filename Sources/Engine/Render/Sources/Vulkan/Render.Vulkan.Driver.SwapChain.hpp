@@ -164,7 +164,7 @@ namespace Render::Vulkan {
 	};
 
 	[[nodiscard]]
-	VkSurfaceFormatKHR ChooseSwapChainSurfaceFormat(const PhysicalDevice::Formats availableFormats) noexcept {
+	inline VkSurfaceFormatKHR ChooseSwapChainSurfaceFormat(const PhysicalDevice::Formats availableFormats) noexcept {
 
 		VkSurfaceFormatKHR format;
 
@@ -180,7 +180,7 @@ namespace Render::Vulkan {
 
 
 	[[nodiscard]]
-	VkSurfaceCapabilitiesKHR GetCapabilities(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
+	inline VkSurfaceCapabilitiesKHR GetCapabilities(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
 		VkSurfaceCapabilitiesKHR capabilities;
 		vkGetPhysicalDeviceSurfaceCapabilitiesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &capabilities);
@@ -189,7 +189,7 @@ namespace Render::Vulkan {
 	}
 
 	[[nodiscard]]
-	VkExtent2D ChooseSwapExtent(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface, const Math::Vector2u& imageSize) noexcept {
+	inline VkExtent2D ChooseSwapExtent(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface, const Math::Vector2u& imageSize) noexcept {
 
 		const VkSurfaceCapabilitiesKHR capabilities = GetCapabilities(physicalDevice, windowSurface);
 

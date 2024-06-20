@@ -11,12 +11,12 @@ namespace Geometry {
 		V3f = 0,
 		V3f_C3f,
 		V3f_N3f_C3f,
-		V3f_N3f_T3f
+		V3f_N3f_T3f,
+		Undefined
 	};
 
 	template<Common::Size size, class BaseType>
 	struct Vertex {
-
 
 		Vertex() noexcept : position_{ 0.f , 0.f , 0.f }{ }
 
