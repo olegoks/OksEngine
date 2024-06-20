@@ -17,7 +17,8 @@ namespace Geometry {
 		Shape( const VertexCloud<VertexType>& vertices,
 				const IndexBuffer<IndexType>& indices) noexcept : 
 			vertices_{ vertices }, 
-			indices_{ indices } { }
+			indices_{ indices }
+			 { }
 
 		void AddPolygon(const Polygon<VertexType>& polygon) {
 			const Common::Size startVerticesNumber = vertices_.GetVerticesNumber();
@@ -55,6 +56,8 @@ namespace Geometry {
 	private:
 		VertexCloud<VertexType> vertices_;
 		IndexBuffer<IndexType> indices_;
+		DS::Vector<Normal3f> normals_;
+		DS::Vector<Color3f> colors_;
 	};
 
 	//class FlexShape {

@@ -14,7 +14,7 @@ namespace Render::Vulkan {
 	public:
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> logicDevice_;
-			std::shared_ptr< DescriptorSetLayout> descriptorSetLayout_;
+			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 		};
 
 		PipelineLayout(const CreateInfo& createInfo) noexcept : logicDevice_{ createInfo.logicDevice_ } {
@@ -22,8 +22,12 @@ namespace Render::Vulkan {
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 			{
 				pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-				pipelineLayoutInfo.setLayoutCount = 1; // Optional
-				pipelineLayoutInfo.pSetLayouts = &createInfo.descriptorSetLayout_->GetNative(); // Optional
+				pipelineLayoutInfo.setLayoutCount = static_cast<Common::UInt32>(createInfo.descriptorSetLayouts_.size()); // Optional
+				std::vector<VkDescriptorSetLayout> descriptorSetLayoutsHandles;
+				for (auto descriptorSetLayout : createInfo.descriptorSetLayouts_) {
+					descriptorSetLayoutsHandles.push_back(descriptorSetLayout->GetNative());
+				}
+				pipelineLayoutInfo.pSetLayouts = descriptorSetLayoutsHandles.data(); // Optional
 				pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
 				pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
 
