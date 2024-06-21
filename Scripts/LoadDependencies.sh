@@ -8,6 +8,7 @@ echo $(pwd)
 ./vcpkg.exe install glfw3
 ./vcpkg.exe install vulkan
 ./vcpkg.exe install imgui
+./vcpkg.exe install implot
 ./vcpkg.exe install lua
 ./vcpkg.exe install luabridge3
 ./vcpkg.exe install glslang
