@@ -119,6 +119,9 @@ find_package(glslang CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 target_link_libraries(Render PRIVATE imgui::imgui)
 
+find_package(implot CONFIG REQUIRED)
+target_link_libraries(Render PRIVATE implot::implot)
+
 target_link_libraries(Render
     PUBLIC
         OS
