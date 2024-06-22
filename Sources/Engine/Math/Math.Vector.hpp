@@ -190,6 +190,7 @@ namespace Math {
 	using Vector2f = Vector<2, float>;
 	using Vector3f = Vector<3, float>;
 	using Vector3b = Vector<3, Common::Byte>;
+	using Vector4b = Vector<4, Common::Byte>;
 	using Vector4f = Vector<4, float>;
 
 }

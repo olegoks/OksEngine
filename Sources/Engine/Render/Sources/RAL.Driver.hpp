@@ -169,6 +169,8 @@ namespace RAL {
 		struct CreateInfo {
 			Shader vertexShader_;
 			Shader fragmentShader_;
+			Shader textureVertexShader_;
+			Shader textureFragmentShader_;
 			RenderSurface surface_;
 			bool enableDepthTest_ = true;
 		};
@@ -207,6 +209,12 @@ namespace RAL {
 		//	const Texture& texture) = 0;
 
 		virtual void DrawShape(const RAL::Shape& shape) = 0;
+
+		virtual void DrawIndexed(
+			const Vertex3fnt* vertices,
+			Common::Size verticesNumber,
+			const Index16* indices,
+			Common::Size indicesNumber) = 0;
 
 		virtual void DrawIndexed(
 			const Vertex3fnc* vertices,

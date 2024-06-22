@@ -15,6 +15,8 @@ namespace RE {
 			std::shared_ptr<RAL::Light> light_ = nullptr;
 			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
 			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
+			std::shared_ptr<RAL::Shader> textureVertexShader_ = nullptr;
+			std::shared_ptr<RAL::Shader> textureFragmentShader_ = nullptr;
 			std::shared_ptr<RAL::RenderSurface> renderSurface_ = nullptr;
 		};
 
@@ -25,6 +27,8 @@ namespace RE {
 			RAL::Driver::CreateInfo driverCreateInfo{
 				*createInfo.vertexShader_,
 				*createInfo.fragmentShader_,
+				*createInfo.textureVertexShader_,
+				*createInfo.textureFragmentShader_,
 				*createInfo.renderSurface_,
 				true
 			};
@@ -32,6 +36,28 @@ namespace RE {
 			driver_ = api_->CreateDriver(driverCreateInfo);
 			driver_->SetCamera(createInfo.camera_);
 			driver_->AddLight(createInfo.light_);
+		}
+
+		void RenderModel(const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model) {
+
+			Common::Index shapeIndex = 0;
+			for (const auto& shape : model) {
+				Geometry::VertexCloud<Geometry::Vertex3fnt> verticesColored;
+				//if (shapeIndex == 0) {
+				//	shapeIndex++;
+				//	continue;
+				//}
+				const auto& vertices = shape.GetVertices();
+				for (const auto& vertex : vertices) {
+					verticesColored.Add(vertex);
+				}
+				driver_->DrawIndexed(
+					(RAL::Vertex3fnt*)verticesColored.GetData(),
+					verticesColored.GetVerticesNumber(),
+					shape.GetIndices().GetData(),
+					shape.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
+
+			}
 		}
 
 		void RenderModel(const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model) {

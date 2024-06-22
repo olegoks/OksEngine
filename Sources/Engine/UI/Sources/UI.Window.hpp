@@ -14,6 +14,11 @@
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
 
+#include <imgui_impl_glfw.h>
+
+#include <implot.h>
+#include <implot_internal.h>
+
 //#include <RAL;
 //#include <Render.Vulkan.Common.hpp>
 //
@@ -62,6 +67,9 @@ namespace UI {
 				nullptr,
 				nullptr);
 
+			ImGui::CreateContext();
+			ImPlot::CreateContext();
+			ImGui_ImplGlfw_InitForVulkan(createdWindow, true);
 
 			OS::AssertMessage(createdWindow != nullptr, "GLFW Windows was not created.");
 			glfwSetWindowUserPointer(createdWindow, this);
@@ -141,6 +149,7 @@ namespace UI {
 		void ProcessInput() {
 			if (!glfwWindowShouldClose(window_)) {
 				glfwPollEvents();
+
 			}
 		}
 

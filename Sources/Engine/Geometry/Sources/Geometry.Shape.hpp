@@ -5,6 +5,7 @@
 #include <Geometry.IndexBuffer.hpp>
 #include <Geometry.VertexCloud.hpp>
 #include <Geometry.Polygon.hpp>
+#include <Geometry.Texture.hpp>
 
 namespace Geometry {
 
@@ -15,10 +16,11 @@ namespace Geometry {
 		Shape() noexcept = default;
 
 		Shape( const VertexCloud<VertexType>& vertices,
-				const IndexBuffer<IndexType>& indices) noexcept : 
+				const IndexBuffer<IndexType>& indices,
+				std::shared_ptr<Texture<Color4b>> texture = nullptr) noexcept : 
 			vertices_{ vertices }, 
-			indices_{ indices }
-			 { }
+			indices_{ indices },
+			texture_{ texture } { }
 
 		void AddPolygon(const Polygon<VertexType>& polygon) {
 			const Common::Size startVerticesNumber = vertices_.GetVerticesNumber();
@@ -58,6 +60,7 @@ namespace Geometry {
 		IndexBuffer<IndexType> indices_;
 		DS::Vector<Normal3f> normals_;
 		DS::Vector<Color3f> colors_;
+		std::shared_ptr<Texture<Color4b>> texture_ = nullptr;
 	};
 
 	//class FlexShape {

@@ -42,6 +42,7 @@
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 
+
 #include <implot.h>
 #include <implot_internal.h>
 
@@ -309,9 +310,52 @@ namespace Render::Vulkan {
 				depthTestData_ = depthTestData;
 			}
 			
-			//PIPELINE
-			Pipeline<Vertex3fnc>::CreateInfo pipelineCreateInfo;
+			//ImGui PIPELINE
+			//Pipeline<>
 			{
+
+			}
+
+			//PIPELINE with textures
+			
+			{
+				Pipeline<Vertex3fnt>::CreateInfo pipelineCreateInfo;
+
+				ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
+				{
+					vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
+					DS::Vector<Common::Byte> spirv{ info.vertexShader_.GetCode(), info.vertexShader_.GetSize() };
+					vertexShaderModuleCreateInfo.spirv_ = std::move(spirv);
+				}
+				auto vertexShader = std::make_shared<ShaderModule>(vertexShaderModuleCreateInfo);
+
+				ShaderModule::CreateInfo fragmentShaderModuleCreateInfo;
+				{
+					fragmentShaderModuleCreateInfo.logicDevice_ = logicDevice_;
+					DS::Vector<Common::Byte> spirv{ info.fragmentShader_.GetCode(), info.fragmentShader_.GetSize() };
+					fragmentShaderModuleCreateInfo.spirv_ = std::move(spirv);
+				}
+				auto fragmentShader = std::make_shared<ShaderModule>(fragmentShaderModuleCreateInfo);
+
+				pipelineCreateInfo.physicalDevice_ = physicalDevice_;
+				pipelineCreateInfo.logicDevice_ = logicDevice_;
+				pipelineCreateInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+				pipelineCreateInfo.colorAttachmentSize_ = swapChain_->GetSize();
+				pipelineCreateInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
+				pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
+				pipelineCreateInfo.vertexShader_ = vertexShader;
+				pipelineCreateInfo.fragmentShader_ = fragmentShader;
+
+				if (info.enableDepthTest_) {
+					auto depthTestData = std::make_shared<Pipeline<Vertex3fnt>::DepthTestData>();
+					depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
+					pipelineCreateInfo.depthTestData_ = depthTestData;
+				}
+			}
+			//PIPELINE
+			{
+				Pipeline<Vertex3fnc>::CreateInfo pipelineCreateInfo;
+
 				ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
 				{
 					vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
@@ -421,11 +465,6 @@ namespace Render::Vulkan {
 
 
 			{
-				ImGui::CreateContext();
-				ImPlot::CreateContext();
-				//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;//ImGuiConfigFlags_DockingEnable;
-				GLFWwindow* window = std::any_cast<GLFWwindow*>(info.surface_.param1_);
-				ImGui_ImplGlfw_InitForVulkan(window, true);
 				ImGui_ImplVulkan_InitInfo init_info = {};
 				init_info.Instance = *instance_;
 				init_info.PhysicalDevice = *physicalDevice_;
@@ -535,6 +574,7 @@ namespace Render::Vulkan {
 					commandBuffer->DrawShape(shape);
 				}
 
+				
 				ImGui_ImplVulkan_NewFrame();
 				ImGui_ImplGlfw_NewFrame();
 				ImGui::NewFrame();
@@ -828,6 +868,34 @@ namespace Render::Vulkan {
 
 			//vertexBuffers_.PushBack(vertex3fncBuffer);
 			//indexBuffers_.PushBack(indexBuffer);
+		}
+
+		virtual void DrawIndexed(
+			const RAL::Vertex3fnt* vertices,
+			Common::Size verticesNumber,
+			const RAL::Index16* indices,
+			Common::Size indicesNumber) override {
+
+			//auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(RAL::Vertex3fnc));
+			//vertexStagingBuffer->Fill(vertices);
+			//auto vertex3fncBuffer = std::make_shared<VertexBuffer<RAL::Vertex3fnc>>(physicalDevice_, logicDevice_, verticesNumber);
+
+			//DataCopy(vertexStagingBuffer, vertex3fncBuffer, logicDevice_, commandPool_);
+
+			//auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(RAL::Index16));
+			//indexStagingBuffer->Fill(indices);
+			//auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
+
+			//DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
+
+
+			//Shape::CreateInfo shapeCreateInfo;
+			//{
+			//	shapeCreateInfo.vertexBuffer_ = vertex3fncBuffer;
+			//	shapeCreateInfo.indexBuffer_ = indexBuffer;
+			//}
+			//auto newShape = std::make_shared<Shape>(shapeCreateInfo);
+			//shapes_.push_back(newShape);
 		}
 
 

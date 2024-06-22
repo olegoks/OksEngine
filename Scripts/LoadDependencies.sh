@@ -12,9 +12,10 @@ echo $(pwd)
 ./vcpkg.exe install lua
 ./vcpkg.exe install luabridge3
 ./vcpkg.exe install glslang
-./vcpkg.exe install boost
+./vcpkg.exe install boost-thread
 ./vcpkg.exe install gtest
 ./vcpkg.exe install tinyobjloader
+./vcpkg.exe install stb
 ./vcpkg.exe install loguru
 ./vcpkg.exe install magic-enum
 ./vcpkg.exe install graphviz

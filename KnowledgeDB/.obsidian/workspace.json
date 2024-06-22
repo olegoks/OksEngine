@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/Open with Visual Studio Code.md",
+                "file": "Work/Переключение между .h и .cpp.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/Open with Visual Studio Code.md",
+                "file": "Work/Переключение между .h и .cpp.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/Open with Visual Studio Code.md",
+                "file": "Work/Переключение между .h и .cpp.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/Open with Visual Studio Code.md"
+                "file": "Work/Переключение между .h и .cpp.md"
               }
             }
           }
@@ -148,6 +148,10 @@
   },
   "active": "a873fcafaffd09bf",
   "lastOpenFiles": [
+    "Attachments/Pasted image 20240622124505.png",
+    "Attachments/Pasted image 20240622124312.png",
+    "Work/Open with Visual Studio Code.md",
+    "Work/Переключение между .h и .cpp.md",
     "Work/Python/Типы данных Python.md",
     "Work/Python/Типизация.md",
     "Work/Python/Модель данных Python.md",
@@ -156,7 +160,6 @@
     "Attachments/Pasted image 20240619174636.png",
     "Attachments/Pasted image 20240619174513.png",
     "Attachments/Pasted image 20240619110900.png",
-    "Work/Open with Visual Studio Code.md",
     "Work/OBS save .mp4 files.md",
     "Attachments/Pasted image 20240614143058.png",
     "Attachments/Pasted image 20240614143033.png",
@@ -185,10 +188,7 @@
     "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
     "Attachments/Pasted image 20240604113130.png",
     "Work/C++/Многопоточность/Конструкции/std_lock_guard.md",
-    "Work/C++/Многопоточность/Конструкции/std_unique_lock.md",
-    "Work/C++/Модель памяти С++.md",
     "Work/C++/Модель памяти С++.md.bak",
-    "Attachments/Pasted image 20240603195500.png",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
     "Work/C++/Многопоточность/Топики",
