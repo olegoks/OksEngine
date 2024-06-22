@@ -110,7 +110,7 @@ namespace Render::Vulkan {
 
 			std::vector<VkDescriptorSet> descriptorSetsHandles;
 			for (auto descriptorSetPtr : descriptorSets) {
-				descriptorSetsHandles.push_back(descriptorSetPtr->GetNative());
+				descriptorSetsHandles.push_back(descriptorSetPtr->GetHandle());
 			}
 
 			vkCmdBindDescriptorSets(

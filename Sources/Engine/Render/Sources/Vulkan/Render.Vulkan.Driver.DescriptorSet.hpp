@@ -8,7 +8,7 @@
 #include <OS.Logger.hpp>
 
 #include <Render.Vulkan.Common.hpp>
-
+#include <Render.Vulkan.Abstraction.hpp>
 #include <Render.Vulkan.Driver.DescriptorPool.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.DescriptorSetLayout.hpp>
@@ -16,7 +16,7 @@
 
 namespace Render::Vulkan {
 
-	class DescriptorSet {
+	class DescriptorSet : public Abstraction<VkDescriptorSet>{
 	public:
 
 		struct CreateInfo {
@@ -27,7 +27,8 @@ namespace Render::Vulkan {
 			VkDescriptorType type_;
 		};
 
-		DescriptorSet(const CreateInfo& createInfo) {
+		DescriptorSet(const CreateInfo& createInfo) : 
+			createInfo_{ createInfo } {
 
 			Allocate(
 				createInfo.logicDevice_->GetHandle(),
@@ -43,9 +44,6 @@ namespace Render::Vulkan {
 
 		}
 
-		[[nodiscard]]
-		const VkDescriptorSet& GetNative() const noexcept { return descriptorSet_; }
-
 	private:
 
 		void Update(VkDevice logicDevice, VkBuffer buffer, VkDescriptorType type, Common::Size range, Common::Size offset = 0)  noexcept {
@@ -60,7 +58,7 @@ namespace Render::Vulkan {
 			VkWriteDescriptorSet descriptorWrite{};
 			{
 				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-				descriptorWrite.dstSet = GetNative();
+				descriptorWrite.dstSet = GetHandle();
 				descriptorWrite.dstBinding = 0;
 				descriptorWrite.dstArrayElement = 0;
 				descriptorWrite.descriptorType = type; //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
@@ -83,18 +81,14 @@ namespace Render::Vulkan {
 			VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
 			VkCall(vkAllocateDescriptorSets(logicDevice, &allocInfo, &descriptorSet), 
 				"Error while allocating memory for Descriptor Set");
-			SetNative(descriptorSet);
-		}
-
-		void SetNative(VkDescriptorSet descriptorSet) noexcept {
-			OS::Assert((descriptorSet != VK_NULL_HANDLE) && (GetNative() == VK_NULL_HANDLE) ||
-				((descriptorSet == VK_NULL_HANDLE) && (GetNative() != VK_NULL_HANDLE)));
-			descriptorSet_ = descriptorSet;
+			SetHandle(descriptorSet);
 		}
 
 	private:
-		VkDescriptorSet descriptorSet_ = VK_NULL_HANDLE;
+		CreateInfo createInfo_;
 	};
+
+
 
 
 }

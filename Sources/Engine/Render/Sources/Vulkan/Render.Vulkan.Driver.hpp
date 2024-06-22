@@ -319,6 +319,24 @@ namespace Render::Vulkan {
 				}
 				modelInfoDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
 			}
+			{
+
+				DescriptorSetLayout::CreateInfo descriptorSetLayoutCreateInfo;
+				{
+					descriptorSetLayoutCreateInfo.logicDevice_ = logicDevice_;
+					std::vector<VkDescriptorSetLayoutBinding> bindings{
+						{
+							0,
+							VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+							1,
+							VK_SHADER_STAGE_VERTEX_BIT,
+							nullptr
+						}
+					};
+					descriptorSetLayoutCreateInfo.bindings_ = bindings;
+				}
+				texturedModelDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
+			}
 			//DESCRIPTOR_POOL
 			const Common::Size descriptorPoolSize = swapChain_->GetImagesNumber() * 2;
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
@@ -342,6 +360,47 @@ namespace Render::Vulkan {
 				depthTestData_ = depthTestData;
 			}
 
+			//PIPELINE for textured models
+			{
+				Pipeline<Vertex3fnt>::CreateInfo pipelineCreateInfo;
+				{
+
+					ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
+					{
+						vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
+						DS::Vector<Common::Byte> spirv{ info.textureVertexShader_.GetCode(), info.textureVertexShader_.GetSize() };
+						vertexShaderModuleCreateInfo.spirv_ = std::move(spirv);
+					}
+					auto vertexShader = std::make_shared<ShaderModule>(vertexShaderModuleCreateInfo);
+
+					ShaderModule::CreateInfo fragmentShaderModuleCreateInfo;
+					{
+						fragmentShaderModuleCreateInfo.logicDevice_ = logicDevice_;
+						DS::Vector<Common::Byte> spirv{ info.textureFragmentShader_.GetCode(), info.textureFragmentShader_.GetSize() };
+						fragmentShaderModuleCreateInfo.spirv_ = std::move(spirv);
+					}
+					auto fragmentShader = std::make_shared<ShaderModule>(fragmentShaderModuleCreateInfo);
+
+					pipelineCreateInfo.physicalDevice_ = physicalDevice_;
+					pipelineCreateInfo.logicDevice_ = logicDevice_;
+					pipelineCreateInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+					pipelineCreateInfo.colorAttachmentSize_ = swapChain_->GetSize();
+					pipelineCreateInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
+					pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
+					pipelineCreateInfo.descriptorSetLayouts_.push_back(texturedModelDescriptorSetLayout_);
+					pipelineCreateInfo.vertexShader_ = vertexShader;
+					pipelineCreateInfo.fragmentShader_ = fragmentShader;
+
+
+					if (info.enableDepthTest_) {
+						auto depthTestData = std::make_shared<Pipeline<Vertex3fnt>::DepthTestData>();
+						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
+						pipelineCreateInfo.depthTestData_ = depthTestData;
+					}
+					pipeline3fnt_ = std::make_shared<Pipeline<Vertex3fnt>>(pipelineCreateInfo);
+				}
+			}
+
 			//ImGui PIPELINE
 			//Pipeline<>
 			{
@@ -350,40 +409,24 @@ namespace Render::Vulkan {
 
 			//PIPELINE with textures
 
-			{
-				Pipeline<Vertex3fnt>::CreateInfo pipelineCreateInfo;
+			//{
+			//	Pipeline<Vertex3fnt>::CreateInfo pipelineCreateInfo;
 
-				ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
-				{
-					vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
-					DS::Vector<Common::Byte> spirv{ info.vertexShader_.GetCode(), info.vertexShader_.GetSize() };
-					vertexShaderModuleCreateInfo.spirv_ = std::move(spirv);
-				}
-				auto vertexShader = std::make_shared<ShaderModule>(vertexShaderModuleCreateInfo);
+			//	pipelineCreateInfo.physicalDevice_ = physicalDevice_;
+			//	pipelineCreateInfo.logicDevice_ = logicDevice_;
+			//	pipelineCreateInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+			//	pipelineCreateInfo.colorAttachmentSize_ = swapChain_->GetSize();
+			//	pipelineCreateInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
+			//	pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
+			//	pipelineCreateInfo.vertexShader_ = vertexShader;
+			//	pipelineCreateInfo.fragmentShader_ = fragmentShader;
 
-				ShaderModule::CreateInfo fragmentShaderModuleCreateInfo;
-				{
-					fragmentShaderModuleCreateInfo.logicDevice_ = logicDevice_;
-					DS::Vector<Common::Byte> spirv{ info.fragmentShader_.GetCode(), info.fragmentShader_.GetSize() };
-					fragmentShaderModuleCreateInfo.spirv_ = std::move(spirv);
-				}
-				auto fragmentShader = std::make_shared<ShaderModule>(fragmentShaderModuleCreateInfo);
-
-				pipelineCreateInfo.physicalDevice_ = physicalDevice_;
-				pipelineCreateInfo.logicDevice_ = logicDevice_;
-				pipelineCreateInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
-				pipelineCreateInfo.colorAttachmentSize_ = swapChain_->GetSize();
-				pipelineCreateInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
-				pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
-				pipelineCreateInfo.vertexShader_ = vertexShader;
-				pipelineCreateInfo.fragmentShader_ = fragmentShader;
-
-				if (info.enableDepthTest_) {
-					auto depthTestData = std::make_shared<Pipeline<Vertex3fnt>::DepthTestData>();
-					depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
-					pipelineCreateInfo.depthTestData_ = depthTestData;
-				}
-			}
+			//	if (info.enableDepthTest_) {
+			//		auto depthTestData = std::make_shared<Pipeline<Vertex3fnt>::DepthTestData>();
+			//		depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
+			//		pipelineCreateInfo.depthTestData_ = depthTestData;
+			//	}
+			//}
 			//PIPELINE
 			{
 				Pipeline<Vertex3fnc>::CreateInfo pipelineCreateInfo;
@@ -667,7 +710,9 @@ namespace Render::Vulkan {
 				}
 
 				for (auto shape : shapes_) {
-					//if(shape)
+					//if (shape->GetType() == Shape::Type::Colored) {
+
+					//}
 					commandBuffer->BindPipeline(pipeline3fnc_);
 					commandBuffer->BindShape(shape);
 					{
@@ -825,39 +870,6 @@ namespace Render::Vulkan {
 			indices_.Clear();
 			commandBuffers_.clear();
 		}
-
-
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3fnñt* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indicesNumber,
-		//	const RAL::Texture& texture) override {
-
-		//	Common::DiscardUnusedParameter(texture);
-
-		//	vertices_.Add(vertices, verticesNumber);
-		//	indices_.Add(indices, indicesNumber, verticesNumber);
-
-		//}
-
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3fnt* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indicesNumber, 
-		//	const RAL::Texture& texture) override {
-
-		//	Common::DiscardUnusedParameter(texture);
-
-		//	for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-		//		const RAL::Vertex3fnt& vertex = vertices[vertexIndex];
-		//		vertices_.Add({ vertex.position_, vertex.normal_, Math::Vector3f{ 0, 0, 0 }, vertex.texel_ });
-		//	}
-		//	indices_.Add(indices, indicesNumber, verticesNumber);
-
-		//}
-
 
 		virtual void DrawShape(const RAL::Shape& shape) override {
 
@@ -1017,6 +1029,19 @@ namespace Render::Vulkan {
 				samplerCreateInfo.maxAnisotropy_ = physicalDevice_->GetProperties().limits.maxSamplerAnisotropy;
 			}
 			auto textureSampler = std::make_shared<Sampler>(samplerCreateInfo);
+
+			DescriptorSet::CreateInfo createInfo;
+			{
+				const VkDeviceSize bufferSize = sizeof(Transform);
+				modelInfoBuffer_ = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
+				createInfo.buffer_ = modelInfoBuffer_;
+				createInfo.descriptorPool_ = descriptorPool_;
+				createInfo.descriptorSetLayout_ = modelInfoDescriptorSetLayout_;
+				createInfo.logicDevice_ = logicDevice_;
+				createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			}
+			modelInfoDescriptorSet_ = std::make_shared<DescriptorSet>(createInfo);
+
 			TexturedShape::CreateInfo texturedShapeCreateInfo;
 			{
 
@@ -1136,6 +1161,7 @@ namespace Render::Vulkan {
 		std::shared_ptr<SwapChain> swapChain_ = nullptr;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
 		std::shared_ptr<CommandBuffer> commandBuffer_ = nullptr;
+		std::shared_ptr<Pipeline<Vertex3fnt>> pipeline3fnt_ = nullptr;
 		std::shared_ptr<Pipeline<Vertex3fnc>> pipeline3fnc_ = nullptr;
 		std::vector<FrameBuffer> frameBuffers_;
 
@@ -1160,11 +1186,13 @@ namespace Render::Vulkan {
 
 		std::shared_ptr<UniformBuffer> modelInfoBuffer_ = nullptr;
 		std::shared_ptr<DescriptorSetLayout> modelInfoDescriptorSetLayout_ = nullptr;
+		std::shared_ptr<DescriptorSetLayout> texturedModelDescriptorSetLayout_ = nullptr;
 		std::shared_ptr<DescriptorSet> modelInfoDescriptorSet_ = nullptr;
 
 		DS::Vector<std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>>> vertexBuffers_;
 		DS::Vector<std::shared_ptr<IndexBuffer<RAL::Index16>>> indexBuffers_;
 
+		std::vector<std::shared_ptr<TexturedShape>> texturedShape_;
 		std::vector<std::shared_ptr<ColoredShape>> shapes_;
 
 		std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
