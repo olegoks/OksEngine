@@ -1,0 +1,198 @@
+
+
+
+
+
+arguments: D:\\Desktop\\OksEngine\\Build\\Sources\\Debug\\OksEngineGame.exe -cfg D:/Desktop/OksEngine/config.lua
+Current dir: D:\Desktop\OksEngine
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2024-06-23 01:44:03.062 (   0.017s) [main thread     ]             loguru.cpp:770   INFO| Logging to 'engine.log', mode: 'a', verbosity: 9
+2024-06-23 01:44:03.082 (   0.037s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 1 was sent from Engine to Resource subsystem by Update function.
+2024-06-23 01:44:03.087 (   0.043s) [                ]          OS.Logger.hpp:61    INFO| Task with id 1 was received by Resource from Engine.
+2024-06-23 01:44:03.091 (   0.046s) [                ]          OS.Logger.hpp:61    INFO| Task with id 1 was sent from Resource to Engine subsystem by Update function.
+2024-06-23 01:44:03.092 (   0.048s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 1 was waited by Engine from Resource.
+2024-06-23 01:44:03.095 (   0.051s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 2 was sent from Engine to Resource subsystem by Update function.
+2024-06-23 01:44:03.096 (   0.052s) [                ]          OS.Logger.hpp:61    INFO| Task with id 2 was received by Resource from Engine.
+2024-06-23 01:44:03.508 (   0.464s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 3 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:44:03.579 (   0.535s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 4 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:44:03.580 (   0.535s) [                ]          OS.Logger.hpp:61    INFO| Task with id 3 was received by Resource from Render.
+2024-06-23 01:44:03.581 (   0.537s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 5 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:44:03.593 (   0.549s) [                ]          OS.Logger.hpp:61    INFO| Task with id 3 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:44:03.616 (   0.572s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 6 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:44:03.644 (   0.600s) [                ]          OS.Logger.hpp:61    INFO| Task with id 4 was received by Resource from Render.
+2024-06-23 01:44:03.686 (   0.642s) [                ]          OS.Logger.hpp:61    INFO| Task with id 4 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:44:03.703 (   0.659s) [                ]          OS.Logger.hpp:61    INFO| Task with id 5 was received by Resource from Render.
+2024-06-23 01:44:03.712 (   0.668s) [                ]          OS.Logger.hpp:61    INFO| Task with id 5 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:44:03.726 (   0.681s) [                ]          OS.Logger.hpp:61    INFO| Task with id 6 was received by Resource from Render.
+2024-06-23 01:44:03.735 (   0.690s) [                ]          OS.Logger.hpp:61    INFO| Task with id 6 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:44:04.354 (   1.309s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 3 was waited by Render from Resource.
+2024-06-23 01:44:04.365 (   1.321s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 4 was waited by Render from Resource.
+2024-06-23 01:44:04.374 (   1.330s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 5 was waited by Render from Resource.
+2024-06-23 01:44:04.386 (   1.342s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 6 was waited by Render from Resource.
+2024-06-23 01:44:04.598 (   1.554s) [main thread     ]          OS.Logger.hpp:61    INFO| Vulkan enabled extensions:
+2024-06-23 01:44:04.603 (   1.559s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_EXT_debug_report
+2024-06-23 01:44:04.607 (   1.562s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_EXT_debug_utils
+2024-06-23 01:44:04.609 (   1.565s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_EXT_surface_maintenance1
+2024-06-23 01:44:04.612 (   1.568s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_EXT_swapchain_colorspace
+2024-06-23 01:44:04.616 (   1.572s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_device_group_creation
+2024-06-23 01:44:04.619 (   1.575s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_external_fence_capabilities
+2024-06-23 01:44:04.622 (   1.578s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_external_memory_capabilities
+2024-06-23 01:44:04.637 (   1.593s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_external_semaphore_capabilities
+2024-06-23 01:44:04.649 (   1.605s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_get_physical_device_properties2
+2024-06-23 01:44:04.656 (   1.612s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_get_surface_capabilities2
+2024-06-23 01:44:04.662 (   1.617s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_surface
+2024-06-23 01:44:04.665 (   1.621s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_surface_protected_capabilities
+2024-06-23 01:44:04.667 (   1.623s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_win32_surface
+2024-06-23 01:44:04.670 (   1.626s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_NV_external_memory_capabilities
+2024-06-23 01:44:04.681 (   1.637s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_EXT_debug_utils
+2024-06-23 01:44:04.683 (   1.639s) [main thread     ]          OS.Logger.hpp:61    INFO| Checking are required extensions enabled.
+2024-06-23 01:44:04.686 (   1.642s) [main thread     ]          OS.Logger.hpp:61    INFO| All required extensions are enabled.
+2024-06-23 01:44:05.120 (   2.075s) [main thread     ]          OS.Logger.hpp:61    INFO| Instance created successfuly.
+2024-06-23 01:44:05.175 (   2.130s) [main thread     ]          OS.Logger.hpp:61    INFO| Found sutable device NVIDIA GeForce MX150.
+2024-06-23 01:44:05.182 (   2.137s) [main thread     ]          OS.Logger.hpp:61    INFO| Found queue family that supports present and graphics commands.
+2024-06-23 01:44:05.264 (   2.220s) [main thread     ]          OS.Logger.hpp:61    INFO| Vulkan enabled layers: 
+2024-06-23 01:44:05.294 (   2.249s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_NV_optimus
+2024-06-23 01:44:05.320 (   2.276s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_RENDERDOC_Capture
+2024-06-23 01:44:05.326 (   2.282s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_LUNARG_api_dump
+2024-06-23 01:44:05.333 (   2.289s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_LUNARG_gfxreconstruct
+2024-06-23 01:44:05.336 (   2.292s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_KHRONOS_synchronization2
+2024-06-23 01:44:05.339 (   2.295s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_KHRONOS_validation
+2024-06-23 01:44:05.342 (   2.298s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_LUNARG_monitor
+2024-06-23 01:44:05.345 (   2.301s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_LUNARG_screenshot
+2024-06-23 01:44:05.347 (   2.303s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_KHRONOS_profiles
+2024-06-23 01:44:05.351 (   2.307s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_KHRONOS_shader_object
+2024-06-23 01:44:05.359 (   2.315s) [main thread     ]          OS.Logger.hpp:61    INFO| Checking are required validation layers enabled.
+2024-06-23 01:44:05.361 (   2.317s) [main thread     ]          OS.Logger.hpp:61    INFO| All required validation layers are enabled.
+2024-06-23 01:44:05.363 (   2.318s) [main thread     ]          OS.Logger.hpp:61    INFO| Debug messenger was created successfuly.
+2024-06-23 01:44:05.365 (   2.321s) [main thread     ]          OS.Logger.hpp:61    INFO| While debugging through RenderDoc, debug output through validation layers is suppressed.
+To show debug output look at the 'DebugOutputMute' capture option in RenderDoc's API, but be aware of false positives from the validation layers.
+2024-06-23 01:44:09.079 (   6.035s) [main thread     ]          OS.Logger.hpp:61    INFO| Command pool was created successfuly.
+2024-06-23 01:44:09.155 (   6.110s) [main thread     ]          OS.Logger.hpp:61    INFO| Shader module was created successfuly.
+2024-06-23 01:44:09.165 (   6.121s) [main thread     ]          OS.Logger.hpp:61    INFO| Shader module was created successfuly.
+2024-06-23 01:44:09.238 (   6.194s) [main thread     ]          OS.Logger.hpp:61    INFO| Graphics pipeline was created successful.
+2024-06-23 01:44:09.246 (   6.201s) [main thread     ]          OS.Logger.hpp:61    INFO| Shader module was created successfuly.
+2024-06-23 01:44:09.260 (   6.215s) [main thread     ]          OS.Logger.hpp:61    INFO| Shader module was created successfuly.
+2024-06-23 01:44:09.345 (   6.300s) [main thread     ]          OS.Logger.hpp:61    INFO| Graphics pipeline was created successful.
+2024-06-23 01:44:09.369 (   6.324s) [main thread     ]          OS.Logger.hpp:61    INFO| Frame buffers created successfuly.
+2024-06-23 01:44:09.458 (   6.413s) [main thread     ]          OS.Logger.hpp:61    INFO| Vulkan driver initialized successfuly.
+2024-06-23 01:44:09.479 (   6.435s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 7 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:44:09.486 (   6.441s) [                ]          OS.Logger.hpp:61    INFO| Task with id 7 was received by Resource from Render.
+2024-06-23 01:44:09.598 (   6.554s) [                ]          OS.Logger.hpp:61    INFO| Task with id 7 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:44:09.602 (   6.557s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 7 was waited by Render from Resource.
+2024-06-23 01:44:09.610 (   6.566s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 8 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:44:09.617 (   6.573s) [                ]          OS.Logger.hpp:61    INFO| Task with id 8 was received by Resource from Render.
+2024-06-23 01:44:09.628 (   6.584s) [                ]          OS.Logger.hpp:61    INFO| Task with id 8 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:44:09.639 (   6.595s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 8 was waited by Render from Resource.
+2024-06-23 01:44:10.199 (   7.155s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 9 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:44:10.205 (   7.161s) [                ]          OS.Logger.hpp:61    INFO| Task with id 9 was received by Resource from Render.
+2024-06-23 01:44:10.215 (   7.170s) [                ]          OS.Logger.hpp:61    INFO| Task with id 9 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:44:10.218 (   7.174s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 9 was waited by Render from Resource.
+2024-06-23 01:44:10.220 (   7.176s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 10 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:44:10.223 (   7.179s) [                ]          OS.Logger.hpp:61    INFO| Task with id 10 was received by Resource from Render.
+2024-06-23 01:44:10.227 (   7.183s) [                ]          OS.Logger.hpp:61    INFO| Task with id 10 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:44:10.236 (   7.191s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 10 was waited by Render from Resource.
+2024-06-23 01:44:10.239 (   7.194s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 11 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:44:10.243 (   7.198s) [                ]          OS.Logger.hpp:61    INFO| Task with id 11 was received by Resource from Render.
+2024-06-23 01:44:10.249 (   7.205s) [                ]          OS.Logger.hpp:61    INFO| Task with id 11 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:44:10.250 (   7.206s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 11 was waited by Render from Resource.
+2024-06-23 01:44:14.601 (  11.556s) [main thread     ]          OS.Logger.hpp:61    INFO| Scripts path is not exist ¿Îo/
+
+
+
+
+
+arguments: D:\\Desktop\\OksEngine\\Build\\Sources\\Debug\\OksEngineGame.exe -cfg D:/Desktop/OksEngine/config.lua
+Current dir: D:\Desktop\OksEngine
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2024-06-23 01:50:08.915 (   0.007s) [main thread     ]             loguru.cpp:770   INFO| Logging to 'engine.log', mode: 'a', verbosity: 9
+2024-06-23 01:50:08.919 (   0.011s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 1 was sent from Engine to Resource subsystem by Update function.
+2024-06-23 01:50:08.921 (   0.013s) [                ]          OS.Logger.hpp:61    INFO| Task with id 1 was received by Resource from Engine.
+2024-06-23 01:50:08.923 (   0.015s) [                ]          OS.Logger.hpp:61    INFO| Task with id 1 was sent from Resource to Engine subsystem by Update function.
+2024-06-23 01:50:08.924 (   0.016s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 1 was waited by Engine from Resource.
+2024-06-23 01:50:08.926 (   0.018s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 2 was sent from Engine to Resource subsystem by Update function.
+2024-06-23 01:50:08.927 (   0.019s) [                ]          OS.Logger.hpp:61    INFO| Task with id 2 was received by Resource from Engine.
+2024-06-23 01:50:09.047 (   0.140s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 3 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:50:09.054 (   0.147s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 4 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:50:09.054 (   0.147s) [                ]          OS.Logger.hpp:61    INFO| Task with id 3 was received by Resource from Render.
+2024-06-23 01:50:09.057 (   0.149s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 5 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:50:09.058 (   0.150s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 6 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:50:09.060 (   0.152s) [                ]          OS.Logger.hpp:61    INFO| Task with id 3 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:50:09.062 (   0.154s) [                ]          OS.Logger.hpp:61    INFO| Task with id 4 was received by Resource from Render.
+2024-06-23 01:50:09.065 (   0.157s) [                ]          OS.Logger.hpp:61    INFO| Task with id 4 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:50:09.066 (   0.158s) [                ]          OS.Logger.hpp:61    INFO| Task with id 5 was received by Resource from Render.
+2024-06-23 01:50:09.071 (   0.163s) [                ]          OS.Logger.hpp:61    INFO| Task with id 5 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:50:09.079 (   0.171s) [                ]          OS.Logger.hpp:61    INFO| Task with id 6 was received by Resource from Render.
+2024-06-23 01:50:09.083 (   0.176s) [                ]          OS.Logger.hpp:61    INFO| Task with id 6 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:50:09.280 (   0.372s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 3 was waited by Render from Resource.
+2024-06-23 01:50:09.281 (   0.373s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 4 was waited by Render from Resource.
+2024-06-23 01:50:09.285 (   0.377s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 5 was waited by Render from Resource.
+2024-06-23 01:50:09.285 (   0.378s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 6 was waited by Render from Resource.
+2024-06-23 01:50:09.339 (   0.432s) [main thread     ]          OS.Logger.hpp:61    INFO| Vulkan enabled extensions:
+2024-06-23 01:50:09.340 (   0.432s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_EXT_debug_report
+2024-06-23 01:50:09.341 (   0.433s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_EXT_debug_utils
+2024-06-23 01:50:09.341 (   0.434s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_EXT_surface_maintenance1
+2024-06-23 01:50:09.342 (   0.434s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_EXT_swapchain_colorspace
+2024-06-23 01:50:09.342 (   0.435s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_device_group_creation
+2024-06-23 01:50:09.343 (   0.435s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_external_fence_capabilities
+2024-06-23 01:50:09.343 (   0.436s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_external_memory_capabilities
+2024-06-23 01:50:09.344 (   0.436s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_external_semaphore_capabilities
+2024-06-23 01:50:09.345 (   0.437s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_get_physical_device_properties2
+2024-06-23 01:50:09.345 (   0.437s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_get_surface_capabilities2
+2024-06-23 01:50:09.346 (   0.438s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_surface
+2024-06-23 01:50:09.348 (   0.440s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_surface_protected_capabilities
+2024-06-23 01:50:09.349 (   0.441s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_KHR_win32_surface
+2024-06-23 01:50:09.350 (   0.442s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_NV_external_memory_capabilities
+2024-06-23 01:50:09.350 (   0.443s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_EXT_debug_utils
+2024-06-23 01:50:09.351 (   0.443s) [main thread     ]          OS.Logger.hpp:61    INFO| Checking are required extensions enabled.
+2024-06-23 01:50:09.351 (   0.444s) [main thread     ]          OS.Logger.hpp:61    INFO| All required extensions are enabled.
+2024-06-23 01:50:09.464 (   0.557s) [main thread     ]          OS.Logger.hpp:61    INFO| Instance created successfuly.
+2024-06-23 01:50:09.479 (   0.571s) [main thread     ]          OS.Logger.hpp:61    INFO| Found sutable device NVIDIA GeForce MX150.
+2024-06-23 01:50:09.479 (   0.572s) [main thread     ]          OS.Logger.hpp:61    INFO| Found queue family that supports present and graphics commands.
+2024-06-23 01:50:09.505 (   0.597s) [main thread     ]          OS.Logger.hpp:61    INFO| Vulkan enabled layers: 
+2024-06-23 01:50:09.505 (   0.597s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_NV_optimus
+2024-06-23 01:50:09.507 (   0.600s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_RENDERDOC_Capture
+2024-06-23 01:50:09.509 (   0.601s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_LUNARG_api_dump
+2024-06-23 01:50:09.510 (   0.602s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_LUNARG_gfxreconstruct
+2024-06-23 01:50:09.511 (   0.603s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_KHRONOS_synchronization2
+2024-06-23 01:50:09.512 (   0.604s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_KHRONOS_validation
+2024-06-23 01:50:09.512 (   0.605s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_LUNARG_monitor
+2024-06-23 01:50:09.513 (   0.605s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_LUNARG_screenshot
+2024-06-23 01:50:09.514 (   0.606s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_KHRONOS_profiles
+2024-06-23 01:50:09.515 (   0.607s) [main thread     ]          OS.Logger.hpp:61    INFO| VK_LAYER_KHRONOS_shader_object
+2024-06-23 01:50:09.515 (   0.608s) [main thread     ]          OS.Logger.hpp:61    INFO| Checking are required validation layers enabled.
+2024-06-23 01:50:09.516 (   0.608s) [main thread     ]          OS.Logger.hpp:61    INFO| All required validation layers are enabled.
+2024-06-23 01:50:09.517 (   0.609s) [main thread     ]          OS.Logger.hpp:61    INFO| Debug messenger was created successfuly.
+2024-06-23 01:50:09.518 (   0.610s) [main thread     ]          OS.Logger.hpp:61    INFO| While debugging through RenderDoc, debug output through validation layers is suppressed.
+To show debug output look at the 'DebugOutputMute' capture option in RenderDoc's API, but be aware of false positives from the validation layers.
+2024-06-23 01:50:10.806 (   1.899s) [main thread     ]          OS.Logger.hpp:61    INFO| Command pool was created successfuly.
+2024-06-23 01:50:10.814 (   1.907s) [main thread     ]          OS.Logger.hpp:61    INFO| Shader module was created successfuly.
+2024-06-23 01:50:10.815 (   1.907s) [main thread     ]          OS.Logger.hpp:61    INFO| Shader module was created successfuly.
+2024-06-23 01:50:10.817 (   1.909s) [main thread     ]          OS.Logger.hpp:61    INFO| Graphics pipeline was created successful.
+2024-06-23 01:50:10.819 (   1.911s) [main thread     ]          OS.Logger.hpp:61    INFO| Shader module was created successfuly.
+2024-06-23 01:50:10.820 (   1.912s) [main thread     ]          OS.Logger.hpp:61    INFO| Shader module was created successfuly.
+2024-06-23 01:50:10.821 (   1.913s) [main thread     ]          OS.Logger.hpp:61    INFO| Graphics pipeline was created successful.
+2024-06-23 01:50:10.822 (   1.914s) [main thread     ]          OS.Logger.hpp:61    INFO| Frame buffers created successfuly.
+2024-06-23 01:50:10.840 (   1.932s) [main thread     ]          OS.Logger.hpp:61    INFO| Vulkan driver initialized successfuly.
+2024-06-23 01:50:10.841 (   1.933s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 7 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:50:10.842 (   1.934s) [                ]          OS.Logger.hpp:61    INFO| Task with id 7 was received by Resource from Render.
+2024-06-23 01:50:10.915 (   2.008s) [                ]          OS.Logger.hpp:61    INFO| Task with id 7 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:50:10.916 (   2.008s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 7 was waited by Render from Resource.
+2024-06-23 01:50:10.918 (   2.010s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 8 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:50:10.919 (   2.011s) [                ]          OS.Logger.hpp:61    INFO| Task with id 8 was received by Resource from Render.
+2024-06-23 01:50:10.921 (   2.013s) [                ]          OS.Logger.hpp:61    INFO| Task with id 8 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:50:10.921 (   2.014s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 8 was waited by Render from Resource.
+2024-06-23 01:50:11.158 (   2.251s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 9 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:50:11.159 (   2.251s) [                ]          OS.Logger.hpp:61    INFO| Task with id 9 was received by Resource from Render.
+2024-06-23 01:50:11.161 (   2.254s) [                ]          OS.Logger.hpp:61    INFO| Task with id 9 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:50:11.162 (   2.254s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 9 was waited by Render from Resource.
+2024-06-23 01:50:11.163 (   2.255s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 10 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:50:11.164 (   2.256s) [                ]          OS.Logger.hpp:61    INFO| Task with id 10 was received by Resource from Render.
+2024-06-23 01:50:11.166 (   2.258s) [                ]          OS.Logger.hpp:61    INFO| Task with id 10 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:50:11.166 (   2.259s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 10 was waited by Render from Resource.
+2024-06-23 01:50:11.168 (   2.260s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 11 was sent from Render to Resource subsystem by Update function.
+2024-06-23 01:50:11.170 (   2.262s) [                ]          OS.Logger.hpp:61    INFO| Task with id 11 was received by Resource from Render.
+2024-06-23 01:50:11.174 (   2.266s) [                ]          OS.Logger.hpp:61    INFO| Task with id 11 was sent from Resource to Render subsystem by Update function.
+2024-06-23 01:50:11.175 (   2.267s) [main thread     ]          OS.Logger.hpp:61    INFO| Task with id 11 was waited by Render from Resource.
+2024-06-23 01:50:13.031 (   4.123s) [main thread     ]          OS.Logger.hpp:61    INFO| Scripts path is not exist ¿ÓèüQ

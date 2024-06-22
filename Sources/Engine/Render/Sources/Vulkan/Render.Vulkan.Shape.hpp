@@ -2,6 +2,10 @@
 
 #include <memory>
 
+#include <Render.Vulkan.Driver.Sampler.hpp>
+#include <Render.Vulkan.Driver.Image.hpp>
+#include <Render.Vulkan.Driver.ImageView.hpp>
+#include <Render.Vulkan.Driver.DescriptorSet.hpp>
 #include <Render.Vulkan.Driver.VertexBuffer.hpp>
 #include <Render.Vulkan.Driver.IndexBuffer.hpp>
 #include <Render.Vulkan.Driver.StagingBuffer.hpp>
@@ -15,18 +19,18 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<VertexBuffer<RAL::Vertex3fnt>> vertexBuffer_ = nullptr;
 			std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer_ = nullptr;
-			std::shared_ptr<RAL::Texture> texture_ = nullptr;
+			std::shared_ptr<AllocatedTextureImage> textureImage_ = nullptr;
+			std::shared_ptr<ImageView> textureImageView_ = nullptr;
+			std::shared_ptr<Sampler> sampler = nullptr;
+			std::shared_ptr<DescriptorSet> descriptorSet_ = nullptr;
 		};
 
-		TexturedShape(const CreateInfo& createInfo) : 
-			vertexBuffer_{ createInfo.vertexBuffer_ },
-			indexBuffer_{ createInfo.indexBuffer_ }
-			 {
+		TexturedShape(const CreateInfo& createInfo) :
+			createInfo_ { createInfo }{
 
 		}
-	private:
-		std::shared_ptr<VertexBuffer<RAL::Vertex3fnt>> vertexBuffer_ = nullptr;
-		std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer_ = nullptr;
+	//private:
+		CreateInfo createInfo_;
 	};
 
 	class ColoredShape {
@@ -35,6 +39,8 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>> vertexBuffer_ = nullptr;
 			std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer_ = nullptr;
+
+
 		};
 
 		ColoredShape(const CreateInfo& createInfo) noexcept :

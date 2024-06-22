@@ -105,7 +105,7 @@ namespace OksEngine {
 				std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
 
 				model_ = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
-				engine_->RenderModel(*model_);
+				//engine_->RenderModel(*model_);
 			}
 			{
 				const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Grass_Block.obj");

@@ -519,6 +519,7 @@ namespace Render::Vulkan {
 					0, 0, modelInfoBuffer_->GetSizeInBytes());
 				modelInfoDescriptorSet_ = descriptorSet;
 			}
+
 			for (Common::Index i = 0; i < swapChain_->GetImages().size(); i++) {
 
 				auto imageContext = std::make_shared<ImageContext>();
@@ -735,72 +736,89 @@ namespace Render::Vulkan {
 				}
 
 
-				ImGui_ImplVulkan_NewFrame();
-				ImGui_ImplGlfw_NewFrame();
-				ImGui::NewFrame();
+				for (auto shape : texturedShapes_) {
+					//if (shape->GetType() == Shape::Type::Colored) {
 
-				{
-					bool isOpen = true;
-					ImGui::Begin("Menu", &isOpen, ImGuiWindowFlags_MenuBar);
-					ImGui::BeginMenuBar();
-					// Add items to the menu bar.
-					ImGui::MenuItem("File", NULL, false, false);
-					ImGui::MenuItem("Edit", NULL, false, false);
-					ImGui::MenuItem("View", NULL, false, false);
-					ImGui::MenuItem("Help", NULL, false, false);
-					// End the menu bar.
-					ImGui::EndMenuBar();
-					ImGui::End();
-				}
-				{
-					bool isOpen = true;
-					ImGui::Begin("Engine performance", &isOpen, 0);
-
-
-					static Common::UInt64 renderCalls = 0;
-					++renderCalls;
-
-					using namespace std::chrono_literals;
-					std::chrono::high_resolution_clock::time_point now;
-					static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
-
-					now = std::chrono::high_resolution_clock::now();
-					auto delta = now - point;
-
-					auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(delta).count();
-					static Common::Size lastFps = 0;
-					static std::vector<Common::Size> fps_;
-					static std::vector<Common::Size> timePoints_;
-					if (microseconds > 1000000) {
-						Common::Size framesPerSecond = renderCalls * 1000000 / microseconds;
-						ImGui::TextDisabled("Fps: %d", framesPerSecond);
-						fps_.push_back(framesPerSecond);
-						timePoints_.push_back(fps_.size());
-						renderCalls = 0;
-						point = now;
-						lastFps = framesPerSecond;
-
+					//}
+					commandBuffer->BindPipeline(pipeline3fnt_);
+					commandBuffer->BindShape(shape);
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						descriptorSets.push_back(descriptorSets_[i]);
+						descriptorSets.push_back(modelInfoDescriptorSet_);
+						descriptorSets.push_back(shape->createInfo_.descriptorSet_);
+						commandBuffer->BindDescriptorSets(pipeline3fnt_, descriptorSets);
 					}
-					else {
-						ImGui::TextDisabled("Fps: %d", lastFps);
-					}
-					//int   bar_data[11] = {10, 11, 5, 6,1, 7 , 10, 11, 5, 6,1 };
-
-					ImGui::Begin("My Window");
-					//const ImVec2  size{20, 1000};
-					if (ImPlot::BeginPlot("My Plot"/*, size*/)) {
-						//ImPlot::PlotBars("My Bar Plot", bar_data, 11);
-						//const Common::Size timePoint = fps_.size();
-						ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
-						ImPlot::EndPlot();
-					}
-					ImGui::End();
-					ImGui::End();
+					commandBuffer->DrawShape(shape);
 				}
 
-				ImGui::Render();
 
-				ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, 0);
+				//ImGui_ImplVulkan_NewFrame();
+				//ImGui_ImplGlfw_NewFrame();
+				//ImGui::NewFrame();
+
+				//{
+				//	bool isOpen = true;
+				//	ImGui::Begin("Menu", &isOpen, ImGuiWindowFlags_MenuBar);
+				//	ImGui::BeginMenuBar();
+				//	// Add items to the menu bar.
+				//	ImGui::MenuItem("File", NULL, false, false);
+				//	ImGui::MenuItem("Edit", NULL, false, false);
+				//	ImGui::MenuItem("View", NULL, false, false);
+				//	ImGui::MenuItem("Help", NULL, false, false);
+				//	// End the menu bar.
+				//	ImGui::EndMenuBar();
+				//	ImGui::End();
+				//}
+				//{
+				//	bool isOpen = true;
+				//	ImGui::Begin("Engine performance", &isOpen, 0);
+
+
+				//	static Common::UInt64 renderCalls = 0;
+				//	++renderCalls;
+
+				//	using namespace std::chrono_literals;
+				//	std::chrono::high_resolution_clock::time_point now;
+				//	static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
+
+				//	now = std::chrono::high_resolution_clock::now();
+				//	auto delta = now - point;
+
+				//	auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(delta).count();
+				//	static Common::Size lastFps = 0;
+				//	static std::vector<Common::Size> fps_;
+				//	static std::vector<Common::Size> timePoints_;
+				//	if (microseconds > 1000000) {
+				//		Common::Size framesPerSecond = renderCalls * 1000000 / microseconds;
+				//		ImGui::TextDisabled("Fps: %d", framesPerSecond);
+				//		fps_.push_back(framesPerSecond);
+				//		timePoints_.push_back(fps_.size());
+				//		renderCalls = 0;
+				//		point = now;
+				//		lastFps = framesPerSecond;
+
+				//	}
+				//	else {
+				//		ImGui::TextDisabled("Fps: %d", lastFps);
+				//	}
+				//	//int   bar_data[11] = {10, 11, 5, 6,1, 7 , 10, 11, 5, 6,1 };
+
+				//	ImGui::Begin("My Window");
+				//	//const ImVec2  size{20, 1000};
+				//	if (ImPlot::BeginPlot("My Plot"/*, size*/)) {
+				//		//ImPlot::PlotBars("My Bar Plot", bar_data, 11);
+				//		//const Common::Size timePoint = fps_.size();
+				//		ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
+				//		ImPlot::EndPlot();
+				//	}
+				//	ImGui::End();
+				//	ImGui::End();
+				//}
+
+				//ImGui::Render();
+
+				//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, 0);
 
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();
@@ -867,7 +885,7 @@ namespace Render::Vulkan {
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-			Math::Vector3f vector{ 1.f, 0.f, 0.f };
+			Math::Vector3f vector{ 1.f, 1.f, 0.f };
 			Transform newTransform;
 			{
 				newTransform.model_ = Math::Matrix4x4f::GetRotate(time * -30.f, vector);
@@ -1030,6 +1048,7 @@ namespace Render::Vulkan {
 			auto textureImage = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
 			ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, logicDevice_, commandPool_);
 			DataCopy(textureStagingBuffer, textureImage, logicDevice_, commandPool_);
+			ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, logicDevice_, commandPool_);
 			auto textureImageView = CreateImageViewByImage(logicDevice_, textureImage, VK_IMAGE_ASPECT_COLOR_BIT);
 			Sampler::CreateInfo samplerCreateInfo;
 			{
@@ -1040,23 +1059,32 @@ namespace Render::Vulkan {
 			}
 			auto textureSampler = std::make_shared<Sampler>(samplerCreateInfo);
 
-			/*DescriptorSet::CreateInfo createInfo;
+			DescriptorSet::CreateInfo createInfo;
 			{
-				const VkDeviceSize bufferSize = sizeof(Transform);
-				modelInfoBuffer_ = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
-				createInfo.buffer_ = modelInfoBuffer_;
 				createInfo.descriptorPool_ = descriptorPool_;
-				createInfo.descriptorSetLayout_ = modelInfoDescriptorSetLayout_;
+				createInfo.descriptorSetLayout_ = texturedModelDescriptorSetLayout_;
 				createInfo.logicDevice_ = logicDevice_;
-				createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			}
-			modelInfoDescriptorSet_ = std::make_shared<DescriptorSet>(createInfo);*/
+
+			auto descriptorSet = std::make_shared<DescriptorSet>(createInfo);
+			descriptorSet->UpdateImageWriteConfiguration(
+				textureImageView,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+				textureSampler,
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+				0);
 
 			TexturedShape::CreateInfo texturedShapeCreateInfo;
 			{
-
+				texturedShapeCreateInfo.vertexBuffer_ = vertex3fntBuffer;
+				texturedShapeCreateInfo.indexBuffer_ = indexBuffer;
+				texturedShapeCreateInfo.textureImage_ = textureImage;
+				texturedShapeCreateInfo.textureImageView_ = textureImageView;
+				texturedShapeCreateInfo.sampler = textureSampler;
+				texturedShapeCreateInfo.descriptorSet_ = descriptorSet;
 			}
 			auto texturedShape = std::make_shared<TexturedShape>(texturedShapeCreateInfo);
+			texturedShapes_.push_back(texturedShape);
 		}
 
 
@@ -1198,11 +1226,13 @@ namespace Render::Vulkan {
 		std::shared_ptr<DescriptorSetLayout> modelInfoDescriptorSetLayout_ = nullptr;
 		std::shared_ptr<DescriptorSetLayout> texturedModelDescriptorSetLayout_ = nullptr;
 		std::shared_ptr<DescriptorSet> modelInfoDescriptorSet_ = nullptr;
+		std::shared_ptr<DescriptorSet> texturedModelInfoDescriptorSet_ = nullptr;
+
 
 		DS::Vector<std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>>> vertexBuffers_;
 		DS::Vector<std::shared_ptr<IndexBuffer<RAL::Index16>>> indexBuffers_;
 
-		std::vector<std::shared_ptr<TexturedShape>> texturedShape_;
+		std::vector<std::shared_ptr<TexturedShape>> texturedShapes_;
 		std::vector<std::shared_ptr<ColoredShape>> shapes_;
 
 		std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
