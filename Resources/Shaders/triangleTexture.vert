@@ -18,11 +18,11 @@ layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inUV;
 
-layout(location = 0) out vec3 fragColor;
+layout(location = 0) out vec4 fragColor;
 
 void main() {
     vec3 lightDirection = vec3(ubo.lightPos) - inPosition;
-    fragColor = vec3(texture(texSampler, inUV));// * dot(lightDirection, inNormal);
+    fragColor =texture(texSampler, inUV); //vec4(inUV, 0.0, 1.0);//texture(texSampler, inUV);//vec3(1, 1, 1);//* dot(lightDirection, inNormal);//texture(texSampler, inUV);// * dot(lightDirection, inNormal);
 
     gl_Position = ubo.proj * ubo.view * modelTransform.model * vec4(inPosition, 1.0);
 }

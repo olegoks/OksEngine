@@ -97,6 +97,17 @@ namespace Render::Vulkan {
 				offsets);
 		}
 
+		void BindBuffer(std::shared_ptr<VertexBuffer<RAL::Vertex3fnt>> vertexBuffer) noexcept {
+			VkDeviceSize offsets[] = { 0 };
+			const VkBuffer bufferHandle = vertexBuffer->GetNative();
+			vkCmdBindVertexBuffers(
+				GetHandle(),
+				0,
+				1,
+				&bufferHandle,
+				offsets);
+		}
+
 		void BindBuffer(std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer) noexcept {
 			vkCmdBindIndexBuffer(
 				GetHandle(),
@@ -218,8 +229,18 @@ namespace Render::Vulkan {
 			BindBuffer(shape->GetIndexBuffer());
 		}
 
+
+		void BindShape(std::shared_ptr<TexturedShape> shape) {
+			BindBuffer(shape->createInfo_.vertexBuffer_);
+			BindBuffer(shape->createInfo_.indexBuffer_);
+		}
+
 		void DrawShape(std::shared_ptr<ColoredShape> shape) {
 			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
+		}
+
+		void DrawShape(std::shared_ptr<TexturedShape> shape) {
+			DrawIndexed(shape->createInfo_.indexBuffer_->GetIndecesNumber());
 		}
 
 		void End() noexcept {
