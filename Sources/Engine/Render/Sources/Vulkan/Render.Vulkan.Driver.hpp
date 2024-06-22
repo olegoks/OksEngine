@@ -563,6 +563,7 @@ namespace Render::Vulkan {
 				}
 
 				for (auto shape : shapes_) {
+					//if(shape)
 					commandBuffer->BindPipeline(pipeline3fnc_);
 					commandBuffer->BindShape(shape);
 					{
@@ -810,12 +811,12 @@ namespace Render::Vulkan {
 				vkQueueSubmit(logicDevice_->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
 				vkQueueWaitIdle(logicDevice_->GetGraphicsQueue());
 
-				Shape::CreateInfo shapeCreateInfo;
+				ColoredShape::CreateInfo shapeCreateInfo;
 				{
 					shapeCreateInfo.vertexBuffer_ = vertex3fncBuffer;
 					shapeCreateInfo.indexBuffer_ = indexBuffer;
 				}
-				auto newShape = std::make_shared<Shape>(shapeCreateInfo);
+				auto newShape = std::make_shared<ColoredShape>(shapeCreateInfo);
 				shapes_.push_back(newShape);
 			}
 		}
@@ -858,12 +859,12 @@ namespace Render::Vulkan {
 			DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
 
 
-			Shape::CreateInfo shapeCreateInfo;
+			ColoredShape::CreateInfo shapeCreateInfo;
 			{
 				shapeCreateInfo.vertexBuffer_ = vertex3fncBuffer;
 				shapeCreateInfo.indexBuffer_ = indexBuffer;
 			}
-			auto newShape = std::make_shared<Shape>(shapeCreateInfo);
+			auto newShape = std::make_shared<ColoredShape>(shapeCreateInfo);
 			shapes_.push_back(newShape);
 
 			//vertexBuffers_.PushBack(vertex3fncBuffer);
@@ -874,7 +875,8 @@ namespace Render::Vulkan {
 			const RAL::Vertex3fnt* vertices,
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
-			Common::Size indicesNumber) override {
+			Common::Size indicesNumber,
+			std::shared_ptr<RAL::Texture> texture) override {
 
 			//auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(RAL::Vertex3fnc));
 			//vertexStagingBuffer->Fill(vertices);
@@ -1039,7 +1041,7 @@ namespace Render::Vulkan {
 		DS::Vector<std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>>> vertexBuffers_;
 		DS::Vector<std::shared_ptr<IndexBuffer<RAL::Index16>>> indexBuffers_;
 
-		std::vector<std::shared_ptr<Shape>> shapes_;
+		std::vector<std::shared_ptr<ColoredShape>> shapes_;
 
 		std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
 	};

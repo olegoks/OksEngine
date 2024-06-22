@@ -214,7 +214,8 @@ namespace RAL {
 			const Vertex3fnt* vertices,
 			Common::Size verticesNumber,
 			const Index16* indices,
-			Common::Size indicesNumber) = 0;
+			Common::Size indicesNumber,
+			std::shared_ptr<RAL::Texture> texture) = 0;
 
 		virtual void DrawIndexed(
 			const Vertex3fnc* vertices,

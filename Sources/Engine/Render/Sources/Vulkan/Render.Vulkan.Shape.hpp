@@ -9,7 +9,27 @@
 
 namespace Render::Vulkan {
 
-	class Shape {
+	class TexturedShape {
+	public:
+
+		struct CreateInfo {
+			std::shared_ptr<VertexBuffer<RAL::Vertex3fnt>> vertexBuffer_ = nullptr;
+			std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer_ = nullptr;
+			std::shared_ptr<RAL::Texture> texture_ = nullptr;
+		};
+
+		TexturedShape(const CreateInfo& createInfo) : 
+			vertexBuffer_{ createInfo.vertexBuffer_ },
+			indexBuffer_{ createInfo.indexBuffer_ }
+			 {
+
+		}
+	private:
+		std::shared_ptr<VertexBuffer<RAL::Vertex3fnt>> vertexBuffer_ = nullptr;
+		std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer_ = nullptr;
+	};
+
+	class ColoredShape {
 	public:
 
 		struct CreateInfo {
@@ -17,7 +37,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer_ = nullptr;
 		};
 
-		Shape(const CreateInfo& createInfo) noexcept :
+		ColoredShape(const CreateInfo& createInfo) noexcept :
 			vertexBuffer_{ createInfo.vertexBuffer_ },
 			indexBuffer_{ createInfo.indexBuffer_ } {
 

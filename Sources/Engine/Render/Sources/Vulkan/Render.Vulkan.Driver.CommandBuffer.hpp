@@ -144,12 +144,12 @@ namespace Render::Vulkan {
 			vkCmdCopyBuffer(GetHandle(), from->GetNative(), to->GetNative(), 1, &copyRegion);
 		}
 
-		void BindShape(std::shared_ptr<Shape> shape) {
+		void BindShape(std::shared_ptr<ColoredShape> shape) {
 			BindBuffer(shape->GetVertexBuffer());
 			BindBuffer(shape->GetIndexBuffer());
 		}
 
-		void DrawShape(std::shared_ptr<Shape> shape) {
+		void DrawShape(std::shared_ptr<ColoredShape> shape) {
 			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
 		}
 
