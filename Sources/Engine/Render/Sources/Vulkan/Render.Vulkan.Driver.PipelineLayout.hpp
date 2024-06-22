@@ -33,9 +33,8 @@ namespace Render::Vulkan {
 
 
 				VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-				[[maybe_unused]]
-				const VkResult result = vkCreatePipelineLayout(createInfo.logicDevice_->GetHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout);
-				OS::AssertMessage(result == VK_SUCCESS, "Error while creating pipeline layout.");
+				VkCall(vkCreatePipelineLayout(createInfo.logicDevice_->GetHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout),
+					"Error while creating pipeline layout.");
 				SetHandle(pipelineLayout);
 			}
 

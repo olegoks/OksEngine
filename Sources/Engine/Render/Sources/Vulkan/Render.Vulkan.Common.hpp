@@ -105,10 +105,10 @@ namespace Render::Vulkan {
 			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
 			attributeDescriptions[1].offset = offsetof(Vertex3fnt, normal_);
 
-			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 2;
-			attributeDescriptions[1].format = VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[1].offset = offsetof(Vertex3fnt, uv_);
+			attributeDescriptions[2].binding = 0;
+			attributeDescriptions[2].location = 2;
+			attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
+			attributeDescriptions[2].offset = offsetof(Vertex3fnt, uv_);
 
 			return attributeDescriptions;
 		}
