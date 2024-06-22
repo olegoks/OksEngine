@@ -285,9 +285,40 @@ namespace Render::Vulkan {
 			}
 
 			//DESCRIPTOR SET LAYOUT
-			descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
-			modelInfoDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(logicDevice_);
-
+			{
+				DescriptorSetLayout::CreateInfo descriptorSetLayoutCreateInfo;
+				{
+					descriptorSetLayoutCreateInfo.logicDevice_ = logicDevice_;
+					std::vector<VkDescriptorSetLayoutBinding> bindings{
+						{
+							0,
+							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+							1,
+							VK_SHADER_STAGE_VERTEX_BIT,
+							nullptr
+						}
+					};
+					descriptorSetLayoutCreateInfo.bindings_ = bindings;
+				}
+				descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
+			}
+			{
+				DescriptorSetLayout::CreateInfo descriptorSetLayoutCreateInfo;
+				{
+					descriptorSetLayoutCreateInfo.logicDevice_ = logicDevice_;
+					std::vector<VkDescriptorSetLayoutBinding> bindings{
+						{
+							0,
+							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+							1,
+							VK_SHADER_STAGE_VERTEX_BIT,
+							nullptr
+						}
+					};
+					descriptorSetLayoutCreateInfo.bindings_ = bindings;
+				}
+				modelInfoDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
+			}
 			//DESCRIPTOR_POOL
 			const Common::Size descriptorPoolSize = swapChain_->GetImagesNumber() * 2;
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
@@ -559,7 +590,7 @@ namespace Render::Vulkan {
 					oldLayout, newLayout,
 					0, VK_ACCESS_TRANSFER_WRITE_BIT,
 					VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT
-					);
+				);
 			}
 			else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
 				commandBuffer->ImageMemoryBarrier(

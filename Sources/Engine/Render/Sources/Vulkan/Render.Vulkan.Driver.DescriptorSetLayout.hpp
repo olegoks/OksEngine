@@ -10,36 +10,32 @@
 
 namespace Render::Vulkan {
 
-	class DescriptorSetLayout {
+	class DescriptorSetLayout : public Abstraction<VkDescriptorSetLayout>{
 	public:
 
-		DescriptorSetLayout(std::shared_ptr<LogicDevice> logicDevice) :
-			logicDevice_{ logicDevice } {
-			VkDescriptorSetLayoutBinding uboLayoutBinding{};
-			{
-				uboLayoutBinding.binding = 0;
-				uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				uboLayoutBinding.descriptorCount = 1;
-				uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT;
-				uboLayoutBinding.pImmutableSamplers = nullptr; // Optional
-			}
+		struct CreateInfo {
+			std::shared_ptr<LogicDevice> logicDevice_;
+			std::vector<VkDescriptorSetLayoutBinding> bindings_;
+		};
+
+		DescriptorSetLayout(const CreateInfo& createInfo) :
+			createInfo_{ createInfo } {
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			{
 				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-				layoutInfo.bindingCount = 1;
-				layoutInfo.pBindings = &uboLayoutBinding;
+				layoutInfo.bindingCount = createInfo.bindings_.size();
+				layoutInfo.pBindings = createInfo.bindings_.data();
 			}
-			const VkResult result = vkCreateDescriptorSetLayout(logicDevice->GetHandle(), &layoutInfo, nullptr, &descriptorSetLayout_);
-			OS::AssertMessage(result == VK_SUCCESS, "Error while creating descriptor set layout.");
+			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+			VkCall(vkCreateDescriptorSetLayout(createInfo.logicDevice_->GetHandle(), &layoutInfo, nullptr, &descriptorSetLayout),
+				"Error while creating descriptor set layout.");
+			SetHandle(descriptorSetLayout);
 		}
 		~DescriptorSetLayout() {
-			vkDestroyDescriptorSetLayout(logicDevice_->GetHandle(), descriptorSetLayout_, nullptr);
+			vkDestroyDescriptorSetLayout(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
 		}
 
-		VkDescriptorSetLayout& GetNative() { return descriptorSetLayout_; }
-
 	private:
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-		VkDescriptorSetLayout descriptorSetLayout_ = VK_NULL_HANDLE;
+		CreateInfo createInfo_;
 	};
 }

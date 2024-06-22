@@ -25,7 +25,7 @@ namespace Render::Vulkan {
 				pipelineLayoutInfo.setLayoutCount = static_cast<Common::UInt32>(createInfo.descriptorSetLayouts_.size()); // Optional
 				std::vector<VkDescriptorSetLayout> descriptorSetLayoutsHandles;
 				for (auto descriptorSetLayout : createInfo.descriptorSetLayouts_) {
-					descriptorSetLayoutsHandles.push_back(descriptorSetLayout->GetNative());
+					descriptorSetLayoutsHandles.push_back(*descriptorSetLayout);
 				}
 				pipelineLayoutInfo.pSetLayouts = descriptorSetLayoutsHandles.data(); // Optional
 				pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional

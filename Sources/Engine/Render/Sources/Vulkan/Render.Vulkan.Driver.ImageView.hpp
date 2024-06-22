@@ -125,7 +125,6 @@ namespace Render::Vulkan {
 		return std::make_shared<ImageView>(imageViewCreateInfo);
 	}
 
-	[[deprecated]]
 	[[nodiscard]]
 	inline std::shared_ptr<ImageView> CreateImageViewByImage(std::shared_ptr<LogicDevice> logicDevice, VkImage image, VkFormat format, VkImageAspectFlags aspect) noexcept {
 		ImageView::CreateInfo2 imageViewCreateInfo;
