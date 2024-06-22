@@ -33,6 +33,7 @@
 #include <Render.Vulkan.Driver.ImageView.hpp>
 #include <Render.Vulkan.Driver.DeviceMemory.hpp>
 
+#include <Render.Vulkan.Driver.Sampler.hpp>
 #include <Render.Vulkan.Shape.hpp>
 
 #include <imgui.h>
@@ -140,7 +141,7 @@ namespace Render::Vulkan {
 					presentInfo.waitSemaphoreCount = 1;
 					presentInfo.pWaitSemaphores = &renderFinishedSemaphore_->GetNative();
 					presentInfo.swapchainCount = 1;
-					
+
 					presentInfo.pSwapchains = &swapChainHandle_;
 					presentInfo.pImageIndices = &imageContext_->index_;
 					presentInfo.pResults = nullptr;
@@ -166,7 +167,7 @@ namespace Render::Vulkan {
 		static PhysicalDevice::PresentModes GetAvailablePresentModes(
 			std::shared_ptr<PhysicalDevice> physicalDevice,
 			std::shared_ptr<WindowSurface> windowSurface) noexcept;
-		
+
 		[[nodiscard]]
 		static VkPresentModeKHR ChoosePresentMode(
 			const PhysicalDevice::PresentModes& availablePresentModes) noexcept;
@@ -196,7 +197,7 @@ namespace Render::Vulkan {
 			requiredExtensions.AddExtension("VK_EXT_debug_report");
 			//requiredExtensions.AddExtension("VK_KHR_portability_subset");
 
-			if(windowInfo.uiSubsystem_ == RAL::UISubsystem::GLFW) {
+			if (windowInfo.uiSubsystem_ == RAL::UISubsystem::GLFW) {
 				const Common::UInt32 extensionsCount = std::any_cast<Common::UInt32>(windowInfo.param2_);
 				const char** extensions = std::any_cast<const char**>(windowInfo.param3_);
 				for (Common::UInt32 i = 0; i < extensionsCount; i++) {
@@ -208,7 +209,7 @@ namespace Render::Vulkan {
 			requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_validation");
 			//requiredValidationLayers.AddLayer("VK_LAYER_LUNARG_api_dump");
 			//requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_profiles");
-			
+
 			Instance::CreateInfo instanceCreateInfo;
 			{
 				instanceCreateInfo.requiredExtensions_ = requiredExtensions;
@@ -228,7 +229,7 @@ namespace Render::Vulkan {
 
 			const auto availablePhysicalDevices = instance_->GetPhysicalDevices();
 			physicalDevice_ = ChoosePhysicalDevice(availablePhysicalDevices, windowSurface_, requiredDeviceExtensions);
-			
+
 			auto [graphicsQueueFamily, presentQueueFamily] = ChooseQueueFamilies(physicalDevice_, windowSurface_);
 			graphicsQueueFamily_ = graphicsQueueFamily;
 			presentQueueFamily_ = presentQueueFamily;
@@ -292,7 +293,7 @@ namespace Render::Vulkan {
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
 			//DEPTH BUFFER
-			if(info.enableDepthTest_) {
+			if (info.enableDepthTest_) {
 				auto depthTestData = std::make_shared<DepthTestData>();
 				{
 					Image::CreateInfo depthImageCreateInfo;
@@ -309,7 +310,7 @@ namespace Render::Vulkan {
 				}
 				depthTestData_ = depthTestData;
 			}
-			
+
 			//ImGui PIPELINE
 			//Pipeline<>
 			{
@@ -317,7 +318,7 @@ namespace Render::Vulkan {
 			}
 
 			//PIPELINE with textures
-			
+
 			{
 				Pipeline<Vertex3fnt>::CreateInfo pipelineCreateInfo;
 
@@ -512,6 +513,78 @@ namespace Render::Vulkan {
 			vkQueueWaitIdle(logicDevice->GetGraphicsQueue());
 		}
 
+		void DataCopy(
+			std::shared_ptr<Buffer> bufferFrom,
+			std::shared_ptr<Image> imageTo,
+			std::shared_ptr<LogicDevice> logicDevice,
+			std::shared_ptr<CommandPool> commandPool) {
+
+			CommandBuffer::CreateInfo commandBufferCreateInfo;
+			{
+				commandBufferCreateInfo.logicDevice_ = logicDevice;
+				commandBufferCreateInfo.commandPool_ = commandPool;
+			}
+			auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+			commandBuffer->Begin();
+			commandBuffer->Copy(bufferFrom, imageTo);
+			commandBuffer->End();
+			VkSubmitInfo submitInfo{};
+			{
+				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+				submitInfo.commandBufferCount = 1;
+				submitInfo.pCommandBuffers = &commandBuffer->GetHandle();
+			}
+			vkQueueSubmit(logicDevice->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+			vkQueueWaitIdle(logicDevice->GetGraphicsQueue());
+		}
+
+		void ChangeImageLayout(
+			std::shared_ptr<Image> image,
+			VkImageLayout oldLayout,
+			VkImageLayout newLayout,
+			std::shared_ptr<LogicDevice> logicDevice,
+			std::shared_ptr<CommandPool> commandPool) {
+
+			CommandBuffer::CreateInfo commandBufferCreateInfo;
+			{
+				commandBufferCreateInfo.logicDevice_ = logicDevice;
+				commandBufferCreateInfo.commandPool_ = commandPool;
+			}
+			auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+			commandBuffer->Begin();
+
+			if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+				commandBuffer->ImageMemoryBarrier(
+					image,
+					oldLayout, newLayout,
+					0, VK_ACCESS_TRANSFER_WRITE_BIT,
+					VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT
+					);
+			}
+			else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
+				commandBuffer->ImageMemoryBarrier(
+					image,
+					oldLayout, newLayout,
+					VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+					VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
+				);
+			}
+			else {
+				OS::NotImplemented();
+			}
+
+			commandBuffer->End();
+			VkSubmitInfo submitInfo{};
+			{
+				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+				submitInfo.commandBufferCount = 1;
+				submitInfo.pCommandBuffers = &commandBuffer->GetHandle();
+			}
+			vkQueueSubmit(logicDevice->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+			vkQueueWaitIdle(logicDevice->GetGraphicsQueue());
+		}
+
+
 
 		void CreateVertexBuffer() const noexcept {
 			Buffer::CreateInfo bufferCreateInfo;
@@ -575,7 +648,7 @@ namespace Render::Vulkan {
 					commandBuffer->DrawShape(shape);
 				}
 
-				
+
 				ImGui_ImplVulkan_NewFrame();
 				ImGui_ImplGlfw_NewFrame();
 				ImGui::NewFrame();
@@ -664,7 +737,7 @@ namespace Render::Vulkan {
 			SetModelTransform();
 			frameContext->Render();
 			frameContext->ShowImage();
-			
+
 			frameContext->WaitForQueueIdle();
 
 			currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
@@ -709,9 +782,9 @@ namespace Render::Vulkan {
 			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 			Math::Vector3f vector{ 1.f, 0.f, 0.f };
-			Transform newTransform; 
+			Transform newTransform;
 			{
-				newTransform.model_ = Math::Matrix4x4f::GetRotate(time * - 30.f, vector);
+				newTransform.model_ = Math::Matrix4x4f::GetRotate(time * -30.f, vector);
 			}
 			modelInfoBuffer_->Fill(&newTransform);
 		}
@@ -761,7 +834,7 @@ namespace Render::Vulkan {
 
 				DS::Vector<RAL::Vertex3fnc> vertices;
 				shape.ForEachVertex<RAL::Vertex3fnc>([&vertices](const RAL::Vertex3fnc& vertex) {
-						vertices.PushBack(vertex);
+					vertices.PushBack(vertex);
 					});
 
 				auto vertexStagingBuffer = std::make_shared<StagingBuffer>(
@@ -789,13 +862,13 @@ namespace Render::Vulkan {
 					physicalDevice_,
 					logicDevice_,
 					indices.GetSize());
-				
+
 				CommandBuffer::CreateInfo commandBufferCreateInfo;
 				{
 					commandBufferCreateInfo.logicDevice_ = logicDevice_;
 					commandBufferCreateInfo.commandPool_ = commandPool_;
 				}
-				
+
 				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 				commandBuffer->Begin();
 				commandBuffer->Copy(vertexStagingBuffer, vertex3fncBuffer);
@@ -878,26 +951,46 @@ namespace Render::Vulkan {
 			Common::Size indicesNumber,
 			std::shared_ptr<RAL::Texture> texture) override {
 
-			//auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(RAL::Vertex3fnc));
-			//vertexStagingBuffer->Fill(vertices);
-			//auto vertex3fncBuffer = std::make_shared<VertexBuffer<RAL::Vertex3fnc>>(physicalDevice_, logicDevice_, verticesNumber);
 
-			//DataCopy(vertexStagingBuffer, vertex3fncBuffer, logicDevice_, commandPool_);
+			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(RAL::Vertex3fnt));
+			vertexStagingBuffer->Fill(vertices);
+			auto vertex3fntBuffer = std::make_shared<VertexBuffer<RAL::Vertex3fnt>>(physicalDevice_, logicDevice_, verticesNumber);
 
-			//auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(RAL::Index16));
-			//indexStagingBuffer->Fill(indices);
-			//auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
+			DataCopy(vertexStagingBuffer, vertex3fntBuffer, logicDevice_, commandPool_);
 
-			//DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
+			auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(RAL::Index16));
+			indexStagingBuffer->Fill(indices);
+			auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
 
+			DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
 
-			//Shape::CreateInfo shapeCreateInfo;
-			//{
-			//	shapeCreateInfo.vertexBuffer_ = vertex3fncBuffer;
-			//	shapeCreateInfo.indexBuffer_ = indexBuffer;
-			//}
-			//auto newShape = std::make_shared<Shape>(shapeCreateInfo);
-			//shapes_.push_back(newShape);
+			auto textureStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, texture->GetPixelsNumber() * sizeof(RAL::Color4b));
+			textureStagingBuffer->Fill(texture->GetPixels<RAL::Color4b>());
+
+			AllocatedTextureImage::CreateInfo textureImageCreateInfo;
+			{
+				textureImageCreateInfo.size_ = { texture->GetSize() };
+				textureImageCreateInfo.format_ = VK_FORMAT_R8G8B8A8_SRGB;
+				textureImageCreateInfo.logicDevice_ = logicDevice_;
+				textureImageCreateInfo.physicalDevice_ = physicalDevice_;
+			}
+			auto textureImage = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
+			ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, logicDevice_, commandPool_);
+			DataCopy(textureStagingBuffer, textureImage, logicDevice_, commandPool_);
+			auto textureImageView = CreateImageViewByImage(logicDevice_, textureImage, VK_IMAGE_ASPECT_COLOR_BIT);
+			Sampler::CreateInfo samplerCreateInfo;
+			{
+				samplerCreateInfo.logicDevice_ = logicDevice_;
+				samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
+				samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
+				samplerCreateInfo.maxAnisotropy_ = physicalDevice_->GetProperties().limits.maxSamplerAnisotropy;
+			}
+			auto textureSampler = std::make_shared<Sampler>(samplerCreateInfo);
+			TexturedShape::CreateInfo texturedShapeCreateInfo;
+			{
+
+			}
+			auto texturedShape = std::make_shared<TexturedShape>(texturedShapeCreateInfo);
 		}
 
 
@@ -942,7 +1035,7 @@ namespace Render::Vulkan {
 				UINT64_MAX,
 				imageAvailableSemaphore->GetNative(),
 				VK_NULL_HANDLE,
-				&imageIndex), 
+				&imageIndex),
 				"Error while getting next swap chain image.");
 
 			std::shared_ptr<ImageContext> imageContext = imageContexts_[imageIndex];
@@ -1014,7 +1107,7 @@ namespace Render::Vulkan {
 		std::shared_ptr<CommandBuffer> commandBuffer_ = nullptr;
 		std::shared_ptr<Pipeline<Vertex3fnc>> pipeline3fnc_ = nullptr;
 		std::vector<FrameBuffer> frameBuffers_;
-		
+
 		//std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
 
 		//std::shared_ptr<VertexBuffer<Vertex3fnc>> vertex3fncBuffer_ = nullptr;

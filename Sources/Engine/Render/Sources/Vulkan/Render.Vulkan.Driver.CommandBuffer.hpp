@@ -21,7 +21,7 @@
 
 namespace Render::Vulkan {
 
-	class CommandBuffer : public Abstraction<VkCommandBuffer>{
+	class CommandBuffer : public Abstraction<VkCommandBuffer> {
 	public:
 
 
@@ -57,7 +57,7 @@ namespace Render::Vulkan {
 			std::vector<VkClearValue> clearValues;
 			{
 				clearValues.push_back(clearColor);
-				if(depthBufferInfo.enable){
+				if (depthBufferInfo.enable) {
 					clearValues.push_back(depthBufferInfo.clearValue_);
 				}
 			}
@@ -107,12 +107,12 @@ namespace Render::Vulkan {
 
 		template<class PipelineType>
 		void BindDescriptorSets(std::shared_ptr<PipelineType> pipeline, const std::vector<std::shared_ptr<DescriptorSet>>& descriptorSets) noexcept {
-			
+
 			std::vector<VkDescriptorSet> descriptorSetsHandles;
 			for (auto descriptorSetPtr : descriptorSets) {
 				descriptorSetsHandles.push_back(descriptorSetPtr->GetNative());
 			}
-			
+
 			vkCmdBindDescriptorSets(
 				GetHandle(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS, // Bind to graphics pipeline(not computation pipeline)
@@ -143,6 +143,75 @@ namespace Render::Vulkan {
 			}
 			vkCmdCopyBuffer(GetHandle(), from->GetNative(), to->GetNative(), 1, &copyRegion);
 		}
+
+		void Copy(std::shared_ptr<Buffer> from, std::shared_ptr<Image> to) noexcept {
+			VkBufferImageCopy copyRegion{};
+			{
+				copyRegion.bufferOffset = 0;
+				copyRegion.bufferRowLength = 0;
+				copyRegion.bufferImageHeight = 0;
+
+				copyRegion.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				copyRegion.imageSubresource.mipLevel = 0;
+				copyRegion.imageSubresource.baseArrayLayer = 0;
+				copyRegion.imageSubresource.layerCount = 1;
+
+				copyRegion.imageOffset = { 0, 0, 0 };
+				copyRegion.imageExtent = {
+					to->GetSize().GetX(),
+					to->GetSize().GetY(),
+					1
+				};
+			}
+			vkCmdCopyBufferToImage(
+				GetHandle(),
+				from->GetNative(),
+				*to,
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+				1,
+				&copyRegion
+			);
+		}
+
+		void ImageMemoryBarrier(
+			std::shared_ptr<Image> image,
+			VkImageLayout oldLayout,
+			VkImageLayout newLayout,
+			VkAccessFlags sourceAccessMask,
+			VkAccessFlags destinationAccessMask,
+			VkPipelineStageFlags sourceStage,
+			VkPipelineStageFlags destinationStage
+			) {
+			VkImageMemoryBarrier barrier{};
+			{
+				barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
+				barrier.oldLayout = oldLayout;
+				barrier.newLayout = newLayout;
+				barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
+				barrier.image = *image;
+				barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				barrier.subresourceRange.baseMipLevel = 0;
+				barrier.subresourceRange.levelCount = 1;
+				barrier.subresourceRange.baseArrayLayer = 0;
+				barrier.subresourceRange.layerCount = 1;
+				//В основном барьеры используются для синхронизации, поэтому нужно указать,
+				//какие типы операций должны выполняться до барьера,
+				//а какие операции должны ожидать, когда барьер перейдет из состояния unsignaled в signaled.
+				barrier.srcAccessMask = sourceAccessMask; 
+				barrier.dstAccessMask = destinationAccessMask;
+
+			}
+			vkCmdPipelineBarrier(
+				GetHandle(),
+				sourceStage, destinationStage,
+				0,
+				0, nullptr,
+				0, nullptr,
+				1, &barrier
+			);
+		}
+
 
 		void BindShape(std::shared_ptr<ColoredShape> shape) {
 			BindBuffer(shape->GetVertexBuffer());

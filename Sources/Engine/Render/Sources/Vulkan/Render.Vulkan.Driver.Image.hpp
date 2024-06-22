@@ -43,6 +43,7 @@ namespace Render::Vulkan {
 				imageInfo.mipLevels = 1;
 				imageInfo.arrayLayers = 1;
 				imageInfo.format = createInfo.format_;
+				imageInfo.flags = 0;
 				imageInfo.tiling = createInfo.tiling_;
 				imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 				imageInfo.usage = createInfo.usage_;
@@ -73,6 +74,11 @@ namespace Render::Vulkan {
 		[[nodiscard]]
 		VkFormat GetFormat() const noexcept { return createInfo_.format_; }
 
+		[[nodiscard]]
+		Math::Vector2u32 GetSize() const noexcept {
+			return createInfo_.size_;
+		}
+
 		~Image() noexcept {
 			Destroy();
 		}
@@ -85,6 +91,29 @@ namespace Render::Vulkan {
 
 	private:
 		CreateInfo createInfo_{ 0 };
+	};
+
+	class TextureImage : public Image {
+	public:
+
+		struct CreateInfo {
+			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			Math::Vector2u32 size_;
+			VkFormat format_;
+		};
+
+		TextureImage(const CreateInfo& createInfo) : 
+			Image{ Image::CreateInfo{
+			createInfo.physicalDevice_,
+			createInfo.logicDevice_,
+			createInfo.size_,
+			createInfo.format_,
+			VK_IMAGE_TILING_OPTIMAL,
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT }
+		} { }
+
+	private:
 	};
 
 	class DepthImage : public Image {
@@ -156,6 +185,27 @@ namespace Render::Vulkan {
 		using Image::GetMemoryRequirements;
 	};
 
+	class AllocatedTextureImage : public TextureImage {
+	public:
+		AllocatedTextureImage(const CreateInfo& createInfo) noexcept :
+			TextureImage{ createInfo }
+		{
+			const VkMemoryRequirements depthImageMemoryRequirements = GetMemoryRequirements();
 
+			DeviceMemory::CreateInfo deviceMemoryCreateInfo;
+			{
+				deviceMemoryCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
+				deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
+			}
+			deviceMemory_ = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
+
+			BindMemory(deviceMemory_);
+		}
+	private:
+		std::shared_ptr<DeviceMemory> deviceMemory_ = nullptr;
+		using Image::BindMemory;
+		using Image::GetMemoryRequirements;
+	};
 
 }

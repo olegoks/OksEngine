@@ -12,6 +12,7 @@ namespace Render::Vulkan {
 
 	class DescriptorSetLayout {
 	public:
+
 		DescriptorSetLayout(std::shared_ptr<LogicDevice> logicDevice) :
 			logicDevice_{ logicDevice } {
 			VkDescriptorSetLayoutBinding uboLayoutBinding{};
