@@ -9,6 +9,7 @@
 
 #include <Render.Vulkan.Common.hpp>
 #include <Render.Vulkan.Abstraction.hpp>
+#include <Render.Vulkan.Driver.Sampler.hpp>
 #include <Render.Vulkan.Driver.DescriptorPool.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.DescriptorSetLayout.hpp>
@@ -23,8 +24,8 @@ namespace Render::Vulkan {
 			std::shared_ptr<LogicDevice> logicDevice_;
 			std::shared_ptr<DescriptorPool> descriptorPool_;
 			std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_;
-			std::shared_ptr<UniformBuffer> buffer_;
-			VkDescriptorType type_;
+			//std::shared_ptr<UniformBuffer> buffer_;
+			//VkDescriptorType type_;
 		};
 
 		DescriptorSet(const CreateInfo& createInfo) : 
@@ -35,12 +36,74 @@ namespace Render::Vulkan {
 				createInfo.descriptorPool_->GetNative(),
 				*createInfo.descriptorSetLayout_);
 
-			Update(
+			/*Update(
 				createInfo.logicDevice_->GetHandle(),
 				createInfo.buffer_->GetNative(),
 				createInfo.type_,
 				createInfo.buffer_->GetSizeInBytes(),
-				0);
+				0);*/
+
+		}
+
+		void UpdateBufferWriteConfiguration(
+			std::shared_ptr<Buffer> buffer, 
+			VkDescriptorType type,
+			Common::UInt32 binding,
+			Common::Size offset, 
+			Common::Size range) {
+
+
+			VkDescriptorBufferInfo bufferInfo{};
+			{
+				bufferInfo.buffer = buffer->GetNative();
+				bufferInfo.offset = offset;
+				bufferInfo.range = range;
+			}
+
+			VkWriteDescriptorSet descriptorWrite{};
+			{
+				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				descriptorWrite.dstSet = GetHandle();
+				descriptorWrite.dstBinding = binding; // Descriptor binding that we want to update.
+				descriptorWrite.dstArrayElement = 0; // Descriptors can be arrrays. We also need to specify the first index in the array that we want to update.
+				descriptorWrite.descriptorType = type; //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				descriptorWrite.descriptorCount = 1; //Specifies how many array elements you want to update.
+				descriptorWrite.pBufferInfo = &bufferInfo;
+				descriptorWrite.pImageInfo = nullptr;
+				descriptorWrite.pTexelBufferView = nullptr;
+			}
+			vkUpdateDescriptorSets(*createInfo_.logicDevice_, 1, &descriptorWrite, 0, nullptr);
+
+		}
+
+
+		void UpdateImageWriteConfiguration(
+			std::shared_ptr<ImageView> imageView,
+			VkImageLayout imageLayout,
+			std::shared_ptr<Sampler> sampler,
+			VkDescriptorType type,
+			Common::UInt32 binding) {
+
+			VkDescriptorImageInfo imageInfo{};
+			{
+				imageInfo.imageView = *imageView;
+				imageInfo.imageLayout = imageLayout;
+				imageInfo.sampler = *sampler;
+			}
+
+			VkWriteDescriptorSet descriptorWrite{};
+			{
+				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+				descriptorWrite.dstSet = GetHandle();
+				descriptorWrite.dstBinding = binding; // Descriptor binding that we want to update.
+				descriptorWrite.dstArrayElement = 0; // Descriptors can be arrrays. We also need to specify the first index in the array that we want to update.
+				descriptorWrite.descriptorType = type; //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				descriptorWrite.descriptorCount = 1; //Specifies how many array elements you want to update.
+				descriptorWrite.pBufferInfo = nullptr;
+				descriptorWrite.pImageInfo = &imageInfo;
+				descriptorWrite.pTexelBufferView = nullptr;
+			}
+			vkUpdateDescriptorSets(*createInfo_.logicDevice_, 1, &descriptorWrite, 0, nullptr);
 
 		}
 
@@ -59,10 +122,10 @@ namespace Render::Vulkan {
 			{
 				descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 				descriptorWrite.dstSet = GetHandle();
-				descriptorWrite.dstBinding = 0;
-				descriptorWrite.dstArrayElement = 0;
+				descriptorWrite.dstBinding = 0; // Descriptor binding that we want to update.
+				descriptorWrite.dstArrayElement = 0; // Descriptors can be arrrays. We also need to specify the first index in the array that we want to update.
 				descriptorWrite.descriptorType = type; //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				descriptorWrite.descriptorCount = 1;
+				descriptorWrite.descriptorCount = 1; //Specifies how many array elements you want to update.
 				descriptorWrite.pBufferInfo = &bufferInfo;
 				descriptorWrite.pImageInfo = nullptr;
 				descriptorWrite.pTexelBufferView = nullptr;

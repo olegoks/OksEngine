@@ -488,26 +488,36 @@ namespace Render::Vulkan {
 			for (Common::Index i = 0; i < frameBuffers_.size(); i++) {
 				DescriptorSet::CreateInfo createInfo;
 				{
-					createInfo.buffer_ = uniformBuffers_[i];
+					//createInfo.buffer_ = uniformBuffers_[i];
 					createInfo.descriptorPool_ = descriptorPool_;
 					createInfo.descriptorSetLayout_ = descriptorSetLayout_;
 					createInfo.logicDevice_ = logicDevice_;
-					createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+					//createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				}
-				descriptorSets_.push_back(std::make_shared<DescriptorSet>(createInfo));
+				auto descriptorSet = std::make_shared<DescriptorSet>(createInfo);
+				descriptorSet->UpdateBufferWriteConfiguration(
+					uniformBuffers_[i],
+					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+					0, 0, uniformBuffers_[i]->GetSizeInBytes());
+				descriptorSets_.push_back(descriptorSet);
 			}
 			{
 				DescriptorSet::CreateInfo createInfo;
 				{
 					const VkDeviceSize bufferSize = sizeof(Transform);
 					modelInfoBuffer_ = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
-					createInfo.buffer_ = modelInfoBuffer_;
+					//createInfo.buffer_ = modelInfoBuffer_;
 					createInfo.descriptorPool_ = descriptorPool_;
 					createInfo.descriptorSetLayout_ = modelInfoDescriptorSetLayout_;
 					createInfo.logicDevice_ = logicDevice_;
-					createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+					//createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				}
-				modelInfoDescriptorSet_ = std::make_shared<DescriptorSet>(createInfo);
+				auto descriptorSet = std::make_shared<DescriptorSet>(createInfo);
+				descriptorSet->UpdateBufferWriteConfiguration(
+					modelInfoBuffer_,
+					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+					0, 0, modelInfoBuffer_->GetSizeInBytes());
+				modelInfoDescriptorSet_ = descriptorSet;
 			}
 			for (Common::Index i = 0; i < swapChain_->GetImages().size(); i++) {
 
@@ -780,8 +790,8 @@ namespace Render::Vulkan {
 					//const ImVec2  size{20, 1000};
 					if (ImPlot::BeginPlot("My Plot"/*, size*/)) {
 						//ImPlot::PlotBars("My Bar Plot", bar_data, 11);
-						const Common::Size timePoint = fps_.size();
-						ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), fps_.size());
+						//const Common::Size timePoint = fps_.size();
+						ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
 						ImPlot::EndPlot();
 					}
 					ImGui::End();
@@ -1030,7 +1040,7 @@ namespace Render::Vulkan {
 			}
 			auto textureSampler = std::make_shared<Sampler>(samplerCreateInfo);
 
-			DescriptorSet::CreateInfo createInfo;
+			/*DescriptorSet::CreateInfo createInfo;
 			{
 				const VkDeviceSize bufferSize = sizeof(Transform);
 				modelInfoBuffer_ = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
@@ -1040,7 +1050,7 @@ namespace Render::Vulkan {
 				createInfo.logicDevice_ = logicDevice_;
 				createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			}
-			modelInfoDescriptorSet_ = std::make_shared<DescriptorSet>(createInfo);
+			modelInfoDescriptorSet_ = std::make_shared<DescriptorSet>(createInfo);*/
 
 			TexturedShape::CreateInfo texturedShapeCreateInfo;
 			{
