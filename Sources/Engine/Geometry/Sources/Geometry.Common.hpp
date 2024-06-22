@@ -9,7 +9,7 @@ namespace Geometry {
 	using Vector = Math::Vector<size, BaseType>;
 	using Length = Common::Float;
 	using Color3f = Math::Vector3f;
+	using Color4b = Math::Vector<4, Common::Byte>;
 	using Normal3f = Math::Vector3f;
 	using UV2f = Math::Vector2f;
-
 }

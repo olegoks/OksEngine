@@ -5,6 +5,7 @@
 
 #include <OksEngine.Resource.Subsystem.hpp>
 #include <Geometry.Shapes.hpp>
+#include <Geometry.Texture.hpp>
 #include <OksEngine.UI.Subsystem.hpp>
 #include <RE.RenderEngine.hpp>
 
@@ -28,6 +29,10 @@ namespace OksEngine {
 
 			const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleVert.spv");
 			const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleFrag.spv");
+
+			const auto vertexTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleTextureVert.spv");
+			const auto fragmentTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleTextureFrag.spv");
+
 
 			auto ecsWorld = context.GetECSWorld();
 			ecsWorld->RegisterSystem<RenderSystem>();
@@ -66,9 +71,13 @@ namespace OksEngine {
 
 			ResourceSubsystem::Resource vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
 			ResourceSubsystem::Resource fragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
+			ResourceSubsystem::Resource vertexTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexTextureShaderTaskId);
+			ResourceSubsystem::Resource fragmentTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentTextureShaderTaskId);
 
 			RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
 			RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
+			RAL::Shader vertexTextureShader{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
+			RAL::Shader fragmentTextureShader{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
 
 			RE::RenderEngine::CreateInfo RECreateInfo;
 			{
@@ -76,6 +85,8 @@ namespace OksEngine {
 				RECreateInfo.light_ = light;
 				RECreateInfo.vertexShader_ = std::make_shared<RAL::Shader>(std::move(vertexShader));
 				RECreateInfo.fragmentShader_ = std::make_shared<RAL::Shader>(std::move(fragmentShader));
+				RECreateInfo.textureVertexShader_ = std::make_shared<RAL::Shader>(std::move(vertexTextureShader));
+				RECreateInfo.textureFragmentShader_ = std::make_shared<RAL::Shader>(std::move(fragmentTextureShader));
 				RECreateInfo.renderSurface_ = std::make_shared<RAL::RenderSurface>(std::move(renderSurface));
 			}
 			engine_ = std::make_shared<RE::RenderEngine>(RECreateInfo);
@@ -83,19 +94,39 @@ namespace OksEngine {
 			//const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/room.obj");
 			//ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
 
-			const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.obj");
-			ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
+			{
+				const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.obj");
+				ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
 
-			const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.mtl");
-			ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
+				const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.mtl");
+				ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
 
-			std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
-			std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
+				std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
+				std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
 
-			model_ = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
-			engine_->RenderModel(*model_);
-		
-		}
+				model_ = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
+				engine_->RenderModel(*model_);
+			}
+			{
+				const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Grass_Block.obj");
+				ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
+
+				const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Grass_Block.mtl");
+				ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
+
+				const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Grass_Block_TEX.png");
+				ResourceSubsystem::Resource pngCubeResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId);
+
+				std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
+				std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
+
+
+				auto texture = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(pngCubeResource.GetData<Common::Byte>(), pngCubeResource.GetSize())));
+				auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16(obj, mtl));
+
+				engine_->RenderModel(*texturedModel);
+			}
+ 		}
 
 		virtual void Update() noexcept override {
 			//Geometry::Box box{ 1 };

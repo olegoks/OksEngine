@@ -49,6 +49,8 @@ target_include_directories(Geometry
         ${CMAKE_CURRENT_LIST_DIR}/Sources/)
 
 find_package(tinyobjloader CONFIG REQUIRED)
+find_package(Stb REQUIRED)
+target_include_directories(Geometry PRIVATE ${Stb_INCLUDE_DIR})
 
 target_link_libraries(Geometry
     PUBLIC

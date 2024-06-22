@@ -1,5 +1,4 @@
-#!/bin/bash
 scriptDirectory=$(dirname $0)
-sh ${scriptDirectory}/GenerateBuildFiles.sh
+sh ${scriptDirectory}/LoadDependencies.sh
 
 read -p "Press enter to exit."

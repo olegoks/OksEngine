@@ -21,7 +21,7 @@ namespace RAL {
 	using UV2f = Geom::UV2f;
 	using Vertex3fnt = Geometry::Vertex3fnt;
 	//using Vertex3fnñt = Geometry::Vertex3fnct;
-	using Texture = Geometry::Texture;
+	using Texture = Geometry::Texture<Geom::Color4b>;
 
 	template<class VertexType>
 	using Polygon = Geom::Polygon<VertexType>;

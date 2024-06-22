@@ -49,5 +49,7 @@ target_link_libraries(UI PRIVATE glfw)
       
 find_package(imgui CONFIG REQUIRED)
 target_link_libraries(UI PRIVATE imgui::imgui)
+find_package(implot CONFIG REQUIRED)
+target_link_libraries(UI PRIVATE implot::implot)
 
 #add_subdirectory(Tests)

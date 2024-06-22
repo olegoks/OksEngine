@@ -1,2 +1,5 @@
- D:/Desktop/Oks3D/Resources/Shaders/glslc.exe triangle.frag -o triangleFrag.spv 
- D:/Desktop/Oks3D/Resources/Shaders/glslc.exe triangle.vert -o triangleVert.spv
+D:/Desktop/Oks3D/Resources/Shaders/glslc.exe triangle.frag -o triangleFrag.spv 
+D:/Desktop/Oks3D/Resources/Shaders/glslc.exe triangle.vert -o triangleVert.spv
+
+D:/Desktop/Oks3D/Resources/Shaders/glslc.exe triangleTexture.frag -o triangleTextureFrag.spv 
+D:/Desktop/Oks3D/Resources/Shaders/glslc.exe triangleTexture.vert -o triangleTextureVert.spv

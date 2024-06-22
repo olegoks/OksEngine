@@ -47,6 +47,52 @@ namespace Geometry {
 	};
 
 	using Vertex3f = Vertex<3, float>;
+	using Vertex2f = Vertex<2, float>;
+
+	class Vertex2ft : public Vertex2f {
+	public:
+		UV2f uv_;
+		Vertex2ft() noexcept = default;
+		Vertex2ft(const Vertex2f& position, const UV2f& texel) noexcept :
+			Vertex2f{ position }, uv_{ texel } { }
+
+
+		struct Hash {
+			[[nodiscard]]
+			Common::UInt64 operator()(const Vertex2ft& vertex) const noexcept {
+				return
+					vertex.position_.GetHash() ^
+					vertex.uv_.GetHash();
+			}
+		};
+
+		[[nodiscard]]
+		bool operator==(const Vertex2ft& vertex) const noexcept {
+			return (position_ == vertex.position_) && (uv_ == vertex.uv_);
+		}
+	};
+
+	class Vertex2ftc : public Vertex2ft {
+		Color4b color_;
+		Vertex2ftc() noexcept = default;
+		Vertex2ftc(const Vertex2f& position, const UV2f uv, const Color4b& color) noexcept :
+			Vertex2ft{ position, uv }, color_{ color } { }
+
+		struct Hash {
+			[[nodiscard]]
+			Common::UInt64 operator()(const Vertex2ftc& vertex) const noexcept {
+				return
+					vertex.position_.GetHash() ^
+					vertex.uv_.GetHash() ^
+					vertex.color_.GetHash();
+			}
+		};
+
+		[[nodiscard]]
+		bool operator==(const Vertex2ftc& vertex) const noexcept {
+			return (position_ == vertex.position_) && (uv_ == vertex.uv_) && (color_ == vertex.color_);
+		}
+	};
 
 	struct Vertex3fc : public Vertex3f {
 		Color3f color_ = { 1.f, 1.f, 1.f };
