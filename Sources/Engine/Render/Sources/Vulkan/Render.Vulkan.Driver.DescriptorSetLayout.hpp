@@ -23,7 +23,7 @@ namespace Render::Vulkan {
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			{
 				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
-				layoutInfo.bindingCount = createInfo.bindings_.size();
+				layoutInfo.bindingCount = static_cast<Common::UInt32>(createInfo.bindings_.size());
 				layoutInfo.pBindings = createInfo.bindings_.data();
 			}
 			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
