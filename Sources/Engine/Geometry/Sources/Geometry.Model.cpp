@@ -203,7 +203,7 @@ namespace Geometry {
         return model;
     }
 
-    Model<Vertex3fnt, Index16> ParseObjVertex3fnt(const std::string& obj, const std::string& mtl) noexcept {
+    Model<Vertex3fnt, Index16> ParseObjVertex3fnt(const std::string& obj, const std::string& mtl, const std::string& texture) noexcept {
 
         tinyobj::ObjReader objReader;
         objReader.ParseFromString(obj, mtl);
@@ -240,7 +240,8 @@ namespace Geometry {
                 }
                 vertexIndex++;
             }
-            Shape<Vertex3fnt, Index16> shape{ vertices, indices };
+            auto textureObject = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
+            Shape<Vertex3fnt, Index16> shape{ vertices, indices, textureObject };
             model.AddShape(shape);
         }
         OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
@@ -252,9 +253,9 @@ namespace Geometry {
         return ParseObj(obj, mtl);
     }
 
-    Model<Vertex3fnt, Index16> ParseObjVertex3fntIndex16(const std::string& obj, const std::string& mtl)
+    Model<Vertex3fnt, Index16> ParseObjVertex3fntIndex16(const std::string& obj, const std::string& mtl, const std::string& image)
     {
-        return ParseObjVertex3fnt(obj, mtl);
+        return ParseObjVertex3fnt(obj, mtl, image);
     }
 
     

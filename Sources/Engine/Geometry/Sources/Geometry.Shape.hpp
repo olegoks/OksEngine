@@ -13,6 +13,12 @@ namespace Geometry {
 	class Shape {
 	public:
 
+		enum class Type : Common::Size {
+			Textured,
+			Colored,
+			Undefined
+		};
+
 		Shape() noexcept = default;
 
 		Shape( const VertexCloud<VertexType>& vertices,
@@ -54,6 +60,22 @@ namespace Geometry {
 
 		[[nodiscard]]
 		Common::Size GetIndicesNumber() const noexcept { return indices_.GetIndicesNumber(); }
+
+		[[nodiscard]]
+		Type GetType() const noexcept {
+			if (colors_.GetSize() > 0) {
+				return Type::Colored;
+			} else if (texture_ != nullptr) {
+				return Type::Textured;
+			}
+			OS::NotImplemented();
+			return Type::Undefined;
+		}
+
+		[[nodiscard]]
+		std::shared_ptr<Texture<Color4b>> GetTexture() const noexcept {
+			return texture_;
+		}
 
 	private:
 		VertexCloud<VertexType> vertices_;

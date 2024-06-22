@@ -55,7 +55,7 @@ namespace RE {
 					(RAL::Vertex3fnt*)verticesColored.GetData(),
 					verticesColored.GetVerticesNumber(),
 					shape.GetIndices().GetData(),
-					shape.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
+					shape.GetIndicesNumber(), shape.GetTexture()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
 
 			}
 		}

@@ -119,10 +119,10 @@ namespace OksEngine {
 
 				std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
 				std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
+				std::string image{ pngCubeResource.GetData<char>(), pngCubeResource.GetSize() };
 
-
-				auto texture = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(pngCubeResource.GetData<Common::Byte>(), pngCubeResource.GetSize())));
-				auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16(obj, mtl));
+				
+				auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16(obj, mtl, image));
 
 				engine_->RenderModel(*texturedModel);
 			}
