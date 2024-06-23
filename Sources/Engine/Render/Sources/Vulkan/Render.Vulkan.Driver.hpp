@@ -329,7 +329,7 @@ namespace Render::Vulkan {
 							0,
 							VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 							1,
-							VK_SHADER_STAGE_VERTEX_BIT,
+							VK_SHADER_STAGE_FRAGMENT_BIT,
 							nullptr
 						}
 					};
@@ -386,7 +386,7 @@ namespace Render::Vulkan {
 					pipelineCreateInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 					pipelineCreateInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					pipelineCreateInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
-					pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
+					//pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
 					pipelineCreateInfo.descriptorSetLayouts_.push_back(texturedModelDescriptorSetLayout_);
 					pipelineCreateInfo.vertexShader_ = vertexShader;
 					pipelineCreateInfo.fragmentShader_ = fragmentShader;
@@ -745,7 +745,7 @@ namespace Render::Vulkan {
 					{
 						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
 						descriptorSets.push_back(descriptorSets_[i]);
-						descriptorSets.push_back(modelInfoDescriptorSet_);
+						//descriptorSets.push_back(modelInfoDescriptorSet_);
 						descriptorSets.push_back(shape->createInfo_.descriptorSet_);
 						commandBuffer->BindDescriptorSets(pipeline3fnt_, descriptorSets);
 					}
@@ -863,8 +863,8 @@ namespace Render::Vulkan {
 			auto currentTime = std::chrono::high_resolution_clock::now();
 			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
-			Math::Vector3f vector{ 1.f, 0.f, 0.f };
-			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });Math::Matrix4x4f::GetIdentity();*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector);
+			Math::Vector3f vector{ 0.f, 1.f, 0.f };
+			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });Math::Matrix4x4f::GetIdentity();*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector) * Math::Matrix4x4f::GetRotate(90.f, { 1.f, 0.f, 0.f});
 			Math::Vector3f position = camera_->GetPosition();
 			Math::Vector3f direction = camera_->GetDirection();
 			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
@@ -1041,7 +1041,7 @@ namespace Render::Vulkan {
 			AllocatedTextureImage::CreateInfo textureImageCreateInfo;
 			{
 				textureImageCreateInfo.size_ = { texture->GetSize() };
-				textureImageCreateInfo.format_ = VK_FORMAT_R8G8B8A8_SRGB;
+				textureImageCreateInfo.format_ = VK_FORMAT_R8G8B8A8_UNORM;
 				textureImageCreateInfo.logicDevice_ = logicDevice_;
 				textureImageCreateInfo.physicalDevice_ = physicalDevice_;
 			}
@@ -1055,7 +1055,7 @@ namespace Render::Vulkan {
 				samplerCreateInfo.logicDevice_ = logicDevice_;
 				samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
 				samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
-				samplerCreateInfo.maxAnisotropy_ = physicalDevice_->GetProperties().limits.maxSamplerAnisotropy;
+				samplerCreateInfo.maxAnisotropy_ = 1.0;// physicalDevice_->GetProperties().limits.maxSamplerAnisotropy;
 			}
 			auto textureSampler = std::make_shared<Sampler>(samplerCreateInfo);
 
