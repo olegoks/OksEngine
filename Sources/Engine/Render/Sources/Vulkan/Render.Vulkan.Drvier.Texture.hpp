@@ -6,18 +6,5 @@
 namespace Render::Vulkan {
 
 
-	class Texture {
-	public:
-		struct CreateInfo {
-
-		};
-
-		Texture(const CreateInfo& createInfo) {
-
-		}
-
-	private:
-
-	};
 
 }

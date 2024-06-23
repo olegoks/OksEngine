@@ -231,8 +231,8 @@ namespace Render::Vulkan {
 
 
 		void BindShape(std::shared_ptr<TexturedShape> shape) {
-			BindBuffer(shape->createInfo_.vertexBuffer_);
-			BindBuffer(shape->createInfo_.indexBuffer_);
+			BindBuffer(shape->GetVertexBuffer());
+			BindBuffer(shape->GetIndexBuffer());
 		}
 
 		void DrawShape(std::shared_ptr<ColoredShape> shape) {
@@ -240,7 +240,7 @@ namespace Render::Vulkan {
 		}
 
 		void DrawShape(std::shared_ptr<TexturedShape> shape) {
-			DrawIndexed(shape->createInfo_.indexBuffer_->GetIndecesNumber());
+			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
 		}
 
 		void End() noexcept {
