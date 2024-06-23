@@ -108,13 +108,13 @@ namespace OksEngine {
 				//engine_->RenderModel(*model_);
 			}
 			{
-				const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Grass_Block.obj");
+				const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/dragon_lore.obj");
 				ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
 
-				const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Grass_Block.mtl");
+				const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/dragon_lore.mtl");
 				ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
 
-				const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Grass_Block_TEX.png");
+				const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/dragon_lore.bmp");
 				ResourceSubsystem::Resource pngCubeResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId);
 
 				std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
