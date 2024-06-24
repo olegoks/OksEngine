@@ -25,6 +25,7 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
+			Math::Matrix4x4f model_ = Math::Matrix4x4f::GetIdentity();
 			std::shared_ptr<VertexBuffer<VertexType>> vertexBuffer_ = nullptr;
 			std::shared_ptr<IndexBuffer<IndexType>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
@@ -56,22 +57,22 @@ namespace Render::Vulkan {
 		}
 
 		void Offset(const Vector3f& offset) {
-			transform_ = transform_ * Math::Matrix4x4f::GetTranslate(offset);
-			Transform transform{ transform_ };
+			model_ = model_ * Math::Matrix4x4f::GetTranslate(offset);
+			Transform transform{ model_ };
 			transformBuffer_->Fill(transform);
 		}
 
 		void SetPosition(const Vector3f& position) {
 			auto matrixPosition = Math::Matrix4x4f::GetTranslate(position);
 			Transform transform{ matrixPosition };
-			transform_ = matrixPosition;
+			model_ = matrixPosition;
 			transformBuffer_->Fill(&transform);
 		}
 
 		void Rotate(const Vector3f& vectorAround, Math::Angle angle) {
 			const Math::Matrix4x4f rotateMatrix = Math::Matrix4x4f::GetRotate(angle, vectorAround);
-			transform_ = transform_ * rotateMatrix;
-			Transform transform{ transform_ };
+			model_ = model_ * rotateMatrix;
+			Transform transform{ model_ };
 			transformBuffer_->Fill(&transform);
 		}
 
@@ -87,10 +88,10 @@ namespace Render::Vulkan {
 		}
 
 	private:
+		Math::Matrix4x4f model_;
 		Common::Index id_ = 0;
 		std::shared_ptr<VertexBuffer<VertexType>> vertexBuffer_ = nullptr;
 		std::shared_ptr<IndexBuffer<IndexType>> indexBuffer_ = nullptr;
-		Math::Matrix4x4f transform_;
 		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 		std::shared_ptr<DescriptorSet> bufferDescriptorSet_ = nullptr;
 	};
@@ -99,6 +100,7 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
+			Math::Matrix4x4f model_ = Math::Matrix4x4f::GetIdentity();
 			std::shared_ptr<VertexBuffer<Vertex3fnt>> vertexBuffer_ = nullptr;
 			std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
@@ -108,6 +110,7 @@ namespace Render::Vulkan {
 
 		TexturedShape(const CreateInfo& createInfo) :
 			Shape{ Shape::CreateInfo{
+				createInfo.model_,
 				createInfo.vertexBuffer_,
 				createInfo.indexBuffer_,
 				createInfo.transformBuffer_,
@@ -126,6 +129,7 @@ namespace Render::Vulkan {
 	class ColoredShape : public Shape<Vertex3fnc, Index16>{
 	public:
 		struct CreateInfo {
+			Math::Matrix4x4f model_ = Math::Matrix4x4f::GetIdentity();
 			std::shared_ptr<VertexBuffer<Vertex3fnc>> vertexBuffer_ = nullptr;
 			std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
@@ -135,6 +139,7 @@ namespace Render::Vulkan {
 		ColoredShape(const CreateInfo& createInfo) noexcept :
 			Shape{ 
 				Shape::CreateInfo{
+					createInfo.model_,
 					createInfo.vertexBuffer_,
 					createInfo.indexBuffer_,
 					createInfo.transformBuffer_,
@@ -142,8 +147,8 @@ namespace Render::Vulkan {
 				} } { }
 
 	private:
-		std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>> vertexBuffer_ = nullptr;
-		std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer_ = nullptr;
+		std::shared_ptr<VertexBuffer<Vertex3fnc>> vertexBuffer_ = nullptr;
+		std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
 	};
 
 }

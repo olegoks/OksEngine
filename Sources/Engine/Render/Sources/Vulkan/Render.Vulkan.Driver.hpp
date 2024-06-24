@@ -276,7 +276,7 @@ namespace Render::Vulkan {
 				const VkDeviceSize bufferSize = sizeof(UniformBufferObject);
 				for (Common::Index i = 0; i < swapChain_->GetImagesNumber(); i++) {
 					auto uniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
-					uniformBuffers_.push_back(uniformBuffer);
+					globalDataUBs_.push_back(uniformBuffer);
 				}
 			}
 
@@ -296,42 +296,7 @@ namespace Render::Vulkan {
 					};
 					descriptorSetLayoutCreateInfo.bindings_ = bindings;
 				}
-				descriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
-			}
-			{
-				DescriptorSetLayout::CreateInfo descriptorSetLayoutCreateInfo;
-				{
-					descriptorSetLayoutCreateInfo.logicDevice_ = logicDevice_;
-					std::vector<VkDescriptorSetLayoutBinding> bindings{
-						{
-							0,
-							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-							1,
-							VK_SHADER_STAGE_VERTEX_BIT,
-							nullptr
-						}
-					};
-					descriptorSetLayoutCreateInfo.bindings_ = bindings;
-				}
-				modelInfoDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
-			}
-			{
-
-				DescriptorSetLayout::CreateInfo descriptorSetLayoutCreateInfo;
-				{
-					descriptorSetLayoutCreateInfo.logicDevice_ = logicDevice_;
-					std::vector<VkDescriptorSetLayoutBinding> bindings{
-						{
-							0,
-							VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-							1,
-							VK_SHADER_STAGE_FRAGMENT_BIT,
-							nullptr
-						}
-					};
-					descriptorSetLayoutCreateInfo.bindings_ = bindings;
-				}
-				texturedModelDescriptorSetLayout_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
+				globalDataDSL_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
 			}
 			//DESCRIPTOR_POOL
 			const Common::Size descriptorPoolSize = swapChain_->GetImagesNumber() * 2;
@@ -360,64 +325,27 @@ namespace Render::Vulkan {
 
 			//PIPELINE for textured models
 			{
-					auto texturedPipelineInfo = info.texturedPipeline_;
+				auto texturedPipelineInfo = info.texturedPipeline_;
 
-					TexturedModelPipeline::CreateInfo createInfo;
-					{
-						createInfo.physicalDevice_ = physicalDevice_;
-						createInfo.logicDevice_ = logicDevice_;
-						createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
-						createInfo.colorAttachmentSize_ = swapChain_->GetSize();
-						createInfo.vertexShader_ = texturedPipelineInfo->vertexShader_;
-						createInfo.fragmentShader_ = texturedPipelineInfo->fragmentShader_;
-						createInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
-						createInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
-						createInfo.descriptorSetLayouts_.push_back(texturedModelDescriptorSetLayout_);
-						if (texturedPipelineInfo->enableDepthTest_) {
-							auto depthTestData = std::make_shared<TexturedModelPipeline::DepthTestInfo>();
-							depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
-							createInfo.depthTestInfo_ = depthTestData;
-						}
+				TexturedModelPipeline::CreateInfo createInfo;
+				{
+					createInfo.physicalDevice_ = physicalDevice_;
+					createInfo.logicDevice_ = logicDevice_;
+					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
+					createInfo.vertexShader_ = texturedPipelineInfo->vertexShader_;
+					createInfo.fragmentShader_ = texturedPipelineInfo->fragmentShader_;
+					createInfo.descriptorSetLayouts_.push_back(globalDataDSL_);
+					createInfo.descriptorSetLayouts_.push_back(modelInfoDSL_);
+					createInfo.descriptorSetLayouts_.push_back(texturedModelDSL_);
+					if (texturedPipelineInfo->enableDepthTest_) {
+						auto depthTestData = std::make_shared<TexturedModelPipeline::DepthTestInfo>();
+						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
+						createInfo.depthTestInfo_ = depthTestData;
 					}
-					texturedModelPipeline_ = std::make_shared<TexturedModelPipeline>(createInfo);
+				}
+				texturedModelPipeline_ = std::make_shared<TexturedModelPipeline>(createInfo);
 
-				//Vulkan::Pipeline<Vertex3fnt>::CreateInfo pipelineCreateInfo;
-				//{
-
-				//	ShaderModule::CreateInfo vertexShaderModuleCreateInfo;
-				//	{
-				//		vertexShaderModuleCreateInfo.logicDevice_ = logicDevice_;
-				//		DS::Vector<Common::Byte> spirv{ info.textureVertexShader_.GetCode(), info.textureVertexShader_.GetSize() };
-				//		vertexShaderModuleCreateInfo.spirv_ = std::move(spirv);
-				//	}
-				//	auto vertexShader = std::make_shared<ShaderModule>(vertexShaderModuleCreateInfo);
-
-				//	ShaderModule::CreateInfo fragmentShaderModuleCreateInfo;
-				//	{
-				//		fragmentShaderModuleCreateInfo.logicDevice_ = logicDevice_;
-				//		DS::Vector<Common::Byte> spirv{ info.textureFragmentShader_.GetCode(), info.textureFragmentShader_.GetSize() };
-				//		fragmentShaderModuleCreateInfo.spirv_ = std::move(spirv);
-				//	}
-				//	auto fragmentShader = std::make_shared<ShaderModule>(fragmentShaderModuleCreateInfo);
-
-				//	pipelineCreateInfo.physicalDevice_ = physicalDevice_;
-				//	pipelineCreateInfo.logicDevice_ = logicDevice_;
-				//	pipelineCreateInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
-				//	pipelineCreateInfo.colorAttachmentSize_ = swapChain_->GetSize();
-				//	pipelineCreateInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
-				//	//pipelineCreateInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
-				//	pipelineCreateInfo.descriptorSetLayouts_.push_back(texturedModelDescriptorSetLayout_);
-				//	pipelineCreateInfo.vertexShader_ = vertexShader;
-				//	pipelineCreateInfo.fragmentShader_ = fragmentShader;
-
-
-				//	if (info.enableDepthTest_) {
-				//		auto depthTestData = std::make_shared<Pipeline<Vertex3fnt>::DepthTestData>();
-				//		depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
-				//		pipelineCreateInfo.depthTestData_ = depthTestData;
-				//	}
-				//	texturedModelPipeline_ = std::make_shared<Pipeline<Vertex3fnt>>(pipelineCreateInfo);
-				//}
 			}
 
 			//ImGui PIPELINE
@@ -438,8 +366,8 @@ namespace Render::Vulkan {
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = flatShadedPipelineInfo->vertexShader_;
 					createInfo.fragmentShader_ = flatShadedPipelineInfo->fragmentShader_;
-					createInfo.descriptorSetLayouts_.push_back(descriptorSetLayout_);
-					createInfo.descriptorSetLayouts_.push_back(modelInfoDescriptorSetLayout_);
+					createInfo.descriptorSetLayouts_.push_back(globalDataDSL_);
+					createInfo.descriptorSetLayouts_.push_back(modelInfoDSL_);
 					if (flatShadedPipelineInfo->enableDepthTest_) {
 						auto depthTestData = std::make_shared<FlatShadedModelPipeline::DepthTestInfo>();
 						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
@@ -476,16 +404,16 @@ namespace Render::Vulkan {
 				{
 					//createInfo.buffer_ = uniformBuffers_[i];
 					createInfo.descriptorPool_ = descriptorPool_;
-					createInfo.descriptorSetLayout_ = descriptorSetLayout_;
+					createInfo.DSL_ = globalDataDSL_;
 					createInfo.logicDevice_ = logicDevice_;
 					//createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				}
 				auto descriptorSet = std::make_shared<DescriptorSet>(createInfo);
 				descriptorSet->UpdateBufferWriteConfiguration(
-					uniformBuffers_[i],
+					globalDataUBs_[i],
 					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-					0, 0, uniformBuffers_[i]->GetSizeInBytes());
-				descriptorSets_.push_back(descriptorSet);
+					0, 0, globalDataUBs_[i]->GetSizeInBytes());
+				globalDataDSs_.push_back(descriptorSet);
 			}
 			//{
 			//	DescriptorSet::CreateInfo createInfo;
@@ -683,7 +611,7 @@ namespace Render::Vulkan {
 				CommandBuffer::DepthBufferInfo depthBufferInfo;
 				{
 					const bool enableDepthTest = createInfo_.flatShadedPipeline_->enableDepthTest_ || createInfo_.texturedPipeline_->enableDepthTest_;
-					depthBufferInfo.enable = enableDepthTest;//createInfo_.enableDepthTest_;
+					depthBufferInfo.enable = enableDepthTest;
 					depthBufferInfo.clearValue_.depthStencil = { 1.f, 0 };
 				}
 				commandBuffer->BeginRenderPass(
@@ -693,29 +621,12 @@ namespace Render::Vulkan {
 					clearValue,
 					depthBufferInfo);
 
-				//OS::Assert(vertexBuffers_.GetSize() == indexBuffers_.GetSize());
-				/*for (Common::Index modelIndex = 0; modelIndex < vertexBuffers_.GetSize(); modelIndex++) {
-					commandBuffer->BindPipeline(pipeline3fnc_);
-					commandBuffer->BindBuffer(vertexBuffers_[modelIndex]);
-					commandBuffer->BindBuffer(indexBuffers_[modelIndex]);
-					{
-						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-						descriptorSets.push_back(descriptorSets_[i]);
-						descriptorSets.push_back(modelInfoDescriptorSet_);
-						commandBuffer->BindDescriptorSets(pipeline3fnc_, descriptorSets);
-					}
-					commandBuffer->DrawIndexed(indexBuffers_[modelIndex]->GetIndecesNumber());
-				}*/
-
 				for (auto shape : coloredShapes_) {
-					//if (shape->GetType() == Shape::Type::Colored) {
-
-					//}
 					commandBuffer->BindPipeline(flatShadedModelPipeline_);
 					commandBuffer->BindShape(shape);
 					{
 						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-						descriptorSets.push_back(descriptorSets_[i]);
+						descriptorSets.push_back(globalDataDSs_[i]);
 						descriptorSets.push_back(shape->GetTransformDescriptorSet());
 						commandBuffer->BindDescriptorSets(flatShadedModelPipeline_, descriptorSets);
 					}
@@ -724,14 +635,11 @@ namespace Render::Vulkan {
 
 
 				for (auto shape : texturedShapes_) {
-					//if (shape->GetType() == Shape::Type::Colored) {
-
-					//}
 					commandBuffer->BindPipeline(texturedModelPipeline_);
 					commandBuffer->BindShape(shape);
 					{
 						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-						descriptorSets.push_back(descriptorSets_[i]);
+						descriptorSets.push_back(globalDataDSs_[i]);
 						descriptorSets.push_back(shape->GetTransformDescriptorSet());
 						descriptorSets.push_back(shape->GetTexture()->GetDescriptorSet());
 						commandBuffer->BindDescriptorSets(texturedModelPipeline_, descriptorSets);
@@ -833,8 +741,6 @@ namespace Render::Vulkan {
 
 			currentFrame = (currentFrame + 1) % MAX_FRAMES_IN_FLIGHT;
 
-
-
 		}
 
 		void UpdateUniformBuffers(uint32_t currentImage) {
@@ -859,109 +765,14 @@ namespace Render::Vulkan {
 
 			ubo.proj_[1][1] *= -1;
 
-			std::shared_ptr<UniformBuffer> currentUniformBuffer = uniformBuffers_[currentImage];
+			std::shared_ptr<UniformBuffer> currentUniformBuffer = globalDataUBs_[currentImage];
 			currentUniformBuffer->Fill(&ubo);
 		}
 
-		//void SetPosition(const Vector3f& position) {
-
-		//	static auto startTime = std::chrono::high_resolution_clock::now();
-
-		//	auto currentTime = std::chrono::high_resolution_clock::now();
-		//	float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-		//	Math::Vector3f vector{ 1.f, 1.f, 0.f };
-		//	Transform newTransform;
-		//	{
-		//		newTransform.model_ = Math::Matrix4x4f::GetRotate(time * -30.f, vector);
-		//	}
-		//	modelInfoBuffer_->Fill(&newTransform);
-		//}
 
 		void EndRender() override {
-			//vertices_.Clear();
-			//indices_.Clear();
 			commandBuffers_.clear();
 		}
-
-		//virtual Common::UInt64 DrawShape(const RAL::Shape& shape) override {
-
-		//	if (shape.GetVertexType() == RAL::VertexType::V3f_N3f_C3f) {
-
-		//		//DS::Vector<RAL::Vertex3fnc> vertices;
-		//		//shape.ForEachVertex<RAL::Vertex3fnc>([&vertices](const RAL::Vertex3fnc& vertex) {
-		//		//	vertices.PushBack(vertex);
-		//		//	});
-
-		//		//auto vertexStagingBuffer = std::make_shared<StagingBuffer>(
-		//		//	physicalDevice_,
-		//		//	logicDevice_,
-		//		//	vertices.GetSize() * sizeof(RAL::Vertex3fnc));
-
-		//		//vertexStagingBuffer->Fill(vertices.GetData());
-
-		//		//auto vertex3fncBuffer = std::make_shared<VertexBuffer<RAL::Vertex3fnc>>(
-		//		//	physicalDevice_,
-		//		//	logicDevice_,
-		//		//	vertices.GetSize());
-
-		//		//const DS::Vector<RAL::Index16> indices = shape.GetIndices();
-
-		//		//auto indexStagingBuffer = std::make_shared<StagingBuffer>(
-		//		//	physicalDevice_,
-		//		//	logicDevice_,
-		//		//	indices.GetSize() * sizeof(RAL::Index16));
-
-
-		//		//indexStagingBuffer->Fill(indices.GetData());
-		//		//auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(
-		//		//	physicalDevice_,
-		//		//	logicDevice_,
-		//		//	indices.GetSize());
-
-		//		//CommandBuffer::CreateInfo commandBufferCreateInfo;
-		//		//{
-		//		//	commandBufferCreateInfo.logicDevice_ = logicDevice_;
-		//		//	commandBufferCreateInfo.commandPool_ = commandPool_;
-		//		//}
-
-		//		//auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
-		//		//commandBuffer->Begin();
-		//		//commandBuffer->Copy(vertexStagingBuffer, vertex3fncBuffer);
-		//		//commandBuffer->Copy(indexStagingBuffer, indexBuffer);
-		//		//commandBuffer->End();
-
-		//		//VkSubmitInfo submitInfo{};
-		//		//{
-		//		//	submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		//		//	submitInfo.commandBufferCount = 1;
-		//		//	submitInfo.pCommandBuffers = &commandBuffer->GetHandle();
-		//		//}
-		//		//vkQueueSubmit(logicDevice_->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-		//		//vkQueueWaitIdle(logicDevice_->GetGraphicsQueue());
-
-		//		//ColoredShape::CreateInfo shapeCreateInfo;
-		//		//{
-		//		//	shapeCreateInfo.vertexBuffer_ = vertex3fncBuffer;
-		//		//	shapeCreateInfo.indexBuffer_ = indexBuffer;
-		//		//}
-		//		//auto newShape = std::make_shared<ColoredShape>(shapeCreateInfo);
-		//		//shapes_.push_back(newShape);
-		//	}
-		//}
-
-		//virtual void DebugDrawIndexed(
-		//	const RAL::Vertex3fnc* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indicesNumber) override {
-		//	for (Common::Index vertexIndex = 0; vertexIndex < verticesNumber; vertexIndex++) {
-		//		const RAL::Vertex3fnc& vertex = vertices[vertexIndex];
-		//		vertices_.Add(vertex);
-		//	}
-		//	indices_.Add(indices, indicesNumber, verticesNumber);
-
-		//}
 
 		virtual Common::UInt64 DrawIndexed(
 			const Math::Matrix4x4f& model_,
@@ -987,7 +798,7 @@ namespace Render::Vulkan {
 			DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
 			{
 				transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
-				transformDesciptorSetCreateInfo.descriptorSetLayout_ = modelInfoDescriptorSetLayout_;
+				transformDesciptorSetCreateInfo.DSL_ = flatShadedModelPipeline_->GetLayout()->GetDSLs()[0];
 				transformDesciptorSetCreateInfo.logicDevice_ = logicDevice_;
 			}
 			auto modelTransform = std::make_shared<DescriptorSet>(transformDesciptorSetCreateInfo);
@@ -998,17 +809,17 @@ namespace Render::Vulkan {
 
 			ColoredShape::CreateInfo shapeCreateInfo;
 			{
+				shapeCreateInfo.model_ = model_;
 				shapeCreateInfo.vertexBuffer_ = vertex3fncBuffer;
 				shapeCreateInfo.indexBuffer_ = indexBuffer;
 				shapeCreateInfo.transformBuffer_ = transformUniformBuffer;
 				shapeCreateInfo.modelDataDescriptorSet = modelTransform;
 			}
 			auto newShape = std::make_shared<ColoredShape>(shapeCreateInfo);
-			newShape->SetPosition({ 0, 0, 0 });
 			coloredShapes_.push_back(newShape);
 			return newShape->GetId();
 		}
-		
+
 		virtual Common::UInt64 DrawIndexed(
 			const Math::Matrix4x4f& model_,
 			const RAL::Vertex3fnt* vertices,
@@ -1056,7 +867,7 @@ namespace Render::Vulkan {
 			DescriptorSet::CreateInfo createInfo;
 			{
 				createInfo.descriptorPool_ = descriptorPool_;
-				createInfo.descriptorSetLayout_ = texturedModelDescriptorSetLayout_;
+				createInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[2];
 				createInfo.logicDevice_ = logicDevice_;
 			}
 
@@ -1081,17 +892,18 @@ namespace Render::Vulkan {
 			DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
 			{
 				transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
-				transformDesciptorSetCreateInfo.descriptorSetLayout_ = modelInfoDescriptorSetLayout_;
+				transformDesciptorSetCreateInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[1];
 				transformDesciptorSetCreateInfo.logicDevice_ = logicDevice_;
 			}
 			auto modelTransform = std::make_shared<DescriptorSet>(transformDesciptorSetCreateInfo);
 			modelTransform->UpdateBufferWriteConfiguration(
 				transformUniformBuffer,
 				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-				0, 0, transformUniformBuffer ->GetSizeInBytes());
+				0, 0, transformUniformBuffer->GetSizeInBytes());
 
 			TexturedShape::CreateInfo texturedShapeCreateInfo;
 			{
+				texturedShapeCreateInfo.model_ = model_;
 				texturedShapeCreateInfo.transformBuffer_ = transformUniformBuffer;
 				texturedShapeCreateInfo.transformDescriptorSet_ = modelTransform;
 				texturedShapeCreateInfo.vertexBuffer_ = vertex3fntBuffer;
@@ -1177,7 +989,7 @@ namespace Render::Vulkan {
 			DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
 			{
 				transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
-				transformDesciptorSetCreateInfo.descriptorSetLayout_ = modelInfoDescriptorSetLayout_;
+				transformDesciptorSetCreateInfo.DSL_ = modelInfoDSL_;
 				transformDesciptorSetCreateInfo.logicDevice_ = logicDevice_;
 			}
 			auto modelTransform = std::make_shared<DescriptorSet>(transformDesciptorSetCreateInfo);
@@ -1188,6 +1000,7 @@ namespace Render::Vulkan {
 
 			ColoredShape::CreateInfo createInfo;
 			{
+				createInfo.model_ = model_;
 				createInfo.vertexBuffer_ = vertexBuffer;
 				createInfo.indexBuffer_ = indexBuffer;
 				createInfo.transformBuffer_ = transformUniformBuffer;
@@ -1195,7 +1008,6 @@ namespace Render::Vulkan {
 			}
 
 			auto shape = std::make_shared<ColoredShape>(createInfo);
-			shape->SetPosition({ 0, 0, 0 });
 			coloredShapes_.push_back(shape);
 			return shape->GetId();
 		}
@@ -1219,27 +1031,27 @@ namespace Render::Vulkan {
 				convertedVertices.push_back({ vertices[i + 2].position_, normal, color });
 			}
 
-			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(RAL::Vertex3fnc));
+			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(Vertex3fnc));
 			vertexStagingBuffer->Fill(convertedVertices.data());
 			auto vertexBuffer = std::make_shared<VertexBuffer<Vertex3fnc>>(physicalDevice_, logicDevice_, verticesNumber);
 
 			DataCopy(vertexStagingBuffer, vertexBuffer, logicDevice_, commandPool_);
 
-			auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(RAL::Index16));
+			auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(Index16));
 			indexStagingBuffer->Fill(indices);
-			auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
+			auto indexBuffer = std::make_shared<IndexBuffer<Index16>>(physicalDevice_, logicDevice_, indicesNumber);
 
 			DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
 
 			ColoredShape::CreateInfo createInfo;
 			{
+				createInfo.model_ = model_;
 				createInfo.vertexBuffer_ = vertexBuffer;
 				createInfo.indexBuffer_ = indexBuffer;
 			}
 
 			auto shape = std::make_shared<ColoredShape>(createInfo);
 			coloredShapes_.push_back(shape);
-
 			return shape->GetId();
 		}
 
@@ -1322,22 +1134,13 @@ namespace Render::Vulkan {
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<SwapChain> swapChain_ = nullptr;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
-		std::shared_ptr<CommandBuffer> commandBuffer_ = nullptr;
 		std::shared_ptr<TexturedModelPipeline> texturedModelPipeline_ = nullptr;
 		std::shared_ptr<FlatShadedModelPipeline> flatShadedModelPipeline_ = nullptr;
 		std::vector<FrameBuffer> frameBuffers_;
+		std::vector<std::shared_ptr<UniformBuffer>> globalDataUBs_; // Global data uniform buffers.
 
-		//std::shared_ptr<StagingBuffer> vertexStagingBuffer_ = nullptr;
-
-		//std::shared_ptr<VertexBuffer<Vertex3fnc>> vertex3fncBuffer_ = nullptr;
-		//std::shared_ptr<VertexBuffer<Vertex3fnc>> vertex3fncBuffer_ = nullptr;
-
-		//std::shared_ptr<StagingBuffer> indexStagingBuffer_ = nullptr;
-		//std::shared_ptr<IndexBuffer> indexBuffer_ = nullptr;
-		std::vector<std::shared_ptr<UniformBuffer>> uniformBuffers_;
-		std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_ = nullptr;
 		std::shared_ptr<DescriptorPool> descriptorPool_ = nullptr;
-		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets_;
+		std::vector<std::shared_ptr<DescriptorSet>> globalDataDSs_; // Global data descriptor sets.
 
 		QueueFamily graphicsQueueFamily_;
 		QueueFamily presentQueueFamily_;
@@ -1347,8 +1150,9 @@ namespace Render::Vulkan {
 		std::vector<std::shared_ptr<FrameContext>> frameContexts_;
 
 		std::shared_ptr<UniformBuffer> modelInfoBuffer_ = nullptr;
-		std::shared_ptr<DescriptorSetLayout> modelInfoDescriptorSetLayout_ = nullptr;
-		std::shared_ptr<DescriptorSetLayout> texturedModelDescriptorSetLayout_ = nullptr;
+		std::shared_ptr<DescriptorSetLayout> globalDataDSL_ = nullptr; // Global Data descriptor set layout.
+		std::shared_ptr<DescriptorSetLayout> modelInfoDSL_ = nullptr;
+		std::shared_ptr<DescriptorSetLayout> texturedModelDSL_ = nullptr;
 		//std::shared_ptr<DescriptorSet> modelInfoDescriptorSet_ = nullptr;
 		std::shared_ptr<DescriptorSet> texturedModelInfoDescriptorSet_ = nullptr;
 
