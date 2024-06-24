@@ -13,8 +13,18 @@ namespace Render::Vulkan {
 
 	void VkCall(VkResult nativeAPICallResult, Common::Format&& format) noexcept;
 
+
+	using Vector3f = Geom::Vector3f;
+	using Index16 = Geom::Index16;
+	using Color4b = Geom::Color4b;
+	using Color3f = Geom::Color3f;
+	using Normal3f = Geom::Normal3f;
+
 	class Vertex3fnc : public Geometry::Vertex3fnc {
 	public:
+
+		Vertex3fnc(const Vector3f& position, const Normal3f normal, const Color3f& color) :
+			Geom::Vertex3fnc{ position, normal, color }{}
 
 		static VkVertexInputBindingDescription GetBindingDescription() {
 			VkVertexInputBindingDescription bindingDescription{};
@@ -26,26 +36,45 @@ namespace Render::Vulkan {
 			return bindingDescription;
 		}
 
-		static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions() {
-			std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() {
+			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
-			attributeDescriptions[0].binding = 0;
-			attributeDescriptions[0].location = 0;
-			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[0].offset = offsetof(Vertex3fnc, position_);
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 0;
+					attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fnc, position_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
 
-			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 1;
-			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[1].offset = offsetof(Vertex3fnc, normal_);
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 1;
+					attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fnc, normal_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
 
-			attributeDescriptions[2].binding = 0;
-			attributeDescriptions[2].location = 2;
-			attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[2].offset = offsetof(Vertex3fnc, color_);
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 2;
+					attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fnc, color_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
 
 			return attributeDescriptions;
 		}
+
 	};
 
 	class Vertex3fc : public Geometry::Vertex3fc {
@@ -92,23 +121,41 @@ namespace Render::Vulkan {
 			return bindingDescription;
 		}
 
-		static std::array<VkVertexInputAttributeDescription, 3> GetAttributeDescriptions() {
-			std::array<VkVertexInputAttributeDescription, 3> attributeDescriptions{};
+		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() {
+			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
 
-			attributeDescriptions[0].binding = 0;
-			attributeDescriptions[0].location = 0;
-			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[0].offset = offsetof(Vertex3fnt, position_);
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 0;
+					attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fnt, position_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
 
-			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 1;
-			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[1].offset = offsetof(Vertex3fnt, normal_);
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 1;
+					attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fnt, normal_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
 
-			attributeDescriptions[2].binding = 0;
-			attributeDescriptions[2].location = 2;
-			attributeDescriptions[2].format = VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[2].offset = offsetof(Vertex3fnt, uv_);
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 2;
+					attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fnt, uv_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
 
 			return attributeDescriptions;
 		}

@@ -6,6 +6,7 @@
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
 
+#include <RAL.Common.hpp>
 #include <Render.Vulkan.Common.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.SwapChain.hpp>
@@ -19,13 +20,16 @@
 
 namespace Render::Vulkan {
 
-	template<class VertexType>
 	class Pipeline : public Abstraction<VkPipeline> {
 	public:
 
-		struct DepthTestData {
+		struct DepthTestInfo {
 			VkFormat bufferFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
-			//VkExtent
+		};
+
+		struct VertexInfo {
+			VkVertexInputBindingDescription bindingDescription_;
+			std::vector<VkVertexInputAttributeDescription> attributeDescriptions_;
 		};
 
 		struct CreateInfo {
@@ -34,9 +38,10 @@ namespace Render::Vulkan {
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
 			std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
-			std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
+			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
+			VertexInfo vertexInfo_;
 		};
 
 		Pipeline(const CreateInfo& createInfo) : logicDevice_{ createInfo.logicDevice_ } {
@@ -44,7 +49,7 @@ namespace Render::Vulkan {
 			VkPipelineDepthStencilStateCreateInfo depthStencilState{};
 			{
 				depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-				depthStencilState.depthTestEnable = (createInfo.depthTestData_ != nullptr);
+				depthStencilState.depthTestEnable = (createInfo.depthTestInfo_ != nullptr);
 				depthStencilState.depthWriteEnable = VK_TRUE;
 				depthStencilState.depthCompareOp = VK_COMPARE_OP_LESS;
 				depthStencilState.depthBoundsTestEnable = VK_FALSE;
@@ -75,8 +80,8 @@ namespace Render::Vulkan {
 
 			VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
-			const auto bindingDescription = VertexType::GetBindingDescription();
-			const auto attributeDescriptions = VertexType::GetAttributeDescriptions();
+			const auto bindingDescription = createInfo.vertexInfo_.bindingDescription_;
+			const auto attributeDescriptions = createInfo.vertexInfo_.attributeDescriptions_;
 
 			VkPipelineVertexInputStateCreateInfo vertexInputInfo{};
 			{
@@ -169,9 +174,9 @@ namespace Render::Vulkan {
 			{
 				renderPassCreateInfo.logicDevice_ = createInfo.logicDevice_;
 				renderPassCreateInfo.colorAttachmentFormat_ = createInfo.colorAttachmentFormat_;
-				if(createInfo.depthTestData_ != nullptr) {
+				if(createInfo.depthTestInfo_ != nullptr) {
 					auto depthTestInfo = std::make_shared<RenderPass::DepthTestInfo>();
-					depthTestInfo->depthStencilBufferFormat_ = createInfo.depthTestData_->bufferFormat_;
+					depthTestInfo->depthStencilBufferFormat_ = createInfo.depthTestInfo_->bufferFormat_;
 					renderPassCreateInfo.depthTestInfo_ = depthTestInfo;
 				}
 				renderPass_ = std::make_shared<RenderPass>(renderPassCreateInfo);
@@ -198,7 +203,7 @@ namespace Render::Vulkan {
 				pipelineInfo.pMultisampleState = &multisampling;
 				pipelineInfo.pDepthStencilState = &depthStencilState;
 				pipelineInfo.pColorBlendState = &colorBlending;
-				pipelineInfo.pDynamicState = nullptr; // Optional
+				pipelineInfo.pDynamicState = nullptr;
 				pipelineInfo.layout = *pipelineLayout_;
 				pipelineInfo.renderPass = *renderPass_;
 				pipelineInfo.subpass = 0;
@@ -222,86 +227,8 @@ namespace Render::Vulkan {
 			Destroy();
 		}
 
-		//[[deprecated]]
-		//[[nodiscard]]
-		//VkRenderPass CreateRenderPass(std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<SwapChain> swapChain) {
-
-		//	//Color attachment.
-		//	VkAttachmentDescription colorAttachment{};
-		//	{
-		//		colorAttachment.format = swapChain->GetFormat().format;
-		//		colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		//		colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		//		colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-		//		colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		//		colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		//		colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		//		colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-		//	}
-		//	VkAttachmentReference colorAttachmentRef{};
-		//	{
-		//		colorAttachmentRef.attachment = 0;
-		//		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-		//	}
-
-		//	//Depth buffer attachment.
-		//	//VkAttachmentDescription depthAttachment{};
-		//	//{
-		//	//	depthAttachment.format = /*findDepthFormat()*/;
-		//	//	depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-		//	//	depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-		//	//	depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		//	//	depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-		//	//	depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-		//	//	depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-		//	//	depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		//	//}
-		//	//VkAttachmentReference depthAttachmentRef{};
-		//	//{
-		//	//	depthAttachmentRef.attachment = 1;
-		//	//	depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		//	//}
-
-		//	VkSubpassDescription subpass{};
-		//	{
-		//		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-		//		subpass.colorAttachmentCount = 1;
-		//		subpass.pColorAttachments = &colorAttachmentRef;
-		//	}
-		//	VkSubpassDependency dependency{};
-		//	{
-		//		dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-		//		dependency.dstSubpass = 0;
-		//		dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		//		dependency.srcAccessMask = 0;
-		//		dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-		//		dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
-		//	}
-		//	VkRenderPass renderPass;
-		//	{
-		//		VkRenderPassCreateInfo renderPassInfo{};
-		//		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		//		renderPassInfo.attachmentCount = 1;
-		//		renderPassInfo.pAttachments = &colorAttachment;
-		//		renderPassInfo.subpassCount = 1;
-		//		renderPassInfo.pSubpasses = &subpass;
-		//		renderPassInfo.dependencyCount = 1;
-		//		renderPassInfo.pDependencies = &dependency;
-
-		//		if (vkCreateRenderPass(logicDevice->GetHandle(), &renderPassInfo, nullptr, &renderPass) != VK_SUCCESS) {
-		//			throw std::runtime_error("failed to create render pass!");
-		//		}
-		//	}
-		//	return renderPass;
-		//}
-
 		[[nodiscard]]
 		std::shared_ptr<RenderPass> GetRenderPass() const noexcept { return renderPass_; }
-
-		//[[nodiscard]]
-		//bool IsDepthTestEnabled() const noexcept { return depthTestData_ != nullptr; }
-		//[[nodiscard]]
-		//std::shared_ptr<ImageView> GetDepthBufferImageView() noexcept { return depthTestData_->imageView_; }
 
 		[[nodiscard]]
 		std::shared_ptr<PipelineLayout> GetLayout() const noexcept { return pipelineLayout_; }
@@ -326,5 +253,90 @@ namespace Render::Vulkan {
 		std::shared_ptr<PipelineLayout> pipelineLayout_ = VK_NULL_HANDLE;
 	};
 
+	class TexturedModelPipeline : public Pipeline {
+	public:
+
+		using DepthTestInfo = Pipeline::DepthTestInfo;
+
+		struct CreateInfo {
+			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<SwapChain> swapChain_ = nullptr;
+			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
+			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
+			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
+			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
+			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
+		};
+
+		TexturedModelPipeline(const CreateInfo& createInfo) :
+			Pipeline{
+				Pipeline::CreateInfo{
+					createInfo.physicalDevice_,
+					createInfo.logicDevice_,
+					createInfo.descriptorSetLayouts_,
+					std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+						createInfo.logicDevice_,
+						createInfo.vertexShader_->GetCode()
+						}),
+					std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+						createInfo.logicDevice_,
+						createInfo.fragmentShader_->GetCode()
+						}),
+					createInfo.depthTestInfo_,
+					createInfo.colorAttachmentSize_,
+					createInfo.colorAttachmentFormat_,
+					VertexInfo{
+						Vertex3fnt::GetBindingDescription(),
+						Vertex3fnt::GetAttributeDescriptions()						
+					}
+				}
+			} {	}
+
+	};
+
+	class FlatShadedModelPipeline : public Pipeline {
+	public:
+
+		using DepthTestInfo = Pipeline::DepthTestInfo;
+
+		struct CreateInfo {
+			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<SwapChain> swapChain_ = nullptr;
+			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
+			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
+			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
+			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
+			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
+		};
+
+
+		FlatShadedModelPipeline(const CreateInfo& createInfo) :
+			Pipeline{
+			Pipeline::CreateInfo{
+				createInfo.physicalDevice_,
+				createInfo.logicDevice_,
+				createInfo.descriptorSetLayouts_,
+				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					createInfo.logicDevice_,
+					createInfo.vertexShader_->GetCode()
+					}),
+				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					createInfo.logicDevice_,
+					createInfo.fragmentShader_->GetCode()
+					}),
+				createInfo.depthTestInfo_,
+				createInfo.colorAttachmentSize_,
+				createInfo.colorAttachmentFormat_,
+				VertexInfo{
+					Vertex3fnc::GetBindingDescription(),
+					Vertex3fnc::GetAttributeDescriptions()
+				}
+			}
+		} { }
+	};
 }
 

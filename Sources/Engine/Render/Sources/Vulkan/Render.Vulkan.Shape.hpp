@@ -10,76 +10,109 @@
 #include <Render.Vulkan.Driver.IndexBuffer.hpp>
 #include <Render.Vulkan.Driver.StagingBuffer.hpp>
 #include <Render.Vulkan.Driver.CommandBuffer.hpp>
+#include <Render.Vulkan.Driver.Texture.hpp>
 
 namespace Render::Vulkan {
 
 
-	class Texture {
-	public:
-		struct CreateInfo {
-			std::shared_ptr<AllocatedTextureImage> textureImage_ = nullptr;
-			std::shared_ptr<ImageView> textureImageView_ = nullptr;
-			std::shared_ptr<Sampler> sampler = nullptr;
-			std::shared_ptr<DescriptorSet> descriptorSet_ = nullptr;
-		};
-
-		Texture(const CreateInfo& createInfo) : 
-			textureImage_{ createInfo.textureImage_ },
-			textureImageView_{ createInfo.textureImageView_ },
-			sampler{ createInfo.sampler },
-			descriptorSet_{ createInfo.descriptorSet_} {
-
-		}
-
-		[[nodiscard]]
-		std::shared_ptr<DescriptorSet> GetDescriptorSet() noexcept {
-			return descriptorSet_;
-		}
-
-	private:
-		std::shared_ptr<AllocatedTextureImage> textureImage_ = nullptr;
-		std::shared_ptr<ImageView> textureImageView_ = nullptr;
-		std::shared_ptr<Sampler> sampler = nullptr;
-		std::shared_ptr<DescriptorSet> descriptorSet_ = nullptr;
+	struct Transform {
+		alignas(16) Math::Matrix4x4f model_;
 	};
 
+
 	template<class VertexType, class IndexType>
-	class BaseShape {
+	class Shape {
 	public:
-		BaseShape(
-			std::shared_ptr<VertexBuffer<VertexType>> vertexBuffer,
-			std::shared_ptr<IndexBuffer<IndexType>> indexBuffer) : 
-			vertexBuffer_{ vertexBuffer },
-			indexBuffer_{ indexBuffer } { }
+
+		struct CreateInfo {
+			std::shared_ptr<VertexBuffer<VertexType>> vertexBuffer_ = nullptr;
+			std::shared_ptr<IndexBuffer<IndexType>> indexBuffer_ = nullptr;
+			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+			std::shared_ptr<DescriptorSet> modelDataDescriptorSet_ = nullptr;
+		};
+
+		Shape(const CreateInfo& createInfo) : 
+			id_{ GetNextId() },
+			vertexBuffer_{ createInfo.vertexBuffer_ },
+			indexBuffer_{ createInfo.indexBuffer_ },
+			transformBuffer_{ createInfo.transformBuffer_ },
+			bufferDescriptorSet_{ createInfo.modelDataDescriptorSet_ } {
+
+		}
 
 		[[nodiscard]]
-		std::shared_ptr<VertexBuffer<VertexType>> GetVertexBuffer() noexcept {
+		auto GetVertexBuffer() noexcept {
 			return vertexBuffer_;
 		}
 
 		[[nodiscard]]
-		std::shared_ptr<IndexBuffer<IndexType>> GetIndexBuffer() noexcept {
+		auto GetIndexBuffer() noexcept {
 			return indexBuffer_;
 		}
 
+		[[nodiscard]]
+		auto GetTransformDescriptorSet() noexcept {
+			return bufferDescriptorSet_;
+		}
+
+		void Offset(const Vector3f& offset) {
+			transform_ = transform_ * Math::Matrix4x4f::GetTranslate(offset);
+			Transform transform{ transform_ };
+			transformBuffer_->Fill(transform);
+		}
+
+		void SetPosition(const Vector3f& position) {
+			auto matrixPosition = Math::Matrix4x4f::GetTranslate(position);
+			Transform transform{ matrixPosition };
+			transform_ = matrixPosition;
+			transformBuffer_->Fill(&transform);
+		}
+
+		void Rotate(const Vector3f& vectorAround, Math::Angle angle) {
+			const Math::Matrix4x4f rotateMatrix = Math::Matrix4x4f::GetRotate(angle, vectorAround);
+			transform_ = transform_ * rotateMatrix;
+			Transform transform{ transform_ };
+			transformBuffer_->Fill(&transform);
+		}
+
+		[[nodiscard]]
+		Common::Index GetId() const noexcept {
+			return id_;
+		}
 	private:
+		[[nodiscard]]
+		Common::Index GetNextId() const noexcept {
+			static Common::Index id = 0;
+			return ++id;
+		}
+
+	private:
+		Common::Index id_ = 0;
 		std::shared_ptr<VertexBuffer<VertexType>> vertexBuffer_ = nullptr;
 		std::shared_ptr<IndexBuffer<IndexType>> indexBuffer_ = nullptr;
+		Math::Matrix4x4f transform_;
+		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+		std::shared_ptr<DescriptorSet> bufferDescriptorSet_ = nullptr;
 	};
 
-	class TexturedShape : public BaseShape<RAL::Vertex3fnt, RAL::Index16>{
+	class TexturedShape : public Shape<Vertex3fnt, Index16>{
 	public:
 
 		struct CreateInfo {
-			std::shared_ptr<VertexBuffer<RAL::Vertex3fnt>> vertexBuffer_ = nullptr;
-			std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer_ = nullptr;
+			std::shared_ptr<VertexBuffer<Vertex3fnt>> vertexBuffer_ = nullptr;
+			std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
+			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
 			std::shared_ptr<Texture> texture_ = nullptr;
 		};
 
 		TexturedShape(const CreateInfo& createInfo) :
-			BaseShape<RAL::Vertex3fnt, RAL::Index16>{
+			Shape{ Shape::CreateInfo{
 				createInfo.vertexBuffer_,
-				createInfo.indexBuffer_ },
+				createInfo.indexBuffer_,
+				createInfo.transformBuffer_,
+				createInfo.transformDescriptorSet_
+				} },
 				texture_{ createInfo.texture_ } { }
 
 		[[nodiscard]]
@@ -90,29 +123,23 @@ namespace Render::Vulkan {
 		std::shared_ptr<Texture> texture_ = nullptr;
 	};
 
-	class ColoredShape {
+	class ColoredShape : public Shape<Vertex3fnc, Index16>{
 	public:
-
 		struct CreateInfo {
-			std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>> vertexBuffer_ = nullptr;
-			std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer_ = nullptr;
-
-
+			std::shared_ptr<VertexBuffer<Vertex3fnc>> vertexBuffer_ = nullptr;
+			std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
+			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+			std::shared_ptr<DescriptorSet> modelDataDescriptorSet;
 		};
 
 		ColoredShape(const CreateInfo& createInfo) noexcept :
-			vertexBuffer_{ createInfo.vertexBuffer_ },
-			indexBuffer_{ createInfo.indexBuffer_ } {
-
-		}
-
-		auto GetVertexBuffer() {
-			return vertexBuffer_;
-		}
-
-		auto GetIndexBuffer() {
-			return indexBuffer_;
-		}
+			Shape{ 
+				Shape::CreateInfo{
+					createInfo.vertexBuffer_,
+					createInfo.indexBuffer_,
+					createInfo.transformBuffer_,
+					createInfo.modelDataDescriptorSet
+				} } { }
 
 	private:
 		std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>> vertexBuffer_ = nullptr;

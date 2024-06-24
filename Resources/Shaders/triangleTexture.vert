@@ -8,9 +8,9 @@ layout(set = 0, binding = 0) uniform UniformBufferObject {
     float lightIntensity;
 } ubo;
 
-// layout(set = 1, binding = 0) uniform Transform {
-//     mat4 model;
-// } modelTransform;
+layout(set = 1, binding = 0) uniform Transform {
+    mat4 model;
+} modelTransform;
 
 //layout(set = 2, binding = 0) uniform sampler2D texSampler;
 
@@ -24,7 +24,7 @@ void main() {
     //vec3 lightDirection = vec3(ubo.lightPos) - inPosition;
     //ragColor = vec4(0, 0, 0, 1);//texture(texSampler, inUV); //vec4(inUV, 0.0, 1.0);//texture(texSampler, inUV);//vec3(1, 1, 1);//* dot(lightDirection, inNormal);//texture(texSampler, inUV);// * dot(lightDirection, inNormal);
 
-    gl_Position = ubo.proj * ubo.view * ubo.model * vec4(inPosition, 1.0);
+    gl_Position = ubo.proj * ubo.view * modelTransform.model * vec4(inPosition, 1.0);
     outUV = inUV;
 }
 

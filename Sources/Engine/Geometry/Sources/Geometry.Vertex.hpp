@@ -141,7 +141,7 @@ namespace Geometry {
 	struct Vertex3fnc : public Vertex3fn {
 		Color3f color_ = { 1.f, 1.f, 1.f };
 		Vertex3fnc() noexcept = default;
-		Vertex3fnc(const Vertex3f& position, const Math::Vector3f& normal, const Math::Vector3f& color) noexcept :
+		Vertex3fnc(const Vector3f& position, const Normal3f& normal, const Color3f& color) noexcept :
 			Vertex3fn{ position, normal }, color_ { color } { }
 		Vertex3fnc(const Vertex3fc& vertex3fc, const Normal3f& normal) noexcept :
 			Vertex3fn{ vertex3fc.position_, normal }, color_{ vertex3fc.color_ } { }

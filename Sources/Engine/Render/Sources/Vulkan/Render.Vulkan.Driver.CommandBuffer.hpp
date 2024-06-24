@@ -86,7 +86,7 @@ namespace Render::Vulkan {
 				pipeline->GetHandle());
 		}
 
-		void BindBuffer(std::shared_ptr<VertexBuffer<RAL::Vertex3fnc>> vertexBuffer) noexcept {
+		void BindBuffer(std::shared_ptr<VertexBuffer<Vertex3fnc>> vertexBuffer) noexcept {
 			VkDeviceSize offsets[] = { 0 };
 			const VkBuffer bufferHandle = vertexBuffer->GetNative();
 			vkCmdBindVertexBuffers(
@@ -97,7 +97,8 @@ namespace Render::Vulkan {
 				offsets);
 		}
 
-		void BindBuffer(std::shared_ptr<VertexBuffer<RAL::Vertex3fnt>> vertexBuffer) noexcept {
+		[[deprecated]]
+		void BindBuffer(std::shared_ptr<VertexBuffer<Vertex3fc>> vertexBuffer) noexcept {
 			VkDeviceSize offsets[] = { 0 };
 			const VkBuffer bufferHandle = vertexBuffer->GetNative();
 			vkCmdBindVertexBuffers(
@@ -108,7 +109,18 @@ namespace Render::Vulkan {
 				offsets);
 		}
 
-		void BindBuffer(std::shared_ptr<IndexBuffer<RAL::Index16>> indexBuffer) noexcept {
+		void BindBuffer(std::shared_ptr<VertexBuffer<Vertex3fnt>> vertexBuffer) noexcept {
+			VkDeviceSize offsets[] = { 0 };
+			const VkBuffer bufferHandle = vertexBuffer->GetNative();
+			vkCmdBindVertexBuffers(
+				GetHandle(),
+				0,
+				1,
+				&bufferHandle,
+				offsets);
+		}
+
+		void BindBuffer(std::shared_ptr<IndexBuffer<Index16>> indexBuffer) noexcept {
 			vkCmdBindIndexBuffer(
 				GetHandle(),
 				indexBuffer->GetNative(),
