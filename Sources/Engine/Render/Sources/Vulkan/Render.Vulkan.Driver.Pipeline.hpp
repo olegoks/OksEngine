@@ -275,7 +275,40 @@ namespace Render::Vulkan {
 				Pipeline::CreateInfo{
 					createInfo.physicalDevice_,
 					createInfo.logicDevice_,
-					createInfo.descriptorSetLayouts_,
+					std::vector<std::shared_ptr<DescriptorSetLayout>>{
+					std::make_shared<DescriptorSetLayout>(
+						DescriptorSetLayout::CreateInfo{
+							createInfo.logicDevice_,
+							std::vector<VkDescriptorSetLayoutBinding>{{{
+							0,
+							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+							1,
+							VK_SHADER_STAGE_VERTEX_BIT,
+							nullptr
+						}}}
+						}),std::make_shared<DescriptorSetLayout>(
+						DescriptorSetLayout::CreateInfo{
+							createInfo.logicDevice_,
+							std::vector<VkDescriptorSetLayoutBinding>{{{
+							0,
+							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+							1,
+							VK_SHADER_STAGE_VERTEX_BIT,
+							nullptr
+						}}}
+						}),
+						std::make_shared<DescriptorSetLayout>(
+						DescriptorSetLayout::CreateInfo{
+							createInfo.logicDevice_,
+							std::vector<VkDescriptorSetLayoutBinding>{{{
+							0,
+							VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+							1,
+							VK_SHADER_STAGE_FRAGMENT_BIT,
+							nullptr
+						}}}
+						})
+				},
 					std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 						createInfo.logicDevice_,
 						createInfo.vertexShader_->GetCode()
@@ -319,7 +352,29 @@ namespace Render::Vulkan {
 			Pipeline::CreateInfo{
 				createInfo.physicalDevice_,
 				createInfo.logicDevice_,
-				createInfo.descriptorSetLayouts_,
+				std::vector<std::shared_ptr<DescriptorSetLayout>>{
+					std::make_shared<DescriptorSetLayout>(
+						DescriptorSetLayout::CreateInfo{
+							createInfo.logicDevice_,
+							std::vector<VkDescriptorSetLayoutBinding>{{{
+							0,
+							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+							1,
+							VK_SHADER_STAGE_VERTEX_BIT,
+							nullptr
+						}}}
+						}),std::make_shared<DescriptorSetLayout>(
+						DescriptorSetLayout::CreateInfo{
+							createInfo.logicDevice_,
+							std::vector<VkDescriptorSetLayoutBinding>{{{
+							0,
+							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+							1,
+							VK_SHADER_STAGE_VERTEX_BIT,
+							nullptr
+						}}}
+						})
+				},
 				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					createInfo.logicDevice_,
 					createInfo.vertexShader_->GetCode()
@@ -337,6 +392,8 @@ namespace Render::Vulkan {
 				}
 			}
 		} { }
+	
+	
 	};
 }
 

@@ -23,7 +23,7 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> logicDevice_;
 			std::shared_ptr<DescriptorPool> descriptorPool_;
-			std::shared_ptr<DescriptorSetLayout> descriptorSetLayout_;
+			std::shared_ptr<DescriptorSetLayout> DSL_;
 			//std::shared_ptr<UniformBuffer> buffer_;
 			//VkDescriptorType type_;
 		};
@@ -34,7 +34,7 @@ namespace Render::Vulkan {
 			Allocate(
 				createInfo.logicDevice_->GetHandle(),
 				createInfo.descriptorPool_->GetNative(),
-				*createInfo.descriptorSetLayout_);
+				*createInfo.DSL_);
 
 			/*Update(
 				createInfo.logicDevice_->GetHandle(),

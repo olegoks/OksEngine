@@ -61,7 +61,6 @@ namespace RAL {
 		const_iterator begin() const noexcept { return const_cast<Vertices*>(this)->begin(); }
 		const_iterator end() const noexcept { return const_cast<Vertices*>(this)->end(); }
 
-
 	private:
 		Common::Size verticesNumber_ = 0;
 		std::vector<VertexType> vertices_;
@@ -102,6 +101,7 @@ namespace RAL {
 
 		[[nodiscard]]
 		Common::Size GetSizeInBytes() const noexcept { return GetIndicesNumber() * sizeof(IndexType); }
+
 		[[nodiscard]]
 		const IndexType* GetData() const noexcept { return indices_.data(); }
 
@@ -195,8 +195,6 @@ namespace RAL {
 			return camera_;
 		}
 
-		//virtual Common::UInt64 DrawShape(const RAL::Shape& shape) = 0;
-
 		virtual Common::UInt64 DrawIndexed(
 			const Math::Matrix4x4f& model_,
 			const Vertex3fnt* vertices,
@@ -243,11 +241,6 @@ namespace RAL {
 		CreateInfo createInfo_;
 		std::shared_ptr<Light> light_ = nullptr;
 		std::shared_ptr<Camera> camera_ = nullptr;
-		//Vertices<Geometry::Vertex3fnc, Index16> vertices_;
-		//Indices<Index16> indices_;
-
-
-
 	};
 
 

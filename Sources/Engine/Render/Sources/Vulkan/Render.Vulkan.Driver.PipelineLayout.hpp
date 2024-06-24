@@ -17,7 +17,7 @@ namespace Render::Vulkan {
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 		};
 
-		PipelineLayout(const CreateInfo& createInfo) noexcept : logicDevice_{ createInfo.logicDevice_ } {
+		PipelineLayout(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
 
 			VkPipelineLayoutCreateInfo pipelineLayoutInfo{};
 			{
@@ -40,18 +40,23 @@ namespace Render::Vulkan {
 
 		}
 
+		[[nodiscard]]
+		const std::vector<std::shared_ptr<DescriptorSetLayout>>& GetDSLs() const noexcept {
+			return createInfo_.descriptorSetLayouts_;
+		}
+
+
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(logicDevice_ != nullptr, "Logic device is not initialized.");
 			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkPipelineLayout.");
-			vkDestroyPipelineLayout(logicDevice_->GetHandle(), GetHandle(), nullptr);
+			vkDestroyPipelineLayout(*createInfo_.logicDevice_, GetHandle(), nullptr);
 			SetHandle(VK_NULL_HANDLE);
 		}
 
 
 	private:
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+		CreateInfo createInfo_;
 	};
 
 }
