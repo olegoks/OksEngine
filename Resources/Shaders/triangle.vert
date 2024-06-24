@@ -20,7 +20,8 @@ layout(location = 0) out vec3 fragColor;
 
 void main() {
     vec3 lightDirection = vec3(ubo.lightPos) - inPosition;
-    fragColor = inColor * dot(lightDirection, inNormal);
+    vec4 transformedNormal = vec4(inNormal, 1.0) *  modelTransform.model;
+    fragColor = inColor * dot(lightDirection, vec3(transformedNormal.x, transformedNormal.y, transformedNormal.z));
 
     gl_Position = ubo.proj * ubo.view * modelTransform.model * vec4(inPosition, 1.0);
 }

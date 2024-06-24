@@ -13,7 +13,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/Переключение между .h и .cpp.md",
+                "file": "Work/Math/Коллинеарность векторов.md",
                 "mode": "source",
                 "source": false
               }
@@ -85,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/Переключение между .h и .cpp.md",
+                "file": "Work/Math/Коллинеарность векторов.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -102,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/Переключение между .h и .cpp.md",
+                "file": "Work/Math/Коллинеарность векторов.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -125,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/Переключение между .h и .cpp.md"
+                "file": "Work/Math/Коллинеарность векторов.md"
               }
             }
           }
@@ -148,6 +148,9 @@
   },
   "active": "a873fcafaffd09bf",
   "lastOpenFiles": [
+    "Work/Math/Векторное произведение векторов.md",
+    "Work/Math/Коллинеарность векторов.md",
+    "Work/Math",
     "Attachments/Pasted image 20240622124505.png",
     "Attachments/Pasted image 20240622124312.png",
     "Work/Open with Visual Studio Code.md",
@@ -186,14 +189,11 @@
     "Work/C++/Многопоточность/Термины/Барьеры памяти.md",
     "Work/C++/Многопоточность/Конструкции/Мьютекс(std_mutex).md",
     "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
-    "Attachments/Pasted image 20240604113130.png",
-    "Work/C++/Многопоточность/Конструкции/std_lock_guard.md",
     "Work/C++/Модель памяти С++.md.bak",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
     "Work/C++/Многопоточность/Топики",
     "Attachments/learning_modern_3d_graphics_programming.pdf",
-    "Attachments/Game physics cookbook.pdf",
     "Untitled.canvas"
   ]
 }

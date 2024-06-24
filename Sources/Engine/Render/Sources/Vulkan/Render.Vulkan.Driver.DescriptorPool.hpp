@@ -21,7 +21,7 @@ namespace Render::Vulkan {
 			VkDescriptorPoolSize poolSizes[] = {
 				{
 					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-					static_cast<uint32_t>(size)
+					static_cast<uint32_t>(size + 100)
 				},
 				{
 					VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,

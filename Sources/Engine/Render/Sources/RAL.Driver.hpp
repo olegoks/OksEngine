@@ -126,25 +126,22 @@ namespace RAL {
 		Shader() noexcept = default;
 
 		Shader(const Common::Byte* text, Common::Size size) {
-			spirv_.Resize(size);
-			std::memcpy(spirv_.GetData(), text, size);
+			spirv_.resize(size);
+			std::memcpy(spirv_.data(), text, size);
 		}
 
 		Shader(const Shader& copyShader) {
 			spirv_ = copyShader.spirv_;
 		}
 
-		const Common::Byte* GetCode() const {
-			return spirv_.GetData();
-		}
-
-		Common::Size GetSize() const {
-			return spirv_.GetSize();
+		[[nodiscard]]
+		std::vector<Common::Byte> GetCode() const noexcept {
+			return spirv_;
 		}
 
 		~Shader() noexcept = default;
 	private:
-		DS::Vector<Common::Byte> spirv_;
+		std::vector<Common::Byte> spirv_;
 	};
 
 	struct RenderSurface {
@@ -166,13 +163,17 @@ namespace RAL {
 	class Driver {
 	public:
 
-		struct CreateInfo {
-			Shader vertexShader_;
-			Shader fragmentShader_;
-			Shader textureVertexShader_;
-			Shader textureFragmentShader_;
-			RenderSurface surface_;
+		struct Pipeline {
+			std::string name_ = "No name";
+			std::shared_ptr<Shader> vertexShader_ = nullptr;
+			std::shared_ptr<Shader> fragmentShader_ = nullptr;
 			bool enableDepthTest_ = true;
+		};
+
+		struct CreateInfo {
+			std::shared_ptr<Pipeline> texturedPipeline_ = nullptr;
+			std::shared_ptr<Pipeline> flatShadedPipeline_ = nullptr;
+			RenderSurface surface_;
 		};
 
 		Driver(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } { }
@@ -194,53 +195,47 @@ namespace RAL {
 			return camera_;
 		}
 
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3fnñt* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indicesNumber,
-		//	const Texture& texture) = 0;
+		//virtual Common::UInt64 DrawShape(const RAL::Shape& shape) = 0;
 
-		//virtual void DrawIndexed(
-		//	const RAL::Vertex3fnt* vertices,
-		//	Common::Size verticesNumber,
-		//	const RAL::Index16* indices,
-		//	Common::Size indicesNumber,
-		//	const Texture& texture) = 0;
-
-		virtual void DrawShape(const RAL::Shape& shape) = 0;
-
-		virtual void DrawIndexed(
+		virtual Common::UInt64 DrawIndexed(
+			const Math::Matrix4x4f& model_,
 			const Vertex3fnt* vertices,
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indicesNumber,
 			std::shared_ptr<RAL::Texture> texture) = 0;
 
-		virtual void DrawIndexed(
+		virtual Common::UInt64 DrawIndexed(
+			const Math::Matrix4x4f& model_,
 			const Vertex3fnc* vertices,
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indicesNumber) = 0;
 
-		virtual void DebugDrawIndexed(
-			const Vertex3fnc* vertices,
-			Common::Size verticesNumber,
-			const Index16* indices,
-			Common::Size indicesNumber) = 0;
-
-		virtual void DrawIndexed(
+		virtual Common::UInt64 DrawIndexed(
+			const Math::Matrix4x4f& model_,
 			const Vertex3fc* vertex,
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indeciesNumber) = 0;
 
-		virtual void DrawIndexed(
+		virtual Common::UInt64 DrawIndexed(
+			const Math::Matrix4x4f& model_,
 			const Vertex3f* vertex,
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indeciesNumber,
 			const Color3f& color) = 0;
+
+
+		virtual void SetPosition(
+			Common::Index shapeIndex,
+			const Vector3f& position) = 0;
+
+		virtual void Rotate(
+			Common::Index shapeIndex,
+			const Vector3f& aroundVector,
+			Math::Angle angle) = 0;
 
 		virtual ~Driver() = default;
 
@@ -248,8 +243,8 @@ namespace RAL {
 		CreateInfo createInfo_;
 		std::shared_ptr<Light> light_ = nullptr;
 		std::shared_ptr<Camera> camera_ = nullptr;
-		Vertices<Geometry::Vertex3fnc, Index16> vertices_;
-		Indices<Index16> indices_;
+		//Vertices<Geometry::Vertex3fnc, Index16> vertices_;
+		//Indices<Index16> indices_;
 
 
 

@@ -20,6 +20,9 @@ namespace OksEngine {
 			Context& context_;
 		};
 
+		RE::RenderEngine::Model skeleton_;
+		RE::RenderEngine::Model dragonLore_;
+
 		RenderSubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::Render, createInfo.context_ } {
 
 			auto& context = GetContext();
@@ -65,7 +68,7 @@ namespace OksEngine {
 			RAL::Light::CreateInfo lightCreateInfo;
 			{
 				lightCreateInfo.intensity_ = 1.f;
-				lightCreateInfo.position_ = camera->GetPosition();//{ 0.f, 0.f, 0.f };
+				lightCreateInfo.position_ = camera->GetPosition();
 			}
 			auto light = std::make_shared<RAL::Light>(lightCreateInfo);
 
@@ -105,6 +108,20 @@ namespace OksEngine {
 				std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
 
 				model_ = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
+				skeleton_ = engine_->RenderModel({ 0, 0, 0}, *model_);
+			}
+
+			{
+				const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Love.obj");
+				ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
+
+				const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Love.mtl");
+				ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
+
+				std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
+				std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
+
+				model_ = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
 				//engine_->RenderModel(*model_);
 			}
 			{
@@ -124,7 +141,7 @@ namespace OksEngine {
 				
 				auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16(obj, mtl, image));
 
-				engine_->RenderModel(*texturedModel);
+				dragonLore_ = engine_->RenderModel({ 0, 0, 0 }, *texturedModel);
 			}
  		}
 
@@ -179,7 +196,8 @@ namespace OksEngine {
 			//driver_->Render();
 			//driver_->EndRender();
 			
-
+			//engine_->RotateModel(dragonLore_, { 1, 0, 0 }, 1);
+			engine_->RotateModel(skeleton_, { 0, 1, 0}, 1);
 			engine_->Render();
 		}
 
