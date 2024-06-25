@@ -280,24 +280,6 @@ namespace Render::Vulkan {
 				}
 			}
 
-			//DESCRIPTOR SET LAYOUTS
-			{
-				DescriptorSetLayout::CreateInfo descriptorSetLayoutCreateInfo;
-				{
-					descriptorSetLayoutCreateInfo.logicDevice_ = logicDevice_;
-					std::vector<VkDescriptorSetLayoutBinding> bindings{
-						{
-							0,
-							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-							1,
-							VK_SHADER_STAGE_VERTEX_BIT,
-							nullptr
-						}
-					};
-					descriptorSetLayoutCreateInfo.bindings_ = bindings;
-				}
-				globalDataDSL_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
-			}
 			//DESCRIPTOR_POOL
 			const Common::Size descriptorPoolSize = swapChain_->GetImagesNumber() * 2;
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
@@ -323,6 +305,26 @@ namespace Render::Vulkan {
 				//}
 			}
 
+
+			//DESCRIPTOR SET LAYOUTS
+			{
+				DescriptorSetLayout::CreateInfo descriptorSetLayoutCreateInfo;
+				{
+					descriptorSetLayoutCreateInfo.logicDevice_ = logicDevice_;
+					std::vector<VkDescriptorSetLayoutBinding> bindings{
+						{
+							0,
+							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+							1,
+							VK_SHADER_STAGE_VERTEX_BIT,
+							nullptr
+						}
+					};
+					descriptorSetLayoutCreateInfo.bindings_ = bindings;
+				}
+				globalDataDSL_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
+			}
+
 			//PIPELINE for textured models
 			{
 				auto texturedPipelineInfo = info.texturedPipeline_;
@@ -345,12 +347,6 @@ namespace Render::Vulkan {
 					}
 				}
 				texturedModelPipeline_ = std::make_shared<TexturedModelPipeline>(createInfo);
-
-			}
-
-			//ImGui PIPELINE
-			//Pipeline<>
-			{
 
 			}
 
