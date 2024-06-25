@@ -7,7 +7,7 @@
 #include <ECS.hpp>
 #include <Components/OksEngine.Position.hpp>
 #include <OksEngine.Context.hpp>
-
+#include <OksEngine.ECS.Component.hpp>
 #include <Lua.Context.hpp>
 
 namespace OksEngine {
@@ -32,7 +32,7 @@ namespace OksEngine {
 	};
 
 
-	struct Behaviour : public ECS::IComponent<Behaviour> {
+	struct Behaviour : public ECSComponent<Behaviour> {
 		std::filesystem::path scriptsPathString_;
 		std::string scriptName_;
 		std::string objectName_;
