@@ -18,7 +18,6 @@ namespace OksEngine {
 		void AddDebugRenderableGeometry();
 
 		void AddBehaviour(
-			std::filesystem::path scriptsPath,
 			const char* scriptName,
 			const char* objectName);
 

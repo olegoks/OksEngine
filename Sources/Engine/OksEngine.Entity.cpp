@@ -11,14 +11,12 @@ namespace OksEngine {
 	}
 
 	void Entity::AddBehaviour(
-		std::filesystem::path scriptsPath,
 		const char* scriptName,
 		const char* objectName) {
 		world_->CreateComponent<Behaviour>(
 			GetId(),
 			context_,
 			GetId(),
-			scriptsPath,
 			scriptName,
 			objectName);
 	}
