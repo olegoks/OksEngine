@@ -25,7 +25,7 @@ namespace OksEngine {
 
 	Entity Engine::CreateEntity() noexcept {
 		ECS::Entity::Id id = context_->GetECSWorld()->CreateEntity();
-		return Entity{ context_->GetECSWorld(), id };
+		return Entity{ *context_, context_->GetECSWorld(), id };
 	}
 
 }

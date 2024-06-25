@@ -5,7 +5,7 @@
 namespace OksEngine {
 
 	Behaviour::Behaviour(
-		ECS::World* world,
+		Context& context,
 		ECS::Entity::Id entityId,
 		std::filesystem::path scriptsPath,
 		std::string scriptName,
@@ -65,7 +65,7 @@ namespace OksEngine {
 			object_ = luabridge::getGlobal(state_, "object");
 
 			auto entity = object_["EngineEntity"].cast<LuaEntity*>();
-			entity.value()->SetWorld(world);
+			entity.value()->SetWorld(context.GetECSWorld().get());
 			entity.value()->SetId(entityId);
 
 			std::string updaterName = std::string{ objectName_ } + "Updater";

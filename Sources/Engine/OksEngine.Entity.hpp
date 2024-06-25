@@ -3,19 +3,17 @@
 #include <filesystem>
 #include <memory>
 #include <ECS.hpp>
+#include <OksEngine.Context.hpp>
 
 namespace OksEngine {
 
 	class Entity final {
 	public:
 
-		Entity(std::shared_ptr<ECS::World> world, ECS::Entity::Id id) noexcept :
+		Entity(Context& context, std::shared_ptr<ECS::World> world, ECS::Entity::Id id) noexcept :
+			context_{ context },
 			world_{ world },
-			id_{ id } {
-
-
-
-		}
+			id_{ id } { }
 
 		void AddDebugRenderableGeometry();
 
@@ -32,6 +30,7 @@ namespace OksEngine {
 		[[nodiscard]]
 		inline ECS::Entity::Id GetId() noexcept { return id_; }
 	private:
+		Context& context_;
 		std::shared_ptr<ECS::World> world_ = nullptr;
 		ECS::Entity::Id id_;
 	};

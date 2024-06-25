@@ -16,7 +16,7 @@ namespace OksEngine {
 		const char* objectName) {
 		world_->CreateComponent<Behaviour>(
 			GetId(),
-			GetWorld(),
+			context_,
 			GetId(),
 			scriptsPath,
 			scriptName,
