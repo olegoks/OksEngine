@@ -5,6 +5,8 @@
 
 #include <OksEngine.CommandLineParameters.hpp>
 
+#include <ECS.World.hpp>
+
 namespace OksEngine {
 
 	struct Context final {
