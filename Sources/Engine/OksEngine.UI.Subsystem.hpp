@@ -4,6 +4,7 @@
 
 #include <ECS.hpp>
 #include <UI.Window.hpp>
+#include <OksEngine.Config.hpp>
 
 namespace OksEngine {
 

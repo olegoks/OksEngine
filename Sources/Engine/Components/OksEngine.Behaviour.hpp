@@ -6,6 +6,7 @@
 #include <luabridge3/LuaBridge/LuaBridge.h>
 #include <ECS.hpp>
 #include <Components/OksEngine.Position.hpp>
+#include <OksEngine.Context.hpp>
 
 #include <Lua.Context.hpp>
 
@@ -42,7 +43,7 @@ namespace OksEngine {
 		Lua::Context  context_;
 
 		Behaviour() = default;
-		Behaviour(ECS::World* world,
+		Behaviour(Context& context,
 			ECS::Entity::Id entityId,
 			std::filesystem::path scriptsPathString,
 			std::string scriptName,

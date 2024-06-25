@@ -2,7 +2,7 @@
 
 #include <memory>
 
-#include <OksEngine.Config.hpp>
+
 #include <OksEngine.CommandLineParameters.hpp>
 
 namespace OksEngine {
