@@ -10,12 +10,13 @@ namespace OksEngine {
 		std::filesystem::path scriptsPath,
 		std::string scriptName,
 		std::string objectName) :
+		ECSComponent{ context },
 		scriptName_{ scriptName },
 		objectName_{ objectName },
 		state_{ luaL_newstate() },
 		updater_{ state_ },
 		object_{ state_ },
-		entity_{  }, context_{ } {
+		entity_{  } {
 
 		OS::AssertMessage(std::filesystem::exists(scriptsPath), 
 			{ "Scripts path is not exist %s", scriptsPath.string().c_str() });
