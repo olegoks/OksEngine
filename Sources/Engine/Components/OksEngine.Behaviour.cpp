@@ -1,5 +1,5 @@
 #include <Components/OksEngine.Behaviour.hpp>
-
+#include <OksEngine.Resource.Subsystem.hpp>
 #include <filesystem>
 
 namespace OksEngine {
@@ -7,7 +7,6 @@ namespace OksEngine {
 	Behaviour::Behaviour(
 		Context& context,
 		ECS::Entity::Id entityId,
-		std::filesystem::path scriptsPath,
 		std::string scriptName,
 		std::string objectName) :
 		ECSComponent{ context },
@@ -17,9 +16,6 @@ namespace OksEngine {
 		updater_{ state_ },
 		object_{ state_ },
 		entity_{  } {
-
-		OS::AssertMessage(std::filesystem::exists(scriptsPath), 
-			{ "Scripts path is not exist %s", scriptsPath.string().c_str() });
 
 		luaL_openlibs(state_);
 		lua_pcall(state_, 0, 0, 0);
@@ -41,14 +37,21 @@ namespace OksEngine {
 			.addFunction("SetZ", &Position::SetZ)
 			.endClass();
 
-		const std::filesystem::path entityScriptPath = scriptsPath / "Entity.lua";
-		if (luaL_dofile(state_, entityScriptPath.string().c_str())) {
+		auto resourceSubsystem = context.GetResourceSubsystem();
+
+		const auto entityScriptTaskId = resourceSubsystem->GetResource(Subsystem::Type::Engine, "Root/Entity.lua");
+		ResourceSubsystem::Resource entityScriptResource = resourceSubsystem->GetResource(Subsystem::Type::Engine, entityScriptTaskId);
+		std::string entityScriptText{ entityScriptResource.GetData<char>(), entityScriptResource.GetSize() };
+		if (luaL_dostring(state_, entityScriptText.c_str() )) {
 			printf("Error: %s\n", lua_tostring(state_, -1));
 			exit(-1);
 		}
 
-		const std::filesystem::path objectScriptPath = scriptsPath / scriptName_;
-		if (luaL_dofile(state_, objectScriptPath.string().c_str())) {
+		const auto objectScriptTaskId = resourceSubsystem->GetResource(Subsystem::Type::Engine, "Root/" + scriptName);
+		ResourceSubsystem::Resource objectScriptResource = resourceSubsystem->GetResource(Subsystem::Type::Engine, objectScriptTaskId);
+		std::string objectScriptText{ objectScriptResource.GetData<char>(), objectScriptResource.GetSize() };
+
+		if (luaL_dostring(state_, objectScriptText.c_str())) {
 			printf("Error: %s\n", lua_tostring(state_, -1));
 			exit(-1);
 		}

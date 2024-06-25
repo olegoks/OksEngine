@@ -33,7 +33,6 @@ namespace OksEngine {
 
 
 	struct Behaviour : public ECSComponent<Behaviour> {
-		std::filesystem::path scriptsPathString_;
 		std::string scriptName_;
 		std::string objectName_;
 		lua_State* state_ = nullptr;
@@ -45,7 +44,6 @@ namespace OksEngine {
 		Behaviour() = default;
 		Behaviour(Context& context,
 			ECS::Entity::Id entityId,
-			std::filesystem::path scriptsPathString,
 			std::string scriptName,
 			std::string objectName
 		);

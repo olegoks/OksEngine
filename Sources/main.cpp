@@ -15,7 +15,7 @@ int main(int argc, char** argv){
     Engine engine{ engineCreateInfo };
     Entity entity = engine.CreateEntity();
     entity.AddPosition(0, 0, 0);
-    entity.AddBehaviour("../../Sources/Scripts/", "TestObject.lua", "TestObject");
+    entity.AddBehaviour("TestObject.lua", "TestObject");
 
     Entity debugCube = engine.CreateEntity();
     debugCube.AddPosition(0, 0, 0);
