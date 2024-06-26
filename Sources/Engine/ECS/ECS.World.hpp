@@ -23,9 +23,9 @@ namespace ECS {
 			componentsManager_.CreateComponent<ComponentType>(entityId, std::forward<Args>(args)...);
 		}
 
-		template<class SystemType>
-		std::shared_ptr<SystemType> RegisterSystem() noexcept {
-			return systemsManager_.RegisterSystem<SystemType>();
+		template<class SystemType, class ...Args>
+		std::shared_ptr<SystemType> RegisterSystem(Args&& ...args) noexcept {
+			return systemsManager_.RegisterSystem<SystemType>(std::forward<Args>(args)...);
 		}
 
 

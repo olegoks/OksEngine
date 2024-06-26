@@ -78,14 +78,17 @@ namespace OksEngine {
 			return engineResource;
 		}
 
-		void SetRoot(std::filesystem::path rootPath) {
-			rootPath_ = rootPath;
+		void SetRoots(const std::vector<std::filesystem::path>& rootPaths) {
+			rootPaths_ = rootPaths;
 			try {
-				for (const auto& entry : std::filesystem::recursive_directory_iterator(rootPath_)) {
-					if (std::filesystem::is_regular_file(entry)) {
-						resourceSystem_.AddResource(entry.path().filename().string(), entry.path(), "Root");
+				for(const auto& rootPath : rootPaths){
+					for (const auto& entry : std::filesystem::recursive_directory_iterator(rootPath)) {
+						if (std::filesystem::is_regular_file(entry)) {
+							resourceSystem_.AddResource(entry.path().filename().string(), entry.path(), "Root");
+						}
 					}
 				}
+				
 			} catch (std::exception error) {
 				OS::LogInfo("ResourceSystem", error.what());
 			}
@@ -95,7 +98,7 @@ namespace OksEngine {
 		}
 
 	private:
-		std::filesystem::path rootPath_;
+		std::vector<std::filesystem::path> rootPaths_;
 		Memory::AllocationCallbacks allocation_callbacks_;
 		Resources::ResourceSystem resourceSystem_;
 	};
@@ -107,7 +110,7 @@ namespace OksEngine {
 		enum class TaskType : Common::UInt8 {
 			GetResource,
 			LoadResource,
-			SetRoot,
+			SetRoots,
 			IsResourceLoaded,
 			IsResourceExists,
 			Undefined
@@ -127,11 +130,11 @@ namespace OksEngine {
 			std::filesystem::path path_;
 		};
 
-		struct SetRootTask : public ResourceSystemTask {
-			SetRootTask(const std::filesystem::path& root) :
-				ResourceSystemTask{ TaskType::SetRoot },
-				root_{ root } {}
-			std::filesystem::path root_;
+		struct SetRootsTask : public ResourceSystemTask {
+			SetRootsTask(const std::vector<std::filesystem::path>& roots) :
+				ResourceSystemTask{ TaskType::SetRoots },
+				roots_{ roots } {}
+			std::vector<std::filesystem::path> roots_;
 		};
 
 		struct GetResourceResult {
@@ -223,12 +226,12 @@ namespace OksEngine {
 			);
 		}
 
-		Task::Id SetRoot(Subsystem::Type subsystemType, std::filesystem::path rootPath) {
+		Task::Id SetRoot(Subsystem::Type subsystemType, std::vector<std::filesystem::path> rootPaths) {
 			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
 			return AddTask(
 				subsystemType,
 				Subsystem::Type::Resource,
-				CreateTask<SetRootTask>(rootPath)
+				CreateTask<SetRootsTask>(rootPaths)
 			);
 		}
 
@@ -354,9 +357,9 @@ namespace OksEngine {
 
 					break;
 				}
-				case TaskType::SetRoot: {
-					const SetRootTask& setRootTask = task.GetData<SetRootTask>();
-					resourceSubsystem_->SetRoot(setRootTask.root_);
+				case TaskType::SetRoots: {
+					const SetRootsTask& setRootTask = task.GetData<SetRootsTask>();
+					resourceSubsystem_->SetRoots(setRootTask.roots_);
 					break;
 				}
 				default: {

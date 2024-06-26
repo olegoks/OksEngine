@@ -10,6 +10,16 @@ namespace OksEngine {
 		world_->CreateComponent<DebugRenderableGeometry>(GetId());
 	}
 
+	void Entity::AddImmutableRenderGeometry(const Math::Matrix4x4f& modelMatrix, std::string objName, std::string mtlName, std::string textureName) {
+		world_->CreateComponent<ImmutableRenderGeometry>(
+			GetId(),
+			context_,
+			modelMatrix,
+			objName,
+			mtlName,
+			textureName);
+	}
+
 	void Entity::AddBehaviour(
 		const char* scriptName,
 		const char* objectName) {

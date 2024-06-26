@@ -1,6 +1,7 @@
 
 ResourceSystem = {
-    resourcesRootDirectory = './Resources/'
+    resourcesRootDirectory = './Resources/',
+    scriptsRootDirectory = './Sources/Scripts/'
 }
 
 UI = {

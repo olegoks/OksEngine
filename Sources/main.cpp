@@ -19,6 +19,8 @@ int main(int argc, char** argv){
 
     Entity debugCube = engine.CreateEntity();
     debugCube.AddPosition(0, 0, 0);
+    debugCube.AddImmutableRenderGeometry(Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }), "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
+    //debugCube.
     //debugCube.AddDebugRenderableGeometry();
 
     engine.Run();

@@ -8,7 +8,7 @@
 #include <Geometry.Texture.hpp>
 #include <OksEngine.UI.Subsystem.hpp>
 #include <RE.RenderEngine.hpp>
-
+#include <OksEngine.RenderableGeometry.hpp>
 
 #include <Components/OksEngine.RenderableGeometry.hpp>
 namespace OksEngine {
@@ -38,7 +38,7 @@ namespace OksEngine {
 
 
 			auto ecsWorld = context.GetECSWorld();
-			ecsWorld->RegisterSystem<RenderSystem>();
+			ecsWorld->RegisterSystem<RenderSystem>(context);
 
 			auto uiSubsystem = context.GetUISubsystem();
 			auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UI::Render::Vulkan);
@@ -125,25 +125,30 @@ namespace OksEngine {
 				//engine_->RenderModel(*model_);
 			}
 			{
-				const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/dragon_lore.obj");
-				ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
-
-				const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/dragon_lore.mtl");
-				ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
-
-				const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/dragon_lore.bmp");
-				ResourceSubsystem::Resource pngCubeResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId);
-
-				std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
-				std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
-				std::string image{ pngCubeResource.GetData<char>(), pngCubeResource.GetSize() };
-
-				
-				auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16(obj, mtl, image));
-
-				dragonLore_ = engine_->RenderModel({ 0, 0, 0 }, *texturedModel);
 			}
  		}
+
+		[[nodiscard]]
+		Common::Index RenderModel(std::string objName, std::string mtlName, std::string textureName) {
+
+			//const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/dragon_lore.obj");
+			//ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
+
+			//const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/dragon_lore.mtl");
+			//ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
+
+			//const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/dragon_lore.bmp");
+			//ResourceSubsystem::Resource pngCubeResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId);
+
+			//std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
+			//std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
+			//std::string image{ pngCubeResource.GetData<char>(), pngCubeResource.GetSize() };
+
+
+			//auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16(obj, mtl, image));
+
+			//dragonLore_ = engine_->RenderModel({ 0, 0, 0 }, *texturedModel);
+		}
 
 		virtual void Update() noexcept override {
 			//Geometry::Box box{ 1 };
@@ -202,6 +207,7 @@ namespace OksEngine {
 		}
 
 	private:
+		std::vector<RE::RenderEngine::Model> models_;
 		std::shared_ptr<Geom::Model<Geom::Vertex3fnc, Geom::Index16>> model_ = nullptr;
 		std::shared_ptr<RE::RenderEngine> engine_ = nullptr;
 		std::shared_ptr<RAL::API> api_ = nullptr;
