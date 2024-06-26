@@ -4,6 +4,7 @@
 #include <memory>
 #include <ECS.hpp>
 #include <OksEngine.Context.hpp>
+#include <Math.Matrix.hpp>
 
 namespace OksEngine {
 
@@ -16,6 +17,12 @@ namespace OksEngine {
 			id_{ id } { }
 
 		void AddDebugRenderableGeometry();
+
+		void AddImmutableRenderGeometry(
+			const Math::Matrix4x4f& modelMatrix,
+			std::string objName,
+			std::string mtlName,
+			std::string textureName);
 
 		void AddBehaviour(
 			const char* scriptName,

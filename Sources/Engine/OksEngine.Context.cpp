@@ -33,7 +33,11 @@ namespace OksEngine
 			config_ = std::make_shared<Config>(std::string{ configResource.GetData<char>(), configResource.GetSize() });
 			auto resourcesRootPath = config_->GetValueAs<std::string>("ResourceSystem.resourcesRootDirectory");
 			auto fullResourcesPath = configFilePath.parent_path() / resourcesRootPath;
-			resourceSubsystem_->SetRoot(Subsystem::Type::Engine, fullResourcesPath);
+
+			auto scriptsRootPath = config_->GetValueAs<std::string>("ResourceSystem.scriptsRootDirectory");
+			auto scriptsFullResourcesPath = configFilePath.parent_path() / scriptsRootPath;
+
+			resourceSubsystem_->SetRoot(Subsystem::Type::Engine, { scriptsFullResourcesPath, fullResourcesPath });
 		}
 		
 
