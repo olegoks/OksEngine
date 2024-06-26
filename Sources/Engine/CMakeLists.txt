@@ -14,8 +14,7 @@ file(GLOB PUBLIC_SOURCES
     *.h
     Components/*.hpp
     Components/*.h
-    Systems/*.hpp
-    Systems/*.h
+
 )
 
 file(GLOB PRIVATE_SOURCES
@@ -24,7 +23,6 @@ file(GLOB PRIVATE_SOURCES
 
     Components/*.cpp
     Components/*.c
-    Systems/*.cpp
     *.cpp
     *.c
 )
