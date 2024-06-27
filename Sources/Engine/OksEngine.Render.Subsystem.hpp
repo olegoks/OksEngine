@@ -1,14 +1,13 @@
 #pragma once 
 
 #include <OksEngine.Subsystem.hpp>
-#include <RAL.hpp>
-
-#include <OksEngine.Resource.Subsystem.hpp>
-#include <Geometry.Shapes.hpp>
-#include <Geometry.Texture.hpp>
-#include <OksEngine.UI.Subsystem.hpp>
 #include <RE.RenderEngine.hpp>
+#include <OksEngine.Resource.Subsystem.hpp>
+#include <Geometry.Model.hpp>
+#include <OksEngine.UI.Subsystem.hpp>
 #include <Systems/OksEngine.Render.System.hpp>
+#include <RAL.Light.hpp>
+#include <RAL.Camera.hpp>
 
 namespace OksEngine {
 
@@ -21,6 +20,7 @@ namespace OksEngine {
 
 		RE::RenderEngine::Model skeleton_;
 		RE::RenderEngine::Model dragonLore_;
+
 
 		RenderSubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::Render, createInfo.context_ } {
 
@@ -106,8 +106,8 @@ namespace OksEngine {
 				std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
 				std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
 
-				model_ = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
-				skeleton_ = engine_->RenderModel({ 0, 0, 0}, *model_);
+				auto model = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
+				skeleton_ = engine_->RenderModel({ 0, 0, 0 }, *model);
 			}
 
 			{
@@ -120,12 +120,12 @@ namespace OksEngine {
 				std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
 				std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
 
-				model_ = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
+				auto model = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
 				//engine_->RenderModel(*model_);
 			}
 			{
 			}
- 		}
+		}
 
 		[[nodiscard]]
 		Common::Index RenderModel(std::string objName, std::string mtlName, std::string textureName) {
@@ -199,18 +199,21 @@ namespace OksEngine {
 			//driver_->StartRender();
 			//driver_->Render();
 			//driver_->EndRender();
-			
+
 			//engine_->RotateModel(dragonLore_, { 1, 0, 0 }, 1);
-			engine_->RotateModel(skeleton_, { 0, 1, 0}, 1);
+			engine_->RotateModel(skeleton_, { 0, 1, 0 }, 1);
 			engine_->Render();
 		}
 
+
+		//RenderSubsystem(const CreateInfo& createInfo);
+
+		//[[nodiscard]]
+		//Common::Index RenderModel(std::string objName, std::string mtlName, std::string textureName);
+		//virtual void Update() noexcept override;
 	private:
 		std::vector<RE::RenderEngine::Model> models_;
-		std::shared_ptr<Geom::Model<Geom::Vertex3fnc, Geom::Index16>> model_ = nullptr;
 		std::shared_ptr<RE::RenderEngine> engine_ = nullptr;
-		std::shared_ptr<RAL::API> api_ = nullptr;
-		std::shared_ptr<RAL::Driver> driver_ = nullptr;
 	};
 
 }
