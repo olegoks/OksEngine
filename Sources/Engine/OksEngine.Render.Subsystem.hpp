@@ -8,9 +8,8 @@
 #include <Geometry.Texture.hpp>
 #include <OksEngine.UI.Subsystem.hpp>
 #include <RE.RenderEngine.hpp>
-#include <OksEngine.RenderableGeometry.hpp>
+#include <Systems/OksEngine.Render.System.hpp>
 
-#include <Components/OksEngine.RenderableGeometry.hpp>
 namespace OksEngine {
 
 	class RenderSubsystem : public Subsystem {
