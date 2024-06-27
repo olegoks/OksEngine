@@ -16,8 +16,6 @@ namespace OksEngine {
 			world_{ world },
 			id_{ id } { }
 
-		void AddDebugRenderableGeometry();
-
 		void AddImmutableRenderGeometry(
 			const Math::Matrix4x4f& modelMatrix,
 			std::string objName,

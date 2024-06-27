@@ -63,24 +63,4 @@ namespace OksEngine {
 		Context& context_;
 	};
 
-
-
-	struct DebugRenderableGeometry : public ECS::IComponent<DebugRenderableGeometry> {
-		Geometry::Model<Geometry::Vertex3fc> model_;
-
-		DebugRenderableGeometry() {
-			Geometry::Box box{ 1 };
-
-			Geometry::VertexCloud<Geometry::Vertex3fc> coloredBox;
-			for (Common::Index i = 0; i < box.GetVertices().GetVerticesNumber(); i++) {
-				Math::Vector3f color{ (float)((i * 100) % 255) / 255, (float)((i * 150) % 255) / 255, (float)((i * 199) % 255) / 255 };
-				Geometry::Vertex3fc coloredVertex = { box.GetVertices()[i], color };
-				coloredBox.Add(coloredVertex);
-			}
-
-			Geometry::Shape shape{ coloredBox, box. GetIndices() };
-			model_.AddShape(shape);
-		}
-	};
-
 }
