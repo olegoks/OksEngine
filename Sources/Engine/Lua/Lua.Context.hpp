@@ -3,7 +3,6 @@
 #include <concepts>
 #include <map>
 #include <filesystem>
-#include <DataStructures.Vector.hpp>
 #include <Lua.Common.hpp>
 
 namespace Lua {
