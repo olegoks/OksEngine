@@ -1,21 +1,7 @@
 #pragma once
 
-//#include <Vulkan/Render.Vulkan.hpp>
-
-#include <memory>
-#include <filesystem>
-
-//#include <Engine.ECS;
-//#include <RAL;
-//#include <UIAL;
-//#include <Resource;
-//#include <OksEngine.Render.Subsystem.hpp>
-#include <ECS.hpp>
-
-#include <Geometry.Model.hpp>
-
-#include "Geometry.Shapes.hpp"
-
+#include <string>
+#include <OksEngine.ECS.Component.hpp>
 
 namespace OksEngine {
 
