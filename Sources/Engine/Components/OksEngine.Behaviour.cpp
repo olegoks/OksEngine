@@ -1,11 +1,12 @@
 #include <Components/OksEngine.Behaviour.hpp>
 #include <OksEngine.Resource.Subsystem.hpp>
 #include <filesystem>
+#include <OksEngine.ImmutableRenderGeometry.hpp>
 
 namespace OksEngine {
 
 	Behaviour::Behaviour(
-		Context& context,
+		Context* context,
 		ECS::Entity::Id entityId,
 		std::string scriptName,
 		std::string objectName) :
@@ -24,6 +25,7 @@ namespace OksEngine {
 			.beginClass<LuaEntity>("EngineEntity")
 			.addConstructor<void(*)()>()
 			.addFunction("GetPosition", &LuaEntity::GetPosition)
+			.addFunction("GetImmutableRenderGeometry", &LuaEntity::GetImmutableRenderGeometry)
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)
@@ -37,7 +39,14 @@ namespace OksEngine {
 			.addFunction("SetZ", &Position::SetZ)
 			.endClass();
 
-		auto resourceSubsystem = context.GetResourceSubsystem();
+		luabridge::getGlobalNamespace(state_)
+			.beginClass<ImmutableRenderGeometry>("ImmutableRenderGeometry")
+			.addConstructor<void(*)(Context*,float, float, float, std::string, std::string, std::string)>()
+			.addFunction("Rotate", &ImmutableRenderGeometry::Rotate)
+			.endClass();
+
+
+		auto resourceSubsystem = context->GetResourceSubsystem();
 
 		const auto entityScriptTaskId = resourceSubsystem->GetResource(Subsystem::Type::Engine, "Root/Entity.lua");
 		ResourceSubsystem::Resource entityScriptResource = resourceSubsystem->GetResource(Subsystem::Type::Engine, entityScriptTaskId);
@@ -69,7 +78,7 @@ namespace OksEngine {
 			object_ = luabridge::getGlobal(state_, "object");
 
 			auto entity = object_["EngineEntity"].cast<LuaEntity*>();
-			entity.value()->SetWorld(context.GetECSWorld().get());
+			entity.value()->SetWorld(context->GetECSWorld().get());
 			entity.value()->SetId(entityId);
 
 			std::string updaterName = std::string{ objectName_ } + "Updater";
@@ -80,12 +89,12 @@ namespace OksEngine {
 
 	}
 
-	void Behaviour::CallUpdater() {
+	void Behaviour::CallUpdater(Common::Size ms) {
 		luabridge::LuaRef updateMethod = updater_["Update"];
 		auto increaseCounter = object_["IncreaseCounter"];
-		luabridge::LuaResult result = updateMethod(updater_, object_);
+		luabridge::LuaResult result = updateMethod(updater_, object_, ms);
 		if (result.hasFailed()) {
-			//
+			OS::AssertFail();
 		}
 	}
 

@@ -9,6 +9,8 @@
 #include <OksEngine.Context.hpp>
 #include <OksEngine.ECS.Component.hpp>
 #include <Lua.Context.hpp>
+#include <OksEngine.ImmutableRenderGeometry.hpp>
+
 
 namespace OksEngine {
 
@@ -17,6 +19,11 @@ namespace OksEngine {
 
 		Position* GetPosition() {
 			auto position = world_->GetComponent<Position>(id_);
+			return position;
+		}
+
+		ImmutableRenderGeometry* GetImmutableRenderGeometry() {
+			auto position = world_->GetComponent<ImmutableRenderGeometry>(id_);
 			return position;
 		}
 
@@ -42,13 +49,13 @@ namespace OksEngine {
 		Lua::Context  context_;
 
 		Behaviour() = default;
-		Behaviour(Context& context,
+		Behaviour(Context* context,
 			ECS::Entity::Id entityId,
 			std::string scriptName,
 			std::string objectName
 		);
 
-		void CallUpdater();
+		void CallUpdater(Common::Size ms);
 	};
 
 	class BehaviourSystem : public ECS::System {
@@ -59,16 +66,21 @@ namespace OksEngine {
 
 		}
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) const override {
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
 			Behaviour* behaviour = world->GetComponent<Behaviour>(entityId);
 			if (behaviour == nullptr) return;
-			behaviour->CallUpdater();
 
+			auto now = std::chrono::high_resolution_clock::now();
+			auto delta = now - previousUpdateTimePoint_;
+			behaviour->CallUpdater(std::chrono::duration_cast<std::chrono::milliseconds>(delta).count());
+			previousUpdateTimePoint_ = now;
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<BehaviourSystem>().GetId();
 		}
+	private:
+		std::chrono::high_resolution_clock::time_point previousUpdateTimePoint_;
 	};
 
 

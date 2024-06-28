@@ -20,7 +20,8 @@ end
 function Entity:GetComponent(componentName)
     if componentName == "Position" then 
         return self.EngineEntity:GetPosition() 
-    else
-        return nil
+    end
+    if componentName == "ImmutableRenderGeometry" then
+        return self.EngineEntity:GetImmutableRenderGeometry()
     end
 end

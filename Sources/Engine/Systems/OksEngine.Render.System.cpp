@@ -1,17 +1,27 @@
 
 #include <OksEngine.Render.System.hpp>
 
+#include <OksEngine.Render.Subsystem.hpp>
+
 namespace OksEngine {
 
 
 	RenderSystem::RenderSystem(Context& context) noexcept :
-		context_{ context } { }
+		ECSSystem{ context } { }
 
-	void RenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId) const {
+	void RenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
 		auto* immutableRenderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 		if (immutableRenderGeometry == nullptr) return;
-		//context_.GetRenderSubsystem()->
-
+		if (immutableRenderGeometry->modelId_ == Common::Limits<Common::Index>::Max()) {
+			Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModel(
+				immutableRenderGeometry->modelObjFileName_,
+				immutableRenderGeometry->modelMtlFileName_,
+				immutableRenderGeometry->modelTextureFileName_);
+			immutableRenderGeometry->modelId_ = modelIndex;
+		}
+		GetContext().GetRenderSubsystem()->SetModelMatrix(
+			immutableRenderGeometry->modelId_,
+			immutableRenderGeometry->modelMatrix_);
 	}
 
 	Common::TypeId RenderSystem::GetTypeId() const noexcept {

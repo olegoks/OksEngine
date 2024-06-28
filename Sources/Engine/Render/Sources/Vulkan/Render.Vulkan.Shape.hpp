@@ -69,6 +69,11 @@ namespace Render::Vulkan {
 			transformBuffer_->Fill(&transform);
 		}
 
+		void SetModelMatrix(const Math::Matrix4x4f& modelMatrix) {
+			model_ = modelMatrix;
+			transformBuffer_->Fill(&model_);
+		}
+
 		void Rotate(const Vector3f& vectorAround, Math::Angle angle) {
 			const Math::Matrix4x4f rotateMatrix = Math::Matrix4x4f::GetRotate(angle, vectorAround);
 			model_ = model_ * rotateMatrix;

@@ -144,8 +144,9 @@ namespace Lua {
 			return true;
 		}
 		~Context() noexcept {
-			OS::AssertMessage(state_, "");
-			lua_close(state_);
+			if (state_ != nullptr) {
+				lua_close(state_);
+			}
 		}
 
 	private:
