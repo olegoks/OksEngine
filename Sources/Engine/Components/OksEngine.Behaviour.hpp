@@ -10,6 +10,7 @@
 #include <OksEngine.ECS.Component.hpp>
 #include <Lua.Context.hpp>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
+#include <OksEngine.RigidBody.hpp>
 
 
 namespace OksEngine {
@@ -25,6 +26,11 @@ namespace OksEngine {
 		ImmutableRenderGeometry* GetImmutableRenderGeometry() {
 			auto position = world_->GetComponent<ImmutableRenderGeometry>(id_);
 			return position;
+		}
+
+		RigidBody* GetRigidBody() {
+			auto rigidBody = world_->GetComponent<RigidBody>(id_);
+			return rigidBody;
 		}
 
 		void SetWorld(ECS::World* world) {

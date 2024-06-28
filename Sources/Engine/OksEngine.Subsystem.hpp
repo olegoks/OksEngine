@@ -13,6 +13,7 @@ namespace OksEngine {
 			Resource,
 			UI,
 			Render,
+			Physics,
 			Engine,
 			Log,
 			Undefined
