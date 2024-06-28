@@ -22,13 +22,17 @@ end
 
 TestObjectUpdater = {}
 
-function TestObjectUpdater:Update(testObject)
+function TestObjectUpdater:Update(testObject, deltaMs)
     --print("Update method of TestObject called")
     testObject:IncreaseCounter()
     position = testObject:GetComponent("Position")
     x = position:GetX()
     position:SetX(x + 1)
-    --print("Update method of TestObject ended")
+    renderGeometry = testObject:GetComponent("ImmutableRenderGeometry")
+    graducesPerSecond = 30;
+
+    renderGeometry:Rotate(graducesPerSecond * deltaMs / 1000, 1, 0, 0)
+    --print(graducesPerSecond * deltaMs / 1000)
 end
 
 

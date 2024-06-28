@@ -18,23 +18,17 @@ namespace OksEngine {
 			Context& context_;
 		};
 
-		RE::RenderEngine::Model skeleton_;
-		RE::RenderEngine::Model dragonLore_;
-
-
 		RenderSubsystem(const CreateInfo& createInfo);
 
 		[[nodiscard]]
 		Common::Index RenderModel(std::string objName, std::string mtlName, std::string textureName);
 
+		void SetModelMatrix(Common::Index modelIndex, const Math::Matrix4x4f& modelMatrix) {
+			engine_->SetModelMatrix(models_[modelIndex], modelMatrix);
+		}
+
 		virtual void Update() noexcept override;
 
-
-		//RenderSubsystem(const CreateInfo& createInfo);
-
-		//[[nodiscard]]
-		//Common::Index RenderModel(std::string objName, std::string mtlName, std::string textureName);
-		//virtual void Update() noexcept override;
 	private:
 		std::vector<RE::RenderEngine::Model> models_;
 		std::shared_ptr<RE::RenderEngine> engine_ = nullptr;

@@ -89,6 +89,13 @@ namespace RE {
 		}
 	}
 
+
+	void RenderEngine::SetModelMatrix(const RenderEngine::Model& model, const Math::Matrix4x4f& modelMatrix) {
+		for (auto shape : model.shapes_) {
+			driver_->SetModelMatrix(shape.id_, modelMatrix);
+		}
+	}
+
 	void RenderEngine::Render() {
 		//Geometry::Box box{ 1 };
 

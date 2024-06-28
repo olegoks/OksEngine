@@ -9,17 +9,17 @@ namespace OksEngine {
 	class ECSComponent : public ECS::IComponent<ComponentType> {
 	public:
 
-		ECSComponent(Context& context) : 
+		ECSComponent(Context* context) : 
 			context_{ context } {
 
 		}
 
 		[[nodiscard]]
 		auto& GetContext() noexcept {
-			return context_;
+			return *context_;
 		}
 	private:
-		Context& context_;
+		Context* context_;
 	};
 
 }

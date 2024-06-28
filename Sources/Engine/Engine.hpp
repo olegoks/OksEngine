@@ -8,7 +8,7 @@
 #include <OksEngine.Entity.hpp>
 #include <Components/OksEngine.Behaviour.hpp>
 #include <Components/OksEngine.Position.hpp>
-#include <Components/OksEngine.RenderableGeometry.hpp>
+#include <OksEngine.ImmutableRenderGeometry.hpp>
 
 #include <OksEngine.CommandLineParameters.hpp>
 

@@ -40,6 +40,8 @@ namespace RE {
 
 		void RotateModel(const Model& model, const RAL::Vector3f& aroundVector, Math::Angle angle);
 
+		void SetModelMatrix(const Model& model, const Math::Matrix4x4f& modelMatrix);
+
 		void Render();
 
 	private:

@@ -1,14 +1,14 @@
 
 #include <OksEngine.Entity.hpp>
 #include <OksEngine.Behaviour.hpp>
-#include <OksEngine.RenderableGeometry.hpp>
+#include <OksEngine.ImmutableRenderGeometry.hpp>
 
 namespace OksEngine {
 
 	void Entity::AddImmutableRenderGeometry(const Math::Matrix4x4f& modelMatrix, std::string objName, std::string mtlName, std::string textureName) {
 		world_->CreateComponent<ImmutableRenderGeometry>(
 			GetId(),
-			context_,
+			&context_,
 			modelMatrix,
 			objName,
 			mtlName,
@@ -20,7 +20,7 @@ namespace OksEngine {
 		const char* objectName) {
 		world_->CreateComponent<Behaviour>(
 			GetId(),
-			context_,
+			&context_,
 			GetId(),
 			scriptName,
 			objectName);

@@ -230,6 +230,10 @@ namespace RAL {
 			Common::Index shapeIndex,
 			const Vector3f& position) = 0;
 
+		virtual void SetModelMatrix(
+			Common::Index shapeIndex,
+			const Math::Matrix4x4f& modelMatrix) = 0;
+
 		virtual void Rotate(
 			Common::Index shapeIndex,
 			const Vector3f& aroundVector,

@@ -13,13 +13,14 @@ int main(int argc, char** argv){
         commandLineParameters
     };
     Engine engine{ engineCreateInfo };
-    Entity entity = engine.CreateEntity();
-    entity.AddPosition(0, 0, 0);
-    entity.AddBehaviour("TestObject.lua", "TestObject");
+    //Entity entity = engine.CreateEntity();
+    //entity.AddPosition(0, 0, 0);
+    //entity.AddBehaviour("TestObject.lua", "TestObject");
 
-    Entity debugCube = engine.CreateEntity();
-    debugCube.AddPosition(0, 0, 0);
-    debugCube.AddImmutableRenderGeometry(Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }), "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
+    Entity dragonLore = engine.CreateEntity();
+    dragonLore.AddPosition(0, 0, 0);
+    dragonLore.AddBehaviour("TestObject.lua", "TestObject");
+    dragonLore.AddImmutableRenderGeometry(Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }), "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
     //debugCube.
     //debugCube.AddDebugRenderableGeometry();
 
