@@ -56,6 +56,7 @@ target_link_libraries(OksEngine
         ECS
         LuaLayer
         Render
+        Physics
         OS
         UI
         Resources
@@ -96,3 +97,4 @@ add_subdirectory(Geometry)
 add_subdirectory(UI)
 add_subdirectory(Resources)    
 add_subdirectory(Datastructures)
+add_subdirectory(Physics)

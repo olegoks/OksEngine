@@ -1,5 +1,7 @@
 #!/bin/bash
 set -x
+scriptDirectory=$(dirname $0)
+cd ${scriptDirectory}
 cd ../
 git clone https://github.com/microsoft/vcpkg.git
 cd ./vcpkg
@@ -19,6 +21,7 @@ echo $(pwd)
 ./vcpkg.exe install loguru
 ./vcpkg.exe install magic-enum
 ./vcpkg.exe install graphviz
+./vcpkg.exe install physx
 ./vcpkg.exe install vulkan-utility-libraries
 cd ../Scripts/
 
