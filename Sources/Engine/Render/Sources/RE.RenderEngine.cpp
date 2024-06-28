@@ -1,5 +1,6 @@
 
 #include <RE.RenderEngine.hpp>
+#include <RAL.API.hpp>
 
 namespace RE {
 

@@ -3,7 +3,7 @@
 #include <Math.hpp>
 #include <Geometry.Shapes.hpp>
 #include <Geometry.Model.hpp>
-#include <RAL.API.hpp>
+#include <RAL.hpp>
 
 namespace RE {
 
@@ -44,8 +44,8 @@ namespace RE {
 
 	private:
 
-		std::shared_ptr<RAL::API> api_ = nullptr;
-		std::shared_ptr<RAL::Driver> driver_ = nullptr;
+		std::shared_ptr<class RAL::API> api_ = nullptr;
+		std::shared_ptr<class RAL::Driver> driver_ = nullptr;
 	};
 
 }
