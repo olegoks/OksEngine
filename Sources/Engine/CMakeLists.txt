@@ -81,7 +81,8 @@ source_group("Sources"
 target_include_directories(OksEngine
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}
-        ${CMAKE_CURRENT_LIST_DIR}/Components)
+        ${CMAKE_CURRENT_LIST_DIR}/Components
+        ${CMAKE_CURRENT_LIST_DIR}/Systems)
 
 
 add_subdirectory(Common)

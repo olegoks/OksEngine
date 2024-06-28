@@ -10,23 +10,15 @@ namespace OksEngine {
 	class RenderSystem : public ECS::System {
 	public:
 
-		RenderSystem(Context& context) noexcept :
-			context_{ context } { }
+		RenderSystem(Context& context) noexcept;
 
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) const override {
-			auto* immutableRenderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
-			if (immutableRenderGeometry == nullptr) return;
-			//context_.GetRenderSubsystem()->
-
-		}
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) const override;
 
 	private:
 
-		virtual Common::TypeId GetTypeId() const noexcept override {
-			return Common::TypeInfo<RenderSystem>().GetId();
-		}
+		virtual Common::TypeId GetTypeId() const noexcept override;
 
 		Context& context_;
 	};
