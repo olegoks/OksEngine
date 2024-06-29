@@ -5,6 +5,7 @@
 #include <OksEngine.Render.Subsystem.hpp>
 #include <OksEngine.Resource.Subsystem.hpp>
 #include <OksEngine.UI.Subsystem.hpp>
+#include <OksEngine.Physics.Subsystem.hpp>
 
 namespace OksEngine {
 
@@ -17,6 +18,7 @@ namespace OksEngine {
 
 	void Engine::Update() noexcept {
 		while (IsRunning()) {
+			context_->GetPhysicsSubsystem()->Update();
 			context_->GetRenderSubsystem()->Update();
 			context_->GetUISubsystem()->Update();
 			context_->GetECSWorld()->Process();

@@ -42,10 +42,16 @@ namespace OksEngine {
 			return renderSubsystem_;
 		}
 
+		[[nodiscard]]
+		auto GetPhysicsSubsystem() noexcept {
+			return physicsSubsystem_;
+		}
+
 	private:
 		std::shared_ptr<class LogSubsystem> logSubsystem_ = nullptr;
 		std::shared_ptr<class AsyncResourceSubsystem> resourceSubsystem_ = nullptr;
 		std::shared_ptr<class RenderSubsystem> renderSubsystem_ = nullptr;
+		std::shared_ptr<class PhysicsSubsystem> physicsSubsystem_ = nullptr;
 		std::shared_ptr<class UISubsystem> uiSubsystem_ = nullptr;
 		std::shared_ptr<class ECS::World> world_ = nullptr;
 		std::shared_ptr<class Config> config_ = nullptr;

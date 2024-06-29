@@ -10,7 +10,7 @@ namespace OksEngine {
 			createInfo.context_ } { 
 		
 		std::shared_ptr<PAL::API> api = PAL::CreateAPI();
-		
+		std::shared_ptr<PAL::World> world = api->CreateWorld();
 	}
 
 	void PhysicsSubsystem::Update() noexcept {
