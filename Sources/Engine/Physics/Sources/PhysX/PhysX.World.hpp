@@ -5,7 +5,7 @@ namespace PhysX {
 
 	class World : public PAL::World {
 	public:
-		World();
+		World(const CreateInfo& createInfo);
 	private:
 	};
 
