@@ -14,6 +14,9 @@ namespace OksEngine {
 			return context_;
 		}
 
+		virtual void StartUpdate() override { }
+		virtual void EndUpdate() override { }
+
 	private:
 		Context& context_;
 	};

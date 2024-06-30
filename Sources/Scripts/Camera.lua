@@ -33,8 +33,8 @@ end
 
 CameraInputProcessor = {}
 
-function CameraInputProcessor:ProcessInput(Camera)
-
+function CameraInputProcessor:ProcessInput(Camera, Input)
+    print(Input)
 end
 
 

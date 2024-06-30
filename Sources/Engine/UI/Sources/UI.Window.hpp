@@ -47,10 +47,12 @@ namespace UI {
 			W,
 			A,
 			S,
-			D
+			D,
+			Undefined
 		};
 		enum class Event : Common::UInt64 {
-			Pressed
+			Pressed,
+			Undefined
 		};
 
 
@@ -138,7 +140,7 @@ namespace UI {
 			return { static_cast<Common::UInt32>(width), static_cast<Common::UInt32>(height) };
 		}
 
-		/*virtual */void SetTitle(const std::string& title) noexcept /*override */ {
+		void SetTitle(const std::string& title) noexcept{
 			glfwSetWindowTitle(window_, title.c_str());
 		}
 
@@ -153,12 +155,6 @@ namespace UI {
 			}
 		}
 
-		//virtual void RegisterCallback(EventCallback&& eventCallback) noexcept {
-
-		//	eventCallbacks_.push_back(eventCallback);
-
-		//}
-
 		~Window() {
 			glfwDestroyWindow(window_);
 
@@ -166,54 +162,9 @@ namespace UI {
 			OS::LogInfo("/Window/", "GLFW Window  destroyed successfuly.");
 		}
 
-		//UIAL::Window::Info GetInfo() const override {
-
-		//	UIAL::Window::Info info;
-		//	{
-		//		if (RAL::currentRenderAPI == RAL::RenderAPI::Vulkan) {
-
-		//			info.nativeAPI_ = NativeAPI::GLFW;
-
-		//			auto getRequiredExtensions = []()->Render::Vulkan::Extensions {
-
-		//				uint32_t glfwExtensionCount = 0;
-		//				const char** glfwExtensions = nullptr;
-
-		//				glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
-		//				Render::Vulkan::Extensions requiredExtensions;
-		//				for (uint32_t i = 0; i < glfwExtensionCount; i++) {
-		//					const Render::Vulkan::Extension extension{ glfwExtensions[i] };
-		//					requiredExtensions.AddExtension(extension);
-		//				}
-
-		//				return requiredExtensions;
-		//			};
-
-
-		//			Render::Vulkan::UIRequiredInfo requiredInfo;
-		//			{
-		//				requiredInfo.requiredExtensions_ = getRequiredExtensions();
-		//				requiredInfo.windowHandle_ = glfwGetWin32Window(window_);
-		//				requiredInfo.instanceHandle_ = GetModuleHandle(nullptr);
-
-		//				int width, height;
-		//				glfwGetFramebufferSize(window_, &width, &height);
-		//				const Size frameBufferSize{ width, height };
-		//				requiredInfo.frameBufferSize_ = frameBufferSize;
-		//			}
-		//			info.info_ = requiredInfo;
-		//		}
-
-		//	}
-		//	return info;
-		//}
-
-		/*Size GetSize() const { return size_; }*/
-
-		/*NativeAPI GetNativeType() const override { return NativeAPI::GLFW; }*/
-
-
+		void RegisterEventCallback(EventCallback&& eventCallback) {
+			eventCallbacks_.push_back(std::move(eventCallback));
+		}
 
 	private:
 		static void ErrorCallback(int error_code, const char* description) {
@@ -227,7 +178,6 @@ namespace UI {
 		}
 		std::vector<EventCallback> eventCallbacks_;
 	private:
-		//UIAL::Window::Size size_;
 		CreateInfo createInfo_;
 		GLFWwindow* window_ = nullptr;
 	};
@@ -238,13 +188,6 @@ namespace UI {
 		std::shared_ptr<Window> CreateWindow(const Window::CreateInfo& createInfo) const {
 			return std::make_shared<Window>(createInfo);
 		}
-
-		//
-		//		std::shared_ptr<UIAL::Window> CreateWindow(const UIAL::Window::CreateInfo& info) const override {
-		//			return std::make_shared<Window>(info.windowSize_);
-		//		}
-
-
 	};
 
 
