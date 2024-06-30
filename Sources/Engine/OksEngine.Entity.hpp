@@ -26,6 +26,9 @@ namespace OksEngine {
 			const char* scriptName,
 			const char* objectName);
 
+		void AddCamera(const Math::Vector3f& position,
+			const Math::Vector3f& direction);
+
 		void AddPosition(int x, int y, int z);
 
 	private:

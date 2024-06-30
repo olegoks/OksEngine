@@ -3,6 +3,7 @@
 
 #include <OksEngine.Context.hpp>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
+#include <OksEngine.Camera.hpp>
 #include <OksEngine.ECS.System.hpp>
 
 namespace OksEngine {
@@ -20,5 +21,20 @@ namespace OksEngine {
 
 		virtual Common::TypeId GetTypeId() const noexcept override;
 	};
+
+	class CameraSystem : public ECSSystem {
+	public:
+
+		CameraSystem(Context& context) noexcept;
+
+	public:
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
+
+	private:
+
+		virtual Common::TypeId GetTypeId() const noexcept override;
+	};
+
 
 }
