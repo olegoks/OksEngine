@@ -32,6 +32,8 @@ int main(int argc, char** argv){
         "GrassBlock.png");
 
     Entity camera = engine.CreateEntity();
+    grassBlock.AddPosition(0, 0, 0);
+    camera.AddBehaviour("Camera.lua", "Camera");
     camera.AddCamera({ 5.f, 0.f, 0.f }, { -5.f, 0.f, 0.f });
 
     engine.Run();

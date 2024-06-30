@@ -22,6 +22,7 @@ end
 
 GrassBlockUpdater = {}
 
+
 function GrassBlockUpdater:Update(GrassBlock, deltaMs)
     --print("Update method of TestObject called")
     GrassBlock:IncreaseCounter()
