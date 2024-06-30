@@ -13,15 +13,38 @@ namespace OksEngine {
 			auto* behaviour = world->GetComponent<Behaviour>(entityId);
 			if (behaviour == nullptr) return;
 
-			auto maybeEvent = GetContext().GetUISubsystem()->GetLastEvent();
-			if (maybeEvent.has_value()) {
-				std::string keyString = magic_enum::enum_name(maybeEvent.value().key_).data();
-				behaviour->CallInputProcessor(keyString.c_str());
+			{
+				auto maybeKeyboardEvent = GetContext().GetUISubsystem()->GetLastKeyboardEvent();
+				auto maybeMouseEvent = GetContext().GetUISubsystem()->GetLastMouseEvent();
+				double offsetX = 0.0;
+				double offsetY = 0.0;
+				if (maybeMouseEvent.has_value()) {
+					offsetX = maybeMouseEvent.value().GetX();
+					offsetY = maybeMouseEvent.value().GetY();
+				}
+				std::string keyStr = "";
+				std::string eventStr = "";
+				if (maybeKeyboardEvent.has_value()) {
+					keyStr = magic_enum::enum_name(maybeKeyboardEvent.value().key_).data();
+					eventStr = magic_enum::enum_name(maybeKeyboardEvent.value().event_).data();
+
+				}
+				if (maybeKeyboardEvent.has_value() || maybeMouseEvent.has_value()) {
+					behaviour->CallInputProcessor(keyStr.c_str(), eventStr.c_str(), offsetX, offsetY);
+				}
+			}
+			{
+				/*auto maybeEvent = GetContext().GetUISubsystem()->GetLastMouseEvent();
+				if (maybeEvent.has_value()) {
+					std::string textPos = std::to_string(maybeEvent.value().GetX()) + ":" + std::to_string(maybeEvent.value().GetY());
+					behaviour->CallInputProcessor(textPos.c_str());
+				}*/
 			}
 		}
 
 		virtual void EndUpdate() override {
-			GetContext().GetUISubsystem()->DeleteLastEvent();
+			GetContext().GetUISubsystem()->DeleteLastKeyboardEvent();
+			GetContext().GetUISubsystem()->DeleteLastMouseEvent();
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept {

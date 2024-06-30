@@ -27,24 +27,38 @@ namespace OksEngine {
 			UI::Window::Event event_ = UI::Window::Event::Undefined;
 		};
 
-		std::optional<Event> GetLastEvent() {
+		std::optional<Event> GetLastKeyboardEvent() {
 			if (events_.empty()) {
 				return {};
 			}
 			return events_.back();
 		}
 
-		void DeleteLastEvent() {
+		void DeleteLastKeyboardEvent() {
 			if(!events_.empty())
 				events_.pop_back();
+		}
+
+		std::optional<Math::Vector2d> GetLastMouseEvent() {
+			if (mouseEvents_.empty()) {
+				return {};
+			}
+			return mouseEvents_.back();
+		}
+
+		void DeleteLastMouseEvent() {
+			if (!mouseEvents_.empty())
+				mouseEvents_.pop_back();
 		}
 
 	private:
 
 		void ProcessEvent(UI::Window::Key key, UI::Window::Event event);
+		void ProcessMouseEvent(const Math::Vector2d& position);
 
 	private:
 
+		std::vector<Math::Vector2d> mouseEvents_;
 		std::vector<Event> events_;
 		std::shared_ptr<UI::API> api_ = nullptr;
 		std::shared_ptr<UI::Window> window_ = nullptr;

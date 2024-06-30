@@ -24,4 +24,10 @@ function Entity:GetComponent(componentName)
     if componentName == "ImmutableRenderGeometry" then
         return self.EngineEntity:GetImmutableRenderGeometry()
     end
+    if componentName == "Camera" then
+        return self.EngineEntity:GetCamera()
+    end
+    if componentName == "RigidBody" then
+        return self.EngineEntity:GetRigidBody()
+    end
 end
