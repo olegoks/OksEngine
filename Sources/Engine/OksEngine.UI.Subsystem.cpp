@@ -19,8 +19,11 @@ namespace OksEngine {
 			};
 		}
 		window_ = api_->CreateWindow(windowCreateInfo);
-		window_->RegisterEventCallback([this](UI::Window::Key key, UI::Window::Event event) {
+		window_->RegisterKeyboardEventCallback([this](UI::Window::Key key, UI::Window::Event event) {
 				ProcessEvent(key, event);
+			});
+		window_->RegisterMouseEventCallback([this](const Math::Vector2d& position) {
+				ProcessMouseEvent(position);
 			});
 		window_->Show();
 
@@ -28,6 +31,10 @@ namespace OksEngine {
 
 	void UISubsystem::ProcessEvent(UI::Window::Key key, UI::Window::Event event) {
 		events_.push_back({ key, event });
+	}
+
+	void UISubsystem::ProcessMouseEvent(const Math::Vector2d& position) {
+		mouseEvents_.push_back(position);
 	}
 
 

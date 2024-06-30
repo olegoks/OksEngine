@@ -19,15 +19,6 @@
 #include <implot.h>
 #include <implot_internal.h>
 
-//#include <RAL;
-//#include <Render.Vulkan.Common.hpp>
-//
-//#include <UIAL;
-//#include <Common.Types.hpp>
-//#include <Math.Vector.hpp>
-//#include <OS.Logger;
-//#include <OS.Assert;
-
 #include <UI.hpp>
 
 namespace UI {
@@ -52,11 +43,12 @@ namespace UI {
 		};
 		enum class Event : Common::UInt64 {
 			Pressed,
+			Released,
 			Undefined
 		};
 
-
-		using EventCallback = std::function<void(Key, Event)>;
+		using KeyboardEventCallback = std::function<void(Key, Event)>;
+		using MouseEventCallback = std::function<void(const Math::Vector2d& position)>;
 
 		Window(const CreateInfo& createInfo) : createInfo_{ createInfo } {
 			const int initResult = glfwInit();
@@ -68,6 +60,21 @@ namespace UI {
 				"Vulkan",
 				nullptr,
 				nullptr);
+			glfwSetInputMode(createdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+			glfwSetCursorPosCallback(createdWindow, [](GLFWwindow* window, double xpos, double ypos) {
+
+				static double xPrevious = xpos;
+				static double yPrevious = ypos;
+				const double deltaX = xPrevious - xpos;
+				const double deltaY = yPrevious - ypos;
+				if (!Math::IsEqual(deltaX, 0.0) || !Math::IsEqual(deltaY, 0.0)) {
+					xPrevious = xpos;
+					yPrevious = ypos;
+					Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
+					windowPtr->CallMouseCallbacks({ deltaX, deltaY });
+				}
+
+				});
 
 			ImGui::CreateContext();
 			ImPlot::CreateContext();
@@ -79,21 +86,23 @@ namespace UI {
 				Key keyboardKey;
 				Event event;
 
-				if (key == GLFW_KEY_W && action == GLFW_PRESS) {
+				if (key == GLFW_KEY_W) {
 					keyboardKey = Key::W;
-					event = Event::Pressed;
-				}
-				else if (key == GLFW_KEY_S && action == GLFW_PRESS) {
+				} else if (key == GLFW_KEY_S) {
 					keyboardKey = Key::S;
-					event = Event::Pressed;
-				}
-				else if (key == GLFW_KEY_A && action == GLFW_PRESS) {
+				} else if (key == GLFW_KEY_A) {
 					keyboardKey = Key::A;
+				} else if (key == GLFW_KEY_D) {
+					keyboardKey = Key::D;
+				} else {
+					return;
+				}
+
+				if (action == GLFW_PRESS) {
 					event = Event::Pressed;
 				}
-				else if (key == GLFW_KEY_D && action == GLFW_PRESS) {
-					keyboardKey = Key::D;
-					event = Event::Pressed;
+				else if (action == GLFW_RELEASE) {
+					event = Event::Released;
 				}
 				else {
 					return;
@@ -140,7 +149,7 @@ namespace UI {
 			return { static_cast<Common::UInt32>(width), static_cast<Common::UInt32>(height) };
 		}
 
-		void SetTitle(const std::string& title) noexcept{
+		void SetTitle(const std::string& title) noexcept {
 			glfwSetWindowTitle(window_, title.c_str());
 		}
 
@@ -162,8 +171,12 @@ namespace UI {
 			OS::LogInfo("/Window/", "GLFW Window  destroyed successfuly.");
 		}
 
-		void RegisterEventCallback(EventCallback&& eventCallback) {
-			eventCallbacks_.push_back(std::move(eventCallback));
+		void RegisterKeyboardEventCallback(KeyboardEventCallback&& eventCallback) {
+			keyboardEventCallbacks_.push_back(std::move(eventCallback));
+		}
+
+		void RegisterMouseEventCallback(MouseEventCallback&& eventCallback) {
+			mouseEventCallbacks_.push_back(std::move(eventCallback));
 		}
 
 	private:
@@ -172,11 +185,17 @@ namespace UI {
 		}
 	private:
 		void CallEventCallbacks(Key key, Event event) const noexcept {
-			for (const EventCallback& callback : eventCallbacks_) {
+			for (const KeyboardEventCallback& callback : keyboardEventCallbacks_) {
 				callback(key, event);
 			}
 		}
-		std::vector<EventCallback> eventCallbacks_;
+		void CallMouseCallbacks(const Math::Vector2d& position) const noexcept {
+			for (const MouseEventCallback& callback : mouseEventCallbacks_) {
+				callback(position);
+			}
+		}
+		std::vector<KeyboardEventCallback> keyboardEventCallbacks_;
+		std::vector<MouseEventCallback> mouseEventCallbacks_;
 	private:
 		CreateInfo createInfo_;
 		GLFWwindow* window_ = nullptr;

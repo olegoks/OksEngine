@@ -188,6 +188,7 @@ namespace Math {
 	using Vector2u32 = Vector<2, Common::UInt32>;
 	using Vector2i = Vector<2, int>;
 	using Vector2f = Vector<2, float>;
+	using Vector2d = Vector<2, double>;
 	using Vector3f = Vector<3, float>;
 	using Vector3b = Vector<3, Common::Byte>;
 	using Vector4b = Vector<4, Common::Byte>;

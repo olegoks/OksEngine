@@ -2,7 +2,7 @@
 #include <OksEngine.Resource.Subsystem.hpp>
 #include <filesystem>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
-
+#include <OksEngine.Camera.hpp>
 namespace OksEngine {
 
 	Behaviour::Behaviour(
@@ -27,6 +27,7 @@ namespace OksEngine {
 			.addConstructor<void(*)()>()
 			.addFunction("GetPosition", &LuaEntity::GetPosition)
 			.addFunction("GetImmutableRenderGeometry", &LuaEntity::GetImmutableRenderGeometry)
+			.addFunction("GetCamera", &LuaEntity::GetCamera)
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)
@@ -44,6 +45,19 @@ namespace OksEngine {
 			.beginClass<ImmutableRenderGeometry>("ImmutableRenderGeometry")
 			.addConstructor<void(*)(Context*,float, float, float, std::string, std::string, std::string)>()
 			.addFunction("Rotate", &ImmutableRenderGeometry::Rotate)
+			.endClass();
+
+		luabridge::getGlobalNamespace(state_)
+			.beginClass<Camera>("Camera")
+			.addConstructor<void(*)(Context* context,
+				const Math::Vector3f& position,
+				const Math::Vector3f& direction)>()
+			.addFunction("GetDirectionX", &Camera::GetDirectionX)
+			.addFunction("GetDirectionY", &Camera::GetDirectionY)
+			.addFunction("GetDirectionZ", &Camera::GetDirectionZ)
+			.addFunction("SetDirectionX", &Camera::SetDirectionX)
+			.addFunction("SetDirectionY", &Camera::SetDirectionY)
+			.addFunction("SetDirectionZ", &Camera::SetDirectionZ)
 			.endClass();
 
 
@@ -94,10 +108,10 @@ namespace OksEngine {
 
 	}
 
-	void Behaviour::CallInputProcessor(const char* inputKey) {
+	void Behaviour::CallInputProcessor(const char* inputKey, const char* inputEvent, double offsetX, double offsetY) {
 		if (!inputProcessor_.isNil()) {
 			luabridge::LuaRef processInputMethod = inputProcessor_["ProcessInput"];
-			luabridge::LuaResult result = processInputMethod(updater_, object_, inputKey);
+			luabridge::LuaResult result = processInputMethod(updater_, object_, inputKey, inputEvent, offsetX, offsetY);
 			if (result.hasFailed()) {
 				OS::AssertFail();
 			}

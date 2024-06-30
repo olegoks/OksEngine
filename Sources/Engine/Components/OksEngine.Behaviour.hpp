@@ -11,7 +11,7 @@
 #include <Lua.Context.hpp>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
 #include <OksEngine.RigidBody.hpp>
-
+#include <OksEngine.Camera.hpp>
 
 namespace OksEngine {
 
@@ -31,6 +31,11 @@ namespace OksEngine {
 		RigidBody* GetRigidBody() {
 			auto rigidBody = world_->GetComponent<RigidBody>(id_);
 			return rigidBody;
+		}
+
+		Camera* GetCamera() {
+			auto camera = world_->GetComponent<Camera>(id_);
+			return camera;
 		}
 
 		void SetWorld(ECS::World* world) {
@@ -64,7 +69,7 @@ namespace OksEngine {
 		);
 
 		void CallUpdater(Common::Size ms);
-		void CallInputProcessor(const char* inputKey);
+		void CallInputProcessor(const char* inputKey, const char* inputEvent, double offsetX, double offsetY);
 	};
 
 	class BehaviourSystem : public ECS::System {
