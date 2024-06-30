@@ -69,10 +69,10 @@ namespace PhysX {
 				}
 			}
 
-			while (1) {
-				scene->simulate(1.0 / 60.f);
-				scene->fetchResults(true);
-			}
+			//while (1) {
+			//	scene->simulate(1.0 / 60.f);
+			//	scene->fetchResults(true);
+			//}
 		}
 
 		~API() {

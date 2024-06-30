@@ -53,6 +53,7 @@ namespace OksEngine {
 		luabridge::LuaRef object_;
 		LuaEntity entity_;
 		Lua::Context  context_;
+		std::chrono::high_resolution_clock::time_point previousUpdateTimePoint_;
 
 		Behaviour() = default;
 		Behaviour(Context* context,
@@ -77,16 +78,16 @@ namespace OksEngine {
 			if (behaviour == nullptr) return;
 
 			auto now = std::chrono::high_resolution_clock::now();
-			auto delta = now - previousUpdateTimePoint_;
+			auto delta = now - behaviour->previousUpdateTimePoint_;
 			behaviour->CallUpdater(std::chrono::duration_cast<std::chrono::milliseconds>(delta).count());
-			previousUpdateTimePoint_ = now;
+			behaviour->previousUpdateTimePoint_ = now;
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<BehaviourSystem>().GetId();
 		}
 	private:
-		std::chrono::high_resolution_clock::time_point previousUpdateTimePoint_;
+		
 	};
 
 
