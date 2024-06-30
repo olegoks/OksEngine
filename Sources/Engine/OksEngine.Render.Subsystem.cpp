@@ -20,6 +20,7 @@ namespace OksEngine {
 
 		auto ecsWorld = context.GetECSWorld();
 		ecsWorld->RegisterSystem<RenderSystem>(context);
+		ecsWorld->RegisterSystem<CameraSystem>(context);
 
 		auto uiSubsystem = context.GetUISubsystem();
 		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UI::Render::Vulkan);
@@ -109,6 +110,8 @@ namespace OksEngine {
 		}
 	}
 
+
+
 	[[nodiscard]]
 	Common::Index RenderSubsystem::RenderModel(std::string objName, std::string mtlName, std::string textureName) {
 
@@ -135,6 +138,10 @@ namespace OksEngine {
 		RE::RenderEngine::Model model = engine_->RenderModel({ 0, 0, 0 }, *texturedModel);
 		models_.push_back(model);
 		return models_.size() - 1;
+	}
+
+	void RenderSubsystem::SetCamera(const Math::Vector3f& position, const Math::Vector3f& direction) {
+		engine_->SetCamera(position, direction);
 	}
 
 	void RenderSubsystem::Update() noexcept {

@@ -27,6 +27,8 @@ namespace OksEngine {
 			engine_->SetModelMatrix(models_[modelIndex], modelMatrix);
 		}
 
+		void SetCamera(const Math::Vector3f& position, const Math::Vector3f& direction);
+
 		virtual void Update() noexcept override;
 
 	private:
