@@ -15,6 +15,7 @@ namespace OksEngine {
 		objectName_{ objectName },
 		state_{ luaL_newstate() },
 		updater_{ state_ },
+		inputProcessor_{ state_ },
 		object_{ state_ },
 		entity_{  } {
 
@@ -83,11 +84,26 @@ namespace OksEngine {
 
 			std::string updaterName = std::string{ objectName_ } + "Updater";
 			updater_ = luabridge::getGlobal(state_, updaterName.c_str());
+			OS::AssertMessage(!updater_.isNil(), { "Updater is not found in {}", scriptName_});
+			std::string inputProcessorName = std::string{ objectName_ } + "InputProcessor";
+			inputProcessor_ = luabridge::getGlobal(state_, inputProcessorName.c_str());
+
 		}
 
 
 
 	}
+
+	void Behaviour::CallInputProcessor(const char* inputKey) {
+		if (!inputProcessor_.isNil()) {
+			luabridge::LuaRef processInputMethod = inputProcessor_["ProcessInput"];
+			luabridge::LuaResult result = processInputMethod(updater_, object_, inputKey);
+			if (result.hasFailed()) {
+				OS::AssertFail();
+			}
+		}
+	}
+
 
 	void Behaviour::CallUpdater(Common::Size ms) {
 		luabridge::LuaRef updateMethod = updater_["Update"];

@@ -50,6 +50,7 @@ namespace OksEngine {
 		std::string objectName_;
 		lua_State* state_ = nullptr;
 		luabridge::LuaRef updater_;
+		luabridge::LuaRef inputProcessor_;
 		luabridge::LuaRef object_;
 		LuaEntity entity_;
 		Lua::Context  context_;
@@ -63,6 +64,7 @@ namespace OksEngine {
 		);
 
 		void CallUpdater(Common::Size ms);
+		void CallInputProcessor(const char* inputKey);
 	};
 
 	class BehaviourSystem : public ECS::System {
