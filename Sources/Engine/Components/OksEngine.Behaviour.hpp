@@ -84,6 +84,8 @@ namespace OksEngine {
 			behaviour->CallUpdater(std::chrono::duration_cast<std::chrono::milliseconds>(delta).count());
 			behaviour->previousUpdateTimePoint_ = now;
 		}
+		virtual void StartUpdate() override { }
+		virtual void EndUpdate() override { }
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<BehaviourSystem>().GetId();
