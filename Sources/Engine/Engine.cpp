@@ -17,11 +17,17 @@ namespace OksEngine {
 	}
 
 	void Engine::Update() noexcept {
+		std::chrono::high_resolution_clock::time_point previousUpdate;
 		while (IsRunning()) {
 			context_->GetPhysicsSubsystem()->Update();
 			context_->GetRenderSubsystem()->Update();
 			context_->GetUISubsystem()->Update();
 			context_->GetECSWorld()->Process();
+			using namespace std::chrono_literals;
+			auto now = std::chrono::high_resolution_clock::now();
+			auto delta = (now - previousUpdate);
+			std::this_thread::sleep_for(60ms - delta);
+			previousUpdate = now;
 		}
 	}
 

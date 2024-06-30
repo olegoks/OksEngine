@@ -27,7 +27,7 @@ namespace OksEngine {
 			objectName);
 	}
 
-	void Entity::AddPosition(int x, int y, int z) {
+	void Entity::AddPosition(float x, float y, float z) {
 		world_->CreateComponent<Position>(
 			GetId(),
 			x, y, z);

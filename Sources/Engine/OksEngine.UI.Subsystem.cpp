@@ -1,5 +1,6 @@
 
 #include <OksEngine.UI.Subsystem.hpp>
+#include <OksEngine.UI.System.hpp>
 
 namespace OksEngine {
 
@@ -7,7 +8,7 @@ namespace OksEngine {
 
 		auto& context = GetContext();
 		auto config = context.GetConfig();
-
+		context.GetECSWorld()->RegisterSystem<UISystem>(context);
 		api_ = std::make_shared<UI::API>();
 		UI::Window::CreateInfo windowCreateInfo;
 		{
@@ -18,9 +19,17 @@ namespace OksEngine {
 			};
 		}
 		window_ = api_->CreateWindow(windowCreateInfo);
+		window_->RegisterEventCallback([this](UI::Window::Key key, UI::Window::Event event) {
+				ProcessEvent(key, event);
+			});
 		window_->Show();
 
 	}
+
+	void UISubsystem::ProcessEvent(UI::Window::Key key, UI::Window::Event event) {
+		events_.push_back({ key, event });
+	}
+
 
 	std::shared_ptr<UI::Window> UISubsystem::GetWindow() const noexcept {
 		OS::AssertMessage(window_ != nullptr,

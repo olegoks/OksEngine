@@ -38,21 +38,27 @@ namespace ECS {
 		void Process() noexcept {
 			entitiesManager_.ForEachEntity(
 				[this](Entity::Id entityId) {
-					//systemsManager_.ForEachSystem(
-					//	[entityId, this](std::shared_ptr<System> system)->bool {
-					//		system->StartUpdate();
-					//		return true;
-					//	});
+					systemsManager_.ForEachSystem(
+						[entityId, this](std::shared_ptr<System> system)->bool {
+							system->StartUpdate();
+							return true;
+						});
+				});
+			entitiesManager_.ForEachEntity(
+				[this](Entity::Id entityId) {
 					systemsManager_.ForEachSystem(
 						[entityId, this](std::shared_ptr<System> system)->bool {
 							system->Update(this, entityId);
 							return true;
 						});
-					//systemsManager_.ForEachSystem(
-					//	[entityId, this](std::shared_ptr<System> system)->bool {
-					//		system->EndUpdate();
-					//		return true;
-					//	});
+				});
+			entitiesManager_.ForEachEntity(
+				[this](Entity::Id entityId) {
+					systemsManager_.ForEachSystem(
+						[entityId, this](std::shared_ptr<System> system)->bool {
+							system->EndUpdate();
+							return true;
+						});
 				});
 		}
 
