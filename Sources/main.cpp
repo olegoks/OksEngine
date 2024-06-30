@@ -21,9 +21,15 @@ int main(int argc, char** argv){
     dragonLore.AddPosition(0, 0, 0);
     dragonLore.AddBehaviour("TestObject.lua", "TestObject");
     dragonLore.AddImmutableRenderGeometry(Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }), "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
-    //debugCube.
-    //debugCube.AddDebugRenderableGeometry();
-
+    
+    Entity grassBlock = engine.CreateEntity();
+    grassBlock.AddPosition(0, 0, 0);
+    grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
+    grassBlock.AddImmutableRenderGeometry(
+        Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }),
+        "GrassBlock.obj",
+        "GrassBlock.mtl",
+        "GrassBlock.png");
     engine.Run();
 
     return 0;

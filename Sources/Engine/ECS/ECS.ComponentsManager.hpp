@@ -139,10 +139,10 @@ namespace ECS {
 			[[nodiscard]]
 			ComponentIndex GetComponentIndex() noexcept {
 
-				//const ComponentTypeId componentTypeId = ComponentType::GetTypeId();
-				//const ComponentIndex componentIndex = typeIndex_[componentTypeId];
+				const ComponentTypeId componentTypeId = ComponentType::GetTypeId();
+				const ComponentIndex componentIndex = typeIndex_[componentTypeId];
 
-				return 0;//componentIndex;// typeIndex_[ComponentType::GetTypeId()];
+				return componentIndex;//componentIndex;// typeIndex_[ComponentType::GetTypeId()];
 			} 
 
 			template<class ComponentType>
