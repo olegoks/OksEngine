@@ -1,21 +1,22 @@
 #pragma once
 
 #include <ECS.hpp>
-
+#include <Math.Vector.hpp>
 namespace OksEngine {
 
 	struct Position : public ECS::IComponent<Position> {
-		int x_ = 0;
-		int y_ = 0;
-		int z_ = 0;
+		Math::Vector3f xyz_{ 0.f, 0.f, 0.f };
 		Position() = default;
-		Position(int x, int y, int z) {}
-		int GetX() { return x_; }
-		int GetY() { return y_; }
-		int GetZ() { return z_; }
-		void SetX(int x) { x_ = x; }
-		void SetY(int y) { y_ = y; }
-		void SetZ(int z) { z_ = z; }
+		Position(float x, float y, float z) : xyz_{ x, y, z } {}
+		[[nodiscard]]
+		float GetX() { return xyz_.GetX(); }
+		[[nodiscard]]
+		float GetY() { return xyz_.GetY(); }
+		[[nodiscard]]
+		float GetZ() { return xyz_.GetZ(); }
+		void SetX(float x) { xyz_.GetX() = x; }
+		void SetY(float y) { xyz_.GetY() = y; }
+		void SetZ(float z) { xyz_.GetZ() = z; }
 	};
 
 

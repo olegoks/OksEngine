@@ -12,6 +12,7 @@ namespace OksEngine {
 			Context* context,
 			const Math::Vector3f& position,
 			const Math::Vector3f& direction) : ECSComponent{ context } { }
+		
 	};
 
 }

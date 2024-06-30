@@ -29,7 +29,7 @@ namespace OksEngine {
 		void AddCamera(const Math::Vector3f& position,
 			const Math::Vector3f& direction);
 
-		void AddPosition(int x, int y, int z);
+		void AddPosition(float x, float y, float z);
 
 	private:
 		[[nodiscard]]

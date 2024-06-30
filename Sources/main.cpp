@@ -32,7 +32,7 @@ int main(int argc, char** argv){
         "GrassBlock.png");
 
     Entity camera = engine.CreateEntity();
-    grassBlock.AddPosition(0, 0, 0);
+    camera.AddPosition(5.f, 0.f, 0.f);
     camera.AddBehaviour("Camera.lua", "Camera");
     camera.AddCamera({ 5.f, 0.f, 0.f }, { -5.f, 0.f, 0.f });
 

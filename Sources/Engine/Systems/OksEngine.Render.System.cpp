@@ -35,9 +35,10 @@ namespace OksEngine {
 
 	void CameraSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
 		auto* camera = world->GetComponent<Camera>(entityId);
+		auto* position = world->GetComponent<Position>(entityId);
 		if (camera == nullptr) return;
 		if (camera->isActive_) {
-			GetContext().GetRenderSubsystem()->SetCamera(camera->position_, camera->direction_);
+			GetContext().GetRenderSubsystem()->SetCamera(position->xyz_, camera->direction_);
 		}
 	}
 
