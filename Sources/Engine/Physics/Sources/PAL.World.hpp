@@ -9,12 +9,13 @@ namespace PAL {
 		struct CreateInfo {
 			Math::Vector3f gravity_{ 0.f, -9.81, 0.f };
 		};
-		World(const CreateInfo& createInfo) {
 
-		}
+		World(const CreateInfo& createInfo) : 
+			createInfo_{ createInfo } { }
 
 
 	private:
+		CreateInfo createInfo_;
 	};
 
 }

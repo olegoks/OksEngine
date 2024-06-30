@@ -7,7 +7,7 @@ namespace PAL {
 	class API {
 	public:
 
-		virtual std::shared_ptr<World> CreateWorld() = 0;
+		virtual std::shared_ptr<World> CreateWorld(const PAL::World::CreateInfo createInfo) = 0;
 
 	private:
 	};

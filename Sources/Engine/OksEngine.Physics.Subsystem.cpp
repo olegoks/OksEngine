@@ -7,10 +7,11 @@ namespace OksEngine {
 	PhysicsSubsystem::PhysicsSubsystem(const CreateInfo& createInfo) : 
 		Subsystem{ 
 			Subsystem::Type::Physics,
-			createInfo.context_ } { 
+			createInfo.context_ }, 
+			physicsEngine_{ nullptr } { 
+	
+		physicsEngine_ = std::make_shared<PE::PhysicsEngine>();
 		
-		std::shared_ptr<PAL::API> api = PAL::CreateAPI();
-		std::shared_ptr<PAL::World> world = api->CreateWorld();
 	}
 
 	void PhysicsSubsystem::Update() noexcept {
