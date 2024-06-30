@@ -29,4 +29,19 @@ namespace OksEngine {
 	}
 
 
+
+	CameraSystem::CameraSystem(Context& context) noexcept :
+		ECSSystem{ context } { }
+
+	void CameraSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+		auto* camera = world->GetComponent<Camera>(entityId);
+		if (camera == nullptr) return;
+	}
+
+	Common::TypeId CameraSystem::GetTypeId() const noexcept {
+		return Common::TypeInfo<CameraSystem>().GetId();
+	}
+
+
+
 }

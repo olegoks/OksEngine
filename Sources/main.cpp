@@ -30,6 +30,10 @@ int main(int argc, char** argv){
         "GrassBlock.obj",
         "GrassBlock.mtl",
         "GrassBlock.png");
+
+    Entity camera = engine.CreateEntity();
+    camera.AddCamera({ 5.f, 0.f, 0.f }, { -5.f, 0.f, 0.f });
+
     engine.Run();
 
     return 0;

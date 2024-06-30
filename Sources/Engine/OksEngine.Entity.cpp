@@ -2,6 +2,7 @@
 #include <OksEngine.Entity.hpp>
 #include <OksEngine.Behaviour.hpp>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
+#include <OksEngine.Camera.hpp>
 
 namespace OksEngine {
 
@@ -27,7 +28,19 @@ namespace OksEngine {
 	}
 
 	void Entity::AddPosition(int x, int y, int z) {
-		world_->CreateComponent<Position>(GetId(), x, y, z);
+		world_->CreateComponent<Position>(
+			GetId(),
+			x, y, z);
+	}
+
+	void Entity::AddCamera(
+		const Math::Vector3f& position,
+		const Math::Vector3f& direction) {
+		world_->CreateComponent<Camera>(
+			GetId(),
+			&context_,
+			position,
+			direction);
 	}
 
 }
