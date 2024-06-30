@@ -80,9 +80,12 @@ namespace PhysX {
 			foundation_->release();
 		}
 
-		virtual std::shared_ptr<PAL::World> CreateWorld() override {
-			PAL::World::CreateInfo createInfo;
-			return std::make_shared<PhysX::World>(createInfo);
+		virtual std::shared_ptr<PAL::World> CreateWorld(const PAL::World::CreateInfo createInfo) override {
+			PhysX::World::CreateInfo physxCreateInfo{
+				.palWorldCreateInfo_ = createInfo,
+				.physics_ = physics_
+			};
+			return std::make_shared<PhysX::World>(physxCreateInfo);
 		}
 	private:
 		physx::PxFoundation* foundation_ = nullptr;

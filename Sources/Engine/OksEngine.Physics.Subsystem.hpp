@@ -1,6 +1,7 @@
 
 #include <OksEngine.Subsystem.hpp>
 #include <PAL.API.hpp>
+#include <PE.PhysicsEngine.hpp>
 
 namespace OksEngine {
 
@@ -18,8 +19,7 @@ namespace OksEngine {
 
 
 	private:
-		std::shared_ptr<PAL::API> api_ = nullptr; 
-		std::shared_ptr<PAL::World> world_ = nullptr;
+		std::shared_ptr<PE::PhysicsEngine> physicsEngine_ = nullptr;
 	};
 
 }
