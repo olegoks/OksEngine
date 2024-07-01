@@ -33,13 +33,6 @@ namespace OksEngine {
 					behaviour->CallInputProcessor(keyStr.c_str(), eventStr.c_str(), offsetX, offsetY);
 				}
 			}
-			{
-				/*auto maybeEvent = GetContext().GetUISubsystem()->GetLastMouseEvent();
-				if (maybeEvent.has_value()) {
-					std::string textPos = std::to_string(maybeEvent.value().GetX()) + ":" + std::to_string(maybeEvent.value().GetY());
-					behaviour->CallInputProcessor(textPos.c_str());
-				}*/
-			}
 		}
 
 		virtual void EndUpdate() override {
