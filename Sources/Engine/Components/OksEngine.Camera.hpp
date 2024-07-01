@@ -20,6 +20,10 @@ namespace OksEngine {
 			return direction_.GetZ();
 		}
 
+		void SetDirection(float x, float y, float z) {
+			direction_ = { x, y, z};
+		}
+
 		void SetDirectionX(float x) {
 			direction_.GetX() = x;
 		}

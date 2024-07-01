@@ -64,10 +64,7 @@ namespace RE {
 		Model drawnModel;
 		for (const auto& shape : model) {
 			Geometry::VertexCloud<Geometry::Vertex3fnc> verticesColored;
-			//if (shapeIndex == 0) {
-			//	shapeIndex++;
-			//	continue;
-			//}
+
 			const auto& vertices = shape.GetVertices();
 			for (const auto& vertex : vertices) {
 				verticesColored.Add(vertex);
@@ -77,7 +74,7 @@ namespace RE {
 				(RAL::Vertex3fnc*)verticesColored.GetData(),
 				verticesColored.GetVerticesNumber(),
 				shape.GetIndices().GetData(),
-				shape.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
+				shape.GetIndicesNumber());
 			drawnModel.shapes_.push_back({ shapeId });
 		}
 		return drawnModel;
