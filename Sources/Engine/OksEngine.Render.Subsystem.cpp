@@ -110,7 +110,28 @@ namespace OksEngine {
 		}
 	}
 
+	[[nodiscard]]
+	Common::Index RenderSubsystem::RenderModel(std::string objName, std::string mtlName) {
 
+		auto& context = GetContext();
+		auto resourceSubsystem = context.GetResourceSubsystem();
+
+
+		const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + objName);
+		ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
+
+		const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + mtlName);
+		ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
+
+		std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
+		std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
+
+		auto flatShadedModel = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
+
+		RE::RenderEngine::Model model = engine_->RenderModel({ 0, 0, 0 }, *flatShadedModel);
+		models_.push_back(model);
+		return models_.size() - 1;
+	}
 
 	[[nodiscard]]
 	Common::Index RenderSubsystem::RenderModel(std::string objName, std::string mtlName, std::string textureName) {

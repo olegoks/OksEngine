@@ -58,6 +58,7 @@ namespace OksEngine {
 			.addFunction("SetDirectionX", &Camera::SetDirectionX)
 			.addFunction("SetDirectionY", &Camera::SetDirectionY)
 			.addFunction("SetDirectionZ", &Camera::SetDirectionZ)
+			.addFunction("SetDirection", &Camera::SetDirection)
 			.endClass();
 
 

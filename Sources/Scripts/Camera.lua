@@ -6,7 +6,6 @@ Camera = setmetatable({ },
 
 function Camera:New()
     local Camera = Entity:New()
-    Camera.Counter = 0;
     Camera.WPressed = false
     Camera.SPressed = false
     Camera.yaw = -90.0
@@ -17,7 +16,22 @@ function Camera:New()
         --print(self.Counter)
     end
 
-    function Camera:ChangePosition()
+    function Camera:MoveForward(speed)
+        position = Camera:GetComponent("Position")
+        cameraComp = Camera:GetComponent("Camera")
+        position:SetX(position:GetX() + cameraComp:GetDirectionX() * speed)
+        position:SetY(position:GetY() + cameraComp:GetDirectionY() * speed)
+        position:SetZ(position:GetZ() + cameraComp:GetDirectionZ() * speed)
+    end
+
+    function Camera:MoveBackward(speed)
+        position = Camera:GetComponent("Position")
+        cameraComp = Camera:GetComponent("Camera")
+        position:SetX(position:GetX() - cameraComp:GetDirectionX() * 0.1)
+        position:SetY(position:GetY() - cameraComp:GetDirectionY() * 0.1)
+        position:SetZ(position:GetZ() - cameraComp:GetDirectionZ() * 0.1)
+    end
+    function Camera:UpDirection()
 
     end
 
@@ -30,14 +44,10 @@ function CameraUpdater:Update(Camera, deltaMs)
     position = Camera:GetComponent("Position")
     cameraComp = Camera:GetComponent("Camera")
     if Camera.WPressed then
-        position:SetX(position:GetX() + cameraComp:GetDirectionX() * 0.1)
-        position:SetY(position:GetY() + cameraComp:GetDirectionY() * 0.1)
-        position:SetZ(position:GetZ() + cameraComp:GetDirectionZ() * 0.1)
+       Camera:MoveForward(0.1)
     end
     if Camera.SPressed then
-        position:SetX(position:GetX() - cameraComp:GetDirectionX() * 0.1)
-        position:SetY(position:GetY() - cameraComp:GetDirectionY() * 0.1)
-        position:SetZ(position:GetZ() - cameraComp:GetDirectionZ() * 0.1)
+       Camera:MoveBackward(0.1)
     end
 end
 
@@ -65,11 +75,11 @@ function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
         end
     end 
     
-    offsetX = offsetX 
-    offsetY = offsetY 
+    offsetX = offsetX * 0.05
+    offsetY = offsetY * 0.05
 
-    Camera.yaw = Camera.yaw + offsetX;
-    Camera.pitch =  Camera.pitch + offsetY;
+    Camera.yaw = Camera.yaw + offsetY;
+    Camera.pitch =  Camera.pitch - offsetX;
 
     if Camera.pitch > 89.0 then
         Camera.pitch = 89.0
@@ -80,14 +90,11 @@ function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
     local frontX = math.cos(math.rad(Camera.pitch)) *  math.cos(math.rad(Camera.yaw))
     local frontY = math.sin(math.rad(Camera.pitch))
     local frontZ = math.cos(math.rad(Camera.pitch)) * math.sin(math.rad(Camera.yaw))
-    --local dirX = cameraComp:GetDirectionX()
-    cameraComp:SetDirectionX(frontX)
 
-    --local dirY = cameraComp:GetDirectionY()
-    cameraComp:SetDirectionY(frontY)
+    -- cameraComp:SetDirectionX(frontX)
+    -- cameraComp:SetDirectionY(frontY)
+    -- cameraComp:SetDirectionZ(frontZ)
 
-    --local dirZ = cameraComp:GetDirectionZ()
-    cameraComp:SetDirectionZ(frontZ)
     print("Success")
 end
 

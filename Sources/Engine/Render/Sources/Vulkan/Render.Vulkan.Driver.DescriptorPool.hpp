@@ -21,7 +21,7 @@ namespace Render::Vulkan {
 			VkDescriptorPoolSize poolSizes[] = {
 				{
 					VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-					static_cast<uint32_t>(size + 100)
+					static_cast<uint32_t>(size + 1000)
 				},
 				{
 					VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -35,7 +35,7 @@ namespace Render::Vulkan {
 				poolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
 				poolInfo.poolSizeCount = sizeof(poolSizes) / sizeof(VkDescriptorPoolSize);
 				poolInfo.pPoolSizes = &poolSizes[0];
-				poolInfo.maxSets = static_cast<uint32_t>(size) + 100;
+				poolInfo.maxSets = static_cast<uint32_t>(size) + 1000;
 				poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; //If individual descriptor sets can be freed or not
 			}
 			if (vkCreateDescriptorPool(logicDevice->GetHandle(), &poolInfo, nullptr, &descriptorPool_) != VK_SUCCESS) {

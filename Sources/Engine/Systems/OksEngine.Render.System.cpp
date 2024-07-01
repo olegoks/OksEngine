@@ -13,11 +13,20 @@ namespace OksEngine {
 		auto* immutableRenderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 		if (immutableRenderGeometry == nullptr) return;
 		if (immutableRenderGeometry->modelId_ == Common::Limits<Common::Index>::Max()) {
-			Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModel(
-				immutableRenderGeometry->modelObjFileName_,
-				immutableRenderGeometry->modelMtlFileName_,
-				immutableRenderGeometry->modelTextureFileName_);
-			immutableRenderGeometry->modelId_ = modelIndex;
+			if (immutableRenderGeometry->modelTextureFileName_ != "") {
+				Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModel(
+					immutableRenderGeometry->modelObjFileName_,
+					immutableRenderGeometry->modelMtlFileName_,
+					immutableRenderGeometry->modelTextureFileName_);
+				immutableRenderGeometry->modelId_ = modelIndex;
+			}
+			else {
+				Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModel(
+					immutableRenderGeometry->modelObjFileName_,
+					immutableRenderGeometry->modelMtlFileName_);
+				immutableRenderGeometry->modelId_ = modelIndex;
+			}
+			
 		}
 		GetContext().GetRenderSubsystem()->SetModelMatrix(
 			immutableRenderGeometry->modelId_,

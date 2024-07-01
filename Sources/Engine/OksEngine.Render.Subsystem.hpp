@@ -22,6 +22,7 @@ namespace OksEngine {
 
 		[[nodiscard]]
 		Common::Index RenderModel(std::string objName, std::string mtlName, std::string textureName);
+		Common::Index RenderModel(std::string objName, std::string mtlName);
 
 		void SetModelMatrix(Common::Index modelIndex, const Math::Matrix4x4f& modelMatrix) {
 			engine_->SetModelMatrix(models_[modelIndex], modelMatrix);
