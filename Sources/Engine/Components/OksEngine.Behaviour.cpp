@@ -3,6 +3,8 @@
 #include <filesystem>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
 #include <OksEngine.Camera.hpp>
+#include <Geometry.Shapes.hpp>
+
 namespace OksEngine {
 
 	Behaviour::Behaviour(
@@ -59,6 +61,17 @@ namespace OksEngine {
 			.addFunction("SetDirectionY", &Camera::SetDirectionY)
 			.addFunction("SetDirectionZ", &Camera::SetDirectionZ)
 			.addFunction("SetDirection", &Camera::SetDirection)
+			.endClass();
+
+		luabridge::getGlobalNamespace(state_)
+			.beginClass<RigidBody>("RigidBody")
+			.addConstructor<void(*)(Context* context,
+				float staticFriction,
+				float dynamicFriction,
+				float restitution,
+				float halfExtentX,
+				float halfExtentY,
+				float halfExtentZ)>()
 			.endClass();
 
 

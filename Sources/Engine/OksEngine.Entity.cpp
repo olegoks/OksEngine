@@ -2,6 +2,7 @@
 #include <OksEngine.Entity.hpp>
 #include <OksEngine.Behaviour.hpp>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
+#include <OksEngine.MapRigidBodyToRenderGeometry.hpp>
 #include <OksEngine.Camera.hpp>
 
 namespace OksEngine {
@@ -14,6 +15,30 @@ namespace OksEngine {
 			objName,
 			mtlName,
 			textureName);
+	}
+
+	void Entity::AddMapRigidBodyToRenderGeometry() {
+		world_->CreateComponent<MapRigidBodyToRenderGeometry>(
+			GetId(),
+			&context_);
+	}
+
+	void Entity::AddRigidBody(
+		float staticFriction,
+		float dynamicFriction,
+		float restitution,
+		float halfExtentX,
+		float halfExtentY, 
+		float halfExtentZ) {
+		world_->CreateComponent<RigidBody>(
+			GetId(),
+			&context_,
+			staticFriction,
+			dynamicFriction, 
+			restitution,
+			halfExtentX,
+			halfExtentY,
+			halfExtentZ);
 	}
 
 	void Entity::AddBehaviour(

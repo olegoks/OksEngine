@@ -2,6 +2,8 @@
 
 #include <Math.Vector.hpp>
 
+#include <PAL.RigidBody.hpp>
+
 namespace PAL {
 
 	class World {
@@ -13,6 +15,9 @@ namespace PAL {
 		World(const CreateInfo& createInfo) : 
 			createInfo_{ createInfo } { }
 
+		virtual void AddRigidBody(std::shared_ptr<PAL::RigidBody> rigidBody) = 0;
+
+		virtual void Simulate(float ms) = 0;
 
 	private:
 		CreateInfo createInfo_;

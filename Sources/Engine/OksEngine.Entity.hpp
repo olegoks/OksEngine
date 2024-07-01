@@ -5,6 +5,7 @@
 #include <ECS.hpp>
 #include <OksEngine.Context.hpp>
 #include <Math.Matrix.hpp>
+#include <Geometry.Shapes.hpp>
 
 namespace OksEngine {
 
@@ -30,6 +31,13 @@ namespace OksEngine {
 			const Math::Vector3f& direction);
 
 		void AddPosition(float x, float y, float z);
+		void AddMapRigidBodyToRenderGeometry();
+		void AddRigidBody(float staticFriction_,
+			float dynamicFriction_,
+			float restitution_,
+			float halfExtentX,
+			float halfExtentY,
+			float halfExtentZ);
 
 	private:
 		[[nodiscard]]

@@ -1,4 +1,6 @@
 
+#pragma once 
+
 #include <OksEngine.Subsystem.hpp>
 #include <PAL.API.hpp>
 #include <PE.PhysicsEngine.hpp>
@@ -15,10 +17,18 @@ namespace OksEngine {
 
 		PhysicsSubsystem(const CreateInfo& createInfo);
 
+		Common::Index CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo);
+		void AddRigidBodyToWorld(Common::Index rbIndex);
+		[[nodiscard]]
+		Math::Matrix4x4f GetRigidBodyTransform(Common::Index rbIndex) {
+			return rigidBodies_[rbIndex]->GetTransform();
+		}
 		virtual void Update() noexcept override;
 
 
 	private:
+		std::vector<std::shared_ptr<PAL::RigidBody>> rigidBodies_;
+		std::shared_ptr<PAL::World> world_ = nullptr;
 		std::shared_ptr<PE::PhysicsEngine> physicsEngine_ = nullptr;
 	};
 

@@ -12,6 +12,10 @@ namespace PhysX {
 		};
 
 		World(const CreateInfo& createInfo);
+
+		virtual void AddRigidBody(std::shared_ptr<PAL::RigidBody> rigidBody) override;
+		virtual void Simulate(float ms) override;
+
 	private:
 		physx::PxScene* scene_ = nullptr;
 	};

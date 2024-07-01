@@ -70,7 +70,9 @@ namespace Render::Vulkan {
 		}
 
 		void SetModelMatrix(const Math::Matrix4x4f& modelMatrix) {
-			model_ = modelMatrix;
+			auto fixed = model_;
+			fixed[1][3] += 0.001;
+			model_ = fixed;
 			transformBuffer_->Fill(&model_);
 		}
 
