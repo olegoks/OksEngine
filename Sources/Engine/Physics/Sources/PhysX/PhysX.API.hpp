@@ -2,6 +2,7 @@
 #include <PAL.API.hpp>
 #include <OS.Assert.hpp>
 #include <PhysX.World.hpp>
+#include <PhysX.RigidBody.hpp>
 #include <PxPhysicsAPI.h>
 #include <PxPhysics.h>
 #include <PhysX.World.hpp>
@@ -37,37 +38,37 @@ namespace PhysX {
 			if (!PxInitExtensions(*physics_, pvd_))
 				OS::AssertFail();
 
-			PxSceneDesc sceneDescription(physics_->getTolerancesScale());
-			sceneDescription.gravity = PxVec3(0.0f, -9.81f, 0.0f);
-			PxDefaultCpuDispatcher* dispatcher = PxDefaultCpuDispatcherCreate(2);
-			sceneDescription.cpuDispatcher = dispatcher;
-			sceneDescription.filterShader = PxDefaultSimulationFilterShader;
-			PxScene* scene = physics_->createScene(sceneDescription);
+			//PxSceneDesc sceneDescription(physics_->getTolerancesScale());
+			//sceneDescription.gravity = PxVec3(0.0f, -9.81f, 0.0f);
+			//PxDefaultCpuDispatcher* dispatcher = PxDefaultCpuDispatcherCreate(2);
+			//sceneDescription.cpuDispatcher = dispatcher;
+			//sceneDescription.filterShader = PxDefaultSimulationFilterShader;
+			//PxScene* scene = physics_->createScene(sceneDescription);
 
-			PxPvdSceneClient* pvdClient = scene->getScenePvdClient();
-			if (pvdClient) {
-				pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
-				pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
-				pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
-			}
+			//PxPvdSceneClient* pvdClient = scene->getScenePvdClient();
+			//if (pvdClient) {
+			//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONSTRAINTS, true);
+			//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
+			//	pvdClient->setScenePvdFlag(PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
+			//}
 
-			PxMaterial* material = physics_->createMaterial(0.5f, 0.5f, 0.6f);
-			PxRigidStatic* groundPlane = PxCreatePlane(*physics_, PxPlane(0, 1, 0, 1), *material);
-			scene->addActor(*groundPlane);
+			//PxMaterial* material = physics_->createMaterial(0.5f, 0.5f, 0.6f);
+			//PxRigidStatic* groundPlane = PxCreatePlane(*physics_, PxPlane(0, 1, 0, 10), *material);
+			//scene->addActor(*groundPlane);
 
-			PxU32 size = 50;
-			float halfExtent = .5f;
-			PxTransform t{PxVec3(0)};
-			PxShape* shape = physics_->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *material);
-			for (PxU32 i = 0; i < size; i++) {
-				for (PxU32 j = 0; j < size - i; j++) {
-					PxTransform localTm(PxVec3(PxReal(j*2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
-					PxRigidDynamic* body = physics_->createRigidDynamic(t.transform(localTm));
-					body->attachShape(*shape);
-					PxRigidBodyExt::updateMassAndInertia(*body, 10.f);
-					scene->addActor(*body);
-				}
-			}
+			//PxU32 size = 50;
+			//float halfExtent = .5f;
+			//PxTransform t{PxVec3(0)};
+			//PxShape* shape = physics_->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *material);
+			//for (PxU32 i = 0; i < size; i++) {
+			//	for (PxU32 j = 0; j < size - i; j++) {
+			//		PxTransform localTm(PxVec3(PxReal(j*2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
+			//		PxRigidDynamic* body = physics_->createRigidDynamic(t.transform(localTm));
+			//		body->attachShape(*shape);
+			//		PxRigidBodyExt::updateMassAndInertia(*body, 10.f);
+			//		scene->addActor(*body);
+			//	}
+			//}
 
 			//while (1) {
 			//	scene->simulate(1.0 / 60.f);
@@ -75,18 +76,31 @@ namespace PhysX {
 			//}
 		}
 
-		~API() {
-			physics_->release();
-			foundation_->release();
-		}
 
-		virtual std::shared_ptr<PAL::World> CreateWorld(const PAL::World::CreateInfo createInfo) override {
+		virtual std::shared_ptr<PAL::World> 
+		CreateWorld(const PAL::World::CreateInfo& createInfo) override {
 			PhysX::World::CreateInfo physxCreateInfo{
 				.palWorldCreateInfo_ = createInfo,
 				.physics_ = physics_
 			};
 			return std::make_shared<PhysX::World>(physxCreateInfo);
 		}
+
+		virtual std::shared_ptr<PAL::RigidBody> 
+		CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo) override {
+			PhysX::RigidBody::CreateInfo physxCreateInfo{
+				.palCreateInfo_ = createInfo,
+				.physics_ = physics_
+			};
+			return std::make_shared<PhysX::RigidBody>(physxCreateInfo);
+		}
+
+
+		~API() {
+			physics_->release();
+			foundation_->release();
+		}
+
 	private:
 		physx::PxFoundation* foundation_ = nullptr;
 		physx::PxPhysics* physics_ = nullptr;

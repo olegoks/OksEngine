@@ -22,23 +22,25 @@ int main(int argc, char** argv){
     //dragonLore.AddBehaviour("TestObject.lua", "TestObject");
     //dragonLore.AddImmutableRenderGeometry(Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }), "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
     //
-    //Entity grassBlock = engine.CreateEntity();
-    //grassBlock.AddPosition(0, 0, 0);
-    //grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
-    //grassBlock.AddImmutableRenderGeometry(
-    //    Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }),
-    //    "GrassBlock.obj",
-    //    "GrassBlock.mtl",
-    //    "GrassBlock.png");
-
-
-    Entity forset = engine.CreateEntity();
-    forset.AddPosition(0, 0, 0);
-    forset.AddImmutableRenderGeometry(
+    Entity grassBlock = engine.CreateEntity();
+    grassBlock.AddPosition(0, 0, 0);
+    grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
+    grassBlock.AddImmutableRenderGeometry(
         Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }),
-        "axes.obj",
-        "axes.mtl",
-        "");
+        "GrassBlock.obj",
+        "GrassBlock.mtl",
+        "GrassBlock.png");
+    grassBlock.AddRigidBody(0.5f, 0.5f, 0.5f, 0.5f,0.5f,0.5f);
+    grassBlock.AddMapRigidBodyToRenderGeometry();
+
+
+    //Entity forset = engine.CreateEntity();
+    //forset.AddPosition(0, 0, 0);
+    //forset.AddImmutableRenderGeometry(
+    //    Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }),
+    //    "axes.obj",
+    //    "axes.mtl",
+    //    "");
 
 
     Entity camera = engine.CreateEntity();

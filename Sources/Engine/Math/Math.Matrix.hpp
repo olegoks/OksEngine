@@ -72,6 +72,12 @@ namespace Math {
 
 		}
 
+		[[nodiscard]]
+		Vector<3, Type> GetOrigin() const noexcept requires (rows == 4 && columns == 4) {
+			Vector<4, Type> row = GetRow(3);
+			return { row[0], row[1], row[2] };
+		}
+
 		static constexpr Matrix GetRotate(
 			const Angle& angle, 
 			const Math::Vector<3, Type>& vector) noexcept requires (rows == 4 && columns == 4) {
