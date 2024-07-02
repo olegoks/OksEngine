@@ -12,10 +12,10 @@ file(GLOB PUBLIC_SOURCES
     LIST_DIRECTORIES false
     *.hpp
     *.h
-    Components/*.hpp
-    Components/*.h
-    Systems/*.hpp
-    Systems/*.h
+    #Components/*.hpp
+    #Components/*.h
+    #Systems/*.hpp
+    #Systems/*.h
 
 )
 
@@ -23,31 +23,68 @@ file(GLOB PRIVATE_SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
 
-    Components/*.cpp
-    Components/*.c
-    Systems/*.cpp
-    Systems/*.c
+    #Components/*.cpp
+    #Components/*.c
+    #Systems/*.cpp
+    #Systems/*.c
     *.cpp
     *.c
 )
 
 
+file(GLOB PUBLIC_SOURCES_COMPONENTS
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Components/*.hpp
+    Components/*.h
+)
+
+file(GLOB PRIVATE_SOURCES_COMPONENTS
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Components/*.cpp
+    Components/*.c
+)
+
+file(GLOB PUBLIC_SOURCES_SYSTEMS
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Systems/*.hpp
+    Systems/*.h
+)
+
+file(GLOB PRIVATE_SOURCES_SYSTEMS
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Systems/*.cpp
+    Systems/*.c
+)
+
+file(GLOB PUBLIC_SOURCES_SUBSYSTEMS
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Subsystems/*.hpp
+    Subsystems/*.h
+)
+
+file(GLOB PRIVATE_SOURCES_SUBSYSTEMS
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Subsystems/*.cpp
+    Subsystems/*.c
+)
 
 target_sources(OksEngine
     PUBLIC
-    ${PUBLIC_SOURCES}
-        # Engine.hpp
-        # Components/OksEngine.Behaviour.hpp
-        # Components/OksEngine.Position.hpp
-        # Components/OksEngine.RenderableGeometry.hpp
-        # OksEngine.Render.Subsystem.hpp
-        # OksEngine.Resource.Subsystem.hpp
-        # OksEngine.UI.Subsystem.hpp
-        # OksEngine.Subsystem.hpp
+        ${PUBLIC_SOURCES}
+        ${PUBLIC_SOURCES_COMPONENTS}
+        ${PUBLIC_SOURCES_SYSTEMS}
+        ${PUBLIC_SOURCES_SUBSYSTEMS}
     PRIVATE
-    ${PRIVATE_SOURCES}
-        # Engine.cpp
-        # Components/OksEngine.Behaviour.cpp
+        ${PRIVATE_SOURCES}
+        ${PRIVATE_SOURCES_COMPONENTS}
+        ${PRIVATE_SOURCES_SYSTEMS}
+        ${PRIVATE_SOURCES_SUBSYSTEMS}
     )
 
 target_link_libraries(OksEngine
@@ -65,19 +102,25 @@ target_link_libraries(OksEngine
 source_group("Sources"
     FILES
     ${PUBLIC_SOURCES}
-     ${PRIVATE_SOURCES}
-    # OksEngine.Resource.Subsystem.hpp
-    # Components/OksEngine.Behaviour.hpp
-    # Components/OksEngine.Behaviour.cpp
-    # Components/OksEngine.Position.hpp
-    # Components/OksEngine.RenderableGeometry.hpp
-    # OksEngine.Render.Subsystem.hpp
-    # OksEngine.UI.Subsystem.hpp
-    # OksEngine.Subsystem.hpp
-    # Engine.hpp
-    # Engine.cpp
+    ${PRIVATE_SOURCES}
     )
 
+source_group("Sources/Components"
+    FILES
+    ${PUBLIC_SOURCES_COMPONENTS}
+    ${PRIVATE_SOURCES_COMPONENTS}
+    )
+source_group("Sources/Systems"
+    FILES
+    ${PUBLIC_SOURCES_SYSTEMS}
+    ${PRIVATE_SOURCES_SYSTEMS}
+    )
+
+source_group("Sources/Subsystems"
+    FILES
+    ${PUBLIC_SOURCES_SUBSYSTEMS}
+    ${PRIVATE_SOURCES_SUBSYSTEMS}
+    )
 
 target_include_directories(OksEngine
     PUBLIC
