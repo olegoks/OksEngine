@@ -35,7 +35,9 @@ namespace UI {
 		};
 
 		enum class Key : Common::UInt64 {
+			Q,
 			W,
+			E,
 			A,
 			S,
 			D,
@@ -94,6 +96,13 @@ namespace UI {
 					keyboardKey = Key::A;
 				} else if (key == GLFW_KEY_D) {
 					keyboardKey = Key::D;
+				}
+				else if (key == GLFW_KEY_Q) {
+					keyboardKey = Key::Q;
+				}
+				else if (key == GLFW_KEY_E) {
+					keyboardKey = Key::E;
+
 				} else {
 					return;
 				}

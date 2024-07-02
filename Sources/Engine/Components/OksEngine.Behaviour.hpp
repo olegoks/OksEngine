@@ -80,21 +80,23 @@ namespace OksEngine {
 
 		}
 
+		virtual void StartUpdate() override { }
+
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
 			Behaviour* behaviour = world->GetComponent<Behaviour>(entityId);
 			if (behaviour == nullptr) return;
-
 			auto now = std::chrono::high_resolution_clock::now();
 			auto delta = now - behaviour->previousUpdateTimePoint_;
 			behaviour->CallUpdater(std::chrono::duration_cast<std::chrono::milliseconds>(delta).count());
 			behaviour->previousUpdateTimePoint_ = now;
 		}
-		virtual void StartUpdate() override { }
+
 		virtual void EndUpdate() override { }
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<BehaviourSystem>().GetId();
 		}
+
 	private:
 		
 	};
