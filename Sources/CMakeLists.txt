@@ -20,7 +20,8 @@ file(GLOB SOURCES
     *.c
 )
 
-source_group("Sources"
+
+source_group("Sources/Engine"
     FILES
     ${SOURCES})
 

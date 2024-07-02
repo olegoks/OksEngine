@@ -18,8 +18,19 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "9a327513e39bfa4b",
+            "type": "leaf",
+            "state": {
+              "type": "release-notes",
+              "state": {
+                "currentVersion": "1.6.5"
+              }
+            }
           }
-        ]
+        ],
+        "currentTab": 1
       }
     ],
     "direction": "vertical"
@@ -146,7 +157,7 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "a873fcafaffd09bf",
+  "active": "9a327513e39bfa4b",
   "lastOpenFiles": [
     "Work/Math/Векторное произведение векторов.md",
     "Work/Math/Коллинеарность векторов.md",
