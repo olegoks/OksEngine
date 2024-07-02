@@ -114,6 +114,15 @@ namespace Math {
 			return result;
 		}
 
+		Vector operator*(const Vector& vector) const noexcept {
+			Vector result;
+
+			for (Common::Index elementIndex = 0; elementIndex < size; elementIndex++) {
+				result[elementIndex] = (*this)[elementIndex] * vector[elementIndex];
+			}
+			return result;
+		}
+
 		Vector operator-(const Vector& vector) const noexcept {
 			Vector result;
 
@@ -122,6 +131,16 @@ namespace Math {
 			}
 			return result;
 		}
+
+		Vector operator+(const Vector& vector) const noexcept {
+			Vector result;
+
+			for (Common::Index elementIndex = 0; elementIndex < size; elementIndex++) {
+				result[elementIndex] = (*this)[elementIndex] + vector[elementIndex];
+			}
+			return result;
+		}
+
 		[[nodiscard]]
 		static Vector Zero() { return Vector{}; }
 

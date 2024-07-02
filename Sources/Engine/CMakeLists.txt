@@ -12,21 +12,11 @@ file(GLOB PUBLIC_SOURCES
     LIST_DIRECTORIES false
     *.hpp
     *.h
-    #Components/*.hpp
-    #Components/*.h
-    #Systems/*.hpp
-    #Systems/*.h
-
 )
 
 file(GLOB PRIVATE_SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
-
-    #Components/*.cpp
-    #Components/*.c
-    #Systems/*.cpp
-    #Systems/*.c
     *.cpp
     *.c
 )
@@ -126,7 +116,8 @@ target_include_directories(OksEngine
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}
         ${CMAKE_CURRENT_LIST_DIR}/Components
-        ${CMAKE_CURRENT_LIST_DIR}/Systems)
+        ${CMAKE_CURRENT_LIST_DIR}/Systems
+        ${CMAKE_CURRENT_LIST_DIR}/Subsystems)
 
 
 add_subdirectory(Common)

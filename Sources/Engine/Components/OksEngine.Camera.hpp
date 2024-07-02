@@ -34,6 +34,36 @@ namespace OksEngine {
 			direction_.GetZ() = z;
 		}
 
+		void DirectionUp() {
+
+		}
+
+		void Forward(float delta) {
+			position_ = position_ + direction_.Normalize() * delta;
+		}
+
+		void Backward(float delta){
+			position_ = position_ - direction_.Normalize() * delta;
+		}
+
+		void Up(float delta) {
+			position_.GetY() += delta;
+		}
+
+		void Down(float delta) {
+			position_.GetY() -= delta;
+		}
+
+		void Left(float delta) {
+			Math::Vector3f dirProj{ direction_.GetX(), 0.0f, direction_.GetY() };
+			position_ = position_ + dirProj.CrossProduct(direction_).Normalize() * delta;
+		}
+
+		void Right(float delta) {
+			Math::Vector3f dirProj{ direction_.GetX(), 0.0f, direction_.GetY() };
+			position_ = position_ - dirProj.CrossProduct(direction_).Normalize() * delta;
+		}
+
 		Camera(
 			Context* context,
 			const Math::Vector3f& position,
