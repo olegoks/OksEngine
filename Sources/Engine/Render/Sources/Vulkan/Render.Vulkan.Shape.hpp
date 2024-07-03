@@ -70,18 +70,19 @@ namespace Render::Vulkan {
 		}
 
 		void SetModelMatrix(const Math::Matrix4x4f& modelMatrix) {
-			auto fixed = model_;
-			fixed[1][3] += 0.001;
-			model_ = fixed;
-			transformBuffer_->Fill(&model_);
-		}
-
-		void Rotate(const Vector3f& vectorAround, Math::Angle angle) {
-			const Math::Matrix4x4f rotateMatrix = Math::Matrix4x4f::GetRotate(angle, vectorAround);
-			model_ = model_ * rotateMatrix;
+			//auto fixed = model_;
+			//fixed[1][3] += 0.001;
+			model_ = modelMatrix;//model_ * Math::Matrix4x4f::GetRotate(0.1 * 30.f, { 1.f, 1.f, 0.f }); /** Math::Matrix4x4f::GetRotate(90.f, { 1.f, 0.f, 0.f });*///modelMatrix;
 			Transform transform{ model_ };
 			transformBuffer_->Fill(&transform);
 		}
+
+		//void Rotate(const Vector3f& vectorAround, Math::Angle angle) {
+		//	const Math::Matrix4x4f rotateMatrix = Math::Matrix4x4f::GetRotate(angle, vectorAround);
+		//	model_ = model_ * rotateMatrix;
+		//	Transform transform{ model_ };
+		//	transformBuffer_->Fill(&transform);
+		//}
 
 		[[nodiscard]]
 		Common::Index GetId() const noexcept {

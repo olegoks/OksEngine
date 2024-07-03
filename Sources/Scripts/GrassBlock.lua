@@ -30,10 +30,10 @@ function GrassBlockUpdater:Update(GrassBlock, deltaMs)
     x = position:GetX()
     position:SetX(x + 1)
     renderGeometry = GrassBlock:GetComponent("ImmutableRenderGeometry")
-    graducesPerSecond = 30;
-
-    renderGeometry:Rotate(graducesPerSecond * deltaMs / 1000, 1, 0, 0)
-    --print(graducesPerSecond * deltaMs / 1000)
+    graducesPerSecond = -30.0;
+    renderGeometry:Rotate(0.7, 0.0, 1.0, 0.0)
+    --renderGeometry:Rotate(graducesPerSecond * deltaMs / 1000.0, 0.0, 1.0, 0.0)
+    print(graducesPerSecond * deltaMs / 1000.0)
 end
 
 

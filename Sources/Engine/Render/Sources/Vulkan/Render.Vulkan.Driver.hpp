@@ -232,6 +232,7 @@ namespace Render::Vulkan {
 			graphicsQueueFamily_ = graphicsQueueFamily;
 			presentQueueFamily_ = presentQueueFamily;
 
+			//DEBUG
 			Debug::CreateInfo debugCreateInfo;
 			{
 				debugCreateInfo.instance_ = instance_;
@@ -239,6 +240,7 @@ namespace Render::Vulkan {
 				debug_ = std::make_shared<Debug>(debugCreateInfo);
 			}
 
+			//LOGIC_DEVICE
 			LogicDevice::CreateInfo logicDeviceCreateInfo;
 			{
 				logicDeviceCreateInfo.physicalDevice_ = physicalDevice_;
@@ -249,6 +251,7 @@ namespace Render::Vulkan {
 				logicDevice_ = std::make_shared<LogicDevice>(logicDeviceCreateInfo);
 			}
 
+			//SWAPCHAIN
 			SwapChain::CreateInfo swapChainCreateInfo;
 			{
 				swapChainCreateInfo.imageSize_ = info.surface_.size_;
@@ -265,6 +268,7 @@ namespace Render::Vulkan {
 				swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
 			}
 
+			//COMMAND_POOL
 			CommandPool::CreateInfo commandPoolCreateInfo;
 			{
 				commandPoolCreateInfo.logicDevice_ = logicDevice_;
@@ -617,18 +621,6 @@ namespace Render::Vulkan {
 					clearValue,
 					depthBufferInfo);
 
-				for (auto shape : coloredShapes_) {
-					commandBuffer->BindPipeline(flatShadedModelPipeline_);
-					commandBuffer->BindShape(shape);
-					{
-						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-						descriptorSets.push_back(globalDataDSs_[i]);
-						descriptorSets.push_back(shape->GetTransformDescriptorSet());
-						commandBuffer->BindDescriptorSets(flatShadedModelPipeline_, descriptorSets);
-					}
-					commandBuffer->DrawShape(shape);
-				}
-
 
 				for (auto shape : texturedShapes_) {
 					commandBuffer->BindPipeline(texturedModelPipeline_);
@@ -642,6 +634,20 @@ namespace Render::Vulkan {
 					}
 					commandBuffer->DrawShape(shape);
 				}
+
+				for (auto shape : coloredShapes_) {
+					commandBuffer->BindPipeline(flatShadedModelPipeline_);
+					commandBuffer->BindShape(shape);
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						descriptorSets.push_back(globalDataDSs_[i]);
+						descriptorSets.push_back(shape->GetTransformDescriptorSet());
+						commandBuffer->BindDescriptorSets(flatShadedModelPipeline_, descriptorSets);
+					}
+					commandBuffer->DrawShape(shape);
+				}
+
+
 
 
 				//ImGui_ImplVulkan_NewFrame();
@@ -751,7 +757,7 @@ namespace Render::Vulkan {
 			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 			Math::Vector3f vector{ 0.f, 1.f, 0.f };
-			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });Math::Matrix4x4f::GetIdentity();*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector) * Math::Matrix4x4f::GetRotate(90.f, { 1.f, 0.f, 0.f });
+			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector) * Math::Matrix4x4f::GetRotate(90.f, {1.f, 0.f, 0.f})  ;
 			Math::Vector3f position = camera_->GetPosition();
 			Math::Vector3f direction = camera_->GetDirection();
 			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
@@ -944,24 +950,24 @@ namespace Render::Vulkan {
 			}
 		}
 
-		virtual void Rotate(
-			Common::Index shapeIndex,
-			const Vector3f& aroundVector,
-			Math::Angle angle) override {
+		//virtual void Rotate(
+		//	Common::Index shapeIndex,
+		//	const Vector3f& aroundVector,
+		//	Math::Angle angle) override {
 
-			for (auto shape : coloredShapes_) {
-				if (shape->GetId() == shapeIndex) {
-					shape->Rotate(aroundVector, angle);
-				}
-			}
+		//	for (auto shape : coloredShapes_) {
+		//		if (shape->GetId() == shapeIndex) {
+		//			shape->Rotate(aroundVector, angle);
+		//		}
+		//	}
 
-			for (auto shape : texturedShapes_) {
-				if (shape->GetId() == shapeIndex) {
-					shape->Rotate(aroundVector, angle);
-				}
-			}
+		//	for (auto shape : texturedShapes_) {
+		//		if (shape->GetId() == shapeIndex) {
+		//			shape->Rotate(aroundVector, angle);
+		//		}
+		//	}
 
-		}
+		//}
 
 		virtual Common::UInt64 DrawIndexed(
 			const Math::Matrix4x4f& model_,
@@ -1165,7 +1171,6 @@ namespace Render::Vulkan {
 		std::shared_ptr<DescriptorSetLayout> globalDataDSL_ = nullptr; // Global Data descriptor set layout.
 		std::shared_ptr<DescriptorSetLayout> modelInfoDSL_ = nullptr;
 		std::shared_ptr<DescriptorSetLayout> texturedModelDSL_ = nullptr;
-		//std::shared_ptr<DescriptorSet> modelInfoDescriptorSet_ = nullptr;
 		std::shared_ptr<DescriptorSet> texturedModelInfoDescriptorSet_ = nullptr;
 
 		std::vector<std::shared_ptr<TexturedShape>> texturedShapes_;

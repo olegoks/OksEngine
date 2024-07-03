@@ -80,11 +80,7 @@ namespace RE {
 		return drawnModel;
 	}
 
-	void RenderEngine::RotateModel(const RenderEngine::Model& model, const RAL::Vector3f& aroundVector, Math::Angle angle) {
-		for (auto shape : model.shapes_) {
-			driver_->Rotate(shape.id_, aroundVector, angle);
-		}
-	}
+ 
 
 
 	void RenderEngine::SetModelMatrix(const RenderEngine::Model& model, const Math::Matrix4x4f& modelMatrix) {
