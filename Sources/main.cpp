@@ -13,34 +13,42 @@ int main(int argc, char** argv){
         commandLineParameters
     };
     Engine engine{ engineCreateInfo };
-    //Entity entity = engine.CreateEntity();
-    //entity.AddPosition(0, 0, 0);
-    //entity.AddBehaviour("TestObject.lua", "TestObject");
+    Entity entity = engine.CreateEntity();
+    entity.AddPosition(0, 0, 0);
+    entity.AddBehaviour("TestObject.lua", "TestObject");
 
-    //Entity dragonLore = engine.CreateEntity();
-    //dragonLore.AddPosition(0, 0, 0);
-    //dragonLore.AddBehaviour("TestObject.lua", "TestObject");
-    //dragonLore.AddImmutableRenderGeometry(Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }), "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
-    //
+
+    Entity forset = engine.CreateEntity();
+    forset.AddPosition(0, 0, 0);
+    //forset.AddBehaviour("TestObject.lua", "TestObject");
+    forset.AddImmutableRenderGeometry(
+        Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }),
+        "axes.obj",
+        "axes.mtl",
+        "");
+
+    Entity dragonLore = engine.CreateEntity();
+    dragonLore.AddPosition(0, 0, 0);
+    dragonLore.AddBehaviour("TestObject.lua", "TestObject");
+    dragonLore.AddImmutableRenderGeometry(
+        Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }),
+        "dragon_lore.obj",
+        "dragon_lore.mtl",
+        "dragon_lore.bmp");
+    
+
+
     Entity grassBlock = engine.CreateEntity();
     grassBlock.AddPosition(0, 0, 0);
-    grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
+    grassBlock.AddBehaviour("TestObject.lua", "TestObject");
     grassBlock.AddImmutableRenderGeometry(
         Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }),
         "GrassBlock.obj",
         "GrassBlock.mtl",
         "GrassBlock.png");
-    grassBlock.AddRigidBody(0.5f, 0.5f, 0.5f, 0.5f,0.5f,0.5f);
-    grassBlock.AddMapRigidBodyToRenderGeometry();
+    //grassBlock.AddRigidBody(0.5f, 0.5f, 0.5f, 0.5f,0.5f,0.5f);
+    //grassBlock.AddMapRigidBodyToRenderGeometry();
 
-
-    //Entity forset = engine.CreateEntity();
-    //forset.AddPosition(0, 0, 0);
-    //forset.AddImmutableRenderGeometry(
-    //    Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }),
-    //    "axes.obj",
-    //    "axes.mtl",
-    //    "");
 
 
     Entity camera = engine.CreateEntity();
