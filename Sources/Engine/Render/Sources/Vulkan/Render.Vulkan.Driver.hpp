@@ -49,6 +49,9 @@
 #include <implot.h>
 #include <implot_internal.h>
 
+#define GLM_FORCE_RADIANS
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
 
 namespace Render::Vulkan {
 
@@ -59,6 +62,14 @@ namespace Render::Vulkan {
 			alignas(16) Math::Matrix4x4f model_;
 			alignas(16) Math::Matrix4x4f view_;
 			alignas(16) Math::Matrix4x4f proj_;
+			alignas(16) Math::Vector3f lightPos_;
+			float lightIntensity_;
+		};
+
+		struct UniformBufferObjectGLM {
+			alignas(16) glm::mat4 model;
+			alignas(16) glm::mat4 view;
+			alignas(16) glm::mat4 proj;
 			alignas(16) Math::Vector3f lightPos_;
 			float lightIntensity_;
 		};
@@ -758,17 +769,29 @@ namespace Render::Vulkan {
 
 			Math::Vector3f vector{ 0.f, 1.f, 0.f };
 			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector) * Math::Matrix4x4f::GetRotate(90.f, {1.f, 0.f, 0.f})  ;
-			Math::Vector3f position = camera_->GetPosition();
-			Math::Vector3f direction = camera_->GetDirection();
+			const Math::Vector3f position = { 5.f, 0.f, 0.f };///camera_->GetPosition();
+			const Math::Vector3f direction = { -5.f, 0.f, 0.f };//camera_->GetDirection();
 			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
 			//ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, swapChain_->GetExtent().width / (float)swapChain_->GetExtent().height, 0.1, 10);
+			
+			
 			ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
-			ubo.proj_ = Math::Matrix4x4f::GetPerspective(30, camera_->GetWidth() / (float)camera_->GetHeight(), 1.f, 1000);
+			ubo.proj_ = Math::Matrix4x4f::GetPerspective(90, camera_->GetWidth() / (float)camera_->GetHeight(), 1.f, 1000);
 
 			ubo.proj_[1][1] *= -1;
 
+
+			UniformBufferObjectGLM uboGlm{};
+			glm::mat4 trans{ glm::identity<glm::mat4>() };
+			uboGlm.model = glm::translate(trans, glm::vec3{20.0, 0.0, 0.0});
+			uboGlm.view = glm::lookAt(glm::vec3(30.f, 0.f, 0.f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
+			uboGlm.proj = glm::perspective(glm::radians(45.0f), 960 / (float)540, 0.1f, 100.0f);
+
 			std::shared_ptr<UniformBuffer> currentUniformBuffer = globalDataUBs_[currentImage];
-			currentUniformBuffer->Fill(&ubo);
+
+
+
+			currentUniformBuffer->Fill(&uboGlm);
 		}
 
 
@@ -913,26 +936,26 @@ namespace Render::Vulkan {
 				texturedShapeCreateInfo.texture_ = std::make_shared<Texture>(textureCreateInfo);;
 			}
 			auto texturedShape = std::make_shared<TexturedShape>(texturedShapeCreateInfo);
-			texturedShape->SetPosition({ 0, 0, 0 });
+			//texturedShape->SetPosition({ 0, 0, 0 });
 			texturedShapes_.push_back(texturedShape);
 			return texturedShape->GetId();
 		}
 
-		virtual void SetPosition(
-			Common::Index shapeIndex,
-			const Vector3f& newPosition) override {
-			for (auto shape : coloredShapes_) {
-				if (shape->GetId() == shapeIndex) {
-					shape->SetPosition(newPosition);
-				}
-			}
+		//virtual void SetPosition(
+		//	Common::Index shapeIndex,
+		//	const Vector3f& newPosition) override {
+		//	for (auto shape : coloredShapes_) {
+		//		if (shape->GetId() == shapeIndex) {
+		//			shape->SetPosition(newPosition);
+		//		}
+		//	}
 
-			for (auto shape : texturedShapes_) {
-				if (shape->GetId() == shapeIndex) {
-					shape->SetPosition(newPosition);
-				}
-			}
-		}
+		//	for (auto shape : texturedShapes_) {
+		//		if (shape->GetId() == shapeIndex) {
+		//			shape->SetPosition(newPosition);
+		//		}
+		//	}
+		//}
 
 		virtual void SetModelMatrix(
 			Common::Index shapeIndex,

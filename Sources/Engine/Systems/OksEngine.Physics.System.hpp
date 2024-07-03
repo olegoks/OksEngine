@@ -56,7 +56,7 @@ namespace OksEngine {
 			if (renderGeometry == nullptr) return;
 			auto transform = rigidBody->GetTransform();
 			auto origin = transform.GetOrigin();
-			renderGeometry->modelMatrix_ = transform;
+			renderGeometry->modelMatrix_ = Math::Matrix4x4f::GetTranslate(origin);
 
 		}
 		virtual Common::TypeId GetTypeId() const noexcept override {

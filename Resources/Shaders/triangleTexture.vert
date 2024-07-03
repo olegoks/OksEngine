@@ -19,7 +19,7 @@ layout(location = 2) in vec2 inUV;
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 outUV;
 void main() {
-    
+
     gl_Position = ubo.proj * ubo.view * modelTransform.model * vec4(inPosition, 1.0);
     outUV = inUV;
 }

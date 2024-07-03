@@ -56,18 +56,18 @@ namespace Render::Vulkan {
 			return bufferDescriptorSet_;
 		}
 
-		void Offset(const Vector3f& offset) {
-			model_ = model_ * Math::Matrix4x4f::GetTranslate(offset);
-			Transform transform{ model_ };
-			transformBuffer_->Fill(transform);
-		}
+		//void Offset(const Vector3f& offset) {
+		//	model_ = model_ * Math::Matrix4x4f::GetTranslate(offset);
+		//	Transform transform{ model_ };
+		//	transformBuffer_->Fill(transform);
+		//}
 
-		void SetPosition(const Vector3f& position) {
-			auto matrixPosition = Math::Matrix4x4f::GetTranslate(position);
-			Transform transform{ matrixPosition };
-			model_ = matrixPosition;
-			transformBuffer_->Fill(&transform);
-		}
+		//void SetPosition(const Vector3f& position) {
+		//	auto matrixPosition = Math::Matrix4x4f::GetTranslate(position);
+		//	Transform transform{ matrixPosition };
+		//	model_ = matrixPosition;
+		//	transformBuffer_->Fill(&transform);
+		//}
 
 		void SetModelMatrix(const Math::Matrix4x4f& modelMatrix) {
 			//auto fixed = model_;

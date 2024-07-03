@@ -22,6 +22,7 @@ echo $(pwd)
 ./vcpkg.exe install magic-enum
 ./vcpkg.exe install graphviz
 ./vcpkg.exe install physx
+./vcpkg.exe install glm
 ./vcpkg.exe install vulkan-utility-libraries
 cd ../Scripts/
 
