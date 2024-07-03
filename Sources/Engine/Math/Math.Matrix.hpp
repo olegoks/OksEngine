@@ -62,20 +62,23 @@ namespace Math {
 		}
 
 		static constexpr Matrix GetTranslate(const Math::Vector<3, Type>& offset) noexcept requires (rows == 4 && columns == 4) {
-			Matrix translate = Matrix::GetIdentity();
-
-			translate[0][3] = offset.GetX();
-			translate[1][3] = offset.GetY();
-			translate[2][3] = offset.GetZ();
 			
+
+			//mat<4, 4, T, Q> Result(m);
+			//Result[3] = m[0] * v[0] + m[1] * v[1] + m[2] * v[2] + m[3];
+			//return Result;
+
+			Matrix translate = Matrix::GetIdentity();
+			translate[3] = translate[0] * offset[0] + translate[1] * offset[1] + translate[2] * offset[2] + translate[3];
+
 			return translate;
 
 		}
 
 		[[nodiscard]]
 		Vector<3, Type> GetOrigin() const noexcept requires (rows == 4 && columns == 4) {
-			Vector<4, Type> row = GetRow(3);
-			return { row[0], row[1], row[2] };
+			Vector<4, Type> row = GetColumn(3);
+			return { row[0], row[1], row[2]};
 		}
 
 		static constexpr Matrix GetRotate(

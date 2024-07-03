@@ -122,6 +122,9 @@ target_link_libraries(Render PRIVATE imgui::imgui)
 find_package(implot CONFIG REQUIRED)
 target_link_libraries(Render PRIVATE implot::implot)
 
+find_package(glm CONFIG REQUIRED)
+
+
 target_link_libraries(Render
     PUBLIC
         OS
@@ -129,6 +132,7 @@ target_link_libraries(Render
         Math
         glfw
     PRIVATE 
+        glm::glm
         Vulkan::Vulkan
         Vulkan::LayerSettings
         Vulkan::UtilityHeaders 

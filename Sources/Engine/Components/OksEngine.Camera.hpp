@@ -39,7 +39,7 @@ namespace OksEngine {
 		}
 
 		void Forward(float delta) {
-			position_ = position_ + direction_.Normalize() * delta;
+			position_ = position_ + (direction_.Normalize() * delta);
 		}
 
 		void Backward(float delta){
@@ -67,7 +67,10 @@ namespace OksEngine {
 		Camera(
 			Context* context,
 			const Math::Vector3f& position,
-			const Math::Vector3f& direction) : ECSComponent{ context } { }
+			const Math::Vector3f& direction) :
+			ECSComponent{ context },
+			position_{ position },
+			direction_{ direction } { }
 		
 	};
 

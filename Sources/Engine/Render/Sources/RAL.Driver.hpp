@@ -226,9 +226,9 @@ namespace RAL {
 			const Color3f& color) = 0;
 
 
-		virtual void SetPosition(
-			Common::Index shapeIndex,
-			const Vector3f& position) = 0;
+		//virtual void SetPosition(
+		//	Common::Index shapeIndex,
+		//	const Vector3f& position) = 0;
 
 		virtual void SetModelMatrix(
 			Common::Index shapeIndex,

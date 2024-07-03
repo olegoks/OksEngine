@@ -7,38 +7,38 @@ Camera = setmetatable({ },
 function Camera:New()
     local Camera = Entity:New()
     Camera.MovingForward = false
-    Camera.MovingBackward = false
-    Camera.MovingLeft = false
-    Camera.MovingRight = false
-    Camera.MovingUp = false
-    Camera.MovingDown = false
-    Camera.yaw = -90.0
-    Camera.fov = 45.0
-    Camera.pitch = 0.0
-    function Camera:IncreaseCounter()
-        self.Counter = self.Counter + 1;
-        --print(self.Counter)
-    end
+    -- Camera.MovingBackward = false
+    -- Camera.MovingLeft = false
+    -- Camera.MovingRight = false
+    -- Camera.MovingUp = false
+    -- Camera.MovingDown = false
+    -- Camera.yaw = -90.0
+    -- Camera.fov = 45.0
+    -- Camera.pitch = 0.0
+    -- function Camera:IncreaseCounter()
+    --     self.Counter = self.Counter + 1;
+    --     --print(self.Counter)
+    -- end
 
-    function Camera:MoveForward(speed)
+    -- function Camera:MoveForward(speed)
         
-        -- position = Camera:GetComponent("Position")
-        -- cameraComp = Camera:GetComponent("Camera")
-        -- position:SetX(position:GetX() + cameraComp:GetDirectionX() * speed)
-        -- position:SetY(position:GetY() + cameraComp:GetDirectionY() * speed)
-        -- position:SetZ(position:GetZ() + cameraComp:GetDirectionZ() * speed)
-    end
+    --     -- position = Camera:GetComponent("Position")
+    --     -- cameraComp = Camera:GetComponent("Camera")
+    --     -- position:SetX(position:GetX() + cameraComp:GetDirectionX() * speed)
+    --     -- position:SetY(position:GetY() + cameraComp:GetDirectionY() * speed)
+    --     -- position:SetZ(position:GetZ() + cameraComp:GetDirectionZ() * speed)
+    -- end
 
-    function Camera:MoveBackward(speed)
-        position = Camera:GetComponent("Position")
-        cameraComp = Camera:GetComponent("Camera")
-        position:SetX(position:GetX() - cameraComp:GetDirectionX() * 0.1)
-        position:SetY(position:GetY() - cameraComp:GetDirectionY() * 0.1)
-        position:SetZ(position:GetZ() - cameraComp:GetDirectionZ() * 0.1)
-    end
-    function Camera:UpDirection()
+    -- function Camera:MoveBackward(speed)
+    --     position = Camera:GetComponent("Position")
+    --     cameraComp = Camera:GetComponent("Camera")
+    --     position:SetX(position:GetX() - cameraComp:GetDirectionX() * 0.1)
+    --     position:SetY(position:GetY() - cameraComp:GetDirectionY() * 0.1)
+    --     position:SetZ(position:GetZ() - cameraComp:GetDirectionZ() * 0.1)
+    -- end
+    -- function Camera:UpDirection()
 
-    end
+    -- end
 
     return Camera
 end
@@ -46,21 +46,27 @@ end
 CameraUpdater = {}
 
 function CameraUpdater:Update(Camera, deltaMs)
-    print("Moving forward")
+    cameraComponent = Camera:GetComponent("Camera")
+    local sensetivity = 0.1
     if Camera.MovingForward then
-        Camera:Forward(0.1)
-    elseif Camera.MovingBackward then
-        Camera:Backward(0.1)
-    elseif Camera.MovingLeft then 
-        Camera:Left(0.1)
-    elseif Camera.MovingRight then 
-        Camera:Right(0.1)
-    elseif Camera.MovingUp then 
-        Camera:Up(0.1)
-    elseif Camera.MovingDown then 
-        Camera:Down(0.1)
+        cameraComponent:Forward(sensetivity)
     end
-    print("Success")
+    if Camera.MovingBackward then
+        cameraComponent:Backward(sensetivity)
+    end
+    if Camera.MovingLeft then 
+        cameraComponent:Left(sensetivity)
+    end
+    if Camera.MovingRight then 
+        cameraComponent:Right(sensetivity)
+    end
+    if Camera.MovingUp then 
+        cameraComponent:Up(sensetivity)
+    end
+    if Camera.MovingDown then 
+        cameraComponent:Down(sensetivity)
+    end
+    --print("Success")
 end
 
 CameraInputProcessor = {}
@@ -70,8 +76,10 @@ function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
     if Key == "W" then
         if Event == "Pressed" then
             Camera.MovingForward = true
+            print("Moving forward Pressed")
         elseif Event == "Released" then
             Camera.MovingForward = false
+            print("Moving forward Released")
         end
     elseif Key == "A" then
     elseif Key == "D" then
@@ -94,7 +102,7 @@ function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
             Camera.MovingBackward = false
         end
     end 
-    print(Key.."  "..Event.."  "..offsetX.."  "..offsetY)
+    --print(Key.."  "..Event.."  "..offsetX.."  "..offsetY)
     -- offsetX = offsetX * 0.05
     -- offsetY = offsetY * 0.05
 
