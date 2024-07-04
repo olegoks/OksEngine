@@ -49,10 +49,6 @@
 #include <implot.h>
 #include <implot_internal.h>
 
-#define GLM_FORCE_RADIANS
-#include <glm/glm.hpp>
-#include <glm/gtc/matrix_transform.hpp>
-
 namespace Render::Vulkan {
 
 	class Driver : public RAL::Driver {
@@ -197,7 +193,8 @@ namespace Render::Vulkan {
 			std::shared_ptr<WindowSurface> windowSurface,
 			const Extensions& requiredExtensions) noexcept;
 
-		Driver(const CreateInfo& info) noexcept : RAL::Driver{ info }{
+		Driver(const CreateInfo& info) noexcept :
+		RAL::Driver{ info }{
 
 			auto windowInfo = info.surface_;
 
@@ -769,8 +766,8 @@ namespace Render::Vulkan {
 
 			Math::Vector3f vector{ 0.f, 1.f, 0.f };
 			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector) * Math::Matrix4x4f::GetRotate(90.f, {1.f, 0.f, 0.f})  ;
-			const Math::Vector3f position = { 5.f, 0.f, 0.f };///camera_->GetPosition();
-			const Math::Vector3f direction = { -5.f, 0.f, 0.f };//camera_->GetDirection();
+			const Math::Vector3f position = /*{ 5.f, 0.f, 0.f };*/camera_->GetPosition();
+			const Math::Vector3f direction = /*{ -5.f, 0.f, 0.f };*/camera_->GetDirection();
 			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
 			//ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, swapChain_->GetExtent().width / (float)swapChain_->GetExtent().height, 0.1, 10);
 			
@@ -780,9 +777,10 @@ namespace Render::Vulkan {
 
 			ubo.proj_[1][1] *= -1;
 
-
+			glm::quat quat;
+			glm::toMat4(quat);
 			UniformBufferObjectGLM uboGlm{};
-			glm::mat4 trans{ glm::identity<glm::mat4>() };
+			glm::mat4 trans(1.0f);
 			uboGlm.model = glm::translate(trans, glm::vec3{20.0, 0.0, 0.0});
 			uboGlm.view = glm::lookAt(glm::vec3(30.f, 0.f, 0.f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			uboGlm.proj = glm::perspective(glm::radians(45.0f), 960 / (float)540, 0.1f, 100.0f);
@@ -791,7 +789,7 @@ namespace Render::Vulkan {
 
 
 
-			currentUniformBuffer->Fill(&uboGlm);
+			currentUniformBuffer->Fill(&ubo);
 		}
 
 
@@ -800,7 +798,7 @@ namespace Render::Vulkan {
 		}
 
 		virtual Common::UInt64 DrawIndexed(
-			const Math::Matrix4x4f& model_,
+			const glm::mat4& model_,
 			const RAL::Vertex3fnc* vertices,
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
@@ -846,7 +844,7 @@ namespace Render::Vulkan {
 		}
 
 		virtual Common::UInt64 DrawIndexed(
-			const Math::Matrix4x4f& model_,
+			const glm::mat4& model_,
 			const RAL::Vertex3fnt* vertices,
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
@@ -959,7 +957,7 @@ namespace Render::Vulkan {
 
 		virtual void SetModelMatrix(
 			Common::Index shapeIndex,
-			const Math::Matrix4x4f& modelMatrix) override {
+			const glm::mat4& modelMatrix) override {
 			for (auto shape : coloredShapes_) {
 				if (shape->GetId() == shapeIndex) {
 					shape->SetModelMatrix(modelMatrix);
@@ -993,7 +991,7 @@ namespace Render::Vulkan {
 		//}
 
 		virtual Common::UInt64 DrawIndexed(
-			const Math::Matrix4x4f& model_,
+			const glm::mat4& model_,
 			const RAL::Vertex3fc* vertices,
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
@@ -1054,7 +1052,7 @@ namespace Render::Vulkan {
 		}
 
 		virtual Common::UInt64 DrawIndexed(
-			const Math::Matrix4x4f& model_,
+			const glm::mat4& model_,
 			const RAL::Vertex3f* vertices,
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,

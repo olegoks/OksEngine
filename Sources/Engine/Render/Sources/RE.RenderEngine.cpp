@@ -34,7 +34,7 @@ namespace RE {
 	}
 
 	[[nodiscard]]
-	RenderEngine::Model RenderEngine::RenderModel(const RAL::Vector3f& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model) {
+	RenderEngine::Model RenderEngine::RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model) {
 
 		Model drawnModel;
 
@@ -46,7 +46,7 @@ namespace RE {
 				verticesColored.Add(vertex);
 			}
 			Common::Index shapeId = driver_->DrawIndexed(
-				Math::Matrix4x4f::GetTranslate(position),
+				position,
 				(const RAL::Vertex3fnt*)verticesColored.GetData(),
 				verticesColored.GetVerticesNumber(),
 				shape.GetIndices().GetData(),
@@ -60,7 +60,7 @@ namespace RE {
 	}
 
 	[[nodiscard]]
-	RenderEngine::Model RenderEngine::RenderModel(const RAL::Vector3f& position, const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model) {
+	RenderEngine::Model RenderEngine::RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model) {
 		Model drawnModel;
 		for (const auto& shape : model) {
 			Geometry::VertexCloud<Geometry::Vertex3fnc> verticesColored;
@@ -70,7 +70,7 @@ namespace RE {
 				verticesColored.Add(vertex);
 			}
 			Common::Index shapeId = driver_->DrawIndexed(
-				Math::Matrix4x4f::GetTranslate(position),
+				position,
 				(RAL::Vertex3fnc*)verticesColored.GetData(),
 				verticesColored.GetVerticesNumber(),
 				shape.GetIndices().GetData(),
@@ -83,7 +83,7 @@ namespace RE {
  
 
 
-	void RenderEngine::SetModelMatrix(const RenderEngine::Model& model, const Math::Matrix4x4f& modelMatrix) {
+	void RenderEngine::SetModelMatrix(const RenderEngine::Model& model, const glm::mat4& modelMatrix) {
 		for (auto shape : model.shapes_) {
 			driver_->SetModelMatrix(shape.id_, modelMatrix);
 		}

@@ -36,6 +36,7 @@ source_group("Sources"
     )
 
 find_package(unofficial-omniverse-physx-sdk CONFIG REQUIRED)
+
 target_link_libraries(Physics PRIVATE unofficial::omniverse-physx-sdk::sdk)
 
 # Optional: import the defined target to copy over the GPU acceleration libraries (3rd party provided by NVIDIA)

@@ -10,7 +10,7 @@ namespace PAL {
 	public:
 
 		struct CreateInfo {
-			Math::Matrix4x4f transform_{ Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }) };
+			glm::mat4 transform_;
 			float staticFriction_ = 0.5f;
 			float dynamicFriction_ = 0.5f;
 			float restitution_ = 0.5f;
@@ -25,7 +25,7 @@ namespace PAL {
 		}
 
 		[[nodiscard]]
-		virtual const Math::Matrix4x4f GetTransform() = 0;
+		virtual const glm::mat4 GetTransform() = 0;
 
 	private:
 		CreateInfo createInfo_;

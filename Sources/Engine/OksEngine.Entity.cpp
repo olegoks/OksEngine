@@ -7,7 +7,7 @@
 
 namespace OksEngine {
 
-	void Entity::AddImmutableRenderGeometry(const Math::Matrix4x4f& modelMatrix, std::string objName, std::string mtlName, std::string textureName) {
+	void Entity::AddImmutableRenderGeometry(const glm::mat4& modelMatrix, std::string objName, std::string mtlName, std::string textureName) {
 		world_->CreateComponent<ImmutableRenderGeometry>(
 			GetId(),
 			&context_,
@@ -24,6 +24,7 @@ namespace OksEngine {
 	}
 
 	void Entity::AddRigidBody(
+		const glm::mat4& transform,
 		float staticFriction,
 		float dynamicFriction,
 		float restitution,
@@ -33,6 +34,7 @@ namespace OksEngine {
 		world_->CreateComponent<RigidBody>(
 			GetId(),
 			&context_,
+			transform,
 			staticFriction,
 			dynamicFriction, 
 			restitution,

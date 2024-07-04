@@ -12,25 +12,25 @@ namespace OksEngine {
 	void RenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
 		auto* immutableRenderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 		if (immutableRenderGeometry == nullptr) return;
-		if (immutableRenderGeometry->modelId_ == Common::Limits<Common::Index>::Max()) {
+		if (immutableRenderGeometry->GetId() == Common::Limits<Common::Index>::Max()) {
 			if (immutableRenderGeometry->modelTextureFileName_ != "") {
 				Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModel(
 					immutableRenderGeometry->modelObjFileName_,
 					immutableRenderGeometry->modelMtlFileName_,
 					immutableRenderGeometry->modelTextureFileName_);
-				immutableRenderGeometry->modelId_ = modelIndex;
+				immutableRenderGeometry->SetId(modelIndex);
 			}
 			else {
 				Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModel(
 					immutableRenderGeometry->modelObjFileName_,
 					immutableRenderGeometry->modelMtlFileName_);
-				immutableRenderGeometry->modelId_ = modelIndex;
+				immutableRenderGeometry->SetId(modelIndex);
 			}
 			
 		}
 		GetContext().GetRenderSubsystem()->SetModelMatrix(
-			immutableRenderGeometry->modelId_,
-			immutableRenderGeometry->modelMatrix_);
+			immutableRenderGeometry->GetId(),
+			immutableRenderGeometry->GetTransform());
 	}
 
 	Common::TypeId RenderSystem::GetTypeId() const noexcept {

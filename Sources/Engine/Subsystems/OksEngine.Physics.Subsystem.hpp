@@ -20,7 +20,7 @@ namespace OksEngine {
 		Common::Index CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo);
 		void AddRigidBodyToWorld(Common::Index rbIndex);
 		[[nodiscard]]
-		Math::Matrix4x4f GetRigidBodyTransform(Common::Index rbIndex) {
+		glm::mat4 GetRigidBodyTransform(Common::Index rbIndex) {
 			return rigidBodies_[rbIndex]->GetTransform();
 		}
 		virtual void Update() noexcept override;

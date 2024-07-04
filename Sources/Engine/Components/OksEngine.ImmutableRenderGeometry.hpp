@@ -7,12 +7,7 @@
 namespace OksEngine {
 
 	struct ImmutableRenderGeometry : public ECSComponent<ImmutableRenderGeometry> {
-		Common::Index modelId_ = Common::Limits<Common::Index>::Max();
-		Math::Matrix4x4f modelMatrix_ = Math::Matrix4x4f::GetIdentity();
-		std::string modelObjFileName_ = "";
-		std::string modelMtlFileName_ = "";
-		std::string modelTextureFileName_ = "";
-
+	public:
 		ImmutableRenderGeometry() : ECSComponent{ nullptr }{
 
 		}
@@ -22,13 +17,31 @@ namespace OksEngine {
 		}
 
 		void Rotate(float angle, float x, float y, float z) {
-			Math::Matrix4x4f rotateMatrix = Math::Matrix4x4f::GetRotate(angle, { x, y, z });
-			modelMatrix_ = modelMatrix_ * rotateMatrix;
+			modelMatrix_ = glm::rotate(modelMatrix_, angle, { x, y, z });
+		}
+
+		void SetTransform(const glm::mat4& transform) {
+			if(modelObjFileName_ == "GrassBlock.obj" && Math::IsEqual(transform[3][1], 0.0f)) {
+				__debugbreak();
+			}
+			modelMatrix_ = transform;
+		}
+
+		const glm::mat4& GetTransform() {
+			return modelMatrix_;
+		}
+
+		void SetId(Common::Index id) {
+			modelId_ = id;
+		}
+
+		Common::Index GetId() {
+			return modelId_;
 		}
 
 		ImmutableRenderGeometry(
 			Context* context,
-			const Math::Matrix4x4f& modelMatrix,
+			const glm::mat4& modelMatrix,
 			std::string objFileName,
 			std::string mtlFileName,
 			std::string textureFileName) :
@@ -37,6 +50,14 @@ namespace OksEngine {
 			modelObjFileName_{ objFileName },
 			modelMtlFileName_{ mtlFileName },
 			modelTextureFileName_{ textureFileName } {}
+		std::string modelObjFileName_ = "";
+		std::string modelMtlFileName_ = "";
+		std::string modelTextureFileName_ = "";
+	private:
+		Common::Index modelId_ = Common::Limits<Common::Index>::Max();
+		glm::mat4 modelMatrix_ = glm::identity<glm::mat4>();
+
+
 	};
 
 
