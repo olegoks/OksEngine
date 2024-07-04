@@ -196,7 +196,7 @@ namespace RAL {
 		}
 
 		virtual Common::UInt64 DrawIndexed(
-			const Math::Matrix4x4f& model_,
+			const glm::mat4& model_,
 			const Vertex3fnt* vertices,
 			Common::Size verticesNumber,
 			const Index16* indices,
@@ -204,21 +204,21 @@ namespace RAL {
 			std::shared_ptr<RAL::Texture> texture) = 0;
 
 		virtual Common::UInt64 DrawIndexed(
-			const Math::Matrix4x4f& model_,
+			const glm::mat4& model_,
 			const Vertex3fnc* vertices,
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indicesNumber) = 0;
 
 		virtual Common::UInt64 DrawIndexed(
-			const Math::Matrix4x4f& model_,
+			const glm::mat4& model_,
 			const Vertex3fc* vertex,
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indeciesNumber) = 0;
 
 		virtual Common::UInt64 DrawIndexed(
-			const Math::Matrix4x4f& model_,
+			const glm::mat4& model_,
 			const Vertex3f* vertex,
 			Common::Size verticesNumber,
 			const Index16* indices,
@@ -232,7 +232,7 @@ namespace RAL {
 
 		virtual void SetModelMatrix(
 			Common::Index shapeIndex,
-			const Math::Matrix4x4f& modelMatrix) = 0;
+			const glm::mat4& modelMatrix) = 0;
 
 		//virtual void Rotate(
 		//	Common::Index shapeIndex,

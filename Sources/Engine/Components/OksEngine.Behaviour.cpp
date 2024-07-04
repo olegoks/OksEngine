@@ -71,13 +71,7 @@ namespace OksEngine {
 
 		luabridge::getGlobalNamespace(state_)
 			.beginClass<RigidBody>("RigidBody")
-			.addConstructor<void(*)(Context* context,
-				float staticFriction,
-				float dynamicFriction,
-				float restitution,
-				float halfExtentX,
-				float halfExtentY,
-				float halfExtentZ)>()
+			.addConstructor<void(*)()>()
 			.endClass();
 
 

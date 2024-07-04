@@ -42,6 +42,10 @@ source_group("Sources"
     ${PUBLIC_SOURCES}
     ${PRIVATE_SOURCES})
 
+# Or use the header-only version
+find_package(glm CONFIG REQUIRED)
+target_link_libraries(Math PRIVATE glm::glm-header-only)
+
 
 target_link_libraries(Math
     PUBLIC

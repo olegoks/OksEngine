@@ -19,7 +19,7 @@ namespace OksEngine {
 			auto physicsSubsystem = GetContext().GetPhysicsSubsystem();
 			if (rigidBody->id_ == Common::Limits<Common::Index>::Max()) {
 				PAL::RigidBody::CreateInfo createInfo{
-					.transform_ = Math::Matrix4x4f::GetTranslate({0.0f, 10.f, 0.f}),
+					.transform_ = rigidBody->transform_,
 					.staticFriction_ = rigidBody->staticFriction_,
 					.dynamicFriction_ = rigidBody->dynamicFriction_,
 					.restitution_ = rigidBody->restitution_,
@@ -31,7 +31,6 @@ namespace OksEngine {
 				physicsSubsystem->AddRigidBodyToWorld(rigidBody->id_);
 			}
 			auto rbTransform = physicsSubsystem->GetRigidBodyTransform(rigidBody->id_);
-			auto origin = rbTransform.GetOrigin();
 			rigidBody->SetTransform(rbTransform);
 
 		}
@@ -51,14 +50,14 @@ namespace OksEngine {
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
 			RigidBody* rigidBody = world->GetComponent<RigidBody>(entityId);
-			ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 			if (rigidBody == nullptr) return;
+			ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 			if (renderGeometry == nullptr) return;
-			auto transform = rigidBody->GetTransform();
-			auto origin = transform.GetOrigin();
-			renderGeometry->modelMatrix_ = Math::Matrix4x4f::GetTranslate(origin);
+			const auto& rigidBodyTransform = rigidBody->GetTransform();
+			renderGeometry->SetTransform(rigidBodyTransform);
 
 		}
+
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<PhysicsSystem>().GetId();
 		}

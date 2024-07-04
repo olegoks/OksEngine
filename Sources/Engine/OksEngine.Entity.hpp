@@ -18,7 +18,7 @@ namespace OksEngine {
 			id_{ id } { }
 
 		void AddImmutableRenderGeometry(
-			const Math::Matrix4x4f& modelMatrix,
+			const glm::mat4& modelMatrix,
 			std::string objName,
 			std::string mtlName,
 			std::string textureName);
@@ -32,7 +32,9 @@ namespace OksEngine {
 
 		void AddPosition(float x, float y, float z);
 		void AddMapRigidBodyToRenderGeometry();
-		void AddRigidBody(float staticFriction_,
+		void AddRigidBody(
+			const glm::mat4& transform,
+			float staticFriction_,
 			float dynamicFriction_,
 			float restitution_,
 			float halfExtentX,

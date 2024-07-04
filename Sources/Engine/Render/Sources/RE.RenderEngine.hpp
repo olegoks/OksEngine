@@ -33,15 +33,15 @@ namespace RE {
 		};
 
 		[[nodiscard]]
-		Model RenderModel(const RAL::Vector3f& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model);
+		Model RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model);
 
 		[[nodiscard]]
-		Model RenderModel(const RAL::Vector3f& position, const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model);
+		Model RenderModel(const  glm::mat4& position, const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model);
 
 		[[deprecated]]
 		void RotateModel(const Model& model, const RAL::Vector3f& aroundVector, Math::Angle angle);
 
-		void SetModelMatrix(const Model& model, const Math::Matrix4x4f& modelMatrix);
+		void SetModelMatrix(const Model& model, const  glm::mat4& modelMatrix);
 
 		void SetCamera(const Math::Vector3f& position, const Math::Vector3f& direction);
 

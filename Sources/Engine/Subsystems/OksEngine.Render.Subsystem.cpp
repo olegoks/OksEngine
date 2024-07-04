@@ -128,7 +128,7 @@ namespace OksEngine {
 
 		auto flatShadedModel = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
 
-		RE::RenderEngine::Model model = engine_->RenderModel({ 0, 0, 0 }, *flatShadedModel);
+		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4{0}, *flatShadedModel);
 		models_.push_back(model);
 		return models_.size() - 1;
 	}
@@ -156,7 +156,7 @@ namespace OksEngine {
 
 		auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16(obj, mtl, image));
 
-		RE::RenderEngine::Model model = engine_->RenderModel({ 0, 0, 0 }, *texturedModel);
+		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
 		models_.push_back(model);
 		return models_.size() - 1;
 	}
