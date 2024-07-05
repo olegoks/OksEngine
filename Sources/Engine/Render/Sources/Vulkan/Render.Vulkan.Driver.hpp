@@ -55,7 +55,6 @@ namespace Render::Vulkan {
 	public:
 
 		struct GlobalData {
-			//alignas(16) glm::mat4 model;
 			alignas(16) glm::mat4 view;
 			alignas(16) glm::mat4 proj;
 			alignas(16) glm::vec3 lightPos_;
@@ -415,24 +414,6 @@ namespace Render::Vulkan {
 					0, 0, globalDataUBs_[i]->GetSizeInBytes());
 				globalDataDSs_.push_back(descriptorSet);
 			}
-			//{
-			//	DescriptorSet::CreateInfo createInfo;
-			//	{
-			//		const VkDeviceSize bufferSize = sizeof(Transform);
-			//		modelInfoBuffer_ = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
-			//		//createInfo.buffer_ = modelInfoBuffer_;
-			//		createInfo.descriptorPool_ = descriptorPool_;
-			//		createInfo.descriptorSetLayout_ = modelInfoDescriptorSetLayout_;
-			//		createInfo.logicDevice_ = logicDevice_;
-			//		//createInfo.type_ = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			//	}
-			//	auto descriptorSet = std::make_shared<DescriptorSet>(createInfo);
-			//	descriptorSet->UpdateBufferWriteConfiguration(
-			//		modelInfoBuffer_,
-			//		VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-			//		0, 0, modelInfoBuffer_->GetSizeInBytes());
-			//	modelInfoDescriptorSet_ = descriptorSet;
-			//}
 
 			for (Common::Index i = 0; i < swapChain_->GetImages().size(); i++) {
 
@@ -750,9 +731,11 @@ namespace Render::Vulkan {
 			GlobalData globalData{};
 			globalData.lightIntensity_ = light_->GetIntensity();
 			globalData.lightPos_ = light_->GetPosition();
-			//const glm::vec3 position ={ camera_->GetPosition().GetX(), camera_->GetPosition().GetY(), camera_->GetPosition().GetZ() };
-			//const glm::vec3 direction = { camera_->GetDirection().GetX(), camera_->GetDirection().GetY(), camera_->GetDirection().GetZ() };
-			globalData.view = glm::lookAt(camera_->GetPosition(), { 0.f, 0.f, 0.f }/*position + direction*/ /*glm::vec3(0.0f, 0.0f, 0.0f)*/, glm::vec3(0.0f, 0.0f, 1.0f));
+			globalData.view = glm::lookAt(
+				camera_->GetPosition(), 
+				camera_->GetPosition() + camera_->GetDirection(),
+				camera_->GetUp()
+			);
 			globalData.proj = glm::perspective(glm::radians(90.0f), camera_->GetWidth() / (float)camera_->GetHeight(), 1.0f, 1000.0f);
 			//uboGlm.proj[1][1] *= -1;
 			std::shared_ptr<UniformBuffer> currentUniformBuffer = globalDataUBs_[currentImage];
