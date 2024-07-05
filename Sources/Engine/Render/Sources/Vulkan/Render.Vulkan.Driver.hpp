@@ -736,7 +736,10 @@ namespace Render::Vulkan {
 				camera_->GetPosition() + camera_->GetDirection(),
 				camera_->GetUp()
 			);
-			globalData.proj = glm::perspective(glm::radians(90.0f), camera_->GetWidth() / (float)camera_->GetHeight(), 1.0f, 1000.0f);
+			globalData.proj = glm::perspective(
+				glm::radians(90.0f),
+				camera_->GetWidth() / (float)camera_->GetHeight(),
+				camera_->GetNearPlane(), camera_->GetFarPlane());
 			//uboGlm.proj[1][1] *= -1;
 			std::shared_ptr<UniformBuffer> currentUniformBuffer = globalDataUBs_[currentImage];
 
