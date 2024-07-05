@@ -55,7 +55,7 @@ namespace Render::Vulkan {
 	public:
 
 		struct UniformBufferObject {
-			alignas(16) Math::Matrix4x4f model_;
+			//alignas(16) Math::Matrix4x4f model_;
 			alignas(16) Math::Matrix4x4f view_;
 			alignas(16) Math::Matrix4x4f proj_;
 			alignas(16) Math::Vector3f lightPos_;
@@ -765,7 +765,7 @@ namespace Render::Vulkan {
 			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
 
 			Math::Vector3f vector{ 0.f, 1.f, 0.f };
-			ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector) * Math::Matrix4x4f::GetRotate(90.f, {1.f, 0.f, 0.f})  ;
+			//ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector) * Math::Matrix4x4f::GetRotate(90.f, {1.f, 0.f, 0.f})  ;
 			const Math::Vector3f position = /*{ 5.f, 0.f, 0.f };*/camera_->GetPosition();
 			const Math::Vector3f direction = /*{ -5.f, 0.f, 0.f };*/camera_->GetDirection();
 			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
@@ -780,8 +780,8 @@ namespace Render::Vulkan {
 			glm::quat quat;
 			glm::toMat4(quat);
 			UniformBufferObjectGLM uboGlm{};
-			glm::mat4 trans(1.0f);
-			uboGlm.model = glm::translate(trans, glm::vec3{20.0, 0.0, 0.0});
+			//glm::mat4 trans(1.0f);
+			//uboGlm.model = glm::translate(trans, glm::vec3{20.0, 0.0, 0.0});
 			uboGlm.view = glm::lookAt(glm::vec3(30.f, 0.f, 0.f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
 			uboGlm.proj = glm::perspective(glm::radians(45.0f), 960 / (float)540, 0.1f, 100.0f);
 
