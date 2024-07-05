@@ -6,12 +6,14 @@ Camera = setmetatable({ },
 
 function Camera:New()
     local Camera = Entity:New()
+    Camera.DirectionUp = false
+    Camera.DirectionDown = false
     Camera.MovingForward = false
-    -- Camera.MovingBackward = false
-    -- Camera.MovingLeft = false
-    -- Camera.MovingRight = false
-    -- Camera.MovingUp = false
-    -- Camera.MovingDown = false
+    Camera.MovingBackward = false
+    Camera.MovingLeft = false
+    Camera.MovingRight = false
+    Camera.MovingUp = false
+    Camera.MovingDown = false
     -- Camera.yaw = -90.0
     -- Camera.fov = 45.0
     -- Camera.pitch = 0.0
@@ -66,7 +68,6 @@ function CameraUpdater:Update(Camera, deltaMs)
     if Camera.MovingDown then 
         cameraComponent:Down(sensetivity)
     end
-    --print("Success")
 end
 
 CameraInputProcessor = {}
@@ -76,10 +77,8 @@ function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
     if Key == "W" then
         if Event == "Pressed" then
             Camera.MovingForward = true
-            print("Moving forward Pressed")
         elseif Event == "Released" then
             Camera.MovingForward = false
-            print("Moving forward Released")
         end
     elseif Key == "A" then
         if Event == "Pressed" then
@@ -113,27 +112,11 @@ function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
         end
     end 
     --print(Key.."  "..Event.."  "..offsetX.."  "..offsetY)
-    -- offsetX = offsetX * 0.05
-    -- offsetY = offsetY * 0.05
 
-    -- Camera.yaw = Camera.yaw + offsetY;
-    -- Camera.pitch =  Camera.pitch - offsetX;
 
-    -- if Camera.pitch > 89.0 then
-    --     Camera.pitch = 89.0
-    -- elseif Camera.pitch < -89.0 then
-    --     Camera.pitch = -89.0
-    -- end 
-
-    -- local frontX = math.cos(math.rad(Camera.pitch)) *  math.cos(math.rad(Camera.yaw))
-    -- local frontY = math.sin(math.rad(Camera.pitch))
-    -- local frontZ = math.cos(math.rad(Camera.pitch)) * math.sin(math.rad(Camera.yaw))
-
-    -- cameraComp:SetDirectionX(frontX)
-    -- cameraComp:SetDirectionY(frontY)
-    -- cameraComp:SetDirectionZ(frontZ)
-
-  
+    cameraComponent = Camera:GetComponent("Camera")
+    cameraComponent:DirectionUp(offsetY / 10.0)
+    cameraComponent:DirectionLeft(offsetX / 10.0)
 end
 
 

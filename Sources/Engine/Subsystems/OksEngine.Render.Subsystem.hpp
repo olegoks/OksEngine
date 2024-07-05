@@ -32,6 +32,9 @@ namespace OksEngine {
 
 		virtual void Update() noexcept override;
 
+		void UpdateCamera(Camera* camera);
+		void UpdateImmutableRenderGeometry(ImmutableRenderGeometry* immutableRenderGeometry);
+
 	private:
 		std::vector<RE::RenderEngine::Model> models_;
 		std::shared_ptr<RE::RenderEngine> engine_ = nullptr;

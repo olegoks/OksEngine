@@ -68,6 +68,10 @@ namespace OksEngine {
 			.addFunction("Left", &Camera::Left)
 			.addFunction("Up", &Camera::Up)
 			.addFunction("Down", &Camera::Down)
+			.addFunction("DirectionUp", &Camera::DirectionUp)
+			.addFunction("DirectionDown", &Camera::DirectionDown)
+			.addFunction("DirectionLeft", &Camera::DirectionLeft)
+			.addFunction("DirectionRight", &Camera::DirectionRight)
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)
