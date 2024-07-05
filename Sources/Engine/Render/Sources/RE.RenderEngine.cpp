@@ -149,7 +149,7 @@ namespace RE {
 		//OS::LogInfo("renderEngine", { "Frames per second {}", framesPerSecond });
 	}
 
-	void RenderEngine::SetCamera(const Math::Vector3f& position, const Math::Vector3f& direction) {
+	void RenderEngine::SetCamera(const glm::vec3& position, const glm::vec3& direction) {
 		auto camera = driver_->GetCamera();
 		camera->SetPosition(position);
 		camera->SetDirection(direction);

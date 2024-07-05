@@ -52,8 +52,8 @@ namespace OksEngine {
 		luabridge::getGlobalNamespace(state_)
 			.beginClass<Camera>("Camera")
 			.addConstructor<void(*)(Context* context,
-				const Math::Vector3f& position,
-				const Math::Vector3f& direction)>()
+				const glm::vec3& position,
+				const glm::vec3& direction)>()
 			.addFunction("GetDirectionX", &Camera::GetDirectionX)
 			.addFunction("GetDirectionY", &Camera::GetDirectionY)
 			.addFunction("GetDirectionZ", &Camera::GetDirectionZ)

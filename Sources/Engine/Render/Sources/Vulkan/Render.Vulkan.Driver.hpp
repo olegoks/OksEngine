@@ -58,7 +58,7 @@ namespace Render::Vulkan {
 			//alignas(16) glm::mat4 model;
 			alignas(16) glm::mat4 view;
 			alignas(16) glm::mat4 proj;
-			alignas(16) Math::Vector3f lightPos_;
+			alignas(16) glm::vec3 lightPos_;
 			float lightIntensity_;
 		};
 
@@ -750,9 +750,9 @@ namespace Render::Vulkan {
 			GlobalData globalData{};
 			globalData.lightIntensity_ = light_->GetIntensity();
 			globalData.lightPos_ = light_->GetPosition();
-			const glm::vec3 position ={ camera_->GetPosition().GetX(), camera_->GetPosition().GetY(), camera_->GetPosition().GetZ() };
-			const glm::vec3 direction = { camera_->GetDirection().GetX(), camera_->GetDirection().GetY(), camera_->GetDirection().GetZ() };
-			globalData.view = glm::lookAt(position, { 0.f, 0.f, 0.f }/*position + direction*/ /*glm::vec3(0.0f, 0.0f, 0.0f)*/, glm::vec3(0.0f, 0.0f, 1.0f));
+			//const glm::vec3 position ={ camera_->GetPosition().GetX(), camera_->GetPosition().GetY(), camera_->GetPosition().GetZ() };
+			//const glm::vec3 direction = { camera_->GetDirection().GetX(), camera_->GetDirection().GetY(), camera_->GetDirection().GetZ() };
+			globalData.view = glm::lookAt(camera_->GetPosition(), { 0.f, 0.f, 0.f }/*position + direction*/ /*glm::vec3(0.0f, 0.0f, 0.0f)*/, glm::vec3(0.0f, 0.0f, 1.0f));
 			globalData.proj = glm::perspective(glm::radians(90.0f), camera_->GetWidth() / (float)camera_->GetHeight(), 1.0f, 1000.0f);
 			//uboGlm.proj[1][1] *= -1;
 			std::shared_ptr<UniformBuffer> currentUniformBuffer = globalDataUBs_[currentImage];

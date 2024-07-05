@@ -40,8 +40,8 @@ namespace OksEngine {
 
 		RAL::Camera::CreateInfo cameraCreateInfo;
 		{
-			cameraCreateInfo.position_ = Math::Vector3f{ 5.f, 0.f, 0.f };
-			cameraCreateInfo.direction_ = Math::Vector3f{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
+			cameraCreateInfo.position_ = { 5.f, 0.f, 0.f };
+			cameraCreateInfo.direction_ = glm::vec3{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
 			cameraCreateInfo.size_ = windowInfo.size_;
 		}
 
@@ -161,7 +161,7 @@ namespace OksEngine {
 		return models_.size() - 1;
 	}
 
-	void RenderSubsystem::SetCamera(const Math::Vector3f& position, const Math::Vector3f& direction) {
+	void RenderSubsystem::SetCamera(const glm::vec3& position, const glm::vec3& direction) {
 		engine_->SetCamera(position, direction);
 	}
 

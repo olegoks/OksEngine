@@ -27,8 +27,8 @@ namespace OksEngine {
 			const char* scriptName,
 			const char* objectName);
 
-		void AddCamera(const Math::Vector3f& position,
-			const Math::Vector3f& direction);
+		void AddCamera(const glm::vec3& position,
+			const glm::vec3& direction);
 
 		void AddPosition(float x, float y, float z);
 		void AddMapRigidBodyToRenderGeometry();

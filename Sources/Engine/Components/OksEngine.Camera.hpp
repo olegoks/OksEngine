@@ -6,18 +6,18 @@
 namespace OksEngine {
 
 	struct Camera : public ECSComponent<Camera> {
-		Math::Vector3f position_ = { 5.f, 0.f, 0.f };;
-		Math::Vector3f direction_ = Math::Vector3f{ Math::Vector3f{ 0.f, 0.f, 0.f } - Math::Vector3f{ 5.f, 0.f, 0.f } };
+		glm::vec3 position_ = { 5.f, 0.f, 0.f };
+		glm::vec3 direction_ = glm::vec3{ glm::vec3{ 0.f, 0.f, 0.f } - glm::vec3{ 5.f, 0.f, 0.f } };
 		bool isActive_ = true;
 
 		float GetDirectionX() {
-			return direction_.GetX();
+			return direction_.x;
 		}
 		float GetDirectionY() {
-			return direction_.GetY();
+			return direction_.y;
 		}
 		float GetDirectionZ() {
-			return direction_.GetZ();
+			return direction_.z;
 		}
 
 		void SetDirection(float x, float y, float z) {
@@ -25,13 +25,13 @@ namespace OksEngine {
 		}
 
 		void SetDirectionX(float x) {
-			direction_.GetX() = x;
+			direction_.x = x;
 		}
 		void SetDirectionY(float y) {
-			direction_.GetY() = y;
+			direction_.y = y;
 		}
 		void SetDirectionZ(float z) {
-			direction_.GetZ() = z;
+			direction_.z = z;
 		}
 
 		void DirectionUp() {
@@ -39,35 +39,35 @@ namespace OksEngine {
 		}
 
 		void Forward(float delta) {
-			position_ = position_ + (direction_.Normalize() * delta);
+			position_ = position_ + (glm::normalize(direction_) * delta);
 		}
 
 		void Backward(float delta){
-			position_ = position_ - direction_.Normalize() * delta;
+			position_ = position_ - (glm::normalize(direction_) * delta);
 		}
 
 		void Up(float delta) {
-			position_.GetY() += delta;
+			position_.y += delta;
 		}
 
 		void Down(float delta) {
-			position_.GetY() -= delta;
+			position_.y -= delta;
 		}
 
 		void Left(float delta) {
-			Math::Vector3f dirProj{ direction_.GetX(), 0.0f, direction_.GetY() };
-			position_ = position_ + dirProj.CrossProduct(direction_).Normalize() * delta;
+			//glm::vec3 dirProj{ direction_.GetX(), 0.0f, direction_.GetY() };
+			//position_ = position_ + dirProj.CrossProduct(direction_).Normalize() * delta;
 		}
 
 		void Right(float delta) {
-			Math::Vector3f dirProj{ direction_.GetX(), 0.0f, direction_.GetY() };
-			position_ = position_ - dirProj.CrossProduct(direction_).Normalize() * delta;
+			//glm::vec3 dirProj{ direction_.GetX(), 0.0f, direction_.GetY() };
+			//position_ = position_ - dirProj.CrossProduct(direction_).Normalize() * delta;
 		}
 
 		Camera(
 			Context* context,
-			const Math::Vector3f& position,
-			const Math::Vector3f& direction) :
+			const glm::vec3& position,
+			const glm::vec3& direction) :
 			ECSComponent{ context },
 			position_{ position },
 			direction_{ direction } { }

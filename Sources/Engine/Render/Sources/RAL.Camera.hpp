@@ -12,8 +12,8 @@ namespace RAL {
 	public:
 
 		struct CreateInfo {
-			Math::Vector3f position_{ 0.f, 0.f, 0.f };
-			Math::Vector3f direction_{ 1.f, 0.f, 0.f };
+			glm::vec3 position_{ 0.f, 0.f, 0.f };
+			glm::vec3 direction_{ 1.f, 0.f, 0.f };
 			float zNear_ = 0.1f;
 			float zFar_ = 10.f;
 			Math::Vector2u32 size_{ 0, 0 };
@@ -25,11 +25,11 @@ namespace RAL {
 			zNear_{ createInfo.zNear_ },
 			zFar_{ createInfo.zFar_ } { }
 
-		const Math::Vector3f& GetDirection() const noexcept {
+		const glm::vec3& GetDirection() const noexcept {
 			return direction_;
 		}
 
-		const Math::Vector3f& GetPosition() const noexcept {
+		const glm::vec3& GetPosition() const noexcept {
 			return position_;
 		}
 
@@ -41,12 +41,12 @@ namespace RAL {
 			return height_;
 		}
 
-		void SetPosition(const Math::Vector3f& position) {
+		void SetPosition(const glm::vec3& position) {
 			position_ = position;
 			//UpdateMatrices();
 		}
 
-		void SetDirection(const Math::Vector3f& direction) {
+		void SetDirection(const glm::vec3& direction) {
 			direction_ = direction;
 			//UpdateMatrices();
 		}
@@ -62,8 +62,8 @@ namespace RAL {
 	private:
 		//Math::Matrix4x4f view_;
 		//Math::Matrix4x4f projection_;
-		Math::Vector3f position_;
-		Math::Vector3f direction_;
+		glm::vec3 position_;
+		glm::vec3 direction_;
 		float zNear_ = 0.1f;
 		float zFar_ = 10;
 		Common::Size width_ = 1920;

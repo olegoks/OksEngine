@@ -10,7 +10,7 @@ namespace RAL {
 
 		struct CreateInfo {
 			Common::Float intensity_ = 1.f;
-			Math::Vector3f position_ = { 0.f, 0.f, 0.f };
+			glm::vec3 position_ = { 0.f, 0.f, 0.f };
 		};
 
 		Light(const CreateInfo& createInfo) noexcept :
@@ -18,14 +18,14 @@ namespace RAL {
 			position_ { createInfo.position_} { }
 
 		[[nodiscard]]
-		const Math::Vector3f& GetPosition() const noexcept { return position_; }
+		const glm::vec3& GetPosition() const noexcept { return position_; }
 
 		[[nodiscard]]
 		Common::Float GetIntensity() const noexcept { return intensity_; }
 
 	private:
 		Common::Float intensity_ = 1.f;
-		Math::Vector3f position_ = { 0.f, 0.f, 0.f };
+		glm::vec3 position_ = { 0.f, 0.f, 0.f };
 	};
 
 }
