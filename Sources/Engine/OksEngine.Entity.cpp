@@ -62,12 +62,14 @@ namespace OksEngine {
 
 	void Entity::AddCamera(
 		const glm::vec3& position,
-		const glm::vec3& direction) {
+		const glm::vec3& direction,
+		const glm::vec3& up) {
 		world_->CreateComponent<Camera>(
 			GetId(),
 			&context_,
 			position,
-			direction);
+			direction,
+			up);
 	}
 
 }

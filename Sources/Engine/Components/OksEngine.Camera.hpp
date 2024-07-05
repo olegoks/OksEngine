@@ -8,6 +8,7 @@ namespace OksEngine {
 	struct Camera : public ECSComponent<Camera> {
 		glm::vec3 position_ = { 5.f, 0.f, 0.f };
 		glm::vec3 direction_ = glm::vec3{ glm::vec3{ 0.f, 0.f, 0.f } - glm::vec3{ 5.f, 0.f, 0.f } };
+		glm::vec3 up_ = { 0.f, -1.f, 0.f };
 		bool isActive_ = true;
 
 		float GetDirectionX() {
@@ -67,10 +68,12 @@ namespace OksEngine {
 		Camera(
 			Context* context,
 			const glm::vec3& position,
-			const glm::vec3& direction) :
+			const glm::vec3& direction,
+			const glm::vec3& up) :
 			ECSComponent{ context },
 			position_{ position },
-			direction_{ direction } { }
+			direction_{ direction },
+			up_{ up } { }
 		
 	};
 
