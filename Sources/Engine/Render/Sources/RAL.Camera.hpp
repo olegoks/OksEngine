@@ -14,6 +14,7 @@ namespace RAL {
 		struct CreateInfo {
 			glm::vec3 position_{ 0.f, 0.f, 0.f };
 			glm::vec3 direction_{ 1.f, 0.f, 0.f };
+			glm::vec3 up_{ 0.f, 0.f, 1.f };
 			float zNear_ = 0.1f;
 			float zFar_ = 10.f;
 			Math::Vector2u32 size_{ 0, 0 };
@@ -22,8 +23,11 @@ namespace RAL {
 		Camera(const CreateInfo& createInfo) noexcept :
 			position_{ createInfo.position_ },
 			direction_{ createInfo.direction_ },
+			up_{ createInfo.up_ },
 			zNear_{ createInfo.zNear_ },
-			zFar_{ createInfo.zFar_ } { }
+			zFar_{ createInfo.zFar_ },
+			width_{ createInfo.size_.GetX() },
+			height_{ createInfo.size_.GetY() } { }
 
 		const glm::vec3& GetDirection() const noexcept {
 			return direction_;
@@ -31,6 +35,11 @@ namespace RAL {
 
 		const glm::vec3& GetPosition() const noexcept {
 			return position_;
+		}
+
+		[[nodiscard]]
+		const glm::vec3& GetUp() const noexcept {
+			return up_;
 		}
 
 		Common::Size GetWidth() const noexcept {
@@ -62,10 +71,11 @@ namespace RAL {
 	private:
 		//Math::Matrix4x4f view_;
 		//Math::Matrix4x4f projection_;
-		glm::vec3 position_;
-		glm::vec3 direction_;
+		glm::vec3 position_{ 0.f, 0.f, 0.f };
+		glm::vec3 direction_{ 1.f, 0.f, 0.f };
+		glm::vec3 up_{ 0.f, 0.f, 1.f };
 		float zNear_ = 0.1f;
-		float zFar_ = 10;
+		float zFar_ = 1000;
 		Common::Size width_ = 1920;
 		Common::Size height_ = 1080;
 	};
