@@ -16,7 +16,7 @@ namespace RAL {
 			glm::vec3 direction_{ 1.f, 0.f, 0.f };
 			glm::vec3 up_{ 0.f, 0.f, 1.f };
 			float zNear_ = 0.1f;
-			float zFar_ = 10.f;
+			float zFar_ = 1000.f;
 			Math::Vector2u32 size_{ 0, 0 };
 		};
 
@@ -73,7 +73,7 @@ namespace RAL {
 		glm::vec3 direction_{ 1.f, 0.f, 0.f };
 		glm::vec3 up_{ 0.f, 0.f, 1.f };
 		float zNear_ = 0.1f;
-		float zFar_ = 1000;
+		float zFar_ = 1000.f;
 		Common::Size width_ = 1920;
 		Common::Size height_ = 1080;
 	};

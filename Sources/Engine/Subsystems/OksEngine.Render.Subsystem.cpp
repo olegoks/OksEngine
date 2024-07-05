@@ -221,5 +221,12 @@ namespace OksEngine {
 		engine_->Render();
 	}
 
+	void RenderSubsystem::UpdateCamera(Camera* camera) {
+
+	}
+
+	void RenderSubsystem::UpdateImmutableRenderGeometry(ImmutableRenderGeometry* immutableRenderGeometry) {
+
+	}
 
 }

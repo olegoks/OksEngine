@@ -715,7 +715,7 @@ namespace Render::Vulkan {
 			frameContext->SetImage(image);
 			frameContext->WaitForRenderToImageFinish();
 
-			UpdateUniformBuffers(frameContext->imageContext_->index_);
+			UpdateGlobalData(frameContext->imageContext_->index_);
 
 			frameContext->Render();
 			frameContext->ShowImage();
@@ -726,7 +726,7 @@ namespace Render::Vulkan {
 
 		}
 
-		void UpdateUniformBuffers(uint32_t currentImage) {
+		void UpdateGlobalData(uint32_t currentImage) {
 
 			GlobalData globalData{};
 			globalData.lightIntensity_ = light_->GetIntensity();
@@ -737,7 +737,7 @@ namespace Render::Vulkan {
 				camera_->GetUp()
 			);
 			globalData.proj = glm::perspective(
-				glm::radians(90.0f),
+				glm::radians(45.0f),
 				camera_->GetWidth() / (float)camera_->GetHeight(),
 				camera_->GetNearPlane(), camera_->GetFarPlane());
 			//uboGlm.proj[1][1] *= -1;
@@ -924,25 +924,6 @@ namespace Render::Vulkan {
 				}
 			}
 		}
-
-		//virtual void Rotate(
-		//	Common::Index shapeIndex,
-		//	const Vector3f& aroundVector,
-		//	Math::Angle angle) override {
-
-		//	for (auto shape : coloredShapes_) {
-		//		if (shape->GetId() == shapeIndex) {
-		//			shape->Rotate(aroundVector, angle);
-		//		}
-		//	}
-
-		//	for (auto shape : texturedShapes_) {
-		//		if (shape->GetId() == shapeIndex) {
-		//			shape->Rotate(aroundVector, angle);
-		//		}
-		//	}
-
-		//}
 
 		virtual Common::UInt64 DrawIndexed(
 			const glm::mat4& model_,
