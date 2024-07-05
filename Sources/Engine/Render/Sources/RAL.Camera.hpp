@@ -50,27 +50,25 @@ namespace RAL {
 			return height_;
 		}
 
+		[[nodiscard]]
+		float GetNearPlane() {
+			return zNear_;
+		}
+
+		[[nodiscard]]
+		float GetFarPlane() {
+			return zFar_;
+		}
+
 		void SetPosition(const glm::vec3& position) {
 			position_ = position;
-			//UpdateMatrices();
 		}
 
 		void SetDirection(const glm::vec3& direction) {
 			direction_ = direction;
-			//UpdateMatrices();
 		}
 
-
 	private:
-
-		//void UpdateMatrices() noexcept {
-		//	view_ = Math::Matrix4x4f::GetView(GetPosition(), GetDirection(), { 0.f, 0.f, 1.f });
-		//	projection_ = Math::Matrix4x4f::GetPerspective(45, width_ / (float)height_, zNear_, zFar_);
-		//}
-
-	private:
-		//Math::Matrix4x4f view_;
-		//Math::Matrix4x4f projection_;
 		glm::vec3 position_{ 0.f, 0.f, 0.f };
 		glm::vec3 direction_{ 1.f, 0.f, 0.f };
 		glm::vec3 up_{ 0.f, 0.f, 1.f };
