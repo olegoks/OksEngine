@@ -82,7 +82,17 @@ function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
             print("Moving forward Released")
         end
     elseif Key == "A" then
+        if Event == "Pressed" then
+            Camera.MovingLeft = true
+        elseif Event == "Released" then
+            Camera.MovingLeft = false
+        end
     elseif Key == "D" then
+        if Event == "Pressed" then
+            Camera.MovingRight = true
+        elseif Event == "Released" then
+            Camera.MovingRight = false
+        end
     elseif Key == "Q" then
         if Event == "Pressed" then
             Camera.MovingUp = true
