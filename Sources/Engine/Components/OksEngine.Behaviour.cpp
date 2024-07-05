@@ -53,7 +53,8 @@ namespace OksEngine {
 			.beginClass<Camera>("Camera")
 			.addConstructor<void(*)(Context* context,
 				const glm::vec3& position,
-				const glm::vec3& direction)>()
+				const glm::vec3& direction,
+				const glm::vec3& up)>()
 			.addFunction("GetDirectionX", &Camera::GetDirectionX)
 			.addFunction("GetDirectionY", &Camera::GetDirectionY)
 			.addFunction("GetDirectionZ", &Camera::GetDirectionZ)

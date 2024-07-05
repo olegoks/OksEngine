@@ -67,7 +67,7 @@ int main(int argc, char** argv){
     Entity camera = engine.CreateEntity();
     camera.AddPosition(5.f, 0.f, 0.f);
     camera.AddBehaviour("Camera.lua", "Camera");
-    camera.AddCamera({ 5.f, 0.f, 0.f }, { -5.f, 0.f, 0.f });
+    camera.AddCamera({ 5.f, 0.f, 0.f }, { -5.f, 0.f, 0.f }, { 0.f, -1.f, 0.f });
 
     engine.Run();
 
