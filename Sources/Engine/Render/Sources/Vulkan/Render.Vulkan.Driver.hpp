@@ -54,16 +54,8 @@ namespace Render::Vulkan {
 	class Driver : public RAL::Driver {
 	public:
 
-		struct UniformBufferObject {
-			//alignas(16) Math::Matrix4x4f model_;
-			alignas(16) Math::Matrix4x4f view_;
-			alignas(16) Math::Matrix4x4f proj_;
-			alignas(16) Math::Vector3f lightPos_;
-			float lightIntensity_;
-		};
-
-		struct UniformBufferObjectGLM {
-			alignas(16) glm::mat4 model;
+		struct GlobalData {
+			//alignas(16) glm::mat4 model;
 			alignas(16) glm::mat4 view;
 			alignas(16) glm::mat4 proj;
 			alignas(16) Math::Vector3f lightPos_;
@@ -285,7 +277,7 @@ namespace Render::Vulkan {
 			}
 
 			{
-				const VkDeviceSize bufferSize = sizeof(UniformBufferObject);
+				const VkDeviceSize bufferSize = sizeof(GlobalData);
 				for (Common::Index i = 0; i < swapChain_->GetImagesNumber(); i++) {
 					auto uniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
 					globalDataUBs_.push_back(uniformBuffer);
@@ -754,42 +746,18 @@ namespace Render::Vulkan {
 		}
 
 		void UpdateUniformBuffers(uint32_t currentImage) {
-			UniformBufferObject ubo{};
 
-			ubo.lightIntensity_ = light_->GetIntensity();
-			ubo.lightPos_ = light_->GetPosition();
-
-			static auto startTime = std::chrono::high_resolution_clock::now();
-
-			auto currentTime = std::chrono::high_resolution_clock::now();
-			float time = std::chrono::duration<float, std::chrono::seconds::period>(currentTime - startTime).count();
-
-			Math::Vector3f vector{ 0.f, 1.f, 0.f };
-			//ubo.model_ = /*Math::Matrix4x4f::GetTranslate(Math::Vector3f{ 0, 0, 0 });*/ Math::Matrix4x4f::GetRotate(time * 30.f, vector) * Math::Matrix4x4f::GetRotate(90.f, {1.f, 0.f, 0.f})  ;
-			const Math::Vector3f position = /*{ 5.f, 0.f, 0.f };*/camera_->GetPosition();
-			const Math::Vector3f direction = /*{ -5.f, 0.f, 0.f };*/camera_->GetDirection();
-			//ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
-			//ubo.proj_ = Math::Matrix4x4f::GetPerspective(45, swapChain_->GetExtent().width / (float)swapChain_->GetExtent().height, 0.1, 10);
-			
-			
-			ubo.view_ = Math::Matrix4x4f::GetView(position, direction, { 0.f, 0.f, 1.f });
-			ubo.proj_ = Math::Matrix4x4f::GetPerspective(90, camera_->GetWidth() / (float)camera_->GetHeight(), 1.f, 1000);
-
-			ubo.proj_[1][1] *= -1;
-
-			glm::quat quat;
-			glm::toMat4(quat);
-			UniformBufferObjectGLM uboGlm{};
-			//glm::mat4 trans(1.0f);
-			//uboGlm.model = glm::translate(trans, glm::vec3{20.0, 0.0, 0.0});
-			uboGlm.view = glm::lookAt(glm::vec3(30.f, 0.f, 0.f), glm::vec3(0.0f, 0.0f, 0.0f), glm::vec3(0.0f, 0.0f, 1.0f));
-			uboGlm.proj = glm::perspective(glm::radians(45.0f), 960 / (float)540, 0.1f, 100.0f);
-
+			GlobalData globalData{};
+			globalData.lightIntensity_ = light_->GetIntensity();
+			globalData.lightPos_ = light_->GetPosition();
+			const glm::vec3 position ={ camera_->GetPosition().GetX(), camera_->GetPosition().GetY(), camera_->GetPosition().GetZ() };
+			const glm::vec3 direction = { camera_->GetDirection().GetX(), camera_->GetDirection().GetY(), camera_->GetDirection().GetZ() };
+			globalData.view = glm::lookAt(position, { 0.f, 0.f, 0.f }/*position + direction*/ /*glm::vec3(0.0f, 0.0f, 0.0f)*/, glm::vec3(0.0f, 0.0f, 1.0f));
+			globalData.proj = glm::perspective(glm::radians(90.0f), camera_->GetWidth() / (float)camera_->GetHeight(), 1.0f, 1000.0f);
+			//uboGlm.proj[1][1] *= -1;
 			std::shared_ptr<UniformBuffer> currentUniformBuffer = globalDataUBs_[currentImage];
 
-
-
-			currentUniformBuffer->Fill(&ubo);
+			currentUniformBuffer->Fill(&globalData);
 		}
 
 
