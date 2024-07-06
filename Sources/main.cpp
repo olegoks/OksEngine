@@ -17,16 +17,19 @@ int main(int argc, char** argv){
     //entity.AddPosition(0, 0, 0);
     //entity.AddBehaviour("TestObject.lua", "TestObject");
 
-    //Entity dragonLore = engine.CreateEntity();
-    //dragonLore.AddPosition(0, 0, 0);
-    //dragonLore.AddBehaviour("TestObject.lua", "TestObject");
-    //dragonLore.AddImmutableRenderGeometry(Math::Matrix4x4f::GetTranslate({ 0, 0, 0 }), "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
-    //
+    Entity dragonLore = engine.CreateEntity();
+    {
+        dragonLore.AddPosition(0, 0, 0);
+        dragonLore.AddBehaviour("TestObject.lua", "TestObject");
+        glm::mat4 renderGeomTransform{ 1.0f };
+        renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
+        dragonLore.AddImmutableRenderGeometry(renderGeomTransform, "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
+    }
     Entity grassBlock = engine.CreateEntity();
     {
         grassBlock.AddPosition(0, 0, 0);
         grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
-        glm::mat4 renderGeomTransform;
+        glm::mat4 renderGeomTransform{ 1.0f };
         renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
         grassBlock.AddImmutableRenderGeometry(renderGeomTransform,
             /* Math::Matrix4x4f::GetIdentity() **//*Math::Matrix4x4f::GetTranslate({ 20, 0, 0 }*/
