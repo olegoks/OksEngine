@@ -30,6 +30,15 @@ namespace OksEngine {
 		return rigidBodies_.size() - 1;
 	}
 
+	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfo1& createInfo) {
+		auto shape = physicsEngine_->CreateShape(createInfo);
+		return shape;
+	}
+	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfo2& createInfo) {
+		auto shape = physicsEngine_->CreateShape(createInfo);
+		return shape;
+	}
+
 	void PhysicsSubsystem::AddRigidBodyToWorld(Common::Index rbIndex) {
 		physicsEngine_->GetWorld()->AddRigidBody(rigidBodies_[rbIndex]);
 	}

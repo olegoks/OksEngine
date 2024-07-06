@@ -34,6 +34,7 @@ namespace OksEngine {
 
 		void AddPosition(float x, float y, float z);
 		void AddMapRigidBodyToRenderGeometry();
+
 		void AddRigidBodyBox(
 			const glm::mat4& transform,
 			float mass,
@@ -43,6 +44,15 @@ namespace OksEngine {
 			float halfExtentX,
 			float halfExtentY,
 			float halfExtentZ);
+
+		void AddRigidBodyCapsule(
+			const glm::mat4& transform,
+			float mass,
+			float staticFriction,
+			float dynamicFriction,
+			float restitution,
+			float radius,
+			float height);
 
 		void AddLight(
 			const glm::vec3& color,

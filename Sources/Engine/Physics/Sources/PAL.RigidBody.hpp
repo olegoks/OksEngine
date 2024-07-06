@@ -3,6 +3,7 @@
 #include <memory>
 #include <Math.Matrix.hpp>
 #include <Geometry.Shapes.hpp>
+#include <PAL.Shape.hpp>
 
 namespace PAL {
 
@@ -18,7 +19,7 @@ namespace PAL {
 			float halfExtentX_ = 1.f;
 			float halfExtentY_ = 1.f;
 			float halfExtentZ_ = 1.f;
-			//std::shared_ptr<Geom::Box> shape_ = nullptr;
+			std::shared_ptr<Shape> shape_ = nullptr;
 		};
 
 		RigidBody(const CreateInfo& createInfo) {

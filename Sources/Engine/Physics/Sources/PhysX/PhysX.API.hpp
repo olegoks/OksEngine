@@ -6,6 +6,7 @@
 #include <PxPhysicsAPI.h>
 #include <PxPhysics.h>
 #include <PhysX.World.hpp>
+#include <PhysX.Shape.hpp>
 
 namespace PhysX {
 
@@ -95,6 +96,22 @@ namespace PhysX {
 			return std::make_shared<PhysX::RigidBody>(physxCreateInfo);
 		}
 
+		virtual std::shared_ptr<PAL::Shape>
+		CreateShape(const PAL::Shape::CreateInfo1& createInfo)override {
+			PhysX::Shape::CreateInfo1 physxCreateInfo{
+				.palCreateInfo_ = createInfo
+			};
+			return std::make_shared<PhysX::Shape>(physxCreateInfo);
+
+		}
+
+		virtual std::shared_ptr<PAL::Shape>
+		CreateShape(const PAL::Shape::CreateInfo2& createInfo) override {
+			PhysX::Shape::CreateInfo2 physxCreateInfo{
+				.palCreateInfo_ = createInfo
+			};
+			return std::make_shared<PhysX::Shape>(physxCreateInfo);
+		}
 
 		~API() {
 			physics_->release();

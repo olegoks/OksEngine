@@ -1,3 +1,4 @@
+#pragma once 
 
 #include <Math.Common.hpp>
 #include <OksEngine.ECS.Component.hpp>
