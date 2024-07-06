@@ -1,3 +1,4 @@
+#pragma once 
 
 #include <ECS.hpp>
 #include <OksEngine.Context.hpp>

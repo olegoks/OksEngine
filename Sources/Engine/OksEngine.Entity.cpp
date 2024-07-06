@@ -5,6 +5,7 @@
 #include <OksEngine.Light.hpp>
 #include <OksEngine.MapRigidBodyToRenderGeometry.hpp>
 #include <OksEngine.Camera.hpp>
+#include <OksEngine.AttachedCamera.hpp>
 
 namespace OksEngine {
 
@@ -107,5 +108,14 @@ namespace OksEngine {
 			direction,
 			up);
 	}
+
+	void Entity::AddAttachedCamera(
+		const glm::mat4& offset) {
+		world_->CreateComponent<AttachedCamera>(
+			GetId(),
+			&context_,
+			offset);
+	}
+
 
 }

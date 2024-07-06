@@ -29,6 +29,14 @@ namespace PhysX {
 		}
 
 	private:
+
+		[[nodiscard]]
+		static physx::PxMaterial* CreateMaterial(
+			physx::PxPhysics* physics,
+			const PAL::Shape::Material& materialInfo);
+
+	private:
 		physx::PxShape* shape_ = nullptr;
+		physx::PxMaterial* material_ = nullptr;
 	};
 }

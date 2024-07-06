@@ -69,6 +69,12 @@ namespace OksEngine {
 			position_ = position_ + perpendicular * delta;
 		}
 
+		void Transform(const glm::mat4& transform) {
+			position_ = transform * glm::vec4{ position_, 1.f };
+			direction_ = transform * glm::vec4{ direction_, 1.f };
+			up_ = transform * glm::vec4{ up_, 1.f };
+		}
+
 		Camera(
 			Context* context,
 			const glm::vec3& position,

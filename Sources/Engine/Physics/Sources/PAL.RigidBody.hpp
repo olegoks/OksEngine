@@ -13,10 +13,6 @@ namespace PAL {
 		struct CreateInfo {
 			glm::mat4 transform_;
 			float mass_ = 10.f;
-
-			//float halfExtentX_ = 1.f;
-			//float halfExtentY_ = 1.f;
-			//float halfExtentZ_ = 1.f;
 			std::shared_ptr<Shape> shape_ = nullptr;
 		};
 
@@ -26,6 +22,9 @@ namespace PAL {
 
 		[[nodiscard]]
 		virtual const glm::mat4 GetTransform() = 0;
+		[[nodiscard]]
+		virtual void SetTransform(const glm::mat4& transform) = 0;
+		virtual void ApplyForce(const glm::vec3& direction, float force) = 0;
 
 	private:
 		CreateInfo createInfo_;
