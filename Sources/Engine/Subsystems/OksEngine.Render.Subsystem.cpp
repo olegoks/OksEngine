@@ -161,8 +161,8 @@ namespace OksEngine {
 		return models_.size() - 1;
 	}
 
-	void RenderSubsystem::SetCamera(const glm::vec3& position, const glm::vec3& direction) {
-		engine_->SetCamera(position, direction);
+	void RenderSubsystem::SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm:: vec3& up) {
+		engine_->SetCamera(position, direction, up);
 	}
 
 	void RenderSubsystem::Update() noexcept {

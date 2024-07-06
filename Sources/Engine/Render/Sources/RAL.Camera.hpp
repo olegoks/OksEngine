@@ -42,6 +42,11 @@ namespace RAL {
 			return up_;
 		}
 
+		[[nodiscard]]
+		void SetUp(const glm::vec3& up) noexcept {
+			up_ = up;
+		}
+
 		Common::Size GetWidth() const noexcept {
 			return width_;
 		}

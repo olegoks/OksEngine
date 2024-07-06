@@ -37,8 +37,6 @@ namespace RE {
 	RenderEngine::Model RenderEngine::RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model) {
 
 		Model drawnModel;
-
-		Common::Index shapeIndex = 0;
 		for (const auto& shape : model) {
 			Geometry::VertexCloud<Geometry::Vertex3fnt> verticesColored;
 			const auto& vertices = shape.GetVertices();
@@ -149,10 +147,11 @@ namespace RE {
 		//OS::LogInfo("renderEngine", { "Frames per second {}", framesPerSecond });
 	}
 
-	void RenderEngine::SetCamera(const glm::vec3& position, const glm::vec3& direction) {
+	void RenderEngine::SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up) {
 		auto camera = driver_->GetCamera();
 		camera->SetPosition(position);
 		camera->SetDirection(direction);
+		camera->SetUp(up);
 		driver_->SetCamera(camera);
 	}
 

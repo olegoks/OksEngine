@@ -17,30 +17,64 @@ int main(int argc, char** argv){
     //entity.AddPosition(0, 0, 0);
     //entity.AddBehaviour("TestObject.lua", "TestObject");
 
-    Entity dragonLore = engine.CreateEntity();
+    //Entity dragonLore = engine.CreateEntity();
+    //{
+    //    dragonLore.AddPosition(0, 0, 0);
+    //    dragonLore.AddBehaviour("TestObject.lua", "TestObject");
+    //    glm::mat4 renderGeomTransform{ 1.0f };
+    //    renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
+    //    dragonLore.AddImmutableRenderGeometry(renderGeomTransform, "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
+    //}
+    //Entity grassBlock = engine.CreateEntity();
+    //{
+    //    grassBlock.AddPosition(0, 0, 0);
+    //    grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
+    //    glm::mat4 renderGeomTransform{ 1.0f };
+    //    renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
+    //    grassBlock.AddImmutableRenderGeometry(renderGeomTransform,
+    //        /* Math::Matrix4x4f::GetIdentity() **//*Math::Matrix4x4f::GetTranslate({ 20, 0, 0 }*/
+    //        "GrassBlock.obj",
+    //        "GrassBlock.mtl",
+    //        "GrassBlock.png");
+    //    glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
+    //    rigidBodyTransform = glm::translate(rigidBodyTransform, { 0, 10.0, 0.f });
+    //    grassBlock.AddRigidBody(rigidBodyTransform, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
+    //    grassBlock.AddMapRigidBodyToRenderGeometry();
+    //}
+
+    Entity grassPlane = engine.CreateEntity();
     {
-        dragonLore.AddPosition(0, 0, 0);
-        dragonLore.AddBehaviour("TestObject.lua", "TestObject");
-        glm::mat4 renderGeomTransform{ 1.0f };
-        renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
-        dragonLore.AddImmutableRenderGeometry(renderGeomTransform, "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
+    	grassPlane.AddPosition(0, 0, 0);
+    	glm::mat4 renderGeomTransform{ 1.0f };
+    	renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, -0.5 });
+    	grassPlane.AddImmutableRenderGeometry(
+            renderGeomTransform,
+    		"GrassPlane.obj",
+    		"GrassPlane.mtl",
+    		"Grass.jpg");
     }
-    Entity grassBlock = engine.CreateEntity();
-    {
-        grassBlock.AddPosition(0, 0, 0);
-        grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
-        glm::mat4 renderGeomTransform{ 1.0f };
-        renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
-        grassBlock.AddImmutableRenderGeometry(renderGeomTransform,
-            /* Math::Matrix4x4f::GetIdentity() **//*Math::Matrix4x4f::GetTranslate({ 20, 0, 0 }*/
-            "GrassBlock.obj",
-            "GrassBlock.mtl",
-            "GrassBlock.png");
-        glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
-        rigidBodyTransform = glm::translate(rigidBodyTransform, { 0, 10.0, 0.f });
-        grassBlock.AddRigidBody(rigidBodyTransform, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
-        grassBlock.AddMapRigidBodyToRenderGeometry();
-    }
+
+    //Common::UInt64 size = 5;
+    //for (Common::UInt64 i = 0; i < size; i++) {
+    //	for (Common::UInt64 j = 0; j < size - i; j++) {
+    //		glm::vec3 localTm(glm::vec3(float(j * 2) - float(size - i) + 0.1, float(i * 2 + 1), 0));
+    //		localTm *= 0.5;
+    //		Entity grassBlock = engine.CreateEntity();
+    //		grassBlock.AddPosition(0, 0, 0);
+    //		//grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
+    //		glm::mat4 renderGeomTransform{ 1.0f };
+    //		renderGeomTransform = glm::translate(renderGeomTransform, localTm);
+    //		grassBlock.AddImmutableRenderGeometry(
+    //            renderGeomTransform,
+    //			"GrassBlock.obj",
+    //			"GrassBlock.mtl",
+    //			"GrassBlock.png");
+    //		glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
+    //		rigidBodyTransform = glm::translate(rigidBodyTransform, localTm);
+    //		grassBlock.AddRigidBody(rigidBodyTransform, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
+    //		grassBlock.AddMapRigidBodyToRenderGeometry();
+    //	}
+    //}
     //Entity grassBlock2 = engine.CreateEntity();
     //{
     //    grassBlock2.AddPosition(0, 0, 0);
@@ -70,7 +104,7 @@ int main(int argc, char** argv){
     Entity camera = engine.CreateEntity();
     camera.AddPosition(5.f, 0.f, 0.f);
     camera.AddBehaviour("Camera.lua", "Camera");
-    camera.AddCamera({ 5.f, 0.f, 0.f }, { -5.f, 0.f, 0.f }, { 0.f, -1.f, 0.f });
+    camera.AddCamera({ 5.f, 0.f, 0.f }, { -5.f, 0.f, 0.f }, { 0.f, 1.f, 0.f });
 
     engine.Run();
 
