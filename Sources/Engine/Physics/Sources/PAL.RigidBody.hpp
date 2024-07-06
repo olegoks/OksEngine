@@ -11,6 +11,7 @@ namespace PAL {
 
 		struct CreateInfo {
 			glm::mat4 transform_;
+			float mass_ = 10.f;
 			float staticFriction_ = 0.5f;
 			float dynamicFriction_ = 0.5f;
 			float restitution_ = 0.5f;

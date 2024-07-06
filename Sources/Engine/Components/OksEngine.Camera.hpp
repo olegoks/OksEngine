@@ -49,21 +49,24 @@ namespace OksEngine {
 		}
 
 		void Up(float delta) {
+
+			position_ = position_ + glm::normalize(up_) * delta;
+
+		}
+
+		void Down(float delta) {
+
+			position_ = position_ - glm::normalize(up_) * delta;
+		}
+
+		void Left(float delta) {
 			const glm::vec3 perpendicular = glm::normalize(glm::cross(up_, direction_));
 			position_ = position_ + perpendicular * delta;
 		}
 
-		void Down(float delta) {
+		void Right(float delta) {
 			const glm::vec3 perpendicular = glm::normalize(glm::cross(direction_, up_));
 			position_ = position_ + perpendicular * delta;
-		}
-
-		void Left(float delta) {
-			position_ = position_ + glm::normalize(up_) * delta;
-		}
-
-		void Right(float delta) {
-			position_ = position_ - glm::normalize(up_) * delta;
 		}
 
 		Camera(

@@ -2,6 +2,7 @@
 #include <OksEngine.Resource.Subsystem.hpp>
 #include <filesystem>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
+#include <OksEngine.Light.hpp>
 #include <OksEngine.Camera.hpp>
 #include <Geometry.Shapes.hpp>
 
@@ -77,6 +78,15 @@ namespace OksEngine {
 		luabridge::getGlobalNamespace(state_)
 			.beginClass<RigidBody>("RigidBody")
 			.addConstructor<void(*)()>()
+			.endClass();
+
+		luabridge::getGlobalNamespace(state_)
+			.beginClass<PointLight>("PointLight")
+			.addConstructor<void(*)(
+				const glm::vec3& color,
+				float intensity,
+				float radius)>()
+			.addFunction("GetRadius", &PointLight::GetRadius)
 			.endClass();
 
 

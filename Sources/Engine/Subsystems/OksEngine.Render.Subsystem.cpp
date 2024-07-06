@@ -11,6 +11,9 @@ namespace OksEngine {
 
 		auto resourceSubsystem = context.GetResourceSubsystem();
 
+		const auto linesVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/linesVert.spv");
+		const auto linesFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/linesFrag.spv");
+
 		const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleVert.spv");
 		const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleFrag.spv");
 
@@ -50,15 +53,20 @@ namespace OksEngine {
 		RAL::Light::CreateInfo lightCreateInfo;
 		{
 			lightCreateInfo.intensity_ = 1.f;
-			lightCreateInfo.position_ = camera->GetPosition();
+			lightCreateInfo.position_ = { 25.f, 0.f, 0.f };//camera->GetPosition();
 		}
 		auto light = std::make_shared<RAL::Light>(lightCreateInfo);
 
+		ResourceSubsystem::Resource linesVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesVertexShaderTaskId);
+		ResourceSubsystem::Resource linesFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesFragmentShaderTaskId);
 		ResourceSubsystem::Resource vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
 		ResourceSubsystem::Resource fragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
 		ResourceSubsystem::Resource vertexTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexTextureShaderTaskId);
 		ResourceSubsystem::Resource fragmentTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentTextureShaderTaskId);
 
+
+		RAL::Shader linesVertexShader{ linesVertexShaderResource.GetData<Common::Byte>(), linesVertexShaderResource.GetSize() };
+		RAL::Shader linesFragmentShader{ linesFragmentShaderResource.GetData<Common::Byte>(), linesFragmentShaderResource.GetSize() };
 		RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
 		RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
 		RAL::Shader vertexTextureShader{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
@@ -68,6 +76,8 @@ namespace OksEngine {
 		{
 			RECreateInfo.camera_ = camera;
 			RECreateInfo.light_ = light;
+			RECreateInfo.linesVertexShader_ = std::make_shared<RAL::Shader>(std::move(linesVertexShader));
+			RECreateInfo.linesFragmentShader_ = std::make_shared<RAL::Shader>(std::move(linesFragmentShader));
 			RECreateInfo.vertexShader_ = std::make_shared<RAL::Shader>(std::move(vertexShader));
 			RECreateInfo.fragmentShader_ = std::make_shared<RAL::Shader>(std::move(fragmentShader));
 			RECreateInfo.textureVertexShader_ = std::make_shared<RAL::Shader>(std::move(vertexTextureShader));
