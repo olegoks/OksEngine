@@ -90,18 +90,46 @@ namespace Render::Vulkan {
 			return bindingDescription;
 		}
 
-		static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions() {
-			std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
+		//static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions() {
+		//	std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
 
-			attributeDescriptions[0].binding = 0;
-			attributeDescriptions[0].location = 0;
-			attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32_SFLOAT;
-			attributeDescriptions[0].offset = offsetof(Vertex3fc, position_);
+		//	attributeDescriptions[0].binding = 0;
+		//	attributeDescriptions[0].location = 0;
+		//	attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32_SFLOAT;
+		//	attributeDescriptions[0].offset = offsetof(Vertex3fc, position_);
 
-			attributeDescriptions[1].binding = 0;
-			attributeDescriptions[1].location = 1;
-			attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
-			attributeDescriptions[1].offset = offsetof(Vertex3fc, color_);
+		//	attributeDescriptions[1].binding = 0;
+		//	attributeDescriptions[1].location = 1;
+		//	attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
+		//	attributeDescriptions[1].offset = offsetof(Vertex3fc, color_);
+
+		//	return attributeDescriptions;
+		//}
+
+		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() {
+			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 0;
+					attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fc, position_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 1;
+					attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fc, color_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
 
 			return attributeDescriptions;
 		}

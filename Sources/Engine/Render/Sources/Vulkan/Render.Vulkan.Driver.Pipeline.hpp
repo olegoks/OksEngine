@@ -447,9 +447,10 @@ namespace Render::Vulkan {
 				createInfo.colorAttachmentSize_,
 				createInfo.colorAttachmentFormat_,
 				VertexInfo{
-					Vertex3fnc::GetBindingDescription(),
-					Vertex3fnc::GetAttributeDescriptions()
-				}
+					Vertex3fc::GetBindingDescription(),
+					Vertex3fc::GetAttributeDescriptions()
+				},
+				VK_PRIMITIVE_TOPOLOGY_LINE_LIST
 			}
 		} { }
 
