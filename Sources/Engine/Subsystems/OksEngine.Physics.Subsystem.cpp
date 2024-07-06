@@ -15,7 +15,6 @@ namespace OksEngine {
 		auto& context = GetContext();
 		auto ecsWorld = context.GetECSWorld();
 		ecsWorld->RegisterSystem<PhysicsSystem>(context);
-		ecsWorld->RegisterSystem<PhysicsGeometryMapper>(context);
 
 		physicsEngine_ = std::make_shared<PE::PhysicsEngine>();
 		PAL::World::CreateInfo worldCreateInfo{
@@ -41,6 +40,10 @@ namespace OksEngine {
 
 	void PhysicsSubsystem::AddRigidBodyToWorld(Common::Index rbIndex) {
 		physicsEngine_->GetWorld()->AddRigidBody(rigidBodies_[rbIndex]);
+	}
+
+	void PhysicsSubsystem::ApplyForce(Common::Index rbIndex, const glm::vec3& direction, float force) {
+		rigidBodies_[rbIndex]->ApplyForce(direction, force);
 	}
 
 	void PhysicsSubsystem::Update() noexcept {

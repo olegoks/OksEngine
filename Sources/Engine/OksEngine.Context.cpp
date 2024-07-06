@@ -12,6 +12,7 @@
 
 #include <OksEngine.Log.Subsystem.hpp>
 #include <OksEngine.Physics.Subsystem.hpp>
+#include <OksEngine.Engine.System.hpp>
 
 namespace OksEngine
 {
@@ -47,6 +48,8 @@ namespace OksEngine
 		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
 
 		world_->RegisterSystem<BehaviourSystem>();
+		world_->RegisterSystem<PhysicsGeometryMapper>(*this);
+		world_->RegisterSystem<AttachCameraSystem>(*this);
 
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,

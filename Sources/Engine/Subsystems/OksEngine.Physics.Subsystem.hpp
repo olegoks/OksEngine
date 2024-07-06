@@ -27,6 +27,14 @@ namespace OksEngine {
 		glm::mat4 GetRigidBodyTransform(Common::Index rbIndex) {
 			return rigidBodies_[rbIndex]->GetTransform();
 		}
+
+		[[nodiscard]]
+		void  SetRigidBodyTransform(Common::Index rbIndex, const glm::mat4& transform) {
+			return rigidBodies_[rbIndex]->SetTransform(transform);
+		}
+
+		void ApplyForce(Common::Index rbIndex, const glm::vec3& direction, float force);
+
 		virtual void Update() noexcept override;
 
 

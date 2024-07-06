@@ -38,11 +38,16 @@ int main(int argc, char** argv){
         flashLight.AddImmutableRenderGeometry();
     }*/
 
-    Entity capsule = engine.CreateEntity();
+
+    Entity character = engine.CreateEntity();
     {
         glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
-        capsuleTransform = glm::translate(capsuleTransform, { 0, 100.0, 0.f });
-        capsule.AddRigidBodyCapsule(capsuleTransform, 10.f, 0.5f, 0.5f, 0.5f, 0.5f, 1.f);
+        capsuleTransform = glm::translate(capsuleTransform, { 2.f, 1.0, 0.f });
+        character.AddRigidBodyCapsule(capsuleTransform, 10.f, 0.5f, 0.5f, 0.5f, 0.5f, 1.f);
+        character.AddPosition(5.f, 0.f, 0.f);
+        character.AddBehaviour("Camera.lua", "Camera");
+        character.AddCamera({ 0.f, 0.f, -5.f }, { 0.f, 0.f, 5.f }, { 0.f, 1.f, 0.f });
+        character.AddAttachedCamera(glm::mat4{ 1.f });
     }
 
     Entity grassBlock = engine.CreateEntity();
@@ -119,11 +124,6 @@ int main(int argc, char** argv){
         "axes.mtl",
         ""); */
 
-
-    Entity camera = engine.CreateEntity();
-    camera.AddPosition(5.f, 0.f, 0.f);
-    camera.AddBehaviour("Camera.lua", "Camera");
-    camera.AddCamera({ 0.f, 0.f, -5.f }, { 0.f, 0.f, 5.f }, { 0.f, 1.f, 0.f });
 
     engine.Run();
 
