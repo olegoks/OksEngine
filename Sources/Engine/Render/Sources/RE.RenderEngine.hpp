@@ -43,7 +43,7 @@ namespace RE {
 
 		void SetModelMatrix(const Model& model, const  glm::mat4& modelMatrix);
 
-		void SetCamera(const glm::vec3& position, const glm::vec3& direction);
+		void SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up);
 
 		void Render();
 

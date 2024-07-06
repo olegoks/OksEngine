@@ -42,6 +42,7 @@ namespace Render::Vulkan {
 			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
 			VertexInfo vertexInfo_;
+			VkPrimitiveTopology topology_ = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
 		};
 
 		Pipeline(const CreateInfo& createInfo) : logicDevice_{ createInfo.logicDevice_ } {
@@ -95,7 +96,7 @@ namespace Render::Vulkan {
 			VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 			{
 				inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-				inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+				inputAssembly.topology = createInfo.topology_;//VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 				inputAssembly.primitiveRestartEnable = VK_FALSE;
 			}
 			const Math::Vector2u32 size = createInfo.colorAttachmentSize_;
@@ -323,7 +324,8 @@ namespace Render::Vulkan {
 					VertexInfo{
 						Vertex3fnt::GetBindingDescription(),
 						Vertex3fnt::GetAttributeDescriptions()						
-					}
+					},
+				VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
 				}
 			} {	}
 
@@ -389,11 +391,69 @@ namespace Render::Vulkan {
 				VertexInfo{
 					Vertex3fnc::GetBindingDescription(),
 					Vertex3fnc::GetAttributeDescriptions()
-				}
+				},
+			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST
 			}
 		} { }
 	
 	
+	};
+
+	class LinesPipeline : public Pipeline {
+	public:
+
+		using DepthTestInfo = Pipeline::DepthTestInfo;
+
+		struct CreateInfo {
+			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<SwapChain> swapChain_ = nullptr;
+			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
+			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
+			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
+			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
+			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
+		};
+
+
+		LinesPipeline(const CreateInfo& createInfo) :
+			Pipeline{
+			Pipeline::CreateInfo{
+				createInfo.physicalDevice_,
+				createInfo.logicDevice_,
+				std::vector<std::shared_ptr<DescriptorSetLayout>>{
+					std::make_shared<DescriptorSetLayout>(
+						DescriptorSetLayout::CreateInfo{
+							createInfo.logicDevice_,
+							std::vector<VkDescriptorSetLayoutBinding>{{{
+							0,
+							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+							1,
+							VK_SHADER_STAGE_VERTEX_BIT,
+							nullptr
+						}}}
+						})
+				},
+				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					createInfo.logicDevice_,
+					createInfo.vertexShader_->GetCode()
+					}),
+				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					createInfo.logicDevice_,
+					createInfo.fragmentShader_->GetCode()
+					}),
+				createInfo.depthTestInfo_,
+				createInfo.colorAttachmentSize_,
+				createInfo.colorAttachmentFormat_,
+				VertexInfo{
+					Vertex3fnc::GetBindingDescription(),
+					Vertex3fnc::GetAttributeDescriptions()
+				}
+			}
+		} { }
+
+
 	};
 }
 

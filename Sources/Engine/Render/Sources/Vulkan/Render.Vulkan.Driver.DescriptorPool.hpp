@@ -25,7 +25,7 @@ namespace Render::Vulkan {
 				},
 				{
 					VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-					static_cast<uint32_t>(size)
+					static_cast<uint32_t>(size + 1000)
 				}
 
 			};
