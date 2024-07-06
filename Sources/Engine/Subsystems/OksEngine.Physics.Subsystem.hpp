@@ -18,6 +18,10 @@ namespace OksEngine {
 		PhysicsSubsystem(const CreateInfo& createInfo);
 
 		Common::Index CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo);
+		
+		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfo1& createInfo);
+		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfo2& createInfo);
+
 		void AddRigidBodyToWorld(Common::Index rbIndex);
 		[[nodiscard]]
 		glm::mat4 GetRigidBodyTransform(Common::Index rbIndex) {

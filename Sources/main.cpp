@@ -37,6 +37,14 @@ int main(int argc, char** argv){
         renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
         flashLight.AddImmutableRenderGeometry();
     }*/
+
+    Entity capsule = engine.CreateEntity();
+    {
+        glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
+        capsuleTransform = glm::translate(capsuleTransform, { 0, 100.0, 0.f });
+        capsule.AddRigidBodyCapsule(capsuleTransform, 10.f, 0.5f, 0.5f, 0.5f, 0.5f, 1.f);
+    }
+
     Entity grassBlock = engine.CreateEntity();
     {
         grassBlock.AddPosition(0, 0, 0);

@@ -1,3 +1,5 @@
+#pragma once
+
 
 #include <Math.Common.hpp>
 #include <PxPhysics.h>

@@ -33,6 +33,16 @@ namespace PE {
 			return api_->CreateRigidBody(createInfo);
 		}
 
+		[[nodiscard]]
+		auto CreateShape(const PAL::Shape::CreateInfo1& createInfo) {
+			return api_->CreateShape(createInfo);
+		}
+
+		[[nodiscard]]
+		auto CreateShape(const PAL::Shape::CreateInfo2& createInfo) {
+			return api_->CreateShape(createInfo);
+		}
+
 		void Simulate(float elapsedTime) {
 			GetWorld()->Simulate(elapsedTime);
 		}

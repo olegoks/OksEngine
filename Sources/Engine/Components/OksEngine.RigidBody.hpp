@@ -1,4 +1,4 @@
-
+#pragma once 
 #include <OksEngine.ECS.Component.hpp>
 #include <Geometry.Shapes.hpp>
 
@@ -72,6 +72,35 @@ namespace OksEngine {
 		float halfExtentX_ = 0.5f;
 		float halfExtentY_ = 0.5f;
 		float halfExtentZ_ = 0.5f;
+	};
+
+	class RigidBodyCapsule : public RigidBody<RigidBodyCapsule> {
+	public:
+
+		RigidBodyCapsule() : RigidBody{ } {}
+
+		RigidBodyCapsule(
+			Context* context,
+			const glm::mat4& transform,
+			float mass,
+			float staticFriction,
+			float dynamicFriction,
+			float restitution,
+			float radius,
+			float height) :
+			RigidBody{
+				context,
+				transform,
+				mass,
+				staticFriction,
+				dynamicFriction,
+				restitution,
+			},
+			radius_{ radius },
+			height_{ height } {}
+
+		float radius_ = 0.1f;
+		float height_ = 0.5f;
 	};
 
 }

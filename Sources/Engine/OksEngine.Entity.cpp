@@ -46,6 +46,27 @@ namespace OksEngine {
 			halfExtentZ);
 	}
 
+
+	void Entity::AddRigidBodyCapsule(
+		const glm::mat4& transform,
+		float mass,
+		float staticFriction,
+		float dynamicFriction,
+		float restitution,
+		float radius,
+		float height) {
+		world_->CreateComponent<RigidBodyCapsule>(
+			GetId(),
+			&context_,
+			transform,
+			mass,
+			staticFriction,
+			dynamicFriction,
+			restitution,
+			radius,
+			height);
+	}
+
 	void Entity::AddLight(
 		const glm::vec3& color,
 		float intensity,
