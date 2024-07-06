@@ -2,23 +2,33 @@
 
 #include <PAL.Shape.hpp>
 
+#include <PhysX.Common.hpp>
+
 namespace PhysX {
 
 
 	class Shape : public PAL::Shape {
 	public:
 
-		struct CreateInfo1 {
-			PAL::Shape::CreateInfo1 palCreateInfo_;
+		struct CreateInfoBox {
+			PAL::Shape::CreateInfoBox palCreateInfo_;
+			physx::PxPhysics* physics_ = nullptr;
 		};
 
-		struct CreateInfo2 {
-			PAL::Shape::CreateInfo2 palCreateInfo_;
+		struct CreateInfoCapsule {
+			PAL::Shape::CreateInfoCapsule palCreateInfo_;
+			physx::PxPhysics* physics_ = nullptr;
 		};
 
-		Shape(const CreateInfo1& createInfo);
-		Shape(const CreateInfo2& createInfo);
+		Shape(const CreateInfoBox& createInfo);
+		Shape(const CreateInfoCapsule& createInfo);
+
+		[[nodiscard]]
+		physx::PxShape* GetPxShape() noexcept {
+			return shape_;
+		}
 
 	private:
+		physx::PxShape* shape_ = nullptr;
 	};
 }

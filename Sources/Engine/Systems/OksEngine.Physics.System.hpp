@@ -20,15 +20,20 @@ namespace OksEngine {
 				if (rigidBody == nullptr) return;
 				auto physicsSubsystem = GetContext().GetPhysicsSubsystem();
 				if (rigidBody->id_ == Common::Limits<Common::Index>::Max()) {
-					PAL::RigidBody::CreateInfo createInfo{
-						.transform_ = rigidBody->transform_,
-						.mass_ = rigidBody->mass_,
-						.staticFriction_ = rigidBody->staticFriction_,
-						.dynamicFriction_ = rigidBody->dynamicFriction_,
-						.restitution_ = rigidBody->restitution_,
+					PAL::Shape::CreateInfoBox shapeCreateInfo{
+						.material_ = PAL::Shape::Material{ 
+							.staticFriction_ = rigidBody->staticFriction_,
+							.dynamicFriction_ = rigidBody->dynamicFriction_,
+							.restitution_ = rigidBody->restitution_ },
 						.halfExtentX_ = rigidBody->halfExtentX_,
 						.halfExtentY_ = rigidBody->halfExtentY_,
 						.halfExtentZ_ = rigidBody->halfExtentZ_,
+					};
+					auto shape = physicsSubsystem->CreateShape(shapeCreateInfo);
+					PAL::RigidBody::CreateInfo createInfo{
+						.transform_ = rigidBody->transform_,
+						.mass_ = rigidBody->mass_,
+						.shape_ = shape
 					};
 					rigidBody->id_ = physicsSubsystem->CreateRigidBody(createInfo);
 					physicsSubsystem->AddRigidBodyToWorld(rigidBody->id_);
@@ -43,13 +48,24 @@ namespace OksEngine {
 				if (rigidBodyCapsule == nullptr) return;
 				auto physicsSubsystem = GetContext().GetPhysicsSubsystem();
 				if (rigidBodyCapsule->id_ == Common::Limits<Common::Index>::Max()) {
-					PAL::Shape::CreateInfo2 createInfo{
+					PAL::Shape::CreateInfoCapsule shapeCreateInfo{
+						.material_ = PAL::Shape::Material{
+							.staticFriction_ = rigidBodyCapsule->staticFriction_,
+							.dynamicFriction_ = rigidBodyCapsule->dynamicFriction_,
+							.restitution_ = rigidBodyCapsule->restitution_
+						},
 						.radius_ = rigidBodyCapsule->radius_,
 						.height_ = rigidBodyCapsule->height_
 					};
 
-					auto shape = physicsSubsystem->CreateShape(createInfo);
-					
+					auto shape = physicsSubsystem->CreateShape(shapeCreateInfo);
+					PAL::RigidBody::CreateInfo createInfo{
+						.transform_ = rigidBodyCapsule->transform_,
+						.mass_ = rigidBodyCapsule->mass_,
+						.shape_ = shape
+					};
+					rigidBodyCapsule->id_ = physicsSubsystem->CreateRigidBody(createInfo);
+					physicsSubsystem->AddRigidBodyToWorld(rigidBodyCapsule->id_);
 				}
 				auto rbTransform = physicsSubsystem->GetRigidBodyTransform(rigidBodyCapsule->id_);
 				rigidBodyCapsule->SetTransform(rbTransform);

@@ -97,18 +97,19 @@ namespace PhysX {
 		}
 
 		virtual std::shared_ptr<PAL::Shape>
-		CreateShape(const PAL::Shape::CreateInfo1& createInfo)override {
-			PhysX::Shape::CreateInfo1 physxCreateInfo{
-				.palCreateInfo_ = createInfo
+		CreateShape(const PAL::Shape::CreateInfoBox& createInfo)override {
+			PhysX::Shape::CreateInfoBox physxCreateInfo{
+				.palCreateInfo_ = createInfo,
+				.physics_ = physics_
 			};
 			return std::make_shared<PhysX::Shape>(physxCreateInfo);
-
 		}
 
 		virtual std::shared_ptr<PAL::Shape>
-		CreateShape(const PAL::Shape::CreateInfo2& createInfo) override {
-			PhysX::Shape::CreateInfo2 physxCreateInfo{
-				.palCreateInfo_ = createInfo
+		CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo) override {
+			PhysX::Shape::CreateInfoCapsule physxCreateInfo{
+				.palCreateInfo_ = createInfo,
+				.physics_ = physics_
 			};
 			return std::make_shared<PhysX::Shape>(physxCreateInfo);
 		}
