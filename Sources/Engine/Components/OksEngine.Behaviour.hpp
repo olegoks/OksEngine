@@ -28,8 +28,8 @@ namespace OksEngine {
 			return position;
 		}
 
-		RigidBody* GetRigidBody() {
-			auto rigidBody = world_->GetComponent<RigidBody>(id_);
+		RigidBodyBox* GetRigidBodyBox() {
+			auto rigidBody = world_->GetComponent<RigidBodyBox>(id_);
 			return rigidBody;
 		}
 

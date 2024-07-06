@@ -76,13 +76,14 @@ namespace OksEngine {
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)
-			.beginClass<RigidBody>("RigidBody")
+			.beginClass<RigidBodyBox>("RigidBodyBox")
 			.addConstructor<void(*)()>()
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)
 			.beginClass<PointLight>("PointLight")
 			.addConstructor<void(*)(
+				Context* context,
 				const glm::vec3& color,
 				float intensity,
 				float radius)>()

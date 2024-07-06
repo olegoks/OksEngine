@@ -29,6 +29,14 @@ int main(int argc, char** argv){
     //    dragonLore.AddRigidBody(rigidBodyTransform, 100.f, 0.5f, 0.5f, 0.5f, 2.f, 0.5f, 0.5f);
     //    dragonLore.AddMapRigidBodyToRenderGeometry();
     //}
+
+    /*Entity flashLight = engine.CreateEntity();
+    {
+        flashLight.AddPosition(0, 0, 0);
+        glm::mat4 renderGeomTransform{ 1.0f };
+        renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
+        flashLight.AddImmutableRenderGeometry();
+    }*/
     Entity grassBlock = engine.CreateEntity();
     {
         grassBlock.AddPosition(0, 0, 0);
@@ -36,17 +44,16 @@ int main(int argc, char** argv){
         glm::mat4 renderGeomTransform{ 1.0f };
         renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
         grassBlock.AddImmutableRenderGeometry(renderGeomTransform,
-            /* Math::Matrix4x4f::GetIdentity() **//*Math::Matrix4x4f::GetTranslate({ 20, 0, 0 }*/
             "yellowCube.obj",
             "yellowCube.mtl",
             "");
         glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
         rigidBodyTransform = glm::translate(rigidBodyTransform, { 0, 100.0, 0.f });
-        grassBlock.AddRigidBody(rigidBodyTransform, 100.f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
+        grassBlock.AddRigidBodyBox(rigidBodyTransform, 100.f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
         grassBlock.AddMapRigidBodyToRenderGeometry();
     }
 
-  /*  Entity grassPlane = engine.CreateEntity();
+    Entity grassPlane = engine.CreateEntity();
     {
     	grassPlane.AddPosition(0, 0, 0);
     	glm::mat4 renderGeomTransform{ 1.0f };
@@ -54,9 +61,9 @@ int main(int argc, char** argv){
     	grassPlane.AddImmutableRenderGeometry(
             renderGeomTransform,
     		"GrassPlane.obj",
-    		"GrassPlane.mtl",
+    		"GrassPlane.mtl", 
     		"Grass.jpg");
-    }*/
+    }
 
     Common::UInt64 size =15;
     for (Common::UInt64 i = 0; i < size; i++) {
@@ -75,7 +82,7 @@ int main(int argc, char** argv){
     			"");
     		glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
     		rigidBodyTransform = glm::translate(rigidBodyTransform, localTm);
-    		grassBlock.AddRigidBody(rigidBodyTransform,10.f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
+    		grassBlock.AddRigidBodyBox(rigidBodyTransform,10.f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f, 0.5f);
     		grassBlock.AddMapRigidBodyToRenderGeometry();
     	}
     }
