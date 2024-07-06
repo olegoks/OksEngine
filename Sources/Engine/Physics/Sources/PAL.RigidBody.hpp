@@ -13,12 +13,10 @@ namespace PAL {
 		struct CreateInfo {
 			glm::mat4 transform_;
 			float mass_ = 10.f;
-			float staticFriction_ = 0.5f;
-			float dynamicFriction_ = 0.5f;
-			float restitution_ = 0.5f;
-			float halfExtentX_ = 1.f;
-			float halfExtentY_ = 1.f;
-			float halfExtentZ_ = 1.f;
+
+			//float halfExtentX_ = 1.f;
+			//float halfExtentY_ = 1.f;
+			//float halfExtentZ_ = 1.f;
 			std::shared_ptr<Shape> shape_ = nullptr;
 		};
 

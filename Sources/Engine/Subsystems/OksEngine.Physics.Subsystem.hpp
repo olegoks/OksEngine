@@ -19,8 +19,8 @@ namespace OksEngine {
 
 		Common::Index CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo);
 		
-		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfo1& createInfo);
-		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfo2& createInfo);
+		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfoBox& createInfo);
+		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo);
 
 		void AddRigidBodyToWorld(Common::Index rbIndex);
 		[[nodiscard]]

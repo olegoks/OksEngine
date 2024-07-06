@@ -13,10 +13,10 @@ namespace PAL {
 		CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo) = 0;
 
 		virtual std::shared_ptr<Shape>
-		CreateShape(const PAL::Shape::CreateInfo1& createInfo) = 0;
+		CreateShape(const PAL::Shape::CreateInfoBox& createInfo) = 0;
 
 		virtual std::shared_ptr<Shape>
-		CreateShape(const PAL::Shape::CreateInfo2& createInfo) = 0;
+		CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo) = 0;
 
 	private:
 	};

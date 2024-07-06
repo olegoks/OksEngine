@@ -34,12 +34,12 @@ namespace PE {
 		}
 
 		[[nodiscard]]
-		auto CreateShape(const PAL::Shape::CreateInfo1& createInfo) {
+		auto CreateShape(const PAL::Shape::CreateInfoBox& createInfo) {
 			return api_->CreateShape(createInfo);
 		}
 
 		[[nodiscard]]
-		auto CreateShape(const PAL::Shape::CreateInfo2& createInfo) {
+		auto CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo) {
 			return api_->CreateShape(createInfo);
 		}
 

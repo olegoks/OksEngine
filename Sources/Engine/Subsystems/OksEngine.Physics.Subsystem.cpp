@@ -30,11 +30,11 @@ namespace OksEngine {
 		return rigidBodies_.size() - 1;
 	}
 
-	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfo1& createInfo) {
+	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfoBox& createInfo) {
 		auto shape = physicsEngine_->CreateShape(createInfo);
 		return shape;
 	}
-	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfo2& createInfo) {
+	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo) {
 		auto shape = physicsEngine_->CreateShape(createInfo);
 		return shape;
 	}
