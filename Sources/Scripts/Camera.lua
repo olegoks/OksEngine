@@ -14,33 +14,6 @@ function Camera:New()
     Camera.MovingRight = false
     Camera.MovingUp = false
     Camera.MovingDown = false
-    -- Camera.yaw = -90.0
-    -- Camera.fov = 45.0
-    -- Camera.pitch = 0.0
-    -- function Camera:IncreaseCounter()
-    --     self.Counter = self.Counter + 1;
-    --     --print(self.Counter)
-    -- end
-
-    -- function Camera:MoveForward(speed)
-        
-    --     -- position = Camera:GetComponent("Position")
-    --     -- cameraComp = Camera:GetComponent("Camera")
-    --     -- position:SetX(position:GetX() + cameraComp:GetDirectionX() * speed)
-    --     -- position:SetY(position:GetY() + cameraComp:GetDirectionY() * speed)
-    --     -- position:SetZ(position:GetZ() + cameraComp:GetDirectionZ() * speed)
-    -- end
-
-    -- function Camera:MoveBackward(speed)
-    --     position = Camera:GetComponent("Position")
-    --     cameraComp = Camera:GetComponent("Camera")
-    --     position:SetX(position:GetX() - cameraComp:GetDirectionX() * 0.1)
-    --     position:SetY(position:GetY() - cameraComp:GetDirectionY() * 0.1)
-    --     position:SetZ(position:GetZ() - cameraComp:GetDirectionZ() * 0.1)
-    -- end
-    -- function Camera:UpDirection()
-
-    -- end
 
     return Camera
 end

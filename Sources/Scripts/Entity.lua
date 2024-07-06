@@ -27,7 +27,10 @@ function Entity:GetComponent(componentName)
     if componentName == "Camera" then
         return self.EngineEntity:GetCamera()
     end
-    if componentName == "RigidBody" then
-        return self.EngineEntity:GetRigidBody()
+    if componentName == "RigidBodyBox" then
+        return self.EngineEntity:GetRigidBodyBox()
+    end
+    if componentName == "RigidBodyCapsule" then
+        return self.EngineEntity:GetRigidBodyCapsule()
     end
 end
