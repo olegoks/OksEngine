@@ -31,6 +31,8 @@ namespace OksEngine {
 			.addFunction("GetPosition", &LuaEntity::GetPosition)
 			.addFunction("GetImmutableRenderGeometry", &LuaEntity::GetImmutableRenderGeometry)
 			.addFunction("GetCamera", &LuaEntity::GetCamera)
+			.addFunction("GetRigidBodyBox", &LuaEntity::GetRigidBodyBox)
+			.addFunction("GetRigidBodyCapsule", &LuaEntity::GetRigidBodyCapsule)
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)
@@ -83,6 +85,7 @@ namespace OksEngine {
 		luabridge::getGlobalNamespace(state_)
 			.beginClass<RigidBodyCapsule>("RigidBodyCapsule")
 			.addConstructor<void(*)()>()
+			.addFunction("ApplyForce", &RigidBodyCapsule::ApplyForce)
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)

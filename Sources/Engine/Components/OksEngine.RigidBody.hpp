@@ -1,6 +1,7 @@
 #pragma once 
 #include <OksEngine.ECS.Component.hpp>
 #include <OksEngine.Context.hpp>
+#include <OksEngine.Physics.Subsystem.hpp>
 #include <Geometry.Shapes.hpp>
 
 namespace OksEngine {
@@ -36,8 +37,8 @@ namespace OksEngine {
 			transform_ = transform;
 		}
 
-		void ApplyForce(const glm::vec3& direction, float force) {
-			this->GetContext().GetPhysicsSubsystem()->ApplyForce(id_, direction, force);
+		void ApplyForce(float x, float y, float z, float force) {
+			this->GetContext().GetPhysicsSubsystem()->ApplyForce(id_, { x, y, z }, force);
 		}
 
 		const glm::mat4& GetTransform() {

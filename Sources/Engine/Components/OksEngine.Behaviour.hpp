@@ -33,6 +33,11 @@ namespace OksEngine {
 			return rigidBody;
 		}
 
+		RigidBodyCapsule* GetRigidBodyCapsule() {
+			auto rigidBody = world_->GetComponent<RigidBodyCapsule>(id_);
+			return rigidBody;
+		}
+
 		Camera* GetCamera() {
 			auto camera = world_->GetComponent<Camera>(id_);
 			return camera;
