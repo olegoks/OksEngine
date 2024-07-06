@@ -2,6 +2,7 @@
 #include <OksEngine.Entity.hpp>
 #include <OksEngine.Behaviour.hpp>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
+#include <OksEngine.Light.hpp>
 #include <OksEngine.MapRigidBodyToRenderGeometry.hpp>
 #include <OksEngine.Camera.hpp>
 
@@ -23,7 +24,7 @@ namespace OksEngine {
 			&context_);
 	}
 
-	void Entity::AddRigidBody(
+	void Entity::AddRigidBodyBox(
 		const glm::mat4& transform,
 		float mass,
 		float staticFriction,
@@ -32,7 +33,7 @@ namespace OksEngine {
 		float halfExtentX,
 		float halfExtentY, 
 		float halfExtentZ) {
-		world_->CreateComponent<RigidBody>(
+		world_->CreateComponent<RigidBodyBox>(
 			GetId(),
 			&context_,
 			transform,
@@ -43,6 +44,18 @@ namespace OksEngine {
 			halfExtentX,
 			halfExtentY,
 			halfExtentZ);
+	}
+
+	void Entity::AddLight(
+		const glm::vec3& color,
+		float intensity,
+		float radius) {
+		world_->CreateComponent<PointLight>(
+			GetId(),
+			&context_,
+			color,
+			intensity,
+			radius);
 	}
 
 	void Entity::AddBehaviour(

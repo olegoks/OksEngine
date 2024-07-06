@@ -9,9 +9,10 @@ namespace OksEngine {
 	public:
 
 		Light(
+			Context* context,
 			const glm::vec3& color,
 			float intensity) : 
-			ECSComponent<LightType>{ nullptr },
+			ECSComponent<LightType>{ context },
 			color_{ color },
 			intensity_{ intensity } { }
 
@@ -34,10 +35,11 @@ namespace OksEngine {
 	public:
 
 		PointLight(
+			Context* context,
 			const glm::vec3& color,
 			float intensity,
 			float radius) :
-			Light{ color, intensity },
+			Light{ context, color, intensity },
 			radius_{ radius } {  }
 
 		[[nodiscard]]

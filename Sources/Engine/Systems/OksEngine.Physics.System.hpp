@@ -14,7 +14,7 @@ namespace OksEngine {
 
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
-			RigidBody* rigidBody = world->GetComponent<RigidBody>(entityId);
+			RigidBodyBox* rigidBody = world->GetComponent<RigidBodyBox>(entityId);
 			if (rigidBody == nullptr) return;
 			auto physicsSubsystem = GetContext().GetPhysicsSubsystem();
 			if (rigidBody->id_ == Common::Limits<Common::Index>::Max()) {
@@ -50,7 +50,7 @@ namespace OksEngine {
 
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
-			RigidBody* rigidBody = world->GetComponent<RigidBody>(entityId);
+			RigidBodyBox* rigidBody = world->GetComponent<RigidBodyBox>(entityId);
 			if (rigidBody == nullptr) return;
 			ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 			if (renderGeometry == nullptr) return;
