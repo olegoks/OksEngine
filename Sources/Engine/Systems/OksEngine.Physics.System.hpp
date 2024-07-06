@@ -20,6 +20,7 @@ namespace OksEngine {
 			if (rigidBody->id_ == Common::Limits<Common::Index>::Max()) {
 				PAL::RigidBody::CreateInfo createInfo{
 					.transform_ = rigidBody->transform_,
+					.mass_ = rigidBody->mass_,
 					.staticFriction_ = rigidBody->staticFriction_,
 					.dynamicFriction_ = rigidBody->dynamicFriction_,
 					.restitution_ = rigidBody->restitution_,

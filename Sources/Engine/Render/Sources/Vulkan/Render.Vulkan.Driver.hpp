@@ -185,7 +185,7 @@ namespace Render::Vulkan {
 			const Extensions& requiredExtensions) noexcept;
 
 		Driver(const CreateInfo& info) noexcept :
-		RAL::Driver{ info }{
+			RAL::Driver{ info }{
 
 			auto windowInfo = info.surface_;
 
@@ -326,6 +326,30 @@ namespace Render::Vulkan {
 					descriptorSetLayoutCreateInfo.bindings_ = bindings;
 				}
 				globalDataDSL_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
+			}
+
+			//PIPELINE for lines
+			{
+				auto linesPipelineInfo = info.linesPipeline_;
+
+				LinesPipeline::CreateInfo createInfo;
+				{
+					createInfo.physicalDevice_ = physicalDevice_;
+					createInfo.logicDevice_ = logicDevice_;
+					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
+					createInfo.vertexShader_ = linesPipelineInfo->vertexShader_;
+					createInfo.fragmentShader_ = linesPipelineInfo->fragmentShader_;
+					createInfo.descriptorSetLayouts_.push_back(globalDataDSL_);
+					createInfo.descriptorSetLayouts_.push_back(modelInfoDSL_);
+					createInfo.descriptorSetLayouts_.push_back(texturedModelDSL_);
+					if (linesPipelineInfo->enableDepthTest_) {
+						auto depthTestData = std::make_shared<LinesPipeline::DepthTestInfo>();
+						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
+						createInfo.depthTestInfo_ = depthTestData;
+					}
+				}
+				linesPipeline_ = std::make_shared<LinesPipeline>(createInfo);
 			}
 
 			//PIPELINE for textured models
@@ -628,8 +652,38 @@ namespace Render::Vulkan {
 					commandBuffer->DrawShape(shape);
 				}
 
+				std::vector<Geom::Vertex3fc> lines{
+					{ { 0.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
+					{ { 10.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
+					{ { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
+					{ { 0.f, 10.f, 0.f }, { 0.f, 1.f, 0.f } },
+					{ { 0.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
+					{ { 0.f, 0.f, 10.f }, { 0.f, 0.f, 1.f } }
+				};
+
+				for (float x = -30.f; x < 30.f; x += 1.f) {
+					lines.push_back({ { x, 0.f, -10.f }, { 0.f, 0.f, 1.f } });
+					lines.push_back({ { x, 0.f, 10.f }, { 0.f, 0.f, 1.f } });
+				}
+
+				for (float z = -30.f; z < 30.f; z += 1.f) {
+					lines.push_back({ { -10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
+					lines.push_back({ { 10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
+				}
 
 
+				static auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, lines.size() * sizeof(Vertex3fc));
+				vertexStagingBuffer->Fill(lines.data());
+				static auto vertex3fcBuffer = std::make_shared<VertexBuffer<Vertex3fc>>(physicalDevice_, logicDevice_, lines.size());
+
+				DataCopy(vertexStagingBuffer, vertex3fcBuffer, logicDevice_, commandPool_);
+
+				commandBuffer->BindPipeline(linesPipeline_);
+				commandBuffer->BindBuffer(vertex3fcBuffer);
+				std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+				descriptorSets.push_back(globalDataDSs_[i]);
+				commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
+				commandBuffer->Draw(lines.size());
 
 				//ImGui_ImplVulkan_NewFrame();
 				//ImGui_ImplGlfw_NewFrame();
@@ -732,7 +786,7 @@ namespace Render::Vulkan {
 			globalData.lightIntensity_ = light_->GetIntensity();
 			globalData.lightPos_ = light_->GetPosition();
 			globalData.view = glm::lookAt(
-				camera_->GetPosition(), 
+				camera_->GetPosition(),
 				camera_->GetPosition() + camera_->GetDirection(),
 				camera_->GetUp()
 			);
@@ -740,7 +794,7 @@ namespace Render::Vulkan {
 				glm::radians(45.0f),
 				camera_->GetWidth() / (float)camera_->GetHeight(),
 				camera_->GetNearPlane(), camera_->GetFarPlane());
-			//uboGlm.proj[1][1] *= -1;
+			globalData.proj[1][1] *= -1;
 			std::shared_ptr<UniformBuffer> currentUniformBuffer = globalDataUBs_[currentImage];
 
 			currentUniformBuffer->Fill(&globalData);
@@ -1108,6 +1162,7 @@ namespace Render::Vulkan {
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<SwapChain> swapChain_ = nullptr;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
+		std::shared_ptr<LinesPipeline> linesPipeline_ = nullptr;
 		std::shared_ptr<TexturedModelPipeline> texturedModelPipeline_ = nullptr;
 		std::shared_ptr<FlatShadedModelPipeline> flatShadedModelPipeline_ = nullptr;
 		std::vector<FrameBuffer> frameBuffers_;

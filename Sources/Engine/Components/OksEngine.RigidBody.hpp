@@ -7,6 +7,7 @@ namespace OksEngine {
 	struct RigidBody : public ECSComponent<RigidBody> {
 		Common::Index id_ = Common::Limits<Common::Index>::Max();
 		glm::mat4 transform_ = glm::identity<glm::mat4>();
+		float mass_ = 10.f;
 		float staticFriction_ = 0.5f;
 		float dynamicFriction_ = 0.5f;
 		float restitution_ = 0.5f;
@@ -22,6 +23,7 @@ namespace OksEngine {
 		RigidBody(
 			Context* context,
 			const glm::mat4& transform,
+			float mass,
 			float staticFriction,
 			float dynamicFriction,
 			float restitution,
@@ -30,6 +32,7 @@ namespace OksEngine {
 			float halfExtentZ) :
 			ECSComponent{ context },
 			transform_{ transform },
+			mass_{ mass },
 			staticFriction_{ staticFriction },
 			dynamicFriction_{ dynamicFriction },
 			restitution_{ restitution },

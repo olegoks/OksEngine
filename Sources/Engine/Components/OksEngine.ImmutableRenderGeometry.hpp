@@ -21,9 +21,9 @@ namespace OksEngine {
 		}
 
 		void SetTransform(const glm::mat4& transform) {
-			if(modelObjFileName_ == "GrassBlock.obj" && Math::IsEqual(transform[3][1], 0.0f)) {
+			/*if(modelObjFileName_ == "GrassBlock.obj" && Math::IsEqual(transform[3][1], 0.0f)) {
 				__debugbreak();
-			}
+			}*/
 			modelMatrix_ = transform;
 		}
 

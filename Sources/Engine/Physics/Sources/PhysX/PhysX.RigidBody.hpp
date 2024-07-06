@@ -29,13 +29,13 @@ namespace PhysX {
 				physx::PxBoxGeometry(
 					createInfo.palCreateInfo_.halfExtentX_,
 					createInfo.palCreateInfo_.halfExtentY_, 
-					createInfo.palCreateInfo_.halfExtentX_),
+					createInfo.palCreateInfo_.halfExtentZ_),
 				*material);
 			body_ = createInfo.physics_->createRigidDynamic(t);
 			OS::AssertMessage(body_ != nullptr,
 				"Error while creating rigid body.");
 			body_->attachShape(*shape_);
-			physx::PxRigidBodyExt::updateMassAndInertia(*body_, 10.f);
+			physx::PxRigidBodyExt::updateMassAndInertia(*body_, createInfo.palCreateInfo_.mass_);
 		}
 
 		[[nodiscard]]

@@ -7,6 +7,13 @@ namespace RE {
 	RenderEngine::RenderEngine(const RenderEngine::CreateInfo& createInfo) {
 
 		api_ = RAL::CreateAPI();
+		auto linesPipeline = std::make_shared<RAL::Driver::Pipeline>(
+			"Lines",
+			createInfo.linesVertexShader_,
+			createInfo.linesFragmentShader_,
+			true
+		);
+
 		auto flatShadedModelPipeline = std::make_shared<RAL::Driver::Pipeline>(
 			"Flat shading models",
 			createInfo.vertexShader_,
@@ -23,8 +30,10 @@ namespace RE {
 
 		RAL::Driver::CreateInfo driverCreateInfo;
 		{
+			driverCreateInfo.linesPipeline_ = linesPipeline;
 			driverCreateInfo.flatShadedPipeline_ = flatShadedModelPipeline;
 			driverCreateInfo.texturedPipeline_ = texturedModelPipeline;
+
 			driverCreateInfo.surface_ = *createInfo.renderSurface_;
 		}
 

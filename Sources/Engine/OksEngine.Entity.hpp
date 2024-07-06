@@ -36,9 +36,10 @@ namespace OksEngine {
 		void AddMapRigidBodyToRenderGeometry();
 		void AddRigidBody(
 			const glm::mat4& transform,
-			float staticFriction_,
-			float dynamicFriction_,
-			float restitution_,
+			float mass,
+			float staticFriction,
+			float dynamicFriction,
+			float restitution,
 			float halfExtentX,
 			float halfExtentY,
 			float halfExtentZ);

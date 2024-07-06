@@ -25,6 +25,7 @@ namespace OksEngine {
 
 	void Entity::AddRigidBody(
 		const glm::mat4& transform,
+		float mass,
 		float staticFriction,
 		float dynamicFriction,
 		float restitution,
@@ -35,6 +36,7 @@ namespace OksEngine {
 			GetId(),
 			&context_,
 			transform,
+			mass,
 			staticFriction,
 			dynamicFriction, 
 			restitution,
