@@ -13,6 +13,7 @@ namespace PAL {
 		struct CreateInfo {
 			glm::mat4 transform_;
 			float mass_ = 10.f;
+			float linearDamping_ = 2.f;
 			std::shared_ptr<Shape> shape_ = nullptr;
 		};
 

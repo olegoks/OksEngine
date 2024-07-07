@@ -29,7 +29,7 @@ namespace PhysX {
 			OS::AssertMessage(body_ != nullptr,
 				"Error while creating rigid body.");
 			body_->attachShape(*shape->GetPxShape());
-			body_->setLinearDamping(5.f);
+			body_->setLinearDamping(createInfo.palCreateInfo_.linearDamping_);
 			physx::PxRigidBodyExt::updateMassAndInertia(*body_, createInfo.palCreateInfo_.mass_);
 		}
 

@@ -33,6 +33,7 @@ namespace OksEngine {
 						PAL::RigidBody::CreateInfo createInfo{
 							.transform_ = rigidBody->transform_,
 							.mass_ = rigidBody->mass_,
+							.linearDamping_ = rigidBody->linearDamping_,
 							.shape_ = shape
 						};
 						rigidBody->id_ = physicsSubsystem->CreateRigidBody(createInfo);
@@ -63,6 +64,7 @@ namespace OksEngine {
 						PAL::RigidBody::CreateInfo createInfo{
 							.transform_ = rigidBodyCapsule->transform_,
 							.mass_ = rigidBodyCapsule->mass_,
+							.linearDamping_ = rigidBodyCapsule->linearDamping_,
 							.shape_ = shape
 						};
 						rigidBodyCapsule->id_ = physicsSubsystem->CreateRigidBody(createInfo);
