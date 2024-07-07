@@ -22,7 +22,7 @@ namespace OksEngine {
 			if (camera == nullptr) return;
 			auto* rb = world->GetComponent<RigidBodyCapsule>(entityId);
 			if (rb == nullptr) return;
-			const glm::mat4 cameraTransform = rb->GetTransform() * attachCamera->offset_;
+			const glm::mat4 cameraTransform = rb->GetTransform()/* * attachCamera->offset_*/;
 			camera->Transform(cameraTransform);
 		}
 

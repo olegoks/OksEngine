@@ -11,24 +11,30 @@ namespace OksEngine {
 		Common::Index id_ = Common::Limits<Common::Index>::Max();
 		glm::mat4 transform_ = glm::identity<glm::mat4>();
 		float mass_ = 10.f;
+		float linearDamping_ = 5.f;
+		float angularDamping_ = 5.f;
 		float staticFriction_ = 0.5f;
 		float dynamicFriction_ = 0.5f;
 		float restitution_ = 0.5f;
 
 		RigidBody() : ECSComponent<RigidBodyType>{ nullptr }
 		{
-			
+
 		}
 		RigidBody(
 			Context* context,
 			const glm::mat4& transform,
 			float mass,
+			float linearDamping,
+			float angularDamping,
 			float staticFriction,
 			float dynamicFriction,
 			float restitution) :
 			ECSComponent<RigidBodyType>{ context },
 			transform_{ transform },
 			mass_{ mass },
+			linearDamping_{ linearDamping },
+			angularDamping_{ angularDamping },
 			staticFriction_{ staticFriction },
 			dynamicFriction_{ dynamicFriction },
 			restitution_{ restitution } {	}
@@ -48,7 +54,7 @@ namespace OksEngine {
 	};
 
 
-	class RigidBodyBox: public RigidBody<RigidBodyBox> {
+	class RigidBodyBox : public RigidBody<RigidBodyBox> {
 	public:
 
 		RigidBodyBox() : RigidBody{ } {}
@@ -57,16 +63,20 @@ namespace OksEngine {
 			Context* context,
 			const glm::mat4& transform,
 			float mass,
+			float linearDamping,
+			float angularDamping,
 			float staticFriction,
 			float dynamicFriction,
 			float restitution,
 			float halfExtentX,
 			float halfExtentY,
-			float halfExtentZ) : 
-			RigidBody{ 
-				context, 
+			float halfExtentZ) :
+			RigidBody{
+				context,
 				transform,
 				mass,
+				linearDamping,
+				angularDamping,
 				staticFriction,
 				dynamicFriction,
 				restitution
@@ -89,6 +99,8 @@ namespace OksEngine {
 			Context* context,
 			const glm::mat4& transform,
 			float mass,
+			float linearDamping,
+			float angularDamping,
 			float staticFriction,
 			float dynamicFriction,
 			float restitution,
@@ -98,6 +110,8 @@ namespace OksEngine {
 				context,
 				transform,
 				mass,
+				linearDamping,
+			    angularDamping,
 				staticFriction,
 				dynamicFriction,
 				restitution,

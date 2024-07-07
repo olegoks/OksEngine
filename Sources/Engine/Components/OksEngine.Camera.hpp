@@ -70,9 +70,10 @@ namespace OksEngine {
 		}
 
 		void Transform(const glm::mat4& transform) {
-			position_ = transform * glm::vec4{ position_, 1.f };
-			direction_ = transform * glm::vec4{ direction_, 1.f };
-			up_ = transform * glm::vec4{ up_, 1.f };
+			position_ = { transform[3][0], transform[3][1], transform[3][2] };
+			//transform * glm::vec4{ position_, 1.f };
+			//direction_ = transform * glm::vec4{ direction_, 1.f };
+			//up_ = transform * glm::vec4{ up_, 1.f };
 		}
 
 		Camera(

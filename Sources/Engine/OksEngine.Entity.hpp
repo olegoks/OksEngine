@@ -38,6 +38,8 @@ namespace OksEngine {
 		void AddRigidBodyBox(
 			const glm::mat4& transform,
 			float mass,
+			float linearDamping,
+			float angularDamping,
 			float staticFriction,
 			float dynamicFriction,
 			float restitution,
@@ -48,6 +50,8 @@ namespace OksEngine {
 		void AddRigidBodyCapsule(
 			const glm::mat4& transform,
 			float mass,
+			float linearDamping,
+			float angularDamping,
 			float staticFriction,
 			float dynamicFriction,
 			float restitution,
