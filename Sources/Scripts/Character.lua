@@ -19,24 +19,20 @@ function CharacterUpdater:Update(Character, deltaMs)
     cameraComponent = Character:GetComponent("Camera")
     rigidBodyComponent = Character:GetComponent("RigidBodyCapsule")
 
-    local sensetivity = 0.1
     if Character.MovingForward then
-        print('Moving forward start.')
-        print('rbComponent: '..rigidBodyComponent)
-        rigidBodyComponent:ApplyForce(1.0, 0.0, 0.0, 1.0)
-        print('Moving forward end')
-        --cameraComponent:Forward(sensetivity)
+        rigidBodyComponent:ApplyForce(
+            cameraComponent:GetDirectionX(), 
+            cameraComponent:GetDirectionY(),
+             cameraComponent:GetDirectionZ(), 1000.0)
     end
     if Character.MovingBackward then
-        --cameraComponent:Backward(sensetivity)
+        rigidBodyComponent:ApplyForce(
+            -cameraComponent:GetDirectionX(), 
+            -cameraComponent:GetDirectionY(), 
+            -cameraComponent:GetDirectionZ(), 1000.0)
     end
-    if Character.MovingLeft then 
-        --cameraComponent:Left(sensetivity)
-    end
-    if Character.MovingRight then 
-        --cameraComponent:Right(sensetivity)
-    end
-    
+
+
 end
 
 CharacterInputProcessor = {}
@@ -68,6 +64,10 @@ function CharacterInputProcessor:ProcessInput(Character, Key, Event, offsetX, of
             Character.MovingBackward = false
         end
     end 
+    cameraComponent = Character:GetComponent("Camera")
+    
+   -- cameraComponent:DirectionUp(offsetY / 10.0)
+    cameraComponent:DirectionLeft(offsetX / 10.0)
 end
 
 
