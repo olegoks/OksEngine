@@ -1,5 +1,6 @@
 #include <Components/OksEngine.Behaviour.hpp>
 #include <OksEngine.Resource.Subsystem.hpp>
+#include <OksEngine.Config.hpp>
 #include <filesystem>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
 #include <OksEngine.Light.hpp>
@@ -65,6 +66,12 @@ namespace OksEngine {
 			.addFunction("SetDirectionY", &Camera::SetDirectionY)
 			.addFunction("SetDirectionZ", &Camera::SetDirectionZ)
 			.addFunction("SetDirection", &Camera::SetDirection)
+			.addFunction("GetUpX", &Camera::GetUpX)
+			.addFunction("GetUpY", &Camera::GetUpY)
+			.addFunction("GetUpZ", &Camera::GetUpZ)
+			.addFunction("SetUpX", &Camera::SetUpX)
+			.addFunction("SetUpY", &Camera::SetUpY)
+			.addFunction("SetUpZ", &Camera::SetUpZ)
 			.addFunction("Forward", &Camera::Forward)
 			.addFunction("Backward", &Camera::Backward)
 			.addFunction("Right", &Camera::Right)
@@ -109,6 +116,26 @@ namespace OksEngine {
 			exit(-1);
 		}
 
+		//Set scripts path in lua object to use it to load scripts modules from scripts folder.
+		{
+			using namespace std::string_literals;
+			const std::filesystem::path scriptsPath = GetContext().GetConfig()->GetValueAs<std::string>("ResourceSystem.scriptsRootDirectory");
+			const std::filesystem::path configFilePath = GetContext().GetCommandLineParameters().GetValue("-cfg");
+			const auto scriptsFullPath = configFilePath.parent_path() / scriptsPath;
+			//const auto executableFullPath = GetContext().GetCommandLineParameters().GetExecutablePath();
+			//const auto scriptsRelativePath = std::filesystem::relative(scriptsFullPath, std::filesystem::current_path());
+
+			lua_getglobal(state_, "package");
+			lua_getfield(state_, -1, "path"); // get field "path" from table at top of stack (-1)
+			std::string cur_path = lua_tostring(state_, -1); // grab path string from top of stack
+			cur_path.append(";"); // do your path magic here
+			cur_path.append(scriptsFullPath.string() +  "?.lua");
+			lua_pop(state_, 1); // get rid of the string on the stack we just pushed on line 5
+			lua_pushstring(state_, cur_path.c_str()); // push the new one
+			lua_setfield(state_, -2, "path"); // set the field "path" in table at -2 with value at top of stack
+			lua_pop(state_, 1); // get rid of package table from top of stack
+
+		}
 		const auto objectScriptTaskId = resourceSubsystem->GetResource(Subsystem::Type::Engine, "Root/" + scriptName);
 		ResourceSubsystem::Resource objectScriptResource = resourceSubsystem->GetResource(Subsystem::Type::Engine, objectScriptTaskId);
 		std::string objectScriptText{ objectScriptResource.GetData<char>(), objectScriptResource.GetSize() };
@@ -119,6 +146,7 @@ namespace OksEngine {
 		}
 
 
+		
 		{
 			using namespace std::string_literals;
 			std::string createObjectCode = "object = "s + objectName_ + ":New()"s;
@@ -128,6 +156,7 @@ namespace OksEngine {
 				printf("Error: %s\n", lua_tostring(state_, -1));
 				lua_pop(state_, 1); // pop error message
 			}
+			
 			object_ = luabridge::getGlobal(state_, "object");
 
 			auto entity = object_["EngineEntity"].cast<LuaEntity*>();

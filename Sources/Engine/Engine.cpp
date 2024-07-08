@@ -23,11 +23,11 @@ namespace OksEngine {
 			context_->GetRenderSubsystem()->Update();
 			context_->GetUISubsystem()->Update();
 			context_->GetECSWorld()->Process();
-			/*using namespace std::chrono_literals;
-			auto now = std::chrono::high_resolution_clock::now();
-			auto delta = (now - previousUpdate);
-			std::this_thread::sleep_for(60ms - delta);
-			previousUpdate = now;*/
+			//using namespace std::chrono_literals;
+			//auto now = std::chrono::high_resolution_clock::now();
+			//auto delta = (now - previousUpdate);
+			//std::this_thread::sleep_for(15ms - delta);
+			//previousUpdate = now;
 		}
 	}
 

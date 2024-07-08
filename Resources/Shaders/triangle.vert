@@ -19,9 +19,9 @@ layout(location = 2) in vec3 inColor;
 layout(location = 0) out vec3 fragColor;
 
 void main() {
-    vec3 lightDirection = vec3(ubo.lightPos) - inPosition;
-    vec4 transformedNormal = vec4(inNormal, 1.0) *  modelTransform.model;
-    float intensity = dot(lightDirection, vec3(transformedNormal.x, transformedNormal.y, transformedNormal.z));
+    vec3 lightDirection = normalize(vec3(ubo.lightPos) - inPosition);
+    vec3 transformedNormal = normalize(inNormal *  mat3(modelTransform.model));
+    float intensity = 0.2 +  max(dot(lightDirection, transformedNormal), 0);
     fragColor = inColor * intensity;
 
     gl_Position = ubo.proj * ubo.view * modelTransform.model * vec4(inPosition, 1.0);

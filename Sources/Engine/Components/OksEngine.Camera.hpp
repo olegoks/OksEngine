@@ -21,6 +21,28 @@ namespace OksEngine {
 			return direction_.z;
 		}
 
+		float GetUpX() {
+			return up_.x;
+		}
+		float GetUpY() {
+			return up_.y;
+		}
+		float GetUpZ() {
+			return up_.z;
+		}
+
+
+		void SetUpX(float x) {
+			up_.x = x;
+			
+		}
+		void SetUpY(float y) {
+			up_.y = y;
+		}
+		void SetUpZ(float z) {
+			up_.z = z;
+		}
+
 		void SetDirection(float x, float y, float z) {
 			direction_ = { x, y, z};
 		}

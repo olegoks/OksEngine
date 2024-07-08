@@ -41,6 +41,8 @@ namespace UI {
 			A,
 			S,
 			D,
+			Space,
+			F5,
 			Undefined
 		};
 		enum class Event : Common::UInt64 {
@@ -99,6 +101,14 @@ namespace UI {
 				}
 				else if (key == GLFW_KEY_Q) {
 					keyboardKey = Key::Q;
+				}
+				else if (key == GLFW_KEY_SPACE) {
+					keyboardKey = Key::Space;
+
+				}
+				else if (key == GLFW_KEY_F5) {
+					keyboardKey = Key::F5;
+
 				}
 				else if (key == GLFW_KEY_E) {
 					keyboardKey = Key::E;
