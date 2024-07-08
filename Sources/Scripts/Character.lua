@@ -1,4 +1,4 @@
-
+local Math3D = require("Math3D")
 
 Character = setmetatable({ },
     { __index = Entity }
@@ -10,6 +10,13 @@ function Character:New()
     Character.MovingBackward = false
     Character.MovingLeft = false
     Character.MovingRight = false
+    function Character:Jump(dirX, dirY, dirZ)
+        rigidBodyComponent = self:GetComponent("RigidBodyCapsule")
+        rigidBodyComponent:ApplyForce(
+            dirX, 
+            dirY, 
+            dirZ, 20000.0)
+    end
     return Character
 end
 
@@ -19,17 +26,48 @@ function CharacterUpdater:Update(Character, deltaMs)
     cameraComponent = Character:GetComponent("Camera")
     rigidBodyComponent = Character:GetComponent("RigidBodyCapsule")
 
+    local force = 1000.0
     if Character.MovingForward then
         rigidBodyComponent:ApplyForce(
             cameraComponent:GetDirectionX(), 
             cameraComponent:GetDirectionY(),
-             cameraComponent:GetDirectionZ(), 1000.0)
+             cameraComponent:GetDirectionZ(), force)
     end
     if Character.MovingBackward then
         rigidBodyComponent:ApplyForce(
             -cameraComponent:GetDirectionX(), 
             -cameraComponent:GetDirectionY(), 
-            -cameraComponent:GetDirectionZ(), 1000.0)
+            -cameraComponent:GetDirectionZ(), force)
+    end
+    if Character.MovingLeft then
+        local x, y, z = Math3D:CrossProduct(
+            cameraComponent:GetUpX(),
+            cameraComponent:GetUpY(),
+            cameraComponent:GetUpZ(),
+            cameraComponent:GetDirectionX(),
+            cameraComponent:GetDirectionY(),
+            cameraComponent:GetDirectionZ()
+        )
+        local nx, ny, nz = Math3D:Normalize(x, y, z)
+        rigidBodyComponent:ApplyForce(
+            nx, 
+            ny, 
+            nz, force)
+    end
+    if Character.MovingRight then
+        local x, y, z = Math3D:CrossProduct(
+            cameraComponent:GetUpX(),
+            cameraComponent:GetUpY(),
+            cameraComponent:GetUpZ(),
+            cameraComponent:GetDirectionX(),
+            cameraComponent:GetDirectionY(),
+            cameraComponent:GetDirectionZ()
+        )
+        local nx, ny, nz = Math3D:Normalize(x, y, z)
+        rigidBodyComponent:ApplyForce(
+            -nx, 
+            -ny, 
+            -nz, force)
     end
 
 
@@ -63,11 +101,16 @@ function CharacterInputProcessor:ProcessInput(Character, Key, Event, offsetX, of
         elseif Event == "Released" then
             Character.MovingBackward = false
         end
-    end 
+    elseif Key == "Space" then
+        if Event == "Pressed" then
+            Character:Jump(0.0, 1.0, 0.0)
+        end
+    end  
+
     cameraComponent = Character:GetComponent("Camera")
-    
-   -- cameraComponent:DirectionUp(offsetY / 10.0)
     cameraComponent:DirectionLeft(offsetX / 10.0)
+    cameraComponent:DirectionUp(offsetY / 10.0)
+
 end
 
 

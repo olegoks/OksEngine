@@ -17,6 +17,7 @@
 namespace OksEngine
 {
 	Context::Context(const CreateInfo& createInfo) :
+		commandLineParameters_{ createInfo.commandLineParameters_ },
 		config_{ }
 	{
 		CommandLineParameters commandLineParameters = createInfo.commandLineParameters_;

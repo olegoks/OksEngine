@@ -47,7 +47,12 @@ namespace OksEngine {
 			return physicsSubsystem_;
 		}
 
+		const auto& GetCommandLineParameters() const noexcept {
+			return commandLineParameters_;
+		}
+
 	private:
+		CommandLineParameters commandLineParameters_;
 		std::shared_ptr<class LogSubsystem> logSubsystem_ = nullptr;
 		std::shared_ptr<class AsyncResourceSubsystem> resourceSubsystem_ = nullptr;
 		std::shared_ptr<class RenderSubsystem> renderSubsystem_ = nullptr;

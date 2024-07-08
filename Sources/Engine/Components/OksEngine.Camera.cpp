@@ -10,12 +10,22 @@ namespace OksEngine {
 			glm::radians(-angle), 
 			{ 0.f, 1.f, 0.f })
 		);
+		up_ = glm::normalize(glm::rotate(
+			up_,
+			glm::radians(-angle),
+			{ 0.f, 1.f, 0.f })
+		);
 	}
 
 
 	void Camera::DirectionLeft(float angle) {
 		direction_ = glm::normalize(glm::rotate(
 			direction_,
+			glm::radians(angle),
+			{ 0.f, 1.f, 0.f })
+		);
+		up_ = glm::normalize(glm::rotate(
+			up_,
 			glm::radians(angle),
 			{ 0.f, 1.f, 0.f })
 		);
