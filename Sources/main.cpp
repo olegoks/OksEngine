@@ -99,7 +99,7 @@ int main(int argc, char** argv){
     		"Grass.jpg");
     }
 
-    Common::UInt64 size = 25;
+    Common::UInt64 size = 1;
     for (Common::UInt64 i = 0; i < size; i++) {
     	for (Common::UInt64 j = 0; j < size - i; j++) {
     		glm::vec3 localTm(glm::vec3(float(j * 2) - float(size - i) + 0.1, float(i * 2 + 1) + 1.0, 0));

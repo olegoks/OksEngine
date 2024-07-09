@@ -652,38 +652,38 @@ namespace Render::Vulkan {
 					commandBuffer->DrawShape(shape);
 				}
 
-				std::vector<Geom::Vertex3fc> lines{
-					{ { 0.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
-					{ { 10.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
-					{ { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-					{ { 0.f, 10.f, 0.f }, { 0.f, 1.f, 0.f } },
-					{ { 0.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-					{ { 0.f, 0.f, 10.f }, { 0.f, 0.f, 1.f } }
-				};
+				//std::vector<Geom::Vertex3fc> lines{
+				//	{ { 0.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
+				//	{ { 10.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
+				//	{ { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
+				//	{ { 0.f, 10.f, 0.f }, { 0.f, 1.f, 0.f } },
+				//	{ { 0.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
+				//	{ { 0.f, 0.f, 10.f }, { 0.f, 0.f, 1.f } }
+				//};
 
-				for (float x = -30.f; x < 30.f; x += 1.f) {
-					lines.push_back({ { x, 0.f, -10.f }, { 0.f, 0.f, 1.f } });
-					lines.push_back({ { x, 0.f, 10.f }, { 0.f, 0.f, 1.f } });
-				}
+				//for (float x = -30.f; x < 30.f; x += 1.f) {
+				//	lines.push_back({ { x, 0.f, -10.f }, { 0.f, 0.f, 1.f } });
+				//	lines.push_back({ { x, 0.f, 10.f }, { 0.f, 0.f, 1.f } });
+				//}
 
-				for (float z = -30.f; z < 30.f; z += 1.f) {
-					lines.push_back({ { -10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
-					lines.push_back({ { 10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
-				}
+				//for (float z = -30.f; z < 30.f; z += 1.f) {
+				//	lines.push_back({ { -10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
+				//	lines.push_back({ { 10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
+				//}
 
 
-				static auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, lines.size() * sizeof(Vertex3fc));
-				vertexStagingBuffer->Fill(lines.data());
-				static auto vertex3fcBuffer = std::make_shared<VertexBuffer<Vertex3fc>>(physicalDevice_, logicDevice_, lines.size());
+				//static auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, lines.size() * sizeof(Vertex3fc));
+				//vertexStagingBuffer->Fill(lines.data());
+				//static auto vertex3fcBuffer = std::make_shared<VertexBuffer<Vertex3fc>>(physicalDevice_, logicDevice_, lines.size());
 
-				DataCopy(vertexStagingBuffer, vertex3fcBuffer, logicDevice_, commandPool_);
+				//DataCopy(vertexStagingBuffer, vertex3fcBuffer, logicDevice_, commandPool_);
 
-				commandBuffer->BindPipeline(linesPipeline_);
-				commandBuffer->BindBuffer(vertex3fcBuffer);
-				std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-				descriptorSets.push_back(globalDataDSs_[i]);
-				commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
-				commandBuffer->Draw(lines.size());
+				//commandBuffer->BindPipeline(linesPipeline_);
+				//commandBuffer->BindBuffer(vertex3fcBuffer);
+				//std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+				//descriptorSets.push_back(globalDataDSs_[i]);
+				//commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
+				//commandBuffer->Draw(lines.size());
 
 				ImGui_ImplVulkan_NewFrame();
 				ImGui_ImplGlfw_NewFrame();
