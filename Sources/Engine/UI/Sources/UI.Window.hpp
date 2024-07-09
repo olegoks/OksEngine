@@ -108,6 +108,14 @@ namespace UI {
 				}
 				else if (key == GLFW_KEY_F5) {
 					keyboardKey = Key::F5;
+					static bool disabled = false;
+					if (!disabled) {
+						glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+						disabled = true;
+					} else {
+						glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+						disabled = false;
+					}
 
 				}
 				else if (key == GLFW_KEY_E) {

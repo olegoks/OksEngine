@@ -280,15 +280,16 @@ namespace OksEngine {
 		[[nodiscard]]
 		bool GetTask(Subsystem::Type receiver, Task& task, std::function<bool(Subsystem::Type sender, const DS::Vector<Subsystem::Type>& receivers, const Task& task)> filter) {
 			Subsystem::Type sender = Subsystem::Type::Undefined;
-			task = exchangeSystem_.WaitForData(receiver,
-				[&filter, &sender](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
 					const bool isSuitable = filter(dataInfo.sender_, dataInfo.receivers_, dataInfo.data_.GetData<Task>());
-					if (isSuitable) {
-						sender = dataInfo.sender_;
-						return true;
-					}
-					return false;
-				});/*
+			//task = exchangeSystem_.WaitForData(receiver,
+			//	[&filter, &sender](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
+			//		const bool isSuitable = filter(dataInfo.sender_, dataInfo.receivers_, dataInfo.data_.GetData<Task>());
+			//		if (isSuitable) {
+			//			sender = dataInfo.sender_;
+			//			return true;
+			//		}
+			//		return false;
+			//	});
 			const bool isGot = exchangeSystem_.TryGetData(receiver, task,
 				[&filter, &sender](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
 					const bool isSuitable = filter(dataInfo.sender_, dataInfo.receivers_, dataInfo.data_.GetData<Task>());
@@ -297,16 +298,16 @@ namespace OksEngine {
 						return true;
 					}
 					return false;
-				});*/
-			//if(isGot) {
+				});
+			if(isGot) {
 				OS::LogInfo("Engine/AsyncResourceSubsystem",
 					{ "Task with id {} was received by {} from {}.",
 						task.GetId(),
 						magic_enum::enum_name(receiver).data(),
 						magic_enum::enum_name(sender).data()
 					});
-			//}
-			return true;
+			}
+			return isGot;
 		}
 
 		template<class Type, class ...Args>
