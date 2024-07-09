@@ -49,8 +49,8 @@ int main(int argc, char** argv){
         character.AddRigidBodyCapsule(
             capsuleTransform,
             10.f,
-            5.f,
-            5.f,
+            30.f,
+            0.2f,
             0.5f,
             0.5f,
             0.5f,
@@ -76,8 +76,8 @@ int main(int argc, char** argv){
         grassBlock.AddRigidBodyBox(
             rigidBodyTransform,
             10.f,
-            0.f,
-            0.f,
+            1.f,
+            1.f,
             0.5f,
             0.5f,
             0.5f,
@@ -99,7 +99,7 @@ int main(int argc, char** argv){
     		"Grass.jpg");
     }
 
-    Common::UInt64 size = 1;
+    Common::UInt64 size = 25;
     for (Common::UInt64 i = 0; i < size; i++) {
     	for (Common::UInt64 j = 0; j < size - i; j++) {
     		glm::vec3 localTm(glm::vec3(float(j * 2) - float(size - i) + 0.1, float(i * 2 + 1) + 1.0, 0));

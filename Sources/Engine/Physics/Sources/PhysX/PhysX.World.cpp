@@ -32,6 +32,7 @@ namespace PhysX {
 	}
 
 	void World::Simulate(float ms) {
+		OS::AssertMessage(!Math::IsEqual(ms, 0.f), "Invalid simulation time");
 		scene_->simulate(ms);
 		scene_->fetchResults(true);
 	}
