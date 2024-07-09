@@ -47,7 +47,23 @@ namespace OksEngine {
 	}
 
 	void PhysicsSubsystem::Update() noexcept {
-		physicsEngine_->Simulate(1 / 60.f);
+		using namespace std::chrono_literals;
+		static std::chrono::high_resolution_clock::time_point previousUpdate = std::chrono::high_resolution_clock::now();
+		static std::chrono::high_resolution_clock::duration remainder = 0ms;
+		const auto simulationGranularity = 4ms;
+		const auto now = std::chrono::high_resolution_clock::now();
+		const auto delta = (now - previousUpdate);
+		const auto toSimulate = delta + remainder;
+
+		if (toSimulate > simulationGranularity) {
+			physicsEngine_->Simulate(4.f / 1000.f);
+			remainder = toSimulate - 4ms;
+			previousUpdate = now;
+		}
+		
+
+
+		
 	}
 
 

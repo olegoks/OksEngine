@@ -45,6 +45,7 @@ namespace PE {
 
 		void Simulate(float elapsedTime) {
 			GetWorld()->Simulate(elapsedTime);
+			//OS::LogInfo("physics", { "Simulation time {}", elapsedTime });
 		}
 
 

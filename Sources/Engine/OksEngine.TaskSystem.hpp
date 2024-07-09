@@ -9,7 +9,7 @@
 #include <Datastructures.ThreadSafeQueue.hpp>
 
 #include <boost/thread/shared_mutex.hpp>
-#include <boost/lockfree/queue.hpp>
+//#include <boost/lockfree/queue.hpp>
 
 namespace OksEngine {
 

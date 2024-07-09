@@ -11,8 +11,8 @@ namespace OksEngine {
 		Common::Index id_ = Common::Limits<Common::Index>::Max();
 		glm::mat4 transform_ = glm::identity<glm::mat4>();
 		float mass_ = 10.f;
-		float linearDamping_ = 5.f;
-		float angularDamping_ = 5.f;
+		float linearDamping_ = 1.f;
+		float angularDamping_ = 1.f;
 		float staticFriction_ = 0.5f;
 		float dynamicFriction_ = 0.5f;
 		float restitution_ = 0.5f;

@@ -203,7 +203,7 @@ namespace Render::Vulkan {
 			}
 
 			ValidationLayers requiredValidationLayers;
-			requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_validation");
+			//requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_validation");
 			//requiredValidationLayers.AddLayer("VK_LAYER_LUNARG_api_dump");
 			//requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_profiles");
 
