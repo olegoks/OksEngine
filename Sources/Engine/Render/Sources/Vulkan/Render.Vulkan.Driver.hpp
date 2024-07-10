@@ -328,6 +328,12 @@ namespace Render::Vulkan {
 				globalDataDSL_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
 			}
 
+
+			//IMGUI PIPELINE
+			{
+
+			}
+
 			//PIPELINE for lines
 			{
 				auto linesPipelineInfo = info.linesPipeline_;
