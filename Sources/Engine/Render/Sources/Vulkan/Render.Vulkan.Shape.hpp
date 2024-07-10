@@ -138,6 +138,37 @@ namespace Render::Vulkan {
 		std::shared_ptr<Texture> texture_ = nullptr;
 	};
 
+
+	class UIShape : public Shape<Vertex2ftc, Index16> {
+	public:
+
+		struct CreateInfo {
+			glm::mat4 model_;
+			std::shared_ptr<VertexBuffer<Vertex2ftc>> vertexBuffer_ = nullptr;
+			std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
+			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
+			std::shared_ptr<Texture> texture_ = nullptr;
+		};
+
+		UIShape(const CreateInfo& createInfo) :
+			Shape{ Shape::CreateInfo{
+				createInfo.model_,
+				createInfo.vertexBuffer_,
+				createInfo.indexBuffer_,
+				createInfo.transformBuffer_,
+				createInfo.transformDescriptorSet_
+				} },
+			texture_{ createInfo.texture_ } { }
+
+		[[nodiscard]]
+		std::shared_ptr<Texture> GetTexture() noexcept {
+			return texture_;
+		}
+
+		std::shared_ptr<Texture> texture_ = nullptr;
+	};
+
 	class ColoredShape : public Shape<Vertex3fnc, Index16>{
 	public:
 		struct CreateInfo {

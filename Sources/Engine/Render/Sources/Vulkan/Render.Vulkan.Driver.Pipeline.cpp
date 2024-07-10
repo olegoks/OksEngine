@@ -10,6 +10,9 @@ namespace Render::Vulkan {
 		Pipeline::CreateInfo{
 			createInfo.physicalDevice_,
 			createInfo.logicDevice_,
+			{
+				{ VK_SHADER_STAGE_VERTEX_BIT, 0 , sizeof(float) * 4 }
+			}, 
 			std::vector<std::shared_ptr<DescriptorSetLayout>>{
 				std::make_shared<DescriptorSetLayout>(
 					DescriptorSetLayout::CreateInfo{

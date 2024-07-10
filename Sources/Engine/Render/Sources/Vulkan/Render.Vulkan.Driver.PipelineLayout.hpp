@@ -14,6 +14,7 @@ namespace Render::Vulkan {
 	public:
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> logicDevice_;
+			std::vector<VkPushConstantRange> pushConstants_;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 		};
 
@@ -28,8 +29,8 @@ namespace Render::Vulkan {
 					descriptorSetLayoutsHandles.push_back(*descriptorSetLayout);
 				}
 				pipelineLayoutInfo.pSetLayouts = descriptorSetLayoutsHandles.data(); // Optional
-				pipelineLayoutInfo.pushConstantRangeCount = 0; // Optional
-				pipelineLayoutInfo.pPushConstantRanges = nullptr; // Optional
+				pipelineLayoutInfo.pushConstantRangeCount = createInfo.pushConstants_.size(); // Optional
+				pipelineLayoutInfo.pPushConstantRanges = createInfo.pushConstants_.data(); // Optional
 
 
 				VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;

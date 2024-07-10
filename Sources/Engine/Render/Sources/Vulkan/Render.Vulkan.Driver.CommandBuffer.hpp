@@ -86,6 +86,17 @@ namespace Render::Vulkan {
 				pipeline->GetHandle());
 		}
 
+		void BindBuffer(std::shared_ptr<VertexBuffer<Vertex2ftc>> vertexBuffer) noexcept {
+			VkDeviceSize offsets[] = { 0 };
+			const VkBuffer bufferHandle = vertexBuffer->GetNative();
+			vkCmdBindVertexBuffers(
+				GetHandle(),
+				0,
+				1,
+				&bufferHandle,
+				offsets);
+		}
+
 		void BindBuffer(std::shared_ptr<VertexBuffer<Vertex3fnc>> vertexBuffer) noexcept {
 			VkDeviceSize offsets[] = { 0 };
 			const VkBuffer bufferHandle = vertexBuffer->GetNative();
@@ -243,6 +254,10 @@ namespace Render::Vulkan {
 			BindBuffer(shape->GetIndexBuffer());
 		}
 
+		void BindShape(std::shared_ptr<UIShape> shape) {
+			BindBuffer(shape->GetVertexBuffer());
+			BindBuffer(shape->GetIndexBuffer());
+		}
 
 		void BindShape(std::shared_ptr<TexturedShape> shape) {
 			BindBuffer(shape->GetVertexBuffer());
@@ -254,6 +269,10 @@ namespace Render::Vulkan {
 		}
 
 		void DrawShape(std::shared_ptr<TexturedShape> shape) {
+			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
+		}
+
+		void DrawShape(std::shared_ptr<UIShape> shape) {
 			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
 		}
 

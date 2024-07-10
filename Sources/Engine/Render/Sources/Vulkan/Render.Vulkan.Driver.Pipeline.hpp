@@ -35,7 +35,9 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::vector<VkPushConstantRange> pushConstants_;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
+
 			std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
 			std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
@@ -187,8 +189,11 @@ namespace Render::Vulkan {
 			PipelineLayout::CreateInfo pipelineLayoutCreateInfo;
 			{
 				pipelineLayoutCreateInfo.logicDevice_ = createInfo.logicDevice_;
-				pipelineLayoutCreateInfo.descriptorSetLayouts_.insert(pipelineLayoutCreateInfo.descriptorSetLayouts_.begin(),
-					createInfo.descriptorSetLayouts_.begin(), createInfo.descriptorSetLayouts_.end());
+				pipelineLayoutCreateInfo.pushConstants_ = createInfo.pushConstants_;
+				pipelineLayoutCreateInfo.descriptorSetLayouts_.insert(
+					pipelineLayoutCreateInfo.descriptorSetLayouts_.begin(),
+					createInfo.descriptorSetLayouts_.begin(),
+					createInfo.descriptorSetLayouts_.end());
 				pipelineLayout_ = std::make_shared<PipelineLayout>(pipelineLayoutCreateInfo);
 			}
 
@@ -282,6 +287,7 @@ namespace Render::Vulkan {
 				Pipeline::CreateInfo{
 					createInfo.physicalDevice_,
 					createInfo.logicDevice_,
+					{},
 					std::vector<std::shared_ptr<DescriptorSetLayout>>{
 					std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
@@ -360,6 +366,7 @@ namespace Render::Vulkan {
 			Pipeline::CreateInfo{
 				createInfo.physicalDevice_,
 				createInfo.logicDevice_,
+				{},
 				std::vector<std::shared_ptr<DescriptorSetLayout>>{
 					std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
@@ -428,6 +435,7 @@ namespace Render::Vulkan {
 			Pipeline::CreateInfo{
 				createInfo.physicalDevice_,
 				createInfo.logicDevice_,
+				{},
 				std::vector<std::shared_ptr<DescriptorSetLayout>>{
 					std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
@@ -476,7 +484,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
 			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
-			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
+			//std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
 
