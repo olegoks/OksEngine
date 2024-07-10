@@ -203,7 +203,7 @@ namespace Render::Vulkan {
 			}
 
 			ValidationLayers requiredValidationLayers;
-			//requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_validation");
+			requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_validation");
 			//requiredValidationLayers.AddLayer("VK_LAYER_LUNARG_api_dump");
 			//requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_profiles");
 
@@ -342,7 +342,7 @@ namespace Render::Vulkan {
 					createInfo.vertexShader_ = imguiPipelineInfo->vertexShader_;
 					createInfo.fragmentShader_ = imguiPipelineInfo->fragmentShader_;
 				}
-				auto imguiPipeline_ = std::make_shared<ImguiPipeline>(createInfo);
+				imguiPipeline_ = std::make_shared<ImguiPipeline>(createInfo);
 			}
 
 			//PIPELINE for lines
@@ -657,6 +657,19 @@ namespace Render::Vulkan {
 					commandBuffer->DrawShape(shape);
 				}
 
+				//for (auto shape : UIShapes_) {
+				//	commandBuffer->BindPipeline(imguiPipeline_);
+				//	commandBuffer->BindShape(shape);
+				//	{
+				//		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+				//		//descriptorSets.push_back(globalDataDSs_[i]);
+				//		//descriptorSets.push_back(shape->GetTransformDescriptorSet());
+				//		descriptorSets.push_back(shape->GetTexture()->GetDescriptorSet());
+				//		commandBuffer->BindDescriptorSets(texturedModelPipeline_, descriptorSets);
+				//	}
+				//	commandBuffer->DrawShape(shape);
+				//}
+
 				for (auto shape : coloredShapes_) {
 					commandBuffer->BindPipeline(flatShadedModelPipeline_);
 					commandBuffer->BindShape(shape);
@@ -876,93 +889,92 @@ namespace Render::Vulkan {
 			Common::Size indicesNumber,
 			std::shared_ptr<RAL::Texture> texture) override {
 
-			//auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(Vertex3fnt));
-			//vertexStagingBuffer->Fill(vertices);
-			//auto vertex3fntBuffer = std::make_shared<VertexBuffer<Vertex3fnt>>(physicalDevice_, logicDevice_, verticesNumber);
+			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(Vertex3fnt));
+			vertexStagingBuffer->Fill(vertices);
+			auto vertex3fntBuffer = std::make_shared<VertexBuffer<Vertex2ftc>>(physicalDevice_, logicDevice_, verticesNumber);
 
-			//DataCopy(vertexStagingBuffer, vertex3fntBuffer, logicDevice_, commandPool_);
+			DataCopy(vertexStagingBuffer, vertex3fntBuffer, logicDevice_, commandPool_);
 
-			//auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(Index16));
-			//indexStagingBuffer->Fill(indices);
-			//auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
+			auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(Index16));
+			indexStagingBuffer->Fill(indices);
+			auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
 
-			//DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
+			DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
 
-			//auto textureStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, texture->GetPixelsNumber() * sizeof(RAL::Color4b));
-			//textureStagingBuffer->Fill(texture->GetPixels<Color4b>());
+			auto textureStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, texture->GetPixelsNumber() * sizeof(RAL::Color4b));
+			textureStagingBuffer->Fill(texture->GetPixels<Color4b>());
 
-			//AllocatedTextureImage::CreateInfo textureImageCreateInfo;
-			//{
-			//	textureImageCreateInfo.size_ = { texture->GetSize() };
-			//	textureImageCreateInfo.format_ = VK_FORMAT_R8G8B8A8_UNORM;
-			//	textureImageCreateInfo.logicDevice_ = logicDevice_;
-			//	textureImageCreateInfo.physicalDevice_ = physicalDevice_;
-			//}
-			//auto textureImage = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
-			//ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, logicDevice_, commandPool_);
-			//DataCopy(textureStagingBuffer, textureImage, logicDevice_, commandPool_);
-			//ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, logicDevice_, commandPool_);
-			//auto textureImageView = CreateImageViewByImage(logicDevice_, textureImage, VK_IMAGE_ASPECT_COLOR_BIT);
-			//Sampler::CreateInfo samplerCreateInfo;
-			//{
-			//	samplerCreateInfo.logicDevice_ = logicDevice_;
-			//	samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
-			//	samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
-			//	samplerCreateInfo.maxAnisotropy_ = physicalDevice_->GetProperties().limits.maxSamplerAnisotropy;
-			//}
-			//auto textureSampler = std::make_shared<Sampler>(samplerCreateInfo);
+			AllocatedTextureImage::CreateInfo textureImageCreateInfo;
+			{
+				textureImageCreateInfo.size_ = { texture->GetSize() };
+				textureImageCreateInfo.format_ = VK_FORMAT_R8G8B8A8_UNORM;
+				textureImageCreateInfo.logicDevice_ = logicDevice_;
+				textureImageCreateInfo.physicalDevice_ = physicalDevice_;
+			}
+			auto textureImage = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
+			ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, logicDevice_, commandPool_);
+			DataCopy(textureStagingBuffer, textureImage, logicDevice_, commandPool_);
+			ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, logicDevice_, commandPool_);
+			auto textureImageView = CreateImageViewByImage(logicDevice_, textureImage, VK_IMAGE_ASPECT_COLOR_BIT);
+			Sampler::CreateInfo samplerCreateInfo;
+			{
+				samplerCreateInfo.logicDevice_ = logicDevice_;
+				samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
+				samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
+				samplerCreateInfo.maxAnisotropy_ = physicalDevice_->GetProperties().limits.maxSamplerAnisotropy;
+			}
+			auto textureSampler = std::make_shared<Sampler>(samplerCreateInfo);
 
-			//DescriptorSet::CreateInfo createInfo;
-			//{
-			//	createInfo.descriptorPool_ = descriptorPool_;
-			//	createInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[2];
-			//	createInfo.logicDevice_ = logicDevice_;
-			//}
+			DescriptorSet::CreateInfo createInfo;
+			{
+				createInfo.descriptorPool_ = descriptorPool_;
+				createInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[2];
+				createInfo.logicDevice_ = logicDevice_;
+			}
 
-			//auto textureDescriptorSet = std::make_shared<DescriptorSet>(createInfo);
-			//textureDescriptorSet->UpdateImageWriteConfiguration(
-			//	textureImageView,
-			//	VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			//	textureSampler,
-			//	VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			//	0);
+			auto textureDescriptorSet = std::make_shared<DescriptorSet>(createInfo);
+			textureDescriptorSet->UpdateImageWriteConfiguration(
+				textureImageView,
+				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+				textureSampler,
+				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+				0);
 
-			//Texture::CreateInfo textureCreateInfo;
-			//{
-			//	textureCreateInfo.textureImage_ = textureImage;
-			//	textureCreateInfo.textureImageView_ = textureImageView;
-			//	textureCreateInfo.sampler = textureSampler;
-			//	textureCreateInfo.descriptorSet_ = textureDescriptorSet;
-			//}
+			Texture::CreateInfo textureCreateInfo;
+			{
+				textureCreateInfo.textureImage_ = textureImage;
+				textureCreateInfo.textureImageView_ = textureImageView;
+				textureCreateInfo.sampler = textureSampler;
+				textureCreateInfo.descriptorSet_ = textureDescriptorSet;
+			}
+			auto vkTexture = std::make_shared<Texture>(textureCreateInfo);
+			const VkDeviceSize bufferSize = sizeof(Transform);
+			auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
+			DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
+			{
+				transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
+				transformDesciptorSetCreateInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[1];
+				transformDesciptorSetCreateInfo.logicDevice_ = logicDevice_;
+			}
+			auto modelTransform = std::make_shared<DescriptorSet>(transformDesciptorSetCreateInfo);
+			modelTransform->UpdateBufferWriteConfiguration(
+				transformUniformBuffer,
+				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+				0, 0, transformUniformBuffer->GetSizeInBytes());
 
-			//const VkDeviceSize bufferSize = sizeof(Transform);
-			//auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
-			//DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
-			//{
-			//	transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
-			//	transformDesciptorSetCreateInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[1];
-			//	transformDesciptorSetCreateInfo.logicDevice_ = logicDevice_;
-			//}
-			//auto modelTransform = std::make_shared<DescriptorSet>(transformDesciptorSetCreateInfo);
-			//modelTransform->UpdateBufferWriteConfiguration(
-			//	transformUniformBuffer,
-			//	VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-			//	0, 0, transformUniformBuffer->GetSizeInBytes());
-
-			//TexturedShape::CreateInfo texturedShapeCreateInfo;
-			//{
-			//	texturedShapeCreateInfo.model_ = model_;
-			//	texturedShapeCreateInfo.transformBuffer_ = transformUniformBuffer;
-			//	texturedShapeCreateInfo.transformDescriptorSet_ = modelTransform;
-			//	texturedShapeCreateInfo.vertexBuffer_ = vertex3fntBuffer;
-			//	texturedShapeCreateInfo.indexBuffer_ = indexBuffer;
-			//	texturedShapeCreateInfo.texture_ = std::make_shared<Texture>(textureCreateInfo);;
-			//}
-			//auto texturedShape = std::make_shared<TexturedShape>(texturedShapeCreateInfo);
-			////texturedShape->SetPosition({ 0, 0, 0 });
-			//texturedShapes_.push_back(texturedShape);
-			//return texturedShape->GetId();
-			return 0;
+			UIShape::CreateInfo texturedShapeCreateInfo;
+			{
+				texturedShapeCreateInfo.transformBuffer_ = transformUniformBuffer;
+				texturedShapeCreateInfo.transformDescriptorSet_ = modelTransform;
+				texturedShapeCreateInfo.vertexBuffer_ = vertex3fntBuffer;
+				texturedShapeCreateInfo.indexBuffer_ = indexBuffer;
+				texturedShapeCreateInfo.texture_ = vkTexture;
+			}
+			auto texturedShape = std::make_shared<UIShape>(texturedShapeCreateInfo);
+			//texturedShape->SetPosition({ 0, 0, 0 });
+			UIShapes_.push_back(texturedShape);
+			return texturedShape->GetId();
+			//return 0;
 		}
 
 		virtual Common::UInt64 DrawIndexed(
@@ -1276,6 +1288,8 @@ namespace Render::Vulkan {
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<SwapChain> swapChain_ = nullptr;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
+
+		std::shared_ptr<ImguiPipeline> imguiPipeline_ = nullptr;
 		std::shared_ptr<LinesPipeline> linesPipeline_ = nullptr;
 		std::shared_ptr<TexturedModelPipeline> texturedModelPipeline_ = nullptr;
 		std::shared_ptr<FlatShadedModelPipeline> flatShadedModelPipeline_ = nullptr;
@@ -1298,6 +1312,7 @@ namespace Render::Vulkan {
 		std::shared_ptr<DescriptorSetLayout> texturedModelDSL_ = nullptr;
 		std::shared_ptr<DescriptorSet> texturedModelInfoDescriptorSet_ = nullptr;
 
+		std::vector<std::shared_ptr<UIShape>> UIShapes_;
 		std::vector<std::shared_ptr<TexturedShape>> texturedShapes_;
 		std::vector<std::shared_ptr<ColoredShape>> coloredShapes_;
 
