@@ -331,7 +331,26 @@ namespace Render::Vulkan {
 
 			//IMGUI PIPELINE
 			{
+				auto linesPipelineInfo = info.linesPipeline_;
 
+				LinesPipeline::CreateInfo createInfo;
+				{
+					createInfo.physicalDevice_ = physicalDevice_;
+					createInfo.logicDevice_ = logicDevice_;
+					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
+					createInfo.vertexShader_ = linesPipelineInfo->vertexShader_;
+					createInfo.fragmentShader_ = linesPipelineInfo->fragmentShader_;
+					createInfo.descriptorSetLayouts_.push_back(globalDataDSL_);
+					createInfo.descriptorSetLayouts_.push_back(modelInfoDSL_);
+					createInfo.descriptorSetLayouts_.push_back(texturedModelDSL_);
+					if (linesPipelineInfo->enableDepthTest_) {
+						auto depthTestData = std::make_shared<LinesPipeline::DepthTestInfo>();
+						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
+						createInfo.depthTestInfo_ = depthTestData;
+					}
+				}
+				linesPipeline_ = std::make_shared<LinesPipeline>(createInfo);
 			}
 
 			//PIPELINE for lines

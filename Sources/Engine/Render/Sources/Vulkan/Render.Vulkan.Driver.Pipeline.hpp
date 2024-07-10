@@ -43,6 +43,7 @@ namespace Render::Vulkan {
 			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
 			VertexInfo vertexInfo_;
 			VkPrimitiveTopology topology_ = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
+			std::vector<VkDynamicState> dynamicStates_;
 		};
 
 		Pipeline(const CreateInfo& createInfo) : logicDevice_{ createInfo.logicDevice_ } {
@@ -191,6 +192,14 @@ namespace Render::Vulkan {
 				pipelineLayout_ = std::make_shared<PipelineLayout>(pipelineLayoutCreateInfo);
 			}
 
+			VkPipelineDynamicStateCreateInfo dynamicState = {
+				.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO,
+				.dynamicStateCount = static_cast<Common::UInt32>(createInfo.dynamicStates_.size()),
+				.pDynamicStates = createInfo.dynamicStates_.data()
+			};
+			/*dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
+			dynamicState.dynamicStateCount = static_cast<Common::UInt32>(createInfo.dynamicStates_.size());
+			dynamicState.pDynamicStates = createInfo.dynamicStates_.data();*/
 
 			VkGraphicsPipelineCreateInfo pipelineInfo{};
 			{
@@ -204,7 +213,7 @@ namespace Render::Vulkan {
 				pipelineInfo.pMultisampleState = &multisampling;
 				pipelineInfo.pDepthStencilState = &depthStencilState;
 				pipelineInfo.pColorBlendState = &colorBlending;
-				pipelineInfo.pDynamicState = nullptr;
+				pipelineInfo.pDynamicState = &dynamicState;
 				pipelineInfo.layout = *pipelineLayout_;
 				pipelineInfo.renderPass = *renderPass_;
 				pipelineInfo.subpass = 0;
@@ -451,6 +460,67 @@ namespace Render::Vulkan {
 					Vertex3fc::GetAttributeDescriptions()
 				},
 				VK_PRIMITIVE_TOPOLOGY_LINE_LIST
+			}
+		} { }
+
+
+	};
+
+
+	class ImguiPipeline : public Pipeline {
+	public:
+
+		using DepthTestInfo = Pipeline::DepthTestInfo;
+
+		struct CreateInfo {
+			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<SwapChain> swapChain_ = nullptr;
+			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
+			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
+			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
+			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
+			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
+		};
+
+
+		ImguiPipeline(const CreateInfo& createInfo) :
+			Pipeline{
+			Pipeline::CreateInfo{
+				.physicalDevice_ = createInfo.physicalDevice_,
+				.logicDevice_ = createInfo.logicDevice_,
+				.descriptorSetLayouts_ = std::vector<std::shared_ptr<DescriptorSetLayout>>{
+					std::make_shared<DescriptorSetLayout>(
+						DescriptorSetLayout::CreateInfo{
+							createInfo.logicDevice_,
+							std::vector<VkDescriptorSetLayoutBinding>{{{
+							0,
+							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+							1,
+							VK_SHADER_STAGE_VERTEX_BIT,
+							nullptr
+						}}}
+						})
+				},
+				.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					createInfo.logicDevice_,
+					createInfo.vertexShader_->GetCode()
+					}),
+				.fragmentShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					createInfo.logicDevice_,
+					createInfo.fragmentShader_->GetCode()
+					}),
+				.depthTestInfo_ = createInfo.depthTestInfo_,
+				.colorAttachmentSize_ = createInfo.colorAttachmentSize_,
+				.colorAttachmentFormat_ = createInfo.colorAttachmentFormat_,
+				.vertexInfo_ = VertexInfo{
+					Vertex2ftc::GetBindingDescription(),
+					Vertex2ftc::GetAttributeDescriptions()
+				},
+				.topology_ = VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
+				.dynamicStates_ = {  VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR  }
+
 			}
 		} { }
 

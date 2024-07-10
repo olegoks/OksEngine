@@ -13,12 +13,67 @@ namespace Render::Vulkan {
 
 	void VkCall(VkResult nativeAPICallResult, Common::Format&& format) noexcept;
 
-
 	using Vector3f = Geom::Vector3f;
 	using Index16 = Geom::Index16;
 	using Color4b = Geom::Color4b;
 	using Color3f = Geom::Color3f;
 	using Normal3f = Geom::Normal3f;
+
+	class Vertex2ftc : public Geometry::Vertex2ftc {
+	public:
+
+
+		static VkVertexInputBindingDescription GetBindingDescription() {
+			VkVertexInputBindingDescription bindingDescription{};
+
+			bindingDescription.binding = 0;
+			bindingDescription.stride = sizeof(Vertex2ftc);
+			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+			return bindingDescription;
+		}
+
+		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() {
+			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 0;
+					attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex2ftc, position_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 1;
+					attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex2ftc, uv_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 2;
+					attributeDescription.format = VK_FORMAT_R8G8B8A8_UNORM;
+					attributeDescription.offset = offsetof(Vertex2ftc, color_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
+
+			return attributeDescriptions;
+		}
+
+	private:
+	};
 
 	class Vertex3fnc : public Geometry::Vertex3fnc {
 	public:
@@ -89,22 +144,6 @@ namespace Render::Vulkan {
 
 			return bindingDescription;
 		}
-
-		//static std::array<VkVertexInputAttributeDescription, 2> GetAttributeDescriptions() {
-		//	std::array<VkVertexInputAttributeDescription, 2> attributeDescriptions{};
-
-		//	attributeDescriptions[0].binding = 0;
-		//	attributeDescriptions[0].location = 0;
-		//	attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32_SFLOAT;
-		//	attributeDescriptions[0].offset = offsetof(Vertex3fc, position_);
-
-		//	attributeDescriptions[1].binding = 0;
-		//	attributeDescriptions[1].location = 1;
-		//	attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
-		//	attributeDescriptions[1].offset = offsetof(Vertex3fc, color_);
-
-		//	return attributeDescriptions;
-		//}
 
 		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() {
 			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
@@ -189,47 +228,6 @@ namespace Render::Vulkan {
 		}
 	};
 
-	//class Vertex3fnñt : public RAL::Vertex3fnñt {
-	//public:
-
-
-	//	static VkVertexInputBindingDescription GetBindingDescription() {
-	//		VkVertexInputBindingDescription bindingDescription{};
-
-	//		bindingDescription.binding = 0;
-	//		bindingDescription.stride = sizeof(Vertex3fnñt);
-	//		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
-
-	//		return bindingDescription;
-	//	}
-
-	//	static std::array<VkVertexInputAttributeDescription, 4> GetAttributeDescriptions() {
-	//		std::array<VkVertexInputAttributeDescription, 4> attributeDescriptions{};
-
-	//		attributeDescriptions[0].binding = 0;
-	//		attributeDescriptions[0].location = 0;
-	//		attributeDescriptions[0].format = VK_FORMAT_R32G32B32_SFLOAT;
-	//		attributeDescriptions[0].offset = offsetof(Vertex3fnñt, position_);
-
-	//		attributeDescriptions[1].binding = 0;
-	//		attributeDescriptions[1].location = 1;
-	//		attributeDescriptions[1].format = VK_FORMAT_R32G32B32_SFLOAT;
-	//		attributeDescriptions[1].offset = offsetof(Vertex3fnñt, normal_);
-
-	//		attributeDescriptions[2].binding = 0;
-	//		attributeDescriptions[2].location = 2;
-	//		attributeDescriptions[2].format = VK_FORMAT_R32G32B32_SFLOAT;
-	//		attributeDescriptions[2].offset = offsetof(Vertex3fnñt, color_);
-
-	//		attributeDescriptions[3].binding = 0;
-	//		attributeDescriptions[3].location = 3;
-	//		attributeDescriptions[3].format = VK_FORMAT_R32G32_SFLOAT;
-	//		attributeDescriptions[3].offset = offsetof(Vertex3fnñt, texel_);
-
-	//		return attributeDescriptions;
-	//	}
-	//};
-
 	class Extension {
 	public:
 
@@ -300,13 +298,6 @@ namespace Render::Vulkan {
 	private:
 		std::vector<Extension> extensions_;
 	};
-
-	//struct UIRequiredInfo {
-	//	Extensions requiredExtensions_;
-	//	HWND windowHandle_ = NULL;
-	//	HINSTANCE instanceHandle_ = NULL;
-	//	Math::Vector2i frameBufferSize_{ 1920, 1080 };
-	//};
 
 	class ValidationLayer {
 	public:
