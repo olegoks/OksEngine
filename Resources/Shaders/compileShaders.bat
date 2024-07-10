@@ -8,4 +8,7 @@
 .\\glslc.exe  lines.frag -o linesFrag.spv  
 .\\glslc.exe  lines.vert -o linesVert.spv  
 
+.\\glslc.exe  lines.frag -o imguiFrag.spv  
+.\\glslc.exe  lines.vert -o imguiVert.spv  
+
 read -p "Press enter to exit."

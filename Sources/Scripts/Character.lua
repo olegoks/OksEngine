@@ -15,7 +15,7 @@ function Character:New()
         rigidBodyComponent:ApplyForce(
             dirX, 
             dirY, 
-            dirZ, 20000.0)
+            dirZ, 200000.0)
     end
     return Character
 end

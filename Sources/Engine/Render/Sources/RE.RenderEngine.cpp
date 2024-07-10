@@ -7,6 +7,14 @@ namespace RE {
 	RenderEngine::RenderEngine(const RenderEngine::CreateInfo& createInfo) {
 
 		api_ = RAL::CreateAPI();
+
+		auto imguiPipeline = std::make_shared<RAL::Driver::Pipeline>(
+			"IMGUI",
+			createInfo.imguiVertexShader_,
+			createInfo.imguiFragmentShader_,
+			true
+		);
+
 		auto linesPipeline = std::make_shared<RAL::Driver::Pipeline>(
 			"Lines",
 			createInfo.linesVertexShader_,
@@ -30,6 +38,7 @@ namespace RE {
 
 		RAL::Driver::CreateInfo driverCreateInfo;
 		{
+			driverCreateInfo.imguiPipeline_ = imguiPipeline;
 			driverCreateInfo.linesPipeline_ = linesPipeline;
 			driverCreateInfo.flatShadedPipeline_ = flatShadedModelPipeline;
 			driverCreateInfo.texturedPipeline_ = texturedModelPipeline;
