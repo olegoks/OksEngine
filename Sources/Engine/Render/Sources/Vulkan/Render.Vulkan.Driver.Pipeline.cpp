@@ -1,0 +1,49 @@
+
+#include <Render.Vulkan.Driver.Pipeline.hpp>
+
+namespace Render::Vulkan {
+
+
+
+	ImguiPipeline::ImguiPipeline(const CreateInfo& createInfo) :
+		Pipeline{
+		Pipeline::CreateInfo{
+			createInfo.physicalDevice_,
+			createInfo.logicDevice_,
+			std::vector<std::shared_ptr<DescriptorSetLayout>>{
+				std::make_shared<DescriptorSetLayout>(
+					DescriptorSetLayout::CreateInfo{
+						createInfo.logicDevice_,
+						std::vector<VkDescriptorSetLayoutBinding>{{{
+						0,
+						VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+						1,
+						VK_SHADER_STAGE_FRAGMENT_BIT,
+						nullptr
+					}}}
+					})
+			},
+			std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+				createInfo.logicDevice_,
+				createInfo.vertexShader_->GetCode()
+				}),
+			std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+				createInfo.logicDevice_,
+				createInfo.fragmentShader_->GetCode()
+				}),
+			createInfo.depthTestInfo_,
+			createInfo.colorAttachmentSize_,
+			createInfo.colorAttachmentFormat_,
+			VertexInfo{
+				Vertex2ftc::GetBindingDescription(),
+				Vertex2ftc::GetAttributeDescriptions()
+			},
+			VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
+			{  VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR  }
+
+		}
+	} { }
+
+
+
+}
