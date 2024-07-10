@@ -73,6 +73,7 @@ namespace Geometry {
 	};
 
 	class Vertex2ftc : public Vertex2ft {
+	public:
 		Color4b color_;
 		Vertex2ftc() noexcept = default;
 		Vertex2ftc(const Vertex2f& position, const UV2f uv, const Color4b& color) noexcept :
