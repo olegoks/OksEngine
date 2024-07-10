@@ -198,6 +198,13 @@ namespace RAL {
 		}
 
 		virtual Common::UInt64 DrawIndexed(
+			const Vertex2ftc* vertices,
+			Common::Size verticesNumber,
+			const Index16* indices,
+			Common::Size indicesNumber,
+			std::shared_ptr<RAL::Texture> texture) = 0;
+
+		virtual Common::UInt64 DrawIndexed(
 			const glm::mat4& model_,
 			const Vertex3fnt* vertices,
 			Common::Size verticesNumber,

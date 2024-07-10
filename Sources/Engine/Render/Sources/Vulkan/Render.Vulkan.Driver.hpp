@@ -331,26 +331,18 @@ namespace Render::Vulkan {
 
 			//IMGUI PIPELINE
 			{
-				auto linesPipelineInfo = info.linesPipeline_;
+				auto imguiPipelineInfo = info.imguiPipeline_;
 
-				LinesPipeline::CreateInfo createInfo;
+				ImguiPipeline::CreateInfo createInfo;
 				{
 					createInfo.physicalDevice_ = physicalDevice_;
 					createInfo.logicDevice_ = logicDevice_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
-					createInfo.vertexShader_ = linesPipelineInfo->vertexShader_;
-					createInfo.fragmentShader_ = linesPipelineInfo->fragmentShader_;
-					createInfo.descriptorSetLayouts_.push_back(globalDataDSL_);
-					createInfo.descriptorSetLayouts_.push_back(modelInfoDSL_);
-					createInfo.descriptorSetLayouts_.push_back(texturedModelDSL_);
-					if (linesPipelineInfo->enableDepthTest_) {
-						auto depthTestData = std::make_shared<LinesPipeline::DepthTestInfo>();
-						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
-						createInfo.depthTestInfo_ = depthTestData;
-					}
+					createInfo.vertexShader_ = imguiPipelineInfo->vertexShader_;
+					createInfo.fragmentShader_ = imguiPipelineInfo->fragmentShader_;
 				}
-				linesPipeline_ = std::make_shared<LinesPipeline>(createInfo);
+				auto imguiPipeline_ = std::make_shared<ImguiPipeline>(createInfo);
 			}
 
 			//PIPELINE for lines
@@ -710,72 +702,72 @@ namespace Render::Vulkan {
 				//commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
 				//commandBuffer->Draw(lines.size());
 
-				ImGui_ImplVulkan_NewFrame();
-				ImGui_ImplGlfw_NewFrame();
-				ImGui::NewFrame();
+				//ImGui_ImplVulkan_NewFrame();
+				//ImGui_ImplGlfw_NewFrame();
+				//ImGui::NewFrame();
 
-				{
-					bool isOpen = true;
-					ImGui::Begin("Menu", &isOpen, ImGuiWindowFlags_MenuBar);
-					ImGui::BeginMenuBar();
-					// Add items to the menu bar.
-					ImGui::MenuItem("File", NULL, false, false);
-					ImGui::MenuItem("Edit", NULL, false, false);
-					ImGui::MenuItem("View", NULL, false, false);
-					ImGui::MenuItem("Help", NULL, false, false);
-					// End the menu bar.
-					ImGui::EndMenuBar();
-					ImGui::End();
-				}
-				{
-					bool isOpen = true;
-					ImGui::Begin("Engine performance", &isOpen, 0);
+				//{
+				//	bool isOpen = true;
+				//	ImGui::Begin("Menu", &isOpen, ImGuiWindowFlags_MenuBar);
+				//	ImGui::BeginMenuBar();
+				//	// Add items to the menu bar.
+				//	ImGui::MenuItem("File", NULL, false, false);
+				//	ImGui::MenuItem("Edit", NULL, false, false);
+				//	ImGui::MenuItem("View", NULL, false, false);
+				//	ImGui::MenuItem("Help", NULL, false, false);
+				//	// End the menu bar.
+				//	ImGui::EndMenuBar();
+				//	ImGui::End();
+				//}
+				//{
+				//	bool isOpen = true;
+				//	ImGui::Begin("Engine performance", &isOpen, 0);
 
 
-					static Common::UInt64 renderCalls = 0;
-					++renderCalls;
+				//	static Common::UInt64 renderCalls = 0;
+				//	++renderCalls;
 
-					using namespace std::chrono_literals;
-					std::chrono::high_resolution_clock::time_point now;
-					static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
+				//	using namespace std::chrono_literals;
+				//	std::chrono::high_resolution_clock::time_point now;
+				//	static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
 
-					now = std::chrono::high_resolution_clock::now();
-					auto delta = now - point;
+				//	now = std::chrono::high_resolution_clock::now();
+				//	auto delta = now - point;
 
-					auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(delta).count();
-					static Common::Size lastFps = 0;
-					static std::vector<Common::Size> fps_;
-					static std::vector<Common::Size> timePoints_;
-					if (microseconds > 1000000) {
-						Common::Size framesPerSecond = renderCalls * 1000000 / microseconds;
-						ImGui::TextDisabled("Fps: %d", framesPerSecond);
-						fps_.push_back(framesPerSecond);
-						timePoints_.push_back(fps_.size());
-						renderCalls = 0;
-						point = now;
-						lastFps = framesPerSecond;
+				//	auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(delta).count();
+				//	static Common::Size lastFps = 0;
+				//	static std::vector<Common::Size> fps_;
+				//	static std::vector<Common::Size> timePoints_;
+				//	if (microseconds > 1000000) {
+				//		Common::Size framesPerSecond = renderCalls * 1000000 / microseconds;
+				//		ImGui::TextDisabled("Fps: %d", framesPerSecond);
+				//		fps_.push_back(framesPerSecond);
+				//		timePoints_.push_back(fps_.size());
+				//		renderCalls = 0;
+				//		point = now;
+				//		lastFps = framesPerSecond;
 
-					}
-					else {
-						ImGui::TextDisabled("Fps: %d", lastFps);
-					}
-					//int   bar_data[11] = {10, 11, 5, 6,1, 7 , 10, 11, 5, 6,1 };
+				//	}
+				//	else {
+				//		ImGui::TextDisabled("Fps: %d", lastFps);
+				//	}
+				//	//int   bar_data[11] = {10, 11, 5, 6,1, 7 , 10, 11, 5, 6,1 };
 
-					ImGui::Begin("My Window");
-					//const ImVec2  size{20, 1000};
-					if (ImPlot::BeginPlot("My Plot"/*, size*/)) {
-						//ImPlot::PlotBars("My Bar Plot", bar_data, 11);
-						//const Common::Size timePoint = fps_.size();
-						ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
-						ImPlot::EndPlot();
-					}
-					ImGui::End();
-					ImGui::End();
-				}
+				//	ImGui::Begin("My Window");
+				//	//const ImVec2  size{20, 1000};
+				//	if (ImPlot::BeginPlot("My Plot"/*, size*/)) {
+				//		//ImPlot::PlotBars("My Bar Plot", bar_data, 11);
+				//		//const Common::Size timePoint = fps_.size();
+				//		ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
+				//		ImPlot::EndPlot();
+				//	}
+				//	ImGui::End();
+				//	ImGui::End();
+				//}
 
-				ImGui::Render();
+				//ImGui::Render();
 
-				ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, 0);
+				//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, 0);
 
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();
@@ -874,6 +866,103 @@ namespace Render::Vulkan {
 			auto newShape = std::make_shared<ColoredShape>(shapeCreateInfo);
 			coloredShapes_.push_back(newShape);
 			return newShape->GetId();
+		}
+
+
+		virtual Common::UInt64 DrawIndexed(
+			const RAL::Vertex2ftc* vertices,
+			Common::Size verticesNumber,
+			const Index16* indices,
+			Common::Size indicesNumber,
+			std::shared_ptr<RAL::Texture> texture) override {
+
+			//auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(Vertex3fnt));
+			//vertexStagingBuffer->Fill(vertices);
+			//auto vertex3fntBuffer = std::make_shared<VertexBuffer<Vertex3fnt>>(physicalDevice_, logicDevice_, verticesNumber);
+
+			//DataCopy(vertexStagingBuffer, vertex3fntBuffer, logicDevice_, commandPool_);
+
+			//auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(Index16));
+			//indexStagingBuffer->Fill(indices);
+			//auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
+
+			//DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
+
+			//auto textureStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, texture->GetPixelsNumber() * sizeof(RAL::Color4b));
+			//textureStagingBuffer->Fill(texture->GetPixels<Color4b>());
+
+			//AllocatedTextureImage::CreateInfo textureImageCreateInfo;
+			//{
+			//	textureImageCreateInfo.size_ = { texture->GetSize() };
+			//	textureImageCreateInfo.format_ = VK_FORMAT_R8G8B8A8_UNORM;
+			//	textureImageCreateInfo.logicDevice_ = logicDevice_;
+			//	textureImageCreateInfo.physicalDevice_ = physicalDevice_;
+			//}
+			//auto textureImage = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
+			//ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, logicDevice_, commandPool_);
+			//DataCopy(textureStagingBuffer, textureImage, logicDevice_, commandPool_);
+			//ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, logicDevice_, commandPool_);
+			//auto textureImageView = CreateImageViewByImage(logicDevice_, textureImage, VK_IMAGE_ASPECT_COLOR_BIT);
+			//Sampler::CreateInfo samplerCreateInfo;
+			//{
+			//	samplerCreateInfo.logicDevice_ = logicDevice_;
+			//	samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
+			//	samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
+			//	samplerCreateInfo.maxAnisotropy_ = physicalDevice_->GetProperties().limits.maxSamplerAnisotropy;
+			//}
+			//auto textureSampler = std::make_shared<Sampler>(samplerCreateInfo);
+
+			//DescriptorSet::CreateInfo createInfo;
+			//{
+			//	createInfo.descriptorPool_ = descriptorPool_;
+			//	createInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[2];
+			//	createInfo.logicDevice_ = logicDevice_;
+			//}
+
+			//auto textureDescriptorSet = std::make_shared<DescriptorSet>(createInfo);
+			//textureDescriptorSet->UpdateImageWriteConfiguration(
+			//	textureImageView,
+			//	VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			//	textureSampler,
+			//	VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			//	0);
+
+			//Texture::CreateInfo textureCreateInfo;
+			//{
+			//	textureCreateInfo.textureImage_ = textureImage;
+			//	textureCreateInfo.textureImageView_ = textureImageView;
+			//	textureCreateInfo.sampler = textureSampler;
+			//	textureCreateInfo.descriptorSet_ = textureDescriptorSet;
+			//}
+
+			//const VkDeviceSize bufferSize = sizeof(Transform);
+			//auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
+			//DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
+			//{
+			//	transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
+			//	transformDesciptorSetCreateInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[1];
+			//	transformDesciptorSetCreateInfo.logicDevice_ = logicDevice_;
+			//}
+			//auto modelTransform = std::make_shared<DescriptorSet>(transformDesciptorSetCreateInfo);
+			//modelTransform->UpdateBufferWriteConfiguration(
+			//	transformUniformBuffer,
+			//	VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+			//	0, 0, transformUniformBuffer->GetSizeInBytes());
+
+			//TexturedShape::CreateInfo texturedShapeCreateInfo;
+			//{
+			//	texturedShapeCreateInfo.model_ = model_;
+			//	texturedShapeCreateInfo.transformBuffer_ = transformUniformBuffer;
+			//	texturedShapeCreateInfo.transformDescriptorSet_ = modelTransform;
+			//	texturedShapeCreateInfo.vertexBuffer_ = vertex3fntBuffer;
+			//	texturedShapeCreateInfo.indexBuffer_ = indexBuffer;
+			//	texturedShapeCreateInfo.texture_ = std::make_shared<Texture>(textureCreateInfo);;
+			//}
+			//auto texturedShape = std::make_shared<TexturedShape>(texturedShapeCreateInfo);
+			////texturedShape->SetPosition({ 0, 0, 0 });
+			//texturedShapes_.push_back(texturedShape);
+			//return texturedShape->GetId();
+			return 0;
 		}
 
 		virtual Common::UInt64 DrawIndexed(

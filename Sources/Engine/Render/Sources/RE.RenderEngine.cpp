@@ -1,6 +1,17 @@
 
 #include <RE.RenderEngine.hpp>
 #include <RAL.API.hpp>
+#include <Geometry.Texture.hpp>
+#include <imgui.h>
+#include <imgui_internal.h>
+#include <imconfig.h>
+#include <ImgUtil.h>
+#include <imgui_impl_vulkan.h>
+#include <imgui_impl_glfw.h>
+
+
+#include <implot.h>
+#include <implot_internal.h>
 
 namespace RE {
 
@@ -49,6 +60,92 @@ namespace RE {
 		driver_ = api_->CreateDriver(driverCreateInfo);
 		driver_->SetCamera(createInfo.camera_);
 		driver_->AddLight(createInfo.light_);
+	}
+
+	void RenderEngine::RenderImGui() {
+
+		ImGuiIO& io = ImGui::GetIO();
+
+		unsigned char* pixels;
+		int width, height;
+		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+		size_t upload_size = width * height * 4 * sizeof(char);
+
+		Geom::Texture<Geom::Color4b>::CreateInfo textureCreateInfo{
+			width,
+			height,
+			{ (Geom::Color4b*)pixels, (Common::Size)width * height }
+		};
+
+		auto texture = std::make_shared<Geom::Texture<Geom::Color4b>>(textureCreateInfo);
+
+		//ImGui_ImplVulkan_NewFrame();
+		//ImGui_ImplGlfw_NewFrame();
+		//ImGui::NewFrame();
+
+		//{
+		//	bool isOpen = true;
+		//	ImGui::Begin("Menu", &isOpen, ImGuiWindowFlags_MenuBar);
+		//	ImGui::BeginMenuBar();
+		//	// Add items to the menu bar.
+		//	ImGui::MenuItem("File", NULL, false, false);
+		//	ImGui::MenuItem("Edit", NULL, false, false);
+		//	ImGui::MenuItem("View", NULL, false, false);
+		//	ImGui::MenuItem("Help", NULL, false, false);
+		//	// End the menu bar.
+		//	ImGui::EndMenuBar();
+		//	ImGui::End();
+		//}
+		//{
+		//	bool isOpen = true;
+		//	ImGui::Begin("Engine performance", &isOpen, 0);
+
+
+		//	static Common::UInt64 renderCalls = 0;
+		//	++renderCalls;
+
+		//	using namespace std::chrono_literals;
+		//	std::chrono::high_resolution_clock::time_point now;
+		//	static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
+
+		//	now = std::chrono::high_resolution_clock::now();
+		//	auto delta = now - point;
+
+		//	auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(delta).count();
+		//	static Common::Size lastFps = 0;
+		//	static std::vector<Common::Size> fps_;
+		//	static std::vector<Common::Size> timePoints_;
+		//	if (microseconds > 1000000) {
+		//		Common::Size framesPerSecond = renderCalls * 1000000 / microseconds;
+		//		ImGui::TextDisabled("Fps: %d", framesPerSecond);
+		//		fps_.push_back(framesPerSecond);
+		//		timePoints_.push_back(fps_.size());
+		//		renderCalls = 0;
+		//		point = now;
+		//		lastFps = framesPerSecond;
+
+		//	}
+		//	else {
+		//		ImGui::TextDisabled("Fps: %d", lastFps);
+		//	}
+		//	//int   bar_data[11] = {10, 11, 5, 6,1, 7 , 10, 11, 5, 6,1 };
+
+		//	ImGui::Begin("My Window");
+		//	//const ImVec2  size{20, 1000};
+		//	if (ImPlot::BeginPlot("My Plot"/*, size*/)) {
+		//		//ImPlot::PlotBars("My Bar Plot", bar_data, 11);
+		//		//const Common::Size timePoint = fps_.size();
+		//		ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
+		//		ImPlot::EndPlot();
+		//	}
+		//	ImGui::End();
+		//	ImGui::End();
+		//}
+
+		//ImGui::Render();
+
+		//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, 0);
+
 	}
 
 	[[nodiscard]]

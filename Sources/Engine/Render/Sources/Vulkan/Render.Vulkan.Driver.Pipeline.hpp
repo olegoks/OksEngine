@@ -463,7 +463,6 @@ namespace Render::Vulkan {
 
 	};
 
-
 	class ImguiPipeline : public Pipeline {
 	public:
 
@@ -482,44 +481,7 @@ namespace Render::Vulkan {
 		};
 
 
-		ImguiPipeline(const CreateInfo& createInfo) :
-			Pipeline{
-			Pipeline::CreateInfo{
-				.physicalDevice_ = createInfo.physicalDevice_,
-				.logicDevice_ = createInfo.logicDevice_,
-				.descriptorSetLayouts_ = std::vector<std::shared_ptr<DescriptorSetLayout>>{
-					std::make_shared<DescriptorSetLayout>(
-						DescriptorSetLayout::CreateInfo{
-							createInfo.logicDevice_,
-							std::vector<VkDescriptorSetLayoutBinding>{{{
-							0,
-							VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-							1,
-							VK_SHADER_STAGE_FRAGMENT_BIT,
-							nullptr
-						}}}
-						})
-				},
-				.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-					createInfo.logicDevice_,
-					createInfo.vertexShader_->GetCode()
-					}),
-				.fragmentShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-					createInfo.logicDevice_,
-					createInfo.fragmentShader_->GetCode()
-					}),
-				.depthTestInfo_ = createInfo.depthTestInfo_,
-				.colorAttachmentSize_ = createInfo.colorAttachmentSize_,
-				.colorAttachmentFormat_ = createInfo.colorAttachmentFormat_,
-				.vertexInfo_ = VertexInfo{
-					Vertex2ftc::GetBindingDescription(),
-					Vertex2ftc::GetAttributeDescriptions()
-				},
-				.topology_ = VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-				.dynamicStates_ = {  VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR  }
-
-			}
-		} { }
+		ImguiPipeline(const CreateInfo& createInfo);
 
 
 	};
