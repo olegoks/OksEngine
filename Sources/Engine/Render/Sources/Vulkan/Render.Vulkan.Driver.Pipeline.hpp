@@ -197,9 +197,6 @@ namespace Render::Vulkan {
 				.dynamicStateCount = static_cast<Common::UInt32>(createInfo.dynamicStates_.size()),
 				.pDynamicStates = createInfo.dynamicStates_.data()
 			};
-			/*dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
-			dynamicState.dynamicStateCount = static_cast<Common::UInt32>(createInfo.dynamicStates_.size());
-			dynamicState.pDynamicStates = createInfo.dynamicStates_.data();*/
 
 			VkGraphicsPipelineCreateInfo pipelineInfo{};
 			{
@@ -496,9 +493,9 @@ namespace Render::Vulkan {
 							createInfo.logicDevice_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
-							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+							VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
 							1,
-							VK_SHADER_STAGE_VERTEX_BIT,
+							VK_SHADER_STAGE_FRAGMENT_BIT,
 							nullptr
 						}}}
 						})
