@@ -14,6 +14,7 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
+			std::string name_ = "No name";
 			std::shared_ptr<LogicDevice> logicDevice_;
 			std::vector<VkDescriptorSetLayoutBinding> bindings_;
 		};

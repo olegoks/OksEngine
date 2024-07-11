@@ -291,6 +291,7 @@ namespace Render::Vulkan {
 					std::vector<std::shared_ptr<DescriptorSetLayout>>{
 					std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
+							"GlobalData",
 							createInfo.logicDevice_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
@@ -301,6 +302,7 @@ namespace Render::Vulkan {
 						}}}
 						}),std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
+							"Transform",
 							createInfo.logicDevice_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
@@ -312,6 +314,7 @@ namespace Render::Vulkan {
 						}),
 						std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
+							"DiffuseMap",
 							createInfo.logicDevice_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
@@ -370,6 +373,7 @@ namespace Render::Vulkan {
 				std::vector<std::shared_ptr<DescriptorSetLayout>>{
 					std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
+							"GlobalData",
 							createInfo.logicDevice_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
@@ -380,6 +384,7 @@ namespace Render::Vulkan {
 						}}}
 						}),std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
+							"Transform",
 							createInfo.logicDevice_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
@@ -439,6 +444,7 @@ namespace Render::Vulkan {
 				std::vector<std::shared_ptr<DescriptorSetLayout>>{
 					std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
+							"GlobalData",
 							createInfo.logicDevice_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,

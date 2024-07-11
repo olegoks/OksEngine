@@ -28,32 +28,14 @@ namespace Render::Vulkan {
 	class ShapeBase {
 	public:
 
-		struct CreateInfo {
-			glm::mat4 model_;
-			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
-			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-		};
-
-		ShapeBase(const CreateInfo& createInfo) :
-				id_{ GetNextId() },
-			model_{ createInfo.model_ },
-			transformBuffer_{ createInfo.transformBuffer_ },
-			transformDescriptorSet_{ createInfo.transformDescriptorSet_ }{}
+		ShapeBase() :
+				id_{ GetNextId() }{}
 
 		[[nodiscard]]
 		Common::Index GetId() const noexcept {
 			return id_;
 		}
-		[[nodiscard]]
-		auto GetTransformDescriptorSet() noexcept {
-			return transformDescriptorSet_;
-		}
 
-		void SetModelMatrix(const glm::mat4& modelMatrix) {
-			model_ = modelMatrix;
-			Transform transform{ model_ };
-			transformBuffer_->Fill(&transform);
-		}
 
 	private:
 		[[nodiscard]]
@@ -62,9 +44,7 @@ namespace Render::Vulkan {
 			return ++id;
 		}
 		Common::Index id_ = 0;
-		glm::mat4 model_;
-		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
-		std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
+
 
 	};
 
@@ -81,12 +61,10 @@ namespace Render::Vulkan {
 		};
 
 		Shape(const CreateInfo& createInfo) :
-			ShapeBase{
-				{
-					createInfo.model_,
-					createInfo.transformBuffer_,
-					createInfo.transformDescriptorSet_
-				} },
+			ShapeBase{},
+			model_{ createInfo.model_ },
+			transformBuffer_{ createInfo.transformBuffer_ },
+			transformDescriptorSet_{ createInfo.transformDescriptorSet_ },
 			vertexBuffer_{ createInfo.vertexBuffer_ },
 			indexBuffer_{ createInfo.indexBuffer_ }{
 
@@ -102,7 +80,20 @@ namespace Render::Vulkan {
 			return indexBuffer_;
 		}
 
+		[[nodiscard]]
+		auto GetTransformDescriptorSet() noexcept {
+			return transformDescriptorSet_;
+		}
+
+		void SetModelMatrix(const glm::mat4& modelMatrix) {
+			model_ = modelMatrix;
+			Transform transform{ model_ };
+			transformBuffer_->Fill(&transform);
+		}
 	private:
+		TransformType model_;
+		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+		std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
 		std::shared_ptr<VertexBuffer<VertexType>> vertexBuffer_ = nullptr;
 		std::shared_ptr<IndexBuffer<IndexType>> indexBuffer_ = nullptr;
 
