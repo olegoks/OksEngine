@@ -68,12 +68,12 @@ namespace Render::Vulkan {
 
 	};
 
-	template<class VertexType, class IndexType>
+	template<class TransformType, class VertexType, class IndexType>
 	class Shape : public ShapeBase {
 	public:
 
 		struct CreateInfo {
-			glm::mat4 model_{ 1.0f };
+			TransformType model_;
 			std::shared_ptr<VertexBuffer<VertexType>> vertexBuffer_ = nullptr;
 			std::shared_ptr<IndexBuffer<IndexType>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
@@ -108,7 +108,7 @@ namespace Render::Vulkan {
 
 	};
 
-	class TexturedShape : public Shape<Vertex3fnt, Index16>{
+	class TexturedShape : public Shape<glm::mat4, Vertex3fnt, Index16>{
 	public:
 
 		struct CreateInfo {
@@ -139,11 +139,11 @@ namespace Render::Vulkan {
 	};
 
 
-	class UIShape : public Shape<Vertex2ftc, Index16> {
+	class UIShape : public Shape<glm::mat3, Vertex2ftc, Index16> {
 	public:
 
 		struct CreateInfo {
-			glm::mat4 model_;
+			glm::mat3 model_;
 			std::shared_ptr<VertexBuffer<Vertex2ftc>> vertexBuffer_ = nullptr;
 			std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
@@ -153,7 +153,7 @@ namespace Render::Vulkan {
 
 		UIShape(const CreateInfo& createInfo) :
 			Shape{ Shape::CreateInfo{
-				createInfo.model_,
+				glm::mat4{ 1.f },
 				createInfo.vertexBuffer_,
 				createInfo.indexBuffer_,
 				createInfo.transformBuffer_,
@@ -166,10 +166,12 @@ namespace Render::Vulkan {
 			return texture_;
 		}
 
+		glm::vec2 scale_;
+		glm::vec2 translate_;
 		std::shared_ptr<Texture> texture_ = nullptr;
 	};
 
-	class ColoredShape : public Shape<Vertex3fnc, Index16>{
+	class ColoredShape : public Shape<glm::mat4, Vertex3fnc, Index16>{
 	public:
 		struct CreateInfo {
 			glm::mat4 model_;

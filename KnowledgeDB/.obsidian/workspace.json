@@ -28,9 +28,21 @@
                 "currentVersion": "1.6.5"
               }
             }
+          },
+          {
+            "id": "3f59200cd1be0bfd",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Поиск двойного определения.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -96,7 +108,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/Math/Коллинеарность векторов.md",
+                "file": "Поиск двойного определения.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -113,7 +125,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/Math/Коллинеарность векторов.md",
+                "file": "Поиск двойного определения.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -136,7 +148,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/Math/Коллинеарность векторов.md"
+                "file": "Поиск двойного определения.md"
               }
             }
           }
@@ -157,8 +169,10 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "9a327513e39bfa4b",
+  "active": "3f59200cd1be0bfd",
   "lastOpenFiles": [
+    "Attachments/Pasted image 20240711123520.png",
+    "Поиск двойного определения.md",
     "Work/Math/Векторное произведение векторов.md",
     "Work/Math/Коллинеарность векторов.md",
     "Work/Math",
@@ -198,8 +212,6 @@
     "Work/C++/Многопоточность/Конструкции/std_atomic.md",
     "Инструкция процессора.md",
     "Work/C++/Многопоточность/Термины/Барьеры памяти.md",
-    "Work/C++/Многопоточность/Конструкции/Мьютекс(std_mutex).md",
-    "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
     "Work/C++/Модель памяти С++.md.bak",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",

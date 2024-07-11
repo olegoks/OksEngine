@@ -657,18 +657,19 @@ namespace Render::Vulkan {
 					commandBuffer->DrawShape(shape);
 				}
 
-				//for (auto shape : UIShapes_) {
-				//	commandBuffer->BindPipeline(imguiPipeline_);
-				//	commandBuffer->BindShape(shape);
-				//	{
-				//		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-				//		//descriptorSets.push_back(globalDataDSs_[i]);
-				//		//descriptorSets.push_back(shape->GetTransformDescriptorSet());
-				//		descriptorSets.push_back(shape->GetTexture()->GetDescriptorSet());
-				//		commandBuffer->BindDescriptorSets(texturedModelPipeline_, descriptorSets);
-				//	}
-				//	commandBuffer->DrawShape(shape);
-				//}
+				for (auto shape : UIShapes_) {
+					commandBuffer->BindPipeline(imguiPipeline_);
+					commandBuffer->BindShape(shape);
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						//descriptorSets.push_back(globalDataDSs_[i]);
+						//descriptorSets.push_back(shape->GetTransformDescriptorSet());
+
+						descriptorSets.push_back(shape->GetTexture()->GetDescriptorSet());
+						commandBuffer->BindDescriptorSets(texturedModelPipeline_, descriptorSets);
+					}
+					commandBuffer->DrawShape(shape);
+				}
 
 				for (auto shape : coloredShapes_) {
 					commandBuffer->BindPipeline(flatShadedModelPipeline_);
@@ -883,13 +884,14 @@ namespace Render::Vulkan {
 
 
 		virtual Common::UInt64 DrawIndexed(
+			glm::mat3 model,
 			const RAL::Vertex2ftc* vertices,
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indicesNumber,
 			std::shared_ptr<RAL::Texture> texture) override {
 
-			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(Vertex3fnt));
+			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(Vertex2ftc));
 			vertexStagingBuffer->Fill(vertices);
 			auto vertex3fntBuffer = std::make_shared<VertexBuffer<Vertex2ftc>>(physicalDevice_, logicDevice_, verticesNumber);
 
@@ -964,6 +966,7 @@ namespace Render::Vulkan {
 
 			UIShape::CreateInfo texturedShapeCreateInfo;
 			{
+				texturedShapeCreateInfo.model_ = model;
 				texturedShapeCreateInfo.transformBuffer_ = transformUniformBuffer;
 				texturedShapeCreateInfo.transformDescriptorSet_ = modelTransform;
 				texturedShapeCreateInfo.vertexBuffer_ = vertex3fntBuffer;
