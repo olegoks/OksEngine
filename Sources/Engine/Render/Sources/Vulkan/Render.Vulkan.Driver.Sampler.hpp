@@ -16,7 +16,8 @@ namespace Render::Vulkan {
 		};
 
 
-		Sampler(const CreateInfo& createInfo) {
+		Sampler(const CreateInfo& createInfo) :
+			createInfo_{ createInfo } {
 
 			VkSamplerCreateInfo samplerCreateInfo{};
 			{
@@ -44,6 +45,13 @@ namespace Render::Vulkan {
 			}
 
 		}
+
+		~Sampler() {
+			OS::Assert(GetHandle() != VK_NULL_HANDLE);
+			vkDestroySampler(*createInfo_.logicDevice_, GetHandle(), nullptr);
+		}
+	private:
+		CreateInfo createInfo_;
 	};
 
 }
