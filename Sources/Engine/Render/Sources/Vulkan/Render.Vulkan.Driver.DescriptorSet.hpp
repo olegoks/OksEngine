@@ -107,6 +107,15 @@ namespace Render::Vulkan {
 
 		}
 
+		~DescriptorSet() {
+			OS::Assert(GetHandle() != VK_NULL_HANDLE);
+			vkFreeDescriptorSets(
+				createInfo_.logicDevice_->GetHandle(),
+				createInfo_.descriptorPool_->GetNative(),
+				1,
+				&GetHandle());
+		}
+
 	private:
 
 		void Update(VkDevice logicDevice, VkBuffer buffer, VkDescriptorType type, Common::Size range, Common::Size offset = 0)  noexcept {
