@@ -57,7 +57,7 @@ namespace Render::Vulkan {
 				Vertex2ftc::GetBindingDescription(),
 				Vertex2ftc::GetAttributeDescriptions()
 			},
-			VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
+			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
 			{  /*VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR */ }
 
 		}

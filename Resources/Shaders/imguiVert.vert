@@ -13,6 +13,9 @@ void main()
 {
     Out.Color = aColor;
     Out.UV = aUV;
-    const vec3 pos3 = transform.model * vec3(aPos, 0);
-    gl_Position = vec4( pos3, 1);
+    const vec2 scale = vec2(transform.model[0].x, transform.model[0].y);
+    const vec2 translate = vec2(transform.model[1].x, transform.model[1].y);
+    const vec2 posTransformed = aPos * scale + translate;
+    // gl_Position = vec4( pos3, 1);
+    gl_Position = vec4(posTransformed, 0, 1);
 }
