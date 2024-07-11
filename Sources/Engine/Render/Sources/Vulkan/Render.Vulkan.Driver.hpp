@@ -341,6 +341,11 @@ namespace Render::Vulkan {
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = imguiPipelineInfo->vertexShader_;
 					createInfo.fragmentShader_ = imguiPipelineInfo->fragmentShader_;
+					if (imguiPipelineInfo->enableDepthTest_) {
+						auto depthTestData = std::make_shared<LinesPipeline::DepthTestInfo>();
+						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
+						createInfo.depthTestInfo_ = depthTestData;
+					}
 				}
 				imguiPipeline_ = std::make_shared<ImguiPipeline>(createInfo);
 			}
@@ -644,7 +649,7 @@ namespace Render::Vulkan {
 					depthBufferInfo);
 
 
-				for (auto shape : texturedShapes_) {
+				/*for (auto shape : texturedShapes_) {
 					commandBuffer->BindPipeline(texturedModelPipeline_);
 					commandBuffer->BindShape(shape);
 					{
@@ -655,7 +660,7 @@ namespace Render::Vulkan {
 						commandBuffer->BindDescriptorSets(texturedModelPipeline_, descriptorSets);
 					}
 					commandBuffer->DrawShape(shape);
-				}
+				}*/
 
 				for (auto shape : UIShapes_) {
 					commandBuffer->BindPipeline(imguiPipeline_);
@@ -664,14 +669,14 @@ namespace Render::Vulkan {
 						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
 						//descriptorSets.push_back(globalDataDSs_[i]);
 						//descriptorSets.push_back(shape->GetTransformDescriptorSet());
-
+						descriptorSets.push_back(shape->GetTransformDescriptorSet());
 						descriptorSets.push_back(shape->GetTexture()->GetDescriptorSet());
-						commandBuffer->BindDescriptorSets(texturedModelPipeline_, descriptorSets);
+						commandBuffer->BindDescriptorSets(imguiPipeline_, descriptorSets);
 					}
 					commandBuffer->DrawShape(shape);
 				}
 
-				for (auto shape : coloredShapes_) {
+				/*for (auto shape : coloredShapes_) {
 					commandBuffer->BindPipeline(flatShadedModelPipeline_);
 					commandBuffer->BindShape(shape);
 					{
@@ -681,7 +686,7 @@ namespace Render::Vulkan {
 						commandBuffer->BindDescriptorSets(flatShadedModelPipeline_, descriptorSets);
 					}
 					commandBuffer->DrawShape(shape);
-				}
+				}*/
 
 				//std::vector<Geom::Vertex3fc> lines{
 				//	{ { 0.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
@@ -930,7 +935,7 @@ namespace Render::Vulkan {
 			DescriptorSet::CreateInfo createInfo;
 			{
 				createInfo.descriptorPool_ = descriptorPool_;
-				createInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[2];
+				createInfo.DSL_ = imguiPipeline_->GetLayout()->GetDSLs()[1];
 				createInfo.logicDevice_ = logicDevice_;
 			}
 
@@ -950,12 +955,12 @@ namespace Render::Vulkan {
 				textureCreateInfo.descriptorSet_ = textureDescriptorSet;
 			}
 			auto vkTexture = std::make_shared<Texture>(textureCreateInfo);
-			const VkDeviceSize bufferSize = sizeof(Transform);
+			const VkDeviceSize bufferSize = sizeof(glm::mat3);
 			auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
 			DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
 			{
 				transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
-				transformDesciptorSetCreateInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[1];
+				transformDesciptorSetCreateInfo.DSL_ = imguiPipeline_->GetLayout()->GetDSLs()[0];
 				transformDesciptorSetCreateInfo.logicDevice_ = logicDevice_;
 			}
 			auto modelTransform = std::make_shared<DescriptorSet>(transformDesciptorSetCreateInfo);

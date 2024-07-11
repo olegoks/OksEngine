@@ -16,6 +16,7 @@ namespace Render::Vulkan {
 			std::vector<std::shared_ptr<DescriptorSetLayout>>{
 				std::make_shared<DescriptorSetLayout>(
 					DescriptorSetLayout::CreateInfo{
+						"Transform",
 						createInfo.logicDevice_,
 						std::vector<VkDescriptorSetLayoutBinding>{{
 							{
@@ -28,6 +29,7 @@ namespace Render::Vulkan {
 					}}}),
 				std::make_shared<DescriptorSetLayout>(
 					DescriptorSetLayout::CreateInfo{
+						"DiffuseMap",
 						createInfo.logicDevice_,
 						std::vector<VkDescriptorSetLayoutBinding>{{
 							{
@@ -56,7 +58,7 @@ namespace Render::Vulkan {
 				Vertex2ftc::GetAttributeDescriptions()
 			},
 			VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-			{  VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR  }
+			{  /*VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR */ }
 
 		}
 	} { }

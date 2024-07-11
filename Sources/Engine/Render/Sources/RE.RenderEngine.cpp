@@ -153,8 +153,11 @@ namespace RE {
 		if (fb_width <= 0 || fb_height <= 0)
 			return;
 
-		for (int n = 0; n < draw_data->CmdListsCount; n++) {
+		//for (int n = 0; n < draw_data->CmdListsCount; n++) {
 			if (draw_data->CmdListsCount > 0) {
+				static bool called = false;
+				if (called) return;
+				called = true;
 				const ImDrawList* cmd_list = draw_data->CmdLists[0];
 
 				float scale[2];
@@ -170,15 +173,15 @@ namespace RE {
 				model = glm::scale(model, glm::vec2{ scale[0], scale[1] });
 				model = glm::translate(model, glm::vec2{ translate[0], translate[1] });
 
-				//driver_->DrawIndexed(
-				//	model,
-				//	(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data,
-				//	cmd_list->VtxBuffer.Size,
-				//	cmd_list->IdxBuffer.Data,
-				//	cmd_list->IdxBuffer.Size,
-				//	texture);
+				driver_->DrawIndexed(
+					model,
+					(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data,
+					cmd_list->VtxBuffer.Size,
+					cmd_list->IdxBuffer.Data,
+					cmd_list->IdxBuffer.Size,
+					texture);
 
-			}//}
+			//}//}
 
 
 

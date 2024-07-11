@@ -39,65 +39,65 @@ int main(int argc, char** argv){
     }*/
 
 
-    Entity character = engine.CreateEntity();
-    {
-        glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
-        capsuleTransform = glm::translate(capsuleTransform, { 5.f, 1.0, 0.f });
+    //Entity character = engine.CreateEntity();
+    //{
+    //    glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
+    //    capsuleTransform = glm::translate(capsuleTransform, { 5.f, 1.0, 0.f });
 
-        character.AddPosition(5.f, 0.f, 0.f);
-        character.AddBehaviour("Character.lua", "Character");
-        character.AddRigidBodyCapsule(
-            capsuleTransform,
-            80.f,
-            0.0f,
-            0.0f,
-            0.5f,
-            0.5f,
-            0.5f,
-            0.5f,
-            1.f);
-        //character.AddBehaviour("Camera.lua", "Camera");
-        character.AddCamera({ 0.f, 0.f, -5.f }, { 0.f, 0.f, 5.f }, { 0.f, 1.f, 0.f });
-        character.AddAttachedCamera(glm::mat4{ 1.f });
-    }
+    //    character.AddPosition(5.f, 0.f, 0.f);
+    //    character.AddBehaviour("Character.lua", "Character");
+    //    character.AddRigidBodyCapsule(
+    //        capsuleTransform,
+    //        80.f,
+    //        0.0f,
+    //        0.0f,
+    //        0.5f,
+    //        0.5f,
+    //        0.5f,
+    //        0.5f,
+    //        1.f);
+    //    //character.AddBehaviour("Camera.lua", "Camera");
+    //    character.AddCamera({ 0.f, 0.f, -5.f }, { 0.f, 0.f, 5.f }, { 0.f, 1.f, 0.f });
+    //    character.AddAttachedCamera(glm::mat4{ 1.f });
+    //}
 
-    Entity grassBlock = engine.CreateEntity();
-    {
-        grassBlock.AddPosition(0, 0, 0);
-        grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
-        glm::mat4 renderGeomTransform{ 1.0f };
-        renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
-        grassBlock.AddImmutableRenderGeometry(renderGeomTransform,
-            "yellowCube.obj",
-            "yellowCube.mtl",
-            "");
-        glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
-        rigidBodyTransform = glm::translate(rigidBodyTransform, { 0, 100.0, 0.f });
-        grassBlock.AddRigidBodyBox(
-            rigidBodyTransform,
-            10.f,
-            1.f,
-            1.f,
-            0.5f,
-            0.5f,
-            0.5f,
-            0.5f,
-            0.5f, 
-            0.5f);
-        grassBlock.AddMapRigidBodyToRenderGeometry();
-    }
+    //Entity grassBlock = engine.CreateEntity();
+    //{
+    //    grassBlock.AddPosition(0, 0, 0);
+    //    grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
+    //    glm::mat4 renderGeomTransform{ 1.0f };
+    //    renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
+    //    grassBlock.AddImmutableRenderGeometry(renderGeomTransform,
+    //        "yellowCube.obj",
+    //        "yellowCube.mtl",
+    //        "");
+    //    glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
+    //    rigidBodyTransform = glm::translate(rigidBodyTransform, { 0, 100.0, 0.f });
+    //    grassBlock.AddRigidBodyBox(
+    //        rigidBodyTransform,
+    //        10.f,
+    //        1.f,
+    //        1.f,
+    //        0.5f,
+    //        0.5f,
+    //        0.5f,
+    //        0.5f,
+    //        0.5f, 
+    //        0.5f);
+    //    grassBlock.AddMapRigidBodyToRenderGeometry();
+    //}
 
-    Entity grassPlane = engine.CreateEntity();
-    {
-    	grassPlane.AddPosition(0, 0, 0);
-    	glm::mat4 renderGeomTransform{ 1.0f };
-    	renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
-    	grassPlane.AddImmutableRenderGeometry(
-            renderGeomTransform,
-    		"GrassPlane.obj",
-    		"GrassPlane.mtl", 
-    		"Grass.jpg");
-    }
+    //Entity grassPlane = engine.CreateEntity();
+    //{
+    //	grassPlane.AddPosition(0, 0, 0);
+    //	glm::mat4 renderGeomTransform{ 1.0f };
+    //	renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
+    //	grassPlane.AddImmutableRenderGeometry(
+    //        renderGeomTransform,
+    //		"GrassPlane.obj",
+    //		"GrassPlane.mtl", 
+    //		"Grass.jpg");
+    //}
 
     //Common::UInt64 size = 3;
     //for (Common::UInt64 i = 0; i < size; i++) {

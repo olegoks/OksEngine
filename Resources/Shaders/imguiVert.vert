@@ -3,8 +3,7 @@ layout(location = 0) in vec2 aPos;
 layout(location = 1) in vec2 aUV;
 layout(location = 2) in vec4 aColor;
 layout(set = 0, binding = 0) uniform Transform {
-    vec2 uScale;
-    vec2 uTranslate;
+    mat3 model;
 } transform;
 
 out gl_PerVertex { vec4 gl_Position; };
@@ -14,5 +13,6 @@ void main()
 {
     Out.Color = aColor;
     Out.UV = aUV;
-    gl_Position = vec4(aPos * transform.uScale + transform.uTranslate, 0, 1);
+    const vec3 pos3 = transform.model * vec3(aPos, 0);
+    gl_Position = vec4( pos3, 1);
 }
