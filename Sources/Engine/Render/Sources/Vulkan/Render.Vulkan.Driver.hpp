@@ -839,6 +839,7 @@ namespace Render::Vulkan {
 
 		void EndRender() override {
 			commandBuffers_.clear();
+			UIShapes_.clear();
 		}
 
 		virtual Common::UInt64 DrawIndexed(
@@ -957,6 +958,7 @@ namespace Render::Vulkan {
 			auto vkTexture = std::make_shared<Texture>(textureCreateInfo);
 			const VkDeviceSize bufferSize = sizeof(glm::mat3);
 			auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
+			transformUniformBuffer->Fill(&model);
 			DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
 			{
 				transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
@@ -964,6 +966,7 @@ namespace Render::Vulkan {
 				transformDesciptorSetCreateInfo.logicDevice_ = logicDevice_;
 			}
 			auto modelTransform = std::make_shared<DescriptorSet>(transformDesciptorSetCreateInfo);
+
 			modelTransform->UpdateBufferWriteConfiguration(
 				transformUniformBuffer,
 				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
