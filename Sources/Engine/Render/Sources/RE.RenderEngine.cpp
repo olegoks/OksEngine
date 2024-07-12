@@ -153,86 +153,84 @@ namespace RE {
 		if (fb_width <= 0 || fb_height <= 0)
 			return;
 
-		//for (int n = 0; n < draw_data->CmdListsCount; n++) {
-			if (draw_data->CmdListsCount > 0) {
-				static bool called = false;
-				if (called) return;
-				called = true;
-				const ImDrawList* cmd_list = draw_data->CmdLists[0];
+		for (int n = 0; n < draw_data->CmdListsCount; n++) {
+			const ImDrawList* cmd_list = draw_data->CmdLists[n];
 
-				float scale[2];
-				scale[0] = 2.0f / draw_data->DisplaySize.x;
-				scale[1] = 2.0f / draw_data->DisplaySize.y;
-				float translate[2];
-				translate[0] = -1.0f - draw_data->DisplayPos.x * scale[0];
-				translate[1] = -1.0f - draw_data->DisplayPos.y * scale[1];
-				//vkCmdPushConstants(command_buffer, bd->PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(float) * 0, sizeof(float) * 2, scale);
-				//vkCmdPushConstants(command_buffer, bd->PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(float) * 2, sizeof(float) * 2, translate);
+			float scale[2];
+			scale[0] = 2.0f / draw_data->DisplaySize.x;
+			scale[1] = 2.0f / draw_data->DisplaySize.y;
+			float translate[2];
+			translate[0] = -1.0f - draw_data->DisplayPos.x * scale[0];
+			translate[1] = -1.0f - draw_data->DisplayPos.y * scale[1];
+			//vkCmdPushConstants(command_buffer, bd->PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(float) * 0, sizeof(float) * 2, scale);
+			//vkCmdPushConstants(command_buffer, bd->PipelineLayout, VK_SHADER_STAGE_VERTEX_BIT, sizeof(float) * 2, sizeof(float) * 2, translate);
 
-				glm::mat3 model{ 1.f };
-				model = glm::scale(model, glm::vec2{ scale[0], scale[1] });
-				model = glm::translate(model, glm::vec2{ translate[0], translate[1] });
-
-				driver_->DrawIndexed(
-					model,
-					(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data,
-					cmd_list->VtxBuffer.Size,
-					cmd_list->IdxBuffer.Data,
-					cmd_list->IdxBuffer.Size,
-					texture);
-
-			//}//}
-
-
-
-
-
-
-
-
-
-
-			//if (draw_data->TotalVtxCount > 0)
-			//{
-			//	// Create or resize the vertex/index buffers
-			//	size_t vertex_size = AlignBufferSize(draw_data->TotalVtxCount * sizeof(ImDrawVert), bd->BufferMemoryAlignment);
-			//	size_t index_size = AlignBufferSize(draw_data->TotalIdxCount * sizeof(ImDrawIdx), bd->BufferMemoryAlignment);
-			//	if (rb->VertexBuffer == VK_NULL_HANDLE || rb->VertexBufferSize < vertex_size)
-			//		CreateOrResizeBuffer(rb->VertexBuffer, rb->VertexBufferMemory, rb->VertexBufferSize, vertex_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
-			//	if (rb->IndexBuffer == VK_NULL_HANDLE || rb->IndexBufferSize < index_size)
-			//		CreateOrResizeBuffer(rb->IndexBuffer, rb->IndexBufferMemory, rb->IndexBufferSize, index_size, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
-
-			//	// Upload vertex/index data into a single contiguous GPU buffer
-			//	ImDrawVert* vtx_dst = nullptr;
-			//	ImDrawIdx* idx_dst = nullptr;
-			//	VkResult err = vkMapMemory(v->Device, rb->VertexBufferMemory, 0, vertex_size, 0, (void**)&vtx_dst);
-			//	check_vk_result(err);
-			//	err = vkMapMemory(v->Device, rb->IndexBufferMemory, 0, index_size, 0, (void**)&idx_dst);
-			//	check_vk_result(err);
-			//	for (int n = 0; n < draw_data->CmdListsCount; n++)
-			//	{
-			//		const ImDrawList* cmd_list = draw_data->CmdLists[n];
-			//		memcpy(vtx_dst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
-			//		memcpy(idx_dst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
-			//		vtx_dst += cmd_list->VtxBuffer.Size;
-			//		idx_dst += cmd_list->IdxBuffer.Size;
-			//	}
-			//	VkMappedMemoryRange range[2] = {};
-			//	range[0].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-			//	range[0].memory = rb->VertexBufferMemory;
-			//	range[0].size = VK_WHOLE_SIZE;
-			//	range[1].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
-			//	range[1].memory = rb->IndexBufferMemory;
-			//	range[1].size = VK_WHOLE_SIZE;
-			//	err = vkFlushMappedMemoryRanges(v->Device, 2, range);
-			//	check_vk_result(err);
-			//	vkUnmapMemory(v->Device, rb->VertexBufferMemory);
-			//	vkUnmapMemory(v->Device, rb->IndexBufferMemory);
-			//}
-
-
-			//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, 0);
+			glm::mat3 model{ 1.f };
+			model[0] = { scale[0], scale[1], 0 };
+			model[1] = { translate[0], translate[1], 0 };
+			//model = glm::scale(model, glm::vec2{ scale[0], scale[1] });
+			//model = glm::translate(model, glm::vec2{ translate[0], translate[1] });
+			//static bool called = false;
+			//if (called) return;
+			//called = true;
+			driver_->DrawIndexed(
+				model,
+				(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data,
+				cmd_list->VtxBuffer.Size,
+				cmd_list->IdxBuffer.Data,
+				cmd_list->IdxBuffer.Size,
+				texture);
 		}
+
+
+
+
+
+
+
+
+
+		//if (draw_data->TotalVtxCount > 0)
+		//{
+		//	// Create or resize the vertex/index buffers
+		//	size_t vertex_size = AlignBufferSize(draw_data->TotalVtxCount * sizeof(ImDrawVert), bd->BufferMemoryAlignment);
+		//	size_t index_size = AlignBufferSize(draw_data->TotalIdxCount * sizeof(ImDrawIdx), bd->BufferMemoryAlignment);
+		//	if (rb->VertexBuffer == VK_NULL_HANDLE || rb->VertexBufferSize < vertex_size)
+		//		CreateOrResizeBuffer(rb->VertexBuffer, rb->VertexBufferMemory, rb->VertexBufferSize, vertex_size, VK_BUFFER_USAGE_VERTEX_BUFFER_BIT);
+		//	if (rb->IndexBuffer == VK_NULL_HANDLE || rb->IndexBufferSize < index_size)
+		//		CreateOrResizeBuffer(rb->IndexBuffer, rb->IndexBufferMemory, rb->IndexBufferSize, index_size, VK_BUFFER_USAGE_INDEX_BUFFER_BIT);
+
+		//	// Upload vertex/index data into a single contiguous GPU buffer
+		//	ImDrawVert* vtx_dst = nullptr;
+		//	ImDrawIdx* idx_dst = nullptr;
+		//	VkResult err = vkMapMemory(v->Device, rb->VertexBufferMemory, 0, vertex_size, 0, (void**)&vtx_dst);
+		//	check_vk_result(err);
+		//	err = vkMapMemory(v->Device, rb->IndexBufferMemory, 0, index_size, 0, (void**)&idx_dst);
+		//	check_vk_result(err);
+		//	for (int n = 0; n < draw_data->CmdListsCount; n++)
+		//	{
+		//		const ImDrawList* cmd_list = draw_data->CmdLists[n];
+		//		memcpy(vtx_dst, cmd_list->VtxBuffer.Data, cmd_list->VtxBuffer.Size * sizeof(ImDrawVert));
+		//		memcpy(idx_dst, cmd_list->IdxBuffer.Data, cmd_list->IdxBuffer.Size * sizeof(ImDrawIdx));
+		//		vtx_dst += cmd_list->VtxBuffer.Size;
+		//		idx_dst += cmd_list->IdxBuffer.Size;
+		//	}
+		//	VkMappedMemoryRange range[2] = {};
+		//	range[0].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+		//	range[0].memory = rb->VertexBufferMemory;
+		//	range[0].size = VK_WHOLE_SIZE;
+		//	range[1].sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE;
+		//	range[1].memory = rb->IndexBufferMemory;
+		//	range[1].size = VK_WHOLE_SIZE;
+		//	err = vkFlushMappedMemoryRanges(v->Device, 2, range);
+		//	check_vk_result(err);
+		//	vkUnmapMemory(v->Device, rb->VertexBufferMemory);
+		//	vkUnmapMemory(v->Device, rb->IndexBufferMemory);
+		//}
+
+
+		//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, 0);
+
 	}
 
 	[[nodiscard]]
@@ -280,7 +278,7 @@ namespace RE {
 		return drawnModel;
 	}
 
- 
+
 
 
 	void RenderEngine::SetModelMatrix(const RenderEngine::Model& model, const glm::mat4& modelMatrix) {
