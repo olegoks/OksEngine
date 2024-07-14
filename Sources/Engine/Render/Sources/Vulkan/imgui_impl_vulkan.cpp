@@ -455,7 +455,7 @@ static void ImGui_ImplVulkan_SetupRenderState(ImDrawData* draw_data, VkPipeline 
         viewport.height = (float)fb_height;
         viewport.minDepth = 0.0f;
         viewport.maxDepth = 1.0f;
-        vkCmdSetViewport(command_buffer, 0, 1, &viewport);
+       // vkCmdSetViewport(command_buffer, 0, 1, &viewport);
     }
 
     // Setup scale and translation:
@@ -554,16 +554,16 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
         for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
         {
             const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-            if (pcmd->UserCallback != nullptr)
-            {
-                // User callback, registered via ImDrawList::AddCallback()
-                // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
-                if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
-                    ImGui_ImplVulkan_SetupRenderState(draw_data, pipeline, command_buffer, rb, fb_width, fb_height);
-                else
-                    pcmd->UserCallback(cmd_list, pcmd);
-            }
-            else
+            //if (pcmd->UserCallback != nullptr)
+            //{
+            //    // User callback, registered via ImDrawList::AddCallback()
+            //    // (ImDrawCallback_ResetRenderState is a special callback value used by the user to request the renderer to reset render state.)
+            //    if (pcmd->UserCallback == ImDrawCallback_ResetRenderState)
+            //        ImGui_ImplVulkan_SetupRenderState(draw_data, pipeline, command_buffer, rb, fb_width, fb_height);
+            //    else
+            //        pcmd->UserCallback(cmd_list, pcmd);
+            //}
+            //else
             {
                 // Project scissor/clipping rectangles into framebuffer space
                 ImVec2 clip_min((pcmd->ClipRect.x - clip_off.x) * clip_scale.x, (pcmd->ClipRect.y - clip_off.y) * clip_scale.y);
@@ -583,7 +583,7 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
                 scissor.offset.y = (int32_t)(clip_min.y);
                 scissor.extent.width = (uint32_t)(clip_max.x - clip_min.x);
                 scissor.extent.height = (uint32_t)(clip_max.y - clip_min.y);
-                vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+               // vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 
                 // Bind DescriptorSet with font or user texture
                 VkDescriptorSet desc_set[1] = { (VkDescriptorSet)pcmd->TextureId };
@@ -611,7 +611,7 @@ void ImGui_ImplVulkan_RenderDrawData(ImDrawData* draw_data, VkCommandBuffer comm
     // In theory we should aim to backup/restore those values but I am not sure this is possible.
     // We perform a call to vkCmdSetScissor() to set back a full viewport which is likely to fix things for 99% users but technically this is not perfect. (See github #4644)
     VkRect2D scissor = { { 0, 0 }, { (uint32_t)fb_width, (uint32_t)fb_height } };
-    vkCmdSetScissor(command_buffer, 0, 1, &scissor);
+    //vkCmdSetScissor(command_buffer, 0, 1, &scissor);
 }
 
 bool ImGui_ImplVulkan_CreateFontsTexture()

@@ -340,7 +340,7 @@ namespace Render::Vulkan {
 			renderPass_ = std::make_shared<RenderPass>(RPCreateInfo);
 
 
-			//IMGUI PIPELINE
+			//IMGUI Native PIPELINE
 			{
 				auto imguiNativePipelineInfo = info.imguiNativePipeline_;
 
@@ -685,7 +685,6 @@ namespace Render::Vulkan {
 					clearValue,
 					depthBufferInfo);
 
-
 				//for (auto shape : coloredShapes_) {
 				//	commandBuffer->BindPipeline(flatShadedModelPipeline_);
 				//	commandBuffer->BindShape(shape);
@@ -758,6 +757,7 @@ namespace Render::Vulkan {
 				descriptorSets.push_back(globalDataDSs_[i]);
 				commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
 				commandBuffer->Draw(lines.size());*/
+
 
 				//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, *imguiNativePipeline_);
 
