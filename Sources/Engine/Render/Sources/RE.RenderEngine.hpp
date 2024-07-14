@@ -15,6 +15,8 @@ namespace RE {
 			std::shared_ptr<RAL::Light> light_ = nullptr;
 			std::shared_ptr<RAL::Shader> imguiVertexShader_ = nullptr;
 			std::shared_ptr<RAL::Shader> imguiFragmentShader_ = nullptr;
+			std::shared_ptr<RAL::Shader> imguiNativeVertexShader_ = nullptr;
+			std::shared_ptr<RAL::Shader> imguiNativeFragmentShader_ = nullptr;
 			std::shared_ptr<RAL::Shader> linesVertexShader_ = nullptr;
 			std::shared_ptr<RAL::Shader> linesFragmentShader_ = nullptr;
 			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;

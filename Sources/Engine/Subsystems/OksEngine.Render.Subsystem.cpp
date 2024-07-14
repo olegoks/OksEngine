@@ -11,6 +11,9 @@ namespace OksEngine {
 
 		auto resourceSubsystem = context.GetResourceSubsystem();
 
+		const auto imguiNativeVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imguiNativeVert.spv");
+		const auto imguiNativeFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imguiNativeFrag.spv");
+
 		const auto imguiVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imguiVert.spv");
 		const auto imguiFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imguiFrag.spv");
 
@@ -59,6 +62,8 @@ namespace OksEngine {
 			lightCreateInfo.position_ = { 25.f, 0.f, 0.f };//camera->GetPosition();
 		}
 		auto light = std::make_shared<RAL::Light>(lightCreateInfo);
+		ResourceSubsystem::Resource imguiNativeVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiNativeVertexShaderTaskId);
+		ResourceSubsystem::Resource imguiNativeFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiNativeFragmentShaderTaskId);
 		ResourceSubsystem::Resource imguiVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiVertexShaderTaskId);
 		ResourceSubsystem::Resource imguiFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiFragmentShaderTaskId);
 		ResourceSubsystem::Resource linesVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesVertexShaderTaskId);
@@ -68,7 +73,8 @@ namespace OksEngine {
 		ResourceSubsystem::Resource vertexTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexTextureShaderTaskId);
 		ResourceSubsystem::Resource fragmentTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentTextureShaderTaskId);
 
-
+		RAL::Shader imguiNativeVertexShader{ imguiNativeVertexShaderResource.GetData<Common::Byte>(), imguiNativeVertexShaderResource.GetSize() };
+		RAL::Shader imguiNativeFragmentShader{ imguiNativeFragmentShaderResource.GetData<Common::Byte>(), imguiNativeFragmentShaderResource.GetSize() };
 		RAL::Shader imguiVertexShader{ imguiVertexShaderResource.GetData<Common::Byte>(), imguiVertexShaderResource.GetSize() };
 		RAL::Shader imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };
 		RAL::Shader linesVertexShader{ linesVertexShaderResource.GetData<Common::Byte>(), linesVertexShaderResource.GetSize() };
@@ -82,6 +88,8 @@ namespace OksEngine {
 		{
 			RECreateInfo.camera_ = camera;
 			RECreateInfo.light_ = light;
+			RECreateInfo.imguiNativeVertexShader_ = std::make_shared<RAL::Shader>(std::move(imguiNativeVertexShader));
+			RECreateInfo.imguiNativeFragmentShader_ = std::make_shared<RAL::Shader>(std::move(imguiNativeFragmentShader));
 			RECreateInfo.imguiVertexShader_ = std::make_shared<RAL::Shader>(std::move(imguiVertexShader));
 			RECreateInfo.imguiFragmentShader_ = std::make_shared<RAL::Shader>(std::move(imguiFragmentShader));
 			RECreateInfo.linesVertexShader_ = std::make_shared<RAL::Shader>(std::move(linesVertexShader));

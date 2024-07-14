@@ -171,6 +171,7 @@ namespace RAL {
 		};
 
 		struct CreateInfo {
+			std::shared_ptr<Pipeline> imguiNativePipeline_ = nullptr;
 			std::shared_ptr<Pipeline> imguiPipeline_ = nullptr;
 			std::shared_ptr<Pipeline> linesPipeline_ = nullptr;
 			std::shared_ptr<Pipeline> texturedPipeline_ = nullptr;

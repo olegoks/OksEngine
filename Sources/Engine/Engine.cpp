@@ -20,9 +20,10 @@ namespace OksEngine {
 		std::chrono::high_resolution_clock::time_point previousUpdate;
 		while (IsRunning()) {
 			context_->GetPhysicsSubsystem()->Update();
-			context_->GetRenderSubsystem()->Update();
+
 			context_->GetUISubsystem()->Update();
 			context_->GetECSWorld()->Process();
+			context_->GetRenderSubsystem()->Update();
 			using namespace std::chrono_literals;
 			auto now = std::chrono::high_resolution_clock::now();
 			auto delta = (now - previousUpdate);

@@ -35,8 +35,8 @@ namespace Render::Vulkan {
 				samplerCreateInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 				samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 				samplerCreateInfo.mipLodBias = 0.0f;
-				samplerCreateInfo.minLod = 0.0f;
-				samplerCreateInfo.maxLod = 0.0f;
+				samplerCreateInfo.minLod = -1000.0f;
+				samplerCreateInfo.maxLod = 1000.0f;
 				//samplerCreateInfo.flags = 0;
 				VkSampler sampler_ = VK_NULL_HANDLE;
 				VkCall(vkCreateSampler(*createInfo.logicDevice_, &samplerCreateInfo, nullptr, &sampler_), 
