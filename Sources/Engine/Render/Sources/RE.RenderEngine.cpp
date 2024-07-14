@@ -21,6 +21,14 @@ namespace RE {
 
 		api_ = RAL::CreateAPI();
 
+
+		auto imguiNativePipeline = std::make_shared<RAL::Driver::Pipeline>(
+			"IMGUI native",
+			createInfo.imguiNativeVertexShader_,
+			createInfo.imguiNativeFragmentShader_,
+			false
+		);
+
 		auto imguiPipeline = std::make_shared<RAL::Driver::Pipeline>(
 			"IMGUI",
 			createInfo.imguiVertexShader_,
@@ -51,6 +59,7 @@ namespace RE {
 
 		RAL::Driver::CreateInfo driverCreateInfo;
 		{
+			driverCreateInfo.imguiNativePipeline_ = imguiNativePipeline;
 			driverCreateInfo.imguiPipeline_ = imguiPipeline;
 			driverCreateInfo.linesPipeline_ = linesPipeline;
 			driverCreateInfo.flatShadedPipeline_ = flatShadedModelPipeline;
@@ -66,6 +75,7 @@ namespace RE {
 
 	void RenderEngine::RenderImGui() {
 
+		ImGui_ImplVulkan_NewFrame();
 		ImGui_ImplGlfw_NewFrame();
 		ImGui::NewFrame();
 
@@ -75,67 +85,71 @@ namespace RE {
 			ImGui::BeginMenuBar();
 			// Add items to the menu bar.
 			ImGui::MenuItem("File", NULL, false, false);
-			ImGui::MenuItem("Edit", NULL, false, false);
-			ImGui::MenuItem("View", NULL, false, false);
-			ImGui::MenuItem("Help", NULL, false, false);
+			//ImGui::MenuItem("Edit", NULL, false, false);
+			//ImGui::MenuItem("View", NULL, false, false);
+			//ImGui::MenuItem("Help", NULL, false, false);
 			// End the menu bar.
 			ImGui::EndMenuBar();
 			ImGui::End();
 		}
-		{
-			bool isOpen = true;
-			ImGui::Begin("Engine performance", &isOpen, 0);
 
-
-			static Common::UInt64 renderCalls = 0;
-			++renderCalls;
-
-			using namespace std::chrono_literals;
-			std::chrono::high_resolution_clock::time_point now;
-			static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
-
-			now = std::chrono::high_resolution_clock::now();
-			auto delta = now - point;
-
-			auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(delta).count();
-			static Common::Size lastFps = 0;
-			static std::vector<Common::Size> fps_;
-			static std::vector<Common::Size> timePoints_;
-			if (microseconds > 1000000) {
-				Common::Size framesPerSecond = renderCalls * 1000000 / microseconds;
-				ImGui::TextDisabled("Fps: %d", framesPerSecond);
-				fps_.push_back(framesPerSecond);
-				timePoints_.push_back(fps_.size());
-				renderCalls = 0;
-				point = now;
-				lastFps = framesPerSecond;
-
-			}
-			else {
-				ImGui::TextDisabled("Fps: %d", lastFps);
-			}
-			//int   bar_data[11] = {10, 11, 5, 6,1, 7 , 10, 11, 5, 6,1 };
-
-			ImGui::Begin("My Window");
-			//const ImVec2  size{20, 1000};
-			if (ImPlot::BeginPlot("My Plot"/*, size*/)) {
-				//ImPlot::PlotBars("My Bar Plot", bar_data, 11);
-				//const Common::Size timePoint = fps_.size();
-				ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
-				ImPlot::EndPlot();
-			}
-			ImGui::End();
-			ImGui::End();
-		}
 
 		ImGui::Render();
+
+
+
+		//{
+		//	bool isOpen = true;
+		//	ImGui::Begin("Engine performance", &isOpen, 0);
+
+
+		//	static Common::UInt64 renderCalls = 0;
+		//	++renderCalls;
+
+		//	using namespace std::chrono_literals;
+		//	std::chrono::high_resolution_clock::time_point now;
+		//	static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
+
+		//	now = std::chrono::high_resolution_clock::now();
+		//	auto delta = now - point;
+
+		//	auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(delta).count();
+		//	static Common::Size lastFps = 0;
+		//	static std::vector<Common::Size> fps_;
+		//	static std::vector<Common::Size> timePoints_;
+		//	if (microseconds > 1000000) {
+		//		Common::Size framesPerSecond = renderCalls * 1000000 / microseconds;
+		//		ImGui::TextDisabled("Fps: %d", framesPerSecond);
+		//		fps_.push_back(framesPerSecond);
+		//		timePoints_.push_back(fps_.size());
+		//		renderCalls = 0;
+		//		point = now;
+		//		lastFps = framesPerSecond;
+
+		//	}
+		//	else {
+		//		ImGui::TextDisabled("Fps: %d", lastFps);
+		//	}
+		//	//int   bar_data[11] = {10, 11, 5, 6,1, 7 , 10, 11, 5, 6,1 };
+
+		//	ImGui::Begin("My Window");
+		//	//const ImVec2  size{20, 1000};
+		//	if (ImPlot::BeginPlot("My Plot"/*, size*/)) {
+		//		//ImPlot::PlotBars("My Bar Plot", bar_data, 11);
+		//		//const Common::Size timePoint = fps_.size();
+		//		ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
+		//		ImPlot::EndPlot();
+		//	}
+		//	ImGui::End();
+		//	ImGui::End();
+		//}
 
 		ImGuiIO& io = ImGui::GetIO();
 
 		unsigned char* pixels;
 		int width, height;
 		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-		size_t upload_size = width * height * 4 * sizeof(char);
+		//size_t upload_size = width * height * 4 * sizeof(char);
 
 		Geom::Texture<Geom::Color4b>::CreateInfo textureCreateInfo{
 			(Common::UInt64)width,
@@ -155,7 +169,11 @@ namespace RE {
 
 		for (int n = 0; n < draw_data->CmdListsCount; n++) {
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
+			for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
+			{
 
+			}
+			
 			float scale[2];
 			scale[0] = 2.0f / draw_data->DisplaySize.x;
 			scale[1] = 2.0f / draw_data->DisplaySize.y;
@@ -181,9 +199,6 @@ namespace RE {
 				cmd_list->IdxBuffer.Size,
 				texture);
 		}
-
-
-
 
 
 

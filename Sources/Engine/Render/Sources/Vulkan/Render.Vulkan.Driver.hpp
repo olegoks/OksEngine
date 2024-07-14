@@ -290,7 +290,7 @@ namespace Render::Vulkan {
 			//DEPTH BUFFER
 			//if (info.enableDepthTest_) {
 			{
-				auto depthTestData = std::make_shared<DepthTestData>();
+				auto depthTestData =  std::make_shared<DepthTestData>();
 				{
 					Image::CreateInfo depthImageCreateInfo;
 					{
@@ -329,6 +329,39 @@ namespace Render::Vulkan {
 			}
 
 
+			RenderPass::CreateInfo RPCreateInfo{};
+			{
+				RPCreateInfo.logicDevice_ = logicDevice_;
+				RPCreateInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+				auto depthTestInfo = std::make_shared<RenderPass::DepthTestInfo>();
+				depthTestInfo->depthStencilBufferFormat_ = depthTestData_->image_->GetFormat();
+				RPCreateInfo.depthTestInfo_ = depthTestInfo;
+			}
+			renderPass_ = std::make_shared<RenderPass>(RPCreateInfo);
+
+
+			//IMGUI PIPELINE
+			{
+				auto imguiNativePipelineInfo = info.imguiNativePipeline_;
+
+				ImguiNativePipeline::CreateInfo createInfo;
+				{
+					createInfo.physicalDevice_ = physicalDevice_;
+					createInfo.logicDevice_ = logicDevice_;
+					createInfo.renderPass_ = renderPass_;
+					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
+					createInfo.vertexShader_ = imguiNativePipelineInfo->vertexShader_;
+					createInfo.fragmentShader_ = imguiNativePipelineInfo->fragmentShader_;
+					if (imguiNativePipelineInfo->enableDepthTest_) {
+						auto depthTestData = std::make_shared<ImguiNativePipeline::DepthTestInfo>();
+						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
+						createInfo.depthTestInfo_ = depthTestData;
+					}
+				}
+				imguiNativePipeline_ = std::make_shared<ImguiNativePipeline>(createInfo);
+			}
+
 			//IMGUI PIPELINE
 			{
 				auto imguiPipelineInfo = info.imguiPipeline_;
@@ -337,6 +370,7 @@ namespace Render::Vulkan {
 				{
 					createInfo.physicalDevice_ = physicalDevice_;
 					createInfo.logicDevice_ = logicDevice_;
+					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = imguiPipelineInfo->vertexShader_;
@@ -350,6 +384,7 @@ namespace Render::Vulkan {
 				imguiPipeline_ = std::make_shared<ImguiPipeline>(createInfo);
 			}
 
+
 			//PIPELINE for lines
 			{
 				auto linesPipelineInfo = info.linesPipeline_;
@@ -358,6 +393,7 @@ namespace Render::Vulkan {
 				{
 					createInfo.physicalDevice_ = physicalDevice_;
 					createInfo.logicDevice_ = logicDevice_;
+					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = linesPipelineInfo->vertexShader_;
@@ -382,6 +418,7 @@ namespace Render::Vulkan {
 				{
 					createInfo.physicalDevice_ = physicalDevice_;
 					createInfo.logicDevice_ = logicDevice_;
+					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = texturedPipelineInfo->vertexShader_;
@@ -407,6 +444,7 @@ namespace Render::Vulkan {
 				{
 					createInfo.physicalDevice_ = physicalDevice_;
 					createInfo.logicDevice_ = logicDevice_;
+					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = flatShadedPipelineInfo->vertexShader_;
@@ -424,7 +462,6 @@ namespace Render::Vulkan {
 			}
 
 			{
-				VkRenderPass renderPass = *flatShadedModelPipeline_->GetRenderPass();
 				VkExtent2D extent = swapChain_->GetExtent();
 				for (const auto& imageView : swapChain_->GetImageViews()) {
 					FrameBuffer::CreateInfo createInfo;
@@ -432,7 +469,7 @@ namespace Render::Vulkan {
 						createInfo.logicDevice_ = logicDevice_;
 						createInfo.colorImageView_ = imageView;
 						createInfo.extent_ = extent;
-						createInfo.renderPass_ = renderPass;
+						createInfo.renderPass_ = *renderPass_;
 						if (depthTestData_ != nullptr) {
 							createInfo.depthBufferImageView_ = depthTestData_->imageView_;
 						}
@@ -504,7 +541,7 @@ namespace Render::Vulkan {
 				init_info.MinImageCount = 2;
 				init_info.ImageCount = swapChain_->GetImagesNumber();
 				init_info.CheckVkResultFn = nullptr;
-				init_info.RenderPass = *flatShadedModelPipeline_->GetRenderPass();
+				init_info.RenderPass = *renderPass_;//*flatShadedModelPipeline_->GetRenderPass();
 				ImGui_ImplVulkan_Init(&init_info);
 
 				ImGui_ImplVulkan_CreateFontsTexture();
@@ -637,19 +674,31 @@ namespace Render::Vulkan {
 				static VkClearValue clearValue{ 1.0, 1.0, 1.0, 0.0 };
 				CommandBuffer::DepthBufferInfo depthBufferInfo;
 				{
-					const bool enableDepthTest = createInfo_.flatShadedPipeline_->enableDepthTest_ || createInfo_.texturedPipeline_->enableDepthTest_;
+					const bool enableDepthTest = (depthTestData_ != nullptr);//)false;// createInfo_.flatShadedPipeline_->enableDepthTest_ || createInfo_.texturedPipeline_->enableDepthTest_;
 					depthBufferInfo.enable = enableDepthTest;
 					depthBufferInfo.clearValue_.depthStencil = { 1.f, 0 };
 				}
 				commandBuffer->BeginRenderPass(
-					*flatShadedModelPipeline_->GetRenderPass(),
+					*renderPass_,
 					frameBuffers_[i].GetNative(),
 					swapChain_->GetExtent(),
 					clearValue,
 					depthBufferInfo);
 
 
-				/*for (auto shape : texturedShapes_) {
+				//for (auto shape : coloredShapes_) {
+				//	commandBuffer->BindPipeline(flatShadedModelPipeline_);
+				//	commandBuffer->BindShape(shape);
+				//	{
+				//		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+				//		descriptorSets.push_back(globalDataDSs_[i]);
+				//		descriptorSets.push_back(shape->GetTransformDescriptorSet());
+				//		commandBuffer->BindDescriptorSets(flatShadedModelPipeline_, descriptorSets);
+				//	}
+				//	commandBuffer->DrawShape(shape);
+				//}
+
+				for (auto shape : texturedShapes_) {
 					commandBuffer->BindPipeline(texturedModelPipeline_);
 					commandBuffer->BindShape(shape);
 					{
@@ -660,7 +709,7 @@ namespace Render::Vulkan {
 						commandBuffer->BindDescriptorSets(texturedModelPipeline_, descriptorSets);
 					}
 					commandBuffer->DrawShape(shape);
-				}*/
+				}
 
 				for (auto shape : UIShapes_) {
 					commandBuffer->BindPipeline(imguiPipeline_);
@@ -676,117 +725,41 @@ namespace Render::Vulkan {
 					commandBuffer->DrawShape(shape);
 				}
 
-				/*for (auto shape : coloredShapes_) {
-					commandBuffer->BindPipeline(flatShadedModelPipeline_);
-					commandBuffer->BindShape(shape);
-					{
-						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-						descriptorSets.push_back(globalDataDSs_[i]);
-						descriptorSets.push_back(shape->GetTransformDescriptorSet());
-						commandBuffer->BindDescriptorSets(flatShadedModelPipeline_, descriptorSets);
-					}
-					commandBuffer->DrawShape(shape);
-				}*/
 
-				//std::vector<Geom::Vertex3fc> lines{
-				//	{ { 0.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
-				//	{ { 10.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
-				//	{ { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-				//	{ { 0.f, 10.f, 0.f }, { 0.f, 1.f, 0.f } },
-				//	{ { 0.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-				//	{ { 0.f, 0.f, 10.f }, { 0.f, 0.f, 1.f } }
-				//};
+				/*std::vector<Geom::Vertex3fc> lines{
+					{ { 0.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
+					{ { 10.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
+					{ { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
+					{ { 0.f, 10.f, 0.f }, { 0.f, 1.f, 0.f } },
+					{ { 0.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
+					{ { 0.f, 0.f, 10.f }, { 0.f, 0.f, 1.f } }
+				};
 
-				//for (float x = -30.f; x < 30.f; x += 1.f) {
-				//	lines.push_back({ { x, 0.f, -10.f }, { 0.f, 0.f, 1.f } });
-				//	lines.push_back({ { x, 0.f, 10.f }, { 0.f, 0.f, 1.f } });
-				//}
+				for (float x = -30.f; x < 30.f; x += 1.f) {
+					lines.push_back({ { x, 0.f, -10.f }, { 0.f, 0.f, 1.f } });
+					lines.push_back({ { x, 0.f, 10.f }, { 0.f, 0.f, 1.f } });
+				}
 
-				//for (float z = -30.f; z < 30.f; z += 1.f) {
-				//	lines.push_back({ { -10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
-				//	lines.push_back({ { 10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
-				//}
+				for (float z = -30.f; z < 30.f; z += 1.f) {
+					lines.push_back({ { -10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
+					lines.push_back({ { 10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
+				}
 
 
-				//static auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, lines.size() * sizeof(Vertex3fc));
-				//vertexStagingBuffer->Fill(lines.data());
-				//static auto vertex3fcBuffer = std::make_shared<VertexBuffer<Vertex3fc>>(physicalDevice_, logicDevice_, lines.size());
+				static auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, lines.size() * sizeof(Vertex3fc));
+				vertexStagingBuffer->Fill(lines.data());
+				static auto vertex3fcBuffer = std::make_shared<VertexBuffer<Vertex3fc>>(physicalDevice_, logicDevice_, lines.size());
 
-				//DataCopy(vertexStagingBuffer, vertex3fcBuffer, logicDevice_, commandPool_);
+				DataCopy(vertexStagingBuffer, vertex3fcBuffer, logicDevice_, commandPool_);
 
-				//commandBuffer->BindPipeline(linesPipeline_);
-				//commandBuffer->BindBuffer(vertex3fcBuffer);
-				//std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-				//descriptorSets.push_back(globalDataDSs_[i]);
-				//commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
-				//commandBuffer->Draw(lines.size());
+				commandBuffer->BindPipeline(linesPipeline_);
+				commandBuffer->BindBuffer(vertex3fcBuffer);
+				std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+				descriptorSets.push_back(globalDataDSs_[i]);
+				commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
+				commandBuffer->Draw(lines.size());*/
 
-				//ImGui_ImplVulkan_NewFrame();
-				//ImGui_ImplGlfw_NewFrame();
-				//ImGui::NewFrame();
-
-				//{
-				//	bool isOpen = true;
-				//	ImGui::Begin("Menu", &isOpen, ImGuiWindowFlags_MenuBar);
-				//	ImGui::BeginMenuBar();
-				//	// Add items to the menu bar.
-				//	ImGui::MenuItem("File", NULL, false, false);
-				//	ImGui::MenuItem("Edit", NULL, false, false);
-				//	ImGui::MenuItem("View", NULL, false, false);
-				//	ImGui::MenuItem("Help", NULL, false, false);
-				//	// End the menu bar.
-				//	ImGui::EndMenuBar();
-				//	ImGui::End();
-				//}
-				//{
-				//	bool isOpen = true;
-				//	ImGui::Begin("Engine performance", &isOpen, 0);
-
-
-				//	static Common::UInt64 renderCalls = 0;
-				//	++renderCalls;
-
-				//	using namespace std::chrono_literals;
-				//	std::chrono::high_resolution_clock::time_point now;
-				//	static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
-
-				//	now = std::chrono::high_resolution_clock::now();
-				//	auto delta = now - point;
-
-				//	auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(delta).count();
-				//	static Common::Size lastFps = 0;
-				//	static std::vector<Common::Size> fps_;
-				//	static std::vector<Common::Size> timePoints_;
-				//	if (microseconds > 1000000) {
-				//		Common::Size framesPerSecond = renderCalls * 1000000 / microseconds;
-				//		ImGui::TextDisabled("Fps: %d", framesPerSecond);
-				//		fps_.push_back(framesPerSecond);
-				//		timePoints_.push_back(fps_.size());
-				//		renderCalls = 0;
-				//		point = now;
-				//		lastFps = framesPerSecond;
-
-				//	}
-				//	else {
-				//		ImGui::TextDisabled("Fps: %d", lastFps);
-				//	}
-				//	//int   bar_data[11] = {10, 11, 5, 6,1, 7 , 10, 11, 5, 6,1 };
-
-				//	ImGui::Begin("My Window");
-				//	//const ImVec2  size{20, 1000};
-				//	if (ImPlot::BeginPlot("My Plot"/*, size*/)) {
-				//		//ImPlot::PlotBars("My Bar Plot", bar_data, 11);
-				//		//const Common::Size timePoint = fps_.size();
-				//		ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
-				//		ImPlot::EndPlot();
-				//	}
-				//	ImGui::End();
-				//	ImGui::End();
-				//}
-
-				//ImGui::Render();
-
-				//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, 0);
+				//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, *imguiNativePipeline_);
 
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();
@@ -1299,7 +1272,10 @@ namespace Render::Vulkan {
 		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<SwapChain> swapChain_ = nullptr;
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
+		std::shared_ptr<RenderPass> renderPass_ = nullptr;
 
+
+		std::shared_ptr<ImguiNativePipeline> imguiNativePipeline_ = nullptr;
 		std::shared_ptr<ImguiPipeline> imguiPipeline_ = nullptr;
 		std::shared_ptr<LinesPipeline> linesPipeline_ = nullptr;
 		std::shared_ptr<TexturedModelPipeline> texturedModelPipeline_ = nullptr;
