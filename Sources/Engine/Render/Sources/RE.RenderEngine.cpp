@@ -74,24 +74,25 @@ namespace RE {
 	}
 
 	void RenderEngine::RenderImGui() {
-
-		ImGui_ImplVulkan_NewFrame();
-
 		ImGui_ImplGlfw_NewFrame();
+
+
 		ImGui::NewFrame();
 
 		{
 			bool isOpen = true;
-			//ImGui::Begin("Menu", &isOpen, ImGuiWindowFlags_MenuBar);
-			ImGui::BeginMainMenuBar();
-			// Add items to the menu bar.
-			ImGui::MenuItem("File", NULL, false, false);
-			ImGui::MenuItem("Edit", NULL, false, false);
-			ImGui::MenuItem("View", NULL, false, false);
-			ImGui::MenuItem("Help", NULL, false, false);
-			// End the menu bar.
-			ImGui::EndMainMenuBar();
-			//ImGui::End();
+			if (ImGui::BeginMainMenuBar()) {
+				// Add items to the menu bar.
+				if (ImGui::BeginMenu("Engine")) {
+					ImGui::MenuItem("Performance profiler", NULL, false, true);
+					ImGui::MenuItem("ECS", NULL, false, false);
+					ImGui::MenuItem("Render", NULL, false, false);
+					ImGui::MenuItem("Help", NULL, false, false);
+					ImGui::EndMenu();
+				}
+				// End the menu bar.
+				ImGui::EndMainMenuBar();
+			}
 		}
 		{
 			bool isOpen = true;
@@ -136,7 +137,6 @@ namespace RE {
 		}
 
 		ImGui::Render();
-
 		ImGuiIO& io = ImGui::GetIO();
 
 		unsigned char* pixels;
@@ -162,10 +162,6 @@ namespace RE {
 
 		for (int n = 0; n < draw_data->CmdListsCount; n++) {
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
-			for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
-			{
-
-			}
 
 			float scale[2];
 			scale[0] = 2.0f / draw_data->DisplaySize.x;

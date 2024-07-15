@@ -6,11 +6,11 @@
 namespace OksEngine {
 
 
-	PhysicsSubsystem::PhysicsSubsystem(const CreateInfo& createInfo) : 
-		Subsystem{ 
+	PhysicsSubsystem::PhysicsSubsystem(const CreateInfo& createInfo) :
+		Subsystem{
 			Subsystem::Type::Physics,
-			createInfo.context_ }, 
-			physicsEngine_{ nullptr } { 
+			createInfo.context_ },
+			physicsEngine_{ nullptr } {
 
 		auto& context = GetContext();
 		auto ecsWorld = context.GetECSWorld();
@@ -50,20 +50,19 @@ namespace OksEngine {
 		using namespace std::chrono_literals;
 		static std::chrono::high_resolution_clock::time_point previousUpdate = std::chrono::high_resolution_clock::now();
 		static std::chrono::high_resolution_clock::duration remainder = 0ms;
-		const auto simulationGranularity = 4ms;
+		const auto simulationGranularity = 10ms;
 		const auto now = std::chrono::high_resolution_clock::now();
 		const auto delta = (now - previousUpdate);
-		const auto toSimulate = delta + remainder;
+		auto toSimulate = delta + remainder;
 
-		if (toSimulate > simulationGranularity) {
-			physicsEngine_->Simulate(4.f / 1000.f);
-			remainder = toSimulate - 4ms;
-			previousUpdate = now;
+		while (toSimulate >= simulationGranularity) {
+			physicsEngine_->Simulate(simulationGranularity.count() / 1000.f);
+			toSimulate -= simulationGranularity;
 		}
-		
+		remainder = toSimulate;
+		previousUpdate = std::chrono::high_resolution_clock::now();
 
 
-		
 	}
 
 
