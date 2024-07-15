@@ -715,8 +715,6 @@ namespace Render::Vulkan {
 					commandBuffer->BindShape(shape);
 					{
 						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-						//descriptorSets.push_back(globalDataDSs_[i]);
-						//descriptorSets.push_back(shape->GetTransformDescriptorSet());
 						descriptorSets.push_back(shape->GetTransformDescriptorSet());
 						descriptorSets.push_back(shape->GetTexture()->GetDescriptorSet());
 						commandBuffer->BindDescriptorSets(imguiPipeline_, descriptorSets);
