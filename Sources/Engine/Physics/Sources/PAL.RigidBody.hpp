@@ -14,7 +14,9 @@ namespace PAL {
 			glm::mat4 transform_;
 			float mass_ = 10.f;
 			float linearDamping_ = 2.f;
+			float angularDamping_ = 0.f;
 			std::shared_ptr<Shape> shape_ = nullptr;
+			std::string name_ = "No name";
 		};
 
 		RigidBody(const CreateInfo& createInfo) {

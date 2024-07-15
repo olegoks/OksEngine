@@ -196,7 +196,10 @@ namespace UI {
 			if (!glfwWindowShouldClose(window_)) {
 				glfwPollEvents();
 
+				
 			}
+
+
 		}
 
 		~Window() {

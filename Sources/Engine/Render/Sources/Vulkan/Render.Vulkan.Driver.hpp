@@ -37,17 +37,17 @@
 
 #include <Render.Vulkan.Driver.Sampler.hpp>
 #include <Render.Vulkan.Shape.hpp>
-
-#include <imgui.h>
-#include <imgui_internal.h>
-#include <imconfig.h>
-#include <ImgUtil.h>
-#include <imgui_impl_vulkan.h>
-#include <imgui_impl_glfw.h>
-
-
-#include <implot.h>
-#include <implot_internal.h>
+//
+//#include <imgui.h>
+//#include <imgui_internal.h>
+//#include <imconfig.h>
+//#include <ImgUtil.h>
+//#include <imgui_impl_vulkan.h>
+//#include <imgui_impl_glfw.h>
+//
+//
+//#include <implot.h>
+//#include <implot_internal.h>
 
 namespace Render::Vulkan {
 
@@ -529,22 +529,22 @@ namespace Render::Vulkan {
 
 
 			{
-				ImGui_ImplVulkan_InitInfo init_info = {};
-				init_info.Instance = *instance_;
-				init_info.PhysicalDevice = *physicalDevice_;
-				init_info.Device = *logicDevice_;
-				init_info.QueueFamily = graphicsQueueFamily_.index_;
-				init_info.Queue = logicDevice_->GetGraphicsQueue();
-				init_info.PipelineCache = nullptr;
-				init_info.DescriptorPool = descriptorPool_->GetNative();
-				init_info.Allocator = nullptr;
-				init_info.MinImageCount = 2;
-				init_info.ImageCount = swapChain_->GetImagesNumber();
-				init_info.CheckVkResultFn = nullptr;
-				init_info.RenderPass = *renderPass_;//*flatShadedModelPipeline_->GetRenderPass();
-				ImGui_ImplVulkan_Init(&init_info);
+				//ImGui_ImplVulkan_InitInfo init_info = {};
+				//init_info.Instance = *instance_;
+				//init_info.PhysicalDevice = *physicalDevice_;
+				//init_info.Device = *logicDevice_;
+				//init_info.QueueFamily = graphicsQueueFamily_.index_;
+				//init_info.Queue = logicDevice_->GetGraphicsQueue();
+				//init_info.PipelineCache = nullptr;
+				//init_info.DescriptorPool = descriptorPool_->GetNative();
+				//init_info.Allocator = nullptr;
+				//init_info.MinImageCount = 2;
+				//init_info.ImageCount = swapChain_->GetImagesNumber();
+				//init_info.CheckVkResultFn = nullptr;
+				//init_info.RenderPass = *renderPass_;//*flatShadedModelPipeline_->GetRenderPass();
+				//ImGui_ImplVulkan_Init(&init_info);
 
-				ImGui_ImplVulkan_CreateFontsTexture();
+				//ImGui_ImplVulkan_CreateFontsTexture();
 
 			}
 
@@ -685,17 +685,17 @@ namespace Render::Vulkan {
 					clearValue,
 					depthBufferInfo);
 
-				//for (auto shape : coloredShapes_) {
-				//	commandBuffer->BindPipeline(flatShadedModelPipeline_);
-				//	commandBuffer->BindShape(shape);
-				//	{
-				//		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-				//		descriptorSets.push_back(globalDataDSs_[i]);
-				//		descriptorSets.push_back(shape->GetTransformDescriptorSet());
-				//		commandBuffer->BindDescriptorSets(flatShadedModelPipeline_, descriptorSets);
-				//	}
-				//	commandBuffer->DrawShape(shape);
-				//}
+				for (auto shape : coloredShapes_) {
+					commandBuffer->BindPipeline(flatShadedModelPipeline_);
+					commandBuffer->BindShape(shape);
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						descriptorSets.push_back(globalDataDSs_[i]);
+						descriptorSets.push_back(shape->GetTransformDescriptorSet());
+						commandBuffer->BindDescriptorSets(flatShadedModelPipeline_, descriptorSets);
+					}
+					commandBuffer->DrawShape(shape);
+				}
 
 				for (auto shape : texturedShapes_) {
 					commandBuffer->BindPipeline(texturedModelPipeline_);
@@ -723,7 +723,7 @@ namespace Render::Vulkan {
 				}
 
 
-				/*std::vector<Geom::Vertex3fc> lines{
+				std::vector<Geom::Vertex3fc> lines{
 					{ { 0.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
 					{ { 10.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
 					{ { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
@@ -754,10 +754,7 @@ namespace Render::Vulkan {
 				std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
 				descriptorSets.push_back(globalDataDSs_[i]);
 				commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
-				commandBuffer->Draw(lines.size());*/
-
-
-				//ImGui_ImplVulkan_RenderDrawData(ImGui::GetDrawData(), *commandBuffer, *imguiNativePipeline_);
+				commandBuffer->Draw(lines.size());
 
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();

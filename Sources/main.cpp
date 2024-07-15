@@ -49,7 +49,7 @@ int main(int argc, char** argv){
         character.AddRigidBodyCapsule(
             capsuleTransform,
             80.f,
-            0.0f,
+            0.f,
             0.0f,
             0.5f,
             0.5f,

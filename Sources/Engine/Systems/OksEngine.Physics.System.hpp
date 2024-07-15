@@ -34,6 +34,7 @@ namespace OksEngine {
 							.transform_ = rigidBody->transform_,
 							.mass_ = rigidBody->mass_,
 							.linearDamping_ = rigidBody->linearDamping_,
+							.angularDamping_ = rigidBody->angularDamping_,
 							.shape_ = shape
 						};
 						rigidBody->id_ = physicsSubsystem->CreateRigidBody(createInfo);
@@ -65,6 +66,7 @@ namespace OksEngine {
 							.transform_ = rigidBodyCapsule->transform_,
 							.mass_ = rigidBodyCapsule->mass_,
 							.linearDamping_ = rigidBodyCapsule->linearDamping_,
+							.angularDamping_ = rigidBodyCapsule->angularDamping_,
 							.shape_ = shape
 						};
 						rigidBodyCapsule->id_ = physicsSubsystem->CreateRigidBody(createInfo);

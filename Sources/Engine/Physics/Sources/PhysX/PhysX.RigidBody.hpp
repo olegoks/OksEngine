@@ -30,6 +30,8 @@ namespace PhysX {
 				"Error while creating rigid body.");
 			body_->attachShape(*shape->GetPxShape());
 			body_->setLinearDamping(createInfo.palCreateInfo_.linearDamping_);
+			body_->setAngularDamping(createInfo.palCreateInfo_.angularDamping_);
+			body_->setName(createInfo.palCreateInfo_.name_.c_str());
 			physx::PxRigidBodyExt::updateMassAndInertia(*body_, createInfo.palCreateInfo_.mass_);
 		}
 
@@ -52,15 +54,6 @@ namespace PhysX {
 		virtual void SetTransform(const glm::mat4& transform) override {
 			const physx::PxMat44 pxMatrix = convertToPxMat44(transform);
 			const physx::PxTransform pxTransform{ pxMatrix };
-			//PxTransform globalPose(= actor->getGlobalPose();
-			//­
-			//	// Устанавливаем вертикальный вектор вверх (PxVec3(0, 1, 0) чтобы избежать наклона
-			//	physx::PxVec3 up = PxVec3(0, 1, 0);
-			//globalPose.q = PxQuat(up, PxVec3(0, 1, 0));
-			//­
-			//	// Обновляем позицию и сохраняем ориентацию
-			//	globalPose.p += displacement;
-			//actor->setGlobalPose(globalPose);
 			GetBody()->setGlobalPose(pxTransform);
 		}
 
