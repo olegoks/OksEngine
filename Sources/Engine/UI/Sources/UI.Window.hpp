@@ -75,7 +75,9 @@ namespace UI {
 					xPrevious = xpos;
 					yPrevious = ypos;
 					Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
-					windowPtr->CallMouseCallbacks({ deltaX, deltaY });
+					if (!windowPtr->menuModeIsEnabled_) {
+						windowPtr->CallMouseCallbacks({ deltaX, deltaY });
+					}
 				}
 
 				});
@@ -87,9 +89,9 @@ namespace UI {
 			OS::AssertMessage(createdWindow != nullptr, "GLFW Windows was not created.");
 			glfwSetWindowUserPointer(createdWindow, this);
 			glfwSetKeyCallback(createdWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
-				Key keyboardKey;
-				Event event;
-
+				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
+				Key keyboardKey = Key::Undefined;
+				Event event = Event::Undefined;
 				if (key == GLFW_KEY_W) {
 					keyboardKey = Key::W;
 				} else if (key == GLFW_KEY_S) {
@@ -108,13 +110,17 @@ namespace UI {
 				}
 				else if (key == GLFW_KEY_F5) {
 					keyboardKey = Key::F5;
-					static bool disabled = false;
-					if (!disabled) {
-						glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-						disabled = true;
-					} else {
-						glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-						disabled = false;
+
+					if (action == GLFW_RELEASE) {
+
+						if (windowPtr->menuModeIsEnabled_) {
+							glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+							windowPtr->menuModeIsEnabled_ = false;
+						}
+						else {
+							glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+							windowPtr->menuModeIsEnabled_ = true;
+						}
 					}
 
 				}
@@ -135,8 +141,10 @@ namespace UI {
 					return;
 				}
 
-				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
-				windowPtr->CallEventCallbacks(keyboardKey, event);
+
+				if (!windowPtr->menuModeIsEnabled_) {
+					windowPtr->CallEventCallbacks(keyboardKey, event);
+				}
 
 				});
 
@@ -205,7 +213,7 @@ namespace UI {
 		void RegisterMouseEventCallback(MouseEventCallback&& eventCallback) {
 			mouseEventCallbacks_.push_back(std::move(eventCallback));
 		}
-
+		bool menuModeIsEnabled_ = false;
 	private:
 		static void ErrorCallback(int error_code, const char* description) {
 			OS::AssertFailMessage(description);
@@ -225,6 +233,7 @@ namespace UI {
 		std::vector<MouseEventCallback> mouseEventCallbacks_;
 	private:
 		CreateInfo createInfo_;
+
 		GLFWwindow* window_ = nullptr;
 	};
 
