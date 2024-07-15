@@ -82,16 +82,16 @@ namespace RE {
 
 		{
 			bool isOpen = true;
-			ImGui::Begin("Menu", &isOpen, ImGuiWindowFlags_MenuBar);
-			ImGui::BeginMenuBar();
+			//ImGui::Begin("Menu", &isOpen, ImGuiWindowFlags_MenuBar);
+			ImGui::BeginMainMenuBar();
 			// Add items to the menu bar.
 			ImGui::MenuItem("File", NULL, false, false);
 			ImGui::MenuItem("Edit", NULL, false, false);
 			ImGui::MenuItem("View", NULL, false, false);
 			ImGui::MenuItem("Help", NULL, false, false);
 			// End the menu bar.
-			ImGui::EndMenuBar();
-			ImGui::End();
+			ImGui::EndMainMenuBar();
+			//ImGui::End();
 		}
 		{
 			bool isOpen = true;
