@@ -76,7 +76,6 @@ namespace RE {
 	void RenderEngine::RenderImGui() {
 		ImGui_ImplGlfw_NewFrame();
 
-
 		ImGui::NewFrame();
 
 		{
@@ -160,26 +159,45 @@ namespace RE {
 		if (fb_width <= 0 || fb_height <= 0)
 			return;
 
+		// Setup viewport:
+		{
+			VkViewport viewport;
+			viewport.x = 0;
+			viewport.y = 0;
+			viewport.width = (float)fb_width;
+			viewport.height = (float)fb_height;
+			viewport.minDepth = 0.0f;
+			viewport.maxDepth = 1.0f;
+			//vkCmdSetViewport(command_buffer, 0, 1, &viewport);
+		}
+		float scale[2];
+		scale[0] = 2.0f / draw_data->DisplaySize.x;
+		scale[1] = 2.0f / draw_data->DisplaySize.y;
+		float translate[2];
+		translate[0] = -1.0f - draw_data->DisplayPos.x * scale[0];
+		translate[1] = -1.0f - draw_data->DisplayPos.y * scale[1];
+
+		glm::mat3 model{ 1.f };
+		model[0] = { scale[0], scale[1], 0 };
+		model[1] = { translate[0], translate[1], 0 };
 		for (int n = 0; n < draw_data->CmdListsCount; n++) {
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
+			for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
+			{
+				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+				{
+					driver_->DrawIndexed(
+						model,
+						(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
+						cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
+						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
+						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
+						texture);
+				}
+			}
 
-			float scale[2];
-			scale[0] = 2.0f / draw_data->DisplaySize.x;
-			scale[1] = 2.0f / draw_data->DisplaySize.y;
-			float translate[2];
-			translate[0] = -1.0f - draw_data->DisplayPos.x * scale[0];
-			translate[1] = -1.0f - draw_data->DisplayPos.y * scale[1];
 
-			glm::mat3 model{ 1.f };
-			model[0] = { scale[0], scale[1], 0 };
-			model[1] = { translate[0], translate[1], 0 };
-			driver_->DrawIndexed(
-				model,
-				(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data,
-				cmd_list->VtxBuffer.Size,
-				cmd_list->IdxBuffer.Data,
-				cmd_list->IdxBuffer.Size,
-				texture);
+
 		}
 	}
 

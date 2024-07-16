@@ -105,35 +105,35 @@ namespace OksEngine {
 		//const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/room.obj");
 		//ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
 
-		{
-			const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.obj");
-			ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
+		//{
+		//	const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.obj");
+		//	ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
 
-			const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.mtl");
-			ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
+		//	const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/skelet 6 blend.mtl");
+		//	ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
 
-			std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
-			std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
+		//	std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
+		//	std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
 
-			auto model = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
-			//skeleton_ = engine_->RenderModel({ 0, 0, 0 }, *model);
-		}
+		//	auto model = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
+		//	//skeleton_ = engine_->RenderModel({ 0, 0, 0 }, *model);
+		//}
 
-		{
-			const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Love.obj");
-			ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
+		//{
+		//	const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Love.obj");
+		//	ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);
 
-			const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Love.mtl");
-			ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
+		//	const auto mtlTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/Love.mtl");
+		//	ResourceSubsystem::Resource mtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlTaskId);
 
-			std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
-			std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
+		//	std::string obj{ modelResource.GetData<char>(), modelResource.GetSize() };
+		//	std::string mtl{ mtlResource.GetData<char>(), mtlResource.GetSize() };
 
-			auto model = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
-			//engine_->RenderModel(*model_);
-		}
-		{
-		}
+		//	auto model = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
+		//	//engine_->RenderModel(*model_);
+		//}
+		//{
+		//}
 	}
 
 	[[nodiscard]]
