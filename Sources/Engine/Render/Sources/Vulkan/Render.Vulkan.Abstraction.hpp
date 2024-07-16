@@ -17,11 +17,20 @@ namespace Render::Vulkan {
 		[[nodiscard]]
 		const VkAbstractionType& GetHandle() const noexcept { return handle_; }
 
+		[[nodiscard]]
+		bool IsNullHandle() const noexcept {
+			return (GetHandle() == VK_NULL_HANDLE);
+		}
+
 		void SetHandle(VkAbstractionType handle) noexcept {
 
 			OS::Assert((handle != VK_NULL_HANDLE) && (GetHandle() == VK_NULL_HANDLE) ||
 				((handle == VK_NULL_HANDLE) && (GetHandle() != VK_NULL_HANDLE)));
 			handle_ = handle;
+		}
+
+		void SetNullHandle() noexcept {
+			SetHandle(VK_NULL_HANDLE);
 		}
 
 		[[nodiscard]]

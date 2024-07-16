@@ -87,17 +87,17 @@ int main(int argc, char** argv){
     //    grassBlock.AddMapRigidBodyToRenderGeometry();
     //}
 
-    Entity grassPlane = engine.CreateEntity();
-    {
-    	grassPlane.AddPosition(0, 0, 0);
-    	glm::mat4 renderGeomTransform{ 1.0f };
-    	renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
-    	grassPlane.AddImmutableRenderGeometry(
-            renderGeomTransform,
-    		"GrassPlane.obj",
-    		"GrassPlane.mtl", 
-    		"Grass.jpg");
-    }
+    //Entity grassPlane = engine.CreateEntity();
+    //{
+    //	grassPlane.AddPosition(0, 0, 0);
+    //	glm::mat4 renderGeomTransform{ 1.0f };
+    //	renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
+    //	grassPlane.AddImmutableRenderGeometry(
+    //        renderGeomTransform,
+    //		"GrassPlane.obj",
+    //		"GrassPlane.mtl", 
+    //		"Grass.jpg");
+    //}
 
     //Common::UInt64 size = 3;
     //for (Common::UInt64 i = 0; i < size; i++) {

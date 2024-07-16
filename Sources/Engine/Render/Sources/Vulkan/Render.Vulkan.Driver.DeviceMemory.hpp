@@ -57,13 +57,9 @@ namespace Render::Vulkan {
 
 
 		~DeviceMemory() noexcept {
-			Destroy();
-		}
-
-	private:
-
-		void Destroy() noexcept {
+			OS::Assert(GetHandle() != nullptr);
 			vkFreeMemory(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			SetNullHandle();
 		}
 
 	private:
