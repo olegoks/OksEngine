@@ -86,7 +86,9 @@ namespace UI {
 			ImPlot::CreateContext();
 			ImGui_ImplGlfw_InitForVulkan(createdWindow, true);
 
-			OS::AssertMessage(createdWindow != nullptr, "GLFW Windows was not created.");
+			OS::AssertMessage(
+				createdWindow != nullptr,
+				"GLFW Windows was not created.");
 			glfwSetWindowUserPointer(createdWindow, this);
 			glfwSetKeyCallback(createdWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
