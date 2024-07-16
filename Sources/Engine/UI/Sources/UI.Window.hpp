@@ -158,7 +158,7 @@ namespace UI {
 			std::any param2_;
 			std::any param3_;
 			std::any param4_;
-			Math::Vector2u32 size_{ 0, 0 };
+			glm::u32vec2 size_{ 0, 0 };
 			Subsystem subsystem_ = Subsystem::Undefined;
 		};
 
@@ -178,7 +178,7 @@ namespace UI {
 		}
 
 		[[nodiscard]]
-		Math::Vector2u32 GetSize() const noexcept {
+		glm::u32vec2 GetSize() const noexcept {
 			int width = 0;
 			int height = 0;
 			glfwGetWindowSize(window_, &width, &height);

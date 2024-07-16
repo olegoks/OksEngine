@@ -194,8 +194,8 @@ namespace Render::Vulkan {
 
 				copyRegion.imageOffset = { 0, 0, 0 };
 				copyRegion.imageExtent = {
-					to->GetSize().GetX(),
-					to->GetSize().GetY(),
+					to->GetSize().x,
+					to->GetSize().y,
 					1
 				};
 			}
@@ -210,7 +210,7 @@ namespace Render::Vulkan {
 		}
 
 		void ImageMemoryBarrier(
-			std::shared_ptr<Image> image,
+			VkImage image,
 			VkImageLayout oldLayout,
 			VkImageLayout newLayout,
 			VkAccessFlags sourceAccessMask,
@@ -225,15 +225,12 @@ namespace Render::Vulkan {
 				barrier.newLayout = newLayout;
 				barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 				barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-				barrier.image = *image;
+				barrier.image = image;
 				barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
 				barrier.subresourceRange.baseMipLevel = 0;
 				barrier.subresourceRange.levelCount = 1;
 				barrier.subresourceRange.baseArrayLayer = 0;
 				barrier.subresourceRange.layerCount = 1;
-				//В основном барьеры используются для синхронизации, поэтому нужно указать,
-				//какие типы операций должны выполняться до барьера,
-				//а какие операции должны ожидать, когда барьер перейдет из состояния unsignaled в signaled.
 				barrier.srcAccessMask = sourceAccessMask; 
 				barrier.dstAccessMask = destinationAccessMask;
 
@@ -303,12 +300,6 @@ namespace Render::Vulkan {
 			SetHandle(commandBuffer);
 
 		}
-
-		//void SetNative(VkCommandBuffer commandBuffer) noexcept {
-		//	OS::Assert((commandBuffer != VK_NULL_HANDLE) && (GetNative() == VK_NULL_HANDLE) ||
-		//		((commandBuffer == VK_NULL_HANDLE) && (GetNative() != VK_NULL_HANDLE)));
-		//	commandBuffer_ = commandBuffer;
-		//}
 
 	private:
 		CreateInfo createInfo_;
