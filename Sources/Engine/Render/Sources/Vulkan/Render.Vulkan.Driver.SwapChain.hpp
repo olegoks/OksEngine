@@ -29,7 +29,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<WindowSurface> windowSurface_;
 			QueueFamily presentQueueFamily_;
 			QueueFamily graphicsQueueFamily_;
-			Math::Vector2u32 imageSize_ = { 0, 0 };
+			glm::u32vec2 imageSize_ = { 0, 0 };
 
 			VkSurfaceFormatKHR format_;
 			VkPresentModeKHR presentMode_;
@@ -44,7 +44,7 @@ namespace Render::Vulkan {
 			createInfo_{ createInfo },
 			imagesNumber_{ CalculateImagesNumber(createInfo.capabilities_) } {
 
-			OS::AssertMessage(createInfo.imageSize_.GetX() != 0 && createInfo.imageSize_.GetY() != 0, "Please, set correct swap chain images size.");
+			OS::AssertMessage(createInfo.imageSize_.length() != 0, "Please, set correct swap chain images size.");
 
 			VkSwapchainCreateInfoKHR swapChainCreateInfo{};
 			{
@@ -112,7 +112,7 @@ namespace Render::Vulkan {
 		}
 
 		[[nodiscard]]
-		Math::Vector2u32 GetSize() const noexcept {
+		glm::u32vec2 GetSize() const noexcept {
 			return { createInfo_.extent_.width, createInfo_.extent_.height };
 		}
 
@@ -194,7 +194,7 @@ namespace Render::Vulkan {
 	}
 
 	[[nodiscard]]
-	inline VkExtent2D ChooseSwapExtent(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface, const Math::Vector2u32& imageSize) noexcept {
+	inline VkExtent2D ChooseSwapExtent(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface, const glm::u32vec2& imageSize) noexcept {
 
 		const VkSurfaceCapabilitiesKHR capabilities = GetCapabilities(physicalDevice, windowSurface);
 
@@ -203,8 +203,8 @@ namespace Render::Vulkan {
 		} else {
 
 			VkExtent2D actualExtent = {
-				static_cast<uint32_t>(imageSize.GetX()),
-				static_cast<uint32_t>(imageSize.GetY())
+				static_cast<uint32_t>(imageSize.x),
+				static_cast<uint32_t>(imageSize.y)
 			};
 #undef max
 #undef min

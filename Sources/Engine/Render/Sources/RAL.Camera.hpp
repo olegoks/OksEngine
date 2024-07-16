@@ -17,7 +17,7 @@ namespace RAL {
 			glm::vec3 up_{ 0.f, 0.f, 1.f };
 			float zNear_ = 0.1f;
 			float zFar_ = 1000.f;
-			Math::Vector2u32 size_{ 0, 0 };
+			glm::u32vec2 size_{ 0, 0 };
 		};
 
 		Camera(const CreateInfo& createInfo) noexcept :
@@ -26,8 +26,8 @@ namespace RAL {
 			up_{ createInfo.up_ },
 			zNear_{ createInfo.zNear_ },
 			zFar_{ createInfo.zFar_ },
-			width_{ createInfo.size_.GetX() },
-			height_{ createInfo.size_.GetY() } { }
+			width_{ createInfo.size_.x },
+			height_{ createInfo.size_.y } { }
 
 		const glm::vec3& GetDirection() const noexcept {
 			return direction_;

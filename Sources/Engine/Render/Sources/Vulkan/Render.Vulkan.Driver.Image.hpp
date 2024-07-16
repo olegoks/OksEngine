@@ -9,6 +9,7 @@
 #include <Render.Vulkan.Abstraction.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.DeviceMemory.hpp>
+#include <Render.Vulkan.Driver.Buffer.hpp>
 #include <Common.Types.hpp>
 
 namespace Render::Vulkan {
@@ -19,7 +20,7 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-			Math::Vector2u32 size_ = { 0, 0 };
+			glm::u32vec2 size_ = { 0, 0 };
 			VkFormat format_ = VK_FORMAT_MAX_ENUM;
 			VkImageTiling tiling_ = VK_IMAGE_TILING_MAX_ENUM;
 			VkImageUsageFlags usage_ = VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM;
@@ -27,7 +28,7 @@ namespace Render::Vulkan {
 
 		Image(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
 
-			OS::AssertMessage(createInfo.size_.GetY() != 0 && createInfo.size_.GetX() != 0, "Incorrect image extent.");
+			OS::AssertMessage(createInfo.size_.length() != 0, "Incorrect image extent.");
 			OS::AssertMessage(createInfo.format_ != VK_FORMAT_MAX_ENUM, "Incorrect image format.");
 			OS::AssertMessage(createInfo.tiling_ != VK_IMAGE_TILING_MAX_ENUM, "Incorrect image tiling.");
 			OS::AssertMessage(createInfo.usage_ != VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM, "Incorrect image usage.");
@@ -37,8 +38,8 @@ namespace Render::Vulkan {
 			{
 				imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
 				imageInfo.imageType = VK_IMAGE_TYPE_2D;
-				imageInfo.extent.height = createInfo.size_.GetY();
-				imageInfo.extent.width = createInfo.size_.GetX();
+				imageInfo.extent.height = createInfo.size_.y;
+				imageInfo.extent.width = createInfo.size_.x;
 				imageInfo.extent.depth = 1;
 				imageInfo.mipLevels = 1;
 				imageInfo.arrayLayers = 1;
@@ -75,25 +76,28 @@ namespace Render::Vulkan {
 		VkFormat GetFormat() const noexcept { return createInfo_.format_; }
 
 		[[nodiscard]]
-		Math::Vector2u32 GetSize() const noexcept {
+		glm::u32vec2 GetSize() const noexcept {
 			return createInfo_.size_;
 		}
 
-		virtual ~Image() noexcept {
-			if (!IsNullHandle()) {
-				vkDestroyImage(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
-				SetNullHandle();
-			}
-		}
+
+		void ChangeLayout(
+			VkImageLayout oldLayout,
+			VkImageLayout newLayout,
+			std::shared_ptr<class CommandPool> commandPool);
 
 
-		void Destroy() noexcept {
-			OS::AssertMessage(
-				!IsNullHandle(),
-				"Attempt to destroy image twice.");
-			vkDestroyImage(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
-			SetNullHandle();
-		}
+
+		static void DataCopy(
+			std::shared_ptr<Buffer> bufferFrom,
+			std::shared_ptr<Image> imageTo,
+			std::shared_ptr<LogicDevice> logicDevice,
+			std::shared_ptr<class CommandPool> commandPool);
+
+		virtual ~Image() noexcept;
+
+
+		void Destroy() noexcept;
 
 	private:
 		CreateInfo createInfo_{ 0 };
@@ -105,7 +109,7 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-			Math::Vector2u32 size_;
+			glm::u32vec2 size_;
 			VkFormat format_;
 		};
 
@@ -128,7 +132,7 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-			Math::Vector2u32 size_{ 0, 0 };
+			glm::u32vec2 size_{ 0, 0 };
 		};
 		DepthImage(const CreateInfo& createInfo) :
 			Image{ Image::CreateInfo{

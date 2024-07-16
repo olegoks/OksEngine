@@ -43,7 +43,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
 			std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
-			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
+			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
 			VertexInfo vertexInfo_;
 			VkPrimitiveTopology topology_ = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
@@ -113,21 +113,21 @@ namespace Render::Vulkan {
 				inputAssembly.topology = createInfo.topology_;//VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 				inputAssembly.primitiveRestartEnable = VK_FALSE;
 			}
-			const Math::Vector2u32 size = createInfo.colorAttachmentSize_;
+			const glm::u32vec2 size = createInfo.colorAttachmentSize_;
 
 			VkViewport viewport{};
 			{
 				viewport.x = 0.0f;
 				viewport.y = 0.0f;
-				viewport.width = (float)size.GetX();
-				viewport.height = (float)size.GetY();
+				viewport.width = (float)size.x;
+				viewport.height = (float)size.y;
 				viewport.minDepth = 0.0f;
 				viewport.maxDepth = 1.0f;
 			}
 			VkRect2D scissor{};
 			{
 				scissor.offset = { 0, 0 };
-				scissor.extent = { size.GetX(), size.GetY() };
+				scissor.extent = { size.x, size.y };
 			}
 			VkPipelineViewportStateCreateInfo viewportState{};
 			{
@@ -289,7 +289,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
 			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
-			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
+			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
@@ -375,7 +375,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
 			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
-			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
+			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
@@ -451,7 +451,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
 			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
-			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
+			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
@@ -517,7 +517,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
 			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
-			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
+			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
@@ -541,7 +541,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
 			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
-			Math::Vector2u32 colorAttachmentSize_ = { 0, 0 };
+			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
 			//std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
