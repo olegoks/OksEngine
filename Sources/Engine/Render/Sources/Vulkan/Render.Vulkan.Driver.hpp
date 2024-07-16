@@ -809,6 +809,7 @@ namespace Render::Vulkan {
 
 		void EndRender() override {
 			commandBuffers_.clear();
+			textures_.clear();
 			UIShapes_.clear();
 		}
 
@@ -867,22 +868,22 @@ namespace Render::Vulkan {
 			Common::Size indicesNumber,
 			std::shared_ptr<RAL::Texture> texture) override {
 
-			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(Vertex2ftc));
-			vertexStagingBuffer->Fill(vertices);
-			auto vertex3fntBuffer = std::make_shared<VertexBuffer<Vertex2ftc>>(physicalDevice_, logicDevice_, verticesNumber);
+			//auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(Vertex2ftc));
+			//vertexStagingBuffer->Fill(vertices);
+			//auto vertex3fntBuffer = std::make_shared<VertexBuffer<Vertex2ftc>>(physicalDevice_, logicDevice_, verticesNumber);
 
-			DataCopy(vertexStagingBuffer, vertex3fntBuffer, logicDevice_, commandPool_);
+			//DataCopy(vertexStagingBuffer, vertex3fntBuffer, logicDevice_, commandPool_);
 
-			auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(Index16));
-			indexStagingBuffer->Fill(indices);
-			auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
+			//auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(Index16));
+			//indexStagingBuffer->Fill(indices);
+			//auto indexBuffer = std::make_shared<IndexBuffer<RAL::Index16>>(physicalDevice_, logicDevice_, indicesNumber);
 
-			DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
+			//DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
 
-			auto textureStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, texture->GetPixelsNumber() * sizeof(RAL::Color4b));
-			textureStagingBuffer->Fill(texture->GetPixels<Color4b>());
+			//auto textureStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, texture->GetPixelsNumber() * sizeof(RAL::Color4b));
+			//textureStagingBuffer->Fill(texture->GetPixels<Color4b>());
 
-			AllocatedTextureImage::CreateInfo textureImageCreateInfo;
+			/*AllocatedTextureImage::CreateInfo textureImageCreateInfo;
 			{
 				textureImageCreateInfo.size_ = { texture->GetSize() };
 				textureImageCreateInfo.format_ = VK_FORMAT_R8G8B8A8_UNORM;
@@ -890,7 +891,21 @@ namespace Render::Vulkan {
 				textureImageCreateInfo.physicalDevice_ = physicalDevice_;
 			}
 			auto textureImage = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
-			ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, logicDevice_, commandPool_);
+			textures_.push_back(textureImage);*/
+
+			Image::CreateInfo imageCreateInfo;
+			{
+				imageCreateInfo.size_ = { texture->GetSize() };
+				imageCreateInfo.format_ = VK_FORMAT_R8G8B8A8_UNORM;
+				imageCreateInfo.logicDevice_ = logicDevice_;
+				imageCreateInfo.physicalDevice_ = physicalDevice_;
+				imageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+				imageCreateInfo.usage_ = VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+			}
+			auto image = std::make_shared<AllocatedImage>(imageCreateInfo);
+			textures_.push_back(image);
+
+			/*ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, logicDevice_, commandPool_);
 			DataCopy(textureStagingBuffer, textureImage, logicDevice_, commandPool_);
 			ChangeImageLayout(textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, logicDevice_, commandPool_);
 			auto textureImageView = CreateImageViewByImage(logicDevice_, textureImage, VK_IMAGE_ASPECT_COLOR_BIT);
@@ -926,6 +941,7 @@ namespace Render::Vulkan {
 				textureCreateInfo.descriptorSet_ = textureDescriptorSet;
 			}
 			auto vkTexture = std::make_shared<Texture>(textureCreateInfo);
+
 			const VkDeviceSize bufferSize = sizeof(glm::mat3);
 			auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
 			transformUniformBuffer->Fill(&model);
@@ -949,10 +965,10 @@ namespace Render::Vulkan {
 				texturedShapeCreateInfo.transformDescriptorSet_ = modelTransform;
 				texturedShapeCreateInfo.vertexBuffer_ = vertex3fntBuffer;
 				texturedShapeCreateInfo.indexBuffer_ = indexBuffer;
-				texturedShapeCreateInfo.texture_ = vkTexture;
+				texturedShapeCreateInfo.texture_ =  vkTexture;
 			}
 			auto texturedShape = std::make_shared<UIShape>(texturedShapeCreateInfo);
-			UIShapes_.push_back(texturedShape);
+			UIShapes_.push_back(texturedShape);*/
 			return 0; //texturedShape->GetId();
 		}
 
@@ -1294,6 +1310,7 @@ namespace Render::Vulkan {
 		std::shared_ptr<DescriptorSetLayout> texturedModelDSL_ = nullptr;
 		std::shared_ptr<DescriptorSet> texturedModelInfoDescriptorSet_ = nullptr;
 
+		std::vector<std::shared_ptr<AllocatedImage>> textures_;
 		std::vector<std::shared_ptr<UIShape>> UIShapes_;
 		std::vector<std::shared_ptr<TexturedShape>> texturedShapes_;
 		std::vector<std::shared_ptr<ColoredShape>> coloredShapes_;

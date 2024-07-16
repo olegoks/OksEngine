@@ -59,7 +59,7 @@ namespace Render::Vulkan {
 
 		void BindMemory(std::shared_ptr<DeviceMemory> deviceMemory) noexcept {
 			VkCall(vkBindImageMemory(createInfo_.logicDevice_->GetHandle(), GetHandle(), deviceMemory->GetHandle(), 0),
-				"Error while binding device memory to image.");
+				"Error while binding device memory to image. Maybe double memory binding.");
 		}
 
 		[[nodiscard]]
@@ -79,14 +79,15 @@ namespace Render::Vulkan {
 			return createInfo_.size_;
 		}
 
-		~Image() noexcept {
+		virtual ~Image() noexcept {
 			Destroy();
 		}
 
-	private:
 
 		void Destroy() noexcept {
-			vkDestroyImage(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			if (GetHandle() != VK_NULL_HANDLE) {
+				vkDestroyImage(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			}
 		}
 
 	private:
@@ -156,6 +157,10 @@ namespace Render::Vulkan {
 
 		}
 
+		~AllocatedImage() override {
+			
+		}
+
 	private:
 		std::shared_ptr<DeviceMemory> deviceMemory_ = nullptr;
 		using Image::BindMemory;
@@ -201,6 +206,11 @@ namespace Render::Vulkan {
 			deviceMemory_ = std::make_shared<DeviceMemory>(deviceMemoryCreateInfo);
 
 			BindMemory(deviceMemory_);
+		}
+
+		~AllocatedTextureImage()
+		{
+			
 		}
 	private:
 		std::shared_ptr<DeviceMemory> deviceMemory_ = nullptr;
