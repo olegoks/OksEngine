@@ -80,14 +80,19 @@ namespace Render::Vulkan {
 		}
 
 		virtual ~Image() noexcept {
-			Destroy();
+			if (!IsNullHandle()) {
+				vkDestroyImage(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+				SetNullHandle();
+			}
 		}
 
 
 		void Destroy() noexcept {
-			if (GetHandle() != VK_NULL_HANDLE) {
-				vkDestroyImage(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
-			}
+			OS::AssertMessage(
+				!IsNullHandle(),
+				"Attempt to destroy image twice.");
+			vkDestroyImage(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			SetNullHandle();
 		}
 
 	private:
@@ -104,7 +109,7 @@ namespace Render::Vulkan {
 			VkFormat format_;
 		};
 
-		TextureImage(const CreateInfo& createInfo) : 
+		TextureImage(const CreateInfo& createInfo) :
 			Image{ Image::CreateInfo{
 			createInfo.physicalDevice_,
 			createInfo.logicDevice_,
@@ -133,14 +138,14 @@ namespace Render::Vulkan {
 						VK_FORMAT_D32_SFLOAT,
 						VK_IMAGE_TILING_OPTIMAL,
 						VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT,
-					} }{ }
+					} } { }
 	};
 
 
 	class AllocatedImage final : public Image {
 	public:
 
-		AllocatedImage(const CreateInfo& createInfo) :
+		AllocatedImage(const Image::CreateInfo& createInfo) :
 			Image{ createInfo } {
 
 			const VkMemoryRequirements depthImageMemoryRequirements = GetMemoryRequirements();
@@ -158,7 +163,8 @@ namespace Render::Vulkan {
 		}
 
 		~AllocatedImage() override {
-			
+			//Hack to destroy image before device memory destruction.
+			Image::Destroy();
 		}
 
 	private:
@@ -210,7 +216,8 @@ namespace Render::Vulkan {
 
 		~AllocatedTextureImage()
 		{
-			
+			//Hack to destroy image before device memory destruction.
+			TextureImage::Destroy();
 		}
 	private:
 		std::shared_ptr<DeviceMemory> deviceMemory_ = nullptr;
