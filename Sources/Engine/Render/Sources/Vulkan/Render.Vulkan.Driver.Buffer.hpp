@@ -116,10 +116,12 @@ namespace Render::Vulkan {
 		const VkDeviceMemory& GetDeviceMemory() const noexcept { return bufferMemory_; }
 
 		~Buffer() {
-			if (GetNative() != VK_NULL_HANDLE) {
-				DestroyBuffer(logicDevice_, buffer_);
+			//if (GetNative() != VK_NULL_HANDLE) {
+			OS::Assert(GetNative() != VK_NULL_HANDLE);
+			OS::Assert(bufferMemory_ != VK_NULL_HANDLE);
 				FreeMemory(logicDevice_, bufferMemory_);
-			}
+				DestroyBuffer(logicDevice_, buffer_);
+			//}
 		}
 
 	private:
