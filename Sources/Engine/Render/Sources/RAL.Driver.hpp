@@ -199,7 +199,8 @@ namespace RAL {
 		}
 
 		virtual Common::UInt64 DrawIndexed(
-			glm::mat3 model,
+			glm::vec2 scale,
+			glm::vec2 translate,
 			const Vertex2ftc* vertices,
 			Common::Size verticesNumber,
 			const Index16* indices,

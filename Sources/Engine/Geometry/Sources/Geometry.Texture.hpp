@@ -49,7 +49,7 @@ namespace Geometry {
 
 
 		[[nodiscard]]
-		Math::Vector2u32 GetSize() const noexcept {
+		glm::u32vec2 GetSize() const noexcept {
 			return { static_cast<Common::UInt32>(createInfo_.width_),  static_cast<Common::UInt32>(createInfo_.height_) };
 		}
 
