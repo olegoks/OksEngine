@@ -267,7 +267,6 @@ namespace Render::Vulkan {
 			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
-			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
 
@@ -353,7 +352,6 @@ namespace Render::Vulkan {
 			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
-			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
 

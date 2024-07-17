@@ -376,9 +376,6 @@ namespace Render::Vulkan {
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = linesPipelineInfo->vertexShader_;
 					createInfo.fragmentShader_ = linesPipelineInfo->fragmentShader_;
-					createInfo.descriptorSetLayouts_.push_back(globalDataDSL_);
-					createInfo.descriptorSetLayouts_.push_back(modelInfoDSL_);
-					createInfo.descriptorSetLayouts_.push_back(texturedModelDSL_);
 					if (linesPipelineInfo->enableDepthTest_) {
 						auto depthTestData = std::make_shared<LinesPipeline::DepthTestInfo>();
 						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
@@ -401,9 +398,6 @@ namespace Render::Vulkan {
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = texturedPipelineInfo->vertexShader_;
 					createInfo.fragmentShader_ = texturedPipelineInfo->fragmentShader_;
-					createInfo.descriptorSetLayouts_.push_back(globalDataDSL_);
-					createInfo.descriptorSetLayouts_.push_back(modelInfoDSL_);
-					createInfo.descriptorSetLayouts_.push_back(texturedModelDSL_);
 					if (texturedPipelineInfo->enableDepthTest_) {
 						auto depthTestData = std::make_shared<TexturedModelPipeline::DepthTestInfo>();
 						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
@@ -427,8 +421,6 @@ namespace Render::Vulkan {
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = flatShadedPipelineInfo->vertexShader_;
 					createInfo.fragmentShader_ = flatShadedPipelineInfo->fragmentShader_;
-					createInfo.descriptorSetLayouts_.push_back(globalDataDSL_);
-					createInfo.descriptorSetLayouts_.push_back(modelInfoDSL_);
 					if (flatShadedPipelineInfo->enableDepthTest_) {
 						auto depthTestData = std::make_shared<FlatShadedModelPipeline::DepthTestInfo>();
 						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
