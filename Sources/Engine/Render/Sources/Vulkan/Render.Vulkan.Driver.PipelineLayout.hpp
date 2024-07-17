@@ -29,7 +29,7 @@ namespace Render::Vulkan {
 					descriptorSetLayoutsHandles.push_back(*descriptorSetLayout);
 				}
 				pipelineLayoutInfo.pSetLayouts = descriptorSetLayoutsHandles.data(); // Optional
-				pipelineLayoutInfo.pushConstantRangeCount = createInfo.pushConstants_.size(); // Optional
+				pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)createInfo.pushConstants_.size(); // Optional
 				pipelineLayoutInfo.pPushConstantRanges = createInfo.pushConstants_.data(); // Optional
 
 
@@ -46,6 +46,9 @@ namespace Render::Vulkan {
 			return createInfo_.descriptorSetLayouts_;
 		}
 
+		~PipelineLayout() {
+			Destroy();
+		}
 
 	private:
 

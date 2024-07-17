@@ -108,7 +108,6 @@ namespace Render::Vulkan {
 				offsets);
 		}
 
-		[[deprecated]]
 		void BindBuffer(std::shared_ptr<VertexBuffer<Vertex3fc>> vertexBuffer) noexcept {
 			VkDeviceSize offsets[] = { 0 };
 			const VkBuffer bufferHandle = vertexBuffer->GetNative();

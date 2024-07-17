@@ -30,4 +30,28 @@ namespace Render::Vulkan {
 	};
 
 
+
+	template<class IndexType>
+	class AllocatedIndexBuffer : public IndexBuffer<IndexType> {
+	public:
+
+		struct CreateInfo {
+			std::shared_ptr<PhysicalDevice> physicalDevice_;
+			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<CommandPool> commandPool_;
+			const IndexType* indices_ = nullptr;
+			Common::Size indicesNumber_ = 0;
+		};
+
+		AllocatedIndexBuffer(const CreateInfo& createInfo) : 
+			IndexBuffer<IndexType>{ createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.indicesNumber_ } {
+
+			auto indexStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.indicesNumber_ * sizeof(IndexType));
+			indexStagingBuffer->Fill(createInfo.indices_);
+			Buffer::DataCopy(*indexStagingBuffer, *this, createInfo.logicDevice_, createInfo.commandPool_);
+		}
+
+	private:
+	};
+
 }
