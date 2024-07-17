@@ -340,28 +340,6 @@ namespace Render::Vulkan {
 			renderPass_ = std::make_shared<RenderPass>(RPCreateInfo);
 
 
-			//IMGUI Native PIPELINE
-			//{
-			//	auto imguiNativePipelineInfo = info.imguiNativePipeline_;
-
-			//	ImguiNativePipeline::CreateInfo createInfo;
-			//	{
-			//		createInfo.physicalDevice_ = physicalDevice_;
-			//		createInfo.logicDevice_ = logicDevice_;
-			//		createInfo.renderPass_ = renderPass_;
-			//		createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
-			//		createInfo.colorAttachmentSize_ = swapChain_->GetSize();
-			//		createInfo.vertexShader_ = imguiNativePipelineInfo->vertexShader_;
-			//		createInfo.fragmentShader_ = imguiNativePipelineInfo->fragmentShader_;
-			//		if (imguiNativePipelineInfo->enableDepthTest_) {
-			//			auto depthTestData = std::make_shared<ImguiNativePipeline::DepthTestInfo>();
-			//			depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
-			//			createInfo.depthTestInfo_ = depthTestData;
-			//		}
-			//	}
-			//	imguiNativePipeline_ = std::make_shared<ImguiNativePipeline>(createInfo);
-			//}
-
 			//IMGUI PIPELINE
 			{
 				auto imguiPipelineInfo = info.imguiPipeline_;
@@ -1119,8 +1097,6 @@ namespace Render::Vulkan {
 		std::shared_ptr<CommandPool> commandPool_ = nullptr;
 		std::shared_ptr<RenderPass> renderPass_ = nullptr;
 
-
-		std::shared_ptr<ImguiNativePipeline> imguiNativePipeline_ = nullptr;
 		std::shared_ptr<ImguiPipeline> imguiPipeline_ = nullptr;
 		std::shared_ptr<LinesPipeline> linesPipeline_ = nullptr;
 		std::shared_ptr<TexturedModelPipeline> texturedModelPipeline_ = nullptr;
