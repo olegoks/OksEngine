@@ -87,49 +87,49 @@ int main(int argc, char** argv){
     //    grassBlock.AddMapRigidBodyToRenderGeometry();
     //}
 
-    //Entity grassPlane = engine.CreateEntity();
-    //{
-    //	grassPlane.AddPosition(0, 0, 0);
-    //	glm::mat4 renderGeomTransform{ 1.0f };
-    //	renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
-    //	grassPlane.AddImmutableRenderGeometry(
-    //        renderGeomTransform,
-    //		"GrassPlane.obj",
-    //		"GrassPlane.mtl", 
-    //		"Grass.jpg");
-    //}
+    Entity grassPlane = engine.CreateEntity();
+    {
+    	grassPlane.AddPosition(0, 0, 0);
+    	glm::mat4 renderGeomTransform{ 1.0f };
+    	renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
+    	grassPlane.AddImmutableRenderGeometry(
+            renderGeomTransform,
+    		"GrassPlane.obj",
+    		"GrassPlane.mtl", 
+    		"Grass.jpg");
+    }
 
-    //Common::UInt64 size = 3;
-    //for (Common::UInt64 i = 0; i < size; i++) {
-    //	for (Common::UInt64 j = 0; j < size - i; j++) {
-    //		glm::vec3 localTm(glm::vec3(float(j * 2) - float(size - i) + 0.1, float(i * 2 + 1) + 1.0, 0));
-    //		localTm *= 0.5;
-    //		Entity grassBlock = engine.CreateEntity();
-    //		grassBlock.AddPosition(0, 0, 0);
-    //		//grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
-    //		glm::mat4 renderGeomTransform{ 1.0f };
-    //		renderGeomTransform = glm::translate(renderGeomTransform, localTm);
-    //		grassBlock.AddImmutableRenderGeometry(
-    //            renderGeomTransform,
-    //			"yellowCube.obj",
-    //			"yellowCube.mtl",
-    //			"");
-    //		glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
-    //		rigidBodyTransform = glm::translate(rigidBodyTransform, localTm);
-    //		grassBlock.AddRigidBodyBox(
-    //            rigidBodyTransform,
-    //            1.f,
-    //            1.f,
-    //            1.f,
-    //            0.5f,
-    //            0.5f,
-    //            0.5f,
-    //            0.5f,
-    //            0.5f,
-    //            0.5f);
-    //		grassBlock.AddMapRigidBodyToRenderGeometry();
-    //	}
-    //}
+    Common::UInt64 size = 3;
+    for (Common::UInt64 i = 0; i < size; i++) {
+    	for (Common::UInt64 j = 0; j < size - i; j++) {
+    		glm::vec3 localTm(glm::vec3(float(j * 2) - float(size - i) + 0.1, float(i * 2 + 1) + 1.0, 0));
+    		localTm *= 0.5;
+    		Entity grassBlock = engine.CreateEntity();
+    		grassBlock.AddPosition(0, 0, 0);
+    		//grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
+    		glm::mat4 renderGeomTransform{ 1.0f };
+    		renderGeomTransform = glm::translate(renderGeomTransform, localTm);
+    		grassBlock.AddImmutableRenderGeometry(
+                renderGeomTransform,
+    			"yellowCube.obj",
+    			"yellowCube.mtl",
+    			"");
+    		glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
+    		rigidBodyTransform = glm::translate(rigidBodyTransform, localTm);
+    		grassBlock.AddRigidBodyBox(
+                rigidBodyTransform,
+                1.f,
+                1.f,
+                1.f,
+                0.5f,
+                0.5f,
+                0.5f,
+                0.5f,
+                0.5f,
+                0.5f);
+    		grassBlock.AddMapRigidBodyToRenderGeometry();
+    	}
+    }
     //Entity grassBlock2 = engine.CreateEntity();
     //{
     //    grassBlock2.AddPosition(0, 0, 0);

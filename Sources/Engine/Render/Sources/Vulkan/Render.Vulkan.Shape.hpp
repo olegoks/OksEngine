@@ -54,8 +54,8 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			TransformType model_;
-			std::shared_ptr<VertexBuffer<VertexType>> vertexBuffer_ = nullptr;
-			std::shared_ptr<IndexBuffer<IndexType>> indexBuffer_ = nullptr;
+			std::shared_ptr<AllocatedVertexBuffer<VertexType>> vertexBuffer_ = nullptr;
+			std::shared_ptr<AllocatedIndexBuffer<IndexType>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
 		};
@@ -94,8 +94,8 @@ namespace Render::Vulkan {
 		TransformType model_;
 		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 		std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-		std::shared_ptr<VertexBuffer<VertexType>> vertexBuffer_ = nullptr;
-		std::shared_ptr<IndexBuffer<IndexType>> indexBuffer_ = nullptr;
+		std::shared_ptr<AllocatedVertexBuffer<VertexType>> vertexBuffer_ = nullptr;
+		std::shared_ptr<AllocatedIndexBuffer<IndexType>> indexBuffer_ = nullptr;
 
 	};
 
@@ -104,8 +104,8 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			glm::mat4 model_;
-			std::shared_ptr<VertexBuffer<Vertex3fnt>> vertexBuffer_ = nullptr;
-			std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
+			std::shared_ptr<AllocatedVertexBuffer<Vertex3fnt>> vertexBuffer_ = nullptr;
+			std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
 			std::shared_ptr<VkTexture> texture_ = nullptr;
@@ -135,8 +135,8 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			glm::mat3 model_;
-			std::shared_ptr<VertexBuffer<Vertex2ftc>> vertexBuffer_ = nullptr;
-			std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
+			std::shared_ptr<AllocatedVertexBuffer<Vertex2ftc>> vertexBuffer_ = nullptr;
+			std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
 			std::shared_ptr<VkTexture> texture_ = nullptr;
@@ -166,8 +166,8 @@ namespace Render::Vulkan {
 	public:
 		struct CreateInfo {
 			glm::mat4 model_;
-			std::shared_ptr<VertexBuffer<Vertex3fnc>> vertexBuffer_ = nullptr;
-			std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
+			std::shared_ptr<AllocatedVertexBuffer<Vertex3fnc>> vertexBuffer_ = nullptr;
+			std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 			std::shared_ptr<DescriptorSet> modelDataDescriptorSet;
 		};

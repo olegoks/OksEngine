@@ -22,12 +22,12 @@ namespace RE {
 		api_ = RAL::CreateAPI();
 
 
-		auto imguiNativePipeline = std::make_shared<RAL::Driver::Pipeline>(
-			"IMGUI native",
-			createInfo.imguiNativeVertexShader_,
-			createInfo.imguiNativeFragmentShader_,
-			false
-		);
+		//auto imguiNativePipeline = std::make_shared<RAL::Driver::Pipeline>(
+		//	"IMGUI native",
+		//	createInfo.imguiNativeVertexShader_,
+		//	createInfo.imguiNativeFragmentShader_,
+		//	false
+		//);
 
 		auto imguiPipeline = std::make_shared<RAL::Driver::Pipeline>(
 			"IMGUI",
@@ -59,7 +59,7 @@ namespace RE {
 
 		RAL::Driver::CreateInfo driverCreateInfo;
 		{
-			driverCreateInfo.imguiNativePipeline_ = imguiNativePipeline;
+			//driverCreateInfo.imguiNativePipeline_ = imguiNativePipeline;
 			driverCreateInfo.imguiPipeline_ = imguiPipeline;
 			driverCreateInfo.linesPipeline_ = linesPipeline;
 			driverCreateInfo.flatShadedPipeline_ = flatShadedModelPipeline;
@@ -79,7 +79,6 @@ namespace RE {
 		ImGui::NewFrame();
 
 		{
-			bool isOpen = true;
 			if (ImGui::BeginMainMenuBar()) {
 				// Add items to the menu bar.
 				if (ImGui::BeginMenu("Engine")) {
@@ -159,17 +158,17 @@ namespace RE {
 		if (fb_width <= 0 || fb_height <= 0)
 			return;
 
-		// Setup viewport:
-		{
-			VkViewport viewport;
-			viewport.x = 0;
-			viewport.y = 0;
-			viewport.width = (float)fb_width;
-			viewport.height = (float)fb_height;
-			viewport.minDepth = 0.0f;
-			viewport.maxDepth = 1.0f;
-			//vkCmdSetViewport(command_buffer, 0, 1, &viewport);
-		}
+		//// Setup viewport:
+		//{
+		//	VkViewport viewport;
+		//	viewport.x = 0;
+		//	viewport.y = 0;
+		//	viewport.width = (float)fb_width;
+		//	viewport.height = (float)fb_height;
+		//	viewport.minDepth = 0.0f;
+		//	viewport.maxDepth = 1.0f;
+		//	//vkCmdSetViewport(command_buffer, 0, 1, &viewport);
+		//}
 
 		const glm::vec2 scale{
 			2.0f / draw_data->DisplaySize.x,
@@ -181,9 +180,7 @@ namespace RE {
 			-1.0f - draw_data->DisplayPos.y * scale[1]
 		};
 
-		//glm::mat3 model{ 1.f };
-		//model[0] = { scale, 0 };
-		//model[1] = { translate, 0 };
+
 		for (int n = 0; n < draw_data->CmdListsCount; n++) {
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
 			for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)

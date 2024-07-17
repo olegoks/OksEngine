@@ -65,8 +65,13 @@ namespace Render::Vulkan {
 			}
 		}
 
-		static void DataCopy(std::shared_ptr<Buffer> bufferFrom, std::shared_ptr<Buffer> bufferTo, std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<CommandPool> commandPool) {
+		static void DataCopy(const std::shared_ptr<Buffer> bufferFrom, std::shared_ptr<Buffer> bufferTo, std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<CommandPool> commandPool) {
 			
+			DataCopy(*bufferFrom, *bufferTo, logicDevice, commandPool);
+		}
+
+		static void DataCopy(const Buffer& bufferFrom, Buffer& bufferTo, std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<CommandPool> commandPool) {
+
 			VkCommandBufferAllocateInfo allocInfo{};
 			{
 				allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
@@ -74,10 +79,10 @@ namespace Render::Vulkan {
 				allocInfo.commandPool = *commandPool;
 				allocInfo.commandBufferCount = 1;
 			}
-			
+
 			VkCommandBuffer commandBuffer;
 			vkAllocateCommandBuffers(logicDevice->GetHandle(), &allocInfo, &commandBuffer);
-			
+
 			VkCommandBufferBeginInfo beginInfo{};
 			{
 				beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
@@ -89,9 +94,9 @@ namespace Render::Vulkan {
 			{
 				copyRegion.srcOffset = 0;
 				copyRegion.dstOffset = 0;
-				copyRegion.size = bufferFrom->GetSizeInBytes();
+				copyRegion.size = bufferFrom.GetSizeInBytes();
 			}
-			vkCmdCopyBuffer(commandBuffer, bufferFrom->GetNative(), bufferTo->GetNative(), 1, &copyRegion);
+			vkCmdCopyBuffer(commandBuffer, bufferFrom.GetNative(), bufferTo.GetNative(), 1, &copyRegion);
 			vkEndCommandBuffer(commandBuffer);
 
 			VkSubmitInfo submitInfo{};
@@ -196,4 +201,5 @@ namespace Render::Vulkan {
 		VkMemoryRequirements memoryRequirements_;
 	};
 
+		
 }
