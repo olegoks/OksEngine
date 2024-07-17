@@ -5,39 +5,7 @@
 
 namespace Render::Vulkan {
 
-
-
-	//class Texture {
-	//public:
-	//	struct CreateInfo {
-	//		std::shared_ptr<class AllocatedTextureImage> textureImage_ = nullptr;
-	//		std::shared_ptr<class ImageView> textureImageView_ = nullptr;
-	//		std::shared_ptr<class Sampler> sampler = nullptr;
-	//		std::shared_ptr<class DescriptorSet> descriptorSet_ = nullptr;
-	//	};
-
-	//	Texture(const CreateInfo& createInfo) :
-	//		textureImage_{ createInfo.textureImage_ },
-	//		textureImageView_{ createInfo.textureImageView_ },
-	//		sampler{ createInfo.sampler },
-	//		descriptorSet_{ createInfo.descriptorSet_ } {
-
-	//	}
-
-	//	[[nodiscard]]
-	//	std::shared_ptr<DescriptorSet> GetDescriptorSet() noexcept {
-	//		return descriptorSet_;
-	//	}
-
-	//private:
-	//	std::shared_ptr<class AllocatedTextureImage> textureImage_ = nullptr;
-	//	std::shared_ptr<class ImageView> textureImageView_ = nullptr;
-	//	std::shared_ptr<class Sampler> sampler = nullptr;
-	//	std::shared_ptr<class DescriptorSet> descriptorSet_ = nullptr;
-	//};
-
-
-	class VkTexture {
+	class Texture {
 	public:
 
 		struct CreateInfo {
@@ -52,7 +20,7 @@ namespace Render::Vulkan {
 
 		};
 
-		VkTexture(const CreateInfo& createInfo);
+		Texture(const CreateInfo& createInfo);
 
 		[[nodiscard]]
 		auto GetDS() noexcept {

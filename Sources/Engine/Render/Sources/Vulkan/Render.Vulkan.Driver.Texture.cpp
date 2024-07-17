@@ -12,7 +12,7 @@
 namespace Render::Vulkan {
 
 
-	VkTexture::VkTexture(const CreateInfo& createInfo) {
+	Texture::Texture(const CreateInfo& createInfo) {
 			OS::Assert(createInfo.format_ == VK_FORMAT_R8G8B8A8_UNORM);
 			auto textureStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.size_.x * createInfo.size_.y * sizeof(RAL::Color4b));
 			textureStagingBuffer->Fill(createInfo.pixels_);

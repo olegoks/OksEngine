@@ -785,7 +785,7 @@ namespace Render::Vulkan {
 			auto allocatedIndexBuffer = std::make_shared<AllocatedIndexBuffer<Index16>>(indexBufferCreateInfo);
 
 
-			VkTexture::CreateInfo textureCreateInfo{};
+			Texture::CreateInfo textureCreateInfo{};
 			{
 				textureCreateInfo.name_ = "ImGui texture";
 				textureCreateInfo.physicalDevice_ = physicalDevice_;
@@ -796,7 +796,7 @@ namespace Render::Vulkan {
 				textureCreateInfo.commandPool_ = commandPool_;
 				textureCreateInfo.descriptorPool_ = descriptorPool_;
 			}
-			auto vkTexture = std::make_shared<VkTexture>(textureCreateInfo);
+			auto vkTexture = std::make_shared<Texture>(textureCreateInfo);
 
 			struct Transform {
 				glm::vec2 scale_;
@@ -861,7 +861,7 @@ namespace Render::Vulkan {
 			}
 			auto allocatedIndexBuffer = std::make_shared<AllocatedIndexBuffer<Index16>>(indexBufferCreateInfo);
 
-			VkTexture::CreateInfo textureCreateInfo{};
+			Texture::CreateInfo textureCreateInfo{};
 			{
 				textureCreateInfo.name_ = "Texture";
 				textureCreateInfo.physicalDevice_ = physicalDevice_;
@@ -873,7 +873,7 @@ namespace Render::Vulkan {
 				textureCreateInfo.descriptorPool_ = descriptorPool_;
 			}
 
-			auto vkTexture = std::make_shared<VkTexture>(textureCreateInfo);
+			auto vkTexture = std::make_shared<Texture>(textureCreateInfo);
 
 			const VkDeviceSize bufferSize = sizeof(Transform);
 			auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
@@ -926,59 +926,64 @@ namespace Render::Vulkan {
 			const RAL::Index16* indices,
 			Common::Size indicesNumber) override {
 
-			//OS::Assert(indicesNumber % 3 == 0);
+			OS::Assert(indicesNumber % 3 == 0);
 
-			//std::vector<RAL::Vertex3fnc> convertedVertices;
-			//for (Common::Index i = 0; i < indicesNumber; i += 3) {
-			//	Vector3f first = vertices[1].position_ - vertices[0].position_;
-			//	Vector3f second = vertices[1].position_ - vertices[2].position_;
-			//	const RAL::Normal3f normal = first.CrossProduct(second).Normalize();
-			//	convertedVertices.push_back({ vertices[0], normal });
-			//	convertedVertices.push_back({ vertices[1], normal });
-			//	convertedVertices.push_back({ vertices[2], normal });
-			//}
+			std::vector<RAL::Vertex3fnc> convertedVertices;
+			for (Common::Index i = 0; i < indicesNumber; i += 3) {
+				Vector3f first = vertices[1].position_ - vertices[0].position_;
+				Vector3f second = vertices[1].position_ - vertices[2].position_;
+				const RAL::Normal3f normal = first.CrossProduct(second).Normalize();
+				convertedVertices.push_back({ vertices[0], normal });
+				convertedVertices.push_back({ vertices[1], normal });
+				convertedVertices.push_back({ vertices[2], normal });
+			}
 
+			AllocatedVertexBuffer<Vertex3fnc>::CreateInfo vertexBufferCreateInfo{};
+			{
+				vertexBufferCreateInfo.logicDevice_ = logicDevice_;
+				vertexBufferCreateInfo.physicalDevice_ = physicalDevice_;
+				vertexBufferCreateInfo.commandPool_ = commandPool_;
+				vertexBufferCreateInfo.verticesNumber_ = verticesNumber;
+				vertexBufferCreateInfo.vertices_ = (const Vertex3fnc*)vertices;
+			}
+			auto allocatedVertexBuffer = std::make_shared<AllocatedVertexBuffer<Vertex3fnc>>(vertexBufferCreateInfo);
 
-			//auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(Vertex3fnc));
-			//vertexStagingBuffer->Fill(convertedVertices.data());
-			//auto vertexBuffer = std::make_shared<VertexBuffer<Vertex3fnc>>(physicalDevice_, logicDevice_, verticesNumber);
+			AllocatedIndexBuffer<Index16>::CreateInfo indexBufferCreateInfo{};
+			{
+				indexBufferCreateInfo.logicDevice_ = logicDevice_;
+				indexBufferCreateInfo.physicalDevice_ = physicalDevice_;
+				indexBufferCreateInfo.commandPool_ = commandPool_;
+				indexBufferCreateInfo.indicesNumber_ = indicesNumber;
+				indexBufferCreateInfo.indices_ = (const Index16*)indices;
+			}
+			auto allocatedIndexBuffer = std::make_shared<AllocatedIndexBuffer<Index16>>(indexBufferCreateInfo);
 
-			//Buffer::DataCopy(vertexStagingBuffer, vertexBuffer, logicDevice_, commandPool_);
+			const VkDeviceSize bufferSize = sizeof(Transform);
+			auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
+			DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
+			{
+				transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
+				transformDesciptorSetCreateInfo.DSL_ = modelInfoDSL_;
+				transformDesciptorSetCreateInfo.logicDevice_ = logicDevice_;
+			}
+			auto modelTransform = std::make_shared<DescriptorSet>(transformDesciptorSetCreateInfo);
+			modelTransform->UpdateBufferWriteConfiguration(
+				transformUniformBuffer,
+				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+				0, 0, transformUniformBuffer->GetSizeInBytes());
 
-			//auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(Index16));
-			//indexStagingBuffer->Fill(indices);
-			//auto indexBuffer = std::make_shared<IndexBuffer<Index16>>(physicalDevice_, logicDevice_, indicesNumber);
+			ColoredShape::CreateInfo createInfo;
+			{
+				createInfo.model_ = model_;
+				createInfo.vertexBuffer_ = allocatedVertexBuffer;
+				createInfo.indexBuffer_ = allocatedIndexBuffer;
+				createInfo.transformBuffer_ = transformUniformBuffer;
+				createInfo.modelDataDescriptorSet = modelTransform;
+			}
 
-			//Buffer::DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
-
-
-			//const VkDeviceSize bufferSize = sizeof(Transform);
-			//auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
-			//DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
-			//{
-			//	transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
-			//	transformDesciptorSetCreateInfo.DSL_ = modelInfoDSL_;
-			//	transformDesciptorSetCreateInfo.logicDevice_ = logicDevice_;
-			//}
-			//auto modelTransform = std::make_shared<DescriptorSet>(transformDesciptorSetCreateInfo);
-			//modelTransform->UpdateBufferWriteConfiguration(
-			//	transformUniformBuffer,
-			//	VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-			//	0, 0, transformUniformBuffer->GetSizeInBytes());
-
-			//ColoredShape::CreateInfo createInfo;
-			//{
-			//	createInfo.model_ = model_;
-			//	createInfo.vertexBuffer_ = vertexBuffer;
-			//	createInfo.indexBuffer_ = indexBuffer;
-			//	createInfo.transformBuffer_ = transformUniformBuffer;
-			//	createInfo.modelDataDescriptorSet = modelTransform;
-			//}
-
-			//auto shape = std::make_shared<ColoredShape>(createInfo);
-			//coloredShapes_.push_back(shape);
-			//return shape->GetId();
-			return 0;
+			auto shape = std::make_shared<ColoredShape>(createInfo);
+			coloredShapes_.push_back(shape);
+			return shape->GetId();
 		}
 
 		virtual Common::UInt64 DrawIndexed(
@@ -990,39 +995,47 @@ namespace Render::Vulkan {
 			const RAL::Color3f& color) override {
 
 
-			//std::vector<Vertex3fnc> convertedVertices;
-			//for (Common::Index i = 0; i < indicesNumber; i += 3) {
-			//	Math::Vector3f first = vertices[i + 1].position_ - vertices[i].position_;
-			//	Math::Vector3f second = vertices[i + 1].position_ - vertices[i + 2].position_;
-			//	const Normal3f normal = first.CrossProduct(second).Normalize();
-			//	convertedVertices.push_back({ vertices[i].position_, normal, color });
-			//	convertedVertices.push_back({ vertices[i + 1].position_, normal, color });
-			//	convertedVertices.push_back({ vertices[i + 2].position_, normal, color });
-			//}
+			std::vector<Vertex3fnc> convertedVertices;
+			for (Common::Index i = 0; i < indicesNumber; i += 3) {
+				Math::Vector3f first = vertices[i + 1].position_ - vertices[i].position_;
+				Math::Vector3f second = vertices[i + 1].position_ - vertices[i + 2].position_;
+				const Normal3f normal = first.CrossProduct(second).Normalize();
+				convertedVertices.push_back({ vertices[i].position_, normal, color });
+				convertedVertices.push_back({ vertices[i + 1].position_, normal, color });
+				convertedVertices.push_back({ vertices[i + 2].position_, normal, color });
+			}
 
-			//auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, verticesNumber * sizeof(Vertex3fnc));
-			//vertexStagingBuffer->Fill(convertedVertices.data());
-			//auto vertexBuffer = std::make_shared<VertexBuffer<Vertex3fnc>>(physicalDevice_, logicDevice_, verticesNumber);
 
-			//Buffer::DataCopy(vertexStagingBuffer, vertexBuffer, logicDevice_, commandPool_);
+			AllocatedVertexBuffer<Vertex3fnc>::CreateInfo vertexBufferCreateInfo{};
+			{
+				vertexBufferCreateInfo.logicDevice_ = logicDevice_;
+				vertexBufferCreateInfo.physicalDevice_ = physicalDevice_;
+				vertexBufferCreateInfo.commandPool_ = commandPool_;
+				vertexBufferCreateInfo.verticesNumber_ = verticesNumber;
+				vertexBufferCreateInfo.vertices_ = (const Vertex3fnc*)vertices;
+			}
+			auto allocatedVertexBuffer = std::make_shared<AllocatedVertexBuffer<Vertex3fnc>>(vertexBufferCreateInfo);
 
-			//auto indexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, indicesNumber * sizeof(Index16));
-			//indexStagingBuffer->Fill(indices);
-			//auto indexBuffer = std::make_shared<IndexBuffer<Index16>>(physicalDevice_, logicDevice_, indicesNumber);
+			AllocatedIndexBuffer<Index16>::CreateInfo indexBufferCreateInfo{};
+			{
+				indexBufferCreateInfo.logicDevice_ = logicDevice_;
+				indexBufferCreateInfo.physicalDevice_ = physicalDevice_;
+				indexBufferCreateInfo.commandPool_ = commandPool_;
+				indexBufferCreateInfo.indicesNumber_ = indicesNumber;
+				indexBufferCreateInfo.indices_ = (const Index16*)indices;
+			}
+			auto allocatedIndexBuffer = std::make_shared<AllocatedIndexBuffer<Index16>>(indexBufferCreateInfo);
 
-			//Buffer::DataCopy(indexStagingBuffer, indexBuffer, logicDevice_, commandPool_);
+			ColoredShape::CreateInfo createInfo;
+			{
+				createInfo.model_ = model_;
+				createInfo.vertexBuffer_ = allocatedVertexBuffer;
+				createInfo.indexBuffer_ = allocatedIndexBuffer;
+			}
 
-			//ColoredShape::CreateInfo createInfo;
-			//{
-			//	createInfo.model_ = model_;
-			//	createInfo.vertexBuffer_ = vertexBuffer;
-			//	createInfo.indexBuffer_ = indexBuffer;
-			//}
-
-			//auto shape = std::make_shared<ColoredShape>(createInfo);
-			//coloredShapes_.push_back(shape);
-			//return shape->GetId();
-			return 0;
+			auto shape = std::make_shared<ColoredShape>(createInfo);
+			coloredShapes_.push_back(shape);
+			return shape->GetId();
 		}
 
 		[[nodiscard]]
