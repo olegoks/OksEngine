@@ -108,7 +108,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-			std::shared_ptr<VkTexture> texture_ = nullptr;
+			std::shared_ptr<Texture> texture_ = nullptr;
 		};
 
 		TexturedShape(const CreateInfo& createInfo) :
@@ -126,7 +126,7 @@ namespace Render::Vulkan {
 			return texture_;
 		}
 
-		std::shared_ptr<VkTexture> texture_ = nullptr;
+		std::shared_ptr<Texture> texture_ = nullptr;
 	};
 
 
@@ -139,7 +139,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-			std::shared_ptr<VkTexture> texture_ = nullptr;
+			std::shared_ptr<Texture> texture_ = nullptr;
 		};
 
 		UIShape(const CreateInfo& createInfo) :
@@ -159,7 +159,7 @@ namespace Render::Vulkan {
 
 		glm::vec2 scale_;
 		glm::vec2 translate_;
-		std::shared_ptr<VkTexture> texture_ = nullptr;
+		std::shared_ptr<Texture> texture_ = nullptr;
 	};
 
 	class ColoredShape : public Shape<glm::mat4, Vertex3fnc, Index16>{
