@@ -75,7 +75,7 @@ namespace RE {
 
 	void RenderEngine::RenderImGui() {
 		ImGui_ImplGlfw_NewFrame();
-
+		//ImGui_ImplVulkan_NewFrame();
 		ImGui::NewFrame();
 
 		{
