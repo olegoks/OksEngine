@@ -7,14 +7,14 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 add_library(Render STATIC)
 set(SourcesDir "Sources/")
 
-file(GLOB_RECURSE PUBLIC_SOURCES
+file(GLOB PUBLIC_SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
     ${SourcesDir}/*.hpp
     ${SourcesDir}/*.h
 )
 
-file(GLOB_RECURSE
+file(GLOB
  PRIVATE_SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
@@ -22,93 +22,64 @@ file(GLOB_RECURSE
     ${SourcesDir}/*.c
 )
 
+file(GLOB PUBLIC_SOURCES_VULKAN_DRIVER
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    ${SourcesDir}/Vulkan/Driver/*.hpp
+    ${SourcesDir}/Vulkan/Driver/*.h
+)
+
+file(GLOB PRIVATE_SOURCES_VULKAN_DRIVER
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    ${SourcesDir}/Vulkan/Driver/*.cpp
+    ${SourcesDir}/Vulkan/Driver/*.c
+)
+
+file(GLOB PUBLIC_SOURCES_VULKAN
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    ${SourcesDir}/Vulkan/*.hpp
+    ${SourcesDir}/Vulkan/*.h
+)
+
+file(GLOB PRIVATE_SOURCES_VULKAN
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    ${SourcesDir}/Vulkan/*.cpp
+    ${SourcesDir}/Vulkan/*.c
+)
+
+
 target_sources(Render
     PUBLIC
         ${PUBLIC_SOURCES}
-
-        # Sources/RAL.API.hpp
-        # Sources/RAL.Camera.hpp
-        # Sources/RAL.Common.hpp
-        # Sources/RAL.Driver.hpp
-        # Sources/RAL.Light.hpp
-        # Sources/RAL.WindowSurface.hpp
-
-        # Sources/Vulkan/Render.Vulkan.Common.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.hpp
-        # Sources/Vulkan/Render.Vulkan.Camera.hpp
-        # Sources/Vulkan/Render.Vulkan.API.hpp
-        # Sources/Vulkan/Render.Vulkan.Common.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.Instance.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.PhysicalDevice.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.LogicDevice.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.ShaderModule.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.CommandPool.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.UniformBuffer.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.DescriptorSet.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.DescriptorPool.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.DescriptorSetLayout.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.Image.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.ImageView.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.Pipeline.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.PipelineLayout.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.FrameBuffer.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.DeviceMemory.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.Semaphore.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.Fence.hpp
-        # SOurces/Vulkan/Render.Vulkan.Driver.DepthBufferFeature.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.Buffer.hpp
-        # Sources/Vulkan/Render.Vulkan.Driver.StagingBuffer.hpp
+    	${PUBLIC_SOURCES_VULKAN}
+        ${PUBLIC_SOURCES_VULKAN_DRIVER}
     PRIVATE
-        #  Sources/RAL.cpp
-        #  Sources/RAL.WindowSurface.cpp
-        #  Sources/Vulkan/Render.Vulkan.Common.cpp
-        #  Sources/Vulkan/Render.Vulkan.Driver.Instance.cpp
-        #  Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.cpp
 
         ${PRIVATE_SOURCES}
+        ${PRIVATE_SOURCES_VULKAN}
+        ${PRIVATE_SOURCES_VULKAN_DRIVER}
     )
 
 source_group("Sources"
     FILES
-    # Sources/RAL.API.hpp
-    # Sources/RAL.Camera.hpp
-    # Sources/RAL.Common.hpp
-    # Sources/RAL.Driver.hpp
-    # Sources/RAL.Light.hpp
-    # Sources/RAL.WindowSurface.hpp
-    # Sources/RAL.WindowSurface.cpp
-    # Sources/Vulkan/Render.Vulkan.Common.hpp
-    # Sources/Vulkan/Render.Vulkan.Common.cpp
-    # Sources/Vulkan/Render.Vulkan.Driver.hpp
-    # Sources/Vulkan/Render.Vulkan.Camera.hpp
-    # Sources/Vulkan/Render.Vulkan.API.hpp
-    # Sources/Vulkan/Render.Vulkan.Common.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.WindowSurface.cpp
-    # Sources/Vulkan/Render.Vulkan.Driver.PhysicalDevice.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.LogicDevice.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.ShaderModule.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.CommandPool.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.UniformBuffer.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.DescriptorSet.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.DescriptorPool.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.DescriptorSetLayout.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.Image.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.ImageView.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.Pipeline.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.PipelineLayout.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.FrameBuffer.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.Buffer.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.StagingBuffer.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.DeviceMemory.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.Semaphore.hpp
-    # Sources/Vulkan/Render.Vulkan.Driver.Fence.hpp
-    # SOurces/Vulkan/Render.Vulkan.Driver.DepthBufferFeature.hpp
-    # Sources/RAL.cpp
-     ${PUBLIC_SOURCES}
-     ${PRIVATE_SOURCES}
-    )
+        ${PUBLIC_SOURCES}
+        ${PRIVATE_SOURCES}
+)
+
+source_group("Sources/Vulkan"
+    FILES
+        ${PUBLIC_SOURCES_VULKAN}
+        ${PRIVATE_SOURCES_VULKAN}
+)
+
+source_group("Sources/Vulkan/Driver"
+    FILES
+        ${PUBLIC_SOURCES_VULKAN_DRIVER}
+        ${PRIVATE_SOURCES_VULKAN_DRIVER}
+)
 
 
 find_package(Vulkan REQUIRED)
@@ -142,6 +113,7 @@ target_link_libraries(Render
 target_include_directories(Render
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/Sources/
-        ${CMAKE_CURRENT_LIST_DIR}/Sources/Vulkan)
+        ${CMAKE_CURRENT_LIST_DIR}/Sources/Vulkan
+        ${CMAKE_CURRENT_LIST_DIR}/Sources/Vulkan/Driver)
         
 add_subdirectory(Tests)

@@ -497,22 +497,22 @@ namespace Render::Vulkan {
 
 
 			{
-				ImGui_ImplVulkan_InitInfo init_info = {};
-				init_info.Instance = *instance_;
-				init_info.PhysicalDevice = *physicalDevice_;
-				init_info.Device = *logicDevice_;
-				init_info.QueueFamily = graphicsQueueFamily_.index_;
-				init_info.Queue = logicDevice_->GetGraphicsQueue();
-				init_info.PipelineCache = nullptr;
-				init_info.DescriptorPool = descriptorPool_->GetNative();
-				init_info.Allocator = nullptr;
-				init_info.MinImageCount = 2;
-				init_info.ImageCount = swapChain_->GetImagesNumber();
-				init_info.CheckVkResultFn = nullptr;
-				init_info.RenderPass = *renderPass_;
-				ImGui_ImplVulkan_Init(&init_info);
+				//ImGui_ImplVulkan_InitInfo init_info = {};
+				//init_info.Instance = *instance_;
+				//init_info.PhysicalDevice = *physicalDevice_;
+				//init_info.Device = *logicDevice_;
+				//init_info.QueueFamily = graphicsQueueFamily_.index_;
+				//init_info.Queue = logicDevice_->GetGraphicsQueue();
+				//init_info.PipelineCache = nullptr;
+				//init_info.DescriptorPool = descriptorPool_->GetNative();
+				//init_info.Allocator = nullptr;
+				//init_info.MinImageCount = 2;
+				//init_info.ImageCount = swapChain_->GetImagesNumber();
+				//init_info.CheckVkResultFn = nullptr;
+				//init_info.RenderPass = *renderPass_;
+				//ImGui_ImplVulkan_Init(&init_info);
 
-				ImGui_ImplVulkan_CreateFontsTexture();
+				//ImGui_ImplVulkan_CreateFontsTexture();
 
 			}
 
