@@ -82,7 +82,6 @@ namespace Render::Vulkan {
 				vertShaderStageInfo.module = *createInfo.vertexShader_;
 				vertShaderStageInfo.pName = "main";
 			}
-			//vertexShader_ = createInfo.vertexShader_;
 
 			VkPipelineShaderStageCreateInfo fragShaderStageInfo{};
 			{
@@ -91,7 +90,6 @@ namespace Render::Vulkan {
 				fragShaderStageInfo.module = *createInfo.fragmentShader_;
 				fragShaderStageInfo.pName = "main";
 			}
-			//fragmentShader_ = createInfo.fragmentShader_;
 
 			VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
 
@@ -187,18 +185,6 @@ namespace Render::Vulkan {
 				colorBlending.blendConstants[3] = 0.f;
 			}
 
-			//RenderPass::CreateInfo renderPassCreateInfo{ 0 };
-			//{
-			//	renderPassCreateInfo.logicDevice_ = createInfo.logicDevice_;
-			//	renderPassCreateInfo.colorAttachmentFormat_ = createInfo.colorAttachmentFormat_;
-			//	if(createInfo.depthTestInfo_ != nullptr) {
-			//		auto depthTestInfo = std::make_shared<RenderPass::DepthTestInfo>();
-			//		depthTestInfo->depthStencilBufferFormat_ = createInfo.depthTestInfo_->bufferFormat_;
-			//		renderPassCreateInfo.depthTestInfo_ = depthTestInfo;
-			//	}
-			//	renderPass_ = std::make_shared<RenderPass>(renderPassCreateInfo);
-			//}
-
 			PipelineLayout::CreateInfo pipelineLayoutCreateInfo;
 			{
 				pipelineLayoutCreateInfo.logicDevice_ = createInfo.logicDevice_;
@@ -252,9 +238,6 @@ namespace Render::Vulkan {
 			Destroy();
 		}
 
-		//[[nodiscard]]
-		//std::shared_ptr<RenderPass> GetRenderPass() const noexcept { return renderPass_; }
-
 		[[nodiscard]]
 		std::shared_ptr<PipelineLayout> GetLayout() const noexcept { return pipelineLayout_; }
 
@@ -267,13 +250,6 @@ namespace Render::Vulkan {
 
 	private:
 		CreateInfo createInfo_{};
-
-		//std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
-		//std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
-		//std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
-
-		//std::shared_ptr<RenderPass> renderPass_ = nullptr;
-		//std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 		std::shared_ptr<PipelineLayout> pipelineLayout_ = VK_NULL_HANDLE;
 	};
 
@@ -504,30 +480,6 @@ namespace Render::Vulkan {
 
 	};
 
-
-	class ImguiNativePipeline : public Pipeline {
-	public:
-
-		using DepthTestInfo = Pipeline::DepthTestInfo;
-
-		struct CreateInfo {
-			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-			std::shared_ptr<RenderPass> renderPass_ = nullptr;
-			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
-			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
-			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
-			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
-			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
-		};
-
-
-		ImguiNativePipeline(const CreateInfo& createInfo);
-
-
-	};
-
 	class ImguiPipeline : public Pipeline {
 	public:
 
@@ -543,7 +495,6 @@ namespace Render::Vulkan {
 			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
-			//std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
 
