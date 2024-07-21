@@ -1,1 +1,2 @@
-GenerateBuildFilesManual.sh
+set scriptpath=%~dp0
+%scriptpath%/GenerateBuildFilesManual.sh
