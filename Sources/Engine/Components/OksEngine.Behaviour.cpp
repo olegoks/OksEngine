@@ -49,7 +49,7 @@ namespace OksEngine {
 
 		luabridge::getGlobalNamespace(state_)
 			.beginClass<ImmutableRenderGeometry>("ImmutableRenderGeometry")
-			.addConstructor<void(*)(Context*,float, float, float, std::string, std::string, std::string)>()
+			.addConstructor<void(*)(Context*,float, float, float, std::string, std::string, const std::vector<std::string>&)>()
 			.addFunction("Rotate", &ImmutableRenderGeometry::Rotate)
 			.endClass();
 

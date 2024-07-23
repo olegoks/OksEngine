@@ -12,7 +12,7 @@ namespace OksEngine {
 
 		}
 
-		ImmutableRenderGeometry(Context*, float x, float y, float z, std::string obj, std::string mtl, std::string texture) : ECSComponent{ nullptr } {
+		ImmutableRenderGeometry(Context*, float x, float y, float z, std::string obj, std::string mtl, const std::vector<std::string>& textures) : ECSComponent{ nullptr } {
 
 		}
 
@@ -44,15 +44,15 @@ namespace OksEngine {
 			const glm::mat4& modelMatrix,
 			std::string objFileName,
 			std::string mtlFileName,
-			std::string textureFileName) :
+			const std::vector<std::string>& textures) :
 			ECSComponent{ context },
 			modelMatrix_{ modelMatrix },
 			modelObjFileName_{ objFileName },
 			modelMtlFileName_{ mtlFileName },
-			modelTextureFileName_{ textureFileName } {}
+			textures_{ textures } {}
 		std::string modelObjFileName_ = "";
 		std::string modelMtlFileName_ = "";
-		std::string modelTextureFileName_ = "";
+		std::vector<std::string> textures_;
 	private:
 		Common::Index modelId_ = Common::Limits<Common::Index>::Max();
 		glm::mat4 modelMatrix_ = glm::identity<glm::mat4>();

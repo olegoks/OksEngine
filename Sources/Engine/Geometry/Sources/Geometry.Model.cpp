@@ -240,8 +240,57 @@ namespace Geometry {
                 }
                 vertexIndex++;
             }
+        
             auto textureObject = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
             Shape<Vertex3fnt, Index16> shape{ vertices, indices, textureObject };
+            model.AddShape(shape);
+        }
+        OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
+        return model;
+    }
+
+    Model<Vertex3fnt, Index16> ParseObjVertex3fntIndex16Textures(const std::string& obj, const std::string& mtl) {
+
+        tinyobj::ObjReader objReader;
+        objReader.ParseFromString(obj, mtl);
+
+        OS::AssertMessage(objReader.Valid(),
+            "Attempt to use incorrect .obj/mtl model file.");
+
+        const auto& attributes = objReader.GetAttrib();
+        auto shapes = objReader.GetShapes();
+        auto materials = objReader.GetMaterials();
+
+
+        Model<Vertex3fnt, Index16> model;
+
+
+        std::unordered_map<Vertex3fnt, Index16, Vertex3fnt::Hash> uniqueVertices{};
+        for (const auto& objShape : shapes) {
+            VertexCloud<Vertex3fnt> vertices;
+            IndexBuffer<Index16> indices;
+            Common::Index vertexIndex = 0;
+            for (const auto& index : objShape.mesh.indices) {
+                auto vertex = GetVertex<Vertex3fnt>(index, attributes);
+                //auto& material = materials[objShape.mesh.material_ids[vertexIndex / 3]];
+                //vertex.color_ = Geom::Color3f{ material.diffuse[0], material.diffuse[1], material.diffuse[2] };
+                bool deleteDuplicateVertices = true;
+                if (deleteDuplicateVertices) {
+                    if (uniqueVertices.count(vertex) == 0) {
+                        uniqueVertices[vertex] = static_cast<uint32_t>(vertices.GetVerticesNumber());
+                        vertices.Add(vertex);
+                    }
+                    indices.Add(uniqueVertices[vertex]);
+                }
+                else {
+                    vertices.Add(vertex);
+                    indices.Add(vertices.GetVerticesNumber() - 1);
+                }
+                vertexIndex++;
+            }
+
+            //auto textureObject = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
+            Shape<Vertex3fnt, Index16> shape{ vertices, indices,  };
             model.AddShape(shape);
         }
         OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
