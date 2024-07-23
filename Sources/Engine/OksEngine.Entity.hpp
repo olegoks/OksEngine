@@ -35,6 +35,13 @@ namespace OksEngine {
 		void AddPosition(float x, float y, float z);
 		void AddMapRigidBodyToRenderGeometry();
 
+		void AddStaticRigidBodyCustomMeshShape(
+			const glm::mat4& transform,
+			const std::string& geomName,
+			float staticFriction,
+			float dynamicFriction,
+			float restitution);
+
 		void AddRigidBodyBox(
 			const glm::mat4& transform,
 			float mass,

@@ -22,9 +22,9 @@ namespace OksEngine {
 					if (rigidBody->id_ == Common::Limits<Common::Index>::Max()) {
 						PAL::Shape::CreateInfoBox shapeCreateInfo{
 							.material_ = PAL::Shape::Material{
-								.staticFriction_ = rigidBody->staticFriction_,
-								.dynamicFriction_ = rigidBody->dynamicFriction_,
-								.restitution_ = rigidBody->restitution_ },
+								.staticFriction_ = rigidBody->material_.staticFriction_,
+								.dynamicFriction_ = rigidBody->material_.dynamicFriction_,
+								.restitution_ = rigidBody->material_.restitution_ },
 							.halfExtentX_ = rigidBody->halfExtentX_,
 							.halfExtentY_ = rigidBody->halfExtentY_,
 							.halfExtentZ_ = rigidBody->halfExtentZ_,
@@ -53,9 +53,9 @@ namespace OksEngine {
 					if (rigidBodyCapsule->id_ == Common::Limits<Common::Index>::Max()) {
 						PAL::Shape::CreateInfoCapsule shapeCreateInfo{
 							.material_ = PAL::Shape::Material{
-								.staticFriction_ = rigidBodyCapsule->staticFriction_,
-								.dynamicFriction_ = rigidBodyCapsule->dynamicFriction_,
-								.restitution_ = rigidBodyCapsule->restitution_
+								.staticFriction_ = rigidBodyCapsule->material_.staticFriction_,
+								.dynamicFriction_ = rigidBodyCapsule->material_.dynamicFriction_,
+								.restitution_ = rigidBodyCapsule->material_.restitution_
 							},
 							.radius_ = rigidBodyCapsule->radius_,
 							.height_ = rigidBodyCapsule->height_

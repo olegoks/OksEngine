@@ -4,6 +4,7 @@
 #include <PhysX.World.hpp>
 #include <PhysX.RigidBody.hpp>
 #include <PxPhysicsAPI.h>
+#include <physx\cooking\Pxc.h>
 #include <PxPhysics.h>
 #include <PhysX.World.hpp>
 #include <PhysX.Shape.hpp>
@@ -32,8 +33,8 @@ namespace PhysX {
 			physics_ = PxCreatePhysics(PX_PHYSICS_VERSION, *foundation_,
 				PxTolerancesScale(), recordMemoryAllocations, pvd_);
 			OS::Assert(physics_ != nullptr);
-			/*mCooking = PxCreateCooking(PX_PHYSICS_VERSION, *foundation, PxCookingParams(scale));
-			OS::Assert(mPhysics != nullptr);
+			//physx::PxCreateCooking(PX_PHYSICS_VERSION, *foundation_, PxCookingParams(physx::PxTolerancesScale()));
+			/*OS::Assert(mPhysics != nullptr);
 			if (!mCooking)
 				fatalError("PxCreateCooking failed!");*/
 			if (!PxInitExtensions(*physics_, pvd_))
@@ -114,6 +115,15 @@ namespace PhysX {
 			return std::make_shared<PhysX::Shape>(physxCreateInfo);
 		}
 
+		virtual std::shared_ptr<PAL::Shape>
+			CreateShape(const PAL::Shape::CreateInfoMesh& createInfo) override {
+			PhysX::Shape::CreateInfoMesh physxCreateInfo{
+				.palCreateInfo_ = createInfo,
+				.physics_ = physics_
+			};
+			return std::make_shared<PhysX::Shape>(physxCreateInfo);
+		}
+
 		~API() {
 			physics_->release();
 			foundation_->release();
@@ -122,6 +132,7 @@ namespace PhysX {
 	private:
 		physx::PxFoundation* foundation_ = nullptr;
 		physx::PxPhysics* physics_ = nullptr;
+		//physx::PxCooking* cooking_ = nullptr;
 		physx::PxPvd* pvd_ = nullptr;
 	};
 }

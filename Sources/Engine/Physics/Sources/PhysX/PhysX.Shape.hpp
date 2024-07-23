@@ -20,8 +20,14 @@ namespace PhysX {
 			physx::PxPhysics* physics_ = nullptr;
 		};
 
+		struct CreateInfoMesh {
+			PAL::Shape::CreateInfoMesh palCreateInfo_;
+			physx::PxPhysics* physics_ = nullptr;
+		};
+
 		Shape(const CreateInfoBox& createInfo);
 		Shape(const CreateInfoCapsule& createInfo);
+		Shape(const CreateInfoMesh& createInfo);
 
 		[[nodiscard]]
 		physx::PxShape* GetPxShape() noexcept {
