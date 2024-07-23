@@ -51,6 +51,7 @@ namespace OksEngine {
 		{
 			cameraCreateInfo.position_ = { 5.f, 0.f, 0.f };
 			cameraCreateInfo.direction_ = glm::vec3{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
+			cameraCreateInfo.zFar_ = 10000000.f;
 			cameraCreateInfo.size_ = windowInfo.size_;
 		}
 
@@ -154,7 +155,7 @@ namespace OksEngine {
 
 		auto flatShadedModel = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
 
-		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4{0}, *flatShadedModel);
+		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4{ 0 }, *flatShadedModel);
 		models_.push_back(model);
 		return models_.size() - 1;
 	}
@@ -204,20 +205,17 @@ namespace OksEngine {
 		const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + mtlName);
 		ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
 
-		//std::vector<ResourceSubsystem::Resource> texturesResources;
-		//for (const std::string& textureName : textures) {
-
-		//	const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + textureName);
-		//	texturesResources.push_back(resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId));
-		//}
-
 		std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
 		std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
-		//std::string image{ texturesResources[0].GetData<char>(), texturesResources[0].GetSize() };
-
 
 		auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16Textures(obj, mtl));
-
+		for (auto& shape : *texturedModel) {
+			const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + shape.textureName_);
+			ResourceSubsystem::Resource resource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId);
+			std::string texture{ resource.GetData<char>(), resource.GetSize() };
+			
+			shape.SetTexture(std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size()))));
+		}
 		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
 		models_.push_back(model);
 		return models_.size() - 1;

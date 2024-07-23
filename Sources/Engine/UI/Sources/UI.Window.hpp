@@ -42,6 +42,7 @@ namespace UI {
 			S,
 			D,
 			Space,
+			LeftShift,
 			F5,
 			Undefined
 		};
@@ -94,7 +95,10 @@ namespace UI {
 				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
 				Key keyboardKey = Key::Undefined;
 				Event event = Event::Undefined;
-				if (key == GLFW_KEY_W) {
+				if (key == GLFW_KEY_LEFT_SHIFT) {
+					keyboardKey = Key::LeftShift;
+				}
+				else if (key == GLFW_KEY_W) {
 					keyboardKey = Key::W;
 				} else if (key == GLFW_KEY_S) {
 					keyboardKey = Key::S;

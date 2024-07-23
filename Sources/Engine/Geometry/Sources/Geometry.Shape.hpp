@@ -79,17 +79,21 @@ namespace Geometry {
 			return Type::Undefined;
 		}
 
+		void SetTexture(std::shared_ptr<Texture<Color4b>> texture) noexcept {
+			texture_ = texture;
+		}
+
 		[[nodiscard]]
 		std::shared_ptr<Texture<Color4b>> GetTexture() const noexcept {
 			return texture_;
 		}
-
+		std::string textureName_ = "";
 	private:
 		VertexCloud<VertexType> vertices_;
 		IndexBuffer<IndexType> indices_;
 		DS::Vector<Normal3f> normals_;
 		DS::Vector<Color3f> colors_;
-		std::string textureName_ = "";
+
 		std::shared_ptr<Texture<Color4b>> texture_ = nullptr;
 	};
 
