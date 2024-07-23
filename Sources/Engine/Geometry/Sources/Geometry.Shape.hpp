@@ -28,6 +28,13 @@ namespace Geometry {
 			indices_{ indices },
 			texture_{ texture } { }
 
+		Shape(const VertexCloud<VertexType>& vertices,
+			const IndexBuffer<IndexType>& indices,
+			const std::string& textureName) noexcept :
+			vertices_{ vertices },
+			indices_{ indices },
+			textureName_{ textureName } { }
+
 		void AddPolygon(const Polygon<VertexType>& polygon) {
 			const Common::Size startVerticesNumber = vertices_.GetVerticesNumber();
 			for (Index16 i = 0; i < 3; i++) {
@@ -82,6 +89,7 @@ namespace Geometry {
 		IndexBuffer<IndexType> indices_;
 		DS::Vector<Normal3f> normals_;
 		DS::Vector<Color3f> colors_;
+		std::string textureName_ = "";
 		std::shared_ptr<Texture<Color4b>> texture_ = nullptr;
 	};
 

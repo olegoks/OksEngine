@@ -9,14 +9,14 @@
 
 namespace OksEngine {
 
-	void Entity::AddImmutableRenderGeometry(const glm::mat4& modelMatrix, std::string objName, std::string mtlName, std::string textureName) {
+	void Entity::AddImmutableRenderGeometry(const glm::mat4& modelMatrix, std::string objName, std::string mtlName, const std::vector<std::string>& textures) {
 		world_->CreateComponent<ImmutableRenderGeometry>(
 			GetId(),
 			&context_,
 			modelMatrix,
 			objName,
 			mtlName,
-			textureName);
+			textures);
 	}
 
 	void Entity::AddMapRigidBodyToRenderGeometry() {

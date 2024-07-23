@@ -21,7 +21,7 @@ namespace OksEngine {
 			const glm::mat4& modelMatrix,
 			std::string objName,
 			std::string mtlName,
-			std::string textureName);
+			const std::vector<std::string>& textures);
 
 		void AddBehaviour(
 			const char* scriptName,

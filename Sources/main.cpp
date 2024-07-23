@@ -38,28 +38,33 @@ int main(int argc, char** argv){
         flashLight.AddImmutableRenderGeometry();
     }*/
 
-
-    Entity character = engine.CreateEntity();
+    Entity flyCamera = engine.CreateEntity();
     {
-        glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
-        capsuleTransform = glm::translate(capsuleTransform, { 5.f, 1.0, 0.f });
-
-        character.AddPosition(5.f, 0.f, 0.f);
-        character.AddBehaviour("Character.lua", "Character");
-        character.AddRigidBodyCapsule(
-            capsuleTransform,
-            80.f,
-            1.f,
-            0.0f,
-            0.5f,
-            0.5f,
-            0.f,
-            0.5f,
-            1.f);
-        //character.AddBehaviour("Camera.lua", "Camera");
-        character.AddCamera({ 0.f, 0.f, -5.f }, { 0.f, 0.f, 5.f }, { 0.f, 1.f, 0.f });
-        character.AddAttachedCamera(glm::mat4{ 1.f });
+        flyCamera.AddPosition(0, 0, 0);
+        flyCamera.AddCamera({ 0, 0, 0 }, { 1, 0, 0 }, { 0, 1, 0 });
+        flyCamera.AddBehaviour("Camera.lua", "Camera");
     }
+    //Entity character = engine.CreateEntity();
+    //{
+    //    glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
+    //    capsuleTransform = glm::translate(capsuleTransform, { 5.f, 1.0, 0.f });
+
+    //    character.AddPosition(5.f, 0.f, 0.f);
+    //    character.AddBehaviour("Character.lua", "Character");
+    //    character.AddRigidBodyCapsule(
+    //        capsuleTransform,
+    //        80.f,
+    //        1.f,
+    //        0.0f,
+    //        0.5f,
+    //        0.5f,
+    //        0.f,
+    //        0.5f,
+    //        1.f);
+    //    //character.AddBehaviour("Camera.lua", "Camera");
+    //    character.AddCamera({ 0.f, 0.f, -5.f }, { 0.f, 0.f, 5.f }, { 0.f, 1.f, 0.f });
+    //    character.AddAttachedCamera(glm::mat4{ 1.f });
+    //}
 
     //Entity grassBlock = engine.CreateEntity();
     //{
@@ -87,49 +92,63 @@ int main(int argc, char** argv){
     //    grassBlock.AddMapRigidBodyToRenderGeometry();
     //}
 
-    Entity grassPlane = engine.CreateEntity();
+    //Entity grassPlane = engine.CreateEntity();
+    //{
+    //	grassPlane.AddPosition(0, 0, 0);
+    //	glm::mat4 renderGeomTransform{ 1.0f };
+    //	renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
+    //	grassPlane.AddImmutableRenderGeometry(
+    //        renderGeomTransform,
+    //		"GrassPlane.obj",
+    //		"GrassPlane.mtl", 
+    //		"Grass.jpg");
+    //}
+
+
+    Entity dust2 = engine.CreateEntity();
     {
-    	grassPlane.AddPosition(0, 0, 0);
-    	glm::mat4 renderGeomTransform{ 1.0f };
-    	renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
-    	grassPlane.AddImmutableRenderGeometry(
+        dust2.AddPosition(0, 0, 0);
+        glm::mat4 renderGeomTransform{ 1.0f };
+        renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
+        dust2.AddImmutableRenderGeometry(
             renderGeomTransform,
-    		"GrassPlane.obj",
-    		"GrassPlane.mtl", 
-    		"Grass.jpg");
+            "de_dust2.obj",
+            "de_dust2.mtl",
+            {});
     }
 
-    Common::UInt64 size = 3;
-    for (Common::UInt64 i = 0; i < size; i++) {
-    	for (Common::UInt64 j = 0; j < size - i; j++) {
-    		glm::vec3 localTm(glm::vec3(float(j * 2) - float(size - i) + 0.1, float(i * 2 + 1) + 1.0, 0));
-    		localTm *= 0.5;
-    		Entity grassBlock = engine.CreateEntity();
-    		grassBlock.AddPosition(0, 0, 0);
-    		//grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
-    		glm::mat4 renderGeomTransform{ 1.0f };
-    		renderGeomTransform = glm::translate(renderGeomTransform, localTm);
-    		grassBlock.AddImmutableRenderGeometry(
-                renderGeomTransform,
-    			"yellowCube.obj",
-    			"yellowCube.mtl",
-    			"");
-    		glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
-    		rigidBodyTransform = glm::translate(rigidBodyTransform, localTm);
-    		grassBlock.AddRigidBodyBox(
-                rigidBodyTransform,
-                1.f,
-                1.f,
-                1.f,
-                0.5f,
-                0.5f,
-                0.5f,
-                0.5f,
-                0.5f,
-                0.5f);
-    		grassBlock.AddMapRigidBodyToRenderGeometry();
-    	}
-    }
+
+    //Common::UInt64 size = 3;
+    //for (Common::UInt64 i = 0; i < size; i++) {
+    //	for (Common::UInt64 j = 0; j < size - i; j++) {
+    //		glm::vec3 localTm(glm::vec3(float(j * 2) - float(size - i) + 0.1, float(i * 2 + 1) + 1.0, 0));
+    //		localTm *= 0.5;
+    //		Entity grassBlock = engine.CreateEntity();
+    //		grassBlock.AddPosition(0, 0, 0);
+    //		//grassBlock.AddBehaviour("GrassBlock.lua", "GrassBlock");
+    //		glm::mat4 renderGeomTransform{ 1.0f };
+    //		renderGeomTransform = glm::translate(renderGeomTransform, localTm);
+    //		grassBlock.AddImmutableRenderGeometry(
+    //            renderGeomTransform,
+    //			"yellowCube.obj",
+    //			"yellowCube.mtl",
+    //			"");
+    //		glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
+    //		rigidBodyTransform = glm::translate(rigidBodyTransform, localTm);
+    //		grassBlock.AddRigidBodyBox(
+    //            rigidBodyTransform,
+    //            1.f,
+    //            1.f,
+    //            1.f,
+    //            0.5f,
+    //            0.5f,
+    //            0.5f,
+    //            0.5f,
+    //            0.5f,
+    //            0.5f);
+    //		grassBlock.AddMapRigidBodyToRenderGeometry();
+    //	}
+    //}
     //Entity grassBlock2 = engine.CreateEntity();
     //{
     //    grassBlock2.AddPosition(0, 0, 0);
