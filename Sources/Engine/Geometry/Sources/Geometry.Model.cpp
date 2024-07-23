@@ -264,35 +264,70 @@ namespace Geometry {
 
         Model<Vertex3fnt, Index16> model;
 
-
-        std::unordered_map<Vertex3fnt, Index16, Vertex3fnt::Hash> uniqueVertices{};
-        for (const auto& objShape : shapes) {
+        for(int id = 0; id < materials.size(); id++) {
+            const tinyobj::material_t& material = materials[id];
             VertexCloud<Vertex3fnt> vertices;
             IndexBuffer<Index16> indices;
-            Common::Index vertexIndex = 0;
-            for (const auto& index : objShape.mesh.indices) {
-                auto vertex = GetVertex<Vertex3fnt>(index, attributes);
-                //auto& material = materials[objShape.mesh.material_ids[vertexIndex / 3]];
-                //vertex.color_ = Geom::Color3f{ material.diffuse[0], material.diffuse[1], material.diffuse[2] };
-                bool deleteDuplicateVertices = true;
-                if (deleteDuplicateVertices) {
-                    if (uniqueVertices.count(vertex) == 0) {
-                        uniqueVertices[vertex] = static_cast<uint32_t>(vertices.GetVerticesNumber());
-                        vertices.Add(vertex);
-                    }
-                    indices.Add(uniqueVertices[vertex]);
+            for (const auto& objShape : shapes) {
+                for(const auto verticesPerFace : objShape.mesh.num_face_vertices){
+                    OS::Assert(verticesPerFace == 3);
                 }
-                else {
-                    vertices.Add(vertex);
-                    indices.Add(vertices.GetVerticesNumber() - 1);
-                }
-                vertexIndex++;
-            }
+                for (std::size_t i = 0; i < objShape.mesh.material_ids.size(); i++) {
+                    const int materialId = objShape.mesh.material_ids[i];
+                    if(materialId == id) {
+                        const std::size_t faceIndex = i;
+                        const tinyobj::index_t Vertex1Index = objShape.mesh.indices[faceIndex * 3 + 0];
+                        const tinyobj::index_t Vertex2Index = objShape.mesh.indices[faceIndex * 3 + 1];
+                        const tinyobj::index_t Vertex3Index = objShape.mesh.indices[faceIndex * 3 + 2];
+                    	auto vertex1 = GetVertex<Vertex3fnt>(Vertex1Index, attributes);
+                        auto vertex2 = GetVertex<Vertex3fnt>(Vertex2Index, attributes);
+                        auto vertex3 = GetVertex<Vertex3fnt>(Vertex3Index, attributes);
+                        // Вектор вращения (ось)
+                        glm::vec3 axis(1.0f, 0.0f, 0.0f);
 
-            //auto textureObject = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
-            Shape<Vertex3fnt, Index16> shape{ vertices, indices,  };
+                        // Угол вращения в радианах (например, 90 градусов)
+                        float angle = glm::radians(-90.0f);
+
+                        // Построение вращающей матрицы
+                        glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, axis);
+
+                        // Применение вращающей матрицы к вершине
+                        {
+                            glm::vec4 rotatedVertex = rotationMatrix * glm::vec4(vertex1.position_.GetX(), vertex1.position_.GetY(), vertex1.position_.GetZ(), 1.0f);
+                            vertex1.position_ = { rotatedVertex.x, rotatedVertex.y, rotatedVertex.z };
+                        }
+                        {
+                            glm::vec4 rotatedVertex = rotationMatrix * glm::vec4(vertex2.position_.GetX(), vertex2.position_.GetY(), vertex2.position_.GetZ(), 1.0f);
+                            vertex2.position_ = { rotatedVertex.x, rotatedVertex.y, rotatedVertex.z };
+                        }
+                        {
+                            glm::vec4 rotatedVertex = rotationMatrix * glm::vec4(vertex3.position_.GetX(), vertex3.position_.GetY(), vertex3.position_.GetZ(), 1.0f);
+                            vertex3.position_ = { rotatedVertex.x, rotatedVertex.y, rotatedVertex.z };
+                        }
+                        vertices.Add(vertex1);
+                        const Index16 firstIndex = vertices.GetVerticesNumber() - 1;
+                        vertices.Add(vertex2);
+                        vertices.Add(vertex3);
+
+                        indices.Add(firstIndex);
+                        indices.Add(firstIndex + 1);
+                        indices.Add(firstIndex + 2);
+                    }
+                }
+                //for (const auto& index : objShape.mesh.indices) {
+                //    auto vertex = GetVertex<Vertex3fnt>(index, attributes);
+                //    vertices.Add(vertex);
+                //    indices.Add(vertices.GetVerticesNumber() - 1);
+                //}
+
+                //auto textureObject = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
+
+            }
+            Shape<Vertex3fnt, Index16> shape{ vertices, indices, };
+            shape.textureName_ = material.diffuse_texname;
             model.AddShape(shape);
         }
+
         OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
         return model;
     }

@@ -6,9 +6,12 @@ Camera = setmetatable({ },
 
 function Camera:New()
     local Camera = Entity:New()
+    Camera.Speed = 10
+    Camera.Boost = 100.0
     Camera.DirectionUp = false
     Camera.DirectionDown = false
     Camera.MovingForward = false
+    Camera.SpeedBoost = false
     Camera.MovingBackward = false
     Camera.MovingLeft = false
     Camera.MovingRight = false
@@ -22,24 +25,27 @@ CameraUpdater = {}
 
 function CameraUpdater:Update(Camera, deltaMs)
     cameraComponent = Camera:GetComponent("Camera")
-    local sensetivity = 0.1
     if Camera.MovingForward then
-        cameraComponent:Forward(sensetivity)
+        if Camera.SpeedBoost then
+            cameraComponent:Forward(Camera.Speed * Camera.Boost)
+        else
+            cameraComponent:Forward(Camera.Speed)
+        end
     end
     if Camera.MovingBackward then
-        cameraComponent:Backward(sensetivity)
+        cameraComponent:Backward(Camera.Speed)
     end
     if Camera.MovingLeft then 
-        cameraComponent:Left(sensetivity)
+        cameraComponent:Left(Camera.Speed)
     end
     if Camera.MovingRight then 
-        cameraComponent:Right(sensetivity)
+        cameraComponent:Right(Camera.Speed)
     end
     if Camera.MovingUp then 
-        cameraComponent:Up(sensetivity)
+        cameraComponent:Up(Camera.Speed)
     end
     if Camera.MovingDown then 
-        cameraComponent:Down(sensetivity)
+        cameraComponent:Down(Camera.Speed)
     end
 end
 
@@ -83,13 +89,19 @@ function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
         elseif Event == "Released" then
             Camera.MovingBackward = false
         end
+    elseif Key == "LeftShift" then
+        if Event == "Pressed" then
+            Camera.SpeedBoost = true
+        elseif Event == "Released" then
+            Camera.SpeedBoost = false
+        end
     end 
     --print(Key.."  "..Event.."  "..offsetX.."  "..offsetY)
 
 
     cameraComponent = Camera:GetComponent("Camera")
-    cameraComponent:DirectionUp(offsetY / 10.0)
     cameraComponent:DirectionLeft(offsetX / 10.0)
+    cameraComponent:DirectionUp(offsetY / 10.0)
 end
 
 
