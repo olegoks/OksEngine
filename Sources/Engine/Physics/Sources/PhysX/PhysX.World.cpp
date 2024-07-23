@@ -26,6 +26,9 @@ namespace PhysX {
 			pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 		}
 		physx::PxMaterial* material = createInfo.physics_->createMaterial(0.5f, 0.5f, 0.6f);
+		//physx::PxInputStream 
+		//createInfo.physics_->createTriangleMesh()
+		//physx::PxTriangleMeshGeometry
 		physx::PxRigidStatic* groundPlane = PxCreatePlane(*createInfo.physics_, physx::PxPlane({ 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f }), *material);
 		scene->addActor(*groundPlane);
 
