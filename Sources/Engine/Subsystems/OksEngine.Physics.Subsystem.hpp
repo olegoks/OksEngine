@@ -4,6 +4,7 @@
 #include <OksEngine.Subsystem.hpp>
 #include <PAL.API.hpp>
 #include <PE.PhysicsEngine.hpp>
+#include <Geometry.Shape.h>
 
 namespace OksEngine {
 
@@ -17,6 +18,8 @@ namespace OksEngine {
 
 		PhysicsSubsystem(const CreateInfo& createInfo);
 
+
+		Geom::Shape GetGeom(const std::string& geomName);
 		Common::Index CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo);
 		
 		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfoBox& createInfo);

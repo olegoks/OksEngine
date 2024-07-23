@@ -38,6 +38,17 @@ int main(int argc, char** argv){
         flashLight.AddImmutableRenderGeometry();
     }*/
 
+    Entity staticGeom = engine.CreateEntity();
+    {
+        staticGeom.AddPosition(0, 0, 0);
+        staticGeom.AddStaticRigidBodyCustomMeshShape(
+            glm::mat4{ 1.f },
+            "de_dust",
+            0.5,
+            0.5, 
+            0.5);
+    }
+
     Entity flyCamera = engine.CreateEntity();
     {
         flyCamera.AddPosition(0, 0, 0);

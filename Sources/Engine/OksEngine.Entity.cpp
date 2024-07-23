@@ -25,6 +25,24 @@ namespace OksEngine {
 			&context_);
 	}
 
+	void Entity::AddStaticRigidBodyCustomMeshShape(
+		const glm::mat4& transform,
+		const std::string& geomName,
+		float staticFriction,
+		float dynamicFriction,
+		float restitution) {
+		world_->CreateComponent<StaticRigidBodyCustomMeshShape>(
+			GetId(),
+			&context_,
+			transform,
+			geomName,
+			Material{
+				staticFriction,
+				dynamicFriction,
+				restitution
+			});
+	}
+
 	void Entity::AddRigidBodyBox(
 		const glm::mat4& transform,
 		float mass,
@@ -43,9 +61,11 @@ namespace OksEngine {
 			mass,
 			linearDamping,
 			angularDamping,
-			staticFriction,
-			dynamicFriction, 
-			restitution,
+			Material{
+				staticFriction,
+				dynamicFriction,
+				restitution
+			},
 			halfExtentX,
 			halfExtentY,
 			halfExtentZ);
@@ -69,9 +89,11 @@ namespace OksEngine {
 			mass,
 			linearDamping,
 			angularDamping,
-			staticFriction,
-			dynamicFriction,
-			restitution,
+			Material{ 
+				staticFriction,
+				dynamicFriction,
+				restitution
+			},
 			radius,
 			height);
 	}

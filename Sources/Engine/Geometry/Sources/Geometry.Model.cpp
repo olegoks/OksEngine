@@ -282,16 +282,13 @@ namespace Geometry {
                     	auto vertex1 = GetVertex<Vertex3fnt>(Vertex1Index, attributes);
                         auto vertex2 = GetVertex<Vertex3fnt>(Vertex2Index, attributes);
                         auto vertex3 = GetVertex<Vertex3fnt>(Vertex3Index, attributes);
-                        // Вектор вращения (ось)
+
                         glm::vec3 axis(1.0f, 0.0f, 0.0f);
 
-                        // Угол вращения в радианах (например, 90 градусов)
                         float angle = glm::radians(-90.0f);
 
-                        // Построение вращающей матрицы
                         glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, axis);
 
-                        // Применение вращающей матрицы к вершине
                         {
                             glm::vec4 rotatedVertex = rotationMatrix * glm::vec4(vertex1.position_.GetX(), vertex1.position_.GetY(), vertex1.position_.GetZ(), 1.0f);
                             vertex1.position_ = { rotatedVertex.x, rotatedVertex.y, rotatedVertex.z };
@@ -314,13 +311,6 @@ namespace Geometry {
                         indices.Add(firstIndex + 2);
                     }
                 }
-                //for (const auto& index : objShape.mesh.indices) {
-                //    auto vertex = GetVertex<Vertex3fnt>(index, attributes);
-                //    vertices.Add(vertex);
-                //    indices.Add(vertices.GetVerticesNumber() - 1);
-                //}
-
-                //auto textureObject = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
 
             }
             Shape<Vertex3fnt, Index16> shape{ vertices, indices, };

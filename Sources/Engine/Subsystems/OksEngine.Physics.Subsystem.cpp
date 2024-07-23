@@ -2,6 +2,7 @@
 #include <OksEngine.Physics.Subsystem.hpp>
 #include <PAL.hpp>
 #include <OksEngine.Physics.System.hpp>
+#include <OksEngine.Resource.Subsystem.hpp>
 
 namespace OksEngine {
 
@@ -44,6 +45,25 @@ namespace OksEngine {
 
 	void PhysicsSubsystem::ApplyForce(Common::Index rbIndex, const glm::vec3& direction, float force) {
 		rigidBodies_[rbIndex]->ApplyForce(direction, force);
+	}
+
+	[[nodiscard]]
+	Geom::Shape<Geom::Vertex3f> PhysicsSubsystem::GetGeom(const std::string& geomName) {
+
+		auto& context = GetContext();
+		auto resourceSubsystem = context.GetResourceSubsystem();
+
+
+		const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + geomName);
+		ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Physics, blockModelObjTaskId);
+
+		std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
+
+		auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16Textures(obj, mtl));
+
+		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
+		models_.push_back(model);
+		return models_.size() - 1;
 	}
 
 	void PhysicsSubsystem::Update() noexcept {

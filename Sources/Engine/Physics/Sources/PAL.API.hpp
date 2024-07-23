@@ -18,6 +18,9 @@ namespace PAL {
 		virtual std::shared_ptr<Shape>
 		CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo) = 0;
 
+		virtual std::shared_ptr<Shape>
+		CreateShape(const PAL::Shape::CreateInfoMesh& createInfo) = 0;
+
 	private:
 	};
 
