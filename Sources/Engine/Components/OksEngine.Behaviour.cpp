@@ -98,6 +98,7 @@ namespace OksEngine {
 			.beginClass<RigidBodyCapsule>("RigidBodyCapsule")
 			.addConstructor<void(*)()>()
 			.addFunction("ApplyForce", &RigidBodyCapsule::ApplyForce)
+			.addFunction("SetVelocity", &RigidBodyCapsule::SetVelocity)
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)

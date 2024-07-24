@@ -28,9 +28,32 @@ namespace PAL {
 		[[nodiscard]]
 		virtual void SetTransform(const glm::mat4& transform) = 0;
 		virtual void ApplyForce(const glm::vec3& direction, float force) = 0;
+		virtual void SetVelocity(const glm::vec3& direction, float velocity) = 0;
 
 	private:
 		CreateInfo createInfo_;
 	};
+
+	class StaticRigidBody {
+	public:
+
+		struct CreateInfo {
+			glm::mat4 transform_;
+			std::shared_ptr<Shape> shape_ = nullptr;
+			std::string name_ = "No name";
+		};
+
+		StaticRigidBody(const CreateInfo& createInfo) {
+
+		}
+
+		[[nodiscard]]
+		virtual const glm::mat4 GetTransform() = 0;
+
+	private:
+		CreateInfo createInfo_;
+	};
+
+
 
 }

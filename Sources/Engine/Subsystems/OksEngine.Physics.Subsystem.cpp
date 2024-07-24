@@ -4,6 +4,8 @@
 #include <OksEngine.Physics.System.hpp>
 #include <OksEngine.Resource.Subsystem.hpp>
 
+#include "Geometry.Model.hpp"
+
 namespace OksEngine {
 
 
@@ -30,6 +32,12 @@ namespace OksEngine {
 		return rigidBodies_.size() - 1;
 	}
 
+	Common::Index PhysicsSubsystem::CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& createInfo) {
+		auto rigidBody = physicsEngine_->CreateStaticRigidBody(createInfo);
+		staticRigidBodies_.push_back(rigidBody);
+		return staticRigidBodies_.size() - 1;
+	}
+
 	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfoBox& createInfo) {
 		auto shape = physicsEngine_->CreateShape(createInfo);
 		return shape;
@@ -39,31 +47,40 @@ namespace OksEngine {
 		return shape;
 	}
 
+	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfoMesh& createInfo) {
+		auto shape = physicsEngine_->CreateShape(createInfo);
+		return shape;
+	}
+
 	void PhysicsSubsystem::AddRigidBodyToWorld(Common::Index rbIndex) {
 		physicsEngine_->GetWorld()->AddRigidBody(rigidBodies_[rbIndex]);
+	}
+
+	void PhysicsSubsystem::AddStaticRigidBodyToWorld(Common::Index rbIndex) {
+		physicsEngine_->GetWorld()->AddStaticRigidBody(staticRigidBodies_[rbIndex]);
 	}
 
 	void PhysicsSubsystem::ApplyForce(Common::Index rbIndex, const glm::vec3& direction, float force) {
 		rigidBodies_[rbIndex]->ApplyForce(direction, force);
 	}
 
+	void PhysicsSubsystem::SetVelocity(Common::Index rbIndex, const glm::vec3& direction, float velocity) {
+		rigidBodies_[rbIndex]->SetVelocity(direction, velocity);
+	}
+
 	[[nodiscard]]
-	Geom::Shape<Geom::Vertex3f> PhysicsSubsystem::GetGeom(const std::string& geomName) {
+	std::shared_ptr<Geom::Model<Geom::Vertex3f>> PhysicsSubsystem::GetGeom(const std::string& geomName) {
 
 		auto& context = GetContext();
 		auto resourceSubsystem = context.GetResourceSubsystem();
 
 
-		const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + geomName);
+		const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + geomName + ".obj");
 		ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Physics, blockModelObjTaskId);
 
 		std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
-
-		auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16Textures(obj, mtl));
-
-		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
-		models_.push_back(model);
-		return models_.size() - 1;
+		auto geom = std::make_shared<Geom::Model<Geom::Vertex3f, Geom::Index16>>(Geometry::ParseObjVertex3fIndex16(obj));
+		return geom;
 	}
 
 	void PhysicsSubsystem::Update() noexcept {

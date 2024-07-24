@@ -82,6 +82,44 @@ namespace OksEngine {
 					rigidBodyCapsule->SetTransform(rbTransform);
 				}
 			}
+
+			{
+				StaticRigidBodyCustomMeshShape* staticRigidBody = world->GetComponent<StaticRigidBodyCustomMeshShape>(entityId);
+
+				if (staticRigidBody != nullptr) {
+					auto physicsSubsystem = GetContext().GetPhysicsSubsystem();
+					if (staticRigidBody->id_ == Common::Limits<Common::Index>::Max()) {
+						auto modelGeom = physicsSubsystem->GetGeom(staticRigidBody->geomName_);
+						PAL::Shape::CreateInfoMesh shapeCreateInfo{
+							.material_ = PAL::Shape::Material{
+								.staticFriction_ = staticRigidBody->material_.staticFriction_,
+								.dynamicFriction_ = staticRigidBody->material_.dynamicFriction_,
+								.restitution_ = staticRigidBody->material_.restitution_
+							},
+							.shape_ = *(modelGeom->begin())
+						};
+
+						auto shape = physicsSubsystem->CreateShape(shapeCreateInfo);
+						PAL::StaticRigidBody::CreateInfo createInfo{
+							.transform_ = staticRigidBody->transform_,
+							.shape_ = shape
+						};
+						staticRigidBody->id_ = physicsSubsystem->CreateStaticRigidBody(createInfo);
+						physicsSubsystem->AddStaticRigidBodyToWorld(staticRigidBody->id_);
+					}
+					
+					//}
+					//auto rbTransform = physicsSubsystem->GetRigidBodyTransform(rigidBodyCapsule->id_);
+					////Delete rotate component
+					//rbTransform[0][0] = 1.0f; rbTransform[0][1] = 0.0f; rbTransform[0][2] = 0.0f;
+					//rbTransform[1][0] = 0.0f; rbTransform[1][1] = 1.f; rbTransform[1][2] = 0.0f;
+					//rbTransform[2][0] = 0.0f; rbTransform[2][1] = 0.0f; rbTransform[2][2] = 1.0f;
+					//rbTransform = glm::rotate(rbTransform, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
+					//physicsSubsystem->SetRigidBodyTransform(rigidBodyCapsule->id_, rbTransform);
+					//rigidBodyCapsule->SetTransform(rbTransform);
+				}
+			}
+
 		}
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<PhysicsSystem>().GetId();

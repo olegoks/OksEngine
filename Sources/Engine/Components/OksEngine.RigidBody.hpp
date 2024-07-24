@@ -46,6 +46,10 @@ namespace OksEngine {
 			this->GetContext().GetPhysicsSubsystem()->ApplyForce(id_, { x, y, z }, force);
 		}
 
+		void SetVelocity(float dirX, float dirY, float dirZ, float velocity) {
+			this->GetContext().GetPhysicsSubsystem()->SetVelocity(id_, { dirX, dirY, dirZ }, velocity);
+		}
+
 		const glm::mat4& GetTransform() {
 			return transform_;
 		}

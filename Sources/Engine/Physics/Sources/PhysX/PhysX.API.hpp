@@ -14,13 +14,21 @@ namespace PhysX {
 	class API : public PAL::API {
 	public:
 
+		// Custom error callback class
+		class CustomErrorCallback : public physx::PxErrorCallback {
+		public:
+			void reportError(physx::PxErrorCode::Enum code, const char* message, const char* file, int line) override {
+				OS::LogError("physx", {"{}", message });
+			}
+		};
+
 		API() {
 			using namespace physx;
 			static physx::PxDefaultErrorCallback gDefaultErrorCallback;
 			static physx::PxDefaultAllocator gDefaultAllocatorCallback;
 
 			foundation_ = PxCreateFoundation(PX_PHYSICS_VERSION, gDefaultAllocatorCallback,
-				gDefaultErrorCallback);
+				errorCallback_);
 			OS::Assert(foundation_ != nullptr);
 
 			bool recordMemoryAllocations = true;
@@ -97,6 +105,15 @@ namespace PhysX {
 			return std::make_shared<PhysX::RigidBody>(physxCreateInfo);
 		}
 
+		virtual std::shared_ptr<PAL::StaticRigidBody>
+			CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& createInfo) override {
+			PhysX::StaticRigidBody::CreateInfo physxCreateInfo{
+				.palCreateInfo_ = createInfo,
+				.physics_ = physics_
+			};
+			return std::make_shared<PhysX::StaticRigidBody>(physxCreateInfo);
+		}
+
 		virtual std::shared_ptr<PAL::Shape>
 		CreateShape(const PAL::Shape::CreateInfoBox& createInfo)override {
 			PhysX::Shape::CreateInfoBox physxCreateInfo{
@@ -130,6 +147,7 @@ namespace PhysX {
 		}
 
 	private:
+		CustomErrorCallback errorCallback_;
 		physx::PxFoundation* foundation_ = nullptr;
 		physx::PxPhysics* physics_ = nullptr;
 		//physx::PxCooking* cooking_ = nullptr;

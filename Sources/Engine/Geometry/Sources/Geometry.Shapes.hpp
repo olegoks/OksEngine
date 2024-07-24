@@ -8,7 +8,8 @@
 
 namespace Geometry {
 
-	class Box : public ConvexHull<Vertex3f, Index16> {
+	template<class IndexType>
+	class Box : public ConvexHull<Vertex3f, IndexType> {
 	public:
 		Box(Length edge) noexcept {
 
@@ -25,7 +26,7 @@ namespace Geometry {
 				Vertex3f{ -halfLength,  halfLength,  halfLength }
 			};
 
-			const std::array<Index16, 36> indices {
+			const std::array<IndexType, 36> indices {
 				0, 1, 2,
 				2, 3, 0,
 				1, 5, 6,
@@ -43,12 +44,12 @@ namespace Geometry {
 			VertexCloud<Vertex3f> vertexCloud{};
 			vertexCloud.Add(vertices.data(), vertices.size());
 
-			IndexBuffer<Index16> indexBuffer{};
+			IndexBuffer<IndexType> indexBuffer{};
 			indexBuffer.Add(indices.data(), indices.size());
 
-			Shape<Vertex3f, Index16> shape{ vertexCloud, indexBuffer };
+			Shape<Vertex3f, IndexType> shape{ vertexCloud, indexBuffer };
 
-			ConvexHull::Add(shape);
+			ConvexHull<Vertex3f, IndexType>::Add(shape);
 
 		}
 
