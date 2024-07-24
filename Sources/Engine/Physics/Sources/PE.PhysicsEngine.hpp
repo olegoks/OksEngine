@@ -34,6 +34,11 @@ namespace PE {
 		}
 
 		[[nodiscard]]
+		auto CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& createInfo) {
+			return api_->CreateStaticRigidBody(createInfo);
+		}
+
+		[[nodiscard]]
 		auto CreateShape(const PAL::Shape::CreateInfoBox& createInfo) {
 			return api_->CreateShape(createInfo);
 		}
@@ -42,6 +47,12 @@ namespace PE {
 		auto CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo) {
 			return api_->CreateShape(createInfo);
 		}
+
+		[[nodiscard]]
+		auto CreateShape(const PAL::Shape::CreateInfoMesh& createInfo) {
+			return api_->CreateShape(createInfo);
+		}
+
 
 		void Simulate(float elapsedTime) {
 			GetWorld()->Simulate(elapsedTime);

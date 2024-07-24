@@ -16,6 +16,7 @@ namespace PAL {
 			createInfo_{ createInfo } { }
 
 		virtual void AddRigidBody(std::shared_ptr<PAL::RigidBody> rigidBody) = 0;
+		virtual void AddStaticRigidBody(std::shared_ptr<PAL::StaticRigidBody> rigidBody) = 0;
 
 		virtual void Simulate(float ms) = 0;
 

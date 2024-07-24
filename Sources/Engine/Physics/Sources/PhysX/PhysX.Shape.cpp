@@ -1,6 +1,6 @@
 
 #include <PhysX.Shape.hpp>
-
+#include <Geometry.Shapes.hpp>
 #include <OS.Assert.hpp>
 namespace PhysX {
 
@@ -69,24 +69,40 @@ namespace PhysX {
 
 		const auto& shapeGeom = createInfo.palCreateInfo_.shape_;
 
-		physx::PxTriangleMeshDesc meshDesc;
+		//Geom::Box< Geom::Index16> box{ 5 };
+		//Geom::Vertex3f vertices[3] = {
+		//	{ 0.f, 0.f, 0.f },
+		//	{ 1.f, 0.f, 0.f },
+		//	{ 0.f, 1.f, 0.f }
+		//};
+		//Geom::Index16 indices[3] = { 0, 1, 2 };
+		physx::PxTriangleMeshDesc meshDesc{};
 		{
-			meshDesc.points.count = static_cast<physx::PxU32>(shapeGeom.GetVerticesNumber());
-			meshDesc.points.stride = sizeof(physx::PxVec3);
+			meshDesc.points.count = /*3;*//*static_cast<physx::PxU32>(box.GetVerticesNumber());*/static_cast<physx::PxU32>(shapeGeom.GetVerticesNumber());
+			meshDesc.points.stride = sizeof(Geom::Vertex3f);
 			OS::Assert(sizeof(physx::PxVec3) == sizeof(Geom::Vertex3f));
-			meshDesc.points.data = shapeGeom.GetVertices().GetData();
+			meshDesc.points.data = /*vertices;*//*box.GetVertices().GetData();*/shapeGeom.GetVertices().GetData();
 
-			meshDesc.triangles.count = static_cast<physx::PxU32>(shapeGeom.GetIndicesNumber()) / 3;
-			meshDesc.triangles.stride = 3 * sizeof(physx::PxU32);
-			meshDesc.triangles.data = shapeGeom.GetIndices().GetData();
+			meshDesc.triangles.count = /*1;*//*static_cast<physx::PxU32>(box.GetIndicesNumber()) / 3;*/static_cast<physx::PxU32>(shapeGeom.GetIndicesNumber()) / 3;
+			meshDesc.triangles.stride = 3 * sizeof(physx::PxU16);
+			meshDesc.triangles.data = /*indices;*/shapeGeom.GetIndices().GetData();//box.GetIndices().GetData();
+
+			meshDesc.flags |= (physx::PxMeshFlag::e16_BIT_INDICES/* | physx::PxMeshFlag::eFLIPNORMALS*/);
 		}
+		OS::Assert(meshDesc.isValid());
 
 		physx::PxTolerancesScale scale;
 		physx::PxCookingParams params(scale);
+		{
+			// disable mesh cleaning - perform mesh validation on development configurations
+			params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+			// disable edge precompute, edges are set for each triangle, slows contact generation
+			params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+		}
 #ifdef _DEBUG
 		// mesh should be validated before cooked without the mesh cleaning
-		bool res = PxValidateTriangleMesh(params, meshDesc);
-		PX_ASSERT(res);
+		//bool res = PxValidateTriangleMesh(params, meshDesc);
+		//OS::AssertMessage(res, "Attempt to use invalid mesh to create static rigid body.");
 #endif
 		physx::PxDefaultMemoryOutputStream writeBuffer;
 		physx::PxTriangleMeshCookingResult::Enum result;

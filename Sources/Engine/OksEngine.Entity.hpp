@@ -33,6 +33,7 @@ namespace OksEngine {
 			const glm::vec3& up);
 
 		void AddPosition(float x, float y, float z);
+
 		void AddMapRigidBodyToRenderGeometry();
 
 		void AddStaticRigidBodyCustomMeshShape(

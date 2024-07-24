@@ -6,6 +6,7 @@ Character = setmetatable({ },
 
 function Character:New()
     local Character = Entity:New()
+    Character.StopMoving = true
     Character.MovingForward = false
     Character.MovingBackward = false
     Character.MovingLeft = false
@@ -26,18 +27,21 @@ function CharacterUpdater:Update(Character, deltaMs)
     cameraComponent = Character:GetComponent("Camera")
     rigidBodyComponent = Character:GetComponent("RigidBodyCapsule")
 
-    local force = 1000.0
+    local velocity = 100.0
+    local isMoving = false
     if Character.MovingForward then
-        rigidBodyComponent:ApplyForce(
+        rigidBodyComponent:SetVelocity(
             cameraComponent:GetDirectionX(), 
             cameraComponent:GetDirectionY(),
-             cameraComponent:GetDirectionZ(), force)
+             cameraComponent:GetDirectionZ(), velocity)
+        isMoving = true
     end
     if Character.MovingBackward then
-        rigidBodyComponent:ApplyForce(
+        rigidBodyComponent:SetVelocity(
             -cameraComponent:GetDirectionX(), 
             -cameraComponent:GetDirectionY(), 
-            -cameraComponent:GetDirectionZ(), force)
+            -cameraComponent:GetDirectionZ(), velocity)
+        isMoving = true
     end
     if Character.MovingLeft then
         local x, y, z = Math3D:CrossProduct(
@@ -49,10 +53,11 @@ function CharacterUpdater:Update(Character, deltaMs)
             cameraComponent:GetDirectionZ()
         )
         local nx, ny, nz = Math3D:Normalize(x, y, z)
-        rigidBodyComponent:ApplyForce(
+        rigidBodyComponent:SetVelocity(
             nx, 
             ny, 
-            nz, force)
+            nz, velocity)
+        isMoving = true
     end
     if Character.MovingRight then
         local x, y, z = Math3D:CrossProduct(
@@ -64,12 +69,19 @@ function CharacterUpdater:Update(Character, deltaMs)
             cameraComponent:GetDirectionZ()
         )
         local nx, ny, nz = Math3D:Normalize(x, y, z)
-        rigidBodyComponent:ApplyForce(
+        rigidBodyComponent:SetVelocity(
             -nx, 
             -ny, 
-            -nz, force)
+            -nz, velocity)
+        isMoving = true
     end
 
+    if isMoving == false then
+        rigidBodyComponent:SetVelocity(
+            -nx, 
+            -ny, 
+            -nz, 0.0)
+    end 
 
 end
 
@@ -106,7 +118,9 @@ function CharacterInputProcessor:ProcessInput(Character, Key, Event, offsetX, of
             Character:Jump(0.0, 1.0, 0.0)
         end
     end  
-
+    if Event == Released then
+        Character.StopMoving = true
+    end
     cameraComponent = Character:GetComponent("Camera")
     cameraComponent:DirectionLeft(offsetX / 10.0)
     cameraComponent:DirectionUp(offsetY / 10.0)

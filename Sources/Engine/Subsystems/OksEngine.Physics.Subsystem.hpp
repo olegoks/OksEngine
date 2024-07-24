@@ -4,7 +4,7 @@
 #include <OksEngine.Subsystem.hpp>
 #include <PAL.API.hpp>
 #include <PE.PhysicsEngine.hpp>
-#include <Geometry.Shape.h>
+#include <Geometry.Model.hpp>
 
 namespace OksEngine {
 
@@ -19,13 +19,15 @@ namespace OksEngine {
 		PhysicsSubsystem(const CreateInfo& createInfo);
 
 
-		Geom::Shape GetGeom(const std::string& geomName);
+		std::shared_ptr < Geom::Model<Geom::Vertex3f>> GetGeom(const std::string& geomName);
 		Common::Index CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo);
-		
+		Common::Index CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& createInfo);
+
 		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfoBox& createInfo);
 		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo);
-
+		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfoMesh& createInfo);
 		void AddRigidBodyToWorld(Common::Index rbIndex);
+		void AddStaticRigidBodyToWorld(Common::Index rbIndex);
 		[[nodiscard]]
 		glm::mat4 GetRigidBodyTransform(Common::Index rbIndex) {
 			return rigidBodies_[rbIndex]->GetTransform();
@@ -37,12 +39,13 @@ namespace OksEngine {
 		}
 
 		void ApplyForce(Common::Index rbIndex, const glm::vec3& direction, float force);
-
+		void SetVelocity(Common::Index rbIndex, const glm::vec3& direction, float velocity);
 		virtual void Update() noexcept override;
 
 
 	private:
 		std::vector<std::shared_ptr<PAL::RigidBody>> rigidBodies_;
+		std::vector<std::shared_ptr<PAL::StaticRigidBody>> staticRigidBodies_;
 		std::shared_ptr<PAL::World> world_ = nullptr;
 		std::shared_ptr<PE::PhysicsEngine> physicsEngine_ = nullptr;
 	};

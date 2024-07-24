@@ -56,4 +56,21 @@ namespace PhysX {
 			}
 		}*/
 	}
+
+	void World::AddStaticRigidBody(std::shared_ptr<PAL::StaticRigidBody> rigidBody) {
+		OS::Assert(scene_ != nullptr);
+		auto physxRB = std::static_pointer_cast<PhysX::StaticRigidBody>(rigidBody);
+		scene_->addActor(*physxRB->GetBody());
+		/*PxTransform t{PxVec3(0)};
+		PxShape* shape = physics_->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *material);
+		for (PxU32 i = 0; i < size; i++) {
+			for (PxU32 j = 0; j < size - i; j++) {
+				PxTransform localTm(PxVec3(PxReal(j*2) - PxReal(size - i), PxReal(i * 2 + 1), 0) * halfExtent);
+				PxRigidDynamic* body = physics_->createRigidDynamic(t.transform(localTm));
+				body->attachShape(*shape);
+				PxRigidBodyExt::updateMassAndInertia(*body, 10.f);
+				scene->addActor(*body);
+			}
+		}*/
+	}
 }
