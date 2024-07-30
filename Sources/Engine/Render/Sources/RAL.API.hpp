@@ -10,6 +10,7 @@ namespace RAL {
 
 	class API {
 	public:
+		virtual std::shared_ptr<RAL::Shader> CreateShader(const RAL::Shader::CreateInfo& createInfo) const = 0;
 		virtual std::shared_ptr<RAL::Driver> CreateDriver(const Driver::CreateInfo& createInfo) const = 0;
 		//virtual std::shared_ptr<RAL::Camera> CreateCamera(const Camera::CreateInfo& createInfo) const {
 		//

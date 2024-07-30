@@ -43,11 +43,11 @@ namespace Render::Vulkan {
 			},
 			std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 				createInfo.logicDevice_,
-				createInfo.vertexShader_->GetCode()
+				createInfo.vertexShader_->GetSpirv()
 				}),
 			std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 				createInfo.logicDevice_,
-				createInfo.fragmentShader_->GetCode()
+				createInfo.fragmentShader_->GetSpirv()
 				}),
 			nullptr,//createInfo.depthTestInfo_,
 			createInfo.colorAttachmentSize_,

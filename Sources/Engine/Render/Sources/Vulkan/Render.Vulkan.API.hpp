@@ -19,6 +19,15 @@ namespace Render::Vulkan {
 
 		}
 
+		virtual std::shared_ptr<RAL::Shader> CreateShader(const RAL::Shader::CreateInfo& createInfo) const override {
+
+			Shader::CreateInfo vulkanShaderCreateInfo{
+				.ralCreateInfo_ = createInfo
+			};
+
+			return std::make_shared<Shader>(vulkanShaderCreateInfo);
+		}
+
 	};
 
 }

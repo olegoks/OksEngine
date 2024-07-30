@@ -17,7 +17,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice>	logicDevice_;
-			std::vector<Common::Byte>		spirv_;
+			std::vector<Common::UInt32>		spirv_;
 		};
 
 		ShaderModule(const CreateInfo& createInfo) noexcept :
@@ -28,7 +28,7 @@ namespace Render::Vulkan {
 			VkShaderModuleCreateInfo shaderModuleCreateInfo{};
 			{
 				shaderModuleCreateInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
-				shaderModuleCreateInfo.codeSize = createInfo.spirv_.size();
+				shaderModuleCreateInfo.codeSize = createInfo.spirv_.size() * sizeof(Common::UInt32);
 				shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(createInfo.spirv_.data());
 			}
 			VkShaderModule shaderModule = VK_NULL_HANDLE;

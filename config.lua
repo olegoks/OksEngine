@@ -29,6 +29,7 @@ Scripts = {
 }
 
 Render = {
+    shadersRootDirectory = './Resources/Shaders/',
     API = "Vulkan",
     Vulkan = {
         vertexShader = 'triangleVert.spv',
