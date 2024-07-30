@@ -3,6 +3,7 @@
 #include <OksEngine.Config.hpp>
 #include <filesystem>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
+#include <OksEngine.SkinnedGeometry.hpp>
 #include <OksEngine.Light.hpp>
 #include <OksEngine.Camera.hpp>
 #include <Geometry.Shapes.hpp>
@@ -51,6 +52,12 @@ namespace OksEngine {
 			.beginClass<ImmutableRenderGeometry>("ImmutableRenderGeometry")
 			.addConstructor<void(*)(Context*,float, float, float, std::string, std::string, const std::vector<std::string>&)>()
 			.addFunction("Rotate", &ImmutableRenderGeometry::Rotate)
+			.endClass();
+
+		luabridge::getGlobalNamespace(state_)
+			.beginClass<SkinnedGeometry>("SkinnedGeometry")
+			.addConstructor<void(*)(Context*, float, float, float, std::string, std::string, const std::vector<std::string>&)>()
+			.addFunction("Rotate", &SkinnedGeometry::Rotate)
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)

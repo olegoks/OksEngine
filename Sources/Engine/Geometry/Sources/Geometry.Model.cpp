@@ -5,6 +5,10 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
+
 namespace Geometry {
 
 
@@ -411,4 +415,56 @@ namespace Geometry {
     }
 
     
+
+    bool ParseModel(const char* memory, Common::Size size) {
+
+        Assimp::Importer importer;
+
+        const aiScene* scene = importer.ReadFileFromMemory(memory, size,
+            aiProcess_CalcTangentSpace |
+            aiProcess_Triangulate |
+            aiProcess_JoinIdenticalVertices |
+            aiProcess_SortByPType);
+        if (scene == nullptr) {
+            OS::AssertFailMessage(importer.GetErrorString());
+        }
+        // If the import failed, report it
+        if (nullptr == scene) {
+            //DoTheErrorLogging(importer.GetErrorString());
+            return false;
+        }
+
+        // Now we can access the file's contents.
+        //DoTheSceneProcessing(scene);
+
+        // We're done. Everything will be cleaned up by the importer destructor
+        return true;
+    }
+
+
+    bool ParseModelFile(const std::filesystem::path& filePath) {
+
+        Assimp::Importer importer;
+
+        const aiScene* scene = importer.ReadFile(filePath.string().c_str(),
+            aiProcess_CalcTangentSpace |
+            aiProcess_Triangulate |
+            aiProcess_JoinIdenticalVertices |
+            aiProcess_SortByPType);
+        if (scene == nullptr) {
+            OS::AssertFailMessage(importer.GetErrorString());
+        }
+        // If the import failed, report it
+        if (nullptr == scene) {
+            //DoTheErrorLogging(importer.GetErrorString());
+            return false;
+        }
+
+        // Now we can access the file's contents.
+        //DoTheSceneProcessing(scene);
+
+        // We're done. Everything will be cleaned up by the importer destructor
+        return true;
+    }
+
 }

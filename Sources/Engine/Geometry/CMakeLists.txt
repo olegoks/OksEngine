@@ -50,13 +50,14 @@ target_include_directories(Geometry
 
 find_package(tinyobjloader CONFIG REQUIRED)
 find_package(Stb REQUIRED)
+find_package(assimp CONFIG REQUIRED)
 target_include_directories(Geometry PRIVATE ${Stb_INCLUDE_DIR})
-
 target_link_libraries(Geometry
     PUBLIC
         OS
         Math
     PRIVATE 
+        assimp::assimp
         tinyobjloader::tinyobjloader)
 
 

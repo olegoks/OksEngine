@@ -38,6 +38,13 @@ int main(int argc, char** argv){
         flashLight.AddImmutableRenderGeometry();
     }*/
 
+    Entity animated = engine.CreateEntity();
+    {
+        animated.AddPosition(0, 0, 0);
+        glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
+        animated.AddSkinnedGeometry(capsuleTransform, "lowPolyHand.fbx", "", {});
+    }
+
     Entity staticGeom = engine.CreateEntity();
     {
         staticGeom.AddPosition(0, 0, 0);
@@ -184,7 +191,6 @@ int main(int argc, char** argv){
         "axes.obj",
         "axes.mtl",
         ""); */
-
 
     engine.Run();
 

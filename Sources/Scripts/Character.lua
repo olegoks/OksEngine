@@ -27,17 +27,17 @@ function CharacterUpdater:Update(Character, deltaMs)
     cameraComponent = Character:GetComponent("Camera")
     rigidBodyComponent = Character:GetComponent("RigidBodyCapsule")
 
-    local velocity = 100.0
+    local velocity = 50000.0
     local isMoving = false
     if Character.MovingForward then
-        rigidBodyComponent:SetVelocity(
+        rigidBodyComponent:ApplyForce(
             cameraComponent:GetDirectionX(), 
             cameraComponent:GetDirectionY(),
              cameraComponent:GetDirectionZ(), velocity)
         isMoving = true
     end
     if Character.MovingBackward then
-        rigidBodyComponent:SetVelocity(
+        rigidBodyComponent:ApplyForce(
             -cameraComponent:GetDirectionX(), 
             -cameraComponent:GetDirectionY(), 
             -cameraComponent:GetDirectionZ(), velocity)
@@ -53,7 +53,7 @@ function CharacterUpdater:Update(Character, deltaMs)
             cameraComponent:GetDirectionZ()
         )
         local nx, ny, nz = Math3D:Normalize(x, y, z)
-        rigidBodyComponent:SetVelocity(
+        rigidBodyComponent:ApplyForce(
             nx, 
             ny, 
             nz, velocity)
@@ -69,18 +69,19 @@ function CharacterUpdater:Update(Character, deltaMs)
             cameraComponent:GetDirectionZ()
         )
         local nx, ny, nz = Math3D:Normalize(x, y, z)
-        rigidBodyComponent:SetVelocity(
+        rigidBodyComponent:ApplyForce(
             -nx, 
             -ny, 
             -nz, velocity)
         isMoving = true
     end
-
-    if isMoving == false then
+   
+    if Character.StopMoving then
+        print(Character.StopMoving)
         rigidBodyComponent:SetVelocity(
-            -nx, 
-            -ny, 
-            -nz, 0.0)
+            0.0, 
+            0.0, 
+            0.0, 0.0)
     end 
 
 end
@@ -118,8 +119,10 @@ function CharacterInputProcessor:ProcessInput(Character, Key, Event, offsetX, of
             Character:Jump(0.0, 1.0, 0.0)
         end
     end  
-    if Event == Released then
+    if Event == "Released" then
         Character.StopMoving = true
+    elseif Event == "Pressed" then
+        Character.StopMoving = false
     end
     cameraComponent = Character:GetComponent("Camera")
     cameraComponent:DirectionLeft(offsetX / 10.0)

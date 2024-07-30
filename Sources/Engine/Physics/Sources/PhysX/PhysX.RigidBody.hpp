@@ -2,6 +2,7 @@
 
 #include <PAL.RigidBody.hpp>
 
+#include <Math.Scalar.hpp>
 #include <PxPhysicsAPI.h>
 #include <PxPhysics.h>
 
@@ -65,8 +66,13 @@ namespace PhysX {
 		}
 
 		virtual void SetVelocity(const glm::vec3& direction, float velocity) override {
-			const glm::vec3 directionalForce = glm::normalize(direction) * velocity;
-			GetBody()->setLinearVelocity({ directionalForce.x, directionalForce.y, directionalForce.z });
+			if (Math::IsEqual(velocity, 0.0)) {
+				GetBody()->setLinearVelocity({ 0.f, 0.f, 0.f });
+			}
+			else {
+				const glm::vec3 directionalForce = glm::normalize(direction) * velocity;
+				GetBody()->setLinearVelocity({ directionalForce.x, directionalForce.y, directionalForce.z });
+			}
 		}
 
 

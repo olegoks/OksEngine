@@ -2,6 +2,7 @@
 #include <OksEngine.Entity.hpp>
 #include <OksEngine.Behaviour.hpp>
 #include <OksEngine.ImmutableRenderGeometry.hpp>
+#include <OksEngine.SkinnedGeometry.hpp>
 #include <OksEngine.Light.hpp>
 #include <OksEngine.MapRigidBodyToRenderGeometry.hpp>
 #include <OksEngine.Camera.hpp>
@@ -11,6 +12,16 @@ namespace OksEngine {
 
 	void Entity::AddImmutableRenderGeometry(const glm::mat4& modelMatrix, std::string objName, std::string mtlName, const std::vector<std::string>& textures) {
 		world_->CreateComponent<ImmutableRenderGeometry>(
+			GetId(),
+			&context_,
+			modelMatrix,
+			objName,
+			mtlName,
+			textures);
+	}
+
+	void Entity::AddSkinnedGeometry(const glm::mat4& modelMatrix, std::string objName, std::string mtlName, const std::vector<std::string>& textures) {
+		world_->CreateComponent<SkinnedGeometry>(
 			GetId(),
 			&context_,
 			modelMatrix,

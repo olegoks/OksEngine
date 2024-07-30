@@ -47,6 +47,7 @@ namespace OksEngine {
 		}
 
 		void SetVelocity(float dirX, float dirY, float dirZ, float velocity) {
+			if(id_ != Common::Limits<Common::Index>::Max())
 			this->GetContext().GetPhysicsSubsystem()->SetVelocity(id_, { dirX, dirY, dirZ }, velocity);
 		}
 
