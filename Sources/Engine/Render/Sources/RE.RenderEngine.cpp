@@ -21,52 +21,85 @@ namespace RE {
 
 		api_ = RAL::CreateAPI();
 
+		RAL::Driver::CreateInfo driverCreateInfo{};
+		driverCreateInfo.surface_ = *createInfo.renderSurface_;
 
-		//auto imguiNativePipeline = std::make_shared<RAL::Driver::Pipeline>(
-		//	"IMGUI native",
-		//	createInfo.imguiNativeVertexShader_,
-		//	createInfo.imguiNativeFragmentShader_,
-		//	false
-		//);
-
-		auto imguiPipeline = std::make_shared<RAL::Driver::Pipeline>(
-			"IMGUI",
-			createInfo.imguiVertexShader_,
-			createInfo.imguiFragmentShader_,
-			true
-		);
-
-		auto linesPipeline = std::make_shared<RAL::Driver::Pipeline>(
-			"Lines",
-			createInfo.linesVertexShader_,
-			createInfo.linesFragmentShader_,
-			true
-		);
-
-		auto flatShadedModelPipeline = std::make_shared<RAL::Driver::Pipeline>(
-			"Flat shading models",
-			createInfo.vertexShader_,
-			createInfo.fragmentShader_,
-			true
-		);
-
-		auto texturedModelPipeline = std::make_shared<RAL::Driver::Pipeline>(
-			"Textured models",
-			createInfo.textureVertexShader_,
-			createInfo.textureFragmentShader_,
-			true
-		);
-
-		RAL::Driver::CreateInfo driverCreateInfo;
 		{
-			//driverCreateInfo.imguiNativePipeline_ = imguiNativePipeline;
-			driverCreateInfo.imguiPipeline_ = imguiPipeline;
-			driverCreateInfo.linesPipeline_ = linesPipeline;
-			driverCreateInfo.flatShadedPipeline_ = flatShadedModelPipeline;
-			driverCreateInfo.texturedPipeline_ = texturedModelPipeline;
-
-			driverCreateInfo.surface_ = *createInfo.renderSurface_;
+			RAL::Shader::CreateInfo vertexShaderCreateInfo{
+				.name_ = "ImGuiVertexShader",
+				.type_ = RAL::Shader::Type::Vertex,
+				.code_ = createInfo.imguiVertexShader_
+			};
+			auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
+			RAL::Shader::CreateInfo fragmentShaderCreateInfo{
+				.name_ = "ImGuiFragmentShader",
+				.type_ = RAL::Shader::Type::Fragment,
+				.code_ = createInfo.imguiFragmentShader_
+			};
+			auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
+			driverCreateInfo.imguiPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
+				"ImGui",
+				vertexShader,
+				fragmentShader);
 		}
+
+		{
+			RAL::Shader::CreateInfo vertexShaderCreateInfo{
+				.name_ = "LinesVertexShader",
+				.type_ = RAL::Shader::Type::Vertex,
+				.code_ = createInfo.linesVertexShader_
+			};
+			auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
+			RAL::Shader::CreateInfo fragmentShaderCreateInfo{
+				.name_ = "LinesFragmentShader",
+				.type_ = RAL::Shader::Type::Fragment,
+				.code_ = createInfo.linesFragmentShader_
+			};
+			auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
+			driverCreateInfo.linesPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
+				"Lines",
+				vertexShader,
+				fragmentShader);
+		}
+
+		{
+			RAL::Shader::CreateInfo vertexShaderCreateInfo{
+				.name_ = "FlatVertexShader",
+				.type_ = RAL::Shader::Type::Vertex,
+				.code_ = createInfo.vertexShader_
+			};
+			auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
+			RAL::Shader::CreateInfo fragmentShaderCreateInfo{
+				.name_ = "FlatFragmentShader",
+				.type_ = RAL::Shader::Type::Fragment,
+				.code_ = createInfo.fragmentShader_
+			};
+			auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
+			driverCreateInfo.flatShadedPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
+				"Flat",
+				vertexShader,
+				fragmentShader);
+		}
+
+		{
+			RAL::Shader::CreateInfo vertexShaderCreateInfo{
+				.name_ = "TexturedVertexShader",
+				.type_ = RAL::Shader::Type::Vertex,
+				.code_ = createInfo.textureVertexShader_
+			};
+			auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
+			RAL::Shader::CreateInfo fragmentShaderCreateInfo{
+				.name_ = "TexturedFragmentShader",
+				.type_ = RAL::Shader::Type::Fragment,
+				.code_ = createInfo.textureFragmentShader_
+			};
+			auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
+			driverCreateInfo.texturedPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
+				"Textured",
+				vertexShader,
+				fragmentShader);
+		}
+
 
 		driver_ = api_->CreateDriver(driverCreateInfo);
 		driver_->SetCamera(createInfo.camera_);

@@ -11,20 +11,17 @@ namespace OksEngine {
 
 		auto resourceSubsystem = context.GetResourceSubsystem();
 
-		const auto imguiNativeVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imguiNativeVert.spv");
-		const auto imguiNativeFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imguiNativeFrag.spv");
+		const auto imguiVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imgui.vert");
+		const auto imguiFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imgui.frag");
 
-		const auto imguiVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imguiVert.spv");
-		const auto imguiFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imguiFrag.spv");
+		const auto linesVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/lines.vert");
+		const auto linesFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/lines.frag");
 
-		const auto linesVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/linesVert.spv");
-		const auto linesFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/linesFrag.spv");
+		const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.vert");
+		const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.frag");
 
-		const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleVert.spv");
-		const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleFrag.spv");
-
-		const auto vertexTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleTextureVert.spv");
-		const auto fragmentTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleTextureFrag.spv");
+		const auto vertexTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleTexture.vert");
+		const auto fragmentTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleTexture.frag");
 
 
 		auto ecsWorld = context.GetECSWorld();
@@ -63,8 +60,6 @@ namespace OksEngine {
 			lightCreateInfo.position_ = { 25.f, 0.f, 0.f };//camera->GetPosition();
 		}
 		auto light = std::make_shared<RAL::Light>(lightCreateInfo);
-		ResourceSubsystem::Resource imguiNativeVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiNativeVertexShaderTaskId);
-		ResourceSubsystem::Resource imguiNativeFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiNativeFragmentShaderTaskId);
 		ResourceSubsystem::Resource imguiVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiVertexShaderTaskId);
 		ResourceSubsystem::Resource imguiFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiFragmentShaderTaskId);
 		ResourceSubsystem::Resource linesVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesVertexShaderTaskId);
@@ -74,33 +69,30 @@ namespace OksEngine {
 		ResourceSubsystem::Resource vertexTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexTextureShaderTaskId);
 		ResourceSubsystem::Resource fragmentTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentTextureShaderTaskId);
 
-		RAL::Shader imguiNativeVertexShader{ imguiNativeVertexShaderResource.GetData<Common::Byte>(), imguiNativeVertexShaderResource.GetSize() };
-		RAL::Shader imguiNativeFragmentShader{ imguiNativeFragmentShaderResource.GetData<Common::Byte>(), imguiNativeFragmentShaderResource.GetSize() };
-		RAL::Shader imguiVertexShader{ imguiVertexShaderResource.GetData<Common::Byte>(), imguiVertexShaderResource.GetSize() };
-		RAL::Shader imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };
-		RAL::Shader linesVertexShader{ linesVertexShaderResource.GetData<Common::Byte>(), linesVertexShaderResource.GetSize() };
-		RAL::Shader linesFragmentShader{ linesFragmentShaderResource.GetData<Common::Byte>(), linesFragmentShaderResource.GetSize() };
-		RAL::Shader vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
-		RAL::Shader fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
-		RAL::Shader vertexTextureShader{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
-		RAL::Shader fragmentTextureShader{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
+		std::string imguiVertexShader{ imguiVertexShaderResource.GetData<Common::Byte>(), imguiVertexShaderResource.GetSize() };
+		imguiVertexShader.length();
+		std::string imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };
+		std::string linesVertexShader{ linesVertexShaderResource.GetData<Common::Byte>(), linesVertexShaderResource.GetSize() };
+		std::string linesFragmentShader{ linesFragmentShaderResource.GetData<Common::Byte>(), linesFragmentShaderResource.GetSize() };
+		std::string vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
+		std::string fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
+		std::string vertexTextureShader{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
+		std::string fragmentTextureShader{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
 
-		RE::RenderEngine::CreateInfo RECreateInfo;
-		{
-			RECreateInfo.camera_ = camera;
-			RECreateInfo.light_ = light;
-			RECreateInfo.imguiNativeVertexShader_ = std::make_shared<RAL::Shader>(std::move(imguiNativeVertexShader));
-			RECreateInfo.imguiNativeFragmentShader_ = std::make_shared<RAL::Shader>(std::move(imguiNativeFragmentShader));
-			RECreateInfo.imguiVertexShader_ = std::make_shared<RAL::Shader>(std::move(imguiVertexShader));
-			RECreateInfo.imguiFragmentShader_ = std::make_shared<RAL::Shader>(std::move(imguiFragmentShader));
-			RECreateInfo.linesVertexShader_ = std::make_shared<RAL::Shader>(std::move(linesVertexShader));
-			RECreateInfo.linesFragmentShader_ = std::make_shared<RAL::Shader>(std::move(linesFragmentShader));
-			RECreateInfo.vertexShader_ = std::make_shared<RAL::Shader>(std::move(vertexShader));
-			RECreateInfo.fragmentShader_ = std::make_shared<RAL::Shader>(std::move(fragmentShader));
-			RECreateInfo.textureVertexShader_ = std::make_shared<RAL::Shader>(std::move(vertexTextureShader));
-			RECreateInfo.textureFragmentShader_ = std::make_shared<RAL::Shader>(std::move(fragmentTextureShader));
-			RECreateInfo.renderSurface_ = std::make_shared<RAL::RenderSurface>(std::move(renderSurface));
-		}
+		RE::RenderEngine::CreateInfo RECreateInfo{
+			.camera_ = camera,
+			.light_ = light,
+
+			.imguiVertexShader_ = std::move(imguiVertexShader),
+			.imguiFragmentShader_ = std::move(imguiFragmentShader),
+			.linesVertexShader_ = std::move(linesVertexShader),
+			.linesFragmentShader_ = std::move(linesFragmentShader),
+			.vertexShader_ = std::move(vertexShader),
+			.fragmentShader_ = std::move(fragmentShader),
+			.textureVertexShader_ = std::move(vertexTextureShader),
+			.textureFragmentShader_ = std::move(fragmentTextureShader),
+			.renderSurface_ = std::make_shared<RAL::RenderSurface>(renderSurface)
+		};
 		engine_ = std::make_shared<RE::RenderEngine>(RECreateInfo);
 
 		//const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/room.obj");

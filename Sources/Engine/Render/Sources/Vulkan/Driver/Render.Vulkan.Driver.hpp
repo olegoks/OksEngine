@@ -351,8 +351,8 @@ namespace Render::Vulkan {
 					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
-					createInfo.vertexShader_ = imguiPipelineInfo->vertexShader_;
-					createInfo.fragmentShader_ = imguiPipelineInfo->fragmentShader_;
+					createInfo.vertexShader_ = std::dynamic_pointer_cast<Shader>(imguiPipelineInfo->vertexShader_);
+					createInfo.fragmentShader_ = std::dynamic_pointer_cast<Shader>(imguiPipelineInfo->fragmentShader_);
 					if (imguiPipelineInfo->enableDepthTest_) {
 						auto depthTestData = std::make_shared<LinesPipeline::DepthTestInfo>();
 						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
@@ -374,8 +374,8 @@ namespace Render::Vulkan {
 					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
-					createInfo.vertexShader_ = linesPipelineInfo->vertexShader_;
-					createInfo.fragmentShader_ = linesPipelineInfo->fragmentShader_;
+					createInfo.vertexShader_ = std::dynamic_pointer_cast<Shader>(linesPipelineInfo->vertexShader_);
+					createInfo.fragmentShader_ = std::dynamic_pointer_cast<Shader>(linesPipelineInfo->fragmentShader_);
 					if (linesPipelineInfo->enableDepthTest_) {
 						auto depthTestData = std::make_shared<LinesPipeline::DepthTestInfo>();
 						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
@@ -396,8 +396,8 @@ namespace Render::Vulkan {
 					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
-					createInfo.vertexShader_ = texturedPipelineInfo->vertexShader_;
-					createInfo.fragmentShader_ = texturedPipelineInfo->fragmentShader_;
+					createInfo.vertexShader_ = std::dynamic_pointer_cast<Shader>(texturedPipelineInfo->vertexShader_);
+					createInfo.fragmentShader_ = std::dynamic_pointer_cast<Shader>(texturedPipelineInfo->fragmentShader_);
 					if (texturedPipelineInfo->enableDepthTest_) {
 						auto depthTestData = std::make_shared<TexturedModelPipeline::DepthTestInfo>();
 						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
@@ -419,8 +419,8 @@ namespace Render::Vulkan {
 					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
-					createInfo.vertexShader_ = flatShadedPipelineInfo->vertexShader_;
-					createInfo.fragmentShader_ = flatShadedPipelineInfo->fragmentShader_;
+					createInfo.vertexShader_ = std::dynamic_pointer_cast<Shader>(flatShadedPipelineInfo->vertexShader_);
+					createInfo.fragmentShader_ = std::dynamic_pointer_cast<Shader>(flatShadedPipelineInfo->fragmentShader_);
 					if (flatShadedPipelineInfo->enableDepthTest_) {
 						auto depthTestData = std::make_shared<FlatShadedModelPipeline::DepthTestInfo>();
 						depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();

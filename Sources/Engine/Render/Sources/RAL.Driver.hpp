@@ -120,28 +120,44 @@ namespace RAL {
 		GLFW
 	};
 
+
+
 	class Shader {
 	public:
 
 		Shader() noexcept = default;
 
-		Shader(const Common::Byte* text, Common::Size size) {
-			spirv_.resize(size);
-			std::memcpy(spirv_.data(), text, size);
-		}
+		enum class Type {
+			Vertex,
+			Fragment,
+			Undefined
+		};
+
+		struct CreateInfo {
+			std::string name_;
+			Type type_ = Type::Undefined;
+			std::string code_;
+		};
+
+		Shader(const CreateInfo& createInfo) : createInfo_{ createInfo } {}
 
 		Shader(const Shader& copyShader) {
-			spirv_ = copyShader.spirv_;
+			createInfo_ = copyShader.createInfo_;
 		}
 
 		[[nodiscard]]
-		std::vector<Common::Byte> GetCode() const noexcept {
-			return spirv_;
+		const std::string& GetCode() const noexcept {
+			return createInfo_.code_;
 		}
 
-		~Shader() noexcept = default;
+		[[nodiscard]]
+		Type GetType() const noexcept { return createInfo_.type_; }
+
+		//virtual void Compile() = 0;
+
+		virtual ~Shader() noexcept = default;
 	private:
-		std::vector<Common::Byte> spirv_;
+		CreateInfo createInfo_;
 	};
 
 	struct RenderSurface {

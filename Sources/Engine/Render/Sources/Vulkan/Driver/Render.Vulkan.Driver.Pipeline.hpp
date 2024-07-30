@@ -14,6 +14,7 @@
 #include <Render.Vulkan.Driver.DescriptorSetLayout.hpp>
 #include <Render.Vulkan.Driver.RenderPass.hpp>
 #include <Render.Vulkan.Driver.PipelineLayout.hpp>
+#include <Render.Vulkan.Shader.hpp>
 #include <Render.Vulkan.Driver.Image.hpp>
 
 #include "Render.Vulkan.Driver.RenderPass.hpp"
@@ -263,8 +264,8 @@ namespace Render::Vulkan {
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
-			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
+			std::shared_ptr<Shader> vertexShader_ = nullptr;
+			std::shared_ptr<Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
@@ -316,11 +317,11 @@ namespace Render::Vulkan {
 				},
 					std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 						createInfo.logicDevice_,
-						createInfo.vertexShader_->GetCode()
+						createInfo.vertexShader_->GetSpirv()
 						}),
 					std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 						createInfo.logicDevice_,
-						createInfo.fragmentShader_->GetCode()
+						createInfo.fragmentShader_->GetSpirv()
 						}),
 					createInfo.depthTestInfo_,
 					createInfo.colorAttachmentSize_,
@@ -348,8 +349,8 @@ namespace Render::Vulkan {
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
-			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
+			std::shared_ptr<Shader> vertexShader_ = nullptr;
+			std::shared_ptr<Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
@@ -390,11 +391,11 @@ namespace Render::Vulkan {
 				},
 				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					createInfo.logicDevice_,
-					createInfo.vertexShader_->GetCode()
+					createInfo.vertexShader_->GetSpirv()
 					}),
 				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					createInfo.logicDevice_,
-					createInfo.fragmentShader_->GetCode()
+					createInfo.fragmentShader_->GetSpirv()
 					}),
 				createInfo.depthTestInfo_,
 				createInfo.colorAttachmentSize_,
@@ -423,8 +424,8 @@ namespace Render::Vulkan {
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
-			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
+			std::shared_ptr<Shader> vertexShader_ = nullptr;
+			std::shared_ptr<Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
@@ -455,11 +456,11 @@ namespace Render::Vulkan {
 				},
 				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					createInfo.logicDevice_,
-					createInfo.vertexShader_->GetCode()
+					createInfo.vertexShader_->GetSpirv()
 					}),
 				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					createInfo.logicDevice_,
-					createInfo.fragmentShader_->GetCode()
+					createInfo.fragmentShader_->GetSpirv()
 					}),
 				createInfo.depthTestInfo_,
 				createInfo.colorAttachmentSize_,
@@ -489,8 +490,8 @@ namespace Render::Vulkan {
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
 			
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<RAL::Shader> vertexShader_ = nullptr;
-			std::shared_ptr<RAL::Shader> fragmentShader_ = nullptr;
+			std::shared_ptr<Shader> vertexShader_ = nullptr;
+			std::shared_ptr<Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
