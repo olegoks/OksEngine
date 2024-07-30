@@ -153,6 +153,27 @@ namespace OksEngine {
 	}
 
 	[[nodiscard]]
+	Common::Index RenderSubsystem::RenderAnimationModel(std::string objName, std::string mtlName, const std::vector<std::string>& textures) {
+
+		auto& context = GetContext();
+		auto resourceSubsystem = context.GetResourceSubsystem();
+
+
+		const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + objName);
+		ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
+
+		std::string obj{  };
+
+		//Geom::ParseModel(modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize());//"G:/Desktop/OksEngine/Resources/Models/spartan/spartan.fbx");
+		Geom::ParseModelFile("G:/Desktop/OksEngine/Resources/Models/hand-low-poly/lowPolyHand.fbx");
+		//auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseModel(obj));
+
+		//RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
+		//models_.push_back(model);
+		return 0;/*models_.size() - 1;*/
+	}
+
+	[[nodiscard]]
 	Common::Index RenderSubsystem::RenderModel(std::string objName, std::string mtlName, const std::vector<std::string>& textures) {
 
 		auto& context = GetContext();

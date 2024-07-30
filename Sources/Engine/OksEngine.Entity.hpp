@@ -23,6 +23,12 @@ namespace OksEngine {
 			std::string mtlName,
 			const std::vector<std::string>& textures);
 
+		void AddSkinnedGeometry(
+			const glm::mat4& modelMatrix,
+			std::string objName,
+			std::string mtlName,
+			const std::vector<std::string>& textures);
+
 		void AddBehaviour(
 			const char* scriptName,
 			const char* objectName);

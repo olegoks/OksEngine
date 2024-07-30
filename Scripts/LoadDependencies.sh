@@ -23,6 +23,7 @@ echo $(pwd)
 ./vcpkg.exe install graphviz
 ./vcpkg.exe install physx
 ./vcpkg.exe install glm
+./vcpkg.exe install assimp
 ./vcpkg.exe install vulkan-utility-libraries
 cd ../Scripts/
 

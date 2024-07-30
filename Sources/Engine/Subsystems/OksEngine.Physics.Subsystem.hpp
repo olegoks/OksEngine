@@ -5,6 +5,7 @@
 #include <PAL.API.hpp>
 #include <PE.PhysicsEngine.hpp>
 #include <Geometry.Model.hpp>
+#include <PAL.RigidBody.hpp>
 
 namespace OksEngine {
 
