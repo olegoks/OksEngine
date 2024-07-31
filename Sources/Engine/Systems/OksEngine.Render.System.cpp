@@ -48,11 +48,12 @@ namespace OksEngine {
 					skinnedGeometry->modelMtlFileName_);
 				skinnedGeometry->SetId(modelIndex);
 			}
+			/*GetContext().GetRenderSubsystem()->SetModelMatrix(
+				skinnedGeometry->GetId(),
+				skinnedGeometry->GetTransform());*/
 
 		}
-		GetContext().GetRenderSubsystem()->SetModelMatrix(
-			skinnedGeometry->GetId(),
-			skinnedGeometry->GetTransform());
+
 	}
 	}
 

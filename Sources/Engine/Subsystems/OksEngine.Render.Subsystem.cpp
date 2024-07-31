@@ -164,8 +164,8 @@ namespace OksEngine {
 
 		std::string obj{  };
 
-		//Geom::ParseModel(modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize());//"G:/Desktop/OksEngine/Resources/Models/spartan/spartan.fbx");
-		Geom::ParseModelFile("G:/Desktop/OksEngine/Resources/Models/hand-low-poly/lowPolyHand.fbx");
+		Geom::ParseModel(modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize());//"G:/Desktop/OksEngine/Resources/Models/spartan/spartan.fbx");
+		//Geom::ParseModelFile("G:/Desktop/OksEngine/Resources/Models/myLowPolyHand/myLowPolyHand.fbx");
 		//auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseModel(obj));
 
 		//RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
