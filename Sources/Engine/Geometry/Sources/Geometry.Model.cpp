@@ -424,7 +424,7 @@ namespace Geometry {
             aiProcess_CalcTangentSpace |
             aiProcess_Triangulate |
             aiProcess_JoinIdenticalVertices |
-            aiProcess_SortByPType);
+            aiProcess_SortByPType, "fbx");
         if (scene == nullptr) {
             OS::AssertFailMessage(importer.GetErrorString());
         }
@@ -460,10 +460,32 @@ namespace Geometry {
             return false;
         }
 
-        // Now we can access the file's contents.
-        //DoTheSceneProcessing(scene);
+        // Load in each mesh
+        for (unsigned i = 0; i < scene->mNumMeshes; i++) {
 
-        // We're done. Everything will be cleaned up by the importer destructor
+            const aiMesh* p_AIMesh = scene->mMeshes[i];
+
+            // Create the new mesh data
+            //p_Mesh->m_uiNumIndices = p_AIMesh->mNumFaces * 3;
+            //const unsigned uiSizeVertices = p_AIMesh->mNumVertices * sizeof(CustomVertex);
+            //const unsigned uiSizeIndices = p_Mesh->m_uiNumIndices * sizeof(GLuint);
+            //CustomVertex* p_VBuffer = (CustomVertex*)malloc(uiSizeVertices);
+            //GLuint* p_IBuffer = (GLuint*)malloc(uiSizeIndices);
+
+            // *** Add code to load in vertex data here***
+
+            // *** Add code to load in index data here***
+
+            // *** Add code to bind VAO,VBA,IBO and fill buffers here ***
+
+            // Cleanup allocated data
+            //free(p_VBuffer);
+            //free(p_IBuffer);
+
+            // *** Add code to specify vertex attribute locations here ***
+
+            //++SceneInfo.m_uiNumMeshes;
+        }
         return true;
     }
 
