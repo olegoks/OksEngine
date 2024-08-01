@@ -1,37 +1,41 @@
 #pragma once
 
-#include <limits>
-#include <cstdint>
-#include <functional>
-
 #include <Common.Types.hpp>
 
-#undef max
 namespace Common {
 
+	template<class Type>
 	class [[nodiscard]] Identifier final {
 	public:
 
-		Identifier(const Identifier& copyId) noexcept : value_{ copyId.value_ } {}
-		Identifier(Common::UInt64 value) noexcept : value_{ value } {}
+		Identifier(const Identifier& copyId) noexcept : value_{ copyId.value_ } {
+			
+		}
+		Identifier(Type value) noexcept : value_{ value } {}
 
+		[[nodiscard]]
 		static Identifier Invalid() noexcept { return Max(); }
-		static Identifier Max() noexcept { return Identifier{ std::numeric_limits<Common::UInt64>::max() }; }
+
+		[[nodiscard]]
+		static Identifier Max() noexcept { return Identifier{ Limits<Type>::Max() }; }
 
 		Identifier operator++(int value) noexcept { return Identifier{ value_++ }; }
 
 		auto operator<=>(const Identifier& id) const noexcept = default;
 
 		struct Hash {
-			Common::UInt64 operator()(const Identifier& id) const noexcept {
-				/*std::hash<Common::UInt64> hasher;
-				return hasher(id.value_);*/
-				return 0;
+			UInt64 operator()(const Identifier& id) const noexcept {
+				return *this;
 			}
 		};
 
+		[[nodiscard]]
+		bool IsInvalid() const noexcept { return (*this == Invalid()); }
+
 	private:
-		Common::UInt64 value_ = Invalid().value_;
+		Type value_ = Invalid().value_;
 
 	};
+
+	using Id = Identifier;
 }

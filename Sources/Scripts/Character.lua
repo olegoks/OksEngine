@@ -77,7 +77,6 @@ function CharacterUpdater:Update(Character, deltaMs)
     end
    
     if Character.StopMoving then
-        print(Character.StopMoving)
         rigidBodyComponent:SetVelocity(
             0.0, 
             0.0, 

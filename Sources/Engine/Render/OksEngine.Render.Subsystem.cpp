@@ -14,14 +14,14 @@ namespace OksEngine {
 		const auto imguiVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imgui.vert");
 		const auto imguiFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imgui.frag");
 
-		const auto linesVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/lines.vert");
-		const auto linesFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/lines.frag");
+		const auto linesVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/debugLines.vert");
+		const auto linesFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/debugLines.frag");
 
-		const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.vert");
-		const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangle.frag");
+		const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/flatShaded.vert");
+		const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/flatShaded.frag");
 
-		const auto vertexTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleTexture.vert");
-		const auto fragmentTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/triangleTexture.frag");
+		const auto vertexTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/textured.vert");
+		const auto fragmentTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/textured.frag");
 
 
 		auto ecsWorld = context.GetECSWorld();
