@@ -78,5 +78,18 @@ namespace OksEngine {
 	}
 
 
+	ImGuiSystem::ImGuiSystem(Context& context) noexcept :
+		ECSSystem{ context } { }
+
+	void ImGuiSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+		auto* position = world->GetComponent<Position>(entityId);
+		//GetContext().GetRenderSubsystem()->
+	}
+
+	Common::TypeId ImGuiSystem::GetTypeId() const noexcept {
+		return Common::TypeInfo<ImGuiSystem>().GetId();
+	}
+
+
 
 }

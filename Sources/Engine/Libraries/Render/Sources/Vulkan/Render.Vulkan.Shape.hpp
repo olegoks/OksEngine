@@ -108,7 +108,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-			std::shared_ptr<Texture> texture_ = nullptr;
+			RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
 		};
 
 		TexturedShape(const CreateInfo& createInfo) :
@@ -119,14 +119,14 @@ namespace Render::Vulkan {
 				createInfo.transformBuffer_,
 				createInfo.transformDescriptorSet_
 				} },
-				texture_{ createInfo.texture_ } { }
+			textureId_{ createInfo.textureId_ } { }
 
 		[[nodiscard]]
 		auto GetTexture() noexcept {
-			return texture_;
+			return textureId_;
 		}
 
-		std::shared_ptr<Texture> texture_ = nullptr;
+		RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
 	};
 
 
@@ -139,7 +139,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-			std::shared_ptr<Texture> texture_ = nullptr;
+			RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
 		};
 
 		UIShape(const CreateInfo& createInfo) :
@@ -150,16 +150,16 @@ namespace Render::Vulkan {
 				createInfo.transformBuffer_,
 				createInfo.transformDescriptorSet_
 				} },
-			texture_{ createInfo.texture_ } { }
+			textureId_{ createInfo.textureId_ } { }
 
 		[[nodiscard]]
 		auto GetTexture() noexcept {
-			return texture_;
+			return textureId_;
 		}
 
 		glm::vec2 scale_;
 		glm::vec2 translate_;
-		std::shared_ptr<Texture> texture_ = nullptr;
+		RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
 	};
 
 	class ColoredShape : public Shape<glm::mat4, Vertex3fnc, Index16>{

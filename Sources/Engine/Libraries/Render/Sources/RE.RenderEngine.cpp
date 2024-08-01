@@ -104,6 +104,24 @@ namespace RE {
 		driver_ = api_->CreateDriver(driverCreateInfo);
 		driver_->SetCamera(createInfo.camera_);
 		driver_->AddLight(createInfo.light_);
+
+		{
+			ImGuiIO& io = ImGui::GetIO();
+			unsigned char* pixels;
+			int width, height;
+			io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+
+			std::vector<RAL::Color4b> pixelsRGBA;
+			pixelsRGBA.resize(width * height);
+			std::memcpy(pixelsRGBA.data(), pixels, width * height * sizeof(RAL::Color4b));
+			RAL::Texture::CreateInfo textureCreateInfo{
+				.name_ = "ImGui texture",
+				.pixels_ = std::move(pixelsRGBA),
+				.size_ = { width, height }
+			};
+
+			imguiTextureId_ = driver_->CreateTexture(textureCreateInfo);
+		}
 	}
 
 	void RenderEngine::RenderImGui() {
@@ -174,22 +192,7 @@ namespace RE {
 		}
 
 		ImGui::Render();
-		ImGuiIO& io = ImGui::GetIO();
-
-		if (imguiTexture_ == nullptr) {
-			unsigned char* pixels;
-			int width, height;
-			io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-			//size_t upload_size = width * height * 4 * sizeof(char);
-
-			Geom::Texture<Geom::Color4b>::CreateInfo textureCreateInfo{
-				(Common::UInt64)width,
-				(Common::UInt64)height,
-				{ (Geom::Color4b*)pixels, (Common::Size)width * height }
-			};
-
-			imguiTexture_ = std::make_shared<Geom::Texture<Geom::Color4b>>(textureCreateInfo);
-		}
+		
 		ImDrawData* draw_data = ImGui::GetDrawData();
 
 		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
@@ -234,7 +237,7 @@ namespace RE {
 						cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
 						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
 						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
-						imguiTexture_);
+						imguiTextureId_);
 				}
 			}
 
@@ -253,13 +256,25 @@ namespace RE {
 			for (const auto& vertex : vertices) {
 				verticesColored.Add(vertex);
 			}
+			
+			std::vector<RAL::Color4b> pixelsRGBA;
+			pixelsRGBA.resize(shape.GetTexture()->GetPixelsNumber());
+			std::memcpy(pixelsRGBA.data(), shape.GetTexture()->GetPixels<RAL::Color4b>(), shape.GetTexture()->GetPixelsNumber() * sizeof(RAL::Color4b));
+
+			const RAL::Texture::CreateInfo textureCreateInfo{
+				.name_ = "",
+				.pixels_ = std::move(pixelsRGBA),
+				.size_ = shape.GetTexture()->GetSize()
+			};
+			const auto textureId = driver_->CreateTexture(textureCreateInfo);
+
 			Common::Index shapeId = driver_->DrawIndexed(
 				position,
 				(const RAL::Vertex3fnt*)verticesColored.GetData(),
 				verticesColored.GetVerticesNumber(),
 				shape.GetIndices().GetData(),
 				shape.GetIndicesNumber(),
-				shape.GetTexture()
+				textureId
 			);
 			drawnModel.shapes_.push_back({ shapeId });
 		}
@@ -298,43 +313,6 @@ namespace RE {
 	}
 
 	void RenderEngine::Render() {
-		//Geometry::Box box{ 1 };
-
-		//Geometry::VertexCloud<RAL::Vertex3fc> coloredBox;
-		//for (Common::Index i = 0; i < box.GetVertices().GetVerticesNumber(); i++) {
-		//	Math::Vector3f color{ (float)((i * 100) % 255) / 255, (float)((i * 150) % 255) / 255, (float)((i * 199) % 255) / 255 };
-		//	RAL::Vertex3fc coloredVertex = { box.GetVertices()[i], color };
-		//	coloredBox.Add(coloredVertex);
-		//}
-
-		//DS::Vector<Geometry::VertexCloud<RAL::Vertex3fc>> plane;
-
-		//for (int i = 0; i < 25; i++) {
-		//	plane.PushBack(coloredBox);
-		//}
-
-
-		//Common::Index i = 0;
-		//for (int x = -2; x < 2; x++) {
-		//	for (int y = -2; y < 2; y++) {
-		//		Geometry::VertexCloud<RAL::Vertex3fc>& box = plane[i];
-		//		Math::Vector3f offsetVector{ (float)x, (float)y , 0 };
-		//		const Math::Matrix4x4f offset = Math::Matrix4x4f::GetTranslate(offsetVector);
-		//		for (RAL::Vertex3fc& vertex : box) {
-		//			vertex.position_ = Math::TransformPoint(vertex.position_, offset);
-		//		}
-		//		++i;
-		//	}
-		//}
-
-		//for (int i = 0; i < 25; i++) {
-		//	Geometry::VertexCloud<RAL::Vertex3fc>& coloredBox = plane[i];
-		//	driver_->DrawIndexed(
-		//		(RAL::Vertex3fc*)coloredBox.GetData(),
-		//		coloredBox.GetVerticesNumber(),
-		//		box.GetIndices().GetData(),
-		//		box.GetIndicesNumber()/*, RAL::Color{ 1.f, 1.f, 1.f }*/);
-		//}
 		RenderImGui();
 
 		driver_->StartRender();
