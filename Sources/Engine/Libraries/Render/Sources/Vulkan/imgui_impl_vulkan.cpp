@@ -1113,7 +1113,7 @@ bool    ImGui_ImplVulkan_Init(ImGui_ImplVulkan_InitInfo* info)
 
     bd->VulkanInitInfo = *info;
 
-    ImGui_ImplVulkan_CreateDeviceObjects();
+    //ImGui_ImplVulkan_CreateDeviceObjects();
 
     return true;
 }

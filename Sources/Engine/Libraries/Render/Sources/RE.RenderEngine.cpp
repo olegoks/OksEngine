@@ -107,10 +107,16 @@ namespace RE {
 	}
 
 	void RenderEngine::RenderImGui() {
-		ImGui_ImplGlfw_NewFrame();
-		ImGui_ImplVulkan_NewFrame();
-		ImGui::NewFrame();
 
+		ImGui_ImplGlfw_NewFrame();
+		//ImGui_ImplVulkan_NewFrame();
+		{
+			unsigned char* pixels;
+			int width, height;
+			ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+			size_t upload_size = width * height * 4 * sizeof(char);
+		}
+		ImGui::NewFrame();
 		{
 			if (ImGui::BeginMainMenuBar()) {
 				// Add items to the menu bar.
@@ -170,19 +176,20 @@ namespace RE {
 		ImGui::Render();
 		ImGuiIO& io = ImGui::GetIO();
 
-		unsigned char* pixels;
-		int width, height;
-		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-		//size_t upload_size = width * height * 4 * sizeof(char);
+		if (imguiTexture_ == nullptr) {
+			unsigned char* pixels;
+			int width, height;
+			io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+			//size_t upload_size = width * height * 4 * sizeof(char);
 
-		Geom::Texture<Geom::Color4b>::CreateInfo textureCreateInfo{
-			(Common::UInt64)width,
-			(Common::UInt64)height,
-			{ (Geom::Color4b*)pixels, (Common::Size)width * height }
-		};
+			Geom::Texture<Geom::Color4b>::CreateInfo textureCreateInfo{
+				(Common::UInt64)width,
+				(Common::UInt64)height,
+				{ (Geom::Color4b*)pixels, (Common::Size)width * height }
+			};
 
-		auto texture = std::make_shared<Geom::Texture<Geom::Color4b>>(textureCreateInfo);
-
+			imguiTexture_ = std::make_shared<Geom::Texture<Geom::Color4b>>(textureCreateInfo);
+		}
 		ImDrawData* draw_data = ImGui::GetDrawData();
 
 		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
@@ -227,7 +234,7 @@ namespace RE {
 						cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
 						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
 						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
-						texture);
+						imguiTexture_);
 				}
 			}
 

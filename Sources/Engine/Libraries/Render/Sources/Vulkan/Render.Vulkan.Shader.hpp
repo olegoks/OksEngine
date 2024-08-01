@@ -8,9 +8,6 @@
 #include <glslang/Public/ShaderLang.h>
 #include <glslang/SPIRV/GlslangToSpv.h>
 
-// Required for use of glslang_default_resource
-#include <glslang/Public/resource_limits_c.h>
-
 namespace Render::Vulkan {
 
 	inline void initResources(TBuiltInResource& Resources) {

@@ -127,7 +127,7 @@ namespace OksEngine {
 		using ThreadId = Common::UInt8;
 		constexpr static inline Common::Size maxReceiversNumber_ = 8;
 		constexpr static inline ThreadId invalidThreadId_ = 0;
-		constexpr static inline ThreadId maxThreadId_ = std::numeric_limits<ThreadId>::max();
+		constexpr static inline ThreadId maxThreadId_ = Common::Limits<ThreadId>::Max();
 
 		[[nodiscard]]
 		static ThreadId GetThreadId() noexcept {

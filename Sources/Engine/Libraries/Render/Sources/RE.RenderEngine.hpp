@@ -52,6 +52,8 @@ namespace RE {
 
 	private:
 
+		std::shared_ptr<Geom::Texture<Geom::Color4b>> imguiTexture_ = nullptr;
+
 		std::shared_ptr<class RAL::API> api_ = nullptr;
 		std::shared_ptr<class RAL::Driver> driver_ = nullptr;
 	};
