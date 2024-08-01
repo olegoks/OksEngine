@@ -1,0 +1,13 @@
+cmake_minimum_required(VERSION  3.26.4)
+
+add_subdirectory(Common)
+add_subdirectory(OS)
+add_subdirectory(ECS)
+add_subdirectory(Lua)
+add_subdirectory(Render)
+add_subdirectory(Math)
+add_subdirectory(Geometry)
+add_subdirectory(UI)
+add_subdirectory(Resources)    
+add_subdirectory(Datastructures)
+add_subdirectory(Physics)

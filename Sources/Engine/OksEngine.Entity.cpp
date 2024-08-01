@@ -1,12 +1,12 @@
 
 #include <OksEngine.Entity.hpp>
-#include <OksEngine.Behaviour.hpp>
-#include <OksEngine.ImmutableRenderGeometry.hpp>
-#include <OksEngine.SkinnedGeometry.hpp>
-#include <OksEngine.Light.hpp>
-#include <OksEngine.MapRigidBodyToRenderGeometry.hpp>
-#include <OksEngine.Camera.hpp>
-#include <OksEngine.AttachedCamera.hpp>
+#include <Behaviour/OksEngine.Behaviour.hpp>
+#include <Render/OksEngine.ImmutableRenderGeometry.hpp>
+#include <Render/OksEngine.SkinnedGeometry.hpp>
+#include <Render/OksEngine.Light.hpp>
+#include <Common/OksEngine.MapRigidBodyToRenderGeometry.hpp>
+#include <Render/OksEngine.Camera.hpp>
+#include <Render/OksEngine.AttachedCamera.hpp>
 
 namespace OksEngine {
 

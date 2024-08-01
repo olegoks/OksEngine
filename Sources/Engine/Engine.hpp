@@ -6,9 +6,9 @@
 #include <utility>
 
 #include <OksEngine.Entity.hpp>
-#include <Components/OksEngine.Behaviour.hpp>
-#include <Components/OksEngine.Position.hpp>
-#include <OksEngine.ImmutableRenderGeometry.hpp>
+#include <Behaviour/OksEngine.Behaviour.hpp>
+#include <Common/OksEngine.Position.hpp>
+#include <Render/OksEngine.ImmutableRenderGeometry.hpp>
 
 #include <OksEngine.CommandLineParameters.hpp>
 

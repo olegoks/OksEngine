@@ -21,60 +21,123 @@ file(GLOB PRIVATE_SOURCES
     *.c
 )
 
-
-file(GLOB PUBLIC_SOURCES_COMPONENTS
+file(GLOB PUBLIC_SOURCES_COMMON
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
-    Components/*.hpp
-    Components/*.h
+    Common/*.hpp
+    Common/*.h
 )
 
-file(GLOB PRIVATE_SOURCES_COMPONENTS
+file(GLOB PRIVATE_SOURCES_COMMON
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
-    Components/*.cpp
-    Components/*.c
+    Common/*.cpp
+    Common/*.c
 )
 
-file(GLOB PUBLIC_SOURCES_SYSTEMS
+file(GLOB PUBLIC_SOURCES_DEBUG
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
-    Systems/*.hpp
-    Systems/*.h
+    Debug/*.hpp
+    Debug/*.h
 )
 
-file(GLOB PRIVATE_SOURCES_SYSTEMS
+file(GLOB PRIVATE_SOURCES_DEBUG
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
-    Systems/*.cpp
-    Systems/*.c
+    Debug/*.cpp
+    Debug/*.c
 )
 
-file(GLOB PUBLIC_SOURCES_SUBSYSTEMS
+file(GLOB PUBLIC_SOURCES_PHYSICS
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
-    Subsystems/*.hpp
-    Subsystems/*.h
+    Physics/*.hpp
+    Physics/*.h
 )
 
-file(GLOB PRIVATE_SOURCES_SUBSYSTEMS
+file(GLOB PRIVATE_SOURCES_PHYSICS
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
-    Subsystems/*.cpp
-    Subsystems/*.c
+    Physics/*.cpp
+    Physics/*.c
+)
+
+file(GLOB PUBLIC_SOURCES_RENDER
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Render/*.hpp
+    Render/*.h
+)
+
+file(GLOB PRIVATE_SOURCES_RENDER
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Render/*.cpp
+    Render/*.c
+)
+
+file(GLOB PUBLIC_SOURCES_RESOURCES
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Resources/*.hpp
+    Resources/*.h
+)
+
+file(GLOB PRIVATE_SOURCES_RESOURCES
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Resources/*.cpp
+    Resources/*.c
+)
+
+file(GLOB PUBLIC_SOURCES_BEHAVIOUR
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Behaviour/*.hpp
+    Behaviour/*.h
+)
+
+file(GLOB PRIVATE_SOURCES_BEHAVIOUR
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    Behaviour/*.cpp
+    Behaviour/*.c
+)
+
+file(GLOB PUBLIC_SOURCES_UI
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    UI/*.hpp
+    UI/*.h
+)
+
+file(GLOB PRIVATE_SOURCES_UI
+    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+    LIST_DIRECTORIES false
+    UI/*.cpp
+    UI/*.c
 )
 
 target_sources(OksEngine
     PUBLIC
         ${PUBLIC_SOURCES}
-        ${PUBLIC_SOURCES_COMPONENTS}
-        ${PUBLIC_SOURCES_SYSTEMS}
-        ${PUBLIC_SOURCES_SUBSYSTEMS}
+        ${PUBLIC_SOURCES_UI}
+        ${PUBLIC_SOURCES_COMMON}
+        ${PUBLIC_SOURCES_RENDER}
+        ${PUBLIC_SOURCES_PHYSICS}
+        ${PUBLIC_SOURCES_DEBUG}
+        ${PUBLIC_SOURCES_BEHAVIOUR}
+        ${PUBLIC_SOURCES_RESOURCES}
     PRIVATE
         ${PRIVATE_SOURCES}
-        ${PRIVATE_SOURCES_COMPONENTS}
-        ${PRIVATE_SOURCES_SYSTEMS}
-        ${PRIVATE_SOURCES_SUBSYSTEMS}
+        ${PRIVATE_SOURCES_UI}
+        ${PRIVATE_SOURCES_COMMON}
+        ${PRIVATE_SOURCES_RENDER}
+        ${PRIVATE_SOURCES_PHYSICS}
+        ${PRIVATE_SOURCES_DEBUG}
+        ${PRIVATE_SOURCES_BEHAVIOUR}
+        ${PRIVATE_SOURCES_RESOURCES}
     )
 
 target_link_libraries(OksEngine
@@ -94,22 +157,40 @@ source_group("Sources"
     ${PUBLIC_SOURCES}
     ${PRIVATE_SOURCES}
     )
-
-source_group("Sources/Components"
+source_group("Sources/Common"
     FILES
-    ${PUBLIC_SOURCES_COMPONENTS}
-    ${PRIVATE_SOURCES_COMPONENTS}
+    ${PUBLIC_SOURCES_COMMON}
+    ${PRIVATE_SOURCES_COMMON}
     )
-source_group("Sources/Systems"
+source_group("Sources/Physics"
     FILES
-    ${PUBLIC_SOURCES_SYSTEMS}
-    ${PRIVATE_SOURCES_SYSTEMS}
+    ${PUBLIC_SOURCES_PHYSICS}
+    ${PRIVATE_SOURCES_PHYSICS}
     )
-
-source_group("Sources/Subsystems"
+source_group("Sources/UI"
     FILES
-    ${PUBLIC_SOURCES_SUBSYSTEMS}
-    ${PRIVATE_SOURCES_SUBSYSTEMS}
+    ${PUBLIC_SOURCES_UI}
+    ${PRIVATE_SOURCES_UI}
+    )
+source_group("Sources/Debug"
+    FILES
+    ${PUBLIC_SOURCES_DEBUG}
+    ${PRIVATE_SOURCES_DEBUG}
+    )
+source_group("Sources/Behaviour"
+    FILES
+    ${PUBLIC_SOURCES_BEHAVIOUR}
+    ${PRIVATE_SOURCES_BEHAVIOUR}
+    )
+source_group("Sources/Render"
+    FILES
+    ${PUBLIC_SOURCES_RENDER}
+    ${PRIVATE_SOURCES_RENDER}
+    )
+source_group("Sources/Resources"
+    FILES
+    ${PUBLIC_SOURCES_RESOURCES}
+    ${PRIVATE_SOURCES_RESOURCES}
     )
 
 target_include_directories(OksEngine
@@ -119,16 +200,5 @@ target_include_directories(OksEngine
         ${CMAKE_CURRENT_LIST_DIR}/Systems
         ${CMAKE_CURRENT_LIST_DIR}/Subsystems)
 
-
-add_subdirectory(Common)
-add_subdirectory(OS)
-add_subdirectory(ECS)
-add_subdirectory(Lua)
 add_subdirectory(Tests)
-add_subdirectory(Render)
-add_subdirectory(Math)
-add_subdirectory(Geometry)
-add_subdirectory(UI)
-add_subdirectory(Resources)    
-add_subdirectory(Datastructures)
-add_subdirectory(Physics)
+add_subdirectory(Libraries)

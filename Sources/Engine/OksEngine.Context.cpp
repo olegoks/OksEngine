@@ -1,18 +1,18 @@
 
 #include <memory>
-#include <OksEngine.Behaviour.hpp>
+#include <Behaviour/OksEngine.Behaviour.hpp>
 
 
-#include <OksEngine.UI.Subsystem.hpp>
-#include <OksEngine.Render.Subsystem.hpp>
-#include <OksEngine.Resource.Subsystem.hpp>
+#include <UI/OksEngine.UI.Subsystem.hpp>
+#include <Render/OksEngine.Render.Subsystem.hpp>
+#include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <ECS.hpp>
 
 #include <OksEngine.Config.hpp>
 
-#include <OksEngine.Log.Subsystem.hpp>
-#include <OksEngine.Physics.Subsystem.hpp>
-#include <OksEngine.Engine.System.hpp>
+#include <Common/OksEngine.Log.Subsystem.hpp>
+#include <Physics/OksEngine.Physics.Subsystem.hpp>
+#include <Common/OksEngine.Engine.System.hpp>
 
 namespace OksEngine
 {
