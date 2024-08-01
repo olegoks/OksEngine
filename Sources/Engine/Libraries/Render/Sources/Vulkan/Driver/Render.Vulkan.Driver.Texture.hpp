@@ -1,11 +1,12 @@
 #pragma once 
 
+#include <RAL.Texture.hpp>
 
 #include <Render.Vulkan.Common.hpp>
 
 namespace Render::Vulkan {
 
-	class Texture {
+	class Texture : public RAL::Texture {
 	public:
 
 		struct CreateInfo {

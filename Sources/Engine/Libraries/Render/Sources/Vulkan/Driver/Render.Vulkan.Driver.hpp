@@ -1043,6 +1043,11 @@ namespace Render::Vulkan {
 			}
 		}
 
+		[[nodiscard]]
+		Common::Id CreateTexture(std::shared_ptr<RAL::Texture> ralTexture) {
+						
+		}
+
 	private:
 		size_t currentFrame = 0;
 
@@ -1085,6 +1090,9 @@ namespace Render::Vulkan {
 		std::vector<std::shared_ptr<ColoredShape>> coloredShapes_;
 
 		std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
+
+		std::map<Common::Id, std::shared_ptr<Texture>> textures_;
+
 	};
 
 }

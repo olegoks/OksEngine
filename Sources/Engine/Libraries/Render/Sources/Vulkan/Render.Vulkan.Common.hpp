@@ -8,6 +8,7 @@
 #include <Math.hpp>
 #include <Geometry.hpp>
 #include <RAL.Common.hpp>
+#include <Common.Identifier.hpp>
 
 namespace Render::Vulkan {
 
