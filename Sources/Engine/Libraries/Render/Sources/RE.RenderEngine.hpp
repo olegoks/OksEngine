@@ -1,9 +1,10 @@
 #pragma once
-#include <chrono>
+
 #include <Math.hpp>
 #include <Geometry.Shapes.hpp>
 #include <Geometry.Model.hpp>
 #include <RAL.hpp>
+#include <RAL.Texture.hpp>
 
 namespace RE {
 
@@ -31,6 +32,7 @@ namespace RE {
 
 			struct Shape {
 				Common::Index id_ = 0;
+				RAL::Texture::Id texture_ = RAL::Texture::Id::Invalid();
 			};
 
 			std::vector<Shape> shapes_;
@@ -52,7 +54,7 @@ namespace RE {
 
 	private:
 
-		std::shared_ptr<Geom::Texture<Geom::Color4b>> imguiTexture_ = nullptr;
+		RAL::Texture::Id imguiTextureId_ = RAL::Texture::Id::Invalid();
 
 		std::shared_ptr<class RAL::API> api_ = nullptr;
 		std::shared_ptr<class RAL::Driver> driver_ = nullptr;

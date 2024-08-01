@@ -23,10 +23,26 @@ namespace OksEngine {
 		virtual Common::TypeId GetTypeId() const noexcept override;
 	};
 
+
 	class CameraSystem : public ECSSystem {
 	public:
 
 		CameraSystem(Context& context) noexcept;
+
+	public:
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
+
+	private:
+
+		virtual Common::TypeId GetTypeId() const noexcept override;
+	};
+
+
+	class ImGuiSystem : public ECSSystem {
+	public:
+
+		ImGuiSystem(Context& context) noexcept;
 
 	public:
 

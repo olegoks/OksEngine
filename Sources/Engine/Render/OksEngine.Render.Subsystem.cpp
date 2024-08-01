@@ -81,7 +81,6 @@ namespace OksEngine {
 		RE::RenderEngine::CreateInfo RECreateInfo{
 			.camera_ = camera,
 			.light_ = light,
-
 			.imguiVertexShader_ = std::move(imguiVertexShader),
 			.imguiFragmentShader_ = std::move(imguiFragmentShader),
 			.linesVertexShader_ = std::move(linesVertexShader),

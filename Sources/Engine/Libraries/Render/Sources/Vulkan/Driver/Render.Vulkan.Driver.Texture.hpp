@@ -10,15 +10,12 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
-			std::string name_ = "No name";
+			RAL::Texture::CreateInfo ralCreateInfo_;
 			std::shared_ptr<class PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<class LogicDevice> logicDevice_ = nullptr;
 			std::shared_ptr<class CommandPool> commandPool_ = nullptr;
 			std::shared_ptr<class DescriptorPool> descriptorPool_ = nullptr;
-			glm::u32vec2 size_{ 0, 0 };
 			VkFormat format_ = VK_FORMAT_UNDEFINED;
-			const void* pixels_ = nullptr;
-
 		};
 
 		Texture(const CreateInfo& createInfo);

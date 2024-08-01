@@ -37,5 +37,5 @@ namespace Common {
 
 	};
 
-	using Id = Identifier;
+	using Id = Identifier<Common::UInt64>;
 }

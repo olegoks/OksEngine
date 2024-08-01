@@ -6,6 +6,7 @@
 #include <any>
 
 #include <OS.Assert.hpp>
+#include <Common.hpp>
 #include <Common.Types.hpp>
 #include <Math.Vector.hpp>
 #include <Math.Matrix.hpp>
@@ -148,7 +149,6 @@ namespace RAL {
 		};
 
 		struct CreateInfo {
-			//std::shared_ptr<Pipeline> imguiNativePipeline_ = nullptr;
 			std::shared_ptr<Pipeline> imguiPipeline_ = nullptr;
 			std::shared_ptr<Pipeline> linesPipeline_ = nullptr;
 			std::shared_ptr<Pipeline> texturedPipeline_ = nullptr;
@@ -182,7 +182,7 @@ namespace RAL {
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indicesNumber,
-			std::shared_ptr<RAL::Texture> texture) = 0;
+			RAL::Texture::Id textureId) = 0;
 
 		virtual Common::UInt64 DrawIndexed(
 			const glm::mat4& model_,
@@ -190,7 +190,7 @@ namespace RAL {
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indicesNumber,
-			std::shared_ptr<RAL::Texture> texture) = 0;
+			RAL::Texture::Id textureId) = 0;
 
 		virtual Common::UInt64 DrawIndexed(
 			const glm::mat4& model_,
@@ -214,6 +214,9 @@ namespace RAL {
 			Common::Size indeciesNumber,
 			const Color3f& color) = 0;
 
+		/* Textures */
+		[[nodiscard]]
+		virtual Texture::Id CreateTexture(const RAL::Texture::CreateInfo& createInfo) = 0;
 
 		//virtual void SetPosition(
 		//	Common::Index shapeIndex,

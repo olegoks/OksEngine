@@ -532,7 +532,8 @@ namespace Render::Vulkan {
 						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
 						descriptorSets.push_back(globalDataDSs_[i]);
 						descriptorSets.push_back(shape->GetTransformDescriptorSet());
-						descriptorSets.push_back(shape->GetTexture()->GetDS());
+						const auto texture = GetTextureById(shape->GetTexture());
+						descriptorSets.push_back(texture->GetDS());
 						commandBuffer->BindDescriptorSets(texturedModelPipeline_, descriptorSets);
 					}
 					commandBuffer->DrawShape(shape);
@@ -544,7 +545,8 @@ namespace Render::Vulkan {
 					{
 						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
 						descriptorSets.push_back(shape->GetTransformDescriptorSet());
-						descriptorSets.push_back(shape->GetTexture()->GetDS());
+						const auto texture = GetTextureById(shape->GetTexture());
+						descriptorSets.push_back(texture->GetDS());
 						commandBuffer->BindDescriptorSets(imguiPipeline_, descriptorSets);
 					}
 					commandBuffer->DrawShape(shape);
@@ -700,7 +702,7 @@ namespace Render::Vulkan {
 			Common::Size verticesNumber,
 			const Index16* indices,
 			Common::Size indicesNumber,
-			std::shared_ptr<RAL::Texture> texture) override {
+			RAL::Texture::Id textureId) override {
 
 			AllocatedVertexBuffer<Vertex2ftc>::CreateInfo vertexBufferCreateInfo{};
 			{
@@ -722,19 +724,18 @@ namespace Render::Vulkan {
 			}
 			auto allocatedIndexBuffer = std::make_shared<AllocatedIndexBuffer<Index16>>(indexBufferCreateInfo);
 
-
-			Texture::CreateInfo textureCreateInfo{};
-			{
-				textureCreateInfo.name_ = "ImGui texture";
-				textureCreateInfo.physicalDevice_ = physicalDevice_;
-				textureCreateInfo.logicDevice_ = logicDevice_;
-				textureCreateInfo.format_ = VK_FORMAT_R8G8B8A8_UNORM;
-				textureCreateInfo.size_ = texture->GetSize();
-				textureCreateInfo.pixels_ = texture->GetPixels<RAL::Color4b>();
-				textureCreateInfo.commandPool_ = commandPool_;
-				textureCreateInfo.descriptorPool_ = descriptorPool_;
-			}
-			auto vkTexture = std::make_shared<Texture>(textureCreateInfo);
+			//Texture::CreateInfo textureCreateInfo{};
+			//{
+			//	textureCreateInfo.name_ = "ImGui texture";
+			//	textureCreateInfo.physicalDevice_ = physicalDevice_;
+			//	textureCreateInfo.logicDevice_ = logicDevice_;
+			//	textureCreateInfo.format_ = VK_FORMAT_R8G8B8A8_UNORM;
+			//	textureCreateInfo.size_ = texture->GetSize();
+			//	textureCreateInfo.pixels_ = texture->GetPixels/*<RAL::Color4b>*/();
+			//	textureCreateInfo.commandPool_ = commandPool_;
+			//	textureCreateInfo.descriptorPool_ = descriptorPool_;
+			//}
+			//auto vkTexture = std::make_shared<Texture>(textureCreateInfo);
 
 			struct Transform {
 				glm::vec2 scale_;
@@ -764,7 +765,7 @@ namespace Render::Vulkan {
 				texturedShapeCreateInfo.transformDescriptorSet_ = modelTransform;
 				texturedShapeCreateInfo.vertexBuffer_ = allocatedVertexBuffer;
 				texturedShapeCreateInfo.indexBuffer_ = allocatedIndexBuffer;
-				texturedShapeCreateInfo.texture_ = vkTexture;
+				texturedShapeCreateInfo.textureId_ = textureId;
 			}
 			auto texturedShape = std::make_shared<UIShape>(texturedShapeCreateInfo);
 			UIShapes_.push_back(texturedShape);
@@ -777,7 +778,7 @@ namespace Render::Vulkan {
 			Common::Size verticesNumber,
 			const RAL::Index16* indices,
 			Common::Size indicesNumber,
-			std::shared_ptr<RAL::Texture> texture) override {
+			RAL::Texture::Id textureId) override {
 
 			AllocatedVertexBuffer<Vertex3fnt>::CreateInfo vertexBufferCreateInfo{};
 			{
@@ -799,7 +800,7 @@ namespace Render::Vulkan {
 			}
 			auto allocatedIndexBuffer = std::make_shared<AllocatedIndexBuffer<Index16>>(indexBufferCreateInfo);
 
-			Texture::CreateInfo textureCreateInfo{};
+			/*Texture::CreateInfo textureCreateInfo{};
 			{
 				textureCreateInfo.name_ = "Texture";
 				textureCreateInfo.physicalDevice_ = physicalDevice_;
@@ -811,7 +812,7 @@ namespace Render::Vulkan {
 				textureCreateInfo.descriptorPool_ = descriptorPool_;
 			}
 
-			auto vkTexture = std::make_shared<Texture>(textureCreateInfo);
+			auto vkTexture = std::make_shared<Texture>(textureCreateInfo);*/
 
 			const VkDeviceSize bufferSize = sizeof(Transform);
 			auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
@@ -834,7 +835,7 @@ namespace Render::Vulkan {
 				texturedShapeCreateInfo.transformDescriptorSet_ = modelTransform;
 				texturedShapeCreateInfo.vertexBuffer_ = allocatedVertexBuffer;
 				texturedShapeCreateInfo.indexBuffer_ = allocatedIndexBuffer;
-				texturedShapeCreateInfo.texture_ = vkTexture;
+				texturedShapeCreateInfo.textureId_ = textureId;
 			}
 			auto texturedShape = std::make_shared<TexturedShape>(texturedShapeCreateInfo);
 			texturedShapes_.push_back(texturedShape);
@@ -1044,8 +1045,28 @@ namespace Render::Vulkan {
 		}
 
 		[[nodiscard]]
-		Common::Id CreateTexture(std::shared_ptr<RAL::Texture> ralTexture) {
-						
+		virtual RAL::Texture::Id CreateTexture(const RAL::Texture::CreateInfo& createInfo) override {
+
+			const Texture::CreateInfo textureCreateInfo{
+				.ralCreateInfo_ = createInfo,
+				.physicalDevice_ = physicalDevice_,
+				.logicDevice_ = logicDevice_,
+				.commandPool_ = commandPool_,
+				.descriptorPool_ = descriptorPool_,
+				.format_ = VK_FORMAT_R8G8B8A8_UNORM
+			};
+			auto texture = std::make_shared<Texture>(textureCreateInfo);
+
+			const RAL::Texture::Id textureId = textures_.size();
+			textures_[textureId] = texture;
+			return textureId;
+		}
+
+	private:
+
+		[[nodiscard]]
+		std::shared_ptr<Texture> GetTextureById(RAL::Texture::Id id) noexcept {
+			return textures_[id];
 		}
 
 	private:

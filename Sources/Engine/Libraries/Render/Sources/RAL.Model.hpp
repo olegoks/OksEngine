@@ -2,7 +2,7 @@
 
 #include <Common.Types.hpp>
 #include <Datastructures.Vector.hpp>
-#include <RAL.Common.hpp>
+#include <RAL.Texture.hpp>
 
 namespace RAL {
 	

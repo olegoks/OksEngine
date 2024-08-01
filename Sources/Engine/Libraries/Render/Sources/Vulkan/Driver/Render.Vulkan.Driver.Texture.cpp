@@ -12,14 +12,14 @@
 namespace Render::Vulkan {
 
 
-	Texture::Texture(const CreateInfo& createInfo) {
+	Texture::Texture(const CreateInfo& createInfo) : RAL::Texture{ createInfo.ralCreateInfo_ }{
 			OS::Assert(createInfo.format_ == VK_FORMAT_R8G8B8A8_UNORM);
-			auto textureStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.size_.x * createInfo.size_.y * sizeof(RAL::Color4b));
-			textureStagingBuffer->Fill(createInfo.pixels_);
+			auto textureStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.logicDevice_, GetSize().x * GetSize().y * sizeof(RAL::Color4b));
+			textureStagingBuffer->Fill(GetPixels().data());
 
 			AllocatedTextureImage::CreateInfo textureImageCreateInfo;
 			{
-				textureImageCreateInfo.size_ = createInfo.size_;
+				textureImageCreateInfo.size_ = GetSize();
 				textureImageCreateInfo.format_ = createInfo.format_;
 				textureImageCreateInfo.logicDevice_ = createInfo.logicDevice_;
 				textureImageCreateInfo.physicalDevice_ = createInfo.physicalDevice_;

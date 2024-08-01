@@ -188,6 +188,7 @@ namespace Render::Vulkan {
 			}
 			default: {
 				OS::NotImplemented();
+				return EShLanguage::EShLangCount;
 			}
 			};
 
