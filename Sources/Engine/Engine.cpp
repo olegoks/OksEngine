@@ -21,8 +21,9 @@ namespace OksEngine {
 		while (IsRunning()) {
 			context_->GetPhysicsSubsystem()->Update();
 			context_->GetECSWorld()->Process();
-			context_->GetRenderSubsystem()->Update();
+			//UI Subsystem must be updated before render to call ImGui_ImplGlfw_NewFrame()
 			context_->GetUISubsystem()->Update();
+			context_->GetRenderSubsystem()->Update();
 			using namespace std::chrono_literals;
 			auto now = std::chrono::high_resolution_clock::now();
 			auto delta = (now - previousUpdate);

@@ -126,14 +126,16 @@ namespace RE {
 
 	void RenderEngine::RenderImGui() {
 
-		ImGui_ImplGlfw_NewFrame();
-		//ImGui_ImplVulkan_NewFrame();
-		{
+		/*if (!ImGui::GetIO().Fonts->IsBuilt()) {
+			ImGui::GetIO().Fonts->Build();
+		}*/
+		/*{
+			
 			unsigned char* pixels;
 			int width, height;
 			ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 			size_t upload_size = width * height * 4 * sizeof(char);
-		}
+		}*/
 		ImGui::NewFrame();
 		{
 			if (ImGui::BeginMainMenuBar()) {
@@ -141,6 +143,14 @@ namespace RE {
 				if (ImGui::BeginMenu("Engine")) {
 					ImGui::MenuItem("Performance profiler", NULL, false, true);
 					ImGui::MenuItem("ECS", NULL, false, false);
+					ImGui::EndMenu();
+				}
+				// End the menu bar.
+				ImGui::EndMainMenuBar();
+			}
+			if (ImGui::BeginMainMenuBar()) {
+				// Add items to the menu bar.
+				if (ImGui::BeginMenu("Engine")) {
 					ImGui::MenuItem("Render", NULL, false, false);
 					ImGui::MenuItem("Help", NULL, false, false);
 					ImGui::EndMenu();
@@ -313,6 +323,7 @@ namespace RE {
 	}
 
 	void RenderEngine::Render() {
+
 		RenderImGui();
 
 		driver_->StartRender();

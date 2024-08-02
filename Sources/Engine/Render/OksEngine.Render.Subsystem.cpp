@@ -290,7 +290,12 @@ namespace OksEngine {
 
 		//engine_->RotateModel(dragonLore_, { 1, 0, 0 }, 1);
 		//engine_->RotateModel(skeleton_, { 0, 1, 0 }, 1);
+
 		engine_->Render();
+	}
+
+	void RenderSubsystem::AddImGuiCallback(ImGuiCallback&& imguiCallback) {
+		engine_->AddImGuiCallback([imguiCallback]() { imguiCallback(); });
 	}
 
 	void RenderSubsystem::UpdateCamera(Camera* camera) {
