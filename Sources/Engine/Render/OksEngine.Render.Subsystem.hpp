@@ -35,6 +35,8 @@ namespace OksEngine {
 
 		virtual void Update() noexcept override;
 
+		using ImGuiCallback = std::function<void()>;
+		void AddImGuiCallback(ImGuiCallback&& imguiCallback);
 		void UpdateCamera(Camera* camera);
 		void UpdateImmutableRenderGeometry(ImmutableRenderGeometry* immutableRenderGeometry);
 

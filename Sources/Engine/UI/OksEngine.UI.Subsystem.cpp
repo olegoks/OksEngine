@@ -45,6 +45,7 @@ namespace OksEngine {
 	}
 
 	void UISubsystem::Update() {
+		
 		window_->ProcessInput();
 	}
 

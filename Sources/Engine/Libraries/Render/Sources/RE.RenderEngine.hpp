@@ -52,7 +52,13 @@ namespace RE {
 
 		void Render();
 
+		using ImGuiRenderFunction = std::function<void()>;
+		void AddImGuiCallback(std::function<void()>&& imguiCallback) {
+			imguiCallbacks_.push_back(std::move(imguiCallback));
+		}
 	private:
+
+		std::vector<ImGuiRenderFunction> imguiCallbacks_;
 
 		RAL::Texture::Id imguiTextureId_ = RAL::Texture::Id::Invalid();
 
