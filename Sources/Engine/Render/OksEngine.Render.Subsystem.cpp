@@ -27,7 +27,6 @@ namespace OksEngine {
 		auto ecsWorld = context.GetECSWorld();
 		ecsWorld->RegisterSystem<RenderSystem>(context);
 		ecsWorld->RegisterSystem<CameraSystem>(context);
-
 		auto uiSubsystem = context.GetUISubsystem();
 		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UI::Render::Vulkan);
 		RAL::RenderSurface renderSurface;
@@ -291,12 +290,41 @@ namespace OksEngine {
 		//engine_->RotateModel(dragonLore_, { 1, 0, 0 }, 1);
 		//engine_->RotateModel(skeleton_, { 0, 1, 0 }, 1);
 
+		
+		//for (auto& callback : imguiCallbacks_) {
+		//	callback();
+		//}
+	//	if (ImGui::BeginMainMenuBar()) {
+	//				// Add items to the menu bar.
+	//	if (ImGui::BeginMenu("Engine")) {
+	//		static bool showPerformanceProfiler_ = false;
+	//		ImGui::MenuItem("Performance profiler", nullptr, &showPerformanceProfiler_);
+
+	//		ImGui::MenuItem("ECS ", NULL, false, false);
+	//		ImGui::EndMenu();
+	//	}
+	//	// End the menu bar.
+	//	ImGui::EndMainMenuBar();
+	//}
+	//if (ImGui::BeginMainMenuBar()) {
+	//	// Add items to the menu bar.
+	//	if (ImGui::BeginMenu("Engine")) {
+	//		ImGui::MenuItem("Render", NULL, false, false);
+	//		ImGui::MenuItem("Help", NULL, false, false);
+	//		ImGui::EndMenu();
+	//	}
+	//	// End the menu bar.
+	//	ImGui::EndMainMenuBar();
+	//}
+
+	//	//imguiCallbacks_.clear();
+		
 		engine_->Render();
 	}
 
-	void RenderSubsystem::AddImGuiCallback(ImGuiCallback&& imguiCallback) {
-		engine_->AddImGuiCallback([imguiCallback]() { imguiCallback(); });
-	}
+	//void RenderSubsystem::AddImGuiCallback(ImGuiCallback&& imguiCallback) {
+	//	imguiCallbacks_.push_back(std::move(imguiCallback));
+	//}
 
 	void RenderSubsystem::UpdateCamera(Camera* camera) {
 

@@ -23,6 +23,10 @@ namespace ECS {
 			componentsManager_.CreateComponent<ComponentType>(entityId, std::forward<Args>(args)...);
 		}
 
+		template<class ComponentType>
+		void RemoveComponent(Entity::Id entityId) noexcept {
+			componentsManager_.RemoveComponent<ComponentType>();
+		}
 		template<class SystemType, class ...Args>
 		std::shared_ptr<SystemType> RegisterSystem(Args&& ...args) noexcept {
 			return systemsManager_.RegisterSystem<SystemType>(std::forward<Args>(args)...);
@@ -33,6 +37,12 @@ namespace ECS {
 		[[nodiscard]]
 		ComponentType* GetComponent(Entity::Id entityId) noexcept {
 			return componentsManager_.GetComponent<ComponentType>(entityId);
+		}
+
+		template<class ComponentType>
+		[[nodiscard]]
+		bool IsComponentExist(Entity::Id entityId) noexcept {
+			return componentsManager_.IsComponentExist<ComponentType>(entityId);
 		}
 
 		void Process() noexcept {
@@ -74,6 +84,17 @@ namespace ECS {
 		[[nodiscard]]
 		Common::Size GetEntitiesNumber() const noexcept {
 			return entitiesManager_.GetEntitiesNumber();
+		}
+
+		[[nodiscard]]
+		std::vector<Entity::Id> GetEntitiesId() noexcept {
+			std::vector<Entity::Id> entitiesIds;
+			entitiesIds.reserve(entitiesManager_.GetEntitiesNumber());
+			entitiesManager_.ForEachEntity(
+				[&entitiesIds](Entity::Id entityId) {
+					entitiesIds.push_back(entityId);
+				});
+			return entitiesIds;
 		}
 
 		[[nodiscard]]

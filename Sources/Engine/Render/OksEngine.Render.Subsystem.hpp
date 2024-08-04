@@ -6,6 +6,7 @@
 #include <Geometry.Model.hpp>
 #include <UI/OksEngine.UI.Subsystem.hpp>
 #include <Render/OksEngine.Render.System.hpp>
+#include <Debug/OksEngine.DebugUI.System.hpp>
 #include <RAL.Light.hpp>
 #include <RAL.Camera.hpp>
 
@@ -35,12 +36,14 @@ namespace OksEngine {
 
 		virtual void Update() noexcept override;
 
-		using ImGuiCallback = std::function<void()>;
-		void AddImGuiCallback(ImGuiCallback&& imguiCallback);
+		//using ImGuiCallback = std::function<void(std::shared_ptr<ECS::World> world)>;
+		//void AddImGuiCallback(ImGuiCallback&& imguiCallback);
 		void UpdateCamera(Camera* camera);
 		void UpdateImmutableRenderGeometry(ImmutableRenderGeometry* immutableRenderGeometry);
-
 	private:
+
+		//std::vector<ImGuiCallback> imguiCallbacks_;
+
 		std::vector<RE::RenderEngine::Model> models_;
 		std::shared_ptr<RE::RenderEngine> engine_ = nullptr;
 	};

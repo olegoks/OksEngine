@@ -16,6 +16,7 @@ namespace OksEngine {
 			Physics,
 			Engine,
 			Log,
+			Debug,
 			Undefined
 		};
 

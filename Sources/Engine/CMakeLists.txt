@@ -139,9 +139,10 @@ target_sources(OksEngine
         ${PRIVATE_SOURCES_BEHAVIOUR}
         ${PRIVATE_SOURCES_RESOURCES}
     )
-
+    find_package(imgui CONFIG REQUIRED)
 target_link_libraries(OksEngine
     PUBLIC
+        imgui::imgui
         Geometry
         ECS
         LuaLayer

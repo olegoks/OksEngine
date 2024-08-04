@@ -29,7 +29,7 @@ namespace ECS {
 		}
 
 		template<class SystemType>
-		std::shared_ptr<System> GetSystem() const noexcept {
+		std::shared_ptr<System> GetSystem() noexcept {
 			std::shared_ptr<System> foundSystem = nullptr;
 			Common::TypeId searchSystemTypeId = Common::TypeInfo<SystemType>().GetId();
 			ForEachSystem([&foundSystem, searchSystemTypeId](std::shared_ptr<System> system) {
@@ -39,7 +39,7 @@ namespace ECS {
 				}
 				return true;
 				});
-			return system;
+			return foundSystem;
 		}
 
 		[[nodiscard]]

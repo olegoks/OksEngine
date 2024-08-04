@@ -136,75 +136,8 @@ namespace RE {
 			ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 			size_t upload_size = width * height * 4 * sizeof(char);
 		}*/
-		ImGui::NewFrame();
-		{
-			if (ImGui::BeginMainMenuBar()) {
-				// Add items to the menu bar.
-				if (ImGui::BeginMenu("Engine")) {
-					ImGui::MenuItem("Performance profiler", NULL, false, true);
-					ImGui::MenuItem("ECS", NULL, false, false);
-					ImGui::EndMenu();
-				}
-				// End the menu bar.
-				ImGui::EndMainMenuBar();
-			}
-			if (ImGui::BeginMainMenuBar()) {
-				// Add items to the menu bar.
-				if (ImGui::BeginMenu("Engine")) {
-					ImGui::MenuItem("Render", NULL, false, false);
-					ImGui::MenuItem("Help", NULL, false, false);
-					ImGui::EndMenu();
-				}
-				// End the menu bar.
-				ImGui::EndMainMenuBar();
-			}
-		}
-		{
-			bool isOpen = true;
-			ImGui::Begin("Engine performance", &isOpen, 0);
 
-
-			static Common::UInt64 renderCalls = 0;
-			++renderCalls;
-
-			using namespace std::chrono_literals;
-			std::chrono::high_resolution_clock::time_point now;
-			static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
-
-			now = std::chrono::high_resolution_clock::now();
-			auto delta = now - point;
-
-			auto microseconds = std::chrono::duration_cast<std::chrono::microseconds>(delta).count();
-			static Common::Size lastFps = 0;
-			static std::vector<Common::Size> fps_;
-			static std::vector<Common::Size> timePoints_;
-			if (microseconds > 1000000) {
-				Common::Size framesPerSecond = renderCalls * 1000000 / microseconds;
-				ImGui::TextDisabled("Fps: %d", framesPerSecond);
-				fps_.push_back(framesPerSecond);
-				timePoints_.push_back(fps_.size());
-				renderCalls = 0;
-				point = now;
-				lastFps = framesPerSecond;
-
-			}
-			else {
-				ImGui::TextDisabled("Fps: %d", lastFps);
-			}
-
-			ImGui::Begin("My Window");
-			if (ImPlot::BeginPlot("My Plot")) {
-				ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
-				ImPlot::EndPlot();
-			}
-			ImGui::End();
-			ImGui::End();
-		}
-
-		ImGui::Render();
-		
 		ImDrawData* draw_data = ImGui::GetDrawData();
-
 		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
 		int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
 		int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
