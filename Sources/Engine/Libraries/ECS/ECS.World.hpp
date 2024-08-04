@@ -25,7 +25,7 @@ namespace ECS {
 
 		template<class ComponentType>
 		void RemoveComponent(Entity::Id entityId) noexcept {
-			componentsManager_.RemoveComponent<ComponentType>();
+			componentsManager_.RemoveComponent<ComponentType>(entityId);
 		}
 		template<class SystemType, class ...Args>
 		std::shared_ptr<SystemType> RegisterSystem(Args&& ...args) noexcept {

@@ -38,12 +38,10 @@ namespace ECS {
 				}
 				else {
 					OS::AssertFailMessage("Attempt to remove component that doesnt exist.");
-					return nullptr;
 				}
 			}
 			else {
 				OS::AssertFailMessage("Attempt to remove component that doesnt exist.");
-				return nullptr;
 			}
 		}
 
@@ -54,6 +52,9 @@ namespace ECS {
 			if (maybeContainer.has_value()) {
 				Ptr<Container<ComponentType>> container = maybeContainer.value();
 				auto entityComponentsIt = entityComponents_.find(entityId);
+				if (entityComponentsIt == entityComponents_.end()) {
+					return nullptr;
+				}
 				if (entityComponentsIt->second.IsComponentExist<ComponentType>()) {
 					const ComponentIndex componentIndex = entityComponentsIt->second.GetComponentIndex<ComponentType>();
 					ComponentType* component = (*container)[componentIndex];
@@ -73,6 +74,9 @@ namespace ECS {
 			if (maybeContainer.has_value()) {
 				Ptr<const Container<ComponentType>> container = maybeContainer.value();
 				const auto entityComponentsIt = entityComponents_.find(entityId);
+				if (entityComponentsIt == entityComponents_.end()) {
+					return nullptr;
+				}
 				if (entityComponentsIt->second.IsComponentExist<ComponentType>()) {
 					const ComponentIndex componentIndex = entityComponentsIt->second.GetComponentIndex<ComponentType>();
 					const ComponentType* component = (*container)[componentIndex];
