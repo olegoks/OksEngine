@@ -21,6 +21,33 @@ namespace ECS {
 		}
 
 		template<class ComponentType>
+		void RemoveComponent(Entity::Id entityId) noexcept {
+			Maybe<Ptr<Container<ComponentType>>> maybeContainer = GetContainer<ComponentType>();
+			if (maybeContainer.has_value()) {
+				Ptr<Container<ComponentType>> container = maybeContainer.value();
+				auto entityComponentsIt = entityComponents_.find(entityId);
+
+				if (entityComponentsIt->second.IsComponentExist<ComponentType>()) {
+					/*const ComponentIndex componentIndex = entityComponentsIt->second.GetComponentIndex<ComponentType>();
+					ComponentType* component = (*container)[componentIndex];
+					OS::AssertMessage(
+						!component->IsRemove(),
+						"Attempt to remove component that was removed.");
+					(*component).~ComponentType();*/
+					entityComponentsIt->second.RemoveComponent<ComponentType>();
+				}
+				else {
+					OS::AssertFailMessage("Attempt to remove component that doesnt exist.");
+					return nullptr;
+				}
+			}
+			else {
+				OS::AssertFailMessage("Attempt to remove component that doesnt exist.");
+				return nullptr;
+			}
+		}
+
+		template<class ComponentType>
 		[[nodiscard]]
 		ComponentType* GetComponent(Entity::Id entityId) noexcept {
 			Maybe<Ptr<Container<ComponentType>>> maybeContainer = GetContainer<ComponentType>();
@@ -41,8 +68,29 @@ namespace ECS {
 
 		template<class ComponentType>
 		[[nodiscard]]
+		const ComponentType* GetComponent(Entity::Id entityId) const noexcept {
+			Maybe<Ptr<Container<ComponentType>>> maybeContainer = GetContainer<ComponentType>();
+			if (maybeContainer.has_value()) {
+				Ptr<const Container<ComponentType>> container = maybeContainer.value();
+				const auto entityComponentsIt = entityComponents_.find(entityId);
+				if (entityComponentsIt->second.IsComponentExist<ComponentType>()) {
+					const ComponentIndex componentIndex = entityComponentsIt->second.GetComponentIndex<ComponentType>();
+					const ComponentType* component = (*container)[componentIndex];
+					return component;
+				}
+				else {
+					return nullptr;
+				}
+			}
+			else {
+				return nullptr;
+			}
+		}
+
+		template<class ComponentType>
+		[[nodiscard]]
 		bool IsComponentExist(Entity::Id entityId) const noexcept {
-			return (GetComponent<ComponentType>() != nullptr);
+			return (GetComponent<ComponentType>(entityId) != nullptr);
 		}
 
 	private:
@@ -73,6 +121,11 @@ namespace ECS {
 
 			[[nodiscard]]
 			ComponentType* operator[](std::size_t index) noexcept {
+				return &components_[index];
+			}
+
+			[[nodiscard]]
+			const ComponentType* operator[](std::size_t index) const noexcept {
 				return &components_[index];
 			}
 
@@ -111,6 +164,18 @@ namespace ECS {
 		}
 
 		template<class ComponentType>
+		Maybe<const Ptr<Container<ComponentType>>> GetContainer() const noexcept {
+			const ComponentTypeId componentTypeId = IComponent<ComponentType>::GetTypeId();
+			auto it = componentContainer_.find(componentTypeId);
+			if (it != componentContainer_.end()) {
+				return std::dynamic_pointer_cast<Container<ComponentType>>(it->second);
+			}
+			else {
+				return {};
+			}
+		}
+
+		template<class ComponentType>
 		Ptr<Container<ComponentType>> CreateContainer() noexcept {
 			const ComponentTypeId componentTypeId = ComponentType::GetTypeId();
 			auto createdContainerPointer = std::make_shared<Container<ComponentType>>();
@@ -137,12 +202,12 @@ namespace ECS {
 
 			template<class ComponentType>
 			[[nodiscard]]
-			ComponentIndex GetComponentIndex() noexcept {
+			ComponentIndex GetComponentIndex() const noexcept {
 
 				const ComponentTypeId componentTypeId = ComponentType::GetTypeId();
-				const ComponentIndex componentIndex = typeIndex_[componentTypeId];
+				const ComponentIndex componentIndex = typeIndex_.find(componentTypeId)->second;
 
-				return componentIndex;//componentIndex;// typeIndex_[ComponentType::GetTypeId()];
+				return componentIndex;
 			} 
 
 			template<class ComponentType>
@@ -151,6 +216,14 @@ namespace ECS {
 				ComponentTypeId componentTypeId = ComponentType::GetTypeId();
 				typeIndex_.insert(std::pair{ componentTypeId, componentIndex });
 				
+			}
+
+			template<class ComponentType>
+			void RemoveComponent() noexcept {
+
+				ComponentTypeId componentTypeId = ComponentType::GetTypeId();
+				typeIndex_.erase(componentTypeId);
+
 			}
 
 		private:

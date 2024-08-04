@@ -9,6 +9,7 @@ namespace OksEngine {
 		auto& context = GetContext();
 		auto config = context.GetConfig();
 		context.GetECSWorld()->RegisterSystem<UISystem>(context);
+		/*context.GetECSWorld()->RegisterSystem<>*/
 		api_ = std::make_shared<UI::API>();
 		UI::Window::CreateInfo windowCreateInfo;
 		{

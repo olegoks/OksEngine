@@ -5,7 +5,21 @@
 #include <Render/OksEngine.Render.Subsystem.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <UI/OksEngine.UI.Subsystem.hpp>
+
+/*Reneder*/
+#include <Render/OksEngine.Render.System.hpp>
+
+/*Common*/
+#include <Common/OksEngine.Engine.System.hpp>
+
+/*Physics*/
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
+#include <Physics/OksEngine.Physics.System.hpp>
+
+/*UI*/
+#include <UI/OksEngine.UI.System.hpp>
+
+#include <Debug/OksEngine.Debug.Subsystem.hpp>
 
 namespace OksEngine {
 
@@ -19,16 +33,28 @@ namespace OksEngine {
 	void Engine::Update() noexcept {
 		std::chrono::high_resolution_clock::time_point previousUpdate;
 		while (IsRunning()) {
-			context_->GetPhysicsSubsystem()->Update();
-			context_->GetECSWorld()->Process();
-			//UI Subsystem must be updated before render to call ImGui_ImplGlfw_NewFrame()
 			context_->GetUISubsystem()->Update();
+			context_->GetPhysicsSubsystem()->Update();
+			{
+				context_->GetECSWorld()->RunSystem<UISystem>();
+				context_->GetECSWorld()->RunSystem<BehaviourSystem>();
+				context_->GetECSWorld()->RunSystem<PhysicsSystem>();
+				context_->GetECSWorld()->RunSystem<PhysicsGeometryMapper>();
+				context_->GetECSWorld()->RunSystem<CameraSystem>();
+				context_->GetECSWorld()->RunSystem<AttachCameraSystem>();
+				context_->GetECSWorld()->RunSystem<CameraSystem>();
+				ImGui::NewFrame();
+				context_->GetECSWorld()->RunSystem<MainMenuBarSystem>();
+				context_->GetECSWorld()->RunSystem<EnginePerformanceSystem>();
+				context_->GetECSWorld()->RunSystem<ECSInspectorSystem>();
+				ImGui::Render();
+				context_->GetECSWorld()->RunSystem<RenderSystem>();
+			}
+			//context_->GetECSWorld()->Process();
+			//UI Subsystem must be updated before render to call ImGui_ImplGlfw_NewFrame()
+
 			context_->GetRenderSubsystem()->Update();
-			using namespace std::chrono_literals;
-			auto now = std::chrono::high_resolution_clock::now();
-			auto delta = (now - previousUpdate);
-			std::this_thread::sleep_for(15ms - delta);
-			previousUpdate = now;
+			context_->GetDebugSubsystem()->Update();
 		}
 	}
 

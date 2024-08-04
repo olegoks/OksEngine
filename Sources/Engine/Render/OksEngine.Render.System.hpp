@@ -39,19 +39,4 @@ namespace OksEngine {
 	};
 
 
-	class ImGuiSystem : public ECSSystem {
-	public:
-
-		ImGuiSystem(Context& context) noexcept;
-
-	public:
-
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
-
-	private:
-
-		virtual Common::TypeId GetTypeId() const noexcept override;
-	};
-
-
 }

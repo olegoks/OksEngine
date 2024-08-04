@@ -13,6 +13,7 @@
 #include <Common/OksEngine.Log.Subsystem.hpp>
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 #include <Common/OksEngine.Engine.System.hpp>
+#include <Debug/OksEngine.Debug.Subsystem.hpp>
 
 namespace OksEngine
 {
@@ -63,7 +64,8 @@ namespace OksEngine
 			*this
 		};
 		physicsSubsystem_ = std::make_shared<PhysicsSubsystem>(physicsSubsystemCreateInfo);
-
+		DebugSubsystem::CreateInfo debugSubsystemCreateInfo{ *this };
+		debugSubsystem_ = std::make_shared<DebugSubsystem>(debugSubsystemCreateInfo);
 		//std::string configText(configResource.GetData<char>(), configResource.GetSize());
 		//config_.AddText(configText);
 	}
