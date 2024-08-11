@@ -119,14 +119,15 @@ namespace OksEngine {
 		float height_ = 0.5f;
 	};
 
-	class RigidBodyCustomMeshShape : public RigidBody<RigidBodyCustomMeshShape> {
+	class DynamicRigidBodyCustomMeshShape : public RigidBody<DynamicRigidBodyCustomMeshShape> {
 	public:
 
-		RigidBodyCustomMeshShape() : RigidBody{ } {}
+		DynamicRigidBodyCustomMeshShape() : RigidBody{ } {}
 
-		RigidBodyCustomMeshShape(
+		DynamicRigidBodyCustomMeshShape(
 			Context* context,
 			const glm::mat4& transform,
+			const std::string& geomName,
 			float mass,
 			float linearDamping,
 			float angularDamping,
@@ -138,7 +139,10 @@ namespace OksEngine {
 				linearDamping,
 				angularDamping,
 				material
-			}{}
+			}, meshName_{ geomName } {}
+
+
+		std::string meshName_;
 	};
 
 
@@ -147,9 +151,6 @@ namespace OksEngine {
 	struct StaticRigidBody : public ECSComponent<RigidBodyType> {
 		Common::Index id_ = Common::Limits<Common::Index>::Max();
 		glm::mat4 transform_ = glm::identity<glm::mat4>();
-		//float mass_ = 10.f;
-		//float linearDamping_ = 1.f;
-		//float angularDamping_ = 1.f;
 		Material material_{ 0.5, 0.5f, 0.5f };
 
 		StaticRigidBody() : ECSComponent<RigidBodyType>{ nullptr } { }
@@ -157,21 +158,11 @@ namespace OksEngine {
 		StaticRigidBody(
 			Context* context,
 			const glm::mat4& transform,
-			//float mass,
-			//float linearDamping,
-			//float angularDamping,
 			const Material& material
 		) :
 			ECSComponent<RigidBodyType>{ context },
 			transform_{ transform },
-			//mass_{ mass },
-			//linearDamping_{ linearDamping },
-			//angularDamping_{ angularDamping },
 			material_{ material } { }
-
-		//void SetTransform(const glm::mat4& transform) {
-		//	transform_ = transform;
-		//}
 
 		const glm::mat4& GetTransform() {
 			return transform_;
@@ -188,16 +179,10 @@ namespace OksEngine {
 			Context* context,
 			const glm::mat4& transform,
 			const std::string& geomName,
-			//float mass,
-			//float linearDamping,
-			//float angularDamping,
 			const Material& material) :
 			StaticRigidBody{
 				context,
 				transform,
-				//mass,
-				//linearDamping,
-				//angularDamping,
 				material
 			},   
 			geomName_{ geomName } {}

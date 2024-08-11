@@ -193,7 +193,7 @@ namespace RE {
 	RenderEngine::Model RenderEngine::RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model) {
 
 		Model drawnModel;
-		for (const auto& shape : model) {
+		/*for (const auto& shape : model) {
 			Geometry::VertexCloud<Geometry::Vertex3fnt> verticesColored;
 			const auto& vertices = shape.GetVertices();
 			for (const auto& vertex : vertices) {
@@ -220,7 +220,7 @@ namespace RE {
 				textureId
 			);
 			drawnModel.shapes_.push_back({ shapeId });
-		}
+		}*/
 
 		return drawnModel;
 	}
@@ -228,7 +228,7 @@ namespace RE {
 	[[nodiscard]]
 	RenderEngine::Model RenderEngine::RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model) {
 		Model drawnModel;
-		for (const auto& shape : model) {
+		/*for (const auto& shape : model) {
 			Geometry::VertexCloud<Geometry::Vertex3fnc> verticesColored;
 
 			const auto& vertices = shape.GetVertices();
@@ -242,7 +242,7 @@ namespace RE {
 				shape.GetIndices().GetData(),
 				shape.GetIndicesNumber());
 			drawnModel.shapes_.push_back({ shapeId });
-		}
+		}*/
 		return drawnModel;
 	}
 

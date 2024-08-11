@@ -140,7 +140,16 @@ namespace ECS {
 				return components_.size() - 1;
 			}
 
+			void AddDellayedAddComponents() {
+				components_.insert(
+					components_.end(),
+					std::make_move_iterator(delayedAddComponents_.begin()),
+					std::make_move_iterator(delayedAddComponents_.end())
+				);
+			}
+
 		private:
+			std::vector<ComponentType> delayedAddComponents_;
 			std::vector<ComponentType> components_;
 		};
 

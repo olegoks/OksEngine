@@ -109,9 +109,9 @@ namespace OksEngine {
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)
-			.beginClass<RigidBodyCustomMeshShape>("RigidBodyCustomMeshShape")
+			.beginClass<DynamicRigidBodyCustomMeshShape>("RigidBodyCustomMeshShape")
 			.addConstructor<void(*)()>()
-			.addFunction("ApplyForce", &RigidBodyCustomMeshShape::ApplyForce)
+			.addFunction("ApplyForce", &DynamicRigidBodyCustomMeshShape::ApplyForce)
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)

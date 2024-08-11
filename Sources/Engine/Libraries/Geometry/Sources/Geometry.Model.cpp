@@ -110,7 +110,9 @@ namespace Geometry {
 
         std::unordered_map<Vertex3fnc, Index16, Vertex3fnc::Hash> uniqueVertices{};
         for (const auto& objShape : shapes) {
-            VertexCloud<Vertex3fnc> vertices;
+            VertexCloud<Vertex3f> vertices;
+            DS::Vector<Color3f> colors;
+            DS::Vector<Normal3f> normals;
             IndexBuffer<Index16> indices;
             Common::Index vertexIndex = 0;
             for (const auto& index : objShape.mesh.indices) {
@@ -121,7 +123,9 @@ namespace Geometry {
                 if (deleteDuplicateVertices) {
                     if (uniqueVertices.count(vertex) == 0) {
                         uniqueVertices[vertex] = static_cast<uint32_t>(vertices.GetVerticesNumber());
-                        vertices.Add(vertex);
+                        vertices.Add(Vertex3f{ vertex });
+                        normals.PushBack(vertex.normal_);
+                        colors.PushBack(vertex.color_);
                     }
                     indices.Add(uniqueVertices[vertex]);
                 }
@@ -131,7 +135,7 @@ namespace Geometry {
                 }
                 vertexIndex++;
             }
-            Shape<Vertex3fnc, Index16> shape{ vertices, indices };
+            Shape shape{ vertices, normals, colors, indices };
             model.AddShape(shape);
         }
         OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
@@ -154,30 +158,32 @@ namespace Geometry {
 
         std::unordered_map<Vertex3fnt, Index16, Vertex3fnt::Hash> uniqueVertices{};
         for (const auto& objShape : shapes) {
-            VertexCloud<Vertex3fnt> vertices;
+            VertexCloud<Vertex3f> vertices;
+            DS::Vector<Normal3f> normals;
+            DS::Vector<UV2f> uvs_;
             IndexBuffer<Index16> indices;
             Common::Index vertexIndex = 0;
             for (const auto& index : objShape.mesh.indices) {
                 auto vertex = GetVertex<Vertex3fnt>(index, attributes);
-                //auto& material = materials[objShape.mesh.material_ids[vertexIndex / 3]];
-                //vertex.color_ = Geom::Color3f{ material.diffuse[0], material.diffuse[1], material.diffuse[2] };
                 bool deleteDuplicateVertices = true;
                 if (deleteDuplicateVertices) {
                     if (uniqueVertices.count(vertex) == 0) {
                         uniqueVertices[vertex] = static_cast<uint32_t>(vertices.GetVerticesNumber());
-                        vertices.Add(vertex);
+                        vertices.Add(Vertex3f{ vertex });
+                        normals.PushBack(vertex.normal_);
+                        uvs_.PushBack(vertex.uv_);
                     }
                     indices.Add(uniqueVertices[vertex]);
                 }
                 else {
-                    vertices.Add(vertex);
+                    vertices.Add(Vertex3f{ vertex });
                     indices.Add(vertices.GetVerticesNumber() - 1);
                 }
                 vertexIndex++;
             }
         
             auto textureObject = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
-            Shape<Vertex3fnt, Index16> shape{ vertices, indices, textureObject };
+            Shape shape{ vertices, normals, uvs_, indices,  textureObject };
             model.AddShape(shape);
         }
         OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
@@ -236,7 +242,7 @@ namespace Geometry {
             }
 
             //auto textureObject = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
-            Shape<Vertex3f, Index16> shape{ vertices, indices ,""};
+            Shape shape{ vertices, indices ,""};
             model.AddShape(shape);
         }
         OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
@@ -263,7 +269,9 @@ namespace Geometry {
 
         for (int id = 0; id < materials.size(); id++) {
             const tinyobj::material_t& material = materials[id];
-            VertexCloud<Vertex3fnt> vertices;
+            VertexCloud<Vertex3f> vertices;
+            DS::Vector<Normal3f> normals;
+            DS::Vector<UV2f> uvs_;
             IndexBuffer<Index16> indices;
             for (const auto& objShape : shapes) {
                 for (const auto verticesPerFace : objShape.mesh.num_face_vertices) {
@@ -298,10 +306,16 @@ namespace Geometry {
                             glm::vec4 rotatedVertex = rotationMatrix * glm::vec4(vertex3.position_.GetX(), vertex3.position_.GetY(), vertex3.position_.GetZ(), 1.0f);
                             vertex3.position_ = { rotatedVertex.x, rotatedVertex.y, rotatedVertex.z };
                         }
-                        vertices.Add(vertex1);
+                        vertices.Add(Vertex3f{ vertex1 });
+                        normals.PushBack(vertex1.normal_);
+                        uvs_.PushBack(vertex1.uv_);
                         const Index16 firstIndex = vertices.GetVerticesNumber() - 1;
-                        vertices.Add(vertex2);
-                        vertices.Add(vertex3);
+                        vertices.Add(Vertex3f{ vertex2 });
+                        normals.PushBack(vertex2.normal_);
+                        uvs_.PushBack(vertex2.uv_);
+                        vertices.Add(Vertex3f{ vertex3 });
+                        normals.PushBack(vertex3.normal_);
+                        uvs_.PushBack(vertex3.uv_);
 
                         indices.Add(firstIndex);
                         indices.Add(firstIndex + 1);
@@ -310,7 +324,7 @@ namespace Geometry {
                 }
 
             }
-            Shape<Vertex3fnt, Index16> shape{ vertices, indices,material.diffuse_texname };
+            Shape shape{ vertices, indices, material.diffuse_texname };
             shape.textureName_ = material.diffuse_texname;
             model.AddShape(shape);
         }

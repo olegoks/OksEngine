@@ -49,6 +49,16 @@ namespace OksEngine {
 			float dynamicFriction,
 			float restitution);
 
+		void AddDynamicRigidBodyCustomMeshShape(
+			const glm::mat4& transform,
+			const std::string& geomName,
+			float mass,
+			float linearDamping,
+			float angularDamping,
+			float staticFriction,
+			float dynamicFriction,
+			float restitution);
+
 		void AddRigidBodyBox(
 			const glm::mat4& transform,
 			float mass,

@@ -195,9 +195,13 @@ namespace OksEngine {
 		std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
 		std::string image{ texturesResources[0].GetData<char>(), texturesResources[0].GetSize()};
 
+		std::vector<RAL::Texture::Id> texturesIds;
+
 
 		auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16Textures(obj, mtl));
-
+		for (auto& shape : *texturedModel) {
+			
+		}
 		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
 		models_.push_back(model);
 		return models_.size() - 1;

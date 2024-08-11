@@ -3,6 +3,7 @@
 #include <string>
 #include <OksEngine.ECS.Component.hpp>
 #include <Math.Matrix.hpp>
+#include <RAL.Texture.hpp>
 
 namespace OksEngine {
 
@@ -56,9 +57,30 @@ namespace OksEngine {
 	private:
 		Common::Index modelId_ = Common::Limits<Common::Index>::Max();
 		glm::mat4 modelMatrix_ = glm::identity<glm::mat4>();
-
-
 	};
+
+	class AddImmutableRenderGeometryObjRequest : public ECSComponent<AddImmutableRenderGeometryObjRequest> {
+	public:
+		std::string objName_ = "";
+		std::string mtlName_ = "";
+		std::vector<std::string> textures_;
+	};
+
+	//class ImmutableRenderGeometry : public ECSComponent<ImmutableRenderGeometry> {
+	//public:
+	//	std::vector<RAL::Shape::Id> shapes_;
+	//	std::vector<RAL::Texture::Id> textures_;
+	//};
+
+	//class ImmutableTexturedRenderShapeInfoObj : public ECSComponent<ImmutableTexturedRenderShapeInfoObj> {
+	//public:
+
+	//};
+
+	//class ImmutableTexturedRenderShapeInfoFbx : public ECSComponent<ImmutableTexturedRenderShapeInfoFbx> {
+	//public:
+	//	std::string fbxName_ = "";
+	//};
 
 
 }
