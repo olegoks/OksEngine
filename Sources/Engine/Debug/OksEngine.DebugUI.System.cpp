@@ -184,7 +184,7 @@ namespace OksEngine {
 							ImGui::Spacing();
 						}
 					}
-					
+
 					auto& state = ecsInspector->GetCreateState(id);
 					ImGui::SeparatorText("Add component");
 					const char* items[] = { "Position", "ImmutableRenderGeometry", "StaticRigidBodyCustomMeshShape", "MapRigidBodyToRenderGeometry" };
@@ -198,10 +198,15 @@ namespace OksEngine {
 								world->CreateComponent<Position>(id);
 							}
 						}
+						else if (currentComponent == "ImmutableRenderGeometry") {
+							if (!world->IsComponentExist<ImmutableRenderGeometry>(id)) {
+								world->CreateComponent<ImmutableRenderGeometry>(id);
+							}
+						}
 					}
 					ImGui::PopID();
 					ImGui::Separator();
-					
+
 
 				}
 				ImGui::End();

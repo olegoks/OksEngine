@@ -17,18 +17,18 @@ int main(int argc, char** argv){
     //entity.AddPosition(0, 0, 0);
     //entity.AddBehaviour("TestObject.lua", "TestObject");
 
-    //Entity dragonLore = engine.CreateEntity();
-    //{
-    //    dragonLore.AddPosition(0, 0, 0);
-    //    dragonLore.AddBehaviour("TestObject.lua", "TestObject");
-    //    glm::mat4 renderGeomTransform{ 1.0f };
-    //    renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
-    //    dragonLore.AddImmutableRenderGeometry(renderGeomTransform, "dragon_lore.obj", "dragon_lore.mtl", "dragon_lore.bmp");
-    //    glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
-    //    rigidBodyTransform = glm::translate(rigidBodyTransform, { 0, 10.0, 0.f });
-    //    dragonLore.AddRigidBody(rigidBodyTransform, 100.f, 0.5f, 0.5f, 0.5f, 2.f, 0.5f, 0.5f);
-    //    dragonLore.AddMapRigidBodyToRenderGeometry();
-    //}
+    Entity dragonLore = engine.CreateEntity();
+    {
+        dragonLore.AddPosition(0, 0, 0);
+        dragonLore.AddBehaviour("TestObject.lua", "TestObject");
+        glm::mat4 renderGeomTransform{ 1.0f };
+        renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
+        dragonLore.AddImmutableRenderGeometry(renderGeomTransform, "dragon_lore.obj", "dragon_lore.mtl", { "dragon_lore.bmp" });
+        glm::mat4 rigidBodyTransform = glm::mat4{ 1.0f };
+        rigidBodyTransform = glm::translate(rigidBodyTransform, { 0, 10.0, 0.f });
+        dragonLore.AddDynamicRigidBodyCustomMeshShape(rigidBodyTransform, "dragon_lore",10, 0, 0, 0.1, 0.1, 0.1);
+        dragonLore.AddMapRigidBodyToRenderGeometry();
+    }
 
     /*Entity flashLight = engine.CreateEntity();
     {

@@ -31,6 +31,12 @@ namespace Common {
 			return std::numeric_limits<Type>::max();
 		}
 
+		[[nodiscard]]
+		constexpr static Type Min() noexcept {
+#undef min
+			return std::numeric_limits<Type>::min();
+		}
+
 	private:
 	};
 

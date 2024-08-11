@@ -15,8 +15,6 @@ namespace Geometry {
     class Model {
     public:
 
-        using Shape = Shape<VertexType, IndexType>;
-
         Model() noexcept = default;
 
         Model(Model&& modelMove) noexcept : shapes_{ std::move(modelMove.shapes_) } {};

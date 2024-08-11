@@ -28,7 +28,7 @@ namespace PAL {
 
 		struct CreateInfoMesh {
 			Material material_;
-			const Geom::Shape<Geom::Vertex3f, Geom::Index16> shape_;
+			const Geom::Shape/*<Geom::Vertex3f, Geom::Index16>*/ shape_;
 		};
 
 		Shape(const CreateInfoBox& createInfo) {}

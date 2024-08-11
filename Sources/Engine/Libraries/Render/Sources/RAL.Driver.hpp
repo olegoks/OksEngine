@@ -217,19 +217,10 @@ namespace RAL {
 		/* Textures */
 		[[nodiscard]]
 		virtual Texture::Id CreateTexture(const RAL::Texture::CreateInfo& createInfo) = 0;
-
-		//virtual void SetPosition(
-		//	Common::Index shapeIndex,
-		//	const Vector3f& position) = 0;
-
+		//virtual 
 		virtual void SetModelMatrix(
 			Common::Index shapeIndex,
 			const glm::mat4& modelMatrix) = 0;
-
-		//virtual void Rotate(
-		//	Common::Index shapeIndex,
-		//	const Vector3f& aroundVector,
-		//	Math::Angle angle) = 0;
 
 		virtual ~Driver() = default;
 

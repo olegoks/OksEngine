@@ -47,7 +47,7 @@ namespace Geometry {
 			IndexBuffer<IndexType> indexBuffer{};
 			indexBuffer.Add(indices.data(), indices.size());
 
-			Shape<Vertex3f, IndexType> shape{ vertexCloud, indexBuffer };
+			Shape shape{ vertexCloud, indexBuffer };
 
 			ConvexHull<Vertex3f, IndexType>::Add(shape);
 
