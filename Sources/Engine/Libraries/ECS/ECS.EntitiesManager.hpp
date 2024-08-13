@@ -15,21 +15,31 @@ namespace ECS {
 
 		EntitiesManager() noexcept { }
 
+		[[nodiscard]]
 		Entity::Id CreateEntity() noexcept {
 			Maybe<Entity::Id> freeId = GetFreeId();
-			if (freeId.has_value()) {
+			OS::AssertMessage(freeId.has_value(), "Error while creating entity.");
+			idEntity_.insert(std::pair{ freeId.value(), std::make_unique<Entity>() });
+			return freeId.value();
+		}
 
-				idEntity_.insert(std::pair<Entity::Id, Entity*>{ freeId.value(), new Entity{} });
-				return freeId.value();
-			}
-			return Entity::Id::invalid_;
+		void DestroyEntity(Entity::Id id) noexcept {
+			OS::AssertMessage(
+				idEntity_.contains(id),
+				"Error while deleting entity.");
+			idEntity_.erase(id);
 		}
 
 		using ProcessEntity = std::function<void(Entity::Id)>;
 		void ForEachEntity(ProcessEntity&& processEntity) noexcept {
 			for (auto& [idEntity, entity] : idEntity_) {
 				processEntity(idEntity);
-			 }
+			}
+		}
+
+		[[nodiscard]]
+		Entity::Filter& GetEntityFilter(Entity::Id id) noexcept {
+			return GetEntity(id).GetFilter();
 		}
 
 		[[nodiscard]]
@@ -54,10 +64,10 @@ namespace ECS {
 		}
 
 		[[nodiscard]]
-		Entity* GetEntity(Entity::Id entityId) noexcept {
+		Entity& GetEntity(Entity::Id entityId) noexcept {
 			OS::AssertMessage(IsEntityExist(entityId), "Attempt to get entity by id, but entity doesn't exist.");
 			auto it = idEntity_.find(entityId);
-			return it->second;
+			return *it->second;
 		}
 
 		[[nodiscard]]
@@ -66,7 +76,7 @@ namespace ECS {
 			return (it != idEntity_.end());
 		}
 
-		std::map<Entity::Id, Entity*> idEntity_;
+		std::map<Entity::Id, std::unique_ptr<Entity>> idEntity_;
 	};
 
 }

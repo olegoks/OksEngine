@@ -3,7 +3,7 @@
 #include <cstdlib>
 
 #include <ECS.Common.hpp>
-#include <ECS.Entity.hpp>
+
 #include <TypeInfo.hpp>
 
 namespace ECS {
@@ -19,19 +19,6 @@ namespace ECS {
 
 		[[nodiscard]]
 		static std::size_t GetSize() noexcept { return sizeof(Type); }
-
-		void Remove() { removed_ = true; }
-		
-		[[nodiscard]]
-		bool IsRemoved() { return removed_; }
-
-		~IComponent() {
-			Remove();
-		}
-
-	private:
-		bool removed_ = false;
-
 	};
 
 	struct DebugInfo : public ECS::IComponent<DebugInfo> {

@@ -142,7 +142,7 @@ namespace OksEngine {
 				}
 				ImGui::Separator();
 				//ImGui::SameLine();
-				for (ECS::Entity::Id id : world->GetEntitiesId()) {
+				for (ECS::Entity::Id id : world->GetEntitiesIds()) {
 
 					ImGui::TextDisabled("Id: %d", id);
 					if (world->IsComponentExist<Position>(id)) {

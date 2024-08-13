@@ -42,14 +42,14 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<PhysicsGeometryMapper>();
 				context_->GetECSWorld()->RunSystem<CameraSystem>();
 				context_->GetECSWorld()->RunSystem<AttachCameraSystem>();
-				context_->GetECSWorld()->RunSystem<CameraSystem>();
+				//context_->GetECSWorld()->RunSystem<CameraSystem>();
 				ImGui::NewFrame();
 				context_->GetECSWorld()->RunSystem<MainMenuBarSystem>();
 				context_->GetECSWorld()->RunSystem<EnginePerformanceSystem>();
 				context_->GetECSWorld()->RunSystem<ECSInspectorSystem>();
 				ImGui::Render();
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
-				context_->GetECSWorld()->AddDelayedComponents();
+				//context_->GetECSWorld()->AddDelayedComponents();
 			}
 			//context_->GetECSWorld()->Process();
 			//UI Subsystem must be updated before render to call ImGui_ImplGlfw_NewFrame()

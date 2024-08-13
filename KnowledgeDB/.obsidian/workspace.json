@@ -35,7 +35,7 @@
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Поиск двойного определения.md",
+                "file": "Work/C++/ECS/ECS.md",
                 "mode": "source",
                 "source": false
               }
@@ -108,7 +108,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Поиск двойного определения.md",
+                "file": "Work/C++/ECS/ECS.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -125,7 +125,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Поиск двойного определения.md",
+                "file": "Work/C++/ECS/ECS.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -148,7 +148,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Поиск двойного определения.md"
+                "file": "Work/C++/ECS/ECS.md"
               }
             }
           }
@@ -171,8 +171,11 @@
   },
   "active": "3f59200cd1be0bfd",
   "lastOpenFiles": [
-    "Attachments/Pasted image 20240711123520.png",
+    "Work/C++/Шаблонный код.md",
+    "Work/C++/ECS/ECS.md",
+    "Work/C++/ECS",
     "Поиск двойного определения.md",
+    "Attachments/Pasted image 20240711123520.png",
     "Work/Math/Векторное произведение векторов.md",
     "Work/Math/Коллинеарность векторов.md",
     "Work/Math",
@@ -201,7 +204,6 @@
     "Work/C++/VisualStudio/Breakpoint для определенного потока.md",
     "Work/Programming/Git, GitHub/Отменить последний коммит.md",
     "Work/Programming/Git, GitHub/Как откатить отслеживание.md",
-    "Attachments/Pasted image 20240605112926.png",
     "Work/C++/VisualStudio/Присоединение к процессу.md",
     "Work/C++/volatile.md",
     "Work/C++/VisualStudio",
@@ -211,12 +213,10 @@
     "Work/C++/Untitled.md",
     "Work/C++/Многопоточность/Конструкции/std_atomic.md",
     "Инструкция процессора.md",
-    "Work/C++/Многопоточность/Термины/Барьеры памяти.md",
     "Work/C++/Модель памяти С++.md.bak",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
     "Work/C++/Многопоточность/Топики",
-    "Attachments/learning_modern_3d_graphics_programming.pdf",
     "Untitled.canvas"
   ]
 }

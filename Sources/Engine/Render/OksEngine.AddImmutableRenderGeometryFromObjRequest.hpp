@@ -9,9 +9,15 @@ namespace OksEngine {
 
 	struct AddImmutableRenderGeometryFromObjRequest : public ECSComponent<AddImmutableRenderGeometryFromObjRequest> {
 	public:
+
+
+
 		AddImmutableRenderGeometryFromObjRequest() : ECSComponent{ nullptr } {
 
 		}
+
+
+
 		std::string obj_ = "";
 		std::string mtl_ = "";
 		std::vector<std::string> textures_;

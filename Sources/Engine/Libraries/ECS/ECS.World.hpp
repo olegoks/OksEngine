@@ -45,12 +45,6 @@ namespace ECS {
 			return componentsManager_.IsComponentExist<ComponentType>(entityId);
 		}
 
-		template<class ComponentType>
-		[[nodiscard]]
-		bool IsDelayedComponent(Entity::Id entityId) noexcept {
-			return componentsManager_.IsDelayedComponent<ComponentType>(entityId);
-		}
-
 		void Process() noexcept {
 			entitiesManager_.ForEachEntity(
 				[this](Entity::Id entityId) {
@@ -87,17 +81,13 @@ namespace ECS {
 				});
 		}
 
-		void AddDelayedComponents() {
-			componentsManager_.AddDelayedComponents();
-		}
-
 		[[nodiscard]]
 		Common::Size GetEntitiesNumber() const noexcept {
 			return entitiesManager_.GetEntitiesNumber();
 		}
 
 		[[nodiscard]]
-		std::vector<Entity::Id> GetEntitiesId() noexcept {
+		std::vector<Entity::Id> GetEntitiesIds() noexcept {
 			std::vector<Entity::Id> entitiesIds;
 			entitiesIds.reserve(entitiesManager_.GetEntitiesNumber());
 			entitiesManager_.ForEachEntity(
