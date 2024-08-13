@@ -45,6 +45,12 @@ namespace ECS {
 			return componentsManager_.IsComponentExist<ComponentType>(entityId);
 		}
 
+		template<class ComponentType>
+		[[nodiscard]]
+		bool IsDelayedComponent(Entity::Id entityId) noexcept {
+			return componentsManager_.IsDelayedComponent<ComponentType>(entityId);
+		}
+
 		void Process() noexcept {
 			entitiesManager_.ForEachEntity(
 				[this](Entity::Id entityId) {
@@ -81,6 +87,10 @@ namespace ECS {
 				});
 		}
 
+		void AddDelayedComponents() {
+			componentsManager_.AddDelayedComponents();
+		}
+
 		[[nodiscard]]
 		Common::Size GetEntitiesNumber() const noexcept {
 			return entitiesManager_.GetEntitiesNumber();
@@ -101,6 +111,7 @@ namespace ECS {
 		World& operator=(const World& copyWorld) const noexcept {
 			OS::NotImplemented();
 		}
+
 
 
 	private:

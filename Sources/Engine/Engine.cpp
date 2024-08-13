@@ -49,6 +49,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<ECSInspectorSystem>();
 				ImGui::Render();
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
+				context_->GetECSWorld()->AddDelayedComponents();
 			}
 			//context_->GetECSWorld()->Process();
 			//UI Subsystem must be updated before render to call ImGui_ImplGlfw_NewFrame()

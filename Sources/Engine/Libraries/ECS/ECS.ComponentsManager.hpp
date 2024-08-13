@@ -91,6 +91,12 @@ namespace ECS {
 			}
 		}
 
+		void AddDelayedComponents() {
+			for (auto& [typeId, container] : componentContainer_) {
+				container->AddDelayedComponents();
+			}
+		}
+
 		template<class ComponentType>
 		[[nodiscard]]
 		bool IsComponentExist(Entity::Id entityId) const noexcept {
@@ -106,6 +112,8 @@ namespace ECS {
 
 			virtual std::size_t GetSize() const noexcept = 0;
 			ComponentTypeId GetTypeId() const noexcept { return typeId_; }
+
+			virtual void AddDelayedComponents() = 0;
 
 		private:
 			ComponentTypeId typeId_;
@@ -129,27 +137,67 @@ namespace ECS {
 			}
 
 			[[nodiscard]]
+			bool IsDelayedComponent(std::size_t index) const noexcept {
+				if (index < components_.size() || components_.size() + delayedComponents_.size() - 1 < index) {
+					return false;
+				} else if (components_.size() - 1 < index && index < components_.size() + delayedComponents_.size()) {
+					return true;
+				}
+				OS::AssertFailMessage("Impposible variant.");
+				return false;
+			}
+
+			[[nodiscard]]
 			const ComponentType* operator[](std::size_t index) const noexcept {
-				return &components_[index];
+				if (delayedComponents_.empty()) {
+					OS::AssertMessage(index < components_.size(), "Attempt to get components with incorrect index.");
+					return &components_[index];
+				} else {
+					OS::AssertMessage(index < components_.size() + delayedComponents_.size(), "Attempt to get components with incorrect index.");
+					if (index < components_.size()) {
+						return &components_[index];
+					} else {
+						return nullptr;
+					}
+				}
+				
+				OS::AssertFailMessage("Imposible way.");
+				return nullptr;
 			}
 
 			template<class ...Args>
 			[[nodiscard]]
 			ComponentIndex CreateComponent(Args&&... args) noexcept {
-				components_.emplace_back(std::forward<Args>(args)...);
-				return components_.size() - 1;
+				/*components_.emplace_back(std::forward<Args>(args)...);
+				return components_.size() - 1;*/
+				return CreateDelayedComponent(std::forward<Args>(args)...);
 			}
 
-			void AddDellayedAddComponents() {
+			virtual void AddDelayedComponents() override {
 				components_.insert(
 					components_.end(),
-					std::make_move_iterator(delayedAddComponents_.begin()),
-					std::make_move_iterator(delayedAddComponents_.end())
+					std::make_move_iterator(delayedComponents_.begin()),
+					std::make_move_iterator(delayedComponents_.end())
 				);
+				delayedComponents_.clear();
 			}
 
 		private:
-			std::vector<ComponentType> delayedAddComponents_;
+
+			template<class ...Args>
+			[[nodiscard]]
+			ComponentIndex CreateDelayedComponent(Args&&... args) noexcept {
+				if (!freeComponents_.empty()) {
+					OS::NotImplemented();
+				}
+				delayedComponents_.emplace_back(std::forward<Args>(args)...);
+				return components_.size() + delayedComponents_.size() - 1;
+			}
+
+		private:
+
+			std::vector<Common::Index> freeComponents_;
+			std::vector<ComponentType> delayedComponents_;
 			std::vector<ComponentType> components_;
 		};
 
