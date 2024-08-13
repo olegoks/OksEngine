@@ -59,12 +59,12 @@ namespace OksEngine {
 		glm::mat4 modelMatrix_ = glm::identity<glm::mat4>();
 	};
 
-	class AddImmutableRenderGeometryObjRequest : public ECSComponent<AddImmutableRenderGeometryObjRequest> {
-	public:
-		std::string objName_ = "";
-		std::string mtlName_ = "";
-		std::vector<std::string> textures_;
-	};
+	//class AddImmutableRenderGeometryObjRequest : public ECSComponent<AddImmutableRenderGeometryObjRequest> {
+	//public:
+	//	std::string objName_ = "";
+	//	std::string mtlName_ = "";
+	//	std::vector<std::string> textures_;
+	//};
 
 	//class ImmutableRenderGeometry : public ECSComponent<ImmutableRenderGeometry> {
 	//public:
