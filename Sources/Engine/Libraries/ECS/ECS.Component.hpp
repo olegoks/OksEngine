@@ -30,11 +30,4 @@ namespace ECS {
 		static std::size_t GetSize() noexcept { return sizeof(Type); }
 	};
 
-	//struct DebugInfo : public ECS::IComponent<DebugInfo> {
-	//	DebugInfo(const char* name) noexcept :  name_{ name }{ }
-	//private:
-	//	const char* name_ = nullptr;
-	//};
-
-
 }

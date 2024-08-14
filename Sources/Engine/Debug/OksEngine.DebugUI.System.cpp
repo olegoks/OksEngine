@@ -95,6 +95,8 @@ namespace OksEngine {
 					ImGui::TextDisabled("Fps: %d", lastFps);
 				}
 
+				auto* framesCounter = world->GetComponent<FramesCounter>(entityId);
+				ImGui::TextDisabled("Frame: %d", framesCounter->framesCount_);
 				//ImGui::Begin("My Window");
 				if (ImPlot::BeginPlot("My Plot")) {
 					ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
