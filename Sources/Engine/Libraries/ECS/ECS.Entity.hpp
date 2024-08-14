@@ -9,6 +9,7 @@
 #include <functional>
 #include <utility>
 #include <set>
+#include <bitset>
 #include <Common.hpp>
 
 #include <ECS.Component.hpp>
@@ -24,36 +25,41 @@ namespace ECS {
 			template<class ComponentType>
 			Filter& Include() {
 				OS::AssertMessage(
-					!excludes_.contains(ComponentType::GetId()), 
+					!excludes_.test(ComponentType::GetTypeId()), 
 					"Attempt to use the component in includes and excludes.");
-				includes_.insert(ComponentType::GetId());
+				includes_.set(ComponentType::GetTypeId());
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& DeleteInclude() {
 				OS::AssertMessage(
-					includes_.contains(ComponentType::GetId()),
+					includes_.test(ComponentType::GetTypeId()),
 					"Attempt to delete include that doesnt exist");
-				includes_.erase(ComponentType::GetId());
+				includes_.reset(ComponentType::GetTypeId());
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& Exclude() {
 				OS::AssertMessage(
-					!includes_.contains(ComponentType::GetId()),
+					!includes_.test(ComponentType::GetTypeId()),
 					"Attempt to use the component in includes and excludes.");
-				excludes_.insert(ComponentType::GetId());
+				excludes_.set(ComponentType::GetTypeId());
+				return *this;
+			}
+
+			Filter& ExcludeAll() {
+				excludes_.set();
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& DeleteExclude() {
 				OS::AssertMessage(
-					excludes_.contains(ComponentType::GetId()),
+					excludes_.test(ComponentType::GetTypeId()),
 					"Attempt to delete exclude that doesnt exist");
-				excludes_.erase(ComponentType::GetId());
+				excludes_.reset(ComponentType::GetTypeId());
 				return *this;
 			}
 
@@ -65,33 +71,23 @@ namespace ECS {
 
 			[[nodiscard]]
 			bool Matches(const Filter& filter) const noexcept {
-				const bool thereAreAllNeedIncludes = std::ranges::includes(filter.includes_, includes_);
-				if(thereAreAllNeedIncludes) {
-					std::set<ComponentTypeId> intersection{};
-					std::ranges::set_intersection(
-						excludes_, filter.includes_,
-						std::inserter(intersection, intersection.begin()));
-					if(intersection.empty()){
-						//Useless but for clean logic
-						std::set<ComponentTypeId> intersection2{};
-						std::ranges::set_intersection(
-							filter.excludes_, includes_,
-							std::inserter(intersection2, intersection2.begin()));
-						if (intersection2.empty()) {
-							return true;
-						}
+				const bool thereAreAllNeedIncludes =
+					(includes_.count() == 0) || ((filter.includes_ & includes_) == includes_);
+				if (thereAreAllNeedIncludes) {
+					const bool thereArentNoNeedComponents = (filter.includes_ & excludes_) == 0;
+					if (thereArentNoNeedComponents) {
+						return (includes_ & filter.excludes_) == 0;
 					}
-					return false;
 				}
 				return false;
 			}
 
 		private:
-			std::set<ComponentTypeId> includes_;
-			std::set<ComponentTypeId> excludes_;
+			std::bitset<256> includes_;
+			std::bitset<256> excludes_;
 		};
 
-		class Id {
+		class Id final {
 		public:
 
 			using ValueType = Common::Size;
@@ -123,6 +119,7 @@ namespace ECS {
 		};
 
 
+		Entity(Id id) noexcept : id_{ id } { }
 		[[nodiscard]]
 		Id GetId() const noexcept { return id_; }
 

@@ -19,7 +19,7 @@ namespace ECS {
 		Entity::Id CreateEntity() noexcept {
 			Maybe<Entity::Id> freeId = GetFreeId();
 			OS::AssertMessage(freeId.has_value(), "Error while creating entity.");
-			idEntity_.insert(std::pair{ freeId.value(), std::make_unique<Entity>() });
+			idEntity_.insert(std::pair{ freeId.value(), std::make_unique<Entity>(freeId.value()) });
 			return freeId.value();
 		}
 
@@ -30,10 +30,10 @@ namespace ECS {
 			idEntity_.erase(id);
 		}
 
-		using ProcessEntity = std::function<void(Entity::Id)>;
+		using ProcessEntity = std::function<void(Entity&)>;
 		void ForEachEntity(ProcessEntity&& processEntity) noexcept {
 			for (auto& [idEntity, entity] : idEntity_) {
-				processEntity(idEntity);
+				processEntity(*entity);
 			}
 		}
 

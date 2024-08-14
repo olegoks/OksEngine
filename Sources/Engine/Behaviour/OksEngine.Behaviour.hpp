@@ -7,6 +7,7 @@
 #include <ECS.hpp>
 #include <Common/OksEngine.Position.hpp>
 #include <OksEngine.Context.hpp>
+#include <OksEngine.ECS.System.hpp>
 #include <OksEngine.ECS.Component.hpp>
 #include <Lua.Context.hpp>
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
@@ -77,11 +78,11 @@ namespace OksEngine {
 		void CallInputProcessor(const char* inputKey, const char* inputEvent, double offsetX, double offsetY);
 	};
 
-	class BehaviourSystem : public ECS::System {
+	class BehaviourSystem : public ECSSystem {
 	private:
 	public:
 
-		BehaviourSystem() noexcept {
+		BehaviourSystem(Context& context) noexcept : ECSSystem{ context } {
 
 		}
 
@@ -97,6 +98,10 @@ namespace OksEngine {
 		}
 
 		virtual void EndUpdate() override { }
+
+		virtual ECS::Entity::Filter GetFilter() const noexcept override {
+			return ECS::Entity::Filter{}.Include<Behaviour>();
+		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<BehaviourSystem>().GetId();

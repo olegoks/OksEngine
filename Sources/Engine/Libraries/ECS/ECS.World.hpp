@@ -46,7 +46,7 @@ namespace ECS {
 		}
 
 		void Process() noexcept {
-			entitiesManager_.ForEachEntity(
+			/*entitiesManager_.ForEachEntity(
 				[this](Entity::Id entityId) {
 					systemsManager_.ForEachSystem(
 						[entityId, this](std::shared_ptr<System> system)->bool {
@@ -69,15 +69,27 @@ namespace ECS {
 							system->EndUpdate();
 							return true;
 						});
-				});
+				});*/
+		}
+
+		void StartFrame() {
+
+		}
+
+		void EndFrame() {
+			componentsManager_.AddDelayedComponents();
 		}
 
 		template<class SystemType>
 		void RunSystem() {
 			entitiesManager_.ForEachEntity(
-				[this](Entity::Id entityId) {
+				[this](Entity& entity) {
 					std::shared_ptr<System> system = systemsManager_.GetSystem<SystemType>();
-					system->Update(this, entityId);
+					const Entity::Filter systemFilter = system->GetFilter();
+					const Entity::Filter entityFilter = componentsManager_.GetEntityFilter(entity.GetId());
+					if (systemFilter.Matches(entityFilter)) {
+						system->Update(this, entity.GetId());
+					}
 				});
 		}
 
@@ -91,8 +103,8 @@ namespace ECS {
 			std::vector<Entity::Id> entitiesIds;
 			entitiesIds.reserve(entitiesManager_.GetEntitiesNumber());
 			entitiesManager_.ForEachEntity(
-				[&entitiesIds](Entity::Id entityId) {
-					entitiesIds.push_back(entityId);
+				[&entitiesIds](Entity& entity) {
+					entitiesIds.push_back(entity.GetId());
 				});
 			return entitiesIds;
 		}
@@ -101,8 +113,6 @@ namespace ECS {
 		World& operator=(const World& copyWorld) const noexcept {
 			OS::NotImplemented();
 		}
-
-
 
 	private:
 

@@ -158,6 +158,7 @@ namespace OksEngine {
 			}
 
 		}
+
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<PhysicsSystem>().GetId();
 		}

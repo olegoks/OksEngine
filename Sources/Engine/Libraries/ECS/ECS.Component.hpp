@@ -1,6 +1,7 @@
 #pragma once
 
 #include <cstdlib>
+#include <map>
 
 #include <ECS.Common.hpp>
 
@@ -10,22 +11,30 @@ namespace ECS {
 
 	using ComponentTypeId = Common::TypeId;
 
+	extern ComponentTypeId nextId;
+	static inline std::map<std::string, ComponentTypeId> nameId;
+	static inline std::vector<std::pair<std::string, ComponentTypeId>> nameIds;
+
 	template<class Type = int>
 	class IComponent {
 	public:
 
+		//Id starts with 0 and grows to +infinity.
 		[[nodiscard]]
-		static ComponentTypeId GetTypeId() noexcept { return Common::TypeInfo<Type>{}.GetId(); }
+		static ComponentTypeId GetTypeId() noexcept {
+			static ComponentTypeId id = ++nextId;
+			return id;
+		}
 
 		[[nodiscard]]
 		static std::size_t GetSize() noexcept { return sizeof(Type); }
 	};
 
-	struct DebugInfo : public ECS::IComponent<DebugInfo> {
-		DebugInfo(const char* name) noexcept :  name_{ name }{ }
-	private:
-		const char* name_ = nullptr;
-	};
+	//struct DebugInfo : public ECS::IComponent<DebugInfo> {
+	//	DebugInfo(const char* name) noexcept :  name_{ name }{ }
+	//private:
+	//	const char* name_ = nullptr;
+	//};
 
 
 }

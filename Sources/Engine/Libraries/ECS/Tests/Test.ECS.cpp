@@ -39,6 +39,9 @@ TEST(TestECS, CreatingEntity) {
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<TestSystem>().GetId();
 		}
+		virtual ECS::Entity::Filter GetFilter() const noexcept override {
+			return ECS::Entity::Filter{};
+		}
 		virtual void StartUpdate() override { }
 		virtual void EndUpdate() override { }
 
