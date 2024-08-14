@@ -1,10 +1,26 @@
 
 #include <Engine.hpp>
 
+static std::size_t value = 0;
+
+template<class Type>
+class Test {
+public:
+    static void foo() {
+        static std::size_t localValue = ++value;
+        std::cout << localValue << std::endl;
+    }
+};
 
 int main(int argc, char** argv){
 
     using namespace OksEngine;
+
+    Test<int>::foo();
+    Test<std::size_t>::foo();
+    Test<unsigned int>::foo();
+    Test<std::size_t>::foo();
+    Test<bool>::foo();
 
     OS::AssertMessage(argc > 0, "First parameter must be config file name.");
 
@@ -12,12 +28,13 @@ int main(int argc, char** argv){
     const Engine::CreateInfo engineCreateInfo{
         commandLineParameters
     };
+
     Engine engine{ engineCreateInfo };
     //Entity entity = engine.CreateEntity();
     //entity.AddPosition(0, 0, 0);
     //entity.AddBehaviour("TestObject.lua", "TestObject");
 
-    Entity dragonLore = engine.CreateEntity();
+   /* Entity dragonLore = engine.CreateEntity();
     {
         dragonLore.AddPosition(0, 0, 0);
         dragonLore.AddBehaviour("TestObject.lua", "TestObject");
@@ -28,7 +45,7 @@ int main(int argc, char** argv){
         rigidBodyTransform = glm::translate(rigidBodyTransform, { 0, 10.0, 0.f });
         dragonLore.AddDynamicRigidBodyCustomMeshShape(rigidBodyTransform, "dragon_lore",10, 0, 0, 0.1, 0.1, 0.1);
         dragonLore.AddMapRigidBodyToRenderGeometry();
-    }
+    }*/
 
     /*Entity flashLight = engine.CreateEntity();
     {
@@ -38,14 +55,14 @@ int main(int argc, char** argv){
         flashLight.AddImmutableRenderGeometry();
     }*/
 
-    Entity animated = engine.CreateEntity();
+   /* Entity animated = engine.CreateEntity();
     {
         animated.AddPosition(0, 0, 0);
         glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
         animated.AddSkinnedGeometry(capsuleTransform, "lowPolyHand.fbx", "", {});
-    }
+    }*/
 
-    Entity staticGeom = engine.CreateEntity();
+   /* Entity staticGeom = engine.CreateEntity();
     {
         staticGeom.AddPosition(0, 0, 0);
         staticGeom.AddStaticRigidBodyCustomMeshShape(
@@ -54,7 +71,7 @@ int main(int argc, char** argv){
             0.5,
             0.5, 
             0.5);
-    }
+    }*/
 
     /*Entity flyCamera = engine.CreateEntity();
     {
@@ -62,27 +79,27 @@ int main(int argc, char** argv){
         flyCamera.AddCamera({ 0, 0, 0 }, { 1, 0, 0 }, { 0, 1, 0 });
         flyCamera.AddBehaviour("Camera.lua", "Camera");
     }*/
-    Entity character = engine.CreateEntity();
-    {
-        glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
-        capsuleTransform = glm::translate(capsuleTransform, { 300.f, 140.0, 0.f });
+    //Entity character = engine.CreateEntity();
+    //{
+    //    glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
+    //    capsuleTransform = glm::translate(capsuleTransform, { 300.f, 140.0, 0.f });
 
-        character.AddPosition(1000.f, 0.f, 0.f);
-        character.AddBehaviour("Character.lua", "Character");
-        character.AddRigidBodyCapsule(
-            capsuleTransform,
-            80.f,
-            0.1f,
-            0.f,
-            0.5f,
-            0.5f,
-            0.1f,
-            30.f,
-            40.f);
-        //character.AddBehaviour("Camera.lua", "Camera");
-        character.AddCamera({ 0.f, 0.f, -5.f }, { 0.f, 0.f, 5.f }, { 0.f, 1.f, 0.f });
-        character.AddAttachedCamera(glm::mat4{ 1.f });
-    }
+    //    character.AddPosition(1000.f, 0.f, 0.f);
+    //    character.AddBehaviour("Character.lua", "Character");
+    //    character.AddRigidBodyCapsule(
+    //        capsuleTransform,
+    //        80.f,
+    //        0.1f,
+    //        0.f,
+    //        0.5f,
+    //        0.5f,
+    //        0.1f,
+    //        30.f,
+    //        40.f);
+    //    //character.AddBehaviour("Camera.lua", "Camera");
+    //    character.AddCamera({ 0.f, 0.f, -5.f }, { 0.f, 0.f, 5.f }, { 0.f, 1.f, 0.f });
+    //    character.AddAttachedCamera(glm::mat4{ 1.f });
+    //}
 
     //Entity grassBlock = engine.CreateEntity();
     //{

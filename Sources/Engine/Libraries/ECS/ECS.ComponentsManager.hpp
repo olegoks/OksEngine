@@ -19,6 +19,7 @@ namespace ECS {
 				!entityComponents.IsComponentExist<ComponentType>(),
 				"Attempt to add component to entity, but component exists yet.");
 			Ptr<Container<ComponentType>> container = GetCreateContainer<ComponentType>();
+			OS::AssertMessage(container != nullptr, "Error while creating/getting components container.");
 			const ComponentIndex index = container->CreateComponent(std::forward<Args>(args)...);
 			entityComponents.AddComponent<ComponentType>(index);
 		}
@@ -55,15 +56,26 @@ namespace ECS {
 			Ptr<Container<ComponentType>> container = maybeContainer.value();
 			const ComponentIndex componentIndex = entityComponents.GetComponentIndex<ComponentType>();
 			OS::AssertMessage(
-				container->IsComponentExist(componentIndex), 
+				container->IsComponentExist(componentIndex),
 				"Attempt to get component that doesnt exist.");
 			return (*container)[componentIndex];
+		}
+
+		void AddDelayedComponents() {
+			for (auto& [componentTypeId, container] : componentContainer_) {
+				container->AddDelayedComponents();
+			}
 		}
 
 		template<class ComponentType>
 		[[nodiscard]]
 		const ComponentType* GetComponent(Entity::Id entityId) const noexcept {
 			return const_cast<ComponentsManager*>(this)->GetComponent<ComponentType>(entityId);
+		}
+
+		[[nodiscard]]
+		const Entity::Filter& GetEntityFilter(Entity::Id id) const noexcept {
+			return GetEntityComponents(id).GetFilter();
 		}
 
 		template<class ComponentType>
@@ -82,7 +94,7 @@ namespace ECS {
 			virtual std::size_t GetSize() const noexcept = 0;
 			ComponentTypeId GetTypeId() const noexcept { return typeId_; }
 
-			//virtual void AddDelayedComponents() = 0;
+			virtual void AddDelayedComponents() = 0;
 
 		private:
 			ComponentTypeId typeId_;
@@ -119,8 +131,8 @@ namespace ECS {
 			template<class ...Args>
 			[[nodiscard]]
 			ComponentIndex CreateComponent(Args&&... args) noexcept {
-				components_.emplace_back(std::forward<Args>(args)...);
-				return components_.size() - 1;
+				delayedComponents_.emplace_back(std::forward<Args>(args)...);
+				return components_.size() + delayedComponents_.size() - 1; // To get index that will be after adding delayed components.
 			}
 
 			[[nodiscard]]
@@ -134,9 +146,24 @@ namespace ECS {
 			}
 
 			void RemoveComponent(ComponentIndex index) noexcept {
+				OS::AssertMessage(
+					index > components_.size() + delayedComponents_.size() - 1,
+					"Attempt to remove components with incorrect index");
+				OS::AssertMessage(
+					index > components_.size() - 1,
+					"Attept to remove delayed component.");
 				ComponentType* component = this->operator[](index);
 				component->~ComponentType();
 				freeIndices_.push_back(index);
+			}
+
+			virtual void AddDelayedComponents() override {
+				components_.insert(
+					components_.end(),
+					std::make_move_iterator(delayedComponents_.begin()),
+					std::make_move_iterator(delayedComponents_.end())
+				);
+				delayedComponents_.clear();
 			}
 
 		private:
@@ -144,19 +171,19 @@ namespace ECS {
 			[[nodiscard]]
 			bool IsComponentIndexFree(ComponentIndex index) const noexcept {
 				return std::find(freeIndices_.cbegin(), freeIndices_.cend(), index) == freeIndices_.cend();
-			} 
+			}
 
 		private:
-
+			std::vector<ComponentType>	delayedComponents_;
 			std::vector<ComponentIndex> freeIndices_;
-			std::vector<ComponentType> components_;
+			std::vector<ComponentType>	components_;
 		};
 
 		template<class ComponentType>
 		[[nodiscard]]
 		Ptr<Container<ComponentType>> GetCreateContainer() noexcept {
 			Maybe<Ptr<Container<ComponentType>>> maybeComponentContainer = GetContainer<ComponentType>();
-			if (maybeComponentContainer.has_value()) {
+			if (maybeComponentContainer.has_value() && maybeComponentContainer.value() != nullptr) {
 				return maybeComponentContainer.value();
 			}
 			else {
@@ -171,8 +198,7 @@ namespace ECS {
 			auto it = componentContainer_.find(componentTypeId);
 			if (it != componentContainer_.end()) {
 				return std::dynamic_pointer_cast<Container<ComponentType>>(it->second);
-			}
-			else {
+			} else {
 				return {};
 			}
 		}
@@ -205,7 +231,7 @@ namespace ECS {
 			EntityComponents() noexcept = default;
 
 			[[nodiscard]]
-			std::size_t GetComponentsNumber() const noexcept {
+			Common::Size GetComponentsNumber() const noexcept {
 				return typeIndex_.size();
 			}
 
@@ -231,7 +257,7 @@ namespace ECS {
 
 				ComponentTypeId componentTypeId = ComponentType::GetTypeId();
 				typeIndex_.insert(std::pair{ componentTypeId, componentIndex });
-
+				filter_.Include<ComponentType>();
 			}
 
 			template<class ComponentType>
@@ -239,14 +265,18 @@ namespace ECS {
 
 				ComponentTypeId componentTypeId = ComponentType::GetTypeId();
 				typeIndex_.erase(componentTypeId);
+				filter_.DeleteInclude<ComponentType>();
+			}
 
+			[[nodiscard]]
+			const Entity::Filter& GetFilter() const noexcept {
+				return filter_;
 			}
 
 		private:
-
+			Entity::Filter filter_; // this filter doesnt have excludes.
 			//Component type to component index.
 			std::map<ComponentTypeId, ComponentIndex> typeIndex_;
-
 		};
 
 		[[nodiscard]]

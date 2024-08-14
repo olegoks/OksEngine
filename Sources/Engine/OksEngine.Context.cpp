@@ -49,7 +49,7 @@ namespace OksEngine
 		world_ = std::make_shared<ECS::World>();
 		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
 
-		world_->RegisterSystem<BehaviourSystem>();
+		world_->RegisterSystem<BehaviourSystem>(*this);
 		world_->RegisterSystem<PhysicsGeometryMapper>(*this);
 		world_->RegisterSystem<AttachCameraSystem>(*this);
 

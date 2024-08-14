@@ -35,6 +35,10 @@ namespace OksEngine {
 			}
 		}
 
+		virtual ECS::Entity::Filter GetFilter() const noexcept override {
+			return ECS::Entity::Filter{}.Include<Behaviour>();
+		}
+
 		virtual void EndUpdate() override {
 			GetContext().GetUISubsystem()->DeleteLastKeyboardEvent();
 			GetContext().GetUISubsystem()->DeleteLastMouseEvent();

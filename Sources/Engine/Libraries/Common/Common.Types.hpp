@@ -2,6 +2,7 @@
 
 #include <cstdint>
 #include <limits>
+#include <string>
 
 namespace Common {
 
@@ -48,6 +49,10 @@ namespace Common {
 		[[nodiscard]]
 		TypeId GetId() const noexcept {
 			return static_cast<TypeId>(typeid(Type).hash_code());
+		}
+		[[nodiscard]]
+		std::string GetName() const noexcept {
+			return typeid(Type).name();
 		}
 	};
 
