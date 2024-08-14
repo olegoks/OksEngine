@@ -21,6 +21,7 @@ namespace ECS {
 			Ptr<Container<ComponentType>> container = GetCreateContainer<ComponentType>();
 			OS::AssertMessage(container != nullptr, "Error while creating/getting components container.");
 			const ComponentIndex index = container->CreateComponent(std::forward<Args>(args)...);
+			//Logic error !!!!!!!!!!!!!!!!!
 			entityComponents.AddComponent<ComponentType>(index);
 		}
 
@@ -274,6 +275,7 @@ namespace ECS {
 			}
 
 		private:
+			Entity::Filter delayedComponents_; // need to change filter with delay, the same logic as adding components to components manager.
 			Entity::Filter filter_; // this filter doesnt have excludes.
 			//Component type to component index.
 			std::map<ComponentTypeId, ComponentIndex> typeIndex_;

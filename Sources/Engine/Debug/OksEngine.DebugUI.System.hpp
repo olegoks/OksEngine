@@ -5,6 +5,7 @@
 #include <OksEngine.Context.hpp>
 #include <OksEngine.ECS.System.hpp>
 #include <Debug/OksEngine.MainMenuBar.hpp>
+#include <Common/OksEngine.FramesCounter.hpp>
 
 namespace OksEngine {
 
@@ -34,6 +35,9 @@ namespace OksEngine {
 	public:
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
+		virtual ECS::Entity::Filter GetFilter() const noexcept override {
+			return ECS::Entity::Filter{}.Include<EnginePerformance>().Include<FramesCounter>();
+		}
 
 	private:
 

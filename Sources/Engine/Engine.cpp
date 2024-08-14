@@ -11,6 +11,7 @@
 
 /*Common*/
 #include <Common/OksEngine.Engine.System.hpp>
+#include <Common/OksEngine.FramesCounter.hpp>
 
 /*Physics*/
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
@@ -49,6 +50,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<ECSInspectorSystem>();
 				ImGui::Render();
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
+				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();
 				//context_->GetECSWorld()->AddDelayedComponents();
 			}
 			//context_->GetECSWorld()->Process();
