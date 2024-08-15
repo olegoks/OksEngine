@@ -55,7 +55,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
 
 				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();
-				//context_->GetECSWorld()->AddDelayedComponents();
+				//context_->GetECSWorld()->ProcessDelayedRequests();
 				context_->GetECSWorld()->EndFrame();
 			}
 			//context_->GetECSWorld()->Process();

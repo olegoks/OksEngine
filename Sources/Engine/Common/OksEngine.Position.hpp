@@ -2,17 +2,22 @@
 
 #include <ECS.hpp>
 #include <Math.Vector.hpp>
+
+#include <OksEngine.ECS.Component.hpp>
+
 namespace OksEngine {
 
-	struct Position : public ECS::IComponent<Position> {
+	struct Position : public ECSComponent<Position> {
 		glm::vec3 translate_{ 0.f, 0.f, 0.f };
 		glm::quat rotate_{ };
 	
 		Position() = default; 
 		Position(float x, float y, float z) :
+			ECSComponent{ nullptr },
 			translate_{ x, y, z },
 			rotate_{  } {}
-		Position(const glm::vec3& translate, const glm::quat& rotate) : 
+		Position(const glm::vec3& translate, const glm::quat& rotate) :
+			ECSComponent{ nullptr },
 			translate_{ translate },
 			rotate_{ rotate } {}
 
@@ -39,6 +44,7 @@ namespace OksEngine {
 		void SetY(float y) { translate_.y = y; }
 		void SetZ(float z) { translate_.z = z; }
 	};
+
 
 
 }

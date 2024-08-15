@@ -22,4 +22,7 @@ namespace OksEngine {
 		Context* context_;
 	};
 
+	template<class ComponentType>
+	void Edit() { OS::NotImplemented();  }
+
 }

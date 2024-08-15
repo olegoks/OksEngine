@@ -44,7 +44,6 @@ namespace OksEngine {
 		}
 
 	private:
-
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<AddImmutableRenderGeometryFromObjSystem>().GetId();
 		}
