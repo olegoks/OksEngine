@@ -26,6 +26,11 @@ namespace OksEngine {
 			camera->Transform(cameraTransform);
 		}
 
+		virtual ECS::Entity::Filter GetFilter() const noexcept override
+		{
+			return ECS::Entity::Filter{}.Include<AttachedCamera>();
+		}
+
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<AttachCameraSystem>().GetId();
 		}
@@ -49,6 +54,10 @@ namespace OksEngine {
 			const auto& rigidBodyTransform = rigidBody->GetTransform();
 			renderGeometry->SetTransform(rigidBodyTransform);
 
+		}
+
+		virtual ECS::Entity::Filter GetFilter() const noexcept override{
+			return ECS::Entity::Filter{}.Include<RigidBodyBox>().Include<ImmutableRenderGeometry>();
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {

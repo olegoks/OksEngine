@@ -66,6 +66,9 @@ namespace ECS {
 			for (auto& [componentTypeId, container] : componentContainer_) {
 				container->AddDelayedComponents();
 			}
+			for (auto& [entityId, entityComponents] : entityComponents_) {
+				entityComponents.ProccessDelayedRequests();
+			}
 		}
 
 		template<class ComponentType>
@@ -171,7 +174,7 @@ namespace ECS {
 
 			[[nodiscard]]
 			bool IsComponentIndexFree(ComponentIndex index) const noexcept {
-				return std::find(freeIndices_.cbegin(), freeIndices_.cend(), index) == freeIndices_.cend();
+				return std::find(freeIndices_.cbegin(), freeIndices_.cend(), index) != freeIndices_.cend();
 			}
 
 		private:
@@ -257,16 +260,16 @@ namespace ECS {
 			void AddComponent(ComponentIndex componentIndex) noexcept {
 
 				ComponentTypeId componentTypeId = ComponentType::GetTypeId();
-				typeIndex_.insert(std::pair{ componentTypeId, componentIndex });
-				filter_.Include<ComponentType>();
+				delayedTypeIndex_.insert(std::pair{ componentTypeId, componentIndex });
+				delayedFilter_.Include<ComponentType>();
 			}
 
 			template<class ComponentType>
 			void RemoveComponent() noexcept {
 
 				ComponentTypeId componentTypeId = ComponentType::GetTypeId();
-				typeIndex_.erase(componentTypeId);
-				filter_.DeleteInclude<ComponentType>();
+				delayedTypeIndex_.erase(componentTypeId);
+				delayedFilter_.DeleteInclude<ComponentType>();
 			}
 
 			[[nodiscard]]
@@ -274,8 +277,21 @@ namespace ECS {
 				return filter_;
 			}
 
+
+			void ProccessDelayedRequests() {
+				filter_ = filter_ + delayedFilter_;
+				delayedFilter_.Clear();
+				typeIndex_.insert(
+					delayedTypeIndex_.begin(),
+					delayedTypeIndex_.end()
+				);
+				delayedTypeIndex_.clear();
+			}
+
 		private:
-			Entity::Filter delayedComponents_; // need to change filter with delay, the same logic as adding components to components manager.
+			Entity::Filter delayedFilter_; 
+			std::map<ComponentTypeId, ComponentIndex> delayedTypeIndex_;
+
 			Entity::Filter filter_; // this filter doesnt have excludes.
 			//Component type to component index.
 			std::map<ComponentTypeId, ComponentIndex> typeIndex_;
@@ -312,7 +328,11 @@ namespace ECS {
 
 		[[nodiscard]]
 		EntityComponents& GetEntityComponents(Entity::Id entityId) noexcept {
-			OS::AssertMessage(IsEntityComponentsExist(entityId), "Attempt to get entity components, but entity doesn't have them.");
+			//OS::AssertMessage(IsEntityComponentsExist(entityId), "Attempt to get entity components, but entity doesn't have them.");
+			if(!IsEntityComponentsExist(entityId)) {
+				CreateEntityComponents(entityId);
+			}
+
 			auto it = entityComponents_.find(entityId);
 			return it->second;
 		}
@@ -322,7 +342,6 @@ namespace ECS {
 			return const_cast<ComponentsManager*>(this)->GetEntityComponents(entityId);
 		}
 
-		[[nodiscard]]
 		EntityComponents& CreateEntityComponents(Entity::Id entityId) noexcept {
 			OS::AssertMessage(!IsEntityComponentsExist(entityId), "Attempt to create entity components structure when it exists yet.");
 			entityComponents_.insert({ entityId, EntityComponents{} });

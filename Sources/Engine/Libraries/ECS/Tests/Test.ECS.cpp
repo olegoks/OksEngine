@@ -42,6 +42,8 @@ TEST(TestECS, CreatingEntity) {
 		virtual ECS::Entity::Filter GetFilter() const noexcept override {
 			return ECS::Entity::Filter{};
 		}
+		virtual void BeforeUpdate(ECS::World* world) override{}
+		virtual void AfterUpdate(ECS::World* world) override{}
 		virtual void StartUpdate() override { }
 		virtual void EndUpdate() override { }
 

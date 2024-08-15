@@ -27,6 +27,11 @@ namespace ECS {
 		}
 
 		[[nodiscard]]
+		static std::string GetName() noexcept {
+			return Common::TypeInfo<Type>{}.GetName();
+		}
+
+		[[nodiscard]]
 		static std::size_t GetSize() noexcept { return sizeof(Type); }
 	};
 

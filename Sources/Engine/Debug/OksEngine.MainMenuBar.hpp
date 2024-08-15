@@ -11,6 +11,11 @@ namespace OksEngine {
 		bool show_ = false;
 	};
 
+	struct ImGuiContext : public ECSComponent<ImGuiContext> {
+	public:
+		ImGuiContext() : ECSComponent{ nullptr } {}
+	};
+
 	struct MainMenuBar : public ImGuiWindow, public ECSComponent<MainMenuBar> {
 	public:
 		std::vector<std::string> items_{
@@ -39,24 +44,7 @@ namespace OksEngine {
 
 		ECSInspector(Context* context);
 
-		struct EntityState {
-			int currentAddComponentIndex_ = 0;
-			char addComponentName_[64]{ "No component" };
-			bool addComponent_ = false;
-		};
-
-		[[nodiscard]]
-		EntityState& GetCreateState(ECS::Entity::Id id) {
-
-			auto it = states_.find(id);
-			if (it == states_.end()) {
-				states_.insert({ id, ECSInspector::EntityState{ 0 } });
-			}
-			return states_[id];
-		}
-
-		std::map<ECS::Entity::Id, EntityState> states_;
-
+		std::vector<ECS::Entity::Id> entities_;
 	};
 
 }

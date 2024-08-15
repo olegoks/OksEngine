@@ -14,16 +14,14 @@ namespace OksEngine {
 		Context& GetContext() noexcept {
 			return context_;
 		}
-
+		virtual void BeforeUpdate(ECS::World* world) override {}
 		virtual void StartUpdate() override { }
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
 
 		}
 		virtual void EndUpdate() override { }
 
-		//virtual void NewUpdate(ECS::Accessor::Entity& entity) override {
-
-		//}
+		virtual void AfterUpdate(ECS::World* world) override {}
 
 		virtual ECS::Entity::Filter GetFilter() const noexcept override { 
 			return ECS::Entity::Filter{}.ExcludeAll();

@@ -33,6 +33,7 @@ namespace ECS {
 			std::shared_ptr<System> foundSystem = nullptr;
 			Common::TypeId searchSystemTypeId = Common::TypeInfo<SystemType>().GetId();
 			ForEachSystem([&foundSystem, searchSystemTypeId](std::shared_ptr<System> system) {
+				OS::Assert(system != nullptr);
 				if (system->GetTypeId() == searchSystemTypeId) {
 					foundSystem = system;
 					return false;

@@ -257,7 +257,7 @@ namespace RE {
 
 	void RenderEngine::Render() {
 
-		RenderImGui();
+		//RenderImGui();
 
 		driver_->StartRender();
 		driver_->Render();
