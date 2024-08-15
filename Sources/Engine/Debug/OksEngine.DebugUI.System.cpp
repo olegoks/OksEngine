@@ -134,7 +134,7 @@ namespace OksEngine {
 		const std::string idString = std::to_string(id);
 		ImGui::PushID(idString.c_str());
 
-		if (ImGui::CollapsingHeader(("Id: " + idString).c_str())) {
+		if (ImGui::CollapsingHeader(("Id: " + idString).c_str()), ImGuiTreeNodeFlags_SpanAllColumns) {
 			if (world->IsComponentExist<Position>(id)) {
 				if (ImGui::CollapsingHeader("Position")) {
 					Position* position = world->GetComponent<Position>(id);
@@ -160,7 +160,14 @@ namespace OksEngine {
 			if (world->IsComponentExist<AddImmutableRenderGeometryFromObjRequest>(id)) {
 				if (ImGui::CollapsingHeader("AddImmutableRenderGeometryFromObjRequest")) {
 					auto* addImmutableRenderGeometryfromObj = world->GetComponent<AddImmutableRenderGeometryFromObjRequest>(id);
-					ImGui::TextDisabled("AddImmutableRenderGeometryFromObjRequest: %s", addImmutableRenderGeometryfromObj->obj_);
+
+					ImGui::TextDisabled("Obj: %s", addImmutableRenderGeometryfromObj->obj_.c_str());
+					ImGui::TextDisabled("Mtl: %s", addImmutableRenderGeometryfromObj->mtl_.c_str());
+					ImGui::TextDisabled("Textures:");
+					for (auto& texture : addImmutableRenderGeometryfromObj->textures_) {
+						ImGui::TextDisabled("	%s", texture.c_str());
+					}
+
 					if (ImGui::Button("Delete")) {
 						world->RemoveComponent<AddImmutableRenderGeometryFromObjRequest>(id);
 					}
@@ -172,6 +179,21 @@ namespace OksEngine {
 					StaticRigidBodyCustomMeshShape* staticRigidBodyCustomMeshShape = world->GetComponent<StaticRigidBodyCustomMeshShape>(id);
 					ImGui::TextDisabled("StaticRigidBodyCustomMeshShape: %s", staticRigidBodyCustomMeshShape->geomName_);
 					if (ImGui::Button("Delete")) { world->RemoveComponent<StaticRigidBodyCustomMeshShape>(id); }
+					ImGui::Spacing();
+				}
+			}
+			if (world->IsComponentExist<MainMenuBar>(id)) {
+				if (ImGui::CollapsingHeader("MainMenuBar")) {
+					ImGui::Spacing();
+				}
+			}
+			if (world->IsComponentExist<ECSInspector>(id)) {
+				if (ImGui::CollapsingHeader("ECSInspector")) {
+					ImGui::Spacing();
+				}
+			}
+			if (world->IsComponentExist<ImGuiContext>(id)) {
+				if (ImGui::CollapsingHeader("ImGuiContext")) {
 					ImGui::Spacing();
 				}
 			}
@@ -219,18 +241,40 @@ namespace OksEngine {
 			if (currentComponent == "AddImmutableRenderGeometryFromObjRequest") {
 				static char obj[100] = { "" };
 				static char mtl[100] = { "" };
-				static char textures[100] = { "" };
+				static Common::Size texturesNumber = 1;
+				static std::vector<std::unique_ptr<char[]>> textures;
 				if (ImGui::CollapsingHeader("Create info")) {
 					ImGui::InputText("Obj", obj, sizeof(obj));
 					ImGui::InputText("Mtl", mtl, sizeof(mtl));
-					ImGui::InputText("Textures", textures, sizeof(textures));
+					{
+						
+						if(texturesNumber <= textures.size()) {
+							textures.resize(texturesNumber);
+						} else {
+							for (Common::Size i = 0; i < texturesNumber - textures.size(); i++) {
+								auto newTexture = std::make_unique<char[]>(100);
+								std::memset(newTexture.get(), 0, 100);
+								textures.push_back(std::move(newTexture));
+							}
+						}
+						ImGui::TextDisabled("Textures:");
+						for (Common::Size i = 0; i < texturesNumber; i++) {
+							ImGui::PushID(std::to_string(i).c_str());
+							ImGui::InputText("", (char*)textures[i].get(), 100); ImGui::SameLine();
+							if (ImGui::SmallButton("-")) { textures.erase(textures.begin() + i); --texturesNumber; }
+							ImGui::PopID();
+						}
+						if (ImGui::SmallButton("+")) { ++texturesNumber; }
+					}
 					ImGui::Spacing();
 				}
 				if (addComponent) {
 					if (!world->IsComponentExist<AddImmutableRenderGeometryFromObjRequest>(id)) {
-						std::vector<std::string> textures;
-
-						//world->CreateComponent<AddImmutableRenderGeometryFromObjRequest>(id, obj, mtl,  );
+						std::vector<std::string> texturesStrs;
+						for(auto& textureInput : textures) {
+							texturesStrs.push_back(textureInput.get());
+						}
+						world->CreateComponent<AddImmutableRenderGeometryFromObjRequest>(id, obj, mtl, texturesStrs);
 					}
 				}
 			}

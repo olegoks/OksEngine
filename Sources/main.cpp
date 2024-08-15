@@ -140,17 +140,17 @@ int main(int argc, char** argv){
     //}
 
 
-    Entity dust2 = engine.CreateEntity();
-    {
-        dust2.AddPosition(0, 0, 0);
-        glm::mat4 renderGeomTransform{ 1.0f };
-        renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
-        dust2.AddImmutableRenderGeometry(
-            renderGeomTransform,
-            "de_dust2.obj",
-            "de_dust2.mtl",
-            {});
-    }
+    //Entity dust2 = engine.CreateEntity();
+    //{
+    //    dust2.AddPosition(0, 0, 0);
+    //    glm::mat4 renderGeomTransform{ 1.0f };
+    //    renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
+    //    dust2.AddImmutableRenderGeometry(
+    //        renderGeomTransform,
+    //        "de_dust2.obj",
+    //        "de_dust2.mtl",
+    //        {});
+    //}
 
 
     //Common::UInt64 size = 3;

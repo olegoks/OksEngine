@@ -21,7 +21,6 @@ namespace ECS {
 			Ptr<Container<ComponentType>> container = GetCreateContainer<ComponentType>();
 			OS::AssertMessage(container != nullptr, "Error while creating/getting components container.");
 			const ComponentIndex index = container->CreateComponent(std::forward<Args>(args)...);
-			//Logic error !!!!!!!!!!!!!!!!!
 			entityComponents.AddComponent<ComponentType>(index);
 		}
 
@@ -36,6 +35,7 @@ namespace ECS {
 				maybeContainer.has_value(),
 				"Attempt to remove component but container doesnt exist.");
 			Ptr<Container<ComponentType>> container = maybeContainer.value();
+			entityComponents.RemoveComponent<ComponentType>();
 			const ComponentIndex componentIndex = entityComponents.GetComponentIndex<ComponentType>();
 			OS::AssertMessage(
 				(*container)[componentIndex] != nullptr,
@@ -64,7 +64,7 @@ namespace ECS {
 
 		void AddDelayedComponents() {
 			for (auto& [componentTypeId, container] : componentContainer_) {
-				container->AddDelayedComponents();
+				container->ProcessDelayedRequests();
 			}
 			for (auto& [entityId, entityComponents] : entityComponents_) {
 				entityComponents.ProccessDelayedRequests();
@@ -98,7 +98,7 @@ namespace ECS {
 			virtual std::size_t GetSize() const noexcept = 0;
 			ComponentTypeId GetTypeId() const noexcept { return typeId_; }
 
-			virtual void AddDelayedComponents() = 0;
+			virtual void ProcessDelayedRequests() = 0;
 
 		private:
 			ComponentTypeId typeId_;
@@ -151,35 +151,43 @@ namespace ECS {
 
 			void RemoveComponent(ComponentIndex index) noexcept {
 				OS::AssertMessage(
-					index > components_.size() + delayedComponents_.size() - 1,
+					IsComponentIndexValid(index),
 					"Attempt to remove components with incorrect index");
 				OS::AssertMessage(
-					index > components_.size() - 1,
-					"Attept to remove delayed component.");
-				ComponentType* component = this->operator[](index);
-				component->~ComponentType();
-				freeIndices_.push_back(index);
+					std::ranges::find(delayedRemovedComponents_, index) == delayedRemovedComponents_.end(),
+					"Attempt to remove the component twice.");
+				delayedRemovedComponents_.push_back(index);
 			}
 
-			virtual void AddDelayedComponents() override {
+			virtual void ProcessDelayedRequests() override {
 				components_.insert(
 					components_.end(),
 					std::make_move_iterator(delayedComponents_.begin()),
 					std::make_move_iterator(delayedComponents_.end())
 				);
 				delayedComponents_.clear();
+
+				for(ComponentIndex index : delayedRemovedComponents_) {
+					ComponentType* component = this->operator[](index);
+					component->~ComponentType();
+					removedComponents_.push_back(index);
+				}
+				delayedRemovedComponents_.clear();
 			}
 
 		private:
 
 			[[nodiscard]]
 			bool IsComponentIndexFree(ComponentIndex index) const noexcept {
-				return std::find(freeIndices_.cbegin(), freeIndices_.cend(), index) != freeIndices_.cend();
+				return std::find(removedComponents_.cbegin(), removedComponents_.cend(), index) != removedComponents_.cend();
 			}
 
 		private:
+
+			std::vector<ComponentIndex> delayedRemovedComponents_;
+			std::vector<ComponentIndex> removedComponents_;
+
 			std::vector<ComponentType>	delayedComponents_;
-			std::vector<ComponentIndex> freeIndices_;
 			std::vector<ComponentType>	components_;
 		};
 
@@ -260,16 +268,15 @@ namespace ECS {
 			void AddComponent(ComponentIndex componentIndex) noexcept {
 
 				ComponentTypeId componentTypeId = ComponentType::GetTypeId();
-				delayedTypeIndex_.insert(std::pair{ componentTypeId, componentIndex });
+				delayedTypeIndexForAdd_.insert(std::pair{ componentTypeId, componentIndex });
 				delayedFilter_.Include<ComponentType>();
 			}
 
 			template<class ComponentType>
 			void RemoveComponent() noexcept {
-
 				ComponentTypeId componentTypeId = ComponentType::GetTypeId();
-				delayedTypeIndex_.erase(componentTypeId);
-				delayedFilter_.DeleteInclude<ComponentType>();
+				delayedComponentsToRemove_.push_back(componentTypeId);
+				delayedFilter_.Exclude<ComponentType>();
 			}
 
 			[[nodiscard]]
@@ -279,18 +286,25 @@ namespace ECS {
 
 
 			void ProccessDelayedRequests() {
+
 				filter_ = filter_ + delayedFilter_;
 				delayedFilter_.Clear();
+
 				typeIndex_.insert(
-					delayedTypeIndex_.begin(),
-					delayedTypeIndex_.end()
+					delayedTypeIndexForAdd_.begin(),
+					delayedTypeIndexForAdd_.end()
 				);
-				delayedTypeIndex_.clear();
+				for(auto componentTypeIdToRemove: delayedComponentsToRemove_) {
+					typeIndex_.erase(componentTypeIdToRemove);
+				}
+				delayedComponentsToRemove_.clear();
+				delayedTypeIndexForAdd_.clear();
 			}
 
 		private:
 			Entity::Filter delayedFilter_; 
-			std::map<ComponentTypeId, ComponentIndex> delayedTypeIndex_;
+			std::map<ComponentTypeId, ComponentIndex> delayedTypeIndexForAdd_;
+			std::vector<ComponentTypeId> delayedComponentsToRemove_;
 
 			Entity::Filter filter_; // this filter doesnt have excludes.
 			//Component type to component index.

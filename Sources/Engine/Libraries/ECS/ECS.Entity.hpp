@@ -72,7 +72,7 @@ namespace ECS {
 			[[nodiscard]]
 			bool Matches(const Filter& filter) const noexcept {
 				const bool thereAreAllNeedIncludes =
-					(includes_.count() == 0) || ((filter.includes_ & includes_) == includes_);
+					/*(includes_.count() == 0) || */((filter.includes_ & includes_) == includes_);
 				if (thereAreAllNeedIncludes) {
 					const bool thereArentNoNeedComponents = (filter.includes_ & excludes_) == 0;
 					if (thereArentNoNeedComponents) {
@@ -84,10 +84,12 @@ namespace ECS {
 
 			[[nodiscard]]
 			Filter operator+(const Filter& filter) const noexcept {
+				OS::AssertMessage(IsValid(), "Error while merging entity filters.");
+				OS::AssertMessage(filter.IsValid(), "Error while merging entity filters.");
 				Filter result;
 				{
-					result.includes_ = includes_ | filter.includes_;
-					result.excludes_ = excludes_ | filter.excludes_;
+					result.includes_ = (includes_ & ~filter.excludes_) | (filter.includes_ & ~excludes_);
+					result.excludes_ = 0;
 				}
 				OS::AssertMessage(IsValid(), "Error while merging entity filters.");
 				return result;
