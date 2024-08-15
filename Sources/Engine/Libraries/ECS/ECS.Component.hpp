@@ -28,7 +28,10 @@ namespace ECS {
 
 		[[nodiscard]]
 		static std::string GetName() noexcept {
-			return Common::TypeInfo<Type>{}.GetName();
+			const std::string fullName = Common::TypeInfo<Type>{}.GetName();
+			const Common::Index shortNameFirstIndex = fullName.find_last_of(':');
+			const std::string shortName = fullName.substr(shortNameFirstIndex + 1);
+			return shortName;
 		}
 
 		[[nodiscard]]

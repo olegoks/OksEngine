@@ -134,46 +134,47 @@ namespace OksEngine {
 		const std::string idString = std::to_string(id);
 		ImGui::PushID(idString.c_str());
 
-		if (ImGui::CollapsingHeader(("Id: " + idString).c_str()), ImGuiTreeNodeFlags_SpanAllColumns) {
-			if (world->IsComponentExist<Position>(id)) {
-				if (ImGui::CollapsingHeader("Position")) {
-					Position* position = world->GetComponent<Position>(id);
-					ImGui::InputFloat("X", &position->translate_.x);
-					ImGui::InputFloat("Y", &position->translate_.y);
-					ImGui::InputFloat("Z", &position->translate_.z);
+		if (ImGui::CollapsingHeader(("Id: " + idString).c_str())) {
+			ImGui::Indent(20.0f); // Увеличиваем отступ слева
+			auto editComponent = []<class ComponentType>(ECS::World * world, ECS::Entity::Id id) {
+
+				bool isExist = world->IsComponentExist<ComponentType>(id);
+				if (ImGui::CollapsingHeader(ComponentType::GetName().c_str(), &isExist)) {
+					ComponentType* component = world->GetComponent<ComponentType>(id);
+					Edit<ComponentType>(component);
 					ImGui::Spacing();
 				}
-			}
+				if (!isExist) {
+					if (world->IsComponentExist<ComponentType>(id)) {
+						world->RemoveComponent<ComponentType>(id);
+					}
+				}
+			};
+			editComponent.template operator() < Position > (world, id);
+			editComponent.template operator() < AddImmutableRenderGeometryFromObjRequest > (world, id);
 
-
-			bool isExist = world->IsComponentExist<ImmutableRenderGeometry>(id);
-			if (ImGui::CollapsingHeader("ImmutableRenderGeometry", &isExist)) {
-				ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(id);
-				ImGui::TextDisabled("Immutable render geometry: %s", renderGeometry->modelObjFileName_.c_str());
-			}
-			if (!isExist) {
-				if (world->IsComponentExist<ImmutableRenderGeometry>(id)) {
-					world->RemoveComponent<ImmutableRenderGeometry>(id);
+			{
+				bool isExist = world->IsComponentExist<ImmutableRenderGeometry>(id);
+				if (ImGui::CollapsingHeader("ImmutableRenderGeometry", &isExist)) {
+					ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(id);
+					ImGui::TextDisabled("Immutable render geometry: %s", renderGeometry->modelObjFileName_.c_str());
+				}
+				if (!isExist) {
+					if (world->IsComponentExist<ImmutableRenderGeometry>(id)) {
+						world->RemoveComponent<ImmutableRenderGeometry>(id);
+					}
 				}
 			}
-
-			if (world->IsComponentExist<AddImmutableRenderGeometryFromObjRequest>(id)) {
-				if (ImGui::CollapsingHeader("AddImmutableRenderGeometryFromObjRequest")) {
-					auto* addImmutableRenderGeometryfromObj = world->GetComponent<AddImmutableRenderGeometryFromObjRequest>(id);
-
-					ImGui::TextDisabled("Obj: %s", addImmutableRenderGeometryfromObj->obj_.c_str());
-					ImGui::TextDisabled("Mtl: %s", addImmutableRenderGeometryfromObj->mtl_.c_str());
-					ImGui::TextDisabled("Textures:");
-					for (auto& texture : addImmutableRenderGeometryfromObj->textures_) {
-						ImGui::TextDisabled("	%s", texture.c_str());
-					}
-
-					if (ImGui::Button("Delete")) {
-						world->RemoveComponent<AddImmutableRenderGeometryFromObjRequest>(id);
-					}
-					ImGui::Spacing();
-				}
-			}
+			//if (world->IsComponentExist<AddImmutableRenderGeometryFromObjRequest>(id)) {
+			//	if (ImGui::CollapsingHeader("AddImmutableRenderGeometryFromObjRequest")) {
+			//		auto* addImmutableRenderGeometryfromObj = world->GetComponent<AddImmutableRenderGeometryFromObjRequest>(id);
+			//		Edit<AddImmutableRenderGeometryFromObjRequest>(addImmutableRenderGeometryfromObj);
+			//		if (ImGui::Button("Delete")) {
+			//			world->RemoveComponent<AddImmutableRenderGeometryFromObjRequest>(id);
+			//		}
+			//		ImGui::Spacing();
+			//	}
+			//}
 			if (world->IsComponentExist<StaticRigidBodyCustomMeshShape>(id)) {
 				if (ImGui::CollapsingHeader("StaticRigidBodyCustomMeshShape")) {
 					StaticRigidBodyCustomMeshShape* staticRigidBodyCustomMeshShape = world->GetComponent<StaticRigidBodyCustomMeshShape>(id);
@@ -208,6 +209,7 @@ namespace OksEngine {
 
 			auto& state = GetCreateState(id);
 			ImGui::SeparatorText("Add component");
+			ImGui::Indent(20.0f);
 			const char* items[] = {
 				"Position",
 				"AddImmutableRenderGeometryFromObjRequest",
@@ -216,11 +218,6 @@ namespace OksEngine {
 				"MapRigidBodyToRenderGeometry" };
 			ImGui::Combo("", &state.currentAddComponentIndex_, items, 4);
 
-			// To get unique button behaviour to each entity.
-			bool addComponent = false;
-			if (ImGui::Button("Add component")) {
-				addComponent = true;
-			}
 			const std::string currentComponent = items[state.currentAddComponentIndex_];
 			if (currentComponent == "Position") {
 				static float x = 0.0f;
@@ -232,7 +229,7 @@ namespace OksEngine {
 					ImGui::InputFloat("Z", &z);
 					ImGui::Spacing();
 				}
-				if (addComponent) {
+				if (ImGui::Button("Add component")) {
 					if (!world->IsComponentExist<Position>(id)) {
 						world->CreateComponent<Position>(id, x, y, z);
 					}
@@ -247,10 +244,11 @@ namespace OksEngine {
 					ImGui::InputText("Obj", obj, sizeof(obj));
 					ImGui::InputText("Mtl", mtl, sizeof(mtl));
 					{
-						
-						if(texturesNumber <= textures.size()) {
+
+						if (texturesNumber <= textures.size()) {
 							textures.resize(texturesNumber);
-						} else {
+						}
+						else {
 							for (Common::Size i = 0; i < texturesNumber - textures.size(); i++) {
 								auto newTexture = std::make_unique<char[]>(100);
 								std::memset(newTexture.get(), 0, 100);
@@ -268,16 +266,18 @@ namespace OksEngine {
 					}
 					ImGui::Spacing();
 				}
-				if (addComponent) {
+				if (ImGui::Button("Add component")) {
 					if (!world->IsComponentExist<AddImmutableRenderGeometryFromObjRequest>(id)) {
 						std::vector<std::string> texturesStrs;
-						for(auto& textureInput : textures) {
+						for (auto& textureInput : textures) {
 							texturesStrs.push_back(textureInput.get());
 						}
 						world->CreateComponent<AddImmutableRenderGeometryFromObjRequest>(id, obj, mtl, texturesStrs);
 					}
 				}
 			}
+			ImGui::Unindent(20.0f);
+			ImGui::Unindent(20.0f);
 		}
 		ImGui::Separator();
 
