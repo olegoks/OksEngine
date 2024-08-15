@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ECS.hpp>
+#include <imgui.h>
 #include <Math.Vector.hpp>
 
 #include <OksEngine.ECS.Component.hpp>
@@ -44,6 +45,15 @@ namespace OksEngine {
 		void SetY(float y) { translate_.y = y; }
 		void SetZ(float z) { translate_.z = z; }
 	};
+
+	template<>
+	inline void Edit<Position>(Position* position) {
+		ImGui::InputFloat("X", &position->translate_.x);
+		ImGui::InputFloat("Y", &position->translate_.y);
+		ImGui::InputFloat("Z", &position->translate_.z);
+	}
+
+
 
 
 

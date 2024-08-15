@@ -23,6 +23,9 @@ namespace OksEngine {
 	};
 
 	template<class ComponentType>
-	void Edit() { OS::NotImplemented();  }
+	void Edit(ComponentType* component) { OS::NotImplemented();  }
+
+	template<class ComponentType>
+	void Add(ComponentType* component) { OS::NotImplemented(); }
 
 }

@@ -26,6 +26,16 @@ namespace OksEngine {
 		bool bakeGeometry_ = false;
 	};
 
+	template<>
+	inline void Edit<AddImmutableRenderGeometryFromObjRequest>(AddImmutableRenderGeometryFromObjRequest* request) {
+		ImGui::TextDisabled("Obj: %s", request->obj_.c_str());
+		ImGui::TextDisabled("Mtl: %s", request->mtl_.c_str());
+		ImGui::TextDisabled("Textures:");
+		for (auto& texture : request->textures_) {
+			ImGui::TextDisabled("	%s", texture.c_str());
+		}
+	}
+
 
 	class AddImmutableRenderGeometryFromObjSystem : public ECSSystem {
 	public:
@@ -48,6 +58,9 @@ namespace OksEngine {
 			return Common::TypeInfo<AddImmutableRenderGeometryFromObjSystem>().GetId();
 		}
 	};
+
+
+
 
 
 }
