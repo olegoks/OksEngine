@@ -13,12 +13,15 @@ namespace ECS {
 
 	class System {
 	public:
-		virtual void StartUpdate() = 0;
+		virtual void BeforeUpdate(ECS::World* world) = 0; // Calls once at the begging even if there are noe entities
+		virtual void StartUpdate() = 0; // Calls for each entity before Update
 		virtual void Update(World* world, Entity::Id entityId) = 0;
-		//virtual void NewUpdate(ECS::Accessor::Entity& entity) = 0;
-		virtual void EndUpdate() = 0;
+		virtual void EndUpdate() = 0; // Callsfor each entity after Update
+		virtual void AfterUpdate(ECS::World* world) = 0; // Calls once after end of updating even if there are no entities.
+
 		virtual Entity::Filter GetFilter() const noexcept = 0;
 		virtual Common::TypeId GetTypeId() const noexcept = 0;
+		virtual ~System() noexcept = default;
 	};
 
 }

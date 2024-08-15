@@ -10,13 +10,15 @@ namespace OksEngine {
 	struct AddImmutableRenderGeometryFromObjRequest : public ECSComponent<AddImmutableRenderGeometryFromObjRequest> {
 	public:
 
-
-
-		AddImmutableRenderGeometryFromObjRequest() : ECSComponent{ nullptr } {
-
-		}
-
-
+		AddImmutableRenderGeometryFromObjRequest(
+			std::string obj,
+			std::string mtl, 
+			const std::vector<std::string>& textures, 
+			bool bakeGeometry = false) : ECSComponent{ nullptr },
+			obj_{ obj },
+			mtl_{ mtl },
+			textures_{ textures },
+			bakeGeometry_{ bakeGeometry } { }
 
 		std::string obj_ = "";
 		std::string mtl_ = "";
@@ -38,7 +40,7 @@ namespace OksEngine {
 			const auto* request = world->GetComponent<AddImmutableRenderGeometryFromObjRequest>(entityId);
 			if (request == nullptr) { return; }
 			OS::AssertMessage(request->obj_ != "", "Obj name must be set.");
-			world->CreateComponent<LoadResourceRequest>();
+			//world->CreateComponent<LoadResourceRequest>();
 		}
 
 	private:

@@ -17,7 +17,9 @@ namespace OksEngine {
 	public:
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
-
+		virtual ECS::Entity::Filter GetFilter() const noexcept override {
+			return ECS::Entity::Filter{}.Include<ImmutableRenderGeometry>();
+		}
 	private:
 
 		virtual Common::TypeId GetTypeId() const noexcept override;
@@ -32,7 +34,7 @@ namespace OksEngine {
 	public:
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
-
+		virtual ECS::Entity::Filter GetFilter() const noexcept override;
 	private:
 
 		virtual Common::TypeId GetTypeId() const noexcept override;

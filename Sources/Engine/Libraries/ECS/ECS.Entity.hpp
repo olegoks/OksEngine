@@ -82,6 +82,29 @@ namespace ECS {
 				return false;
 			}
 
+			[[nodiscard]]
+			Filter operator+(const Filter& filter) const noexcept {
+				Filter result;
+				{
+					result.includes_ = includes_ | filter.includes_;
+					result.excludes_ = excludes_ | filter.excludes_;
+				}
+				OS::AssertMessage(IsValid(), "Error while merging entity filters.");
+				return result;
+			}
+
+			void Clear() noexcept {
+				includes_.reset();
+				excludes_.reset();
+			}
+
+		private:
+
+			[[nodiscard]]
+			bool IsValid() const noexcept {
+				return (includes_ & excludes_) == 0;
+			}
+
 		private:
 			std::bitset<256> includes_;
 			std::bitset<256> excludes_;

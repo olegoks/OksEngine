@@ -44,7 +44,7 @@ namespace OksEngine {
 					rigidBody->SetTransform(rbTransform);
 				}
 			}
-
+			return;
 			{
 				RigidBodyCapsule* rigidBodyCapsule = world->GetComponent<RigidBodyCapsule>(entityId);
 
@@ -157,6 +157,12 @@ namespace OksEngine {
 				}
 			}
 
+		}
+
+
+		virtual ECS::Entity::Filter GetFilter() const noexcept override
+		{
+			return ECS::Entity::Filter{}.Include<RigidBodyBox>();
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {

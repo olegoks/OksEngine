@@ -34,6 +34,8 @@ namespace OksEngine {
 
 		void SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up);
 
+		void RenderImGui();
+
 		virtual void Update() noexcept override;
 
 		//using ImGuiCallback = std::function<void(std::shared_ptr<ECS::World> world)>;

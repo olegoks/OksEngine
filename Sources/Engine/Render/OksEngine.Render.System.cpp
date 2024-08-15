@@ -32,6 +32,7 @@ namespace OksEngine {
 				immutableRenderGeometry->GetId(),
 				immutableRenderGeometry->GetTransform());
 		}
+		return;
 		auto* skinnedGeometry = world->GetComponent<SkinnedGeometry>(entityId);
 		if (skinnedGeometry != nullptr) {
 		if (skinnedGeometry->GetId() == Common::Limits<Common::Index>::Max()) {
@@ -71,6 +72,10 @@ namespace OksEngine {
 		if (camera->isActive_) {
 			GetContext().GetRenderSubsystem()->SetCamera(camera->position_, camera->direction_, camera->up_);
 		}
+	}
+
+	ECS::Entity::Filter CameraSystem::GetFilter() const noexcept {
+		return ECS::Entity::Filter{}.Include<Camera>();
 	}
 
 	Common::TypeId CameraSystem::GetTypeId() const noexcept {

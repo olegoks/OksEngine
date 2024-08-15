@@ -15,16 +15,18 @@ namespace OksEngine {
 		
 		DebugSubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::Debug, createInfo.context_ } {
 			
-			const ECS::Entity::Id mainMenuBar = GetContext().GetECSWorld()->CreateEntity();
+			const ECS::Entity::Id imgui = GetContext().GetECSWorld()->CreateEntity();
 
-			GetContext().GetECSWorld()->CreateComponent<MainMenuBar>(mainMenuBar);
-			GetContext().GetECSWorld()->CreateComponent<EnginePerformance>(mainMenuBar);
-			GetContext().GetECSWorld()->CreateComponent<ECSInspector>(mainMenuBar);
-			GetContext().GetECSWorld()->CreateComponent<FramesCounter>(mainMenuBar);
+			GetContext().GetECSWorld()->CreateComponent<ImGuiContext>(imgui);
+			GetContext().GetECSWorld()->CreateComponent<MainMenuBar>(imgui);
+			GetContext().GetECSWorld()->CreateComponent<EnginePerformance>(imgui);
+			GetContext().GetECSWorld()->CreateComponent<ECSInspector>(imgui);
+			GetContext().GetECSWorld()->CreateComponent<FramesCounter>(imgui);
 
-
+			GetContext().GetECSWorld()->RegisterSystem<ImGuiSystem>(createInfo.context_);
 			GetContext().GetECSWorld()->RegisterSystem<MainMenuBarSystem>(createInfo.context_);
 			GetContext().GetECSWorld()->RegisterSystem<EnginePerformanceSystem>(createInfo.context_);
+			GetContext().GetECSWorld()->RegisterSystem<CollectEntitiesInfo>(createInfo.context_);
 			GetContext().GetECSWorld()->RegisterSystem<ECSInspectorSystem>(createInfo.context_);
 
 		} 

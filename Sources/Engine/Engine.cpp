@@ -37,6 +37,7 @@ namespace OksEngine {
 			context_->GetUISubsystem()->Update();
 			context_->GetPhysicsSubsystem()->Update();
 			{
+				context_->GetECSWorld()->StartFrame();
 				context_->GetECSWorld()->RunSystem<UISystem>();
 				context_->GetECSWorld()->RunSystem<BehaviourSystem>();
 				context_->GetECSWorld()->RunSystem<PhysicsSystem>();
@@ -48,10 +49,14 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<MainMenuBarSystem>();
 				context_->GetECSWorld()->RunSystem<EnginePerformanceSystem>();
 				context_->GetECSWorld()->RunSystem<ECSInspectorSystem>();
+				context_->GetECSWorld()->RunSystem<CollectEntitiesInfo>();
 				ImGui::Render();
+				context_->GetECSWorld()->RunSystem<ImGuiSystem>();
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
+
 				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();
 				//context_->GetECSWorld()->AddDelayedComponents();
+				context_->GetECSWorld()->EndFrame();
 			}
 			//context_->GetECSWorld()->Process();
 			//UI Subsystem must be updated before render to call ImGui_ImplGlfw_NewFrame()

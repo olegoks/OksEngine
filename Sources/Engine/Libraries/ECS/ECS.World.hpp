@@ -77,20 +77,24 @@ namespace ECS {
 		}
 
 		void EndFrame() {
+			
 			componentsManager_.AddDelayedComponents();
 		}
 
 		template<class SystemType>
 		void RunSystem() {
+
+			std::shared_ptr<System> system = systemsManager_.GetSystem<SystemType>();
+			system->BeforeUpdate(this);
 			entitiesManager_.ForEachEntity(
-				[this](Entity& entity) {
-					std::shared_ptr<System> system = systemsManager_.GetSystem<SystemType>();
+				[this, &system](Entity& entity) {
 					const Entity::Filter systemFilter = system->GetFilter();
 					const Entity::Filter entityFilter = componentsManager_.GetEntityFilter(entity.GetId());
 					if (systemFilter.Matches(entityFilter)) {
 						system->Update(this, entity.GetId());
 					}
 				});
+			system->AfterUpdate(this);
 		}
 
 		[[nodiscard]]
