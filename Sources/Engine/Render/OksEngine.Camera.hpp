@@ -110,4 +110,10 @@ namespace OksEngine {
 		
 	};
 
+
+	template<>
+	inline void Edit<Camera>(Camera* camera) {
+
+	}
+
 }

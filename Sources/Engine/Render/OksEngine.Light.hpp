@@ -52,4 +52,9 @@ namespace OksEngine {
 		float radius_; // Border of light, on the border light intensity is 0.f.
 	};
 
+	template<>
+	inline void Edit<PointLight>(PointLight* pointLight) {
+
+	}
+
 }

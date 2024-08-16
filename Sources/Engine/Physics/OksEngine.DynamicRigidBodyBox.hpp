@@ -38,5 +38,9 @@ namespace OksEngine {
 		float halfExtentZ_ = 0.5f;
 	};
 
+	template<>
+	inline void Edit<DynamicRigidBodyBox>(DynamicRigidBodyBox* dynamicRigidBody) {
+
+	}
 
 }

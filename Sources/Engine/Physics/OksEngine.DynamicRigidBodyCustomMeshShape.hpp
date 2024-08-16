@@ -32,4 +32,9 @@ namespace OksEngine {
 		std::string meshName_;
 	};
 
+	template<>
+	inline void Edit<DynamicRigidBodyCustomMeshShape>(DynamicRigidBodyCustomMeshShape* dynamicRigidBody) {
+
+	}
+
 }
