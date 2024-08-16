@@ -6,12 +6,15 @@
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <UI/OksEngine.UI.Subsystem.hpp>
 
+/*Debug*/
+#include <Debug/OksEngine.FramesCounter.hpp>
+
 /*Reneder*/
 #include <Render/OksEngine.Render.System.hpp>
 
 /*Common*/
 #include <Common/OksEngine.Engine.System.hpp>
-#include <Common/OksEngine.FramesCounter.hpp>
+
 
 /*Physics*/
 #include <Physics/OksEngine.Physics.Subsystem.hpp>

@@ -5,7 +5,10 @@
 #include <OksEngine.Context.hpp>
 #include <OksEngine.ECS.System.hpp>
 #include <Debug/OksEngine.MainMenuBar.hpp>
-#include <Common/OksEngine.FramesCounter.hpp>
+#include <Debug/OksEngine.FramesCounter.hpp>
+#include <Debug/OksEngine.EnginePerformance.hpp>
+#include <Debug/OksEngine.ECSInspector.hpp>
+#include <Debug/OksEngine.MainMenuBar.hpp>
 
 namespace OksEngine {
 
