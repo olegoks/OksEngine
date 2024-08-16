@@ -10,6 +10,7 @@ namespace OksEngine {
 		ECSSystem{ context } { }
 
 	void RenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+		return;
 		auto* immutableRenderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 		if (immutableRenderGeometry != nullptr) {
 			if (immutableRenderGeometry->GetId() == Common::Limits<Common::Index>::Max()) {

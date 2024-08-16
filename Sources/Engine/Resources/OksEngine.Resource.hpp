@@ -17,4 +17,10 @@ namespace OksEngine {
 		ResourceSubsystem::Resource resource_;
 	};
 
+
+	template<>
+	inline void Edit<Resource>(Resource* resource) {
+
+	}
+
 }

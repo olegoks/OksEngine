@@ -1,0 +1,8 @@
+#pragma once 
+
+
+#include <Debug/OksEngine.Debug.Components.hpp>
+#include <Render/OksEngine.Render.Components.hpp>
+#include <Physics/OksEngine.Physics.Components.hpp>
+#include <Common/OksEngine.Common.Components.hpp>
+#include <Behaviour/OksEngine.Behaviour.Components.hpp>

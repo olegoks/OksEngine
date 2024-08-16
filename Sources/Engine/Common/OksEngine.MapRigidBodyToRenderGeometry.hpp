@@ -8,4 +8,9 @@ namespace OksEngine{
 	private:
 	};
 
+	template<>
+	inline void Edit<MapRigidBodyToRenderGeometry>(MapRigidBodyToRenderGeometry* map) {
+
+	}
+
 }

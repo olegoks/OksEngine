@@ -30,11 +30,11 @@ int main(int argc, char** argv){
     };
 
     Engine engine{ engineCreateInfo };
-    //Entity entity = engine.CreateEntity();
-    //entity.AddPosition(0, 0, 0);
-    //entity.AddBehaviour("TestObject.lua", "TestObject");
+    Entity entity = engine.CreateEntity();
+    entity.AddPosition(0, 0, 0);
+    entity.AddBehaviour("TestObject.lua", "TestObject");
 
-   /* Entity dragonLore = engine.CreateEntity();
+    Entity dragonLore = engine.CreateEntity();
     {
         dragonLore.AddPosition(0, 0, 0);
         dragonLore.AddBehaviour("TestObject.lua", "TestObject");
@@ -45,33 +45,33 @@ int main(int argc, char** argv){
         rigidBodyTransform = glm::translate(rigidBodyTransform, { 0, 10.0, 0.f });
         dragonLore.AddDynamicRigidBodyCustomMeshShape(rigidBodyTransform, "dragon_lore",10, 0, 0, 0.1, 0.1, 0.1);
         dragonLore.AddMapRigidBodyToRenderGeometry();
-    }*/
+    }
 
-    /*Entity flashLight = engine.CreateEntity();
-    {
-        flashLight.AddPosition(0, 0, 0);
-        glm::mat4 renderGeomTransform{ 1.0f };
-        renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
-        flashLight.AddImmutableRenderGeometry();
-    }*/
+    //Entity flashLight = engine.CreateEntity();
+    //{
+    //    flashLight.AddPosition(0, 0, 0);
+    //    glm::mat4 renderGeomTransform{ 1.0f };
+    //    renderGeomTransform = glm::translate(renderGeomTransform, { 0, 0, 0 });
+    //   /* flashLight.AddImmutableRenderGeometry();*/
+    //}
 
-   /* Entity animated = engine.CreateEntity();
-    {
-        animated.AddPosition(0, 0, 0);
-        glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
-        animated.AddSkinnedGeometry(capsuleTransform, "lowPolyHand.fbx", "", {});
-    }*/
+    //Entity animated = engine.CreateEntity();
+    //{
+    //    animated.AddPosition(0, 0, 0);
+    //    glm::mat4 capsuleTransform = glm::mat4{ 1.0f };
+    //    animated.AddSkinnedGeometry(capsuleTransform, "lowPolyHand.fbx", "", {});
+    //}
 
-   /* Entity staticGeom = engine.CreateEntity();
-    {
-        staticGeom.AddPosition(0, 0, 0);
-        staticGeom.AddStaticRigidBodyCustomMeshShape(
-            glm::mat4{ 1.f },
-            "de_dust2",
-            0.5,
-            0.5, 
-            0.5);
-    }*/
+    //Entity staticGeom = engine.CreateEntity();
+    //{
+    //    staticGeom.AddPosition(0, 0, 0);
+    //    staticGeom.AddStaticRigidBodyCustomMeshShape(
+    //        glm::mat4{ 1.f },
+    //        "de_dust2",
+    //        0.5,
+    //        0.5, 
+    //        0.5);
+    //}
 
     /*Entity flyCamera = engine.CreateEntity();
     {

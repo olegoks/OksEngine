@@ -21,6 +21,11 @@ namespace OksEngine {
 	};
 
 
+	template<>
+	inline void Edit<LoadResourceRequest>(LoadResourceRequest* request) {
+
+	}
+
 	class LoadResourceSystem : public ECSSystem {
 	public:
 

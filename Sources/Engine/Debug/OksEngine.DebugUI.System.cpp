@@ -1,12 +1,8 @@
 
 #include <Debug/OksEngine.DebugUI.System.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
-#include <Common/OksEngine.MapRigidBodyToRenderGeometry.hpp>
-#include <Render/OksEngine.AddImmutableRenderGeometryFromObjRequest.hpp>
 
-#include <Physics/OksEngine.Physics.Components.hpp>
-
-#include <Debug/OksEngine.Debug.Components.hpp>
+#include <OksEngine.Components.hpp>
 
 #include <imgui.h>
 #include <imgui_internal.h>
@@ -127,55 +123,36 @@ namespace OksEngine {
 					}
 				}
 			};
+
+			/*Common*/
 			editComponent.template operator() < Position > (world, id);
-			editComponent.template operator() < AddImmutableRenderGeometryFromObjRequest > (world, id);
+			editComponent.template operator() < MapRigidBodyToRenderGeometry > (world, id);
+			/*Behaviour*/
 			editComponent.template operator() < Behaviour > (world, id);
+			/*Debug*/
 			editComponent.template operator() < DebugInfo > (world, id);
+			editComponent.template operator() < ImGuiContext > (world, id);
+			editComponent.template operator() < ECSInspector > (world, id);
+			editComponent.template operator() < MainMenuBar > (world, id);
+			editComponent.template operator() < FramesCounter > (world, id);
+			//editComponent.template operator() < > (world, id);
+			/*Physics*/
+			//editComponent.template operator() < > (world, id);
+			editComponent.template operator() < DynamicRigidBodyBox > (world, id);
+			editComponent.template operator() < DynamicRigidBodyCustomMeshShape > (world, id);
+			editComponent.template operator() < StaticRigidBodyCustomMeshShape > (world, id);
+			/*Render*/
+			editComponent.template operator() < AddImmutableRenderGeometryFromObjRequest > (world, id);
+			editComponent.template operator() < ImmutableRenderGeometry > (world, id);
+			editComponent.template operator() < Camera > (world, id);
+			editComponent.template operator() < AttachedCamera > (world, id);
+			editComponent.template operator() < PointLight > (world, id);
+			editComponent.template operator() < SkinnedGeometry > (world, id);
+			/*Resources*/
+			editComponent.template operator() < LoadResourceRequest > (world, id);
+			editComponent.template operator() < Resource > (world, id);
+			/*UI*/
 
-			{
-				bool isExist = world->IsComponentExist<ImmutableRenderGeometry>(id);
-				if (ImGui::CollapsingHeader("ImmutableRenderGeometry", &isExist)) {
-					ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(id);
-					ImGui::TextDisabled("Immutable render geometry: %s", renderGeometry->modelObjFileName_.c_str());
-				}
-				if (!isExist) {
-					if (world->IsComponentExist<ImmutableRenderGeometry>(id)) {
-						world->RemoveComponent<ImmutableRenderGeometry>(id);
-					}
-				}
-			}
-
-			if (world->IsComponentExist<StaticRigidBodyCustomMeshShape>(id)) {
-				if (ImGui::CollapsingHeader("StaticRigidBodyCustomMeshShape")) {
-					StaticRigidBodyCustomMeshShape* staticRigidBodyCustomMeshShape = world->GetComponent<StaticRigidBodyCustomMeshShape>(id);
-					ImGui::TextDisabled("StaticRigidBodyCustomMeshShape: %s", staticRigidBodyCustomMeshShape->geomName_);
-					if (ImGui::Button("Delete")) { world->RemoveComponent<StaticRigidBodyCustomMeshShape>(id); }
-					ImGui::Spacing();
-				}
-			}
-			if (world->IsComponentExist<MainMenuBar>(id)) {
-				if (ImGui::CollapsingHeader("MainMenuBar")) {
-					ImGui::Spacing();
-				}
-			}
-			if (world->IsComponentExist<ECSInspector>(id)) {
-				if (ImGui::CollapsingHeader("ECSInspector")) {
-					ImGui::Spacing();
-				}
-			}
-			if (world->IsComponentExist<ImGuiContext>(id)) {
-				if (ImGui::CollapsingHeader("ImGuiContext")) {
-					ImGui::Spacing();
-				}
-			}
-			if (world->IsComponentExist<MapRigidBodyToRenderGeometry>(id)) {
-				if (ImGui::CollapsingHeader("MapRigidBodyToRenderGeometry")) {
-					MapRigidBodyToRenderGeometry* mapRigidBodyToRenderGeometry = world->GetComponent<MapRigidBodyToRenderGeometry>(id);
-					ImGui::TextDisabled("MapRigidBodyToRenderGeometry");
-					if (ImGui::Button("Delete")) { world->RemoveComponent<MapRigidBodyToRenderGeometry>(id); }
-					ImGui::Spacing();
-				}
-			}
 
 			auto& state = GetCreateState(id);
 			ImGui::SeparatorText("Add component");
@@ -250,9 +227,7 @@ namespace OksEngine {
 			ImGui::Unindent(20.0f);
 		}
 		ImGui::Separator();
-
 		ImGui::PopID();
-		ImGui::ShowDemoWindow();
 	}
 
 	void CollectEntitiesInfo::AfterUpdate(ECS::World* world)

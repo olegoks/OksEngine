@@ -7,7 +7,7 @@ namespace OksEngine {
 	class DebugInfo : public ECSComponent<DebugInfo>{
 	public:
 
-		DebugInfo(std::string name) : ECSComponent{ nullptr }, name_ { name } { }
+		DebugInfo(Context* context, std::string name) : ECSComponent{ context }, name_ { name } { }
 
 		std::string name_;
 

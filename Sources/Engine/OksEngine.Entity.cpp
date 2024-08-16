@@ -8,7 +8,16 @@
 #include <Render/OksEngine.Camera.hpp>
 #include <Render/OksEngine.AttachedCamera.hpp>
 
+#include <OksEngine.Components.hpp>
+
 namespace OksEngine {
+
+	void Entity::AddDebugInfo(const std::string& name) {
+		world_->CreateComponent<DebugInfo>(
+			GetId(),
+			&context_,
+			name);
+	}
 
 	void Entity::AddImmutableRenderGeometry(const glm::mat4& modelMatrix, std::string objName, std::string mtlName, const std::vector<std::string>& textures) {
 		world_->CreateComponent<ImmutableRenderGeometry>(
@@ -89,7 +98,7 @@ namespace OksEngine {
 		float halfExtentX,
 		float halfExtentY, 
 		float halfExtentZ) {
-		world_->CreateComponent<RigidBodyBox>(
+		world_->CreateComponent<DynamicRigidBodyBox>(
 			GetId(),
 			&context_,
 			transform,
@@ -117,7 +126,7 @@ namespace OksEngine {
 		float restitution,
 		float radius,
 		float height) {
-		world_->CreateComponent<RigidBodyCapsule>(
+		world_->CreateComponent<DynamicRigidBodyCapsule>(
 			GetId(),
 			&context_,
 			transform,

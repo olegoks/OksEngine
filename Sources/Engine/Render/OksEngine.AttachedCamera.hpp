@@ -10,4 +10,9 @@ namespace OksEngine {
 		glm::mat4 offset_{ 1.f };
 	};
 
+	template<>
+	inline void Edit<AttachedCamera>(AttachedCamera* camera) {
+
+	}
+
 }

@@ -61,4 +61,10 @@ namespace OksEngine {
 
 	};
 
+
+	template<>
+	inline void Edit<SkinnedGeometry>(SkinnedGeometry* skinnedGeometry) {
+
+	}
+
 }
