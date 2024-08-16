@@ -84,6 +84,7 @@ namespace UI {
 				});
 
 			ImGui::CreateContext();
+			//ImGui::GetIO().ConfigFlags |= ImGuiConfig//ImGuiConfigFlags_DockingEnable;
 			ImPlot::CreateContext();
 			ImGui_ImplGlfw_InitForVulkan(createdWindow, true);
 

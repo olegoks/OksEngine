@@ -17,7 +17,7 @@ namespace Render::Vulkan {
 		};
 		ImGUI(const CreateInfo& createInfo) {
 			//ImGui::CreateContext();
-			////ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;//ImGuiConfigFlags_DockingEnable;
+			//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;//ImGuiConfigFlags_DockingEnable;
 			//ImGui_ImplGlfw_InitForVulkan(createInfo.window_, true);
 			//ImGui_ImplVulkan_InitInfo init_info = {};
 			//init_info.Instance = *instance_;
