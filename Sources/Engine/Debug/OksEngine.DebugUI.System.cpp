@@ -228,6 +228,7 @@ namespace OksEngine {
 		}
 		ImGui::Separator();
 		ImGui::PopID();
+		ImGui::ShowDemoWindow();
 	}
 
 	void CollectEntitiesInfo::AfterUpdate(ECS::World* world)
