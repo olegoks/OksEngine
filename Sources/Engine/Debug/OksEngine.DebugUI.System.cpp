@@ -4,6 +4,10 @@
 #include <Common/OksEngine.MapRigidBodyToRenderGeometry.hpp>
 #include <Render/OksEngine.AddImmutableRenderGeometryFromObjRequest.hpp>
 
+#include <Physics/OksEngine.Physics.Components.hpp>
+
+#include <Debug/OksEngine.Debug.Components.hpp>
+
 #include <imgui.h>
 #include <imgui_internal.h>
 #include <imconfig.h>
@@ -22,34 +26,7 @@ namespace OksEngine {
 	}
 
 	void MainMenuBarSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
-		//auto* menuBar = world->GetComponent<MainMenuBar>(entityId);
 
-		//	GetContext().GetRenderSubsystem()->AddImGuiCallback([]() {
-
-
-		//		if (ImGui::BeginMainMenuBar()) {
-		//			// Add items to the menu bar.
-		//			if (ImGui::BeginMenu("Engine")) {
-		//				static bool showPerformanceProfiler_ = false;
-		//				ImGui::MenuItem("Performance profiler", nullptr, &menuBar->showPerformanceProfiler_);
-		//				ImGui::MenuItem("ECS Inspector", NULL, false, false);
-		//				ImGui::EndMenu();
-		//			}
-		//			// End the menu bar.
-		//			ImGui::EndMainMenuBar();
-		//		}
-		//		if (ImGui::BeginMainMenuBar()) {
-		//			// Add items to the menu bar.
-		//			if (ImGui::BeginMenu("Engine")) {
-		//				ImGui::MenuItem("Render", NULL, false, false);
-		//				ImGui::MenuItem("Help", NULL, false, false);
-		//				ImGui::EndMenu();
-		//			}
-		//			// End the menu bar.
-		//			ImGui::EndMainMenuBar();
-		//		}
-		//		ImGui::ShowDemoWindow();
-		//		});
 	}
 
 	void EnginePerformanceSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
@@ -135,7 +112,7 @@ namespace OksEngine {
 		ImGui::PushID(idString.c_str());
 
 		if (ImGui::CollapsingHeader(("Id: " + idString).c_str())) {
-			ImGui::Indent(20.0f); // Увеличиваем отступ слева
+			ImGui::Indent(20.0f);
 			auto editComponent = []<class ComponentType>(ECS::World * world, ECS::Entity::Id id) {
 
 				bool isExist = world->IsComponentExist<ComponentType>(id);
@@ -152,6 +129,8 @@ namespace OksEngine {
 			};
 			editComponent.template operator() < Position > (world, id);
 			editComponent.template operator() < AddImmutableRenderGeometryFromObjRequest > (world, id);
+			editComponent.template operator() < Behaviour > (world, id);
+			editComponent.template operator() < DebugInfo > (world, id);
 
 			{
 				bool isExist = world->IsComponentExist<ImmutableRenderGeometry>(id);
@@ -165,16 +144,7 @@ namespace OksEngine {
 					}
 				}
 			}
-			//if (world->IsComponentExist<AddImmutableRenderGeometryFromObjRequest>(id)) {
-			//	if (ImGui::CollapsingHeader("AddImmutableRenderGeometryFromObjRequest")) {
-			//		auto* addImmutableRenderGeometryfromObj = world->GetComponent<AddImmutableRenderGeometryFromObjRequest>(id);
-			//		Edit<AddImmutableRenderGeometryFromObjRequest>(addImmutableRenderGeometryfromObj);
-			//		if (ImGui::Button("Delete")) {
-			//			world->RemoveComponent<AddImmutableRenderGeometryFromObjRequest>(id);
-			//		}
-			//		ImGui::Spacing();
-			//	}
-			//}
+
 			if (world->IsComponentExist<StaticRigidBodyCustomMeshShape>(id)) {
 				if (ImGui::CollapsingHeader("StaticRigidBodyCustomMeshShape")) {
 					StaticRigidBodyCustomMeshShape* staticRigidBodyCustomMeshShape = world->GetComponent<StaticRigidBodyCustomMeshShape>(id);

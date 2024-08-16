@@ -2,7 +2,7 @@
 
 
 #include <OksEngine.ECS.System.hpp>
-#include <Physics/OksEngine.RigidBody.hpp>
+#include <Physics/OksEngine.DynamicRigidBody.hpp>
 #include <Render/OksEngine.Camera.hpp>
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
 #include <Render/OksEngine.AttachedCamera.hpp>
@@ -20,7 +20,7 @@ namespace OksEngine {
 			if (attachCamera == nullptr) return;
 			auto* camera = world->GetComponent<Camera>(entityId);
 			if (camera == nullptr) return;
-			auto* rb = world->GetComponent<RigidBodyCapsule>(entityId);
+			auto* rb = world->GetComponent<DynamicRigidBodyCapsule>(entityId);
 			if (rb == nullptr) return;
 			const glm::mat4 cameraTransform = rb->GetTransform()/* * attachCamera->offset_*/;
 			camera->Transform(cameraTransform);
@@ -47,7 +47,7 @@ namespace OksEngine {
 
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
-			RigidBodyBox* rigidBody = world->GetComponent<RigidBodyBox>(entityId);
+			DynamicRigidBodyBox* rigidBody = world->GetComponent<DynamicRigidBodyBox>(entityId);
 			if (rigidBody == nullptr) return;
 			ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 			if (renderGeometry == nullptr) return;
@@ -57,7 +57,7 @@ namespace OksEngine {
 		}
 
 		virtual ECS::Entity::Filter GetFilter() const noexcept override{
-			return ECS::Entity::Filter{}.Include<RigidBodyBox>().Include<ImmutableRenderGeometry>();
+			return ECS::Entity::Filter{}.Include<DynamicRigidBodyBox>().Include<ImmutableRenderGeometry>();
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {

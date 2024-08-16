@@ -14,4 +14,9 @@ namespace OksEngine {
 
 	};
 
+	template<>
+	inline void Edit(DebugInfo* debugInfo) {
+		ImGui::TextDisabled("Name: %s", debugInfo->GetName());
+	}
+
 }

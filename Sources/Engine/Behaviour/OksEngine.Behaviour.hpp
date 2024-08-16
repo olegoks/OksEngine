@@ -11,7 +11,9 @@
 #include <OksEngine.ECS.Component.hpp>
 #include <Lua.Context.hpp>
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
-#include <Physics/OksEngine.RigidBody.hpp>
+#include <Physics/OksEngine.DynamicRigidBody.hpp>
+#include <Physics/OksEngine.DynamicRigidBodyBox.hpp>
+#include <Physics/OksEngine.DynamicRigidBodyCapsule.hpp>
 #include <Render/OksEngine.Camera.hpp>
 
 namespace OksEngine {
@@ -29,13 +31,13 @@ namespace OksEngine {
 			return position;
 		}
 
-		RigidBodyBox* GetRigidBodyBox() {
-			auto rigidBody = world_->GetComponent<RigidBodyBox>(id_);
+		DynamicRigidBodyBox* GetRigidBodyBox() {
+			auto rigidBody = world_->GetComponent<DynamicRigidBodyBox>(id_);
 			return rigidBody;
 		}
 
-		RigidBodyCapsule* GetRigidBodyCapsule() {
-			auto rigidBody = world_->GetComponent<RigidBodyCapsule>(id_);
+		DynamicRigidBodyCapsule* GetRigidBodyCapsule() {
+			auto rigidBody = world_->GetComponent<DynamicRigidBodyCapsule>(id_);
 			return rigidBody;
 		}
 
@@ -77,6 +79,12 @@ namespace OksEngine {
 		void CallUpdater(Common::Size ms);
 		void CallInputProcessor(const char* inputKey, const char* inputEvent, double offsetX, double offsetY);
 	};
+
+	template<>
+	inline void Edit<Behaviour>(Behaviour* behaviour) {
+		ImGui::TextDisabled("Script name: %s", behaviour->scriptName_.c_str());
+		ImGui::TextDisabled("Object name: %s", behaviour->objectName_.c_str());
+	}
 
 	class BehaviourSystem : public ECSSystem {
 	private:

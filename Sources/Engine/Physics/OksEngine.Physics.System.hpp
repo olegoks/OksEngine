@@ -1,6 +1,7 @@
+#pragma once
 
 #include <OksEngine.ECS.System.hpp>
-#include <Physics/OksEngine.RigidBody.hpp>
+#include <Physics/OksEngine.Physics.Components.hpp>
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
 
 namespace OksEngine {
@@ -15,7 +16,7 @@ namespace OksEngine {
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
 			{
-				RigidBodyBox* rigidBody = world->GetComponent<RigidBodyBox>(entityId);
+				DynamicRigidBodyBox* rigidBody = world->GetComponent<DynamicRigidBodyBox>(entityId);
 
 				if (rigidBody != nullptr) {
 					auto physicsSubsystem = GetContext().GetPhysicsSubsystem();
@@ -46,7 +47,7 @@ namespace OksEngine {
 			}
 			return;
 			{
-				RigidBodyCapsule* rigidBodyCapsule = world->GetComponent<RigidBodyCapsule>(entityId);
+				DynamicRigidBodyCapsule* rigidBodyCapsule = world->GetComponent<DynamicRigidBodyCapsule>(entityId);
 
 				if (rigidBodyCapsule != nullptr) {
 					auto physicsSubsystem = GetContext().GetPhysicsSubsystem();
@@ -162,7 +163,7 @@ namespace OksEngine {
 
 		virtual ECS::Entity::Filter GetFilter() const noexcept override
 		{
-			return ECS::Entity::Filter{}.Include<RigidBodyBox>();
+			return ECS::Entity::Filter{}.Include<DynamicRigidBodyBox>();
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {

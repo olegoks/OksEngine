@@ -1,8 +1,7 @@
 #pragma once 
 
 #include <Common/OksEngine.Subsystem.hpp>
-#include <Debug/OksEngine.MainMenuBar.hpp>
-#include <Common/OksEngine.FramesCounter.hpp>
+#include <Debug/OksEngine.Debug.Components.hpp>
 
 namespace OksEngine {
 

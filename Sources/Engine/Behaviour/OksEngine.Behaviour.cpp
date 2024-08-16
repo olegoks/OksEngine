@@ -2,11 +2,13 @@
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <OksEngine.Config.hpp>
 #include <filesystem>
-#include <Render/OksEngine.ImmutableRenderGeometry.hpp>
-#include <Render/OksEngine.SkinnedGeometry.hpp>
-#include <Render/OksEngine.Light.hpp>
-#include <Render/OksEngine.Camera.hpp>
 #include <Geometry.Shapes.hpp>
+
+#include <Physics/OksEngine.Physics.Components.hpp>
+#include <Render/OksEngine.Render.Components.hpp>
+#include <Behaviour/OksEngine.Behaviour.Components.hpp>
+#include <Resources/OksEngine.Resources.Components.hpp>
+
 
 namespace OksEngine {
 
@@ -97,15 +99,15 @@ namespace OksEngine {
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)
-			.beginClass<RigidBodyBox>("RigidBodyBox")
+			.beginClass<DynamicRigidBodyBox>("RigidBodyBox")
 			.addConstructor<void(*)()>()
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)
-			.beginClass<RigidBodyCapsule>("RigidBodyCapsule")
+			.beginClass<DynamicRigidBodyCapsule>("RigidBodyCapsule")
 			.addConstructor<void(*)()>()
-			.addFunction("ApplyForce", &RigidBodyCapsule::ApplyForce)
-			.addFunction("SetVelocity", &RigidBodyCapsule::SetVelocity)
+			.addFunction("ApplyForce", &DynamicRigidBodyCapsule::ApplyForce)
+			.addFunction("SetVelocity", &DynamicRigidBodyCapsule::SetVelocity)
 			.endClass();
 
 		luabridge::getGlobalNamespace(state_)

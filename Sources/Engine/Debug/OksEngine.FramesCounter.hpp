@@ -13,6 +13,11 @@ namespace OksEngine {
 		Common::Size framesCount_ = 0;
 	};
 
+	template<>
+	inline void Edit<FramesCounter>(FramesCounter* framesCounter) {
+		ImGui::TextDisabled("Frames: %d", framesCounter->framesCount_);
+	}
+
 	class FramesCounterSystem : public ECSSystem {
 	public:
 		FramesCounterSystem(Context& context) : ECSSystem{ context } {
