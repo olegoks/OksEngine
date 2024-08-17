@@ -49,10 +49,12 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<AttachCameraSystem>();
 				//context_->GetECSWorld()->RunSystem<CameraSystem>();
 				ImGui::NewFrame();
+
 				context_->GetECSWorld()->RunSystem<MainMenuBarSystem>();
 				context_->GetECSWorld()->RunSystem<EnginePerformanceSystem>();
 				context_->GetECSWorld()->RunSystem<ECSInspectorSystem>();
 				context_->GetECSWorld()->RunSystem<CollectEntitiesInfo>();
+
 				ImGui::Render();
 				context_->GetECSWorld()->RunSystem<ImGuiSystem>();
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
