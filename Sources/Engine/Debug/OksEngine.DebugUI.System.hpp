@@ -40,6 +40,10 @@ namespace OksEngine {
 
 	public:
 
+		virtual void BeforeUpdate(ECS::World* world) override {
+			ImGuiViewport* viewport = (ImGuiViewport*)ImGui::GetMainViewport();
+			ImGuiID mainDockSpaceId = ImGui::DockSpaceOverViewport(viewport->ID, viewport, ImGuiDockNodeFlags_PassthruCentralNode);
+		}
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
 
 	private:

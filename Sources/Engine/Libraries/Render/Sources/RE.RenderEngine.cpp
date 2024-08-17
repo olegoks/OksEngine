@@ -138,6 +138,7 @@ namespace RE {
 		}*/
 
 		ImDrawData* draw_data = ImGui::GetDrawData();
+		if (draw_data == nullptr) return;
 		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
 		int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
 		int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
