@@ -52,7 +52,6 @@ namespace OksEngine
 		world_->RegisterSystem<BehaviourSystem>(*this);
 		world_->RegisterSystem<PhysicsGeometryMapper>(*this);
 		world_->RegisterSystem<AttachCameraSystem>(*this);
-		world_->RegisterSystem<FramesCounterSystem>(*this);
 
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,

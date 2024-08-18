@@ -6,11 +6,6 @@
 
 namespace OksEngine {
 
-	struct ImGuiContext : public ECSComponent<ImGuiContext> {
-	public:
-		ImGuiContext() : ECSComponent{ nullptr } {}
-	};
-
 	struct MainMenuBar : public ECSComponent<MainMenuBar> {
 	public:
 		std::vector<std::string> items_{

@@ -105,89 +105,7 @@ namespace RE {
 		driver_->SetCamera(createInfo.camera_);
 		driver_->AddLight(createInfo.light_);
 
-		{
-			ImGuiIO& io = ImGui::GetIO();
-			unsigned char* pixels;
-			int width, height;
-			io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-
-			std::vector<RAL::Color4b> pixelsRGBA;
-			pixelsRGBA.resize(width * height);
-			std::memcpy(pixelsRGBA.data(), pixels, width * height * sizeof(RAL::Color4b));
-			RAL::Texture::CreateInfo textureCreateInfo{
-				.name_ = "ImGui texture",
-				.pixels_ = std::move(pixelsRGBA),
-				.size_ = { width, height }
-			};
-
-			imguiTextureId_ = driver_->CreateTexture(textureCreateInfo);
-		}
-	}
-
-	void RenderEngine::RenderImGui() {
-
-		/*if (!ImGui::GetIO().Fonts->IsBuilt()) {
-			ImGui::GetIO().Fonts->Build();
-		}*/
-		/*{
-			
-			unsigned char* pixels;
-			int width, height;
-			ImGui::GetIO().Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
-			size_t upload_size = width * height * 4 * sizeof(char);
-		}*/
-
-		ImDrawData* draw_data = ImGui::GetDrawData();
-		if (draw_data == nullptr) return;
-		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
-		int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
-		int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
-		if (fb_width <= 0 || fb_height <= 0)
-			return;
-
-		//// Setup viewport:
-		//{
-		//	VkViewport viewport;
-		//	viewport.x = 0;
-		//	viewport.y = 0;
-		//	viewport.width = (float)fb_width;
-		//	viewport.height = (float)fb_height;
-		//	viewport.minDepth = 0.0f;
-		//	viewport.maxDepth = 1.0f;
-		//	//vkCmdSetViewport(command_buffer, 0, 1, &viewport);
-		//}
-
-		const glm::vec2 scale{
-			2.0f / draw_data->DisplaySize.x,
-			2.0f / draw_data->DisplaySize.y
-		};
-
-		const glm::vec2 translate{
-			-1.0f - draw_data->DisplayPos.x * scale[0],
-			-1.0f - draw_data->DisplayPos.y * scale[1]
-		};
-
-
-		for (int n = 0; n < draw_data->CmdListsCount; n++) {
-			const ImDrawList* cmd_list = draw_data->CmdLists[n];
-			for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
-			{
-				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-				{
-					driver_->DrawIndexed(
-						scale,
-						translate,
-						(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
-						cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
-						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
-						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
-						imguiTextureId_);
-				}
-			}
-
-
-
-		}
+		
 	}
 
 	[[nodiscard]]
@@ -265,19 +183,19 @@ namespace RE {
 		driver_->EndRender();
 
 
-		using namespace std::chrono_literals;
-		std::chrono::high_resolution_clock::time_point now;
-		static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
+		//using namespace std::chrono_literals;
+		//std::chrono::high_resolution_clock::time_point now;
+		//static std::chrono::high_resolution_clock::time_point point = std::chrono::high_resolution_clock::now();;
 
-		now = std::chrono::high_resolution_clock::now();
-		auto delta = now - point;
-		point = now;
+		//now = std::chrono::high_resolution_clock::now();
+		//auto delta = now - point;
+		//point = now;
 
-		auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
-		Common::Size framesPerSecond = Common::Limits<Common::Size>::Max();
-		if (milliseconds != 0) {
-			framesPerSecond = 1000 / milliseconds;
-		}
+		//auto milliseconds = std::chrono::duration_cast<std::chrono::milliseconds>(delta).count();
+		//Common::Size framesPerSecond = Common::Limits<Common::Size>::Max();
+		//if (milliseconds != 0) {
+		//	framesPerSecond = 1000 / milliseconds;
+		//}
 		//OS::LogInfo("renderEngine", { "Frames per second {}", framesPerSecond });
 	}
 

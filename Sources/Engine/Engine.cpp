@@ -35,7 +35,6 @@ namespace OksEngine {
 	}
 
 	void Engine::Update() noexcept {
-		std::chrono::high_resolution_clock::time_point previousUpdate;
 		while (IsRunning()) {
 			context_->GetUISubsystem()->Update();
 			context_->GetPhysicsSubsystem()->Update();
@@ -47,25 +46,23 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<PhysicsGeometryMapper>();
 				context_->GetECSWorld()->RunSystem<CameraSystem>();
 				context_->GetECSWorld()->RunSystem<AttachCameraSystem>();
-				//context_->GetECSWorld()->RunSystem<CameraSystem>();
-				ImGui::NewFrame();
 
+				/*ImGui*/
+				context_->GetECSWorld()->RunSystem<ImGuiSystem>();
+				ImGui::NewFrame();
 				context_->GetECSWorld()->RunSystem<MainMenuBarSystem>();
 				context_->GetECSWorld()->RunSystem<EnginePerformanceSystem>();
 				context_->GetECSWorld()->RunSystem<ECSInspectorSystem>();
 				context_->GetECSWorld()->RunSystem<CollectEntitiesInfo>();
-
 				ImGui::Render();
-				context_->GetECSWorld()->RunSystem<ImGuiSystem>();
+				context_->GetECSWorld()->RunSystem<ImGuiRenderSystem>();
+				/*ImGui*/
+
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
 
 				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();
-				//context_->GetECSWorld()->ProcessDelayedRequests();
 				context_->GetECSWorld()->EndFrame();
 			}
-			//context_->GetECSWorld()->Process();
-			//UI Subsystem must be updated before render to call ImGui_ImplGlfw_NewFrame()
-
 			context_->GetRenderSubsystem()->Update();
 			context_->GetDebugSubsystem()->Update();
 		}

@@ -5,6 +5,7 @@
 
 namespace OksEngine {
 
+	/*template<class SystemType = int>*/
 	class ECSSystem : public ECS::System {
 	public:
 		ECSSystem(Context& context) : 
@@ -16,11 +17,8 @@ namespace OksEngine {
 		}
 		virtual void BeforeUpdate(ECS::World* world) override {}
 		virtual void StartUpdate() override { }
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
-
-		}
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override { }
 		virtual void EndUpdate() override { }
-
 		virtual void AfterUpdate(ECS::World* world) override {}
 
 		virtual ECS::Entity::Filter GetFilter() const noexcept override { 

@@ -34,6 +34,7 @@ namespace OksEngine {
 
 		void SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up);
 
+
 		void RenderImGui();
 
 		virtual void Update() noexcept override;
@@ -42,6 +43,11 @@ namespace OksEngine {
 		//void AddImGuiCallback(ImGuiCallback&& imguiCallback);
 		void UpdateCamera(Camera* camera);
 		void UpdateImmutableRenderGeometry(ImmutableRenderGeometry* immutableRenderGeometry);
+
+
+		std::shared_ptr<RAL::Driver> GetDriver() noexcept {
+			return engine_->GetDriver();
+		}
 	private:
 
 		//std::vector<ImGuiCallback> imguiCallbacks_;

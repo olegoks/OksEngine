@@ -203,11 +203,7 @@ namespace UI {
 			ImGui_ImplGlfw_NewFrame();
 			if (!glfwWindowShouldClose(window_)) {
 				glfwPollEvents();
-
-				
 			}
-
-
 		}
 
 		~Window() {
