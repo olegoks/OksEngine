@@ -2,14 +2,21 @@
 #include <UI/OksEngine.UI.Subsystem.hpp>
 #include <UI/OksEngine.UI.System.hpp>
 
+#include <UI/OksEngine.UI.Components.hpp>
+
 namespace OksEngine {
 
 	UISubsystem::UISubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::UI, createInfo.context_ } {
 
 		auto& context = GetContext();
 		auto config = context.GetConfig();
+		auto world = context.GetECSWorld();
+		ECS::Entity::Id ui = world->CreateEntity();
+		world->CreateComponent<Window>(ui);
+		context.GetECSWorld()->RegisterSystem<WindowSystem>(context);
 		context.GetECSWorld()->RegisterSystem<UISystem>(context);
-		/*context.GetECSWorld()->RegisterSystem<>*/
+
+
 		api_ = std::make_shared<UI::API>();
 		UI::Window::CreateInfo windowCreateInfo;
 		{

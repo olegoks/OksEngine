@@ -60,4 +60,10 @@ namespace OksEngine {
 	};
 
 
+	template<>
+	inline void Edit<ImmutableRenderGeometry>(ImmutableRenderGeometry* immutableRenderGeometry) {
+
+
+	}
+
 }

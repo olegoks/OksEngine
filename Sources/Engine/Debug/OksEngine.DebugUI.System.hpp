@@ -8,15 +8,35 @@
 #include <Debug/OksEngine.FramesCounter.hpp>
 #include <Debug/OksEngine.EnginePerformance.hpp>
 #include <Debug/OksEngine.ECSInspector.hpp>
-#include <Debug/OksEngine.MainMenuBar.hpp>
+#include <Debug/OksEngine.ImGuiState.hpp>
+#include <Render/OksEngine.Texture.hpp>
 
 namespace OksEngine {
 
-
 	class ImGuiSystem : public ECSSystem {
 	public:
-
 		ImGuiSystem(Context& context) : ECSSystem{ context } { }
+	public:
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
+
+	private:
+		virtual ECS::Entity::Filter GetFilter() const noexcept override {
+			return ECS::Entity::Filter{}.Include<ImGuiState>();
+		}
+
+		virtual Common::TypeId GetTypeId() const noexcept override {
+			return Common::TypeInfo<ImGuiSystem>().GetId();
+		}
+
+
+	};
+
+
+	class ImGuiRenderSystem : public ECSSystem {
+	public:
+
+		ImGuiRenderSystem(Context& context) : ECSSystem{ context } { }
 
 	public:
 
@@ -24,11 +44,11 @@ namespace OksEngine {
 
 	private:
 		virtual ECS::Entity::Filter GetFilter() const noexcept override {
-			return ECS::Entity::Filter{}.Include<ImGuiContext>();
+			return ECS::Entity::Filter{}.Include<ImGuiState>();
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
-			return Common::TypeInfo<ImGuiSystem>().GetId();
+			return Common::TypeInfo<ImGuiRenderSystem>().GetId();
 		}
 
 	};

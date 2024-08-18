@@ -17,8 +17,88 @@
 
 namespace OksEngine {
 
-	void ImGuiSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
-		GetContext().GetRenderSubsystem()->RenderImGui();
+
+
+	void ImGuiSystem::Update(ECS::World * world, ECS::Entity::Id entityId) {
+
+		auto* state = world->GetComponent<ImGuiState>(entityId);
+		if (state->fontsTextureId_.IsInvalid()) {
+			ImGuiIO& io = ImGui::GetIO();
+			unsigned char* pixels;
+			int width, height;
+			io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+
+			std::vector<RAL::Color4b> pixelsRGBA;
+			pixelsRGBA.resize(width * height);
+			std::memcpy(pixelsRGBA.data(), pixels, width * height * sizeof(RAL::Color4b));
+
+			auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+			RAL::Texture::CreateInfo textureCreateInfo{
+				.name_ = "ImGui texture",
+				.pixels_ = std::move(pixelsRGBA),
+				.size_ = { width, height }
+			};
+
+			state->fontsTextureId_ = driver->CreateTexture(textureCreateInfo);
+		}
+	}
+
+	void ImGuiRenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+		
+		ImGuiState* state = world->GetComponent<ImGuiState>(entityId);
+		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+
+		ImDrawData* draw_data = ImGui::GetDrawData();
+		if (draw_data == nullptr) return;
+		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
+		int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
+		int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
+		if (fb_width <= 0 || fb_height <= 0)
+			return;
+
+		//// Setup viewport:
+		//{
+		//	VkViewport viewport;
+		//	viewport.x = 0;
+		//	viewport.y = 0;
+		//	viewport.width = (float)fb_width;
+		//	viewport.height = (float)fb_height;
+		//	viewport.minDepth = 0.0f;
+		//	viewport.maxDepth = 1.0f;
+		//	//vkCmdSetViewport(command_buffer, 0, 1, &viewport);
+		//}
+
+		const glm::vec2 scale{
+			2.0f / draw_data->DisplaySize.x,
+			2.0f / draw_data->DisplaySize.y
+		};
+
+		const glm::vec2 translate{
+			-1.0f - draw_data->DisplayPos.x * scale[0],
+			-1.0f - draw_data->DisplayPos.y * scale[1]
+		};
+
+		
+		for (int n = 0; n < draw_data->CmdListsCount; n++) {
+			const ImDrawList* cmd_list = draw_data->CmdLists[n];
+			for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
+			{
+				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+				{
+					driver->DrawIndexed(
+						scale,
+						translate,
+						(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
+						cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
+						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
+						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
+						state->fontsTextureId_);
+				}
+			}
+
+
+
+		}
 	}
 
 	void MainMenuBarSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
@@ -131,7 +211,7 @@ namespace OksEngine {
 			editComponent.template operator() < Behaviour > (world, id);
 			/*Debug*/
 			editComponent.template operator() < DebugInfo > (world, id);
-			editComponent.template operator() < ImGuiContext > (world, id);
+			editComponent.template operator() < ImGuiState > (world, id);
 			editComponent.template operator() < ECSInspector > (world, id);
 			editComponent.template operator() < MainMenuBar > (world, id);
 			editComponent.template operator() < FramesCounter > (world, id);

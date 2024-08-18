@@ -326,10 +326,10 @@ namespace OksEngine {
 		engine_->Render();
 	}
 
-	void RenderSubsystem::RenderImGui()
+	/*void RenderSubsystem::RenderImGui()
 	{
 		engine_->RenderImGui();
-	}
+	}*/
 
 	//void RenderSubsystem::AddImGuiCallback(ImGuiCallback&& imguiCallback) {
 	//	imguiCallbacks_.push_back(std::move(imguiCallback));

@@ -23,6 +23,19 @@ namespace ECS {
 			componentsManager_.CreateComponent<ComponentType>(entityId, std::forward<Args>(args)...);
 		}
 
+		template<class ComponentType, class ...Args>
+		void CreateComponent(Entity::Filter filter, Args&&... args) noexcept {
+			entitiesManager_.ForEachEntity(
+				[this, &filter, &args...](Entity& entity) {
+					const Entity::Filter searchFilter = filter;
+					const Entity::Filter entityFilter = componentsManager_.GetEntityFilter(entity.GetId());
+					if (searchFilter.Matches(entityFilter)) {
+						componentsManager_.CreateComponent<ComponentType>(entity.GetId(), std::forward<Args>(args)...);
+					}
+				});
+			
+		}
+
 		template<class ComponentType>
 		void RemoveComponent(Entity::Id entityId) noexcept {
 			componentsManager_.RemoveComponent<ComponentType>(entityId);
@@ -73,7 +86,7 @@ namespace ECS {
 		}
 
 		void StartFrame() {
-
+			componentsManager_.AddDelayedComponents();
 		}
 
 		void EndFrame() {
@@ -85,6 +98,7 @@ namespace ECS {
 		void RunSystem() {
 
 			std::shared_ptr<System> system = systemsManager_.GetSystem<SystemType>();
+			OS::AssertMessage(system != nullptr, "Error while Getting system. Maybe you dont register this system in the ecs world.");
 			system->BeforeUpdate(this);
 			entitiesManager_.ForEachEntity(
 				[this, &system](Entity& entity) {

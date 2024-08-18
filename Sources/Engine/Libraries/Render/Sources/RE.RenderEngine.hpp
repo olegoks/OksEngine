@@ -37,8 +37,6 @@ namespace RE {
 			std::vector<Shape> shapes_;
 		};
 
-		void RenderImGui();
-
 		[[nodiscard]]
 		Model RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model);
 
@@ -50,6 +48,8 @@ namespace RE {
 		void SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up);
 
 		void Render();
+
+		std::shared_ptr<class RAL::Driver> GetDriver() noexcept { return driver_; }
 
 	private:
 
