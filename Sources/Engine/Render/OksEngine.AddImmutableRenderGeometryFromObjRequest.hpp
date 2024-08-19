@@ -46,7 +46,7 @@ namespace OksEngine {
 
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
 			const auto* request = world->GetComponent<AddImmutableRenderGeometryFromObjRequest>(entityId);
 			if (request == nullptr) { return; }
 			OS::AssertMessage(request->obj_ != "", "Obj name must be set.");

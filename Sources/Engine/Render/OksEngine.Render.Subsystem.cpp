@@ -28,9 +28,9 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<RenderSystem>(context);
 		ecsWorld->RegisterSystem<CameraSystem>(context);
 		auto uiSubsystem = context.GetUISubsystem();
-		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UI::Render::Vulkan);
+		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);
 		RAL::RenderSurface renderSurface;
-		if (windowInfo.subsystem_ == UI::Subsystem::GLFW) {
+		if (windowInfo.subsystem_ == UIAL::Subsystem::GLFW) {
 
 			renderSurface.param1_ = windowInfo.param1_;
 			renderSurface.param2_ = windowInfo.param2_;

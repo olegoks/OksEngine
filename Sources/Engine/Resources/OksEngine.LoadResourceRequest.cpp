@@ -5,7 +5,7 @@
 
 namespace OksEngine {
 
-	void LoadResourceSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+	void LoadResourceSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		auto* request = world->GetComponent<LoadResourceRequest>(entityId);
 		if (request == nullptr) { return; }
 		if (request->taskId_ != 0) {

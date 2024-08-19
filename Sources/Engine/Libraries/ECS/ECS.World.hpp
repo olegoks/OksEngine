@@ -100,14 +100,38 @@ namespace ECS {
 			std::shared_ptr<System> system = systemsManager_.GetSystem<SystemType>();
 			OS::AssertMessage(system != nullptr, "Error while Getting system. Maybe you dont register this system in the ecs world.");
 			system->BeforeUpdate(this);
-			entitiesManager_.ForEachEntity(
-				[this, &system](Entity& entity) {
-					const Entity::Filter systemFilter = system->GetFilter();
-					const Entity::Filter entityFilter = componentsManager_.GetEntityFilter(entity.GetId());
-					if (systemFilter.Matches(entityFilter)) {
-						system->Update(this, entity.GetId());
-					}
-				});
+			if (system->GetFilter().first != Entity::Filter().ExcludeAll()) {
+				if (system->GetFilter().second == Entity::Filter().ExcludeAll()) {
+					// One entity system.
+					entitiesManager_.ForEachEntity(
+						[this, &system](Entity& entity) {
+							const auto systemFilter = system->GetFilter();
+							const Entity::Filter entityFilter = componentsManager_.GetEntityFilter(entity.GetId());
+							if (systemFilter.first.Matches(entityFilter)) {
+								system->Update(this, entity.GetId(), Entity::Id::invalid_);
+							}
+						});
+				} else {
+					// One entity system.
+					entitiesManager_.ForEachEntity(
+						[this, &system](Entity& firstEntity) {
+							const auto systemFilter = system->GetFilter();
+							const Entity::Filter firstEntityFilter = componentsManager_.GetEntityFilter(firstEntity.GetId());
+							if (systemFilter.first.Matches(firstEntityFilter)) {
+								entitiesManager_.ForEachEntity(
+									[this, &system, firstEntity](Entity& secondEntity) {
+										const auto systemFilter = system->GetFilter();
+										const Entity::Filter secondEntityFilter = componentsManager_.GetEntityFilter(secondEntity.GetId());
+										if (systemFilter.second.Matches(secondEntityFilter)) {
+											system->Update(this, firstEntity.GetId(), secondEntity.GetId());
+										}
+									});
+							}
+
+						});
+				}
+			}
+
 			system->AfterUpdate(this);
 		}
 

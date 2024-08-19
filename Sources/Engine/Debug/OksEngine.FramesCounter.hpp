@@ -24,13 +24,13 @@ namespace OksEngine {
 
 		}
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
 			FramesCounter* counter = world->GetComponent<FramesCounter>(entityId);
 			++counter->framesCount_;
 		}
 
-		virtual ECS::Entity::Filter GetFilter() const noexcept override {
-			return ECS::Entity::Filter{}.Include<FramesCounter>();
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<FramesCounter>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {

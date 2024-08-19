@@ -9,7 +9,7 @@ namespace OksEngine {
 	RenderSystem::RenderSystem(Context& context) noexcept :
 		ECSSystem{ context } { }
 
-	void RenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+	void RenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		return;
 		auto* immutableRenderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 		if (immutableRenderGeometry != nullptr) {
@@ -66,7 +66,7 @@ namespace OksEngine {
 	CameraSystem::CameraSystem(Context& context) noexcept :
 		ECSSystem{ context } { }
 
-	void CameraSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+	void CameraSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		auto* camera = world->GetComponent<Camera>(entityId);
 		auto* position = world->GetComponent<Position>(entityId);
 		if (camera == nullptr) return;
@@ -75,8 +75,8 @@ namespace OksEngine {
 		}
 	}
 
-	ECS::Entity::Filter CameraSystem::GetFilter() const noexcept {
-		return ECS::Entity::Filter{}.Include<Camera>();
+	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CameraSystem::GetFilter() const noexcept {
+		return { ECS::Entity::Filter{}.Include<Camera>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 
 	Common::TypeId CameraSystem::GetTypeId() const noexcept {

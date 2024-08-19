@@ -96,7 +96,7 @@ namespace OksEngine {
 
 		virtual void StartUpdate() override { }
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
 			Behaviour* behaviour = world->GetComponent<Behaviour>(entityId);
 			if (behaviour == nullptr) return;
 			auto now = std::chrono::high_resolution_clock::now();
@@ -107,8 +107,8 @@ namespace OksEngine {
 
 		virtual void EndUpdate() override { }
 
-		virtual ECS::Entity::Filter GetFilter() const noexcept override {
-			return ECS::Entity::Filter{}.Include<Behaviour>();
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<Behaviour>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {

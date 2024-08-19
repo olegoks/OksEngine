@@ -11,7 +11,6 @@
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 
-
 #include <implot.h>
 #include <implot_internal.h>
 
@@ -19,7 +18,7 @@ namespace OksEngine {
 
 
 
-	void ImGuiSystem::Update(ECS::World * world, ECS::Entity::Id entityId) {
+	void ImGuiSystem::Update(ECS::World * world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
 		auto* state = world->GetComponent<ImGuiState>(entityId);
 		if (state->fontsTextureId_.IsInvalid()) {
@@ -43,7 +42,7 @@ namespace OksEngine {
 		}
 	}
 
-	void ImGuiRenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+	void ImGuiRenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		
 		ImGuiState* state = world->GetComponent<ImGuiState>(entityId);
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
@@ -101,11 +100,11 @@ namespace OksEngine {
 		}
 	}
 
-	void MainMenuBarSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+	void MainMenuBarSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
 	}
 
-	void EnginePerformanceSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+	void EnginePerformanceSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		auto* enginePerformance = world->GetComponent<EnginePerformance>(entityId);
 
 		if (enginePerformance->show_) {
@@ -182,7 +181,7 @@ namespace OksEngine {
 		ImGui::Separator();
 	}
 
-	void CollectEntitiesInfo::Update(ECS::World* world, ECS::Entity::Id id) {
+	void CollectEntitiesInfo::Update(ECS::World* world, ECS::Entity::Id id, ECS::Entity::Id secondEntityId) {
 
 		const std::string idString = std::to_string(id);
 		ImGui::PushID(idString.c_str());
@@ -232,13 +231,15 @@ namespace OksEngine {
 			editComponent.template operator() < LoadResourceRequest > (world, id);
 			editComponent.template operator() < Resource > (world, id);
 			/*UI*/
-
+			editComponent.template operator() < HandleKeyboardInputMarker > (world, id);
+			editComponent.template operator() < KeyboardInput > (world, id);
 
 			auto& state = GetCreateState(id);
 			ImGui::SeparatorText("Add component");
 			ImGui::Indent(20.0f);
 			const char* items[] = {
 				"Position",
+				"HandleKeyboardInputMarker",
 				"AddImmutableRenderGeometryFromObjRequest",
 				"ImmutableRenderGeometry",
 				"StaticRigidBodyCustomMeshShape",
@@ -246,6 +247,16 @@ namespace OksEngine {
 			ImGui::Combo("", &state.currentAddComponentIndex_, items, 4);
 
 			const std::string currentComponent = items[state.currentAddComponentIndex_];
+			if (currentComponent == "HandleKeyboardInputMarker") {
+				if (ImGui::CollapsingHeader("Create info")) {
+					ImGui::Spacing();
+				}
+				if (ImGui::Button("Add component")) {
+					if (!world->IsComponentExist<HandleKeyboardInputMarker>(id)) {
+						world->CreateComponent<HandleKeyboardInputMarker>(id);
+					}
+				}
+			}
 			if (currentComponent == "Position") {
 				static float x = 0.0f;
 				static float y = 0.0f;
@@ -319,7 +330,7 @@ namespace OksEngine {
 	ECSInspectorSystem::ECSInspectorSystem(Context& context) noexcept :
 		ECSSystem{ context } { }
 
-	void ECSInspectorSystem::Update(ECS::World* world, ECS::Entity::Id entityId) {
+	void ECSInspectorSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		auto* ecsInspector = world->GetComponent<ECSInspector>(entityId);
 		if (ecsInspector != nullptr) {
 

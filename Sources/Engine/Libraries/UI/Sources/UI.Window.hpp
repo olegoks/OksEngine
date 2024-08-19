@@ -1,3 +1,5 @@
+#pragma once 
+
 #define GLFW_INCLUDE_VULKAN
 #define GLFW_EXPOSE_NATIVE_WIN32
 #include <GLFW/glfw3.h>
@@ -8,11 +10,7 @@
 #include <string>
 #include <functional>
 #include <algorithm>
-
-
-#include <Math.hpp>
-#include <OS.Assert.hpp>
-#include <OS.Logger.hpp>
+#include <queue>
 
 #include <imgui_impl_glfw.h>
 
@@ -21,41 +19,15 @@
 
 #include <UI.hpp>
 
+#include <UI/OksEngine.UIAL.Window.hpp>
+
 namespace UI {
 
 
-	class Window/* : public UIAL::Window */ {
+	class Window: public UIAL::Window  {
 	public:
 
-		using Size = Math::Vector2i;
-
-		struct CreateInfo {
-			Size windowSize_;
-			std::string title_;
-		};
-
-		enum class Key : Common::UInt64 {
-			Q,
-			W,
-			E,
-			A,
-			S,
-			D,
-			Space,
-			LeftShift,
-			F5,
-			Undefined
-		};
-		enum class Event : Common::UInt64 {
-			Pressed,
-			Released,
-			Undefined
-		};
-
-		using KeyboardEventCallback = std::function<void(Key, Event)>;
-		using MouseEventCallback = std::function<void(const Math::Vector2d& position)>;
-
-		Window(const CreateInfo& createInfo) : createInfo_{ createInfo } {
+		Window(const CreateInfo& createInfo) : UIAL::Window{ createInfo } {
 			const int initResult = glfwInit();
 			OS::AssertMessage(initResult != GLFW_FALSE, "Error while initializing GLFW.");
 			glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
@@ -76,9 +48,9 @@ namespace UI {
 					xPrevious = xpos;
 					yPrevious = ypos;
 					Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
-					if (!windowPtr->menuModeIsEnabled_) {
-						windowPtr->CallMouseCallbacks({ deltaX, deltaY });
-					}
+					//if (!windowPtr->menuModeIsEnabled_) {
+						//windowPtr->CallMouseCallbacks({ deltaX, deltaY });
+					//}
 				}
 
 				});
@@ -96,48 +68,7 @@ namespace UI {
 				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
 				Key keyboardKey = Key::Undefined;
 				Event event = Event::Undefined;
-				if (key == GLFW_KEY_LEFT_SHIFT) {
-					keyboardKey = Key::LeftShift;
-				}
-				else if (key == GLFW_KEY_W) {
-					keyboardKey = Key::W;
-				} else if (key == GLFW_KEY_S) {
-					keyboardKey = Key::S;
-				} else if (key == GLFW_KEY_A) {
-					keyboardKey = Key::A;
-				} else if (key == GLFW_KEY_D) {
-					keyboardKey = Key::D;
-				}
-				else if (key == GLFW_KEY_Q) {
-					keyboardKey = Key::Q;
-				}
-				else if (key == GLFW_KEY_SPACE) {
-					keyboardKey = Key::Space;
-
-				}
-				else if (key == GLFW_KEY_F5) {
-					keyboardKey = Key::F5;
-
-					if (action == GLFW_RELEASE) {
-
-						if (windowPtr->menuModeIsEnabled_) {
-							glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
-							windowPtr->menuModeIsEnabled_ = false;
-						}
-						else {
-							glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
-							windowPtr->menuModeIsEnabled_ = true;
-						}
-					}
-
-				}
-				else if (key == GLFW_KEY_E) {
-					keyboardKey = Key::E;
-
-				} else {
-					return;
-				}
-
+				keyboardKey = static_cast<Key>(key);
 				if (action == GLFW_PRESS) {
 					event = Event::Pressed;
 				}
@@ -147,43 +78,38 @@ namespace UI {
 				else {
 					return;
 				}
-
-
-				if (!windowPtr->menuModeIsEnabled_) {
-					windowPtr->CallEventCallbacks(keyboardKey, event);
-				}
+				windowPtr->PushEvent(KeyboardEvent{ keyboardKey, event });
 
 				});
 
 			window_ = createdWindow;
 		}
 
-		struct Info {
-			std::any param1_;
-			std::any param2_;
-			std::any param3_;
-			std::any param4_;
-			glm::u32vec2 size_{ 0, 0 };
-			Subsystem subsystem_ = Subsystem::Undefined;
-		};
+		virtual void DisableCursor() override {
+			glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		}
 
+		virtual void EnableCursor() override {
+			glfwSetInputMode(window_, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		}
+		
 		[[nodiscard]]
-		Info GetInfo(Render render) const noexcept {
+		Info GetInfo(UIAL::Render render) const noexcept {
 			Info info;
-			if (render == Render::Vulkan) {
+			if (render == UIAL::Render::Vulkan) {
 				uint32_t count;
 				const char** extensions = glfwGetRequiredInstanceExtensions(&count);
 				info.param1_ = window_;
 				info.param2_ = count;
 				info.param3_ = extensions;
 				info.size_ = GetSize();
-				info.subsystem_ = Subsystem::GLFW;
+				info.subsystem_ = UIAL::Subsystem::GLFW;
 			}
 			return info;
 		}
 
 		[[nodiscard]]
-		glm::u32vec2 GetSize() const noexcept {
+		virtual glm::u32vec2 GetSize() const noexcept override {
 			int width = 0;
 			int height = 0;
 			glfwGetWindowSize(window_, &width, &height);
@@ -191,15 +117,15 @@ namespace UI {
 			return { static_cast<Common::UInt32>(width), static_cast<Common::UInt32>(height) };
 		}
 
-		void SetTitle(const std::string& title) noexcept {
+		virtual void SetTitle(const std::string& title) noexcept override {
 			glfwSetWindowTitle(window_, title.c_str());
 		}
 
-		void Show() {
+		virtual void Show() override {
 
 		}
 
-		void ProcessInput() {
+		virtual void ProcessInput() override {
 			ImGui_ImplGlfw_NewFrame();
 			if (!glfwWindowShouldClose(window_)) {
 				glfwPollEvents();
@@ -208,40 +134,18 @@ namespace UI {
 
 		~Window() {
 			glfwDestroyWindow(window_);
-
 			glfwTerminate();
 			OS::LogInfo("/Window/", "GLFW Window  destroyed successfuly.");
 		}
 
-		void RegisterKeyboardEventCallback(KeyboardEventCallback&& eventCallback) {
-			keyboardEventCallbacks_.push_back(std::move(eventCallback));
-		}
-
-		void RegisterMouseEventCallback(MouseEventCallback&& eventCallback) {
-			mouseEventCallbacks_.push_back(std::move(eventCallback));
-		}
-		bool menuModeIsEnabled_ = false;
 	private:
 		static void ErrorCallback(int error_code, const char* description) {
 			OS::AssertFailMessage(description);
 		}
-	private:
-		void CallEventCallbacks(Key key, Event event) const noexcept {
-			for (const KeyboardEventCallback& callback : keyboardEventCallbacks_) {
-				callback(key, event);
-			}
-		}
-		void CallMouseCallbacks(const Math::Vector2d& position) const noexcept {
-			for (const MouseEventCallback& callback : mouseEventCallbacks_) {
-				callback(position);
-			}
-		}
-		std::vector<KeyboardEventCallback> keyboardEventCallbacks_;
-		std::vector<MouseEventCallback> mouseEventCallbacks_;
-	private:
-		CreateInfo createInfo_;
 
+	private:
 		GLFWwindow* window_ = nullptr;
+
 	};
 
 	class API /*: public UIAL::API*/ {

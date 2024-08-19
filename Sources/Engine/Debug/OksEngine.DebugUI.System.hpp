@@ -18,11 +18,11 @@ namespace OksEngine {
 		ImGuiSystem(Context& context) : ECSSystem{ context } { }
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 	private:
-		virtual ECS::Entity::Filter GetFilter() const noexcept override {
-			return ECS::Entity::Filter{}.Include<ImGuiState>();
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
@@ -40,11 +40,11 @@ namespace OksEngine {
 
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 	private:
-		virtual ECS::Entity::Filter GetFilter() const noexcept override {
-			return ECS::Entity::Filter{}.Include<ImGuiState>();
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
@@ -64,11 +64,11 @@ namespace OksEngine {
 			ImGuiViewport* viewport = (ImGuiViewport*)ImGui::GetMainViewport();
 			ImGuiID mainDockSpaceId = ImGui::DockSpaceOverViewport(viewport->ID, viewport, ImGuiDockNodeFlags_PassthruCentralNode);
 		}
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 	private:
-		virtual ECS::Entity::Filter GetFilter() const noexcept override {
-			return ECS::Entity::Filter{}.Include<MainMenuBar>();
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<MainMenuBar>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 		
 		virtual Common::TypeId GetTypeId() const noexcept override {
@@ -85,9 +85,9 @@ namespace OksEngine {
 
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
-		virtual ECS::Entity::Filter GetFilter() const noexcept override {
-			return ECS::Entity::Filter{}.Include<EnginePerformance>().Include<FramesCounter>();
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<EnginePerformance>().Include<FramesCounter>(), ECS::Entity::Filter{}.ExcludeAll()};
 		}
 
 	private:
@@ -107,12 +107,12 @@ namespace OksEngine {
 	public:
 
 		virtual void BeforeUpdate(ECS::World* world) override;
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 		virtual void AfterUpdate(ECS::World* world) override;
 
-		virtual ECS::Entity::Filter GetFilter() const noexcept override {
-			return ECS::Entity::Filter{};
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}, ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 	private:
@@ -124,8 +124,6 @@ namespace OksEngine {
 
 		struct EntityState {
 			int currentAddComponentIndex_ = 0;
-			//char addComponentName_[64]{ "No component" };
-			//bool addComponent_ = false;
 		};
 
 		[[nodiscard]]
@@ -148,10 +146,10 @@ namespace OksEngine {
 
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
-		virtual ECS::Entity::Filter GetFilter() const noexcept override {
-			return ECS::Entity::Filter{}.Include<ECSInspector>();
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<ECSInspector>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 	private:

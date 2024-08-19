@@ -24,15 +24,18 @@ namespace ECS {
 
 			template<class ComponentType>
 			Filter& Include() {
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				OS::AssertMessage(
 					!excludes_.test(ComponentType::GetTypeId()), 
 					"Attempt to use the component in includes and excludes.");
 				includes_.set(ComponentType::GetTypeId());
+
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& DeleteInclude() {
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				OS::AssertMessage(
 					includes_.test(ComponentType::GetTypeId()),
 					"Attempt to delete include that doesnt exist");
@@ -42,6 +45,7 @@ namespace ECS {
 
 			template<class ComponentType>
 			Filter& Exclude() {
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				OS::AssertMessage(
 					!includes_.test(ComponentType::GetTypeId()),
 					"Attempt to use the component in includes and excludes.");
@@ -50,12 +54,14 @@ namespace ECS {
 			}
 
 			Filter& ExcludeAll() {
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				excludes_.set();
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& DeleteExclude() {
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				OS::AssertMessage(
 					excludes_.test(ComponentType::GetTypeId()),
 					"Attempt to delete exclude that doesnt exist");
@@ -65,12 +71,14 @@ namespace ECS {
 
 			[[nodiscard]]
 			bool operator==(const Filter& filter) const noexcept {
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				if (this == &filter) { return true; }
 				return (includes_ == filter.includes_) && (excludes_ == filter.excludes_);
 			}
 
 			[[nodiscard]]
 			bool Matches(const Filter& filter) const noexcept {
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				const bool thereAreAllNeedIncludes =
 					/*(includes_.count() == 0) || */((filter.includes_ & includes_) == includes_);
 				if (thereAreAllNeedIncludes) {
@@ -96,6 +104,7 @@ namespace ECS {
 			}
 
 			void Clear() noexcept {
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				includes_.reset();
 				excludes_.reset();
 			}
