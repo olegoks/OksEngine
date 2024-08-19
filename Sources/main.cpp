@@ -16,12 +16,6 @@ int main(int argc, char** argv){
 
     using namespace OksEngine;
 
-    Test<int>::foo();
-    Test<std::size_t>::foo();
-    Test<unsigned int>::foo();
-    Test<std::size_t>::foo();
-    Test<bool>::foo();
-
     OS::AssertMessage(argc > 0, "First parameter must be config file name.");
 
     CommandLineParameters commandLineParameters{ argc, argv };
@@ -30,7 +24,7 @@ int main(int argc, char** argv){
     };
 
     Engine engine{ engineCreateInfo };
-    Entity entity = engine.CreateEntity();
+   /* Entity entity = engine.CreateEntity();
     entity.AddPosition(0, 0, 0);
     entity.AddBehaviour("TestObject.lua", "TestObject");
 
@@ -45,7 +39,7 @@ int main(int argc, char** argv){
         rigidBodyTransform = glm::translate(rigidBodyTransform, { 0, 10.0, 0.f });
         dragonLore.AddDynamicRigidBodyCustomMeshShape(rigidBodyTransform, "dragon_lore",10, 0, 0, 0.1, 0.1, 0.1);
         dragonLore.AddMapRigidBodyToRenderGeometry();
-    }
+    }*/
 
     //Entity flashLight = engine.CreateEntity();
     //{

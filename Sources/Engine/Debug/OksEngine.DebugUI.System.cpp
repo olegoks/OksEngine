@@ -233,6 +233,7 @@ namespace OksEngine {
 			/*UI*/
 			editComponent.template operator() < HandleKeyboardInputMarker > (world, id);
 			editComponent.template operator() < KeyboardInput > (world, id);
+			editComponent.template operator() < Window > (world, id);
 
 			auto& state = GetCreateState(id);
 			ImGui::SeparatorText("Add component");
@@ -274,25 +275,28 @@ namespace OksEngine {
 				}
 			}
 			if (currentComponent == "AddImmutableRenderGeometryFromObjRequest") {
-				static char obj[100] = { "" };
-				static char mtl[100] = { "" };
+				static char obj[100] = { "dragon_lore.obj" }; // Test mesh 
+				static char mtl[100] = { "dragon_lore.mtl" };
 				static Common::Size texturesNumber = 1;
 				static std::vector<std::unique_ptr<char[]>> textures;
+				if (texturesNumber <= textures.size()) {
+					textures.resize(texturesNumber);
+				}
+				else {
+					for (Common::Size i = 0; i < texturesNumber - textures.size(); i++) {
+						auto newTexture = std::make_unique<char[]>(100);
+						std::memset(newTexture.get(), 0, 100);
+						const char* testTexture = "dragon_lore.bmp";
+						std::memcpy(newTexture.get(), testTexture, std::strlen(testTexture));
+						textures.push_back(std::move(newTexture));
+					}
+				}
+				
+
 				if (ImGui::CollapsingHeader("Create info")) {
 					ImGui::InputText("Obj", obj, sizeof(obj));
 					ImGui::InputText("Mtl", mtl, sizeof(mtl));
 					{
-
-						if (texturesNumber <= textures.size()) {
-							textures.resize(texturesNumber);
-						}
-						else {
-							for (Common::Size i = 0; i < texturesNumber - textures.size(); i++) {
-								auto newTexture = std::make_unique<char[]>(100);
-								std::memset(newTexture.get(), 0, 100);
-								textures.push_back(std::move(newTexture));
-							}
-						}
 						ImGui::TextDisabled("Textures:");
 						for (Common::Size i = 0; i < texturesNumber; i++) {
 							ImGui::PushID(std::to_string(i).c_str());

@@ -53,6 +53,9 @@ namespace OksEngine {
 			//world->CreateComponent<LoadResourceRequest>();
 		}
 
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<AddImmutableRenderGeometryFromObjRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
+		}
 	private:
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<AddImmutableRenderGeometryFromObjSystem>().GetId();

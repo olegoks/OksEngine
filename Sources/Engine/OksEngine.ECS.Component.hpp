@@ -4,6 +4,8 @@
 #include <ECS.Component.hpp>
 #include <OksEngine.Context.hpp>
 
+#include <Lua.Context.hpp>
+
 namespace OksEngine {
 
 	template<class ComponentType>
@@ -28,5 +30,8 @@ namespace OksEngine {
 
 	template<class ComponentType>
 	void Add(ComponentType* component) { OS::NotImplemented(); }
+
+	template<class ComponentType>
+	inline void Bind(Lua::Context& context) { OS::NotImplemented(); }
 
 }

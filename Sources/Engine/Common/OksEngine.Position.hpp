@@ -53,7 +53,19 @@ namespace OksEngine {
 		ImGui::InputFloat("Z", &position->translate_.z);
 	}
 
-
+	template<>
+	inline void Bind<Position>(Lua::Context& context) {
+		context.GetGlobalNamespace()
+			.beginClass<Position>("Position")
+			.addConstructor<void(*)(int x, int y, int z)>()
+			.addFunction("GetX", &Position::GetX)
+			.addFunction("GetY", &Position::GetY)
+			.addFunction("GetZ", &Position::GetZ)
+			.addFunction("SetX", &Position::SetX)
+			.addFunction("SetY", &Position::SetY)
+			.addFunction("SetZ", &Position::SetZ)
+			.endClass();
+	}
 
 
 

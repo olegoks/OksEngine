@@ -553,7 +553,7 @@ namespace Render::Vulkan {
 				}
 
 
-				std::vector<Geom::Vertex3fc> lines{
+				/*std::vector<Geom::Vertex3fc> lines{
 					{ { 0.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
 					{ { 10.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
 					{ { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
@@ -584,7 +584,7 @@ namespace Render::Vulkan {
 				std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
 				descriptorSets.push_back(globalDataDSs_[i]);
 				commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
-				commandBuffer->Draw(lines.size());
+				commandBuffer->Draw(lines.size());*/
 
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();
