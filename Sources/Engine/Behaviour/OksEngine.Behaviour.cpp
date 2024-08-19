@@ -1,14 +1,8 @@
 #include <Behaviour/OksEngine.Behaviour.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <OksEngine.Config.hpp>
-#include <filesystem>
 #include <Geometry.Shapes.hpp>
-
-#include <Physics/OksEngine.Physics.Components.hpp>
-#include <Render/OksEngine.Render.Components.hpp>
-#include <Behaviour/OksEngine.Behaviour.Components.hpp>
-#include <Resources/OksEngine.Resources.Components.hpp>
-
+#include <OksEngine.Components.hpp>
 
 namespace OksEngine {
 
@@ -39,16 +33,7 @@ namespace OksEngine {
 			.addFunction("GetRigidBodyCapsule", &LuaEntity::GetRigidBodyCapsule)
 			.endClass();
 
-		luabridge::getGlobalNamespace(state_)
-			.beginClass<Position>("Position")
-			.addConstructor<void(*)(int x, int y, int z)>()
-			.addFunction("GetX", &Position::GetX)
-			.addFunction("GetY", &Position::GetY)
-			.addFunction("GetZ", &Position::GetZ)
-			.addFunction("SetX", &Position::SetX)
-			.addFunction("SetY", &Position::SetY)
-			.addFunction("SetZ", &Position::SetZ)
-			.endClass();
+		Bind<Position>(context_);
 
 		luabridge::getGlobalNamespace(state_)
 			.beginClass<ImmutableRenderGeometry>("ImmutableRenderGeometry")

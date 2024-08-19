@@ -11,6 +11,7 @@
 
 /*Reneder*/
 #include <Render/OksEngine.Render.System.hpp>
+#include <Render/OksEngine.AddImmutableRenderGeometryFromObjRequest.hpp>
 
 /*Common*/
 #include <Common/OksEngine.Engine.System.hpp>
@@ -67,7 +68,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<ImGuiRenderSystem>();
 				/*ImGui*/
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
-
+				context_->GetECSWorld()->RunSystem<AddImmutableRenderGeometryFromObjSystem>();
 				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();
 				context_->GetECSWorld()->EndFrame();
 			}

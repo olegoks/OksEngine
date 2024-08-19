@@ -2,14 +2,12 @@
 
 #include <filesystem>
 
-#include <Lua.hpp>
-#include <luabridge3/LuaBridge/LuaBridge.h>
 #include <ECS.hpp>
 #include <Common/OksEngine.Position.hpp>
 #include <OksEngine.Context.hpp>
 #include <OksEngine.ECS.System.hpp>
 #include <OksEngine.ECS.Component.hpp>
-#include <Lua.Context.hpp>
+
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
 #include <Physics/OksEngine.DynamicRigidBody.hpp>
 #include <Physics/OksEngine.DynamicRigidBodyBox.hpp>

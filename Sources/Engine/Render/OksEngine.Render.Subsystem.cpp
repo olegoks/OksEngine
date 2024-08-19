@@ -1,6 +1,8 @@
 
 #include <Render/OksEngine.Render.Subsystem.hpp>
 
+#include <Render/OksEngine.AddImmutableRenderGeometryFromObjRequest.hpp>
+
 namespace OksEngine {
 
 
@@ -27,6 +29,7 @@ namespace OksEngine {
 		auto ecsWorld = context.GetECSWorld();
 		ecsWorld->RegisterSystem<RenderSystem>(context);
 		ecsWorld->RegisterSystem<CameraSystem>(context);
+		ecsWorld->RegisterSystem<AddImmutableRenderGeometryFromObjSystem>(context);
 		auto uiSubsystem = context.GetUISubsystem();
 		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);
 		RAL::RenderSurface renderSurface;

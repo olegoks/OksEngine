@@ -391,61 +391,7 @@ namespace OksEngine {
 		std::jthread thread_;
 		std::shared_ptr<ResourceSubsystem> resourceSubsystem_ = nullptr;
 	};
-	//  
-	//class ResourceSubsystemAsyncInterface : public ThreadedResourceSubsystem {
-	//public:
 
-	//	ResourceSubsystemAsyncInterface(Context& context) : ThreadedResourceSubsystem{ context } {
-
-	//	}
-
-
-	//	[[nodiscard]]
-	//	Task::Id GetResource(Subsystem::Type requestSystem, std::filesystem::path resourcePath) {
-	//		/*GetResourceTask* task = new GetResourceTask{ "GetResource", resourcePath};
-	//		exchangeSystem_.AddData(requestSystem, Subsystem::Type::Resource, (void*)task);*/
-
-	//		const Task::Id taskId = AddTask(
-	//			requestSystem,
-	//			Subsystem::Type::Resource,
-	//			CreateTask<GetResourceTask>(resourcePath)
-	//		);
-	//		return taskId;
-	//	}
-	//	ResourceSubsystem::Resource GetResource(Task::Id taskId) {
-	//		Common::Index foundTaskIndex = Common::Limits<Common::Index>::Max();
-	//		for (Common::Index i = 0; i < resultTasksCache_.GetSize(); i++) {
-	//			if (resultTasksCache_[i].GetId() == taskId) {
-	//				foundTaskIndex = i;
-	//				break;
-	//			}
-	//		}
-	//		OS::AssertMessage(foundTaskIndex != Common::Limits<Common::Index>::Max(), "");
-	//		//if (foundTaskIndex != Common::Limits<Common::Index>::Max()) {
-	//			Task task = resultTasksCache_[foundTaskIndex];
-	//			GetResourceResult& getResourceResult = task.GetData<GetResourceResult>();
-	//			resultTasksCache_.Erase(foundTaskIndex);
-	//			return std::move(getResourceResult.resource_);
-	//		//}
-
-	//	}
-
-	//	void WaitFor(Subsystem::Type subsystemType, Task::Id taskId) {
-	//		while (true) {
-	//			auto maybeTask = GetTask(Subsystem::Type::Resource, subsystemType);
-	//			if (maybeTask.has_value()) {
-	//				Task task = maybeTask.value();
-	//				resultTasksCache_.PushBack(task);
-	//				if (task.GetId() == taskId) {
-	//					return;
-	//				}
-	//			}
-	//		}
-	//	}
-
-	//private:
-	//	DS::Vector<Task> resultTasksCache_;
-	//};
 
 
 

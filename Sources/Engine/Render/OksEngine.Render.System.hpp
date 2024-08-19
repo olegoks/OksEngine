@@ -25,6 +25,20 @@ namespace OksEngine {
 		virtual Common::TypeId GetTypeId() const noexcept override;
 	};
 
+	class RenderImmutableRenderGeometry : public ECSSystem{
+	public:
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
+
+
+
+		}
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<ImmutableRenderGeometry>(), ECS::Entity::Filter{}.ExcludeAll() };
+		}
+
+	};
+
 
 	class CameraSystem : public ECSSystem {
 	public:

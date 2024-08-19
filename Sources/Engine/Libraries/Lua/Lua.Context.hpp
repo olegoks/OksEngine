@@ -116,15 +116,6 @@ namespace Lua {
 			}
 			[[maybe_unused]]
 			const int valueType = lua_getglobal(state_, "variable");
-			//const bool istable = lua_istable(state_, -1);
-			//const bool isuser = lua_isuserdata(state_, -1);
-			//const bool isstring = lua_isstring(state_, -1);
-			//const bool isbool = lua_isboolean(state_, -1);
-			//const bool iscfunction = lua_iscfunction(state_, -1);
-			//const bool isfunction = lua_isfunction(state_, -1);
-			//const bool isinteger = lua_isinteger(state_, -1);
-			//const bool islightuserdata = lua_islightuserdata(state_, -1);
-			//const bool isnil = lua_isnil(state_, -1);
 			OS::AssertMessage(IsTopStackValue<Type>(),
 				"Attempt to get lua value with incorrect type conversation.");
 
