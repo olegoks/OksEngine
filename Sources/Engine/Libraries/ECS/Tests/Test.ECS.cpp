@@ -31,16 +31,16 @@ TEST(TestECS, CreatingEntity) {
 	class TestSystem : public System {
 	public:
 
-		virtual void Update(World* world, Entity::Id entityId) override {
-			Position* position = world->GetComponent<Position>(entityId);
+		virtual void Update(World* world, Entity::Id firstEntityId, Entity::Id secondEntityId) override {
+			Position* position = world->GetComponent<Position>(firstEntityId);
 			position->x++;
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<TestSystem>().GetId();
 		}
-		virtual ECS::Entity::Filter GetFilter() const noexcept override {
-			return ECS::Entity::Filter{};
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}, ECS::Entity::Filter{} };
 		}
 		virtual void BeforeUpdate(ECS::World* world) override{}
 		virtual void AfterUpdate(ECS::World* world) override{}

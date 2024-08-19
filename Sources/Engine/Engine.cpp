@@ -22,6 +22,7 @@
 
 /*UI*/
 #include <UI/OksEngine.UI.System.hpp>
+#include <UI/OksEngine.UI.Window.hpp>
 
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
 
@@ -40,7 +41,15 @@ namespace OksEngine {
 			context_->GetPhysicsSubsystem()->Update();
 			{
 				context_->GetECSWorld()->StartFrame();
+
+				/*UI*/
+				context_->GetECSWorld()->RunSystem<GetWindowKeyboardInputEvents>();				
 				context_->GetECSWorld()->RunSystem<UISystem>();
+				context_->GetECSWorld()->RunSystem<WindowSystem>();
+				context_->GetECSWorld()->RunSystem<SendWindowKeyboardInputEvents>();
+				context_->GetECSWorld()->RunSystem<CleanWindowKeyboardInputEvents>();
+				/*UI*/
+
 				context_->GetECSWorld()->RunSystem<BehaviourSystem>();
 				context_->GetECSWorld()->RunSystem<PhysicsSystem>();
 				context_->GetECSWorld()->RunSystem<PhysicsGeometryMapper>();
@@ -57,7 +66,6 @@ namespace OksEngine {
 				ImGui::Render();
 				context_->GetECSWorld()->RunSystem<ImGuiRenderSystem>();
 				/*ImGui*/
-
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
 
 				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();

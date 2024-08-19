@@ -6,3 +6,4 @@
 #include <Physics/OksEngine.Physics.Components.hpp>
 #include <Common/OksEngine.Common.Components.hpp>
 #include <Behaviour/OksEngine.Behaviour.Components.hpp>
+#include <UI/OksEngine.UI.Components.hpp>

@@ -14,7 +14,7 @@ namespace OksEngine {
 		}
 
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
 			{
 				DynamicRigidBodyBox* rigidBody = world->GetComponent<DynamicRigidBodyBox>(entityId);
 
@@ -161,9 +161,9 @@ namespace OksEngine {
 		}
 
 
-		virtual ECS::Entity::Filter GetFilter() const noexcept override
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override
 		{
-			return ECS::Entity::Filter{}.Include<DynamicRigidBodyBox>();
+			return { ECS::Entity::Filter{}.Include<DynamicRigidBodyBox>(), ECS::Entity::Filter{} };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {

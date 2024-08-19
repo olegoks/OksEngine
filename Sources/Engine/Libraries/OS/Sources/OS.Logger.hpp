@@ -3,8 +3,6 @@
 #include <source_location>
 
 #include <string>
-#include <magic_enum.hpp>
-
 #include <loguru/loguru.hpp>
 
 #include <Common.hpp>

@@ -35,7 +35,7 @@ namespace OksEngine {
 
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override;
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 	private:
 

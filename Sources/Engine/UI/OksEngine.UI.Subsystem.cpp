@@ -12,10 +12,6 @@ namespace OksEngine {
 		auto config = context.GetConfig();
 		auto world = context.GetECSWorld();
 		ECS::Entity::Id ui = world->CreateEntity();
-		world->CreateComponent<Window>(ui);
-		context.GetECSWorld()->RegisterSystem<WindowSystem>(context);
-		context.GetECSWorld()->RegisterSystem<UISystem>(context);
-
 
 		api_ = std::make_shared<UI::API>();
 		UI::Window::CreateInfo windowCreateInfo;
@@ -27,23 +23,31 @@ namespace OksEngine {
 			};
 		}
 		window_ = api_->CreateWindow(windowCreateInfo);
-		window_->RegisterKeyboardEventCallback([this](UI::Window::Key key, UI::Window::Event event) {
-				ProcessEvent(key, event);
-			});
-		window_->RegisterMouseEventCallback([this](const Math::Vector2d& position) {
-				ProcessMouseEvent(position);
-			});
-		window_->Show();
+		world->CreateComponent<Window>(ui, window_);
+		world->CreateComponent<KeyboardInput>(ui);
+		context.GetECSWorld()->RegisterSystem<WindowSystem>(context);
+		context.GetECSWorld()->RegisterSystem<UISystem>(context);
+		context.GetECSWorld()->RegisterSystem<GetWindowKeyboardInputEvents>(context);
+		context.GetECSWorld()->RegisterSystem<CleanWindowKeyboardInputEvents>(context);
+		context.GetECSWorld()->RegisterSystem<SendWindowKeyboardInputEvents>(context);
+
+		//window_->RegisterKeyboardEventCallback([this](UI::Window::Key key, UI::Window::Event event) {
+		//		ProcessEvent(key, event);
+		//	});
+		//window_->RegisterMouseEventCallback([this](const Math::Vector2d& position) {
+		//		ProcessMouseEvent(position);
+		//	});
+		//window_->Show();
 
 	}
 
-	void UISubsystem::ProcessEvent(UI::Window::Key key, UI::Window::Event event) {
-		events_.push_back({ key, event });
-	}
+	//void UISubsystem::ProcessEvent(UI::Window::Key key, UI::Window::Event event) {
+	//	events_.push_back({ key, event });
+	//}
 
-	void UISubsystem::ProcessMouseEvent(const Math::Vector2d& position) {
-		mouseEvents_.push_back(position);
-	}
+	//void UISubsystem::ProcessMouseEvent(const Math::Vector2d& position) {
+	//	mouseEvents_.push_back(position);
+	//}
 
 
 	std::shared_ptr<UI::Window> UISubsystem::GetWindow() const noexcept {

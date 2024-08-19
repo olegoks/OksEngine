@@ -1,6 +1,8 @@
 #pragma once 
 
 #include <optional>
+#define MAGIC_ENUM_RANGE_MIN 0
+#define MAGIC_ENUM_RANGE_MAX 1024
 #include <magic_enum.hpp>
 #include <Common.Types.hpp>
 #include <Common.Exception.hpp>
@@ -35,9 +37,5 @@ namespace Common {
 
 	template<class Type>
 	constexpr void DiscardUnusedParameter(Type&& value) { value; }
-
-
-
-
 
 }

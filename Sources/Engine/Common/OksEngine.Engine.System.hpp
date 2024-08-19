@@ -15,7 +15,7 @@ namespace OksEngine {
 
 		}
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
 			auto* attachCamera = world->GetComponent<AttachedCamera>(entityId);
 			if (attachCamera == nullptr) return;
 			auto* camera = world->GetComponent<Camera>(entityId);
@@ -26,9 +26,9 @@ namespace OksEngine {
 			camera->Transform(cameraTransform);
 		}
 
-		virtual ECS::Entity::Filter GetFilter() const noexcept override
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override
 		{
-			return ECS::Entity::Filter{}.Include<AttachedCamera>();
+			return { ECS::Entity::Filter{}.Include<AttachedCamera>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
@@ -46,7 +46,7 @@ namespace OksEngine {
 		}
 
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override {
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
 			DynamicRigidBodyBox* rigidBody = world->GetComponent<DynamicRigidBodyBox>(entityId);
 			if (rigidBody == nullptr) return;
 			ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
@@ -56,8 +56,8 @@ namespace OksEngine {
 
 		}
 
-		virtual ECS::Entity::Filter GetFilter() const noexcept override{
-			return ECS::Entity::Filter{}.Include<DynamicRigidBodyBox>().Include<ImmutableRenderGeometry>();
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override{
+			return { ECS::Entity::Filter{}.Include<DynamicRigidBodyBox>().Include<ImmutableRenderGeometry>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
