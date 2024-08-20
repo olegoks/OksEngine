@@ -47,12 +47,12 @@ namespace OksEngine {
 
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			DynamicRigidBodyBox* rigidBody = world->GetComponent<DynamicRigidBodyBox>(entityId);
+			/*DynamicRigidBodyBox* rigidBody = world->GetComponent<DynamicRigidBodyBox>(entityId);
 			if (rigidBody == nullptr) return;
 			ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 			if (renderGeometry == nullptr) return;
 			const auto& rigidBodyTransform = rigidBody->GetTransform();
-			renderGeometry->SetTransform(rigidBodyTransform);
+			renderGeometry->SetTransform(rigidBodyTransform);*/
 
 		}
 

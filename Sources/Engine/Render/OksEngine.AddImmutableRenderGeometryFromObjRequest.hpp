@@ -48,9 +48,7 @@ namespace OksEngine {
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
 			const auto* request = world->GetComponent<AddImmutableRenderGeometryFromObjRequest>(entityId);
-			if (request == nullptr) { return; }
-			OS::AssertMessage(request->obj_ != "", "Obj name must be set.");
-			//world->CreateComponent<LoadResourceRequest>();
+			
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
