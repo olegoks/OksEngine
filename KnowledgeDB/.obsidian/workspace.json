@@ -40,9 +40,21 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "15429578a86b6cf7",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Work/C++/Дедлок в однопоточной программе.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
         ],
-        "currentTab": 2
+        "currentTab": 3
       }
     ],
     "direction": "vertical"
@@ -108,7 +120,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/C++/ECS/ECS.md",
+                "file": "Work/C++/Дедлок в однопоточной программе.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -125,7 +137,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/C++/ECS/ECS.md",
+                "file": "Work/C++/Дедлок в однопоточной программе.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -148,7 +160,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/C++/ECS/ECS.md"
+                "file": "Work/C++/Дедлок в однопоточной программе.md"
               }
             }
           }
@@ -169,8 +181,9 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "3f59200cd1be0bfd",
+  "active": "15429578a86b6cf7",
   "lastOpenFiles": [
+    "Work/C++/Дедлок в однопоточной программе.md",
     "Work/C++/Шаблонный код.md",
     "Work/C++/ECS/ECS.md",
     "Work/C++/ECS",
@@ -212,7 +225,6 @@
     "Work/C++/Многопоточность/thread_local.md",
     "Work/C++/Untitled.md",
     "Work/C++/Многопоточность/Конструкции/std_atomic.md",
-    "Инструкция процессора.md",
     "Work/C++/Модель памяти С++.md.bak",
     "Work/C++/Многопоточность/Конструкции",
     "Work/C++/Многопоточность/Термины",
