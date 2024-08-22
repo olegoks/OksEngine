@@ -68,5 +68,23 @@ namespace OksEngine {
 	}
 
 
+	template<>
+	inline void Add<Position>(ECS::World* world, ECS::Entity::Id id) {
+		static float x = 0.0f;
+		static float y = 0.0f;
+		static float z = 0.0f;
+		if (ImGui::CollapsingHeader("Create info")) {
+			ImGui::InputFloat("X", &x);
+			ImGui::InputFloat("Y", &y);
+			ImGui::InputFloat("Z", &z);
+			ImGui::Spacing();
+		}
+		if (ImGui::Button("Add component")) {
+			if (!world->IsComponentExist<Position>(id)) {
+				world->CreateComponent<Position>(id, x, y, z);
+			}
+		}
+	}
+
 
 }

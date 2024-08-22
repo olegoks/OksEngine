@@ -2,6 +2,7 @@
 
 #include <cstdlib>
 #include <map>
+#include <string>
 
 #include <ECS.Common.hpp>
 
@@ -12,9 +13,7 @@ namespace ECS {
 	using ComponentTypeId = Common::TypeId;
 
 	extern ComponentTypeId nextId;
-	static inline std::map<std::string, ComponentTypeId> nameId;
-	static inline std::vector<std::pair<std::string, ComponentTypeId>> nameIds;
-
+	constexpr inline Common::Size maxNameLength = 100;
 	template<class Type = int>
 	class IComponent {
 	public:
@@ -27,11 +26,16 @@ namespace ECS {
 		}
 
 		[[nodiscard]]
-		static std::string GetName() noexcept {
-			const std::string fullName = Common::TypeInfo<Type>{}.GetName();
-			const Common::Index shortNameFirstIndex = fullName.find_last_of(':');
-			const std::string shortName = fullName.substr(shortNameFirstIndex + 1);
-			return shortName;
+		static const char* GetName() noexcept {
+			static char name[maxNameLength] = { 0 };
+			if(std::strlen(name) == 0) {
+				const std::string fullName = Common::TypeInfo<Type>{}.GetName();
+				Common::Index shortNameStart = fullName.find_last_of(':');
+				const std::string shortName = fullName.substr(shortNameStart + 1);
+				OS::AssertMessage(shortName.length() <= maxNameLength, "Component name is too long.");
+				std::memcpy(name, shortName.c_str(), shortName.length());
+			}
+			return name;
 		}
 
 		[[nodiscard]]

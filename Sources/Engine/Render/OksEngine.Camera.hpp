@@ -116,4 +116,9 @@ namespace OksEngine {
 
 	}
 
-}
+
+
+	template<>
+	inline void Add<Camera>(ECS::World* world, ECS::Entity::Id id) {
+
+	}}
