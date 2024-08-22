@@ -51,7 +51,7 @@ namespace Common {
 			return static_cast<TypeId>(typeid(Type).hash_code());
 		}
 		[[nodiscard]]
-		std::string GetName() const noexcept {
+		const char* GetName() const noexcept {
 			return typeid(Type).name();
 		}
 	};

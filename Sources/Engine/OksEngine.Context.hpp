@@ -6,6 +6,7 @@
 #include <OksEngine.CommandLineParameters.hpp>
 
 #include <ECS.World.hpp>
+#include <Geometry.Storage.hpp>
 
 namespace OksEngine {
 
@@ -17,6 +18,7 @@ namespace OksEngine {
 		};
 
 		Context(const CreateInfo& createInfo);
+
 		[[nodiscard]]
 		auto GetResourceSubsystem() noexcept {
 			return resourceSubsystem_;
@@ -28,7 +30,7 @@ namespace OksEngine {
 		}
 
 		[[nodiscard]]
-		auto& GetConfig() noexcept {
+		auto GetConfig() noexcept {
 			return config_;
 		}
 
@@ -53,8 +55,14 @@ namespace OksEngine {
 			return physicsSubsystem_;
 		}
 
+		[[nodiscard]]
 		const auto& GetCommandLineParameters() const noexcept {
 			return commandLineParameters_;
+		}
+
+		[[nodiscard]]
+		const auto GetGeomStorage() noexcept {
+			return geomStorage_;
 		}
 
 	private:
@@ -62,6 +70,7 @@ namespace OksEngine {
 		std::shared_ptr<class LogSubsystem> logSubsystem_ = nullptr;
 		std::shared_ptr<class AsyncResourceSubsystem> resourceSubsystem_ = nullptr;
 		std::shared_ptr<class RenderSubsystem> renderSubsystem_ = nullptr;
+		std::shared_ptr<class Geom::TaggedStorage> geomStorage_ = nullptr;
 		std::shared_ptr<class PhysicsSubsystem> physicsSubsystem_ = nullptr;
 		std::shared_ptr<class UISubsystem> uiSubsystem_ = nullptr;
 		std::shared_ptr<class DebugSubsystem> debugSubsystem_ = nullptr;

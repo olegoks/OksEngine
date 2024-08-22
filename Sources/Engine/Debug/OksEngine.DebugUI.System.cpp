@@ -191,7 +191,7 @@ namespace OksEngine {
 			auto editComponent = []<class ComponentType>(ECS::World * world, ECS::Entity::Id id) {
 
 				bool isExist = world->IsComponentExist<ComponentType>(id);
-				if (ImGui::CollapsingHeader(ComponentType::GetName().c_str(), &isExist)) {
+				if (ImGui::CollapsingHeader(ComponentType::GetName(), &isExist)) {
 					ComponentType* component = world->GetComponent<ComponentType>(id);
 					Edit<ComponentType>(component);
 					ImGui::Spacing();
@@ -221,7 +221,7 @@ namespace OksEngine {
 			editComponent.template operator() < DynamicRigidBodyCustomMeshShape > (world, id);
 			editComponent.template operator() < StaticRigidBodyCustomMeshShape > (world, id);
 			/*Render*/
-			editComponent.template operator() < AddImmutableRenderGeometryFromObjRequest > (world, id);
+			editComponent.template operator() < ImmutableRenderGeometryObj > (world, id);
 			editComponent.template operator() < ImmutableRenderGeometry > (world, id);
 			editComponent.template operator() < Camera > (world, id);
 			editComponent.template operator() < AttachedCamera > (world, id);
@@ -239,13 +239,31 @@ namespace OksEngine {
 			ImGui::SeparatorText("Add component");
 			ImGui::Indent(20.0f);
 			const char* items[] = {
-				"Position",
-				"HandleKeyboardInputMarker",
-				"AddImmutableRenderGeometryFromObjRequest",
-				"ImmutableRenderGeometry",
-				"StaticRigidBodyCustomMeshShape",
-				"MapRigidBodyToRenderGeometry" };
-			ImGui::Combo("", &state.currentAddComponentIndex_, items, 4);
+				Position					   ::GetName(),
+				MapRigidBodyToRenderGeometry   ::GetName(),
+				Behaviour					   ::GetName(),
+				DebugInfo					   ::GetName(),
+				ImGuiState					   ::GetName(),
+				ECSInspector				   ::GetName(),
+				MainMenuBar					   ::GetName(),
+				FramesCounter				   ::GetName(),
+				DynamicRigidBodyBox			   ::GetName(),
+				DynamicRigidBodyCustomMeshShape::GetName(),
+				StaticRigidBodyCustomMeshShape ::GetName(),
+				ImmutableRenderGeometryObj	   ::GetName(),
+				ImmutableRenderGeometry		   ::GetName(),
+				Camera						   ::GetName(),
+				AttachedCamera				   ::GetName(),
+				PointLight					   ::GetName(),
+				SkinnedGeometry				   ::GetName(),
+				LoadResourceRequest			   ::GetName(),
+				Resource					   ::GetName(),
+				HandleKeyboardInputMarker	   ::GetName(),
+				KeyboardInput				   ::GetName(),
+				Window						   ::GetName()
+
+			};
+			ImGui::Combo("", &state.currentAddComponentIndex_, items, std::size(items));
 
 			const std::string currentComponent = items[state.currentAddComponentIndex_];
 			if (currentComponent == "HandleKeyboardInputMarker") {
@@ -258,65 +276,14 @@ namespace OksEngine {
 					}
 				}
 			}
-			if (currentComponent == "Position") {
-				static float x = 0.0f;
-				static float y = 0.0f;
-				static float z = 0.0f;
-				if (ImGui::CollapsingHeader("Create info")) {
-					ImGui::InputFloat("X", &x);
-					ImGui::InputFloat("Y", &y);
-					ImGui::InputFloat("Z", &z);
-					ImGui::Spacing();
-				}
-				if (ImGui::Button("Add component")) {
-					if (!world->IsComponentExist<Position>(id)) {
-						world->CreateComponent<Position>(id, x, y, z);
-					}
-				}
+			if (currentComponent == Position::GetName()) {
+				Add<Position>(world, id);
 			}
-			if (currentComponent == "AddImmutableRenderGeometryFromObjRequest") {
-				static char obj[100] = { "dragon_lore.obj" }; // Test mesh 
-				static char mtl[100] = { "dragon_lore.mtl" };
-				static Common::Size texturesNumber = 1;
-				static std::vector<std::unique_ptr<char[]>> textures;
-				if (texturesNumber <= textures.size()) {
-					textures.resize(texturesNumber);
-				}
-				else {
-					for (Common::Size i = 0; i < texturesNumber - textures.size(); i++) {
-						auto newTexture = std::make_unique<char[]>(100);
-						std::memset(newTexture.get(), 0, 100);
-						const char* testTexture = "dragon_lore.bmp";
-						std::memcpy(newTexture.get(), testTexture, std::strlen(testTexture));
-						textures.push_back(std::move(newTexture));
-					}
-				}
-				
-
-				if (ImGui::CollapsingHeader("Create info")) {
-					ImGui::InputText("Obj", obj, sizeof(obj));
-					ImGui::InputText("Mtl", mtl, sizeof(mtl));
-					{
-						ImGui::TextDisabled("Textures:");
-						for (Common::Size i = 0; i < texturesNumber; i++) {
-							ImGui::PushID(std::to_string(i).c_str());
-							ImGui::InputText("", (char*)textures[i].get(), 100); ImGui::SameLine();
-							if (ImGui::SmallButton("-")) { textures.erase(textures.begin() + i); --texturesNumber; }
-							ImGui::PopID();
-						}
-						if (ImGui::SmallButton("+")) { ++texturesNumber; }
-					}
-					ImGui::Spacing();
-				}
-				if (ImGui::Button("Add component")) {
-					if (!world->IsComponentExist<AddImmutableRenderGeometryFromObjRequest>(id)) {
-						std::vector<std::string> texturesStrs;
-						for (auto& textureInput : textures) {
-							texturesStrs.push_back(textureInput.get());
-						}
-						world->CreateComponent<AddImmutableRenderGeometryFromObjRequest>(id, obj, mtl, texturesStrs);
-					}
-				}
+			if (currentComponent == ImmutableRenderGeometryObj::GetName()) {
+				Add<ImmutableRenderGeometryObj>(world, id);
+			}
+			if (currentComponent == Camera::GetName()) {
+				Add<Camera>(world, id);
 			}
 			ImGui::Unindent(20.0f);
 			ImGui::Unindent(20.0f);

@@ -182,7 +182,7 @@ namespace Geometry {
                 vertexIndex++;
             }
         
-            auto textureObject = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
+            auto textureObject = std::make_shared<Geom::Texture>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
             Shape shape{ vertices, normals, uvs_, indices,  textureObject };
             model.AddShape(shape);
         }
@@ -242,14 +242,96 @@ namespace Geometry {
             }
 
             //auto textureObject = std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
-            Shape shape{ vertices, indices ,""};
-            model.AddShape(shape);
+            //Shape shape{ vertices, indices ,""};
+           // model.AddShape(shape);
         }
         OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
 
         OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
         return model;
     }
+
+
+    //Model<Vertex3fnt, Index16> ParseObjVertex3fntIndex16Textures(const std::string& obj, const std::string& mtl) {
+
+    //    tinyobj::ObjReader objReader;
+    //    objReader.ParseFromString(obj, mtl);
+
+    //    OS::AssertMessage(objReader.Valid(),
+    //        "Attempt to use incorrect .obj/mtl model file.");
+
+    //    const auto& attributes = objReader.GetAttrib();
+    //    auto shapes = objReader.GetShapes();
+    //    auto materials = objReader.GetMaterials();
+
+
+    //    Model<Vertex3fnt, Index16> model;
+
+    //    for (int id = 0; id < materials.size(); id++) {
+    //        const tinyobj::material_t& material = materials[id];
+    //        VertexCloud<Vertex3f> vertices;
+    //        DS::Vector<Normal3f> normals;
+    //        DS::Vector<UV2f> uvs_;
+    //        IndexBuffer<Index16> indices;
+    //        for (const auto& objShape : shapes) {
+    //            for (const auto verticesPerFace : objShape.mesh.num_face_vertices) {
+    //                OS::Assert(verticesPerFace == 3);
+    //            }
+    //            for (std::size_t i = 0; i < objShape.mesh.material_ids.size(); i++) {
+    //                const int materialId = objShape.mesh.material_ids[i];
+    //                if (materialId == id) {
+    //                    const std::size_t faceIndex = i;
+    //                    const tinyobj::index_t Vertex1Index = objShape.mesh.indices[faceIndex * 3 + 0];
+    //                    const tinyobj::index_t Vertex2Index = objShape.mesh.indices[faceIndex * 3 + 1];
+    //                    const tinyobj::index_t Vertex3Index = objShape.mesh.indices[faceIndex * 3 + 2];
+    //                    auto vertex1 = GetVertex<Vertex3fnt>(Vertex1Index, attributes);
+    //                    auto vertex2 = GetVertex<Vertex3fnt>(Vertex2Index, attributes);
+    //                    auto vertex3 = GetVertex<Vertex3fnt>(Vertex3Index, attributes);
+
+    //                    glm::vec3 axis(1.0f, 0.0f, 0.0f);
+
+    //                    float angle = glm::radians(-90.0f);
+
+    //                    glm::mat4 rotationMatrix = glm::rotate(glm::mat4(1.0f), angle, axis);
+
+    //                    {
+    //                        glm::vec4 rotatedVertex = rotationMatrix * glm::vec4(vertex1.position_.GetX(), vertex1.position_.GetY(), vertex1.position_.GetZ(), 1.0f);
+    //                        vertex1.position_ = { rotatedVertex.x, rotatedVertex.y, rotatedVertex.z };
+    //                    }
+    //                    {
+    //                        glm::vec4 rotatedVertex = rotationMatrix * glm::vec4(vertex2.position_.GetX(), vertex2.position_.GetY(), vertex2.position_.GetZ(), 1.0f);
+    //                        vertex2.position_ = { rotatedVertex.x, rotatedVertex.y, rotatedVertex.z };
+    //                    }
+    //                    {
+    //                        glm::vec4 rotatedVertex = rotationMatrix * glm::vec4(vertex3.position_.GetX(), vertex3.position_.GetY(), vertex3.position_.GetZ(), 1.0f);
+    //                        vertex3.position_ = { rotatedVertex.x, rotatedVertex.y, rotatedVertex.z };
+    //                    }
+    //                    vertices.Add(Vertex3f{ vertex1 });
+    //                    normals.PushBack(vertex1.normal_);
+    //                    uvs_.PushBack(vertex1.uv_);
+    //                    const Index16 firstIndex = vertices.GetVerticesNumber() - 1;
+    //                    vertices.Add(Vertex3f{ vertex2 });
+    //                    normals.PushBack(vertex2.normal_);
+    //                    uvs_.PushBack(vertex2.uv_);
+    //                    vertices.Add(Vertex3f{ vertex3 });
+    //                    normals.PushBack(vertex3.normal_);
+    //                    uvs_.PushBack(vertex3.uv_);
+
+    //                    indices.Add(firstIndex);
+    //                    indices.Add(firstIndex + 1);
+    //                    indices.Add(firstIndex + 2);
+    //                }
+    //            }
+
+    //        }
+    //       // Shape shape{ vertices, normals, uvs_, indices,  material.diffuse_texname };
+    //        //shape.textureName_ = material.diffuse_texname;
+    //        //model.AddShape(shape);
+    //    }
+
+    //    OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
+    //    return model;
+    //}
 
 
     Model<Vertex3fnt, Index16> ParseObjVertex3fntIndex16Textures(const std::string& obj, const std::string& mtl) {
@@ -324,9 +406,9 @@ namespace Geometry {
                 }
 
             }
-            Shape shape{ vertices, indices, material.diffuse_texname };
-            shape.textureName_ = material.diffuse_texname;
-            model.AddShape(shape);
+            //Shape shape{ vertices, normals, uvs_, indices,  material.diffuse_texname };
+            //shape.textureName_ = material.diffuse_texname;
+            //model.AddShape(shape);
         }
 
         OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");

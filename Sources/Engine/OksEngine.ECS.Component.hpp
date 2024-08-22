@@ -26,10 +26,10 @@ namespace OksEngine {
 	};
 
 	template<class ComponentType>
-	void Edit(ComponentType* component) { OS::NotImplemented();  }
+	void Edit(ComponentType* component) { ImGui::TextDisabled("Edit function is not realized."); }
 
 	template<class ComponentType>
-	void Add(ComponentType* component) { OS::NotImplemented(); }
+	void Add(ECS::World* world, ECS::Entity::Id id) { ImGui::TextDisabled("Add function is not realized."); };
 
 	template<class ComponentType>
 	inline void Bind(Lua::Context& context) { OS::NotImplemented(); }

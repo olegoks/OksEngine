@@ -4,13 +4,14 @@
 #include <OksEngine.ECS.System.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 #include <Resources/OksEngine.Resource.hpp>
+#include <Render/OksEngine.Render.Subsystem.hpp>
 
 namespace OksEngine {
 
-	struct AddImmutableRenderGeometryFromObjRequest : public ECSComponent<AddImmutableRenderGeometryFromObjRequest> {
+	struct ImmutableRenderGeometryObj : public ECSComponent<ImmutableRenderGeometryObj> {
 	public:
 
-		AddImmutableRenderGeometryFromObjRequest(
+		ImmutableRenderGeometryObj(
 			std::string obj,
 			std::string mtl, 
 			const std::vector<std::string>& textures, 
@@ -24,10 +25,12 @@ namespace OksEngine {
 		std::string mtl_ = "";
 		std::vector<std::string> textures_;
 		bool bakeGeometry_ = false;
+
+		Common::Index modelIndex_ = Common::Limits<Common::Index>::Max();
 	};
 
 	template<>
-	inline void Edit<AddImmutableRenderGeometryFromObjRequest>(AddImmutableRenderGeometryFromObjRequest* request) {
+	inline void Edit<ImmutableRenderGeometryObj>(ImmutableRenderGeometryObj* request) {
 		ImGui::TextDisabled("Obj: %s", request->obj_.c_str());
 		ImGui::TextDisabled("Mtl: %s", request->mtl_.c_str());
 		ImGui::TextDisabled("Textures:");
@@ -36,6 +39,52 @@ namespace OksEngine {
 		}
 	}
 
+
+	template<>
+	inline void Add<ImmutableRenderGeometryObj>(ECS::World* world, ECS::Entity::Id id) {
+		static char obj[100] = { "dragon_lore.obj" }; // Test mesh 
+		static char mtl[100] = { "dragon_lore.mtl" };
+		static Common::Size texturesNumber = 1;
+		static std::vector<std::unique_ptr<char[]>> textures;
+		if (texturesNumber <= textures.size()) {
+			textures.resize(texturesNumber);
+		}
+		else {
+			for (Common::Size i = 0; i < texturesNumber - textures.size(); i++) {
+				auto newTexture = std::make_unique<char[]>(100);
+				std::memset(newTexture.get(), 0, 100);
+				const char* testTexture = "dragon_lore.bmp";
+				std::memcpy(newTexture.get(), testTexture, std::strlen(testTexture));
+				textures.push_back(std::move(newTexture));
+			}
+		}
+
+
+		if (ImGui::CollapsingHeader("Create info")) {
+			ImGui::InputText("Obj", obj, sizeof(obj));
+			ImGui::InputText("Mtl", mtl, sizeof(mtl));
+			{
+				ImGui::TextDisabled("Textures:");
+				for (Common::Size i = 0; i < texturesNumber; i++) {
+					ImGui::PushID(std::to_string(i).c_str());
+					ImGui::InputText("", (char*)textures[i].get(), 100); ImGui::SameLine();
+					if (ImGui::SmallButton("-")) { textures.erase(textures.begin() + i); --texturesNumber; }
+					ImGui::PopID();
+				}
+				if (ImGui::SmallButton("+")) { ++texturesNumber; }
+			}
+			ImGui::Spacing();
+		}
+		if (ImGui::Button("Add component")) {
+			if (!world->IsComponentExist<ImmutableRenderGeometryObj>(id)) {
+				std::vector<std::string> texturesStrs;
+				for (auto& textureInput : textures) {
+					texturesStrs.push_back(textureInput.get());
+				}
+				world->CreateComponent<ImmutableRenderGeometryObj>(id, obj, mtl, texturesStrs);
+			}
+		}
+	}
 
 	class AddImmutableRenderGeometryFromObjSystem : public ECSSystem {
 	public:
@@ -47,14 +96,14 @@ namespace OksEngine {
 	public:
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			const auto* request = world->GetComponent<AddImmutableRenderGeometryFromObjRequest>(entityId);
-			if (request == nullptr) { return; }
-			OS::AssertMessage(request->obj_ != "", "Obj name must be set.");
-			//world->CreateComponent<LoadResourceRequest>();
+			auto* request = world->GetComponent<ImmutableRenderGeometryObj>(entityId);
+			if (request->modelIndex_ == Common::Limits<Common::Index>::Max()) {
+				request->modelIndex_ = GetContext().GetRenderSubsystem()->RenderModel(request->obj_, request->mtl_, request->textures_);
+			}
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<AddImmutableRenderGeometryFromObjRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return { ECS::Entity::Filter{}.Include<ImmutableRenderGeometryObj>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 	private:
 		virtual Common::TypeId GetTypeId() const noexcept override {

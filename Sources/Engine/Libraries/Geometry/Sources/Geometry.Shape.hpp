@@ -14,19 +14,13 @@ namespace Geometry {
 	class Shape {
 	public:
 
-		enum class Type : Common::Size {
-			Textured,
-			Colored,
-			Undefined
-		};
-
 		Shape() noexcept = default;
 
 		Shape(  const VertexCloud<Vertex3f>&		vertices,
 				const DS::Vector<Normal3f>			normals,
 				const DS::Vector<UV2f>				uvs,
 				const IndexBuffer<Index16>&			indices,
-				std::shared_ptr<Geom::Texture<Geom::Color4b>> texture) noexcept :
+				std::shared_ptr<Geom::Texture> texture) noexcept :
 			vertices_{ vertices },
 			normals_{ normals },
 			uvs_{ uvs },
@@ -39,14 +33,6 @@ namespace Geometry {
 			vertices_{ vertices },
 			normals_{ normals },
 			colors_{ colors },
-			indices_{ indices } { }
-
-		Shape(const VertexCloud<Vertex3f>& vertices,
-			const IndexBuffer<Index16>& indices,
-			const std::string& textureName) noexcept :
-
-			textureName_{ textureName },
-			vertices_{ vertices },
 			indices_{ indices } { }
 
 		void AddPolygon(const Polygon<Vertex3f>& polygon) {
@@ -72,7 +58,6 @@ namespace Geometry {
 
 		[[nodiscard]]
 		const VertexCloud<Vertex3f>& GetVertices() const noexcept { return vertices_; }
-
 		[[nodiscard]]
 		const IndexBuffer<Index16>& GetIndices() const noexcept { return indices_; }
 
@@ -82,18 +67,7 @@ namespace Geometry {
 		[[nodiscard]]
 		Common::Size GetIndicesNumber() const noexcept { return indices_.GetIndicesNumber(); }
 
-		[[nodiscard]]
-		Type GetType() const noexcept {
-			if (colors_.GetSize() > 0) {
-				return Type::Colored;
-			} else if (texture_ != nullptr) {
-				return Type::Textured;
-			}
-			OS::NotImplemented();
-			return Type::Undefined;
-		}
-
-		void SetTexture(std::shared_ptr<Texture<Color4b>> texture) noexcept {
+		void SetTexture(std::shared_ptr<Texture> texture) noexcept {
 			texture_ = texture;
 		}
 
@@ -130,7 +104,6 @@ namespace Geometry {
 				}
 			}
 		};
-		std::string textureName_ = "";
 	private:
 		VertexCloud<Vertex3f>	vertices_;
 		DS::Vector<Normal3f>	normals_;
@@ -139,7 +112,7 @@ namespace Geometry {
 		IndexBuffer<Index16>	indices_;
 
 
-		std::shared_ptr<Texture<Color4b>> texture_ = nullptr;
+		std::shared_ptr<Texture> texture_ = nullptr;
 	};
 
 

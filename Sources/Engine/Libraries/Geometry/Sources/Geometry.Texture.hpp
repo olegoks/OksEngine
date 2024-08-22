@@ -7,46 +7,55 @@
 
 namespace Geometry {
 
-	template<class PixelType = Color4b>
 	class Texture {
 	public:
 
-		enum class Format : Common::UInt64 {
-			RGBA32
+		class Id final {
+		public:
+
+			using ValueType = Common::Size;
+
+			static const Id invalid_;
+
+			Id() noexcept : value_{ invalid_ } { }
+			Id(ValueType value) noexcept : value_{ value } {}
+
+			operator ValueType() const noexcept {
+				return value_;
+			}
+
+			Id operator++(int value) noexcept {
+				return ++value_;
+			}
+
+			struct Hash {
+				std::size_t operator()(const Id& id) const noexcept {
+					const Id::ValueType value = id.operator size_t();
+					return std::hash<Id::ValueType>{}(value);
+				}
+			};
+
+			~Id() noexcept = default;
+
+		private:
+			ValueType value_;
 		};
 
 		struct CreateInfo {
 			Common::Size width_ = 0;
 			Common::Size height_ = 0;
-			DS::Vector<PixelType> pixels_;
-			Format format_ = Format::RGBA32;
+			DS::Vector<Color4b> pixels_;
 		};
 
 		Texture(Texture&& moveTexture) noexcept : createInfo_{ } {
 
 			std::swap(createInfo_, moveTexture.createInfo_);
-			//std::swap(pixels_, moveTexture.pixels_);
 
 		}
 
-		Texture(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
+		//Texture(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
 
-			//const Common::Size pixelsNumber = createInfo.width_ * createInfo.height_;
-
-			//RGBA32* pixelsMemory = Common::Memory::memory_.Allocate<RGBA32>("texture", pixelsNumber);
-			//pixels_ = pixelsMemory;
-
-		}
-
-		//[[nodiscard]]
-		//static constexpr Common::Size GetPixelSize(Format format) noexcept {
-		//	if (format == Format::RGBA32) {
-		//		return sizeof(Color4b);
-		//	}
-		//	OS::AssertFailMessage("Unsupported type of format.");
-		//	return 0;
 		//}
-
 
 		[[nodiscard]]
 		glm::u32vec2 GetSize() const noexcept {
@@ -75,30 +84,6 @@ namespace Geometry {
 	};
 
 	[[nodiscard]]
-	Texture<Color4b> CreateTexture(const Common::Byte* memory_, Common::Size size) noexcept;
-
-	//[[nodiscard]]
-	//Texture LoadTexture(const std::filesystem::path& texturePath) noexcept {
-
-	//	int texWidth, texHeight, texChannels;
-	//	stbi_uc* pixels = stbi_load(texturePath.string().c_str(), &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-	//	OS::AssertMessage(pixels != nullptr, { "Error while loading texture %s. %s.", texturePath.string().c_str(), stbi_failure_reason() });
-
-	//	Texture::CreateInfo textureCreateInfo;
-	//	{
-	//		textureCreateInfo.width_ = texWidth;
-	//		textureCreateInfo.height_ = texHeight;
-	//		textureCreateInfo.format_ = Texture::Format::RGBA32;
-	//	}
-
-	//	Texture texture{ textureCreateInfo };
-	//	std::memcpy(texture.GetPixels<Texture::RGBA32>(), pixels, sizeof(Texture::RGBA32) * texture.GetPixelsNumber());
-
-	//	stbi_image_free(pixels);
-
-	//	return texture;
-
-	//}
-
+	std::shared_ptr<Texture> CreateTexture(const Common::Byte* memory_, Common::Size size) noexcept;
 
 }
