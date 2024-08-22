@@ -96,10 +96,15 @@ namespace OksEngine {
 	public:
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
+<<<<<<< HEAD
 			auto* request = world->GetComponent<ImmutableRenderGeometryObj>(entityId);
 			if (request->modelIndex_ == Common::Limits<Common::Index>::Max()) {
 				request->modelIndex_ = GetContext().GetRenderSubsystem()->RenderModel(request->obj_, request->mtl_, request->textures_);
 			}
+=======
+			const auto* request = world->GetComponent<AddImmutableRenderGeometryFromObjRequest>(entityId);
+			
+>>>>>>> 39c7f205aa65e02fa02cd3cc19496c12d6849a51
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
