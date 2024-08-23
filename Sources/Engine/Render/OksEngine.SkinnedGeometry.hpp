@@ -13,7 +13,7 @@ namespace OksEngine {
 
 		}
 
-		SkinnedGeometry(Context*, float x, float y, float z, std::string obj, std::string mtl, const std::vector<std::string>& textures) : ECSComponent{ nullptr } {
+		SkinnedGeometry(Context*, std::string obj, std::string mtl, const std::vector<std::string>& textures) : ECSComponent{ nullptr } {
 
 		}
 

@@ -160,9 +160,83 @@ namespace Geometry {
 	class TextureStorage {
 	public:
 
+		[[nodiscard]]
+		Texture::Id AddTexture(std::shared_ptr<Texture> mesh) {
+			Common::Maybe<Texture::Id> freeId = GetFreeId();
+			OS::AssertMessage(freeId.has_value(), "There is no free id.");
+			textures_[freeId.value()] = mesh;
+			return freeId.value();
+		}
+
+		[[nodiscard]]
+		bool IsTextureExist(Texture::Id meshId) {
+			return textures_.find(meshId) != textures_.end();
+		}
+
+		[[nodiscard]]
+		std::shared_ptr<Texture> GetTexture(Texture::Id meshId) {
+			OS::AssertMessage(IsTextureExist(meshId), "Invalid mesh id.");
+			return textures_.find(meshId)->second;
+		}
+
+		[[nodiscard]]
+		Common::Maybe<Texture::Id> GetFreeId() noexcept {
+			for (
+				Texture::Id meshId = 0;
+				meshId < 1000;
+				meshId++) {
+				const bool isIdFree = !IsTextureExist(meshId);
+				if (isIdFree) {
+					return meshId;
+				}
+
+			}
+			return {};
+		}
+		std::map<Texture::Id, std::shared_ptr<Texture>> textures_;
 	};
 
-	class Storage {
+
+	class TaggedTextureStorage : private TextureStorage {
+	public:
+
+		struct CreateInfo {
+
+		};
+
+		TaggedTextureStorage(const CreateInfo& createInfo) {
+
+		}
+
+		[[nodiscard]]
+		Texture::Id AddTexture(const std::string& tag, std::shared_ptr<Texture> texture) {
+			const Texture::Id textureId = TextureStorage::AddTexture(texture);
+			tagId_[tag] = textureId;
+			return textureId;
+		}
+
+		[[nodiscard]]
+		std::shared_ptr<Texture> GetTexture(Texture::Id textureId) {
+			OS::AssertMessage(TextureStorage::IsTextureExist(textureId), "Invalid Texture id.");
+			return TextureStorage::GetTexture(textureId);
+		}
+
+		[[nodiscard]]
+		std::shared_ptr<Texture> GetTexture(const std::string& tag) {
+			OS::AssertMessage(tagId_.find(tag) != tagId_.end(), "Invalid mesh id.");
+			const Texture::Id textureId = tagId_[tag];
+			return TextureStorage::GetTexture(textureId);
+		}
+
+		[[nodiscard]]
+		bool IsTextureExist(const std::string& tag) {
+			return tagId_.find(tag) != tagId_.end();
+		}
+
+		std::map<std::string, Texture::Id> tagId_;
+	};
+
+	class MeshStorage {
 	public:
 
 		[[nodiscard]]
@@ -202,35 +276,35 @@ namespace Geometry {
 	};
 
 
-	class TaggedStorage : private Storage {
+	class TaggedMeshStorage : private MeshStorage {
 	public:
 
 		struct CreateInfo {
 
 		};
 
-		TaggedStorage(const CreateInfo& createInfo) {
+		TaggedMeshStorage(const CreateInfo& createInfo) {
 
 		}
 
 		[[nodiscard]]
 		Mesh::Id AddMesh(const std::string& tag, std::shared_ptr<Mesh> mesh) {
-			const Mesh::Id meshId = Storage::AddMesh(mesh);
+			const Mesh::Id meshId = MeshStorage::AddMesh(mesh);
 			tagId_[tag] = meshId;
 			return meshId;
 		}
 
 		[[nodiscard]]
 		std::shared_ptr<Mesh> GetMesh(Mesh::Id meshId) {
-			OS::AssertMessage(Storage::IsMeshExist(meshId), "Invalid mesh id.");
-			return Storage::GetMesh(meshId);
+			OS::AssertMessage(MeshStorage::IsMeshExist(meshId), "Invalid mesh id.");
+			return MeshStorage::GetMesh(meshId);
 		}
 
 		[[nodiscard]]
 		std::shared_ptr<Mesh> GetMesh(const std::string& tag) {
 			OS::AssertMessage(tagId_.find(tag) != tagId_.end(), "Invalid mesh id.");
 			const Mesh::Id meshId = tagId_[tag];
-			return Storage::GetMesh(meshId);
+			return MeshStorage::GetMesh(meshId);
 		}
 
 		[[nodiscard]]

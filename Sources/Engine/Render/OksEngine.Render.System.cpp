@@ -11,50 +11,50 @@ namespace OksEngine {
 
 	void RenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		return;
-		auto* immutableRenderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
-		if (immutableRenderGeometry != nullptr) {
-			if (immutableRenderGeometry->GetId() == Common::Limits<Common::Index>::Max()) {
-				if (!immutableRenderGeometry->textures_.empty()) {
-					Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModel(
-						immutableRenderGeometry->modelObjFileName_,
-						immutableRenderGeometry->modelMtlFileName_,
-						{ immutableRenderGeometry->textures_ });
-					immutableRenderGeometry->SetId(modelIndex);
-				}
-				else {
-					Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModelTextures(
-						immutableRenderGeometry->modelObjFileName_,
-						immutableRenderGeometry->modelMtlFileName_);
-					immutableRenderGeometry->SetId(modelIndex);
-				}
+		//auto* immutableRenderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
+		//if (immutableRenderGeometry != nullptr) {
+		//	if (immutableRenderGeometry->GetId() == Common::Limits<Common::Index>::Max()) {
+		//		if (!immutableRenderGeometry->textures_.empty()) {
+		//			Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModel(
+		//				immutableRenderGeometry->modelObjFileName_,
+		//				immutableRenderGeometry->modelMtlFileName_,
+		//				{ immutableRenderGeometry->textures_ });
+		//			immutableRenderGeometry->SetId(modelIndex);
+		//		}
+		//		else {
+		//			Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModelTextures(
+		//				immutableRenderGeometry->modelObjFileName_,
+		//				immutableRenderGeometry->modelMtlFileName_);
+		//			immutableRenderGeometry->SetId(modelIndex);
+		//		}
 
-			}
-			GetContext().GetRenderSubsystem()->SetModelMatrix(
-				immutableRenderGeometry->GetId(),
-				immutableRenderGeometry->GetTransform());
-		}
-		return;
-		auto* skinnedGeometry = world->GetComponent<SkinnedGeometry>(entityId);
-		if (skinnedGeometry != nullptr) {
-		if (skinnedGeometry->GetId() == Common::Limits<Common::Index>::Max()) {
-			if (skinnedGeometry->textures_.empty()) {
-				Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderAnimationModel(
-					{ skinnedGeometry->modelObjFileName_ });
-				skinnedGeometry->SetId(modelIndex);
-			}
-			else {
-				Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModelTextures(
-					skinnedGeometry->modelObjFileName_,
-					skinnedGeometry->modelMtlFileName_);
-				skinnedGeometry->SetId(modelIndex);
-			}
-			/*GetContext().GetRenderSubsystem()->SetModelMatrix(
-				skinnedGeometry->GetId(),
-				skinnedGeometry->GetTransform());*/
+		//	}
+		//	GetContext().GetRenderSubsystem()->SetModelMatrix(
+		//		immutableRenderGeometry->GetId(),
+		//		immutableRenderGeometry->GetTransform());
+		//}
+		//return;
+		//auto* skinnedGeometry = world->GetComponent<SkinnedGeometry>(entityId);
+		//if (skinnedGeometry != nullptr) {
+		//if (skinnedGeometry->GetId() == Common::Limits<Common::Index>::Max()) {
+		//	if (skinnedGeometry->textures_.empty()) {
+		//		Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderAnimationModel(
+		//			{ skinnedGeometry->modelObjFileName_ });
+		//		skinnedGeometry->SetId(modelIndex);
+		//	}
+		//	else {
+		//		Common::Index modelIndex = GetContext().GetRenderSubsystem()->RenderModelTextures(
+		//			skinnedGeometry->modelObjFileName_,
+		//			skinnedGeometry->modelMtlFileName_);
+		//		skinnedGeometry->SetId(modelIndex);
+		//	}
+		//	/*GetContext().GetRenderSubsystem()->SetModelMatrix(
+		//		skinnedGeometry->GetId(),
+		//		skinnedGeometry->GetTransform());*/
 
-		}
+		//}
 
-	}
+	//}
 	}
 
 	Common::TypeId RenderSystem::GetTypeId() const noexcept {

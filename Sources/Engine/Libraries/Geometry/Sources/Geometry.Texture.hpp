@@ -53,9 +53,9 @@ namespace Geometry {
 
 		}
 
-		//Texture(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
+		Texture(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
 
-		//}
+		}
 
 		[[nodiscard]]
 		glm::u32vec2 GetSize() const noexcept {

@@ -213,30 +213,30 @@ namespace OksEngine {
 	[[nodiscard]]
 	Common::Index RenderSubsystem::RenderModelTextures(std::string objName, std::string mtlName) {
 
-		auto& context = GetContext();
-		auto resourceSubsystem = context.GetResourceSubsystem();
+		//auto& context = GetContext();
+		//auto resourceSubsystem = context.GetResourceSubsystem();
 
 
-		const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + objName);
-		ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
+		//const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + objName);
+		//ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
 
-		const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + mtlName);
-		ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
+		//const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + mtlName);
+		//ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
 
-		std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
-		std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
+		//std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
+		//std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
 
-		auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16Textures(obj, mtl));
-		for (auto& shape : *texturedModel) {
-			const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + shape.textureName_);
-			ResourceSubsystem::Resource resource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId);
-			std::string texture{ resource.GetData<char>(), resource.GetSize() };
-			
-			shape.SetTexture(std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size()))));
-		}
-		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
-		models_.push_back(model);
-		return models_.size() - 1;
+		//auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16Textures(obj, mtl));
+		//for (auto& shape : *texturedModel) {
+		//	const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + shape.textureName_);
+		//	ResourceSubsystem::Resource resource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId);
+		//	std::string texture{ resource.GetData<char>(), resource.GetSize() };
+		//	
+		//	shape.SetTexture(std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size()))));
+		//}
+		//RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
+		//models_.push_back(model);
+		return 0;//models_.size() - 1;
 	}
 
 	void RenderSubsystem::SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm:: vec3& up) {

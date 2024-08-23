@@ -53,11 +53,11 @@ namespace OksEngine
 		world_->RegisterSystem<PhysicsGeometryMapper>(*this);
 		world_->RegisterSystem<AttachCameraSystem>(*this);
 
-		Geom::TaggedStorage::CreateInfo geomStorageCreateInfo{
+		Geom::TaggedMeshStorage::CreateInfo geomStorageCreateInfo{
 
 		};
 
-		geomStorage_ = std::make_shared<Geom::TaggedStorage>(geomStorageCreateInfo);
+		geomStorage_ = std::make_shared<Geom::TaggedMeshStorage>(geomStorageCreateInfo);
 
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,

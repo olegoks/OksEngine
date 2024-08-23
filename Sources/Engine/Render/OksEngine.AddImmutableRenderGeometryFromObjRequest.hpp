@@ -96,6 +96,7 @@ namespace OksEngine {
 	public:
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
+<<<<<<< Updated upstream
 //<<<<<<< HEAD
 //			auto* request = world->GetComponent<ImmutableRenderGeometryObj>(entityId);
 //			if (request->modelIndex_ == Common::Limits<Common::Index>::Max()) {
@@ -103,6 +104,10 @@ namespace OksEngine {
 //			}
 //=======
 //			const auto* request = world->GetComponent<AddImmutableRenderGeometryFromObjRequest>(entityId);
+=======
+
+			const auto* request = world->GetComponent<ImmutableRenderGeometryObj>(entityId);
+>>>>>>> Stashed changes
 
 		}
 
