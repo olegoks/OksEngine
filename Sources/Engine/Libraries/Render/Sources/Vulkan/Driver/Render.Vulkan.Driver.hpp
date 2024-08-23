@@ -1055,7 +1055,7 @@ namespace Render::Vulkan {
 				.descriptorPool_ = descriptorPool_,
 				.format_ = VK_FORMAT_R8G8B8A8_UNORM
 			};
-			auto texture = std::make_shared<Texture>(textureCreateInfo);
+			auto texture = std::make_shared<Texture>(std::move(textureCreateInfo));
 
 			const RAL::Texture::Id textureId = textures_.size();
 			textures_[textureId] = texture;

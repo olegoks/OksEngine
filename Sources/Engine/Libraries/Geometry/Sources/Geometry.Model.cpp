@@ -182,7 +182,7 @@ namespace Geometry {
                 vertexIndex++;
             }
         
-            auto textureObject = std::make_shared<Geom::Texture>(std::move(Geom::CreateTexture(texture.data(), texture.size())));
+            auto textureObject = Geom::CreateTexture(texture.data(), texture.size());
             Shape shape{ vertices, normals, uvs_, indices,  textureObject };
             model.AddShape(shape);
         }

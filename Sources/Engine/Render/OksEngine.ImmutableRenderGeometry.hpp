@@ -15,6 +15,7 @@ namespace OksEngine {
 		ImmutableRenderGeometry(const std::string& meshTag) :
 			ECSComponent{ nullptr } {}
 
+<<<<<<< Updated upstream
 		const std::string meshTag_;
 
 		ImmutableRenderGeometry(
@@ -29,6 +30,9 @@ namespace OksEngine {
 		std::string modelObjFileName_ = "";
 		std::string modelMtlFileName_ = "";
 		std::vector<std::string> textures_;
+=======
+		std::string meshTag_;
+>>>>>>> Stashed changes
 	};
 
 

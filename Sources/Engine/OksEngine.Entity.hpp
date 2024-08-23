@@ -19,11 +19,7 @@ namespace OksEngine {
 
 		void AddDebugInfo(const std::string& name);
 
-		void AddImmutableRenderGeometry(
-			const glm::mat4& modelMatrix,
-			std::string objName,
-			std::string mtlName,
-			const std::vector<std::string>& textures);
+		void AddImmutableRenderGeometry(const std::string& tag);
 
 		void AddSkinnedGeometry(
 			const glm::mat4& modelMatrix,
