@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Geometry.Shape.hpp>
+#include <Geometry.Storage.hpp>
 
 namespace Geometry {
 
@@ -53,5 +54,6 @@ namespace Geometry {
     Model<Vertex3fnt, Index16> ParseObjVertex3fntIndex16Textures(const std::string& obj, const std::string& mtl);
 
     bool ParseModelFbx(const char* memory, Common::Size size);
+    std::shared_ptr<Geom::Mesh> ParseModelObj(const char* memory, Common::Size size);
     bool ParseModelFile(const std::filesystem::path& filePath);
 }

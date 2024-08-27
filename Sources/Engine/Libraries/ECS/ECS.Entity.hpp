@@ -25,47 +25,41 @@ namespace ECS {
 			template<class ComponentType>
 			Filter& Include() {
 				OS::AssertMessage(IsValid(), "Invalid filter state.");
-				OS::AssertMessage(
-					!excludes_.test(ComponentType::GetTypeId()), 
-					"Attempt to use the component in includes and excludes.");
-				includes_.set(ComponentType::GetTypeId());
-
+				const ComponentTypeId typeId = ComponentType::GetTypeId();
+				includes_.set(typeId);
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& DeleteInclude() {
 				OS::AssertMessage(IsValid(), "Invalid filter state.");
-				OS::AssertMessage(
-					includes_.test(ComponentType::GetTypeId()),
-					"Attempt to delete include that doesnt exist");
 				includes_.reset(ComponentType::GetTypeId());
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& Exclude() {
 				OS::AssertMessage(IsValid(), "Invalid filter state.");
-				OS::AssertMessage(
-					!includes_.test(ComponentType::GetTypeId()),
-					"Attempt to use the component in includes and excludes.");
-				excludes_.set(ComponentType::GetTypeId());
+				const ComponentTypeId typeId = ComponentType::GetTypeId();
+				excludes_.set(typeId);
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				return *this;
 			}
 
 			Filter& ExcludeAll() {
 				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				excludes_.set();
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& DeleteExclude() {
 				OS::AssertMessage(IsValid(), "Invalid filter state.");
-				OS::AssertMessage(
-					excludes_.test(ComponentType::GetTypeId()),
-					"Attempt to delete exclude that doesnt exist");
 				excludes_.reset(ComponentType::GetTypeId());
+				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				return *this;
 			}
 
@@ -107,6 +101,16 @@ namespace ECS {
 				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				includes_.reset();
 				excludes_.reset();
+			}
+
+			[[nodiscard]]
+			std::string IncludesToString() const noexcept {
+				return includes_.to_string();
+			}
+
+			[[nodiscard]]
+			std::string ExcludesToString() const noexcept {
+				return excludes_.to_string();
 			}
 
 		private:

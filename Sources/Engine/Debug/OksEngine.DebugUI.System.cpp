@@ -18,7 +18,7 @@ namespace OksEngine {
 
 
 
-	void ImGuiSystem::Update(ECS::World * world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+	void ImGuiSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
 		auto* state = world->GetComponent<ImGuiState>(entityId);
 		if (state->fontsTextureId_.IsInvalid()) {
@@ -43,7 +43,7 @@ namespace OksEngine {
 	}
 
 	void ImGuiRenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-		
+
 		ImGuiState* state = world->GetComponent<ImGuiState>(entityId);
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 
@@ -77,7 +77,7 @@ namespace OksEngine {
 			-1.0f - draw_data->DisplayPos.y * scale[1]
 		};
 
-		
+
 		for (int n = 0; n < draw_data->CmdListsCount; n++) {
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
 			for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
@@ -188,6 +188,9 @@ namespace OksEngine {
 
 		if (ImGui::CollapsingHeader(("Id: " + idString).c_str())) {
 			ImGui::Indent(20.0f);
+			ECS::Entity::Filter entityFilter = world->GetEntityFilter(id);
+			ImGui::TextDisabled("Components:");
+			ImGui::TextDisabled("%s", entityFilter.IncludesToString().c_str());
 			auto editComponent = []<class ComponentType>(ECS::World * world, ECS::Entity::Id id) {
 
 				bool isExist = world->IsComponentExist<ComponentType>(id);
@@ -223,10 +226,12 @@ namespace OksEngine {
 			/*Render*/
 			editComponent.template operator() < ImmutableRenderGeometryObj > (world, id);
 			editComponent.template operator() < ImmutableRenderGeometry > (world, id);
+			editComponent.template operator() < GeometryFile > (world, id);
 			editComponent.template operator() < Camera > (world, id);
 			editComponent.template operator() < AttachedCamera > (world, id);
 			editComponent.template operator() < PointLight > (world, id);
 			editComponent.template operator() < SkinnedGeometry > (world, id);
+			editComponent.template operator() < Mesh > (world, id);
 			/*Resources*/
 			editComponent.template operator() < LoadResourceRequest > (world, id);
 			editComponent.template operator() < Resource > (world, id);
@@ -239,28 +244,29 @@ namespace OksEngine {
 			ImGui::SeparatorText("Add component");
 			ImGui::Indent(20.0f);
 			const char* items[] = {
-				Position					   ::GetName(),
-				MapRigidBodyToRenderGeometry   ::GetName(),
-				Behaviour					   ::GetName(),
-				DebugInfo					   ::GetName(),
-				ImGuiState					   ::GetName(),
-				ECSInspector				   ::GetName(),
-				MainMenuBar					   ::GetName(),
-				FramesCounter				   ::GetName(),
-				DynamicRigidBodyBox			   ::GetName(),
+				Position::GetName(),
+				MapRigidBodyToRenderGeometry::GetName(),
+				Behaviour::GetName(),
+				DebugInfo::GetName(),
+				ImGuiState::GetName(),
+				ECSInspector::GetName(),
+				MainMenuBar::GetName(),
+				FramesCounter::GetName(),
+				DynamicRigidBodyBox::GetName(),
 				DynamicRigidBodyCustomMeshShape::GetName(),
-				StaticRigidBodyCustomMeshShape ::GetName(),
-				ImmutableRenderGeometryObj	   ::GetName(),
-				ImmutableRenderGeometry		   ::GetName(),
-				Camera						   ::GetName(),
-				AttachedCamera				   ::GetName(),
-				PointLight					   ::GetName(),
-				SkinnedGeometry				   ::GetName(),
-				LoadResourceRequest			   ::GetName(),
-				Resource					   ::GetName(),
-				HandleKeyboardInputMarker	   ::GetName(),
-				KeyboardInput				   ::GetName(),
-				Window						   ::GetName()
+				StaticRigidBodyCustomMeshShape::GetName(),
+				ImmutableRenderGeometryObj::GetName(),
+				ImmutableRenderGeometry::GetName(),
+				Mesh::GetName(),
+				Camera::GetName(),
+				AttachedCamera::GetName(),
+				PointLight::GetName(),
+				SkinnedGeometry::GetName(),
+				LoadResourceRequest::GetName(),
+				Resource::GetName(),
+				HandleKeyboardInputMarker::GetName(),
+				KeyboardInput::GetName(),
+				Window::GetName()
 
 			};
 			ImGui::Combo("", &state.currentAddComponentIndex_, items, std::size(items));
@@ -281,6 +287,9 @@ namespace OksEngine {
 			}
 			if (currentComponent == ImmutableRenderGeometryObj::GetName()) {
 				Add<ImmutableRenderGeometryObj>(world, id);
+			}
+			if (currentComponent == ImmutableRenderGeometry::GetName()) {
+				Add<ImmutableRenderGeometry>(world, id);
 			}
 			if (currentComponent == Camera::GetName()) {
 				Add<Camera>(world, id);
