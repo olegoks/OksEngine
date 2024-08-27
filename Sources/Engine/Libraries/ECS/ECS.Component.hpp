@@ -14,6 +14,7 @@ namespace ECS {
 
 	extern ComponentTypeId nextId;
 	constexpr inline Common::Size maxNameLength = 100;
+
 	template<class Type = int>
 	class IComponent {
 	public:

@@ -24,6 +24,10 @@ int main(int argc, char** argv){
     };
 
     Engine engine{ engineCreateInfo };
+
+    Entity entity = engine.CreateEntity();
+    //entity.AddImmutableRenderGeometry("dragon_lore.geom");
+
    /* Entity entity = engine.CreateEntity();
     entity.AddPosition(0, 0, 0);
     entity.AddBehaviour("TestObject.lua", "TestObject");

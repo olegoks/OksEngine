@@ -27,6 +27,14 @@ namespace Geometry {
 			std::memcpy(indices_.data() + beginIndicesNumber, indices.indices_.data(), indices.GetSizeInBytes());
 		}
 
+		void AddNextMesh(const IndexBuffer& indices) {
+			const Common::Size beginIndicesNumber = GetIndicesNumber();
+			indices_.resize(GetIndicesNumber() + indices.GetIndicesNumber());
+			for (Common::Index i = 0; i < indices.GetIndicesNumber(); i++) {
+				indices_.push_back(beginIndicesNumber + indices[i]);
+			}
+		}
+
 		[[nodiscard]]
 		Common::Size GetIndicesNumber() const noexcept { 
 			return indices_.size();
@@ -41,6 +49,12 @@ namespace Geometry {
 		IndexType& operator[](Common::Index index) noexcept {
 			return indices_[index];
 		}
+
+		[[nodiscard]]
+		const IndexType& operator[](Common::Index index) const noexcept {
+			return indices_[index];
+		}
+
 		[[nodiscard]]
 		const IndexType* GetData() const noexcept { return indices_.data(); }
 

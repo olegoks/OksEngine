@@ -140,15 +140,20 @@ namespace ECS {
 			return entitiesManager_.GetEntitiesNumber();
 		}
 
+		//[[nodiscard]]
+		//std::vector<Entity::Id> GetEntitiesIds() noexcept {
+		//	std::vector<Entity::Id> entitiesIds;
+		//	entitiesIds.reserve(entitiesManager_.GetEntitiesNumber());
+		//	entitiesManager_.ForEachEntity(
+		//		[&entitiesIds](Entity& entity) {
+		//			entitiesIds.push_back(entity.GetId());
+		//		});
+		//	return entitiesIds;
+		//}
+
 		[[nodiscard]]
-		std::vector<Entity::Id> GetEntitiesIds() noexcept {
-			std::vector<Entity::Id> entitiesIds;
-			entitiesIds.reserve(entitiesManager_.GetEntitiesNumber());
-			entitiesManager_.ForEachEntity(
-				[&entitiesIds](Entity& entity) {
-					entitiesIds.push_back(entity.GetId());
-				});
-			return entitiesIds;
+		Entity::Filter GetEntityFilter(Entity::Id entityId) {
+			return entitiesManager_.GetEntityFilter(entityId);
 		}
 
 		[[nodiscard]]

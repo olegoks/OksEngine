@@ -29,6 +29,8 @@ namespace OksEngine {
 		auto ecsWorld = context.GetECSWorld();
 		ecsWorld->RegisterSystem<RenderSystem>(context);
 		ecsWorld->RegisterSystem<CameraSystem>(context);
+		ecsWorld->RegisterSystem<LoadGeometryDescriptionFile>(context);
+		ecsWorld->RegisterSystem<LoadMesh>(context);
 		ecsWorld->RegisterSystem<AddImmutableRenderGeometryFromObjSystem>(context);
 		auto uiSubsystem = context.GetUISubsystem();
 		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);

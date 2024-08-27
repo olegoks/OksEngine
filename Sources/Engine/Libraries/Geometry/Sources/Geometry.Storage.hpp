@@ -122,7 +122,6 @@ namespace Geometry {
 		public:
 
 			using ValueType = Common::Size;
-
 			static const Id invalid_;
 
 			Id() noexcept : value_{ invalid_ } { }
@@ -149,6 +148,8 @@ namespace Geometry {
 			ValueType value_;
 		};
 
+
+
 		VertexCloud<Vertex3f>	vertices_;
 		DS::Vector<Normal3f>	normals_;
 		DS::Vector<Color3f>		colors_;
@@ -156,6 +157,13 @@ namespace Geometry {
 		IndexBuffer<Index16>	indices_;
 		std::shared_ptr<Texture> texture_ = nullptr;
 	};
+	//inline const Entity::Id Entity::Id::invalid_ = Common::Limits<Entity::Id::ValueType>::Max();
+
+	VertexCloud<Vertex3fnt> GetVertexCloud3fnt(std::shared_ptr<Mesh> mesh) {
+
+	}
+
+	inline const Mesh::Id Mesh::Id::invalid_ = Common::Limits<ValueType>::Max();
 
 	class TextureStorage {
 	public:

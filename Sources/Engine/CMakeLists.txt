@@ -139,20 +139,22 @@ target_sources(OksEngine
         ${PRIVATE_SOURCES_BEHAVIOUR}
         ${PRIVATE_SOURCES_RESOURCES}
     )
-    find_package(imgui CONFIG REQUIRED)
+find_package(imgui CONFIG REQUIRED)
+find_package(yaml-cpp CONFIG REQUIRED)
 target_link_libraries(OksEngine
     PUBLIC
-        imgui::imgui
-        Geometry
-        ECS
-        LuaLayer
-        Render
-        Physics
-        OS
-        UI
-        Resources
+    yaml-cpp::yaml-cpp
+    imgui::imgui
+    Geometry
+    ECS
+    LuaLayer
+    Render
+    Physics
+    OS
+    UI
+    Resources
     )
-
+    
 source_group("Sources"
     FILES
     ${PUBLIC_SOURCES}

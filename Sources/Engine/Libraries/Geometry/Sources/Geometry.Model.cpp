@@ -5,6 +5,8 @@
 #define TINYOBJLOADER_IMPLEMENTATION
 #include "tiny_obj_loader.h"
 
+#include <Geometry.Storage.hpp>
+
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
@@ -448,6 +450,48 @@ namespace Geometry {
         return true;
     }
 
+    std::shared_ptr<Geom::Mesh> ParseModelObj(const char* memory, Common::Size size) {
+
+        Assimp::Importer importer;
+
+        const aiScene* scene = importer.ReadFileFromMemory(memory, size,
+            aiProcess_CalcTangentSpace |
+            aiProcess_Triangulate |
+            aiProcess_JoinIdenticalVertices |
+            aiProcess_SortByPType);
+
+        OS::AssertMessage(
+            scene != nullptr,
+            importer.GetErrorString());
+
+        auto geomMesh = std::make_shared<Geom::Mesh>();
+        Common::UInt64 previousMeshIndicesNumber = 0;
+        for (unsigned i = 0; i < scene->mNumMeshes; i++) {
+            const aiMesh* mesh = scene->mMeshes[i];
+
+            for (unsigned j = 0; j < mesh->mNumVertices; j++) {
+                geomMesh->vertices_.Add(Vertex3f{   mesh->mVertices[j].x,
+                                                    mesh->mVertices[j].y,
+                                                    mesh->mVertices[j].z });
+                geomMesh->normals_.PushBack(Normal3f{   mesh->mVertices[j].x,
+                                                        mesh->mVertices[j].y,
+                                                        mesh->mVertices[j].z });
+                geomMesh->uvs_.PushBack(UV2f{   mesh->mTextureCoords[0][j].x,
+                                                mesh->mTextureCoords[0][j].y });
+
+            }
+            Geom::IndexBuffer meshIndices;
+            for (unsigned j = 0; j < mesh->mNumFaces; j++) {
+                meshIndices.Add(previousMeshIndicesNumber + mesh->mFaces[j].mIndices[0]);
+                meshIndices.Add(previousMeshIndicesNumber + mesh->mFaces[j].mIndices[1]);
+                meshIndices.Add(previousMeshIndicesNumber + mesh->mFaces[j].mIndices[2]);
+            }
+            geomMesh->indices_.AddNextMesh(meshIndices);
+        }
+
+        return geomMesh;
+    }
+
 
     bool ParseModelFile(const std::filesystem::path& filePath) {
 
@@ -465,7 +509,7 @@ namespace Geometry {
         for (unsigned i = 0; i < scene->mNumMeshes; i++) {
 
             const aiMesh* p_AIMesh = scene->mMeshes[i];
-
+            
             // Create the new mesh data
             //p_Mesh->m_uiNumIndices = p_AIMesh->mNumFaces * 3;
             //const unsigned uiSizeVertices = p_AIMesh->mNumVertices * sizeof(CustomVertex);
