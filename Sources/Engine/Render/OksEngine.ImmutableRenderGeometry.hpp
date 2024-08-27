@@ -9,6 +9,8 @@
 #include <Geometry.Model.hpp>
 #include <yaml-cpp/yaml.h>
 
+//#include "OksEngine.Render.Subsystem.hpp"
+
 namespace OksEngine {
 
 	struct ImmutableRenderGeometry : public ECSComponent<ImmutableRenderGeometry> {
@@ -144,13 +146,29 @@ namespace OksEngine {
 			const auto* geomFile = world->GetComponent<GeometryFile>(entityId);
 			if (geomFile->mesh_["Obj"]) {
 				const std::string objName = geomFile->mesh_["Obj"].as<std::string>();
-				using namespace std::string_literals;
-				const std::string& objFilePath = "Root\\"s + objName;
-				auto taskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objFilePath);
-				ResourceSubsystem::Resource resource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, taskId);
-				auto mesh = Geom::ParseModelObj(resource.GetData<char>(), resource.GetSize());
-				const Geom::Mesh::Id meshId = GetContext().GetGeomStorage()->AddMesh(geomFile->mesh_["Name"].as<std::string>(), mesh);
-				world->CreateComponent<Mesh>(entityId, geomFile->mesh_["Name"].as<std::string>(), meshId);
+				std::string mtlName = "";
+				if(geomFile->mesh_["Mtl"]) {
+					mtlName = geomFile->mesh_["Mtl"].as<std::string>();
+				}
+				//using namespace std::string_literals;
+				//{
+				//	const std::string& objFilePath = "Root\\"s + objName;
+				//	auto taskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objFilePath);
+				//	ResourceSubsystem::Resource resource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, taskId);
+				//	auto mesh = Geom::ParseModelObj(resource.GetData<char>(), resource.GetSize());
+				//	const Geom::Mesh::Id meshId = GetContext().GetGeomStorage()->AddMesh(geomFile->mesh_["Name"].as<std::string>(), mesh);
+				//	world->CreateComponent<Mesh>(entityId, geomFile->mesh_["Name"].as<std::string>(), meshId);
+				//}
+				/*if(mtlName != "") {
+					const std::string& mtlFilePath = "Root\\"s + objName;
+					auto taskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objFilePath);
+					ResourceSubsystem::Resource resource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, taskId);
+					auto mesh = Geom::ParseModelObj(resource.GetData<char>(), resource.GetSize());
+					const Geom::Mesh::Id meshId = GetContext().GetGeomStorage()->AddMesh(geomFile->mesh_["Name"].as<std::string>(), mesh);
+				}
+*/
+
+				
 			}
 		}
 
@@ -174,13 +192,21 @@ namespace OksEngine {
 	public:
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			auto* renderGeom = world->GetComponent<ImmutableRenderGeometry>(entityId);
-			auto* mesh = world->GetComponent<Mesh>(entityId);
+			//auto* renderGeom = world->GetComponent<ImmutableRenderGeometry>(entityId);
+			//auto* meshComponent = world->GetComponent<Mesh>(entityId);
+			//auto* position = world->GetComponent<Position>(entityId);
+			//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+			//auto mesh = GetContext().GetGeomStorage()->GetMesh(meshComponent->meshId_);
+			//auto vertices = Geometry::GetVertexCloud3fnt(mesh);
+			//driver->DrawIndexed(
+			//	position->GetTranslateMat(),
+			//	(const RAL::Vertex3fnt*)vertices.GetData(),
+			//	vertices.GetVerticesNumber(),
+			//	(const RAL::Index16*)mesh->indices_.GetData(),
+			//	mesh->indices_.GetIndicesNumber(), 0);
 		}
 
-		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Mesh>().Include<ImmutableRenderGeometry>(), ECS::Entity::Filter{}.ExcludeAll()};
-		}
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
 
 	private:
 		virtual Common::TypeId GetTypeId() const noexcept override {
