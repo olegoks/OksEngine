@@ -13,12 +13,8 @@ namespace OksEngine {
 
 	struct ImmutableRenderGeometry : public ECSComponent<ImmutableRenderGeometry> {
 	public:
-		ImmutableRenderGeometry() : ECSComponent{ nullptr }{
-
-		}
-		ImmutableRenderGeometry(const std::string& meshTag) :
-			ECSComponent{ nullptr },
-			meshTag_{ meshTag } {}
+		ImmutableRenderGeometry();
+		ImmutableRenderGeometry(const std::string& meshTag);
 
 		std::string meshTag_;
 	};
