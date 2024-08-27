@@ -159,8 +159,17 @@ namespace Geometry {
 	};
 	//inline const Entity::Id Entity::Id::invalid_ = Common::Limits<Entity::Id::ValueType>::Max();
 
-	VertexCloud<Vertex3fnt> GetVertexCloud3fnt(std::shared_ptr<Mesh> mesh) {
-
+	[[nodiscard]]
+	inline VertexCloud<Vertex3fnt> GetVertexCloud3fnt(std::shared_ptr<Mesh> mesh) {
+		VertexCloud<Vertex3fnt> vertices;
+		for (Common::Index i = 0; i < mesh->vertices_.GetVerticesNumber(); i++) {
+			Vertex3fnt vertex;
+			vertex.position_ = mesh->vertices_[i].position_;
+			vertex.normal_ = mesh->normals_[i];
+			vertex.uv_ = mesh->uvs_[i];
+			vertices.Add(vertex);
+		}
+		return vertices;
 	}
 
 	inline const Mesh::Id Mesh::Id::invalid_ = Common::Limits<ValueType>::Max();
