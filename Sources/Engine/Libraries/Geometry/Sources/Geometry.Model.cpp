@@ -158,37 +158,37 @@ namespace Geometry {
         Model<Vertex3fnt, Index16> model;
 
 
-        std::unordered_map<Vertex3fnt, Index16, Vertex3fnt::Hash> uniqueVertices{};
-        for (const auto& objShape : shapes) {
-            VertexCloud<Vertex3f> vertices;
-            DS::Vector<Normal3f> normals;
-            DS::Vector<UV2f> uvs_;
-            IndexBuffer<Index16> indices;
-            Common::Index vertexIndex = 0;
-            for (const auto& index : objShape.mesh.indices) {
-                auto vertex = GetVertex<Vertex3fnt>(index, attributes);
-                bool deleteDuplicateVertices = true;
-                if (deleteDuplicateVertices) {
-                    if (uniqueVertices.count(vertex) == 0) {
-                        uniqueVertices[vertex] = static_cast<uint32_t>(vertices.GetVerticesNumber());
-                        vertices.Add(Vertex3f{ vertex });
-                        normals.PushBack(vertex.normal_);
-                        uvs_.PushBack(vertex.uv_);
-                    }
-                    indices.Add(uniqueVertices[vertex]);
-                }
-                else {
-                    vertices.Add(Vertex3f{ vertex });
-                    indices.Add(vertices.GetVerticesNumber() - 1);
-                }
-                vertexIndex++;
-            }
-        
-            auto textureObject = Geom::CreateTexture(texture.data(), texture.size());
-            Shape shape{ vertices, normals, uvs_, indices,  textureObject };
-            model.AddShape(shape);
-        }
-        OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
+        //std::unordered_map<Vertex3fnt, Index16, Vertex3fnt::Hash> uniqueVertices{};
+        //for (const auto& objShape : shapes) {
+        //    VertexCloud<Vertex3f> vertices;
+        //    DS::Vector<Normal3f> normals;
+        //    DS::Vector<UV2f> uvs_;
+        //    IndexBuffer<Index16> indices;
+        //    Common::Index vertexIndex = 0;
+        //    for (const auto& index : objShape.mesh.indices) {
+        //        auto vertex = GetVertex<Vertex3fnt>(index, attributes);
+        //        bool deleteDuplicateVertices = true;
+        //        if (deleteDuplicateVertices) {
+        //            if (uniqueVertices.count(vertex) == 0) {
+        //                uniqueVertices[vertex] = static_cast<uint32_t>(vertices.GetVerticesNumber());
+        //                vertices.Add(Vertex3f{ vertex });
+        //                normals.PushBack(vertex.normal_);
+        //                uvs_.PushBack(vertex.uv_);
+        //            }
+        //            indices.Add(uniqueVertices[vertex]);
+        //        }
+        //        else {
+        //            vertices.Add(Vertex3f{ vertex });
+        //            indices.Add(vertices.GetVerticesNumber() - 1);
+        //        }
+        //        vertexIndex++;
+        //    }
+        //
+        //    auto textureObject = Geom::CreateTexture(texture.data(), texture.size());
+        //    Shape shape{ vertices, normals, uvs_, indices,  textureObject };
+        //    model.AddShape(shape);
+        //}
+        //OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
         return model;
     }
 
@@ -450,7 +450,8 @@ namespace Geometry {
         return true;
     }
 
-    std::shared_ptr<Geom::Mesh> ParseModelObj(const char* memory, Common::Size size) {
+    [[nodiscard]]
+    Geom::Mesh ParseModelObj(const char* memory, Common::Size size) {
 
         Assimp::Importer importer;
 
@@ -464,19 +465,19 @@ namespace Geometry {
             scene != nullptr,
             importer.GetErrorString());
 
-        auto geomMesh = std::make_shared<Geom::Mesh>();
+        Geom::Mesh geomMesh;
         Common::UInt64 previousMeshIndicesNumber = 0;
         for (unsigned i = 0; i < scene->mNumMeshes; i++) {
             const aiMesh* mesh = scene->mMeshes[i];
 
             for (unsigned j = 0; j < mesh->mNumVertices; j++) {
-                geomMesh->vertices_.Add(Vertex3f{   mesh->mVertices[j].x,
+                geomMesh.vertices_.Add(Vertex3f{   mesh->mVertices[j].x,
                                                     mesh->mVertices[j].y,
                                                     mesh->mVertices[j].z });
-                geomMesh->normals_.PushBack(Normal3f{   mesh->mVertices[j].x,
+                geomMesh.normals_.PushBack(Normal3f{   mesh->mVertices[j].x,
                                                         mesh->mVertices[j].y,
                                                         mesh->mVertices[j].z });
-                geomMesh->uvs_.PushBack(UV2f{   mesh->mTextureCoords[0][j].x,
+                geomMesh.uvs_.PushBack(UV2f{   mesh->mTextureCoords[0][j].x,
                                                 mesh->mTextureCoords[0][j].y });
 
             }
@@ -486,7 +487,7 @@ namespace Geometry {
                 meshIndices.Add(previousMeshIndicesNumber + mesh->mFaces[j].mIndices[1]);
                 meshIndices.Add(previousMeshIndicesNumber + mesh->mFaces[j].mIndices[2]);
             }
-            geomMesh->indices_.AddNextMesh(meshIndices);
+            geomMesh.indices_.AddNextMesh(meshIndices);
         }
 
         return geomMesh;

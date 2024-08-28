@@ -8,6 +8,7 @@
 #include <Resources\OksEngine.Resource.Subsystem.hpp>
 #include <Geometry.Model.hpp>
 #include <yaml-cpp/yaml.h>
+#include <Geometry.Storage.hpp>
 
 namespace OksEngine {
 
@@ -117,7 +118,7 @@ namespace OksEngine {
 		Mesh(const std::string& tag, Geom::Mesh::Id meshId) :
 			ECSComponent{ nullptr }, meshId_{ meshId }, tag_{ tag } {}
 
-		Geom::Mesh::Id meshId_ = Geom::Mesh::Id::invalid_;
+		Geom::Mesh::Id meshId_;
 		std::string tag_;
 	};
 
@@ -130,7 +131,7 @@ namespace OksEngine {
 	}
 
 	template<>
-	inline void Add<Mesh>(ECS::World* world, ECS::Entity::Id id) {
+	inline void Add<Geom::Mesh>(ECS::World* world, ECS::Entity::Id id) {
 
 	}
 
@@ -153,7 +154,7 @@ namespace OksEngine {
 				auto taskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objFilePath);
 				ResourceSubsystem::Resource resource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, taskId);
 				auto mesh = Geom::ParseModelObj(resource.GetData<char>(), resource.GetSize());
-				const Geom::Mesh::Id meshId = GetContext().GetGeomStorage()->AddMesh(geomFile->mesh_["Name"].as<std::string>(), mesh);
+				const Geom::Mesh::Id meshId = GetContext().GetGeomStorage()->Add(geomFile->mesh_["Name"].as<std::string>(), std::move(mesh));
 				world->CreateComponent<Mesh>(entityId, geomFile->mesh_["Name"].as<std::string>(), meshId);
 			}
 		}
@@ -180,6 +181,9 @@ namespace OksEngine {
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
 			auto* renderGeom = world->GetComponent<ImmutableRenderGeometry>(entityId);
 			auto* mesh = world->GetComponent<Mesh>(entityId);
+			//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+			
+			//driver->DrawIndexed()
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {

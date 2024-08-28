@@ -6,7 +6,7 @@
 
 namespace Geometry {
 	[[nodiscard]]
-	std::shared_ptr<Texture> CreateTexture(const Common::Byte* memory_, Common::Size size) noexcept {
+	Texture CreateTexture(const Common::Byte* memory_, Common::Size size) noexcept {
 
 		int texWidth, texHeight, texChannels;
 		stbi_uc* pixels = stbi_load_from_memory((stbi_uc*)memory_, size, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
@@ -20,8 +20,7 @@ namespace Geometry {
 
 		}		
 		stbi_image_free(pixels);
-		auto texture = std::make_shared<Texture>(std::move(textureCreateInfo));
-		return texture;
+		return Texture{ textureCreateInfo };
 
 	}
 }
