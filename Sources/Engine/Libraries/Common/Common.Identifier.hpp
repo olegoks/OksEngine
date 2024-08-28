@@ -49,6 +49,10 @@ namespace Common {
 
 		}
 
+		IdentifierGenerator() noexcept : lastId_{ 0 } {
+
+		}
+
 		[[nodiscard]]
 		Id Generate() noexcept {
 			return ++lastId_;

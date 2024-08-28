@@ -46,36 +46,7 @@ namespace OksEngine {
 			.addFunction("Rotate", &SkinnedGeometry::Rotate)
 			.endClass();
 
-		luabridge::getGlobalNamespace(state_)
-			.beginClass<Camera>("Camera")
-			.addConstructor<void(*)(Context* context,
-				const glm::vec3& position,
-				const glm::vec3& direction,
-				const glm::vec3& up)>()
-			.addFunction("GetDirectionX", &Camera::GetDirectionX)
-			.addFunction("GetDirectionY", &Camera::GetDirectionY)
-			.addFunction("GetDirectionZ", &Camera::GetDirectionZ)
-			.addFunction("SetDirectionX", &Camera::SetDirectionX)
-			.addFunction("SetDirectionY", &Camera::SetDirectionY)
-			.addFunction("SetDirectionZ", &Camera::SetDirectionZ)
-			.addFunction("SetDirection", &Camera::SetDirection)
-			.addFunction("GetUpX", &Camera::GetUpX)
-			.addFunction("GetUpY", &Camera::GetUpY)
-			.addFunction("GetUpZ", &Camera::GetUpZ)
-			.addFunction("SetUpX", &Camera::SetUpX)
-			.addFunction("SetUpY", &Camera::SetUpY)
-			.addFunction("SetUpZ", &Camera::SetUpZ)
-			.addFunction("Forward", &Camera::Forward)
-			.addFunction("Backward", &Camera::Backward)
-			.addFunction("Right", &Camera::Right)
-			.addFunction("Left", &Camera::Left)
-			.addFunction("Up", &Camera::Up)
-			.addFunction("Down", &Camera::Down)
-			.addFunction("DirectionUp", &Camera::DirectionUp)
-			.addFunction("DirectionDown", &Camera::DirectionDown)
-			.addFunction("DirectionLeft", &Camera::DirectionLeft)
-			.addFunction("DirectionRight", &Camera::DirectionRight)
-			.endClass();
+		Bind<Camera>(context_);
 
 		luabridge::getGlobalNamespace(state_)
 			.beginClass<StaticRigidBodyCustomMeshShape>("StaticRigidBodyCustomMeshShape")

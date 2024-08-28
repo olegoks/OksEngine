@@ -206,6 +206,7 @@ namespace OksEngine {
 				}
 			};
 
+			ImGui::PushID("Edit");
 			/*Common*/
 			editComponent.template operator() < Position > (world, id);
 			editComponent.template operator() < MapRigidBodyToRenderGeometry > (world, id);
@@ -239,6 +240,7 @@ namespace OksEngine {
 			editComponent.template operator() < HandleKeyboardInputMarker > (world, id);
 			editComponent.template operator() < KeyboardInput > (world, id);
 			editComponent.template operator() < Window > (world, id);
+			ImGui::PopID();
 
 			auto& state = GetCreateState(id);
 			ImGui::SeparatorText("Add component");
@@ -271,6 +273,7 @@ namespace OksEngine {
 			};
 			ImGui::Combo("", &state.currentAddComponentIndex_, items, std::size(items));
 
+			ImGui::PushID("Add");
 			const std::string currentComponent = items[state.currentAddComponentIndex_];
 			if (currentComponent == "HandleKeyboardInputMarker") {
 				if (ImGui::CollapsingHeader("Create info")) {
@@ -294,6 +297,7 @@ namespace OksEngine {
 			if (currentComponent == Camera::GetName()) {
 				Add<Camera>(world, id);
 			}
+			ImGui::PopID();
 			ImGui::Unindent(20.0f);
 			ImGui::Unindent(20.0f);
 		}
