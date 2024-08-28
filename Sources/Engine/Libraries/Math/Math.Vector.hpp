@@ -142,6 +142,11 @@ namespace Math {
 		}
 
 		[[nodiscard]]
+		glm::vec<size, Type> GetGlmVec() {
+			return glm::vec<size, Type>{ data_.data() };
+		}
+
+		[[nodiscard]]
 		static Vector Zero() { return Vector{}; }
 
 		[[nodiscard]]
