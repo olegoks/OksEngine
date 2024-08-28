@@ -36,7 +36,7 @@ namespace OksEngine {
 			return event;
 		}
 
-		void ForEachEvents(std::function<void(const Event& event)> eventProcessor) {
+		void ForEachEvent(std::function<void(const Event& event)> eventProcessor) {
 			std::queue<KeyboardInput::Event> eventsCopy = events_;
 			while (!eventsCopy.empty()) {
 				KeyboardInput::Event event = eventsCopy.front();
@@ -52,7 +52,7 @@ namespace OksEngine {
 
 	template<>
 	inline void Edit<KeyboardInput>(KeyboardInput* keyboardInput) {
-		keyboardInput->ForEachEvents([](const KeyboardInput::Event& event) {
+		keyboardInput->ForEachEvent([](const KeyboardInput::Event& event) {
 				const char* keyStr = magic_enum::enum_name<UIAL::Window::Key>(event.key_).data();
 				OS::AssertMessage(keyStr != nullptr, "Error while getting enum name.");
 				const char* eventStr = magic_enum::enum_name<UIAL::Window::Event>(event.event_).data();
@@ -60,5 +60,8 @@ namespace OksEngine {
 				ImGui::TextDisabled("Key: %s Event: %s", keyStr, eventStr);
 			});
 	}
+
+	template<>
+	inline void Add<KeyboardInput>(ECS::World* world, ECS::Entity::Id id) { }
 
 }
