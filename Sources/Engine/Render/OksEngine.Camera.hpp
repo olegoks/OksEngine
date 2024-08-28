@@ -34,7 +34,7 @@ namespace OksEngine {
 
 		void SetUpX(float x) {
 			up_.x = x;
-			
+
 		}
 		void SetUpY(float y) {
 			up_.y = y;
@@ -44,7 +44,7 @@ namespace OksEngine {
 		}
 
 		void SetDirection(float x, float y, float z) {
-			direction_ = { x, y, z};
+			direction_ = { x, y, z };
 		}
 
 		void SetDirectionX(float x) {
@@ -62,63 +62,60 @@ namespace OksEngine {
 		void DirectionLeft(float angle);
 		void DirectionRight(float angle);
 
-		void Forward(float delta) {
-			position_ = position_ + (glm::normalize(direction_) * delta);
-		}
+		//void Forward(float delta) {
+		//	position_ = position_ + (glm::normalize(direction_) * delta);
+		//}
 
-		void Backward(float delta){
-			position_ = position_ - (glm::normalize(direction_) * delta);
-		}
+		//void Backward(float delta) {
+		//	position_ = position_ - (glm::normalize(direction_) * delta);
+		//}
 
-		void Up(float delta) {
+		//void Up(float delta) {
 
-			position_ = position_ + glm::normalize(up_) * delta;
+		//	position_ = position_ + glm::normalize(up_) * delta;
 
-		}
+		//}
 
-		void Down(float delta) {
+		//void Down(float delta) {
 
-			position_ = position_ - glm::normalize(up_) * delta;
-		}
+		//	position_ = position_ - glm::normalize(up_) * delta;
+		//}
 
-		void Left(float delta) {
-			const glm::vec3 perpendicular = glm::normalize(glm::cross(up_, direction_));
-			position_ = position_ + perpendicular * delta;
-		}
+		//void Left(float delta) {
+		//	const glm::vec3 perpendicular = glm::normalize(glm::cross(up_, direction_));
+		//	position_ = position_ + perpendicular * delta;
+		//}
 
-		void Right(float delta) {
-			const glm::vec3 perpendicular = glm::normalize(glm::cross(direction_, up_));
-			position_ = position_ + perpendicular * delta;
-		}
+		//void Right(float delta) {
+		//	const glm::vec3 perpendicular = glm::normalize(glm::cross(direction_, up_));
+		//	position_ = position_ + perpendicular * delta;
+		//}
 
-		void Transform(const glm::mat4& transform) {
-			position_ = { transform[3][0], transform[3][1], transform[3][2] };
-			//transform * glm::vec4{ position_, 1.f };
-			//direction_ = transform * glm::vec4{ direction_, 1.f };
-			//up_ = transform * glm::vec4{ up_, 1.f };
-		}
+		//void Transform(const glm::mat4& transform) {
+		//	position_ = { transform[3][0], transform[3][1], transform[3][2] };
+		//	//transform * glm::vec4{ position_, 1.f };
+		//	//direction_ = transform * glm::vec4{ direction_, 1.f };
+		//	//up_ = transform * glm::vec4{ up_, 1.f };
+		//}
 
 		Camera(
-			Context* context,
-			const glm::vec3& position,
 			const glm::vec3& direction,
-			const glm::vec3& up) :
-			ECSComponent{ context },
-			position_{ position },
+			const glm::vec3& up,
+			bool isActive) :
+			ECSComponent{ nullptr },
+			//position_{ position },
 			direction_{ direction },
-			up_{ up } { }
-		
+			up_{ up }, isActive_{ isActive } { }
+
 	};
 
+	template<>
+	void Bind<Camera>(Lua::Context& context);
 
 	template<>
-	inline void Edit<Camera>(Camera* camera) {
-
-	}
-
-
+	void Edit<Camera>(Camera* camera);
 
 	template<>
-	inline void Add<Camera>(ECS::World* world, ECS::Entity::Id id) {
+	void Add<Camera>(ECS::World* world, ECS::Entity::Id id);
 
-	}}
+}

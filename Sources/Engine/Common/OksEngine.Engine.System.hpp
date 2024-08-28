@@ -23,7 +23,7 @@ namespace OksEngine {
 			auto* rb = world->GetComponent<DynamicRigidBodyCapsule>(entityId);
 			if (rb == nullptr) return;
 			const glm::mat4 cameraTransform = rb->GetTransform()/* * attachCamera->offset_*/;
-			camera->Transform(cameraTransform);
+			//camera->Transform(cameraTransform);
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override

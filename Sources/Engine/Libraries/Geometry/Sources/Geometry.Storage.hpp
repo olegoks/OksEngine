@@ -58,6 +58,7 @@ namespace Geometry {
 	class [[nodiscard]] Storage {
 	public:
 
+		Storage() { }
 
 		[[nodiscard]]
 		Type::Id Add(Type&& object) {
@@ -86,9 +87,11 @@ namespace Geometry {
 	class [[nodiscard]] TaggedStorage : public Storage<Type>{
 	public:
 
+		TaggedStorage() { }
+
 		[[nodiscard]]
 		Type::Id Add(const std::string& tag, Type&& object) {
-			const Type::Id objectId = Storage<Type>::Add(object);
+			const Type::Id objectId = Storage<Type>::Add(std::move(object));
 			tagId_[tag] = objectId;
 			return objectId;
 		}

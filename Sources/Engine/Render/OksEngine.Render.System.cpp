@@ -76,7 +76,7 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CameraSystem::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<Camera>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return { ECS::Entity::Filter{}.Include<Camera>().Include<Position>(), ECS::Entity::Filter{}.ExcludeAll()};
 	}
 
 	Common::TypeId CameraSystem::GetTypeId() const noexcept {
