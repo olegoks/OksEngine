@@ -1,5 +1,7 @@
 
 #include <Render/OksEngine.Camera.hpp>
+#include <Common/OksEngine.Position.hpp>
+#include <Render/OksEngine.Render.Subsystem.hpp>
 
 namespace OksEngine {
 
@@ -95,14 +97,39 @@ namespace OksEngine {
 
 	}
 
+
+	CameraSystem::CameraSystem(Context& context) noexcept :
+		ECSSystem{ context } { }
+
+	void CameraSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+		auto* camera = world->GetComponent<Camera>(entityId);
+		if (camera->IsActive()) {
+			auto* position = world->GetComponent<Position>(entityId);
+			auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+			driver->GetCamera()->SetPosition(position->GetTranslateVec());
+			driver->GetCamera()->SetDirection(camera->GetDirection());
+			driver->GetCamera()->SetUp(camera->GetUp());
+		}
+	}
+
+	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CameraSystem::GetFilter() const noexcept {
+		return { ECS::Entity::Filter{}.Include<Camera>().Include<Position>(), ECS::Entity::Filter{}.ExcludeAll() };
+	}
+
+	Common::TypeId CameraSystem::GetTypeId() const noexcept {
+		return Common::TypeInfo<CameraSystem>().GetId();
+	}
+
+
+
 	template<>
 	void Add<Camera>(ECS::World* world, ECS::Entity::Id id) {
 		static float directionX = 0.0f;
-		static float directionY = 0.0f;
+		static float directionY = 1.0f;
 		static float directionZ = 0.0f;
 		static float upX = 0.0f;
 		static float upY = 0.0f;
-		static float upZ = 0.0f;
+		static float upZ = 1.0f;
 		static bool isActive = true;
 		if (ImGui::CollapsingHeader("Create info")) {
 

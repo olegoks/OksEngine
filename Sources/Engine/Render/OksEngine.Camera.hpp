@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <OksEngine.ECS.Component.hpp>
+#include <OksEngine.ECS.System.hpp>
 #include <Math.Matrix.hpp>
 
 namespace OksEngine {
@@ -21,6 +22,11 @@ namespace OksEngine {
 			return direction_.z;
 		}
 
+		[[nodiscard]]
+		glm::vec3 GetDirection() const noexcept { return direction_; }
+
+		[[nodiscard]]
+		glm::vec3 GetUp() const noexcept { return up_; }
 		float GetUpX() {
 			return up_.x;
 		}
@@ -30,7 +36,6 @@ namespace OksEngine {
 		float GetUpZ() {
 			return up_.z;
 		}
-
 
 		void SetUpX(float x) {
 			up_.x = x;
@@ -97,6 +102,8 @@ namespace OksEngine {
 		//	//direction_ = transform * glm::vec4{ direction_, 1.f };
 		//	//up_ = transform * glm::vec4{ up_, 1.f };
 		//}
+		[[nodiscard]]
+		bool IsActive() const noexcept { return isActive_; }
 
 		Camera(
 			const glm::vec3& direction,
@@ -109,6 +116,21 @@ namespace OksEngine {
 
 	};
 
+
+	class CameraSystem : public ECSSystem {
+	public:
+
+		CameraSystem(Context& context) noexcept;
+
+	public:
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
+	private:
+
+		virtual Common::TypeId GetTypeId() const noexcept override;
+	};
+
 	template<>
 	void Bind<Camera>(Lua::Context& context);
 
@@ -117,5 +139,7 @@ namespace OksEngine {
 
 	template<>
 	void Add<Camera>(ECS::World* world, ECS::Entity::Id id);
+
+
 
 }

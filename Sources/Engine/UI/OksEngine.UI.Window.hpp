@@ -85,7 +85,7 @@ namespace OksEngine {
 			}
 			if (world->IsComponentExist<KeyboardInput>(secondEntityId)) {
 				KeyboardInput* keyboardInput = world->GetComponent<KeyboardInput>(secondEntityId);
-				windowKeyboardInput->ForEachEvents([keyboardInput](const KeyboardInput::Event& event) {
+				windowKeyboardInput->ForEachEvent([keyboardInput](const KeyboardInput::Event& event) {
 					keyboardInput->PushEvent(event);
 					});
 			}
@@ -111,7 +111,7 @@ namespace OksEngine {
 
 			Window* window = world->GetComponent<Window>(firstEntityId);
 			KeyboardInput* keyboardInput = world->GetComponent<KeyboardInput>(firstEntityId);
-			keyboardInput->ForEachEvents([window](const KeyboardInput::Event& event) {
+			keyboardInput->ForEachEvent([window](const KeyboardInput::Event& event) {
 				if (event.key_ == UIAL::Window::Key::F5 && event.event_ == UIAL::Window::Event::Released) {
 					window->window_->EnableCursor();
 				}

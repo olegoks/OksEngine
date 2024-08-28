@@ -181,6 +181,16 @@ namespace OksEngine {
 		ImGui::Separator();
 	}
 
+	//template<class ... Types>
+	//void Foo() {
+
+	//}
+	//
+	//template <typename... Types>
+	//void callProcessForEach(ECS::World* world, ECS::Entity::Id id) {
+	//	(Edit<Types>(Types* component),...);
+	//}
+
 	void CollectEntitiesInfo::Update(ECS::World* world, ECS::Entity::Id id, ECS::Entity::Id secondEntityId) {
 
 		const std::string idString = std::to_string(id);
@@ -207,9 +217,13 @@ namespace OksEngine {
 			};
 
 			ImGui::PushID("Edit");
+
+
+			//callProcessForEach<Position, MapRigidBodyToRenderGeometry, ActiveMarker>(world, id);
 			/*Common*/
 			editComponent.template operator() < Position > (world, id);
 			editComponent.template operator() < MapRigidBodyToRenderGeometry > (world, id);
+			editComponent.template operator() < ActiveMarker > (world, id);
 			/*Behaviour*/
 			editComponent.template operator() < Behaviour > (world, id);
 			/*Debug*/
@@ -248,6 +262,7 @@ namespace OksEngine {
 			const char* items[] = {
 				Position::GetName(),
 				MapRigidBodyToRenderGeometry::GetName(),
+				ActiveMarker::GetName(),
 				Behaviour::GetName(),
 				DebugInfo::GetName(),
 				ImGuiState::GetName(),
@@ -274,16 +289,14 @@ namespace OksEngine {
 			ImGui::Combo("", &state.currentAddComponentIndex_, items, std::size(items));
 
 			ImGui::PushID("Add");
+
 			const std::string currentComponent = items[state.currentAddComponentIndex_];
-			if (currentComponent == "HandleKeyboardInputMarker") {
-				if (ImGui::CollapsingHeader("Create info")) {
-					ImGui::Spacing();
-				}
-				if (ImGui::Button("Add component")) {
-					if (!world->IsComponentExist<HandleKeyboardInputMarker>(id)) {
-						world->CreateComponent<HandleKeyboardInputMarker>(id);
-					}
-				}
+
+			if (currentComponent == HandleKeyboardInputMarker::GetName()) {
+				Add<HandleKeyboardInputMarker>(world, id);
+			}
+			if (currentComponent == ActiveMarker::GetName()) {
+				Add<ActiveMarker>(world, id);
 			}
 			if (currentComponent == Position::GetName()) {
 				Add<Position>(world, id);

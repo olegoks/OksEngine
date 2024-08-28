@@ -63,26 +63,6 @@ namespace OksEngine {
 
 
 
-	CameraSystem::CameraSystem(Context& context) noexcept :
-		ECSSystem{ context } { }
-
-	void CameraSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-		auto* camera = world->GetComponent<Camera>(entityId);
-		auto* position = world->GetComponent<Position>(entityId);
-		if (camera == nullptr) return;
-		if (camera->isActive_) {
-			GetContext().GetRenderSubsystem()->SetCamera(camera->position_, camera->direction_, camera->up_);
-		}
-	}
-
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CameraSystem::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<Camera>().Include<Position>(), ECS::Entity::Filter{}.ExcludeAll()};
-	}
-
-	Common::TypeId CameraSystem::GetTypeId() const noexcept {
-		return Common::TypeInfo<CameraSystem>().GetId();
-	}
-
 
 
 }
