@@ -4,42 +4,14 @@
 #include <Common.hpp>
 #include <OS.hpp>
 #include <Math.Vector.hpp>
+#include <Common.Identifier.hpp>
 
 namespace Geometry {
 
 	class Texture {
 	public:
 
-		class Id final {
-		public:
-
-			using ValueType = Common::Size;
-
-			static const Id invalid_;
-
-			Id() noexcept : value_{ invalid_ } { }
-			Id(ValueType value) noexcept : value_{ value } {}
-
-			operator ValueType() const noexcept {
-				return value_;
-			}
-
-			Id operator++(int value) noexcept {
-				return ++value_;
-			}
-
-			struct Hash {
-				std::size_t operator()(const Id& id) const noexcept {
-					const Id::ValueType value = id.operator size_t();
-					return std::hash<Id::ValueType>{}(value);
-				}
-			};
-
-			~Id() noexcept = default;
-
-		private:
-			ValueType value_;
-		};
+		using Id = Common::Id;
 
 		struct CreateInfo {
 			Common::Size width_ = 0;
@@ -84,6 +56,6 @@ namespace Geometry {
 	};
 
 	[[nodiscard]]
-	std::shared_ptr<Texture> CreateTexture(const Common::Byte* memory_, Common::Size size) noexcept;
+	Texture CreateTexture(const Common::Byte* memory_, Common::Size size) noexcept;
 
 }

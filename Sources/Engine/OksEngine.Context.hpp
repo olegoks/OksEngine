@@ -70,7 +70,7 @@ namespace OksEngine {
 		std::shared_ptr<class LogSubsystem> logSubsystem_ = nullptr;
 		std::shared_ptr<class AsyncResourceSubsystem> resourceSubsystem_ = nullptr;
 		std::shared_ptr<class RenderSubsystem> renderSubsystem_ = nullptr;
-		std::shared_ptr<class Geom::TaggedMeshStorage> geomStorage_ = nullptr;
+		std::shared_ptr<Geometry::TaggedMeshStorage> geomStorage_ = nullptr;
 		std::shared_ptr<class PhysicsSubsystem> physicsSubsystem_ = nullptr;
 		std::shared_ptr<class UISubsystem> uiSubsystem_ = nullptr;
 		std::shared_ptr<class DebugSubsystem> debugSubsystem_ = nullptr;

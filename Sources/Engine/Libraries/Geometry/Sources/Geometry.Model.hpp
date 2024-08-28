@@ -37,16 +37,8 @@ namespace Geometry {
         Common::Size GetShapesNumber() const noexcept { return shapes_.size(); }
 
     private:
-       // DS::Vector<Shape>
         std::vector<Shape> shapes_;
     };
-
-
-    //class Model {
-    //public:
-    //private:
-    //    DS::Vector<Shape3f> shapes3f_;
-    //};
 
     Model<Vertex3fnc, Index16> ParseObjVertex3fncIndex16(const std::string& obj, const std::string& mtl);
     Model<Vertex3fnt, Index16> ParseObjVertex3fntIndex16(const std::string& obj, const std::string& mtl, const std::string& image);
@@ -54,6 +46,6 @@ namespace Geometry {
     Model<Vertex3fnt, Index16> ParseObjVertex3fntIndex16Textures(const std::string& obj, const std::string& mtl);
 
     bool ParseModelFbx(const char* memory, Common::Size size);
-    std::shared_ptr<Geom::Mesh> ParseModelObj(const char* memory, Common::Size size);
+    Geom::Mesh ParseModelObj(const char* memory, Common::Size size);
     bool ParseModelFile(const std::filesystem::path& filePath);
 }

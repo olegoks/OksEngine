@@ -8,6 +8,8 @@ namespace Common {
 	class [[nodiscard]] Identifier final {
 	public:
 
+		Identifier() = default;
+
 		Identifier(const Identifier& copyId) noexcept : value_{ copyId.value_ } {
 			
 		}
@@ -20,6 +22,9 @@ namespace Common {
 		static Identifier Max() noexcept { return Identifier{ Limits<Type>::Max() }; }
 
 		Identifier operator++(int value) noexcept { return Identifier{ value_++ }; }
+
+		Identifier operator++() noexcept { return Identifier{ ++value_ }; }
+
 
 		auto operator<=>(const Identifier& id) const noexcept = default;
 
@@ -34,8 +39,25 @@ namespace Common {
 
 	private:
 		Type value_ = Invalid().value_;
-
 	};
 
 	using Id = Identifier<Common::UInt64>;
+
+	class [[nodiscard]] IdentifierGenerator {
+	public:
+		IdentifierGenerator(Id startId) noexcept : lastId_{ startId } {
+
+		}
+
+		[[nodiscard]]
+		Id Generate() noexcept {
+			return ++lastId_;
+		}
+
+	private:
+		Id lastId_ = 0;
+	};
+
+	using IdGenerator = IdentifierGenerator;
+
 }
