@@ -118,8 +118,17 @@ namespace Geometry {
 	using TaggedTextureStorage = TaggedStorage<Texture>;
 
 
-	VertexCloud<Vertex3fnt> GetVertexCloud3fnt(std::shared_ptr<Mesh> mesh) {
-		return VertexCloud<Vertex3fnt>{};
+	[[nodiscard]]
+	inline VertexCloud<Vertex3fnt> GetVertexCloud3fnt(std::shared_ptr<Mesh> mesh) {
+		VertexCloud<Vertex3fnt> vertices;
+		for (Common::Index i = 0; i < mesh->vertices_.GetVerticesNumber(); i++) {
+			Vertex3fnt vertex;
+			vertex.position_ = mesh->vertices_[i].position_;
+			vertex.normal_ = mesh->normals_[i];
+			vertex.uv_ = mesh->uvs_[i];
+			vertices.Add(vertex);
+		}
+		return vertices;
 	}
 
 
