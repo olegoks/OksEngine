@@ -6,7 +6,9 @@
 #include <Math.Matrix.hpp>
 #include <RAL.Texture.hpp>
 #include <Resources\OksEngine.Resource.Subsystem.hpp>
+
 #include <Geometry.Model.hpp>
+#define YAML_CPP_STATIC_DEFINE
 #include <yaml-cpp/yaml.h>
 #include <Geometry.Storage.hpp>
 
@@ -20,6 +22,7 @@ namespace OksEngine {
 		ImmutableRenderGeometry(const std::string& meshTag);
 
 		std::string meshTag_;
+		std::string shaderTag_;
 	};
 
 
@@ -187,25 +190,7 @@ namespace OksEngine {
 
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			auto* renderGeom = world->GetComponent<ImmutableRenderGeometry>(entityId);
-			auto* mesh = world->GetComponent<Mesh>(entityId);
-			//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-			
-			//driver->DrawIndexed()
-			//auto* renderGeom = world->GetComponent<ImmutableRenderGeometry>(entityId);
-			//auto* meshComponent = world->GetComponent<Mesh>(entityId);
-			//auto* position = world->GetComponent<Position>(entityId);
-			//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-			//auto mesh = GetContext().GetGeomStorage()->GetMesh(meshComponent->meshId_);
-			//auto vertices = Geometry::GetVertexCloud3fnt(mesh);
-			//driver->DrawIndexed(
-			//	position->GetTranslateMat(),
-			//	(const RAL::Vertex3fnt*)vertices.GetData(),
-			//	vertices.GetVerticesNumber(),
-			//	(const RAL::Index16*)mesh->indices_.GetData(),
-			//	mesh->indices_.GetIndicesNumber(), 0);
-		}
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId);
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
 

@@ -800,20 +800,6 @@ namespace Render::Vulkan {
 			}
 			auto allocatedIndexBuffer = std::make_shared<AllocatedIndexBuffer<Index16>>(indexBufferCreateInfo);
 
-			/*Texture::CreateInfo textureCreateInfo{};
-			{
-				textureCreateInfo.name_ = "Texture";
-				textureCreateInfo.physicalDevice_ = physicalDevice_;
-				textureCreateInfo.logicDevice_ = logicDevice_;
-				textureCreateInfo.format_ = VK_FORMAT_R8G8B8A8_UNORM;
-				textureCreateInfo.size_ = texture->GetSize();
-				textureCreateInfo.pixels_ = texture->GetPixels<RAL::Color4b>();
-				textureCreateInfo.commandPool_ = commandPool_;
-				textureCreateInfo.descriptorPool_ = descriptorPool_;
-			}
-
-			auto vkTexture = std::make_shared<Texture>(textureCreateInfo);*/
-
 			const VkDeviceSize bufferSize = sizeof(Transform);
 			auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
 			DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
