@@ -10,6 +10,8 @@
 #include <assimp/Importer.hpp>      // C++ importer interface
 #include <assimp/scene.h>           // Output data structure
 #include <assimp/postprocess.h>     // Post processing flags
+#include <assimp/IOStream.hpp>
+#include <assimp/IOSystem.hpp>
 
 namespace Geometry {
 
@@ -450,12 +452,98 @@ namespace Geometry {
         return true;
     }
 
+
+    class MyIOStream : public Assimp::IOStream {
+    public:
+        MyIOStream(char* data, size_t length) : mData(data), mLength(length), mPos(0) { }
+
+        size_t Read(void* pvBuffer, size_t pSize, size_t pCount) override {
+            size_t readSize = pSize * pCount;
+            if (mPos + readSize > mLength) readSize = mLength - mPos;
+            memcpy(pvBuffer, mData + mPos, readSize);
+            mPos += readSize;
+            return readSize;
+        }
+
+        size_t Write(const void* /*pvBuffer*/, size_t /*pSize*/, size_t /*pCount*/) override {
+            return 0; // Writing is not supported
+        }
+
+        aiReturn Seek(size_t pOffset, aiOrigin pOrigin) override {
+            switch (pOrigin) {
+            case aiOrigin_SET: mPos = pOffset; break;
+            case aiOrigin_CUR: mPos += pOffset; break;
+            case aiOrigin_END: mPos = mLength - pOffset; break;
+            default: return aiReturn_FAILURE;
+            }
+            return aiReturn_SUCCESS;
+        }
+
+        size_t Tell() const override {
+            return mPos;
+        }
+
+        size_t FileSize() const override {
+            return mLength;
+        }
+
+        void Flush() override { }
+
+    private:
+        char* mData;
+        size_t mLength;
+        size_t mPos;
+    };
+
+    class ObjMtlIOSystem : public Assimp::IOSystem {
+    public:
+
+        ObjMtlIOSystem(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string mtl) :
+            objName_{ objName },
+            obj_{ obj },
+            mtlName_{ mtlName },
+            mtl_{ mtl } {
+	        
+        }
+
+        bool Exists(const char* fileName) const override {
+            return fileName == objName_ || fileName == mtlName_; 
+        }
+
+        char getOsSeparator() const override {
+            return '/';  // Use forward slash as the separator
+        }
+
+        Assimp::IOStream* Open(const char* fileName, const char* /*pMode*/ = "rb") override {
+            if(fileName == objName_){
+	            return new MyIOStream(obj_.data(), obj_.size());
+            } else if(fileName == mtlName_) {
+                return new MyIOStream(mtl_.data(), mtl_.size());
+            } else {
+                return nullptr;
+            }
+        }
+
+        void Close(Assimp::IOStream* pFile) override {
+            delete pFile;
+        }
+
+        std::string objName_;
+        std::string obj_;
+        std::string mtlName_;
+        std::string mtl_;
+
+    };
+
+
     [[nodiscard]]
-    Geom::Mesh ParseModelObj(const char* memory, Common::Size size) {
+    Geom::Mesh ParseObjMtlModel(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl) {
 
         Assimp::Importer importer;
 
-        const aiScene* scene = importer.ReadFileFromMemory(memory, size,
+        importer.SetIOHandler(new ObjMtlIOSystem{ objName, obj, mtlName, mtl});
+
+        const aiScene* scene = importer.ReadFile(objName,
             aiProcess_CalcTangentSpace |
             aiProcess_Triangulate |
             aiProcess_JoinIdenticalVertices |

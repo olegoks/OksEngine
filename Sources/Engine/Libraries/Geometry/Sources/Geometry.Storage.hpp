@@ -17,8 +17,6 @@ namespace Geometry {
 
 		using Id = Common::Id;
 
-
-
 		[[nodiscard]]
 		bool IsValid() const noexcept {
 			OS::NotImplemented();
@@ -28,9 +26,7 @@ namespace Geometry {
 		Mesh(const Mesh& copyMesh) = delete;
 		Mesh& operator=(const Mesh& copyMesh) = delete;
 
-		Mesh(Mesh&& moveMesh) {
-
-		}
+		Mesh(Mesh&& moveMesh) = default;
 		Mesh& operator=(Mesh&& moveMesh) {
 			if (this == &moveMesh) {
 				return *this;

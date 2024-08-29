@@ -149,33 +149,22 @@ namespace OksEngine {
 				const std::string objName = geomFile->mesh_["Obj"].as<std::string>();
 				using namespace std::string_literals;
 				const std::string& objFilePath = "Root\\"s + objName;
-				auto taskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objFilePath);
-				ResourceSubsystem::Resource resource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, taskId);
-				auto mesh = Geom::ParseModelObj(resource.GetData<char>(), resource.GetSize());
+				auto objTaskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objFilePath);
+				ResourceSubsystem::Resource objResource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objTaskId);
+
+				const std::string mtlName = geomFile->mesh_["Mtl"].as<std::string>();
+				using namespace std::string_literals;
+				const std::string& mtlFilePath = "Root\\"s + mtlName;
+				auto mtlTaskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, mtlFilePath);
+				ResourceSubsystem::Resource mtlResource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, mtlTaskId);
+
+				auto mesh = Geom::ParseObjMtlModel(
+					objName, { objResource.GetData<char>(), objResource.GetSize() },
+					mtlName, { mtlResource.GetData<char>(), mtlResource.GetSize() }
+				);
+
 				const Geom::Mesh::Id meshId = GetContext().GetGeomStorage()->Add(geomFile->mesh_["Name"].as<std::string>(), std::move(mesh));
 				world->CreateComponent<Mesh>(entityId, geomFile->mesh_["Name"].as<std::string>(), meshId);
-				std::string mtlName = "";
-				if(geomFile->mesh_["Mtl"]) {
-					mtlName = geomFile->mesh_["Mtl"].as<std::string>();
-				}
-				//using namespace std::string_literals;
-				//{
-				//	const std::string& objFilePath = "Root\\"s + objName;
-				//	auto taskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objFilePath);
-				//	ResourceSubsystem::Resource resource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, taskId);
-				//	auto mesh = Geom::ParseModelObj(resource.GetData<char>(), resource.GetSize());
-				//	const Geom::Mesh::Id meshId = GetContext().GetGeomStorage()->AddMesh(geomFile->mesh_["Name"].as<std::string>(), mesh);
-				//	world->CreateComponent<Mesh>(entityId, geomFile->mesh_["Name"].as<std::string>(), meshId);
-				//}
-				/*if(mtlName != "") {
-					const std::string& mtlFilePath = "Root\\"s + objName;
-					auto taskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objFilePath);
-					ResourceSubsystem::Resource resource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, taskId);
-					auto mesh = Geom::ParseModelObj(resource.GetData<char>(), resource.GetSize());
-					const Geom::Mesh::Id meshId = GetContext().GetGeomStorage()->AddMesh(geomFile->mesh_["Name"].as<std::string>(), mesh);
-				}
-*/
-
 			}
 		}
 
