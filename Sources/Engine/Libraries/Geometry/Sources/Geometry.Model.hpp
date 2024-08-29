@@ -46,6 +46,7 @@ namespace Geometry {
     Model<Vertex3fnt, Index16> ParseObjVertex3fntIndex16Textures(const std::string& obj, const std::string& mtl);
 
     bool ParseModelFbx(const char* memory, Common::Size size);
-    Geom::Mesh ParseModelObj(const char* memory, Common::Size size);
+    [[nodiscard]]
+	Mesh ParseObjMtlModel(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl);
     bool ParseModelFile(const std::filesystem::path& filePath);
 }
