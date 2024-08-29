@@ -47,8 +47,15 @@ namespace Geometry {
 		DS::Vector<Color3f>		colors_;
 		DS::Vector<UV2f>		uvs_;
 		IndexBuffer<Index16>	indices_;
+		std::string textureTag_;
 		Texture::Id textureId_;
 	};
+
+	class Model2 {
+	public:
+		std::vector<Mesh> meshes_;
+	};
+
 
 	template<class Type>
 	class [[nodiscard]] Storage {
@@ -69,7 +76,7 @@ namespace Geometry {
 		}
 
 		[[nodiscard]]
-		Type Get(Type::Id objectId) {
+		Type& Get(Type::Id objectId) {
 			OS::AssertMessage(IsExist(objectId), "Object is not exist.");
 			return objects_.find(objectId)->second;
 		}
@@ -118,13 +125,13 @@ namespace Geometry {
 
 
 	[[nodiscard]]
-	inline VertexCloud<Vertex3fnt> GetVertexCloud3fnt(std::shared_ptr<Mesh> mesh) {
+	inline VertexCloud<Vertex3fnt> GetVertexCloud3fnt(const Mesh& mesh) {
 		VertexCloud<Vertex3fnt> vertices;
-		for (Common::Index i = 0; i < mesh->vertices_.GetVerticesNumber(); i++) {
+		for (Common::Index i = 0; i < mesh.vertices_.GetVerticesNumber(); i++) {
 			Vertex3fnt vertex;
-			vertex.position_ = mesh->vertices_[i].position_;
-			vertex.normal_ = mesh->normals_[i];
-			vertex.uv_ = mesh->uvs_[i];
+			vertex.position_ = mesh.vertices_[i].position_;
+			vertex.normal_ = mesh.normals_[i];
+			vertex.uv_ = mesh.uvs_[i];
 			vertices.Add(vertex);
 		}
 		return vertices;

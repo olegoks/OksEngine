@@ -112,6 +112,7 @@ namespace Resources {
 		}
 
 		void LoadResource(std::filesystem::path resourcePath) {
+			//OS::AssertMessage(IsNodeExist(resourcePath), "Resource node that required doesn't exist.");
 			const Graph::Node::Id nodeId = GetNodeId(resourcePath);
 			LoadResource(nodeId);
 		}
@@ -167,6 +168,7 @@ namespace Resources {
 				ResourceInfo& resourceInfo = GetResourceInfo(nodeId);
 				if (resourceInfo.GetName() != rootName_) {
 					resourceInfo.GetResource().Load();
+					OS::LogInfo("Resources", { "Loaded resource {}", resourceInfo.GetName().c_str() });
 				}
 				return true;
 			};
@@ -192,6 +194,46 @@ namespace Resources {
 			const Graph::Node::Id resourceNodeId = GetNodeId(resourcePath);
 			Graph::Node& resourceNode = graph_.GetNode(resourceNodeId);
 			return resourceNode.GetValue();
+		}
+
+
+		[[nodiscard]]
+		bool IsNodeExist(std::filesystem::path nodePath) {
+			OS::AssertMessage(
+				(*nodePath.begin()).string() == rootName_,
+				"Attempt to use incorrect resource path.");
+
+			Graph::Node::Id currentNodeId = rootNodeId_;
+			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
+			OS::AssertMessage(
+				currentNode.GetValue().GetName() == rootName_,
+				{ "Root note must have name \"%s\"", rootName_ }
+			);
+			for (const std::filesystem::path path : nodePath) {
+				const std::string resourceName = path.string();
+				if (GetResourceInfo(currentNodeId).GetName() != resourceName) {
+					[[maybe_unused]]
+					bool found = false;
+					currentNode.ForEachLinksTo([&](Graph::Node::Id nodeId) {
+						const ResourceInfo& resourceInfo = GetResourceInfo(nodeId);
+						if (resourceInfo.GetName() == resourceName) {
+							currentNodeId = nodeId;
+							found = true;
+							return false;
+						}
+						return true;
+						});
+					return false;
+				}
+			}
+
+			[[maybe_unsed]]
+			std::string findResourceName = (*(--nodePath.end())).string();
+			OS::AssertMessage(
+				GetResourceInfo(currentNodeId).GetName() == findResourceName,
+				{ "Attempt to find node with path that doesn't exist.\n"
+					"Incorrect path:\n%s", nodePath.string().c_str() });
+			return true;
 		}
 
 		[[nodiscard]]
