@@ -54,6 +54,7 @@ namespace OksEngine
 		world_->RegisterSystem<AttachCameraSystem>(*this);
 
 		geomStorage_ = std::make_shared<Geom::TaggedMeshStorage>();
+		textureStorage_ = std::make_shared<Geom::TaggedTextureStorage>();
 
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,

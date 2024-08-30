@@ -581,6 +581,11 @@ namespace Geometry {
         return geomMesh;
     }
 
+    //[[nodiscard]]
+    //Geom::Texture ParseTexture(const std::string& textureData) {
+
+    //}
+
 
     bool ParseModelFile(const std::filesystem::path& filePath) {
 

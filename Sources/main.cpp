@@ -12,7 +12,7 @@ public:
     }
 };
 
-int main(int argc, char** argv){
+int main(int argc, char** argv) {
 
     using namespace OksEngine;
 
@@ -25,7 +25,14 @@ int main(int argc, char** argv){
 
     Engine engine{ engineCreateInfo };
 
-    Entity entity = engine.CreateEntity();
+    Entity camera = engine.CreateEntity();
+    camera.AddPosition(-100, 0, 0);
+    camera.AddCamera({ 1, 0, 0 }, { 0, 1, 0, }, true);
+
+    Entity dragonLore = engine.CreateEntity();
+    dragonLore.AddPosition(0, 0, 0);
+    dragonLore.AddImmutableRenderGeometry("dragon_lore.geom");
+
     //entity.AddImmutableRenderGeometry("dragon_lore.geom");
 
    /* Entity entity = engine.CreateEntity();

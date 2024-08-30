@@ -42,7 +42,7 @@ namespace OksEngine {
 		const glm::mat4 GetRotateMat() const noexcept { return glm::toMat4(rotate_); }
 
 		[[nodiscard]]
-		const glm::mat4 GetMat() const noexcept { return GetRotateMat() * GetTranslateMat() ; }
+		const glm::mat4 GetMat() const noexcept { return glm::mat4{ 1 } * GetRotateMat() * GetTranslateMat(); }
 
 
 		void SetX(float x) { translate_.x = x; }
