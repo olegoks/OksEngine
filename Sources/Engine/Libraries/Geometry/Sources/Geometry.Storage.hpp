@@ -27,7 +27,7 @@ namespace Geometry {
 		Mesh& operator=(const Mesh& copyMesh) = delete;
 
 		Mesh(Mesh&& moveMesh) = default;
-		Mesh& operator=(Mesh&& moveMesh) {
+		Mesh& operator=(Mesh&& moveMesh) = default;/* {
 			if (this == &moveMesh) {
 				return *this;
 			}
@@ -37,18 +37,19 @@ namespace Geometry {
 			colors_ = std::move(moveMesh.colors_);
 			uvs_ = std::move(moveMesh.uvs_);
 			indices_ = std::move(moveMesh.indices_);
-			textureId_ = std::move(moveMesh.textureId_);
+			stotextureId_ = std::move(moveMesh.textureId_);
 
 			return *this;
-		}
+		}*/
 
 		VertexCloud<Vertex3f>	vertices_;
 		DS::Vector<Normal3f>	normals_;
 		DS::Vector<Color3f>		colors_;
 		DS::Vector<UV2f>		uvs_;
 		IndexBuffer<Index16>	indices_;
-		std::string textureTag_;
-		Texture::Id textureId_;
+		std::string textureStorageTag_;
+		Texture::Id textureStorageId_;
+		//RAL::Texture::Id driverTextureId_;
 	};
 
 	class Model2 {

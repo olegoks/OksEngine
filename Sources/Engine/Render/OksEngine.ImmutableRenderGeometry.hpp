@@ -5,7 +5,7 @@
 #include <OksEngine.ECS.System.hpp>
 #include <Math.Matrix.hpp>
 #include <RAL.Texture.hpp>
-#include <Resources\OksEngine.Resource.Subsystem.hpp>
+
 
 #include <Geometry.Model.hpp>
 #define YAML_CPP_STATIC_DEFINE
@@ -90,18 +90,10 @@ namespace OksEngine {
 
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			const auto* request = world->GetComponent<ImmutableRenderGeometry>(entityId);
-			using namespace std::string_literals;
-			const std::string& geomFilePath = "Root\\"s + request->meshTag_;
-			auto taskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, geomFilePath);
-			ResourceSubsystem::Resource resource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, taskId);
-			const std::string yamlText = resource.GetData<char>();
-			world->CreateComponent<GeometryFile>(entityId, request->meshTag_, yamlText);
-		}
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<ImmutableRenderGeometry>().Exclude<GeometryFile>(), ECS::Entity::Filter{}.ExcludeAll()};
+			return { ECS::Entity::Filter{}.Include<ImmutableRenderGeometry>().Exclude<GeometryFile>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 	private:
@@ -121,6 +113,7 @@ namespace OksEngine {
 
 		Geom::Mesh::Id meshId_;
 		std::string tag_;
+		Common::Index driverModelId_ = Common::Limits<Common::Index>::Max();
 	};
 
 
@@ -141,35 +134,12 @@ namespace OksEngine {
 	public:
 
 		LoadMesh(Context& context) noexcept : ECSSystem{ context } {
-			
+
 		}
 
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			const auto* geomFile = world->GetComponent<GeometryFile>(entityId);
-			if (geomFile->mesh_["Obj"]) {
-				const std::string objName = geomFile->mesh_["Obj"].as<std::string>();
-				using namespace std::string_literals;
-				const std::string& objFilePath = "Root\\"s + objName;
-				auto objTaskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objFilePath);
-				ResourceSubsystem::Resource objResource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, objTaskId);
-
-				const std::string mtlName = geomFile->mesh_["Mtl"].as<std::string>();
-				using namespace std::string_literals;
-				const std::string& mtlFilePath = "Root\\"s + mtlName;
-				auto mtlTaskId = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, mtlFilePath);
-				ResourceSubsystem::Resource mtlResource = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, mtlTaskId);
-
-				auto mesh = Geom::ParseObjMtlModel(
-					objName, { objResource.GetData<char>(), objResource.GetSize() },
-					mtlName, { mtlResource.GetData<char>(), mtlResource.GetSize() }
-				);
-
-				const Geom::Mesh::Id meshId = GetContext().GetGeomStorage()->Add(geomFile->mesh_["Name"].as<std::string>(), std::move(mesh));
-				world->CreateComponent<Mesh>(entityId, geomFile->mesh_["Name"].as<std::string>(), meshId);
-			}
-		}
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
 			return { ECS::Entity::Filter{}.Include<GeometryFile>().Exclude<Mesh>(), ECS::Entity::Filter{}.ExcludeAll() };
@@ -199,5 +169,6 @@ namespace OksEngine {
 			return Common::TypeInfo<RenderMesh>().GetId();
 		}
 	};
+
 
 }

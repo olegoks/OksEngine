@@ -48,8 +48,7 @@ namespace Geometry {
 			return reinterpret_cast<const PixelType*>(createInfo_.pixels_.GetData());
 		}
 
-		~Texture() noexcept {
-		};
+		~Texture() noexcept { };
 
 	private:
 		CreateInfo createInfo_;
