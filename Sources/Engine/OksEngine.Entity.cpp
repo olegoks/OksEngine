@@ -152,7 +152,7 @@ namespace OksEngine {
 	void Entity::AddBehaviour(
 		const char* scriptName,
 		const char* objectName) {
-		world_->CreateComponent<Behaviour>(
+		world_->CreateComponent<BehaviourDeprecated>(
 			GetId(),
 			&context_,
 			GetId(),

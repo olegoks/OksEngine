@@ -6,7 +6,10 @@
 #include <OksEngine.CommandLineParameters.hpp>
 
 #include <ECS.World.hpp>
+#include <OksEngine.Storage.hpp>
 #include <Geometry.Storage.hpp>
+#include <Geometry.Texture.hpp>
+#include <Lua.Context.hpp>
 
 namespace OksEngine {
 
@@ -69,14 +72,21 @@ namespace OksEngine {
 		const auto GetTextureStorage() noexcept {
 			return textureStorage_;
 		}
+		
+		[[nodiscard]]
+		const auto GetScriptStorage() noexcept {
+			return scriptStorage_;
+		}
+
 
 	private:
 		CommandLineParameters commandLineParameters_;
 		std::shared_ptr<class LogSubsystem> logSubsystem_ = nullptr;
 		std::shared_ptr<class AsyncResourceSubsystem> resourceSubsystem_ = nullptr;
 		std::shared_ptr<class RenderSubsystem> renderSubsystem_ = nullptr;
-		std::shared_ptr<Geometry::TaggedMeshStorage> geomStorage_ = nullptr;
-		std::shared_ptr<Geometry::TaggedTextureStorage> textureStorage_ = nullptr;
+		std::shared_ptr<TaggedStorage<Geometry::Mesh>> geomStorage_ = nullptr;
+		std::shared_ptr<TaggedStorage<Geometry::Texture>> textureStorage_ = nullptr;
+		std::shared_ptr<TaggedStorage<Lua::Script>> scriptStorage_ = nullptr;
 		std::shared_ptr<class PhysicsSubsystem> physicsSubsystem_ = nullptr;
 		std::shared_ptr<class UISubsystem> uiSubsystem_ = nullptr;
 		std::shared_ptr<class DebugSubsystem> debugSubsystem_ = nullptr;

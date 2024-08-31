@@ -3,6 +3,7 @@
 #include <OksEngine.ECS.Component.hpp>
 #include <OksEngine.ECS.System.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
+#include <Resources/OksEngine.Resource.hpp>
 
 namespace OksEngine {
 
@@ -15,7 +16,7 @@ namespace OksEngine {
 
 		}
 
-		AsyncResourceSubsystem::Task::Id taskId_ = 0;
+		AsyncResourceSubsystem::Task::Id taskId_ = Common::Limits<Common::Index>::Max();
 		std::string resourceName_;
 	private:
 	};
@@ -23,7 +24,7 @@ namespace OksEngine {
 
 	template<>
 	inline void Edit<LoadResourceRequest>(LoadResourceRequest* request) {
-
+		ImGui::TextDisabled("Resource name: %s", request->resourceName_.c_str());
 	}
 
 	class LoadResourceSystem : public ECSSystem {
@@ -36,6 +37,10 @@ namespace OksEngine {
 	public:
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<LoadResourceRequest>(), ECS::Entity::Filter{}.Exclude<Resource>() };
+		}
 
 	private:
 

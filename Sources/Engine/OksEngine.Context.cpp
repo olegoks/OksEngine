@@ -14,6 +14,7 @@
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 #include <Common/OksEngine.Engine.System.hpp>
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
+#include <Resources/OksEngine.LoadResourceRequest.hpp>
 
 namespace OksEngine
 {
@@ -50,11 +51,15 @@ namespace OksEngine
 		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
 
 		world_->RegisterSystem<BehaviourSystem>(*this);
+		world_->RegisterSystem<LoadLuaScript>(*this);
+		world_->RegisterSystem<LoadResourceSystem>(*this);
+		world_->RegisterSystem<CreateLuaContext>(*this);
 		world_->RegisterSystem<PhysicsGeometryMapper>(*this);
 		world_->RegisterSystem<AttachCameraSystem>(*this);
 
-		geomStorage_ = std::make_shared<Geom::TaggedMeshStorage>();
-		textureStorage_ = std::make_shared<Geom::TaggedTextureStorage>();
+		geomStorage_ = std::make_shared<TaggedStorage<Geometry::Mesh>>();
+		textureStorage_ = std::make_shared<TaggedStorage<Geometry::Texture>>();
+		scriptStorage_ = std::make_shared<TaggedStorage<Lua::Script>>();
 
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,

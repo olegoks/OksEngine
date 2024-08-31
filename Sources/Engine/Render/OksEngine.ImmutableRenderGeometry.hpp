@@ -45,6 +45,15 @@ namespace OksEngine {
 
 	}
 
+
+	template<>
+	inline void Bind<ImmutableRenderGeometry>(Lua::Context& context) {
+		context.GetGlobalNamespace()
+			.beginClass<ImmutableRenderGeometry>("ImmutableRenderGeometry")
+			.addConstructor<void(*)(std::string)>()
+			.endClass();
+	}
+
 	struct GeometryFile : public ECSComponent<GeometryFile> {
 	public:
 		enum class Type {

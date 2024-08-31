@@ -14,7 +14,7 @@ namespace OksEngine {
 		}
 
 		Config(const std::string& text) {
-			Lua::Context::Script script{ text };
+			Lua::Script script{ text };
 			context_.LoadScript(script);
 		}
 
