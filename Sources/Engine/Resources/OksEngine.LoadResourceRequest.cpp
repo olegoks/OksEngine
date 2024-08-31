@@ -7,9 +7,8 @@ namespace OksEngine {
 
 	void LoadResourceSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		auto* request = world->GetComponent<LoadResourceRequest>(entityId);
-		if (request == nullptr) { return; }
-		if (request->taskId_ != 0) {
-			request->taskId_ = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, request->resourceName_);
+		if (request->taskId_ == Common::Limits<Common::Index>::Max()) {
+			request->taskId_ = GetContext().GetResourceSubsystem()->GetResource(Subsystem::Type::Engine, "Root\\" + request->resourceName_);
 		} else {
 			AsyncResourceSubsystem::Task task;
 			AsyncResourceSubsystem::Task::Id waitTaskId = request->taskId_;
@@ -21,9 +20,10 @@ namespace OksEngine {
 				});
 			if (isGot) {
 				auto getResourceResult = std::move(task.GetData<AsyncResourceSubsystem::GetResourceResult>());
-				world->CreateComponent<Resource>(entityId, request->resourceName_, std::move(getResourceResult.resource_));
+				const std::string resourceData{ getResourceResult.resource_.GetData<char>(), getResourceResult.resource_.GetSize() };
+				world->CreateComponent<Resource>(entityId, request->resourceName_, resourceData);
 			}
 		}
 	}
-
+	 
 }

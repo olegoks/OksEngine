@@ -8,19 +8,19 @@ namespace OksEngine {
 
 	class Resource : public ECSComponent<Resource> {
 	public:
-		Resource(const std::string& name, ResourceSubsystem::Resource&& resource) : 
+		Resource(const std::string& name, const std::string& resourceData) : 
 			ECSComponent{ nullptr },
 			name_{ name }, 
-			resource_ { std::move(resource) } { }
+			resourceData_{ resourceData } { }
 
 		std::string name_;
-		ResourceSubsystem::Resource resource_;
+		std::string resourceData_;
 	};
 
 
 	template<>
 	inline void Edit<Resource>(Resource* resource) {
-
+		ImGui::TextDisabled("Resource name: %s", resource->name_);
 	}
 
 }

@@ -173,7 +173,7 @@ namespace OksEngine {
 
 			template<class Type>
 			const Type& GetData() const {
-				return *reinterpret_cast<const Type*>(&memory_);
+				return *reinterpret_cast<const Type*>(memory_);
 			}
 
 			template<class Type>
@@ -291,7 +291,7 @@ namespace OksEngine {
 			//	});
 			const bool isGot = exchangeSystem_.TryGetData(receiver, task,
 				[&filter, &sender](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
-					const bool isSuitable = filter(dataInfo.sender_, dataInfo.receivers_, dataInfo.data_.GetData<Task>());
+					const bool isSuitable = filter(dataInfo.sender_, dataInfo.receivers_, *(const Task*)&dataInfo.data_);
 					if(isSuitable){
 						sender = dataInfo.sender_;
 						return true;

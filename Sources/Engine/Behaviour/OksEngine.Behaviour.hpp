@@ -13,6 +13,7 @@
 #include <Physics/OksEngine.DynamicRigidBodyBox.hpp>
 #include <Physics/OksEngine.DynamicRigidBodyCapsule.hpp>
 #include <Render/OksEngine.Camera.hpp>
+#include <Resources/OksEngine.Resource.Subsystem.hpp>
 
 namespace OksEngine {
 
@@ -55,8 +56,123 @@ namespace OksEngine {
 		ECS::Entity::Id id_ = 0;
 	};
 
-
 	struct Behaviour : public ECSComponent<Behaviour> {
+		Behaviour(const std::string& scriptName, const std::string& objectName) :
+			ECSComponent{ nullptr },
+			scriptName_{ scriptName },
+			objectName_{ objectName } {}
+		std::string scriptName_;
+		std::string objectName_;
+	};
+
+	template<>
+	void Edit<Behaviour>(Behaviour* behaviour);
+
+	template<>
+	void Add<Behaviour>(ECS::World* world, ECS::Entity::Id id);
+
+
+	struct LuaScript : public ECSComponent<LuaScript> {
+		std::string tag_;
+		Lua::Script::Id id_;
+
+		LuaScript(const std::string& tag, Lua::Script::Id scriptId) :
+			ECSComponent{ nullptr },
+			tag_{ tag },
+			id_{ scriptId } {
+
+		}
+
+	};
+
+
+	template<>
+	void Edit<LuaScript>(LuaScript* script);
+
+	template<>
+	void Add<LuaScript>(ECS::World* world, ECS::Entity::Id id);
+
+
+	struct LuaScriptLoadRequest : public ECSComponent<LuaScriptLoadRequest> {
+		ECS::Entity::Id resourceEntityId_ = ECS::Entity::Id::invalid_;
+
+		LuaScriptLoadRequest() :
+			ECSComponent{ nullptr },
+			resourceEntityId_{ ECS::Entity::Id::invalid_ } {
+
+		}
+
+		LuaScriptLoadRequest(ECS::Entity::Id resourceEntityId) :
+			ECSComponent{ nullptr },
+			resourceEntityId_{ resourceEntityId } {
+
+		}
+
+	};
+
+	class LoadLuaScript : public ECSSystem {
+	private:
+	public:
+
+		LoadLuaScript(Context& context) noexcept : ECSSystem{ context } {
+
+		}
+
+		virtual void StartUpdate() override { }
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+
+		virtual void EndUpdate() override { }
+
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<Behaviour>().Exclude<LuaScript>(), ECS::Entity::Filter{}.ExcludeAll()};
+		}
+
+		virtual Common::TypeId GetTypeId() const noexcept override {
+			return Common::TypeInfo<LoadLuaScript>().GetId();
+		}
+
+	private:
+
+	};
+
+
+	struct LuaContext : public ECSComponent<LuaContext> {
+		Lua::Context  context_;
+
+		LuaContext() :
+			ECSComponent{ nullptr } { }
+	};
+
+	class CreateLuaContext : public ECSSystem {
+	private:
+	public:
+
+		CreateLuaContext(Context& context) noexcept : ECSSystem{ context } {
+
+		}
+
+		virtual void StartUpdate() override { }
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+
+		virtual void EndUpdate() override { }
+
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<LuaScript>().Exclude<LuaContext>(), ECS::Entity::Filter{}.ExcludeAll() };
+		}
+
+		virtual Common::TypeId GetTypeId() const noexcept override {
+			return Common::TypeInfo<CreateLuaContext>().GetId();
+		}
+
+	private:
+
+	};
+
+
+
+	struct BehaviourDeprecated : public ECSComponent<BehaviourDeprecated> {
 		std::string scriptName_;
 		std::string objectName_;
 		lua_State* state_ = nullptr;
@@ -67,8 +183,8 @@ namespace OksEngine {
 		Lua::Context  context_;
 		std::chrono::high_resolution_clock::time_point previousUpdateTimePoint_;
 
-		Behaviour() = default;
-		Behaviour(Context* context,
+		BehaviourDeprecated() = default;
+		BehaviourDeprecated(Context* context,
 			ECS::Entity::Id entityId,
 			std::string scriptName,
 			std::string objectName
@@ -79,9 +195,26 @@ namespace OksEngine {
 	};
 
 	template<>
-	inline void Edit<Behaviour>(Behaviour* behaviour) {
+	inline void Edit<BehaviourDeprecated>(BehaviourDeprecated* behaviour) {
 		ImGui::TextDisabled("Script name: %s", behaviour->scriptName_.c_str());
 		ImGui::TextDisabled("Object name: %s", behaviour->objectName_.c_str());
+	}
+
+
+	template<>
+	inline void Add<BehaviourDeprecated>(ECS::World* world, ECS::Entity::Id id) {
+		//static char scriptName[100]{ "" };
+		//static char objectName[100]{ "" };
+		//if (ImGui::CollapsingHeader("Create info")) {
+		//	ImGui::InputText("Script", scriptName, 100);
+		//	ImGui::InputText("Object", objectName, 100);
+		//	ImGui::Spacing();
+		//}
+		//if (ImGui::Button("Add component")) {
+		//	if (!world->IsComponentExist<Behaviour>(id)) {
+		//		world->CreateComponent<Behaviour>(id, id, std::string{ scriptName }, std::string{ objectName });
+		//	}
+		//}
 	}
 
 	class BehaviourSystem : public ECSSystem {
@@ -95,7 +228,7 @@ namespace OksEngine {
 		virtual void StartUpdate() override { }
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			Behaviour* behaviour = world->GetComponent<Behaviour>(entityId);
+			BehaviourDeprecated* behaviour = world->GetComponent<BehaviourDeprecated>(entityId);
 			if (behaviour == nullptr) return;
 			auto now = std::chrono::high_resolution_clock::now();
 			auto delta = now - behaviour->previousUpdateTimePoint_;
@@ -106,7 +239,7 @@ namespace OksEngine {
 		virtual void EndUpdate() override { }
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Behaviour>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return { ECS::Entity::Filter{}.Include<BehaviourDeprecated>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {

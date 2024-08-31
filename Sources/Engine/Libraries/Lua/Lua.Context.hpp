@@ -4,30 +4,33 @@
 #include <map>
 #include <filesystem>
 #include <Lua.Common.hpp>
+#include <Common.Identifier.hpp>
 
 namespace Lua {
+
+
+	class Script {
+	public:
+		using Id = Common::Id;
+		
+		Script(const std::string& text) : text_{ text } {}
+		
+		std::string text_;
+	};
+
 
 	class Context {
 	private:
 	public:
 
-		class Script {
-		public:
-			std::string text_;
-		};
-
-		Context(Context&& moveContext) : 
-			state_{ nullptr } {
-
-			std::swap(state_, moveContext.state_);
-
-		}
-
 		Context() {
 			state_ = luaL_newstate();
 			OS::AssertMessage(state_ != nullptr, "Error while creating Lua context.");
 			luaL_openlibs(state_);
+		}
 
+		Context(Context&& context) : state_{ nullptr } {
+			std::swap(context.state_, state_);
 		}
 
 		Context& operator=(Context&& moveContext) {
@@ -106,7 +109,6 @@ namespace Lua {
 
 		template<class Type>
 		[[nodiscard]]
-
 		Type GetGlobalAs(const char* variableName) const noexcept {
 			char saveVariableScript[256] = "";
 			/* Assign the Lua expression to a Lua global variable. */

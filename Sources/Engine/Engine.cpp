@@ -43,6 +43,8 @@ namespace OksEngine {
 			{
 				context_->GetECSWorld()->StartFrame();
 
+
+				context_->GetECSWorld()->RunSystem<LoadResourceSystem>();
 				/*UI*/
 				context_->GetECSWorld()->RunSystem<GetWindowKeyboardInputEvents>();				
 				context_->GetECSWorld()->RunSystem<UISystem>();
@@ -52,6 +54,8 @@ namespace OksEngine {
 				/*UI*/
 
 				context_->GetECSWorld()->RunSystem<BehaviourSystem>();
+				context_->GetECSWorld()->RunSystem<LoadLuaScript>();
+				context_->GetECSWorld()->RunSystem<CreateLuaContext>();
 				context_->GetECSWorld()->RunSystem<PhysicsSystem>();
 				context_->GetECSWorld()->RunSystem<PhysicsGeometryMapper>();
 				context_->GetECSWorld()->RunSystem<CameraSystem>();

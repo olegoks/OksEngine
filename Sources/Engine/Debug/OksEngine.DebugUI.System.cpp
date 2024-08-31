@@ -225,7 +225,10 @@ namespace OksEngine {
 			editComponent.template operator() < MapRigidBodyToRenderGeometry > (world, id);
 			editComponent.template operator() < ActiveMarker > (world, id);
 			/*Behaviour*/
+			editComponent.template operator() < BehaviourDeprecated > (world, id);
 			editComponent.template operator() < Behaviour > (world, id);
+			editComponent.template operator() < LuaScript > (world, id);
+			editComponent.template operator() < LuaContext > (world, id);
 			/*Debug*/
 			editComponent.template operator() < DebugInfo > (world, id);
 			editComponent.template operator() < ImGuiState > (world, id);
@@ -260,10 +263,11 @@ namespace OksEngine {
 			ImGui::SeparatorText("Add component");
 			ImGui::Indent(20.0f);
 			const char* items[] = {
+				Behaviour::GetName(),
 				Position::GetName(),
 				MapRigidBodyToRenderGeometry::GetName(),
 				ActiveMarker::GetName(),
-				Behaviour::GetName(),
+				BehaviourDeprecated::GetName(),
 				DebugInfo::GetName(),
 				ImGuiState::GetName(),
 				ECSInspector::GetName(),
@@ -294,6 +298,9 @@ namespace OksEngine {
 
 			if (currentComponent == HandleKeyboardInputMarker::GetName()) {
 				Add<HandleKeyboardInputMarker>(world, id);
+			}
+			if (currentComponent == Behaviour::GetName()) {
+				Add<Behaviour>(world, id);
 			}
 			if (currentComponent == ActiveMarker::GetName()) {
 				Add<ActiveMarker>(world, id);
