@@ -41,6 +41,10 @@ namespace OksEngine {
 		}
 		if (allResourcesLoaded) {
 			LoadMeshRequest::Type meshType = loadMeshRequest->type_;
+
+			auto* resource = world->GetComponent<Resource>(loadMeshRequest->)
+			std::string objContent = resource->resourceData_;
+
 		}
 		/*const auto* geomFile = world->GetComponent<GeometryFile>(entityId);
 		if (geomFile->mesh_["Obj"]) {
