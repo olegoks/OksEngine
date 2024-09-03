@@ -225,7 +225,6 @@ namespace OksEngine {
 			editComponent.template operator() < MapRigidBodyToRenderGeometry > (world, id);
 			editComponent.template operator() < ActiveMarker > (world, id);
 			/*Behaviour*/
-			editComponent.template operator() < BehaviourDeprecated > (world, id);
 			editComponent.template operator() < Behaviour > (world, id);
 			editComponent.template operator() < LuaScript > (world, id);
 			editComponent.template operator() < LuaContext > (world, id);
@@ -256,6 +255,8 @@ namespace OksEngine {
 			/*UI*/
 			editComponent.template operator() < HandleKeyboardInputMarker > (world, id);
 			editComponent.template operator() < KeyboardInput > (world, id);
+			editComponent.template operator() < HandleMouseInputMarker > (world, id);
+			editComponent.template operator() < MouseInput > (world, id);
 			editComponent.template operator() < Window > (world, id);
 			ImGui::PopID();
 
@@ -267,7 +268,6 @@ namespace OksEngine {
 				Position::GetName(),
 				MapRigidBodyToRenderGeometry::GetName(),
 				ActiveMarker::GetName(),
-				BehaviourDeprecated::GetName(),
 				DebugInfo::GetName(),
 				ImGuiState::GetName(),
 				ECSInspector::GetName(),

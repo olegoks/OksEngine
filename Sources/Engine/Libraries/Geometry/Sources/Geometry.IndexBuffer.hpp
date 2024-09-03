@@ -55,6 +55,10 @@ namespace Geometry {
 			return indices_[index];
 		}
 
+		void Reserve(Common::Size capacity) {
+			indices_.reserve(capacity);
+		}
+
 		[[nodiscard]]
 		const IndexType* GetData() const noexcept { return indices_.data(); }
 

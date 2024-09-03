@@ -54,6 +54,18 @@ namespace Lua {
 			}
 		}
 
+		void ExecuteCode(const std::string& code) {
+			if (!LuaCall(luaL_dostring(state_, code.c_str()))) {
+				OS::AssertFailMessage({ "Error while executing code {}", code });
+			}
+		}
+
+		template<class ...Args>
+		void CallFunction(const std::string& functionName, Args&&... args) {
+			luabridge::LuaRef function = luabridge::getGlobal(state_, functionName.c_str());
+			function(std::forward(args)...);
+		}
+
 		[[nodiscard]]
 		luabridge::Namespace GetGlobalNamespace() {
 			return luabridge::getGlobalNamespace(state_);
@@ -71,6 +83,12 @@ namespace Lua {
 		bool IsTopStackValue<std::string>() const noexcept {
 			OS::AssertMessage(state_ != nullptr, "State must be not nullptr.");
 			return lua_isstring(state_, -1);
+		}
+
+		[[nodiscard]]
+		bool IsTopStackValueUserData() const noexcept {
+			OS::AssertMessage(state_ != nullptr, "State must be not nullptr.");
+			return lua_isuserdata(state_, -1);
 		}
 
 		template<class Type>
@@ -92,6 +110,7 @@ namespace Lua {
 		[[nodiscard]]
 		Type ConvertStackTopValueTo() const noexcept {
 			OS::NotImplemented();
+			return Type{};
 		}
 
 		template<>
@@ -126,6 +145,22 @@ namespace Lua {
 			return configVariable;
 		}
 
+		[[nodiscard]]
+		luabridge::LuaRef GetGlobalAsRef(const std::string& variableName) const noexcept {
+			return luabridge::getGlobal(state_, variableName.c_str());
+		}
+
+		void AddPackagePath(const std::string& packagePath) {
+			lua_getglobal(state_, "package");
+			lua_getfield(state_, -1, "path"); // get field "path" from table at top of stack (-1)
+			std::string cur_path = lua_tostring(state_, -1); // grab path string from top of stack
+			cur_path.append(";"); // do your path magic here
+			cur_path.append(packagePath + "?.lua");
+			lua_pop(state_, 1); // get rid of the string on the stack we just pushed on line 5
+			lua_pushstring(state_, cur_path.c_str()); // push the new one
+			lua_setfield(state_, -2, "path"); // set the field "path" in table at -2 with value at top of stack
+			lua_pop(state_, 1); // get rid of package table from top of stack
+		}
 
 		[[nodiscard]]
 		bool LuaCall(int returnValue) const {

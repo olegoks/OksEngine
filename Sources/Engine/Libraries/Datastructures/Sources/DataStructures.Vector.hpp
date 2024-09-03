@@ -105,9 +105,7 @@ namespace DataStructures {
 
 		[[nodiscard]]
 		Type& Get(Common::Index index) {
-			OS::AssertMessage(
-				index < GetSize(),
-				"Out of range.");
+			OS::Assert(index < GetSize());
 			return data_[index];
 		}
 

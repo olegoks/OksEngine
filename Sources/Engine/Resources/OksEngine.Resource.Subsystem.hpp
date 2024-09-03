@@ -33,7 +33,7 @@ namespace OksEngine {
 				std::memcpy(data_.GetData(), data, size);
 			}
 
-			Resource(Resource&& moveResource) : data_{ /*std::move(moveResource.data_)*/} {
+			Resource(Resource&& moveResource) : data_{ /*std::move(moveResource.data_)*/ } {
 				std::swap(data_, moveResource.data_);
 			}
 
@@ -48,7 +48,7 @@ namespace OksEngine {
 			}
 
 			~Resource() {
-				
+
 			}
 
 		private:
@@ -56,7 +56,7 @@ namespace OksEngine {
 		};
 
 		ResourceSubsystem(Context& context) : Subsystem{ Subsystem::Type::Resource, context } {
-			
+
 		}
 
 		Resource ForceGetResource(std::filesystem::path OSResourcePath) {
@@ -64,7 +64,7 @@ namespace OksEngine {
 			//OS::AssertMessage(forceResource.IsLoaded(), "Resource must be loaded at the moment.");
 			auto file = std::dynamic_pointer_cast<OS::BinaryFile>(forceResource.GetFile());
 			return { file->GetData(), file->GetSize() };
-		} 
+		}
 
 		Resource GetResource(std::filesystem::path resourcePath) {
 			std::filesystem::path withoutRootPath;
@@ -81,15 +81,16 @@ namespace OksEngine {
 		void SetRoots(const std::vector<std::filesystem::path>& rootPaths) {
 			rootPaths_ = rootPaths;
 			try {
-				for(const auto& rootPath : rootPaths){
+				for (const auto& rootPath : rootPaths) {
 					for (const auto& entry : std::filesystem::recursive_directory_iterator(rootPath)) {
 						if (std::filesystem::is_regular_file(entry)) {
 							resourceSystem_.AddResource(entry.path().filename().string(), entry.path(), "Root");
 						}
 					}
 				}
-				
-			} catch (std::exception error) {
+
+			}
+			catch (std::exception error) {
 				OS::LogInfo("ResourceSystem", error.what());
 			}
 		}
@@ -188,7 +189,7 @@ namespace OksEngine {
 			}
 
 			Task& operator=(const Task& copyTask) {
- 				if (this == &copyTask) {
+				if (this == &copyTask) {
 					return *this;
 				}
 
@@ -202,8 +203,8 @@ namespace OksEngine {
 				return *this;
 			}
 			struct Hash {
-				Common::Size operator()(const Task& task){
-					std::string_view bytes{ task.memory_, sizeof(task.memory_)};
+				Common::Size operator()(const Task& task) {
+					std::string_view bytes{ task.memory_, sizeof(task.memory_) };
 					return std::hash<std::string_view>{}(bytes);
 				}
 			};
@@ -211,7 +212,7 @@ namespace OksEngine {
 			//Subsystem::Type receiverSubsystem_ = Subsystem::Type::Undefined;
 		private:
 			Id id_ = 0;
-			Common::Byte memory_[5 * Common::cacheLineSize_ - sizeof(Id) /* - 2 * sizeof(Subsystem::Type) */ ] = {0};
+			Common::Byte memory_[5 * Common::cacheLineSize_ - sizeof(Id) /* - 2 * sizeof(Subsystem::Type) */] = { 0 };
 		};
 
 		static_assert(sizeof(Task) == 5 * Common::cacheLineSize_);
@@ -239,11 +240,11 @@ namespace OksEngine {
 		Task WaitForTask(Subsystem::Type receiver, Task::Id taskId) {
 			Subsystem::Type sender = Subsystem::Type::Undefined;
 			auto dataInfo = exchangeSystem_.WaitForData(receiver, [&taskId, &sender](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo) {
-				//if (dataInfo.data_.GetId() == taskId) {
-				sender = dataInfo.sender_;
+				if (dataInfo.data_.GetId() == taskId) {
+					sender = dataInfo.sender_;
 					return true;
-				//}
-				//return false;
+				}
+				return false;
 				});
 			OS::LogInfo("Engine/AsyncResourceSubsystem",
 				{ "Task with id {} was waited by {} from {}.",
@@ -292,13 +293,13 @@ namespace OksEngine {
 			const bool isGot = exchangeSystem_.TryGetData(receiver, task,
 				[&filter, &sender](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
 					const bool isSuitable = filter(dataInfo.sender_, dataInfo.receivers_, *(const Task*)&dataInfo.data_);
-					if(isSuitable){
+					if (isSuitable) {
 						sender = dataInfo.sender_;
 						return true;
 					}
 					return false;
 				});
-			if(isGot) {
+			if (isGot) {
 				OS::LogInfo("Engine/AsyncResourceSubsystem",
 					{ "Task with id {} was received by {} from {}.",
 						task.GetId(),
@@ -339,13 +340,13 @@ namespace OksEngine {
 				exchangeSystem_.Update();
 				Subsystem::Type taskSender = Subsystem::Type::Undefined;
 				Task task;
-				const bool isGot = GetTask(Subsystem::Type::Resource, task, 
+				const bool isGot = GetTask(Subsystem::Type::Resource, task,
 					[&taskSender](
 						Subsystem::Type sender,
 						const DS::Vector<Subsystem::Type>& receivers,
-						const Task& task){
+						const Task& task) {
 							taskSender = sender;
-						return true;
+							return true;
 					});
 				using namespace std::chrono_literals;
 				if (!isGot) { std::this_thread::sleep_for(100ms); continue; }
@@ -358,7 +359,8 @@ namespace OksEngine {
 					ResourceSubsystem::Resource resource;
 					if (getResourceTask.path_.string().starts_with("Root")) {
 						resource = std::move(resourceSubsystem_->GetResource(getResourceTask.path_));
-					} else {
+					}
+					else {
 						resource = resourceSubsystem_->ForceGetResource(getResourceTask.path_);
 					}
 					const Task::Id taskId = AddTask(
@@ -376,7 +378,7 @@ namespace OksEngine {
 					OS::NotImplemented();
 				}
 				};
-				
+
 			}
 		}
 

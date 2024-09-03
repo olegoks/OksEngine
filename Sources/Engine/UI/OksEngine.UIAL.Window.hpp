@@ -31,7 +31,7 @@ namespace UIAL {
 			std::string title_;
 		};
 #undef DELETE
-		enum class Key : int {
+		enum class KeyboardKey : int {
 
 			//Functional keys
 			ESCAPE = GLFW_KEY_ESCAPE,
@@ -158,6 +158,19 @@ namespace UIAL {
 
 			Undefined
 		};
+
+		enum class MouseKey : int {
+			Left = GLFW_MOUSE_BUTTON_1  ,
+			Right = GLFW_MOUSE_BUTTON_2 ,
+			Middle = GLFW_MOUSE_BUTTON_3,
+			_3 = GLFW_MOUSE_BUTTON_4    ,
+			_4 = GLFW_MOUSE_BUTTON_5    ,
+			_5 = GLFW_MOUSE_BUTTON_6    ,
+			_6 = GLFW_MOUSE_BUTTON_7    ,
+			_7 = GLFW_MOUSE_BUTTON_8    ,
+			Undefined
+		};
+
 		enum class Event : Common::UInt64 {
 			Pressed = GLFW_PRESS,
 			Released = GLFW_RELEASE,
@@ -165,7 +178,14 @@ namespace UIAL {
 		};
 
 		struct KeyboardEvent {
-			Key key_ = Key::Undefined;
+			KeyboardKey key_ = KeyboardKey::Undefined;
+			Event event_ = Event::Undefined;
+		};
+
+		struct MouseEvent {
+			glm::ivec2 position_;
+			glm::ivec2 offset_;
+			MouseKey key_ = MouseKey::Undefined;
 			Event event_ = Event::Undefined;
 		};
 
@@ -183,10 +203,18 @@ namespace UIAL {
 		Window(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {  }
 
 		[[nodiscard]]
-		std::optional<KeyboardEvent> GetEvent() noexcept {
+		std::optional<KeyboardEvent> GetKeyboardEvent() noexcept {
 			if (keyboardEvents_.empty()) return {};
 			KeyboardEvent event = keyboardEvents_.front();
 			keyboardEvents_.pop();
+			return event;
+		}
+
+		[[nodiscard]]
+		std::optional<MouseEvent> GetMouseEvent() noexcept {
+			if (mouseEvents_.empty()) return {};
+			MouseEvent event = mouseEvents_.front();
+			mouseEvents_.pop();
 			return event;
 		}
 
@@ -203,10 +231,13 @@ namespace UIAL {
 		void PushEvent(const KeyboardEvent& event) noexcept {
 			keyboardEvents_.push(event);
 		}
-
+		void PushEvent(const MouseEvent& event) noexcept {
+			mouseEvents_.push(event);
+		}
 
 	private:
 		std::queue<KeyboardEvent> keyboardEvents_;
+		std::queue<MouseEvent> mouseEvents_;
 
 		CreateInfo createInfo_;
 

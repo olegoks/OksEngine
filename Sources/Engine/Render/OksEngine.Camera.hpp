@@ -67,34 +67,34 @@ namespace OksEngine {
 		void DirectionLeft(float angle);
 		void DirectionRight(float angle);
 
-		//void Forward(float delta) {
-		//	position_ = position_ + (glm::normalize(direction_) * delta);
-		//}
+		void Forward(float delta) {
+			position_ = position_ + (glm::normalize(direction_) * delta);
+		}
 
-		//void Backward(float delta) {
-		//	position_ = position_ - (glm::normalize(direction_) * delta);
-		//}
+		void Backward(float delta) {
+			position_ = position_ - (glm::normalize(direction_) * delta);
+		}
 
-		//void Up(float delta) {
+		void Up(float delta) {
 
-		//	position_ = position_ + glm::normalize(up_) * delta;
+			position_ = position_ + glm::normalize(up_) * delta;
 
-		//}
+		}
 
-		//void Down(float delta) {
+		void Down(float delta) {
 
-		//	position_ = position_ - glm::normalize(up_) * delta;
-		//}
+			position_ = position_ - glm::normalize(up_) * delta;
+		}
 
-		//void Left(float delta) {
-		//	const glm::vec3 perpendicular = glm::normalize(glm::cross(up_, direction_));
-		//	position_ = position_ + perpendicular * delta;
-		//}
+		void Left(float delta) {
+			const glm::vec3 perpendicular = glm::normalize(glm::cross(up_, direction_));
+			position_ = position_ + perpendicular * delta;
+		}
 
-		//void Right(float delta) {
-		//	const glm::vec3 perpendicular = glm::normalize(glm::cross(direction_, up_));
-		//	position_ = position_ + perpendicular * delta;
-		//}
+		void Right(float delta) {
+			const glm::vec3 perpendicular = glm::normalize(glm::cross(direction_, up_));
+			position_ = position_ + perpendicular * delta;
+		}
 
 		//void Transform(const glm::mat4& transform) {
 		//	position_ = { transform[3][0], transform[3][1], transform[3][2] };

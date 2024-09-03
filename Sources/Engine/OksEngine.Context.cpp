@@ -54,6 +54,8 @@ namespace OksEngine
 		world_->RegisterSystem<LoadLuaScript>(*this);
 		world_->RegisterSystem<LoadResourceSystem>(*this);
 		world_->RegisterSystem<CreateLuaContext>(*this);
+		world_->RegisterSystem<CallUpdateMethod>(*this);
+		world_->RegisterSystem<CallInputProcessor>(*this);
 		world_->RegisterSystem<PhysicsGeometryMapper>(*this);
 		world_->RegisterSystem<AttachCameraSystem>(*this);
 

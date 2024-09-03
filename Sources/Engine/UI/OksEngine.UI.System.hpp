@@ -10,7 +10,7 @@ namespace OksEngine {
 
 		UISystem(Context& context) : ECSSystem{ context }{}
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			auto* behaviour = world->GetComponent<BehaviourDeprecated>(entityId);
+			auto* behaviour = world->GetComponent<Behaviour>(entityId);
 			if (behaviour == nullptr) return;
 
 			//{
@@ -36,7 +36,7 @@ namespace OksEngine {
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<BehaviourDeprecated>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return { ECS::Entity::Filter{}.Include<Behaviour>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 		virtual void EndUpdate() override {
