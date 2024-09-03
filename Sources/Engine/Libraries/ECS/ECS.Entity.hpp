@@ -139,6 +139,11 @@ namespace ECS {
 				return value_;
 			}
 
+			[[nodiscard]]
+			bool IsInvalid() const noexcept {
+				return value_ == invalid_;
+			}
+
 			Id operator++(int value) noexcept {
 				return ++value_;
 			}

@@ -23,11 +23,16 @@ namespace OksEngine {
 		KeyboardInput() : ECSComponent{ nullptr } {}
 
 		struct Event {
-			UIAL::Window::Key key_ = UIAL::Window::Key::Undefined;
+			UIAL::Window::KeyboardKey key_ = UIAL::Window::KeyboardKey::Undefined;
 			UIAL::Window::Event event_ = UIAL::Window::Event::Undefined;
 		};
 
 		std::queue<Event> events_;
+
+		[[nodiscard]]
+		bool HasEvent() {
+			return !events_.empty();
+		}
 
 		[[nodiscard]]
 		Event GetEvent() noexcept {
@@ -53,7 +58,7 @@ namespace OksEngine {
 	template<>
 	inline void Edit<KeyboardInput>(KeyboardInput* keyboardInput) {
 		keyboardInput->ForEachEvent([](const KeyboardInput::Event& event) {
-				const char* keyStr = magic_enum::enum_name<UIAL::Window::Key>(event.key_).data();
+				const char* keyStr = magic_enum::enum_name<UIAL::Window::KeyboardKey>(event.key_).data();
 				OS::AssertMessage(keyStr != nullptr, "Error while getting enum name.");
 				const char* eventStr = magic_enum::enum_name<UIAL::Window::Event>(event.event_).data();
 				OS::AssertMessage(eventStr != nullptr, "Error while getting enum name.");

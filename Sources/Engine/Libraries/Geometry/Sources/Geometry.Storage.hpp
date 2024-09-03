@@ -49,6 +49,7 @@ namespace Geometry {
 		IndexBuffer<Index16>	indices_;
 		std::string textureStorageTag_;
 		Texture::Id textureStorageId_;
+		std::string name_;
 		//RAL::Texture::Id driverTextureId_;
 	};
 

@@ -14,6 +14,7 @@
 #include <Physics/OksEngine.DynamicRigidBodyCapsule.hpp>
 #include <Render/OksEngine.Camera.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
+#include <UI/OksEngine.UI.Components.hpp>
 
 namespace OksEngine {
 
@@ -124,9 +125,7 @@ namespace OksEngine {
 
 		virtual void EndUpdate() override { }
 
-		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Behaviour>().Exclude<LuaScript>(), ECS::Entity::Filter{}.ExcludeAll()};
-		}
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<LoadLuaScript>().GetId();
@@ -140,8 +139,8 @@ namespace OksEngine {
 	struct LuaContext : public ECSComponent<LuaContext> {
 		Lua::Context  context_;
 
-		LuaContext() :
-			ECSComponent{ nullptr } { }
+		LuaContext(Lua::Context&& context) :
+			ECSComponent{ nullptr }, context_{ std::move(context) } { }
 	};
 
 	class CreateLuaContext : public ECSSystem {
@@ -172,50 +171,35 @@ namespace OksEngine {
 
 
 
-	struct BehaviourDeprecated : public ECSComponent<BehaviourDeprecated> {
-		std::string scriptName_;
-		std::string objectName_;
-		lua_State* state_ = nullptr;
-		luabridge::LuaRef updater_;
-		luabridge::LuaRef inputProcessor_;
-		luabridge::LuaRef object_;
-		LuaEntity entity_;
-		Lua::Context  context_;
-		std::chrono::high_resolution_clock::time_point previousUpdateTimePoint_;
+	//struct BehaviourDeprecated : public ECSComponent<BehaviourDeprecated> {
+	//	std::string scriptName_;
+	//	std::string objectName_;
+	//	lua_State* state_ = nullptr;
+	//	luabridge::LuaRef updater_;
+	//	luabridge::LuaRef inputProcessor_;
+	//	luabridge::LuaRef object_;
+	//	LuaEntity entity_;
+	//	Lua::Context  context_;
+	//	std::chrono::high_resolution_clock::time_point previousUpdateTimePoint_;
 
-		BehaviourDeprecated() = default;
-		BehaviourDeprecated(Context* context,
-			ECS::Entity::Id entityId,
-			std::string scriptName,
-			std::string objectName
-		);
+	//	BehaviourDeprecated() = default;
+	//	BehaviourDeprecated(Context* context,
+	//		ECS::Entity::Id entityId,
+	//		std::string scriptName,
+	//		std::string objectName
+	//	);
 
-		void CallUpdater(Common::Size ms);
-		void CallInputProcessor(const char* inputKey, const char* inputEvent, double offsetX, double offsetY);
-	};
+	//	void CallUpdater(Common::Size ms);
+	//	void CallInputProcessor(const char* inputKey, const char* inputEvent, double offsetX, double offsetY);
+	//};
 
-	template<>
-	inline void Edit<BehaviourDeprecated>(BehaviourDeprecated* behaviour) {
-		ImGui::TextDisabled("Script name: %s", behaviour->scriptName_.c_str());
-		ImGui::TextDisabled("Object name: %s", behaviour->objectName_.c_str());
-	}
+	//template<>
+	//void Edit<BehaviourDeprecated>(BehaviourDeprecated* behaviour);
 
 
-	template<>
-	inline void Add<BehaviourDeprecated>(ECS::World* world, ECS::Entity::Id id) {
-		//static char scriptName[100]{ "" };
-		//static char objectName[100]{ "" };
-		//if (ImGui::CollapsingHeader("Create info")) {
-		//	ImGui::InputText("Script", scriptName, 100);
-		//	ImGui::InputText("Object", objectName, 100);
-		//	ImGui::Spacing();
-		//}
-		//if (ImGui::Button("Add component")) {
-		//	if (!world->IsComponentExist<Behaviour>(id)) {
-		//		world->CreateComponent<Behaviour>(id, id, std::string{ scriptName }, std::string{ objectName });
-		//	}
-		//}
-	}
+	//template<>
+	//void Add<BehaviourDeprecated>(ECS::World* world, ECS::Entity::Id id) {
+	//}
 
 	class BehaviourSystem : public ECSSystem {
 	private:
@@ -227,20 +211,11 @@ namespace OksEngine {
 
 		virtual void StartUpdate() override { }
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			BehaviourDeprecated* behaviour = world->GetComponent<BehaviourDeprecated>(entityId);
-			if (behaviour == nullptr) return;
-			auto now = std::chrono::high_resolution_clock::now();
-			auto delta = now - behaviour->previousUpdateTimePoint_;
-			behaviour->CallUpdater(std::chrono::duration_cast<std::chrono::milliseconds>(delta).count());
-			behaviour->previousUpdateTimePoint_ = now;
-		}
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 		virtual void EndUpdate() override { }
 
-		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<BehaviourDeprecated>(), ECS::Entity::Filter{}.ExcludeAll() };
-		}
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<BehaviourSystem>().GetId();
@@ -250,5 +225,52 @@ namespace OksEngine {
 		
 	};
 
+	class CallUpdateMethod : public ECSSystem {
+	private:
+	public:
+
+		CallUpdateMethod(Context& context) noexcept : ECSSystem{ context } {
+
+		}
+
+		virtual void StartUpdate() override { }
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+
+		virtual void EndUpdate() override { }
+
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
+
+		virtual Common::TypeId GetTypeId() const noexcept override {
+			return Common::TypeInfo<CallUpdateMethod>().GetId();
+		}
+
+	private:
+
+	};
+
+	class CallInputProcessor : public ECSSystem {
+	private:
+	public:
+
+		CallInputProcessor(Context& context) noexcept : ECSSystem{ context } {
+
+		}
+
+		virtual void StartUpdate() override { }
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+
+		virtual void EndUpdate() override { }
+
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
+
+		virtual Common::TypeId GetTypeId() const noexcept override {
+			return Common::TypeInfo<CallInputProcessor>().GetId();
+		}
+
+	private:
+
+	};
 
 }

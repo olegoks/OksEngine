@@ -1,4 +1,4 @@
-
+local Math3D = require("Math3D")
 
 Camera = setmetatable({ },
     { __index = Entity }
@@ -6,8 +6,8 @@ Camera = setmetatable({ },
 
 function Camera:New()
     local Camera = Entity:New()
-    Camera.Speed = 10
-    Camera.Boost = 100.0
+    Camera.Speed = 3
+    Camera.Boost = 10.0
     Camera.DirectionUp = false
     Camera.DirectionDown = false
     Camera.MovingForward = false
@@ -17,45 +17,91 @@ function Camera:New()
     Camera.MovingRight = false
     Camera.MovingUp = false
     Camera.MovingDown = false
+    function Camera:Forward(speed)
+        local position = self:GetComponent("Position")
+        local camera = self:GetComponent("Camera")
+        position:SetX(position:GetX() + camera:GetDirectionX() * speed)
+        position:SetY(position:GetY() + camera:GetDirectionY() * speed)
+        position:SetZ(position:GetZ() + camera:GetDirectionZ() * speed)
+    end
+    function Camera:Backward(speed)
+        local position = self:GetComponent("Position")
+        local camera = self:GetComponent("Camera")
+        position:SetX(position:GetX() - camera:GetDirectionX() * speed)
+        position:SetY(position:GetY() - camera:GetDirectionY() * speed)
+        position:SetZ(position:GetZ() - camera:GetDirectionZ() * speed)
+    end
+    function Camera:Left(speed)
+        local position = self:GetComponent("Position")
+        local camera = self:GetComponent("Camera")
+        local px, py, pz  = Math3D:CrossProduct(
+            camera:GetUpX(),
+            camera:GetUpY(),
+            camera:GetUpZ(),
+            camera:GetDirectionX(), 
+            camera:GetDirectionY(),
+            camera:GetDirectionZ())
+        local npx, npy, npz = Math3D:Normalize(px, py, pz)
 
+        position:SetX(position:GetX() + npx * speed)
+        position:SetY(position:GetY() + npy * speed)
+        position:SetZ(position:GetZ() + npz * speed)
+    end
+    function Camera:Right(speed)
+        local position = self:GetComponent("Position")
+        local camera = self:GetComponent("Camera")
+        local px, py, pz  = Math3D:CrossProduct(
+            camera:GetDirectionX(), 
+            camera:GetDirectionY(),
+            camera:GetDirectionZ(),
+            camera:GetUpX(),
+            camera:GetUpY(),
+            camera:GetUpZ())
+        local npx, npy, npz = Math3D:Normalize(px, py, pz)
+
+        position:SetX(position:GetX() + npx * speed)
+        position:SetY(position:GetY() + npy * speed)
+        position:SetZ(position:GetZ() + npz * speed)
+    end
     return Camera
 end
 
 CameraUpdater = {}
 
 function CameraUpdater:Update(Camera, deltaMs)
-    cameraComponent = Camera:GetComponent("Camera")
     if Camera.MovingForward then
         if Camera.SpeedBoost then
             cameraComponent:Forward(Camera.Speed * Camera.Boost)
         else
-            cameraComponent:Forward(Camera.Speed)
+            Camera:Forward(Camera.Speed)
         end
     end
     if Camera.MovingBackward then
-        cameraComponent:Backward(Camera.Speed)
+        Camera:Backward(Camera.Speed)
     end
     if Camera.MovingLeft then 
-        cameraComponent:Left(Camera.Speed)
+        Camera:Left(Camera.Speed)
     end
     if Camera.MovingRight then 
-        cameraComponent:Right(Camera.Speed)
+        Camera:Right(Camera.Speed)
     end
-    if Camera.MovingUp then 
-        cameraComponent:Up(Camera.Speed)
-    end
-    if Camera.MovingDown then 
-        cameraComponent:Down(Camera.Speed)
-    end
+    -- if Camera.MovingUp then 
+    --     cameraComponent:Up(Camera.Speed)
+    -- end
+    -- if Camera.MovingDown then 
+    --     cameraComponent:Down(Camera.Speed)
+    -- end
 end
 
 CameraInputProcessor = {}
 
 function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
-
+    --print("ProcessInput Camera:")
+    --print(Camera)
     if Key == "W" then
         if Event == "Pressed" then
             Camera.MovingForward = true
+            print("ProcessInput Forward")
         elseif Event == "Released" then
             Camera.MovingForward = false
         end

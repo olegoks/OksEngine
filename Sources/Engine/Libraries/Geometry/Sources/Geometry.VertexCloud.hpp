@@ -52,6 +52,11 @@ namespace Geometry {
 			return vertices_[index];
 		}
 
+
+		void Reserve(Common::Size capacity) {
+			vertices_.reserve(capacity);
+		}
+
 		using Iterator = std::vector<VertexType>::iterator;
 		using ConstIterator = std::vector<VertexType>::const_iterator;
 

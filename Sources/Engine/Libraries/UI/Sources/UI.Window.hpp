@@ -48,9 +48,10 @@ namespace UI {
 					xPrevious = xpos;
 					yPrevious = ypos;
 					Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
-					//if (!windowPtr->menuModeIsEnabled_) {
-						//windowPtr->CallMouseCallbacks({ deltaX, deltaY });
-					//}
+					MouseEvent event;
+					event.position_ = { xpos, ypos };
+					event.offset_ = { deltaX, deltaY };
+					windowPtr->PushEvent(event);
 				}
 
 				});
@@ -66,9 +67,9 @@ namespace UI {
 			glfwSetWindowUserPointer(createdWindow, this);
 			glfwSetKeyCallback(createdWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
-				Key keyboardKey = Key::Undefined;
+				KeyboardKey keyboardKey = KeyboardKey::Undefined;
 				Event event = Event::Undefined;
-				keyboardKey = static_cast<Key>(key);
+				keyboardKey = static_cast<KeyboardKey>(key);
 				if (action == GLFW_PRESS) {
 					event = Event::Pressed;
 				}
