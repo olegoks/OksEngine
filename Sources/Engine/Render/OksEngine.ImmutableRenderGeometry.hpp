@@ -20,7 +20,7 @@ namespace OksEngine {
 	public:
 		ImmutableRenderGeometry();
 		ImmutableRenderGeometry(const std::string& meshTag) :
-			ECSComponent{ nullptr }
+			ECSComponent{ nullptr }, meshTag_{ meshTag } {}
 
 		std::string meshTag_;
 		std::string shaderTag_;
@@ -130,7 +130,6 @@ namespace OksEngine {
 				.Exclude<LoadGeometryDescriptionFileRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
-	private:
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<CreateLoadGeometryDescriptionFileRequest>().GetId();
 		}
@@ -145,14 +144,8 @@ namespace OksEngine {
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
-		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}
-			.Include<ImmutableRenderGeometry>()
-				.Exclude<GeometryFile>()
-				.Include<LoadGeometryDescriptionFile>(), ECS::Entity::Filter{}.ExcludeAll() };
-		}
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
 
-	private:
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<LoadGeometryDescriptionFile>().GetId();
 		}
@@ -186,41 +179,7 @@ namespace OksEngine {
 
 	public:
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			auto* geomFile = world->GetComponent<GeometryFile>(entityId);
-			std::map<std::string, ECS::Entity::Id> resourceEntityId_;
-			LoadMeshRequest::Type meshType = LoadMeshRequest::Type::Undefined;
-			if (geomFile->mesh_["Obj"]) {
-
-				const std::string objName = geomFile->mesh_["Obj"].as<std::string>();
-				const ECS::Entity::Id loadObjResourceEntityId = world->CreateEntity();
-				world->CreateComponent<LoadResourceRequest>(loadObjResourceEntityId, objName);
-				resourceEntityId_[objName] = loadObjResourceEntityId;
-				meshType = LoadMeshRequest::Type::OBJ;
-
-				if (geomFile->mesh_["Mtl"]) {
-					const std::string mtlName = geomFile->mesh_["Mtl"].as<std::string>();
-					const ECS::Entity::Id loadMtlResourceEntityId = world->CreateEntity();
-					world->CreateComponent<LoadResourceRequest>(loadMtlResourceEntityId, objName);
-					resourceEntityId_[mtlName] = loadMtlResourceEntityId;
-
-					meshType = LoadMeshRequest::Type::OBJ_MTL;
-
-					if (geomFile->mesh_["Textures"] && geomFile->mesh_["Textures"].size() != 0) {
-						for (Common::Index i = 0; i < geomFile->mesh_["Textures"].size(); i++) {
-							const std::string textureName = geomFile->mesh_["Textures"][i].as<std::string>();
-							const ECS::Entity::Id loadTextureResourceEntityId = world->CreateEntity();
-							world->CreateComponent<LoadResourceRequest>(loadTextureResourceEntityId, textureName);
-							resourceEntityId_[textureName] = loadTextureResourceEntityId;
-						}
-						meshType = LoadMeshRequest::Type::OBJ_MTL_TEXTURES;
-					}
-				}
-			}
-			OS::AssertMessage(meshType != LoadMeshRequest::Type::Undefined, { "Maybe %s contains incorrect data!", geomFile->geomName_.c_str() });
-			world->CreateComponent<LoadMeshRequest>(entityId, resourceEntityId_, meshType);
-
-		}
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
 			return { ECS::Entity::Filter{}
@@ -228,7 +187,6 @@ namespace OksEngine {
 				.Exclude<LoadMeshRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
-	private:
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<CreateLoadMeshRequest>().GetId();
 		}
@@ -268,7 +226,7 @@ namespace OksEngine {
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<LoadMeshRequest>().Exclude<Mesh>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return { ECS::Entity::Filter{}.Include<LoadMeshRequest>().Include<GeometryFile>().Exclude<Mesh>(), ECS::Entity::Filter{}.ExcludeAll()};
 		}
 
 	private:

@@ -11,11 +11,12 @@ namespace OksEngine {
 		ImGuiState() : ECSComponent{ nullptr } {}
 
 		RAL::Texture::Id fontsTextureId_ = RAL::Texture::Id::Invalid();
+		Common::Size fps_ = 30;
 	};
 
 	template<>
 	inline void Edit<ImGuiState>(ImGuiState* context) {
-
+		ImGui::InputScalar("Fps: ", ImGuiDataType_U64, &context->fps_);
 	}
 
 

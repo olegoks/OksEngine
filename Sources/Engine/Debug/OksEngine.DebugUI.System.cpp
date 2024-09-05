@@ -44,7 +44,10 @@ namespace OksEngine {
 
 	void ImGuiRenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
+		auto* framesCounter = world->GetComponent<FramesCounter>(secondEntityId);
+		
 		ImGuiState* state = world->GetComponent<ImGuiState>(entityId);
+		//if (framesCounter->framesCount_ % state->fps_ != 0) return;
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 
 		ImDrawData* draw_data = ImGui::GetDrawData();

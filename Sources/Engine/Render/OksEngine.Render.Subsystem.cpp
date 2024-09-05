@@ -27,6 +27,8 @@ namespace OksEngine {
 
 
 		auto ecsWorld = context.GetECSWorld();
+		ecsWorld->RegisterSystem<CreateLoadGeometryDescriptionFileRequest>(context);
+		ecsWorld->RegisterSystem<CreateLoadMeshRequest>(context);
 		ecsWorld->RegisterSystem<RenderSystem>(context);
 		ecsWorld->RegisterSystem<CameraSystem>(context);
 		ecsWorld->RegisterSystem<LoadGeometryDescriptionFile>(context);
