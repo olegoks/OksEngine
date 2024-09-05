@@ -640,6 +640,15 @@ namespace Render::Vulkan {
 			UIShapes_.clear();
 		}
 
+		//void RemoveUIShape(Common::Index shapeIndex) {
+		//	for (auto& shape : UIShapes_) {
+		//		if (shape->GetId() == shapeIndex) {
+
+		//		}
+		//	}
+		//}
+
+
 		virtual Common::UInt64 DrawIndexed(
 			const glm::mat4& model_,
 			const RAL::Vertex3fnc* vertices,

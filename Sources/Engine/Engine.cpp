@@ -77,7 +77,9 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<ImGuiRenderSystem>();
 				/*ImGui*/
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
+				context_->GetECSWorld()->RunSystem<CreateLoadGeometryDescriptionFileRequest>();
 				context_->GetECSWorld()->RunSystem<LoadGeometryDescriptionFile>();
+				context_->GetECSWorld()->RunSystem<CreateLoadMeshRequest>();
 				context_->GetECSWorld()->RunSystem<LoadMesh>();
 				context_->GetECSWorld()->RunSystem<RenderMesh>();
 				context_->GetECSWorld()->RunSystem<AddImmutableRenderGeometryFromObjSystem>();

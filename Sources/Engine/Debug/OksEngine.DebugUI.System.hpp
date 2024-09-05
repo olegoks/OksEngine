@@ -44,7 +44,7 @@ namespace OksEngine {
 
 	private:
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.Include<FramesCounter>() };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
