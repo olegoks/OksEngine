@@ -47,6 +47,7 @@ namespace Geometry {
 
     bool ParseModelFbx(const char* memory, Common::Size size);
     [[nodiscard]]
-    Geom::Mesh ParseObjMtlModel(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl);
+    Geom::Mesh ParseObjMtlModelBaked(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl);
+    Geom::Model2 ParseObjMtlModel(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl);
     bool ParseModelFile(const std::filesystem::path& filePath);
 }

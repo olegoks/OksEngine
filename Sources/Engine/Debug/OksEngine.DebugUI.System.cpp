@@ -50,9 +50,11 @@ namespace OksEngine {
 		if (framesCounter->framesCount_ % state->fps_ != 0) return;
 
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		if (!state->driverShapeId_.IsInvalid()) {
-			driver->RemoveShapeFromDrawing(state->driverShapeId_);
-			state->driverShapeId_ = Common::Id::Invalid();
+		if (!state->driverShapesId_.empty()) {
+			for (Common::Id shapeId : state->driverShapesId_) {
+				driver->RemoveShapeFromDrawing(shapeId);
+			}
+			state->driverShapesId_.clear();
 		}
 		ImDrawData* draw_data = ImGui::GetDrawData();
 		if (draw_data == nullptr) return;
@@ -104,7 +106,7 @@ namespace OksEngine {
 						glm::vec2 translate_;
 					};
 					Transform transform{ scale,translate };
-					state->driverShapeId_ = driver->AddShapeToDraw(
+					const Common::Id shapeId = driver->AddShapeToDraw(
 						"ImGui Pipeline",
 						&transform,
 						sizeof(Transform),
@@ -115,6 +117,7 @@ namespace OksEngine {
 						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
 						RAL::Driver::IndexType::UI16,
 						state->fontsTextureId_);
+					state->driverShapesId_.push_back(shapeId);
 				}
 			}
 

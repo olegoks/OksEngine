@@ -21,6 +21,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 			std::shared_ptr<ImageView> colorImageView_ = nullptr;
 			std::shared_ptr<ImageView> depthBufferImageView_ = nullptr;
+			std::shared_ptr<ImageView> colorAttachmentResolve_ = nullptr;
 			VkRenderPass renderPass_ = VK_NULL_HANDLE;
 			VkExtent2D extent_{ 0, 0 };
 		};
@@ -38,11 +39,12 @@ namespace Render::Vulkan {
 
 		std::vector<VkImageView> attachments;
 		{
-			attachments.push_back(createInfo.colorImageView_->GetHandle());
+			attachments.push_back(createInfo.colorAttachmentResolve_->GetHandle());
+			
 			if (createInfo.depthBufferImageView_ != nullptr) {
 				attachments.push_back(*createInfo.depthBufferImageView_);
 			}
-
+			attachments.push_back(createInfo.colorImageView_->GetHandle());
 		}
 
 		VkFramebufferCreateInfo framebufferInfo{};

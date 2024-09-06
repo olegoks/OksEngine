@@ -20,7 +20,7 @@ namespace OksEngine {
 
 	template<>
 	inline void Edit<Resource>(Resource* resource) {
-		ImGui::TextDisabled("Resource name: %s", resource->name_);
+		ImGui::TextDisabled("Resource name: %s", resource->name_.c_str());
 	}
 
 }

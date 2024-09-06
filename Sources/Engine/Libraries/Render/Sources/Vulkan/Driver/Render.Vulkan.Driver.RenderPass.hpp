@@ -20,6 +20,7 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
 			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
+			VkSampleCountFlagBits samplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
 
@@ -31,6 +32,7 @@ namespace Render::Vulkan {
 
 			struct CreateInfo {
 				VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
+				VkSampleCountFlagBits samplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 				std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 			};
 
@@ -38,7 +40,7 @@ namespace Render::Vulkan {
 
 				{
 					colorAttachment_.format = createInfo.colorAttachmentFormat_;
-					colorAttachment_.samples = VK_SAMPLE_COUNT_1_BIT; // We do not use multisampling that is why number of samples is 1.
+					colorAttachment_.samples = createInfo.samplesCount_; 
 
 					//loadOp и storeOp применяются к буферам цвета и глубины.
 					//VK_ATTACHMENT_LOAD_OP_LOAD: буфер будет содержать те данные, которые были помещены в него до этого прохода(например, во время предыдущего прохода)
@@ -62,7 +64,10 @@ namespace Render::Vulkan {
 					// После рендеринга нам нужно вывести наш image на экран, 
 					//поэтому в поле finalLayout укажем VK_IMAGE_LAYOUT_PRESENT_SRC_KHR.
 					colorAttachment_.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-					colorAttachment_.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+					//You'll notice that we have changed the finalLayout from VK_IMAGE_LAYOUT_PRESENT_SRC_KHR to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL. 
+					//That's because multisampled images cannot be presented directly.
+					//We first need to resolve them to a regular image.
+					colorAttachment_.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
 					colorAttachmentRef_.attachment = 0;
 					colorAttachmentRef_.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
@@ -70,7 +75,7 @@ namespace Render::Vulkan {
 
 				if (createInfo.depthTestInfo_ != nullptr) {
 					depthBufferAttachment_.format = createInfo.depthTestInfo_->depthStencilBufferFormat_;
-					depthBufferAttachment_.samples = VK_SAMPLE_COUNT_1_BIT;
+					depthBufferAttachment_.samples = createInfo.samplesCount_;
 					depthBufferAttachment_.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 					depthBufferAttachment_.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
 					depthBufferAttachment_.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
@@ -82,9 +87,26 @@ namespace Render::Vulkan {
 					depthBufferAttachmentRef_.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
 				}
 
+
+				{
+					colorAttachmentResolve_.format = createInfo.colorAttachmentFormat_;
+					colorAttachmentResolve_.samples = VK_SAMPLE_COUNT_1_BIT;
+					colorAttachmentResolve_.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+					colorAttachmentResolve_.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+					colorAttachmentResolve_.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+					colorAttachmentResolve_.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+					colorAttachmentResolve_.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+					colorAttachmentResolve_.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+					colorAttachmentRefResolve_.attachment = 2;
+					colorAttachmentRefResolve_.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+				}
+
+
 				descriptor_.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 				descriptor_.colorAttachmentCount = 1;
 				descriptor_.pColorAttachments = &colorAttachmentRef_;
+				descriptor_.pResolveAttachments = &colorAttachmentRefResolve_;
 				if (createInfo.depthTestInfo_ != nullptr) {
 					descriptor_.pDepthStencilAttachment = &depthBufferAttachmentRef_;
 				}
@@ -110,6 +132,10 @@ namespace Render::Vulkan {
 				return colorAttachment_;
 			}
 
+			const VkAttachmentDescription& GetColorAttachmentResolve() const noexcept {
+				return colorAttachmentResolve_;
+			}
+
 			const VkAttachmentDescription& GetDepthStencilAttachment() const noexcept {
 				return depthBufferAttachment_;
 			}
@@ -119,6 +145,9 @@ namespace Render::Vulkan {
 
 			VkAttachmentDescription depthBufferAttachment_{ 0 };
 			VkAttachmentReference depthBufferAttachmentRef_{ 0 };
+
+			VkAttachmentDescription colorAttachmentResolve_{ 0 };
+			VkAttachmentReference colorAttachmentRefResolve_{ 0 };
 
 			VkSubpassDependency dependency_{ 0 };
 			VkSubpassDescription descriptor_{ 0 };
@@ -136,6 +165,7 @@ namespace Render::Vulkan {
 						depthTestInfo->depthStencilBufferFormat_ = createInfo.depthTestInfo_->depthStencilBufferFormat_;
 						subpassCreateInfo.depthTestInfo_ = depthTestInfo;
 					}
+					subpassCreateInfo.samplesCount_ = createInfo.samplesCount_;
 				}
 				Subpass subpass{ subpassCreateInfo };
 
@@ -145,6 +175,7 @@ namespace Render::Vulkan {
 					if (createInfo.depthTestInfo_ != nullptr) {
 						attachments.push_back(subpass.GetDepthStencilAttachment());
 					}
+					attachments.push_back(subpass.GetColorAttachmentResolve());
 				}
 
 				VkRenderPassCreateInfo renderPassInfo{};

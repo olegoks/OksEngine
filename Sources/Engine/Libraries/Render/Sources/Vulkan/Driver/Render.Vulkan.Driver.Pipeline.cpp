@@ -52,6 +52,7 @@ namespace Render::Vulkan {
 			nullptr,//createInfo.depthTestInfo_,
 			createInfo.colorAttachmentSize_,
 			createInfo.colorAttachmentFormat_,
+						createInfo.multisamplingSamplesCount_,
 			VertexInfo{
 				Vertex2ftc::GetBindingDescription(),
 				Vertex2ftc::GetAttributeDescriptions()

@@ -12,7 +12,7 @@ namespace OksEngine {
 
 		RAL::Texture::Id fontsTextureId_ = RAL::Texture::Id::Invalid();
 		Common::Size fps_ = 30;
-		Common::Id driverShapeId_ = Common::Id::Invalid();
+		std::vector<Common::Id> driverShapesId_;
 	};
 
 	template<>

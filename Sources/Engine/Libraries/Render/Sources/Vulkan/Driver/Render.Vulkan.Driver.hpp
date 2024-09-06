@@ -71,6 +71,12 @@ namespace Render::Vulkan {
 			std::shared_ptr<DeviceMemory> imageMemory_ = nullptr;
 		};
 
+		struct MultisamplingData {
+			std::shared_ptr<Image> image_ = nullptr;
+			std::shared_ptr<ImageView> imageView_ = nullptr;
+			std::shared_ptr<DeviceMemory> imageMemory_ = nullptr;
+		};
+
 		class FrameContext {
 		public:
 			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
@@ -394,7 +400,6 @@ namespace Render::Vulkan {
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
 			//DEPTH BUFFER
-			//if (info.enableDepthTest_) {
 			{
 				auto depthTestData = std::make_shared<DepthTestData>();
 				{
@@ -406,11 +411,33 @@ namespace Render::Vulkan {
 						depthImageCreateInfo.size_ = swapChain_->GetSize();
 						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
 						depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+						depthImageCreateInfo.samplesCount_ = physicalDevice_->GetMaxUsableSampleCount();
 					}
 					depthTestData->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
 					depthTestData->imageView_ = CreateImageViewByImage(logicDevice_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT);
 				}
 				depthTestData_ = depthTestData;
+				//}
+			}
+
+			//Multisampling
+			{
+				auto multisamplingData = std::make_shared<MultisamplingData>();
+				{
+					Image::CreateInfo multisamplingCreateInfo;
+					{
+						multisamplingCreateInfo.physicalDevice_ = physicalDevice_;
+						multisamplingCreateInfo.logicDevice_ = logicDevice_;
+						multisamplingCreateInfo.format_ = swapChain_->GetFormat().format;
+						multisamplingCreateInfo.size_ = swapChain_->GetSize();
+						multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+						multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+						multisamplingCreateInfo.samplesCount_ = physicalDevice_->GetMaxUsableSampleCount();
+					}
+					multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+					multisamplingData->imageView_ = CreateImageViewByImage(logicDevice_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT);
+				}
+				multisamplingData_ = multisamplingData;
 				//}
 			}
 
@@ -441,6 +468,7 @@ namespace Render::Vulkan {
 				RPCreateInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
 				auto depthTestInfo = std::make_shared<RenderPass::DepthTestInfo>();
 				depthTestInfo->depthStencilBufferFormat_ = depthTestData_->image_->GetFormat();
+				RPCreateInfo.samplesCount_ = physicalDevice_->GetMaxUsableSampleCount();
 				RPCreateInfo.depthTestInfo_ = depthTestInfo;
 			}
 			renderPass_ = std::make_shared<RenderPass>(RPCreateInfo);
@@ -493,6 +521,7 @@ namespace Render::Vulkan {
 					.depthTestInfo_ = depthTestData,
 					.colorAttachmentSize_ = swapChain_->GetSize(),
 					.colorAttachmentFormat_ = swapChain_->GetFormat().format,
+					.multisamplingSamplesCount_ = physicalDevice_->GetMaxUsableSampleCount(),
 					.vertexInfo_ = Vulkan::Pipeline::VertexInfo{
 						GetVertexBindingDescription(pipeline.vertexType_),
 						GetVertexAttributeDescriptions(pipeline.vertexType_)
@@ -515,6 +544,7 @@ namespace Render::Vulkan {
 					createInfo.logicDevice_ = logicDevice_;
 					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+					createInfo.multisamplingSamplesCount_ = physicalDevice_->GetMaxUsableSampleCount();
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = std::dynamic_pointer_cast<Shader>(imguiPipelineInfo->vertexShader_);
 					createInfo.fragmentShader_ = std::dynamic_pointer_cast<Shader>(imguiPipelineInfo->fragmentShader_);
@@ -539,6 +569,7 @@ namespace Render::Vulkan {
 					createInfo.logicDevice_ = logicDevice_;
 					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+					createInfo.multisamplingSamplesCount_ = physicalDevice_->GetMaxUsableSampleCount();
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = std::dynamic_pointer_cast<Shader>(linesPipelineInfo->vertexShader_);
 					createInfo.fragmentShader_ = std::dynamic_pointer_cast<Shader>(linesPipelineInfo->fragmentShader_);
@@ -561,6 +592,7 @@ namespace Render::Vulkan {
 					createInfo.logicDevice_ = logicDevice_;
 					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+					createInfo.multisamplingSamplesCount_ = physicalDevice_->GetMaxUsableSampleCount();
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = std::dynamic_pointer_cast<Shader>(texturedPipelineInfo->vertexShader_);
 					createInfo.fragmentShader_ = std::dynamic_pointer_cast<Shader>(texturedPipelineInfo->fragmentShader_);
@@ -584,6 +616,7 @@ namespace Render::Vulkan {
 					createInfo.logicDevice_ = logicDevice_;
 					createInfo.renderPass_ = renderPass_;
 					createInfo.colorAttachmentFormat_ = swapChain_->GetFormat().format;
+					createInfo.multisamplingSamplesCount_ = physicalDevice_->GetMaxUsableSampleCount();
 					createInfo.colorAttachmentSize_ = swapChain_->GetSize();
 					createInfo.vertexShader_ = std::dynamic_pointer_cast<Shader>(flatShadedPipelineInfo->vertexShader_);
 					createInfo.fragmentShader_ = std::dynamic_pointer_cast<Shader>(flatShadedPipelineInfo->fragmentShader_);
@@ -609,6 +642,7 @@ namespace Render::Vulkan {
 						if (depthTestData_ != nullptr) {
 							createInfo.depthBufferImageView_ = depthTestData_->imageView_;
 						}
+						createInfo.colorAttachmentResolve_ = multisamplingData_->imageView_;
 					}
 					FrameBuffer frameBuffer{ createInfo };
 					frameBuffers_.push_back(std::move(frameBuffer));
@@ -1417,6 +1451,7 @@ namespace Render::Vulkan {
 		std::vector<std::shared_ptr<ColoredShape>> coloredShapes_;
 
 		std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
+		std::shared_ptr<MultisamplingData> multisamplingData_ = nullptr;
 
 		std::map<Common::Id, std::shared_ptr<Texture>> textures_;
 
