@@ -68,7 +68,7 @@ namespace OksEngine {
 				auto* objResource = world->GetComponent<Resource>(objEntityId);
 				auto* mtlResource = world->GetComponent<Resource>(mtlEntityId);
 
-				auto mesh = Geom::ParseObjMtlModel(
+				auto mesh = Geom::ParseObjMtlModelBaked(
 					objName, { objResource->resourceData_.c_str(), objResource->resourceData_.size() },
 					mtlName, { mtlResource->resourceData_.c_str(), mtlResource->resourceData_.size() }
 				);

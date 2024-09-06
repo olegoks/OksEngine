@@ -46,6 +46,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
+			VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 			VertexInfo vertexInfo_;
 			VkPrimitiveTopology topology_ = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
 			VkFrontFace frontFace_ = VK_FRONT_FACE_MAX_ENUM;
@@ -154,7 +155,7 @@ namespace Render::Vulkan {
 			{
 				multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 				multisampling.sampleShadingEnable = VK_FALSE;
-				multisampling.rasterizationSamples = VK_SAMPLE_COUNT_1_BIT;
+				multisampling.rasterizationSamples = createInfo.multisamplingSamplesCount_;
 				multisampling.minSampleShading = 1.0f;
 				multisampling.pSampleMask = nullptr;
 				multisampling.alphaToCoverageEnable = VK_FALSE;
@@ -268,6 +269,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+			VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
 
@@ -326,6 +328,7 @@ namespace Render::Vulkan {
 					createInfo.depthTestInfo_,
 					createInfo.colorAttachmentSize_,
 					createInfo.colorAttachmentFormat_,
+							createInfo.multisamplingSamplesCount_,
 					VertexInfo{
 						Vertex3fnt::GetBindingDescription(),
 						Vertex3fnt::GetAttributeDescriptions()						
@@ -353,6 +356,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+			VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
 
@@ -400,6 +404,7 @@ namespace Render::Vulkan {
 				createInfo.depthTestInfo_,
 				createInfo.colorAttachmentSize_,
 				createInfo.colorAttachmentFormat_,
+							createInfo.multisamplingSamplesCount_,
 				VertexInfo{
 					Vertex3fnc::GetBindingDescription(),
 					Vertex3fnc::GetAttributeDescriptions()
@@ -428,6 +433,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+			VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
@@ -465,6 +471,7 @@ namespace Render::Vulkan {
 				createInfo.depthTestInfo_,
 				createInfo.colorAttachmentSize_,
 				createInfo.colorAttachmentFormat_,
+				createInfo.multisamplingSamplesCount_,
 				VertexInfo{
 					Vertex3fc::GetBindingDescription(),
 					Vertex3fc::GetAttributeDescriptions()
@@ -494,6 +501,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<Shader> fragmentShader_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+			VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 		};
 

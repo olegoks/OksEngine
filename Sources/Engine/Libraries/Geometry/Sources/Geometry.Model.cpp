@@ -539,7 +539,7 @@ namespace Geometry {
 
 
 	[[nodiscard]]
-	Geom::Mesh ParseObjMtlModel(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl) {
+	Geom::Mesh ParseObjMtlModelBaked(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl) {
 
 		Assimp::Importer importer;
 
@@ -597,51 +597,67 @@ namespace Geometry {
 		return geomMesh;
 	}
 
-	//[[nodiscard]]
-	//Geom::Texture ParseTexture(const std::string& textureData) {
 
-	//}
-
-
-	bool ParseModelFile(const std::filesystem::path& filePath) {
+	[[nodiscard]]
+	Geom::Model2 ParseObjMtlModel(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl) {
 
 		Assimp::Importer importer;
 
-		const aiScene* scene = importer.ReadFile(filePath.string().c_str(),
+		importer.SetIOHandler(new ObjMtlIOSystem{ objName, obj, mtlName, mtl });
+
+		const aiScene* scene = importer.ReadFile(objName,
 			aiProcess_CalcTangentSpace |
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices |
 			aiProcess_SortByPType);
 
+		OS::AssertMessage(
+			scene != nullptr,
+			importer.GetErrorString());
 
-
-		// Load in each mesh
+		//Geom::Mesh geomMesh;
+		Geom::Model2 model2;
+		Common::UInt64 previousMeshIndicesNumber = 0;
 		for (unsigned i = 0; i < scene->mNumMeshes; i++) {
+			const aiMesh* mesh = scene->mMeshes[i];
+			const auto materialPtr = scene->mMaterials[mesh->mMaterialIndex];
+			aiString aiTexturePath;
+			const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
+			OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
+			Geom::Mesh geomMesh;
+			if (texturesNumber == 1) {
+				const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
+				OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
+				const std::string textureFileName = aiTexturePath.C_Str();
+				geomMesh.textureStorageTag_ = textureFileName;
+			}
+			geomMesh.vertices_.Reserve(mesh->mNumVertices);
+			geomMesh.normals_.Reserve(mesh->mNumVertices);
+			geomMesh.uvs_.Reserve(mesh->mNumVertices);
+			for (unsigned j = 0; j < mesh->mNumVertices; j++) {
+				geomMesh.vertices_.Add(Vertex3f{ mesh->mVertices[j].x,
+													mesh->mVertices[j].y,
+													mesh->mVertices[j].z });
+				geomMesh.normals_.PushBack(Normal3f{ mesh->mVertices[j].x,
+														mesh->mVertices[j].y,
+														mesh->mVertices[j].z });
+				geomMesh.uvs_.PushBack(UV2f{ mesh->mTextureCoords[0][j].x,
+												mesh->mTextureCoords[0][j].y });
 
-			const aiMesh* p_AIMesh = scene->mMeshes[i];
-
-			// Create the new mesh data
-			//p_Mesh->m_uiNumIndices = p_AIMesh->mNumFaces * 3;
-			//const unsigned uiSizeVertices = p_AIMesh->mNumVertices * sizeof(CustomVertex);
-			//const unsigned uiSizeIndices = p_Mesh->m_uiNumIndices * sizeof(GLuint);
-			//CustomVertex* p_VBuffer = (CustomVertex*)malloc(uiSizeVertices);
-			//GLuint* p_IBuffer = (GLuint*)malloc(uiSizeIndices);
-
-			// *** Add code to load in vertex data here***
-
-			// *** Add code to load in index data here***
-
-			// *** Add code to bind VAO,VBA,IBO and fill buffers here ***
-
-			// Cleanup allocated data
-			//free(p_VBuffer);
-			//free(p_IBuffer);
-
-			// *** Add code to specify vertex attribute locations here ***
-
-			//++SceneInfo.m_uiNumMeshes;
+			}
+			Geom::IndexBuffer meshIndices;
+			meshIndices.Reserve(mesh->mNumFaces * 3);
+			for (unsigned j = 0; j < mesh->mNumFaces; j++) {
+				meshIndices.Add(mesh->mFaces[j].mIndices[0]);
+				meshIndices.Add(mesh->mFaces[j].mIndices[1]);
+				meshIndices.Add(mesh->mFaces[j].mIndices[2]);
+			}
+			geomMesh.indices_.AddNextMesh(meshIndices);
+			model2.meshes_.push_back(std::move(geomMesh));
 		}
-		return true;
+
+		return model2;
 	}
+
 
 }

@@ -24,6 +24,7 @@ namespace Render::Vulkan {
 			VkFormat format_ = VK_FORMAT_MAX_ENUM;
 			VkImageTiling tiling_ = VK_IMAGE_TILING_MAX_ENUM;
 			VkImageUsageFlags usage_ = VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM;
+			VkSampleCountFlagBits samplesCount_ = VK_SAMPLE_COUNT_1_BIT;
 		};
 
 		Image(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
@@ -48,7 +49,7 @@ namespace Render::Vulkan {
 				imageInfo.tiling = createInfo.tiling_;
 				imageInfo.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
 				imageInfo.usage = createInfo.usage_;
-				imageInfo.samples = VK_SAMPLE_COUNT_1_BIT;
+				imageInfo.samples = createInfo.samplesCount_;
 				imageInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 			}
 
