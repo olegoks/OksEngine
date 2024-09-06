@@ -1,6 +1,8 @@
 #pragma once
 
 #include <map>
+#include <utility>
+#include <type_traits>
 
 #include <Render.Vulkan.Common.hpp>
 
@@ -174,6 +176,120 @@ namespace Render::Vulkan {
 			std::shared_ptr<WindowSurface> windowSurface,
 			const Extensions& requiredExtensions) noexcept;
 
+		static VkCullModeFlags ToVulkanType(CullMode cullMode) {
+			switch (cullMode) {
+			case CullMode::None: {
+				return VkCullModeFlagBits::VK_CULL_MODE_NONE;
+				break;
+			}
+			case CullMode::Back: {
+				return VkCullModeFlagBits::VK_CULL_MODE_BACK_BIT;
+				break;
+			}
+			case CullMode::Front: {
+				return VkCullModeFlagBits::VK_CULL_MODE_FRONT_BIT;
+				break;
+			}
+			case CullMode::FrontAndBack: {
+				return VkCullModeFlagBits::VK_CULL_MODE_FRONT_AND_BACK;
+				break;
+			}
+			default:
+				OS::AssertFailMessage("Invalid CullMode value used.");
+			};
+		}
+
+		static VkPrimitiveTopology ToVulkanType(TopologyType topologyType) {
+			switch (topologyType) {
+			case TopologyType::LineList: {
+				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
+				break;
+			}
+			case TopologyType::TriangleList: {
+				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+				break;
+			}
+			default:
+				OS::AssertFailMessage("Invalid TopologyType value used.");
+			};
+		}
+
+		static VkFrontFace ToVulkanType(FrontFace frontFace) {
+			switch (frontFace) {
+			case FrontFace::Clockwise: {
+				return VkFrontFace::VK_FRONT_FACE_CLOCKWISE;
+				break;
+			}
+			case FrontFace::CounterClockwise: {
+				return VkFrontFace::VK_FRONT_FACE_COUNTER_CLOCKWISE;
+				break;
+			}
+			default:
+				OS::AssertFailMessage("Invalid FrontFace value used.");
+			};
+		}
+
+		static VkDescriptorType ToVulkanType(ShaderBinding::Type bindingType) {
+			switch (bindingType) {
+			case ShaderBinding::Type::Sampler: {
+				return VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				break;
+			}
+			case ShaderBinding::Type::Uniform: {
+				return VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				break;
+			}
+			default:
+				OS::AssertFailMessage("Invalid ShaderBinding::Type value used.");
+			};
+		}
+
+
+		static VkShaderStageFlagBits ToVulkanType(ShaderBinding::Stage stage) {
+			switch (stage) {
+			case ShaderBinding::Stage::VertexShader: {
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
+				break;
+			}
+			case ShaderBinding::Stage::FragmentShader: {
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
+				break;
+			}
+			default:
+				OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
+			};
+		}
+
+		static VkVertexInputBindingDescription GetVertexBindingDescription(VertexType vertexType) {
+			switch (vertexType) {
+			case VertexType::VF3_NF3_TF2: {
+				return Vertex3fnt::GetBindingDescription();
+				break;
+			}
+			case VertexType::VF2_TF2_CF4: {
+				return Vertex2ftc::GetBindingDescription();
+				break;
+			}
+			default:
+				OS::AssertFailMessage("Invalid VertexType value used.");
+			};
+		}
+
+		static std::vector<VkVertexInputAttributeDescription> GetVertexAttributeDescriptions(VertexType vertexType) {
+			switch (vertexType) {
+			case VertexType::VF3_NF3_TF2: {
+				return Vertex3fnt::GetAttributeDescriptions();
+				break;
+			}
+			case VertexType::VF2_TF2_CF4: {
+				return Vertex2ftc::GetAttributeDescriptions();
+				break;
+			}
+			default:
+				OS::AssertFailMessage("Invalid VertexType value used.");
+			};
+		}
+
 		Driver(const CreateInfo& info) noexcept :
 			RAL::Driver{ info }{
 
@@ -280,7 +396,7 @@ namespace Render::Vulkan {
 			//DEPTH BUFFER
 			//if (info.enableDepthTest_) {
 			{
-				auto depthTestData =  std::make_shared<DepthTestData>();
+				auto depthTestData = std::make_shared<DepthTestData>();
 				{
 					Image::CreateInfo depthImageCreateInfo;
 					{
@@ -330,6 +446,65 @@ namespace Render::Vulkan {
 			renderPass_ = std::make_shared<RenderPass>(RPCreateInfo);
 
 
+			for (auto& pipeline : info.pipelines2_) {
+
+				std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
+				for (auto& binding : pipeline.shaderBindings_) {
+					std::vector<VkDescriptorSetLayoutBinding> bindings;
+					VkDescriptorSetLayoutBinding vBinding{
+						binding.binding_,
+						ToVulkanType(binding.type_),
+						1,
+						ToVulkanType(binding.stage_),
+						nullptr
+					};
+					bindings.push_back(vBinding);
+
+					auto DSL = std::make_shared<DescriptorSetLayout>(
+						DescriptorSetLayout::CreateInfo{
+							"GlobalData",
+							logicDevice_,
+							bindings
+						});
+					DSLs.push_back(DSL);
+				}
+
+
+				std::shared_ptr<Vulkan::Pipeline::DepthTestInfo> depthTestData;
+				if (pipeline.enableDepthTest_) {
+					depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
+					depthTestData->bufferFormat_ = depthTestData_->image_->GetFormat();
+				}
+
+				Vulkan::Pipeline::CreateInfo createInfo{
+					.physicalDevice_ = physicalDevice_,
+					.logicDevice_ = logicDevice_,
+					.renderPass_ = renderPass_,
+					.pushConstants_ = {},
+					.descriptorSetLayouts_ = DSLs,
+					.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+						logicDevice_,
+						std::dynamic_pointer_cast<Shader>(pipeline.vertexShader_)->GetSpirv()
+						}),
+					.fragmentShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+						createInfo.logicDevice_,
+						std::dynamic_pointer_cast<Shader>(pipeline.fragmentShader_)->GetSpirv()
+						}),
+					.depthTestInfo_ = depthTestData,
+					.colorAttachmentSize_ = swapChain_->GetSize(),
+					.colorAttachmentFormat_ = swapChain_->GetFormat().format,
+					.vertexInfo_ = Vulkan::Pipeline::VertexInfo{
+						GetVertexBindingDescription(pipeline.vertexType_),
+						GetVertexAttributeDescriptions(pipeline.vertexType_)
+
+					},
+					.topology_ = ToVulkanType(pipeline.topologyType_),
+					.frontFace_ = ToVulkanType(pipeline.frontFace_),
+					.cullMode_ = ToVulkanType(pipeline.cullMode_)
+				};
+				namePipeline_[pipeline.name_] = std::make_shared<Vulkan::Pipeline>(createInfo);
+			}
+
 			//IMGUI PIPELINE
 			{
 				auto imguiPipelineInfo = info.imguiPipeline_;
@@ -350,6 +525,7 @@ namespace Render::Vulkan {
 					}
 				}
 				imguiPipeline_ = std::make_shared<ImguiPipeline>(createInfo);
+				//namePipeline_[info.imguiPipeline_->name_] = imguiPipeline_;
 			}
 
 
@@ -550,6 +726,19 @@ namespace Render::Vulkan {
 						commandBuffer->BindDescriptorSets(imguiPipeline_, descriptorSets);
 					}
 					commandBuffer->DrawShape(shape);
+				}
+
+				for (auto& [id, shape] : shapes2_) {
+					commandBuffer->BindPipeline(namePipeline_[shape->GetPipelineName()]);
+					commandBuffer->BindShape2(shape);
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						descriptorSets.push_back(shape->GetTransformDescriptorSet());
+						const auto texture = GetTextureById(shape->GetTextureId());
+						descriptorSets.push_back(texture->GetDS());
+						commandBuffer->BindDescriptorSets(namePipeline_[shape->GetPipelineName()], descriptorSets);
+					}
+					commandBuffer->DrawShape2(shape);
 				}
 
 
@@ -920,6 +1109,8 @@ namespace Render::Vulkan {
 			return shape->GetId();
 		}
 
+
+
 		virtual Common::UInt64 DrawIndexed(
 			const glm::mat4& model_,
 			const RAL::Vertex3f* vertices,
@@ -1057,6 +1248,126 @@ namespace Render::Vulkan {
 			return textureId;
 		}
 
+		//Shape2 realization
+	public:
+
+
+
+		[[nodiscard]]
+		Common::Size VertexTypeToSize(VertexType vertexType) {
+			switch (vertexType) {
+			case  VertexType::VF3_NF3_TF2: {
+				return sizeof(Vertex3fnt);
+				break;
+			}
+			case  VertexType::VF2_TF2_CF4: {
+				return sizeof(Vertex2ftc);
+				break;
+			}
+			default: {
+				OS::AssertFailMessage("Unsupported vertex type.");
+			}
+			};
+		}
+
+		[[nodiscard]]
+		Common::Size IndexTypeToSize(IndexType indexType) {
+			switch (indexType) {
+			case  IndexType::UI16: {
+				return sizeof(Common::UInt16);
+				break;
+			}
+			default: {
+				OS::AssertFailMessage("Unsupported index type.");
+			}
+			};
+		}
+
+		[[nodiscard]]
+		virtual Common::Id AddShapeToDraw(
+			const std::string& pipelineName,
+			const void* transform_,
+			Common::Size transformSize,
+			const void* vertices,
+			Common::Size verticesNumber,
+			VertexType vertexType,
+			const void* indices,
+			Common::Size indicesNumber,
+			IndexType indexType,
+			RAL::Texture::Id textureId) override {
+
+
+			AllocatedVertexBuffer2::CreateInfo vertexBufferCreateInfo{};
+			{
+				vertexBufferCreateInfo.logicDevice_ = logicDevice_;
+				vertexBufferCreateInfo.physicalDevice_ = physicalDevice_;
+				vertexBufferCreateInfo.commandPool_ = commandPool_;
+				vertexBufferCreateInfo.verticesNumber_ = verticesNumber;
+				vertexBufferCreateInfo.vertices_ = (const Vertex2ftc*)vertices;
+				vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(vertexType);
+			}
+			auto allocatedVertexBuffer = std::make_shared<AllocatedVertexBuffer2>(vertexBufferCreateInfo);
+
+			AllocatedIndexBuffer2::CreateInfo indexBufferCreateInfo{};
+			{
+				indexBufferCreateInfo.logicDevice_ = logicDevice_;
+				indexBufferCreateInfo.physicalDevice_ = physicalDevice_;
+				indexBufferCreateInfo.commandPool_ = commandPool_;
+				indexBufferCreateInfo.indicesNumber_ = indicesNumber;
+				indexBufferCreateInfo.indices_ = indices;
+				indexBufferCreateInfo.indexSize_ = IndexTypeToSize(indexType);
+			}
+			auto allocatedIndexBuffer = std::make_shared<AllocatedIndexBuffer2>(indexBufferCreateInfo);
+
+			auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, transformSize);
+			DescriptorSet::CreateInfo transformDescriptorSetCreateInfo;
+			{
+				transformDescriptorSetCreateInfo.descriptorPool_ = descriptorPool_;
+				transformDescriptorSetCreateInfo.DSL_ = texturedModelPipeline_->GetLayout()->GetDSLs()[1];
+				transformDescriptorSetCreateInfo.logicDevice_ = logicDevice_;
+			}
+			auto modelTransform = std::make_shared<DescriptorSet>(transformDescriptorSetCreateInfo);
+			modelTransform->UpdateBufferWriteConfiguration(
+				transformUniformBuffer,
+				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+				0, 0, transformUniformBuffer->GetSizeInBytes());
+
+			Shape2::CreateInfo shape2CreateInfo;
+			{
+				std::memcpy(shape2CreateInfo.transform_, (const char*)transform_, transformSize);
+				shape2CreateInfo.transformSize_ = transformSize;
+				shape2CreateInfo.transformBuffer_ = transformUniformBuffer;
+				shape2CreateInfo.transformDescriptorSet_ = modelTransform;
+				shape2CreateInfo.vertexBuffer_ = allocatedVertexBuffer;
+				shape2CreateInfo.indexBuffer_ = allocatedIndexBuffer;
+				shape2CreateInfo.textureId_ = textureId;
+				shape2CreateInfo.pipelineName_ = pipelineName;
+			}
+			auto shape2 = std::make_shared<Shape2>(shape2CreateInfo);
+			shape2->SetTransformMatrix(transform_, transformSize);
+			const Shape2::Id shape2Id = shapes2IdsGenerator_.Generate();
+			shapes2_[shape2Id] = shape2;
+			return shape2Id;
+
+		}
+
+		virtual void ResumeShapeDrawing(Common::Id shapeId) override {
+			shapes2_[shapeId]->ResumeDrawing();
+		}
+
+		virtual void StopShapeDrawing(Common::Id shapeId) override {
+			shapes2_[shapeId]->StopDrawing();
+		}
+
+		virtual void RemoveShapeFromDrawing(Common::Id shapeId) override {
+			shapes2_.erase(shapeId);
+		}
+
+	private:
+
+		std::map<Shape2::Id, std::shared_ptr<Shape2>> shapes2_;
+		Common::IdGenerator shapes2IdsGenerator_;
+		std::map<std::string, std::shared_ptr<Vulkan::Pipeline>> namePipeline_;
 	private:
 
 		[[nodiscard]]

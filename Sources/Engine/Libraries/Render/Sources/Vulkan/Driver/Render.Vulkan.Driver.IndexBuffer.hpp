@@ -54,4 +54,46 @@ namespace Render::Vulkan {
 	private:
 	};
 
+	class IndexBuffer2 : public Buffer {
+	public:
+		IndexBuffer2(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<LogicDevice> logicDevice, Common::Size indecesNumber, Common::Size indexSize) :
+			Buffer{ Buffer::CreateInfo{ physicalDevice, logicDevice, indecesNumber * indexSize,
+			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_INDEX_BUFFER_BIT,
+			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT } },
+			indecesNumber_{ indecesNumber } {
+
+		}
+
+		[[nodiscard]]
+		Common::Size GetIndecesNumber() const { return indecesNumber_; }
+
+	private:
+		const Common::Size indecesNumber_ = 0;
+	};
+
+
+	class AllocatedIndexBuffer2 : public IndexBuffer2 {
+	public:
+
+		struct CreateInfo {
+			std::shared_ptr<PhysicalDevice> physicalDevice_;
+			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<CommandPool> commandPool_;
+			const void* indices_ = nullptr;
+			Common::Size indicesNumber_ = 0;
+			Common::Size indexSize_ = 0;
+		};
+
+		AllocatedIndexBuffer2(const CreateInfo& createInfo) :
+			IndexBuffer2{ createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.indicesNumber_, createInfo.indexSize_ } {
+
+			auto indexStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.indicesNumber_ * createInfo.indexSize_);
+			indexStagingBuffer->Fill(createInfo.indices_);
+			Buffer::DataCopy(*indexStagingBuffer, *this, createInfo.logicDevice_, createInfo.commandPool_);
+		}
+
+	private:
+	};
+
+
 }

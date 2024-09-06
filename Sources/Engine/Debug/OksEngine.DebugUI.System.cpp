@@ -45,11 +45,15 @@ namespace OksEngine {
 	void ImGuiRenderSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
 		auto* framesCounter = world->GetComponent<FramesCounter>(secondEntityId);
-		
-		ImGuiState* state = world->GetComponent<ImGuiState>(entityId);
-		//if (framesCounter->framesCount_ % state->fps_ != 0) return;
-		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 
+		ImGuiState* state = world->GetComponent<ImGuiState>(entityId);
+		if (framesCounter->framesCount_ % state->fps_ != 0) return;
+
+		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+		if (!state->driverShapeId_.IsInvalid()) {
+			driver->RemoveShapeFromDrawing(state->driverShapeId_);
+			state->driverShapeId_ = Common::Id::Invalid();
+		}
 		ImDrawData* draw_data = ImGui::GetDrawData();
 		if (draw_data == nullptr) return;
 		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
@@ -87,13 +91,29 @@ namespace OksEngine {
 			{
 				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
 				{
-					driver->DrawIndexed(
+					/*driver->DrawIndexed(
 						scale,
 						translate,
 						(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
 						cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
 						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
 						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
+						state->fontsTextureId_);*/
+					struct Transform {
+						glm::vec2 scale_;
+						glm::vec2 translate_;
+					};
+					Transform transform{ scale,translate };
+					state->driverShapeId_ = driver->AddShapeToDraw(
+						"ImGui Pipeline",
+						&transform,
+						sizeof(Transform),
+						(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
+						cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
+						RAL::Driver::VertexType::VF2_TF2_CF4,
+						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
+						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
+						RAL::Driver::IndexType::UI16,
 						state->fontsTextureId_);
 				}
 			}
