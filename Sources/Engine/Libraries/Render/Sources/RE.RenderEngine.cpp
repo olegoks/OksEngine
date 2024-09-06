@@ -24,6 +24,8 @@ namespace RE {
 		RAL::Driver::CreateInfo driverCreateInfo{};
 		driverCreateInfo.surface_ = *createInfo.renderSurface_;
 
+
+
 		{
 			RAL::Shader::CreateInfo vertexShaderCreateInfo{
 				.name_ = "ImGuiVertexShader",
@@ -41,7 +43,42 @@ namespace RE {
 				"ImGui",
 				vertexShader,
 				fragmentShader);
+
+			std::vector<RAL::Driver::ShaderBinding> shaderBindings;
+
+			RAL::Driver::ShaderBinding transformBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
+				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader
+			};
+
+			RAL::Driver::ShaderBinding samplerBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
+				.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader
+			};
+
+			shaderBindings.push_back(transformBinding);
+			shaderBindings.push_back(samplerBinding);
+
+			RAL::Driver::Pipeline2 pipeline2{
+				.name_ = "ImGui Pipeline",
+				.vertexShader_ = vertexShader,
+				.fragmentShader_ = fragmentShader,
+				.topologyType_ = RAL::Driver::TopologyType::TriangleList,
+				.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF4,
+				.indexType_ = RAL::Driver::IndexType::UI16,
+				.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
+				.cullMode_ = RAL::Driver::CullMode::None,
+				.shaderBindings_ = shaderBindings,
+				.enableDepthTest_ = false
+
+			};
+			driverCreateInfo.pipelines2_.push_back(pipeline2);
+
+
 		}
+
 
 		{
 			RAL::Shader::CreateInfo vertexShaderCreateInfo{

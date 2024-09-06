@@ -16,7 +16,7 @@ namespace Common {
 		Identifier(Type value) noexcept : value_{ value } {}
 
 		[[nodiscard]]
-		static Identifier Invalid() noexcept { return Max(); }
+		static constexpr Identifier Invalid() noexcept { return Max(); }
 
 		[[nodiscard]]
 		static Identifier Max() noexcept { return Identifier{ Limits<Type>::Max() }; }

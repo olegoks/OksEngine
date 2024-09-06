@@ -99,6 +99,74 @@ namespace Render::Vulkan {
 
 	};
 
+
+	class Shape2 {
+	public:
+
+		using Id = Common::Id;
+
+		struct CreateInfo {
+			char transform_[sizeof(glm::mat4)];
+			Common::Size transformSize_ = 0;
+			std::shared_ptr<AllocatedVertexBuffer2> vertexBuffer_ = nullptr;
+			std::shared_ptr<AllocatedIndexBuffer2> indexBuffer_ = nullptr;
+			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
+			RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+			std::string pipelineName_ = "";
+			bool draw_ = true;
+		};
+
+		Shape2(const CreateInfo& createInfo) :
+			transform_{ 0 }, createInfo_{ createInfo }, draw_{ createInfo.draw_ } {
+		
+			std::memcpy(transform_, (char*)createInfo.transform_, createInfo.transformSize_);
+		
+		}
+
+		[[nodiscard]]
+		auto GetVertexBuffer() noexcept {
+			return createInfo_.vertexBuffer_;
+		}
+
+		[[nodiscard]]
+		auto GetIndexBuffer() noexcept {
+			return createInfo_.indexBuffer_;
+		}
+
+		[[nodiscard]]
+		auto GetTransformDescriptorSet() noexcept {
+			return createInfo_.transformDescriptorSet_;
+		}
+
+		void SetTransformMatrix(const void* transform, Common::Size size) {
+			OS::Assert(size == createInfo_.transformSize_);
+			std::memcpy(transform_, transform, size);
+			createInfo_.transformBuffer_->Fill(&transform_);
+		}
+
+		[[nodiscard]]
+		bool IsDraw() const noexcept { return draw_; }
+		void StopDrawing() noexcept { draw_ = false; }
+		void ResumeDrawing() noexcept { draw_ = true; }
+
+		[[nodiscard]]
+		const std::string GetPipelineName() const noexcept {
+			return createInfo_.pipelineName_;
+		}
+
+		[[nodiscard]]
+		RAL::Texture::Id GetTextureId() const noexcept {
+			return createInfo_.textureId_;
+		}
+
+	private:
+		char transform_[sizeof(glm::mat4)];
+		Common::Size transformSize_ = 0;
+		CreateInfo createInfo_;
+		bool draw_ = true;
+	};
+
 	class TexturedShape : public Shape<glm::mat4, Vertex3fnt, Index16>{
 	public:
 
@@ -186,5 +254,7 @@ namespace Render::Vulkan {
 		std::shared_ptr<VertexBuffer<Vertex3fnc>> vertexBuffer_ = nullptr;
 		std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
 	};
+
+
 
 }

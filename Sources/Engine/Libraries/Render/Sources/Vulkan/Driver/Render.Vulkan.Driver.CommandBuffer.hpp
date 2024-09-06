@@ -138,6 +138,26 @@ namespace Render::Vulkan {
 				VK_INDEX_TYPE_UINT16);
 		}
 
+		void BindBuffer(std::shared_ptr<VertexBuffer2> vertexBuffer) noexcept {
+			VkDeviceSize offsets[] = { 0 };
+			const VkBuffer bufferHandle = vertexBuffer->GetNative();
+			vkCmdBindVertexBuffers(
+				GetHandle(),
+				0,
+				1,
+				&bufferHandle,
+				offsets);
+		}
+
+		void BindBuffer(std::shared_ptr<IndexBuffer2> indexBuffer) noexcept {
+			vkCmdBindIndexBuffer(
+				GetHandle(),
+				indexBuffer->GetNative(),
+				0,
+				VK_INDEX_TYPE_UINT16);
+		}
+
+
 		template<class PipelineType>
 		void BindDescriptorSets(std::shared_ptr<PipelineType> pipeline, const std::vector<std::shared_ptr<DescriptorSet>>& descriptorSets) noexcept {
 
@@ -245,6 +265,11 @@ namespace Render::Vulkan {
 		}
 
 
+		void BindShape2(std::shared_ptr<Shape2> shape) {
+			BindBuffer(shape->GetVertexBuffer());
+			BindBuffer(shape->GetIndexBuffer());
+		}
+
 		void BindShape(std::shared_ptr<ColoredShape> shape) {
 			BindBuffer(shape->GetVertexBuffer());
 			BindBuffer(shape->GetIndexBuffer());
@@ -269,6 +294,10 @@ namespace Render::Vulkan {
 		}
 
 		void DrawShape(std::shared_ptr<UIShape> shape) {
+			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
+		}
+
+		void DrawShape2(std::shared_ptr<Shape2> shape) {
 			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
 		}
 

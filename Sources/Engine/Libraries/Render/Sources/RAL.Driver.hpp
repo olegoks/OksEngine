@@ -148,11 +148,74 @@ namespace RAL {
 			bool enableDepthTest_ = true;
 		};
 
+		enum class VertexType : Common::UInt64 {
+			VF3_NF3_TF2,
+			VF2_TF2_CF4,
+			Undefined,
+			Size
+		};
+
+		enum class IndexType : Common::UInt64 {
+			UI16,
+			Undefined,
+			Size
+		};
+
+		enum class TopologyType {
+			LineList,
+			TriangleList,
+			Undefined
+		};
+
+		enum class FrontFace {
+			Clockwise,
+			CounterClockwise,
+			Undefined
+		};
+
+		typedef enum CullMode {
+			None,
+			Front,
+			Back,
+			FrontAndBack,
+			Undefined
+		};
+
+		struct ShaderBinding {
+			enum class Type {
+				Uniform,
+				Sampler,
+				Undefined
+			};
+			enum class Stage {
+				VertexShader,
+				FragmentShader,
+				Undefined
+			};
+			Common::UInt64 binding_ = 0;
+			Type type_ = Type::Undefined;
+			Stage stage_ = Stage::Undefined;
+		};
+
+		struct Pipeline2 {
+			std::string name_ = "";
+			std::shared_ptr<Shader> vertexShader_ = nullptr;
+			std::shared_ptr<Shader> fragmentShader_ = nullptr;
+			TopologyType topologyType_ = TopologyType::Undefined;
+			VertexType vertexType_ = VertexType::Undefined;
+			IndexType indexType_ = IndexType::Undefined;
+			FrontFace frontFace_ = FrontFace::Undefined;
+			CullMode cullMode_ = CullMode::Undefined;
+			std::vector<ShaderBinding> shaderBindings_;
+			bool enableDepthTest_ = true;
+		};
+
 		struct CreateInfo {
 			std::shared_ptr<Pipeline> imguiPipeline_ = nullptr;
 			std::shared_ptr<Pipeline> linesPipeline_ = nullptr;
 			std::shared_ptr<Pipeline> texturedPipeline_ = nullptr;
 			std::shared_ptr<Pipeline> flatShadedPipeline_ = nullptr;
+			std::vector<Pipeline2> pipelines2_; 
 			RenderSurface surface_;
 		};
 
@@ -213,6 +276,25 @@ namespace RAL {
 			const Index16* indices,
 			Common::Size indeciesNumber,
 			const Color3f& color) = 0;
+
+		[[nodiscard]]
+		virtual Common::Id AddShapeToDraw(
+			const std::string& pipelineName,
+			const void* transform_,
+			Common::Size transformSize,
+			const void* vertices,
+			Common::Size verticesNumber,
+			VertexType vertexType,
+			const void* indices,
+			Common::Size indicesNumber,
+			IndexType indexType,
+			RAL::Texture::Id textureId) = 0;
+
+		virtual void ResumeShapeDrawing(Common::Id shapeId) = 0;
+
+		virtual void StopShapeDrawing(Common::Id shapeId) = 0;
+
+		virtual void RemoveShapeFromDrawing(Common::Id shapeId) = 0;
 
 		/* Textures */
 		[[nodiscard]]
