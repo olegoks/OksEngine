@@ -173,7 +173,7 @@ namespace RAL {
 			Undefined
 		};
 
-		typedef enum CullMode {
+		enum CullMode {
 			None,
 			Front,
 			Back,

@@ -396,7 +396,7 @@ namespace Render::Vulkan {
 			}
 
 			//DESCRIPTOR_POOL
-			const Common::Size descriptorPoolSize = swapChain_->GetImagesNumber() * 2;
+			const Common::Size descriptorPoolSize = swapChain_->GetImagesNumber() * 1000;
 			descriptorPool_ = std::make_shared<DescriptorPool>(logicDevice_, descriptorPoolSize);
 
 			//DEPTH BUFFER

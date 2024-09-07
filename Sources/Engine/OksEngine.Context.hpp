@@ -84,7 +84,7 @@ namespace OksEngine {
 		std::shared_ptr<class LogSubsystem> logSubsystem_ = nullptr;
 		std::shared_ptr<class AsyncResourceSubsystem> resourceSubsystem_ = nullptr;
 		std::shared_ptr<class RenderSubsystem> renderSubsystem_ = nullptr;
-		std::shared_ptr<TaggedStorage<Geometry::Mesh>> geomStorage_ = nullptr;
+		std::shared_ptr<TaggedStorage<Geometry::Model2>> geomStorage_ = nullptr;
 		std::shared_ptr<TaggedStorage<Geometry::Texture>> textureStorage_ = nullptr;
 		std::shared_ptr<TaggedStorage<Lua::Script>> scriptStorage_ = nullptr;
 		std::shared_ptr<class PhysicsSubsystem> physicsSubsystem_ = nullptr;

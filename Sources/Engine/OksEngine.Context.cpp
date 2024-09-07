@@ -59,7 +59,7 @@ namespace OksEngine
 		world_->RegisterSystem<PhysicsGeometryMapper>(*this);
 		world_->RegisterSystem<AttachCameraSystem>(*this);
 
-		geomStorage_ = std::make_shared<TaggedStorage<Geometry::Mesh>>();
+		geomStorage_ = std::make_shared<TaggedStorage<Geometry::Model2>>();
 		textureStorage_ = std::make_shared<TaggedStorage<Geometry::Texture>>();
 		scriptStorage_ = std::make_shared<TaggedStorage<Lua::Script>>();
 
