@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     camera.AddBehaviour("Camera.lua", "Camera");
     Entity dragonLore = engine.CreateEntity();
     dragonLore.AddPosition(0, 0, 0);
-    dragonLore.AddImmutableRenderGeometry("dragon_lore.geom");
+    dragonLore.AddImmutableRenderGeometry("de_dust2.geom");
 
     //entity.AddImmutableRenderGeometry("dragon_lore.geom");
 
@@ -72,7 +72,7 @@ int main(int argc, char** argv) {
     //    staticGeom.AddPosition(0, 0, 0);
     //    staticGeom.AddStaticRigidBodyCustomMeshShape(
     //        glm::mat4{ 1.f },
-    //        "de_dust2",
+    //        " - de_dust2",
     //        0.5,
     //        0.5, 
     //        0.5);
@@ -152,8 +152,8 @@ int main(int argc, char** argv) {
     //    renderGeomTransform = glm::translate(renderGeomTransform, { 0.f, 0.f, 0.f });
     //    dust2.AddImmutableRenderGeometry(
     //        renderGeomTransform,
-    //        "de_dust2.obj",
-    //        "de_dust2.mtl",
+    //        " - de_dust2.obj",
+    //        " - de_dust2.mtl",
     //        {});
     //}
 

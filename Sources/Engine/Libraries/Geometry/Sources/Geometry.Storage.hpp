@@ -55,7 +55,9 @@ namespace Geometry {
 
 	class Model2 {
 	public:
-		std::vector<Mesh> meshes_;
+		using Id = Common::Id;
+
+		std::vector<Geom::Mesh> meshes_;
 	};
 
 	[[nodiscard]]

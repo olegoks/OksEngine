@@ -61,6 +61,11 @@ namespace OksEngine {
 		}
 
 		[[nodiscard]]
+		Common::Id GetIdByTag(const std::string& tag) {
+			return tagId_[tag];
+		}
+
+		[[nodiscard]]
 		bool IsExist(const std::string& tag) {
 			return tagId_.find(tag) != tagId_.end();
 		}

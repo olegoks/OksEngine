@@ -49,17 +49,17 @@ namespace OksEngine {
 		if (allResourcesLoaded) {
 			LoadMeshRequest::Type meshType = loadMeshRequest->type_;
 			if (meshType == LoadMeshRequest::Type::OBJ_MTL_TEXTURES) {
-				
+
 				ECS::Entity::Id objEntityId;
 				std::string objName;
 				ECS::Entity::Id mtlEntityId;
 				std::string mtlName;
 				for (auto& [name, entityId] : loadMeshRequest->resourceEntityId_) {
-					if (name.find(".obj")) {
+					if (name.find(".obj") != name.npos) {
 						objName = name;
 						objEntityId = entityId;
 					}
-					if (name.find(".mtl")) {
+					if (name.find(".mtl") != name.npos) {
 						mtlName = name;
 						mtlEntityId = entityId;
 					}
@@ -68,22 +68,26 @@ namespace OksEngine {
 				auto* objResource = world->GetComponent<Resource>(objEntityId);
 				auto* mtlResource = world->GetComponent<Resource>(mtlEntityId);
 
-				auto mesh = Geom::ParseObjMtlModelBaked(
+				auto model = Geom::ParseObjMtlModel(
 					objName, { objResource->resourceData_.c_str(), objResource->resourceData_.size() },
 					mtlName, { mtlResource->resourceData_.c_str(), mtlResource->resourceData_.size() }
 				);
-				for (auto& [name, entityId] : loadMeshRequest->resourceEntityId_) {
-					if (name.find(".png") != std::string::npos || name.find(".tga") != std::string::npos || name.find(".bmp") != std::string::npos || name.find(".jpeg") != std::string::npos) {
-						auto* objResource = world->GetComponent<Resource>(entityId);
-						Geom::Texture texture = Geom::CreateTexture(objResource->resourceData_.c_str(), objResource->resourceData_.size());
-						const Geom::Texture::Id textureId = GetContext().GetTextureStorage()->Add(name, std::move(texture));
-						mesh.textureStorageTag_ = name;
-						mesh.textureStorageId_ = textureId;
+				for (auto& mesh : model.meshes_) {
+					if (mesh.textureStorageTag_ != "") {
+						if (!GetContext().GetTextureStorage()->IsExist(mesh.textureStorageTag_)) {
+							const ECS::Entity::Id textureResourceEntityId = loadMeshRequest->resourceEntityId_[mesh.textureStorageTag_];
+							auto* textureResource = world->GetComponent<Resource>(textureResourceEntityId);
+							Geom::Texture texture = Geom::CreateTexture(textureResource->resourceData_.c_str(), textureResource->resourceData_.size());
+							const Geom::Texture::Id textureId = GetContext().GetTextureStorage()->Add(mesh.textureStorageTag_, std::move(texture));
+
+						}
+						mesh.textureStorageId_ = GetContext().GetTextureStorage()->GetIdByTag(mesh.textureStorageTag_);
 					}
 				}
+
 				auto* geomFile = world->GetComponent<GeometryFile>(entityId);
-				const Geom::Mesh::Id meshId = GetContext().GetGeomStorage()->Add(geomFile->mesh_["Name"].as<std::string>(), std::move(mesh));
-				world->CreateComponent<Mesh>(entityId, geomFile->mesh_["Name"].as<std::string>(), meshId);
+				const Geom::Model2::Id modelId = GetContext().GetGeomStorage()->Add(geomFile->mesh_["Name"].as<std::string>(), std::move(model));
+				world->CreateComponent<Mesh>(entityId, geomFile->mesh_["Name"].as<std::string>(), modelId);
 			}
 		}
 	}
@@ -94,24 +98,29 @@ namespace OksEngine {
 		if (meshComponent->driverModelId_ != Common::Limits<Common::Index>::Max()) return;
 		auto* position = world->GetComponent<Position>(entityId);
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		auto& mesh = GetContext().GetGeomStorage()->Get(meshComponent->meshId_);
-		auto& texture = GetContext().GetTextureStorage()->Get(mesh.textureStorageId_);
-		std::vector<RAL::Color4b> texturePixels{ texture.GetPixels<RAL::Color4b>(), texture.GetPixels<RAL::Color4b>() + texture.GetPixelsNumber() };
-		RAL::Texture::CreateInfo textureCreateInfo{
-			.name_ = mesh.textureStorageTag_,
-			.pixels_ = texturePixels,
-			.size_ = texture.GetSize()
-		};
-		RAL::Texture::Id driverTextureId = driver->CreateTexture(textureCreateInfo);
-		auto vertices = Geometry::GetVertexCloud3fnt(mesh);
-		glm::mat4 localToWorld = position->GetTranslateMat();
-		meshComponent->driverModelId_ = driver->DrawIndexed(
-			localToWorld,
-			(const RAL::Vertex3fnt*)vertices.GetData(),
-			vertices.GetVerticesNumber(),
-			(const RAL::Index16*)mesh.indices_.GetData(),
-			mesh.indices_.GetIndicesNumber(), driverTextureId);
-		driver->SetModelMatrix(meshComponent->driverModelId_, glm::mat4{ 1 }/*localToWorld*/);
+		auto& model = GetContext().GetGeomStorage()->Get(meshComponent->modelId_);
+		for (const Geom::Mesh& mesh : model.meshes_) {
+			if (mesh.textureStorageId_.IsInvalid()) continue;
+			//TODO render mesh without textures
+			auto& texture = GetContext().GetTextureStorage()->Get(mesh.textureStorageId_);
+			std::vector<RAL::Color4b> texturePixels{ texture.GetPixels<RAL::Color4b>(), texture.GetPixels<RAL::Color4b>() + texture.GetPixelsNumber() };
+			RAL::Texture::CreateInfo textureCreateInfo{
+				.name_ = mesh.textureStorageTag_,
+				.pixels_ = texturePixels,
+				.size_ = texture.GetSize()
+			};
+			RAL::Texture::Id driverTextureId = driver->CreateTexture(textureCreateInfo);
+			auto vertices = Geometry::GetVertexCloud3fnt(mesh);
+			glm::mat4 localToWorld = position->GetTranslateMat();
+			meshComponent->driverModelId_ = driver->DrawIndexed(
+				localToWorld,
+				(const RAL::Vertex3fnt*)vertices.GetData(),
+				vertices.GetVerticesNumber(),
+				(const RAL::Index16*)mesh.indices_.GetData(),
+				mesh.indices_.GetIndicesNumber(), driverTextureId);
+			driver->SetModelMatrix(meshComponent->driverModelId_, glm::mat4{ 1 }/*localToWorld*/);
+		}
+
 	}
 
 
@@ -130,7 +139,7 @@ namespace OksEngine {
 			if (geomFile->mesh_["Mtl"]) {
 				const std::string mtlName = geomFile->mesh_["Mtl"].as<std::string>();
 				const ECS::Entity::Id loadMtlResourceEntityId = world->CreateEntity();
-				world->CreateComponent<LoadResourceRequest>(loadMtlResourceEntityId, objName);
+				world->CreateComponent<LoadResourceRequest>(loadMtlResourceEntityId, mtlName);
 				resourceEntityId_[mtlName] = loadMtlResourceEntityId;
 
 				meshType = LoadMeshRequest::Type::OBJ_MTL;

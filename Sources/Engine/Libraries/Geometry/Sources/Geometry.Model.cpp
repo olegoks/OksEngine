@@ -641,9 +641,10 @@ namespace Geometry {
 				geomMesh.normals_.PushBack(Normal3f{ mesh->mVertices[j].x,
 														mesh->mVertices[j].y,
 														mesh->mVertices[j].z });
-				geomMesh.uvs_.PushBack(UV2f{ mesh->mTextureCoords[0][j].x,
-												mesh->mTextureCoords[0][j].y });
-
+				if (texturesNumber == 1) {
+					geomMesh.uvs_.PushBack(UV2f{ mesh->mTextureCoords[0][j].x,
+													mesh->mTextureCoords[0][j].y });
+				}
 			}
 			Geom::IndexBuffer meshIndices;
 			meshIndices.Reserve(mesh->mNumFaces * 3);

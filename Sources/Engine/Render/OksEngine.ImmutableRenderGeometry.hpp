@@ -19,7 +19,7 @@ namespace OksEngine {
 	struct ImmutableRenderGeometry : public ECSComponent<ImmutableRenderGeometry> {
 	public:
 		ImmutableRenderGeometry();
-		ImmutableRenderGeometry(const std::string& meshTag) :
+		ImmutableRenderGeometry(std::string meshTag) :
 			ECSComponent{ nullptr }, meshTag_{ meshTag } {}
 
 		std::string meshTag_;
@@ -29,7 +29,7 @@ namespace OksEngine {
 
 	template<>
 	inline void Edit<ImmutableRenderGeometry>(ImmutableRenderGeometry* immutableRenderGeometry) {
-		ImGui::TextDisabled("Mesh tag: \"%s\"", immutableRenderGeometry->meshTag_.c_str());
+		ImGui::TextDisabled("Mesh tag %s:", immutableRenderGeometry->meshTag_.c_str());		
 	}
 
 	template<>
@@ -92,11 +92,12 @@ namespace OksEngine {
 		GeometryFile() : ECSComponent{ nullptr } {
 
 		}
-		GeometryFile(const std::string& geomName, const std::string& yamlText) :
+		GeometryFile(const std::string geomName, const std::string yamlText) :
 			ECSComponent{ nullptr },
 			geomName_{ geomName },
 			yamlText_{ yamlText },
-			mesh_{ YAML::Load(yamlText_) } {
+			mesh_{  } {
+			mesh_ = YAML::Load(yamlText_);
 		}
 
 		std::string geomName_;
@@ -198,19 +199,19 @@ namespace OksEngine {
 		Mesh() : ECSComponent{ nullptr } {
 
 		}
-		Mesh(const std::string& tag, Geom::Mesh::Id meshId) :
-			ECSComponent{ nullptr }, meshId_{ meshId }, tag_{ tag } {}
-
-		Geom::Mesh::Id meshId_;
-		std::string tag_;
+		Mesh(const std::string& tag, const Geom::Model2::Id& modelId) :
+			ECSComponent{ nullptr }, modelId_{ modelId }/*, tag_{ tag }*/ {}
+		Geom::Model2::Id modelId_;
+		//Geom::Mesh::Id meshId_;
+		//std::string tag_;
 		Common::Index driverModelId_ = Common::Limits<Common::Index>::Max();
 	};
 
 
 	template<>
 	inline void Edit<Mesh>(Mesh* mesh) {
-		ImGui::TextDisabled("Tag: \"%s\"", mesh->tag_.c_str());
-		ImGui::TextDisabled("Id: %d", mesh->meshId_);
+		//ImGui::TextDisabled("Tag: \"%s\"", mesh->tag_.c_str());
+		//ImGui::TextDisabled("Id: %d", mesh->meshId_);
 	}
 
 
