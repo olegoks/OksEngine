@@ -31,6 +31,11 @@ TEST(TestECS, CreatingEntity) {
 	class TestSystem : public System {
 	public:
 
+		virtual void Update(World* world, Entity::Id firstEntityId) override {
+			Position* position = world->GetComponent<Position>(firstEntityId);
+			position->x++;
+		}
+
 		virtual void Update(World* world, Entity::Id firstEntityId, Entity::Id secondEntityId) override {
 			Position* position = world->GetComponent<Position>(firstEntityId);
 			position->x++;

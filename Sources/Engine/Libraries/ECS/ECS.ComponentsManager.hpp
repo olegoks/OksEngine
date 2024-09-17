@@ -85,6 +85,7 @@ namespace ECS {
 		template<class ComponentType>
 		[[nodiscard]]
 		bool IsComponentExist(Entity::Id entityId) const noexcept {
+			OS::AssertMessage(!entityId.IsInvalid(), "Attempt to check is component exist using invalid entity id.");
 			return GetEntityComponents(entityId).IsComponentExist<ComponentType>();
 		}
 

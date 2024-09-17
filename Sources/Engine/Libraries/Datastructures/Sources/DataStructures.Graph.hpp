@@ -14,7 +14,7 @@ namespace DataStructures {
 		class [[nodiscard]] Node final {
 		public:
 
-			using Id = Common::UInt64;
+			using Id = VersionedMap<int>::Id;
 
 			Node(Type&& data) noexcept : data_{ std::move(data) } { }
 			Node(const Type& data) noexcept : data_{ data } { }
@@ -77,8 +77,13 @@ namespace DataStructures {
 		Node::Id AddNode(const Type& data) noexcept;
 		void AddLinkFromTo(Node::Id fromNodeId, Node::Id toNodeId);
 		void DeleteNode(Node::Id nodeId) noexcept;
+		
 		using ProcessNode = std::function<bool(NodeId nodeId, Node& node)>;
-		void ForEachNode(ProcessNode processor) noexcept;
+		void ForEachNode(ProcessNode&& processor) noexcept;
+		
+		using ProcessData = std::function<bool(Type&)>;
+		void ForEachData(ProcessData&& processor) noexcept;
+
 		Node& GetNode(Node::Id nodeId) noexcept;
 		void Clear() noexcept;
 	private:
@@ -124,11 +129,19 @@ namespace DataStructures {
 	}
 
 	template<class Type>
-	void Graph<Type>::ForEachNode(ProcessNode processor) noexcept {
+	void Graph<Type>::ForEachNode(ProcessNode&& processor) noexcept {
 		nodes_.ForEachElement([&](Node::Id nodeId, Node& node) {
 			return processor(nodeId, node);
 			});
 	}
+
+	template<class Type>
+	void Graph<Type>::ForEachData(ProcessData&& processor) noexcept {
+		nodes_.ForEachElement([&](Node::Id nodeId, Node& node) {
+			return processor(node.GetValue());
+			});
+	}
+
 	template<class Type>
 	Graph<Type>::Node& Graph<Type>::GetNode(Node::Id nodeId) noexcept {
 		return nodes_.GetElement(nodeId);

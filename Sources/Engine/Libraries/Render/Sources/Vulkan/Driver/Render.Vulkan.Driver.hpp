@@ -1034,6 +1034,7 @@ namespace Render::Vulkan {
 
 			const VkDeviceSize bufferSize = sizeof(Transform);
 			auto transformUniformBuffer = std::make_shared<UniformBuffer>(physicalDevice_, logicDevice_, bufferSize);
+			transformUniformBuffer->Fill(&model_);
 			DescriptorSet::CreateInfo transformDesciptorSetCreateInfo;
 			{
 				transformDesciptorSetCreateInfo.descriptorPool_ = descriptorPool_;
@@ -1280,6 +1281,11 @@ namespace Render::Vulkan {
 			const RAL::Texture::Id textureId = textures_.size();
 			textures_[textureId] = texture;
 			return textureId;
+		}
+
+		[[nodiscard]]
+		virtual bool IsTextureExist(RAL::Texture::Id textureId) const noexcept {
+			return textures_.contains(textureId);
 		}
 
 		//Shape2 realization

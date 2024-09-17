@@ -1,6 +1,6 @@
-Name: !str de_dust2
-Obj: !!str de_dust2.obj
-Mtl: !!str de_dust2.mtl
+Name: de_dust2
+Obj: de_dust2.obj
+Mtl: de_dust2.mtl
 Textures:
 - de_dust2_material_24.tga
 - de_dust2_material_25.tga  

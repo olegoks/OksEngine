@@ -539,7 +539,90 @@ namespace Geometry {
 
 
 	[[nodiscard]]
-	Geom::Mesh ParseObjMtlModelBaked(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl) {
+	Geom::Model2 ParseFbxModelBaked(const std::string& fbxName, const std::string& fbx) {
+
+
+		Assimp::Importer importer;
+
+		//importer.SetIOHandler(new ObjMtlIOSystem{ objName, obj, mtlName, mtl });
+
+		const aiScene* scene = importer.ReadFile(fbx,
+			aiProcess_CalcTangentSpace |
+			aiProcess_Triangulate |
+			aiProcess_JoinIdenticalVertices |
+			//aiProcess_MakeLeftHanded |
+			aiProcess_FlipUVs |
+			aiProcess_SortByPType);
+
+		OS::AssertMessage(
+			scene != nullptr,
+			importer.GetErrorString());
+
+		//Geom::Mesh geomMesh;
+		Geom::Model2 model2;
+		Common::UInt64 previousMeshIndicesNumber = 0;
+		std::vector<Geom::Mesh> backedMeshs;
+		for (unsigned i = 0; i < scene->mNumMeshes; i++) {
+
+			const aiMesh* aimesh = scene->mMeshes[i];
+			const auto materialPtr = scene->mMaterials[aimesh->mMaterialIndex];
+
+			const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
+			OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
+
+			//Process mesh only with texture.
+			if (texturesNumber != 1) continue;
+
+			aiString aiTexturePath;
+			const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
+			OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
+			const std::string textureName = aiTexturePath.C_Str();
+
+			//Found mesh with the same texture name.
+			Common::Index foundBackedMesh = Common::Limits<Common::Index>::Max();
+			for (Common::Index i = 0; i < backedMeshs.size(); i++) {
+				const Geom::Mesh& mesh = backedMeshs[i];
+				if (mesh.textureName_ == textureName) {
+					foundBackedMesh = i;
+					break;
+				}
+			}
+
+			//If there is no mesh with this name create new
+			Geom::Mesh& backedMesh = (foundBackedMesh != Common::Limits<Common::Index>::Max()) ? (backedMeshs[foundBackedMesh]) : (backedMeshs.emplace_back());
+			backedMesh.textureName_ = textureName;
+
+			for (unsigned j = 0; j < aimesh->mNumVertices; j++) {
+				backedMesh.vertices_.Add(Vertex3f{ aimesh->mVertices[j].x,
+													aimesh->mVertices[j].y,
+													aimesh->mVertices[j].z });
+				backedMesh.normals_.PushBack(Normal3f{ aimesh->mVertices[j].x,
+														aimesh->mVertices[j].y,
+														aimesh->mVertices[j].z });
+				backedMesh.uvs_.PushBack(UV2f{ aimesh->mTextureCoords[0][j].x,
+												aimesh->mTextureCoords[0][j].y });
+			}
+			Geom::IndexBuffer meshIndices;
+			meshIndices.Reserve(aimesh->mNumFaces * 3);
+			for (unsigned j = 0; j < aimesh->mNumFaces; j++) {
+				meshIndices.Add(aimesh->mFaces[j].mIndices[0]);
+				meshIndices.Add(aimesh->mFaces[j].mIndices[1]);
+				meshIndices.Add(aimesh->mFaces[j].mIndices[2]);
+			}
+
+			backedMesh.indices_.AddNextMesh(meshIndices);
+		}
+
+		for (Geom::Mesh& mesh : backedMeshs) {
+			model2.meshes_.push_back(std::move(mesh));
+		}
+
+		return model2;
+	}
+
+	[[nodiscard]]
+	Geom::Model2 ParseObjMtlModelBaked(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl) {
+
 
 		Assimp::Importer importer;
 
@@ -549,52 +632,78 @@ namespace Geometry {
 			aiProcess_CalcTangentSpace |
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices |
+			//aiProcess_MakeLeftHanded |
+			aiProcess_FlipUVs |
 			aiProcess_SortByPType);
 
 		OS::AssertMessage(
 			scene != nullptr,
 			importer.GetErrorString());
 
-		Geom::Mesh geomMesh;
+		//Geom::Mesh geomMesh;
+		Geom::Model2 model2;
 		Common::UInt64 previousMeshIndicesNumber = 0;
+		std::vector<Geom::Mesh> backedMeshs;
 		for (unsigned i = 0; i < scene->mNumMeshes; i++) {
-			const aiMesh* mesh = scene->mMeshes[i];
-			const auto materialPtr = scene->mMaterials[mesh->mMaterialIndex];
-			aiString aiTexturePath;
+
+			const aiMesh* aimesh = scene->mMeshes[i];
+			const auto materialPtr = scene->mMaterials[aimesh->mMaterialIndex];
+
 			const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
 			OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
-			if (texturesNumber == 1) {
-				const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
-				OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
-				const std::string textureFileName = aiTexturePath.C_Str();
-				geomMesh.textureStorageTag_ = textureFileName;
-			}
-			geomMesh.vertices_.Reserve(mesh->mNumVertices);
-			geomMesh.normals_.Reserve(mesh->mNumVertices);
-			geomMesh.uvs_.Reserve(mesh->mNumVertices);
-			for (unsigned j = 0; j < mesh->mNumVertices; j++) {
-				geomMesh.vertices_.Add(Vertex3f{ mesh->mVertices[j].x,
-													mesh->mVertices[j].y,
-													mesh->mVertices[j].z });
-				geomMesh.normals_.PushBack(Normal3f{ mesh->mVertices[j].x,
-														mesh->mVertices[j].y,
-														mesh->mVertices[j].z });
-				geomMesh.uvs_.PushBack(UV2f{ mesh->mTextureCoords[0][j].x,
-												mesh->mTextureCoords[0][j].y });
+			
+			//Process mesh only with texture.
+			if (texturesNumber != 1) continue;
 
+			aiString aiTexturePath;
+			const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
+			OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
+			const std::string textureName = aiTexturePath.C_Str();
+
+			//Found mesh with the same texture name.
+			Common::Index foundBackedMesh = Common::Limits<Common::Index>::Max();
+			for (Common::Index i = 0; i < backedMeshs.size(); i++) {
+				const Geom::Mesh& mesh = backedMeshs[i];
+				if (mesh.textureName_ == textureName) {
+					foundBackedMesh = i;
+					break;
+				}
+			}
+
+			//If there is no mesh with this name create new
+			Geom::Mesh& backedMesh = (foundBackedMesh != Common::Limits<Common::Index>::Max()) ? (backedMeshs[foundBackedMesh]) : (backedMeshs.emplace_back());
+			backedMesh.textureName_ = textureName;
+
+			backedMesh.vertices_.Reserve(backedMesh.vertices_.GetVerticesNumber() + aimesh->mNumVertices);
+			backedMesh.normals_.Reserve(backedMesh.normals_.GetSize() + aimesh->mNumVertices);
+			backedMesh.uvs_.Reserve(backedMesh.uvs_.GetSize() + aimesh->mNumVertices);
+
+			for (unsigned j = 0; j < aimesh->mNumVertices; j++) {
+				backedMesh.vertices_.Add(Vertex3f{ aimesh->mVertices[j].x,
+													aimesh->mVertices[j].y,
+													aimesh->mVertices[j].z });
+				backedMesh.normals_.PushBack(Normal3f{ aimesh->mVertices[j].x,
+														aimesh->mVertices[j].y,
+														aimesh->mVertices[j].z });
+				backedMesh.uvs_.PushBack(UV2f{ aimesh->mTextureCoords[0][j].x,
+												aimesh->mTextureCoords[0][j].y });
 			}
 			Geom::IndexBuffer meshIndices;
-			meshIndices.Reserve(mesh->mNumFaces * 3);
-			for (unsigned j = 0; j < mesh->mNumFaces; j++) {
-				meshIndices.Add(previousMeshIndicesNumber + mesh->mFaces[j].mIndices[0]);
-				meshIndices.Add(previousMeshIndicesNumber + mesh->mFaces[j].mIndices[1]);
-				meshIndices.Add(previousMeshIndicesNumber + mesh->mFaces[j].mIndices[2]);
+			meshIndices.Reserve(aimesh->mNumFaces * 3);
+			for (unsigned j = 0; j < aimesh->mNumFaces; j++) {
+				meshIndices.Add(aimesh->mFaces[j].mIndices[0]);
+				meshIndices.Add(aimesh->mFaces[j].mIndices[1]);
+				meshIndices.Add(aimesh->mFaces[j].mIndices[2]);
 			}
-			geomMesh.indices_.AddNextMesh(meshIndices);
 
+			backedMesh.indices_.AddNextMesh(meshIndices);		
 		}
 
-		return geomMesh;
+		for (Geom::Mesh& mesh : backedMeshs) {
+			model2.meshes_.push_back(std::move(mesh));
+		}
+
+		return model2;
 	}
 
 
@@ -619,17 +728,19 @@ namespace Geometry {
 		Geom::Model2 model2;
 		Common::UInt64 previousMeshIndicesNumber = 0;
 		for (unsigned i = 0; i < scene->mNumMeshes; i++) {
+
 			const aiMesh* mesh = scene->mMeshes[i];
 			const auto materialPtr = scene->mMaterials[mesh->mMaterialIndex];
-			aiString aiTexturePath;
+
 			const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
 			OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
 			Geom::Mesh geomMesh;
 			if (texturesNumber == 1) {
+				aiString aiTexturePath;
 				const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
 				OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
 				const std::string textureFileName = aiTexturePath.C_Str();
-				geomMesh.textureStorageTag_ = textureFileName;
+				geomMesh.textureName_ = textureFileName;
 			}
 			geomMesh.vertices_.Reserve(mesh->mNumVertices);
 			geomMesh.normals_.Reserve(mesh->mNumVertices);

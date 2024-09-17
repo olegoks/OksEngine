@@ -39,4 +39,7 @@ namespace Render::Vulkan {
 	private:
 		CreateInfo createInfo_;
 	};
+
+	using DSL = DescriptorSetLayout;
+
 }

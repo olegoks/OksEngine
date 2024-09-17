@@ -15,6 +15,7 @@
 #include <Common/OksEngine.Engine.System.hpp>
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
+#include <Render/OksEngine.GeometryStorage.hpp>
 
 namespace OksEngine
 {
@@ -59,7 +60,8 @@ namespace OksEngine
 		world_->RegisterSystem<PhysicsGeometryMapper>(*this);
 		world_->RegisterSystem<AttachCameraSystem>(*this);
 
-		geomStorage_ = std::make_shared<TaggedStorage<Geometry::Model2>>();
+		meshStorage_ = std::make_shared<TaggedStorage<Geometry::Mesh>>();
+		modelStorage_ = std::make_shared<ModelStorage>();
 		textureStorage_ = std::make_shared<TaggedStorage<Geometry::Texture>>();
 		scriptStorage_ = std::make_shared<TaggedStorage<Lua::Script>>();
 

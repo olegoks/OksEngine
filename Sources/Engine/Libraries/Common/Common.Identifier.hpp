@@ -34,6 +34,11 @@ namespace Common {
 			}
 		};
 
+		//[[nodiscard]]
+		//Type operator Type() const noexcept {
+		//	return value_;
+		//}
+
 		[[nodiscard]]
 		bool IsInvalid() const noexcept { return (*this == Invalid()); }
 
