@@ -31,8 +31,7 @@ namespace Render::Vulkan {
 				pipelineLayoutInfo.pSetLayouts = descriptorSetLayoutsHandles.data(); // Optional
 				pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)createInfo.pushConstants_.size(); // Optional
 				pipelineLayoutInfo.pPushConstantRanges = createInfo.pushConstants_.data(); // Optional
-
-
+			
 				VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
 				VkCall(vkCreatePipelineLayout(createInfo.logicDevice_->GetHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout),
 					"Error while creating pipeline layout.");

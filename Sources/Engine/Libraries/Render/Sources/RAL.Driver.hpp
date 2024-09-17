@@ -299,6 +299,8 @@ namespace RAL {
 		/* Textures */
 		[[nodiscard]]
 		virtual Texture::Id CreateTexture(const RAL::Texture::CreateInfo& createInfo) = 0;
+		[[nodiscard]]
+		virtual bool IsTextureExist(RAL::Texture::Id textureId) const noexcept = 0;
 		//virtual 
 		virtual void SetModelMatrix(
 			Common::Index shapeIndex,

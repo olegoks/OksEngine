@@ -82,6 +82,67 @@ namespace RE {
 
 		{
 			RAL::Shader::CreateInfo vertexShaderCreateInfo{
+				.name_ = "TexturedVertexShader",
+				.type_ = RAL::Shader::Type::Vertex,
+				.code_ = createInfo.textureVertexShader_
+			};
+			auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
+			RAL::Shader::CreateInfo fragmentShaderCreateInfo{
+				.name_ = "TexturedFragmentShader",
+				.type_ = RAL::Shader::Type::Fragment,
+				.code_ = createInfo.textureFragmentShader_
+			};
+			auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
+			//driverCreateInfo.imguiPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
+			//	"Textured",
+			//	vertexShader,
+			//	fragmentShader);
+
+			std::vector<RAL::Driver::ShaderBinding> shaderBindings;
+
+			RAL::Driver::ShaderBinding cameraBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
+				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader
+			};
+
+			RAL::Driver::ShaderBinding transformBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
+				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader
+			};
+
+			RAL::Driver::ShaderBinding samplerBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
+				.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader
+			};
+
+			shaderBindings.push_back(cameraBinding);
+			shaderBindings.push_back(transformBinding);
+			shaderBindings.push_back(samplerBinding);
+
+			RAL::Driver::Pipeline2 pipeline2{
+				.name_ = "Textured Pipeline",
+				.vertexShader_ = vertexShader,
+				.fragmentShader_ = fragmentShader,
+				.topologyType_ = RAL::Driver::TopologyType::TriangleList,
+				.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2,
+				.indexType_ = RAL::Driver::IndexType::UI16,
+				.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
+				.cullMode_ = RAL::Driver::CullMode::Back,
+				.shaderBindings_ = shaderBindings,
+				.enableDepthTest_ = true
+
+			};
+			driverCreateInfo.pipelines2_.push_back(pipeline2);
+
+
+		}
+
+
+		{
+			RAL::Shader::CreateInfo vertexShaderCreateInfo{
 				.name_ = "LinesVertexShader",
 				.type_ = RAL::Shader::Type::Vertex,
 				.code_ = createInfo.linesVertexShader_

@@ -1,5 +1,5 @@
-Name: - !!str dragon_lore
-Obj: - !!str dragon_lore.obj
-Mtl: - !!str dragon_lore.mtl
+Name: dragon_lore
+Obj: dragon_lore.obj
+Mtl: dragon_lore.mtl
 Textures: 
-- - !!str dragon_lore.bmp
+- dragon_lore.bmp

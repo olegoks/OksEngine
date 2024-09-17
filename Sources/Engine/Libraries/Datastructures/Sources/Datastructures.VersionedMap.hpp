@@ -54,7 +54,6 @@ namespace DataStructures {
 
 		Memory::AllocationCallbacks allocationCallbacks_;
 		DS::Vector<Slot> slots_;
-		//std::vector<Slot> slots_;
 	};
 
 	template<class Type>
@@ -95,7 +94,6 @@ namespace DataStructures {
 			data_ = data;
 		}
 
-	private:
 		Version version_ = 0;
 		Type* data_ = nullptr;
 	};
@@ -105,7 +103,7 @@ namespace DataStructures {
 	VersionedMap<Type>::VersionedMap(Memory::AllocationCallbacks allocationCallbacks) noexcept :
 		allocationCallbacks_{ allocationCallbacks } {
 		Slot freeSlot;
-		slots_.Resize(1 << 10);
+		slots_.Resize(1 << 16);
 	}
 
 	template<class Type>
@@ -129,7 +127,7 @@ namespace DataStructures {
 			slotIndex_{ index },
 			version_{ version } { }
 
-		operator Id() noexcept {
+		operator Common::UInt64() const noexcept {
 			
 			union {
 				Common::UInt64 full_;
@@ -145,7 +143,6 @@ namespace DataStructures {
 			return parsedValue.full_;
 		}
 
-	private:
 		VersionedMap<Type>::SlotIndex slotIndex_;
 		VersionedMap<Type>::Slot::Version version_;
 	public:
@@ -232,7 +229,7 @@ namespace DataStructures {
 			const Slot& slot = slots_[slotIndex];
 			if (!slot.IsFree()) {
 				const SlotId slotId{ slotIndex, slot.version_ };
-				const bool stop = !processor(slotId, *slot.GetData());
+				const bool stop = !processor(slotId.operator size_t(), *slot.GetData());
 				if (stop) { break; }
 			}
 		}

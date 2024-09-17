@@ -1,5 +1,5 @@
-Name: - !!str Rock
-Obj: - !!str Rock1.obj
-Mtl: - !!str Rock1.mtl
+Name: Rock
+Obj: Rock1.obj
+Mtl: Rock1.mtl
 Textures: 
-- - !!str Rock-Texture-Surface.jpg
+- Rock-Texture-Surface.jpg

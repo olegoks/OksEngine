@@ -31,7 +31,7 @@ int main(int argc, char** argv) {
     camera.AddBehaviour("Camera.lua", "Camera");
     Entity dragonLore = engine.CreateEntity();
     dragonLore.AddPosition(0, 0, 0);
-    dragonLore.AddImmutableRenderGeometry("de_dust2.geom");
+    dragonLore.AddImmutableRenderGeometry("Rock.geom");
 
     //entity.AddImmutableRenderGeometry("dragon_lore.geom");
 

@@ -64,8 +64,13 @@ namespace OksEngine {
 		}
 
 		[[nodiscard]]
-		const auto GetGeomStorage() noexcept {
-			return geomStorage_;
+		const auto GetModelStorage() noexcept {
+			return modelStorage_;
+		}
+
+		[[nodiscard]]
+		const auto GetMeshStorage() noexcept {
+			return meshStorage_;
 		}
 
 		[[nodiscard]]
@@ -84,9 +89,10 @@ namespace OksEngine {
 		std::shared_ptr<class LogSubsystem> logSubsystem_ = nullptr;
 		std::shared_ptr<class AsyncResourceSubsystem> resourceSubsystem_ = nullptr;
 		std::shared_ptr<class RenderSubsystem> renderSubsystem_ = nullptr;
-		std::shared_ptr<TaggedStorage<Geometry::Model2>> geomStorage_ = nullptr;
+		std::shared_ptr<TaggedStorage<Geometry::Mesh>> meshStorage_ = nullptr;
 		std::shared_ptr<TaggedStorage<Geometry::Texture>> textureStorage_ = nullptr;
 		std::shared_ptr<TaggedStorage<Lua::Script>> scriptStorage_ = nullptr;
+		std::shared_ptr<class ModelStorage> modelStorage_ = nullptr;
 		std::shared_ptr<class PhysicsSubsystem> physicsSubsystem_ = nullptr;
 		std::shared_ptr<class UISubsystem> uiSubsystem_ = nullptr;
 		std::shared_ptr<class DebugSubsystem> debugSubsystem_ = nullptr;

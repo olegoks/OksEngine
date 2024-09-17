@@ -1,0 +1,35 @@
+# Blender 4.0.2 MTL File: 'London_Building.blend'
+# www.blender.org
+
+newmtl London_Building
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Building_Diffuse.png
+map_Ns Building_Roughness.png
+map_Ke Building_Emmision_2.png
+map_Bump -bm 1.000000 Building_Normal.png
+
+newmtl Sidewalk
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd Sidewalk_Diffuse.png
+map_Ns Sidewalk_Roughness.png
+map_Bump -bm 1.000000 Sidewalk_Normal.png
+
+newmtl Sidewalk_Curb
+Ka 1.000000 1.000000 1.000000
+Ks 0.500000 0.500000 0.500000
+Ke 0.000000 0.000000 0.000000
+Ni 1.450000
+d 1.000000
+illum 2
+map_Kd SidewalkCurb_Diffuse.png
+map_Ns SidewalkCurb_Roughness.png
+map_Bump -bm 1.000000 SidewalkCurb_Normal.png

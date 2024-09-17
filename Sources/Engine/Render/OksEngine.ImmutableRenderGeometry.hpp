@@ -11,6 +11,7 @@
 #define YAML_CPP_STATIC_DEFINE
 #include <yaml-cpp/yaml.h>
 #include <Geometry.Storage.hpp>
+#include <Render/OksEngine.GeometryStorage.hpp>
 
 //#include "OksEngine.Render.Subsystem.hpp"
 
@@ -97,7 +98,7 @@ namespace OksEngine {
 			geomName_{ geomName },
 			yamlText_{ yamlText },
 			mesh_{  } {
-			mesh_ = YAML::Load(yamlText_);
+ 			mesh_ = YAML::Load(yamlText_);
 		}
 
 		std::string geomName_;
@@ -161,16 +162,18 @@ namespace OksEngine {
 			OBJ_MTL,
 			OBJ,
 			FBX,
+			FBX_TEXTURES,
 			Undefined
 		};
 
-		LoadMeshRequest(std::map<std::string, ECS::Entity::Id> resourceEntityId, Type type) 
+		LoadMeshRequest(const std::string& name, std::map<std::string, ECS::Entity::Id> resourceEntityId, Type type) 
 			: ECSComponent{ nullptr },
 			resourceEntityId_{ resourceEntityId },
-			type_{ type } {}
+			type_{ type }, name_{ name } {}
 
 		std::map<std::string, ECS::Entity::Id> resourceEntityId_;
 		Type type_ = Type::Undefined;
+		std::string name_;
 	};
 
 	class CreateLoadMeshRequest : public ECSSystem {
@@ -204,6 +207,7 @@ namespace OksEngine {
 		Geom::Model2::Id modelId_;
 		//Geom::Mesh::Id meshId_;
 		//std::string tag_;
+		ModelStorage::Model::Id model_;
 		Common::Index driverModelId_ = Common::Limits<Common::Index>::Max();
 	};
 

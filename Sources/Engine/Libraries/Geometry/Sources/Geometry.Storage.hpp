@@ -9,6 +9,7 @@
 #include <Geometry.IndexBuffer.hpp>
 #include <Geometry.Texture.hpp>
 #include <Geometry.Polygon.hpp>
+#include <Geometry.AABB.hpp>
 
 namespace Geometry {
 
@@ -47,8 +48,10 @@ namespace Geometry {
 		DS::Vector<Color3f>		colors_;
 		DS::Vector<UV2f>		uvs_;
 		IndexBuffer<Index16>	indices_;
-		std::string textureStorageTag_;
-		Texture::Id textureStorageId_;
+		AABB aabb_;
+		std::string textureName_;
+		//std::string textureStorageTag_;
+		//Texture::Id textureStorageId_;
 		std::string name_;
 		//RAL::Texture::Id driverTextureId_;
 	};
