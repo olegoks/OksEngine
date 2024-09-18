@@ -3,6 +3,7 @@
 #include <OksEngine.ECS.Component.hpp>
 #include <OksEngine.ECS.System.hpp>
 #include <Math.Matrix.hpp>
+//#include <RAL.Driver.hpp>
 
 namespace OksEngine {
 
@@ -10,6 +11,10 @@ namespace OksEngine {
 		glm::vec3 position_ = { 5.f, 0.f, 0.f };
 		glm::vec3 direction_ = glm::vec3{ glm::vec3{ 0.f, 0.f, 0.f } - glm::vec3{ 5.f, 0.f, 0.f } };
 		glm::vec3 up_ = { 0.f, -1.f, 0.f };
+		glm::float32 width_ = 800;
+		glm::float32 height_ = 600;
+		float zNear_ = 0.1f;
+		float zFar_ = 1000000.f;
 		bool isActive_ = true;
 
 		float GetDirectionX() {
@@ -114,6 +119,30 @@ namespace OksEngine {
 			direction_{ direction },
 			up_{ up }, isActive_{ isActive } { }
 
+	};
+
+	struct DriverCamera : public ECSComponent<DriverCamera> {
+		struct Matrices {
+			alignas(16) glm::mat4 view_;
+			alignas(16) glm::mat4 proj_;
+		};
+
+		//RAL::Driver::UniformBuffer::Id matricesBuffer_;
+	};
+
+	class CreateDriverCamera : public ECSSystem {
+	public:
+
+		CreateDriverCamera(Context& context) noexcept;
+
+	public:
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
+	private:
+
+		virtual Common::TypeId GetTypeId() const noexcept override;
 	};
 
 

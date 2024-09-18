@@ -39,20 +39,20 @@ namespace RE {
 				.code_ = createInfo.imguiFragmentShader_
 			};
 			auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
-			driverCreateInfo.imguiPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
-				"ImGui",
-				vertexShader,
-				fragmentShader);
+			//driverCreateInfo.imguiPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
+			//	"ImGui",
+			//	vertexShader,
+			//	fragmentShader);
 
-			std::vector<RAL::Driver::ShaderBinding> shaderBindings;
+			std::vector<RAL::Driver::ShaderBinding::Layout> shaderBindings;
 
-			RAL::Driver::ShaderBinding transformBinding{
+			RAL::Driver::ShaderBinding::Layout transformBinding{
 				.binding_ = 0,
 				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
 				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader
 			};
 
-			RAL::Driver::ShaderBinding samplerBinding{
+			RAL::Driver::ShaderBinding::Layout samplerBinding{
 				.binding_ = 0,
 				.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
 				.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader
@@ -61,7 +61,7 @@ namespace RE {
 			shaderBindings.push_back(transformBinding);
 			shaderBindings.push_back(samplerBinding);
 
-			RAL::Driver::Pipeline2 pipeline2{
+			RAL::Driver::PipelineDescription pipelineDesc{
 				.name_ = "ImGui Pipeline",
 				.vertexShader_ = vertexShader,
 				.fragmentShader_ = fragmentShader,
@@ -72,9 +72,9 @@ namespace RE {
 				.cullMode_ = RAL::Driver::CullMode::None,
 				.shaderBindings_ = shaderBindings,
 				.enableDepthTest_ = false
-
+				
 			};
-			driverCreateInfo.pipelines2_.push_back(pipeline2);
+			driverCreateInfo.namePipelineDescriptions_["ImGui Pipeline"] = pipelineDesc;
 
 
 		}
@@ -98,21 +98,21 @@ namespace RE {
 			//	vertexShader,
 			//	fragmentShader);
 
-			std::vector<RAL::Driver::ShaderBinding> shaderBindings;
+			std::vector<RAL::Driver::ShaderBinding::Layout> shaderBindings;
 
-			RAL::Driver::ShaderBinding cameraBinding{
+			RAL::Driver::ShaderBinding::Layout cameraBinding{
 				.binding_ = 0,
 				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
 				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader
 			};
 
-			RAL::Driver::ShaderBinding transformBinding{
+			RAL::Driver::ShaderBinding::Layout transformBinding{
 				.binding_ = 0,
 				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
 				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader
 			};
 
-			RAL::Driver::ShaderBinding samplerBinding{
+			RAL::Driver::ShaderBinding::Layout samplerBinding{
 				.binding_ = 0,
 				.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
 				.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader
@@ -122,7 +122,7 @@ namespace RE {
 			shaderBindings.push_back(transformBinding);
 			shaderBindings.push_back(samplerBinding);
 
-			RAL::Driver::Pipeline2 pipeline2{
+			RAL::Driver::PipelineDescription pipelineDesc{
 				.name_ = "Textured Pipeline",
 				.vertexShader_ = vertexShader,
 				.fragmentShader_ = fragmentShader,
@@ -135,73 +135,72 @@ namespace RE {
 				.enableDepthTest_ = true
 
 			};
-			driverCreateInfo.pipelines2_.push_back(pipeline2);
-
+			driverCreateInfo.namePipelineDescriptions_["Textured Pipeline"] = pipelineDesc;
 
 		}
 
 
-		{
-			RAL::Shader::CreateInfo vertexShaderCreateInfo{
-				.name_ = "LinesVertexShader",
-				.type_ = RAL::Shader::Type::Vertex,
-				.code_ = createInfo.linesVertexShader_
-			};
-			auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
-			RAL::Shader::CreateInfo fragmentShaderCreateInfo{
-				.name_ = "LinesFragmentShader",
-				.type_ = RAL::Shader::Type::Fragment,
-				.code_ = createInfo.linesFragmentShader_
-			};
-			auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
-			driverCreateInfo.linesPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
-				"Lines",
-				vertexShader,
-				fragmentShader);
-		}
+		//{
+		//	RAL::Shader::CreateInfo vertexShaderCreateInfo{
+		//		.name_ = "LinesVertexShader",
+		//		.type_ = RAL::Shader::Type::Vertex,
+		//		.code_ = createInfo.linesVertexShader_
+		//	};
+		//	auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
+		//	RAL::Shader::CreateInfo fragmentShaderCreateInfo{
+		//		.name_ = "LinesFragmentShader",
+		//		.type_ = RAL::Shader::Type::Fragment,
+		//		.code_ = createInfo.linesFragmentShader_
+		//	};
+		//	auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
+		//	driverCreateInfo.linesPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
+		//		"Lines",
+		//		vertexShader,
+		//		fragmentShader);
+		//}
 
-		{
-			RAL::Shader::CreateInfo vertexShaderCreateInfo{
-				.name_ = "FlatVertexShader",
-				.type_ = RAL::Shader::Type::Vertex,
-				.code_ = createInfo.vertexShader_
-			};
-			auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
-			RAL::Shader::CreateInfo fragmentShaderCreateInfo{
-				.name_ = "FlatFragmentShader",
-				.type_ = RAL::Shader::Type::Fragment,
-				.code_ = createInfo.fragmentShader_
-			};
-			auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
-			driverCreateInfo.flatShadedPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
-				"Flat",
-				vertexShader,
-				fragmentShader);
-		}
+		//{
+		//	RAL::Shader::CreateInfo vertexShaderCreateInfo{
+		//		.name_ = "FlatVertexShader",
+		//		.type_ = RAL::Shader::Type::Vertex,
+		//		.code_ = createInfo.vertexShader_
+		//	};
+		//	auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
+		//	RAL::Shader::CreateInfo fragmentShaderCreateInfo{
+		//		.name_ = "FlatFragmentShader",
+		//		.type_ = RAL::Shader::Type::Fragment,
+		//		.code_ = createInfo.fragmentShader_
+		//	};
+		//	auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
+		//	driverCreateInfo.flatShadedPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
+		//		"Flat",
+		//		vertexShader,
+		//		fragmentShader);
+		//}
 
-		{
-			RAL::Shader::CreateInfo vertexShaderCreateInfo{
-				.name_ = "TexturedVertexShader",
-				.type_ = RAL::Shader::Type::Vertex,
-				.code_ = createInfo.textureVertexShader_
-			};
-			auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
-			RAL::Shader::CreateInfo fragmentShaderCreateInfo{
-				.name_ = "TexturedFragmentShader",
-				.type_ = RAL::Shader::Type::Fragment,
-				.code_ = createInfo.textureFragmentShader_
-			};
-			auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
-			driverCreateInfo.texturedPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
-				"Textured",
-				vertexShader,
-				fragmentShader);
-		}
+		//{
+		//	RAL::Shader::CreateInfo vertexShaderCreateInfo{
+		//		.name_ = "TexturedVertexShader",
+		//		.type_ = RAL::Shader::Type::Vertex,
+		//		.code_ = createInfo.textureVertexShader_
+		//	};
+		//	auto vertexShader = api_->CreateShader(vertexShaderCreateInfo);
+		//	RAL::Shader::CreateInfo fragmentShaderCreateInfo{
+		//		.name_ = "TexturedFragmentShader",
+		//		.type_ = RAL::Shader::Type::Fragment,
+		//		.code_ = createInfo.textureFragmentShader_
+		//	};
+		//	auto fragmentShader = api_->CreateShader(fragmentShaderCreateInfo);
+		//	driverCreateInfo.texturedPipeline_ = std::make_shared<RAL::Driver::Pipeline>(
+		//		"Textured",
+		//		vertexShader,
+		//		fragmentShader);
+		//}
 
 
 		driver_ = api_->CreateDriver(driverCreateInfo);
-		driver_->SetCamera(createInfo.camera_);
-		driver_->AddLight(createInfo.light_);
+		//driver_->SetCamera(createInfo.camera_);
+		//driver_->AddLight(createInfo.light_);
 
 		
 	}
@@ -268,7 +267,7 @@ namespace RE {
 
 	void RenderEngine::SetModelMatrix(const RenderEngine::Model& model, const glm::mat4& modelMatrix) {
 		for (auto shape : model.shapes_) {
-			driver_->SetModelMatrix(shape.id_, modelMatrix);
+			//driver_->SetModelMatrix(shape.id_, modelMatrix);
 		}
 	}
 
@@ -298,11 +297,11 @@ namespace RE {
 	}
 
 	void RenderEngine::SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up) {
-		auto camera = driver_->GetCamera();
-		camera->SetPosition(position);
-		camera->SetDirection(direction);
-		camera->SetUp(up);
-		driver_->SetCamera(camera);
+		//auto camera = driver_->GetCamera();
+		//camera->SetPosition(position);
+		//camera->SetDirection(direction);
+		//camera->SetUp(up);
+		//driver_->SetCamera(camera);
 	}
 
 }

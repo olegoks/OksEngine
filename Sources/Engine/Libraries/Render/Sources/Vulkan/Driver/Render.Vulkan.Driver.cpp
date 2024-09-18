@@ -64,17 +64,17 @@ namespace Render::Vulkan {
 		for (const QueueFamily& graphicsQueueFamily : graphicsQueueFamilies) {
 			for (const QueueFamily& presentQueueFamily : presentQueueFamilies) {
 				if (graphicsQueueFamily.index_ == presentQueueFamily.index_) {
-					graphicsQueueFamily_ = graphicsQueueFamily;
-					presentQueueFamily_ = presentQueueFamily;
+					objects_.graphicsQueueFamily_ = graphicsQueueFamily;
+					objects_.presentQueueFamily_ = presentQueueFamily;
 					OS::LogInfo("/render/vulkan/driver/physical device", "Found queue family that supports present and graphics commands.");
 				}
 			}
 		}
 
-		graphicsQueueFamily_ = *graphicsQueueFamilies.begin();
-		presentQueueFamily_ = *presentQueueFamilies.begin();
+		objects_.graphicsQueueFamily_ = *graphicsQueueFamilies.begin();
+		objects_.presentQueueFamily_ = *presentQueueFamilies.begin();
 
-		return { graphicsQueueFamily_, presentQueueFamily_ };
+		return { objects_.graphicsQueueFamily_, objects_.presentQueueFamily_ };
 	}
 
 	[[nodiscard]]

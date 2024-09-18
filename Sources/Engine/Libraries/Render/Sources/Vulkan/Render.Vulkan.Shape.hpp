@@ -100,16 +100,23 @@ namespace Render::Vulkan {
 	};
 
 
-	class Shape2 {
+	class Mesh {
 	public:
 
 		using Id = Common::Id;
+
+		struct ShaderBinding {
+			std::shared_ptr<UniformBuffer> uniformBuffer_ = nullptr;
+			std::shared_ptr<DescriptorSet> DS_ = nullptr;
+			RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+		};
 
 		struct CreateInfo {
 			char transform_[sizeof(glm::mat4)];
 			Common::Size transformSize_ = 0;
 			std::shared_ptr<AllocatedVertexBuffer2> vertexBuffer_ = nullptr;
 			std::shared_ptr<AllocatedIndexBuffer2> indexBuffer_ = nullptr;
+			std::vector<ShaderBinding> shaderBindings_;
 			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
 			RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
@@ -117,7 +124,7 @@ namespace Render::Vulkan {
 			bool draw_ = true;
 		};
 
-		Shape2(const CreateInfo& createInfo) :
+		Mesh(const CreateInfo& createInfo) :
 			transform_{ 0 }, createInfo_{ createInfo }, draw_{ createInfo.draw_ } {
 		
 			std::memcpy(transform_, (char*)createInfo.transform_, createInfo.transformSize_);

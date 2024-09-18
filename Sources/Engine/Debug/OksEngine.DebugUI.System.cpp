@@ -52,7 +52,7 @@ namespace OksEngine {
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 		if (!state->driverShapesId_.empty()) {
 			for (Common::Id shapeId : state->driverShapesId_) {
-				driver->RemoveShapeFromDrawing(shapeId);
+				driver->RemoveMeshFromDrawing(shapeId);
 			}
 			state->driverShapesId_.clear();
 		}
@@ -106,18 +106,18 @@ namespace OksEngine {
 						glm::vec2 translate_;
 					};
 					Transform transform{ scale,translate };
-					const Common::Id shapeId = driver->AddShapeToDraw(
-						"ImGui Pipeline",
-						&transform,
-						sizeof(Transform),
-						(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
-						cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
-						RAL::Driver::VertexType::VF2_TF2_CF4,
-						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
-						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
-						RAL::Driver::IndexType::UI16,
-						state->fontsTextureId_);
-					state->driverShapesId_.push_back(shapeId);
+					//const Common::Id shapeId = driver->DrawMesh(
+					//	"ImGui Pipeline",
+					//	&transform,
+					//	sizeof(Transform),
+					//	(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
+					//	cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
+					//	RAL::Driver::VertexType::VF2_TF2_CF4,
+					//	cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
+					//	cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
+					//	RAL::Driver::IndexType::UI16,
+					//	state->fontsTextureId_);
+					//state->driverShapesId_.push_back(shapeId);
 				}
 			}
 
