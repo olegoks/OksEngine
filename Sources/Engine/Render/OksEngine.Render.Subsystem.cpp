@@ -51,22 +51,22 @@ namespace OksEngine {
 			renderSurface.uiSubsystem_ = RAL::UISubsystem::GLFW;
 		}
 
-		RAL::Camera::CreateInfo cameraCreateInfo;
-		{
-			cameraCreateInfo.position_ = { 5.f, 0.f, 0.f };
-			cameraCreateInfo.direction_ = glm::vec3{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
-			cameraCreateInfo.zFar_ = 10000000.f;
-			cameraCreateInfo.size_ = windowInfo.size_;
-		}
+		//RAL::Camera::CreateInfo cameraCreateInfo;
+		//{
+		//	cameraCreateInfo.position_ = { 5.f, 0.f, 0.f };
+		//	cameraCreateInfo.direction_ = glm::vec3{ 0.f, 0.f, 0.f } - cameraCreateInfo.position_;
+		//	cameraCreateInfo.zFar_ = 10000000.f;
+		//	cameraCreateInfo.size_ = windowInfo.size_;
+		//}
 
-		auto camera = std::make_shared<RAL::Camera>(cameraCreateInfo);
+		//auto camera = std::make_shared<RAL::Camera>(cameraCreateInfo);
 
-		RAL::Light::CreateInfo lightCreateInfo;
-		{
-			lightCreateInfo.intensity_ = 1.f;
-			lightCreateInfo.position_ = { 25.f, 0.f, 0.f };//camera->GetPosition();
-		}
-		auto light = std::make_shared<RAL::Light>(lightCreateInfo);
+		//RAL::Light::CreateInfo lightCreateInfo;
+		//{
+		//	lightCreateInfo.intensity_ = 1.f;
+		//	lightCreateInfo.position_ = { 25.f, 0.f, 0.f };//camera->GetPosition();
+		//}
+		//auto light = std::make_shared<RAL::Light>(lightCreateInfo);
 		ResourceSubsystem::Resource imguiVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiVertexShaderTaskId);
 		ResourceSubsystem::Resource imguiFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiFragmentShaderTaskId);
 		ResourceSubsystem::Resource linesVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesVertexShaderTaskId);
@@ -86,8 +86,8 @@ namespace OksEngine {
 		std::string fragmentTextureShader{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
 
 		RE::RenderEngine::CreateInfo RECreateInfo{
-			.camera_ = camera,
-			.light_ = light,
+			//.camera_ = camera,
+			//.light_ = light,
 			.imguiVertexShader_ = std::move(imguiVertexShader),
 			.imguiFragmentShader_ = std::move(imguiFragmentShader),
 			.linesVertexShader_ = std::move(linesVertexShader),

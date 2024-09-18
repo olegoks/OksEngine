@@ -13,19 +13,24 @@ namespace Render::Vulkan {
 	class DescriptorSetLayout : public Abstraction<VkDescriptorSetLayout>{
 	public:
 
-		struct CreateInfo {
-			std::string name_ = "No name";
+		struct CreateInfo final {
+			static inline const char* const defaultDSLName_ = "No Name";
+			std::string name_ = defaultDSLName_;
 			std::shared_ptr<LogicDevice> logicDevice_;
 			std::vector<VkDescriptorSetLayoutBinding> bindings_;
 		};
 
-		DescriptorSetLayout(const CreateInfo& createInfo) :
+		explicit DescriptorSetLayout(const CreateInfo& createInfo) :
 			createInfo_{ createInfo } {
+
+			OS::AssertMessage(createInfo.name_ != CreateInfo::defaultDSLName_, "Please, set name to descriptor set layout create info.");
+			OS::AssertMessage(createInfo.logicDevice_ != nullptr, "Please, set Physical Device to descriptor set layout create info.");
+
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			{
 				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
 				layoutInfo.bindingCount = static_cast<Common::UInt32>(createInfo.bindings_.size());
-				layoutInfo.pBindings = createInfo.bindings_.data();
+				layoutInfo.pBindings = (!createInfo.bindings_.empty()) ? (createInfo.bindings_.data()) : (nullptr);
 			}
 			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
 			VkCall(vkCreateDescriptorSetLayout(createInfo.logicDevice_->GetHandle(), &layoutInfo, nullptr, &descriptorSetLayout),

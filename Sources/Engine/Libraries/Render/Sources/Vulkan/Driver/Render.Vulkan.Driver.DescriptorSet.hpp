@@ -115,6 +115,8 @@ namespace Render::Vulkan {
 	};
 
 
+	using DS = DescriptorSet;
+
 
 
 }

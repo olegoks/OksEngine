@@ -136,13 +136,13 @@ namespace OksEngine {
 			const Geom::Mesh& geomMesh = GetContext().GetMeshStorage()->Get(mesh.meshId_);
 			auto vertices = Geometry::GetVertexCloud3fnt(geomMesh);
 			glm::mat4 localToWorld = position->GetTranslateMat();
-			meshComponent->driverModelId_ = driver->DrawIndexed(
-				localToWorld,
-				(const RAL::Vertex3fnt*)vertices.GetData(),
-				vertices.GetVerticesNumber(),
-				(const RAL::Index16*)geomMesh.indices_.GetData(),
-				geomMesh.indices_.GetIndicesNumber(), mesh.driverTextureId_);
-			driver->SetModelMatrix(meshComponent->driverModelId_, localToWorld);
+			//meshComponent->driverModelId_ = driver->DrawIndexed(
+			//	localToWorld,
+			//	(const RAL::Vertex3fnt*)vertices.GetData(),
+			//	vertices.GetVerticesNumber(),
+			//	(const RAL::Index16*)geomMesh.indices_.GetData(),
+			//	geomMesh.indices_.GetIndicesNumber(), mesh.driverTextureId_);
+			//driver->SetModelMatrix(meshComponent->driverModelId_, localToWorld);
 			return true;
 
 			});

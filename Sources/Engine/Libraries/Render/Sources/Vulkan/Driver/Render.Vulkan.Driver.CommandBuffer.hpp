@@ -265,7 +265,7 @@ namespace Render::Vulkan {
 		}
 
 
-		void BindShape2(std::shared_ptr<Shape2> shape) {
+		void BindShape2(std::shared_ptr<Mesh> shape) {
 			BindBuffer(shape->GetVertexBuffer());
 			BindBuffer(shape->GetIndexBuffer());
 		}
@@ -297,7 +297,7 @@ namespace Render::Vulkan {
 			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
 		}
 
-		void DrawShape2(std::shared_ptr<Shape2> shape) {
+		void DrawShape2(std::shared_ptr<Mesh> shape) {
 			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
 		}
 

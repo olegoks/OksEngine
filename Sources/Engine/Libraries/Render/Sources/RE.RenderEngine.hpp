@@ -11,8 +11,8 @@ namespace RE {
 	public:
 
 		struct CreateInfo {
-			std::shared_ptr<RAL::Camera> camera_ = nullptr;
-			std::shared_ptr<RAL::Light> light_ = nullptr;
+			//std::shared_ptr<RAL::Camera> camera_ = nullptr;
+			//std::shared_ptr<RAL::Light> light_ = nullptr;
 			std::string imguiVertexShader_;
 			std::string imguiFragmentShader_;
 			std::string linesVertexShader_;

@@ -3,6 +3,7 @@
 #include <Common/OksEngine.Position.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
 
+
 namespace OksEngine {
 
 
@@ -110,9 +111,9 @@ namespace OksEngine {
 		if (camera->IsActive()) {
 			auto* position = world->GetComponent<Position>(entityId);
 			auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-			driver->GetCamera()->SetPosition(position->GetTranslateVec());
-			driver->GetCamera()->SetDirection(camera->GetDirection());
-			driver->GetCamera()->SetUp(camera->GetUp());
+			//driver->GetCamera()->SetPosition(position->GetTranslateVec());
+			//driver->GetCamera()->SetDirection(camera->GetDirection());
+			//driver->GetCamera()->SetUp(camera->GetUp());
 		}
 	}
 
@@ -172,5 +173,34 @@ namespace OksEngine {
 		}
 	}
 
+
+	inline void CreateDriverCamera::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+		const auto* camera = world->GetComponent<Camera>(entityId);
+
+		const glm::mat4 view = glm::lookAt(
+			camera->position_,
+			camera->position_ + camera->direction_,
+			camera->GetUp()
+		);
+
+		glm::mat4 proj = glm::perspective(
+			glm::radians(45.0f),
+			camera->width_ / (float)camera->height_,
+			camera->zNear_, camera->zFar_);
+
+		proj[1][1] *= -1;
+
+	}
+
+	inline std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateDriverCamera::GetFilter() const noexcept {
+		return { ECS::Entity::Filter{}.Include<Camera>(), ECS::Entity::Filter{}.Exclude<DriverCamera>() };
+	}
+
+	inline Common::TypeId CreateDriverCamera::GetTypeId() const noexcept {
+		return Common::TypeInfo<CreateDriverCamera>().GetId();
+	}
+
+	CreateDriverCamera::CreateDriverCamera(Context& context) noexcept :
+		ECSSystem{ context } { }
 
 }
