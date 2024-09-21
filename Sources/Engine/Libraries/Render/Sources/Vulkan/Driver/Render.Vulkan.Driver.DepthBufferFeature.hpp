@@ -18,14 +18,14 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 
 		};
 
 		DepthBufferFeature(const CreateInfo& createInfo) noexcept :
-			logicDevice_{ createInfo.logicDevice_ },
+			LD_{ createInfo.LD_ },
 			physicalDevice_{ createInfo.physicalDevice_ } {
 
 			const VkFormat depthImageFormat = findSupportedFormat();
@@ -33,7 +33,7 @@ namespace Render::Vulkan {
 			Image::CreateInfo imageCreateInfo;
 			{
 				imageCreateInfo.format_ = depthImageFormat;
-				imageCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				imageCreateInfo.LD_ = createInfo.LD_;
 				imageCreateInfo.size_ = createInfo.swapChain_->GetExtent();
 				imageCreateInfo.tiling_ = depthImageTiling_;
 				imageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
@@ -41,7 +41,7 @@ namespace Render::Vulkan {
 			depthImage_ = std::make_shared<Image>(imageCreateInfo);
 			ImageView::CreateInfo imageViewCreateInfo;
 			{
-				imageViewCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				imageViewCreateInfo.LD_ = createInfo.LD_;
 				imageViewCreateInfo.format_ = depthImageFormat;
 				imageViewCreateInfo.aspectFlags_ = VK_IMAGE_ASPECT_DEPTH_BIT;
 				imageViewCreateInfo.image_ = depthImage_;
@@ -83,7 +83,7 @@ namespace Render::Vulkan {
 		}
 
 	private:
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+		std::shared_ptr<LogicDevice> LD_ = nullptr;
 		std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 		VkFormat depthImageFormat_ = VK_FORMAT_UNDEFINED;
 		std::shared_ptr<Image> depthImage_ = VK_NULL_HANDLE;

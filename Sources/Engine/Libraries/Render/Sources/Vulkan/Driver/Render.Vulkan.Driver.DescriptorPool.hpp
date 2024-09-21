@@ -38,17 +38,19 @@ namespace Render::Vulkan {
 				poolInfo.maxSets = static_cast<uint32_t>(size) + 1000;
 				poolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT; //If individual descriptor sets can be freed or not
 			}
-			if (vkCreateDescriptorPool(logicDevice->GetHandle(), &poolInfo, nullptr, &descriptorPool_) != VK_SUCCESS) {
+			if (vkCreateDescriptorPool(logicDevice->GetHandle(), &poolInfo, nullptr, &DP_) != VK_SUCCESS) {
 				throw std::runtime_error("failed to create descriptor pool!");
 			}
 		}
 		~DescriptorPool() {
-			vkDestroyDescriptorPool(logicDevice_->GetHandle(), descriptorPool_, nullptr);
+			vkDestroyDescriptorPool(LD_->GetHandle(), DP_, nullptr);
 		}
-		VkDescriptorPool GetNative() const { return descriptorPool_; }
+		VkDescriptorPool GetNative() const { return DP_; }
 
 	private:
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
-		VkDescriptorPool descriptorPool_;
+		std::shared_ptr<LogicDevice> LD_ = nullptr;
+		VkDescriptorPool DP_;
 	};
+
+	using DP = DescriptorPool;
 }

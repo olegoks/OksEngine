@@ -79,7 +79,7 @@ namespace Render::Vulkan {
 
 		class FrameContext {
 		public:
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			VkQueue graphicsQueue_;
 			VkQueue presentQueue_;
@@ -120,7 +120,7 @@ namespace Render::Vulkan {
 					submitInfo.signalSemaphoreCount = 1;
 					submitInfo.pSignalSemaphores = &renderFinishedSemaphore_->GetNative();
 
-					VkCall(vkQueueSubmit(logicDevice_->GetGraphicsQueue(), 1, &submitInfo, renderFinishedFence_->GetNative()),
+					VkCall(vkQueueSubmit(LD_->GetGraphicsQueue(), 1, &submitInfo, renderFinishedFence_->GetNative()),
 						"Error while submitting commands.");
 				}
 
@@ -140,13 +140,13 @@ namespace Render::Vulkan {
 					presentInfo.pImageIndices = &imageContext_->index_;
 					presentInfo.pResults = nullptr;
 
-					VkCall(vkQueuePresentKHR(logicDevice_->GetPresentQueue(), &presentInfo),
+					VkCall(vkQueuePresentKHR(LD_->GetPresentQueue(), &presentInfo),
 						"Error while showing image.");
 				}
 			}
 
 			void WaitForQueueIdle() const noexcept {
-				VkCall(vkQueueWaitIdle(logicDevice_->GetPresentQueue()),
+				VkCall(vkQueueWaitIdle(LD_->GetPresentQueue()),
 					"Error while waitting for queue idle.");
 			}
 
@@ -158,12 +158,12 @@ namespace Render::Vulkan {
 			std::shared_ptr<Debug> debug_ = nullptr;
 			std::shared_ptr<WindowSurface> windowSurface_ = nullptr;
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<CommandPool> commandPool_ = nullptr;
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
 			std::vector<FrameBuffer> frameBuffers_;
-			std::shared_ptr<DescriptorPool> descriptorPool_ = nullptr;
+			std::shared_ptr<DescriptorPool> DP_ = nullptr;
 			QueueFamily graphicsQueueFamily_;
 			QueueFamily presentQueueFamily_;
 			std::vector<std::shared_ptr<CommandBuffer>> commandBuffers_;
@@ -224,6 +224,7 @@ namespace Render::Vulkan {
 			}
 			default:
 				OS::AssertFailMessage("Invalid CullMode value used.");
+				return VkCullModeFlagBits::VK_CULL_MODE_FLAG_BITS_MAX_ENUM;
 			};
 		}
 
@@ -239,6 +240,7 @@ namespace Render::Vulkan {
 			}
 			default:
 				OS::AssertFailMessage("Invalid TopologyType value used.");
+				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
 			};
 		}
 
@@ -254,6 +256,7 @@ namespace Render::Vulkan {
 			}
 			default:
 				OS::AssertFailMessage("Invalid FrontFace value used.");
+				return VkFrontFace::VK_FRONT_FACE_MAX_ENUM;
 			};
 		}
 
@@ -269,6 +272,7 @@ namespace Render::Vulkan {
 			}
 			default:
 				OS::AssertFailMessage("Invalid ShaderBinding::Type value used.");
+				return VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
 			};
 		}
 
@@ -285,6 +289,7 @@ namespace Render::Vulkan {
 			}
 			default:
 				OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 			};
 		}
 
@@ -300,6 +305,7 @@ namespace Render::Vulkan {
 			}
 			default:
 				OS::AssertFailMessage("Invalid VertexType value used.");
+				return VkVertexInputBindingDescription{	};
 			};
 		}
 
@@ -381,14 +387,14 @@ namespace Render::Vulkan {
 				logicDeviceCreateInfo.requiredValidationLayers_ = requiredValidationLayers;
 				logicDeviceCreateInfo.presentQueueFamily_ = objects_.presentQueueFamily_;
 				logicDeviceCreateInfo.graphicsQueueFamily_ = objects_.graphicsQueueFamily_;
-				objects_.logicDevice_ = std::make_shared<LogicDevice>(logicDeviceCreateInfo);
+				objects_.LD_ = std::make_shared<LogicDevice>(logicDeviceCreateInfo);
 			}
 
 			//SWAPCHAIN
 			SwapChain::CreateInfo swapChainCreateInfo;
 			{
 				swapChainCreateInfo.imageSize_ = info.surface_.size_;
-				swapChainCreateInfo.logicDevice_ = objects_.logicDevice_;
+				swapChainCreateInfo.LD_ = objects_.LD_;
 				swapChainCreateInfo.physicalDevice_ = objects_.physicalDevice_;
 				swapChainCreateInfo.windowSurface_ = objects_.windowSurface_;
 				swapChainCreateInfo.presentQueueFamily_ = objects_.presentQueueFamily_;
@@ -404,7 +410,7 @@ namespace Render::Vulkan {
 			//COMMAND_POOL
 			CommandPool::CreateInfo commandPoolCreateInfo;
 			{
-				commandPoolCreateInfo.logicDevice_ = objects_.logicDevice_;
+				commandPoolCreateInfo.LD_ = objects_.LD_;
 				commandPoolCreateInfo.queueFamily_ = objects_.graphicsQueueFamily_;
 				objects_.commandPool_ = std::make_shared<CommandPool>(commandPoolCreateInfo);
 			}
@@ -419,7 +425,7 @@ namespace Render::Vulkan {
 
 			//DESCRIPTOR_POOL
 			const Common::Size descriptorPoolSize = objects_.swapChain_->GetImagesNumber() * 1000;
-			objects_.descriptorPool_ = std::make_shared<DescriptorPool>(objects_.logicDevice_, descriptorPoolSize);
+			objects_.DP_ = std::make_shared<DescriptorPool>(objects_.LD_, descriptorPoolSize);
 
 			//DEPTH BUFFER
 			{
@@ -428,7 +434,7 @@ namespace Render::Vulkan {
 					Image::CreateInfo depthImageCreateInfo;
 					{
 						depthImageCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-						depthImageCreateInfo.logicDevice_ = objects_.logicDevice_;
+						depthImageCreateInfo.LD_ = objects_.LD_;
 						depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
 						depthImageCreateInfo.size_ = objects_.swapChain_->GetSize();
 						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
@@ -436,7 +442,7 @@ namespace Render::Vulkan {
 						depthImageCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
 					}
 					depthTestData->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
-					depthTestData->imageView_ = CreateImageViewByImage(objects_.logicDevice_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT);
+					depthTestData->imageView_ = CreateImageViewByImage(objects_.LD_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT);
 				}
 				objects_.depthTestData_ = depthTestData;
 				//}
@@ -449,7 +455,7 @@ namespace Render::Vulkan {
 					Image::CreateInfo multisamplingCreateInfo;
 					{
 						multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-						multisamplingCreateInfo.logicDevice_ = objects_.logicDevice_;
+						multisamplingCreateInfo.LD_ = objects_.LD_;
 						multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
 						multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
 						multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
@@ -457,7 +463,7 @@ namespace Render::Vulkan {
 						multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
 					}
 					multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-					multisamplingData->imageView_ = CreateImageViewByImage(objects_.logicDevice_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT);
+					multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT);
 				}
 				objects_.multisamplingData_ = multisamplingData;
 				//}
@@ -486,7 +492,7 @@ namespace Render::Vulkan {
 
 			RenderPass::CreateInfo RPCreateInfo{};
 			{
-				RPCreateInfo.logicDevice_ = objects_.logicDevice_;
+				RPCreateInfo.LD_ = objects_.LD_;
 				RPCreateInfo.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format;
 				auto depthTestInfo = std::make_shared<RenderPass::DepthTestInfo>();
 				depthTestInfo->depthStencilBufferFormat_ = objects_.depthTestData_->image_->GetFormat();
@@ -513,7 +519,7 @@ namespace Render::Vulkan {
 					auto DSL = std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
 							binding.name_,
-							objects_.logicDevice_,
+							objects_.LD_,
 							bindings
 						});
 					DSLs.push_back(DSL);
@@ -528,16 +534,16 @@ namespace Render::Vulkan {
 
 				Vulkan::Pipeline::CreateInfo createInfo{
 					.physicalDevice_ = objects_.physicalDevice_,
-					.logicDevice_ = objects_.logicDevice_,
+					.LD_ = objects_.LD_,
 					.renderPass_ = objects_.renderPass_,
 					.pushConstants_ = {},
 					.descriptorSetLayouts_ = DSLs,
 					.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-						objects_.logicDevice_,
+						objects_.LD_,
 						std::dynamic_pointer_cast<Shader>(pipeline.vertexShader_)->GetSpirv()
 						}),
 					.fragmentShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-						createInfo.logicDevice_,
+						createInfo.LD_,
 						std::dynamic_pointer_cast<Shader>(pipeline.fragmentShader_)->GetSpirv()
 						}),
 					.depthTestInfo_ = depthTestData,
@@ -657,7 +663,7 @@ namespace Render::Vulkan {
 				for (const auto& imageView : objects_.swapChain_->GetImageViews()) {
 					FrameBuffer::CreateInfo createInfo;
 					{
-						createInfo.logicDevice_ = objects_.logicDevice_;
+						createInfo.LD_ = objects_.LD_;
 						createInfo.colorImageView_ = imageView;
 						createInfo.extent_ = extent;
 						createInfo.renderPass_ = *objects_.renderPass_;
@@ -701,18 +707,18 @@ namespace Render::Vulkan {
 			for (Common::Index i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 				auto frameContext = std::make_shared<FrameContext>();
 				{
-					frameContext->logicDevice_ = objects_.logicDevice_;
+					frameContext->LD_ = objects_.LD_;
 					frameContext->swapChain_ = objects_.swapChain_;
 					frameContext->imageContext_ = nullptr;
 
 					Fence::CreateInfo fenceCreateInfo;
 					{
-						fenceCreateInfo.logicDevice_ = objects_.logicDevice_;
+						fenceCreateInfo.LD_ = objects_.LD_;
 						fenceCreateInfo.flags_ = VK_FENCE_CREATE_SIGNALED_BIT;
 					}
 					frameContext->renderFinishedFence_ = std::make_shared<Fence>(fenceCreateInfo);
-					frameContext->renderFinishedSemaphore_ = std::make_shared<Semaphore>(objects_.logicDevice_);
-					frameContext->imageAvailableSemaphore_ = std::make_shared<Semaphore>(objects_.logicDevice_);
+					frameContext->renderFinishedSemaphore_ = std::make_shared<Semaphore>(objects_.LD_);
+					frameContext->imageAvailableSemaphore_ = std::make_shared<Semaphore>(objects_.LD_);
 				}
 				objects_.frameContexts_.push_back(frameContext);
 			}
@@ -725,7 +731,7 @@ namespace Render::Vulkan {
 
 				CommandBuffer::CreateInfo commandBufferCreateInfo;
 				{
-					commandBufferCreateInfo.logicDevice_ = objects_.logicDevice_;
+					commandBufferCreateInfo.LD_ = objects_.LD_;
 					commandBufferCreateInfo.commandPool_ = objects_.commandPool_;
 				}
 				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
@@ -784,17 +790,26 @@ namespace Render::Vulkan {
 				//	commandBuffer->DrawShape(shape);
 				//}
 
-				for (auto& [id, shape] : shapes2_) {
-					commandBuffer->BindPipeline(namePipeline_[shape->GetPipelineName()]);
-					commandBuffer->BindShape2(shape);
+				for (auto& [id, mesh] : meshs_) {
+					commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
+					commandBuffer->BindMesh(mesh);
 					{
 						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-						descriptorSets.push_back(shape->GetTransformDescriptorSet());
-						const auto texture = GetTextureById(shape->GetTextureId());
-						descriptorSets.push_back(texture->GetDS());
-						commandBuffer->BindDescriptorSets(namePipeline_[shape->GetPipelineName()], descriptorSets);
+						for (auto& shaderBinding : mesh->GetShaderBindings()) {
+							if (shaderBinding.ds_ != nullptr) {
+								descriptorSets.push_back(shaderBinding.ds_);
+								OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
+								continue;
+							}
+							if (!shaderBinding.textureId_.IsInvalid()) {
+								OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
+								const auto texture = GetTextureById(shaderBinding.textureId_);
+								descriptorSets.push_back(texture->GetDS());
+							}
+						}
+						commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
 					}
-					commandBuffer->DrawShape2(shape);
+					commandBuffer->DrawShape2(mesh);
 				}
 
 
@@ -1225,7 +1240,7 @@ namespace Render::Vulkan {
 
 			uint32_t imageIndex;
 			VkCall(vkAcquireNextImageKHR(
-				objects_.logicDevice_->GetHandle(),
+				objects_.LD_->GetHandle(),
 				objects_.swapChain_->GetHandle(),
 				UINT64_MAX,
 				imageAvailableSemaphore->GetNative(),
@@ -1282,8 +1297,70 @@ namespace Render::Vulkan {
 				presentInfo.pImageIndices = &imageIndex;
 				presentInfo.pResults = nullptr;
 
-				VkCall(vkQueuePresentKHR(objects_.logicDevice_->GetPresentQueue(), &presentInfo),
+				VkCall(vkQueuePresentKHR(objects_.LD_->GetPresentQueue(), &presentInfo),
 					"Error while showing image.");
+			}
+		}
+
+		[[nodiscard]]
+		virtual UniformBuffer::Id CreateUniformBuffer(const UniformBuffer::CreateInfo& createInfo) override {
+
+			switch (createInfo.type_) {
+			case UniformBuffer::Type::Const: {
+				auto uniformBuffer = std::make_shared<Vulkan::UniformBuffer>(
+					objects_.physicalDevice_,
+					objects_.LD_,
+					createInfo.size_);
+
+				Common::Id id = UBsIdsGenerator_.Generate();
+				UBs_[id] = std::vector<std::shared_ptr<Vulkan::UniformBuffer>>{ uniformBuffer };
+				return id;
+				break;
+			}
+			case UniformBuffer::Type::Mutable: {
+				//We should have multiple buffers, because multiple frames may be in flight at the same time and
+				//we don't want to update the buffer in preparation of the next frame while a previous one is still reading from it!
+				//Thus, we need to have as many uniform buffers as we have frames in flight,
+				//and write to a uniform buffer that is not currently being read by the GPU
+				std::vector<std::shared_ptr<Vulkan::UniformBuffer>> UBs;
+				for (Common::Index i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+					auto UB = std::make_shared<Vulkan::UniformBuffer>(
+						objects_.physicalDevice_,
+						objects_.LD_,
+						createInfo.size_);
+					UBs.push_back(UB);
+				}
+				Common::Id id = UBsIdsGenerator_.Generate();
+				UBs_[id] = std::move(UBs);
+				return id;
+				break;
+			}
+			default: {
+				OS::AssertFailMessage("Invalid type of uniform buffer.");
+				return Common::Id::Invalid();
+			}
+			};
+
+		}
+
+		std::shared_ptr<Vulkan::UniformBuffer> GetUniformBuffer(UniformBuffer::Id UBId) {
+			auto UB = UBs_[UBId];
+			if (UB.size() == 1) {
+				return UBs_[UBId][0];
+			} else {
+				return UBs_[UBId][currentFrame];
+			}
+		}
+
+
+		[[nodiscard]]
+		virtual void FillUniformBuffer(UniformBuffer::Id UBId, void* data) override {
+			std::vector<std::shared_ptr<Vulkan::UniformBuffer>>& ub = UBs_[UBId];
+			if (ub.size() == 1) {
+				ub[0]->Fill(data);
+			} else {
+				OS::AssertMessage(ub.size() == MAX_FRAMES_IN_FLIGHT, "Incorrect number of ubs.");
+				ub[currentFrame]->Fill(data);
 			}
 		}
 
@@ -1293,9 +1370,9 @@ namespace Render::Vulkan {
 			const Texture::CreateInfo textureCreateInfo{
 				.ralCreateInfo_ = createInfo,
 				.physicalDevice_ = objects_.physicalDevice_,
-				.logicDevice_ = objects_.logicDevice_,
+				.LD_ = objects_.LD_,
 				.commandPool_ = objects_.commandPool_,
-				.descriptorPool_ = objects_.descriptorPool_,
+				.DP_ = objects_.DP_,
 				.format_ = VK_FORMAT_R8G8B8A8_UNORM
 			};
 			auto texture = std::make_shared<Texture>(std::move(textureCreateInfo));
@@ -1310,14 +1387,6 @@ namespace Render::Vulkan {
 			return textures_.contains(textureId);
 		}
 
-		[[nodiscard]]
-		virtual UniformBuffer::Id CreateUniformBuffer(const UniformBuffer::CreateInfo& createInfo) override {
-
-			auto UB = std::make_shared<Vulkan::UniformBuffer>(objects_.physicalDevice_, objects_.logicDevice_, createInfo.size_);
-			const Common::Id UBId = UBsIdsGenerator_.Generate();
-			UBs_[UBId] = UB;
-			return UBId;
-		}
 
 		//Shape2 realization
 	public:
@@ -1364,7 +1433,7 @@ namespace Render::Vulkan {
 			Common::Size indicesNumber,
 			IndexType indexType,
 			const std::vector<RAL::Driver::ShaderBinding::Data>& bindingsData) override {
-						
+
 			const RAL::Driver::PipelineDescription& pipelineDesc = createInfo_.namePipelineDescriptions_[pipelineName];
 			OS::AssertMessage(pipelineDesc.shaderBindings_.size() == bindingsData.size(), "Shaders bindings layout and data are different.");
 			for (Common::Index i = 0; i < pipelineDesc.shaderBindings_.size(); i++) {
@@ -1376,7 +1445,7 @@ namespace Render::Vulkan {
 
 			AllocatedVertexBuffer2::CreateInfo vertexBufferCreateInfo{};
 			{
-				vertexBufferCreateInfo.logicDevice_ = objects_.logicDevice_;
+				vertexBufferCreateInfo.LD_ = objects_.LD_;
 				vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
 				vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
 				vertexBufferCreateInfo.verticesNumber_ = verticesNumber;
@@ -1387,7 +1456,7 @@ namespace Render::Vulkan {
 
 			AllocatedIndexBuffer2::CreateInfo indexBufferCreateInfo{};
 			{
-				indexBufferCreateInfo.logicDevice_ = objects_.logicDevice_;
+				indexBufferCreateInfo.LD_ = objects_.LD_;
 				indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
 				indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
 				indexBufferCreateInfo.indicesNumber_ = indicesNumber;
@@ -1405,26 +1474,26 @@ namespace Render::Vulkan {
 				const RAL::Driver::ShaderBinding::Data& bindingData = bindingsData[i];
 
 				if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Uniform) {
-					
-					auto uniformBuffer = std::make_shared<Vulkan::UniformBuffer>(objects_.physicalDevice_, objects_.logicDevice_, bindingData.content_.size());
-					
+
 					DS::CreateInfo DSCreateInfo;
 					{
-						DSCreateInfo.descriptorPool_ = objects_.descriptorPool_;
+						DSCreateInfo.DP_ = objects_.DP_;
 						DSCreateInfo.DSL_ = pipeline->GetLayout()->GetDSLs()[i];
-						DSCreateInfo.logicDevice_ = objects_.logicDevice_;
+						DSCreateInfo.LD_ = objects_.LD_;
 					}
 
-					auto DS = std::make_shared<DescriptorSet>(DSCreateInfo);
+					auto ds = std::make_shared<DS>(DSCreateInfo);
 
-					DS->UpdateBufferWriteConfiguration(
-						uniformBuffer,
+					auto ub = GetUniformBuffer(bindingData.uniformBufferId_);
+
+					ds->UpdateBufferWriteConfiguration(
+						ub,
 						VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-						0, 0, uniformBuffer->GetSizeInBytes());
+						0, 0, ub->GetSizeInBytes());
 
 					Mesh::ShaderBinding shaderBinding{
-						.uniformBuffer_ = uniformBuffer,
-						.DS_ = DS
+						.ubId_ = bindingData.uniformBufferId_,
+						.ds_ = ds
 					};
 					shaderBindings.push_back(shaderBinding);
 				}
@@ -1443,28 +1512,27 @@ namespace Render::Vulkan {
 				.pipelineName_ = pipelineName
 			};
 			auto mesh = std::make_shared<Mesh>(meshCreateInfo);
-			//shape2->SetTransformMatrix(transform_, transformSize);
 			const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
-			shapes2_[meshId] = mesh;
+			meshs_[meshId] = mesh;
 			return meshId;
 
 		}
 
 		virtual void ResumeMeshDrawing(Common::Id shapeId) override {
-			shapes2_[shapeId]->ResumeDrawing();
+			meshs_[shapeId]->ResumeDrawing();
 		}
 
 		virtual void StopMeshDrawing(Common::Id shapeId) override {
-			shapes2_[shapeId]->StopDrawing();
+			meshs_[shapeId]->StopDrawing();
 		}
 
 		virtual void RemoveMeshFromDrawing(Common::Id shapeId) override {
-			shapes2_.erase(shapeId);
+			meshs_.erase(shapeId);
 		}
 
 	private:
 
-		std::map<Mesh::Id, std::shared_ptr<Mesh>> shapes2_;
+		std::map<Mesh::Id, std::shared_ptr<Mesh>> meshs_;
 		Common::IdGenerator shapes2IdsGenerator_;
 		std::map<std::string, std::shared_ptr<Vulkan::Pipeline>> namePipeline_;
 	private:
@@ -1523,7 +1591,7 @@ namespace Render::Vulkan {
 		std::map<Common::Id, std::shared_ptr<Texture>> textures_;
 		Common::IdGenerator texturesIdsGenerator_;
 
-		std::map<Common::Id, std::shared_ptr<Vulkan::UniformBuffer>> UBs_;
+		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::UniformBuffer>>> UBs_;
 		Common::IdGenerator UBsIdsGenerator_;
 
 	};

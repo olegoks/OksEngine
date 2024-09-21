@@ -21,8 +21,10 @@ namespace OksEngine {
 
 				Geom::Mesh::Id meshId_;
 				Geom::Texture::Id textureStorageId_;
-				RAL::Texture::Id driverTextureId_;
-				Common::Index driverMeshId_;
+				//RAL::Driver::UniformBuffer::Id cameraUBId_;
+				//RAL::Driver::UniformBuffer::Id transformUBId_;
+				//RAL::Texture::Id driverTextureId_;
+				//Common::Id driverMeshId_;
 			};
 
 			using MeshId = DS::Graph<Mesh>::NodeId;

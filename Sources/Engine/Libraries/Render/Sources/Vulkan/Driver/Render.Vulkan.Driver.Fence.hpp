@@ -15,11 +15,11 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			VkFenceCreateFlags flags_ = VK_FENCE_CREATE_SIGNALED_BIT;
 		};
 
-		Fence(const CreateInfo& createInfo) : logicDevice_{ createInfo.logicDevice_ } {
+		Fence(const CreateInfo& createInfo) : LD_{ createInfo.LD_ } {
 			VkFenceCreateInfo fenceInfo{};
 			{
 				fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
@@ -27,15 +27,15 @@ namespace Render::Vulkan {
 			}
 			VkFence fence = VK_NULL_HANDLE;
 			[[maybe_unused]]
-			const VkResult result = vkCreateFence(createInfo.logicDevice_->GetHandle(), &fenceInfo, nullptr, &fence);
+			const VkResult result = vkCreateFence(createInfo.LD_->GetHandle(), &fenceInfo, nullptr, &fence);
 			OS::AssertMessage(result == VK_SUCCESS, "Error while creating fence.");
 			SetNative(fence);
 		}
 
 
-		Fence(Fence&& moveFence) noexcept :  logicDevice_{ nullptr }, fence_{ VK_NULL_HANDLE } {
+		Fence(Fence&& moveFence) noexcept :  LD_{ nullptr }, fence_{ VK_NULL_HANDLE } {
 			std::swap(fence_, moveFence.fence_);
-			std::swap(logicDevice_, moveFence.logicDevice_);
+			std::swap(LD_, moveFence.LD_);
 		}
 
 		Fence& operator=(Fence&& moveFence) noexcept {
@@ -47,7 +47,7 @@ namespace Render::Vulkan {
 			Destroy();
 
 			std::swap(fence_, moveFence.fence_);
-			std::swap(logicDevice_, moveFence.logicDevice_);
+			std::swap(LD_, moveFence.LD_);
 
 			return *this;
 
@@ -59,19 +59,19 @@ namespace Render::Vulkan {
 
 		void Wait() noexcept {
 			[[maybe_unused]]
-			const VkResult result = vkWaitForFences(logicDevice_->GetHandle(), 1, &GetNative(), VK_TRUE, UINT64_MAX);
+			const VkResult result = vkWaitForFences(LD_->GetHandle(), 1, &GetNative(), VK_TRUE, UINT64_MAX);
 			OS::AssertMessage(result == VK_SUCCESS, "Errow while waitting fence.");
 		}
 
 		void Reset() noexcept {
 			[[maybe_unused]]
-			const VkResult result = vkResetFences(logicDevice_->GetHandle(), 1, &GetNative());
+			const VkResult result = vkResetFences(LD_->GetHandle(), 1, &GetNative());
 			OS::AssertMessage(result == VK_SUCCESS, "Error while resetting fence.");
 		}
 
 		[[nodiscard]]
 		bool IsSignaled() const noexcept {
-			const VkResult result = vkGetFenceStatus(logicDevice_->GetHandle(), GetNative());
+			const VkResult result = vkGetFenceStatus(LD_->GetHandle(), GetNative());
 			return result == VK_SUCCESS;
 		}
 
@@ -86,8 +86,8 @@ namespace Render::Vulkan {
 
 		void Destroy() noexcept {
 			OS::AssertMessage(GetNative() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkFence.");
-			OS::Assert(logicDevice_ != nullptr);
-			vkDestroyFence(logicDevice_->GetHandle(), fence_, nullptr);
+			OS::Assert(LD_ != nullptr);
+			vkDestroyFence(LD_->GetHandle(), fence_, nullptr);
 			SetNative(VK_NULL_HANDLE);
 		}
 
@@ -99,7 +99,7 @@ namespace Render::Vulkan {
 		}
 
 	private:
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+		std::shared_ptr<LogicDevice> LD_ = nullptr;
 		VkFence fence_ = VK_NULL_HANDLE;
 	};
 

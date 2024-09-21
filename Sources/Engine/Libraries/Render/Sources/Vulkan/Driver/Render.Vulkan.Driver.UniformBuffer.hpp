@@ -26,12 +26,12 @@ namespace Render::Vulkan {
 	public:
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 		};
 		UniformStructure(const CreateInfo& createInfo) :
 			Buffer{ Buffer::CreateInfo{
 					createInfo.physicalDevice_,
-				createInfo.logicDevice_,
+				createInfo.LD_,
 				sizeof(StructureType),
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT }
@@ -50,13 +50,13 @@ namespace Render::Vulkan {
 	public:
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			Common::Size size_ = 0;
 		};
 		UniformArray(const CreateInfo& createInfo) : Buffer{
 			Buffer::CreateInfo{
 				createInfo.physicalDevice_,
-				createInfo.logicDevice_,
+				createInfo.LD_,
 				sizeof(ElementType) * createInfo.size_,
 				VK_BUFFER_USAGE_UNIFORM_BUFFER_BIT,
 VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT }

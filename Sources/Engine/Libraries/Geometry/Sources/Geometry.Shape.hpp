@@ -35,13 +35,13 @@ namespace Geometry {
 			colors_{ colors },
 			indices_{ indices } { }
 
-		void AddPolygon(const Polygon<Vertex3f>& polygon) {
-			const Common::Size startVerticesNumber = vertices_.GetVerticesNumber();
-			for (Index16 i = 0; i < 3; i++) {
-				vertices_.Add(polygon[i]);
-				indices_.Add(startVerticesNumber + i);
-			}
-		}
+		//void AddPolygon(const Polygon<Vertex3f>& polygon) {
+		//	const Common::Size startVerticesNumber = vertices_.GetVerticesNumber();
+		//	for (Index16 i = 0; i < 3; i++) {
+		//		vertices_.Add(polygon[i]);
+		//		indices_.Add(startVerticesNumber + i);
+		//	}
+		//}
 
 		void Add(const Shape& shape) noexcept {
 

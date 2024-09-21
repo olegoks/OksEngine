@@ -13,7 +13,7 @@ namespace Render::Vulkan {
 	class PipelineLayout : public Abstraction<VkPipelineLayout> {
 	public:
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::vector<VkPushConstantRange> pushConstants_;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 		};
@@ -33,7 +33,7 @@ namespace Render::Vulkan {
 				pipelineLayoutInfo.pPushConstantRanges = (!createInfo.pushConstants_.empty()) ? (createInfo.pushConstants_.data()) : (nullptr); // Optional
 			
 				VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-				VkCall(vkCreatePipelineLayout(createInfo.logicDevice_->GetHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout),
+				VkCall(vkCreatePipelineLayout(createInfo.LD_->GetHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout),
 					"Error while creating pipeline layout.");
 				SetHandle(pipelineLayout);
 			}
@@ -47,7 +47,7 @@ namespace Render::Vulkan {
 
 		~PipelineLayout() {
 			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkPipelineLayout.");
-			vkDestroyPipelineLayout(*createInfo_.logicDevice_, GetHandle(), nullptr);
+			vkDestroyPipelineLayout(*createInfo_.LD_, GetHandle(), nullptr);
 			SetHandle(VK_NULL_HANDLE);
 		}
 

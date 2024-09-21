@@ -12,9 +12,9 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			RAL::Texture::CreateInfo ralCreateInfo_;
 			std::shared_ptr<class PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<class LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<class LogicDevice> LD_ = nullptr;
 			std::shared_ptr<class CommandPool> commandPool_ = nullptr;
-			std::shared_ptr<class DescriptorPool> descriptorPool_ = nullptr;
+			std::shared_ptr<class DescriptorPool> DP_ = nullptr;
 			VkFormat format_ = VK_FORMAT_UNDEFINED;
 		};
 

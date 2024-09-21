@@ -18,7 +18,7 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			QueueFamily queueFamily_;
 		};
 
@@ -33,7 +33,7 @@ namespace Render::Vulkan {
 			}
 
 			VkCommandPool commandPool = VK_NULL_HANDLE;
-			VkCall(vkCreateCommandPool(createInfo.logicDevice_->GetHandle(), &poolInfo, nullptr, &commandPool),
+			VkCall(vkCreateCommandPool(createInfo.LD_->GetHandle(), &poolInfo, nullptr, &commandPool),
 				"Error while creating command pool." );
 			SetHandle(commandPool);
 			OS::LogInfo("/render/vulkan/driver", "Command pool was created successfuly.");
@@ -46,9 +46,9 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(createInfo_.logicDevice_ != nullptr, "Logic device is nullptr.");
+			OS::AssertMessage(createInfo_.LD_ != nullptr, "Logic device is nullptr.");
 			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkCommandPool.");
-			vkDestroyCommandPool(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			vkDestroyCommandPool(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 			SetHandle(VK_NULL_HANDLE);
 		}
 

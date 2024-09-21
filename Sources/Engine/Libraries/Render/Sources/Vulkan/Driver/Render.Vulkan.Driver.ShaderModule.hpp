@@ -16,14 +16,14 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice>	logicDevice_;
+			std::shared_ptr<LogicDevice>	LD_;
 			std::vector<Common::UInt32>		spirv_;
 		};
 
 		ShaderModule(const CreateInfo& createInfo) noexcept :
-			logicDevice_{ createInfo.logicDevice_ } {
+			LD_{ createInfo.LD_ } {
 
-			OS::AssertMessage(createInfo.logicDevice_ != nullptr, "Attempt to create Shader module using nullptr Logic device.");
+			OS::AssertMessage(createInfo.LD_ != nullptr, "Attempt to create Shader module using nullptr Logic device.");
 
 			VkShaderModuleCreateInfo shaderModuleCreateInfo{};
 			{
@@ -32,7 +32,7 @@ namespace Render::Vulkan {
 				shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(createInfo.spirv_.data());
 			}
 			VkShaderModule shaderModule = VK_NULL_HANDLE;
-			VkCall(vkCreateShaderModule(createInfo.logicDevice_->GetHandle(), &shaderModuleCreateInfo, nullptr, &shaderModule),
+			VkCall(vkCreateShaderModule(createInfo.LD_->GetHandle(), &shaderModuleCreateInfo, nullptr, &shaderModule),
 				"Error while creating shader module.");
 			OS::LogInfo("render/vulkan/driver/shader", { "Shader module was created successfuly." });
 			SetHandle(shaderModule);
@@ -45,14 +45,14 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(logicDevice_ != nullptr, "Logic device is nullptr.");
+			OS::AssertMessage(LD_ != nullptr, "Logic device is nullptr.");
 			OS::AssertMessage(GetHandle(), "Attempt to destroy VK_NULL_HANDLE VkShaderModule.");
-			vkDestroyShaderModule(logicDevice_->GetHandle(), GetHandle(), nullptr);
+			vkDestroyShaderModule(LD_->GetHandle(), GetHandle(), nullptr);
 		}
 
 	private:
 
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+		std::shared_ptr<LogicDevice> LD_ = nullptr;
 
 	};
 }

@@ -93,31 +93,52 @@ namespace OksEngine {
 			{
 				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
 				{
-					/*driver->DrawIndexed(
-						scale,
-						translate,
+					std::vector<RAL::Driver::ShaderBinding::Data> shaderBindings;
+
+					{
+						struct Transform {
+							glm::vec2 scale_;
+							glm::vec2 translate_;
+						};
+						Transform transform{ scale,translate };
+
+						RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+							.size_ = sizeof(Transform),
+							.type_ = RAL::Driver::UniformBuffer::Type::Const
+						};
+						RAL::Driver::UniformBuffer::Id transformUBId = driver->CreateUniformBuffer(UBCreateInfo);
+
+						driver->FillUniformBuffer(transformUBId, &transform);
+
+						RAL::Driver::ShaderBinding::Data transformBinding{
+							.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
+							.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
+							.uniformBufferId_ = transformUBId
+						};
+						shaderBindings.push_back(transformBinding);
+					}
+
+					{
+						RAL::Driver::ShaderBinding::Data textureBinding{
+							.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
+							.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader,
+							.textureId_ = state->fontsTextureId_
+						};
+						shaderBindings.push_back(textureBinding);
+					}
+
+					const Common::Id shapeId = driver->DrawMesh(
+						"ImGui Pipeline",
 						(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
 						cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
+						RAL::Driver::VertexType::VF2_TF2_CF4,
 						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
 						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
-						state->fontsTextureId_);*/
-					struct Transform {
-						glm::vec2 scale_;
-						glm::vec2 translate_;
-					};
-					Transform transform{ scale,translate };
-					//const Common::Id shapeId = driver->DrawMesh(
-					//	"ImGui Pipeline",
-					//	&transform,
-					//	sizeof(Transform),
-					//	(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
-					//	cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
-					//	RAL::Driver::VertexType::VF2_TF2_CF4,
-					//	cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
-					//	cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
-					//	RAL::Driver::IndexType::UI16,
-					//	state->fontsTextureId_);
-					//state->driverShapesId_.push_back(shapeId);
+						RAL::Driver::IndexType::UI16,
+						shaderBindings);
+
+					state->driverShapesId_.push_back(shapeId);
+
 				}
 			}
 

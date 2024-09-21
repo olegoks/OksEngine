@@ -34,7 +34,7 @@ namespace Render::Vulkan {
 			descriptorWrite.pImageInfo = nullptr;
 			descriptorWrite.pTexelBufferView = nullptr;
 		}
-		vkUpdateDescriptorSets(*createInfo_.logicDevice_, 1, &descriptorWrite, 0, nullptr);
+		vkUpdateDescriptorSets(*createInfo_.LD_, 1, &descriptorWrite, 0, nullptr);
 
 	}
 
@@ -65,7 +65,7 @@ namespace Render::Vulkan {
 			descriptorWrite.pImageInfo = &imageInfo;
 			descriptorWrite.pTexelBufferView = nullptr;
 		}
-		vkUpdateDescriptorSets(*createInfo_.logicDevice_, 1, &descriptorWrite, 0, nullptr);
+		vkUpdateDescriptorSets(*createInfo_.LD_, 1, &descriptorWrite, 0, nullptr);
 
 	}
 

@@ -9,7 +9,7 @@ namespace Render::Vulkan {
 	class Sampler : public Abstraction<VkSampler>{
 	public:
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			VkFilter magFilter_ = VK_FILTER_MAX_ENUM;
 			VkFilter minFilter_ = VK_FILTER_MAX_ENUM;
 			float maxAnisotropy_ = 0.0f;
@@ -39,7 +39,7 @@ namespace Render::Vulkan {
 				samplerCreateInfo.maxLod = 1000.0f;
 				//samplerCreateInfo.flags = 0;
 				VkSampler sampler_ = VK_NULL_HANDLE;
-				VkCall(vkCreateSampler(*createInfo.logicDevice_, &samplerCreateInfo, nullptr, &sampler_), 
+				VkCall(vkCreateSampler(*createInfo.LD_, &samplerCreateInfo, nullptr, &sampler_), 
 					"Error while creating sampler.");
 				SetHandle(sampler_);
 			}
@@ -48,7 +48,7 @@ namespace Render::Vulkan {
 
 		~Sampler() {
 			OS::Assert(GetHandle() != VK_NULL_HANDLE);
-			vkDestroySampler(*createInfo_.logicDevice_, GetHandle(), nullptr);
+			vkDestroySampler(*createInfo_.LD_, GetHandle(), nullptr);
 		}
 	private:
 		CreateInfo createInfo_;

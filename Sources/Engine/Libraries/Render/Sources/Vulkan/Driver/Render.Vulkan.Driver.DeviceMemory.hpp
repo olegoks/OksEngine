@@ -16,7 +16,7 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			VkMemoryRequirements requirements_ = { 0 };
 			uint32_t memoryTypeIndex_ = 0;
 		};
@@ -32,7 +32,7 @@ namespace Render::Vulkan {
 			}
 
 			VkDeviceMemory memory = VK_NULL_HANDLE;
-			VkCall(vkAllocateMemory(createInfo.logicDevice_->GetHandle(), &alloccationInfo, nullptr, &memory),
+			VkCall(vkAllocateMemory(createInfo.LD_->GetHandle(), &alloccationInfo, nullptr, &memory),
 				"Allocating GPU memory error.");
 			SetHandle(memory);
 		}
@@ -46,19 +46,19 @@ namespace Render::Vulkan {
 
 			void* pointerToMappedMemory = nullptr;
 			{
-				VkCall(vkMapMemory(createInfo_.logicDevice_->GetHandle(), GetHandle(), 0, bytesNumber, 0, &pointerToMappedMemory),
+				VkCall(vkMapMemory(createInfo_.LD_->GetHandle(), GetHandle(), 0, bytesNumber, 0, &pointerToMappedMemory),
 					"Error while mapping buffer to device memory.");
 			}
 			memcpy(pointerToMappedMemory, memory, (size_t)bytesNumber);
 			{
-				vkUnmapMemory(createInfo_.logicDevice_->GetHandle(), GetHandle());
+				vkUnmapMemory(createInfo_.LD_->GetHandle(), GetHandle());
 			}
 		}
 
 
 		~DeviceMemory() noexcept {
 			OS::Assert(GetHandle() != nullptr);
-			vkFreeMemory(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			vkFreeMemory(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 			SetNullHandle();
 		}
 

@@ -106,28 +106,28 @@ namespace Render::Vulkan {
 		using Id = Common::Id;
 
 		struct ShaderBinding {
-			std::shared_ptr<UniformBuffer> uniformBuffer_ = nullptr;
-			std::shared_ptr<DescriptorSet> DS_ = nullptr;
+			RAL::Driver::UniformBuffer::Id ubId_;
+			std::shared_ptr<DescriptorSet> ds_ = nullptr;
 			RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
 		};
 
 		struct CreateInfo {
-			char transform_[sizeof(glm::mat4)];
-			Common::Size transformSize_ = 0;
+			//char transform_[sizeof(glm::mat4)];
+			//Common::Size transformSize_ = 0;
 			std::shared_ptr<AllocatedVertexBuffer2> vertexBuffer_ = nullptr;
 			std::shared_ptr<AllocatedIndexBuffer2> indexBuffer_ = nullptr;
 			std::vector<ShaderBinding> shaderBindings_;
-			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
-			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-			RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+			//std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+			//std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
+			//RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
 			std::string pipelineName_ = "";
 			bool draw_ = true;
 		};
 
 		Mesh(const CreateInfo& createInfo) :
-			transform_{ 0 }, createInfo_{ createInfo }, draw_{ createInfo.draw_ } {
+			/*transform_{ 0 },*/ createInfo_{ createInfo }, draw_{ createInfo.draw_ } {
 		
-			std::memcpy(transform_, (char*)createInfo.transform_, createInfo.transformSize_);
+			//std::memcpy(transform_, (char*)createInfo.transform_, createInfo.transformSize_);
 		
 		}
 
@@ -141,16 +141,21 @@ namespace Render::Vulkan {
 			return createInfo_.indexBuffer_;
 		}
 
-		[[nodiscard]]
-		auto GetTransformDescriptorSet() noexcept {
-			return createInfo_.transformDescriptorSet_;
+		const auto& GetShaderBindings() const noexcept {
+			return createInfo_.shaderBindings_;
 		}
 
-		void SetTransformMatrix(const void* transform, Common::Size size) {
-			OS::Assert(size == createInfo_.transformSize_);
-			std::memcpy(transform_, transform, size);
-			createInfo_.transformBuffer_->Fill(&transform_);
-		}
+
+		//[[nodiscard]]
+		//auto GetTransformDescriptorSet() noexcept {
+		//	return createInfo_.transformDescriptorSet_;
+		//}
+
+		//void SetTransformMatrix(const void* transform, Common::Size size) {
+		//	OS::Assert(size == createInfo_.transformSize_);
+		//	std::memcpy(transform_, transform, size);
+		//	createInfo_.transformBuffer_->Fill(&transform_);
+		//}
 
 		[[nodiscard]]
 		bool IsDraw() const noexcept { return draw_; }
@@ -162,10 +167,10 @@ namespace Render::Vulkan {
 			return createInfo_.pipelineName_;
 		}
 
-		[[nodiscard]]
-		RAL::Texture::Id GetTextureId() const noexcept {
-			return createInfo_.textureId_;
-		}
+		//[[nodiscard]]
+		//RAL::Texture::Id GetTextureId() const noexcept {
+		//	return createInfo_.textureId_;
+		//}
 
 	private:
 		char transform_[sizeof(glm::mat4)];

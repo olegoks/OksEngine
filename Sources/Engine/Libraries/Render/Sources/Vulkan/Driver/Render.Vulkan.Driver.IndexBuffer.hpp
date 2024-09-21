@@ -37,18 +37,18 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			std::shared_ptr<CommandPool> commandPool_;
 			const IndexType* indices_ = nullptr;
 			Common::Size indicesNumber_ = 0;
 		};
 
 		AllocatedIndexBuffer(const CreateInfo& createInfo) : 
-			IndexBuffer<IndexType>{ createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.indicesNumber_ } {
+			IndexBuffer<IndexType>{ createInfo.physicalDevice_, createInfo.LD_, createInfo.indicesNumber_ } {
 
-			auto indexStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.indicesNumber_ * sizeof(IndexType));
+			auto indexStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.LD_, createInfo.indicesNumber_ * sizeof(IndexType));
 			indexStagingBuffer->Fill(createInfo.indices_);
-			Buffer::DataCopy(*indexStagingBuffer, *this, createInfo.logicDevice_, createInfo.commandPool_);
+			Buffer::DataCopy(*indexStagingBuffer, *this, createInfo.LD_, createInfo.commandPool_);
 		}
 
 	private:
@@ -77,7 +77,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			std::shared_ptr<CommandPool> commandPool_;
 			const void* indices_ = nullptr;
 			Common::Size indicesNumber_ = 0;
@@ -85,11 +85,11 @@ namespace Render::Vulkan {
 		};
 
 		AllocatedIndexBuffer2(const CreateInfo& createInfo) :
-			IndexBuffer2{ createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.indicesNumber_, createInfo.indexSize_ } {
+			IndexBuffer2{ createInfo.physicalDevice_, createInfo.LD_, createInfo.indicesNumber_, createInfo.indexSize_ } {
 
-			auto indexStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.indicesNumber_ * createInfo.indexSize_);
+			auto indexStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.LD_, createInfo.indicesNumber_ * createInfo.indexSize_);
 			indexStagingBuffer->Fill(createInfo.indices_);
-			Buffer::DataCopy(*indexStagingBuffer, *this, createInfo.logicDevice_, createInfo.commandPool_);
+			Buffer::DataCopy(*indexStagingBuffer, *this, createInfo.LD_, createInfo.commandPool_);
 		}
 
 	private:

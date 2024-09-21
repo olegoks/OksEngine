@@ -25,7 +25,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			std::shared_ptr<WindowSurface> windowSurface_;
 			QueueFamily presentQueueFamily_;
 			QueueFamily graphicsQueueFamily_;
@@ -77,18 +77,18 @@ namespace Render::Vulkan {
 				swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE; //if window was resized.
 
 				VkSwapchainKHR swapChain = VK_NULL_HANDLE;
-				VkCall(vkCreateSwapchainKHR(createInfo.logicDevice_->GetHandle(), &swapChainCreateInfo, nullptr, &swapChain),
+				VkCall(vkCreateSwapchainKHR(createInfo.LD_->GetHandle(), &swapChainCreateInfo, nullptr, &swapChain),
 					"Error while creating swap chain.");
 
 				SetHandle(swapChain);
 			}
 
-			images_ = GetImages(createInfo.logicDevice_);
+			images_ = GetImages(createInfo.LD_);
 
 			{
 				ImageViews imageViews;
 				for (VkImage image : images_) {
-					auto imageView = CreateImageViewByImage(createInfo.logicDevice_, image, createInfo.format_.format, VK_IMAGE_ASPECT_COLOR_BIT);
+					auto imageView = CreateImageViewByImage(createInfo.LD_, image, createInfo.format_.format, VK_IMAGE_ASPECT_COLOR_BIT);
 					imageViews.push_back(imageView);
 				}
 				imageViews_ = std::move(imageViews);
@@ -157,7 +157,7 @@ namespace Render::Vulkan {
 
 
 		void Destroy() noexcept {
-			vkDestroySwapchainKHR(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			vkDestroySwapchainKHR(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 		}
 
 	private:

@@ -19,7 +19,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			glm::u32vec2 size_ = { 0, 0 };
 			VkFormat format_ = VK_FORMAT_MAX_ENUM;
 			VkImageTiling tiling_ = VK_IMAGE_TILING_MAX_ENUM;
@@ -33,7 +33,7 @@ namespace Render::Vulkan {
 			OS::AssertMessage(createInfo.format_ != VK_FORMAT_MAX_ENUM, "Incorrect image format.");
 			OS::AssertMessage(createInfo.tiling_ != VK_IMAGE_TILING_MAX_ENUM, "Incorrect image tiling.");
 			OS::AssertMessage(createInfo.usage_ != VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM, "Incorrect image usage.");
-			OS::AssertMessage(createInfo.logicDevice_ != nullptr, "Logic device is not set.");
+			OS::AssertMessage(createInfo.LD_ != nullptr, "Logic device is not set.");
 
 			VkImageCreateInfo imageInfo{};
 			{
@@ -54,20 +54,20 @@ namespace Render::Vulkan {
 			}
 
 			VkImage image = VK_NULL_HANDLE;
-			VkCall(vkCreateImage(createInfo.logicDevice_->GetHandle(), &imageInfo, nullptr, &image),
+			VkCall(vkCreateImage(createInfo.LD_->GetHandle(), &imageInfo, nullptr, &image),
 				"Errow while creating image.");
 			SetHandle(image);
 		}
 
 		void BindMemory(std::shared_ptr<DeviceMemory> deviceMemory) noexcept {
-			VkCall(vkBindImageMemory(createInfo_.logicDevice_->GetHandle(), GetHandle(), deviceMemory->GetHandle(), 0),
+			VkCall(vkBindImageMemory(createInfo_.LD_->GetHandle(), GetHandle(), deviceMemory->GetHandle(), 0),
 				"Error while binding device memory to image. Maybe double memory binding.");
 		}
 
 		[[nodiscard]]
 		VkMemoryRequirements GetMemoryRequirements() const noexcept {
 			VkMemoryRequirements memRequirements = { 0 };
-			vkGetImageMemoryRequirements(*createInfo_.logicDevice_, GetHandle(), &memRequirements);
+			vkGetImageMemoryRequirements(*createInfo_.LD_, GetHandle(), &memRequirements);
 			return memRequirements;
 		}
 
@@ -109,7 +109,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			glm::u32vec2 size_;
 			VkFormat format_;
 		};
@@ -117,7 +117,7 @@ namespace Render::Vulkan {
 		TextureImage(const CreateInfo& createInfo) :
 			Image{ Image::CreateInfo{
 			createInfo.physicalDevice_,
-			createInfo.logicDevice_,
+			createInfo.LD_,
 			createInfo.size_,
 			createInfo.format_,
 			VK_IMAGE_TILING_OPTIMAL,
@@ -132,13 +132,13 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			glm::u32vec2 size_{ 0, 0 };
 		};
 		DepthImage(const CreateInfo& createInfo) :
 			Image{ Image::CreateInfo{
 						createInfo.physicalDevice_,
-						createInfo.logicDevice_,
+						createInfo.LD_,
 						createInfo.size_,
 						VK_FORMAT_D32_SFLOAT,
 						VK_IMAGE_TILING_OPTIMAL,
@@ -157,7 +157,7 @@ namespace Render::Vulkan {
 
 			DeviceMemory::CreateInfo deviceMemoryCreateInfo;
 			{
-				deviceMemoryCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				deviceMemoryCreateInfo.LD_ = createInfo.LD_;
 				deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
 				deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 			}
@@ -187,7 +187,7 @@ namespace Render::Vulkan {
 
 			DeviceMemory::CreateInfo deviceMemoryCreateInfo;
 			{
-				deviceMemoryCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				deviceMemoryCreateInfo.LD_ = createInfo.LD_;
 				deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
 				deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 			}
@@ -210,7 +210,7 @@ namespace Render::Vulkan {
 
 			DeviceMemory::CreateInfo deviceMemoryCreateInfo;
 			{
-				deviceMemoryCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				deviceMemoryCreateInfo.LD_ = createInfo.LD_;
 				deviceMemoryCreateInfo.requirements_ = depthImageMemoryRequirements;
 				deviceMemoryCreateInfo.memoryTypeIndex_ = createInfo.physicalDevice_->GetSuitableMemoryTypeIndex(depthImageMemoryRequirements.memoryTypeBits, VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT);
 			}

@@ -7,7 +7,7 @@ namespace Render::Vulkan {
 		Pipeline{
 		Pipeline::CreateInfo{
 			createInfo.physicalDevice_,
-			createInfo.logicDevice_,
+			createInfo.LD_,
 			createInfo.renderPass_,
 			{
 				//{ VK_SHADER_STAGE_VERTEX_BIT, 0 , sizeof(float) * 4 }
@@ -16,7 +16,7 @@ namespace Render::Vulkan {
 				std::make_shared<DescriptorSetLayout>(
 					DescriptorSetLayout::CreateInfo{
 						"Transform",
-						createInfo.logicDevice_,
+						createInfo.LD_,
 						std::vector<VkDescriptorSetLayoutBinding>{{
 							{
 						0,
@@ -29,7 +29,7 @@ namespace Render::Vulkan {
 				std::make_shared<DescriptorSetLayout>(
 					DescriptorSetLayout::CreateInfo{
 						"DiffuseMap",
-						createInfo.logicDevice_,
+						createInfo.LD_,
 						std::vector<VkDescriptorSetLayoutBinding>{{
 							{
 						0,
@@ -42,11 +42,11 @@ namespace Render::Vulkan {
 					})
 			},
 			std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-				createInfo.logicDevice_,
+				createInfo.LD_,
 				createInfo.vertexShader_->GetSpirv()
 				}),
 			std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-				createInfo.logicDevice_,
+				createInfo.LD_,
 				createInfo.fragmentShader_->GetSpirv()
 				}),
 			nullptr,//createInfo.depthTestInfo_,
