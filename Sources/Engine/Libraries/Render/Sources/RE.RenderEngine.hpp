@@ -37,13 +37,13 @@ namespace RE {
 			std::vector<Shape> shapes_;
 		};
 
-		[[nodiscard]]
-		Model RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model);
+		//[[nodiscard]]
+		//Model RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model);
 
-		[[nodiscard]]
-		Model RenderModel(const  glm::mat4& position, const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model);
+		//[[nodiscard]]
+		//Model RenderModel(const  glm::mat4& position, const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model);
 
-		void SetModelMatrix(const Model& model, const  glm::mat4& modelMatrix);
+		//void SetModelMatrix(const Model& model, const  glm::mat4& modelMatrix);
 
 		void SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up);
 

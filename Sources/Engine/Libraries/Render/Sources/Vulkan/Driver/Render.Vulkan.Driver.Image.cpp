@@ -15,7 +15,7 @@ namespace Render::Vulkan {
 
 		CommandBuffer::CreateInfo commandBufferCreateInfo;
 		{
-			commandBufferCreateInfo.logicDevice_ = createInfo_.logicDevice_;
+			commandBufferCreateInfo.LD_ = createInfo_.LD_;
 			commandBufferCreateInfo.commandPool_ = commandPool;
 		}
 		auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
@@ -48,8 +48,8 @@ namespace Render::Vulkan {
 			submitInfo.commandBufferCount = 1;
 			submitInfo.pCommandBuffers = &commandBuffer->GetHandle();
 		}
-		vkQueueSubmit(createInfo_.logicDevice_->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
-		vkQueueWaitIdle(createInfo_.logicDevice_->GetGraphicsQueue());
+		vkQueueSubmit(createInfo_.LD_->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+		vkQueueWaitIdle(createInfo_.LD_->GetGraphicsQueue());
 
 	}
 
@@ -63,7 +63,7 @@ namespace Render::Vulkan {
 
 		CommandBuffer::CreateInfo commandBufferCreateInfo;
 		{
-			commandBufferCreateInfo.logicDevice_ = logicDevice;
+			commandBufferCreateInfo.LD_ = logicDevice;
 			commandBufferCreateInfo.commandPool_ = commandPool;
 		}
 		auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
@@ -82,7 +82,7 @@ namespace Render::Vulkan {
 
 	Image::~Image() noexcept {
 		if (!IsNullHandle()) {
-			vkDestroyImage(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			vkDestroyImage(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 			SetNullHandle();
 		}
 	}
@@ -92,7 +92,7 @@ namespace Render::Vulkan {
 		OS::AssertMessage(
 			!IsNullHandle(),
 			"Attempt to destroy image twice.");
-		vkDestroyImage(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+		vkDestroyImage(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 		SetNullHandle();
 	}
 

@@ -18,7 +18,7 @@ namespace Render::Vulkan {
 		FrameBuffer() = delete;
 
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<ImageView> colorImageView_ = nullptr;
 			std::shared_ptr<ImageView> depthBufferImageView_ = nullptr;
 			std::shared_ptr<ImageView> colorAttachmentResolve_ = nullptr;
@@ -27,14 +27,14 @@ namespace Render::Vulkan {
 		};
 
 	FrameBuffer(FrameBuffer&& moveFrameBuffer) :
-		logicDevice_{ nullptr },
+		LD_{ nullptr },
 		frameBuffer_{ VK_NULL_HANDLE } {
-		std::swap(logicDevice_, moveFrameBuffer.logicDevice_);
+		std::swap(LD_, moveFrameBuffer.LD_);
 		std::swap(frameBuffer_, moveFrameBuffer.frameBuffer_);
 	}
 
 	FrameBuffer(const CreateInfo& createInfo) :
-		logicDevice_{ createInfo.logicDevice_ } {
+		LD_{ createInfo.LD_ } {
 
 
 		std::vector<VkImageView> attachments;
@@ -57,7 +57,7 @@ namespace Render::Vulkan {
 			framebufferInfo.height = createInfo.extent_.height;
 			framebufferInfo.layers = 1;
 		}
-		VkCall(vkCreateFramebuffer(createInfo.logicDevice_->GetHandle(), &framebufferInfo, nullptr, &frameBuffer_),
+		VkCall(vkCreateFramebuffer(createInfo.LD_->GetHandle(), &framebufferInfo, nullptr, &frameBuffer_),
 			"Framebuffer create info.");
 	}
 
@@ -69,15 +69,15 @@ namespace Render::Vulkan {
 		}
 
 		std::swap(frameBuffer_, moveFrameBuffer.frameBuffer_);
-		std::swap(logicDevice_, moveFrameBuffer.logicDevice_);
+		std::swap(LD_, moveFrameBuffer.LD_);
 
 
 		return *this;
 	}
 	void Destroy() {
 		if (frameBuffer_ != VK_NULL_HANDLE) {
-			OS::Assert(frameBuffer_ != VK_NULL_HANDLE && logicDevice_ != nullptr);
-			vkDestroyFramebuffer(logicDevice_->GetHandle(), frameBuffer_, nullptr);
+			OS::Assert(frameBuffer_ != VK_NULL_HANDLE && LD_ != nullptr);
+			vkDestroyFramebuffer(LD_->GetHandle(), frameBuffer_, nullptr);
 		}
 	}
 
@@ -88,7 +88,7 @@ namespace Render::Vulkan {
 	VkFramebuffer GetNative() const { return frameBuffer_; }
 
 private:
-	std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+	std::shared_ptr<LogicDevice> LD_ = nullptr;
 	VkFramebuffer frameBuffer_;
 };
 

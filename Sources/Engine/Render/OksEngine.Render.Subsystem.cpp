@@ -31,6 +31,9 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<CreateLoadMeshRequest>(context);
 		ecsWorld->RegisterSystem<RenderSystem>(context);
 		ecsWorld->RegisterSystem<CameraSystem>(context);
+		ecsWorld->RegisterSystem<CreateDriverCamera>(context);
+		ecsWorld->RegisterSystem<CreateDriverModel>(context);
+		ecsWorld->RegisterSystem<MapMeshTransform>(context);
 		ecsWorld->RegisterSystem<LoadGeometryDescriptionFile>(context);
 		ecsWorld->RegisterSystem<LoadMesh>(context);
 		ecsWorld->RegisterSystem<RenderMesh>(context);
@@ -134,119 +137,119 @@ namespace OksEngine {
 		//}
 	}
 
-	[[nodiscard]]
-	Common::Index RenderSubsystem::RenderModel(std::string objName, std::string mtlName) {
+	//[[nodiscard]]
+	//Common::Index RenderSubsystem::RenderModel(std::string objName, std::string mtlName) {
 
-		auto& context = GetContext();
-		auto resourceSubsystem = context.GetResourceSubsystem();
-
-
-		const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + objName);
-		ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
-
-		const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + mtlName);
-		ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
-
-		std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
-		std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
-
-		auto flatShadedModel = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
-
-		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4{ 0 }, *flatShadedModel);
-		models_.push_back(model);
-		return models_.size() - 1;
-	}
-
-	[[nodiscard]]
-	Common::Index RenderSubsystem::RenderAnimationModel(const std::vector<std::string>& filesNames) {
-
-		auto& context = GetContext();
-		auto resourceSubsystem = context.GetResourceSubsystem();
-		if (filesNames.size() == 1 && std::filesystem::path(filesNames[0]).extension() == ".fbx") {
-			const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + filesNames[0]);
-			ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
-			Geom::ParseModelFbx(modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize());
-
-		}
-
-		
-		
-		//Geom::ParseModelFile("G:/Desktop/OksEngine/Resources/Models/myLowPolyHand/myLowPolyHand.fbx");
-		//auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseModel(obj));
-
-		//RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
-		//models_.push_back(model);
-		return 0;/*models_.size() - 1;*/
-	}
-
-	[[nodiscard]]
-	Common::Index RenderSubsystem::RenderModel(std::string objName, std::string mtlName, const std::vector<std::string>& textures) {
-
-		auto& context = GetContext();
-		auto resourceSubsystem = context.GetResourceSubsystem();
+	//	auto& context = GetContext();
+	//	auto resourceSubsystem = context.GetResourceSubsystem();
 
 
-		const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + objName);
-		ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
+	//	const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + objName);
+	//	ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
 
-		const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + mtlName);
-		ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
+	//	const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + mtlName);
+	//	ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
 
-		std::vector<ResourceSubsystem::Resource> texturesResources;
-		for (const std::string& textureName : textures) {
+	//	std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
+	//	std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
 
-			const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + textureName);
-			texturesResources.push_back(resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId));
-		}
+	//	auto flatShadedModel = std::make_shared<Geom::Model<Geom::Vertex3fnc, Geom::Index16>>(Geometry::ParseObjVertex3fncIndex16(obj, mtl));
 
-		std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
-		std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
-		std::string image{ texturesResources[0].GetData<char>(), texturesResources[0].GetSize()};
+	//	RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4{ 0 }, *flatShadedModel);
+	//	models_.push_back(model);
+	//	return models_.size() - 1;
+	//}
 
-		std::vector<RAL::Texture::Id> texturesIds;
+	//[[nodiscard]]
+	//Common::Index RenderSubsystem::RenderAnimationModel(const std::vector<std::string>& filesNames) {
+
+	//	auto& context = GetContext();
+	//	auto resourceSubsystem = context.GetResourceSubsystem();
+	//	if (filesNames.size() == 1 && std::filesystem::path(filesNames[0]).extension() == ".fbx") {
+	//		const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + filesNames[0]);
+	//		ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
+	//		Geom::ParseModelFbx(modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize());
+
+	//	}
+
+	//	
+	//	
+	//	//Geom::ParseModelFile("G:/Desktop/OksEngine/Resources/Models/myLowPolyHand/myLowPolyHand.fbx");
+	//	//auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseModel(obj));
+
+	//	//RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
+	//	//models_.push_back(model);
+	//	return 0;/*models_.size() - 1;*/
+	//}
+
+	//[[nodiscard]]
+	//Common::Index RenderSubsystem::RenderModel(std::string objName, std::string mtlName, const std::vector<std::string>& textures) {
+
+	//	auto& context = GetContext();
+	//	auto resourceSubsystem = context.GetResourceSubsystem();
 
 
-		auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16Textures(obj, mtl));
-		for (auto& shape : *texturedModel) {
-			
-		}
-		RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
-		models_.push_back(model);
-		return models_.size() - 1;
-	}
+	//	const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + objName);
+	//	ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
 
-	[[nodiscard]]
-	Common::Index RenderSubsystem::RenderModelTextures(std::string objName, std::string mtlName) {
+	//	const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + mtlName);
+	//	ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
 
-		//auto& context = GetContext();
-		//auto resourceSubsystem = context.GetResourceSubsystem();
+	//	std::vector<ResourceSubsystem::Resource> texturesResources;
+	//	for (const std::string& textureName : textures) {
+
+	//		const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + textureName);
+	//		texturesResources.push_back(resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId));
+	//	}
+
+	//	std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
+	//	std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
+	//	std::string image{ texturesResources[0].GetData<char>(), texturesResources[0].GetSize()};
+
+	//	std::vector<RAL::Texture::Id> texturesIds;
 
 
-		//const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + objName);
-		//ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
+	//	auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16Textures(obj, mtl));
+	//	for (auto& shape : *texturedModel) {
+	//		
+	//	}
+	//	RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
+	//	models_.push_back(model);
+	//	return models_.size() - 1;
+	//}
 
-		//const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + mtlName);
-		//ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
+	//[[nodiscard]]
+	//Common::Index RenderSubsystem::RenderModelTextures(std::string objName, std::string mtlName) {
 
-		//std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
-		//std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
+	//	//auto& context = GetContext();
+	//	//auto resourceSubsystem = context.GetResourceSubsystem();
 
-		//auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16Textures(obj, mtl));
-		//for (auto& shape : *texturedModel) {
-		//	const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + shape.textureName_);
-		//	ResourceSubsystem::Resource resource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId);
-		//	std::string texture{ resource.GetData<char>(), resource.GetSize() };
-		//	
-		//	shape.SetTexture(std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size()))));
-		//}
-		//RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
-		//models_.push_back(model);
-		return 0;//models_.size() - 1;
-	}
 
-	void RenderSubsystem::SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm:: vec3& up) {
-		engine_->SetCamera(position, direction, up);
-	}
+	//	//const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + objName);
+	//	//ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Render, blockModelObjTaskId);
+
+	//	//const auto mtlBlockTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + mtlName);
+	//	//ResourceSubsystem::Resource mtlCubeMtlResource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockTaskId);
+
+	//	//std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
+	//	//std::string mtl{ mtlCubeMtlResource.GetData<char>(), mtlCubeMtlResource.GetSize() };
+
+	//	//auto texturedModel = std::make_shared<Geom::Model<Geom::Vertex3fnt, Geom::Index16>>(Geometry::ParseObjVertex3fntIndex16Textures(obj, mtl));
+	//	//for (auto& shape : *texturedModel) {
+	//	//	const auto mtlBlockPngTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + shape.textureName_);
+	//	//	ResourceSubsystem::Resource resource = resourceSubsystem->GetResource(Subsystem::Type::Render, mtlBlockPngTaskId);
+	//	//	std::string texture{ resource.GetData<char>(), resource.GetSize() };
+	//	//	
+	//	//	shape.SetTexture(std::make_shared<Geom::Texture<Geom::Color4b>>(std::move(Geom::CreateTexture(texture.data(), texture.size()))));
+	//	//}
+	//	//RE::RenderEngine::Model model = engine_->RenderModel(glm::mat4(), *texturedModel);
+	//	//models_.push_back(model);
+	//	return 0;//models_.size() - 1;
+	//}
+
+	//void RenderSubsystem::SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm:: vec3& up) {
+	//	engine_->SetCamera(position, direction, up);
+	//}
 
 	void RenderSubsystem::Update() noexcept {
 		//Geometry::Box box{ 1 };
@@ -343,12 +346,12 @@ namespace OksEngine {
 	//	imguiCallbacks_.push_back(std::move(imguiCallback));
 	//}
 
-	void RenderSubsystem::UpdateCamera(Camera* camera) {
+	//void RenderSubsystem::UpdateCamera(Camera* camera) {
 
-	}
+	//}
 
-	void RenderSubsystem::UpdateImmutableRenderGeometry(ImmutableRenderGeometry* immutableRenderGeometry) {
+	//void RenderSubsystem::UpdateImmutableRenderGeometry(ImmutableRenderGeometry* immutableRenderGeometry) {
 
-	}
+	//}
 
 }

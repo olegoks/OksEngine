@@ -26,14 +26,14 @@ namespace Render::Vulkan {
 
 
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<CommandPool> commandPool_ = nullptr;
 		};
 
 		CommandBuffer(const CreateInfo& createInfo) :
 			createInfo_{ createInfo } {
 
-			Allocate(*createInfo.logicDevice_, *createInfo.commandPool_);
+			Allocate(*createInfo.LD_, *createInfo.commandPool_);
 
 		}
 
@@ -265,7 +265,7 @@ namespace Render::Vulkan {
 		}
 
 
-		void BindShape2(std::shared_ptr<Mesh> shape) {
+		void BindMesh(std::shared_ptr<Mesh> shape) {
 			BindBuffer(shape->GetVertexBuffer());
 			BindBuffer(shape->GetIndexBuffer());
 		}
@@ -307,7 +307,7 @@ namespace Render::Vulkan {
 		}
 
 		~CommandBuffer() noexcept {
-			vkFreeCommandBuffers(*createInfo_.logicDevice_, *createInfo_.commandPool_, 1, &GetHandle());
+			vkFreeCommandBuffers(*createInfo_.LD_, *createInfo_.commandPool_, 1, &GetHandle());
 		}
 
 	private:

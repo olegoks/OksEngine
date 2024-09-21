@@ -18,7 +18,7 @@ namespace Render::Vulkan {
 		};
 
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
 			VkSampleCountFlagBits samplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
@@ -154,7 +154,7 @@ namespace Render::Vulkan {
 
 		};
 
-		RenderPass(const CreateInfo& createInfo) noexcept : logicDevice_{ createInfo.logicDevice_ } {
+		RenderPass(const CreateInfo& createInfo) noexcept : LD_{ createInfo.LD_ } {
 
 			{
 				Subpass::CreateInfo subpassCreateInfo{ };
@@ -190,7 +190,7 @@ namespace Render::Vulkan {
 				}
 				VkRenderPass renderPass = VK_NULL_HANDLE;
 				[[maybe_unused]]
-				const VkResult result = vkCreateRenderPass(createInfo.logicDevice_->GetHandle(), &renderPassInfo, nullptr, &renderPass);
+				const VkResult result = vkCreateRenderPass(createInfo.LD_->GetHandle(), &renderPassInfo, nullptr, &renderPass);
 				OS::AssertMessage(result == VK_SUCCESS, "");
 				SetHandle(renderPass);
 			}
@@ -204,12 +204,12 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(logicDevice_ != nullptr, "Logic device is not initialized.");
+			OS::AssertMessage(LD_ != nullptr, "Logic device is not initialized.");
 			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkRenderPass.");
-			vkDestroyRenderPass(logicDevice_->GetHandle(), GetHandle(), nullptr);
+			vkDestroyRenderPass(LD_->GetHandle(), GetHandle(), nullptr);
 		}
 
 	private:
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+		std::shared_ptr<LogicDevice> LD_ = nullptr;
 	};
 }

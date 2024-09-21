@@ -14,25 +14,25 @@ namespace Render::Vulkan {
 
 	Texture::Texture(const CreateInfo& createInfo) : RAL::Texture{ createInfo.ralCreateInfo_ }{
 			OS::Assert(createInfo.format_ == VK_FORMAT_R8G8B8A8_UNORM);
-			auto textureStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.logicDevice_, GetSize().x * GetSize().y * sizeof(RAL::Color4b));
+			auto textureStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.LD_, GetSize().x * GetSize().y * sizeof(RAL::Color4b));
 			textureStagingBuffer->Fill(GetPixels().data());
 
 			AllocatedTextureImage::CreateInfo textureImageCreateInfo;
 			{
 				textureImageCreateInfo.size_ = GetSize();
 				textureImageCreateInfo.format_ = createInfo.format_;
-				textureImageCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				textureImageCreateInfo.LD_ = createInfo.LD_;
 				textureImageCreateInfo.physicalDevice_ = createInfo.physicalDevice_;
 			}
 			auto image = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
 			image->ChangeLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, createInfo.commandPool_);
-			Image::DataCopy(textureStagingBuffer, image, createInfo.logicDevice_, createInfo.commandPool_);
+			Image::DataCopy(textureStagingBuffer, image, createInfo.LD_, createInfo.commandPool_);
 			image->ChangeLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, createInfo.commandPool_);
-			auto imageView = CreateImageViewByImage(createInfo.logicDevice_, image, VK_IMAGE_ASPECT_COLOR_BIT);
+			auto imageView = CreateImageViewByImage(createInfo.LD_, image, VK_IMAGE_ASPECT_COLOR_BIT);
 
 			Sampler::CreateInfo samplerCreateInfo;
 			{
-				samplerCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				samplerCreateInfo.LD_ = createInfo.LD_;
 				samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
 				samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
 				samplerCreateInfo.maxAnisotropy_ = createInfo.physicalDevice_->GetProperties().limits.maxSamplerAnisotropy;
@@ -42,7 +42,7 @@ namespace Render::Vulkan {
 			auto DSL = std::make_shared<DescriptorSetLayout>(
 				DescriptorSetLayout::CreateInfo{
 					"DiffuseMap",
-					createInfo.logicDevice_,
+					createInfo.LD_,
 					std::vector<VkDescriptorSetLayoutBinding>{{
 						{
 					0,
@@ -56,9 +56,9 @@ namespace Render::Vulkan {
 
 			DescriptorSet::CreateInfo DSCreateInfo;
 			{
-				DSCreateInfo.descriptorPool_ = createInfo.descriptorPool_;
+				DSCreateInfo.DP_ = createInfo.DP_;
 				DSCreateInfo.DSL_ = DSL;
-				DSCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				DSCreateInfo.LD_ = createInfo.LD_;
 			}
 
 			auto DS = std::make_shared<DescriptorSet>(DSCreateInfo);

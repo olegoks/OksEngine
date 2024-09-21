@@ -3,7 +3,7 @@
 #include <OksEngine.ECS.Component.hpp>
 #include <OksEngine.ECS.System.hpp>
 #include <Math.Matrix.hpp>
-//#include <RAL.Driver.hpp>
+#include <RAL.Driver.hpp>
 
 namespace OksEngine {
 
@@ -127,7 +127,14 @@ namespace OksEngine {
 			alignas(16) glm::mat4 proj_;
 		};
 
-		//RAL::Driver::UniformBuffer::Id matricesBuffer_;
+		DriverCamera(
+			/*const Matrices& matrices, */RAL::Driver::UniformBuffer::Id UBId) :
+			ECSComponent{ nullptr },
+			//matrices_{ matrices },
+			matricesBuffer_{ UBId } { }
+		//Matrices matrices_;
+
+		RAL::Driver::UniformBuffer::Id matricesBuffer_;
 	};
 
 	class CreateDriverCamera : public ECSSystem {

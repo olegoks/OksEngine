@@ -64,6 +64,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<PhysicsSystem>();
 				context_->GetECSWorld()->RunSystem<PhysicsGeometryMapper>();
 				context_->GetECSWorld()->RunSystem<CameraSystem>();
+				context_->GetECSWorld()->RunSystem<CreateDriverCamera>();
 				context_->GetECSWorld()->RunSystem<AttachCameraSystem>();
 
 				/*ImGui*/
@@ -81,8 +82,10 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<LoadGeometryDescriptionFile>();
 				context_->GetECSWorld()->RunSystem<CreateLoadMeshRequest>();
 				context_->GetECSWorld()->RunSystem<LoadMesh>();
+				context_->GetECSWorld()->RunSystem<CreateDriverModel>();
 				context_->GetECSWorld()->RunSystem<RenderMesh>();
-				context_->GetECSWorld()->RunSystem<AddImmutableRenderGeometryFromObjSystem>();
+				context_->GetECSWorld()->RunSystem<MapMeshTransform>();
+				//context_->GetECSWorld()->RunSystem<AddImmutableRenderGeometryFromObjSystem>();
 				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();
 				context_->GetECSWorld()->EndFrame();
 			}

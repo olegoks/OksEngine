@@ -19,7 +19,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			Common::Size verticesNumber_ = 0;
 		};
 
@@ -27,7 +27,7 @@ namespace Render::Vulkan {
 		VertexBuffer(const CreateInfo& createInfo) :
 			Buffer{ Buffer::CreateInfo {
 			createInfo.physicalDevice_,
-			createInfo.logicDevice_,
+			createInfo.LD_,
 			createInfo.verticesNumber_ * sizeof(VertexType),
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
@@ -59,7 +59,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			Common::Size verticesNumber_ = 0;
 			Common::Size vertexSize_ = 0;
 		};
@@ -68,7 +68,7 @@ namespace Render::Vulkan {
 		VertexBuffer2(const CreateInfo& createInfo) :
 			Buffer{ Buffer::CreateInfo {
 			createInfo.physicalDevice_,
-			createInfo.logicDevice_,
+			createInfo.LD_,
 			createInfo.verticesNumber_ * createInfo.vertexSize_,
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
@@ -104,7 +104,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			std::shared_ptr<CommandPool> commandPool_;
 
 			const VertexType* vertices_ = nullptr;
@@ -114,13 +114,13 @@ namespace Render::Vulkan {
 		AllocatedVertexBuffer(const CreateInfo& createInfo) : 
 			VertexBuffer<VertexType>{
 			createInfo.physicalDevice_,
-			createInfo.logicDevice_,
+			createInfo.LD_,
 			createInfo.verticesNumber_ 
 		} {
 
-			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.logicDevice_, createInfo.verticesNumber_ * sizeof(VertexType));
+			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.LD_, createInfo.verticesNumber_ * sizeof(VertexType));
 			vertexStagingBuffer->Fill(createInfo.vertices_);
-			Buffer::DataCopy(*vertexStagingBuffer, *this, createInfo.logicDevice_, createInfo.commandPool_);
+			Buffer::DataCopy(*vertexStagingBuffer, *this, createInfo.LD_, createInfo.commandPool_);
 
 		}
 
@@ -133,7 +133,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			std::shared_ptr<CommandPool> commandPool_;
 
 			const void* vertices_ = nullptr;
@@ -144,16 +144,16 @@ namespace Render::Vulkan {
 		AllocatedVertexBuffer2(const CreateInfo& createInfo) :
 			VertexBuffer2{ VertexBuffer2::CreateInfo{
 				createInfo.physicalDevice_,
-				createInfo.logicDevice_,
+				createInfo.LD_,
 				createInfo.verticesNumber_,
 				createInfo.vertexSize_ } } {
 
 			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(
 				createInfo.physicalDevice_,
-				createInfo.logicDevice_,
+				createInfo.LD_,
 				createInfo.verticesNumber_ * createInfo.vertexSize_);
 			vertexStagingBuffer->Fill(createInfo.vertices_);
-			Buffer::DataCopy(*vertexStagingBuffer, *this, createInfo.logicDevice_, createInfo.commandPool_);
+			Buffer::DataCopy(*vertexStagingBuffer, *this, createInfo.LD_, createInfo.commandPool_);
 
 		}
 

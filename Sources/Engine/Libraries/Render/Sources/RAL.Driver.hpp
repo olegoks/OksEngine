@@ -71,6 +71,21 @@ namespace RAL {
 			Undefined
 		};
 
+		class UniformBuffer {
+		public:
+			using Id = Common::Id;
+			enum class Type {
+				Mutable,
+				Const,
+				Undefined
+			};
+			struct CreateInfo {
+				Common::Size size_ = 0;
+				Type type_ = Type::Undefined;
+			};
+		};
+
+
 		struct ShaderBinding {
 			enum class Type {
 				Uniform,
@@ -85,7 +100,7 @@ namespace RAL {
 			struct Data {
 				Type type_ = Type::Undefined;
 				Stage stage_ = Stage::Undefined;
-				std::vector<char>  content_;
+				RAL::Driver::UniformBuffer::Id uniformBufferId_;
 				RAL::Texture::Id textureId_;
 			};
 			struct Layout {
@@ -112,13 +127,6 @@ namespace RAL {
 			bool enableDepthTest_ = true;
 		};
 
-		class UniformBuffer {
-		public:
-			using Id = Common::Id;
-			struct CreateInfo {
-				Common::Size size_ = 0;
-			};
-		};
 
 		using UB = UniformBuffer;
 
@@ -208,7 +216,11 @@ namespace RAL {
 		[[nodiscard]]
 		virtual bool IsTextureExist(RAL::Texture::Id textureId) const noexcept = 0;
 
+		[[nodiscard]]
 		virtual UniformBuffer::Id CreateUniformBuffer(const UniformBuffer::CreateInfo& createInfo) = 0;
+		
+		[[nodiscard]]
+		virtual void FillUniformBuffer(UniformBuffer::Id UBId, void* data) = 0;
 
 		//[[nodiscard]]
 		//virtual 

@@ -15,12 +15,12 @@ namespace Render::Vulkan {
 	public:
 		Semaphore() = delete;
 
-		Semaphore(Semaphore&& moveSemaphore) : logicDevice_{ nullptr }, semaphore_{ VK_NULL_HANDLE }  {
+		Semaphore(Semaphore&& moveSemaphore) : LD_{ nullptr }, semaphore_{ VK_NULL_HANDLE }  {
 			std::swap(semaphore_, moveSemaphore.semaphore_);
-			std::swap(logicDevice_, moveSemaphore.logicDevice_);
+			std::swap(LD_, moveSemaphore.LD_);
 		}
 
-		Semaphore(std::shared_ptr<LogicDevice> logicDevice) : logicDevice_{ logicDevice } {
+		Semaphore(std::shared_ptr<LogicDevice> logicDevice) : LD_{ logicDevice } {
 			VkSemaphoreCreateInfo semaphoreInfo{};
 			{
 				semaphoreInfo.sType = VK_STRUCTURE_TYPE_SEMAPHORE_CREATE_INFO;
@@ -34,15 +34,15 @@ namespace Render::Vulkan {
 
 		void Destroy() noexcept {
 			OS::AssertMessage(semaphore_ != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkSemaphore.");
-			OS::AssertMessage(logicDevice_ != nullptr, "Logic device is not initialized.");
-			vkDestroySemaphore(logicDevice_->GetHandle(), semaphore_, nullptr);
+			OS::AssertMessage(LD_ != nullptr, "Logic device is not initialized.");
+			vkDestroySemaphore(LD_->GetHandle(), semaphore_, nullptr);
 			SetNative(VK_NULL_HANDLE);
 		}
 
 		~Semaphore() noexcept {
 			OS::Assert(
-				((GetNative() != VK_NULL_HANDLE) && (logicDevice_ != nullptr)) ||
-				((GetNative() == VK_NULL_HANDLE) && (logicDevice_ == nullptr)));
+				((GetNative() != VK_NULL_HANDLE) && (LD_ != nullptr)) ||
+				((GetNative() == VK_NULL_HANDLE) && (LD_ == nullptr)));
 			if (GetNative() != VK_NULL_HANDLE) {
 				Destroy();
 			}
@@ -61,7 +61,7 @@ namespace Render::Vulkan {
 		}
 
 	private:
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+		std::shared_ptr<LogicDevice> LD_ = nullptr;
 		VkSemaphore semaphore_ = VK_NULL_HANDLE;
 	};
 

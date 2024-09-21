@@ -15,14 +15,14 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<Image> image_ = nullptr;
 			VkFormat format_ = VK_FORMAT_MAX_ENUM;
 			VkImageAspectFlags aspectFlags_ = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;//VK_IMAGE_ASPECT_COLOR_BIT;
 		};
 
 		struct CreateInfo2 {
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			VkImage imageHandle_ = VK_NULL_HANDLE;
 			VkFormat format_ = VK_FORMAT_MAX_ENUM;
 			VkImageAspectFlags aspectFlags_ = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;//VK_IMAGE_ASPECT_COLOR_BIT;
@@ -36,7 +36,7 @@ namespace Render::Vulkan {
 
 		ImageView(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
 		
-			OS::AssertMessage(createInfo.logicDevice_ != nullptr, "");
+			OS::AssertMessage(createInfo.LD_ != nullptr, "");
 			OS::AssertMessage(createInfo.format_ != VK_FORMAT_MAX_ENUM, "");
 			OS::AssertMessage(createInfo.aspectFlags_ != VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM, "Aspect flags were not set for image view.");
 
@@ -58,20 +58,20 @@ namespace Render::Vulkan {
 			}
 
 			VkImageView imageView = VK_NULL_HANDLE;
-			VkCall(vkCreateImageView(createInfo.logicDevice_->GetHandle(), &vkCreateInfo, nullptr, &imageView), 
+			VkCall(vkCreateImageView(createInfo.LD_->GetHandle(), &vkCreateInfo, nullptr, &imageView), 
 				"Error while creating image view.");
 			SetHandle(imageView);
 		}
 
 		ImageView(const CreateInfo2& createInfo) noexcept : createInfo_{ 0 } {
 
-			OS::AssertMessage(createInfo.logicDevice_ != nullptr, "");
+			OS::AssertMessage(createInfo.LD_ != nullptr, "");
 			OS::AssertMessage(createInfo.format_ != VK_FORMAT_MAX_ENUM, "");
 			OS::AssertMessage(createInfo.aspectFlags_ != VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM, "Aspect flags were not set for image view.");
 
 			createInfo_.format_ = createInfo.format_;
 			createInfo_.aspectFlags_ = createInfo.aspectFlags_;
-			createInfo_.logicDevice_ = createInfo.logicDevice_;
+			createInfo_.LD_ = createInfo.LD_;
 
 			VkImageViewCreateInfo vkCreateInfo{};
 			{
@@ -91,7 +91,7 @@ namespace Render::Vulkan {
 			}
 
 			VkImageView imageView = VK_NULL_HANDLE;
-			VkCall(vkCreateImageView(createInfo.logicDevice_->GetHandle(), &vkCreateInfo, nullptr, &imageView),
+			VkCall(vkCreateImageView(createInfo.LD_->GetHandle(), &vkCreateInfo, nullptr, &imageView),
 				"Error while creating image view.");
 			SetHandle(imageView);
 		}
@@ -103,8 +103,8 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(createInfo_.logicDevice_ != nullptr, "Logic device is not set.");
-			vkDestroyImageView(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			OS::AssertMessage(createInfo_.LD_ != nullptr, "Logic device is not set.");
+			vkDestroyImageView(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 			SetHandle(VK_NULL_HANDLE);
 		}
 
@@ -116,7 +116,7 @@ namespace Render::Vulkan {
 	inline std::shared_ptr<ImageView> CreateImageViewByImage(std::shared_ptr<LogicDevice> logicDevice, std::shared_ptr<Image> image, VkImageAspectFlags aspect) noexcept {
 		ImageView::CreateInfo imageViewCreateInfo;
 		{
-			imageViewCreateInfo.logicDevice_ = logicDevice;
+			imageViewCreateInfo.LD_ = logicDevice;
 			imageViewCreateInfo.format_ = image->GetFormat();
 			imageViewCreateInfo.image_ = image;
 			imageViewCreateInfo.aspectFlags_ = aspect;
@@ -129,7 +129,7 @@ namespace Render::Vulkan {
 	inline std::shared_ptr<ImageView> CreateImageViewByImage(std::shared_ptr<LogicDevice> logicDevice, VkImage image, VkFormat format, VkImageAspectFlags aspect) noexcept {
 		ImageView::CreateInfo2 imageViewCreateInfo;
 		{
-			imageViewCreateInfo.logicDevice_ = logicDevice;
+			imageViewCreateInfo.LD_ = logicDevice;
 			imageViewCreateInfo.format_ = format;
 			imageViewCreateInfo.imageHandle_ = image;
 			imageViewCreateInfo.aspectFlags_ = aspect;

@@ -12,7 +12,7 @@
 #include <yaml-cpp/yaml.h>
 #include <Geometry.Storage.hpp>
 #include <Render/OksEngine.GeometryStorage.hpp>
-
+#include <RAL.Driver.hpp>
 //#include "OksEngine.Render.Subsystem.hpp"
 
 namespace OksEngine {
@@ -30,7 +30,7 @@ namespace OksEngine {
 
 	template<>
 	inline void Edit<ImmutableRenderGeometry>(ImmutableRenderGeometry* immutableRenderGeometry) {
-		ImGui::TextDisabled("Mesh tag %s:", immutableRenderGeometry->meshTag_.c_str());		
+		ImGui::TextDisabled("Mesh tag %s:", immutableRenderGeometry->meshTag_.c_str());
 	}
 
 	template<>
@@ -98,7 +98,7 @@ namespace OksEngine {
 			geomName_{ geomName },
 			yamlText_{ yamlText },
 			mesh_{  } {
- 			mesh_ = YAML::Load(yamlText_);
+			mesh_ = YAML::Load(yamlText_);
 		}
 
 		std::string geomName_;
@@ -166,7 +166,7 @@ namespace OksEngine {
 			Undefined
 		};
 
-		LoadMeshRequest(const std::string& name, std::map<std::string, ECS::Entity::Id> resourceEntityId, Type type) 
+		LoadMeshRequest(const std::string& name, std::map<std::string, ECS::Entity::Id> resourceEntityId, Type type)
 			: ECSComponent{ nullptr },
 			resourceEntityId_{ resourceEntityId },
 			type_{ type }, name_{ name } {}
@@ -188,7 +188,8 @@ namespace OksEngine {
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
 			return { ECS::Entity::Filter{}
 				.Include<GeometryFile>()
-				.Exclude<LoadMeshRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
+				.Exclude<LoadMeshRequest>(),
+				ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
@@ -203,14 +204,11 @@ namespace OksEngine {
 
 		}
 		Mesh(const std::string& tag, const Geom::Model2::Id& modelId) :
-			ECSComponent{ nullptr }, modelId_{ modelId }/*, tag_{ tag }*/ {}
+			ECSComponent{ nullptr }, modelId_{ modelId } {}
 		Geom::Model2::Id modelId_;
-		//Geom::Mesh::Id meshId_;
-		//std::string tag_;
 		ModelStorage::Model::Id model_;
-		Common::Index driverModelId_ = Common::Limits<Common::Index>::Max();
+		Common::Id driverModelId_;
 	};
-
 
 	template<>
 	inline void Edit<Mesh>(Mesh* mesh) {
@@ -231,7 +229,7 @@ namespace OksEngine {
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<LoadMeshRequest>().Include<GeometryFile>().Exclude<Mesh>(), ECS::Entity::Filter{}.ExcludeAll()};
+			return { ECS::Entity::Filter{}.Include<LoadMeshRequest>().Include<GeometryFile>().Exclude<Mesh>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 	private:
@@ -239,6 +237,8 @@ namespace OksEngine {
 			return Common::TypeInfo<LoadMesh>().GetId();
 		}
 	};
+
+
 
 	class RenderMesh : public ECSSystem {
 	public:
@@ -257,5 +257,59 @@ namespace OksEngine {
 		}
 	};
 
+
+	struct DriverModel : public ECSComponent<DriverModel> {
+	public:
+
+		struct Mesh {
+			Common::Id id_;
+			std::vector<RAL::Driver::ShaderBinding::Data> shaderBindings_;
+		};
+
+		DriverModel() : ECSComponent{ nullptr } { }
+		DriverModel(std::vector<Mesh>& driverMeshs) :
+			ECSComponent{ nullptr },
+			driverMeshs_{ driverMeshs } {}
+
+		std::vector<Mesh> driverMeshs_;
+	};
+
+
+	class CreateDriverModel : public ECSSystem {
+	public:
+
+		CreateDriverModel(Context& context) noexcept : ECSSystem{ context } { }
+
+	public:
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
+
+		virtual Common::TypeId GetTypeId() const noexcept override {
+			return Common::TypeInfo<CreateDriverModel>().GetId();
+		}
+	};
+
+
+
+
+
+	class MapMeshTransform : public ECSSystem {
+	public:
+
+		MapMeshTransform(Context& context) noexcept : ECSSystem{ context } { }
+
+	public:
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
+
+	private:
+		virtual Common::TypeId GetTypeId() const noexcept override {
+			return Common::TypeInfo<MapMeshTransform>().GetId();
+		}
+	};
 
 }

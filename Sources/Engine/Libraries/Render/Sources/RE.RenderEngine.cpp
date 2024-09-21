@@ -205,71 +205,71 @@ namespace RE {
 		
 	}
 
-	[[nodiscard]]
-	RenderEngine::Model RenderEngine::RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model) {
+	//[[nodiscard]]
+	//RenderEngine::Model RenderEngine::RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model) {
 
-		Model drawnModel;
-		/*for (const auto& shape : model) {
-			Geometry::VertexCloud<Geometry::Vertex3fnt> verticesColored;
-			const auto& vertices = shape.GetVertices();
-			for (const auto& vertex : vertices) {
-				verticesColored.Add(vertex);
-			}
-			
-			std::vector<RAL::Color4b> pixelsRGBA;
-			pixelsRGBA.resize(shape.GetTexture()->GetPixelsNumber());
-			std::memcpy(pixelsRGBA.data(), shape.GetTexture()->GetPixels<RAL::Color4b>(), shape.GetTexture()->GetPixelsNumber() * sizeof(RAL::Color4b));
+	//	Model drawnModel;
+	//	/*for (const auto& shape : model) {
+	//		Geometry::VertexCloud<Geometry::Vertex3fnt> verticesColored;
+	//		const auto& vertices = shape.GetVertices();
+	//		for (const auto& vertex : vertices) {
+	//			verticesColored.Add(vertex);
+	//		}
+	//		
+	//		std::vector<RAL::Color4b> pixelsRGBA;
+	//		pixelsRGBA.resize(shape.GetTexture()->GetPixelsNumber());
+	//		std::memcpy(pixelsRGBA.data(), shape.GetTexture()->GetPixels<RAL::Color4b>(), shape.GetTexture()->GetPixelsNumber() * sizeof(RAL::Color4b));
 
-			const RAL::Texture::CreateInfo textureCreateInfo{
-				.name_ = "",
-				.pixels_ = std::move(pixelsRGBA),
-				.size_ = shape.GetTexture()->GetSize()
-			};
-			const auto textureId = driver_->CreateTexture(textureCreateInfo);
+	//		const RAL::Texture::CreateInfo textureCreateInfo{
+	//			.name_ = "",
+	//			.pixels_ = std::move(pixelsRGBA),
+	//			.size_ = shape.GetTexture()->GetSize()
+	//		};
+	//		const auto textureId = driver_->CreateTexture(textureCreateInfo);
 
-			Common::Index shapeId = driver_->DrawIndexed(
-				position,
-				(const RAL::Vertex3fnt*)verticesColored.GetData(),
-				verticesColored.GetVerticesNumber(),
-				shape.GetIndices().GetData(),
-				shape.GetIndicesNumber(),
-				textureId
-			);
-			drawnModel.shapes_.push_back({ shapeId });
-		}*/
+	//		Common::Index shapeId = driver_->DrawIndexed(
+	//			position,
+	//			(const RAL::Vertex3fnt*)verticesColored.GetData(),
+	//			verticesColored.GetVerticesNumber(),
+	//			shape.GetIndices().GetData(),
+	//			shape.GetIndicesNumber(),
+	//			textureId
+	//		);
+	//		drawnModel.shapes_.push_back({ shapeId });
+	//	}*/
 
-		return drawnModel;
-	}
+	//	return drawnModel;
+	//}
 
-	[[nodiscard]]
-	RenderEngine::Model RenderEngine::RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model) {
-		Model drawnModel;
-		/*for (const auto& shape : model) {
-			Geometry::VertexCloud<Geometry::Vertex3fnc> verticesColored;
+	//[[nodiscard]]
+	//RenderEngine::Model RenderEngine::RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model) {
+	//	Model drawnModel;
+	//	/*for (const auto& shape : model) {
+	//		Geometry::VertexCloud<Geometry::Vertex3fnc> verticesColored;
 
-			const auto& vertices = shape.GetVertices();
-			for (const auto& vertex : vertices) {
-				verticesColored.Add(vertex);
-			}
-			Common::Index shapeId = driver_->DrawIndexed(
-				position,
-				(RAL::Vertex3fnc*)verticesColored.GetData(),
-				verticesColored.GetVerticesNumber(),
-				shape.GetIndices().GetData(),
-				shape.GetIndicesNumber());
-			drawnModel.shapes_.push_back({ shapeId });
-		}*/
-		return drawnModel;
-	}
-
-
+	//		const auto& vertices = shape.GetVertices();
+	//		for (const auto& vertex : vertices) {
+	//			verticesColored.Add(vertex);
+	//		}
+	//		Common::Index shapeId = driver_->DrawIndexed(
+	//			position,
+	//			(RAL::Vertex3fnc*)verticesColored.GetData(),
+	//			verticesColored.GetVerticesNumber(),
+	//			shape.GetIndices().GetData(),
+	//			shape.GetIndicesNumber());
+	//		drawnModel.shapes_.push_back({ shapeId });
+	//	}*/
+	//	return drawnModel;
+	//}
 
 
-	void RenderEngine::SetModelMatrix(const RenderEngine::Model& model, const glm::mat4& modelMatrix) {
-		for (auto shape : model.shapes_) {
-			//driver_->SetModelMatrix(shape.id_, modelMatrix);
-		}
-	}
+
+
+	//void RenderEngine::SetModelMatrix(const RenderEngine::Model& model, const glm::mat4& modelMatrix) {
+	//	for (auto shape : model.shapes_) {
+	//		//driver_->SetModelMatrix(shape.id_, modelMatrix);
+	//	}
+	//}
 
 	void RenderEngine::Render() {
 

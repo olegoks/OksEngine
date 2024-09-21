@@ -36,7 +36,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
 			std::vector<VkPushConstantRange> pushConstants_;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
@@ -189,7 +189,7 @@ namespace Render::Vulkan {
 
 			PipelineLayout::CreateInfo pipelineLayoutCreateInfo;
 			{
-				pipelineLayoutCreateInfo.logicDevice_ = createInfo.logicDevice_;
+				pipelineLayoutCreateInfo.LD_ = createInfo.LD_;
 				pipelineLayoutCreateInfo.pushConstants_ = createInfo.pushConstants_;
 				pipelineLayoutCreateInfo.descriptorSetLayouts_.insert(
 					pipelineLayoutCreateInfo.descriptorSetLayouts_.begin(),
@@ -225,7 +225,7 @@ namespace Render::Vulkan {
 			}
 			VkPipeline pipeline = VK_NULL_HANDLE;
 			VkCall(vkCreateGraphicsPipelines(
-				createInfo.logicDevice_->GetHandle(),
+				createInfo.LD_->GetHandle(),
 				VK_NULL_HANDLE,
 				1,
 				&pipelineInfo,
@@ -247,7 +247,7 @@ namespace Render::Vulkan {
 
 		void Destroy() noexcept {
 			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkPipelineLayout.");
-			vkDestroyPipeline(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			vkDestroyPipeline(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 		}
 
 	private:
@@ -262,7 +262,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<Shader> vertexShader_ = nullptr;
@@ -277,14 +277,14 @@ namespace Render::Vulkan {
 			Pipeline{
 				Pipeline::CreateInfo{
 					createInfo.physicalDevice_,
-					createInfo.logicDevice_,
+					createInfo.LD_,
 					createInfo.renderPass_,
 					{},
 					std::vector<std::shared_ptr<DescriptorSetLayout>>{
 					std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
 							"GlobalData",
-							createInfo.logicDevice_,
+							createInfo.LD_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
 							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -295,7 +295,7 @@ namespace Render::Vulkan {
 						}),std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
 							"Transform",
-							createInfo.logicDevice_,
+							createInfo.LD_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
 							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -307,7 +307,7 @@ namespace Render::Vulkan {
 						std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
 							"DiffuseMap",
-							createInfo.logicDevice_,
+							createInfo.LD_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
 							VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
@@ -318,11 +318,11 @@ namespace Render::Vulkan {
 						})
 				},
 					std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-						createInfo.logicDevice_,
+						createInfo.LD_,
 						createInfo.vertexShader_->GetSpirv()
 						}),
 					std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-						createInfo.logicDevice_,
+						createInfo.LD_,
 						createInfo.fragmentShader_->GetSpirv()
 						}),
 					createInfo.depthTestInfo_,
@@ -349,7 +349,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<Shader> vertexShader_ = nullptr;
@@ -365,14 +365,14 @@ namespace Render::Vulkan {
 			Pipeline{
 			Pipeline::CreateInfo{
 				createInfo.physicalDevice_,
-				createInfo.logicDevice_,
+				createInfo.LD_,
 				createInfo.renderPass_,
 				{},
 				std::vector<std::shared_ptr<DescriptorSetLayout>>{
 					std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
 							"GlobalData",
-							createInfo.logicDevice_,
+							createInfo.LD_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
 							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -383,7 +383,7 @@ namespace Render::Vulkan {
 						}),std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
 							"Transform",
-							createInfo.logicDevice_,
+							createInfo.LD_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
 							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -394,11 +394,11 @@ namespace Render::Vulkan {
 						})
 				},
 				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-					createInfo.logicDevice_,
+					createInfo.LD_,
 					createInfo.vertexShader_->GetSpirv()
 					}),
 				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-					createInfo.logicDevice_,
+					createInfo.LD_,
 					createInfo.fragmentShader_->GetSpirv()
 					}),
 				createInfo.depthTestInfo_,
@@ -426,7 +426,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<Shader> vertexShader_ = nullptr;
@@ -443,14 +443,14 @@ namespace Render::Vulkan {
 			Pipeline{
 			Pipeline::CreateInfo{
 				createInfo.physicalDevice_,
-				createInfo.logicDevice_,
+				createInfo.LD_,
 				createInfo.renderPass_,
 				{},
 				std::vector<std::shared_ptr<DescriptorSetLayout>>{
 					std::make_shared<DescriptorSetLayout>(
 						DescriptorSetLayout::CreateInfo{
 							"GlobalData",
-							createInfo.logicDevice_,
+							createInfo.LD_,
 							std::vector<VkDescriptorSetLayoutBinding>{{{
 							0,
 							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
@@ -461,11 +461,11 @@ namespace Render::Vulkan {
 						})
 				},
 				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-					createInfo.logicDevice_,
+					createInfo.LD_,
 					createInfo.vertexShader_->GetSpirv()
 					}),
 				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-					createInfo.logicDevice_,
+					createInfo.LD_,
 					createInfo.fragmentShader_->GetSpirv()
 					}),
 				createInfo.depthTestInfo_,
@@ -493,7 +493,7 @@ namespace Render::Vulkan {
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
 			
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;

@@ -22,19 +22,17 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
-			std::shared_ptr<LogicDevice> logicDevice_;
-			std::shared_ptr<DescriptorPool> descriptorPool_;
+			std::shared_ptr<LogicDevice> LD_;
+			std::shared_ptr<DescriptorPool> DP_;
 			std::shared_ptr<DescriptorSetLayout> DSL_;
-			//std::shared_ptr<UniformBuffer> buffer_;
-			//VkDescriptorType type_;
 		};
 
 		DescriptorSet(const CreateInfo& createInfo) : 
 			createInfo_{ createInfo } {
 
 			Allocate(
-				createInfo.logicDevice_->GetHandle(),
-				createInfo.descriptorPool_->GetNative(),
+				createInfo.LD_->GetHandle(),
+				createInfo.DP_->GetNative(),
 				*createInfo.DSL_);
 
 			/*Update(
@@ -46,6 +44,7 @@ namespace Render::Vulkan {
 
 		}
 
+		//Update the contents of a descriptor set object
 		void UpdateBufferWriteConfiguration(
 			std::shared_ptr<class Buffer> buffer,
 			VkDescriptorType type,
@@ -64,8 +63,8 @@ namespace Render::Vulkan {
 		~DescriptorSet() {
 			OS::Assert(GetHandle() != VK_NULL_HANDLE);
 			vkFreeDescriptorSets(
-				createInfo_.logicDevice_->GetHandle(),
-				createInfo_.descriptorPool_->GetNative(),
+				createInfo_.LD_->GetHandle(),
+				createInfo_.DP_->GetNative(),
 				1,
 				&GetHandle());
 		}

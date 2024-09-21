@@ -17,33 +17,33 @@ namespace Render::Vulkan {
 	class Buffer {
 	public:
 		Buffer() = delete;
-		Buffer(Buffer&& moveBuffer) : logicDevice_{ nullptr }, buffer_{ VK_NULL_HANDLE }{
+		Buffer(Buffer&& moveBuffer) : LD_{ nullptr }, buffer_{ VK_NULL_HANDLE }{
 
 			std::swap(buffer_, moveBuffer.buffer_);
 			std::swap(size_, moveBuffer.size_);
 			std::swap(bufferMemory_, moveBuffer.bufferMemory_);
 			std::swap(memoryType_, moveBuffer.memoryType_);
-			std::swap(logicDevice_, moveBuffer.logicDevice_);
+			std::swap(LD_, moveBuffer.LD_);
 			std::swap(memoryRequirements_, moveBuffer.memoryRequirements_);
 
 		}
 
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			VkDeviceSize size_;
 			VkBufferUsageFlags usage_;
 			VkMemoryPropertyFlags properties_;
 		};
 
 		Buffer(const CreateInfo& createInfo) :
-			logicDevice_{ createInfo.logicDevice_ }, size_{ createInfo.size_ } {
+			LD_{ createInfo.LD_ }, size_{ createInfo.size_ } {
 
-			const VkBuffer buffer = CreateBuffer(createInfo.logicDevice_->GetHandle(), createInfo.size_, createInfo.usage_);
-			const VkMemoryRequirements memoryRequirements = GetBufferMemoryRequirements(createInfo.logicDevice_->GetHandle(), buffer);
+			const VkBuffer buffer = CreateBuffer(createInfo.LD_->GetHandle(), createInfo.size_, createInfo.usage_);
+			const VkMemoryRequirements memoryRequirements = GetBufferMemoryRequirements(createInfo.LD_->GetHandle(), buffer);
 			const uint32_t memoryType = FindSuitableMemoryType(createInfo.physicalDevice_, memoryRequirements.memoryTypeBits, createInfo.properties_);
-			const VkDeviceMemory deviceMemory = AllocateMemory(createInfo.logicDevice_->GetHandle(), memoryRequirements, memoryType);
-			BindDeviceMemoryToBuffer(createInfo.logicDevice_->GetHandle(), deviceMemory, buffer);
+			const VkDeviceMemory deviceMemory = AllocateMemory(createInfo.LD_->GetHandle(), memoryRequirements, memoryType);
+			BindDeviceMemoryToBuffer(createInfo.LD_->GetHandle(), deviceMemory, buffer);
 
 			buffer_ = buffer;
 			bufferMemory_ = deviceMemory;
@@ -56,12 +56,12 @@ namespace Render::Vulkan {
 			void* pointerToMappedMemory = nullptr;
 			{
 				[[maybe_unused]]
-				const VkResult result = vkMapMemory(logicDevice_->GetHandle(), GetDeviceMemory(), 0, GetSizeInBytes(), 0, &pointerToMappedMemory);
+				const VkResult result = vkMapMemory(LD_->GetHandle(), GetDeviceMemory(), 0, GetSizeInBytes(), 0, &pointerToMappedMemory);
 				OS::AssertMessage(result == VK_SUCCESS, "Error while mapping buffer to device memory.");
 			}
 			memcpy(pointerToMappedMemory, data, (size_t)GetSizeInBytes());
 			{
-				vkUnmapMemory(logicDevice_->GetHandle(), GetDeviceMemory());
+				vkUnmapMemory(LD_->GetHandle(), GetDeviceMemory());
 			}
 		}
 
@@ -124,8 +124,8 @@ namespace Render::Vulkan {
 			//if (GetNative() != VK_NULL_HANDLE) {
 			OS::Assert(GetNative() != VK_NULL_HANDLE);
 			OS::Assert(bufferMemory_ != VK_NULL_HANDLE);
-				FreeMemory(logicDevice_, bufferMemory_);
-				DestroyBuffer(logicDevice_, buffer_);
+				FreeMemory(LD_, bufferMemory_);
+				DestroyBuffer(LD_, buffer_);
 			//}
 		}
 
@@ -193,7 +193,7 @@ namespace Render::Vulkan {
 		}
 
 	private:
-		std::shared_ptr<LogicDevice> logicDevice_ = nullptr;
+		std::shared_ptr<LogicDevice> LD_ = nullptr;
 		VkDeviceSize size_ = 0;
 		VkBuffer buffer_ = VK_NULL_HANDLE;
 		VkDeviceMemory bufferMemory_ = VK_NULL_HANDLE;

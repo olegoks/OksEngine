@@ -16,7 +16,7 @@ namespace Render::Vulkan {
 		struct CreateInfo final {
 			static inline const char* const defaultDSLName_ = "No Name";
 			std::string name_ = defaultDSLName_;
-			std::shared_ptr<LogicDevice> logicDevice_;
+			std::shared_ptr<LogicDevice> LD_;
 			std::vector<VkDescriptorSetLayoutBinding> bindings_;
 		};
 
@@ -24,7 +24,7 @@ namespace Render::Vulkan {
 			createInfo_{ createInfo } {
 
 			OS::AssertMessage(createInfo.name_ != CreateInfo::defaultDSLName_, "Please, set name to descriptor set layout create info.");
-			OS::AssertMessage(createInfo.logicDevice_ != nullptr, "Please, set Physical Device to descriptor set layout create info.");
+			OS::AssertMessage(createInfo.LD_ != nullptr, "Please, set Physical Device to descriptor set layout create info.");
 
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			{
@@ -33,12 +33,18 @@ namespace Render::Vulkan {
 				layoutInfo.pBindings = (!createInfo.bindings_.empty()) ? (createInfo.bindings_.data()) : (nullptr);
 			}
 			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-			VkCall(vkCreateDescriptorSetLayout(createInfo.logicDevice_->GetHandle(), &layoutInfo, nullptr, &descriptorSetLayout),
+			VkCall(vkCreateDescriptorSetLayout(createInfo.LD_->GetHandle(), &layoutInfo, nullptr, &descriptorSetLayout),
 				"Error while creating descriptor set layout.");
 			SetHandle(descriptorSetLayout);
 		}
 		~DescriptorSetLayout() {
-			vkDestroyDescriptorSetLayout(createInfo_.logicDevice_->GetHandle(), GetHandle(), nullptr);
+			OS::AssertMessage(!IsNullHandle(), "Attempt to delete null DSL.");
+			vkDestroyDescriptorSetLayout(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
+		}
+
+		[[nodiscard]]
+		const std::vector<VkDescriptorSetLayoutBinding> GetBindings() const noexcept {
+			return createInfo_.bindings_;
 		}
 
 	private:
