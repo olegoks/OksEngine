@@ -41,4 +41,21 @@ namespace OksEngine {
 
 
 
+	class ResizeFrameBuffers : public ECSSystem {
+	public:
+
+		ResizeFrameBuffers(Context& context) noexcept :
+			ECSSystem{ context } { }
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
+
+		virtual Common::TypeId GetTypeId() const noexcept override {
+			return Common::TypeInfo<ResizeFrameBuffers>().GetId();
+		}
+
+	};
+
+
+
 }

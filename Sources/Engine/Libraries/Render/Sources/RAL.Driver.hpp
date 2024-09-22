@@ -141,58 +141,6 @@ namespace RAL {
 		virtual void Render() = 0;
 		virtual void EndRender() = 0;
 
-
-		//void SetCamera(std::shared_ptr<Camera> camera) noexcept {
-		//	camera_ = camera;
-		//}
-
-		//void AddLight(std::shared_ptr<Light> light) noexcept {
-		//	light_ = light;
-		//}
-
-		//std::shared_ptr<Camera> GetCamera() noexcept {
-		//	return camera_;
-		//}
-
-		//virtual Common::UInt64 DrawIndexed(
-		//	glm::vec2 scale,
-		//	glm::vec2 translate,
-		//	const Vertex2ftc* vertices,
-		//	Common::Size verticesNumber,
-		//	const Index16* indices,
-		//	Common::Size indicesNumber,
-		//	RAL::Texture::Id textureId) = 0;
-
-		//virtual Common::UInt64 DrawIndexed(
-		//	const glm::mat4& model_,
-		//	const Vertex3fnt* vertices,
-		//	Common::Size verticesNumber,
-		//	const Index16* indices,
-		//	Common::Size indicesNumber,
-		//	RAL::Texture::Id textureId) = 0;
-
-		//virtual Common::UInt64 DrawIndexed(
-		//	const glm::mat4& model_,
-		//	const Vertex3fnc* vertices,
-		//	Common::Size verticesNumber,
-		//	const Index16* indices,
-		//	Common::Size indicesNumber) = 0;
-
-		//virtual Common::UInt64 DrawIndexed(
-		//	const glm::mat4& model_,
-		//	const Vertex3fc* vertex,
-		//	Common::Size verticesNumber,
-		//	const Index16* indices,
-		//	Common::Size indeciesNumber) = 0;
-
-		//virtual Common::UInt64 DrawIndexed(
-		//	const glm::mat4& model_,
-		//	const Vertex3f* vertex,
-		//	Common::Size verticesNumber,
-		//	const Index16* indices,
-		//	Common::Size indeciesNumber,
-		//	const Color3f& color) = 0;
-
 		[[nodiscard]]
 		virtual Common::Id DrawMesh(
 			const std::string& pipelineName,
@@ -210,6 +158,8 @@ namespace RAL {
 
 		virtual void RemoveMeshFromDrawing(Common::Id shapeId) = 0;
 
+		virtual void FrameBufferResize(glm::u32vec2 newSize) = 0;
+
 		/* Textures */
 		[[nodiscard]]
 		virtual Texture::Id CreateTexture(const RAL::Texture::CreateInfo& createInfo) = 0;
@@ -222,19 +172,10 @@ namespace RAL {
 		[[nodiscard]]
 		virtual void FillUniformBuffer(UniformBuffer::Id UBId, void* data) = 0;
 
-		//[[nodiscard]]
-		//virtual 
-		//virtual 
-		//virtual void SetModelMatrix(
-		//	Common::Index shapeIndex,
-		//	const glm::mat4& modelMatrix) = 0;
-
 		virtual ~Driver() = default;
 
 	protected:
 		CreateInfo createInfo_;
-		//std::shared_ptr<Light> light_ = nullptr;
-		//std::shared_ptr<Camera> camera_ = nullptr;
 	};
 
 

@@ -31,6 +31,20 @@ namespace UIAL {
 			std::string title_;
 		};
 #undef DELETE
+
+
+		enum class Event : int {
+			FRAMEBUFFER_RESIZED,
+			Undefined
+		};
+
+		struct FrameBufferResizeEvent {
+			int newWidth_ = 0;
+			int newHeight_ = 0;
+		};
+
+
+
 		enum class KeyboardKey : int {
 
 			//Functional keys
@@ -171,7 +185,7 @@ namespace UIAL {
 			Undefined
 		};
 
-		enum class Event : Common::UInt64 {
+		enum class KeyboardAction : Common::UInt64 {
 			Pressed = GLFW_PRESS,
 			Released = GLFW_RELEASE,
 			Undefined
@@ -179,14 +193,14 @@ namespace UIAL {
 
 		struct KeyboardEvent {
 			KeyboardKey key_ = KeyboardKey::Undefined;
-			Event event_ = Event::Undefined;
+			KeyboardAction event_ = KeyboardAction::Undefined;
 		};
 
 		struct MouseEvent {
 			glm::ivec2 position_;
 			glm::ivec2 offset_;
 			MouseKey key_ = MouseKey::Undefined;
-			Event event_ = Event::Undefined;
+			KeyboardAction event_ = KeyboardAction::Undefined;
 		};
 
 
@@ -218,6 +232,14 @@ namespace UIAL {
 			return event;
 		}
 
+		[[nodiscard]]
+		std::optional<FrameBufferResizeEvent> GetFrameBufferResizeEvent() noexcept {
+			if (frameBufferResizeEvents_.empty()) return {};
+			FrameBufferResizeEvent event = frameBufferResizeEvents_.front();
+			frameBufferResizeEvents_.pop();
+			return event;
+		}
+
 
 		[[nodiscard]]
 		virtual glm::u32vec2 GetSize() const noexcept = 0;
@@ -234,8 +256,12 @@ namespace UIAL {
 		void PushEvent(const MouseEvent& event) noexcept {
 			mouseEvents_.push(event);
 		}
+		void PushEvent(const FrameBufferResizeEvent& event) noexcept {
+			frameBufferResizeEvents_.push(event);
+		}
 
 	private:
+		std::queue<FrameBufferResizeEvent> frameBufferResizeEvents_;
 		std::queue<KeyboardEvent> keyboardEvents_;
 		std::queue<MouseEvent> mouseEvents_;
 

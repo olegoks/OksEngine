@@ -65,16 +65,30 @@ namespace UI {
 				createdWindow != nullptr,
 				"GLFW Windows was not created.");
 			glfwSetWindowUserPointer(createdWindow, this);
+
+			glfwSetFramebufferSizeCallback(createdWindow, [](GLFWwindow* window, int width, int height){
+				
+				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
+				
+				UIAL::Window::FrameBufferResizeEvent event{
+					width,
+					height
+				};
+
+				windowPtr->PushEvent(event);
+
+				});
+
 			glfwSetKeyCallback(createdWindow, [](GLFWwindow* window, int key, int scancode, int action, int mods) {
 				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
 				KeyboardKey keyboardKey = KeyboardKey::Undefined;
-				Event event = Event::Undefined;
+				KeyboardAction event = KeyboardAction::Undefined;
 				keyboardKey = static_cast<KeyboardKey>(key);
 				if (action == GLFW_PRESS) {
-					event = Event::Pressed;
+					event = KeyboardAction::Pressed;
 				}
 				else if (action == GLFW_RELEASE) {
-					event = Event::Released;
+					event = KeyboardAction::Released;
 				}
 				else {
 					return;

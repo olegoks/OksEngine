@@ -17,11 +17,6 @@ namespace OksEngine {
 
 
 
-	template<>
-	inline void Edit<Window>(Window* window) {
-
-	}
-
 	class GetWindowKeyboardInputEvents : public ECSSystem {
 	public:
 		GetWindowKeyboardInputEvents(Context& context) noexcept :
@@ -45,6 +40,32 @@ namespace OksEngine {
 		}
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
 			return { ECS::Entity::Filter{}.Include<Window>().Include<KeyboardInput>(), ECS::Entity::Filter{}.ExcludeAll()};
+		}
+
+	};
+
+	class GetWindowFramebufferResizedEvents : public ECSSystem {
+	public:
+		GetWindowFramebufferResizedEvents(Context& context) noexcept :
+			ECSSystem{ context } { }
+
+
+		virtual void Update(ECS::World* world, ECS::Entity::Id firstEntityId, ECS::Entity::Id secondEntityId) override {
+
+			Window* window = world->GetComponent<Window>(firstEntityId);
+			auto* framebufferResizeEvents = world->GetComponent<FrameBufferResizeEvents>(firstEntityId);
+			auto maybeEvent = window->window_->GetFrameBufferResizeEvent();
+			while (maybeEvent.has_value()) {
+				framebufferResizeEvents->PushEvent({ maybeEvent.value() });
+				maybeEvent = window->window_->GetFrameBufferResizeEvent();
+			}
+		}
+
+		Common::TypeId GetTypeId() const noexcept {
+			return Common::TypeInfo<GetWindowFramebufferResizedEvents>().GetId();
+		}
+		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+			return { ECS::Entity::Filter{}.Include<Window>().Include<FrameBufferResizeEvents>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 	};
@@ -86,7 +107,7 @@ namespace OksEngine {
 			}
 			if (world->IsComponentExist<KeyboardInput>(secondEntityId)) {
 				KeyboardInput* keyboardInput = world->GetComponent<KeyboardInput>(secondEntityId);
-				windowKeyboardInput->ForEachEvent([keyboardInput](const KeyboardInput::Event& event) {
+				windowKeyboardInput->ForEachEvent([keyboardInput](const KeyboardInput::KeyboardAction& event) {
 					keyboardInput->PushEvent(event);
 					});
 			}
@@ -165,7 +186,7 @@ namespace OksEngine {
 			}
 			if (world->IsComponentExist<MouseInput>(secondEntityId)) {
 				MouseInput* mouseInput = world->GetComponent<MouseInput>(secondEntityId);
-				windowMouseInput->ForEachEvent([mouseInput](const MouseInput::Event& event) {
+				windowMouseInput->ForEachEvent([mouseInput](const MouseInput::KeyboardAction& event) {
 					mouseInput->PushEvent(event);
 					});
 			}
@@ -193,9 +214,9 @@ namespace OksEngine {
 			KeyboardInput* keyboardInput = world->GetComponent<KeyboardInput>(firstEntityId);
 			MouseInput* mouseInput = world->GetComponent<MouseInput>(firstEntityId);
 			static bool disableEvents = false;
-			keyboardInput->ForEachEvent([window](const KeyboardInput::Event& event) {
+			keyboardInput->ForEachEvent([window](const KeyboardInput::KeyboardAction& event) {
 				static bool cursorEnabled = false;
-				if (event.key_ == UIAL::Window::KeyboardKey::F5 && event.event_ == UIAL::Window::Event::Released) {
+				if (event.key_ == UIAL::Window::KeyboardKey::F5 && event.event_ == UIAL::Window::KeyboardAction::Released) {
 					if (!cursorEnabled) {
 						window->window_->EnableCursor();
 						disableEvents = true;
