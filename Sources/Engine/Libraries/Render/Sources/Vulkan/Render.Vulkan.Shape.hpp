@@ -112,22 +112,15 @@ namespace Render::Vulkan {
 		};
 
 		struct CreateInfo {
-			//char transform_[sizeof(glm::mat4)];
-			//Common::Size transformSize_ = 0;
 			std::shared_ptr<AllocatedVertexBuffer2> vertexBuffer_ = nullptr;
 			std::shared_ptr<AllocatedIndexBuffer2> indexBuffer_ = nullptr;
 			std::vector<ShaderBinding> shaderBindings_;
-			//std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
-			//std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-			//RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
 			std::string pipelineName_ = "";
 			bool draw_ = true;
 		};
 
-		Mesh(const CreateInfo& createInfo) :
-			/*transform_{ 0 },*/ createInfo_{ createInfo }, draw_{ createInfo.draw_ } {
-		
-			//std::memcpy(transform_, (char*)createInfo.transform_, createInfo.transformSize_);
+		Mesh(const CreateInfo& createInfo) : createInfo_{ createInfo }, draw_{ createInfo.draw_ } {
+
 		
 		}
 
@@ -145,18 +138,6 @@ namespace Render::Vulkan {
 			return createInfo_.shaderBindings_;
 		}
 
-
-		//[[nodiscard]]
-		//auto GetTransformDescriptorSet() noexcept {
-		//	return createInfo_.transformDescriptorSet_;
-		//}
-
-		//void SetTransformMatrix(const void* transform, Common::Size size) {
-		//	OS::Assert(size == createInfo_.transformSize_);
-		//	std::memcpy(transform_, transform, size);
-		//	createInfo_.transformBuffer_->Fill(&transform_);
-		//}
-
 		[[nodiscard]]
 		bool IsDraw() const noexcept { return draw_; }
 		void StopDrawing() noexcept { draw_ = false; }
@@ -167,14 +148,10 @@ namespace Render::Vulkan {
 			return createInfo_.pipelineName_;
 		}
 
-		//[[nodiscard]]
-		//RAL::Texture::Id GetTextureId() const noexcept {
-		//	return createInfo_.textureId_;
-		//}
+		~Mesh() {
+		}
 
 	private:
-		char transform_[sizeof(glm::mat4)];
-		Common::Size transformSize_ = 0;
 		CreateInfo createInfo_;
 		bool draw_ = true;
 	};

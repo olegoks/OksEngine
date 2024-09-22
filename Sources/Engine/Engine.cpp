@@ -46,7 +46,8 @@ namespace OksEngine {
 
 				context_->GetECSWorld()->RunSystem<LoadResourceSystem>();
 				/*UI*/
-				context_->GetECSWorld()->RunSystem<GetWindowKeyboardInputEvents>();				
+				context_->GetECSWorld()->RunSystem<GetWindowKeyboardInputEvents>();	
+				context_->GetECSWorld()->RunSystem<GetWindowFramebufferResizedEvents>();
 				context_->GetECSWorld()->RunSystem<GetWindowMouseInputEvents>();
 				context_->GetECSWorld()->RunSystem<UISystem>();
 				context_->GetECSWorld()->RunSystem<WindowSystem>();
@@ -83,6 +84,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreateLoadMeshRequest>();
 				context_->GetECSWorld()->RunSystem<LoadMesh>();
 				context_->GetECSWorld()->RunSystem<CreateDriverModel>();
+				context_->GetECSWorld()->RunSystem < ResizeFrameBuffers>();
 				context_->GetECSWorld()->RunSystem<RenderMesh>();
 				context_->GetECSWorld()->RunSystem<MapMeshTransform>();
 				//context_->GetECSWorld()->RunSystem<AddImmutableRenderGeometryFromObjSystem>();

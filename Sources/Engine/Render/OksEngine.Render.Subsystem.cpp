@@ -33,6 +33,7 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<CameraSystem>(context);
 		ecsWorld->RegisterSystem<CreateDriverCamera>(context);
 		ecsWorld->RegisterSystem<CreateDriverModel>(context);
+		ecsWorld->RegisterSystem<ResizeFrameBuffers>(context);
 		ecsWorld->RegisterSystem<MapMeshTransform>(context);
 		ecsWorld->RegisterSystem<LoadGeometryDescriptionFile>(context);
 		ecsWorld->RegisterSystem<LoadMesh>(context);
