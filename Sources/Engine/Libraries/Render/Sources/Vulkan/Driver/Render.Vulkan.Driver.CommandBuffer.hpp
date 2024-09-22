@@ -78,6 +78,15 @@ namespace Render::Vulkan {
 				VK_SUBPASS_CONTENTS_INLINE);
 		}
 
+		void SetViewport(const VkViewport& viewport) noexcept {
+			vkCmdSetViewport(GetHandle(), 0, 1, &viewport);
+		}
+
+
+		void SetScissor(const VkRect2D& scissor) noexcept {
+			vkCmdSetScissor(GetHandle(), 0, 1, &scissor);
+		}
+
 		template<class PipelineType>
 		void BindPipeline(std::shared_ptr<PipelineType> pipeline) noexcept {
 			vkCmdBindPipeline(
