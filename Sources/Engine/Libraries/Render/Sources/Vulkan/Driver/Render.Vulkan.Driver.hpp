@@ -154,12 +154,19 @@ namespace Render::Vulkan {
 
 		virtual void FrameBufferResize(glm::u32vec2 newSize) override {
 			vkQueueWaitIdle(objects_.LD_->GetPresentQueue());
+
+
+
 			objects_.frameBuffers_.clear();
 			objects_.imageContexts_.clear();
 			objects_.swapChain_.reset();
 			objects_.frameContexts_.clear();
 			objects_.depthTestData_.reset();
 			objects_.multisamplingData_.reset();
+
+			if (newSize.x == 0 || newSize.y == 0) {
+				return;
+			}
 
 			//SWAPCHAIN
 			SwapChain::CreateInfo swapChainCreateInfo;
@@ -577,28 +584,7 @@ namespace Render::Vulkan {
 					multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT);
 				}
 				objects_.multisamplingData_ = multisamplingData;
-				//}
 			}
-
-
-			////DESCRIPTOR SET LAYOUTS
-			//{
-			//	DescriptorSetLayout::CreateInfo descriptorSetLayoutCreateInfo;
-			//	{
-			//		descriptorSetLayoutCreateInfo.logicDevice_ = logicDevice_;
-			//		std::vector<VkDescriptorSetLayoutBinding> bindings{
-			//			{
-			//				0,
-			//				VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-			//				1,
-			//				VK_SHADER_STAGE_VERTEX_BIT,
-			//				nullptr
-			//			}
-			//		};
-			//		descriptorSetLayoutCreateInfo.bindings_ = bindings;
-			//	}
-			//	globalDataDSL_ = std::make_shared<DescriptorSetLayout>(descriptorSetLayoutCreateInfo);
-			//}
 
 
 			RenderPass::CreateInfo RPCreateInfo{};
@@ -751,19 +737,21 @@ namespace Render::Vulkan {
 					clearValue,
 					depthBufferInfo);
 
-				VkViewport viewport{};
-				viewport.x = 0.0f;
-				viewport.y = 0.0f;
-				viewport.width = static_cast<float>(objects_.swapChain_->GetSize().x);
-				viewport.height = static_cast<float>(objects_.swapChain_->GetSize().y);
-				viewport.minDepth = 0.0f;
-				viewport.maxDepth = 1.0f;
-				vkCmdSetViewport(*commandBuffer, 0, 1, &viewport);
+				const VkViewport viewport{
+					.x = 0.f,
+					.y = 0.f,
+					.width = static_cast<float>(objects_.swapChain_->GetSize().x),
+					.height = static_cast<float>(objects_.swapChain_->GetSize().y),
+					.minDepth = 0.0f,
+					.maxDepth = 1.0f
+				};
+				commandBuffer->SetViewport(viewport);
 
-				VkRect2D scissor{};
-				scissor.offset = { 0, 0 };
-				scissor.extent = objects_.swapChain_->GetExtent();
-				vkCmdSetScissor(*commandBuffer, 0, 1, &scissor);
+				const VkRect2D scissor{
+					.offset = { 0, 0 },
+					.extent = objects_.swapChain_->GetExtent()
+				};
+				commandBuffer->SetScissor(scissor);
 
 				for (auto& [id, mesh] : meshs_) {
 					commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
@@ -830,6 +818,10 @@ namespace Render::Vulkan {
 		}
 
 		void Render() override {
+
+			if (objects_.frameContexts_.empty()) {
+				return;
+			}
 
 			std::shared_ptr<FrameContext> frameContext = objects_.frameContexts_[currentFrame];
 			auto image = GetNextImage(frameContext->imageAvailableSemaphore_);
