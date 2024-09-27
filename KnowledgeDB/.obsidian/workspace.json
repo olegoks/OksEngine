@@ -30,9 +30,21 @@
                 "source": false
               }
             }
+          },
+          {
+            "id": "927eda137b2f13a9",
+            "type": "leaf",
+            "state": {
+              "type": "markdown",
+              "state": {
+                "file": "Экран ноутбука как второй монитор.md",
+                "mode": "source",
+                "source": false
+              }
+            }
           }
         ],
-        "currentTab": 1
+        "currentTab": 2
       }
     ],
     "direction": "vertical"
@@ -98,7 +110,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Work/C++/volatile.md",
+                "file": "Экран ноутбука как второй монитор.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -115,7 +127,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Work/C++/volatile.md",
+                "file": "Экран ноутбука как второй монитор.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -138,7 +150,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Work/C++/volatile.md"
+                "file": "Экран ноутбука как второй монитор.md"
               }
             }
           }
@@ -159,8 +171,11 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "3f59200cd1be0bfd",
+  "active": "927eda137b2f13a9",
   "lastOpenFiles": [
+    "Attachments/Pasted image 20240927174040.png",
+    "Work/C++/volatile.md",
+    "Экран ноутбука как второй монитор.md",
     "Work/C++/Многопоточность/Термины/Барьеры памяти.md",
     "Work/C++/Многопоточность/Термины/Атомарные операции.md",
     "Work/C++/Многопоточность/Конструкции/Условная переменная(std_condition_variable).md",
@@ -173,7 +188,6 @@
     "Work/C++/Многопоточность/Конструкции/Мьютекс чтения-записи(reader-writer mutex).md",
     "Work/C++/ECS/ECS.md",
     "Work/C++/Дедлок в однопоточной программе.md",
-    "Untitled.md",
     "OksEngine",
     "Work/C++/Шаблонный код.md",
     "Work/C++/ECS",
@@ -199,10 +213,8 @@
     "Attachments/Pasted image 20240614143033.png",
     "Attachments/Pasted image 20240614143020.png",
     "Attachments/Pasted image 20240614142952.png",
-    "Work/C++/RVO(return value optimization).md",
     "Work/OBS",
     "Work/Network",
-    "Work/Programming/Git, GitHub/Работа со стешем.md",
     "Work/C++/VisualStudio",
     "Work/C++/Модель памяти С++.md.bak",
     "Work/C++/Многопоточность/Конструкции",
