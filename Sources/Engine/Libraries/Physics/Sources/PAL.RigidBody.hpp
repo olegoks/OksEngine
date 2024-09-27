@@ -7,8 +7,10 @@
 
 namespace PAL {
 
-	class RigidBody {
+	class DynamicRigidBody {
 	public:
+
+		using Id = Common::Id;
 
 		struct CreateInfo {
 			glm::mat4 transform_;
@@ -19,7 +21,7 @@ namespace PAL {
 			std::string name_ = "No name";
 		};
 
-		RigidBody(const CreateInfo& createInfo) {
+		DynamicRigidBody(const CreateInfo& createInfo) {
 
 		}
 

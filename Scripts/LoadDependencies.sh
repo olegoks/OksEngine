@@ -7,6 +7,8 @@ git clone https://github.com/microsoft/vcpkg.git
 cd ./vcpkg
 ./bootstrap-vcpkg.bat
 echo $(pwd)
+./vcpkg.exe install cgal
+./vcpkg.exe install meshoptimizer
 ./vcpkg.exe install yaml-cpp
 ./vcpkg.exe install glfw3
 ./vcpkg.exe install vulkan

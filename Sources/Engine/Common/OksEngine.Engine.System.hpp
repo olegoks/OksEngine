@@ -9,34 +9,34 @@
 
 namespace OksEngine {
 
-	class AttachCameraSystem : public ECSSystem {
-	public:
-		AttachCameraSystem(Context& context) : ECSSystem{ context } {
+	//class AttachCameraSystem : public ECSSystem {
+	//public:
+	//	AttachCameraSystem(Context& context) : ECSSystem{ context } {
 
-		}
+	//	}
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
-			auto* attachCamera = world->GetComponent<AttachedCamera>(entityId);
-			if (attachCamera == nullptr) return;
-			auto* camera = world->GetComponent<Camera>(entityId);
-			if (camera == nullptr) return;
-			auto* rb = world->GetComponent<DynamicRigidBodyCapsule>(entityId);
-			if (rb == nullptr) return;
-			const glm::mat4 cameraTransform = rb->GetTransform()/* * attachCamera->offset_*/;
-			//camera->Transform(cameraTransform);
-		}
+	//	virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override {
+	//		auto* attachCamera = world->GetComponent<AttachedCamera>(entityId);
+	//		if (attachCamera == nullptr) return;
+	//		auto* camera = world->GetComponent<Camera>(entityId);
+	//		if (camera == nullptr) return;
+	//		auto* rb = world->GetComponent<DynamicRigidBodyCapsule>(entityId);
+	//		if (rb == nullptr) return;
+	//		const glm::mat4 cameraTransform = rb->GetTransform()/* * attachCamera->offset_*/;
+	//		//camera->Transform(cameraTransform);
+	//	}
 
-		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override
-		{
-			return { ECS::Entity::Filter{}.Include<AttachedCamera>(), ECS::Entity::Filter{}.ExcludeAll() };
-		}
+	//	virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override
+	//	{
+	//		return { ECS::Entity::Filter{}.Include<AttachedCamera>(), ECS::Entity::Filter{}.ExcludeAll() };
+	//	}
 
-		virtual Common::TypeId GetTypeId() const noexcept override {
-			return Common::TypeInfo<AttachCameraSystem>().GetId();
-		}
+	//	virtual Common::TypeId GetTypeId() const noexcept override {
+	//		return Common::TypeInfo<AttachCameraSystem>().GetId();
+	//	}
 
 
-	};
+	//};
 
 
 	class PhysicsGeometryMapper : public ECSSystem {
@@ -57,7 +57,7 @@ namespace OksEngine {
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override{
-			return { ECS::Entity::Filter{}.Include<DynamicRigidBodyBox>().Include<ImmutableRenderGeometry>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return { ECS::Entity::Filter{}/*.Include<DynamicRigidBodyBox>()*/.Include<ImmutableRenderGeometry>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {

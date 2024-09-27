@@ -67,8 +67,6 @@ namespace PhysX {
 			createInfo.physics_,
 			createInfo.palCreateInfo_.material_);
 
-		const auto& shapeGeom = createInfo.palCreateInfo_.shape_;
-
 		//Geom::Box< Geom::Index16> box{ 5 };
 		//Geom::Vertex3f vertices[3] = {
 		//	{ 0.f, 0.f, 0.f },
@@ -78,14 +76,14 @@ namespace PhysX {
 		//Geom::Index16 indices[3] = { 0, 1, 2 };
 		physx::PxTriangleMeshDesc meshDesc{};
 		{
-			meshDesc.points.count = /*3;*//*static_cast<physx::PxU32>(box.GetVerticesNumber());*/static_cast<physx::PxU32>(shapeGeom.GetVerticesNumber());
+			meshDesc.points.count = /*3;*//*static_cast<physx::PxU32>(box.GetVerticesNumber());*/static_cast<physx::PxU32>(createInfo.palCreateInfo_.vertices_.GetVerticesNumber());
 			meshDesc.points.stride = sizeof(Geom::Vertex3f);
 			OS::Assert(sizeof(physx::PxVec3) == sizeof(Geom::Vertex3f));
-			meshDesc.points.data = /*vertices;*//*box.GetVertices().GetData();*/shapeGeom.GetVertices().GetData();
+			meshDesc.points.data = /*vertices;*//*box.GetVertices().GetData();*/createInfo.palCreateInfo_.vertices_.GetData();
 
-			meshDesc.triangles.count = /*1;*//*static_cast<physx::PxU32>(box.GetIndicesNumber()) / 3;*/static_cast<physx::PxU32>(shapeGeom.GetIndicesNumber()) / 3;
+			meshDesc.triangles.count = /*1;*//*static_cast<physx::PxU32>(box.GetIndicesNumber()) / 3;*/static_cast<physx::PxU32>(createInfo.palCreateInfo_.indices_.GetIndicesNumber()) / 3;
 			meshDesc.triangles.stride = 3 * sizeof(physx::PxU16);
-			meshDesc.triangles.data = /*indices;*/shapeGeom.GetIndices().GetData();//box.GetIndices().GetData();
+			meshDesc.triangles.data = /*indices;*/ createInfo.palCreateInfo_.indices_.GetData();//box.GetIndices().GetData();
 
 			meshDesc.flags |= (physx::PxMeshFlag::e16_BIT_INDICES/* | physx::PxMeshFlag::eFLIPNORMALS*/);
 		}

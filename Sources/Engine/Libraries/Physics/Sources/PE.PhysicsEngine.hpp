@@ -29,7 +29,7 @@ namespace PE {
 		}
 
 		[[nodiscard]]
-		auto CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo) {
+		auto CreateRigidBody(const PAL::DynamicRigidBody::CreateInfo& createInfo) {
 			return api_->CreateRigidBody(createInfo);
 		}
 

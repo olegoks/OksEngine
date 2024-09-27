@@ -9,8 +9,8 @@ namespace PAL {
 		virtual std::shared_ptr<World> 
 		CreateWorld(const PAL::World::CreateInfo& createInfo) = 0;
 
-		virtual std::shared_ptr<RigidBody> 
-		CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo) = 0;
+		virtual std::shared_ptr<DynamicRigidBody> 
+		CreateRigidBody(const PAL::DynamicRigidBody::CreateInfo& createInfo) = 0;
 
 		virtual std::shared_ptr<StaticRigidBody>
 		CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& createInfo) = 0;

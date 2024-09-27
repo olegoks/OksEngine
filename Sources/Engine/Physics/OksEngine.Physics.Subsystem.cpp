@@ -26,7 +26,7 @@ namespace OksEngine {
 		physicsEngine_->CreateWorld(worldCreateInfo);
 	}
 
-	Common::Index PhysicsSubsystem::CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo) {
+	Common::Index PhysicsSubsystem::CreateRigidBody(const PAL::DynamicRigidBody::CreateInfo& createInfo) {
 		auto rigidBody = physicsEngine_->CreateRigidBody(createInfo);
 		rigidBodies_.push_back(rigidBody);
 		return rigidBodies_.size() - 1;
@@ -71,16 +71,17 @@ namespace OksEngine {
 	[[nodiscard]]
 	std::shared_ptr<Geom::Model<Geom::Vertex3f>> PhysicsSubsystem::GetGeom(const std::string& geomName) {
 
-		auto& context = GetContext();
-		auto resourceSubsystem = context.GetResourceSubsystem();
+		//auto& context = GetContext();
+		//auto resourceSubsystem = context.GetResourceSubsystem();
 
 
-		const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + geomName + ".obj");
-		ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Physics, blockModelObjTaskId);
+		//const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + geomName + ".obj");
+		//ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Physics, blockModelObjTaskId);
 
-		std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
-		auto geom = std::make_shared<Geom::Model<Geom::Vertex3f, Geom::Index16>>(Geometry::ParseObjVertex3fIndex16(obj));
-		return geom;
+		//std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
+		//auto geom = std::make_shared<Geom::Model<Geom::Vertex3f, Geom::Index16>>(Geometry::ParseObjVertex3fIndex16(obj));
+		//return geom;
+		return nullptr;
 	}
 
 	void PhysicsSubsystem::Update() noexcept {

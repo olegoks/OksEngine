@@ -284,16 +284,19 @@ namespace OksEngine {
 			//editComponent.template operator() < > (world, id);
 			/*Physics*/
 			//editComponent.template operator() < > (world, id);
-			editComponent.template operator() < DynamicRigidBodyBox > (world, id);
+			//editComponent.template operator() < DynamicRigidBodyBox > (world, id);
 			editComponent.template operator() < DynamicRigidBodyCustomMeshShape > (world, id);
-			editComponent.template operator() < StaticRigidBodyCustomMeshShape > (world, id);
+			editComponent.template operator() < Material > (world, id);
+			editComponent.template operator() < Mass > (world, id);
+			editComponent.template operator() < DynamicRigidBody > (world, id);
+			//editComponent.template operator() < StaticRigidBodyCustomMeshShape > (world, id);
 			/*Render*/
-			editComponent.template operator() < ImmutableRenderGeometryObj > (world, id);
+			//editComponent.template operator() < ImmutableRenderGeometryObj > (world, id);
 			editComponent.template operator() < ImmutableRenderGeometry > (world, id);
 			editComponent.template operator() < GeometryFile > (world, id);
 			editComponent.template operator() < Camera > (world, id);
 			editComponent.template operator() < AttachedCamera > (world, id);
-			editComponent.template operator() < PointLight > (world, id);
+			//editComponent.template operator() < PointLight > (world, id);
 			editComponent.template operator() < SkinnedGeometry > (world, id);
 			editComponent.template operator() < Mesh > (world, id);
 			/*Resources*/
@@ -320,9 +323,9 @@ namespace OksEngine {
 				ECSInspector::GetName(),
 				MainMenuBar::GetName(),
 				FramesCounter::GetName(),
-				DynamicRigidBodyBox::GetName(),
+				//DynamicRigidBodyBox::GetName(),
 				DynamicRigidBodyCustomMeshShape::GetName(),
-				StaticRigidBodyCustomMeshShape::GetName(),
+				//StaticRigidBodyCustomMeshShape::GetName(),
 				ImmutableRenderGeometryObj::GetName(),
 				ImmutableRenderGeometry::GetName(),
 				Mesh::GetName(),

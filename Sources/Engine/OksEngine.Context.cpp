@@ -12,6 +12,8 @@
 
 #include <Common/OksEngine.Log.Subsystem.hpp>
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
+#include <Physics/OksEngine.PhysicsShape.hpp>
+#include <Physics/OksEngine.DynamicRigidBodyCustomMeshShape.hpp>
 #include <Common/OksEngine.Engine.System.hpp>
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
@@ -58,7 +60,9 @@ namespace OksEngine
 		world_->RegisterSystem<CallUpdateMethod>(*this);
 		world_->RegisterSystem<CallInputProcessor>(*this);
 		world_->RegisterSystem<PhysicsGeometryMapper>(*this);
-		world_->RegisterSystem<AttachCameraSystem>(*this);
+		world_->RegisterSystem <CreatePhysicsShape>(*this);
+		world_->RegisterSystem <CreateDynamicRigidBody>(*this);
+		//world_b->RegisterSystem<AttachCameraSystem>(*this);
 
 		meshStorage_ = std::make_shared<TaggedStorage<Geometry::Mesh>>();
 		modelStorage_ = std::make_shared<ModelStorage>();

@@ -13,15 +13,15 @@
 
 namespace PhysX {
 
-	class RigidBody : public PAL::RigidBody {
+	class DynamicRigidBody : public PAL::DynamicRigidBody {
 	public:
 		struct CreateInfo {
-			PAL::RigidBody::CreateInfo palCreateInfo_;
+			PAL::DynamicRigidBody::CreateInfo palCreateInfo_;
 			physx::PxPhysics* physics_ = nullptr;
 			
 		};
 
-		RigidBody(const CreateInfo& createInfo) : PAL::RigidBody{ createInfo.palCreateInfo_ }{
+		DynamicRigidBody(const CreateInfo& createInfo) : PAL::DynamicRigidBody{ createInfo.palCreateInfo_ }{
 
 			physx::PxMat44 pxMatrix = convertToPxMat44(createInfo.palCreateInfo_.transform_);
 			physx::PxTransform t{ pxMatrix };

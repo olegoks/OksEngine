@@ -5,6 +5,7 @@
 
 namespace OksEngine {
 
+
 	template<class LightType>
 	class Light : public ECSComponent<LightType> {
 	public:

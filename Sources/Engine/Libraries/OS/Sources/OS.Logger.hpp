@@ -56,7 +56,8 @@ namespace OS {
 			Common::DiscardUnusedParameter(severity);
 			Common::DiscardUnusedParameter(path);
 			Common::DiscardUnusedParameter(location);
-			LOG_F(INFO, static_cast<std::string>(format).c_str());
+			using namespace std::string_literals;
+			LOG_F(INFO, ("Location: "s + location.file_name() + static_cast<std::string>(format)).c_str());
 		}
 
 	private:
