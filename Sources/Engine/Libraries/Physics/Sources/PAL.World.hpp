@@ -15,7 +15,7 @@ namespace PAL {
 		World(const CreateInfo& createInfo) : 
 			createInfo_{ createInfo } { }
 
-		virtual void AddRigidBody(std::shared_ptr<PAL::RigidBody> rigidBody) = 0;
+		virtual void AddRigidBody(std::shared_ptr<PAL::DynamicRigidBody> rigidBody) = 0;
 		virtual void AddStaticRigidBody(std::shared_ptr<PAL::StaticRigidBody> rigidBody) = 0;
 
 		virtual void Simulate(float ms) = 0;

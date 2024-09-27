@@ -13,7 +13,7 @@ namespace PhysX {
 
 		World(const CreateInfo& createInfo);
 
-		virtual void AddRigidBody(std::shared_ptr<PAL::RigidBody> rigidBody) override;
+		virtual void AddRigidBody(std::shared_ptr<PAL::DynamicRigidBody> rigidBody) override;
 		virtual void AddStaticRigidBody(std::shared_ptr<PAL::StaticRigidBody> rigidBody) override;
 		virtual void Simulate(float ms) override;
 

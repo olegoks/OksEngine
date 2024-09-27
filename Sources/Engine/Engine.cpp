@@ -20,6 +20,7 @@
 /*Physics*/
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 #include <Physics/OksEngine.Physics.System.hpp>
+#include <Physics/OksEngine.PhysicsShape.hpp>
 
 /*UI*/
 #include <UI/OksEngine.UI.System.hpp>
@@ -62,11 +63,13 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreateLuaContext>();
 				context_->GetECSWorld()->RunSystem<CallUpdateMethod>();
 				context_->GetECSWorld()->RunSystem<CallInputProcessor>();
+				context_->GetECSWorld()->RunSystem<CreatePhysicsShape>();
+				context_->GetECSWorld()->RunSystem<CreateDynamicRigidBody>();
 				context_->GetECSWorld()->RunSystem<PhysicsSystem>();
 				context_->GetECSWorld()->RunSystem<PhysicsGeometryMapper>();
 				context_->GetECSWorld()->RunSystem<CameraSystem>();
 				context_->GetECSWorld()->RunSystem<CreateDriverCamera>();
-				context_->GetECSWorld()->RunSystem<AttachCameraSystem>();
+				//context_->GetECSWorld()->RunSystem<AttachCameraSystem>();
 
 				/*ImGui*/
 				context_->GetECSWorld()->RunSystem<ImGuiSystem>();

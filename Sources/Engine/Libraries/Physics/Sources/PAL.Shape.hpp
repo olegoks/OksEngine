@@ -1,6 +1,6 @@
 #pragma once 
 
-#include <Geometry.Shape.hpp>
+#include <Geometry.Storage.hpp>
 
 namespace PAL {
 
@@ -28,7 +28,8 @@ namespace PAL {
 
 		struct CreateInfoMesh {
 			Material material_;
-			const Geom::Shape/*<Geom::Vertex3f, Geom::Index16>*/ shape_;
+			Geom::VertexCloud<Geom::Vertex3f>	vertices_;
+			Geom::IndexBuffer<Geom::Index16>	indices_;
 		};
 
 		Shape(const CreateInfoBox& createInfo) {}

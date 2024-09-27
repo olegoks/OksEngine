@@ -40,9 +40,9 @@ namespace PhysX {
 		scene_->fetchResults(true);
 	}
 
-	void World::AddRigidBody(std::shared_ptr<PAL::RigidBody> rigidBody) {
+	void World::AddRigidBody(std::shared_ptr<PAL::DynamicRigidBody> rigidBody) {
 		OS::Assert(scene_ != nullptr);
-		auto physxRB = std::static_pointer_cast<PhysX::RigidBody>(rigidBody);
+		auto physxRB = std::static_pointer_cast<PhysX::DynamicRigidBody>(rigidBody);
 		scene_->addActor(*physxRB->GetBody());
 		/*PxTransform t{PxVec3(0)};
 		PxShape* shape = physics_->createShape(PxBoxGeometry(halfExtent, halfExtent, halfExtent), *material);

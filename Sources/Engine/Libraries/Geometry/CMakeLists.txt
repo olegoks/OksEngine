@@ -23,15 +23,6 @@ file(GLOB_RECURSE
     ${SourcesDir}/*.c
 )
 
-# file(GLOB_RECURSE SOURCES
-#     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
-#     LIST_DIRECTORIES false
-#     *.cpp
-#     *.hpp
-#     *.h
-#     *.c
-# )
-
 target_sources(Geometry
     PUBLIC
         ${PUBLIC_SOURCES}
@@ -48,16 +39,16 @@ target_include_directories(Geometry
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/Sources/)
 
-find_package(tinyobjloader CONFIG REQUIRED)
-find_package(Stb REQUIRED)
 find_package(assimp CONFIG REQUIRED)
+find_package(meshoptimizer CONFIG REQUIRED)
+target_link_libraries(Geometry PRIVATE meshoptimizer::meshoptimizer)
+
 target_include_directories(Geometry PRIVATE ${Stb_INCLUDE_DIR})
 target_link_libraries(Geometry
     PUBLIC
         OS
         Math
     PRIVATE 
-        assimp::assimp
-        tinyobjloader::tinyobjloader)
+        assimp::assimp)
 
 

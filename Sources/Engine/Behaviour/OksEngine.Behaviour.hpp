@@ -31,15 +31,15 @@ namespace OksEngine {
 			return position;
 		}
 
-		DynamicRigidBodyBox* GetRigidBodyBox() {
-			auto rigidBody = world_->GetComponent<DynamicRigidBodyBox>(id_);
-			return rigidBody;
-		}
+		//DynamicRigidBodyBox* GetRigidBodyBox() {
+		//	auto rigidBody = world_->GetComponent<DynamicRigidBodyBox>(id_);
+		//	return rigidBody;
+		//}
 
-		DynamicRigidBodyCapsule* GetRigidBodyCapsule() {
-			auto rigidBody = world_->GetComponent<DynamicRigidBodyCapsule>(id_);
-			return rigidBody;
-		}
+		//DynamicRigidBodyCapsule* GetRigidBodyCapsule() {
+		//	auto rigidBody = world_->GetComponent<DynamicRigidBodyCapsule>(id_);
+		//	return rigidBody;
+		//}
 
 		Camera* GetCamera() {
 			auto camera = world_->GetComponent<Camera>(id_);

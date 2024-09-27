@@ -21,7 +21,7 @@ namespace OksEngine {
 
 
 		std::shared_ptr < Geom::Model<Geom::Vertex3f>> GetGeom(const std::string& geomName);
-		Common::Index CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo);
+		Common::Index CreateRigidBody(const PAL::DynamicRigidBody::CreateInfo& createInfo);
 		Common::Index CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& createInfo);
 
 		std::shared_ptr<PAL::Shape> CreateShape(const PAL::Shape::CreateInfoBox& createInfo);
@@ -45,7 +45,7 @@ namespace OksEngine {
 
 
 	private:
-		std::vector<std::shared_ptr<PAL::RigidBody>> rigidBodies_;
+		std::vector<std::shared_ptr<PAL::DynamicRigidBody>> rigidBodies_;
 		std::vector<std::shared_ptr<PAL::StaticRigidBody>> staticRigidBodies_;
 		std::shared_ptr<PAL::World> world_ = nullptr;
 		std::shared_ptr<PE::PhysicsEngine> physicsEngine_ = nullptr;

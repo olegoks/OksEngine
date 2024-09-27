@@ -41,49 +41,37 @@ namespace OksEngine {
 	}
 
 	void Entity::AddStaticRigidBodyCustomMeshShape(
-		const glm::mat4& transform,
-		const std::string& geomName,
 		float staticFriction,
 		float dynamicFriction,
 		float restitution) {
-		world_->CreateComponent<StaticRigidBodyCustomMeshShape>(
-			GetId(),
-			&context_,
-			transform,
-			geomName,
-			Material{
-				staticFriction,
-				dynamicFriction,
-				restitution
-			});
+		//world_->CreateComponent<StaticRigidBodyCustomMeshShape>(
+		//	GetId(),
+		//	Material{
+		//		staticFriction,
+		//		dynamicFriction,
+		//		restitution
+		//	});
 	}
 
-	void Entity::AddDynamicRigidBodyCustomMeshShape(
-		const glm::mat4& transform,
-		const std::string& geomName,
-		float mass,
-		float linearDamping,
-		float angularDamping,
-		float staticFriction,
-		float dynamicFriction,
-		float restitution) {
+	void Entity::AddDynamicRigidBodyCustomMeshShape() {
 		world_->CreateComponent<DynamicRigidBodyCustomMeshShape>(
+			GetId());
+	}
+
+	void Entity::AddMass(float mass) {
+		world_->CreateComponent<Mass>(
+			GetId(), mass);
+	}
+
+	void Entity::AddMaterial(float staticFriction, float dynamicFriction, float restitution) {
+		world_->CreateComponent<Material>(
 			GetId(),
-			&context_,
-			transform,
-			geomName,
-			mass,
-			linearDamping,
-			angularDamping,
-			Material{
-				staticFriction,
-				dynamicFriction,
-				restitution
-			});
+			staticFriction,
+			dynamicFriction,
+			restitution);
 	}
 
 	void Entity::AddRigidBodyBox(
-		const glm::mat4& transform,
 		float mass,
 		float linearDamping,
 		float angularDamping,
@@ -93,10 +81,8 @@ namespace OksEngine {
 		float halfExtentX,
 		float halfExtentY, 
 		float halfExtentZ) {
-		world_->CreateComponent<DynamicRigidBodyBox>(
+	/*	world_->CreateComponent<DynamicRigidBodyBox>(
 			GetId(),
-			&context_,
-			transform,
 			mass,
 			linearDamping,
 			angularDamping,
@@ -107,12 +93,11 @@ namespace OksEngine {
 			},
 			halfExtentX,
 			halfExtentY,
-			halfExtentZ);
+			halfExtentZ);*/
 	}
 
 
 	void Entity::AddRigidBodyCapsule(
-		const glm::mat4& transform,
 		float mass,
 		float linearDamping,
 		float angularDamping,
@@ -121,10 +106,8 @@ namespace OksEngine {
 		float restitution,
 		float radius,
 		float height) {
-		world_->CreateComponent<DynamicRigidBodyCapsule>(
+		/*world_->CreateComponent<DynamicRigidBodyCapsule>(
 			GetId(),
-			&context_,
-			transform,
 			mass,
 			linearDamping,
 			angularDamping,
@@ -134,7 +117,7 @@ namespace OksEngine {
 				restitution
 			},
 			radius,
-			height);
+			height);*/
 	}
 
 	void Entity::AddLight(

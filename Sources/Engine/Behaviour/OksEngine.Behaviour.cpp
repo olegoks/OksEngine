@@ -232,8 +232,8 @@ namespace OksEngine {
 			.addFunction("GetPosition", &LuaEntity::GetPosition)
 			.addFunction("GetImmutableRenderGeometry", &LuaEntity::GetImmutableRenderGeometry)
 			.addFunction("GetCamera", &LuaEntity::GetCamera)
-			.addFunction("GetRigidBodyBox", &LuaEntity::GetRigidBodyBox)
-			.addFunction("GetRigidBodyCapsule", &LuaEntity::GetRigidBodyCapsule)
+			//.addFunction("GetRigidBodyBox", &LuaEntity::GetRigidBodyBox)
+			//.addFunction("GetRigidBodyCapsule", &LuaEntity::GetRigidBodyCapsule)
 			.endClass();
 
 		Bind<Position>(context);

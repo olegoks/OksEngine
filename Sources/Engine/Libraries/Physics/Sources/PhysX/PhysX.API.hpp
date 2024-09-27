@@ -96,13 +96,13 @@ namespace PhysX {
 			return std::make_shared<PhysX::World>(physxCreateInfo);
 		}
 
-		virtual std::shared_ptr<PAL::RigidBody> 
-		CreateRigidBody(const PAL::RigidBody::CreateInfo& createInfo) override {
-			PhysX::RigidBody::CreateInfo physxCreateInfo{
+		virtual std::shared_ptr<PAL::DynamicRigidBody> 
+		CreateRigidBody(const PAL::DynamicRigidBody::CreateInfo& createInfo) override {
+			PhysX::DynamicRigidBody::CreateInfo physxCreateInfo{
 				.palCreateInfo_ = createInfo,
 				.physics_ = physics_
 			};
-			return std::make_shared<PhysX::RigidBody>(physxCreateInfo);
+			return std::make_shared<PhysX::DynamicRigidBody>(physxCreateInfo);
 		}
 
 		virtual std::shared_ptr<PAL::StaticRigidBody>
