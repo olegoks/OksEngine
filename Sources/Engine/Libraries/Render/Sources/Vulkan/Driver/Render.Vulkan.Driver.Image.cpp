@@ -24,6 +24,7 @@ namespace Render::Vulkan {
 		if (oldLayout == VK_IMAGE_LAYOUT_UNDEFINED && newLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
 			commandBuffer->ImageMemoryBarrier(
 				GetHandle(),
+				createInfo_.mipLevels_,
 				oldLayout, newLayout,
 				0, VK_ACCESS_TRANSFER_WRITE_BIT,
 				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT
@@ -32,6 +33,7 @@ namespace Render::Vulkan {
 		else if (oldLayout == VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) {
 			commandBuffer->ImageMemoryBarrier(
 				GetHandle(),
+				createInfo_.mipLevels_,
 				oldLayout, newLayout,
 				VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
 				VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT

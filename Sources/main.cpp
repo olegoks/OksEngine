@@ -32,7 +32,7 @@ int main(int argc, char** argv) {
 
     Entity dragonLore = engine.CreateEntity();
     dragonLore.AddPosition(0, 0, 0);
-    dragonLore.AddImmutableRenderGeometry("de_dust2.geom");
+    dragonLore.AddImmutableRenderGeometry("animatedHero.geom");
     dragonLore.AddDynamicRigidBodyCustomMeshShape();
     dragonLore.AddMass(30);
     dragonLore.AddMaterial(0.1, 0.1, 0.1);

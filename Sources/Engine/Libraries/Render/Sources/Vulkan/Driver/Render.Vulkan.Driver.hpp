@@ -46,13 +46,6 @@ namespace Render::Vulkan {
 	class Driver : public RAL::Driver {
 	public:
 
-		struct GlobalData {
-			alignas(16) glm::mat4 view;
-			alignas(16) glm::mat4 proj;
-			alignas(16) glm::vec3 lightPos_;
-			float lightIntensity_;
-		};
-
 		class ImageContext {
 		public:
 			Common::UInt32 index_ = Common::Limits<Common::UInt32>::Max();
@@ -447,6 +440,7 @@ namespace Render::Vulkan {
 			}
 			default:
 				OS::AssertFailMessage("Invalid VertexType value used.");
+				return {};
 			};
 		}
 
