@@ -591,7 +591,7 @@ namespace Geometry {
 			//If there is no mesh with this name create new
 			Geom::Mesh& backedMesh = (foundBackedMesh != Common::Limits<Common::Index>::Max()) ? (backedMeshs[foundBackedMesh]) : (backedMeshs.emplace_back());
 			backedMesh.textureName_ = textureName;
-
+			const Common::Size startVerticesNumber = backedMesh.vertices_.GetVerticesNumber();
 			for (unsigned j = 0; j < aimesh->mNumVertices; j++) {
 				backedMesh.vertices_.Add(Vertex3f{ aimesh->mVertices[j].x,
 													aimesh->mVertices[j].y,
@@ -610,7 +610,7 @@ namespace Geometry {
 				meshIndices.Add(aimesh->mFaces[j].mIndices[2]);
 			}
 
-			backedMesh.indices_.AddNextMesh(meshIndices);
+			backedMesh.indices_.AddNextMesh(startVerticesNumber, meshIndices);
 		}
 
 		for (Geom::Mesh& mesh : backedMeshs) {
@@ -674,6 +674,8 @@ namespace Geometry {
 			Geom::Mesh& backedMesh = (foundBackedMesh != Common::Limits<Common::Index>::Max()) ? (backedMeshs[foundBackedMesh]) : (backedMeshs.emplace_back());
 			backedMesh.textureName_ = textureName;
 
+			const Common::Size startVerticesNumber = backedMesh.vertices_.GetVerticesNumber();
+
 			backedMesh.vertices_.Reserve(backedMesh.vertices_.GetVerticesNumber() + aimesh->mNumVertices);
 			backedMesh.normals_.Reserve(backedMesh.normals_.GetSize() + aimesh->mNumVertices);
 			backedMesh.uvs_.Reserve(backedMesh.uvs_.GetSize() + aimesh->mNumVertices);
@@ -696,7 +698,7 @@ namespace Geometry {
 				meshIndices.Add(aimesh->mFaces[j].mIndices[2]);
 			}
 
-			backedMesh.indices_.AddNextMesh(meshIndices);		
+			backedMesh.indices_.AddNextMesh(startVerticesNumber, meshIndices);
 		}
 
 		for (Geom::Mesh& mesh : backedMeshs) {
@@ -742,6 +744,7 @@ namespace Geometry {
 				const std::string textureFileName = aiTexturePath.C_Str();
 				geomMesh.textureName_ = textureFileName;
 			}
+			const Common::Size startVerticesNumber = geomMesh.vertices_.GetVerticesNumber();
 			geomMesh.vertices_.Reserve(mesh->mNumVertices);
 			geomMesh.normals_.Reserve(mesh->mNumVertices);
 			geomMesh.uvs_.Reserve(mesh->mNumVertices);
@@ -764,7 +767,7 @@ namespace Geometry {
 				meshIndices.Add(mesh->mFaces[j].mIndices[1]);
 				meshIndices.Add(mesh->mFaces[j].mIndices[2]);
 			}
-			geomMesh.indices_.AddNextMesh(meshIndices);
+			geomMesh.indices_.AddNextMesh(startVerticesNumber, meshIndices);
 			model2.meshes_.push_back(std::move(geomMesh));
 		}
 
