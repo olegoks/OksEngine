@@ -23,6 +23,7 @@ namespace Render::Vulkan {
 				textureImageCreateInfo.format_ = createInfo.format_;
 				textureImageCreateInfo.LD_ = createInfo.LD_;
 				textureImageCreateInfo.physicalDevice_ = createInfo.physicalDevice_;
+				textureImageCreateInfo.mipLevels_ = createInfo.mipLevels_;
 			}
 			auto image = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
 			image->ChangeLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, createInfo.commandPool_);

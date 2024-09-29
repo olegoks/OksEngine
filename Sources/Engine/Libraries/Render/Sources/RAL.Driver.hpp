@@ -105,7 +105,7 @@ namespace RAL {
 			};
 			struct Layout {
 				std::string name_ = "";
-				Common::UInt64 binding_ = 0;
+				Common::UInt32 binding_ = 0;
 				Type type_ = Type::Undefined;
 				Stage stage_ = Stage::Undefined;
 			};

@@ -15,6 +15,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<class LogicDevice> LD_ = nullptr;
 			std::shared_ptr<class CommandPool> commandPool_ = nullptr;
 			std::shared_ptr<class DescriptorPool> DP_ = nullptr;
+			Common::Size mipLevels_ = 1;
 			VkFormat format_ = VK_FORMAT_UNDEFINED;
 		};
 

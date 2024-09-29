@@ -25,6 +25,7 @@ namespace Render::Vulkan {
 			VkImageTiling tiling_ = VK_IMAGE_TILING_MAX_ENUM;
 			VkImageUsageFlags usage_ = VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM;
 			VkSampleCountFlagBits samplesCount_ = VK_SAMPLE_COUNT_1_BIT;
+			Common::UInt32 mipLevels_ = 1;
 		};
 
 		Image(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
@@ -42,7 +43,7 @@ namespace Render::Vulkan {
 				imageInfo.extent.height = createInfo.size_.y;
 				imageInfo.extent.width = createInfo.size_.x;
 				imageInfo.extent.depth = 1;
-				imageInfo.mipLevels = 1;
+				imageInfo.mipLevels = createInfo.mipLevels_;
 				imageInfo.arrayLayers = 1;
 				imageInfo.format = createInfo.format_;
 				imageInfo.flags = 0;
@@ -112,6 +113,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			glm::u32vec2 size_;
 			VkFormat format_;
+			Common::UInt32 mipLevels_ = 1;
 		};
 
 		TextureImage(const CreateInfo& createInfo) :
@@ -121,7 +123,9 @@ namespace Render::Vulkan {
 			createInfo.size_,
 			createInfo.format_,
 			VK_IMAGE_TILING_OPTIMAL,
-			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT }
+			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT,
+			VK_SAMPLE_COUNT_1_BIT,
+			createInfo.mipLevels_ }
 		} { }
 
 	private:

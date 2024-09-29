@@ -19,6 +19,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<Image> image_ = nullptr;
 			VkFormat format_ = VK_FORMAT_MAX_ENUM;
 			VkImageAspectFlags aspectFlags_ = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;//VK_IMAGE_ASPECT_COLOR_BIT;
+			Common::UInt32 mipLevels_ = 1;
 		};
 
 		struct CreateInfo2 {
@@ -26,6 +27,7 @@ namespace Render::Vulkan {
 			VkImage imageHandle_ = VK_NULL_HANDLE;
 			VkFormat format_ = VK_FORMAT_MAX_ENUM;
 			VkImageAspectFlags aspectFlags_ = VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;//VK_IMAGE_ASPECT_COLOR_BIT;
+			Common::UInt32 mipLevels_ = 1;
 		};
 
 		ImageView(ImageView&& moveImageView) noexcept : createInfo_{ 0 } {
@@ -52,7 +54,7 @@ namespace Render::Vulkan {
 				vkCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 				vkCreateInfo.subresourceRange.aspectMask = createInfo.aspectFlags_;
 				vkCreateInfo.subresourceRange.baseMipLevel = 0;
-				vkCreateInfo.subresourceRange.levelCount = 1;
+				vkCreateInfo.subresourceRange.levelCount = createInfo.mipLevels_;
 				vkCreateInfo.subresourceRange.baseArrayLayer = 0;
 				vkCreateInfo.subresourceRange.layerCount = 1;
 			}
@@ -85,7 +87,7 @@ namespace Render::Vulkan {
 				vkCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
 				vkCreateInfo.subresourceRange.aspectMask = createInfo.aspectFlags_;
 				vkCreateInfo.subresourceRange.baseMipLevel = 0;
-				vkCreateInfo.subresourceRange.levelCount = 1;
+				vkCreateInfo.subresourceRange.levelCount = createInfo.mipLevels_;
 				vkCreateInfo.subresourceRange.baseArrayLayer = 0;
 				vkCreateInfo.subresourceRange.layerCount = 1;
 			}
