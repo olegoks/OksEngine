@@ -27,11 +27,11 @@ namespace Geometry {
 			std::memcpy(indices_.data() + beginIndicesNumber, indices.indices_.data(), indices.GetSizeInBytes());
 		}
 
-		void AddNextMesh(const IndexBuffer& indices) {
+		void AddNextMesh(Common::Size currentVerticesNumber, const IndexBuffer& indices) {
 			const Common::Size beginIndicesNumber = GetIndicesNumber();
-			indices_.resize(GetIndicesNumber() + indices.GetIndicesNumber());
+			indices_.reserve(GetIndicesNumber() + indices.GetIndicesNumber());
 			for (Common::Index i = 0; i < indices.GetIndicesNumber(); i++) {
-				indices_.push_back(beginIndicesNumber + indices[i]);
+				indices_.push_back(currentVerticesNumber + indices[i]);
 			}
 		}
 

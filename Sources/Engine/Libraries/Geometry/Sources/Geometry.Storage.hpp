@@ -48,7 +48,7 @@ namespace Geometry {
 		DS::Vector<Color3f>		colors_;
 		DS::Vector<UV2f>		uvs_;
 		IndexBuffer<Index16>	indices_;
-		AABB aabb_;
+		//AABB aabb_;
 		std::string textureName_;
 		//std::string textureStorageTag_;
 		//Texture::Id textureStorageId_;
