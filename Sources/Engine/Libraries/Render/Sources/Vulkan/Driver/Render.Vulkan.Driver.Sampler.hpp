@@ -13,6 +13,7 @@ namespace Render::Vulkan {
 			VkFilter magFilter_ = VK_FILTER_MAX_ENUM;
 			VkFilter minFilter_ = VK_FILTER_MAX_ENUM;
 			float maxAnisotropy_ = 0.0f;
+			Common::UInt32 mipLevels_ = 1;
 		};
 
 
@@ -35,8 +36,8 @@ namespace Render::Vulkan {
 				samplerCreateInfo.compareOp = VK_COMPARE_OP_ALWAYS;
 				samplerCreateInfo.mipmapMode = VK_SAMPLER_MIPMAP_MODE_LINEAR;
 				samplerCreateInfo.mipLodBias = 0.0f;
-				samplerCreateInfo.minLod = -1000.0f;
-				samplerCreateInfo.maxLod = 1000.0f;
+				samplerCreateInfo.minLod = 0.f;
+				samplerCreateInfo.maxLod = static_cast<float>(createInfo.mipLevels_);
 				//samplerCreateInfo.flags = 0;
 				VkSampler sampler_ = VK_NULL_HANDLE;
 				VkCall(vkCreateSampler(*createInfo.LD_, &samplerCreateInfo, nullptr, &sampler_), 

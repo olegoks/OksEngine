@@ -193,7 +193,7 @@ namespace Render::Vulkan {
 						multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
 					}
 					multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-					multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT);
+					multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
 				}
 				objects_.multisamplingData_ = multisamplingData;
 			}
@@ -213,7 +213,7 @@ namespace Render::Vulkan {
 						depthImageCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
 					}
 					depthTestData->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
-					depthTestData->imageView_ = CreateImageViewByImage(objects_.LD_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT);
+					depthTestData->imageView_ = CreateImageViewByImage(objects_.LD_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 				}
 				objects_.depthTestData_ = depthTestData;
 				//}
@@ -554,7 +554,7 @@ namespace Render::Vulkan {
 						depthImageCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
 					}
 					depthTestData->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
-					depthTestData->imageView_ = CreateImageViewByImage(objects_.LD_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT);
+					depthTestData->imageView_ = CreateImageViewByImage(objects_.LD_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 				}
 				objects_.depthTestData_ = depthTestData;
 				//}
@@ -575,7 +575,7 @@ namespace Render::Vulkan {
 						multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
 					}
 					multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-					multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT);
+					multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
 				}
 				objects_.multisamplingData_ = multisamplingData;
 			}
@@ -978,7 +978,9 @@ namespace Render::Vulkan {
 				.LD_ = objects_.LD_,
 				.commandPool_ = objects_.commandPool_,
 				.DP_ = objects_.DP_,
+				.mipLevels_ = static_cast<Common::UInt32>(std::floor(std::log2(std::max(createInfo.size_.x, createInfo.size_.y)))) + 1,
 				.format_ = VK_FORMAT_R8G8B8A8_UNORM
+				
 			};
 			auto texture = std::make_shared<Texture>(std::move(textureCreateInfo));
 
