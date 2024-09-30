@@ -27,8 +27,12 @@ namespace Render::Vulkan {
 			}
 			auto image = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
 
+
+
 			//Generating mip maps.
-			
+			image->ChangeLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, createInfo.commandPool_);
+			Image::DataCopy(textureStagingBuffer, image, createInfo.LD_, createInfo.commandPool_);
+
 			const VkFormatProperties formatProperties = createInfo.physicalDevice_->GetFormatProperties(image->GetFormat());
 			if (!(formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT)) {
 				OS::AssertFailMessage("Mip map levels generation is not supported by device.");
@@ -118,11 +122,20 @@ namespace Render::Vulkan {
 				commandBuffer->End();
 
 
+				VkSubmitInfo submitInfo{};
+				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+				submitInfo.commandBufferCount = 1;
+				submitInfo.pCommandBuffers = &commandBuffer->GetHandle();
+
+				vkQueueSubmit(createInfo.LD_->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+				vkQueueWaitIdle(createInfo.LD_->GetGraphicsQueue());
+
+
 			}
 
-			image->ChangeLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, createInfo.commandPool_);
-			Image::DataCopy(textureStagingBuffer, image, createInfo.LD_, createInfo.commandPool_);
-			image->ChangeLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, createInfo.commandPool_);
+			//image->ChangeLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, createInfo.commandPool_);
+
+			//image->ChangeLayout(VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, createInfo.commandPool_);
 			auto imageView = CreateImageViewByImage(createInfo.LD_, image, VK_IMAGE_ASPECT_COLOR_BIT, createInfo.mipLevels_);
 
 			Sampler::CreateInfo samplerCreateInfo;
