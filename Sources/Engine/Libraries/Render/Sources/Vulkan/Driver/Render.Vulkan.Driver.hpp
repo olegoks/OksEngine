@@ -717,7 +717,7 @@ namespace Render::Vulkan {
 				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
 				commandBuffer->Begin();
-				static VkClearValue clearValue{ 1.0, 1.0, 1.0, 0.0 };
+				static VkClearValue clearValue{ 1.0, 0.5, 1.0, 0.0 };
 				CommandBuffer::DepthBufferInfo depthBufferInfo;
 				{
 					const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
