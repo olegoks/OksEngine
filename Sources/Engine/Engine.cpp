@@ -18,7 +18,7 @@
 
 /*Physics*/
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
-#include <Physics/OksEngine.Physics.System.hpp>
+#include <Physics/OksEngine.Physics.Systems.hpp>
 #include <Physics/OksEngine.PhysicsShape.hpp>
 
 /*UI*/
@@ -68,7 +68,6 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CallInputProcessor>();
 				context_->GetECSWorld()->RunSystem<CreatePhysicsShape>();
 				context_->GetECSWorld()->RunSystem<CreateDynamicRigidBody>();
-				context_->GetECSWorld()->RunSystem<PhysicsSystem>();
 				context_->GetECSWorld()->RunSystem<RigidBodyToRenderGeometryMapper>();
 				context_->GetECSWorld()->RunSystem<CameraSystem>();
 				context_->GetECSWorld()->RunSystem<CreateDriverCamera>();

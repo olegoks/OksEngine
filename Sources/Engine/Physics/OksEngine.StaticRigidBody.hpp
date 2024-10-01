@@ -6,18 +6,18 @@
 
 namespace OksEngine {
 
-	template<class RigidBodyType>
-	struct StaticRigidBody : public ECSComponent<RigidBodyType> {
-		Common::Index id_ = Common::Limits<Common::Index>::Max();
-		Material material_{ 0.5, 0.5f, 0.5f };
+	//template<class RigidBodyType>
+	//struct StaticRigidBody : public ECSComponent<RigidBodyType> {
+	//	Common::Index id_ = Common::Limits<Common::Index>::Max();
+	//	Material material_{ 0.5, 0.5f, 0.5f };
 
-		StaticRigidBody() : ECSComponent<RigidBodyType>{ nullptr } { }
+	//	StaticRigidBody() : ECSComponent<RigidBodyType>{ nullptr } { }
 
-		StaticRigidBody(
-			const Material& material
-		) :
-			ECSComponent<RigidBodyType>{ nullptr },
-			material_{ material } { }
-	};
+	//	StaticRigidBody(
+	//		const Material& material
+	//	) :
+	//		ECSComponent<RigidBodyType>{ nullptr },
+	//		material_{ material } { }
+	//};
 
 }

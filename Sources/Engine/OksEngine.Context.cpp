@@ -12,6 +12,7 @@
 
 #include <Common/OksEngine.Log.Subsystem.hpp>
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
+#include <Physics/OksEngine.Physics.Systems.hpp>
 #include <Physics/OksEngine.PhysicsShape.hpp>
 #include <Physics/OksEngine.DynamicRigidBodyCustomMeshShape.hpp>
 #include <Common/OksEngine.Common.Systems.hpp>
