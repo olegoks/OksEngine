@@ -239,6 +239,7 @@ namespace Render::Vulkan {
 
 		void ImageMemoryBarrier(
 			VkImage image,
+			Common::UInt32 baseMipLevel,
 			Common::UInt32 mipLevels,
 			VkImageLayout oldLayout,
 			VkImageLayout newLayout,
@@ -256,7 +257,7 @@ namespace Render::Vulkan {
 				barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
 				barrier.image = image;
 				barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				barrier.subresourceRange.baseMipLevel = 0;
+				barrier.subresourceRange.baseMipLevel = baseMipLevel;
 				barrier.subresourceRange.levelCount = mipLevels;
 				barrier.subresourceRange.baseArrayLayer = 0;
 				barrier.subresourceRange.layerCount = 1;
