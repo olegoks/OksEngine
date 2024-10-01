@@ -1,19 +1,9 @@
 
-#include <Debug/OksEngine.DebugUI.System.hpp>
-#include <Render/OksEngine.Render.Subsystem.hpp>
+#include <Debug/OksEngine.CollectEntitiesInfo.hpp>
+
 #include <OksEngine.Components.hpp>
 
-#include <Behaviour/OksEngine.Behaviour.Systems.hpp>
-#include <Behaviour/OksEngine.Behaviour.Components.hpp>
-
-
-#include "OksEngine.CreateImGuiTexture.hpp"
-#include "OksEngine.UpdateMainMenuBar.hpp"
-#include "OksEngine.UpdateEnginePerformance.hpp"
-#include "OksEngine.AddECSInspectorMainMenuItem.hpp"
-
 namespace OksEngine {
-
 
 
 	void CollectEntitiesInfo::BeforeUpdate(ECS::World* world) {
@@ -27,16 +17,6 @@ namespace OksEngine {
 		}
 		ImGui::Separator();
 	}
-
-	//template<class ... Types>
-	//void Foo() {
-
-	//}
-	//
-	//template <typename... Types>
-	//void callProcessForEach(ECS::World* world, ECS::Entity::Id id) {
-	//	(Edit<Types>(Types* component),...);
-	//}
 
 	void CollectEntitiesInfo::Update(ECS::World* world, ECS::Entity::Id id, ECS::Entity::Id secondEntityId) {
 
@@ -91,7 +71,6 @@ namespace OksEngine {
 			editComponent.template operator() < DynamicRigidBody > (world, id);
 			//editComponent.template operator() < StaticRigidBodyCustomMeshShape > (world, id);
 			/*Render*/
-			//editComponent.template operator() < ImmutableRenderGeometryObj > (world, id);
 			editComponent.template operator() < ImmutableRenderGeometry > (world, id);
 			editComponent.template operator() < GeometryFile > (world, id);
 			editComponent.template operator() < Camera > (world, id);

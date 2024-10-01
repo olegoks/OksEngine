@@ -14,7 +14,7 @@
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 #include <Physics/OksEngine.PhysicsShape.hpp>
 #include <Physics/OksEngine.DynamicRigidBodyCustomMeshShape.hpp>
-#include <Common/OksEngine.Engine.System.hpp>
+#include <Common/OksEngine.Common.Systems.hpp>
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 #include <Render/OksEngine.GeometryStorage.hpp>
@@ -59,7 +59,7 @@ namespace OksEngine
 		world_->RegisterSystem<CreateLuaContext>(*this);
 		world_->RegisterSystem<CallUpdateMethod>(*this);
 		world_->RegisterSystem<CallInputProcessor>(*this);
-		world_->RegisterSystem<PhysicsGeometryMapper>(*this);
+		world_->RegisterSystem<RigidBodyToRenderGeometryMapper>(*this);
 		world_->RegisterSystem <CreatePhysicsShape>(*this);
 		world_->RegisterSystem <CreateDynamicRigidBody>(*this);
 		//world_b->RegisterSystem<AttachCameraSystem>(*this);
