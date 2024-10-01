@@ -14,9 +14,7 @@ namespace OksEngine {
 		
 		DebugSubsystem(const CreateInfo& createInfo);
 
-		virtual void Update() override {
-
-		}
+		virtual void Update() override { }
 
 	};
 

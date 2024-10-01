@@ -1,8 +1,7 @@
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
 
 #include <Debug/OksEngine.Debug.Components.hpp>
-#include <Debug/OksEngine.DebugUI.System.hpp>
-
+#include <Debug/OksEngine.Debug.Systems.hpp>
 
 namespace OksEngine {
 
@@ -16,12 +15,12 @@ namespace OksEngine {
 		GetContext().GetECSWorld()->CreateComponent<ECSInspector>(imgui);
 		GetContext().GetECSWorld()->CreateComponent<FramesCounter>(imgui);
 
-		GetContext().GetECSWorld()->RegisterSystem<ImGuiSystem>(createInfo.context_);
-		GetContext().GetECSWorld()->RegisterSystem<ImGuiRenderSystem>(createInfo.context_);
-		GetContext().GetECSWorld()->RegisterSystem<MainMenuBarSystem>(createInfo.context_);
-		GetContext().GetECSWorld()->RegisterSystem<EnginePerformanceSystem>(createInfo.context_);
+		GetContext().GetECSWorld()->RegisterSystem<CreateImGuiTexture>(createInfo.context_);
+		GetContext().GetECSWorld()->RegisterSystem<RenderImGuiUI>(createInfo.context_);
+		GetContext().GetECSWorld()->RegisterSystem<UpdateMainMenuBar>(createInfo.context_);
+		GetContext().GetECSWorld()->RegisterSystem<UpdateEnginePerformance>(createInfo.context_);
 		GetContext().GetECSWorld()->RegisterSystem<CollectEntitiesInfo>(createInfo.context_);
-		GetContext().GetECSWorld()->RegisterSystem<ECSInspectorSystem>(createInfo.context_);
+		GetContext().GetECSWorld()->RegisterSystem<AddECSInspectorMainMenuItem>(createInfo.context_);
 		GetContext().GetECSWorld()->RegisterSystem<FramesCounterSystem>(createInfo.context_);
 
 	}

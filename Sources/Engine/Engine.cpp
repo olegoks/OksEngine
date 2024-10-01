@@ -8,12 +8,12 @@
 
 /*Debug*/
 #include <Debug/OksEngine.FramesCounter.hpp>
-#include <Debug/OksEngine.DebugUI.System.hpp>
+#include <Debug/OksEngine.Debug.Systems.hpp>
 /*Reneder*/
 #include <Render/OksEngine.Render.System.hpp>
 
 /*Common*/
-#include <Common/OksEngine.Engine.System.hpp>
+#include <Common/OksEngine.Common.Systems.hpp>
 
 
 /*Physics*/
@@ -69,19 +69,19 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreatePhysicsShape>();
 				context_->GetECSWorld()->RunSystem<CreateDynamicRigidBody>();
 				context_->GetECSWorld()->RunSystem<PhysicsSystem>();
-				context_->GetECSWorld()->RunSystem<PhysicsGeometryMapper>();
+				context_->GetECSWorld()->RunSystem<RigidBodyToRenderGeometryMapper>();
 				context_->GetECSWorld()->RunSystem<CameraSystem>();
 				context_->GetECSWorld()->RunSystem<CreateDriverCamera>();
 
 				/*ImGui*/
-				context_->GetECSWorld()->RunSystem<ImGuiSystem>();
+				context_->GetECSWorld()->RunSystem<CreateImGuiTexture>();
 				ImGui::NewFrame();
-				context_->GetECSWorld()->RunSystem<MainMenuBarSystem>();
-				context_->GetECSWorld()->RunSystem<EnginePerformanceSystem>();
-				context_->GetECSWorld()->RunSystem<ECSInspectorSystem>();
+				context_->GetECSWorld()->RunSystem<UpdateMainMenuBar>();
+				context_->GetECSWorld()->RunSystem<UpdateEnginePerformance>();
+				context_->GetECSWorld()->RunSystem<AddECSInspectorMainMenuItem>();
 				context_->GetECSWorld()->RunSystem<CollectEntitiesInfo>();
 				ImGui::Render();
-				context_->GetECSWorld()->RunSystem<ImGuiRenderSystem>();
+				context_->GetECSWorld()->RunSystem<RenderImGuiUI>();
 				/*ImGui*/
 				context_->GetECSWorld()->RunSystem<RenderSystem>();
 				context_->GetECSWorld()->RunSystem<CreateLoadGeometryDescriptionFileRequest>();
