@@ -18,6 +18,7 @@
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 #include <Render/OksEngine.GeometryStorage.hpp>
+#include <Behaviour/OksEngine.Behaviour.Systems.hpp>
 
 namespace OksEngine
 {
@@ -53,7 +54,6 @@ namespace OksEngine
 		world_ = std::make_shared<ECS::World>();
 		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
 
-		world_->RegisterSystem<BehaviourSystem>(*this);
 		world_->RegisterSystem<LoadLuaScript>(*this);
 		world_->RegisterSystem<LoadResourceSystem>(*this);
 		world_->RegisterSystem<CreateLuaContext>(*this);

@@ -5,6 +5,7 @@
 #include <Resources\OksEngine.Resource.Subsystem.hpp>
 #include <Resources/OksEngine.Resources.Components.hpp>
 #include <Render/OksEngine.GeometryStorage.hpp>
+#include <Render/OksEngine.Render.Components.hpp>
 
 namespace OksEngine {
 

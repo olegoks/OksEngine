@@ -26,26 +26,6 @@ namespace RE {
 
 		RenderEngine(const CreateInfo& createInfo);
 
-		class Model {
-		public:
-
-			struct Shape {
-				Common::Index id_ = 0;
-				RAL::Texture::Id texture_ = RAL::Texture::Id::Invalid();
-			};
-
-			std::vector<Shape> shapes_;
-		};
-
-		//[[nodiscard]]
-		//Model RenderModel(const glm::mat4& position, const Geometry::Model<RAL::Vertex3fnt, RAL::Index16>& model);
-
-		//[[nodiscard]]
-		//Model RenderModel(const  glm::mat4& position, const Geometry::Model<RAL::Vertex3fnc, RAL::Index16>& model);
-
-		//void SetModelMatrix(const Model& model, const  glm::mat4& modelMatrix);
-
-		void SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up);
 
 		void Render();
 
@@ -53,7 +33,7 @@ namespace RE {
 
 	private:
 
-		RAL::Texture::Id imguiTextureId_ = RAL::Texture::Id::Invalid();
+		//RAL::Texture::Id imguiTextureId_ = RAL::Texture::Id::Invalid();
 
 		std::shared_ptr<class RAL::API> api_ = nullptr;
 		std::shared_ptr<class RAL::Driver> driver_ = nullptr;

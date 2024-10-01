@@ -1,8 +1,10 @@
 
 #include <Debug/OksEngine.DebugUI.System.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
-
 #include <OksEngine.Components.hpp>
+
+#include <Behaviour/OksEngine.Behaviour.Systems.hpp>
+#include <Behaviour/OksEngine.Behaviour.Components.hpp>
 
 #include <imgui.h>
 #include <imgui_internal.h>

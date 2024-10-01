@@ -5,3 +5,4 @@
 #include <Debug/OksEngine.EnginePerformance.hpp>
 #include <Debug/OksEngine.ImGuiState.hpp>
 #include <Debug/OksEngine.MainMenuBar.hpp>
+#include <Debug/OksEngine.FramesCounter.hpp>

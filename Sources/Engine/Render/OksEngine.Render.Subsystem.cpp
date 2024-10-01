@@ -3,6 +3,10 @@
 
 #include <Render/OksEngine.AddImmutableRenderGeometryFromObjRequest.hpp>
 
+#include <Render/OksEngine.Render.System.hpp>
+#include <Debug/OksEngine.DebugUI.System.hpp>
+#include <UI/OksEngine.UI.Subsystem.hpp>
+
 namespace OksEngine {
 
 

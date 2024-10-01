@@ -602,7 +602,7 @@ namespace Render::Vulkan {
 						binding.binding_,
 						ToVulkanType(binding.type_),
 						1,
-						ToVulkanType(binding.stage_),
+						static_cast<VkFlags>(ToVulkanType(binding.stage_)),
 						nullptr
 					};
 					bindings.push_back(vBinding);
@@ -974,7 +974,7 @@ namespace Render::Vulkan {
 
 			const Texture::CreateInfo textureCreateInfo{
 				.ralCreateInfo_ = createInfo,
-				.physicalDevice_ = objects_.physicalDevice_,
+				.PD_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
 				.commandPool_ = objects_.commandPool_,
 				.DP_ = objects_.DP_,
@@ -1013,6 +1013,7 @@ namespace Render::Vulkan {
 			}
 			default: {
 				OS::AssertFailMessage("Unsupported vertex type.");
+				return 0;
 			}
 			};
 		}
@@ -1026,6 +1027,7 @@ namespace Render::Vulkan {
 			}
 			default: {
 				OS::AssertFailMessage("Unsupported index type.");
+				return 0;
 			}
 			};
 		}
