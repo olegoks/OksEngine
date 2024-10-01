@@ -5,6 +5,6 @@ cd ${scriptDirectory}
 cd ../
 mkdir Build
 cd Build
-cmake .. --graphviz=DependenceGraph/dependenciesGraph.dot
+cmake .. --graphviz=DependenceGraph/dependenciesGraph.dot #--parallel
 cd ../
 cd Scripts/

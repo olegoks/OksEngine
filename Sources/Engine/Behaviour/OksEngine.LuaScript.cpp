@@ -1,22 +1,26 @@
 
+#include <Behaviour/OksEngine.LuaScript.hpp>
+
 #include <Behaviour/OksEngine.Behaviour.hpp>
 
 namespace OksEngine {
 
-	Behaviour::Behaviour(const std::string& scriptName, const std::string& objectName) :
+
+	LuaScript::LuaScript(const std::string& tag, Lua::Script::Id scriptId) :
 		ECSComponent{ nullptr },
-		scriptName_{ scriptName },
-		objectName_{ objectName } {}
+		tag_{ tag },
+		id_{ scriptId } {
+
+	}
 
 	template<>
-	void Edit<Behaviour>(Behaviour* behaviour) {
-		ImGui::TextDisabled("Script name: %s", behaviour->scriptName_.c_str());
-		ImGui::TextDisabled("Object name: %s", behaviour->objectName_.c_str());
+	void Edit<LuaScript>(LuaScript* luaScript) {
+		ImGui::TextDisabled("Script id: %d", luaScript->id_);
 	}
 
 
 	template<>
-	void Add<Behaviour>(ECS::World* world, ECS::Entity::Id id) {
+	void Add<LuaScript>(ECS::World* world, ECS::Entity::Id id) {
 		static char scriptName[100]{ "Camera.lua" };
 		static char objectName[100]{ "Camera" };
 		if (ImGui::CollapsingHeader("Create info")) {

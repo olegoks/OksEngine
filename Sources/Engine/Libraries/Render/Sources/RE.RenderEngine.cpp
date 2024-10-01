@@ -296,12 +296,12 @@ namespace RE {
 		//OS::LogInfo("renderEngine", { "Frames per second {}", framesPerSecond });
 	}
 
-	void RenderEngine::SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up) {
-		//auto camera = driver_->GetCamera();
-		//camera->SetPosition(position);
-		//camera->SetDirection(direction);
-		//camera->SetUp(up);
-		//driver_->SetCamera(camera);
-	}
+	//void RenderEngine::SetCamera(const glm::vec3& position, const glm::vec3& direction, const glm::vec3& up) {
+	//	//auto camera = driver_->GetCamera();
+	//	//camera->SetPosition(position);
+	//	//camera->SetDirection(direction);
+	//	//camera->SetUp(up);
+	//	//driver_->SetCamera(camera);
+	//}
 
 }

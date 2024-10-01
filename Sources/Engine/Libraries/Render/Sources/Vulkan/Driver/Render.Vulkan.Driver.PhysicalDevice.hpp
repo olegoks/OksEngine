@@ -36,6 +36,12 @@ namespace Render::Vulkan {
 		}
 
 		[[nodiscard]]
+		bool SupportsMipMaps(VkFormat format) const noexcept {
+			const VkFormatProperties formatProperties = GetFormatProperties(format);
+			return formatProperties.optimalTilingFeatures & VK_FORMAT_FEATURE_SAMPLED_IMAGE_FILTER_LINEAR_BIT;
+		}
+
+		[[nodiscard]]
 		Extensions GetAvailableExtensions() noexcept {
 
 			uint32_t extensionCount;
@@ -52,7 +58,7 @@ namespace Render::Vulkan {
 		}
 
 		[[nodiscard]]
-		VkFormatProperties GetFormatProperties(VkFormat format) noexcept {
+		VkFormatProperties GetFormatProperties(VkFormat format) const noexcept {
 			VkFormatProperties props;
 			vkGetPhysicalDeviceFormatProperties(GetHandle(), format, &props);
 			return props;

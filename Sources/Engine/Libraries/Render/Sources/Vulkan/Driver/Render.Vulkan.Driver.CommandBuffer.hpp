@@ -332,18 +332,6 @@ namespace Render::Vulkan {
 			BindBuffer(shape->GetIndexBuffer());
 		}
 
-		void DrawShape(std::shared_ptr<ColoredShape> shape) {
-			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
-		}
-
-		void DrawShape(std::shared_ptr<TexturedShape> shape) {
-			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
-		}
-
-		void DrawShape(std::shared_ptr<UIShape> shape) {
-			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
-		}
-
 		void DrawShape2(std::shared_ptr<Mesh> shape) {
 			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
 		}
@@ -351,6 +339,18 @@ namespace Render::Vulkan {
 		void End() noexcept {
 			VkCall(vkEndCommandBuffer(GetHandle()),
 				"Error on ending executing commands.");
+		}
+
+		void Submit(VkQueue queue) {
+
+			VkSubmitInfo submitInfo{
+				.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
+				.commandBufferCount = 1,
+				.pCommandBuffers = &GetHandle()
+			};
+			VkCall(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE),
+				"Error while submitting command buffer.");
+
 		}
 
 		~CommandBuffer() noexcept {

@@ -8,10 +8,9 @@
 
 /*Debug*/
 #include <Debug/OksEngine.FramesCounter.hpp>
-
+#include <Debug/OksEngine.DebugUI.System.hpp>
 /*Reneder*/
 #include <Render/OksEngine.Render.System.hpp>
-#include <Render/OksEngine.AddImmutableRenderGeometryFromObjRequest.hpp>
 
 /*Common*/
 #include <Common/OksEngine.Engine.System.hpp>
@@ -25,6 +24,12 @@
 /*UI*/
 #include <UI/OksEngine.UI.System.hpp>
 #include <UI/OksEngine.UI.Window.hpp>
+
+/*Resource*/
+#include <Resources/OksEngine.Resources.Components.hpp>
+
+/*Behaviour*/
+#include <Behaviour/OksEngine.Behaviour.Systems.hpp>
 
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
 
@@ -44,7 +49,6 @@ namespace OksEngine {
 			{
 				context_->GetECSWorld()->StartFrame();
 
-
 				context_->GetECSWorld()->RunSystem<LoadResourceSystem>();
 				/*UI*/
 				context_->GetECSWorld()->RunSystem<GetWindowKeyboardInputEvents>();	
@@ -58,7 +62,6 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CleanWindowMouseInputEvents>();
 				
 				/*Behaviour*/
-				context_->GetECSWorld()->RunSystem<BehaviourSystem>();
 				context_->GetECSWorld()->RunSystem<LoadLuaScript>();
 				context_->GetECSWorld()->RunSystem<CreateLuaContext>();
 				context_->GetECSWorld()->RunSystem<CallUpdateMethod>();
@@ -69,7 +72,6 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<PhysicsGeometryMapper>();
 				context_->GetECSWorld()->RunSystem<CameraSystem>();
 				context_->GetECSWorld()->RunSystem<CreateDriverCamera>();
-				//context_->GetECSWorld()->RunSystem<AttachCameraSystem>();
 
 				/*ImGui*/
 				context_->GetECSWorld()->RunSystem<ImGuiSystem>();
@@ -90,7 +92,6 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem < ResizeFrameBuffers>();
 				context_->GetECSWorld()->RunSystem<RenderMesh>();
 				context_->GetECSWorld()->RunSystem<MapMeshTransform>();
-				//context_->GetECSWorld()->RunSystem<AddImmutableRenderGeometryFromObjSystem>();
 				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();
 				context_->GetECSWorld()->EndFrame();
 			}
