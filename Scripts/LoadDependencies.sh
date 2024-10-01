@@ -19,7 +19,6 @@ echo $(pwd)
 ./vcpkg.exe install glslang
 ./vcpkg.exe install boost-thread
 ./vcpkg.exe install gtest
-./vcpkg.exe install tinyobjloader
 ./vcpkg.exe install stb
 ./vcpkg.exe install loguru
 ./vcpkg.exe install magic-enum

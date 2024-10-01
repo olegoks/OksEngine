@@ -247,7 +247,7 @@ namespace Render::Vulkan {
 			VkAccessFlags destinationAccessMask,
 			VkPipelineStageFlags sourceStage,
 			VkPipelineStageFlags destinationStage
-			) {
+		) {
 			VkImageMemoryBarrier barrier{};
 			{
 				barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -261,7 +261,7 @@ namespace Render::Vulkan {
 				barrier.subresourceRange.levelCount = mipLevels;
 				barrier.subresourceRange.baseArrayLayer = 0;
 				barrier.subresourceRange.layerCount = 1;
-				barrier.srcAccessMask = sourceAccessMask; 
+				barrier.srcAccessMask = sourceAccessMask;
 				barrier.dstAccessMask = destinationAccessMask;
 
 			}
@@ -273,6 +273,42 @@ namespace Render::Vulkan {
 				0, nullptr,
 				1, &barrier
 			);
+		}
+
+		void ImageBlit(
+			std::shared_ptr<Image> srcImage,
+			VkOffset3D srcOffset[2],
+			Common::UInt32 srcMipLevel,
+			VkImageLayout srcImageLayout,
+			std::shared_ptr<Image> dstImage,
+			VkOffset3D dstOffset[2],
+			Common::UInt32 dstMipLevel,
+			VkImageLayout dstImageLayout) {
+
+			VkImageBlit blit {
+				.srcSubresource = {
+					.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+					.mipLevel = srcMipLevel,
+					.baseArrayLayer = 0,
+					.layerCount = 1
+				},
+				.srcOffsets = { srcOffset[0], srcOffset[1] },
+				
+				.dstSubresource = {
+					.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
+					.mipLevel = dstMipLevel,
+					.baseArrayLayer = 0,
+					.layerCount = 1
+				},
+				.dstOffsets = { dstOffset[0], dstOffset[1] }
+			};
+
+			vkCmdBlitImage(GetHandle(),
+				*srcImage, srcImageLayout,
+				*dstImage, dstImageLayout,
+				1, &blit,
+				VK_FILTER_LINEAR);
+
 		}
 
 

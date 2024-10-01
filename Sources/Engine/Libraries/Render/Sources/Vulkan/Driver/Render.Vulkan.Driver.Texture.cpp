@@ -46,32 +46,10 @@ namespace Render::Vulkan {
 				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 				commandBuffer->Begin();
 
-
-				VkImageMemoryBarrier barrier{};
-				barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
-				barrier.image = *image;
-				barrier.srcQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-				barrier.dstQueueFamilyIndex = VK_QUEUE_FAMILY_IGNORED;
-				barrier.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-				barrier.subresourceRange.baseArrayLayer = 0;
-				barrier.subresourceRange.layerCount = 1;
-				barrier.subresourceRange.levelCount = 1;
-
 				int32_t mipWidth = createInfo.ralCreateInfo_.size_.x;
 				int32_t mipHeight = createInfo.ralCreateInfo_.size_.y;
 
 				for (uint32_t i = 1; i < createInfo.mipLevels_; i++) {
-					barrier.subresourceRange.baseMipLevel = i - 1;
-					barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-					barrier.newLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-					barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-					barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-
-					//vkCmdPipelineBarrier(*commandBuffer,
-					//	VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT, 0,
-					//	0, nullptr,
-					//	0, nullptr,
-					//	1, &barrier);
 
 					commandBuffer->ImageMemoryBarrier(*image,
 						i - 1, 1, 
@@ -80,7 +58,7 @@ namespace Render::Vulkan {
 						VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT
 						);
 
-					VkImageBlit blit{};
+	/*				VkImageBlit blit{};
 					blit.srcOffsets[0] = { 0, 0, 0 };
 					blit.srcOffsets[1] = { mipWidth, mipHeight, 1 };
 					blit.srcSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
@@ -98,13 +76,21 @@ namespace Render::Vulkan {
 						*image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
 						*image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 						1, &blit,
-						VK_FILTER_LINEAR);
+						VK_FILTER_LINEAR);*/
 
+					VkOffset3D srcOfffsets[2]{ { 0, 0, 0 }, { mipWidth, mipHeight, 1 } };
+					VkOffset3D dstOfffsets[2]{ { 0, 0, 0 }, mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
 
-					barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-					barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					barrier.srcAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
-					barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+					commandBuffer->ImageBlit(
+						image,
+						srcOfffsets,
+						i - 1,
+						VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+						image,
+						dstOfffsets,
+						i,
+						VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+						);
 
 					commandBuffer->ImageMemoryBarrier(*image,
 						i - 1, 1,
@@ -113,33 +99,15 @@ namespace Render::Vulkan {
 						VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
 					);
 
-					//vkCmdPipelineBarrier(*commandBuffer,
-					//	VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-					//	0, nullptr,
-					//	0, nullptr,
-					//	1, &barrier);
-
 					if (mipWidth > 1) mipWidth /= 2;
 					if (mipHeight > 1) mipHeight /= 2;
 				}
-
-				barrier.subresourceRange.baseMipLevel = createInfo.mipLevels_ - 1;
-				barrier.oldLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-				barrier.newLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-				barrier.srcAccessMask = VK_ACCESS_TRANSFER_WRITE_BIT;
-				barrier.dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
-
-				//vkCmdPipelineBarrier(*commandBuffer,
-				//	VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT, 0,
-				//	0, nullptr,
-				//	0, nullptr,
-				//	1, &barrier);
 
 				commandBuffer->ImageMemoryBarrier(*image,
 					createInfo.mipLevels_ - 1, 1,
 					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 					VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
-					VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT
+					VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
 				);
 
 				commandBuffer->End();
