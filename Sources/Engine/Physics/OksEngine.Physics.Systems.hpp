@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Physics/OksEngine.CreateRigidBodyCustomMeshShape.hpp>
+#include <Physics/OksEngine.CreatePhysicsShape.hpp>
 
 namespace OksEngine {
 

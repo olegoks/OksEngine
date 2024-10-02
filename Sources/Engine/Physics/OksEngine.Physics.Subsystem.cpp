@@ -1,7 +1,7 @@
 
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 #include <PAL.hpp>
-#include <Physics/OksEngine.Physics.System.hpp>
+#include <Physics/OksEngine.Physics.Systems.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 
 #include "Geometry.Model.hpp"
@@ -17,7 +17,8 @@ namespace OksEngine {
 
 		auto& context = GetContext();
 		auto ecsWorld = context.GetECSWorld();
-		ecsWorld->RegisterSystem<PhysicsSystem>(context);
+		ecsWorld->RegisterSystem<CreatePhysicsShape>(context);
+		ecsWorld->RegisterSystem<CreateDynamicRigidBody>(context);
 
 		physicsEngine_ = std::make_shared<PE::PhysicsEngine>();
 		PAL::World::CreateInfo worldCreateInfo{

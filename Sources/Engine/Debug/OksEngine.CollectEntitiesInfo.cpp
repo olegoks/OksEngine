@@ -74,7 +74,6 @@ namespace OksEngine {
 			editComponent.template operator() < ImmutableRenderGeometry > (world, id);
 			editComponent.template operator() < GeometryFile > (world, id);
 			editComponent.template operator() < Camera > (world, id);
-			editComponent.template operator() < AttachedCamera > (world, id);
 			//editComponent.template operator() < PointLight > (world, id);
 			editComponent.template operator() < SkinnedGeometry > (world, id);
 			editComponent.template operator() < Mesh > (world, id);
@@ -105,11 +104,9 @@ namespace OksEngine {
 				//DynamicRigidBodyBox::GetName(),
 				DynamicRigidBodyCustomMeshShape::GetName(),
 				//StaticRigidBodyCustomMeshShape::GetName(),
-				ImmutableRenderGeometryObj::GetName(),
 				ImmutableRenderGeometry::GetName(),
 				Mesh::GetName(),
 				Camera::GetName(),
-				AttachedCamera::GetName(),
 				PointLight::GetName(),
 				SkinnedGeometry::GetName(),
 				LoadResourceRequest::GetName(),
@@ -136,9 +133,6 @@ namespace OksEngine {
 			}
 			if (currentComponent == Position::GetName()) {
 				Add<Position>(world, id);
-			}
-			if (currentComponent == ImmutableRenderGeometryObj::GetName()) {
-				Add<ImmutableRenderGeometryObj>(world, id);
 			}
 			if (currentComponent == ImmutableRenderGeometry::GetName()) {
 				Add<ImmutableRenderGeometry>(world, id);

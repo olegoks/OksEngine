@@ -151,13 +151,6 @@ namespace OksEngine {
 			isActive);
 	}
 
-	void Entity::AddAttachedCamera(
-		const glm::mat4& offset) {
-		world_->CreateComponent<AttachedCamera>(
-			GetId(),
-			&context_,
-			offset);
-	}
 
 
 }

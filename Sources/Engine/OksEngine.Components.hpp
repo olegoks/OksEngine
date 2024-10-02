@@ -7,3 +7,4 @@
 #include <Common/OksEngine.Common.Components.hpp>
 #include <Behaviour/OksEngine.Behaviour.Components.hpp>
 #include <UI/OksEngine.UI.Components.hpp>
+#include <Resources/OksEngine.Resources.Components.hpp>

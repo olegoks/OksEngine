@@ -73,9 +73,6 @@ namespace OksEngine {
 			float radius,
 			float height);
 
-		void AddAttachedCamera(
-			const glm::mat4& offset);
-
 		void AddLight(
 			const glm::vec3& color,
 			float intensity,
