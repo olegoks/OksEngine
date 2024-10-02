@@ -10,7 +10,7 @@
 #include <Debug/OksEngine.FramesCounter.hpp>
 #include <Debug/OksEngine.Debug.Systems.hpp>
 /*Reneder*/
-#include <Render/OksEngine.Render.System.hpp>
+#include <Render/OksEngine.Render.Systems.hpp>
 
 /*Common*/
 #include <Common/OksEngine.Common.Systems.hpp>
@@ -69,7 +69,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreatePhysicsShape>();
 				context_->GetECSWorld()->RunSystem<CreateDynamicRigidBody>();
 				context_->GetECSWorld()->RunSystem<RigidBodyToRenderGeometryMapper>();
-				context_->GetECSWorld()->RunSystem<CameraSystem>();
+				context_->GetECSWorld()->RunSystem<UpdateDriverCamera>();
 				context_->GetECSWorld()->RunSystem<CreateDriverCamera>();
 
 				/*ImGui*/
@@ -82,14 +82,12 @@ namespace OksEngine {
 				ImGui::Render();
 				context_->GetECSWorld()->RunSystem<RenderImGuiUI>();
 				/*ImGui*/
-				context_->GetECSWorld()->RunSystem<RenderSystem>();
 				context_->GetECSWorld()->RunSystem<CreateLoadGeometryDescriptionFileRequest>();
 				context_->GetECSWorld()->RunSystem<LoadGeometryDescriptionFile>();
 				context_->GetECSWorld()->RunSystem<CreateLoadMeshRequest>();
 				context_->GetECSWorld()->RunSystem<LoadMesh>();
 				context_->GetECSWorld()->RunSystem<CreateDriverModel>();
 				context_->GetECSWorld()->RunSystem < ResizeFrameBuffers>();
-				context_->GetECSWorld()->RunSystem<RenderMesh>();
 				context_->GetECSWorld()->RunSystem<MapMeshTransform>();
 				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();
 				context_->GetECSWorld()->EndFrame();

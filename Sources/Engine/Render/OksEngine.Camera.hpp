@@ -121,51 +121,10 @@ namespace OksEngine {
 
 	};
 
-	struct DriverCamera : public ECSComponent<DriverCamera> {
-		struct Matrices {
-			alignas(16) glm::mat4 view_;
-			alignas(16) glm::mat4 proj_;
-		};
-
-		DriverCamera(
-			/*const Matrices& matrices, */RAL::Driver::UniformBuffer::Id UBId) :
-			ECSComponent{ nullptr },
-			//matrices_{ matrices },
-			matricesBuffer_{ UBId } { }
-		//Matrices matrices_;
-
-		RAL::Driver::UniformBuffer::Id matricesBuffer_;
-	};
-
-	class CreateDriverCamera : public ECSSystem {
-	public:
-
-		CreateDriverCamera(Context& context) noexcept;
-
-	public:
-
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
-
-		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
-	private:
-
-		virtual Common::TypeId GetTypeId() const noexcept override;
-	};
 
 
-	class CameraSystem : public ECSSystem {
-	public:
 
-		CameraSystem(Context& context) noexcept;
 
-	public:
-
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
-		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
-	private:
-
-		virtual Common::TypeId GetTypeId() const noexcept override;
-	};
 
 	template<>
 	void Bind<Camera>(Lua::Context& context);

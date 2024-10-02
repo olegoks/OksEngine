@@ -6,6 +6,7 @@
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 #include <Physics/OksEngine.DynamicRigidBodyCustomMeshShape.hpp>
 #include <Physics/OksEngine.Material.hpp>
+#include <Render/OksEngine.Mesh.hpp>
 
 namespace OksEngine {
 

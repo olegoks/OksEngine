@@ -18,7 +18,7 @@
 #include <Common/OksEngine.Common.Systems.hpp>
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
-#include <Render/OksEngine.GeometryStorage.hpp>
+#include <Render/OksEngine.ModelStorage.hpp>
 #include <Behaviour/OksEngine.Behaviour.Systems.hpp>
 
 namespace OksEngine

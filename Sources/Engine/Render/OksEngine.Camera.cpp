@@ -103,51 +103,6 @@ namespace OksEngine {
 	}
 
 
-	CameraSystem::CameraSystem(Context& context) noexcept :
-		ECSSystem{ context } { }
-
-	void CameraSystem::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-		auto* camera = world->GetComponent<Camera>(entityId);
-		//if (camera->IsActive()) {
-		auto* position = world->GetComponent<Position>(entityId);
-		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		auto* driverCamera = world->GetComponent<DriverCamera>(entityId);
-
-
-		const glm::mat4 view = glm::lookAt(
-			position->translate_,
-			position->translate_ + camera->direction_,
-			camera->GetUp()
-		);
-
-		glm::mat4 proj = glm::perspective(
-			glm::radians(45.0f),
-			camera->width_ / (float)camera->height_,
-			camera->zNear_, camera->zFar_);
-
-		proj[1][1] *= -1;
-
-		DriverCamera::Matrices matrices{
-			.view_ = view,
-			.proj_ = proj
-		};
-
-
-		driver->FillUniformBuffer(driverCamera->matricesBuffer_, &matrices);
-		//driver->GetCamera()->SetPosition(position->GetTranslateVec());
-		//driver->GetCamera()->SetDirection(camera->GetDirection());
-		//driver->GetCamera()->SetUp(camera->GetUp());
-	//}
-	}
-
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CameraSystem::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<Camera>().Include<Position>().Include<DriverCamera>(), ECS::Entity::Filter{}.ExcludeAll()};
-	}
-
-	Common::TypeId CameraSystem::GetTypeId() const noexcept {
-		return Common::TypeInfo<CameraSystem>().GetId();
-	}
-
 
 
 	template<>
@@ -197,29 +152,5 @@ namespace OksEngine {
 	}
 
 
-	void CreateDriverCamera::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-
-		const auto* camera = world->GetComponent<Camera>(entityId);
-
-		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
-			.size_ = sizeof(DriverCamera::Matrices),
-			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
-		};
-		RAL::Driver::UniformBuffer::Id UBId = driver->CreateUniformBuffer(UBCreateInfo);
-		world->CreateComponent<DriverCamera>(entityId, /*matrices, */UBId);
-
-	}
-
-	inline std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateDriverCamera::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<Camera>().Exclude<DriverCamera>(), ECS::Entity::Filter{}.ExcludeAll() };
-	}
-
-	inline Common::TypeId CreateDriverCamera::GetTypeId() const noexcept {
-		return Common::TypeInfo<CreateDriverCamera>().GetId();
-	}
-
-	CreateDriverCamera::CreateDriverCamera(Context& context) noexcept :
-		ECSSystem{ context } { }
 
 }
