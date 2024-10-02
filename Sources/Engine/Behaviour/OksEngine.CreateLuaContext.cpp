@@ -5,7 +5,9 @@
 
 #include <OksEngine.Components.hpp>
 #include <Behaviour/OksEngine.LuaEntity.hpp>
+#include <Behaviour/OksEngine.LuaContext.hpp>
 #include <OksEngine.Config.hpp>
+#include <Resources/OksEngine.Resource.Subsystem.hpp>
 
 namespace OksEngine {
 
