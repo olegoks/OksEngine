@@ -1,7 +1,7 @@
 
 #include <Render/OksEngine.Render.Subsystem.hpp>
 
-#include <Render/OksEngine.Render.System.hpp>
+#include <Render/OksEngine.Render.Systems.hpp>
 #include <Debug/OksEngine.DebugUI.System.hpp>
 #include <UI/OksEngine.UI.Subsystem.hpp>
 
@@ -31,15 +31,13 @@ namespace OksEngine {
 		auto ecsWorld = context.GetECSWorld();
 		ecsWorld->RegisterSystem<CreateLoadGeometryDescriptionFileRequest>(context);
 		ecsWorld->RegisterSystem<CreateLoadMeshRequest>(context);
-		ecsWorld->RegisterSystem<RenderSystem>(context);
-		ecsWorld->RegisterSystem<CameraSystem>(context);
+		ecsWorld->RegisterSystem<UpdateDriverCamera>(context);
 		ecsWorld->RegisterSystem<CreateDriverCamera>(context);
 		ecsWorld->RegisterSystem<CreateDriverModel>(context);
 		ecsWorld->RegisterSystem<ResizeFrameBuffers>(context);
 		ecsWorld->RegisterSystem<MapMeshTransform>(context);
 		ecsWorld->RegisterSystem<LoadGeometryDescriptionFile>(context);
 		ecsWorld->RegisterSystem<LoadMesh>(context);
-		ecsWorld->RegisterSystem<RenderMesh>(context);
 		auto uiSubsystem = context.GetUISubsystem();
 		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);
 		RAL::RenderSurface renderSurface;
