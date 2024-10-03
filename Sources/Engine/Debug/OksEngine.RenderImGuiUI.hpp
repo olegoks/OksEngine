@@ -12,7 +12,10 @@ namespace OksEngine {
 	public:
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
-
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "RenderImGuiUI";
+		}
 	private:
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
 

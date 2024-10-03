@@ -18,32 +18,32 @@ namespace OksEngine {
 		auto* materialComponent = world->GetComponent<Material>(entityId);
 		ModelStorage::Model& model = GetContext().GetModelStorage()->GetModel(meshComponent->modelId_);
 
-		ModelStorage::Model::Mesh shapeModelMesh;
+		//ModelStorage::Model::Mesh shapeModelMesh;
 
-		model.ForEachMesh([&shapeModelMesh](ModelStorage::Model::Mesh& mesh) {
+		//model.ForEachMesh([&shapeModelMesh](ModelStorage::Model::Mesh& mesh) {
 
-			shapeModelMesh = mesh;
+		//	shapeModelMesh = mesh;
 
-			return false;
-			});
+		//	return false;
+		//	});
 
-		Geom::Mesh& shapeMesh = GetContext().GetMeshStorage()->Get(shapeModelMesh.meshId_);
+		//Geom::Mesh& shapeMesh = GetContext().GetMeshStorage()->Get(shapeModelMesh.meshId_);
 
-		PAL::Shape::Material material{
-			.staticFriction_ = materialComponent->staticFriction_,
-			.dynamicFriction_ = materialComponent->dynamicFriction_,
-			.restitution_ = materialComponent->restitution_
-		};
+		//PAL::Shape::Material material{
+		//	.staticFriction_ = materialComponent->staticFriction_,
+		//	.dynamicFriction_ = materialComponent->dynamicFriction_,
+		//	.restitution_ = materialComponent->restitution_
+		//};
 
-		PAL::Shape::CreateInfoMesh shapeCreateInfo{
-			.material_ = material,
-			.vertices_ = shapeMesh.vertices_,
-			.indices_ = shapeMesh.indices_
-		};
+		//PAL::Shape::CreateInfoMesh shapeCreateInfo{
+		//	.material_ = material,
+		//	.vertices_ = shapeMesh.vertices_,
+		//	.indices_ = shapeMesh.indices_
+		//};
 
-		auto shape = GetContext().GetPhysicsSubsystem()->CreateShape(shapeCreateInfo);
+		//auto shape = GetContext().GetPhysicsSubsystem()->CreateShape(shapeCreateInfo);
 
-		world->CreateComponent<PhysicsShape>(entityId, shape);
+		//world->CreateComponent<PhysicsShape>(entityId, shape);
 
 		//{
 //	DynamicRigidBodyCustomMeshShape* dynamicRigidBody = world->GetComponent<DynamicRigidBodyCustomMeshShape>(entityId);

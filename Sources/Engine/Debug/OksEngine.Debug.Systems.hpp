@@ -6,3 +6,4 @@
 #include <Debug/OksEngine.RenderImGuiUI.hpp>
 #include <Debug/OksEngine.UpdateEnginePerformance.hpp>
 #include <Debug/OksEngine.UpdateMainMenuBar.hpp>
+#include <Debug/OksEngine.CollectECSSystemsCallsInfo.hpp>

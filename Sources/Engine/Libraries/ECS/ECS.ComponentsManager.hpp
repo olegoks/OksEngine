@@ -324,7 +324,7 @@ namespace ECS {
 
 		[[nodiscard]]
 		bool IsEntityComponentsExist(Entity::Id entityId) const noexcept {
-			return (entityComponents_.find(entityId) != entityComponents_.end());
+			return entityComponents_.find(entityId) != entityComponents_.end();
 		}
 
 		[[nodiscard]]

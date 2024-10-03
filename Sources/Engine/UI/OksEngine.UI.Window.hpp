@@ -35,6 +35,11 @@ namespace OksEngine {
 			}
 		}
 
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "GetWindowKeyboardInputEvents";
+		}
+
 		Common::TypeId GetTypeId() const noexcept {
 			return Common::TypeInfo<GetWindowKeyboardInputEvents>().GetId();
 		}
@@ -61,6 +66,11 @@ namespace OksEngine {
 			}
 		}
 
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "GetWindowFramebufferResizedEvents";
+		}
+
 		Common::TypeId GetTypeId() const noexcept {
 			return Common::TypeInfo<GetWindowFramebufferResizedEvents>().GetId();
 		}
@@ -82,7 +92,10 @@ namespace OksEngine {
 			KeyboardInput* keyboardInput = world->GetComponent<KeyboardInput>(firstEntityId);
 			while (!keyboardInput->events_.empty()) keyboardInput->events_.pop();
 		}
-
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "CleanWindowKeyboardInputEvents";
+		}
 		Common::TypeId GetTypeId() const noexcept {
 			return Common::TypeInfo<CleanWindowKeyboardInputEvents>().GetId();
 		}
@@ -112,7 +125,10 @@ namespace OksEngine {
 					});
 			}
 		}
-
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "SendWindowKeyboardInputEvents";
+		}
 		Common::TypeId GetTypeId() const noexcept {
 			return Common::TypeInfo<SendWindowKeyboardInputEvents>().GetId();
 		}
@@ -140,6 +156,11 @@ namespace OksEngine {
 			}
 		}
 
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "GetWindowMouseInputEvents";
+		}
+
 		Common::TypeId GetTypeId() const noexcept {
 			return Common::TypeInfo<GetWindowMouseInputEvents>().GetId();
 		}
@@ -162,6 +183,10 @@ namespace OksEngine {
 			while (!mouseInput->events_.empty()) mouseInput->events_.pop();
 		}
 
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "CleanWindowMouseInputEvents";
+		}
 		Common::TypeId GetTypeId() const noexcept {
 			return Common::TypeInfo<CleanWindowMouseInputEvents>().GetId();
 		}
@@ -192,6 +217,10 @@ namespace OksEngine {
 			}
 		}
 
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "SendWindowMouseInputEvents";
+		}
 		Common::TypeId GetTypeId() const noexcept {
 			return Common::TypeInfo<SendWindowMouseInputEvents>().GetId();
 		}
@@ -233,6 +262,11 @@ namespace OksEngine {
 				while (!keyboardInput->events_.empty()) keyboardInput->events_.pop();
 				while (!mouseInput->events_.empty()) mouseInput->events_.pop();
 			}
+		}
+
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "WindowSystem";
 		}
 
 		Common::TypeId GetTypeId() const noexcept {

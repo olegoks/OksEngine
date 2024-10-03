@@ -19,6 +19,7 @@ set(CMAKE_CXX_COMPILER "clang++")
 if(CMAKE_CXX_COMPILER_LOADED)
 endif()
 
+
 set(CMAKE_SUPPRESS_REGENERATION true) # To exclude ZERO_CHECK target
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets") #To add folder in VS for cmake targets.
 

@@ -26,6 +26,10 @@ namespace ECS {
 		};
 
 		virtual std::pair<Entity::Filter, Entity::Filter> GetFilter() const noexcept = 0;
+
+		[[nodiscard]]
+		virtual std::string GetName() const noexcept = 0;
+
 		virtual Common::TypeId GetTypeId() const noexcept = 0;
 		virtual ~System() noexcept = default;
 	};

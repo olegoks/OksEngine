@@ -22,6 +22,7 @@ namespace OksEngine {
 		GetContext().GetECSWorld()->RegisterSystem<CollectEntitiesInfo>(createInfo.context_);
 		GetContext().GetECSWorld()->RegisterSystem<AddECSInspectorMainMenuItem>(createInfo.context_);
 		GetContext().GetECSWorld()->RegisterSystem<FramesCounterSystem>(createInfo.context_);
+		GetContext().GetECSWorld()->RegisterSystem<CollectECSSystemsCallsInfo>(createInfo.context_);
 
 	}
 
