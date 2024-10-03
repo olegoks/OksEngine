@@ -69,8 +69,8 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreatePhysicsShape>();
 				context_->GetECSWorld()->RunSystem<CreateDynamicRigidBody>();
 				context_->GetECSWorld()->RunSystem<RigidBodyToRenderGeometryMapper>();
-				context_->GetECSWorld()->RunSystem<UpdateDriverCamera>();
 				context_->GetECSWorld()->RunSystem<CreateDriverCamera>();
+				context_->GetECSWorld()->RunSystem<UpdateDriverCamera>();
 
 				/*ImGui*/
 				context_->GetECSWorld()->RunSystem<CreateImGuiTexture>();
@@ -79,17 +79,22 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<UpdateEnginePerformance>();
 				context_->GetECSWorld()->RunSystem<AddECSInspectorMainMenuItem>();
 				context_->GetECSWorld()->RunSystem<CollectEntitiesInfo>();
+				context_->GetECSWorld()->RunSystem<CollectECSSystemsCallsInfo>();
 				ImGui::Render();
 				context_->GetECSWorld()->RunSystem<RenderImGuiUI>();
 				/*ImGui*/
+
+				/*Render*/
 				context_->GetECSWorld()->RunSystem<CreateLoadGeometryDescriptionFileRequest>();
 				context_->GetECSWorld()->RunSystem<LoadGeometryDescriptionFile>();
 				context_->GetECSWorld()->RunSystem<CreateLoadMeshRequest>();
 				context_->GetECSWorld()->RunSystem<LoadMesh>();
 				context_->GetECSWorld()->RunSystem<CreateDriverModel>();
-				context_->GetECSWorld()->RunSystem < ResizeFrameBuffers>();
+				context_->GetECSWorld()->RunSystem<ResizeFrameBuffers>();
 				context_->GetECSWorld()->RunSystem<MapMeshTransform>();
 				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();
+
+
 				context_->GetECSWorld()->EndFrame();
 			}
 			context_->GetRenderSubsystem()->Update();

@@ -22,6 +22,10 @@ namespace OksEngine {
 		virtual void EndUpdate() override { }
 		virtual void AfterUpdate(ECS::World* world) override {}
 
+		virtual std::string GetName() const noexcept override {
+			return "No name";
+		}
+
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
 			return { ECS::Entity::Filter{}.ExcludeAll(), ECS::Entity::Filter{}.ExcludeAll() };
 		}

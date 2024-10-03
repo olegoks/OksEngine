@@ -32,6 +32,10 @@ namespace OksEngine {
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
 			return { ECS::Entity::Filter{}.Include<FramesCounter>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "FramesCounterSystem";
+		}
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
 			return Common::TypeInfo<FramesCounterSystem>().GetId();

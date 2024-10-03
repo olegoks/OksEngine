@@ -20,7 +20,10 @@ namespace OksEngine {
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
 			return { ECS::Entity::Filter{}, ECS::Entity::Filter{}.ExcludeAll() };
 		}
-
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "CollectEntitiesInfo";
+		}
 	private:
 
 		virtual Common::TypeId GetTypeId() const noexcept override {

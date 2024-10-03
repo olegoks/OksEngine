@@ -39,6 +39,11 @@ namespace OksEngine {
 			return { ECS::Entity::Filter{}.Include<Behaviour>(), ECS::Entity::Filter{}.ExcludeAll() };
 		}
 
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "UISystem";
+		}
+
 		virtual void EndUpdate() override {
 			//GetContext().GetUISubsystem()->DeleteLastKeyboardEvent();
 			//GetContext().GetUISubsystem()->DeleteLastMouseEvent();

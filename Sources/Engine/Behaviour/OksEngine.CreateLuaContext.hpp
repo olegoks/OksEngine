@@ -16,6 +16,10 @@ namespace OksEngine {
 
 		virtual void EndUpdate() override { }
 
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "CreateLuaContext";
+		}
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
 
 		virtual Common::TypeId GetTypeId() const noexcept override;

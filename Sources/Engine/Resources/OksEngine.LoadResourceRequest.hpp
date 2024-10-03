@@ -38,6 +38,11 @@ namespace OksEngine {
 
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
 
+		[[nodiscard]]
+		std::string GetName() const noexcept override {
+			return "LoadResourceSystem";
+		}
+
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
 			return { ECS::Entity::Filter{}.Include<LoadResourceRequest>(), ECS::Entity::Filter{}.Exclude<Resource>() };
 		}

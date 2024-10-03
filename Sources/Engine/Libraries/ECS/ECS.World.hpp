@@ -11,6 +11,26 @@ namespace ECS {
 	class [[nodiscard]] World final {
 	public:
 
+		class DebugInfo {
+		public:
+
+			std::vector<std::string> registeredSystems_;
+
+			class FrameInfo {
+			public:
+
+				struct SystemCallInfo {
+					std::string name_;
+					std::vector<std::string> componentsNames_;
+				};
+				Common::Index index_ = 0;
+				std::vector<SystemCallInfo> systemsCallsInfos_;
+			};
+
+			std::vector<FrameInfo> framesInfos_;
+		};
+
+
 		[[nodiscard]]
 		Entity::Id CreateEntity() noexcept {
 			Entity::Id entityId = entitiesManager_.CreateEntity();
@@ -42,7 +62,9 @@ namespace ECS {
 		}
 		template<class SystemType, class ...Args>
 		std::shared_ptr<SystemType> RegisterSystem(Args&& ...args) noexcept {
-			return systemsManager_.RegisterSystem<SystemType>(std::forward<Args>(args)...);
+			std::shared_ptr<SystemType> system = systemsManager_.RegisterSystem<SystemType>(std::forward<Args>(args)...);
+			debugInfo_.registeredSystems_.push_back(system->GetName());
+			return system;
 		}
 
 
@@ -87,11 +109,16 @@ namespace ECS {
 
 		void StartFrame() {
 			componentsManager_.AddDelayedComponents();
+			DebugInfo::FrameInfo frameInfo{
+				.index_ = framesCount_
+			};
+			debugInfo_.framesInfos_.push_back(frameInfo);
 		}
 
 		void EndFrame() {
 			
 			componentsManager_.AddDelayedComponents();
+			++framesCount_;
 		}
 
 		template<class SystemType>
@@ -133,23 +160,20 @@ namespace ECS {
 			}
 
 			system->AfterUpdate(this);
+
+
+			const std::string systemName = system->GetName();
+			DebugInfo::FrameInfo::SystemCallInfo systemCallInfo{
+				.name_ = systemName
+			};
+			debugInfo_.framesInfos_.back().systemsCallsInfos_.push_back(systemCallInfo);
+
 		}
 
 		[[nodiscard]]
 		Common::Size GetEntitiesNumber() const noexcept {
 			return entitiesManager_.GetEntitiesNumber();
 		}
-
-		//[[nodiscard]]
-		//std::vector<Entity::Id> GetEntitiesIds() noexcept {
-		//	std::vector<Entity::Id> entitiesIds;
-		//	entitiesIds.reserve(entitiesManager_.GetEntitiesNumber());
-		//	entitiesManager_.ForEachEntity(
-		//		[&entitiesIds](Entity& entity) {
-		//			entitiesIds.push_back(entity.GetId());
-		//		});
-		//	return entitiesIds;
-		//}
 
 		[[nodiscard]]
 		Entity::Filter GetEntityFilter(Entity::Id entityId) {
@@ -161,8 +185,10 @@ namespace ECS {
 			OS::NotImplemented();
 		}
 
-	private:
+		DebugInfo debugInfo_;
 
+	private:
+		Common::Size framesCount_ = 0;
 		SystemsManager systemsManager_;
 		EntitiesManager entitiesManager_;
 		ComponentsManager componentsManager_;
