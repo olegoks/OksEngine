@@ -90,6 +90,11 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreateLoadGeometryDescriptionFileRequest>();
 				context_->GetECSWorld()->RunSystem<LoadGeometryDescriptionFile>();
 				context_->GetECSWorld()->RunSystem<CreateLoadMeshRequest>();
+				context_->GetECSWorld()->RunSystem<CreateLoadObjRequest>();
+				context_->GetECSWorld()->RunSystem<CreateLoadMtlRequest>();
+				context_->GetECSWorld()->RunSystem<CreateObj>();
+				context_->GetECSWorld()->RunSystem<CreateMtl>();
+				context_->GetECSWorld()->RunSystem<CreateModelEntityFromObjMtl>();
 				context_->GetECSWorld()->RunSystem<LoadMesh>();
 				context_->GetECSWorld()->RunSystem<CreateDriverModel>();
 				context_->GetECSWorld()->RunSystem<ResizeFrameBuffers>();

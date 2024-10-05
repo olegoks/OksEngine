@@ -6,14 +6,15 @@ namespace OksEngine {
 
 	class Texture : public ECSComponent<Texture> {
 	public:
-		std::string tag_ = "";
-		Geom::Texture::Id id_;
+
+		Texture(const std::string& name) : ECSComponent{ nullptr }, name_{ name } {}
+
+		std::string name_ = "";
 	};
 
 	template<>
 	inline void Edit<Texture>(Texture* texture) {
-		ImGui::TextDisabled("Tag: \"%s\"", texture->tag_.c_str());
-		ImGui::TextDisabled("Id: %d", texture->id_);
+		ImGui::TextDisabled("Tag: \"%s\"", texture->name_.c_str());
 	}
 
 	template<>

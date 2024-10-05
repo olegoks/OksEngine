@@ -20,4 +20,25 @@ namespace OksEngine {
 	void Add<ChildEntity>(ECS::World* world, ECS::Entity::Id id);
 
 
+	class ChildEntities : public ECSComponent<ChildEntities> {
+	public:
+
+		ChildEntities(const std::vector<ECS::Entity::Id>& entitiesIds) 
+			: ECSComponent{ nullptr },
+			entitiesIds_{ entitiesIds } {
+
+		}
+
+		std::vector<ECS::Entity::Id> entitiesIds_;
+	};
+
+	template<>
+	inline void Edit<ChildEntities>(ChildEntities* childEntity) {
+		ImGui::TextDisabled("Entities: ");
+		for (ECS::Entity::Id id : childEntity->entitiesIds_) {
+			ImGui::TextDisabled("%d", id);
+		}
+	}
+
+
 }

@@ -30,6 +30,11 @@ namespace OksEngine {
 		auto ecsWorld = context.GetECSWorld();
 		ecsWorld->RegisterSystem<CreateLoadGeometryDescriptionFileRequest>(context);
 		ecsWorld->RegisterSystem<CreateLoadMeshRequest>(context);
+		ecsWorld->RegisterSystem<CreateLoadObjRequest>(context);
+		ecsWorld->RegisterSystem<CreateLoadMtlRequest>(context);
+		ecsWorld->RegisterSystem<CreateObj>(context);
+		ecsWorld->RegisterSystem<CreateMtl>(context);
+		ecsWorld->RegisterSystem<CreateModelEntityFromObjMtl>(context);
 		ecsWorld->RegisterSystem<UpdateDriverCamera>(context);
 		ecsWorld->RegisterSystem<CreateDriverCamera>(context);
 		ecsWorld->RegisterSystem<CreateDriverModel>(context);

@@ -20,15 +20,23 @@ namespace OksEngine {
 
 	void CollectEntitiesInfo::Update(ECS::World* world, ECS::Entity::Id id, ECS::Entity::Id secondEntityId) {
 
+
+		ShowEntityInfo(world, id);
+
+		ImGui::ShowDemoWindow();
+	}
+
+	void CollectEntitiesInfo::ShowEntityInfo(ECS::World* world, ECS::Entity::Id id)
+	{
 		const std::string idString = std::to_string(id);
+
 		ImGui::PushID(idString.c_str());
+
 
 		if (ImGui::CollapsingHeader(("Id: " + idString).c_str())) {
 			ImGui::Indent(20.0f);
 			ECS::Entity::Filter entityFilter = world->GetEntityFilter(id);
-			ImGui::TextDisabled("Components:");
-			ImGui::TextDisabled("%s", entityFilter.IncludesToString().c_str());
-			auto editComponent = []<class ComponentType>(ECS::World * world, ECS::Entity::Id id) {
+			auto editComponent = [this]<class ComponentType>(ECS::World * world, ECS::Entity::Id id) {
 
 				bool isExist = world->IsComponentExist<ComponentType>(id);
 				if (ImGui::CollapsingHeader(ComponentType::GetName(), &isExist)) {
@@ -73,6 +81,36 @@ namespace OksEngine {
 			//editComponent.template operator() < StaticRigidBodyCustomMeshShape > (world, id);
 			/*Render*/
 			editComponent.template operator() < ImmutableRenderGeometry > (world, id);
+			editComponent.template operator() < LoadMtlRequest > (world, id);
+			editComponent.template operator() < LoadObjRequest > (world, id);
+			editComponent.template operator() < Mtl > (world, id);
+			editComponent.template operator() < Obj > (world, id);
+			editComponent.template operator() < ModelEntity > (world, id);
+			if (world->IsComponentExist<ModelEntity>(id)) {
+				auto modelEntity = world->GetComponent<ModelEntity>(id);
+				ImGui::Indent(20.0f);
+				ShowEntityInfo(world, modelEntity->id_);
+				ImGui::Unindent(20.0f);
+			}
+			editComponent.template operator() < Mesh2 > (world, id);
+			editComponent.template operator() < ChildEntities > (world, id);
+			if (world->IsComponentExist<ChildEntities>(id)) {
+				auto childEntity = world->GetComponent<ChildEntities>(id);
+				ImGui::Indent(20.0f);
+				for (ECS::Entity::Id id : childEntity->entitiesIds_) {
+					ShowEntityInfo(world, id);
+				}
+				ImGui::Unindent(20.0f);
+				
+			}
+			editComponent.template operator() < Vertices > (world, id);
+			editComponent.template operator() < Normals > (world, id);
+			editComponent.template operator() < Colors > (world, id);
+			editComponent.template operator() < UVs > (world, id);
+			editComponent.template operator() < Indices > (world, id);
+			editComponent.template operator() < Texture > (world, id);
+
+
 			editComponent.template operator() < GeometryFile > (world, id);
 			editComponent.template operator() < Camera > (world, id);
 			//editComponent.template operator() < PointLight > (world, id);
@@ -147,7 +185,6 @@ namespace OksEngine {
 		}
 		ImGui::Separator();
 		ImGui::PopID();
-		ImGui::ShowDemoWindow();
 	}
 
 	void CollectEntitiesInfo::AfterUpdate(ECS::World* world)

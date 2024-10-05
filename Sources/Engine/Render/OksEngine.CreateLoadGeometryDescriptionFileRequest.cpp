@@ -4,7 +4,7 @@
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
 #include <Render/OksEngine.LoadGeometryDescriptionFileRequest.hpp>
 #include <Render/OksEngine.GeometryFile.hpp>
-
+#include <Resources/OksEngine.LoadResourceRequest.hpp>
 
 namespace OksEngine {
 
@@ -12,7 +12,11 @@ namespace OksEngine {
 
 	void CreateLoadGeometryDescriptionFileRequest::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		auto* immutableRenderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
-		world->CreateComponent<LoadGeometryDescriptionFileRequest>(entityId, immutableRenderGeometry->meshTag_);
+		
+		const ECS::Entity::Id loadResourceEntity = world->CreateEntity();
+		world->CreateComponent<LoadResourceRequest>(loadResourceEntity, immutableRenderGeometry->meshTag_);
+
+		world->CreateComponent<LoadGeometryDescriptionFileRequest>(entityId, loadResourceEntity);
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLoadGeometryDescriptionFileRequest::GetFilter() const noexcept {
