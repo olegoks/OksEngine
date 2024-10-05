@@ -13,12 +13,18 @@ namespace PhysX {
 
 		World(const CreateInfo& createInfo);
 
-		virtual void AddRigidBody(std::shared_ptr<PAL::DynamicRigidBody> rigidBody) override;
-		virtual void AddStaticRigidBody(std::shared_ptr<PAL::StaticRigidBody> rigidBody) override;
+		virtual PAL::DynamicRigidBody::Id CreateDynamicRigidBody(const PAL::DynamicRigidBody::CreateInfo& drbCreateInfo) override;
+		virtual PAL::StaticRigidBody::Id CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& srbCreateInfo) override;
+
+		virtual void AddDynamicRigidBody(PAL::DynamicRigidBody::Id drbId) override;
+
+		virtual void AddStaticRigidBody(PAL::StaticRigidBody::Id srbId) override;
+
 		virtual void Simulate(float ms) override;
 
 	private:
 		physx::PxScene* scene_ = nullptr;
+		physx::PxPhysics* physics_ = nullptr;
 	};
 
 }

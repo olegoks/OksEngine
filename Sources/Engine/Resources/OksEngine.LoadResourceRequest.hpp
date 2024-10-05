@@ -44,7 +44,7 @@ namespace OksEngine {
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<LoadResourceRequest>(), ECS::Entity::Filter{}.Exclude<Resource>() };
+			return { ECS::Entity::Filter{}.Include<LoadResourceRequest>().Exclude<Resource>(), ECS::Entity::Filter{}.Exclude<Resource>()};
 		}
 
 	private:

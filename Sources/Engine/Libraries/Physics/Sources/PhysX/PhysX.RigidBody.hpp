@@ -23,16 +23,16 @@ namespace PhysX {
 
 		DynamicRigidBody(const CreateInfo& createInfo) : PAL::DynamicRigidBody{ createInfo.palCreateInfo_ }{
 
-			physx::PxMat44 pxMatrix = convertToPxMat44(createInfo.palCreateInfo_.transform_);
+			physx::PxMat44 pxMatrix = convertToPxMat44(createInfo.palCreateInfo_.rbCreateInfo_.transform_);
 			physx::PxTransform t{ pxMatrix };
-			auto shape = std::static_pointer_cast<PhysX::Shape>(createInfo.palCreateInfo_.shape_);
+			auto shape = std::static_pointer_cast<PhysX::Shape>(createInfo.palCreateInfo_.rbCreateInfo_.shape_);
 			body_ = createInfo.physics_->createRigidDynamic(t);
 			OS::AssertMessage(body_ != nullptr,
 				"Error while creating rigid body.");
 			body_->attachShape(*shape->GetPxShape());
 			body_->setLinearDamping(createInfo.palCreateInfo_.linearDamping_);
 			body_->setAngularDamping(createInfo.palCreateInfo_.angularDamping_);
-			body_->setName(createInfo.palCreateInfo_.name_.c_str());
+			body_->setName(createInfo.palCreateInfo_.rbCreateInfo_.name_.c_str());
 			body_->setMass(createInfo.palCreateInfo_.mass_);
 			//physx::PxRigidBodyExt::updateMassAndInertia(*body_, createInfo.palCreateInfo_.mass_);
 		}
@@ -77,8 +77,6 @@ namespace PhysX {
 
 
 	private:
-		physx::PxMaterial* material_ = nullptr;
-		physx::PxShape* shape_ = nullptr;
 		physx::PxRigidDynamic* body_ = nullptr;
 
 	};
@@ -94,20 +92,27 @@ namespace PhysX {
 
 		StaticRigidBody(const CreateInfo& createInfo) : PAL::StaticRigidBody{ createInfo.palCreateInfo_ }{
 
-			physx::PxMat44 pxMatrix = convertToPxMat44(createInfo.palCreateInfo_.transform_);
+			physx::PxMat44 pxMatrix = convertToPxMat44(createInfo.palCreateInfo_.rbCreateInfo_.transform_);
 			physx::PxTransform t{ pxMatrix };
-			auto shape = std::static_pointer_cast<PhysX::Shape>(createInfo.palCreateInfo_.shape_);
+			auto shape = std::static_pointer_cast<PhysX::Shape>(createInfo.palCreateInfo_.rbCreateInfo_.shape_);
 			body_ = createInfo.physics_->createRigidStatic(t);
 			OS::AssertMessage(body_ != nullptr,
 				"Error while creating rigid body.");
 			body_->attachShape(*shape->GetPxShape());
-			body_->setName(createInfo.palCreateInfo_.name_.c_str());
+			body_->setName(createInfo.palCreateInfo_.rbCreateInfo_.name_.c_str());
 		}
 
 		[[nodiscard]]
 		physx::PxRigidStatic* GetBody() {
 			OS::Assert(body_ != nullptr);
 			return body_;
+		}
+
+		virtual void SetTransform(const glm::mat4& transform) override {
+
+			const physx::PxMat44 pxMatrix = convertToPxMat44(transform);
+			const physx::PxTransform pxTransform{ pxMatrix };
+			GetBody()->setGlobalPose(pxTransform);
 		}
 
 		virtual const glm::mat4 GetTransform() override {
@@ -118,6 +123,7 @@ namespace PhysX {
 			glm::mat4 glmMatrix = convertToGlmMat4(pxMatrix);
 			return glmMatrix;
 		}
+
 
 	private:
 		physx::PxMaterial* material_ = nullptr;

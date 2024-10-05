@@ -6,17 +6,10 @@
 
 namespace OksEngine {
 
-	//class StaticRigidBodyCustomMeshShape : public StaticRigidBody<StaticRigidBodyCustomMeshShape> {
-	//public:
-
-	//	StaticRigidBodyCustomMeshShape() : StaticRigidBody{ } {}
-
-	//	StaticRigidBodyCustomMeshShape(
-	//		const Material& material) :
-	//		StaticRigidBody{
-	//			material
-	//		} {}
-	//};
+	class StaticRigidBodyCustomMeshShape : public ECSComponent<StaticRigidBodyCustomMeshShape> {
+	public:
+		StaticRigidBodyCustomMeshShape() : ECSComponent{ nullptr } {}
+	};
 
 
 

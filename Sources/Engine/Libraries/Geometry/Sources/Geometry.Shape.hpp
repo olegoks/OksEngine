@@ -16,6 +16,11 @@ namespace Geometry {
 
 		Shape() noexcept = default;
 
+		Shape(const VertexCloud<Vertex3f>& vertices,
+			const IndexBuffer<Index16>& indices) noexcept :
+			vertices_{ vertices },
+			indices_{ indices } { }
+
 		Shape(  const VertexCloud<Vertex3f>&		vertices,
 				const DS::Vector<Normal3f>			normals,
 				const DS::Vector<UV2f>				uvs,

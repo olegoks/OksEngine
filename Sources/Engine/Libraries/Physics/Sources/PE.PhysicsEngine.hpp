@@ -18,7 +18,7 @@ namespace PE {
 
 		}
 		
-		//[[nodiscard]]
+		[[nodiscard]]
 		auto CreateWorld(const PAL::World::CreateInfo& createInfo) {
 			return world_ = api_->CreateWorld(createInfo);
 		}
@@ -29,35 +29,40 @@ namespace PE {
 		}
 
 		[[nodiscard]]
-		auto CreateRigidBody(const PAL::DynamicRigidBody::CreateInfo& createInfo) {
-			return api_->CreateRigidBody(createInfo);
+		auto GetAPI() noexcept {
+			return api_;
 		}
 
-		[[nodiscard]]
-		auto CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& createInfo) {
-			return api_->CreateStaticRigidBody(createInfo);
-		}
+		//[[nodiscard]]
+		//auto CreateRigidBody(const PAL::DynamicRigidBody::CreateInfo& createInfo) {
+		//	return api_->CreateRigidBody(createInfo);
+		//}
 
-		[[nodiscard]]
-		auto CreateShape(const PAL::Shape::CreateInfoBox& createInfo) {
-			return api_->CreateShape(createInfo);
-		}
+		//[[nodiscard]]
+		//auto CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& createInfo) {
+		//	return api_->CreateStaticRigidBody(createInfo);
+		//}
 
-		[[nodiscard]]
-		auto CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo) {
-			return api_->CreateShape(createInfo);
-		}
+		//[[nodiscard]]
+		//auto CreateShape(const PAL::Shape::CreateInfoBox& createInfo) {
+		//	return api_->CreateShape(createInfo);
+		//}
 
-		[[nodiscard]]
-		auto CreateShape(const PAL::Shape::CreateInfoMesh& createInfo) {
-			return api_->CreateShape(createInfo);
-		}
+		//[[nodiscard]]
+		//auto CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo) {
+		//	return api_->CreateShape(createInfo);
+		//}
+
+		//[[nodiscard]]
+		//auto CreateShape(const PAL::Shape::CreateInfoMesh& createInfo) {
+		//	return api_->CreateShape(createInfo);
+		//}
 
 
-		void Simulate(float elapsedTime) {
-			GetWorld()->Simulate(elapsedTime);
-			//OS::LogInfo("physics", { "Simulation time {}", elapsedTime });
-		}
+		//void Simulate(float elapsedTime) {
+		//	GetWorld()->Simulate(elapsedTime);
+		//	//OS::LogInfo("physics", { "Simulation time {}", elapsedTime });
+		//}
 
 
 	private:

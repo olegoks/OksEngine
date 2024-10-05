@@ -19,6 +19,11 @@ namespace Common {
 	using UInt32 = std::uint32_t;
 	using UInt64 = std::uint64_t;
 
+	using Int8 = std::int8_t;
+	using Int16 = std::int16_t;
+	using Int32 = std::int32_t;
+	using Int64 = std::int64_t;
+
 	constexpr static Common::Size cacheLineSize_ = 64;
 	constexpr static Common::Size pointerSize = sizeof(void*);
 

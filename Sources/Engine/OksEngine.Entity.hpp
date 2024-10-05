@@ -17,6 +17,7 @@ namespace OksEngine {
 			world_{ world },
 			id_{ id } { }
 
+		void AddName(const std::string& name);
 		void AddDebugInfo(const std::string& name);
 
 		void AddImmutableRenderGeometry(const std::string& tag);
@@ -41,10 +42,7 @@ namespace OksEngine {
 
 		void AddMapRigidBodyToRenderGeometry();
 
-		void AddStaticRigidBodyCustomMeshShape(
-			float staticFriction,
-			float dynamicFriction,
-			float restitution);
+		void AddStaticRigidBodyCustomMeshShape();
 
 		void AddDynamicRigidBodyCustomMeshShape();
 		void AddMass(float mass);

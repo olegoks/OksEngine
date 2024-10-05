@@ -21,6 +21,8 @@ namespace ECS {
 
 				struct SystemCallInfo {
 					std::string name_;
+					Entity::Id firstEntityId_;
+					Entity::Id secondEntityId_;
 					std::vector<std::string> componentsNames_;
 				};
 				Common::Index index_ = 0;
@@ -36,6 +38,10 @@ namespace ECS {
 			Entity::Id entityId = entitiesManager_.CreateEntity();
 
 			return entityId;
+		}
+
+		void DestroyEntity(Entity::Id id) noexcept {
+			entitiesManager_.DestroyEntity(id);
 		}
 
 		template<class ComponentType, class ...Args>
@@ -135,11 +141,29 @@ namespace ECS {
 							const auto systemFilter = system->GetFilter();
 							const Entity::Filter entityFilter = componentsManager_.GetEntityFilter(entity.GetId());
 							if (systemFilter.first.Matches(entityFilter)) {
+
+								const std::string systemName = system->GetName();
+								{
+
+									std::vector<std::string> componentsNames;
+									componentsNames.reserve(systemFilter.first.debugInfo_.idName_.size());
+									for (auto& [componentId, componentMame] : systemFilter.first.debugInfo_.idName_) {
+										componentsNames.push_back(componentMame);
+									}
+									DebugInfo::FrameInfo::SystemCallInfo systemCallInfo{
+										.name_ = systemName,
+										.firstEntityId_ = entity.GetId(),
+										.secondEntityId_ = Entity::Id::invalid_,
+										.componentsNames_ = componentsNames
+									};
+									debugInfo_.framesInfos_.back().systemsCallsInfos_.push_back(systemCallInfo);
+								}
+								
 								system->Update(this, entity.GetId(), Entity::Id::invalid_);
 							}
 						});
 				} else {
-					// One entity system.
+					// Two entity system.
 					entitiesManager_.ForEachEntity(
 						[this, &system](Entity& firstEntity) {
 							const auto systemFilter = system->GetFilter();
@@ -150,6 +174,22 @@ namespace ECS {
 										const auto systemFilter = system->GetFilter();
 										const Entity::Filter secondEntityFilter = componentsManager_.GetEntityFilter(secondEntity.GetId());
 										if (systemFilter.second.Matches(secondEntityFilter)) {
+
+											const std::string systemName = system->GetName();
+											{
+												std::vector<std::string> componentsNames;
+												componentsNames.reserve(systemFilter.first.debugInfo_.idName_.size());
+												for (auto& [componentId, componentMame] : systemFilter.first.debugInfo_.idName_) {
+													componentsNames.push_back(componentMame);
+												}
+												DebugInfo::FrameInfo::SystemCallInfo systemCallInfo{
+													.name_ = systemName,
+													.firstEntityId_ = firstEntity.GetId(),
+													.secondEntityId_ = secondEntity.GetId(),
+													.componentsNames_ = componentsNames
+												};
+												debugInfo_.framesInfos_.back().systemsCallsInfos_.push_back(systemCallInfo);
+											}
 											system->Update(this, firstEntity.GetId(), secondEntity.GetId());
 										}
 									});
@@ -162,11 +202,6 @@ namespace ECS {
 			system->AfterUpdate(this);
 
 
-			const std::string systemName = system->GetName();
-			DebugInfo::FrameInfo::SystemCallInfo systemCallInfo{
-				.name_ = systemName
-			};
-			debugInfo_.framesInfos_.back().systemsCallsInfos_.push_back(systemCallInfo);
 
 		}
 

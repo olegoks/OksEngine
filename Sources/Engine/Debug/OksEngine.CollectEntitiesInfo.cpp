@@ -66,6 +66,7 @@ namespace OksEngine {
 			//editComponent.template operator() < > (world, id);
 			//editComponent.template operator() < DynamicRigidBodyBox > (world, id);
 			editComponent.template operator() < DynamicRigidBodyCustomMeshShape > (world, id);
+			editComponent.template operator() < PhysicsShape > (world, id);
 			editComponent.template operator() < Material > (world, id);
 			editComponent.template operator() < Mass > (world, id);
 			editComponent.template operator() < DynamicRigidBody > (world, id);
