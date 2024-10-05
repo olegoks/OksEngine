@@ -41,7 +41,7 @@ namespace OksEngine {
 				}
 			}
 		}
-		if (geomFile->mesh_["Fbx"]) {
+	/*	if (geomFile->mesh_["Fbx"]) {
 
 			const std::string fbxName = geomFile->mesh_["Fbx"].as<std::string>();
 			const ECS::Entity::Id loadFbxResourceEntityId = world->CreateEntity();
@@ -67,7 +67,7 @@ namespace OksEngine {
 					meshType = LoadMeshRequest::Type::OBJ_MTL_TEXTURES;
 				}
 			}
-		}
+		}*/
 		OS::AssertMessage(meshType != LoadMeshRequest::Type::Undefined, { "Maybe %s contains incorrect data!", geomFile->geomName_.c_str() });
 		const std::string name = geomFile->mesh_["Name"].as<std::string>();
 		world->CreateComponent<LoadMeshRequest>(entityId, name, resourceEntityId_, meshType);

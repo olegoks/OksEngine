@@ -7,3 +7,13 @@
 #include <Render/OksEngine.DriverModel.hpp>
 #include <Render/OksEngine.GeometryFile.hpp>
 #include <Render/OksEngine.Mesh.hpp>
+#include <Render/OksEngine.CreateLoadObjRequest.hpp>
+#include <Render/OksEngine.CreateLoadMtlRequest.hpp>
+#include <Render/OksEngine.Obj.hpp>
+#include <Render/OksEngine.Mtl.hpp>
+#include <Render/OksEngine.LoadObjRequest.hpp>
+#include <Render/OksEngine.LoadMtlRequest.hpp>
+#include <Render/OksEngine.Model.hpp>
+#include <Render/OksEngine.ModelEntity.hpp>
+#include <Render/OksEngine.Model.hpp>
+#include <Render/OksEngine.Texture.hpp>

@@ -11,16 +11,13 @@ namespace OksEngine {
 	void LoadGeometryDescriptionFile::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		auto* request = world->GetComponent<LoadGeometryDescriptionFileRequest>(entityId);
 		using namespace std::string_literals;
-		const std::string& geomFilePath = "Root\\"s + request->geomFileName_;
-		if (request->resourceTaskEntityId_.IsInvalid()) {
-			request->resourceTaskEntityId_ = world->CreateEntity();
-			world->CreateComponent<LoadResourceRequest>(request->resourceTaskEntityId_, request->geomFileName_);
-		}
-		else {
-			if (world->IsComponentExist<Resource>(request->resourceTaskEntityId_)) {
-				const auto* resource = world->GetComponent<Resource>(request->resourceTaskEntityId_);
-				world->CreateComponent<GeometryFile>(entityId, request->geomFileName_, resource->resourceData_);
-			}
+
+		OS::Assert(!request->resourceTaskEntityId_.IsInvalid());
+		
+		//Waitting for loading resource.
+		if (world->IsComponentExist<Resource>(request->resourceTaskEntityId_)) {
+			const auto* resource = world->GetComponent<Resource>(request->resourceTaskEntityId_);
+			world->CreateComponent<GeometryFile>(entityId, resource->name_, resource->resourceData_);
 		}
 	}
 
