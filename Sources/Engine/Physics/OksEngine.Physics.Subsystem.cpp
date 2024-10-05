@@ -17,73 +17,52 @@ namespace OksEngine {
 
 		auto& context = GetContext();
 		auto ecsWorld = context.GetECSWorld();
-		ecsWorld->RegisterSystem<CreatePhysicsShape>(context);
+
+		ecsWorld->RegisterSystem<CreateStaticRigidBody>(context);
+		ecsWorld->RegisterSystem<CreatePhysicsShapeForStaticRigidBody>(context);
+		ecsWorld->RegisterSystem<CreatePhysicsShapeForDynamicRigidBody>(context);
 		ecsWorld->RegisterSystem<CreateDynamicRigidBody>(context);
+		 
 
 		physicsEngine_ = std::make_shared<PE::PhysicsEngine>();
 		PAL::World::CreateInfo worldCreateInfo{
 			.gravity_ = { 0.0, -9.81, 0.0 }
 		};
-		physicsEngine_->CreateWorld(worldCreateInfo);
+		world_ = physicsEngine_->GetAPI()->CreateWorld(worldCreateInfo);
 	}
 
-	Common::Index PhysicsSubsystem::CreateRigidBody(const PAL::DynamicRigidBody::CreateInfo& createInfo) {
-		auto rigidBody = physicsEngine_->CreateRigidBody(createInfo);
-		rigidBodies_.push_back(rigidBody);
-		return rigidBodies_.size() - 1;
-	}
 
-	Common::Index PhysicsSubsystem::CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& createInfo) {
-		auto rigidBody = physicsEngine_->CreateStaticRigidBody(createInfo);
-		staticRigidBodies_.push_back(rigidBody);
-		return staticRigidBodies_.size() - 1;
-	}
 
 	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfoBox& createInfo) {
-		auto shape = physicsEngine_->CreateShape(createInfo);
+		auto shape = physicsEngine_->GetAPI()->CreateShape(createInfo);
 		return shape;
 	}
 	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfoCapsule& createInfo) {
-		auto shape = physicsEngine_->CreateShape(createInfo);
+		auto shape = physicsEngine_->GetAPI()->CreateShape(createInfo);
 		return shape;
 	}
 
 	std::shared_ptr<PAL::Shape> PhysicsSubsystem::CreateShape(const PAL::Shape::CreateInfoMesh& createInfo) {
-		auto shape = physicsEngine_->CreateShape(createInfo);
+		auto shape = physicsEngine_->GetAPI()->CreateShape(createInfo);
 		return shape;
 	}
+	//void PhysicsSubsystem::AddRigidBodyToWorld(PAL::DynamicRigidBody::Id rbIndex) {
+	//	physicsEngine_->GetWorld()->AddRigidBody(rbIndex);
+	//}
 
-	void PhysicsSubsystem::AddRigidBodyToWorld(Common::Index rbIndex) {
-		physicsEngine_->GetWorld()->AddRigidBody(rigidBodies_[rbIndex]);
-	}
+	//void PhysicsSubsystem::AddStaticRigidBodyToWorld(PAL::StaticRigidBody::Id rbIndex) {
+	//	physicsEngine_->GetWorld()->AddStaticRigidBody(rbIndex);
+	//}
 
-	void PhysicsSubsystem::AddStaticRigidBodyToWorld(Common::Index rbIndex) {
-		physicsEngine_->GetWorld()->AddStaticRigidBody(staticRigidBodies_[rbIndex]);
-	}
+	//void PhysicsSubsystem::ApplyForce(Common::Index rbIndex, const glm::vec3& direction, float force) {
+	//	physicsEngine_->GetWorld()->ApplyForce(rbIndex, direction, force);
+	//}
 
-	void PhysicsSubsystem::ApplyForce(Common::Index rbIndex, const glm::vec3& direction, float force) {
-		rigidBodies_[rbIndex]->ApplyForce(direction, force);
-	}
-
-	void PhysicsSubsystem::SetVelocity(Common::Index rbIndex, const glm::vec3& direction, float velocity) {
-		rigidBodies_[rbIndex]->SetVelocity(direction, velocity);
-	}
-
-	[[nodiscard]]
-	std::shared_ptr<Geom::Model<Geom::Vertex3f>> PhysicsSubsystem::GetGeom(const std::string& geomName) {
-
-		//auto& context = GetContext();
-		//auto resourceSubsystem = context.GetResourceSubsystem();
+	//void PhysicsSubsystem::SetVelocity(Common::Index rbIndex, const glm::vec3& direction, float velocity) {
+	//	physicsEngine_->GetWorld()->SetVelocity(rbIndex, direction, velocity);
+	//}
 
 
-		//const auto blockModelObjTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/" + geomName + ".obj");
-		//ResourceSubsystem::Resource modelCubeObjResource = resourceSubsystem->GetResource(Subsystem::Type::Physics, blockModelObjTaskId);
-
-		//std::string obj{ modelCubeObjResource.GetData<char>(), modelCubeObjResource.GetSize() };
-		//auto geom = std::make_shared<Geom::Model<Geom::Vertex3f, Geom::Index16>>(Geometry::ParseObjVertex3fIndex16(obj));
-		//return geom;
-		return nullptr;
-	}
 
 	void PhysicsSubsystem::Update() noexcept {
 		using namespace std::chrono_literals;
@@ -95,7 +74,7 @@ namespace OksEngine {
 		auto toSimulate = delta + remainder;
 
 		while (toSimulate >= simulationGranularity) {
-			physicsEngine_->Simulate(simulationGranularity.count() / 1000.f);
+			GetWorld()->Simulate(simulationGranularity.count() / 1000.f);
 			toSimulate -= simulationGranularity;
 		}
 		remainder = toSimulate;

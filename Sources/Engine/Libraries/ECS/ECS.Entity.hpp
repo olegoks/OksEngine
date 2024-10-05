@@ -22,12 +22,20 @@ namespace ECS {
 		class Filter {
 		public:
 
+			class DebugInfo {
+			public:
+				std::map<ComponentTypeId, std::string> idName_;
+			};
+
+			DebugInfo debugInfo_;
+
 			template<class ComponentType>
 			Filter& Include() {
 				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				const ComponentTypeId typeId = ComponentType::GetTypeId();
 				includes_.set(typeId);
 				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				debugInfo_.idName_[typeId] = ComponentType::GetName();
 				return *this;
 			}
 
@@ -36,6 +44,7 @@ namespace ECS {
 				OS::AssertMessage(IsValid(), "Invalid filter state.");
 				includes_.reset(ComponentType::GetTypeId());
 				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				debugInfo_.idName_.erase(ComponentType::GetTypeId());
 				return *this;
 			}
 
@@ -121,6 +130,7 @@ namespace ECS {
 			}
 
 		private:
+
 			std::bitset<256> includes_;
 			std::bitset<256> excludes_;
 		};

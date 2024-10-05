@@ -61,7 +61,7 @@ namespace OksEngine
 		world_->RegisterSystem<CallUpdateMethod>(*this);
 		world_->RegisterSystem<CallInputProcessor>(*this);
 		world_->RegisterSystem<RigidBodyToRenderGeometryMapper>(*this);
-		world_->RegisterSystem <CreatePhysicsShape>(*this);
+		world_->RegisterSystem <CreatePhysicsShapeForDynamicRigidBody>(*this);
 		world_->RegisterSystem <CreateDynamicRigidBody>(*this);
 		//world_b->RegisterSystem<AttachCameraSystem>(*this);
 

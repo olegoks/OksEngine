@@ -66,8 +66,10 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreateLuaContext>();
 				context_->GetECSWorld()->RunSystem<CallUpdateMethod>();
 				context_->GetECSWorld()->RunSystem<CallInputProcessor>();
-				context_->GetECSWorld()->RunSystem<CreatePhysicsShape>();
+				context_->GetECSWorld()->RunSystem<CreatePhysicsShapeForDynamicRigidBody>();
+				context_->GetECSWorld()->RunSystem<CreatePhysicsShapeForStaticRigidBody>();
 				context_->GetECSWorld()->RunSystem<CreateDynamicRigidBody>();
+				context_->GetECSWorld()->RunSystem<CreateStaticRigidBody>();
 				context_->GetECSWorld()->RunSystem<RigidBodyToRenderGeometryMapper>();
 				context_->GetECSWorld()->RunSystem<CreateDriverCamera>();
 				context_->GetECSWorld()->RunSystem<UpdateDriverCamera>();

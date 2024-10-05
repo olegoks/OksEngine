@@ -5,6 +5,8 @@
 
 #include "OksEngine.CollectECSSystemsCallsInfo.hpp"
 
+#include <Debug/OksEngine.ImGuiState.hpp>
+
 namespace OksEngine {
 
 	void CollectECSSystemsCallsInfo::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
@@ -33,7 +35,22 @@ namespace OksEngine {
 			if (ImGui::CollapsingHeader((std::string{ "Frame " } + std::to_string(frameInfo.index_)).c_str())) {
 				ImGui::Indent(20.0f);
 				for (const ECS::World::DebugInfo::FrameInfo::SystemCallInfo systemCallInfo : frameInfo.systemsCallsInfos_) {
-					if (ImGui::CollapsingHeader(systemCallInfo.name_.c_str())) {}
+
+					if (systemCallInfo.secondEntityId_.IsInvalid()) {
+						if (ImGui::CollapsingHeader((systemCallInfo.name_ + " EntityId: " + std::to_string(systemCallInfo.firstEntityId_)).c_str())) {
+							for (auto& component : systemCallInfo.componentsNames_) {
+								ImGui::TextDisabled(component.c_str());
+							}
+						}
+					}
+					else {
+						if (ImGui::CollapsingHeader((systemCallInfo.name_ + " First EntityId: " + std::to_string(systemCallInfo.firstEntityId_) + " Second EntityId: " + std::to_string(systemCallInfo.secondEntityId_)).c_str())) {
+							for (auto& component : systemCallInfo.componentsNames_) {
+								ImGui::TextDisabled(component.c_str());
+							}
+						
+						}
+					}
 				}
 				ImGui::Unindent(20.0f);
 			}
@@ -45,7 +62,7 @@ namespace OksEngine {
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CollectECSSystemsCallsInfo::GetFilter() const noexcept
 	{
-		return { ECS::Entity::Filter{}, ECS::Entity::Filter{}.ExcludeAll() };
+		return { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.ExcludeAll()};
 	}
 
 	Common::TypeId CollectECSSystemsCallsInfo::GetTypeId() const noexcept

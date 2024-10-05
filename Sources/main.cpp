@@ -30,12 +30,39 @@ int main(int argc, char** argv) {
     camera.AddCamera({ 1, 0, 0 }, { 0, 1, 0, }, true);
     camera.AddBehaviour("Camera.lua", "Camera");
 
-    Entity dragonLore = engine.CreateEntity();
-    dragonLore.AddPosition(0, 0, 0);
-    dragonLore.AddImmutableRenderGeometry("de_dust2.geom");
-    dragonLore.AddDynamicRigidBodyCustomMeshShape();
-    dragonLore.AddMass(30);
-    dragonLore.AddMaterial(0.1, 0.1, 0.1);
+    Common::Size terrainWidth = 10;
+    Common::Size terrainLength = 10;
+    //std::vector<Entity> terrainCells;
+    //for (Common::Int64 x = -2; x < 2; x++) {
+    //    for (Common::Int64 z = -2; z < 2; z++) {
+
+            Entity terrain = engine.CreateEntity();
+            terrain.AddName("Terrain");
+            terrain.AddPosition(/*x * 20.0f*/0, 0, /*z * 20.0f*/ 0);
+            terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom");
+            terrain.AddStaticRigidBodyCustomMeshShape();
+            terrain.AddMaterial(0.1, 0.1, 0.1);
+            //terrainCells.push_back(terrain);
+      //  }
+    //}
+      //  }
+    //}
+            //{
+            //    Entity terrain1 = engine.CreateEntity();
+            //    terrain1.AddName("Terrain");
+            //    terrain1.AddPosition(/*x **/ 0.f, 0, /*z **/ 0.f);
+            //    terrain1.AddImmutableRenderGeometry("Terrain.geom");
+            //    terrain1.AddStaticRigidBodyCustomMeshShape();
+            //    terrain1.AddMaterial(0.1, 0.1, 0.1);
+            //    terrainCells.push_back(terrain1);
+            //}
+    //Entity dragonLore = engine.CreateEntity();
+    //dragonLore.AddName("DragonLore");
+    //dragonLore.AddPosition(0, 10, 0);
+    //dragonLore.AddImmutableRenderGeometry("GrassBlock.geom");
+    //dragonLore.AddDynamicRigidBodyCustomMeshShape();
+    //dragonLore.AddMass(30);
+    //dragonLore.AddMaterial(0.1, 0.1, 0.1);
 
     //entity.AddImmutableRenderGeometry("dragon_lore.geom");
 

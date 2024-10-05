@@ -1,23 +1,19 @@
 #pragma once
 
 #include <OksEngine.ECS.Component.hpp>
-#include <Geometry.Shapes.hpp>
-#include <Physics/OksEngine.DynamicRigidBody.hpp>
+#include <PAL.RigidBody.hpp>
 
 namespace OksEngine {
 
-	//template<class RigidBodyType>
-	//struct StaticRigidBody : public ECSComponent<RigidBodyType> {
-	//	Common::Index id_ = Common::Limits<Common::Index>::Max();
-	//	Material material_{ 0.5, 0.5f, 0.5f };
+	struct StaticRigidBody : public ECSComponent<StaticRigidBody> {
 
-	//	StaticRigidBody() : ECSComponent<RigidBodyType>{ nullptr } { }
+		StaticRigidBody() : ECSComponent{ nullptr } { }
 
-	//	StaticRigidBody(
-	//		const Material& material
-	//	) :
-	//		ECSComponent<RigidBodyType>{ nullptr },
-	//		material_{ material } { }
-	//};
+		StaticRigidBody(PAL::StaticRigidBody::Id id) :
+			ECSComponent{ nullptr }, id_{ id } { }
+
+		PAL::StaticRigidBody::Id id_;
+
+	};
 
 }

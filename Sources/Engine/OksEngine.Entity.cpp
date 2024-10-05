@@ -3,7 +3,11 @@
 #include <OksEngine.Components.hpp>
 
 namespace OksEngine {
-
+	void Entity::AddName(const std::string& name) {
+		world_->CreateComponent<Name>(
+			GetId(),
+			name);
+	}
 	void Entity::AddDebugInfo(const std::string& name) {
 		world_->CreateComponent<DebugInfo>(
 			GetId(),
@@ -32,17 +36,9 @@ namespace OksEngine {
 			&context_);
 	}
 
-	void Entity::AddStaticRigidBodyCustomMeshShape(
-		float staticFriction,
-		float dynamicFriction,
-		float restitution) {
-		//world_->CreateComponent<StaticRigidBodyCustomMeshShape>(
-		//	GetId(),
-		//	Material{
-		//		staticFriction,
-		//		dynamicFriction,
-		//		restitution
-		//	});
+	void Entity::AddStaticRigidBodyCustomMeshShape() {
+		world_->CreateComponent<StaticRigidBodyCustomMeshShape>(
+			GetId());
 	}
 
 	void Entity::AddDynamicRigidBodyCustomMeshShape() {
