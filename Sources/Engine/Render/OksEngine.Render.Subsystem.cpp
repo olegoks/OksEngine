@@ -34,6 +34,9 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<CreateLoadMtlRequest>(context);
 		ecsWorld->RegisterSystem<CreateObj>(context);
 		ecsWorld->RegisterSystem<CreateMtl>(context);
+		ecsWorld->RegisterSystem < CreateTexture>(context);
+		ecsWorld->RegisterSystem < CreateDriverTexture>(context);
+		ecsWorld->RegisterSystem < AddMeshToRender>(context);
 		ecsWorld->RegisterSystem<CreateModelEntityFromObjMtl>(context);
 		ecsWorld->RegisterSystem<UpdateDriverCamera>(context);
 		ecsWorld->RegisterSystem<CreateDriverCamera>(context);
@@ -42,6 +45,7 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<MapMeshTransform>(context);
 		ecsWorld->RegisterSystem<LoadGeometryDescriptionFile>(context);
 		ecsWorld->RegisterSystem<LoadMesh>(context);
+		ecsWorld->RegisterSystem<CreateLoadTextureRequest>(context);
 		auto uiSubsystem = context.GetUISubsystem();
 		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);
 		RAL::RenderSurface renderSurface;

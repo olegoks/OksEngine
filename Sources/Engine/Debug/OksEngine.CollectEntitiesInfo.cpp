@@ -83,6 +83,7 @@ namespace OksEngine {
 			editComponent.template operator() < ImmutableRenderGeometry > (world, id);
 			editComponent.template operator() < LoadMtlRequest > (world, id);
 			editComponent.template operator() < LoadObjRequest > (world, id);
+			editComponent.template operator() < LoadTextureRequest > (world, id);
 			editComponent.template operator() < Mtl > (world, id);
 			editComponent.template operator() < Obj > (world, id);
 			editComponent.template operator() < ModelEntity > (world, id);
@@ -108,8 +109,10 @@ namespace OksEngine {
 			editComponent.template operator() < Colors > (world, id);
 			editComponent.template operator() < UVs > (world, id);
 			editComponent.template operator() < Indices > (world, id);
+			editComponent.template operator() < TextureInfo > (world, id);
 			editComponent.template operator() < Texture > (world, id);
-
+			editComponent.template operator() < DriverTexture > (world, id);
+			editComponent.template operator() < DriverMesh > (world, id);
 
 			editComponent.template operator() < GeometryFile > (world, id);
 			editComponent.template operator() < Camera > (world, id);

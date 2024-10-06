@@ -96,12 +96,9 @@ end
 CameraInputProcessor = {}
 
 function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
-    --print("ProcessInput Camera:")
-    --print(Camera)
     if Key == "W" then
         if Event == "Pressed" then
             Camera.MovingForward = true
-            print("ProcessInput Forward")
         elseif Event == "Released" then
             Camera.MovingForward = false
         end

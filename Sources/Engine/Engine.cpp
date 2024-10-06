@@ -51,7 +51,7 @@ namespace OksEngine {
 
 				context_->GetECSWorld()->RunSystem<LoadResourceSystem>();
 				/*UI*/
-				context_->GetECSWorld()->RunSystem<GetWindowKeyboardInputEvents>();	
+				context_->GetECSWorld()->RunSystem<GetWindowKeyboardInputEvents>();
 				context_->GetECSWorld()->RunSystem<GetWindowFramebufferResizedEvents>();
 				context_->GetECSWorld()->RunSystem<GetWindowMouseInputEvents>();
 				context_->GetECSWorld()->RunSystem<UISystem>();
@@ -60,7 +60,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CleanWindowKeyboardInputEvents>();
 				context_->GetECSWorld()->RunSystem<SendWindowMouseInputEvents>();
 				context_->GetECSWorld()->RunSystem<CleanWindowMouseInputEvents>();
-				
+
 				/*Behaviour*/
 				context_->GetECSWorld()->RunSystem<LoadLuaScript>();
 				context_->GetECSWorld()->RunSystem<CreateLuaContext>();
@@ -89,14 +89,21 @@ namespace OksEngine {
 				/*Render*/
 				context_->GetECSWorld()->RunSystem<CreateLoadGeometryDescriptionFileRequest>();
 				context_->GetECSWorld()->RunSystem<LoadGeometryDescriptionFile>();
-				context_->GetECSWorld()->RunSystem<CreateLoadMeshRequest>();
+				//context_->GetECSWorld()->RunSystem<CreateLoadMeshRequest>();
 				context_->GetECSWorld()->RunSystem<CreateLoadObjRequest>();
 				context_->GetECSWorld()->RunSystem<CreateLoadMtlRequest>();
+
 				context_->GetECSWorld()->RunSystem<CreateObj>();
 				context_->GetECSWorld()->RunSystem<CreateMtl>();
 				context_->GetECSWorld()->RunSystem<CreateModelEntityFromObjMtl>();
-				context_->GetECSWorld()->RunSystem<LoadMesh>();
-				context_->GetECSWorld()->RunSystem<CreateDriverModel>();
+
+				//context_->GetECSWorld()->RunSystem<LoadMesh>();
+				//context_->GetECSWorld()->RunSystem<CreateDriverModel>();
+
+				context_->GetECSWorld()->RunSystem < CreateLoadTextureRequest>();
+				context_->GetECSWorld()->RunSystem<CreateTexture>();
+				context_->GetECSWorld()->RunSystem<CreateDriverTexture>();
+				context_->GetECSWorld()->RunSystem<AddMeshToRender>();
 				context_->GetECSWorld()->RunSystem<ResizeFrameBuffers>();
 				context_->GetECSWorld()->RunSystem<MapMeshTransform>();
 				context_->GetECSWorld()->RunSystem<FramesCounterSystem>();
