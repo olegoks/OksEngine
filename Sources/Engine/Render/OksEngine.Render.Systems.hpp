@@ -11,6 +11,10 @@
 #include <Render/OksEngine.CreateMtl.hpp>
 #include <Render/OksEngine.CreateObj.hpp>
 #include <Render/OksEngine.CreateModel.hpp>
+#include <Render/OksEngine.CreateLoadTextureRequest.hpp>
+#include <Render/OksEngine.CreateTexture.hpp>
+#include <Render/OksEngine.CreateDriverTexture.hpp>
+#include <Render/OksEngine.AddMeshToRender.hpp>
 #include <Render/OksEngine.LoadMesh.hpp>
 #include <Render/OksEngine.MapMeshTransform.hpp>
 #include <Render/OksEngine.ResizeFrameBuffers.hpp>

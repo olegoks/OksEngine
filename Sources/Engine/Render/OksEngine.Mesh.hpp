@@ -25,12 +25,19 @@ namespace OksEngine {
 		Mesh2() : ECSComponent{ nullptr } {
 
 		}
+
+		Mesh2(const std::string& name) 
+			: ECSComponent{ nullptr },
+			name_{ name } {
+
+		}
 		std::string name_;
 
 	};
 
 	template<>
 	inline void Edit<Mesh2>(Mesh2* renderMesh) {
+		ImGui::TextDisabled("Name: %s", renderMesh->name_.c_str());
 	}
 
 
@@ -82,7 +89,7 @@ namespace OksEngine {
 	inline void Edit<Colors>(Colors* renderMesh) {
 	}
 
-	struct UVs : public ECSComponent<Colors> {
+	struct UVs : public ECSComponent<UVs> {
 	public:
 		UVs(const DS::Vector<Geom::UV2f>& uvs) 
 			: ECSComponent{ nullptr },

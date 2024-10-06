@@ -1,33 +1,30 @@
 #pragma once 
 
 #include <OksEngine.ECS.Component.hpp>
+#include <OksEngine.ECS.System.hpp>
+#include <Math.Matrix.hpp>
+#include <RAL.Driver.hpp>
 
 namespace OksEngine {
 
-	class Texture : public ECSComponent<Texture> {
-	public:
+	struct Texture : public ECSComponent<Texture> {
 
-		Texture(const std::string& name) : ECSComponent{ nullptr }, name_{ name } {}
+		Texture() :
+			ECSComponent{ nullptr } { }
+		Texture(Common::Size width,
+			Common::Size height,
+			const DS::Vector<Geom::Color4b>& pixels) :
+			ECSComponent{ nullptr }, width_{ width }, height_{ height }, pixels_{ pixels } { }
 
-		std::string name_ = "";
+		Common::Size width_ = 0;
+		Common::Size height_ = 0;
+		DS::Vector<Geom::Color4b> pixels_;
 	};
 
 	template<>
 	inline void Edit<Texture>(Texture* texture) {
-		ImGui::TextDisabled("Tag: \"%s\"", texture->name_.c_str());
-	}
-
-	template<>
-	inline void Add<Texture>(ECS::World* world, ECS::Entity::Id id) {
-		//static char geom[100] = { "dragon_lore.geom" };
-		//if (ImGui::CollapsingHeader("Create info")) {
-		//	ImGui::InputText("Geometry description file:", geom, sizeof(geom));
-		//}
-		//if (ImGui::Button("Add component")) {
-		//	if (!world->IsComponentExist<ImmutableRenderGeometry>(id)) {
-		//		world->CreateComponent<ImmutableRenderGeometry>(id, geom);
-		//	}
-		//}
+		ImGui::TextDisabled("Width: %d", texture->width_);
+		ImGui::TextDisabled("Height: %d", texture->height_);
 
 	}
 

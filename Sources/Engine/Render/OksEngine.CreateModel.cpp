@@ -1,12 +1,13 @@
 
 #include <Render/OksEngine.CreateModel.hpp>
+#include <Common/OksEngine.Position.hpp>
 #include <Render/OksEngine.Obj.hpp>
 #include <Render/OksEngine.Mtl.hpp>
 #include <Common/OksEngine.ChildEntity.hpp>
 #include <Render/OksEngine.Mesh.hpp>
 #include <Render/OksEngine.Model.hpp>
 #include <Render/OksEngine.GeometryFile.hpp>
-#include <Render/OksEngine.Texture.hpp>
+#include <Render/OksEngine.TextureInfo.hpp>
 #include <Render/OksEngine.ModelEntity.hpp>
 
 
@@ -16,12 +17,14 @@ namespace OksEngine {
 
 	void CreateModelEntityFromObjMtl::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
+		auto* position = world->GetComponent<Position>(entityId);
 		auto* obj = world->GetComponent<Obj>(entityId);
 		auto* mtl = world->GetComponent<Mtl>(entityId);
 		auto* geomFile = world->GetComponent<GeometryFile>(entityId);
 
 		ECS::Entity::Id modelEntityid = world->CreateEntity();
 		std::vector<ECS::Entity::Id> meshsEntitiesIds;
+
 
 		Geom::Model2 model2 = Geom::ParseObjMtlModelBaked(obj->name_, obj->data_, mtl->name_, mtl->data_);
 
@@ -33,8 +36,10 @@ namespace OksEngine {
 			ModelStorage::Model::Mesh& storageMesh = storageModel.GetMesh(storageMeshId);*/
 			ECS::Entity::Id meshEntityId = world->CreateEntity();
 			meshsEntitiesIds.push_back(meshEntityId);
+			world->CreateComponent<Mesh2>(meshEntityId, mesh.name_);
+			world->CreateComponent<Position>(meshEntityId, position->GetX(), position->GetY(), position->GetZ());
 			if (mesh.textureName_ != "") {
-				world->CreateComponent<Texture>(meshEntityId, mesh.textureName_);
+				world->CreateComponent<TextureInfo>(meshEntityId, mesh.textureName_);
 			}
 			
 			OS::Assert(mesh.vertices_.GetVerticesNumber() != 0);
@@ -45,6 +50,10 @@ namespace OksEngine {
 
 			if (mesh.colors_.GetSize() != 0) {
 				world->CreateComponent<Colors>(meshEntityId, mesh.colors_);
+			}
+
+			if (mesh.normals_.GetSize() != 0) {
+				world->CreateComponent<Normals>(meshEntityId, mesh.normals_);
 			}
 
 			if (mesh.uvs_.GetSize() != 0) {

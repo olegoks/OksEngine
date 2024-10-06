@@ -48,6 +48,10 @@ namespace Geometry {
 			return reinterpret_cast<const PixelType*>(createInfo_.pixels_.GetData());
 		}
 
+		const DS::Vector<Color4b>& GetPixelsArray() const noexcept {
+			return createInfo_.pixels_;
+		}
+
 		~Texture() noexcept { };
 
 	private:
