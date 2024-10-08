@@ -6,6 +6,7 @@
 #include <Render/OksEngine.GeometryFile.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 
+#include <Common/OksEngine.Name.hpp>
 namespace OksEngine {
 
 
@@ -14,15 +15,17 @@ namespace OksEngine {
 		auto* immutableRenderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
 		
 		const ECS::Entity::Id loadResourceEntity = world->CreateEntity();
-		world->CreateComponent<LoadResourceRequest>(loadResourceEntity, immutableRenderGeometry->meshTag_);
-
+		{
+			world->CreateComponent<LoadResourceRequest>(loadResourceEntity/*, immutableRenderGeometry->meshTag_*/);
+			world->CreateComponent<Name>(loadResourceEntity, immutableRenderGeometry->meshTag_);
+		}
 		world->CreateComponent<LoadGeometryDescriptionFileRequest>(entityId, loadResourceEntity);
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLoadGeometryDescriptionFileRequest::GetFilter() const noexcept {
 		return { ECS::Entity::Filter{}
 			.Include<ImmutableRenderGeometry>()
-			.Exclude<GeometryFile>()
+			.Exclude<GeometryDescriptionFile>()
 			.Exclude<LoadGeometryDescriptionFileRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 

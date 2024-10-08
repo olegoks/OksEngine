@@ -36,12 +36,22 @@ int main(int argc, char** argv) {
     //for (Common::Int64 x = -2; x < 2; x++) {
     //    for (Common::Int64 z = -2; z < 2; z++) {
 
-            Entity terrain = engine.CreateEntity();
-            terrain.AddName("Terrain");
-            terrain.AddPosition(/*x * 20.0f*/0, 0, /*z * 20.0f*/ 0);
-            terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom");
-            terrain.AddStaticRigidBodyCustomMeshShape();
-            terrain.AddMaterial(0.1, 0.1, 0.1);
+    {
+        Entity terrain = engine.CreateEntity();
+        terrain.AddName("Terrain");
+        terrain.AddPosition(/*x * 20.0f*/0, 0, /*z * 20.0f*/ 0);
+        terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom");
+        terrain.AddStaticRigidBodyCustomMeshShape();
+        terrain.AddMaterial(0.1, 0.1, 0.1);
+    }
+    {
+        Entity terrain = engine.CreateEntity();
+        terrain.AddName("Terrain");
+        terrain.AddPosition(/*x * 20.0f*/100, 0, /*z * 20.0f*/ 0);
+        terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom");
+        terrain.AddStaticRigidBodyCustomMeshShape();
+        terrain.AddMaterial(0.1, 0.1, 0.1);
+    }
             //terrainCells.push_back(terrain);
       //  }
     //}

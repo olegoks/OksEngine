@@ -11,8 +11,8 @@ namespace OksEngine {
 	void CreateTexture::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
 		auto* loadTextureRequest = world->GetComponent<LoadTextureRequest>(entityId);
-		if (world->IsComponentExist<Resource>(loadTextureRequest->resourceTaskEntityId_)) {
-			auto* textureResource = world->GetComponent<Resource>(loadTextureRequest->resourceTaskEntityId_);
+		if (world->IsComponentExist<Resource>(loadTextureRequest->resourceLoadRequestEntityId_)) {
+			auto* textureResource = world->GetComponent<Resource>(loadTextureRequest->resourceLoadRequestEntityId_);
 
 			Geom::Texture texture = Geom::CreateTexture(textureResource->resourceData_.c_str(), textureResource->resourceData_.size());
 			world->CreateComponent<Texture>(entityId, texture.GetWidth(), texture.GetHeight(), texture.GetPixelsArray());

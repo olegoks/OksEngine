@@ -5,31 +5,9 @@
 #include <Render/OksEngine.Render.Subsystem.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <UI/OksEngine.UI.Subsystem.hpp>
-
-/*Debug*/
-#include <Debug/OksEngine.FramesCounter.hpp>
-#include <Debug/OksEngine.Debug.Systems.hpp>
-/*Reneder*/
-#include <Render/OksEngine.Render.Systems.hpp>
-
-/*Common*/
-#include <Common/OksEngine.Common.Systems.hpp>
-
-
-/*Physics*/
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
-#include <Physics/OksEngine.Physics.Systems.hpp>
-#include <Physics/OksEngine.PhysicsShape.hpp>
 
-/*UI*/
-#include <UI/OksEngine.UI.System.hpp>
-#include <UI/OksEngine.UI.Window.hpp>
-
-/*Resource*/
-#include <Resources/OksEngine.Resources.Components.hpp>
-
-/*Behaviour*/
-#include <Behaviour/OksEngine.Behaviour.Systems.hpp>
+#include <OksEngine.Systems.hpp>
 
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
 
@@ -48,8 +26,11 @@ namespace OksEngine {
 			context_->GetPhysicsSubsystem()->Update();
 			{
 				context_->GetECSWorld()->StartFrame();
+				/*Resources*/
+				//context_->GetECSWorld()->RunSystem<CheckResourceLoaded>();
+				//context_->GetECSWorld()->RunSystem<LoadResourceSystem>();
 
-				context_->GetECSWorld()->RunSystem<LoadResourceSystem>();
+
 				/*UI*/
 				context_->GetECSWorld()->RunSystem<GetWindowKeyboardInputEvents>();
 				context_->GetECSWorld()->RunSystem<GetWindowFramebufferResizedEvents>();
@@ -62,17 +43,19 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CleanWindowMouseInputEvents>();
 
 				/*Behaviour*/
-				context_->GetECSWorld()->RunSystem<LoadLuaScript>();
+				context_->GetECSWorld()->RunSystem<CreateLoadLuaScriptRequest>();
+				context_->GetECSWorld()->RunSystem<CreateLuaScriptEntity>();
 				context_->GetECSWorld()->RunSystem<CreateLuaContext>();
 				context_->GetECSWorld()->RunSystem<CallUpdateMethod>();
 				context_->GetECSWorld()->RunSystem<CallInputProcessor>();
+
+				/*Physics*/
 				context_->GetECSWorld()->RunSystem<CreatePhysicsShapeForDynamicRigidBody>();
 				context_->GetECSWorld()->RunSystem<CreatePhysicsShapeForStaticRigidBody>();
 				context_->GetECSWorld()->RunSystem<CreateDynamicRigidBody>();
 				context_->GetECSWorld()->RunSystem<CreateStaticRigidBody>();
 				context_->GetECSWorld()->RunSystem<RigidBodyToRenderGeometryMapper>();
-				context_->GetECSWorld()->RunSystem<CreateDriverCamera>();
-				context_->GetECSWorld()->RunSystem<UpdateDriverCamera>();
+
 
 				/*ImGui*/
 				context_->GetECSWorld()->RunSystem<CreateImGuiTexture>();
@@ -87,20 +70,18 @@ namespace OksEngine {
 				/*ImGui*/
 
 				/*Render*/
-				context_->GetECSWorld()->RunSystem<CreateLoadGeometryDescriptionFileRequest>();
-				context_->GetECSWorld()->RunSystem<LoadGeometryDescriptionFile>();
-				//context_->GetECSWorld()->RunSystem<CreateLoadMeshRequest>();
-				context_->GetECSWorld()->RunSystem<CreateLoadObjRequest>();
-				context_->GetECSWorld()->RunSystem<CreateLoadMtlRequest>();
 
-				context_->GetECSWorld()->RunSystem<CreateObj>();
-				context_->GetECSWorld()->RunSystem<CreateMtl>();
+				context_->GetECSWorld()->RunSystem<CreateLoadGeometryDescriptionFileRequest>();
+				context_->GetECSWorld()->RunSystem<CreateGeometryDescriptionFileEntity>();
+				context_->GetECSWorld()->RunSystem<CreateLoadObjRequest>();
+				context_->GetECSWorld()->RunSystem<CreateObjEntity>();
+				context_->GetECSWorld()->RunSystem<CreateLoadMtlRequest>();
+				context_->GetECSWorld()->RunSystem<CreateMtlEntity>();
+				
 				context_->GetECSWorld()->RunSystem<CreateModelEntityFromObjMtl>();
 
-				//context_->GetECSWorld()->RunSystem<LoadMesh>();
-				//context_->GetECSWorld()->RunSystem<CreateDriverModel>();
-
 				context_->GetECSWorld()->RunSystem < CreateLoadTextureRequest>();
+				//context_->GetECSWorld()->RunSystem < CheckTextureLoaded>();
 				context_->GetECSWorld()->RunSystem<CreateTexture>();
 				context_->GetECSWorld()->RunSystem<CreateDriverTexture>();
 				context_->GetECSWorld()->RunSystem<AddMeshToRender>();

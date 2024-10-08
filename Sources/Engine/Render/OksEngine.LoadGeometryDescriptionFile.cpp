@@ -8,24 +8,24 @@
 
 namespace OksEngine {
 
-	void LoadGeometryDescriptionFile::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-		auto* request = world->GetComponent<LoadGeometryDescriptionFileRequest>(entityId);
-		using namespace std::string_literals;
+	//void LoadGeometryDescriptionFile::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+	//	auto* request = world->GetComponent<LoadGeometryDescriptionFileRequest>(entityId);
+	//	using namespace std::string_literals;
 
-		OS::Assert(!request->resourceTaskEntityId_.IsInvalid());
-		
-		//Waitting for loading resource.
-		if (world->IsComponentExist<Resource>(request->resourceTaskEntityId_)) {
-			const auto* resource = world->GetComponent<Resource>(request->resourceTaskEntityId_);
-			world->CreateComponent<GeometryFile>(entityId, resource->name_, resource->resourceData_);
-		}
-	}
+	//	OS::Assert(!request->loadResourceRequestEntityId_.IsInvalid());
+	//	
+	//	//Waitting for loading resource.
+	//	if (world->IsComponentExist<Resource>(request->loadResourceRequestEntityId_)) {
+	//		const auto* resource = world->GetComponent<Resource>(request->loadResourceRequestEntityId_);
+	//		world->CreateComponent<GeometryDescriptionFile>(entityId, resource->name_, resource->resourceData_);
+	//	}
+	//}
 
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> LoadGeometryDescriptionFile::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}
-			.Include<ImmutableRenderGeometry>()
-			.Exclude<GeometryFile>()
-			.Include<LoadGeometryDescriptionFileRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
-	}
+	//std::pair<ECS::Entity::Filter, ECS::Entity::Filter> LoadGeometryDescriptionFile::GetFilter() const noexcept {
+	//	return { ECS::Entity::Filter{}
+	//		.Include<ImmutableRenderGeometry>()
+	//		.Exclude<GeometryDescriptionFile>()
+	//		.Include<LoadGeometryDescriptionFileRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
+	//}
 
 }

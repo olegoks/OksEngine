@@ -5,11 +5,11 @@
 namespace OksEngine {
 
 
-	class LoadLuaScript : public ECSSystem {
+	class CreateLuaScriptEntity : public ECSSystem {
 	private:
 	public:
 
-		LoadLuaScript(Context& context) noexcept : ECSSystem{ context } {
+		CreateLuaScriptEntity(Context& context) noexcept : ECSSystem{ context } {
 
 		}
 
@@ -21,13 +21,13 @@ namespace OksEngine {
 
 		[[nodiscard]]
 		std::string GetName() const noexcept override {
-			return "LoadLuaScript";
+			return "CreateLuaScriptEntity";
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;
 
 		virtual Common::TypeId GetTypeId() const noexcept override {
-			return Common::TypeInfo<LoadLuaScript>().GetId();
+			return Common::TypeInfo<CreateLuaScriptEntity>().GetId();
 		}
 
 	private:

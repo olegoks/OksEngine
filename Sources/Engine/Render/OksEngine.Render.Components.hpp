@@ -5,12 +5,14 @@
 #include <Render/OksEngine.SkinnedGeometry.hpp>
 #include <Render/OksEngine.Camera.hpp>
 #include <Render/OksEngine.DriverModel.hpp>
-#include <Render/OksEngine.GeometryFile.hpp>
+#include <Render/OksEngine.GeometryDescriptionFileEntity.hpp>
 #include <Render/OksEngine.Mesh.hpp>
 #include <Render/OksEngine.CreateLoadObjRequest.hpp>
 #include <Render/OksEngine.CreateLoadMtlRequest.hpp>
 #include <Render/OksEngine.Obj.hpp>
 #include <Render/OksEngine.Mtl.hpp>
+#include <Render/OksEngine.ObjEntity.hpp>
+#include <Render/OksEngine.MtlEntity.hpp>
 #include <Render/OksEngine.LoadObjRequest.hpp>
 #include <Render/OksEngine.LoadMtlRequest.hpp>
 #include <Render/OksEngine.LoadTextureRequest.hpp>
