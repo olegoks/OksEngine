@@ -118,11 +118,11 @@ namespace OksEngine {
 			storageMesh.meshId_ = meshId;
 		}
 
-		auto* geomFile = world->GetComponent<GeometryFile>(entityId);
+		auto* geomFile = world->GetComponent<GeometryDescriptionFile>(entityId);
 		world->CreateComponent<Mesh>(entityId, modelId);
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> LoadMesh::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<LoadMeshRequest>().Include<GeometryFile>().Exclude<Mesh>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return { ECS::Entity::Filter{}.Include<LoadMeshRequest>().Include<GeometryDescriptionFile>().Exclude<Mesh>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 	Common::TypeId LoadMesh::GetTypeId() const noexcept {
 		return Common::TypeInfo<LoadMesh>().GetId();

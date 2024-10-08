@@ -7,52 +7,64 @@
 
 namespace OksEngine {
 
+
 	class LoadResourceRequest : public ECSComponent<LoadResourceRequest> {
 	public:
 
-		LoadResourceRequest(const std::string& resourceName) noexcept 
-			: ECSComponent{ nullptr }, 
-			resourceName_{ resourceName } {
+		LoadResourceRequest() noexcept
+			: ECSComponent{ nullptr } {
 
 		}
 
-		AsyncResourceSubsystem::Task::Id taskId_ = Common::Limits<Common::Index>::Max();
-		std::string resourceName_;
 	private:
 	};
 
+	//class LoadResourceRequest : public ECSComponent<LoadResourceRequest> {
+	//public:
 
-	template<>
-	inline void Edit<LoadResourceRequest>(LoadResourceRequest* request) {
-		ImGui::TextDisabled("Resource name: %s", request->resourceName_.c_str());
-	}
+	//	LoadResourceRequest(const std::string& resourceName) noexcept 
+	//		: ECSComponent{ nullptr }, 
+	//		resourceName_{ resourceName } {
 
-	class LoadResourceSystem : public ECSSystem {
-	public:
+	//	}
 
-		LoadResourceSystem(Context& context) noexcept : ECSSystem{ context } {
+	//	AsyncResourceSubsystem::Task::Id taskId_ = Common::Limits<Common::Index>::Max();
+	//	std::string resourceName_;
+	//private:
+	//};
 
-		}
 
-	public:
+	//template<>
+	//inline void Edit<LoadResourceRequest>(LoadResourceRequest* request) {
+	//	ImGui::TextDisabled("Resource name: %s", request->resourceName_.c_str());
+	//}
 
-		virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+	//class LoadResourceSystem : public ECSSystem {
+	//public:
 
-		[[nodiscard]]
-		std::string GetName() const noexcept override {
-			return "LoadResourceSystem";
-		}
+	//	LoadResourceSystem(Context& context) noexcept : ECSSystem{ context } {
 
-		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<LoadResourceRequest>().Exclude<Resource>(), ECS::Entity::Filter{}.Exclude<Resource>()};
-		}
+	//	}
 
-	private:
+	//public:
 
-		virtual Common::TypeId GetTypeId() const noexcept override {
-			return Common::TypeInfo<LoadResourceSystem>().GetId();
-		}
-	};
+	//	virtual void Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) override;
+
+	//	[[nodiscard]]
+	//	std::string GetName() const noexcept override {
+	//		return "LoadResourceSystem";
+	//	}
+
+	//	virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
+	//		return { ECS::Entity::Filter{}.Include<LoadResourceRequest>().Exclude<Resource>(), ECS::Entity::Filter{}.Exclude<Resource>()};
+	//	}
+
+	//private:
+
+	//	virtual Common::TypeId GetTypeId() const noexcept override {
+	//		return Common::TypeInfo<LoadResourceSystem>().GetId();
+	//	}
+	//};
 
 
 }

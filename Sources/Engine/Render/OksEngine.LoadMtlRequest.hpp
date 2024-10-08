@@ -10,16 +10,16 @@ namespace OksEngine {
 
 		LoadMtlRequest() noexcept : ECSComponent{ nullptr } { }
 
-		LoadMtlRequest(ECS::Entity::Id resourceTaskEntityId) noexcept : ECSComponent{ nullptr }, resourceTaskEntityId_{ resourceTaskEntityId } { }
+		LoadMtlRequest(ECS::Entity::Id resourceTaskEntityId) noexcept : ECSComponent{ nullptr }, loadResourceRequestEntityId_{ resourceTaskEntityId } { }
 
-		ECS::Entity::Id resourceTaskEntityId_;
+		ECS::Entity::Id loadResourceRequestEntityId_;
 
 	};
 
 
 	template<>
 	inline void Edit<LoadMtlRequest>(LoadMtlRequest* loadObjRequest) {
-		ImGui::TextDisabled("Task entity ID: \"%d\"", loadObjRequest->resourceTaskEntityId_);
+		ImGui::TextDisabled("Task entity ID: \"%d\"", loadObjRequest->loadResourceRequestEntityId_);
 	}
 
 }

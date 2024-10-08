@@ -5,3 +5,5 @@
 #include <Common/OksEngine.ActiveMarker.hpp>
 #include <Common/OksEngine.ChildEntity.hpp>
 #include <Common/OksEngine.Name.hpp>
+#include <Common/OksEngine.Completed.hpp>
+#include <Common/OksEngine.BinaryData.hpp>

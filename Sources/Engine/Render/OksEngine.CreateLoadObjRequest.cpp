@@ -1,23 +1,34 @@
 
+#define YAML_CPP_STATIC_DEFINE
+#define YAML_CPP_API
+#include <yaml-cpp/yaml.h>
+
 #include <Render/OksEngine.CreateLoadObjRequest.hpp>
 
 #include <Render/OksEngine.GeometryFile.hpp>
 #include <Render/OksEngine.LoadObjRequest.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
+#include <Render/OksEngine.GeometryDescriptionFileEntity.hpp>
+#include <Common/OksEngine.Name.hpp>
+#include <Common/OksEngine.Text.hpp>
 
 namespace OksEngine {
 
 
 	void CreateLoadObjRequest::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		auto* geomFile = world->GetComponent<GeometryFile>(entityId);
+		auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
+		auto* geomFileText = world->GetComponent<Text>(geomFileEntity->id_);
 
-		if (geomFile->mesh_["Obj"]) {
+		YAML::Node yaml{ geomFileText->text_ };
 
-			const std::string objName = geomFile->mesh_["Obj"].as<std::string>();
+		if (yaml["Obj"]) {
+			const std::string objName = yaml["Obj"].as<std::string>();
 			const ECS::Entity::Id loadObjResourceEntityId = world->CreateEntity();
-			world->CreateComponent<LoadResourceRequest>(loadObjResourceEntityId, objName);
-
+			{
+				world->CreateComponent<LoadResourceRequest>(loadObjResourceEntityId);
+				world->CreateComponent<Name>(loadObjResourceEntityId, objName);
+			}
 			world->CreateComponent<LoadObjRequest>(entityId, loadObjResourceEntityId);
 
 		}
@@ -31,7 +42,7 @@ namespace OksEngine {
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLoadObjRequest::GetFilter() const noexcept {
 
 		return { ECS::Entity::Filter{}
-			.Include<GeometryFile>()
+			.Include<GeometryDescriptionFile>()
 			.Exclude<LoadObjRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 

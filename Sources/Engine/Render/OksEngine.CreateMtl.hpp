@@ -5,10 +5,10 @@
 namespace OksEngine {
 
 
-	class CreateMtl : public ECSSystem {
+	class CreateMtlEntity : public ECSSystem {
 	public:
 
-		CreateMtl(Context& context) noexcept : ECSSystem{ context } { }
+		CreateMtlEntity(Context& context) noexcept : ECSSystem{ context } { }
 
 	public:
 

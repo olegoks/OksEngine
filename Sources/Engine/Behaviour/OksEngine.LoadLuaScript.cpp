@@ -5,32 +5,40 @@
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 
 #include <Behaviour/OksEngine.LuaScript.hpp>
-#include <Behaviour/OksEngine.LuaScriptLoadRequest.hpp>
+#include <Behaviour/OksEngine.LuaScriptEntity.hpp>
+#include <Behaviour/OksEngine.LoadLuaScriptRequest.hpp>
 #include <Behaviour/OksEngine.Behaviour.hpp>
 #include <Resources/OksEngine.Resource.hpp>
+#include <Resources/OksEngine.ResourceEntity.hpp>
+#include <Common/OksEngine.Completed.hpp>
+#include <Common/OksEngine.Name.hpp>
+#include <Common/OksEngine.Text.hpp>
+#include <Common/OksEngine.BinaryData.hpp>
+#include <Behaviour/OksEngine.LuaEntity.hpp>
+
 
 namespace OksEngine {
 
 
-	void LoadLuaScript::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+	void CreateLuaScriptEntity::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 		Behaviour* behaviour = world->GetComponent<Behaviour>(entityId);
-		if (!world->IsComponentExist<LuaScriptLoadRequest>(entityId)) {
-			const ECS::Entity::Id resourceEntityId = world->CreateEntity();
-			world->CreateComponent<LoadResourceRequest>(resourceEntityId, behaviour->scriptName_);
-			world->CreateComponent<LuaScriptLoadRequest>(entityId, resourceEntityId);
-		}
-		else {
-			auto* request = world->GetComponent<LuaScriptLoadRequest>(entityId);
-			if (world->IsComponentExist<Resource>(request->resourceEntityId_)) {
-				Resource* resource = world->GetComponent<Resource>(request->resourceEntityId_);
-				const Lua::Script::Id scriptId = GetContext().GetScriptStorage()->Add(behaviour->scriptName_, Lua::Script{ resource->resourceData_ });
-				world->CreateComponent<LuaScript>(entityId, resource->name_, scriptId);
+		auto* loadLuaScriptRequest = world->GetComponent<LoadLuaScriptRequest>(entityId);
+		const ECS::Entity::Id loadResourceRequestEntityId = loadLuaScriptRequest->loadResourceRequestEntityId_;
+		if (world->IsComponentExist<Completed>(loadResourceRequestEntityId)) {
+			auto* resourceEntity = world->GetComponent<ResourceEntity>(loadResourceRequestEntityId);
+			auto* binaryData = world->GetComponent<BinaryData>(resourceEntity->id_);
+			auto* scriptName = world->GetComponent<Name>(loadResourceRequestEntityId);
+			const ECS::Entity::Id luaScriptEntityId = world->CreateEntity();
+			{
+				world->CreateComponent<Name>(luaScriptEntityId, scriptName->value_);
+				world->CreateComponent<Text>(luaScriptEntityId, std::string{ binaryData->data_.data(), binaryData->data_.size() });
 			}
+			world->CreateComponent<LuaScriptEntity>(entityId, luaScriptEntityId);
 		}
 	}
 
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> LoadLuaScript::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<Behaviour>().Exclude<LuaScript>(), ECS::Entity::Filter{}.ExcludeAll() };
+	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLuaScriptEntity::GetFilter() const noexcept {
+		return { ECS::Entity::Filter{}.Include<LoadLuaScriptRequest>().Exclude<LuaScript>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 
 }

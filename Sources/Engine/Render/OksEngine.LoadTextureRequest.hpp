@@ -6,16 +6,16 @@
 namespace OksEngine {
 
 	struct LoadTextureRequest : public ECSComponent<LoadTextureRequest> {
-		ECS::Entity::Id resourceTaskEntityId_ = ECS::Entity::Id::invalid_;
+		ECS::Entity::Id resourceLoadRequestEntityId_ = ECS::Entity::Id::invalid_;
 		LoadTextureRequest() :
 			ECSComponent{ nullptr },
-			resourceTaskEntityId_{ ECS::Entity::Id::invalid_ } {
+			resourceLoadRequestEntityId_{ ECS::Entity::Id::invalid_ } {
 		}
 
 
 		LoadTextureRequest(ECS::Entity::Id loadResourceEntity) :
 			ECSComponent{ nullptr },
-			resourceTaskEntityId_{ loadResourceEntity } {
+			resourceLoadRequestEntityId_{ loadResourceEntity } {
 
 		}
 	};
@@ -23,7 +23,7 @@ namespace OksEngine {
 
 	template<>
 	inline void Edit<LoadTextureRequest>(LoadTextureRequest* loadTextureRequest) {
-		ImGui::TextDisabled("Task entity ID: \"%d\"", loadTextureRequest->resourceTaskEntityId_);
+		ImGui::TextDisabled("Task entity ID: \"%d\"", loadTextureRequest->resourceLoadRequestEntityId_);
 	}
 
 }

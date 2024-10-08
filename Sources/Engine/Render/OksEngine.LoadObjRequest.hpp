@@ -6,16 +6,16 @@
 namespace OksEngine {
 
 	struct LoadObjRequest : public ECSComponent<LoadObjRequest> {
-		ECS::Entity::Id resourceTaskEntityId_ = ECS::Entity::Id::invalid_;
+		ECS::Entity::Id loadResourceRequestEntityId_ = ECS::Entity::Id::invalid_;
 		LoadObjRequest() :
 			ECSComponent{ nullptr },
-			resourceTaskEntityId_{ ECS::Entity::Id::invalid_ } {
+			loadResourceRequestEntityId_{ ECS::Entity::Id::invalid_ } {
 		}
 
 
-		LoadObjRequest(ECS::Entity::Id loadResourceEntity) :
+		LoadObjRequest(ECS::Entity::Id loadResourceRequestEntityId) :
 			ECSComponent{ nullptr },
-			resourceTaskEntityId_{ loadResourceEntity } {
+			loadResourceRequestEntityId_{ loadResourceRequestEntityId } {
 
 		}
 	};
@@ -23,7 +23,7 @@ namespace OksEngine {
 
 	template<>
 	inline void Edit<LoadObjRequest>(LoadObjRequest* loadObjRequest) {
-		ImGui::TextDisabled("Task entity ID: \"%d\"", loadObjRequest->resourceTaskEntityId_);
+		ImGui::TextDisabled("Task entity ID: \"%d\"", loadObjRequest->loadResourceRequestEntityId_);
 	}
 
 }

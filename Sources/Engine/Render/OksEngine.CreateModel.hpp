@@ -15,7 +15,7 @@ namespace OksEngine {
 		[[nodiscard]]
 		[[deprecated]]
 		std::string GetName() const noexcept override {
-			return "CreateModel";
+			return "CreateModelEntityFromObjMtl";
 		}
 		[[deprecated]]
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override;

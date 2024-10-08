@@ -84,8 +84,16 @@ namespace OksEngine {
 			editComponent.template operator() < LoadMtlRequest > (world, id);
 			editComponent.template operator() < LoadObjRequest > (world, id);
 			editComponent.template operator() < LoadTextureRequest > (world, id);
-			editComponent.template operator() < Mtl > (world, id);
-			editComponent.template operator() < Obj > (world, id);
+			editComponent.template operator() < LoadResourceRequest > (world, id);
+			editComponent.template operator() < MtlEntity > (world, id);
+			editComponent.template operator() < ObjEntity > (world, id);
+			editComponent.template operator() < ResourceEntity > (world, id);
+			if (world->IsComponentExist<ResourceEntity>(id)) {
+				auto resourceEntity = world->GetComponent<ResourceEntity>(id);
+				ImGui::Indent(20.0f);
+				ShowEntityInfo(world, resourceEntity->id_);
+				ImGui::Unindent(20.0f);
+			}
 			editComponent.template operator() < ModelEntity > (world, id);
 			if (world->IsComponentExist<ModelEntity>(id)) {
 				auto modelEntity = world->GetComponent<ModelEntity>(id);
@@ -114,7 +122,7 @@ namespace OksEngine {
 			editComponent.template operator() < DriverTexture > (world, id);
 			editComponent.template operator() < DriverMesh > (world, id);
 
-			editComponent.template operator() < GeometryFile > (world, id);
+			editComponent.template operator() < GeometryDescriptionFileEntity > (world, id);
 			editComponent.template operator() < Camera > (world, id);
 			//editComponent.template operator() < PointLight > (world, id);
 			editComponent.template operator() < SkinnedGeometry > (world, id);

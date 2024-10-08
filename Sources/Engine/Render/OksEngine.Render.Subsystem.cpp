@@ -32,8 +32,9 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<CreateLoadMeshRequest>(context);
 		ecsWorld->RegisterSystem<CreateLoadObjRequest>(context);
 		ecsWorld->RegisterSystem<CreateLoadMtlRequest>(context);
-		ecsWorld->RegisterSystem<CreateObj>(context);
-		ecsWorld->RegisterSystem<CreateMtl>(context);
+		ecsWorld->RegisterSystem<CreateObjEntity>(context);
+		ecsWorld->RegisterSystem<CreateMtlEntity>(context);
+		ecsWorld->RegisterSystem < CheckTextureLoaded>(context);
 		ecsWorld->RegisterSystem < CreateTexture>(context);
 		ecsWorld->RegisterSystem < CreateDriverTexture>(context);
 		ecsWorld->RegisterSystem < AddMeshToRender>(context);
@@ -43,7 +44,7 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<CreateDriverModel>(context);
 		ecsWorld->RegisterSystem<ResizeFrameBuffers>(context);
 		ecsWorld->RegisterSystem<MapMeshTransform>(context);
-		ecsWorld->RegisterSystem<LoadGeometryDescriptionFile>(context);
+		ecsWorld->RegisterSystem<CreateGeometryDescriptionFileEntity>(context);
 		ecsWorld->RegisterSystem<LoadMesh>(context);
 		ecsWorld->RegisterSystem<CreateLoadTextureRequest>(context);
 		auto uiSubsystem = context.GetUISubsystem();

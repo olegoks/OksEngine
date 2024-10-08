@@ -1,11 +1,13 @@
 
 #include <Render/OksEngine.CreateLoadTextureRequest.hpp>
 
+#include <Common/OksEngine.Name.hpp>
 #include <Render/OksEngine.LoadObjRequest.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 #include <Render/OksEngine.Mesh.hpp>
 #include <Render/OksEngine.TextureInfo.hpp>
 #include <Render/OksEngine.LoadTextureRequest.hpp>
+#include <Resources/OksEngine.LoadResourceRequestMarker.hpp>
 
 namespace OksEngine {
 
@@ -15,9 +17,11 @@ namespace OksEngine {
 		auto* textureInfo = world->GetComponent<TextureInfo>(entityId);
 
 		const ECS::Entity::Id loadTextureResourceEntityId = world->CreateEntity();
-		world->CreateComponent<LoadResourceRequest>(loadTextureResourceEntityId, textureInfo->name_);
+
+		world->CreateComponent<LoadResourceRequest>(loadTextureResourceEntityId);
+		world->CreateComponent<Name>(loadTextureResourceEntityId, textureInfo->name_);
+	
 		world->CreateComponent<LoadTextureRequest>(entityId, loadTextureResourceEntityId);
-		
 
 	}
 
@@ -31,6 +35,7 @@ namespace OksEngine {
 		return { ECS::Entity::Filter{}
 			.Include<Mesh2>()
 			.Include<TextureInfo>()
+			.Exclude<Name>()
 			.Exclude<LoadTextureRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 

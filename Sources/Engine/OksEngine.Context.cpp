@@ -6,20 +6,16 @@
 #include <UI/OksEngine.UI.Subsystem.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
+#include <Resources/OksEngine.Resource.Subsystem.hpp>
+#include <Physics/OksEngine.Physics.Subsystem.hpp>
+#include <Common/OksEngine.Log.Subsystem.hpp>
+#include <Debug/OksEngine.Debug.Subsystem.hpp>
 #include <ECS.hpp>
 
 #include <OksEngine.Config.hpp>
 
-#include <Common/OksEngine.Log.Subsystem.hpp>
-#include <Physics/OksEngine.Physics.Subsystem.hpp>
-#include <Physics/OksEngine.Physics.Systems.hpp>
-#include <Physics/OksEngine.PhysicsShape.hpp>
-#include <Physics/OksEngine.DynamicRigidBodyCustomMeshShape.hpp>
-#include <Common/OksEngine.Common.Systems.hpp>
-#include <Debug/OksEngine.Debug.Subsystem.hpp>
-#include <Resources/OksEngine.LoadResourceRequest.hpp>
-#include <Render/OksEngine.ModelStorage.hpp>
-#include <Behaviour/OksEngine.Behaviour.Systems.hpp>
+#include <OksEngine.Components.hpp>
+#include <OksEngine.Systems.hpp>
 
 namespace OksEngine
 {
@@ -54,9 +50,11 @@ namespace OksEngine
 
 		world_ = std::make_shared<ECS::World>();
 		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
+		world_->RegisterSystem<CreateLoadLuaScriptRequest>(*this);
 
-		world_->RegisterSystem<LoadLuaScript>(*this);
-		world_->RegisterSystem<LoadResourceSystem>(*this);
+		world_->RegisterSystem<CreateLuaScriptEntity>(*this);
+		//world_->RegisterSystem<LoadResourceSystem>(*this);
+		//world_->RegisterSystem < CheckResourceLoaded>(*this);
 		world_->RegisterSystem<CreateLuaContext>(*this);
 		world_->RegisterSystem<CallUpdateMethod>(*this);
 		world_->RegisterSystem<CallInputProcessor>(*this);
