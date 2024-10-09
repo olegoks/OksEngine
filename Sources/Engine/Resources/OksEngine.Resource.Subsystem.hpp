@@ -246,12 +246,12 @@ namespace OksEngine {
 				}
 				return false;
 				});
-			OS::LogInfo("Engine/AsyncResourceSubsystem",
-				{ "Task with id {} was waited by {} from {}.",
-					taskId,
-					magic_enum::enum_name(receiver).data(),
-					magic_enum::enum_name(sender).data()
-				});
+			//OS::LogInfo("Engine/AsyncResourceSubsystem",
+			//	{ "Task with id {} was waited by {} from {}.",
+			//		taskId,
+			//		magic_enum::enum_name(receiver).data(),
+			//		magic_enum::enum_name(sender).data()
+			//	});
 
 			return std::move(dataInfo);
 		}
@@ -267,12 +267,12 @@ namespace OksEngine {
 		[[nodiscard]]
 		Task::Id AddTask(Subsystem::Type senderType, Subsystem::Type receiverType, Task&& task) {
 			const Task::Id taskId = task.GetId();
-			OS::LogInfo("Engine/AsyncResourceSubsystem",
+			/*OS::LogInfo("Engine/AsyncResourceSubsystem",
 				{ "Task with id {} was sent from {} to {} subsystem by Update function.",
 					taskId,
 					magic_enum::enum_name(senderType).data(),
 					magic_enum::enum_name(receiverType).data()
-				});
+				});*/
 
 			exchangeSystem_.AddData(senderType, receiverType, std::move(task));
 			return taskId;
@@ -300,12 +300,12 @@ namespace OksEngine {
 					return false;
 				});
 			if (isGot) {
-				OS::LogInfo("Engine/AsyncResourceSubsystem",
-					{ "Task with id {} was received by {} from {}.",
-						task.GetId(),
-						magic_enum::enum_name(receiver).data(),
-						magic_enum::enum_name(sender).data()
-					});
+				//OS::LogInfo("Engine/AsyncResourceSubsystem",
+				//	{ "Task with id {} was received by {} from {}.",
+				//		task.GetId(),
+				//		magic_enum::enum_name(receiver).data(),
+				//		magic_enum::enum_name(sender).data()
+				//	});
 			}
 			return isGot;
 		}

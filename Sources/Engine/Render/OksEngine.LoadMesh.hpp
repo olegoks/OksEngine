@@ -3,7 +3,7 @@
 #include <OksEngine.ECS.System.hpp>
 
 namespace OksEngine {
-	
+	/*
 	class LoadMesh : public ECSSystem {
 	public:
 
@@ -23,6 +23,6 @@ namespace OksEngine {
 	private:
 		[[deprecated]]
 		virtual Common::TypeId GetTypeId() const noexcept override;
-	};
+	};*/
 
 }

@@ -4,11 +4,10 @@
 
 namespace OksEngine {
 
-
-	class CreateAsyncTask : public ECSSystem {
+	class WaitForResourceLoading : public ECSSystem {
 	public:
 
-		CreateAsyncTask(Context& context) noexcept;
+		WaitForResourceLoading(Context& context) noexcept;
 
 	public:
 
@@ -19,5 +18,4 @@ namespace OksEngine {
 
 		virtual Common::TypeId GetTypeId() const noexcept override;
 	};
-
 }

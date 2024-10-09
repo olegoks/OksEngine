@@ -2,9 +2,11 @@
 
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 #include <Common/OksEngine.Name.hpp>
+#include <Common/OksEngine.BinaryData.hpp>
 #include <Resources/OksEngine.Resource.hpp>
 #include <Resources/OksEngine.AsyncTask.hpp>
 #include <Resources/OksEngine.ResourceEntity.hpp>
+#include <Resources/OksEngine.Subsystem.hpp>
 
 namespace OksEngine {
 
@@ -27,9 +29,12 @@ namespace OksEngine {
 			const std::string resourceData{ getResourceResult.resource_.GetData<char>(), getResourceResult.resource_.GetSize() };
 
 			ECS::Entity::Id resourceEntity = world->CreateEntity();
-			world->CreateComponent<Resource>(resourceEntity, resourceData);
-
+			world->CreateComponent<BinaryData>(resourceEntity, std::vector<Common::Byte>{ getResourceResult.resource_.GetData<Common::Byte>(), getResourceResult.resource_.GetData<Common::Byte>() + getResourceResult.resource_.GetSize()  });
 			world->CreateComponent<ResourceEntity>(entityId, resourceEntity);
+			world->CreateComponent<Resource>(entityId);
+			auto* subsystem = world->GetComponent<ECSResourceSubsystem>(secondEntityId);
+			subsystem->loading_.erase(resourceName->value_);
+			subsystem->loaded_.insert(resourceName->value_);
 		}
 	}
 
@@ -43,8 +48,9 @@ namespace OksEngine {
 			ECS::Entity::Filter{}
 			.Include<LoadResourceRequest>()
 			.Include<Name>()
-			.Include<AsyncTask>(),
-			ECS::Entity::Filter{}.Exclude<ResourceEntity>() };
+			.Include<AsyncTask>()
+			.Exclude<ResourceEntity>(),
+			ECS::Entity::Filter{}.Include<ECSResourceSubsystem>() };
 	}
 
 	Common::TypeId CreateResourceEntity::GetTypeId() const noexcept {

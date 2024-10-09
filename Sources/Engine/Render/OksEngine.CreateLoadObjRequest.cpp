@@ -20,7 +20,7 @@ namespace OksEngine {
 		auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
 		auto* geomFileText = world->GetComponent<Text>(geomFileEntity->id_);
 
-		YAML::Node yaml{ geomFileText->text_ };
+		YAML::Node yaml = YAML::Load(geomFileText->text_);
 
 		if (yaml["Obj"]) {
 			const std::string objName = yaml["Obj"].as<std::string>();
@@ -42,7 +42,7 @@ namespace OksEngine {
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLoadObjRequest::GetFilter() const noexcept {
 
 		return { ECS::Entity::Filter{}
-			.Include<GeometryDescriptionFile>()
+			.Include<GeometryDescriptionFileEntity>()
 			.Exclude<LoadObjRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 

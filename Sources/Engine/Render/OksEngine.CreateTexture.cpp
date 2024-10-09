@@ -4,6 +4,8 @@
 #include <Render/OksEngine.LoadTextureRequest.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 #include <Render/OksEngine.Texture.hpp>
+#include <Resources/OksEngine.ResourceEntity.hpp>
+#include <Common/OksEngine.BinaryData.hpp>
 
 namespace OksEngine {
 
@@ -11,10 +13,11 @@ namespace OksEngine {
 	void CreateTexture::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
 		auto* loadTextureRequest = world->GetComponent<LoadTextureRequest>(entityId);
-		if (world->IsComponentExist<Resource>(loadTextureRequest->resourceLoadRequestEntityId_)) {
-			auto* textureResource = world->GetComponent<Resource>(loadTextureRequest->resourceLoadRequestEntityId_);
+		if (world->IsComponentExist<ResourceEntity>(loadTextureRequest->resourceLoadRequestEntityId_)) {
+			auto* resourceEntity = world->GetComponent<ResourceEntity>(loadTextureRequest->resourceLoadRequestEntityId_);
+			auto* binaryData = world->GetComponent<BinaryData>(resourceEntity->id_);
 
-			Geom::Texture texture = Geom::CreateTexture(textureResource->resourceData_.c_str(), textureResource->resourceData_.size());
+			Geom::Texture texture = Geom::CreateTexture(binaryData->data_.data(), binaryData->data_.size());
 			world->CreateComponent<Texture>(entityId, texture.GetWidth(), texture.GetHeight(), texture.GetPixelsArray());
 		}
 		

@@ -9,19 +9,15 @@ namespace OksEngine {
 		Name() = default;
 		Name(const std::string& value) :
 			ECSComponent{ nullptr },
-			value_{} {
-			
-			OS::AssertMessage(value.size() < sizeof(value_), "Name length is too big.");
-
-			std::memcpy(value_, value.data(), value.length());
+			value_{ value } {
 		
 		}
-		char value_[64]{ 0 };
+		std::string value_;
 	};
 
 	template<>
 	inline void Edit<Name>(Name* name) {
-		ImGui::TextDisabled(name->value_);
+		ImGui::TextDisabled(name->value_.c_str());
 	}
 
 }

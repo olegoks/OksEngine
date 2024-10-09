@@ -4,6 +4,7 @@
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
 #include <Physics/OksEngine.DynamicRigidBody.hpp>
 
+#include <Physics/OksEngine.Physics.Subsystem.hpp>
 namespace OksEngine {
 
 	RigidBodyToRenderGeometryMapper::RigidBodyToRenderGeometryMapper(Context& context) : ECSSystem{ context } {
@@ -12,16 +13,16 @@ namespace OksEngine {
 
 
 	void RigidBodyToRenderGeometryMapper::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-		/*DynamicRigidBodyBox* rigidBody = world->GetComponent<DynamicRigidBodyBox>(entityId);
-		if (rigidBody == nullptr) return;
+		DynamicRigidBody* rigidBody = world->GetComponent<DynamicRigidBody>(entityId);
 		ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
-		if (renderGeometry == nullptr) return;
-		const auto& rigidBodyTransform = rigidBody->GetTransform();
-		renderGeometry->SetTransform(rigidBodyTransform);*/
+		auto rigidBodyPtr = GetContext().GetPhysicsSubsystem()->GetWorld()->GetRigidBodyById(rigidBody->id_);
+
+		const auto& rigidBodyTransform = rigidBodyPtr->GetTransform();
+		//renderGeometry->SetTransform(rigidBodyTransform);
 
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> RigidBodyToRenderGeometryMapper::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}/*.Include<DynamicRigidBodyBox>()*/.Include<ImmutableRenderGeometry>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return { ECS::Entity::Filter{}.Include<DynamicRigidBody>().Include<ImmutableRenderGeometry>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 	Common::TypeId RigidBodyToRenderGeometryMapper::GetTypeId() const noexcept {
 		return Common::TypeInfo<RigidBodyToRenderGeometryMapper>().GetId();

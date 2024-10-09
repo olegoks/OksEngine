@@ -6,22 +6,15 @@
 namespace OksEngine {
 
 
-	LuaScript::LuaScript(const std::string& tag, Lua::Script::Id scriptId) :
-		ECSComponent{ nullptr },
-		tag_{ tag },
-		id_{ scriptId } {
-
-	}
-
 	template<>
 	void Edit<LuaScript>(LuaScript* luaScript) {
-		ImGui::TextDisabled("Script id: %d", luaScript->id_);
+		/*ImGui::TextDisabled("Script id: %d", luaScript->id_);*/
 	}
 
 
 	template<>
 	void Add<LuaScript>(ECS::World* world, ECS::Entity::Id id) {
-		static char scriptName[100]{ "Camera.lua" };
+		/*static char scriptName[100]{ "Camera.lua" };
 		static char objectName[100]{ "Camera" };
 		if (ImGui::CollapsingHeader("Create info")) {
 			ImGui::InputText("Script name:", scriptName, 100);
@@ -32,7 +25,7 @@ namespace OksEngine {
 			if (!world->IsComponentExist<Behaviour>(id)) {
 				world->CreateComponent<Behaviour>(id, std::string{ scriptName }, std::string{ objectName });
 			}
-		}
+		}*/
 	}
 
 }

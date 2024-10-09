@@ -20,7 +20,6 @@ namespace OksEngine {
 
 	void CollectEntitiesInfo::Update(ECS::World* world, ECS::Entity::Id id, ECS::Entity::Id secondEntityId) {
 
-
 		ShowEntityInfo(world, id);
 
 		ImGui::ShowDemoWindow();
@@ -59,6 +58,10 @@ namespace OksEngine {
 			editComponent.template operator() < Position > (world, id);
 			editComponent.template operator() < MapRigidBodyToRenderGeometry > (world, id);
 			editComponent.template operator() < ActiveMarker > (world, id);
+			editComponent.template operator() < Name > (world, id);
+			editComponent.template operator() < Text > (world, id);
+			editComponent.template operator() < BinaryData > (world, id);
+			editComponent.template operator() < Completed > (world, id);
 			/*Behaviour*/
 			editComponent.template operator() < Behaviour > (world, id);
 			editComponent.template operator() < LuaScript > (world, id);
@@ -84,9 +87,20 @@ namespace OksEngine {
 			editComponent.template operator() < LoadMtlRequest > (world, id);
 			editComponent.template operator() < LoadObjRequest > (world, id);
 			editComponent.template operator() < LoadTextureRequest > (world, id);
-			editComponent.template operator() < LoadResourceRequest > (world, id);
 			editComponent.template operator() < MtlEntity > (world, id);
+			if (world->IsComponentExist<MtlEntity>(id)) {
+				auto mtlEntity = world->GetComponent<MtlEntity>(id);
+				ImGui::Indent(20.0f);
+				ShowEntityInfo(world, mtlEntity->id_);
+				ImGui::Unindent(20.0f);
+			}
 			editComponent.template operator() < ObjEntity > (world, id);
+			if (world->IsComponentExist<ObjEntity>(id)) {
+				auto objEntity = world->GetComponent<ObjEntity>(id);
+				ImGui::Indent(20.0f);
+				ShowEntityInfo(world, objEntity->id_);
+				ImGui::Unindent(20.0f);
+			}
 			editComponent.template operator() < ResourceEntity > (world, id);
 			if (world->IsComponentExist<ResourceEntity>(id)) {
 				auto resourceEntity = world->GetComponent<ResourceEntity>(id);
@@ -123,13 +137,16 @@ namespace OksEngine {
 			editComponent.template operator() < DriverMesh > (world, id);
 
 			editComponent.template operator() < GeometryDescriptionFileEntity > (world, id);
+			editComponent.template operator() < LoadGeometryDescriptionFileRequest > (world, id);
 			editComponent.template operator() < Camera > (world, id);
 			//editComponent.template operator() < PointLight > (world, id);
 			editComponent.template operator() < SkinnedGeometry > (world, id);
-			editComponent.template operator() < Mesh > (world, id);
 			/*Resources*/
 			editComponent.template operator() < LoadResourceRequest > (world, id);
 			editComponent.template operator() < Resource > (world, id);
+			editComponent.template operator() < AsyncTask > (world, id);
+			editComponent.template operator() < WaitingForResourceLoading > (world, id);
+			editComponent.template operator() < ResourceWasLoadedEarly > (world, id);
 			/*UI*/
 			editComponent.template operator() < HandleKeyboardInputMarker > (world, id);
 			editComponent.template operator() < KeyboardInput > (world, id);
@@ -155,7 +172,6 @@ namespace OksEngine {
 				DynamicRigidBodyCustomMeshShape::GetName(),
 				//StaticRigidBodyCustomMeshShape::GetName(),
 				ImmutableRenderGeometry::GetName(),
-				Mesh::GetName(),
 				Camera::GetName(),
 				PointLight::GetName(),
 				SkinnedGeometry::GetName(),

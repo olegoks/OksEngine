@@ -15,6 +15,38 @@ if(MSVC)
   target_link_options(OksEngine PUBLIC "/INCREMENTAL")
 endif()
 
+
+#Test code
+
+function(get_source_files DIRECTORY FILE_LIST)
+    file(GLOB_RECURSE TEMP_FILES "${DIRECTORY}/*.cpp" "${DIRECTORY}/*.hpp")
+    set(${FILE_LIST} ${TEMP_FILES} PARENT_SCOPE)
+
+endfunction()
+
+# Функция для создания source_group для в соответствии с их местоположением относительно корневой директории
+function(organize_source_files DIRECTORY FILES)
+    foreach(FILE_PATH IN LISTS FILES)
+        # Убираем корневую часть пути к файлу
+        file(RELATIVE_PATH REL_PATH "${DIRECTORY}" ${FILE_PATH})
+        # Извлекаем родительский путь
+ get_filename_component(PARENT_DIR "${REL_PATH}" DIRECTORY)
+        # Заменяем '/' на '\\' в пути, для правильной работы source_group
+        string(REPLACE "/" "\\" GROUP_NAME "Sources/${PARENT_DIR}")
+        # Создаем source_group
+        source_group("${GROUP_NAME}" FILES "${FILE_PATH}")
+        message(STATUS "${GROUP_NAME}=${${GROUP_NAME}} ${FILE_PATH}=${${FILE_PATH}} ")
+    endforeach()
+endfunction()
+
+# Получаем список всех файлов
+get_source_files(${CMAKE_CURRENT_LIST_DIR} PROJECT_SOURCES)
+
+# Организуем файлы по группам
+organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
+
+#Test code
+
 file(GLOB PUBLIC_SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
     LIST_DIRECTORIES false
@@ -78,12 +110,12 @@ file(GLOB PUBLIC_SOURCES_RENDER
     Render/*.h
 )
 
-file(GLOB PRIVATE_SOURCES_RENDER
-    RELATIVE ${CMAKE_CURRENT_LIST_DIR}
-    LIST_DIRECTORIES false
-    Render/*.cpp
-    Render/*.c
-)
+# file(GLOB PRIVATE_SOURCES_RENDER
+#     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
+#     LIST_DIRECTORIES false
+#     Render/*.cpp
+#     Render/*.c
+# )
 
 file(GLOB PUBLIC_SOURCES_RESOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
@@ -137,6 +169,7 @@ target_sources(OksEngine
         ${PUBLIC_SOURCES_DEBUG}
         ${PUBLIC_SOURCES_BEHAVIOUR}
         ${PUBLIC_SOURCES_RESOURCES}
+        ${PROJECT_SOURCES}
     PRIVATE
         ${PRIVATE_SOURCES}
         ${PRIVATE_SOURCES_UI}

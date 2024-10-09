@@ -29,8 +29,9 @@ namespace OksEngine {
 				/*Resources*/
 				//context_->GetECSWorld()->RunSystem<CheckResourceLoaded>();
 				//context_->GetECSWorld()->RunSystem<LoadResourceSystem>();
-
-
+				context_->GetECSWorld()->RunSystem<CreateAsyncTask>();
+				context_->GetECSWorld()->RunSystem<CheckResourceLoaded>();
+				context_->GetECSWorld()->RunSystem < WaitForResourceLoading>();
 				/*UI*/
 				context_->GetECSWorld()->RunSystem<GetWindowKeyboardInputEvents>();
 				context_->GetECSWorld()->RunSystem<GetWindowFramebufferResizedEvents>();
@@ -70,7 +71,8 @@ namespace OksEngine {
 				/*ImGui*/
 
 				/*Render*/
-
+				context_->GetECSWorld()->RunSystem<CreateDriverCamera>();
+				context_->GetECSWorld()->RunSystem < UpdateDriverCamera>();
 				context_->GetECSWorld()->RunSystem<CreateLoadGeometryDescriptionFileRequest>();
 				context_->GetECSWorld()->RunSystem<CreateGeometryDescriptionFileEntity>();
 				context_->GetECSWorld()->RunSystem<CreateLoadObjRequest>();

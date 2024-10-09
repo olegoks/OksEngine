@@ -14,13 +14,15 @@ namespace OksEngine {
 		auto* textureInfo = world->GetComponent<TextureInfo>(entityId);
 		auto* loadTextureRequest = world->GetComponent<LoadTextureRequest>(entityId);
 
-		auto* loadResourceRequest = world->GetComponent<LoadResourceRequest>(secondEntityId);
-		auto* textureResource = world->GetComponent<Resource>(secondEntityId);
 
-		if (loadResourceRequest->GetName() == loadTextureRequest->GetName()) {
-			Geom::Texture texture = Geom::CreateTexture(textureResource->resourceData_.c_str(), textureResource->resourceData_.size());
-			world->CreateComponent<Texture>(entityId, texture.GetWidth(), texture.GetHeight(), texture.GetPixelsArray());
-		}
+		//loadTextureRequest->resourceLoadRequestEntityId_;
+		//auto* loadResourceRequest = world->GetComponent<LoadResourceRequest>(secondEntityId);
+		//auto* textureResource = world->GetComponent<Resource>(secondEntityId);
+
+		//if (loadResourceRequest->GetName() == loadTextureRequest->GetName()) {
+		//	Geom::Texture texture = Geom::CreateTexture(textureResource->resourceData_.c_str(), textureResource->resourceData_.size());
+		//	world->CreateComponent<Texture>(entityId, texture.GetWidth(), texture.GetHeight(), texture.GetPixelsArray());
+		//}
 
 	}
 

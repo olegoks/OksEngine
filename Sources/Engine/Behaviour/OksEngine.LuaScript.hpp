@@ -7,10 +7,7 @@ namespace OksEngine {
 
 
 	struct LuaScript : public ECSComponent<LuaScript> {
-		std::string tag_;
-		Lua::Script::Id id_;
-
-		LuaScript(const std::string& tag, Lua::Script::Id scriptId);
+		LuaScript() : ECSComponent{ nullptr } {}
 
 	};
 
