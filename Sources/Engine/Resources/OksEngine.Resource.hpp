@@ -8,11 +8,9 @@ namespace OksEngine {
 
 	class Resource : public ECSComponent<Resource> {
 	public:
-		Resource(const std::string& resourceData) : 
-			ECSComponent{ nullptr },
-			resourceData_{ resourceData } { }
+		Resource() : 
+			ECSComponent{ nullptr } { }
 
-		std::string resourceData_;
 	};
 
 

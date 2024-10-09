@@ -49,11 +49,21 @@ namespace OksEngine
 
 
 		world_ = std::make_shared<ECS::World>();
+		
+		//Resource ecs subsystem
+		{
+			const ECS::Entity::Id resourceSubsystem = world_->CreateEntity();
+			world_->CreateComponent<ECSResourceSubsystem>(resourceSubsystem);
+
+		}
+
 		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
 		world_->RegisterSystem<CreateLoadLuaScriptRequest>(*this);
 
 		world_->RegisterSystem<CreateLuaScriptEntity>(*this);
-		//world_->RegisterSystem<LoadResourceSystem>(*this);
+		world_->RegisterSystem<CreateAsyncTask>(*this);
+		world_->RegisterSystem < CheckResourceLoaded>(*this);
+		world_->RegisterSystem < WaitForResourceLoading>(*this);
 		//world_->RegisterSystem < CheckResourceLoaded>(*this);
 		world_->RegisterSystem<CreateLuaContext>(*this);
 		world_->RegisterSystem<CallUpdateMethod>(*this);

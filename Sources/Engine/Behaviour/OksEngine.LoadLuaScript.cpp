@@ -30,6 +30,7 @@ namespace OksEngine {
 			auto* scriptName = world->GetComponent<Name>(loadResourceRequestEntityId);
 			const ECS::Entity::Id luaScriptEntityId = world->CreateEntity();
 			{
+				world->CreateComponent<LuaScript>(luaScriptEntityId);
 				world->CreateComponent<Name>(luaScriptEntityId, scriptName->value_);
 				world->CreateComponent<Text>(luaScriptEntityId, std::string{ binaryData->data_.data(), binaryData->data_.size() });
 			}
@@ -38,7 +39,12 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLuaScriptEntity::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<LoadLuaScriptRequest>().Exclude<LuaScript>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return { 
+			ECS::Entity::Filter{}
+			.Include<LoadLuaScriptRequest>()
+			.Exclude<LuaScriptEntity>(),
+			ECS::Entity::Filter{}
+			.ExcludeAll() };
 	}
 
 }

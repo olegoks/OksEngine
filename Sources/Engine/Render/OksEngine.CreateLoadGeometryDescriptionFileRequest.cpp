@@ -25,7 +25,6 @@ namespace OksEngine {
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLoadGeometryDescriptionFileRequest::GetFilter() const noexcept {
 		return { ECS::Entity::Filter{}
 			.Include<ImmutableRenderGeometry>()
-			.Exclude<GeometryDescriptionFile>()
 			.Exclude<LoadGeometryDescriptionFileRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 

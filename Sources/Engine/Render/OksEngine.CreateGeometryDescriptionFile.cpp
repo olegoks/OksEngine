@@ -30,6 +30,7 @@ namespace OksEngine {
 					world->CreateComponent<Name>(geometryDescriptionFileRequest, name->value_);
 					world->CreateComponent<Text>(geometryDescriptionFileRequest, std::string{ binaryData->data_.data(), binaryData->data_.size() });
 				}
+				world->CreateComponent<GeometryDescriptionFileEntity>(entityId, geometryDescriptionFileRequest);
 			}
 		}
 	}
@@ -37,7 +38,7 @@ namespace OksEngine {
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateGeometryDescriptionFileEntity::GetFilter() const noexcept {
 		return { ECS::Entity::Filter{}
 			.Include<ImmutableRenderGeometry>()
-			.Exclude<GeometryDescriptionFile>()
+			.Exclude<GeometryDescriptionFileEntity>()
 			.Include<LoadGeometryDescriptionFileRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 

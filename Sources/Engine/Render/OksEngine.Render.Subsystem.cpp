@@ -41,11 +41,11 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<CreateModelEntityFromObjMtl>(context);
 		ecsWorld->RegisterSystem<UpdateDriverCamera>(context);
 		ecsWorld->RegisterSystem<CreateDriverCamera>(context);
-		ecsWorld->RegisterSystem<CreateDriverModel>(context);
+		//ecsWorld->RegisterSystem<CreateDriverModel>(context);
 		ecsWorld->RegisterSystem<ResizeFrameBuffers>(context);
 		ecsWorld->RegisterSystem<MapMeshTransform>(context);
 		ecsWorld->RegisterSystem<CreateGeometryDescriptionFileEntity>(context);
-		ecsWorld->RegisterSystem<LoadMesh>(context);
+		//ecsWorld->RegisterSystem<LoadMesh>(context);
 		ecsWorld->RegisterSystem<CreateLoadTextureRequest>(context);
 		auto uiSubsystem = context.GetUISubsystem();
 		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);

@@ -6,6 +6,7 @@
 #include <Render/OksEngine.Camera.hpp>
 #include <Render/OksEngine.DriverModel.hpp>
 #include <Render/OksEngine.GeometryDescriptionFileEntity.hpp>
+#include <Render/OksEngine.LoadGeometryDescriptionFileRequest.hpp>
 #include <Render/OksEngine.Mesh.hpp>
 #include <Render/OksEngine.CreateLoadObjRequest.hpp>
 #include <Render/OksEngine.CreateLoadMtlRequest.hpp>

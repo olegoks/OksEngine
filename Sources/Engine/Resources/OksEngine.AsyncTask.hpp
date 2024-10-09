@@ -8,6 +8,7 @@ namespace OksEngine {
 
 	class AsyncTask : public ECSComponent<AsyncTask> {
 	public:
+
 		AsyncTask(AsyncResourceSubsystem::Task::Id id) :
 			ECSComponent{ nullptr },
 			id_{ id } { }

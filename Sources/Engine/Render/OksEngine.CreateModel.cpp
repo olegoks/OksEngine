@@ -31,7 +31,7 @@ namespace OksEngine {
 		for (auto& mesh : model2.meshes_) {
 			ECS::Entity::Id meshEntityId = world->CreateEntity();
 			meshsEntitiesIds.push_back(meshEntityId);
-			world->CreateComponent<Mesh2>(meshEntityId, mesh.name_);
+			world->CreateComponent<Mesh2>(meshEntityId);
 			world->CreateComponent<Position>(meshEntityId, position->GetX(), position->GetY(), position->GetZ());
 			if (mesh.textureName_ != "") {
 				world->CreateComponent<TextureInfo>(meshEntityId, mesh.textureName_);

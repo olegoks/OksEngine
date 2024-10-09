@@ -20,8 +20,8 @@ namespace OksEngine {
 		auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
 		auto* geomFileText = world->GetComponent<Text>(geomFileEntity->id_);
 
-		YAML::Node yaml{ geomFileText->text_ };
-
+		YAML::Node yaml = YAML::Load(geomFileText->text_);
+		OS::Assert(!yaml.IsNull());
 		if (yaml["Mtl"]) {
 			const std::string mtlName = yaml["Mtl"].as<std::string>();
 			const ECS::Entity::Id loadMtlResourceEntityId = world->CreateEntity();

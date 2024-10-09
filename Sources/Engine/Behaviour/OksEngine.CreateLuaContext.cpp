@@ -3,11 +3,9 @@
 
 #include <Behaviour/OksEngine.CreateLuaContext.hpp>
 
+#include <OksEngine.Config.hpp>
 #include <OksEngine.Components.hpp>
 #include <Behaviour/OksEngine.LuaEntity.hpp>
-#include <Behaviour/OksEngine.LuaContext.hpp>
-#include <OksEngine.Config.hpp>
-#include <Resources/OksEngine.Resource.Subsystem.hpp>
 
 namespace OksEngine {
 
@@ -50,9 +48,12 @@ namespace OksEngine {
 
 		context.AddPackagePath(scriptsFullPath.string());
 
-		auto* scriptComponent = world->GetComponent<LuaScript>(entityId);
-		const Lua::Script& script = GetContext().GetScriptStorage()->Get(scriptComponent->tag_);
-		context.LoadScript(script.text_);
+		const ECS::Entity::Id luaScriptEntity = world->GetComponent<LuaScriptEntity>(entityId)->id_;
+		auto* scriptComponent = world->GetComponent<LuaScript>(luaScriptEntity);
+		auto* scriptName = world->GetComponent<Name>(luaScriptEntity);
+		auto* scriptText = world->GetComponent<Text>(luaScriptEntity);
+		//const Lua::Script& script = GetContext().GetScriptStorage()->Get(scriptName->value_);
+		context.LoadScript(scriptText->text_);
 
 		using namespace std::string_literals;
 		auto* behaviourScript = world->GetComponent<Behaviour>(entityId);
@@ -76,7 +77,7 @@ namespace OksEngine {
 
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLuaContext::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<LuaScript>().Exclude<LuaContext>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return { ECS::Entity::Filter{}.Include<Behaviour>().Include<LuaScriptEntity>().Exclude<LuaContext>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 
 	inline Common::TypeId CreateLuaContext::GetTypeId() const noexcept {

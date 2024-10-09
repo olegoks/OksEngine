@@ -15,8 +15,8 @@ namespace OksEngine {
 
 
 	template<>
-	inline void Edit<LuaScript>(LuaScript* script) {
-
+	inline void Edit<LuaScriptEntity>(LuaScriptEntity* luaScriptEntity) {
+		ImGui::TextDisabled("Id: %d", luaScriptEntity->id_);
 	}
 
 }

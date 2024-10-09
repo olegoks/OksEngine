@@ -4,40 +4,31 @@
 
 namespace OksEngine {
 
-	struct Mesh : public ECSComponent<Mesh> {
-	public:
-		Mesh() : ECSComponent{ nullptr } {
+	//struct Mesh : public ECSComponent<Mesh> {
+	//public:
+	//	Mesh() : ECSComponent{ nullptr } {
 
-		}
-		Mesh(const Geom::Model2::Id& modelId) :
-			ECSComponent{ nullptr }, modelId_{ modelId } {}
-		Geom::Model2::Id modelId_;
+	//	}
+	//	Mesh(const Geom::Model2::Id& modelId) :
+	//		ECSComponent{ nullptr }, modelId_{ modelId } {}
+	//	Geom::Model2::Id modelId_;
 
-	};
+	//};
 
-	template<>
-	inline void Edit<Mesh>(Mesh* mesh) {
-		ImGui::TextDisabled("Model id: \"%d\"", mesh->modelId_);
-	}
+	//template<>
+	//inline void Edit<Mesh>(Mesh* mesh) {
+	//	ImGui::TextDisabled("Model id: \"%d\"", mesh->modelId_);
+	//}
 
 	struct Mesh2 : public ECSComponent<Mesh2> {
 	public:
 		Mesh2() : ECSComponent{ nullptr } {
 
 		}
-
-		Mesh2(const std::string& name) 
-			: ECSComponent{ nullptr },
-			name_{ name } {
-
-		}
-		std::string name_;
-
 	};
 
 	template<>
 	inline void Edit<Mesh2>(Mesh2* renderMesh) {
-		ImGui::TextDisabled("Name: %s", renderMesh->name_.c_str());
 	}
 
 

@@ -2,37 +2,30 @@
 #include <Physics/OksEngine.CreatePhysicsShape.hpp>
 
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
+#include <Render/OksEngine.ModelEntity.hpp>
 #include <Physics/OksEngine.PhysicsShape.hpp>
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 #include <Physics/OksEngine.DynamicRigidBodyCustomMeshShape.hpp>
 #include <Physics/OksEngine.StaticRigidBodyCustomMeshShape.hpp>
 #include <Physics/OksEngine.Material.hpp>
 #include <Render/OksEngine.Mesh.hpp>
+#include <Common/OksEngine.ChildEntity.hpp>
 
 namespace OksEngine {
 
 
 	void CreatePhysicsShapeForDynamicRigidBody::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		const auto* meshComponent = world->GetComponent<Mesh>(entityId);
 		auto* drbComponent = world->GetComponent<DynamicRigidBodyCustomMeshShape>(entityId);
 		auto* materialComponent = world->GetComponent<Material>(entityId);
+		auto* modelEntity = world->GetComponent<ModelEntity>(entityId);
+		
+		auto* meshsEntities = world->GetComponent<ChildEntities>(modelEntity->id_);
 
-		ModelStorage::Model& model = GetContext().GetModelStorage()->GetModel(meshComponent->modelId_);
+		const ECS::Entity::Id meshEntityId = meshsEntities->entitiesIds_[0];
 
-		ModelStorage::Model::Mesh shapeModelMesh;
-
-		model.ForEachMesh([&shapeModelMesh](ModelStorage::Model::Mesh& mesh) {
-
-			if (!mesh.meshId_.IsInvalid()) {
-				shapeModelMesh = mesh;
-
-				return false;
-			} 
-			return true;
-			});
-
-		Geom::Mesh& shapeMesh = GetContext().GetMeshStorage()->Get(shapeModelMesh.meshId_);
+		auto* vertices = world->GetComponent<Vertices>(meshEntityId);
+		auto* indices = world->GetComponent<Indices>(meshEntityId);
 
 		PAL::Shape::Material material{
 			.staticFriction_ = materialComponent->staticFriction_,
@@ -42,8 +35,8 @@ namespace OksEngine {
 
 		PAL::Shape::CreateInfoMesh shapeCreateInfo{
 			.material_ = material,
-			.vertices_ = shapeMesh.vertices_,
-			.indices_ = shapeMesh.indices_
+			.vertices_ = vertices->vertices_,
+			.indices_ = indices->indices_
 		};
 
 		auto shape = GetContext().GetPhysicsSubsystem()->CreateShape(shapeCreateInfo);
@@ -93,7 +86,7 @@ namespace OksEngine {
 	{
 		return { ECS::Entity::Filter{}
 			.Include<ImmutableRenderGeometry>()
-			.Include<Mesh>()
+			.Include<ModelEntity>()
 			.Include<DynamicRigidBodyCustomMeshShape>()
 			.Exclude<PhysicsShape>()
 			.Exclude<DynamicRigidBody>(), ECS::Entity::Filter{}.ExcludeAll()};
@@ -106,25 +99,15 @@ namespace OksEngine {
 
 	void CreatePhysicsShapeForStaticRigidBody::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		const auto* meshComponent = world->GetComponent<Mesh>(entityId);
-		auto* drbComponent = world->GetComponent<StaticRigidBodyCustomMeshShape>(entityId);
 		auto* materialComponent = world->GetComponent<Material>(entityId);
+		auto* modelEntity = world->GetComponent<ModelEntity>(entityId);
 
-		ModelStorage::Model& model = GetContext().GetModelStorage()->GetModel(meshComponent->modelId_);
+		auto* meshsEntities = world->GetComponent<ChildEntities>(modelEntity->id_);
 
-		ModelStorage::Model::Mesh shapeModelMesh;
+		const ECS::Entity::Id meshEntityId = meshsEntities->entitiesIds_[0];
 
-		model.ForEachMesh([&shapeModelMesh](ModelStorage::Model::Mesh& mesh) {
-
-			if (!mesh.meshId_.IsInvalid()) {
-				shapeModelMesh = mesh;
-
-				return false;
-			}
-			return true;
-			});
-
-		Geom::Mesh& shapeMesh = GetContext().GetMeshStorage()->Get(shapeModelMesh.meshId_);
+		auto* vertices = world->GetComponent<Vertices>(meshEntityId);
+		auto* indices = world->GetComponent<Indices>(meshEntityId);
 
 		PAL::Shape::Material material{
 			.staticFriction_ = materialComponent->staticFriction_,
@@ -134,8 +117,8 @@ namespace OksEngine {
 
 		PAL::Shape::CreateInfoMesh shapeCreateInfo{
 			.material_ = material,
-			.vertices_ = shapeMesh.vertices_,
-			.indices_ = shapeMesh.indices_
+			.vertices_ = vertices->vertices_,
+			.indices_ = indices->indices_
 		};
 
 		auto shape = GetContext().GetPhysicsSubsystem()->CreateShape(shapeCreateInfo);
@@ -185,7 +168,7 @@ namespace OksEngine {
 	{
 		return { ECS::Entity::Filter{}
 			.Include<ImmutableRenderGeometry>()
-			.Include<Mesh>()
+			.Include<ModelEntity>()
 			.Include<StaticRigidBodyCustomMeshShape>()
 			.Exclude<PhysicsShape>()
 			.Exclude<StaticRigidBody>(), ECS::Entity::Filter{}.ExcludeAll() };
