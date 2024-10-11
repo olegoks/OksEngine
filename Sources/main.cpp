@@ -26,8 +26,13 @@ int main(int argc, char** argv) {
 	Engine engine{ engineCreateInfo };
 
 	Entity camera = engine.CreateEntity();
-	camera.AddPosition(-100, 10, 0);
 	camera.AddCamera({ -100, 10, 0 }, { 0, 1, 0, }, true);
+	camera.AddPosition(50, 20, 0);
+	camera.AddDirection(-20, -4, 0);
+	camera.AddUp(0, 1, 0);
+	camera.AddWidth(1000);
+	camera.AddHeight(700);
+	camera.AddActive();
 	camera.AddBehaviour("Camera.lua", "Camera");
 
 	Common::Size terrainWidth = 10;
@@ -39,6 +44,7 @@ int main(int argc, char** argv) {
 				Entity terrain = engine.CreateEntity();
 				terrain.AddName("Terrain");
 				terrain.AddPosition(0, 0, 0);
+				terrain.AddRotation({0, 1, 0}, 0);
 				terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom");
 				terrain.AddStaticRigidBodyCustomMeshShape();
 				terrain.AddMaterial(0.1, 0.1, 0.1);
@@ -67,6 +73,7 @@ int main(int argc, char** argv) {
 	Entity dragonLore = engine.CreateEntity();
 	dragonLore.AddName("DragonLore");
 	dragonLore.AddPosition(0, 10, 0);
+	dragonLore.AddRotation({ 0, 1, 0 }, 0);
 	dragonLore.AddImmutableRenderGeometry("dragon_lore.geom");
 	dragonLore.AddDynamicRigidBodyCustomMeshShape();
 	dragonLore.AddMapRigidBodyToRenderGeometry();
