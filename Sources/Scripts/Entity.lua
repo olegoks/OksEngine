@@ -33,4 +33,16 @@ function Entity:GetComponent(componentName)
     if componentName == "RigidBodyCapsule" then
         return self.EngineEntity:GetRigidBodyCapsule()
     end
+    if componentName == "Direction" then
+        return self.EngineEntity:GetDirection()
+    end
+    if componentName == "Up" then
+        return self.EngineEntity:GetUp()
+    end
+    if componentName == "Width" then
+        return self.EngineEntity:GetWidth()
+    end
+    if componentName == "Height" then
+        return self.EngineEntity:GetHeight()
+    end
 end

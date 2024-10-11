@@ -5,6 +5,7 @@
 #include <filesystem>
 #include <Lua.Common.hpp>
 #include <Common.Identifier.hpp>
+#include <OS.Assert.hpp>
 
 namespace Lua {
 
@@ -13,7 +14,7 @@ namespace Lua {
 	public:
 		using Id = Common::Id;
 		
-		Script(const std::string& text) : text_{ text } {}
+		Script(const std::string& text);
 		
 		std::string text_;
 	};

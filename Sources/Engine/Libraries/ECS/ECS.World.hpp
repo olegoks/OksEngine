@@ -76,6 +76,12 @@ namespace ECS {
 
 		template<class ComponentType>
 		[[nodiscard]]
+		const ComponentType* GetConstComponent(Entity::Id entityId) const noexcept {
+			return componentsManager_.GetComponent<ComponentType>(entityId);
+		}
+
+		template<class ComponentType>
+		[[nodiscard]]
 		ComponentType* GetComponent(Entity::Id entityId) noexcept {
 			return componentsManager_.GetComponent<ComponentType>(entityId);
 		}
