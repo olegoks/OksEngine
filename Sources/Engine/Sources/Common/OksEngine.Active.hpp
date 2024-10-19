@@ -14,7 +14,7 @@ namespace OksEngine {
 	};
 
 	template<>
-	inline void Bind<Active>(Lua::Context& context) {
+	inline void Bind<Active>(::Lua::Context& context) {
 
 	}
 

@@ -22,8 +22,8 @@ namespace OksEngine {
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 
 		const glm::mat4 view = glm::lookAt(
-			position->translate_,
-			position->translate_ + direction->value_,
+			position->xyz_,
+			position->xyz_ + direction->xyz_,
 			camera->GetUp()
 		);
 

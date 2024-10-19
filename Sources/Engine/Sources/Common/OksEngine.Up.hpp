@@ -23,15 +23,6 @@ namespace OksEngine {
 		void SetY(float y) { value_.y = y; }
 		void SetZ(float z) { value_.z = z; }
 
-		void Rotate(float x, float y, float z, float angle) {
-			value_ = glm::normalize(glm::rotate(
-				value_,
-				glm::radians(angle),
-				{ x, y, z })
-			);
-		}
-
-
 		glm::vec3 value_{ 0.0, 1.0, 0 };
 	};
 
@@ -44,7 +35,7 @@ namespace OksEngine {
 	}
 
 	template<>
-	inline void Bind<Up>(Lua::Context& context) {
+	inline void Bind<Up>(::Lua::Context& context) {
 		context.GetGlobalNamespace()
 			.beginClass<Up>("Up")
 			.addConstructor<void(*)(int x, int y, int z)>()
@@ -54,7 +45,6 @@ namespace OksEngine {
 			.addFunction("SetX", &Up::SetX)
 			.addFunction("SetY", &Up::SetY)
 			.addFunction("SetZ", &Up::SetZ)
-			.addFunction("Rotate", &Up::Rotate)
 			.endClass();
 	}
 

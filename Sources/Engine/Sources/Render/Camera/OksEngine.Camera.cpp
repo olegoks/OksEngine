@@ -48,7 +48,7 @@ namespace OksEngine {
 
 
 	template<>
-	void Bind<Camera>(Lua::Context& context) {
+	void Bind<Camera>(::Lua::Context& context) {
 		context.GetGlobalNamespace()
 			.beginClass<Camera>("Camera")
 			.addConstructor<void(*)(
