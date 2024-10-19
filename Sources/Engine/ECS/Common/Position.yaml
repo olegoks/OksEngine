@@ -1,0 +1,17 @@
+Import: Common
+
+Component:
+ Name: Position
+ Fields:
+  x:
+   Value: 0.0
+   Type: float
+   Editor: true
+  y:
+   Value: 0.0
+   Type: float
+   Editor: true
+  z:
+   Value: 0.0
+   Type: float
+   Editor: true
