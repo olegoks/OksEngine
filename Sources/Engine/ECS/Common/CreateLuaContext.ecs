@@ -1,0 +1,12 @@
+Import: Common
+
+System :
+ Name : CreateLuaContext
+ Exclude :
+  - LuaContext
+ Include :
+ Read:  
+  - Behaviour
+  - LuaScriptEntity
+ Create :
+  - LuaContext
