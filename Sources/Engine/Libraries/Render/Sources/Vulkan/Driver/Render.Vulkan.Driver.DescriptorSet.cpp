@@ -17,7 +17,7 @@ namespace Render::Vulkan {
 
 		VkDescriptorBufferInfo bufferInfo{};
 		{
-			bufferInfo.buffer = buffer->GetNative();
+			bufferInfo.buffer = *buffer;
 			bufferInfo.offset = offset;
 			bufferInfo.range = range;
 		}

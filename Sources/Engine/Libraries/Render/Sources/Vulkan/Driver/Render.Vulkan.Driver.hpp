@@ -912,6 +912,7 @@ namespace Render::Vulkan {
 					objects_.physicalDevice_,
 					objects_.LD_,
 					createInfo.size_);
+				uniformBuffer->Allocate();
 
 				Common::Id id = UBsIdsGenerator_.Generate();
 				UBs_[id] = std::vector<std::shared_ptr<Vulkan::UniformBuffer>>{ uniformBuffer };
@@ -929,6 +930,7 @@ namespace Render::Vulkan {
 						objects_.physicalDevice_,
 						objects_.LD_,
 						createInfo.size_);
+					UB->Allocate();
 					UBs.push_back(UB);
 				}
 				Common::Id id = UBsIdsGenerator_.Generate();
@@ -962,12 +964,46 @@ namespace Render::Vulkan {
 		virtual void FillUniformBuffer(UniformBuffer::Id UBId, void* data) override {
 			std::vector<std::shared_ptr<Vulkan::UniformBuffer>>& ub = UBs_[UBId];
 			if (ub.size() == 1) {
-				ub[0]->Fill(data);
+				ub[0]->Fill(data, ub[0]->GetSizeInBytes());
 			} else {
 				OS::AssertMessage(ub.size() == MAX_FRAMES_IN_FLIGHT, "Incorrect number of ubs.");
-				ub[currentFrame]->Fill(data);
+				ub[currentFrame]->Fill(data, ub[currentFrame]->GetSizeInBytes());
 			}
 		}
+
+		virtual VertexBuffer::Id CreateVertexBuffer(const VertexBuffer::CreateInfo& createInfo) override {
+
+
+			//AllocatedVertexBuffer2::CreateInfo vertexBufferCreateInfo{};
+			//{
+			//	vertexBufferCreateInfo.LD_ = objects_.LD_;
+			//	vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+			//	vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
+			//	vertexBufferCreateInfo.verticesNumber_ = createInfo.verticesNumber_;
+			//	vertexBufferCreateInfo.vertices_ = (const Vertex2ftc*)vertices;
+			//	vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(vertexType);
+			//}
+			//auto allocatedVertexBuffer = std::make_shared<AllocatedVertexBuffer2>(vertexBufferCreateInfo);
+			return 0;
+		}
+
+
+		virtual IndexBuffer::Id CreateIndexBuffer(const IndexBuffer::CreateInfo& createInfo) override {
+
+
+			//AllocatedVertexBuffer2::CreateInfo vertexBufferCreateInfo{};
+			//{
+			//	vertexBufferCreateInfo.LD_ = objects_.LD_;
+			//	vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+			//	vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
+			//	vertexBufferCreateInfo.verticesNumber_ = createInfo.verticesNumber_;
+			//	vertexBufferCreateInfo.vertices_ = (const Vertex2ftc*)vertices;
+			//	vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(vertexType);
+			//}
+			//auto allocatedVertexBuffer = std::make_shared<AllocatedVertexBuffer2>(vertexBufferCreateInfo);
+			return 0;
+		}
+
 
 		[[nodiscard]]
 		virtual RAL::Texture::Id CreateTexture(const RAL::Texture::CreateInfo& createInfo) override {
@@ -1165,6 +1201,12 @@ namespace Render::Vulkan {
 
 		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::UniformBuffer>>> UBs_;
 		Common::IdGenerator UBsIdsGenerator_;
+
+		std::map<Common::Id, std::vector<std::shared_ptr<AllocatedVertexBuffer2>>> VBs_;
+		Common::IdGenerator VBsIdsGenerator_;
+
+		std::map<Common::Id, std::vector<std::shared_ptr<AllocatedIndexBuffer2>>> IBs_;
+		Common::IdGenerator IBsIdsGenerator_;
 
 	};
 

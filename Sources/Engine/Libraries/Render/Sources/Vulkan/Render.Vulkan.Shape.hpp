@@ -21,83 +21,83 @@
 namespace Render::Vulkan {
 
 
-	struct Transform {
-		alignas(16) glm::mat4 model_;
-	};
+	//struct Transform {
+	//	alignas(16) glm::mat4 model_;
+	//};
 
-	class ShapeBase {
-	public:
+	//class ShapeBase {
+	//public:
 
-		ShapeBase() :
-				id_{ GetNextId() }{}
+	//	ShapeBase() :
+	//			id_{ GetNextId() }{}
 
-		[[nodiscard]]
-		Common::Index GetId() const noexcept {
-			return id_;
-		}
-
-
-	private:
-		[[nodiscard]]
-		static inline Common::Index GetNextId() noexcept {
-			static Common::Index id = 0;
-			return ++id;
-		}
-		Common::Index id_ = 0;
+	//	[[nodiscard]]
+	//	Common::Index GetId() const noexcept {
+	//		return id_;
+	//	}
 
 
-	};
+	//private:
+	//	[[nodiscard]]
+	//	static inline Common::Index GetNextId() noexcept {
+	//		static Common::Index id = 0;
+	//		return ++id;
+	//	}
+	//	Common::Index id_ = 0;
 
-	template<class TransformType, class VertexType, class IndexType>
-	class Shape : public ShapeBase {
-	public:
 
-		struct CreateInfo {
-			TransformType model_;
-			std::shared_ptr<AllocatedVertexBuffer<VertexType>> vertexBuffer_ = nullptr;
-			std::shared_ptr<AllocatedIndexBuffer<IndexType>> indexBuffer_ = nullptr;
-			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
-			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-		};
+	//};
 
-		Shape(const CreateInfo& createInfo) :
-			ShapeBase{},
-			model_{ createInfo.model_ },
-			transformBuffer_{ createInfo.transformBuffer_ },
-			transformDescriptorSet_{ createInfo.transformDescriptorSet_ },
-			vertexBuffer_{ createInfo.vertexBuffer_ },
-			indexBuffer_{ createInfo.indexBuffer_ }{
+	//template<class TransformType, class VertexType, class IndexType>
+	//class Shape : public ShapeBase {
+	//public:
 
-		}
+	//	struct CreateInfo {
+	//		TransformType model_;
+	//		std::shared_ptr<AllocatedVertexBuffer<VertexType>> vertexBuffer_ = nullptr;
+	//		std::shared_ptr<AllocatedIndexBuffer<IndexType>> indexBuffer_ = nullptr;
+	//		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+	//		std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
+	//	};
 
-		[[nodiscard]]
-		auto GetVertexBuffer() noexcept {
-			return vertexBuffer_;
-		}
+	//	Shape(const CreateInfo& createInfo) :
+	//		ShapeBase{},
+	//		model_{ createInfo.model_ },
+	//		transformBuffer_{ createInfo.transformBuffer_ },
+	//		transformDescriptorSet_{ createInfo.transformDescriptorSet_ },
+	//		vertexBuffer_{ createInfo.vertexBuffer_ },
+	//		indexBuffer_{ createInfo.indexBuffer_ }{
 
-		[[nodiscard]]
-		auto GetIndexBuffer() noexcept {
-			return indexBuffer_;
-		}
+	//	}
 
-		[[nodiscard]]
-		auto GetTransformDescriptorSet() noexcept {
-			return transformDescriptorSet_;
-		}
+	//	[[nodiscard]]
+	//	auto GetVertexBuffer() noexcept {
+	//		return vertexBuffer_;
+	//	}
 
-		void SetModelMatrix(const glm::mat4& modelMatrix) {
-			model_ = modelMatrix;
-			Transform transform{ model_ };
-			transformBuffer_->Fill(&transform);
-		}
-	private:
-		TransformType model_;
-		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
-		std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-		std::shared_ptr<AllocatedVertexBuffer<VertexType>> vertexBuffer_ = nullptr;
-		std::shared_ptr<AllocatedIndexBuffer<IndexType>> indexBuffer_ = nullptr;
+	//	[[nodiscard]]
+	//	auto GetIndexBuffer() noexcept {
+	//		return indexBuffer_;
+	//	}
 
-	};
+	//	[[nodiscard]]
+	//	auto GetTransformDescriptorSet() noexcept {
+	//		return transformDescriptorSet_;
+	//	}
+
+	//	void SetModelMatrix(const glm::mat4& modelMatrix) {
+	//		model_ = modelMatrix;
+	//		Transform transform{ model_ };
+	//		transformBuffer_->Fill(&transform);
+	//	}
+	//private:
+	//	TransformType model_;
+	//	std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+	//	std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
+	//	std::shared_ptr<AllocatedVertexBuffer<VertexType>> vertexBuffer_ = nullptr;
+	//	std::shared_ptr<AllocatedIndexBuffer<IndexType>> indexBuffer_ = nullptr;
+
+	//};
 
 
 	class Mesh {
@@ -156,93 +156,93 @@ namespace Render::Vulkan {
 		bool draw_ = true;
 	};
 
-	class TexturedShape : public Shape<glm::mat4, Vertex3fnt, Index16>{
-	public:
+	//class TexturedShape : public Shape<glm::mat4, Vertex3fnt, Index16>{
+	//public:
 
-		struct CreateInfo {
-			glm::mat4 model_;
-			std::shared_ptr<AllocatedVertexBuffer<Vertex3fnt>> vertexBuffer_ = nullptr;
-			std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
-			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
-			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-			RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
-		};
+	//	struct CreateInfo {
+	//		glm::mat4 model_;
+	//		std::shared_ptr<AllocatedVertexBuffer<Vertex3fnt>> vertexBuffer_ = nullptr;
+	//		std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
+	//		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+	//		std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
+	//		RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+	//	};
 
-		TexturedShape(const CreateInfo& createInfo) :
-			Shape{ Shape::CreateInfo{
-				createInfo.model_,
-				createInfo.vertexBuffer_,
-				createInfo.indexBuffer_,
-				createInfo.transformBuffer_,
-				createInfo.transformDescriptorSet_
-				} },
-			textureId_{ createInfo.textureId_ } { }
+	//	TexturedShape(const CreateInfo& createInfo) :
+	//		Shape{ Shape::CreateInfo{
+	//			createInfo.model_,
+	//			createInfo.vertexBuffer_,
+	//			createInfo.indexBuffer_,
+	//			createInfo.transformBuffer_,
+	//			createInfo.transformDescriptorSet_
+	//			} },
+	//		textureId_{ createInfo.textureId_ } { }
 
-		[[nodiscard]]
-		auto GetTexture() noexcept {
-			return textureId_;
-		}
+	//	[[nodiscard]]
+	//	auto GetTexture() noexcept {
+	//		return textureId_;
+	//	}
 
-		RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
-	};
+	//	RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+	//};
 
 
-	class UIShape : public Shape<glm::mat3, Vertex2ftc, Index16> {
-	public:
+	//class UIShape : public Shape<glm::mat3, Vertex2ftc, Index16> {
+	//public:
 
-		struct CreateInfo {
-			glm::mat3 model_;
-			std::shared_ptr<AllocatedVertexBuffer<Vertex2ftc>> vertexBuffer_ = nullptr;
-			std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
-			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
-			std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-			RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
-		};
+	//	struct CreateInfo {
+	//		glm::mat3 model_;
+	//		std::shared_ptr<AllocatedVertexBuffer<Vertex2ftc>> vertexBuffer_ = nullptr;
+	//		std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
+	//		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+	//		std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
+	//		RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+	//	};
 
-		UIShape(const CreateInfo& createInfo) :
-			Shape{ Shape::CreateInfo{
-				glm::mat4{ 1.f },
-				createInfo.vertexBuffer_,
-				createInfo.indexBuffer_,
-				createInfo.transformBuffer_,
-				createInfo.transformDescriptorSet_
-				} },
-			textureId_{ createInfo.textureId_ } { }
+	//	UIShape(const CreateInfo& createInfo) :
+	//		Shape{ Shape::CreateInfo{
+	//			glm::mat4{ 1.f },
+	//			createInfo.vertexBuffer_,
+	//			createInfo.indexBuffer_,
+	//			createInfo.transformBuffer_,
+	//			createInfo.transformDescriptorSet_
+	//			} },
+	//		textureId_{ createInfo.textureId_ } { }
 
-		[[nodiscard]]
-		auto GetTexture() noexcept {
-			return textureId_;
-		}
+	//	[[nodiscard]]
+	//	auto GetTexture() noexcept {
+	//		return textureId_;
+	//	}
 
-		glm::vec2 scale_;
-		glm::vec2 translate_;
-		RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
-	};
+	//	glm::vec2 scale_;
+	//	glm::vec2 translate_;
+	//	RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+	//};
 
-	class ColoredShape : public Shape<glm::mat4, Vertex3fnc, Index16>{
-	public:
-		struct CreateInfo {
-			glm::mat4 model_;
-			std::shared_ptr<AllocatedVertexBuffer<Vertex3fnc>> vertexBuffer_ = nullptr;
-			std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
-			std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
-			std::shared_ptr<DescriptorSet> modelDataDescriptorSet;
-		};
+	//class ColoredShape : public Shape<glm::mat4, Vertex3fnc, Index16>{
+	//public:
+	//	struct CreateInfo {
+	//		glm::mat4 model_;
+	//		std::shared_ptr<AllocatedVertexBuffer<Vertex3fnc>> vertexBuffer_ = nullptr;
+	//		std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
+	//		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
+	//		std::shared_ptr<DescriptorSet> modelDataDescriptorSet;
+	//	};
 
-		ColoredShape(const CreateInfo& createInfo) noexcept :
-			Shape{ 
-				Shape::CreateInfo{
-					createInfo.model_,
-					createInfo.vertexBuffer_,
-					createInfo.indexBuffer_,
-					createInfo.transformBuffer_,
-					createInfo.modelDataDescriptorSet
-				} } { }
+	//	ColoredShape(const CreateInfo& createInfo) noexcept :
+	//		Shape{ 
+	//			Shape::CreateInfo{
+	//				createInfo.model_,
+	//				createInfo.vertexBuffer_,
+	//				createInfo.indexBuffer_,
+	//				createInfo.transformBuffer_,
+	//				createInfo.modelDataDescriptorSet
+	//			} } { }
 
-	private:
-		std::shared_ptr<VertexBuffer<Vertex3fnc>> vertexBuffer_ = nullptr;
-		std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
-	};
+	//private:
+	//	std::shared_ptr<VertexBuffer<Vertex3fnc>> vertexBuffer_ = nullptr;
+	//	std::shared_ptr<IndexBuffer<Index16>> indexBuffer_ = nullptr;
+	//};
 
 
 

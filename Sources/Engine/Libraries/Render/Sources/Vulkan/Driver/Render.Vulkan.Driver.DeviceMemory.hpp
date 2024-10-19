@@ -38,7 +38,7 @@ namespace Render::Vulkan {
 		}
 
 		[[nodiscard]]
-		VkDeviceSize GetSize() const noexcept { return createInfo_.requirements_.size; }
+		Common::Size GetSize() const noexcept { return createInfo_.requirements_.size; }
 
 		void Fill(const void* memory, Common::Size bytesNumber) noexcept {
 
@@ -57,7 +57,7 @@ namespace Render::Vulkan {
 
 
 		~DeviceMemory() noexcept {
-			OS::Assert(GetHandle() != nullptr);
+			OS::Assert(!IsNullHandle());
 			vkFreeMemory(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 			SetNullHandle();
 		}

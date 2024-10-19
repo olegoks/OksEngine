@@ -85,6 +85,25 @@ namespace RAL {
 			};
 		};
 
+		class VertexBuffer {
+		public:
+			using Id = Common::Id;
+
+			struct CreateInfo {
+				Common::Size verticesNumber_ = 0;
+				VertexType vertexType_ = VertexType::Undefined;
+			};
+		};
+
+		class IndexBuffer {
+		public:
+			using Id = Common::Id;
+			struct CreateInfo {
+				Common::Size size_ = 0;
+				IndexType indexType_ = IndexType::Undefined;
+			};
+		};
+
 
 		struct ShaderBinding {
 			enum class Type {
@@ -168,6 +187,12 @@ namespace RAL {
 
 		[[nodiscard]]
 		virtual UniformBuffer::Id CreateUniformBuffer(const UniformBuffer::CreateInfo& createInfo) = 0;
+
+		[[nodiscard]]
+		virtual VertexBuffer::Id CreateVertexBuffer(const VertexBuffer::CreateInfo& createInfo) = 0;
+
+		[[nodiscard]]
+		virtual IndexBuffer::Id CreateIndexBuffer(const IndexBuffer::CreateInfo& createInfo) = 0;
 		
 		[[nodiscard]]
 		virtual void FillUniformBuffer(UniformBuffer::Id UBId, void* data) = 0;

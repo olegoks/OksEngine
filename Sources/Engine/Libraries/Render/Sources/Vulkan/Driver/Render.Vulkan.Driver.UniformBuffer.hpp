@@ -9,6 +9,8 @@
 #include <Render.Vulkan.Driver.Buffer.hpp>
 
 namespace Render::Vulkan {
+
+
 	class UniformBuffer : public Buffer {
 	public:
 		UniformBuffer(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<LogicDevice> logicDevice, Common::Size sizeInBytes) :
