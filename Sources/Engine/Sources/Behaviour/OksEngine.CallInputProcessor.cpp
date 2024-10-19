@@ -41,7 +41,7 @@ namespace OksEngine {
 			keyboardEvent.c_str(),
 			xOffset,
 			yOffset);
-		OS::AssertMessage(result.wasOk(), result.errorMessage());
+		OS::AssertMessage(!result.hasFailed() && result.wasOk(),result.errorCode().message() + result.errorMessage());
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CallInputProcessor::GetFilter() const noexcept {

@@ -127,7 +127,7 @@ namespace OksEngine {
 
 
 	template<>
-	void Bind<Camera>(Lua::Context& context);
+	void Bind<Camera>(::Lua::Context& context);
 
 	template<>
 	void Edit<Camera>(Camera* camera);

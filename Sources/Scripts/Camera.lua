@@ -70,25 +70,25 @@ CameraUpdater = {}
 
 function CameraUpdater:Update(Camera, deltaMs)
 
-    
-   
-    direction = Camera:GetComponent("Direction")
+    local direction = Camera:GetComponent("Direction")
     local dirX = direction:GetX()
     local dirY = direction:GetY()
     local dirZ = direction:GetZ()
 
-    up = Camera:GetComponent("Up")
-    local upX = direction:GetX()
-    local upY = direction:GetY()
-    local upZ = direction:GetZ()
+    local up = Camera:GetComponent("Up")
+    local upX = up:GetX()
+    local upY = up:GetY()
+    local upZ = up:GetZ()
 
-    position = Camera:GetComponent("Position")
+    local position = Camera:GetComponent("Position")
     local posX = position:GetX()
     local posY = position:GetY()
     local posZ = position:GetZ()
 
-    if Camera.MovingForward then
+    --print("got camera ingo")
 
+    if Camera.MovingForward then
+        --print("Moving forward")
         if Camera.SpeedBoost then
             cameraComponent:Forward(Camera.Speed * Camera.Boost)
             position:SetX(posX + dirX * Camera.Boost)
@@ -138,6 +138,7 @@ function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
     if Key == "W" then
         if Event == "Pressed" then
             Camera.MovingForward = true
+            print("pressed forward")
         elseif Event == "Released" then
             Camera.MovingForward = false
         end
@@ -185,19 +186,30 @@ function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
 
     directionComponent = Camera:GetComponent("Direction")
 
-    print("Direction got")
+    --print("Direction got")
     local directionVector = Vector(directionComponent:GetX(),directionComponent:GetY(), directionComponent:GetZ())
 
-    print("Direction vector created")
+    --print("Direction vector created"..directionVector:GetX().."  "..directionVector:GetY().."  "..directionVector:GetZ().."  ")
 
-    local rotatedVector = Math3D():RotateVector(directionVector, Vector(0, 1, 0), 90)
-    print("Direction vector rotated")
+    local rotatedVector = Math3D():RotateVector(directionVector, Vector(0, 1, 0), offsetX / 1000.0)
+    local up = Camera:GetComponent("Up")
+    local upX = up:GetX()
+    local upY = up:GetY()
+    local upZ = up:GetZ()
+    print("pre crodd product")
+    local upDirPerpendicular = Math3D():CrossProduct(directionVector, Vector(upX, upY, upZ))
+    print("post crodd product")
+    rotatedVector = Math3D():RotateVector(rotatedVector, upDirPerpendicular, offsetY / 1000.0)
+    --print("x y z"..upDirPerpendicular:GetX().. "   "..upDirPerpendicular:GetY().."   "..upDirPerpendicular:GetZ())
+    local rotatedVector = Math3D():RotateVector(directionVector, Vector(0, 1, 0), offsetX / 1000.0)
+    print("RotateVector")
+    --print("Direction vector rotated"..rotatedVector:GetX().."  "..rotatedVector:GetY().."  "..rotatedVector:GetZ().."  ")
     -- Direction left
     -- cameraComponent:DirectionLeft(offsetX / 10.0)
-    directionComponent:Rotate(0.0, 1.0, 0.0, offsetX / 10.0)
+    directionComponent:Set(rotatedVector)
     -- Direction left
     -- cameraComponent:DirectionUp(offsetY / 10.0)
-    directionComponent:Rotate(0.0, 1.0, 0.0, offsetX / -10.0)
+    -- directionComponent:Rotate(0.0, 1.0, 0.0, offsetX / -10.0)
 end
 
 

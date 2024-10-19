@@ -5,9 +5,9 @@
 namespace OksEngine {
 
 	struct LuaContext : public ECSComponent<LuaContext> {
-		Lua::Context  context_;
+		::Lua::Context  context_;
 
-		LuaContext(Lua::Context&& context);
+		LuaContext(::Lua::Context&& context);
 	};
 
 

@@ -48,7 +48,7 @@ namespace OksEngine {
 
 
 	template<>
-	inline void Bind<ImmutableRenderGeometry>(Lua::Context& context) {
+	inline void Bind<ImmutableRenderGeometry>(::Lua::Context& context) {
 		context.GetGlobalNamespace()
 			.beginClass<ImmutableRenderGeometry>("ImmutableRenderGeometry")
 			.addConstructor<void(*)(std::string)>()

@@ -4,40 +4,62 @@
 
 namespace OksEngine {
 
+	namespace Lua {
 
-	class LuaEntity {
-	public:
+		class Entity {
+		public:
 
-		Position* GetPosition(lua_State* state);
-		Direction* GetDirection(lua_State* state);
-		Active* GetActive();
-		Up* GetUp();
-		Width* GetWidth();
-		Height* GetHeight();
+			Position* GetPosition();
+			Direction* GetDirection();
+			Active* GetActive();
+			Up* GetUp();
+			Width* GetWidth();
+			Height* GetHeight();
 
 
-		ImmutableRenderGeometry* GetImmutableRenderGeometry();
+			ImmutableRenderGeometry* GetImmutableRenderGeometry();
 
-		//DynamicRigidBodyBox* GetRigidBodyBox() {
-		//	auto rigidBody = world_->GetComponent<DynamicRigidBodyBox>(id_);
-		//	return rigidBody;
-		//}
+			//DynamicRigidBodyBox* GetRigidBodyBox() {
+			//	auto rigidBody = world_->GetComponent<DynamicRigidBodyBox>(id_);
+			//	return rigidBody;
+			//}
 
-		//DynamicRigidBodyCapsule* GetRigidBodyCapsule() {
-		//	auto rigidBody = world_->GetComponent<DynamicRigidBodyCapsule>(id_);
-		//	return rigidBody;
-		//}
+			//DynamicRigidBodyCapsule* GetRigidBodyCapsule() {
+			//	auto rigidBody = world_->GetComponent<DynamicRigidBodyCapsule>(id_);
+			//	return rigidBody;
+			//}
 
-		Camera* GetCamera();
+			Camera* GetCamera();
 
-		void SetWorld(ECS::World* world);
+			void SetWorld(ECS::World* world);
 
-		void SetId(std::uint64_t id);
+			void SetId(std::uint64_t id);
 
-	private:
-		ECS::World* world_ = nullptr;
-		ECS::Entity::Id id_ = 0;
-	};
+		private:
+			ECS::World* world_ = nullptr;
+			ECS::Entity::Id id_ = 0;
+		};
 
+	}
+
+
+	template<>
+	inline void Bind<Lua::Entity>(::Lua::Context& context) {
+
+		context.GetGlobalNamespace()
+			.beginClass<Lua::Entity>("EngineEntity")
+			.addConstructor<void(*)()>()
+			.addFunction("GetPosition", &Lua::Entity::GetPosition)
+			.addFunction("GetDirection", &Lua::Entity::GetDirection)
+			.addFunction("GetImmutableRenderGeometry", &Lua::Entity::GetImmutableRenderGeometry)
+			.addFunction("GetCamera", &Lua::Entity::GetCamera)
+			.addFunction("GetActive", &Lua::Entity::GetActive)
+			.addFunction("GetUp", &Lua::Entity::GetUp)
+			.addFunction("GetHeight", &Lua::Entity::GetHeight)
+			.addFunction("GetWidth", &Lua::Entity::GetWidth)
+			//.addFunction("GetRigidBodyBox", &LuaEntity::GetRigidBodyBox)
+			//.addFunction("GetRigidBodyCapsule", &LuaEntity::GetRigidBodyCapsule)
+			.endClass();
+	}
 
 }

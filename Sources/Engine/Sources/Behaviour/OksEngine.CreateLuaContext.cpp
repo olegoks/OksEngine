@@ -17,43 +17,14 @@ namespace OksEngine {
 
 	void CreateLuaContext::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		Lua::Context context;
+		::Lua::Context context;
 
-		context.GetGlobalNamespace()
-			.beginClass<LuaEntity>("EngineEntity")
-			.addConstructor<void(*)()>()
-			.addFunction("GetPosition", &LuaEntity::GetPosition)
-			.addFunction("GetDirection", &LuaEntity::GetDirection)
-			.addFunction("GetImmutableRenderGeometry", &LuaEntity::GetImmutableRenderGeometry)
-			.addFunction("GetCamera", &LuaEntity::GetCamera)
-			.addFunction("GetActive", &LuaEntity::GetActive)
-			.addFunction("GetUp", &LuaEntity::GetUp)
-			.addFunction("GetHeight", &LuaEntity::GetHeight)
-			.addFunction("GetWidth", &LuaEntity::GetWidth)
-			//.addFunction("GetRigidBodyBox", &LuaEntity::GetRigidBodyBox)
-			//.addFunction("GetRigidBodyCapsule", &LuaEntity::GetRigidBodyCapsule)
-			.endClass();
-
-		context.GetGlobalNamespace()
-			.beginClass<LuaVector>("Vector")
-			.addConstructor<void(*)(float x, float y, float z)>()
-			.addFunction("Normalize", &LuaVector::Normalize)
-			.addFunction("GetX", &LuaVector::GetX)
-			.addFunction("GetY", &LuaVector::GetY) 
-			.addFunction("GetZ", &LuaVector::GetZ)
-
-			.endClass();
-
-
-		context.GetGlobalNamespace()
-			.beginClass<Math3D>("Math3D")
-			.addConstructor<void(*)()>()
-			.addFunction("RotateVector", &Math3D::RotateVector)
-
-			.endClass();
-
+		Bind<Lua::Entity>(context);
+		Bind<Lua::Vector>(context);
+		Bind<Lua::Math3D>(context);
 		Bind<Position>(context);
 		Bind<Direction>(context);
+		Bind<Up>(context);
 		Bind<ImmutableRenderGeometry>(context);
 		Bind<Camera>(context);
 
@@ -66,6 +37,7 @@ namespace OksEngine {
 		const auto entityScriptTaskId = resourceSubsystem->GetResource(Subsystem::Type::Engine, "Root/Entity.lua");
 		ResourceSubsystem::Resource entityScriptResource = resourceSubsystem->GetResource(Subsystem::Type::Engine, entityScriptTaskId);
 		std::string entityScriptText{ entityScriptResource.GetData<char>(), entityScriptResource.GetSize() };
+
 		context.LoadScript(entityScriptText);
 
 		////Set scripts path in lua object to use it to load scripts modules from scripts folder.
@@ -91,7 +63,7 @@ namespace OksEngine {
 
 		luabridge::LuaRef object = context.GetGlobalAsRef("object");
 		luabridge::LuaRef luaEngineEntity = object["EngineEntity"];
-		LuaEntity* luaEntity = luaEngineEntity.cast<LuaEntity*>().value();
+		Lua::Entity* luaEntity = luaEngineEntity.cast<Lua::Entity*>().value();
 		luaEntity->SetWorld(GetContext().GetECSWorld().get());
 		luaEntity->SetId(entityId);
 
@@ -109,7 +81,7 @@ namespace OksEngine {
 		return { ECS::Entity::Filter{}.Include<Behaviour>().Include<LuaScriptEntity>().Exclude<LuaContext>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}
 
-	inline Common::TypeId CreateLuaContext::GetTypeId() const noexcept {
+	Common::TypeId CreateLuaContext::GetTypeId() const noexcept {
 		return Common::TypeInfo<CreateLuaContext>().GetId();
 	}
 
