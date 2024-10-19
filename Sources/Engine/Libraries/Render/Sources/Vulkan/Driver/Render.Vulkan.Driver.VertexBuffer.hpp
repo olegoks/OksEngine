@@ -74,15 +74,6 @@ namespace Render::Vulkan {
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
 		}, createInfo_{ createInfo } { }
 
-		//VertexBuffer2(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<LogicDevice> logicDevice, Common::Size verticesNumber, Common::Size vertexSize) :
-		//	Buffer{ Buffer::CreateInfo {
-		//	physicalDevice,
-		//	logicDevice,
-		//	verticesNumber * vertexSize,
-		//	VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-		//	VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
-		//}, createInfo_{ createInfo } { }
-
 		template<class VertexType>
 		void Fill(VertexType* vertices) {
 			static_assert(sizeof(VertexType) == createInfo_.vertexSize_);
@@ -98,34 +89,34 @@ namespace Render::Vulkan {
 	};
 
 
-	template<class VertexType>
-	class AllocatedVertexBuffer : public VertexBuffer<VertexType> {
-	public:
+	//template<class VertexType>
+	//class AllocatedVertexBuffer : public VertexBuffer<VertexType> {
+	//public:
 
-		struct CreateInfo {
-			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> LD_;
-			std::shared_ptr<CommandPool> commandPool_;
+	//	struct CreateInfo {
+	//		std::shared_ptr<PhysicalDevice> physicalDevice_;
+	//		std::shared_ptr<LogicDevice> LD_;
+	//		std::shared_ptr<CommandPool> commandPool_;
 
-			const VertexType* vertices_ = nullptr;
-			Common::Size verticesNumber_ = 0;
-		};
+	//		const VertexType* vertices_ = nullptr;
+	//		Common::Size verticesNumber_ = 0;
+	//	};
 
-		AllocatedVertexBuffer(const CreateInfo& createInfo) : 
-			VertexBuffer<VertexType>{
-			createInfo.physicalDevice_,
-			createInfo.LD_,
-			createInfo.verticesNumber_ 
-		} {
+	//	AllocatedVertexBuffer(const CreateInfo& createInfo) : 
+	//		VertexBuffer<VertexType>{
+	//		createInfo.physicalDevice_,
+	//		createInfo.LD_,
+	//		createInfo.verticesNumber_ 
+	//	} {
 
-			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.LD_, createInfo.verticesNumber_ * sizeof(VertexType));
-			vertexStagingBuffer->Fill(createInfo.vertices_);
-			Buffer::DataCopy(*vertexStagingBuffer, *this, createInfo.LD_, createInfo.commandPool_);
+	//		auto vertexStagingBuffer = std::make_shared<StagingBuffer>(createInfo.physicalDevice_, createInfo.LD_, createInfo.verticesNumber_ * sizeof(VertexType));
+	//		vertexStagingBuffer->Fill(createInfo.vertices_);
+	//		Buffer::DataCopy(*vertexStagingBuffer, *this, createInfo.LD_, createInfo.commandPool_);
 
-		}
+	//	}
 
-	private:
-	};
+	//private:
+	//};
 
 
 	class AllocatedVertexBuffer2 : public VertexBuffer2 {
@@ -152,10 +143,21 @@ namespace Render::Vulkan {
 				createInfo.physicalDevice_,
 				createInfo.LD_,
 				createInfo.verticesNumber_ * createInfo.vertexSize_);
-			vertexStagingBuffer->Fill(createInfo.vertices_);
+			vertexStagingBuffer->Allocate();
+			VertexBuffer2::Allocate();
+			vertexStagingBuffer->Fill(
+				createInfo.vertices_, 
+				createInfo.vertexSize_ * createInfo.verticesNumber_);
 			Buffer::DataCopy(*vertexStagingBuffer, *this, createInfo.LD_, createInfo.commandPool_);
 
 		}
+
+
+		void Fill(void* vertices) {
+			
+		}
+
+
 
 	};
 

@@ -15,7 +15,8 @@ namespace Render::Vulkan {
 	Texture::Texture(const CreateInfo& createInfo) : RAL::Texture{ createInfo.ralCreateInfo_ }{
 			OS::Assert(createInfo.format_ == VK_FORMAT_R8G8B8A8_UNORM);
 			auto textureStagingBuffer = std::make_shared<StagingBuffer>(createInfo.PD_, createInfo.LD_, GetSize().x * GetSize().y * sizeof(RAL::Color4b));
-			textureStagingBuffer->Fill(GetPixels().data());
+			textureStagingBuffer->Allocate();
+			textureStagingBuffer->Fill(GetPixels().data(), GetSize().x* GetSize().y * sizeof(RAL::Color4b));
 
 			AllocatedTextureImage::CreateInfo textureImageCreateInfo;
 			{

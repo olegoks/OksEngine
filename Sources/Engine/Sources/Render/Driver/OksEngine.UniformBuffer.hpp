@@ -19,7 +19,7 @@ namespace OksEngine {
 
 	template<>
 	inline void Edit<UniformBuffer>(UniformBuffer* uniformBuffer) {
-		ImGui::TextDisabled("Did: %d", uniformBuffer->id_);
+		ImGui::TextDisabled("id: %d", uniformBuffer->id_);
 
 	}
 

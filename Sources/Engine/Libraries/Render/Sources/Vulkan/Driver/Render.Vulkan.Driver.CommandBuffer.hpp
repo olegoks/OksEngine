@@ -95,7 +95,7 @@ namespace Render::Vulkan {
 				pipeline->GetHandle());
 		}
 
-		void BindBuffer(std::shared_ptr<VertexBuffer<Vertex2ftc>> vertexBuffer) noexcept {
+		/*void BindBuffer(std::shared_ptr<VertexBuffer<Vertex2ftc>> vertexBuffer) noexcept {
 			VkDeviceSize offsets[] = { 0 };
 			const VkBuffer bufferHandle = vertexBuffer->GetNative();
 			vkCmdBindVertexBuffers(
@@ -137,19 +137,19 @@ namespace Render::Vulkan {
 				1,
 				&bufferHandle,
 				offsets);
-		}
+		}*/
 
-		void BindBuffer(std::shared_ptr<IndexBuffer<Index16>> indexBuffer) noexcept {
-			vkCmdBindIndexBuffer(
-				GetHandle(),
-				indexBuffer->GetNative(),
-				0,
-				VK_INDEX_TYPE_UINT16);
-		}
+		//void BindBuffer(std::shared_ptr<IndexBuffer<Index16>> indexBuffer) noexcept {
+		//	vkCmdBindIndexBuffer(
+		//		GetHandle(),
+		//		indexBuffer->GetNative(),
+		//		0,
+		//		VK_INDEX_TYPE_UINT16);
+		//}
 
 		void BindBuffer(std::shared_ptr<VertexBuffer2> vertexBuffer) noexcept {
 			VkDeviceSize offsets[] = { 0 };
-			const VkBuffer bufferHandle = vertexBuffer->GetNative();
+			const VkBuffer bufferHandle = vertexBuffer->GetHandle();
 			vkCmdBindVertexBuffers(
 				GetHandle(),
 				0,
@@ -161,7 +161,7 @@ namespace Render::Vulkan {
 		void BindBuffer(std::shared_ptr<IndexBuffer2> indexBuffer) noexcept {
 			vkCmdBindIndexBuffer(
 				GetHandle(),
-				indexBuffer->GetNative(),
+				*indexBuffer,
 				0,
 				VK_INDEX_TYPE_UINT16);
 		}
@@ -199,13 +199,17 @@ namespace Render::Vulkan {
 		}
 
 		void Copy(std::shared_ptr<Buffer> from, std::shared_ptr<Buffer> to) noexcept {
+			Copy(*from, *to);
+		}
+
+		void Copy(const Buffer& from, const Buffer& to) noexcept {
 			VkBufferCopy copyRegion{};
 			{
 				copyRegion.srcOffset = 0;
 				copyRegion.dstOffset = 0;
-				copyRegion.size = from->GetSizeInBytes();
+				copyRegion.size = from.GetSizeInBytes();
 			}
-			vkCmdCopyBuffer(GetHandle(), from->GetNative(), to->GetNative(), 1, &copyRegion);
+			vkCmdCopyBuffer(GetHandle(), from, to, 1, &copyRegion);
 		}
 
 		void Copy(std::shared_ptr<Buffer> from, std::shared_ptr<Image> to) noexcept {
@@ -229,7 +233,7 @@ namespace Render::Vulkan {
 			}
 			vkCmdCopyBufferToImage(
 				GetHandle(),
-				from->GetNative(),
+				from->GetHandle(),
 				*to,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 				1,
@@ -317,23 +321,23 @@ namespace Render::Vulkan {
 			BindBuffer(shape->GetIndexBuffer());
 		}
 
-		void BindShape(std::shared_ptr<ColoredShape> shape) {
-			BindBuffer(shape->GetVertexBuffer());
-			BindBuffer(shape->GetIndexBuffer());
-		}
+		//void BindShape(std::shared_ptr<ColoredShape> shape) {
+		//	BindBuffer(shape->GetVertexBuffer());
+		//	BindBuffer(shape->GetIndexBuffer());
+		//}
 
-		void BindShape(std::shared_ptr<UIShape> shape) {
-			BindBuffer(shape->GetVertexBuffer());
-			BindBuffer(shape->GetIndexBuffer());
-		}
+		//void BindShape(std::shared_ptr<UIShape> shape) {
+		//	BindBuffer(shape->GetVertexBuffer());
+		//	BindBuffer(shape->GetIndexBuffer());
+		//}
 
-		void BindShape(std::shared_ptr<TexturedShape> shape) {
-			BindBuffer(shape->GetVertexBuffer());
-			BindBuffer(shape->GetIndexBuffer());
-		}
+		//void BindShape(std::shared_ptr<TexturedShape> shape) {
+		//	BindBuffer(shape->GetVertexBuffer());
+		//	BindBuffer(shape->GetIndexBuffer());
+		//}
 
 		void DrawShape2(std::shared_ptr<Mesh> shape) {
-			DrawIndexed(shape->GetIndexBuffer()->GetIndecesNumber());
+			DrawIndexed(shape->GetIndexBuffer()->GetIndicesNumber());
 		}
 
 		void End() noexcept {
