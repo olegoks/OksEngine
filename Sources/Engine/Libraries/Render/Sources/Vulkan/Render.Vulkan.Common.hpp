@@ -8,6 +8,8 @@
 #include <Math.hpp>
 #include <Geometry.hpp>
 #include <RAL.Common.hpp>
+#include <OS.Assert.hpp>
+#include <OS.Logger.hpp>
 #include <Common.Identifier.hpp>
 
 namespace Render::Vulkan {
@@ -369,7 +371,6 @@ namespace Render::Vulkan {
 	private:
 		std::vector<ValidationLayer> validationLayers_;
 	};
-
 
 	struct QueueFamily {
 		using Index = uint32_t;

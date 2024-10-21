@@ -3,8 +3,6 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
-#include <OS.Assert.hpp>
-#include <OS.Logger.hpp>
 
 #include <Render.Vulkan.Common.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
