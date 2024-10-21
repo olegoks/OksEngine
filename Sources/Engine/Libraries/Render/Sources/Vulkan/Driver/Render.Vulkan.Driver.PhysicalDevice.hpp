@@ -103,7 +103,7 @@ namespace Render::Vulkan {
 
 
 		[[nodiscard]]
-		VkPhysicalDeviceMemoryProperties GetMemoryProperties() noexcept {
+		VkPhysicalDeviceMemoryProperties GetMemoryProperties() noexcept const {
 
 			VkPhysicalDeviceMemoryProperties memoryProperties;
 			vkGetPhysicalDeviceMemoryProperties(GetHandle(), &memoryProperties);
@@ -112,7 +112,7 @@ namespace Render::Vulkan {
 		}
 
 		[[nodiscard]]
-		QueueFamilies GetGraphicsQueueFamilies() noexcept {
+		QueueFamilies GetGraphicsQueueFamilies() noexcept const  {
 
 			const QueueFamilies queueFamilies = GetQueueFamilies();
 			QueueFamilies graphicsQueueFamilies;
@@ -132,7 +132,7 @@ namespace Render::Vulkan {
 		}
 
 		[[nodiscard]]
-		QueueFamilies GetQueueFamilies() noexcept {
+		QueueFamilies GetQueueFamilies() noexcept const {
 
 			uint32_t queueFamilyCount = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(GetHandle(), &queueFamilyCount, nullptr);
@@ -154,91 +154,40 @@ namespace Render::Vulkan {
 		}
 
 
+		//[[nodiscard]]
+		//QueueFamilies GetQueueFamilies2() noexcept const {
+
+		//	uint32_t queueFamilyCount = 0;
+		//	vkGetPhysicalDeviceQueueFamilyProperties(GetHandle(), &queueFamilyCount, nullptr);
+
+		//	std::vector<VkQueueFamilyProperties> queueFamiliesProperties(queueFamilyCount);
+		//	vkGetPhysicalDeviceQueueFamilyProperties(GetHandle(), &queueFamilyCount, queueFamiliesProperties.data());
+
+		//	QueueFamilies queueFamilies;
+		//	for (Common::Index i = 0; i < queueFamiliesProperties.size(); i++) {
+
+		//		QueueFamily2::CreateInfo qfci{
+		//			.PD_ = 
+		//		};
+
+		//		QueueFamily2 queueFamily;
+		//		{
+		//			queueFamily.index_ = static_cast<Common::UInt32>(i);
+		//			queueFamily.properties_ = queueFamiliesProperties[i];
+		//		}
+		//		queueFamilies.AddQueueFamily(queueFamily);
+		//	}
+
+		//	return queueFamilies;
+		//}
+
+
+
 		[[nodiscard]]
 		const char* GetName() const noexcept { return properties_.deviceName; }
-			
-		//[[nodiscard]]
-		//static Formats GetAvailableFormats(VkPhysicalDevice physicalDevice, VkSurfaceKHR windowSurface) noexcept {
 
-		//	OS::AssertMessage(physicalDevice != VK_NULL_HANDLE, "VkPhysicalDevice is VK_NULL_HANDLE");
-		//	OS::AssertMessage(windowSurface != VK_NULL_HANDLE, "VkSurfaceKHR is VK_NULL_HANDLE");
-
-		//	uint32_t formatCount;
-		//	[[maube_unused]]
-		//	const VkResult result = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, windowSurface, &formatCount, nullptr);
-		//	OS::AssertMessage(result == VK_SUCCESS, "Error while getting number of available formats.");
-
-		//	std::vector<VkSurfaceFormatKHR> formats;
-		//	if (formatCount != 0) {
-		//		formats.resize(formatCount);
-		//		[[maube_unused]]
-		//		const VkResult result = vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice, windowSurface, &formatCount, formats.data());
-		//		OS::AssertMessage(result == VK_SUCCESS, "Error while getting available formats.");
-		//	}
-
-		//	return formats;
-		//}
-
-
-		//[[nodiscard]]
-		//static PresentModes GetAvailablePresentModes(VkPhysicalDevice physicalDevice, VkSurfaceKHR windowSurface) noexcept {
-
-		//	OS::AssertMessage(physicalDevice != VK_NULL_HANDLE, "VkPhysicalDevice is VK_NULL_HANDLE");
-		//	OS::AssertMessage(windowSurface != VK_NULL_HANDLE, "VkSurfaceKHR is VK_NULL_HANDLE");
-
-		//	std::vector<VkPresentModeKHR> presentModes;
-
-		//	uint32_t presentModeCount;
-		//	{
-		//		[[maube_unused]]
-		//		const VkResult result = vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, windowSurface, &presentModeCount, nullptr);
-		//		OS::AssertMessage(result == VK_SUCCESS, "Error while getting number of present modes.");
-		//	}
-		//	if (presentModeCount != 0) {
-		//		presentModes.resize(presentModeCount);
-		//		[[maube_unused]]
-		//		const VkResult result = vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice, windowSurface, &presentModeCount, presentModes.data());
-		//		OS::AssertMessage(result == VK_SUCCESS, "Error while getting number of present modes.");
-		//	}
-
-		//	return presentModes;
-		//}
-
-
-		//void ChooseQueueFamilies(VkSurfaceKHR windowSurface) noexcept {
-
-		//	OS::AssertMessage(windowSurface != VK_NULL_HANDLE, "VkSurfaceKHR is VK_NULL_HANDLE");
-
-		//	const QueueFamilies graphicsQueueFamilies = GetGraphicsQueueFamilies();
-		//	OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any graphics queue family.");
-
-		//	const QueueFamilies presentQueueFamilies = GetPresentQueueFamilies(GetHandle(), windowSurface);
-		//	OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any present queue family.");
-
-		//	for (const QueueFamily& graphicsQueueFamily : graphicsQueueFamilies) {
-		//		for (const QueueFamily& presentQueueFamily : presentQueueFamilies) {
-		//			if (graphicsQueueFamily.index_ == presentQueueFamily.index_) {
-		//				chosenGraphicsQueueFamily_ = graphicsQueueFamily;
-		//				chosenPresentQueueFamily_ = presentQueueFamily;
-		//				OS::LogInfo("/render/vulkan/driver/physical device", "Found queue family that supports present and graphics commands.");
-		//			}
-		//		}
-		//	}
-
-		//	chosenGraphicsQueueFamily_ = *graphicsQueueFamilies.begin();
-		//	chosenPresentQueueFamily_ = *presentQueueFamilies.begin();
-		//}
-
-		//void SetNative(VkPhysicalDevice physicalDevice) noexcept {
-		//	OS::Assert(	(physicalDevice != VK_NULL_HANDLE) && (GetNative() == VK_NULL_HANDLE) ||
-		//				((physicalDevice == VK_NULL_HANDLE) && (GetNative() != VK_NULL_HANDLE)));
-		//	handle_ = physicalDevice;
-		//}
 	private:
-		//QueueFamilies graphicsQueueFamilies_;
-		//QueueFamilies presentQueueFamilies_;
-		//QueueFamily chosenGraphicsQueueFamily_;
-		//QueueFamily chosenPresentQueueFamily_;
+
 		VkPhysicalDeviceProperties properties_{ 0 };
 		VkPhysicalDeviceFeatures features_{ 0 };
 	};

@@ -189,9 +189,8 @@ namespace Render::Vulkan {
 					renderPassInfo.pDependencies = &subpass.dependency_;
 				}
 				VkRenderPass renderPass = VK_NULL_HANDLE;
-				[[maybe_unused]]
-				const VkResult result = vkCreateRenderPass(createInfo.LD_->GetHandle(), &renderPassInfo, nullptr, &renderPass);
-				OS::AssertMessage(result == VK_SUCCESS, "");
+				VkCall(vkCreateRenderPass(createInfo.LD_->GetHandle(), &renderPassInfo, nullptr, &renderPass),
+					"Error while creating render pass.");
 				SetHandle(renderPass);
 			}
 
