@@ -198,10 +198,12 @@ namespace RAL {
 
 		[[nodiscard]]
 		virtual VertexBuffer::Id CreateVertexBuffer(const VertexBuffer::CreateInfo& createInfo) = 0;
+		virtual void FillVertexBuffer(VertexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) = 0;
 
 		[[nodiscard]]
 		virtual IndexBuffer::Id CreateIndexBuffer(const IndexBuffer::CreateInfo& createInfo) = 0;
-		
+		virtual void FillIndexBuffer(VertexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) = 0;
+
 		[[nodiscard]]
 		virtual void FillUniformBuffer(UniformBuffer::Id UBId, void* data) = 0;
 

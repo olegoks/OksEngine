@@ -993,7 +993,7 @@ namespace Render::Vulkan {
 			return id;
 		}
 
-		virtual void FillVertexBuffer(VertexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) {
+		virtual void FillVertexBuffer(VertexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) override {
 
 			auto VB = VBs_[id];
 			VB->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
@@ -1022,6 +1022,11 @@ namespace Render::Vulkan {
 			return id;
 		}
 
+		virtual void FillIndexBuffer(IndexBuffer::Id id, Common::Size offset, const void* indices, Common::Size indicesNumber) override {
+
+			auto IB = IBs_[id];
+			IB->FillData(offset, indices, indicesNumber, objects_.commandPool_);
+		}
 
 		[[nodiscard]]
 		virtual RAL::Texture::Id CreateDiffuseMap(const RAL::Texture::CreateInfo& createInfo) override {
@@ -1132,7 +1137,7 @@ namespace Render::Vulkan {
 			auto allocatedIndexBuffer = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
 
 			allocatedIndexBuffer->Allocate();
-			allocatedIndexBuffer->Fill(0, indices, indicesNumber, objects_.commandPool_);
+			allocatedIndexBuffer->FillData(0, indices, indicesNumber, objects_.commandPool_);
 
 			std::shared_ptr<Vulkan::Pipeline> pipeline = namePipeline_[pipelineName];
 
