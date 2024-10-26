@@ -203,16 +203,17 @@ namespace Render::Vulkan {
 			vkCmdEndRenderPass(GetHandle());
 		}
 
-		void Copy(std::shared_ptr<Buffer> from, std::shared_ptr<Buffer> to) noexcept {
-			Copy(*from, *to);
+		void Copy(std::shared_ptr<Buffer> from, std::shared_ptr<Buffer> to, Common::Size offsetFrom, Common::Size offsetTo, Common::Size bytesNumber) noexcept {
+
+			Copy(*from, *to, offsetFrom, offsetTo, bytesNumber);
 		}
 
-		void Copy(const Buffer& from, const Buffer& to) noexcept {
+		void Copy(const Buffer& from, const Buffer& to, Common::Size offsetFrom, Common::Size offsetTo, Common::Size bytesNumber) noexcept {
 			VkBufferCopy copyRegion{};
 			{
-				copyRegion.srcOffset = 0;
-				copyRegion.dstOffset = 0;
-				copyRegion.size = from.GetSizeInBytes();
+				copyRegion.srcOffset = offsetFrom;
+				copyRegion.dstOffset = offsetTo;
+				copyRegion.size = bytesNumber;
 			}
 			vkCmdCopyBuffer(GetHandle(), from, to, 1, &copyRegion);
 		}

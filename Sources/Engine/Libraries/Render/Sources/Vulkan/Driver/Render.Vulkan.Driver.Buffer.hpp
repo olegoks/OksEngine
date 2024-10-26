@@ -34,12 +34,18 @@ namespace Render::Vulkan {
 		static void DataCopy(
 			const std::shared_ptr<Buffer> bufferFrom, 
 			std::shared_ptr<Buffer> bufferTo,
+			Common::Size offsetFrom,
+			Common::Size offsetTo,
+			Common::Size bytesNumber,
 			std::shared_ptr<LogicDevice> ld,
 			std::shared_ptr<CommandPool> commandPool);
 
 		static void DataCopy(
 			const Buffer& bufferFrom,
 			Buffer& bufferTo, 
+			Common::Size offsetFrom,
+			Common::Size offsetTo,
+			Common::Size bytesNumber,
 			std::shared_ptr<LogicDevice> ld, 
 			std::shared_ptr<CommandPool> commandPool);
 
@@ -47,7 +53,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<Buffer> bufferTo,
 			std::shared_ptr<CommandPool> commandPool);
 
-		void CopyDataTo(
+		void CopyFullDataTo(
 			Buffer& bufferTo,
 			std::shared_ptr<CommandPool> commandPool);
 
@@ -68,6 +74,7 @@ namespace Render::Vulkan {
 
 		void Allocate();
 		void Deallocate();
+		bool IsAllocated() const noexcept;
 
 		~Buffer();
 

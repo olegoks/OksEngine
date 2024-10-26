@@ -27,7 +27,7 @@ namespace OksEngine {
 				.size_ = { width, height }
 			};
 
-			state->fontsTextureId_ = driver->CreateTexture(textureCreateInfo);
+			state->fontsTextureId_ = driver->CreateDiffuseMap(textureCreateInfo);
 		}
 	}
 
