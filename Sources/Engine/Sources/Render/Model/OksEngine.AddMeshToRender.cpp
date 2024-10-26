@@ -10,6 +10,8 @@
 #include <Render/OksEngine.Render.Subsystem.hpp>
 #include <Render/Camera/OksEngine.Camera.hpp>
 #include <Render/Driver/OksEngine.UniformBuffer.hpp>
+#include <Render/Driver/OksEngine.DriverIndexBuffer.hpp>
+#include <Render/Driver/OksEngine.DriverVertexBuffer.hpp>
 
 namespace OksEngine {
 
@@ -21,8 +23,8 @@ namespace OksEngine {
 		//auto* driverCamera = world->GetComponent<DriverCamera>(secondEntityId);
 		auto* driverTexture = world->GetComponent<DriverTexture>(entityId);
 
-		auto* vertices = world->GetComponent<Vertices>(entityId);
-		auto* indices = world->GetComponent<Indices>(entityId);
+		auto* vertices = world->GetComponent<DriverVertexBuffer>(entityId);
+		auto* indices = world->GetComponent<DriverIndexBuffer>(entityId);
 		auto* uvs = world->GetComponent<UVs>(entityId);
 		auto* normals = world->GetComponent<Normals>(entityId);
 
@@ -73,23 +75,25 @@ namespace OksEngine {
 			shaderBindings.push_back(textureBinding);
 		}
 
-		std::vector<RAL::Vertex3fnt> vertices3fnt;
-		vertices3fnt.reserve(vertices->vertices_.GetVerticesNumber());
-		for (Common::Index i = 0; i < vertices->vertices_.GetVerticesNumber(); i++) {
-			RAL::Vertex3fnt vertex;
-			vertex.position_ = vertices->vertices_[i].position_;
-			vertex.normal_ = normals->normals_[i];
-			vertex.uv_ = uvs->uvs_[i];
-			vertices3fnt.push_back(vertex);
-		}
+		//std::vector<RAL::Vertex3fnt> vertices3fnt;
+		//vertices3fnt.reserve(vertices->vertices_.GetVerticesNumber());
+		//for (Common::Index i = 0; i < vertices->vertices_.GetVerticesNumber(); i++) {
+		//	RAL::Vertex3fnt vertex;
+		//	vertex.position_ = vertices->vertices_[i].position_;
+		//	vertex.normal_ = normals->normals_[i];
+		//	vertex.uv_ = uvs->uvs_[i];
+		//	vertices3fnt.push_back(vertex);
+		//}
 		Common::Id driverMeshId = driver->DrawMesh(
 			"Textured Pipeline",
-			(const RAL::Vertex3fnt*)vertices3fnt.data(),
+			/*(const RAL::Vertex3fnt*)vertices3fnt.data(),
 			vertices->vertices_.GetVerticesNumber(),
-			RAL::Driver::VertexType::VF3_NF3_TF2,
-			(const RAL::Index16*)indices->indices_.GetData(),
+			RAL::Driver::VertexType::VF3_NF3_TF2,*/
+			vertices->id_,
+			indices->id_,
+			/*(const RAL::Index16*)indices->indices_.GetData(),
 			indices->indices_.GetIndicesNumber(),
-			RAL::Driver::IndexType::UI16,
+			RAL::Driver::IndexType::UI16,*/
 			shaderBindings
 		);
 		world->CreateComponent<DriverMesh>(entityId, driverMeshId);
@@ -107,6 +111,8 @@ namespace OksEngine {
 			.Include<UVs>()
 			.Include<Normals> ()
 			.Include<DriverTexture>()
+			.Include<DriverIndexBuffer>()
+			.Include<DriverVertexBuffer>()
 			.Exclude<DriverMesh>()
 			, ECS::Entity::Filter{}.Include<Camera>().Include<UniformBuffer>()};
 	}
