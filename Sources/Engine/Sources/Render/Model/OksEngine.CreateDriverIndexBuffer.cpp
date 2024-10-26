@@ -15,7 +15,8 @@ namespace OksEngine {
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 		RAL::Driver::IndexBuffer::CreateInfo IBCI{
 			.size_ = indices->indices_.GetIndicesNumber(),
-			.indexType_ = RAL::Driver::IndexType::UI16
+			.indexType_ = RAL::Driver::IndexType::UI16,
+			.type_ = RAL::Driver::IndexBuffer::Type::Const
 		};
 		RAL::Driver::IndexBuffer::Id IBId = driver->CreateIndexBuffer(IBCI);
 		driver->FillIndexBuffer(IBId, 0, indices->indices_.GetData(), indices->indices_.GetIndicesNumber());

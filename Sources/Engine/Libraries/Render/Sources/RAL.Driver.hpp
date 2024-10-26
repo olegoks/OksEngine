@@ -88,19 +88,30 @@ namespace RAL {
 		class VertexBuffer {
 		public:
 			using Id = Common::Id;
-
+			enum class Type {
+				Mutable,
+				Const,
+				Undefined
+			};
 			struct CreateInfo {
 				Common::Size verticesNumber_ = 0;
 				VertexType vertexType_ = VertexType::Undefined;
+				Type type_ = Type::Undefined;
 			};
 		};
 
 		class IndexBuffer {
 		public:
 			using Id = Common::Id;
+			enum class Type {
+				Mutable,
+				Const,
+				Undefined
+			};
 			struct CreateInfo {
 				Common::Size size_ = 0;
 				IndexType indexType_ = IndexType::Undefined;
+				Type type_ = Type::Undefined;
 			};
 		};
 

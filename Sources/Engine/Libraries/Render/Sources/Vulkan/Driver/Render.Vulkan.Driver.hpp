@@ -973,59 +973,149 @@ namespace Render::Vulkan {
 
 		virtual VertexBuffer::Id CreateVertexBuffer(const VertexBuffer::CreateInfo& createInfo) override {
 
+			switch (createInfo.type_) {
+			case VertexBuffer::Type::Const: {
 
-			HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
-			{
-				vertexBufferCreateInfo.LD_ = objects_.LD_;
-				vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-				vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-				vertexBufferCreateInfo.verticesNumber_ = createInfo.verticesNumber_;
-				vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(createInfo.vertexType_);
+				HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
+				{
+					vertexBufferCreateInfo.LD_ = objects_.LD_;
+					vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+					vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
+					vertexBufferCreateInfo.verticesNumber_ = createInfo.verticesNumber_;
+					vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(createInfo.vertexType_);
+				}
+				auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
+
+				allocatedVertexBuffer->Allocate();
+
+				const VertexBuffer::Id id = VBsIdsGenerator_.Generate();
+
+				VBs_[id] = std::vector<std::shared_ptr<HostVisibleVertexBuffer>>{ allocatedVertexBuffer };
+
+				return id;
+				break;
 			}
-			auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
+			case VertexBuffer::Type::Mutable: {
+				//We should have multiple buffers, because multiple frames may be in flight at the same time and
+				//we don't want to update the buffer in preparation of the next frame while a previous one is still reading from it!
+				//Thus, we need to have as many uniform buffers as we have frames in flight,
+				//and write to a uniform buffer that is not currently being read by the GPU
+				std::vector<std::shared_ptr<HostVisibleVertexBuffer>> VBs;
+				for (Common::Index i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
+					HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
+					{
+						vertexBufferCreateInfo.LD_ = objects_.LD_;
+						vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+						vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
+						vertexBufferCreateInfo.verticesNumber_ = createInfo.verticesNumber_;
+						vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(createInfo.vertexType_);
+					}
+					auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
 
-			allocatedVertexBuffer->Allocate();
+					allocatedVertexBuffer->Allocate();
 
-			const VertexBuffer::Id id = VBsIdsGenerator_.Generate();
+					auto VB = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
+					VB->Allocate();
+					VBs.push_back(VB);
+				}
+				Common::Id id = UBsIdsGenerator_.Generate();
+				VBs_[id] = std::move(VBs);
+				return id;
+				break;
+			}
+			default: {
+				OS::AssertFailMessage("Invalid type of uniform buffer.");
+				return Common::Id::Invalid();
+			}
+			};
 
-			VBs_[id] = allocatedVertexBuffer;
 
-			return id;
 		}
 
 		virtual void FillVertexBuffer(VertexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) override {
 
-			auto VB = VBs_[id];
-			VB->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
+			std::vector<std::shared_ptr<HostVisibleVertexBuffer>>& vb = VBs_[id];
+			if (vb.size() == 1) {
+				vb[0]->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
+			}
+			else {
+				OS::AssertMessage(vb.size() == MAX_FRAMES_IN_FLIGHT, "Incorrect number of vbs.");
+				vb[currentFrame]->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
+			}
 		}
 
 
 		virtual IndexBuffer::Id CreateIndexBuffer(const IndexBuffer::CreateInfo& createInfo) override {
 
 
-			HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
-			{
-				indexBufferCreateInfo.LD_ = objects_.LD_;
-				indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-				indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-				indexBufferCreateInfo.indicesNumber_ = createInfo.size_;
-				indexBufferCreateInfo.indexSize_ = IndexTypeToSize(createInfo.indexType_);
+			switch (createInfo.type_) {
+			case IndexBuffer::Type::Const: {
+
+				HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
+				{
+					indexBufferCreateInfo.LD_ = objects_.LD_;
+					indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+					indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
+					indexBufferCreateInfo.indicesNumber_ = createInfo.size_;
+					indexBufferCreateInfo.indexSize_ = IndexTypeToSize(createInfo.indexType_);
+				}
+				auto allocatedIndexBuffer = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
+
+				allocatedIndexBuffer->Allocate();
+
+				const IndexBuffer::Id id = IBsIdsGenerator_.Generate();
+
+				IBs_[id] = std::vector<std::shared_ptr<HostVisibleIndexBuffer>>{ allocatedIndexBuffer };
+
+				return id;
+				break;
 			}
-			auto allocatedIndexBuffer = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
+			case IndexBuffer::Type::Mutable: {
+				//We should have multiple buffers, because multiple frames may be in flight at the same time and
+				//we don't want to update the buffer in preparation of the next frame while a previous one is still reading from it!
+				//Thus, we need to have as many uniform buffers as we have frames in flight,
+				//and write to a uniform buffer that is not currently being read by the GPU
+				std::vector<std::shared_ptr<HostVisibleIndexBuffer>> IBs;
+				for (Common::Index i = 0; i < MAX_FRAMES_IN_FLIGHT; i++) {
 
-			allocatedIndexBuffer->Allocate();
+					HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
+					{
+						indexBufferCreateInfo.LD_ = objects_.LD_;
+						indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+						indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
+						indexBufferCreateInfo.indicesNumber_ = createInfo.size_;
+						indexBufferCreateInfo.indexSize_ = IndexTypeToSize(createInfo.indexType_);
+					}
+					auto IB = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
 
-			const IndexBuffer::Id id = IBsIdsGenerator_.Generate();
+					IB->Allocate();
 
-			IBs_[id] = allocatedIndexBuffer;
+					IB->Allocate();
+					IBs.push_back(IB);
+				}
+				Common::Id id = IBsIdsGenerator_.Generate();
+				IBs_[id] = std::move(IBs);
+				return id;
+				break;
+			}
+			default: {
+				OS::AssertFailMessage("Invalid type of index buffer.");
+				return Common::Id::Invalid();
+			}
+			};
 
-			return id;
 		}
 
 		virtual void FillIndexBuffer(IndexBuffer::Id id, Common::Size offset, const void* indices, Common::Size indicesNumber) override {
 
-			auto IB = IBs_[id];
-			IB->FillData(offset, indices, indicesNumber, objects_.commandPool_);
+			std::vector<std::shared_ptr<HostVisibleIndexBuffer>>& ib = IBs_[id];
+			if (ib.size() == 1) {
+				ib[0]->FillData(offset, indices, indicesNumber, objects_.commandPool_);
+			}
+			else {
+				OS::AssertMessage(ib.size() == MAX_FRAMES_IN_FLIGHT, "Incorrect number of vbs.");
+				ib[currentFrame]->FillData(offset, indices, indicesNumber, objects_.commandPool_);
+			}
 		}
 
 		[[nodiscard]]
@@ -1250,8 +1340,8 @@ namespace Render::Vulkan {
 			}
 
 			Mesh::CreateInfo meshCreateInfo{
-				.vertexBuffer_ = VBs_[VBId],
-				.indexBuffer_ = IBs_[IBId],
+				.vertexBuffer_ = VBs_[VBId][0],
+				.indexBuffer_ = IBs_[IBId][0],
 				.shaderBindings_ = shaderBindings,
 				.pipelineName_ = pipelineName
 			};
@@ -1259,6 +1349,7 @@ namespace Render::Vulkan {
 			const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
 			meshs_[meshId] = mesh;
 			return meshId;
+			//return 0;
 		}
 
 		virtual void ResumeMeshDrawing(Common::Id shapeId) override {
@@ -1300,10 +1391,10 @@ namespace Render::Vulkan {
 		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::UniformBuffer>>> UBs_;
 		Common::IdGenerator UBsIdsGenerator_;
 
-		std::map<Common::Id, std::shared_ptr<HostVisibleVertexBuffer>> VBs_;
+		std::map<Common::Id, std::vector<std::shared_ptr<HostVisibleVertexBuffer>>> VBs_;
 		Common::IdGenerator VBsIdsGenerator_;
 
-		std::map<Common::Id, std::shared_ptr<HostVisibleIndexBuffer>> IBs_;
+		std::map<Common::Id, std::vector<std::shared_ptr<HostVisibleIndexBuffer>>> IBs_;
 		Common::IdGenerator IBsIdsGenerator_;
 
 	};
