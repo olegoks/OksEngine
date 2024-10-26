@@ -44,6 +44,8 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<MapMeshTransform>(context);
 		ecsWorld->RegisterSystem<CreateGeometryDescriptionFileEntity>(context);
 		ecsWorld->RegisterSystem<CreateLoadTextureRequest>(context);
+		ecsWorld->RegisterSystem<CreateDriverVertexBuffer>(context);
+		ecsWorld->RegisterSystem<CreateDriverIndexBuffer>(context);
 		auto uiSubsystem = context.GetUISubsystem();
 		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);
 		RAL::RenderSurface renderSurface;
