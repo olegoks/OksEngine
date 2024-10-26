@@ -974,39 +974,57 @@ namespace Render::Vulkan {
 		virtual VertexBuffer::Id CreateVertexBuffer(const VertexBuffer::CreateInfo& createInfo) override {
 
 
-			//AllocatedVertexBuffer2::CreateInfo vertexBufferCreateInfo{};
-			//{
-			//	vertexBufferCreateInfo.LD_ = objects_.LD_;
-			//	vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//	vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-			//	vertexBufferCreateInfo.verticesNumber_ = createInfo.verticesNumber_;
-			//	vertexBufferCreateInfo.vertices_ = (const Vertex2ftc*)vertices;
-			//	vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(vertexType);
-			//}
-			//auto allocatedVertexBuffer = std::make_shared<AllocatedVertexBuffer2>(vertexBufferCreateInfo);
-			return 0;
+			HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
+			{
+				vertexBufferCreateInfo.LD_ = objects_.LD_;
+				vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+				vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
+				vertexBufferCreateInfo.verticesNumber_ = createInfo.verticesNumber_;
+				vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(createInfo.vertexType_);
+			}
+			auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
+
+			allocatedVertexBuffer->Allocate();
+
+			const VertexBuffer::Id id = VBsIdsGenerator_.Generate();
+
+			VBs_[id] = allocatedVertexBuffer;
+
+			return id;
+		}
+
+		virtual void FillVertexBuffer(VertexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) {
+
+			auto VB = VBs_[id];
+			VB->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
 		}
 
 
 		virtual IndexBuffer::Id CreateIndexBuffer(const IndexBuffer::CreateInfo& createInfo) override {
 
 
-			//AllocatedVertexBuffer2::CreateInfo vertexBufferCreateInfo{};
-			//{
-			//	vertexBufferCreateInfo.LD_ = objects_.LD_;
-			//	vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//	vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-			//	vertexBufferCreateInfo.verticesNumber_ = createInfo.verticesNumber_;
-			//	vertexBufferCreateInfo.vertices_ = (const Vertex2ftc*)vertices;
-			//	vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(vertexType);
-			//}
-			//auto allocatedVertexBuffer = std::make_shared<AllocatedVertexBuffer2>(vertexBufferCreateInfo);
-			return 0;
+			HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
+			{
+				indexBufferCreateInfo.LD_ = objects_.LD_;
+				indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+				indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
+				indexBufferCreateInfo.indicesNumber_ = createInfo.size_;
+				indexBufferCreateInfo.indexSize_ = IndexTypeToSize(createInfo.indexType_);
+			}
+			auto allocatedIndexBuffer = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
+
+			allocatedIndexBuffer->Allocate();
+
+			const IndexBuffer::Id id = IBsIdsGenerator_.Generate();
+
+			IBs_[id] = allocatedIndexBuffer;
+
+			return id;
 		}
 
 
 		[[nodiscard]]
-		virtual RAL::Texture::Id CreateTexture(const RAL::Texture::CreateInfo& createInfo) override {
+		virtual RAL::Texture::Id CreateDiffuseMap(const RAL::Texture::CreateInfo& createInfo) override {
 
 			const Texture::CreateInfo textureCreateInfo{
 				.ralCreateInfo_ = createInfo,
@@ -1100,7 +1118,7 @@ namespace Render::Vulkan {
 			auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
 
 			allocatedVertexBuffer->Allocate();
-			allocatedVertexBuffer->Fill(0, vertices, verticesNumber, objects_.commandPool_);
+			allocatedVertexBuffer->FillData(0, vertices, verticesNumber, objects_.commandPool_);
 
 			HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
 			{
@@ -1169,6 +1187,75 @@ namespace Render::Vulkan {
 
 		}
 
+
+		[[nodiscard]]
+		virtual Common::Id DrawMesh(
+			const std::string& pipelineName,
+			VertexBuffer::Id VBId,
+			IndexBuffer::Id IBId,
+			const std::vector<RAL::Driver::ShaderBinding::Data>& bindingsData) override {
+
+			const RAL::Driver::PipelineDescription& pipelineDesc = createInfo_.namePipelineDescriptions_[pipelineName];
+			OS::AssertMessage(pipelineDesc.shaderBindings_.size() == bindingsData.size(), "Shaders bindings layout and data are different.");
+			for (Common::Index i = 0; i < pipelineDesc.shaderBindings_.size(); i++) {
+				const RAL::Driver::ShaderBinding::Layout& layout = pipelineDesc.shaderBindings_[i];
+				const RAL::Driver::ShaderBinding::Data& data = bindingsData[i];
+				OS::AssertMessage(layout.stage_ == data.stage_, "Shaders bindings layout and data are different.");
+				OS::AssertMessage(layout.type_ == data.type_, "Shaders bindings layout and data are different.");
+			}
+
+			std::shared_ptr<Vulkan::Pipeline> pipeline = namePipeline_[pipelineName];
+
+			std::vector<Mesh::ShaderBinding> shaderBindings;
+
+			for (Common::Index i = 0; i < bindingsData.size(); i++) {
+
+				const RAL::Driver::ShaderBinding::Data& bindingData = bindingsData[i];
+
+				if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Uniform) {
+
+					DS::CreateInfo DSCreateInfo;
+					{
+						DSCreateInfo.DP_ = objects_.DP_;
+						DSCreateInfo.DSL_ = pipeline->GetLayout()->GetDSLs()[i];
+						DSCreateInfo.LD_ = objects_.LD_;
+					}
+
+					auto ds = std::make_shared<DS>(DSCreateInfo);
+
+					auto ub = GetUniformBuffer(bindingData.uniformBufferId_);
+
+					ds->UpdateBufferWriteConfiguration(
+						ub,
+						VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+						0, 0, ub->GetSizeInBytes());
+
+					Mesh::ShaderBinding shaderBinding{
+						.ubId_ = bindingData.uniformBufferId_,
+						.ds_ = ds
+					};
+					shaderBindings.push_back(shaderBinding);
+				}
+				if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Sampler) {
+					Mesh::ShaderBinding shaderBinding{
+						.textureId_ = bindingData.textureId_
+					};
+					shaderBindings.push_back(shaderBinding);
+				}
+			}
+
+			Mesh::CreateInfo meshCreateInfo{
+				.vertexBuffer_ = VBs_[VBId],
+				.indexBuffer_ = IBs_[IBId],
+				.shaderBindings_ = shaderBindings,
+				.pipelineName_ = pipelineName
+			};
+			auto mesh = std::make_shared<Mesh>(meshCreateInfo);
+			const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
+			meshs_[meshId] = mesh;
+			return meshId;
+		}
+
 		virtual void ResumeMeshDrawing(Common::Id shapeId) override {
 			meshs_[shapeId]->ResumeDrawing();
 		}
@@ -1208,10 +1295,10 @@ namespace Render::Vulkan {
 		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::UniformBuffer>>> UBs_;
 		Common::IdGenerator UBsIdsGenerator_;
 
-		std::map<Common::Id, std::vector<std::shared_ptr<HostVisibleVertexBuffer>>> VBs_;
+		std::map<Common::Id, std::shared_ptr<HostVisibleVertexBuffer>> VBs_;
 		Common::IdGenerator VBsIdsGenerator_;
 
-		std::map<Common::Id, std::vector<std::shared_ptr<HostVisibleIndexBuffer>>> IBs_;
+		std::map<Common::Id, std::shared_ptr<HostVisibleIndexBuffer>> IBs_;
 		Common::IdGenerator IBsIdsGenerator_;
 
 	};

@@ -171,6 +171,14 @@ namespace RAL {
 			IndexType indexType,
 			const std::vector<RAL::Driver::ShaderBinding::Data>& bindingData) = 0;
 
+		[[nodiscard]]
+		virtual Common::Id DrawMesh(
+			const std::string& pipelineName,
+			VertexBuffer::Id VBId,
+			IndexBuffer::Id IBId,
+			const std::vector<RAL::Driver::ShaderBinding::Data>& bindingData) = 0;
+
+
 		virtual void ResumeMeshDrawing(Common::Id shapeId) = 0;
 
 		virtual void StopMeshDrawing(Common::Id shapeId) = 0;
@@ -181,7 +189,7 @@ namespace RAL {
 
 		/* Textures */
 		[[nodiscard]]
-		virtual Texture::Id CreateTexture(const RAL::Texture::CreateInfo& createInfo) = 0;
+		virtual Texture::Id CreateDiffuseMap(const RAL::Texture::CreateInfo& createInfo) = 0;
 		[[nodiscard]]
 		virtual bool IsTextureExist(RAL::Texture::Id textureId) const noexcept = 0;
 

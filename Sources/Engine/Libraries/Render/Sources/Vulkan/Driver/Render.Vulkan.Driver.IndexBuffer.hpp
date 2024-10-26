@@ -101,11 +101,16 @@ namespace Render::Vulkan {
 
 		void Fill(Common::Size offset, const void* indices, Common::Size indicesNumber, std::shared_ptr<CommandPool> commandPool) {
 
-			auto indexStagingBuffer = std::make_shared<StagingBuffer>(createInfo_.PD_, createInfo_.LD_, indicesNumber * createInfo_.indexSize_);
+			auto indexStagingBuffer = std::make_shared<StagingBuffer>(createInfo_.PD_, createInfo_.LD_, indicesNumber * GetIndexSize());
 			indexStagingBuffer->Allocate();
 			indexStagingBuffer->Fill(0, indices, indicesNumber * GetIndexSize());
 
-			Buffer::DataCopy(*indexStagingBuffer, *this, createInfo_.LD_, commandPool);
+			Buffer::DataCopy(
+				*indexStagingBuffer, *this, 
+				0, offset,
+				indicesNumber * GetIndexSize(),
+				createInfo_.LD_,
+				commandPool);
 		}
 
 	private:

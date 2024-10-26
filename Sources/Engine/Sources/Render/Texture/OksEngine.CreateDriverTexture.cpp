@@ -22,7 +22,7 @@ namespace OksEngine {
 			.pixels_ = texturePixels,
 			.size_ = { texture->width_, texture->height_ }
 		};
-		RAL::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
+		RAL::Texture::Id textureId = driver->CreateDiffuseMap(textureCreateInfo);
 
 		world->CreateComponent<DriverTexture>(entityId, textureId);
 	}

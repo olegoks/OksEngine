@@ -30,21 +30,22 @@ namespace Render::Vulkan
 	}
 
 	void Buffer::CopyDataTo(std::shared_ptr<Buffer> bufferTo, std::shared_ptr<CommandPool> commandPool) {
-		CopyDataTo(*bufferTo, commandPool);
+		CopyFullDataTo(*bufferTo, commandPool);
 
 	}
 
-	void Buffer::CopyDataTo(Buffer& bufferTo, std::shared_ptr<CommandPool> commandPool) {
-		DataCopy(*this, bufferTo, createInfo_.LD_, commandPool);
+	void Buffer::CopyFullDataTo(Buffer& bufferTo, std::shared_ptr<CommandPool> commandPool) {
+		OS::Assert(GetSizeInBytes() == bufferTo.GetSizeInBytes());
+		DataCopy(*this, bufferTo, 0, 0, bufferTo.GetSizeInBytes(), createInfo_.LD_, commandPool);
 	}
 
-	void Buffer::DataCopy(const std::shared_ptr<Buffer> bufferFrom, std::shared_ptr<Buffer> bufferTo, std::shared_ptr<LogicDevice> ld, std::shared_ptr<CommandPool> commandPool) {
+	void Buffer::DataCopy(const std::shared_ptr<Buffer> bufferFrom, std::shared_ptr<Buffer> bufferTo, Common::Size offsetFrom, Common::Size offsetTo, Common::Size bytesNumber, std::shared_ptr<LogicDevice> ld, std::shared_ptr<CommandPool> commandPool) {
 
-		DataCopy(*bufferFrom, *bufferTo, ld, commandPool);
+		DataCopy(*bufferFrom, *bufferTo, offsetFrom, offsetTo, bytesNumber, ld, commandPool);
 
 	}
 
-	void Buffer::DataCopy(const Buffer& bufferFrom, Buffer& bufferTo, std::shared_ptr<LogicDevice> ld, std::shared_ptr<CommandPool> commandPool) {
+	void Buffer::DataCopy(const Buffer& bufferFrom, Buffer& bufferTo, Common::Size offsetFrom, Common::Size offsetTo, Common::Size bytesNumber, std::shared_ptr<LogicDevice> ld, std::shared_ptr<CommandPool> commandPool) {
 
 
 		CommandBuffer::CreateInfo commandBufferCreateInfo;
@@ -55,7 +56,7 @@ namespace Render::Vulkan
 		auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
 		commandBuffer->Begin();
-		commandBuffer->Copy(bufferFrom, bufferTo);
+		commandBuffer->Copy(bufferFrom, bufferTo, offsetFrom, offsetTo, bytesNumber);
 		commandBuffer->End();
 
 		commandBuffer->Submit(ld->GetGraphicsQueue());
@@ -109,6 +110,11 @@ namespace Render::Vulkan
 
 		memory_ = nullptr;
 
+	}
+
+	[[nodiscard]]
+	bool Buffer::IsAllocated() const noexcept {
+		return (memory_ != nullptr);
 	}
 
 	Buffer::~Buffer() {
