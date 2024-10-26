@@ -112,8 +112,8 @@ namespace Render::Vulkan {
 		};
 
 		struct CreateInfo {
-			std::shared_ptr<HostVisibleVertexBuffer> vertexBuffer_ = nullptr;
-			std::shared_ptr<HostVisibleIndexBuffer> indexBuffer_ = nullptr;
+			RAL::Driver::VertexBuffer::Id VBId_;
+			RAL::Driver::IndexBuffer::Id IBId_;
 			std::vector<ShaderBinding> shaderBindings_;
 			std::string pipelineName_ = "";
 			bool draw_ = true;
@@ -126,12 +126,12 @@ namespace Render::Vulkan {
 
 		[[nodiscard]]
 		auto GetVertexBuffer() noexcept {
-			return createInfo_.vertexBuffer_;
+			return createInfo_.VBId_;
 		}
 
 		[[nodiscard]]
 		auto GetIndexBuffer() noexcept {
-			return createInfo_.indexBuffer_;
+			return createInfo_.IBId_;
 		}
 
 		const auto& GetShaderBindings() const noexcept {

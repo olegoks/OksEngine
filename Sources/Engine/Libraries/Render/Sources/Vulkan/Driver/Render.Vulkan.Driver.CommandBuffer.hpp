@@ -321,11 +321,12 @@ namespace Render::Vulkan {
 
 		}
 
+		//void BindVB()
 
-		void BindMesh(std::shared_ptr<Mesh> shape) {
-			BindBuffer(shape->GetVertexBuffer());
-			BindBuffer(shape->GetIndexBuffer());
-		}
+		//void BindMesh(std::shared_ptr<Mesh> shape) {
+		//	BindBuffer(shape->GetVertexBuffer());
+		//	BindBuffer(shape->GetIndexBuffer());
+		//}
 
 		//void BindShape(std::shared_ptr<ColoredShape> shape) {
 		//	BindBuffer(shape->GetVertexBuffer());
@@ -342,8 +343,8 @@ namespace Render::Vulkan {
 		//	BindBuffer(shape->GetIndexBuffer());
 		//}
 
-		void DrawShape2(std::shared_ptr<Mesh> shape) {
-			DrawIndexed(shape->GetIndexBuffer()->GetIndicesNumber());
+		void DrawIndexed(std::shared_ptr<IndexBuffer2> ib) {
+			DrawIndexed(ib->GetIndicesNumber());
 		}
 
 		void End() noexcept {
