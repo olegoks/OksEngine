@@ -85,6 +85,8 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreateLoadTextureRequest>();
 				//context_->GetECSWorld()->RunSystem < CheckTextureLoaded>();
 				context_->GetECSWorld()->RunSystem<CreateTexture>();
+				context_->GetECSWorld()->RunSystem<CreateDriverVertexBuffer>();
+				context_->GetECSWorld()->RunSystem<CreateDriverIndexBuffer>();
 				context_->GetECSWorld()->RunSystem<CreateDriverTexture>();
 				context_->GetECSWorld()->RunSystem<AddMeshToRender>();
 				context_->GetECSWorld()->RunSystem<ResizeFrameBuffers>();

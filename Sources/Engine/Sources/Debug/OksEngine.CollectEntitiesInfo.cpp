@@ -128,10 +128,12 @@ namespace OksEngine {
 				
 			}
 			editComponent.template operator() < Vertices > (world, id);
+			editComponent.template operator() < DriverVertexBuffer > (world, id);
 			editComponent.template operator() < Normals > (world, id);
 			editComponent.template operator() < Colors > (world, id);
 			editComponent.template operator() < UVs > (world, id);
 			editComponent.template operator() < Indices > (world, id);
+			editComponent.template operator() < DriverIndexBuffer > (world, id);
 			editComponent.template operator() < TextureInfo > (world, id);
 			editComponent.template operator() < Texture > (world, id);
 			editComponent.template operator() < DriverTexture > (world, id);

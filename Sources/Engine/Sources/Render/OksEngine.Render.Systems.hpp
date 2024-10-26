@@ -18,5 +18,7 @@
 #include <Render/OksEngine.ResizeFrameBuffers.hpp>
 #include <Render/Camera/OksEngine.UpdateCameraTransformUniformBuffer.hpp>
 #include <Render/Camera/OksEngine.CreateCameraTransformDriverUniformBuffer.hpp>
+#include <Render/Model/OksEngine.CreateDriverIndexBuffer.hpp>
+#include <Render/Model/OksEngine.CreateDriverVertexBuffer.hpp>
 
 
