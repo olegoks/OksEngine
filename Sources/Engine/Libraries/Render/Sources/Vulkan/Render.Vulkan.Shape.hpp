@@ -112,8 +112,8 @@ namespace Render::Vulkan {
 		};
 
 		struct CreateInfo {
-			std::shared_ptr<AllocatedVertexBuffer2> vertexBuffer_ = nullptr;
-			std::shared_ptr<AllocatedIndexBuffer2> indexBuffer_ = nullptr;
+			std::shared_ptr<HostVisibleVertexBuffer> vertexBuffer_ = nullptr;
+			std::shared_ptr<HostVisibleIndexBuffer> indexBuffer_ = nullptr;
 			std::vector<ShaderBinding> shaderBindings_;
 			std::string pipelineName_ = "";
 			bool draw_ = true;

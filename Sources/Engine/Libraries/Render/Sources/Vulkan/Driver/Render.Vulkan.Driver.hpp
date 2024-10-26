@@ -964,10 +964,10 @@ namespace Render::Vulkan {
 		virtual void FillUniformBuffer(UniformBuffer::Id UBId, void* data) override {
 			std::vector<std::shared_ptr<Vulkan::UniformBuffer>>& ub = UBs_[UBId];
 			if (ub.size() == 1) {
-				ub[0]->Fill(data, ub[0]->GetSizeInBytes());
+				ub[0]->Fill(0, data, ub[0]->GetSizeInBytes());
 			} else {
 				OS::AssertMessage(ub.size() == MAX_FRAMES_IN_FLIGHT, "Incorrect number of ubs.");
-				ub[currentFrame]->Fill(data, ub[currentFrame]->GetSizeInBytes());
+				ub[currentFrame]->Fill(0, data, ub[currentFrame]->GetSizeInBytes());
 			}
 		}
 
@@ -1088,27 +1088,33 @@ namespace Render::Vulkan {
 				OS::AssertMessage(layout.type_ == data.type_, "Shaders bindings layout and data are different.");
 			}
 
-			AllocatedVertexBuffer2::CreateInfo vertexBufferCreateInfo{};
+			HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
 			{
 				vertexBufferCreateInfo.LD_ = objects_.LD_;
 				vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
 				vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
 				vertexBufferCreateInfo.verticesNumber_ = verticesNumber;
-				vertexBufferCreateInfo.vertices_ = (const Vertex2ftc*)vertices;
+				//vertexBufferCreateInfo.vertices_ = (const Vertex2ftc*)vertices;
 				vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(vertexType);
 			}
-			auto allocatedVertexBuffer = std::make_shared<AllocatedVertexBuffer2>(vertexBufferCreateInfo);
+			auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
 
-			AllocatedIndexBuffer2::CreateInfo indexBufferCreateInfo{};
+			allocatedVertexBuffer->Allocate();
+			allocatedVertexBuffer->Fill(0, vertices, verticesNumber, objects_.commandPool_);
+
+			HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
 			{
 				indexBufferCreateInfo.LD_ = objects_.LD_;
 				indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
 				indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
 				indexBufferCreateInfo.indicesNumber_ = indicesNumber;
-				indexBufferCreateInfo.indices_ = indices;
+				//indexBufferCreateInfo.indices_ = indices;
 				indexBufferCreateInfo.indexSize_ = IndexTypeToSize(indexType);
 			}
-			auto allocatedIndexBuffer = std::make_shared<AllocatedIndexBuffer2>(indexBufferCreateInfo);
+			auto allocatedIndexBuffer = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
+
+			allocatedIndexBuffer->Allocate();
+			allocatedIndexBuffer->Fill(0, indices, indicesNumber, objects_.commandPool_);
 
 			std::shared_ptr<Vulkan::Pipeline> pipeline = namePipeline_[pipelineName];
 
@@ -1202,10 +1208,10 @@ namespace Render::Vulkan {
 		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::UniformBuffer>>> UBs_;
 		Common::IdGenerator UBsIdsGenerator_;
 
-		std::map<Common::Id, std::vector<std::shared_ptr<AllocatedVertexBuffer2>>> VBs_;
+		std::map<Common::Id, std::vector<std::shared_ptr<HostVisibleVertexBuffer>>> VBs_;
 		Common::IdGenerator VBsIdsGenerator_;
 
-		std::map<Common::Id, std::vector<std::shared_ptr<AllocatedIndexBuffer2>>> IBs_;
+		std::map<Common::Id, std::vector<std::shared_ptr<HostVisibleIndexBuffer>>> IBs_;
 		Common::IdGenerator IBsIdsGenerator_;
 
 	};

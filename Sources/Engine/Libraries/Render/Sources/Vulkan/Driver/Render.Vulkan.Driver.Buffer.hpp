@@ -29,7 +29,7 @@ namespace Render::Vulkan {
 
 		Buffer(const CreateInfo& createInfo);
 
-		void Fill(const void* data, Common::Size sizeInBytes) noexcept;
+		void Fill(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept;
 
 		static void DataCopy(
 			const std::shared_ptr<Buffer> bufferFrom, 
@@ -67,12 +67,11 @@ namespace Render::Vulkan {
 		}
 
 		void Allocate();
+		void Deallocate();
 
 		~Buffer();
 
 	private:
-
-
 
 		static uint32_t FindSuitableMemoryType(std::shared_ptr<PhysicalDevice> physicalDevice, uint32_t typeFilter, VkMemoryPropertyFlags properties) {
 			const VkPhysicalDeviceMemoryProperties memProperties = physicalDevice->GetMemoryProperties();

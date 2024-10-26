@@ -29,8 +29,4 @@ namespace Render::Vulkan {
 		CreateInfo createInfo_{};
 	};
 
-
-	class Queue : {
-	}
-
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include <Render.Vulkan.Abstraction.hpp>
+#include <Render.Vulkan.Driver.Queue.hpp>
 
 namespace Render::Vulkan {
 
@@ -74,8 +75,7 @@ namespace Render::Vulkan {
 				}
 			}
 			OS::AssertFailMessage("Suitable device memory was not found.");
-#undef max
-			return std::numeric_limits<uint32_t>::max();
+			return Common::Limits<uint32_t>::Max();
 		}
 
 		[[nodiscard]]
@@ -103,7 +103,7 @@ namespace Render::Vulkan {
 
 
 		[[nodiscard]]
-		VkPhysicalDeviceMemoryProperties GetMemoryProperties() noexcept const {
+		VkPhysicalDeviceMemoryProperties GetMemoryProperties() const noexcept {
 
 			VkPhysicalDeviceMemoryProperties memoryProperties;
 			vkGetPhysicalDeviceMemoryProperties(GetHandle(), &memoryProperties);
@@ -112,7 +112,7 @@ namespace Render::Vulkan {
 		}
 
 		[[nodiscard]]
-		QueueFamilies GetGraphicsQueueFamilies() noexcept const  {
+		QueueFamilies GetGraphicsQueueFamilies() const noexcept {
 
 			const QueueFamilies queueFamilies = GetQueueFamilies();
 			QueueFamilies graphicsQueueFamilies;
@@ -132,7 +132,7 @@ namespace Render::Vulkan {
 		}
 
 		[[nodiscard]]
-		QueueFamilies GetQueueFamilies() noexcept const {
+		QueueFamilies GetQueueFamilies() const noexcept {
 
 			uint32_t queueFamilyCount = 0;
 			vkGetPhysicalDeviceQueueFamilyProperties(GetHandle(), &queueFamilyCount, nullptr);
@@ -155,7 +155,7 @@ namespace Render::Vulkan {
 
 
 		//[[nodiscard]]
-		//QueueFamilies GetQueueFamilies2() noexcept const {
+		//QueueFamilies GetQueueFamilies2() const noexcept {
 
 		//	uint32_t queueFamilyCount = 0;
 		//	vkGetPhysicalDeviceQueueFamilyProperties(GetHandle(), &queueFamilyCount, nullptr);
@@ -167,7 +167,6 @@ namespace Render::Vulkan {
 		//	for (Common::Index i = 0; i < queueFamiliesProperties.size(); i++) {
 
 		//		QueueFamily2::CreateInfo qfci{
-		//			.PD_ = 
 		//		};
 
 		//		QueueFamily2 queueFamily;

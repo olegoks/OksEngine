@@ -40,13 +40,21 @@ namespace Render::Vulkan {
 		[[nodiscard]]
 		Common::Size GetSize() const noexcept { return createInfo_.requirements_.size; }
 
-		void Fill(const void* memory, Common::Size bytesNumber) noexcept {
+		void Fill(Common::Size offsetInBytes, const void* memory, Common::Size bytesNumber) noexcept {
 
-			OS::AssertMessage(bytesNumber <= GetSize(), "Attempt to write to device memory more or less bytes than device memory size.");
+			OS::Assert(memory != nullptr);
+			OS::Assert(bytesNumber > 0);
+			OS::AssertMessage(offsetInBytes + bytesNumber <= GetSize(), "Attempt to write to device memory more or less bytes than device memory size.");
 
 			void* pointerToMappedMemory = nullptr;
 			{
-				VkCall(vkMapMemory(createInfo_.LD_->GetHandle(), GetHandle(), 0, bytesNumber, 0, &pointerToMappedMemory),
+				VkCall(vkMapMemory(
+					createInfo_.LD_->GetHandle(),
+					GetHandle(), 
+					offsetInBytes,
+					bytesNumber,
+					0, 
+					&pointerToMappedMemory),
 					"Error while mapping buffer to device memory.");
 			}
 			memcpy(pointerToMappedMemory, memory, (size_t)bytesNumber);
