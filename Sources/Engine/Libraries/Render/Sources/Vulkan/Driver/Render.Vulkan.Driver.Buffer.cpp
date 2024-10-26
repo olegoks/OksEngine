@@ -6,12 +6,6 @@
 namespace Render::Vulkan
 {
 
-	//Buffer::Buffer(Buffer&& moveBuffer) : LD_{ nullptr }, buffer_{ VK_NULL_HANDLE } {
-
-	//	std::swap(createInfo_, moveBuffer.createInfo_);
-	//	std::swap(memory_, moveBuffer.memory_);
-
-	//}
 
 	Buffer::Buffer(const CreateInfo& createInfo) :
 		createInfo_{ createInfo } {
@@ -30,9 +24,9 @@ namespace Render::Vulkan
 		SetHandle(buffer);
 	}
 
-	void Buffer::Fill(const void* data, Common::Size sizeInBytes) noexcept {
+	void Buffer::Fill(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept {
 		OS::Assert(memory_ != nullptr);
-		memory_->Fill(data, sizeInBytes);
+		memory_->Fill(offset, data, sizeInBytes);
 	}
 
 	void Buffer::CopyDataTo(std::shared_ptr<Buffer> bufferTo, std::shared_ptr<CommandPool> commandPool) {
@@ -90,6 +84,8 @@ namespace Render::Vulkan
 
 	void Buffer::Allocate(){
 
+		OS::Assert(memory_ == nullptr);
+
 		const VkMemoryRequirements memoryRequirements = GetMemoryRequirements();
 		const uint32_t memoryType = FindSuitableMemoryType(createInfo_.physicalDevice_, memoryRequirements.memoryTypeBits, createInfo_.properties_);
 
@@ -104,6 +100,14 @@ namespace Render::Vulkan
 		BindMemory(memory);
 
 		memory_ = memory;
+
+	}
+
+	void Buffer::Deallocate() {
+
+		OS::Assert(memory_ != nullptr);
+
+		memory_ = nullptr;
 
 	}
 

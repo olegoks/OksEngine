@@ -13,46 +13,46 @@
 
 namespace Render::Vulkan {
 
-	template<class VertexType>
-	class VertexBuffer : public Buffer {
-	public:
+	//template<class VertexType>
+	//class VertexBuffer : public Buffer {
+	//public:
 
-		struct CreateInfo {
-			std::shared_ptr<PhysicalDevice> physicalDevice_;
-			std::shared_ptr<LogicDevice> LD_;
-			Common::Size verticesNumber_ = 0;
-		};
+	//	struct CreateInfo {
+	//		std::shared_ptr<PhysicalDevice> physicalDevice_;
+	//		std::shared_ptr<LogicDevice> LD_;
+	//		Common::Size verticesNumber_ = 0;
+	//	};
 
 
-		VertexBuffer(const CreateInfo& createInfo) :
-			Buffer{ Buffer::CreateInfo {
-			createInfo.physicalDevice_,
-			createInfo.LD_,
-			createInfo.verticesNumber_ * sizeof(VertexType),
-			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
-		}, verticesNumber_{ createInfo.verticesNumber_ } { }
+	//	VertexBuffer(const CreateInfo& createInfo) :
+	//		Buffer{ Buffer::CreateInfo {
+	//		createInfo.physicalDevice_,
+	//		createInfo.LD_,
+	//		createInfo.verticesNumber_ * sizeof(VertexType),
+	//		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+	//		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
+	//	}, verticesNumber_{ createInfo.verticesNumber_ } { }
 
-		VertexBuffer(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<LogicDevice> logicDevice, Common::Size verticesNumber) :
-			Buffer{ Buffer::CreateInfo {
-			physicalDevice,
-			logicDevice,
-			verticesNumber * sizeof(VertexType),
-			VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
-			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
-		}, verticesNumber_{ verticesNumber } { }
+	//	VertexBuffer(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<LogicDevice> logicDevice, Common::Size verticesNumber) :
+	//		Buffer{ Buffer::CreateInfo {
+	//		physicalDevice,
+	//		logicDevice,
+	//		verticesNumber * sizeof(VertexType),
+	//		VK_BUFFER_USAGE_TRANSFER_DST_BIT | VK_BUFFER_USAGE_VERTEX_BUFFER_BIT,
+	//		VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
+	//	}, verticesNumber_{ verticesNumber } { }
 
-		void Fill(VertexType* vertices) {
-			Buffer::Fill(vertices);
-		}
+	//	void Fill(VertexType* vertices) {
+	//		Buffer::Fill(vertices);
+	//	}
 
-		Common::Size GetSize() const {
-			return verticesNumber_;
-		}
+	//	Common::Size GetSize() const {
+	//		return verticesNumber_;
+	//	}
 
-	private:
-		const Common::Size verticesNumber_ = 0;
-	};
+	//private:
+	//	const Common::Size verticesNumber_ = 0;
+	//};
 
 	class VertexBuffer2 : public Buffer {
 	public:
@@ -74,17 +74,21 @@ namespace Render::Vulkan {
 			VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT }
 		}, createInfo_{ createInfo } { }
 
-		template<class VertexType>
-		void Fill(VertexType* vertices) {
-			static_assert(sizeof(VertexType) == createInfo_.vertexSize_);
-			Buffer::Fill(vertices);
+		void Fill(Common::Index firstVertex, void* vertices, Common::Size vertexCount) {
+			Buffer::Fill(firstVertex * createInfo_.vertexSize_, vertices, vertexCount * createInfo_.vertexSize_);
 		}
 
-		Common::Size GetSize() const {
+		[[nodiscard]]
+		Common::Size GetSize() const noexcept {
 			return createInfo_.verticesNumber_;
 		}
 
-	private:
+		[[nodiscard]]
+		Common::Size GetVertexSize() const noexcept {
+			return createInfo_.vertexSize_;
+		}
+		
+	protected:
 		CreateInfo createInfo_;
 	};
 
@@ -119,7 +123,7 @@ namespace Render::Vulkan {
 	//};
 
 
-	class AllocatedVertexBuffer2 : public VertexBuffer2 {
+	class HostVisibleVertexBuffer : public VertexBuffer2 {
 	public:
 
 		struct CreateInfo {
@@ -127,34 +131,33 @@ namespace Render::Vulkan {
 			std::shared_ptr<LogicDevice> LD_;
 			std::shared_ptr<CommandPool> commandPool_;
 
-			const void* vertices_ = nullptr;
+			//const void* vertices_ = nullptr;
 			Common::Size vertexSize_ = 0;
 			Common::Size verticesNumber_ = 0;
 		};
 
-		AllocatedVertexBuffer2(const CreateInfo& createInfo) :
+		HostVisibleVertexBuffer(const CreateInfo& createInfo) :
 			VertexBuffer2{ VertexBuffer2::CreateInfo{
 				createInfo.physicalDevice_,
 				createInfo.LD_,
 				createInfo.verticesNumber_,
 				createInfo.vertexSize_ } } {
-
-			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(
-				createInfo.physicalDevice_,
-				createInfo.LD_,
-				createInfo.verticesNumber_ * createInfo.vertexSize_);
-			vertexStagingBuffer->Allocate();
-			VertexBuffer2::Allocate();
-			vertexStagingBuffer->Fill(
-				createInfo.vertices_, 
-				createInfo.vertexSize_ * createInfo.verticesNumber_);
-			Buffer::DataCopy(*vertexStagingBuffer, *this, createInfo.LD_, createInfo.commandPool_);
-
 		}
 
 
-		void Fill(void* vertices) {
-			
+		void Fill(Common::Size offset, const void* vertices, Common::Size verticesNumber, std::shared_ptr<CommandPool> commandPool) {
+
+			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(
+				createInfo_.physicalDevice_,
+				createInfo_.LD_,
+				createInfo_.verticesNumber_ * createInfo_.vertexSize_);
+			vertexStagingBuffer->Allocate();
+
+			vertexStagingBuffer->Fill(
+				0,
+				vertices,
+				createInfo_.vertexSize_ * createInfo_.verticesNumber_);
+			Buffer::DataCopy(*vertexStagingBuffer, *this, createInfo_.LD_, commandPool);
 		}
 
 

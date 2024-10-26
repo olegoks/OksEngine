@@ -102,6 +102,7 @@ namespace Render::Vulkan {
 		~LogicDevice() noexcept {
 			Destroy();
 		}
+
 	private:
 
 		void Destroy() noexcept {

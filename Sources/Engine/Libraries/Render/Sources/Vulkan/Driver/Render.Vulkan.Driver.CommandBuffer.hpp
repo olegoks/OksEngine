@@ -187,7 +187,12 @@ namespace Render::Vulkan {
 		}
 
 		void Draw(Common::Size verticesNumber) {
-			vkCmdDraw(GetHandle(), static_cast<uint32_t>(verticesNumber), 1, 0, 0);
+			vkCmdDraw(
+				GetHandle(),
+				static_cast<uint32_t>(verticesNumber), 
+				1,
+				0, 
+				0);
 		}
 
 		void DrawIndexed(Common::Size indicesNumber) {
