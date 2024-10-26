@@ -94,17 +94,17 @@ namespace OksEngine {
 						shaderBindings.push_back(textureBinding);
 					}
 
-					//const Common::Id shapeId = driver->DrawMesh(
-					//	"ImGui Pipeline",
-					//	(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
-					//	cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
-					//	RAL::Driver::VertexType::VF2_TF2_CF4,
-					//	cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
-					//	cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
-					//	RAL::Driver::IndexType::UI16,
-					//	shaderBindings);
+		/*			const Common::Id shapeId = driver->DrawMesh(
+						"ImGui Pipeline",
+						(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
+						cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
+						RAL::Driver::VertexType::VF2_TF2_CF4,
+						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
+						cmd_list->IdxBuffer.Size - pcmd->IdxOffset,
+						RAL::Driver::IndexType::UI16,
+						shaderBindings);
 
-					//state->driverShapesId_.push_back(shapeId);
+					state->driverShapesId_.push_back(shapeId);*/
 
 				}
 			}

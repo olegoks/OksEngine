@@ -29,7 +29,8 @@ namespace OksEngine {
 
 		RAL::Driver::VertexBuffer::CreateInfo VBCI{
 			.verticesNumber_ = vertices->vertices_.GetVerticesNumber(),
-			.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2
+			.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2,
+			.type_ = RAL::Driver::VertexBuffer::Type::Const
 		};
 		RAL::Driver::VertexBuffer::Id VBId = driver->CreateVertexBuffer(VBCI);
 		driver->FillVertexBuffer(VBId, 0, vertices3fnt.data(), vertices3fnt.size());
