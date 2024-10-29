@@ -68,9 +68,10 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CollectEntitiesInfo>();
 				context_->GetECSWorld()->RunSystem<CollectECSSystemsCallsInfo>();
 				ImGui::Render();
+
 				context_->GetECSWorld()->RunSystem<CreateImGUIModel>();
-				context_->GetECSWorld()->RunSystem<CreateImGUIRenderData>();
 				context_->GetECSWorld()->RunSystem<AddImGuiMeshToRender>();
+				context_->GetECSWorld()->RunSystem<UpdateImGUIRenderData>();
 				context_->GetECSWorld()->RunSystem<RenderImGuiUI>();
 				/*ImGui*/
 

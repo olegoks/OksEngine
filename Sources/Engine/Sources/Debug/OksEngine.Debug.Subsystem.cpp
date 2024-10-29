@@ -15,7 +15,7 @@ namespace OksEngine {
 		GetContext().GetECSWorld()->CreateComponent<ECSInspector>(imgui);
 		GetContext().GetECSWorld()->CreateComponent<FramesCounter>(imgui);
 		GetContext().GetECSWorld()->RegisterSystem < CreateImGUIModel>(createInfo.context_);
-		GetContext().GetECSWorld()->RegisterSystem < CreateImGUIRenderData>(createInfo.context_);
+		GetContext().GetECSWorld()->RegisterSystem < UpdateImGUIRenderData>(createInfo.context_);
 		GetContext().GetECSWorld()->RegisterSystem < AddImGuiMeshToRender>(createInfo.context_);
 		GetContext().GetECSWorld()->RegisterSystem<CreateImGuiTexture>(createInfo.context_);
 		GetContext().GetECSWorld()->RegisterSystem<RenderImGuiUI>(createInfo.context_);

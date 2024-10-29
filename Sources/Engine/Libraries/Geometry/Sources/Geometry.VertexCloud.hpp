@@ -21,6 +21,11 @@ namespace Geometry {
 
 		}
 
+		VertexCloud(const VertexCloud& copyVertexCloud) noexcept :
+			vertices_{ copyVertexCloud.vertices_ } {
+
+		}
+
 		void Add(const VertexType* vertices, Common::Size verticesNumber) noexcept {
 
 			OS::Assert(vertices != nullptr);
@@ -46,6 +51,32 @@ namespace Geometry {
 				vertex *= transform;
 			}
 		}
+
+
+		VertexCloud& operator=(const VertexCloud& moveVertexCloud) {
+
+			if (this == &moveVertexCloud) {
+				return *this;
+			}
+
+			vertices_ = moveVertexCloud.vertices_;
+
+			return *this;
+
+		}
+
+		VertexCloud& operator=(VertexCloud&& moveVertexCloud) {
+			
+			if (this == &moveVertexCloud) {
+				return *this;
+			}
+
+			vertices_ = std::move(moveVertexCloud.vertices_);
+
+			return *this;
+
+		}
+
 
 		[[nodiscard]]
 		const VertexType& operator[](Common::Index index) const noexcept {
