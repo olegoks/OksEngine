@@ -45,6 +45,7 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<CreateGeometryDescriptionFileEntity>(context);
 		ecsWorld->RegisterSystem<CreateLoadTextureRequest>(context);
 		ecsWorld->RegisterSystem<CreateDriverVertexBuffer>(context);
+		ecsWorld->RegisterSystem<CreateDriverVertex2DBuffer>(context);
 		ecsWorld->RegisterSystem<CreateDriverIndexBuffer>(context);
 		auto uiSubsystem = context.GetUISubsystem();
 		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);

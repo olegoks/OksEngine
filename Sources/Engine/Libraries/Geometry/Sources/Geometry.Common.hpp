@@ -11,6 +11,7 @@ namespace Geometry {
 	using Length = Common::Float;
 	using Color3f = Math::Vector3f;
 	using Color4b = Math::Vector<4, Common::Byte>;
+	using Color4f = Math::Vector4f;
 	using Normal3f = Math::Vector3f;
 	using UV2f = Math::Vector2f;
 }

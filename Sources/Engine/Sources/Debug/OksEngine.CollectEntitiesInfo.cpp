@@ -127,7 +127,7 @@ namespace OksEngine {
 				ImGui::Unindent(20.0f);
 				
 			}
-			editComponent.template operator() < Vertices > (world, id);
+			editComponent.template operator() < Vertices3D > (world, id);
 			editComponent.template operator() < DriverVertexBuffer > (world, id);
 			editComponent.template operator() < Normals > (world, id);
 			editComponent.template operator() < Colors > (world, id);

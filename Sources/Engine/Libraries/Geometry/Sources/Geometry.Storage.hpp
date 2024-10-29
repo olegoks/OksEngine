@@ -45,7 +45,7 @@ namespace Geometry {
 
 		VertexCloud<Vertex3f>	vertices_;
 		DS::Vector<Normal3f>	normals_;
-		DS::Vector<Color3f>		colors_;
+		DS::Vector<Color4f>		colors_;
 		DS::Vector<UV2f>		uvs_;
 		IndexBuffer<Index16>	indices_;
 		//AABB aabb_;

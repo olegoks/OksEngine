@@ -1,8 +1,9 @@
 
-#include <Render/Model/OksEngine.AddMeshToRender.hpp>
+#include <Debug/Render/OksEngine.AddImGuiMeshToRender.hpp>
 
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
-#include <Common/OksEngine.Position.hpp>
+#include <Common/OksEngine.Position2D.hpp>
+#include <Common/OksEngine.Scale2D.hpp>
 #include <Common/OksEngine.Rotation.hpp>
 #include <Render/Model/OksEngine.Mesh.hpp>
 #include <Render/Texture/OksEngine.DriverTexture.hpp>
@@ -15,43 +16,44 @@
 
 namespace OksEngine {
 
-	void AddMeshToRender::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+	void AddImGuiMeshToRender::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		auto* position = world->GetComponent<Position>(entityId);
-		auto* rotation = world->GetComponent<Rotation>(entityId);
+		auto* position = world->GetComponent<Position2D>(entityId);
+		auto* scale = world->GetComponent<Scale2D>(entityId);
+		//auto* rotation = world->GetComponent<Rotation>(entityId);
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 		//auto* driverCamera = world->GetComponent<DriverCamera>(secondEntityId);
 		auto* driverTexture = world->GetComponent<DriverTexture>(entityId);
 
 		auto* vertices = world->GetComponent<DriverVertexBuffer>(entityId);
 		auto* indices = world->GetComponent<DriverIndexBuffer>(entityId);
-		auto* uvs = world->GetComponent<UVs>(entityId);
-		auto* normals = world->GetComponent<Normals>(entityId);
+		//auto* uvs = world->GetComponent<UVs>(entityId);
+		//auto* normals = world->GetComponent<Normals>(entityId);
 
 		std::vector<RAL::Driver::ShaderBinding::Data> shaderBindings;
 
-		//CAMERA BINDING
-		auto* cameraViewProjUniformBuffer = world->GetConstComponent<UniformBuffer>(secondEntityId);
-		{
-			RAL::Driver::ShaderBinding::Data cameraBinding{
-				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
-				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
-				.uniformBufferId_ = cameraViewProjUniformBuffer->id_
-			};
-			shaderBindings.push_back(cameraBinding);
-		}
+		////CAMERA BINDING
+		//auto* cameraViewProjUniformBuffer = world->GetConstComponent<UniformBuffer>(secondEntityId);
+		//{
+		//	RAL::Driver::ShaderBinding::Data cameraBinding{
+		//		.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
+		//		.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
+		//		.uniformBufferId_ = cameraViewProjUniformBuffer->id_
+		//	};
+		//	shaderBindings.push_back(cameraBinding);
+		//}
 
 		//TRANSFORM BINDING
 		{
-			const glm::mat4 transformMatrix = glm::mat4{ 1 } * rotation->GetMat() * position->GetMat();
 			struct Transform {
-				glm::mat4 model_;
+				glm::vec2 scale_;
+				glm::vec2 translate_;
 			};
 
-			Transform transform{ transformMatrix };
+			Transform transform{  scale->GetVec(), position->GetVec() };
 			RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
 				.size_ = sizeof(Transform),
-				.type_ = RAL::Driver::UniformBuffer::Type::Const
+				.type_ = RAL::Driver::UniformBuffer::Type::Mutable
 			};
 			RAL::Driver::UniformBuffer::Id ubId = driver->CreateUniformBuffer(UBCreateInfo);
 			driver->FillUniformBuffer(ubId, &transform);
@@ -85,7 +87,7 @@ namespace OksEngine {
 		//	vertices3fnt.push_back(vertex);
 		//}
 		Common::Id driverMeshId = driver->DrawMesh(
-			"Textured Pipeline",
+			"ImGui Pipeline",
 			/*(const RAL::Vertex3fnt*)vertices3fnt.data(),
 			vertices->vertices_.GetVerticesNumber(),
 			RAL::Driver::VertexType::VF3_NF3_TF2,*/
@@ -100,25 +102,24 @@ namespace OksEngine {
 	}
 
 
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> AddMeshToRender::GetFilter() const noexcept {
+	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> AddImGuiMeshToRender::GetFilter() const noexcept {
 		return { ECS::Entity::Filter{}
 			.Include<Mesh2>()
-			.Include<Position>()
-			.Include<Rotation>()
-			.Include<Mesh2>()
-			.Include<Vertices3D>()
+			.Include<Position2D>()
+			.Include<Scale2D>()
+			.Include<Vertices2D>()
 			.Include<Indices>()
 			.Include<UVs>()
-			.Include<Normals> ()
+			.Include<Colors>()
 			.Include<DriverTexture>()
 			.Include<DriverIndexBuffer>()
 			.Include<DriverVertexBuffer>()
 			.Exclude<DriverMesh>()
-			, ECS::Entity::Filter{}.Include<Camera>().Include<UniformBuffer>()};
+			, ECS::Entity::Filter{}.Include<Camera>().Include<UniformBuffer>() };
 	}
 
-	Common::TypeId AddMeshToRender::GetTypeId() const noexcept {
-		return Common::TypeInfo<AddMeshToRender>().GetId();
+	Common::TypeId AddImGuiMeshToRender::GetTypeId() const noexcept {
+		return Common::TypeInfo<AddImGuiMeshToRender>().GetId();
 	}
 
 }

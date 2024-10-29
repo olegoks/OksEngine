@@ -59,6 +59,7 @@ namespace OksEngine {
 
 
 				/*ImGui*/
+
 				context_->GetECSWorld()->RunSystem<CreateImGuiTexture>();
 				ImGui::NewFrame();
 				context_->GetECSWorld()->RunSystem<UpdateMainMenuBar>();
@@ -67,6 +68,9 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CollectEntitiesInfo>();
 				context_->GetECSWorld()->RunSystem<CollectECSSystemsCallsInfo>();
 				ImGui::Render();
+				context_->GetECSWorld()->RunSystem<CreateImGUIModel>();
+				context_->GetECSWorld()->RunSystem<CreateImGUIRenderData>();
+				context_->GetECSWorld()->RunSystem<AddImGuiMeshToRender>();
 				context_->GetECSWorld()->RunSystem<RenderImGuiUI>();
 				/*ImGui*/
 
@@ -86,6 +90,7 @@ namespace OksEngine {
 				//context_->GetECSWorld()->RunSystem < CheckTextureLoaded>();
 				context_->GetECSWorld()->RunSystem<CreateTexture>();
 				context_->GetECSWorld()->RunSystem<CreateDriverVertexBuffer>();
+				context_->GetECSWorld()->RunSystem < CreateDriverVertex2DBuffer>();
 				context_->GetECSWorld()->RunSystem<CreateDriverIndexBuffer>();
 				context_->GetECSWorld()->RunSystem<CreateDriverTexture>();
 				context_->GetECSWorld()->RunSystem<AddMeshToRender>();

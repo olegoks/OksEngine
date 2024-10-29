@@ -32,11 +32,17 @@ namespace OksEngine {
 	}
 
 
-	struct Vertices : public ECSComponent<Vertices> {
+	struct Vertices3D : public ECSComponent<Vertices3D> {
 	public:
-		Vertices(const Geom::VertexCloud<Geom::Vertex3f>& vertices) 
+		Vertices3D(const Geom::VertexCloud<Geom::Vertex3f>& vertices) 
 			: ECSComponent{ nullptr },
 			vertices_{ vertices } {
+
+		}
+
+		Vertices3D()
+			: ECSComponent{ nullptr },
+			vertices_{ } {
 
 		}
 
@@ -45,7 +51,29 @@ namespace OksEngine {
 
 
 	template<>
-	inline void Edit<Vertices>(Vertices* renderMesh) {
+	inline void Edit<Vertices3D>(Vertices3D* renderMesh) {
+	}
+
+	struct Vertices2D : public ECSComponent<Vertices2D> {
+	public:
+		Vertices2D(const Geom::VertexCloud<Geom::Vertex2f>& vertices)
+			: ECSComponent{ nullptr },
+			vertices_{ vertices } {
+
+		}
+
+		Vertices2D()
+			: ECSComponent{ nullptr },
+			vertices_{ } {
+
+		}
+
+		Geom::VertexCloud<Geom::Vertex2f>	vertices_;
+	};
+
+
+	template<>
+	inline void Edit<Vertices2D>(Vertices2D* renderMesh) {
 	}
 
 	struct Normals : public ECSComponent<Normals> {
@@ -66,13 +94,19 @@ namespace OksEngine {
 
 	struct Colors : public ECSComponent<Colors> {
 	public:
-		Colors(const DS::Vector<Geom::Color3f>& colors) 
+		Colors(const DS::Vector<Geom::Color4f>& colors) 
 			: ECSComponent{ nullptr },
 			colors_{ colors } {
 
 		}
 
-		DS::Vector<Geom::Color3f>	colors_;
+		Colors()
+			: ECSComponent{ nullptr },
+			colors_{ } {
+
+		}
+
+		DS::Vector<Geom::Color4f>	colors_;
 	};
 
 
@@ -85,6 +119,12 @@ namespace OksEngine {
 		UVs(const DS::Vector<Geom::UV2f>& uvs) 
 			: ECSComponent{ nullptr },
 			uvs_{ uvs } {
+
+		}
+		
+		UVs()
+			: ECSComponent{ nullptr },
+			uvs_{ } {
 
 		}
 
@@ -101,6 +141,12 @@ namespace OksEngine {
 		Indices(const Geom::IndexBuffer<Geom::Index16>& indices) 
 			: ECSComponent{ nullptr },
 			indices_{ indices } {
+
+		}
+
+		Indices()
+			: ECSComponent{ nullptr },
+			indices_{ } {
 
 		}
 

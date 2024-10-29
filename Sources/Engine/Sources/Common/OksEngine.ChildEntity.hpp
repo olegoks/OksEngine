@@ -23,6 +23,12 @@ namespace OksEngine {
 	class ChildEntities : public ECSComponent<ChildEntities> {
 	public:
 
+		ChildEntities(ECS::Entity::Id entityIds)
+			: ECSComponent{ nullptr },
+			entitiesIds_{ entityIds } {
+
+		}
+
 		ChildEntities(const std::vector<ECS::Entity::Id>& entitiesIds) 
 			: ECSComponent{ nullptr },
 			entitiesIds_{ entitiesIds } {

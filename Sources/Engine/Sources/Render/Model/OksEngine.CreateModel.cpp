@@ -8,6 +8,7 @@ namespace OksEngine {
 
 	void CreateModelEntityFromObjMtl::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
+		return;
 		auto* position = world->GetComponent<Position>(entityId);
 		auto* rotation = world->GetComponent<Rotation>(entityId);
 		auto* objEntity = world->GetComponent<ObjEntity>(entityId);
@@ -40,7 +41,7 @@ namespace OksEngine {
 			}
 			
 			OS::Assert(mesh.vertices_.GetVerticesNumber() != 0);
-			world->CreateComponent<Vertices>(meshEntityId, mesh.vertices_);
+			world->CreateComponent<Vertices3D>(meshEntityId, mesh.vertices_);
 
 			OS::Assert(mesh.indices_.GetIndicesNumber() != 0);
 			world->CreateComponent<Indices>(meshEntityId, mesh.indices_);

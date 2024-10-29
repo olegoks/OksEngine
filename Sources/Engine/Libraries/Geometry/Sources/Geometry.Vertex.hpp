@@ -18,10 +18,13 @@ namespace Geometry {
 	template<Common::Size size, class BaseType>
 	struct Vertex {
 
-		Vertex() noexcept : position_{ 0.f , 0.f , 0.f }{ }
-
+		Vertex() noexcept requires(size == 3) : position_{ 0.f , 0.f , 0.f }{ }
+		Vertex() noexcept requires(size == 2) : position_{ 0.f , 0.f } { }
 		Vertex(const Math::Vector<size, BaseType>& position) noexcept :
 			position_{ position } {}
+
+		Vertex(BaseType x, BaseType y) noexcept requires(size == 2) :
+			position_{ x, y } {}
 
 		Vertex(BaseType x, BaseType y, BaseType z) noexcept requires(size == 3) :
 			position_{ x, y, z } {}
@@ -74,9 +77,9 @@ namespace Geometry {
 
 	class Vertex2ftc : public Vertex2ft {
 	public:
-		Color4b color_;
+		Color4f color_;
 		Vertex2ftc() noexcept = default;
-		Vertex2ftc(const Vertex2f& position, const UV2f uv, const Color4b& color) noexcept :
+		Vertex2ftc(const Vertex2f& position, const UV2f uv, const Color4f& color) noexcept :
 			Vertex2ft{ position, uv }, color_{ color } { }
 
 		struct Hash {

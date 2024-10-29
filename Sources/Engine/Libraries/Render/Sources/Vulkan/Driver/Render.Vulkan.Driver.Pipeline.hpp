@@ -255,261 +255,261 @@ namespace Render::Vulkan {
 		std::shared_ptr<PipelineLayout> pipelineLayout_ = VK_NULL_HANDLE;
 	};
 
-	class TexturedModelPipeline : public Pipeline {
-	public:
+	//class TexturedModelPipeline : public Pipeline {
+	//public:
 
-		using DepthTestInfo = Pipeline::DepthTestInfo;
+	//	using DepthTestInfo = Pipeline::DepthTestInfo;
 
-		struct CreateInfo {
-			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> LD_ = nullptr;
-			std::shared_ptr<RenderPass> renderPass_ = nullptr;
-			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<Shader> vertexShader_ = nullptr;
-			std::shared_ptr<Shader> fragmentShader_ = nullptr;
-			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
-			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
-			VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
-			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
-		};
+	//	struct CreateInfo {
+	//		std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+	//		std::shared_ptr<LogicDevice> LD_ = nullptr;
+	//		std::shared_ptr<RenderPass> renderPass_ = nullptr;
+	//		std::shared_ptr<SwapChain> swapChain_ = nullptr;
+	//		std::shared_ptr<Shader> vertexShader_ = nullptr;
+	//		std::shared_ptr<Shader> fragmentShader_ = nullptr;
+	//		glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
+	//		VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+	//		VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
+	//		std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
+	//	};
 
-		TexturedModelPipeline(const CreateInfo& createInfo) :
-			Pipeline{
-				Pipeline::CreateInfo{
-					createInfo.physicalDevice_,
-					createInfo.LD_,
-					createInfo.renderPass_,
-					{},
-					std::vector<std::shared_ptr<DescriptorSetLayout>>{
-					std::make_shared<DescriptorSetLayout>(
-						DescriptorSetLayout::CreateInfo{
-							"GlobalData",
-							createInfo.LD_,
-							std::vector<VkDescriptorSetLayoutBinding>{{{
-							0,
-							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-							1,
-							VK_SHADER_STAGE_VERTEX_BIT,
-							nullptr
-						}}}
-						}),std::make_shared<DescriptorSetLayout>(
-						DescriptorSetLayout::CreateInfo{
-							"Transform",
-							createInfo.LD_,
-							std::vector<VkDescriptorSetLayoutBinding>{{{
-							0,
-							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-							1,
-							VK_SHADER_STAGE_VERTEX_BIT,
-							nullptr
-						}}}
-						}),
-						std::make_shared<DescriptorSetLayout>(
-						DescriptorSetLayout::CreateInfo{
-							"DiffuseMap",
-							createInfo.LD_,
-							std::vector<VkDescriptorSetLayoutBinding>{{{
-							0,
-							VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-							1,
-							VK_SHADER_STAGE_FRAGMENT_BIT,
-							nullptr
-						}}}
-						})
-				},
-					std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-						createInfo.LD_,
-						createInfo.vertexShader_->GetSpirv()
-						}),
-					std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-						createInfo.LD_,
-						createInfo.fragmentShader_->GetSpirv()
-						}),
-					createInfo.depthTestInfo_,
-					createInfo.colorAttachmentSize_,
-					createInfo.colorAttachmentFormat_,
-							createInfo.multisamplingSamplesCount_,
-					VertexInfo{
-						Vertex3fnt::GetBindingDescription(),
-						Vertex3fnt::GetAttributeDescriptions()						
-					},
-				VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-				VK_FRONT_FACE_COUNTER_CLOCKWISE,
-				VK_CULL_MODE_BACK_BIT,
-				{}
-				}
-			} {	}
+	//	TexturedModelPipeline(const CreateInfo& createInfo) :
+	//		Pipeline{
+	//			Pipeline::CreateInfo{
+	//				createInfo.physicalDevice_,
+	//				createInfo.LD_,
+	//				createInfo.renderPass_,
+	//				{},
+	//				std::vector<std::shared_ptr<DescriptorSetLayout>>{
+	//				std::make_shared<DescriptorSetLayout>(
+	//					DescriptorSetLayout::CreateInfo{
+	//						"GlobalData",
+	//						createInfo.LD_,
+	//						std::vector<VkDescriptorSetLayoutBinding>{{{
+	//						0,
+	//						VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+	//						1,
+	//						VK_SHADER_STAGE_VERTEX_BIT,
+	//						nullptr
+	//					}}}
+	//					}),std::make_shared<DescriptorSetLayout>(
+	//					DescriptorSetLayout::CreateInfo{
+	//						"Transform",
+	//						createInfo.LD_,
+	//						std::vector<VkDescriptorSetLayoutBinding>{{{
+	//						0,
+	//						VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+	//						1,
+	//						VK_SHADER_STAGE_VERTEX_BIT,
+	//						nullptr
+	//					}}}
+	//					}),
+	//					std::make_shared<DescriptorSetLayout>(
+	//					DescriptorSetLayout::CreateInfo{
+	//						"DiffuseMap",
+	//						createInfo.LD_,
+	//						std::vector<VkDescriptorSetLayoutBinding>{{{
+	//						0,
+	//						VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+	//						1,
+	//						VK_SHADER_STAGE_FRAGMENT_BIT,
+	//						nullptr
+	//					}}}
+	//					})
+	//			},
+	//				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+	//					createInfo.LD_,
+	//					createInfo.vertexShader_->GetSpirv()
+	//					}),
+	//				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+	//					createInfo.LD_,
+	//					createInfo.fragmentShader_->GetSpirv()
+	//					}),
+	//				createInfo.depthTestInfo_,
+	//				createInfo.colorAttachmentSize_,
+	//				createInfo.colorAttachmentFormat_,
+	//						createInfo.multisamplingSamplesCount_,
+	//				VertexInfo{
+	//					Vertex3fnt::GetBindingDescription(),
+	//					Vertex3fnt::GetAttributeDescriptions()						
+	//				},
+	//			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+	//			VK_FRONT_FACE_COUNTER_CLOCKWISE,
+	//			VK_CULL_MODE_BACK_BIT,
+	//			{}
+	//			}
+	//		} {	}
 
-	};
+	//};
 
-	class FlatShadedModelPipeline : public Pipeline {
-	public:
+	//class FlatShadedModelPipeline : public Pipeline {
+	//public:
 
-		using DepthTestInfo = Pipeline::DepthTestInfo;
+	//	using DepthTestInfo = Pipeline::DepthTestInfo;
 
-		struct CreateInfo {
-			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> LD_ = nullptr;
-			std::shared_ptr<RenderPass> renderPass_ = nullptr;
-			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<Shader> vertexShader_ = nullptr;
-			std::shared_ptr<Shader> fragmentShader_ = nullptr;
-			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
-			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
-			VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
-			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
-		};
-
-
-		FlatShadedModelPipeline(const CreateInfo& createInfo) :
-			Pipeline{
-			Pipeline::CreateInfo{
-				createInfo.physicalDevice_,
-				createInfo.LD_,
-				createInfo.renderPass_,
-				{},
-				std::vector<std::shared_ptr<DescriptorSetLayout>>{
-					std::make_shared<DescriptorSetLayout>(
-						DescriptorSetLayout::CreateInfo{
-							"GlobalData",
-							createInfo.LD_,
-							std::vector<VkDescriptorSetLayoutBinding>{{{
-							0,
-							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-							1,
-							VK_SHADER_STAGE_VERTEX_BIT,
-							nullptr
-						}}}
-						}),std::make_shared<DescriptorSetLayout>(
-						DescriptorSetLayout::CreateInfo{
-							"Transform",
-							createInfo.LD_,
-							std::vector<VkDescriptorSetLayoutBinding>{{{
-							0,
-							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-							1,
-							VK_SHADER_STAGE_VERTEX_BIT,
-							nullptr
-						}}}
-						})
-				},
-				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-					createInfo.LD_,
-					createInfo.vertexShader_->GetSpirv()
-					}),
-				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-					createInfo.LD_,
-					createInfo.fragmentShader_->GetSpirv()
-					}),
-				createInfo.depthTestInfo_,
-				createInfo.colorAttachmentSize_,
-				createInfo.colorAttachmentFormat_,
-							createInfo.multisamplingSamplesCount_,
-				VertexInfo{
-					Vertex3fnc::GetBindingDescription(),
-					Vertex3fnc::GetAttributeDescriptions()
-				},
-			VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
-			VK_FRONT_FACE_COUNTER_CLOCKWISE,
-			VK_CULL_MODE_BACK_BIT,
-				{}
-			}
-		} { }
-	
-	
-	};
-
-	class LinesPipeline : public Pipeline {
-	public:
-
-		using DepthTestInfo = Pipeline::DepthTestInfo;
-
-		struct CreateInfo {
-			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> LD_ = nullptr;
-			std::shared_ptr<RenderPass> renderPass_ = nullptr;
-			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<Shader> vertexShader_ = nullptr;
-			std::shared_ptr<Shader> fragmentShader_ = nullptr;
-			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
-			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
-			VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
-			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
-			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
-		};
+	//	struct CreateInfo {
+	//		std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+	//		std::shared_ptr<LogicDevice> LD_ = nullptr;
+	//		std::shared_ptr<RenderPass> renderPass_ = nullptr;
+	//		std::shared_ptr<SwapChain> swapChain_ = nullptr;
+	//		std::shared_ptr<Shader> vertexShader_ = nullptr;
+	//		std::shared_ptr<Shader> fragmentShader_ = nullptr;
+	//		glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
+	//		VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+	//		VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
+	//		std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
+	//	};
 
 
-		LinesPipeline(const CreateInfo& createInfo) :
-			Pipeline{
-			Pipeline::CreateInfo{
-				createInfo.physicalDevice_,
-				createInfo.LD_,
-				createInfo.renderPass_,
-				{},
-				std::vector<std::shared_ptr<DescriptorSetLayout>>{
-					std::make_shared<DescriptorSetLayout>(
-						DescriptorSetLayout::CreateInfo{
-							"GlobalData",
-							createInfo.LD_,
-							std::vector<VkDescriptorSetLayoutBinding>{{{
-							0,
-							VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-							1,
-							VK_SHADER_STAGE_VERTEX_BIT,
-							nullptr
-						}}}
-						})
-				},
-				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-					createInfo.LD_,
-					createInfo.vertexShader_->GetSpirv()
-					}),
-				std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
-					createInfo.LD_,
-					createInfo.fragmentShader_->GetSpirv()
-					}),
-				createInfo.depthTestInfo_,
-				createInfo.colorAttachmentSize_,
-				createInfo.colorAttachmentFormat_,
-				createInfo.multisamplingSamplesCount_,
-				VertexInfo{
-					Vertex3fc::GetBindingDescription(),
-					Vertex3fc::GetAttributeDescriptions()
-				},
-				VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
-				VK_FRONT_FACE_COUNTER_CLOCKWISE,
-				VK_CULL_MODE_BACK_BIT,
-				{}
-			}
-		} { }
+	//	FlatShadedModelPipeline(const CreateInfo& createInfo) :
+	//		Pipeline{
+	//		Pipeline::CreateInfo{
+	//			createInfo.physicalDevice_,
+	//			createInfo.LD_,
+	//			createInfo.renderPass_,
+	//			{},
+	//			std::vector<std::shared_ptr<DescriptorSetLayout>>{
+	//				std::make_shared<DescriptorSetLayout>(
+	//					DescriptorSetLayout::CreateInfo{
+	//						"GlobalData",
+	//						createInfo.LD_,
+	//						std::vector<VkDescriptorSetLayoutBinding>{{{
+	//						0,
+	//						VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+	//						1,
+	//						VK_SHADER_STAGE_VERTEX_BIT,
+	//						nullptr
+	//					}}}
+	//					}),std::make_shared<DescriptorSetLayout>(
+	//					DescriptorSetLayout::CreateInfo{
+	//						"Transform",
+	//						createInfo.LD_,
+	//						std::vector<VkDescriptorSetLayoutBinding>{{{
+	//						0,
+	//						VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+	//						1,
+	//						VK_SHADER_STAGE_VERTEX_BIT,
+	//						nullptr
+	//					}}}
+	//					})
+	//			},
+	//			std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+	//				createInfo.LD_,
+	//				createInfo.vertexShader_->GetSpirv()
+	//				}),
+	//			std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+	//				createInfo.LD_,
+	//				createInfo.fragmentShader_->GetSpirv()
+	//				}),
+	//			createInfo.depthTestInfo_,
+	//			createInfo.colorAttachmentSize_,
+	//			createInfo.colorAttachmentFormat_,
+	//						createInfo.multisamplingSamplesCount_,
+	//			VertexInfo{
+	//				Vertex3fnc::GetBindingDescription(),
+	//				Vertex3fnc::GetAttributeDescriptions()
+	//			},
+	//		VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST,
+	//		VK_FRONT_FACE_COUNTER_CLOCKWISE,
+	//		VK_CULL_MODE_BACK_BIT,
+	//			{}
+	//		}
+	//	} { }
+	//
+	//
+	//};
+
+	//class LinesPipeline : public Pipeline {
+	//public:
+
+	//	using DepthTestInfo = Pipeline::DepthTestInfo;
+
+	//	struct CreateInfo {
+	//		std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+	//		std::shared_ptr<LogicDevice> LD_ = nullptr;
+	//		std::shared_ptr<RenderPass> renderPass_ = nullptr;
+	//		std::shared_ptr<SwapChain> swapChain_ = nullptr;
+	//		std::shared_ptr<Shader> vertexShader_ = nullptr;
+	//		std::shared_ptr<Shader> fragmentShader_ = nullptr;
+	//		glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
+	//		VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+	//		VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
+	//		std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
+	//		std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
+	//	};
 
 
-	};
+	//	LinesPipeline(const CreateInfo& createInfo) :
+	//		Pipeline{
+	//		Pipeline::CreateInfo{
+	//			createInfo.physicalDevice_,
+	//			createInfo.LD_,
+	//			createInfo.renderPass_,
+	//			{},
+	//			std::vector<std::shared_ptr<DescriptorSetLayout>>{
+	//				std::make_shared<DescriptorSetLayout>(
+	//					DescriptorSetLayout::CreateInfo{
+	//						"GlobalData",
+	//						createInfo.LD_,
+	//						std::vector<VkDescriptorSetLayoutBinding>{{{
+	//						0,
+	//						VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+	//						1,
+	//						VK_SHADER_STAGE_VERTEX_BIT,
+	//						nullptr
+	//					}}}
+	//					})
+	//			},
+	//			std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+	//				createInfo.LD_,
+	//				createInfo.vertexShader_->GetSpirv()
+	//				}),
+	//			std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+	//				createInfo.LD_,
+	//				createInfo.fragmentShader_->GetSpirv()
+	//				}),
+	//			createInfo.depthTestInfo_,
+	//			createInfo.colorAttachmentSize_,
+	//			createInfo.colorAttachmentFormat_,
+	//			createInfo.multisamplingSamplesCount_,
+	//			VertexInfo{
+	//				Vertex3fc::GetBindingDescription(),
+	//				Vertex3fc::GetAttributeDescriptions()
+	//			},
+	//			VK_PRIMITIVE_TOPOLOGY_LINE_LIST,
+	//			VK_FRONT_FACE_COUNTER_CLOCKWISE,
+	//			VK_CULL_MODE_BACK_BIT,
+	//			{}
+	//		}
+	//	} { }
 
-	class ImguiPipeline : public Pipeline {
-	public:
 
-		using DepthTestInfo = Pipeline::DepthTestInfo;
+	//};
 
-		struct CreateInfo {
-			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
-			std::shared_ptr<LogicDevice> LD_ = nullptr;
-			std::shared_ptr<RenderPass> renderPass_ = nullptr;
-			
-			std::shared_ptr<SwapChain> swapChain_ = nullptr;
-			std::shared_ptr<Shader> vertexShader_ = nullptr;
-			std::shared_ptr<Shader> fragmentShader_ = nullptr;
-			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
-			VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
-			VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
-			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
-		};
+	//class ImguiPipeline : public Pipeline {
+	//public:
+
+	//	using DepthTestInfo = Pipeline::DepthTestInfo;
+
+	//	struct CreateInfo {
+	//		std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
+	//		std::shared_ptr<LogicDevice> LD_ = nullptr;
+	//		std::shared_ptr<RenderPass> renderPass_ = nullptr;
+	//		
+	//		std::shared_ptr<SwapChain> swapChain_ = nullptr;
+	//		std::shared_ptr<Shader> vertexShader_ = nullptr;
+	//		std::shared_ptr<Shader> fragmentShader_ = nullptr;
+	//		glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
+	//		VkFormat colorAttachmentFormat_ = VK_FORMAT_UNDEFINED;
+	//		VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
+	//		std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
+	//	};
 
 
-		ImguiPipeline(const CreateInfo& createInfo);
+	//	ImguiPipeline(const CreateInfo& createInfo);
 
 
-	};
+	//};
 
 }
 

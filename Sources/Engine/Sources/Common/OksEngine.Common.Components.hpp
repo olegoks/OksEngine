@@ -2,6 +2,8 @@
 
 #include <Common/OksEngine.MapRigidBodyToRenderGeometry.hpp>
 #include <Common/OksEngine.Position.hpp>
+#include <Common/OksEngine.Position2D.hpp>
+#include <Common/OksEngine.Scale2D.hpp>
 #include <Common/OksEngine.Rotation.hpp>
 #include <Common/OksEngine.Up.hpp>
 #include <Common/OksEngine.Width.hpp>

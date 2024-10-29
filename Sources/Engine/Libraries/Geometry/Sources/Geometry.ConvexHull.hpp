@@ -4,11 +4,11 @@
 
 namespace Geometry {
 
-	template<class VertexType, class IndexType>
-	class ConvexHull : public Shape/*<VertexType, IndexType>*/ {
-	public:
-		ConvexHull() noexcept = default;
+	//template<class VertexType, class IndexType>
+	//class ConvexHull : public Shape/*<VertexType, IndexType>*/ {
+	//public:
+	//	ConvexHull() noexcept = default;
 
-	};
+	//};
 
 }

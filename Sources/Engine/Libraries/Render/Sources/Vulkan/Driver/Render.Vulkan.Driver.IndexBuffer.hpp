@@ -97,6 +97,8 @@ namespace Render::Vulkan {
 		HostVisibleIndexBuffer(const CreateInfo& createInfo) :
 			IndexBuffer2{ IndexBuffer2::CreateInfo{ createInfo.physicalDevice_, createInfo.LD_, createInfo.indicesNumber_, createInfo.indexSize_ } } {
 
+			OS::Assert(createInfo.indicesNumber_ >= 3);
+
 		}
 
 		void FillData(Common::Size offset, const void* indices, Common::Size indicesNumber, std::shared_ptr<CommandPool> commandPool) {

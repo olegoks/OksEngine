@@ -171,16 +171,16 @@ namespace RAL {
 		virtual void Render() = 0;
 		virtual void EndRender() = 0;
 
-		[[nodiscard]]
-		virtual Common::Id DrawMesh(
-			const std::string& pipelineName,
-			const void* vertices,
-			Common::Size verticesNumber,
-			VertexType vertexType,
-			const void* indices,
-			Common::Size indicesNumber,
-			IndexType indexType,
-			const std::vector<RAL::Driver::ShaderBinding::Data>& bindingData) = 0;
+		//[[nodiscard]]
+		//virtual Common::Id DrawMesh(
+		//	const std::string& pipelineName,
+		//	const void* vertices,
+		//	Common::Size verticesNumber,
+		//	VertexType vertexType,
+		//	const void* indices,
+		//	Common::Size indicesNumber,
+		//	IndexType indexType,
+		//	const std::vector<RAL::Driver::ShaderBinding::Data>& bindingData) = 0;
 
 		[[nodiscard]]
 		virtual Common::Id DrawMesh(
