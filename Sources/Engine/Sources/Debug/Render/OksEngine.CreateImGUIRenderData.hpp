@@ -4,10 +4,10 @@
 
 namespace OksEngine {
 
-	class CreateImGUIRenderData : public ECSSystem {
+	class UpdateImGUIRenderData : public ECSSystem {
 	public:
 
-		CreateImGUIRenderData(Context& context) noexcept : ECSSystem{ context } { }
+		UpdateImGUIRenderData(Context& context) noexcept : ECSSystem{ context } { }
 
 	public:
 		[[deprecated]]

@@ -11,6 +11,13 @@ namespace Geometry {
 	class IndexBuffer {
 	public:
 
+		IndexBuffer() noexcept = default;
+
+		IndexBuffer(const IndexBuffer& copyVertexCloud) noexcept :
+			indices_{ copyVertexCloud.indices_ } {
+
+		}
+
 		void Add(IndexType index) noexcept {
 			indices_.push_back(index);
 		}
@@ -48,6 +55,30 @@ namespace Geometry {
 		[[nodiscard]]
 		IndexType& operator[](Common::Index index) noexcept {
 			return indices_[index];
+		}
+
+		IndexBuffer& operator=(const IndexBuffer& moveVertexCloud) {
+
+			if (this == &moveVertexCloud) {
+				return *this;
+			}
+
+			indices_ = moveVertexCloud.indices_;
+
+			return *this;
+
+		}
+
+		IndexBuffer& operator=(IndexBuffer&& moveVertexCloud) {
+
+			if (this == &moveVertexCloud) {
+				return *this;
+			}
+
+			indices_ = std::move(moveVertexCloud.indices_);
+
+			return *this;
+
 		}
 
 		[[nodiscard]]
