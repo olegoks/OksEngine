@@ -6,6 +6,7 @@
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 #include <Render/Model/OksEngine.Mesh.hpp>
 #include <Render/Texture/OksEngine.TextureInfo.hpp>
+#include <Render/Texture/OksEngine.Texture.hpp>
 #include <Render/Texture/OksEngine.LoadTextureRequest.hpp>
 #include <Resources/OksEngine.LoadResourceRequestMarker.hpp>
 
@@ -35,6 +36,7 @@ namespace OksEngine {
 		return { ECS::Entity::Filter{}
 			.Include<Mesh2>()
 			.Include<TextureInfo>()
+			.Exclude<Texture>()
 			.Exclude<Name>()
 			.Exclude<LoadTextureRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
 	}

@@ -60,5 +60,6 @@ namespace Geometry {
 
 	[[nodiscard]]
 	Texture CreateTexture(const Common::Byte* memory_, Common::Size size) noexcept;
-
+	[[nodiscard]]
+	Texture CreateTexture(Color4b* pixels, Common::Size width, Common::Size height) noexcept;
 }

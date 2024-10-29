@@ -13,6 +13,7 @@ namespace RAL {
 
 	using Vector3f = Math::Vector3f;
 	using Vertex3f = Geometry::Vertex3f;
+	using Vertex2f = Geometry::Vertex2f;
 	using Color3f = Geometry::Color3f;
 	using Color4b = Geometry::Color4b;
 	using Vertex3fnc = Geometry::Vertex3fnc;

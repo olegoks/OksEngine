@@ -23,6 +23,21 @@ namespace Geometry {
 		return Texture{ textureCreateInfo };
 
 	}
+
+	[[nodiscard]]
+	Texture CreateTexture(Color4b* pixels, Common::Size width, Common::Size height) noexcept {
+
+		Texture::CreateInfo textureCreateInfo;
+		{
+			textureCreateInfo.width_ = width;
+			textureCreateInfo.height_ = height;
+			textureCreateInfo.pixels_ = DS::Vector<Color4b>{ (Color4b*)pixels, (Common::Size)width * height };
+
+		}
+		return Texture{ textureCreateInfo };
+
+	}
+
 }
 
 namespace Geom = Geometry;

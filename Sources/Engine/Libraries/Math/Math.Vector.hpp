@@ -17,7 +17,7 @@ namespace Math {
 		Vector() noexcept = default;
 
 		Vector(const Type* data) noexcept {
-			std::memcpy(data_, data, GetSize());
+			std::memcpy(data_.data(), data, GetSize());
 		}
 
 		//template<class ...Type>

@@ -1203,106 +1203,106 @@ namespace Render::Vulkan {
 			};
 		}
 
-		[[nodiscard]]
-		virtual Common::Id DrawMesh(
-			const std::string& pipelineName,
-			const void* vertices,
-			Common::Size verticesNumber,
-			VertexType vertexType,
-			const void* indices,
-			Common::Size indicesNumber,
-			IndexType indexType,
-			const std::vector<RAL::Driver::ShaderBinding::Data>& bindingsData) override {
+		//[[nodiscard]]
+		//virtual Common::Id DrawMesh(
+		//	const std::string& pipelineName,
+		//	const void* vertices,
+		//	Common::Size verticesNumber,
+		//	VertexType vertexType,
+		//	const void* indices,
+		//	Common::Size indicesNumber,
+		//	IndexType indexType,
+		//	const std::vector<RAL::Driver::ShaderBinding::Data>& bindingsData) override {
 
-			//const RAL::Driver::PipelineDescription& pipelineDesc = createInfo_.namePipelineDescriptions_[pipelineName];
-			//OS::AssertMessage(pipelineDesc.shaderBindings_.size() == bindingsData.size(), "Shaders bindings layout and data are different.");
-			//for (Common::Index i = 0; i < pipelineDesc.shaderBindings_.size(); i++) {
-			//	const RAL::Driver::ShaderBinding::Layout& layout = pipelineDesc.shaderBindings_[i];
-			//	const RAL::Driver::ShaderBinding::Data& data = bindingsData[i];
-			//	OS::AssertMessage(layout.stage_ == data.stage_, "Shaders bindings layout and data are different.");
-			//	OS::AssertMessage(layout.type_ == data.type_, "Shaders bindings layout and data are different.");
-			//}
+		//	//const RAL::Driver::PipelineDescription& pipelineDesc = createInfo_.namePipelineDescriptions_[pipelineName];
+		//	//OS::AssertMessage(pipelineDesc.shaderBindings_.size() == bindingsData.size(), "Shaders bindings layout and data are different.");
+		//	//for (Common::Index i = 0; i < pipelineDesc.shaderBindings_.size(); i++) {
+		//	//	const RAL::Driver::ShaderBinding::Layout& layout = pipelineDesc.shaderBindings_[i];
+		//	//	const RAL::Driver::ShaderBinding::Data& data = bindingsData[i];
+		//	//	OS::AssertMessage(layout.stage_ == data.stage_, "Shaders bindings layout and data are different.");
+		//	//	OS::AssertMessage(layout.type_ == data.type_, "Shaders bindings layout and data are different.");
+		//	//}
 
-			//HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
-			//{
-			//	vertexBufferCreateInfo.LD_ = objects_.LD_;
-			//	vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//	vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-			//	vertexBufferCreateInfo.verticesNumber_ = verticesNumber;
-			//	//vertexBufferCreateInfo.vertices_ = (const Vertex2ftc*)vertices;
-			//	vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(vertexType);
-			//}
-			//auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
+		//	//HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
+		//	//{
+		//	//	vertexBufferCreateInfo.LD_ = objects_.LD_;
+		//	//	vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+		//	//	vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
+		//	//	vertexBufferCreateInfo.verticesNumber_ = verticesNumber;
+		//	//	//vertexBufferCreateInfo.vertices_ = (const Vertex2ftc*)vertices;
+		//	//	vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(vertexType);
+		//	//}
+		//	//auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
 
-			//allocatedVertexBuffer->Allocate();
-			//allocatedVertexBuffer->FillData(0, vertices, verticesNumber, objects_.commandPool_);
+		//	//allocatedVertexBuffer->Allocate();
+		//	//allocatedVertexBuffer->FillData(0, vertices, verticesNumber, objects_.commandPool_);
 
-			//HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
-			//{
-			//	indexBufferCreateInfo.LD_ = objects_.LD_;
-			//	indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//	indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-			//	indexBufferCreateInfo.indicesNumber_ = indicesNumber;
-			//	//indexBufferCreateInfo.indices_ = indices;
-			//	indexBufferCreateInfo.indexSize_ = IndexTypeToSize(indexType);
-			//}
-			//auto allocatedIndexBuffer = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
+		//	//HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
+		//	//{
+		//	//	indexBufferCreateInfo.LD_ = objects_.LD_;
+		//	//	indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+		//	//	indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
+		//	//	indexBufferCreateInfo.indicesNumber_ = indicesNumber;
+		//	//	//indexBufferCreateInfo.indices_ = indices;
+		//	//	indexBufferCreateInfo.indexSize_ = IndexTypeToSize(indexType);
+		//	//}
+		//	//auto allocatedIndexBuffer = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
 
-			//allocatedIndexBuffer->Allocate();
-			//allocatedIndexBuffer->FillData(0, indices, indicesNumber, objects_.commandPool_);
+		//	//allocatedIndexBuffer->Allocate();
+		//	//allocatedIndexBuffer->FillData(0, indices, indicesNumber, objects_.commandPool_);
 
-			//std::shared_ptr<Vulkan::Pipeline> pipeline = namePipeline_[pipelineName];
+		//	//std::shared_ptr<Vulkan::Pipeline> pipeline = namePipeline_[pipelineName];
 
-			//std::vector<Mesh::ShaderBinding> shaderBindings;
+		//	//std::vector<Mesh::ShaderBinding> shaderBindings;
 
-			//for (Common::Index i = 0; i < bindingsData.size(); i++) {
+		//	//for (Common::Index i = 0; i < bindingsData.size(); i++) {
 
-			//	const RAL::Driver::ShaderBinding::Data& bindingData = bindingsData[i];
+		//	//	const RAL::Driver::ShaderBinding::Data& bindingData = bindingsData[i];
 
-			//	if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Uniform) {
+		//	//	if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Uniform) {
 
-			//		DS::CreateInfo DSCreateInfo;
-			//		{
-			//			DSCreateInfo.DP_ = objects_.DP_;
-			//			DSCreateInfo.DSL_ = pipeline->GetLayout()->GetDSLs()[i];
-			//			DSCreateInfo.LD_ = objects_.LD_;
-			//		}
+		//	//		DS::CreateInfo DSCreateInfo;
+		//	//		{
+		//	//			DSCreateInfo.DP_ = objects_.DP_;
+		//	//			DSCreateInfo.DSL_ = pipeline->GetLayout()->GetDSLs()[i];
+		//	//			DSCreateInfo.LD_ = objects_.LD_;
+		//	//		}
 
-			//		auto ds = std::make_shared<DS>(DSCreateInfo);
+		//	//		auto ds = std::make_shared<DS>(DSCreateInfo);
 
-			//		auto ub = GetUniformBuffer(bindingData.uniformBufferId_);
+		//	//		auto ub = GetUniformBuffer(bindingData.uniformBufferId_);
 
-			//		ds->UpdateBufferWriteConfiguration(
-			//			ub,
-			//			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-			//			0, 0, ub->GetSizeInBytes());
+		//	//		ds->UpdateBufferWriteConfiguration(
+		//	//			ub,
+		//	//			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		//	//			0, 0, ub->GetSizeInBytes());
 
-			//		Mesh::ShaderBinding shaderBinding{
-			//			.ubId_ = bindingData.uniformBufferId_,
-			//			.ds_ = ds
-			//		};
-			//		shaderBindings.push_back(shaderBinding);
-			//	}
-			//	if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Sampler) {
-			//		Mesh::ShaderBinding shaderBinding{
-			//			.textureId_ = bindingData.textureId_
-			//		};
-			//		shaderBindings.push_back(shaderBinding);
-			//	}
-			//}
+		//	//		Mesh::ShaderBinding shaderBinding{
+		//	//			.ubId_ = bindingData.uniformBufferId_,
+		//	//			.ds_ = ds
+		//	//		};
+		//	//		shaderBindings.push_back(shaderBinding);
+		//	//	}
+		//	//	if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Sampler) {
+		//	//		Mesh::ShaderBinding shaderBinding{
+		//	//			.textureId_ = bindingData.textureId_
+		//	//		};
+		//	//		shaderBindings.push_back(shaderBinding);
+		//	//	}
+		//	//}
 
-			//Mesh::CreateInfo meshCreateInfo{
-			//	.vertexBuffer_ = allocatedVertexBuffer,
-			//	.indexBuffer_ = allocatedIndexBuffer,
-			//	.shaderBindings_ = shaderBindings,
-			//	.pipelineName_ = pipelineName
-			//};
-			//auto mesh = std::make_shared<Mesh>(meshCreateInfo);
-			//const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
-			//meshs_[meshId] = mesh;
-			//return meshId;
-			return 0;
-		}
+		//	//Mesh::CreateInfo meshCreateInfo{
+		//	//	.vertexBuffer_ = allocatedVertexBuffer,
+		//	//	.indexBuffer_ = allocatedIndexBuffer,
+		//	//	.shaderBindings_ = shaderBindings,
+		//	//	.pipelineName_ = pipelineName
+		//	//};
+		//	//auto mesh = std::make_shared<Mesh>(meshCreateInfo);
+		//	//const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
+		//	//meshs_[meshId] = mesh;
+		//	//return meshId;
+		//	return 0;
+		//}
 
 
 		[[nodiscard]]

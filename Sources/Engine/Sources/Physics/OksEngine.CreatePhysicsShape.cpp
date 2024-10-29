@@ -24,7 +24,7 @@ namespace OksEngine {
 
 		const ECS::Entity::Id meshEntityId = meshsEntities->entitiesIds_[0];
 
-		auto* vertices = world->GetComponent<Vertices>(meshEntityId);
+		auto* vertices = world->GetComponent<Vertices3D>(meshEntityId);
 		auto* indices = world->GetComponent<Indices>(meshEntityId);
 
 		PAL::Shape::Material material{
@@ -106,7 +106,7 @@ namespace OksEngine {
 
 		const ECS::Entity::Id meshEntityId = meshsEntities->entitiesIds_[0];
 
-		auto* vertices = world->GetComponent<Vertices>(meshEntityId);
+		auto* vertices = world->GetComponent<Vertices3D>(meshEntityId);
 		auto* indices = world->GetComponent<Indices>(meshEntityId);
 
 		PAL::Shape::Material material{
