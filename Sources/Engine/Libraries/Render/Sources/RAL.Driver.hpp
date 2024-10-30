@@ -93,9 +93,14 @@ namespace RAL {
 				Const,
 				Undefined
 			};
-			struct CreateInfo {
+			struct CreateInfo1 {
 				Common::Size verticesNumber_ = 0;
 				VertexType vertexType_ = VertexType::Undefined;
+				Type type_ = Type::Undefined;
+			};
+			struct CreateInfo2 {
+				Common::Size verticesNumber_ = 0;
+				Common::Size vertexSize_ = 0;
 				Type type_ = Type::Undefined;
 			};
 		};
@@ -108,9 +113,14 @@ namespace RAL {
 				Const,
 				Undefined
 			};
-			struct CreateInfo {
-				Common::Size size_ = 0;
+			struct CreateInfo1 {
+				Common::Size indicesNumber_ = 0;
 				IndexType indexType_ = IndexType::Undefined;
+				Type type_ = Type::Undefined;
+			};
+			struct CreateInfo2 {
+				Common::Size indicesNumber_ = 0;
+				Common::Size indexSize_ = 0;
 				Type type_ = Type::Undefined;
 			};
 		};
@@ -208,12 +218,21 @@ namespace RAL {
 		virtual UniformBuffer::Id CreateUniformBuffer(const UniformBuffer::CreateInfo& createInfo) = 0;
 
 		[[nodiscard]]
-		virtual VertexBuffer::Id CreateVertexBuffer(const VertexBuffer::CreateInfo& createInfo) = 0;
+		virtual VertexBuffer::Id CreateVertexBuffer(const VertexBuffer::CreateInfo1& createInfo) = 0;
 		virtual void FillVertexBuffer(VertexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) = 0;
+		virtual void ResizeVertexBuffer(VertexBuffer::Id id, Common::Size newSize) = 0;
+		[[nodiscard]]
+		virtual void DestroyVertexBuffer(VertexBuffer::Id VBId) = 0;
+		virtual Common::Size GetVBSizeInBytes(VertexBuffer::Id VBId) = 0;
+
 
 		[[nodiscard]]
-		virtual IndexBuffer::Id CreateIndexBuffer(const IndexBuffer::CreateInfo& createInfo) = 0;
-		virtual void FillIndexBuffer(VertexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) = 0;
+		virtual IndexBuffer::Id CreateIndexBuffer(const IndexBuffer::CreateInfo1& createInfo) = 0;
+		virtual void FillIndexBuffer(IndexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) = 0;
+		virtual void ResizeIndexBuffer(IndexBuffer::Id id, Common::Size newSize) = 0;
+		[[nodiscard]]
+		virtual void DestroyIndexBuffer(IndexBuffer::Id VBId) = 0;
+		virtual Common::Size GetIBSizeInBytes(IndexBuffer::Id IBId) = 0;
 
 		[[nodiscard]]
 		virtual void FillUniformBuffer(UniformBuffer::Id UBId, void* data) = 0;

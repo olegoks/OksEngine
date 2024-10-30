@@ -87,6 +87,11 @@ namespace Render::Vulkan {
 		Common::Size GetVertexSize() const noexcept {
 			return createInfo_.vertexSize_;
 		}
+
+		[[nodiscard]]
+		Common::Size GetVerticesNumber() const noexcept {
+			return createInfo_.verticesNumber_;
+		}
 		
 	protected:
 		CreateInfo createInfo_;
