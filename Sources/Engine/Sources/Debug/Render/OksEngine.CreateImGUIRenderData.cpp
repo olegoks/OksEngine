@@ -82,10 +82,11 @@ namespace OksEngine {
 						uvs.PushBack(Geom::UV2f{ imVertex->uv.x, imVertex->uv.y } );
 						const ImU32 color = imVertex->col;
 						colors.PushBack(Geom::Color4f{ 
-							((Common::Byte*)&color)[0] / 255.f,
-							((Common::Byte*)&color)[1] / 255.f, 
+							((Common::Byte*)&color)[3] / 255.f,
 							((Common::Byte*)&color)[2] / 255.f,
-							1.f/*((Common::Byte*)&color)[3] / 255.f*/});
+							((Common::Byte*)&color)[1] / 255.f,
+							((Common::Byte*)&color)[0] / 255.f
+							 });
 					}
 
 				}

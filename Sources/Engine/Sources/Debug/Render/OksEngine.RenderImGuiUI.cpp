@@ -11,6 +11,7 @@ namespace OksEngine {
 
 	void RenderImGuiUI::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
+		return;
 		auto* framesCounter = world->GetComponent<Counter>(secondEntityId);
 
 		ImGuiState* state = world->GetComponent<ImGuiState>(entityId);

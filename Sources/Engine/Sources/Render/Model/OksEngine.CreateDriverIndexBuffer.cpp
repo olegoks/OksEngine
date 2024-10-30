@@ -13,8 +13,8 @@ namespace OksEngine {
 		auto* indices = world->GetComponent<Indices>(entityId);
 
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		RAL::Driver::IndexBuffer::CreateInfo IBCI{
-			.size_ = indices->indices_.GetIndicesNumber(),
+		RAL::Driver::IndexBuffer::CreateInfo1 IBCI{
+			.indicesNumber_ = indices->indices_.GetIndicesNumber(),
 			.indexType_ = RAL::Driver::IndexType::UI16,
 			.type_ = RAL::Driver::IndexBuffer::Type::Const
 		};

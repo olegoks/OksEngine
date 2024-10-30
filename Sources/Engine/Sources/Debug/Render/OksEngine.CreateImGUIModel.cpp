@@ -73,7 +73,7 @@ namespace OksEngine {
 								((Common::Byte*)&color)[0] / 255.f,
 								((Common::Byte*)&color)[1] / 255.f,
 								((Common::Byte*)&color)[2] / 255.f,
-								1.f/*((Common::Byte*)&color)[3] / 255.f*/ });
+								((Common::Byte*)&color)[3] / 255.f });
 						}
 
 

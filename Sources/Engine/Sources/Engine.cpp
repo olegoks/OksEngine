@@ -93,6 +93,8 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreateDriverVertexBuffer>();
 				context_->GetECSWorld()->RunSystem < CreateDriverVertex2DBuffer>();
 				context_->GetECSWorld()->RunSystem<CreateDriverIndexBuffer>();
+				context_->GetECSWorld()->RunSystem < UpdateDriverVertexBuffer>();
+				context_->GetECSWorld()->RunSystem<UpdateDriverIndexBuffer>();
 				context_->GetECSWorld()->RunSystem<CreateDriverTexture>();
 				context_->GetECSWorld()->RunSystem<AddMeshToRender>();
 				context_->GetECSWorld()->RunSystem<ResizeFrameBuffers>();
