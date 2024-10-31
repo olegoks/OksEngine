@@ -151,7 +151,20 @@ namespace RAL {
 			};
 		};
 
-
+		struct DepthBuffer {
+			enum class CompareOperation {
+				Never,
+				Less,
+				Equal,
+				LessOrEqual,
+				Greater,
+				NotEqual,
+				GreaterOrEqual,
+				Always,
+				Undefined
+			};
+		};
+		using DB = DepthBuffer;
 
 		struct PipelineDescription {
 			using Id = Common::Id;
@@ -165,6 +178,7 @@ namespace RAL {
 			CullMode cullMode_ = CullMode::Undefined;
 			std::vector<ShaderBinding::Layout> shaderBindings_;
 			bool enableDepthTest_ = true;
+			DB::CompareOperation dbCompareOperation_ = DB::CompareOperation::Undefined;
 		};
 
 

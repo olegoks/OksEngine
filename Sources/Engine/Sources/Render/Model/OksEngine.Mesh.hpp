@@ -94,7 +94,7 @@ namespace OksEngine {
 
 	struct Colors : public ECSComponent<Colors> {
 	public:
-		Colors(const DS::Vector<Geom::Color4f>& colors) 
+		Colors(const DS::Vector<Geom::Color4b>& colors) 
 			: ECSComponent{ nullptr },
 			colors_{ colors } {
 
@@ -106,7 +106,7 @@ namespace OksEngine {
 
 		}
 
-		DS::Vector<Geom::Color4f>	colors_;
+		DS::Vector<Geom::Color4b>	colors_;
 	};
 
 

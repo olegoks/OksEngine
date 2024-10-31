@@ -74,7 +74,7 @@ namespace OksEngine {
 
 		RAL::Driver::VertexBuffer::CreateInfo1 VBCI{
 			.verticesNumber_ = vertices->vertices_.GetVerticesNumber(),
-			.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2,
+			.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF4,
 			.type_ = RAL::Driver::VertexBuffer::Type::Const
 		};
 		RAL::Driver::VertexBuffer::Id VBId = driver->CreateVertexBuffer(VBCI);

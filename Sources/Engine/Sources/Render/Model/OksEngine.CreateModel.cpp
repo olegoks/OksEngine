@@ -8,7 +8,7 @@ namespace OksEngine {
 
 	void CreateModelEntityFromObjMtl::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		return;
+		//return;
 		auto* position = world->GetComponent<Position>(entityId);
 		auto* rotation = world->GetComponent<Rotation>(entityId);
 		auto* objEntity = world->GetComponent<ObjEntity>(entityId);

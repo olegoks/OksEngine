@@ -77,9 +77,9 @@ namespace Geometry {
 
 	class Vertex2ftc : public Vertex2ft {
 	public:
-		Color4f color_;
+		Color4b color_;
 		Vertex2ftc() noexcept = default;
-		Vertex2ftc(const Vertex2f& position, const UV2f uv, const Color4f& color) noexcept :
+		Vertex2ftc(const Vertex2f& position, const UV2f uv, const Color4b& color) noexcept :
 			Vertex2ft{ position, uv }, color_{ color } { }
 
 		struct Hash {
