@@ -56,6 +56,9 @@ namespace OksEngine {
 			//callProcessForEach<Position, MapRigidBodyToRenderGeometry, ActiveMarker>(world, id);
 			/*Common*/
 			editComponent.template operator() < Position > (world, id);
+			editComponent.template operator() < Position2D > (world, id);
+			editComponent.template operator() < Scale2D > (world, id);
+
 			editComponent.template operator() < Direction > (world, id);
 			editComponent.template operator() < Up > (world, id);
 			editComponent.template operator() < Width > (world, id);

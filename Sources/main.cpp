@@ -1,20 +1,13 @@
 
 #include <Engine.hpp>
 
-static std::size_t value = 0;
-
-template<class Type>
-class Test {
-public:
-	static void foo() {
-		static std::size_t localValue = ++value;
-		std::cout << localValue << std::endl;
-	}
-};
+struct ImGUIPosition2D : public OksEngine::Position {};
 
 int main(int argc, char** argv) {
 
 	using namespace OksEngine;
+
+	//OS::Assert(ImGUIPosition2D::GetTypeId() != OksEngine::Position::GetTypeId());
 
 	OS::AssertMessage(argc > 0, "First parameter must be config file name.");
 
@@ -24,6 +17,8 @@ int main(int argc, char** argv) {
 	};
 
 	Engine engine{ engineCreateInfo };
+
+	
 
 	Entity camera = engine.CreateEntity();
 	camera.AddCamera({ -100, 10, 0 }, { 0, 1, 0, }, true);
