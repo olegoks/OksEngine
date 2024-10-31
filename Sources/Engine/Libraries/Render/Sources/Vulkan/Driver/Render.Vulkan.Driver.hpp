@@ -379,6 +379,23 @@ namespace Render::Vulkan {
 			};
 		}
 
+
+		static VkCompareOp ToVulkanType(DepthBuffer::CompareOperation co) {
+			switch (co) {
+			case DepthBuffer::CompareOperation::Less: {
+				return VkCompareOp::VK_COMPARE_OP_LESS;
+				break;
+			}
+			case DepthBuffer::CompareOperation::Always: {
+				return VkCompareOp::VK_COMPARE_OP_ALWAYS;
+				break;
+			}
+			default:
+				OS::AssertFailMessage("Invalid Depth buffer compare operation value used.");
+				return VkCompareOp::VK_COMPARE_OP_MAX_ENUM;
+			};
+		}
+
 		static VkDescriptorType ToVulkanType(ShaderBinding::Type bindingType) {
 			switch (bindingType) {
 			case ShaderBinding::Type::Sampler: {
@@ -621,6 +638,7 @@ namespace Render::Vulkan {
 				if (pipeline.enableDepthTest_) {
 					depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
 					depthTestData->bufferFormat_ = objects_.depthTestData_->image_->GetFormat();
+					depthTestData->compareOperation_ = ToVulkanType(pipeline.dbCompareOperation_);
 				}
 
 				Vulkan::Pipeline::CreateInfo createInfo{
@@ -1620,7 +1638,7 @@ namespace Render::Vulkan {
 	private:
 		size_t currentFrame = 0;
 
-		const int framesInFlight = 3;
+		const int framesInFlight = 1;
 		using FrameInFlightIndex = Common::Index;
 
 		Objects objects_;

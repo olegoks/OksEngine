@@ -68,10 +68,11 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CollectEntitiesInfo>();
 				context_->GetECSWorld()->RunSystem<CollectECSSystemsCallsInfo>();
 				ImGui::Render();
-
 				context_->GetECSWorld()->RunSystem<CreateImGUIModel>();
 				context_->GetECSWorld()->RunSystem<AddImGuiMeshToRender>();
 				context_->GetECSWorld()->RunSystem<UpdateImGUIRenderData>();
+
+
 				context_->GetECSWorld()->RunSystem<RenderImGuiUI>();
 				/*ImGui*/
 
@@ -97,6 +98,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<UpdateDriverIndexBuffer>();
 				context_->GetECSWorld()->RunSystem<CreateDriverTexture>();
 				context_->GetECSWorld()->RunSystem<AddMeshToRender>();
+
 				context_->GetECSWorld()->RunSystem<ResizeFrameBuffers>();
 				context_->GetECSWorld()->RunSystem<MapMeshTransform>();
 				context_->GetECSWorld()->RunSystem<IncreaseFramesCounter>();

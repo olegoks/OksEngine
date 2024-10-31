@@ -71,7 +71,8 @@ namespace RE {
 				.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
 				.cullMode_ = RAL::Driver::CullMode::None,
 				.shaderBindings_ = shaderBindings,
-				.enableDepthTest_ = false
+				.enableDepthTest_ = true,
+				.dbCompareOperation_ = RAL::Driver::DepthBuffer::CompareOperation::Always
 				
 			};
 			driverCreateInfo.namePipelineDescriptions_["ImGui Pipeline"] = pipelineDesc;
@@ -132,7 +133,8 @@ namespace RE {
 				.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
 				.cullMode_ = RAL::Driver::CullMode::Back,
 				.shaderBindings_ = shaderBindings,
-				.enableDepthTest_ = true
+				.enableDepthTest_ = true,
+				.dbCompareOperation_ = RAL::Driver::DepthBuffer::CompareOperation::Less
 
 			};
 			driverCreateInfo.namePipelineDescriptions_["Textured Pipeline"] = pipelineDesc;

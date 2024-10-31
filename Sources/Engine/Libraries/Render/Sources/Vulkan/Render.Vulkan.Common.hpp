@@ -66,7 +66,7 @@ namespace Render::Vulkan {
 				{
 					attributeDescription.binding = 0;
 					attributeDescription.location = 2;
-					attributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
+					attributeDescription.format = VK_FORMAT_R8G8B8A8_UNORM;////VK_FORMAT_R32G32B32A32_SFLOAT;
 					attributeDescription.offset = offsetof(Vertex2ftc, color_);
 				}
 				attributeDescriptions.push_back(attributeDescription);

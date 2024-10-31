@@ -37,7 +37,7 @@ namespace OksEngine {
 
 		Geom::VertexCloud<Geom::Vertex2f> vertices;
 		DS::Vector<Geom::UV2f> uvs;
-		DS::Vector<Geom::Color4f> colors;
+		DS::Vector<Geom::Color4b> colors;
 		Geom::IndexBuffer indices;
 
 		Common::Size commonVerticesNumber = 0;
@@ -81,12 +81,13 @@ namespace OksEngine {
 						vertices.Add(Geom::Vertex2f{ imVertex->pos.x, imVertex->pos.y });
 						uvs.PushBack(Geom::UV2f{ imVertex->uv.x, imVertex->uv.y } );
 						const ImU32 color = imVertex->col;
-						colors.PushBack(Geom::Color4f{ 
-							((Common::Byte*)&color)[3] / 255.f,
-							((Common::Byte*)&color)[2] / 255.f,
-							((Common::Byte*)&color)[1] / 255.f,
-							((Common::Byte*)&color)[0] / 255.f
-							 });
+						colors.PushBack(Geom::Color4b{ (Common::Byte*) & color});
+						//colors.PushBack(Geom::Color4f{ 
+						//	((Common::Byte*)&color)[0] / 255.f,
+						//	((Common::Byte*)&color)[1] / 255.f, //0.f,//
+						//	((Common::Byte*)&color)[2] / 255.f,//0.f,//
+						//	((Common::Byte*)&color)[3] / 255.f
+						//	});
 					}
 
 				}

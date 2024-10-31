@@ -26,7 +26,7 @@ namespace Render::Vulkan {
 
 		struct DepthTestInfo {
 			VkFormat bufferFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
-			VkCompareOp compareOperation_ = VK_COMPARE_OP_LESS;
+			VkCompareOp compareOperation_ = VK_COMPARE_OP_MAX_ENUM;
 		};
 
 		struct VertexInfo {
@@ -64,10 +64,7 @@ namespace Render::Vulkan {
 				if (enableDepthTest) {
 					depthStencilState.depthTestEnable = VK_TRUE;
 					depthStencilState.depthWriteEnable = VK_TRUE;
-					depthStencilState.depthCompareOp =
-						(createInfo.depthTestInfo_ != nullptr)
-						? (createInfo.depthTestInfo_->compareOperation_)
-						: (VK_COMPARE_OP_LESS);
+					depthStencilState.depthCompareOp = createInfo.depthTestInfo_->compareOperation_;
 					depthStencilState.depthBoundsTestEnable = VK_FALSE;
 					depthStencilState.minDepthBounds = 0.0f;
 					depthStencilState.maxDepthBounds = 1.0f;
