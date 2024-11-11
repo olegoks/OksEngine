@@ -50,7 +50,7 @@ namespace Render::Vulkan {
 		{
 			imageInfo.imageView = *imageView;
 			imageInfo.imageLayout = imageLayout;
-			imageInfo.sampler = *sampler;
+			imageInfo.sampler = (sampler != nullptr) ? (*sampler) : (nullptr);
 		}
 
 		VkWriteDescriptorSet descriptorWrite{};
