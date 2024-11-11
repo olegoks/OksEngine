@@ -57,9 +57,9 @@ namespace Render::Vulkan {
 			std::vector<VkClearValue> clearValues;
 			{
 				clearValues.push_back(clearColor);
-				if (depthBufferInfo.enable) {
+				//if (depthBufferInfo.enable) {
 					clearValues.push_back(depthBufferInfo.clearValue_);
-				}
+				//}
 			}
 
 			VkRenderPassBeginInfo renderPassInfo{};
@@ -197,6 +197,10 @@ namespace Render::Vulkan {
 
 		void DrawIndexed(Common::Size indicesNumber) {
 			vkCmdDrawIndexed(GetHandle(), static_cast<uint32_t>(indicesNumber), 1, 0, 0, 0);
+		}
+
+		void NextSubpass() {
+			vkCmdNextSubpass(GetHandle(), VkSubpassContents::VK_SUBPASS_CONTENTS_INLINE);
 		}
 
 		void EndRenderPass() noexcept {

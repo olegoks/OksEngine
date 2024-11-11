@@ -56,7 +56,7 @@ namespace Render::Vulkan {
 				swapChainCreateInfo.imageExtent = createInfo.extent_;
 				swapChainCreateInfo.imageArrayLayers = 1;
 				swapChainCreateInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-
+				
 				std::array<QueueFamily::Index, 2> indices{ createInfo.graphicsQueueFamily_.index_, createInfo.presentQueueFamily_.index_ };
 				{
 					if (createInfo.graphicsQueueFamily_.index_ == createInfo.presentQueueFamily_.index_) {

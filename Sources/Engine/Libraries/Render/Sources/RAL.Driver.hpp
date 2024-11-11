@@ -40,6 +40,7 @@ namespace RAL {
 
 		enum class VertexType : Common::UInt64 {
 			VF3_NF3_TF2,
+			VF3_CF4,
 			VF2_TF2_CF4,
 			Undefined,
 			Size
@@ -130,6 +131,7 @@ namespace RAL {
 			enum class Type {
 				Uniform,
 				Sampler,
+				InputAttachment,
 				Undefined
 			};
 			enum class Stage {

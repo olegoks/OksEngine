@@ -61,13 +61,11 @@ namespace Render::Vulkan {
 		struct DepthTestData {
 			std::shared_ptr<Image> image_ = nullptr;
 			std::shared_ptr<ImageView> imageView_ = nullptr;
-			std::shared_ptr<DeviceMemory> imageMemory_ = nullptr;
 		};
 
 		struct MultisamplingData {
 			std::shared_ptr<Image> image_ = nullptr;
 			std::shared_ptr<ImageView> imageView_ = nullptr;
-			std::shared_ptr<DeviceMemory> imageMemory_ = nullptr;
 		};
 
 		class FrameContext {
@@ -198,6 +196,25 @@ namespace Render::Vulkan {
 				objects_.multisamplingData_ = multisamplingData;
 			}
 
+			//Rendered buffer
+			{
+
+				{
+					Image::CreateInfo multisamplingCreateInfo;
+					{
+						multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+						multisamplingCreateInfo.LD_ = objects_.LD_;
+						multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
+						multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
+						multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+						multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+						multisamplingCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
+					}
+					objects_.renderedBufferImage_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+					objects_.renderedBufferImageView_ = CreateImageViewByImage(objects_.LD_, objects_.renderedBufferImage_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+				}
+			}
+
 			//DEPTH BUFFER
 			{
 				auto depthTestData = std::make_shared<DepthTestData>();
@@ -225,16 +242,17 @@ namespace Render::Vulkan {
 					FrameBuffer::CreateInfo createInfo;
 					{
 						createInfo.LD_ = objects_.LD_;
-						createInfo.colorImageView_ = imageView;
+						createInfo.attachments_.push_back(objects_.multisamplingData_->imageView_);
+						createInfo.attachments_.push_back(objects_.depthTestData_->imageView_);
+						createInfo.attachments_.push_back(imageView);
+
+						createInfo.attachments_.push_back(objects_.renderedBufferImageView_);
+
 						createInfo.extent_ = extent;
-						createInfo.renderPass_ = *objects_.renderPass_;
-						if (objects_.depthTestData_ != nullptr) {
-							createInfo.depthBufferImageView_ = objects_.depthTestData_->imageView_;
-						}
-						createInfo.colorAttachmentResolve_ = objects_.multisamplingData_->imageView_;
+						createInfo.renderPass_ = objects_.renderPass_;
 					}
-					FrameBuffer frameBuffer{ createInfo };
-					objects_.frameBuffers_.push_back(std::move(frameBuffer));
+					auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
+					objects_.frameBuffers_.push_back(frameBuffer);
 				}
 				OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
 			}
@@ -281,7 +299,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<CommandPool> commandPool_ = nullptr;
 			std::shared_ptr<RenderPass> renderPass_ = nullptr;
-			std::vector<FrameBuffer> frameBuffers_;
+			std::vector<std::shared_ptr<FrameBuffer>> frameBuffers_;
 			std::shared_ptr<DescriptorPool> DP_ = nullptr;
 			QueueFamily graphicsQueueFamily_;
 			QueueFamily presentQueueFamily_;
@@ -290,6 +308,11 @@ namespace Render::Vulkan {
 			std::vector<std::shared_ptr<FrameContext>> frameContexts_;
 			std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
 			std::shared_ptr<MultisamplingData> multisamplingData_ = nullptr;
+
+			std::shared_ptr<Image> renderedBufferImage_ = nullptr;
+			std::shared_ptr<ImageView> renderedBufferImageView_ = nullptr;
+			std::shared_ptr<DescriptorSet> renderedBufferDS_ = nullptr;
+
 		};
 
 
@@ -406,6 +429,10 @@ namespace Render::Vulkan {
 				return VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				break;
 			}
+			case ShaderBinding::Type::InputAttachment: {
+				return VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+				break;
+			}
 			default:
 				OS::AssertFailMessage("Invalid ShaderBinding::Type value used.");
 				return VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
@@ -435,6 +462,10 @@ namespace Render::Vulkan {
 				return Vertex3fnt::GetBindingDescription();
 				break;
 			}
+			case VertexType::VF3_CF4: {
+				return Vertex3fc::GetBindingDescription();
+				break;
+			}
 			case VertexType::VF2_TF2_CF4: {
 				return Vertex2ftc::GetBindingDescription();
 				break;
@@ -449,6 +480,10 @@ namespace Render::Vulkan {
 			switch (vertexType) {
 			case VertexType::VF3_NF3_TF2: {
 				return Vertex3fnt::GetAttributeDescriptions();
+				break;
+			}
+			case VertexType::VF3_CF4: {
+				return Vertex3fc::GetAttributeDescriptions();
 				break;
 			}
 			case VertexType::VF2_TF2_CF4: {
@@ -568,13 +603,33 @@ namespace Render::Vulkan {
 						depthImageCreateInfo.size_ = objects_.swapChain_->GetSize();
 						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
 						depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-						depthImageCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
+						depthImageCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
 					}
 					depthTestData->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
 					depthTestData->imageView_ = CreateImageViewByImage(objects_.LD_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 				}
 				objects_.depthTestData_ = depthTestData;
 				//}
+			}
+
+
+			//Rendered buffer
+			{
+
+				{
+					Image::CreateInfo multisamplingCreateInfo;
+					{
+						multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+						multisamplingCreateInfo.LD_ = objects_.LD_;
+						multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
+						multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
+						multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+						multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+						multisamplingCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
+					}
+					objects_.renderedBufferImage_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+					objects_.renderedBufferImageView_ = CreateImageViewByImage(objects_.LD_, objects_.renderedBufferImage_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+				}
 			}
 
 			//Multisampling
@@ -588,7 +643,7 @@ namespace Render::Vulkan {
 						multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
 						multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
 						multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-						multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+						multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
 						multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
 					}
 					multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
@@ -608,6 +663,122 @@ namespace Render::Vulkan {
 				RPCreateInfo.depthTestInfo_ = depthTestInfo;
 			}
 			objects_.renderPass_ = std::make_shared<RenderPass>(RPCreateInfo);
+
+			//Post-effects subpass pipeline
+			{
+				const char* vertexShaderCode =
+					"#version 450\n"
+					"layout(location = 0) in vec3 inPosition;\n"
+					"layout(location = 1) in vec3 inColor;\n"
+					"layout(location = 0) out vec3 fragColor;\n"
+					"void main() {\n"
+					"fragColor = inColor;\n"
+					"gl_Position = vec4(inPosition, 1.0);\n"
+					"}";
+
+				Shader::CreateInfo VSCI{
+					.ralCreateInfo_ = RAL::Shader::CreateInfo{
+						.name_ = "Post effect vertex shader",
+						.type_ = RAL::Shader::Type::Vertex,
+						.code_ = vertexShaderCode
+					}
+				};
+				auto VS = std::make_shared<Shader>(VSCI);
+
+
+				const char* fragmentShaderCode =
+					"#version 450\n"
+					"layout(location = 0) in vec3 fragColor;\n"
+					"layout(location = 0) out vec4 outColor;\n"
+					"void main() {\n"
+					"outColor = vec4(1, 1, 11111111, 1.0);\n"
+					"}\n";
+
+
+				Shader::CreateInfo FSCI{
+					.ralCreateInfo_ = RAL::Shader::CreateInfo{
+						.name_ = "Post effect fragment shader",
+						.type_ = RAL::Shader::Type::Fragment,
+						.code_ = fragmentShaderCode
+					}
+				};
+				auto FS = std::make_shared<Shader>(FSCI);
+
+
+				VkDescriptorSetLayoutBinding inputAttachmentBinding{
+					0,
+					ToVulkanType(RAL::Driver::ShaderBinding::Type::InputAttachment),
+					1,
+					static_cast<VkFlags>(ToVulkanType(RAL::Driver::ShaderBinding::Stage::FragmentShader)),
+					nullptr
+				};
+				auto DSL = std::make_shared<DescriptorSetLayout>(
+					DescriptorSetLayout::CreateInfo{
+						"Rendered buffer",
+						objects_.LD_,
+						std::vector{ inputAttachmentBinding }
+					});
+
+				DS::CreateInfo DSCreateInfo;
+				{
+					DSCreateInfo.DP_ = objects_.DP_;
+					DSCreateInfo.DSL_ = DSL;
+					DSCreateInfo.LD_ = objects_.LD_;
+				}
+
+				auto ds = std::make_shared<DS>(DSCreateInfo);
+
+				ds->UpdateImageWriteConfiguration(
+					objects_.renderedBufferImageView_,
+					VkImageLayout::VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+					nullptr,
+					VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,
+					0);
+
+				objects_.renderedBufferDS_ = ds;
+
+				std::shared_ptr<Vulkan::Pipeline::DepthTestInfo> depthTestData;
+				{
+					depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
+					depthTestData->bufferFormat_ = objects_.depthTestData_->image_->GetFormat();
+					depthTestData->compareOperation_ = ToVulkanType(RAL::Driver::DepthBuffer::CompareOperation::Less);
+				}
+				std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo;
+				{
+					multisampleInfo = std::make_shared<Vulkan::Pipeline::MultisampleInfo>();
+					multisampleInfo->samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
+				}
+				Vulkan::Pipeline::CreateInfo createInfo{
+					.physicalDevice_ = objects_.physicalDevice_,
+					.LD_ = objects_.LD_,
+					.renderPass_ = objects_.renderPass_,
+					.pushConstants_ = {},
+					.descriptorSetLayouts_ = std::vector{ DSL },
+					.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+						objects_.LD_,
+						VS->GetSpirv()
+						}),
+					.fragmentShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+						createInfo.LD_,
+						FS->GetSpirv()
+						}),
+					.depthTestInfo_ = depthTestData,
+					.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
+					.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
+					.multisampleInfo_ = nullptr,// multisampleInfo,
+					.vertexInfo_ = Vulkan::Pipeline::VertexInfo{
+						GetVertexBindingDescription(RAL::Driver::VertexType::VF3_CF4),
+						GetVertexAttributeDescriptions(RAL::Driver::VertexType::VF3_CF4)
+
+					},
+					.topology_ = ToVulkanType(RAL::Driver::TopologyType::TriangleList),
+					.frontFace_ = ToVulkanType(RAL::Driver::FrontFace::CounterClockwise),
+					.cullMode_ = ToVulkanType(RAL::Driver::CullMode::Back),
+					.dynamicStates_ = {  VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR }
+				};
+
+				namePipeline_["Post-process"] = std::make_shared<Vulkan::Pipeline>(createInfo);
+			}
 
 
 			for (const auto& [name, pipeline] : info.namePipelineDescriptions_) {
@@ -641,6 +812,12 @@ namespace Render::Vulkan {
 					depthTestData->compareOperation_ = ToVulkanType(pipeline.dbCompareOperation_);
 				}
 
+				std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo;
+				{
+					multisampleInfo = std::make_shared<Vulkan::Pipeline::MultisampleInfo>();
+					multisampleInfo->samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
+				}
+
 				Vulkan::Pipeline::CreateInfo createInfo{
 					.physicalDevice_ = objects_.physicalDevice_,
 					.LD_ = objects_.LD_,
@@ -658,7 +835,7 @@ namespace Render::Vulkan {
 					.depthTestInfo_ = depthTestData,
 					.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
 					.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
-					.multisamplingSamplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount(),
+					.multisampleInfo_ = nullptr,//multisampleInfo,
 					.vertexInfo_ = Vulkan::Pipeline::VertexInfo{
 						GetVertexBindingDescription(pipeline.vertexType_),
 						GetVertexAttributeDescriptions(pipeline.vertexType_)
@@ -678,16 +855,19 @@ namespace Render::Vulkan {
 					FrameBuffer::CreateInfo createInfo;
 					{
 						createInfo.LD_ = objects_.LD_;
-						createInfo.colorImageView_ = imageView;
+						createInfo.attachments_.push_back(objects_.multisamplingData_->imageView_);
+						createInfo.attachments_.push_back(objects_.depthTestData_->imageView_);
+						createInfo.attachments_.push_back(imageView);
+
+
+						createInfo.attachments_.push_back(objects_.renderedBufferImageView_);
+
+
 						createInfo.extent_ = extent;
-						createInfo.renderPass_ = *objects_.renderPass_;
-						if (objects_.depthTestData_ != nullptr) {
-							createInfo.depthBufferImageView_ = objects_.depthTestData_->imageView_;
-						}
-						createInfo.colorAttachmentResolve_ = objects_.multisamplingData_->imageView_;
+						createInfo.renderPass_ = objects_.renderPass_;
 					}
-					FrameBuffer frameBuffer{ createInfo };
-					objects_.frameBuffers_.push_back(std::move(frameBuffer));
+					auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
+					objects_.frameBuffers_.push_back(frameBuffer);
 				}
 				OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
 			}
@@ -744,7 +924,7 @@ namespace Render::Vulkan {
 				}
 				commandBuffer->BeginRenderPass(
 					*objects_.renderPass_,
-					objects_.frameBuffers_[i].GetNative(),
+					objects_.frameBuffers_[i]->GetHandle(),
 					objects_.swapChain_->GetExtent(),
 					clearValue,
 					depthBufferInfo);
@@ -822,6 +1002,10 @@ namespace Render::Vulkan {
 				commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
 				commandBuffer->Draw(lines.size());*/
 
+				commandBuffer->NextSubpass();
+				commandBuffer->BindPipeline(namePipeline_["Post-process"]);
+				commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ objects_.renderedBufferDS_ });
+				
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();
 

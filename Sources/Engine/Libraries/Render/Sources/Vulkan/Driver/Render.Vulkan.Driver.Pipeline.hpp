@@ -29,6 +29,10 @@ namespace Render::Vulkan {
 			VkCompareOp compareOperation_ = VK_COMPARE_OP_MAX_ENUM;
 		};
 
+		struct MultisampleInfo {
+			VkSampleCountFlagBits samplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
+		};
+
 		struct VertexInfo {
 			VkVertexInputBindingDescription bindingDescription_;
 			std::vector<VkVertexInputAttributeDescription> attributeDescriptions_;
@@ -46,7 +50,8 @@ namespace Render::Vulkan {
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
 			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
-			VkSampleCountFlagBits multisamplingSamplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
+			std::shared_ptr<MultisampleInfo> multisampleInfo_ = nullptr;
+			
 			VertexInfo vertexInfo_;
 			VkPrimitiveTopology topology_ = VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
 			VkFrontFace frontFace_ = VK_FRONT_FACE_MAX_ENUM;
@@ -57,10 +62,11 @@ namespace Render::Vulkan {
 		Pipeline(const CreateInfo& createInfo) : 
 			createInfo_{ createInfo } {
 
+			const bool enableDepthTest = (createInfo.depthTestInfo_ != nullptr);
 			VkPipelineDepthStencilStateCreateInfo depthStencilState{};
 			{
 				depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-				const bool enableDepthTest = (createInfo.depthTestInfo_ != nullptr);
+				
 				if (enableDepthTest) {
 					depthStencilState.depthTestEnable = VK_TRUE;
 					depthStencilState.depthWriteEnable = VK_TRUE;
@@ -107,7 +113,7 @@ namespace Render::Vulkan {
 			VkPipelineInputAssemblyStateCreateInfo inputAssembly{};
 			{
 				inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
-				inputAssembly.topology = createInfo.topology_;//VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
+				inputAssembly.topology = createInfo.topology_;
 				inputAssembly.primitiveRestartEnable = VK_FALSE;
 			}
 			const glm::u32vec2 size = createInfo.colorAttachmentSize_;
@@ -152,7 +158,7 @@ namespace Render::Vulkan {
 			{
 				multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 				multisampling.sampleShadingEnable = VK_FALSE;
-				multisampling.rasterizationSamples = createInfo.multisamplingSamplesCount_;
+				multisampling.rasterizationSamples = (createInfo.multisampleInfo_ != nullptr) ? (createInfo.multisampleInfo_->samplesCount_) : (VK_SAMPLE_COUNT_1_BIT); ;
 				multisampling.minSampleShading = 1.0f;
 				multisampling.pSampleMask = nullptr;
 				multisampling.alphaToCoverageEnable = VK_FALSE;
@@ -211,7 +217,9 @@ namespace Render::Vulkan {
 				pipelineInfo.pViewportState = &viewportState;
 				pipelineInfo.pRasterizationState = &rasterizer;
 				pipelineInfo.pMultisampleState = &multisampling;
-				pipelineInfo.pDepthStencilState = &depthStencilState;
+				if (enableDepthTest) {
+					pipelineInfo.pDepthStencilState = &depthStencilState;
+				}
 				pipelineInfo.pColorBlendState = &colorBlending;
 				pipelineInfo.pDynamicState = &dynamicState;
 				pipelineInfo.layout = *pipelineLayout_;

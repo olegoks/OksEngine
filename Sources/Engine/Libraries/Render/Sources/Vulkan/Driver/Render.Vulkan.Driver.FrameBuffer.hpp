@@ -13,52 +13,51 @@
 namespace Render::Vulkan {
 
 
-	class FrameBuffer {
+	class FrameBuffer : public Abstraction<VkFramebuffer>{
 	public:
 		FrameBuffer() = delete;
 
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
-			std::shared_ptr<ImageView> colorImageView_ = nullptr;
-			std::shared_ptr<ImageView> depthBufferImageView_ = nullptr;
-			std::shared_ptr<ImageView> colorAttachmentResolve_ = nullptr;
-			VkRenderPass renderPass_ = VK_NULL_HANDLE;
+			//std::shared_ptr<ImageView> colorImageView_ = nullptr;
+			//std::shared_ptr<ImageView> depthBufferImageView_ = nullptr;
+			//std::shared_ptr<ImageView> colorAttachmentResolve_ = nullptr;
+			std::vector<std::shared_ptr<ImageView>> attachments_;
+			std::shared_ptr<RenderPass> renderPass_ = nullptr;
+			//VkRenderPass renderPass_ = VK_NULL_HANDLE;
 			VkExtent2D extent_{ 0, 0 };
 		};
 
 	FrameBuffer(FrameBuffer&& moveFrameBuffer) :
-		LD_{ nullptr },
-		frameBuffer_{ VK_NULL_HANDLE } {
-		std::swap(LD_, moveFrameBuffer.LD_);
-		std::swap(frameBuffer_, moveFrameBuffer.frameBuffer_);
+		createInfo_{  } {
+		std::swap(createInfo_, moveFrameBuffer.createInfo_);
+		
 	}
 
 	FrameBuffer(const CreateInfo& createInfo) :
-		LD_{ createInfo.LD_ } {
-
+		createInfo_{ createInfo } {
 
 		std::vector<VkImageView> attachments;
-		{
-			attachments.push_back(createInfo.colorAttachmentResolve_->GetHandle());
-			
-			if (createInfo.depthBufferImageView_ != nullptr) {
-				attachments.push_back(*createInfo.depthBufferImageView_);
-			}
-			attachments.push_back(createInfo.colorImageView_->GetHandle());
+
+		for (const std::shared_ptr<ImageView>& attachment: createInfo.attachments_) {
+			attachments.push_back(attachment->GetHandle());
 		}
 
 		VkFramebufferCreateInfo framebufferInfo{};
 		{
 			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = createInfo.renderPass_;
+			framebufferInfo.renderPass = createInfo.renderPass_->GetHandle();
 			framebufferInfo.attachmentCount = static_cast<Common::UInt32>(attachments.size());
 			framebufferInfo.pAttachments = attachments.data();
 			framebufferInfo.width = createInfo.extent_.width;
 			framebufferInfo.height = createInfo.extent_.height;
 			framebufferInfo.layers = 1;
+			//framebufferInfo.flags = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT;
 		}
-		VkCall(vkCreateFramebuffer(createInfo.LD_->GetHandle(), &framebufferInfo, nullptr, &frameBuffer_),
+		VkFramebuffer frameBuffer = VK_NULL_HANDLE;
+		VkCall(vkCreateFramebuffer(createInfo.LD_->GetHandle(), &framebufferInfo, nullptr, &frameBuffer),
 			"Framebuffer create info.");
+		SetHandle(frameBuffer);
 	}
 
 
@@ -68,28 +67,24 @@ namespace Render::Vulkan {
 			return *this;
 		}
 
-		std::swap(frameBuffer_, moveFrameBuffer.frameBuffer_);
-		std::swap(LD_, moveFrameBuffer.LD_);
-
+		std::swap(createInfo_, moveFrameBuffer.createInfo_);
 
 		return *this;
 	}
-	void Destroy() {
-		if (frameBuffer_ != VK_NULL_HANDLE) {
-			OS::Assert(frameBuffer_ != VK_NULL_HANDLE && LD_ != nullptr);
-			vkDestroyFramebuffer(LD_->GetHandle(), frameBuffer_, nullptr);
+	void Destroy() { }
+
+	~FrameBuffer() {
+		if (!IsNullHandle()) {
+			vkDestroyFramebuffer(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 		}
 	}
 
-	~FrameBuffer() {
-		Destroy();
-	}
-
-	VkFramebuffer GetNative() const { return frameBuffer_; }
+	//VkFramebuffer GetNative() const { return frameBuffer_; }
 
 private:
-	std::shared_ptr<LogicDevice> LD_ = nullptr;
-	VkFramebuffer frameBuffer_;
+	CreateInfo createInfo_;
+	//std::shared_ptr<LogicDevice> LD_ = nullptr;
+	//VkFramebuffer frameBuffer_;
 };
 
 
