@@ -52,15 +52,7 @@ namespace Render::Vulkan {
 			VkClearValue clearValue_;
 		};
 
-		void BeginRenderPass(VkRenderPass renderPass, VkFramebuffer frameBuffer, VkExtent2D extent, const VkClearValue& clearColor, const DepthBufferInfo& depthBufferInfo) noexcept {
-
-			std::vector<VkClearValue> clearValues;
-			{
-				clearValues.push_back(clearColor);
-				//if (depthBufferInfo.enable) {
-					clearValues.push_back(depthBufferInfo.clearValue_);
-				//}
-			}
+		void BeginRenderPass(VkRenderPass renderPass, VkFramebuffer frameBuffer, VkExtent2D extent, const std::vector<VkClearValue>& clearColors) noexcept {
 
 			VkRenderPassBeginInfo renderPassInfo{};
 			{
@@ -69,8 +61,8 @@ namespace Render::Vulkan {
 				renderPassInfo.framebuffer = frameBuffer;
 				renderPassInfo.renderArea.offset = { 0, 0 };
 				renderPassInfo.renderArea.extent = extent;
-				renderPassInfo.clearValueCount = static_cast<Common::UInt32>(clearValues.size());
-				renderPassInfo.pClearValues = clearValues.data();
+				renderPassInfo.clearValueCount = static_cast<Common::UInt32>(clearColors.size());
+				renderPassInfo.pClearValues = clearColors.data();
 			}
 			vkCmdBeginRenderPass(
 				GetHandle(),

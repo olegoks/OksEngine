@@ -180,7 +180,7 @@ namespace Render::Vulkan {
 					.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 					.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
 					.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-					.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+					.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 				};
 				VkAttachmentReference colorAttachmentRef{
 					.attachment = 0,
@@ -211,14 +211,14 @@ namespace Render::Vulkan {
 					.flags = 0,
 					.format = createInfo.colorAttachmentFormat_,
 					.samples = VK_SAMPLE_COUNT_1_BIT,
-					.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+					.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
 					.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
 					.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 					.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
 					.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
 					.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
 				};
-				VkAttachmentReference multisampleAttachmentRef{
+				VkAttachmentReference swapChainAttachmentRef{
 					.attachment = 2,
 					.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 				};
@@ -228,7 +228,7 @@ namespace Render::Vulkan {
 					.flags = 0,
 					.format = createInfo.colorAttachmentFormat_,
 					.samples = VK_SAMPLE_COUNT_1_BIT,
-					.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+					.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,//VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 					.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
 					.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 					.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
@@ -249,19 +249,19 @@ namespace Render::Vulkan {
 				VkSubpassDependency dependency_{
 					.srcSubpass = VK_SUBPASS_EXTERNAL,
 					.dstSubpass = 0,
-					.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-					.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT,
-					.srcAccessMask = 0,
-					.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT,
+					.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,//VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+					.dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+					.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+					.dstAccessMask = VK_ACCESS_INDEX_READ_BIT,
 				};
 
 				VkSubpassDependency postProcessSubpassDependency_{
 					.srcSubpass = 0,
 					.dstSubpass = 1,
 					.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-					.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+					.dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,//VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 					.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-					.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT
+					.dstAccessMask = VK_ACCESS_INDEX_READ_BIT//VK_ACCESS_INPUT_ATTACHMENT_READ_BIT
 				};
 
 
@@ -280,12 +280,15 @@ namespace Render::Vulkan {
 					.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
 					.inputAttachmentCount = 1,
 					.pInputAttachments = &renderedAttachmentSubpass2Ref,
-					.pResolveAttachments = nullptr//&multisampleAttachmentRef
+					.colorAttachmentCount = 1,
+					.pColorAttachments = &swapChainAttachmentRef,
+					.pResolveAttachments = nullptr,//&multisampleAttachmentRef
+					.pDepthStencilAttachment = &depthAttachmentRef
 				};
 
 				VkSubpassDescription subpasses[2]{ renderSubpassDesc, postProcessSubpassDesc };
 
-				
+
 				std::vector<VkAttachmentDescription> attachments;
 				{
 					attachments.push_back(colorAttachment);
