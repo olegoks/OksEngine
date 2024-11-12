@@ -666,14 +666,14 @@ namespace Render::Vulkan {
 
 			//Post-effects subpass pipeline
 			{
+				//https://www.saschawillems.de/blog/2016/08/13/vulkan-tutorial-on-rendering-a-fullscreen-quad-without-buffers
 				const char* vertexShaderCode =
 					"#version 450\n"
-					"layout(location = 0) in vec3 inPosition;\n"
-					"layout(location = 1) in vec3 inColor;\n"
-					"layout(location = 0) out vec3 fragColor;\n"
-					"void main() {\n"
-					"fragColor = inColor;\n"
-					"gl_Position = vec4(inPosition, 1.0);\n"
+					//"layout(location = 0) out vec2 outUV;\n"
+					"void main()\n"
+					"{\n"
+					"vec2 outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);\n"
+					"gl_Position = vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);\n"
 					"}";
 
 				Shader::CreateInfo VSCI{
@@ -688,10 +688,10 @@ namespace Render::Vulkan {
 
 				const char* fragmentShaderCode =
 					"#version 450\n"
-					"layout(location = 0) in vec3 fragColor;\n"
+					"layout(input_attachment_index = 0, binding = 0) uniform subpassInput inputColor;\n"
 					"layout(location = 0) out vec4 outColor;\n"
 					"void main() {\n"
-					"outColor = vec4(1, 1, 11111111, 1.0);\n"
+					"outColor = subpassLoad(inputColor);\n"
 					"}\n";
 
 
@@ -766,14 +766,11 @@ namespace Render::Vulkan {
 					.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
 					.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
 					.multisampleInfo_ = nullptr,// multisampleInfo,
-					.vertexInfo_ = Vulkan::Pipeline::VertexInfo{
-						GetVertexBindingDescription(RAL::Driver::VertexType::VF3_CF4),
-						GetVertexAttributeDescriptions(RAL::Driver::VertexType::VF3_CF4)
-
-					},
+					.subpassIndex_ = 1,
+					.vertexInfo_ = nullptr,
 					.topology_ = ToVulkanType(RAL::Driver::TopologyType::TriangleList),
 					.frontFace_ = ToVulkanType(RAL::Driver::FrontFace::CounterClockwise),
-					.cullMode_ = ToVulkanType(RAL::Driver::CullMode::Back),
+					.cullMode_ = ToVulkanType(RAL::Driver::CullMode::Front),
 					.dynamicStates_ = {  VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR }
 				};
 
@@ -818,6 +815,14 @@ namespace Render::Vulkan {
 					multisampleInfo->samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
 				}
 
+				std::shared_ptr<Vulkan::Pipeline::VertexInfo> vertexInfo;
+				{
+					vertexInfo = std::make_shared<Vulkan::Pipeline::VertexInfo>(
+						GetVertexBindingDescription(pipeline.vertexType_),
+						GetVertexAttributeDescriptions(pipeline.vertexType_)
+					);
+				}
+
 				Vulkan::Pipeline::CreateInfo createInfo{
 					.physicalDevice_ = objects_.physicalDevice_,
 					.LD_ = objects_.LD_,
@@ -836,11 +841,8 @@ namespace Render::Vulkan {
 					.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
 					.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
 					.multisampleInfo_ = nullptr,//multisampleInfo,
-					.vertexInfo_ = Vulkan::Pipeline::VertexInfo{
-						GetVertexBindingDescription(pipeline.vertexType_),
-						GetVertexAttributeDescriptions(pipeline.vertexType_)
-
-					},
+					.subpassIndex_ = 0,
+					.vertexInfo_ = vertexInfo,
 					.topology_ = ToVulkanType(pipeline.topologyType_),
 					.frontFace_ = ToVulkanType(pipeline.frontFace_),
 					.cullMode_ = ToVulkanType(pipeline.cullMode_),
@@ -915,19 +917,30 @@ namespace Render::Vulkan {
 				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
 				commandBuffer->Begin();
-				static VkClearValue clearValue{ 1.0, 0.5, 1.0, 0.0 };
+				std::vector<VkClearValue> clearValues;
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
+				const VkClearValue depthBufferClearColor{
+					.depthStencil = {
+						.depth = 1.f,
+						.stencil = 0
+					}
+				};
+				clearValues.push_back(depthBufferClearColor); // 1
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
+
+				static VkClearValue clearValue;
 				CommandBuffer::DepthBufferInfo depthBufferInfo;
 				{
 					const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
 					depthBufferInfo.enable = enableDepthTest;
-					depthBufferInfo.clearValue_.depthStencil = { 1.f, 0 };
+					depthBufferInfo.clearValue_.depthStencil = {  };
 				}
 				commandBuffer->BeginRenderPass(
 					*objects_.renderPass_,
 					objects_.frameBuffers_[i]->GetHandle(),
 					objects_.swapChain_->GetExtent(),
-					clearValue,
-					depthBufferInfo);
+					clearValues);
 
 				const VkViewport viewport{
 					.x = 0.f,
@@ -1005,7 +1018,7 @@ namespace Render::Vulkan {
 				commandBuffer->NextSubpass();
 				commandBuffer->BindPipeline(namePipeline_["Post-process"]);
 				commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ objects_.renderedBufferDS_ });
-				
+				commandBuffer->Draw(3);
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();
 
