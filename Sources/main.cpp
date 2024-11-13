@@ -43,6 +43,12 @@ int main(int argc, char** argv) {
 				terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom");
 				terrain.AddStaticRigidBodyCustomMeshShape();
 				terrain.AddMaterial(0.1, 0.1, 0.1);
+
+				Entity skybox = engine.CreateEntity();
+				skybox.AddName("SkyBox");
+				skybox.AddPosition(0, 0, 0);
+				skybox.AddRotation({ 0, 1, 0 }, 0);
+				skybox.AddImmutableRenderGeometry("SkyBox.geom");
 			}
 			//{
 			//	Entity terrain = engine.CreateEntity();
