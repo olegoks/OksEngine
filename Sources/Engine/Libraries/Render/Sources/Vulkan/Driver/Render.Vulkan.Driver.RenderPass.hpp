@@ -171,7 +171,7 @@ namespace Render::Vulkan {
 				//Subpass subpass{ subpassCreateInfo };
 
 				//Multisample attachment 
-				VkAttachmentDescription colorAttachment{
+				VkAttachmentDescription multisampleAttachment{
 					.flags = 0,
 					.format = createInfo.colorAttachmentFormat_,
 					.samples = createInfo.samplesCount_,
@@ -180,9 +180,9 @@ namespace Render::Vulkan {
 					.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 					.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
 					.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-					.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+					.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 				};
-				VkAttachmentReference colorAttachmentRef{
+				VkAttachmentReference multisampleAttachmentRef{
 					.attachment = 0,
 					.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 				};
@@ -210,7 +210,7 @@ namespace Render::Vulkan {
 				VkAttachmentDescription swapChainAttachment{
 					.flags = 0,
 					.format = createInfo.colorAttachmentFormat_,
-					.samples = VK_SAMPLE_COUNT_1_BIT,
+					.samples = createInfo.samplesCount_,//VK_SAMPLE_COUNT_1_BIT,
 					.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
 					.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
 					.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -291,7 +291,7 @@ namespace Render::Vulkan {
 					.pInputAttachments = &renderedAttachmentSubpass2Ref,
 					.colorAttachmentCount = 1,
 					.pColorAttachments = &swapChainAttachmentRef,
-					.pResolveAttachments = nullptr,//&multisampleAttachmentRef
+					.pResolveAttachments = &multisampleAttachmentRef,
 					.pDepthStencilAttachment = nullptr// &depthAttachmentRef
 				};
 
@@ -308,7 +308,7 @@ namespace Render::Vulkan {
 
 				std::vector<VkAttachmentDescription> attachments;
 				{
-					attachments.push_back(colorAttachment);
+					attachments.push_back(multisampleAttachment);
 					attachments.push_back(depthAttachment);
 					attachments.push_back(swapChainAttachment);
 					attachments.push_back(renderedAttachment);
