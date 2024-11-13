@@ -228,7 +228,7 @@ namespace Render::Vulkan {
 					.flags = 0,
 					.format = createInfo.colorAttachmentFormat_,
 					.samples = VK_SAMPLE_COUNT_1_BIT,
-					.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,//VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+					.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 					.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
 					.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 					.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
@@ -283,7 +283,7 @@ namespace Render::Vulkan {
 					.colorAttachmentCount = 1,
 					.pColorAttachments = &swapChainAttachmentRef,
 					.pResolveAttachments = nullptr,//&multisampleAttachmentRef
-					.pDepthStencilAttachment = &depthAttachmentRef
+					.pDepthStencilAttachment = nullptr// &depthAttachmentRef
 				};
 
 				VkSubpassDescription subpasses[2]{ renderSubpassDesc, postProcessSubpassDesc };
