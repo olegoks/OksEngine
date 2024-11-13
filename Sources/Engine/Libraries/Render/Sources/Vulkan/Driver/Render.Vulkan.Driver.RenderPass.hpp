@@ -228,7 +228,7 @@ namespace Render::Vulkan {
 					.flags = 0,
 					.format = createInfo.colorAttachmentFormat_,
 					.samples = VK_SAMPLE_COUNT_1_BIT,
-					.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+					.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
 					.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
 					.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
 					.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
@@ -246,22 +246,31 @@ namespace Render::Vulkan {
 					.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
 				};
 
-				VkSubpassDependency dependency_{
+				VkSubpassDependency inExternalDependency{
 					.srcSubpass = VK_SUBPASS_EXTERNAL,
 					.dstSubpass = 0,
-					.srcStageMask = VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT,//VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-					.dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,
+					.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+					.dstStageMask = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
 					.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-					.dstAccessMask = VK_ACCESS_INDEX_READ_BIT,
+					.dstAccessMask = VK_ACCESS_SHADER_READ_BIT,
 				};
 
 				VkSubpassDependency postProcessSubpassDependency_{
 					.srcSubpass = 0,
 					.dstSubpass = 1,
 					.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-					.dstStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT,//VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+					.dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
 					.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-					.dstAccessMask = VK_ACCESS_INDEX_READ_BIT//VK_ACCESS_INPUT_ATTACHMENT_READ_BIT
+					.dstAccessMask = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT
+				};
+
+				VkSubpassDependency outExternalDependency{
+					.srcSubpass = 1,
+					.dstSubpass = VK_SUBPASS_EXTERNAL,
+					.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+					.dstStageMask = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+					.srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+					.dstAccessMask = VK_ACCESS_SHADER_READ_BIT,
 				};
 
 
@@ -289,6 +298,14 @@ namespace Render::Vulkan {
 				VkSubpassDescription subpasses[2]{ renderSubpassDesc, postProcessSubpassDesc };
 
 
+				std::vector<VkSubpassDependency> subpassesDependencies;
+				{
+					subpassesDependencies.push_back(inExternalDependency);
+					subpassesDependencies.push_back(postProcessSubpassDependency_);
+					subpassesDependencies.push_back(outExternalDependency);
+
+				}
+
 				std::vector<VkAttachmentDescription> attachments;
 				{
 					attachments.push_back(colorAttachment);
@@ -297,6 +314,7 @@ namespace Render::Vulkan {
 					attachments.push_back(renderedAttachment);
 				}
 
+
 				VkRenderPassCreateInfo renderPassInfo{};
 				{
 					renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
@@ -304,8 +322,8 @@ namespace Render::Vulkan {
 					renderPassInfo.pAttachments = attachments.data();
 					renderPassInfo.subpassCount = 2;
 					renderPassInfo.pSubpasses = &subpasses[0];
-					//renderPassInfo.dependencyCount = 1;
-					//renderPassInfo.pDependencies = &dependency_;
+					renderPassInfo.dependencyCount = subpassesDependencies.size();
+					renderPassInfo.pDependencies = subpassesDependencies.data();
 				}
 				VkRenderPass renderPass = VK_NULL_HANDLE;
 				VkCall(vkCreateRenderPass(createInfo.LD_->GetHandle(), &renderPassInfo, nullptr, &renderPass),

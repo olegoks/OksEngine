@@ -25,6 +25,7 @@ namespace Render::Vulkan {
 	public:
 
 		struct DepthTestInfo {
+			bool enable_ = true;
 			VkFormat bufferFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
 			VkCompareOp compareOperation_ = VK_COMPARE_OP_MAX_ENUM;
 		};
@@ -59,25 +60,22 @@ namespace Render::Vulkan {
 			std::vector<VkDynamicState> dynamicStates_;
 		};
 
-		Pipeline(const CreateInfo& createInfo) : 
+		Pipeline(const CreateInfo& createInfo) :
 			createInfo_{ createInfo } {
 
-			const bool enableDepthTest = (createInfo.depthTestInfo_ != nullptr);
 			VkPipelineDepthStencilStateCreateInfo depthStencilState{};
 			{
 				depthStencilState.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
-				
-				if (enableDepthTest) {
-					depthStencilState.depthTestEnable = VK_TRUE;
-					depthStencilState.depthWriteEnable = VK_TRUE;
-					depthStencilState.depthCompareOp = createInfo.depthTestInfo_->compareOperation_;
-					depthStencilState.depthBoundsTestEnable = VK_FALSE;
-					depthStencilState.minDepthBounds = 0.0f;
-					depthStencilState.maxDepthBounds = 1.0f;
-					depthStencilState.stencilTestEnable = VK_FALSE;
-					depthStencilState.front = {};
-					depthStencilState.back = {};
-				}
+
+				depthStencilState.depthTestEnable = createInfo.depthTestInfo_->enable_;
+				depthStencilState.depthWriteEnable = createInfo.depthTestInfo_->enable_;
+				depthStencilState.depthCompareOp = createInfo.depthTestInfo_->compareOperation_;
+				depthStencilState.depthBoundsTestEnable = VK_FALSE;
+				depthStencilState.minDepthBounds = 0.0f;
+				depthStencilState.maxDepthBounds = 1.0f;
+				depthStencilState.stencilTestEnable = VK_FALSE;
+				depthStencilState.front = {};
+				depthStencilState.back = {};
 			}
 
 			VkPipelineShaderStageCreateInfo vertShaderStageInfo{};
@@ -116,7 +114,8 @@ namespace Render::Vulkan {
 					vertexInputInfo.vertexAttributeDescriptionCount = static_cast<uint32_t>(attributeDescriptions.size());
 					vertexInputInfo.pVertexBindingDescriptions = &bindingDescription;
 					vertexInputInfo.pVertexAttributeDescriptions = attributeDescriptions.data();
-				} else {
+				}
+				else {
 					vertexInputInfo.vertexBindingDescriptionCount = 0;
 					vertexInputInfo.vertexAttributeDescriptionCount = 0;
 					vertexInputInfo.pVertexBindingDescriptions = nullptr;
@@ -230,9 +229,7 @@ namespace Render::Vulkan {
 				pipelineInfo.pViewportState = &viewportState;
 				pipelineInfo.pRasterizationState = &rasterizer;
 				pipelineInfo.pMultisampleState = &multisampling;
-				if (enableDepthTest) {
-					pipelineInfo.pDepthStencilState = &depthStencilState;
-				}
+				pipelineInfo.pDepthStencilState = &depthStencilState;
 				pipelineInfo.pColorBlendState = &colorBlending;
 				pipelineInfo.pDynamicState = &dynamicState;
 				pipelineInfo.layout = *pipelineLayout_;
