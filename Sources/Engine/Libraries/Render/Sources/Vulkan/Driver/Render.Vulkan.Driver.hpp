@@ -766,7 +766,7 @@ namespace Render::Vulkan {
 					.depthTestInfo_ = depthTestData,
 					.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
 					.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
-					.multisampleInfo_ = nullptr,// multisampleInfo,
+					.multisampleInfo_ = multisampleInfo,
 					.subpassIndex_ = 1,
 					.vertexInfo_ = nullptr,
 					.topology_ = ToVulkanType(RAL::Driver::TopologyType::TriangleList),

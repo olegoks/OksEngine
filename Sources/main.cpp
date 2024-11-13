@@ -46,7 +46,7 @@ int main(int argc, char** argv) {
 
 				Entity skybox = engine.CreateEntity();
 				skybox.AddName("SkyBox");
-				skybox.AddPosition(0, 0, 0);
+				skybox.AddPosition(0, -300, 0);
 				skybox.AddRotation({ 0, 1, 0 }, 0);
 				skybox.AddImmutableRenderGeometry("SkyBox.geom");
 			}
