@@ -740,6 +740,7 @@ namespace Render::Vulkan {
 				std::shared_ptr<Vulkan::Pipeline::DepthTestInfo> depthTestData;
 				{
 					depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
+					depthTestData->enable_ = false;
 					depthTestData->bufferFormat_ = objects_.depthTestData_->image_->GetFormat();
 					depthTestData->compareOperation_ = ToVulkanType(RAL::Driver::DepthBuffer::CompareOperation::Less);
 				}
@@ -805,6 +806,7 @@ namespace Render::Vulkan {
 				std::shared_ptr<Vulkan::Pipeline::DepthTestInfo> depthTestData;
 				if (pipeline.enableDepthTest_) {
 					depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
+					depthTestData->enable_ = true;
 					depthTestData->bufferFormat_ = objects_.depthTestData_->image_->GetFormat();
 					depthTestData->compareOperation_ = ToVulkanType(pipeline.dbCompareOperation_);
 				}
