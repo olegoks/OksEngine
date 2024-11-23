@@ -458,5 +458,8 @@ namespace Render::Vulkan {
 	};
 
 
+	inline PFN_vkSetDebugUtilsObjectNameEXT SetObjectName = nullptr;
+		
+
 
 }

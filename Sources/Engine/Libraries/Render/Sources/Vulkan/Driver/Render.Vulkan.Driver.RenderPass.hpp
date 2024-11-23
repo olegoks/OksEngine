@@ -36,99 +36,6 @@ namespace Render::Vulkan {
 				std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 			};
 
-			Subpass(const CreateInfo& createInfo) noexcept {
-
-				{
-					colorAttachment_.format = createInfo.colorAttachmentFormat_;
-					colorAttachment_.samples = createInfo.samplesCount_;
-
-					//loadOp и storeOp применяются к буферам цвета и глубины.
-					//VK_ATTACHMENT_LOAD_OP_LOAD: буфер будет содержать те данные, которые были помещены в него до этого прохода(например, во время предыдущего прохода)
-					//VK_ATTACHMENT_LOAD_OP_CLEAR : буфер очищается в начале прохода рендера
-					//VK_ATTACHMENT_LOAD_OP_DONT_CARE : содержимое буфера не определено; для нас оно не имеет значения
-					colorAttachment_.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR; // What will be done with buffer before render. We will fill frame with black color.
-
-					//VK_ATTACHMENT_STORE_OP_STORE: содержимое буфера сохраняется в память для дальнейшего использования
-					//VK_ATTACHMENT_STORE_OP_DONT_CARE : после рендеринга буфер больше не используется, и его содержимое не имеет значения
-					colorAttachment_.storeOp = VK_ATTACHMENT_STORE_OP_STORE; // What will be done with buffer after render.
-
-					//Для буфера трафарета используются поля stencilLoadOp / stencilStoreOp.Мы не используем буфер трафарета,
-					//поэтому результаты загрузки и сохранения нас не интересуют.
-					colorAttachment_.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-					colorAttachment_.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-
-					//Значение VK_IMAGE_LAYOUT_UNDEFINED в поле initialLayout обозначает,
-					//что нас не интересует предыдущий layout, в котором был image. 
-					//Использование этого значения не гарантирует сохранение содержимого image, 
-					//но это и не важно, поскольку мы все равно очистим его. 
-					// После рендеринга нам нужно вывести наш image на экран, 
-					//поэтому в поле finalLayout укажем VK_IMAGE_LAYOUT_PRESENT_SRC_KHR.
-					colorAttachment_.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-					//You'll notice that we have changed the finalLayout from VK_IMAGE_LAYOUT_PRESENT_SRC_KHR to VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL. 
-					//That's because multisampled images cannot be presented directly.
-					//We first need to resolve them to a regular image.
-					colorAttachment_.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-					colorAttachmentRef_.attachment = 0;
-					colorAttachmentRef_.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-				}
-
-				//if (createInfo.depthTestInfo_ != nullptr) {
-				depthBufferAttachment_.format = createInfo.depthTestInfo_->depthStencilBufferFormat_;
-				depthBufferAttachment_.samples = createInfo.samplesCount_;
-				depthBufferAttachment_.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-				depthBufferAttachment_.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-				depthBufferAttachment_.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-				depthBufferAttachment_.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-				depthBufferAttachment_.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-				depthBufferAttachment_.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-				depthBufferAttachmentRef_.attachment = 1;
-				depthBufferAttachmentRef_.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-				//}
-
-
-				{
-					colorAttachmentResolve_.format = createInfo.colorAttachmentFormat_;
-					colorAttachmentResolve_.samples = VK_SAMPLE_COUNT_1_BIT;
-					colorAttachmentResolve_.loadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-					colorAttachmentResolve_.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-					colorAttachmentResolve_.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-					colorAttachmentResolve_.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-					colorAttachmentResolve_.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-					colorAttachmentResolve_.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-					colorAttachmentRefResolve_.attachment = 2;
-					colorAttachmentRefResolve_.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-				}
-
-
-				descriptor_.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-				descriptor_.colorAttachmentCount = 1;
-				descriptor_.pColorAttachments = &colorAttachmentRef_;
-				//descriptor_.
-				descriptor_.pResolveAttachments = &colorAttachmentRefResolve_;
-				//if (createInfo.depthTestInfo_ != nullptr) {
-				descriptor_.pDepthStencilAttachment = &depthBufferAttachmentRef_;
-				//}
-
-				dependency_.srcSubpass = VK_SUBPASS_EXTERNAL;
-				dependency_.dstSubpass = 0;
-
-				//if (createInfo.depthTestInfo_ != nullptr) {
-				dependency_.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-				dependency_.srcAccessMask = 0;
-				dependency_.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-				dependency_.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-				//}
-				//else {
-				//	dependency_.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT /*| VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT*/;
-				//	dependency_.srcAccessMask = 0;
-				//	dependency_.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT/* | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT*/;
-				//	dependency_.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT/* | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT*/;
-				//}
-			}
-
 			const VkAttachmentDescription& GetColorAttachment() const noexcept {
 				return colorAttachment_;
 			}
@@ -191,7 +98,7 @@ namespace Render::Vulkan {
 				VkAttachmentDescription depthAttachment{
 					.flags = 0,
 					.format = createInfo.depthTestInfo_->depthStencilBufferFormat_,
-					.samples = VK_SAMPLE_COUNT_1_BIT,//createInfo.samplesCount_,
+					.samples = VK_SAMPLE_COUNT_1_BIT,//
 					.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
 					.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
 					.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -210,7 +117,7 @@ namespace Render::Vulkan {
 				VkAttachmentDescription swapChainAttachment{
 					.flags = 0,
 					.format = createInfo.colorAttachmentFormat_,
-					.samples = createInfo.samplesCount_,//VK_SAMPLE_COUNT_1_BIT,
+					.samples = VK_SAMPLE_COUNT_1_BIT, //createInfo.samplesCount_,
 					.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
 					.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
 					.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
@@ -290,8 +197,8 @@ namespace Render::Vulkan {
 					.inputAttachmentCount = 1,
 					.pInputAttachments = &renderedAttachmentSubpass2Ref,
 					.colorAttachmentCount = 1,
-					.pColorAttachments = &swapChainAttachmentRef,
-					.pResolveAttachments = &multisampleAttachmentRef,
+					.pColorAttachments = &multisampleAttachmentRef,
+					.pResolveAttachments = &swapChainAttachmentRef,
 					.pDepthStencilAttachment = nullptr// &depthAttachmentRef
 				};
 
@@ -328,7 +235,17 @@ namespace Render::Vulkan {
 				VkRenderPass renderPass = VK_NULL_HANDLE;
 				VkCall(vkCreateRenderPass(createInfo.LD_->GetHandle(), &renderPassInfo, nullptr, &renderPass),
 					"Error while creating render pass.");
+
+				VkDebugUtilsObjectNameInfoEXT nameInfo = {};
+				nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+				nameInfo.objectType = VK_OBJECT_TYPE_RENDER_PASS; // Тип объекта,, VK_OBJECT_TYPE_BUFFER
+				nameInfo.objectHandle = (uint64_t)renderPass;   // Объект, которому назначается имя
+				nameInfo.pObjectName = "MY RENEDER PASS";      // Имя объекта
+				SetObjectName(*createInfo.LD_, &nameInfo);
+
 				SetHandle(renderPass);
+
+
 			}
 
 		}
@@ -348,4 +265,150 @@ namespace Render::Vulkan {
 	private:
 		std::shared_ptr<LogicDevice> LD_ = nullptr;
 	};
+
+
+	class RenderPass2 : public Abstraction<VkRenderPass> {
+	public:
+
+
+		struct Attachment {
+			VkFormat                        format;
+			VkSampleCountFlagBits           samples;
+			VkAttachmentLoadOp              loadOp;
+			VkAttachmentStoreOp             storeOp;
+			VkImageLayout                   initialLayout;
+			VkImageLayout                   finalLayout;
+		};
+
+
+		struct AttachmentRef {
+			enum class Type {
+				Input,
+				Color,
+				Depth,
+				Resolve,
+				Undefined
+			};
+			Common::UInt32 index_ = Common::Limits<Common::UInt32>::Max();
+			Type type_ = Type::Undefined;
+			VkImageLayout layout_;
+		};
+
+		struct Subpass {
+			struct Dependency {
+				uint32_t                srcSubpass_;
+				VkPipelineStageFlags    srcStageMask_;
+				VkAccessFlags           srcAccessMask_;
+				uint32_t                dstSubpass_;
+				VkPipelineStageFlags    dstStageMask_;
+				VkAccessFlags           dstAccessMask_;
+			};
+
+			
+			std::vector<VkAttachmentReference> inputAttachments_;
+			std::vector<VkAttachmentReference> colorAttachments_;
+			std::shared_ptr<VkAttachmentReference> resolveAttachment_ = nullptr;
+			std::shared_ptr<VkAttachmentReference> depthStencilAttachment_ = nullptr;
+		};
+
+		struct CreateInfo {
+			std::string name_ = "No name";
+			std::shared_ptr<LogicDevice> LD_ = nullptr;
+			std::vector<Attachment> attachments_;
+			std::vector<Subpass> subpasses_;
+			std::vector<Subpass::Dependency> dependencies_;
+		};
+
+		RenderPass2(const CreateInfo& createInfo) noexcept : LD_{ createInfo.LD_ } {
+
+			std::vector<VkSubpassDescription> subpassDescs_;
+			subpassDescs_.reserve(createInfo.subpasses_.size());
+			
+			for (const Subpass& subpass : createInfo.subpasses_) {
+				VkSubpassDescription desc{
+					.flags = 0,
+					.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS,
+					.inputAttachmentCount = static_cast<Common::UInt32>(subpass.inputAttachments_.size()),
+					.pInputAttachments = subpass.inputAttachments_.data(),
+					.colorAttachmentCount = static_cast<Common::UInt32>(subpass.colorAttachments_.size()),
+					.pColorAttachments = subpass.colorAttachments_.data(),
+					.pResolveAttachments = subpass.resolveAttachment_.get(),
+					.pDepthStencilAttachment = subpass.depthStencilAttachment_.get()
+				};
+				subpassDescs_.push_back(desc);
+			}
+
+			std::vector<VkAttachmentDescription> attachments;
+			for (const Attachment& attachment : createInfo.attachments_) {
+				attachments.push_back(VkAttachmentDescription{
+						.flags = 0,
+						.format = attachment.format,
+						.samples = attachment.samples,
+						.loadOp = attachment.loadOp,
+						.storeOp = attachment.storeOp,
+						.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE,
+						.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+						.initialLayout = attachment.initialLayout,
+						.finalLayout = attachment.finalLayout
+					});
+			}
+
+			std::vector<VkSubpassDependency> dependencies;
+			for (const Subpass::Dependency& dependency : createInfo.dependencies_) {
+				dependencies.push_back(VkSubpassDependency{
+					.srcSubpass = dependency.srcSubpass_,
+					.dstSubpass = dependency.dstSubpass_,
+					.srcStageMask = dependency.srcStageMask_,
+					.dstStageMask = dependency.dstStageMask_,
+					.srcAccessMask = dependency.srcAccessMask_,
+					.dstAccessMask = dependency.dstAccessMask_,
+					});
+			}
+
+
+			VkRenderPassCreateInfo renderPassInfo{};
+			{
+				renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+				renderPassInfo.attachmentCount = static_cast<uint32_t>(createInfo.attachments_.size());
+				renderPassInfo.pAttachments = attachments.data();
+				renderPassInfo.subpassCount = static_cast<uint32_t>(subpassDescs_.size());
+				renderPassInfo.pSubpasses = subpassDescs_.data();
+				renderPassInfo.dependencyCount = static_cast<uint32_t>(dependencies.size());
+				renderPassInfo.pDependencies = dependencies.data();
+			}
+			VkRenderPass renderPass = VK_NULL_HANDLE;
+			VkCall(vkCreateRenderPass(createInfo.LD_->GetHandle(), &renderPassInfo, nullptr, &renderPass),
+				"Error while creating render pass.");
+
+			VkDebugUtilsObjectNameInfoEXT nameInfo{
+				.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+				.objectType = VK_OBJECT_TYPE_RENDER_PASS,
+				.objectHandle = (uint64_t)renderPass,
+				.pObjectName = createInfo.name_.c_str()
+			};
+			SetObjectName(*createInfo.LD_, &nameInfo);
+
+			SetHandle(renderPass);
+
+
+		}
+
+		~RenderPass2() noexcept {
+			Destroy();
+		}
+
+	private:
+
+		void Destroy() noexcept {
+			OS::AssertMessage(LD_ != nullptr, "Logic device is not initialized.");
+			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkRenderPass.");
+			vkDestroyRenderPass(LD_->GetHandle(), GetHandle(), nullptr);
+		}
+
+	private:
+		std::shared_ptr<LogicDevice> LD_ = nullptr;
+	};
+
+
+	using RP = RenderPass2;
 }

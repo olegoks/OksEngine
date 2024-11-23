@@ -44,6 +44,11 @@
 namespace Render::Vulkan {
 
 	class Driver : public RAL::Driver {
+	private:
+		size_t currentFrame = 0;
+
+		const Common::Size framesInFlight = 3;
+	
 	public:
 
 		class ImageContext {
@@ -298,12 +303,12 @@ namespace Render::Vulkan {
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<SwapChain> swapChain_ = nullptr;
 			std::shared_ptr<CommandPool> commandPool_ = nullptr;
-			std::shared_ptr<RenderPass> renderPass_ = nullptr;
+			std::shared_ptr<RenderPass2> renderPass_ = nullptr;
 			std::vector<std::shared_ptr<FrameBuffer>> frameBuffers_;
 			std::shared_ptr<DescriptorPool> DP_ = nullptr;
 			QueueFamily graphicsQueueFamily_;
 			QueueFamily presentQueueFamily_;
-			std::vector<std::shared_ptr<CommandBuffer>> commandBuffers_;
+			std::vector<std::shared_ptr<CommandBuffer>> commandBuffers_{ { nullptr } };
 			std::vector<std::shared_ptr<ImageContext>> imageContexts_;
 			std::vector<std::shared_ptr<FrameContext>> frameContexts_;
 			std::shared_ptr<DepthTestData> depthTestData_ = nullptr;
@@ -526,6 +531,9 @@ namespace Render::Vulkan {
 				objects_.instance_ = std::make_shared<Instance>(instanceCreateInfo);
 			}
 
+			SetObjectName = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(*objects_.instance_, "vkSetDebugUtilsObjectNameEXT");
+
+
 			WindowSurface::CreateInfo windowSurfaceCreateInfo;
 			{
 				windowSurfaceCreateInfo.instance_ = objects_.instance_;
@@ -542,6 +550,10 @@ namespace Render::Vulkan {
 			auto [graphicsQueueFamily, presentQueueFamily] = ChooseQueueFamilies(objects_.physicalDevice_, objects_.windowSurface_);
 			objects_.graphicsQueueFamily_ = graphicsQueueFamily;
 			objects_.presentQueueFamily_ = presentQueueFamily;
+
+
+			objects_.commandBuffers_.resize(1, nullptr);
+
 
 			//DEBUG
 			Debug::CreateInfo debugCreateInfo;
@@ -588,72 +600,216 @@ namespace Render::Vulkan {
 			}
 
 			//DESCRIPTOR_POOL
-			const Common::Size descriptorPoolSize = objects_.swapChain_->GetImagesNumber() * 1000;
+			const Common::Size descriptorPoolSize = objects_.swapChain_->GetImagesNumber() * 2000;
 			objects_.DP_ = std::make_shared<DescriptorPool>(objects_.LD_, descriptorPoolSize);
 
-			//DEPTH BUFFER
-			{
-				auto depthTestData = std::make_shared<DepthTestData>();
-				{
-					Image::CreateInfo depthImageCreateInfo;
-					{
-						depthImageCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-						depthImageCreateInfo.LD_ = objects_.LD_;
-						depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
-						depthImageCreateInfo.size_ = objects_.swapChain_->GetSize();
-						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-						depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-						depthImageCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
-					}
-					depthTestData->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
-					depthTestData->imageView_ = CreateImageViewByImage(objects_.LD_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
-				}
-				objects_.depthTestData_ = depthTestData;
-				//}
-			}
+			RenderPacket::CreateInfo rpci{
+				.PD_ = objects_.physicalDevice_,
+				.LD_ = objects_.LD_,
+				.swapChain_ = objects_.swapChain_,
+				.framesInFlight_ = framesInFlight
+			};
+
+			render_ = std::make_unique<RenderPacket>(rpci);
+
+			objects_.commandBuffers_.resize(framesInFlight, nullptr);
+
+			////DEPTH BUFFER
+			//{
+			//	auto depthTestData = std::make_shared<DepthTestData>();
+			//	{
+			//		Image::CreateInfo depthImageCreateInfo;
+			//		{
+			//			depthImageCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+			//			depthImageCreateInfo.LD_ = objects_.LD_;
+			//			depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
+			//			depthImageCreateInfo.size_ = objects_.swapChain_->GetSize();
+			//			depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+			//			depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			//			depthImageCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;/*objects_.physicalDevice_->GetMaxUsableSampleCount();*/
+			//		}
+			//		depthTestData->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
+			//		depthTestData->imageView_ = CreateImageViewByImage(objects_.LD_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+			//	}
+			//	objects_.depthTestData_ = depthTestData;
+			//	//}
+			//}
 
 
-			//Rendered buffer
-			{
+			////Rendered buffer
+			//{
 
-				{
-					Image::CreateInfo multisamplingCreateInfo;
-					{
-						multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-						multisamplingCreateInfo.LD_ = objects_.LD_;
-						multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
-						multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
-						multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-						multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-						multisamplingCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
-					}
-					objects_.renderedBufferImage_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-					objects_.renderedBufferImageView_ = CreateImageViewByImage(objects_.LD_, objects_.renderedBufferImage_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-				}
-			}
+			//	{
+			//		Image::CreateInfo multisamplingCreateInfo;
+			//		{
+			//			multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+			//			multisamplingCreateInfo.LD_ = objects_.LD_;
+			//			multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
+			//			multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
+			//			multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+			//			multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			//			multisamplingCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
+			//		}
+			//		objects_.renderedBufferImage_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+			//		objects_.renderedBufferImageView_ = CreateImageViewByImage(objects_.LD_, objects_.renderedBufferImage_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+			//	}
+			//}
 
-			//Multisampling
-			{
-				auto multisamplingData = std::make_shared<MultisamplingData>();
-				{
-					Image::CreateInfo multisamplingCreateInfo;
-					{
-						multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-						multisamplingCreateInfo.LD_ = objects_.LD_;
-						multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
-						multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
-						multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-						multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-						multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
-					}
-					multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-					multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-				}
-				objects_.multisamplingData_ = multisamplingData;
-			}
+			////Multisampling
+			//{
+			//	auto multisamplingData = std::make_shared<MultisamplingData>();
+			//	{
+			//		Image::CreateInfo multisamplingCreateInfo;
+			//		{
+			//			multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+			//			multisamplingCreateInfo.LD_ = objects_.LD_;
+			//			multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
+			//			multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
+			//			multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+			//			multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			//			multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
+			//		}
+			//		multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+			//		multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+			//	}
+			//	objects_.multisamplingData_ = multisamplingData;
+			//}
+
+			//{
+
+			//	RP::Attachment multisampleAttachment{
+			//		.format = objects_.multisamplingData_->image_->GetFormat(),
+			//		.samples = objects_.physicalDevice_->GetMaxUsableSampleCount(),
+			//		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+			//		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+			//		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+			//		.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+			//	};
+
+			//	VkAttachmentReference multisampleAttachmentRef{
+			//		.attachment = 0,
+			//		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+			//	};
+
+			//	//Depth attachment
+			//	RP::Attachment depthAttachment{
+			//		.format = objects_.depthTestData_->image_->GetFormat(),
+			//		.samples = VK_SAMPLE_COUNT_1_BIT,
+			//		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+			//		.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+			//		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+			//		.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+			//	};
+			//	VkAttachmentReference depthAttachmentRef{
+			//		.attachment = 1,
+			//		.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+			//	};
 
 
-			RenderPass::CreateInfo RPCreateInfo{};
+
+			//	//swap chain
+			//	RP::Attachment swapChainAttachment{
+			//		.format = objects_.swapChain_->GetFormat().format,
+			//		.samples = VK_SAMPLE_COUNT_1_BIT,
+			//		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+			//		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+			//		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+			//		.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+			//	};
+			//	VkAttachmentReference swapChainAttachmentRef{
+			//		.attachment = 2,
+			//		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+			//	};
+
+			//	//Rendered buffer
+			//	RP::Attachment renderedAttachment{
+			//		.format = objects_.swapChain_->GetFormat().format,
+			//		.samples = VK_SAMPLE_COUNT_1_BIT,
+			//		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+			//		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+			//		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+			//		.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+			//	};
+
+			//	VkAttachmentReference renderedAttachmentRef{
+			//		.attachment = 3,
+			//		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+			//	};
+
+			//	VkAttachmentReference renderedAttachmentSubpass2Ref{
+			//		.attachment = 3,
+			//		.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+			//	};
+
+			//	RP::Subpass::Dependency inExternalDependency{
+			//		.srcSubpass_ = VK_SUBPASS_EXTERNAL,
+			//		.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			//		.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+			//		.dstSubpass_ = 0,
+			//		.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+			//		.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
+			//	};
+
+			//	RP::Subpass::Dependency postProcessSubpassDependency_{
+			//		.srcSubpass_ = 0,
+			//		.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			//		.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+			//		.dstSubpass_ = 1,
+			//		.dstStageMask_ = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
+			//		.dstAccessMask_ = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT
+			//	};
+
+			//	RP::Subpass::Dependency outExternalDependency{
+			//		.srcSubpass_ = 1,
+			//		.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+			//		.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+			//		.dstSubpass_ = VK_SUBPASS_EXTERNAL,
+			//		.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+			//		.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
+			//	};
+
+
+			//	RP::Subpass renderSubpassDesc{
+			//		.inputAttachments_ = {  },
+			//		.colorAttachments_ = { renderedAttachmentRef },
+			//		.resolveAttachment_ = {  },
+			//		.depthStencilAttachment_ = std::make_shared<VkAttachmentReference>(depthAttachmentRef)
+			//	};
+
+
+			//	RP::Subpass postProcessSubpassDesc{
+			//		.inputAttachments_ = { renderedAttachmentSubpass2Ref },
+			//		.colorAttachments_ = { multisampleAttachmentRef },
+			//		.resolveAttachment_ = std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
+			//		.depthStencilAttachment_ = nullptr
+			//	};
+
+			//	RenderPass2::CreateInfo rp2ci{
+			//		.name_ = "Main pass",
+			//		.LD_ = objects_.LD_,
+			//		.attachments_ = {
+			//			multisampleAttachment,
+			//			depthAttachment,
+			//			swapChainAttachment,
+			//			renderedAttachment
+			//		},
+			//		.subpasses_ = {
+			//			renderSubpassDesc,
+			//			postProcessSubpassDesc
+			//		},
+			//		.dependencies_ = {
+			//			inExternalDependency,
+			//			postProcessSubpassDependency_,
+			//			outExternalDependency
+			//		},
+
+			//	};
+
+			//	objects_.renderPass_ = std::make_shared<RenderPass2>(rp2ci);
+
+			//}
+
+			/*RenderPass::CreateInfo RPCreateInfo{};
 			{
 				RPCreateInfo.LD_ = objects_.LD_;
 				RPCreateInfo.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format;
@@ -661,8 +817,8 @@ namespace Render::Vulkan {
 				depthTestInfo->depthStencilBufferFormat_ = objects_.depthTestData_->image_->GetFormat();
 				RPCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
 				RPCreateInfo.depthTestInfo_ = depthTestInfo;
-			}
-			objects_.renderPass_ = std::make_shared<RenderPass>(RPCreateInfo);
+			}*/
+			//objects_.renderPass_ = std::make_shared<RenderPass>(RPCreateInfo);
 
 			//Post-effects subpass pipeline
 			{
@@ -693,6 +849,51 @@ namespace Render::Vulkan {
 					"void main() {\n"
 					"outColor = subpassLoad(inputColor);\n"
 					"}\n";
+
+				//"#version 450\n"
+
+				//"layout(input_attachment_index = 0, binding = 0) uniform subpassInput samplerColor;\n"
+
+				///*"layout(binding = 0) uniform UBO\n"
+				//"{\n"
+				//"float blurScale;\n"
+				//"float blurStrength;\n"
+				//"} ubo;\n"*/
+
+				////"layout(constant_id = 0) const int blurdirection = 0;\n"
+
+				//"layout(location = 0) in vec2 inUV;\n"
+
+				//"layout(location = 0) out vec4 outFragColor;\n"
+
+				//"void main()\n"
+				//"{\n"
+				//"float weight[5];\n"
+				//"weight[0] = 0.227027;\n"
+				//"weight[1] = 0.1945946;\n"
+				//"weight[2] = 0.1216216;\n"
+				//"weight[3] = 0.054054;\n"
+				//"weight[4] = 0.016216;\n"
+
+				//"vec2 tex_offset = 1.0 / vec2(1280, 720) * 1.0; // gets size of single texel\n"
+				//"vec3 result = subpassLoad(samplerColor, inUV).rgb * weight[0]; // current fragment's contribution\n"
+				//"for (int i = 1; i < 5; ++i)\n"
+				//"{\n"
+				////"if (blurdirection == 1)\n"
+				////"{\n"
+				//	// H
+				//"result += texture(samplerColor, inUV + vec2(tex_offset.x * i, 0.0)).rgb * weight[i] * 1.5;\n"
+				//"result += texture(samplerColor, inUV - vec2(tex_offset.x * i, 0.0)).rgb * weight[i] * 1.5;\n"
+				////"}\n"
+				////"else\n"
+				////"{\n"
+				//	// V
+				////"result += texture(samplerColor, inUV + vec2(0.0, tex_offset.y * i)).rgb * weight[i] * ubo.blurStrength;\n"
+				////"result += texture(samplerColor, inUV - vec2(0.0, tex_offset.y * i)).rgb * weight[i] * ubo.blurStrength;\n"
+				////"}\n"
+				//"}\n"
+				//"outFragColor = vec4(result, 1.0);\n"
+				//"}";
 
 
 				Shader::CreateInfo FSCI{
@@ -729,7 +930,7 @@ namespace Render::Vulkan {
 				auto ds = std::make_shared<DS>(DSCreateInfo);
 
 				ds->UpdateImageWriteConfiguration(
-					objects_.renderedBufferImageView_,
+					render_->gBufferInfo_->imageView_,
 					VkImageLayout::VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
 					nullptr,
 					VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,
@@ -741,7 +942,7 @@ namespace Render::Vulkan {
 				{
 					depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
 					depthTestData->enable_ = false;
-					depthTestData->bufferFormat_ = objects_.depthTestData_->image_->GetFormat();
+					depthTestData->bufferFormat_ = VK_FORMAT_D32_SFLOAT;//render_->renderPasses_[0].//objects_.depthTestData_->image_->GetFormat();
 					depthTestData->compareOperation_ = ToVulkanType(RAL::Driver::DepthBuffer::CompareOperation::Less);
 				}
 				std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo;
@@ -752,7 +953,7 @@ namespace Render::Vulkan {
 				Vulkan::Pipeline::CreateInfo createInfo{
 					.physicalDevice_ = objects_.physicalDevice_,
 					.LD_ = objects_.LD_,
-					.renderPass_ = objects_.renderPass_,
+					.renderPass_ = render_->renderPasses_[1].renderPass_,
 					.pushConstants_ = {},
 					.descriptorSetLayouts_ = std::vector{ DSL },
 					.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
@@ -767,7 +968,7 @@ namespace Render::Vulkan {
 					.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
 					.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
 					.multisampleInfo_ = multisampleInfo,
-					.subpassIndex_ = 1,
+					.subpassIndex_ = 0,
 					.vertexInfo_ = nullptr,
 					.topology_ = ToVulkanType(RAL::Driver::TopologyType::TriangleList),
 					.frontFace_ = ToVulkanType(RAL::Driver::FrontFace::CounterClockwise),
@@ -807,7 +1008,7 @@ namespace Render::Vulkan {
 				if (pipeline.enableDepthTest_) {
 					depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
 					depthTestData->enable_ = true;
-					depthTestData->bufferFormat_ = objects_.depthTestData_->image_->GetFormat();
+					depthTestData->bufferFormat_ = VK_FORMAT_D32_SFLOAT;// objects_.depthTestData_->image_->GetFormat();
 					depthTestData->compareOperation_ = ToVulkanType(pipeline.dbCompareOperation_);
 				}
 
@@ -828,7 +1029,7 @@ namespace Render::Vulkan {
 				Vulkan::Pipeline::CreateInfo createInfo{
 					.physicalDevice_ = objects_.physicalDevice_,
 					.LD_ = objects_.LD_,
-					.renderPass_ = objects_.renderPass_,
+					.renderPass_ = render_->renderPasses_[0].renderPass_,//objects_.renderPass_,
 					.pushConstants_ = {},
 					.descriptorSetLayouts_ = DSLs,
 					.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
@@ -853,28 +1054,28 @@ namespace Render::Vulkan {
 				namePipeline_[pipeline.name_] = std::make_shared<Vulkan::Pipeline>(createInfo);
 			}
 
-			{
-				VkExtent2D extent = objects_.swapChain_->GetExtent();
-				for (const auto& imageView : objects_.swapChain_->GetImageViews()) {
-					FrameBuffer::CreateInfo createInfo;
-					{
-						createInfo.LD_ = objects_.LD_;
-						createInfo.attachments_.push_back(objects_.multisamplingData_->imageView_);
-						createInfo.attachments_.push_back(objects_.depthTestData_->imageView_);
-						createInfo.attachments_.push_back(imageView);
+			//{
+			//	VkExtent2D extent = objects_.swapChain_->GetExtent();
+			//	for (const auto& imageView : objects_.swapChain_->GetImageViews()) {
+			//		FrameBuffer::CreateInfo createInfo;
+			//		{
+			//			createInfo.LD_ = objects_.LD_;
+			//			createInfo.attachments_.push_back(objects_.multisamplingData_->imageView_);
+			//			createInfo.attachments_.push_back(objects_.depthTestData_->imageView_);
+			//			createInfo.attachments_.push_back(imageView);
 
 
-						createInfo.attachments_.push_back(objects_.renderedBufferImageView_);
+			//			createInfo.attachments_.push_back(objects_.renderedBufferImageView_);
 
 
-						createInfo.extent_ = extent;
-						createInfo.renderPass_ = objects_.renderPass_;
-					}
-					auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
-					objects_.frameBuffers_.push_back(frameBuffer);
-				}
-				OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
-			}
+			//			createInfo.extent_ = extent;
+			//			createInfo.renderPass_ = objects_.renderPass_;
+			//		}
+			//		auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
+			//		objects_.frameBuffers_.push_back(frameBuffer);
+			//	}
+			//	OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
+			//}
 
 			for (Common::Index i = 0; i < objects_.swapChain_->GetImages().size(); i++) {
 
@@ -909,7 +1110,7 @@ namespace Render::Vulkan {
 
 		void StartRender() override {
 
-			for (Common::Index i = 0; i < objects_.frameBuffers_.size(); i++) {
+			//for (Common::Index i = 0; i < framesInFlight; i++) {
 
 				CommandBuffer::CreateInfo commandBufferCreateInfo;
 				{
@@ -917,6 +1118,77 @@ namespace Render::Vulkan {
 					commandBufferCreateInfo.commandPool_ = objects_.commandPool_;
 				}
 				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+
+				//commandBuffer->Begin();
+				//std::vector<VkClearValue> clearValues;
+				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
+				//const VkClearValue depthBufferClearColor{
+				//	.depthStencil = {
+				//		.depth = 1.f,
+				//		.stencil = 0
+				//	}
+				//};
+				//clearValues.push_back(depthBufferClearColor); // 1
+				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
+				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
+
+				//static VkClearValue clearValue;
+				//CommandBuffer::DepthBufferInfo depthBufferInfo;
+				//{
+				//	const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
+				//	depthBufferInfo.enable = enableDepthTest;
+				//	depthBufferInfo.clearValue_.depthStencil = {  };
+				//}
+				//commandBuffer->BeginRenderPass(
+				//	*objects_.renderPass_,
+				//	objects_.frameBuffers_[i]->GetHandle(),
+				//	objects_.swapChain_->GetExtent(),
+				//	clearValues);
+
+				//const VkViewport viewport{
+				//	.x = 0.f,
+				//	.y = 0.f,
+				//	.width = static_cast<float>(objects_.swapChain_->GetSize().x),
+				//	.height = static_cast<float>(objects_.swapChain_->GetSize().y),
+				//	.minDepth = 0.0f,
+				//	.maxDepth = 1.0f
+				//};
+				//commandBuffer->SetViewport(viewport);
+
+				//const VkRect2D scissor{
+				//	.offset = { 0, 0 },
+				//	.extent = objects_.swapChain_->GetExtent()
+				//};
+				//commandBuffer->SetScissor(scissor);
+
+				//for (auto& [id, mesh] : meshs_) {
+				//	commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
+				//	commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
+				//	commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
+				//	{
+				//		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+				//		for (auto& shaderBinding : mesh->GetShaderBindings()) {
+				//			if (shaderBinding.ds_ != nullptr) {
+				//				descriptorSets.push_back(shaderBinding.ds_);
+				//				OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
+				//				continue;
+				//			}
+				//			if (!shaderBinding.textureId_.IsInvalid()) {
+				//				OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
+				//				const auto texture = GetTextureById(shaderBinding.textureId_);
+				//				descriptorSets.push_back(texture->GetDS());
+				//			}
+				//		}
+				//		commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
+				//	}
+				//	commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
+				//}
+				//commandBuffer->NextSubpass();
+				//commandBuffer->BindPipeline(namePipeline_["Post-process"]);
+				//commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ objects_.renderedBufferDS_ });
+				//commandBuffer->Draw(3);
+				//commandBuffer->EndRenderPass();
+				//commandBuffer->End();
 
 				commandBuffer->Begin();
 				std::vector<VkClearValue> clearValues;
@@ -939,8 +1211,8 @@ namespace Render::Vulkan {
 					depthBufferInfo.clearValue_.depthStencil = {  };
 				}
 				commandBuffer->BeginRenderPass(
-					*objects_.renderPass_,
-					objects_.frameBuffers_[i]->GetHandle(),
+					*render_->renderPasses_[0].renderPass_,
+					render_->renderPasses_[0].frameBuffers_[currentFrame]->GetHandle(),
 					objects_.swapChain_->GetExtent(),
 					clearValues);
 
@@ -982,50 +1254,23 @@ namespace Render::Vulkan {
 					}
 					commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
 				}
-
-
-				/*std::vector<Geom::Vertex3fc> lines{
-					{ { 0.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
-					{ { 10.f, 0.f, 0.f }, { 1.f, 0.f, 0.f } },
-					{ { 0.f, 0.f, 0.f }, { 0.f, 1.f, 0.f } },
-					{ { 0.f, 10.f, 0.f }, { 0.f, 1.f, 0.f } },
-					{ { 0.f, 0.f, 0.f }, { 0.f, 0.f, 1.f } },
-					{ { 0.f, 0.f, 10.f }, { 0.f, 0.f, 1.f } }
-				};
-
-				for (float x = -30.f; x < 30.f; x += 1.f) {
-					lines.push_back({ { x, 0.f, -10.f }, { 0.f, 0.f, 1.f } });
-					lines.push_back({ { x, 0.f, 10.f }, { 0.f, 0.f, 1.f } });
-				}
-
-				for (float z = -30.f; z < 30.f; z += 1.f) {
-					lines.push_back({ { -10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
-					lines.push_back({ { 10.f, 0.f, z }, { 0.f, 0.f, 1.f } });
-				}
-
-
-				static auto vertexStagingBuffer = std::make_shared<StagingBuffer>(physicalDevice_, logicDevice_, lines.size() * sizeof(Vertex3fc));
-				vertexStagingBuffer->Fill(lines.data());
-				static auto vertex3fcBuffer = std::make_shared<VertexBuffer<Vertex3fc>>(physicalDevice_, logicDevice_, lines.size());
-
-				Buffer::DataCopy(vertexStagingBuffer, vertex3fcBuffer, logicDevice_, commandPool_);
-
-				commandBuffer->BindPipeline(linesPipeline_);
-				commandBuffer->BindBuffer(vertex3fcBuffer);
-				std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-				descriptorSets.push_back(globalDataDSs_[i]);
-				commandBuffer->BindDescriptorSets(linesPipeline_, descriptorSets);
-				commandBuffer->Draw(lines.size());*/
-
-				commandBuffer->NextSubpass();
+				commandBuffer->EndRenderPass();
+				commandBuffer->BeginRenderPass(
+					*render_->renderPasses_[1].renderPass_,
+					render_->renderPasses_[1].frameBuffers_[currentFrame]->GetHandle(),
+					objects_.swapChain_->GetExtent(),
+					clearValues);
 				commandBuffer->BindPipeline(namePipeline_["Post-process"]);
 				commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ objects_.renderedBufferDS_ });
 				commandBuffer->Draw(3);
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();
 
-				objects_.commandBuffers_.push_back(commandBuffer);
-			}
+				
+				objects_.commandBuffers_[currentFrame] = std::move(commandBuffer);
+
+				//objects_.commandBuffers_.push_back(commandBuffer);
+			//}
 
 		}
 
@@ -1050,7 +1295,7 @@ namespace Render::Vulkan {
 		}
 
 		void EndRender() override {
-			objects_.commandBuffers_.clear();
+			//objects_.commandBuffers_.clear();
 			//UIShapes_.clear();
 		}
 
@@ -1069,7 +1314,7 @@ namespace Render::Vulkan {
 
 			std::shared_ptr<ImageContext> imageContext = objects_.imageContexts_[imageIndex];
 			imageContext->index_ = imageIndex;
-			imageContext->commandBuffer_ = objects_.commandBuffers_[imageIndex];
+			imageContext->commandBuffer_ = objects_.commandBuffers_[currentFrame];
 
 			return imageContext;
 		}
@@ -1835,9 +2080,6 @@ namespace Render::Vulkan {
 		}
 
 	private:
-		size_t currentFrame = 0;
-
-		const int framesInFlight = 1;
 		using FrameInFlightIndex = Common::Index;
 
 		Objects objects_;
@@ -1856,6 +2098,368 @@ namespace Render::Vulkan {
 		Common::IdGenerator IBsIdsGenerator_;
 		std::map<FrameInFlightIndex, std::vector<std::shared_ptr<HostVisibleIndexBuffer>>> IBsToDestroy_;
 
+
+
+
+
+		//pack of render passes, framebuffer and attachments
+		class RenderPacket {
+		public:
+
+
+			struct GBufferInfo {
+				std::shared_ptr<Image> image_ = nullptr;
+				std::shared_ptr<ImageView> imageView_ = nullptr;
+			};
+
+
+			struct RenderPassContext {
+
+				struct Attachment {
+					enum class Type {
+						Depth,
+						Undefined
+					};
+				};
+				std::shared_ptr<MultisamplingData> multisamplingData_ = nullptr;
+				std::shared_ptr<DepthTestData> depthStencilData_ = nullptr;
+				
+				std::vector<std::shared_ptr<FrameBuffer>> frameBuffers_;
+				std::shared_ptr<RenderPass2> renderPass_ = nullptr;
+			};
+
+			struct CreateInfo {
+				std::shared_ptr<PhysicalDevice> PD_ = nullptr;
+				std::shared_ptr<LogicDevice> LD_ = nullptr;
+				std::shared_ptr<SwapChain> swapChain_ = nullptr;
+				Common::Size framesInFlight_ = 0;
+			};
+			std::shared_ptr<GBufferInfo> gBufferInfo_ = nullptr;
+			RenderPacket(const CreateInfo& ci) {
+
+				//Rendered buffer
+				{
+
+					{
+						gBufferInfo_ = std::make_shared<GBufferInfo>();
+						Image::CreateInfo gBufferCreateInfo;
+						{
+							gBufferCreateInfo.physicalDevice_ = ci.PD_;
+							gBufferCreateInfo.LD_ = ci.LD_;
+							gBufferCreateInfo.name_ = "G-Buffer";
+							gBufferCreateInfo.format_ = ci.swapChain_->GetFormat().format;
+							gBufferCreateInfo.size_ = ci.swapChain_->GetSize();
+							gBufferCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+							gBufferCreateInfo.usage_ = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+							gBufferCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
+						}
+						gBufferInfo_->image_ = std::make_shared<AllocatedImage>(gBufferCreateInfo);
+						gBufferInfo_->imageView_ = CreateImageViewByImage(ci.LD_, gBufferInfo_->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+					}
+				}
+
+
+				//First render pass
+				{
+
+					RenderPassContext rpContext{};
+
+
+					//DEPTH BUFFER
+					{
+						rpContext.depthStencilData_ = std::make_shared<DepthTestData>();
+						{
+							Image::CreateInfo depthImageCreateInfo;
+							{
+								depthImageCreateInfo.physicalDevice_ = ci.PD_;
+								depthImageCreateInfo.LD_ = ci.LD_;
+								depthImageCreateInfo.name_ = "Depth image",
+									depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
+								depthImageCreateInfo.size_ = ci.swapChain_->GetSize();
+								depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+								depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+								depthImageCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;/*objects_.physicalDevice_->GetMaxUsableSampleCount();*/
+							}
+							rpContext.depthStencilData_->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
+							rpContext.depthStencilData_->imageView_ = CreateImageViewByImage(ci.LD_, rpContext.depthStencilData_->image_, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+						}
+						//}
+					}
+
+
+					//Depth attachment
+					RP::Attachment depthAttachment{
+						.format = rpContext.depthStencilData_->image_->GetFormat(),
+						.samples = VK_SAMPLE_COUNT_1_BIT,
+						.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+						.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+						.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+						.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+					};
+					VkAttachmentReference depthAttachmentRef{
+						.attachment = 0,
+						.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+					};
+
+					//Rendered buffer
+					RP::Attachment renderedAttachment{
+						.format = ci.swapChain_->GetFormat().format,
+						.samples = VK_SAMPLE_COUNT_1_BIT,
+						.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+						.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+						.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+						.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+					};
+
+					VkAttachmentReference renderedAttachmentRef{
+						.attachment = 1,
+						.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+					};
+
+					RP::Subpass::Dependency inExternalToFirstSubpass{
+						.srcSubpass_ = VK_SUBPASS_EXTERNAL,
+						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+						.dstSubpass_ = 0,
+						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
+					};
+
+					RP::Subpass::Dependency firstSubpassToOutExternal{
+						.srcSubpass_ = 0,
+						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+						.dstSubpass_ = VK_SUBPASS_EXTERNAL,
+						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
+					};
+
+
+					RP::Subpass renderSubpassDesc{
+						.inputAttachments_ = {  },
+						.colorAttachments_ = { renderedAttachmentRef },
+						.resolveAttachment_ = {  },
+						.depthStencilAttachment_ = std::make_shared<VkAttachmentReference>(depthAttachmentRef)
+					};
+
+					RenderPass2::CreateInfo rp2ci{
+						.name_ = "Main pass",
+						.LD_ = ci.LD_,
+						.attachments_ = {
+							depthAttachment,
+							renderedAttachment
+						},
+						.subpasses_ = {
+							renderSubpassDesc,
+						},
+						.dependencies_ = {
+							inExternalToFirstSubpass,
+							firstSubpassToOutExternal
+						},
+
+					};
+
+					auto renderPass = std::make_shared<RenderPass2>(rp2ci);
+
+					std::vector<std::shared_ptr<FrameBuffer>> frameBuffers;
+					{
+						VkExtent2D extent = ci.swapChain_->GetExtent();
+						for (const auto& imageView : ci.swapChain_->GetImageViews()) {
+							FrameBuffer::CreateInfo createInfo;
+							{
+								createInfo.LD_ = ci.LD_;
+								createInfo.attachments_.push_back(rpContext.depthStencilData_->imageView_);
+								createInfo.attachments_.push_back(gBufferInfo_->imageView_);
+								createInfo.extent_ = extent;
+								createInfo.renderPass_ = renderPass;
+							}
+							auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
+							frameBuffers.push_back(frameBuffer);
+						}
+						OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
+					}
+
+					rpContext.frameBuffers_ = std::move(frameBuffers);
+					rpContext.renderPass_ = renderPass;
+
+					renderPasses_.push_back(std::move(rpContext));
+				}
+
+
+				//second render pass
+				{
+					RenderPassContext rpContext{ };
+
+
+					//Multisampling
+					{
+						rpContext.multisamplingData_ = std::make_shared<MultisamplingData>();
+						{
+							Image::CreateInfo multisamplingCreateInfo;
+							{
+								multisamplingCreateInfo.physicalDevice_ = ci.PD_;
+								multisamplingCreateInfo.LD_ = ci.LD_;
+								multisamplingCreateInfo.name_ = "Multisampling image";
+								multisamplingCreateInfo.format_ = ci.swapChain_->GetFormat().format;
+								multisamplingCreateInfo.size_ = ci.swapChain_->GetSize();
+								multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+								multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+								multisamplingCreateInfo.samplesCount_ = ci.PD_->GetMaxUsableSampleCount();
+							}
+							rpContext.multisamplingData_->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+							rpContext.multisamplingData_->imageView_ = CreateImageViewByImage(ci.LD_, rpContext.multisamplingData_->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+						}
+					}
+
+
+
+					RP::Attachment multisampleAttachment{
+						.format = ci.swapChain_->GetFormat().format,
+						.samples = ci.PD_->GetMaxUsableSampleCount(),
+						.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+						.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+						.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+						.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+					};
+
+					VkAttachmentReference multisampleAttachmentRef{
+						.attachment = 0,
+						.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+					};
+
+					////Depth attachment
+					//RP::Attachment depthAttachment{
+					//	.format = depthStencilData_->image_->GetFormat(),
+					//	.samples = VK_SAMPLE_COUNT_1_BIT,
+					//	.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+					//	.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+					//	.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+					//	.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+					//};
+					//VkAttachmentReference depthAttachmentRef{
+					//	.attachment = 1,
+					//	.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+					//};
+
+
+
+					//swap chain
+					RP::Attachment swapChainAttachment{
+						.format = ci.swapChain_->GetFormat().format,
+						.samples = VK_SAMPLE_COUNT_1_BIT,
+						.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+						.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+						.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+						.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+					};
+					VkAttachmentReference swapChainAttachmentRef{
+						.attachment = 1,
+						.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+					};
+
+					//Rendered buffer
+					RP::Attachment renderedAttachment{
+						.format = ci.swapChain_->GetFormat().format,
+						.samples = VK_SAMPLE_COUNT_1_BIT,
+						.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+						.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+						.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+						.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+					};
+
+					VkAttachmentReference renderedAttachmentSubpass2Ref{
+						.attachment = 2,
+						.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+					};
+
+					RP::Subpass::Dependency inExternalToFirstSubpassDependency{
+						.srcSubpass_ = VK_SUBPASS_EXTERNAL,
+						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+						.dstSubpass_ = 0,
+						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
+					};
+
+					RP::Subpass::Dependency firstSubpassToOutExternalDependency_{
+						.srcSubpass_ = 0,
+						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+						.dstSubpass_ = VK_SUBPASS_EXTERNAL,
+						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT
+					};
+
+					RP::Subpass postProcessSubpassDesc{
+						.inputAttachments_ = { renderedAttachmentSubpass2Ref },
+						.colorAttachments_ = { multisampleAttachmentRef },
+						.resolveAttachment_ = std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
+						.depthStencilAttachment_ = nullptr
+					};
+
+					RenderPass2::CreateInfo rp2ci{
+						.name_ = "Post process pass",
+						.LD_ = ci.LD_,
+						.attachments_ = {
+							multisampleAttachment,
+							//depthAttachment,
+							swapChainAttachment,
+							renderedAttachment
+						},
+						.subpasses_ = {
+							postProcessSubpassDesc
+						},
+						.dependencies_ = {
+							inExternalToFirstSubpassDependency,
+							firstSubpassToOutExternalDependency_
+						},
+
+					};
+
+					auto renderPass = std::make_shared<RenderPass2>(rp2ci);
+
+					std::vector<std::shared_ptr<FrameBuffer>> frameBuffers;
+					{
+						VkExtent2D extent = ci.swapChain_->GetExtent();
+						for (const auto& imageView : ci.swapChain_->GetImageViews()) {
+							FrameBuffer::CreateInfo createInfo;
+							{
+								createInfo.LD_ = ci.LD_;
+								createInfo.attachments_.push_back(rpContext.multisamplingData_->imageView_);
+								//createInfo.attachments_.push_back(depthStencilData_->imageView_);
+								createInfo.attachments_.push_back(imageView);
+								createInfo.attachments_.push_back(gBufferInfo_->imageView_);
+
+
+								createInfo.extent_ = extent;
+								createInfo.renderPass_ = renderPass;
+							}
+							auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
+							frameBuffers.push_back(frameBuffer);
+						}
+						OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
+					}
+
+					rpContext.frameBuffers_ = std::move(frameBuffers);
+					rpContext.renderPass_ = renderPass;
+
+					renderPasses_.push_back(std::move(rpContext));
+				}
+
+
+			}
+
+			void ForEachRenderPass(std::function<void(RenderPassContext&)>&& processRenderPass) {
+				for (RenderPassContext& renderPassContext : renderPasses_) {
+					processRenderPass(renderPassContext);
+				}
+			}
+
+			std::vector<RenderPassContext> renderPasses_;
+		};
+
+
+		std::unique_ptr<RenderPacket> render_ = nullptr;
 	};
 
 }

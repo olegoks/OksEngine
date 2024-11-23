@@ -42,7 +42,7 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
-			std::shared_ptr<RenderPass> renderPass_ = nullptr;
+			std::shared_ptr<RenderPass2> renderPass_ = nullptr;
 			std::vector<VkPushConstantRange> pushConstants_;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 

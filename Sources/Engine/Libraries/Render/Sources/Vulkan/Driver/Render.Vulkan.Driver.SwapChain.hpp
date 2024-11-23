@@ -148,7 +148,7 @@ namespace Render::Vulkan {
 
 		[[nodiscard]]
 		uint32_t CalculateImagesNumber(VkSurfaceCapabilitiesKHR capabilities) noexcept {
-			const uint32_t imageCount = capabilities.maxImageCount;//capabilities.minImageCount + 1;
+			const uint32_t imageCount = /* capabilities.maxImageCount;*/capabilities.minImageCount + 1;
 			if (capabilities.maxImageCount > 0 && imageCount > capabilities.maxImageCount) {
 				return capabilities.maxImageCount;
 			}
