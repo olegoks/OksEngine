@@ -20,6 +20,7 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
+			std::string name_ = "Image";
 			glm::u32vec2 size_ = { 0, 0 };
 			VkFormat format_ = VK_FORMAT_MAX_ENUM;
 			VkImageTiling tiling_ = VK_IMAGE_TILING_MAX_ENUM;
@@ -57,6 +58,12 @@ namespace Render::Vulkan {
 			VkImage image = VK_NULL_HANDLE;
 			VkCall(vkCreateImage(createInfo.LD_->GetHandle(), &imageInfo, nullptr, &image),
 				"Errow while creating image.");
+			VkDebugUtilsObjectNameInfoEXT nameInfo = {};
+			nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
+			nameInfo.objectType = VK_OBJECT_TYPE_IMAGE; // Тип объекта,, VK_OBJECT_TYPE_BUFFER
+			nameInfo.objectHandle = (uint64_t)image;   // Объект, которому назначается имя
+			nameInfo.pObjectName = createInfo.name_.c_str();      // Имя объекта
+			SetObjectName(*createInfo.LD_, &nameInfo);
 			SetHandle(image);
 		}
 
@@ -111,6 +118,7 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
+			std::string name_;
 			glm::u32vec2 size_;
 			VkFormat format_;
 			Common::UInt32 mipLevels_ = 1;
@@ -120,6 +128,7 @@ namespace Render::Vulkan {
 			Image{ Image::CreateInfo{
 			createInfo.physicalDevice_,
 			createInfo.LD_,
+			createInfo.name_,
 			createInfo.size_,
 			createInfo.format_,
 			VK_IMAGE_TILING_OPTIMAL,
@@ -137,12 +146,14 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
+			std::string name_;
 			glm::u32vec2 size_{ 0, 0 };
 		};
 		DepthImage(const CreateInfo& createInfo) :
 			Image{ Image::CreateInfo{
 						createInfo.physicalDevice_,
 						createInfo.LD_,
+						createInfo.name_,
 						createInfo.size_,
 						VK_FORMAT_D32_SFLOAT,
 						VK_IMAGE_TILING_OPTIMAL,
