@@ -6,7 +6,7 @@
 
 namespace Render::Vulkan {
 
-	class Sampler : public Abstraction<VkSampler>{
+	class Sampler : public Abstraction<VkSampler> {
 	public:
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
@@ -25,11 +25,11 @@ namespace Render::Vulkan {
 				samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 				samplerCreateInfo.magFilter = createInfo.magFilter_;
 				samplerCreateInfo.minFilter = createInfo.minFilter_;
-				samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-				samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
-				samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+				samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;//VK_SAMPLER_ADDRESS_MODE_REPEAT;
+				samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;//VK_SAMPLER_ADDRESS_MODE_REPEAT;
+				samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;//VK_SAMPLER_ADDRESS_MODE_REPEAT;
 				samplerCreateInfo.anisotropyEnable = VK_TRUE;
-				samplerCreateInfo.maxAnisotropy = createInfo.maxAnisotropy_;
+				samplerCreateInfo.maxAnisotropy = 1.0;//1createInfo.maxAnisotropy_;
 				samplerCreateInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 				samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 				samplerCreateInfo.compareEnable = VK_FALSE;
@@ -40,7 +40,7 @@ namespace Render::Vulkan {
 				samplerCreateInfo.maxLod = static_cast<float>(createInfo.mipLevels_);
 				//samplerCreateInfo.flags = 0;
 				VkSampler sampler_ = VK_NULL_HANDLE;
-				VkCall(vkCreateSampler(*createInfo.LD_, &samplerCreateInfo, nullptr, &sampler_), 
+				VkCall(vkCreateSampler(*createInfo.LD_, &samplerCreateInfo, nullptr, &sampler_),
 					"Error while creating sampler.");
 				SetHandle(sampler_);
 			}
