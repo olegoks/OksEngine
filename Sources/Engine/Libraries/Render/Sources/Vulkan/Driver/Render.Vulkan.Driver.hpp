@@ -47,7 +47,7 @@ namespace Render::Vulkan {
 	private:
 		size_t currentFrame = 0;
 
-		const Common::Size framesInFlight = 3;
+		const Common::Size framesInFlight = 1;
 	
 	public:
 
@@ -1112,6 +1112,15 @@ namespace Render::Vulkan {
 
 			//for (Common::Index i = 0; i < framesInFlight; i++) {
 
+			if (objects_.frameContexts_.empty()) {
+				return;
+			}
+
+			std::shared_ptr<FrameContext> frameContext = objects_.frameContexts_[currentFrame];
+			auto image = GetNextImage(frameContext->imageAvailableSemaphore_);
+
+
+
 				CommandBuffer::CreateInfo commandBufferCreateInfo;
 				{
 					commandBufferCreateInfo.LD_ = objects_.LD_;
@@ -1212,7 +1221,7 @@ namespace Render::Vulkan {
 				}
 				commandBuffer->BeginRenderPass(
 					*render_->renderPasses_[0].renderPass_,
-					render_->renderPasses_[0].frameBuffers_[currentFrame]->GetHandle(),
+					render_->renderPasses_[0].frameBuffers_[image->index_]->GetHandle(),
 					objects_.swapChain_->GetExtent(),
 					clearValues);
 
@@ -1257,7 +1266,7 @@ namespace Render::Vulkan {
 				commandBuffer->EndRenderPass();
 				commandBuffer->BeginRenderPass(
 					*render_->renderPasses_[1].renderPass_,
-					render_->renderPasses_[1].frameBuffers_[currentFrame]->GetHandle(),
+					render_->renderPasses_[1].frameBuffers_[image->index_]->GetHandle(),
 					objects_.swapChain_->GetExtent(),
 					clearValues);
 				commandBuffer->BindPipeline(namePipeline_["Post-process"]);
@@ -1268,29 +1277,26 @@ namespace Render::Vulkan {
 
 				
 				objects_.commandBuffers_[currentFrame] = std::move(commandBuffer);
-
+				image->commandBuffer_ = objects_.commandBuffers_[currentFrame];
 				//objects_.commandBuffers_.push_back(commandBuffer);
 			//}
+
+				frameContext->SetImage(image);
+				frameContext->WaitForRenderToImageFinish();
+
+				frameContext->Render();
+				frameContext->ShowImage();
+
+				frameContext->WaitForQueueIdle();
+
+				currentFrame = (currentFrame + 1) % framesInFlight;
+
 
 		}
 
 		void Render() override {
 
-			if (objects_.frameContexts_.empty()) {
-				return;
-			}
 
-			std::shared_ptr<FrameContext> frameContext = objects_.frameContexts_[currentFrame];
-			auto image = GetNextImage(frameContext->imageAvailableSemaphore_);
-			frameContext->SetImage(image);
-			frameContext->WaitForRenderToImageFinish();
-
-			frameContext->Render();
-			frameContext->ShowImage();
-
-			frameContext->WaitForQueueIdle();
-
-			currentFrame = (currentFrame + 1) % framesInFlight;
 
 		}
 
