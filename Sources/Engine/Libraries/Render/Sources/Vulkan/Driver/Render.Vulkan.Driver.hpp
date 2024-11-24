@@ -826,10 +826,10 @@ namespace Render::Vulkan {
 				//https://www.saschawillems.de/blog/2016/08/13/vulkan-tutorial-on-rendering-a-fullscreen-quad-without-buffers
 				const char* vertexShaderCode =
 					"#version 450\n"
-					//"layout(location = 0) out vec2 outUV;\n"
+					"layout(location = 0) out vec2 outUV;\n"
 					"void main()\n"
 					"{\n"
-					"vec2 outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);\n"
+					"outUV = vec2((gl_VertexIndex << 1) & 2, gl_VertexIndex & 2);\n"
 					"gl_Position = vec4(outUV * 2.0f + -1.0f, 0.0f, 1.0f);\n"
 					"}";
 
@@ -846,10 +846,11 @@ namespace Render::Vulkan {
 				const char* fragmentShaderCode =
 					"#version 450\n"
 					"layout(set = 0, binding = 0) uniform sampler2D inputColor;\n"
+					"layout(location = 0) in vec2 inUV;\n"
 					"layout(location = 0) out vec4 outColor;\n"
 					"void main() {\n"
-					""
-					"outColor = texture(inputColor, gl_FragCoord.xy);\n"
+					"vec2 fragmentPos = gl_FragCoord.xy;\n"
+					"outColor = texture(inputColor, inUV);\n"
 					"}\n";
 
 				//"#version 450\n"
@@ -937,7 +938,7 @@ namespace Render::Vulkan {
 					.depthTestInfo_ = depthTestData,
 					.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
 					.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
-					.multisampleInfo_ = multisampleInfo,
+					.multisampleInfo_ = nullptr,//multisampleInfo,
 					.subpassIndex_ = 0,
 					.vertexInfo_ = nullptr,
 					.topology_ = ToVulkanType(RAL::Driver::TopologyType::TriangleList),
@@ -2422,8 +2423,8 @@ namespace Render::Vulkan {
 
 					RP::Subpass postProcessSubpassDesc{
 						.inputAttachments_ = { renderedAttachmentSubpass2Ref },
-						.colorAttachments_ = { multisampleAttachmentRef },
-						.resolveAttachment_ = std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
+						.colorAttachments_ = { swapChainAttachmentRef/*multisampleAttachmentRef*/ },
+						.resolveAttachment_ = nullptr,//std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
 						.depthStencilAttachment_ = nullptr
 					};
 
