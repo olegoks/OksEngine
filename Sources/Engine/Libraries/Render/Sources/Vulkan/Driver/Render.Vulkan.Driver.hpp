@@ -606,6 +606,7 @@ namespace Render::Vulkan {
 			RenderPacket::CreateInfo rpci{
 				.PD_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
+				.DP_ = objects_.DP_,
 				.swapChain_ = objects_.swapChain_,
 				.framesInFlight_ = framesInFlight
 			};
@@ -844,10 +845,11 @@ namespace Render::Vulkan {
 
 				const char* fragmentShaderCode =
 					"#version 450\n"
-					"layout(input_attachment_index = 0, binding = 0) uniform subpassInput inputColor;\n"
+					"layout(set = 0, binding = 0) uniform sampler2D inputColor;\n"
 					"layout(location = 0) out vec4 outColor;\n"
 					"void main() {\n"
-					"outColor = subpassLoad(inputColor);\n"
+					""
+					"outColor = texture(inputColor, gl_FragCoord.xy);\n"
 					"}\n";
 
 				//"#version 450\n"
@@ -906,38 +908,6 @@ namespace Render::Vulkan {
 				auto FS = std::make_shared<Shader>(FSCI);
 
 
-				VkDescriptorSetLayoutBinding inputAttachmentBinding{
-					0,
-					ToVulkanType(RAL::Driver::ShaderBinding::Type::InputAttachment),
-					1,
-					static_cast<VkFlags>(ToVulkanType(RAL::Driver::ShaderBinding::Stage::FragmentShader)),
-					nullptr
-				};
-				auto DSL = std::make_shared<DescriptorSetLayout>(
-					DescriptorSetLayout::CreateInfo{
-						"Rendered buffer",
-						objects_.LD_,
-						std::vector{ inputAttachmentBinding }
-					});
-
-				DS::CreateInfo DSCreateInfo;
-				{
-					DSCreateInfo.DP_ = objects_.DP_;
-					DSCreateInfo.DSL_ = DSL;
-					DSCreateInfo.LD_ = objects_.LD_;
-				}
-
-				auto ds = std::make_shared<DS>(DSCreateInfo);
-
-				ds->UpdateImageWriteConfiguration(
-					render_->gBufferInfo_->imageView_,
-					VkImageLayout::VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-					nullptr,
-					VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT,
-					0);
-
-				objects_.renderedBufferDS_ = ds;
-
 				std::shared_ptr<Vulkan::Pipeline::DepthTestInfo> depthTestData;
 				{
 					depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
@@ -955,7 +925,7 @@ namespace Render::Vulkan {
 					.LD_ = objects_.LD_,
 					.renderPass_ = render_->renderPasses_[1].renderPass_,
 					.pushConstants_ = {},
-					.descriptorSetLayouts_ = std::vector{ DSL },
+					.descriptorSetLayouts_ = std::vector{ render_->gBufferInfo_->dsl_ },
 					.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 						objects_.LD_,
 						VS->GetSpirv()
@@ -1270,7 +1240,7 @@ namespace Render::Vulkan {
 					objects_.swapChain_->GetExtent(),
 					clearValues);
 				commandBuffer->BindPipeline(namePipeline_["Post-process"]);
-				commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ objects_.renderedBufferDS_ });
+				commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ render_->gBufferInfo_->ds_ });
 				commandBuffer->Draw(3);
 				commandBuffer->EndRenderPass();
 				commandBuffer->End();
@@ -2116,6 +2086,9 @@ namespace Render::Vulkan {
 			struct GBufferInfo {
 				std::shared_ptr<Image> image_ = nullptr;
 				std::shared_ptr<ImageView> imageView_ = nullptr;
+				std::shared_ptr<Sampler> sampler_ = nullptr;
+				std::shared_ptr<DSL> dsl_ = nullptr;
+				std::shared_ptr<DS> ds_ = nullptr;
 			};
 
 
@@ -2137,6 +2110,7 @@ namespace Render::Vulkan {
 			struct CreateInfo {
 				std::shared_ptr<PhysicalDevice> PD_ = nullptr;
 				std::shared_ptr<LogicDevice> LD_ = nullptr;
+				std::shared_ptr<DescriptorPool> DP_ = nullptr;
 				std::shared_ptr<SwapChain> swapChain_ = nullptr;
 				Common::Size framesInFlight_ = 0;
 			};
@@ -2148,6 +2122,7 @@ namespace Render::Vulkan {
 
 					{
 						gBufferInfo_ = std::make_shared<GBufferInfo>();
+
 						Image::CreateInfo gBufferCreateInfo;
 						{
 							gBufferCreateInfo.physicalDevice_ = ci.PD_;
@@ -2156,11 +2131,60 @@ namespace Render::Vulkan {
 							gBufferCreateInfo.format_ = ci.swapChain_->GetFormat().format;
 							gBufferCreateInfo.size_ = ci.swapChain_->GetSize();
 							gBufferCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-							gBufferCreateInfo.usage_ = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-							gBufferCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
+							gBufferCreateInfo.usage_ = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+							gBufferCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;
 						}
+
 						gBufferInfo_->image_ = std::make_shared<AllocatedImage>(gBufferCreateInfo);
 						gBufferInfo_->imageView_ = CreateImageViewByImage(ci.LD_, gBufferInfo_->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+
+						Sampler::CreateInfo samplerCreateInfo;
+						{
+							samplerCreateInfo.LD_ = ci.LD_;
+							samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
+							samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
+							samplerCreateInfo.maxAnisotropy_ = 1.0;//ci.PD_->GetProperties().limits.maxSamplerAnisotropy;
+							samplerCreateInfo.mipLevels_ = 1;
+						}
+
+						auto sampler = std::make_shared<Sampler>(samplerCreateInfo);
+
+						gBufferInfo_->sampler_ = sampler;
+
+						VkDescriptorSetLayoutBinding inputAttachmentBinding{
+							0,
+							ToVulkanType(RAL::Driver::ShaderBinding::Type::Sampler),
+							1,
+							static_cast<VkFlags>(ToVulkanType(RAL::Driver::ShaderBinding::Stage::FragmentShader)),
+							nullptr
+						};
+
+						auto DSL = std::make_shared<DescriptorSetLayout>(
+							DescriptorSetLayout::CreateInfo{
+								"Rendered buffer",
+								ci.LD_,
+								std::vector{ inputAttachmentBinding }
+							});
+						gBufferInfo_->dsl_ = DSL;
+
+						DS::CreateInfo DSCreateInfo;
+						{
+							DSCreateInfo.DP_ = ci.DP_;
+							DSCreateInfo.DSL_ = DSL;
+							DSCreateInfo.LD_ = ci.LD_;
+						}
+
+						auto ds = std::make_shared<DS>(DSCreateInfo);
+
+						ds->UpdateImageWriteConfiguration(
+							gBufferInfo_->imageView_,
+							VkImageLayout::VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+							sampler,
+							VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+							0);
+
+						gBufferInfo_->ds_ = ds;
+
 					}
 				}
 
