@@ -938,7 +938,7 @@ namespace Render::Vulkan {
 					.depthTestInfo_ = depthTestData,
 					.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
 					.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
-					.multisampleInfo_ = nullptr,//multisampleInfo,
+					.multisampleInfo_ = multisampleInfo,
 					.subpassIndex_ = 0,
 					.vertexInfo_ = nullptr,
 					.topology_ = ToVulkanType(RAL::Driver::TopologyType::TriangleList),
@@ -2423,8 +2423,8 @@ namespace Render::Vulkan {
 
 					RP::Subpass postProcessSubpassDesc{
 						.inputAttachments_ = { renderedAttachmentSubpass2Ref },
-						.colorAttachments_ = { swapChainAttachmentRef/*multisampleAttachmentRef*/ },
-						.resolveAttachment_ = nullptr,//std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
+						.colorAttachments_ = { multisampleAttachmentRef },
+						.resolveAttachment_ = std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
 						.depthStencilAttachment_ = nullptr
 					};
 

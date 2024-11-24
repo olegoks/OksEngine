@@ -25,11 +25,11 @@ namespace Render::Vulkan {
 				samplerCreateInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
 				samplerCreateInfo.magFilter = createInfo.magFilter_;
 				samplerCreateInfo.minFilter = createInfo.minFilter_;
-				samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;//VK_SAMPLER_ADDRESS_MODE_REPEAT;
-				samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;//VK_SAMPLER_ADDRESS_MODE_REPEAT;
-				samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE;//VK_SAMPLER_ADDRESS_MODE_REPEAT;
+				samplerCreateInfo.addressModeU = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+				samplerCreateInfo.addressModeV = VK_SAMPLER_ADDRESS_MODE_REPEAT;
+				samplerCreateInfo.addressModeW = VK_SAMPLER_ADDRESS_MODE_REPEAT;
 				samplerCreateInfo.anisotropyEnable = VK_TRUE;
-				samplerCreateInfo.maxAnisotropy = 1.0;//1createInfo.maxAnisotropy_;
+				samplerCreateInfo.maxAnisotropy = createInfo.maxAnisotropy_;
 				samplerCreateInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
 				samplerCreateInfo.unnormalizedCoordinates = VK_FALSE;
 				samplerCreateInfo.compareEnable = VK_FALSE;
