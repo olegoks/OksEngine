@@ -48,7 +48,7 @@ namespace Render::Vulkan {
 		size_t currentFrame = 0;
 
 		const Common::Size framesInFlight = 1;
-	
+
 	public:
 
 		class ImageContext {
@@ -845,12 +845,35 @@ namespace Render::Vulkan {
 
 				const char* fragmentShaderCode =
 					"#version 450\n"
-					"layout(set = 0, binding = 0) uniform sampler2D inputColor;\n"
+					"layout(set = 0, binding = 0) uniform sampler2D samplerColor;\n"
 					"layout(location = 0) in vec2 inUV;\n"
 					"layout(location = 0) out vec4 outColor;\n"
 					"void main() {\n"
-					"vec2 fragmentPos = gl_FragCoord.xy;\n"
-					"outColor = texture(inputColor, inUV);\n"
+					"float weight[5];\n"
+					"weight[0] = 0.227027;\n"
+					"weight[1] = 0.1945946;\n"
+					"weight[2] = 0.1216216;\n"
+					"weight[3] = 0.054054;\n"
+					"weight[4] = 0.016216;\n"
+
+					"vec2 tex_offset = 1.0 / textureSize(samplerColor, 0) * 1.0; // gets size of single texel\n"
+					"vec3 result = texture(samplerColor, inUV).rgb * weight[0]; // current fragment's contribution\n"
+					"for (int i = 1; i < 5; ++i)\n"
+					"{\n"
+					"//if (blurdirection == 1)\n"
+					"{\n"
+					"// H\n"
+					"	result += texture(samplerColor, inUV + vec2(tex_offset.x * i, 0.0)).rgb * weight[i] * 0.5;\n"
+					"	result += texture(samplerColor, inUV - vec2(tex_offset.x * i, 0.0)).rgb * weight[i] * 0.5;\n"
+					"}\n"
+					"//else\n"
+					"//{\n"
+					"// V\n"
+					"//result += texture(samplerColor, inUV + vec2(0.0, tex_offset.y * i)).rgb * weight[i] * ubo.blurStrength;\n"
+					"//result += texture(samplerColor, inUV - vec2(0.0, tex_offset.y * i)).rgb * weight[i] * ubo.blurStrength;\n"
+					"//}\n"
+					"}\n"
+					"outColor = vec4(result, 1.0);\n"
 					"}\n";
 
 				//"#version 450\n"
@@ -1092,175 +1115,175 @@ namespace Render::Vulkan {
 
 
 
-				CommandBuffer::CreateInfo commandBufferCreateInfo;
-				{
-					commandBufferCreateInfo.LD_ = objects_.LD_;
-					commandBufferCreateInfo.commandPool_ = objects_.commandPool_;
-				}
-				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+			CommandBuffer::CreateInfo commandBufferCreateInfo;
+			{
+				commandBufferCreateInfo.LD_ = objects_.LD_;
+				commandBufferCreateInfo.commandPool_ = objects_.commandPool_;
+			}
+			auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
-				//commandBuffer->Begin();
-				//std::vector<VkClearValue> clearValues;
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
-				//const VkClearValue depthBufferClearColor{
-				//	.depthStencil = {
-				//		.depth = 1.f,
-				//		.stencil = 0
-				//	}
-				//};
-				//clearValues.push_back(depthBufferClearColor); // 1
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
+			//commandBuffer->Begin();
+			//std::vector<VkClearValue> clearValues;
+			//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
+			//const VkClearValue depthBufferClearColor{
+			//	.depthStencil = {
+			//		.depth = 1.f,
+			//		.stencil = 0
+			//	}
+			//};
+			//clearValues.push_back(depthBufferClearColor); // 1
+			//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
+			//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
 
-				//static VkClearValue clearValue;
-				//CommandBuffer::DepthBufferInfo depthBufferInfo;
-				//{
-				//	const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
-				//	depthBufferInfo.enable = enableDepthTest;
-				//	depthBufferInfo.clearValue_.depthStencil = {  };
-				//}
-				//commandBuffer->BeginRenderPass(
-				//	*objects_.renderPass_,
-				//	objects_.frameBuffers_[i]->GetHandle(),
-				//	objects_.swapChain_->GetExtent(),
-				//	clearValues);
-
-				//const VkViewport viewport{
-				//	.x = 0.f,
-				//	.y = 0.f,
-				//	.width = static_cast<float>(objects_.swapChain_->GetSize().x),
-				//	.height = static_cast<float>(objects_.swapChain_->GetSize().y),
-				//	.minDepth = 0.0f,
-				//	.maxDepth = 1.0f
-				//};
-				//commandBuffer->SetViewport(viewport);
-
-				//const VkRect2D scissor{
-				//	.offset = { 0, 0 },
-				//	.extent = objects_.swapChain_->GetExtent()
-				//};
-				//commandBuffer->SetScissor(scissor);
-
-				//for (auto& [id, mesh] : meshs_) {
-				//	commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
-				//	commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
-				//	commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
-				//	{
-				//		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-				//		for (auto& shaderBinding : mesh->GetShaderBindings()) {
-				//			if (shaderBinding.ds_ != nullptr) {
-				//				descriptorSets.push_back(shaderBinding.ds_);
-				//				OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
-				//				continue;
-				//			}
-				//			if (!shaderBinding.textureId_.IsInvalid()) {
-				//				OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
-				//				const auto texture = GetTextureById(shaderBinding.textureId_);
-				//				descriptorSets.push_back(texture->GetDS());
-				//			}
-				//		}
-				//		commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
-				//	}
-				//	commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
-				//}
-				//commandBuffer->NextSubpass();
-				//commandBuffer->BindPipeline(namePipeline_["Post-process"]);
-				//commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ objects_.renderedBufferDS_ });
-				//commandBuffer->Draw(3);
-				//commandBuffer->EndRenderPass();
-				//commandBuffer->End();
-
-				commandBuffer->Begin();
-				std::vector<VkClearValue> clearValues;
-				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
-				const VkClearValue depthBufferClearColor{
-					.depthStencil = {
-						.depth = 1.f,
-						.stencil = 0
-					}
-				};
-				clearValues.push_back(depthBufferClearColor); // 1
-				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
-				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
-
-				static VkClearValue clearValue;
-				CommandBuffer::DepthBufferInfo depthBufferInfo;
-				{
-					const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
-					depthBufferInfo.enable = enableDepthTest;
-					depthBufferInfo.clearValue_.depthStencil = {  };
-				}
-				commandBuffer->BeginRenderPass(
-					*render_->renderPasses_[0].renderPass_,
-					render_->renderPasses_[0].frameBuffers_[image->index_]->GetHandle(),
-					objects_.swapChain_->GetExtent(),
-					clearValues);
-
-				const VkViewport viewport{
-					.x = 0.f,
-					.y = 0.f,
-					.width = static_cast<float>(objects_.swapChain_->GetSize().x),
-					.height = static_cast<float>(objects_.swapChain_->GetSize().y),
-					.minDepth = 0.0f,
-					.maxDepth = 1.0f
-				};
-				commandBuffer->SetViewport(viewport);
-
-				const VkRect2D scissor{
-					.offset = { 0, 0 },
-					.extent = objects_.swapChain_->GetExtent()
-				};
-				commandBuffer->SetScissor(scissor);
-
-				for (auto& [id, mesh] : meshs_) {
-					commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
-					commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
-					commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
-					{
-						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-						for (auto& shaderBinding : mesh->GetShaderBindings()) {
-							if (shaderBinding.ds_ != nullptr) {
-								descriptorSets.push_back(shaderBinding.ds_);
-								OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
-								continue;
-							}
-							if (!shaderBinding.textureId_.IsInvalid()) {
-								OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
-								const auto texture = GetTextureById(shaderBinding.textureId_);
-								descriptorSets.push_back(texture->GetDS());
-							}
-						}
-						commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
-					}
-					commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
-				}
-				commandBuffer->EndRenderPass();
-				commandBuffer->BeginRenderPass(
-					*render_->renderPasses_[1].renderPass_,
-					render_->renderPasses_[1].frameBuffers_[image->index_]->GetHandle(),
-					objects_.swapChain_->GetExtent(),
-					clearValues);
-				commandBuffer->BindPipeline(namePipeline_["Post-process"]);
-				commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ render_->gBufferInfo_->ds_ });
-				commandBuffer->Draw(3);
-				commandBuffer->EndRenderPass();
-				commandBuffer->End();
-
-				
-				objects_.commandBuffers_[currentFrame] = std::move(commandBuffer);
-				image->commandBuffer_ = objects_.commandBuffers_[currentFrame];
-				//objects_.commandBuffers_.push_back(commandBuffer);
+			//static VkClearValue clearValue;
+			//CommandBuffer::DepthBufferInfo depthBufferInfo;
+			//{
+			//	const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
+			//	depthBufferInfo.enable = enableDepthTest;
+			//	depthBufferInfo.clearValue_.depthStencil = {  };
 			//}
+			//commandBuffer->BeginRenderPass(
+			//	*objects_.renderPass_,
+			//	objects_.frameBuffers_[i]->GetHandle(),
+			//	objects_.swapChain_->GetExtent(),
+			//	clearValues);
 
-				frameContext->SetImage(image);
-				frameContext->WaitForRenderToImageFinish();
+			//const VkViewport viewport{
+			//	.x = 0.f,
+			//	.y = 0.f,
+			//	.width = static_cast<float>(objects_.swapChain_->GetSize().x),
+			//	.height = static_cast<float>(objects_.swapChain_->GetSize().y),
+			//	.minDepth = 0.0f,
+			//	.maxDepth = 1.0f
+			//};
+			//commandBuffer->SetViewport(viewport);
 
-				frameContext->Render();
-				frameContext->ShowImage();
+			//const VkRect2D scissor{
+			//	.offset = { 0, 0 },
+			//	.extent = objects_.swapChain_->GetExtent()
+			//};
+			//commandBuffer->SetScissor(scissor);
 
-				frameContext->WaitForQueueIdle();
+			//for (auto& [id, mesh] : meshs_) {
+			//	commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
+			//	commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
+			//	commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
+			//	{
+			//		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+			//		for (auto& shaderBinding : mesh->GetShaderBindings()) {
+			//			if (shaderBinding.ds_ != nullptr) {
+			//				descriptorSets.push_back(shaderBinding.ds_);
+			//				OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
+			//				continue;
+			//			}
+			//			if (!shaderBinding.textureId_.IsInvalid()) {
+			//				OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
+			//				const auto texture = GetTextureById(shaderBinding.textureId_);
+			//				descriptorSets.push_back(texture->GetDS());
+			//			}
+			//		}
+			//		commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
+			//	}
+			//	commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
+			//}
+			//commandBuffer->NextSubpass();
+			//commandBuffer->BindPipeline(namePipeline_["Post-process"]);
+			//commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ objects_.renderedBufferDS_ });
+			//commandBuffer->Draw(3);
+			//commandBuffer->EndRenderPass();
+			//commandBuffer->End();
 
-				currentFrame = (currentFrame + 1) % framesInFlight;
+			commandBuffer->Begin();
+			std::vector<VkClearValue> clearValues;
+			clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
+			const VkClearValue depthBufferClearColor{
+				.depthStencil = {
+					.depth = 1.f,
+					.stencil = 0
+				}
+			};
+			clearValues.push_back(depthBufferClearColor); // 1
+			clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
+			clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
+
+			static VkClearValue clearValue;
+			CommandBuffer::DepthBufferInfo depthBufferInfo;
+			{
+				const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
+				depthBufferInfo.enable = enableDepthTest;
+				depthBufferInfo.clearValue_.depthStencil = {  };
+			}
+			commandBuffer->BeginRenderPass(
+				*render_->renderPasses_[0].renderPass_,
+				render_->renderPasses_[0].frameBuffers_[image->index_]->GetHandle(),
+				objects_.swapChain_->GetExtent(),
+				clearValues);
+
+			const VkViewport viewport{
+				.x = 0.f,
+				.y = 0.f,
+				.width = static_cast<float>(objects_.swapChain_->GetSize().x),
+				.height = static_cast<float>(objects_.swapChain_->GetSize().y),
+				.minDepth = 0.0f,
+				.maxDepth = 1.0f
+			};
+			commandBuffer->SetViewport(viewport);
+
+			const VkRect2D scissor{
+				.offset = { 0, 0 },
+				.extent = objects_.swapChain_->GetExtent()
+			};
+			commandBuffer->SetScissor(scissor);
+
+			for (auto& [id, mesh] : meshs_) {
+				commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
+				commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
+				commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
+				{
+					std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+					for (auto& shaderBinding : mesh->GetShaderBindings()) {
+						if (shaderBinding.ds_ != nullptr) {
+							descriptorSets.push_back(shaderBinding.ds_);
+							OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
+							continue;
+						}
+						if (!shaderBinding.textureId_.IsInvalid()) {
+							OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
+							const auto texture = GetTextureById(shaderBinding.textureId_);
+							descriptorSets.push_back(texture->GetDS());
+						}
+					}
+					commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
+				}
+				commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
+			}
+			commandBuffer->EndRenderPass();
+			commandBuffer->BeginRenderPass(
+				*render_->renderPasses_[1].renderPass_,
+				render_->renderPasses_[1].frameBuffers_[image->index_]->GetHandle(),
+				objects_.swapChain_->GetExtent(),
+				clearValues);
+			commandBuffer->BindPipeline(namePipeline_["Post-process"]);
+			commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ render_->gBufferInfo_->ds_ });
+			commandBuffer->Draw(3);
+			commandBuffer->EndRenderPass();
+			commandBuffer->End();
+
+
+			objects_.commandBuffers_[currentFrame] = std::move(commandBuffer);
+			image->commandBuffer_ = objects_.commandBuffers_[currentFrame];
+			//objects_.commandBuffers_.push_back(commandBuffer);
+		//}
+
+			frameContext->SetImage(image);
+			frameContext->WaitForRenderToImageFinish();
+
+			frameContext->Render();
+			frameContext->ShowImage();
+
+			frameContext->WaitForQueueIdle();
+
+			currentFrame = (currentFrame + 1) % framesInFlight;
 
 
 		}
@@ -2103,7 +2126,7 @@ namespace Render::Vulkan {
 				};
 				std::shared_ptr<MultisamplingData> multisamplingData_ = nullptr;
 				std::shared_ptr<DepthTestData> depthStencilData_ = nullptr;
-				
+
 				std::vector<std::shared_ptr<FrameBuffer>> frameBuffers_;
 				std::shared_ptr<RenderPass2> renderPass_ = nullptr;
 			};
