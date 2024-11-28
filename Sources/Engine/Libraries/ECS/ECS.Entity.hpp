@@ -31,50 +31,50 @@ namespace ECS {
 
 			template<class ComponentType>
 			Filter& Include() {
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				const ComponentTypeId typeId = ComponentType::GetTypeId();
 				includes_.set(typeId);
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
-				debugInfo_.idName_[typeId] = ComponentType::GetName();
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//debugInfo_.idName_[typeId] = ComponentType::GetName();
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& DeleteInclude() {
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				includes_.reset(ComponentType::GetTypeId());
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
-				debugInfo_.idName_.erase(ComponentType::GetTypeId());
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//debugInfo_.idName_.erase(ComponentType::GetTypeId());
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& Exclude() {
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				const ComponentTypeId typeId = ComponentType::GetTypeId();
 				excludes_.set(typeId);
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				return *this;
 			}
 
 			Filter& ExcludeAll() {
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				excludes_.set();
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				return *this;
 			}
 
 			template<class ComponentType>
 			Filter& DeleteExclude() {
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				excludes_.reset(ComponentType::GetTypeId());
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				return *this;
 			}
 
 			[[nodiscard]]
 			bool operator==(const Filter& filter) const noexcept {
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				if (this == &filter) { return true; }
 				return (includes_ == filter.includes_) && (excludes_ == filter.excludes_);
 			}

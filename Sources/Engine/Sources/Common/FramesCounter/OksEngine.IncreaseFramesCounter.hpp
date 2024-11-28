@@ -19,7 +19,8 @@ namespace OksEngine {
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<FramesCounter>().Include<Counter>(), ECS::Entity::Filter{}.ExcludeAll()};
+			static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<FramesCounter>().Include<Counter>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return filter;
 		}
 		[[nodiscard]]
 		std::string GetName() const noexcept override {

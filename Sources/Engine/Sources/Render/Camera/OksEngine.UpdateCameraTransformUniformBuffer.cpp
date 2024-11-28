@@ -43,7 +43,8 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateCameraTransformUniformBuffer::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<Camera>().Include<Position>().Include<UniformBuffer>(), ECS::Entity::Filter{}.ExcludeAll() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Camera>().Include<Position>().Include<UniformBuffer>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId UpdateCameraTransformUniformBuffer::GetTypeId() const noexcept {

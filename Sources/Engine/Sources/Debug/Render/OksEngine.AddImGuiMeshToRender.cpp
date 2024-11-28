@@ -103,7 +103,7 @@ namespace OksEngine {
 
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> AddImGuiMeshToRender::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
 			.Include<Mesh2>()
 			.Include<Position2D>()
 			.Include<Scale2D>()
@@ -116,6 +116,7 @@ namespace OksEngine {
 			.Include<DriverVertexBuffer>()
 			.Exclude<DriverMesh>()
 			, ECS::Entity::Filter{}.Include<Camera>().Include<UniformBuffer>() };
+		return filter;
 	}
 
 	Common::TypeId AddImGuiMeshToRender::GetTypeId() const noexcept {

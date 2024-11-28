@@ -41,7 +41,7 @@ namespace OksEngine {
 			//};
 			//auto* position2D = world->GetComponent<Position2D>(entityId);
 			//auto* scale2D = world->GetComponent<Scale2D>(entityId);
-
+			world->CreateComponent<MutableMesh>(meshEntityId);
 			world->CreateComponent<Position2D>(meshEntityId, translate.x, translate.y);
 			world->CreateComponent<Scale2D>(meshEntityId, scale.x, scale.y);
 
@@ -105,9 +105,10 @@ namespace OksEngine {
 
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateImGUIModel::GetFilter() const noexcept {
-		return {
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}.Include<ImGuiState>().Exclude<ModelEntity>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 	Common::TypeId CreateImGUIModel::GetTypeId() const noexcept {
 		return Common::TypeInfo<CreateImGUIModel>().GetId();

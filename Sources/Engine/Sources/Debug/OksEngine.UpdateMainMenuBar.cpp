@@ -27,7 +27,8 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateMainMenuBar::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<MainMenuBar>(), ECS::Entity::Filter{}.ExcludeAll() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<MainMenuBar>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId UpdateMainMenuBar::GetTypeId() const noexcept {

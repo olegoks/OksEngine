@@ -36,7 +36,8 @@ namespace OksEngine {
 		}
 
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Behaviour>(), ECS::Entity::Filter{}.ExcludeAll() };
+			static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Behaviour>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return filter;
 		}
 
 		[[nodiscard]]

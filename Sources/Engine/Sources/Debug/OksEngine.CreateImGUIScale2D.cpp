@@ -25,11 +25,12 @@ namespace OksEngine {
 
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateImGUIScale2D::GetFilter() const noexcept {
-		return {
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
 			.Include<ImGuiState>()
 			.Exclude<Scale2D>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 	Common::TypeId CreateImGUIScale2D::GetTypeId() const noexcept {
 		return Common::TypeInfo<CreateImGUIScale2D>().GetId();

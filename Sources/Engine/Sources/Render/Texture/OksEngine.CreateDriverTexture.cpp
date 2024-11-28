@@ -33,11 +33,12 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateDriverTexture::GetFilter() const noexcept {
-
-		return { ECS::Entity::Filter{}
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
 			.Include<TextureInfo>()
 			.Include<Texture>()
 			.Exclude<DriverTexture>(), ECS::Entity::Filter{}.ExcludeAll() };
+
+		return filter;
 	}
 
 	Common::TypeId CreateDriverTexture::GetTypeId() const noexcept {

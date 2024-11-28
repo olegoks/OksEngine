@@ -101,7 +101,7 @@ namespace OksEngine {
 
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> AddMeshToRender::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
 			.Include<Mesh2>()
 			.Include<Position>()
 			.Include<Rotation>()
@@ -109,12 +109,13 @@ namespace OksEngine {
 			.Include<Vertices3D>()
 			.Include<Indices>()
 			.Include<UVs>()
-			.Include<Normals> ()
+			.Include<Normals>()
 			.Include<DriverTexture>()
 			.Include<DriverIndexBuffer>()
 			.Include<DriverVertexBuffer>()
 			.Exclude<DriverMesh>()
-			, ECS::Entity::Filter{}.Include<Camera>().Include<UniformBuffer>()};
+			, ECS::Entity::Filter{}.Include<Camera>().Include<UniformBuffer>() };
+		return filter;
 	}
 
 	Common::TypeId AddMeshToRender::GetTypeId() const noexcept {

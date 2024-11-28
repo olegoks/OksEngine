@@ -115,9 +115,10 @@ namespace OksEngine {
 		meshColors->colors_ = std::move(colors);
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateImGUIRenderData::GetFilter() const noexcept {
-		return {
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}.Include<ImGuiState>().Include<ModelEntity>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 	  
 	Common::TypeId UpdateImGUIRenderData::GetTypeId() const noexcept {

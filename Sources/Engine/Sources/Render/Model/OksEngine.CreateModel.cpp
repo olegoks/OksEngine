@@ -65,12 +65,13 @@ namespace OksEngine {
 
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateModelEntityFromObjMtl::GetFilter() const noexcept {
-		return { 
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
 			.Include<ObjEntity>()
 			.Include<MtlEntity>()
 			.Exclude<ModelEntity>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 	Common::TypeId CreateModelEntityFromObjMtl::GetTypeId() const noexcept {
 		return Common::TypeInfo<CreateModelEntityFromObjMtl>().GetId();

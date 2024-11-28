@@ -27,16 +27,18 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> WaitForResourceLoading::GetFilter() const noexcept {
-		return {
-			ECS::Entity::Filter{}
-			.Include<LoadResourceRequest>()
-			.Include<Name>()
-			.Include<WaitingForResourceLoading>()
-			.Exclude<ResourceEntity>(),
-			ECS::Entity::Filter{}
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter =
+		{
+		ECS::Entity::Filter{}
+		.Include<LoadResourceRequest>()
 		.Include<Name>()
-			.Include<Resource>()
-		.Include<BinaryData>() };
+		.Include<WaitingForResourceLoading>()
+		.Exclude<ResourceEntity>(),
+		ECS::Entity::Filter{}
+	.Include<Name>()
+		.Include<Resource>()
+	.Include<BinaryData>() };
+		return filter;
 	}
 
 	Common::TypeId WaitForResourceLoading::GetTypeId() const noexcept {

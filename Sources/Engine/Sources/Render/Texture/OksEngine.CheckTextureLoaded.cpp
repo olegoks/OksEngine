@@ -32,14 +32,16 @@ namespace OksEngine {
 	}
 
 	inline std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CheckTextureLoaded::GetFilter() const noexcept {
-		return { 
-			ECS::Entity::Filter{}
-			.Include<TextureInfo>()
-			.Include<LoadTextureRequest>()
-			.Exclude<Texture>(), 
-			ECS::Entity::Filter{}
-			.Include<LoadResourceRequest>()
-			.Include<Resource>() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter =
+		{
+		ECS::Entity::Filter{}
+		.Include<TextureInfo>()
+		.Include<LoadTextureRequest>()
+		.Exclude<Texture>(),
+		ECS::Entity::Filter{}
+		.Include<LoadResourceRequest>()
+		.Include<Resource>() };
+		return filter;
 	}
 
 	inline Common::TypeId CheckTextureLoaded::GetTypeId() const noexcept {

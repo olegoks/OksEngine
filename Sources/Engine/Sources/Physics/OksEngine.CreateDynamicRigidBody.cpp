@@ -35,13 +35,14 @@ namespace OksEngine {
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateDynamicRigidBody::GetFilter() const noexcept
 	{
-		return { ECS::Entity::Filter{}
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
 			.Include<Position>()
 			.Include<Material>()
 			.Include<Mass>()
 			.Include<PhysicsShape>()
 			.Include<DynamicRigidBodyCustomMeshShape>()
 			.Exclude<DynamicRigidBody>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId CreateDynamicRigidBody::GetTypeId() const noexcept {

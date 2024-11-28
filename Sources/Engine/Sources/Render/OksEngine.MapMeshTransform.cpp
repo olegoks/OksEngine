@@ -29,9 +29,13 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> MapMeshTransform::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}
-		.Include<Position>()
-		.Include<ModelEntity>(), ECS::Entity::Filter{}.ExcludeAll() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = 
+		{ ECS::Entity::Filter{}
+			.Include<Position>()
+			.Include<ModelEntity>(),
+			ECS::Entity::Filter{}.ExcludeAll() };
+
+		return filter;
 
 	}
 

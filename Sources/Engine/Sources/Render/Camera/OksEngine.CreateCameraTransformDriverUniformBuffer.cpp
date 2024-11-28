@@ -26,7 +26,8 @@ namespace OksEngine {
 	}
 
 	inline std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateDriverCameraTransformDriverUniformBuffer::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<Camera>().Exclude<UniformBuffer>(), ECS::Entity::Filter{}.ExcludeAll() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Camera>().Exclude<UniformBuffer>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	inline Common::TypeId CreateDriverCameraTransformDriverUniformBuffer::GetTypeId() const noexcept {

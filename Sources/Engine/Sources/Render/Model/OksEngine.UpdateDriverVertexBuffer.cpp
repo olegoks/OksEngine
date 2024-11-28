@@ -35,13 +35,14 @@ namespace OksEngine {
 
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateDriverVertexBuffer::GetFilter() const noexcept {
-		return {
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
 			.Include<Vertices2D>()
 			.Include<Indices>()
 			.Include<UVs>()
 			.Include<DriverVertexBuffer>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 	Common::TypeId UpdateDriverVertexBuffer::GetTypeId() const noexcept {
 		return Common::TypeInfo<UpdateDriverVertexBuffer>().GetId();
