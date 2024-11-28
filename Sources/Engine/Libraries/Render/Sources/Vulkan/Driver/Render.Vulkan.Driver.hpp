@@ -615,212 +615,6 @@ namespace Render::Vulkan {
 
 			objects_.commandBuffers_.resize(framesInFlight, nullptr);
 
-			////DEPTH BUFFER
-			//{
-			//	auto depthTestData = std::make_shared<DepthTestData>();
-			//	{
-			//		Image::CreateInfo depthImageCreateInfo;
-			//		{
-			//			depthImageCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//			depthImageCreateInfo.LD_ = objects_.LD_;
-			//			depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
-			//			depthImageCreateInfo.size_ = objects_.swapChain_->GetSize();
-			//			depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-			//			depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-			//			depthImageCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;/*objects_.physicalDevice_->GetMaxUsableSampleCount();*/
-			//		}
-			//		depthTestData->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
-			//		depthTestData->imageView_ = CreateImageViewByImage(objects_.LD_, depthTestData->image_, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
-			//	}
-			//	objects_.depthTestData_ = depthTestData;
-			//	//}
-			//}
-
-
-			////Rendered buffer
-			//{
-
-			//	{
-			//		Image::CreateInfo multisamplingCreateInfo;
-			//		{
-			//			multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//			multisamplingCreateInfo.LD_ = objects_.LD_;
-			//			multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
-			//			multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
-			//			multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-			//			multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-			//			multisamplingCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
-			//		}
-			//		objects_.renderedBufferImage_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-			//		objects_.renderedBufferImageView_ = CreateImageViewByImage(objects_.LD_, objects_.renderedBufferImage_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-			//	}
-			//}
-
-			////Multisampling
-			//{
-			//	auto multisamplingData = std::make_shared<MultisamplingData>();
-			//	{
-			//		Image::CreateInfo multisamplingCreateInfo;
-			//		{
-			//			multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//			multisamplingCreateInfo.LD_ = objects_.LD_;
-			//			multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
-			//			multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
-			//			multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-			//			multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-			//			multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
-			//		}
-			//		multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-			//		multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-			//	}
-			//	objects_.multisamplingData_ = multisamplingData;
-			//}
-
-			//{
-
-			//	RP::Attachment multisampleAttachment{
-			//		.format = objects_.multisamplingData_->image_->GetFormat(),
-			//		.samples = objects_.physicalDevice_->GetMaxUsableSampleCount(),
-			//		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-			//		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-			//		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-			//		.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-			//	};
-
-			//	VkAttachmentReference multisampleAttachmentRef{
-			//		.attachment = 0,
-			//		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-			//	};
-
-			//	//Depth attachment
-			//	RP::Attachment depthAttachment{
-			//		.format = objects_.depthTestData_->image_->GetFormat(),
-			//		.samples = VK_SAMPLE_COUNT_1_BIT,
-			//		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-			//		.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-			//		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-			//		.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-			//	};
-			//	VkAttachmentReference depthAttachmentRef{
-			//		.attachment = 1,
-			//		.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-			//	};
-
-
-
-			//	//swap chain
-			//	RP::Attachment swapChainAttachment{
-			//		.format = objects_.swapChain_->GetFormat().format,
-			//		.samples = VK_SAMPLE_COUNT_1_BIT,
-			//		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-			//		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-			//		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-			//		.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-			//	};
-			//	VkAttachmentReference swapChainAttachmentRef{
-			//		.attachment = 2,
-			//		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-			//	};
-
-			//	//Rendered buffer
-			//	RP::Attachment renderedAttachment{
-			//		.format = objects_.swapChain_->GetFormat().format,
-			//		.samples = VK_SAMPLE_COUNT_1_BIT,
-			//		.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-			//		.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-			//		.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-			//		.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-			//	};
-
-			//	VkAttachmentReference renderedAttachmentRef{
-			//		.attachment = 3,
-			//		.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-			//	};
-
-			//	VkAttachmentReference renderedAttachmentSubpass2Ref{
-			//		.attachment = 3,
-			//		.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-			//	};
-
-			//	RP::Subpass::Dependency inExternalDependency{
-			//		.srcSubpass_ = VK_SUBPASS_EXTERNAL,
-			//		.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-			//		.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-			//		.dstSubpass_ = 0,
-			//		.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-			//		.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
-			//	};
-
-			//	RP::Subpass::Dependency postProcessSubpassDependency_{
-			//		.srcSubpass_ = 0,
-			//		.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-			//		.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-			//		.dstSubpass_ = 1,
-			//		.dstStageMask_ = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT,
-			//		.dstAccessMask_ = VK_ACCESS_INPUT_ATTACHMENT_READ_BIT
-			//	};
-
-			//	RP::Subpass::Dependency outExternalDependency{
-			//		.srcSubpass_ = 1,
-			//		.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-			//		.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-			//		.dstSubpass_ = VK_SUBPASS_EXTERNAL,
-			//		.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-			//		.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
-			//	};
-
-
-			//	RP::Subpass renderSubpassDesc{
-			//		.inputAttachments_ = {  },
-			//		.colorAttachments_ = { renderedAttachmentRef },
-			//		.resolveAttachment_ = {  },
-			//		.depthStencilAttachment_ = std::make_shared<VkAttachmentReference>(depthAttachmentRef)
-			//	};
-
-
-			//	RP::Subpass postProcessSubpassDesc{
-			//		.inputAttachments_ = { renderedAttachmentSubpass2Ref },
-			//		.colorAttachments_ = { multisampleAttachmentRef },
-			//		.resolveAttachment_ = std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
-			//		.depthStencilAttachment_ = nullptr
-			//	};
-
-			//	RenderPass2::CreateInfo rp2ci{
-			//		.name_ = "Main pass",
-			//		.LD_ = objects_.LD_,
-			//		.attachments_ = {
-			//			multisampleAttachment,
-			//			depthAttachment,
-			//			swapChainAttachment,
-			//			renderedAttachment
-			//		},
-			//		.subpasses_ = {
-			//			renderSubpassDesc,
-			//			postProcessSubpassDesc
-			//		},
-			//		.dependencies_ = {
-			//			inExternalDependency,
-			//			postProcessSubpassDependency_,
-			//			outExternalDependency
-			//		},
-
-			//	};
-
-			//	objects_.renderPass_ = std::make_shared<RenderPass2>(rp2ci);
-
-			//}
-
-			/*RenderPass::CreateInfo RPCreateInfo{};
-			{
-				RPCreateInfo.LD_ = objects_.LD_;
-				RPCreateInfo.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format;
-				auto depthTestInfo = std::make_shared<RenderPass::DepthTestInfo>();
-				depthTestInfo->depthStencilBufferFormat_ = objects_.depthTestData_->image_->GetFormat();
-				RPCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
-				RPCreateInfo.depthTestInfo_ = depthTestInfo;
-			}*/
-			//objects_.renderPass_ = std::make_shared<RenderPass>(RPCreateInfo);
-
 			//Post-effects subpass pipeline
 			{
 				//https://www.saschawillems.de/blog/2016/08/13/vulkan-tutorial-on-rendering-a-fullscreen-quad-without-buffers
@@ -876,52 +670,6 @@ namespace Render::Vulkan {
 					"outColor = vec4(result, 1.0);\n"
 					"}\n";
 
-				//"#version 450\n"
-
-				//"layout(input_attachment_index = 0, binding = 0) uniform subpassInput samplerColor;\n"
-
-				///*"layout(binding = 0) uniform UBO\n"
-				//"{\n"
-				//"float blurScale;\n"
-				//"float blurStrength;\n"
-				//"} ubo;\n"*/
-
-				////"layout(constant_id = 0) const int blurdirection = 0;\n"
-
-				//"layout(location = 0) in vec2 inUV;\n"
-
-				//"layout(location = 0) out vec4 outFragColor;\n"
-
-				//"void main()\n"
-				//"{\n"
-				//"float weight[5];\n"
-				//"weight[0] = 0.227027;\n"
-				//"weight[1] = 0.1945946;\n"
-				//"weight[2] = 0.1216216;\n"
-				//"weight[3] = 0.054054;\n"
-				//"weight[4] = 0.016216;\n"
-
-				//"vec2 tex_offset = 1.0 / vec2(1280, 720) * 1.0; // gets size of single texel\n"
-				//"vec3 result = subpassLoad(samplerColor, inUV).rgb * weight[0]; // current fragment's contribution\n"
-				//"for (int i = 1; i < 5; ++i)\n"
-				//"{\n"
-				////"if (blurdirection == 1)\n"
-				////"{\n"
-				//	// H
-				//"result += texture(samplerColor, inUV + vec2(tex_offset.x * i, 0.0)).rgb * weight[i] * 1.5;\n"
-				//"result += texture(samplerColor, inUV - vec2(tex_offset.x * i, 0.0)).rgb * weight[i] * 1.5;\n"
-				////"}\n"
-				////"else\n"
-				////"{\n"
-				//	// V
-				////"result += texture(samplerColor, inUV + vec2(0.0, tex_offset.y * i)).rgb * weight[i] * ubo.blurStrength;\n"
-				////"result += texture(samplerColor, inUV - vec2(0.0, tex_offset.y * i)).rgb * weight[i] * ubo.blurStrength;\n"
-				////"}\n"
-				//"}\n"
-				//"outFragColor = vec4(result, 1.0);\n"
-				//"}";
-
-
 				Shader::CreateInfo FSCI{
 					.ralCreateInfo_ = RAL::Shader::CreateInfo{
 						.name_ = "Post effect fragment shader",
@@ -973,7 +721,6 @@ namespace Render::Vulkan {
 				namePipeline_["Post-process"] = std::make_shared<Vulkan::Pipeline>(createInfo);
 			}
 
-
 			for (const auto& [name, pipeline] : info.namePipelineDescriptions_) {
 
 				std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
@@ -1023,7 +770,7 @@ namespace Render::Vulkan {
 				Vulkan::Pipeline::CreateInfo createInfo{
 					.physicalDevice_ = objects_.physicalDevice_,
 					.LD_ = objects_.LD_,
-					.renderPass_ = render_->renderPasses_[0].renderPass_,//objects_.renderPass_,
+					.renderPass_ = (name != "ImGui Pipeline") ? (render_->renderPasses_[0].renderPass_) : (render_->renderPasses_[2].renderPass_),//objects_.renderPass_,
 					.pushConstants_ = {},
 					.descriptorSetLayouts_ = DSLs,
 					.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
@@ -1048,28 +795,7 @@ namespace Render::Vulkan {
 				namePipeline_[pipeline.name_] = std::make_shared<Vulkan::Pipeline>(createInfo);
 			}
 
-			//{
-			//	VkExtent2D extent = objects_.swapChain_->GetExtent();
-			//	for (const auto& imageView : objects_.swapChain_->GetImageViews()) {
-			//		FrameBuffer::CreateInfo createInfo;
-			//		{
-			//			createInfo.LD_ = objects_.LD_;
-			//			createInfo.attachments_.push_back(objects_.multisamplingData_->imageView_);
-			//			createInfo.attachments_.push_back(objects_.depthTestData_->imageView_);
-			//			createInfo.attachments_.push_back(imageView);
 
-
-			//			createInfo.attachments_.push_back(objects_.renderedBufferImageView_);
-
-
-			//			createInfo.extent_ = extent;
-			//			createInfo.renderPass_ = objects_.renderPass_;
-			//		}
-			//		auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
-			//		objects_.frameBuffers_.push_back(frameBuffer);
-			//	}
-			//	OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
-			//}
 
 			for (Common::Index i = 0; i < objects_.swapChain_->GetImages().size(); i++) {
 
@@ -1122,169 +848,160 @@ namespace Render::Vulkan {
 			}
 			auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
-			//commandBuffer->Begin();
-			//std::vector<VkClearValue> clearValues;
-			//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
-			//const VkClearValue depthBufferClearColor{
-			//	.depthStencil = {
-			//		.depth = 1.f,
-			//		.stencil = 0
-			//	}
-			//};
-			//clearValues.push_back(depthBufferClearColor); // 1
-			//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
-			//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
-
-			//static VkClearValue clearValue;
-			//CommandBuffer::DepthBufferInfo depthBufferInfo;
-			//{
-			//	const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
-			//	depthBufferInfo.enable = enableDepthTest;
-			//	depthBufferInfo.clearValue_.depthStencil = {  };
-			//}
-			//commandBuffer->BeginRenderPass(
-			//	*objects_.renderPass_,
-			//	objects_.frameBuffers_[i]->GetHandle(),
-			//	objects_.swapChain_->GetExtent(),
-			//	clearValues);
-
-			//const VkViewport viewport{
-			//	.x = 0.f,
-			//	.y = 0.f,
-			//	.width = static_cast<float>(objects_.swapChain_->GetSize().x),
-			//	.height = static_cast<float>(objects_.swapChain_->GetSize().y),
-			//	.minDepth = 0.0f,
-			//	.maxDepth = 1.0f
-			//};
-			//commandBuffer->SetViewport(viewport);
-
-			//const VkRect2D scissor{
-			//	.offset = { 0, 0 },
-			//	.extent = objects_.swapChain_->GetExtent()
-			//};
-			//commandBuffer->SetScissor(scissor);
-
-			//for (auto& [id, mesh] : meshs_) {
-			//	commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
-			//	commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
-			//	commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
-			//	{
-			//		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-			//		for (auto& shaderBinding : mesh->GetShaderBindings()) {
-			//			if (shaderBinding.ds_ != nullptr) {
-			//				descriptorSets.push_back(shaderBinding.ds_);
-			//				OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
-			//				continue;
-			//			}
-			//			if (!shaderBinding.textureId_.IsInvalid()) {
-			//				OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
-			//				const auto texture = GetTextureById(shaderBinding.textureId_);
-			//				descriptorSets.push_back(texture->GetDS());
-			//			}
-			//		}
-			//		commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
-			//	}
-			//	commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
-			//}
-			//commandBuffer->NextSubpass();
-			//commandBuffer->BindPipeline(namePipeline_["Post-process"]);
-			//commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ objects_.renderedBufferDS_ });
-			//commandBuffer->Draw(3);
-			//commandBuffer->EndRenderPass();
-			//commandBuffer->End();
 
 			commandBuffer->Begin();
-			std::vector<VkClearValue> clearValues;
-			clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
-			const VkClearValue depthBufferClearColor{
-				.depthStencil = {
-					.depth = 1.f,
-					.stencil = 0
-				}
-			};
-			clearValues.push_back(depthBufferClearColor); // 1
-			clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
-			clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
-
-			static VkClearValue clearValue;
-			CommandBuffer::DepthBufferInfo depthBufferInfo;
 			{
-				const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
-				depthBufferInfo.enable = enableDepthTest;
-				depthBufferInfo.clearValue_.depthStencil = {  };
-			}
-			commandBuffer->BeginRenderPass(
-				*render_->renderPasses_[0].renderPass_,
-				render_->renderPasses_[0].frameBuffers_[image->index_]->GetHandle(),
-				objects_.swapChain_->GetExtent(),
-				clearValues);
-
-			const VkViewport viewport{
-				.x = 0.f,
-				.y = 0.f,
-				.width = static_cast<float>(objects_.swapChain_->GetSize().x),
-				.height = static_cast<float>(objects_.swapChain_->GetSize().y),
-				.minDepth = 0.0f,
-				.maxDepth = 1.0f
-			};
-			commandBuffer->SetViewport(viewport);
-
-			const VkRect2D scissor{
-				.offset = { 0, 0 },
-				.extent = objects_.swapChain_->GetExtent()
-			};
-			commandBuffer->SetScissor(scissor);
-
-			for (auto& [id, mesh] : meshs_) {
-				commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
-				commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
-				commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
-				{
-					std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-					for (auto& shaderBinding : mesh->GetShaderBindings()) {
-						if (shaderBinding.ds_ != nullptr) {
-							descriptorSets.push_back(shaderBinding.ds_);
-							OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
-							continue;
-						}
-						if (!shaderBinding.textureId_.IsInvalid()) {
-							OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
-							const auto texture = GetTextureById(shaderBinding.textureId_);
-							descriptorSets.push_back(texture->GetDS());
-						}
+				std::vector<VkClearValue> clearValues;
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
+				const VkClearValue depthBufferClearColor{
+					.depthStencil = {
+						.depth = 1.f,
+						.stencil = 0
 					}
-					commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
+				};
+				clearValues.push_back(depthBufferClearColor); // 1
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
+
+				static VkClearValue clearValue;
+				CommandBuffer::DepthBufferInfo depthBufferInfo;
+				{
+					const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
+					depthBufferInfo.enable = enableDepthTest;
+					depthBufferInfo.clearValue_.depthStencil = {  };
 				}
-				commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
+				commandBuffer->BeginRenderPass(
+					*render_->renderPasses_[0].renderPass_,
+					render_->renderPasses_[0].frameBuffers_[image->index_]->GetHandle(),
+					objects_.swapChain_->GetExtent(),
+					clearValues);
+
+				const VkViewport viewport{
+					.x = 0.f,
+					.y = 0.f,
+					.width = static_cast<float>(objects_.swapChain_->GetSize().x),
+					.height = static_cast<float>(objects_.swapChain_->GetSize().y),
+					.minDepth = 0.0f,
+					.maxDepth = 1.0f
+				};
+				commandBuffer->SetViewport(viewport);
+
+				const VkRect2D scissor{
+					.offset = { 0, 0 },
+					.extent = objects_.swapChain_->GetExtent()
+				};
+				commandBuffer->SetScissor(scissor);
+
+				for (auto& [id, mesh] : meshs_) {
+					if (mesh->GetPipelineName() == "ImGui Pipeline") {
+						continue;
+					}
+					commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
+					commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
+					commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						for (auto& shaderBinding : mesh->GetShaderBindings()) {
+							if (shaderBinding.ds_ != nullptr) {
+								descriptorSets.push_back(shaderBinding.ds_);
+								OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
+								continue;
+							}
+							if (!shaderBinding.textureId_.IsInvalid()) {
+								OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
+								const auto texture = GetTextureById(shaderBinding.textureId_);
+								descriptorSets.push_back(texture->GetDS());
+							}
+						}
+						commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
+					}
+					commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
+				}
+				commandBuffer->EndRenderPass();
 			}
-			commandBuffer->EndRenderPass();
-			commandBuffer->BeginRenderPass(
-				*render_->renderPasses_[1].renderPass_,
-				render_->renderPasses_[1].frameBuffers_[image->index_]->GetHandle(),
-				objects_.swapChain_->GetExtent(),
-				clearValues);
-			commandBuffer->BindPipeline(namePipeline_["Post-process"]);
-			commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ render_->gBufferInfo_->ds_ });
-			commandBuffer->Draw(3);
-			commandBuffer->EndRenderPass();
-			commandBuffer->End();
+			{
+				std::vector<VkClearValue> clearValues;
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
+				const VkClearValue depthBufferClearColor{
+					.depthStencil = {
+						.depth = 1.f,
+						.stencil = 0
+					}
+				};
+				clearValues.push_back(depthBufferClearColor); // 1
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
+
+				commandBuffer->BeginRenderPass(
+					*render_->renderPasses_[1].renderPass_,
+					render_->renderPasses_[1].frameBuffers_[image->index_]->GetHandle(),
+					objects_.swapChain_->GetExtent(),
+					clearValues);
+				commandBuffer->BindPipeline(namePipeline_["Post-process"]);
+				commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ render_->gBufferInfo_->ds_ });
+				commandBuffer->Draw(3);
+				commandBuffer->EndRenderPass();
+			}
+			{
+				std::vector<VkClearValue> clearValues;
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
+				const VkClearValue depthBufferClearColor{
+					.depthStencil = {
+						.depth = 1.f,
+						.stencil = 0
+					}
+				};
+				clearValues.push_back(depthBufferClearColor); // 1
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
+				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
+
+				commandBuffer->BeginRenderPass(
+					*render_->renderPasses_[2].renderPass_,
+					render_->renderPasses_[2].frameBuffers_[image->index_]->GetHandle(),
+					objects_.swapChain_->GetExtent(),
+					clearValues);
+				for (auto& [id, mesh] : meshs_) {
+					if (mesh->GetPipelineName() != "ImGui Pipeline") {
+						continue;
+					}
+					commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
+					commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
+					commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
+					{
+						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+						for (auto& shaderBinding : mesh->GetShaderBindings()) {
+							if (shaderBinding.ds_ != nullptr) {
+								descriptorSets.push_back(shaderBinding.ds_);
+								OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
+								continue;
+							}
+							if (!shaderBinding.textureId_.IsInvalid()) {
+								OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
+								const auto texture = GetTextureById(shaderBinding.textureId_);
+								descriptorSets.push_back(texture->GetDS());
+							}
+						}
+						commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
+					}
+					commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
+				}
+				commandBuffer->EndRenderPass();
+				commandBuffer->End();
 
 
-			objects_.commandBuffers_[currentFrame] = std::move(commandBuffer);
-			image->commandBuffer_ = objects_.commandBuffers_[currentFrame];
-			//objects_.commandBuffers_.push_back(commandBuffer);
-		//}
+				objects_.commandBuffers_[currentFrame] = std::move(commandBuffer);
+				image->commandBuffer_ = objects_.commandBuffers_[currentFrame];
 
-			frameContext->SetImage(image);
-			frameContext->WaitForRenderToImageFinish();
+				frameContext->SetImage(image);
+				frameContext->WaitForRenderToImageFinish();
 
-			frameContext->Render();
-			frameContext->ShowImage();
+				frameContext->Render();
+				frameContext->ShowImage();
 
-			frameContext->WaitForQueueIdle();
+				frameContext->WaitForQueueIdle();
 
-			currentFrame = (currentFrame + 1) % framesInFlight;
-
+				currentFrame = (currentFrame + 1) % framesInFlight;
+			}
 
 		}
 
@@ -1503,63 +1220,6 @@ namespace Render::Vulkan {
 			const Common::Id id = UBsIdsGenerator_.Generate();
 			VBs_[id] = std::move(vbs);
 			return id;
-			//switch (createInfo.type_) {
-			//case VertexBuffer::Type::Const: {
-
-			//	HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
-			//	{
-			//		vertexBufferCreateInfo.LD_ = objects_.LD_;
-			//		vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//		vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-			//		vertexBufferCreateInfo.verticesNumber_ = createInfo.verticesNumber_;
-			//		vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(createInfo.vertexType_);
-			//	}
-			//	auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
-
-			//	allocatedVertexBuffer->Allocate();
-
-			//	const VertexBuffer::Id id = VBsIdsGenerator_.Generate();
-
-			//	VBs_[id] = std::vector<std::shared_ptr<HostVisibleVertexBuffer>>{ allocatedVertexBuffer };
-
-			//	return id;
-			//	break;
-			//}
-			//case VertexBuffer::Type::Mutable: {
-			//	//We should have multiple buffers, because multiple frames may be in flight at the same time and
-			//	//we don't want to update the buffer in preparation of the next frame while a previous one is still reading from it!
-			//	//Thus, we need to have as many uniform buffers as we have frames in flight,
-			//	//and write to a uniform buffer that is not currently being read by the GPU
-			//	std::vector<std::shared_ptr<HostVisibleVertexBuffer>> VBs;
-			//	for (Common::Index i = 0; i < framesInFlight; i++) {
-			//		HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
-			//		{
-			//			vertexBufferCreateInfo.LD_ = objects_.LD_;
-			//			vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//			vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-			//			vertexBufferCreateInfo.verticesNumber_ = createInfo.verticesNumber_;
-			//			vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(createInfo.vertexType_);
-			//		}
-			//		auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
-
-			//		allocatedVertexBuffer->Allocate();
-
-			//		auto VB = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
-			//		VB->Allocate();
-			//		VBs.push_back(VB);
-			//	}
-			//	Common::Id id = UBsIdsGenerator_.Generate();
-			//	VBs_[id] = std::move(VBs);
-			//	return id;
-			//	break;
-			//}
-			//default: {
-			//	OS::AssertFailMessage("Invalid type of uniform buffer.");
-			//	return Common::Id::Invalid();
-			//}
-			//};
-
-
 		}
 
 		virtual void FillVertexBuffer(VertexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) override {
@@ -1700,57 +1360,6 @@ namespace Render::Vulkan {
 			IBs_[id] = ibs;
 
 			return id;
-
-
-			//switch (createInfo.type_) {
-			//case IndexBuffer::Type::Const: {
-
-			//	HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
-			//	{
-			//		indexBufferCreateInfo.LD_ = objects_.LD_;
-			//		indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//		indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-			//		indexBufferCreateInfo.indicesNumber_ = createInfo.size_;
-			//		indexBufferCreateInfo.indexSize_ = IndexTypeToSize(createInfo.indexType_);
-			//	}
-			//	auto allocatedIndexBuffer = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
-
-			//	allocatedIndexBuffer->Allocate();
-
-			//	break;
-			//}
-			//case IndexBuffer::Type::Mutable: {
-			//	//We should have multiple buffers, because multiple frames may be in flight at the same time and
-			//	//we don't want to update the buffer in preparation of the next frame while a previous one is still reading from it!
-			//	//Thus, we need to have as many uniform buffers as we have frames in flight,
-			//	//and write to a uniform buffer that is not currently being read by the GPU
-			//	std::vector<std::shared_ptr<HostVisibleIndexBuffer>> IBs;
-			//	for (Common::Index i = 0; i < framesInFlight; i++) {
-
-			//		HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
-			//		{
-			//			indexBufferCreateInfo.LD_ = objects_.LD_;
-			//			indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//			indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-			//			indexBufferCreateInfo.indicesNumber_ = createInfo.size_;
-			//			indexBufferCreateInfo.indexSize_ = IndexTypeToSize(createInfo.indexType_);
-			//		}
-			//		auto IB = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
-
-			//		IB->Allocate();
-			//		IBs.push_back(IB);
-			//	}
-			//	Common::Id id = IBsIdsGenerator_.Generate();
-			//	IBs_[id] = std::move(IBs);
-			//	return id;
-			//	break;
-			//}
-			//default: {
-			//	OS::AssertFailMessage("Invalid type of index buffer.");
-			//	return Common::Id::Invalid();
-			//}
-			//};
-
 		}
 
 		virtual void FillIndexBuffer(IndexBuffer::Id id, Common::Size offset, const void* indices, Common::Size indicesNumber) override {
@@ -1881,108 +1490,6 @@ namespace Render::Vulkan {
 			}
 			};
 		}
-
-		//[[nodiscard]]
-		//virtual Common::Id DrawMesh(
-		//	const std::string& pipelineName,
-		//	const void* vertices,
-		//	Common::Size verticesNumber,
-		//	VertexType vertexType,
-		//	const void* indices,
-		//	Common::Size indicesNumber,
-		//	IndexType indexType,
-		//	const std::vector<RAL::Driver::ShaderBinding::Data>& bindingsData) override {
-
-		//	//const RAL::Driver::PipelineDescription& pipelineDesc = createInfo_.namePipelineDescriptions_[pipelineName];
-		//	//OS::AssertMessage(pipelineDesc.shaderBindings_.size() == bindingsData.size(), "Shaders bindings layout and data are different.");
-		//	//for (Common::Index i = 0; i < pipelineDesc.shaderBindings_.size(); i++) {
-		//	//	const RAL::Driver::ShaderBinding::Layout& layout = pipelineDesc.shaderBindings_[i];
-		//	//	const RAL::Driver::ShaderBinding::Data& data = bindingsData[i];
-		//	//	OS::AssertMessage(layout.stage_ == data.stage_, "Shaders bindings layout and data are different.");
-		//	//	OS::AssertMessage(layout.type_ == data.type_, "Shaders bindings layout and data are different.");
-		//	//}
-
-		//	//HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
-		//	//{
-		//	//	vertexBufferCreateInfo.LD_ = objects_.LD_;
-		//	//	vertexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-		//	//	vertexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-		//	//	vertexBufferCreateInfo.verticesNumber_ = verticesNumber;
-		//	//	//vertexBufferCreateInfo.vertices_ = (const Vertex2ftc*)vertices;
-		//	//	vertexBufferCreateInfo.vertexSize_ = VertexTypeToSize(vertexType);
-		//	//}
-		//	//auto allocatedVertexBuffer = std::make_shared<HostVisibleVertexBuffer>(vertexBufferCreateInfo);
-
-		//	//allocatedVertexBuffer->Allocate();
-		//	//allocatedVertexBuffer->FillData(0, vertices, verticesNumber, objects_.commandPool_);
-
-		//	//HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
-		//	//{
-		//	//	indexBufferCreateInfo.LD_ = objects_.LD_;
-		//	//	indexBufferCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-		//	//	indexBufferCreateInfo.commandPool_ = objects_.commandPool_;
-		//	//	indexBufferCreateInfo.indicesNumber_ = indicesNumber;
-		//	//	//indexBufferCreateInfo.indices_ = indices;
-		//	//	indexBufferCreateInfo.indexSize_ = IndexTypeToSize(indexType);
-		//	//}
-		//	//auto allocatedIndexBuffer = std::make_shared<HostVisibleIndexBuffer>(indexBufferCreateInfo);
-
-		//	//allocatedIndexBuffer->Allocate();
-		//	//allocatedIndexBuffer->FillData(0, indices, indicesNumber, objects_.commandPool_);
-
-		//	//std::shared_ptr<Vulkan::Pipeline> pipeline = namePipeline_[pipelineName];
-
-		//	//std::vector<Mesh::ShaderBinding> shaderBindings;
-
-		//	//for (Common::Index i = 0; i < bindingsData.size(); i++) {
-
-		//	//	const RAL::Driver::ShaderBinding::Data& bindingData = bindingsData[i];
-
-		//	//	if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Uniform) {
-
-		//	//		DS::CreateInfo DSCreateInfo;
-		//	//		{
-		//	//			DSCreateInfo.DP_ = objects_.DP_;
-		//	//			DSCreateInfo.DSL_ = pipeline->GetLayout()->GetDSLs()[i];
-		//	//			DSCreateInfo.LD_ = objects_.LD_;
-		//	//		}
-
-		//	//		auto ds = std::make_shared<DS>(DSCreateInfo);
-
-		//	//		auto ub = GetUniformBuffer(bindingData.uniformBufferId_);
-
-		//	//		ds->UpdateBufferWriteConfiguration(
-		//	//			ub,
-		//	//			VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-		//	//			0, 0, ub->GetSizeInBytes());
-
-		//	//		Mesh::ShaderBinding shaderBinding{
-		//	//			.ubId_ = bindingData.uniformBufferId_,
-		//	//			.ds_ = ds
-		//	//		};
-		//	//		shaderBindings.push_back(shaderBinding);
-		//	//	}
-		//	//	if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Sampler) {
-		//	//		Mesh::ShaderBinding shaderBinding{
-		//	//			.textureId_ = bindingData.textureId_
-		//	//		};
-		//	//		shaderBindings.push_back(shaderBinding);
-		//	//	}
-		//	//}
-
-		//	//Mesh::CreateInfo meshCreateInfo{
-		//	//	.vertexBuffer_ = allocatedVertexBuffer,
-		//	//	.indexBuffer_ = allocatedIndexBuffer,
-		//	//	.shaderBindings_ = shaderBindings,
-		//	//	.pipelineName_ = pipelineName
-		//	//};
-		//	//auto mesh = std::make_shared<Mesh>(meshCreateInfo);
-		//	//const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
-		//	//meshs_[meshId] = mesh;
-		//	//return meshId;
-		//	return 0;
-		//}
-
 
 		[[nodiscard]]
 		virtual Common::Id DrawMesh(
@@ -2381,22 +1888,6 @@ namespace Render::Vulkan {
 						.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
 					};
 
-					////Depth attachment
-					//RP::Attachment depthAttachment{
-					//	.format = depthStencilData_->image_->GetFormat(),
-					//	.samples = VK_SAMPLE_COUNT_1_BIT,
-					//	.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-					//	.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-					//	.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-					//	.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-					//};
-					//VkAttachmentReference depthAttachmentRef{
-					//	.attachment = 1,
-					//	.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-					//};
-
-
-
 					//swap chain
 					RP::Attachment swapChainAttachment{
 						.format = ci.swapChain_->GetFormat().format,
@@ -2447,7 +1938,7 @@ namespace Render::Vulkan {
 					RP::Subpass postProcessSubpassDesc{
 						.inputAttachments_ = { renderedAttachmentSubpass2Ref },
 						.colorAttachments_ = { multisampleAttachmentRef },
-						.resolveAttachment_ = std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
+						.resolveAttachment_ = std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),//std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
 						.depthStencilAttachment_ = nullptr
 					};
 
@@ -2456,7 +1947,6 @@ namespace Render::Vulkan {
 						.LD_ = ci.LD_,
 						.attachments_ = {
 							multisampleAttachment,
-							//depthAttachment,
 							swapChainAttachment,
 							renderedAttachment
 						},
@@ -2483,6 +1973,110 @@ namespace Render::Vulkan {
 								//createInfo.attachments_.push_back(depthStencilData_->imageView_);
 								createInfo.attachments_.push_back(imageView);
 								createInfo.attachments_.push_back(gBufferInfo_->imageView_);
+
+
+								createInfo.extent_ = extent;
+								createInfo.renderPass_ = renderPass;
+							}
+							auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
+							frameBuffers.push_back(frameBuffer);
+						}
+						OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
+					}
+
+					rpContext.frameBuffers_ = std::move(frameBuffers);
+					rpContext.renderPass_ = renderPass;
+
+					renderPasses_.push_back(std::move(rpContext));
+				}
+
+
+				//ui render pass
+				{
+					RenderPassContext rpContext{ };
+
+					//swap chain
+					RP::Attachment swapChainAttachment{
+						.format = ci.swapChain_->GetFormat().format,
+						.samples = VK_SAMPLE_COUNT_1_BIT,
+						.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+						.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+						.initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+						.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+					};
+					VkAttachmentReference swapChainAttachmentRef{
+						.attachment = 0,
+						.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+					};
+
+					////Rendered buffer
+					//RP::Attachment renderedAttachment{
+					//	.format = ci.swapChain_->GetFormat().format,
+					//	.samples = VK_SAMPLE_COUNT_1_BIT,
+					//	.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+					//	.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+					//	.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+					//	.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+					//};
+
+					//VkAttachmentReference renderedAttachmentSubpass2Ref{
+					//	.attachment = 1,
+					//	.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+					//};
+
+					RP::Subpass::Dependency inExternalToFirstSubpassDependency{
+						.srcSubpass_ = VK_SUBPASS_EXTERNAL,
+						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+						.dstSubpass_ = 0,
+						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
+					};
+
+					RP::Subpass::Dependency firstSubpassToOutExternalDependency_{
+						.srcSubpass_ = 0,
+						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+						.dstSubpass_ = VK_SUBPASS_EXTERNAL,
+						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT
+					};
+
+					RP::Subpass postProcessSubpassDesc{
+						.inputAttachments_ = { /*renderedAttachmentSubpass2Ref*/ },
+						.colorAttachments_ = { swapChainAttachmentRef },
+						.resolveAttachment_ = nullptr,
+						.depthStencilAttachment_ = nullptr
+					};
+
+					RenderPass2::CreateInfo rp2ci{
+						.name_ = "UI pass",
+						.LD_ = ci.LD_,
+						.attachments_ = {
+							swapChainAttachment,
+							/*renderedAttachment*/
+						},
+						.subpasses_ = {
+							postProcessSubpassDesc
+						},
+						.dependencies_ = {
+							inExternalToFirstSubpassDependency,
+							firstSubpassToOutExternalDependency_
+						},
+
+					};
+
+					auto renderPass = std::make_shared<RenderPass2>(rp2ci);
+
+					std::vector<std::shared_ptr<FrameBuffer>> frameBuffers;
+					{
+						VkExtent2D extent = ci.swapChain_->GetExtent();
+						for (const auto& swapChainImageView : ci.swapChain_->GetImageViews()) {
+							FrameBuffer::CreateInfo createInfo;
+							{
+								createInfo.LD_ = ci.LD_;
+								createInfo.attachments_.push_back(swapChainImageView);
+								//createInfo.attachments_.push_back(gBufferInfo_->imageView_);
 
 
 								createInfo.extent_ = extent;
