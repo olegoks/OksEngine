@@ -66,7 +66,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<UpdateEnginePerformance>();
 				context_->GetECSWorld()->RunSystem<AddECSInspectorMainMenuItem>();
 				context_->GetECSWorld()->RunSystem<CollectEntitiesInfo>();
-				context_->GetECSWorld()->RunSystem<CollectECSSystemsCallsInfo>();
+				//context_->GetECSWorld()->RunSystem<CollectECSSystemsCallsInfo>();
 				ImGui::Render();
 				context_->GetECSWorld()->RunSystem<CreateImGUIModel>();
 				context_->GetECSWorld()->RunSystem<AddImGuiMeshToRender>();
