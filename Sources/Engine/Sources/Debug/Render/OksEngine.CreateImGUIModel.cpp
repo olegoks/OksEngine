@@ -26,24 +26,24 @@ namespace OksEngine {
 			if (fb_width <= 0 || fb_height <= 0)
 				return;
 
-			//const glm::vec2 scale{
-			//	2.0f / draw_data->DisplaySize.x,
-			//	2.0f / draw_data->DisplaySize.y
-			//};
+			const glm::vec2 scale{
+				2.0f / draw_data->DisplaySize.x,
+				2.0f / draw_data->DisplaySize.y
+			};
 
-			//const glm::vec2 translate{
-			//	-1.0f - draw_data->DisplayPos.x * scale[0],
-			//	-1.0f - draw_data->DisplayPos.y * scale[1]
-			//};
+			const glm::vec2 translate{
+				-1.0f - draw_data->DisplayPos.x * scale[0],
+				-1.0f - draw_data->DisplayPos.y * scale[1]
+			};
 			//struct Transform {
 			//	glm::vec2 scale_;
 			//	glm::vec2 translate_;
 			//};
-			auto* position2D = world->GetComponent<Position2D>(entityId);
-			auto* scale2D = world->GetComponent<Scale2D>(entityId);
+			//auto* position2D = world->GetComponent<Position2D>(entityId);
+			//auto* scale2D = world->GetComponent<Scale2D>(entityId);
 
-			world->CreateComponent<Position2D>(meshEntityId, position2D->GetX(), position2D->GetY());
-			world->CreateComponent<Scale2D>(meshEntityId, scale2D->GetX(), scale2D->GetY());
+			world->CreateComponent<Position2D>(meshEntityId, translate.x, translate.y);
+			world->CreateComponent<Scale2D>(meshEntityId, scale.x, scale.y);
 
 			Geom::VertexCloud<Geom::Vertex2f> vertices;
 			DS::Vector<Geom::UV2f> uvs;
