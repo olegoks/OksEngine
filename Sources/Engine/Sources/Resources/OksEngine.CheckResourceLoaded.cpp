@@ -42,13 +42,15 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CheckResourceLoaded::GetFilter() const noexcept {
-		return {
-			ECS::Entity::Filter{}
-			.Include<LoadResourceRequest>()
-			.Include<AsyncTask>()
-			.Exclude<BinaryData>()
-			.Exclude<Completed>(),
-			ECS::Entity::Filter{}.ExcludeAll() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter =
+		{
+		ECS::Entity::Filter{}
+		.Include<LoadResourceRequest>()
+		.Include<AsyncTask>()
+		.Exclude<BinaryData>()
+		.Exclude<Completed>(),
+		ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId CheckResourceLoaded::GetTypeId() const noexcept {

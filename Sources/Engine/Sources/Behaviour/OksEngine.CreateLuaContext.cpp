@@ -78,7 +78,8 @@ namespace OksEngine {
 
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLuaContext::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<Behaviour>().Include<LuaScriptEntity>().Exclude<LuaContext>(), ECS::Entity::Filter{}.ExcludeAll() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Behaviour>().Include<LuaScriptEntity>().Exclude<LuaContext>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId CreateLuaContext::GetTypeId() const noexcept {

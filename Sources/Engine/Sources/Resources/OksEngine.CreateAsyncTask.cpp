@@ -33,13 +33,15 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateAsyncTask::GetFilter() const noexcept {
-		return {
-			ECS::Entity::Filter{}
-			.Include<LoadResourceRequest>()
-			.Include<Name>()
-			.Exclude<AsyncTask>()
-			.Exclude<WaitingForResourceLoading>(),
-			ECS::Entity::Filter{}.Include<ECSResourceSubsystem>()};
+		std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter =
+		{
+		ECS::Entity::Filter{}
+		.Include<LoadResourceRequest>()
+		.Include<Name>()
+		.Exclude<AsyncTask>()
+		.Exclude<WaitingForResourceLoading>(),
+		ECS::Entity::Filter{}.Include<ECSResourceSubsystem>() };
+		return filter;
 	}
 
 	Common::TypeId CreateAsyncTask::GetTypeId() const noexcept {

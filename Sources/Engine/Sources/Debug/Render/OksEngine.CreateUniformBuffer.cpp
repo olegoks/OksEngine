@@ -32,7 +32,8 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateUniformBuffer::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.ExcludeAll() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId CreateUniformBuffer::GetTypeId() const noexcept {

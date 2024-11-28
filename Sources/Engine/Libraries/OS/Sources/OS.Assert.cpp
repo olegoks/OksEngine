@@ -7,8 +7,11 @@
 
 namespace OS {
 
+	
 	void AssertMessage(bool expression, Common::Format&& format, const std::source_location& location) {
-
+		if (Common::IsDebug()) {
+			return;
+		}
 		if (expression) {
 			return;
 		}
@@ -22,6 +25,9 @@ namespace OS {
 	}
 
 	void Assert(bool expression) {
+		if (Common::IsDebug()) {
+			return;
+		}
 		if (expression) {
 			return;
 		}

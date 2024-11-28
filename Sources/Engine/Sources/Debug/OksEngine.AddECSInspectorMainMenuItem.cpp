@@ -25,7 +25,8 @@ namespace OksEngine {
 	}
 
 	inline std::pair<ECS::Entity::Filter, ECS::Entity::Filter> AddECSInspectorMainMenuItem::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<ECSInspector>(), ECS::Entity::Filter{}.ExcludeAll() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<ECSInspector>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId AddECSInspectorMainMenuItem::GetTypeId() const noexcept {

@@ -33,6 +33,10 @@ namespace Common {
 	constexpr static inline Configuration configuration_ = Configuration::Release;
 #endif
 
+	[[nodiscard]]
+	constexpr bool IsDebug() {
+		return (configuration_ == Configuration::Debug);
+	}
 
 
 	template<class Type>

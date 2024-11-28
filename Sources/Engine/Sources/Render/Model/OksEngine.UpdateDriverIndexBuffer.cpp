@@ -30,11 +30,13 @@ namespace OksEngine {
 		driver->FillIndexBuffer(driverIB->id_, 0, indices->indices_.GetData(), indices->indices_.GetIndicesNumber());
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateDriverIndexBuffer::GetFilter() const noexcept {
-		return {
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
 			.Include<Indices>()
+			.Include<MutableMesh>()
 			.Include<DriverIndexBuffer>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 	Common::TypeId UpdateDriverIndexBuffer::GetTypeId() const noexcept {
 		return Common::TypeInfo<UpdateDriverIndexBuffer>().GetId();

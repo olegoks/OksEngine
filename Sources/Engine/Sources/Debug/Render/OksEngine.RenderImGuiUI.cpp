@@ -116,7 +116,8 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> RenderImGuiUI::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.Include<FramesCounter>().Include<Counter>() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.Include<FramesCounter>().Include<Counter>() };
+		return filter;
 	}
 
 	Common::TypeId RenderImGuiUI::GetTypeId() const noexcept {

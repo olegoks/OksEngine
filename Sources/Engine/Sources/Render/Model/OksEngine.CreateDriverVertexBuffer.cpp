@@ -38,7 +38,7 @@ namespace OksEngine {
 
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateDriverVertexBuffer::GetFilter() const noexcept {
-		return {
+		std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
 			.Include<Vertices3D>()
 			.Include<Indices>()
@@ -46,6 +46,7 @@ namespace OksEngine {
 			.Include<UVs>()
 			.Exclude<DriverVertexBuffer>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 	Common::TypeId CreateDriverVertexBuffer::GetTypeId() const noexcept {
 		return Common::TypeInfo<CreateDriverVertexBuffer>().GetId();
@@ -83,13 +84,14 @@ namespace OksEngine {
 
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateDriverVertex2DBuffer::GetFilter() const noexcept {
-		return {
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
 			.Include<Vertices2D>()
 			.Include<Indices>()
 			.Include<UVs>()
 			.Exclude<DriverVertexBuffer>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 	Common::TypeId CreateDriverVertex2DBuffer::GetTypeId() const noexcept {
 		return Common::TypeInfo<CreateDriverVertex2DBuffer>().GetId();

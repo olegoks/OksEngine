@@ -22,7 +22,8 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CallUpdateMethod::GetFilter() const noexcept {
-		return { ECS::Entity::Filter{}.Include<Behaviour>().Include<LuaContext>(), ECS::Entity::Filter{}.ExcludeAll() };
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Behaviour>().Include<LuaContext>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId CallUpdateMethod::GetTypeId() const noexcept {

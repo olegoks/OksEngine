@@ -21,12 +21,13 @@ namespace OksEngine {
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLoadLuaScriptRequest::GetFilter() const noexcept {
-		return { 
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
 			.Include<Behaviour>()
 			.Exclude<LoadLuaScriptRequest>(),
 			ECS::Entity::Filter{}
-			.ExcludeAll()};
+			.ExcludeAll() };
+		return filter;
 	}
 
 }

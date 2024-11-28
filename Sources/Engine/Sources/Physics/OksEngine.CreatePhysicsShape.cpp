@@ -84,12 +84,13 @@ namespace OksEngine {
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreatePhysicsShapeForDynamicRigidBody::GetFilter() const noexcept
 	{
-		return { ECS::Entity::Filter{}
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
 			.Include<ImmutableRenderGeometry>()
 			.Include<ModelEntity>()
 			.Include<DynamicRigidBodyCustomMeshShape>()
 			.Exclude<PhysicsShape>()
-			.Exclude<DynamicRigidBody>(), ECS::Entity::Filter{}.ExcludeAll()};
+			.Exclude<DynamicRigidBody>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId CreatePhysicsShapeForDynamicRigidBody::GetTypeId() const noexcept {
@@ -166,12 +167,13 @@ namespace OksEngine {
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreatePhysicsShapeForStaticRigidBody::GetFilter() const noexcept
 	{
-		return { ECS::Entity::Filter{}
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
 			.Include<ImmutableRenderGeometry>()
 			.Include<ModelEntity>()
 			.Include<StaticRigidBodyCustomMeshShape>()
 			.Exclude<PhysicsShape>()
 			.Exclude<StaticRigidBody>(), ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId CreatePhysicsShapeForStaticRigidBody::GetTypeId() const noexcept {

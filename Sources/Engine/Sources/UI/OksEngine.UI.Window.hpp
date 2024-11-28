@@ -44,7 +44,8 @@ namespace OksEngine {
 			return Common::TypeInfo<GetWindowKeyboardInputEvents>().GetId();
 		}
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Window>().Include<KeyboardInput>(), ECS::Entity::Filter{}.ExcludeAll()};
+			static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Window>().Include<KeyboardInput>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return filter;
 		}
 
 	};
@@ -75,7 +76,8 @@ namespace OksEngine {
 			return Common::TypeInfo<GetWindowFramebufferResizedEvents>().GetId();
 		}
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Window>().Include<FrameBufferResizeEvents>(), ECS::Entity::Filter{}.ExcludeAll() };
+			static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Window>().Include<FrameBufferResizeEvents>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return filter;
 		}
 
 	};
@@ -100,7 +102,8 @@ namespace OksEngine {
 			return Common::TypeInfo<CleanWindowKeyboardInputEvents>().GetId();
 		}
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Window>().Include<KeyboardInput>(), ECS::Entity::Filter{}.ExcludeAll() };
+			static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Window>().Include<KeyboardInput>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return filter;
 		}
 
 	};
@@ -133,7 +136,8 @@ namespace OksEngine {
 			return Common::TypeInfo<SendWindowKeyboardInputEvents>().GetId();
 		}
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Window>().Include<KeyboardInput>(), ECS::Entity::Filter{}.Include<HandleKeyboardInputMarker>()};
+			static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Window>().Include<KeyboardInput>(), ECS::Entity::Filter{}.Include<HandleKeyboardInputMarker>() };
+			return filter;
 		}
 
 	};
@@ -165,7 +169,8 @@ namespace OksEngine {
 			return Common::TypeInfo<GetWindowMouseInputEvents>().GetId();
 		}
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Window>().Include<MouseInput>(), ECS::Entity::Filter{}.ExcludeAll() };
+			static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Window>().Include<MouseInput>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return filter;
 		}
 
 	};
@@ -191,7 +196,8 @@ namespace OksEngine {
 			return Common::TypeInfo<CleanWindowMouseInputEvents>().GetId();
 		}
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Window>().Include<MouseInput>(), ECS::Entity::Filter{}.ExcludeAll() };
+			static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Window>().Include<MouseInput>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return filter;
 		}
 
 	};
@@ -225,7 +231,8 @@ namespace OksEngine {
 			return Common::TypeInfo<SendWindowMouseInputEvents>().GetId();
 		}
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Window>().Include<MouseInput>(), ECS::Entity::Filter{}.Include<HandleMouseInputMarker>() };
+			static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Window>().Include<MouseInput>(), ECS::Entity::Filter{}.Include<HandleMouseInputMarker>() };
+			return filter;
 		}
 
 	};
@@ -273,7 +280,8 @@ namespace OksEngine {
 			return Common::TypeInfo<WindowSystem>().GetId();
 		}
 		virtual std::pair<ECS::Entity::Filter, ECS::Entity::Filter> GetFilter() const noexcept override {
-			return { ECS::Entity::Filter{}.Include<Window>().Include<KeyboardInput>().Include<MouseInput>(), ECS::Entity::Filter{}.ExcludeAll()};
+			static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Window>().Include<KeyboardInput>().Include<MouseInput>(), ECS::Entity::Filter{}.ExcludeAll() };
+			return filter;
 		}
 
 	};

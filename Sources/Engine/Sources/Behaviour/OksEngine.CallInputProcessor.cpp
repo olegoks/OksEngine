@@ -21,37 +21,53 @@ namespace OksEngine {
 		auto* mouseInput = world->GetComponent<MouseInput>(entityId);
 		luabridge::LuaRef processInput = inputProcessor["ProcessInput"];
 		luabridge::LuaRef object = context->context_.GetGlobalAsRef("object");
-		std::string keyboardKey = "";
-		std::string keyboardEvent = "";
-		if (keyboardInput->HasEvent()) {
-			auto event = keyboardInput->GetEvent();
-			keyboardKey = magic_enum::enum_name(event.key_).data();
-			keyboardEvent = magic_enum::enum_name(event.event_).data();
+		while (keyboardInput->HasEvent()) {
+			std::string keyboardKey = "";
+			std::string keyboardEvent = "";
+			if (keyboardInput->HasEvent()) {
+				auto event = keyboardInput->GetEvent();
+				keyboardKey = magic_enum::enum_name(event.key_).data();
+				keyboardEvent = magic_enum::enum_name(event.event_).data();
+			}
+			float xOffset = 0.f;
+			float yOffset = 0.f;
+			const luabridge::LuaResult result = processInput(inputProcessor,
+				object,
+				keyboardKey.c_str(),
+				keyboardEvent.c_str(),
+				xOffset,
+				yOffset);
+			OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
 		}
-		float xOffset = 0.f;
-		float yOffset = 0.f;
-		if (mouseInput->HasEvent()) {
-			auto event = mouseInput->GetEvent();
-			xOffset = event.offset_.x;
-			yOffset = event.offset_.y;
+		while (mouseInput->HasEvent()) {
+			std::string keyboardKey = "";
+			std::string keyboardEvent = "";
+			float xOffset = 0.f;
+			float yOffset = 0.f;
+			if (mouseInput->HasEvent()) {
+				auto event = mouseInput->GetEvent();
+				xOffset = event.offset_.x;
+				yOffset = event.offset_.y;
+			}
+			const luabridge::LuaResult result = processInput(inputProcessor,
+				object,
+				keyboardKey.c_str(),
+				keyboardEvent.c_str(),
+				xOffset,
+				yOffset);
+			OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
 		}
-		const luabridge::LuaResult result = processInput(inputProcessor,
-			object,
-			keyboardKey.c_str(),
-			keyboardEvent.c_str(),
-			xOffset,
-			yOffset);
-		OS::AssertMessage(!result.hasFailed() && result.wasOk(),result.errorCode().message() + result.errorMessage());
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CallInputProcessor::GetFilter() const noexcept {
-		return {
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
 			.Include<Behaviour>()
 			.Include<LuaContext>()
 			.Include<KeyboardInput>()
 			.Include<MouseInput>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
 	}
 
 	Common::TypeId CallInputProcessor::GetTypeId() const noexcept {

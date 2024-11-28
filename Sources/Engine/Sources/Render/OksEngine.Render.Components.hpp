@@ -3,6 +3,7 @@
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
 #include <Render/OksEngine.Light.hpp>
 #include <Render/OksEngine.SkinnedGeometry.hpp>
+#include <Render/OksEngine.Render.MutableMesh.hpp>
 
 #include <Render/Camera/OksEngine.Components.hpp>
 
