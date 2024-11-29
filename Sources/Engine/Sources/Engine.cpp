@@ -27,12 +27,10 @@ namespace OksEngine {
 			{
 				context_->GetECSWorld()->StartFrame();
 				/*Resources*/
-				//context_->GetECSWorld()->RunSystem<CheckResourceLoaded>();
-				//context_->GetECSWorld()->RunSystem<LoadResourceSystem>();
 				context_->GetECSWorld()->RunSystem<CreateAsyncTask>();
 				context_->GetECSWorld()->RunSystem<CheckResourceLoaded>();
 				context_->GetECSWorld()->RunSystem<WaitForResourceLoading>();
-				/*UI*/
+				///*UI*/
 				context_->GetECSWorld()->RunSystem<GetWindowKeyboardInputEvents>();
 				context_->GetECSWorld()->RunSystem<GetWindowFramebufferResizedEvents>();
 				context_->GetECSWorld()->RunSystem<GetWindowMouseInputEvents>();
@@ -43,14 +41,14 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<SendWindowMouseInputEvents>();
 				context_->GetECSWorld()->RunSystem<CleanWindowMouseInputEvents>();
 
-				/*Behaviour*/
+				///*Behaviour*/
 				context_->GetECSWorld()->RunSystem<CreateLoadLuaScriptRequest>();
 				context_->GetECSWorld()->RunSystem<CreateLuaScriptEntity>();
 				context_->GetECSWorld()->RunSystem<CreateLuaContext>();
 				context_->GetECSWorld()->RunSystem<CallUpdateMethod>();
 				context_->GetECSWorld()->RunSystem<CallInputProcessor>();
 
-				/*Physics*/
+				///*Physics*/
 				context_->GetECSWorld()->RunSystem<CreatePhysicsShapeForDynamicRigidBody>();
 				context_->GetECSWorld()->RunSystem<CreatePhysicsShapeForStaticRigidBody>();
 				context_->GetECSWorld()->RunSystem<CreateDynamicRigidBody>();
@@ -72,8 +70,6 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<AddImGuiMeshToRender>();
 				context_->GetECSWorld()->RunSystem<UpdateImGUIRenderData>();
 
-
-				context_->GetECSWorld()->RunSystem<RenderImGuiUI>();
 				/*ImGui*/
 
 				/*Render*/
@@ -89,7 +85,6 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreateModelEntityFromObjMtl>();
 
 				context_->GetECSWorld()->RunSystem<CreateLoadTextureRequest>();
-				//context_->GetECSWorld()->RunSystem < CheckTextureLoaded>();
 				context_->GetECSWorld()->RunSystem<CreateTexture>();
 				context_->GetECSWorld()->RunSystem<CreateDriverVertexBuffer>();
 				context_->GetECSWorld()->RunSystem < CreateDriverVertex2DBuffer>();

@@ -147,25 +147,28 @@ namespace Render::Vulkan {
 				createInfo.LD_,
 				createInfo.verticesNumber_,
 				createInfo.vertexSize_ } } {
+
+
+			stagingBuffer_ = std::make_shared<StagingBuffer>(
+				createInfo_.physicalDevice_,
+				createInfo_.LD_,
+				createInfo_.verticesNumber_ * createInfo_.vertexSize_);
+			stagingBuffer_->Allocate();
+
 		}
 
 
 		void FillData(Common::Size verticesOffset, const void* vertices, Common::Size verticesNumber, std::shared_ptr<CommandPool> commandPool) {
-
-			auto vertexStagingBuffer = std::make_shared<StagingBuffer>(
-				createInfo_.physicalDevice_,
-				createInfo_.LD_,
-				verticesNumber * createInfo_.vertexSize_);
-			vertexStagingBuffer->Allocate();
-
-			vertexStagingBuffer->Fill(
+			stagingBuffer_->Fill(
 				verticesOffset,
 				vertices,
 				createInfo_.vertexSize_ * verticesNumber);
-			Buffer::DataCopy(*vertexStagingBuffer, *this, 0, verticesOffset * createInfo_.vertexSize_, verticesNumber * createInfo_.vertexSize_, createInfo_.LD_, commandPool);
+			Buffer::DataCopy(*stagingBuffer_, *this, 0, verticesOffset * createInfo_.vertexSize_, verticesNumber * createInfo_.vertexSize_, createInfo_.LD_, commandPool);
 		}
 
+	private:
 
+		std::shared_ptr<StagingBuffer> stagingBuffer_ = nullptr;
 
 	};
 

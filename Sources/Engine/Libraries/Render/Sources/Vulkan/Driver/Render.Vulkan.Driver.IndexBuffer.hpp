@@ -99,16 +99,18 @@ namespace Render::Vulkan {
 
 			OS::Assert(createInfo.indicesNumber_ >= 3);
 
+
+			stagingBuffer_ = std::make_shared<StagingBuffer>(createInfo_.PD_, createInfo_.LD_, createInfo_.indicesNumber_ * GetIndexSize());
+			stagingBuffer_->Allocate();
+
 		}
 
 		void FillData(Common::Size offset, const void* indices, Common::Size indicesNumber, std::shared_ptr<CommandPool> commandPool) {
 
-			auto indexStagingBuffer = std::make_shared<StagingBuffer>(createInfo_.PD_, createInfo_.LD_, indicesNumber * GetIndexSize());
-			indexStagingBuffer->Allocate();
-			indexStagingBuffer->Fill(0, indices, indicesNumber * GetIndexSize());
+			stagingBuffer_->Fill(0, indices, indicesNumber * GetIndexSize());
 
 			Buffer::DataCopy(
-				*indexStagingBuffer, *this, 
+				*stagingBuffer_, *this,
 				0, offset,
 				indicesNumber * GetIndexSize(),
 				createInfo_.LD_,
@@ -116,6 +118,9 @@ namespace Render::Vulkan {
 		}
 
 	private:
+
+		std::shared_ptr<StagingBuffer> stagingBuffer_ = nullptr;
+
 	};
 
 

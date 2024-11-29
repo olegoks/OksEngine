@@ -22,12 +22,12 @@ namespace ECS {
 		class Filter {
 		public:
 
-			class DebugInfo {
-			public:
-				std::map<ComponentTypeId, std::string> idName_;
-			};
+			//class DebugInfo {
+			//public:
+			//	std::map<ComponentTypeId, std::string> idName_;
+			//};
 
-			DebugInfo debugInfo_;
+			//DebugInfo debugInfo_;
 
 			template<class ComponentType>
 			Filter& Include() {
@@ -81,7 +81,7 @@ namespace ECS {
 
 			[[nodiscard]]
 			bool Matches(const Filter& filter) const noexcept {
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				const bool thereAreAllNeedIncludes =
 					/*(includes_.count() == 0) || */((filter.includes_ & includes_) == includes_);
 				if (thereAreAllNeedIncludes) {
@@ -95,19 +95,19 @@ namespace ECS {
 
 			[[nodiscard]]
 			Filter operator+(const Filter& filter) const noexcept {
-				OS::AssertMessage(IsValid(), "Error while merging entity filters.");
-				OS::AssertMessage(filter.IsValid(), "Error while merging entity filters.");
+				//OS::AssertMessage(IsValid(), "Error while merging entity filters.");
+				//OS::AssertMessage(filter.IsValid(), "Error while merging entity filters.");
 				Filter result;
 				{
 					result.includes_ = (includes_ & ~filter.excludes_) | (filter.includes_ & ~excludes_);
 					result.excludes_ = 0;
 				}
-				OS::AssertMessage(IsValid(), "Error while merging entity filters.");
+				//OS::AssertMessage(IsValid(), "Error while merging entity filters.");
 				return result;
 			}
 
 			void Clear() noexcept {
-				OS::AssertMessage(IsValid(), "Invalid filter state.");
+				//OS::AssertMessage(IsValid(), "Invalid filter state.");
 				includes_.reset();
 				excludes_.reset();
 			}
