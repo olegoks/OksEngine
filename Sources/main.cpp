@@ -1,8 +1,6 @@
 
 #include <Engine.hpp>
 
-struct ImGUIPosition2D : public OksEngine::Position {};
-
 int main(int argc, char** argv) {
 
 	using namespace OksEngine;
