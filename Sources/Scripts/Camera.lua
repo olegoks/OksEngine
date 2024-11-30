@@ -45,21 +45,15 @@ function Camera:New()
         direction:Set(newDirection)
         local newUp = Math3D():RotateVector(up, upDirPerpendicular, degree)
         newUp:Normalize()
-        print('camera:DirectionUpDown(degree)')
         up:Set(newUp)
        
     end
 
     function camera:DirectionLeftRight(degree)
-        print('camera:DirectionLeftRight(degree)')
         local direction = self:GetComponent("Direction")
         local up = self:GetComponent("Up")
         local rotatedDirection = Math3D():RotateVector(direction, up, degree)
         rotatedDirection:Normalize()
-        print('rotatedDirection:Normalize()')
-        --local upDirPerpendicular = Math3D():CrossProduct(direction, up)
-        --rotatedVector = Math3D():RotateVector(rotatedVector, upDirPerpendicular, offsetY / 1000.0)
-        --local rotatedVector = Math3D():RotateVector(directionVector, Vector(0, 1, 0), offsetX / 1000.0)
         direction:Set(rotatedDirection)
     end
     
@@ -165,22 +159,8 @@ function CameraInputProcessor:ProcessInput(camera, Key, Event, offsetX, offsetY)
             camera.SpeedBoost = false
         end
     end 
-    --print(Key.."  "..Event.."  "..offsetX.."  "..offsetY)
-
-
-    --cameraComponent = Camera:GetComponent("Camera")
-
-    --directionComponent = Camera:GetComponent("Direction")
-
-    --print("Direction got")
-    --local directionVector = Vector(directionComponent:GetX(),directionComponent:GetY(), directionComponent:GetZ())
-
-    --print("Direction vector created"..directionVector:GetX().."  "..directionVector:GetY().."  "..directionVector:GetZ().."  ")
-    print('pre camera:DirectionUpDown(offsetY / 100.0)')
     camera:DirectionUpDown(offsetY / 1000.0)
-    print('camera:DirectionUpDown(offsetY / 100.0)')
     camera:DirectionLeftRight(offsetX / 1000.0)
-    print('camera:DirectionLeftRight(offsetX / 100.0)')
 
 end
 

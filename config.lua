@@ -11,8 +11,8 @@ UI = {
             MinHeight = 720,
             MaxWidth = 1920,
             MaxHeight = 1080,
-            StartWidth = 1280,
-            StartHeight = 720
+            StartWidth = 1920,
+            StartHeight = 1080
         },
         FullscreenMode = false,
         Title = "Vulkan"
