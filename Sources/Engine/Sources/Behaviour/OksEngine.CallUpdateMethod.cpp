@@ -4,6 +4,8 @@
 #include <Behaviour/OksEngine.LuaContext.hpp>
 #include <Behaviour/OksEngine.Behaviour.hpp>
 
+#pragma optimize("", off)
+
 namespace OksEngine {
 
 	CallUpdateMethod::CallUpdateMethod(Context& context) noexcept :
@@ -18,7 +20,8 @@ namespace OksEngine {
 		luabridge::LuaRef updater = context->context_.GetGlobalAsRef(objectName + "Updater");
 		luabridge::LuaRef object = context->context_.GetGlobalAsRef("object");
 		luabridge::LuaRef updateMethod = updater["Update"];
-		updateMethod(updater, object, 0);
+		const luabridge::LuaResult result = updateMethod(updater, object, 0);
+		OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CallUpdateMethod::GetFilter() const noexcept {
@@ -32,3 +35,5 @@ namespace OksEngine {
 
 
 }
+
+#pragma optimize("", on)

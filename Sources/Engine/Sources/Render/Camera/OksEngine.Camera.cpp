@@ -67,7 +67,7 @@ namespace OksEngine {
 			.addFunction("SetUpX", &Camera::SetUpX)
 			.addFunction("SetUpY", &Camera::SetUpY)
 			.addFunction("SetUpZ", &Camera::SetUpZ)
-			.addFunction("GetUpZ", &Camera::GetUpZ)
+			.addFunction("GetUpZ", &Camera::GetUpZ) 
 			.addFunction("SetUpX", &Camera::SetUpX)
 			.addFunction("SetUpY", &Camera::SetUpY)
 			.addFunction("SetUpZ", &Camera::SetUpZ)

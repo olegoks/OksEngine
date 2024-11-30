@@ -4,8 +4,10 @@ Entity = {}
 function Entity:New()
     local entity = {}
     entity.EngineEntity = EngineEntity()
+
     setmetatable(entity, self)
     self.__index = self
+
     return entity;
 end
 
@@ -45,4 +47,6 @@ function Entity:GetComponent(componentName)
     if componentName == "Height" then
         return self.EngineEntity:GetHeight()
     end
+    print('Entity:GetComponent('..componentName..')')
 end
+
