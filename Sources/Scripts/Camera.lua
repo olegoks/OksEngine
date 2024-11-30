@@ -1,37 +1,69 @@
--- local Math3D = require("Math3D")
+Camera = {}
 
-Camera = setmetatable({ },
-    { __index = Entity }
-)
+function extended (child, parent)
+    setmetatable(child,{__index = parent}) 
+end
+
+extended(Camera, Entity)
 
 function Camera:New()
-    local Camera = Entity:New()
-    Camera.Speed = 3
-    Camera.Boost = 10.0
-    Camera.DirectionUp = false
-    Camera.DirectionDown = false
-    Camera.MovingForward = false
-    Camera.SpeedBoost = false
-    Camera.MovingBackward = false
-    Camera.MovingLeft = false
-    Camera.MovingRight = false
-    Camera.MovingUp = false
-    Camera.MovingDown = false
-    function Camera:Forward(speed)
+    local camera = Entity:New()
+    camera.Speed = 0.05
+    camera.DirectionUp = false
+    camera.DirectionDown = false
+    camera.MovingForward = false
+    camera.SpeedBoost = false
+    camera.MovingBackward = false
+    camera.MovingLeft = false
+    camera.MovingRight = false
+    camera.MovingUp = false
+    camera.MovingDown = false
+
+    function camera:Forward()
         local position = self:GetComponent("Position")
-        local camera = self:GetComponent("Camera")
-        position:SetX(position:GetX() + camera:GetDirectionX() * speed)
-        position:SetY(position:GetY() + camera:GetDirectionY() * speed)
-        position:SetZ(position:GetZ() + camera:GetDirectionZ() * speed)
+        local direction = self:GetComponent("Direction")
+        position:SetX(position:GetX() + direction:GetX() * self.Speed)
+        position:SetY(position:GetY() + direction:GetY() * self.Speed)
+        position:SetZ(position:GetZ() + direction:GetZ() * self.Speed)
     end
-    function Camera:Backward(speed)
+    function camera:Backward()
         local position = self:GetComponent("Position")
-        local camera = self:GetComponent("Camera")
-        position:SetX(position:GetX() - camera:GetDirectionX() * speed)
-        position:SetY(position:GetY() - camera:GetDirectionY() * speed)
-        position:SetZ(position:GetZ() - camera:GetDirectionZ() * speed)
+        local direction = self:GetComponent("Direction")
+        position:SetX(position:GetX() - direction:GetX() * self.Speed)
+        position:SetY(position:GetY() - direction:GetY() * self.Speed)
+        position:SetZ(position:GetZ() - direction:GetZ() * self.Speed)
     end
-    function Camera:Left(speed)
+
+    function camera:DirectionUpDown(degree)
+        local position = self:GetComponent("Position")
+        local direction = self:GetComponent("Direction")
+        local up = self:GetComponent("Up")
+        local upDirPerpendicular = Math3D():CrossProduct(direction, up)
+        upDirPerpendicular:Normalize()
+        local newDirection = Math3D():RotateVector(direction, upDirPerpendicular, degree);
+        newDirection:Normalize()
+        direction:Set(newDirection)
+        local newUp = Math3D():RotateVector(up, upDirPerpendicular, degree)
+        newUp:Normalize()
+        print('camera:DirectionUpDown(degree)')
+        up:Set(newUp)
+       
+    end
+
+    function camera:DirectionLeftRight(degree)
+        print('camera:DirectionLeftRight(degree)')
+        local direction = self:GetComponent("Direction")
+        local up = self:GetComponent("Up")
+        local rotatedDirection = Math3D():RotateVector(direction, up, degree)
+        rotatedDirection:Normalize()
+        print('rotatedDirection:Normalize()')
+        --local upDirPerpendicular = Math3D():CrossProduct(direction, up)
+        --rotatedVector = Math3D():RotateVector(rotatedVector, upDirPerpendicular, offsetY / 1000.0)
+        --local rotatedVector = Math3D():RotateVector(directionVector, Vector(0, 1, 0), offsetX / 1000.0)
+        direction:Set(rotatedDirection)
+    end
+    
+    function camera:Left(speed)
         local position = self:GetComponent("Position")
         local camera = self:GetComponent("Camera")
         local px, py, pz  = Math3D:CrossProduct(
@@ -47,7 +79,7 @@ function Camera:New()
         position:SetY(position:GetY() + npy * speed)
         position:SetZ(position:GetZ() + npz * speed)
     end
-    function Camera:Right(speed)
+    function camera:Right(speed)
         local position = self:GetComponent("Position")
         local camera = self:GetComponent("Camera")
         local px, py, pz  = Math3D:CrossProduct(
@@ -63,153 +95,93 @@ function Camera:New()
         position:SetY(position:GetY() + npy * speed)
         position:SetZ(position:GetZ() + npz * speed)
     end
-    return Camera
+    return camera
 end
 
 CameraUpdater = {}
 
-function CameraUpdater:Update(Camera, deltaMs)
+function CameraUpdater:Update(camera, deltaMs)
 
-    local direction = Camera:GetComponent("Direction")
-    local dirX = direction:GetX()
-    local dirY = direction:GetY()
-    local dirZ = direction:GetZ()
-
-    local up = Camera:GetComponent("Up")
-    local upX = up:GetX()
-    local upY = up:GetY()
-    local upZ = up:GetZ()
-
-    local position = Camera:GetComponent("Position")
-    local posX = position:GetX()
-    local posY = position:GetY()
-    local posZ = position:GetZ()
-
-    --print("got camera ingo")
-
-    if Camera.MovingForward then
-        --print("Moving forward")
-        if Camera.SpeedBoost then
-            cameraComponent:Forward(Camera.Speed * Camera.Boost)
-            position:SetX(posX + dirX * Camera.Boost)
-            position:SetY(posY + dirY * Camera.Boost)
-            position:SetZ(posZ + dirZ * Camera.Boost)
-        else
-            position:SetX(posX + dirX)
-            position:SetY(posY + dirY)
-            position:SetZ(posZ + dirZ)
-        end
+    if camera.MovingForward then
+        camera:Forward(camera.Speed)
     end
-    if Camera.MovingBackward then
-        if Camera.SpeedBoost then
-            cameraComponent:Forward(Camera.Speed * Camera.Boost)
-            position:SetX(posX - dirX * Camera.Boost)
-            position:SetY(posY - dirY * Camera.Boost)
-            position:SetZ(posZ - dirZ * Camera.Boost)
-        else
-            position:SetX(posX - dirX)
-            position:SetY(posY - dirY)
-            position:SetZ(posZ - dirZ)
-        end
+    if camera.MovingBackward then
+        camera:Backward(camera.Speed)
     end
-    if Camera.MovingLeft then 
-        
-        
-
-        Camera:Left(Camera.Speed)
+    if camera.MovingLeft then 
+        camera:Left(camera.Speed)
     end
-    if Camera.MovingRight then 
-        Camera:Right(Camera.Speed)
+    if camera.MovingRight then 
+        camera:Right(camera.Speed)
     end
-    -- if Camera.MovingUp then 
-    --     cameraComponent:Up(Camera.Speed)
-    -- end
-    -- if Camera.MovingDown then 
-    --     cameraComponent:Down(Camera.Speed)
-    -- end
 end
 
 CameraInputProcessor = {}
 
-function CameraInputProcessor:ProcessInput(Camera, Key, Event, offsetX, offsetY)
+function CameraInputProcessor:ProcessInput(camera, Key, Event, offsetX, offsetY)
 
 
 
     if Key == "W" then
         if Event == "Pressed" then
-            Camera.MovingForward = true
-            print("pressed forward")
+            camera.MovingForward = true
         elseif Event == "Released" then
-            Camera.MovingForward = false
+            camera.MovingForward = false
         end
     elseif Key == "A" then
         if Event == "Pressed" then
-            Camera.MovingLeft = true
+            camera.MovingLeft = true
         elseif Event == "Released" then
-            Camera.MovingLeft = false
+            camera.MovingLeft = false
         end
     elseif Key == "D" then
         if Event == "Pressed" then
-            Camera.MovingRight = true
+            camera.MovingRight = true
         elseif Event == "Released" then
-            Camera.MovingRight = false
+            camera.MovingRight = false
         end
     elseif Key == "Q" then
         if Event == "Pressed" then
-            Camera.MovingUp = true
+            camera.MovingUp = true
         elseif Event == "Released" then
-            Camera.MovingUp = false
+            camera.MovingUp = false
         end
     elseif Key == "E" then
         if Event == "Pressed" then
-            Camera.MovingDown = true
+            camera.MovingDown = true
         elseif Event == "Released" then
-            Camera.MovingDown = false
+            camera.MovingDown = false
         end
     elseif Key == "S" then
         if Event == "Pressed" then
-            Camera.MovingBackward = true
+            camera.MovingBackward = true
         elseif Event == "Released" then
-            Camera.MovingBackward = false
+            camera.MovingBackward = false
         end
     elseif Key == "LeftShift" then
         if Event == "Pressed" then
-            Camera.SpeedBoost = true
+            camera.SpeedBoost = true
         elseif Event == "Released" then
-            Camera.SpeedBoost = false
+            camera.SpeedBoost = false
         end
     end 
     --print(Key.."  "..Event.."  "..offsetX.."  "..offsetY)
 
 
-    cameraComponent = Camera:GetComponent("Camera")
+    --cameraComponent = Camera:GetComponent("Camera")
 
-    directionComponent = Camera:GetComponent("Direction")
+    --directionComponent = Camera:GetComponent("Direction")
 
     --print("Direction got")
-    local directionVector = Vector(directionComponent:GetX(),directionComponent:GetY(), directionComponent:GetZ())
+    --local directionVector = Vector(directionComponent:GetX(),directionComponent:GetY(), directionComponent:GetZ())
 
     --print("Direction vector created"..directionVector:GetX().."  "..directionVector:GetY().."  "..directionVector:GetZ().."  ")
+    print('pre camera:DirectionUpDown(offsetY / 100.0)')
+    camera:DirectionUpDown(offsetY / 1000.0)
+    print('camera:DirectionUpDown(offsetY / 100.0)')
+    camera:DirectionLeftRight(offsetX / 1000.0)
+    print('camera:DirectionLeftRight(offsetX / 100.0)')
 
-    local rotatedVector = Math3D():RotateVector(directionVector, Vector(0, 1, 0), offsetX / 1000.0)
-    local up = Camera:GetComponent("Up")
-    local upX = up:GetX()
-    local upY = up:GetY()
-    local upZ = up:GetZ()
-   -- print("pre crodd product")
-    local upDirPerpendicular = Math3D():CrossProduct(directionVector, Vector(upX, upY, upZ))
-   -- print("post crodd product")
-    rotatedVector = Math3D():RotateVector(rotatedVector, upDirPerpendicular, offsetY / 1000.0)
-    --print("x y z"..upDirPerpendicular:GetX().. "   "..upDirPerpendicular:GetY().."   "..upDirPerpendicular:GetZ())
-    local rotatedVector = Math3D():RotateVector(directionVector, Vector(0, 1, 0), offsetX / 1000.0)
-   -- print("RotateVector")
-    --print("Direction vector rotated"..rotatedVector:GetX().."  "..rotatedVector:GetY().."  "..rotatedVector:GetZ().."  ")
-    -- Direction left
-    -- cameraComponent:DirectionLeft(offsetX / 10.0)
-    directionComponent:Set(rotatedVector)
-    -- Direction left
-    -- cameraComponent:DirectionUp(offsetY / 10.0)
-    -- directionComponent:Rotate(0.0, 1.0, 0.0, offsetX / -10.0)
 end
 
 

@@ -23,6 +23,11 @@ namespace OksEngine {
 		void SetY(float y) { value_.y = y; }
 		void SetZ(float z) { value_.z = z; }
 
+		void Set(luabridge::LuaRef luaVectorRef) {
+			const auto& luaVector = (luaVectorRef.cast<Lua::Vector>()).value();
+			value_ = luaVector.xyz_;
+		}
+
 		glm::vec3 value_{ 0.0, 1.0, 0 };
 	};
 
@@ -45,6 +50,7 @@ namespace OksEngine {
 			.addFunction("SetX", &Up::SetX)
 			.addFunction("SetY", &Up::SetY)
 			.addFunction("SetZ", &Up::SetZ)
+			.addFunction("Set", &Up::Set)
 			.endClass();
 	}
 

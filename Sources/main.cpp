@@ -79,6 +79,20 @@ int main(int argc, char** argv) {
 	dragonLore.AddMass(30);
 	dragonLore.AddMaterial(0.1, 0.1, 0.1);
 
+
+	Entity lamp = engine.CreateEntity();
+	lamp.AddName("Lamp");
+	lamp.AddPosition(0, 5, 0);
+	lamp.AddRotation({ 0, 1, 0 }, 0);
+	lamp.AddImmutableRenderGeometry("Lamp.geom");
+
+	Entity axe = engine.CreateEntity();
+	axe.AddName("Axe");
+	axe.AddPosition(0, 11, 0);
+	axe.AddRotation({ 0, 1, 0 }, 0);
+	axe.AddImmutableRenderGeometry("Axe.geom");
+
+
 	//entity.AddImmutableRenderGeometry("dragon_lore.geom");
 
    /* Entity entity = engine.CreateEntity();

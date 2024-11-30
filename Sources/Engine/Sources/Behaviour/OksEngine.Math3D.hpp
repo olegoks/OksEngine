@@ -2,6 +2,8 @@
 
 #include <Math.hpp>
 
+#include <Behaviour/OksEngine.LuaContext.hpp>
+
 namespace OksEngine {
 
 	namespace Lua {
@@ -57,32 +59,15 @@ namespace OksEngine {
 		class Math3D {
 		public:
 
+			Math3D() = default;
+
 			luabridge::LuaRef RotateVector(
 				luabridge::LuaRef toRotateVector,
 				luabridge::LuaRef aroundVector,
-				float angle) const {
-
-				const auto toRotateLuaVector = *toRotateVector.cast<Vector>();
-				const auto aroundLuaVector = *aroundVector.cast<Vector>();
-
-				const glm::vec3 rotatedVector = glm::rotate(toRotateLuaVector.xyz_, angle, aroundLuaVector.xyz_);
-
-				Vector luaVector{ rotatedVector };
-				luabridge::LuaRef luaVectorRef{ toRotateVector.state(), luaVector };
-				return luaVectorRef;
-			}
+				float angle) const;
 
 			[[nodiscard]]
-			luabridge::LuaRef CrossProduct(luabridge::LuaRef firstVector, luabridge::LuaRef secondVector) const {
-
-				const auto firstLuaVector = *firstVector.cast<Vector>();
-				const auto secondLuaVector = *firstVector.cast<Vector>();
-
-				const glm::vec3 perpendicular = glm::normalize(glm::cross(firstLuaVector.xyz_, secondLuaVector.xyz_));
-
-				return luabridge::LuaRef(firstVector.state(), Vector{ perpendicular });
-
-			}
+			luabridge::LuaRef CrossProduct(luabridge::LuaRef firstVector, luabridge::LuaRef secondVector) const;
 
 
 		};

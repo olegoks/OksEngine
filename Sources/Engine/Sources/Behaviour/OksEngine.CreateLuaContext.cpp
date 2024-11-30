@@ -30,14 +30,15 @@ namespace OksEngine {
 
 		auto resourceSubsystem = GetContext().GetResourceSubsystem();
 
-		const auto math3DScriptTaskId = resourceSubsystem->GetResource(Subsystem::Type::Engine, "Root/Math3D.lua");
+		/*const auto math3DScriptTaskId = resourceSubsystem->GetResource(Subsystem::Type::Engine, "Root/Math3D.lua");
 		ResourceSubsystem::Resource math3DScriptResource = resourceSubsystem->GetResource(Subsystem::Type::Engine, math3DScriptTaskId);
-		std::string math3DScriptText{ math3DScriptResource.GetData<char>(), math3DScriptResource.GetSize() };
+		std::string math3DScriptText{ math3DScriptResource.GetData<char>(), math3DScriptResource.GetSize() };*/
 
 		const auto entityScriptTaskId = resourceSubsystem->GetResource(Subsystem::Type::Engine, "Root/Entity.lua");
 		ResourceSubsystem::Resource entityScriptResource = resourceSubsystem->GetResource(Subsystem::Type::Engine, entityScriptTaskId);
 		std::string entityScriptText{ entityScriptResource.GetData<char>(), entityScriptResource.GetSize() };
 
+		//context.LoadScript(math3DScriptText);
 		context.LoadScript(entityScriptText);
 
 		////Set scripts path in lua object to use it to load scripts modules from scripts folder.
