@@ -60,6 +60,7 @@ namespace ECS {
 				}
 
 			}
+			OS::AssertFailMessage("There are no free id's.");
 			return {};
 		}
 

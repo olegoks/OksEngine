@@ -1,5 +1,4 @@
 Name: Axe
-Obj: Axe.obj
-Mtl: Axe.mtl
+Fbx: Axe.fbx
 Textures: 
 - fire_axe_Albedo.png

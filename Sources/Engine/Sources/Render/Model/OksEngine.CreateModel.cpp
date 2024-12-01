@@ -8,7 +8,6 @@ namespace OksEngine {
 
 	void CreateModelEntityFromObjMtl::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		//return;
 		auto* position = world->GetComponent<Position>(entityId);
 		auto* rotation = world->GetComponent<Rotation>(entityId);
 		auto* objEntity = world->GetComponent<ObjEntity>(entityId);
@@ -76,4 +75,69 @@ namespace OksEngine {
 	Common::TypeId CreateModelEntityFromObjMtl::GetTypeId() const noexcept {
 		return Common::TypeInfo<CreateModelEntityFromObjMtl>().GetId();
 	}
+
+
+	void CreateModelEntityFromFbx::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+
+		auto* position = world->GetComponent<Position>(entityId);
+		auto* rotation = world->GetComponent<Rotation>(entityId);
+		auto* fbxEntity = world->GetComponent<FbxEntity>(entityId);
+		auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
+
+		ECS::Entity::Id modelEntityid = world->CreateEntity();
+		std::vector<ECS::Entity::Id> meshsEntitiesIds;
+		auto* fbxName = world->GetComponent<Name>(fbxEntity->id_);
+		auto* fbxData = world->GetComponent<BinaryData>(fbxEntity->id_);
+
+		Geom::Model2 model2 = Geom::ParseFbxModelBaked(
+			fbxName->value_,
+			std::string{ fbxData->data_.data(), fbxData->data_.size() } );
+
+		for (auto& mesh : model2.meshes_) {
+			ECS::Entity::Id meshEntityId = world->CreateEntity();
+			meshsEntitiesIds.push_back(meshEntityId);
+			world->CreateComponent<Mesh2>(meshEntityId);
+			world->CreateComponent<Position>(meshEntityId, position->GetX(), position->GetY(), position->GetZ());
+			world->CreateComponent<Rotation>(meshEntityId, rotation->GetRotationVector(), rotation->GetAngle());
+			if (mesh.textureName_ != "") {
+				world->CreateComponent<TextureInfo>(meshEntityId, mesh.textureName_);
+			}
+
+			OS::Assert(mesh.vertices_.GetVerticesNumber() != 0);
+			world->CreateComponent<Vertices3D>(meshEntityId, mesh.vertices_);
+
+			OS::Assert(mesh.indices_.GetIndicesNumber() != 0);
+			world->CreateComponent<Indices>(meshEntityId, mesh.indices_);
+
+			if (mesh.colors_.GetSize() != 0) {
+				world->CreateComponent<Colors>(meshEntityId, mesh.colors_);
+			}
+
+			if (mesh.normals_.GetSize() != 0) {
+				world->CreateComponent<Normals>(meshEntityId, mesh.normals_);
+			}
+
+			if (mesh.uvs_.GetSize() != 0) {
+				world->CreateComponent<UVs>(meshEntityId, mesh.uvs_);
+			}
+
+		}
+
+		world->CreateComponent<ChildEntities>(modelEntityid, meshsEntitiesIds);
+		world->CreateComponent<ModelEntity>(entityId, modelEntityid);
+
+	}
+	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateModelEntityFromFbx::GetFilter() const noexcept {
+		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
+			ECS::Entity::Filter{}
+			.Include<FbxEntity>()
+			.Exclude<ModelEntity>(),
+			ECS::Entity::Filter{}.ExcludeAll() };
+		return filter;
+	}
+	Common::TypeId CreateModelEntityFromFbx::GetTypeId() const noexcept {
+		return Common::TypeInfo<CreateModelEntityFromFbx>().GetId();
+	}
+
+
 }
