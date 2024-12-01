@@ -90,7 +90,10 @@ namespace OksEngine {
 			editComponent.template operator() < ImmutableRenderGeometry > (world, id);
 			editComponent.template operator() < LoadMtlRequest > (world, id);
 			editComponent.template operator() < LoadObjRequest > (world, id);
+			editComponent.template operator() < LoadFbxRequest > (world, id);
+			editComponent.template operator() < FbxEntity > (world, id);
 			editComponent.template operator() < LoadTextureRequest > (world, id);
+			editComponent.template operator() < ObjEntity > (world, id);
 			editComponent.template operator() < MtlEntity > (world, id);
 			if (world->IsComponentExist<MtlEntity>(id)) {
 				auto mtlEntity = world->GetComponent<MtlEntity>(id);

@@ -19,3 +19,7 @@
 #include <Render/Model/ObjMtl/OksEngine.Obj.hpp>
 #include <Render/Model/ObjMtl/OksEngine.MtlEntity.hpp>
 #include <Render/Model/ObjMtl/OksEngine.ObjEntity.hpp>
+
+#include <Render/Model/Fbx/OksEngine.LoadFbxRequest.hpp>
+#include <Render/Model/Fbx/OksEngine.Fbx.hpp>
+#include <Render/Model/Fbx/OksEngine.FbxEntity.hpp>

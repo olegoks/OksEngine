@@ -8,6 +8,8 @@
 #include <Render/Model/ObjMtl/OksEngine.CreateLoadObjRequest.hpp>
 #include <Render/Model/ObjMtl/OksEngine.CreateMtl.hpp>
 #include <Render/Model/ObjMtl/OksEngine.CreateObj.hpp>
+#include <Render/Model/Fbx/OksEngine.CreateLoadFbxRequest.hpp>
+#include <Render/Model/Fbx/OksEngine.CreateFbx.hpp>
 #include <Render/Model/OksEngine.CreateModel.hpp>
 #include <Render/Texture/OksEngine.CreateLoadTextureRequest.hpp>
 #include <Render/Texture/OksEngine.CheckTextureLoaded.hpp>

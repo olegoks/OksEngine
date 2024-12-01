@@ -33,6 +33,11 @@ namespace OksEngine {
 		ecsWorld->RegisterSystem<CreateLoadMtlRequest>(context);
 		ecsWorld->RegisterSystem<CreateObjEntity>(context);
 		ecsWorld->RegisterSystem<CreateMtlEntity>(context);
+		//Fbx
+		ecsWorld->RegisterSystem<CreateLoadFbxRequest>(context);
+		ecsWorld->RegisterSystem<CreateFbxEntity>(context);
+		ecsWorld->RegisterSystem<CreateModelEntityFromFbx>(context);
+		//
 		ecsWorld->RegisterSystem < CheckTextureLoaded>(context);
 		ecsWorld->RegisterSystem < CreateTexture>(context);
 		ecsWorld->RegisterSystem < CreateDriverTexture>(context);

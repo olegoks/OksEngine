@@ -537,6 +537,41 @@ namespace Geometry {
 
 	};
 
+	class FbxIOSystem : public Assimp::IOSystem {
+	public:
+
+		FbxIOSystem(const std::string& fbxName, const std::string& fbx) :
+			fbxName_{ fbxName },
+			fbx_{ fbx } {
+
+		}
+
+		bool Exists(const char* fileName) const override {
+			return fileName == fbxName_;
+		}
+
+		char getOsSeparator() const override {
+			return '/';  // Use forward slash as the separator
+		}
+
+		Assimp::IOStream* Open(const char* fileName, const char* /*pMode*/ = "rb") override {
+			if (fileName == fbxName_) {
+				return new MyIOStream(fbx_.data(), fbx_.size());
+			}
+			else {
+				return nullptr;
+			}
+		}
+
+		void Close(Assimp::IOStream* pFile) override {
+			delete pFile;
+		}
+
+		std::string fbxName_;
+		std::string fbx_;
+
+	};
+
 
 	[[nodiscard]]
 	Geom::Model2 ParseFbxModelBaked(const std::string& fbxName, const std::string& fbx) {
@@ -544,9 +579,9 @@ namespace Geometry {
 
 		Assimp::Importer importer;
 
-		//importer.SetIOHandler(new ObjMtlIOSystem{ objName, obj, mtlName, mtl });
+		importer.SetIOHandler(new FbxIOSystem{ fbxName, fbx });
 
-		const aiScene* scene = importer.ReadFile(fbx,
+		const aiScene* scene = importer.ReadFile(fbxName,
 			aiProcess_CalcTangentSpace |
 			aiProcess_Triangulate |
 			aiProcess_JoinIdenticalVertices |

@@ -81,8 +81,12 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreateObjEntity>();
 				context_->GetECSWorld()->RunSystem<CreateLoadMtlRequest>();
 				context_->GetECSWorld()->RunSystem<CreateMtlEntity>();
+
+				context_->GetECSWorld()->RunSystem<CreateLoadFbxRequest>();
+				context_->GetECSWorld()->RunSystem<CreateFbxEntity>();
 				
 				context_->GetECSWorld()->RunSystem<CreateModelEntityFromObjMtl>();
+				context_->GetECSWorld()->RunSystem<CreateModelEntityFromFbx>();
 
 				context_->GetECSWorld()->RunSystem<CreateLoadTextureRequest>();
 				context_->GetECSWorld()->RunSystem<CreateTexture>();
