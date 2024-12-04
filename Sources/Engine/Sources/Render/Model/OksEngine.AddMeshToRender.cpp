@@ -2,8 +2,7 @@
 #include <Render/Model/OksEngine.AddMeshToRender.hpp>
 
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
-#include <Common/OksEngine.Position.hpp>
-#include <Common/OksEngine.Rotation.hpp>
+#include <Render/Model/Transform/OksEngine.DriverTransform3D.hpp>
 #include <Render/Model/OksEngine.Mesh.hpp>
 #include <Render/Texture/OksEngine.DriverTexture.hpp>
 #include <Render/Model/OksEngine.DriverMesh.hpp>
@@ -17,8 +16,6 @@ namespace OksEngine {
 
 	void AddMeshToRender::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		auto* position = world->GetComponent<Position>(entityId);
-		auto* rotation = world->GetComponent<Rotation>(entityId);
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 		//auto* driverCamera = world->GetComponent<DriverCamera>(secondEntityId);
 		auto* driverTexture = world->GetComponent<DriverTexture>(entityId);
@@ -42,23 +39,12 @@ namespace OksEngine {
 		}
 
 		//TRANSFORM BINDING
-		{
-			const glm::mat4 transformMatrix = glm::mat4{ 1 } * rotation->GetMat() * position->GetMat();
-			struct Transform {
-				glm::mat4 model_;
-			};
-
-			Transform transform{ transformMatrix };
-			RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
-				.size_ = sizeof(Transform),
-				.type_ = RAL::Driver::UniformBuffer::Type::Const
-			};
-			RAL::Driver::UniformBuffer::Id ubId = driver->CreateUniformBuffer(UBCreateInfo);
-			driver->FillUniformBuffer(ubId, &transform);
+		{	
+			DriverTransform3D* driverTransform = world->GetComponent<DriverTransform3D>(entityId);
 			RAL::Driver::ShaderBinding::Data transformBinding{
 				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
 				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
-				.uniformBufferId_ = ubId
+				.uniformBufferId_ = driverTransform->UBId_
 			};
 			shaderBindings.push_back(transformBinding);
 		}
@@ -96,15 +82,14 @@ namespace OksEngine {
 			RAL::Driver::IndexType::UI16,*/
 			shaderBindings
 		);
-		world->CreateComponent<DriverMesh>(entityId, driverMeshId);
+		//world->CreateComponent<DriverMesh>(entityId, driverMeshId);
 	}
 
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> AddMeshToRender::GetFilter() const noexcept {
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
 			.Include<Mesh2>()
-			.Include<Position>()
-			.Include<Rotation>()
+			.Include<DriverTransform3D>()
 			.Include<Mesh2>()
 			.Include<Vertices3D>()
 			.Include<Indices>()
@@ -113,7 +98,7 @@ namespace OksEngine {
 			.Include<DriverTexture>()
 			.Include<DriverIndexBuffer>()
 			.Include<DriverVertexBuffer>()
-			.Exclude<DriverMesh>()
+			//.Exclude<DriverMesh>()
 			, ECS::Entity::Filter{}.Include<Camera>().Include<UniformBuffer>() };
 		return filter;
 	}

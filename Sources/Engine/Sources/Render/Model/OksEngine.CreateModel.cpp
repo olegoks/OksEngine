@@ -1,6 +1,7 @@
 
 #include <Render/Model/OksEngine.CreateModel.hpp>
 
+#include <Animation/OksEngine.Animation.Components.hpp>
 #include <Render/OksEngine.Render.Components.hpp>
 #include <Common/OksEngine.Common.Components.hpp>
 
@@ -92,6 +93,17 @@ namespace OksEngine {
 		Geom::Model2 model2 = Geom::ParseFbxModelBaked(
 			fbxName->value_,
 			std::string{ fbxData->data_.data(), fbxData->data_.size() } );
+
+		if (!model2.animation_->states_.empty()) {
+			std::vector<Animation::StateInfo> states;
+			for (Geom::Model2::Animation::StateInfo& state : model2.animation_->states_) {
+				states.push_back({ state.time_, state.position_});
+			}
+			world->CreateComponent<Animation>(entityId, model2.animation_->ticksNumber_, model2.animation_->ticksPerSecond_, states);
+		}
+
+
+
 
 		for (auto& mesh : model2.meshes_) {
 			ECS::Entity::Id meshEntityId = world->CreateEntity();

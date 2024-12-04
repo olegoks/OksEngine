@@ -1,6 +1,6 @@
 #pragma once 
 
-
+#include <Animation/OksEngine.Animation.Components.hpp>
 #include <Debug/OksEngine.Debug.Components.hpp>
 #include <Render/OksEngine.Render.Components.hpp>
 #include <Physics/OksEngine.Physics.Components.hpp>

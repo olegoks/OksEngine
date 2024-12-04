@@ -595,6 +595,33 @@ namespace Geometry {
 
 		//Geom::Mesh geomMesh;
 		Geom::Model2 model2;
+
+
+		if (scene->HasAnimations()) {
+			OS::AssertMessage(scene->mNumAnimations <= 1, "More than one animation is not supported.");
+			for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+				aiAnimation* animation = scene->mAnimations[i];
+				auto animationPtr = std::make_shared<Model2::Animation>();
+				animationPtr->ticksNumber_ = animation->mDuration;
+				animationPtr->ticksPerSecond_ = animation->mTicksPerSecond;
+				for (Common::Index j = 0; j < animation->mNumChannels; j++) {
+					for (Common::Index ti = 0; ti < animation->mChannels[j]->mNumPositionKeys; ti++) {
+						const aiVector3D& aiVec = animation->mChannels[i]->mPositionKeys[ti].mValue;
+						Model2::Animation::StateInfo state{
+							.time_ = animation->mChannels[i]->mPositionKeys[ti].mTime,
+							.position_ = glm::vec3{ aiVec.x ,aiVec.y, aiVec.y }
+						};
+
+						animationPtr->states_.push_back(state);
+					}
+				}
+				model2.animation_ = animationPtr;
+			}
+		}
+
+
+
+
 		Common::UInt64 previousMeshIndicesNumber = 0;
 		std::vector<Geom::Mesh> backedMeshs;
 		for (unsigned i = 0; i < scene->mNumMeshes; i++) {
@@ -686,7 +713,7 @@ namespace Geometry {
 
 			const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
 			OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
-			
+
 			//Process mesh only with texture.
 			if (texturesNumber != 1) continue;
 

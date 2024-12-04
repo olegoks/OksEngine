@@ -98,7 +98,7 @@ namespace OksEngine {
 			RAL::Driver::IndexType::UI16,*/
 			shaderBindings
 		);
-		world->CreateComponent<DriverMesh>(entityId, driverMeshId);
+		//world->CreateComponent<DriverMesh>(entityId, driverMeshId);
 	}
 
 
@@ -114,7 +114,7 @@ namespace OksEngine {
 			.Include<DriverTexture>()
 			.Include<DriverIndexBuffer>()
 			.Include<DriverVertexBuffer>()
-			.Exclude<DriverMesh>()
+			//.Exclude<DriverMesh>()
 			, ECS::Entity::Filter{}.Include<Camera>().Include<UniformBuffer>() };
 		return filter;
 	}
