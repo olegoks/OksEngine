@@ -90,7 +90,6 @@ namespace OksEngine {
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
 			.Include<Mesh2>()
 			.Include<DriverTransform3D>()
-			.Include<Mesh2>()
 			.Include<Vertices3D>()
 			.Include<Indices>()
 			.Include<UVs>()

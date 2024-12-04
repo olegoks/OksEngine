@@ -36,7 +36,6 @@ namespace OksEngine {
 			.Include<Mesh2>()
 			.Include<TextureInfo>()
 			.Exclude<Texture>()
-			.Exclude<Name>()
 			.Exclude<LoadTextureRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
 		return filter;
 	}
