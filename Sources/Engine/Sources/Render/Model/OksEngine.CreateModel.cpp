@@ -29,39 +29,39 @@ namespace OksEngine {
 			std::string{ objData->data_.data(), objData->data_.size() }, 
 			mtlName->value_,
 			std::string{ mtlData->data_.data(), mtlData->data_.size() } );
-
+		OS::Assert(model2.meshes_.size() == 1);
 		for (auto& mesh : model2.meshes_) {
-			ECS::Entity::Id meshEntityId = world->CreateEntity();
-			meshsEntitiesIds.push_back(meshEntityId);
-			world->CreateComponent<Mesh2>(meshEntityId);
-			world->CreateComponent<Position>(meshEntityId, position->GetX(), position->GetY(), position->GetZ());
-			world->CreateComponent<Rotation>(meshEntityId, rotation->GetRotationVector(), rotation->GetAngle());
+			//ECS::Entity::Id meshEntityId = world->CreateEntity();
+			//meshsEntitiesIds.push_back(meshEntityId);
+			world->CreateComponent<Mesh2>(entityId);
+			//world->CreateComponent<Position>(meshEntityId, position->GetX(), position->GetY(), position->GetZ());
+			//world->CreateComponent<Rotation>(meshEntityId, rotation->GetRotationVector(), rotation->GetAngle());
 			if (mesh.textureName_ != "") {
-				world->CreateComponent<TextureInfo>(meshEntityId, mesh.textureName_);
+				world->CreateComponent<TextureInfo>(entityId, mesh.textureName_);
 			}
 			
 			OS::Assert(mesh.vertices_.GetVerticesNumber() != 0);
-			world->CreateComponent<Vertices3D>(meshEntityId, mesh.vertices_);
+			world->CreateComponent<Vertices3D>(entityId, mesh.vertices_);
 
 			OS::Assert(mesh.indices_.GetIndicesNumber() != 0);
-			world->CreateComponent<Indices>(meshEntityId, mesh.indices_);
+			world->CreateComponent<Indices>(entityId, mesh.indices_);
 
 			if (mesh.colors_.GetSize() != 0) {
-				world->CreateComponent<Colors>(meshEntityId, mesh.colors_);
+				world->CreateComponent<Colors>(entityId, mesh.colors_);
 			}
 
 			if (mesh.normals_.GetSize() != 0) {
-				world->CreateComponent<Normals>(meshEntityId, mesh.normals_);
+				world->CreateComponent<Normals>(entityId, mesh.normals_);
 			}
 
 			if (mesh.uvs_.GetSize() != 0) {
-				world->CreateComponent<UVs>(meshEntityId, mesh.uvs_);
+				world->CreateComponent<UVs>(entityId, mesh.uvs_);
 			}
 
 		}
 
-		world->CreateComponent<ChildEntities>(modelEntityid, meshsEntitiesIds);
-		world->CreateComponent<ModelEntity>(entityId, modelEntityid);
+		//world->CreateComponent<ChildEntities>(modelEntityid, meshsEntitiesIds);
+		//world->CreateComponent<ModelEntity>(entityId, modelEntityid);
 
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateModelEntityFromObjMtl::GetFilter() const noexcept {
@@ -106,44 +106,44 @@ namespace OksEngine {
 
 
 		for (auto& mesh : model2.meshes_) {
-			ECS::Entity::Id meshEntityId = world->CreateEntity();
-			meshsEntitiesIds.push_back(meshEntityId);
-			world->CreateComponent<Mesh2>(meshEntityId);
-			world->CreateComponent<Position>(meshEntityId, position->GetX(), position->GetY(), position->GetZ());
-			world->CreateComponent<Rotation>(meshEntityId, rotation->GetRotationVector(), rotation->GetAngle());
+			//ECS::Entity::Id meshEntityId = world->CreateEntity();
+			//meshsEntitiesIds.push_back(meshEntityId);
+			world->CreateComponent<Mesh2>(entityId);
+			//world->CreateComponent<Position>(entityId, position->GetX(), position->GetY(), position->GetZ());
+			//world->CreateComponent<Rotation>(entityId, rotation->GetRotationVector(), rotation->GetAngle());
 			if (mesh.textureName_ != "") {
-				world->CreateComponent<TextureInfo>(meshEntityId, mesh.textureName_);
+				world->CreateComponent<TextureInfo>(entityId, mesh.textureName_);
 			}
 
 			OS::Assert(mesh.vertices_.GetVerticesNumber() != 0);
-			world->CreateComponent<Vertices3D>(meshEntityId, mesh.vertices_);
+			world->CreateComponent<Vertices3D>(entityId, mesh.vertices_);
 
 			OS::Assert(mesh.indices_.GetIndicesNumber() != 0);
-			world->CreateComponent<Indices>(meshEntityId, mesh.indices_);
+			world->CreateComponent<Indices>(entityId, mesh.indices_);
 
 			if (mesh.colors_.GetSize() != 0) {
-				world->CreateComponent<Colors>(meshEntityId, mesh.colors_);
+				world->CreateComponent<Colors>(entityId, mesh.colors_);
 			}
 
 			if (mesh.normals_.GetSize() != 0) {
-				world->CreateComponent<Normals>(meshEntityId, mesh.normals_);
+				world->CreateComponent<Normals>(entityId, mesh.normals_);
 			}
 
 			if (mesh.uvs_.GetSize() != 0) {
-				world->CreateComponent<UVs>(meshEntityId, mesh.uvs_);
+				world->CreateComponent<UVs>(entityId, mesh.uvs_);
 			}
 
 		}
 
-		world->CreateComponent<ChildEntities>(modelEntityid, meshsEntitiesIds);
-		world->CreateComponent<ModelEntity>(entityId, modelEntityid);
+		//world->CreateComponent<ChildEntities>(modelEntityid, meshsEntitiesIds);
+		//world->CreateComponent<ModelEntity>(entityId, modelEntityid);
 
 	}
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateModelEntityFromFbx::GetFilter() const noexcept {
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
 			.Include<FbxEntity>()
-			.Exclude<ModelEntity>(),
+			.Exclude<Vertices3D>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
 		return filter;
 	}
