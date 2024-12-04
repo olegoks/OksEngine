@@ -81,6 +81,11 @@ namespace OksEngine
 		world_->RegisterSystem <CreateDynamicRigidBody>(*this);
 		//world_b->RegisterSystem<AttachCameraSystem>(*this);
 
+
+		//ANIMATION
+		world_->RegisterSystem < CreateAnimationState>(*this);
+		world_->RegisterSystem<ProcessAnimation>(*this);
+
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,
 			//vertexShader,

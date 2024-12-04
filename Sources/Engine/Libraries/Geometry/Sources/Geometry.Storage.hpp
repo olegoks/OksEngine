@@ -11,6 +11,15 @@
 #include <Geometry.Polygon.hpp>
 #include <Geometry.AABB.hpp>
 
+//tempo
+#include <assimp/StringUtils.h>
+#include <assimp/Importer.hpp>      // C++ importer interface
+#include <assimp/scene.h>           // Output data structure
+#include <assimp/postprocess.h>     // Post processing flags
+#include <assimp/IOStream.hpp>
+#include <assimp/IOSystem.hpp>
+
+
 namespace Geometry {
 
 	class Mesh {
@@ -60,6 +69,17 @@ namespace Geometry {
 	public:
 		using Id = Common::Id;
 
+		struct Animation {
+			struct StateInfo {
+				Common::Double time_ = 0;
+				glm::vec3 position_;
+			};
+
+			Common::Double ticksNumber_ = 0;
+			float ticksPerSecond_ = 1.f;
+			std::vector<StateInfo> states_;
+		};
+		std::shared_ptr<Animation> animation_ = nullptr;
 		std::vector<Geom::Mesh> meshes_;
 	};
 

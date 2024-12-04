@@ -1014,6 +1014,7 @@ namespace Render::Vulkan {
 		void EndRender() override {
 			//objects_.commandBuffers_.clear();
 			//UIShapes_.clear();
+			meshs_.clear();
 		}
 
 		[[nodiscard]]
@@ -1245,7 +1246,7 @@ namespace Render::Vulkan {
 		}
 		virtual void ResizeVertexBuffer(VertexBuffer::Id vbid, Common::Size verticesNumber) override {
 			OS::AssertMessage(
-				IBs_.find(vbid) != IBs_.end(),
+				VBs_.find(vbid) != VBs_.end(),
 				"Attempt to destroy vertexbuffer that doesnt exist.");
 
 			auto vbs = VBs_[vbid];
@@ -1557,7 +1558,6 @@ namespace Render::Vulkan {
 			const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
 			meshs_[meshId] = mesh;
 			return meshId;
-			//return 0;
 		}
 
 		virtual void ResumeMeshDrawing(Common::Id shapeId) override {

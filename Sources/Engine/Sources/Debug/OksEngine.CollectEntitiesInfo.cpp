@@ -95,6 +95,13 @@ namespace OksEngine {
 			editComponent.template operator() < LoadTextureRequest > (world, id);
 			editComponent.template operator() < ObjEntity > (world, id);
 			editComponent.template operator() < MtlEntity > (world, id);
+
+			editComponent.template operator() < Animation > (world, id);
+			editComponent.template operator() < StartAnimation > (world, id);
+			editComponent.template operator() < RunningAnimationState > (world, id);
+
+			editComponent.template operator() < DriverTransform3D > (world, id);
+
 			if (world->IsComponentExist<MtlEntity>(id)) {
 				auto mtlEntity = world->GetComponent<MtlEntity>(id);
 				ImGui::Indent(20.0f);
@@ -188,7 +195,8 @@ namespace OksEngine {
 				Resource::GetName(),
 				HandleKeyboardInputMarker::GetName(),
 				KeyboardInput::GetName(),
-				Window::GetName()
+				Window::GetName(),
+				StartAnimation::GetName()
 
 			};
 			ImGui::Combo("", &state.currentAddComponentIndex_, items, std::size(items));
@@ -202,6 +210,9 @@ namespace OksEngine {
 			}
 			if (currentComponent == Behaviour::GetName()) {
 				Add<Behaviour>(world, id);
+			}
+			if (currentComponent == StartAnimation::GetName()) {
+				Add<StartAnimation>(world, id);
 			}
 			if (currentComponent == Active::GetName()) {
 				Add<Active>(world, id);

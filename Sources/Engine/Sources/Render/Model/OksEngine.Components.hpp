@@ -23,3 +23,5 @@
 #include <Render/Model/Fbx/OksEngine.LoadFbxRequest.hpp>
 #include <Render/Model/Fbx/OksEngine.Fbx.hpp>
 #include <Render/Model/Fbx/OksEngine.FbxEntity.hpp>
+
+#include <Render/Model/Transform/OksEngine.DriverTransform3D.hpp>
