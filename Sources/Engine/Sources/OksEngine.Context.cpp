@@ -79,12 +79,15 @@ namespace OksEngine
 		world_->RegisterSystem<RigidBodyToRenderGeometryMapper>(*this);
 		world_->RegisterSystem <CreatePhysicsShapeForDynamicRigidBody>(*this);
 		world_->RegisterSystem <CreateDynamicRigidBody>(*this);
-		//world_b->RegisterSystem<AttachCameraSystem>(*this);
+		world_->RegisterSystem<UpdateClock>(*this);
+		world_->RegisterSystem < UpdateDriverTransform3DWithLocalTransform>(*this);
 
 
 		//ANIMATION
 		world_->RegisterSystem < CreateAnimationState>(*this);
 		world_->RegisterSystem<ProcessAnimation>(*this);
+		world_->RegisterSystem<RunAnimation>(*this);
+		world_->RegisterSystem<StopAnimation>(*this);
 
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,

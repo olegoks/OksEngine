@@ -39,6 +39,7 @@ namespace OksEngine {
 			bool isActive);
 
 		void AddPosition(float x, float y, float z);
+		void AddLocalPosition(float x, float y, float z);
 		void AddDirection(float x, float y, float z);
 
 		void AddUp(float x, float y, float z);

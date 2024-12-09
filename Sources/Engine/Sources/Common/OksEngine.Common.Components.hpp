@@ -2,6 +2,7 @@
 
 #include <Common/OksEngine.MapRigidBodyToRenderGeometry.hpp>
 #include <Common/OksEngine.Position.hpp>
+#include <Common/OksEngine.LocalPosition3D.hpp>
 #include <Common/OksEngine.Position2D.hpp>
 #include <Common/OksEngine.Scale2D.hpp>
 #include <Common/OksEngine.Rotation.hpp>
@@ -17,3 +18,4 @@
 #include <Common/OksEngine.StringsArray.hpp>
 #include <Common/OksEngine.Direction.hpp>
 #include <Common/FramesCounter/OksEngine.IncreaseFramesCounter.hpp>
+#include <Common/Clock/OksEngine.Clock.hpp>

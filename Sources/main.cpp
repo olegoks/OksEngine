@@ -31,21 +31,21 @@ int main(int argc, char** argv) {
 	//Common::Size terrainWidth = 10;
 	//Common::Size terrainLength = 10;
 
-	//{
-	//	Entity terrain = engine.CreateEntity();
-	//	terrain.AddName("Terrain");
-	//	terrain.AddPosition(0, 0, 0);
-	//	terrain.AddRotation({ 0, 1, 0 }, 0);
-	//	terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom");
-	//	terrain.AddStaticRigidBodyCustomMeshShape();
-	//	terrain.AddMaterial(0.1, 0.1, 0.1);
+	{
+		Entity terrain = engine.CreateEntity();
+		terrain.AddName("Terrain");
+		terrain.AddPosition(0, 0, 0);
+		terrain.AddRotation({ 0, 1, 0 }, 0);
+		terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom");
+		terrain.AddStaticRigidBodyCustomMeshShape();
+		terrain.AddMaterial(0.1, 0.1, 0.1);
 
-	//	Entity skybox = engine.CreateEntity();
-	//	skybox.AddName("SkyBox");
-	//	skybox.AddPosition(0, -300, 0);
-	//	skybox.AddRotation({ 0, 1, 0 }, 0);
-	//	skybox.AddImmutableRenderGeometry("SkyBox.geom");
-	//}
+		Entity skybox = engine.CreateEntity();
+		skybox.AddName("SkyBox");
+		skybox.AddPosition(0, -300, 0);
+		skybox.AddRotation({ 0, 1, 0 }, 0);
+		skybox.AddImmutableRenderGeometry("SkyBox.geom");
+	}
 
 	//Entity dragonLore = engine.CreateEntity();
 	//dragonLore.AddName("DragonLore");
@@ -67,6 +67,7 @@ int main(int argc, char** argv) {
 	Entity axe = engine.CreateEntity();
 	axe.AddName("Axe");
 	axe.AddPosition(0, 11, 0);
+	axe.AddLocalPosition(0, 0, 0);
 	axe.AddRotation({ 0, 1, 0 }, 0);
 	axe.AddImmutableRenderGeometry("Axe.geom");
 
