@@ -26,6 +26,11 @@ namespace OksEngine {
 			context_->GetPhysicsSubsystem()->Update();
 			{
 				context_->GetECSWorld()->StartFrame();
+				/*Common*/
+
+				context_->GetECSWorld()->RunSystem<UpdateClock>();
+
+				/*Common*/
 				/*Resources*/
 				context_->GetECSWorld()->RunSystem<CreateAsyncTask>();
 				context_->GetECSWorld()->RunSystem<CheckResourceLoaded>();
@@ -74,7 +79,9 @@ namespace OksEngine {
 
 				/*Animation*/
 				context_->GetECSWorld()->RunSystem<CreateAnimationState>();
+				context_->GetECSWorld()->RunSystem<RunAnimation>();
 				context_->GetECSWorld()->RunSystem<ProcessAnimation>();
+				context_->GetECSWorld()->RunSystem < StopAnimation>();
 				/*Animation*/
 
 				/*Render*/
@@ -104,6 +111,7 @@ namespace OksEngine {
 
 				context_->GetECSWorld()->RunSystem<CreateDriverTransform3D>();
 				context_->GetECSWorld()->RunSystem<UpdateDriverTransform3D>();
+				context_->GetECSWorld()->RunSystem<UpdateDriverTransform3DWithLocalTransform>();
 
 				context_->GetECSWorld()->RunSystem<AddMeshToRender>();
 

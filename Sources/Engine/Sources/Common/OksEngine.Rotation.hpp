@@ -44,6 +44,10 @@ namespace OksEngine {
 
 	template<>
 	inline void Edit<Rotation>(Rotation* rotation) {
+		ImGui::TextDisabled("W: %f", rotation->quat_.w);
+		ImGui::TextDisabled("X: %f", rotation->quat_.x);
+		ImGui::TextDisabled("Y: %f", rotation->quat_.y);
+		ImGui::TextDisabled("Z: %f", rotation->quat_.z);
 	}
 
 

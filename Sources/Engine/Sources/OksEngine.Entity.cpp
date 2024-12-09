@@ -135,6 +135,11 @@ namespace OksEngine {
 			x, y, z);
 	}
 
+	void Entity::AddLocalPosition(float x, float y, float z) {
+		world_->CreateComponent<LocalPosition3D>(
+			GetId(),
+			x, y, z);
+	}
 
 
 	void Entity::AddDirection(float x, float y, float z) {

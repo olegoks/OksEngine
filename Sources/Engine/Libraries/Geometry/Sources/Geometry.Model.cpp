@@ -598,20 +598,22 @@ namespace Geometry {
 
 
 		if (scene->HasAnimations()) {
-			OS::AssertMessage(scene->mNumAnimations <= 1, "More than one animation is not supported.");
-			for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+			//OS::AssertMessage(scene->mNumAnimations <= 1, "More than one animation is not supported.");
+			for (unsigned int i = 0; i < /*scene->mNumAnimations*/1; i++) {
 				aiAnimation* animation = scene->mAnimations[i];
 				auto animationPtr = std::make_shared<Model2::Animation>();
 				animationPtr->ticksNumber_ = animation->mDuration;
 				animationPtr->ticksPerSecond_ = animation->mTicksPerSecond;
 				for (Common::Index j = 0; j < animation->mNumChannels; j++) {
 					for (Common::Index ti = 0; ti < animation->mChannels[j]->mNumPositionKeys; ti++) {
-						const aiVector3D& aiVec = animation->mChannels[i]->mPositionKeys[ti].mValue;
+						const aiVector3D& aiPosition = animation->mChannels[i]->mPositionKeys[ti].mValue;
+						const aiQuaternion& aiRotation = animation->mChannels[i]->mRotationKeys[ti].mValue;
 						Model2::Animation::StateInfo state{
 							.time_ = animation->mChannels[i]->mPositionKeys[ti].mTime,
-							.position_ = glm::vec3{ aiVec.x ,aiVec.y, aiVec.y }
+							.position_ = glm::vec3{ aiPosition.x ,aiPosition.y, aiPosition.z },
+							.rotation_ = glm::quat::wxyz(aiRotation.w, aiRotation.x, aiRotation.y, aiRotation.z)
 						};
-
+						
 						animationPtr->states_.push_back(state);
 					}
 				}

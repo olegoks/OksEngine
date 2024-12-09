@@ -73,6 +73,7 @@ namespace Geometry {
 			struct StateInfo {
 				Common::Double time_ = 0;
 				glm::vec3 position_;
+				glm::quat rotation_;
 			};
 
 			Common::Double ticksNumber_ = 0;

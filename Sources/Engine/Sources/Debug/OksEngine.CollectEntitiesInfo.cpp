@@ -56,6 +56,7 @@ namespace OksEngine {
 			//callProcessForEach<Position, MapRigidBodyToRenderGeometry, ActiveMarker>(world, id);
 			/*Common*/
 			editComponent.template operator() < Position > (world, id);
+			editComponent.template operator() < LocalPosition3D > (world, id);
 			editComponent.template operator() < Position2D > (world, id);
 			editComponent.template operator() < Scale2D > (world, id);
 
@@ -70,6 +71,7 @@ namespace OksEngine {
 			editComponent.template operator() < Text > (world, id);
 			editComponent.template operator() < BinaryData > (world, id);
 			editComponent.template operator() < Completed > (world, id);
+			editComponent.template operator() < Clock > (world, id);
 			/*Behaviour*/
 			editComponent.template operator() < Behaviour > (world, id);
 			editComponent.template operator() < LuaScript > (world, id);
@@ -98,6 +100,8 @@ namespace OksEngine {
 
 			editComponent.template operator() < Animation > (world, id);
 			editComponent.template operator() < StartAnimation > (world, id);
+			editComponent.template operator() < AnimationInProcess > (world, id);
+			editComponent.template operator() < AnimationEnded> (world, id);
 			editComponent.template operator() < RunningAnimationState > (world, id);
 
 			editComponent.template operator() < DriverTransform3D > (world, id);

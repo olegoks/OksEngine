@@ -69,7 +69,7 @@ namespace OksEngine {
 			ECS::Entity::Filter{}
 			.Include<ObjEntity>()
 			.Include<MtlEntity>()
-			.Exclude<ModelEntity>(),
+			.Exclude<Mesh2>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
 		return filter;
 	}
@@ -97,7 +97,7 @@ namespace OksEngine {
 		if (!model2.animation_->states_.empty()) {
 			std::vector<Animation::StateInfo> states;
 			for (Geom::Model2::Animation::StateInfo& state : model2.animation_->states_) {
-				states.push_back({ state.time_, state.position_});
+				states.push_back({ state.time_, state.position_, state.rotation_ });
 			}
 			world->CreateComponent<Animation>(entityId, model2.animation_->ticksNumber_, model2.animation_->ticksPerSecond_, states);
 		}

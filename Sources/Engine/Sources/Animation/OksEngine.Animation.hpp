@@ -16,6 +16,7 @@ namespace OksEngine {
 		struct StateInfo {
 			Common::Double time_ = 0;
 			glm::vec3 translate_;
+			glm::quat rotation_;
 		};
 		Animation(Common::Double ticksNumber_, float ticksPerSecond_, std::vector<StateInfo> states_);
 
