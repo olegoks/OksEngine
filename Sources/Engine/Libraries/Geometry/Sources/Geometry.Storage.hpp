@@ -70,6 +70,7 @@ namespace Geometry {
 		using Id = Common::Id;
 
 		struct Animation {
+			std::string name_ = "No name";
 			struct StateInfo {
 				Common::Double time_ = 0;
 				glm::vec3 position_;
@@ -80,8 +81,13 @@ namespace Geometry {
 			float ticksPerSecond_ = 1.f;
 			std::vector<StateInfo> states_;
 		};
-		std::shared_ptr<Animation> animation_ = nullptr;
-		std::vector<Geom::Mesh> meshes_;
+		
+		struct Mesh {
+			std::string name_ = "No name";
+			Geom::Mesh mesh_;
+			std::shared_ptr<Animation> animation_ = nullptr;
+		};
+		std::vector<Mesh> meshes_;
 	};
 
 	[[nodiscard]]

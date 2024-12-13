@@ -44,9 +44,9 @@ namespace OksEngine {
 		double integerPart = 0.f;
 		double fractionalPart = std::modf(currentTick, &integerPart);
 
-		//localPosition->xyz_.x = leftState.translate_.x + xDelta * fractionalPart;
-		//localPosition->xyz_.y = leftState.translate_.y + yDelta * fractionalPart;
-		//localPosition->xyz_.z = leftState.translate_.z + zDelta * fractionalPart;
+		localPosition->xyz_.x = leftState.translate_.x + xDelta * fractionalPart;
+		localPosition->xyz_.y = leftState.translate_.y + yDelta * fractionalPart;
+		localPosition->xyz_.z = leftState.translate_.z + zDelta * fractionalPart;
 	
 		rotation->quat_.w = rightState.rotation_.w;
 		rotation->quat_.x = rightState.rotation_.x;

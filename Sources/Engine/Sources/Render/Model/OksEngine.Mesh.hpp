@@ -20,6 +20,17 @@ namespace OksEngine {
 	//	ImGui::TextDisabled("Model id: \"%d\"", mesh->modelId_);
 	//}
 
+	struct Node : public ECSComponent<Node> {
+	public:
+		Node() : ECSComponent{ nullptr } {
+
+		}
+	};
+
+	template<>
+	inline void Edit<Node>(Node* node) {
+	}
+
 	struct Mesh2 : public ECSComponent<Mesh2> {
 	public:
 		Mesh2() : ECSComponent{ nullptr } {
@@ -31,12 +42,64 @@ namespace OksEngine {
 	inline void Edit<Mesh2>(Mesh2* renderMesh) {
 	}
 
+	struct MeshEntity : public ECSComponent<MeshEntity> {
+	public:
+		MeshEntity() : ECSComponent{ nullptr } {
+
+		}
+		ECS::Entity::Id id_ = ECS::Entity::Id::invalid_;
+	};
+
+	template<>
+	inline void Edit<MeshEntity>(MeshEntity* meshEntity) {
+		ImGui::TextDisabled("Id: %d", meshEntity->id_);
+	}
+
+	class Meshes : public ECSComponent<Meshes> {
+	public:
+
+		Meshes()
+			: ECSComponent{ nullptr },
+			entitiesIds_{ } {
+
+		}
+
+
+		Meshes(ECS::Entity::Id entityIds)
+			: ECSComponent{ nullptr },
+			entitiesIds_{ entityIds } {
+
+		}
+
+		Meshes(const std::vector<ECS::Entity::Id>& entitiesIds)
+			: ECSComponent{ nullptr },
+			entitiesIds_{ entitiesIds } {
+
+		}
+
+		std::vector<ECS::Entity::Id> entitiesIds_;
+	};
+
+	template<>
+	inline void Edit<Meshes>(Meshes* meshes) {
+		ImGui::TextDisabled("Meshes: ");
+		for (ECS::Entity::Id id : meshes->entitiesIds_) {
+			ImGui::TextDisabled("%d", id);
+		}
+	}
+
 
 	struct Vertices3D : public ECSComponent<Vertices3D> {
 	public:
 		Vertices3D(const Geom::VertexCloud<Geom::Vertex3f>& vertices) 
 			: ECSComponent{ nullptr },
 			vertices_{ vertices } {
+
+		}
+
+		Vertices3D(const Geom::Vertex3f* vertices, Common::Size verticesNumber)
+			: ECSComponent{ nullptr },
+			vertices_{ vertices, verticesNumber } {
 
 		}
 
@@ -81,6 +144,12 @@ namespace OksEngine {
 		Normals(const DS::Vector<Geom::Normal3f>& normals) 
 			: ECSComponent{ nullptr },
 			normals_{ normals } {
+
+		}
+
+		Normals(const Geom::Normal3f* normals, Common::Size size)
+			: ECSComponent{ nullptr },
+			normals_{ normals, size } {
 
 		}
 

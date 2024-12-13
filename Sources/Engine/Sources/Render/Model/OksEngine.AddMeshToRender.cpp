@@ -12,92 +12,96 @@
 #include <Render/Driver/OksEngine.DriverIndexBuffer.hpp>
 #include <Render/Driver/OksEngine.DriverVertexBuffer.hpp>
 
+#pragma optimize("", off)
+
 namespace OksEngine {
 
 	void AddMeshToRender::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
+		//return;
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		//auto* driverCamera = world->GetComponent<DriverCamera>(secondEntityId);
-		auto* driverTexture = world->GetComponent<DriverTexture>(entityId);
+		auto* transform = world->GetComponent<DriverTransform3D>(entityId);
+		auto* meshes = world->GetComponent<Meshes>(entityId);
 
-		auto* vertices = world->GetComponent<DriverVertexBuffer>(entityId);
-		auto* indices = world->GetComponent<DriverIndexBuffer>(entityId);
-		auto* uvs = world->GetComponent<UVs>(entityId);
-		auto* normals = world->GetComponent<Normals>(entityId);
+		for (ECS::Entity::Id meshEntityId : meshes->entitiesIds_) {
 
-		std::vector<RAL::Driver::ShaderBinding::Data> shaderBindings;
+			if (!world->IsComponentExist<DriverTexture>(meshEntityId)) {
+				continue;
+			}
+			auto* vertices = world->GetComponent<DriverVertexBuffer>(meshEntityId);
+			auto* indices = world->GetComponent<DriverIndexBuffer>(meshEntityId);
+			//auto* uvs = world->GetComponent<UVs>(meshEntityId);
+			//auto* normals = world->GetComponent<Normals>(meshEntityId);
 
-		//CAMERA BINDING
-		auto* cameraViewProjUniformBuffer = world->GetConstComponent<UniformBuffer>(secondEntityId);
-		{
-			RAL::Driver::ShaderBinding::Data cameraBinding{
-				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
-				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
-				.uniformBufferId_ = cameraViewProjUniformBuffer->id_
-			};
-			shaderBindings.push_back(cameraBinding);
+			auto* driverTexture = world->GetComponent<DriverTexture>(meshEntityId);
+
+
+			std::vector<RAL::Driver::ShaderBinding::Data> shaderBindings;
+
+			//CAMERA BINDING
+			auto* cameraViewProjUniformBuffer = world->GetConstComponent<UniformBuffer>(secondEntityId);
+			{
+				RAL::Driver::ShaderBinding::Data cameraBinding{
+					.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
+					.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
+					.uniformBufferId_ = cameraViewProjUniformBuffer->id_
+				};
+				shaderBindings.push_back(cameraBinding);
+			}
+
+			//TRANSFORM BINDING
+			{
+				RAL::Driver::ShaderBinding::Data transformBinding{
+					.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
+					.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
+					.uniformBufferId_ = transform->UBId_
+				};
+				shaderBindings.push_back(transformBinding);
+			}
+
+			//TEXTURE BINDING
+			{
+
+				RAL::Driver::ShaderBinding::Data textureBinding{
+					.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
+					.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader,
+					.textureId_ = driverTexture->driverTextureId_
+				};
+
+				shaderBindings.push_back(textureBinding);
+			}
+
+			//std::vector<RAL::Vertex3fnt> vertices3fnt;
+			//vertices3fnt.reserve(vertices->vertices_.GetVerticesNumber());
+			//for (Common::Index i = 0; i < vertices->vertices_.GetVerticesNumber(); i++) {
+			//	RAL::Vertex3fnt vertex;
+			//	vertex.position_ = vertices->vertices_[i].position_;
+			//	vertex.normal_ = normals->normals_[i];
+			//	vertex.uv_ = uvs->uvs_[i];
+			//	vertices3fnt.push_back(vertex);
+			//}
+			Common::Id driverMeshId = driver->DrawMesh(
+				"Textured Pipeline",
+				/*(const RAL::Vertex3fnt*)vertices3fnt.data(),
+				vertices->vertices_.GetVerticesNumber(),
+				RAL::Driver::VertexType::VF3_NF3_TF2,*/
+				vertices->id_,
+				indices->id_,
+				/*(const RAL::Index16*)indices->indices_.GetData(),
+				indices->indices_.GetIndicesNumber(),
+				RAL::Driver::IndexType::UI16,*/
+				shaderBindings
+			);
 		}
-
-		//TRANSFORM BINDING
-		{	
-			DriverTransform3D* driverTransform = world->GetComponent<DriverTransform3D>(entityId);
-			RAL::Driver::ShaderBinding::Data transformBinding{
-				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
-				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
-				.uniformBufferId_ = driverTransform->UBId_
-			};
-			shaderBindings.push_back(transformBinding);
-		}
-
-		//TEXTURE BINDING
-		{
-
-			RAL::Driver::ShaderBinding::Data textureBinding{
-				.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
-				.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader,
-				.textureId_ = driverTexture->driverTextureId_
-			};
-
-			shaderBindings.push_back(textureBinding);
-		}
-
-		//std::vector<RAL::Vertex3fnt> vertices3fnt;
-		//vertices3fnt.reserve(vertices->vertices_.GetVerticesNumber());
-		//for (Common::Index i = 0; i < vertices->vertices_.GetVerticesNumber(); i++) {
-		//	RAL::Vertex3fnt vertex;
-		//	vertex.position_ = vertices->vertices_[i].position_;
-		//	vertex.normal_ = normals->normals_[i];
-		//	vertex.uv_ = uvs->uvs_[i];
-		//	vertices3fnt.push_back(vertex);
-		//}
-		Common::Id driverMeshId = driver->DrawMesh(
-			"Textured Pipeline",
-			/*(const RAL::Vertex3fnt*)vertices3fnt.data(),
-			vertices->vertices_.GetVerticesNumber(),
-			RAL::Driver::VertexType::VF3_NF3_TF2,*/
-			vertices->id_,
-			indices->id_,
-			/*(const RAL::Index16*)indices->indices_.GetData(),
-			indices->indices_.GetIndicesNumber(),
-			RAL::Driver::IndexType::UI16,*/
-			shaderBindings
-		);
+	
 		//world->CreateComponent<DriverMesh>(entityId, driverMeshId);
 	}
 
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> AddMeshToRender::GetFilter() const noexcept {
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
-			.Include<Mesh2>()
+			.Include<Node>()
 			.Include<DriverTransform3D>()
-			.Include<Vertices3D>()
-			.Include<Indices>()
-			.Include<UVs>()
-			.Include<Normals>()
-			.Include<DriverTexture>()
-			.Include<DriverIndexBuffer>()
-			.Include<DriverVertexBuffer>()
-			//.Exclude<DriverMesh>()
 			, ECS::Entity::Filter{}.Include<Camera>().Include<UniformBuffer>() };
 		return filter;
 	}
@@ -107,3 +111,5 @@ namespace OksEngine {
 	}
 
 }
+
+#pragma optimize("", on)

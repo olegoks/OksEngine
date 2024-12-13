@@ -64,14 +64,19 @@ int main(int argc, char** argv) {
 	//lamp.AddRotation({ 0, 1, 0 }, 0);
 	//lamp.AddImmutableRenderGeometry("Lamp.geom");
 
+	//Entity axe = engine.CreateEntity();
+	//axe.AddName("m1911");
+	//axe.AddPosition(0, 11, 0);
+	//axe.AddLocalPosition(0, 0, 0);
+	//axe.AddRotation({ 0, 1, 0 }, 0);
+	//axe.AddImmutableRenderGeometry("m1911.geom");
+
 	Entity axe = engine.CreateEntity();
-	axe.AddName("Axe");
+	axe.AddName("Pistol");
 	axe.AddPosition(0, 11, 0);
 	axe.AddLocalPosition(0, 0, 0);
 	axe.AddRotation({ 0, 1, 0 }, 0);
-	axe.AddImmutableRenderGeometry("Axe.geom");
-
-
+	axe.AddImmutableRenderGeometry("Pistol.geom");
 
 	engine.Run();
 

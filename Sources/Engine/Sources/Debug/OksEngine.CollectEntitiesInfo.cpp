@@ -106,6 +106,14 @@ namespace OksEngine {
 
 			editComponent.template operator() < DriverTransform3D > (world, id);
 
+			editComponent.template operator() < MeshEntity > (world, id);
+			if (world->IsComponentExist<MeshEntity>(id)) {
+				auto meshEntity = world->GetComponent<MeshEntity>(id);
+				ImGui::Indent(20.0f);
+				ShowEntityInfo(world, meshEntity->id_);
+				ImGui::Unindent(20.0f);
+			}
+
 			if (world->IsComponentExist<MtlEntity>(id)) {
 				auto mtlEntity = world->GetComponent<MtlEntity>(id);
 				ImGui::Indent(20.0f);
@@ -144,6 +152,18 @@ namespace OksEngine {
 				ImGui::Unindent(20.0f);
 				
 			}
+
+			editComponent.template operator() < Meshes > (world, id);
+			if (world->IsComponentExist<Meshes>(id)) {
+				auto meshes = world->GetComponent<Meshes>(id);
+				ImGui::Indent(20.0f);
+				for (ECS::Entity::Id id : meshes->entitiesIds_) {
+					ShowEntityInfo(world, id);
+				}
+				ImGui::Unindent(20.0f);
+
+			}
+
 			editComponent.template operator() < Vertices3D > (world, id);
 			editComponent.template operator() < DriverVertexBuffer > (world, id);
 			editComponent.template operator() < Normals > (world, id);

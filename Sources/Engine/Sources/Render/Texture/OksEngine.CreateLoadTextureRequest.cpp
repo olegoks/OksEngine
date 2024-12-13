@@ -33,7 +33,7 @@ namespace OksEngine {
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateLoadTextureRequest::GetFilter() const noexcept {
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
-			.Include<Mesh2>()
+			//.Include<Mesh2>()
 			.Include<TextureInfo>()
 			.Exclude<Texture>()
 			.Exclude<LoadTextureRequest>(), ECS::Entity::Filter{}.ExcludeAll() };

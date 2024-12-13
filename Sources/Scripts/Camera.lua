@@ -8,7 +8,7 @@ extended(Camera, Entity)
 
 function Camera:New()
     local camera = Entity:New()
-    camera.Speed = 0.05
+    camera.Speed = 0.0005
     camera.DirectionUp = false
     camera.DirectionDown = false
     camera.MovingForward = false
