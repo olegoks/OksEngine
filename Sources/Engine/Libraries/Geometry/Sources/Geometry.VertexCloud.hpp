@@ -17,7 +17,7 @@ namespace Geometry {
 		VertexCloud() noexcept = default;
 
 		VertexCloud(const VertexType* vertices, Common::Size verticesNumber) noexcept :
-			vertices_{ vertices, verticesNumber } {
+			vertices_{ vertices, vertices + verticesNumber } {
 
 		}
 

@@ -431,26 +431,26 @@ namespace Geometry {
 
 
 
-	bool ParseModelFbx(const char* memory, Common::Size size) {
+	//bool ParseModelFbx(const char* memory, Common::Size size) {
 
-		Assimp::Importer importer;
+	//	Assimp::Importer importer;
 
-		const aiScene* scene = importer.ReadFileFromMemory(memory, size,
-			aiProcess_CalcTangentSpace |
-			aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices |
-			aiProcess_SortByPType, "fbx");
+	//	const aiScene* scene = importer.ReadFileFromMemory(memory, size,
+	//		aiProcess_CalcTangentSpace |
+	//		aiProcess_Triangulate |
+	//		aiProcess_JoinIdenticalVertices |
+	//		aiProcess_SortByPType, "fbx");
 
-		OS::AssertMessage(
-			scene != nullptr,
-			importer.GetErrorString());
+	//	OS::AssertMessage(
+	//		scene != nullptr,
+	//		importer.GetErrorString());
 
-		for (unsigned i = 0; i < scene->mNumMeshes; i++) {
-			const aiMesh* mesh = scene->mMeshes[i];
-		}
+	//	for (unsigned i = 0; i < scene->mNumMeshes; i++) {
+	//		const aiMesh* mesh = scene->mMeshes[i];
+	//	}
 
-		return true;
-	}
+	//	return true;
+	//}
 
 
 	class MyIOStream : public Assimp::IOStream {
@@ -596,36 +596,41 @@ namespace Geometry {
 		//Geom::Mesh geomMesh;
 		Geom::Model2 model2;
 
-
-		if (scene->HasAnimations()) {
-			//OS::AssertMessage(scene->mNumAnimations <= 1, "More than one animation is not supported.");
-			for (unsigned int i = 0; i < /*scene->mNumAnimations*/1; i++) {
-				aiAnimation* animation = scene->mAnimations[i];
+		auto parseAiAnimation = [](const aiAnimation* aiAnim)->std::shared_ptr<Model2::Animation> {
+				const aiAnimation* animation = aiAnim;
+				
 				auto animationPtr = std::make_shared<Model2::Animation>();
+				animationPtr->name_ = animation->mName.C_Str();
 				animationPtr->ticksNumber_ = animation->mDuration;
 				animationPtr->ticksPerSecond_ = animation->mTicksPerSecond;
 				for (Common::Index j = 0; j < animation->mNumChannels; j++) {
 					for (Common::Index ti = 0; ti < animation->mChannels[j]->mNumPositionKeys; ti++) {
-						const aiVector3D& aiPosition = animation->mChannels[i]->mPositionKeys[ti].mValue;
-						const aiQuaternion& aiRotation = animation->mChannels[i]->mRotationKeys[ti].mValue;
+						const aiVector3D& aiPosition = animation->mChannels[j]->mPositionKeys[ti].mValue;
+						const aiQuaternion& aiRotation = animation->mChannels[j]->mRotationKeys[ti].mValue;
 						Model2::Animation::StateInfo state{
-							.time_ = animation->mChannels[i]->mPositionKeys[ti].mTime,
+							.time_ = animation->mChannels[j]->mPositionKeys[ti].mTime,
 							.position_ = glm::vec3{ aiPosition.x ,aiPosition.y, aiPosition.z },
 							.rotation_ = glm::quat::wxyz(aiRotation.w, aiRotation.x, aiRotation.y, aiRotation.z)
 						};
-						
+
 						animationPtr->states_.push_back(state);
 					}
 				}
-				model2.animation_ = animationPtr;
-			}
-		}
+			return animationPtr;
+		};
+
+		//if (scene->HasAnimations()) {
+		//	//OS::AssertMessage(scene->mNumAnimations <= 1, "More than one animation is not supported.");
+		//	for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
+
+		//	}
+		//}
 
 
 
 
 		Common::UInt64 previousMeshIndicesNumber = 0;
-		std::vector<Geom::Mesh> backedMeshs;
+		std::vector<Model2::Mesh> backedMeshs;
 		for (unsigned i = 0; i < scene->mNumMeshes; i++) {
 
 			const aiMesh* aimesh = scene->mMeshes[i];
@@ -634,36 +639,49 @@ namespace Geometry {
 			const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
 			OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
 
+
 			//Process mesh only with texture.
 			if (texturesNumber != 1) continue;
 
 			aiString aiTexturePath;
 			const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
 			OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
-			const std::string textureName = aiTexturePath.C_Str();
-
+			std::string textureName = aiTexturePath.C_Str();
+			const Common::Index slashIndex = textureName.rfind('\\');
+			if (slashIndex != -1) {
+				textureName = textureName.substr(slashIndex + 1);
+			}
 			//Found mesh with the same texture name.
-			Common::Index foundBackedMesh = Common::Limits<Common::Index>::Max();
+			/*Common::Index foundBackedMesh = Common::Limits<Common::Index>::Max();
 			for (Common::Index i = 0; i < backedMeshs.size(); i++) {
 				const Geom::Mesh& mesh = backedMeshs[i];
 				if (mesh.textureName_ == textureName) {
 					foundBackedMesh = i;
 					break;
 				}
-			}
+			}*/
 
 			//If there is no mesh with this name create new
-			Geom::Mesh& backedMesh = (foundBackedMesh != Common::Limits<Common::Index>::Max()) ? (backedMeshs[foundBackedMesh]) : (backedMeshs.emplace_back());
-			backedMesh.textureName_ = textureName;
-			const Common::Size startVerticesNumber = backedMesh.vertices_.GetVerticesNumber();
+			Geom::Model2::Mesh& backedMesh = /*(foundBackedMesh != Common::Limits<Common::Index>::Max()) ? (backedMeshs[foundBackedMesh]) : (*/backedMeshs.emplace_back()/*)*/;
+
+
+			//Parse animation
+			backedMesh.name_ = aimesh->mName.C_Str();
+
+
+			backedMesh.mesh_.textureName_ = textureName;
+			const Common::Size startVerticesNumber = backedMesh.mesh_.vertices_.GetVerticesNumber();
+			backedMesh.mesh_.vertices_.Reserve(aimesh->mNumVertices);
+			backedMesh.mesh_.normals_.Reserve(aimesh->mNumVertices);
+			backedMesh.mesh_.uvs_.Reserve(aimesh->mNumVertices);
 			for (unsigned j = 0; j < aimesh->mNumVertices; j++) {
-				backedMesh.vertices_.Add(Vertex3f{ aimesh->mVertices[j].x,
+				backedMesh.mesh_.vertices_.Add(Vertex3f{ aimesh->mVertices[j].x,
 													aimesh->mVertices[j].y,
 													aimesh->mVertices[j].z });
-				backedMesh.normals_.PushBack(Normal3f{ aimesh->mVertices[j].x,
+				backedMesh.mesh_.normals_.PushBack(Normal3f{ aimesh->mVertices[j].x,
 														aimesh->mVertices[j].y,
 														aimesh->mVertices[j].z });
-				backedMesh.uvs_.PushBack(UV2f{ aimesh->mTextureCoords[0][j].x,
+				backedMesh.mesh_.uvs_.PushBack(UV2f{ aimesh->mTextureCoords[0][j].x,
 												aimesh->mTextureCoords[0][j].y });
 			}
 			Geom::IndexBuffer meshIndices;
@@ -674,10 +692,10 @@ namespace Geometry {
 				meshIndices.Add(aimesh->mFaces[j].mIndices[2]);
 			}
 
-			backedMesh.indices_.AddNextMesh(startVerticesNumber, meshIndices);
+			backedMesh.mesh_.indices_.AddNextMesh(startVerticesNumber, meshIndices);
 		}
 
-		for (Geom::Mesh& mesh : backedMeshs) {
+		for (Geom::Model2::Mesh& mesh : backedMeshs) {
 			model2.meshes_.push_back(std::move(mesh));
 		}
 
@@ -688,86 +706,86 @@ namespace Geometry {
 	Geom::Model2 ParseObjMtlModelBaked(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl) {
 
 
-		Assimp::Importer importer;
+		//Assimp::Importer importer;
 
-		importer.SetIOHandler(new ObjMtlIOSystem{ objName, obj, mtlName, mtl });
+		//importer.SetIOHandler(new ObjMtlIOSystem{ objName, obj, mtlName, mtl });
 
-		const aiScene* scene = importer.ReadFile(objName,
-			aiProcess_CalcTangentSpace |
-			aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices |
-			//aiProcess_MakeLeftHanded |
-			aiProcess_FlipUVs |
-			aiProcess_SortByPType);
+		//const aiScene* scene = importer.ReadFile(objName,
+		//	aiProcess_CalcTangentSpace |
+		//	aiProcess_Triangulate |
+		//	aiProcess_JoinIdenticalVertices |
+		//	//aiProcess_MakeLeftHanded |
+		//	aiProcess_FlipUVs |
+		//	aiProcess_SortByPType);
 
-		OS::AssertMessage(
-			scene != nullptr,
-			importer.GetErrorString());
+		//OS::AssertMessage(
+		//	scene != nullptr,
+		//	importer.GetErrorString());
 
 		//Geom::Mesh geomMesh;
 		Geom::Model2 model2;
-		Common::UInt64 previousMeshIndicesNumber = 0;
-		std::vector<Geom::Mesh> backedMeshs;
-		for (unsigned i = 0; i < scene->mNumMeshes; i++) {
+		//Common::UInt64 previousMeshIndicesNumber = 0;
+		//std::vector<Geom::Mesh> backedMeshs;
+		//for (unsigned i = 0; i < scene->mNumMeshes; i++) {
 
-			const aiMesh* aimesh = scene->mMeshes[i];
-			const auto materialPtr = scene->mMaterials[aimesh->mMaterialIndex];
+		//	const aiMesh* aimesh = scene->mMeshes[i];
+		//	const auto materialPtr = scene->mMaterials[aimesh->mMaterialIndex];
 
-			const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
-			OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
+		//	const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
+		//	OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
 
-			//Process mesh only with texture.
-			if (texturesNumber != 1) continue;
+		//	//Process mesh only with texture.
+		//	if (texturesNumber != 1) continue;
 
-			aiString aiTexturePath;
-			const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
-			OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
-			const std::string textureName = aiTexturePath.C_Str();
+		//	aiString aiTexturePath;
+		//	const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
+		//	OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
+		//	const std::string textureName = aiTexturePath.C_Str();
 
-			//Found mesh with the same texture name.
-			Common::Index foundBackedMesh = Common::Limits<Common::Index>::Max();
-			for (Common::Index i = 0; i < backedMeshs.size(); i++) {
-				const Geom::Mesh& mesh = backedMeshs[i];
-				if (mesh.textureName_ == textureName) {
-					foundBackedMesh = i;
-					break;
-				}
-			}
+		//	//Found mesh with the same texture name.
+		//	Common::Index foundBackedMesh = Common::Limits<Common::Index>::Max();
+		//	for (Common::Index i = 0; i < backedMeshs.size(); i++) {
+		//		const Geom::Mesh& mesh = backedMeshs[i];
+		//		if (mesh.textureName_ == textureName) {
+		//			foundBackedMesh = i;
+		//			break;
+		//		}
+		//	}
 
-			//If there is no mesh with this name create new
-			Geom::Mesh& backedMesh = (foundBackedMesh != Common::Limits<Common::Index>::Max()) ? (backedMeshs[foundBackedMesh]) : (backedMeshs.emplace_back());
-			backedMesh.textureName_ = textureName;
+		//	//If there is no mesh with this name create new
+		//	Geom::Mesh& backedMesh = (foundBackedMesh != Common::Limits<Common::Index>::Max()) ? (backedMeshs[foundBackedMesh]) : (backedMeshs.emplace_back());
+		//	backedMesh.textureName_ = textureName;
 
-			const Common::Size startVerticesNumber = backedMesh.vertices_.GetVerticesNumber();
+		//	const Common::Size startVerticesNumber = backedMesh.vertices_.GetVerticesNumber();
 
-			backedMesh.vertices_.Reserve(backedMesh.vertices_.GetVerticesNumber() + aimesh->mNumVertices);
-			backedMesh.normals_.Reserve(backedMesh.normals_.GetSize() + aimesh->mNumVertices);
-			backedMesh.uvs_.Reserve(backedMesh.uvs_.GetSize() + aimesh->mNumVertices);
+		//	backedMesh.vertices_.Reserve(backedMesh.vertices_.GetVerticesNumber() + aimesh->mNumVertices);
+		//	backedMesh.normals_.Reserve(backedMesh.normals_.GetSize() + aimesh->mNumVertices);
+		//	backedMesh.uvs_.Reserve(backedMesh.uvs_.GetSize() + aimesh->mNumVertices);
 
-			for (unsigned j = 0; j < aimesh->mNumVertices; j++) {
-				backedMesh.vertices_.Add(Vertex3f{ aimesh->mVertices[j].x,
-													aimesh->mVertices[j].y,
-													aimesh->mVertices[j].z });
-				backedMesh.normals_.PushBack(Normal3f{ aimesh->mVertices[j].x,
-														aimesh->mVertices[j].y,
-														aimesh->mVertices[j].z });
-				backedMesh.uvs_.PushBack(UV2f{ aimesh->mTextureCoords[0][j].x,
-												aimesh->mTextureCoords[0][j].y });
-			}
-			Geom::IndexBuffer meshIndices;
-			meshIndices.Reserve(aimesh->mNumFaces * 3);
-			for (unsigned j = 0; j < aimesh->mNumFaces; j++) {
-				meshIndices.Add(aimesh->mFaces[j].mIndices[0]);
-				meshIndices.Add(aimesh->mFaces[j].mIndices[1]);
-				meshIndices.Add(aimesh->mFaces[j].mIndices[2]);
-			}
+		//	for (unsigned j = 0; j < aimesh->mNumVertices; j++) {
+		//		backedMesh.vertices_.Add(Vertex3f{ aimesh->mVertices[j].x,
+		//											aimesh->mVertices[j].y,
+		//											aimesh->mVertices[j].z });
+		//		backedMesh.normals_.PushBack(Normal3f{ aimesh->mVertices[j].x,
+		//												aimesh->mVertices[j].y,
+		//												aimesh->mVertices[j].z });
+		//		backedMesh.uvs_.PushBack(UV2f{ aimesh->mTextureCoords[0][j].x,
+		//										aimesh->mTextureCoords[0][j].y });
+		//	}
+		//	Geom::IndexBuffer meshIndices;
+		//	meshIndices.Reserve(aimesh->mNumFaces * 3);
+		//	for (unsigned j = 0; j < aimesh->mNumFaces; j++) {
+		//		meshIndices.Add(aimesh->mFaces[j].mIndices[0]);
+		//		meshIndices.Add(aimesh->mFaces[j].mIndices[1]);
+		//		meshIndices.Add(aimesh->mFaces[j].mIndices[2]);
+		//	}
 
-			backedMesh.indices_.AddNextMesh(startVerticesNumber, meshIndices);
-		}
+		//	backedMesh.indices_.AddNextMesh(startVerticesNumber, meshIndices);
+		//}
 
-		for (Geom::Mesh& mesh : backedMeshs) {
-			model2.meshes_.push_back(std::move(mesh));
-		}
+		//for (Geom::Mesh& mesh : backedMeshs) {
+		//	model2.meshes_.push_back(std::move(mesh));
+		//}
 
 		return model2;
 	}
@@ -776,64 +794,64 @@ namespace Geometry {
 	[[nodiscard]]
 	Geom::Model2 ParseObjMtlModel(const std::string& objName, const std::string& obj, const std::string& mtlName, const std::string& mtl) {
 
-		Assimp::Importer importer;
+		//Assimp::Importer importer;
 
-		importer.SetIOHandler(new ObjMtlIOSystem{ objName, obj, mtlName, mtl });
+		//importer.SetIOHandler(new ObjMtlIOSystem{ objName, obj, mtlName, mtl });
 
-		const aiScene* scene = importer.ReadFile(objName,
-			aiProcess_CalcTangentSpace |
-			aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices |
-			aiProcess_SortByPType);
+		//const aiScene* scene = importer.ReadFile(objName,
+		//	aiProcess_CalcTangentSpace |
+		//	aiProcess_Triangulate |
+		//	aiProcess_JoinIdenticalVertices |
+		//	aiProcess_SortByPType);
 
-		OS::AssertMessage(
-			scene != nullptr,
-			importer.GetErrorString());
+		//OS::AssertMessage(
+		//	scene != nullptr,
+		//	importer.GetErrorString());
 
 		//Geom::Mesh geomMesh;
 		Geom::Model2 model2;
-		Common::UInt64 previousMeshIndicesNumber = 0;
-		for (unsigned i = 0; i < scene->mNumMeshes; i++) {
+		//Common::UInt64 previousMeshIndicesNumber = 0;
+		//for (unsigned i = 0; i < scene->mNumMeshes; i++) {
 
-			const aiMesh* mesh = scene->mMeshes[i];
-			const auto materialPtr = scene->mMaterials[mesh->mMaterialIndex];
+		//	const aiMesh* mesh = scene->mMeshes[i];
+		//	const auto materialPtr = scene->mMaterials[mesh->mMaterialIndex];
 
-			const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
-			OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
-			Geom::Mesh geomMesh;
-			if (texturesNumber == 1) {
-				aiString aiTexturePath;
-				const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
-				OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
-				const std::string textureFileName = aiTexturePath.C_Str();
-				geomMesh.textureName_ = textureFileName;
-			}
-			const Common::Size startVerticesNumber = geomMesh.vertices_.GetVerticesNumber();
-			geomMesh.vertices_.Reserve(mesh->mNumVertices);
-			geomMesh.normals_.Reserve(mesh->mNumVertices);
-			geomMesh.uvs_.Reserve(mesh->mNumVertices);
-			for (unsigned j = 0; j < mesh->mNumVertices; j++) {
-				geomMesh.vertices_.Add(Vertex3f{ mesh->mVertices[j].x,
-													mesh->mVertices[j].y,
-													mesh->mVertices[j].z });
-				geomMesh.normals_.PushBack(Normal3f{ mesh->mVertices[j].x,
-														mesh->mVertices[j].y,
-														mesh->mVertices[j].z });
-				if (texturesNumber == 1) {
-					geomMesh.uvs_.PushBack(UV2f{ mesh->mTextureCoords[0][j].x,
-													mesh->mTextureCoords[0][j].y });
-				}
-			}
-			Geom::IndexBuffer meshIndices;
-			meshIndices.Reserve(mesh->mNumFaces * 3);
-			for (unsigned j = 0; j < mesh->mNumFaces; j++) {
-				meshIndices.Add(mesh->mFaces[j].mIndices[0]);
-				meshIndices.Add(mesh->mFaces[j].mIndices[1]);
-				meshIndices.Add(mesh->mFaces[j].mIndices[2]);
-			}
-			geomMesh.indices_.AddNextMesh(startVerticesNumber, meshIndices);
-			model2.meshes_.push_back(std::move(geomMesh));
-		}
+		//	const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
+		//	OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
+		//	Geom::Mesh geomMesh;
+		//	if (texturesNumber == 1) {
+		//		aiString aiTexturePath;
+		//		const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
+		//		OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
+		//		const std::string textureFileName = aiTexturePath.C_Str();
+		//		geomMesh.textureName_ = textureFileName;
+		//	}
+		//	const Common::Size startVerticesNumber = geomMesh.vertices_.GetVerticesNumber();
+		//	geomMesh.vertices_.Reserve(mesh->mNumVertices);
+		//	geomMesh.normals_.Reserve(mesh->mNumVertices);
+		//	geomMesh.uvs_.Reserve(mesh->mNumVertices);
+		//	for (unsigned j = 0; j < mesh->mNumVertices; j++) {
+		//		geomMesh.vertices_.Add(Vertex3f{ mesh->mVertices[j].x,
+		//											mesh->mVertices[j].y,
+		//											mesh->mVertices[j].z });
+		//		geomMesh.normals_.PushBack(Normal3f{ mesh->mVertices[j].x,
+		//												mesh->mVertices[j].y,
+		//												mesh->mVertices[j].z });
+		//		if (texturesNumber == 1) {
+		//			geomMesh.uvs_.PushBack(UV2f{ mesh->mTextureCoords[0][j].x,
+		//											mesh->mTextureCoords[0][j].y });
+		//		}
+		//	}
+		//	Geom::IndexBuffer meshIndices;
+		//	meshIndices.Reserve(mesh->mNumFaces * 3);
+		//	for (unsigned j = 0; j < mesh->mNumFaces; j++) {
+		//		meshIndices.Add(mesh->mFaces[j].mIndices[0]);
+		//		meshIndices.Add(mesh->mFaces[j].mIndices[1]);
+		//		meshIndices.Add(mesh->mFaces[j].mIndices[2]);
+		//	}
+		//	geomMesh.indices_.AddNextMesh(startVerticesNumber, meshIndices);
+		//	model2.meshes_.push_back(std::move(geomMesh));
+		//}
 
 		return model2;
 	}
