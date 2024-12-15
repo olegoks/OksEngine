@@ -88,6 +88,7 @@ namespace OksEngine
 		world_->RegisterSystem<ProcessAnimation>(*this);
 		world_->RegisterSystem<RunAnimation>(*this);
 		world_->RegisterSystem<StopAnimation>(*this);
+		world_->RegisterSystem < StartModelAnimation>(*this);
 
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,

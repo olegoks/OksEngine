@@ -78,6 +78,7 @@ namespace OksEngine {
 				/*ImGui*/
 
 				/*Animation*/
+				context_->GetECSWorld()->RunSystem < StartModelAnimation>();
 				context_->GetECSWorld()->RunSystem<CreateAnimationState>();
 				context_->GetECSWorld()->RunSystem<RunAnimation>();
 				context_->GetECSWorld()->RunSystem<ProcessAnimation>();
