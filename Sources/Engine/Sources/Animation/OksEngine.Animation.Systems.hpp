@@ -5,3 +5,4 @@
 #include <Animation/OksEngine.RunAnimation.hpp>
 #include <Animation/OksEngine.CreateAnimationState.hpp>
 #include <Animation/OksEngine.StopAnimation.hpp>
+#include <Animation/OksEngine.StartModelAnimation.hpp>
