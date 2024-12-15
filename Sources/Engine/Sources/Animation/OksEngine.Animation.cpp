@@ -4,15 +4,19 @@
 namespace OksEngine {
 
 
-	Animation::Animation(Common::Double ticksNumber, float ticksPerSecond, std::vector<StateInfo> states) :
+	Animation::Animation(const CreateInfo& createInfo) :
 		ECSComponent{ nullptr },
-		duration_{ ticksNumber },
-		ticksPerSecond_{ ticksPerSecond },
-		states_{ states } {}
+		name_{ createInfo.name_ },
+		durationInTicks_{ createInfo.duration_ },
+		ticksPerSecond_{ createInfo.ticksPerSecond_ },
+		positionKeys_{ createInfo.positionKeys_ },
+		rotationKeys_{ createInfo.rotationKeys_ },
+		scalingKeys_{ createInfo.scalingKeys_ } { }
 
 	template<>
 	void Edit<Animation>(Animation* animation) {
-		ImGui::TextDisabled("Duration: %f", animation->duration_);
+		ImGui::TextDisabled("Name: %s", animation->name_.c_str());
+		ImGui::TextDisabled("Duration in ticks: %f", animation->durationInTicks_);
 		ImGui::TextDisabled("Ticks per second: %f", animation->ticksPerSecond_);
 
 	}

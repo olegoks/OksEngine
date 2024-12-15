@@ -13,18 +13,41 @@ namespace OksEngine {
 
 
 	struct Animation : public ECSComponent<Animation> {
-		struct StateInfo {
-			Common::Double time_ = 0;
-			glm::vec3 translate_;
-			glm::quat rotation_;
+
+		struct PositionKey {
+			Common::Double time_ = 0.0f;
+			glm::vec3 value_ = { 0.f, 0.f, 0.f };
 		};
-		Animation(Common::Double ticksNumber_, float ticksPerSecond_, std::vector<StateInfo> states_);
 
-		
+		struct RotationKey {
+			Common::Double time_ = 0.0f;
+			glm::quat value_{};
+		};
 
-		Common::Double duration_ = 0;
+		struct ScalingKey {
+			Common::Double time_ = 0.0f;
+			glm::vec3 value_{};
+		};
+
+		struct CreateInfo {
+			std::string name_ = "No name";
+			Common::Double duration_ = 0;
+			float ticksPerSecond_ = 1.f;
+			std::vector<PositionKey> positionKeys_;
+			std::vector<RotationKey> rotationKeys_;
+			std::vector<ScalingKey> scalingKeys_;
+		};
+
+		Animation(const CreateInfo& createInfo);
+
+		std::string name_ = "No name";
+		Common::Double durationInTicks_ = 0; // Duration in ticks.
 		float ticksPerSecond_ = 1.f;
-		std::vector<StateInfo> states_;
+
+		std::vector<PositionKey> positionKeys_;
+		std::vector<RotationKey> rotationKeys_;
+		std::vector<ScalingKey> scalingKeys_;
+
 	};
 
 	template<>

@@ -228,6 +228,10 @@ namespace OksEngine {
 
 	}
 
+	void ProcessAnimation(ECS::World* world, ECS::Entity::Id nodeEntity, const aiScene* scene, aiNode* node) {
+
+	}
+
 	void ProcessNode(ECS::World* world, ECS::Entity::Id nodeEntity, const aiScene* scene, aiNode* node) {
 
 		world->CreateComponent<Name>(nodeEntity, node->mName.C_Str());
@@ -255,10 +259,55 @@ namespace OksEngine {
 		}
 		world->CreateComponent<Meshes>(nodeEntity, meshEntityIds);
 
+		OS::AssertMessage(scene->mNumAnimations <=1, "Multiple animationes are not supperted yet.");
+		//Process animation.
+		for (unsigned int animationIndex = 0; animationIndex < scene->mNumAnimations; animationIndex++) {
+			const aiAnimation* animation = scene->mAnimations[animationIndex];
+			for (unsigned int nodeChannelIndex = 0; nodeChannelIndex < animation->mNumChannels; nodeChannelIndex++) {
+				const aiNodeAnim* nodeAnim = animation->mChannels[nodeChannelIndex];
+				if (nodeAnim->mNodeName == node->mName) {
+					Animation::CreateInfo animCI;
+					//Process node animation.
+					
+					animCI.name_ = animation->mName.C_Str();
 
-		//Process mesh.
+					animCI.duration_ = animation->mDuration;
+					animCI.ticksPerSecond_ = animation->mTicksPerSecond;
 
+					//Process position keys.
+					for (unsigned int positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
+						const aiVectorKey aiPositionKey = nodeAnim->mPositionKeys[positionKeyIndex];
+						Animation::PositionKey positionKey{
+							.time_ = aiPositionKey.mTime,
+							.value_ = { aiPositionKey.mValue.x, aiPositionKey.mValue.y, aiPositionKey.mValue.z }
+						};
+						animCI.positionKeys_.push_back(positionKey);
+					}
 
+					//Process rotation keys.
+					for (unsigned int rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
+						const aiQuatKey aiQuatKey = nodeAnim->mRotationKeys[rotationKeyIndex];
+						Animation::RotationKey rotationKey{
+							.time_ = aiQuatKey.mTime,
+							.value_ = { aiQuatKey.mValue.w, aiQuatKey.mValue.x, aiQuatKey.mValue.y, aiQuatKey.mValue.z }
+						};
+						animCI.rotationKeys_.push_back(rotationKey);
+					}
+					
+					//Process scale keys.
+					for (unsigned int scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumRotationKeys; scaleKeyIndex++) {
+						const aiVectorKey aiScaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
+						Animation::ScalingKey scalingKey{
+							.time_ = aiScaleKey.mTime,
+							.value_ = { aiScaleKey.mValue.x, aiScaleKey.mValue.y, aiScaleKey.mValue.z }
+						};
+						animCI.scalingKeys_.push_back(scalingKey);
+					}
+
+					world->CreateComponent<Animation>(nodeEntity, animCI);
+				}
+			}
+		}
 
 
 		//Process child entities.
