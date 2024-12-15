@@ -98,6 +98,8 @@ namespace OksEngine {
 			editComponent.template operator() < ObjEntity > (world, id);
 			editComponent.template operator() < MtlEntity > (world, id);
 
+			editComponent.template operator() < Node > (world, id);
+
 			editComponent.template operator() < Animation > (world, id);
 			editComponent.template operator() < StartAnimation > (world, id);
 			editComponent.template operator() < AnimationInProcess > (world, id);

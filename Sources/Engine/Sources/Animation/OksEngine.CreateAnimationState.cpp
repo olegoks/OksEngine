@@ -17,7 +17,6 @@ namespace OksEngine {
 
 		world->CreateComponent<RunningAnimationState>(entityId);
 		world->CreateComponent<Clock>(entityId);
-		//world->CreateComponent<LocalPosition3D>(entityId, 0.f, 0.f, 0.f);
 
 	}
 

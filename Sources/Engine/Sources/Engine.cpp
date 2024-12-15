@@ -110,9 +110,9 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<CreateDriverTexture>();
 
 				context_->GetECSWorld()->RunSystem<CreateDriverTransform3D>();
-				context_->GetECSWorld()->RunSystem<UpdateDriverTransform3D>();
-				context_->GetECSWorld()->RunSystem<UpdateDriverTransform3DWithLocalTransform>();
-
+				//context_->GetECSWorld()->RunSystem<UpdateDriverTransform3D>();
+				//context_->GetECSWorld()->RunSystem<UpdateDriverTransform3DWithLocalTransform>();
+				context_->GetECSWorld()->RunSystem < UpdateModelDriverTransform>();
 				context_->GetECSWorld()->RunSystem<AddMeshToRender>();
 
 				context_->GetECSWorld()->RunSystem<ResizeFrameBuffers>();
