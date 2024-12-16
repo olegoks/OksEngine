@@ -181,10 +181,14 @@ target_sources(OksEngine
         # ${PRIVATE_SOURCES_BEHAVIOUR}
         # ${PRIVATE_SOURCES_RESOURCES}
     )
+
+find_package(SFML COMPONENTS system audio CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 target_link_libraries(OksEngine
     PUBLIC
+    sfml-audio
+    sfml-main
     yaml-cpp::yaml-cpp
     imgui::imgui
     Geometry
@@ -196,7 +200,7 @@ target_link_libraries(OksEngine
     UI
     Resources
     )
-    
+
 # source_group("Sources"
 #     FILES
 #     ${PUBLIC_SOURCES}

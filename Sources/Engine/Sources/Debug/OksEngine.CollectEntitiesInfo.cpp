@@ -72,6 +72,15 @@ namespace OksEngine {
 			editComponent.template operator() < BinaryData > (world, id);
 			editComponent.template operator() < Completed > (world, id);
 			editComponent.template operator() < Clock > (world, id);
+
+			//Sound
+
+			editComponent.template operator() < SoundInfo > (world, id);
+			editComponent.template operator() < LoadSoundRequest > (world, id);
+			editComponent.template operator() < Sound > (world, id);
+			editComponent.template operator() < PlaySound > (world, id);
+			editComponent.template operator() < SoundInProgress > (world, id);
+
 			/*Behaviour*/
 			editComponent.template operator() < Behaviour > (world, id);
 			editComponent.template operator() < LuaScript > (world, id);
@@ -201,6 +210,8 @@ namespace OksEngine {
 			ImGui::SeparatorText("Add component");
 			ImGui::Indent(20.0f);
 			const char* items[] = {
+				PlaySound::GetName(),
+				SoundInfo::GetName(),
 				Behaviour::GetName(),
 				Position::GetName(),
 				MapRigidBodyToRenderGeometry::GetName(),
@@ -230,7 +241,12 @@ namespace OksEngine {
 			ImGui::PushID("Add");
 
 			const std::string currentComponent = items[state.currentAddComponentIndex_];
-
+			if (currentComponent == PlaySound::GetName()) {
+				Add<PlaySound>(world, id);
+			}
+			if (currentComponent == SoundInfo::GetName()) {
+				Add<SoundInfo>(world, id);
+			}
 			if (currentComponent == HandleKeyboardInputMarker::GetName()) {
 				Add<HandleKeyboardInputMarker>(world, id);
 			}
