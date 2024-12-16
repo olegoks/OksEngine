@@ -90,6 +90,11 @@ namespace OksEngine
 		world_->RegisterSystem<StopAnimation>(*this);
 		world_->RegisterSystem < StartModelAnimation>(*this);
 
+		//SOUND
+		world_->RegisterSystem < CreateLoadSoundRequest>(*this);
+		world_->RegisterSystem < CreateSound>(*this);
+		world_->RegisterSystem < ProcessSound>(*this);
+
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,
 			//vertexShader,

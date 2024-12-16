@@ -9,3 +9,4 @@
 #include <Debug/OksEngine.Debug.Systems.hpp>
 #include <Resources/OksEngine.Resource.Systems.hpp>
 #include <Animation/OksEngine.Animation.Systems.hpp>
+#include <Sound/OksEngine.Sound.Systems.hpp>

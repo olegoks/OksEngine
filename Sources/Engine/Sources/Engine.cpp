@@ -46,6 +46,11 @@ namespace OksEngine {
 				context_->GetECSWorld()->RunSystem<SendWindowMouseInputEvents>();
 				context_->GetECSWorld()->RunSystem<CleanWindowMouseInputEvents>();
 
+				//SOUND
+				context_->GetECSWorld()->RunSystem<CreateLoadSoundRequest>();
+				context_->GetECSWorld()->RunSystem<CreateSound>();
+				context_->GetECSWorld()->RunSystem<ProcessSound>();
+
 				///*Behaviour*/
 				context_->GetECSWorld()->RunSystem<CreateLoadLuaScriptRequest>();
 				context_->GetECSWorld()->RunSystem<CreateLuaScriptEntity>();
