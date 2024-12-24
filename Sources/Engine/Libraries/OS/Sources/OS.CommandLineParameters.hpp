@@ -5,7 +5,7 @@
 #include <Common.hpp>
 #include <OS.Assert.hpp>
 
-namespace OksEngine
+namespace OS
 {
 	class CommandLineParameters {
 	public:

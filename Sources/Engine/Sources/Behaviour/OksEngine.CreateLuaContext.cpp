@@ -35,7 +35,7 @@ namespace OksEngine {
 		std::string math3DScriptText{ math3DScriptResource.GetData<char>(), math3DScriptResource.GetSize() };*/
 
 		const auto entityScriptTaskId = resourceSubsystem->GetResource(Subsystem::Type::Engine, "Root/Entity.lua");
-		ResourceSubsystem::Resource entityScriptResource = resourceSubsystem->GetResource(Subsystem::Type::Engine, entityScriptTaskId);
+		Resources::ResourceData entityScriptResource = resourceSubsystem->GetResource(Subsystem::Type::Engine, entityScriptTaskId);
 		std::string entityScriptText{ entityScriptResource.GetData<char>(), entityScriptResource.GetSize() };
 
 		//context.LoadScript(math3DScriptText);

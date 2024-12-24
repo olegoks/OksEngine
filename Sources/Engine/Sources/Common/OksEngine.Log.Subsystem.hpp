@@ -9,7 +9,7 @@ namespace OksEngine {
 	public:
 
 		struct CreateInfo {
-			CommandLineParameters commandLineParameters_;
+			OS::CommandLineParameters commandLineParameters_;
 			Context& context_;
 		};
 

@@ -16,11 +16,40 @@
 
 namespace ECS {
 
+
+	class ComponentsFilter {
+	public:
+
+		template<class ComponentType, class ...ComponentsType>
+		void SetBits() {
+			SetBit<ComponentType>();
+			SetBits<ComponentsType...>();
+		}
+
+		template<class ...ComponentType>
+		ComponentsFilter() {
+			SetBits<ComponentType...>();
+		}
+
+		template<class ComponentType>
+		[[nodiscard]]
+		bool IsSetBit() {
+			return filter_.test(ComponentType::GetTypeId());
+		}
+		template<class ComponentType>
+		void SetBit() {
+			filter_.set(ComponentType::GetTypeId());
+		}
+		std::bitset<256> filter_;
+	};
+
 	class Entity {
 	public:
 
 		class Filter {
 		public:
+
+
 
 			//class DebugInfo {
 			//public:

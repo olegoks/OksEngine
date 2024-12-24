@@ -3,7 +3,7 @@
 #include <memory>
 
 
-#include <OksEngine.CommandLineParameters.hpp>
+#include <OS.CommandLineParameters.hpp>
 
 #include <ECS.World.hpp>
 #include <OksEngine.Storage.hpp>
@@ -17,7 +17,7 @@ namespace OksEngine {
 	public:
 
 		struct CreateInfo {
-			CommandLineParameters commandLineParameters_;
+			OS::CommandLineParameters commandLineParameters_;
 		};
 
 		Context(const CreateInfo& createInfo);
@@ -64,7 +64,7 @@ namespace OksEngine {
 		}
 
 	private:
-		CommandLineParameters commandLineParameters_;
+		OS::CommandLineParameters commandLineParameters_;
 		std::shared_ptr<class LogSubsystem> logSubsystem_ = nullptr;
 		std::shared_ptr<class AsyncResourceSubsystem> resourceSubsystem_ = nullptr;
 		std::shared_ptr<class RenderSubsystem> renderSubsystem_ = nullptr;

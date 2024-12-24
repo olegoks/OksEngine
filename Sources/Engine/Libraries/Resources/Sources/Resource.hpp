@@ -14,6 +14,48 @@
 
 namespace Resources {
 
+
+	class ResourceData {
+	public:
+
+		template<class Type>
+		const Type* GetData() {
+			return static_cast<Type*>(data_.GetData());
+		}
+
+		[[nodiscard]]
+		Common::Size GetSize() const noexcept { return data_.GetSize(); }
+
+		ResourceData() = default;
+
+		ResourceData(const Common::Byte* data, Common::Size size) noexcept {
+			data_.Resize(size);
+			std::memcpy(data_.GetData(), data, size);
+		}
+
+		ResourceData(ResourceData&& moveResource) : data_{ /*std::move(moveResource.data_)*/ } {
+			std::swap(data_, moveResource.data_);
+		}
+
+		ResourceData& operator=(ResourceData&& moveResource) {
+			if (this == &moveResource) {
+				return *this;
+			}
+
+			data_ = std::move(moveResource.data_);
+
+			return *this;
+		}
+
+		~ResourceData() {
+
+		}
+
+	private:
+		DS::Vector<Common::Byte> data_;
+	};
+
+
 	class Resource {
 	public:
 		Resource(
@@ -111,6 +153,22 @@ namespace Resources {
 
 		}
 
+
+		Resources::ResourceData ForceGetResourceData(std::filesystem::path OSResourcePath) {
+			Resources::Resource forceResource = ForceGetResource(OSResourcePath);
+			//OS::AssertMessage(forceResource.IsLoaded(), "Resource must be loaded at the moment.");
+			auto file = std::dynamic_pointer_cast<OS::BinaryFile>(forceResource.GetFile());
+			return { file->GetData(), file->GetSize() };
+		}
+
+		Resources::ResourceData GetResourceData(std::filesystem::path resourcePath) {
+			LoadResource(resourcePath);
+			Resources::Resource resource = GetResource(resourcePath);
+			auto binaryFile = std::dynamic_pointer_cast<OS::BinaryFile>(resource.GetFile());
+			Resources::ResourceData engineResource(binaryFile->GetData(), binaryFile->GetSize());
+			return engineResource;
+		}
+
 		void LoadResource(std::filesystem::path resourcePath) {
 			//OS::AssertMessage(IsNodeExist(resourcePath), "Resource node that required doesn't exist.");
 			const Graph::Node::Id nodeId = GetNodeId(resourcePath);
@@ -145,6 +203,23 @@ namespace Resources {
 
 		~ResourceSystem() {
 			UnloadAllResources();
+		}
+
+		void SetRoots(const std::vector<std::filesystem::path>& rootPaths) {
+			rootFilesystemPaths_ = rootPaths;
+			try {
+				for (const auto& rootPath : rootPaths) {
+					for (const auto& entry : std::filesystem::recursive_directory_iterator(rootPath)) {
+						if (std::filesystem::is_regular_file(entry)) {
+							AddResource(entry.path().filename().string(), entry.path(), "Root");
+						}
+					}
+				}
+
+			}
+			catch (std::exception error) {
+				OS::LogInfo("ResourceSystem", error.what());
+			}
 		}
 
 	private:
@@ -283,28 +358,11 @@ namespace Resources {
 		}
 
 	private:
+		std::vector<std::filesystem::path> rootFilesystemPaths_;
 		static inline std::string rootName_ = "Root";
 		Graph::Node::Id rootNodeId_;
 		Graph graph_;
 		Memory::AllocationCallbacks allocationCallbacks_;
 	};
-
-
-	//Job InitializeResourceSystemJob() {
-
-	//	Job::CreateInfo createInfo;
-	//	{
-	//		createInfo.names_ = "InitializeResourceSystemJob";
-	//		createInfo.function_ = [](Job::ExecutionContext& context) {
-	//			auto resourceManager = std::make_shared<ResourceManager>("D:/Desktop/OksEngine/Resources/");
-	//			resourceManager->Load();
-	//			return resourceManager;
-	//		};
-	//	}
-
-	//	Job initializeResourceManagerJob = Job{ createInfo };
-
-	//	return initializeResourceManagerJob;
-	//}
 
 }

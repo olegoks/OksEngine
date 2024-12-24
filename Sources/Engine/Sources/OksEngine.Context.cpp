@@ -23,7 +23,7 @@ namespace OksEngine
 		commandLineParameters_{ createInfo.commandLineParameters_ },
 		config_{ }
 	{
-		CommandLineParameters commandLineParameters = createInfo.commandLineParameters_;
+		OS::CommandLineParameters commandLineParameters = createInfo.commandLineParameters_;
 		{
 			LogSubsystem::CreateInfo createInfo{
 				commandLineParameters,
