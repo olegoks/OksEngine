@@ -15,71 +15,23 @@ namespace OksEngine {
 	class ResourceSubsystem : public Subsystem {
 	public:
 
-		class Resource {
-		public:
-
-			template<class Type>
-			const Type* GetData() {
-				return static_cast<Type*>(data_.GetData());
-			}
-
-			[[nodiscard]]
-			Common::Size GetSize() const noexcept { return data_.GetSize(); }
-
-			Resource() = default;
-
-			Resource(const Common::Byte* data, Common::Size size) noexcept {
-				data_.Resize(size);
-				std::memcpy(data_.GetData(), data, size);
-			}
-
-			Resource(Resource&& moveResource) : data_{ /*std::move(moveResource.data_)*/ } {
-				std::swap(data_, moveResource.data_);
-			}
-
-			Resource& operator=(Resource&& moveResource) {
-				if (this == &moveResource) {
-					return *this;
-				}
-
-				data_ = std::move(moveResource.data_);
-
-				return *this;
-			}
-
-			~Resource() {
-
-			}
-
-		private:
-			DS::Vector<Common::Byte> data_;
-		};
 
 		ResourceSubsystem(Context& context) : Subsystem{ Subsystem::Type::Resource, context } {
 
 		}
 
-		Resource ForceGetResource(std::filesystem::path OSResourcePath) {
-			Resources::Resource forceResource = resourceSystem_.ForceGetResource(OSResourcePath);
-			//OS::AssertMessage(forceResource.IsLoaded(), "Resource must be loaded at the moment.");
-			auto file = std::dynamic_pointer_cast<OS::BinaryFile>(forceResource.GetFile());
-			return { file->GetData(), file->GetSize() };
+		Resources::ResourceData ForceGetResource(std::filesystem::path OSResourcePath) {
+			return resourceSystem_.ForceGetResourceData(OSResourcePath);
 		}
 
-		Resource GetResource(std::filesystem::path resourcePath) {
-			std::filesystem::path withoutRootPath;
-			for (auto it = ++resourcePath.begin(); it != resourcePath.end(); ++it) {
-				withoutRootPath /= *it;
-			}
+		Resources::Resource GetResource(std::filesystem::path resourcePath) {
 			resourceSystem_.LoadResource(resourcePath);
 			Resources::Resource resource = resourceSystem_.GetResource(resourcePath);
-			auto binaryFile = std::dynamic_pointer_cast<OS::BinaryFile>(resource.GetFile());
-			Resource engineResource(binaryFile->GetData(), binaryFile->GetSize());
-			return engineResource;
+			return resource;
 		}
 
 		void SetRoots(const std::vector<std::filesystem::path>& rootPaths) {
-			rootPaths_ = rootPaths;
+			/*rootPaths_ = rootPaths;
 			try {
 				for (const auto& rootPath : rootPaths) {
 					for (const auto& entry : std::filesystem::recursive_directory_iterator(rootPath)) {
@@ -92,14 +44,15 @@ namespace OksEngine {
 			}
 			catch (std::exception error) {
 				OS::LogInfo("ResourceSystem", error.what());
-			}
+			}*/
+
+			resourceSystem_.SetRoots(rootPaths);
 		}
 
 		virtual void Update() override {
 		}
 
 	private:
-		std::vector<std::filesystem::path> rootPaths_;
 		Memory::AllocationCallbacks allocation_callbacks_;
 		Resources::ResourceSystem resourceSystem_;
 	};
@@ -139,8 +92,8 @@ namespace OksEngine {
 		};
 
 		struct GetResourceResult {
-			GetResourceResult(ResourceSubsystem::Resource&& resource) : resource_{ std::move(resource) } {}
-			ResourceSubsystem::Resource resource_;
+			GetResourceResult(Resources::ResourceData&& resource) : resource_{ std::move(resource) } {}
+			Resources::ResourceData resource_;
 		};
 
 		AsyncResourceSubsystem(Context& context) {
@@ -256,7 +209,7 @@ namespace OksEngine {
 			return std::move(dataInfo);
 		}
 
-		ResourceSubsystem::Resource GetResource(Subsystem::Type receiverSubsystem, Task::Id taskId) {
+		Resources::ResourceData GetResource(Subsystem::Type receiverSubsystem, Task::Id taskId) {
 			//OS::LogInfo("Engine/Render", "Waiting for task.");
 			Task task = WaitForTask(receiverSubsystem, taskId);
 			//OS::LogInfo("Engine/Render", "Task was got.");
@@ -356,7 +309,7 @@ namespace OksEngine {
 				switch (taskType) {
 				case TaskType::GetResource: {
 					const GetResourceTask& getResourceTask = task.GetData<GetResourceTask>();
-					ResourceSubsystem::Resource resource;
+					Resources::ResourceData resource;
 					if (getResourceTask.path_.string().starts_with("Root")) {
 						resource = std::move(resourceSubsystem_->GetResource(getResourceTask.path_));
 					}

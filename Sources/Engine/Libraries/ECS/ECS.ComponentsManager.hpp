@@ -192,6 +192,22 @@ namespace ECS {
 			std::vector<ComponentType>	components_;
 		};
 
+
+		class ArchetypeComponentsContainer {
+		public:
+
+			ArchetypeComponentsContainer(const ComponentsFilter& filter) 
+				: filter_{ filter } {
+
+
+
+			}
+			const ComponentsFilter filter_;
+			std::map<ComponentTypeId, std::shared_ptr<IContainer>> componentIdContainer_;
+
+		};
+
+
 		template<class ComponentType>
 		[[nodiscard]]
 		Ptr<Container<ComponentType>> GetCreateContainer() noexcept {
@@ -365,6 +381,7 @@ namespace ECS {
 
 		std::map<Entity::Id, EntityComponents> entityComponents_;
 		std::map<ComponentTypeId, std::shared_ptr<IContainer>> componentContainer_;
+		//std::map<Archetype, >
 	};
 
 

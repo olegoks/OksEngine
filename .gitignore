@@ -1,5 +1,8 @@
 Build/
 vcpkg/
+*.vcxproj
+*.filters
+
 .vscode/
 *.bak
 *.pyc

@@ -10,7 +10,7 @@
 #include <Common/OksEngine.Position.hpp>
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
 
-#include <OksEngine.CommandLineParameters.hpp>
+#include <OS.CommandLineParameters.hpp>
 
 namespace OksEngine {
 
@@ -18,7 +18,7 @@ namespace OksEngine {
 	public:
 
 		struct CreateInfo {
-			CommandLineParameters commandLineParameters_;
+			OS::CommandLineParameters commandLineParameters_;
 		};
 
 		explicit Engine(const CreateInfo& createInfo) noexcept;

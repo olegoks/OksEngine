@@ -90,14 +90,14 @@ namespace OksEngine {
 		//	lightCreateInfo.position_ = { 25.f, 0.f, 0.f };//camera->GetPosition();
 		//}
 		//auto light = std::make_shared<RAL::Light>(lightCreateInfo);
-		ResourceSubsystem::Resource imguiVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiVertexShaderTaskId);
-		ResourceSubsystem::Resource imguiFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiFragmentShaderTaskId);
-		ResourceSubsystem::Resource linesVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesVertexShaderTaskId);
-		ResourceSubsystem::Resource linesFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesFragmentShaderTaskId);
-		ResourceSubsystem::Resource vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
-		ResourceSubsystem::Resource fragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
-		ResourceSubsystem::Resource vertexTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexTextureShaderTaskId);
-		ResourceSubsystem::Resource fragmentTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentTextureShaderTaskId);
+		Resources::ResourceData imguiVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiVertexShaderTaskId);
+		Resources::ResourceData imguiFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiFragmentShaderTaskId);
+		Resources::ResourceData linesVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesVertexShaderTaskId);
+		Resources::ResourceData linesFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesFragmentShaderTaskId);
+		Resources::ResourceData vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
+		Resources::ResourceData fragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
+		Resources::ResourceData vertexTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexTextureShaderTaskId);
+		Resources::ResourceData fragmentTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentTextureShaderTaskId);
 
 		std::string imguiVertexShader{ imguiVertexShaderResource.GetData<Common::Byte>(), imguiVertexShaderResource.GetSize() };
 		std::string imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };

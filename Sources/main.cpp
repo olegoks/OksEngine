@@ -9,7 +9,7 @@ int main(int argc, char** argv) {
 
 	OS::AssertMessage(argc > 0, "First parameter must be config file name.");
 
-	CommandLineParameters commandLineParameters{ argc, argv };
+	OS::CommandLineParameters commandLineParameters{ argc, argv };
 	const Engine::CreateInfo engineCreateInfo{
 		commandLineParameters
 	};

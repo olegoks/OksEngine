@@ -6,6 +6,7 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(OksEngineGame)
 
+
 set_target_properties(OksEngineGame
     PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS

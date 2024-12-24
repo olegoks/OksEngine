@@ -5,6 +5,7 @@
 #include <ECS.SystemsManager.hpp>
 #include <ECS.ComponentsManager.hpp>
 #include <ECS.EntitiesManager.hpp>
+#include <ECS.Archetype.hpp>
 
 namespace ECS {
 
@@ -35,6 +36,13 @@ namespace ECS {
 
 		[[nodiscard]]
 		Entity::Id CreateEntity() noexcept {
+			Entity::Id entityId = entitiesManager_.CreateEntity();
+
+			return entityId;
+		}
+
+		[[nodiscard]]
+		Entity::Id CreateEntity(const Archetype& archetype) noexcept {
 			Entity::Id entityId = entitiesManager_.CreateEntity();
 
 			return entityId;

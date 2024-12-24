@@ -144,3 +144,6 @@ find_package(GTest CONFIG REQUIRED)
 #     COMMAND $<TARGET_FILE:TestEngine>)
 
  add_subdirectory(Sources)
+
+ add_subdirectory(Tools/ECSGenerator)
+
