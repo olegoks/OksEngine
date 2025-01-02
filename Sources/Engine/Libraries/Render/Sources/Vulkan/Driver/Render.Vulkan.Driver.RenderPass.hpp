@@ -229,7 +229,7 @@ namespace Render::Vulkan {
 					renderPassInfo.pAttachments = attachments.data();
 					renderPassInfo.subpassCount = 2;
 					renderPassInfo.pSubpasses = &subpasses[0];
-					renderPassInfo.dependencyCount = subpassesDependencies.size();
+					renderPassInfo.dependencyCount = static_cast<Common::UInt32>(subpassesDependencies.size());
 					renderPassInfo.pDependencies = subpassesDependencies.data();
 				}
 				VkRenderPass renderPass = VK_NULL_HANDLE;

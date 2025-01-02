@@ -9,8 +9,8 @@
 #include <Render/Model/ObjMtl/OksEngine.LoadMtlRequest.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 
-#include <Common/OksEngine.Name.hpp>
-#include <Common/OksEngine.Text.hpp>
+#include <Common/auto_OksEngine.Name.hpp>
+#include <Common/auto_OksEngine.Text.hpp>
 namespace OksEngine {
 
 
@@ -20,7 +20,7 @@ namespace OksEngine {
 		auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
 		auto* geomFileText = world->GetComponent<Text>(geomFileEntity->id_);
 
-		YAML::Node yaml = YAML::Load(geomFileText->text_);
+		YAML::Node yaml = YAML::Load(geomFileText->value_);
 		OS::Assert(!yaml.IsNull());
 		if (yaml["Mtl"]) {
 			const std::string mtlName = yaml["Mtl"].as<std::string>();

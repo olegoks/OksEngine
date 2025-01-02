@@ -10,10 +10,10 @@
 #include <Behaviour/OksEngine.Behaviour.hpp>
 #include <Resources/OksEngine.Resource.hpp>
 #include <Resources/OksEngine.ResourceEntity.hpp>
-#include <Common/OksEngine.Completed.hpp>
-#include <Common/OksEngine.Name.hpp>
-#include <Common/OksEngine.Text.hpp>
-#include <Common/OksEngine.BinaryData.hpp>
+#include <Common/auto_OksEngine.Completed.hpp>
+#include <Common/auto_OksEngine.Name.hpp>
+#include <Common/auto_OksEngine.Text.hpp>
+#include <Common/auto_OksEngine.BinaryData.hpp>
 #include <Behaviour/OksEngine.LuaEntity.hpp>
 
 

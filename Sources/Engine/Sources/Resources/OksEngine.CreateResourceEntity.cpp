@@ -1,8 +1,8 @@
 #include <Resources/OksEngine.CreateResourceEntity.hpp>
 
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
-#include <Common/OksEngine.Name.hpp>
-#include <Common/OksEngine.BinaryData.hpp>
+#include <Common/auto_OksEngine.Name.hpp>
+#include <Common/auto_OksEngine.BinaryData.hpp>
 #include <Resources/OksEngine.Resource.hpp>
 #include <Resources/OksEngine.AsyncTask.hpp>
 #include <Resources/OksEngine.ResourceEntity.hpp>

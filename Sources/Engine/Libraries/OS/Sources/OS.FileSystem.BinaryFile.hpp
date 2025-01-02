@@ -20,14 +20,24 @@ namespace OS {
 		BinaryFile(
 			const std::filesystem::path& path,
 			Memory::AllocationCallbacks allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
-				File{ path, allocationCallbacks }, fstream_{} { }
+				File{ path, allocationCallbacks }, fstream_{ nullptr } { }
+
+		virtual void Create() override {
+			OS::AssertMessage(fstream_ == nullptr, "");
+
+			fstream_ = std::make_unique<std::fstream>(path_, std::ios::out | std::ios::in | std::ios::trunc);
+
+			OS::AssertMessage(IsOpened(), "");
+		}
 
 		void Open() override {
 			if (!IsExist()) {
 				throw Exception{ "Attempt to open file that doesn't exist." };
 			}
+			OS::AssertMessage(fstream_ == nullptr, "");
 			const std::filesystem::path fullPath = std::filesystem::absolute(GetPath());
-			fstream_.open(fullPath.c_str(), std::ios::ate | std::ios::binary | std::ios::in | std::ios::out);
+			fstream_ = std::make_unique<std::fstream>();
+			fstream_->open(fullPath.c_str(), std::ios::ate | std::ios::binary | std::ios::in | std::ios::out);
 			if (!IsOpened()) {
 				const std::error_condition errorCondition = std::system_category().default_error_condition(errno);
 				throw Exception{ {
@@ -39,17 +49,19 @@ namespace OS {
 			//OS::LogInfo("/OS/File/", { "File %s was opened successfuly.", GetPath().filename().string().c_str() });
 		}
 
+
+
 		void Load() override {
 			OS::AssertMessage(IsOpened(), "Attempt to load file that wasn't opened.");
 			OS::AssertMessage(!IsLoaded(), "Attempt to load file that was loaded yet.");
 
 			size_t size = std::filesystem::file_size(GetPath());//(size_t)fstream_.tellg();
-			fstream_.seekg(0);
+			fstream_->seekg(0);
 
 			data_.Resize(size);
-			fstream_.read(data_.GetData(), size);
+			fstream_->read(data_.GetData(), size);
 			
-			if (fstream_.bad()) {
+			if (fstream_->bad()) {
 
 				const std::error_condition errorCondition = std::system_category().default_error_condition(errno);
 				throw Exception{ { 
@@ -69,7 +81,15 @@ namespace OS {
 
 		void Close() override {
 			OS::AssertMessage(IsOpened(), "Attempt to unload file that wasn't opened.");
-			fstream_.close();
+			fstream_->close();
+		}
+		struct WriteInfo {
+			const Common::Byte* data_ = nullptr;
+			Common::Size size_ = 0;
+		};
+		BinaryFile& operator<<(const WriteInfo& writeInfo) {
+			fstream_->write(writeInfo.data_, writeInfo.size_);
+			return *this;
 		}
 
 		[[nodiscard]]
@@ -79,7 +99,7 @@ namespace OS {
 		[[nodiscard]]
 		std::string GetName() const { return GetPath().filename().string(); }
 		[[nodiscard]]
-		bool IsOpened() const { return fstream_.is_open(); }
+		bool IsOpened() const { return fstream_->is_open(); }
 		[[nodiscard]]
 		bool IsExist() const { return std::filesystem::exists(GetPath()); }
 		[[nodiscard]]
@@ -92,6 +112,6 @@ namespace OS {
 
 	private:
 		DS::Vector<Common::Byte> data_;
-		std::fstream fstream_;
+		std::unique_ptr<std::fstream> fstream_ = nullptr;
 	};
 }

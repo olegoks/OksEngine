@@ -1,7 +1,7 @@
 
 #include <Render/OksEngine.MapMeshTransform.hpp>
 
-#include <Common/OksEngine.Position.hpp>
+#include <Common/auto_OksEngine.Position3D.hpp>
 #include <Render/Model/OksEngine.ModelEntity.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
 
@@ -10,7 +10,7 @@ namespace OksEngine {
 
 	void MapMeshTransform::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		auto* position = world->GetComponent<Position>(entityId);
+		auto* position = world->GetComponent<Position3D>(entityId);
 		/*auto* driverModel = world->GetComponent<DriverModel>(entityId);
 
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
@@ -31,7 +31,7 @@ namespace OksEngine {
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> MapMeshTransform::GetFilter() const noexcept {
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = 
 		{ ECS::Entity::Filter{}
-			.Include<Position>()
+			.Include<Position3D>()
 			.Include<ModelEntity>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
 

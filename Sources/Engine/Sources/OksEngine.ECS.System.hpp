@@ -34,9 +34,9 @@ namespace OksEngine {
 		Context& context_;
 	};
 
-	class ECSSystemNoContext : public ECS::System {
+	class ECSSystem2 : public ECS::System {
 	public:
-		ECSSystemNoContext() { }
+		ECSSystem2() { }
 		virtual void BeforeUpdate(ECS::World* world) override {}
 		virtual void StartUpdate() override { }
 		virtual void Update(ECS::World* world, ECS::Entity::Id entityId) override { }

@@ -1,7 +1,7 @@
 
 #include <Behaviour/OksEngine.CreateLoadLuaScriptRequest.hpp>
 
-#include <Common/OksEngine.Name.hpp>
+#include <Common/auto_OksEngine.Name.hpp>
 #include <Behaviour/OksEngine.Behaviour.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 #include <Behaviour/OksEngine.LoadLuaScriptRequest.hpp>

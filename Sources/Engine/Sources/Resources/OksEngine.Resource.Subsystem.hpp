@@ -24,10 +24,12 @@ namespace OksEngine {
 			return resourceSystem_.ForceGetResourceData(OSResourcePath);
 		}
 
-		Resources::Resource GetResource(std::filesystem::path resourcePath) {
+		Resources::ResourceData GetResource(std::filesystem::path resourcePath) {
 			resourceSystem_.LoadResource(resourcePath);
 			Resources::Resource resource = resourceSystem_.GetResource(resourcePath);
-			return resource;
+			auto binaryFile = std::dynamic_pointer_cast<OS::BinaryFile>(resource.GetFile());
+			Resources::ResourceData engineResource(binaryFile->GetData(), binaryFile->GetSize());
+			return engineResource;
 		}
 
 		void SetRoots(const std::vector<std::filesystem::path>& rootPaths) {

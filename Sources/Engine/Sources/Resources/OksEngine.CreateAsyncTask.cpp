@@ -1,7 +1,7 @@
 #include <Resources/OksEngine.CreateAsyncTask.hpp>
 
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
-#include <Common/OksEngine.Name.hpp>
+#include <Common/auto_OksEngine.Name.hpp>
 #include <Resources/OksEngine.Subsystem.hpp>
 #include <Resources/OksEngine.AsyncTask.hpp>
 #include <Resources/OksEngine.WaitingForResourceLoadingByAnotherRequest.hpp>

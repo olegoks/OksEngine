@@ -5,7 +5,7 @@
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 #include <Render/Texture/OksEngine.Texture.hpp>
 #include <Resources/OksEngine.ResourceEntity.hpp>
-#include <Common/OksEngine.BinaryData.hpp>
+#include <Common/auto_OksEngine.BinaryData.hpp>
 
 namespace OksEngine {
 

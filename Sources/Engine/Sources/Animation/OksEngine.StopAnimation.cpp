@@ -8,8 +8,8 @@
 #include <Animation/OksEngine.StartAnimation.hpp>
 #include <Animation/OksEngine.AnimationInProcess.hpp>
 
-#include <Common/OksEngine.Position.hpp>
-#include <Common/Clock/OksEngine.Clock.hpp>
+#include <Common/auto_OksEngine.Position3D.hpp>
+#include <Common/Clock/auto_OksEngine.Clock.hpp>
 
 namespace OksEngine {
 

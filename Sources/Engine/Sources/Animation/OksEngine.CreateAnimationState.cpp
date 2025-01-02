@@ -1,9 +1,9 @@
 
 #include <Animation/OksEngine.CreateAnimationState.hpp>
 
-#include <Common/OksEngine.LocalPosition3D.hpp>
 
-#include <Common/Clock/OksEngine.Clock.hpp>
+
+#include <Common/Clock/auto_OksEngine.Clock.hpp>
 
 #include <Animation/OksEngine.Animation.hpp>
 #include <Animation/OksEngine.StartAnimation.hpp>

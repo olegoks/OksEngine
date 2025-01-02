@@ -24,4 +24,14 @@ namespace OksEngine {
 			return Common::TypeInfo<UpdateClock>().GetId();
 		}
 	};
+
+
+	//class UpdateClock {
+	//public:
+
+	//	void Update(Clock* clock) {
+	//		clock->now_ = std::chrono::high_resolution_clock::now();
+	//	}
+
+	//};
 }

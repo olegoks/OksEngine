@@ -1,0 +1,6 @@
+component = {
+    name = "Text",
+    fields = { 
+        { type = "std::string", name = "value" }
+    }
+}

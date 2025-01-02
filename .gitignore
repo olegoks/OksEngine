@@ -3,6 +3,7 @@ vcpkg/
 *.vcxproj
 *.filters
 
+auto_*
 .vscode/
 *.bak
 *.pyc

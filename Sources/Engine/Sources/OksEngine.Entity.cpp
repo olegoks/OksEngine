@@ -32,8 +32,7 @@ namespace OksEngine {
 
 	void Entity::AddMapRigidBodyToRenderGeometry() {
 		world_->CreateComponent<MapRigidBodyToRenderGeometry>(
-			GetId(),
-			&context_);
+			GetId());
 	}
 
 	void Entity::AddStaticRigidBodyCustomMeshShape() {
@@ -112,12 +111,12 @@ namespace OksEngine {
 		const glm::vec3& color,
 		float intensity,
 		float radius) {
-		world_->CreateComponent<PointLight>(
+		/*world_->CreateComponent<PointLight>(
 			GetId(),
 			&context_,
 			color,
 			intensity,
-			radius);
+			radius);*/
 	}
 
 	void Entity::AddBehaviour(
@@ -130,20 +129,22 @@ namespace OksEngine {
 	}
 
 	void Entity::AddPosition(float x, float y, float z) {
-		world_->CreateComponent<Position>(
+		world_->CreateComponent<Position3D>(
 			GetId(),
 			x, y, z);
 	}
 
+	
 	void Entity::AddLocalPosition(float x, float y, float z) {
-		world_->CreateComponent<LocalPosition3D>(
+		OS::AssertFail();
+		/*world_->CreateComponent<LocalPosition3D>(
 			GetId(),
-			x, y, z);
+			x, y, z);*/
 	}
 
 
 	void Entity::AddDirection(float x, float y, float z) {
-		world_->CreateComponent<Direction>(
+		world_->CreateComponent<Direction3D>(
 			GetId(),
 			x, y, z);
 	}
@@ -172,10 +173,19 @@ namespace OksEngine {
 	}
 
 	void Entity::AddRotation(const glm::vec3& rotateVector, Math::Angle angle) {
-		world_->CreateComponent<Rotation>(
+
+		// Преобразование угла из градусов в радианы
+		float radians = glm::radians(angle.ToDegrees().GetValue());
+
+		// Создание кватерниона
+		glm::quat quat = glm::angleAxis(radians, glm::normalize(rotateVector));
+
+		world_->CreateComponent<Rotation3D>(
 			GetId(),
-			rotateVector,
-			angle
+			quat.w,
+			quat.x,
+			quat.y,
+			quat.z
 			);
 	}
 

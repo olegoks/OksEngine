@@ -22,8 +22,8 @@ namespace OksEngine {
 		Bind<Lua::Entity>(context);
 		Bind<Lua::Vector>(context);
 		Bind<Lua::Math3D>(context);
-		Bind<Position>(context);
-		Bind<Direction>(context);
+		Bind<Position3D>(context);
+		Bind<Direction3D>(context);
 		Bind<Up>(context);
 		Bind<ImmutableRenderGeometry>(context);
 		Bind<Camera>(context);
@@ -55,7 +55,7 @@ namespace OksEngine {
 		auto* scriptName = world->GetComponent<Name>(luaScriptEntity);
 		auto* scriptText = world->GetComponent<Text>(luaScriptEntity);
 		//const Lua::Script& script = GetContext().GetScriptStorage()->Get(scriptName->value_);
-		context.LoadScript(scriptText->text_);
+		context.LoadScript(scriptText->value_);
 
 		using namespace std::string_literals;
 		auto* behaviourScript = world->GetComponent<Behaviour>(entityId);
