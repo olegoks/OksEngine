@@ -3,27 +3,27 @@
 
 #include <Physics/OksEngine.StaticRigidBodyCustomMeshShape.hpp>
 #include <Physics/OksEngine.StaticRigidBody.hpp>
-#include <Common/OksEngine.Position.hpp>
-#include <Common/OksEngine.Rotation.hpp>
+#include <Common/auto_OksEngine.Position3D.hpp>
+#include <Common/auto_OksEngine.Rotation3D.hpp>
 #include <Physics/OksEngine.Material.hpp>
 #include <Physics/OksEngine.PhysicsShape.hpp>
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
-#include <Common/OksEngine.Name.hpp>
+#include <Common/auto_OksEngine.Name.hpp>
 
 
 namespace OksEngine {
 
 	void CreateStaticRigidBody::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		auto* position = world->GetComponent<Position>(entityId);
-		auto* rotation = world->GetComponent<Rotation>(entityId);
+		auto* position = world->GetComponent<Position3D>(entityId);
+		auto* rotation = world->GetComponent<Rotation3D>(entityId);
 		auto* shape = world->GetComponent<PhysicsShape>(entityId);
 		auto* material = world->GetComponent<Material>(entityId);
 		auto* name = world->GetComponent<Name>(entityId);
 
 		PAL::StaticRigidBody::CreateInfo srbCreateInfo{
 			.rbCreateInfo_ = {
-				.transform_ = position->GetMat(),
+				.transform_ = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) } ,
 				.shape_ = shape->shape_,
 				.name_ = name->value_
 			}
@@ -40,8 +40,8 @@ namespace OksEngine {
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateStaticRigidBody::GetFilter() const noexcept
 	{
 		return { ECS::Entity::Filter{}
-			.Include<Position>()
-			.Include<Rotation>()
+			.Include<Position3D>()
+			.Include<Rotation3D>()
 			.Include<Name>()
 			.Include<Material>()
 			.Include<PhysicsShape>()

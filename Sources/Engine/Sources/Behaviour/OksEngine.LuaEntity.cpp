@@ -4,14 +4,14 @@
 namespace OksEngine::Lua {
 
 
-	Position* Entity::GetPosition() {
-		auto position = world_->GetComponent<Position>(id_);
+	Position3D* Entity::GetPosition() {
+		auto position = world_->GetComponent<Position3D>(id_);
 		return position;
 	}
 
-	Direction* Entity::GetDirection()
+	Direction3D* Entity::GetDirection()
 	{
-		auto direction = world_->GetComponent<Direction>(id_);
+		auto direction = world_->GetComponent<Direction3D>(id_);
 		return direction;
 	}
 

@@ -6,56 +6,56 @@
 namespace OksEngine {
 
 
-	template<class LightType>
-	class Light : public ECSComponent<LightType> {
-	public:
+	//template<class LightType>
+	//class Light : public ECSComponent<LightType> {
+	//public:
 
-		Light(
-			Context* context,
-			const glm::vec3& color,
-			float intensity) : 
-			ECSComponent<LightType>{ context },
-			color_{ color },
-			intensity_{ intensity } { }
+	//	Light(
+	//		Context* context,
+	//		const glm::vec3& color,
+	//		float intensity) : 
+	//		ECSComponent<LightType>{ context },
+	//		color_{ color },
+	//		intensity_{ intensity } { }
 
-		[[nodiscard]]
-		const glm::vec3& GetColor() const noexcept {
-			return color_;
-		}
+	//	[[nodiscard]]
+	//	const glm::vec3& GetColor() const noexcept {
+	//		return color_;
+	//	}
 
-		[[nodiscard]]
-		float GetIntensity() const noexcept {
-			return intensity_;
-		}
+	//	[[nodiscard]]
+	//	float GetIntensity() const noexcept {
+	//		return intensity_;
+	//	}
 
-	private:
-		glm::vec3 color_{ 1.f, 1.f, 1.f };
-		float intensity_{ 1.f }; //0.0f - 1.0f
-	};
+	//private:
+	//	glm::vec3 color_{ 1.f, 1.f, 1.f };
+	//	float intensity_{ 1.f }; //0.0f - 1.0f
+	//};
 
-	class PointLight : public Light<PointLight> {
-	public:
+	//class PointLight : public Light<PointLight> {
+	//public:
 
-		PointLight(
-			Context* context,
-			const glm::vec3& color,
-			float intensity,
-			float radius) :
-			Light{ context, color, intensity },
-			radius_{ radius } {  }
+	//	PointLight(
+	//		Context* context,
+	//		const glm::vec3& color,
+	//		float intensity,
+	//		float radius) :
+	//		Light{ context, color, intensity },
+	//		radius_{ radius } {  }
 
-		[[nodiscard]]
-		float GetRadius() const noexcept { 
-			return radius_;
-		}
+	//	[[nodiscard]]
+	//	float GetRadius() const noexcept { 
+	//		return radius_;
+	//	}
 
-	private:
-		float radius_; // Border of light, on the border light intensity is 0.f.
-	};
+	//private:
+	//	float radius_; // Border of light, on the border light intensity is 0.f.
+	//};
 
-	template<>
-	inline void Edit<PointLight>(PointLight* pointLight) {
+	//template<>
+	//inline void Edit<PointLight>(PointLight* pointLight) {
 
-	}
+	//}
 
 }

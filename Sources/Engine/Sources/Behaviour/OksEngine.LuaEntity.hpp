@@ -9,8 +9,8 @@ namespace OksEngine {
 		class Entity {
 		public:
 
-			Position* GetPosition();
-			Direction* GetDirection();
+			Position3D* GetPosition();
+			Direction3D* GetDirection();
 			Active* GetActive();
 			Up* GetUp();
 			Width* GetWidth();

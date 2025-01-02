@@ -12,7 +12,7 @@ namespace OksEngine {
 	void CreateModelEntityFromObjMtl::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
 		//auto* position = world->GetComponent<Position>(entityId);
-		//auto* rotation = world->GetComponent<Rotation>(entityId);
+		//auto* rotation = world->GetComponent<Rotation3D>(entityId);
 		//auto* objEntity = world->GetComponent<ObjEntity>(entityId);
 		//auto* mtlEntity = world->GetComponent<MtlEntity>(entityId);
 		//auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
@@ -36,8 +36,8 @@ namespace OksEngine {
 		//	//ECS::Entity::Id meshEntityId = world->CreateEntity();
 		//	//meshsEntitiesIds.push_back(meshEntityId);
 		//	world->CreateComponent<Mesh2>(entityId);
-		//	//world->CreateComponent<Position>(meshEntityId, position->GetX(), position->GetY(), position->GetZ());
-		//	//world->CreateComponent<Rotation>(meshEntityId, rotation->GetRotationVector(), rotation->GetAngle());
+		//	//world->CreateComponent<Position>(meshEntityId, position->x_, position->y_, position->z_);
+		//	//world->CreateComponent<Rotation3D>(meshEntityId, rotation->GetRotationVector(), rotation->GetAngle());
 		//	if (mesh.textureName_ != "") {
 		//		world->CreateComponent<TextureInfo>(entityId, mesh.textureName_);
 		//	}
@@ -245,8 +245,8 @@ namespace OksEngine {
 		glm::vec4 perspective;
 		glm::decompose(transform, scale, rotation, translation, skew, perspective);
 
-		world->CreateComponent<Position>(nodeEntity, translation);
-		world->CreateComponent<Rotation>(nodeEntity, rotation);
+		world->CreateComponent<Position3D>(nodeEntity, translation.x, translation.y, translation.z);
+		world->CreateComponent<Rotation3D>(nodeEntity, rotation.w, rotation.x, rotation.y, rotation.z);
 
 		//Process meshes.
 		std::vector<ECS::Entity::Id> meshEntityIds;
@@ -330,8 +330,8 @@ namespace OksEngine {
 	void CreateModelEntityFromFbx::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
 
-		auto* position = world->GetComponent<Position>(entityId);
-		auto* rotation = world->GetComponent<Rotation>(entityId);
+		auto* position = world->GetComponent<Position3D>(entityId);
+		auto* rotation = world->GetComponent<Rotation3D>(entityId);
 		auto* fbxEntity = world->GetComponent<FbxEntity>(entityId);
 		auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
 
@@ -455,7 +455,7 @@ namespace OksEngine {
 
 
 		//auto* position = world->GetComponent<Position>(entityId);
-		//auto* rotation = world->GetComponent<Rotation>(entityId);
+		//auto* rotation = world->GetComponent<Rotation3D>(entityId);
 		//auto* fbxEntity = world->GetComponent<FbxEntity>(entityId);
 		//auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
 
@@ -483,8 +483,8 @@ namespace OksEngine {
 		//	ECS::Entity::Id meshEntityId = world->CreateEntity();
 		//	meshesEntitiesIds.push_back(meshEntityId);
 		//	world->CreateComponent<Mesh2>(meshEntityId);
-		//	world->CreateComponent<Position>(meshEntityId, position->GetX(), position->GetY(), position->GetZ());
-		//	world->CreateComponent<Rotation>(meshEntityId, rotation->GetRotationVector(), rotation->GetAngle());
+		//	world->CreateComponent<Position>(meshEntityId, position->x_, position->y_, position->z_);
+		//	world->CreateComponent<Rotation3D>(meshEntityId, rotation->GetRotationVector(), rotation->GetAngle());
 		//	if (mesh.mesh_.textureName_ != "") {
 		//		world->CreateComponent<TextureInfo>(meshEntityId, mesh.mesh_.textureName_);
 		//	}

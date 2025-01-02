@@ -1,6 +1,6 @@
 
 #include <Render/Camera/OksEngine.Camera.hpp>
-#include <Common/OksEngine.Position.hpp>
+#include <Common/auto_OksEngine.Position3D.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
 
 

@@ -80,7 +80,6 @@ namespace OksEngine
 		world_->RegisterSystem <CreatePhysicsShapeForDynamicRigidBody>(*this);
 		world_->RegisterSystem <CreateDynamicRigidBody>(*this);
 		world_->RegisterSystem<UpdateClock>(*this);
-		world_->RegisterSystem < UpdateDriverTransform3DWithLocalTransform>(*this);
 		world_->RegisterSystem < UpdateModelDriverTransform>(*this);
 
 		//ANIMATION

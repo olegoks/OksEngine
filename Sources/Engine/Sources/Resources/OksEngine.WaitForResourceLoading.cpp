@@ -1,15 +1,15 @@
 #include <Resources/OksEngine.WaitForResourceLoading.hpp>
 
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
-#include <Common/OksEngine.Name.hpp>
+#include <Common/auto_OksEngine.Name.hpp>
 #include <Resources/OksEngine.Subsystem.hpp>
 #include <Resources/OksEngine.AsyncTask.hpp>
 #include <Resources/OksEngine.WaitingForResourceLoadingByAnotherRequest.hpp>
 #include <Resources/OksEngine.ResourceWasLoadedEarly.hpp>
 #include <Resources/OksEngine.ResourceEntity.hpp>
 #include <Resources/OksEngine.Resource.hpp>
-#include <Common/OksEngine.BinaryData.hpp>
-#include <Common/OksEngine.Completed.hpp>
+#include <Common/auto_OksEngine.BinaryData.hpp>
+#include <Common/auto_OksEngine.Completed.hpp>
 
 namespace OksEngine {
 

@@ -6,7 +6,7 @@
 #include <Render/GeometryDescriptionFile/OksEngine.GeometryDescriptionFile.hpp>
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 
-#include <Common/OksEngine.Name.hpp>
+#include <Common/auto_OksEngine.Name.hpp>
 namespace OksEngine {
 
 

@@ -99,7 +99,7 @@ namespace OksEngine {
 			world->CreateComponent<TextureInfo>(meshEntityId, "ImGUI texture");
 			world->CreateComponent<Texture>(meshEntityId, texture.GetWidth(), texture.GetHeight(), texture.GetPixelsArray());
 
-			world->CreateComponent<ChildEntities>(modelEntityId, meshEntityId);
+			world->CreateComponent<ChildEntities>(modelEntityId, std::vector{ meshEntityId });
 		}
 		world->CreateComponent<ModelEntity>(entityId, modelEntityId);
 

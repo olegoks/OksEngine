@@ -2,6 +2,12 @@ cmake_minimum_required(VERSION  3.26.4)
 
 # Добавляем исполнительный файл и связываем с библиотеками
 add_executable(ECSGenerator Sources/GenerateCXX/main.cpp)
+
+set_target_properties(ECSGenerator
+    PROPERTIES
+        VS_DEBUGGER_COMMAND_ARGUMENTS
+        "-workDir C:/Users/User/Desktop/OksEngine/Sources/")
+
 #nd_package(libcgraph CONFIG REQUIRED)
 # target_link_libraries(ECS
 #     PUBLIC
@@ -29,4 +35,5 @@ target_link_libraries(ECSGenerator
     PUBLIC
     LuaLayer
     Resources
+    ECS
     )

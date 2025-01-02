@@ -1,7 +1,7 @@
 
 #include <Render/Texture/OksEngine.CreateLoadTextureRequest.hpp>
 
-#include <Common/OksEngine.Name.hpp>
+#include <Common/auto_OksEngine.Name.hpp>
 #include <Render/Model/ObjMtl/OksEngine.LoadObjRequest.hpp>
 #include <Sound/OksEngine.CreateLoadSoundRequest.hpp>
 #include <Sound/OksEngine.SoundInfo.hpp>

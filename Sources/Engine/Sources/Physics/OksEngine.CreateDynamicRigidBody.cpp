@@ -1,7 +1,7 @@
 
 #include <Physics/OksEngine.CreateDynamicRigidBody.hpp>
 
-#include <Common/OksEngine.Position.hpp>
+#include <Common/auto_OksEngine.Position3D.hpp>
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
 #include <Physics/OksEngine.DynamicRigidBodyCustomMeshShape.hpp>
 #include <Physics/OksEngine.Mass.hpp>
@@ -13,14 +13,14 @@ namespace OksEngine {
 
 	void CreateDynamicRigidBody::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		auto* position = world->GetComponent<Position>(entityId);
+		auto* position = world->GetComponent<Position3D>(entityId);
 		auto* shape = world->GetComponent<PhysicsShape>(entityId);
 		auto* mass = world->GetComponent<Mass>(entityId);
 		auto* material = world->GetComponent<Material>(entityId);
 
 		PAL::DynamicRigidBody::CreateInfo createInfo{
 			.rbCreateInfo_ = {
-				.transform_ = position->GetMat(),
+				.transform_ = glm::mat4{ glm::translate(glm::vec3( position->x_, position->y_, position->z_ )) },
 				.shape_ = shape->shape_,
 				.name_ = "DynamicRigidBody"
 			},
@@ -36,7 +36,7 @@ namespace OksEngine {
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateDynamicRigidBody::GetFilter() const noexcept
 	{
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
-			.Include<Position>()
+			.Include<Position3D>()
 			.Include<Material>()
 			.Include<Mass>()
 			.Include<PhysicsShape>()

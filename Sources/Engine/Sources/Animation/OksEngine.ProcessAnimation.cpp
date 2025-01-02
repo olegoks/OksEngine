@@ -8,18 +8,18 @@
 #include <Animation/OksEngine.StartAnimation.hpp>
 #include <Animation/OksEngine.AnimationInProcess.hpp>
 
-#include <Common/OksEngine.LocalPosition3D.hpp>
-#include <Common/OksEngine.Position.hpp>
-#include <Common/OksEngine.Rotation.hpp>
-#include <Common/Clock/OksEngine.Clock.hpp>
+
+#include <Common/auto_OksEngine.Position3D.hpp>
+#include <Common/auto_OksEngine.Rotation3D.hpp>
+#include <Common/Clock/auto_OksEngine.Clock.hpp>
 
 namespace OksEngine {
 
 
 	void ProcessAnimation::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		Position* position = world->GetComponent<Position>(entityId);
-		Rotation* rotation = world->GetComponent<Rotation>(entityId);
+		Position3D* position = world->GetComponent<Position3D>(entityId);
+		Rotation3D* rotation = world->GetComponent<Rotation3D>(entityId);
 		Animation* animation = world->GetComponent<Animation>(entityId);
 
 		RunningAnimationState* animationState = world->GetComponent<RunningAnimationState>(entityId);
@@ -28,7 +28,7 @@ namespace OksEngine {
 		std::chrono::nanoseconds animDuration{ (unsigned long long)(animation->durationInTicks_ / animation->ticksPerSecond_ * 1000000000) };
 		std::chrono::high_resolution_clock::duration animationDuration = animDuration;
 		//animation->ticksPerSecond_
-		auto currentDelta = clock->now_ - animationState->start_;
+		auto currentDelta = clock->value_ - animationState->start_;
 		double currentTick = (double)currentDelta.count() / animationDuration.count() * animation->durationInTicks_;
 		if (currentTick >= animation->durationInTicks_) {
 			world->CreateComponent<AnimationEnded>(entityId);
@@ -56,9 +56,9 @@ namespace OksEngine {
 			double integerPart = 0.f;
 			double fractionalPart = std::modf(currentTick, &integerPart);
 
-			position->xyz_.x = leftPositionKey.value_.x + xDelta * fractionalPart;
-			position->xyz_.y = leftPositionKey.value_.y + yDelta * fractionalPart;
-			position->xyz_.z = leftPositionKey.value_.z + zDelta * fractionalPart;
+			position->x_ = leftPositionKey.value_.x + xDelta * fractionalPart;
+			position->y_ = leftPositionKey.value_.y + yDelta * fractionalPart;
+			position->z_ = leftPositionKey.value_.z + zDelta * fractionalPart;
 		}
 		//Rotation process.
 
@@ -86,17 +86,17 @@ namespace OksEngine {
 		//position->xyz_.z = leftPositionKey.value_.z + zDelta * fractionalPart;
 
 
-		rotation->quat_.w = rightRotationKey.value_.w;
-		rotation->quat_.x = rightRotationKey.value_.x;
-		rotation->quat_.y = rightRotationKey.value_.y;
-		rotation->quat_.z = rightRotationKey.value_.z;
+		rotation->w_ = rightRotationKey.value_.w;
+		rotation->x_ = rightRotationKey.value_.x;
+		rotation->y_ = rightRotationKey.value_.y;
+		rotation->z_ = rightRotationKey.value_.z;
 	}
 
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> ProcessAnimation::GetFilter() const noexcept
 	{
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
-			.Include<Position>()
-			.Include<Rotation>()
+			.Include<Position3D>()
+			.Include<Rotation3D>()
 			.Include<Animation>()
 			.Include<RunningAnimationState>()
 			.Include<AnimationInProcess>()

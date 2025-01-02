@@ -53,18 +53,17 @@ namespace OksEngine {
 			ImGui::PushID("Edit");
 
 
-			//callProcessForEach<Position, MapRigidBodyToRenderGeometry, ActiveMarker>(world, id);
+			//callProcessForEach<Position3D, MapRigidBodyToRenderGeometry, ActiveMarker>(world, id);
 			/*Common*/
-			editComponent.template operator() < Position > (world, id);
-			editComponent.template operator() < LocalPosition3D > (world, id);
+			editComponent.template operator() < Position3D > (world, id);
 			editComponent.template operator() < Position2D > (world, id);
 			editComponent.template operator() < Scale2D > (world, id);
 
-			editComponent.template operator() < Direction > (world, id);
+			editComponent.template operator() < Direction3D > (world, id);
 			editComponent.template operator() < Up > (world, id);
 			editComponent.template operator() < Width > (world, id);
 			editComponent.template operator() < Height > (world, id);
-			editComponent.template operator() < Rotation > (world, id);
+			editComponent.template operator() < Rotation3D > (world, id);
 			editComponent.template operator() < MapRigidBodyToRenderGeometry > (world, id);
 			editComponent.template operator() < Active > (world, id);
 			editComponent.template operator() < Name > (world, id);
@@ -213,7 +212,7 @@ namespace OksEngine {
 				PlaySound::GetName(),
 				SoundInfo::GetName(),
 				Behaviour::GetName(),
-				Position::GetName(),
+				Position3D::GetName(),
 				MapRigidBodyToRenderGeometry::GetName(),
 				Active::GetName(),
 				DebugInfo::GetName(),
@@ -226,7 +225,7 @@ namespace OksEngine {
 				//StaticRigidBodyCustomMeshShape::GetName(),
 				ImmutableRenderGeometry::GetName(),
 				Camera::GetName(),
-				PointLight::GetName(),
+				//PointLight::GetName(),
 				SkinnedGeometry::GetName(),
 				LoadResourceRequest::GetName(),
 				Resource::GetName(),
@@ -259,8 +258,8 @@ namespace OksEngine {
 			if (currentComponent == Active::GetName()) {
 				Add<Active>(world, id);
 			}
-			if (currentComponent == Position::GetName()) {
-				Add<Position>(world, id);
+			if (currentComponent == Position3D::GetName()) {
+				Add<Position3D>(world, id);
 			}
 			if (currentComponent == ImmutableRenderGeometry::GetName()) {
 				Add<ImmutableRenderGeometry>(world, id);

@@ -13,9 +13,12 @@ namespace OS {
 			const std::filesystem::path& path,
 			const Memory::AllocationCallbacks& allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
 			path_{ path },
-			allocationCallbacks_{ allocationCallbacks } { }
+			allocationCallbacks_{ allocationCallbacks } {
+			
 
-
+		
+		}
+		virtual void Create() = 0;
 		virtual void Open() = 0;
 		virtual void Load() = 0;
 		virtual void Unload() = 0;

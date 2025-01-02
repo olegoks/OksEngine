@@ -2,9 +2,9 @@
 #include <Debug/Render/OksEngine.AddImGuiMeshToRender.hpp>
 
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
-#include <Common/OksEngine.Position2D.hpp>
+#include <Common/auto_OksEngine.Position2D.hpp>
 #include <Common/OksEngine.Scale2D.hpp>
-#include <Common/OksEngine.Rotation.hpp>
+#include <Common/auto_OksEngine.Rotation3D.hpp>
 #include <Render/Model/OksEngine.Mesh.hpp>
 #include <Render/Texture/OksEngine.DriverTexture.hpp>
 #include <Render/Model/OksEngine.DriverMesh.hpp>
@@ -20,7 +20,7 @@ namespace OksEngine {
 
 		auto* position = world->GetComponent<Position2D>(entityId);
 		auto* scale = world->GetComponent<Scale2D>(entityId);
-		//auto* rotation = world->GetComponent<Rotation>(entityId);
+		//auto* rotation = world->GetComponent<Rotation3D>(entityId);
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 		//auto* driverCamera = world->GetComponent<DriverCamera>(secondEntityId);
 		auto* driverTexture = world->GetComponent<DriverTexture>(entityId);
@@ -50,7 +50,7 @@ namespace OksEngine {
 				glm::vec2 translate_;
 			};
 
-			Transform transform{  scale->GetVec(), position->GetVec() };
+			Transform transform{ scale->GetVec(), glm::vec2{ position->x_, position->y_ } };
 			RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
 				.size_ = sizeof(Transform),
 				.type_ = RAL::Driver::UniformBuffer::Type::Mutable

@@ -61,7 +61,11 @@ namespace Resources {
 		Resource(
 			const std::filesystem::path& path,
 			Memory::AllocationCallbacks allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
-			path_{ path } { }
+			path_{ path } {
+		
+			file_ = std::make_unique<OS::BinaryFile>(GetPath(), allocationCallbacks_);
+		
+		}
 
 		void Load();
 		void Unload();
@@ -162,7 +166,7 @@ namespace Resources {
 		}
 
 		Resources::ResourceData GetResourceData(std::filesystem::path resourcePath) {
-			LoadResource(resourcePath);
+			//LoadResource(resourcePath);
 			Resources::Resource resource = GetResource(resourcePath);
 			auto binaryFile = std::dynamic_pointer_cast<OS::BinaryFile>(resource.GetFile());
 			Resources::ResourceData engineResource(binaryFile->GetData(), binaryFile->GetSize());
@@ -217,7 +221,7 @@ namespace Resources {
 				}
 
 			}
-			catch (std::exception error) {
+			catch (const std::filesystem::filesystem_error& error) {
 				OS::LogInfo("ResourceSystem", error.what());
 			}
 		}
@@ -256,7 +260,9 @@ namespace Resources {
 			ProcessDependence processNode = [this](Graph::Node::Id nodeId)->bool {
 				ResourceInfo& resourceInfo = GetResourceInfo(nodeId);
 				if (resourceInfo.GetName() != rootName_) {
-					resourceInfo.GetResource().Unload();
+					if (resourceInfo.GetResource().IsLoaded()) {
+						resourceInfo.GetResource().Unload();
+					}
 				}
 				return true;
 			};

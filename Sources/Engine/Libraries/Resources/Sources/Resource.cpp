@@ -7,7 +7,7 @@ namespace Resources
 {
 
 	void Resource::Load() {
-		file_ = std::make_unique<OS::BinaryFile>(GetPath(), allocationCallbacks_);
+		
 		try {
 			GetFile()->Open();
 			GetFile()->Load();
@@ -22,6 +22,7 @@ namespace Resources
 
 	void Resource::Unload() {
 		GetFile()->Unload();
+
 	}
 
 	//void ResourceManager::ProcessFiles(const std::filesystem::path& path, const std::function<void(const std::filesystem::path&)>& callback) {
@@ -30,41 +31,41 @@ namespace Resources
 				callback(entry);
 			}
 		}*/
-	//}
-	//void ResourceManager::Load() {
+		//}
+		//void ResourceManager::Load() {
 
-	//	auto processFile = [this](const std::filesystem::path& path) {
-	//		LoadResource(path);
-	//		};
+		//	auto processFile = [this](const std::filesystem::path& path) {
+		//		LoadResource(path);
+		//		};
 
-	//	ProcessFiles(GetResourcesPath(), processFile);
-	//}
+		//	ProcessFiles(GetResourcesPath(), processFile);
+		//}
 
-	//void ResourceManager::LoadResource(const std::filesystem::path& path) {
-	//	auto resource = std::make_shared<Resource>(path);
-	//	resource->Load();
-	//	const auto resourcePath = resource->GetPath();
-	//	const auto resourceFileName = resourcePath.filename().string();
-	//	resources_.insert({ resourceFileName, resource });
-	//}
+		//void ResourceManager::LoadResource(const std::filesystem::path& path) {
+		//	auto resource = std::make_shared<Resource>(path);
+		//	resource->Load();
+		//	const auto resourcePath = resource->GetPath();
+		//	const auto resourceFileName = resourcePath.filename().string();
+		//	resources_.insert({ resourceFileName, resource });
+		//}
 
-	//std::shared_ptr<Resource> ResourceManager::GetResource(const Resource::Identifier& resourceId) {
+		//std::shared_ptr<Resource> ResourceManager::GetResource(const Resource::Identifier& resourceId) {
 
-	//	return resources_[resourceId];
+		//	return resources_[resourceId];
 
-	//}
+		//}
 
-	//void ResourceManager::ProcessFiles(const std::filesystem::path& path, const std::function<void(const std::filesystem::path&)>& callback) {
-	//	for (const auto& entry : std::filesystem::directory_iterator(path)) {
-	//		if (std::filesystem::is_directory(entry)) {
-	//			ProcessFiles(entry, callback);
-	//		}
-	//		else if (std::filesystem::is_regular_file(entry)) {
-	//			callback(entry);
-	//		}
-	//	}
-	//}
+		//void ResourceManager::ProcessFiles(const std::filesystem::path& path, const std::function<void(const std::filesystem::path&)>& callback) {
+		//	for (const auto& entry : std::filesystem::directory_iterator(path)) {
+		//		if (std::filesystem::is_directory(entry)) {
+		//			ProcessFiles(entry, callback);
+		//		}
+		//		else if (std::filesystem::is_regular_file(entry)) {
+		//			callback(entry);
+		//		}
+		//	}
+		//}
 
-	//const std::filesystem::path& ResourceManager::GetResourcesPath() const { return resourcesPath_; };
+		//const std::filesystem::path& ResourceManager::GetResourcesPath() const { return resourcesPath_; };
 
 }

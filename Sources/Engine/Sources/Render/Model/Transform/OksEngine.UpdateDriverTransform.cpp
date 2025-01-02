@@ -11,12 +11,16 @@ namespace OksEngine {
 
 
 		return;
-		Position* position = world->GetComponent<Position>(entityId);
-		Rotation* rotation = world->GetComponent<Rotation>(entityId);
+		Position3D* position = world->GetComponent<Position3D>(entityId);
+		Rotation3D* rotation = world->GetComponent<Rotation3D>(entityId);
 
 		DriverTransform3D* driverTransform = world->GetComponent<DriverTransform3D>(entityId);
 
-		const glm::mat4 transformMatrix = glm::mat4{ 1 } *rotation->GetMat() * position->GetMat();
+
+		const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
+		const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
+
+		const glm::mat4 transformMatrix = glm::mat4{ 1 } * nodeRotationMatrix * nodeTranslateMatrix;
 
 		DriverTransform3D::Transform transform{ transformMatrix };
 
@@ -30,9 +34,8 @@ namespace OksEngine {
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateDriverTransform3D::GetFilter() const noexcept {
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
-			.Include<Position>()
-			.Include<Rotation>()
-			.Exclude<LocalPosition3D>()
+			.Include<Position3D>()
+			.Include<Rotation3D>()
 			.Include<DriverTransform3D>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
 		return filter;
@@ -42,50 +45,18 @@ namespace OksEngine {
 	}
 
 
-
-	void UpdateDriverTransform3DWithLocalTransform::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-		return;
-		Position* position = world->GetComponent<Position>(entityId);
-		Rotation* rotation = world->GetComponent<Rotation>(entityId);
-		LocalPosition3D* localPosition = world->GetComponent<LocalPosition3D>(entityId);
-
-		DriverTransform3D* driverTransform = world->GetComponent<DriverTransform3D>(entityId);
-
-		const glm::mat4 transformMatrix = glm::mat4{ 1 } *  position->GetMat() * localPosition->GetMat() * rotation->GetMat();
-
-		DriverTransform3D::Transform transform{ transformMatrix };
-
-		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
-			.size_ = sizeof(DriverTransform3D::Transform),
-			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
-		};
-		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		driver->FillUniformBuffer(driverTransform->UBId_, &transform);
-	}
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateDriverTransform3DWithLocalTransform::GetFilter() const noexcept {
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
-			ECS::Entity::Filter{}
-			.Include<Position>()
-			.Include<Rotation>()
-			.Include<LocalPosition3D>()
-			.Include<DriverTransform3D>(),
-			ECS::Entity::Filter{}.ExcludeAll() };
-		return filter;
-	}
-	Common::TypeId UpdateDriverTransform3DWithLocalTransform::GetTypeId() const noexcept {
-		return Common::TypeInfo<UpdateDriverTransform3DWithLocalTransform>().GetId();
-	}
-
-
 	void UpdateNodeTransform(std::shared_ptr<RAL::Driver> driver, ECS::World* world, ECS::Entity::Id nodeEntityId, const glm::mat4& parentTransform) {
 
 		//if (world->IsComponentExist<Meshes>(nodeEntityId)) {
 
 		//}
-		Position* position = world->GetComponent<Position>(nodeEntityId);
-		Rotation* rotation = world->GetComponent<Rotation>(nodeEntityId);
+		Position3D* position = world->GetComponent<Position3D>(nodeEntityId);
+		Rotation3D* rotation = world->GetComponent<Rotation3D>(nodeEntityId);
 
-		glm::mat4 nodeTransform = parentTransform * position->GetMat() * rotation->GetMat();
+		const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
+		const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
+
+		const glm::mat4 nodeTransform = parentTransform * nodeTranslateMatrix * nodeRotationMatrix;
 
 		if (world->IsComponentExist<DriverTransform3D>(nodeEntityId)) {
 
@@ -112,12 +83,16 @@ namespace OksEngine {
 	void UpdateModelDriverTransform::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
 		//return;
-		Position* position = world->GetComponent<Position>(entityId);
-		Rotation* rotation = world->GetComponent<Rotation>(entityId);
+		Position3D* position = world->GetComponent<Position3D>(entityId);
+		Rotation3D* rotation = world->GetComponent<Rotation3D>(entityId);
 		
 		ModelEntity* modelEntity = world->GetComponent<ModelEntity>(entityId);
 
-		const glm::mat4 entityTransform = glm::mat4{ 1 } * position->GetMat() * rotation->GetMat();
+		const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
+		const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
+
+
+		const glm::mat4 entityTransform = glm::mat4{ 1 } * nodeTranslateMatrix * nodeRotationMatrix;
 
 		ECS::Entity::Id rootNodeEntityId = modelEntity->id_;
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
@@ -128,8 +103,8 @@ namespace OksEngine {
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateModelDriverTransform::GetFilter() const noexcept {
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
-			.Include<Position>()
-			.Include<Rotation>()
+			.Include<Position3D>()
+			.Include<Rotation3D>()
 			.Include<ModelEntity>(),
 			ECS::Entity::Filter{}.ExcludeAll() };
 		return filter;

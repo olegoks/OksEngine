@@ -1,0 +1,6 @@
+component = {
+    name = "BinaryData",
+    fields = { 
+        { type = "std::vector<Common::Byte>", name = "data" }
+    }
+}

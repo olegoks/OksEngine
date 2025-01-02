@@ -4,7 +4,7 @@
 #include <Sound/OksEngine.Sound.hpp>
 #include <Resources/OksEngine.ResourceEntity.hpp>
 
-#include <Common/OksEngine.BinaryData.hpp>
+#include <Common/auto_OksEngine.BinaryData.hpp>
 
 #include <SFML/Audio.hpp>
 

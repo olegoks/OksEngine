@@ -8,19 +8,19 @@
 #include <Animation/OksEngine.StartAnimation.hpp>
 #include <Animation/OksEngine.AnimationInProcess.hpp>
 
-#include <Common/OksEngine.Position.hpp>
-#include <Common/Clock/OksEngine.Clock.hpp>
+#include <Common/auto_OksEngine.Position3D.hpp>
+#include <Common/Clock/auto_OksEngine.Clock.hpp>
 
 namespace OksEngine {
 
 
 	void RunAnimation::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
 
-		Position* position = world->GetComponent<Position>(entityId);
+		Position3D* position = world->GetComponent<Position3D>(entityId);
 		Animation* animation = world->GetComponent<Animation>(entityId);
 		RunningAnimationState* animationState = world->GetComponent<RunningAnimationState>(entityId);
 		Clock* clock = world->GetComponent<Clock>(entityId);
-		animationState->start_ = clock->now_;
+		animationState->start_ = clock->value_;
 		world->RemoveComponent<StartAnimation>(entityId);
 		world->CreateComponent<AnimationInProcess>(entityId);
 

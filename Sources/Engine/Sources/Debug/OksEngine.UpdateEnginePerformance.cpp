@@ -13,7 +13,7 @@
 
 #include <Debug/OksEngine.EnginePerformance.hpp>
 #include <Common/FramesCounter/OksEngine.FramesCounter.hpp>
-#include <Common/OksEngine.Counter.hpp>
+#include <Common/auto_OksEngine.Counter.hpp>
 
 namespace OksEngine {
 

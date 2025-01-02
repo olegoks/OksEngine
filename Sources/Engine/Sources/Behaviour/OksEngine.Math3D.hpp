@@ -11,31 +11,19 @@ namespace OksEngine {
 		class Vector {
 		public:
 
-			Vector(float x, float y, float z) : xyz_{ x, y, z } {}
-
-			Vector(const glm::vec3& xyz) : xyz_{ xyz } {}
+			Vector(float x, float y, float z) : x_{ x }, y_{ y }, z_{ z } {}
 
 			void Normalize() {
-				glm::normalize(xyz_);
+				glm::vec3 vec{ x_, y_, z_ };
+				glm::normalize(vec);
+				x_ = vec.x;
+				y_ = vec.y;
+				z_ = vec.z;
 			}
 
-			[[nodiscard]]
-			float GetX() {
-				return xyz_.x;
-			}
-
-			[[nodiscard]]
-			float GetY() {
-				return xyz_.y;
-			}
-
-			[[nodiscard]]
-			float GetZ() {
-				return xyz_.z;
-			}
-
-			glm::vec3 xyz_;
-
+			float x_;
+			float y_;
+			float z_;
 		};
 
 	}
@@ -47,10 +35,9 @@ namespace OksEngine {
 			.beginClass<Lua::Vector>("Vector")
 			.addConstructor<void(*)(float x, float y, float z)>()
 			.addFunction("Normalize", &Lua::Vector::Normalize)
-			.addFunction("GetX", &Lua::Vector::GetX)
-			.addFunction("GetY", &Lua::Vector::GetY)
-			.addFunction("GetZ", &Lua::Vector::GetZ)
-
+			.addProperty("x", &Lua::Vector::x_)
+			.addProperty("y", &Lua::Vector::y_)
+			.addProperty("z", &Lua::Vector::z_)
 			.endClass();
 	}
 

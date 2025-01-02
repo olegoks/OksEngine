@@ -1,0 +1,7 @@
+component = {
+    name = "Scale2D",
+    fields = { 
+        { type = "float", name = "x" },
+        { type = "float", name = "y" }
+    }
+}

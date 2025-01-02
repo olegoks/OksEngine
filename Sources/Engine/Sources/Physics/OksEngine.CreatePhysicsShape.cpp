@@ -9,7 +9,8 @@
 #include <Physics/OksEngine.StaticRigidBodyCustomMeshShape.hpp>
 #include <Physics/OksEngine.Material.hpp>
 #include <Render/Model/OksEngine.Mesh.hpp>
-#include <Common/OksEngine.ChildEntity.hpp>
+#include <Common/auto_OksEngine.ChildEntity.hpp>
+#include <Common/auto_OksEngine.ChildEntities.hpp>
 
 namespace OksEngine {
 

@@ -6,9 +6,9 @@
 #include <Resources/OksEngine.LoadResourceRequest.hpp>
 #include <Render/Model/ObjMtl/OksEngine.MtlEntity.hpp>
 
-#include <Common/OksEngine.Completed.hpp>
-#include <Common/OksEngine.Name.hpp>
-#include <Common/OksEngine.BinaryData.hpp>
+#include <Common/auto_OksEngine.Completed.hpp>
+#include <Common/auto_OksEngine.Name.hpp>
+#include <Common/auto_OksEngine.BinaryData.hpp>
 
 #include <Resources/OksEngine.ResourceEntity.hpp>
 
