@@ -12,26 +12,26 @@ namespace ECS {
 	class [[nodiscard]] World final {
 	public:
 
-		class DebugInfo {
-		public:
+		//class DebugInfo {
+		//public:
 
-			std::vector<std::string> registeredSystems_;
+		//	std::vector<std::string> registeredSystems_;
 
-			class FrameInfo {
-			public:
+		//	class FrameInfo {
+		//	public:
 
-				struct SystemCallInfo {
-					std::string name_;
-					Entity::Id firstEntityId_;
-					Entity::Id secondEntityId_;
-					std::vector<std::string> componentsNames_;
-				};
-				Common::Index index_ = 0;
-				std::vector<SystemCallInfo> systemsCallsInfos_;
-			};
+		//		struct SystemCallInfo {
+		//			std::string name_;
+		//			Entity::Id firstEntityId_;
+		//			Entity::Id secondEntityId_;
+		//			std::vector<std::string> componentsNames_;
+		//		};
+		//		Common::Index index_ = 0;
+		//		std::vector<SystemCallInfo> systemsCallsInfos_;
+		//	};
 
-			std::vector<FrameInfo> framesInfos_;
-		};
+		//	std::vector<FrameInfo> framesInfos_;
+		//};
 
 
 		[[nodiscard]]
@@ -77,7 +77,7 @@ namespace ECS {
 		template<class SystemType, class ...Args>
 		std::shared_ptr<SystemType> RegisterSystem(Args&& ...args) noexcept {
 			std::shared_ptr<SystemType> system = systemsManager_.RegisterSystem<SystemType>(std::forward<Args>(args)...);
-			debugInfo_.registeredSystems_.push_back(system->GetName());
+			//debugInfo_.registeredSystems_.push_back(system->GetName());
 			return system;
 		}
 
@@ -102,9 +102,9 @@ namespace ECS {
 
 		void StartFrame() {
 			componentsManager_.AddDelayedComponents();
-			DebugInfo::FrameInfo frameInfo{
-				.index_ = framesCount_
-			};
+			//DebugInfo::FrameInfo frameInfo{
+			//	.index_ = framesCount_
+			//};
 			//debugInfo_.framesInfos_.push_back(frameInfo);
 		}
 
@@ -205,7 +205,7 @@ namespace ECS {
 			OS::NotImplemented();
 		}
 
-		DebugInfo debugInfo_;
+		//DebugInfo debugInfo_;
 
 	private:
 		Common::Size framesCount_ = 0;
