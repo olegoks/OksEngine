@@ -3,7 +3,7 @@
 
 #include <Render/OksEngine.ImmutableRenderGeometry.hpp>
 #include <Common/auto_OksEngine.Position2D.hpp>
-#include <Common/OksEngine.Scale2D.hpp>
+#include <Common/auto_OksEngine.Scale2D.hpp>
 #include <Common/auto_OksEngine.Rotation3D.hpp>
 #include <Render/Model/OksEngine.Mesh.hpp>
 #include <Render/Texture/OksEngine.DriverTexture.hpp>
@@ -50,7 +50,10 @@ namespace OksEngine {
 				glm::vec2 translate_;
 			};
 
-			Transform transform{ scale->GetVec(), glm::vec2{ position->x_, position->y_ } };
+			Transform transform{ 
+				glm::vec2{ scale->x_, scale->y_ },
+				glm::vec2{ position->x_, position->y_ }
+			};
 			RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
 				.size_ = sizeof(Transform),
 				.type_ = RAL::Driver::UniformBuffer::Type::Mutable
