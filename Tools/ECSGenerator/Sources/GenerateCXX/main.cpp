@@ -460,8 +460,78 @@ std::string ParseEcsFile(Resources::ResourceData& ecsFileData) {
 	}
 }
 
-int main(int argc, char** argv) {
 
+#include <graphviz/gvc.h>
+
+//
+//extern gvplugin_installed_t gvlayout_dot_layout[];
+//
+//static gvplugin_api_t apis[] = {
+//	{API_layout, gvlayout_dot_layout},
+//	{(api_t)0, 0},
+//};
+//
+//gvplugin_library_t gvplugin_dot_layout_LTX_library = { (char*)"dot_layout", apis };
+//extern gvplugin_library_t gvplugin_neato_layout_LTX_library;
+//extern gvplugin_library_t gvplugin_core_LTX_library;
+//extern gvplugin_library_t gvplugin_quartz_LTX_library;
+//extern gvplugin_library_t gvplugin_visio_LTX_library;
+//
+//lt_symlist_t lt_preloaded_symbols[] =
+//{
+//	{ "gvplugin_dot_layout_LTX_library", &gvplugin_dot_layout_LTX_library},
+//	{ "gvplugin_neato_layout_LTX_library", &gvplugin_neato_layout_LTX_library},
+//	{ "gvplugin_core_LTX_library", &gvplugin_core_LTX_library},
+//	{ "gvplugin_quartz_LTX_library", &gvplugin_quartz_LTX_library},
+//	{ "gvplugin_visio_LTX_library", &gvplugin_visio_LTX_library},
+//	{ 0, 0}
+//};
+
+int main(int argc, char** argv) {
+	GVC_t* gvc;
+	Agraph_t* g;
+	FILE* fp;
+	gvc = gvContext();
+	if (argc > 1)
+		fp = fopen("arrows.gv", "r");
+	else
+		fp = stdin;
+	g = agread(fp, 0);
+	gvLayout(gvc, g, "dot");
+	gvRender(gvc, g, "plain", stdout);
+	gvFreeLayout(gvc, g);
+	agclose(g);
+
+	//GVC_t* gvc;
+	//Agraph_t* g;
+	//FILE* fp;
+	//gvc = gvContext();
+	//if (argc > 1)
+	//	fp = fopen(argv[3], "r");
+	//else
+	//	fp = stdin;
+	//g = agread(fp, 0);
+	//gvLayout(gvc, g, "dot");
+	//gvRender(gvc, g, "plain", stdout);
+	//gvFreeLayout(gvc, g);
+	//agclose(g);
+	//return (gvFreeContext(gvc));
+
+
+	//GVC_t* gvc = gvContext();
+	//extern gvplugin_library_t gvplugin_dot_layout_LTX_library;
+	//gvAddLibrary(gvc, &gvplugin_dot_layout_LTX_library);
+	//FILE* fp = fopen(("ancestry.dot"), "r");
+	//Agraph_t* g = agread(fp, 0);
+	//gvLayout(gvc, g, "dot");
+	//gvRender(gvc, g, "svg", fopen(("ancestry.svg"), "w"));
+	//gvFreeLayout(gvc, g);
+	//agclose(g);
+	//(gvFreeContext(gvc));
+
+
+
+	/*
 
 	OS::CommandLineParameters parameters{ argc, argv };
 
@@ -507,7 +577,8 @@ int main(int argc, char** argv) {
 		OS::TextFile cxxECSCodeFile{ cxxCodeFileFullPath };
 		cxxECSCodeFile.Create();
 		cxxECSCodeFile << cxxCode;
-	}
+	}*/
 
 	return 0;
 }
+

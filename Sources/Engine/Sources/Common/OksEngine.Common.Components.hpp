@@ -15,7 +15,6 @@
 #include <Common/auto_OksEngine.Text.hpp>
 #include <Common/auto_OksEngine.Completed.hpp>
 #include <Common/auto_OksEngine.BinaryData.hpp>
-#include <Common/OksEngine.StringsArray.hpp>
 #include <Common/auto_OksEngine.Direction3D.hpp>
 #include <Common/FramesCounter/OksEngine.IncreaseFramesCounter.hpp>
 #include <Common/Clock/auto_OksEngine.Clock.hpp>
