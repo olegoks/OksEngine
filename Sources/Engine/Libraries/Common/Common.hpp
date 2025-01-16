@@ -11,7 +11,7 @@
 
 namespace Common {
 
-	enum class Configuration { 
+	enum class Configuration {
 		Debug,
 		Release
 	};
@@ -41,5 +41,28 @@ namespace Common {
 
 	template<class Type>
 	constexpr void DiscardUnusedParameter(Type&& value) { value; }
+
+
+	template<class Callback, class Type>
+	void ProcessType(Callback&& callback) {
+		callback.template operator() < Type > ();
+	}
+
+
+	template<class Callback, class Type, class ...Types>
+	void ProcessType(Callback&& callback) {
+		callback.template operator() < Type > ();
+		ProcessType<Callback, Types...>(std::forward<Callback>(callback));
+	}
+
+
+	template<class Callback>
+	void ProcessType(Callback&&) { }
+
+
+	template<class Callback, class ... Types>
+	void ProcessTemplateList(Callback&& callback) {
+		ProcessType<Callback, Types...>(std::forward<Callback>(callback));
+	}
 
 }

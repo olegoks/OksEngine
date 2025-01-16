@@ -62,6 +62,12 @@ namespace ECS {
 			return (*container)[componentIndex];
 		}
 
+		template<class ComponentType>
+		ComponentType* GetComponents() {
+			Ptr<Container<ComponentType>> container = componentContainer_[ComponentType::GetTypeId()];
+			return container->Get();
+		}
+
 		void AddDelayedComponents() {
 			for (auto& [componentTypeId, container] : componentContainer_) {
 				container->ProcessDelayedRequests();
@@ -158,6 +164,10 @@ namespace ECS {
 					std::ranges::find(delayedRemovedComponents_, index) == delayedRemovedComponents_.end(),
 					"Attempt to remove the component twice.");
 				delayedRemovedComponents_.push_back(index);
+			}
+
+			ComponentType* Get() {
+				return components_.data();
 			}
 
 			virtual void ProcessDelayedRequests() override {

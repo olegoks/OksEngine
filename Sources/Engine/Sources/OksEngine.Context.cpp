@@ -49,7 +49,8 @@ namespace OksEngine
 
 
 		world_ = std::make_shared<ECS::World>();
-		
+		world2_ = std::make_shared<ECS2::World>();
+		//world2_->AddArchetype<>
 		//Resource ecs subsystem
 		{
 			const ECS::Entity::Id resourceSubsystem = world_->CreateEntity();
@@ -79,7 +80,7 @@ namespace OksEngine
 		world_->RegisterSystem<RigidBodyToRenderGeometryMapper>(*this);
 		world_->RegisterSystem <CreatePhysicsShapeForDynamicRigidBody>(*this);
 		world_->RegisterSystem <CreateDynamicRigidBody>(*this);
-		world_->RegisterSystem<UpdateClock>(*this);
+		//world_->RegisterSystem<UpdateClock>(*this);
 		world_->RegisterSystem < UpdateModelDriverTransform>(*this);
 
 		//ANIMATION

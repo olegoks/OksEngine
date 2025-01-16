@@ -31,6 +31,18 @@ namespace OksEngine {
 
 		Entity CreateEntity() noexcept;
 
+
+		template<class ...Components>
+		Entity CreateEntity() noexcept {
+			ECS::Entity::Id id = context_->GetECS2World()->CreateEntity<Components...>();
+			return Entity{ *context_, context_->GetECSWorld(), id };
+		}
+
+		template<class ...Components>
+		void AddArchetype() {
+			context_->GetECS2World()->AddArchetype<Components...>();
+		}
+
 		void Run() {
 			isRunning_ = true;
 			while (IsRunning()) {
