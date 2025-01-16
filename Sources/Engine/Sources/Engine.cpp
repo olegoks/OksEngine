@@ -28,7 +28,7 @@ namespace OksEngine {
 				context_->GetECSWorld()->StartFrame();
 				/*Common*/
 
-				context_->GetECSWorld()->RunSystem<UpdateClock>();
+				//context_->GetECSWorld()->RunSystem<UpdateClock>();
 
 				/*Common*/
 				/*Resources*/
@@ -137,5 +137,6 @@ namespace OksEngine {
 		ECS::Entity::Id id = context_->GetECSWorld()->CreateEntity();
 		return Entity{ *context_, context_->GetECSWorld(), id };
 	}
+
 
 }

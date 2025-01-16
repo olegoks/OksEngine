@@ -30,7 +30,7 @@ namespace ECS {
 		static const char* GetName() noexcept {
 			static char name[maxNameLength] = { 0 };
 			if(std::strlen(name) == 0) {
-				const std::string fullName = Common::TypeInfo<Type>{}.GetName();
+				const std::string fullName = Common::TypeInfo<Type>{}.GetFullName();
 				Common::Index shortNameStart = fullName.find_last_of(':');
 				const std::string shortName = fullName.substr(shortNameStart + 1);
 				OS::AssertMessage(shortName.length() <= maxNameLength, "Component name is too long.");

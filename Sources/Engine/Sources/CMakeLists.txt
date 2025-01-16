@@ -195,6 +195,7 @@ target_link_libraries(OksEngine
     imgui::imgui
     Geometry
     ECS
+    ECS2
     LuaLayer
     Render
     Physics

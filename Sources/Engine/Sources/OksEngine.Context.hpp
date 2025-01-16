@@ -6,6 +6,8 @@
 #include <OS.CommandLineParameters.hpp>
 
 #include <ECS.World.hpp>
+#include <ECS2.World.hpp>
+
 #include <OksEngine.Storage.hpp>
 #include <Geometry.Storage.hpp>
 #include <Geometry.Texture.hpp>
@@ -30,6 +32,11 @@ namespace OksEngine {
 		[[nodiscard]]
 		auto GetECSWorld() noexcept {
 			return world_;
+		}
+
+		[[nodiscard]]
+		auto GetECS2World() noexcept {
+			return world2_;
 		}
 
 		[[nodiscard]]
@@ -72,6 +79,7 @@ namespace OksEngine {
 		std::shared_ptr<class UISubsystem> uiSubsystem_ = nullptr;
 		std::shared_ptr<class DebugSubsystem> debugSubsystem_ = nullptr;
 		std::shared_ptr<class ECS::World> world_ = nullptr;
+		std::shared_ptr<class ECS2::World> world2_ = nullptr;
 		std::shared_ptr<class Config> config_ = nullptr;
 	};
 

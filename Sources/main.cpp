@@ -16,7 +16,7 @@ int main(int argc, char** argv) {
 
 	Engine engine{ engineCreateInfo };
 
-
+	engine.AddArchetype<Position3D, Behaviour>();
 
 	Entity camera = engine.CreateEntity();
 	camera.AddCamera({ -100, 10, 0 }, { 0, 1, 0, }, true);
@@ -74,7 +74,6 @@ int main(int argc, char** argv) {
 	Entity axe = engine.CreateEntity();
 	axe.AddName("Pistol");
 	axe.AddPosition(0, 11, 0);
-	axe.AddLocalPosition(0, 0, 0);
 	axe.AddRotation({ 0, 1, 0 }, 0);
 	axe.AddImmutableRenderGeometry("Pistol.geom");
 
