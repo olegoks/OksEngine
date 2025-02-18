@@ -56,19 +56,20 @@ namespace Common {
 			return static_cast<TypeId>(typeid(Type).hash_code());
 		}
 		[[nodiscard]]
-		const char* GetFullName() const noexcept {
+		static const char* GetFullName() noexcept {
 			return typeid(Type).name();
 		}
 
 		[[nodiscard]]
-		const char* GetTypeName() const noexcept {
+		static const char* GetTypeName() noexcept {
 			const char* fullName = GetFullName();
-			Common::Index classNameStartIndex = 0;
+			Common::Index classNameStartIndex = std::strlen(fullName);
 			char currentSymbol = fullName[classNameStartIndex];
 			while (currentSymbol != ':') {
-				++classNameStartIndex;
+				--classNameStartIndex;
+				currentSymbol = fullName[classNameStartIndex];
 			}
-			return fullName[classNameStartIndex + 1];
+			return &fullName[classNameStartIndex + 1];
 		}
 	};
 

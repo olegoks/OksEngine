@@ -1,0 +1,6 @@
+component = {
+    name = "DynamicRigidBody",
+    fields = { 
+        { type = "PAL::DynamicRigidBody::Id", name = "id" }
+     }
+}

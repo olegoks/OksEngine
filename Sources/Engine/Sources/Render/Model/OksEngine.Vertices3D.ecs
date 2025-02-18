@@ -1,0 +1,4 @@
+component = {
+    name = "Vertices3D",
+    fields = { { type="Geom::VertexCloud<Geom::Vertex3f>", name="vertices" } }
+}

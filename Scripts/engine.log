@@ -317,3 +317,168 @@ date       time         ( uptime  ) [ thread name/id ]                   file:li
 2025-01-02 17:36:52.478 (   0.036s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.YAML.ecs
 2025-01-02 17:36:52.480 (   0.038s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Light.ecs
 2025-01-02 17:36:52.498 (   0.056s) [main thread     ]             loguru.cpp:538   INFO| atexit
+
+
+
+
+
+arguments: C:\\Users\\User\\Desktop\\OksEngine\\Build\\Tools\\ECSGenerator\\Debug\\ECSGenerator.exe -workDir C:/Users/User/Desktop/OksEngine/Sources/
+Current dir: C:\Users\User\Desktop\OksEngine\Scripts
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2025-02-01 04:18:52.330 (   0.920s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'engine.log', mode: 'a', verbosity: 9
+2025-02-01 04:18:52.362 (   0.952s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Clock.ecs
+2025-02-01 04:18:52.362 (   0.952s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.UpdateClock.ecs
+2025-02-01 04:18:52.367 (   0.957s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Active.ecs
+2025-02-01 04:18:52.371 (   0.960s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.BinaryData.ecs
+2025-02-01 04:18:52.374 (   0.964s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.ChildEntities.ecs
+2025-02-01 04:18:52.378 (   0.968s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.ChildEntity.ecs
+2025-02-01 04:18:52.381 (   0.971s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Completed.ecs
+2025-02-01 04:18:52.384 (   0.974s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Counter.ecs
+2025-02-01 04:18:52.388 (   0.977s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Direction3D.ecs
+2025-02-01 04:18:52.391 (   0.981s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Height.ecs
+2025-02-01 04:18:52.394 (   0.984s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.MapRigidBodyToRenderGeometry.ecs
+2025-02-01 04:18:52.397 (   0.987s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Name.ecs
+2025-02-01 04:18:52.400 (   0.990s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Position2D.ecs
+2025-02-01 04:18:52.404 (   0.994s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Position3D.ecs
+2025-02-01 04:18:52.407 (   0.997s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Rotation3D.ecs
+2025-02-01 04:18:52.410 (   1.000s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Scale2D.ecs
+2025-02-01 04:18:52.414 (   1.004s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Text.ecs
+2025-02-01 04:18:52.419 (   1.008s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Up.ecs
+2025-02-01 04:18:52.422 (   1.012s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Width.ecs
+2025-02-01 04:18:52.426 (   1.016s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.YAML.ecs
+2025-02-01 04:18:52.431 (   1.021s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.CreateCameraTransformDriverUniformBuffer.ecs
+2025-02-01 04:18:52.435 (   1.025s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Light.ecs
+2025-02-01 04:18:52.457 (   1.047s) [main thread     ]             loguru.cpp:538   INFO| atexit
+
+
+
+
+
+arguments: C:\\Users\\User\\Desktop\\OksEngine\\Build\\Tools\\ECSGenerator\\Debug\\ECSGenerator.exe -workDir C:/Users/User/Desktop/OksEngine/Sources/
+Current dir: C:\Users\User\Desktop\OksEngine\Scripts
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2025-02-01 04:39:29.006 (   0.395s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'engine.log', mode: 'a', verbosity: 9
+2025-02-01 04:39:29.037 (   0.426s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Clock.ecs
+2025-02-01 04:39:29.041 (   0.430s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.UpdateClock.ecs
+2025-02-01 04:39:29.045 (   0.434s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Active.ecs
+2025-02-01 04:39:29.048 (   0.437s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.BinaryData.ecs
+2025-02-01 04:39:29.052 (   0.440s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.ChildEntities.ecs
+2025-02-01 04:39:29.055 (   0.443s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.ChildEntity.ecs
+2025-02-01 04:39:29.057 (   0.446s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Completed.ecs
+2025-02-01 04:39:29.060 (   0.449s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Counter.ecs
+2025-02-01 04:39:29.063 (   0.452s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Direction3D.ecs
+2025-02-01 04:39:29.066 (   0.455s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Height.ecs
+2025-02-01 04:39:29.070 (   0.459s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.MapRigidBodyToRenderGeometry.ecs
+2025-02-01 04:39:29.073 (   0.462s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Name.ecs
+2025-02-01 04:39:29.077 (   0.466s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Position2D.ecs
+2025-02-01 04:39:29.081 (   0.470s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Position3D.ecs
+2025-02-01 04:39:29.086 (   0.475s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Rotation3D.ecs
+2025-02-01 04:39:29.091 (   0.480s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Scale2D.ecs
+2025-02-01 04:39:29.095 (   0.484s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Text.ecs
+2025-02-01 04:39:29.100 (   0.488s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Up.ecs
+2025-02-01 04:39:29.103 (   0.492s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Width.ecs
+2025-02-01 04:39:29.107 (   0.496s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.YAML.ecs
+2025-02-01 04:39:29.112 (   0.501s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.CreateCameraTransformDriverUniformBuffer.ecs
+2025-02-01 04:39:29.116 (   0.505s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Light.ecs
+2025-02-01 04:39:29.141 (   0.530s) [main thread     ]             loguru.cpp:538   INFO| atexit
+
+
+
+
+
+arguments: C:\\Users\\User\\Desktop\\OksEngine\\Build\\Tools\\ECSGenerator\\Debug\\ECSGenerator.exe -workDir C:/Users/User/Desktop/OksEngine/Sources/
+Current dir: C:\Users\User\Desktop\OksEngine\Scripts
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2025-02-01 04:40:32.956 (   0.029s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'engine.log', mode: 'a', verbosity: 9
+2025-02-01 04:40:32.983 (   0.056s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Clock.ecs
+2025-02-01 04:40:32.984 (   0.056s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.UpdateClock.ecs
+2025-02-01 04:40:32.984 (   0.057s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Active.ecs
+2025-02-01 04:40:32.985 (   0.057s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.BinaryData.ecs
+2025-02-01 04:40:32.985 (   0.058s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.ChildEntities.ecs
+2025-02-01 04:40:32.985 (   0.058s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.ChildEntity.ecs
+2025-02-01 04:40:32.986 (   0.059s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Completed.ecs
+2025-02-01 04:40:32.986 (   0.059s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Counter.ecs
+2025-02-01 04:40:32.987 (   0.059s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Direction3D.ecs
+2025-02-01 04:40:32.987 (   0.060s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Height.ecs
+2025-02-01 04:40:32.988 (   0.060s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.MapRigidBodyToRenderGeometry.ecs
+2025-02-01 04:40:32.988 (   0.061s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Name.ecs
+2025-02-01 04:40:32.988 (   0.061s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Position2D.ecs
+2025-02-01 04:40:32.989 (   0.061s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Position3D.ecs
+2025-02-01 04:40:32.989 (   0.062s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Rotation3D.ecs
+2025-02-01 04:40:32.990 (   0.062s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Scale2D.ecs
+2025-02-01 04:40:32.990 (   0.063s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Text.ecs
+2025-02-01 04:40:32.990 (   0.063s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Up.ecs
+2025-02-01 04:40:32.991 (   0.063s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Width.ecs
+2025-02-01 04:40:32.991 (   0.064s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.YAML.ecs
+2025-02-01 04:40:32.992 (   0.065s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.CreateCameraTransformDriverUniformBuffer.ecs
+2025-02-01 04:40:32.993 (   0.066s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Light.ecs
+2025-02-01 04:40:33.012 (   0.085s) [main thread     ]             loguru.cpp:538   INFO| atexit
+
+
+
+
+
+arguments: C:\\Users\\User\\Desktop\\OksEngine\\Build\\Tools\\ECSGenerator\\Debug\\ECSGenerator.exe -workDir C:/Users/User/Desktop/OksEngine/Sources/
+Current dir: C:\Users\User\Desktop\OksEngine\Scripts
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2025-02-01 04:42:46.870 (   0.122s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'engine.log', mode: 'a', verbosity: 9
+2025-02-01 04:42:46.897 (   0.149s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Clock.ecs
+2025-02-01 04:42:46.898 (   0.150s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.UpdateClock.ecs
+2025-02-01 04:42:46.898 (   0.150s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Active.ecs
+2025-02-01 04:42:46.899 (   0.151s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.BinaryData.ecs
+2025-02-01 04:42:46.899 (   0.151s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.ChildEntities.ecs
+2025-02-01 04:42:46.900 (   0.152s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.ChildEntity.ecs
+2025-02-01 04:42:46.900 (   0.152s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Completed.ecs
+2025-02-01 04:42:46.901 (   0.153s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Counter.ecs
+2025-02-01 04:42:46.901 (   0.153s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Direction3D.ecs
+2025-02-01 04:42:46.902 (   0.154s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Height.ecs
+2025-02-01 04:42:46.902 (   0.154s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.MapRigidBodyToRenderGeometry.ecs
+2025-02-01 04:42:46.903 (   0.154s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Name.ecs
+2025-02-01 04:42:46.903 (   0.155s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Position2D.ecs
+2025-02-01 04:42:46.903 (   0.155s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Position3D.ecs
+2025-02-01 04:42:46.904 (   0.156s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Rotation3D.ecs
+2025-02-01 04:42:46.904 (   0.156s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Scale2D.ecs
+2025-02-01 04:42:46.905 (   0.157s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Text.ecs
+2025-02-01 04:42:46.905 (   0.157s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Up.ecs
+2025-02-01 04:42:46.906 (   0.158s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Width.ecs
+2025-02-01 04:42:46.906 (   0.158s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.YAML.ecs
+2025-02-01 04:42:46.908 (   0.160s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.CreateCameraTransformDriverUniformBuffer.ecs
+2025-02-01 04:42:46.909 (   0.160s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Light.ecs
+2025-02-01 04:42:46.933 (   0.185s) [main thread     ]             loguru.cpp:538   INFO| atexit
+
+
+
+
+
+arguments: C:\\Users\\User\\Desktop\\OksEngine\\Build\\Tools\\ECSGenerator\\Debug\\ECSGenerator.exe -workDir C:/Users/User/Desktop/OksEngine/Sources/
+Current dir: C:\Users\User\Desktop\OksEngine\Scripts
+File verbosity level: 9
+date       time         ( uptime  ) [ thread name/id ]                   file:line     v| 
+2025-02-01 04:46:08.619 (   0.032s) [main thread     ]             loguru.cpp:841   INFO| Logging to 'engine.log', mode: 'a', verbosity: 9
+2025-02-01 04:46:08.646 (   0.060s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Clock.ecs
+2025-02-01 04:46:08.647 (   0.060s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.UpdateClock.ecs
+2025-02-01 04:46:08.647 (   0.061s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Active.ecs
+2025-02-01 04:46:08.647 (   0.061s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.BinaryData.ecs
+2025-02-01 04:46:08.648 (   0.061s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.ChildEntities.ecs
+2025-02-01 04:46:08.648 (   0.062s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.ChildEntity.ecs
+2025-02-01 04:46:08.649 (   0.062s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Completed.ecs
+2025-02-01 04:46:08.649 (   0.063s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Counter.ecs
+2025-02-01 04:46:08.650 (   0.063s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Direction3D.ecs
+2025-02-01 04:46:08.650 (   0.063s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Height.ecs
+2025-02-01 04:46:08.650 (   0.064s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.MapRigidBodyToRenderGeometry.ecs
+2025-02-01 04:46:08.651 (   0.064s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Name.ecs
+2025-02-01 04:46:08.651 (   0.065s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Position2D.ecs
+2025-02-01 04:46:08.652 (   0.065s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Position3D.ecs
+2025-02-01 04:46:08.652 (   0.066s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Rotation3D.ecs
+2025-02-01 04:46:08.652 (   0.066s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Scale2D.ecs
+2025-02-01 04:46:08.653 (   0.066s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Text.ecs
+2025-02-01 04:46:08.653 (   0.067s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Up.ecs
+2025-02-01 04:46:08.654 (   0.067s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Width.ecs
+2025-02-01 04:46:08.654 (   0.068s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.YAML.ecs
+2025-02-01 04:46:08.655 (   0.069s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.CreateCameraTransformDriverUniformBuffer.ecs
+2025-02-01 04:46:08.656 (   0.070s) [main thread     ]          OS.Logger.hpp:60    INFO| Location: C:\Users\User\Desktop\OksEngine\Sources\Engine\Libraries\Resources\Sources\Resource.hpp Loaded resource OksEngine.Light.ecs
+2025-02-01 04:46:08.677 (   0.091s) [main thread     ]             loguru.cpp:538   INFO| atexit

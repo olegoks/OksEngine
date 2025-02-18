@@ -1,0 +1,8 @@
+system = {
+    name = "CreateFbx",
+    includes = { 
+		"LoadFbxRequest"
+	 },
+	 excludes = { "FbxEntity" }
+
+}

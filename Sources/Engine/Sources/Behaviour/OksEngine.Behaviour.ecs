@@ -1,0 +1,7 @@
+component = {
+    name = "Behaviour",
+    fields = { 
+        { type = "std::string", name = "scriptName" },
+        { type = "std::string", name = "objectName" }
+     }
+}

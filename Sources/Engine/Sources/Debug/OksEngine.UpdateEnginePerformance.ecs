@@ -1,0 +1,5 @@
+system = {
+    name = "UpdateEnginePerformance",
+
+    includes = { "EnginePerformance", "FramesCounter" }
+}

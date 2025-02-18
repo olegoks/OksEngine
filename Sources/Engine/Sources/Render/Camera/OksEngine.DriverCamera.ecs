@@ -1,0 +1,6 @@
+component = {
+    name = "DriverCamera",
+    fields = { 
+        { type = "RAL::Driver::UniformBuffer::Id", name = "matricesBuffer" }
+		 }
+}

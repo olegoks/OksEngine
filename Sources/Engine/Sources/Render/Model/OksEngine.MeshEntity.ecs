@@ -1,0 +1,4 @@
+component = {
+    name = "MeshEntity",
+    fields = { { type="ECS2::Entity::Id", name="id" } }
+}

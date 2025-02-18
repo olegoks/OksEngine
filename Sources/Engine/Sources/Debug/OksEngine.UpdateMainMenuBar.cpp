@@ -9,30 +9,23 @@
 #include <implot.h>
 #include <implot_internal.h>
 
-#include <Debug/OksEngine.UpdateMainMenuBar.hpp>
-
-#include <Debug/OksEngine.MainMenuBar.hpp>
+#include <Debug/auto_OksEngine.UpdateMainMenuBar.hpp>
 
 namespace OksEngine {
 
-	UpdateMainMenuBar::UpdateMainMenuBar(Context& context) : ECSSystem{ context } { }
 
-	void UpdateMainMenuBar::BeforeUpdate(ECS::World* world) {
-		ImGuiViewport* viewport = (ImGuiViewport*)ImGui::GetMainViewport();
-		ImGuiID mainDockSpaceId = ImGui::DockSpaceOverViewport(viewport->ID, viewport, ImGuiDockNodeFlags_PassthruCentralNode);
+	//void UpdateMainMenuBar::BeforeUpdate(ECS::World* world) {
+	//	ImGuiViewport* viewport = (ImGuiViewport*)ImGui::GetMainViewport();
+	//	ImGuiID mainDockSpaceId = ImGui::DockSpaceOverViewport(viewport->ID, viewport, ImGuiDockNodeFlags_PassthruCentralNode);
+	//}
+
+	void UpdateMainMenuBar::Update(MainMenuBar* mainMenuBar) {
+
 	}
 
-	void UpdateMainMenuBar::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-
-	}
-
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateMainMenuBar::GetFilter() const noexcept {
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<MainMenuBar>(), ECS::Entity::Filter{}.ExcludeAll() };
-		return filter;
-	}
-
-	Common::TypeId UpdateMainMenuBar::GetTypeId() const noexcept {
-		return Common::TypeInfo<UpdateMainMenuBar>().GetId();
-	}
+	//std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateMainMenuBar::GetFilter() const noexcept {
+	//	static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<MainMenuBar>(), ECS::Entity::Filter{}.ExcludeAll() };
+	//	return filter;
+	//}
 
 }

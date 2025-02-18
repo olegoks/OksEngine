@@ -1,11 +1,12 @@
 #pragma once 
 
-#include <Animation/OksEngine.Animation.Components.hpp>
-#include <Debug/OksEngine.Debug.Components.hpp>
-#include <Render/OksEngine.Render.Components.hpp>
-#include <Physics/OksEngine.Physics.Components.hpp>
-#include <Common/OksEngine.Common.Components.hpp>
-#include <Behaviour/OksEngine.Behaviour.Components.hpp>
-#include <UI/OksEngine.UI.Components.hpp>
-#include <Resources/OksEngine.Resources.Components.hpp>
-#include <Sound/OksEngine.Components.hpp>
+#include <Animation/auto_OksEngine.Components.hpp>
+#include <Debug/auto_OksEngine.Components.hpp>
+#include <Render/auto_OksEngine.Components.hpp>
+#include <Render/Camera/auto_OksEngine.Components.hpp>
+#include <Physics/auto_OksEngine.Components.hpp>
+#include <Common/auto_OksEngine.Components.hpp>
+#include <Behaviour/auto_OksEngine.Components.hpp>
+#include <UI/auto_OksEngine.Components.hpp>
+#include <Resources/auto_OksEngine.Components.hpp>
+#include <Sound/auto_OksEngine.Components.hpp>

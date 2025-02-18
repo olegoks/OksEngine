@@ -1,0 +1,6 @@
+system = {
+    name = "CreateDriverIndexBuffer",
+    includes = { "Indices" },
+	excludes = { "DriverIndexBuffer" }
+}
+

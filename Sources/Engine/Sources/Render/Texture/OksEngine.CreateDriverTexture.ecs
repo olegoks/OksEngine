@@ -1,0 +1,9 @@
+
+system = {
+    name = "CreateDriverTexture",
+
+    includes = { 
+		"TextureInfo", "Texture"
+	 }, 
+   excludes = { "DriverTexture" }
+}

@@ -1,0 +1,14 @@
+system = {
+    name = "CreatePhysicsShapeForStaticRigidBody",
+
+    includes = { 
+		"ImmutableRenderGeometry",
+		"ModelEntity",
+		"StaticRigidBodyCustomMeshShape"
+	 },
+	 excludes = 
+	 { 
+		"PhysicsShape",
+		"StaticRigidBody"
+	 }
+}

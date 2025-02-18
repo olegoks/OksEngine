@@ -9,18 +9,13 @@
 #include <implot.h>
 #include <implot_internal.h>
 
-#include <Debug/OksEngine.UpdateEnginePerformance.hpp>
+#include <Debug/auto_OksEngine.UpdateEnginePerformance.hpp>
 
-#include <Debug/OksEngine.EnginePerformance.hpp>
-#include <Common/FramesCounter/OksEngine.FramesCounter.hpp>
-#include <Common/auto_OksEngine.Counter.hpp>
+//#include <Common/auto_OksEngine.Counter.hpp>
 
 namespace OksEngine {
 
-	UpdateEnginePerformance::UpdateEnginePerformance(Context& context) : ECSSystem{ context } { }
-
-	void UpdateEnginePerformance::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-		auto* enginePerformance = world->GetComponent<EnginePerformance>(entityId);
+	void UpdateEnginePerformance::Update(EnginePerformance* enginePerformance, FramesCounter* framesCounter) {
 
 		if (enginePerformance->show_) {
 
@@ -72,27 +67,18 @@ namespace OksEngine {
 
 
 
-			auto* framesCounter = world->GetComponent<Counter>(secondEntityId);
-			ImGui::TextDisabled("Frame: %d", framesCounter->value_);
-			//ImGui::Begin("My Window");
-			if (ImPlot::BeginPlot("My Plot")) {
-				ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
-				ImPlot::EndPlot();
-			}
-			//ImGui::End();
+			//auto* framesCounter = world->GetComponent<Counter>(secondEntityId);
+			//ImGui::TextDisabled("Frame: %d", framesCounter->value_);
+			////ImGui::Begin("My Window");
+			//if (ImPlot::BeginPlot("My Plot")) {
+			//	ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
+			//	ImPlot::EndPlot();
+			//}
+
 			ImGui::End();
 		}
 
 
-	}
-
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateEnginePerformance::GetFilter() const noexcept {
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<EnginePerformance>().Include<FramesCounter>(), ECS::Entity::Filter{}.Include<FramesCounter>().Include<Counter>() };
-		return filter;
-	}
-
-	Common::TypeId UpdateEnginePerformance::GetTypeId() const noexcept {
-		return Common::TypeInfo<UpdateEnginePerformance>().GetId();
 	}
 
 }

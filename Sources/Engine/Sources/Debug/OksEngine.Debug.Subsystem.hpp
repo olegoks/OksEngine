@@ -1,7 +1,7 @@
 #pragma once 
 
 #include <Common/OksEngine.Subsystem.hpp>
-#include <Debug/OksEngine.Debug.Components.hpp>
+#include <Debug/auto_OksEngine.Components.hpp>
 
 namespace OksEngine {
 

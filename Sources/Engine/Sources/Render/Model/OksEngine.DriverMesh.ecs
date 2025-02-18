@@ -1,0 +1,4 @@
+component = {
+    name = "DriverMesh",
+    fields = { { type="Common::Id", name="id" } }
+}

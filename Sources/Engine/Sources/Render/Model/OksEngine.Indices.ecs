@@ -1,0 +1,4 @@
+component = {
+    name = "Indices",
+    fields = { { type="Geom::IndexBuffer<Geom::Index16>", name="indices" } }
+}

@@ -2,6 +2,7 @@
 
 #include <Geometry.Vertex.hpp>
 #include <Geometry.IndexBuffer.hpp>
+#include <Geometry.VertexCloud.hpp>
 #include <Geometry.ConvexHull.hpp>
 #include <Geometry.Shapes.hpp>
 #include <Geometry.VertexCloud.hpp>

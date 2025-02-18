@@ -1,0 +1,7 @@
+component = {
+    name = "Window",
+    fields = {
+        { type = "std::string", name = "title" },
+        { type = "std::shared_ptr<UIAL::Window>", name = "window" }
+     }
+}

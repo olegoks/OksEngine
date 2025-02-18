@@ -1,0 +1,7 @@
+system = {
+    name = "CheckResourceLoaded",
+    includes = { 
+		"LoadResourceRequest", "AsyncTask"
+	 },
+   excludes = { "BinaryData", "Completed" }
+}

@@ -1,0 +1,7 @@
+system = {
+    name = "CreateModelEntityFromObjMtl",
+    includes = { 
+		"ObjEntity", "MtlEntity"
+	 },
+	 excludes = { "Mesh2" }
+}

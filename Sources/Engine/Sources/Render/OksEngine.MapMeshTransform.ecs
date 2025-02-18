@@ -1,0 +1,7 @@
+system = {
+    name = "MapMeshTransform",
+
+    includes = { 
+		"Position3D", "ModelEntity"
+	 }
+}

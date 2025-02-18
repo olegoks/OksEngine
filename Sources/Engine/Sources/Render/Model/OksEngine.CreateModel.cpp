@@ -1,15 +1,19 @@
 
-#include <Render/Model/OksEngine.CreateModel.hpp>
+#include <Render/Model/auto_OksEngine.CreateModelEntityFromObjMtl.hpp>
+#include <Render/Model/auto_OksEngine.CreateModelEntityFromFbx.hpp>
 
-#include <Animation/OksEngine.Animation.Components.hpp>
-#include <Render/OksEngine.Render.Components.hpp>
-#include <Common/OksEngine.Common.Components.hpp>
+#include <assimp/IOStream.hpp>
+#include <assimp/IOSystem.hpp>
+#include <assimp/Importer.hpp>
+
+#include <OS.Assert.hpp>
+#include <glm/glm.hpp>
 
 #pragma optimize("", off)
 
 namespace OksEngine {
 
-	void CreateModelEntityFromObjMtl::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+	void CreateModelEntityFromObjMtl::Update(ObjEntity* objEntity, MtlEntity* mtlEntity) {
 
 		//auto* position = world->GetComponent<Position>(entityId);
 		//auto* rotation = world->GetComponent<Rotation3D>(entityId);
@@ -66,18 +70,18 @@ namespace OksEngine {
 		//world->CreateComponent<ModelEntity>(entityId, modelEntityid);
 
 	}
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateModelEntityFromObjMtl::GetFilter() const noexcept {
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
-			ECS::Entity::Filter{}
-			.Include<ObjEntity>()
-			.Include<MtlEntity>()
-			.Exclude<Mesh2>(),
-			ECS::Entity::Filter{}.ExcludeAll() };
-		return filter;
-	}
-	Common::TypeId CreateModelEntityFromObjMtl::GetTypeId() const noexcept {
-		return Common::TypeInfo<CreateModelEntityFromObjMtl>().GetId();
-	}
+	//std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateModelEntityFromObjMtl::GetFilter() const noexcept {
+	//	static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
+	//		ECS::Entity::Filter{}
+	//		.Include<ObjEntity>()
+	//		.Include<MtlEntity>()
+	//		.Exclude<Mesh2>(),
+	//		ECS::Entity::Filter{}.ExcludeAll() };
+	//	return filter;
+	//}
+	//Common::TypeId CreateModelEntityFromObjMtl::GetTypeId() const noexcept {
+	//	return Common::TypeInfo<CreateModelEntityFromObjMtl>().GetId();
+	//}
 
 
 
@@ -175,186 +179,186 @@ namespace OksEngine {
 		return glm::vec3(transformMatrix[3][0], transformMatrix[3][1], transformMatrix[3][2]);
 	}
 
-	void ProcessMesh(ECS::World* world, ECS::Entity::Id meshEntity, const aiScene* scene, aiMesh* mesh) {
+	//void ProcessMesh(ECS::World* world, ECS::Entity::Id meshEntity, const aiScene* scene, aiMesh* mesh) {
 
-		//Process texture.
-		aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+	//	//Process texture.
+	//	aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-		//Process texture
-		const int texturesNumber = material->GetTextureCount(aiTextureType_DIFFUSE);
-		OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
+	//	//Process texture
+	//	const int texturesNumber = material->GetTextureCount(aiTextureType_DIFFUSE);
+	//	OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
 
-		//Process mesh only with texture.
-		if (texturesNumber != 1) return;
+	//	//Process mesh only with texture.
+	//	if (texturesNumber != 1) return;
 
-		aiString aiTexturePath;
-		const aiReturn result = material->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
-		OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
-		std::string textureName = aiTexturePath.C_Str();
-		const Common::Index slashIndex = textureName.rfind('\\');
-		if (slashIndex != -1) {
-			textureName = textureName.substr(slashIndex + 1);
-		}
-		OS::AssertMessage(textureName != "", "Invalid Texture name.");
+	//	aiString aiTexturePath;
+	//	const aiReturn result = material->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
+	//	OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
+	//	std::string textureName = aiTexturePath.C_Str();
+	//	const Common::Index slashIndex = textureName.rfind('\\');
+	//	if (slashIndex != -1) {
+	//		textureName = textureName.substr(slashIndex + 1);
+	//	}
+	//	OS::AssertMessage(textureName != "", "Invalid Texture name.");
 
-		world->CreateComponent<TextureInfo>(meshEntity, textureName);
+	//	world->CreateComponent<TextureInfo>(meshEntity, textureName);
 
-		world->CreateComponent<Vertices3D>(meshEntity, (const Geom::Vertex3f*)mesh->mVertices, (Common::Size) mesh->mNumVertices);
-		world->CreateComponent<Normals>(meshEntity, (const Geom::Normal3f*)mesh->mNormals, mesh->mNumVertices);
-		
-		DS::Vector<Geom::UV2f> uvs;
-		uvs.Reserve(mesh->mNumVertices);
+	//	world->CreateComponent<Vertices3D>(meshEntity, (const Geom::Vertex3f*)mesh->mVertices, (Common::Size) mesh->mNumVertices);
+	//	world->CreateComponent<Normals>(meshEntity, (const Geom::Normal3f*)mesh->mNormals, mesh->mNumVertices);
+	//	
+	//	DS::Vector<Geom::UV2f> uvs;
+	//	uvs.Reserve(mesh->mNumVertices);
 
-		for (unsigned j = 0; j < mesh->mNumVertices; j++) {
-			uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y });
-		}
+	//	for (unsigned j = 0; j < mesh->mNumVertices; j++) {
+	//		uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x, mesh->mTextureCoords[0][j].y });
+	//	}
 
-		Geom::IndexBuffer meshIndices;
-		meshIndices.Reserve(mesh->mNumFaces * 3);
-		OS::AssertMessage(mesh->mNumFaces * 3 < Common::Limits<Common::UInt16>::Max(), "Number of indices is more than limit.");
-		for (unsigned j = 0; j < mesh->mNumFaces; j++) {
-			meshIndices.Add(mesh->mFaces[j].mIndices[0]);
-			meshIndices.Add(mesh->mFaces[j].mIndices[1]);
-			meshIndices.Add(mesh->mFaces[j].mIndices[2]);
-		}
+	//	Geom::IndexBuffer meshIndices;
+	//	meshIndices.Reserve(mesh->mNumFaces * 3);
+	//	OS::AssertMessage(mesh->mNumFaces * 3 < Common::Limits<Common::UInt16>::Max(), "Number of indices is more than limit.");
+	//	for (unsigned j = 0; j < mesh->mNumFaces; j++) {
+	//		meshIndices.Add(mesh->mFaces[j].mIndices[0]);
+	//		meshIndices.Add(mesh->mFaces[j].mIndices[1]);
+	//		meshIndices.Add(mesh->mFaces[j].mIndices[2]);
+	//	}
 
-		OS::Assert(meshIndices.GetIndicesNumber() != 0);
-		world->CreateComponent<Indices>(meshEntity, meshIndices);
+	//	OS::Assert(meshIndices.GetIndicesNumber() != 0);
+	//	world->CreateComponent<Indices>(meshEntity, meshIndices);
 
-		if (uvs.GetSize() != 0) {
-			world->CreateComponent<UVs>(meshEntity, uvs);
-		}
-
-
-	}
-
-	void ProcessAnimation(ECS::World* world, ECS::Entity::Id nodeEntity, const aiScene* scene, aiNode* node) {
-
-	}
-
-	void ProcessNode(ECS::World* world, ECS::Entity::Id nodeEntity, const aiScene* scene, aiNode* node) {
-
-		world->CreateComponent<Name>(nodeEntity, node->mName.C_Str());
-		world->CreateComponent<Node>(nodeEntity);
-
-		glm::mat4 transform{ aiMatrix4x4ToGlm(node->mTransformation) };
-		glm::vec3 translation{};
-		glm::quat rotation;
-		glm::vec3 scale;
-		glm::vec3 skew;
-		glm::vec4 perspective;
-		glm::decompose(transform, scale, rotation, translation, skew, perspective);
-
-		world->CreateComponent<Position3D>(nodeEntity, translation.x, translation.y, translation.z);
-		world->CreateComponent<Rotation3D>(nodeEntity, rotation.w, rotation.x, rotation.y, rotation.z);
-
-		//Process meshes.
-		std::vector<ECS::Entity::Id> meshEntityIds;
-		meshEntityIds.reserve(node->mNumMeshes);
-		for (unsigned int meshIndexIndex = 0; meshIndexIndex < node->mNumMeshes; meshIndexIndex++) {
-			const unsigned int meshIndex = node->mMeshes[meshIndexIndex];
-			ECS::Entity::Id meshEntityId = world->CreateEntity();
-			ProcessMesh(world, meshEntityId, scene, scene->mMeshes[meshIndex]);
-			meshEntityIds.push_back(meshEntityId);
-		}
-		world->CreateComponent<Meshes>(nodeEntity, meshEntityIds);
-
-		OS::AssertMessage(scene->mNumAnimations <=1, "Multiple animationes are not supperted yet.");
-		//Process animation.
-		for (unsigned int animationIndex = 0; animationIndex < scene->mNumAnimations; animationIndex++) {
-			const aiAnimation* animation = scene->mAnimations[animationIndex];
-			for (unsigned int nodeChannelIndex = 0; nodeChannelIndex < animation->mNumChannels; nodeChannelIndex++) {
-				const aiNodeAnim* nodeAnim = animation->mChannels[nodeChannelIndex];
-				if (nodeAnim->mNodeName == node->mName) {
-					Animation::CreateInfo animCI;
-					//Process node animation.
-					
-					animCI.name_ = animation->mName.C_Str();
-
-					animCI.duration_ = animation->mDuration;
-					animCI.ticksPerSecond_ = animation->mTicksPerSecond;
-
-					//Process position keys.
-					for (unsigned int positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
-						const aiVectorKey aiPositionKey = nodeAnim->mPositionKeys[positionKeyIndex];
-						Animation::PositionKey positionKey{
-							.time_ = aiPositionKey.mTime,
-							.value_ = { aiPositionKey.mValue.x, aiPositionKey.mValue.y, aiPositionKey.mValue.z }
-						};
-						animCI.positionKeys_.push_back(positionKey);
-					}
-
-					//Process rotation keys.
-					for (unsigned int rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
-						const aiQuatKey aiQuatKey = nodeAnim->mRotationKeys[rotationKeyIndex];
-						Animation::RotationKey rotationKey{
-							.time_ = aiQuatKey.mTime,
-							.value_ = { aiQuatKey.mValue.w, aiQuatKey.mValue.x, aiQuatKey.mValue.y, aiQuatKey.mValue.z }
-						};
-						animCI.rotationKeys_.push_back(rotationKey);
-					}
-					
-					//Process scale keys.
-					for (unsigned int scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumRotationKeys; scaleKeyIndex++) {
-						const aiVectorKey aiScaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
-						Animation::ScalingKey scalingKey{
-							.time_ = aiScaleKey.mTime,
-							.value_ = { aiScaleKey.mValue.x, aiScaleKey.mValue.y, aiScaleKey.mValue.z }
-						};
-						animCI.scalingKeys_.push_back(scalingKey);
-					}
-
-					world->CreateComponent<Animation>(nodeEntity, animCI);
-				}
-			}
-		}
+	//	if (uvs.GetSize() != 0) {
+	//		world->CreateComponent<UVs>(meshEntity, uvs);
+	//	}
 
 
-		//Process child entities.
-		if (node->mNumChildren > 0) {
+	//}
 
-			std::vector<ECS::Entity::Id> childEntityIds;
-			childEntityIds.reserve(node->mNumChildren);
+	//void ProcessAnimation(ECS::World* world, ECS::Entity::Id nodeEntity, const aiScene* scene, aiNode* node) {
 
-			for (unsigned int childNodeIndex = 0; childNodeIndex < node->mNumChildren; childNodeIndex++) {
-				aiNode* childNode = node->mChildren[childNodeIndex];
-				ECS::Entity::Id childNodeEntity = world->CreateEntity();
-				ProcessNode(world, childNodeEntity, scene, childNode);
-				childEntityIds.push_back(childNodeEntity);
-			}
+	//}
 
-			world->CreateComponent<ChildEntities>(nodeEntity, childEntityIds);
-		}
-	}
+	//void ProcessNode(ECS::World* world, ECS::Entity::Id nodeEntity, const aiScene* scene, aiNode* node) {
 
-	void CreateModelEntityFromFbx::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+	//	world->CreateComponent<Name>(nodeEntity, node->mName.C_Str());
+	//	world->CreateComponent<Node>(nodeEntity);
+
+	//	glm::mat4 transform{ aiMatrix4x4ToGlm(node->mTransformation) };
+	//	glm::vec3 translation{};
+	//	glm::quat rotation;
+	//	glm::vec3 scale;
+	//	glm::vec3 skew;
+	//	glm::vec4 perspective;
+	//	glm::decompose(transform, scale, rotation, translation, skew, perspective);
+
+	//	world->CreateComponent<Position3D>(nodeEntity, translation.x, translation.y, translation.z);
+	//	world->CreateComponent<Rotation3D>(nodeEntity, rotation.w, rotation.x, rotation.y, rotation.z);
+
+	//	//Process meshes.
+	//	std::vector<ECS::Entity::Id> meshEntityIds;
+	//	meshEntityIds.reserve(node->mNumMeshes);
+	//	for (unsigned int meshIndexIndex = 0; meshIndexIndex < node->mNumMeshes; meshIndexIndex++) {
+	//		const unsigned int meshIndex = node->mMeshes[meshIndexIndex];
+	//		ECS::Entity::Id meshEntityId = world->CreateEntity();
+	//		ProcessMesh(world, meshEntityId, scene, scene->mMeshes[meshIndex]);
+	//		meshEntityIds.push_back(meshEntityId);
+	//	}
+	//	world->CreateComponent<Meshes>(nodeEntity, meshEntityIds);
+
+	//	OS::AssertMessage(scene->mNumAnimations <=1, "Multiple animationes are not supperted yet.");
+	//	//Process animation.
+	//	for (unsigned int animationIndex = 0; animationIndex < scene->mNumAnimations; animationIndex++) {
+	//		const aiAnimation* animation = scene->mAnimations[animationIndex];
+	//		for (unsigned int nodeChannelIndex = 0; nodeChannelIndex < animation->mNumChannels; nodeChannelIndex++) {
+	//			const aiNodeAnim* nodeAnim = animation->mChannels[nodeChannelIndex];
+	//			if (nodeAnim->mNodeName == node->mName) {
+	//				Animation::CreateInfo animCI;
+	//				//Process node animation.
+	//				
+	//				animCI.name_ = animation->mName.C_Str();
+
+	//				animCI.duration_ = animation->mDuration;
+	//				animCI.ticksPerSecond_ = animation->mTicksPerSecond;
+
+	//				//Process position keys.
+	//				for (unsigned int positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
+	//					const aiVectorKey aiPositionKey = nodeAnim->mPositionKeys[positionKeyIndex];
+	//					Animation::PositionKey positionKey{
+	//						.time_ = aiPositionKey.mTime,
+	//						.value_ = { aiPositionKey.mValue.x, aiPositionKey.mValue.y, aiPositionKey.mValue.z }
+	//					};
+	//					animCI.positionKeys_.push_back(positionKey);
+	//				}
+
+	//				//Process rotation keys.
+	//				for (unsigned int rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
+	//					const aiQuatKey aiQuatKey = nodeAnim->mRotationKeys[rotationKeyIndex];
+	//					Animation::RotationKey rotationKey{
+	//						.time_ = aiQuatKey.mTime,
+	//						.value_ = { aiQuatKey.mValue.w, aiQuatKey.mValue.x, aiQuatKey.mValue.y, aiQuatKey.mValue.z }
+	//					};
+	//					animCI.rotationKeys_.push_back(rotationKey);
+	//				}
+	//				
+	//				//Process scale keys.
+	//				for (unsigned int scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumRotationKeys; scaleKeyIndex++) {
+	//					const aiVectorKey aiScaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
+	//					Animation::ScalingKey scalingKey{
+	//						.time_ = aiScaleKey.mTime,
+	//						.value_ = { aiScaleKey.mValue.x, aiScaleKey.mValue.y, aiScaleKey.mValue.z }
+	//					};
+	//					animCI.scalingKeys_.push_back(scalingKey);
+	//				}
+
+	//				world->CreateComponent<Animation>(nodeEntity, animCI);
+	//			}
+	//		}
+	//	}
 
 
-		auto* position = world->GetComponent<Position3D>(entityId);
-		auto* rotation = world->GetComponent<Rotation3D>(entityId);
-		auto* fbxEntity = world->GetComponent<FbxEntity>(entityId);
-		auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
+	//	//Process child entities.
+	//	if (node->mNumChildren > 0) {
 
-		ECS::Entity::Id modelEntityid = world->CreateEntity();
+	//		std::vector<ECS::Entity::Id> childEntityIds;
+	//		childEntityIds.reserve(node->mNumChildren);
 
-		auto* fbxName = world->GetComponent<Name>(fbxEntity->id_);
-		auto* fbxData = world->GetComponent<BinaryData>(fbxEntity->id_);
+	//		for (unsigned int childNodeIndex = 0; childNodeIndex < node->mNumChildren; childNodeIndex++) {
+	//			aiNode* childNode = node->mChildren[childNodeIndex];
+	//			ECS::Entity::Id childNodeEntity = world->CreateEntity();
+	//			ProcessNode(world, childNodeEntity, scene, childNode);
+	//			childEntityIds.push_back(childNodeEntity);
+	//		}
 
-		Assimp::Importer importer;
+	//		world->CreateComponent<ChildEntities>(nodeEntity, childEntityIds);
+	//	}
+	//}
 
-		importer.SetIOHandler(new FbxIOSystem{ fbxName->value_, std::string{ fbxData->data_.data(), fbxData->data_.size() } });
+	void CreateModelEntityFromFbx::Update(FbxEntity* fbxEntity) {
 
-		const aiScene* scene = importer.ReadFile(fbxName->value_,
-			aiProcess_CalcTangentSpace |
-			aiProcess_Triangulate |
-			aiProcess_JoinIdenticalVertices |
-			//aiProcess_MakeLeftHanded |
-			aiProcess_FlipUVs |
-			aiProcess_SortByPType);
 
-		OS::AssertMessage(
-			scene != nullptr,
-			importer.GetErrorString());
+		//auto* position = world->GetComponent<Position3D>(entityId);
+		//auto* rotation = world->GetComponent<Rotation3D>(entityId);
+		//auto* fbxEntity = world->GetComponent<FbxEntity>(entityId);
+		//auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
+
+		//ECS::Entity::Id modelEntityid = world->CreateEntity();
+
+		//auto* fbxName = world->GetComponent<Name>(fbxEntity->id_);
+		//auto* fbxData = world->GetComponent<BinaryData>(fbxEntity->id_);
+
+		//Assimp::Importer importer;
+
+		//importer.SetIOHandler(new FbxIOSystem{ fbxName->value_, std::string{ fbxData->data_.data(), fbxData->data_.size() } });
+
+		//const aiScene* scene = importer.ReadFile(fbxName->value_,
+		//	aiProcess_CalcTangentSpace |
+		//	aiProcess_Triangulate |
+		//	aiProcess_JoinIdenticalVertices |
+		//	//aiProcess_MakeLeftHanded |
+		//	aiProcess_FlipUVs |
+		//	aiProcess_SortByPType);
+
+		//OS::AssertMessage(
+		//	scene != nullptr,
+		//	importer.GetErrorString());
 
 		//Geom::Mesh geomMesh;
 		//Geom::Model2 model2;
@@ -390,10 +394,10 @@ namespace OksEngine {
 		//}
 
 
-		OS::AssertMessage(scene->mRootNode != nullptr, "Empty FBX model file.");
-		ECS::Entity::Id rootNodeId = world->CreateEntity();
-		ProcessNode(world, rootNodeId, scene, scene->mRootNode);
-		world->CreateComponent<ModelEntity>(entityId, rootNodeId);
+		//OS::AssertMessage(scene->mRootNode != nullptr, "Empty FBX model file.");
+		//ECS::Entity::Id rootNodeId = world->CreateEntity();
+		//ProcessNode(world, rootNodeId, scene, scene->mRootNode);
+		//world->CreateComponent<ModelEntity>(entityId, rootNodeId);
 
 
 
@@ -520,19 +524,6 @@ namespace OksEngine {
 		//world->CreateComponent<ModelEntity>(entityId, modelEntityid);
 
 	}
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateModelEntityFromFbx::GetFilter() const noexcept {
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
-			ECS::Entity::Filter{}
-			.Include<FbxEntity>()
-			.Exclude<ModelEntity>(),
-			ECS::Entity::Filter{}.ExcludeAll() };
-		return filter;
-	}
-	Common::TypeId CreateModelEntityFromFbx::GetTypeId() const noexcept {
-		return Common::TypeInfo<CreateModelEntityFromFbx>().GetId();
-	}
-
-
 }
 
 #pragma optimize("", on)

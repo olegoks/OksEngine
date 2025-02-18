@@ -14,9 +14,6 @@
 
 #include <OksEngine.Config.hpp>
 
-#include <OksEngine.Components.hpp>
-#include <OksEngine.Systems.hpp>
-
 namespace OksEngine
 {
 	Context::Context(const CreateInfo& createInfo) :
@@ -48,52 +45,54 @@ namespace OksEngine
 		
 
 
+		
 		world_ = std::make_shared<ECS::World>();
+
 		world2_ = std::make_shared<ECS2::World>();
 		//world2_->AddArchetype<>
-		//Resource ecs subsystem
-		{
-			const ECS::Entity::Id resourceSubsystem = world_->CreateEntity();
-			world_->CreateComponent<ECSResourceSubsystem>(resourceSubsystem);
+		////Resource ecs subsystem
+		//{
+		//	const ECS::Entity::Id resourceSubsystem = world_->CreateEntity();
+		//	world_->CreateComponent<ECSResourceSubsystem>(resourceSubsystem);
 
-		}
+		//}
 
-		//Frames counter
-		{
-			const ECS::Entity::Id framesCounter = world_->CreateEntity();
-			world_->CreateComponent<FramesCounter>(framesCounter);
-			world_->CreateComponent<Counter>(framesCounter);
-		}
+		////Frames counter
+		//{
+		//	const ECS::Entity::Id framesCounter = world_->CreateEntity();
+		//	world_->CreateComponent<FramesCounter>(framesCounter);
+		//	world_->CreateComponent<Counter>(framesCounter);
+		//}
 
-		world_->RegisterSystem<IncreaseFramesCounter>(*this);
+		//world_->RegisterSystem<IncreaseFramesCounter>(*this);
 		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
-		world_->RegisterSystem<CreateLoadLuaScriptRequest>(*this);
+		//world_->RegisterSystem<CreateLoadLuaScriptRequest>(*this);
 
-		world_->RegisterSystem<CreateLuaScriptEntity>(*this);
-		world_->RegisterSystem<CreateAsyncTask>(*this);
-		world_->RegisterSystem < CheckResourceLoaded>(*this);
-		world_->RegisterSystem < WaitForResourceLoading>(*this);
+		//world_->RegisterSystem<CreateLuaScriptEntity>(*this);
+		//world_->RegisterSystem<CreateAsyncTask>(*this);
 		//world_->RegisterSystem < CheckResourceLoaded>(*this);
-		world_->RegisterSystem<CreateLuaContext>(*this);
-		world_->RegisterSystem<CallUpdateMethod>(*this);
-		world_->RegisterSystem<CallInputProcessor>(*this);
-		world_->RegisterSystem<RigidBodyToRenderGeometryMapper>(*this);
-		world_->RegisterSystem <CreatePhysicsShapeForDynamicRigidBody>(*this);
-		world_->RegisterSystem <CreateDynamicRigidBody>(*this);
-		//world_->RegisterSystem<UpdateClock>(*this);
-		world_->RegisterSystem < UpdateModelDriverTransform>(*this);
+		//world_->RegisterSystem < WaitForResourceLoading>(*this);
+		////world_->RegisterSystem < CheckResourceLoaded>(*this);
+		//world_->RegisterSystem<CreateLuaContext>(*this);
+		//world_->RegisterSystem<CallUpdateMethod>(*this);
+		//world_->RegisterSystem<CallInputProcessor>(*this);
+		//world_->RegisterSystem<RigidBodyToRenderGeometryMapper>(*this);
+		//world_->RegisterSystem <CreatePhysicsShapeForDynamicRigidBody>(*this);
+		//world_->RegisterSystem <CreateDynamicRigidBody>(*this);
+		////world_->RegisterSystem<UpdateClock>(*this);
+		//world_->RegisterSystem < UpdateModelDriverTransform>(*this);
 
-		//ANIMATION
-		world_->RegisterSystem < CreateAnimationState>(*this);
-		world_->RegisterSystem<ProcessAnimation>(*this);
-		world_->RegisterSystem<RunAnimation>(*this);
-		world_->RegisterSystem<StopAnimation>(*this);
-		world_->RegisterSystem < StartModelAnimation>(*this);
+		////ANIMATION
+		//world_->RegisterSystem < CreateAnimationState>(*this);
+		//world_->RegisterSystem<ProcessAnimation>(*this);
+		//world_->RegisterSystem<RunAnimation>(*this);
+		//world_->RegisterSystem<StopAnimation>(*this);
+		//world_->RegisterSystem < StartModelAnimation>(*this);
 
-		//SOUND
-		world_->RegisterSystem < CreateLoadSoundRequest>(*this);
-		world_->RegisterSystem < CreateSound>(*this);
-		world_->RegisterSystem < ProcessSound>(*this);
+		////SOUND
+		//world_->RegisterSystem < CreateLoadSoundRequest>(*this);
+		//world_->RegisterSystem < CreateSound>(*this);
+		//world_->RegisterSystem < ProcessSound>(*this);
 
 		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
 			*this,
@@ -108,8 +107,7 @@ namespace OksEngine
 		physicsSubsystem_ = std::make_shared<PhysicsSubsystem>(physicsSubsystemCreateInfo);
 		DebugSubsystem::CreateInfo debugSubsystemCreateInfo{ *this };
 		debugSubsystem_ = std::make_shared<DebugSubsystem>(debugSubsystemCreateInfo);
-		//std::string configText(configResource.GetData<char>(), configResource.GetSize());
-		//config_.AddText(configText);
+
 	}
 
 }

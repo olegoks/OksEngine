@@ -2,6 +2,8 @@
 
 #include <bitset>
 
+#include <Common.hpp>
+
 namespace ECS2 {
 
 
@@ -11,20 +13,31 @@ namespace ECS2 {
 		template<class ...ComponentType>
 		void SetBits() {
 
-			auto callback = [&] <class ComponentType>() {
-				filter_.set(ComponentType::GetTypeId());
-			};
+			(filter_.set(ComponentType::GetTypeId()), ...);
 
-			(callback.template operator() < ComponentType > (), ...);
+			if constexpr (Common::IsDebug()) {
+				(componentNames_.push_back(std::string{ ComponentType::GetName() }), ...);
+			}
+
+		}
+
+		template<class ...ComponentType>
+		void RemoveBits() {
+
+			(filter_.reset(ComponentType::GetTypeId()), ...);
+
+			if constexpr (Common::IsDebug()) {
+				(std::remove(componentNames_.begin(), componentNames_.end(), (std::string{ ComponentType::GetName() })), ...);
+			}
 
 		}
 
 		ComponentsFilter() { }
 
-		template<class ComponentType>
-		[[nodiscard]]
+
+		template<class ...ComponentType>
 		bool IsSet() const {
-			return IsSet(ComponentType::GetTypeId());
+			return (IsSet(ComponentType::GetTypeId()) && ...);
 		}
 
 		[[nodiscard]]
@@ -47,12 +60,36 @@ namespace ECS2 {
 						return true;
 					}
 				}
+				return false;
 			}
 		};
+
+		[[nodiscard]]
+		bool IsSubsetOf(const ComponentsFilter& componentsFilter) const noexcept {
+			return (componentsFilter.filter_ & filter_) == filter_;
+		}
+
+		[[nodiscard]]
+		bool operator==(const ComponentsFilter& componentsFilter) const noexcept {
+
+			if (this == &componentsFilter) {
+				return true;
+			}
+
+			return (filter_ == componentsFilter.filter_);
+
+		}
+
+		[[nodiscard]]
+		bool IsSetOneComponent() const {
+			return filter_.count() == 1;
+		}
 
 	private:
 
 		constexpr static Common::UInt16 maxComponentsNumber_ = 256;
+
+		std::vector<std::string> componentNames_;
 
 		std::bitset<maxComponentsNumber_> filter_;
 	};

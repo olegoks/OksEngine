@@ -1,0 +1,5 @@
+system = {
+    name = "UpdateCameraTransformUniformBuffer",
+    includes = { "Camera", "Position3D", "UniformBuffer" }
+}
+

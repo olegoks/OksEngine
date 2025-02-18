@@ -1,0 +1,6 @@
+system = {
+    name = "CreateDriverVertexBuffer2D",
+    includes = { "Vertices2D", "Indices", "Normals", "UVs" },
+    excludes = { "DriverVertexBuffer" }
+}
+

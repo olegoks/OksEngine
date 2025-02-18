@@ -1,0 +1,4 @@
+component = {
+    name = "Normals",
+    fields = { { type="DS::Vector<Geom::Normal3f>", name="normals" } }
+}

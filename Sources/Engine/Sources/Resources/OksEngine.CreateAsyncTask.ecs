@@ -1,0 +1,6 @@
+system = {
+    name = "CreateAsyncTask",
+    includes = { 
+		"LoadResourceRequest", "Name"
+	 }
+}

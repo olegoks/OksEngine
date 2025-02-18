@@ -1,0 +1,5 @@
+system = {
+    name = "UpdateDriverVertexBuffer",
+    includes = { "Vertices2D", "Indices", "UVs", "DriverVertexBuffer"}
+}
+

@@ -1,0 +1,4 @@
+component = {
+    name = "UVs",
+    fields = { { type="DS::Vector<Geom::UV2f>", name="uvs" } }
+}

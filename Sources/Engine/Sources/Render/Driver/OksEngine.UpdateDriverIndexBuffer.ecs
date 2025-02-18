@@ -1,0 +1,5 @@
+system = {
+    name = "UpdateDriverIndexBuffer",
+    includes = { "Indices", "MutableMesh", "DriverIndexBuffer"}
+}
+

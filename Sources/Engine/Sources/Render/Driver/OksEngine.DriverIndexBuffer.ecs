@@ -1,0 +1,4 @@
+component = {
+    name = "DriverIndexBuffer",
+    fields = { { type="RAL::Driver::IndexBuffer::Id", name="id" } }
+}

@@ -1,0 +1,14 @@
+system = {
+    name = "ProcessAnimation",
+    includes = { 
+        "Position3D", 
+        "Rotation3D",
+        "Animation", 
+        "RunningAnimationState", 
+        "AnimationInProcess", 
+        "Clock"  },
+    excludes = {
+        "AnimationEnded"
+
+    }
+}

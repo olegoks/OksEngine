@@ -1,0 +1,7 @@
+system = {
+    name = "WaitForResourceLoading",
+
+    includes = { 
+		"LoadResourceRequest", "Name", "WaitingForResourceLoading"
+	 }
+}

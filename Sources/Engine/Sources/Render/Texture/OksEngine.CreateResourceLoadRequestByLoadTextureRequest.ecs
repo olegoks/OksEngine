@@ -1,0 +1,8 @@
+
+system = {
+    name = "CreateResourceLoadRequestByLoadTextureRequest",
+
+    includes = { 
+		"LoadTextureRequest"
+	 }
+}

@@ -1,7 +1,7 @@
 
 #include <Render/OksEngine.Render.Subsystem.hpp>
 
-#include <Render/OksEngine.Render.Systems.hpp>
+#include <Render/auto_OksEngine.Systems.hpp>
 #include <UI/OksEngine.UI.Subsystem.hpp>
 
 namespace OksEngine {
@@ -27,36 +27,36 @@ namespace OksEngine {
 		const auto fragmentTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/textured.frag");
 
 
-		auto ecsWorld = context.GetECSWorld();
-		ecsWorld->RegisterSystem<CreateLoadGeometryDescriptionFileRequest>(context);
-		ecsWorld->RegisterSystem<CreateLoadObjRequest>(context);
-		ecsWorld->RegisterSystem<CreateLoadMtlRequest>(context);
-		ecsWorld->RegisterSystem<CreateObjEntity>(context);
-		ecsWorld->RegisterSystem<CreateMtlEntity>(context);
-		//Fbx
-		ecsWorld->RegisterSystem<CreateLoadFbxRequest>(context);
-		ecsWorld->RegisterSystem<CreateFbxEntity>(context);
-		ecsWorld->RegisterSystem<CreateModelEntityFromFbx>(context);
-		//
-		ecsWorld->RegisterSystem < CheckTextureLoaded>(context);
-		ecsWorld->RegisterSystem < CreateTexture>(context);
-		ecsWorld->RegisterSystem < CreateDriverTexture>(context);
-		ecsWorld->RegisterSystem < AddMeshToRender>(context);
-		ecsWorld->RegisterSystem<CreateModelEntityFromObjMtl>(context);
-		ecsWorld->RegisterSystem<CreateDriverCameraTransformDriverUniformBuffer>(context);
-		ecsWorld->RegisterSystem<UpdateCameraTransformUniformBuffer>(context);
-		ecsWorld->RegisterSystem<ResizeFrameBuffers>(context);
-		ecsWorld->RegisterSystem<MapMeshTransform>(context);
-		ecsWorld->RegisterSystem<CreateGeometryDescriptionFileEntity>(context);
-		ecsWorld->RegisterSystem<CreateLoadTextureRequest>(context);
-		ecsWorld->RegisterSystem<CreateDriverVertexBuffer>(context);
-		ecsWorld->RegisterSystem<CreateDriverIndexBuffer>(context);
-		ecsWorld->RegisterSystem<CreateDriverVertex2DBuffer>(context);
-		ecsWorld->RegisterSystem < UpdateDriverIndexBuffer>(context);
-		ecsWorld->RegisterSystem < UpdateDriverVertexBuffer>(context);
+		//auto ecsWorld = context.GetECSWorld();
+		//ecsWorld->RegisterSystem<CreateLoadGeometryDescriptionFileRequest>(context);
+		//ecsWorld->RegisterSystem<CreateLoadObjRequest>(context);
+		//ecsWorld->RegisterSystem<CreateLoadMtlRequest>(context);
+		//ecsWorld->RegisterSystem<CreateObjEntity>(context);
+		//ecsWorld->RegisterSystem<CreateMtlEntity>(context);
+		////Fbx
+		//ecsWorld->RegisterSystem<CreateLoadFbxRequest>(context);
+		//ecsWorld->RegisterSystem<CreateFbxEntity>(context);
+		//ecsWorld->RegisterSystem<CreateModelEntityFromFbx>(context);
+		////
+		//ecsWorld->RegisterSystem < CheckTextureLoaded>(context);
+		//ecsWorld->RegisterSystem < CreateTexture>(context);
+		//ecsWorld->RegisterSystem < CreateDriverTexture>(context);
+		//ecsWorld->RegisterSystem < AddMeshToRender>(context);
+		//ecsWorld->RegisterSystem<CreateModelEntityFromObjMtl>(context);
+		//ecsWorld->RegisterSystem<CreateDriverCameraTransformDriverUniformBuffer>(context);
+		//ecsWorld->RegisterSystem<UpdateCameraTransformUniformBuffer>(context);
+		//ecsWorld->RegisterSystem<ResizeFrameBuffers>(context);
+		//ecsWorld->RegisterSystem<MapMeshTransform>(context);
+		//ecsWorld->RegisterSystem<CreateGeometryDescriptionFileEntity>(context);
+		//ecsWorld->RegisterSystem<CreateLoadTextureRequest>(context);
+		//ecsWorld->RegisterSystem<CreateDriverVertexBuffer>(context);
+		//ecsWorld->RegisterSystem<CreateDriverIndexBuffer>(context);
+		//ecsWorld->RegisterSystem<CreateDriverVertex2DBuffer>(context);
+		//ecsWorld->RegisterSystem < UpdateDriverIndexBuffer>(context);
+		//ecsWorld->RegisterSystem < UpdateDriverVertexBuffer>(context);
 
-		ecsWorld->RegisterSystem < UpdateDriverTransform3D>(context);
-		ecsWorld->RegisterSystem < CreateDriverTransform3D>(context);
+		//ecsWorld->RegisterSystem < UpdateDriverTransform3D>(context);
+		//ecsWorld->RegisterSystem < CreateDriverTransform3D>(context);
 
 		auto uiSubsystem = context.GetUISubsystem();
 		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);

@@ -5,9 +5,76 @@
 #include <memory>
 #include <OS.Assert.hpp>
 
+#include <ECSGenerator.Common.hpp>
+
 namespace ECSGenerator {
 
-	class Function {
+	class Code {
+	public:
+
+		Code& Add(const std::string& code) {
+			code_ += code;
+			return *this;
+		}
+
+		Code& Add(const Code& code) {
+			code_ += code.code_;
+			return *this;
+		}
+
+		Code& NewLine() {
+			code_ += '\n';
+			return *this;
+		}
+
+		Code& ApplyTab() {
+			for (Common::Index i = 0; i < code_.length(); i++) {
+				const char current = code_[i];
+				if (current == '\n' && i != code_.length() - 1) {
+					code_.insert(i + 1, "\t");
+					++i;
+				}
+			}
+			code_.insert(0, "\t");
+			return *this;
+		}
+
+		std::string code_;
+	};
+
+	class Base {
+	public:
+
+		enum class Type {
+			Function,
+			Namespace,
+			Struct,
+			Scope,
+			File,
+			Undefined
+		};
+
+		virtual Type GetType() const noexcept = 0;
+
+	private:
+	};
+
+
+	class Scope : public Base {
+	public:
+		void AddCode(const std::string& code) {
+			code_.push_back(code);
+		}
+
+		std::string GenerateCode() {
+
+		}
+
+		std::vector<std::string> code_;
+
+	};
+
+	class Function : public Base {
 	public:
 
 		struct Parameter {
@@ -29,55 +96,37 @@ namespace ECSGenerator {
 			std::string name_;
 			std::vector<Parameter> parameters_;
 			std::string returnType_;
-			std::string code_;
+			Code code_;
+			bool isPrototype_ = false;
+			bool inlineModifier_ = false;
+			bool staticModifier_ = false;
 		};
 
-		std::string GeneratePrototype() {
-			std::string code;
-			code += ci_.returnType_ + " " + ci_.name_ + "(";
-			for (Common::Index i = 0; i < ci_.parameters_.size(); i++) {
-				const Parameter& paramter = ci_.parameters_[i];
-				code += paramter.inputType_ + " " + paramter.valueName_;
-				if (i < ci_.parameters_.size() - 1) {
-					code += ", ";
-				}
-			}
-			code += ");\n";
-		}
+		Function(const CreateInfo& ci) : ci_{ ci } {}
 
-		std::string GenerateRealization() {
-			std::string code;
-			code += ci_.returnType_ + " " + ci_.name_ + "(";
-			for (Common::Index i = 0; i < ci_.parameters_.size(); i++) {
-				const Parameter& paramter = ci_.parameters_[i];
-				code += paramter.inputType_ + " " + paramter.valueName_;
-				if (i < ci_.parameters_.size() - 1) {
-					code += ", ";
-				}
-			}
-			code += "){\n";
-			code += ci_.code_;
-			code += "};\n";
-
+		virtual Type GetType() const noexcept override {
+			return Type::Function;
 		}
 
 		CreateInfo ci_;
 	};
 
-	class Struct {
+	class Struct : public Base {
 	public:
 
 		struct Field {
 			std::string type_;
 			std::string name_;
+			bool copyable_ = true;
 		};
 
 		struct CreateInfo {
 			std::string name_;
-			std::shared_ptr<Struct> parent_;
+			std::string parent_;
 			std::vector<Field> fields_;
-			bool generateDefaultConstructor_ = true;
-			bool generateConstructor_ = true;
+			std::vector<std::shared_ptr<Function>> methods_;
+			bool defaultConstructor_ = true;
+			bool constructor_ = true;
 		};
 
 		Struct(const CreateInfo& createInfo)
@@ -85,6 +134,34 @@ namespace ECSGenerator {
 
 		void AddFunctionPrototype(const Function& function) {
 
+		}
+
+		const std::string& GetParentName() const noexcept {
+			return ci_.parent_;
+		}
+
+		bool HasParent() const noexcept {
+			return !ci_.parent_.empty();
+		}
+
+		std::string GetName() const noexcept {
+			return ci_.name_;
+		}
+
+		virtual Type GetType() const noexcept override {
+			return Type::Struct;
+		}
+
+		using ProcessField = std::function<void(const Field& field, bool isLast)>;
+
+		bool AreThereFields() const noexcept {
+			return !ci_.fields_.empty();
+		}
+
+		void ForEachField(ProcessField&& processField) {
+			for (Common::Index i = 0; i < ci_.fields_.size(); i++) {
+				processField(ci_.fields_[i], i == ci_.fields_.size() - 1);
+			}
 		}
 
 		std::string GenerateCode() {
@@ -129,29 +206,74 @@ namespace ECSGenerator {
 				});
 
 
+
+				m3dnormalizeSafe
+
 			code += "};\n";*/
 		}
 
 		CreateInfo ci_;
 	};
 
-
-	class File {
+	class Namespace : public Base {
 	public:
 
-		void AddPragmaOnce() {
-			addPragmaOnce_ = true;
+		Namespace(const std::string& name)
+			: name_{ name } {  }
+
+		void Add(std::shared_ptr<Base> base) {
+			base_.push_back(base);
 		}
 
-		void IncludeHeader(const std::string& name) {
-			headers_.push_back(name);
+		const std::string& GetName() const noexcept {
+			return name_;
 		}
-		void AddNamespace(const std::string& name) {
-			namespaces_.push_back(name);
+
+		virtual Type GetType() const noexcept override {
+			return Type::Namespace;
 		}
-		bool addPragmaOnce_ = false;
-		std::vector<std::string> headers_;
-		std::vector<std::string> namespaces_;
+
+		std::vector<std::shared_ptr<Base>> base_;
+		std::string name_;
+	};
+
+
+	class File : public Base {
+	public:
+
+		struct Includes {
+			std::set<std::filesystem::path> paths_;
+		};
+
+		struct CreateInfo {
+			bool isHpp_ = true;
+			Includes includes_;
+			std::shared_ptr<Base> base_;
+		};
+
+		virtual Type GetType() const noexcept override {
+			return Type::File;
+		}
+
+		void ForEachInclude(std::function<void(const std::filesystem::path&)>&& processInclude) const noexcept {
+			for (const auto& include : createInfo_.includes_.paths_) {
+				processInclude(include);
+			}
+		}
+
+		[[nodiscard]]
+		bool IsHpp() const noexcept {
+			return createInfo_.isHpp_;
+		}
+
+		const std::shared_ptr<Base> GetBase() const noexcept {
+			return createInfo_.base_;
+		}
+
+		File(const CreateInfo& createInfo) :
+			createInfo_{ createInfo } {}
+
+		CreateInfo createInfo_;
 	};
 
 }

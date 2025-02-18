@@ -1,0 +1,8 @@
+system = {
+    name = "ProcessSound",
+
+    includes = { 
+		"Sound", "PlaySound"
+	 }, 
+   excludes = { "SoundInProgress" }
+}

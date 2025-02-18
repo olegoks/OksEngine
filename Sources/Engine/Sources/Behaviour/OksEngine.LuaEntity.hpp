@@ -31,20 +31,18 @@ namespace OksEngine {
 
 			Camera* GetCamera();
 
-			void SetWorld(ECS::World* world);
+			void SetWorld(ECS2::World* world);
 
 			void SetId(std::uint64_t id);
 
 		private:
-			ECS::World* world_ = nullptr;
-			ECS::Entity::Id id_ = 0;
+			ECS2::World* world_ = nullptr;
+			ECS2::Entity::Id id_ = 0;
 		};
 
 	}
 
-
-	template<>
-	inline void Bind<Lua::Entity>(::Lua::Context& context) {
+	inline void BindLuaEntity(::Lua::Context& context) {
 
 		context.GetGlobalNamespace()
 			.beginClass<Lua::Entity>("EngineEntity")

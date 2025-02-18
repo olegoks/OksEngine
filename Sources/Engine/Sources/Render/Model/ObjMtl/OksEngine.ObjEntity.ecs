@@ -1,0 +1,4 @@
+component = {
+    name = "ObjEntity",
+    fields = { { type="ECS2::Entity::Id", name="id" } }
+}

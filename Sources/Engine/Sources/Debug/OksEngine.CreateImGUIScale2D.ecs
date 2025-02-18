@@ -1,0 +1,5 @@
+system = {
+    name = "CreateImGUIScale2D",
+    includes = { "ImGuiState" },
+	excludes = { "Scale2D" }
+}

@@ -1,0 +1,6 @@
+system = {
+    name = "CreateLoadGeometryDescriptionFileRequest",
+    includes = { "ImmutableRenderGeometry" },
+	excludes = { "LoadGeometryDescriptionFileRequest" }
+}
+

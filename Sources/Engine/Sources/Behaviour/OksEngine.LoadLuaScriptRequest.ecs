@@ -1,0 +1,6 @@
+component = {
+    name = "LoadLuaScriptRequest",
+    fields = { 
+        { type = "ECS2::Entity::Id", name = "loadResourceRequestEntityId" }
+     }
+}
