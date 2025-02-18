@@ -30,6 +30,7 @@ namespace OksEngine {
 		}
 
 		[[nodiscard]]
+		[[deprecated]]
 		auto GetECSWorld() noexcept {
 			return world_;
 		}
@@ -78,6 +79,7 @@ namespace OksEngine {
 		std::shared_ptr<class PhysicsSubsystem> physicsSubsystem_ = nullptr;
 		std::shared_ptr<class UISubsystem> uiSubsystem_ = nullptr;
 		std::shared_ptr<class DebugSubsystem> debugSubsystem_ = nullptr;
+		[[deprecated]]
 		std::shared_ptr<class ECS::World> world_ = nullptr;
 		std::shared_ptr<class ECS2::World> world2_ = nullptr;
 		std::shared_ptr<class Config> config_ = nullptr;

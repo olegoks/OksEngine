@@ -1,0 +1,5 @@
+component = {
+    name = "PhysicsShape",
+    fields = { 
+        { type = "std::shared_ptr<PAL::Shape>", name = "shape" } }
+}

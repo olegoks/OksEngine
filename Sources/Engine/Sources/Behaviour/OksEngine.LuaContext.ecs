@@ -1,0 +1,9 @@
+component = {
+    name = "LuaContext",
+    fields = { 
+        { 
+            type = "::Lua::Context", 
+            name = "context",
+            copyable = false }
+     }
+}

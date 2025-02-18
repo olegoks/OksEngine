@@ -1,0 +1,9 @@
+system = {
+    name = "RunAnimation",
+
+    includes = { 
+        "RunningAnimationState", 
+        "StartAnimation",
+        "Clock"},
+        excludes = { "AnimationEnded" }
+}

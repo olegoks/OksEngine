@@ -1,36 +1,35 @@
 
-#include <Render/Model/Transform/OksEngine.UpdateDriverTransform.hpp>
-#include <Render/OksEngine.Render.Components.hpp>
-#include <Common/OksEngine.Common.Components.hpp>
-
+#include <Render/Model/Transform/auto_OksEngine.UpdateDriverTransform3D.hpp>
+#include <Render/Model/Transform/auto_OksEngine.CreateDriverTransform3D.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
 
 namespace OksEngine {
 
-	void UpdateDriverTransform3D::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+	//void CreateDriverTransform3D::Update(Position3D* position3D, Rotation3D* rotation3D, DriverTransform3D* driverTransform3D) {
 
 
-		return;
-		Position3D* position = world->GetComponent<Position3D>(entityId);
-		Rotation3D* rotation = world->GetComponent<Rotation3D>(entityId);
+	//	//return;
+	//	//Position3D* position = world->GetComponent<Position3D>(entityId);
+	//	//Rotation3D* rotation = world->GetComponent<Rotation3D>(entityId);
 
-		DriverTransform3D* driverTransform = world->GetComponent<DriverTransform3D>(entityId);
+	//	//DriverTransform3D* driverTransform = world->GetComponent<DriverTransform3D>(entityId);
 
 
-		const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
-		const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
+	//	//const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
+	//	//const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
 
-		const glm::mat4 transformMatrix = glm::mat4{ 1 } * nodeRotationMatrix * nodeTranslateMatrix;
+	//	//const glm::mat4 transformMatrix = glm::mat4{ 1 } * nodeRotationMatrix * nodeTranslateMatrix;
 
-		DriverTransform3D::Transform transform{ transformMatrix };
+	//	//DriverTransform3D::Transform transform{ transformMatrix };
 
-		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
-			.size_ = sizeof(DriverTransform3D::Transform),
-			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
-		};
-		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		driver->FillUniformBuffer(driverTransform->UBId_, &transform);
-	}
+	//	//RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+	//	//	.size_ = sizeof(DriverTransform3D::Transform),
+	//	//	.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+	//	//};
+	//	//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+	//	//driver->FillUniformBuffer(driverTransform->UBId_, &transform);
+	//}
+	/*
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateDriverTransform3D::GetFilter() const noexcept {
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
@@ -42,64 +41,64 @@ namespace OksEngine {
 	}
 	Common::TypeId UpdateDriverTransform3D::GetTypeId() const noexcept {
 		return Common::TypeInfo<UpdateDriverTransform3D>().GetId();
-	}
+	}*/
 
 
 	void UpdateNodeTransform(std::shared_ptr<RAL::Driver> driver, ECS::World* world, ECS::Entity::Id nodeEntityId, const glm::mat4& parentTransform) {
 
-		//if (world->IsComponentExist<Meshes>(nodeEntityId)) {
+		////if (world->IsComponentExist<Meshes>(nodeEntityId)) {
 
+		////}
+		//Position3D* position = world->GetComponent<Position3D>(nodeEntityId);
+		//Rotation3D* rotation = world->GetComponent<Rotation3D>(nodeEntityId);
+
+		//const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
+		//const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
+
+		//const glm::mat4 nodeTransform = parentTransform * nodeTranslateMatrix * nodeRotationMatrix;
+
+		//if (world->IsComponentExist<DriverTransform3D>(nodeEntityId)) {
+
+		//	DriverTransform3D* driverTransform = world->GetComponent<DriverTransform3D>(nodeEntityId);
+		//	DriverTransform3D::Transform transform{ nodeTransform };
+
+		//	RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+		//		.size_ = sizeof(DriverTransform3D::Transform),
+		//		.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+		//	};
+
+		//	driver->FillUniformBuffer(driverTransform->UBId_, &transform);
 		//}
-		Position3D* position = world->GetComponent<Position3D>(nodeEntityId);
-		Rotation3D* rotation = world->GetComponent<Rotation3D>(nodeEntityId);
 
-		const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
-		const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
+		//if (world->IsComponentExist<ChildEntities>(nodeEntityId)) {
+		//	auto* childEntities = world->GetComponent<ChildEntities>(nodeEntityId);
 
-		const glm::mat4 nodeTransform = parentTransform * nodeTranslateMatrix * nodeRotationMatrix;
-
-		if (world->IsComponentExist<DriverTransform3D>(nodeEntityId)) {
-
-			DriverTransform3D* driverTransform = world->GetComponent<DriverTransform3D>(nodeEntityId);
-			DriverTransform3D::Transform transform{ nodeTransform };
-
-			RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
-				.size_ = sizeof(DriverTransform3D::Transform),
-				.type_ = RAL::Driver::UniformBuffer::Type::Mutable
-			};
-
-			driver->FillUniformBuffer(driverTransform->UBId_, &transform);
-		}
-
-		if (world->IsComponentExist<ChildEntities>(nodeEntityId)) {
-			auto* childEntities = world->GetComponent<ChildEntities>(nodeEntityId);
-
-			for (ECS::Entity::Id childEntity : childEntities->entitiesIds_) {
-				UpdateNodeTransform(driver, world, childEntity, nodeTransform);
-			}
-		}
+		//	for (ECS::Entity::Id childEntity : childEntities->entitiesIds_) {
+		//		UpdateNodeTransform(driver, world, childEntity, nodeTransform);
+		//	}
+		//}
 	}
 
-	void UpdateModelDriverTransform::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+	void UpdateDriverTransform3D::Update(Position3D* position3D, Rotation3D* rotation3D, ModelEntity* modelEntity) {
 
-		//return;
-		Position3D* position = world->GetComponent<Position3D>(entityId);
-		Rotation3D* rotation = world->GetComponent<Rotation3D>(entityId);
-		
-		ModelEntity* modelEntity = world->GetComponent<ModelEntity>(entityId);
+		////return;
+		//Position3D* position = world->GetComponent<Position3D>(entityId);
+		//Rotation3D* rotation = world->GetComponent<Rotation3D>(entityId);
+		//
+		//ModelEntity* modelEntity = world->GetComponent<ModelEntity>(entityId);
 
-		const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
-		const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
-
-
-		const glm::mat4 entityTransform = glm::mat4{ 1 } * nodeTranslateMatrix * nodeRotationMatrix;
-
-		ECS::Entity::Id rootNodeEntityId = modelEntity->id_;
-		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		UpdateNodeTransform(driver, world, rootNodeEntityId, entityTransform);
+		//const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
+		//const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
 
 
-	}
+		//const glm::mat4 entityTransform = glm::mat4{ 1 } * nodeTranslateMatrix * nodeRotationMatrix;
+
+		//ECS::Entity::Id rootNodeEntityId = modelEntity->id_;
+		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+		//UpdateNodeTransform(driver, world, rootNodeEntityId, entityTransform);
+
+
+	}/*
 	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateModelDriverTransform::GetFilter() const noexcept {
 		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
 			ECS::Entity::Filter{}
@@ -111,7 +110,7 @@ namespace OksEngine {
 	}
 	Common::TypeId UpdateModelDriverTransform::GetTypeId() const noexcept {
 		return Common::TypeInfo<UpdateModelDriverTransform>().GetId();
-	}
+	}*/
 
 
 }

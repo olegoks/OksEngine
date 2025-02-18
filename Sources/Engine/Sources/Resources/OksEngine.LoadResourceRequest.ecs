@@ -1,0 +1,6 @@
+component = {
+    name = "LoadResourceRequest",
+    fields = {         
+		
+		}
+}

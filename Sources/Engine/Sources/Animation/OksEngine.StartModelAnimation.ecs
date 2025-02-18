@@ -1,0 +1,7 @@
+system = {
+    name = "StartModelAnimation",
+
+    includes = { 
+        "ModelEntity", 
+        "StartAnimation"}
+}

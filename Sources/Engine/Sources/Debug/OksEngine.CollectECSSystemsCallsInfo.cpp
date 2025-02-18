@@ -3,13 +3,11 @@
 #include <imconfig.h>
 #include <ImgUtil.h>
 
-#include "OksEngine.CollectECSSystemsCallsInfo.hpp"
-
-#include <Debug/OksEngine.ImGuiState.hpp>
+#include <Debug/auto_OksEngine.CollectECSSystemsCallsInfo.hpp>
 
 namespace OksEngine {
 
-	void CollectECSSystemsCallsInfo::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+	void CollectECSSystemsCallsInfo::Update(ImGuiState* imGuiState) {
 
 		//if (ImGui::BeginMainMenuBar()) {
 		//	// Add items to the menu bar.
@@ -60,15 +58,15 @@ namespace OksEngine {
 
 	}
 
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CollectECSSystemsCallsInfo::GetFilter() const noexcept
-	{
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.ExcludeAll() };
-		return filter;
-	}
+	//std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CollectECSSystemsCallsInfo::GetFilter() const noexcept
+	//{
+	//	static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<ImGuiState>(), ECS::Entity::Filter{}.ExcludeAll() };
+	//	return filter;
+	//}
 
-	Common::TypeId CollectECSSystemsCallsInfo::GetTypeId() const noexcept
-	{
-		return Common::TypeInfo<CollectECSSystemsCallsInfo>().GetId();
-	}
+	//Common::TypeId CollectECSSystemsCallsInfo::GetTypeId() const noexcept
+	//{
+	//	return Common::TypeInfo<CollectECSSystemsCallsInfo>().GetId();
+	//}
 
 }

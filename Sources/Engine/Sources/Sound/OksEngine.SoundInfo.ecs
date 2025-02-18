@@ -1,0 +1,8 @@
+component = {
+    name = "SoundInfo",
+    fields = { 
+        { type = "std::string", name = "name" }
+     }
+}
+        
+       

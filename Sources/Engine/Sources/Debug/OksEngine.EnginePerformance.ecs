@@ -1,0 +1,6 @@
+component = {
+    name = "EnginePerformance",
+    fields = { 
+        { type = "bool", name = "show" }
+     }
+}

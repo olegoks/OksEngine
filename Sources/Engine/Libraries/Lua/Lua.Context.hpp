@@ -30,11 +30,11 @@ namespace Lua {
 			luaL_openlibs(state_);
 		}
 
-		Context(Context&& context) : state_{ nullptr } {
+		Context(Context&& context) noexcept : state_{ nullptr } {
 			std::swap(context.state_, state_);
 		}
 
-		Context& operator=(Context&& moveContext) {
+		Context& operator=(Context&& moveContext) noexcept {
 			if (this == &moveContext) {
 				return *this;
 			}

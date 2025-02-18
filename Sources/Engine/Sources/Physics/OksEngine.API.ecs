@@ -1,0 +1,6 @@
+component = {
+    name = "API",
+    fields = { 
+        { type = "std::shared_ptr<API>", name = "api" }
+     }
+}

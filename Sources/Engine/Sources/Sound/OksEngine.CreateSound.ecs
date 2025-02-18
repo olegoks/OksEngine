@@ -1,0 +1,8 @@
+system = {
+    name = "CreateSound",
+
+    includes = { 
+		"LoadSoundRequest"
+	 },
+   excludes = { "Sound" }
+}

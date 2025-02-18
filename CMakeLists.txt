@@ -23,6 +23,14 @@ endif()
 set(CMAKE_SUPPRESS_REGENERATION true) # To exclude ZERO_CHECK target
 set_property(GLOBAL PROPERTY PREDEFINED_TARGETS_FOLDER "CMakeTargets") #To add folder in VS for cmake targets.
 
+if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 17 2022")
+    #Setup Visual Studio 2022 snippets
+    set(SNIPPETS_SOURCE_DIR "${CMAKE_SOURCE_DIR}/VisualStudio Snippets")
+    set(SNIPPETS_DEST_DIR "$ENV{USERPROFILE}/Documents/Visual Studio 2022/Code Snippets/Visual C++/My Code Snippets")
+    file(COPY ${SNIPPETS_SOURCE_DIR} DESTINATION ${SNIPPETS_DEST_DIR})
+endif()
+
+
 # option(INSTALL_PATH     "Installing path"                                   "${CMAKE_CURRENT_SOURCE_DIR}/build/")
 # option(BUILD_TESTS      "Build ${PROJECT_NAME} tests"                       OFF)
 # option(BUILD_EXAMPLES   "Build ${PROJECT_NAME} examples"                    OFF)

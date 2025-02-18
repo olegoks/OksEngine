@@ -1,0 +1,6 @@
+component = {
+    name = "MouseInput",
+    fields = { 
+        { type = "std::queue<UIAL::Window::MouseEvent>", name = "events" }
+     }
+}

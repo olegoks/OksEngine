@@ -8,6 +8,7 @@
 #include <ECS.Entity.hpp>
 #include <ECS.Component.hpp>
 
+
 namespace ECS {
 
 	class ComponentsManager final {

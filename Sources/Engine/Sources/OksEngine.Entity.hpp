@@ -12,7 +12,7 @@ namespace OksEngine {
 	class Entity final {
 	public:
 
-		Entity(Context& context, std::shared_ptr<ECS::World> world, ECS::Entity::Id id) noexcept :
+		Entity(Context& context, std::shared_ptr<ECS2::World> world, ECS2::Entity::Id id) noexcept :
 			context_{ context },
 			world_{ world },
 			id_{ id } { }
@@ -20,7 +20,7 @@ namespace OksEngine {
 		void AddName(const std::string& name);
 		void AddDebugInfo(const std::string& name);
 
-		void AddImmutableRenderGeometry(const std::string& tag);
+		void AddImmutableRenderGeometry(const std::string& meshTag, const std::string& shaderTag);
 
 		void AddSkinnedGeometry(
 			const glm::mat4& modelMatrix,
@@ -49,6 +49,8 @@ namespace OksEngine {
 		void AddHeight(Common::Size height);
 
 		void AddActive();
+
+		void AddClock();
 
 		void AddRotation(const glm::vec3& rotateVector, Math::Angle angle);
 
@@ -90,13 +92,13 @@ namespace OksEngine {
 
 	private:
 		[[nodiscard]]
-		inline ECS::World* GetWorld() noexcept { return world_.get(); }
+		inline ECS2::World* GetWorld() noexcept { return world_.get(); }
 		[[nodiscard]]
-		inline ECS::Entity::Id GetId() noexcept { return id_; }
+		inline ECS2::Entity::Id GetId() noexcept { return id_; }
 	private:
 		Context& context_;
-		std::shared_ptr<ECS::World> world_ = nullptr;
-		ECS::Entity::Id id_;
+		std::shared_ptr<ECS2::World> world_ = nullptr;
+		ECS2::Entity::Id id_;
 	};
 
 }

@@ -1,0 +1,15 @@
+
+system = {
+    name = "CreateStaticRigidBody",
+
+    includes = { 
+		"Name",
+		"Position3D",
+		"Rotation3D",
+		"Material",
+		"PhysicsShape",
+		"ModelEntity",
+		"StaticRigidBodyCustomMeshShape"
+	 },
+	 excludes = { "StaticRigidBody" }
+}

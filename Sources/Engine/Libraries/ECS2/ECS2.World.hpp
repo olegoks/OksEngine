@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <utility>
+#include <memory>
 #include <ECS2.Entity.hpp>
 #include <ECS2.SystemsManager.hpp>
 #include <ECS2.ComponentsManager.hpp>
@@ -12,201 +13,210 @@ namespace ECS2 {
 	class [[nodiscard]] World final {
 	public:
 
-		//Create dynamic entity.
-		[[nodiscard]]
-		Entity::Id CreateEntity() noexcept {
-			Entity::Id entityId = entitiesManager_.CreateEntity();
+		World() {
 
-			return entityId;
+			for (
+				Entity::Id entityId = 0;
+				entityId < 100'000;
+				entityId++) {
+				freeEntityIds_.insert(entityId);
+			}
+
 		}
 
-		
+		Entity::Id GetFreeEntityId() {
+			auto freeIdIt = freeEntityIds_.begin();
+			const Entity::Id freeId = *freeIdIt;
+			freeEntityIds_.erase(freeIdIt);
+			return freeId;
+		}
+
 		//Create archetype entity.
 		template<class ...Components>
 		[[nodiscard]]
 		Entity::Id CreateEntity() noexcept {
-			Entity::Id entityId = entitiesManager_.CreateEntity();
-			componentsManager_.AddArchetype<Components...>();
+			const Entity::Id entityId = GetFreeEntityId();
+
+			ComponentsFilter archetypeComponentsFilter;
+			archetypeComponentsFilter.SetBits<Components...>();
+			archetypeEntitiesComponents_[entityId] = archetypeComponentsFilter;
+
+			auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
+			const bool isArchetypeComponentsContainersCreated = archetypeComponentsIt != archetypeComponents_.end();
+			std::shared_ptr<ArchetypeComponents<Components...>> archetypeComponents = nullptr;
+			if (!isArchetypeComponentsContainersCreated) {
+				archetypeComponents = std::make_shared<ArchetypeComponents<Components...>>(100);
+				archetypeComponents_[archetypeComponentsFilter] = archetypeComponents;
+			}
+			else {
+				std::shared_ptr<IArchetypeComponents> iArchetypeComponents = archetypeComponentsIt->second;
+				archetypeComponents = std::dynamic_pointer_cast<ArchetypeComponents<Components...>>(iArchetypeComponents);
+			}
+			archetypeComponents->CreateEntity(entityId);
 			return entityId;
 		}
 
-		/*[[nodiscard]]
-		Entity::Id CreateEntity(const Archetype& archetype) noexcept {
-			Entity::Id entityId = entitiesManager_.CreateEntity();
-
+		Entity::Id CreateEntity() noexcept {
+			const Entity::Id entityId = GetFreeEntityId();
+			dynamicEntitiesComponentFilters_[entityId] = ComponentsFilter{};
 			return entityId;
-		}*/
-
-		void DestroyEntity(Entity::Id id) noexcept {
-			entitiesManager_.DestroyEntity(id);
 		}
-
-
 
 		template<class ComponentType, class ...Args>
 		void CreateComponent(Entity::Id entityId, Args&&... args) noexcept {
-			componentsManager_.CreateComponent<ComponentType>(entityId, std::forward<Args>(args)...);
-		}
 
-		template<class ComponentType, class ...Args>
-		void CreateComponent(Entity::Filter filter, Args&&... args) noexcept {
-			entitiesManager_.ForEachEntity(
-				[this, &filter, &args...](Entity& entity) {
-					const Entity::Filter searchFilter = filter;
-					const Entity::Filter entityFilter = componentsManager_.GetEntityFilter(entity.GetId());
-					if (searchFilter.Matches(entityFilter)) {
-						componentsManager_.CreateComponent<ComponentType>(entity.GetId(), std::forward<Args>(args)...);
-					}
-				});
-			
+			//Archetype entity.
+			if (archetypeEntitiesComponents_.contains(entityId)) {
+
+				const ComponentsFilter archetypeComponentsFilter = archetypeEntitiesComponents_[entityId];
+#pragma region Assert
+				OS::AssertMessage(archetypeComponentsFilter.IsSet<ComponentType>(),
+					"Attempt to add component to an archetype entity "
+					"that can't contain this component");
+#pragma endregion
+				auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
+				std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponentsIt->second;
+				archetypeComponents->CreateComponent<ComponentType>(entityId, std::forward<Args>(args)...);
+			}
+			else {
+				auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
+				if (container == nullptr) {
+					auto newContainer = std::make_shared<Container<ComponentType>>();
+					dynamicEntitiesContainers_[ComponentType::GetTypeId()] = newContainer;
+					container = newContainer;
+				}
+				container->CreateComponent(entityId, std::forward<Args>(args)...);
+				dynamicEntitiesComponentFilters_[entityId].SetBits<ComponentType>();
+			}
 		}
 
 		template<class ComponentType>
 		void RemoveComponent(Entity::Id entityId) noexcept {
-			componentsManager_.RemoveComponent<ComponentType>(entityId);
-		}
-		template<class SystemType, class ...Args>
-		std::shared_ptr<SystemType> RegisterSystem(Args&& ...args) noexcept {
-			std::shared_ptr<SystemType> system = systemsManager_.RegisterSystem<SystemType>(std::forward<Args>(args)...);
-			//debugInfo_.registeredSystems_.push_back(system->GetName());
-			return system;
-		}
 
+			//Archetype entity.
+			if (archetypeEntitiesComponents_.contains(entityId)) {
+				const ComponentsFilter archetypeComponentsFilter = archetypeEntitiesComponents_[entityId];
+#pragma region Assert
+				OS::AssertMessage(archetypeComponentsFilter.IsSet<ComponentType>(),
+					"Attempt to add component to an archetype entity "
+					"that can't contain this component");
+#pragma endregion
+				auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
+				std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponentsIt->second;
+				archetypeComponents->RemoveComponent<ComponentType>(entityId);
+			}
+			else {
+#pragma region Assert
+				OS::AssertMessage(dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
+					"Attempt to remove component, but component container doesn't exist.");
+				OS::AssertMessage(dynamicEntitiesComponentFilters_.contains(entityId),
+					"Attempt to remove entity component, but entity doesn't exist.");
+				OS::AssertMessage(dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
+					"Attempt ot remove entity component, but entity doesn't contain this component.");
+#pragma endregion
+				auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
+				container->RemoveComponent<ComponentType>();
+				dynamicEntitiesComponentFilters_[entityId].RemoveBits<ComponentType>();
+			}
 
-		template<class ComponentType>
-		[[nodiscard]]
-		const ComponentType* GetConstComponent(Entity::Id entityId) const noexcept {
-			return componentsManager_.GetComponent<ComponentType>(entityId);
 		}
 
 		template<class ComponentType>
 		[[nodiscard]]
 		ComponentType* GetComponent(Entity::Id entityId) noexcept {
-			return componentsManager_.GetComponent<ComponentType>(entityId);
+			//Archetype entity.
+			if (archetypeEntitiesComponents_.contains(entityId)) {
+				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
+				std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponents_[componentsFilter];
+				return archetypeComponents->GetComponent<ComponentType>(entityId);
+			}
+			else {
+#pragma region Assert
+				OS::AssertMessage(
+					dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
+					"Attempt to get component that doesn't exist.");
+#pragma endregion
+				auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
+				return container->GetComponent<ComponentType>(entityId);
+			}
 		}
 
 		template<class ComponentType>
 		[[nodiscard]]
 		bool IsComponentExist(Entity::Id entityId) noexcept {
-			return componentsManager_.IsComponentExist<ComponentType>(entityId);
+			return false;
 		}
 
-		//void StartFrame() {
-		//	componentsManager_.AddDelayedComponents();
-		//	//DebugInfo::FrameInfo frameInfo{
-		//	//	.index_ = framesCount_
-		//	//};
-		//	//debugInfo_.framesInfos_.push_back(frameInfo);
-		//}
+		template<class ...Components>
+		using SystemUpdateFunciton = std::function<void(Components*...)>;
 
-		//void EndFrame() {
-		//	
-		//	componentsManager_.AddDelayedComponents();
-		//	++framesCount_;
-		//}
+		template<typename First, typename... Rest>
+		struct FirstType {
+			using type = First;
+		};
 
-		template<class SystemType>
-		void RunSystem() {
+		template<typename... Args>
+		using FirstT = typename FirstType<Args...>::type;
 
-			//std::shared_ptr<System> system = systemsManager_.GetSystem<SystemType>();
-			//OS::AssertMessage(system != nullptr, "Error while Getting system. Maybe you dont register this system in the ecs world.");
-			//system->BeforeUpdate(this);
-			//if (system->GetFilter().first != Entity::Filter().ExcludeAll()) {
-			//	if (system->GetFilter().second == Entity::Filter().ExcludeAll()) {
-			//		// One entity system.
-			//		entitiesManager_.ForEachEntity(
-			//			[this, &system](Entity& entity) {
-			//				const auto systemFilter = system->GetFilter();
-			//				const Entity::Filter entityFilter = componentsManager_.GetEntityFilter(entity.GetId());
-			//				if (systemFilter.first.Matches(entityFilter)) {
+		template<typename First, typename... Rest>
+		auto make_tuple_excluding_first(First, Rest&... rest) {
+			return std::make_tuple(rest...);
+		}
 
-			//					const std::string systemName = system->GetName();
-			//					{
+		template<class ...Components>
+		void ForEachEntity(const ComponentsFilter& exclude, SystemUpdateFunciton<Components...>&& processEntity) {
+			ComponentsFilter componentsFilter;
+			componentsFilter.SetBits<Components...>();
 
-			//						//std::vector<std::string> componentsNames;
-			//						//componentsNames.reserve(systemFilter.first.debugInfo_.idName_.size());
-			//						//for (auto& [componentId, componentMame] : systemFilter.first.debugInfo_.idName_) {
-			//						//	componentsNames.push_back(componentMame);
-			//						//}
-			//						//DebugInfo::FrameInfo::SystemCallInfo systemCallInfo{
-			//						//	.name_ = systemName,
-			//						//	.firstEntityId_ = entity.GetId(),
-			//						//	.secondEntityId_ = Entity::Id::invalid_,
-			//						//	.componentsNames_ = componentsNames
-			//						//};
-			//						//debugInfo_.framesInfos_.back().systemsCallsInfos_.push_back(systemCallInfo);
-			//					}
-			//					
-			//					system->Update(this, entity.GetId(), Entity::Id::invalid_);
-			//				}
-			//			});
-			//	} else {
-			//		// Two entity system.
-			//		entitiesManager_.ForEachEntity(
-			//			[this, &system](Entity& firstEntity) {
-			//				const auto systemFilter = system->GetFilter();
-			//				const Entity::Filter firstEntityFilter = componentsManager_.GetEntityFilter(firstEntity.GetId());
-			//				if (systemFilter.first.Matches(firstEntityFilter)) {
-			//					entitiesManager_.ForEachEntity(
-			//						[this, &system, firstEntity](Entity& secondEntity) {
-			//							const auto systemFilter = system->GetFilter();
-			//							const Entity::Filter secondEntityFilter = componentsManager_.GetEntityFilter(secondEntity.GetId());
-			//							if (systemFilter.second.Matches(secondEntityFilter)) {
+			std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponents_[componentsFilter];
+			if (archetypeComponents) {
+				//TODO: Add exclude.
+				archetypeComponents->ForEachEntity<Components...>(/*exclude,*/ std::forward<SystemUpdateFunciton<Components...>&&>(processEntity));
+			}
+			{
+				auto containers = std::make_tuple(std::dynamic_pointer_cast<Container<Components>>(dynamicEntitiesContainers_[Components::GetTypeId()])...);
+				auto firstContainer = std::get<0>(containers);
+				if constexpr (sizeof...(Components) == 1) {
+					firstContainer->ForEachComponent(
+						[&](FirstT<Components...>* component, Entity::Id entityId) {
+							processEntity(component);
+						});
+				}
+				else {
+					auto containersExcludeFirst = make_tuple_excluding_first(std::get<std::shared_ptr<Container<Components>>>(containers)...);
+					firstContainer->ForEachComponent(
+						[&](FirstT<Components...>* component, Entity::Id entityId) {
+							std::apply([&](auto&&... containers) {
 
-			//								//const std::string systemName = system->GetName();
-			//								//{
-			//								//	std::vector<std::string> componentsNames;
-			//								//	componentsNames.reserve(systemFilter.first.debugInfo_.idName_.size());
-			//								//	for (auto& [componentId, componentMame] : systemFilter.first.debugInfo_.idName_) {
-			//								//		componentsNames.push_back(componentMame);
-			//								//	}
-			//								//	DebugInfo::FrameInfo::SystemCallInfo systemCallInfo{
-			//								//		.name_ = systemName,
-			//								//		.firstEntityId_ = firstEntity.GetId(),
-			//								//		.secondEntityId_ = secondEntity.GetId(),
-			//								//		.componentsNames_ = componentsNames
-			//								//	};
-			//								//	//debugInfo_.framesInfos_.back().systemsCallsInfos_.push_back(systemCallInfo);
-			//								//}
-			//								system->Update(this, firstEntity.GetId(), secondEntity.GetId());
-			//							}
-			//						});
-			//				}
+								processEntity(component, containers->GetComponent(entityId)...);
+								}, containersExcludeFirst);
 
-			//			});
-			//	}
-			/*}
+						});
+				}
+			}
 
-			system->AfterUpdate(this);*/
 
 		}
 
-		//[[nodiscard]]
-		//Common::Size GetEntitiesNumber() const noexcept {
-		//	return entitiesManager_.GetEntitiesNumber();
-		//}
-
-		//[[nodiscard]]
-		//Entity::Filter GetEntityFilter(Entity::Id entityId) {
-		//	return entitiesManager_.GetEntityFilter(entityId);
-		//}
-
-		//[[nodiscard]]
-		//World& operator=(const World& copyWorld) const noexcept {
-		//	OS::NotImplemented();
-		//}
-
-		////DebugInfo debugInfo_;
-
-		template<class ...ComponentType>
-		void AddArchetype() {
-			componentsManager_.AddArchetype<ComponentType...>();
+		[[nodiscard]]
+		bool IsEntityExist(Entity::Id entityId) const noexcept {
+			return
+				dynamicEntitiesComponentFilters_.contains(entityId)
+				|| archetypeEntitiesComponents_.contains(entityId);
 		}
 
 	private:
-		Common::Size framesCount_ = 0;
-		SystemsManager systemsManager_;
-		EntitiesManager entitiesManager_;
-		ComponentsManager componentsManager_;
+		std::set<Entity::Id, std::less<Entity::Id>> freeEntityIds_;
+
+		std::map<Entity::Id, ComponentsFilter> dynamicEntitiesComponentFilters_; //Components filter contains current entity components.
+		std::map<ComponentTypeId, std::shared_ptr<IContainer>> dynamicEntitiesContainers_;
+
+
+		std::map<Entity::Id, ComponentsFilter> archetypeEntitiesComponents_; // Components filter contains archetype components.
+		std::map<
+			ComponentsFilter,
+			std::shared_ptr<IArchetypeComponents>,
+			ComponentsFilter::LessComparator> archetypeComponents_;
+
 	};
 }

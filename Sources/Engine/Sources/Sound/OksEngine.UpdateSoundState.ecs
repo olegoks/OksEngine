@@ -1,0 +1,7 @@
+system = {
+    name = "UpdateSoundState",
+
+    includes = { 
+		"Sound"
+	 }
+}

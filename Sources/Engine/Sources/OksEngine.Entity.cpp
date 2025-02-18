@@ -11,23 +11,27 @@ namespace OksEngine {
 	void Entity::AddDebugInfo(const std::string& name) {
 		world_->CreateComponent<DebugInfo>(
 			GetId(),
-			&context_,
 			name);
 	}
 
-	void Entity::AddImmutableRenderGeometry(const std::string& tag) {
+	void Entity::AddImmutableRenderGeometry(const std::string& meshTag, const std::string& shaderTag) {
 		world_->CreateComponent<ImmutableRenderGeometry>(
-			GetId(), tag);
+			GetId(), meshTag, shaderTag);
+	}
+
+	void Entity::AddClock() {
+		world_->CreateComponent<Clock>(
+			GetId());
 	}
 
 	void Entity::AddSkinnedGeometry(const glm::mat4& modelMatrix, std::string objName, std::string mtlName, const std::vector<std::string>& textures) {
-		world_->CreateComponent<SkinnedGeometry>(
-			GetId(),
-			&context_,
-			modelMatrix,
-			objName,
-			mtlName,
-			textures);
+		//world_->CreateComponent<SkinnedGeometry>(
+		//	GetId(),
+		//	&context_,
+		//	modelMatrix,
+		//	objName,
+		//	mtlName,
+		//	textures);
 	}
 
 	void Entity::AddMapRigidBodyToRenderGeometry() {
@@ -193,12 +197,12 @@ namespace OksEngine {
 		//const glm::vec3& position,
 		const glm::vec3& direction,
 		const glm::vec3& up, bool isActive) {
-		world_->CreateComponent<Camera>(
-			GetId(),
-			//position,
-			//direction,
-			up,
-			isActive);
+		//world_->CreateComponent<Camera>(
+		//	GetId(),
+		//	//position,
+		//	//direction,
+		//	up,
+		//	isActive);
 	}
 
 

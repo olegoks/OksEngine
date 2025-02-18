@@ -1,0 +1,6 @@
+system = {
+    name = "CreateDriverTransform3D",
+    includes = { "Position3D", "Rotation3D" },
+	excludes = { "DriverTransform3D" }
+}
+

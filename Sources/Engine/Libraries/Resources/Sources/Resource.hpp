@@ -33,11 +33,11 @@ namespace Resources {
 			std::memcpy(data_.GetData(), data, size);
 		}
 
-		ResourceData(ResourceData&& moveResource) : data_{ /*std::move(moveResource.data_)*/ } {
+		ResourceData(ResourceData&& moveResource) noexcept : data_{ /*std::move(moveResource.data_)*/ } {
 			std::swap(data_, moveResource.data_);
 		}
 
-		ResourceData& operator=(ResourceData&& moveResource) {
+		ResourceData& operator=(ResourceData&& moveResource) noexcept {
 			if (this == &moveResource) {
 				return *this;
 			}

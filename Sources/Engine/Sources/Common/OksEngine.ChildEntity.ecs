@@ -1,6 +1,6 @@
 component = {
     name = "ChildEntity",
     fields = { 
-        { type = "std::vector<ECS::Entity::Id>", name = "entitiesIds" }
+        { type = "std::vector<ECS2::Entity::Id>", name = "entitiesIds" }
      }
 }

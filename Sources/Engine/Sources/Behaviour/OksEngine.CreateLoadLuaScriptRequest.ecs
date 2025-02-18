@@ -1,0 +1,7 @@
+system = {
+    name = "CreateLoadLuaScriptRequest",
+    includes = { 
+        "Behaviour"
+        },
+    excludes = { "LoadLuaScriptRequest" }
+}

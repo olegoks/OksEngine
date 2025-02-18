@@ -171,7 +171,7 @@ namespace DataStructures {
 			return *this;
 		}
 
-		Vector& operator=(Vector&& moveVector) {
+		Vector& operator=(Vector&& moveVector) noexcept {
 			if (this == &moveVector) {
 				return *this;
 			}

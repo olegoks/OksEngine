@@ -2,7 +2,8 @@
 
 #include <Math.hpp>
 
-#include <Behaviour/OksEngine.LuaContext.hpp>
+#include <OksEngine.ECS.Component.hpp>
+#include <Lua.Context.hpp>
 
 namespace OksEngine {
 

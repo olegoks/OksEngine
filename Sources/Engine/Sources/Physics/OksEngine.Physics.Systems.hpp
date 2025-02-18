@@ -1,10 +1,10 @@
 #pragma once
 
-#include <Physics/OksEngine.CreateDynamicRigidBody.hpp>
-#include <Physics/OksEngine.CreateStaticRigidBody.hpp>
-#include <Physics/OksEngine.CreatePhysicsShape.hpp>
-#include <Physics/OksEngine.StaticRigidBodyCustomMeshShape.hpp>
-#include <Physics/OksEngine.DynamicRigidBodyCustomMeshShape.hpp>
+//#include <Physics/OksEngine.CreateDynamicRigidBody.hpp>
+//#include <Physics/OksEngine.CreateStaticRigidBody.hpp>
+//#include <Physics/OksEngine.CreatePhysicsShape.hpp>
+//#include <Physics/OksEngine.StaticRigidBodyCustomMeshShape.hpp>
+//#include <Physics/OksEngine.DynamicRigidBodyCustomMeshShape.hpp>
 
 namespace OksEngine {
 

@@ -1,0 +1,6 @@
+component = {
+    name = "FrameBufferResizeEvents",
+    fields = { 
+        { type = "std::queue<UIAL::Window::FrameBufferResizeEvent>", name = "events" }
+     }
+}

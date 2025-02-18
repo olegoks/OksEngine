@@ -1,0 +1,11 @@
+component = {
+    name = "Camera",
+    fields = { 
+        { type = "glm::vec3", name = "position" },
+        { type = "glm::vec3", name = "up"},
+        { type = "glm::float32", name = "width" },
+        { type = "glm::float32", name = "height"},
+        { type = "float", name = "zNear" },
+        { type = "float", name = "zFar"},
+        { type = "bool", name = "isActive"} }
+}

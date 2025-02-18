@@ -1,0 +1,6 @@
+system = {
+    name = "CreateLoadMtlRequest",
+    includes = { "GeometryDescriptionFileEntity" },
+	excludes = { "LoadMtlRequest" }
+}
+

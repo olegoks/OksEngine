@@ -18,11 +18,11 @@ namespace OksEngine {
 		auto& context = GetContext();
 		auto ecsWorld = context.GetECSWorld();
 
-		ecsWorld->RegisterSystem<CreateStaticRigidBody>(context);
-		ecsWorld->RegisterSystem<CreatePhysicsShapeForStaticRigidBody>(context);
-		ecsWorld->RegisterSystem<CreatePhysicsShapeForDynamicRigidBody>(context);
-		ecsWorld->RegisterSystem<CreateDynamicRigidBody>(context);
-		 
+		//ecsWorld->RegisterSystem<CreateStaticRigidBody>(context);
+		//ecsWorld->RegisterSystem<CreatePhysicsShapeForStaticRigidBody>(context);
+		//ecsWorld->RegisterSystem<CreatePhysicsShapeForDynamicRigidBody>(context);
+		//ecsWorld->RegisterSystem<CreateDynamicRigidBody>(context);
+		// 
 
 		physicsEngine_ = std::make_shared<PE::PhysicsEngine>();
 		PAL::World::CreateInfo worldCreateInfo{

@@ -1,0 +1,12 @@
+system = {
+    name = "CreateDynamicRigidBody",
+
+    includes = { 
+		"Position3D",
+		"Material",
+		"Mass",
+		"PhysicsShape",
+		"DynamicRigidBodyCustomMeshShape"
+	 },
+	 excludes = { "DynamicRigidBody" }
+}

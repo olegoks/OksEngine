@@ -25,6 +25,11 @@ namespace OksEngine {
 		Context* context_;
 	};
 
+	//template<class ComponentType>
+	//class ECS2Component : public ECS2::IComponent<ComponentType> {
+	//public:
+	//};
+
 	template<class ComponentType>
 	void Edit(ComponentType* component) { ImGui::TextDisabled("Edit function is not realized."); }
 

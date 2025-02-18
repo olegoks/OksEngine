@@ -1,23 +1,10 @@
 
-#include <Render/GeometryDescriptionFile/OksEngine.CreateGeometryDescriptionFile.hpp>
-
-#include <Render/GeometryDescriptionFile/OksEngine.LoadGeometryDescriptionFileRequest.hpp>
-#include <Resources/OksEngine.LoadResourceRequest.hpp>
-#include <Render/GeometryDescriptionFile/OksEngine.GeometryDescriptionFile.hpp>
-#include <Render/OksEngine.ImmutableRenderGeometry.hpp>
-
-#include <Resources/OksEngine.ResourceEntity.hpp>
-#include <Common/auto_OksEngine.Completed.hpp>
-#include <Common/auto_OksEngine.Name.hpp>
-#include <Common/auto_OksEngine.Text.hpp>
-#include <Common/auto_OksEngine.BinaryData.hpp>
-
-#include <Render/GeometryDescriptionFile/OksEngine.GeometryDescriptionFileEntity.hpp>
+#include <Render/GeometryDescriptionFile/auto_OksEngine.CreateGeometryDescriptionFileEntity.hpp>
 
 namespace OksEngine {
 
-	void CreateGeometryDescriptionFileEntity::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-		auto* loadGeometryDescriptionFileRequest = world->GetComponent<LoadGeometryDescriptionFileRequest>(entityId);
+	void CreateGeometryDescriptionFileEntity::Update(ImmutableRenderGeometry* immutableRenderGeometry, LoadGeometryDescriptionFileRequest* loadGeometryDescriptionFileRequest) {
+		/*auto* loadGeometryDescriptionFileRequest = world->GetComponent<LoadGeometryDescriptionFileRequest>(entityId);
 		const ECS::Entity::Id loadResourceRequestEntityId = loadGeometryDescriptionFileRequest->loadResourceRequestEntityId_;
 		if (world->IsComponentExist<Completed>(loadResourceRequestEntityId)) {
 			auto* resourceEntity = world->GetComponent<ResourceEntity>(loadResourceRequestEntityId);
@@ -32,15 +19,15 @@ namespace OksEngine {
 				}
 				world->CreateComponent<GeometryDescriptionFileEntity>(entityId, geometryDescriptionFileRequest);
 			}
-		}
+		}*/
 	}
 
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateGeometryDescriptionFileEntity::GetFilter() const noexcept {
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
-			.Include<ImmutableRenderGeometry>()
-			.Exclude<GeometryDescriptionFileEntity>()
-			.Include<LoadGeometryDescriptionFileRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
-		return filter;
-	}
+	//std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateGeometryDescriptionFileEntity::GetFilter() const noexcept {
+	//	static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}
+	//		.Include<ImmutableRenderGeometry>()
+	//		.Exclude<GeometryDescriptionFileEntity>()
+	//		.Include<LoadGeometryDescriptionFileRequest>(), ECS::Entity::Filter{}.ExcludeAll() };
+	//	return filter;
+	//}
 
 }

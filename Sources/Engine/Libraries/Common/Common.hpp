@@ -13,7 +13,8 @@ namespace Common {
 
 	enum class Configuration {
 		Debug,
-		Release
+		Release,
+		ReleaseWithDebugInfo
 	};
 
 	inline constexpr Configuration currentConfiguration = Configuration::Debug;

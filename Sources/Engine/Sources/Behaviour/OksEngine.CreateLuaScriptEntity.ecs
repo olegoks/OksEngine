@@ -1,0 +1,9 @@
+system = {
+    name = "CreateLuaScriptEntity",
+    includes = { 
+        "LoadLuaScriptRequest"
+        },
+    excludes = {
+        "LuaScriptEntity"
+    }
+}

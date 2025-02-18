@@ -1,0 +1,5 @@
+component = {
+    name = "World",
+    fields = { 
+        { type = "std::shared_ptr<World>", name = "world" } }
+}

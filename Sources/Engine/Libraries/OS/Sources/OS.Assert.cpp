@@ -7,7 +7,6 @@
 
 namespace OS {
 
-	
 	void AssertMessage(bool expression, Common::Format&& format, const std::source_location& location) {
 		if constexpr (!Common::IsDebug()) {
 			return;
@@ -42,6 +41,5 @@ namespace OS {
 	void NotImplemented(const std::source_location& location) noexcept {
 		AssertFailMessage({ "Attempt to call not implemented function %s, file %s, line %d.", location.function_name(), location.file_name(), location.line() });
 	}
-
 
 }

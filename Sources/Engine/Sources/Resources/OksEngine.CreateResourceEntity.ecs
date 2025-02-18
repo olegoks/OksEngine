@@ -1,0 +1,7 @@
+system = {
+    name = "CreateResourceEntity",
+
+    includes = { 
+		"LoadResourceRequest", "Name", "AsyncTask"
+	 }
+}

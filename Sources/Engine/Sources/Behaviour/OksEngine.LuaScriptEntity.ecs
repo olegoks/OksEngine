@@ -1,0 +1,6 @@
+component = {
+    name = "LuaScriptEntity",
+    fields = { 
+        { type = "ECS2::Entity::Id", name = "id" }
+     }
+}

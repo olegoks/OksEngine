@@ -1,0 +1,10 @@
+system = {
+    name = "StopAnimation",
+    includes = { 
+        "Animation", 
+        "RunningAnimationState",
+        "AnimationInProcess", 
+        "AnimationEnded",
+        "Clock"
+        }
+}

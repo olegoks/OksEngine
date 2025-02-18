@@ -1,0 +1,9 @@
+
+system = {
+    name = "CreateTexture",
+
+    includes = { 
+		"LoadTextureRequest"
+	 },
+   excludes = { "Texture" }
+}
