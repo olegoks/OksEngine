@@ -1,6 +1,6 @@
 system = {
     name = "CreateLoadObjRequest",
-    includes = { "GeometryDescriptionFileEntity" },
+    includes = { "GeometryDescriptionFile" },
 	excludes = { "LoadObjRequest" }
 }
 

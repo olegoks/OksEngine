@@ -7,13 +7,14 @@
 namespace OksEngine {
 
 	void CreateStaticRigidBody::Update(
-		Name* name,
-		Position3D* position3D, 
-		Rotation3D* rotation3D, 
-		Material* material, 
-		PhysicsShape* physicsShape,
-		ModelEntity* modelEntity,
-		StaticRigidBodyCustomMeshShape* staticRigidBodyCustomMeshShape) {
+		ECS2::Entity::Id entityId,
+		const Name* name,
+		const Position3D* position3D,
+		const Rotation3D* rotation3D,
+		const Material* material,
+		const PhysicsShape* physicsShape,
+		const ModelEntity* modelEntity,
+		const StaticRigidBodyCustomMeshShape* staticRigidBodyCustomMeshShape) {
 
 		//PAL::StaticRigidBody::CreateInfo srbCreateInfo{
 		//	.rbCreateInfo_ = {

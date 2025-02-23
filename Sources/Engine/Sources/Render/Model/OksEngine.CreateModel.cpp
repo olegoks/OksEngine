@@ -13,7 +13,10 @@
 
 namespace OksEngine {
 
-	void CreateModelEntityFromObjMtl::Update(ObjEntity* objEntity, MtlEntity* mtlEntity) {
+	void CreateModelEntityFromObjMtl::Update(
+		ECS2::Entity::Id entityId,
+		const ObjEntity* objEntity, 
+		const MtlEntity* mtlEntity) {
 
 		//auto* position = world->GetComponent<Position>(entityId);
 		//auto* rotation = world->GetComponent<Rotation3D>(entityId);
@@ -331,7 +334,9 @@ namespace OksEngine {
 	//	}
 	//}
 
-	void CreateModelEntityFromFbx::Update(FbxEntity* fbxEntity) {
+	void CreateModelEntityFromFbx::Update(
+		ECS2::Entity::Id entityId, 
+		const FbxEntity* fbxEntity) {
 
 
 		//auto* position = world->GetComponent<Position3D>(entityId);

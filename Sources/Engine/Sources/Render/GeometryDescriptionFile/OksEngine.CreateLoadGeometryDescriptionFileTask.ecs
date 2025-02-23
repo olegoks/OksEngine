@@ -1,0 +1,14 @@
+system = {
+    name = "CreateLoadGeometryDescriptionFileTask",
+    entities = {
+        {
+            includes = { "ImmutableRenderGeometry" },
+	        excludes = { "LoadGeometryDescriptionFileTask" },
+            creates = { "LoadGeometryDescriptionFileTask" }
+        },
+        {
+            includes = { { name = "ResourceSystem", readonly = false }}
+        }
+    }
+}
+

@@ -6,7 +6,9 @@
 
 namespace OksEngine {
 
-	void CreateDriverIndexBuffer::Update(Indices* indices) {
+	void CreateDriverIndexBuffer::Update(
+		ECS2::Entity::Id entityId,
+		const Indices* indices) {
 
 		//auto* indices = world->GetComponent<Indices>(entityId);
 

@@ -5,7 +5,9 @@
 
 namespace OksEngine {
 
-	void AddECSInspectorMainMenuItem::Update(ECSInspector* ecsInspector) {
+	void AddECSInspectorMainMenuItem::Update(
+		ECS2::Entity::Id entityId,
+		const ECSInspector* ecsInspector) {
 
 		if (ImGui::BeginMainMenuBar()) {
 			// Add items to the menu bar.

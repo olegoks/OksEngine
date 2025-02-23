@@ -1,13 +1,23 @@
 system = {
     name = "AddImGuiMeshToRender",
-    includes = { 
-        "Position2D",
-        "Scale2D",
-        "Vertices2D",
-        "Indices",
-        "UVs",
-        "Colors",
-        "DriverTexture",
-        "DriverIndexBuffer",
-        "DriverVertexBuffer" }
+     entities = {
+    {
+        includes = { 
+            "Position2D",
+            "Scale2D",
+            "Vertices2D",
+            "Indices",
+            "UVs",
+            "Colors",
+            "DriverTexture",
+            "DriverIndexBuffer",
+            "DriverVertexBuffer"
+        }
+    },
+    {
+        includes = { 
+            { name = "RenderDriver", readonly = false } 
+        }
+    }
+}
 }

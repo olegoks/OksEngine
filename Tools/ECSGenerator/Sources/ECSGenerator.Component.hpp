@@ -83,20 +83,21 @@ namespace ECSGenerator {
 
 		std::vector<ParsedComponentECSFile::FieldInfo> parsedFields;
 
-		for (luabridge::Iterator it(fields); !it.isNil(); ++it) {
-			luabridge::LuaRef field = it.value();
-			ParsedComponentECSFile::FieldInfo fieldInfo{
-				.typeName_ = field["type"].cast<std::string>().value(),
-				.name_ = field["name"].cast<std::string>().value()
-			};
+		if (!fields.isNil()) {
+			for (luabridge::Iterator it(fields); !it.isNil(); ++it) {
+				luabridge::LuaRef field = it.value();
+				ParsedComponentECSFile::FieldInfo fieldInfo{
+					.typeName_ = field["type"].cast<std::string>().value(),
+					.name_ = field["name"].cast<std::string>().value()
+				};
 
-			if (!field["copyable"].isNil()) {
-				fieldInfo.copyable_ = field["copyable"].cast<bool>().value();
+				if (!field["copyable"].isNil()) {
+					fieldInfo.copyable_ = field["copyable"].cast<bool>().value();
+				}
+
+				parsedFields.push_back(fieldInfo);
 			}
-
-			parsedFields.push_back(fieldInfo);
 		}
-
 		ParsedComponentECSFile::CreateInfo ci{
 			.name_ = component["name"].cast<std::string>().value(),
 			.path_ = path,
@@ -188,138 +189,5 @@ namespace ECSGenerator {
 
 		return {};
 	}
-
-	//std::string GenerateImGuiEditFunction(const ComponentInfo& component) {
-
-	//	std::string code = "\n";
-	//	code += "template<>\n";
-	//	code += "inline void Edit<" + component.GetName() + ">(" + component.GetName() + "* " + component.GetLowerName() + ") {\n";
-	//	component.ForEachField([&](const ComponentInfo::FieldInfo& field, bool isLast) {
-	//		if (IsTypeCanBeEnteredFromImGui(field.GetTypeName())) {
-	//			code += GenerateTypeImGuiEditCode(component, field);
-	//		}
-	//		return true;
-	//		});
-
-	//	code += "};\n\n";
-
-
-	//	return code;
-	//}
-
-
-	//std::string GenerateComponentStructDefinition(const ComponentInfo& component) {
-	//	std::string code = "\n";
-	//	code += "struct " + component.GetName() + ": public ECSComponent<" + component.GetName() + "> " + "{\n";
-
-	//	//Default constructor.
-	//	code += "\t" + component.GetName() + "()\n\t : ECSComponent{ nullptr } {}\n";
-
-	//	//Main constructor.
-	//	if (component.AreThereFields()) {
-	//		//Main constructor.
-	//		code += "\t" + component.GetName() + "(";
-	//		component.ForEachField([&code](const ComponentInfo::FieldInfo& field, bool isLast) {
-	//			code += field.GetTypeName() + " " + field.GetName();
-	//			if (!isLast) {
-	//				code += ", ";
-	//			}
-	//			return true;
-	//			});
-	//		code += ") : \n";
-	//		code += "\t\tECSComponent{ nullptr }, \n";
-
-	//		component.ForEachField([&code](const ComponentInfo::FieldInfo& field, bool isLast) {
-	//			code += "\t\t" + field.GetName() + "_{ " + field.GetName() + " }";
-	//			if (!isLast) {
-	//				code += ",\n";
-	//			}
-	//			return true;
-	//			});
-	//		code += "{ }\n";
-
-	//		/*[[nodiscard]]
-	//		static const char* GetName() noexcept {
-	//			return Common::TypeInfo<Type>::GetTypeName();
-	//		}*/
-
-	//		code += "\n";
-
-	//		code += "\t\tstatic const char* GetName() noexcept {\n"
-	//			"\t\t\treturn Common::TypeInfo<" + component.GetName() + ">::GetTypeName();\n"
-	//			"\t\t}\n";
-
-	//		/*[[nodiscard]]
-	//		static std::size_t GetSize() noexcept { return sizeof(Type); }*/
-
-	//		code += "\t\t[[nodiscard]]\n"
-	//			"\t\tstatic std::size_t GetSize() noexcept { return sizeof(" + component.GetName() + "); }\n";
-
-	//	}
-
-	//	component.ForEachField([&code](const ComponentInfo::FieldInfo& field, bool isLast) {
-	//		code += "\t" + field.GetTypeName() + " " + field.GetName() + "_;\n";
-	//		return true;
-	//		});
-
-
-	//	code += "};\n";
-	//	return code;
-	//}
-
-
-	//std::string GenerateAddFunction(const ComponentInfo& component) {
-	//	//Generate Add function. 
-	//	std::string code;
-	//	code += "template<>\n";
-	//	code += "inline void Add<" + component.GetName() + ">(ECS::World * world, ECS::Entity::Id entityId) {\n";
-	//	code += "\n";
-	//	if (component.CanBeCreatedFromImGui()) {
-	//		component.ForEachField([&](const ComponentInfo::FieldInfo& field, bool isLast) {
-	//			code += "\t" + GenerateTypeImGuiInputVariable(component, field, field.GetName()) + "\n";
-	//			return true;
-	//			});
-	//	}
-	//	code += "\tif (ImGui::CollapsingHeader(\"Create info\")) {\n";
-
-	//	if (component.CanBeCreatedFromImGui()) {
-	//		component.ForEachField([&](const ComponentInfo::FieldInfo& field, bool isLast) {
-	//			std::string variableName;
-	//			if (!(field.GetTypeName() == "std::string")) {
-	//				variableName += "&"; // If string we dont need &, because array id is pointer.
-	//			}
-	//			variableName += field.GetName();
-	//			code += "\t\t" + GenerateImGuiInputTypeCode(component, field, variableName) + "\n";
-	//			return true;
-	//			});
-	//	}
-	//	code += "\t\tImGui::Spacing();\n";
-	//	code += "\t}\n";
-	//	code += "\tif (ImGui::Button(\"Add component\")) {\n";
-	//	code += "\t\tif (!world->IsComponentExist<" + component.GetName() + ">(entityId)) {\n";
-	//	code += "\t\t\tworld->CreateComponent<" + component.GetName() + ">(entityId";
-	//	if (component.CanBeCreatedFromImGui()) {
-	//		if (component.AreThereFields()) {
-	//			code += ", ";
-	//		}
-	//		component.ForEachField([&](const ComponentInfo::FieldInfo& field, bool isLast) {
-	//			code += field.GetName();
-	//			if (!isLast) {
-	//				code += ", ";
-	//			}
-	//			return true;
-	//			});
-	//	}
-	//	code += ");\n";
-
-	//	code += "\t\t}\n";
-	//	code += "\t}\n";
-	//	code += "};\n\n";
-
-	//	return code;
-	//}
-
-
-
 
 }

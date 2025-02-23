@@ -1,6 +1,6 @@
 system = {
-    name = "CreateGeometryDescriptionFileEntity",
-    includes = { "ImmutableRenderGeometry", "LoadGeometryDescriptionFileRequest" },
-	excludes = { "GeometryDescriptionFileEntity" }
+    name = "CreateGeometryDescriptionFile",
+    includes = { "GeometryDescriptionFileInfo" },
+	excludes = { "GeometryDescriptionFile" }
 }
 

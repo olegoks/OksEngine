@@ -5,7 +5,9 @@
 namespace OksEngine {
 
 
-	void CreateMtlEntity::Update(LoadMtlRequest* loadMtlRequest) {
+	void CreateMtlEntity::Update(
+		ECS2::Entity::Id entityId,
+		const LoadMtlRequest* loadMtlRequest) {
 
 
 		//auto* loadMtlRequest = world->GetComponent<LoadMtlRequest>(entityId);

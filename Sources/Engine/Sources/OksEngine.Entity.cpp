@@ -153,8 +153,8 @@ namespace OksEngine {
 			x, y, z);
 	}
 
-	void Entity::AddUp(float x, float y, float z) {
-		world_->CreateComponent<Up>(
+	void Entity::AddUp3D(float x, float y, float z) {
+		world_->CreateComponent<Up3D>(
 			GetId(),
 			x, y, z);
 	}

@@ -1,0 +1,4 @@
+component = {
+    name = "GeometryDescriptionFileInfo",
+    fields = { { type = "std::string", name = "text" } }
+}

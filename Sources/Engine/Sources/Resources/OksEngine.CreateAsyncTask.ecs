@@ -2,5 +2,6 @@ system = {
     name = "CreateAsyncTask",
     includes = { 
 		"LoadResourceRequest", "Name"
-	 }
+	  },
+    excludes = { "AsyncTask", "WaitingForResourceLoading" }
 }

@@ -179,15 +179,18 @@ int main(int argc, char** argv) {
 		cxxECSCodeFile << cxxCode;*/
 	}
 
-	auto files = generator->Generate(projectContext);
+	auto files = generator->GenerateSystemDeclaration(projectContext);
 
 	auto codeGenerator = std::make_shared<ECSGenerator::CodeGenerator>();
 
 	for (auto file : files) {
+		//if (file.first.filename().string() == "auto_OksEngine.CreateDriverTransform3D.hpp") {
+		//	__debugbreak();
+		//}
 		auto codeFile = codeGenerator->GenerateCode(file.second);
-		//const std::string autoPrefix = "auto_";
-		//const std::filesystem::path cxxCodeFileName = autoPrefix + file.first.filename().replace_extension(".hpp").string();
-		//const std::filesystem::path cxxCodeFileFullPath = file.first.parent_path() / cxxCodeFileName;
+
+
+
 		OS::TextFile cxxECSCodeFile{ file.first };
 		cxxECSCodeFile.Create();
 		cxxECSCodeFile << codeFile->code_.code_;

@@ -15,7 +15,10 @@
 
 namespace OksEngine {
 
-	void UpdateEnginePerformance::Update(EnginePerformance* enginePerformance, FramesCounter* framesCounter) {
+	void UpdateEnginePerformance::Update(
+		ECS2::Entity::Id entityId,
+		const EnginePerformance* enginePerformance, 
+		const FramesCounter* framesCounter) {
 
 		if (enginePerformance->show_) {
 
@@ -65,15 +68,12 @@ namespace OksEngine {
 				ImGui::TextDisabled("Fps: %d", lastFps);
 			}
 
-
-
-			//auto* framesCounter = world->GetComponent<Counter>(secondEntityId);
-			//ImGui::TextDisabled("Frame: %d", framesCounter->value_);
-			////ImGui::Begin("My Window");
-			//if (ImPlot::BeginPlot("My Plot")) {
-			//	ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
-			//	ImPlot::EndPlot();
-			//}
+			ImGui::TextDisabled("Frame: %d", framesCounter->value_);
+			//ImGui::Begin("My Window");
+			if (ImPlot::BeginPlot("My Plot")) {
+				ImPlot::PlotLine("My Line Plot", timePoints_.data(), fps_.data(), static_cast<Common::UInt32>(fps_.size()));
+				ImPlot::EndPlot();
+			}
 
 			ImGui::End();
 		}

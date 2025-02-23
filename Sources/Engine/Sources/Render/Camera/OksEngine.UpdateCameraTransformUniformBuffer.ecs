@@ -1,5 +1,24 @@
 system = {
     name = "UpdateCameraTransformUniformBuffer",
-    includes = { "Camera", "Position3D", "UniformBuffer" }
+    entities = {
+        {
+            includes = { 
+                "Camera", 
+                "Position3D", 
+                "Direction3D",
+                "Up3D",
+                "ZNear",
+                "ZFar",
+                "Width",
+                "Height",
+                "UniformBuffer" },
+        },
+        {
+            includes = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    },
+
 }
 

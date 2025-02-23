@@ -4,10 +4,11 @@
 namespace OksEngine {
 
 	void CallInputProcessor::Update(
-		Behaviour* behaviour,
-		LuaContext* luaContext,
-		KeyboardInput* keyboardInput,
-		MouseInput* mouseInput) {
+		ECS2::Entity::Id entityId,
+		const Behaviour* behaviour,
+		const LuaContext* luaContext,
+		const KeyboardInput* keyboardInput,
+		const MouseInput* mouseInput) {
 
 		//const std::string objectInputProcessorName = behaviour->objectName_ + "InputProcessor";
 		//luabridge::LuaRef inputProcessor = context->context_.GetGlobalAsRef(objectInputProcessorName);

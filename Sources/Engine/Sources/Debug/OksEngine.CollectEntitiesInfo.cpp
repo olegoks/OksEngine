@@ -16,7 +16,9 @@ namespace OksEngine {
 	//	ImGui::Separator();
 	//}
 
-	void CollectEntitiesInfo::Update(VisibleInECSInspector* visibleInECSInspector) {
+	void CollectEntitiesInfo::Update(
+		ECS2::Entity::Id entityId,
+		const VisibleInECSInspector* visibleInECSInspector) {
 
 	//	ShowEntityInfo(world, id);
 

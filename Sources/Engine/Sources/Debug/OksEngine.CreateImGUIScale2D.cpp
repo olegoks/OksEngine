@@ -5,7 +5,9 @@
 
 namespace OksEngine {
 
-	void CreateImGUIScale2D::Update(ImGuiState* imGuiState) {
+	void CreateImGUIScale2D::Update(
+		ECS2::Entity::Id entityId,
+		const ImGuiState* imGuiState) {
 		//ImDrawData* draw_data = ImGui::GetDrawData();
 
 		//glm::vec2 scale{ 0, 0 };

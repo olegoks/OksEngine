@@ -7,7 +7,9 @@
 
 namespace OksEngine {
 
-	void CollectECSSystemsCallsInfo::Update(ImGuiState* imGuiState) {
+	void CollectECSSystemsCallsInfo::Update(
+		ECS2::Entity::Id entityId,
+		const ImGuiState* imGuiState) {
 
 		//if (ImGui::BeginMainMenuBar()) {
 		//	// Add items to the menu bar.

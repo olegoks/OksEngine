@@ -6,9 +6,9 @@
 
 namespace OksEngine {
 
-	void UpdateClock::Update(Clock* clock) {
+	void UpdateClock::Update(ECS2::Entity::Id entityId, const Clock* clock) {
 
-		clock->value_ = std::chrono::high_resolution_clock::now();
+		//clock->value_ = std::chrono::high_resolution_clock::now();
 	}
 
 }

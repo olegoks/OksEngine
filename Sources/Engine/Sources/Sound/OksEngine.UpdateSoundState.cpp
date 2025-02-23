@@ -4,7 +4,9 @@
 namespace OksEngine {
 
 
-	void UpdateSoundState::Update(Sound* sound) {
+	void UpdateSoundState::Update(
+		ECS2::Entity::Id entityId,
+		const Sound* sound) {
 
 	}
 

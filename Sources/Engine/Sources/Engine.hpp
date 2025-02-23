@@ -6,7 +6,7 @@
 #include <utility>
 
 #include <OksEngine.Entity.hpp>
-#include <Behaviour/OksEngine.Behaviour.hpp>
+
 #include <Common/auto_OksEngine.Position3D.hpp>
 #include <Common/auto_OksEngine.Rotation3D.hpp>
 #include <Common/auto_OksEngine.Active.hpp>

@@ -1,5 +1,5 @@
 component = {
-    name = "Up",
+    name = "Up3D",
     fields = { 
         { type = "float", name = "x" },
         { type = "float", name = "y" },

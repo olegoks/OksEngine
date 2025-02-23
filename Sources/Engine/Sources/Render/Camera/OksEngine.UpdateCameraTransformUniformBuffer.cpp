@@ -1,36 +1,37 @@
 
-#include <Render/Camera/OksEngine.UpdateCameraTransformUniformBuffer.hpp>
+#include <Render/Camera/auto_OksEngine.UpdateCameraTransformUniformBuffer.hpp>
 
-#include <Common/auto_OksEngine.Position3D.hpp>
-#include <Common/auto_OksEngine.Direction3D.hpp>
-#include <Render/Camera/OksEngine.Camera.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
-#include <Render/Driver/OksEngine.UniformBuffer.hpp>
+
 #include <Render/Camera/OksEngine.CameraTransformUniformBufferType.hpp>
 
 namespace OksEngine {
 
-	UpdateCameraTransformUniformBuffer::UpdateCameraTransformUniformBuffer(Context& context) noexcept :
-		ECSSystem{ context } { }
 
-	void UpdateCameraTransformUniformBuffer::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-		auto* camera = world->GetComponent<Camera>(entityId);
-		auto* direction = world->GetComponent<Direction3D>(entityId);
-		auto* uniformBuffer = world->GetComponent<UniformBuffer>(entityId);
-
-		auto* position = world->GetComponent<Position3D>(entityId);
-		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+	void UpdateCameraTransformUniformBuffer::Update(
+		ECS2::Entity::Id entity1Id,
+		const Camera* camera,
+		const Position3D* position3D,
+		const Direction3D* direction3D,
+		const Up3D* up3D,
+		const ZNear* zNear,
+		const ZFar* zFar,
+		const Width* width,
+		const Height* height,
+		const UniformBuffer* uniformBuffer,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
 
 		const glm::mat4 view = glm::lookAt(
-			glm::vec3(position->x_, position->y_, position->z_),
-			glm::vec3(position->x_, position->y_, position->z_) + glm::vec3(direction->x_, direction->y_, direction->z_),
-			camera->GetUp()
+			glm::vec3(position3D->x_, position3D->y_, position3D->z_),
+			glm::vec3(position3D->x_, position3D->y_, position3D->z_) + glm::vec3(direction3D->x_, direction3D->y_, direction3D->z_),
+			glm::vec3(up3D->x_, up3D->y_, up3D->z_)
 		);
 
 		glm::mat4 proj = glm::perspective(
 			glm::radians(45.0f),
-			camera->width_ / (float)camera->height_,
-			camera->zNear_, camera->zFar_);
+			width->value_ / (float)height->value_,
+			zNear->value_, zFar->value_);
 
 		proj[1][1] *= -1;
 
@@ -39,16 +40,7 @@ namespace OksEngine {
 			.proj_ = proj
 		};
 
-		driver->FillUniformBuffer(uniformBuffer->id_, &viewProj);
-	}
-
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateCameraTransformUniformBuffer::GetFilter() const noexcept {
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Camera>().Include<Position3D>().Include<UniformBuffer>(), ECS::Entity::Filter{}.ExcludeAll() };
-		return filter;
-	}
-
-	Common::TypeId UpdateCameraTransformUniformBuffer::GetTypeId() const noexcept {
-		return Common::TypeInfo<UpdateCameraTransformUniformBuffer>().GetId();
+		renderDriver->driver_->FillUniformBuffer(uniformBuffer->id_, &viewProj);
 	}
 
 }

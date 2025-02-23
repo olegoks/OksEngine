@@ -7,11 +7,12 @@
 namespace OksEngine {
 
 	void CreateDynamicRigidBody::Update(
-		Position3D* position3D,
-		Material* material, 
-		Mass* mass, 
-		PhysicsShape* physicsShape,
-		DynamicRigidBodyCustomMeshShape* dynamicRigidBodyCustomMeshShape) {
+		ECS2::Entity::Id entityId,
+		const Position3D* position3D,
+		const Material* material,
+		const Mass* mass,
+		const PhysicsShape* physicsShape,
+		const DynamicRigidBodyCustomMeshShape* dynamicRigidBodyCustomMeshShape) {
 
 		//PAL::DynamicRigidBody::CreateInfo createInfo{
 		//	.rbCreateInfo_ = {

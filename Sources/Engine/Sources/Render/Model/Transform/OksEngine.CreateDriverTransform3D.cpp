@@ -5,38 +5,25 @@
 
 namespace OksEngine {
 
-	void CreateDriverTransform3D::Update(Position3D* position3D, Rotation3D* rotation3D, DriverTransform3D* driverTransform3D) {
+	void CreateDriverTransform3D::Update(
+		ECS2::Entity::Id entity1Id, const Position3D* position3D, const Rotation3D* rotation3D,
+		ECS2::Entity::Id entity2Id, RenderDriver* renderDriver) {
 
-		//Position3D* position = world->GetComponent<Position3D>(entityId);
-		//Rotation3D* rotation = world->GetComponent<Rotation3D>(entityId);
-
-		//const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
-		//const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
+		const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position3D->x_, position3D->y_, position3D->z_)) };
+		const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation3D->w_, rotation3D->x_, rotation3D->y_, rotation3D->z_ });;
 
 
-		//const glm::mat4 transformMatrix = glm::mat4{ 1 } * nodeRotationMatrix * nodeTranslateMatrix;
+		glm::mat4 transformMatrix = glm::mat4{ 1 } * nodeRotationMatrix * nodeTranslateMatrix;
 
-		//DriverTransform3D::Transform transform{ transformMatrix };
+		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+			.size_ = sizeof(glm::mat4),
+			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+		};
+		RAL::Driver::UniformBuffer::Id ubId = renderDriver->driver_->CreateUniformBuffer(UBCreateInfo);
+		renderDriver->driver_->FillUniformBuffer(ubId, &transformMatrix);
 
-		//RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
-		//	.size_ = sizeof(DriverTransform3D::Transform),
-		//	.type_ = RAL::Driver::UniformBuffer::Type::Mutable
-		//};
-		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		//RAL::Driver::UniformBuffer::Id ubId = driver->CreateUniformBuffer(UBCreateInfo);
-		//driver->FillUniformBuffer(ubId, &transform);
-
-		//world->CreateComponent<DriverTransform3D>(entityId, ubId);
+ 		CreateComponent<DriverTransform3D>(entity1Id, ubId);
 
 	}
-	//std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateDriverTransform3D::GetFilter() const noexcept {
-	//	static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
-	//		ECS::Entity::Filter{}
-	//		.Include<Position3D>()
-	//		.Include<Rotation3D>()
-	//		.Exclude<DriverTransform3D>(),
-	//		ECS::Entity::Filter{}.ExcludeAll() };
-	//	return filter;
-	//}
 
 }

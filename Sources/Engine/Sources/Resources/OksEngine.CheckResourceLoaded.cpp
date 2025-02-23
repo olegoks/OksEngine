@@ -3,7 +3,9 @@
 
 namespace OksEngine {
 
-	void CheckResourceLoaded::Update(LoadResourceRequest* loadResourceRequest, AsyncTask* asyncTask) {
+	void CheckResourceLoaded::Update(
+		ECS2::Entity::Id entityId,
+		const LoadResourceRequest* loadResourceRequest, const  AsyncTask* asyncTask) {
 
 		//auto* asyncTask = world->GetComponent<AsyncTask>(entityId);
 		//auto* name = world->GetComponent<Name>(entityId);

@@ -38,6 +38,12 @@ namespace DataStructures::ThreadSafe {
 			return false;
 		}
 
+		[[nodiscard]]
+		bool IsEmpty() const noexcept {
+			std::unique_lock lockGuard(mutex_);
+			return dataQueue_.empty();
+		}
+
 		//[[nodiscard]]
 		//bool Back(std::function<void(const T&)> check, T& value) {
 		//	std::lock_guard lockGuard(mutex_);

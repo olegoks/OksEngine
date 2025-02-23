@@ -1095,7 +1095,7 @@ namespace Render::Vulkan {
 					createInfo.size_);
 				uniformBuffer->Allocate();
 
-				Common::Id id = UBsIdsGenerator_.Generate();
+				Common::Id id = UBsIdsGenerator_.GenerateSystemDeclaration();
 				UBs_[id] = std::vector<std::shared_ptr<Vulkan::UniformBuffer>>{ uniformBuffer };
 				return id;
 				break;
@@ -1114,7 +1114,7 @@ namespace Render::Vulkan {
 					UB->Allocate();
 					UBs.push_back(UB);
 				}
-				Common::Id id = UBsIdsGenerator_.Generate();
+				Common::Id id = UBsIdsGenerator_.GenerateSystemDeclaration();
 				UBs_[id] = std::move(UBs);
 				return id;
 				break;
@@ -1218,7 +1218,7 @@ namespace Render::Vulkan {
 
 			auto vbs = CreateVBForEachFrameInFlight(vbci);
 
-			const Common::Id id = UBsIdsGenerator_.Generate();
+			const Common::Id id = UBsIdsGenerator_.GenerateSystemDeclaration();
 			VBs_[id] = std::move(vbs);
 			return id;
 		}
@@ -1308,7 +1308,7 @@ namespace Render::Vulkan {
 
 				allocatedIndexBuffer->Allocate();
 
-				const IndexBuffer::Id id = IBsIdsGenerator_.Generate();
+				const IndexBuffer::Id id = IBsIdsGenerator_.GenerateSystemDeclaration();
 
 				return std::vector<std::shared_ptr<HostVisibleIndexBuffer>>{ allocatedIndexBuffer };
 
@@ -1356,7 +1356,7 @@ namespace Render::Vulkan {
 
 			auto ibs = CreateIBForEachFrameInFlight(ibci);
 
-			const IndexBuffer::Id id = IBsIdsGenerator_.Generate();
+			const IndexBuffer::Id id = IBsIdsGenerator_.GenerateSystemDeclaration();
 
 			IBs_[id] = ibs;
 
@@ -1555,7 +1555,7 @@ namespace Render::Vulkan {
 				.pipelineName_ = pipelineName
 			};
 			auto mesh = std::make_shared<Mesh>(meshCreateInfo);
-			const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
+			const Mesh::Id meshId = shapes2IdsGenerator_.GenerateSystemDeclaration();
 			meshs_[meshId] = mesh;
 			return meshId;
 		}

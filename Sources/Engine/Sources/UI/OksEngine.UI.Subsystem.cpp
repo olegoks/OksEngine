@@ -23,19 +23,19 @@ namespace OksEngine {
 			};
 		}
 		window_ = api_->CreateWindow(windowCreateInfo);
-		world->CreateComponent<Window>(ui, window_);
-		world->CreateComponent<KeyboardInput>(ui);
-		world->CreateComponent<MouseInput>(ui);
-		world->CreateComponent<FrameBufferResizeEvents>(ui);
-		context.GetECSWorld()->RegisterSystem<WindowSystem>(context);
-		context.GetECSWorld()->RegisterSystem<UISystem>(context);
-		context.GetECSWorld()->RegisterSystem<GetWindowFramebufferResizedEvents>(context);
-		context.GetECSWorld()->RegisterSystem<GetWindowKeyboardInputEvents>(context);
-		context.GetECSWorld()->RegisterSystem<CleanWindowKeyboardInputEvents>(context);
-		context.GetECSWorld()->RegisterSystem<SendWindowKeyboardInputEvents>(context);
-		context.GetECSWorld()->RegisterSystem<GetWindowMouseInputEvents>(context);
-		context.GetECSWorld()->RegisterSystem<CleanWindowMouseInputEvents>(context);
-		context.GetECSWorld()->RegisterSystem<SendWindowMouseInputEvents>(context);
+		//world->CreateComponent<Window>(ui, window_);
+		//world->CreateComponent<KeyboardInput>(ui);
+		//world->CreateComponent<MouseInput>(ui);
+		//world->CreateComponent<FrameBufferResizeEvents>(ui);
+		//context.GetECSWorld()->RegisterSystem<WindowSystem>(context);
+		////context.GetECSWorld()->RegisterSystem<UISystem>(context);
+		//context.GetECSWorld()->RegisterSystem<GetWindowFramebufferResizedEvents>(context);
+		//context.GetECSWorld()->RegisterSystem<GetWindowKeyboardInputEvents>(context);
+		//context.GetECSWorld()->RegisterSystem<CleanWindowKeyboardInputEvents>(context);
+		//context.GetECSWorld()->RegisterSystem<SendWindowKeyboardInputEvents>(context);
+		//context.GetECSWorld()->RegisterSystem<GetWindowMouseInputEvents>(context);
+		//context.GetECSWorld()->RegisterSystem<CleanWindowMouseInputEvents>(context);
+		//context.GetECSWorld()->RegisterSystem<SendWindowMouseInputEvents>(context);
 
 		//window_->RegisterKeyboardEventCallback([this](UI::Window::Key key, UI::Window::Event event) {
 		//		ProcessEvent(key, event);

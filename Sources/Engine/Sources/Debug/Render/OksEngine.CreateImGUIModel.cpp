@@ -6,7 +6,8 @@
 namespace OksEngine {
 
 	void CreateImGuiModel::Update(
-		ImGuiState* imGuiState) {
+		ECS2::Entity::Id entityId,
+		const ImGuiState* imGuiState) {
 
 		//ECS::Entity::Id modelEntityId = world->CreateEntity();
 		//{

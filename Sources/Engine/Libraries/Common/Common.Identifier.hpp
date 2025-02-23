@@ -59,7 +59,7 @@ namespace Common {
 		}
 
 		[[nodiscard]]
-		Id Generate() noexcept {
+		Id GenerateSystemDeclaration() noexcept {
 			return ++lastId_;
 		}
 

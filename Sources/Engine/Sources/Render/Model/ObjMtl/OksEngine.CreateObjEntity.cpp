@@ -4,7 +4,9 @@
 namespace OksEngine {
 
 
-	void CreateObjEntity::Update(LoadObjRequest* loadObjRequest) {
+	void CreateObjEntity::Update(
+		ECS2::Entity::Id entityId,
+		const LoadObjRequest* loadObjRequest) {
 
 		//auto* loadObjRequest = world->GetComponent<LoadObjRequest>(entityId);
 		//const ECS::Entity::Id loadResourceRequestEntityId = loadObjRequest->loadResourceRequestEntityId_;

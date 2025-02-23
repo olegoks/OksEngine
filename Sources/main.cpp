@@ -1,6 +1,6 @@
 
 #include <Engine.hpp>
-#include <Common/Clock/auto_OksEngine.Clock.hpp>
+#include <OksEngine.Components.hpp>
 
 int main(int argc, char** argv) {
 
@@ -18,30 +18,36 @@ int main(int argc, char** argv) {
 	Engine engine{ engineCreateInfo };
 	Entity testEntity = engine.CreateEntity();
 	testEntity.AddClock();
-	testEntity.AddBehaviour("Camera.lua", "Camera");
-	//for (size_t i = 0; i < 99'000; i++)
-	//{
-	//	Entity testEntity = engine.CreateEntity<Clock>();
-	//	testEntity.AddClock();
-	//}
-	//Entity camera = engine.CreateEntity();
-	//camera.AddCamera({ -100, 10, 0 }, { 0, 1, 0, }, true);
-	//camera.AddPosition(50, 20, 0);
-	//camera.AddDirection(-20, -4, 0);
-	//camera.AddUp(0, 1, 0);
-	//camera.AddWidth(1000);
-	//camera.AddHeight(700);
-	//camera.AddActive();
-	//camera.AddBehaviour("Camera.lua", "Camera");
+
+	Entity camera = engine.CreateEntity();
+	camera.AddCamera({ -100, 10, 0 }, { 0, 1, 0, }, true);
+	camera.AddPosition(50, 20, 0);
+	camera.AddDirection(-20, -4, 0);
+	camera.AddUp3D(0, 1, 0);
+	camera.AddWidth(1000);
+	camera.AddHeight(700);
+	camera.AddActive();
+	camera.AddBehaviour("Camera.lua", "Camera");
 
 	//{
-		//Entity terrain = engine.CreateEntity();
-		//terrain.AddName("Terrain");
-		//terrain.AddPosition(0, 0, 0);
-		//terrain.AddRotation({ 0, 1, 0 }, 0);
-		//terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom");
-		//terrain.AddStaticRigidBodyCustomMeshShape();
-		//terrain.AddMaterial(0.1, 0.1, 0.1);
+		Entity terrain = engine.CreateEntity<
+			Name,
+			Position3D,
+			Rotation3D,
+			DriverTransform3D,
+			ImmutableRenderGeometry,
+			LoadGeometryDescriptionFileTask,
+			GeometryDescriptionFile,
+			GeometryDescriptionFileInfo,
+			GeometryDescriptionFileLoaded,
+			StaticRigidBodyCustomMeshShape,
+			Material>();
+		terrain.AddName("Terrain");
+		terrain.AddPosition(0, 0, 0);
+		terrain.AddRotation({ 0, 1, 0 }, 0);
+		terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom", "");
+		terrain.AddStaticRigidBodyCustomMeshShape();
+		terrain.AddMaterial(0.1, 0.1, 0.1);
 
 	//	Entity skybox = engine.CreateEntity();
 	//	skybox.AddName("SkyBox");

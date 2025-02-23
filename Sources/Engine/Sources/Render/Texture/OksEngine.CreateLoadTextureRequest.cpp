@@ -4,7 +4,9 @@
 namespace OksEngine {
 
 
-	void CreateLoadTextureRequest::Update(TextureInfo* textureInfo) {
+	void CreateLoadTextureRequest::Update(
+		ECS2::Entity::Id entityId, 
+		const TextureInfo* textureInfo) {
 
 		//auto* textureInfo = world->GetComponent<TextureInfo>(entityId);
 

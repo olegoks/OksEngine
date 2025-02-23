@@ -1,0 +1,6 @@
+component = {
+    name = "ZNear",
+    fields = { 
+        { type = "float", name = "value" }
+		 }
+}

@@ -1,5 +1,13 @@
 system = {
     name = "CreateImGuiTexture",
-    includes = { 
-        "ImGuiState" }
+    entities = {
+        {
+            includes = { { name = "ImGuiState", readonly = false } }
+        },
+        {
+            includes = { 
+                { name = "RenderDriver", readonly = false }
+            }
+        }
+    }
 }

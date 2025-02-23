@@ -79,7 +79,11 @@ namespace OksEngine {
 		//}
 	}
 
-	void UpdateDriverTransform3D::Update(Position3D* position3D, Rotation3D* rotation3D, ModelEntity* modelEntity) {
+	void UpdateDriverTransform3D::Update(
+		ECS2::Entity::Id entityId,
+		const Position3D* position3D, 
+		const Rotation3D* rotation3D,
+		const DriverTransform3D* driverTransform3D) {
 
 		////return;
 		//Position3D* position = world->GetComponent<Position3D>(entityId);

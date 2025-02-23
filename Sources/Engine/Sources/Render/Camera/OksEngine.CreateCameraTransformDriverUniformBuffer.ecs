@@ -1,4 +1,16 @@
 system = {
     name = "CreateCameraTransformDriverUniformBuffer",
-    includes = { "Camera" }
+    entities = {
+        {
+            includes = { "Camera" },
+            excludes = { "DriverViewProjectionUniformBuffer" },
+            creates = { "DriverViewProjectionUniformBuffer" }
+        },
+        {
+            includes = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    }
+
 }
