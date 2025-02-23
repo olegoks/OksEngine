@@ -9,7 +9,8 @@
 
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
 
-#include <Common/auto_OksEngine.Systems.hpp>
+#include <OksEngine.Systems.hpp>
+
 
 namespace OksEngine {
 
@@ -26,13 +27,15 @@ namespace OksEngine {
 			context_->GetPhysicsSubsystem()->Update();
 
 			ECS2::World* world2 = context_->GetECS2World().get(); 
-			RunUpdateClockSystem(world2);
+
+
 			//context_->GetECS2World()->
 			//{
-			//	context_->GetECSWorld()->StartFrame();
+			world2->StartFrame();
 			//	/*Common*/
 
-			//	//context_->GetECSWorld()->RunSystem<UpdateClock>();
+			RunUpdateClockSystem(world2);
+
 
 			//	/*Resources*/
 			//	context_->GetECSWorld()->RunSystem<CreateAsyncTask>();
@@ -71,17 +74,17 @@ namespace OksEngine {
 
 			//	/*ImGui*/
 
-				//context_->GetECSWorld()->RunSystem<CreateImGuiTexture>();
-				//ImGui::NewFrame();
-				//context_->GetECSWorld()->RunSystem<UpdateMainMenuBar>();
-				//context_->GetECSWorld()->RunSystem<UpdateEnginePerformance>();
-				//context_->GetECSWorld()->RunSystem<AddECSInspectorMainMenuItem>();
-				//context_->GetECSWorld()->RunSystem<CollectEntitiesInfo>();
-				////context_->GetECSWorld()->RunSystem<CollectECSSystemsCallsInfo>();
-				//ImGui::Render();
-				//context_->GetECSWorld()->RunSystem<CreateImGUIModel>();
-				//context_->GetECSWorld()->RunSystem<AddImGuiMeshToRender>();
-				//context_->GetECSWorld()->RunSystem<UpdateImGUIRenderData>();
+				RunCreateImGuiTextureSystem(world2);
+				ImGui::NewFrame();
+				RunUpdateMainMenuBarSystem(world2);
+				RunUpdateEnginePerformanceSystem(world2);
+				RunAddECSInspectorMainMenuItemSystem(world2);
+				RunCollectEntitiesInfoSystem(world2);
+				//context_->GetECSWorld()->RunSystem<CollectECSSystemsCallsInfo>();
+				ImGui::Render();
+				RunCreateImGuiModelSystem(world2);
+				RunAddImGuiMeshToRenderSystem(world2);
+				//RunUpdateImGuiRenderDataSystem(world2);
 
 			//	/*ImGui*/
 
@@ -94,10 +97,12 @@ namespace OksEngine {
 			//	/*Animation*/
 
 			//	/*Render*/
-			//	context_->GetECSWorld()->RunSystem<CreateDriverCameraTransformDriverUniformBuffer>();
-			//	context_->GetECSWorld()->RunSystem<UpdateCameraTransformUniformBuffer>();
-			//	context_->GetECSWorld()->RunSystem<CreateLoadGeometryDescriptionFileRequest>();
-			//	context_->GetECSWorld()->RunSystem<CreateGeometryDescriptionFileEntity>();
+			RunCreateCameraTransformDriverUniformBufferSystem(world2);
+			RunUpdateCameraTransformUniformBufferSystem(world2);
+			RunCreateLoadGeometryDescriptionFileTaskSystem(world2);
+			RunCheckGeometryDescriptionFileLoadedSystem(world2);
+			RunCreateGeometryDescriptionFileInfoSystem(world2);
+			RunCreateGeometryDescriptionFileSystem(world2);
 			//	context_->GetECSWorld()->RunSystem<CreateLoadObjRequest>();
 			//	context_->GetECSWorld()->RunSystem<CreateObjEntity>();
 			//	context_->GetECSWorld()->RunSystem<CreateLoadMtlRequest>();
@@ -118,7 +123,7 @@ namespace OksEngine {
 			//	context_->GetECSWorld()->RunSystem<UpdateDriverIndexBuffer>();
 			//	context_->GetECSWorld()->RunSystem<CreateDriverTexture>();
 
-			//	context_->GetECSWorld()->RunSystem<CreateDriverTransform3D>();
+			RunCreateDriverTransform3DSystem(world2);
 			//	//context_->GetECSWorld()->RunSystem<UpdateDriverTransform3D>();
 			//	//context_->GetECSWorld()->RunSystem<UpdateDriverTransform3DWithLocalTransform>();
 			//	context_->GetECSWorld()->RunSystem < UpdateModelDriverTransform>();
@@ -131,6 +136,8 @@ namespace OksEngine {
 
 			//	context_->GetECSWorld()->EndFrame();
 			//}
+
+			world2->EndFrame();
 			context_->GetRenderSubsystem()->Update();
 			context_->GetDebugSubsystem()->Update();
 		}

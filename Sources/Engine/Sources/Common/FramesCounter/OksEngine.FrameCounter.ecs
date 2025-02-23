@@ -1,6 +1,6 @@
 component = {
     name = "FramesCounter",
     fields = { 
-        
-     }
+        { type = "Common::Size", name = "value" }    
+    }
 }

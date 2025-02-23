@@ -19,7 +19,9 @@ namespace OksEngine {
 	//	ImGuiID mainDockSpaceId = ImGui::DockSpaceOverViewport(viewport->ID, viewport, ImGuiDockNodeFlags_PassthruCentralNode);
 	//}
 
-	void UpdateMainMenuBar::Update(MainMenuBar* mainMenuBar) {
+	void UpdateMainMenuBar::Update(
+		ECS2::Entity::Id entityId,
+		const MainMenuBar* mainMenuBar) {
 
 	}
 

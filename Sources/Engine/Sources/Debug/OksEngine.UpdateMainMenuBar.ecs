@@ -1,5 +1,4 @@
 system = {
     name = "UpdateMainMenuBar",
-
     includes = { "MainMenuBar" }
 }

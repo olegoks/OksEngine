@@ -1,0 +1,17 @@
+system = {
+    name = "CheckGeometryDescriptionFileLoaded",
+    entities = {
+        {
+            includes = { 
+                { name = "LoadGeometryDescriptionFileTask" }
+            },
+	        excludes = { "GeometryDescriptionFileLoaded" }
+        }, 
+        {
+            includes = {
+                { name = "ResourceSystem", readonly = false }
+            }
+        }
+    }
+}
+

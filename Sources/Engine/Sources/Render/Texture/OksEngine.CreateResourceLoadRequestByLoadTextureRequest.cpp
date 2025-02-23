@@ -3,7 +3,9 @@
 namespace OksEngine {
 
 
-	void CreateResourceLoadRequestByLoadTextureRequest::Update(LoadTextureRequest* loadTextureRequest) {
+	void CreateResourceLoadRequestByLoadTextureRequest::Update(
+		ECS2::Entity::Id entityId,
+		const LoadTextureRequest* loadTextureRequest) {
 
 
 	}

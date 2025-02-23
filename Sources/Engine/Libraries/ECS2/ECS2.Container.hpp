@@ -1,4 +1,4 @@
-#pragma once
+ #pragma once
 
 
 namespace ECS2 {
@@ -187,6 +187,11 @@ namespace ECS2 {
 			entityIdComponentIndex_.erase(entityId);
 			componentIndexToEntityId_[componentIndex] = Entity::Id::invalid_;
 		}
+
+		//[[nodiscard]]
+		//static ComponentTypeId GetComponentTypeId() const noexcept {
+		//	return ComponentType::GetTypeId();
+		//}
 	
 	private:
 

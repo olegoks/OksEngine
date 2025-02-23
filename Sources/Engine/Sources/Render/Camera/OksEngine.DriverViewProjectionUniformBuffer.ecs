@@ -1,0 +1,6 @@
+component = {
+    name = "DriverViewProjectionUniformBuffer",
+    fields = { 
+        { type = "RAL::Driver::UniformBuffer::Id", name = "id" }
+         }
+}

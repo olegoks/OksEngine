@@ -3,5 +3,5 @@ system = {
     includes = { 
 		"ObjEntity", "MtlEntity"
 	 },
-	 excludes = { "Mesh2" }
+	 excludes = { "ModelEntity" }
 }

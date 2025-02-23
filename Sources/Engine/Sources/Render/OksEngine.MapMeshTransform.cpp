@@ -1,16 +1,17 @@
 
-#include <Render/OksEngine.MapMeshTransform.hpp>
+#include <Render/auto_OksEngine.MapMeshTransform.hpp>
 
-#include <Common/auto_OksEngine.Position3D.hpp>
-#include <Render/Model/OksEngine.ModelEntity.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
 
 namespace OksEngine {
 
 
-	void MapMeshTransform::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
+	void MapMeshTransform::Update(
+		ECS2::Entity::Id entityId,
+		const Position3D* position3D1,
+		const ModelEntity* modelEntity1) {
 
-		auto* position = world->GetComponent<Position3D>(entityId);
+		//auto* position = world->GetComponent<Position3D>(entityId);
 		/*auto* driverModel = world->GetComponent<DriverModel>(entityId);
 
 		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
@@ -28,15 +29,15 @@ namespace OksEngine {
 
 	}
 
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> MapMeshTransform::GetFilter() const noexcept {
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = 
-		{ ECS::Entity::Filter{}
-			.Include<Position3D>()
-			.Include<ModelEntity>(),
-			ECS::Entity::Filter{}.ExcludeAll() };
+	//std::pair<ECS::Entity::Filter, ECS::Entity::Filter> MapMeshTransform::GetFilter() const noexcept {
+	//	static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = 
+	//	{ ECS::Entity::Filter{}
+	//		.Include<Position3D>()
+	//		.Include<ModelEntity>(),
+	//		ECS::Entity::Filter{}.ExcludeAll() };
 
-		return filter;
+	//	return filter;
 
-	}
+	//}
 
 }

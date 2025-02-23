@@ -50,8 +50,8 @@ namespace ECS2 {
 
 		template<class Component, class ...Args>
 		inline void CreateComponent(Entity::Id entityId, Args&&... args) {
-			auto container = GetContainer<Component>();
 			const ComponentIndex entityComponentIndex = entityIdComponentIndex_[entityId];
+			auto container = GetContainer<Component>();
 			container->CreateComponent<Component>(entityComponentIndex, args...);
 			entityIdComponentsFilter_[entityId].SetBits<Component>();
 		}
@@ -73,7 +73,7 @@ namespace ECS2 {
 		}
 
 		template<class ...Components>
-		inline void ForEachEntity(std::function<void(Components*...)>&& processEntity) {
+		inline void ForEachEntity(const ComponentsFilter& exclude, std::function<void(Entity::Id, Components*...)>&& processEntity) {
 			ComponentsFilter componentsFilter;
 			componentsFilter.SetBits<Components...>();
 
@@ -84,8 +84,9 @@ namespace ECS2 {
 				++componentIndex) {
 				const Entity::Id entityId = componentIndexEntityId_[componentIndex];
 				if (entityId != Entity::Id::invalid_) { // if entity exist in this component index
-					if (componentsFilter.IsSubsetOf(entityIdComponentsFilter_[entityId])) { // if entity has all need components.
-						processEntity((*std::get<std::shared_ptr<ArchetypeContainer<Components>>>(containers))[componentIndex]...);
+					const ComponentsFilter entityComponentsFilter = entityIdComponentsFilter_[entityId];
+					if (componentsFilter.IsSubsetOf(entityComponentsFilter) && entityComponentsFilter.IsNotSet(exclude)) { // if entity has all need components.
+						processEntity(entityId, (*std::get<std::shared_ptr<ArchetypeContainer<Components>>>(containers))[componentIndex]...);
 					}
 				}
 			}
@@ -124,8 +125,6 @@ namespace ECS2 {
 		}
 
 	private:
-		std::map<Entity::Id, ComponentIndex> entityToIndex_;
-
 
 	};
 

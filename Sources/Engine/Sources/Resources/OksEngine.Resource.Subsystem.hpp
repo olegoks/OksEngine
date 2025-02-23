@@ -234,6 +234,19 @@ namespace OksEngine {
 		}
 
 		[[nodiscard]]
+		bool IsIncomeTaskExist(Subsystem::Type receiver, std::function<bool(Subsystem::Type sender, const DS::Vector<Subsystem::Type>& receivers, const Task& task)> filter) {
+			Subsystem::Type sender = Subsystem::Type::Undefined;
+			const bool isGot = exchangeSystem_.IsDataExist(receiver, [&filter, &sender](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
+					const bool isSuitable = filter(dataInfo.sender_, dataInfo.receivers_, *(const Task*)&dataInfo.data_);
+					if (isSuitable) {
+						return true;
+					}
+					return false;
+				});
+			return isGot;
+		}
+
+		[[nodiscard]]
 		bool GetTask(Subsystem::Type receiver, Task& task, std::function<bool(Subsystem::Type sender, const DS::Vector<Subsystem::Type>& receivers, const Task& task)> filter) {
 			Subsystem::Type sender = Subsystem::Type::Undefined;
 			//task = exchangeSystem_.WaitForData(receiver,

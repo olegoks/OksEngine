@@ -24,7 +24,7 @@ namespace OksEngine::Lua {
 		return nullptr;
 	}
 
-	Up* Entity::GetUp()
+	Up3D* Entity::GetUp3D()
 	{
 		//auto up = world_->GetComponent<Up>(id_);
 		//return up;

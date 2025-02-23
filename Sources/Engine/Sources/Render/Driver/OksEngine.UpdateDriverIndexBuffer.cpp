@@ -5,7 +5,11 @@
 
 namespace OksEngine {
 
-	void UpdateDriverIndexBuffer::Update(Indices* indices, MutableMesh* mutableMesh, DriverIndexBuffer* driverIndexBuffer) {
+	void UpdateDriverIndexBuffer::Update(
+		ECS2::Entity::Id entityId,
+		const Indices* indices, 
+		const MutableMesh* mutableMesh, 
+		const DriverIndexBuffer* driverIndexBuffer) {
 		//auto* indices = world->GetComponent<Indices>(entityId);
 
 		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();

@@ -6,7 +6,9 @@
 namespace OksEngine {
 
 
-	void CreateUniformBuffer::Update(ImGuiState* imGuiState) {
+	void CreateUniformBuffer::Update(
+		ECS2::Entity::Id entityId,
+		const ImGuiState* imGuiState) {
 
 		//if (imGuiState->fontsTextureId_.IsInvalid()) {
 		//	ImGuiIO& io = ImGui::GetIO();

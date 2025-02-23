@@ -5,7 +5,10 @@
 
 namespace OksEngine {
 
-	void CreateImGuiRenderData::Update(ImGuiState* imGuiState, ModelEntity* modelEntity) {
+	void CreateImGuiRenderData::Update(
+		ECS2::Entity::Id entityId,
+		const ImGuiState* imGuiState,
+		const ModelEntity* modelEntity) {
 
 		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 		//ImDrawData* draw_data = ImGui::GetDrawData();

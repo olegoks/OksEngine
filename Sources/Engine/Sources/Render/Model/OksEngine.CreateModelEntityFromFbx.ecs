@@ -1,0 +1,7 @@
+system = {
+    name = "CreateModelEntityFromFbx",
+    includes = { 
+		"FbxEntity"
+	 },
+	 excludes = { "ModelEntity" }
+}

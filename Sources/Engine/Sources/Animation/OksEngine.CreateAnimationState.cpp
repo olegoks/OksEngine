@@ -8,7 +8,7 @@
 namespace OksEngine {
 
 
-	void CreateAnimationState::Update(Animation* animation, StartAnimation* startAnimation) {
+	void CreateAnimationState::Update(ECS2::Entity::Id entityId, const Animation* animation, const StartAnimation* startAnimation) {
 
 		/*world->CreateComponent<RunningAnimationState>(entityId);
 		world->CreateComponent<Clock>(entityId);*/

@@ -14,39 +14,50 @@ namespace ECSGenerator {
 
 	class ParsedSystemECSFile : public ParsedECSFile {
 	public:
-		using Include = std::string;
+
 		using Exclude = std::string;
+
+		struct Include {
+			std::string name_;
+			bool readonly_ = true;
+		};
+
+		struct Entity {
+			std::vector<Include> includes_;
+			std::vector<Exclude> excludes_;
+			std::vector<std::string> creates_;
+
+			using ProcessInclude = std::function<bool(const Include& include, bool isLast)>;
+
+			void ForEachInclude(ProcessInclude&& processInclude) const {
+				for (Common::Index i = 0; i < includes_.size(); i++) {
+					const Include& include = includes_[i];
+					if (!processInclude(include, (i == includes_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+		};
 
 		struct CreateInfo {
 			std::string name_;
 			std::filesystem::path path_;
-			std::vector<Include> includes_;
-			std::vector<Exclude> excludes_;
+			std::vector<Entity> entities_;
+			std::vector<std::string> createEntityComponents_; // we dont need info: dynamic or archetype entity to create because we need generate only to add components includes.
 		};
+
+		
 
 		ParsedSystemECSFile(const CreateInfo& createInfo)
 			: ParsedECSFile{ createInfo.path_, createInfo.name_ },
-			includes_{ createInfo.includes_ },
-			excludes_{ createInfo.excludes_ } { }
+			ci_{ createInfo } { }
 
 		virtual Type GetType() const noexcept override {
 			return Type::System;
 		}
 
-
-		std::vector<Include> includes_;
-		std::vector<Exclude> excludes_;
-
-		using ProcessInclude = std::function<bool(const Include& include, bool isLast)>;
-
-		void ForEachInclude(ProcessInclude&& processInclude) const {
-			for (Common::Index i = 0; i < includes_.size(); i++) {
-				const Include& include = includes_[i];
-				if (!processInclude(include, (i == includes_.size() - 1))) {
-					break;
-				}
-			}
-		}
+		CreateInfo ci_;
 	};
 
 	//struct SystemInfo {
@@ -87,33 +98,161 @@ namespace ECSGenerator {
 
 	std::shared_ptr<ParsedSystemECSFile> ParseSystemEcsFile(const std::filesystem::path& ecsFilePath, ::Lua::Context& context) {
 
+		std::vector<ParsedSystemECSFile::Entity> parsedEntities;
+
 		luabridge::LuaRef system = context.GetGlobalAsRef("system");
 
+		std::vector<std::string> createEntityComponents;
+		//Parse components need to create entity.
+		{
+			luabridge::LuaRef createEntityComponent = system["createsEntity"];
+			if (!createEntityComponent.isNil()) {
+				for (luabridge::Iterator it(createEntityComponent); !it.isNil(); ++it) {
+					luabridge::LuaRef componentName = it.value();
+					createEntityComponents.push_back(componentName.cast<std::string>().value());
+				}
+			}
+		}
+		
 		luabridge::LuaRef includes = system["includes"];
 
-		//info.lowerName_ = std::string{ static_cast<char>(std::tolower(info.name_[0])) } + info.name_.substr(1);
-		//luabridge::LuaRef includes = system["includes"];
 
-		std::vector<ParsedSystemECSFile::Include> parsedIncludes;
-		
-		for (luabridge::Iterator it(includes); !it.isNil(); ++it) {
-			luabridge::LuaRef include = it.value();
-			parsedIncludes.push_back(include.cast<std::string>().value());
 
-			OS::AssertMessage(std::isupper(parsedIncludes.back()[0]), "");
-			//std::transform(componentName.begin(), componentName.end(), componentName.begin(), [](unsigned char c) {
-			//	return std::tolower(c);
-			//	});
-			//includeInfo.lowerComponentName_ = componentName;
-			//info.includes_.push_back(includeInfo);
+
+		const bool isOneEntitySystem = !includes.isNil();
+
+		if (isOneEntitySystem) {
+			std::vector<ParsedSystemECSFile::Include> parsedIncludes;
+
+			for (luabridge::Iterator it(includes); !it.isNil(); ++it) {
+				luabridge::LuaRef include = it.value();
+				ParsedSystemECSFile::Include parsedInclude;
+				if (!include.isNil()) {
+					luabridge::LuaRef includeName = include["name"];
+					if (!includeName.isNil()) {
+						parsedInclude.name_ = includeName.cast<std::string>().value();
+					}
+					luabridge::LuaRef isIncludeReadonly = include["readonly"];
+					if (!isIncludeReadonly.isNil()) {
+						parsedInclude.readonly_ = isIncludeReadonly.cast<bool>().value();
+					}
+					parsedInclude.name_ = include.cast<std::string>().value();
+				}
+
+				parsedIncludes.push_back(parsedInclude);
+
+				OS::AssertMessage(std::isupper(parsedIncludes.back().name_[0]), "");
+			}
+
+			luabridge::LuaRef excludes = system["excludes"];
+			std::vector<ParsedSystemECSFile::Exclude> parsedExcludes;
+			if (!excludes.isNil()) {
+				for (luabridge::Iterator it(excludes); !it.isNil(); ++it) {
+					luabridge::LuaRef exclude = it.value();
+					parsedExcludes.push_back(exclude.cast<std::string>().value());
+
+					OS::AssertMessage(std::isupper(parsedExcludes.back()[0]), "");
+
+				}
+			}
+
+			luabridge::LuaRef creates = system["creates"];
+
+			std::vector<std::string> parsedCreates;
+			if (!creates.isNil()) {
+				for (luabridge::Iterator it(creates); !it.isNil(); ++it) {
+					luabridge::LuaRef toCreate = it.value();
+					parsedCreates.push_back(toCreate.cast<std::string>().value());
+
+					OS::AssertMessage(std::isupper(parsedCreates.back()[0]), "");
+
+				}
+			}
+			ParsedSystemECSFile::Entity parsedEntity{
+				.includes_ = parsedIncludes,
+				.excludes_ = parsedExcludes,
+				.creates_ = parsedCreates
+			};
+
+			parsedEntities.push_back(parsedEntity);
+		}
+		else {
+			//Two entities system.
+#pragma region Assert
+			OS::AssertMessage(!system["entities"].isNil(), "");
+#pragma endregion
+			luabridge::LuaRef entities = system["entities"];
+			for (luabridge::Iterator it(entities); !it.isNil(); ++it) {
+				luabridge::LuaRef entity = it.value();
+
+				//ENTITY INCLUDES
+				luabridge::LuaRef entityIncludes = entity["includes"];
+
+				std::vector<ParsedSystemECSFile::Include> parsedEntityIncludes;
+
+				for (luabridge::Iterator it(entityIncludes); !it.isNil(); ++it) {
+					luabridge::LuaRef include = it.value();
+					ParsedSystemECSFile::Include parsedInclude;
+					if (!include.isNil()) {
+						luabridge::LuaRef includeName = include["name"];
+						if (!includeName.isNil()) {
+							parsedInclude.name_ = includeName.cast<std::string>().value();
+						}
+						else {
+							parsedInclude.name_ = include.cast<std::string>().value();
+						}
+						luabridge::LuaRef isIncludeReadonly = include["readonly"];
+						if (!isIncludeReadonly.isNil()) {
+							parsedInclude.readonly_ = isIncludeReadonly.cast<bool>().value();
+						}
+						
+					}
+
+
+					parsedEntityIncludes.push_back(parsedInclude);
+					OS::AssertMessage(std::isupper(parsedEntityIncludes.back().name_[0]), "");
+				}
+
+				//ENTITY EXCLUDES
+				luabridge::LuaRef entityExcludes = entity["excludes"];
+				std::vector<ParsedSystemECSFile::Exclude> parsedEntityExcludes;
+				if (!entityExcludes.isNil()) {
+					for (luabridge::Iterator it(entityExcludes); !it.isNil(); ++it) {
+						luabridge::LuaRef exclude = it.value();
+						parsedEntityExcludes.push_back(exclude.cast<std::string>().value());
+
+						OS::AssertMessage(std::isupper(parsedEntityExcludes.back()[0]), "");
+
+					}
+				}
+
+				//ENTITY CREATES
+				luabridge::LuaRef entityCreates = entity["creates"];
+
+				std::vector<std::string> parsedEntityCreates;
+				if (!entityCreates.isNil()) {
+					for (luabridge::Iterator it(entityCreates); !it.isNil(); ++it) {
+						luabridge::LuaRef toCreate = it.value();
+						parsedEntityCreates.push_back(toCreate.cast<std::string>().value());
+						OS::AssertMessage(std::isupper(parsedEntityCreates.back()[0]), "");
+					}
+				}
+				ParsedSystemECSFile::Entity parsedEntity{
+					.includes_ = parsedEntityIncludes,
+					.excludes_ = parsedEntityExcludes,
+					.creates_ = parsedEntityCreates
+				};
+				parsedEntities.push_back(parsedEntity);
+			}
 		}
 
 		ParsedSystemECSFile::CreateInfo ci{
 			.name_ = system["name"].cast<std::string>().value(),
 			.path_ = ecsFilePath,
-			.includes_ = parsedIncludes,
-			.excludes_ = {}
+			.entities_ = parsedEntities,
+			.createEntityComponents_ = createEntityComponents
 		};
+
 		auto parsedSystemFile = std::make_shared<ParsedSystemECSFile>(ci);
 		OS::AssertMessage(std::isupper(parsedSystemFile->GetName()[0]), "First system name symbol must be uppercase.");
 		return parsedSystemFile;

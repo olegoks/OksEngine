@@ -1,0 +1,6 @@
+component = {
+    name = "ResourceSystem",
+    fields = {         
+		{ type = "std::shared_ptr<AsyncResourceSubsystem>", name = "system" }
+		}
+}

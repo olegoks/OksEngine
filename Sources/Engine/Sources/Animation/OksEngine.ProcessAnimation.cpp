@@ -7,12 +7,13 @@ namespace OksEngine {
 
 
 	void ProcessAnimation::Update(
-		Position3D* position3D, 
-		Rotation3D* rotation3D,
-		Animation* animation, 
-		RunningAnimationState* runningAnimationState,
-		AnimationInProcess* animationInProcess,
-		Clock* clock) {
+		ECS2::Entity::Id entityId,
+		const Position3D* position3D, 
+		const Rotation3D* rotation3D,
+		const Animation* animation,
+		const RunningAnimationState* runningAnimationState,
+		const AnimationInProcess* animationInProcess,
+		const Clock* clock) {
 
 		//RunningAnimationState* animationState = world->GetComponent<RunningAnimationState>(entityId);
 		//Clock* clock = world->GetComponent<Clock>(entityId);

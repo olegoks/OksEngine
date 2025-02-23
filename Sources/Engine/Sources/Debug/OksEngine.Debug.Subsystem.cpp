@@ -11,11 +11,12 @@ namespace OksEngine {
 
 		std::shared_ptr<ECS2::World> world = GetContext().GetECS2World();
 
-		//world->CreateComponent<ImGuiState>(imgui);
-		//world->CreateComponent<MainMenuBar>(imgui);
-		//world->CreateComponent<EnginePerformance>(imgui);
-		//world->CreateComponent<ECSInspector>(imgui);
-		//world->CreateComponent<FramesCounter>(imgui);
+		world->CreateComponent<ImGuiState>(entity);
+		world->CreateComponent<MainMenuBar>(entity);
+		world->CreateComponent<EnginePerformance>(entity);
+		world->CreateComponent<ECSInspector>(entity);
+		//world->CreateComponent<FramesCounter>(entity);
+		// 
 		//GetContext().GetECSWorld()->RegisterSystem < CreateImGUIModel>(createInfo.context_);
 		//GetContext().GetECSWorld()->RegisterSystem < UpdateImGUIRenderData>(createInfo.context_);
 		//GetContext().GetECSWorld()->RegisterSystem < AddImGuiMeshToRender>(createInfo.context_);

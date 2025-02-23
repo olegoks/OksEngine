@@ -6,9 +6,10 @@ namespace OksEngine {
 
 
 	void RunAnimation::Update(
-		RunningAnimationState* runningAnimationState, 
-		StartAnimation* startAnimation, 
-		Clock* clock) {
+		ECS2::Entity::Id entityId,
+		const RunningAnimationState* runningAnimationState,
+		const StartAnimation* startAnimation,
+		const Clock* clock) {
 
 		//runningAnimationState->start_ = clock->value_;
 		//world->RemoveComponent<StartAnimation>(entityId);

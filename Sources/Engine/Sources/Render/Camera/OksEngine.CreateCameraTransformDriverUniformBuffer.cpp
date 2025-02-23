@@ -1,40 +1,25 @@
 
-#include <Render/Camera/OksEngine.CreateCameraTransformDriverUniformBuffer.hpp>
+#include <Render/Camera/auto_OksEngine.CreateCameraTransformDriverUniformBuffer.hpp>
 
-#include <Render/Camera/OksEngine.Camera.hpp>
-#include <Render/Driver/OksEngine.UniformBuffer.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
 #include <Render/Camera/OksEngine.CameraTransformUniformBufferType.hpp>
 
 namespace OksEngine {
 
-	void CreateDriverCameraTransformDriverUniformBuffer::Update(ECS::World* world, ECS::Entity::Id entityId, ECS::Entity::Id secondEntityId) {
-
-		const auto* camera = world->GetComponent<Camera>(entityId);
-
-		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-
+	void CreateCameraTransformDriverUniformBuffer::Update(
+		ECS2::Entity::Id entity1Id,
+		const Camera* camera,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
 
 		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
 			.size_ = sizeof(ViewProjection),
 			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
 		};
-		RAL::Driver::UniformBuffer::Id UBId = driver->CreateUniformBuffer(UBCreateInfo);
+		RAL::Driver::UniformBuffer::Id UBId = renderDriver->driver_->CreateUniformBuffer(UBCreateInfo);
 
-		world->CreateComponent<UniformBuffer>(entityId, /*matrices, */UBId);
+		CreateComponent<DriverViewProjectionUniformBuffer>(entity1Id, UBId);
 
 	}
-
-	inline std::pair<ECS::Entity::Filter, ECS::Entity::Filter> CreateDriverCameraTransformDriverUniformBuffer::GetFilter() const noexcept {
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = { ECS::Entity::Filter{}.Include<Camera>().Exclude<UniformBuffer>(), ECS::Entity::Filter{}.ExcludeAll() };
-		return filter;
-	}
-
-	inline Common::TypeId CreateDriverCameraTransformDriverUniformBuffer::GetTypeId() const noexcept {
-		return Common::TypeInfo<CreateDriverCameraTransformDriverUniformBuffer>().GetId();
-	}
-
-	CreateDriverCameraTransformDriverUniformBuffer::CreateDriverCameraTransformDriverUniformBuffer(Context& context) noexcept :
-		ECSSystem{ context } { }
 
 }

@@ -1,13 +1,10 @@
 
 #include <Behaviour/auto_OksEngine.CreateLuaScriptEntity.hpp>
 
-
-#include <Resources/OksEngine.LoadResourceRequest.hpp>
-
 //#include <Behaviour/auto_OksEngine.LuaScript.hpp>
 //#include <Behaviour/OksEngine.LuaScriptEntity.hpp>
 //#include <Behaviour/OksEngine.LoadLuaScriptRequest.hpp>
-//#include <Behaviour/OksEngine.Behaviour.hpp>
+//
 //#include <Resources/OksEngine.Resource.hpp>
 //#include <Resources/OksEngine.ResourceEntity.hpp>
 //#include <Common/auto_OksEngine.Completed.hpp>
@@ -20,7 +17,9 @@
 namespace OksEngine {
 
 
-	void CreateLuaScriptEntity::Update(LoadLuaScriptRequest* loadLuaScriptRequest) {
+	void CreateLuaScriptEntity::Update(
+		ECS2::Entity::Id entityId,
+		const LoadLuaScriptRequest* loadLuaScriptRequest) {
 		const ECS2::Entity::Id loadResourceRequestEntityId = loadLuaScriptRequest->loadResourceRequestEntityId_;
 		/*if (world->IsComponentExist<Completed>(loadResourceRequestEntityId)) {
 			auto* resourceEntity = world->GetComponent<ResourceEntity>(loadResourceRequestEntityId);

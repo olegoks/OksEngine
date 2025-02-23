@@ -12,7 +12,7 @@ namespace OksEngine {
 			Position3D* GetPosition();
 			Direction3D* GetDirection();
 			Active* GetActive();
-			Up* GetUp();
+			Up3D* GetUp3D();
 			Width* GetWidth();
 			Height* GetHeight();
 
@@ -52,7 +52,7 @@ namespace OksEngine {
 			.addFunction("GetImmutableRenderGeometry", &Lua::Entity::GetImmutableRenderGeometry)
 			.addFunction("GetCamera", &Lua::Entity::GetCamera)
 			.addFunction("GetActive", &Lua::Entity::GetActive)
-			.addFunction("GetUp", &Lua::Entity::GetUp)
+			.addFunction("GetUp3D", &Lua::Entity::GetUp3D)
 			.addFunction("GetHeight", &Lua::Entity::GetHeight)
 			.addFunction("GetWidth", &Lua::Entity::GetWidth)
 			//.addFunction("GetRigidBodyBox", &LuaEntity::GetRigidBodyBox)

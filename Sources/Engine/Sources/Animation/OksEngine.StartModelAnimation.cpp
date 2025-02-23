@@ -24,7 +24,10 @@ namespace OksEngine {
 	//	}
 	//}
 
-	void StartModelAnimation::Update(ModelEntity* modelEntity, StartAnimation* startAnimation) {
+	void StartModelAnimation::Update(
+		ECS2::Entity::Id entityId,
+		const ModelEntity* modelEntity,
+		const StartAnimation* startAnimation) {
 
 		const ECS2::Entity::Id rootNodeEntityId = modelEntity->id_;
 		//StartNodeAnimation(world, rootNodeEntityId);

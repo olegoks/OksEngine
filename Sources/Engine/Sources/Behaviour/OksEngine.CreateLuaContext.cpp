@@ -3,7 +3,10 @@
 
 namespace OksEngine {
 
-	void CreateLuaContext::Update(Behaviour* behaviour, LuaScriptEntity* luaScriptEntity) {
+	void CreateLuaContext::Update(
+		ECS2::Entity::Id entityId,
+		const Behaviour* behaviour,
+		const LuaScriptEntity* luaScriptEntity) {
 
 		//::Lua::Context context;
 

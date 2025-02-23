@@ -1,0 +1,4 @@
+component = {
+    name = "LoadGeometryDescriptionFileTask",
+    fields = { { type = "Common::UInt64", name = "id" } }
+}

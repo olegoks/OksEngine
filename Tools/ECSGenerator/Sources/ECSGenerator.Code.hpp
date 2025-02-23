@@ -100,6 +100,7 @@ namespace ECSGenerator {
 			bool isPrototype_ = false;
 			bool inlineModifier_ = false;
 			bool staticModifier_ = false;
+			std::vector<std::string> templateParameters_;
 		};
 
 		Function(const CreateInfo& ci) : ci_{ ci } {}

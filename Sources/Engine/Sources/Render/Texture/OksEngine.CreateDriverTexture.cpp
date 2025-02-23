@@ -10,7 +10,9 @@
 namespace OksEngine {
 
 
-	void CreateDriverTexture::Update(TextureInfo* textureInfo, Texture* texture) {
+	void CreateDriverTexture::Update(
+		ECS2::Entity::Id entityId,
+		const TextureInfo* textureInfo, const Texture* texture) {
 
 		/*auto* textureInfo = world->GetComponent<TextureInfo>(entityId);
 		auto* texture = world->GetComponent<Texture>(entityId);

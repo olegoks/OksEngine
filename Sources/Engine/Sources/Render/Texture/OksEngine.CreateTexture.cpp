@@ -4,7 +4,9 @@
 namespace OksEngine {
 
 
-	void CreateTexture::Update(LoadTextureRequest* loadTextureRequest) {
+	void CreateTexture::Update(
+		ECS2::Entity::Id entityId,
+		const LoadTextureRequest* loadTextureRequest) {
 
 		//auto* loadTextureRequest = world->GetComponent<LoadTextureRequest>(entityId);
 		//if (world->IsComponentExist<ResourceEntity>(loadTextureRequest->resourceLoadRequestEntityId_)) {

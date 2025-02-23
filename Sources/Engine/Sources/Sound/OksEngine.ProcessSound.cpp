@@ -3,7 +3,9 @@
 namespace OksEngine {
 
 
-	void ProcessSound::Update(Sound* sound, PlaySound* playSound) {
+	void ProcessSound::Update(
+		ECS2::Entity::Id entityId,
+		const Sound* sound, const PlaySound* playSound) {
 
 		//auto* sound = world->GetComponent<Sound>(entityId);
 		//sound->sound_.setBuffer(sound->soundBuffer_);

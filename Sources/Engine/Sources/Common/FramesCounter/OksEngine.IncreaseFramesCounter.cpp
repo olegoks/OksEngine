@@ -2,8 +2,8 @@
 
 namespace OksEngine {
 
-	void IncreaseFramesCounter::Update(FramesCounter* framesCounter, Counter* counter) {
-		++counter->value_;
+	void IncreaseFramesCounter::Update(ECS2::Entity::Id entityId, const FramesCounter* framesCounter, const  Counter* counter) {
+		//++counter->value_;
 	}
 
 }

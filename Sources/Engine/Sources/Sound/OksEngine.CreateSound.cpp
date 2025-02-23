@@ -5,7 +5,9 @@
 namespace OksEngine {
 
 
-	void CreateSound::Update(LoadSoundRequest* loadSoundRequest) {
+	void CreateSound::Update(
+		ECS2::Entity::Id entityId,
+		const LoadSoundRequest* loadSoundRequest) {
 
 		//auto* loadSoundRequest = world->GetComponent<LoadSoundRequest>(entityId);
 		//if (world->IsComponentExist<ResourceEntity>(loadSoundRequest->resourceLoadRequestEntityId_)) {

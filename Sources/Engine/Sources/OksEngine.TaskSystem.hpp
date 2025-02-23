@@ -55,6 +55,23 @@ namespace OksEngine {
 				return inDataQueue_.TryPop(outcomeDataInfo);
 			}
 
+			[[nodiscard]]
+			bool IsOutcomeDataExist(std::function<bool(const DataInfo& dataInfo)> filter) {
+				const bool isFoundInCache = IsDataInfoExistInOutCache(filter);
+				if (isFoundInCache) {
+					return true;
+				}
+				DataInfo dataInfo;
+				while (outDataQueue_.TryPop(dataInfo)) {
+					if (filter(dataInfo)) {
+						AddDataInfoToOutCache(std::move(dataInfo));
+						return true;
+					}
+					AddDataInfoToOutCache(std::move(dataInfo));
+				}
+				return false;
+			}
+
 			void AddOutcomeDataInfo(DataInfo& incomeDataInfo) {
 				outDataQueue_.Push(incomeDataInfo);
 			}
@@ -100,6 +117,20 @@ namespace OksEngine {
 			}
 
 		private:
+
+			[[nodiscard]]
+			bool IsDataInfoExistInOutCache(std::function<bool(const DataInfo& dataInfo)> filter) {
+				for (Common::Index i = 0; i < cachedOutDataInfos_.GetSize(); i++) {
+					DataInfo dataInfo;
+					const bool isThereDataInfo = cachedOutDataInfos_.Get(dataInfo, i);
+					if (!isThereDataInfo) { continue; }
+					const bool isFound = filter(dataInfo);
+					if (isFound) {
+						return true;
+					}
+				}
+				return false;
+			}
 
 			[[nodiscard]]
 			bool FindDataInfoInOutCache(DataInfo& outData, std::function<bool(const DataInfo& dataInfo)> filter) {
@@ -249,6 +280,16 @@ namespace OksEngine {
 			if(isGot) {
 				outData = std::move(dataInfo.data_);
 			}
+			return isGot;
+		}
+
+		[[nodiscard]]
+		bool IsDataExist(ThreadName receiver, std::function<bool(const DataInfo& dataInfo)> filter) {
+			ThreadData& threadData = GetThreadData();
+			if (!threadData.IsThreadName(receiver)) {
+				threadData.names_.PushBack(receiver);
+			}
+			const bool isGot = threadData.IsOutcomeDataExist(filter);
 			return isGot;
 		}
 

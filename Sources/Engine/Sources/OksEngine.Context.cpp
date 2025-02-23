@@ -1,6 +1,6 @@
 
 #include <memory>
-#include <Behaviour/OksEngine.Behaviour.hpp>
+
 
 
 #include <UI/OksEngine.UI.Subsystem.hpp>
@@ -13,6 +13,10 @@
 #include <ECS.hpp>
 
 #include <OksEngine.Config.hpp>
+
+#include <Render/auto_OksEngine.RenderDriver.hpp>
+#include <Resources/auto_OksEngine.ResourceSystem.hpp>
+
 
 namespace OksEngine
 {
@@ -28,27 +32,28 @@ namespace OksEngine
 			};
 			logSubsystem_ = std::make_shared<LogSubsystem>(createInfo);
 		}
-		{
-			resourceSubsystem_ = std::make_shared<AsyncResourceSubsystem>(*this);
-			std::filesystem::path configFilePath = commandLineParameters.GetValue("-cfg");
-			auto loadConfigTaskId = resourceSubsystem_->GetResource(Subsystem::Type::Engine, configFilePath);
-			auto configResource = resourceSubsystem_->GetResource(Subsystem::Type::Engine, loadConfigTaskId);
-			config_ = std::make_shared<Config>(std::string{ configResource.GetData<char>(), configResource.GetSize() });
-			auto resourcesRootPath = config_->GetValueAs<std::string>("ResourceSystem.resourcesRootDirectory");
-			auto fullResourcesPath = configFilePath.parent_path() / resourcesRootPath;
 
-			auto scriptsRootPath = config_->GetValueAs<std::string>("ResourceSystem.scriptsRootDirectory");
-			auto scriptsFullResourcesPath = configFilePath.parent_path() / scriptsRootPath;
+		resourceSubsystem_ = std::make_shared<AsyncResourceSubsystem>(*this);
+		std::filesystem::path configFilePath = commandLineParameters.GetValue("-cfg");
+		auto loadConfigTaskId = resourceSubsystem_->GetResource(Subsystem::Type::Engine, configFilePath);
+		auto configResource = resourceSubsystem_->GetResource(Subsystem::Type::Engine, loadConfigTaskId);
+		config_ = std::make_shared<Config>(std::string{ configResource.GetData<char>(), configResource.GetSize() });
+		auto resourcesRootPath = config_->GetValueAs<std::string>("ResourceSystem.resourcesRootDirectory");
+		auto fullResourcesPath = configFilePath.parent_path() / resourcesRootPath;
 
-			resourceSubsystem_->SetRoot(Subsystem::Type::Engine, { scriptsFullResourcesPath, fullResourcesPath });
-		}
-		
+		auto scriptsRootPath = config_->GetValueAs<std::string>("ResourceSystem.scriptsRootDirectory");
+		auto scriptsFullResourcesPath = configFilePath.parent_path() / scriptsRootPath;
+
+		resourceSubsystem_->SetRoot(Subsystem::Type::Engine, { scriptsFullResourcesPath, fullResourcesPath });
 
 
-		
 		world_ = std::make_shared<ECS::World>();
 
 		world2_ = std::make_shared<ECS2::World>();
+
+		const ECS2::Entity::Id resourceSystemEntity = world2_->CreateEntity();
+		world2_->CreateComponent<ResourceSystem>(resourceSystemEntity, resourceSubsystem_);
+
 		//world2_->AddArchetype<>
 		////Resource ecs subsystem
 		//{
@@ -100,6 +105,9 @@ namespace OksEngine
 			//fragmentShader
 		};
 		renderSubsystem_ = std::make_shared<RenderSubsystem>(renderSubsystemCreateInfo);
+
+		const ECS2::Entity::Id entityId = world2_->CreateEntity();
+		world2_->CreateComponent<RenderDriver>(entityId, renderSubsystem_->GetDriver());
 
 		PhysicsSubsystem::CreateInfo physicsSubsystemCreateInfo{
 			*this

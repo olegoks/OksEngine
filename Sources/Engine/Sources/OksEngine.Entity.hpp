@@ -42,7 +42,7 @@ namespace OksEngine {
 		void AddLocalPosition(float x, float y, float z);
 		void AddDirection(float x, float y, float z);
 
-		void AddUp(float x, float y, float z);
+		void AddUp3D(float x, float y, float z);
 
 		void AddWidth(Common::Size width);
 

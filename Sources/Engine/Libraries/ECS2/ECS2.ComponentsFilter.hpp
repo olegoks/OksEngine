@@ -32,6 +32,10 @@ namespace ECS2 {
 
 		}
 
+		void RemoveBit(ComponentTypeId componentTypeId) {
+			filter_.reset(componentTypeId);
+		}
+
 		ComponentsFilter() { }
 
 
@@ -43,6 +47,17 @@ namespace ECS2 {
 		[[nodiscard]]
 		bool IsSet(ComponentTypeId componentTypeId) const {
 			return filter_.test(componentTypeId);
+		}
+
+
+		template<class ...ComponentType>
+		bool IsNotSet() const {
+			return (!IsSet(ComponentType::GetTypeId()) && ...);
+		}
+
+		[[nodiscard]]
+		bool IsNotSet(const ComponentsFilter& componentsFilter) const noexcept {
+			return ((filter_ & componentsFilter.filter_).none());
 		}
 
 		[[nodiscard]]

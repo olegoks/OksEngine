@@ -6,15 +6,18 @@
 namespace OksEngine {
 
 	void AddImGuiMeshToRender::Update(
-		Position2D* position2D,
-		Scale2D* scale2D,
-		Vertices2D* vertices2D,
-		Indices* indices, 
-		UVs* uVs,
-		Colors* colors,
-		DriverTexture* driverTexture,
-		DriverIndexBuffer* driverIndexBuffer,
-		DriverVertexBuffer* driverVertexBuffer) {
+		ECS2::Entity::Id entity1Id,
+		const Position2D* position2D,
+		const Scale2D* scale2D,
+		const Vertices2D* vertices2D,
+		const Indices* indices,
+		const UVs* uVs,
+		const Colors* colors,
+		const DriverTexture* driverTexture,
+		const DriverIndexBuffer* driverIndexBuffer,
+		const DriverVertexBuffer* driverVertexBuffer,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
 
 		//auto* scale = world->GetComponent<Scale2D>(entityId);
 		////auto* rotation = world->GetComponent<Rotation3D>(entityId);

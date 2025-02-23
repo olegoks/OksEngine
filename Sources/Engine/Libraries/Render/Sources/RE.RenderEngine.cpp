@@ -204,6 +204,8 @@ namespace RE {
 		//driver_->SetCamera(createInfo.camera_);
 		//driver_->AddLight(createInfo.light_);
 
+
+
 		
 	}
 

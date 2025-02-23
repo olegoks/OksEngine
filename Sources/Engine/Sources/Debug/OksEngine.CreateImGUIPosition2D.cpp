@@ -4,7 +4,9 @@
 
 namespace OksEngine {
 
-	void CreateImGUIPosition2D::Update(ImGuiState* imGuiState) {
+	void CreateImGUIPosition2D::Update(
+		ECS2::Entity::Id entityId,
+		const ImGuiState* imGuiState) {
 		//ImDrawData* draw_data = ImGui::GetDrawData();
 
 		//glm::vec2 translate{ 0, 0 };

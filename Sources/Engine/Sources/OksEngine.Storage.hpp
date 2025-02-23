@@ -13,7 +13,7 @@ namespace OksEngine {
 
 		[[nodiscard]]
 		Type::Id Add(Type&& object) {
-			const Type::Id newId = idGenerator_.Generate();
+			const Type::Id newId = idGenerator_.GenerateSystemDeclaration();
 			objects_.emplace(newId, std::move(object));
 			return newId;
 		}
