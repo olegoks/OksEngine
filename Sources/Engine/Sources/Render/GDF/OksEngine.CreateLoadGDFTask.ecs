@@ -1,10 +1,10 @@
 system = {
-    name = "CreateLoadGeometryDescriptionFileTask",
+    name = "CreateLoadGDFTask",
     entities = {
         {
             includes = { "ImmutableRenderGeometry" },
-	        excludes = { "LoadGeometryDescriptionFileTask" },
-            creates = { "LoadGeometryDescriptionFileTask" }
+	        excludes = { "LoadGDFTask" },
+            creates = { "LoadGDFTask" }
         },
         {
             includes = { { name = "ResourceSystem", readonly = false }}

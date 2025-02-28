@@ -27,7 +27,7 @@ namespace OksEngine {
 
 
 		bool isOpen = true;
-		ImGui::Begin("Systems", &isOpen, 0);
+//		ImGui::Begin("Systems", &isOpen, 0);
 
 
 
@@ -56,7 +56,7 @@ namespace OksEngine {
 		//	}
 		//}
 		
-		ImGui::End();
+//		ImGui::End();
 
 	}
 

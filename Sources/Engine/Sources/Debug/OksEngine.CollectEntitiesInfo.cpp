@@ -77,7 +77,7 @@ namespace OksEngine {
 	//		editComponent.template operator() < SoundInfo > (world, id);
 	//		editComponent.template operator() < LoadSoundRequest > (world, id);
 	//		editComponent.template operator() < Sound > (world, id);
-	//		editComponent.template operator() < PlaySound > (world, id);
+	//		editComponent.template operator() < StartPlaySound > (world, id);
 	//		editComponent.template operator() < SoundInProgress > (world, id);
 
 	//		/*Behaviour*/
@@ -209,7 +209,7 @@ namespace OksEngine {
 	//		ImGui::SeparatorText("Add component");
 	//		ImGui::Indent(20.0f);
 	//		const char* items[] = {
-	//			PlaySound::GetName(),
+	//			StartPlaySound::GetName(),
 	//			SoundInfo::GetName(),
 	//			Behaviour::GetName(),
 	//			Position3D::GetName(),
@@ -240,8 +240,8 @@ namespace OksEngine {
 	//		ImGui::PushID("Add");
 
 	//		const std::string currentComponent = items[state.currentAddComponentIndex_];
-	//		if (currentComponent == PlaySound::GetName()) {
-	//			Add<PlaySound>(world, id);
+	//		if (currentComponent == StartPlaySound::GetName()) {
+	//			Add<StartPlaySound>(world, id);
 	//		}
 	//		if (currentComponent == SoundInfo::GetName()) {
 	//			Add<SoundInfo>(world, id);

@@ -1,4 +1,4 @@
 component = {
-    name = "LoadGeometryDescriptionFileTask",
+    name = "LoadGDFTask",
     fields = { { type = "Common::UInt64", name = "id" } }
 }

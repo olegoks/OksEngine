@@ -1,9 +1,9 @@
 
-#include <Render/GeometryDescriptionFile/auto_OksEngine.CreateLoadGeometryDescriptionFileTask.hpp>
+#include <Render/GDF/auto_OksEngine.CreateLoadGDFTask.hpp>
 
 namespace OksEngine {
 
-	void CreateLoadGeometryDescriptionFileTask::Update(
+	void CreateLoadGDFTask::Update(
 		ECS2::Entity::Id entity1Id,
 		const ImmutableRenderGeometry* immutableRenderGeometry,
 		ECS2::Entity::Id entity2Id,
@@ -25,7 +25,7 @@ namespace OksEngine {
 		//}
 		auto asyncTaskId = resourceSystem->system_->GetResource(Subsystem::Type::Engine, "Root\\" + std::string{ immutableRenderGeometry->meshTag_ });
 
-		CreateComponent<LoadGeometryDescriptionFileTask>(entity1Id, asyncTaskId);
+		CreateComponent<LoadGDFTask>(entity1Id, asyncTaskId);
 	}
 
 

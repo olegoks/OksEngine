@@ -1,6 +1,6 @@
 system = {
     name = "CreateLoadMtlRequest",
-    includes = { "GeometryDescriptionFile" },
+    includes = { "GDF" },
 	excludes = { "LoadMtlRequest" }
 }
 

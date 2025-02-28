@@ -1,10 +1,10 @@
-#include <Render/GeometryDescriptionFile/auto_OksEngine.CheckGeometryDescriptionFileLoaded.hpp>
+#include <Render/GDF/auto_OksEngine.CheckGDFLoaded.hpp>
 
 namespace OksEngine {
 
-	void CheckGeometryDescriptionFileLoaded::Update(
+	void CheckGDFLoaded::Update(
 		ECS2::Entity::Id entity1Id,
-		const LoadGeometryDescriptionFileTask* loadGeometryDescriptionFileTask,
+		const LoadGDFTask* loadGDFTask,
 		ECS2::Entity::Id entity2Id,
 		ResourceSystem* resourceSystem) {
 
@@ -24,7 +24,7 @@ namespace OksEngine {
 //}
 
 		AsyncResourceSubsystem::Task task;
-		AsyncResourceSubsystem::Task::Id waitTaskId = loadGeometryDescriptionFileTask->id_;
+		AsyncResourceSubsystem::Task::Id waitTaskId = loadGDFTask->id_;
 		const bool isGot = resourceSystem->system_->IsIncomeTaskExist(Subsystem::Type::Engine, [waitTaskId](
 			Subsystem::Type sender,
 			const DS::Vector<Subsystem::Type>& receivers,
@@ -32,7 +32,7 @@ namespace OksEngine {
 				return (waitTaskId == task.GetId());
 			});
 		if (isGot) {
-			CreateComponent<GeometryDescriptionFileLoaded>(entity1Id); 
+			CreateComponent<GDFLoaded>(entity1Id); 
 
 		}
 		

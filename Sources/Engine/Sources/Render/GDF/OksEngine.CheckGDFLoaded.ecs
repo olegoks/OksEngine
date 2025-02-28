@@ -1,0 +1,17 @@
+system = {
+    name = "CheckGDFLoaded",
+    entities = {
+        {
+            includes = { 
+                { name = "LoadGDFTask" }
+            },
+	        excludes = { "GDFLoaded" }
+        }, 
+        {
+            includes = {
+                { name = "ResourceSystem", readonly = false }
+            }
+        }
+    }
+}
+

@@ -11,6 +11,10 @@
 
 #include <OksEngine.Systems.hpp>
 
+#include <auto_OksEngine.RunSystems.hpp>
+
+
+#include <pix3.h>
 
 namespace OksEngine {
 
@@ -34,7 +38,10 @@ namespace OksEngine {
 			world2->StartFrame();
 			//	/*Common*/
 
-			RunUpdateClockSystem(world2);
+			PIXBeginEvent(PIX_COLOR(255, 0, 0), "RunSystems");
+
+			RunSystems(world2);
+			//RunUpdateClockSystem(world2);
 
 
 			//	/*Resources*/
@@ -74,16 +81,16 @@ namespace OksEngine {
 
 			//	/*ImGui*/
 
-				RunCreateImGuiTextureSystem(world2);
-				ImGui::NewFrame();
-				RunUpdateMainMenuBarSystem(world2);
-				RunUpdateEnginePerformanceSystem(world2);
-				RunAddECSInspectorMainMenuItemSystem(world2);
-				RunCollectEntitiesInfoSystem(world2);
-				//context_->GetECSWorld()->RunSystem<CollectECSSystemsCallsInfo>();
-				ImGui::Render();
-				RunCreateImGuiModelSystem(world2);
-				RunAddImGuiMeshToRenderSystem(world2);
+				//RunCreateImGuiTextureSystem(world2);
+				//ImGui::NewFrame();
+				//RunUpdateMainMenuBarSystem(world2);
+				//RunUpdateEnginePerformanceSystem(world2);
+				//RunAddECSInspectorMainMenuItemSystem(world2);
+				//RunCollectEntitiesInfoSystem(world2);
+				////context_->GetECSWorld()->RunSystem<CollectECSSystemsCallsInfo>();
+				//ImGui::Render();
+				//RunCreateImGuiModelSystem(world2);
+				//RunAddImGuiMeshToRenderSystem(world2);
 				//RunUpdateImGuiRenderDataSystem(world2);
 
 			//	/*ImGui*/
@@ -97,12 +104,12 @@ namespace OksEngine {
 			//	/*Animation*/
 
 			//	/*Render*/
-			RunCreateCameraTransformDriverUniformBufferSystem(world2);
-			RunUpdateCameraTransformUniformBufferSystem(world2);
-			RunCreateLoadGeometryDescriptionFileTaskSystem(world2);
-			RunCheckGeometryDescriptionFileLoadedSystem(world2);
-			RunCreateGeometryDescriptionFileInfoSystem(world2);
-			RunCreateGeometryDescriptionFileSystem(world2);
+			//RunCreateCameraTransformDriverUniformBufferSystem(world2);
+			//RunUpdateCameraTransformUniformBufferSystem(world2);
+			//RunCreateLoadGeometryDescriptionFileTaskSystem(world2);
+			//RunCheckGeometryDescriptionFileLoadedSystem(world2);
+			//RunCreateGeometryDescriptionFileInfoSystem(world2);
+			//RunCreateGeometryDescriptionFileSystem(world2);
 			//	context_->GetECSWorld()->RunSystem<CreateLoadObjRequest>();
 			//	context_->GetECSWorld()->RunSystem<CreateObjEntity>();
 			//	context_->GetECSWorld()->RunSystem<CreateLoadMtlRequest>();
@@ -123,7 +130,7 @@ namespace OksEngine {
 			//	context_->GetECSWorld()->RunSystem<UpdateDriverIndexBuffer>();
 			//	context_->GetECSWorld()->RunSystem<CreateDriverTexture>();
 
-			RunCreateDriverTransform3DSystem(world2);
+			//RunCreateDriverTransform3DSystem(world2);
 			//	//context_->GetECSWorld()->RunSystem<UpdateDriverTransform3D>();
 			//	//context_->GetECSWorld()->RunSystem<UpdateDriverTransform3DWithLocalTransform>();
 			//	context_->GetECSWorld()->RunSystem < UpdateModelDriverTransform>();
@@ -141,6 +148,7 @@ namespace OksEngine {
 			context_->GetRenderSubsystem()->Update();
 			context_->GetDebugSubsystem()->Update();
 		}
+		PIXEndEvent();
 	}
 
 	//Entity Engine::CreateEntity() noexcept {

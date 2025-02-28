@@ -26,19 +26,8 @@ file(GLOB_RECURSE
 target_sources(OS
     PUBLIC
         ${PUBLIC_SOURCES}
-        # OS.Assert.hpp
-        # OS.Clock.hpp
-        # OS.Exception.hpp
-        # OS.FileSystem.BinaryFile.hpp
-        # OS.FileSystem.File.hpp
-        # OS.FileSystem.hpp
-        # OS.FileSystem.TextFile.hpp
-        # OS.hpp
-        # OS.Logger.hpp
-        # OS.Profiler.hpp
     PRIVATE
         ${PRIVATE_SOURCES}
-        # OS.Exception.cpp
     )
 
 set_target_properties(OS PROPERTIES LINKER_LANGUAGE CXX)
@@ -49,18 +38,18 @@ FILES
 ${PUBLIC_SOURCES}
 ${PRIVATE_SOURCES})
 
-find_path(LOGURU_INCLUDE_DIRS "loguru/")
+find_package(loguru CONFIG REQUIRED)
+# find_path(LOGURU_INCLUDE_DIRS "loguru/")
 
-add_library(loguru
-    ${LOGURU_INCLUDE_DIRS}/loguru/loguru.cpp)
+# add_library(loguru
+#     ${LOGURU_INCLUDE_DIRS}/loguru/loguru.cpp)
 
 target_include_directories(OS
     PUBLIC
-        ${LOGURU_INCLUDE_DIRS}
         ${CMAKE_CURRENT_LIST_DIR}/${SourcesDir})
     
 target_link_libraries(OS
     PUBLIC
-        loguru
+        loguru::loguru
         Common
         Datastructures)

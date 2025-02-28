@@ -1,0 +1,26 @@
+digraph OksEngine {
+  node [shape=rect];
+
+    style=bold;
+    color = black;
+    penwidth = 3;
+    node [style=bold,color=black];
+    
+   subgraph cluster_0 {
+       rankdir=LR;
+     label = "Components"; // Название кластера
+     Active -> Position3D;
+     Position3D;
+     Rotation3D;
+
+   }
+
+   subgraph cluster_1 {
+     label = "CreateGDF"; // Название кластера
+     CreateGDFStart -> Active;
+     CreateLoadGDFTask -> Active;
+     CheckGDFLoaded -> Active;
+     CreateGDFInfo -> Active;
+     CreateGDF -> Active;
+   }
+  }

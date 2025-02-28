@@ -10,9 +10,9 @@ namespace OksEngine {
 
 	void CreateLoadFbxRequest::Update(
 		ECS2::Entity::Id entityId,
-		const GeometryDescriptionFile* geometryDescriptionFile) {
+		const GDF* geometryDescriptionFile) {
 
-		//auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);
+		//auto* geomFileEntity = world->GetComponent<GDFEntity>(entityId);
 		//auto* geomFileText = world->GetComponent<Text>(geomFileEntity->id_);
 
 		//YAML::Node yaml = YAML::Load(geomFileText->value_);

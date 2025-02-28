@@ -183,14 +183,15 @@ target_sources(OksEngine
     )
 
 
-
-find_package(SFML COMPONENTS system audio CONFIG REQUIRED)
+find_package(winpixevent CONFIG REQUIRED)
+find_package(SFML COMPONENTS Network Graphics Window Audio System CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 target_link_libraries(OksEngine
     PUBLIC
-    sfml-audio
-    sfml-main
+    Microsoft::WinPixEventRuntime
+    SFML::Audio
+    SFML::System
     yaml-cpp::yaml-cpp
     imgui::imgui
     Geometry

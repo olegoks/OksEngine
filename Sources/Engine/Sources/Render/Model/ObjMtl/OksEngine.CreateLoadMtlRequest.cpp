@@ -10,7 +10,7 @@ namespace OksEngine {
 
 	void CreateLoadMtlRequest::Update(
 		ECS2::Entity::Id entityId,
-		const GeometryDescriptionFile* geometryDescriptionFile) {
+		const GDF* GDF) {
 
 
 		//auto* geomFileEntity = world->GetComponent<GeometryDescriptionFileEntity>(entityId);

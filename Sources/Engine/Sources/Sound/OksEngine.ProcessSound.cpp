@@ -5,7 +5,8 @@ namespace OksEngine {
 
 	void ProcessSound::Update(
 		ECS2::Entity::Id entityId,
-		const Sound* sound, const PlaySound* playSound) {
+		const Sound* sound,
+		const StartPlaySound* StartPlaySound) {
 
 		//auto* sound = world->GetComponent<Sound>(entityId);
 		//sound->sound_.setBuffer(sound->soundBuffer_);
@@ -19,7 +20,7 @@ namespace OksEngine {
 	//	static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter =
 	//	{ ECS::Entity::Filter{}
 	//	.Include<Sound>()
-	//	.Include<PlaySound>()
+	//	.Include<StartPlaySound>()
 	//	.Exclude<SoundInProgress>(), ECS::Entity::Filter{}.ExcludeAll() };
 	//	return filter;
 	//}

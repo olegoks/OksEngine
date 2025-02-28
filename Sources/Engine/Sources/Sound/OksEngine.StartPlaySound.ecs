@@ -1,4 +1,4 @@
 component = {
-    name = "PlaySound",
+    name = "StartPlaySound",
     fields = {  }
 }
