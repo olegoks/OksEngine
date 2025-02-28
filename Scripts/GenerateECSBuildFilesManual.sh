@@ -11,3 +11,4 @@ cd ../
 cd Scripts/
 sh GenerateECS.sh
 sh GenerateBuildFilesFromScratch.sh
+read -p "Press enter to exit."
