@@ -23,33 +23,9 @@ file(GLOB PRIVATE_SOURCES
 
 target_sources(Common
 PUBLIC
-    # Common.DataStructures.Graph.hpp
-    # Common.DataStructures.hpp
-    # Common.DataStructures.Vector.hpp
-    # Common.Exception.hpp
-
-    # Common.Format.hpp
-    # Common.hpp
-    # Common.Identifier.hpp
-    # # Common.Memory.Allocator.hpp
-    # # Common.Memory.BlockAllocator.hpp
-    # # Common.Memory.Concepts.hpp
-    # # Common.Memory.Exception.hpp
-    # # Common.Memory.hpp
-    # # Common.Memory.MemoryControlBlock.hpp
-    # # Common.Memory.PoolAllocator.hpp
-    # # Common.Memory.RefsCounter.hpp
-    # # Common.Memory.SharedPointer.hpp
-    # # Common.MemoryManager.hpp
-
-    # Common.StringView.hpp
-    # Common.Types.hpp
-    # Common.VersionedMap.hpp
     ${PUBLIC_SOURCES}
 PRIVATE
     ${PRIVATE_SOURCES}
-    # # Common.StringView.cpp
-    # # Common.Format.cpp
     )
 
         

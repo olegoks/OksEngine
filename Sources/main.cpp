@@ -36,10 +36,10 @@ int main(int argc, char** argv) {
 			Rotation3D,
 			DriverTransform3D,
 			ImmutableRenderGeometry,
-			LoadGeometryDescriptionFileTask,
-			GeometryDescriptionFile,
-			GeometryDescriptionFileInfo,
-			GeometryDescriptionFileLoaded,
+			LoadGDFTask,
+			GDF,
+			GDFInfo,
+			GDFLoaded,
 			StaticRigidBodyCustomMeshShape,
 			Material>();
 		terrain.AddName("Terrain");

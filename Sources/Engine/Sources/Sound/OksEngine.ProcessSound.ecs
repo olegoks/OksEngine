@@ -2,7 +2,8 @@ system = {
     name = "ProcessSound",
 
     includes = { 
-		"Sound", "PlaySound"
+		"Sound", 
+    "StartPlaySound"
 	 }, 
    excludes = { "SoundInProgress" }
 }

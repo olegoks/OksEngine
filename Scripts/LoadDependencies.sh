@@ -8,6 +8,7 @@ cd ./vcpkg
 ./bootstrap-vcpkg.bat
 echo $(pwd)
 #./vcpkg.exe install llvm
+./vcpkg.exe install winpixevent
 ./vcpkg.exe install sfml
 ./vcpkg.exe install cgal
 ./vcpkg.exe install meshoptimizer

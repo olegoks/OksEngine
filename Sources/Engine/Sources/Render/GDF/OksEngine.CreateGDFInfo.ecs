@@ -1,11 +1,13 @@
 system = {
-    name = "CheckGeometryDescriptionFileLoaded",
+    name = "CreateGDFInfo",
     entities = {
         {
             includes = { 
-                { name = "LoadGeometryDescriptionFileTask" }
-            },
-	        excludes = { "GeometryDescriptionFileLoaded" }
+                "GDFLoaded", 
+                "LoadGDFTask"
+                },
+	        excludes = { "GDFInfo" },
+            creates = { "GDFInfo" }
         }, 
         {
             includes = {

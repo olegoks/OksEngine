@@ -1,8 +1,7 @@
 component = {
     name = "Sound",
     fields = { 
-        { type = "sf::SoundBuffer", name = "soundBuffer" },
-        { type = "sf::Sound", name = "sound" }
+        { type = "sf::SoundBuffer", name = "soundBuffer" }
      }
 }
         

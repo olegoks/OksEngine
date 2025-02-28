@@ -2,8 +2,8 @@
 #include <Geometry.Model.hpp>
 
 #include <unordered_map>
-#define TINYOBJLOADER_IMPLEMENTATION
-#include "tiny_obj_loader.h"
+//#define TINYOBJLOADER_IMPLEMENTATION
+//#include "tiny_obj_loader.h"
 
 #include <Geometry.Storage.hpp>
 #include <assimp/StringUtils.h>

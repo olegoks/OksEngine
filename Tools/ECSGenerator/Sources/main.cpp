@@ -101,27 +101,6 @@ namespace ECSGenerator {
 
 int main(int argc, char** argv) {
 
-	// Создаём новый графический контекст и граф
-	GVC_t* gvc = gvContext();
-	Agraph_t* graph = agopen((char*)"G", Agdirected, 0);
-
-	// Добавляем узлы
-	Agnode_t* node1 = agnode(graph, (char*)"Node1", 1);
-	Agnode_t* node2 = agnode(graph, (char*)"Node2", 1);
-
-	// Добавляем рёбра
-	agedge(graph, node1, node2, 0, 1);
-
-	// Настраиваем параметрыализации
-	gvLayout(gvc, graph, "dot");
-
-	// Генерируем и сохраняем изображение в формате PNG
-	gvRenderFilename(gvc, graph, "png", "graph.png");
-
-	// Освобождаем ресурсы
-	gvFreeLayout(gvc, graph);
-	agclose(graph);
-	gvFreeContext(gvc);
 
 
 	
@@ -145,11 +124,17 @@ int main(int argc, char** argv) {
 	};
 
 	std::vector<ECSFileInfo> ecsFileInfos;
-
+	std::filesystem::path dotSystemPath_;
 	const std::filesystem::path root = "Root";
 	for (const auto& entry : std::filesystem::recursive_directory_iterator(workDir)) {
 		if (std::filesystem::is_regular_file(entry)) {
 			const bool ecsFile = entry.path().extension() == ".ecs";
+			const bool dotFile = entry.path().extension() == ".dot";
+			if (dotFile) {
+				const std::filesystem::path name = root / entry.path().filename();
+				resourceSystem.LoadResource(name);
+				dotSystemPath_ = name;
+			}
 			if (ecsFile) {
 				const std::filesystem::path name = root / entry.path().filename();
 				resourceSystem.LoadResource(name);
@@ -179,7 +164,12 @@ int main(int argc, char** argv) {
 		cxxECSCodeFile << cxxCode;*/
 	}
 
-	auto files = generator->GenerateSystemDeclaration(projectContext);
+
+
+	auto files = generator->GenerateECSCXXFilesStructure(projectContext);
+	auto runSystemFile = generator->GenerateRunSystemsFile(projectContext);
+
+	files.push_back(runSystemFile[0]);
 
 	auto codeGenerator = std::make_shared<ECSGenerator::CodeGenerator>();
 
@@ -196,6 +186,25 @@ int main(int argc, char** argv) {
 		cxxECSCodeFile << codeFile->code_.code_;
 	}
 	
+	//Parse .dot
+	// Создаём новый графический контекст и граф
+	GVC_t* gvc = gvContext();
+
+	Resources::ResourceData resourceData = resourceSystem.GetResourceData(dotSystemPath_);
+	graph_t* graph = agmemread(resourceData.GetData<char>());
+
+	// Обход всех подграфов
+	for (Agraph_t* subgraph = agfstsubg(graph); subgraph; subgraph = agnxtsubg(subgraph)) {
+		std::cout << "Subgraph: " << agnameof(subgraph) << std::endl;
+		// Рекурсивный вызов для обхода подграфов данного подграфа
+		for (Agnode_t* node = agfstnode(subgraph); node; node = agnxtnode(subgraph, node)) {
+			std::cout << "Node: " << agnameof(node) << std::endl;
+		}
+	}
+
+	// Освобождаем граф и контекст
+	agclose(graph);
+	gvFreeContext(gvc);
 
 
 	return 0;

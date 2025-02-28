@@ -18,7 +18,7 @@ namespace OksEngine {
 
 	}
 
-	struct KeyboardInput : public ECSComponent<KeyboardInput> {
+	/*struct KeyboardInput : public ECSComponent<KeyboardInput> {
 	public:
 		KeyboardInput() : ECSComponent{ nullptr } {}
 
@@ -68,40 +68,40 @@ namespace OksEngine {
 
 	template<>
 	inline void Add<KeyboardInput>(ECS::World* world, ECS::Entity::Id id) { }
+*/
 
 
+	//struct FrameBufferResizeEvents : public ECSComponent<FrameBufferResizeEvents> {
+	//public:
+	//	FrameBufferResizeEvents() : ECSComponent{ nullptr } {}
 
-	struct FrameBufferResizeEvents : public ECSComponent<FrameBufferResizeEvents> {
-	public:
-		FrameBufferResizeEvents() : ECSComponent{ nullptr } {}
+	//	std::queue<UIAL::Window::FrameBufferResizeEvent> events_;
 
-		std::queue<UIAL::Window::FrameBufferResizeEvent> events_;
+	//	[[nodiscard]]
+	//	bool HasEvent() {
+	//		return !events_.empty();
+	//	}
 
-		[[nodiscard]]
-		bool HasEvent() {
-			return !events_.empty();
-		}
+	//	[[nodiscard]]
+	//	UIAL::Window::FrameBufferResizeEvent GetEvent() noexcept {
+	//		UIAL::Window::FrameBufferResizeEvent event = events_.front();
+	//		events_.pop();
+	//		return event;
+	//	}
 
-		[[nodiscard]]
-		UIAL::Window::FrameBufferResizeEvent GetEvent() noexcept {
-			UIAL::Window::FrameBufferResizeEvent event = events_.front();
-			events_.pop();
-			return event;
-		}
+	//	void ForEachEvent(std::function<void(const UIAL::Window::FrameBufferResizeEvent& event)> eventProcessor) {
+	//		std::queue<UIAL::Window::FrameBufferResizeEvent> eventsCopy = events_;
+	//		while (!eventsCopy.empty()) {
+	//			UIAL::Window::FrameBufferResizeEvent event = eventsCopy.front();
+	//			eventsCopy.pop();
+	//			eventProcessor(event);
+	//		}
+	//	}
 
-		void ForEachEvent(std::function<void(const UIAL::Window::FrameBufferResizeEvent& event)> eventProcessor) {
-			std::queue<UIAL::Window::FrameBufferResizeEvent> eventsCopy = events_;
-			while (!eventsCopy.empty()) {
-				UIAL::Window::FrameBufferResizeEvent event = eventsCopy.front();
-				eventsCopy.pop();
-				eventProcessor(event);
-			}
-		}
-
-		void PushEvent(const UIAL::Window::FrameBufferResizeEvent& event) noexcept {
-			events_.push(event);
-		}
-	};
+	//	void PushEvent(const UIAL::Window::FrameBufferResizeEvent& event) noexcept {
+	//		events_.push(event);
+	//	}
+	//};
 
 
 	//class 

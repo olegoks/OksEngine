@@ -1,4 +1,5 @@
 #!/bin/bash
+sh RemoveAutoFiles.sh
 sh GenerateBuildFilesFromScratch.sh
 scriptDirectory=$(dirname $0)
 cd ${scriptDirectory}

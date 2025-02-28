@@ -5,9 +5,10 @@
 #include <OS.Memory.Common.hpp>
 #include <OS.Memory.AllocationCallbacks.hpp>
 
-#include <boost/thread.hpp>
-#include <boost/thread/locks.hpp>
-#include <boost/thread/shared_mutex.hpp>
+#include <shared_mutex>
+//#include <boost/thread.hpp>
+//#include <boost/thread/locks.hpp>
+//#include <boost/thread/shared_mutex.hpp>
 
 namespace DataStructures {
 
@@ -234,7 +235,7 @@ namespace DataStructures {
 
 			[[nodiscard]]
 			bool Get(Type& outValue, Common::Index index) {
-				boost::shared_lock guard{ mutex_ };
+				std::shared_lock guard{ mutex_ };
 				if (index < vector_.GetSize()) {
 					outValue = vector_[index];
 					return true;
@@ -244,13 +245,13 @@ namespace DataStructures {
 
 			[[nodiscard]]
 			Common::Size  GetSize() const noexcept {
-				boost::shared_lock guard{ mutex_ };
+				std::shared_lock guard{ mutex_ };
 				return vector_.GetSize();
 			}
 
 			[[nodiscard]]
 			bool Contains(/*Type& outValue, */std::function<bool(const Type& value)> filter) const {
-				boost::shared_lock lock{ mutex_ };
+				std::shared_lock lock{ mutex_ };
 				for (Common::Index i = 0; i < vector_.GetSize(); i++) {
 					if(filter(vector_[i])) {
 						/*outValue = vector_[i];*/
@@ -268,7 +269,10 @@ namespace DataStructures {
 			}
 
 		private:
-			mutable boost::shared_mutex mutex_;
+
+			//mutable boost::shared_mutex mutex_;
+			mutable std::shared_mutex mutex_;
+
 			DataStructures::Vector<Type> vector_;
 		};
 	}

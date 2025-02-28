@@ -1,6 +1,0 @@
-system = {
-    name = "CreateGeometryDescriptionFile",
-    includes = { "GeometryDescriptionFileInfo" },
-	excludes = { "GeometryDescriptionFile" }
-}
-

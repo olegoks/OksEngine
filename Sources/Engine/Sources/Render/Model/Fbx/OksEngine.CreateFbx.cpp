@@ -1,10 +1,12 @@
 
-//#include <Render/Model/Fbx/auto_OksEngine.CreateFbxEntity.hpp>
+#include <Render/Model/Fbx/auto_OksEngine.CreateFbx.hpp>
 
 namespace OksEngine {
 
 
-	//void CreateFbxEntity::Update(LoadFbxRequest* loadFbxRequest) {
+	void CreateFbx::Update(
+		ECS2::Entity::Id entityId,
+		const LoadFbxRequest* loadFbxRequest) {
 
 	//	//auto* loadFbxRequest = world->GetComponent<LoadFbxRequest>(entityId);
 	//	//const ECS::Entity::Id loadResourceRequestEntityId = loadFbxRequest->loadResourceRequestEntityId_;
@@ -20,7 +22,7 @@ namespace OksEngine {
 	//	//	}
 	//	//	world->CreateComponent<FbxEntity>(entityId, objEntity);
 	//	//}
-	//}
+	}
 
 	//[[nodiscard]]
 	//std::string CreateFbxEntity::GetName() const noexcept {
