@@ -29,6 +29,11 @@ organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
 
 add_executable(ECSGenerator)
 
+set_target_properties(ECSGenerator
+    PROPERTIES
+        VS_DEBUGGER_COMMAND_ARGUMENTS
+        "-workDir ${CMAKE_CURRENT_LIST_DIR}/../../../Sources/Engine/Sources/")
+
 target_include_directories(ECSGenerator
     PUBLIC
         ${CMAKE_CURRENT_LIST_DIR}/Sources/)
@@ -38,11 +43,6 @@ target_sources(ECSGenerator
         ${PROJECT_SOURCES}
     PRIVATE
     )
-
-set_target_properties(ECSGenerator
-    PROPERTIES
-        VS_DEBUGGER_COMMAND_ARGUMENTS
-        "-workDir C:/Users/User/Desktop/OksEngine/Sources/")
 
 find_package(PkgConfig REQUIRED) 
 
