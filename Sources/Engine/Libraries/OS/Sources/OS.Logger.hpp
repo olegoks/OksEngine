@@ -49,7 +49,7 @@ namespace OS {
 
 		Logger(CreateInfo& createInfo) {
 			loguru::init(createInfo.argc_, createInfo.argv_);
-			loguru::add_file("engine.log", loguru::Append, loguru::Verbosity_MAX);
+			loguru::add_file("auto_engine.log", loguru::Append, loguru::Verbosity_MAX);
 		}
 
 		void Log(Severity severity, const std::string_view path, const Common::Format& format, const std::source_location& location = std::source_location::current()) {
