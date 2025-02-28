@@ -32,7 +32,7 @@ add_executable(ECSGenerator)
 set_target_properties(ECSGenerator
     PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
-        "-workDir ${CMAKE_CURRENT_LIST_DIR}/../../../Sources/Engine/Sources/")
+        "-workDir ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/")
 
 target_include_directories(ECSGenerator
     PUBLIC
