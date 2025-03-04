@@ -1,5 +1,16 @@
 system = {
     name = "UpdateDriverTransform3D",
-    includes = { "Position3D", "Rotation3D", "DriverTransform3D" }
+    entities = {
+        {
+    includes = { 
+        "Position3D", 
+        "Rotation3D", 
+        { name = "DriverTransform3D", readonly = false }
+    }
+        },
+        {
+            includes = { { name = "RenderDriver", readonly = false } }
+        }
+    }
 }
 

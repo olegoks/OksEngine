@@ -1,6 +1,7 @@
 system = {
     name = "CreateMtlEntity",
     includes = { "LoadMtlRequest" },
+    creates = { "MtlEntity" },
 	excludes = { "MtlEntity" }
 }
 

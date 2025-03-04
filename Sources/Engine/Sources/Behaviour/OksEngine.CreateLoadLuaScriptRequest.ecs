@@ -3,5 +3,6 @@ system = {
     includes = { 
         "Behaviour"
         },
+        creates = { "LoadLuaScriptRequest" },
     excludes = { "LoadLuaScriptRequest" }
 }

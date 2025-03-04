@@ -3,6 +3,7 @@ system = {
     includes = { 
         "LoadLuaScriptRequest"
         },
+        creates = { "LuaScriptEntity" },
     excludes = {
         "LuaScriptEntity"
     }

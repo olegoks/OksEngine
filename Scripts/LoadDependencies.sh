@@ -7,7 +7,8 @@ git clone https://github.com/microsoft/vcpkg.git
 cd ./vcpkg
 ./bootstrap-vcpkg.bat
 echo $(pwd)
-#./vcpkg.exe install llvm
+./vcpkg.exe install llvm
+./vcpkg.exe install zlib
 ./vcpkg.exe install winpixevent
 ./vcpkg.exe install sfml
 ./vcpkg.exe install cgal

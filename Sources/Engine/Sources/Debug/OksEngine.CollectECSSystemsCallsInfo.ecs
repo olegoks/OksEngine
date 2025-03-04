@@ -1,6 +1,6 @@
 system = {
     name = "CollectECSSystemsCallsInfo",
     includes = { 
-        "ImGuiState"
+        { name = "ImGuiState", readonly = false }
         }
 }

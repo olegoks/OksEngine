@@ -4,5 +4,6 @@ system = {
     includes = { 
 		"SoundInfo"
 	  },
+    creates = { "LoadSoundRequest" },
     excludes = { "LoadSoundRequest" } 
 }

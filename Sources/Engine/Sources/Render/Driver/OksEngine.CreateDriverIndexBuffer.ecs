@@ -1,6 +1,15 @@
 system = {
     name = "CreateDriverIndexBuffer",
-    includes = { "Indices" },
-	excludes = { "DriverIndexBuffer" }
+    entities  = {
+        {
+            includes = { "Indices" },
+            creates = { "DriverIndexBuffer" },
+	        excludes = { "DriverIndexBuffer" }
+        },
+        {
+             includes = { { name = "RenderDriver", readonly = false } }
+        }
+    }
+
 }
 

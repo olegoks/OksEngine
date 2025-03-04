@@ -3,5 +3,6 @@ system = {
     includes = { 
 		"FbxEntity"
 	 },
+	 creates = { "ModelEntity" },
 	 excludes = { "ModelEntity" }
 }

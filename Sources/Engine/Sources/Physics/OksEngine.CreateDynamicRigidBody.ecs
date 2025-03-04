@@ -1,6 +1,8 @@
 system = {
     name = "CreateDynamicRigidBody",
 
+	entities = {
+		{
     includes = { 
 		"Position3D",
 		"Material",
@@ -8,5 +10,13 @@ system = {
 		"PhysicsShape",
 		"DynamicRigidBodyCustomMeshShape"
 	 },
+	 creates = {
+		"DynamicRigidBody"
+	 },
 	 excludes = { "DynamicRigidBody" }
+	 },
+			{
+				includes = { { name = "PhysicsEngine", readonly = false } }
+			}
+		}
 }

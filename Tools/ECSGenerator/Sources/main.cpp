@@ -97,8 +97,6 @@ namespace ECSGenerator {
 	}
 }
 
-#include <graphviz/gvc.h>
-
 int main(int argc, char** argv) {
 
 
@@ -169,6 +167,9 @@ int main(int argc, char** argv) {
 	auto files = generator->GenerateECSCXXFilesStructure(projectContext);
 	auto runSystemFile = generator->GenerateRunSystemsFile(projectContext);
 
+	ECSGenerator::SystemCallsGraphDescriptionGenerator dotGenerator;
+	auto dotFile = dotGenerator.GenerateGraphText(projectContext);
+
 	files.push_back(runSystemFile[0]);
 
 	auto codeGenerator = std::make_shared<ECSGenerator::CodeGenerator>();
@@ -186,27 +187,6 @@ int main(int argc, char** argv) {
 		cxxECSCodeFile << codeFile->code_.code_;
 	}
 	
-	//Parse .dot
-	// Создаём новый графический контекст и граф
-	GVC_t* gvc = gvContext();
-
-	Resources::ResourceData resourceData = resourceSystem.GetResourceData(dotSystemPath_);
-	graph_t* graph = agmemread(resourceData.GetData<char>());
-
-	// Обход всех подграфов
-	for (Agraph_t* subgraph = agfstsubg(graph); subgraph; subgraph = agnxtsubg(subgraph)) {
-		std::cout << "Subgraph: " << agnameof(subgraph) << std::endl;
-		// Рекурсивный вызов для обхода подграфов данного подграфа
-		for (Agnode_t* node = agfstnode(subgraph); node; node = agnxtnode(subgraph, node)) {
-			std::cout << "Node: " << agnameof(node) << std::endl;
-		}
-	}
-
-	// Освобождаем граф и контекст
-	agclose(graph);
-	gvFreeContext(gvc);
-
-
 	return 0;
 }
 

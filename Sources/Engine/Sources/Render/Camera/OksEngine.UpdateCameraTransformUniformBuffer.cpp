@@ -18,7 +18,7 @@ namespace OksEngine {
 		const ZFar* zFar,
 		const Width* width,
 		const Height* height,
-		const UniformBuffer* uniformBuffer,
+		UniformBuffer* uniformBuffer,
 		ECS2::Entity::Id entity2Id,
 		RenderDriver* renderDriver) {
 

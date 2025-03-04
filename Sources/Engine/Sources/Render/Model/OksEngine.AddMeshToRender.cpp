@@ -5,9 +5,11 @@
 namespace OksEngine {
 
 	void AddMeshToRender::Update(
-		ECS2::Entity::Id entityId,
-		const DriverTransform3D* driverTransform3D, 
-		const Meshes* meshes) {
+		ECS2::Entity::Id entity1Id,
+		const DriverTransform3D* driverTransform3D,
+		const Meshes* meshes,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
 
 		////return;
 		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();

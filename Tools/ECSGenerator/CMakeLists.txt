@@ -29,6 +29,9 @@ organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
 
 add_executable(ECSGenerator)
 
+#Add clang lib 
+find_package(Clang REQUIRED)
+
 set_target_properties(ECSGenerator
     PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
@@ -41,31 +44,37 @@ target_include_directories(ECSGenerator
 target_sources(ECSGenerator
     PUBLIC
         ${PROJECT_SOURCES}
+        ${CLANG_INCLUDE_DIRS}
     PRIVATE
     )
+
+# Log all cmake variables.
+
+# get_cmake_property(_variableNames VARIABLES)
+
+# foreach (_variableName ${_variableNames})
+# message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
+
+target_link_libraries(ECSGenerator
+    PUBLIC
+    ${GRAPHVIZ_LIBRARIES}
+    ${CLANG_LIBRARIES}
+    LuaLayer
+    Resources
+    ECS
+    )
+
 
 find_package(PkgConfig REQUIRED) 
 
 pkg_check_modules(GRAPHVIZ REQUIRED libgvc)
 message(STATUS "${GRAPHVIZ_INCLUDE_DIRS}")
 target_include_directories(ECSGenerator  PUBLIC ${GRAPHVIZ_INCLUDE_DIRS})
-
+    
 message(STATUS "${GRAPHVIZ_LIBRARY_DIRS}")
 target_link_directories(ECSGenerator PUBLIC ${GRAPHVIZ_LIBRARY_DIRS})
-
-get_cmake_property(_variableNames VARIABLES)
-
-foreach (_variableName ${_variableNames})
-message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
-
-target_link_libraries(ECSGenerator
-    PUBLIC
-    ${GRAPHVIZ_LIBRARIES}
-    LuaLayer
-    Resources
-    ECS
-    )
+    
 
 add_custom_command(TARGET ECSGenerator POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different

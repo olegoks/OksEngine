@@ -8,7 +8,7 @@ namespace OksEngine {
 	void StopAnimation::Update(
 		ECS2::Entity::Id entityId,
 		const Animation* animation,
-		const RunningAnimationState* runningAnimationState,
+		RunningAnimationState* runningAnimationState,
 		const AnimationInProcess* animationInProcess,
 		const AnimationEnded* animationEnded,
 		const Clock* clock) {

@@ -3,5 +3,6 @@ system = {
     includes = { 
 		"LoadResourceRequest", "Name"
 	  },
+    creates = { "AsyncTask", "WaitingForResourceLoading" },
     excludes = { "AsyncTask", "WaitingForResourceLoading" }
 }

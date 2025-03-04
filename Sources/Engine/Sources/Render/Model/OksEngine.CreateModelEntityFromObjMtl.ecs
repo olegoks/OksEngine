@@ -3,5 +3,6 @@ system = {
     includes = { 
 		"ObjEntity", "MtlEntity"
 	 },
+	 creates = { "ModelEntity" },
 	 excludes = { "ModelEntity" }
 }

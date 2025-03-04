@@ -8,10 +8,10 @@ namespace OksEngine {
 
 	void ProcessAnimation::Update(
 		ECS2::Entity::Id entityId,
-		const Position3D* position3D, 
+		const Position3D* position3D,
 		const Rotation3D* rotation3D,
 		const Animation* animation,
-		const RunningAnimationState* runningAnimationState,
+		RunningAnimationState* runningAnimationState,
 		const AnimationInProcess* animationInProcess,
 		const Clock* clock) {
 

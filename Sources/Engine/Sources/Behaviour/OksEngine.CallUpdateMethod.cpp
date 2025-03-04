@@ -8,7 +8,8 @@ namespace OksEngine {
 
 	void CallUpdateMethod::Update(
 		ECS2::Entity::Id entityId,
-		const Behaviour* behaviour, const  LuaContext* luaContext) {
+		const Behaviour* behaviour,
+		LuaContext* luaContext) {
 
 		const std::string objectName = behaviour->objectName_;
 		luabridge::LuaRef updater = luaContext->context_.GetGlobalAsRef(objectName + "Updater");

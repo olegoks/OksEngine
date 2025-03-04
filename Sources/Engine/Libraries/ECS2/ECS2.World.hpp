@@ -134,25 +134,25 @@ namespace ECS2 {
 				});
 		}
 
-//		template<class ComponentType>
-//		[[nodiscard]]
-//		ComponentType* GetComponent(Entity::Id entityId) noexcept {
-//			//Archetype entity.
-//			if (archetypeEntitiesComponents_.contains(entityId)) {
-//				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
-//				std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponents_[componentsFilter];
-//				return archetypeComponents->GetComponent<ComponentType>(entityId);
-//			}
-//			else {
-//#pragma region Assert
-//				OS::AssertMessage(
-//					dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
-//					"Attempt to get component that doesn't exist.");
-//#pragma endregion
-//				auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
-//				return container->GetComponent<ComponentType>(entityId);
-//			}
-//		}
+		template<class ComponentType>
+		[[nodiscard]]
+		ComponentType* GetComponent(Entity::Id entityId) noexcept {
+			//Archetype entity.
+			if (archetypeEntitiesComponents_.contains(entityId)) {
+				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
+				std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponents_[componentsFilter];
+				return archetypeComponents->GetComponent<ComponentType>(entityId);
+			}
+			else {
+#pragma region Assert
+				OS::AssertMessage(
+					dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
+					"Attempt to get component that doesn't exist.");
+#pragma endregion
+				auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
+				return container->GetComponent<ComponentType>(entityId);
+			}
+		}
 
 		template<class ComponentType>
 		[[nodiscard]]
@@ -174,6 +174,11 @@ namespace ECS2 {
 		template<typename First, typename... Rest>
 		auto make_tuple_excluding_first(First, Rest&... rest) {
 			return std::make_tuple(rest...);
+		}
+
+
+		void ForEachEntity(std::function<void(Entity::Id)>&& processEachEntityId) {
+
 		}
 
 		template<class ...Components>

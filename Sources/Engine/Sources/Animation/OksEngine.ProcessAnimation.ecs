@@ -4,11 +4,10 @@ system = {
         "Position3D", 
         "Rotation3D",
         "Animation", 
-        "RunningAnimationState", 
+        { name = "RunningAnimationState", readonly = false }, 
         "AnimationInProcess", 
         "Clock"  },
     excludes = {
         "AnimationEnded"
-
     }
 }

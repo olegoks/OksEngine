@@ -1,6 +1,15 @@
 system = {
     name = "CreateDriverVertexBuffer2D",
-    includes = { "Vertices2D", "Indices", "Normals", "UVs" },
-    excludes = { "DriverVertexBuffer" }
+    entities = {
+        {
+            includes = { "Vertices2D", "Indices", "Normals", "UVs" },
+            creates = { "DriverVertexBuffer" },
+            excludes = { "DriverVertexBuffer" }
+        },
+        {
+            includes = { { name = "RenderDriver", readonly = false } }
+        }
+    }
+
 }
 

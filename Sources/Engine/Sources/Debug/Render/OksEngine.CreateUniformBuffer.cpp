@@ -7,8 +7,10 @@ namespace OksEngine {
 
 
 	void CreateUniformBuffer::Update(
-		ECS2::Entity::Id entityId,
-		const ImGuiState* imGuiState) {
+		ECS2::Entity::Id entity1Id,
+		const ImGuiState* imGuiState,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
 
 		//if (imGuiState->fontsTextureId_.IsInvalid()) {
 		//	ImGuiIO& io = ImGui::GetIO();

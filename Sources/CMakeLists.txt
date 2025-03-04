@@ -21,6 +21,23 @@ file(GLOB SOURCES
     *.c
 )
 
+#INSTALLER
+
+include(CPack)
+
+set(CPACK_PACKAGE_NAME "OksEngineGame") 
+set(CPACK_PACKAGE_VERSION "1.0")
+set(CPACK_PACKAGE_DESCRIPTION "A brief description of my software")
+set(CPACK_INSTALL_PREFIX "C:/ProgramFiles (x86)/") 
+
+# Установка исполняемого файла
+install(TARGETS OksEngineGame DESTINATION bin)
+#install(FILES ${CMAKE_CURRENT_LIST_DIR}/../Build/Sources/Relese DESTINATION bin)
+
+set(CPACK_GENERATOR "ZIP")
+
+#INSTALLER
+
 
 source_group("Sources/Engine"
     FILES
@@ -33,10 +50,12 @@ target_sources(OksEngineGame
 
 target_link_libraries(OksEngineGame
     PRIVATE
-
         OksEngine
     )   
 
 
 add_subdirectory(Engine)
+
+# Добавьте конфигурацию CPack
+
 

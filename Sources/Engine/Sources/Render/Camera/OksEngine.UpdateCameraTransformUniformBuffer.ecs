@@ -11,7 +11,7 @@ system = {
                 "ZFar",
                 "Width",
                 "Height",
-                "UniformBuffer" },
+                { name = "UniformBuffer", readonly = false } },
         },
         {
             includes = { 

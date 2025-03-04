@@ -1,16 +1,28 @@
 system = {
     name = "CreatePhysicsShapeForDynamicRigidBody",
 
-    includes = { 
-		"Material",
-		"Vertices3D",
-		"Indices",
-		"ImmutableRenderGeometry",
-		"ModelEntity",
-		"DynamicRigidBodyCustomMeshShape"
-	 },
-	 excludes = {
-		"PhysicsShape",
-		"DynamicRigidBody"
-	 }
+
+	entities = {
+		{
+    		includes = { 
+				"Material",
+				"Vertices3D",
+				"Indices",
+				"ImmutableRenderGeometry",
+				"ModelEntity",
+				"DynamicRigidBodyCustomMeshShape"
+	 		},
+	 		creates = {
+				"DynamicRigidBody"
+	 		},
+	 		excludes = {
+				"PhysicsShape",
+				"DynamicRigidBody"
+			}
+		},
+		{
+			includes = { { name = "PhysicsEngine", readonly = false } }
+		}
+	}
 }
+

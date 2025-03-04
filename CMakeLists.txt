@@ -30,7 +30,6 @@ if (${CMAKE_GENERATOR} STREQUAL "Visual Studio 17 2022")
     file(COPY ${SNIPPETS_SOURCE_DIR} DESTINATION ${SNIPPETS_DEST_DIR})
 endif()
 
-
 # option(INSTALL_PATH     "Installing path"                                   "${CMAKE_CURRENT_SOURCE_DIR}/build/")
 # option(BUILD_TESTS      "Build ${PROJECT_NAME} tests"                       OFF)
 # option(BUILD_EXAMPLES   "Build ${PROJECT_NAME} examples"                    OFF)
