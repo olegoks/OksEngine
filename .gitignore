@@ -10,3 +10,4 @@ auto_*
 *.bak
 *.pyc
 */__pycache__/
+Scripts/engine.log
