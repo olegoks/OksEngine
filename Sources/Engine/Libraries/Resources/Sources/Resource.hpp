@@ -308,7 +308,7 @@ namespace Resources {
 				}
 			}
 
-			[[maybe_unsed]]
+			[[maybe_unused]]
 			std::string findResourceName = (*(--nodePath.end())).string();
 			OS::AssertMessage(
 				GetResourceInfo(currentNodeId).GetName() == findResourceName,
@@ -348,7 +348,7 @@ namespace Resources {
 				}
 			}
 
-			[[maybe_unsed]]
+			[[maybe_unused]]
 			std::string findResourceName = (*(--nodePath.end())).string();
 			OS::AssertMessage(
 				GetResourceInfo(currentNodeId).GetName() == findResourceName,
