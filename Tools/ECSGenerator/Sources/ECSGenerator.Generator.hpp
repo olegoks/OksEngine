@@ -13,11 +13,17 @@
 
 #include <graphviz/gvc.h>
 
+#include <clang/Format/Format.h>
+#include <clang/Tooling/Core/Replacement.h>
+#include <clang/Tooling/Tooling.h>
+#include <llvm/Support/CommandLine.h>
+#include <llvm/Support/Path.h>
+
+
 namespace ECSGenerator {
 
 
 	inline std::filesystem::path GetSubPath(const std::filesystem::path& path, const std::string& folderFrom) {
-		bool sourcesFound = false;
 		std::filesystem::path result;
 		std::filesystem::path::iterator sourcesIt;
 		for (auto it = path.end(); it != path.begin(); --it) {
@@ -747,7 +753,7 @@ namespace ECSGenerator {
 										if (include.readonly_ != dependenceSystemInclude.readonly_ || !(include.readonly_ && dependenceSystemInclude.readonly_)) {
 											Agedge_t* edge = agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 0);
 											if (edge == nullptr) {
-												auto* e = agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 1);
+												agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 1);
 											//	//agsafeset(e, (char*)"dir", (char*)"both", (char*)""); 
 											}
 										}
@@ -946,16 +952,10 @@ namespace ECSGenerator {
 				Code runSystemsCode;
 
 				runSystemsCode.Add("std::mutex mtx;");
-				runSystemsCode.NewLine();
 				runSystemsCode.Add("std::condition_variable cv;");
-				runSystemsCode.NewLine();
 				runSystemsCode.Add("int completedThreads = 0;");
-				runSystemsCode.NewLine();
 				runSystemsCode.Add("const int totalThreads = " + std::to_string(threads.size()) + ";");
-				runSystemsCode.NewLine();
 				runSystemsCode.Add("std::vector<std::thread> workers;");
-				runSystemsCode.NewLine();
-
 
 				for (Common::Index i = 0; i < threads.size(); ++i) {
 					auto& thread = threads[i];
@@ -971,22 +971,14 @@ namespace ECSGenerator {
 						runSystemsCode.Add("//" + threadComponent);
 						runSystemsCode.NewLine();
 					}
-					runSystemsCode.NewLine();
 					runSystemsCode.Add("{");
-					runSystemsCode.NewLine();
 
 					runSystemsCode.Add("workers.emplace_back([&]() {");
-					runSystemsCode.NewLine();
 					runSystemsCode.Add("HRESULT r;");
-					runSystemsCode.NewLine();
 					runSystemsCode.Add("r = SetThreadDescription(");
-					runSystemsCode.NewLine();
 					runSystemsCode.Add("GetCurrentThread(),");
-					runSystemsCode.NewLine();
 					runSystemsCode.Add("L\"Thread " + std::to_string(i) + "\"");
-					runSystemsCode.NewLine();
 					runSystemsCode.Add(");");
-					runSystemsCode.NewLine();
 
 					Code runThreadSystems;
 					for (auto it = thread.systems_.begin(); it != thread.systems_.end(); it++) {
@@ -1001,29 +993,17 @@ namespace ECSGenerator {
 					runSystemsCode.Add(runThreadSystems);
 
 					runSystemsCode.Add("std::unique_lock<std::mutex> lock(mtx);");
-					runSystemsCode.NewLine();
 					runSystemsCode.Add("completedThreads++;");
-					runSystemsCode.NewLine();
 					runSystemsCode.Add("cv.notify_one();");
-					runSystemsCode.NewLine();
 					runSystemsCode.Add("});");
-					runSystemsCode.NewLine();
-
-					runSystemsCode.NewLine();
 					runSystemsCode.Add("}");
-					runSystemsCode.NewLine();
 				}
 
 				runSystemsCode.Add("std::unique_lock<std::mutex> lock(mtx);");
-				runSystemsCode.NewLine();
 				runSystemsCode.Add("cv.wait(lock, [&] { return completedThreads == totalThreads; });");
-				runSystemsCode.NewLine();
 				runSystemsCode.Add("for (auto& worker : workers){");
-				runSystemsCode.NewLine();
 				runSystemsCode.Add("worker.join();");
-				runSystemsCode.NewLine();
 				runSystemsCode.Add("}");
-				runSystemsCode.NewLine();
 
 				//Update method.
 				std::vector<Function::Parameter> components;
@@ -1258,7 +1238,7 @@ namespace ECSGenerator {
 
 		static Code GenerateInclude(const std::filesystem::path& path) {
 			Code code{ "#include <" + path.string() + ">" };
-			code.NewLine();
+			
 			return code;
 		}
 
@@ -1269,8 +1249,8 @@ namespace ECSGenerator {
 				code.Add(": " + structObject->GetParentName() + " ");
 			}
 			code.Add("{");
-			code.NewLine();
-			code.NewLine();
+			
+			
 
 			Code structRealization;
 			{
@@ -1335,7 +1315,7 @@ namespace ECSGenerator {
 			}
 			code.Add("};");
 
-			code.NewLine();
+			
 
 			return code;
 		}
@@ -1344,16 +1324,16 @@ namespace ECSGenerator {
 			Code code;
 
 			code.Add("namespace " + namespaceObject->GetName() + " {");
-			code.NewLine();
-			code.NewLine();
+			
+			
 			for (auto base : namespaceObject->base_) {
 				Code namespaceCode = GenerateECSCXXFilesStructure(base);
 				namespaceCode.ApplyTab();
 				code.Add(namespaceCode);
 			}
-			code.NewLine();
+			
 			code.Add("}");
-			code.NewLine();
+			
 			return code;
 		}
 
@@ -1369,7 +1349,7 @@ namespace ECSGenerator {
 					}
 				}
 				code.Add(">");
-				code.NewLine();
+				
 			}
 
 			if (!functionObject->ci_.isPrototype_) {
@@ -1384,27 +1364,27 @@ namespace ECSGenerator {
 					}
 				}
 				code.Add("){");
-				code.NewLine();
+				
 				Code realization = functionObject->ci_.code_;
 				realization.ApplyTab();
 				code.Add(realization);
-				code.NewLine();
+				
 				code.Add("};");
-				code.NewLine();
+				
 			}
 			else {
 				code.Add((functionObject->ci_.inlineModifier_) ? ("inline") : ("") + functionObject->ci_.returnType_ + " " + functionObject->ci_.name_ + "(");
-				code.NewLine();
+				
 				for (Common::Index i = 0; i < functionObject->ci_.parameters_.size(); i++) {
 					const Function::Parameter& paramter = functionObject->ci_.parameters_[i];
 					code.Add(paramter.inputType_ + " " + paramter.valueName_);
 					if (i < functionObject->ci_.parameters_.size() - 1) {
 						code.Add(", ");
 					}
-					code.NewLine();
+					
 				}
 				code.Add(");");
-				code.NewLine();
+				
 				return code;
 			}
 			return code;
@@ -1428,7 +1408,17 @@ namespace ECSGenerator {
 				auto functionObject = std::dynamic_pointer_cast<Function>(base);
 				code = GenerateECSCXXFilesStructure(functionObject);
 			}
-			code.NewLine();
+			clang::format::FormatStyle style = clang::format::getGoogleStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);
+			llvm::StringRef codeToFormat = code.code_.c_str();  // Пример строки кода
+
+			// Установите диапазон для всего кода
+			clang::tooling::Replacements replacements = clang::format::reformat(style, codeToFormat, { clang::tooling::Range(0, codeToFormat.size()) });
+
+			auto formattedCode = clang::tooling::applyAllReplacements(codeToFormat, replacements);
+			if (!formattedCode) {
+				llvm::errs() << "Error formatting the code.\n";
+			}
+			code.code_ = *formattedCode;
 			return code;
 		}
 
@@ -1444,7 +1434,7 @@ namespace ECSGenerator {
 				Code code;
 				code.Add("#pragma once");
 				code.NewLine();
-				code.NewLine();
+				
 				codeFile->AddCode(code);
 			}
 			//Includes.
@@ -1452,7 +1442,7 @@ namespace ECSGenerator {
 				Code includes;
 				fileStructure->ForEachInclude([&](const std::filesystem::path& path) {
 					includes.Add(GenerateInclude(path));
-
+					includes.NewLine();
 					});
 				includes.NewLine();
 				codeFile->AddCode(includes);

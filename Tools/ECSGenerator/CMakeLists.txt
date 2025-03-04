@@ -29,42 +29,6 @@ organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
 
 add_executable(ECSGenerator)
 
-#Add clang lib 
-find_package(Clang REQUIRED)
-
-set_target_properties(ECSGenerator
-    PROPERTIES
-        VS_DEBUGGER_COMMAND_ARGUMENTS
-        "-workDir ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/")
-
-target_include_directories(ECSGenerator
-    PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR}/Sources/)
-
-target_sources(ECSGenerator
-    PUBLIC
-        ${PROJECT_SOURCES}
-        ${CLANG_INCLUDE_DIRS}
-    PRIVATE
-    )
-
-# Log all cmake variables.
-
-# get_cmake_property(_variableNames VARIABLES)
-
-# foreach (_variableName ${_variableNames})
-# message(STATUS "${_variableName}=${${_variableName}}")
-# endforeach()
-
-target_link_libraries(ECSGenerator
-    PUBLIC
-    ${GRAPHVIZ_LIBRARIES}
-    ${CLANG_LIBRARIES}
-    LuaLayer
-    Resources
-    ECS
-    )
-
 
 find_package(PkgConfig REQUIRED) 
 
@@ -75,6 +39,58 @@ target_include_directories(ECSGenerator  PUBLIC ${GRAPHVIZ_INCLUDE_DIRS})
 message(STATUS "${GRAPHVIZ_LIBRARY_DIRS}")
 target_link_directories(ECSGenerator PUBLIC ${GRAPHVIZ_LIBRARY_DIRS})
     
+
+# Поиск LLVM и Clang
+find_package(LLVM REQUIRED CONFIG)
+find_package(Clang REQUIRED CONFIG)
+
+# Добавляем необходимые библиотеки
+set(CLANG_LIBS
+    clangFormat
+    clangToolingCore
+    clangBasic
+    clangLex
+    clangRewrite
+    clangAST
+    clangSupport
+    LLVMSupport
+)
+
+set_target_properties(ECSGenerator
+    PROPERTIES
+        VS_DEBUGGER_COMMAND_ARGUMENTS
+        "-workDir ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/")
+target_include_directories(ECSGenerator
+    PUBLIC
+        ${LLVM_INCLUDE_DIRS} 
+        ${CLANG_INCLUDE_DIRS}
+        ${CMAKE_CURRENT_LIST_DIR}/Sources/)
+
+target_sources(ECSGenerator
+    PUBLIC
+        ${PROJECT_SOURCES}
+
+    PRIVATE
+    )
+
+
+target_link_libraries(ECSGenerator
+    PUBLIC
+    ${GRAPHVIZ_LIBRARIES}
+    ${CLANG_LIBS}
+    LuaLayer
+    Resources
+    ECS
+    )
+    
+
+# Log all cmake variables.
+
+get_cmake_property(_variableNames VARIABLES)
+
+foreach (_variableName ${_variableNames})
+message(STATUS "${_variableName}=${${_variableName}}")
+endforeach()
 
 add_custom_command(TARGET ECSGenerator POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
