@@ -1,6 +1,7 @@
 system = {
     name = "CreateObjEntity",
     includes = { "LoadObjRequest" },
+    creates = { "ObjEntity" },
 	excludes = { "ObjEntity" }
 }
 

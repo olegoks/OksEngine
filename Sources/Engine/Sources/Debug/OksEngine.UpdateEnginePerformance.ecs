@@ -1,5 +1,5 @@
 system = {
     name = "UpdateEnginePerformance",
 
-    includes = { "EnginePerformance", "FramesCounter" }
+    includes = { { name = "EnginePerformance", readonly = false }, "FramesCounter" }
 }

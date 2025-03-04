@@ -32,19 +32,16 @@ namespace OS {
 
 		void Open() override {
 			if (!IsExist()) {
-				throw Exception{ "Attempt to open file that doesn't exist." };
+				//throw Exception{ "Attempt to open file that doesn't exist." };
 			}
 			OS::AssertMessage(fstream_ == nullptr, "");
 			const std::filesystem::path fullPath = std::filesystem::absolute(GetPath());
 			fstream_ = std::make_unique<std::fstream>();
 			fstream_->open(fullPath.c_str(), std::ios::ate | std::ios::binary | std::ios::in | std::ios::out);
-			if (!IsOpened()) {
 				const std::error_condition errorCondition = std::system_category().default_error_condition(errno);
-				throw Exception{ {
-						"Error while openning file. %s.", 
-						errorCondition.message()
-					}};
-			}
+#pragma region Assert
+				OS::AssertMessage(IsOpened(), { "Error while openning file. %s.", errorCondition.message() });
+#pragma endregion
 
 			//OS::LogInfo("/OS/File/", { "File %s was opened successfuly.", GetPath().filename().string().c_str() });
 		}

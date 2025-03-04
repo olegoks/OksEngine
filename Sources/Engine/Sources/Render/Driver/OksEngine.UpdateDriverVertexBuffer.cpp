@@ -6,11 +6,13 @@
 namespace OksEngine {
 
 	void UpdateDriverVertexBuffer::Update(
-		ECS2::Entity::Id entityId,
+		ECS2::Entity::Id entity1Id,
 		const Vertices2D* vertices2D,
 		const Indices* indices,
 		const UVs* uVs,
-		const DriverVertexBuffer* driverVertexBuffer) {
+		DriverVertexBuffer* driverVertexBuffer,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
 
 		//auto* vertices = world->GetComponent<Vertices2D>(entityId);
 		//auto* colors = world->GetComponent<Colors>(entityId);

@@ -3,5 +3,6 @@ system = {
     includes = { 
         "Animation", 
         "StartAnimation" },
+        creates = { "RunningAnimationState" },
     excludes = { "RunningAnimationState" }
 }

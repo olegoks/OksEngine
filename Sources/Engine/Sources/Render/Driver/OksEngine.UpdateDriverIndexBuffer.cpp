@@ -6,10 +6,12 @@
 namespace OksEngine {
 
 	void UpdateDriverIndexBuffer::Update(
-		ECS2::Entity::Id entityId,
-		const Indices* indices, 
-		const MutableMesh* mutableMesh, 
-		const DriverIndexBuffer* driverIndexBuffer) {
+		ECS2::Entity::Id entity1Id,
+		const Indices* indices,
+		const MutableMesh* mutableMesh,
+		DriverIndexBuffer* driverIndexBuffer,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
 		//auto* indices = world->GetComponent<Indices>(entityId);
 
 		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();

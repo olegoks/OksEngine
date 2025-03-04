@@ -7,7 +7,7 @@ namespace OksEngine {
 
 	void RunAnimation::Update(
 		ECS2::Entity::Id entityId,
-		const RunningAnimationState* runningAnimationState,
+		RunningAnimationState* runningAnimationState,
 		const StartAnimation* startAnimation,
 		const Clock* clock) {
 

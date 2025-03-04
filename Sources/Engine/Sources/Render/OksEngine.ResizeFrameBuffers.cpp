@@ -13,7 +13,7 @@ namespace OksEngine {
 	void ResizeFrameBuffers::Update(
 		ECS2::Entity::Id entityId,
 		const Window* window,
-		const FrameBufferResizeEvents* frameBufferResizeEvents) {
+		FrameBufferResizeEvents* frameBufferResizeEvents) {
 
 		//FrameBufferResizeEvents* events = world->GetComponent<FrameBufferResizeEvents>(entityId);
 		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();

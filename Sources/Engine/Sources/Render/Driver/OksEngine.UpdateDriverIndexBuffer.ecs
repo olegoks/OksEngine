@@ -1,5 +1,16 @@
 system = {
     name = "UpdateDriverIndexBuffer",
-    includes = { "Indices", "MutableMesh", "DriverIndexBuffer"}
+    entities = {
+        {
+            includes = { 
+                "Indices",
+                "MutableMesh",
+                { name = "DriverIndexBuffer", readonly = false }
+            }
+        },
+        {
+            includes = { { name = "RenderDriver", readonly = false } }
+        }
+    }
 }
 

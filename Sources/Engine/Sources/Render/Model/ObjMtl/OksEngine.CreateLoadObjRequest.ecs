@@ -1,6 +1,7 @@
 system = {
     name = "CreateLoadObjRequest",
     includes = { "GDF" },
+    creates = { "LoadObjRequest" },
 	excludes = { "LoadObjRequest" }
 }
 

@@ -1,5 +1,19 @@
 system = {
     name = "UpdateDriverVertexBuffer",
-    includes = { "Vertices2D", "Indices", "UVs", "DriverVertexBuffer"}
+    entities = {
+        {
+            includes = { 
+                "Vertices2D", 
+                "Indices", 
+                "UVs",
+                { name = "DriverVertexBuffer", readonly = false } 
+            }
+        },
+        {
+            includes = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    }
 }
 

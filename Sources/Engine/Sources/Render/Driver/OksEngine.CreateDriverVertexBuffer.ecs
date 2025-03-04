@@ -1,6 +1,18 @@
 system = {
     name = "CreateDriverVertexBuffer",
-    includes = { "Vertices3D", "Indices", "Normals", "UVs" },
-    excludes = { "DriverVertexBuffer" }
+    
+    entities = {
+        {
+            includes = { "Vertices3D", "Indices", "Normals", "UVs" },
+                
+            creates = { "DriverVertexBuffer" },
+            excludes = { "DriverVertexBuffer" }
+        },
+        {
+             includes = { { name = "RenderDriver", readonly = false } }
+        }
+
+    }
+
 }
 

@@ -1,9 +1,18 @@
 
 system = {
     name = "CreateDriverTexture",
-
+  entities = {
+    {
     includes = { 
 		"TextureInfo", "Texture"
 	 }, 
+   creates = { "DriverTexture" },
    excludes = { "DriverTexture" }
+    },
+    {
+      includes = {
+        { name = "RenderDriver", readonly = false}
+      }
+    }
+  }
 }

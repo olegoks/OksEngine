@@ -17,7 +17,7 @@ namespace OksEngine {
 
 	void UpdateEnginePerformance::Update(
 		ECS2::Entity::Id entityId,
-		const EnginePerformance* enginePerformance, 
+		EnginePerformance* enginePerformance,
 		const FramesCounter* framesCounter) {
 
 		if (enginePerformance->show_) {

@@ -3,6 +3,7 @@ system = {
     includes = { 
 		"GDF"
 	 },
+	 creates = { "LoadFbxRequest" },
 	 excludes = { "LoadFbxRequest" }
 
 }

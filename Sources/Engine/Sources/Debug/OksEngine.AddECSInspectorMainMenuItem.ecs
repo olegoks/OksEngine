@@ -1,6 +1,6 @@
 system = {
     name = "AddECSInspectorMainMenuItem",
     includes = { 
-        "ECSInspector"
+        { name = "ECSInspector", readonly = false }
         }
 }

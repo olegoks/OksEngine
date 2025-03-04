@@ -4,5 +4,6 @@ system = {
         "Behaviour",
         "LuaScriptEntity"
         },
+        creates = { "LuaContext" },
     excludes = { "LuaContext" }
 }

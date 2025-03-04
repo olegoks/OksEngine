@@ -1,6 +1,7 @@
 system = {
     name = "CreateLoadMtlRequest",
     includes = { "GDF" },
+    creates = { "LoadMtlRequest" },
 	excludes = { "LoadMtlRequest" }
 }
 

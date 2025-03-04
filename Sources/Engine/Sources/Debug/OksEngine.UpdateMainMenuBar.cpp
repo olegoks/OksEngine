@@ -21,7 +21,7 @@ namespace OksEngine {
 
 	void UpdateMainMenuBar::Update(
 		ECS2::Entity::Id entityId,
-		const MainMenuBar* mainMenuBar) {
+		MainMenuBar* mainMenuBar) {
 
 	}
 

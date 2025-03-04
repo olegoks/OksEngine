@@ -2,6 +2,6 @@ system = {
     name = "CallUpdateMethod",
     includes = { 
         "Behaviour", 
-        "LuaContext"
+        { name = "LuaContext", readonly = false }
         }
 }

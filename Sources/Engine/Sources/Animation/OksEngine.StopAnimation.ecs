@@ -2,7 +2,7 @@ system = {
     name = "StopAnimation",
     includes = { 
         "Animation", 
-        "RunningAnimationState",
+        { name = "RunningAnimationState", readonly = false },
         "AnimationInProcess", 
         "AnimationEnded",
         "Clock"

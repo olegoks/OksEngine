@@ -8,11 +8,13 @@
 namespace OksEngine {
 
 	void CreateDriverVertexBuffer::Update(
-		ECS2::Entity::Id entityId,
-		const Vertices3D* vertices3D, 
-		const Indices* indices, 
+		ECS2::Entity::Id entity1Id,
+		const Vertices3D* vertices3D,
+		const Indices* indices,
 		const Normals* normals,
-		const UVs* uVs) {
+		const UVs* uVs,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
 
 		//auto* vertices = world->GetComponent<Vertices3D>(entityId);
 		//auto* normals = world->GetComponent<Normals>(entityId);
@@ -59,11 +61,13 @@ namespace OksEngine {
 
 
 	void CreateDriverVertexBuffer2D::Update(
-		ECS2::Entity::Id entityId,
+		ECS2::Entity::Id entity1Id,
 		const Vertices2D* vertices2D,
-		const Indices* indices, 
+		const Indices* indices,
 		const Normals* normals,
-		const UVs* uVs) {
+		const UVs* uVs,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
 
 		//auto* vertices = world->GetComponent<Vertices2D>(entityId);
 		//auto* colors = world->GetComponent<Colors>(entityId);

@@ -1,6 +1,7 @@
 system = {
     name = "CreateGDF",
     includes = { "GDFInfo" },
+    creates = { "GDF" },
 	excludes = { "GDF" }
 }
 

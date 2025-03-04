@@ -2,8 +2,8 @@ system = {
     name = "CallInputProcessor",
     includes = { 
         "Behaviour", 
-        "LuaContext",
-         "KeyboardInput", 
-        "MouseInput"
+        { name = "LuaContext", readonly = false }, 
+        { name = "KeyboardInput", readonly = false }, 
+        { name = "MouseInput", readonly = false }
         }
 }

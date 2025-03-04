@@ -8,13 +8,15 @@ namespace OksEngine {
 
 
 	void CreatePhysicsShapeForDynamicRigidBody::Update(
-		ECS2::Entity::Id entityId,
+		ECS2::Entity::Id entity1Id,
 		const Material* material,
 		const Vertices3D* vertices3D,
 		const Indices* indices,
 		const ImmutableRenderGeometry* immutableRenderGeometry,
 		const ModelEntity* modelEntity,
-		const DynamicRigidBodyCustomMeshShape* dynamicRigidBodyCustomMeshShape) {
+		const DynamicRigidBodyCustomMeshShape* dynamicRigidBodyCustomMeshShape,
+		ECS2::Entity::Id entity2Id,
+		PhysicsEngine* physicsEngine) {
 //
 //		auto* meshsEntities = world->GetComponent<ChildEntities>(modelEntity->id_);
 //
@@ -80,10 +82,12 @@ namespace OksEngine {
 
 
 	void CreatePhysicsShapeForStaticRigidBody::Update(
-		ECS2::Entity::Id entityId,
+		ECS2::Entity::Id entity1Id,
 		const ImmutableRenderGeometry* immutableRenderGeometry,
 		const ModelEntity* modelEntity,
-		const StaticRigidBodyCustomMeshShape* staticRigidBodyCustomMeshShape) {
+		const StaticRigidBodyCustomMeshShape* staticRigidBodyCustomMeshShape,
+		ECS2::Entity::Id entity2Id,
+		PhysicsEngine* physicsEngine) {
 //
 //		auto* materialComponent = world->GetComponent<Material>(entityId);
 //		auto* modelEntity = world->GetComponent<ModelEntity>(entityId);

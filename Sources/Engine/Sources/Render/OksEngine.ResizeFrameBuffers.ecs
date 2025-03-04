@@ -2,6 +2,7 @@ system = {
     name = "ResizeFrameBuffers",
 
     includes = { 
-		"Window", "FrameBufferResizeEvents"
+		"Window", 
+    { name = "FrameBufferResizeEvents", readonly = false }
 	 }
 }

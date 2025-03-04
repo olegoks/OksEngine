@@ -3,5 +3,6 @@ system = {
     includes = { 
 		"LoadResourceRequest", "AsyncTask"
 	 },
+   creates = { "BinaryData", "Completed" },
    excludes = { "BinaryData", "Completed" }
 }
