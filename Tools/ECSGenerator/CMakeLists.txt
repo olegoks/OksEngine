@@ -45,14 +45,21 @@ find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
 
 # Добавляем необходимые библиотеки
+llvm_map_components_to_libnames(LLVM_LIBS core irreader support)
+
+
+# Добавляем необходимые библиотеки
 set(CLANG_LIBS
     clangFormat
     clangToolingCore
     clangBasic
     clangLex
+    clangSerialization
     clangRewrite
     clangAST
     clangSupport
+    clangFrontend
+    clangDriver
     LLVMSupport
 )
 
@@ -78,6 +85,7 @@ target_link_libraries(ECSGenerator
     PUBLIC
     ${GRAPHVIZ_LIBRARIES}
     ${CLANG_LIBS}
+    ${LLVM_LIBS}
     LuaLayer
     Resources
     ECS
