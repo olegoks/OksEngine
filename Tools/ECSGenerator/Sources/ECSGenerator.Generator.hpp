@@ -68,6 +68,133 @@ namespace ECSGenerator {
 			std::filesystem::path,
 			std::shared_ptr<File>> GenerateECSCXXFilesStructure(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ CompilerInstance
+			// clang::CompilerInstance CI;
+			// CI.createDiagnostics();
+			// CI.getLangOpts().CPlusPlus = true; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ C++
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ASTContext
+			// CI.createASTContext();
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Rewriter пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+			// clang::Rewriter R;
+			// R.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ TranslationUnitDecl (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ AST)
+			// clang::ASTContext& AST = CI.getASTContext();
+			// clang::TranslationUnitDecl* TU = AST.getTranslationUnitDecl();
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+			// R.InsertText(clang::SourceLocation(), "#pragma once\n");
+			// R.InsertText(clang::SourceLocation(), "#include <Common.hpp>\n");
+			// R.InsertText(clang::SourceLocation(), "#include <ECS2.Component.hpp>\n");
+			// R.InsertText(clang::SourceLocation(), "#include <ECS2.Entity.hpp>\n");
+			// R.InsertText(clang::SourceLocation(), "#include <ECS2.World.hpp>\n");
+			// R.InsertText(clang::SourceLocation(), "#include <Lua.Context.hpp>\n");
+			// R.InsertText(clang::SourceLocation(), "#include <glm/glm.hpp>\n");
+			// R.InsertText(clang::SourceLocation(), "#include <glm/gtc/quaternion.hpp>\n");
+			// R.InsertText(clang::SourceLocation(), "#include <imgui.h>\n");
+			// R.InsertText(clang::SourceLocation(), "#include <string>\n");
+			// R.InsertText(clang::SourceLocation(), "#include <vector>\n\n");
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ OksEngine
+			// clang::NamespaceDecl* OksEngine = clang::NamespaceDecl::Create(
+			// 	AST, TU, false, clang::SourceLocation(), clang::SourceLocation(),
+			// 	&AST.Idents.get("OksEngine"), nullptr, false);
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Animation
+			// clang::RecordDecl* Animation = clang::CXXRecordDecl::Create(
+			// 	AST, clang::TagDecl::TagKind::Struct, OksEngine, clang::SourceLocation(),
+			// 	clang::SourceLocation(), &AST.Idents.get("Animation"));
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ ECS2::IComponent<Animation>
+			// clang::QualType BaseType = AST.getTemplateSpecializationTypeInfo(
+			// 	AST.getRecordType(AST.getRecordType(AST.getTypeDeclType(
+			// 		AST.getTypeDecl(TU, clang::SourceLocation(), &AST.Idents.get("ECS2")))),
+			// 		{ AST.getTypeDeclType(Animation) });
+			// clang::CXXBaseSpecifier * BaseSpec = clang::CXXBaseSpecifier::Create(
+			// 	AST, clang::SourceLocation(), false, false, BaseType, clang::SourceLocation(),
+			// 	clang::SourceLocation());
+			// Animation->setBases(BaseSpec, 1);
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+			// clang::CXXConstructorDecl * DefaultCtor = clang::CXXConstructorDecl::Create(
+			// 	AST, Animation, clang::SourceLocation(), clang::DeclarationName(), clang::QualType(),
+			// 	nullptr, clang::Function::FunctionKind::FK_DefaultConstructor, false, false,
+			// 	false, false);
+			// DefaultCtor->setAccess(clang::AccessSpecifier::AS_public);
+			// Animation->addDecl(DefaultCtor);
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+			// clang::FieldDecl * NameField = clang::FieldDecl::Create(
+			// 	AST, Animation, SourceLocation(), SourceLocation(),
+			// 	&AST.Idents.get("name_"), AST.getStdStringType(), nullptr, nullptr,
+			// 	false, false);
+			// NameField->setAccess(clang::AccessSpecifier::AS_private);
+			// Animation->addDecl(NameField);
+
+			// clang::FieldDecl * DurationField = clang::FieldDecl::Create(
+			// 	AST, Animation, SourceLocation(), SourceLocation(),
+			// 	&AST.Idents.get("durationInTicks_"), AST.getDoubleType(), nullptr,
+			// 	nullptr, false, false);
+			// DurationField->setAccess(clang::AccessSpecifier::AS_private);
+			// Animation->addDecl(DurationField);
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+			// QualType ParamTypes[] = {
+			// 	AST.getStdStringType(),
+			// 	AST.getDoubleType(),
+			// 	AST.FloatTy,
+			// 	AST.getTemplateSpecializationType(
+			// 		AST.getRecordType(
+			// 			AST.getRecordDecl(
+			// 				AST.getTypeDeclType(
+			// 					AST.getTypeDecl(TU, SourceLocation(), &AST.Idents.get("std::vector"))
+			// 				)
+			// 			)
+			// 		)
+			// 	),
+			// 	AST.getTemplateSpecializationType(
+			// 		AST.getRecordType(
+			// 			AST.getRecordDecl(
+			// 				AST.getTypeDeclType(
+			// 					AST.getTypeDecl(TU, SourceLocation(), &AST.Idents.get("std::vector"))
+			// 				)
+			// 			)
+			// 		)
+			// 	),
+			// 	AST.getTemplateSpecializationType(
+			// 		AST.getRecordType(
+			// 			AST.getRecordDecl(
+			// 				AST.getTypeDeclType(
+			// 					AST.getTypeDecl(TU, SourceLocation(), &AST.Idents.get("std::vector"))
+			// 				)
+			// 			)
+			// 		)
+			// 	)
+			// };
+			// CXXConstructorDecl * ParamCtor = CXXConstructorDecl::Create(
+			// 	AST, Animation, SourceLocation(), DeclarationName(), QualType(),
+			// 	nullptr, Function::FunctionKind::FK_Constructor, false, false, false,
+			// 	false);
+			// ParamCtor->setAccess(AccessSpecifier::AS_public);
+			// Animation->addDecl(ParamCtor);
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ GetName
+			// FunctionDecl * GetNameMethod = FunctionDecl::Create(
+			// 	AST, Animation, SourceLocation(), SourceLocation(),
+			// 	DeclarationName(&AST.Idents.get("GetName")), AST.getPointerType(AST.CharTy),
+			// 	nullptr, Function::FunctionKind::FK_MemberFunction, false, false, false,
+			// 	false);
+			// GetNameMethod->setAccess(AccessSpecifier::AS_public);
+			// Animation->addDecl(GetNameMethod);
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+			// Animation->print(R.getEditBuffer(CI.getSourceManager().getMainFileID()));
+
+			// // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+			// R.getEditBuffer(CI.getSourceManager().getMainFileID()).write(llvm::outs());
+
 			File::Includes includes{ };
 			if (systemEcsFile->GetName() == "CreateDriverTransform3D") {
 				//__debugbreak();
@@ -431,11 +558,121 @@ namespace ECSGenerator {
 					return true;
 					});
 
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+				llvm::LLVMContext Context;
+				llvm::Module* Mod = new llvm::Module("main_module", Context);
+
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ main
+				llvm::FunctionType* FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(Context), false);
+				llvm::Function* F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "main", Mod);
+
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+				llvm::BasicBlock* BB = llvm::BasicBlock::Create(Context, "entry", F);
+				llvm::IRBuilder<> Builder(BB);
+
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 42
+				Builder.CreateRet(llvm::ConstantInt::get(llvm::Type::getInt32Ty(Context), 42));
+
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+				verifyFunction(*F);
+
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ LLVM IR
+				//Mod->print(outs(), nullptr);
 
 				/*[[nodiscard]]
 				static const char* GetName() noexcept {
 				return Common::TypeInfo<Type>::GetTypeName();
 				}*/
+
+				{
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+					clang::CompilerInstance CI;
+					CI.createDiagnostics();
+#pragma region Assert
+					OS::AssertMessage(CI.hasDiagnostics(), "");
+#pragma endregion
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ LangOptions (пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ)
+					clang::LangOptions LO;
+					CI.getLangOpts() = LO;
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (target triple)
+					std::shared_ptr<clang::TargetOptions> TO = std::make_shared<clang::TargetOptions>();
+					//TO->Triple = "x86_64-pc-windows-msvc";
+					TO->Triple = llvm::sys::getDefaultTargetTriple(); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+					CI.setTarget(clang::TargetInfo::CreateTargetInfo(CI.getDiagnostics(), TO));
+					if (!CI.hasTarget()) {
+						//llvm::errs() << "пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ TargetInfo\n";
+						//return 1;
+					}
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ FileManager
+					CI.createFileManager();
+#pragma region Assert
+					OS::AssertMessage(CI.hasFileManager(), "");
+#pragma endregion
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ SourceManager
+					CI.createSourceManager(CI.getFileManager());
+#pragma region Assert
+					OS::AssertMessage(CI.hasSourceManager(), "");
+#pragma endregion
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Preprocessor
+					CI.createPreprocessor(clang::TranslationUnitKind::TU_Complete);
+#pragma region Assert
+					OS::AssertMessage(CI.hasPreprocessor(), "пїЅпїЅпїЅпїЅпїЅпїЅ: пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Preprocessor.");
+#pragma endregion
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ ASTContext
+					CI.createASTContext();
+
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ Rewriter пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
+					clang::Rewriter R;
+					R.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
+
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ FunctionDecl пїЅпїЅпїЅ main()
+					clang::FunctionDecl* FD = clang::FunctionDecl::Create(
+						CI.getASTContext(),
+						CI.getASTContext().getTranslationUnitDecl(),
+						clang::SourceLocation(),
+						clang::SourceLocation(),
+						clang::DeclarationName(&CI.getASTContext().Idents.get("main")),
+						CI.getASTContext().getFunctionType(
+							CI.getASTContext().IntTy, // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ (int)
+							{},                       // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅ)
+							clang::FunctionProtoType::ExtProtoInfo()
+						),
+						nullptr, // пїЅпїЅпїЅ (пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ)
+						clang::StorageClass::SC_None
+					);
+
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (return 42;)
+					clang::ReturnStmt* RS = clang::ReturnStmt::Create(
+						CI.getASTContext(),
+						clang::SourceLocation(),
+						clang::IntegerLiteral::Create(
+							CI.getASTContext(),
+							llvm::APInt(32, 42), // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ 42
+							CI.getASTContext().IntTy,
+							clang::SourceLocation()
+						),
+						nullptr
+					);
+
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ CompoundStmt (пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
+					clang::CompoundStmt* CS = clang::CompoundStmt::Create(
+						CI.getASTContext(),
+						clang::ArrayRef<clang::Stmt*>(RS),
+						clang::FPOptionsOverride{},
+						clang::SourceLocation(),
+						clang::SourceLocation()
+					);
+
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+					FD->setBody(CS);
+
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ C++ пїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ AST
+					FD->print(llvm::outs());
+
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
+					R.getEditBuffer(CI.getSourceManager().getMainFileID()).write(llvm::outs());
+
+				}
 				Function::CreateInfo fci{
 					.name_ = "GetName",
 					.parameters_ = {},
@@ -727,10 +964,10 @@ namespace ECSGenerator {
 
 
 			//Parse .dot
-			// Создаём новый графический контекст и граф
+			// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅ
 			GVC_t* gvc = gvContext();
 
-			// Создание нового графа
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 			Agraph_t* g = agopen((char*)"G", Agstrictundirected, nullptr);
 
 			projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedSystemECSFile> system) {
@@ -800,8 +1037,8 @@ namespace ECSGenerator {
 
 			//agsafeset(g, (char*)"rankdir", (char*)"LR", (char*)"");
 			//agsafeset(g, (char*)"splines", (char*)"ortho", (char*)"");
-			//agsafeset(g, (char*)"ep", (char*)"0.5", (char*)"");  // Расстояние между узлами
-			//agsafeset(g, (char*)"ranksep", (char*)"10 equally", (char*)""); // Расстояние между рангами
+			//agsafeset(g, (char*)"ep", (char*)"0.5", (char*)"");  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+			//agsafeset(g, (char*)"ranksep", (char*)"10 equally", (char*)""); // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
 			std::vector<std::string> graphvizColors = {
 	"white", "black", "red", "green", "blue", "yellow",
@@ -814,7 +1051,7 @@ namespace ECSGenerator {
 
 			std::vector<std::vector<Agnode_t*>> clusters = findConnectedComponents(g);
 
-			// Печать кластеров
+			// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			for (size_t i = 0; i < clusters.size(); ++i) {
 
 
@@ -831,7 +1068,7 @@ namespace ECSGenerator {
 			gvLayout(gvc, g, "dot");
 			gvRenderData(gvc, g, "dot", &dotData, &length);
 
-			// Освобождаем граф и контекст
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			agclose(g);
 			gvFreeContext(gvc);
 			dotfile->Create();
@@ -873,7 +1110,7 @@ namespace ECSGenerator {
 
 			std::map<std::string, std::set<std::string>> systemComponents;
 
-			// Создание отображения "система -> компоненты"
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ "пїЅпїЅпїЅпїЅпїЅпїЅпїЅ -> пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ"
 			for (auto& [component, systems] : componentSystem) {
 				for (const auto& system : systems) {
 					systemComponents[system].insert(component);
@@ -1409,9 +1646,9 @@ namespace ECSGenerator {
 				code = GenerateECSCXXFilesStructure(functionObject);
 			}
 			clang::format::FormatStyle style = clang::format::getGoogleStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);
-			llvm::StringRef codeToFormat = code.code_.c_str();  // Пример строки кода
+			llvm::StringRef codeToFormat = code.code_.c_str();  // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 
-			// Установите диапазон для всего кода
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 			clang::tooling::Replacements replacements = clang::format::reformat(style, codeToFormat, { clang::tooling::Range(0, codeToFormat.size()) });
 
 			auto formattedCode = clang::tooling::applyAllReplacements(codeToFormat, replacements);
