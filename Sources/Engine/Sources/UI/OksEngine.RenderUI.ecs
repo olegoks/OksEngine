@@ -1,0 +1,7 @@
+
+system = {
+    name = "RenderUI",
+    includes = {
+        { name = "MainWindow", readonly = false}
+    }
+}

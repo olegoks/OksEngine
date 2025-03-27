@@ -17,12 +17,12 @@ namespace OksEngine {
 
 		UISubsystem(const CreateInfo& createInfo);
 
-		std::shared_ptr<UI::Window> GetWindow() const noexcept;
+		std::shared_ptr<class UI::Window> GetWindow() const noexcept;
 
 		virtual void Update() override;
 		
-		std::shared_ptr<UI::API> api_ = nullptr;
-		std::shared_ptr<UI::Window> window_ = nullptr;
+		std::shared_ptr<class UI::API> api_ = nullptr;
+		std::shared_ptr<class UI::Window> window_ = nullptr;
 
 	};
 

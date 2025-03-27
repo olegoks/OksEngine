@@ -157,6 +157,18 @@ namespace ECS2 {
 		template<class ComponentType>
 		[[nodiscard]]
 		bool IsComponentExist(Entity::Id entityId) noexcept {
+			{
+				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
+				if (componentsFilter.IsSet<ComponentType>()) {
+					return true;
+				}
+			}
+			{
+				const ComponentsFilter componentsFilter = dynamicEntitiesComponentFilters_[entityId];
+				if (componentsFilter.IsSet<ComponentType>()) {
+					return true;
+				}
+			}
 			return false;
 		}
 
@@ -178,7 +190,12 @@ namespace ECS2 {
 
 
 		void ForEachEntity(std::function<void(Entity::Id)>&& processEachEntityId) {
-
+			for (const auto& [entityId, componentsFilter] : archetypeEntitiesComponents_) {
+				processEachEntityId(entityId);
+			}
+			for (const auto& [entityId, componentsFilter] : dynamicEntitiesComponentFilters_) {
+				processEachEntityId(entityId);
+			}
 		}
 
 		template<class ...Components>
@@ -188,7 +205,7 @@ namespace ECS2 {
 
 			//Find archetype that corresponds to components filter.
 
-			for (auto& [archetypeComponentsFilter, archetypeComponents] : archetypeComponents_) {
+			for (const auto& [archetypeComponentsFilter, archetypeComponents] : archetypeComponents_) {
 				if (componentsFilter.IsSubsetOf(archetypeComponentsFilter)) {
 					//TODO: Add exclude.
 					archetypeComponents->ForEachEntity<Components...>(excludes, std::forward<SystemUpdateFunction<Components...>&&>(processEntity));
@@ -226,13 +243,6 @@ namespace ECS2 {
 
 
 		}
-
-		//[[nodiscard]]
-		//bool IsEntityExist(Entity::Id entityId) const noexcept {
-		//	return
-		//		dynamicEntitiesComponentFilters_.contains(entityId)
-		//		|| archetypeEntitiesComponents_.contains(entityId);
-		//}
 
 		void StartFrame() {
 			ApplyDelayedRequests();

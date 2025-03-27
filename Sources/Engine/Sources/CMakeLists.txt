@@ -16,6 +16,7 @@ if(MSVC)
   target_link_options(OksEngine PUBLIC "/INCREMENTAL")
 endif()
 
+target_compile_definitions(OksEngine PUBLIC USE_PIX)
 
 #Test code
 
@@ -51,13 +52,14 @@ target_sources(OksEngine
         ${PROJECT_SOURCES}
     )
 
-
+find_package(Boost REQUIRED COMPONENTS asio)
 find_package(winpixevent CONFIG REQUIRED)
 find_package(SFML COMPONENTS Network Graphics Window Audio System CONFIG REQUIRED)
 find_package(imgui CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
 target_link_libraries(OksEngine
     PUBLIC
+    Boost::asio
     Microsoft::WinPixEventRuntime
     SFML::Audio
     SFML::System

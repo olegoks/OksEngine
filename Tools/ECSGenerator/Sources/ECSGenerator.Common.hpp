@@ -1,12 +1,12 @@
 #pragma once 
 
+#include <filesystem>
 
 #include <Lua.Context.hpp>
 
 #include <OS.CommandLineParameters.hpp>
 #include <Resource.hpp>
 #include <ECS.Entity.hpp>
-
 
 namespace ECSGenerator{
 
@@ -82,6 +82,82 @@ namespace ECSGenerator{
 		OS::AssertFail();
 		return "";
 	}
+
+
+	void FormatPath(std::filesystem::path& path) {
+		std::string pathString = path.string();
+		std::replace(pathString.begin(), pathString.end(), '\\', '/');
+		path = pathString;
+	}
+
+
+
+	enum class SearchDirection {
+		FromEndToBegin,
+		FromBeginToEnd,
+		Undefined
+	};
+
+	enum class ResultRange {
+		FromStartFolderToEnd,
+		FromStartToStartFolder,
+		Undefined
+	};
+
+	inline std::filesystem::path GetSubPath(
+		const std::filesystem::path& path,
+		const std::string& startFolder,
+		ResultRange resultRange,
+		SearchDirection startFolderSearchAlgo,
+		bool skipStartFolder = true) {
+
+		std::filesystem::path result;
+		std::filesystem::path::iterator startFolderIt;
+
+		if (startFolderSearchAlgo == SearchDirection::FromBeginToEnd) {
+			for (auto it = path.begin(); it != path.end(); ++it) {
+				if (*it == startFolder) {
+					startFolderIt = it;
+					break;
+				}
+			}
+		}
+		else if (startFolderSearchAlgo == SearchDirection::FromEndToBegin) {
+			for (auto it = path.end(); it != path.begin(); --it) {
+				if (*it == startFolder) {
+					startFolderIt = it;
+					break;
+				}
+			}
+		}
+		
+		if (skipStartFolder) {
+			if (resultRange == ResultRange::FromStartFolderToEnd) {
+				++startFolderIt;
+			}
+			else if (resultRange == ResultRange::FromStartToStartFolder) {
+				--startFolderIt;
+			}
+		}
+
+		if (resultRange == ResultRange::FromStartFolderToEnd) {
+			for (auto it = startFolderIt;
+				it != path.end();
+				++it) {
+				result /= *it;
+			}
+		}
+		else if (resultRange == ResultRange::FromStartToStartFolder) {
+			for (auto it = path.begin();
+				it != startFolderIt;
+				++it) {
+				result /= *it;
+			}
+		}
+		FormatPath(result);
+		return result;
+	}
+
 
 
 }

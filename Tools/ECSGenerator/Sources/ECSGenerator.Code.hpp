@@ -51,6 +51,7 @@ namespace ECSGenerator {
 			Struct,
 			Scope,
 			File,
+			Variable,
 			Undefined
 		};
 
@@ -78,15 +79,6 @@ namespace ECSGenerator {
 	public:
 
 		struct Parameter {
-
-			//enum class InputType {
-			//	Pointer,
-			//	ConstPointer,
-			//	Reference,
-			//	ConstReference,
-			//	Value,
-			//	Undefined
-			//};
 			std::string inputType_;
 			std::string valueName_;
 
@@ -107,6 +99,24 @@ namespace ECSGenerator {
 
 		virtual Type GetType() const noexcept override {
 			return Type::Function;
+		}
+
+		CreateInfo ci_;
+	};
+
+	class Variable : public Base {
+	public:
+
+		struct CreateInfo {
+			std::string type_;
+			std::string name_;
+			std::string initValue_;
+		};
+		Variable(const CreateInfo& createInfo) 
+			: ci_{ createInfo } { }
+
+		virtual Type GetType() const noexcept override {
+			return Type::Variable;
 		}
 
 		CreateInfo ci_;
@@ -243,7 +253,7 @@ namespace ECSGenerator {
 	public:
 
 		struct Includes {
-			std::set<std::filesystem::path> paths_;
+			std::vector<std::filesystem::path> paths_;
 		};
 
 		struct CreateInfo {

@@ -16,6 +16,7 @@
 
 #include <Render/auto_OksEngine.RenderDriver.hpp>
 #include <Resources/auto_OksEngine.ResourceSystem.hpp>
+#include <UI/auto_OksEngine.MainWindow.hpp>
 
 
 namespace OksEngine
@@ -71,6 +72,8 @@ namespace OksEngine
 
 		//world_->RegisterSystem<IncreaseFramesCounter>(*this);
 		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
+		const ECS2::Entity::Id mainWindowEntityId = world2_->CreateEntity();
+		world2_->CreateComponent<MainWindow>(mainWindowEntityId, uiSubsystem_->GetWindow());
 		//world_->RegisterSystem<CreateLoadLuaScriptRequest>(*this);
 
 		//world_->RegisterSystem<CreateLuaScriptEntity>(*this);

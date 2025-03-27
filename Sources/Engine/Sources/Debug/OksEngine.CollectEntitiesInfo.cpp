@@ -17,8 +17,7 @@ namespace OksEngine {
 	//}
 
 	void CollectEntitiesInfo::Update(
-		ECS2::Entity::Id entityId,
-		const VisibleInECSInspector* visibleInECSInspector) {
+		ECS2::Entity::Id entityId) {
 
 	//	ShowEntityInfo(world, id);
 

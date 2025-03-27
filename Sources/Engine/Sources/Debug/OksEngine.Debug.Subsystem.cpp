@@ -7,14 +7,14 @@ namespace OksEngine {
 
 	DebugSubsystem::DebugSubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::Debug, createInfo.context_ } {
 
-		const ECS2::Entity::Id entity = GetContext().GetECS2World()->CreateEntity();
+		//const ECS2::Entity::Id entity = GetContext().GetECS2World()->CreateEntity();
 
-		std::shared_ptr<ECS2::World> world = GetContext().GetECS2World();
+		//std::shared_ptr<ECS2::World> world = GetContext().GetECS2World();
 
-		world->CreateComponent<ImGuiState>(entity);
-		world->CreateComponent<MainMenuBar>(entity);
-		world->CreateComponent<EnginePerformance>(entity);
-		world->CreateComponent<ECSInspector>(entity);
+		//world->CreateComponent<ImGuiState>(entity);
+		//world->CreateComponent<MainMenuBar>(entity);
+		//world->CreateComponent<EnginePerformance>(entity);
+		//world->CreateComponent<ECSInspector>(entity);
 		//world->CreateComponent<FramesCounter>(entity);
 		// 
 		//GetContext().GetECSWorld()->RegisterSystem < CreateImGUIModel>(createInfo.context_);
