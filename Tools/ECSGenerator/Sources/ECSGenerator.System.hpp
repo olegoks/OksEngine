@@ -45,6 +45,8 @@ namespace ECSGenerator {
 			std::filesystem::path path_;
 			std::vector<Entity> entities_;
 			std::vector<std::string> createEntityComponents_; // we dont need info: dynamic or archetype entity to create because we need generate only to add components includes.
+			bool mainThreadCall_ = false;
+			bool processAllEntities_ = false;
 		};
 
 		
@@ -94,13 +96,19 @@ namespace ECSGenerator {
 
 	//};
 
-
+	enum class SystemType {
+		OneEntity,
+		TwoEntity,
+		AllEntities,
+		Undefined
+	};
 
 	std::shared_ptr<ParsedSystemECSFile> ParseSystemEcsFile(const std::filesystem::path& ecsFilePath, ::Lua::Context& context) {
 
 		std::vector<ParsedSystemECSFile::Entity> parsedEntities;
 
 		luabridge::LuaRef system = context.GetGlobalAsRef("system");
+
 
 		std::vector<std::string> createEntityComponents;
 		//Parse components need to create entity.
@@ -115,13 +123,18 @@ namespace ECSGenerator {
 		}
 		
 		luabridge::LuaRef includes = system["includes"];
+		luabridge::LuaRef processAllEntities = system["processAllEntities"];
 
+		SystemType systemType = SystemType::Undefined;
 
+		if (!processAllEntities.isNil()) {
+			systemType = SystemType::AllEntities;
+		}
+		else if (!includes.isNil()) {
+			systemType = SystemType::OneEntity;
+		}
 
-
-		const bool isOneEntitySystem = !includes.isNil();
-
-		if (isOneEntitySystem) {
+		if (systemType == SystemType::OneEntity) {
 			std::vector<ParsedSystemECSFile::Include> parsedIncludes;
 
 			for (luabridge::Iterator it(includes); !it.isNil(); ++it) {
@@ -179,6 +192,9 @@ namespace ECSGenerator {
 			};
 
 			parsedEntities.push_back(parsedEntity);
+		}
+		else if (systemType == SystemType::AllEntities) {
+
 		}
 		else {
 			//Two entities system.
@@ -250,12 +266,32 @@ namespace ECSGenerator {
 			}
 		}
 
+
+
 		ParsedSystemECSFile::CreateInfo ci{
 			.name_ = system["name"].cast<std::string>().value(),
 			.path_ = ecsFilePath,
 			.entities_ = parsedEntities,
 			.createEntityComponents_ = createEntityComponents
 		};
+
+		//Nain thread call.
+		if (
+			luabridge::LuaRef mainThreadCallRef = system["mainThreadCall"];
+			!mainThreadCallRef.isNil() &&
+			mainThreadCallRef.isBool() &&
+			mainThreadCallRef.cast<bool>().value()) {
+			ci.mainThreadCall_ = true;
+		}
+
+		//Process all entities.
+		if (
+			luabridge::LuaRef mainThreadCallRef = system["processAllEntities"];
+			!mainThreadCallRef.isNil() &&
+			mainThreadCallRef.isBool() &&
+			mainThreadCallRef.cast<bool>().value()) {
+			ci.processAllEntities_ = true;
+		}
 
 		auto parsedSystemFile = std::make_shared<ParsedSystemECSFile>(ci);
 		OS::AssertMessage(std::isupper(parsedSystemFile->GetName()[0]), "First system name symbol must be uppercase.");

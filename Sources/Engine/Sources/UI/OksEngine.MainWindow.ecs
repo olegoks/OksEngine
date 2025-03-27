@@ -1,0 +1,6 @@
+component = {
+    name = "MainWindow",
+    fields = { 
+        { type = "std::shared_ptr<UI::Window>", name = "window" }
+     }
+}

@@ -1,4 +1,4 @@
 system = {
     name = "CollectEntitiesInfo",
-    includes = { "VisibleInECSInspector" }
+    processAllEntities = true
 }

@@ -1,0 +1,8 @@
+
+system = {
+    name = "ProcessInput",
+    mainThreadCall = true,
+    includes = {
+        { name = "MainWindow", readonly = false}
+    }
+}

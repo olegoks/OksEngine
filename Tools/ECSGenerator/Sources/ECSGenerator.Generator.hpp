@@ -8,7 +8,7 @@
 #include <string>
 #include <algorithm>
 #include <iterator>
-
+#include <random>  
 
 
 #include <graphviz/gvc.h>
@@ -23,22 +23,6 @@
 namespace ECSGenerator {
 
 
-	inline std::filesystem::path GetSubPath(const std::filesystem::path& path, const std::string& folderFrom) {
-		std::filesystem::path result;
-		std::filesystem::path::iterator sourcesIt;
-		for (auto it = path.end(); it != path.begin(); --it) {
-			if (*it == folderFrom) {
-				sourcesIt = it;
-				break;
-			}
-		}
-		for (auto it = ++sourcesIt;//skip folderFrom directory
-			it != path.end();
-			++it) {
-			result /= *it;
-		}
-		return result;
-	}
 
 	class SystemFileStructureGenerator {
 	public:
@@ -49,17 +33,93 @@ namespace ECSGenerator {
 
 		SystemFileStructureGenerator(const CreateInfo& createInfo) : ci_{ createInfo } {}
 
+		std::filesystem::path GenerateCPPFilePath(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
+
+		}
 
 
-
-		//c:/users/user/desktop/oksengine/sources/engine\sources\common\clock\
-		// ->
-		//\common\clock\
 
 		std::pair<
 			std::filesystem::path,
 			std::shared_ptr<File>> GenerateSystemRealization(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
+
+			File::Includes includes{ };
+
+
+			const std::string systemName = systemEcsFile->GetName();
+			std::filesystem::path systemsIncludesFilePath;
+			std::filesystem::path systemFullPath = systemEcsFile->GetPath();
+			systemsIncludesFilePath = systemFullPath.parent_path();
+			std::filesystem::path systemIncludePath = GetSubPath(
+				systemFullPath.parent_path(),
+				projectContext->includeDirectory_,
+				ResultRange::FromStartFolderToEnd,
+				SearchDirection::FromEndToBegin,
+				true);
+
+			systemIncludePath /= ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp");
+			includes.paths_.push_back(systemIncludePath);
+
+
+			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			{
+				using namespace std::string_literals;
+				//Update method.
+				std::vector<Function::Parameter> updateMethodParameters;
+
+
+				//If system  process all entities need only one paramter Entity::Id
+				if (systemEcsFile->ci_.processAllEntities_) {
+					updateMethodParameters.push_back({ "ECS2::Entity::Id", "entityId" });
+				}
+
+
+				for (Common::Index i = 0; i < systemEcsFile->ci_.entities_.size(); i++) {
+
+					std::string entityIdString = "";
+					if (systemEcsFile->ci_.entities_.size() == 2) {
+						entityIdString = (i == 0) ? ("1") : ("2");
+					}
+
+					updateMethodParameters.push_back({ "ECS2::Entity::Id", "entity"s + entityIdString + "Id" });
+					const ParsedSystemECSFile::Entity& entity = systemEcsFile->ci_.entities_[i];
+					entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+						std::string lowerIncludeName = std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1);
+						updateMethodParameters.push_back({
+							((include.readonly_) ? ("const ") : ("")) + include.name_ + "*",
+							lowerIncludeName });
+
+						return true;
+						});
+				}
+
+				Function::CreateInfo updateMethodCI{
+					.name_ = systemEcsFile->GetName() + "::Update",
+					.parameters_ = updateMethodParameters,
+					.returnType_ = "void",
+					.code_ = "",
+					.isPrototype_ = false,
+					.inlineModifier_ = false
+				};
+
+				auto updateMethod = std::make_shared<Function>(updateMethodCI);
+
+				namespaceObject->Add(updateMethod);
+			}
+
+			File::CreateInfo fci{
+				.isHpp_ = false,
+				.includes_ = includes,
+				.base_ = namespaceObject
+			};
+			auto file = std::make_shared<File>(fci);
+
+			std::filesystem::path componentHppFileFullPath
+				= systemEcsFile->GetPath().parent_path() / ("OksEngine." + systemEcsFile->GetName() + ".cpp");
+			std::string componentHppFileFullPathString = componentHppFileFullPath.string();
+			std::replace(componentHppFileFullPathString.begin(), componentHppFileFullPathString.end(), '\\', '/');
+			return { std::filesystem::path{ componentHppFileFullPathString }, file };
 
 		}
 
@@ -196,67 +256,74 @@ namespace ECSGenerator {
 			// R.getEditBuffer(CI.getSourceManager().getMainFileID()).write(llvm::outs());
 
 			File::Includes includes{ };
-			if (systemEcsFile->GetName() == "CreateDriverTransform3D") {
-				//__debugbreak();
-			}
-			includes.paths_.insert("ECS2.hpp");
+			includes.paths_.push_back("ECS2.hpp");
+			includes.paths_.push_back("chrono");
 			if (!systemEcsFile->ci_.createEntityComponents_.empty()) {
 				for (auto& createEntityComponent : systemEcsFile->ci_.createEntityComponents_) {
-					std::filesystem::path includePath;
+					
 					auto componentEcsFile = projectContext->GetEcsFileByName(createEntityComponent);
-					includePath = GetSubPath(componentEcsFile->GetPath().parent_path(), projectContext->includeDirectory_);
+					const std::filesystem::path includePath = GetSubPath(
+						componentEcsFile->GetPath().parent_path(),
+						projectContext->includeDirectory_,
+						ResultRange::FromStartFolderToEnd,
+						SearchDirection::FromEndToBegin,
+						true);
+	/*				includePath = GetSubPathFromFolderToEnd(componentEcsFile->GetPath().parent_path(), projectContext->includeDirectory_);
 
 					const std::filesystem::path componentHPPIncludePath
-						= includePath / ("auto_OksEngine." + createEntityComponent + ".hpp");
+						= includePath / ;
 					std::string componentHPPIncludePathString = componentHPPIncludePath.string();
-					std::replace(componentHPPIncludePathString.begin(), componentHPPIncludePathString.end(), '\\', '/');
-					includes.paths_.insert(componentHPPIncludePathString);
+					std::replace(componentHPPIncludePathString.begin(), componentHPPIncludePathString.end(), '\\', '/');*/
+					includes.paths_.push_back(includePath / ("auto_OksEngine." + createEntityComponent + ".hpp"));
 				}
 			}
-			std::filesystem::path projectPath = GetSubPath(systemEcsFile->GetPath(), projectContext->includeDirectory_);
 
 			for (auto& entity : systemEcsFile->ci_.entities_) {
 
 				//Generate includes for components that system uses as input.
 				for (auto componentInclude : entity.includes_) {
-					std::filesystem::path includePath;
-
 					auto componentEcsFile = projectContext->GetEcsFileByName(componentInclude.name_);
-					includePath = GetSubPath(componentEcsFile->GetPath().parent_path(), projectContext->includeDirectory_);
+					const std::filesystem::path includePath = GetSubPath(
+						componentEcsFile->GetPath().parent_path(),
+						projectContext->includeDirectory_,
+						ResultRange::FromStartFolderToEnd,
+						SearchDirection::FromEndToBegin,
+						true);
 
-					const std::filesystem::path componentHPPIncludePath
-						= includePath / ("auto_OksEngine." + componentInclude.name_ + ".hpp");
-					std::string componentHPPIncludePathString = componentHPPIncludePath.string();
-					std::replace(componentHPPIncludePathString.begin(), componentHPPIncludePathString.end(), '\\', '/');
-					includes.paths_.insert(componentHPPIncludePathString);
+					//const std::filesystem::path componentHPPIncludePath
+					//	= includePath / ;
+					//std::string componentHPPIncludePathString = componentHPPIncludePath.string();
+					//std::replace(componentHPPIncludePathString.begin(), componentHPPIncludePathString.end(), '\\', '/');
+					includes.paths_.push_back(includePath / ("auto_OksEngine." + componentInclude.name_ + ".hpp"));
 				}
 
 				//Generate includes for components that system creates.
 				for (auto componentCreates : entity.creates_) {
-					std::filesystem::path includePath;
-
 					auto componentEcsFile = projectContext->GetEcsFileByName(componentCreates);
-					includePath = GetSubPath(componentEcsFile->GetPath().parent_path(), projectContext->includeDirectory_);
-
-					const std::filesystem::path componentHPPIncludePath
-						= includePath / ("auto_OksEngine." + componentCreates + ".hpp");
-					std::string componentHPPIncludePathString = componentHPPIncludePath.string();
-					std::replace(componentHPPIncludePathString.begin(), componentHPPIncludePathString.end(), '\\', '/');
-					includes.paths_.insert(componentHPPIncludePathString);
+					const std::filesystem::path includePath = GetSubPath(
+						componentEcsFile->GetPath().parent_path(),
+						projectContext->includeDirectory_,
+						ResultRange::FromStartFolderToEnd,
+						SearchDirection::FromEndToBegin,
+						true);
+					includes.paths_.push_back(includePath / ("auto_OksEngine." + componentCreates + ".hpp"));
 				}
 
 				//Generate includes for components that system creates.
 				for (auto componentExclude : entity.excludes_) {
-					std::filesystem::path includePath;
-
 					auto componentEcsFile = projectContext->GetEcsFileByName(componentExclude);
-					includePath = GetSubPath(componentEcsFile->GetPath().parent_path(), projectContext->includeDirectory_);
-
-					const std::filesystem::path componentHPPIncludePath
-						= includePath / ("auto_OksEngine." + componentExclude + ".hpp");
-					std::string componentHPPIncludePathString = componentHPPIncludePath.string();
-					std::replace(componentHPPIncludePathString.begin(), componentHPPIncludePathString.end(), '\\', '/');
-					includes.paths_.insert(componentHPPIncludePathString);
+					//includePath = GetSubPathFromFolderToEnd(componentEcsFile->GetPath().parent_path(), projectContext->includeDirectory_);
+					const std::filesystem::path includePath = GetSubPath(
+						componentEcsFile->GetPath().parent_path(),
+						projectContext->includeDirectory_,
+						ResultRange::FromStartFolderToEnd,
+						SearchDirection::FromEndToBegin,
+						true);
+					//const std::filesystem::path componentHPPIncludePath
+					//	= includePath / ;
+					//std::string componentHPPIncludePathString = componentHPPIncludePath.string();
+					//std::replace(componentHPPIncludePathString.begin(), componentHPPIncludePathString.end(), '\\', '/');
+					includes.paths_.push_back(includePath / ("auto_OksEngine." + componentExclude + ".hpp"));
 				}
 
 			}
@@ -264,7 +331,12 @@ namespace ECSGenerator {
 			{
 				using namespace std::string_literals;
 				//Update method.
-				std::vector<Function::Parameter> components;
+				std::vector<Function::Parameter> updateMethodParameters;
+
+				//If system  process all entities need only one paramter Entity::Id
+				if (systemEcsFile->ci_.processAllEntities_) {
+					updateMethodParameters.push_back({ "ECS2::Entity::Id", "entityId" });
+				}
 
 				for (Common::Index i = 0; i < systemEcsFile->ci_.entities_.size(); i++) {
 
@@ -273,11 +345,11 @@ namespace ECSGenerator {
 						entityIdString = (i == 0) ? ("1") : ("2");
 					}
 
-					components.push_back({ "ECS2::Entity::Id", "entity"s + entityIdString + "Id" });
+					updateMethodParameters.push_back({ "ECS2::Entity::Id", "entity"s + entityIdString + "Id" });
 					const ParsedSystemECSFile::Entity& entity = systemEcsFile->ci_.entities_[i];
 					entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
 						std::string lowerIncludeName = std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1);
-						components.push_back({
+						updateMethodParameters.push_back({
 							((include.readonly_) ? ("const ") : ("")) + include.name_ + "*",
 							lowerIncludeName });
 
@@ -291,7 +363,7 @@ namespace ECSGenerator {
 
 				Function::CreateInfo updateMethodCI{
 					.name_ = "Update",
-					.parameters_ = components,
+					.parameters_ = updateMethodParameters,
 					.returnType_ = "void",
 					.code_ = "",
 					.isPrototype_ = true,
@@ -341,7 +413,7 @@ namespace ECSGenerator {
 				Struct::CreateInfo sci{
 					.name_ = systemEcsFile->GetName(),
 					.parent_ = "",
-					.fields_ = { { "ECS2::World*", "world" } },
+					.fields_ = { { "std::shared_ptr<ECS2::World>", "world" } },
 					.methods_ = { updateMethod, createComponentMethod, createDynamicEntityMethod, createArchetypeEntityMethod }
 				};
 				auto structObject = std::make_shared<Struct>(sci);
@@ -352,146 +424,158 @@ namespace ECSGenerator {
 			}
 			{
 				std::vector<Function::Parameter> parameters;
-				parameters.push_back({ "ECS2::World*", "world" });
+				parameters.push_back({ "std::shared_ptr<ECS2::World>", "world" });
 
 				Code realization;
-				realization.Add(systemEcsFile->GetName() + " " + std::string{ (char)std::tolower(systemEcsFile->GetName()[0]) } + systemEcsFile->GetName().substr(1) + "{ world };");
-				realization.NewLine();
-
-				//Excludes
-				realization.Add("ECS2::ComponentsFilter excludeEntity1;");
-				realization.NewLine();
-				if (!systemEcsFile->ci_.entities_[0].excludes_.empty()) {
-					realization.Add("excludeEntity1.SetBits<");
-				}
-				for (Common::Index i = 0; i < systemEcsFile->ci_.entities_[0].excludes_.size(); ++i) {
-					realization.Add(systemEcsFile->ci_.entities_[0].excludes_[i]);
-					if (i != systemEcsFile->ci_.entities_[0].excludes_.size() - 1) {
-						realization.Add(", ");
-					}
-
-				}
-				if (!systemEcsFile->ci_.entities_[0].excludes_.empty()) {
-					realization.Add(">();");
-					realization.NewLine();
-				}
-				realization.Add("world->ForEachEntity<");
-				realization.NewLine();
-				systemEcsFile->ci_.entities_[0].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-					realization.Add(include.name_);
-					if (!isLast) {
-						realization.Add(", ");
-					}
-					realization.NewLine();
-					return true;
-					});
-				realization.Add(">(excludeEntity1, [&](");
-				realization.Add("ECS2::Entity::Id entity1Id, ");
-				systemEcsFile->ci_.entities_[0].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-					realization.Add(include.name_ + "* " + std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
-					if (!isLast) {
-						realization.Add(", ");
-					}
-					realization.NewLine();
-					return true;
-					});
-				realization.Add("){");
-				realization.NewLine();
-
-				if (systemEcsFile->ci_.entities_.size() == 1) {
-					//Call update method
-					realization.Add(std::string{ (char)std::tolower(systemEcsFile->GetName()[0]) } + systemEcsFile->GetName().substr(1) + ".Update(");
-					realization.Add("entity1Id");
-					realization.Add(", ");
-					realization.NewLine();
-					systemEcsFile->ci_.entities_[0].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-						realization.Add(std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
-						if (!isLast) {
-							realization.Add(", ");
-						}
-						realization.NewLine();
-						return true;
-						});
-					realization.Add(");");
+				if (!systemEcsFile->ci_.processAllEntities_) {
+					realization.Add(systemEcsFile->GetName() + " " + std::string{ (char)std::tolower(systemEcsFile->GetName()[0]) } + systemEcsFile->GetName().substr(1) + "{ world };");
 					realization.NewLine();
 
-				}
-				else {
 					//Excludes
-					realization.Add("ECS2::ComponentsFilter excludeEntity2;");
+					realization.Add("ECS2::ComponentsFilter excludeEntity1;");
 					realization.NewLine();
-					if (!systemEcsFile->ci_.entities_[1].excludes_.empty()) {
-						realization.Add("excludeEntity2.SetBits<");
+					if (!systemEcsFile->ci_.entities_[0].excludes_.empty()) {
+						realization.Add("excludeEntity1.SetBits<");
 					}
-					for (Common::Index i = 0; i < systemEcsFile->ci_.entities_[1].excludes_.size(); ++i) {
-						realization.Add(systemEcsFile->ci_.entities_[1].excludes_[i]);
-						if (i != systemEcsFile->ci_.entities_[1].excludes_.size() - 1) {
+					for (Common::Index i = 0; i < systemEcsFile->ci_.entities_[0].excludes_.size(); ++i) {
+						realization.Add(systemEcsFile->ci_.entities_[0].excludes_[i]);
+						if (i != systemEcsFile->ci_.entities_[0].excludes_.size() - 1) {
 							realization.Add(", ");
 						}
 
 					}
-					if (!systemEcsFile->ci_.entities_[1].excludes_.empty()) {
+					if (!systemEcsFile->ci_.entities_[0].excludes_.empty()) {
 						realization.Add(">();");
 						realization.NewLine();
 					}
+
 					realization.Add("world->ForEachEntity<");
 					realization.NewLine();
-					systemEcsFile->ci_.entities_[1].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+					systemEcsFile->ci_.entities_[0].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
 						realization.Add(include.name_);
 						if (!isLast) {
 							realization.Add(", ");
-
 						}
 						realization.NewLine();
 						return true;
 						});
-					realization.Add(">(excludeEntity2, [&](");
-					realization.Add("ECS2::Entity::Id entity2Id, ");
-					realization.NewLine();
-					systemEcsFile->ci_.entities_[1].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+					realization.Add(">(excludeEntity1, [&](");
+					realization.Add("ECS2::Entity::Id entity1Id, ");
+					systemEcsFile->ci_.entities_[0].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
 						realization.Add(include.name_ + "* " + std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
 						if (!isLast) {
 							realization.Add(", ");
 						}
+						realization.NewLine();
 						return true;
 						});
 					realization.Add("){");
 					realization.NewLine();
 
-					//Call update method
-					realization.Add(std::string{ (char)std::tolower(systemEcsFile->GetName()[0]) } + systemEcsFile->GetName().substr(1) + ".Update(");
-					realization.Add("entity1Id");
-					realization.Add(", ");
-					realization.NewLine();
-					systemEcsFile->ci_.entities_[0].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-						realization.Add(std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
-						if (!isLast) {
-							realization.Add(", ");
+					if (systemEcsFile->ci_.entities_.size() == 1) {
+						//Call update method
+						realization.Add(std::string{ (char)std::tolower(systemEcsFile->GetName()[0]) } + systemEcsFile->GetName().substr(1) + ".Update(");
+						realization.Add("entity1Id");
+						realization.Add(", ");
+						realization.NewLine();
+						systemEcsFile->ci_.entities_[0].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+							realization.Add(std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
+							if (!isLast) {
+								realization.Add(", ");
+							}
+							realization.NewLine();
+							return true;
+							});
+						realization.Add(");");
+						realization.NewLine();
+
+					}
+					else {
+						//Excludes
+						realization.Add("ECS2::ComponentsFilter excludeEntity2;");
+						realization.NewLine();
+						if (!systemEcsFile->ci_.entities_[1].excludes_.empty()) {
+							realization.Add("excludeEntity2.SetBits<");
 						}
-						return true;
-						});
+						for (Common::Index i = 0; i < systemEcsFile->ci_.entities_[1].excludes_.size(); ++i) {
+							realization.Add(systemEcsFile->ci_.entities_[1].excludes_[i]);
+							if (i != systemEcsFile->ci_.entities_[1].excludes_.size() - 1) {
+								realization.Add(", ");
+							}
 
-					realization.Add(", ");
-					realization.Add("entity2Id");
-					realization.Add(", ");
-					systemEcsFile->ci_.entities_[1].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-						realization.Add(std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
-						if (!isLast) {
-							realization.Add(", ");
 						}
-						return true;
-						});
+						if (!systemEcsFile->ci_.entities_[1].excludes_.empty()) {
+							realization.Add(">();");
+							realization.NewLine();
+						}
+
+						realization.Add("world->ForEachEntity<");
+						realization.NewLine();
+						systemEcsFile->ci_.entities_[1].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+							realization.Add(include.name_);
+							if (!isLast) {
+								realization.Add(", ");
+
+							}
+							realization.NewLine();
+							return true;
+							});
+						realization.Add(">(excludeEntity2, [&](");
+						realization.Add("ECS2::Entity::Id entity2Id, ");
+						realization.NewLine();
+						systemEcsFile->ci_.entities_[1].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+							realization.Add(include.name_ + "* " + std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
+							if (!isLast) {
+								realization.Add(", ");
+							}
+							return true;
+							});
+						realization.Add("){");
+						realization.NewLine();
+
+						//Call update method
+						realization.Add(std::string{ (char)std::tolower(systemEcsFile->GetName()[0]) } + systemEcsFile->GetName().substr(1) + ".Update(");
+						realization.Add("entity1Id");
+						realization.Add(", ");
+						realization.NewLine();
+						systemEcsFile->ci_.entities_[0].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+							realization.Add(std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
+							if (!isLast) {
+								realization.Add(", ");
+							}
+							return true;
+							});
+
+						realization.Add(", ");
+						realization.Add("entity2Id");
+						realization.Add(", ");
+						systemEcsFile->ci_.entities_[1].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+							realization.Add(std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
+							if (!isLast) {
+								realization.Add(", ");
+							}
+							return true;
+							});
 
 
-					realization.Add(");");
-					realization.NewLine();
+						realization.Add(");");
+						realization.NewLine();
+						realization.Add("});");
+						realization.NewLine();
+					}
+
 					realization.Add("});");
 					realization.NewLine();
 				}
+				else {
+					realization.Add(systemEcsFile->GetName() + " " + std::string{ (char)std::tolower(systemEcsFile->GetName()[0]) } + systemEcsFile->GetName().substr(1) + "{ world };");
+					realization.NewLine();
+					realization.Add("world->ForEachEntity([&](ECS2::Entity::Id entityId){");
+					realization.Add(std::string{ (char)std::tolower(systemEcsFile->GetName()[0]) } + systemEcsFile->GetName().substr(1) + ".Update(");
+					realization.Add("entityId);");
+					realization.Add("});");
 
-				realization.Add("});");
-				realization.NewLine();
-
+				}
 				Function::CreateInfo fci{
 					.name_ = systemEcsFile->GetName() + "System",
 					.parameters_ = parameters,
@@ -535,6 +619,8 @@ namespace ECSGenerator {
 
 		ComponentFileStructureGenerator(const CreateInfo& createInfo) : ci_{ createInfo } {}
 
+
+
 		std::pair<
 			std::filesystem::path,
 			std::shared_ptr<File>> GenerateECSCXXFilesStructure(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedComponentECSFile> componentEcsFile) {
@@ -557,122 +643,122 @@ namespace ECSGenerator {
 
 					return true;
 					});
-
-				// ������� �������� � ������
-				llvm::LLVMContext Context;
-				llvm::Module* Mod = new llvm::Module("main_module", Context);
-
-				// ������� ������� main
-				llvm::FunctionType* FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(Context), false);
-				llvm::Function* F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "main", Mod);
-
-				// ������� ������� ����
-				llvm::BasicBlock* BB = llvm::BasicBlock::Create(Context, "entry", F);
-				llvm::IRBuilder<> Builder(BB);
-
-				// ���������� 42
-				Builder.CreateRet(llvm::ConstantInt::get(llvm::Type::getInt32Ty(Context), 42));
-
-				// ��������� ������������ ������
-				verifyFunction(*F);
-
-				// ������� LLVM IR
-				//Mod->print(outs(), nullptr);
-
-				/*[[nodiscard]]
-				static const char* GetName() noexcept {
-				return Common::TypeInfo<Type>::GetTypeName();
-				}*/
-
-				{
-					// ������� ��������� �����������
-					clang::CompilerInstance CI;
-					CI.createDiagnostics();
-#pragma region Assert
-					OS::AssertMessage(CI.hasDiagnostics(), "");
-#pragma endregion
-					// ����������� LangOptions (��������� �����)
-					clang::LangOptions LO;
-					CI.getLangOpts() = LO;
-					// ����������� ������� ������� (target triple)
-					std::shared_ptr<clang::TargetOptions> TO = std::make_shared<clang::TargetOptions>();
-					//TO->Triple = "x86_64-pc-windows-msvc";
-					TO->Triple = llvm::sys::getDefaultTargetTriple(); // �������� ������� �� ���������
-					CI.setTarget(clang::TargetInfo::CreateTargetInfo(CI.getDiagnostics(), TO));
-					if (!CI.hasTarget()) {
-						//llvm::errs() << "������: �� ������� ������� TargetInfo\n";
-						//return 1;
-					}
-					// ����������� FileManager
-					CI.createFileManager();
-#pragma region Assert
-					OS::AssertMessage(CI.hasFileManager(), "");
-#pragma endregion
-					// ����������� SourceManager
-					CI.createSourceManager(CI.getFileManager());
-#pragma region Assert
-					OS::AssertMessage(CI.hasSourceManager(), "");
-#pragma endregion
-					// ����������� Preprocessor
-					CI.createPreprocessor(clang::TranslationUnitKind::TU_Complete);
-#pragma region Assert
-					OS::AssertMessage(CI.hasPreprocessor(), "������: �� ������� ������� Preprocessor.");
-#pragma endregion
-					// ������� ASTContext
-					CI.createASTContext();
-
-					// ������� Rewriter ��� ��������� ����
-					clang::Rewriter R;
-					R.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
-
-					// ������� FunctionDecl ��� main()
-					clang::FunctionDecl* FD = clang::FunctionDecl::Create(
-						CI.getASTContext(),
-						CI.getASTContext().getTranslationUnitDecl(),
-						clang::SourceLocation(),
-						clang::SourceLocation(),
-						clang::DeclarationName(&CI.getASTContext().Idents.get("main")),
-						CI.getASTContext().getFunctionType(
-							CI.getASTContext().IntTy, // ������������ ��� (int)
-							{},                       // ��������� (�����)
-							clang::FunctionProtoType::ExtProtoInfo()
-						),
-						nullptr, // ��� (���� ����)
-						clang::StorageClass::SC_None
-					);
-
-					// ������� ���� ������� (return 42;)
-					clang::ReturnStmt* RS = clang::ReturnStmt::Create(
-						CI.getASTContext(),
-						clang::SourceLocation(),
-						clang::IntegerLiteral::Create(
-							CI.getASTContext(),
-							llvm::APInt(32, 42), // �������� 42
-							CI.getASTContext().IntTy,
-							clang::SourceLocation()
-						),
-						nullptr
-					);
-
-					// ������� CompoundStmt (���� �������)
-					clang::CompoundStmt* CS = clang::CompoundStmt::Create(
-						CI.getASTContext(),
-						clang::ArrayRef<clang::Stmt*>(RS),
-						clang::FPOptionsOverride{},
-						clang::SourceLocation(),
-						clang::SourceLocation()
-					);
-
-					// ����������� ���� �������
-					FD->setBody(CS);
-
-					// ���������� C++ ��� �� ������ AST
-					FD->print(llvm::outs());
-
-					// ������� ��������������� ���
-					R.getEditBuffer(CI.getSourceManager().getMainFileID()).write(llvm::outs());
-
-				}
+				//
+				//				// ������� �������� � ������
+				//				llvm::LLVMContext Context;
+				//				llvm::Module* Mod = new llvm::Module("main_module", Context);
+				//
+				//				// ������� ������� main
+				//				llvm::FunctionType* FT = llvm::FunctionType::get(llvm::Type::getInt32Ty(Context), false);
+				//				llvm::Function* F = llvm::Function::Create(FT, llvm::Function::ExternalLinkage, "main", Mod);
+				//
+				//				// ������� ������� ����
+				//				llvm::BasicBlock* BB = llvm::BasicBlock::Create(Context, "entry", F);
+				//				llvm::IRBuilder<> Builder(BB);
+				//
+				//				// ���������� 42
+				//				Builder.CreateRet(llvm::ConstantInt::get(llvm::Type::getInt32Ty(Context), 42));
+				//
+				//				// ��������� ������������ ������
+				//				verifyFunction(*F);
+				//
+				//				// ������� LLVM IR
+				//				//Mod->print(outs(), nullptr);
+				//
+				//				/*[[nodiscard]]
+				//				static const char* GetName() noexcept {
+				//				return Common::TypeInfo<Type>::GetTypeName();
+				//				}*/
+				//
+				//				{
+				//					// ������� ��������� �����������
+				//					clang::CompilerInstance CI;
+				//					CI.createDiagnostics();
+				//#pragma region Assert
+				//					OS::AssertMessage(CI.hasDiagnostics(), "");
+				//#pragma endregion
+				//					// ����������� LangOptions (��������� �����)
+				//					clang::LangOptions LO;
+				//					CI.getLangOpts() = LO;
+				//					// ����������� ������� ������� (target triple)
+				//					std::shared_ptr<clang::TargetOptions> TO = std::make_shared<clang::TargetOptions>();
+				//					//TO->Triple = "x86_64-pc-windows-msvc";
+				//					TO->Triple = llvm::sys::getDefaultTargetTriple(); // �������� ������� �� ���������
+				//					CI.setTarget(clang::TargetInfo::CreateTargetInfo(CI.getDiagnostics(), TO));
+				//					if (!CI.hasTarget()) {
+				//						//llvm::errs() << "������: �� ������� ������� TargetInfo\n";
+				//						//return 1;
+				//					}
+				//					// ����������� FileManager
+				//					CI.createFileManager();
+				//#pragma region Assert
+				//					OS::AssertMessage(CI.hasFileManager(), "");
+				//#pragma endregion
+				//					// ����������� SourceManager
+				//					CI.createSourceManager(CI.getFileManager());
+				//#pragma region Assert
+				//					OS::AssertMessage(CI.hasSourceManager(), "");
+				//#pragma endregion
+				//					// ����������� Preprocessor
+				//					CI.createPreprocessor(clang::TranslationUnitKind::TU_Complete);
+				//#pragma region Assert
+				//					OS::AssertMessage(CI.hasPreprocessor(), "������: �� ������� ������� Preprocessor.");
+				//#pragma endregion
+				//					// ������� ASTContext
+				//					CI.createASTContext();
+				//
+				//					// ������� Rewriter ��� ��������� ����
+				//					clang::Rewriter R;
+				//					R.setSourceMgr(CI.getSourceManager(), CI.getLangOpts());
+				//
+				//					// ������� FunctionDecl ��� main()
+				//					clang::FunctionDecl* FD = clang::FunctionDecl::Create(
+				//						CI.getASTContext(),
+				//						CI.getASTContext().getTranslationUnitDecl(),
+				//						clang::SourceLocation(),
+				//						clang::SourceLocation(),
+				//						clang::DeclarationName(&CI.getASTContext().Idents.get("main")),
+				//						CI.getASTContext().getFunctionType(
+				//							CI.getASTContext().IntTy, // ������������ ��� (int)
+				//							{},                       // ��������� (�����)
+				//							clang::FunctionProtoType::ExtProtoInfo()
+				//						),
+				//						nullptr, // ��� (���� ����)
+				//						clang::StorageClass::SC_None
+				//					);
+				//
+				//					// ������� ���� ������� (return 42;)
+				//					clang::ReturnStmt* RS = clang::ReturnStmt::Create(
+				//						CI.getASTContext(),
+				//						clang::SourceLocation(),
+				//						clang::IntegerLiteral::Create(
+				//							CI.getASTContext(),
+				//							llvm::APInt(32, 42), // �������� 42
+				//							CI.getASTContext().IntTy,
+				//							clang::SourceLocation()
+				//						),
+				//						nullptr
+				//					);
+				//
+				//					// ������� CompoundStmt (���� �������)
+				//					clang::CompoundStmt* CS = clang::CompoundStmt::Create(
+				//						CI.getASTContext(),
+				//						clang::ArrayRef<clang::Stmt*>(RS),
+				//						clang::FPOptionsOverride{},
+				//						clang::SourceLocation(),
+				//						clang::SourceLocation()
+				//					);
+				//
+				//					// ����������� ���� �������
+				//					FD->setBody(CS);
+				//
+				//					// ���������� C++ ��� �� ������ AST
+				//					FD->print(llvm::outs());
+				//
+				//					// ������� ��������������� ���
+				//					R.getEditBuffer(CI.getSourceManager().getMainFileID()).write(llvm::outs());
+				//
+				//				}
 				Function::CreateInfo fci{
 					.name_ = "GetName",
 					.parameters_ = {},
@@ -858,43 +944,49 @@ namespace ECSGenerator {
 			componentEcsFile->ForEachField([&](const ParsedComponentECSFile::FieldInfo& fieldInfo, bool isLast) {
 
 				if (fieldInfo.GetTypeName() == "std::string") {
-					includes.paths_.insert("string");
+					includes.paths_.push_back("string");
 				}
 				if (fieldInfo.GetTypeName().find("Common") != std::string::npos) {
-					includes.paths_.insert("Common.hpp");
+					includes.paths_.push_back("Common.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("std::chrono") != std::string::npos) {
-					includes.paths_.insert("chrono");
+					includes.paths_.push_back("chrono");
 				}
 				if (fieldInfo.GetTypeName().find("PAL") != std::string::npos) {
-					includes.paths_.insert("PAL.hpp");
+					includes.paths_.push_back("PAL.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("glm") != std::string::npos) {
-					includes.paths_.insert("glm/glm.hpp");
+					includes.paths_.push_back("glm/glm.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("std::queue") != std::string::npos) {
-					includes.paths_.insert("queue");
+					includes.paths_.push_back("queue");
 				}
 				if (fieldInfo.GetTypeName().find("std::vector") != std::string::npos) {
-					includes.paths_.insert("vector");
+					includes.paths_.push_back("vector");
 				}
 				if (fieldInfo.GetTypeName().find("RAL") != std::string::npos) {
-					includes.paths_.insert("RAL.hpp");
+					includes.paths_.push_back("RAL.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("Geom:") != std::string::npos) {
-					includes.paths_.insert("Geometry.hpp");
+					includes.paths_.push_back("Geometry.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("UIAL::Window") != std::string::npos) {
-					includes.paths_.insert("UI/OksEngine.UIAL.Window.hpp");
+					includes.paths_.push_back("UIAL.Window.hpp");
+				}
+				if (fieldInfo.GetTypeName().find("UI::Window") != std::string::npos) {
+					includes.paths_.push_back("UI/OksEngine.UI.Window.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("sf") != std::string::npos) {
-					includes.paths_.insert("SFML/Audio.hpp");
+					includes.paths_.push_back("SFML/Audio.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("glm::quat") != std::string::npos) {
-					includes.paths_.insert("glm/gtc/quaternion.hpp");
+					includes.paths_.push_back("glm/gtc/quaternion.hpp");
+				}
+				if (fieldInfo.GetTypeName().find("PE") != std::string::npos) {
+					includes.paths_.push_back("PE.PhysicsEngine.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("AsyncResourceSubsystem") != std::string::npos) {
-					includes.paths_.insert("Resources/OksEngine.Resource.Subsystem.hpp");
+					includes.paths_.push_back("Resources/OksEngine.Resource.Subsystem.hpp");
 				}
 
 				return true;
@@ -926,7 +1018,7 @@ namespace ECSGenerator {
 		for (Agedge_t* edge = agfstout(g, node); edge; edge = agnxtout(g, edge)) {
 			Agnode_t* neighbor = aghead(edge);
 			if (!visited[neighbor]) {
-				dfs(neighbor, visited , component, g);
+				dfs(neighbor, visited, component, g);
 			}
 		}
 
@@ -957,27 +1049,27 @@ namespace ECSGenerator {
 	class SystemCallsGraphDescriptionGenerator {
 	public:
 
-
-
-		std::shared_ptr<OS::TextFile>
-			GenerateGraphText(std::shared_ptr<ProjectContext> projectContext) {
-
-
-			//Parse .dot
-			// ������ ����� ����������� �������� � ����
-			GVC_t* gvc = gvContext();
+		Agraph_t* CreateSystemsGraph(std::shared_ptr<ProjectContext> projectContext) {
 
 			// �������� ������ �����
 			Agraph_t* g = agopen((char*)"G", Agstrictundirected, nullptr);
 
 			projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedSystemECSFile> system) {
 
+				//Do not add system that will be call manualy.
+				if (system->ci_.processAllEntities_) {
+					return;
+				}
 				Agnode_t* systemNode = agnode(g, (char*)system->GetName().c_str(), 1);
 				agsafeset(systemNode, (char*)"shape", (char*)"rect", (char*)"");
 				for (auto& entity : system->ci_.entities_) {
 					entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
 
 						projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedSystemECSFile> maybeDependenceSystem) {
+							//Do not add system that will be call manualy.
+							if (system->ci_.processAllEntities_) {
+								return;
+							}
 							if (system == maybeDependenceSystem) { return; }
 							if (system->GetName() == "UpdateDriverIndexBuffer" && maybeDependenceSystem->GetName() == "CreateUniformBuffer") {
 								systemNode = systemNode;
@@ -991,7 +1083,7 @@ namespace ECSGenerator {
 											Agedge_t* edge = agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 0);
 											if (edge == nullptr) {
 												agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 1);
-											//	//agsafeset(e, (char*)"dir", (char*)"both", (char*)""); 
+												//	//agsafeset(e, (char*)"dir", (char*)"both", (char*)""); 
 											}
 										}
 									}
@@ -1007,45 +1099,18 @@ namespace ECSGenerator {
 
 				});
 
+			return g;
 
-			//Get path
-			auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
+		}
 
-			std::filesystem::path includeDirFullPath;
-
-			std::filesystem::path::iterator includeDirIt;
-			for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
-				auto folder = *it;
-				if (folder == projectContext->includeDirectory_) {
-					includeDirIt = it;
-					break;
-				}
-			}
-
-			for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
-				includeDirFullPath /= *it;
-			}
-
-			includeDirFullPath /= *includeDirIt;
-			//Get path
-
-
-			auto dotfile = std::make_shared<OS::TextFile>(includeDirFullPath / "ECSSystemsGraph.dot");
-
-			char* dotData = nullptr;
-			unsigned int length = 0;
-
-			//agsafeset(g, (char*)"rankdir", (char*)"LR", (char*)"");
-			//agsafeset(g, (char*)"splines", (char*)"ortho", (char*)"");
-			//agsafeset(g, (char*)"ep", (char*)"0.5", (char*)"");  // ���������� ����� ������
-			//agsafeset(g, (char*)"ranksep", (char*)"10 equally", (char*)""); // ���������� ����� �������
+		std::vector<std::vector<Agnode_t*>> FindClusters(Agraph_t* g) {
 
 			std::vector<std::string> graphvizColors = {
-	"white", "black", "red", "green", "blue", "yellow",
+	"white", "red", "green", "blue", "yellow",
 	"cyan", "magenta", "lightgray", "darkgray", "lightred",
 	"lightgreen", "lightblue", "darkred", "darkgreen", "darkblue",
 	"pink", "orange", "brown", "purple", "violet",
-	"turquoise", "goldenrod ", "salmon", "khaki", "plum", 
+	"turquoise", "goldenrod ", "salmon", "khaki", "plum",
 	"coral", "forestgreen", "olive", "navy", "indigo"
 			};
 
@@ -1065,221 +1130,17 @@ namespace ECSGenerator {
 				std::cout << std::endl;
 			}
 
-			gvLayout(gvc, g, "dot");
-			gvRenderData(gvc, g, "dot", &dotData, &length);
-
-			// ����������� ���� � ��������
-			agclose(g);
-			gvFreeContext(gvc);
-			dotfile->Create();
-			std::string dotText{ dotData };
-			(*dotfile) << dotText;
-			dotfile->Close();
-
-			return dotfile;
+			return clusters;
 		}
-	};
 
-	class CodeStructureGenerator {
-	public:
-
-		std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>>
-			GenerateRunSystemsFile(std::shared_ptr<ProjectContext> projectContext) {
-
-			using System = std::string;
-			using Component = std::string;
-
-			//Components and which systems uses them.
-			std::map<System, std::set<Component>> componentSystem;
+		std::shared_ptr<OS::TextFile> GenerateGraphText(Agraph_t* g, std::shared_ptr<ProjectContext> projectContext) {
 
 
-			projectContext->ForEachSystemEcsFile(
-				[&](std::shared_ptr<ParsedSystemECSFile> componentEcsFile) {
-
-					const std::string systemName = componentEcsFile->GetName();
-					for (auto& entity : componentEcsFile->ci_.entities_) {
-						entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-							if (componentSystem.find(include.name_) != componentSystem.end()) {
-								componentSystem.insert({});
-							}
-							componentSystem[include.name_].insert(systemName);
-							return true;
-							});
-					}
-				});
-
-			std::map<std::string, std::set<std::string>> systemComponents;
-
-			// �������� ����������� "������� -> ����������"
-			for (auto& [component, systems] : componentSystem) {
-				for (const auto& system : systems) {
-					systemComponents[system].insert(component);
-				}
-			}
-
-			struct Thread {
-				std::map<System, std::set<Component>> systems_;
-			};
-
-			std::vector<Thread> threads;
-
-			//Take first system as first thread base.
-			auto firstThreadSystemComponentsIt = systemComponents.begin();
-			std::pair<System, std::set<Component>> firstThreadSystemComponents = std::move(*firstThreadSystemComponentsIt);
-			systemComponents.erase(firstThreadSystemComponentsIt);
-
-			Thread firstThread{ };
-			firstThread.systems_.insert(firstThreadSystemComponents);
-
-			threads.push_back(firstThread);
-
-			while (!systemComponents.empty()) {
-				std::vector<std::map<System, std::set<Component>>::iterator> addedSystems;
-				for (auto& thread : threads) {
-					for (auto it = systemComponents.begin(); it != systemComponents.end(); it++) {
-						bool thisSystemAddedYet = false;
-						for (auto& addedSystem : addedSystems) {
-							if (addedSystem->first == it->first) {
-								thisSystemAddedYet = true;
-							}
-						}
-						if (thisSystemAddedYet) {
-							break;
-						}
-						for (auto& threadSystem : thread.systems_) {
-
-							std::set<std::string> intersection;
-
-							std::set_intersection(
-								threadSystem.second.begin(), threadSystem.second.end(),
-								it->second.begin(), it->second.end(),
-								std::inserter(intersection, intersection.begin()));
-
-							if (!intersection.empty()) {
-								//Need to add system to thread.
-								addedSystems.push_back(it);
-								thread.systems_.insert(*it);
-								break;
-							}
-						}
-					}
-				}
-				if (addedSystems.empty()) {
-					auto it = systemComponents.begin();
-					Thread newThread;
-					newThread.systems_.insert(*it);
-					threads.push_back(newThread);
-					systemComponents.erase(it);
-				}
-				for (auto it : addedSystems) {
-					systemComponents.erase(it);
-				}
+			//Parse .dot
+			GVC_t* gvc = gvContext();
 
 
-			}
-
-
-			std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>> files;
-
-
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
-			{
-				using namespace std::string_literals;
-
-				Code runSystemsCode;
-
-				runSystemsCode.Add("std::mutex mtx;");
-				runSystemsCode.Add("std::condition_variable cv;");
-				runSystemsCode.Add("int completedThreads = 0;");
-				runSystemsCode.Add("const int totalThreads = " + std::to_string(threads.size()) + ";");
-				runSystemsCode.Add("std::vector<std::thread> workers;");
-
-				for (Common::Index i = 0; i < threads.size(); ++i) {
-					auto& thread = threads[i];
-					runSystemsCode.Add("//Thread " + std::to_string(i));
-					runSystemsCode.NewLine();
-					std::set<std::string> threadComponents;
-					for (auto& system : thread.systems_) {
-						for (auto& component : system.second) {
-							threadComponents.insert(component);
-						}
-					}
-					for (auto& threadComponent : threadComponents) {
-						runSystemsCode.Add("//" + threadComponent);
-						runSystemsCode.NewLine();
-					}
-					runSystemsCode.Add("{");
-
-					runSystemsCode.Add("workers.emplace_back([&]() {");
-					runSystemsCode.Add("HRESULT r;");
-					runSystemsCode.Add("r = SetThreadDescription(");
-					runSystemsCode.Add("GetCurrentThread(),");
-					runSystemsCode.Add("L\"Thread " + std::to_string(i) + "\"");
-					runSystemsCode.Add(");");
-
-					Code runThreadSystems;
-					for (auto it = thread.systems_.begin(); it != thread.systems_.end(); it++) {
-						runThreadSystems.Add(it->first + "System(world2);");
-						auto itCopy = it;
-						if (itCopy++ != thread.systems_.end()) {
-							runThreadSystems.NewLine();
-						}
-					}
-
-					runThreadSystems.ApplyTab();
-					runSystemsCode.Add(runThreadSystems);
-
-					runSystemsCode.Add("std::unique_lock<std::mutex> lock(mtx);");
-					runSystemsCode.Add("completedThreads++;");
-					runSystemsCode.Add("cv.notify_one();");
-					runSystemsCode.Add("});");
-					runSystemsCode.Add("}");
-				}
-
-				runSystemsCode.Add("std::unique_lock<std::mutex> lock(mtx);");
-				runSystemsCode.Add("cv.wait(lock, [&] { return completedThreads == totalThreads; });");
-				runSystemsCode.Add("for (auto& worker : workers){");
-				runSystemsCode.Add("worker.join();");
-				runSystemsCode.Add("}");
-
-				//Update method.
-				std::vector<Function::Parameter> components;
-
-				Function::CreateInfo runSystemsFunction{
-					.name_ = "RunSystems",
-					.parameters_ = { { "ECS2::World*", "world2" }},
-					.returnType_ = "void",
-					.code_ = runSystemsCode,
-					.isPrototype_ = false,
-					.inlineModifier_ = true
-				};
-
-				auto runSystemsFunctionObject = std::make_shared<Function>(runSystemsFunction);
-
-				namespaceObject->Add(runSystemsFunctionObject);
-			}
-
-			File::Includes includes{ };
-
-			projectContext->ForEachSystemEcsFile(
-				[&](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
-
-					const std::string systemName = systemEcsFile->GetName();
-					std::filesystem::path systemsIncludesFilePath;
-					std::filesystem::path systemFullPath = systemEcsFile->GetPath();
-					systemsIncludesFilePath = systemFullPath.parent_path();
-					std::filesystem::path systemIncludePath = GetSubPath(systemFullPath.parent_path(), projectContext->includeDirectory_);
-
-					systemIncludePath /= ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp");
-					includes.paths_.insert(systemIncludePath);
-				});
-
-			File::CreateInfo fci{
-			.isHpp_ = true,
-			.includes_ = includes,
-			.base_ = namespaceObject
-			};
-			auto file = std::make_shared<File>(fci);
+			//Get path
 			auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
 
 			std::filesystem::path includeDirFullPath;
@@ -1298,402 +1159,890 @@ namespace ECSGenerator {
 			}
 
 			includeDirFullPath /= *includeDirIt;
+			//Get path
 
-			std::filesystem::path systemHppFileFullPath = includeDirFullPath / ("auto_OksEngine.RunSystems.hpp");
-			std::string systemHppFileFullPathString = systemHppFileFullPath.string();
-			std::replace(systemHppFileFullPathString.begin(), systemHppFileFullPathString.end(), '\\', '/');
-			return { { std::filesystem::path{ systemHppFileFullPathString }, file } };
+
+			auto dotfile = std::make_shared<OS::TextFile>(includeDirFullPath / "auto_ECSSystemsGraph.dot");
+
+			char* dotData = nullptr;
+			unsigned int length = 0;
+
+			//agsafeset(g, (char*)"rankdir", (char*)"LR", (char*)"");
+			//agsafeset(g, (char*)"splines", (char*)"ortho", (char*)"");
+			//agsafeset(g, (char*)"ep", (char*)"0.5", (char*)"");  // ���������� ����� ������
+			//agsafeset(g, (char*)"ranksep", (char*)"10 equally", (char*)""); // ���������� ����� �������
+
+
+			gvLayout(gvc, g, "dot");
+			gvRenderData(gvc, g, "dot", &dotData, &length);
+
+			agclose(g);
+			gvFreeContext(gvc);
+			dotfile->Create();
+			std::string dotText{ dotData };
+			(*dotfile) << dotText;
+			dotfile->Close();
+
+			return dotfile;
 		}
+	};
+
+	class CodeStructureGenerator {
+	public:
+
+		std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>>
+			GenerateRunSystemsFiles(std::vector<std::vector<Agnode_t*>> clusters, std::shared_ptr<ProjectContext> projectContext) {
+
+			using System = std::string;
+			using Component = std::string;
+
+			//Components and which systems uses them.
+			std::map<System, std::set<Component>> componentSystem;
+			projectContext->ForEachSystemEcsFile(
+				[&](std::shared_ptr<ParsedSystemECSFile> componentEcsFile) {
+
+					const std::string systemName = componentEcsFile->GetName();
+					for (auto& entity : componentEcsFile->ci_.entities_) {
+						entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+							if (componentSystem.find(include.name_) != componentSystem.end()) {
+								componentSystem.insert({});
+							}
+							componentSystem[include.name_].insert(systemName);
+							return true;
+							});
+					}
+				});
+
+			std::map<std::string, std::set<std::string>> systemComponents;
+
+			for (auto& [component, systems] : componentSystem) {
+				for (const auto& system : systems) {
+					systemComponents[system].insert(component);
+				}
+			}
+
+			struct Thread {
+				std::map<System, std::set<Component>> systems_;
+			};
 
 
-		std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>> GenerateECSCXXFilesStructure(std::shared_ptr<ProjectContext> projectContext) {
+
+			std::vector<Thread> threads;
+
+			std::vector<Thread> mainThreads;
+
+			for (auto& clusterSystems : clusters) {
+				bool isMainThread = false;
+				for (Agnode_t* systemNode : clusterSystems) {
+					std::string systemName = agnameof(systemNode);
+					projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
+						if (systemName == systemEcsFile->GetName() && systemEcsFile->ci_.mainThreadCall_) {
+							isMainThread = true;
+						}
+						});
+
+				}
+				Thread clusterThread;
+				for (Agnode_t* systemNode : clusterSystems) {
+					std::string systemName = agnameof(systemNode);
+
+					clusterThread.systems_[systemName] = componentSystem[systemName];
+
+				}
+				if (isMainThread) {
+					mainThreads.push_back(clusterThread);
+				}
+				else {
+					threads.push_back(clusterThread);
+				}
+			}
+
+			//Group threads systems to get less threads.
+			{
+				const Common::UInt64 threadsNumber = 6;
+
+				auto optimize = [](std::vector<Thread>& threads) {
+
+					std::sort(threads.begin(), threads.end(), [](const Thread& first, const Thread& second) {
+
+						return first.systems_.size() > second.systems_.size();
+
+						});
+					auto lastIt = --threads.end();
+					auto preLastIt = lastIt--;
+					for (auto& [system, components] : lastIt->systems_) {
+						preLastIt->systems_[system] = components;
+					}
+					threads.erase(lastIt);
+					};
+
+				while (threads.size() > threadsNumber) {
+
+					optimize(threads);
+
+				}
+			}
 
 			std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>> files;
 
+			using namespace std::string_literals;
 
-			ComponentFileStructureGenerator::CreateInfo ci{
-				.includeDirectory_ = projectContext->includeDirectory_
-			};
+			//Generate .CPP.
 
-			projectContext->ForEachComponentEcsFile(
-				[&](std::shared_ptr<ParsedComponentECSFile> componentEcsFile) {
-
-					ComponentFileStructureGenerator generator{ ci };
-					auto file = generator.GenerateECSCXXFilesStructure(projectContext, componentEcsFile);
-					files.push_back(file);
-				});
+			//Generate Includes.
+			File::Includes cppIncludes{ };
+			//Must be first to escape 
+			//error C1189: #error:  WinSock.h has already been included
+			cppIncludes.paths_.push_back("auto_OksEngine.RunSystems.hpp");
 
 			projectContext->ForEachSystemEcsFile(
-				[&](std::shared_ptr<ParsedSystemECSFile> componentEcsFile) {
-					SystemFileStructureGenerator::CreateInfo ci{
-						.includeDirectory_ = projectContext->includeDirectory_
-					};
-					SystemFileStructureGenerator generator{ ci };
-					auto file = generator.GenerateECSCXXFilesStructure(projectContext, componentEcsFile);
+				[&](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
+					const std::string systemName = systemEcsFile->GetName();
+					std::filesystem::path systemsIncludesFilePath;
+					std::filesystem::path systemFullPath = systemEcsFile->GetPath();
+					systemsIncludesFilePath = systemFullPath.parent_path();
+					std::filesystem::path systemIncludePath = GetSubPath(
+						systemFullPath.parent_path(),
+						projectContext->includeDirectory_,
+						ResultRange::FromStartFolderToEnd,
+						SearchDirection::FromEndToBegin,
+						true);
 
-
-					files.push_back(file);
+					systemIncludePath /= ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp");
+					cppIncludes.paths_.push_back(systemIncludePath);
 				});
+			cppIncludes.paths_.push_back("pix3.h");
+
+			auto cppNamespaceObject = std::make_shared<Namespace>("OksEngine");
+
+			{
+
+				for (Common::Index i = 0; i < threads.size(); ++i) {
+					auto& thread = threads[i];
+
+					Variable::CreateInfo threadVariable{
+						.type_ = "std::thread",
+						.name_ = "thread" + std::to_string(i)
+					};
+					cppNamespaceObject->Add(std::make_shared<Variable>(threadVariable));
+
+					std::mutex thread16Mutex;
+
+					Variable::CreateInfo threadMutexVariable{
+						.type_ = "std::mutex",
+						.name_ = "thread" + std::to_string(i) + "Mutex"
+					};
+					cppNamespaceObject->Add(std::make_shared<Variable>(threadMutexVariable));
 
 
+					Variable::CreateInfo runSystemThreadVariable{
+						.type_ = "std::atomic_bool",
+						.name_ = "runSystemThread" + std::to_string(i),
+						.initValue_ = "false"
+					};
+					cppNamespaceObject->Add(std::make_shared<Variable>(runSystemThreadVariable));
 
-			//Generate OksEngine.Components.hpp files For COMPONENTS.
-			for (auto [categoryPath, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
-
-				//Generate components includes for components in the subdirectory 
-				File::Includes includes{};
-				std::filesystem::path componentIncludesFilePath;
-				for (auto componentParsedEcsFile : componentsSystems.components_) {
-					std::filesystem::path componentFullPath = componentParsedEcsFile->GetPath();
-					componentIncludesFilePath = componentFullPath.parent_path();
-					std::filesystem::path componentIncludePath = GetSubPath(componentFullPath.parent_path(), projectContext->includeDirectory_);
-
-					componentIncludePath /= ("auto_OksEngine." + componentParsedEcsFile->GetName() + ".hpp");
-					includes.paths_.insert(componentIncludePath);
+					Variable::CreateInfo threadCVVariable{
+						.type_ = "std::condition_variable",
+						.name_ = "thread" + std::to_string(i) + "CV"
+					};
+					cppNamespaceObject->Add(std::make_shared<Variable>(threadCVVariable));
 				}
 
-				//generate Include OksEngine.Components.hpp files from subdirectories.
-				for (auto [path, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
-					if (path.string().starts_with(categoryPath.string())) {
-						if (path == categoryPath) {
-							continue;
-						}
-						auto pathIt = path.begin();
-						bool subdirFound = true;
-						for (auto it = categoryPath.begin(); it != categoryPath.end(); ++it) {
-							if (*it != *pathIt) {
-								subdirFound = false;
-								break;
-							}
-							++pathIt;
-						}
-						if (subdirFound) {
-							//Subdirectory found!
-							std::filesystem::path subdirPath;
-							++pathIt;
-							for (auto it = path.begin(); it != pathIt; ++it) {
-								subdirPath /= *it;
-							}
-							std::filesystem::path componentIncludePath = GetSubPath(subdirPath, projectContext->includeDirectory_);
+				Variable::CreateInfo threadCVVariable{
+						.type_ = "Common::UInt64",
+						.name_ = "frameNumber",
+						.initValue_ = "0"
+				};
+				cppNamespaceObject->Add(std::make_shared<Variable>(threadCVVariable));
+			}
 
-							componentIncludePath /= ("auto_OksEngine.Components.hpp");
-							includes.paths_.insert(componentIncludePath);
+			Code cppRunSystemsCode;
+			{
+				cppRunSystemsCode.Add(
+					"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Frame %d\", frameNumber);"
+					"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"StartFrame\");"
+					"world2->StartFrame();"
+					"PIXEndEvent();");
+
+				//Start threads.
+				for (Common::Index i = 0; i < threads.size(); ++i) {
+					auto& thread = threads[i];
+					std::string threadId = std::to_string(i);
+					cppRunSystemsCode.Add(std::format(
+						"runSystemThread{} = true;"
+						"{{"
+						"std::unique_lock lock{{thread{}Mutex}};"
+						"thread{}CV.notify_one();"
+						"}}",
+						threadId,
+						threadId,
+						threadId
+					).c_str());
+				}
+
+				//Generate code to run main thread systems.
+				for (Common::Index i = 0; i < mainThreads.size(); ++i) {
+					auto& mainThread = mainThreads[i];
+					Code runMainThreadSystems;
+					for (auto it = mainThread.systems_.begin(); it != mainThread.systems_.end(); it++) {
+						runMainThreadSystems.Add(std::format(
+							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+							"{}System(world2);"
+							"PIXEndEvent();",
+							it->first,
+							it->first
+						));
+						auto itCopy = it;
+						if (itCopy++ != mainThread.systems_.end()) {
+							runMainThreadSystems.NewLine();
 						}
+					}
+					cppRunSystemsCode.Add(runMainThreadSystems);
+				}
+
+				//Wait for threads end.
+				for (Common::Index i = 0; i < threads.size(); ++i) {
+					auto& thread = threads[i];
+					std::string threadId = std::to_string(i);
+					cppRunSystemsCode.Add(std::format(
+						"{{"
+						"std::unique_lock lock{{thread{}Mutex}};"
+						"thread{}CV.wait(lock, [&]() {{ return runSystemThread"
+						"{} == false;"
+						"}});"
+						"}}",
+						threadId,
+						threadId,
+						threadId
+					));
+
+			}
+
+			//Generate code to run systems that process all entities.
+			projectContext->ForEachSystemEcsFile(
+				[&](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
+					if (systemEcsFile->ci_.processAllEntities_) {
+						cppRunSystemsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + systemEcsFile->GetName() + "\");");
+						cppRunSystemsCode.Add(systemEcsFile->GetName() + "System(world2);");
+						cppRunSystemsCode.NewLine();
+						cppRunSystemsCode.Add("PIXEndEvent();");
+					}
+				});
+
+			cppRunSystemsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"EndFrame\");");
+			cppRunSystemsCode.Add("world2->EndFrame();");
+			cppRunSystemsCode.Add("PIXEndEvent();");
+			cppRunSystemsCode.Add("PIXEndEvent();");
+			cppRunSystemsCode.Add("++frameNumber;");
+		}
+
+		//CreateThreads method realization.
+		Function::CreateInfo cppRunSystemsFunction{
+			.name_ = "RunSystems",
+			.parameters_ = {
+				{ "std::shared_ptr<ECS2::World>", "world2" }
+			},
+			.returnType_ = "void",
+			.code_ = cppRunSystemsCode,
+			.isPrototype_ = false,
+			.inlineModifier_ = false
+		};
+
+		auto cppRunSystemsFunctionObject = std::make_shared<Function>(cppRunSystemsFunction);
+		cppNamespaceObject->Add(cppRunSystemsFunctionObject);
+
+
+		//Create threads
+		Code cppCreateThreadsCode;
+		{
+
+			for (Common::Index i = 0; i < threads.size(); ++i) {
+				auto& thread = threads[i];
+				cppCreateThreadsCode.Add("//Thread " + std::to_string(i));
+				cppCreateThreadsCode.NewLine();
+				//Add comment: what are components in use.
+				std::set<std::string> threadComponents;
+				for (auto& system : thread.systems_) {
+					for (auto& component : system.second) {
+						threadComponents.insert(component);
+					}
+				}
+				for (auto& threadComponent : threadComponents) {
+					cppCreateThreadsCode.Add("//" + threadComponent);
+					cppCreateThreadsCode.NewLine();
+				}
+
+				cppCreateThreadsCode.Add("thread" + std::to_string(i) + " = std::thread{ [&](){ ");
+				cppCreateThreadsCode.Add("while(true) { ");
+				cppCreateThreadsCode.Add("std::unique_lock lock{ thread" + std::to_string(i) + "Mutex }; ");
+				cppCreateThreadsCode.Add("thread" + std::to_string(i) + "CV.wait(lock, []() { return runSystemThread" + std::to_string(i) + "== true; });");
+				cppCreateThreadsCode.Add("HRESULT r;");
+				cppCreateThreadsCode.Add("r = SetThreadDescription(");
+				cppCreateThreadsCode.Add("GetCurrentThread(),");
+				cppCreateThreadsCode.Add("L\"Thread " + std::to_string(i) + "\"");
+				cppCreateThreadsCode.Add(");");
+
+				cppCreateThreadsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Thread " + std::to_string(i) + "\");");
+
+				Code runThreadSystems;
+				for (auto it = thread.systems_.begin(); it != thread.systems_.end(); it++) {
+					runThreadSystems.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + it->first + "\");");
+					runThreadSystems.Add(it->first + "System(world2);");
+					runThreadSystems.NewLine();
+					runThreadSystems.Add("PIXEndEvent();");
+					auto itCopy = it;
+					if (itCopy++ != thread.systems_.end()) {
+						runThreadSystems.NewLine();
 					}
 				}
 
-				File::CreateInfo fci{
-					.isHpp_ = true,
-					.includes_ = includes,
-					.base_ = nullptr
-				};
-
-				auto categoryComponentsIncludeFile = std::make_shared<File>(fci);
-				std::filesystem::path componentIncludesFullFilePath = componentIncludesFilePath / "auto_OksEngine.Components.hpp";
-
-				std::string componentIncludesFullFilePathString = componentIncludesFullFilePath.string();
-				std::replace(componentIncludesFullFilePathString.begin(), componentIncludesFullFilePathString.end(), '\\', '/');
-				files.push_back({ std::filesystem::path{ componentIncludesFullFilePathString }, categoryComponentsIncludeFile });
+				runThreadSystems.ApplyTab();
+				cppCreateThreadsCode.Add(runThreadSystems);
+				cppCreateThreadsCode.Add("PIXEndEvent();");
+				cppCreateThreadsCode.Add("runSystemThread" + std::to_string(i) + " = false;");
+				cppCreateThreadsCode.Add("thread" + std::to_string(i) + "CV.notify_all();");
+				cppCreateThreadsCode.Add("}");
+				cppCreateThreadsCode.Add("} };");
 			}
 
+		}
+
+		//CreateThreads method realization.
+		Function::CreateInfo cppCreateThreadsFunction{
+			.name_ = "CreateThreads",
+			.parameters_ = {
+				{ "std::shared_ptr<ECS2::World>", "world2" }
+			},
+			.returnType_ = "void",
+			.code_ = cppCreateThreadsCode,
+			.isPrototype_ = false,
+			.inlineModifier_ = false
+		};
+
+		auto cppCreateThreadsFunctionObject = std::make_shared<Function>(cppCreateThreadsFunction);
+		cppNamespaceObject->Add(cppCreateThreadsFunctionObject);
 
 
-			//Generate OksEngine.Components.hpp files For Systems.
-			for (auto [categoryPath, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
+		//cpp file
+		File::CreateInfo cppfci{
+		.isHpp_ = false,
+		.includes_ = cppIncludes,
+		.base_ = cppNamespaceObject
+		};
 
+		auto cppFile = std::make_shared<File>(cppfci);
+
+
+		//Generate .HPP.
+		//Update method prototype.
+		Function::CreateInfo hppRunSystemsFunction{
+			.name_ = "RunSystems",
+			.parameters_ = {
+				{ "std::shared_ptr<ECS2::World>", "world2"}},
+			.returnType_ = "void",
+			.code_ = {},
+			.isPrototype_ = true,
+			.inlineModifier_ = false
+		};
+
+		auto hppRunSystemsFunctionObject = std::make_shared<Function>(hppRunSystemsFunction);
+
+		//Create threads method prototype.
+		Function::CreateInfo hppCreateThreadsFunction{
+			.name_ = "CreateThreads",
+			.parameters_ = { { "std::shared_ptr<ECS2::World>", "world2"} },
+			.returnType_ = "void",
+			.code_ = {},
+			.isPrototype_ = true,
+			.inlineModifier_ = false
+		};
+
+		auto hppCreateThreadsFunctionObject = std::make_shared<Function>(hppCreateThreadsFunction);
+
+		auto hppNamespaceObject = std::make_shared<Namespace>("OksEngine");
+
+		hppNamespaceObject->Add(hppCreateThreadsFunctionObject);
+		hppNamespaceObject->Add(hppRunSystemsFunctionObject);
+
+		File::Includes hppIncludes{ };
+		hppIncludes.paths_.push_back("boost/asio/thread_pool.hpp");
+		hppIncludes.paths_.push_back("boost/asio/post.hpp");
+		hppIncludes.paths_.push_back("ECS2.World.hpp");
+
+
+		//hpp file
+		File::CreateInfo hppfci{
+		.isHpp_ = true,
+		.includes_ = hppIncludes,
+		.base_ = hppNamespaceObject
+		};
+
+		auto hppFile = std::make_shared<File>(hppfci);
+
+
+		//Generate files Paths
+
+		auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
+
+		std::filesystem::path includeDirFullPath;
+
+		std::filesystem::path::iterator includeDirIt;
+		for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
+			auto folder = *it;
+			if (folder == projectContext->includeDirectory_) {
+				includeDirIt = it;
+				break;
+			}
+		}
+
+		for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
+			includeDirFullPath /= *it;
+		}
+
+		includeDirFullPath /= *includeDirIt;
+
+		std::filesystem::path systemHppFileFullPath = includeDirFullPath / ("auto_OksEngine.RunSystems.hpp");
+		FormatPath(systemHppFileFullPath);
+
+		std::filesystem::path systemCppFileFullPath = includeDirFullPath / ("auto_OksEngine.RunSystems.cpp");
+		FormatPath(systemCppFileFullPath);
+
+		return {
+			{ systemCppFileFullPath , cppFile },
+			{ systemHppFileFullPath , hppFile }
+		};
+	}
+
+
+	std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>> GenerateECSCXXFilesStructure(std::shared_ptr<ProjectContext> projectContext) {
+
+		std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>> files;
+
+
+		ComponentFileStructureGenerator::CreateInfo ci{
+			.includeDirectory_ = projectContext->includeDirectory_
+		};
+
+		projectContext->ForEachComponentEcsFile(
+			[&](std::shared_ptr<ParsedComponentECSFile> componentEcsFile) {
+
+				ComponentFileStructureGenerator generator{ ci };
+				auto file = generator.GenerateECSCXXFilesStructure(projectContext, componentEcsFile);
+				files.push_back(file);
+			});
+
+		projectContext->ForEachSystemEcsFile(
+			[&](std::shared_ptr<ParsedSystemECSFile> componentEcsFile) {
+				SystemFileStructureGenerator::CreateInfo ci{
+					.includeDirectory_ = projectContext->includeDirectory_
+				};
+				SystemFileStructureGenerator generator{ ci };
+				auto file = generator.GenerateECSCXXFilesStructure(projectContext, componentEcsFile);
+
+
+
+				files.push_back(file);
+			});
+
+
+
+		//Generate OksEngine.Components.hpp files For COMPONENTS.
+		for (auto [categoryPath, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
+
+			//Generate components includes for components in the subdirectory 
+			File::Includes includes{};
+			std::filesystem::path componentIncludesFilePath;
+			for (auto componentParsedEcsFile : componentsSystems.components_) {
+				/*std::filesystem::path componentFullPath = ;
+				componentIncludesFilePath = componentFullPath.parent_path();*/
+				//std::filesystem::path componentIncludePath = GetSubPathFromFolderToEnd(componentFullPath.parent_path(), projectContext->includeDirectory_);
+				const std::filesystem::path includePath = GetSubPath(
+					componentParsedEcsFile->GetPath().parent_path(),
+					projectContext->includeDirectory_,
+					ResultRange::FromStartFolderToEnd,
+					SearchDirection::FromEndToBegin,
+					true);
+				//componentIncludePath /= ;
+				includes.paths_.push_back(includePath / ("auto_OksEngine." + componentParsedEcsFile->GetName() + ".hpp"));
+			}
+
+			//generate Include OksEngine.Components.hpp files from subdirectories.
+			for (auto [path, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
+				if (path.string().starts_with(categoryPath.string())) {
+					if (path == categoryPath) {
+						continue;
+					}
+					auto pathIt = path.begin();
+					bool subdirFound = true;
+					for (auto it = categoryPath.begin(); it != categoryPath.end(); ++it) {
+						if (*it != *pathIt) {
+							subdirFound = false;
+							break;
+						}
+						++pathIt;
+					}
+					if (subdirFound) {
+						//Subdirectory found!
+						std::filesystem::path subdirPath;
+						++pathIt;
+						for (auto it = path.begin(); it != pathIt; ++it) {
+							subdirPath /= *it;
+						}
+						//std::filesystem::path componentIncludePath = GetSubPathFromFolderToEnd(subdirPath, projectContext->includeDirectory_);
+						const std::filesystem::path componentIncludePath = GetSubPath(
+							subdirPath,
+							projectContext->includeDirectory_,
+							ResultRange::FromStartFolderToEnd,
+							SearchDirection::FromEndToBegin,
+							true);
+						//componentIncludePath ;
+						includes.paths_.push_back(componentIncludePath / ("auto_OksEngine.Components.hpp"));
+					}
+				}
+			}
+
+			File::CreateInfo fci{
+				.isHpp_ = true,
+				.includes_ = includes,
+				.base_ = nullptr
+			};
+
+			auto categoryComponentsIncludeFile = std::make_shared<File>(fci);
+			std::filesystem::path componentIncludesFullFilePath = componentIncludesFilePath / "auto_OksEngine.Components.hpp";
+
+			std::string componentIncludesFullFilePathString = componentIncludesFullFilePath.string();
+			std::replace(componentIncludesFullFilePathString.begin(), componentIncludesFullFilePathString.end(), '\\', '/');
+			files.push_back({ std::filesystem::path{ componentIncludesFullFilePathString }, categoryComponentsIncludeFile });
+		}
+
+
+
+		//Generate OksEngine.Components.hpp files For Systems.
+		for (auto [categoryPath, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
+
+			if (componentsSystems.systems_.empty()) {
+				continue;
+			}
+			//Generate components includes for components in the subdirectory 
+			File::Includes includes{};
+			std::filesystem::path systemsIncludesFilePath;
+			for (auto systemParsedEcsFile : componentsSystems.systems_) {
+				//std::filesystem::path systemFullPath = 
+				//systemsIncludesFilePath = systemFullPath.parent_path();
+				//std::filesystem::path systemIncludePath = GetSubPathFromFolderToEnd(systemFullPath.parent_path(), projectContext->includeDirectory_);
+
+				const std::filesystem::path systemIncludePath = GetSubPath(
+					systemParsedEcsFile->GetPath().parent_path(),
+					projectContext->includeDirectory_,
+					ResultRange::FromStartFolderToEnd,
+					SearchDirection::FromEndToBegin,
+					true);
+
+				//systemIncludePath /= ;
+				includes.paths_.push_back(systemIncludePath / ("auto_OksEngine." + systemParsedEcsFile->GetName() + ".hpp"));
+			}
+
+			//generate Include OksEngine.Components.hpp files from subdirectories.
+			for (auto [path, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
 				if (componentsSystems.systems_.empty()) {
 					continue;
 				}
-				//Generate components includes for components in the subdirectory 
-				File::Includes includes{};
-				std::filesystem::path systemsIncludesFilePath;
-				for (auto systemParsedEcsFile : componentsSystems.systems_) {
-					std::filesystem::path systemFullPath = systemParsedEcsFile->GetPath();
-					systemsIncludesFilePath = systemFullPath.parent_path();
-					std::filesystem::path systemIncludePath = GetSubPath(systemFullPath.parent_path(), projectContext->includeDirectory_);
-
-					systemIncludePath /= ("auto_OksEngine." + systemParsedEcsFile->GetName() + ".hpp");
-					includes.paths_.insert(systemIncludePath);
-				}
-
-				//generate Include OksEngine.Components.hpp files from subdirectories.
-				for (auto [path, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
-					if (componentsSystems.systems_.empty()) {
+				if (path.string().starts_with(categoryPath.string())) {
+					if (path == categoryPath) {
 						continue;
 					}
-					if (path.string().starts_with(categoryPath.string())) {
-						if (path == categoryPath) {
-							continue;
+					auto pathIt = path.begin();
+					bool subdirFound = true;
+					for (auto it = categoryPath.begin(); it != categoryPath.end(); ++it) {
+						if (*it != *pathIt) {
+							subdirFound = false;
+							break;
 						}
-						auto pathIt = path.begin();
-						bool subdirFound = true;
-						for (auto it = categoryPath.begin(); it != categoryPath.end(); ++it) {
-							if (*it != *pathIt) {
-								subdirFound = false;
-								break;
-							}
-							++pathIt;
+						++pathIt;
+					}
+					if (subdirFound) {
+						//Subdirectory found!
+						std::filesystem::path subdirPath;
+						++pathIt;
+						for (auto it = path.begin(); it != pathIt; ++it) {
+							subdirPath /= *it;
 						}
-						if (subdirFound) {
-							//Subdirectory found!
-							std::filesystem::path subdirPath;
-							++pathIt;
-							for (auto it = path.begin(); it != pathIt; ++it) {
-								subdirPath /= *it;
-							}
-							std::filesystem::path systemIncludePath = GetSubPath(subdirPath, projectContext->includeDirectory_);
-
-							systemIncludePath /= ("auto_OksEngine.Systems.hpp");
-							includes.paths_.insert(systemIncludePath);
-						}
+						//std::filesystem::path systemIncludePath = GetSubPathFromFolderToEnd(subdirPath, projectContext->includeDirectory_);
+						const std::filesystem::path systemIncludePath = GetSubPath(
+							subdirPath,
+							projectContext->includeDirectory_,
+							ResultRange::FromStartFolderToEnd,
+							SearchDirection::FromEndToBegin,
+							true);
+						//systemIncludePath ;
+						includes.paths_.push_back(systemIncludePath / ("auto_OksEngine.Systems.hpp"));
 					}
 				}
-
-				File::CreateInfo fci{
-					.isHpp_ = true,
-					.includes_ = includes,
-					.base_ = nullptr
-				};
-
-				auto categorySystemIncludeFile = std::make_shared<File>(fci);
-				std::filesystem::path systemIncludesFullFilePath = systemsIncludesFilePath / "auto_OksEngine.Systems.hpp";
-
-				std::string systemIncludesFullFilePathString = systemIncludesFullFilePath.string();
-				std::replace(systemIncludesFullFilePathString.begin(), systemIncludesFullFilePathString.end(), '\\', '/');
-				files.push_back({ std::filesystem::path{ systemIncludesFullFilePathString }, categorySystemIncludeFile });
 			}
 
-			return files;
+			File::CreateInfo fci{
+				.isHpp_ = true,
+				.includes_ = includes,
+				.base_ = nullptr
+			};
+
+			auto categorySystemIncludeFile = std::make_shared<File>(fci);
+			std::filesystem::path systemIncludesFullFilePath = systemsIncludesFilePath / "auto_OksEngine.Systems.hpp";
+
+			std::string systemIncludesFullFilePathString = systemIncludesFullFilePath.string();
+			std::replace(systemIncludesFullFilePathString.begin(), systemIncludesFullFilePathString.end(), '\\', '/');
+			files.push_back({ std::filesystem::path{ systemIncludesFullFilePathString }, categorySystemIncludeFile });
 		}
 
-	private:
-	};
+		return files;
+	}
 
-	class CodeGenerator {
-	public:
+private:
+};
 
-		static Code GenerateInclude(const std::filesystem::path& path) {
-			Code code{ "#include <" + path.string() + ">" };
-			
-			return code;
+class CodeGenerator {
+public:
+
+	static Code GenerateInclude(const std::filesystem::path& path) {
+		Code code{ "#include <" + path.string() + ">" };
+
+		return code;
+	}
+
+	Code GenerateECSCXXFilesStructure(std::shared_ptr<Struct> structObject) {
+		Code code;
+		code.Add("struct " + structObject->GetName() + " ");
+		if (structObject->HasParent()) {
+			code.Add(": " + structObject->GetParentName() + " ");
 		}
+		code.Add("{");
 
-		Code GenerateECSCXXFilesStructure(std::shared_ptr<Struct> structObject) {
-			Code code;
-			code.Add("struct " + structObject->GetName() + " ");
-			if (structObject->HasParent()) {
-				code.Add(": " + structObject->GetParentName() + " ");
+
+
+		Code structRealization;
+		{
+			if (structObject->ci_.defaultConstructor_) {
+				//Default constructor.
+				structRealization.Add(structObject->GetName() + "() { }");
+				structRealization.NewLine();
 			}
-			code.Add("{");
-			
-			
 
-			Code structRealization;
-			{
-				if (structObject->ci_.defaultConstructor_) {
-					//Default constructor.
-					structRealization.Add(structObject->GetName() + "() { }");
+			if (structObject->AreThereFields()) {
+
+
+				//Fields
+				structObject->ForEachField([&](const Struct::Field& field, bool isLast) {
+					structRealization.Add(field.type_ + " " + field.name_ + "_;");
 					structRealization.NewLine();
-				}
+					});
 
-				if (structObject->AreThereFields()) {
+				structRealization.NewLine();
 
-
-					//Fields
+				if (structObject->ci_.constructor_) {
+					//Main constructor.
+					structRealization.Add(structObject->GetName() + "(");
 					structObject->ForEachField([&](const Struct::Field& field, bool isLast) {
-						structRealization.Add(field.type_ + " " + field.name_ + "_;");
-						structRealization.NewLine();
+						structRealization.Add(field.type_ + ((!field.copyable_) ? ("&& ") : (" ")) + field.name_);
+						if (!isLast) {
+							structRealization.Add(", ");
+						}
+						return true;
 						});
-
+					structRealization.Add(") : ");
+					structRealization.NewLine();
 					structRealization.NewLine();
 
-					if (structObject->ci_.constructor_) {
-						//Main constructor.
-						structRealization.Add(structObject->GetName() + "(");
-						structObject->ForEachField([&](const Struct::Field& field, bool isLast) {
-							structRealization.Add(field.type_ + ((!field.copyable_) ? ("&& ") : (" ")) + field.name_);
-							if (!isLast) {
-								structRealization.Add(", ");
-							}
-							return true;
-							});
-						structRealization.Add(") : ");
-						structRealization.NewLine();
-						structRealization.NewLine();
-
-						structObject->ForEachField([&](const Struct::Field& field, bool isLast) {
-							structRealization.Add(field.name_ + "_{ "
-								+ ((!field.copyable_) ? ("std::move(") : ("")) +
-								field.name_
-								+ ((!field.copyable_) ? (")") : ("")) + " }");
-							if (!isLast) {
-								structRealization.Add(",");
-								structRealization.NewLine();
-							}
-							return true;
-							});
-						structRealization.Add("{ }");
-						structRealization.NewLine();
-						structRealization.NewLine();
-					}
-
-
-
+					structObject->ForEachField([&](const Struct::Field& field, bool isLast) {
+						structRealization.Add(field.name_ + "_{ "
+							+ ((!field.copyable_) ? ("std::move(") : ("")) +
+							field.name_
+							+ ((!field.copyable_) ? (")") : ("")) + " }");
+						if (!isLast) {
+							structRealization.Add(",");
+							structRealization.NewLine();
+						}
+						return true;
+						});
+					structRealization.Add("{ }");
+					structRealization.NewLine();
+					structRealization.NewLine();
 				}
 
-				for (auto functionObject : structObject->ci_.methods_) {
-					Code code;
-					code.Add(GenerateECSCXXFilesStructure(functionObject));
-					structRealization.Add(code);
-				}
-				structRealization.ApplyTab();
-				code.Add(structRealization);
+
+
 			}
+
+			for (auto functionObject : structObject->ci_.methods_) {
+				Code code;
+				code.Add(GenerateECSCXXFilesStructure(functionObject));
+				structRealization.Add(code);
+			}
+			structRealization.ApplyTab();
+			code.Add(structRealization);
+		}
+		code.Add("};");
+
+
+
+		return code;
+	}
+
+	Code GenerateECSCXXFilesStructure(std::shared_ptr<Namespace> namespaceObject) {
+		Code code;
+
+		code.Add("namespace " + namespaceObject->GetName() + " {");
+
+
+		for (auto base : namespaceObject->base_) {
+			Code namespaceCode = GenerateECSCXXFilesStructure(base);
+			namespaceCode.ApplyTab();
+			code.Add(namespaceCode);
+		}
+
+		code.Add("}");
+
+		return code;
+	}
+
+	Code GenerateECSCXXFilesStructure(std::shared_ptr<Variable> variableObject) {
+		Code code;
+		code.Add(
+			variableObject->ci_.type_ +
+			" " +
+			variableObject->ci_.name_ +
+			"{" + variableObject->ci_.initValue_ + "};");
+		return code;
+	}
+
+	Code GenerateECSCXXFilesStructure(std::shared_ptr<Function> functionObject) {
+		Code code;
+
+		if (!functionObject->ci_.templateParameters_.empty()) {
+			code.Add("template<");
+			for (Common::Index i = 0; i < functionObject->ci_.templateParameters_.size(); ++i) {
+				code.Add("class " + functionObject->ci_.templateParameters_[i]);
+				if (i != functionObject->ci_.templateParameters_.size() - 1) {
+					code.Add(", ");
+				}
+			}
+			code.Add(">");
+
+		}
+
+		if (!functionObject->ci_.isPrototype_) {
+			code.Add((functionObject->ci_.staticModifier_) ? ("static ") : (""));
+			code.Add((functionObject->ci_.inlineModifier_) ? ("inline ") : (""));
+			code.Add(functionObject->ci_.returnType_ + " " + functionObject->ci_.name_ + "(");
+			for (Common::Index i = 0; i < functionObject->ci_.parameters_.size(); i++) {
+				const Function::Parameter& parameter = functionObject->ci_.parameters_[i];
+				code.Add(parameter.inputType_ + " " + parameter.valueName_);
+				if (i < functionObject->ci_.parameters_.size() - 1) {
+					code.Add(", ");
+				}
+			}
+			code.Add("){");
+
+			Code realization = functionObject->ci_.code_;
+			realization.ApplyTab();
+			code.Add(realization);
+
 			code.Add("};");
 
-			
-
-			return code;
 		}
+		else {
+			code.Add((functionObject->ci_.inlineModifier_) ? ("inline") : ("") + functionObject->ci_.returnType_ + " " + functionObject->ci_.name_ + "(");
 
-		Code GenerateECSCXXFilesStructure(std::shared_ptr<Namespace> namespaceObject) {
-			Code code;
-
-			code.Add("namespace " + namespaceObject->GetName() + " {");
-			
-			
-			for (auto base : namespaceObject->base_) {
-				Code namespaceCode = GenerateECSCXXFilesStructure(base);
-				namespaceCode.ApplyTab();
-				code.Add(namespaceCode);
-			}
-			
-			code.Add("}");
-			
-			return code;
-		}
-
-		Code GenerateECSCXXFilesStructure(std::shared_ptr<Function> functionObject) {
-			Code code;
-
-			if (!functionObject->ci_.templateParameters_.empty()) {
-				code.Add("template<");
-				for (Common::Index i = 0; i < functionObject->ci_.templateParameters_.size(); ++i) {
-					code.Add("class " + functionObject->ci_.templateParameters_[i]);
-					if (i != functionObject->ci_.templateParameters_.size() - 1) {
-						code.Add(", ");
-					}
+			for (Common::Index i = 0; i < functionObject->ci_.parameters_.size(); i++) {
+				const Function::Parameter& paramter = functionObject->ci_.parameters_[i];
+				code.Add(paramter.inputType_ + " " + paramter.valueName_);
+				if (i < functionObject->ci_.parameters_.size() - 1) {
+					code.Add(", ");
 				}
-				code.Add(">");
-				
-			}
 
-			if (!functionObject->ci_.isPrototype_) {
-				code.Add((functionObject->ci_.staticModifier_) ? ("static ") : (""));
-				code.Add((functionObject->ci_.inlineModifier_) ? ("inline ") : (""));
-				code.Add(functionObject->ci_.returnType_ + " " + functionObject->ci_.name_ + "(");
-				for (Common::Index i = 0; i < functionObject->ci_.parameters_.size(); i++) {
-					const Function::Parameter& parameter = functionObject->ci_.parameters_[i];
-					code.Add(parameter.inputType_ + " " + parameter.valueName_);
-					if (i < functionObject->ci_.parameters_.size() - 1) {
-						code.Add(", ");
-					}
-				}
-				code.Add("){");
-				
-				Code realization = functionObject->ci_.code_;
-				realization.ApplyTab();
-				code.Add(realization);
-				
-				code.Add("};");
-				
 			}
-			else {
-				code.Add((functionObject->ci_.inlineModifier_) ? ("inline") : ("") + functionObject->ci_.returnType_ + " " + functionObject->ci_.name_ + "(");
-				
-				for (Common::Index i = 0; i < functionObject->ci_.parameters_.size(); i++) {
-					const Function::Parameter& paramter = functionObject->ci_.parameters_[i];
-					code.Add(paramter.inputType_ + " " + paramter.valueName_);
-					if (i < functionObject->ci_.parameters_.size() - 1) {
-						code.Add(", ");
-					}
-					
-				}
-				code.Add(");");
-				
-				return code;
-			}
+			code.Add(");");
+
 			return code;
 		}
+		return code;
+	}
 
-		Code GenerateECSCXXFilesStructure(std::shared_ptr<Base> base) {
+	Code GenerateECSCXXFilesStructure(std::shared_ptr<Base> base) {
+		Code code;
+		if (base == nullptr) {
+			return code;
+		}
+		if (base->GetType() == Base::Type::Namespace) {
+			auto namespaceObject = std::dynamic_pointer_cast<Namespace>(base);
+			code = GenerateECSCXXFilesStructure(namespaceObject);
+
+		}
+		else if (base->GetType() == Base::Type::Struct) {
+			auto structObject = std::dynamic_pointer_cast<Struct>(base);
+			code = GenerateECSCXXFilesStructure(structObject);
+		}
+		else if (base->GetType() == Base::Type::Function) {
+			auto functionObject = std::dynamic_pointer_cast<Function>(base);
+			code = GenerateECSCXXFilesStructure(functionObject);
+		}
+		else if (base->GetType() == Base::Type::Variable) {
+			auto functionObject = std::dynamic_pointer_cast<Variable>(base);
+			code = GenerateECSCXXFilesStructure(functionObject);
+		}
+		clang::format::FormatStyle style = clang::format::getGoogleStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);
+		llvm::StringRef codeToFormat = code.code_.c_str();  // ������ ������ ����
+
+		// ���������� �������� ��� ����� ����
+		clang::tooling::Replacements replacements = clang::format::reformat(style, codeToFormat, { clang::tooling::Range(0, codeToFormat.size()) });
+
+		auto formattedCode = clang::tooling::applyAllReplacements(codeToFormat, replacements);
+		if (!formattedCode) {
+			llvm::errs() << "Error formatting the code.\n";
+		}
+		code.code_ = *formattedCode;
+		return code;
+	}
+
+	std::shared_ptr<CodeFile> GenerateCode(std::shared_ptr<File> fileStructure) {
+		return GenerateECSCXXFilesStructure(fileStructure);
+	}
+
+	std::shared_ptr<CodeFile> GenerateECSCXXFilesStructure(std::shared_ptr<File> fileStructure) {
+
+		auto codeFile = std::make_shared<CodeFile>();
+
+		if (fileStructure->IsHpp()) {
 			Code code;
-			if (base == nullptr) {
-				return code;
-			}
-			if (base->GetType() == Base::Type::Namespace) {
-				auto namespaceObject = std::dynamic_pointer_cast<Namespace>(base);
-				code = GenerateECSCXXFilesStructure(namespaceObject);
+			code.Add("#pragma once");
+			code.NewLine();
 
-			}
-			else if (base->GetType() == Base::Type::Struct) {
-				auto structObject = std::dynamic_pointer_cast<Struct>(base);
-				code = GenerateECSCXXFilesStructure(structObject);
-			}
-			else if (base->GetType() == Base::Type::Function) {
-				auto functionObject = std::dynamic_pointer_cast<Function>(base);
-				code = GenerateECSCXXFilesStructure(functionObject);
-			}
-			clang::format::FormatStyle style = clang::format::getGoogleStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);
-			llvm::StringRef codeToFormat = code.code_.c_str();  // ������ ������ ����
-
-			// ���������� �������� ��� ����� ����
-			clang::tooling::Replacements replacements = clang::format::reformat(style, codeToFormat, { clang::tooling::Range(0, codeToFormat.size()) });
-
-			auto formattedCode = clang::tooling::applyAllReplacements(codeToFormat, replacements);
-			if (!formattedCode) {
-				llvm::errs() << "Error formatting the code.\n";
-			}
-			code.code_ = *formattedCode;
-			return code;
-		}
-
-		std::shared_ptr<CodeFile> GenerateCode(std::shared_ptr<File> fileStructure) {
-			return GenerateECSCXXFilesStructure(fileStructure);
-		}
-
-		std::shared_ptr<CodeFile> GenerateECSCXXFilesStructure(std::shared_ptr<File> fileStructure) {
-
-			auto codeFile = std::make_shared<CodeFile>();
-
-			if (fileStructure->IsHpp()) {
-				Code code;
-				code.Add("#pragma once");
-				code.NewLine();
-				
-				codeFile->AddCode(code);
-			}
-			//Includes.
-			{
-				Code includes;
-				fileStructure->ForEachInclude([&](const std::filesystem::path& path) {
-					includes.Add(GenerateInclude(path));
-					includes.NewLine();
-					});
-				includes.NewLine();
-				codeFile->AddCode(includes);
-			}
-			const Code code = GenerateECSCXXFilesStructure(fileStructure->GetBase());
-			//codeFile->path_ = fileStructure->cr
 			codeFile->AddCode(code);
-			return codeFile;
 		}
+		if (fileStructure->createInfo_.includes_.paths_.size() == 0) {
+			//__debugbreak();
+		}
+		//Includes.
+		{
+			Code includes;
+			fileStructure->ForEachInclude([&](const std::filesystem::path& path) {
+				includes.Add(GenerateInclude(path));
+				includes.NewLine();
+				});
+			includes.NewLine();
+			codeFile->AddCode(includes);
+		}
+		const Code code = GenerateECSCXXFilesStructure(fileStructure->GetBase());
+		//codeFile->path_ = fileStructure->cr
+		codeFile->AddCode(code);
+		return codeFile;
+	}
 
-		std::shared_ptr<CodeFile> GenerateComponentCodeFile() {
+	std::shared_ptr<CodeFile> GenerateComponentCodeFile() {
 
 
-			//std::string cxxECSCode = "//THIS FILE IS AUTOGENERATED!!!\n";
+		//std::string cxxECSCode = "//THIS FILE IS AUTOGENERATED!!!\n";
 //cxxECSCode += "#pragma once\n";
 //cxxECSCode += "\n";
 //cxxECSCode += "#include <OksEngine.ECS.Component.hpp>\n";
@@ -1733,12 +2082,12 @@ namespace ECSGenerator {
 			////Namespace OksEngine end.
 			//cxxECSCode += "\n};\n";
 			//return cxxECSCode;
-			return nullptr;
-		}
+		return nullptr;
+	}
 
 
 
-	};
+};
 
 
 
