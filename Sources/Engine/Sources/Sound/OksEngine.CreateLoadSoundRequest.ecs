@@ -1,9 +1,9 @@
 system = {
     name = "CreateLoadSoundRequest",
 
-    includes = { 
+    processesComponents = { 
 		"SoundInfo"
 	  },
-    creates = { "LoadSoundRequest" },
+    createsComponents = { "LoadSoundRequest" },
     excludes = { "LoadSoundRequest" } 
 }

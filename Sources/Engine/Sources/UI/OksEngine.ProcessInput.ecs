@@ -1,8 +1,8 @@
 
 system = {
     name = "ProcessInput",
-    mainThreadCall = true,
-    includes = {
+    thread = "Main",
+    processesComponents = {
         { name = "MainWindow", readonly = false}
     }
 }

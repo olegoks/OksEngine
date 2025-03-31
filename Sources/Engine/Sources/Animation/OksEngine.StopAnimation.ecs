@@ -1,6 +1,6 @@
 system = {
     name = "StopAnimation",
-    includes = { 
+    processesComponents = { 
         "Animation", 
         { name = "RunningAnimationState", readonly = false },
         "AnimationInProcess", 

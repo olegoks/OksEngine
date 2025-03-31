@@ -1,13 +1,13 @@
 system = {
     name = "CreateDriverIndexBuffer",
-    entities  = {
+    processesEntities  = {
         {
-            includes = { "Indices" },
-            creates = { "DriverIndexBuffer" },
+            processesComponents = { "Indices" },
+            createsComponents = { "DriverIndexBuffer" },
 	        excludes = { "DriverIndexBuffer" }
         },
         {
-             includes = { { name = "RenderDriver", readonly = false } }
+             processesComponents = { { name = "RenderDriver", readonly = false } }
         }
     }
 

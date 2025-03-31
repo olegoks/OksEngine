@@ -1,22 +1,22 @@
 system = {
     name = "CreateDynamicRigidBody",
 
-	entities = {
+	processesEntities = {
 		{
-    includes = { 
+    processesComponents = { 
 		"Position3D",
 		"Material",
 		"Mass",
 		"PhysicsShape",
 		"DynamicRigidBodyCustomMeshShape"
 	 },
-	 creates = {
+	 createsComponents = {
 		"DynamicRigidBody"
 	 },
 	 excludes = { "DynamicRigidBody" }
 	 },
 			{
-				includes = { { name = "PhysicsEngine", readonly = false } }
+				processesComponents = { { name = "PhysicsEngine", readonly = false } }
 			}
 		}
 }

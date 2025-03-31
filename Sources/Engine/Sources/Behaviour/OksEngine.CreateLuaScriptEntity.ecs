@@ -1,9 +1,9 @@
 system = {
     name = "CreateLuaScriptEntity",
-    includes = { 
+    processesComponents = { 
         "LoadLuaScriptRequest"
         },
-        creates = { "LuaScriptEntity" },
+        createsComponents = { "LuaScriptEntity" },
     excludes = {
         "LuaScriptEntity"
     }

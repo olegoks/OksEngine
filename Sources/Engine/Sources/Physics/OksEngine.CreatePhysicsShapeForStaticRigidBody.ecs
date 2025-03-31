@@ -1,14 +1,14 @@
 system = {
     name = "CreatePhysicsShapeForStaticRigidBody",
 
-	entities = {
+	processesEntities = {
 		{
-    		includes = { 
+    		processesComponents = { 
 				"ImmutableRenderGeometry",
 				"ModelEntity",
 				"StaticRigidBodyCustomMeshShape"
 	 		},
-	 		creates = {
+	 		createsComponents = {
 				"StaticRigidBody"
 	 		},
 	 		excludes = { 
@@ -17,7 +17,7 @@ system = {
 	 		}
 		},
 		{
-			includes = { 
+			processesComponents = { 
 				{ name = "PhysicsEngine", readonly = false }
 	 		}
 		}

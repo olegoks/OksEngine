@@ -1,6 +1,6 @@
 system = {
     name = "CreateImGUIPosition2D",
-    includes = { "ImGuiState" },
-    creates = { "Position2D" },
+    processesComponents = { "ImGuiState" },
+    createsComponents = { "Position2D" },
 	exclude = { "Position2D" }
 }

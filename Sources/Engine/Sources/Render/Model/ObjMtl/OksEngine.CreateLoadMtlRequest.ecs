@@ -1,7 +1,7 @@
 system = {
     name = "CreateLoadMtlRequest",
-    includes = { "GDF" },
-    creates = { "LoadMtlRequest" },
+    processesComponents = { "GDF" },
+    createsComponents = { "LoadMtlRequest" },
 	excludes = { "LoadMtlRequest" }
 }
 

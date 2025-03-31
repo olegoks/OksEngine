@@ -1,8 +1,8 @@
 system = {
     name = "CreateModelEntityFromFbx",
-    includes = { 
+    processesComponents = { 
 		"FbxEntity"
 	 },
-	 creates = { "ModelEntity" },
+	 createsComponents = { "ModelEntity" },
 	 excludes = { "ModelEntity" }
 }

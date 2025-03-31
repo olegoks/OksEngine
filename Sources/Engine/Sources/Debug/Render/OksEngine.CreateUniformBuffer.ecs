@@ -1,11 +1,11 @@
 system = {
     name = "CreateUniformBuffer",
-    entities ={
+    processesEntities ={
         { 
-            includes = { "ImGuiState" }
+            processesComponents = { "ImGuiState" }
         },
         {
-            includes = { { name = "RenderDriver", readonly = false } }
+            processesComponents = { { name = "RenderDriver", readonly = false } }
         }
     }
 }

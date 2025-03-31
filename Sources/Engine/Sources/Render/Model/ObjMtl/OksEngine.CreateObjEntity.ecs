@@ -1,7 +1,7 @@
 system = {
     name = "CreateObjEntity",
-    includes = { "LoadObjRequest" },
-    creates = { "ObjEntity" },
+    processesComponents = { "LoadObjRequest" },
+    createsComponents = { "ObjEntity" },
 	excludes = { "ObjEntity" }
 }
 

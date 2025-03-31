@@ -1,16 +1,16 @@
 system = {
     name = "CreateGDFInfo",
-    entities = {
+    processesEntities = {
         {
-            includes = { 
+            processesComponents = { 
                 "GDFLoaded", 
                 "LoadGDFTask"
                 },
 	        excludes = { "GDFInfo" },
-            creates = { "GDFInfo" }
+            createsComponents = { "GDFInfo" }
         }, 
         {
-            includes = {
+            processesComponents = {
                 { name = "ResourceSystem", readonly = false }
             }
         }

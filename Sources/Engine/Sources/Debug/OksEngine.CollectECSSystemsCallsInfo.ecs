@@ -1,6 +1,6 @@
 system = {
     name = "CollectECSSystemsCallsInfo",
-    includes = { 
+    processesComponents = { 
         { name = "ImGuiState", readonly = false }
         }
 }

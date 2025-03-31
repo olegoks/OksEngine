@@ -54,6 +54,11 @@ namespace ECSGenerator {
 		}
 
 		std::shared_ptr<ParsedECSFile> GetEcsFileByName(const std::string& name) {
+
+#pragma region Assert
+			OS::AssertMessage(nameEcsFile_.contains(name), "");
+#pragma endregion
+
 			return nameEcsFile_[name];
 		}
 

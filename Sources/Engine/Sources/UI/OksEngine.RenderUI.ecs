@@ -1,7 +1,7 @@
 
 system = {
     name = "RenderUI",
-    includes = {
+    processesComponents = {
         { name = "MainWindow", readonly = false}
     }
 }

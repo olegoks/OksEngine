@@ -1,8 +1,8 @@
 system = {
     name = "CreateLoadLuaScriptRequest",
-    includes = { 
+    processesComponents = { 
         "Behaviour"
         },
-        creates = { "LoadLuaScriptRequest" },
+        createsComponents = { "LoadLuaScriptRequest" },
     excludes = { "LoadLuaScriptRequest" }
 }

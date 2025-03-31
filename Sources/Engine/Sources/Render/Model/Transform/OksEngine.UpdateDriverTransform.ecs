@@ -1,5 +1,5 @@
 system = {	
     name = "UpdateDriverTransform3D",
-    includes = { "Position3D", "Rotation3D", "ModelEntity" }
+    processesComponents = { "Position3D", "Rotation3D", "ModelEntity" }
 }
 

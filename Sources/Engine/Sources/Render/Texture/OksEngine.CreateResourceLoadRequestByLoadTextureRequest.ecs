@@ -2,7 +2,7 @@
 system = {
     name = "CreateResourceLoadRequestByLoadTextureRequest",
 
-    includes = { 
+    processesComponents = { 
 		"LoadTextureRequest"
 	 }
 }

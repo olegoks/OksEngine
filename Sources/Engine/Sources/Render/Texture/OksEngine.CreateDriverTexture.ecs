@@ -1,16 +1,16 @@
 
 system = {
     name = "CreateDriverTexture",
-  entities = {
+  processesEntities = {
     {
-    includes = { 
+    processesComponents = { 
 		"TextureInfo", "Texture"
 	 }, 
-   creates = { "DriverTexture" },
+   createsComponents = { "DriverTexture" },
    excludes = { "DriverTexture" }
     },
     {
-      includes = {
+      processesComponents = {
         { name = "RenderDriver", readonly = false}
       }
     }

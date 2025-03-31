@@ -2,9 +2,9 @@
 system = {
     name = "CreateLoadTextureRequest",
 
-    includes = { 
+    processesComponents = { 
 		"TextureInfo"
 	 },
-   creates = { "Texture", "LoadTextureRequest" },
+   createsComponents = { "Texture", "LoadTextureRequest" },
    excludes = { "Texture", "LoadTextureRequest" }
 }

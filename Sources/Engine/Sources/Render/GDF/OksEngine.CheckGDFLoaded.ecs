@@ -1,14 +1,14 @@
 system = {
     name = "CheckGDFLoaded",
-    entities = {
+    processesEntities = {
         {
-            includes = { 
+            processesComponents = { 
                 { name = "LoadGDFTask" }
             },
 	        excludes = { "GDFLoaded" }
         }, 
         {
-            includes = {
+            processesComponents = {
                 { name = "ResourceSystem", readonly = false }
             }
         }

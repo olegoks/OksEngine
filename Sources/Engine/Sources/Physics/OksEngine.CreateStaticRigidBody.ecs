@@ -2,9 +2,9 @@
 system = {
     name = "CreateStaticRigidBody",
 
-	entities = {
+	processesEntities = {
 		{
-    		includes = { 
+    		processesComponents = { 
 				"Name",
 				"Position3D",
 				"Rotation3D",
@@ -13,13 +13,13 @@ system = {
 				"ModelEntity",
 				"StaticRigidBodyCustomMeshShape"
 	 		},
-	 		creates = {
+	 		createsComponents = {
 				"StaticRigidBody" 
 	 		},
 	 		excludes = { "StaticRigidBody" }
 		},
 		{
-			includes = {
+			processesComponents = {
 				{ name = "PhysicsEngine", readonly = false }
 			}
 		}

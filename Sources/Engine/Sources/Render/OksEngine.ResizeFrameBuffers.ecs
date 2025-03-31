@@ -1,7 +1,7 @@
 system = {
     name = "ResizeFrameBuffers",
 
-    includes = { 
+    processesComponents = { 
 		"Window", 
     { name = "FrameBufferResizeEvents", readonly = false }
 	 }

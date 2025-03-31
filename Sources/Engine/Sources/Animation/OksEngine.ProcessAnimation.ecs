@@ -1,6 +1,6 @@
 system = {
     name = "ProcessAnimation",
-    includes = { 
+    processesComponents = { 
         "Position3D", 
         "Rotation3D",
         "Animation", 

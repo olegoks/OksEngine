@@ -1,9 +1,9 @@
 system = {
     name = "CreateLuaContext",
-    includes = { 
+    processesComponents = { 
         "Behaviour",
         "LuaScriptEntity"
         },
-        creates = { "LuaContext" },
+        createsComponents = { "LuaContext" },
     excludes = { "LuaContext" }
 }

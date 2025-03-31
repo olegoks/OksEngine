@@ -1,6 +1,6 @@
 system = {
     name = "CreateImGUIScale2D",
-    includes = { "ImGuiState" },
-    creates = { "Scale2D" },
+    processesComponents = { "ImGuiState" },
+    createsComponents = { "Scale2D" },
 	excludes = { "Scale2D" }
 }
