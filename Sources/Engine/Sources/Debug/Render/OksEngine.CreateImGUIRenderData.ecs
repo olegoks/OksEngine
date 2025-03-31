@@ -1,6 +1,6 @@
 system = {
     name = "CreateImGuiRenderData",
-    includes = { 
+    processesComponents = { 
         "ImGuiState",
         "ModelEntity" }
 }

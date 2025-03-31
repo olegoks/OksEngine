@@ -1,7 +1,7 @@
 
 system = {
     name = "Render",
-      includes = {
+      processesComponents = {
         { name = "RenderDriver", readonly = false}
       }
 }

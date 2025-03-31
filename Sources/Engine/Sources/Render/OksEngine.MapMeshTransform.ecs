@@ -1,7 +1,7 @@
 system = {
     name = "MapMeshTransform",
 
-    includes = { 
+    processesComponents = { 
 		"Position3D", "ModelEntity"
 	 }
 }

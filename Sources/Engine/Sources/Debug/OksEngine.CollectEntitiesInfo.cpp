@@ -1,6 +1,8 @@
 
 #include <Debug/auto_OksEngine.CollectEntitiesInfo.hpp>
 
+#include <Common/auto_OksEngine.Position3D.hpp>
+
 namespace OksEngine {
 
 
@@ -19,9 +21,11 @@ namespace OksEngine {
 	void CollectEntitiesInfo::Update(
 		ECS2::Entity::Id entityId) {
 
-	//	ShowEntityInfo(world, id);
+		if (IsComponentExist<Position3D>(entityId)) {
+			//auto* position3D = GetComponent<Position3D>(entityId);
+			//EditPosition3D(position3D);
+		}
 
-	//	//ImGui::ShowDemoWindow();
 	}
 
 	//void CollectEntitiesInfo::ShowEntityInfo(ECS::World* world, ECS::Entity::Id id)

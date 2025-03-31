@@ -1,13 +1,13 @@
 system = {
     name = "CreateDriverVertexBuffer2D",
-    entities = {
+    processesEntities = {
         {
-            includes = { "Vertices2D", "Indices", "Normals", "UVs" },
-            creates = { "DriverVertexBuffer" },
+            processesComponents = { "Vertices2D", "Indices", "Normals", "UVs" },
+            createsComponents = { "DriverVertexBuffer" },
             excludes = { "DriverVertexBuffer" }
         },
         {
-            includes = { { name = "RenderDriver", readonly = false } }
+            processesComponents = { { name = "RenderDriver", readonly = false } }
         }
     }
 

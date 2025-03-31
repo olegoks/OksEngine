@@ -1,7 +1,7 @@
 system = {
     name = "ProcessSound",
 
-    includes = { 
+    processesComponents = { 
 		"Sound", 
     "StartPlaySound"
 	 }, 

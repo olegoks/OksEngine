@@ -1,8 +1,8 @@
 system = {
     name = "CreateAsyncTask",
-    includes = { 
+    processesComponents = { 
 		"LoadResourceRequest", "Name"
 	  },
-    creates = { "AsyncTask", "WaitingForResourceLoading" },
+    createsComponents = { "AsyncTask", "WaitingForResourceLoading" },
     excludes = { "AsyncTask", "WaitingForResourceLoading" }
 }

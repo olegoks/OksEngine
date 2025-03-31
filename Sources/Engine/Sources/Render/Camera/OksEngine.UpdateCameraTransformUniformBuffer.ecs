@@ -1,8 +1,8 @@
 system = {
     name = "UpdateCameraTransformUniformBuffer",
-    entities = {
+    processesEntities = {
         {
-            includes = { 
+            processesComponents = { 
                 "Camera", 
                 "Position3D", 
                 "Direction3D",
@@ -14,7 +14,7 @@ system = {
                 { name = "UniformBuffer", readonly = false } },
         },
         {
-            includes = { 
+            processesComponents = { 
                 { name = "RenderDriver", readonly = false } 
             }
         }

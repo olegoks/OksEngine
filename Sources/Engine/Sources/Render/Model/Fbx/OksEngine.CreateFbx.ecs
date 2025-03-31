@@ -1,6 +1,6 @@
 system = {
     name = "CreateFbx",
-    includes = { 
+    processesComponents = { 
 		"LoadFbxRequest"
 	 },
 	 excludes = { "FbxEntity" }

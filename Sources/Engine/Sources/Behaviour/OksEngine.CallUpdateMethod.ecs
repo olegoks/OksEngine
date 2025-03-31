@@ -1,6 +1,6 @@
 system = {
     name = "CallUpdateMethod",
-    includes = { 
+    processesComponents = { 
         "Behaviour", 
         { name = "LuaContext", readonly = false }
         }

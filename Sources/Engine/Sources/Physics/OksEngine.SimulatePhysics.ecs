@@ -1,4 +1,4 @@
 system = {
     name = "SimulatePhysics",
-	includes = { { name = "PhysicsEngine", readonly = false } }
+	processesComponents = { { name = "PhysicsEngine", readonly = false } }
 }

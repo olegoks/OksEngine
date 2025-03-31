@@ -1,7 +1,7 @@
 system = {
     name = "CreateResourceEntity",
 
-    includes = { 
+    processesComponents = { 
 		"LoadResourceRequest", "Name", "AsyncTask"
 	 }
 }

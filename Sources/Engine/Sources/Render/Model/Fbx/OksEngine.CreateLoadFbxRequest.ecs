@@ -1,9 +1,9 @@
 system = {
     name = "CreateLoadFbxRequest",
-    includes = { 
+    processesComponents = { 
 		"GDF"
 	 },
-	 creates = { "LoadFbxRequest" },
+	 createsComponents = { "LoadFbxRequest" },
 	 excludes = { "LoadFbxRequest" }
 
 }

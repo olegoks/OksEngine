@@ -1,7 +1,7 @@
 system = {
     name = "UpdateSoundState",
 
-    includes = { 
+    processesComponents = { 
 		{ name = "Sound", readonly = false }
 	 }
 }

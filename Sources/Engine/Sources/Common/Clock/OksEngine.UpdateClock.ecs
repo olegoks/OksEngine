@@ -1,4 +1,4 @@
 system = {
     name = "UpdateClock",
-    includes = { "Clock" }
+    processesComponents = { "Clock" }
 }

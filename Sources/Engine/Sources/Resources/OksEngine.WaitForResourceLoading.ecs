@@ -1,9 +1,9 @@
 system = {
     name = "WaitForResourceLoading",
 
-    entities = {
+    processesEntities = {
       {
-        includes = { 
+        processesComponents = { 
 		      "LoadResourceRequest", 
           "Name", 
           "WaitingForResourceLoading"
@@ -11,7 +11,7 @@ system = {
         excludes = { "ResourceEntity" }
       },
       {
-        includes = { 
+        processesComponents = { 
 		      "Resource", 
           "BinaryData"
 	      }

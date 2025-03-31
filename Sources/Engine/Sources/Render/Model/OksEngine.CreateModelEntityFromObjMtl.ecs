@@ -1,8 +1,8 @@
 system = {
     name = "CreateModelEntityFromObjMtl",
-    includes = { 
+    processesComponents = { 
 		"ObjEntity", "MtlEntity"
 	 },
-	 creates = { "ModelEntity" },
+	 createsComponents = { "ModelEntity" },
 	 excludes = { "ModelEntity" }
 }

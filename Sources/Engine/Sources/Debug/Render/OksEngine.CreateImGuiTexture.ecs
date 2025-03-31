@@ -1,11 +1,11 @@
 system = {
     name = "CreateImGuiTexture",
-    entities = {
+    processesEntities = {
         {
-            includes = { { name = "ImGuiState", readonly = false } }
+            processesComponents = { { name = "ImGuiState", readonly = false } }
         },
         {
-            includes = { 
+            processesComponents = { 
                 { name = "RenderDriver", readonly = false }
             }
         }

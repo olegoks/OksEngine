@@ -1,13 +1,13 @@
 system = {
     name = "CreateLoadGDFTask",
-    entities = {
+    processesEntities = {
         {
-            includes = { "ImmutableRenderGeometry" },
+            processesComponents = { "ImmutableRenderGeometry" },
 	        excludes = { "LoadGDFTask" },
-            creates = { "LoadGDFTask" }
+            createsComponents = { "LoadGDFTask" }
         },
         {
-            includes = { { name = "ResourceSystem", readonly = false }}
+            processesComponents = { { name = "ResourceSystem", readonly = false }}
         }
     }
 }

@@ -1,8 +1,8 @@
 system = {
     name = "CheckResourceLoaded",
-    includes = { 
+    processesComponents = { 
 		"LoadResourceRequest", "AsyncTask"
 	 },
-   creates = { "BinaryData", "Completed" },
+   createsComponents = { "BinaryData", "Completed" },
    excludes = { "BinaryData", "Completed" }
 }

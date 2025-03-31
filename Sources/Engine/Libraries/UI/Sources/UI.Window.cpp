@@ -23,6 +23,9 @@ namespace UI {
 			"Vulkan",
 			nullptr,
 			nullptr);
+
+		glfwMakeContextCurrent(createdWindow);
+
 		glfwSetInputMode(createdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 		glfwSetCursorPosCallback(createdWindow, [](::GLFWwindow* window, double xpos, double ypos) {
 
@@ -46,6 +49,11 @@ namespace UI {
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		ImPlot::CreateContext();
 		ImGui_ImplGlfw_InitForVulkan(createdWindow, true);
+
+
+		if (!glfwVulkanSupported()) {
+			OS::AssertFail();
+		}
 
 		OS::AssertMessage(
 			createdWindow != nullptr,
@@ -82,6 +90,10 @@ namespace UI {
 			windowPtr->PushEvent(KeyboardEvent{ keyboardKey, event });
 
 			});
+		glfwSetErrorCallback([](int error, const char* description) {
+			std::cerr << "GLFW Error (" << error << "): " << description << std::endl;
+			});
+
 
 		window_ = reinterpret_cast<GLFWwindow*>(createdWindow);
 	}
@@ -130,7 +142,7 @@ namespace UI {
 	void Window::ProcessInput() {
 		ImGui_ImplGlfw_NewFrame();
 		if (!glfwWindowShouldClose(reinterpret_cast<::GLFWwindow*>(window_))) {
-			glfwSwapBuffers(reinterpret_cast<::GLFWwindow*>(window_));
+			
 			glfwPollEvents();
 		}
 	}

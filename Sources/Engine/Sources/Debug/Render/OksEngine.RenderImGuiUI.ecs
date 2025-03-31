@@ -1,5 +1,5 @@
 system = {
     name = "RenderImGuiUI",
-    includes = { 
+    processesComponents = { 
         "ImGuiState" }
 }

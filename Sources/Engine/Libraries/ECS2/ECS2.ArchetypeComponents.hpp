@@ -66,7 +66,7 @@ namespace ECS2 {
 		}
 
 		template<class Component>
-		inline void GetComponent(Entity::Id entityId) {
+		inline Component* GetComponent(Entity::Id entityId) {
 #pragma region Assert
 			OS::AssertMessage(entityIdComponentIndex_.contains(entityId),
 				"Attempt to get component of entity that doesn't exist.");
@@ -76,7 +76,7 @@ namespace ECS2 {
 			OS::AssertMessage(componentIndex != invalidComponentIndex_,
 				"Attempt to get component of entity but component doesn't exist.");
 #pragma endregion
-			std::shared_ptr<ArchetypeContainer<Component>> container = containers_[Component::GetTypeId()];
+			auto container = std::dynamic_pointer_cast<ArchetypeContainer<Component>>(containers_[Component::GetTypeId()]);
 			return (*container)[componentIndex];
 		}
 

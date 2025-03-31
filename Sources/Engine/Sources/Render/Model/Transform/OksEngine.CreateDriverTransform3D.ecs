@@ -1,16 +1,16 @@
 system = {
     name = "CreateDriverTransform3D",
-    entities = {
+    processesEntities = {
         {
-            includes = { 
+            processesComponents = { 
                 { name = "Position3D", readonly = true },
                 { name = "Rotation3D", readonly = true }
             },
 	        excludes = { "DriverTransform3D" },
-            creates = { "DriverTransform3D" }
+            createsComponents = { "DriverTransform3D" }
         },
         {
-            includes = { 
+            processesComponents = { 
                 { name = "RenderDriver", readonly = false }
             }
         }

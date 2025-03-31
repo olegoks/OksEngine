@@ -1,8 +1,8 @@
 system = {
     name = "CreateAnimationState",
-    includes = { 
+    processesComponents = { 
         "Animation", 
         "StartAnimation" },
-        creates = { "RunningAnimationState" },
+        createsComponents = { "RunningAnimationState" },
     excludes = { "RunningAnimationState" }
 }

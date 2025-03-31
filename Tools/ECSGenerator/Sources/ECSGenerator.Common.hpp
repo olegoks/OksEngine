@@ -90,6 +90,11 @@ namespace ECSGenerator{
 		path = pathString;
 	}
 
+	//// Пользовательский литерал _fmt
+	//template <typename... Args>
+	//std::string operator""_fmt(const char* str, size_t, Args&&... args) {
+	//	return std::format(str, std::forward<Args>(args)...);
+	//}
 
 
 	enum class SearchDirection {

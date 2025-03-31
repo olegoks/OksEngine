@@ -1,6 +1,6 @@
 system = {
     name = "AddECSInspectorMainMenuItem",
-    includes = { 
+    processesComponents = { 
         { name = "ECSInspector", readonly = false }
         }
 }

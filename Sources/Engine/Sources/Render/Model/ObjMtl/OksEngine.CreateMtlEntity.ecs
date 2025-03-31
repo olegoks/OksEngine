@@ -1,7 +1,7 @@
 system = {
     name = "CreateMtlEntity",
-    includes = { "LoadMtlRequest" },
-    creates = { "MtlEntity" },
+    processesComponents = { "LoadMtlRequest" },
+    createsComponents = { "MtlEntity" },
 	excludes = { "MtlEntity" }
 }
 

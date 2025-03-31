@@ -150,7 +150,7 @@ namespace ECS2 {
 					"Attempt to get component that doesn't exist.");
 #pragma endregion
 				auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
-				return container->GetComponent<ComponentType>(entityId);
+				return container->GetComponent(entityId);
 			}
 		}
 

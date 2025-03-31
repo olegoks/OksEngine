@@ -1,6 +1,6 @@
 system = {
     name = "CreateImGuiModel",
-    includes = { 
+    processesComponents = { 
         "ImGuiState" },
     excludes = { "ModelEntity" }
 

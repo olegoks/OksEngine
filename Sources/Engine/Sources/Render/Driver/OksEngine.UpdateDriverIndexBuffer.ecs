@@ -1,15 +1,15 @@
 system = {
     name = "UpdateDriverIndexBuffer",
-    entities = {
+    processesEntities = {
         {
-            includes = { 
+            processesComponents = { 
                 "Indices",
                 "MutableMesh",
                 { name = "DriverIndexBuffer", readonly = false }
             }
         },
         {
-            includes = { { name = "RenderDriver", readonly = false } }
+            processesComponents = { { name = "RenderDriver", readonly = false } }
         }
     }
 }

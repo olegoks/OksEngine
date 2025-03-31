@@ -1,6 +1,6 @@
 system = {
     name = "CallInputProcessor",
-    includes = { 
+    processesComponents = { 
         "Behaviour", 
         { name = "LuaContext", readonly = false }, 
         { name = "KeyboardInput", readonly = false }, 

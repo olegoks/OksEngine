@@ -1,8 +1,8 @@
 system = {
     name = "UpdateDriverVertexBuffer",
-    entities = {
+    processesEntities = {
         {
-            includes = { 
+            processesComponents = { 
                 "Vertices2D", 
                 "Indices", 
                 "UVs",
@@ -10,7 +10,7 @@ system = {
             }
         },
         {
-            includes = { 
+            processesComponents = { 
                 { name = "RenderDriver", readonly = false } 
             }
         }

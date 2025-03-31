@@ -41,6 +41,8 @@ namespace OksEngine {
 	
 		CreateThreads(world2);
 
+		//RunInitializeSystems(world2);
+
 		while (IsRunning()) {
 
 			RunSystems(world2);

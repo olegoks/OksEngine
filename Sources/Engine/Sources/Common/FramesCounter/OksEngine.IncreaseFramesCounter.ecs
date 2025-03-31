@@ -1,6 +1,6 @@
 system = {
     name = "IncreaseFramesCounter",
-    includes = { 
+    processesComponents = { 
         "FramesCounter",
         "Counter"
         }

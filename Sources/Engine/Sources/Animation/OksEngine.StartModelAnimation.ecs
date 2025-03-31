@@ -1,7 +1,7 @@
 system = {
     name = "StartModelAnimation",
 
-    includes = { 
+    processesComponents = { 
         "ModelEntity", 
         "StartAnimation"}
 }

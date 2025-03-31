@@ -1,4 +1,4 @@
 system = {
     name = "UpdateMainMenuBar",
-    includes = { { name = "MainMenuBar", readonly = false } }
+    processesComponents = { { name = "MainMenuBar", readonly = false } }
 }

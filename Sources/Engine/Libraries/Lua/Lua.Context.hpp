@@ -114,6 +114,11 @@ namespace Lua {
 			return Type{};
 		}
 
+		int GetLength(luabridge::LuaRef array) {
+			
+			return array.length();
+		}
+
 		template<>
 		[[nodiscard]]
 		std::string ConvertStackTopValueTo<std::string>() const noexcept {
