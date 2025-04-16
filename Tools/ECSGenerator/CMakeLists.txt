@@ -29,7 +29,6 @@ organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
 
 add_executable(ECSGenerator)
 
-
 find_package(PkgConfig REQUIRED) 
 
 pkg_check_modules(GRAPHVIZ REQUIRED libgvc)
@@ -66,7 +65,7 @@ set(CLANG_LIBS
 set_target_properties(ECSGenerator
     PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
-        "-workDir ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/")
+        "-workDir ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources -cfg ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/ecs_gen_config.lua")
 target_include_directories(ECSGenerator
     PUBLIC
         ${LLVM_INCLUDE_DIRS} 
@@ -89,6 +88,7 @@ target_link_libraries(ECSGenerator
     LuaLayer
     Resources
     ECS
+    Config
     )
     
 

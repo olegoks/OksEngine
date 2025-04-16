@@ -16,7 +16,12 @@ namespace OksEngine {
 	public:
 
 
-		ResourceSubsystem(Context& context) : Subsystem{ Subsystem::Type::Resource, context } {
+		ResourceSubsystem(Context& context) : Subsystem{ Subsystem::Type::Resource, context },
+			resourceSystem_{ 
+			Resources::ResourceSystem::CreateInfo{ 
+					.fileExtensions_ = { 
+					".frag", ".vert", ".geom" }
+			} } {
 
 		}
 

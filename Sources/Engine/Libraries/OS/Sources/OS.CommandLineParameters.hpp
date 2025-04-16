@@ -19,13 +19,28 @@ namespace OS
 		}
 
 		[[nodiscard]]
-		std::string_view GetValue(const std::string_view valueName) const noexcept {
+		std::vector<std::string_view> GetValue(const std::string_view valueName) const noexcept {
+
+#pragma region Assert
+			OS::AssertMessage(valueName.starts_with('-'), "");
+#pragma endregion
+
+			std::vector<std::string_view> values;
 			for (int i = 0; i < argc_; ++i) {
-				const std::string_view value = argv_[i];
-				if (value == valueName) {
-					const int nextValueIndex = i + 1;
-					OS::Assert(nextValueIndex < argc_);
-					return argv_[nextValueIndex];
+				const std::string_view parameter = argv_[i];
+				if (parameter == valueName) {
+					int j = i + 1;
+					Assert(j < argc_);
+					std::string_view value = argv_[j];
+					while (!value.starts_with('-') ) {
+						values.push_back(value);
+						j++;
+						if (j >= argc_) {
+							break;
+						}
+						value = argv_[j];
+					};
+					return values;
 				}
 			}
 			OS::AssertFail();

@@ -40,7 +40,7 @@ namespace DataStructures {
 					if (stop) { break; }
 				}
 			}
-			void ForEachLinksFrom(std::function<void(Id linkFrom)> processNode) const noexcept {
+			void ForEachLinksFrom(std::function<bool(Id linkFrom)> processNode) const noexcept {
 				for (Id linkFrom : linksFrom_) {
 					const bool stop = processNode(linkFrom);
 					if (stop) { break; }

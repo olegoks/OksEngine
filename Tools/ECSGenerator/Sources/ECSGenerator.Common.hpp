@@ -135,18 +135,22 @@ namespace ECSGenerator{
 				}
 			}
 		}
-		
-		if (skipStartFolder) {
-			if (resultRange == ResultRange::FromStartFolderToEnd) {
-				++startFolderIt;
-			}
-			else if (resultRange == ResultRange::FromStartToStartFolder) {
-				--startFolderIt;
-			}
-		}
+		//
+		//if (skipStartFolder) {
+		//	if (resultRange == ResultRange::FromStartFolderToEnd) {
+		//		++startFolderIt;
+		//	}
+		//	else if (resultRange == ResultRange::FromStartToStartFolder) {
+		//		--startFolderIt;
+		//	}
+		//}
 
 		if (resultRange == ResultRange::FromStartFolderToEnd) {
-			for (auto it = startFolderIt;
+#pragma region Assert
+			OS::AssertMessage(startFolderIt != path.end(), "");
+#pragma endregion
+
+			for (auto it = (skipStartFolder) ? (++startFolderIt) : (startFolderIt) ;
 				it != path.end();
 				++it) {
 				result /= *it;
@@ -157,6 +161,9 @@ namespace ECSGenerator{
 				it != startFolderIt;
 				++it) {
 				result /= *it;
+			}
+			if (!skipStartFolder) {
+				result /= *startFolderIt;
 			}
 		}
 		FormatPath(result);

@@ -69,6 +69,7 @@ target_link_libraries(OksEngine
     ECS
     ECS2
     LuaLayer
+    Config
     Render
     Physics
     OS

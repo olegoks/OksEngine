@@ -1,0 +1,5 @@
+system = {
+    name = "EndImGuiFrame",
+    processesComponents = { "ImGuiState" },
+    runAfter = "StartImGuiFrame"
+}

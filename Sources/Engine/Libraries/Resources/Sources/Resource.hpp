@@ -7,6 +7,7 @@
 #include <vector>
 #include <unordered_map>
 #include <string>
+#include <set>
 
 #include <OS.Memory.AllocationCallbacks.hpp>
 #include <OS.hpp>
@@ -105,6 +106,10 @@ namespace Resources {
 				return name_;
 			}
 
+			std::filesystem::path GetOSPath() {
+				return resource_.GetPath();
+			}
+
 			[[nodiscard]]
 			Resource& GetResource() noexcept
 			{
@@ -126,8 +131,15 @@ namespace Resources {
 
 	public:
 
-		ResourceSystem(const Memory::AllocationCallbacks& allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
-			allocationCallbacks_{ allocationCallbacks } {
+		struct CreateInfo {
+			std::set<std::string> fileExtensions_;
+		};
+
+		ResourceSystem(const CreateInfo& createInfo, const Memory::AllocationCallbacks& allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
+			ci_{ createInfo },
+			allocationCallbacks_ {
+			allocationCallbacks
+		} {
 			ResourceInfo resourceInfo{
 				"Root",
 				Resource{ "" }
@@ -140,8 +152,6 @@ namespace Resources {
 			std::string name,
 			std::filesystem::path resourceFilePath,
 			std::filesystem::path resourcePath) {
-
-			const std::filesystem::path root = *resourcePath.begin();
 
 			ResourceInfo resourceInfo{
 				name,
@@ -214,7 +224,7 @@ namespace Resources {
 			try {
 				for (const auto& rootPath : rootPaths) {
 					for (const auto& entry : std::filesystem::recursive_directory_iterator(rootPath)) {
-						if (std::filesystem::is_regular_file(entry)) {
+						if (std::filesystem::is_regular_file(entry) && ci_.fileExtensions_.contains(entry.path().extension().string())) {
 							AddResource(entry.path().filename().string(), entry.path(), "Root");
 						}
 					}
@@ -224,6 +234,22 @@ namespace Resources {
 			catch (const std::filesystem::filesystem_error& error) {
 				OS::LogInfo("ResourceSystem", error.what());
 			}
+		}
+
+		using ProcessAddedResource = std::function<bool(const std::filesystem::path path)>;
+
+		void ForEachAddedResource(ProcessAddedResource&& processAddedResource) {
+
+			ProcessDependence processNode = [&](Graph::Node::Id nodeId)->bool {
+				
+				return processAddedResource(GetNodePath(nodeId));
+				};
+
+			ForEachDependenceNode(rootNodeId_, processNode);
+		}
+
+		std::filesystem::path GetOSResourcePath(const std::filesystem::path& resourcePath) {
+			return GetResourceInfo(resourcePath).GetOSPath();
 		}
 
 	private:
@@ -246,7 +272,10 @@ namespace Resources {
 			ProcessDependence processNode = [this](Graph::Node::Id nodeId)->bool {
 				ResourceInfo& resourceInfo = GetResourceInfo(nodeId);
 				if (resourceInfo.GetName() != rootName_) {
-					resourceInfo.GetResource().Load();
+
+					if (!resourceInfo.GetResource().IsLoaded()) {
+						resourceInfo.GetResource().Load();
+					}
 					OS::LogInfo("Resources", { "Loaded resource {}", resourceInfo.GetName().c_str() });
 				}
 				return true;
@@ -277,7 +306,7 @@ namespace Resources {
 			return resourceNode.GetValue();
 		}
 
-
+	public:
 		[[nodiscard]]
 		bool IsNodeExist(std::filesystem::path nodePath) {
 			OS::AssertMessage(
@@ -316,6 +345,8 @@ namespace Resources {
 					"Incorrect path:\n%s", nodePath.string().c_str() });
 			return true;
 		}
+
+	private:
 
 		[[nodiscard]]
 		Graph::Node::Id GetNodeId(std::filesystem::path nodePath) {
@@ -357,6 +388,44 @@ namespace Resources {
 			return currentNodeId;
 		}
 
+
+		[[nodiscard]]
+		std::filesystem::path GetNodePath(Graph::Node::Id nodeId) {
+
+			Graph::Node::Id currentNodeId = nodeId;
+
+			std::list<std::string> nodePathElements;
+
+			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
+			nodePathElements.push_front(currentNode.GetValue().GetName());
+
+			currentNode.ForEachLinksFrom([&](Graph::Node::Id nodeIdFrom) {
+				Graph::Node& nodeFrom = graph_.GetNode(nodeIdFrom);
+				nodePathElements.push_front(nodeFrom.GetValue().GetName());
+				currentNodeId = nodeIdFrom;
+				return false;
+				});
+
+			while (currentNodeId != rootNodeId_) {
+				Graph::Node& currentNode = graph_.GetNode(currentNodeId);
+				currentNode.ForEachLinksFrom([&](Graph::Node::Id nodeIdFrom) {
+					Graph::Node& nodeFrom = graph_.GetNode(nodeIdFrom);
+					nodePathElements.push_front(nodeFrom.GetValue().GetName());
+					currentNodeId = nodeIdFrom;
+					return false;
+					});
+			}
+
+			std::filesystem::path nodePath;
+
+			for (std::string element : nodePathElements) {
+				nodePath /= element;
+			}
+
+			return nodePath;
+		}
+
+
 		[[nodiscard]]
 		ResourceInfo& GetResourceInfo(Graph::Node::Id nodeId) {
 			Graph::Node& node = graph_.GetNode(nodeId);
@@ -369,6 +438,7 @@ namespace Resources {
 		Graph::Node::Id rootNodeId_;
 		Graph graph_;
 		Memory::AllocationCallbacks allocationCallbacks_;
+		CreateInfo ci_;
 	};
 
 }

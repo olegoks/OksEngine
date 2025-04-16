@@ -17,6 +17,11 @@ namespace ECSGenerator {
 			return *this;
 		}
 
+		Code& AddComment(const std::string& text) {
+			code_ += "//" + text + "\n";
+			return *this;
+		}
+
 		Code& Add(const Code& code) {
 			code_ += code.code_;
 			return *this;
