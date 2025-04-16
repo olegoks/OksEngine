@@ -19,7 +19,11 @@ TEST(TestResources, CreateResourceSystem) {
 	auto currentPath = std::filesystem::current_path();
 	auto testPath = currentPath / "../../../../../Sources/Engine/Resources/Tests/";
 
-	Resources::ResourceSystem resourceSystem;
+	Resources::ResourceSystem::CreateInfo rsci{
+
+	};
+
+	Resources::ResourceSystem resourceSystem{ rsci };
 	resourceSystem.AddResource(
 		"VertexShader",
 		testPath / "TestResources/Shaders/triangle.vert",
@@ -38,7 +42,11 @@ TEST(TestResources, LoadRootResource) {
 	auto currentPath = std::filesystem::current_path();
 	auto testPath = currentPath / "../../../../../Sources/Engine/Resources/Tests/";
 
-	Resources::ResourceSystem resourceSystem;
+	Resources::ResourceSystem::CreateInfo rsci{
+
+	};
+
+	Resources::ResourceSystem resourceSystem{ rsci };
 	resourceSystem.AddResource(
 		"VertexShader",
 		testPath / "TestResources/Shaders/triangle.vert",
@@ -73,7 +81,11 @@ TEST(TestResources, LoadAllResources)
 		allocation_callbacks.userData_ = &allocatedMemory;
 	}
 
-	Resources::ResourceSystem resourceSystem{ allocation_callbacks };
+	Resources::ResourceSystem::CreateInfo rsci{
+		
+	};
+
+	Resources::ResourceSystem resourceSystem{ rsci, allocation_callbacks };
 	for (const auto& entry : std::filesystem::recursive_directory_iterator(testPath / "TestResources")) {
 		if (std::filesystem::is_regular_file(entry)) {
 			resourceSystem.AddResource(entry.path().filename().string(), entry.path(), "Root");

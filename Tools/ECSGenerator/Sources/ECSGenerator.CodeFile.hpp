@@ -1,6 +1,7 @@
 #pragma once
 
 #include <ECSGenerator.Common.hpp>
+#include <ECSGenerator.Code.hpp>
 
 namespace ECSGenerator {
 

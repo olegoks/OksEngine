@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Engine.hpp>
+
 #include <Lua.Context.hpp>
 
 namespace OksEngine {

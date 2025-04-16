@@ -35,7 +35,9 @@ namespace OksEngine
 		}
 
 		resourceSubsystem_ = std::make_shared<AsyncResourceSubsystem>(*this);
-		std::filesystem::path configFilePath = commandLineParameters.GetValue("-cfg");
+		std::vector<std::string_view> values = commandLineParameters.GetValue("-cfg");
+		OS::Assert(values.size() == 1);
+		std::filesystem::path configFilePath = values[0];
 		auto loadConfigTaskId = resourceSubsystem_->GetResource(Subsystem::Type::Engine, configFilePath);
 		auto configResource = resourceSubsystem_->GetResource(Subsystem::Type::Engine, loadConfigTaskId);
 		config_ = std::make_shared<Config>(std::string{ configResource.GetData<char>(), configResource.GetSize() });

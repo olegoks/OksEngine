@@ -1,0 +1,4 @@
+
+Multithreading = {
+    threadsNumber = 6
+}

@@ -1,5 +1,6 @@
 system = {
     name = "AddECSInspectorMainMenuItem",
+    runAfter = "StartImGuiFrame",
     processesComponents = { 
         { name = "ECSInspector", readonly = false }
         }

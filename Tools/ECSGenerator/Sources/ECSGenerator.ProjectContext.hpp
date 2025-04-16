@@ -1,7 +1,10 @@
 #pragma once
 
-#include <ECSGenerator.Component.hpp>
-#include <ECSGenerator.System.hpp>
+#include <string>
+#include <memory>
+
+#include <ECSGenerator.ParsedECSFile.hpp>
+#include <OksEngine.Config.hpp>
 
 namespace ECSGenerator {
 
@@ -11,6 +14,15 @@ namespace ECSGenerator {
 	public:
 
 		inline static const std::string includeDirectory_ = "Sources";
+
+		struct CreateInfo {
+			std::shared_ptr<OksEngine::Config> config = nullptr;
+		};
+
+		ProjectContext(const CreateInfo& createInfo) 
+			: config_{ createInfo.config } {
+
+		}
 
 		void AddEcsFile(std::shared_ptr<ParsedECSFile> ecsFile) {
 
@@ -38,18 +50,22 @@ namespace ECSGenerator {
 
 		}
 
-		using ProcessComponentEcsFile = std::function<void(std::shared_ptr<ParsedComponentECSFile>)>;
-		using ProcessSystemEcsFile = std::function<void(std::shared_ptr<ParsedSystemECSFile>)>;
+		auto GetConfig() {
+			return config_;
+		}
+
+		using ProcessComponentEcsFile = std::function<void(std::shared_ptr<ParsedECSFile>)>;
+		using ProcessSystemEcsFile = std::function<void(std::shared_ptr<ParsedECSFile>)>;
 
 		void ForEachComponentEcsFile(ProcessComponentEcsFile&& processComponentEcsFile) {
 			for (auto componentEcsFile : allComponentsSystems_.components_) {
-				processComponentEcsFile(std::dynamic_pointer_cast<ParsedComponentECSFile>(componentEcsFile));
+				processComponentEcsFile(componentEcsFile);
 			}
 		}
 
 		void ForEachSystemEcsFile(ProcessSystemEcsFile&& processSystemEcsFile) {
 			for (auto systemEcsFile : allComponentsSystems_.systems_) {
-				processSystemEcsFile(std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcsFile));
+				processSystemEcsFile(systemEcsFile);
 			}
 		}
 
@@ -70,7 +86,7 @@ namespace ECSGenerator {
 		std::map<std::string, std::shared_ptr<ParsedECSFile>> nameEcsFile_;
 
 		std::map<std::filesystem::path, ComponentsSystems> oneCategoryEcsFiles_;
-
+		std::shared_ptr<OksEngine::Config> config_ = nullptr;
 		ComponentsSystems allComponentsSystems_;
 	};
 
