@@ -1,0 +1,8 @@
+
+system = {
+    name = "System2",
+    runAfter = { "System9", "System1" },
+    processesComponents = {
+        { name = "RenderDriver", readonly = false}
+    }
+}

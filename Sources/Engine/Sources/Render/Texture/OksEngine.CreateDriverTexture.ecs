@@ -3,11 +3,11 @@ system = {
     name = "CreateDriverTexture",
   processesEntities = {
     {
-    processesComponents = { 
-		"TextureInfo", "Texture"
-	 }, 
-   createsComponents = { "DriverTexture" },
-   excludes = { "DriverTexture" }
+      processesComponents = { 
+		    "TextureInfo", "Texture"
+	    }, 
+      createsComponents = { "DriverTexture" },
+      excludes = { "DriverTexture" }
     },
     {
       processesComponents = {

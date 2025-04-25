@@ -147,7 +147,7 @@ int main(int argc, char** argv) {
 				cxxECSCodeFile.Create();
 				cxxECSCodeFile << codeFile->code_.code_;
 			}
-
+			return true;
 		});
 
 

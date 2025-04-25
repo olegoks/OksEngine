@@ -73,6 +73,8 @@ namespace ECSGenerator {
 			std::vector<std::string> createEntityComponents_; // we dont need info: dynamic or archetype entity to create because we need generate only to add components includes.
 			Thread thread_ = Thread::Undefined;
 			SystemType type_ = SystemType::Undefined;
+			std::vector<std::string> runAfter_;
+			std::vector<std::string> runBefore_;
 		};
 
 		
@@ -113,6 +115,27 @@ namespace ECSGenerator {
 		SystemType GetSystemType() {
 			return ci_.type_;
 		}
+
+
+		using ProcessSystemName = std::function<bool(const std::string&)>;
+
+		void ForEachRunAfterSystem(ProcessSystemName&& processSystemName) {
+			for (const std::string& runAfterSystemName: ci_.runAfter_) {
+				const bool stop = !processSystemName(runAfterSystemName);
+				if (stop) {
+					break;
+				}
+			}
+		}
+		void ForEachRunBeforeSystem(ProcessSystemName&& processSystemName) {
+			for (const std::string& runBeforeSystemName : ci_.runBefore_) {
+				const bool stop = !processSystemName(runBeforeSystemName);
+				if (stop) {
+					break;
+				}
+			}
+		}
+
 
 		CreateInfo ci_;
 	};
@@ -429,13 +452,48 @@ namespace ECSGenerator {
 			}
 		}
 
-
+		std::vector<std::string> runAfterSystems;
+		std::vector<std::string> runBeforeSystems;
+		{
+			{
+				luabridge::LuaRef runAfterRef = system["runAfter"];
+				if (!runAfterRef.isNil()) {
+					if (runAfterRef.isTable()) {
+						for (luabridge::Iterator it(runAfterRef); !it.isNil(); ++it) {
+							luabridge::LuaRef runAfterSystemRef = it.value();
+							runAfterSystems.push_back(runAfterSystemRef.cast<std::string>().value());
+						}
+					}
+					else {
+						runAfterSystems.push_back(runAfterRef.cast<std::string>().value());
+					}
+				}
+			}
+			{
+				luabridge::LuaRef runBeforeRef = system["runBefore"];
+				if (!runBeforeRef.isNil()) {
+					if (runBeforeRef.isTable()) {
+						for (luabridge::Iterator it(runBeforeRef); !it.isNil(); ++it) {
+							luabridge::LuaRef runAfterSystemRef = it.value();
+							runAfterSystems.push_back(runAfterSystemRef.cast<std::string>().value());
+						}
+					}
+					else {
+						runBeforeSystems.push_back(runBeforeRef.cast<std::string>().value());
+					}
+				}
+			}
+		
+		}
+		
 
 		ParsedSystemECSFile::CreateInfo ci{
 			.name_ = system["name"].cast<std::string>().value(),
 			.path_ = ecsFilePath,
 			.processesEntities_ = parsedEntities,
-			.createEntityComponents_ = createEntityComponents
+			.createEntityComponents_ = createEntityComponents,
+			.runAfter_ = runAfterSystems,
+			.runBefore_ = runBeforeSystems
 		};
 
 		ci.thread_ = GetThread(context);

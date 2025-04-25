@@ -54,21 +54,26 @@ namespace ECSGenerator {
 			return config_;
 		}
 
-		using ProcessComponentEcsFile = std::function<void(std::shared_ptr<ParsedECSFile>)>;
-		using ProcessSystemEcsFile = std::function<void(std::shared_ptr<ParsedECSFile>)>;
+		using ProcessComponentEcsFile = std::function<bool(std::shared_ptr<ParsedECSFile>)>;
+		using ProcessSystemEcsFile = std::function<bool(std::shared_ptr<ParsedECSFile>)>;
 
 		void ForEachComponentEcsFile(ProcessComponentEcsFile&& processComponentEcsFile) {
 			for (auto componentEcsFile : allComponentsSystems_.components_) {
-				processComponentEcsFile(componentEcsFile);
+				const bool stop = !processComponentEcsFile(componentEcsFile);
+				if (stop) {
+					break;
+				}
 			}
 		}
 
 		void ForEachSystemEcsFile(ProcessSystemEcsFile&& processSystemEcsFile) {
 			for (auto systemEcsFile : allComponentsSystems_.systems_) {
-				processSystemEcsFile(systemEcsFile);
-			}
+				const bool stop = !processSystemEcsFile(systemEcsFile);
+				if (stop) {
+					break;
+				}
+			}			
 		}
-
 		std::shared_ptr<ParsedECSFile> GetEcsFileByName(const std::string& name) {
 
 #pragma region Assert

@@ -20,8 +20,8 @@ namespace OksEngine {
 	//}
 
 	void UpdateMainMenuBar::Update(
-		ECS2::Entity::Id entityId,
-		MainMenuBar* mainMenuBar) {
+		ECS2::Entity::Id entityId, MainMenuBar* mainMenuBar,
+		ImGuiState* imGuiState) {
 
 	}
 

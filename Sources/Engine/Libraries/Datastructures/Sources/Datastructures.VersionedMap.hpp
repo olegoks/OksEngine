@@ -20,6 +20,7 @@ namespace DataStructures {
 	public:
 
 		using Id = Common::UInt64;
+		static constexpr Id invalidId_ = Common::Limits<Common::UInt64>::Max();
 
 		VersionedMap(Memory::AllocationCallbacks allocationCallbacks = Memory::AllocationCallbacks{}) noexcept;
 
@@ -31,8 +32,12 @@ namespace DataStructures {
 		[[nodiscard]]
 		bool IsExists(Id id) noexcept;
 		Type& GetElement(Id id) noexcept;
+		const Type& GetElement(Id id) const noexcept;
 		using ProcessElement = std::function<bool(Id, Type&)>;
 		void ForEachElement(ProcessElement&& processor) noexcept;
+
+		using ProcessConstElement = std::function<bool(Id, const Type&)>;
+		void ForEachElement(ProcessConstElement&& processor) const noexcept;
 
 	private:
 
@@ -46,9 +51,19 @@ namespace DataStructures {
 			return GetSlot(id.slotIndex_);
 		}
 
+		const Slot& GetSlot(SlotId id) const {
+			return GetSlot(id.slotIndex_);
+		}
+
+
 		Slot& GetSlot(SlotIndex index) {
 			return slots_[index];
 		}
+
+		const Slot& GetSlot(SlotIndex index) const {
+			return slots_[index];
+		}
+
 
 		SlotIndex FindFreeSlot() noexcept;
 
@@ -86,7 +101,10 @@ namespace DataStructures {
 		void IncreaseVersion() noexcept { ++version_; }
 
 		[[nodiscard]]
-		inline Type* GetData() const noexcept { return data_; }
+		inline const Type* GetData() const noexcept { return data_; }
+
+		[[nodiscard]]
+		inline Type* GetData() noexcept { return data_; }
 
 		void SetData(Type* data) noexcept {
 			OS::AssertMessage(IsFree(),
@@ -175,8 +193,16 @@ namespace DataStructures {
 		//bool operator<(const Id& id) const noexcept {
 		//	return true;
 		//}
-	};
+		static SlotId GetInvalid() {
+			return SlotId{ Common::Limits<Common::UInt32>::Max(), Common::Limits<Common::UInt32>::Max() };
+		}
 
+		[[nodiscard]]
+		bool IsInvalid() const {
+			return *this == GetInvalid();
+		}
+	};
+	
 	template<class Type>
 	void VersionedMap<Type>::DeleteElement(Id id) {
 		Slot& slot = GetSlot(SlotId{ id });
@@ -224,7 +250,27 @@ namespace DataStructures {
 	}
 
 	template<class Type>
+	const Type& VersionedMap<Type>::GetElement(Id id) const noexcept {
+		const Slot& slot = GetSlot(id);
+		OS::AssertMessage(!slot.IsFree(),
+			"Attempt to get data of free slot.");
+		return *slot.GetData();
+	}
+
+	template<class Type>
 	void VersionedMap<Type>::ForEachElement(ProcessElement&& processor) noexcept {
+		for (SlotIndex slotIndex = 0; slotIndex < slots_.GetSize(); slotIndex++) {
+			const Slot& slot = slots_[slotIndex];
+			if (!slot.IsFree()) {
+				const SlotId slotId{ slotIndex, slot.version_ };
+				const bool stop = !processor(slotId.operator size_t(), *slot.GetData());
+				if (stop) { break; }
+			}
+		}
+	}
+
+	template<class Type>
+	void VersionedMap<Type>::ForEachElement(ProcessConstElement&& processor) const noexcept {
 		for (SlotIndex slotIndex = 0; slotIndex < slots_.GetSize(); slotIndex++) {
 			const Slot& slot = slots_[slotIndex];
 			if (!slot.IsFree()) {

@@ -57,6 +57,7 @@ namespace ECSGenerator {
 					if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
 						runInitSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
 					}
+					return true;
 				});
 
 			runInitSystemsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"End enitialize frame\");");
@@ -86,8 +87,63 @@ namespace ECSGenerator {
 		using Component = std::string;
 
 
+		class SystemsOrder {
+		public:
+
+			void AddSystemAfter(System system, System afterSystem) {
+				for (Common::Index i = 0; i < order_.size(); i++) {
+					const System& currentSystem = order_[i];
+					if (currentSystem == afterSystem) {
+						if (i != order_.size() - 1) {
+							order_.insert(order_.begin() + i + 1, system);
+						}
+						else {
+							order_.push_back(system);
+						}
+					}
+
+				}
+
+			}
+
+			void AddSystemAfter(System system, std::unordered_set<System> afterSystems) {
+				std::unordered_set<System> checkedSystems;
+				for (Common::Index i = 0; i < order_.size(); i++) {
+					const System& currentSystem = order_[i];
+					if (afterSystems.contains(currentSystem)) {
+						checkedSystems.insert(currentSystem);
+						if (checkedSystems.size() == afterSystems.size()) {
+							if (i != order_.size() - 1) {
+								order_.insert(order_.begin() + i + 1, system);
+							}
+							else {
+								order_.push_back(system);
+							}
+						}
+					}
+
+				}
+
+			}
+
+			bool IsSystemAdded(System system) {
+				for (Common::Index i = 0; i < order_.size(); i++) {
+					const System& currentSystem = order_[i];
+					if (currentSystem == system) {
+						return true;
+					}
+				}
+				return false;
+			}
+
+			std::vector<System> order_;
+		};
+
 		struct Thread {
 			std::map<System, std::set<Component>> systems_;
+
+			DS::Graph<System> callGraph_;
+			SystemsOrder systemsOrder_;
 		};
 
 
@@ -132,17 +188,33 @@ namespace ECSGenerator {
 						threadIdStr
 					));
 
+					//Code runThreadSystems;
+					//for (auto it = thread.systems_.begin(); it != thread.systems_.end(); it++) {
+					//	const std::string systemName = it->first;
+					//	runThreadSystems.Add(std::format(
+					//		"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+					//		"{}System(world2);"
+					//		"PIXEndEvent();",
+					//		systemName,
+					//		systemName
+					//	));
+					//}
+
+
 					Code runThreadSystems;
-					for (auto it = thread.systems_.begin(); it != thread.systems_.end(); it++) {
-						const std::string systemName = it->first;
+					for (Common::Index i = 0; i < thread.systemsOrder_.order_.size(); i++) {
 						runThreadSystems.Add(std::format(
 							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
 							"{}System(world2);"
 							"PIXEndEvent();",
-							systemName,
-							systemName
+							thread.systemsOrder_.order_[i],
+							thread.systemsOrder_.order_[i]
 						));
+						if (i != thread.systemsOrder_.order_.size() - 1) {
+							runThreadSystems.NewLine();
+						}
 					}
+
 
 					//runThreadSystems.ApplyTab();
 					cppCreateThreadsCode.Add(runThreadSystems);
@@ -259,6 +331,220 @@ namespace ECSGenerator {
 			return { systemCppFileFullPath, file };
 		}
 
+		std::vector<System> graphOrder;
+		void ProcessNode(
+			SystemsOrder& systemsOrder,
+			const DS::Graph<System>& graph,
+			const DS::Graph<System>::Node::Id& nodeId,
+			bool isFrom = false) {
+
+			auto& node = graph.GetNode(nodeId);
+			graphOrder.push_back(node.GetValue());
+			std::unordered_set<System> systemsFrom;
+			node.ForEachLinksFrom([&](DS::Graph<System>::Node::Id fromNodeToId) {
+				auto& fromNode = graph.GetNode(fromNodeToId);
+				if (!systemsOrder.IsSystemAdded(fromNode.GetValue())) {
+					ProcessNode(systemsOrder, graph, fromNodeToId, true);
+					return false;
+				}
+				systemsFrom.insert(fromNode.GetValue());
+				return true;
+				});
+
+			if (!systemsFrom.empty() && !systemsOrder.IsSystemAdded(node.GetValue())) {
+				systemsOrder.AddSystemAfter(node.GetValue(), systemsFrom);
+			}
+			if (!isFrom) {
+				node.ForEachLinksTo([&](DS::Graph<System>::Node::Id nodeToId) {
+					ProcessNode(systemsOrder, graph, nodeToId);
+					return true;
+					});
+			}
+			//if (allLinksFromInOrder) {
+
+			//}
+
+
+		}
+
+		void CalculateSystemsCallOrder(Thread& thread) {
+
+			//std::vector<System> separatedSystems;
+			//std::unordered_set<System> usedSystems;
+
+
+			if (thread.systems_.size() > 1) {
+				//__debugbreak();
+			}
+
+			//TODO: Check graph loops.
+
+
+			//Find systems that root of dependence and generate code.
+			auto findRoots = [](const Thread& thread) {
+				std::unordered_set<DS::Graph<System>::Node::Id> roots;
+				thread.callGraph_.ForEachNode([&](
+					const DS::Graph<System>::Node::Id systemNodeId,
+					const DS::Graph<System>::Node& systemNode
+					) {
+						if (!systemNode.HasLinksFrom()) {
+							roots.insert(systemNodeId);
+						}
+						return true;
+					});
+				return roots;
+				};
+
+			std::unordered_set<DS::Graph<System>::Node::Id> roots = findRoots(thread);
+
+			SystemsOrder systemsOrder;
+			for (auto rootNodeId : roots) {
+				auto rootNode = thread.callGraph_.GetNode(rootNodeId);
+				thread.systemsOrder_.order_.push_back(rootNode.GetValue());
+			}
+
+			for (auto rootNodeId : roots) {
+				auto rootNode = thread.callGraph_.GetNode(rootNodeId);
+				if (rootNode.GetValue() == "System1") {
+					__debugbreak();
+				}
+				ProcessNode(thread.systemsOrder_, thread.callGraph_, rootNodeId);
+
+			}
+
+			//
+			//std::vector<System> systemsOrder;
+			//const DS::Graph<System>::Node::Id rootNodeId = findRoot(thread);
+			//if (rootNodeId != DS::Graph<System>::Node::invalidId_) {
+			//	DS::Graph<System>::Node::Id currentNode = rootNodeId;
+
+			//	while (currentNode != DS::Graph<System>::Node::invalidId_) {
+			//		const auto& node = thread.callGraph_.GetNode(currentNode);
+			//		systemsOrder.push_back(node.GetValue());
+			//		usedSystems.insert(node.GetValue());
+			//		node.ForEachLinksTo([&](DS::Graph<System>::Node::Id linkTo) {
+			//			currentNode = linkTo;
+			//			return false;
+			//			});
+			//		if (!node.HasLinksTo()) {
+			//			break;
+			//		}
+			//	}
+
+			//	
+			//}
+
+			//while (usedSystems.size() != thread.systems_.size()) {
+
+			//	thread.callGraph_.ForEachNode([&](
+			//		DS::Graph<System>::Node::Id nodeId,
+			//		const DS::Graph<System>::Node& node) {
+
+			//			//if system was adde to order -> skip
+			//			if (usedSystems.contains(node.GetValue())) {
+			//				return true;
+			//			}
+
+			//			//if no dependences add to end 
+			//			if (!node.HasLinksFrom() && !node.HasLinksTo()) {
+			//				//separatedSystems.push_back(node.GetValue());
+			//				usedSystems.insert(node.GetValue());
+			//				systemsOrder.push_back(node.GetValue());
+			//				return true;
+			//			}
+
+			//			std::vector<System> nextSystems;
+			//			//Find next systems
+			//			{
+
+			//				bool allDependenceSystemsInOrder = true;
+			//				node.ForEachLinksTo([&](DS::Graph<System>::Node::Id linkTo) {
+			//					const DS::Graph<System>::Node& systemToNode = thread.callGraph_.GetNode(linkTo);
+
+			//					//Skip this dependence if this system was not added to order.
+			//					if (!usedSystems.contains(systemToNode.GetValue())) {
+			//						allDependenceSystemsInOrder = false;
+			//						return false;
+			//					}
+
+			//					nextSystems.push_back(systemToNode.GetValue());
+
+
+			//					return true;
+			//					});
+
+			//				if (!allDependenceSystemsInOrder) {
+			//					return true;
+			//				}
+
+			//			}
+			//			std::vector<System> previousSystems;
+			//			//Find previous systems
+			//			{
+
+			//				bool allDependenceSystemsInOrder = true;
+			//				node.ForEachLinksFrom([&](DS::Graph<System>::Node::Id linkTo) {
+			//					const DS::Graph<System>::Node& systemToNode = thread.callGraph_.GetNode(linkTo);
+
+			//					//Skip this dependence if this system was not added to order.
+			//					if (!usedSystems.contains(systemToNode.GetValue())) {
+			//						allDependenceSystemsInOrder = false;
+			//						return false;
+			//					}
+
+			//					previousSystems.push_back(systemToNode.GetValue());
+
+
+			//					return true;
+			//					});
+
+			//				if (!allDependenceSystemsInOrder) {
+			//					return true;
+			//				}
+
+			//			}
+
+			//			//All dependence systems in order lets add current system to order.
+			//			System leftSystem = "";
+			//			Common::Index leftSystemIndex = Common::Limits<Common::Index>::Max();
+			//			{
+			//				for () {
+
+			//				}
+			//			}
+
+			//			System rightSystem = "";
+			//			Common::Index rightSystemIndex = Common::Limits<Common::Index>::Max();
+			//			{
+
+			//			}
+
+			//			return true;
+			//		});
+			//}
+
+
+			//if (!systemsOrder.empty()){
+			//	__debugbreak();
+			//}
+
+			//Code runMainThreadSystems;
+			//for (auto it = thread.systems_.begin(); it != thread.systems_.end(); it++) {
+			//	runMainThreadSystems.Add(std::format(
+			//		"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+			//		"{}System(world2);"
+			//		"PIXEndEvent();",
+			//		it->first,
+			//		it->first
+			//	));
+			//	auto itCopy = it;
+			//	if (itCopy++ != thread.systems_.end()) {
+			//		runMainThreadSystems.NewLine();
+			//	}
+			//}
+			//return runMainThreadSystems;
+		}
+
 		std::pair<std::filesystem::path, std::shared_ptr<File>>
 			GenerateRunSystemsCppFile(std::vector<std::vector<Agnode_t*>> clusters, std::shared_ptr<ProjectContext> projectContext) {
 
@@ -278,6 +564,7 @@ namespace ECSGenerator {
 								return true;
 								});
 						}
+						return true;
 					});
 			}
 
@@ -299,34 +586,112 @@ namespace ECSGenerator {
 					bool isMainThread = false;
 					for (Agnode_t* systemNode : clusterSystems) {
 						std::string systemName = agnameof(systemNode);
-						projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile) {
-							if ("OksEngine.ProcessInput.ecs" == ecsFile->GetPath().filename()) {
-								//__debugbreak();
-							}
-							auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
-							if (systemName == systemEcsFile->GetName() && systemEcsFile->ci_.thread_ == ParsedSystemECSFile::Thread::Main) {
-								isMainThread = true;
-							}
-							});
+						const auto ecsFile = projectContext->GetEcsFileByName(systemName);
+						auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+						if (systemEcsFile->ci_.thread_ == ParsedSystemECSFile::Thread::Main) {
+							isMainThread = true;
+						}
+						//projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile) {
+						//	//if ("OksEngine.ProcessInput.ecs" == ecsFile->GetPath().filename()) {
+						//	//	//__debugbreak();
+						//	//}
+						//	
+						//	if (systemName == systemEcsFile->GetName() && systemEcsFile->ci_.thread_ == ParsedSystemECSFile::Thread::Main) {
+						//		
+						//		return false;
+						//	}
+						//	return true;
+						//	});
 
 					}
 					Thread clusterThread;
+					std::map<std::string, DS::Graph<std::string>::Node::Id> systemNameToNode;
 					for (Agnode_t* systemNode : clusterSystems) {
 						std::string systemName = agnameof(systemNode);
 
 						clusterThread.systems_[systemName] = componentSystem[systemName];
 
+
+
+
 					}
 					if (isMainThread) {
-						mainThread.systems_.insert(
-							clusterThread.systems_.begin(),
-							clusterThread.systems_.end());
+						/*				mainThread.systems_.insert(
+											clusterThread.systems_.begin(),
+											clusterThread.systems_.end());*/
+						mainThread = clusterThread;
+
 					}
 					else {
 						childThreads.push_back(clusterThread);
 					}
 				}
 			}
+
+
+			//Create call graph for each thread.
+			auto createClusterSystemsCallGraph =
+				[&](std::shared_ptr<ProjectContext> projectContext, Thread& thread) {
+
+				if (thread.systems_.contains("System1")) {
+					//__debugbreak();
+				}
+				for (auto systemName : thread.systems_) {
+					auto ecsFile = projectContext->GetEcsFileByName(systemName.first);
+					if (systemName.first == "System4") {
+						//__debugbreak();
+					}
+					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+					DS::Graph<System>::Node::Id currentSystemNodeId = DS::Graph<System>::Node::invalidId_;
+					if (!thread.callGraph_.IsNodeExist(systemName.first)) {
+						currentSystemNodeId = thread.callGraph_.AddNode(systemName.first);
+					}
+					else {
+						currentSystemNodeId = thread.callGraph_.FindNode(systemName.first);
+					}
+					systemEcsFile->ForEachRunAfterSystem([&](const std::string& afterSystem) {
+
+#pragma region Assert 
+						OS::AssertMessage(thread.systems_.contains(afterSystem), "");
+#pragma endregion		
+						DS::Graph<System>::Node::Id afterSystemNodeId = DS::Graph<System>::Node::invalidId_;
+						if (!thread.callGraph_.IsNodeExist(afterSystem)) {
+							afterSystemNodeId = thread.callGraph_.AddNode(afterSystem);
+						}
+						else {
+							afterSystemNodeId = thread.callGraph_.FindNode(afterSystem);
+						}
+						thread.callGraph_.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
+						return true;
+						});
+
+					systemEcsFile->ForEachRunBeforeSystem([&](const std::string& beforeSystem) {
+
+#pragma region Assert 
+						OS::AssertMessage(thread.systems_.contains(beforeSystem), "");
+#pragma endregion		
+						DS::Graph<System>::Node::Id beforeSystemNodeId = DS::Graph<System>::Node::invalidId_;
+						if (!thread.callGraph_.IsNodeExist(beforeSystem)) {
+							beforeSystemNodeId = thread.callGraph_.AddNode(beforeSystem);
+						}
+						else {
+							beforeSystemNodeId = thread.callGraph_.FindNode(beforeSystem);
+						}
+						thread.callGraph_.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);
+						return true;
+						});
+
+				}
+
+				};
+
+			for (auto& childThread : childThreads) {
+				createClusterSystemsCallGraph(projectContext, childThread);
+				CalculateSystemsCallOrder(childThread);
+			}
+			createClusterSystemsCallGraph(projectContext, mainThread);
+			CalculateSystemsCallOrder(mainThread);
+
 
 			//Group threads systems to get less threads.
 			{
@@ -379,6 +744,7 @@ namespace ECSGenerator {
 							SearchDirection::FromEndToBegin,
 							true);
 						cppIncludes.paths_.push_back(systemIncludePath / ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp"));
+						return true;
 					});
 				cppIncludes.paths_.push_back("pix3.h");
 			}
@@ -454,16 +820,15 @@ namespace ECSGenerator {
 				//Generate code to run main thread systems.
 				{
 					Code runMainThreadSystems;
-					for (auto it = mainThread.systems_.begin(); it != mainThread.systems_.end(); it++) {
+					for (Common::Index i = 0; i < mainThread.systemsOrder_.order_.size(); i++) {
 						runMainThreadSystems.Add(std::format(
 							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
 							"{}System(world2);"
 							"PIXEndEvent();",
-							it->first,
-							it->first
+							mainThread.systemsOrder_.order_[i],
+							mainThread.systemsOrder_.order_[i]
 						));
-						auto itCopy = it;
-						if (itCopy++ != mainThread.systems_.end()) {
+						if (i != mainThread.systemsOrder_.order_.size() - 1) {
 							runMainThreadSystems.NewLine();
 						}
 					}
@@ -495,11 +860,8 @@ namespace ECSGenerator {
 						if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::AllEntities) {
 
 							cppRunSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
-							//cppRunSystemsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + systemEcsFile->GetName() + "\");");
-							//cppRunSystemsCode.Add(systemEcsFile->GetName() + "System(world2);");
-							//cppRunSystemsCode.NewLine();
-							//cppRunSystemsCode.Add("PIXEndEvent();");
 						}
+						return true;
 					});
 
 				cppRunSystemsCode.Add(
@@ -923,6 +1285,7 @@ namespace ECSGenerator {
 					ComponentFileStructureGenerator generator{ ci };
 					auto file = generator.GenerateECSCXXFilesStructure(projectContext, componentEcsFile);
 					files.push_back(file);
+					return true;
 				});
 
 			projectContext->ForEachSystemEcsFile(
@@ -937,6 +1300,7 @@ namespace ECSGenerator {
 
 
 					files.push_back(file);
+					return true;
 				});
 
 

@@ -62,7 +62,7 @@ namespace ECSGenerator {
 				auto system = std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcs);
 				//Do not add system that will be call manualy.
 				if (system->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize/* || system->GetThread() == ParsedSystemECSFile::Thread::Main*/) {
-					return;
+					return true;
 				}
 				Agnode_t* systemNode = agnode(g, (char*)system->GetName().c_str(), 1);
 				agsafeset(systemNode, (char*)"shape", (char*)"rect", (char*)"");
@@ -70,15 +70,15 @@ namespace ECSGenerator {
 					entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
 
 						projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> systemEcsFile) {
-							auto maybeDependenceSystem = std::dynamic_pointer_cast<ParsedSystemECSFile>(system);
+							auto maybeDependenceSystem = std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcsFile);
 							//Do not add system that will be call manualy.
 							if (system->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize/* || system->GetThread() == ParsedSystemECSFile::Thread::Main*/) {
-								return;
+								return true;
 							}
-							if (system == maybeDependenceSystem) { return; }
-							if (system->GetName() == "UpdateDriverIndexBuffer" && maybeDependenceSystem->GetName() == "CreateUniformBuffer") {
-								systemNode = systemNode;
-							}
+							if (system == maybeDependenceSystem) { return true; }
+							//if (system->GetName() == "UpdateDriverIndexBuffer" && maybeDependenceSystem->GetName() == "CreateUniformBuffer") {
+							//	systemNode = systemNode;
+							//}
 							Agnode_t* maybeDependenceSystemNode = agnode(g, (char*)maybeDependenceSystem->GetName().c_str(), 1);
 							agsafeset(maybeDependenceSystemNode, (char*)"shape", (char*)"rect", (char*)"");
 							for (auto& entity : maybeDependenceSystem->ci_.processesEntities_) {
@@ -95,13 +95,13 @@ namespace ECSGenerator {
 									return true;
 									});
 							}
-
+							return true;
 							});
 
 						return true;
 						});
 				}
-
+				return true;
 				});
 
 			return g;
