@@ -1,5 +1,6 @@
 system = {
     name = "CreateImGuiTexture",
+    
     processesEntities = {
         {
             processesComponents = { { name = "ImGuiState", readonly = false } }

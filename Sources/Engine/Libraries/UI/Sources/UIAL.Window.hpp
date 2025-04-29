@@ -219,7 +219,7 @@ namespace UIAL {
 		std::optional<KeyboardEvent> GetKeyboardEvent() noexcept {
 			if (keyboardEvents_.empty()) return {};
 			KeyboardEvent event = keyboardEvents_.front();
-			keyboardEvents_.pop();
+			keyboardEvents_.erase(keyboardEvents_.begin());
 			return event;
 		}
 
@@ -227,7 +227,7 @@ namespace UIAL {
 		std::optional<MouseEvent> GetMouseEvent() noexcept {
 			if (mouseEvents_.empty()) return {};
 			MouseEvent event = mouseEvents_.front();
-			mouseEvents_.pop();
+			mouseEvents_.erase(mouseEvents_.begin());
 			return event;
 		}
 
@@ -235,7 +235,7 @@ namespace UIAL {
 		std::optional<FrameBufferResizeEvent> GetFrameBufferResizeEvent() noexcept {
 			if (frameBufferResizeEvents_.empty()) return {};
 			FrameBufferResizeEvent event = frameBufferResizeEvents_.front();
-			frameBufferResizeEvents_.pop();
+			frameBufferResizeEvents_.erase(frameBufferResizeEvents_.begin());
 			return event;
 		}
 
@@ -250,19 +250,19 @@ namespace UIAL {
 
 	protected:
 		void PushEvent(const KeyboardEvent& event) noexcept {
-			keyboardEvents_.push(event);
+			keyboardEvents_.push_back(event);
 		}
 		void PushEvent(const MouseEvent& event) noexcept {
-			mouseEvents_.push(event);
+			mouseEvents_.push_back(event);
 		}
 		void PushEvent(const FrameBufferResizeEvent& event) noexcept {
-			frameBufferResizeEvents_.push(event);
+			frameBufferResizeEvents_.push_back(event);
 		}
 
 	private:
-		std::queue<FrameBufferResizeEvent> frameBufferResizeEvents_;
-		std::queue<KeyboardEvent> keyboardEvents_;
-		std::queue<MouseEvent> mouseEvents_;
+		std::vector<FrameBufferResizeEvent> frameBufferResizeEvents_;
+		std::vector<KeyboardEvent> keyboardEvents_;
+		std::vector<MouseEvent> mouseEvents_;
 
 		CreateInfo createInfo_;
 

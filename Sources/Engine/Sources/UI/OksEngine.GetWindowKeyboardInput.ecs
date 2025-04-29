@@ -1,0 +1,9 @@
+system = {
+    name = "GetWindowKeyboardInput",
+
+    processesComponents = {
+        { name = "MainWindow", readonly = false },
+        { name = "KeyboardInput", readonly = false }
+    }
+
+}

@@ -1,4 +1,5 @@
 system = {
     name = "StartImGuiFrame",
+    runAfter = "ProcessInput",
     processesComponents = { "ImGuiState" },
 }

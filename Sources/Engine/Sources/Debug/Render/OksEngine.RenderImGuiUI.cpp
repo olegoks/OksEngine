@@ -7,21 +7,21 @@ namespace OksEngine {
 
 
 	void RenderImGuiUI::Update(
-		ECS2::Entity::Id entityId,
-		const ImGuiState* imGuiState) {
+		ECS2::Entity::Id entity1Id, ImGuiState* imGuiState,
+		ECS2::Entity::Id entity2Id, RenderDriver* renderDriver) {
 
-		//return;
-		//auto* framesCounter = world->GetComponent<Counter>(secondEntityId);
 
-		//ImGuiState* state = world->GetComponent<ImGuiState>(entityId);
-		//if (framesCounter->value_ % state->fps_ != 0) return;
+		////auto* framesCounter = world->GetComponent<Counter>(secondEntityId);
 
-		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-		//if (!state->driverShapesId_.empty()) {
-		//	for (Common::Id shapeId : state->driverShapesId_) {
+		////ImGuiState* state = world->GetComponent<ImGuiState>(entityId);
+		////if (framesCounter->value_ % state->fps_ != 0) return;
+
+		//auto driver = renderDriver->driver_;
+		//if (!imGuiState->driverShapesId_.empty()) {
+		//	for (Common::Id shapeId : imGuiState->driverShapesId_) {
 		//		driver->RemoveMeshFromDrawing(shapeId);
 		//	}
-		//	state->driverShapesId_.clear();
+		//	imGuiState->driverShapesId_.clear();
 		//}
 		//ImDrawData* draw_data = ImGui::GetDrawData();
 		//if (draw_data == nullptr) return;
@@ -89,12 +89,12 @@ namespace OksEngine {
 		//				RAL::Driver::ShaderBinding::Data textureBinding{
 		//					.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
 		//					.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader,
-		//					.textureId_ = state->fontsTextureId_
+		//					.textureId_ = imGuiState->fontsTextureId_
 		//				};
 		//				shaderBindings.push_back(textureBinding);
 		//			}
 
-		///*			const Common::Id shapeId = driver->DrawMesh(
+		//			const Common::Id shapeId = driver->DrawMesh(
 		//				"ImGui Pipeline",
 		//				(RAL::Vertex2ftc*)cmd_list->VtxBuffer.Data + pcmd->VtxOffset,
 		//				cmd_list->VtxBuffer.Size - pcmd->VtxOffset,
@@ -104,7 +104,7 @@ namespace OksEngine {
 		//				RAL::Driver::IndexType::UI16,
 		//				shaderBindings);
 
-		//			state->driverShapesId_.push_back(shapeId);*/
+		//			imGuiState->driverShapesId_.push_back(shapeId);
 
 		//		}
 		//	}

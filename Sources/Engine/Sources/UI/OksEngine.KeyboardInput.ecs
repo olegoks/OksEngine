@@ -1,6 +1,6 @@
 component = {
     name = "KeyboardInput",
     fields = { 
-        { type = "std::queue<std::pair<UIAL::Window::KeyboardKey, UIAL::Window::KeyboardAction>>", name = "events" }
+        { type = "std::vector<std::pair<UIAL::Window::KeyboardKey, UIAL::Window::KeyboardAction>>", name = "events" }
      }
 }

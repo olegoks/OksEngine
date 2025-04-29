@@ -3,9 +3,6 @@ system = {
     initSystem = true,
     createsEntity = {
         "ImGuiState",
-		"MainMenuBar",
-		"EnginePerformance",
-		"ECSInspector",
-		"FramesCounter"
+        "HandleKeyboardInput"
     }
 }

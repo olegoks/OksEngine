@@ -1,6 +1,26 @@
 system = {
     name = "CreateImGuiRenderData",
-    processesComponents = { 
-        "ImGuiState",
-        "ModelEntity" }
+    processesEntities = {
+        {
+            processesComponents = { 
+                "ImGuiState",
+                "ModelEntity" 
+            }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    },
+    accessingEntities = {
+        {
+            accessingComponents = {
+                "Vertices2D",
+                "Indices",
+                "UVs",
+                "Colors"
+            }
+        }
+    }
 }

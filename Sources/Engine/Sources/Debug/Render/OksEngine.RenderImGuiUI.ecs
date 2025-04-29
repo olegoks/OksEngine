@@ -1,5 +1,15 @@
 system = {
     name = "RenderImGuiUI",
-    processesComponents = { 
-        "ImGuiState" }
+    processesEntities = {
+        {
+            processesComponents = { 
+                { name = "ImGuiState", readonly = false } 
+            }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    }
 }

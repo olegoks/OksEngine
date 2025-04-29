@@ -1,0 +1,9 @@
+system = {
+    name = "CreateKeyboardInput",
+
+    processesComponents = {
+        "HandleKeyboardInput"
+    },
+    createsComponents = { "KeyboardInput" },
+    excludes = { "KeyboardInput" }
+}
