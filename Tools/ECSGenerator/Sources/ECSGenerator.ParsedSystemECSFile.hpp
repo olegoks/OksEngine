@@ -21,6 +21,10 @@ namespace ECSGenerator {
 		struct Include {
 			std::string name_;
 			bool readonly_ = true;
+			[[nodiscard]]
+			bool IsReadonly() const {
+				return readonly_;
+			}
 		};
 
 		struct Entity {
@@ -50,6 +54,45 @@ namespace ECSGenerator {
 				}
 			}
 
+			[[nodiscard]]
+			bool IsProcessesComponent(const std::string& component) const {
+				bool isProcessesComponent = false;
+				ForEachInclude([&](const ParsedSystemECSFile::Include& dependenceSystemInclude, bool isLast) {
+					if (dependenceSystemInclude.name_ == component) {
+						isProcessesComponent = true;
+						return false;
+					}
+					return true;
+					});
+				return isProcessesComponent;
+			}
+
+			[[nodiscard]]
+			bool IsReadsComponent(const std::string& component) const {
+				bool isReadsComponent = false;
+				ForEachInclude([&](const ParsedSystemECSFile::Include& dependenceSystemInclude, bool isLast) {
+					if (dependenceSystemInclude.name_ == component && dependenceSystemInclude.readonly_) {
+						isReadsComponent = true;
+						return false;
+					}
+					return true;
+					});
+				return isReadsComponent;
+			}
+
+			[[nodiscard]]
+			bool IsChangesComponent(const std::string& component) const {
+				bool isChangesComponent = false;
+				ForEachInclude([&](const ParsedSystemECSFile::Include& dependenceSystemInclude, bool isLast) {
+					if (dependenceSystemInclude.name_ == component && !dependenceSystemInclude.readonly_) {
+						isChangesComponent = true;
+						return false;
+					}
+					return true;
+					});
+				return isChangesComponent;
+			}
+
 		};
 
 		enum class Thread {
@@ -71,20 +114,57 @@ namespace ECSGenerator {
 			std::filesystem::path path_;
 			std::vector<Entity> processesEntities_;
 			std::vector<std::string> createEntityComponents_; // we dont need info: dynamic or archetype entity to create because we need generate only to add components includes.
+			std::vector<std::string> accessEntityComponents_;
 			Thread thread_ = Thread::Undefined;
 			SystemType type_ = SystemType::Undefined;
 			std::vector<std::string> runAfter_;
 			std::vector<std::string> runBefore_;
 		};
 
-		
+
 
 		ParsedSystemECSFile(const CreateInfo& createInfo)
 			: ParsedECSFile{ createInfo.path_, createInfo.name_ },
 			ci_{ createInfo } { }
 
+		using ProcessComponentName = std::function<bool(const std::string& systemName, bool isLast)>;
 
-		using ProcessEntity= std::function<bool(const Entity& entity, bool isLast)>;
+
+		bool IsCreatesComponent(const std::string& componentName) {
+			auto itResult = std::find(
+				ci_.createEntityComponents_.begin(),
+				ci_.createEntityComponents_.end(),
+				componentName);
+			return itResult != ci_.createEntityComponents_.end();
+		}
+
+		bool IsAccessesComponent(const std::string& componentName) {
+			auto itResult = std::find(
+				ci_.accessEntityComponents_.begin(),
+				ci_.accessEntityComponents_.end(),
+				componentName);
+			return itResult != ci_.accessEntityComponents_.end();
+		}
+
+		void ForEachCreateComponent(ProcessComponentName&& processComponent) const {
+			for (Common::Index i = 0; i < ci_.createEntityComponents_.size(); i++) {
+				const std::string& componentName = ci_.createEntityComponents_[i];
+				if (!processComponent(componentName, (i == ci_.createEntityComponents_.size() - 1))) {
+					break;
+				}
+			}
+		}
+
+		void ForEachAccessComponent(ProcessComponentName&& processComponent) const {
+			for (Common::Index i = 0; i < ci_.accessEntityComponents_.size(); i++) {
+				const std::string& componentName = ci_.accessEntityComponents_[i];
+				if (!processComponent(componentName, (i == ci_.accessEntityComponents_.size() - 1))) {
+					break;
+				}
+			}
+		}
+
+		using ProcessEntity = std::function<bool(const Entity& entity, bool isLast)>;
 
 		void ForEachEntity(ProcessEntity&& processEntity) const {
 			for (Common::Index i = 0; i < ci_.processesEntities_.size(); i++) {
@@ -98,7 +178,7 @@ namespace ECSGenerator {
 		Thread GetThread() {
 			return ci_.thread_;
 		}
-		
+
 
 		virtual Type GetType() const noexcept override {
 			return Type::System;
@@ -112,15 +192,25 @@ namespace ECSGenerator {
 			return std::string{ (char)std::tolower(GetName()[0]) } + GetName().substr(1);
 		}
 
-		SystemType GetSystemType() {
+		SystemType GetSystemType() const {
 			return ci_.type_;
+		}
+
+		[[nodiscard]]
+		bool IsInitializeSystem() const {
+			return GetSystemType() == SystemType::Initialize;
+		}
+
+		[[nodiscard]]
+		bool IsAllEntitiesSystem() const {
+			return GetSystemType() == SystemType::AllEntities;
 		}
 
 
 		using ProcessSystemName = std::function<bool(const std::string&)>;
 
 		void ForEachRunAfterSystem(ProcessSystemName&& processSystemName) {
-			for (const std::string& runAfterSystemName: ci_.runAfter_) {
+			for (const std::string& runAfterSystemName : ci_.runAfter_) {
 				const bool stop = !processSystemName(runAfterSystemName);
 				if (stop) {
 					break;
@@ -136,6 +226,185 @@ namespace ECSGenerator {
 			}
 		}
 
+		[[nodiscard]]
+		bool IsProcessesComponent(const std::string& component) {
+			bool isProcessesComponent = false;
+			ForEachEntity([&](const ParsedSystemECSFile::Entity& entity, bool isLast) {
+				if (entity.IsProcessesComponent(component)) {
+					isProcessesComponent = true;
+					return false;
+				}
+				return true;
+				});
+
+			return isProcessesComponent;
+		}
+		[[nodiscard]]
+		bool IsReadsComponent(const std::string& component) const {
+			bool isReadsComponent = false;
+			ForEachEntity([&](const ParsedSystemECSFile::Entity& entity, bool isLast) {
+				if (entity.IsReadsComponent(component)) {
+					isReadsComponent = true;
+					return false;
+				}
+				return true;
+				});
+
+			return isReadsComponent;
+
+		}
+
+
+		[[nodiscard]]
+		bool IsChangesComponent(const std::string& component) const {
+			bool isChangesComponent = false;
+			ForEachEntity([&](const ParsedSystemECSFile::Entity& entity, bool isLast) {
+				if (entity.IsChangesComponent(component)) {
+					isChangesComponent = true;
+					return false;
+				}
+				return true;
+				});
+
+			return isChangesComponent;
+
+		}
+
+
+		bool IsDependsFromSystem(const std::shared_ptr<ParsedSystemECSFile> system) const {
+
+			/*if (IsAllEntitiesSystem()) {
+				return true;
+			}*/
+
+			if (GetName() == system->GetName()) {
+				return false;
+			}
+
+			bool isDepends = false;
+			//Check create entity dependecise.
+			//ForEachCreateComponent([&](const std::string& componentName, bool isLast) {
+			//	if (system->IsCreatesComponent(componentName)) {
+			//		isDepends = true;
+			//		OS::LogInfo("Dependence", 
+			//			{ "System {} depends from {}, because they create the same component {}.",
+			//			GetName(),
+			//			system->GetName(),
+			//			componentName });
+			//		return false;
+			//	}
+			//	if (system->IsProcessesComponent(componentName)) {
+			//		isDepends = true;
+			//		OS::LogInfo("Dependence",
+			//			{ "System {} depends from {}, because system {} creates component {} that system {} processes.",
+			//			GetName(),
+			//			system->GetName(),
+			//			GetName(),
+			//			componentName,
+			//			system->GetName() });
+			//		return false;
+			//	}
+			//	if (system->IsAccessesComponent(componentName)) {
+			//		isDepends = true;
+			//		OS::LogInfo("Dependence",
+			//			{ "System {} depends from {}, because system {} creates component {} that system {} accesses.",
+			//			GetName(),
+			//			system->GetName(),
+			//			GetName(),
+			//			componentName,
+			//			system->GetName() });
+			//		return false;
+			//	}
+			//	return true;
+			//	});
+
+			//if (isDepends) {
+			//	return true;
+			//}
+
+			//ForEachAccessComponent([&](const std::string& componentName, bool isLast) {
+			//	if (system->IsCreatesComponent(componentName)) {
+			//		isDepends = true;
+			//		OS::LogInfo("Dependence",
+			//			{ "System {} depends from {}, because they create the same component {}.",
+			//			GetName(),
+			//			system->GetName(),
+			//			componentName });
+			//		return false;
+			//	}
+			//	if (system->IsProcessesComponent(componentName)) {
+			//		isDepends = true;
+			//		OS::LogInfo("Dependence",
+			//			{ "System {} depends from {}, because system {} accesses component {} that system {} processes.",
+			//			GetName(),
+			//			system->GetName(),
+			//			GetName(),
+			//			componentName,
+			//			system->GetName() });
+			//		return false;
+			//	}
+			//	if (system->IsAccessesComponent(componentName)) {
+			//		isDepends = true;
+			//		OS::LogInfo("Dependence",
+			//			{ "System {} depends from {}, because they both access component {}.",
+			//			GetName(),
+			//			system->GetName(),
+			//			componentName });
+			//		return false;
+			//	}
+			//	return true;
+			//	});
+
+			//if (isDepends) {
+			//	return true;
+			//}
+
+			ForEachEntity([&](const Entity& entity, bool isLast) {
+				entity.ForEachInclude([&](const Include& include, bool isLast) {
+					//if (system->IsCreatesComponent(include.name_)) {
+					//	isDepends = true;
+					//	OS::LogInfo("Dependence",
+					//		{ "System {} depends from {}, because system {} processes component {} that system {} creates.",
+					//		GetName(),
+					//		system->GetName(),
+					//		GetName(),
+					//		include.name_,
+					//		system->GetName() });
+					//	return false;
+					//}
+					if ((include.IsReadonly() && system->IsChangesComponent(include.name_)) ||
+						(!include.IsReadonly() && system->IsChangesComponent(include.name_)) ||
+						(!include.IsReadonly() && system->IsReadsComponent(include.name_))) {
+						isDepends = true;
+						return false;
+					}
+					//if (system->IsProcessesComponent(include.name_)) {
+					//	isDepends = true;
+					//	OS::LogInfo("Dependence",
+					//		{ "System {} depends from {},  because they both processes component {}.",
+					//		GetName(),
+					//		system->GetName(),
+					//		include.name_ });
+					//	return false;
+					//}
+					/*
+					if (system->IsAccessesComponent(include.name_)) {
+						isDepends = true;
+						OS::LogInfo("Dependence",
+							{ "System {} depends from {}, because system {} processes component {} that system {} accesses.",
+							GetName(),
+							system->GetName(),
+							GetName(),
+							include.name_,
+							system->GetName() });
+						return false;
+					}*/
+					return true;
+					});
+				return true;
+				});
+			return isDepends;
+		}
 
 		CreateInfo ci_;
 	};
@@ -215,7 +484,7 @@ namespace ECSGenerator {
 					systemType = ParsedSystemECSFile::SystemType::TwoEntities;
 				}
 			}
-			
+
 		}
 
 		return systemType;
@@ -351,6 +620,7 @@ namespace ECSGenerator {
 						}
 					}
 
+
 					//ENTITY CREATES
 					luabridge::LuaRef entityCreates = entity["createsComponents"];
 
@@ -382,7 +652,7 @@ namespace ECSGenerator {
 				createEntityComponents.push_back(it.value().cast<std::string>().value());
 			}
 		}
-		else if(systemType == ParsedSystemECSFile::SystemType::TwoEntities){
+		else if (systemType == ParsedSystemECSFile::SystemType::TwoEntities) {
 			//Two entities system.
 #pragma region Assert
 			OS::AssertMessage(!system["processesEntities"].isNil(), "");
@@ -411,7 +681,7 @@ namespace ECSGenerator {
 						if (!isIncludeReadonly.isNil()) {
 							parsedInclude.readonly_ = isIncludeReadonly.cast<bool>().value();
 						}
-						
+
 					}
 
 
@@ -483,15 +753,35 @@ namespace ECSGenerator {
 					}
 				}
 			}
-		
+
 		}
-		
+		std::vector<std::string> parsedEntityAccessing;
+		{
+
+			//ENTITY CREATES
+			luabridge::LuaRef accessingEntities = system["accessingEntities"];
+
+
+			if (!accessingEntities.isNil()) {
+				for (luabridge::Iterator it(accessingEntities); !it.isNil(); ++it) {
+					luabridge::LuaRef toAccess = it.value();
+					luabridge::LuaRef accessingComponents = toAccess["accessingComponents"];
+					for (luabridge::Iterator itJ(accessingComponents); !itJ.isNil(); ++itJ) {
+						luabridge::LuaRef accessingComponent = itJ.value();
+						parsedEntityAccessing.push_back(accessingComponent.cast<std::string>().value());
+						OS::AssertMessage(std::isupper(parsedEntityAccessing.back()[0]), "");
+					}
+				}
+			}
+		}
+
 
 		ParsedSystemECSFile::CreateInfo ci{
 			.name_ = system["name"].cast<std::string>().value(),
 			.path_ = ecsFilePath,
 			.processesEntities_ = parsedEntities,
 			.createEntityComponents_ = createEntityComponents,
+			.accessEntityComponents_ = parsedEntityAccessing,
 			.runAfter_ = runAfterSystems,
 			.runBefore_ = runBeforeSystems
 		};
@@ -602,7 +892,9 @@ namespace ECSGenerator {
 
 		std::pair<
 			std::filesystem::path,
-			std::shared_ptr<File>> GenerateECSCXXFilesStructure(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
+			std::shared_ptr<File>> GenerateECSCXXFilesStructure(
+				std::shared_ptr<ProjectContext> projectContext,
+				std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 			// // ������� CompilerInstance
 			// clang::CompilerInstance CI;
@@ -764,6 +1056,9 @@ namespace ECSGenerator {
 					includes.paths_.push_back(includePath / ("auto_OksEngine." + componentInclude.name_ + ".hpp"));
 				}
 
+				/*if(systemEcsFile->GetName() == "CreateImGuiInterface"){
+					__debugbreak();
+				}*/
 				//Generate includes for components that system creates.
 				for (auto componentCreates : entity.creates_) {
 					auto componentEcsFile = projectContext->GetEcsFileByName(componentCreates);
@@ -819,6 +1114,20 @@ namespace ECSGenerator {
 					});
 			}
 
+			//Add indices if two entities contain the same component.
+			{
+				for (Common::Index i = 0; i < updateMethodParameters.size(); i++) {
+					Function::Parameter& iParameter = updateMethodParameters[i];
+					for (Common::Index j = 0; j < updateMethodParameters.size(); j++) {
+						Function::Parameter& jParameter = updateMethodParameters[j];
+						if (i != j && iParameter.valueName_ == jParameter.valueName_) {
+							iParameter.valueName_ += "1";
+							jParameter.valueName_ += "2";
+						}
+					}
+				}
+			}
+
 			//Add entity index to component names if there are two components with the same name.
 
 
@@ -839,7 +1148,7 @@ namespace ECSGenerator {
 				.name_ = "CreateEntity",
 				.parameters_ = { },
 				.returnType_ = "ECS2::Entity::Id",
-				.code_ = "world_->CreateEntity();",
+				.code_ = "return world_->CreateEntity();",
 				.isPrototype_ = false,
 				.inlineModifier_ = false
 			};
@@ -851,7 +1160,7 @@ namespace ECSGenerator {
 				.name_ = "CreateEntity",
 				.parameters_ = { },
 				.returnType_ = "ECS2::Entity::Id",
-				.code_ = "world_->CreateEntity<Components...>();",
+				.code_ = "return world_->CreateEntity<Components...>();",
 				.isPrototype_ = false,
 				.inlineModifier_ = false,
 				.templateParameters_ = { "...Components" }

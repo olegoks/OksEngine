@@ -406,7 +406,7 @@ namespace ECSGenerator {
 			for (auto rootNodeId : roots) {
 				auto rootNode = thread.callGraph_.GetNode(rootNodeId);
 				if (rootNode.GetValue() == "System1") {
-					__debugbreak();
+					//__debugbreak();
 				}
 				ProcessNode(thread.systemsOrder_, thread.callGraph_, rootNodeId);
 

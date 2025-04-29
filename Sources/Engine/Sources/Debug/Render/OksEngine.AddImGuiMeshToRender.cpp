@@ -21,7 +21,7 @@ namespace OksEngine {
 
 		//auto* scale = world->GetComponent<Scale2D>(entityId);
 		////auto* rotation = world->GetComponent<Rotation3D>(entityId);
-		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+		//auto driver = renderDriver->driver_;
 		////auto* driverCamera = world->GetComponent<DriverCamera>(secondEntityId);
 		//auto* driverTexture = world->GetComponent<DriverTexture>(entityId);
 

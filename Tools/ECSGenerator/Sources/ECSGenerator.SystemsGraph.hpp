@@ -55,54 +55,107 @@ namespace ECSGenerator {
 
 			projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> systemEcs) {
 
-				if ("OksEngine.ProcessInput.ecs" == systemEcs->GetPath().filename()) {
-					//__debugbreak();
-				}
-
 				auto system = std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcs);
-				//Do not add system that will be call manualy.
-				if (system->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize/* || system->GetThread() == ParsedSystemECSFile::Thread::Main*/) {
+				if (system->IsInitializeSystem() || system->IsAllEntitiesSystem()) {
 					return true;
 				}
 				Agnode_t* systemNode = agnode(g, (char*)system->GetName().c_str(), 1);
 				agsafeset(systemNode, (char*)"shape", (char*)"rect", (char*)"");
-				for (auto& entity : system->ci_.processesEntities_) {
-					entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
 
-						projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> systemEcsFile) {
-							auto maybeDependenceSystem = std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcsFile);
-							//Do not add system that will be call manualy.
-							if (system->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize/* || system->GetThread() == ParsedSystemECSFile::Thread::Main*/) {
-								return true;
-							}
-							if (system == maybeDependenceSystem) { return true; }
-							//if (system->GetName() == "UpdateDriverIndexBuffer" && maybeDependenceSystem->GetName() == "CreateUniformBuffer") {
-							//	systemNode = systemNode;
-							//}
-							Agnode_t* maybeDependenceSystemNode = agnode(g, (char*)maybeDependenceSystem->GetName().c_str(), 1);
-							agsafeset(maybeDependenceSystemNode, (char*)"shape", (char*)"rect", (char*)"");
-							for (auto& entity : maybeDependenceSystem->ci_.processesEntities_) {
-								entity.ForEachInclude([&](const ParsedSystemECSFile::Include& dependenceSystemInclude, bool isLast) {
-									if (include.name_ == dependenceSystemInclude.name_/* && dependenceSystemInclude.name_ == "RenderDriver"*/) {
-										if (include.readonly_ != dependenceSystemInclude.readonly_ || !(include.readonly_ && dependenceSystemInclude.readonly_)) {
-											Agedge_t* edge = agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 0);
-											if (edge == nullptr) {
-												agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 1);
-												//	//agsafeset(e, (char*)"dir", (char*)"both", (char*)""); 
-											}
-										}
-									}
-									return true;
-									});
-							}
-							return true;
-							});
-
+				projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> systemEcsFile) {
+					auto maybeDependenceSystem = std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcsFile);
+					Agnode_t* maybeDependenceSystemNode = agnode(g, (char*)maybeDependenceSystem->GetName().c_str(), 1);
+					agsafeset(maybeDependenceSystemNode, (char*)"shape", (char*)"rect", (char*)"");
+					if (system->IsAllEntitiesSystem() || system->IsInitializeSystem()) {
 						return true;
-						});
-				}
+					}
+					if (system->IsDependsFromSystem(maybeDependenceSystem)) {
+						Agedge_t* edge = agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 0);
+						if (edge == nullptr) {
+							agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 1);
+							//	//agsafeset(e, (char*)"dir", (char*)"both", (char*)""); 
+						}
+					}
+					return true;
+					});
+
+				//for (auto& entity : system->ci_.processesEntities_) {
+				//	entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+
+				//		projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> systemEcsFile) {
+				//			auto maybeDependenceSystem = std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcsFile);
+
+				//			if (maybeDependenceSystem->IsInitializeSystem() ||
+				//				maybeDependenceSystem->IsAllEntitiesSystem() ||
+				//				system == maybeDependenceSystem) {
+				//				return true;
+				//			}
+
+				//			Agnode_t* maybeDependenceSystemNode = agnode(g, (char*)maybeDependenceSystem->GetName().c_str(), 1);
+				//			agsafeset(maybeDependenceSystemNode, (char*)"shape", (char*)"rect", (char*)"");
+
+				//			//Check components dependecies.
+				//			maybeDependenceSystem->ForEachEntity([&](const ParsedSystemECSFile::Entity& entity, bool isLast) {
+				//				entity.ForEachInclude([&](const ParsedSystemECSFile::Include& dependenceSystemInclude, bool isLast) {
+				//					if (include.name_ == dependenceSystemInclude.name_/* && dependenceSystemInclude.name_ == "RenderDriver"*/) {
+				//						if (include.readonly_ != dependenceSystemInclude.readonly_ || !(include.readonly_ && dependenceSystemInclude.readonly_)) {
+				//							Agedge_t* edge = agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 0);
+				//							if (edge == nullptr) {
+				//								agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 1);
+				//								//	//agsafeset(e, (char*)"dir", (char*)"both", (char*)""); 
+				//							}
+				//						}
+				//					}
+				//					return true;
+				//					});
+				//				return true;
+				//				});
+				//			return true;
+				//			});
+
+				//		return true;
+				//		});
+				//}
+				//
+				////Setting dependecies by created components.
+				////Setting dependecies by accessing components.
+				//projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> systemEcsFile) {
+				//	auto maybeDependenceSystem = std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcsFile);
+				//	//Do not add system that will be call manualy.
+				//	if (system->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize || system->ci_.type_ == ParsedSystemECSFile::SystemType::AllEntities) {
+				//		return true;
+				//	}
+				//	if (maybeDependenceSystem->IsInitializeSystem() ||
+				//		maybeDependenceSystem->IsAllEntitiesSystem() ||
+				//		system == maybeDependenceSystem) {
+				//		return true;
+				//	}
+				//	Agnode_t* maybeDependenceSystemNode = agnode(g, (char*)maybeDependenceSystem->GetName().c_str(), 1);
+				//	agsafeset(maybeDependenceSystemNode, (char*)"shape", (char*)"rect", (char*)"");
+				//	for (auto& entity : maybeDependenceSystem->ci_.processesEntities_) {
+				//		entity.ForEachInclude([&](const ParsedSystemECSFile::Include& dependenceSystemInclude, bool isLast) {
+				//			if (include.name_ == dependenceSystemInclude.name_/* && dependenceSystemInclude.name_ == "RenderDriver"*/) {
+				//				if (include.readonly_ != dependenceSystemInclude.readonly_ || !(include.readonly_ && dependenceSystemInclude.readonly_)) {
+				//					Agedge_t* edge = agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 0);
+				//					if (edge == nullptr) {
+				//						agedge(g, systemNode, maybeDependenceSystemNode, nullptr, 1);
+				//						//	//agsafeset(e, (char*)"dir", (char*)"both", (char*)""); 
+				//					}
+				//				}
+				//			}
+				//			return true;
+				//			});
+				//	}
+				//	return true;
+				//	});
+
 				return true;
 				});
+
+
+
+			//return true;
+			//});
 
 			return g;
 

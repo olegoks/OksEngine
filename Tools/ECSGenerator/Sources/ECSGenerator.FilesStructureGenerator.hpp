@@ -338,7 +338,7 @@ namespace ECSGenerator {
 				.name_ = "CreateEntity",
 				.parameters_ = { },
 				.returnType_ = "ECS2::Entity::Id",
-				.code_ = "world_->CreateEntity();",
+				.code_ = "return world_->CreateEntity();",
 				.isPrototype_ = false,
 				.inlineModifier_ = false
 			};
@@ -350,7 +350,7 @@ namespace ECSGenerator {
 				.name_ = "CreateEntity",
 				.parameters_ = { },
 				.returnType_ = "ECS2::Entity::Id",
-				.code_ = "world_->CreateEntity<Components...>();",
+				.code_ = "return world_->CreateEntity<Components...>();",
 				.isPrototype_ = false,
 				.inlineModifier_ = false,
 				.templateParameters_ = { "...Components" }
