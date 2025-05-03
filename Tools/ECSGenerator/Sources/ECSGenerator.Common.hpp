@@ -6,7 +6,7 @@
 
 #include <OS.CommandLineParameters.hpp>
 #include <Resource.hpp>
-#include <ECS.Entity.hpp>
+#include <unordered_set>
 
 namespace ECSGenerator{
 

@@ -2,7 +2,6 @@ cmake_minimum_required(VERSION  3.26.4)
 
 add_subdirectory(Common)
 add_subdirectory(OS)
-add_subdirectory(ECS)
 add_subdirectory(ECS2)
 add_subdirectory(Config)
 add_subdirectory(Lua)

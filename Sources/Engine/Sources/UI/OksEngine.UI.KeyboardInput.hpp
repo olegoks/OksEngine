@@ -1,22 +1,22 @@
 #pragma once 
 
 #include <queue>
-
-#include <OksEngine.ECS.Component.hpp>
+//
+//#include <OksEngine.ECS.Component.hpp>
 #include <UI.Window.hpp>
 
 namespace OksEngine {
 
-	struct HandleKeyboardInputMarker : public ECSComponent<HandleKeyboardInputMarker> {
-	public:
-		HandleKeyboardInputMarker() : ECSComponent{ nullptr } {}
+	//struct HandleKeyboardInputMarker : public ECSComponent<HandleKeyboardInputMarker> {
+	//public:
+	//	HandleKeyboardInputMarker() : ECSComponent{ nullptr } {}
 
-	};
+	//};
 
-	template<>
-	inline void Edit<HandleKeyboardInputMarker>(HandleKeyboardInputMarker* handleInputMarker) {
+	//template<>
+	//inline void Edit<HandleKeyboardInputMarker>(HandleKeyboardInputMarker* handleInputMarker) {
 
-	}
+	//}
 
 	/*struct KeyboardInput : public ECSComponent<KeyboardInput> {
 	public:

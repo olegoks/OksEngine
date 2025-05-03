@@ -66,7 +66,6 @@ target_link_libraries(OksEngine
     yaml-cpp::yaml-cpp
     imgui::imgui
     Geometry
-    ECS
     ECS2
     LuaLayer
     Config

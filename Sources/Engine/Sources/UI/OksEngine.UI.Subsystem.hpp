@@ -1,8 +1,8 @@
 #pragma once
 
 #include <Common/OksEngine.Subsystem.hpp>
-
-#include <ECS.hpp>
+//
+//#include <ECS.hpp>
 #include <UI.Window.hpp>
 #include <OksEngine.Config.hpp>
 

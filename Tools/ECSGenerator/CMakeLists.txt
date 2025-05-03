@@ -87,7 +87,6 @@ target_link_libraries(ECSGenerator
     ${LLVM_LIBS}
     LuaLayer
     Resources
-    ECS
     Config
     )
     

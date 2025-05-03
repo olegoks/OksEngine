@@ -2,21 +2,21 @@
 
 #include <queue>
 
-#include <OksEngine.ECS.Component.hpp>
+//#include <OksEngine.ECS.Component.hpp>
 #include <UIAL.Window.hpp>
 
 namespace OksEngine {
 
-	struct HandleMouseInputMarker : public ECSComponent<HandleMouseInputMarker> {
-	public:
-		HandleMouseInputMarker() : ECSComponent{ nullptr } {}
+	//struct HandleMouseInputMarker : public ECSComponent<HandleMouseInputMarker> {
+	//public:
+	//	HandleMouseInputMarker() : ECSComponent{ nullptr } {}
 
-	};
+	//};
 
-	template<>
-	inline void Edit<HandleMouseInputMarker>(HandleMouseInputMarker* handleInputMarker) {
+	//template<>
+	//inline void Edit<HandleMouseInputMarker>(HandleMouseInputMarker* handleInputMarker) {
 
-	}
+	//}
 
 	//struct MouseInput : public ECSComponent<MouseInput> {
 	//public:
