@@ -10,8 +10,8 @@ namespace OksEngine {
 
 		auto& context = GetContext();
 		auto config = context.GetConfig();
-		auto world = context.GetECSWorld();
-		ECS::Entity::Id ui = world->CreateEntity();
+		//auto world = context.GetECSWorld();
+		//ECS::Entity::Id ui = world->CreateEntity();
 
 		api_ = std::make_shared<UI::API>();
 		UI::Window::CreateInfo windowCreateInfo;

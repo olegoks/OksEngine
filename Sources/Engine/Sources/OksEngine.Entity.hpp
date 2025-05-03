@@ -2,7 +2,6 @@
 
 #include <filesystem>
 #include <memory>
-#include <ECS.hpp>
 #include <OksEngine.Context.hpp>
 #include <Math.Matrix.hpp>
 #include <Geometry.Shapes.hpp>

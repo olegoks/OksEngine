@@ -1,7 +1,7 @@
 #pragma once 
-
-#include <OksEngine.ECS.Component.hpp>
-#include <OksEngine.ECS.System.hpp>
+//
+//#include <OksEngine.ECS.Component.hpp>
+//#include <OksEngine.ECS.System.hpp>
 
 #include <UI/OksEngine.UI.KeyboardInput.hpp>
 #include <UI/OksEngine.UI.MouseInput.hpp>

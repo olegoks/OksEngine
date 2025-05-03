@@ -10,7 +10,7 @@
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 #include <Common/OksEngine.Log.Subsystem.hpp>
 #include <Debug/OksEngine.Debug.Subsystem.hpp>
-#include <ECS.hpp>
+//#include <ECS.hpp>
 
 #include <OksEngine.Config.hpp>
 
@@ -50,7 +50,7 @@ namespace OksEngine
 		resourceSubsystem_->SetRoot(Subsystem::Type::Engine, { scriptsFullResourcesPath, fullResourcesPath });
 
 
-		world_ = std::make_shared<ECS::World>();
+		//world_ = std::make_shared<ECS::World>();
 
 		world2_ = std::make_shared<ECS2::World>();
 

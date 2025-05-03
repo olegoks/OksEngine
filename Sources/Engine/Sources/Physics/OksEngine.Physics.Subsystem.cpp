@@ -16,7 +16,7 @@ namespace OksEngine {
 			physicsEngine_{ nullptr } {
 
 		auto& context = GetContext();
-		auto ecsWorld = context.GetECSWorld();
+		//auto ecsWorld = context.GetECSWorld();
 
 		//ecsWorld->RegisterSystem<CreateStaticRigidBody>(context);
 		//ecsWorld->RegisterSystem<CreatePhysicsShapeForStaticRigidBody>(context);
