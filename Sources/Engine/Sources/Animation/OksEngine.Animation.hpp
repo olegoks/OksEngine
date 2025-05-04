@@ -1,6 +1,6 @@
 #pragma once 
 
-#include <OksEngine.ECS.Component.hpp>
+//#include <OksEngine.ECS.Component.hpp>
 
 #include <assimp/StringUtils.h>
 #include <assimp/Importer.hpp>      // C++ importer interface
@@ -12,48 +12,48 @@
 namespace OksEngine {
 
 
-	struct Animation : public ECSComponent<Animation> {
+	//struct Animation : public ECSComponent<Animation> {
 
-		//struct PositionKey {
-		//	Common::Double time_ = 0.0f;
-		//	glm::vec3 value_ = { 0.f, 0.f, 0.f };
-		//};
+	//	//struct PositionKey {
+	//	//	Common::Double time_ = 0.0f;
+	//	//	glm::vec3 value_ = { 0.f, 0.f, 0.f };
+	//	//};
 
-		//struct RotationKey {
-		//	Common::Double time_ = 0.0f;
-		//	glm::quat value_{};
-		//};
+	//	//struct RotationKey {
+	//	//	Common::Double time_ = 0.0f;
+	//	//	glm::quat value_{};
+	//	//};
 
-		//struct ScalingKey {
-		//	Common::Double time_ = 0.0f;
-		//	glm::vec3 value_{};
-		//};
+	//	//struct ScalingKey {
+	//	//	Common::Double time_ = 0.0f;
+	//	//	glm::vec3 value_{};
+	//	//};
 
-		//struct CreateInfo {
-		//	std::string name_ = "No name";
-		//	Common::Double duration_ = 0;
-		//	float ticksPerSecond_ = 1.f;
-		//	std::vector<> positionKeys_;
-		//	std::vector<> rotationKeys_;
-		//	std::vector<> scalingKeys_;
-		//};
+	//	//struct CreateInfo {
+	//	//	std::string name_ = "No name";
+	//	//	Common::Double duration_ = 0;
+	//	//	float ticksPerSecond_ = 1.f;
+	//	//	std::vector<> positionKeys_;
+	//	//	std::vector<> rotationKeys_;
+	//	//	std::vector<> scalingKeys_;
+	//	//};
 
-		//Animation(const CreateInfo& createInfo);
+	//	//Animation(const CreateInfo& createInfo);
 
-		std::string name_ = "No name";
-		Common::Double durationInTicks_ = 0; // Duration in ticks.
-		float ticksPerSecond_ = 1.f;
+	//	std::string name_ = "No name";
+	//	Common::Double durationInTicks_ = 0; // Duration in ticks.
+	//	float ticksPerSecond_ = 1.f;
 
-		std::vector<std::pair<Common::Double, glm::vec3>> positionKeys_;
-		std::vector<std::pair<Common::Double, glm::quat>> rotationKeys_;
-		std::vector<std::pair<Common::Double, glm::vec3>> scalingKeys_;
+	//	std::vector<std::pair<Common::Double, glm::vec3>> positionKeys_;
+	//	std::vector<std::pair<Common::Double, glm::quat>> rotationKeys_;
+	//	std::vector<std::pair<Common::Double, glm::vec3>> scalingKeys_;
 
-	};
+	//};
 
-	template<>
-	void Edit<Animation>(Animation* animation);
+	//template<>
+	//void Edit<Animation>(Animation* animation);
 
-	template<>
-	void Add<Animation>(ECS::World* world, ECS::Entity::Id id);
+	//template<>
+	//void Add<Animation>(ECS::World* world, ECS::Entity::Id id);
 
 }

@@ -1,8 +1,8 @@
 #pragma once 
 
-#include <OksEngine.ECS.Component.hpp>
-#include <OksEngine.Context.hpp>
-#include <Physics\OksEngine.DynamicRigidBody.hpp>
+//#include <OksEngine.ECS.Component.hpp>
+//#include <OksEngine.Context.hpp>
+//#include <Physics\OksEngine.DynamicRigidBody.hpp>
 
 namespace OksEngine {
 
