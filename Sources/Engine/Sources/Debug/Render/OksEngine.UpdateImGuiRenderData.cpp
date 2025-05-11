@@ -78,14 +78,14 @@ void UpdateImGuiRenderData::Update(ECS2::Entity::Id entity1Id,
 	//Update VB.
 	if (IsComponentExist<DriverVertexBuffer>(modelEntityId) && IsComponentExist<DriverIndexBuffer>(modelEntityId)) {
 		auto* driverVB = GetComponent<DriverVertexBuffer>(modelEntityId);
-		if (vertices2ftc.GetSizeInBytes() > renderDriver->driver_->GetVBSizeInBytes(driverVB->id_)) {
+		if (vertices2ftc.GetSizeInBytes() != renderDriver->driver_->GetVBSizeInBytes(driverVB->id_)) {
 			renderDriver->driver_->ResizeVertexBuffer(driverVB->id_, vertices2ftc.GetSizeInBytes());
 		}
 		renderDriver->driver_->FillVertexBuffer(driverVB->id_, 0, vertices2ftc.GetData(), vertices2ftc.GetVerticesNumber());
 
 		//Update IB.
 		auto* driverIB = GetComponent<DriverIndexBuffer>(modelEntityId);
-		if (indices.GetSizeInBytes() > renderDriver->driver_->GetIBSizeInBytes(driverIB->id_)) {
+		if (indices.GetSizeInBytes() != renderDriver->driver_->GetIBSizeInBytes(driverIB->id_)) {
 			renderDriver->driver_->ResizeIndexBuffer(driverIB->id_, indices.GetSizeInBytes());
 		}
 		renderDriver->driver_->FillIndexBuffer(driverIB->id_, 0, indices.GetData(), indices.GetIndicesNumber());
