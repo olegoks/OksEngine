@@ -66,7 +66,7 @@ namespace ECSGenerator {
 					auto maybeDependenceSystem = std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcsFile);
 					Agnode_t* maybeDependenceSystemNode = agnode(g, (char*)maybeDependenceSystem->GetName().c_str(), 1);
 					agsafeset(maybeDependenceSystemNode, (char*)"shape", (char*)"rect", (char*)"");
-					if (system->IsAllEntitiesSystem() || system->IsInitializeSystem()) {
+					if (maybeDependenceSystem->IsAllEntitiesSystem() || maybeDependenceSystem->IsInitializeSystem()) {
 						return true;
 					}
 					if (system->IsDependsFromSystem(maybeDependenceSystem)) {

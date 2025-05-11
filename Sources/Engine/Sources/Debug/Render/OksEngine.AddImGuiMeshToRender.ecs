@@ -5,18 +5,14 @@ system = {
             processesComponents = { 
                 "Position2D",
                 "Scale2D",
-                "Vertices2D",
-                "Indices",
-                "UVs",
-                "Colors",
                 "DriverTexture",
                 "DriverIndexBuffer",
                 "DriverVertexBuffer"
-        }
+            }
         },
-            {
-                processesComponents = { 
-                    { name = "RenderDriver", readonly = false } 
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false } 
             }
         }
     }

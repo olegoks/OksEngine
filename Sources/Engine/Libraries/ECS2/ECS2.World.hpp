@@ -36,6 +36,7 @@ namespace ECS2 {
 
 		//Create archetype entity.
 		template<class ...Components>
+		requires (sizeof...(Components) > 0)
 		[[nodiscard]]
 		Entity::Id CreateEntity() noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
@@ -157,12 +158,14 @@ namespace ECS2 {
 		template<class ComponentType>
 		[[nodiscard]]
 		bool IsComponentExist(Entity::Id entityId) noexcept {
+			if(archetypeEntitiesComponents_.contains(entityId))
 			{
 				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
 				if (componentsFilter.IsSet<ComponentType>()) {
 					return true;
 				}
 			}
+			if(dynamicEntitiesComponentFilters_.contains(entityId))
 			{
 				const ComponentsFilter componentsFilter = dynamicEntitiesComponentFilters_[entityId];
 				if (componentsFilter.IsSet<ComponentType>()) {
@@ -189,6 +192,7 @@ namespace ECS2 {
 		}
 
 
+		//Process all entities.
 		void ForEachEntity(std::function<void(Entity::Id)>&& processEachEntityId) {
 			for (const auto& [entityId, componentsFilter] : archetypeEntitiesComponents_) {
 				processEachEntityId(entityId);
@@ -224,7 +228,10 @@ namespace ECS2 {
 				if constexpr (sizeof...(Components) == 1) {
 					firstContainer->ForEachComponent(
 						[&](FirstT<Components...>* component, Entity::Id entityId) {
-							processEntity(entityId, component);
+							const ComponentsFilter entityComponentsFilter = dynamicEntitiesComponentFilters_[entityId];
+							if (componentsFilter.IsSubsetOf(entityComponentsFilter) && entityComponentsFilter.IsNotSet(excludes)) {
+								processEntity(entityId, component);
+							}
 						});
 				}
 				else {

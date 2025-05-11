@@ -31,11 +31,7 @@ namespace OksEngine {
 			const char* scriptName,
 			const char* objectName);
 
-		void AddCamera(
-			//const glm::vec3& position,
-			const glm::vec3& direction,
-			const glm::vec3& up,
-			bool isActive);
+		void AddCamera(float zNear, float zFar, bool isActive);
 
 		void AddPosition(float x, float y, float z);
 		void AddLocalPosition(float x, float y, float z);

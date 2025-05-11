@@ -1,5 +1,5 @@
 system = {
-    name = "CreateImGuiRenderData",
+    name = "UpdateImGuiRenderData",
     processesEntities = {
         {
             processesComponents = { 
@@ -17,7 +17,9 @@ system = {
         {
             accessingComponents = {
                 "Vertices2D",
+                "DriverVertexBuffer",
                 "Indices",
+                "DriverIndexBuffer",
                 "UVs",
                 "Colors"
             }

@@ -1,0 +1,45 @@
+# Project Context
+This is an ECS (Entity Component System) based game engine project.
+
+## Key Files
+- Tools/ECSManager/ecs_manager.py: GUI utility for managing ECS system dependencies
+- Sources/Engine/Sources/: Contains all ECS system files (.ecs)
+
+## File Formats
+.ecs files are Lua scripts with the following structure:
+```lua
+system = {
+    name = "SystemName",
+    runBefore = {"System1", "System2"}, -- optional
+    runAfter = {"System3", "System4"},  -- optional
+    -- other system-specific fields
+}
+```
+
+## Core Requirements
+1. All file operations must be performed using LuaContext, no string manipulations allowed
+2. The utility should only modify runBefore and runAfter fields, preserving all other fields and their order
+3. If a system has no dependencies, runAfter and runBefore fields should not be present in the .ecs file
+4. The output .ecs file must be a valid Lua script
+5. Use only .ecs files that contains variable "system"
+
+## Dependencies
+- Python 3.11+
+- Required packages:
+  - tkinter
+  - networkx
+  - matplotlib
+  - lupa (for Lua integration)
+  - scipy
+
+## Project Structure
+- Sources/
+  - Engine/
+    - Sources/
+      - Render/
+      - Resources/
+      - Sound/
+      - Test/
+      - UI/
+- Tools/
+  - ECSManager/ 

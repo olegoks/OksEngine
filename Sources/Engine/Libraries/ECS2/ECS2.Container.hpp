@@ -151,6 +151,7 @@ namespace ECS2 {
 			components_[freeComponentIndex].~ComponentType();
 			new(components_.data() + freeComponentIndex) ComponentType(std::forward<Args>(args)...);
 			componentIndexToEntityId_[freeComponentIndex] = entityId;
+			entityIdComponentIndex_[entityId] = freeComponentIndex;
 		}
 		
 		[[maybe_unused]]

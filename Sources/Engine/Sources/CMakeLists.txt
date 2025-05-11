@@ -21,7 +21,7 @@ target_compile_definitions(OksEngine PUBLIC USE_PIX)
 #Test code
 
 function(get_source_files DIRECTORY FILE_LIST)
-    file(GLOB_RECURSE TEMP_FILES "${DIRECTORY}/*.cpp" "${DIRECTORY}/*.hpp" "${DIRECTORY}/*.ecs")
+    file(GLOB_RECURSE TEMP_FILES "${DIRECTORY}/*.cpp" "${DIRECTORY}/*.hpp" "${DIRECTORY}/*.inl" "${DIRECTORY}/*.ecs")
     set(${FILE_LIST} ${TEMP_FILES} PARENT_SCOPE)
 
 endfunction()

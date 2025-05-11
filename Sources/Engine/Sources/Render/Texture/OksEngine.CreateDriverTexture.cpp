@@ -17,10 +17,10 @@ namespace OksEngine {
 		ECS2::Entity::Id entity2Id,
 		RenderDriver* renderDriver) {
 
-		/*auto* textureInfo = world->GetComponent<TextureInfo>(entityId);
-		auto* texture = world->GetComponent<Texture>(entityId);
+		//auto* textureInfo = world->GetComponent<TextureInfo>(entityId);
+		//auto* texture = world->GetComponent<Texture>(entityId);
 
-		auto driver = GetContext().GetRenderSubsystem()->GetDriver();
+		auto driver = renderDriver->driver_;
 		std::vector<RAL::Color4b> texturePixels{ texture->pixels_.GetData(), texture->pixels_.GetData() + texture->pixels_.GetSize() };
 		RAL::Texture::CreateInfo textureCreateInfo{
 			.name_ = "",
@@ -29,7 +29,7 @@ namespace OksEngine {
 		};
 		RAL::Texture::Id textureId = driver->CreateDiffuseMap(textureCreateInfo);
 
-		world->CreateComponent<DriverTexture>(entityId, textureId);*/
+		CreateComponent<DriverTexture>(entity1Id, textureId);
 	}
 
 	//[[nodiscard]]

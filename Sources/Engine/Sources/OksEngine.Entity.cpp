@@ -194,15 +194,12 @@ namespace OksEngine {
 	}
 
 	void Entity::AddCamera(
-		//const glm::vec3& position,
-		const glm::vec3& direction,
-		const glm::vec3& up, bool isActive) {
-		//world_->CreateComponent<Camera>(
-		//	GetId(),
-		//	//position,
-		//	//direction,
-		//	up,
-		//	isActive);
+		float zNear, float zFar, bool isActive) {
+		world_->CreateComponent<Camera>(
+			GetId(),
+			zNear,
+			zFar,
+			isActive);
 	}
 
 

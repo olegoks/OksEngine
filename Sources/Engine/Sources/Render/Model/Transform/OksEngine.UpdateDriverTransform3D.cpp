@@ -46,34 +46,28 @@ namespace OksEngine {
 		ECS2::Entity::Id entity2Id,
 		RenderDriver* renderDriver) {
 
-		////return;
-		//Position3D* position = world->GetComponent<Position3D>(entityId);
-		//Rotation3D* rotation = world->GetComponent<Rotation3D>(entityId);
-		//
 		//ModelEntity* modelEntity = world->GetComponent<ModelEntity>(entityId);
 
-		//const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position->x_, position->y_, position->z_)) };
-		//const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation->w_, rotation->x_, rotation->y_, rotation->z_ });;
+		const glm::mat4 translateMatrix = glm::mat4{ glm::translate(glm::vec3(position3D->x_, position3D->y_, position3D->z_)) };
+		const glm::mat4 rotationMatrix = glm::toMat4(glm::quat{ rotation3D->w_, rotation3D->x_, rotation3D->y_, rotation3D->z_ });;
 
 
-		//const glm::mat4 entityTransform = glm::mat4{ 1 } * nodeTranslateMatrix * nodeRotationMatrix;
+		glm::mat4 transform = glm::mat4{ 1 } *rotationMatrix * translateMatrix;
 
-		//ECS::Entity::Id rootNodeEntityId = modelEntity->id_;
+		//DriverTransform3D* driverTransform = world->GetComponent<DriverTransform3D>(nodeEntityId);
+		//DriverTransform3D::Transform transform{ nodeTransform };
+
+		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+			.size_ = sizeof(glm::mat4),
+			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+		};
+
+		renderDriver->driver_->FillUniformBuffer(driverTransform3D->id_, &transform);
+
+		//ECS2::Entity::Id rootNodeEntityId = modelEntity->id_;
 		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
 		//UpdateNodeTransform(driver, world, rootNodeEntityId, entityTransform);
 
 
-	}/*
-	std::pair<ECS::Entity::Filter, ECS::Entity::Filter> UpdateModelDriverTransform::GetFilter() const noexcept {
-		static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = {
-			ECS::Entity::Filter{}
-			.Include<Position3D>()
-			.Include<Rotation3D>()
-			.Include<ModelEntity>(),
-			ECS::Entity::Filter{}.ExcludeAll() };
-		return filter;
 	}
-	Common::TypeId UpdateModelDriverTransform::GetTypeId() const noexcept {
-		return Common::TypeInfo<UpdateModelDriverTransform>().GetId();
-	}*/
 }

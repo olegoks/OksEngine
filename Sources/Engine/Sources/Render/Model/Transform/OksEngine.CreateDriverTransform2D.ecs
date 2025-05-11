@@ -1,0 +1,20 @@
+system = {
+    name = "CreateDriverTransform2D",
+    processesEntities = {
+        {
+            processesComponents = { 
+                "Position2D",
+                "Scale2D",
+                "Rotation2D"
+            },
+	        excludes = { "DriverTransform2D" },
+            createsComponents = { "DriverTransform2D" }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false }
+            }
+        }
+    }
+}
+
