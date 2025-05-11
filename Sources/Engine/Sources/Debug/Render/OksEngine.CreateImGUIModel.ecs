@@ -1,7 +1,18 @@
 system = {
     name = "CreateImGuiModel",
+    runAfter = "EndImGuiFrame",
     processesComponents = { 
         "ImGuiState" },
-    excludes = { "ModelEntity" }
-
+    excludes = { "ModelEntity" },
+    createsEntity = {
+        "Position2D",
+        "Scale2D",
+        "Rotation2D",
+        "Vertices2D",
+        "Indices",
+        "UVs",
+        "Colors",
+        "TextureInfo",
+        "Texture"
+    }
 }

@@ -16,11 +16,11 @@ int main(int argc, char** argv) {
 	};
 
 	Engine engine{ engineCreateInfo };
-	Entity testEntity = engine.CreateEntity();
-	testEntity.AddClock();
+	//Entity testEntity = engine.CreateEntity();
+	//testEntity.AddClock();
 
 	Entity camera = engine.CreateEntity();
-	camera.AddCamera({ -100, 10, 0 }, { 0, 1, 0, }, true);
+	camera.AddCamera(0.1f, 1000.0f, true);
 	camera.AddPosition(50, 20, 0);
 	camera.AddDirection(-20, -4, 0);
 	camera.AddUp3D(0, 1, 0);
@@ -30,24 +30,24 @@ int main(int argc, char** argv) {
 	camera.AddBehaviour("Camera.lua", "Camera");
 
 	//{
-		Entity terrain = engine.CreateEntity<
-			Name,
-			Position3D,
-			Rotation3D,
-			DriverTransform3D,
-			ImmutableRenderGeometry,
-			LoadGDFTask,
-			GDF,
-			GDFInfo,
-			GDFLoaded,
-			StaticRigidBodyCustomMeshShape,
-			Material>();
-		terrain.AddName("Terrain");
-		terrain.AddPosition(0, 0, 0);
-		terrain.AddRotation({ 0, 1, 0 }, 0);
-		terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom", "");
-		terrain.AddStaticRigidBodyCustomMeshShape();
-		terrain.AddMaterial(0.1, 0.1, 0.1);
+		//Entity terrain = engine.CreateEntity<
+		//	Name,
+		//	Position3D,
+		//	Rotation3D,
+		//	DriverTransform3D,
+		//	ImmutableRenderGeometry,
+		//	LoadGDFTask,
+		//	GDF,
+		//	GDFInfo,
+		//	GDFLoaded,
+		//	StaticRigidBodyCustomMeshShape,
+		//	Material>();
+		//terrain.AddName("Terrain");
+		//terrain.AddPosition(0, 0, 0);
+		//terrain.AddRotation({ 0, 1, 0 }, 0);
+		//terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom", "");
+		//terrain.AddStaticRigidBodyCustomMeshShape();
+		//terrain.AddMaterial(0.1, 0.1, 0.1);
 
 	//	Entity skybox = engine.CreateEntity();
 	//	skybox.AddName("SkyBox");

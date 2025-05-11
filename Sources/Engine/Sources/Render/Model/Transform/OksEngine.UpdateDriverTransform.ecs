@@ -1,5 +1,0 @@
-system = {	
-    name = "UpdateDriverTransform3D",
-    processesComponents = { "Position3D", "Rotation3D", "ModelEntity" }
-}
-

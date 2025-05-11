@@ -2,7 +2,7 @@ system = {
     name = "CreateDriverVertexBuffer2D",
     processesEntities = {
         {
-            processesComponents = { "Vertices2D", "Indices", "Normals", "UVs" },
+            processesComponents = { "Vertices2D", "Indices", "Colors", "UVs" },
             createsComponents = { "DriverVertexBuffer" },
             excludes = { "DriverVertexBuffer" }
         },

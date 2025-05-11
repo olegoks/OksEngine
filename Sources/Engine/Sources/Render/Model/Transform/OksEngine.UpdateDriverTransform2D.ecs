@@ -1,0 +1,17 @@
+system = {	
+    name = "UpdateDriverTransform2D",
+    processesEntities ={ 
+        {
+            processesComponents = { 
+                "Position2D",
+                "Rotation2D",
+                "Scale2D",
+                "DriverTransform2D" }
+        },
+        {
+            processesComponents = { { name = "RenderDriver", readonly = false } }
+        }
+    }
+
+}
+

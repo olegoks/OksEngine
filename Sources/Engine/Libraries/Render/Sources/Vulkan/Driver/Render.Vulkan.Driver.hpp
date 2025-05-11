@@ -1251,14 +1251,15 @@ namespace Render::Vulkan {
 
 			auto vbs = VBs_[vbid];
 
-			DestroyVertexBuffer(vbid);
-
 			RAL::Driver::VertexBuffer::CreateInfo2 vbci{
 				.verticesNumber_ = verticesNumber,
 				.vertexSize_ = vbs[0]->GetVertexSize(),
 				.type_ = (vbs.size() == 1) ? (RAL::Driver::VertexBuffer::Type::Const) : (RAL::Driver::VertexBuffer::Type::Mutable)
 			};
 			auto newvbs = CreateVBForEachFrameInFlight(vbci);
+
+			DestroyVertexBuffer(vbid);
+
 			VBs_[vbid] = std::move(newvbs);
 		}
 		[[nodiscard]]
@@ -1432,7 +1433,7 @@ namespace Render::Vulkan {
 		[[nodiscard]]
 		virtual RAL::Texture::Id CreateDiffuseMap(const RAL::Texture::CreateInfo& createInfo) override {
 
-			const Texture::CreateInfo textureCreateInfo{
+			Texture::CreateInfo textureCreateInfo{
 				.ralCreateInfo_ = createInfo,
 				.PD_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
@@ -1455,7 +1456,6 @@ namespace Render::Vulkan {
 		}
 
 
-		//Shape2 realization
 	public:
 
 
