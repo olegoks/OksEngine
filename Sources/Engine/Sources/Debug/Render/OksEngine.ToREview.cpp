@@ -1,14 +1,14 @@
 
-#include <Debug/Render/auto_OksEngine.CreateImGUIRenderData.hpp>
+//#include <Debug/Render/auto_OksEngine.CreateImGUIRenderData.hpp>
 
 #include <Render/OksEngine.Render.Subsystem.hpp>
 
 namespace OksEngine {
 
-	void CreateImGuiRenderData::Update(
+	/*void CreateImGuiRenderData::Update(
 		ECS2::Entity::Id entity1Id, const ImGuiState* imGuiState,
 		const ModelEntity* modelEntity, ECS2::Entity::Id entity2Id,
-		RenderDriver* renderDriver) {
+		RenderDriver* renderDriver) {*/
 
 		//auto driver = renderDriver->driver_;
 		//ImDrawData* draw_data = ImGui::GetDrawData();
@@ -112,6 +112,6 @@ namespace OksEngine {
 
 		//auto* meshColors = world->GetComponent<Colors>(meshEntityId); // NEED TO CHANGE COLOR TO COLOR4F, or... No
 		//meshColors->colors_ = std::move(colors);
-	}
+	//}
 
 }

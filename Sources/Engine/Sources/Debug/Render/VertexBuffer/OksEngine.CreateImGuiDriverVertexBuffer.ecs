@@ -1,0 +1,19 @@
+system = {
+    name = "CreateImGuiDriverVertexBuffer",
+     processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState"
+            },
+            createsComponents = {
+                "ImGuiDriverVertexBuffer"
+            },
+            excludes = { "ImGuiDriverVertexBuffer" }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    }
+}

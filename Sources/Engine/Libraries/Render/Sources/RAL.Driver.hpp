@@ -14,7 +14,7 @@
 #include <RAL.Texture.hpp>
 
 namespace RAL {
-	
+
 	enum class UISubsystem {
 		WinAPI,
 		GLFW
@@ -70,6 +70,12 @@ namespace RAL {
 			Front,
 			Back,
 			FrontAndBack,
+			Undefined
+		};
+
+		enum class Stage {
+			VertexShader,
+			FragmentShader,
 			Undefined
 		};
 
@@ -142,9 +148,10 @@ namespace RAL {
 			};
 			struct Data {
 				Type type_ = Type::Undefined;
+				Common::UInt64 binding_ = Common::Limits<Common::UInt64>::Max();
 				Stage stage_ = Stage::Undefined;
-				RAL::Driver::UniformBuffer::Id uniformBufferId_;
-				RAL::Texture::Id textureId_;
+				RAL::Driver::UniformBuffer::Id uniformBufferId_ = RAL::Driver::UniformBuffer::Id::Invalid();
+				RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
 			};
 			struct Layout {
 				std::string name_ = "";
@@ -168,6 +175,79 @@ namespace RAL {
 			};
 		};
 		using DB = DepthBuffer;
+
+		//struct Resource {
+
+		//	using Id = Common::Id;
+		//	enum class Type {
+		//		Uniform,
+		//		Sampler,
+		//		InputAttachment,
+		//		Undefined
+		//	};
+		//	enum class Mutability {
+		//		Const,
+		//		Mutable,
+		//		Undefined
+		//	};
+
+		//	struct Description {
+		//		Type type_ = Type::Undefined;
+		//		Stage stage_ = Stage::Undefined;
+		//	};
+		//	using Desc = Description;
+
+		//	Type type_ = Type::Undefined;
+
+		//	RAL::Driver::UniformBuffer::Id ubid_ = RAL::Driver::UniformBuffer::Id::Invalid();
+		//	RAL::Texture::Id textureId_;
+
+		//	struct CreateInfo {
+		//		Mutability mutability_ = Mutability::Undefined;
+		//		Stage stage_ = Stage::Undefined;
+		//		Type type_ = Type::Undefined;
+		//		
+		//		RAL::Driver::UniformBuffer::Id ubid_ = RAL::Driver::UniformBuffer::Id::Invalid();
+		//		RAL::Texture::Id textureId_;
+
+		//	};
+		//	using CI = CreateInfo;
+
+		//};
+		//using Res = Resource;
+
+		struct ResourceSet {
+			using Id = Common::Id;
+
+			struct Binding {
+				Stage stage_ = Stage::Undefined;
+				Common::UInt64 binding_ = Common::Limits<Common::UInt64>::Max();
+				//Uniform buffer.
+				RAL::Driver::UB::Id ubid_ = RAL::Driver::UB::Id::Invalid();
+				Common::UInt64 offset_ = 0;
+				Common::UInt64 size_ = Common::Limits<Common::UInt64>::Max();
+				 
+				//Combined sampler.
+				RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+
+			};
+
+			struct CreateInfo1 {
+				Binding bindings_[4];
+				Common::UInt64 bindingsNumber_ = Common::Limits<Common::UInt64>::Max();
+			};
+			using CI1 = CreateInfo1;
+
+			using CreateInfo2 = Binding;
+			using CI2 = Binding;
+			
+		};
+		using RS = ResourceSet;
+		using Resource = RS;
+
+
+		virtual ResourceSet::Id CreateResourceSet(const ResourceSet::CreateInfo1& createInfo) = 0;
+		virtual Resource::Id CreateResource(const Resource::CI2& createInfo) = 0;
 
 		struct PipelineDescription {
 			using Id = Common::Id;
@@ -209,13 +289,25 @@ namespace RAL {
 		//	IndexType indexType,
 		//	const std::vector<RAL::Driver::ShaderBinding::Data>& bindingData) = 0;
 
+		virtual void StartDrawing() = 0;
+		virtual void BindPipeline(const std::string& pipeline) = 0;
+		virtual void BindVertexBuffer(
+			VertexBuffer::Id VBId,
+			Common::UInt64 offset) = 0;
+		virtual void BindIndexBuffer(
+			IndexBuffer::Id IBId,
+			Common::UInt64 offset) = 0;
+		virtual void Bind(const std::vector<Resource::Id>& resourceIds) = 0;
+		virtual void DrawIndexed(Common::Size indicesNumber)= 0;
+
+		virtual void EndDrawing() = 0;
+
 		[[nodiscard]]
 		virtual Common::Id DrawMesh(
 			const std::string& pipelineName,
 			VertexBuffer::Id VBId,
 			IndexBuffer::Id IBId,
 			const std::vector<RAL::Driver::ShaderBinding::Data>& bindingData) = 0;
-
 
 		virtual void ResumeMeshDrawing(Common::Id shapeId) = 0;
 
@@ -233,6 +325,8 @@ namespace RAL {
 
 		[[nodiscard]]
 		virtual UniformBuffer::Id CreateUniformBuffer(const UniformBuffer::CreateInfo& createInfo) = 0;
+
+		virtual Common::Size GetUBSizeInBytes(UB::Id ubid) = 0;
 
 		[[nodiscard]]
 		virtual VertexBuffer::Id CreateVertexBuffer(const VertexBuffer::CreateInfo1& createInfo) = 0;

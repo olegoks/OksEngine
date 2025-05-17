@@ -1,7 +1,7 @@
 
 #include <Debug/auto_OksEngine.CollectEntitiesInfo.hpp>
 
-#include <Common/auto_OksEngine.Position3D.hpp>
+#include <Common/auto_OksEngine.Position2D.hpp>
 
 namespace OksEngine {
 
@@ -21,10 +21,15 @@ namespace OksEngine {
 	void CollectEntitiesInfo::Update(
 		ECS2::Entity::Id entityId) {
 
-		if (IsComponentExist<Position3D>(entityId)) {
-			//auto* position3D = GetComponent<Position3D>(entityId);
-			//EditPosition3D(position3D);
-		}
+		//if (IsComponentExist<Position3D>(entityId)) {
+		//	//auto* position3D = GetComponent<Position3D>(entityId);
+		//	//EditPosition3D(position3D);
+		//}
+
+		ImGui::Begin("ECSInspector");
+		EditPosition2D(GetComponent<Position2D>(entityId));
+		ImGui::End();
+
 
 	}
 

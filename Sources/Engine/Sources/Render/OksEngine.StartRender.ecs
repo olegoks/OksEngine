@@ -1,0 +1,7 @@
+
+system = {
+    name = "StartRender",
+    processesComponents = {
+        { name = "RenderDriver", readonly = false}
+    }
+}

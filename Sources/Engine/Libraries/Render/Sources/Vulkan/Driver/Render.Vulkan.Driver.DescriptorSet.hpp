@@ -3,6 +3,7 @@
 #include <memory>
 #include <vulkan/vulkan.hpp>
 
+#include <Common.hpp>
 #include <Common.Types.hpp>
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
@@ -13,12 +14,10 @@
 #include <Render.Vulkan.Driver.DescriptorPool.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.DescriptorSetLayout.hpp>
-#include <Render.Vulkan.Driver.UniformBuffer.hpp>
-
 
 namespace Render::Vulkan {
 
-	class DescriptorSet : public Abstraction<VkDescriptorSet>{
+	class DescriptorSet : public Abstraction<VkDescriptorSet> {
 	public:
 
 		struct CreateInfo {
@@ -27,7 +26,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<DescriptorSetLayout> DSL_;
 		};
 
-		DescriptorSet(const CreateInfo& createInfo) : 
+		DescriptorSet(const CreateInfo& createInfo) :
 			createInfo_{ createInfo } {
 
 			Allocate(
@@ -44,9 +43,34 @@ namespace Render::Vulkan {
 
 		}
 
+		struct UpdateDescriptorInfo {
+			Common::UInt32 binding_ = Common::Limits<Common::UInt32>::Max();
+			VkDescriptorType type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
+			struct BufferInfo {
+				std::shared_ptr<class Buffer> buffer_ = nullptr;
+				Common::Size offset_ = 0;
+				Common::Size range_ = Common::Limits<Common::Size>::Max();
+			} bufferInfo_;
+			struct ImageInfo {
+				std::shared_ptr<class ImageView> imageView_;
+				VkImageLayout imageLayout_;
+				std::shared_ptr<class Sampler> sampler_;
+			} imageInfo_;
+
+		};
+
+		void Update(const std::vector<UpdateDescriptorInfo>& info);
+
 		//Update the contents of a descriptor set object
 		void UpdateBufferWriteConfiguration(
 			std::shared_ptr<class Buffer> buffer,
+			VkDescriptorType type,
+			Common::UInt32 binding,
+			Common::Size offset,
+			Common::Size range);
+
+		void UpdateBufferWriteConfiguration(
+			Buffer& buffer,
 			VkDescriptorType type,
 			Common::UInt32 binding,
 			Common::Size offset,
@@ -104,7 +128,7 @@ namespace Render::Vulkan {
 				allocInfo.pSetLayouts = &descriptorSetLayout;
 			}
 			VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
-			VkCall(vkAllocateDescriptorSets(logicDevice, &allocInfo, &descriptorSet), 
+			VkCall(vkAllocateDescriptorSets(logicDevice, &allocInfo, &descriptorSet),
 				"Error while allocating memory for Descriptor Set");
 			SetHandle(descriptorSet);
 		}

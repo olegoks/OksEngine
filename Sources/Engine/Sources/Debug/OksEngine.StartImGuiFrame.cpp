@@ -30,6 +30,9 @@ void ImGuiEx_EndColumn()
     ImGui::EndGroup();
 }
 
+
+
+
 ed::EditorContext* m_Context = ed::CreateEditor();;    // Editor context, required to trace a editor state.
 bool                 m_FirstFrame = true;    // Flag set for first frame only, some action need to be executed once.
 ImVector<LinkInfo>   m_Links;                // List of live links. It is dynamic unless you want to create read-only view over nodes.
@@ -40,7 +43,7 @@ void StartImGuiFrame::Update(ECS2::Entity::Id entityId,
                              const ImGuiState* imGuiState) {
     
     ImGui::NewFrame();
-
+    ed::Config config;
     //ImGui::Begin("Hello, ImGui!");
     //ImGui::Text("Welcome to ImGui!");
     //ImGui::Button("Click Me");
@@ -87,6 +90,8 @@ void StartImGuiFrame::Update(ECS2::Entity::Id entityId,
     ed::PinId  nodeB_InputPinId1 = uniqueId++;
     ed::PinId  nodeB_InputPinId2 = uniqueId++;
     ed::PinId  nodeB_OutputPinId = uniqueId++;
+
+    
 
     if (m_FirstFrame)
         ed::SetNodePosition(nodeB_Id, ImVec2(210, 60));

@@ -1,0 +1,19 @@
+system = {
+    name = "CreateImGuiDriverTransform2D",
+     processesEntities = {
+        {
+            processesComponents = { 
+                "ImGuiState"
+            },
+            excludes = { "DriverTransform2D" },
+            createsComponents = {
+                "DriverTransform2D"
+            }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    }
+}

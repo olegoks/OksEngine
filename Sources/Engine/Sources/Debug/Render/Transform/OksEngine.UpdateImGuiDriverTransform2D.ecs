@@ -1,0 +1,16 @@
+system = {
+    name = "UpdateImGuiDriverTransform2D",
+     processesEntities = {
+        {
+            processesComponents = { 
+                "ImGuiState",
+                 "DriverTransform2D"
+            },
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    }
+}

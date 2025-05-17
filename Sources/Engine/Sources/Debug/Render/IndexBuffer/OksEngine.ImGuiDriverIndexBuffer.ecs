@@ -1,0 +1,8 @@
+component = {
+    name = "ImGuiDriverIndexBuffer",
+    fields = { 
+        { type="RAL::Driver::IndexBuffer::Id", name="id" },
+        { type="Common::Size", name="capacity" },
+        { type="Common::Size", name="size" }
+    }
+}

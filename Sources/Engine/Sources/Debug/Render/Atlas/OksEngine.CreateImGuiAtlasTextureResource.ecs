@@ -1,0 +1,19 @@
+
+system = {
+    name = "CreateImGuiAtlasTextureResource",
+  processesEntities = {
+    {
+      processesComponents = { 
+            "ImGuiState",
+		    "ImGuiAtlasDriverTexture"
+	    }, 
+      createsComponents = { "TextureResource" },
+      excludes = { "TextureResource" }
+    },
+    {
+      processesComponents = {
+        { name = "RenderDriver", readonly = false}
+      }
+    }
+  }
+}

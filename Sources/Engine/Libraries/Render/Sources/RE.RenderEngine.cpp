@@ -51,7 +51,7 @@ namespace RE {
 				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
 				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader
 			};
-
+			              
 			RAL::Driver::ShaderBinding::Layout samplerBinding{
 				.binding_ = 0,
 				.type_ = RAL::Driver::ShaderBinding::Type::Sampler,

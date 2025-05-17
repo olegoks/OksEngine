@@ -6,10 +6,11 @@
 namespace OksEngine {
 
 	void AddImGuiMeshToRender::Update(
-		ECS2::Entity::Id entity1Id, const Position2D* position2D,
-		const Scale2D* scale2D, const DriverTexture* driverTexture,
-		const DriverIndexBuffer* driverIndexBuffer,
-		const DriverVertexBuffer* driverVertexBuffer,
+		ECS2::Entity::Id entity1Id,
+		const Transform2DResource* transform2DResource,
+		const TextureResource* textureResource,
+		const ImGuiDriverIndexBuffer* imGuiDriverIndexBuffer,
+		const ImGuiDriverVertexBuffer* imGuiDriverVertexBuffer,
 		ECS2::Entity::Id entity2Id, RenderDriver* renderDriver) {
 
 		auto driver = renderDriver->driver_;
@@ -28,47 +29,59 @@ namespace OksEngine {
 
 		//TRANSFORM BINDING
 		{
-			struct Transform {
-				glm::vec2 scale_;
-				glm::vec2 translate_;
-			};
+			//struct Transform {
+			//	glm::vec2 scale_;
+			//	glm::vec2 translate_;
+			//};
 
-			Transform transform{ 
-				glm::vec2{ scale2D->x_, scale2D->y_ },
-				glm::vec2{ position2D->x_, position2D->y_ }
-			};
-			RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
-				.size_ = sizeof(Transform),
-				.type_ = RAL::Driver::UniformBuffer::Type::Mutable
-			};
-			RAL::Driver::UniformBuffer::Id ubId = driver->CreateUniformBuffer(UBCreateInfo);
-			driver->FillUniformBuffer(ubId, &transform);
-			RAL::Driver::ShaderBinding::Data transformBinding{
-				.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
-				.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
-				.uniformBufferId_ = ubId
-			};
-			shaderBindings.push_back(transformBinding);
+			//Transform transform{ 
+			//	glm::vec2{ scale2D->x_, scale2D->y_ },
+			//	glm::vec2{ position2D->x_, position2D->y_ }
+			//};
+			//RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+			//	.size_ = sizeof(Transform),
+			//	.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+			//};
+			//RAL::Driver::UniformBuffer::Id ubId = driver->CreateUniformBuffer(UBCreateInfo);
+			//driver->FillUniformBuffer(ubId, &transform);
+			//RAL::Driver::ShaderBinding::Data transformBinding{
+			//	.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
+			//	.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
+			//	.uniformBufferId_ = driverTransform2D->id_
+			//};
+			//shaderBindings.push_back(transformBinding);
 		}
 
-		//TEXTURE BINDING
-		{
+		////TEXTURE BINDING
+		//{
 
-			RAL::Driver::ShaderBinding::Data textureBinding{
-				.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
-				.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader,
-				.textureId_ = driverTexture->driverTextureId_
-			};
+		//	RAL::Driver::ShaderBinding::Data textureBinding{
+		//		.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
+		//		.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader,
+		//		.textureId_ = driverTexture->driverTextureId_
+		//	};
 
-			shaderBindings.push_back(textureBinding);
-		}
+		//	shaderBindings.push_back(textureBinding);
+		//}
 
-		Common::Id driverMeshId = driver->DrawMesh(
-			"ImGui Pipeline",
-			driverVertexBuffer->id_,
-			driverIndexBuffer->id_,
-			shaderBindings
-		);
+		driver->StartDrawing();
+		driver->BindPipeline("ImGui Pipeline");
+		driver->BindVertexBuffer(imGuiDriverVertexBuffer->id_, 0);
+		driver->BindIndexBuffer(imGuiDriverIndexBuffer->id_, 0);
+		driver->Bind(
+			{ 
+				transform2DResource->id_,
+				textureResource->id_ 
+			} );
+		driver->DrawIndexed(imGuiDriverIndexBuffer->size_ / sizeof(Common::UInt16));
+		driver->EndDrawing();
+
+		//Common::Id driverMeshId = driver->DrawMesh(
+		//	"ImGui Pipeline",
+		//	driverVertexBuffer->id_,
+		//	driverIndexBuffer->id_,
+		//	shaderBindings
+		//);
 	}
 
 

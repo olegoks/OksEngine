@@ -1,0 +1,18 @@
+system = {
+    name = "CreateTransform2DResource",
+    processesEntities = {
+        {
+            processesComponents = { 
+                "DriverTransform2D"
+            },
+	        excludes = { "Transform2DResource" },
+            createsComponents = { "Transform2DResource" }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false }
+            }
+        }
+    }
+}
+

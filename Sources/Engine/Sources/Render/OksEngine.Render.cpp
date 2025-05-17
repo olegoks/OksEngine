@@ -8,9 +8,9 @@ namespace OksEngine {
 		ECS2::Entity::Id entityId,
 		RenderDriver* renderDriver) {
 
-		renderDriver->driver_->StartRender();
-		renderDriver->driver_->Render();
-		renderDriver->driver_->EndRender();
+		//renderDriver->driver_->StartRender();
+		//renderDriver->driver_->Render();
+		//renderDriver->driver_->EndRender();
 	
 	}
 

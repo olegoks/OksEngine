@@ -28,12 +28,13 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<CommandPool> commandPool_ = nullptr;
+			VkCommandBufferLevel level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
 		};
 
 		CommandBuffer(const CreateInfo& createInfo) :
 			createInfo_{ createInfo } {
 
-			Allocate(*createInfo.LD_, *createInfo.commandPool_);
+			Allocate(*createInfo.LD_, *createInfo.commandPool_, createInfo.level_);
 
 		}
 
@@ -42,10 +43,12 @@ namespace Render::Vulkan {
 			{
 				beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
 				//beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT; //The command buffer will be rerecorded right after executing it once.
+
 				beginInfo.pInheritanceInfo = nullptr;
-			}
+			};
 			VkCall(vkBeginCommandBuffer(GetHandle(), &beginInfo), "Error while begin command buffer.");
 		}
+
 
 		struct DepthBufferInfo {
 			bool enable = false;
@@ -139,28 +142,35 @@ namespace Render::Vulkan {
 		//		VK_INDEX_TYPE_UINT16);
 		//}
 
-		void BindBuffer(std::shared_ptr<VertexBuffer2> vertexBuffer) noexcept {
-			VkDeviceSize offsets[] = { 0 };
-			const VkBuffer bufferHandle = vertexBuffer->GetHandle();
+		void BindBuffer(
+			std::shared_ptr<VertexBuffer2> vertexBuffer,
+			Common::Size offset) noexcept {
+
+			VkDeviceSize offsets[] = { offset };
 			vkCmdBindVertexBuffers(
 				GetHandle(),
 				0,
 				1,
-				&bufferHandle,
+				&vertexBuffer->GetHandle(),
 				offsets);
+
 		}
 
-		void BindBuffer(std::shared_ptr<IndexBuffer2> indexBuffer) noexcept {
+		void BindBuffer(
+			std::shared_ptr<IndexBuffer2> indexBuffer,
+			Common::Size offset) noexcept {
 			vkCmdBindIndexBuffer(
 				GetHandle(),
 				*indexBuffer,
-				0,
+				offset,
 				VK_INDEX_TYPE_UINT16);
 		}
 
 
 		template<class PipelineType>
-		void BindDescriptorSets(std::shared_ptr<PipelineType> pipeline, const std::vector<std::shared_ptr<DescriptorSet>>& descriptorSets) noexcept {
+		void BindDescriptorSets(
+			std::shared_ptr<PipelineType> pipeline,
+			const std::vector<std::shared_ptr<DescriptorSet>>& descriptorSets) noexcept {
 
 			std::vector<VkDescriptorSet> descriptorSetsHandles;
 			for (auto descriptorSetPtr : descriptorSets) {
@@ -348,6 +358,13 @@ namespace Render::Vulkan {
 				"Error on ending executing commands.");
 		}
 
+		void ExecuteCommands(std::shared_ptr<CommandBuffer> commandBuffer) {
+			vkCmdExecuteCommands(
+				GetHandle(),
+				1,
+				&commandBuffer->GetHandle());
+		}
+
 		void Submit(VkQueue queue) {
 
 			VkSubmitInfo submitInfo{
@@ -366,14 +383,15 @@ namespace Render::Vulkan {
 
 	private:
 
-		void Allocate(VkDevice logicDevice, VkCommandPool commandPool) noexcept {
+		void Allocate(VkDevice logicDevice, VkCommandPool commandPool, VkCommandBufferLevel level) noexcept {
 
 			VkCommandBufferAllocateInfo allocInfo{};
 			{
 				allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
 				allocInfo.commandPool = commandPool;
-				allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+				allocInfo.level = level;
 				allocInfo.commandBufferCount = 1;
+
 			}
 
 			VkCommandBuffer commandBuffer = VK_NULL_HANDLE;

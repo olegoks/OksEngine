@@ -1,13 +1,14 @@
 system = {
     name = "AddImGuiMeshToRender",
+    runAfter = "StartRender",
+    runBefore = "EndRender",
      processesEntities = {
         {
             processesComponents = { 
-                "Position2D",
-                "Scale2D",
-                "DriverTexture",
-                "DriverIndexBuffer",
-                "DriverVertexBuffer"
+                "Transform2DResource",
+                "TextureResource",
+                "ImGuiDriverIndexBuffer",
+                "ImGuiDriverVertexBuffer"
             }
         },
         {
