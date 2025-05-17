@@ -52,6 +52,7 @@ namespace Render::Vulkan
 		{
 			commandBufferCreateInfo.LD_ = ld;
 			commandBufferCreateInfo.commandPool_ = commandPool;
+			commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		}
 		auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 

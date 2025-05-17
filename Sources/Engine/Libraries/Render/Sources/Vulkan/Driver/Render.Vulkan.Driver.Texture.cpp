@@ -40,6 +40,7 @@ namespace Render::Vulkan {
 				{
 					commandBufferCreateInfo.LD_ = createInfo.LD_;
 					commandBufferCreateInfo.commandPool_ = createInfo.commandPool_;
+					commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 				}
 				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
@@ -113,41 +114,41 @@ namespace Render::Vulkan {
 			}
 			auto sampler = std::make_shared<Sampler>(samplerCreateInfo);
 
-			auto DSL = std::make_shared<DescriptorSetLayout>(
-				DescriptorSetLayout::CreateInfo{
-					"DiffuseMap",
-					createInfo.LD_,
-					std::vector<VkDescriptorSetLayoutBinding>{{
-						{
-					0,
-					VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-					1,
-					VK_SHADER_STAGE_FRAGMENT_BIT,
-					nullptr
-					}
-					}}
-				});
+			//auto DSL = std::make_shared<DescriptorSetLayout>(
+			//	DescriptorSetLayout::CreateInfo{
+			//		"DiffuseMap",
+			//		createInfo.LD_,
+			//		std::vector<VkDescriptorSetLayoutBinding>{{
+			//			{
+			//		0,
+			//		VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			//		1,
+			//		VK_SHADER_STAGE_FRAGMENT_BIT,
+			//		nullptr
+			//		}
+			//		}}
+			//	});
 
-			DescriptorSet::CreateInfo DSCreateInfo;
-			{
-				DSCreateInfo.DP_ = createInfo.DP_;
-				DSCreateInfo.DSL_ = DSL;
-				DSCreateInfo.LD_ = createInfo.LD_;
-			}
+			//DescriptorSet::CreateInfo DSCreateInfo;
+			//{
+			//	DSCreateInfo.DP_ = createInfo.DP_;
+			//	DSCreateInfo.DSL_ = DSL;
+			//	DSCreateInfo.LD_ = createInfo.LD_;
+			//}
 
-			auto DS = std::make_shared<DescriptorSet>(DSCreateInfo);
-			DS->UpdateImageWriteConfiguration(
-				imageView,
-				VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-				sampler,
-				VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-				0);
+			//auto DS = std::make_shared<DescriptorSet>(DSCreateInfo);
+			//DS->UpdateImageWriteConfiguration(
+			//	imageView,
+			//	VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+			//	sampler,
+			//	VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+			//	0);
 
 			image_ = image;
 			imageView_ = imageView;
 			sampler_ = sampler;
-			DSL_ = DSL;
-			DS_ = DS;
+	/*		DSL_ = DSL;
+			DS_ = DS;*/
 
 		}
 

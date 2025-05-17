@@ -1,0 +1,13 @@
+system = {
+    name = "CreateImGuiAtlasTexture",
+    
+    processesEntities = {
+        {
+            processesComponents = { 
+                { name = "ImGuiState", readonly = false } 
+            },
+            excludes = { "ImGuiAtlasTexture" },
+            createsComponents = { "ImGuiAtlasTexture" }
+        }
+    }
+}

@@ -47,7 +47,7 @@ namespace Render::Vulkan {
 	private:
 		size_t currentFrame = 0;
 
-		const Common::Size framesInFlight = 1;
+		static inline constexpr Common::Size concurrentFramesNumber = 1;
 
 	public:
 
@@ -272,7 +272,7 @@ namespace Render::Vulkan {
 				objects_.imageContexts_.push_back(imageContext);
 			}
 
-			for (Common::Index i = 0; i < framesInFlight; i++) {
+			for (Common::Index i = 0; i < concurrentFramesNumber; i++) {
 				auto frameContext = std::make_shared<FrameContext>();
 				{
 					frameContext->LD_ = objects_.LD_;
@@ -444,6 +444,26 @@ namespace Render::Vulkan {
 			};
 		}
 
+		//static VkDescriptorType ToVulkanType(RAL::Driver::Resource::Type bindingType) {
+		//	switch (bindingType) {
+		//	case RAL::Driver::Resource::Type::Sampler: {
+		//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		//		break;
+		//	}
+		//	case RAL::Driver::Resource::Type::Uniform: {
+		//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		//		break;
+		//	}
+		//	case RAL::Driver::Resource::Type::InputAttachment: {
+		//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+		//		break;
+		//	}
+		//	default:
+		//		OS::AssertFailMessage("Invalid ShaderBinding::Type value used.");
+		//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
+		//	};
+		//}
+
 
 		static VkShaderStageFlagBits ToVulkanType(ShaderBinding::Stage stage) {
 			switch (stage) {
@@ -452,6 +472,22 @@ namespace Render::Vulkan {
 				break;
 			}
 			case ShaderBinding::Stage::FragmentShader: {
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
+				break;
+			}
+			default:
+				OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
+			};
+		}
+
+		static VkShaderStageFlagBits ToVulkanType(Stage stage) {
+			switch (stage) {
+			case Stage::VertexShader: {
+				return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
+				break;
+			}
+			case Stage::FragmentShader: {
 				return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
 				break;
 			}
@@ -502,7 +538,8 @@ namespace Render::Vulkan {
 		}
 
 		Driver(const CreateInfo& info) noexcept :
-			RAL::Driver{ info }{
+			RAL::Driver{ info }
+		{
 
 			auto windowInfo = info.surface_;
 
@@ -608,12 +645,12 @@ namespace Render::Vulkan {
 				.LD_ = objects_.LD_,
 				.DP_ = objects_.DP_,
 				.swapChain_ = objects_.swapChain_,
-				.framesInFlight_ = framesInFlight
+				.framesInFlight_ = concurrentFramesNumber
 			};
 
 			render_ = std::make_unique<RenderPacket>(rpci);
 
-			objects_.commandBuffers_.resize(framesInFlight, nullptr);
+			objects_.commandBuffers_.resize(concurrentFramesNumber, nullptr);
 
 			//Post-effects subpass pipeline
 			{
@@ -807,7 +844,7 @@ namespace Render::Vulkan {
 				objects_.imageContexts_.push_back(imageContext);
 			}
 
-			for (Common::Index i = 0; i < framesInFlight; i++) {
+			for (Common::Index i = 0; i < concurrentFramesNumber; i++) {
 				auto frameContext = std::make_shared<FrameContext>();
 				{
 					frameContext->LD_ = objects_.LD_;
@@ -828,16 +865,18 @@ namespace Render::Vulkan {
 			OS::LogInfo("/render/vulkan/driver/", "Vulkan driver initialized successfuly.");
 		}
 
-		void StartRender() override {
+		std::shared_ptr<FrameContext> currentFrame_ = nullptr;
+		std::shared_ptr<ImageContext> image_ = nullptr;
+		std::shared_ptr<CommandBuffer> CB_ = nullptr;
 
-			//for (Common::Index i = 0; i < framesInFlight; i++) {
+		void StartRender() override {
 
 			if (objects_.frameContexts_.empty()) {
 				return;
 			}
 
-			std::shared_ptr<FrameContext> frameContext = objects_.frameContexts_[currentFrame];
-			auto image = GetNextImage(frameContext->imageAvailableSemaphore_);
+			currentFrame_ = objects_.frameContexts_[currentFrame];
+			image_ = GetNextImage(currentFrame_->imageAvailableSemaphore_);
 
 
 
@@ -845,11 +884,12 @@ namespace Render::Vulkan {
 			{
 				commandBufferCreateInfo.LD_ = objects_.LD_;
 				commandBufferCreateInfo.commandPool_ = objects_.commandPool_;
+				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			}
-			auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+			CB_ = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
 
-			commandBuffer->Begin();
+			CB_->Begin();
 			{
 				std::vector<VkClearValue> clearValues;
 				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
@@ -870,9 +910,9 @@ namespace Render::Vulkan {
 					depthBufferInfo.enable = enableDepthTest;
 					depthBufferInfo.clearValue_.depthStencil = {  };
 				}
-				commandBuffer->BeginRenderPass(
+				CB_->BeginRenderPass(
 					*render_->renderPasses_[0].renderPass_,
-					render_->renderPasses_[0].frameBuffers_[image->index_]->GetHandle(),
+					render_->renderPasses_[0].frameBuffers_[image_->index_]->GetHandle(),
 					objects_.swapChain_->GetExtent(),
 					clearValues);
 
@@ -884,40 +924,43 @@ namespace Render::Vulkan {
 					.minDepth = 0.0f,
 					.maxDepth = 1.0f
 				};
-				commandBuffer->SetViewport(viewport);
+				CB_->SetViewport(viewport);
 
 				const VkRect2D scissor{
 					.offset = { 0, 0 },
 					.extent = objects_.swapChain_->GetExtent()
 				};
-				commandBuffer->SetScissor(scissor);
+				CB_->SetScissor(scissor);
 
-				for (auto& [id, mesh] : meshs_) {
-					if (mesh->GetPipelineName() == "ImGui Pipeline") {
-						continue;
-					}
-					commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
-					commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
-					commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
-					{
-						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-						for (auto& shaderBinding : mesh->GetShaderBindings()) {
-							if (shaderBinding.ds_ != nullptr) {
-								descriptorSets.push_back(shaderBinding.ds_);
-								OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
-								continue;
-							}
-							if (!shaderBinding.textureId_.IsInvalid()) {
-								OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
-								const auto texture = GetTextureById(shaderBinding.textureId_);
-								descriptorSets.push_back(texture->GetDS());
-							}
-						}
-						commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
-					}
-					commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
-				}
-				commandBuffer->EndRenderPass();
+				//for (auto& [id, mesh] : meshs_) {
+				//	if (mesh->GetPipelineName() == "ImGui Pipeline") {
+				//		continue;
+				//	}
+				//	commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
+				//	commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
+				//	commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
+				//	{
+				//		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
+				//		for (auto& shaderBinding : mesh->GetShaderBindings()) {
+				//			if (shaderBinding.ds_ != nullptr) {
+				//				descriptorSets.push_back(shaderBinding.ds_);
+				//				OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
+				//				continue;
+				//			}
+				//			if (!shaderBinding.textureId_.IsInvalid()) {
+				//				OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
+				//				const auto texture = GetTextureById(shaderBinding.textureId_);
+				//				descriptorSets.push_back(texture->GetDS());
+				//			}
+				//		}
+				//		commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
+				//	}
+				//	commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
+				//}
+
+
+
+				CB_->EndRenderPass();
 			}
 			{
 				std::vector<VkClearValue> clearValues;
@@ -932,15 +975,15 @@ namespace Render::Vulkan {
 				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
 				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
 
-				commandBuffer->BeginRenderPass(
+				CB_->BeginRenderPass(
 					*render_->renderPasses_[1].renderPass_,
-					render_->renderPasses_[1].frameBuffers_[image->index_]->GetHandle(),
+					render_->renderPasses_[1].frameBuffers_[image_->index_]->GetHandle(),
 					objects_.swapChain_->GetExtent(),
 					clearValues);
-				commandBuffer->BindPipeline(namePipeline_["Post-process"]);
-				commandBuffer->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ render_->gBufferInfo_->ds_ });
-				commandBuffer->Draw(3);
-				commandBuffer->EndRenderPass();
+				CB_->BindPipeline(namePipeline_["Post-process"]);
+				CB_->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ render_->gBufferInfo_->ds_ });
+				CB_->Draw(3);
+				CB_->EndRenderPass();
 			}
 			{
 				std::vector<VkClearValue> clearValues;
@@ -955,11 +998,12 @@ namespace Render::Vulkan {
 				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
 				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
 
-				commandBuffer->BeginRenderPass(
+				CB_->BeginRenderPass(
 					*render_->renderPasses_[2].renderPass_,
-					render_->renderPasses_[2].frameBuffers_[image->index_]->GetHandle(),
+					render_->renderPasses_[2].frameBuffers_[image_->index_]->GetHandle(),
 					objects_.swapChain_->GetExtent(),
 					clearValues);
+				/*
 				for (auto& [id, mesh] : meshs_) {
 					if (mesh->GetPipelineName() != "ImGui Pipeline") {
 						continue;
@@ -984,23 +1028,8 @@ namespace Render::Vulkan {
 						commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
 					}
 					commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
-				}
-				commandBuffer->EndRenderPass();
-				commandBuffer->End();
+				}*/
 
-
-				objects_.commandBuffers_[currentFrame] = std::move(commandBuffer);
-				image->commandBuffer_ = objects_.commandBuffers_[currentFrame];
-
-				frameContext->SetImage(image);
-				frameContext->WaitForRenderToImageFinish();
-
-				frameContext->Render();
-				frameContext->ShowImage();
-
-				frameContext->WaitForQueueIdle();
-
-				currentFrame = (currentFrame + 1) % framesInFlight;
 			}
 
 		}
@@ -1008,13 +1037,36 @@ namespace Render::Vulkan {
 		void Render() override {
 
 
-
 		}
 
 		void EndRender() override {
-			//objects_.commandBuffers_.clear();
-			//UIShapes_.clear();
-			meshs_.clear();
+			
+
+
+			//for (auto& context : contexts_) {
+			//	CB_->ExecuteCommands(context.commandBuffer_);
+			//}
+
+			CB_->EndRenderPass();
+			CB_->End();
+
+
+			objects_.commandBuffers_[currentFrame] = std::move(CB_);
+			image_->commandBuffer_ = objects_.commandBuffers_[currentFrame];
+
+			currentFrame_->SetImage(image_);
+			currentFrame_->WaitForRenderToImageFinish();
+
+			currentFrame_->Render();
+			currentFrame_->ShowImage();
+
+			currentFrame_->WaitForQueueIdle();
+
+			currentFrame = (currentFrame + 1) % concurrentFramesNumber;
+
+
+			contexts_.clear();
+			
 		}
 
 		[[nodiscard]]
@@ -1089,13 +1141,15 @@ namespace Render::Vulkan {
 
 			switch (createInfo.type_) {
 			case UniformBuffer::Type::Const: {
-				auto uniformBuffer = std::make_shared<Vulkan::UniformBuffer>(
-					objects_.physicalDevice_,
-					objects_.LD_,
-					createInfo.size_);
+				Vulkan::UB::CreateInfo ubci{
+					.PD_ = objects_.physicalDevice_,
+					.LD_ = objects_.LD_,
+					.sizeInBytes_ = createInfo.size_
+				};
+				auto uniformBuffer = std::make_shared<Vulkan::UniformBuffer>(ubci);
 				uniformBuffer->Allocate();
 
-				Common::Id id = UBsIdsGenerator_.GenerateECSCXXFilesStructure();
+				Common::Id id = UBsIdsGenerator_.Generate();
 				UBs_[id] = std::vector<std::shared_ptr<Vulkan::UniformBuffer>>{ uniformBuffer };
 				return id;
 				break;
@@ -1106,15 +1160,17 @@ namespace Render::Vulkan {
 				//Thus, we need to have as many uniform buffers as we have frames in flight,
 				//and write to a uniform buffer that is not currently being read by the GPU
 				std::vector<std::shared_ptr<Vulkan::UniformBuffer>> UBs;
-				for (Common::Index i = 0; i < framesInFlight; i++) {
-					auto UB = std::make_shared<Vulkan::UniformBuffer>(
-						objects_.physicalDevice_,
-						objects_.LD_,
-						createInfo.size_);
+				Vulkan::UB::CreateInfo ubci{
+					.PD_ = objects_.physicalDevice_,
+					.LD_ = objects_.LD_,
+					.sizeInBytes_ = createInfo.size_
+				};
+				for (Common::Index i = 0; i < concurrentFramesNumber; i++) {
+					auto UB = std::make_shared<Vulkan::UniformBuffer>(ubci);
 					UB->Allocate();
 					UBs.push_back(UB);
 				}
-				Common::Id id = UBsIdsGenerator_.GenerateECSCXXFilesStructure();
+				Common::Id id = UBsIdsGenerator_.Generate();
 				UBs_[id] = std::move(UBs);
 				return id;
 				break;
@@ -1125,6 +1181,10 @@ namespace Render::Vulkan {
 			}
 			};
 
+		}
+
+		virtual Common::Size GetUBSizeInBytes(UB::Id ubid) override {
+			return GetUniformBuffer(ubid)->GetSizeInBytes();
 		}
 
 		std::shared_ptr<Vulkan::UniformBuffer> GetUniformBuffer(UniformBuffer::Id UBId) {
@@ -1149,7 +1209,7 @@ namespace Render::Vulkan {
 				ub[0]->Fill(0, data, ub[0]->GetSizeInBytes());
 			}
 			else {
-				OS::AssertMessage(ub.size() == framesInFlight, "Incorrect number of ubs.");
+				OS::AssertMessage(ub.size() == concurrentFramesNumber, "Incorrect number of ubs.");
 				ub[currentFrame]->Fill(0, data, ub[currentFrame]->GetSizeInBytes());
 			}
 		}
@@ -1180,7 +1240,7 @@ namespace Render::Vulkan {
 				//Thus, we need to have as many uniform buffers as we have frames in flight,
 				//and write to a uniform buffer that is not currently being read by the GPU
 				std::vector<std::shared_ptr<HostVisibleVertexBuffer>> VBs;
-				for (Common::Index i = 0; i < framesInFlight; i++) {
+				for (Common::Index i = 0; i < concurrentFramesNumber; i++) {
 					HostVisibleVertexBuffer::CreateInfo vertexBufferCreateInfo{};
 					{
 						vertexBufferCreateInfo.LD_ = objects_.LD_;
@@ -1218,7 +1278,7 @@ namespace Render::Vulkan {
 
 			auto vbs = CreateVBForEachFrameInFlight(vbci);
 
-			const Common::Id id = UBsIdsGenerator_.GenerateECSCXXFilesStructure();
+			const Common::Id id = UBsIdsGenerator_.Generate();
 			VBs_[id] = std::move(vbs);
 			return id;
 		}
@@ -1230,7 +1290,7 @@ namespace Render::Vulkan {
 				vb[0]->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
 			}
 			else {
-				OS::AssertMessage(vb.size() == framesInFlight, "Incorrect number of vbs.");
+				OS::AssertMessage(vb.size() == concurrentFramesNumber, "Incorrect number of vbs.");
 				vb[currentFrame]->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
 			}
 		}
@@ -1309,7 +1369,7 @@ namespace Render::Vulkan {
 
 				allocatedIndexBuffer->Allocate();
 
-				const IndexBuffer::Id id = IBsIdsGenerator_.GenerateECSCXXFilesStructure();
+				const IndexBuffer::Id id = IBsIdsGenerator_.Generate();
 
 				return std::vector<std::shared_ptr<HostVisibleIndexBuffer>>{ allocatedIndexBuffer };
 
@@ -1321,7 +1381,7 @@ namespace Render::Vulkan {
 				//Thus, we need to have as many uniform buffers as we have frames in flight,
 				//and write to a uniform buffer that is not currently being read by the GPU
 				std::vector<std::shared_ptr<HostVisibleIndexBuffer>> IBs;
-				for (Common::Index i = 0; i < framesInFlight; i++) {
+				for (Common::Index i = 0; i < concurrentFramesNumber; i++) {
 
 					HostVisibleIndexBuffer::CreateInfo indexBufferCreateInfo{};
 					{
@@ -1357,7 +1417,7 @@ namespace Render::Vulkan {
 
 			auto ibs = CreateIBForEachFrameInFlight(ibci);
 
-			const IndexBuffer::Id id = IBsIdsGenerator_.GenerateECSCXXFilesStructure();
+			const IndexBuffer::Id id = IBsIdsGenerator_.Generate();
 
 			IBs_[id] = ibs;
 
@@ -1371,7 +1431,7 @@ namespace Render::Vulkan {
 				ib[0]->FillData(offset, indices, indicesNumber, objects_.commandPool_);
 			}
 			else {
-				OS::AssertMessage(ib.size() == framesInFlight, "Incorrect number of vbs.");
+				OS::AssertMessage(ib.size() == concurrentFramesNumber, "Incorrect number of vbs.");
 				ib[currentFrame]->FillData(offset, indices, indicesNumber, objects_.commandPool_);
 			}
 		}
@@ -1406,7 +1466,7 @@ namespace Render::Vulkan {
 			else {
 				for (
 					Common::Index frameInFlightIndex = 0;
-					frameInFlightIndex < framesInFlight;
+					frameInFlightIndex < concurrentFramesNumber;
 					frameInFlightIndex++) {
 					IBsToDestroy_[frameInFlightIndex].push_back(ibs[frameInFlightIndex]);
 				}
@@ -1438,7 +1498,7 @@ namespace Render::Vulkan {
 				.PD_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
 				.commandPool_ = objects_.commandPool_,
-				.DP_ = objects_.DP_,
+				/*.DP_ = objects_.DP_,*/
 				.mipLevels_ = static_cast<Common::UInt32>(std::floor(std::log2(std::max(createInfo.size_.x, createInfo.size_.y)))) + 1,
 				.format_ = VK_FORMAT_R8G8B8A8_UNORM
 
@@ -1454,7 +1514,6 @@ namespace Render::Vulkan {
 		virtual bool IsTextureExist(RAL::Texture::Id textureId) const noexcept {
 			return textures_.contains(textureId);
 		}
-
 
 	public:
 
@@ -1492,6 +1551,259 @@ namespace Render::Vulkan {
 			};
 		}
 
+
+
+
+
+		//Drawing.
+	private:
+
+		//struct InstanceContext {
+
+		//	VertexBuffer::Id VBId_ = VertexBuffer::Id::Invalid();
+		//	Common::UInt64 verticesOffset_ = 0;
+
+		//	IndexBuffer::Id IBId_ = IndexBuffer::Id::Invalid();
+		//	Common::UInt64 indicesOffset_ = 0;
+		//	Common::UInt64 indicesNumber_ = 0;
+
+		//	std::string pipelineName_ = "";
+
+		//	std::vector<ShaderBinding::Data> bindings_;
+
+		//};
+
+		//std::vector<InstanceContext> instances_;
+
+		struct DrawingContext {
+			std::shared_ptr<CommandBuffer> commandBuffer_ = nullptr;
+			std::shared_ptr<Pipeline> pipeline_ = nullptr;
+
+			struct CreateInfo {
+				std::shared_ptr<LogicDevice> LD_ = nullptr;
+				std::shared_ptr<CommandPool> commandPool_ = nullptr;
+			};
+			using CI = CreateInfo;
+
+			DrawingContext(const CI& ci) {
+
+				const CommandBuffer::CreateInfo cbci{
+					.LD_ = ci.LD_,
+					.commandPool_ = ci.commandPool_,
+					.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_SECONDARY
+				};
+
+				commandBuffer_ = std::make_shared<CommandBuffer>(cbci);
+
+			}
+		};
+
+		std::vector<DrawingContext> contexts_;
+
+	public:
+
+		virtual void StartDrawing() override {
+
+			const DrawingContext::CreateInfo dcci{
+				.LD_ = objects_.LD_,
+				.commandPool_ = objects_.commandPool_
+			};
+
+			contexts_.push_back(DrawingContext{dcci});
+		
+		}
+
+		virtual void BindPipeline(const std::string& pipelineName) override {
+			CB_->BindPipeline(namePipeline_[pipelineName]);
+			contexts_.back().pipeline_ = namePipeline_[pipelineName];
+		}
+
+		virtual void BindVertexBuffer(
+			VertexBuffer::Id VBId,
+			Common::UInt64 offset) override {
+			CB_->BindBuffer(GetVB(VBId), offset);
+		}
+
+		virtual void BindIndexBuffer(
+			IndexBuffer::Id IBId,
+			Common::UInt64 offset) override {
+
+			CB_->BindBuffer(GetIB(IBId), offset);
+		}
+
+		virtual void Bind(const std::vector<Resource::Id>& resourceIds) override {
+			std::vector<std::shared_ptr<DescriptorSet>> dss{ };
+
+			for (Resource::Id resourceId : resourceIds) {
+				std::shared_ptr<Vulkan::Driver::ResourceSet> resource = resources_[resourceId];
+				std::shared_ptr<DescriptorSet> ds = resource->dss_[currentFrame];
+				dss.push_back(ds);
+			}
+
+			CB_->BindDescriptorSets(
+				contexts_.back().pipeline_, dss);
+		}
+
+		virtual void DrawIndexed(Common::Size indicesNumber) override {
+			CB_->DrawIndexed(indicesNumber);
+		}
+
+		virtual void EndDrawing()override {
+			
+		}
+
+		//struct Resource {
+		//	RAL::Driver::Res::CI ralci_;
+		//};
+
+		//virtual RAL::Driver::Res::Id CreateResource(const RAL::Driver::Res::CI& ci) override {
+		//	RAL::Driver::Res::Id resId = resourceIdsGenerator_.Generate();
+		//	
+		//	switch (ci.type_) {
+		//	case RAL::Driver::Res::Type::Sampler: {
+		//		resources_[resId] = Vulkan::Driver::Resource{ ci };
+		//		break;
+		//	}
+		//	case RAL::Driver::Res::Type::Uniform: {
+		//		resources_[resId] = Vulkan::Driver::Resource{ ci };
+		//		break;
+		//	}
+		//	default: {
+		//		OS::NotImplemented();
+		//	}
+		//	}
+
+		//	return resId;
+
+		//}
+
+		struct ResourceSet {
+			using Id = Common::Id;
+			struct CreateInfo {
+				std::array<std::shared_ptr<DescriptorSet>, concurrentFramesNumber> dss_;
+			};
+
+			using CI = CreateInfo;
+
+			ResourceSet(const CreateInfo& ci) :
+				dss_{ ci.dss_ } {
+
+			}
+
+			std::array<std::shared_ptr<DescriptorSet>, concurrentFramesNumber> dss_;
+		};
+		using RS = ResourceSet;
+
+
+		std::map<Common::Id, std::shared_ptr<ResourceSet>> resources_;
+		Common::IdGenerator resourcesIdsGenerator_;
+
+		virtual RAL::Driver::RS::Id CreateResourceSet(const RAL::Driver::RS::CI1& ci) override {
+
+			std::vector<VkDescriptorSetLayoutBinding> bindings;
+
+
+			for (Common::Index i = 0; i < ci.bindingsNumber_; i++) {
+				const RAL::Driver::ResourceSet::Binding& binding = ci.bindings_[i];
+
+
+				VkDescriptorType type;
+				if (!binding.ubid_.IsInvalid()) {
+					type = VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				}
+				else if (!binding.textureId_.IsInvalid()) {
+					type = VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+				}
+
+				VkDescriptorSetLayoutBinding inputAttachmentBinding{
+					binding.binding_,
+					type,
+					1,
+					static_cast<VkFlags>(ToVulkanType(binding.stage_)),
+					nullptr
+				};
+				bindings.push_back(inputAttachmentBinding);
+			}
+
+
+			auto dsl = std::make_shared<DescriptorSetLayout>(
+				DescriptorSetLayout::CreateInfo{
+					"No name",
+					objects_.LD_, 
+					std::vector{ bindings }
+				});
+
+			DescriptorSet::CreateInfo DSCreateInfo;
+			{
+				DSCreateInfo.DP_ = objects_.DP_;
+				DSCreateInfo.DSL_ = dsl;
+				DSCreateInfo.LD_ = objects_.LD_;
+			}
+
+			std::array<std::shared_ptr<DescriptorSet>, concurrentFramesNumber > dss;
+
+			for (Common::Index i = 0; i < concurrentFramesNumber; i++) {
+
+				auto ds = std::make_shared<DescriptorSet>(DSCreateInfo);
+				dss[i] = ds;
+
+			}
+
+			for (Common::Index concurrentFrameIndex = 0; concurrentFrameIndex < concurrentFramesNumber; concurrentFrameIndex++) {
+				std::vector<DS::UpdateDescriptorInfo> updateDSsInfo;
+				for (Common::Index i = 0; i < ci.bindingsNumber_; i++) {
+					const RAL::Driver::ResourceSet::Binding& binding = ci.bindings_[i];
+					DescriptorSet::UpdateDescriptorInfo updateInfo;
+					{
+						updateInfo.binding_ = binding.binding_;
+
+
+						VkDescriptorType type;
+						if (!binding.ubid_.IsInvalid()) {
+							updateInfo.type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+							auto& ubsPerFrame = UBs_[binding.ubid_];
+							std::shared_ptr<Vulkan::UniformBuffer> ub = ubsPerFrame[concurrentFrameIndex];
+							updateInfo.bufferInfo_.buffer_ = ub;
+							updateInfo.bufferInfo_.offset_ = binding.offset_;
+							updateInfo.bufferInfo_.range_ = binding.size_;
+						}
+						else if (!binding.textureId_.IsInvalid()) {
+							updateInfo.type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+							auto texture = textures_[binding.textureId_];
+							updateInfo.imageInfo_.imageLayout_ = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+							updateInfo.imageInfo_.sampler_ = texture->GetSampler();
+							updateInfo.imageInfo_.imageView_ = texture->GetImageView();
+						}
+
+
+
+					}
+
+					updateDSsInfo.push_back(updateInfo);
+
+				}
+
+				dss[concurrentFrameIndex]->Update(updateDSsInfo);
+			}
+			const RS::Id rsId = resourcesIdsGenerator_.Generate();
+			const RS::CI rsci{
+				.dss_ = dss
+			};
+
+			
+
+			resources_[rsId] = std::make_shared<RS>(rsci);
+
+			return rsId;
+		}
+
+		virtual RAL::Driver::Resource::Id CreateResource(const RAL::Driver::Resource::CI2& ci) override {
+			const RAL::Driver::RS::CI1 rsci{
+				.bindings_ = { ci },
+				.bindingsNumber_ = 1
+			};
+			return CreateResourceSet(rsci);
+		}
 		[[nodiscard]]
 		virtual Common::Id DrawMesh(
 			const std::string& pipelineName,
@@ -1499,6 +1811,7 @@ namespace Render::Vulkan {
 			IndexBuffer::Id IBId,
 			const std::vector<RAL::Driver::ShaderBinding::Data>& bindingsData) override {
 
+#pragma region Assert
 			const RAL::Driver::PipelineDescription& pipelineDesc = createInfo_.namePipelineDescriptions_[pipelineName];
 			OS::AssertMessage(pipelineDesc.shaderBindings_.size() == bindingsData.size(), "Shaders bindings layout and data are different.");
 			for (Common::Index i = 0; i < pipelineDesc.shaderBindings_.size(); i++) {
@@ -1507,6 +1820,7 @@ namespace Render::Vulkan {
 				OS::AssertMessage(layout.stage_ == data.stage_, "Shaders bindings layout and data are different.");
 				OS::AssertMessage(layout.type_ == data.type_, "Shaders bindings layout and data are different.");
 			}
+#pragma endregion
 
 			std::shared_ptr<Vulkan::Pipeline> pipeline = namePipeline_[pipelineName];
 
@@ -1555,7 +1869,7 @@ namespace Render::Vulkan {
 				.pipelineName_ = pipelineName
 			};
 			auto mesh = std::make_shared<Mesh>(meshCreateInfo);
-			const Mesh::Id meshId = shapes2IdsGenerator_.GenerateECSCXXFilesStructure();
+			const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
 			meshs_[meshId] = mesh;
 			return meshId;
 		}
@@ -1596,6 +1910,9 @@ namespace Render::Vulkan {
 
 		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::UniformBuffer>>> UBs_;
 		Common::IdGenerator UBsIdsGenerator_;
+
+		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::UBDS>>> UBDSs_;
+		Common::IdGenerator UBDSsIdsGenerator_;
 
 		std::map<Common::Id, std::vector<std::shared_ptr<HostVisibleVertexBuffer>>> VBs_;
 		Common::IdGenerator VBsIdsGenerator_;

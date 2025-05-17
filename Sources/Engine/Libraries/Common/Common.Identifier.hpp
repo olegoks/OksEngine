@@ -59,7 +59,7 @@ namespace Common {
 		}
 
 		[[nodiscard]]
-		Id GenerateECSCXXFilesStructure() noexcept {
+		Id Generate() noexcept {
 			return ++lastId_;
 		}
 

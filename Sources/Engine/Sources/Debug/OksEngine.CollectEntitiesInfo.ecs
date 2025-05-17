@@ -1,4 +1,6 @@
 system = {
     name = "CollectEntitiesInfo",
-    processAllEntities = true
+    processAllEntities = true,
+    runBefore = { "EndImGuiFrame" },
+    runAfter = { "StartImGuiFrame" }
 }

@@ -3,25 +3,14 @@ system = {
     processesEntities = {
         {
             processesComponents = { 
-                "ImGuiState",
-                "ModelEntity" 
+                { name = "ImGuiState", readonly = true},
+                { name = "ImGuiDriverVertexBuffer", readonly = false },
+                { name = "ImGuiDriverIndexBuffer", readonly = false }
             }
         },
         {
             processesComponents = { 
                 { name = "RenderDriver", readonly = false } 
-            }
-        }
-    },
-    accessingEntities = {
-        {
-            accessingComponents = {
-                "Vertices2D",
-                "DriverVertexBuffer",
-                "Indices",
-                "DriverIndexBuffer",
-                "UVs",
-                "Colors"
             }
         }
     }

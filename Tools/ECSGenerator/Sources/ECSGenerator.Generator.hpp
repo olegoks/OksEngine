@@ -1310,10 +1310,10 @@ namespace ECSGenerator {
 
 				//Generate components includes for components in the subdirectory 
 				File::Includes includes{};
-				std::filesystem::path componentIncludesFilePath;
+
 				for (auto componentParsedEcsFile : componentsSystems.components_) {
 					//std::filesystem::path componentFullPath = ;
-					componentIncludesFilePath = componentParsedEcsFile->GetPath().parent_path();
+					auto componentPath = componentParsedEcsFile->GetPath().parent_path();
 					//std::filesystem::path componentIncludePath = GetSubPathFromFolderToEnd(componentFullPath.parent_path(), projectContext->includeDirectory_);
 					const std::filesystem::path includePath = GetSubPath(
 						componentParsedEcsFile->GetPath().parent_path(),
@@ -1367,7 +1367,7 @@ namespace ECSGenerator {
 				};
 
 				auto categoryComponentsIncludeFile = std::make_shared<File>(fci);
-				std::filesystem::path componentIncludesFullFilePath = componentIncludesFilePath / "auto_OksEngine.Components.hpp";
+				std::filesystem::path componentIncludesFullFilePath = categoryPath / "auto_OksEngine.Components.hpp";
 
 				std::string componentIncludesFullFilePathString = componentIncludesFullFilePath.string();
 				std::replace(componentIncludesFullFilePathString.begin(), componentIncludesFullFilePathString.end(), '\\', '/');

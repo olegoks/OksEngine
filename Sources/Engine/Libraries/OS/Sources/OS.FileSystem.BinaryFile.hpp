@@ -34,7 +34,7 @@ namespace OS {
 			if (!IsExist()) {
 				//throw Exception{ "Attempt to open file that doesn't exist." };
 			}
-			OS::AssertMessage(fstream_ == nullptr, "");
+			OS::AssertMessage(fstream_ == nullptr, { "File {} was loaded early.", path_.string() });
 			const std::filesystem::path fullPath = std::filesystem::absolute(GetPath());
 			fstream_ = std::make_unique<std::fstream>();
 			fstream_->open(fullPath.c_str(), std::ios::ate | std::ios::binary | std::ios::in | std::ios::out);

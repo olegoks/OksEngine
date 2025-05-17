@@ -17,6 +17,7 @@ namespace Render::Vulkan {
 		{
 			commandBufferCreateInfo.LD_ = createInfo_.LD_;
 			commandBufferCreateInfo.commandPool_ = commandPool;
+			commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		}
 		auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 		commandBuffer->Begin();
@@ -69,6 +70,7 @@ namespace Render::Vulkan {
 		{
 			commandBufferCreateInfo.LD_ = logicDevice;
 			commandBufferCreateInfo.commandPool_ = commandPool;
+			commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 		}
 		auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 		commandBuffer->Begin();

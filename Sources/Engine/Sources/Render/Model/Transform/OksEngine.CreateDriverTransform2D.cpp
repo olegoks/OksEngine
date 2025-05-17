@@ -10,7 +10,7 @@ void CreateDriverTransform2D::Update(
 
 	const glm::mat3 translateMatrix = glm::translate(glm::mat3(1.f), glm::vec2(position2D->x_, position2D->y_));
 	const glm::mat3 scaleMatrix = glm::scale(glm::mat3(1.0f), glm::vec2(scale2D->x_, scale2D->y_));
-	const glm::mat3 rotationMatrix = glm::mat3_cast(glm::quat( rotation2D->w_, rotation2D->x_, rotation2D->w_, rotation2D->z_));
+	const glm::mat3 rotationMatrix = glm::mat3_cast(glm::quat( rotation2D->w_, rotation2D->x_, rotation2D->y_, rotation2D->z_));
 
 
 	glm::mat3 transformMatrix = glm::mat3{ 1 } * scaleMatrix * rotationMatrix * translateMatrix;

@@ -6,7 +6,7 @@ namespace PAL {
 
 	[[nodiscard]]
 	RigidBody::Id PAL::World::GenerateId(std::shared_ptr<RigidBody> rbPtr) {
-		RigidBody::Id rbId = rbIdGenerator_.GenerateECSCXXFilesStructure();
+		RigidBody::Id rbId = rbIdGenerator_.Generate();
 		IdRb_[rbId] = rbPtr;
 		return rbId;
 	}
