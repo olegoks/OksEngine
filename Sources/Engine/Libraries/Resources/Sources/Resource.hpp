@@ -241,8 +241,11 @@ namespace Resources {
 		void ForEachAddedResource(ProcessAddedResource&& processAddedResource) {
 
 			ProcessDependence processNode = [&](Graph::Node::Id nodeId)->bool {
-				
-				return processAddedResource(GetNodePath(nodeId));
+				const std::filesystem::path nodePath = GetNodePath(nodeId);
+				if (nodePath != rootName_) {
+					return processAddedResource(nodePath);
+				}
+				return true;
 				};
 
 			ForEachDependenceNode(rootNodeId_, processNode);

@@ -1,0 +1,6 @@
+component = {
+    name = "EditorContext",
+    fields = { 
+        { type = "ax::NodeEditor::EditorContext*", name = "context" }
+     }
+}

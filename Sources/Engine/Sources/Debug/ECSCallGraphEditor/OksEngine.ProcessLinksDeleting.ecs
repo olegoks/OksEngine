@@ -1,0 +1,8 @@
+system = {
+    name = "ProcessLinksDeleting",
+    runAfter = "ProcessLinksCreating",
+    runBefore = "GraphEditorEnd",
+    processesComponents = { 
+        "ImGuiState",
+        "EditorContext" },
+}

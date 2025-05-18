@@ -340,6 +340,9 @@ namespace ECSGenerator {
 
 			auto& node = graph.GetNode(nodeId);
 			graphOrder.push_back(node.GetValue());
+			if (graphOrder.back() == "CreateECSInspector") {
+				__debugbreak();
+			}
 			std::unordered_set<System> systemsFrom;
 			node.ForEachLinksFrom([&](DS::Graph<System>::Node::Id fromNodeToId) {
 				auto& fromNode = graph.GetNode(fromNodeToId);
@@ -587,7 +590,11 @@ namespace ECSGenerator {
 					for (Agnode_t* systemNode : clusterSystems) {
 						std::string systemName = agnameof(systemNode);
 						const auto ecsFile = projectContext->GetEcsFileByName(systemName);
+
 						auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+						if (systemEcsFile->IsInitializeSystem()) {
+							continue;
+						}
 						if (systemEcsFile->ci_.thread_ == ParsedSystemECSFile::Thread::Main) {
 							isMainThread = true;
 						}
@@ -638,7 +645,7 @@ namespace ECSGenerator {
 				}
 				for (auto systemName : thread.systems_) {
 					auto ecsFile = projectContext->GetEcsFileByName(systemName.first);
-					if (systemName.first == "System4") {
+					if (systemName.first == "CreateECSInspector") {
 						//__debugbreak();
 					}
 					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
@@ -853,16 +860,16 @@ namespace ECSGenerator {
 
 				}
 
-				//Generate code to run systems that process all entities.
-				projectContext->ForEachSystemEcsFile(
-					[&](std::shared_ptr<ParsedECSFile> ecsFile) {
-						auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
-						if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::AllEntities) {
+				////Generate code to run systems that process all entities.
+				//projectContext->ForEachSystemEcsFile(
+				//	[&](std::shared_ptr<ParsedECSFile> ecsFile) {
+				//		auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+				//		if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::AllEntities) {
 
-							cppRunSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
-						}
-						return true;
-					});
+				//			cppRunSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
+				//		}
+				//		return true;
+				//	});
 
 				cppRunSystemsCode.Add(
 					"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"EndFrame\");"

@@ -4953,7 +4953,11 @@ ed::EditorAction::AcceptResult ed::DeleteItemsAction::Accept(const Control& cont
         return False;
 
     auto& io = ImGui::GetIO();
-    if (Editor->CanAcceptUserInput() && ImGui::IsKeyPressed(/*ImGui::GetKeyIndex(*/ImGuiKey_Delete/*)*/) && Editor->AreShortcutsEnabled())
+
+    bool CanAcceptUserInput = Editor->CanAcceptUserInput();
+    bool isKeyPressed = ImGui::IsKeyPressed(/*ImGui::GetKeyIndex(*/ImGuiKey_Delete/*)*/);
+    bool shortcutEnabled = Editor->AreShortcutsEnabled();
+    if (CanAcceptUserInput && isKeyPressed && shortcutEnabled)
     {
         auto& selection = Editor->GetSelectedObjects();
         if (!selection.empty())

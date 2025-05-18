@@ -47,6 +47,11 @@ namespace UI {
 
 		ImGui::CreateContext();
 		//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		ImGuiIO& io = ImGui::GetIO(); 
+		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.WantCaptureMouse = true;
+		ImGui::StyleColorsDark();
+
 		ImPlot::CreateContext();
 		ImGui_ImplGlfw_InitForVulkan(createdWindow, true);
 
@@ -74,6 +79,9 @@ namespace UI {
 			});
 
 		glfwSetKeyCallback(createdWindow, [](::GLFWwindow* window, int key, int scancode, int action, int mods) {
+			
+			ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+
 			Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
 			KeyboardKey keyboardKey = KeyboardKey::Undefined;
 			KeyboardAction event = KeyboardAction::Undefined;

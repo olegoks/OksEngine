@@ -3,6 +3,7 @@ system = {
     initSystem = true,
     createsEntity = {
         "ImGuiState",
+        "EditorContext",
         "HandleKeyboardInput",
         "Position2D",
         "Scale2D",

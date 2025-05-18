@@ -555,7 +555,7 @@ namespace ECSGenerator {
 				if (fieldInfo.GetTypeName().find("std::vector") != std::string::npos) {
 					includes.paths_.push_back("vector");
 				}
-				if (fieldInfo.GetTypeName().find("RAL") != std::string::npos) {
+				if (fieldInfo.GetTypeName().find("RAL::") != std::string::npos) {
 					includes.paths_.push_back("RAL.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("Geom:") != std::string::npos) {
@@ -567,7 +567,7 @@ namespace ECSGenerator {
 				if (fieldInfo.GetTypeName().find("UI::Window") != std::string::npos) {
 					includes.paths_.push_back("UI/OksEngine.UI.Window.hpp");
 				}
-				if (fieldInfo.GetTypeName().find("sf") != std::string::npos) {
+				if (fieldInfo.GetTypeName().find("sf::") != std::string::npos) {
 					includes.paths_.push_back("SFML/Audio.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("glm::quat") != std::string::npos) {
@@ -578,6 +578,10 @@ namespace ECSGenerator {
 				}
 				if (fieldInfo.GetTypeName().find("AsyncResourceSubsystem") != std::string::npos) {
 					includes.paths_.push_back("Resources/OksEngine.Resource.Subsystem.hpp");
+				}
+				if (fieldInfo.GetTypeName().find("ax::NodeEditor::") != std::string::npos) {
+					includes.paths_.push_back("imgui.h");
+					includes.paths_.push_back("Debug/Graph/imgui_node_editor.hpp");
 				}
 
 				return true;

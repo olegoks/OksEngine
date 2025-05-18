@@ -26,9 +26,12 @@ namespace OksEngine {
 		//	//EditPosition3D(position3D);
 		//}
 
-		ImGui::Begin("ECSInspector");
-		EditPosition2D(GetComponent<Position2D>(entityId));
-		ImGui::End();
+		//ImGui::Begin("ECSInspector");
+		//if (IsComponentExist<Position2D>(entityId)) {
+		//	EditPosition2D(GetComponent<Position2D>(entityId));
+		//}
+		//
+		//ImGui::End();
 
 
 	}
