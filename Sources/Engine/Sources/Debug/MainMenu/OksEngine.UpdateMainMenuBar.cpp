@@ -9,7 +9,7 @@
 #include <implot.h>
 #include <implot_internal.h>
 
-#include <Debug/auto_OksEngine.UpdateMainMenuBar.hpp>
+#include <Debug/MainMenu/auto_OksEngine.UpdateMainMenuBar.hpp>
 
 namespace OksEngine {
 

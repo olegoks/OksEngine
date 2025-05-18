@@ -17,10 +17,10 @@ namespace OksEngine {
 
 
 		ResourceSubsystem(Context& context) : Subsystem{ Subsystem::Type::Resource, context },
-			resourceSystem_{ 
-			Resources::ResourceSystem::CreateInfo{ 
-					.fileExtensions_ = { 
-					".frag", ".vert", ".geom" }
+			resourceSystem_{
+			Resources::ResourceSystem::CreateInfo{
+					.fileExtensions_ = {
+					".frag", ".vert", ".geom", ".ecs" }
 			} } {
 
 		}
@@ -35,6 +35,25 @@ namespace OksEngine {
 			auto binaryFile = std::dynamic_pointer_cast<OS::BinaryFile>(resource.GetFile());
 			Resources::ResourceData engineResource(binaryFile->GetData(), binaryFile->GetSize());
 			return engineResource;
+		}
+
+		std::vector<std::filesystem::path> GetAddedResources(const std::vector<std::string>& extensions) {
+			std::vector<std::filesystem::path> addedResources;
+			resourceSystem_.ForEachAddedResource([&](const std::filesystem::path& resourceData) ->bool {
+
+				bool extensionCorresponds = false;
+				for (auto& extension : extensions) {
+					if (extension == resourceData.extension().string()) {
+						extensionCorresponds = true;
+						break;
+					}
+				}
+				if (extensions.empty() || extensionCorresponds) {
+					addedResources.push_back(resourceData);
+				}
+				return true;
+				});
+			return addedResources;
 		}
 
 		void SetRoots(const std::vector<std::filesystem::path>& rootPaths) {
@@ -74,6 +93,7 @@ namespace OksEngine {
 			SetRoots,
 			IsResourceLoaded,
 			IsResourceExists,
+			GetAddedResources,
 			Undefined
 		};
 
@@ -101,6 +121,19 @@ namespace OksEngine {
 		struct GetResourceResult {
 			GetResourceResult(Resources::ResourceData&& resource) : resource_{ std::move(resource) } {}
 			Resources::ResourceData resource_;
+		};
+
+		struct GetAddedResourcesTask : ResourceSystemTask {
+			GetAddedResourcesTask(const std::vector<std::string>& extensions) 
+				: ResourceSystemTask{ TaskType::GetAddedResources },
+				extensions_{ extensions } {}
+			std::vector<std::string> extensions_;
+		};
+
+		struct GetAddedResourcesResult {
+			GetAddedResourcesResult(const std::vector<std::filesystem::path>& addedResources) : addedResources_{ addedResources } {}
+			std::vector<std::filesystem::path> addedResources_;
+
 		};
 
 		AsyncResourceSubsystem(Context& context) {
@@ -187,6 +220,16 @@ namespace OksEngine {
 			);
 		}
 
+		[[nodiscard]]
+		Task::Id GetAddedResources(Subsystem::Type subsystemType, const std::vector<std::string>& extensions) {
+			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
+			return AddTask(
+				subsystemType,
+				Subsystem::Type::Resource,
+				CreateTask<GetAddedResourcesTask>(extensions)
+			);
+		}
+
 		Task::Id SetRoot(Subsystem::Type subsystemType, std::vector<std::filesystem::path> rootPaths) {
 			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
 			return AddTask(
@@ -224,6 +267,14 @@ namespace OksEngine {
 			return std::move(getResourceResult.resource_);
 		}
 
+		std::vector<std::filesystem::path> GetAddedResources(Subsystem::Type receiverSubsystem, Task::Id taskId) {
+			//OS::LogInfo("Engine/Render", "Waiting for task.");
+			Task task = WaitForTask(receiverSubsystem, taskId);
+			//OS::LogInfo("Engine/Render", "Task was got.");
+			GetAddedResourcesResult getResourceResult = std::move(task.GetData<GetAddedResourcesResult>());
+			return std::move(getResourceResult.addedResources_);
+		}
+
 		[[nodiscard]]
 		Task::Id AddTask(Subsystem::Type senderType, Subsystem::Type receiverType, Task&& task) {
 			const Task::Id taskId = task.GetId();
@@ -242,11 +293,11 @@ namespace OksEngine {
 		bool IsIncomeTaskExist(Subsystem::Type receiver, std::function<bool(Subsystem::Type sender, const DS::Vector<Subsystem::Type>& receivers, const Task& task)> filter) {
 			Subsystem::Type sender = Subsystem::Type::Undefined;
 			const bool isGot = exchangeSystem_.IsDataExist(receiver, [&filter, &sender](const MTDataExchangeSystem<Task, Subsystem::Type>::DataInfo& dataInfo)->bool {
-					const bool isSuitable = filter(dataInfo.sender_, dataInfo.receivers_, *(const Task*)&dataInfo.data_);
-					if (isSuitable) {
-						return true;
-					}
-					return false;
+				const bool isSuitable = filter(dataInfo.sender_, dataInfo.receivers_, *(const Task*)&dataInfo.data_);
+				if (isSuitable) {
+					return true;
+				}
+				return false;
 				});
 			return isGot;
 		}
@@ -345,6 +396,15 @@ namespace OksEngine {
 				case TaskType::SetRoots: {
 					const SetRootsTask& setRootTask = task.GetData<SetRootsTask>();
 					resourceSubsystem_->SetRoots(setRootTask.roots_);
+					break;
+				}
+				case TaskType::GetAddedResources: {
+					const GetAddedResourcesTask& setRootTask = task.GetData<GetAddedResourcesTask>();
+					auto addedResources = resourceSubsystem_->GetAddedResources(setRootTask.extensions_);
+					const Task::Id taskId = AddTask(
+						Subsystem::Type::Resource, taskSender,
+						CreateTask<GetAddedResourcesResult>(task.GetId(), std::move(addedResources))
+					);
 					break;
 				}
 				default: {

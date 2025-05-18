@@ -47,7 +47,10 @@ namespace OksEngine
 		auto scriptsRootPath = config_->GetValueAs<std::string>("ResourceSystem.scriptsRootDirectory");
 		auto scriptsFullResourcesPath = configFilePath.parent_path() / scriptsRootPath;
 
-		resourceSubsystem_->SetRoot(Subsystem::Type::Engine, { scriptsFullResourcesPath, fullResourcesPath });
+		auto ecsFilesRootPath = config_->GetValueAs<std::string>("ECSCallGraphEditor.ecsFilesRootDirectory");
+		auto ecsFilesFullResourcesPath = configFilePath.parent_path() / ecsFilesRootPath;
+
+		resourceSubsystem_->SetRoot(Subsystem::Type::Engine, { scriptsFullResourcesPath, fullResourcesPath, ecsFilesFullResourcesPath });
 
 
 		//world_ = std::make_shared<ECS::World>();

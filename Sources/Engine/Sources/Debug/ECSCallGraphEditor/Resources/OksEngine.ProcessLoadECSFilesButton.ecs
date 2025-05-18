@@ -1,0 +1,9 @@
+system = {
+    name = "ProcessLoadECSFilesButton",
+    runAfter = "GraphEditorBegin",
+    runBefore = "GraphEditorEnd",
+    processesComponents = { 
+        "ImGuiState",
+        "EditorContext" },
+    creates = { "LoadECSFilesButtonPressed" }
+}

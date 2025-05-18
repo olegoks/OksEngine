@@ -28,6 +28,10 @@ Scripts = {
     scriptsRootDirectory = './Sources/Scripts/'
 }
 
+ECSCallGraphEditor = {
+    ecsFilesRootDirectory = './Sources/Engine/Sources'
+}
+
 Render = {
     shadersRootDirectory = './Resources/Shaders/',
     API = "Vulkan",

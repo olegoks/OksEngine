@@ -1,0 +1,8 @@
+system = {
+    name = "DrawLinks",
+    runAfter = "DrawNodes",
+    runBefore = "GraphEditorEnd",
+    processesComponents = { 
+        "ImGuiState",
+        "EditorContext" },
+}

@@ -1,0 +1,6 @@
+component = {
+    name = "RunBefore",
+    fields = { 
+        { type = "std::vector<ECS2::Entity::Id>", name = "entities" }
+     }
+}

@@ -273,9 +273,9 @@ namespace ECSGenerator {
 
 		bool IsDependsFromSystem(const std::shared_ptr<ParsedSystemECSFile> system) const {
 
-			/*if (IsAllEntitiesSystem()) {
+			if (IsAllEntitiesSystem()) {
 				return true;
-			}*/
+			}
 
 			if (GetName() == system->GetName()) {
 				return false;
@@ -509,6 +509,11 @@ namespace ECSGenerator {
 		//	}
 		//}
 
+
+		if (system["name"].cast<std::string>().value() == "CollectEntitiesInfo") {
+			//__debugbreak();
+		}
+
 		if (systemType == ParsedSystemECSFile::SystemType::OneEntity) {
 			std::vector<ParsedSystemECSFile::Include> parsedIncludes;
 			luabridge::LuaRef processesComponents = system["processesComponents"];
@@ -547,6 +552,10 @@ namespace ECSGenerator {
 						OS::AssertMessage(std::isupper(parsedExcludes.back()[0]), "");
 
 					}
+				}
+
+				if (system["name"].cast<std::string>().value() == "ProcessLoadECSFilesButton") {
+					__debugbreak();
 				}
 
 				luabridge::LuaRef creates = system["creates"];
@@ -756,7 +765,7 @@ namespace ECSGenerator {
 					if (runBeforeRef.isTable()) {
 						for (luabridge::Iterator it(runBeforeRef); !it.isNil(); ++it) {
 							luabridge::LuaRef runAfterSystemRef = it.value();
-							runAfterSystems.push_back(runAfterSystemRef.cast<std::string>().value());
+							runBeforeSystems.push_back(runAfterSystemRef.cast<std::string>().value());
 						}
 					}
 					else {
@@ -793,7 +802,6 @@ namespace ECSGenerator {
 				}
 			}
 		}
-
 
 		ParsedSystemECSFile::CreateInfo ci{
 			.name_ = system["name"].cast<std::string>().value(),
@@ -1050,6 +1058,9 @@ namespace ECSGenerator {
 					File::Includes includes{ };
 					includes.paths_.push_back("ECS2.hpp");
 					includes.paths_.push_back("chrono");
+					if (systemEcsFile->GetName() == "ProcessLoadECSFilesButton") {
+						__debugbreak();
+					}
 					if (!systemEcsFile->ci_.createEntityComponents_.empty()) {
 						for (auto& createEntityComponent : systemEcsFile->ci_.createEntityComponents_) {
 

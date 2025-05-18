@@ -1,0 +1,22 @@
+system = {
+    name = "CreateNodeEntities",
+    processesEntities  = {
+        {
+            processesComponents = {  
+                "ImGuiState",
+                "EditorContext",
+                "LoadECSFilesButtonPressed" }
+        },
+        {
+             processesComponents = { { name = "ResourceSystem", readonly = false } }
+        }
+    },
+    createsEntity = {
+        "CallGraphNode",
+        "Name",
+        "RunBefore",
+        "RunAfter"
+    }
+}
+
+
