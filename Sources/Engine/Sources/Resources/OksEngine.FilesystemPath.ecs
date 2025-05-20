@@ -1,0 +1,6 @@
+component = {
+    name = "FilesystemPath",
+    fields = {         
+		{ type = "std::filesystem::path", name = "path" }
+	}
+}

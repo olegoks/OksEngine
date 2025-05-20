@@ -1,0 +1,24 @@
+system = {
+    name = "CreateNodeSettingsFile",
+    runAfter = "GraphEditorBegin",
+    runBefore = "GraphEditorEnd",
+    processesEntities = {
+        {
+            processesComponents = { 
+                "CallGraphNode",
+                "Name",
+                "RootNode",
+                "Position2D",
+                "RunBefore",
+                "RunAfter"
+            }
+        },
+        {
+            processesComponents = { 
+                "ImGuiState",
+                "EditorContext"
+            }
+        }
+    },
+    
+}

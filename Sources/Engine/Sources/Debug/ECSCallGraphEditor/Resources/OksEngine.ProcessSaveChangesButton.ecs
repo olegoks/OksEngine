@@ -1,0 +1,10 @@
+system = {
+    name = "ProcessSaveChangesButton",
+    runAfter = "GraphEditorBegin",
+    runBefore = "GraphEditorEnd",
+    processesComponents = { 
+        "ImGuiState",
+        "EditorContext" },
+    creates = { "SaveChangesButtonPressed" },
+    excludes = { "SaveChangesButtonPressed" }
+}

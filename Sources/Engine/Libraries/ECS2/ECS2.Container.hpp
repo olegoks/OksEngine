@@ -173,6 +173,7 @@ namespace ECS2 {
 			
 			return components_.data() + componentIndex;
 		}
+		
 		void RemoveComponent(Entity::Id entityId) noexcept {
 #pragma region Assert
 			OS::AssertMessage(

@@ -3,6 +3,7 @@ system = {
     runAfter = "DrawNodes",
     runBefore = "GraphEditorEnd",
     processesComponents = { 
-        "ImGuiState",
-        "EditorContext" },
+        "CallGraphNode",
+        "RunAfter",
+        "RunBefore" },
 }

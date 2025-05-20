@@ -1,0 +1,14 @@
+system = {
+    name = "UnpressSaveChangesButton",
+    runAfter = "SaveChanges",
+    processesEntities  = {
+        {
+            processesComponents = {  
+                "ImGuiState",
+                "EditorContext",
+                "SaveChangesButtonPressed" }
+        }
+    }
+}
+
+

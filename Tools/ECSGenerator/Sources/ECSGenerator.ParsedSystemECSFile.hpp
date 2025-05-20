@@ -554,9 +554,9 @@ namespace ECSGenerator {
 					}
 				}
 
-				if (system["name"].cast<std::string>().value() == "ProcessLoadECSFilesButton") {
-					__debugbreak();
-				}
+				//if (system["name"].cast<std::string>().value() == "ProcessLoadECSFilesButton") {
+				//	__debugbreak();
+				//}
 
 				luabridge::LuaRef creates = system["creates"];
 
@@ -1058,9 +1058,9 @@ namespace ECSGenerator {
 					File::Includes includes{ };
 					includes.paths_.push_back("ECS2.hpp");
 					includes.paths_.push_back("chrono");
-					if (systemEcsFile->GetName() == "ProcessLoadECSFilesButton") {
-						__debugbreak();
-					}
+					//if (systemEcsFile->GetName() == "ProcessLoadECSFilesButton") {
+					//	__debugbreak();
+					//}
 					if (!systemEcsFile->ci_.createEntityComponents_.empty()) {
 						for (auto& createEntityComponent : systemEcsFile->ci_.createEntityComponents_) {
 
@@ -1294,6 +1294,25 @@ namespace ECSGenerator {
 				return createComponentMethod;
 				};
 
+			auto generateRemoveComponentMethodRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
+
+				//CreateComponent method.
+				Function::CreateInfo removeComponentCI{
+					.name_ = "RemoveComponent",
+					.parameters_ = { { "ECS2::Entity::Id", "entityId" }, { "Args&&", "...args"}},
+					.returnType_ = "void",
+					.code_ = "world_->RemoveComponent<Component>(entityId, std::forward<Args>(args)...);",
+					.isPrototype_ = false,
+					.inlineModifier_ = false,
+					.templateParameters_ = { "Component", "...Args" }
+				};
+
+				auto removeComponentMethod = std::make_shared<Function>(removeComponentCI);
+
+				return removeComponentMethod;
+				};
+
+
 
 			auto generateIsComponentExistMethodRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
@@ -1330,6 +1349,7 @@ namespace ECSGenerator {
 				.methods_ = { 
 					generateUpdateMethodPrototype(systemEcsFile),
 					generateCreateComponentMethodRealization(systemEcsFile),
+					generateRemoveComponentMethodRealization(systemEcsFile),
 					generateGetComponentMethodRealization(systemEcsFile),
 					generateIsComponentExistMethodRealization(systemEcsFile),
 					generateCreateDynamicEntityRealization(systemEcsFile),

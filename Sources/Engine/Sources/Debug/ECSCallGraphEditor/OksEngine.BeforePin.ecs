@@ -1,0 +1,6 @@
+component = {
+    name = "BeforePin",
+    fields = { 
+        { type = "ax::NodeEditor::PinId", name = "id" }
+     }
+}

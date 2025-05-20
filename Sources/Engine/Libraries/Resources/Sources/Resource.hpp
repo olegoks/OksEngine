@@ -183,6 +183,30 @@ namespace Resources {
 			return engineResource;
 		}
 
+		std::filesystem::path GetFilesystemPath(std::filesystem::path resourcePath) {
+			const Graph::Node::Id nodeId = GetNodeId(resourcePath);
+			auto resourceInfo = GetResourceInfo(nodeId);
+			return resourceInfo.GetOSPath();
+		}
+
+		bool IsFileExist(std::filesystem::path osPath) {
+			return std::filesystem::exists(osPath);
+		}
+
+		bool CreateResource(const std::filesystem::path& osPath, Resources::ResourceData&& resourceData) {
+			auto file = std::make_shared<OS::BinaryFile>(osPath);
+			file->Create();
+			//file->Open();
+			OS::BinaryFile::WriteInfo writeInfo{
+				.data_ = resourceData.GetData<Common::Byte>(),
+				.size_ = resourceData.GetSize()
+			};
+			*file << writeInfo;
+			file->Close();
+			AddResource(osPath.filename().string(), osPath, "Root");
+			return true;
+		}
+
 		void LoadResource(std::filesystem::path resourcePath) {
 			//OS::AssertMessage(IsNodeExist(resourcePath), "Resource node that required doesn't exist.");
 			const Graph::Node::Id nodeId = GetNodeId(resourcePath);

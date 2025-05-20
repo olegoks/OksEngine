@@ -27,7 +27,13 @@ namespace ECS2 {
 			(filter_.reset(ComponentType::GetTypeId()), ...);
 
 			if constexpr (Common::IsDebug()) {
-				(std::remove(componentNames_.begin(), componentNames_.end(), (std::string{ ComponentType::GetName() })), ...);
+				([&] {
+					std::string name = ComponentType::GetName();
+					componentNames_.erase(
+						std::remove(componentNames_.begin(), componentNames_.end(), name),
+						componentNames_.end()
+					);
+					}(), ...);
 			}
 
 		}
