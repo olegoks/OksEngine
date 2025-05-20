@@ -1,0 +1,26 @@
+system = {
+    name = "SaveChanges",
+    runAfter = "GetNodePosition",
+    processesEntities  = {
+        {
+            processesComponents = {  
+                "ImGuiState",
+                "EditorContext",
+                "SaveChangesButtonPressed" }
+        },
+        {
+            processesComponents = {  
+                "CallGraphNode",
+                "Position2D",
+                "RootNode",
+                "FilesystemPath",
+                "ResourcePath",
+                "Name" }
+        },
+        {
+             processesComponents = { { name = "ResourceSystem", readonly = false } }
+        }
+    }
+}
+
+

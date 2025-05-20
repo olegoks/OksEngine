@@ -129,7 +129,7 @@ namespace ECS2 {
 						"Attempt ot remove entity component, but entity doesn't contain this component.");
 #pragma endregion
 					auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
-					container->RemoveComponent<ComponentType>();
+					container->RemoveComponent(entityId);
 					dynamicEntitiesComponentFilters_[entityId].RemoveBits<ComponentType>();
 				}
 				});

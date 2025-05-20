@@ -2,7 +2,23 @@ system = {
     name = "DrawNodes",
     runAfter = "GraphEditorBegin",
     runBefore = "GraphEditorEnd",
-    processesComponents = { 
-        "ImGuiState",
-        "EditorContext" },
+    processesEntities = {
+        {
+            processesComponents = { 
+                "CallGraphNode",
+                "Name",
+                "RootNode",
+                "Position2D",
+                "RunBefore",
+                "RunAfter"
+            }
+        },
+        {
+            processesComponents = { 
+                "ImGuiState",
+                "EditorContext"
+            }
+        }
+    },
+    
 }

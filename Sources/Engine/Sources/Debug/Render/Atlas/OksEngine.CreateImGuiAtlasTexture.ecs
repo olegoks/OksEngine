@@ -9,5 +9,6 @@ system = {
             excludes = { "ImGuiAtlasTexture" },
             createsComponents = { "ImGuiAtlasTexture" }
         }
-    }
+    },
+    runBefore = "StartImGuiFrame"
 }

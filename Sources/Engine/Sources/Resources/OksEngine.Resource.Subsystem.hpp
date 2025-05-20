@@ -20,7 +20,7 @@ namespace OksEngine {
 			resourceSystem_{
 			Resources::ResourceSystem::CreateInfo{
 					.fileExtensions_ = {
-					".frag", ".vert", ".geom", ".ecs" }
+					".frag", ".vert", ".geom", ".ecs", ".dgs"}
 			} } {
 
 		}
@@ -54,6 +54,19 @@ namespace OksEngine {
 				return true;
 				});
 			return addedResources;
+		}
+
+		std::filesystem::path GetFilesystemPath(const std::filesystem::path& resourcePath) {
+			return resourceSystem_.GetFilesystemPath(resourcePath);
+		}
+
+		bool IsFileExist(const std::filesystem::path& osPath) {
+			return resourceSystem_.IsFileExist(osPath);
+		}
+
+		bool CreateNewFile(const std::filesystem::path& osPath, Resources::ResourceData&& resourceData) {
+			return resourceSystem_.CreateResource(osPath, std::move(resourceData));
+			
 		}
 
 		void SetRoots(const std::vector<std::filesystem::path>& rootPaths) {
@@ -94,6 +107,9 @@ namespace OksEngine {
 			IsResourceLoaded,
 			IsResourceExists,
 			GetAddedResources,
+			GetFilesystemPath,
+			IsFileExist,
+			CreateNewFile,
 			Undefined
 		};
 
@@ -123,7 +139,7 @@ namespace OksEngine {
 			Resources::ResourceData resource_;
 		};
 
-		struct GetAddedResourcesTask : ResourceSystemTask {
+		struct GetAddedResourcesTask : public ResourceSystemTask {
 			GetAddedResourcesTask(const std::vector<std::string>& extensions) 
 				: ResourceSystemTask{ TaskType::GetAddedResources },
 				extensions_{ extensions } {}
@@ -133,6 +149,43 @@ namespace OksEngine {
 		struct GetAddedResourcesResult {
 			GetAddedResourcesResult(const std::vector<std::filesystem::path>& addedResources) : addedResources_{ addedResources } {}
 			std::vector<std::filesystem::path> addedResources_;
+
+		};
+
+		struct GetFilesystemPathTask : public ResourceSystemTask {
+			GetFilesystemPathTask(const std::filesystem::path& resourcePath)
+				: ResourceSystemTask{ TaskType::GetFilesystemPath }, resourcePath_{ resourcePath } {}
+			std::filesystem::path resourcePath_;
+		};
+
+		struct GetFilesystemPathResult {
+			GetFilesystemPathResult(const std::filesystem::path& filesystemPath) : filesystemPath_{ filesystemPath } {}
+			std::filesystem::path filesystemPath_;
+
+		};
+
+		struct IsFileExistTask : public ResourceSystemTask {
+			IsFileExistTask(const std::filesystem::path& osPath)
+				: ResourceSystemTask{ TaskType::IsFileExist }, osPath_{ osPath } {}
+			std::filesystem::path osPath_;
+		};
+
+		struct IsFileExistResult {
+			IsFileExistResult(bool isFileExist) : isFileExist_{ isFileExist } {}
+			bool isFileExist_;
+
+		};
+
+		struct CreateNewFileTask : public ResourceSystemTask {
+			CreateNewFileTask(const std::filesystem::path& osPath, Resources::ResourceData&& resourceData)
+				: ResourceSystemTask{ TaskType::CreateNewFile }, osPath_{ osPath }, resourceData_{ std::move(resourceData) } {}
+			std::filesystem::path osPath_;
+			Resources::ResourceData resourceData_;
+		};
+
+		struct CreateNewFileResult {
+			CreateNewFileResult(bool result) : result_{ result } {}
+			bool result_;
 
 		};
 
@@ -220,6 +273,40 @@ namespace OksEngine {
 			);
 		}
 
+
+		[[nodiscard]]
+		Task::Id GetFilesystemPath(Subsystem::Type subsystemType, const std::filesystem::path resourcePath) {
+			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
+			return AddTask(
+				subsystemType,
+				Subsystem::Type::Resource,
+				CreateTask<GetFilesystemPathTask>(resourcePath)
+			);
+		}
+
+		[[nodiscard]]
+		Task::Id IsFileExist(Subsystem::Type subsystemType, const std::filesystem::path osPath) {
+			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
+			return AddTask(
+				subsystemType,
+				Subsystem::Type::Resource,
+				CreateTask<IsFileExistTask>(osPath)
+			);
+		}
+
+		[[nodiscard]]
+		Task::Id CreateNewFile(Subsystem::Type subsystemType, const std::filesystem::path osPath, Resources::ResourceData&& resourceData) {
+			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
+			return AddTask(
+				subsystemType,
+				Subsystem::Type::Resource,
+				CreateTask<CreateNewFileTask>(osPath, std::move(resourceData))
+			);
+		}
+
+
+
+
 		[[nodiscard]]
 		Task::Id GetAddedResources(Subsystem::Type subsystemType, const std::vector<std::string>& extensions) {
 			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
@@ -274,6 +361,31 @@ namespace OksEngine {
 			GetAddedResourcesResult getResourceResult = std::move(task.GetData<GetAddedResourcesResult>());
 			return std::move(getResourceResult.addedResources_);
 		}
+
+		std::filesystem::path GetFilesystemPath(Subsystem::Type receiverSubsystem, Task::Id taskId) {
+			//OS::LogInfo("Engine/Render", "Waiting for task.");
+			Task task = WaitForTask(receiverSubsystem, taskId);
+			//OS::LogInfo("Engine/Render", "Task was got.");
+			GetFilesystemPathResult getResourceResult = std::move(task.GetData<GetFilesystemPathResult>());
+			return std::move(getResourceResult.filesystemPath_);
+		}
+
+		bool IsFileExist(Subsystem::Type receiverSubsystem, Task::Id taskId) {
+			//OS::LogInfo("Engine/Render", "Waiting for task.");
+			Task task = WaitForTask(receiverSubsystem, taskId);
+			//OS::LogInfo("Engine/Render", "Task was got.");
+			IsFileExistResult getResourceResult = std::move(task.GetData<IsFileExistResult>());
+			return std::move(getResourceResult.isFileExist_);
+		}
+
+		bool CreateNewFile(Subsystem::Type receiverSubsystem, Task::Id taskId) {
+			//OS::LogInfo("Engine/Render", "Waiting for task.");
+			Task task = WaitForTask(receiverSubsystem, taskId);
+			//OS::LogInfo("Engine/Render", "Task was got.");
+			CreateNewFileResult getResourceResult = std::move(task.GetData<CreateNewFileResult>());
+			return std::move(getResourceResult.result_);
+		}
+
 
 		[[nodiscard]]
 		Task::Id AddTask(Subsystem::Type senderType, Subsystem::Type receiverType, Task&& task) {
@@ -404,6 +516,33 @@ namespace OksEngine {
 					const Task::Id taskId = AddTask(
 						Subsystem::Type::Resource, taskSender,
 						CreateTask<GetAddedResourcesResult>(task.GetId(), std::move(addedResources))
+					);
+					break;
+				}
+				case TaskType::GetFilesystemPath: {
+					const GetFilesystemPathTask& setRootTask = task.GetData<GetFilesystemPathTask>();
+					auto addedResources = resourceSubsystem_->GetFilesystemPath(setRootTask.resourcePath_);
+					const Task::Id taskId = AddTask(
+						Subsystem::Type::Resource, taskSender,
+						CreateTask<GetFilesystemPathResult>(task.GetId(), std::move(addedResources))
+					);
+					break;
+				}
+				case TaskType::IsFileExist: {
+					const IsFileExistTask& setRootTask = task.GetData<IsFileExistTask>();
+					auto addedResources = resourceSubsystem_->IsFileExist(setRootTask.osPath_);
+					const Task::Id taskId = AddTask(
+						Subsystem::Type::Resource, taskSender,
+						CreateTask<IsFileExistResult>(task.GetId(), std::move(addedResources))
+					);
+					break;
+				}
+				case TaskType::CreateNewFile: {
+					CreateNewFileTask& setRootTask = task.GetData<CreateNewFileTask>();
+					auto addedResources = resourceSubsystem_->CreateNewFile(setRootTask.osPath_, std::move(setRootTask.resourceData_));
+					const Task::Id taskId = AddTask(
+						Subsystem::Type::Resource, taskSender,
+						CreateTask<CreateNewFileResult>(task.GetId(), std::move(addedResources))
 					);
 					break;
 				}

@@ -45,6 +45,7 @@ namespace ECS2 {
 			}
 			auto freeComponentIndexIt = freeComponentIndices_.begin();
 			componentIndexEntityId_[*freeComponentIndexIt] = entityId;
+			entityIdComponentIndex_[entityId] = *freeComponentIndexIt;
 			freeComponentIndices_.erase(freeComponentIndexIt);
 		}
 
@@ -56,8 +57,8 @@ namespace ECS2 {
 			entityIdComponentsFilter_[entityId].SetBits<Component>();
 		}
 
-		template<class Component, class ...Args>
-		inline void RemoveComponent(Entity::Id entityId, Args&&... args) {
+		template<class Component>
+		inline void RemoveComponent(Entity::Id entityId) {
 			auto container = GetContainer<Component>();
 #pragma region Assert
 			OS::AssertMessage(entityIdComponentIndex_.contains(entityId), "");

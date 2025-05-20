@@ -5,61 +5,67 @@
 
 namespace OksEngine {
 void DrawNodes::Update(
-    ECS2::Entity::Id entityId, const ImGuiState* imGuiState,
-    const EditorContext* editorContext) {
+    ECS2::Entity::Id entity1Id, const CallGraphNode* callGraphNode,
+    const Name* name, const RootNode* rootNode,
+    const Position2D* position2D, const RunBefore* runBefore,
+    const RunAfter* runAfter, ECS2::Entity::Id entity2Id,
+    const ImGuiState* imGuiState, const EditorContext* editorContext) {
 
 
     //int uniqueId = 1;
 
-    ////
-    //// 1) Commit known data to editor
-    ////
 
-    //// Submit Node A
-    //ed::NodeId nodeA_Id = uniqueId++;
     //ed::PinId  nodeA_InputPinId = uniqueId++;
     //ed::PinId  nodeA_OutputPinId = uniqueId++;
 
-    //if (m_FirstFrame)
-    //    ed::SetNodePosition(nodeA_Id, ImVec2(10, 10));
-    //ed::BeginNode(nodeA_Id);
-    //ImGui::Text("Node A");
-    //ed::BeginPin(nodeA_InputPinId, ed::PinKind::Input);
+    //const float columnOffset = 100;
+    //const float rowOffset = 100;
+    //Common::UInt64 columnIndex = 0;
+
+
+
+    //auto drawNode = [&](auto&& self, ECS2::Entity::Id nodeEntityId, Common::UInt64 rowIndex)->void{
+
+    //    const RunBefore* nodeRunBefore = GetComponent<RunBefore>(nodeEntityId);
+
+    //    ax::NodeEditor::SetNodePosition((int)entity1Id, ImVec2(columnIndex * columnOffset, ));
+    //    ax::NodeEditor::BeginNode((int)entity1Id);
+    //    ImGui::Text(name->value_.c_str());
+    //    ax::NodeEditor::EndNode();
+
+    //    ++columnIndex;
+    //    for (Common::UInt64 i = 0; i < nodeRunBefore->entities_.size(); i++) {
+    //        const ECS2::Entity::Id nodeEntityId = nodeRunBefore->entities_[i];
+    //        self(self, nodeEntityId, );
+    //    }
+    //    };
+
+    //drawNode(drawNode, entity1Id);
+    static bool firstFrame = true;
+
+    if (firstFrame) {
+        ax::NodeEditor::SetNodePosition((int)entity1Id, ImVec2(position2D->x_, position2D->y_));
+    }
+    ax::NodeEditor::BeginNode((int)entity1Id);
+
+    ImGui::Text(name->value_.c_str());
+    //ax::NodeEditor::BeginPin(nodeA_InputPinId, ed::PinKind::Input);
     //ImGui::Text("-> In");
-    //ed::EndPin();
+    //ax::NodeEditor::EndPin();
     //ImGui::SameLine();
-    //ed::BeginPin(nodeA_OutputPinId, ed::PinKind::Output);
+    //ax::NodeEditor::BeginPin(nodeA_OutputPinId, ed::PinKind::Output);
     //ImGui::Text("Out ->");
-    //ed::EndPin();
-    //ed::EndNode();
+    //ax::NodeEditor::EndPin();
+    ax::NodeEditor::EndNode();
 
     //// Submit Node B
-    //ed::NodeId nodeB_Id = uniqueId++;
-    //ed::PinId  nodeB_InputPinId1 = uniqueId++;
-    //ed::PinId  nodeB_InputPinId2 = uniqueId++;
-    //ed::PinId  nodeB_OutputPinId = uniqueId++;
-
-    //
-
-    //if (m_FirstFrame)
-    //    ed::SetNodePosition(nodeB_Id, ImVec2(210, 60));
-
-    //ed::BeginNode(nodeB_Id);
-    //ImGui::Text("Node B");
-    //ImGuiEx_BeginColumn();
-    //ed::BeginPin(nodeB_InputPinId1, ed::PinKind::Input);
-    //ImGui::Text("-> In1");
-    //ed::EndPin();
-    //ed::BeginPin(nodeB_InputPinId2, ed::PinKind::Input);
-    //ImGui::Text("-> In2");
-    //ed::EndPin();
-    //ImGuiEx_NextColumn();
-    //ed::BeginPin(nodeB_OutputPinId, ed::PinKind::Output);
-    //ImGui::Text("Out ->");
-    //ed::EndPin();
-    //ImGuiEx_EndColumn();
-    //ed::EndNode();
-
+    //ax::NodeEditor::NodeId nodeB_Id = uniqueId++;
+    //ax::NodeEditor::PinId  nodeB_InputPinId1 = uniqueId++;
+    //ax::NodeEditor::PinId  nodeB_InputPinId2 = uniqueId++;
+    //ax::NodeEditor::PinId  nodeB_OutputPinId = uniqueId++;
+    if (firstFrame) {
+        firstFrame = false;
+    }
 
                        };
 }
