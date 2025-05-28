@@ -35,14 +35,16 @@ namespace ECSGenerator {
 		struct CreateInfo {
 			std::string name_;
 			std::filesystem::path path_;
+			bool serializable_ = true;
 			std::vector<FieldInfo> fields_;
 		};
 
 		ParsedComponentECSFile(const CreateInfo& createInfo)
 			: ParsedECSFile{ createInfo.path_, createInfo.name_ },
-			fields_{ createInfo.fields_ } { }
+			fields_{ createInfo.fields_ },
+			serializable_{ createInfo.serializable_ } { }
 
-
+		bool serializable_ = true;
 		std::vector<FieldInfo> fields_;
 
 		bool AreThereFields() const {
@@ -87,6 +89,12 @@ namespace ECSGenerator {
 	inline std::shared_ptr<ParsedComponentECSFile> ParseComponentEcsFile(const std::filesystem::path& path, ::Lua::Context& context) {
 
 		luabridge::LuaRef component = context.GetGlobalAsRef("component");
+		
+		bool serializable = true;
+		luabridge::LuaRef serializableRef = component["serializable"];
+		if (!serializableRef.isNil()) {
+			serializable = serializableRef.cast<bool>().value();
+		}
 		luabridge::LuaRef fields = component["fields"];
 
 		std::vector<ParsedComponentECSFile::FieldInfo> parsedFields;
@@ -109,6 +117,7 @@ namespace ECSGenerator {
 		ParsedComponentECSFile::CreateInfo ci{
 			.name_ = component["name"].cast<std::string>().value(),
 			.path_ = path,
+			.serializable_ = serializable,
 			.fields_ = parsedFields
 		};
 		auto parsedComponentFile = std::make_shared<ParsedComponentECSFile>(ci);
@@ -372,6 +381,96 @@ namespace ECSGenerator {
 
 
 				namespaceObject->Add(structObject);
+			}
+
+			//Parse function.
+			if(componentEcsFile->serializable_){
+				Code realization;
+
+				realization.Add(std::format("{} {};",
+					componentEcsFile->GetName(),
+					componentEcsFile->GetLowerName()));
+
+				componentEcsFile->ForEachField([&](const ParsedComponentECSFile::FieldInfo& fieldInfo, bool isLast) {
+					
+					realization.Add(std::format("{}.{}_ = {}Ref[\"{}\"].cast<{}>().value();",
+						componentEcsFile->GetLowerName(),
+						fieldInfo.GetName(),
+						componentEcsFile->GetLowerName(), 
+						fieldInfo.GetName(),
+						fieldInfo.GetTypeName()));
+
+					return true;
+					});
+
+				realization.Add(std::format("return {};", componentEcsFile->GetLowerName()));
+
+
+				Function::CreateInfo fci{
+					.name_ = "Parse" + componentEcsFile->GetName(),
+					.parameters_ = {
+						{ "luabridge::LuaRef&", componentEcsFile->GetLowerName() + "Ref"}
+					},
+					.returnType_ = componentEcsFile->GetName(),
+					.code_ = realization,
+					.inlineModifier_ = true
+				};
+
+				auto parseFunuction = std::make_shared<Function>(fci);
+
+				namespaceObject->Add(parseFunuction);
+			}
+
+			//Serialize function.
+			if (componentEcsFile->serializable_) {
+				
+				Code fieldsLuaCode;
+				componentEcsFile->ForEachField([&](const ParsedComponentECSFile::FieldInfo& fieldInfo, bool isLast) {
+
+					Code convertValueToStringCode;
+					if (fieldInfo.GetTypeName() == "std::string") {
+						convertValueToStringCode.Add(std::format("{}->{}_",
+							componentEcsFile->GetLowerName(),
+							fieldInfo.GetName()));
+					}
+					else {
+						convertValueToStringCode.Add(std::format("std::to_string({}->{}_)",
+							componentEcsFile->GetLowerName(),
+							fieldInfo.GetName()));
+					}
+
+
+					fieldsLuaCode.Add(std::format("{} =\" + {} + \"",
+						fieldInfo.GetName(), 
+						convertValueToStringCode.code_));
+					if(!isLast)
+					{
+						fieldsLuaCode.Add(",");
+					}
+						return true;
+					});
+
+				Code luaScriptCode;
+				luaScriptCode.Add(std::format(
+					"std::string luaScript = \"{} = {{"
+					"{} }}\";",
+					componentEcsFile->GetLowerName(), fieldsLuaCode.code_));
+
+				luaScriptCode.Add("return luaScript;");
+
+				Function::CreateInfo fci{
+					.name_ = "Serialize" + componentEcsFile->GetName(),
+					.parameters_ = {
+						{ "const " + componentEcsFile->GetName() + "*", componentEcsFile->GetLowerName()}
+					},
+					.returnType_ = "std::string",
+					.code_ = luaScriptCode,
+					.inlineModifier_ = true
+				};
+
+				auto serializeFunction = std::make_shared<Function>(fci);
+
+				namespaceObject->Add(serializeFunction);
 			}
 
 			//Edit function.
