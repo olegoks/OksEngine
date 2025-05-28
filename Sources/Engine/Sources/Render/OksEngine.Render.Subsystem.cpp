@@ -67,10 +67,10 @@ namespace OksEngine {
 			renderSurface.param2_ = windowInfo.param2_;
 			renderSurface.param3_ = windowInfo.param3_;
 			renderSurface.size_ = windowInfo.size_;
-			OS::AssertMessage(renderSurface.size_.x == config->GetValueAs<Common::Size>("UI.Window.Size.StartWidth"),
-				"Start size in config and got from ui system are different.");
-			OS::AssertMessage(renderSurface.size_.y == config->GetValueAs<Common::Size>("UI.Window.Size.StartHeight"),
-				"Start size in config and got from ui system are different.");
+			//OS::AssertMessage(renderSurface.size_.x == config->GetValueAs<Common::Size>("UI.Window.Size.StartWidth"),
+			//	"Start size in config and got from ui system are different.");
+			//OS::AssertMessage(renderSurface.size_.y == config->GetValueAs<Common::Size>("UI.Window.Size.StartHeight"),
+			//	"Start size in config and got from ui system are different.");
 			renderSurface.uiSubsystem_ = RAL::UISubsystem::GLFW;
 		}
 

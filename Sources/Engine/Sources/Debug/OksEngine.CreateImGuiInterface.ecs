@@ -4,5 +4,5 @@ system = {
         "ImGuiState", 
         { name = "KeyboardInput", readonly = false } 
     },
-    creates = { "MainMenuBar" }
+    createsComponents = { "MainMenuBar" }
 }

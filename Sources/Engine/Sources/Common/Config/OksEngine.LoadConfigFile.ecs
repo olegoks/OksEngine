@@ -14,9 +14,13 @@ system = {
             }
         }
     },
-    createsEntity = {
-        "Config",
-        "LuaScript"
+    createsEntities = {
+        {
+            createsComponents = {
+                "Config",
+                "LuaScript"
+            }
+        }
     }
 }
 

@@ -1,5 +1,5 @@
 
-#include <Debug/auto_OksEngine.CollectEntitiesInfo.hpp>
+//#include <Debug/auto_OksEngine.CollectEntitiesInfo.hpp>
 
 #include <Common/auto_OksEngine.Position2D.hpp>
 
@@ -18,23 +18,23 @@ namespace OksEngine {
 	//	ImGui::Separator();
 	//}
 
-	void CollectEntitiesInfo::Update(
-		ECS2::Entity::Id entityId) {
+	//void CollectEntitiesInfo::Update(
+	//	ECS2::Entity::Id entityId) {
 
-		//if (IsComponentExist<Position3D>(entityId)) {
-		//	//auto* position3D = GetComponent<Position3D>(entityId);
-		//	//EditPosition3D(position3D);
-		//}
+	//	//if (IsComponentExist<Position3D>(entityId)) {
+	//	//	//auto* position3D = GetComponent<Position3D>(entityId);
+	//	//	//EditPosition3D(position3D);
+	//	//}
 
-		//ImGui::Begin("ECSInspector");
-		//if (IsComponentExist<Position2D>(entityId)) {
-		//	EditPosition2D(GetComponent<Position2D>(entityId));
-		//}
-		//
-		//ImGui::End();
+	//	//ImGui::Begin("ECSInspector");
+	//	//if (IsComponentExist<Position2D>(entityId)) {
+	//	//	EditPosition2D(GetComponent<Position2D>(entityId));
+	//	//}
+	//	//
+	//	//ImGui::End();
 
 
-	}
+	//}
 
 	//void CollectEntitiesInfo::ShowEntityInfo(ECS::World* world, ECS::Entity::Id id)
 	//{

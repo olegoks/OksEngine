@@ -1,7 +1,11 @@
 system = {
     name = "CreateECSController",
     initSystem = true,
-    createsEntity = {
-        "ECSController"
+    createsEntities = {
+        {
+        createsComponents = {
+            "ECSController"
+        }
+        }
     }
 }

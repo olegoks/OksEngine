@@ -3,9 +3,13 @@ system = {
     processesComponents = { 
         { name = "ResourceSystem", readonly = false }
     },
-    createsEntity = {
-        "Scene",
-        "ResourcePath"
+    createsEntities = {
+        {
+        createsComponents = {
+            "Scene",
+            "ResourcePath"
+        }
+        }
     }
 }
 

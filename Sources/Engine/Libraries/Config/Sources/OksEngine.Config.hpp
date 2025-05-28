@@ -5,27 +5,27 @@
 
 namespace OksEngine {
 
-	struct Config {
-		std::filesystem::path resourcesPath_;
+	//struct Config {
+	//	std::filesystem::path resourcesPath_;
 
-		Config(Config&& moveConfig) : 
-			context_{ std::move(moveConfig.context_) } {
+	//	Config(Config&& moveConfig) : 
+	//		context_{ std::move(moveConfig.context_) } {
 
-		}
+	//	}
 
-		Config(const std::string& text) {
-			::Lua::Script script{ text };
-			context_.LoadScript(script);
-		}
+	//	Config(const std::string& text) {
+	//		::Lua::Script script{ text };
+	//		context_.LoadScript(script);
+	//	}
 
-		template<class Type>
-		[[nodiscard]]
-		Type GetValueAs(const char* valuePath) const noexcept {
-			return context_.GetGlobalAs<Type>(valuePath);
-		}
+	//	template<class Type>
+	//	[[nodiscard]]
+	//	Type GetValueAs(const char* valuePath) const noexcept {
+	//		return context_.GetGlobalAs<Type>(valuePath);
+	//	}
 
-	private:
-		::Lua::Context context_;
-	};
+	//private:
+	//	::Lua::Context context_;
+	//};
 
 }
