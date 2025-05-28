@@ -285,7 +285,6 @@ namespace ECS2 {
 			ApplyDelayedRequests();
 		}
 
-	private:
 		void ApplyDelayedRequests() {
 			for (auto& addition : requests_) {
 				addition();
