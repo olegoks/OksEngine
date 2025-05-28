@@ -18,7 +18,7 @@ namespace OksEngine {
 
 		struct CreateInfo {
 			int argc_ = 0;
-			const char** argv_ = nullptr;
+			char** argv_ = nullptr;
 		};
 
 		Context(const CreateInfo& createInfo);
@@ -75,7 +75,7 @@ namespace OksEngine {
 		//[[deprecated]]
 		//std::shared_ptr<class ECS::World> world_ = nullptr;
 		std::shared_ptr<class ECS2::World> world2_ = nullptr;
-		std::shared_ptr<class Config> config_ = nullptr;
+		std::shared_ptr<class ConfigFile> config_ = nullptr;
 	};
 
 

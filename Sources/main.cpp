@@ -2,7 +2,7 @@
 #include <Engine.hpp>
 #include <OksEngine.Components.hpp>
 
-int main(int argc, const char** argv) {
+int main(int argc, char** argv) {
 
 	using namespace OksEngine;
 

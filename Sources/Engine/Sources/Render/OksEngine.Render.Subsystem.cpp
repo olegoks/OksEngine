@@ -9,22 +9,22 @@ namespace OksEngine {
 
 	RenderSubsystem::RenderSubsystem(const CreateInfo& createInfo) : Subsystem{ Subsystem::Type::Render, createInfo.context_ } {
 
-		auto& context = GetContext();
-		auto config = context.GetConfig();
+		//auto& context = GetContext();
+		//auto config = context.GetConfig();
 
-		auto resourceSubsystem = context.GetResourceSubsystem();
+		//auto resourceSubsystem = context.GetResourceSubsystem();
 
-		const auto imguiVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imgui.vert");
-		const auto imguiFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imgui.frag");
+		//const auto imguiVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imgui.vert");
+		//const auto imguiFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/imgui.frag");
 
-		const auto linesVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/debugLines.vert");
-		const auto linesFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/debugLines.frag");
+		//const auto linesVertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/debugLines.vert");
+		//const auto linesFragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/debugLines.frag");
 
-		const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/flatShaded.vert");
-		const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/flatShaded.frag");
+		//const auto vertexShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/flatShaded.vert");
+		//const auto fragmentShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/flatShaded.frag");
 
-		const auto vertexTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/textured.vert");
-		const auto fragmentTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/textured.frag");
+		//const auto vertexTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/textured.vert");
+		//const auto fragmentTextureShaderTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/textured.frag");
 
 
 		//auto ecsWorld = context.GetECSWorld();
@@ -58,21 +58,21 @@ namespace OksEngine {
 		//ecsWorld->RegisterSystem < UpdateDriverTransform3D>(context);
 		//ecsWorld->RegisterSystem < CreateDriverTransform3D>(context);
 
-		auto uiSubsystem = context.GetUISubsystem();
-		auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);
-		RAL::RenderSurface renderSurface;
-		if (windowInfo.subsystem_ == UIAL::Subsystem::GLFW) {
+		//auto uiSubsystem = context.GetUISubsystem();
+		//auto windowInfo = uiSubsystem->GetWindow()->GetInfo(UIAL::Render::Vulkan);
+		//RAL::RenderSurface renderSurface;
+		//if (windowInfo.subsystem_ == UIAL::Subsystem::GLFW) {
 
-			renderSurface.param1_ = windowInfo.param1_;
-			renderSurface.param2_ = windowInfo.param2_;
-			renderSurface.param3_ = windowInfo.param3_;
-			renderSurface.size_ = windowInfo.size_;
-			//OS::AssertMessage(renderSurface.size_.x == config->GetValueAs<Common::Size>("UI.Window.Size.StartWidth"),
-			//	"Start size in config and got from ui system are different.");
-			//OS::AssertMessage(renderSurface.size_.y == config->GetValueAs<Common::Size>("UI.Window.Size.StartHeight"),
-			//	"Start size in config and got from ui system are different.");
-			renderSurface.uiSubsystem_ = RAL::UISubsystem::GLFW;
-		}
+		//	renderSurface.param1_ = windowInfo.param1_;
+		//	renderSurface.param2_ = windowInfo.param2_;
+		//	renderSurface.param3_ = windowInfo.param3_;
+		//	renderSurface.size_ = windowInfo.size_;
+		//	//OS::AssertMessage(renderSurface.size_.x == config->GetValueAs<Common::Size>("UI.Window.Size.StartWidth"),
+		//	//	"Start size in config and got from ui system are different.");
+		//	//OS::AssertMessage(renderSurface.size_.y == config->GetValueAs<Common::Size>("UI.Window.Size.StartHeight"),
+		//	//	"Start size in config and got from ui system are different.");
+		//	renderSurface.uiSubsystem_ = RAL::UISubsystem::GLFW;
+		//}
 
 		//RAL::Camera::CreateInfo cameraCreateInfo;
 		//{
@@ -90,38 +90,38 @@ namespace OksEngine {
 		//	lightCreateInfo.position_ = { 25.f, 0.f, 0.f };//camera->GetPosition();
 		//}
 		//auto light = std::make_shared<RAL::Light>(lightCreateInfo);
-		Resources::ResourceData imguiVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiVertexShaderTaskId);
-		Resources::ResourceData imguiFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiFragmentShaderTaskId);
-		Resources::ResourceData linesVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesVertexShaderTaskId);
-		Resources::ResourceData linesFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesFragmentShaderTaskId);
-		Resources::ResourceData vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
-		Resources::ResourceData fragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
-		Resources::ResourceData vertexTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexTextureShaderTaskId);
-		Resources::ResourceData fragmentTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentTextureShaderTaskId);
+		//Resources::ResourceData imguiVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiVertexShaderTaskId);
+		//Resources::ResourceData imguiFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, imguiFragmentShaderTaskId);
+		//Resources::ResourceData linesVertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesVertexShaderTaskId);
+		//Resources::ResourceData linesFragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, linesFragmentShaderTaskId);
+		//Resources::ResourceData vertexShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexShaderTaskId);
+		//Resources::ResourceData fragmentShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentShaderTaskId);
+		//Resources::ResourceData vertexTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, vertexTextureShaderTaskId);
+		//Resources::ResourceData fragmentTextureShaderResource = resourceSubsystem->GetResource(Subsystem::Type::Render, fragmentTextureShaderTaskId);
 
-		std::string imguiVertexShader{ imguiVertexShaderResource.GetData<Common::Byte>(), imguiVertexShaderResource.GetSize() };
-		std::string imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };
-		std::string linesVertexShader{ linesVertexShaderResource.GetData<Common::Byte>(), linesVertexShaderResource.GetSize() };
-		std::string linesFragmentShader{ linesFragmentShaderResource.GetData<Common::Byte>(), linesFragmentShaderResource.GetSize() };
-		std::string vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
-		std::string fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
-		std::string vertexTextureShader{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
-		std::string fragmentTextureShader{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
+		//std::string imguiVertexShader{ imguiVertexShaderResource.GetData<Common::Byte>(), imguiVertexShaderResource.GetSize() };
+		//std::string imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };
+		//std::string linesVertexShader{ linesVertexShaderResource.GetData<Common::Byte>(), linesVertexShaderResource.GetSize() };
+		//std::string linesFragmentShader{ linesFragmentShaderResource.GetData<Common::Byte>(), linesFragmentShaderResource.GetSize() };
+		//std::string vertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
+		//std::string fragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
+		//std::string vertexTextureShader{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
+		//std::string fragmentTextureShader{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
 
-		RE::RenderEngine::CreateInfo RECreateInfo{
-			//.camera_ = camera,
-			//.light_ = light,
-			.imguiVertexShader_ = std::move(imguiVertexShader),
-			.imguiFragmentShader_ = std::move(imguiFragmentShader),
-			.linesVertexShader_ = std::move(linesVertexShader),
-			.linesFragmentShader_ = std::move(linesFragmentShader),
-			.vertexShader_ = std::move(vertexShader),
-			.fragmentShader_ = std::move(fragmentShader),
-			.textureVertexShader_ = std::move(vertexTextureShader),
-			.textureFragmentShader_ = std::move(fragmentTextureShader),
-			.renderSurface_ = std::make_shared<RAL::RenderSurface>(renderSurface)
-		};
-		engine_ = std::make_shared<RE::RenderEngine>(RECreateInfo);
+		//RE::RenderEngine::CreateInfo RECreateInfo{
+		//	//.camera_ = camera,
+		//	//.light_ = light,
+		//	.imguiVertexShader_ = std::move(imguiVertexShader),
+		//	.imguiFragmentShader_ = std::move(imguiFragmentShader),
+		//	.linesVertexShader_ = std::move(linesVertexShader),
+		//	.linesFragmentShader_ = std::move(linesFragmentShader),
+		//	.vertexShader_ = std::move(vertexShader),
+		//	.fragmentShader_ = std::move(fragmentShader),
+		//	.textureVertexShader_ = std::move(vertexTextureShader),
+		//	.textureFragmentShader_ = std::move(fragmentTextureShader),
+		//	.renderSurface_ = std::make_shared<RAL::RenderSurface>(renderSurface)
+		//};
+		//engine_ = std::make_shared<RE::RenderEngine>(RECreateInfo);
 
 		//const auto modelTaskId = resourceSubsystem->GetResource(Subsystem::Type::Render, "Root/room.obj");
 		//ResourceSubsystem::Resource modelResource = resourceSubsystem->GetResource(Subsystem::Type::Render, modelTaskId);

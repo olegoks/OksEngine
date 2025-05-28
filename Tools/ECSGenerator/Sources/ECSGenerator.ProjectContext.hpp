@@ -16,7 +16,7 @@ namespace ECSGenerator {
 		inline static const std::string includeDirectory_ = "Sources";
 
 		struct CreateInfo {
-			std::shared_ptr<OksEngine::Config> config = nullptr;
+			std::shared_ptr<OksEngine::ConfigFile> config = nullptr;
 		};
 
 		ProjectContext(const CreateInfo& createInfo) 
@@ -91,7 +91,7 @@ namespace ECSGenerator {
 		std::map<std::string, std::shared_ptr<ParsedECSFile>> nameEcsFile_;
 
 		std::map<std::filesystem::path, ComponentsSystems> oneCategoryEcsFiles_;
-		std::shared_ptr<OksEngine::Config> config_ = nullptr;
+		std::shared_ptr<OksEngine::ConfigFile> config_ = nullptr;
 		ComponentsSystems allComponentsSystems_;
 	};
 

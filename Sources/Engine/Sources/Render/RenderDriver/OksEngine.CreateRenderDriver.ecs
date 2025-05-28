@@ -1,0 +1,29 @@
+system = {
+    name = "CreateRenderDriver",
+    initSystem = true,
+    processesEntities = {
+        {
+            processesComponents = {
+                "MainWindow"
+            }
+        },
+        {
+            processesComponents = {
+                "Config",
+                "LuaScript"
+            }
+        },
+        {
+            processesComponents = {
+                { name = "ResourceSystem", readonly = false }
+            }
+        }
+    },
+    createsEntities = { 
+        {
+            createsComponents = {
+                "RenderDriver" 
+            }
+        }
+    }
+}

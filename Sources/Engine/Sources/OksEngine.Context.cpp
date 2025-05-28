@@ -28,7 +28,7 @@ namespace OksEngine
 
 		{
 			const int argc = createInfo.argc_;
-			const char** argv = createInfo.argv_;
+			char** argv = createInfo.argv_;
 
 			const ECS2::Entity::Id commandLineParametersEntity = world2_->CreateEntity();
 			world2_->CreateComponent<CommandLineParameters>(commandLineParametersEntity);
@@ -37,8 +37,8 @@ namespace OksEngine
 			for (int i = 1; i < argc; i++) {
 
 				const char* value = argv[i];
-
-				if (value == "-cfg") {
+				using namespace std::string_literals;
+				if (value == "-cfg"s) {
 					world2_->CreateComponent<ConfigFilePath>(commandLineParametersEntity, argv[i + 1]);
 				}
 			}
@@ -47,12 +47,12 @@ namespace OksEngine
 
 
 		{
-			LogSubsystem::CreateInfo createInfo{
+			LogSubsystem::CreateInfo lsci{
 				createInfo.argc_,
 				createInfo.argv_,
 				*this
 			};
-			logSubsystem_ = std::make_shared<LogSubsystem>(createInfo);
+			logSubsystem_ = std::make_shared<LogSubsystem>(lsci);
 		}
 
 		resourceSubsystem_ = std::make_shared<AsyncResourceSubsystem>(*this);
@@ -102,9 +102,9 @@ namespace OksEngine
 		//}
 
 		//world_->RegisterSystem<IncreaseFramesCounter>(*this);
-		uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
-		const ECS2::Entity::Id mainWindowEntityId = world2_->CreateEntity();
-		world2_->CreateComponent<MainWindow>(mainWindowEntityId, uiSubsystem_->GetWindow());
+		//uiSubsystem_ = std::make_shared<UISubsystem>(UISubsystem::CreateInfo{ *this });
+		//const ECS2::Entity::Id mainWindowEntityId = world2_->CreateEntity();
+		//world2_->CreateComponent<MainWindow>(mainWindowEntityId, uiSubsystem_->GetWindow());
 		//world_->RegisterSystem<CreateLoadLuaScriptRequest>(*this);
 
 		//world_->RegisterSystem<CreateLuaScriptEntity>(*this);
@@ -133,15 +133,15 @@ namespace OksEngine
 		//world_->RegisterSystem < CreateSound>(*this);
 		//world_->RegisterSystem < ProcessSound>(*this);
 
-		RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
-			*this,
-			//vertexShader,
-			//fragmentShader
-		};
-		renderSubsystem_ = std::make_shared<RenderSubsystem>(renderSubsystemCreateInfo);
+		//RenderSubsystem::CreateInfo renderSubsystemCreateInfo{
+		//	*this,
+		//	//vertexShader,
+		//	//fragmentShader
+		//};
+		//renderSubsystem_ = std::make_shared<RenderSubsystem>(renderSubsystemCreateInfo);
 
-		const ECS2::Entity::Id entityId = world2_->CreateEntity();
-		world2_->CreateComponent<RenderDriver>(entityId, renderSubsystem_->GetDriver());
+		//const ECS2::Entity::Id entityId = world2_->CreateEntity();
+		//world2_->CreateComponent<RenderDriver>(entityId, renderSubsystem_->GetDriver());
 
 		PhysicsSubsystem::CreateInfo physicsSubsystemCreateInfo{
 			*this

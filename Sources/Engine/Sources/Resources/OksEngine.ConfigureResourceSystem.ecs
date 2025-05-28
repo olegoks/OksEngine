@@ -1,0 +1,17 @@
+system = {
+    name = "ConfigureResourceSystem",
+    initSystem = true,
+    processesEntities = {
+        {
+            processesComponents = {
+                { name = "ResourceSystem", readonly = false }
+            }
+        },
+        {
+            processesComponents = {
+                "Config",
+                "LuaScript"
+            }
+        }
+    }
+}
