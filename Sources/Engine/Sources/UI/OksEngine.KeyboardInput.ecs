@@ -1,5 +1,6 @@
 component = {
     name = "KeyboardInput",
+    serializable = false,
     fields = { 
         { type = "std::vector<std::pair<UIAL::Window::KeyboardKey, UIAL::Window::KeyboardAction>>", name = "events" }
      }

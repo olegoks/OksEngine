@@ -2,7 +2,7 @@
 #include <Engine.hpp>
 #include <OksEngine.Components.hpp>
 
-int main(int argc, char** argv) {
+int main(int argc, const char** argv) {
 
 	using namespace OksEngine;
 
@@ -10,9 +10,8 @@ int main(int argc, char** argv) {
 
 	OS::AssertMessage(argc > 0, "First parameter must be config file name.");
 
-	OS::CommandLineParameters commandLineParameters{ argc, argv };
 	const Engine::CreateInfo engineCreateInfo{
-		commandLineParameters
+		argc, argv
 	};
 
 	Engine engine{ engineCreateInfo };

@@ -1,5 +1,6 @@
 component = {
     name = "RunBefore",
+    serializable = false,
     fields = { 
         { type = "std::vector<ECS2::Entity::Id>", name = "entities" }
      }

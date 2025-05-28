@@ -1,0 +1,14 @@
+system = {
+    name = "FindScenes",
+    processesEntities  = {
+        {
+             processesComponents = { { name = "ResourceSystem", readonly = false } }
+        }
+    },
+    createsEntity = {
+        "Scene",
+        "ResourcePath"
+    }
+}
+
+

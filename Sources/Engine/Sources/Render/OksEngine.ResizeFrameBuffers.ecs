@@ -1,6 +1,6 @@
 system = {
     name = "ResizeFrameBuffers",
-
+    serializable = false,
     processesComponents = { 
 		"Window", 
     { name = "FrameBufferResizeEvents", readonly = false }

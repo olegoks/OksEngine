@@ -1,5 +1,6 @@
 component = {
     name = "ImGuiAtlasTexture",
+    serializable = false,
     fields = { 
         { type = "Common::Size", name = "width" },
         { type = "Common::Size", name = "height"},

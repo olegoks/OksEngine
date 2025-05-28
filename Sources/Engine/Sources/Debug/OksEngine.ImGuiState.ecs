@@ -1,5 +1,6 @@
 component = {
     name = "ImGuiState",
+    serializable = false,
     fields = { 
         { type = "RAL::Texture::Id", name = "fontsTextureId" },
         { type = "Common::Size ", name = "fps" },

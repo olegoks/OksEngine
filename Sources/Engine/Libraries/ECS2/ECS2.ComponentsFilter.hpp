@@ -10,6 +10,13 @@ namespace ECS2 {
 	class ComponentsFilter {
 	public:
 
+
+		constexpr static Common::UInt16 maxComponentsNumber_ = 256;
+
+		void SetAllBits() {
+			filter_.set();
+		}
+
 		template<class ...ComponentType>
 		void SetBits() {
 
@@ -107,8 +114,6 @@ namespace ECS2 {
 		}
 
 	private:
-
-		constexpr static Common::UInt16 maxComponentsNumber_ = 256;
 
 		std::vector<std::string> componentNames_;
 

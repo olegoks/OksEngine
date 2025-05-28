@@ -1,8 +1,0 @@
-
-system = {
-    name = "System5",
-    runAfter = "System2",
-    processesComponents = {
-        { name = "RenderDriver", readonly = false}
-    }
-}

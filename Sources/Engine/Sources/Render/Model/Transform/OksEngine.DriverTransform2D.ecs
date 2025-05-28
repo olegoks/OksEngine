@@ -1,4 +1,5 @@
 component = {
     name = "DriverTransform2D",
+    serializable = false,
     fields = { { type="RAL::Driver::UniformBuffer::Id", name="id" } }
 }

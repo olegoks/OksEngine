@@ -1,4 +1,5 @@
 component = {
     name = "MtlEntity",
+    serializable = false,
     fields = { { type="ECS2::Entity::Id", name="id" } }
 }

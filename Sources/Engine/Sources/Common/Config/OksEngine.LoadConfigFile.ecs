@@ -1,0 +1,23 @@
+system = {
+    name = "LoadConfigFile",
+    initSystem = true,
+    processesEntities  = {
+        {
+            processesComponents = { 
+                "CommandLineParameters",
+                "ConfigFilePath"
+            }
+        },
+        {
+            processesComponents = {
+                { name = "ResourceSystem", readonly = false }
+            }
+        }
+    },
+    createsEntity = {
+        "Config",
+        "LuaScript"
+    }
+}
+
+

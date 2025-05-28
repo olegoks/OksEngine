@@ -20,7 +20,8 @@ namespace OksEngine {
 	public:
 
 		struct CreateInfo {
-			OS::CommandLineParameters commandLineParameters_;
+			int argc_ = 0;
+			const char** argv_ = nullptr;
 		};
 
 		explicit Engine(const CreateInfo& createInfo) noexcept;

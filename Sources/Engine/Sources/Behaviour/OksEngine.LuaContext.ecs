@@ -1,5 +1,6 @@
 component = {
     name = "LuaContext",
+    serializable = false,
     fields = { 
         { 
             type = "::Lua::Context", 
