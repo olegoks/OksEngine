@@ -11,15 +11,19 @@ system = {
              processesComponents = { { name = "ResourceSystem", readonly = false } }
         }
     },
-    createsEntity = {
-        "CallGraphNode",
-        "Position2D",
-        "RootNode",
-        "FilesystemPath",
-        "ResourcePath",
-        "Name",
-        "RunBefore",
-        "RunAfter"
+    createsEntities = {
+        {
+        createsComponents = {
+            "CallGraphNode",
+            "Position2D",
+            "RootNode",
+            "FilesystemPath",
+            "ResourcePath",
+            "Name",
+            "RunBefore",
+            "RunAfter"
+        }
+        }
     }
 }
 

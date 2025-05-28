@@ -121,7 +121,9 @@ int main(int argc, char** argv) {
 	for (const ECSFileInfo& ecsFileInfo : ecsFileInfos) {
 		Resources::ResourceData resourceData = resourceSystem.GetResourceData(ecsFileInfo.resourceSystemPath_);
 		auto ecsFile = ECSGenerator::ParseEcsFile(ecsFileInfo.filesystemPath_, resourceData);
-		projectContext->AddEcsFile(ecsFile);
+		if (ecsFile != nullptr) {
+			projectContext->AddEcsFile(ecsFile);
+		}
 	}
 
 

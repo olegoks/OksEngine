@@ -1,12 +1,16 @@
 system = {
     name = "CreateECSInspector",
     initSystem = true,
-    createsEntity = {
-        "ImGuiState",
-        "EditorContext",
-        "HandleKeyboardInput",
-        "Position2D",
-        "Scale2D",
-        "Rotation2D"
+    createsEntities = {
+        {
+        createsComponents = {
+            "ImGuiState",
+            "EditorContext",
+            "HandleKeyboardInput",
+            "Position2D",
+            "Scale2D",
+            "Rotation2D"
+        }
+        }
     }
 }

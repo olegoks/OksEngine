@@ -5,6 +5,6 @@ system = {
     processesComponents = { 
         "ImGuiState",
         "EditorContext" },
-    creates = { "LoadECSFilesButtonPressed" },
+    createsComponents= { "LoadECSFilesButtonPressed" },
     excludes = { "LoadECSFilesButtonPressed" }
 }
