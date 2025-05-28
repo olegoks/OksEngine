@@ -20,7 +20,7 @@ namespace OksEngine {
 			resourceSystem_{
 			Resources::ResourceSystem::CreateInfo{
 					.fileExtensions_ = {
-					".frag", ".vert", ".geom", ".ecs", ".dgs"}
+					".frag", ".vert", ".geom", ".ecs" }
 			} } {
 
 		}

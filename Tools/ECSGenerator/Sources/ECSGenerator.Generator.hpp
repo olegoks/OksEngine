@@ -21,66 +21,9 @@
 
 namespace ECSGenerator {
 
-
-
-
 	class CodeStructureGenerator {
 	public:
 
-		Code GenerateRunSystemCode(std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
-			Code runSystemCode;
-			runSystemCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + systemEcsFile->GetName() + "\");");
-			runSystemCode.Add(systemEcsFile->GetName() + "System(world2);");
-			runSystemCode.NewLine();
-			runSystemCode.Add("PIXEndEvent();");
-			return runSystemCode;
-		}
-
-		std::shared_ptr<Function> GenerateRunInitSystemsFunctionPrototype(std::shared_ptr<ProjectContext> projectContext) {
-
-
-
-		}
-
-		std::shared_ptr<Function> GenerateRunInitSystemsFunctionRealization(std::shared_ptr<ProjectContext> projectContext) {
-			Code runInitSystemsCode;
-			runInitSystemsCode.Add(
-				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Start initialize frame\");"
-				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"StartFrame\");"
-				"world2->StartFrame();"
-				"PIXEndEvent();");
-
-			//Generate code to run systems that process all entities.
-			projectContext->ForEachSystemEcsFile(
-				[&](std::shared_ptr<ParsedECSFile> ecsFile) {
-					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
-					if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
-						runInitSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
-					}
-					return true;
-				});
-
-			runInitSystemsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"End enitialize frame\");");
-			runInitSystemsCode.Add("world2->EndFrame();");
-			runInitSystemsCode.Add("PIXEndEvent();");
-
-			//CreateThreads method realization.
-			Function::CreateInfo cppRunSystemsFunction{
-				.name_ = "RunInitializeSystems",
-				.parameters_ = {
-					{ "std::shared_ptr<ECS2::World>", "world2" }
-				},
-				.returnType_ = "void",
-				.code_ = runInitSystemsCode,
-				.isPrototype_ = false,
-				.inlineModifier_ = false
-			};
-
-			auto runInitializeSystemsFunctionRealization = std::make_shared<Function>(cppRunSystemsFunction);
-
-			return runInitializeSystemsFunctionRealization;
-
-		}
 
 
 		using System = std::string;
@@ -145,6 +88,161 @@ namespace ECSGenerator {
 			DS::Graph<System> callGraph_;
 			SystemsOrder systemsOrder_;
 		};
+
+
+		Code GenerateRunSystemCode(std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
+			Code runSystemCode;
+			runSystemCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + systemEcsFile->GetName() + "\");");
+			runSystemCode.Add(systemEcsFile->GetName() + "System(world2);");
+			runSystemCode.NewLine();
+			runSystemCode.Add("PIXEndEvent();");
+			return runSystemCode;
+		}
+
+		std::shared_ptr<Function> GenerateRunInitSystemsFunctionPrototype(std::shared_ptr<ProjectContext> projectContext) {
+
+
+
+		}
+
+		std::shared_ptr<Function> GenerateRunInitSystemsFunctionRealization(std::shared_ptr<ProjectContext> projectContext) {
+			
+			DS::Graph<System> initCallGraph;
+			projectContext->ForEachSystemEcsFile(
+				[&](std::shared_ptr<ParsedECSFile> ecsFile) {
+					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+					if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
+						DS::Graph<System>::Node::Id currentSystemNodeId = DS::Graph<System>::Node::invalidId_;
+						if (!initCallGraph.IsNodeExist(systemEcsFile->GetName())) {
+							currentSystemNodeId = initCallGraph.AddNode(systemEcsFile->GetName());
+						}
+						else {
+							currentSystemNodeId = initCallGraph.FindNode(systemEcsFile->GetName());
+						}
+						systemEcsFile->ForEachRunAfterSystem([&](const System& afterSystem) {
+							DS::Graph<System>::Node::Id afterSystemNodeId = DS::Graph<System>::Node::invalidId_;
+							if (!initCallGraph.IsNodeExist(afterSystem)) {
+								afterSystemNodeId = initCallGraph.AddNode(afterSystem);
+							}
+							else {
+								afterSystemNodeId = initCallGraph.FindNode(afterSystem);
+							}
+							initCallGraph.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
+							return true;
+							});
+
+						systemEcsFile->ForEachRunBeforeSystem([&](const System& beforeSystem) {
+
+							DS::Graph<System>::Node::Id beforeSystemNodeId = DS::Graph<System>::Node::invalidId_;
+							if (!initCallGraph.IsNodeExist(beforeSystem)) {
+								beforeSystemNodeId = initCallGraph.AddNode(beforeSystem);
+							}
+							else {
+								beforeSystemNodeId = initCallGraph.FindNode(beforeSystem);
+							}
+							initCallGraph.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);
+							return true;
+							});
+					}
+					return true;
+				});
+			
+			
+
+			//Find systems that root of dependence and generate code.
+			auto findRoots = [&](DS::Graph<System>& graph) {
+				std::unordered_set<DS::Graph<System>::NodeId> roots;
+				graph.ForEachNode([&](
+					DS::Graph<System>::NodeId systemNodeId,
+					DS::Graph<System>::Node& systemNode
+					) {
+						if (!systemNode.HasLinksFrom()) {
+							roots.insert(systemNodeId);
+						}
+						return true;
+					});
+
+				return roots;
+				};
+
+			std::unordered_set<DS::Graph<System>::Node::Id> roots = findRoots(initCallGraph);
+
+			SystemsOrder systemsOrder;
+			for (auto rootNodeId : roots) {
+				auto rootNode = initCallGraph.GetNode(rootNodeId);
+				systemsOrder.order_.push_back(rootNode.GetValue());
+			}
+
+			for (auto rootNodeId : roots) {
+				auto rootNode = initCallGraph.GetNode(rootNodeId);
+				if (rootNode.GetValue() == "System1") {
+					//__debugbreak();
+				}
+				ProcessNode(systemsOrder, initCallGraph, rootNodeId);
+
+			}
+
+			
+			Code runInitSystemsCode;
+			runInitSystemsCode.Add(
+				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Start initialize frame\");"
+				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"StartFrame\");"
+				"world2->StartFrame();"
+				"PIXEndEvent();");
+
+			//Generate code to run systems that process all entities.
+			projectContext->ForEachSystemEcsFile(
+				[&](std::shared_ptr<ParsedECSFile> ecsFile) {
+					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+					if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
+						runInitSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
+
+						//Check if system creates new components, if yes we need to add them immideatly
+						bool isCreatesEntityComponent = false;
+						systemEcsFile->ForEachRequestEntity([&](const ParsedSystemECSFile::RequestEntity& entity, bool isLast) {
+							if (!entity.creates_.empty()) {
+								isCreatesEntityComponent = true;
+								return false;
+							}
+							return true;
+							});
+						if (!isCreatesEntityComponent) {
+							for (const auto& randomAccessEntity : systemEcsFile->ci_.accessesEntities_) {
+								if (!randomAccessEntity.creates_.empty()) {
+									isCreatesEntityComponent = true;
+									break;
+								}
+							}
+						}
+						isCreatesEntityComponent = isCreatesEntityComponent || !systemEcsFile->ci_.createsEntities_.empty();
+						if (isCreatesEntityComponent) {
+							runInitSystemsCode.Add("world2->ApplyDelayedRequests();");
+						}
+					}
+					return true;
+				});
+
+			runInitSystemsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"End enitialize frame\");");
+			runInitSystemsCode.Add("world2->EndFrame();");
+			runInitSystemsCode.Add("PIXEndEvent();");
+
+			//CreateThreads method realization.
+			Function::CreateInfo cppRunSystemsFunction{
+				.name_ = "RunInitializeSystems",
+				.parameters_ = {
+					{ "std::shared_ptr<ECS2::World>", "world2" }
+				},
+				.returnType_ = "void",
+				.code_ = runInitSystemsCode,
+				.isPrototype_ = false,
+				.inlineModifier_ = false
+			};
+
+			auto runInitializeSystemsFunctionRealization = std::make_shared<Function>(cppRunSystemsFunction);
+
+			return runInitializeSystemsFunctionRealization;
+
+		}
 
 
 		std::shared_ptr<Function> GenerateCreateThreadRealization(const std::vector<Thread>& threads, std::shared_ptr<ProjectContext> projectContext) {
@@ -331,7 +429,6 @@ namespace ECSGenerator {
 			return { systemCppFileFullPath, file };
 		}
 
-		std::vector<System> graphOrder;
 		void ProcessNode(
 			SystemsOrder& systemsOrder,
 			const DS::Graph<System>& graph,
@@ -339,10 +436,6 @@ namespace ECSGenerator {
 			bool isFrom = false) {
 
 			auto& node = graph.GetNode(nodeId);
-			graphOrder.push_back(node.GetValue());
-			if (graphOrder.back() == "CreateECSInspector") {
-				__debugbreak();
-			}
 			std::unordered_set<System> systemsFrom;
 			node.ForEachLinksFrom([&](DS::Graph<System>::Node::Id fromNodeToId) {
 				auto& fromNode = graph.GetNode(fromNodeToId);
@@ -363,25 +456,10 @@ namespace ECSGenerator {
 					return true;
 					});
 			}
-			//if (allLinksFromInOrder) {
-
-			//}
-
 
 		}
 
 		void CalculateSystemsCallOrder(Thread& thread) {
-
-			//std::vector<System> separatedSystems;
-			//std::unordered_set<System> usedSystems;
-
-
-			if (thread.systems_.size() > 1) {
-				//__debugbreak();
-			}
-
-			//TODO: Check graph loops.
-
 
 			//Find systems that root of dependence and generate code.
 			auto findRoots = [](const Thread& thread) {
@@ -415,137 +493,6 @@ namespace ECSGenerator {
 
 			}
 
-			//
-			//std::vector<System> systemsOrder;
-			//const DS::Graph<System>::Node::Id rootNodeId = findRoot(thread);
-			//if (rootNodeId != DS::Graph<System>::Node::invalidId_) {
-			//	DS::Graph<System>::Node::Id currentNode = rootNodeId;
-
-			//	while (currentNode != DS::Graph<System>::Node::invalidId_) {
-			//		const auto& node = thread.callGraph_.GetNode(currentNode);
-			//		systemsOrder.push_back(node.GetValue());
-			//		usedSystems.insert(node.GetValue());
-			//		node.ForEachLinksTo([&](DS::Graph<System>::Node::Id linkTo) {
-			//			currentNode = linkTo;
-			//			return false;
-			//			});
-			//		if (!node.HasLinksTo()) {
-			//			break;
-			//		}
-			//	}
-
-			//	
-			//}
-
-			//while (usedSystems.size() != thread.systems_.size()) {
-
-			//	thread.callGraph_.ForEachNode([&](
-			//		DS::Graph<System>::Node::Id nodeId,
-			//		const DS::Graph<System>::Node& node) {
-
-			//			//if system was adde to order -> skip
-			//			if (usedSystems.contains(node.GetValue())) {
-			//				return true;
-			//			}
-
-			//			//if no dependences add to end 
-			//			if (!node.HasLinksFrom() && !node.HasLinksTo()) {
-			//				//separatedSystems.push_back(node.GetValue());
-			//				usedSystems.insert(node.GetValue());
-			//				systemsOrder.push_back(node.GetValue());
-			//				return true;
-			//			}
-
-			//			std::vector<System> nextSystems;
-			//			//Find next systems
-			//			{
-
-			//				bool allDependenceSystemsInOrder = true;
-			//				node.ForEachLinksTo([&](DS::Graph<System>::Node::Id linkTo) {
-			//					const DS::Graph<System>::Node& systemToNode = thread.callGraph_.GetNode(linkTo);
-
-			//					//Skip this dependence if this system was not added to order.
-			//					if (!usedSystems.contains(systemToNode.GetValue())) {
-			//						allDependenceSystemsInOrder = false;
-			//						return false;
-			//					}
-
-			//					nextSystems.push_back(systemToNode.GetValue());
-
-
-			//					return true;
-			//					});
-
-			//				if (!allDependenceSystemsInOrder) {
-			//					return true;
-			//				}
-
-			//			}
-			//			std::vector<System> previousSystems;
-			//			//Find previous systems
-			//			{
-
-			//				bool allDependenceSystemsInOrder = true;
-			//				node.ForEachLinksFrom([&](DS::Graph<System>::Node::Id linkTo) {
-			//					const DS::Graph<System>::Node& systemToNode = thread.callGraph_.GetNode(linkTo);
-
-			//					//Skip this dependence if this system was not added to order.
-			//					if (!usedSystems.contains(systemToNode.GetValue())) {
-			//						allDependenceSystemsInOrder = false;
-			//						return false;
-			//					}
-
-			//					previousSystems.push_back(systemToNode.GetValue());
-
-
-			//					return true;
-			//					});
-
-			//				if (!allDependenceSystemsInOrder) {
-			//					return true;
-			//				}
-
-			//			}
-
-			//			//All dependence systems in order lets add current system to order.
-			//			System leftSystem = "";
-			//			Common::Index leftSystemIndex = Common::Limits<Common::Index>::Max();
-			//			{
-			//				for () {
-
-			//				}
-			//			}
-
-			//			System rightSystem = "";
-			//			Common::Index rightSystemIndex = Common::Limits<Common::Index>::Max();
-			//			{
-
-			//			}
-
-			//			return true;
-			//		});
-			//}
-
-
-			//if (!systemsOrder.empty()){
-			//	__debugbreak();
-			//}
-
-			//Code runMainThreadSystems;
-			//for (auto it = thread.systems_.begin(); it != thread.systems_.end(); it++) {
-			//	runMainThreadSystems.Add(std::format(
-			//		"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
-			//		"{}System(world2);"
-			//		"PIXEndEvent();",
-			//		it->first,
-			//		it->first
-			//	));
-			//	auto itCopy = it;
-			//	if (itCopy++ != thread.systems_.end()) {
-			//		runMainThreadSystems.NewLine();
-			//	}
-			//}
-			//return runMainThreadSystems;
 		}
 
 		std::pair<std::filesystem::path, std::shared_ptr<File>>

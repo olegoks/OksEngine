@@ -1,6 +1,7 @@
 system = {
     name = "CreateECSInspector",
     initSystem = true,
+    runAfter = "CreateMainWindow",
     createsEntities = {
         {
         createsComponents = {

@@ -604,6 +604,8 @@ namespace ECSGenerator {
 		luabridge::LuaRef system = context.GetGlobalAsRef("system");
 
 		luabridge::LuaRef createsEntity = system["createsEntities"];
+		luabridge::LuaRef createsComponents = system["createsComponents"];
+
 		luabridge::LuaRef processesComponents = system["processesComponents"];
 		luabridge::LuaRef processesEntities = system["processesEntities"];
 		luabridge::LuaRef processAllEntities = system["processAllEntities"];
@@ -613,15 +615,6 @@ namespace ECSGenerator {
 
 		if (!initSystem.isNil()) {
 			systemType = ParsedSystemECSFile::SystemType::Initialize;
-#pragma region Assert
-			OS::AssertMessage(!createsEntity.isNil(),
-				"Invalid .ecs file. Initialize system must create entity.");
-			OS::AssertMessage(processesComponents.isNil(),
-				"Invalid .ecs file. Initialize system can not process components.");
-			OS::AssertMessage(processAllEntities.isNil(),
-				"Invalid .ecs file. Initialize system can not process all entities.");
-#pragma endregion
-
 		}
 		else if (!processAllEntities.isNil()) {
 			systemType = ParsedSystemECSFile::SystemType::AllEntities;
@@ -928,7 +921,11 @@ namespace ECSGenerator {
 		}
 
 		auto runAfterSystems = parseRunAfter(system);
-		auto runBeforeSystems = parseRunAfter(system);
+		auto runBeforeSystems = parseRunBefore(system);
+
+		if (ecsFilePath.filename() == "OksEngine.CreateRenderDriver.ecs") {
+			//__debugbreak();
+		}
 
 		auto createsEntities = parseCreatesEntities(system);
 		auto accessesEntities = parseAccessesEntities(system);
@@ -1243,12 +1240,13 @@ namespace ECSGenerator {
 				std::vector<Function::Parameter> updateMethodParameters;
 
 
-				//If system  process all entities need only one paramter Entity::Id
-				if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
-					updateMethodParameters.push_back({ "ECS2::Entity::Id", "entityId" });
-				}
+				////If system  process all entities need only one paramter Entity::Id
+				//if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
+				//	updateMethodParameters.push_back({ "ECS2::Entity::Id", "entityId" });
+				//}
 
 
+				//TODO: process more than 2 entities.
 				for (Common::Index i = 0; i < systemEcsFile->ci_.processesEntities_.size(); i++) {
 
 					std::string entityIdString = "";
@@ -1439,9 +1437,9 @@ namespace ECSGenerator {
 					File::Includes includes{ };
 					includes.paths_.push_back("ECS2.hpp");
 					includes.paths_.push_back("chrono");
-					//if (systemEcsFile->GetName() == "ProcessLoadECSFilesButton") {
-					//	__debugbreak();
-					//}
+					if (systemEcsFile->GetName() == "CreateMainWindow") {
+						//__debugbreak();
+					}
 
 					for (auto& createsEntities : systemEcsFile->ci_.createsEntities_) {
 
