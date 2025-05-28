@@ -260,7 +260,7 @@ namespace DataStructures {
 	template<class Type>
 	void VersionedMap<Type>::ForEachElement(ProcessElement&& processor) noexcept {
 		for (SlotIndex slotIndex = 0; slotIndex < slots_.GetSize(); slotIndex++) {
-			const Slot& slot = slots_[slotIndex];
+			Slot& slot = slots_[slotIndex];
 			if (!slot.IsFree()) {
 				const SlotId slotId{ slotIndex, slot.version_ };
 				const bool stop = !processor(slotId.operator size_t(), *slot.GetData());

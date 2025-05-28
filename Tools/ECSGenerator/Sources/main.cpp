@@ -108,7 +108,7 @@ int main(int argc, char** argv) {
 	OS::Assert(configFilePath.size() == 1);
 	//resourceSystem.LoadResource(root / std::filesystem::path(configFilePath[0]).filename());
 	Resources::ResourceData configResourceData = resourceSystem.GetResourceData(root / std::filesystem::path(configFilePath[0]).filename());
-	auto config = std::make_shared<OksEngine::Config>(std::string{ configResourceData.GetData<Common::Byte>(), configResourceData.GetSize() });
+	auto config = std::make_shared<OksEngine::ConfigFile>(std::string{ configResourceData.GetData<Common::Byte>(), configResourceData.GetSize() });
 
 	auto generator = std::make_shared<ECSGenerator::CodeStructureGenerator>();
 

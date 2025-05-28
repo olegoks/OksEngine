@@ -1,6 +1,7 @@
 system = {
     name = "LoadConfigFile",
     initSystem = true,
+    runAfter = "CreateResourceSystem",
     processesEntities  = {
         {
             processesComponents = { 

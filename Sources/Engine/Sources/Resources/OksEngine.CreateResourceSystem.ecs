@@ -1,0 +1,11 @@
+system = {
+    name = "CreateResourceSystem",
+    initSystem = true,
+    createsEntities = {
+        {
+        createsComponents = {
+            "ResourceSystem"
+        }
+        }
+    }
+}
