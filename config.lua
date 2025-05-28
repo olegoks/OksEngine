@@ -32,7 +32,7 @@ ECSCallGraphEditor = {
     ecsFilesRootDirectory = './Sources/Engine/Sources'
 }
 
-scenesRootDirectory = './Resources/Scenes/',
+scenesRootDirectory = './Resources/Scenes/'
 
 Render = {
     shadersRootDirectory = './Resources/Shaders/',
