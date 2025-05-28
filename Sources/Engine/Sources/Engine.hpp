@@ -21,7 +21,7 @@ namespace OksEngine {
 
 		struct CreateInfo {
 			int argc_ = 0;
-			const char** argv_ = nullptr;
+			char** argv_ = nullptr;
 		};
 
 		explicit Engine(const CreateInfo& createInfo) noexcept;

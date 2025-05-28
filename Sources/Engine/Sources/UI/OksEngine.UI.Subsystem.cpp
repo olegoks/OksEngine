@@ -13,16 +13,16 @@ namespace OksEngine {
 		//auto world = context.GetECSWorld();
 		//ECS::Entity::Id ui = world->CreateEntity();
 
-		api_ = std::make_shared<UI::API>();
-		UI::Window::CreateInfo windowCreateInfo;
-		{
-			//windowCreateInfo.title_ = config->GetValueAs<std::string>("UI.Window.Title");
-			//windowCreateInfo.windowSize_ = {
-			//	config->GetValueAs<int>("UI.Window.Size.StartWidth"),
-			//	config->GetValueAs<int>("UI.Window.Size.StartHeight")
-			//};
-		}
-		window_ = api_->CreateWindow(windowCreateInfo);
+		//api_ = std::make_shared<UI::API>();
+		//UI::Window::CreateInfo windowCreateInfo;
+		//{
+		//	windowCreateInfo.title_ = config->GetValueAs<std::string>("UI.Window.Title");
+		//	windowCreateInfo.windowSize_ = {
+		//		config->GetValueAs<int>("UI.Window.Size.StartWidth"),
+		//		config->GetValueAs<int>("UI.Window.Size.StartHeight")
+		//	};
+		//}
+		//window_ = api_->CreateWindow(windowCreateInfo);
 		//world->CreateComponent<Window>(ui, window_);
 		//world->CreateComponent<KeyboardInput>(ui);
 		//world->CreateComponent<MouseInput>(ui);

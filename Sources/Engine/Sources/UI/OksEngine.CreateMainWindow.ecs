@@ -1,0 +1,15 @@
+system = {
+    name = "CreateMainWindow",
+    initSystem = true,
+    processesComponents = {
+        "Config",
+        "LuaScript"
+    },
+    createsEntities = { 
+        {
+        createsComponents = {
+            "MainWindow" 
+        }
+        }
+    }
+}
