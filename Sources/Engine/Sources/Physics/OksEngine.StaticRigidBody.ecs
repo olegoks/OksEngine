@@ -1,5 +1,6 @@
 component = {
     name = "StaticRigidBody",
+    serializable = false,
     fields = { 
         { type = "PAL::StaticRigidBody::Id", name = "id" } }
 }

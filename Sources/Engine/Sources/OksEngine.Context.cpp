@@ -17,24 +17,50 @@
 #include <Render/auto_OksEngine.RenderDriver.hpp>
 #include <Resources/auto_OksEngine.ResourceSystem.hpp>
 #include <UI/auto_OksEngine.MainWindow.hpp>
-
+#include <Common/CommandLineParameters/auto_OksEngine.Components.hpp>
 
 namespace OksEngine
 {
 	Context::Context(const CreateInfo& createInfo) :
-		commandLineParameters_{ createInfo.commandLineParameters_ },
 		config_{ }
 	{
-		OS::CommandLineParameters commandLineParameters = createInfo.commandLineParameters_;
+		world2_ = std::make_shared<ECS2::World>();
+
+		{
+			const int argc = createInfo.argc_;
+			const char** argv = createInfo.argv_;
+
+			const ECS2::Entity::Id commandLineParametersEntity = world2_->CreateEntity();
+			world2_->CreateComponent<CommandLineParameters>(commandLineParametersEntity);
+			world2_->CreateComponent<ExecutablePath>(commandLineParametersEntity, argv[0]);
+
+			for (int i = 1; i < argc; i++) {
+
+				const char* value = argv[i];
+
+				if (value == "-cfg") {
+					world2_->CreateComponent<ConfigFilePath>(commandLineParametersEntity, argv[i + 1]);
+				}
+			}
+
+		}
+
+
 		{
 			LogSubsystem::CreateInfo createInfo{
-				commandLineParameters,
+				createInfo.argc_,
+				createInfo.argv_,
 				*this
 			};
 			logSubsystem_ = std::make_shared<LogSubsystem>(createInfo);
 		}
 
 		resourceSubsystem_ = std::make_shared<AsyncResourceSubsystem>(*this);
+
+		const ECS2::Entity::Id resourceSystemEntity = world2_->CreateEntity();
+		world2_->CreateComponent<ResourceSystem>(resourceSystemEntity, resourceSubsystem_);
+
+		/*
 		std::vector<std::string_view> values = commandLineParameters.GetValue("-cfg");
 		OS::Assert(values.size() == 1);
 		std::filesystem::path configFilePath = values[0];
@@ -50,15 +76,15 @@ namespace OksEngine
 		auto ecsFilesRootPath = config_->GetValueAs<std::string>("ECSCallGraphEditor.ecsFilesRootDirectory");
 		auto ecsFilesFullResourcesPath = configFilePath.parent_path() / ecsFilesRootPath;
 
-		resourceSubsystem_->SetRoot(Subsystem::Type::Engine, { scriptsFullResourcesPath, fullResourcesPath, ecsFilesFullResourcesPath });
+		auto scenesFilesRootPath = config_->GetValueAs<std::string>("scenesRootDirectory");
+		auto scenesFilesFullResourcesPath = configFilePath.parent_path() / scenesFilesRootPath;
+
+
+		resourceSubsystem_->SetRoot(Subsystem::Type::Engine, { scenesFilesFullResourcesPath, scriptsFullResourcesPath, fullResourcesPath, ecsFilesFullResourcesPath });*/
 
 
 		//world_ = std::make_shared<ECS::World>();
 
-		world2_ = std::make_shared<ECS2::World>();
-
-		const ECS2::Entity::Id resourceSystemEntity = world2_->CreateEntity();
-		world2_->CreateComponent<ResourceSystem>(resourceSystemEntity, resourceSubsystem_);
 
 		//world2_->AddArchetype<>
 		////Resource ecs subsystem

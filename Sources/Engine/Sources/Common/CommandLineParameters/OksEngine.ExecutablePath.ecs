@@ -1,0 +1,6 @@
+component = {
+    name = "ExecutablePath",
+    fields = {
+        { type = "std::string", name = "path" }
+    }
+}

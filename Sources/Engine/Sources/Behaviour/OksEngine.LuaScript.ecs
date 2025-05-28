@@ -1,6 +1,7 @@
 component = {
     name = "LuaScript",
+    serializable = false,
     fields = { 
-        
+        { type = "std::string", name = "text" }     
      }
 }

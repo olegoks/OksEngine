@@ -1,4 +1,5 @@
 component = {
     name = "Node",
+    serializable = false,
     fields = {  }
 }

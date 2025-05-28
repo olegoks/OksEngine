@@ -26,7 +26,8 @@ namespace OksEngine {
 
 	Engine::Engine(const CreateInfo& createInfo) noexcept {
 		Context::CreateInfo contextCreateInfo{
-			createInfo.commandLineParameters_
+			createInfo.argc_,
+			createInfo.argv_
 		};
 		context_ = std::make_shared<Context>(contextCreateInfo);
 	}

@@ -1,5 +1,6 @@
 component = {
     name = "ImGuiAtlasDriverTexture",
+    serializable = false,
     fields = { 
         { type = "RAL::Texture::Id", name = "driverTextureId" }}
 }

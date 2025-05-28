@@ -1,4 +1,5 @@
 component = {
     name = "LoadGDFTask",
+    serializable = false,
     fields = { { type = "Common::UInt64", name = "id" } }
 }

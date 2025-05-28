@@ -1,5 +1,6 @@
 component = {
     name = "Sound",
+    serializable = false,
     fields = { 
         { type = "sf::SoundBuffer", name = "soundBuffer" }
      }

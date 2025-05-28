@@ -1,5 +1,6 @@
 component = {
     name = "ImGuiDriverVertexBuffer",
+    serializable = false,
     fields = { 
         { type="RAL::Driver::VertexBuffer::Id", name="id" },
         { type="Common::Size", name="capacity" },

@@ -17,7 +17,8 @@ namespace OksEngine {
 	public:
 
 		struct CreateInfo {
-			OS::CommandLineParameters commandLineParameters_;
+			int argc_ = 0;
+			const char** argv_ = nullptr;
 		};
 
 		Context(const CreateInfo& createInfo);
@@ -64,13 +65,7 @@ namespace OksEngine {
 			return physicsSubsystem_;
 		}
 
-		[[nodiscard]]
-		const auto& GetCommandLineParameters() const noexcept {
-			return commandLineParameters_;
-		}
-
 	private:
-		OS::CommandLineParameters commandLineParameters_;
 		std::shared_ptr<class LogSubsystem> logSubsystem_ = nullptr;
 		std::shared_ptr<class AsyncResourceSubsystem> resourceSubsystem_ = nullptr;
 		std::shared_ptr<class RenderSubsystem> renderSubsystem_ = nullptr;

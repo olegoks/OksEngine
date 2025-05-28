@@ -32,6 +32,8 @@ ECSCallGraphEditor = {
     ecsFilesRootDirectory = './Sources/Engine/Sources'
 }
 
+scenesRootDirectory = './Resources/Scenes/',
+
 Render = {
     shadersRootDirectory = './Resources/Shaders/',
     API = "Vulkan",

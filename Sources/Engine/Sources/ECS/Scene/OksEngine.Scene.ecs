@@ -1,0 +1,4 @@
+component = {
+    name = "Scene",
+    serializable = false
+}

@@ -175,6 +175,24 @@ namespace ECS2 {
 			return false;
 		}
 
+		[[nodiscard]]
+		ComponentsFilter GetEntityComponentsFilter(Entity::Id entityId) noexcept {
+			if (archetypeEntitiesComponents_.contains(entityId))
+			{
+				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
+				return componentsFilter;
+			}
+			if (dynamicEntitiesComponentFilters_.contains(entityId))
+			{
+				const ComponentsFilter componentsFilter = dynamicEntitiesComponentFilters_[entityId];
+				return componentsFilter;
+			}
+			OS::AssertFailMessage("Entity with such id is doesnt exist.");
+			return ComponentsFilter{};
+		}
+
+
+
 		template<class ...Components>
 		using SystemUpdateFunction = std::function<void(Entity::Id, Components*...)>;
 
@@ -193,12 +211,20 @@ namespace ECS2 {
 
 
 		//Process all entities.
+		//TODO: optimize
+		template<class ...Components>
 		void ForEachEntity(std::function<void(Entity::Id)>&& processEachEntityId) {
+			ComponentsFilter componentsFilter;
+			componentsFilter.SetBits<Components...>();
 			for (const auto& [entityId, componentsFilter] : archetypeEntitiesComponents_) {
-				processEachEntityId(entityId);
+				if (componentsFilter.IsSubsetOf(componentsFilter)) {
+					processEachEntityId(entityId);
+				}
 			}
 			for (const auto& [entityId, componentsFilter] : dynamicEntitiesComponentFilters_) {
-				processEachEntityId(entityId);
+				if (componentsFilter.IsSubsetOf(componentsFilter)) {
+					processEachEntityId(entityId);
+				}
 			}
 		}
 

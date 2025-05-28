@@ -1,4 +1,5 @@
 component = {
     name = "DriverIndexBuffer",
+    serializable = false,
     fields = { { type="RAL::Driver::IndexBuffer::Id", name="id" } }
 }

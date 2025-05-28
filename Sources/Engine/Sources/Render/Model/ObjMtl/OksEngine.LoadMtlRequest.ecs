@@ -1,4 +1,5 @@
 component = {
     name = "LoadMtlRequest",
+    serializable = false,
     fields = { { type="ECS2::Entity::Id", name="loadResourceRequestEntityId" } }
 }

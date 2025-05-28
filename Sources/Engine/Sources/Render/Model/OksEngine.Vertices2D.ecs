@@ -1,4 +1,5 @@
 component = {
     name = "Vertices2D",
+    serializable = false,
     fields = { { type="Geom::VertexCloud<Geom::Vertex2f>", name="vertices" } }
 }

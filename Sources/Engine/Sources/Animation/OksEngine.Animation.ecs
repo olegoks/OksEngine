@@ -1,6 +1,6 @@
 component = {
     name = "Animation",
-
+    serializable = false,
     fields = { 
         { type = "std::string", name = "name" },
         { type = "Common::Double", name = "durationInTicks" },

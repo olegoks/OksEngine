@@ -66,7 +66,7 @@ namespace OksEngine {
 
 		bool CreateNewFile(const std::filesystem::path& osPath, Resources::ResourceData&& resourceData) {
 			return resourceSystem_.CreateResource(osPath, std::move(resourceData));
-			
+
 		}
 
 		void SetRoots(const std::vector<std::filesystem::path>& rootPaths) {
@@ -140,7 +140,7 @@ namespace OksEngine {
 		};
 
 		struct GetAddedResourcesTask : public ResourceSystemTask {
-			GetAddedResourcesTask(const std::vector<std::string>& extensions) 
+			GetAddedResourcesTask(const std::vector<std::string>& extensions)
 				: ResourceSystemTask{ TaskType::GetAddedResources },
 				extensions_{ extensions } {}
 			std::vector<std::string> extensions_;
@@ -271,6 +271,14 @@ namespace OksEngine {
 				Subsystem::Type::Resource,
 				CreateTask<GetResourceTask>(resourcePath)
 			);
+		}
+
+		[[nodiscard]]
+		Resources::ResourceData GetResourceSynch(Subsystem::Type subsystemType, std::filesystem::path resourcePath) {
+			Task::Id taskId = GetResource(subsystemType, resourcePath);
+			Task task = WaitForTask(subsystemType, taskId);
+			GetResourceResult getResourceResult = std::move(task.GetData<GetResourceResult>());
+			return std::move(getResourceResult.resource_);
 		}
 
 

@@ -1,5 +1,6 @@
 component = {
     name = "LoadSoundRequest",
+    serializable = false,
     fields = { 
         { type = "ECS2::Entity::Id", name = "resourceLoadRequestEntityId" }
      }

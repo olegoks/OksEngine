@@ -1,4 +1,5 @@
 component = {
     name = "DriverMesh",
+    serializable = false,
     fields = { { type="Common::Id", name="id" } }
 }

@@ -1,8 +1,8 @@
 #pragma once 
+//
+//#include <OksEngine.ECS.System.hpp>
 
-#include <OksEngine.ECS.System.hpp>
-
-namespace OksEngine {
+namespace OksEngine {/*
 
 
 	class CreateLuaScriptEntity : public ECSSystem {
@@ -32,6 +32,6 @@ namespace OksEngine {
 
 	private:
 
-	};
+	};*/
 
 }

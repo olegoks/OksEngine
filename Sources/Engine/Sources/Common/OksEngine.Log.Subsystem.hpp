@@ -9,7 +9,8 @@ namespace OksEngine {
 	public:
 
 		struct CreateInfo {
-			OS::CommandLineParameters commandLineParameters_;
+			int argc_ = 0;
+			char** argv_ = nullptr;
 			Context& context_;
 		};
 
@@ -20,8 +21,8 @@ namespace OksEngine {
 			} {
 
 			OS::InitializeLogger(
-				createInfo.commandLineParameters_.GetArgc(), 
-				createInfo.commandLineParameters_.GetArgv());
+				createInfo.argc_, 
+				createInfo.argv_);
 		}
 
 		void Update() override { }

@@ -1,0 +1,14 @@
+system = {
+    name = "StartWorldSceneSaving",
+    processesEntities  = {
+        {
+            processesComponents = { 
+                "ECSController",
+                "SaveSceneRequest"
+            },
+            createsComponents = { "LuaScript" }
+        }
+    }
+}
+
+
