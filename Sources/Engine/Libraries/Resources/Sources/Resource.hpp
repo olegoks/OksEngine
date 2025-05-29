@@ -63,9 +63,9 @@ namespace Resources {
 			const std::filesystem::path& path,
 			Memory::AllocationCallbacks allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
 			path_{ path } {
-		
+
 			file_ = std::make_unique<OS::BinaryFile>(GetPath(), allocationCallbacks_);
-		
+
 		}
 
 		void Load();
@@ -137,9 +137,9 @@ namespace Resources {
 
 		ResourceSystem(const CreateInfo& createInfo, const Memory::AllocationCallbacks& allocationCallbacks = Memory::AllocationCallbacks{}) noexcept :
 			ci_{ createInfo },
-			allocationCallbacks_ {
+			allocationCallbacks_{
 			allocationCallbacks
-		} {
+			} {
 			ResourceInfo resourceInfo{
 				"Root",
 				Resource{ "" }
@@ -245,19 +245,21 @@ namespace Resources {
 
 		void SetRoots(const std::vector<std::filesystem::path>& rootPaths) {
 			rootFilesystemPaths_ = rootPaths;
-			try {
-				for (const auto& rootPath : rootPaths) {
+
+			for (const auto& rootPath : rootPaths) {
+				try {
 					for (const auto& entry : std::filesystem::recursive_directory_iterator(rootPath)) {
 						if (std::filesystem::is_regular_file(entry) && ci_.fileExtensions_.contains(entry.path().extension().string())) {
 							AddResource(entry.path().filename().string(), entry.path(), "Root");
 						}
 					}
 				}
+				catch (const std::filesystem::filesystem_error& error) {
+					OS::LogInfo("ResourceSystem", error.what());
+				}
+			}
 
-			}
-			catch (const std::filesystem::filesystem_error& error) {
-				OS::LogInfo("ResourceSystem", error.what());
-			}
+
 		}
 
 		using ProcessAddedResource = std::function<bool(const std::filesystem::path path)>;
@@ -287,7 +289,7 @@ namespace Resources {
 			const bool stop = !processDependence(nodeId);
 			if (stop) return false;
 			node.ForEachLinksTo(
-				[&](Graph::Node::Id nodeId)->bool 
+				[&](Graph::Node::Id nodeId)->bool
 				{
 					return ForEachDependenceNode(nodeId, processDependence);;
 				});
@@ -306,7 +308,7 @@ namespace Resources {
 					OS::LogInfo("Resources", { "Loaded resource {}", resourceInfo.GetName().c_str() });
 				}
 				return true;
-			};
+				};
 
 			ForEachDependenceNode(nodeId, processNode);
 		}
@@ -321,7 +323,7 @@ namespace Resources {
 					}
 				}
 				return true;
-			};
+				};
 
 			ForEachDependenceNode(nodeId, processNode);
 		}
@@ -394,12 +396,12 @@ namespace Resources {
 					bool found = false;
 					currentNode.ForEachLinksTo([&](Graph::Node::Id nodeId) {
 						const ResourceInfo& resourceInfo = GetResourceInfo(nodeId);
-					if (resourceInfo.GetName() == resourceName) {
-						currentNodeId = nodeId;
-						found = true;
-						return false;
-					}
-					return true;
+						if (resourceInfo.GetName() == resourceName) {
+							currentNodeId = nodeId;
+							found = true;
+							return false;
+						}
+						return true;
 						});
 					OS::AssertMessage(found,
 						"Attempt to use incorrect resource path.");

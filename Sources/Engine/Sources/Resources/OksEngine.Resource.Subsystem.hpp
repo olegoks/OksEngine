@@ -12,11 +12,11 @@
 namespace OksEngine {
 
 
-	class ResourceSubsystem : public Subsystem {
+	class ResourceSubsystem /*: public Subsystem */{
 	public:
 
 
-		ResourceSubsystem(Context& context) : Subsystem{ Subsystem::Type::Resource, context },
+		ResourceSubsystem() : /* : Subsystem{ Subsystem::Type::Resource, context },*/
 			resourceSystem_{
 			Resources::ResourceSystem::CreateInfo{
 					.fileExtensions_ = {
@@ -86,9 +86,6 @@ namespace OksEngine {
 			}*/
 
 			resourceSystem_.SetRoots(rootPaths);
-		}
-
-		virtual void Update() override {
 		}
 
 	private:
@@ -189,8 +186,8 @@ namespace OksEngine {
 
 		};
 
-		AsyncResourceSubsystem(Context& context) {
-			resourceSubsystem_ = std::make_shared<ResourceSubsystem>(context);
+		AsyncResourceSubsystem() {
+			resourceSubsystem_ = std::make_shared<ResourceSubsystem>();
 			thread_ = std::jthread{ &AsyncResourceSubsystem::Loop, this };
 		}
 

@@ -106,7 +106,7 @@ namespace ECSGenerator {
 		}
 
 		std::shared_ptr<Function> GenerateRunInitSystemsFunctionRealization(std::shared_ptr<ProjectContext> projectContext) {
-			
+
 			DS::Graph<System> initCallGraph;
 			projectContext->ForEachSystemEcsFile(
 				[&](std::shared_ptr<ParsedECSFile> ecsFile) {
@@ -146,8 +146,8 @@ namespace ECSGenerator {
 					}
 					return true;
 				});
-			
-			
+
+
 
 			//Find systems that root of dependence and generate code.
 			auto findRoots = [&](DS::Graph<System>& graph) {
@@ -182,7 +182,7 @@ namespace ECSGenerator {
 
 			}
 
-			
+
 			Code runInitSystemsCode;
 			runInitSystemsCode.Add(
 				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Start initialize frame\");"
@@ -191,36 +191,35 @@ namespace ECSGenerator {
 				"PIXEndEvent();");
 
 			//Generate code to run systems that process all entities.
-			projectContext->ForEachSystemEcsFile(
-				[&](std::shared_ptr<ParsedECSFile> ecsFile) {
-					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
-					if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
-						runInitSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
+			for (auto& systemName : systemsOrder.order_) {
+				auto ecsFile = projectContext->GetEcsFileByName(systemName);
+				auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+				runInitSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
 
-						//Check if system creates new components, if yes we need to add them immideatly
-						bool isCreatesEntityComponent = false;
-						systemEcsFile->ForEachRequestEntity([&](const ParsedSystemECSFile::RequestEntity& entity, bool isLast) {
-							if (!entity.creates_.empty()) {
-								isCreatesEntityComponent = true;
-								return false;
-							}
-							return true;
-							});
-						if (!isCreatesEntityComponent) {
-							for (const auto& randomAccessEntity : systemEcsFile->ci_.accessesEntities_) {
-								if (!randomAccessEntity.creates_.empty()) {
-									isCreatesEntityComponent = true;
-									break;
-								}
-							}
+				//Check if system creates new components, if yes we need to add them immideatly
+				{
+					bool isCreatesEntityComponent = false;
+					systemEcsFile->ForEachRequestEntity([&](const ParsedSystemECSFile::RequestEntity& entity, bool isLast) {
+						if (!entity.creates_.empty()) {
+							isCreatesEntityComponent = true;
+							return false;
 						}
-						isCreatesEntityComponent = isCreatesEntityComponent || !systemEcsFile->ci_.createsEntities_.empty();
-						if (isCreatesEntityComponent) {
-							runInitSystemsCode.Add("world2->ApplyDelayedRequests();");
+						return true;
+						});
+					if (!isCreatesEntityComponent) {
+						for (const auto& randomAccessEntity : systemEcsFile->ci_.accessesEntities_) {
+							if (!randomAccessEntity.creates_.empty()) {
+								isCreatesEntityComponent = true;
+								break;
+							}
 						}
 					}
-					return true;
-				});
+					isCreatesEntityComponent = isCreatesEntityComponent || !systemEcsFile->ci_.createsEntities_.empty();
+					if (isCreatesEntityComponent) {
+						runInitSystemsCode.Add("world2->ApplyDelayedRequests();");
+					}
+				}
+			};
 
 			runInitSystemsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"End enitialize frame\");");
 			runInitSystemsCode.Add("world2->EndFrame();");
