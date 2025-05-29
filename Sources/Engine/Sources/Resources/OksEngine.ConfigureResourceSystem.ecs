@@ -1,7 +1,17 @@
 system = {
     name = "ConfigureResourceSystem",
     initSystem = true,
+    runAfter = { 
+        "CreateResourceSystem",
+        "LoadConfigFile"
+    },
     processesEntities = {
+        {
+            processesComponents = {
+                "CommandLineParameters",
+                "ConfigFilePath"
+            }
+        },
         {
             processesComponents = {
                 { name = "ResourceSystem", readonly = false }

@@ -1869,6 +1869,12 @@ namespace ECSGenerator {
 					realization.Add("});");
 					return true;
 					});
+
+				if (currentEntityIndex == 0) {
+					//If there are no entities just call update method.
+					realization.Add(systemEcsFile->GetLowerName() + ".Update();");
+				}
+
 				return realization;
 				};
 

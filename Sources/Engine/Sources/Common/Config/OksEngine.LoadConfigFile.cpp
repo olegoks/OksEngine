@@ -6,7 +6,7 @@ void LoadConfigFile::Update(ECS2::Entity::Id entity1Id,
     const ConfigFilePath* configFilePath, ECS2::Entity::Id entity2Id,
     ResourceSystem* resourceSystem) {
 
-    auto resourceData = resourceSystem->system_->GetResourceSynch(ResourceSubsystem::Type::Engine, configFilePath->path_);
+    auto resourceData = resourceSystem->system_->GetResourceSynch(Subsystem::Type::Engine, configFilePath->path_);
 
     const ECS2::Entity::Id entityId = CreateEntity();
 

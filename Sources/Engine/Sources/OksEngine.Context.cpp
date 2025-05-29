@@ -55,32 +55,32 @@ namespace OksEngine
 			logSubsystem_ = std::make_shared<LogSubsystem>(lsci);
 		}
 
-		resourceSubsystem_ = std::make_shared<AsyncResourceSubsystem>(*this);
+		//resourceSubsystem_ = std::make_shared<AsyncResourceSubsystem>(*this);
 
-		const ECS2::Entity::Id resourceSystemEntity = world2_->CreateEntity();
-		world2_->CreateComponent<ResourceSystem>(resourceSystemEntity, resourceSubsystem_);
+		//const ECS2::Entity::Id resourceSystemEntity = world2_->CreateEntity();
+		//world2_->CreateComponent<ResourceSystem>(resourceSystemEntity, resourceSubsystem_);
 
-		/*
-		std::vector<std::string_view> values = commandLineParameters.GetValue("-cfg");
-		OS::Assert(values.size() == 1);
-		std::filesystem::path configFilePath = values[0];
-		auto loadConfigTaskId = resourceSubsystem_->GetResource(Subsystem::Type::Engine, configFilePath);
-		auto configResource = resourceSubsystem_->GetResource(Subsystem::Type::Engine, loadConfigTaskId);
-		config_ = std::make_shared<Config>(std::string{ configResource.GetData<char>(), configResource.GetSize() });
-		auto resourcesRootPath = config_->GetValueAs<std::string>("ResourceSystem.resourcesRootDirectory");
-		auto fullResourcesPath = configFilePath.parent_path() / resourcesRootPath;
+		//
+		//std::vector<std::string_view> values = commandLineParameters.GetValue("-cfg");
+		//OS::Assert(values.size() == 1);
+		//std::filesystem::path configFilePath = values[0];
+		//auto loadConfigTaskId = resourceSubsystem_->GetResource(Subsystem::Type::Engine, configFilePath);
+		//auto configResource = resourceSubsystem_->GetResource(Subsystem::Type::Engine, loadConfigTaskId);
+		//config_ = std::make_shared<Config>(std::string{ configResource.GetData<char>(), configResource.GetSize() });
+		//auto resourcesRootPath = config_->GetValueAs<std::string>("ResourceSystem.resourcesRootDirectory");
+		//auto fullResourcesPath = configFilePath.parent_path() / resourcesRootPath;
 
-		auto scriptsRootPath = config_->GetValueAs<std::string>("ResourceSystem.scriptsRootDirectory");
-		auto scriptsFullResourcesPath = configFilePath.parent_path() / scriptsRootPath;
+		//auto scriptsRootPath = config_->GetValueAs<std::string>("ResourceSystem.scriptsRootDirectory");
+		//auto scriptsFullResourcesPath = configFilePath.parent_path() / scriptsRootPath;
 
-		auto ecsFilesRootPath = config_->GetValueAs<std::string>("ECSCallGraphEditor.ecsFilesRootDirectory");
-		auto ecsFilesFullResourcesPath = configFilePath.parent_path() / ecsFilesRootPath;
+		//auto ecsFilesRootPath = config_->GetValueAs<std::string>("ECSCallGraphEditor.ecsFilesRootDirectory");
+		//auto ecsFilesFullResourcesPath = configFilePath.parent_path() / ecsFilesRootPath;
 
-		auto scenesFilesRootPath = config_->GetValueAs<std::string>("scenesRootDirectory");
-		auto scenesFilesFullResourcesPath = configFilePath.parent_path() / scenesFilesRootPath;
+		//auto scenesFilesRootPath = config_->GetValueAs<std::string>("scenesRootDirectory");
+		//auto scenesFilesFullResourcesPath = configFilePath.parent_path() / scenesFilesRootPath;
 
 
-		resourceSubsystem_->SetRoot(Subsystem::Type::Engine, { scenesFilesFullResourcesPath, scriptsFullResourcesPath, fullResourcesPath, ecsFilesFullResourcesPath });*/
+		//resourceSubsystem_->SetRoot(Subsystem::Type::Engine, { scenesFilesFullResourcesPath, scriptsFullResourcesPath, fullResourcesPath, ecsFilesFullResourcesPath });
 
 
 		//world_ = std::make_shared<ECS::World>();

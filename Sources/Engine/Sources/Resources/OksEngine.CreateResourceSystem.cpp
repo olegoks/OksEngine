@@ -6,8 +6,8 @@ void CreateResourceSystem::Update() {
 
 	auto resourceSubsystem = std::make_shared<AsyncResourceSubsystem>();
 
-	const ECS2::Entity::Id resourceSystemEntity = world2_->CreateEntity();
-	world2_->CreateComponent<ResourceSystem>(resourceSystemEntity, resourceSubsystem_);
+	const ECS2::Entity::Id resourceSystemEntity = CreateEntity();
+	CreateComponent<ResourceSystem>(resourceSystemEntity, resourceSubsystem);
 
 
 };

@@ -1,7 +1,10 @@
 system = {
     name = "CreateRenderDriver",
     initSystem = true,
-    runAfter = "CreateMainWindow",
+    runAfter = { 
+        "CreateMainWindow",
+        "ConfigureResourceSystem"
+    },
     processesEntities = {
         {
             processesComponents = {

@@ -11,8 +11,6 @@ void CreateMainWindow::Update(ECS2::Entity::Id entityId, const Config* config,
 	::Lua::Script script{ luaScript->text_ };
 	context.LoadScript(script);
 
-	::Lua::Context context_;
-
 	auto api = std::make_shared<UI::API>();
 	UI::Window::CreateInfo windowCreateInfo;
 	{
