@@ -57,8 +57,8 @@ namespace ECSGenerator {
 			projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> systemEcs) {
 
 				auto system = std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcs);
-				if (system->GetName() == "CreateECSInspector" && !system->IsInitializeSystem()) {
-					__debugbreak();
+				if (system->GetName() == "FindScenes") {
+					//__debugbreak();
 				}
 				if (system->IsInitializeSystem()) {
 					return true;
@@ -70,7 +70,7 @@ namespace ECSGenerator {
 					auto maybeDependenceSystem = std::dynamic_pointer_cast<ParsedSystemECSFile>(systemEcsFile);
 
 					if (maybeDependenceSystem->GetName() == "CreateECSInspector" && !maybeDependenceSystem->IsInitializeSystem()) {
-						__debugbreak();
+						//__debugbreak();
 					}
 					if (maybeDependenceSystem->IsInitializeSystem()) {
 						return true;

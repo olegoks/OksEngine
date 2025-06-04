@@ -1,0 +1,9 @@
+system = {
+    name = "DrawEnginePerformance",
+
+    processesComponents = { 
+        "ImGuiState",
+        "MainMenuBar",
+        "EnginePerformance"
+    }
+}

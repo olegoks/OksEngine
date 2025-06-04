@@ -1,0 +1,27 @@
+system = {
+    name = "CreateNewNode",
+    runAfter = "GraphEditorBegin",
+    runBefore = "GraphEditorEnd",
+    processesEntities  = {
+        {
+            processesComponents = {  
+                "ImGuiState",
+                "EditorContext" }
+        }
+    },
+    createsEntities = {
+        {
+        createsComponents = {
+            "CallGraphNode",
+                "Name",
+                "RootNode",
+                "Position2D",
+                "Serializable",
+                "RunBefore",
+                "RunAfter"
+        }
+        }
+    }
+}
+
+

@@ -1,0 +1,10 @@
+system = {
+    name = "ProcessSaveECSFilesButton",
+    runAfter = "GraphEditorBegin",
+    runBefore = "GraphEditorEnd",
+    processesComponents = { 
+        "ImGuiState",
+        "EditorContext" },
+    createsComponents= { "SaveECSFilesButtonPressed" },
+    excludes = { "SaveECSFilesButtonPressed" }
+}

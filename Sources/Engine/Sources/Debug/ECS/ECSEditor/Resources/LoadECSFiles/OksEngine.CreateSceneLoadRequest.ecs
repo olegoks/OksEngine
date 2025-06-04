@@ -1,0 +1,22 @@
+system = {
+    name = "CreateSceneLoadRequest",
+    runAfter = "GraphEditorBegin",
+    runBefore = "GraphEditorEnd",
+    processesEntities = {
+        {
+            processesComponents = { 
+                "ImGuiState",
+                "EditorContext",
+                "LoadECSFilesButtonPressed"
+            }
+        },
+        {
+            processesComponents = { 
+                "ECSController"
+            },
+            createsComponents= { "LoadSceneRequest" },
+            excludes = { "LoadSceneRequest" }
+        }
+    }
+   
+}

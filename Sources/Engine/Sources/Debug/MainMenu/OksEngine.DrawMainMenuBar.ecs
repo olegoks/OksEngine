@@ -1,0 +1,13 @@
+system = {
+    name = "DrawMainMenuBar",
+    runAfter = "StartImGuiFrame",
+    processesComponents = { 
+        "MainMenuBar",
+        "ImGuiState"
+    },
+    createsComponents = {
+        "EnginePerformance",
+        "ECSInspector",
+        "ECSEditor"
+    }
+}

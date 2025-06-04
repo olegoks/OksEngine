@@ -1,0 +1,18 @@
+system = {
+    name = "CreateECSInspector",
+    initSystem = true,
+    runAfter = "CreateMainWindow",
+    createsEntities = {
+        {
+        createsComponents = {
+            "ImGuiState",
+            "EditorContext",
+            "ECSInspector",
+            "HandleKeyboardInput",
+            "Position2D",
+            "Scale2D",
+            "Rotation2D"
+        }
+        }
+    }
+}

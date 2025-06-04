@@ -1,0 +1,20 @@
+system = {
+    name = "CreateSceneFile",
+    runAfter = "CreateSceneFileStart",
+    runBefore = "CreateSceneFileEnd",
+    processesEntities = {
+        {
+            processesComponents = {
+                "Serializable"
+            },
+            randomAccessComponents = true
+        },
+        {
+            processesComponents = {
+                "ECSController",
+                "SaveSceneRequest",
+                { name = "LuaScript", readonly = false }
+            }
+        }
+    }
+}

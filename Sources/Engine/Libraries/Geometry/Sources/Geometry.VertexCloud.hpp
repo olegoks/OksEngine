@@ -83,6 +83,9 @@ namespace Geometry {
 			return vertices_[index];
 		}
 
+		void Clear() {
+			vertices_.clear();
+		}
 
 		void Reserve(Common::Size capacity) {
 			vertices_.reserve(capacity);

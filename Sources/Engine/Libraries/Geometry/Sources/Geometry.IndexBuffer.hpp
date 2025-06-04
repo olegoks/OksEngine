@@ -35,10 +35,24 @@ namespace Geometry {
 		}
 
 		void AddNextMesh(Common::Size currentVerticesNumber, const IndexBuffer& indices) {
-			const Common::Size beginIndicesNumber = GetIndicesNumber();
 			indices_.reserve(GetIndicesNumber() + indices.GetIndicesNumber());
 			for (Common::Index i = 0; i < indices.GetIndicesNumber(); i++) {
 				indices_.push_back(currentVerticesNumber + indices[i]);
+			}
+		}
+
+		void AddNextMesh(Common::Size currentVerticesNumber, const IndexType* indices, Common::Size indicesNumber) {
+			indices_.reserve(GetIndicesNumber() + indicesNumber);
+			indices_.resize(GetIndicesNumber() + indicesNumber);
+
+			std::memcpy(
+				indices_.data() + indices_.size() - indicesNumber, 
+				indices,
+				indicesNumber * sizeof(IndexType)
+				);
+			for (Common::Index i = indices_.size() - indicesNumber; 
+				i < indices_.size(); i++) {
+				indices_[i] += currentVerticesNumber;
 			}
 		}
 
@@ -84,6 +98,10 @@ namespace Geometry {
 		[[nodiscard]]
 		const IndexType& operator[](Common::Index index) const noexcept {
 			return indices_[index];
+		}
+
+		void Clear() {
+			indices_.clear();
 		}
 
 		void Reserve(Common::Size capacity) {

@@ -1,5 +1,7 @@
 system = {
     name = "FindScenes",
+    initSystem = true,
+    runAfter = "ConfigureResourceSystem",
     processesComponents = { 
         { name = "ResourceSystem", readonly = false }
     },

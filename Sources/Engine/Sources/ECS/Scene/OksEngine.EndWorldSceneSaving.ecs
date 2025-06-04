@@ -1,6 +1,6 @@
 system = {
     name = "EndWorldSceneSaving",
-    runAfter = "StartWorldSceneSaving",
+    runAfter = "SaveSceneFile",
     processesEntities  = {
         {
             processesComponents = { 

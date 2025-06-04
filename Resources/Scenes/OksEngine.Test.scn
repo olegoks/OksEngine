@@ -1,0 +1,16 @@
+scene = {
+	entities = {
+{
+position2D = {x =-79.019997,y =-182.915924 },
+callGraphNode = { },
+name = {value ="Test" }},
+{
+position2D = {x =11.380005,y =-141.715927 },
+callGraphNode = { },
+name = {value ="Test" }},
+{
+position2D = {x =156.980011,y =-95.315918 },
+callGraphNode = { },
+name = {value ="Test" }},
+}
+}

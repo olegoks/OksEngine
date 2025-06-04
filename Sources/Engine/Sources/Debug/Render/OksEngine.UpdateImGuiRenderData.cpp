@@ -19,23 +19,15 @@ namespace OksEngine {
 		if (fb_width <= 0 || fb_height <= 0)
 			return;
 
+		static Geom::IndexBuffer indices;
 
-		//const glm::vec2 scale{
-		//	2.0f / draw_data->DisplaySize.x,
-		//	2.0f / draw_data->DisplaySize.y
-		//};
+		indices.Reserve(Common::Limits<Common::UInt16>().Max());
+		indices.Clear();
 
-		//const glm::vec2 translate{
-		//	-1.0f - draw_data->DisplayPos.x * scale[0],
-		//	-1.0f - draw_data->DisplayPos.y * scale[1]
-		//};
+		static Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
 
-		//Geom::VertexCloud<Geom::Vertex2f> vertices;
-		//DS::Vector<Geom::UV2f> uvs;
-		//DS::Vector<Geom::Color4b> colors;
-		Geom::IndexBuffer indices;
-
-		Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
+		vertices2ftc.Reserve(Common::Limits<Common::UInt16>().Max());
+		vertices2ftc.Clear();
 
 		for (int n = 0; n < draw_data->CmdListsCount; n++) {
 			const ImDrawList* cmd_list = draw_data->CmdLists[n];
@@ -46,33 +38,14 @@ namespace OksEngine {
 
 					const Common::Size verticesNumber = cmd_list->VtxBuffer.Size - pcmd->VtxOffset;
 
-					Geom::IndexBuffer imguiCmdIndices;
-					imguiCmdIndices.Add(cmd_list->IdxBuffer.Data + pcmd->IdxOffset, cmd_list->IdxBuffer.Size - pcmd->IdxOffset);
-
-					indices.AddNextMesh(vertices2ftc.GetVerticesNumber(), imguiCmdIndices);
+					indices.AddNextMesh(
+						vertices2ftc.GetVerticesNumber(),
+						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
+						cmd_list->IdxBuffer.Size - pcmd->IdxOffset);
 
 					const ImDrawVert* imVertices = cmd_list->VtxBuffer.Data + pcmd->VtxOffset;
-					for (Common::Index i = 0; i < verticesNumber; i++) {
-						const ImDrawVert* imVertex = imVertices + i;
-						const ImU32 color = imVertex->col;
-						vertices2ftc.Add(
-							RAL::Vertex2ftc{
-								Geom::Vertex2f{ imVertex->pos.x, imVertex->pos.y },
-								Geom::UV2f{ imVertex->uv.x, imVertex->uv.y },
-								Geom::Color4b{ (Common::Byte*)&color }
-							}
-						);
-						//	});
-						//vertices.Add(Geom::Vertex2f{ imVertex->pos.x, imVertex->pos.y });
-						//uvs.PushBack(Geom::UV2f{ imVertex->uv.x, imVertex->uv.y });
-						//
-						//colors.PushBack(Geom::Color4b{ (Common::Byte*)&color }
-						// Geom::Color4f{
-							//((Common::Byte*)&color)[0] / 255.f,
-							//((Common::Byte*)&color)[1] / 255.f,
-							//((Common::Byte*)&color)[2] / 255.f,
-							//((Common::Byte*)&color)[3] / 255.f }*/);
-					}
+
+					vertices2ftc.Add((RAL::Vertex2ftc*)imVertices, verticesNumber);
 
 				}
 			}

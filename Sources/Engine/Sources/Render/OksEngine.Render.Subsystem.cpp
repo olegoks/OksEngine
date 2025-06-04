@@ -2,7 +2,6 @@
 #include <Render/OksEngine.Render.Subsystem.hpp>
 
 #include <Render/auto_OksEngine.Systems.hpp>
-#include <UI/OksEngine.UI.Subsystem.hpp>
 
 namespace OksEngine {
 

@@ -1,0 +1,22 @@
+system = {
+    name = "CreateSceneSaveRequest",
+    runAfter = "GraphEditorBegin",
+    runBefore = "GraphEditorEnd",
+    processesEntities = {
+        {
+            processesComponents = { 
+                "ImGuiState",
+                "EditorContext",
+                "SaveECSFilesButtonPressed"
+            }
+        },
+        {
+            processesComponents = { 
+                "ECSController"
+            },
+            createsComponents= { "SaveSceneRequest" },
+            excludes = { "SaveSceneRequest" }
+        }
+    }
+   
+}

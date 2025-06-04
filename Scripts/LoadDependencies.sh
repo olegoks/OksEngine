@@ -18,6 +18,9 @@ echo $(pwd)
 ./vcpkg.exe install vulkan
 ./vcpkg.exe install imgui[docking-experimental]
 ./vcpkg.exe install implot
+./vcpkg.exe install implot3d
+./vcpkg.exe install imgui-node-editor
+./vcpkg.exe install imguizmo
 ./vcpkg.exe install lua
 ./vcpkg.exe install luabridge3
 ./vcpkg.exe install glslang

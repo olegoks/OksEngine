@@ -1,0 +1,8 @@
+system = {
+    name = "ShowImGuiInterface",
+    processesComponents = { 
+        "ImGuiState", 
+        { name = "KeyboardInput", readonly = false } 
+    },
+    createsComponents = { "MainMenuBar" }
+}

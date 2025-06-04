@@ -1,0 +1,14 @@
+system = {
+    name = "CreateSceneEntities",
+    processesEntities  = {
+        {
+            processesComponents = { 
+                "ECSController",
+                "LoadSceneRequest",
+                "LuaScript"
+            }
+        }
+    }
+}
+
+

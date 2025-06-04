@@ -1,0 +1,19 @@
+system = {
+    name = "CreateImGuiState",
+    processesEntities = {
+        {
+            processesComponents = {
+                "MainWindow",
+                "KeyboardInput"
+            }
+        }
+    },
+    createsEntities = {
+        {
+            createsComponents = {
+                "ImGuiState",
+                "HandleKeyboardInput"
+            }
+        }
+    }
+}

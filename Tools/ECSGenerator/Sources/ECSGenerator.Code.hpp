@@ -258,7 +258,7 @@ namespace ECSGenerator {
 	public:
 
 		struct Includes {
-			std::vector<std::filesystem::path> paths_;
+			std::unordered_set<std::filesystem::path> paths_;
 		};
 
 		struct CreateInfo {

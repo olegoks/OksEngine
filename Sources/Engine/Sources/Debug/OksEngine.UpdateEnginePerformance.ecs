@@ -1,5 +1,0 @@
-system = {
-    name = "UpdateEnginePerformance",
-
-    processesComponents = { { name = "EnginePerformance", readonly = false }, "FramesCounter" }
-}

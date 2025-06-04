@@ -1,0 +1,17 @@
+system = {
+    name = "CreateMainWindow",
+    initSystem = true,
+    runAfter = "LoadConfigFile",
+    processesComponents = {
+        "Config",
+        "LuaScript"
+    },
+    createsEntities = { 
+        {
+        createsComponents = {
+            "MainWindow",
+            "KeyboardInput"
+        }
+        }
+    }
+}
