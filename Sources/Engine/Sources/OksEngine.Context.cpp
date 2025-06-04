@@ -9,7 +9,6 @@
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 #include <Common/OksEngine.Log.Subsystem.hpp>
-#include <Debug/OksEngine.Debug.Subsystem.hpp>
 //#include <ECS.hpp>
 
 #include <OksEngine.Config.hpp>
@@ -147,8 +146,6 @@ namespace OksEngine
 			*this
 		};
 		physicsSubsystem_ = std::make_shared<PhysicsSubsystem>(physicsSubsystemCreateInfo);
-		DebugSubsystem::CreateInfo debugSubsystemCreateInfo{ *this };
-		debugSubsystem_ = std::make_shared<DebugSubsystem>(debugSubsystemCreateInfo);
 
 	}
 

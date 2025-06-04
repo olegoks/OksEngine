@@ -1,8 +1,0 @@
-system = {
-    name = "UpdateMainMenuBar",
-    runAfter = "StartImGuiFrame",
-    processesComponents = { 
-        { name = "MainMenuBar", readonly = false },
-        { name = "ImGuiState", readonly = false }
-    }
-}

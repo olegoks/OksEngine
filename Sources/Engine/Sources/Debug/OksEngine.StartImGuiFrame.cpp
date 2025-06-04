@@ -1,7 +1,7 @@
 #include <Debug\auto_OksEngine.StartImGuiFrame.hpp>
 
 #include <imgui.h>
-#include <Debug/Graph/imgui_node_editor.hpp>
+#include <imgui-node-editor/imgui_node_editor.h>
 
 namespace ed = ax::NodeEditor;
 

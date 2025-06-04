@@ -429,7 +429,7 @@ namespace ECSGenerator {
 
 					Code convertValueToStringCode;
 					if (fieldInfo.GetTypeName() == "std::string") {
-						convertValueToStringCode.Add(std::format("{}->{}_",
+						convertValueToStringCode.Add(std::format("\"\\\"\"s + {}->{}_ + \"\\\"\"",
 							componentEcsFile->GetLowerName(),
 							fieldInfo.GetName()));
 					}
@@ -451,6 +451,7 @@ namespace ECSGenerator {
 					});
 
 				Code luaScriptCode;
+				luaScriptCode.Add("using namespace std::string_literals;");
 				luaScriptCode.Add(std::format(
 					"std::string luaScript = \"{} = {{"
 					"{} }}\";",
@@ -634,53 +635,53 @@ namespace ECSGenerator {
 			componentEcsFile->ForEachField([&](const ParsedComponentECSFile::FieldInfo& fieldInfo, bool isLast) {
 
 				if (fieldInfo.GetTypeName() == "std::string") {
-					includes.paths_.push_back("string");
+					includes.paths_.insert("string");
 				}
 				if (fieldInfo.GetTypeName().find("Common") != std::string::npos) {
-					includes.paths_.push_back("Common.hpp");
+					includes.paths_.insert("Common.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("std::chrono") != std::string::npos) {
-					includes.paths_.push_back("chrono");
+					includes.paths_.insert("chrono");
 				}
 				if (fieldInfo.GetTypeName().find("PAL") != std::string::npos) {
-					includes.paths_.push_back("PAL.hpp");
+					includes.paths_.insert("PAL.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("glm") != std::string::npos) {
-					includes.paths_.push_back("glm/glm.hpp");
+					includes.paths_.insert("glm/glm.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("std::queue") != std::string::npos) {
-					includes.paths_.push_back("queue");
+					includes.paths_.insert("queue");
 				}
 				if (fieldInfo.GetTypeName().find("std::vector") != std::string::npos) {
-					includes.paths_.push_back("vector");
+					includes.paths_.insert("vector");
 				}
 				if (fieldInfo.GetTypeName().find("RAL::") != std::string::npos) {
-					includes.paths_.push_back("RAL.hpp");
+					includes.paths_.insert("RAL.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("Geom:") != std::string::npos) {
-					includes.paths_.push_back("Geometry.hpp");
+					includes.paths_.insert("Geometry.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("UIAL::Window") != std::string::npos) {
-					includes.paths_.push_back("UIAL.Window.hpp");
+					includes.paths_.insert("UIAL.Window.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("UI::Window") != std::string::npos) {
-					includes.paths_.push_back("UI/OksEngine.UI.Window.hpp");
+					includes.paths_.insert("UI.Window.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("sf::") != std::string::npos) {
-					includes.paths_.push_back("SFML/Audio.hpp");
+					includes.paths_.insert("SFML/Audio.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("glm::quat") != std::string::npos) {
-					includes.paths_.push_back("glm/gtc/quaternion.hpp");
+					includes.paths_.insert("glm/gtc/quaternion.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("PE") != std::string::npos) {
-					includes.paths_.push_back("PE.PhysicsEngine.hpp");
+					includes.paths_.insert("PE.PhysicsEngine.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("AsyncResourceSubsystem") != std::string::npos) {
-					includes.paths_.push_back("Resources/OksEngine.Resource.Subsystem.hpp");
+					includes.paths_.insert("Resources/OksEngine.Resource.Subsystem.hpp");
 				}
 				if (fieldInfo.GetTypeName().find("ax::NodeEditor::") != std::string::npos) {
-					includes.paths_.push_back("imgui.h");
-					includes.paths_.push_back("Debug/Graph/imgui_node_editor.hpp");
+					includes.paths_.insert("imgui.h");
+					includes.paths_.insert("imgui-node-editor/imgui_node_editor.h");
 				}
 
 				return true;

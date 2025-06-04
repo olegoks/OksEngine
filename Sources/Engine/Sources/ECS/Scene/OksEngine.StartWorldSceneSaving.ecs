@@ -6,7 +6,10 @@ system = {
                 "ECSController",
                 "SaveSceneRequest"
             },
-            createsComponents = { "LuaScript" }
+            createsComponents = {
+                "LuaScript"
+            },
+            excludes = { "LuaScript" }
         }
     }
 }

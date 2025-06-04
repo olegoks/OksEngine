@@ -4,47 +4,22 @@
     "type": "split",
     "children": [
       {
-        "id": "33317edd0009b839",
+        "id": "76117c1a082819d8",
         "type": "tabs",
         "children": [
           {
-            "id": "a873fcafaffd09bf",
+            "id": "bdf73b2dffb85dc3",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "Work/Math/Коллинеарность векторов.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "3f59200cd1be0bfd",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Work/C++/volatile.md",
-                "mode": "source",
-                "source": false
-              }
-            }
-          },
-          {
-            "id": "927eda137b2f13a9",
-            "type": "leaf",
-            "state": {
-              "type": "markdown",
-              "state": {
-                "file": "Экран ноутбука как второй монитор.md",
+                "file": "OksEngine/ECS/Принципы ECS.md",
                 "mode": "source",
                 "source": false
               }
             }
           }
-        ],
-        "currentTab": 2
+        ]
       }
     ],
     "direction": "vertical"
@@ -110,7 +85,7 @@
             "state": {
               "type": "backlink",
               "state": {
-                "file": "Экран ноутбука как второй монитор.md",
+                "file": "OksEngine/ECS/Принципы ECS.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -127,7 +102,7 @@
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "Экран ноутбука как второй монитор.md",
+                "file": "OksEngine/ECS/Принципы ECS.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               }
@@ -150,7 +125,7 @@
             "state": {
               "type": "outline",
               "state": {
-                "file": "Экран ноутбука как второй монитор.md"
+                "file": "OksEngine/ECS/Принципы ECS.md"
               }
             }
           }
@@ -171,54 +146,54 @@
       "command-palette:Open command palette": false
     }
   },
-  "active": "927eda137b2f13a9",
+  "active": "bdf73b2dffb85dc3",
   "lastOpenFiles": [
+    "OksEngine/Задачи.md",
+    "OksEngine/ECS/Принципы ECS.md",
+    "OksEngine/ECS/ECS для пользователя движка/ECS для пользователя движка.md",
+    "OksEngine/ECS/ECS для пользователя движка/Генерация кода для отображения ECS мира в ECS Inspector.md",
+    "OksEngine/ECS/ECS для пользователя движка/Интерфейс создания компонент и систем с помощью UI интерфейса.md",
+    "OksEngine/ECS/ECS для пользователя движка/Граф порядка вызова систем.md",
+    "OksEngine/ECS/ECS для пользователя движка/Объединение систем и компонент в пакеты.md",
+    "OksEngine/ECS/ECS для пользователя движка/Неймспейсы для компонент и систем.md",
+    "OksEngine/ECS/ECS для пользователя движка",
+    "OksEngine/Базовая функциональность движка.md",
+    "OksEngine/ECS",
+    "Work/C++/Многопоточность/Конструкции/Блокировка с двойной проверкой (Double-Checked Locking).md",
+    "Attachments/3D Game Engine Architecture.pdf",
+    "Templates/English/English word.md",
+    "Templates/CMake/Term name.md",
+    "Templates/CMake/CMake variable.md",
+    "Templates/CMake/CMake function.md",
+    "Templates/bat scripts/Command.md",
+    "OksEngine",
+    "Экран ноутбука как второй монитор.md",
     "Attachments/Pasted image 20240927174040.png",
     "Work/C++/volatile.md",
-    "Экран ноутбука как второй монитор.md",
     "Work/C++/Многопоточность/Термины/Барьеры памяти.md",
     "Work/C++/Многопоточность/Термины/Атомарные операции.md",
     "Work/C++/Многопоточность/Конструкции/Условная переменная(std_condition_variable).md",
     "Work/C++/Многопоточность/Конструкции/Поток(std_thread).md",
     "Work/C++/Многопоточность/Конструкции/Мьютекс(std_mutex).md",
-    "Work/C++/Многопоточность/Конструкции/Блокировка с двойной проверкой (Double-Checked Locking).md",
     "Work/C++/Многопоточность/Конструкции/std_unique_lock.md",
     "Work/C++/Многопоточность/Конструкции/std_call_once std_once_flag.md",
     "Work/C++/Многопоточность/Конструкции/std_atomic.md",
     "Work/C++/Многопоточность/Конструкции/Мьютекс чтения-записи(reader-writer mutex).md",
-    "Work/C++/ECS/ECS.md",
-    "Work/C++/Дедлок в однопоточной программе.md",
     "OksEngine",
-    "Work/C++/Шаблонный код.md",
     "Work/C++/ECS",
-    "Поиск двойного определения.md",
     "Attachments/Pasted image 20240711123520.png",
-    "Work/Math/Векторное произведение векторов.md",
-    "Work/Math/Коллинеарность векторов.md",
     "Work/Math",
     "Attachments/Pasted image 20240622124505.png",
     "Attachments/Pasted image 20240622124312.png",
-    "Work/Open with Visual Studio Code.md",
-    "Work/Переключение между .h и .cpp.md",
-    "Work/Python/Типы данных Python.md",
-    "Work/Python/Типизация.md",
-    "Work/Python/Модель данных Python.md",
-    "Work/Python/Запуск программы на Python.md",
     "Work/Python",
     "Attachments/Pasted image 20240619174636.png",
     "Attachments/Pasted image 20240619174513.png",
     "Attachments/Pasted image 20240619110900.png",
-    "Work/OBS save .mp4 files.md",
     "Attachments/Pasted image 20240614143058.png",
     "Attachments/Pasted image 20240614143033.png",
     "Attachments/Pasted image 20240614143020.png",
-    "Attachments/Pasted image 20240614142952.png",
     "Work/OBS",
     "Work/Network",
-    "Work/C++/VisualStudio",
-    "Work/C++/Модель памяти С++.md.bak",
-    "Work/C++/Многопоточность/Конструкции",
-    "Work/C++/Многопоточность/Термины",
     "Untitled.canvas"
   ]
 }

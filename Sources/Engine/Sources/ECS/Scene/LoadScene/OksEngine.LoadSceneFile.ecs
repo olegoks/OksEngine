@@ -1,0 +1,21 @@
+system = {
+    name = "LoadSceneFile",
+    processesEntities  = {
+        {
+            processesComponents = { 
+                "ECSController",
+                "LoadSceneRequest"
+            },
+            createsComponents = {
+                "LuaScript"
+            }
+        },
+        {
+            processesComponents = {
+                { name = "ResourceSystem", readonly = false }
+            }        
+        }
+    }
+}
+
+

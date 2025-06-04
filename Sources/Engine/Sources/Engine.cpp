@@ -10,15 +10,9 @@
 
 #include <Render/OksEngine.Render.Subsystem.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
-#include <UI/OksEngine.UI.Subsystem.hpp>
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 
-#include <Debug/OksEngine.Debug.Subsystem.hpp>
-
 #include <OksEngine.Systems.hpp>
-
-
-#include <UI/auto_OksEngine.ProcessInput.hpp>
 
 
 

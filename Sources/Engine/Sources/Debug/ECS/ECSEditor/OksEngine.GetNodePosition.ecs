@@ -1,0 +1,22 @@
+system = {
+    name = "GetNodePosition",
+    runAfter = "DrawNodes",
+    runBefore = "CreateSceneSaveRequest",
+    processesEntities = {
+        {
+            processesComponents = { 
+                "ImGuiState",
+                "EditorContext",
+                "LoadECSFilesButtonPressed"
+            }
+        },
+        {
+            processesComponents = { 
+                "CallGraphNode",
+                "Name",
+                { name = "Position2D", readonly = false }
+            }
+        }   
+    }
+    
+}

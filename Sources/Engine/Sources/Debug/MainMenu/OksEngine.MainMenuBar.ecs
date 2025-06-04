@@ -1,7 +1,3 @@
 component = {
-    name = "MainMenuBar",
-    fields = { 
-        { type = "bool", name = "showPerformanceProfiler" },
-        { type = "bool", name = "showECSInspector" }
-     }
+    name = "MainMenuBar"
 }

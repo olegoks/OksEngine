@@ -32,6 +32,10 @@ namespace ECSGenerator {
 				return name_;
 			}
 
+			[[nodiscard]]
+			const std::string GetLowerName() const noexcept {
+				return std::string{ (char)std::tolower(GetName()[0]) } + GetName().substr(1);
+			}
 		};
 
 		struct RandomAccessEntity {
@@ -882,7 +886,7 @@ namespace ECSGenerator {
 
 		ParsedSystemECSFile::SystemType systemType = GetSystemType(context);
 
-		if (system["name"].cast<std::string>().value() == "CollectEntitiesInfo") {
+		if (system["name"].cast<std::string>().value() == "FindScenes") {
 			//__debugbreak();
 		}
 
@@ -1230,7 +1234,7 @@ namespace ECSGenerator {
 				true);
 
 			systemIncludePath /= ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp");
-			includes.paths_.push_back(systemIncludePath);
+			includes.paths_.insert(systemIncludePath);
 
 
 			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
@@ -1435,8 +1439,8 @@ namespace ECSGenerator {
 
 
 					File::Includes includes{ };
-					includes.paths_.push_back("ECS2.hpp");
-					includes.paths_.push_back("chrono");
+					includes.paths_.insert("ECS2.hpp");
+					includes.paths_.insert("chrono");
 					if (systemEcsFile->GetName() == "CreateMainWindow") {
 						//__debugbreak();
 					}
@@ -1452,7 +1456,7 @@ namespace ECSGenerator {
 								ResultRange::FromStartFolderToEnd,
 								SearchDirection::FromEndToBegin,
 								true);
-							includes.paths_.push_back(includePath / ("auto_OksEngine." + createsEntityComponent + ".hpp"));
+							includes.paths_.insert(includePath / ("auto_OksEngine." + createsEntityComponent + ".hpp"));
 						}
 					}
 
@@ -1470,7 +1474,7 @@ namespace ECSGenerator {
 									ResultRange::FromStartFolderToEnd,
 									SearchDirection::FromEndToBegin,
 									true);
-								includes.paths_.push_back(includePath / ("auto_OksEngine." + include.GetName() + ".hpp"));
+								includes.paths_.insert(includePath / ("auto_OksEngine." + include.GetName() + ".hpp"));
 								return true;
 								});
 
@@ -1489,7 +1493,7 @@ namespace ECSGenerator {
 								SearchDirection::FromEndToBegin,
 								true);
 
-							includes.paths_.push_back(includePath / ("auto_OksEngine." + componentInclude.name_ + ".hpp"));
+							includes.paths_.insert(includePath / ("auto_OksEngine." + componentInclude.name_ + ".hpp"));
 						}
 
 						/*if(systemEcsFile->GetName() == "CreateImGuiInterface"){
@@ -1504,7 +1508,7 @@ namespace ECSGenerator {
 								ResultRange::FromStartFolderToEnd,
 								SearchDirection::FromEndToBegin,
 								true);
-							includes.paths_.push_back(includePath / ("auto_OksEngine." + componentCreates + ".hpp"));
+							includes.paths_.insert(includePath / ("auto_OksEngine." + componentCreates + ".hpp"));
 						}
 
 						//Generate includes for components that system creates.
@@ -1516,7 +1520,7 @@ namespace ECSGenerator {
 								ResultRange::FromStartFolderToEnd,
 								SearchDirection::FromEndToBegin,
 								true);
-							includes.paths_.push_back(includePath / ("auto_OksEngine." + componentExclude + ".hpp"));
+							includes.paths_.insert(includePath / ("auto_OksEngine." + componentExclude + ".hpp"));
 						}
 
 					}
@@ -1553,24 +1557,49 @@ namespace ECSGenerator {
 					updateMethodParameters.push_back({ "ECS2::Entity::Id", "entityId" });
 				}
 
-				for (Common::Index i = 0; i < systemEcsFile->ci_.processesEntities_.size(); i++) {
+				Common::UInt64 currentEntityIndex = 0;
+				systemEcsFile->ForEachRequestEntity([&](const ParsedSystemECSFile::RequestEntity& entity, bool isLast) {
 
-					std::string entityIdString = "";
-					if (systemEcsFile->ci_.processesEntities_.size() == 2) {
-						entityIdString = (i == 0) ? ("1") : ("2");
-					}
+					updateMethodParameters.push_back({
+						"ECS2::Entity::Id",
+						std::format("entity{}id", currentEntityIndex) });
 
-					updateMethodParameters.push_back({ "ECS2::Entity::Id", "entity"s + entityIdString + "Id" });
-					const ParsedSystemECSFile::RequestEntity& entity = systemEcsFile->ci_.processesEntities_[i];
 					entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-						std::string lowerIncludeName = std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1);
-						updateMethodParameters.push_back({
-							((include.readonly_) ? ("const ") : ("")) + include.name_ + "*",
-							lowerIncludeName });
+						Function::Parameter parameter;
+						if (include.IsReadonly()) {
+							parameter.inputType_ = std::format("const {}*", include.GetName());
+						}
+						else {
+							parameter.inputType_ = std::format("{}*", include.GetName());
+						}
 
+						parameter.valueName_ = std::format("{}{}", include.GetLowerName(), currentEntityIndex);
+						updateMethodParameters.push_back(parameter);
 						return true;
 						});
-				}
+
+					++currentEntityIndex;
+					return true;
+					});
+
+				//for (Common::Index i = 0; i < systemEcsFile->ci_.processesEntities_.size(); i++) {
+
+				//	std::string entityIdString = "";
+				//	if (systemEcsFile->ci_.processesEntities_.size() == 2) {
+				//		entityIdString = std::to_string(i);
+				//	}
+
+				//	updateMethodParameters.push_back({ "ECS2::Entity::Id", "entity"s + entityIdString + "Id" });
+				//	const ParsedSystemECSFile::RequestEntity& entity = systemEcsFile->ci_.processesEntities_[i];
+				//	entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+				//		std::string lowerIncludeName = std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1);
+				//		updateMethodParameters.push_back({
+				//			((include.readonly_) ? ("const ") : ("")) + include.name_ + "*",
+				//			lowerIncludeName });
+
+				//		return true;
+				//		});
+				//}
 
 				//Add indices if two entities contain the same component.
 				{
@@ -1782,7 +1811,8 @@ namespace ECSGenerator {
 						realization.Add(", ");
 						realization.NewLine();
 						entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-							realization.Add(std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
+							realization.Add(std::format("{}{}",
+								include.GetLowerName(), currentEntityIndex));
 							if (!isLast) {
 								realization.Add(", ");
 							}
@@ -1848,7 +1878,9 @@ namespace ECSGenerator {
 						realization.Add(std::format(">(excludeEntity{}, [&](", currentEntityIndex));
 						realization.Add(std::format("ECS2::Entity::Id entity{}Id, ", currentEntityIndex));
 						entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-							realization.Add(include.name_ + "* " + std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
+							realization.Add(std::format("{}*{}{}",
+								
+								include.name_,  include.GetLowerName(), currentEntityIndex));
 							if (!isLast) {
 								realization.Add(", ");
 							}

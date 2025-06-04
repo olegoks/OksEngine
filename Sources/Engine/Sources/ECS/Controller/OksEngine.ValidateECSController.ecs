@@ -1,0 +1,14 @@
+system = {
+    name = "ValidateECSController",
+    processesEntities  = {
+        {
+            processesComponents = { 
+                "ECSController",
+                "LoadSceneRequest",
+                "SaveSceneRequest"
+            }
+        }
+    }
+}
+
+

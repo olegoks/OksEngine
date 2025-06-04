@@ -1,0 +1,16 @@
+system = {
+    name = "CreateSceneFileStart",
+    runAfter = "StartWorldSceneSaving",
+    runBefore = "CreateSceneFile",
+    processesEntities  = {
+        {
+            processesComponents = { 
+                "ECSController",
+                "SaveSceneRequest",
+                { name = "LuaScript", readonly = false }
+            }            
+        }
+    }
+}
+
+

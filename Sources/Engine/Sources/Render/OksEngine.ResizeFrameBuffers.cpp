@@ -1,10 +1,6 @@
 
 #include <Render/auto_OksEngine.ResizeFrameBuffers.hpp>
 
-#include <UI/OksEngine.UI.KeyboardInput.hpp>
-#include <Render/OksEngine.Render.Subsystem.hpp>
-#include <UI/OksEngine.UI.Window.hpp>
-
 namespace OksEngine {
 
 

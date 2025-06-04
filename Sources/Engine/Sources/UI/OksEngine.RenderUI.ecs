@@ -1,7 +1,0 @@
-
-system = {
-    name = "RenderUI",
-    processesComponents = {
-        { name = "MainWindow", readonly = false}
-    }
-}

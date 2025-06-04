@@ -44,7 +44,7 @@ namespace ECSGenerator {
 							order_.push_back(system);
 						}
 					}
-
+						
 				}
 
 			}
@@ -400,9 +400,9 @@ namespace ECSGenerator {
 			namespaceObject->Add(generateRunInitSystemsFunctionPrototype());
 
 			File::Includes includes{ };
-			includes.paths_.push_back("boost/asio/thread_pool.hpp");
-			includes.paths_.push_back("boost/asio/post.hpp");
-			includes.paths_.push_back("ECS2.World.hpp");
+			includes.paths_.insert("boost/asio/thread_pool.hpp");
+			includes.paths_.insert("boost/asio/post.hpp");
+			includes.paths_.insert("ECS2.World.hpp");
 
 
 			//hpp file
@@ -435,6 +435,12 @@ namespace ECSGenerator {
 			bool isFrom = false) {
 
 			auto& node = graph.GetNode(nodeId);
+			if (node.GetValue() == "SaveSceneFile") {
+				isFrom = isFrom;
+			}
+			if (node.GetValue() == "EndWorldSceneSaving") {
+				isFrom = isFrom;
+			}
 			std::unordered_set<System> systemsFrom;
 			node.ForEachLinksFrom([&](DS::Graph<System>::Node::Id fromNodeToId) {
 				auto& fromNode = graph.GetNode(fromNodeToId);
@@ -591,7 +597,7 @@ namespace ECSGenerator {
 				}
 				for (auto systemName : thread.systems_) {
 					auto ecsFile = projectContext->GetEcsFileByName(systemName.first);
-					if (systemName.first == "CreateECSInspector") {
+					if (systemName.first == "SaveSceneFile") {
 						//__debugbreak();
 					}
 					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
@@ -682,7 +688,7 @@ namespace ECSGenerator {
 			{
 				//Must be first to escape 
 				//error C1189: #error:  WinSock.h has already been included
-				cppIncludes.paths_.push_back("auto_OksEngine.RunSystems.hpp");
+				cppIncludes.paths_.insert("auto_OksEngine.RunSystems.hpp");
 
 				projectContext->ForEachSystemEcsFile(
 					[&](std::shared_ptr<ParsedECSFile> ecsFile) {
@@ -696,10 +702,10 @@ namespace ECSGenerator {
 							ResultRange::FromStartFolderToEnd,
 							SearchDirection::FromEndToBegin,
 							true);
-						cppIncludes.paths_.push_back(systemIncludePath / ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp"));
+						cppIncludes.paths_.insert(systemIncludePath / ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp"));
 						return true;
 					});
-				cppIncludes.paths_.push_back("pix3.h");
+				cppIncludes.paths_.insert("pix3.h");
 			}
 
 			auto cppNamespaceObject = std::make_shared<Namespace>("OksEngine");
@@ -1232,6 +1238,7 @@ namespace ECSGenerator {
 				.includeDirectory_ = projectContext->includeDirectory_
 			};
 
+			//Generate auto_OksEngine.{ComponentName}.hpp
 			projectContext->ForEachComponentEcsFile(
 				[&](std::shared_ptr<ParsedECSFile> ecsFile) {
 					auto componentEcsFile = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
@@ -1241,6 +1248,7 @@ namespace ECSGenerator {
 					return true;
 				});
 
+			//Generate auto_OksEngine.{SystemName}.hpp
 			projectContext->ForEachSystemEcsFile(
 				[&](std::shared_ptr<ParsedECSFile> ecsFile) {
 					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
@@ -1261,21 +1269,26 @@ namespace ECSGenerator {
 			//Generate OksEngine.Components.hpp files For COMPONENTS.
 			for (auto [categoryPath, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
 
+				//if (componentsSystems.components_.empty()) {
+				//	continue;
+				//}
+
+				if (categoryPath == "D:/OksEngine/Tools/ECSGenerator/../../Sources/Engine/Sources\\Debug\\ECS\\ECSEditor\\Resources\\LoadECSFiles"){
+					//__debugbreak();
+				}
+
 				//Generate components includes for components in the subdirectory 
 				File::Includes includes{};
 
 				for (auto componentParsedEcsFile : componentsSystems.components_) {
-					//std::filesystem::path componentFullPath = ;
 					auto componentPath = componentParsedEcsFile->GetPath().parent_path();
-					//std::filesystem::path componentIncludePath = GetSubPathFromFolderToEnd(componentFullPath.parent_path(), projectContext->includeDirectory_);
 					const std::filesystem::path includePath = GetSubPath(
 						componentParsedEcsFile->GetPath().parent_path(),
 						projectContext->includeDirectory_,
 						ResultRange::FromStartFolderToEnd,
 						SearchDirection::FromEndToBegin,
 						true);
-					//componentIncludePath /= ;
-					includes.paths_.push_back(includePath / ("auto_OksEngine." + componentParsedEcsFile->GetName() + ".hpp"));
+					includes.paths_.insert(includePath / ("auto_OksEngine." + componentParsedEcsFile->GetName() + ".hpp"));
 				}
 
 				//generate Include OksEngine.Components.hpp files from subdirectories.
@@ -1293,6 +1306,7 @@ namespace ECSGenerator {
 							}
 							++pathIt;
 						}
+
 						if (subdirFound) {
 							//Subdirectory found!
 							std::filesystem::path subdirPath;
@@ -1308,7 +1322,7 @@ namespace ECSGenerator {
 								SearchDirection::FromEndToBegin,
 								true);
 							//componentIncludePath ;
-							includes.paths_.push_back(componentIncludePath / ("auto_OksEngine.Components.hpp"));
+							includes.paths_.insert(componentIncludePath / ("auto_OksEngine.Components.hpp"));
 						}
 					}
 				}
@@ -1332,17 +1346,14 @@ namespace ECSGenerator {
 			//Generate OksEngine.Components.hpp files For Systems.
 			for (auto [categoryPath, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
 
-				if (componentsSystems.systems_.empty()) {
-					continue;
-				}
+				//if (componentsSystems.systems_.empty()) {
+				//	continue;
+				//}
 				//Generate components includes for components in the subdirectory 
 				File::Includes includes{};
 				std::filesystem::path systemsIncludesFilePath;
 				for (auto systemParsedEcsFile : componentsSystems.systems_) {
 					systemsIncludesFilePath = systemParsedEcsFile->GetPath().parent_path();
-					//systemsIncludesFilePath = systemFullPath.parent_path();
-					//std::filesystem::path systemIncludePath = GetSubPathFromFolderToEnd(systemFullPath.parent_path(), projectContext->includeDirectory_);
-
 					const std::filesystem::path systemIncludePath = GetSubPath(
 						systemParsedEcsFile->GetPath().parent_path(),
 						projectContext->includeDirectory_,
@@ -1350,11 +1361,10 @@ namespace ECSGenerator {
 						SearchDirection::FromEndToBegin,
 						true);
 
-					//systemIncludePath /= ;
-					includes.paths_.push_back(systemIncludePath / ("auto_OksEngine." + systemParsedEcsFile->GetName() + ".hpp"));
+					includes.paths_.insert(systemIncludePath / ("auto_OksEngine." + systemParsedEcsFile->GetName() + ".hpp"));
 				}
 
-				//generate Include OksEngine.Components.hpp files from subdirectories.
+				//generate Include OksEngine.Systems.hpp files from subdirectories.
 				for (auto [path, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
 					if (componentsSystems.systems_.empty()) {
 						continue;
@@ -1387,7 +1397,7 @@ namespace ECSGenerator {
 								SearchDirection::FromEndToBegin,
 								true);
 							//systemIncludePath ;
-							includes.paths_.push_back(systemIncludePath / ("auto_OksEngine.Systems.hpp"));
+							includes.paths_.insert(systemIncludePath / ("auto_OksEngine.Systems.hpp"));
 						}
 					}
 				}
