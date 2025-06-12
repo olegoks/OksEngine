@@ -49,6 +49,16 @@ namespace ECS2 {
 			freeComponentIndices_.erase(freeComponentIndexIt);
 		}
 
+		template<class Component>
+		inline bool IsComponentExist(Entity::Id entityId) {
+			return entityIdComponentsFilter_[entityId].IsSet<Component>();
+		}
+
+		template<class ...Components>
+		inline bool IsComponentsExist(Entity::Id entityId) {
+			return entityIdComponentsFilter_[entityId].IsSet<Components...>();
+		}
+
 		template<class Component, class ...Args>
 		inline void CreateComponent(Entity::Id entityId, Args&&... args) {
 			const ComponentIndex entityComponentIndex = entityIdComponentIndex_[entityId];

@@ -89,7 +89,7 @@ namespace ECSGenerator {
 	inline std::shared_ptr<ParsedComponentECSFile> ParseComponentEcsFile(const std::filesystem::path& path, ::Lua::Context& context) {
 
 		luabridge::LuaRef component = context.GetGlobalAsRef("component");
-		
+
 		bool serializable = true;
 		luabridge::LuaRef serializableRef = component["serializable"];
 		if (!serializableRef.isNil()) {
@@ -136,11 +136,11 @@ namespace ECSGenerator {
 			return code;
 		}
 		else if (
-			fieldTypeName == "float" || 
-			fieldTypeName == "double" || 
+			fieldTypeName == "float" ||
+			fieldTypeName == "double" ||
 			fieldTypeName == "Common::Size" ||
-			fieldTypeName == "Common::UInt64" || 
-			fieldTypeName == "Common::Index" || 
+			fieldTypeName == "Common::UInt64" ||
+			fieldTypeName == "Common::Index" ||
 			fieldTypeName == "ECS::Entity::Id") {
 			code.Add("static " + typeName + " " + variableName + ";");
 			return code;
@@ -151,7 +151,7 @@ namespace ECSGenerator {
 
 	//// ImGui::InputScalar("Value", ImGuiDataType_Float, {outVariable});\n
 	//// ImGui::InputText("Value", {outVariable}, IM_ARRAYSIZE({outVariable}));\n
-	Code GenerateImGuiInputTypeCode(const std::string& imguiVariableName, const std::string& typeName,  std::string outVariable) {
+	Code GenerateImGuiInputTypeCode(const std::string& imguiVariableName, const std::string& typeName, std::string outVariable) {
 		Code code;
 		if (typeName == "std::string") {
 			code.Add("ImGui::InputText(\"" + imguiVariableName + "\", " + outVariable + ", IM_ARRAYSIZE(" + outVariable + "));");
@@ -189,11 +189,11 @@ namespace ECSGenerator {
 			return code;
 		}
 		else if (
-			fieldVariableTypeName == "float" || 
-			fieldVariableTypeName == "double" || 
-			fieldVariableTypeName == "Common::Size" || 
-			fieldVariableTypeName == "Common::UInt64" || 
-			fieldVariableTypeName == "Common::Index" || 
+			fieldVariableTypeName == "float" ||
+			fieldVariableTypeName == "double" ||
+			fieldVariableTypeName == "Common::Size" ||
+			fieldVariableTypeName == "Common::UInt64" ||
+			fieldVariableTypeName == "Common::Index" ||
 			fieldVariableTypeName == "ECS::Entity::Id") {
 			code.Add(GenerateImGuiInputTypeCode(
 				fieldVariableName,
@@ -384,7 +384,7 @@ namespace ECSGenerator {
 			}
 
 			//Parse function.
-			if(componentEcsFile->serializable_){
+			if (componentEcsFile->serializable_) {
 				Code realization;
 
 				realization.Add(std::format("{} {};",
@@ -392,11 +392,11 @@ namespace ECSGenerator {
 					componentEcsFile->GetLowerName()));
 
 				componentEcsFile->ForEachField([&](const ParsedComponentECSFile::FieldInfo& fieldInfo, bool isLast) {
-					
+
 					realization.Add(std::format("{}.{}_ = {}Ref[\"{}\"].cast<{}>().value();",
 						componentEcsFile->GetLowerName(),
 						fieldInfo.GetName(),
-						componentEcsFile->GetLowerName(), 
+						componentEcsFile->GetLowerName(),
 						fieldInfo.GetName(),
 						fieldInfo.GetTypeName()));
 
@@ -423,7 +423,7 @@ namespace ECSGenerator {
 
 			//Serialize function.
 			if (componentEcsFile->serializable_) {
-				
+
 				Code fieldsLuaCode;
 				componentEcsFile->ForEachField([&](const ParsedComponentECSFile::FieldInfo& fieldInfo, bool isLast) {
 
@@ -441,13 +441,13 @@ namespace ECSGenerator {
 
 
 					fieldsLuaCode.Add(std::format("{} =\" + {} + \"",
-						fieldInfo.GetName(), 
+						fieldInfo.GetName(),
 						convertValueToStringCode.code_));
-					if(!isLast)
+					if (!isLast)
 					{
 						fieldsLuaCode.Add(",");
 					}
-						return true;
+					return true;
 					});
 
 				Code luaScriptCode;
@@ -654,6 +654,10 @@ namespace ECSGenerator {
 				}
 				if (fieldInfo.GetTypeName().find("std::vector") != std::string::npos) {
 					includes.paths_.insert("vector");
+				}
+
+				if (fieldInfo.GetTypeName().find("std::unordered_set") != std::string::npos) {
+					includes.paths_.insert("unordered_set");
 				}
 				if (fieldInfo.GetTypeName().find("RAL::") != std::string::npos) {
 					includes.paths_.insert("RAL.hpp");

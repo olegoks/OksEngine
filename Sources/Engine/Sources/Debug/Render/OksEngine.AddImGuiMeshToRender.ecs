@@ -5,6 +5,8 @@ system = {
      processesEntities = {
         {
             processesComponents = { 
+                "ImGuiState",
+                "MainMenuBar",
                 "Transform2DResource",
                 "TextureResource",
                 "ImGuiDriverIndexBuffer",

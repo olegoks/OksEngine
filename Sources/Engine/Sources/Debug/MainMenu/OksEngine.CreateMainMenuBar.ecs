@@ -1,0 +1,20 @@
+system = {
+    name = "CreateMainMenuBar",
+    runBefore = "ClearKeyboardInput",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState",
+                "HandleKeyboardInput",
+                "KeyboardInput"
+            },
+            
+            excludes = {
+                "MainMenuBar"
+            },
+            createsComponents = {
+                "MainMenuBar"
+            }
+        }
+    },
+}

@@ -64,6 +64,10 @@ namespace ECS2 {
 			new(components_.data() + componentIndex) ComponentType(std::forward<Args>(args)...);
 		}
 
+		//bool IsComponentExist(ComponentIndex componentIndex) {
+		//	return IsComponentIndexFree(componentIndex)
+		//}
+
 		[[nodiscard]]
 		const ComponentType* operator[](ComponentIndex index) const noexcept {
 			return const_cast<ArchetypeContainer<ComponentType>*>(this)->operator[](index);
