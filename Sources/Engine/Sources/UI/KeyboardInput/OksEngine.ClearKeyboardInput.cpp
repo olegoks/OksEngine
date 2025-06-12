@@ -2,5 +2,9 @@
 
 namespace OksEngine {
 void ClearKeyboardInput::Update(ECS2::Entity::Id entityId,
-                                const KeyboardInput* keyboardInput) {};
+                                KeyboardInput* keyboardInput) {
+
+keyboardInput->events_.clear();
+
+                                };
 }

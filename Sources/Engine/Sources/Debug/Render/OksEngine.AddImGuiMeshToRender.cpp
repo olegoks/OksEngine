@@ -6,14 +6,15 @@
 namespace OksEngine {
 
 	void AddImGuiMeshToRender::Update(
-		ECS2::Entity::Id entity1Id,
-		const Transform2DResource* transform2DResource,
-		const TextureResource* textureResource,
-		const ImGuiDriverIndexBuffer* imGuiDriverIndexBuffer,
-		const ImGuiDriverVertexBuffer* imGuiDriverVertexBuffer,
-		ECS2::Entity::Id entity2Id, RenderDriver* renderDriver) {
+		ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+		const MainMenuBar* mainMenuBar0,
+		const Transform2DResource* transform2DResource0,
+		const TextureResource* textureResource0,
+		const ImGuiDriverIndexBuffer* imGuiDriverIndexBuffer0,
+		const ImGuiDriverVertexBuffer* imGuiDriverVertexBuffer0,
+		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
-		auto driver = renderDriver->driver_;
+		auto driver = renderDriver1->driver_;
 
 		std::vector<RAL::Driver::ShaderBinding::Data> shaderBindings;
 
@@ -66,14 +67,14 @@ namespace OksEngine {
 
 		driver->StartDrawing();
 		driver->BindPipeline("ImGui Pipeline");
-		driver->BindVertexBuffer(imGuiDriverVertexBuffer->id_, 0);
-		driver->BindIndexBuffer(imGuiDriverIndexBuffer->id_, 0);
+		driver->BindVertexBuffer(imGuiDriverVertexBuffer0->id_, 0);
+		driver->BindIndexBuffer(imGuiDriverIndexBuffer0->id_, 0);
 		driver->Bind(
 			{ 
-				transform2DResource->id_,
-				textureResource->id_ 
+				transform2DResource0->id_,
+				textureResource0->id_ 
 			} );
-		driver->DrawIndexed(imGuiDriverIndexBuffer->size_ / sizeof(Common::UInt16));
+		driver->DrawIndexed(imGuiDriverIndexBuffer0->size_ / sizeof(Common::UInt16));
 		driver->EndDrawing();
 
 		//Common::Id driverMeshId = driver->DrawMesh(

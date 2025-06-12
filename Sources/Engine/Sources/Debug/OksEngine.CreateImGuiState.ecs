@@ -1,5 +1,6 @@
 system = {
     name = "CreateImGuiState",
+    initSystem = true,
     processesEntities = {
         {
             processesComponents = {

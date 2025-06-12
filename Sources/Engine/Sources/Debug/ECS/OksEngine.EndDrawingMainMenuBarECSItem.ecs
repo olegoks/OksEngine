@@ -1,0 +1,9 @@
+system = {
+    name = "EndDrawingMainMenuBarECSItem",
+    runAfter = "StartMainMenuBar",
+    runBefore = "EndMainMenuBar",
+    processesComponents = { 
+        "ImGuiState", 
+        "MainMenuBar"
+    }
+}

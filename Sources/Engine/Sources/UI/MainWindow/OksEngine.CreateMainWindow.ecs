@@ -6,6 +6,7 @@ system = {
         "Config",
         "LuaScript"
     },
+    
     createsEntities = { 
         {
         createsComponents = {

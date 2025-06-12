@@ -1,0 +1,16 @@
+system = {
+    name = "DestroyMainMenuBar",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState",
+                "HandleKeyboardInput",
+                "KeyboardInput",
+                "MainMenuBar"
+            },
+            removesComponents = {
+                "MainMenuBar"
+            }
+        }
+    },
+}

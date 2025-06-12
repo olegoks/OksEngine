@@ -71,6 +71,36 @@ namespace ECS2 {
 			return entityId;
 		}
 
+		template<class ...Components>
+		requires (sizeof...(Components) > 0)
+		bool IsEntityExist() {
+			ComponentsFilter componentsFilter;
+			componentsFilter.SetBits<Components...>();
+
+			//TODO: Optimize
+			for (auto& entity : dynamicEntitiesComponentFilters_) {
+				if (entity.second == componentsFilter) {
+					return true;
+				}
+			}
+
+			for (auto& entity : archetypeEntitiesComponents_) {
+
+				if (componentsFilter.IsSubsetOf(entity.second)) {
+					auto archetypeComponentsIt = archetypeComponents_.find(entity.second);
+					const bool isArchetypeComponentsContainersCreated = archetypeComponentsIt != archetypeComponents_.end();
+					if (!isArchetypeComponentsContainersCreated) {
+						continue;
+					}
+					std::shared_ptr<IArchetypeComponents> iArchetypeComponents = archetypeComponentsIt->second;
+					if(iArchetypeComponents->IsComponentsExist<Components...>(entity.first)){
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
 		template<class ComponentType, class ...Args>
 		void CreateComponent(Entity::Id entityId, Args&&... args) noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
@@ -90,6 +120,13 @@ namespace ECS2 {
 						archetypeComponents->CreateComponent<ComponentType>(entityId, unpackedArgs...);
 					}
 					else {
+
+#pragma region Assert
+						OS::AssertMessage(
+							!dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
+							"Attempt to add component to the entity that was already added.");
+#pragma endregion
+
 						auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
 						if (container == nullptr) {
 							auto newContainer = std::make_shared<Container<ComponentType>>();
@@ -160,6 +197,8 @@ namespace ECS2 {
 		bool IsComponentExist(Entity::Id entityId) noexcept {
 			if(archetypeEntitiesComponents_.contains(entityId))
 			{
+				//TODO: if archetype components filter contains component it doesn't mean that archetype has this component.
+				//Need to check archetype container.
 				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
 				if (componentsFilter.IsSet<ComponentType>()) {
 					return true;

@@ -1511,6 +1511,17 @@ namespace ECSGenerator {
 							includes.paths_.insert(includePath / ("auto_OksEngine." + componentCreates + ".hpp"));
 						}
 
+						for (auto componentRemoves : entity.removes_) {
+							auto componentEcsFile = projectContext->GetEcsFileByName(componentRemoves);
+							const std::filesystem::path includePath = GetSubPath(
+								componentEcsFile->GetPath().parent_path(),
+								projectContext->includeDirectory_,
+								ResultRange::FromStartFolderToEnd,
+								SearchDirection::FromEndToBegin,
+								true);
+							includes.paths_.insert(includePath / ("auto_OksEngine." + componentRemoves + ".hpp"));
+						}
+
 						//Generate includes for components that system creates.
 						for (auto componentExclude : entity.excludes_) {
 							auto componentEcsFile = projectContext->GetEcsFileByName(componentExclude);
