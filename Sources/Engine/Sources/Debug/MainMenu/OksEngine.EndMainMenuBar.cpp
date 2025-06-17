@@ -4,8 +4,10 @@ namespace OksEngine {
 void EndMainMenuBar::Update(ECS2::Entity::Id entityId,
                             const MainMenuBar* mainMenuBar,
                             const ImGuiState* imGuiState) {
-
-                                ImGui::EndMainMenuBar();
+                                
+                                if(mainMenuBar->show_){
+                                    ImGui::EndMainMenuBar();
+                                }
 
                             };
 }

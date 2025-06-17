@@ -1,4 +1,4 @@
 component = {
-    name = "MainMenuBar",
+    name = "ECSMenu",
     fields = { { type = "bool", name = "show",  } }
 }

@@ -1,9 +1,6 @@
 
 #include <memory>
 
-
-
-#include <UI/OksEngine.UI.Subsystem.hpp>
 #include <Render/OksEngine.Render.Subsystem.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
@@ -15,7 +12,6 @@
 
 #include <Render/auto_OksEngine.RenderDriver.hpp>
 #include <Resources/auto_OksEngine.ResourceSystem.hpp>
-#include <UI/auto_OksEngine.MainWindow.hpp>
 #include <Common/CommandLineParameters/auto_OksEngine.Components.hpp>
 
 namespace OksEngine

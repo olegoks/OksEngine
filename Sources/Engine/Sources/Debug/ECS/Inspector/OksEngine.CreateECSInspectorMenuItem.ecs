@@ -1,0 +1,18 @@
+system = {
+    name = "CreateECSInspectorMenuItem",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState",
+                "MainMenuBar",
+                "ECSMenu"
+            },
+            createsComponents = {
+                "ECSInspectorMenuItem"
+            },
+            excludes = {
+                "ECSInspectorMenuItem"
+            }
+        }
+    },
+}

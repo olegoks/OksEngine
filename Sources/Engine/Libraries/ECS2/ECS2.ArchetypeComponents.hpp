@@ -23,7 +23,7 @@ namespace ECS2 {
 			OS::AssertMessage(containers_.contains(Component::GetTypeId()),
 				"Attempt to get container in the archetype components structure that doesn't exist.");
 #pragma endregion
-			std::shared_ptr<IContainer> container = containers_[Component::GetTypeId()];
+			std::shared_ptr<IArchetypeContainer> container = containers_[Component::GetTypeId()];
 			return std::dynamic_pointer_cast<ArchetypeContainer<Component>>(container);
 		}
 
@@ -47,6 +47,24 @@ namespace ECS2 {
 			componentIndexEntityId_[*freeComponentIndexIt] = entityId;
 			entityIdComponentIndex_[entityId] = *freeComponentIndexIt;
 			freeComponentIndices_.erase(freeComponentIndexIt);
+		}
+
+		void DestroyEntity(Entity::Id entityId) {
+
+			const ComponentIndex componentIndex = entityIdComponentIndex_[entityId];
+
+#pragma region Assert
+			OS::AssertMessage(
+				entityIdComponentIndex_.contains(entityId), 
+				"");
+			OS::AssertMessage(
+				!freeComponentIndices_.contains(componentIndex),
+				"");
+#pragma endregion
+
+			componentIndexEntityId_[componentIndex] = Entity::Id::invalid_;
+			entityIdComponentIndex_.erase(entityId);
+			freeComponentIndices_.insert(componentIndex);
 		}
 
 		template<class Component>
@@ -128,7 +146,7 @@ namespace ECS2 {
 		std::map<Entity::Id, ComponentIndex> entityIdComponentIndex_;
 		std::map<Entity::Id, ComponentsFilter> entityIdComponentsFilter_; // quick solution, need to create EntityInfo to use only one map with key entityId;
 		std::set<ComponentIndex, std::less<ComponentIndex>> freeComponentIndices_;
-		std::map<ComponentTypeId, std::shared_ptr<IContainer>> containers_;
+		std::map<ComponentTypeId, std::shared_ptr<IArchetypeContainer>> containers_;
 
 	};
 

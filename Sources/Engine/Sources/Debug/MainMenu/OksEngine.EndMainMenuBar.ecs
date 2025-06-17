@@ -1,6 +1,6 @@
 system = {
     name = "EndMainMenuBar",
-    runAfter = { "StartImGuiFrame", "StartMainMenuBar" },
+    runAfter = { "StartImGuiFrame", "BeginMainMenuBar" },
     runBefore = "EndImGuiFrame",
     processesComponents = { 
         "MainMenuBar",

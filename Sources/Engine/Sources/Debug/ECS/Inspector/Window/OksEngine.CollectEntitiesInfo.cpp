@@ -1,10 +1,13 @@
 
-//#include <Debug/auto_OksEngine.CollectEntitiesInfo.hpp>
+#include <Debug/ECS/Inspector/Window/auto_OksEngine.CollectEntitiesInfo.hpp>
 
 #include <Common/auto_OksEngine.Position2D.hpp>
 
 namespace OksEngine {
 
+	void CollectEntitiesInfo::Update(ECS2::Entity::Id entityId){
+
+	}
 
 	//void CollectEntitiesInfo::BeforeUpdate(ECS::World* world) {
 	//	bool isOpen = true;

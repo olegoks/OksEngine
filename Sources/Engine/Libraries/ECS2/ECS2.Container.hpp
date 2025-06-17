@@ -4,10 +4,10 @@
 namespace ECS2 {
 
 
-	class IContainer {
+	class IArchetypeContainer {
 	public:
 
-		IContainer(ComponentTypeId typeId) noexcept : typeId_{ typeId } { }
+		IArchetypeContainer(ComponentTypeId typeId) noexcept : typeId_{ typeId } { }
 
 		virtual void Resize(Common::Size newSize) noexcept = 0;
 		virtual Common::Size GetSize() const noexcept = 0;
@@ -22,10 +22,10 @@ namespace ECS2 {
 	constexpr static inline ComponentIndex invalidComponentIndex_ = Common::Limits<ComponentIndex>::Max();
 
 	template<class ComponentType>
-	class ArchetypeContainer final : public IContainer {
+	class ArchetypeContainer final : public IArchetypeContainer {
 	public:
 
-		ArchetypeContainer(Common::Size startSize) noexcept : IContainer{ ComponentType::GetTypeId() } {
+		ArchetypeContainer(Common::Size startSize) noexcept : IArchetypeContainer{ ComponentType::GetTypeId() } {
 			
 			components_.resize(startSize);
 		
@@ -82,6 +82,25 @@ namespace ECS2 {
 	private:
 		std::vector<ComponentType>	components_;
 	};
+
+
+
+	class IContainer {
+	public:
+
+		IContainer(ComponentTypeId typeId) noexcept : typeId_{ typeId } { }
+
+		virtual void Resize(Common::Size newSize) noexcept = 0;
+		virtual Common::Size GetSize() const noexcept = 0;
+		ComponentTypeId GetTypeId() const noexcept { return typeId_; }
+
+		virtual void RemoveComponent(Entity::Id entityId) noexcept = 0;
+		virtual bool IsComponentExist(ComponentTypeId componentTypeId) const noexcept = 0;
+
+	private:
+		ComponentTypeId typeId_;
+	};
+
 
 	template<class ComponentType>
 	class Container final : public IContainer {
@@ -160,7 +179,7 @@ namespace ECS2 {
 		
 		[[maybe_unused]]
 		[[nodiscard]]
-		bool IsComponentExist(ComponentIndex index) const noexcept {
+		virtual bool IsComponentExist(ComponentIndex index) const noexcept override {
 #pragma region Assert
 			OS::AssertMessage(index < components_.size(),
 				"Invalid component index.");
@@ -178,7 +197,7 @@ namespace ECS2 {
 			return components_.data() + componentIndex;
 		}
 		
-		void RemoveComponent(Entity::Id entityId) noexcept {
+		virtual void RemoveComponent(Entity::Id entityId) noexcept override {
 #pragma region Assert
 			OS::AssertMessage(
 				entityIdComponentIndex_.contains(entityId),

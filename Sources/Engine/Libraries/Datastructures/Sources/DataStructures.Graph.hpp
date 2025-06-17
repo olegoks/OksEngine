@@ -18,6 +18,12 @@ namespace DataStructures {
 			static constexpr Id invalidId_ = VersionedMap<int>::invalidId_;
 			Node(Type&& data) noexcept : data_{ std::move(data) } { }
 			Node(const Type& data) noexcept : data_{ data } { }
+
+			[[nodiscard]]
+			bool HasLinks() const noexcept {
+				return !linksTo_.empty() || !linksFrom_.empty();
+			}
+			
 			[[nodiscard]]
 			bool HasLinkTo(Id nodeId) noexcept {
 				return linksTo_.contains(nodeId);
