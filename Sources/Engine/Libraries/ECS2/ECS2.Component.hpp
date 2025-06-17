@@ -25,7 +25,7 @@ namespace ECS2 {
 			return id;
 		}
 
-		bool isExist_ = false;
 	};
+
 
 }

@@ -372,7 +372,7 @@ namespace ECSGenerator {
 
 				Struct::CreateInfo sci{
 					.name_ = componentEcsFile->GetName(),
-					.parent_ = "ECS2::IComponent<" + componentEcsFile->GetName() + ">",
+					.parent_ = "OksEngine::IComponent<" + componentEcsFile->GetName() + ">",
 					.fields_ = fields,
 					.methods_ = { getNameMethod }
 				};
@@ -628,7 +628,7 @@ namespace ECSGenerator {
 				{	"imgui.h",
 					"ECS2.World.hpp",
 					"ECS2.Entity.hpp",
-					"ECS2.Component.hpp",
+					"OksEngine.IComponent.hpp",
 					"Lua.Context.hpp" }
 			};
 

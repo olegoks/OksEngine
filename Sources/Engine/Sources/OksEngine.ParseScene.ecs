@@ -1,6 +1,0 @@
-system = {
-    name = "ParseScene",
-    processesComponents = { 
-        "Scene",
-        "ResourcePath" },
-}
