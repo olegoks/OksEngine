@@ -9,7 +9,7 @@ namespace OksEngine {
 		const ECSInspectorMenuItem* eCSInspectorMenuItem0) {
 
 		if (eCSMenu0->show_) {
-			if (ImGui::MenuItem("Inspector")) {
+			if (ImGui::MenuItem("Inspector", "Ctrl+E")) {
 				if (!IsComponentExist<ECSInspectorWindow>(entity0id)) {
 					CreateComponent<ECSInspectorWindow>(entity0id);
 				}
