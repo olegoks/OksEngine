@@ -1,0 +1,6 @@
+system = {
+    name = "ShowEntitiesInfo",
+    processAllEntities = true,
+    runAfter = { "BeginECSInspectorWindow" },
+    runBefore = { "EndECSInspectorWindow" }
+}

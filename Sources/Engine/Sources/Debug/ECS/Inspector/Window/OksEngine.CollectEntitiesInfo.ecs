@@ -1,6 +1,0 @@
-system = {
-    name = "CollectEntitiesInfo",
-    processAllEntities = true,
-    runBefore = { "EndImGuiFrame" },
-    runAfter = { "StartImGuiFrame" }
-}
