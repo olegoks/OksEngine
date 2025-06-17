@@ -1,4 +1,4 @@
-#pragma once 
+﻿#pragma once 
 
 #include <ECSGenerator.Common.hpp>
 #include <ECSGenerator.ProjectContext.hpp>
@@ -44,7 +44,7 @@ namespace ECSGenerator {
 							order_.push_back(system);
 						}
 					}
-						
+
 				}
 
 			}
@@ -68,6 +68,48 @@ namespace ECSGenerator {
 				}
 
 			}
+
+			void AddSystem(System system, std::unordered_set<System> afterSystems, std::unordered_set<System> beforeSystems) {
+
+				auto findLastAfterSystem = [](
+					const std::vector<System>& systems,
+					const std::unordered_set<System>& afterSystems) {
+
+						Common::UInt64 bestCandidate = 0;
+
+
+
+
+					};
+
+				auto findFirstBeforeSystem = [](
+					const std::vector<System>& systems,
+					const std::unordered_set<System>& afterSystems) {
+
+					};
+
+				std::unordered_set<System> checkedSystems;
+
+
+
+				for (Common::Index i = 0; i < order_.size(); i++) {
+					const System& currentSystem = order_[i];
+					if (afterSystems.contains(currentSystem)) {
+						checkedSystems.insert(currentSystem);
+						if (checkedSystems.size() == afterSystems.size()) {
+							if (i != order_.size() - 1) {
+								order_.insert(order_.begin() + i + 1, system);
+							}
+							else {
+								order_.push_back(system);
+							}
+						}
+					}
+
+				}
+
+			}
+
 
 			bool IsSystemAdded(System system) {
 				for (Common::Index i = 0; i < order_.size(); i++) {
@@ -146,6 +188,8 @@ namespace ECSGenerator {
 					}
 					return true;
 				});
+
+
 
 
 
@@ -435,7 +479,10 @@ namespace ECSGenerator {
 			bool isFrom = false) {
 
 			auto& node = graph.GetNode(nodeId);
-			if (node.GetValue() == "SaveSceneFile") {
+			if (node.HasLinks()) {
+				isFrom = isFrom;
+			}
+			if (node.GetValue() == "StartMainMenuBar") {
 				isFrom = isFrom;
 			}
 			if (node.GetValue() == "EndWorldSceneSaving") {
@@ -446,7 +493,6 @@ namespace ECSGenerator {
 				auto& fromNode = graph.GetNode(fromNodeToId);
 				if (!systemsOrder.IsSystemAdded(fromNode.GetValue())) {
 					ProcessNode(systemsOrder, graph, fromNodeToId, true);
-					return false;
 				}
 				systemsFrom.insert(fromNode.GetValue());
 				return true;
@@ -592,55 +638,128 @@ namespace ECSGenerator {
 			auto createClusterSystemsCallGraph =
 				[&](std::shared_ptr<ProjectContext> projectContext, Thread& thread) {
 
-				if (thread.systems_.contains("System1")) {
-					//__debugbreak();
-				}
 				for (auto systemName : thread.systems_) {
+
+					auto getCreateSystemNode = [](DS::Graph<System>& graph, const System& system) {
+						DS::Graph<System>::Node::Id nodeId = DS::Graph<System>::Node::invalidId_;
+						if (!graph.IsNodeExist(system)) {
+							nodeId = graph.AddNode(system);
+						}
+						else {
+							nodeId = graph.FindNode(system);
+						}
+						return nodeId;
+						};
+
+					DS::Graph<System>::Node::Id currentSystemNodeId = getCreateSystemNode(thread.callGraph_, systemName.first);
+
+
 					auto ecsFile = projectContext->GetEcsFileByName(systemName.first);
-					if (systemName.first == "SaveSceneFile") {
-						//__debugbreak();
-					}
 					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
-					DS::Graph<System>::Node::Id currentSystemNodeId = DS::Graph<System>::Node::invalidId_;
-					if (!thread.callGraph_.IsNodeExist(systemName.first)) {
-						currentSystemNodeId = thread.callGraph_.AddNode(systemName.first);
-					}
-					else {
-						currentSystemNodeId = thread.callGraph_.FindNode(systemName.first);
+					if (systemName.first == "EndDrawingMainMenuBarECSItem") {
+						currentSystemNodeId = currentSystemNodeId;
 					}
 					systemEcsFile->ForEachRunAfterSystem([&](const std::string& afterSystem) {
-
 #pragma region Assert 
 						OS::AssertMessage(thread.systems_.contains(afterSystem), "");
 #pragma endregion		
-						DS::Graph<System>::Node::Id afterSystemNodeId = DS::Graph<System>::Node::invalidId_;
-						if (!thread.callGraph_.IsNodeExist(afterSystem)) {
-							afterSystemNodeId = thread.callGraph_.AddNode(afterSystem);
-						}
-						else {
-							afterSystemNodeId = thread.callGraph_.FindNode(afterSystem);
-						}
+						DS::Graph<System>::Node::Id afterSystemNodeId = getCreateSystemNode(thread.callGraph_, afterSystem);
 						thread.callGraph_.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
 						return true;
 						});
-
+					
 					systemEcsFile->ForEachRunBeforeSystem([&](const std::string& beforeSystem) {
-
 #pragma region Assert 
 						OS::AssertMessage(thread.systems_.contains(beforeSystem), "");
 #pragma endregion		
-						DS::Graph<System>::Node::Id beforeSystemNodeId = DS::Graph<System>::Node::invalidId_;
-						if (!thread.callGraph_.IsNodeExist(beforeSystem)) {
-							beforeSystemNodeId = thread.callGraph_.AddNode(beforeSystem);
-						}
-						else {
-							beforeSystemNodeId = thread.callGraph_.FindNode(beforeSystem);
-						}
+						DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, beforeSystem);
 						thread.callGraph_.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);
 						return true;
 						});
 
 				}
+
+				///CREATE GRAPHVIZ CALL GRAPH
+
+				// �������� ������ �����
+				Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
+
+				thread.callGraph_.ForEachNode([&](DS::Graph<System>::NodeId nodeId, DS::Graph<System>::Node& node) {
+
+					if (node.HasLinksFrom() || node.HasLinksTo()) {
+
+						Agnode_t* gSystemNode = agnode(g, (char*)node.GetValue().c_str(), 1);
+						agsafeset(gSystemNode, (char*)"shape", (char*)"rect", (char*)"");
+
+						node.ForEachLinksFrom([&](DS::Graph<System>::NodeId nodeId) {
+							const DS::Graph<System>::Node& fromNode = thread.callGraph_.GetNode(nodeId);
+
+							Agnode_t* gFromNode = agnode(g, (char*)fromNode.GetValue().c_str(), 1);
+
+							Agedge_t* gEdge = agedge(g, gFromNode, gSystemNode, nullptr, 1);
+
+							return true;
+							});
+
+						node.ForEachLinksTo([&](DS::Graph<System>::NodeId nodeId) {
+							const DS::Graph<System>::Node& toNode = thread.callGraph_.GetNode(nodeId);
+
+							Agnode_t* gToNode = agnode(g, (char*)toNode.GetValue().c_str(), 1);
+
+							Agedge_t* gEdge = agedge(g, gSystemNode, gToNode, nullptr, 1);
+
+							return true;
+							});
+					}
+
+
+					return true;
+					});
+
+
+				//Parse .dot
+				{
+					GVC_t* gvc = gvContext();
+
+
+					//Get path
+					auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
+
+					std::filesystem::path includeDirFullPath;
+
+					std::filesystem::path::iterator includeDirIt;
+					for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
+						auto folder = *it;
+						if (folder == projectContext->includeDirectory_) {
+							includeDirIt = it;
+							break;
+						}
+					}
+
+					for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
+						includeDirFullPath /= *it;
+					}
+
+					includeDirFullPath /= *includeDirIt;
+					//Get path
+
+
+					auto dotfile = std::make_shared<OS::TextFile>(includeDirFullPath / "auto_ECSSystemsCallGraph.dot");
+
+					char* dotData = nullptr;
+					unsigned int length = 0;
+
+					gvLayout(gvc, g, "dot");
+					gvRenderData(gvc, g, "dot", &dotData, &length);
+
+					agclose(g);
+					gvFreeContext(gvc);
+					dotfile->Create();
+					std::string dotText{ dotData };
+					(*dotfile) << dotText;
+					dotfile->Close();
+				}
+				//////
 
 				};
 
@@ -1273,7 +1392,7 @@ namespace ECSGenerator {
 				//	continue;
 				//}
 
-				if (categoryPath == "D:/OksEngine/Tools/ECSGenerator/../../Sources/Engine/Sources\\Debug\\ECS\\ECSEditor\\Resources\\LoadECSFiles"){
+				if (categoryPath == "D:/OksEngine/Tools/ECSGenerator/../../Sources/Engine/Sources\\Debug\\ECS\\ECSEditor\\Resources\\LoadECSFiles") {
 					//__debugbreak();
 				}
 

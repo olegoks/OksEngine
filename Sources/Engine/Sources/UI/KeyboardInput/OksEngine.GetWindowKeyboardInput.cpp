@@ -1,4 +1,4 @@
-#include <UI\auto_OksEngine.GetWindowKeyboardInput.hpp>
+#include <UI\KeyboardInput/auto_OksEngine.GetWindowKeyboardInput.hpp>
 
 namespace OksEngine {
 void GetWindowKeyboardInput::Update(ECS2::Entity::Id entityId,

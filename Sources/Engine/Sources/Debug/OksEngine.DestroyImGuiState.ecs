@@ -1,0 +1,13 @@
+system = {
+    name = "DestroyImGuiState",
+    runAfter = { "SendWindowKeyboardInput", "EndImGuiFrame" },
+    runBefore = "ClearKeyboardInput",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState",
+                "KeyboardInput"
+            }
+        }
+    }
+}

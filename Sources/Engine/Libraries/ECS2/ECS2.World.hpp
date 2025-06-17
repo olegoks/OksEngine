@@ -34,6 +34,16 @@ namespace ECS2 {
 			return freeId;
 		}
 
+		void FreeEntityId(Entity::Id entityId) {
+
+#pragma region Assert
+			OS::AssertMessage(!freeEntityIds_.contains(entityId), 
+				"");
+#pragma endregion
+
+			freeEntityIds_.insert(entityId);
+		}
+
 		//Create archetype entity.
 		template<class ...Components>
 		requires (sizeof...(Components) > 0)
@@ -71,6 +81,50 @@ namespace ECS2 {
 			return entityId;
 		}
 
+		void DestroyEntity(Entity::Id entityId) noexcept {
+			std::lock_guard lock{ addRequestMutex_ };
+
+			requests_.emplace_back([this, entityId]() mutable {
+				//Archetype entity.
+				if (archetypeEntitiesComponents_.contains(entityId)) {
+					const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
+					std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponents_[componentsFilter];
+					archetypeComponents->DestroyEntity(entityId);
+					archetypeEntitiesComponents_.erase(entityId);
+				}
+				else { 
+
+#pragma region Assert
+					OS::AssertMessage(
+						dynamicEntitiesComponentFilters_.contains(entityId),
+						"");
+#pragma endregion
+
+					const ComponentsFilter componentsFilter = dynamicEntitiesComponentFilters_[entityId];
+
+					//Remove entity components in containers.
+					componentsFilter.ForEachSetComponent([&](ComponentTypeId componentTypeId) {
+
+#pragma region Assert
+						OS::AssertMessage(
+							dynamicEntitiesContainers_.contains(componentTypeId),
+							"Attempt to get component that doesn't exist.");
+#pragma endregion
+
+						std::shared_ptr<IContainer> container = dynamicEntitiesContainers_[componentTypeId];
+						container->RemoveComponent(entityId);
+						});
+
+					dynamicEntitiesComponentFilters_.erase(entityId);
+
+
+				}
+				FreeEntityId(entityId);
+				});
+
+			
+		}
+
 		template<class ...Components>
 		requires (sizeof...(Components) > 0)
 		bool IsEntityExist() {
@@ -78,8 +132,8 @@ namespace ECS2 {
 			componentsFilter.SetBits<Components...>();
 
 			//TODO: Optimize
-			for (auto& entity : dynamicEntitiesComponentFilters_) {
-				if (entity.second == componentsFilter) {
+			for (auto& [entityId, componentsFilter] : dynamicEntitiesComponentFilters_) {
+				if (componentsFilter.IsSet<Components...>()) {
 					return true;
 				}
 			}
@@ -339,15 +393,10 @@ namespace ECS2 {
 
 		//Dynamic entities.
 		std::map<Entity::Id, ComponentsFilter> dynamicEntitiesComponentFilters_; //Components filter contains current entity components.
-		std::map<ComponentTypeId, std::shared_ptr<IContainer>> delayedDynamicEntitiesContainers_;
 		std::map<ComponentTypeId, std::shared_ptr<IContainer>> dynamicEntitiesContainers_;
 
 		//Archetype components.
 		std::map<Entity::Id, ComponentsFilter> archetypeEntitiesComponents_; // Components filter contains archetype components.
-		std::map<
-			ComponentsFilter,
-			std::shared_ptr<IArchetypeComponents>,
-			ComponentsFilter::LessComparator> delayedArchetypeComponents_;
 		std::map<
 			ComponentsFilter,
 			std::shared_ptr<IArchetypeComponents>,

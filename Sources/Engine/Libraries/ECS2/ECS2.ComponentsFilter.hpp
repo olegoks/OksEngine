@@ -73,6 +73,16 @@ namespace ECS2 {
 			return ((filter_ & componentsFilter.filter_).none());
 		}
 
+		using ProcessSetComponent = std::function<void(ComponentTypeId)>;
+
+		void ForEachSetComponent(ProcessSetComponent&& processSetComponent) const {
+			for (Common::Index i = 0; i < maxComponentsNumber_; i++) {
+				if (IsSet(i)) {
+					processSetComponent(i);
+				}
+			}
+		}
+
 		[[nodiscard]]
 		constexpr static Common::UInt16 GetMaxComponentsNumber() noexcept {
 			return maxComponentsNumber_;

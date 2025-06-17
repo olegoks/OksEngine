@@ -1,0 +1,4 @@
+component = {
+    name = "ECSInspectorWindow",
+    fields = { { type = "bool", name = "show" } }
+}

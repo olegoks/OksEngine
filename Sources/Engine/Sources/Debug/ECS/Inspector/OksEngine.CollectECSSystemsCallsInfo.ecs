@@ -1,7 +1,0 @@
-system = {
-    name = "CollectECSSystemsCallsInfo",
-    runAfter = "StartImGuiFrame",
-    processesComponents = { 
-        { name = "ImGuiState", readonly = false }
-        }
-}

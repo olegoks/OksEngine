@@ -1,5 +1,6 @@
 system = {
     name = "SendWindowKeyboardInput",
+    runAfter = "SendWindowKeyboardInput",
     runAfter = "GetWindowKeyboardInput",
     processesEntities = {
         {

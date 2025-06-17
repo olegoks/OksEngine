@@ -1,17 +1,19 @@
 system = {
-    name = "CreateMainMenuBar",
+    name = "CreateECSMenu",
     runBefore = "ClearKeyboardInput",
     processesEntities = {
         {
             processesComponents = {
-                "ImGuiState"
+                "ImGuiState",
+                "HandleKeyboardInput",
+                "KeyboardInput"
             },
             
             excludes = {
-                "MainMenuBar"
+                "ECSMenu"
             },
             createsComponents = {
-                "MainMenuBar"
+                "ECSMenu"
             }
         }
     },

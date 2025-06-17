@@ -1,4 +1,4 @@
-#include <UI\auto_OksEngine.SendWindowKeyboardInput.hpp>
+#include <UI\KeyboardInput/auto_OksEngine.SendWindowKeyboardInput.hpp>
 
 namespace OksEngine {
 void SendWindowKeyboardInput::Update(
