@@ -113,7 +113,8 @@ int main(int argc, char** argv) {
 	auto generator = std::make_shared<ECSGenerator::CodeStructureGenerator>();
 
 	ECSGenerator::ProjectContext::CreateInfo pcci{
-		.config = config
+		.config = config,
+		.workDirs_ = workDirs
 	};
 
 	auto projectContext = std::make_shared<ECSGenerator::ProjectContext>(pcci);
