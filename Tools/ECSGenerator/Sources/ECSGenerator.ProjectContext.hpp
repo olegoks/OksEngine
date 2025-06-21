@@ -17,10 +17,13 @@ namespace ECSGenerator {
 
 		struct CreateInfo {
 			std::shared_ptr<OksEngine::ConfigFile> config = nullptr;
+			std::vector<std::filesystem::path> workDirs_;
 		};
 
-		ProjectContext(const CreateInfo& createInfo) 
-			: config_{ createInfo.config } {
+		ProjectContext(const CreateInfo& createInfo)
+			:
+			config_{ createInfo.config },
+			ci_{ createInfo } {
 
 		}
 
@@ -38,7 +41,7 @@ namespace ECSGenerator {
 				allComponentsSystems_.components_.push_back(ecsFile);
 
 				oneCategoryEcsFiles_[parentPath].components_.push_back(ecsFile);
-				
+
 				return;
 			}
 			else if (ecsFile->GetType() == ParsedECSFile::Type::System) {
@@ -72,7 +75,7 @@ namespace ECSGenerator {
 				if (stop) {
 					break;
 				}
-			}			
+			}
 		}
 		std::shared_ptr<ParsedECSFile> GetEcsFileByName(const std::string& name) {
 
@@ -92,8 +95,9 @@ namespace ECSGenerator {
 
 		std::map<std::filesystem::path, ComponentsSystems> oneCategoryEcsFiles_;
 		std::shared_ptr<OksEngine::ConfigFile> config_ = nullptr;
+		CreateInfo ci_;
 		ComponentsSystems allComponentsSystems_;
 	};
 
-    
+
 }

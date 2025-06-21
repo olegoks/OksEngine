@@ -994,357 +994,61 @@ namespace ECSGenerator {
 
 
 
-
 		std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>>
 			GenerateRunSystemsFiles(std::vector<std::vector<Agnode_t*>> clusters, std::shared_ptr<ProjectContext> projectContext) {
-
-			////Components and which systems uses them.
-			//std::map<System, std::set<Component>> componentSystem;
-			//projectContext->ForEachSystemEcsFile(
-			//	[&](std::shared_ptr<ParsedSystemECSFile> componentEcsFile) {
-
-			//		const std::string systemName = componentEcsFile->GetName();
-			//		for (auto& entity : componentEcsFile->ci_.processesEntities_) {
-			//			entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-			//				if (componentSystem.find(include.name_) != componentSystem.end()) {
-			//					componentSystem.insert({});
-			//				}
-			//				componentSystem[include.name_].insert(systemName);
-			//				return true;
-			//				});
-			//		}
-			//	});
-
-			//std::map<std::string, std::set<std::string>> systemComponents;
-
-			//for (auto& [component, systems] : componentSystem) {
-			//	for (const auto& system : systems) {
-			//		systemComponents[system].insert(component);
-			//	}
-			//}
-
-
-
-			//std::vector<Thread> childThreads;
-
-			//std::vector<Thread> mainThreads;
-
-			//for (auto& clusterSystems : clusters) {
-			//	bool isMainThread = false;
-			//	for (Agnode_t* systemNode : clusterSystems) {
-			//		std::string systemName = agnameof(systemNode);
-			//		projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
-			//			if (systemName == systemEcsFile->GetName() && systemEcsFile->ci_.thread_ == ParsedSystemECSFile::Thread::Main) {
-			//				isMainThread = true;
-			//			}
-			//			});
-
-			//	}
-			//	Thread clusterThread;
-			//	for (Agnode_t* systemNode : clusterSystems) {
-			//		std::string systemName = agnameof(systemNode);
-
-			//		clusterThread.systems_[systemName] = componentSystem[systemName];
-
-			//	}
-			//	if (isMainThread) {
-			//		mainThreads.push_back(clusterThread);
-			//	}
-			//	else {
-			//		childThreads.push_back(clusterThread);
-			//	}
-			//}
-
-			////Group threads systems to get less threads.
-			//{
-			//	const Common::UInt64 threadsNumber = 6;
-
-			//	auto optimize = [](std::vector<Thread>& threads) {
-
-			//		std::sort(threads.begin(), threads.end(), [](const Thread& first, const Thread& second) {
-
-			//			return first.systems_.size() > second.systems_.size();
-
-			//			});
-			//		auto lastIt = --threads.end();
-			//		auto preLastIt = lastIt--;
-			//		for (auto& [system, components] : lastIt->systems_) {
-			//			preLastIt->systems_[system] = components;
-			//		}
-			//		threads.erase(lastIt);
-			//		};
-
-			//	while (childThreads.size() > threadsNumber) {
-
-			//		optimize(childThreads);
-
-			//	}
-			//}
-
-			//std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>> files;
-
-			//using namespace std::string_literals;
-
-			////Generate .CPP.
-
-			////Generate Includes.
-			//File::Includes cppIncludes{ };
-			////Must be first to escape 
-			////error C1189: #error:  WinSock.h has already been included
-			//cppIncludes.paths_.push_back("auto_OksEngine.RunSystems.hpp");
-
-			//projectContext->ForEachSystemEcsFile(
-			//	[&](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
-			//		std::filesystem::path systemIncludePath = GetSubPath(
-			//			systemEcsFile->GetPath().parent_path(),
-			//			projectContext->includeDirectory_,
-			//			ResultRange::FromStartFolderToEnd,
-			//			SearchDirection::FromEndToBegin,
-			//			true);
-			//		cppIncludes.paths_.push_back(systemIncludePath / ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp"));
-			//	});
-			//cppIncludes.paths_.push_back("pix3.h");
-
-			//auto cppNamespaceObject = std::make_shared<Namespace>("OksEngine");
-
-			//{
-
-			//	for (Common::Index i = 0; i < childThreads.size(); ++i) {
-			//		auto& thread = childThreads[i];
-
-			//		Variable::CreateInfo threadVariable{
-			//			.type_ = "std::thread",
-			//			.name_ = "thread" + std::to_string(i)
-			//		};
-			//		cppNamespaceObject->Add(std::make_shared<Variable>(threadVariable));
-
-			//		std::mutex thread16Mutex;
-
-			//		Variable::CreateInfo threadMutexVariable{
-			//			.type_ = "std::mutex",
-			//			.name_ = "thread" + std::to_string(i) + "Mutex"
-			//		};
-			//		cppNamespaceObject->Add(std::make_shared<Variable>(threadMutexVariable));
-
-
-			//		Variable::CreateInfo runSystemThreadVariable{
-			//			.type_ = "std::atomic_bool",
-			//			.name_ = "runSystemThread" + std::to_string(i),
-			//			.initValue_ = "false"
-			//		};
-			//		cppNamespaceObject->Add(std::make_shared<Variable>(runSystemThreadVariable));
-
-			//		Variable::CreateInfo threadCVVariable{
-			//			.type_ = "std::condition_variable",
-			//			.name_ = "thread" + std::to_string(i) + "CV"
-			//		};
-			//		cppNamespaceObject->Add(std::make_shared<Variable>(threadCVVariable));
-			//	}
-
-			//	Variable::CreateInfo threadCVVariable{
-			//			.type_ = "Common::UInt64",
-			//			.name_ = "frameNumber",
-			//			.initValue_ = "0"
-			//	};
-			//	cppNamespaceObject->Add(std::make_shared<Variable>(threadCVVariable));
-			//}
-
-			//Code cppRunSystemsCode;
-			//{
-			//	cppRunSystemsCode.Add(
-			//		"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Frame %d\", frameNumber);"
-			//		"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"StartFrame\");"
-			//		"world2->StartFrame();"
-			//		"PIXEndEvent();");
-
-			//	//Start threads.
-			//	for (Common::Index i = 0; i < childThreads.size(); ++i) {
-			//		auto& thread = childThreads[i];
-			//		std::string threadId = std::to_string(i);
-			//		cppRunSystemsCode.Add(std::format(
-			//			"runSystemThread{} = true;"
-			//			"{{"
-			//			"std::unique_lock lock{{thread{}Mutex}};"
-			//			"thread{}CV.notify_one();"
-			//			"}}",
-			//			threadId,
-			//			threadId,
-			//			threadId
-			//		).c_str());
-			//	}
-
-			//	//Generate code to run main thread systems.
-			//	for (Common::Index i = 0; i < mainThreads.size(); ++i) {
-			//		auto& mainThread = mainThreads[i];
-			//		Code runMainThreadSystems;
-			//		for (auto it = mainThread.systems_.begin(); it != mainThread.systems_.end(); it++) {
-			//			runMainThreadSystems.Add(std::format(
-			//				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
-			//				"{}System(world2);"
-			//				"PIXEndEvent();",
-			//				it->first,
-			//				it->first
-			//			));
-			//			auto itCopy = it;
-			//			if (itCopy++ != mainThread.systems_.end()) {
-			//				runMainThreadSystems.NewLine();
-			//			}
-			//		}
-			//		cppRunSystemsCode.Add(runMainThreadSystems);
-			//	}
-
-			//	//Wait for threads end.
-			//	for (Common::Index i = 0; i < childThreads.size(); ++i) {
-			//		auto& thread = childThreads[i];
-			//		std::string threadId = std::to_string(i);
-			//		cppRunSystemsCode.Add(std::format(
-			//			"{{"
-			//			"std::unique_lock lock{{thread{}Mutex}};"
-			//			"thread{}CV.wait(lock, [&]() {{ return runSystemThread"
-			//			"{} == false;"
-			//			"}});"
-			//			"}}",
-			//			threadId,
-			//			threadId,
-			//			threadId
-			//		));
-
-			//	}
-
-			//	//Generate code to run systems that process all entities.
-			//	projectContext->ForEachSystemEcsFile(
-			//		[&](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
-			//			if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::AllEntities) {
-
-			//				cppRunSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
-			//				//cppRunSystemsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + systemEcsFile->GetName() + "\");");
-			//				//cppRunSystemsCode.Add(systemEcsFile->GetName() + "System(world2);");
-			//				//cppRunSystemsCode.NewLine();
-			//				//cppRunSystemsCode.Add("PIXEndEvent();");
-			//			}
-			//		});
-
-			//	cppRunSystemsCode.Add(
-			//		"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"EndFrame\");"
-			//		"world2->EndFrame();"
-			//		"PIXEndEvent();"
-			//		"PIXEndEvent();"
-			//		"++frameNumber;");
-			//}
-
-			////CreateThreads method realization.
-			//Function::CreateInfo cppRunSystemsFunction{
-			//	.name_ = "RunSystems",
-			//	.parameters_ = {
-			//		{ "std::shared_ptr<ECS2::World>", "world2" }
-			//	},
-			//	.returnType_ = "void",
-			//	.code_ = cppRunSystemsCode,
-			//	.isPrototype_ = false,
-			//	.inlineModifier_ = false
-			//};
-
-			//auto cppRunSystemsFunctionObject = std::make_shared<Function>(cppRunSystemsFunction);
-			//cppNamespaceObject->Add(cppRunSystemsFunctionObject);
-
-
-			//auto runInitializeSystemsRealization = GenerateRunInitSystemsFunctionRealization(projectContext);
-
-			//cppNamespaceObject->Add(runInitializeSystemsRealization);
-			//cppNamespaceObject->Add(cppCreateThreadsFunctionObject);
-
-
-			////cpp file
-			//File::CreateInfo cppfci{
-			//.isHpp_ = false,
-			//.includes_ = cppIncludes,
-			//.base_ = cppNamespaceObject
-			//};
-
-			//auto cppFile = std::make_shared<File>(cppfci);
-
-
-			//Generate .HPP.
-			//Update method prototype.
-			//Function::CreateInfo hppRunSystemsFunction{
-			//	.name_ = "RunSystems",
-			//	.parameters_ = {
-			//		{ "std::shared_ptr<ECS2::World>", "world2"}},
-			//	.returnType_ = "void",
-			//	.code_ = {},
-			//	.isPrototype_ = true,
-			//	.inlineModifier_ = false
-			//};
-
-			//auto hppRunSystemsFunctionObject = std::make_shared<Function>(hppRunSystemsFunction);
-
-			////Create threads method prototype.
-			//Function::CreateInfo hppCreateThreadsFunction{
-			//	.name_ = "CreateThreads",
-			//	.parameters_ = { { "std::shared_ptr<ECS2::World>", "world2"} },
-			//	.returnType_ = "void",
-			//	.code_ = {},
-			//	.isPrototype_ = true,
-			//	.inlineModifier_ = false
-			//};
-
-			//auto hppCreateThreadsFunctionObject = GenerateCreateThreadsPrototype(projectContext);//std::make_shared<Function>(hppCreateThreadsFunction);
-
-			//auto hppRunInitializeSystemPrototype = GenerateRunInitSystemsFunctionPrototype(projectContext);
-
-			//auto hppNamespaceObject = std::make_shared<Namespace>("OksEngine");
-
-			//hppNamespaceObject->Add(hppRunInitializeSystemPrototype);
-			//hppNamespaceObject->Add(hppCreateThreadsFunctionObject);
-			//hppNamespaceObject->Add(hppRunSystemsFunctionObject);
-
-			//File::Includes hppIncludes{ };
-			//hppIncludes.paths_.push_back("boost/asio/thread_pool.hpp");
-			//hppIncludes.paths_.push_back("boost/asio/post.hpp");
-			//hppIncludes.paths_.push_back("ECS2.World.hpp");
-
-
-			////hpp file
-			//File::CreateInfo hppfci{
-			//.isHpp_ = true,
-			//.includes_ = hppIncludes,
-			//.base_ = hppNamespaceObject
-			//};
-
-			//auto hppFile = std::make_shared<File>(hppfci);
-
-
-			////Generate files Paths
-
-			//auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
-
-			//std::filesystem::path includeDirFullPath;
-
-			//std::filesystem::path::iterator includeDirIt;
-			//for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
-			//	auto folder = *it;
-			//	if (folder == projectContext->includeDirectory_) {
-			//		includeDirIt = it;
-			//		break;
-			//	}
-			//}
-
-			//for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
-			//	includeDirFullPath /= *it;
-			//}
-
-			//includeDirFullPath /= *includeDirIt;
-
-			//std::filesystem::path systemHppFileFullPath = includeDirFullPath / ("auto_OksEngine.RunSystems.hpp");
-			//FormatPath(systemHppFileFullPath);
-
-			//std::filesystem::path systemCppFileFullPath = includeDirFullPath / ("auto_OksEngine.RunSystems.cpp");
-			//FormatPath(systemCppFileFullPath);
 
 			return {
 				GenerateRunSystemsHppFile(projectContext),
 				GenerateRunSystemsCppFile(clusters, projectContext)
 			};
+		}
+
+		void ProcessDirectory(const std::filesystem::path& dir, std::shared_ptr<ProjectContext> projectContext) {
+			
+			// Рекурсивно обрабатываем поддиректории
+			std::vector<std::filesystem::path> subdirs;
+			for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+				if (entry.is_directory()) {
+					ProcessDirectory(entry.path(), projectContext); // Обработка поддиректории
+					subdirs.push_back(entry.path().filename());
+				}
+			}
+
+			// Собираем .ecs файлы в текущей директории
+			std::vector<std::filesystem::path> ecs_files;
+			for (const auto& entry : std::filesystem::directory_iterator(dir)) {
+				if (entry.is_regular_file() && entry.path().extension() == ".ecs") {
+					ecs_files.push_back(entry.path().filename());
+				}
+			}
+
+			// Сортируем имена для детерминизма
+			std::sort(ecs_files.begin(), ecs_files.end());
+			std::sort(subdirs.begin(), subdirs.end());
+
+			const std::filesystem::path componentIncludePath = GetSubPath(
+				dir,
+				projectContext->includeDirectory_,
+				ResultRange::FromStartFolderToEnd,
+				SearchDirection::FromEndToBegin,
+				true);
+			//componentIncludePath ;
+			//includes.paths_.insert(componentIncludePath / ("auto_OksEngine.Components.hpp"));
+
+			// Создаем OksEngine.Components.hpp
+			std::ofstream out(dir / "auto_OksEngine.ECS.hpp");
+			if (!out) return;
+
+			if (!ecs_files.empty()) {
+				// Включаем .ecs файлы текущей директории
+				for (const auto& file : ecs_files) {
+					out << "#include \"" << componentIncludePath.string() + "/" + file.stem().string() + ".hpp" << "\"\n";
+				}
+				// Включаем OksEngine.Components.hpp из поддиректорий
+				for (const auto& subdir : subdirs) {
+					out << "#include \"" << subdir.string() << "/auto_OksEngine.ECS.hpp\"\n";
+				}
+			}
 		}
 
 
@@ -1383,157 +1087,157 @@ namespace ECSGenerator {
 					return true;
 				});
 
+			ProcessDirectory(projectContext->ci_.workDirs_[0], projectContext);
+			//
+			////Generate OksEngine.Components.hpp files For COMPONENTS.
+			//for (auto [categoryPath, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
+
+			//	//if (componentsSystems.components_.empty()) {
+			//	//	continue;
+			//	//}
+
+			//	if (categoryPath == "D:/OksEngine/Tools/ECSGenerator/../../Sources/Engine/Sources\\Debug\\ECS\\ECSEditor\\Resources\\LoadECSFiles") {
+			//		//__debugbreak();
+			//	}
+
+			//	//Generate components includes for components in the subdirectory 
+			//	File::Includes includes{};
+
+			//	for (auto componentParsedEcsFile : componentsSystems.components_) {
+			//		auto componentPath = componentParsedEcsFile->GetPath().parent_path();
+			//		const std::filesystem::path includePath = GetSubPath(
+			//			componentParsedEcsFile->GetPath().parent_path(),
+			//			projectContext->includeDirectory_,
+			//			ResultRange::FromStartFolderToEnd,
+			//			SearchDirection::FromEndToBegin,
+			//			true);
+			//		includes.paths_.insert(includePath / ("auto_OksEngine." + componentParsedEcsFile->GetName() + ".hpp"));
+			//	}
+
+			//	//generate Include OksEngine.Components.hpp files from subdirectories.
+			//	for (auto [path, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
+			//		if (path.string().starts_with(categoryPath.string())) {
+			//			if (path == categoryPath) {
+			//				continue;
+			//			}
+			//			auto pathIt = path.begin();
+			//			bool subdirFound = true;
+			//			for (auto it = categoryPath.begin(); it != categoryPath.end(); ++it) {
+			//				if (*it != *pathIt) {
+			//					subdirFound = false;
+			//					break;
+			//				}
+			//				++pathIt;
+			//			}
+
+			//			if (subdirFound) {
+			//				//Subdirectory found!
+			//				std::filesystem::path subdirPath;
+			//				++pathIt;
+			//				for (auto it = path.begin(); it != pathIt; ++it) {
+			//					subdirPath /= *it;
+			//				}
+			//				//std::filesystem::path componentIncludePath = GetSubPathFromFolderToEnd(subdirPath, projectContext->includeDirectory_);
+			//				const std::filesystem::path componentIncludePath = GetSubPath(
+			//					subdirPath,
+			//					projectContext->includeDirectory_,
+			//					ResultRange::FromStartFolderToEnd,
+			//					SearchDirection::FromEndToBegin,
+			//					true);
+			//				//componentIncludePath ;
+			//				includes.paths_.insert(componentIncludePath / ("auto_OksEngine.Components.hpp"));
+			//			}
+			//		}
+			//	}
+
+			//	File::CreateInfo fci{
+			//		.isHpp_ = true,
+			//		.includes_ = includes,
+			//		.base_ = nullptr
+			//	};
+
+			//	auto categoryComponentsIncludeFile = std::make_shared<File>(fci);
+			//	std::filesystem::path componentIncludesFullFilePath = categoryPath / "auto_OksEngine.Components.hpp";
+
+			//	std::string componentIncludesFullFilePathString = componentIncludesFullFilePath.string();
+			//	std::replace(componentIncludesFullFilePathString.begin(), componentIncludesFullFilePathString.end(), '\\', '/');
+			//	files.push_back({ std::filesystem::path{ componentIncludesFullFilePathString }, categoryComponentsIncludeFile });
+			//}
 
 
-			//Generate OksEngine.Components.hpp files For COMPONENTS.
-			for (auto [categoryPath, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
 
-				//if (componentsSystems.components_.empty()) {
-				//	continue;
-				//}
+			////Generate OksEngine.Components.hpp files For Systems.
+			//for (auto [categoryPath, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
 
-				if (categoryPath == "D:/OksEngine/Tools/ECSGenerator/../../Sources/Engine/Sources\\Debug\\ECS\\ECSEditor\\Resources\\LoadECSFiles") {
-					//__debugbreak();
-				}
+			//	//if (componentsSystems.systems_.empty()) {
+			//	//	continue;
+			//	//}
+			//	//Generate components includes for components in the subdirectory 
+			//	File::Includes includes{};
+			//	std::filesystem::path systemsIncludesFilePath;
+			//	for (auto systemParsedEcsFile : componentsSystems.systems_) {
+			//		systemsIncludesFilePath = systemParsedEcsFile->GetPath().parent_path();
+			//		const std::filesystem::path systemIncludePath = GetSubPath(
+			//			systemParsedEcsFile->GetPath().parent_path(),
+			//			projectContext->includeDirectory_,
+			//			ResultRange::FromStartFolderToEnd,
+			//			SearchDirection::FromEndToBegin,
+			//			true);
 
-				//Generate components includes for components in the subdirectory 
-				File::Includes includes{};
+			//		includes.paths_.insert(systemIncludePath / ("auto_OksEngine." + systemParsedEcsFile->GetName() + ".hpp"));
+			//	}
 
-				for (auto componentParsedEcsFile : componentsSystems.components_) {
-					auto componentPath = componentParsedEcsFile->GetPath().parent_path();
-					const std::filesystem::path includePath = GetSubPath(
-						componentParsedEcsFile->GetPath().parent_path(),
-						projectContext->includeDirectory_,
-						ResultRange::FromStartFolderToEnd,
-						SearchDirection::FromEndToBegin,
-						true);
-					includes.paths_.insert(includePath / ("auto_OksEngine." + componentParsedEcsFile->GetName() + ".hpp"));
-				}
+			//	//generate Include OksEngine.Systems.hpp files from subdirectories.
+			//	for (auto [path, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
+			//		if (componentsSystems.systems_.empty()) {
+			//			continue;
+			//		}
+			//		if (path.string().starts_with(categoryPath.string())) {
+			//			if (path == categoryPath) {
+			//				continue;
+			//			}
+			//			auto pathIt = path.begin();
+			//			bool subdirFound = true;
+			//			for (auto it = categoryPath.begin(); it != categoryPath.end(); ++it) {
+			//				if (*it != *pathIt) {
+			//					subdirFound = false;
+			//					break;
+			//				}
+			//				++pathIt;
+			//			}
+			//			if (subdirFound) {
+			//				//Subdirectory found!
+			//				std::filesystem::path subdirPath;
+			//				++pathIt;
+			//				for (auto it = path.begin(); it != pathIt; ++it) {
+			//					subdirPath /= *it;
+			//				}
+			//				//std::filesystem::path systemIncludePath = GetSubPathFromFolderToEnd(subdirPath, projectContext->includeDirectory_);
+			//				const std::filesystem::path systemIncludePath = GetSubPath(
+			//					subdirPath,
+			//					projectContext->includeDirectory_,
+			//					ResultRange::FromStartFolderToEnd,
+			//					SearchDirection::FromEndToBegin,
+			//					true);
+			//				//systemIncludePath ;
+			//				includes.paths_.insert(systemIncludePath / ("auto_OksEngine.Systems.hpp"));
+			//			}
+			//		}
+			//	}
 
-				//generate Include OksEngine.Components.hpp files from subdirectories.
-				for (auto [path, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
-					if (path.string().starts_with(categoryPath.string())) {
-						if (path == categoryPath) {
-							continue;
-						}
-						auto pathIt = path.begin();
-						bool subdirFound = true;
-						for (auto it = categoryPath.begin(); it != categoryPath.end(); ++it) {
-							if (*it != *pathIt) {
-								subdirFound = false;
-								break;
-							}
-							++pathIt;
-						}
+			//	File::CreateInfo fci{
+			//		.isHpp_ = true,
+			//		.includes_ = includes,
+			//		.base_ = nullptr
+			//	};
 
-						if (subdirFound) {
-							//Subdirectory found!
-							std::filesystem::path subdirPath;
-							++pathIt;
-							for (auto it = path.begin(); it != pathIt; ++it) {
-								subdirPath /= *it;
-							}
-							//std::filesystem::path componentIncludePath = GetSubPathFromFolderToEnd(subdirPath, projectContext->includeDirectory_);
-							const std::filesystem::path componentIncludePath = GetSubPath(
-								subdirPath,
-								projectContext->includeDirectory_,
-								ResultRange::FromStartFolderToEnd,
-								SearchDirection::FromEndToBegin,
-								true);
-							//componentIncludePath ;
-							includes.paths_.insert(componentIncludePath / ("auto_OksEngine.Components.hpp"));
-						}
-					}
-				}
+			//	auto categorySystemIncludeFile = std::make_shared<File>(fci);
+			//	std::filesystem::path systemIncludesFullFilePath = systemsIncludesFilePath / "auto_OksEngine.Systems.hpp";
 
-				File::CreateInfo fci{
-					.isHpp_ = true,
-					.includes_ = includes,
-					.base_ = nullptr
-				};
-
-				auto categoryComponentsIncludeFile = std::make_shared<File>(fci);
-				std::filesystem::path componentIncludesFullFilePath = categoryPath / "auto_OksEngine.Components.hpp";
-
-				std::string componentIncludesFullFilePathString = componentIncludesFullFilePath.string();
-				std::replace(componentIncludesFullFilePathString.begin(), componentIncludesFullFilePathString.end(), '\\', '/');
-				files.push_back({ std::filesystem::path{ componentIncludesFullFilePathString }, categoryComponentsIncludeFile });
-			}
-
-
-
-			//Generate OksEngine.Components.hpp files For Systems.
-			for (auto [categoryPath, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
-
-				//if (componentsSystems.systems_.empty()) {
-				//	continue;
-				//}
-				//Generate components includes for components in the subdirectory 
-				File::Includes includes{};
-				std::filesystem::path systemsIncludesFilePath;
-				for (auto systemParsedEcsFile : componentsSystems.systems_) {
-					systemsIncludesFilePath = systemParsedEcsFile->GetPath().parent_path();
-					const std::filesystem::path systemIncludePath = GetSubPath(
-						systemParsedEcsFile->GetPath().parent_path(),
-						projectContext->includeDirectory_,
-						ResultRange::FromStartFolderToEnd,
-						SearchDirection::FromEndToBegin,
-						true);
-
-					includes.paths_.insert(systemIncludePath / ("auto_OksEngine." + systemParsedEcsFile->GetName() + ".hpp"));
-				}
-
-				//generate Include OksEngine.Systems.hpp files from subdirectories.
-				for (auto [path, componentsSystems] : projectContext->oneCategoryEcsFiles_) {
-					if (componentsSystems.systems_.empty()) {
-						continue;
-					}
-					if (path.string().starts_with(categoryPath.string())) {
-						if (path == categoryPath) {
-							continue;
-						}
-						auto pathIt = path.begin();
-						bool subdirFound = true;
-						for (auto it = categoryPath.begin(); it != categoryPath.end(); ++it) {
-							if (*it != *pathIt) {
-								subdirFound = false;
-								break;
-							}
-							++pathIt;
-						}
-						if (subdirFound) {
-							//Subdirectory found!
-							std::filesystem::path subdirPath;
-							++pathIt;
-							for (auto it = path.begin(); it != pathIt; ++it) {
-								subdirPath /= *it;
-							}
-							//std::filesystem::path systemIncludePath = GetSubPathFromFolderToEnd(subdirPath, projectContext->includeDirectory_);
-							const std::filesystem::path systemIncludePath = GetSubPath(
-								subdirPath,
-								projectContext->includeDirectory_,
-								ResultRange::FromStartFolderToEnd,
-								SearchDirection::FromEndToBegin,
-								true);
-							//systemIncludePath ;
-							includes.paths_.insert(systemIncludePath / ("auto_OksEngine.Systems.hpp"));
-						}
-					}
-				}
-
-				File::CreateInfo fci{
-					.isHpp_ = true,
-					.includes_ = includes,
-					.base_ = nullptr
-				};
-
-				auto categorySystemIncludeFile = std::make_shared<File>(fci);
-				std::filesystem::path systemIncludesFullFilePath = systemsIncludesFilePath / "auto_OksEngine.Systems.hpp";
-
-				std::string systemIncludesFullFilePathString = systemIncludesFullFilePath.string();
-				std::replace(systemIncludesFullFilePathString.begin(), systemIncludesFullFilePathString.end(), '\\', '/');
-				files.push_back({ std::filesystem::path{ systemIncludesFullFilePathString }, categorySystemIncludeFile });
-			}
+			//	std::string systemIncludesFullFilePathString = systemIncludesFullFilePath.string();
+			//	std::replace(systemIncludesFullFilePathString.begin(), systemIncludesFullFilePathString.end(), '\\', '/');
+			//	files.push_back({ std::filesystem::path{ systemIncludesFullFilePathString }, categorySystemIncludeFile });
+			//}
 
 			return files;
 		}
