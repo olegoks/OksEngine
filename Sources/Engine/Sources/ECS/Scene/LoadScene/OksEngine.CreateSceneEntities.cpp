@@ -1,7 +1,7 @@
 #include <ECS/Scene/LoadScene\auto_OksEngine.CreateSceneEntities.hpp>
 
 
-#include <OksEngine.Components.hpp>
+#include <OksEngine.ECS.hpp>
 
 namespace OksEngine {
 void CreateSceneEntities::Update(ECS2::Entity::Id entityId,

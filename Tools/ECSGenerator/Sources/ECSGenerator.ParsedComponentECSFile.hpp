@@ -132,7 +132,7 @@ namespace ECSGenerator {
 		Code code;
 		const std::string& fieldTypeName = typeName;
 		if (fieldTypeName == "std::string") {
-			code.Add("static char " + variableName + "[256] = \"\";");
+			code.Add("static char " + variableName + "[4096] = \"\";");
 			return code;
 		}
 		else if (
@@ -141,7 +141,7 @@ namespace ECSGenerator {
 			fieldTypeName == "Common::Size" ||
 			fieldTypeName == "Common::UInt64" ||
 			fieldTypeName == "Common::Index" ||
-			fieldTypeName == "ECS::Entity::Id") {
+			fieldTypeName == "ECS2::Entity::Id") {
 			code.Add("static " + typeName + " " + variableName + ";");
 			return code;
 		}
@@ -163,7 +163,7 @@ namespace ECSGenerator {
 			typeName == "Common::Size" ||
 			typeName == "Common::UInt64" ||
 			typeName == "Common::Index" ||
-			typeName == "ECS::Entity::Id") {
+			typeName == "ECS2::Entity::Id") {
 			code.Add("ImGui::InputScalar(\"" + imguiVariableName + "\", " + GetImGuiType(typeName) + ", " + outVariable + ");");
 			return code;
 		}
@@ -193,8 +193,13 @@ namespace ECSGenerator {
 			fieldVariableTypeName == "double" ||
 			fieldVariableTypeName == "Common::Size" ||
 			fieldVariableTypeName == "Common::UInt64" ||
-			fieldVariableTypeName == "Common::Index" ||
-			fieldVariableTypeName == "ECS::Entity::Id") {
+			fieldVariableTypeName == "Common::Index") {
+			code.Add(GenerateImGuiInputTypeCode(
+				fieldVariableName,
+				fieldVariableTypeName,
+				"&" + componentVariableName + "->" + fieldComponentVariableName));
+			return code;
+		} else if(fieldVariableTypeName == "ECS2::Entity::Id") {
 			code.Add(GenerateImGuiInputTypeCode(
 				fieldVariableName,
 				fieldVariableTypeName,
@@ -474,7 +479,7 @@ namespace ECSGenerator {
 				namespaceObject->Add(serializeFunction);
 			}
 
-			//Edit function.
+			//Edit functions.
 			{
 				Code realization;
 				componentEcsFile->ForEachField([&](const ParsedComponentECSFile::FieldInfo& fieldInfo, bool isLast) {
@@ -489,7 +494,8 @@ namespace ECSGenerator {
 					return true;
 					});
 
-				Function::CreateInfo fci{
+				
+				Function::CreateInfo fci1{
 					.name_ = "Edit" + componentEcsFile->GetName(),
 					.parameters_ = {
 						{ componentEcsFile->GetName() + "*", componentEcsFile->GetLowerName()}
@@ -499,9 +505,24 @@ namespace ECSGenerator {
 					.inlineModifier_ = true
 				};
 
-				auto editFunction = std::make_shared<Function>(fci);
-
+				auto editFunction = std::make_shared<Function>(fci1);
 				namespaceObject->Add(editFunction);
+				//Template variant
+				Function::CreateInfo fci2{
+					.name_ = "Edit",
+					.parameters_ = {
+						{ componentEcsFile->GetName() + "*", componentEcsFile->GetLowerName()}
+					},
+					.returnType_ = "void",
+					.code_ = std::format("Edit{}({});", componentEcsFile->GetName(), componentEcsFile->GetLowerName()),
+					.inlineModifier_ = true,
+					.templateParameters_ = {},
+					.specializedTemplateParameters_ = { componentEcsFile->GetName() }
+				};
+
+				auto templateEditFunction = std::make_shared<Function>(fci2);
+
+				namespaceObject->Add(templateEditFunction);
 			}
 
 			//Bind function.

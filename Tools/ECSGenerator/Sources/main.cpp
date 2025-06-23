@@ -155,8 +155,8 @@ int main(int argc, char** argv) {
 
 
 	auto files = generator->GenerateECSCXXFilesStructure(projectContext);
-
-
+	auto editEntityFile = generator->GenerateEditEntityHppFile(projectContext);
+	files.push_back(editEntityFile);
 	ECSGenerator::SystemCallsGraphDescriptionGenerator dotGenerator;
 	auto* graph = dotGenerator.CreateSystemsGraph(projectContext);
 	auto clusters = dotGenerator.FindClusters(graph);

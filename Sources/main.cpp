@@ -1,6 +1,6 @@
 
 #include <Engine.hpp>
-#include <OksEngine.Components.hpp>
+#include <OksEngine.ECS.hpp>
 
 int main(int argc, char** argv) {
 

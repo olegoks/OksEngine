@@ -24,11 +24,8 @@ namespace ECSGenerator {
 	class CodeStructureGenerator {
 	public:
 
-
-
 		using System = std::string;
 		using Component = std::string;
-
 
 		class SystemsOrder {
 		public:
@@ -287,7 +284,6 @@ namespace ECSGenerator {
 
 		}
 
-
 		std::shared_ptr<Function> GenerateCreateThreadRealization(const std::vector<Thread>& threads, std::shared_ptr<ProjectContext> projectContext) {
 
 
@@ -467,6 +463,160 @@ namespace ECSGenerator {
 			std::filesystem::path includeDirFullPath = GetSubPath(randomEcsFilePath, projectContext->includeDirectory_, ECSGenerator::ResultRange::FromStartToStartFolder, SearchDirection::FromEndToBegin, false);
 
 			std::filesystem::path systemCppFileFullPath = includeDirFullPath / ("auto_OksEngine.RunSystems.hpp");
+			FormatPath(systemCppFileFullPath);
+
+			return { systemCppFileFullPath, file };
+		}
+
+		std::pair<std::filesystem::path, std::shared_ptr<File>>
+			GenerateEditEntityHppFile(std::shared_ptr<ProjectContext> projectContext) {
+
+			auto generateAddComponentCode = [](std::shared_ptr<ProjectContext> projectContext) -> Code {
+
+				Code code;
+
+				// Components to add list.
+				code.Add("const char* items[] = {");
+				code.NewLine();
+
+				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile) {
+
+					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+					code.Add(std::format("{}::GetName(),", component->GetName()));
+					code.NewLine();
+					return true;
+					});
+
+				code.Add("};");
+
+				//ImGui combo box with components list.
+				code.Add(
+					"static int addComponentIndex = 0;"
+					"ImGui::Combo(\"\", &addComponentIndex, items, std::size(items));"
+					"ImGui::PushID(\"Add\");"
+					"const std::string currentComponent = items[addComponentIndex];"
+				);
+
+				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile) {
+
+					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+					code.Add(std::format("if (currentComponent == {}::GetName()) {{", component->GetName()));
+					code.Add(std::format("Add{}(world.get(), entityId);", component->GetName()));
+					code.Add("}");
+					code.NewLine();
+					return true;
+					});
+				code.Add("ImGui::PopID();");
+				return code;
+				};
+
+			auto generateEditComponentCode = [](std::shared_ptr<ParsedComponentECSFile> component) -> Code {
+
+				Code code;
+				code.Add(std::format("editComponent.template operator()<{}>(world, entityId);", component->GetName()));
+				code.NewLine();
+				component->ForEachField([&](const ParsedComponentECSFile::FieldInfo& fieldInfo, bool isLast) {
+
+					if (fieldInfo.GetTypeName() == "ECS2::Entity::Id") {
+						code.Add(std::format("if (world->IsComponentExist<{}>(entityId)) {{", component->GetName()));
+						code.Add(std::format("auto {} = world->GetComponent<{}>(entityId);",
+							component->GetLowerName(), component->GetName()));
+						code.Add("ImGui::Indent(20.0f);");
+						code.Add(std::format("EditEntity(world, {}->{}_);", component->GetLowerName(), fieldInfo.GetName()));
+						code.Add("ImGui::Unindent(20.0f);");
+						code.Add("}");
+						code.NewLine();
+					}
+
+					return true;
+					});
+				return code;
+				};
+
+			auto generateEditEntityFunctionRealization = [&](std::shared_ptr<ProjectContext> projectContext) -> std::shared_ptr<Function> {
+
+				Code code;
+
+				code.Add(
+					"const std::string idString = std::to_string(entityId);"
+					"ImGui::PushID(idString.c_str());"
+					"if (ImGui::CollapsingHeader((\"Id: \" + idString).c_str())) {"
+					"ImGui::Indent(20.f);"
+
+					"auto editComponent = []<class ComponentType>(std::shared_ptr<ECS2::World> world, ECS2::Entity::Id id) {"
+
+					"bool isExist = world->IsComponentExist<ComponentType>(id);"
+					"if (ImGui::CollapsingHeader(ComponentType::GetName(), &isExist)) {"
+					"ComponentType* component = world->GetComponent<ComponentType>(id);"
+					"Edit<ComponentType>(component);"
+					"ImGui::Spacing();"
+					"}"
+					"};"
+					"{"
+					"ImGui::PushID(\"Edit\");");
+
+
+				//Generate edit components.
+				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile) {
+
+					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+
+					code.Add(generateEditComponentCode(component));
+					code.NewLine();
+					return true;
+					});
+				code.Add("ImGui::PopID();");
+				code.Add("ImGui::SeparatorText(\"Add component\");");
+				code.Add("ImGui::Indent(20.0f);");
+
+				code.Add(generateAddComponentCode(projectContext));
+				code.Add("ImGui::Unindent(20.0f);");
+
+				code.Add("}");
+				code.Add("ImGui::Separator();");
+				code.Add("ImGui::Unindent(20.f);");
+				code.Add("}");
+				code.Add("ImGui::PopID();");
+
+				Function::CreateInfo editEntityFunction{
+					.name_ = "EditEntity",
+					.parameters_ = {
+						{ "std::shared_ptr<ECS2::World>", "world" },
+						{ "ECS2::Entity::Id", "entityId" }
+					},
+					.returnType_ = "void",
+					.code_ = code,
+					.isPrototype_ = false,
+					.inlineModifier_ = false
+				};
+
+				auto editEntityFunctionObject = std::make_shared<Function>(editEntityFunction);
+
+				return editEntityFunctionObject;
+				};
+
+			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+
+			namespaceObject->Add(generateEditEntityFunctionRealization(projectContext));
+
+			File::Includes includes{ };
+			includes.paths_.insert("ECS2.World.hpp");
+			includes.paths_.insert("imgui.h");
+			includes.paths_.insert("OksEngine.ECS.hpp");
+			//hpp file
+			File::CreateInfo fci{
+				.isHpp_ = true,
+				.includes_ = includes,
+				.base_ = namespaceObject
+			};
+
+			auto file = std::make_shared<File>(fci);
+
+			auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
+
+			std::filesystem::path includeDirFullPath = GetSubPath(randomEcsFilePath, projectContext->includeDirectory_, ECSGenerator::ResultRange::FromStartToStartFolder, SearchDirection::FromEndToBegin, false);
+
+			std::filesystem::path systemCppFileFullPath = includeDirFullPath / ("auto_OksEngine.EditEntity.hpp");
 			FormatPath(systemCppFileFullPath);
 
 			return { systemCppFileFullPath, file };
@@ -667,7 +817,7 @@ namespace ECSGenerator {
 						thread.callGraph_.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
 						return true;
 						});
-					
+
 					systemEcsFile->ForEachRunBeforeSystem([&](const std::string& beforeSystem) {
 #pragma region Assert 
 						OS::AssertMessage(thread.systems_.contains(beforeSystem), "");
@@ -992,8 +1142,6 @@ namespace ECSGenerator {
 
 		}
 
-
-
 		std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>>
 			GenerateRunSystemsFiles(std::vector<std::vector<Agnode_t*>> clusters, std::shared_ptr<ProjectContext> projectContext) {
 
@@ -1004,7 +1152,7 @@ namespace ECSGenerator {
 		}
 
 		void ProcessDirectory(const std::filesystem::path& dir, std::shared_ptr<ProjectContext> projectContext) {
-			
+
 			// Рекурсивно обрабатываем поддиректории
 			std::vector<std::filesystem::path> subdirs;
 			for (const auto& entry : std::filesystem::directory_iterator(dir)) {
@@ -1039,18 +1187,17 @@ namespace ECSGenerator {
 			std::ofstream out(dir / "auto_OksEngine.ECS.hpp");
 			if (!out) return;
 
-			if (!ecs_files.empty()) {
+			//if (!ecs_files.empty()) {
 				// Включаем .ecs файлы текущей директории
 				for (const auto& file : ecs_files) {
-					out << "#include \"" << componentIncludePath.string() + "/" + file.stem().string() + ".hpp" << "\"\n";
+					out << "#include \"" << componentIncludePath.string() + "/" + "auto_" + file.stem().string() + ".hpp" << "\"\n";
 				}
 				// Включаем OksEngine.Components.hpp из поддиректорий
 				for (const auto& subdir : subdirs) {
 					out << "#include \"" << subdir.string() << "/auto_OksEngine.ECS.hpp\"\n";
 				}
-			}
+			//}
 		}
-
 
 		std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>> GenerateECSCXXFilesStructure(std::shared_ptr<ProjectContext> projectContext) {
 
@@ -1080,13 +1227,10 @@ namespace ECSGenerator {
 					};
 					SystemFileStructureGenerator generator{ ci };
 					auto file = generator.GenerateECSCXXFilesStructure(projectContext, systemEcsFile);
-
-
-
 					files.push_back(file);
 					return true;
 				});
-
+			//Generate OksEngine.ECS.hpp files For ECS.
 			ProcessDirectory(projectContext->ci_.workDirs_[0], projectContext);
 			//
 			////Generate OksEngine.Components.hpp files For COMPONENTS.

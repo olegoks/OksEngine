@@ -12,7 +12,7 @@
 
 #include <Render/auto_OksEngine.RenderDriver.hpp>
 #include <Resources/auto_OksEngine.ResourceSystem.hpp>
-#include <Common/CommandLineParameters/auto_OksEngine.Components.hpp>
+#include <Common/CommandLineParameters/auto_OksEngine.ECS.hpp>
 
 namespace OksEngine
 {

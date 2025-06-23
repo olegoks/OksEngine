@@ -12,6 +12,15 @@ namespace ECSGenerator {
 	class Code {
 	public:
 
+		Code() {
+			code_.reserve(1024);
+		}
+
+		Code(const std::string& code)
+			: code_{ code } {
+
+		}
+
 		Code& Add(const std::string& code) {
 			code_ += code;
 			return *this;
@@ -98,6 +107,7 @@ namespace ECSGenerator {
 			bool inlineModifier_ = false;
 			bool staticModifier_ = false;
 			std::vector<std::string> templateParameters_;
+			std::vector<std::string> specializedTemplateParameters_;
 		};
 
 		Function(const CreateInfo& ci) : ci_{ ci } {}

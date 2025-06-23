@@ -2,6 +2,6 @@ component = {
     name = "ChildEntity",
     serializable = false,
     fields = { 
-        { type = "std::vector<ECS2::Entity::Id>", name = "processesEntitiesIds" }
+        { type = "ECS2::Entity::Id", name = "childEntityId" }
      }
 }
