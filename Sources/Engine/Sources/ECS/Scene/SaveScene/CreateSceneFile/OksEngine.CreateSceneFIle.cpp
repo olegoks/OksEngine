@@ -1,6 +1,6 @@
 #include <ECS\Scene\SaveScene\CreateSceneFile/auto_OksEngine.CreateSceneFile.hpp>
 
-#include <OksEngine.Components.hpp>
+#include <OksEngine.ECS.hpp>
 
 #include <luabridge3/LuaBridge/LuaBridge.h>
 

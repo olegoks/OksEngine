@@ -1,6 +1,6 @@
 
 #include <OksEngine.Entity.hpp>
-#include <OksEngine.Components.hpp>
+#include <OksEngine.ECS.hpp>
 
 namespace OksEngine {
 	void Entity::AddName(const std::string& name) {

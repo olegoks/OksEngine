@@ -28,7 +28,7 @@ namespace ECSGenerator{
 			{ "Common::UInt64", Type::Common_UInt64 },
 			{ "Size", Type::Size },
 			{ "Index", Type::Index },
-			{ "ECS::Entity::Id", Type::ECS_Entity_Id }
+			{ "ECS2::Entity::Id", Type::ECS_Entity_Id }
 		};
 		OS::AssertMessage(strToEnum.contains(typeString), "");
 		return strToEnum[typeString];
@@ -43,7 +43,7 @@ namespace ECSGenerator{
 			"Common::UInt64",
 			"Common::Size",
 			"Common::Index",
-			"ECS::Entity::Id"
+			"ECS2::Entity::Id"
 		};
 		return bindableType.contains(typeName);
 	}
@@ -57,7 +57,7 @@ namespace ECSGenerator{
 			"Common::UInt64",
 			"Common::Size",
 			"Common::Index",
-			"ECS::Entity::Id"
+			"ECS2::Entity::Id"
 		};
 		return bindableType.contains(typeName);
 	}
@@ -76,7 +76,7 @@ namespace ECSGenerator{
 		else if (fieldType == "Common::Index") {
 			return "ImGuiDataType_U64";
 		}
-		else if (fieldType == "ECS::Entity::Id") {
+		else if (fieldType == "ECS2::Entity::Id") {
 			return "ImGuiDataType_U64";
 		}
 		OS::AssertFail();

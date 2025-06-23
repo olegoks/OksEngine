@@ -125,7 +125,8 @@ namespace ECSGenerator {
 		Code GenerateECSCXXFilesStructure(std::shared_ptr<Function> functionObject) {
 			Code code;
 
-			if (!functionObject->ci_.templateParameters_.empty()) {
+			if (!functionObject->ci_.templateParameters_.empty() ||
+				!functionObject->ci_.specializedTemplateParameters_.empty()) {
 				code.Add("template<");
 				for (Common::Index i = 0; i < functionObject->ci_.templateParameters_.size(); ++i) {
 					code.Add("class " + functionObject->ci_.templateParameters_[i]);
@@ -140,7 +141,20 @@ namespace ECSGenerator {
 			if (!functionObject->ci_.isPrototype_) {
 				code.Add((functionObject->ci_.staticModifier_) ? ("static ") : (""));
 				code.Add((functionObject->ci_.inlineModifier_) ? ("inline ") : (""));
-				code.Add(functionObject->ci_.returnType_ + " " + functionObject->ci_.name_ + "(");
+				code.Add(functionObject->ci_.returnType_ + " " + functionObject->ci_.name_);
+				if (!functionObject->ci_.specializedTemplateParameters_.empty()) {
+					code.Add("<");
+					for (Common::Index i = 0;
+						i < functionObject->ci_.specializedTemplateParameters_.size();
+						i++) {
+						code.Add(functionObject->ci_.specializedTemplateParameters_[i]);
+						if (i != functionObject->ci_.specializedTemplateParameters_.size() - 1) {
+							code.Add(", ");
+						}
+					}
+					code.Add(">");
+				}
+				code.Add("(");
 				for (Common::Index i = 0; i < functionObject->ci_.parameters_.size(); i++) {
 					const Function::Parameter& parameter = functionObject->ci_.parameters_[i];
 					code.Add(parameter.inputType_ + " " + parameter.valueName_);

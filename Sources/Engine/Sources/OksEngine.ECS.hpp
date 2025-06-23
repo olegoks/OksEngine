@@ -1,0 +1,10 @@
+#include <Animation/auto_OksEngine.ECS.hpp>
+#include <Debug/auto_OksEngine.ECS.hpp>
+#include <Render/auto_OksEngine.ECS.hpp>
+#include <Render/Camera/auto_OksEngine.ECS.hpp>
+#include <Physics/auto_OksEngine.ECS.hpp>
+#include <Common/auto_OksEngine.ECS.hpp>
+#include <Behaviour/auto_OksEngine.ECS.hpp>
+#include <UI/auto_OksEngine.ECS.hpp>
+#include <Resources/auto_OksEngine.ECS.hpp>
+#include <Sound/auto_OksEngine.ECS.hpp>

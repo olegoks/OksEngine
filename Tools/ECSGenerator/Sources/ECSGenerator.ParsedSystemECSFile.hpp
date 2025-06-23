@@ -43,7 +43,6 @@ namespace ECSGenerator {
 			std::vector<std::string> creates_;
 			bool randomAccessComponents_ = false;
 
-
 			using ProcessInclude = std::function<bool(const Include& include, bool isLast)>;
 
 			void ForEachInclude(ProcessInclude&& processInclude) const {
@@ -98,6 +97,7 @@ namespace ECSGenerator {
 
 		struct RequestEntity {
 			std::vector<Include> includes_;
+			bool processesAllCombinations_ = false;
 			std::vector<Exclude> excludes_;
 			std::vector<std::string> creates_;
 			std::vector<std::string> removes_;
@@ -175,7 +175,6 @@ namespace ECSGenerator {
 		enum class SystemType {
 			OneEntity,
 			OneMoreEntities,
-			AllEntities,
 			Initialize,
 			Undefined
 		};
@@ -205,9 +204,6 @@ namespace ECSGenerator {
 			ci_{ createInfo } { }
 
 		using ProcessComponentName = std::function<bool(const std::string& systemName, bool isLast)>;
-
-
-
 
 		bool IsCreatesComponent(const std::string& componentName) {
 
@@ -319,7 +315,6 @@ namespace ECSGenerator {
 			return ci_.thread_;
 		}
 
-
 		virtual Type GetType() const noexcept override {
 			return Type::System;
 		}
@@ -340,12 +335,6 @@ namespace ECSGenerator {
 		bool IsInitializeSystem() const {
 			return GetSystemType() == SystemType::Initialize;
 		}
-
-		[[nodiscard]]
-		bool IsAllEntitiesSystem() const {
-			return GetSystemType() == SystemType::AllEntities;
-		}
-
 
 		using ProcessSystemName = std::function<bool(const std::string&)>;
 
@@ -415,7 +404,6 @@ namespace ECSGenerator {
 
 		}
 
-
 		[[nodiscard]]
 		bool IsChangesComponent(const std::string& component) const {
 			bool isChangesComponent = false;
@@ -441,12 +429,7 @@ namespace ECSGenerator {
 
 		}
 
-
 		bool IsDependsFromSystem(const std::shared_ptr<ParsedSystemECSFile> system) const {
-
-			if (IsAllEntitiesSystem()) {
-				return true;
-			}
 
 			if (GetName() == system->GetName()) {
 				return false;
@@ -531,7 +514,7 @@ namespace ECSGenerator {
 			//}
 
 			ForEachRequestEntity([&](const RequestEntity& entity, bool isLast) {
-				if (entity.randomAccessComponents_) {
+				if (entity.randomAccessComponents_ || entity.processesAllCombinations_) {
 					isDepends = true;
 					return false;
 				}
@@ -604,7 +587,6 @@ namespace ECSGenerator {
 
 	ParsedSystemECSFile::SystemType GetSystemType(::Lua::Context& context) {
 
-
 		luabridge::LuaRef system = context.GetGlobalAsRef("system");
 
 		luabridge::LuaRef createsEntities = system["createsEntities"];
@@ -612,7 +594,6 @@ namespace ECSGenerator {
 
 		luabridge::LuaRef processesComponents = system["processesComponents"];
 		luabridge::LuaRef processesEntities = system["processesEntities"];
-		luabridge::LuaRef processAllEntities = system["processAllEntities"];
 		luabridge::LuaRef initSystem = system["initSystem"];
 
 		ParsedSystemECSFile::SystemType systemType = ParsedSystemECSFile::SystemType::Undefined;
@@ -620,23 +601,8 @@ namespace ECSGenerator {
 		if (!initSystem.isNil()) {
 			systemType = ParsedSystemECSFile::SystemType::Initialize;
 		}
-		else if (!processAllEntities.isNil()) {
-			systemType = ParsedSystemECSFile::SystemType::AllEntities;
-#pragma region Assert
-			OS::AssertMessage(initSystem.isNil(),
-				"Invalid .ecs file. System that process all entities can not be init system.");
-#pragma endregion
-		}
 		else if (!processesComponents.isNil()) {
 			systemType = ParsedSystemECSFile::SystemType::OneEntity;
-#pragma region Assert
-			//OS::AssertMessage(!createsEntity.isNil(), 
-			//	"Invalid .ecs file. Initialize system must create entity.");
-			OS::AssertMessage(processAllEntities.isNil(),
-				"Invalid .ecs file. Initialize system can not process all entities.");
-			OS::AssertMessage(processAllEntities.isNil(),
-				"Invalid .ecs file. Initialize system can not process all entities.");
-#pragma endregion
 		}
 		else if (!processesEntities.isNil()) {
 			if (processesEntities.isTable()) {
@@ -663,6 +629,8 @@ namespace ECSGenerator {
 		auto parseProcessesComponents = [](luabridge::LuaRef entityOrSystemRef) {
 
 			luabridge::LuaRef entityIncludes = entityOrSystemRef["processesComponents"];
+
+
 
 			std::vector<ParsedSystemECSFile::Include> parsedEntityIncludes;
 
@@ -742,7 +710,6 @@ namespace ECSGenerator {
 			}
 			return createsEntities_;
 			};
-
 		auto parseExcludes = [](luabridge::LuaRef systemOrEntityRef) {
 			//ENTITY EXCLUDES
 			luabridge::LuaRef entityExcludes = systemOrEntityRef["excludes"];
@@ -770,10 +737,16 @@ namespace ECSGenerator {
 			for (luabridge::Iterator it(entities); !it.isNil(); ++it) {
 				luabridge::LuaRef entity = it.value();
 
+				luabridge::LuaRef processesAllCombinations = entity["processesAllCombinations"];
+
 				std::vector<ParsedSystemECSFile::Include> parsedEntityIncludes
 					= parseProcessesComponents(entity);
 
-				OS::AssertMessage(!parsedEntityIncludes.empty(), "");
+				OS::AssertMessage(
+					(parsedEntityIncludes.empty() && !processesAllCombinations.isNil())
+					|| (!parsedEntityIncludes.empty() && processesAllCombinations.isNil()),
+					"System description error."
+					" Using processesAllCombinations && processesComponents together is incorrect.");
 
 				std::vector<ParsedSystemECSFile::Exclude> parsedEntityExcludes
 					= parseExcludes(entity);
@@ -782,6 +755,7 @@ namespace ECSGenerator {
 
 				ParsedSystemECSFile::RequestEntity parsedEntity{
 					.includes_ = parsedEntityIncludes,
+					.processesAllCombinations_ = !processesAllCombinations.isNil(),
 					.excludes_ = parsedEntityExcludes,
 					.creates_ = createsComponents
 				};
@@ -892,7 +866,6 @@ namespace ECSGenerator {
 		}
 
 		std::vector<ParsedSystemECSFile::RequestEntity> requestEntities;
-
 
 		//One entity.
 		auto parsedIncludes = parseProcessesComponents(system);
@@ -1211,7 +1184,7 @@ namespace ECSGenerator {
 					systemEcsFile->ForEachRandomAccessEntity([&](
 						const ParsedSystemECSFile::RandomAccessEntity& entity,
 						bool isLast) {
-						
+
 							entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
 
 								auto componentEcsFile = projectContext->GetEcsFileByName(include.GetName());
@@ -1226,7 +1199,7 @@ namespace ECSGenerator {
 								return true;
 								});
 
-						return true;
+							return true;
 						});
 
 					for (auto& entity : systemEcsFile->ci_.processesEntities_) {
@@ -1288,7 +1261,6 @@ namespace ECSGenerator {
 
 				};
 
-
 			auto generateGetComponentsFilter = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				//CreateEntity method.
@@ -1305,16 +1277,12 @@ namespace ECSGenerator {
 
 				return getEntityComponentsFilterMethod;
 				};
+
 			auto generateUpdateMethodPrototype = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				using namespace std::string_literals;
 				//Update method.
 				std::vector<Function::Parameter> updateMethodParameters;
-
-				//If system  process all entities need only one paramter Entity::Id
-				if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::AllEntities) {
-					updateMethodParameters.push_back({ "ECS2::Entity::Id", "entityId" });
-				}
 
 				Common::UInt64 currentEntityIndex = 0;
 				systemEcsFile->ForEachRequestEntity([&](const ParsedSystemECSFile::RequestEntity& entity, bool isLast) {
@@ -1520,8 +1488,6 @@ namespace ECSGenerator {
 				return removeComponentMethod;
 				};
 
-
-
 			auto generateIsComponentExistMethodRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				//IsComponentExist method.
@@ -1564,9 +1530,6 @@ namespace ECSGenerator {
 
 			//namespaceObject->Add(generateUpdateMethodPrototype(systemEcsFile));
 
-
-
-
 			Struct::CreateInfo sci{
 				.name_ = systemEcsFile->GetName(),
 				.parent_ = "",
@@ -1586,13 +1549,9 @@ namespace ECSGenerator {
 			};
 			auto structObject = std::make_shared<Struct>(sci);
 
-
-
 			namespaceObject->Add(structObject);
 
-
 			auto generateRunSystemCode = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
-
 
 				auto generateUpdateMethodCallCode = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
@@ -1603,7 +1562,10 @@ namespace ECSGenerator {
 					systemEcsFile->ForEachRequestEntity([&](const ParsedSystemECSFile::RequestEntity& entity, bool isLast) {
 
 						realization.Add(std::format("entity{}Id", currentEntityIndex));
-						realization.Add(", ");
+
+						if (!entity.includes_.empty()) {
+							realization.Add(", ");
+						}
 						realization.NewLine();
 						entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
 							realization.Add(std::format("{}{}",
@@ -1613,7 +1575,6 @@ namespace ECSGenerator {
 							}
 							return true;
 							});
-
 						if (!isLast) {
 							realization.Add(", ");
 						}
@@ -1658,8 +1619,14 @@ namespace ECSGenerator {
 							realization.NewLine();
 						}
 					}
-					//
-					{
+
+
+					//Generate ForEachEntity
+					if (entity.processesAllCombinations_) {
+						realization.Add(std::format("world->ForEachEntity([&](ECS2::Entity::Id entity{}Id) {{", currentEntityIndex));
+
+					}
+					else {
 						realization.Add("world->ForEachEntity<");
 						realization.NewLine();
 						entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
@@ -1674,8 +1641,8 @@ namespace ECSGenerator {
 						realization.Add(std::format("ECS2::Entity::Id entity{}Id, ", currentEntityIndex));
 						entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
 							realization.Add(std::format("{}*{}{}",
-								
-								include.name_,  include.GetLowerName(), currentEntityIndex));
+
+								include.name_, include.GetLowerName(), currentEntityIndex));
 							if (!isLast) {
 								realization.Add(", ");
 							}
@@ -1684,10 +1651,12 @@ namespace ECSGenerator {
 							});
 						realization.Add("){");
 					}
+
 					//Generate Update method if its last entity;
 					if (currentEntityIndex == systemEcsFile->ci_.processesEntities_.size() - 1) {
 						realization.Add(generateUpdateMethodCallCode(systemEcsFile));
 					}
+
 					++currentEntityIndex;
 					return true;
 					});
@@ -1698,8 +1667,15 @@ namespace ECSGenerator {
 					});
 
 				if (currentEntityIndex == 0) {
-					//If there are no entities just call update method.
+					//if (systemEcsFile->IsAllEntitiesSystem()) {
+					//	realization.Add("world->ForEachEntity([&](ECS2::Entity::Id entityId) {");
+					//	realization.Add(systemEcsFile->GetLowerName() + ".Update(entityId);");
+					//	realization.Add("});");
+					//}
+					//else {
+						//If there are no entities just call update method.
 					realization.Add(systemEcsFile->GetLowerName() + ".Update();");
+					//}
 				}
 
 				return realization;
@@ -1712,155 +1688,6 @@ namespace ECSGenerator {
 			if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::OneEntity ||
 				systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::OneMoreEntities) {
 				realization.Add(generateRunSystemCode(systemEcsFile));
-				//	//Render render{ world };
-				//	realization.Add(std::format(
-				//		"{} {}{{ world }};",
-				//		systemEcsFile->GetName(),
-				//		systemEcsFile->GetLowerName()
-				//	));
-
-				//	realization.NewLine();
-
-				//	//Excludes
-				//	realization.Add("ECS2::ComponentsFilter excludeEntity1;");
-				//	realization.NewLine();
-				//	if ((systemEcsFile->GetSystemType() == ParsedSystemECSFile::SystemType::OneEntity ||
-				//		systemEcsFile->GetSystemType() == ParsedSystemECSFile::SystemType::TwoEntities)
-				//		&& !systemEcsFile->ci_.processesEntities_[0].excludes_.empty()) {
-				//		realization.Add("excludeEntity1.SetBits<");
-				//	}
-
-
-				//	for (Common::Index i = 0; i < systemEcsFile->ci_.processesEntities_[0].excludes_.size(); ++i) {
-				//		realization.Add(systemEcsFile->ci_.processesEntities_[0].excludes_[i]);
-				//		if (i != systemEcsFile->ci_.processesEntities_[0].excludes_.size() - 1) {
-				//			realization.Add(", ");
-				//		}
-
-				//	}
-				//	if (!systemEcsFile->ci_.processesEntities_[0].excludes_.empty()) {
-				//		realization.Add(">();");
-				//		realization.NewLine();
-				//	}
-
-				//	realization.Add("world->ForEachEntity<");
-				//	realization.NewLine();
-				//	systemEcsFile->ci_.processesEntities_[0].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-				//		realization.Add(include.name_);
-				//		if (!isLast) {
-				//			realization.Add(", ");
-				//		}
-				//		realization.NewLine();
-				//		return true;
-				//		});
-				//	realization.Add(">(excludeEntity1, [&](");
-				//	realization.Add("ECS2::Entity::Id entity1Id, ");
-				//	systemEcsFile->ci_.processesEntities_[0].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-				//		realization.Add(include.name_ + "* " + std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
-				//		if (!isLast) {
-				//			realization.Add(", ");
-				//		}
-				//		realization.NewLine();
-				//		return true;
-				//		});
-				//	realization.Add("){");
-				//	realization.NewLine();
-
-				//	if (systemEcsFile->ci_.processesEntities_.size() == 1) {
-				//		realization.Add(generateUpdateMethodCallCode(systemEcsFile));
-				//	}
-				//	else if (systemEcsFile->ci_.processesEntities_.size() == 3) {
-				//		//Excludes
-				//		realization.Add("ECS2::ComponentsFilter excludeEntity2;");
-				//		if (!systemEcsFile->ci_.processesEntities_[1].excludes_.empty()) {
-				//			realization.Add("excludeEntity2.SetBits<");
-				//		}
-				//		for (Common::Index i = 0; i < systemEcsFile->ci_.processesEntities_[1].excludes_.size(); ++i) {
-				//			realization.Add(systemEcsFile->ci_.processesEntities_[1].excludes_[i]);
-				//			if (i != systemEcsFile->ci_.processesEntities_[1].excludes_.size() - 1) {
-				//				realization.Add(", ");
-				//			}
-
-				//		}
-				//		if (!systemEcsFile->ci_.processesEntities_[1].excludes_.empty()) {
-				//			realization.Add(">();");
-				//		}
-
-				//		realization.Add("world->ForEachEntity<");
-				//		systemEcsFile->ci_.processesEntities_[1].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-				//			realization.Add(include.name_);
-				//			if (!isLast) {
-				//				realization.Add(", ");
-
-				//			}
-				//			return true;
-				//			});
-				//		realization.Add(">(excludeEntity2, [&](");
-				//		realization.Add("ECS2::Entity::Id entity2Id, ");
-				//		realization.NewLine();
-				//		systemEcsFile->ci_.processesEntities_[1].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-				//			realization.Add(include.name_ + "* " + std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
-				//			if (!isLast) {
-				//				realization.Add(", ");
-				//			}
-				//			return true;
-				//			});
-				//		realization.Add("){");
-				//		{
-				//		}
-				//		realization.Add("});");
-				//	}
-				//}
-				//else if (systemEcsFile->ci_.processesEntities_.size() == 2) {
-				//	//Excludes
-				//	realization.Add("ECS2::ComponentsFilter excludeEntity2;");
-				//	realization.NewLine();
-				//	if (!systemEcsFile->ci_.processesEntities_[1].excludes_.empty()) {
-				//		realization.Add("excludeEntity2.SetBits<");
-				//	}
-				//	for (Common::Index i = 0; i < systemEcsFile->ci_.processesEntities_[1].excludes_.size(); ++i) {
-				//		realization.Add(systemEcsFile->ci_.processesEntities_[1].excludes_[i]);
-				//		if (i != systemEcsFile->ci_.processesEntities_[1].excludes_.size() - 1) {
-				//			realization.Add(", ");
-				//		}
-
-				//	}
-				//	if (!systemEcsFile->ci_.processesEntities_[1].excludes_.empty()) {
-				//		realization.Add(">();");
-				//		realization.NewLine();
-				//	}
-
-				//	realization.Add("world->ForEachEntity<");
-				//	realization.NewLine();
-				//	systemEcsFile->ci_.processesEntities_[1].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-				//		realization.Add(include.name_);
-				//		if (!isLast) {
-				//			realization.Add(", ");
-
-				//		}
-				//		realization.NewLine();
-				//		return true;
-				//		});
-				//	realization.Add(">(excludeEntity2, [&](");
-				//	realization.Add("ECS2::Entity::Id entity2Id, ");
-				//	realization.NewLine();
-				//	systemEcsFile->ci_.processesEntities_[1].ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-				//		realization.Add(include.name_ + "* " + std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1));
-				//		if (!isLast) {
-				//			realization.Add(", ");
-				//		}
-				//		return true;
-				//		});
-				//	realization.Add("){");
-				//	realization.Add(generateUpdateMethodCallCode(systemEcsFile));
-				//	realization.Add("});");
-				//	realization.NewLine();
-
-				//	realization.Add("});");
-				//	realization.NewLine();
-			}
-			else if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::AllEntities) {
-
 
 			}
 			else if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
