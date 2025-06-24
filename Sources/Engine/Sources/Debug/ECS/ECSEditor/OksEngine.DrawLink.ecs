@@ -1,0 +1,6 @@
+system = {
+    name = "DrawLink",
+    runAfter = "DrawNodes",
+    runBefore = "GraphEditorEnd",
+    processesComponents = { "Link" },
+}

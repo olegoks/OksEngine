@@ -3,7 +3,7 @@
 namespace OksEngine {
 void CreateNodeEntities::Update(
     ECS2::Entity::Id entity1Id, const ImGuiState* imGuiState,
-    const EditorContext* editorContext,
+    const ECSEditorWindow* editorContext,
     const LoadECSFilesButtonPressed* loadECSFilesButtonPressed,
     ECS2::Entity::Id entity2Id, ResourceSystem* resourceSystem) {
 

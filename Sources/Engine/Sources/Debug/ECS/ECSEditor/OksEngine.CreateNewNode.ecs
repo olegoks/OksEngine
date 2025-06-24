@@ -11,15 +11,21 @@ system = {
     },
     createsEntities = {
         {
-        createsComponents = {
-            "CallGraphNode",
+            createsComponents = {
+                "CallGraphNode",
                 "Name",
                 "RootNode",
                 "Position2D",
                 "Serializable",
                 "RunBefore",
                 "RunAfter"
-        }
+            }
+        },
+        {  
+            createsComponents = {
+                "Name",
+                "Pin"
+            }
         }
     }
 }

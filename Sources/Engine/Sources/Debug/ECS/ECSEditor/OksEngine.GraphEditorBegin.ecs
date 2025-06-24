@@ -1,6 +1,7 @@
 system = {
     name = "GraphEditorBegin",
-    runAfter = "StartImGuiFrame",
+    runAfter = "BeginECSEditorWindow",
+    runBefore = "DrawNodes",
     processesComponents = { 
         "ImGuiState",
         "EditorContext" },

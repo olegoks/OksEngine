@@ -1,26 +1,35 @@
 system = {
     name = "DrawNodes",
     runAfter = { 
-        "GraphEditorBegin"
+        "BeginECSEditorWindow"
     },
-    runBefore = "GraphEditorEnd",
+    runBefore = "EndECSEditorWindow",
     processesEntities = {
         {
             processesComponents = { 
                 "CallGraphNode",
                 "Name",
-                "RootNode",
-                "Position2D",
-                "RunBefore",
-                "RunAfter"
+                "Position2D"
             }
         },
         {
             processesComponents = { 
                 "ImGuiState",
-                "EditorContext"
+                "ECSEditorWindow"
             }
         }
     },
+    accessingEntities = {
+        {
+            accessingComponents = {
+                "Link"
+            }
+        },
+        {
+            accessingComponents = {
+                "Pin"
+            }
+        }
+    }
     
 }

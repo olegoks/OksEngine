@@ -6,7 +6,8 @@ system = {
                 "ECSController",
                 "LoadSceneRequest",
                 "LuaScript"
-            }
+            },
+            createsComponents = { "SceneLoaded" }
         }
     }
 }

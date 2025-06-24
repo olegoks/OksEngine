@@ -1,0 +1,23 @@
+system = {
+    name = "CreateLink",
+    runAfter = "DrawNodes",
+    runBefore = "DrawLink",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState",
+                "ECSEditorWindow",
+                "EditorContext"
+
+            }
+        }
+    },
+    createsEntities = {
+        {
+            createsComponents = {
+                "Link",
+                "Serializable"
+            }
+        }
+    }
+}

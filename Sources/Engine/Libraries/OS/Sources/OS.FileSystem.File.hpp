@@ -21,6 +21,7 @@ namespace OS {
 		virtual void Create() = 0;
 		virtual void Open() = 0;
 		virtual void Load() = 0;
+		virtual void Clear() = 0;
 		virtual void Unload() = 0;
 		virtual void Close() = 0;
 		[[nodiscard]]

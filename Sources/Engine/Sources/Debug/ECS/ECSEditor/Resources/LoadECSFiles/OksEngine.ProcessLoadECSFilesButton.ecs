@@ -1,12 +1,12 @@
 system = {
     name = "ProcessLoadECSFilesButton",
-    runAfter = "GraphEditorBegin",
-    runBefore = "GraphEditorEnd",
+    runAfter = "BeginECSEditorWindow",
+    runBefore = "EndECSEditorWindow",
     processesEntities = {
         {
             processesComponents = { 
                 "ImGuiState",
-                "EditorContext" 
+                "ECSEditorWindow" 
             },
             createsComponents= { "LoadECSFilesButtonPressed" },
             excludes = { "LoadECSFilesButtonPressed" }

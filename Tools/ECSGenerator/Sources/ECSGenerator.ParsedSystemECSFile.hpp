@@ -870,6 +870,10 @@ namespace ECSGenerator {
 		//One entity.
 		auto parsedIncludes = parseProcessesComponents(system);
 		auto parsedExcludes = parseExcludes(system);
+
+		if (system["name"].cast<std::string>().value() == "CreateSceneEntities") {
+			systemType = systemType;
+		}
 		auto parsedCreatesComponents = parseCreatesComponents(system);
 		auto parsedRemovesComponents = parseRemovesComponents(system);
 		bool randomAccessComponents = parseRandomAccessComponents(system);
@@ -1202,7 +1206,11 @@ namespace ECSGenerator {
 							return true;
 						});
 
+
+
 					for (auto& entity : systemEcsFile->ci_.processesEntities_) {
+
+
 
 						//Generate includes for components that system uses as input.
 						for (auto componentInclude : entity.includes_) {
@@ -1220,6 +1228,8 @@ namespace ECSGenerator {
 						/*if(systemEcsFile->GetName() == "CreateImGuiInterface"){
 							__debugbreak();
 						}*/
+
+
 						//Generate includes for components that system creates.
 						for (auto componentCreates : entity.creates_) {
 							auto componentEcsFile = projectContext->GetEcsFileByName(componentCreates);
@@ -1256,6 +1266,7 @@ namespace ECSGenerator {
 						}
 
 					}
+
 
 					return includes;
 
@@ -1523,6 +1534,24 @@ namespace ECSGenerator {
 
 				return isEntityExistMethod;
 				};
+			auto generateIsEntityExist2MethodRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
+
+				//IsEntityExist method.
+				Function::CreateInfo isEntityExistCI{
+					.name_ = "IsEntityExist",
+					.parameters_ = { { "ECS2::Entity::Id", "entityId"} },
+					.returnType_ = "bool",
+					.code_ = "return world_->IsEntityExist(entityId);",
+					.isPrototype_ = false,
+					.inlineModifier_ = false,
+					.templateParameters_ = { }
+				};
+
+				auto isEntityExistMethod = std::make_shared<Function>(isEntityExistCI);
+
+				return isEntityExistMethod;
+				};
+
 
 			File::Includes includes = generateIncludes(projectContext, systemEcsFile);
 
@@ -1544,7 +1573,8 @@ namespace ECSGenerator {
 					generateCreateDynamicEntityRealization(systemEcsFile),
 					generateDestroyEntityRealization(systemEcsFile),
 					generateCreateArchetypeEntityRealization(systemEcsFile),
-					generateIsEntityExistMethodRealization(systemEcsFile)
+					generateIsEntityExistMethodRealization(systemEcsFile),
+					generateIsEntityExist2MethodRealization(systemEcsFile)
 				}
 			};
 			auto structObject = std::make_shared<Struct>(sci);

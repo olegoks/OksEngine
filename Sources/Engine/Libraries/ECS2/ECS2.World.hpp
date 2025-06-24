@@ -43,6 +43,23 @@ namespace ECS2 {
 
 			freeEntityIds_.insert(entityId);
 		}
+		
+		Entity::Type GetEntityType(Entity::Id entityId) {
+
+
+#pragma region Assert
+			OS::AssertMessage(IsEntityExist(entityId), "");
+#pragma endregion
+
+
+			if (archetypeEntitiesComponents_.contains(entityId)) {
+				return Entity::Type::Archetype;
+			}
+			else if (dynamicEntitiesComponentFilters_.contains(entityId)) {
+				return Entity::Type::Dynamic;
+			}
+			return Entity::Type::Undefined;
+		}
 
 		//Create archetype entity.
 		template<class ...Components>
@@ -153,6 +170,14 @@ namespace ECS2 {
 				}
 			}
 			return false;
+		}
+
+		bool IsEntityExist(Entity::Id entityId) const {
+			//TODO: Optimize
+			return 
+				dynamicEntitiesComponentFilters_.contains(entityId) ||
+				archetypeEntitiesComponents_.contains(entityId);
+
 		}
 
 		template<class ComponentType, class ...Args>
@@ -381,7 +406,7 @@ namespace ECS2 {
 		void ApplyDelayedRequests() {
 			for (auto& addition : requests_) {
 				addition();
-			}
+			}      
 			requests_.clear();
 		}
 	private:

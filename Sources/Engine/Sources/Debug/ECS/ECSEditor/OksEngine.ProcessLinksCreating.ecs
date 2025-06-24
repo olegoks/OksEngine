@@ -1,6 +1,6 @@
 system = {
     name = "ProcessLinksCreating",
-    runAfter = "DrawLinks",
+    runAfter = "DrawLink",
     runBefore = "ProcessLinksDeleting",
     processesComponents = { 
         "ImGuiState",

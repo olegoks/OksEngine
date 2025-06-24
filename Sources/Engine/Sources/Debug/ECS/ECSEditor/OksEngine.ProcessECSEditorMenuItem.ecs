@@ -1,0 +1,14 @@
+system = {
+    name = "ProcessECSEditorMenuItem",
+    runAfter = "BeginECSMenu",
+    runBefore = "EndECSMenu",
+    processesComponents = { 
+        "MainMenuBar",
+        "ImGuiState",
+        "ECSMenu",
+        "ECSEditorMenuItem"
+    },
+    createsComponents = {
+        "ECSEditorWindow"
+    }
+}

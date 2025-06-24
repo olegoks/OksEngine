@@ -403,7 +403,9 @@ namespace ECSGenerator {
 						fieldInfo.GetName(),
 						componentEcsFile->GetLowerName(),
 						fieldInfo.GetName(),
-						fieldInfo.GetTypeName()));
+						
+						
+						(fieldInfo.GetTypeName() != "ECS2::Entity::Id") ? (fieldInfo.GetTypeName()) : ("Common::Index")));
 
 					return true;
 					});

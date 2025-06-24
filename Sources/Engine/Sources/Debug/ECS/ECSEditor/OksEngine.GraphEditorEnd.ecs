@@ -1,6 +1,7 @@
 system = {
     name = "GraphEditorEnd",
     runAfter = "GraphEditorBegin",
+    runBefore = "EndECSEditorWindow",
     processesComponents = { 
         "ImGuiState",
         "EditorContext" },

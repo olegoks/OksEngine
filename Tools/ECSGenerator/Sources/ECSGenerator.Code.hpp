@@ -35,6 +35,10 @@ namespace ECSGenerator {
 			code_ += code.code_;
 			return *this;
 		}
+		Code& Comma() {
+			code_ += ',';
+			return *this;
+		}
 
 		Code& NewLine() {
 			code_ += '\n';

@@ -1,0 +1,22 @@
+system = {
+    name = "CreateEditorContext",
+    runAfter = "BeginECSEditorWindow",
+    runBefore = "DrawNodes",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState",
+                "MainMenuBar",
+                "ECSMenu",
+                "ECSEditorMenuItem",
+                "ECSEditorWindow"
+            },
+            createsComponents = {
+                "EditorContext"
+            },
+            excludes = {
+                "EditorContext"
+            }
+        }
+    }
+}
