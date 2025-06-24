@@ -34,7 +34,7 @@ namespace OS {
 			if (!IsExist()) {
 				//throw Exception{ "Attempt to open file that doesn't exist." };
 			}
-			OS::AssertMessage(fstream_ == nullptr, { "File {} was loaded early.", path_.string() });
+			//OS::AssertMessage(fstream_ == nullptr, { "File {} was loaded early.", path_.string() });
 			const std::filesystem::path fullPath = std::filesystem::absolute(GetPath());
 			fstream_ = std::make_unique<std::fstream>();
 			fstream_->open(fullPath.c_str(), std::ios::ate | std::ios::binary | std::ios::in | std::ios::out);
@@ -46,11 +46,27 @@ namespace OS {
 			//OS::LogInfo("/OS/File/", { "File %s was opened successfuly.", GetPath().filename().string().c_str() });
 		}
 
+		void Clear() override {
 
+			const bool wasOpened = IsOpened();
+
+			if (wasOpened) {
+				Close();
+			}
+			std::filesystem::resize_file(path_, 0);
+
+			if (wasOpened) {
+				Open();
+				Load();
+			}
+			data_.Clear();
+		}
 
 		void Load() override {
 			OS::AssertMessage(IsOpened(), "Attempt to load file that wasn't opened.");
-			OS::AssertMessage(!IsLoaded(), "Attempt to load file that was loaded yet.");
+			
+			//Commented to have opportunity to update data. 
+			//OS::AssertMessage(!IsLoaded(), "Attempt to load file that was loaded yet.");
 
 			size_t size = std::filesystem::file_size(GetPath());//(size_t)fstream_.tellg();
 			fstream_->seekg(0);
@@ -79,6 +95,7 @@ namespace OS {
 		void Close() override {
 			OS::AssertMessage(IsOpened(), "Attempt to unload file that wasn't opened.");
 			fstream_->close();
+			fstream_ = nullptr;
 		}
 		struct WriteInfo {
 			const Common::Byte* data_ = nullptr;

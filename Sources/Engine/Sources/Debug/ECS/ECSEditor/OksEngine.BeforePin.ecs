@@ -1,7 +1,4 @@
 component = {
     name = "BeforePin",
-    serializable = false,
-    fields = { 
-        { type = "ax::NodeEditor::PinId", name = "id" }
-     }
+    fields = { { type = "ECS2::Entity::Id", name = "id" } }
 }

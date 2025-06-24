@@ -57,12 +57,15 @@ namespace ECSGenerator {
 			return config_;
 		}
 
-		using ProcessComponentEcsFile = std::function<bool(std::shared_ptr<ParsedECSFile>)>;
+		using ProcessComponentEcsFile = std::function<bool(std::shared_ptr<ParsedECSFile>, bool isLast)>;
 		using ProcessSystemEcsFile = std::function<bool(std::shared_ptr<ParsedECSFile>)>;
 
 		void ForEachComponentEcsFile(ProcessComponentEcsFile&& processComponentEcsFile) {
-			for (auto componentEcsFile : allComponentsSystems_.components_) {
-				const bool stop = !processComponentEcsFile(componentEcsFile);
+			for (Common::Index i = 0; i < allComponentsSystems_.components_.size(); i++) {
+
+				const bool stop = !processComponentEcsFile(
+					allComponentsSystems_.components_[i],
+					(allComponentsSystems_.components_.size() - 1 == i) ? (true) : (false));
 				if (stop) {
 					break;
 				}

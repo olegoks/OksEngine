@@ -2,6 +2,6 @@ component = {
     name = "EditorContext",
     serializable = false,
     fields = { 
-        { type = "ax::NodeEditor::EditorContext*", name = "context" }
+        { type = "std::shared_ptr<ax::NodeEditor::EditorContext>", name = "context" }
      }
 }

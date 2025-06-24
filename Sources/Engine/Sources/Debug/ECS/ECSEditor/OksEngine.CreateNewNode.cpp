@@ -1,6 +1,9 @@
 #include <Debug/ECS/ECSEditor\auto_OksEngine.CreateNewNode.hpp>
 
 #include <implot3d.h>
+
+#include <Debug/ECS/ECSEditor/auto_OksEngine.AfterPin.hpp>
+#include <Debug/ECS/ECSEditor/auto_OksEngine.BeforePin.hpp>
 // Cube
 constexpr int CUBE_VTX_COUNT = 8;              // Number of cube vertices
 constexpr int CUBE_IDX_COUNT = 36;             // Number of cube indices (12 triangles)
@@ -301,8 +304,6 @@ namespace OksEngine {
 		ECS2::Entity::Id entityId, const ImGuiState* imGuiState,
 		const EditorContext* editorContext) {
 
-
-
 		ax::NodeEditor::Suspend();
 		if (ax::NodeEditor::ShowBackgroundContextMenu())
 		{
@@ -331,8 +332,8 @@ namespace OksEngine {
 
 		if (showCreateSystemMenu) {
 
-
-			ImGui::Begin("System parameters");
+            bool isOpen = false;
+			ImGui::Begin("System parameters", &isOpen);
 
 
 			static int mesh_id = 0;
@@ -364,7 +365,7 @@ namespace OksEngine {
 				ImGui::SameLine();
 				ImGui::ColorEdit4("##MeshMarkerColor", (float*)&marker_color);
 			}
-
+            ImPlot3D::SetCurrentContext(ImPlot3D::CreateContext());
 			if (ImPlot3D::BeginPlot("Mesh Plots")) {
 				ImPlot3D::SetupAxesLimits(-1, 1, -1, 1, -1, 1);
 				// Set colors
@@ -389,7 +390,7 @@ namespace OksEngine {
 
 				ImPlot3D::EndPlot();
 			}
-
+            ImPlot3D::SetCurrentContext(nullptr);
             //////////////////////////////
 
         //}
@@ -443,23 +444,49 @@ namespace OksEngine {
 			ImGui::InputText("Name", systemName, 256);
 			if (ImGui::Button("Create")) {
 
-				const  ECS2::Entity::Id systemEntityId
-					= CreateEntity<
-					CallGraphNode,
-					Name,
-					RootNode,
-					Position2D,
-					Serializable,
-					RunBefore,
-					RunAfter>();
 
-				CreateComponent<CallGraphNode>(systemEntityId);
-				CreateComponent<Name>(systemEntityId, "Test");
-				CreateComponent<Position2D>(systemEntityId, newNodePostion.x, newNodePostion.y);
-				CreateComponent<RootNode>(systemEntityId);
-				CreateComponent<Serializable>(systemEntityId);
-				CreateComponent<RunBefore>(systemEntityId);
-				CreateComponent<RunAfter>(systemEntityId);
+
+                //Create pins.
+
+                const  ECS2::Entity::Id beforePinEntityId
+                    = CreateEntity<
+                    Name,
+                    Pin,
+                    Serializable>();
+
+                CreateComponent<Name>(beforePinEntityId, "Before");
+                CreateComponent<Pin>(beforePinEntityId);
+                CreateComponent<Serializable>(beforePinEntityId);
+
+                const  ECS2::Entity::Id afterPinEntityId
+                    = CreateEntity<
+                    Name,
+                    Pin,
+                    Serializable>();
+
+                CreateComponent<Name>(afterPinEntityId, "After");
+                CreateComponent<Pin>(afterPinEntityId);
+                CreateComponent<Serializable>(afterPinEntityId);
+
+                //Create node entity.
+                const  ECS2::Entity::Id systemEntityId
+                    = CreateEntity<
+                    CallGraphNode,
+                    Name,
+                    RootNode,
+                    Position2D,
+                    Serializable,
+                    BeforePin,
+                    AfterPin>();
+
+                CreateComponent<CallGraphNode>(systemEntityId);
+                CreateComponent<Name>(systemEntityId, systemName);
+                CreateComponent<Position2D>(systemEntityId, newNodePostion.x, newNodePostion.y);
+                CreateComponent<RootNode>(systemEntityId);
+                CreateComponent<Serializable>(systemEntityId);
+                CreateComponent<BeforePin>(systemEntityId, beforePinEntityId);
+                CreateComponent<AfterPin>(systemEntityId, afterPinEntityId);
+
 				showCreateSystemMenu = false;
 			}
 			ImGui::End();

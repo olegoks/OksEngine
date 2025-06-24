@@ -3,7 +3,7 @@
 namespace OksEngine {
 void ProcessSaveECSFilesButton::Update(ECS2::Entity::Id entityId,
                                       const ImGuiState* imGuiState,
-                                      const EditorContext* editorContext) {
+                                      const ECSEditorWindow* editorContext) {
 
     if (ImGui::Button("Save changes")) {
 

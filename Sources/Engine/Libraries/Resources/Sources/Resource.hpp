@@ -161,12 +161,12 @@ namespace Resources {
 				}
 			};
 
+
 			const Graph::Node::Id newResourceNodeId = graph_.AddNode(std::move(resourceInfo));
 			const Graph::Node::Id nodeId = GetNodeId(resourcePath);
 			graph_.AddLinkFromTo(nodeId, newResourceNodeId);
 
 		}
-
 
 		Resources::ResourceData ForceGetResourceData(std::filesystem::path OSResourcePath) {
 			Resources::Resource forceResource = ForceGetResource(OSResourcePath);
@@ -194,16 +194,33 @@ namespace Resources {
 		}
 
 		bool CreateResource(const std::filesystem::path& osPath, Resources::ResourceData&& resourceData) {
-			auto file = std::make_shared<OS::BinaryFile>(osPath);
-			file->Create();
-			//file->Open();
-			OS::BinaryFile::WriteInfo writeInfo{
+			
+			const std::string filename = osPath.filename().string();
+
+			if (IsResourceExist(filename)) {
+				
+				auto file = std::dynamic_pointer_cast<OS::BinaryFile>(GetResource(filename).GetFile());
+				file->Clear();
+				OS::BinaryFile::WriteInfo writeInfo{
 				.data_ = resourceData.GetData<Common::Byte>(),
 				.size_ = resourceData.GetSize()
-			};
-			*file << writeInfo;
-			file->Close();
-			AddResource(osPath.filename().string(), osPath, "Root");
+				};
+				*file << writeInfo;
+				file->Load();
+			} else {
+
+				auto file = std::make_shared<OS::BinaryFile>(osPath);
+				file->Create();
+				OS::BinaryFile::WriteInfo writeInfo{
+					.data_ = resourceData.GetData<Common::Byte>(),
+					.size_ = resourceData.GetSize()
+				};
+				*file << writeInfo;
+				file->Close();
+
+				AddResource(osPath.filename().string(), osPath, "Root");
+
+			}
 			return true;
 		}
 
@@ -218,9 +235,70 @@ namespace Resources {
 			UnloadResource(nodeId);
 		}
 
+		bool IsResourceExist(std::filesystem::path resourcePath) {
+			OS::AssertMessage(
+				(*resourcePath.begin()).string() == rootName_,
+				"Attempt to use incorrect resource path.");
+
+			Graph::Node::Id currentNodeId = rootNodeId_;
+			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
+			OS::AssertMessage(
+				currentNode.GetValue().GetName() == rootName_,
+				{ "Root note must have name \"%s\"", rootName_ }
+			);
+			for (const std::filesystem::path path : resourcePath) {
+				const std::string resourceName = path.string();
+				if (GetResourceInfo(currentNodeId).GetName() != resourceName) {
+					[[maybe_unused]]
+					bool found = false;
+					currentNode.ForEachLinksTo([&](Graph::Node::Id nodeId) {
+						const ResourceInfo& resourceInfo = GetResourceInfo(nodeId);
+						if (resourceInfo.GetName() == resourceName) {
+							currentNodeId = nodeId;
+							found = true;
+							return false;
+						}
+						return true;
+						});
+					if (found) {
+						return true;
+					}
+				}
+			}
+			return false;
+		}
+
+		bool IsResourceExist(const std::string& resourceName) {
+			Graph::Node::Id currentNodeId = rootNodeId_;
+			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
+			OS::AssertMessage(
+				currentNode.GetValue().GetName() == rootName_,
+				{ "Root note must have name \"%s\"", rootName_ }
+			);
+
+			bool isExist = false;
+
+			graph_.ForEachNode([&](Graph::Node::Id nodeId, Graph::Node& node) {
+
+				if (node.GetValue().GetName() == resourceName) {
+					isExist = true;
+					return false;
+				}
+
+				return true;
+				});
+			return isExist;
+		}
+
 		[[nodiscard]]
 		const Resource& GetResource(std::filesystem::path resourcePath) {
 			const ResourceInfo& resourceInfo = GetResourceInfo(resourcePath);
+			return resourceInfo.GetResource();
+		}
+
+		[[nodiscard]]
+		const Resource& GetResource(std::string resourceName) {
+			const ResourceInfo& resourceInfo = GetResourceInfo(resourceName);
 			return resourceInfo.GetResource();
 		}
 
@@ -258,8 +336,6 @@ namespace Resources {
 					OS::LogInfo("ResourceSystem", error.what());
 				}
 			}
-
-
 		}
 
 		using ProcessAddedResource = std::function<bool(const std::filesystem::path path)>;
@@ -329,10 +405,42 @@ namespace Resources {
 		}
 
 		[[nodiscard]]
-		ResourceInfo& GetResourceInfo(std::filesystem::path resourcePath) {
+		ResourceInfo& GetResourceInfo(const std::filesystem::path& resourcePath) {
 			const Graph::Node::Id resourceNodeId = GetNodeId(resourcePath);
 			Graph::Node& resourceNode = graph_.GetNode(resourceNodeId);
 			return resourceNode.GetValue();
+		}
+
+		[[nodiscard]]
+		ResourceInfo& GetResourceInfo(const std::string& resourceName) {
+			Graph::Node::Id currentNodeId = rootNodeId_;
+			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
+			OS::AssertMessage(
+				currentNode.GetValue().GetName() == rootName_,
+				{ "Root note must have name \"%s\"", rootName_ }
+			);
+
+			Graph::NodeId foundNodeId = Graph::Node::invalidId_;
+
+			graph_.ForEachNode([&](Graph::Node::Id nodeId, Graph::Node& node) {
+
+				if (node.GetValue().GetName() == resourceName) {
+					foundNodeId = nodeId;
+					return false;
+				}
+
+				return true;
+				});
+
+#pragma region Assert
+			OS::AssertMessage(
+				foundNodeId != Graph::Node::invalidId_,
+				std::format("There is not resource with such resource name:{}.",
+					resourceName));
+#pragma endregion
+			
+			Graph::Node& node = graph_.GetNode(foundNodeId);
+			return node.GetValue();
 		}
 
 	public:

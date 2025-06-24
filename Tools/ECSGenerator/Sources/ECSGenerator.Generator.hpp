@@ -479,7 +479,7 @@ namespace ECSGenerator {
 				code.Add("const char* items[] = {");
 				code.NewLine();
 
-				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile) {
+				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
 
 					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
 					code.Add(std::format("{}::GetName(),", component->GetName()));
@@ -497,7 +497,7 @@ namespace ECSGenerator {
 					"const std::string currentComponent = items[addComponentIndex];"
 				);
 
-				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile) {
+				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
 
 					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
 					code.Add(std::format("if (currentComponent == {}::GetName()) {{", component->GetName()));
@@ -522,8 +522,10 @@ namespace ECSGenerator {
 						code.Add(std::format("auto {} = world->GetComponent<{}>(entityId);",
 							component->GetLowerName(), component->GetName()));
 						code.Add("ImGui::Indent(20.0f);");
+						code.Add(std::format("ImGui::PushID(\"{}\");", component->GetName()));
 						code.Add(std::format("EditEntity(world, {}->{}_);", component->GetLowerName(), fieldInfo.GetName()));
 						code.Add("ImGui::Unindent(20.0f);");
+						code.Add("ImGui::PopID();");
 						code.Add("}");
 						code.NewLine();
 					}
@@ -540,7 +542,12 @@ namespace ECSGenerator {
 				code.Add(
 					"const std::string idString = std::to_string(entityId);"
 					"ImGui::PushID(idString.c_str());"
-					"if (ImGui::CollapsingHeader((\"Id: \" + idString).c_str())) {"
+					"std::string name;"
+					"if (world->IsComponentExist<Name>(entityId)) {"
+					"auto* nameComponent = world->GetComponent<Name>(entityId);"
+					"name = nameComponent->value_;"
+					"}"
+					"if (ImGui::CollapsingHeader((\"Id: \" + idString + \"  \"\" + name + \"\" \" + magic_enum::enum_name(world->GetEntityType(entityId)).data()).c_str())) {"
 					"ImGui::Indent(20.f);"
 
 					"auto editComponent = []<class ComponentType>(std::shared_ptr<ECS2::World> world, ECS2::Entity::Id id) {"
@@ -551,13 +558,18 @@ namespace ECSGenerator {
 					"Edit<ComponentType>(component);"
 					"ImGui::Spacing();"
 					"}"
+					"if (!isExist) {"
+					"if (world->IsComponentExist<ComponentType>(id)) {"
+					"world->RemoveComponent<ComponentType>(id);"
+					"}"
+					"}"
 					"};"
 					"{"
 					"ImGui::PushID(\"Edit\");");
 
 
 				//Generate edit components.
-				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile) {
+				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
 
 					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
 
@@ -603,6 +615,8 @@ namespace ECSGenerator {
 			includes.paths_.insert("ECS2.World.hpp");
 			includes.paths_.insert("imgui.h");
 			includes.paths_.insert("OksEngine.ECS.hpp");
+			includes.paths_.insert("magic_enum/magic_enum.hpp");
+
 			//hpp file
 			File::CreateInfo fci{
 				.isHpp_ = true,
@@ -617,6 +631,232 @@ namespace ECSGenerator {
 			std::filesystem::path includeDirFullPath = GetSubPath(randomEcsFilePath, projectContext->includeDirectory_, ECSGenerator::ResultRange::FromStartToStartFolder, SearchDirection::FromEndToBegin, false);
 
 			std::filesystem::path systemCppFileFullPath = includeDirFullPath / ("auto_OksEngine.EditEntity.hpp");
+			FormatPath(systemCppFileFullPath);
+
+			return { systemCppFileFullPath, file };
+		}
+
+
+		std::pair<std::filesystem::path, std::shared_ptr<File>>
+			GenerateParseEntityHppFile(std::shared_ptr<ProjectContext> projectContext) {
+
+			auto generateParseComponentCode = [](std::shared_ptr<ParsedComponentECSFile> component) -> Code {
+
+				Code code;
+
+				//luabridge::LuaRef position2DRef = entity["position2D"];
+				code.Add(std::format(
+					"luabridge::LuaRef {}Ref = entity[\"{}\"];",
+					component->GetLowerName(),
+					component->GetLowerName()));
+
+				//if (!position2DRef.isNil()) {
+				code.Add(std::format(
+					"if (!{}Ref.isNil()) {{",
+					component->GetLowerName()));
+
+				//Position2D position2D = ParsePosition2D(position2DRef);
+				code.Add(std::format("{} {} = Parse{}({}Ref);",
+					component->GetName(),
+					component->GetLowerName(),
+					component->GetName(),
+					component->GetLowerName()));
+
+				//CreateComponent<Position2D>(newEntityId
+				code.Add(std::format("world->CreateComponent<{}>(newEntityId",
+					component->GetName()));
+
+				//, position2D.x_, position2D.y_
+				component->ForEachField([&](const ParsedComponentECSFile::FieldInfo& fieldInfo, bool isLast) {
+
+					code.Comma();
+
+					if (fieldInfo.typeName_ == "ECS2::Entity::Id") {
+						code.Add(std::format("getNewId({}.{}_)",
+							component->GetLowerName(),
+							fieldInfo.GetName()));
+					}
+					else {
+						code.Add(std::format("{}.{}_",
+							component->GetLowerName(),
+							fieldInfo.GetName()));
+					}
+					return true;
+					});
+
+				code.Add(");");
+				code.Add("}");
+
+				return code;
+				};
+
+			auto generateParseEntityFunctionRealization = [&](std::shared_ptr<ProjectContext> projectContext) -> std::shared_ptr<Function> {
+
+				Code code;
+				code.Add(
+					"auto getNewId = [&](ECS2::Entity::Id oldId) {"
+					"	#pragma region Assert\n"
+					"	OS::AssertMessage(oldToNewId.contains(oldId),\n"
+					"	std::format(\"Invalid scene file. Can not define all entities ids: {}.\", static_cast<Common::Index>(oldId)));\n"
+					"	#pragma endregion\n"
+					"	return oldToNewId.at(oldId);\n"
+					"};");
+
+				//Generate edit components.
+				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
+
+					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+
+					if (!component->serializable_) {
+						return true;
+					}
+
+					code.Add("{");
+					code.Add(generateParseComponentCode(component));
+					code.Add("}");
+
+					code.NewLine();
+
+					return true;
+					});
+
+				Function::CreateInfo editEntityFunction{
+					.name_ = "ParseEntity",
+					.parameters_ = {
+						{ "std::shared_ptr<ECS2::World>", "world" },
+						{ "luabridge::LuaRef", "entity" },
+						{ "ECS2::Entity::Id", "newEntityId" },
+						{ "const std::map<ECS2::Entity::Id, ECS2::Entity::Id>&", "oldToNewId" }
+					},
+					.returnType_ = "void",
+					.code_ = code,
+					.isPrototype_ = false,
+					.inlineModifier_ = false
+				};
+
+				auto editEntityFunctionObject = std::make_shared<Function>(editEntityFunction);
+
+				return editEntityFunctionObject;
+				};
+
+			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+
+			namespaceObject->Add(generateParseEntityFunctionRealization(projectContext));
+
+			File::Includes includes{ };
+			includes.paths_.insert("ECS2.World.hpp");
+			includes.paths_.insert("OksEngine.ECS.hpp");
+			//includes.paths_.insert("magic_enum/magic_enum.hpp");
+
+			//hpp file
+			File::CreateInfo fci{
+				.isHpp_ = true,
+				.includes_ = includes,
+				.base_ = namespaceObject
+			};
+
+			auto file = std::make_shared<File>(fci);
+
+			auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
+
+			std::filesystem::path includeDirFullPath = GetSubPath(randomEcsFilePath, projectContext->includeDirectory_, ECSGenerator::ResultRange::FromStartToStartFolder, SearchDirection::FromEndToBegin, false);
+
+			std::filesystem::path systemCppFileFullPath = includeDirFullPath / ("auto_OksEngine.ParseEntity.hpp");
+			FormatPath(systemCppFileFullPath);
+
+			return { systemCppFileFullPath, file };
+		}
+
+		std::pair<std::filesystem::path, std::shared_ptr<File>>
+			GenerateSerializeEntityHppFile(std::shared_ptr<ProjectContext> projectContext) {
+
+			auto generateSerializeComponentCode = [](std::shared_ptr<ParsedComponentECSFile> component, bool isLast) -> Code {
+
+				Code code;
+
+				code.Add(std::format(
+					"if (components.IsSet<{}>()) {{"
+					"	const auto* component = world->GetComponent<{}>(entityId);"
+					"	serializedEntity += Serialize{}(component);",
+					component->GetName(),
+					component->GetName(),
+					component->GetName()));
+
+				//if (!isLast) {
+					code.Add("	serializedEntity += \",\\n\";");
+				//}
+
+				code.Add("}");
+
+				return code;
+				};
+
+			auto generateSerializeEntityFunctionRealization = [&](std::shared_ptr<ProjectContext> projectContext) -> std::shared_ptr<Function> {
+
+				Code code;
+
+				code.Add("std::string serializedEntity;");
+				code.Add("const ECS2::ComponentsFilter components = world->GetEntityComponentsFilter(entityId);");
+				code.Add("serializedEntity += \"ID = \" + std::to_string(entityId) + \", \\n\";");
+				//Generate serialize components.
+				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
+
+					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+
+					if (!component->serializable_) {
+						return true;
+					}
+					code.Add("{");
+					code.Add(generateSerializeComponentCode(component, isLast));
+					code.Add("}");
+
+					code.NewLine();
+
+					return true;
+					});
+
+				code.Add("return serializedEntity;");
+
+				Function::CreateInfo serializeEntityFunction{
+					.name_ = "SerializeEntity",
+					.parameters_ = {
+						{ "std::shared_ptr<ECS2::World>", "world" },
+						{ "ECS2::Entity::Id", "entityId" }
+					},
+					.returnType_ = "std::string",
+					.code_ = code,
+					.isPrototype_ = false,
+					.inlineModifier_ = false
+				};
+
+				auto serializedEntityFunctionObject = std::make_shared<Function>(serializeEntityFunction);
+
+				return serializedEntityFunctionObject;
+				};
+
+			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+
+			namespaceObject->Add(generateSerializeEntityFunctionRealization(projectContext));
+
+			File::Includes includes{ };
+			includes.paths_.insert("ECS2.World.hpp");
+			includes.paths_.insert("OksEngine.ECS.hpp");
+			//includes.paths_.insert("magic_enum/magic_enum.hpp");
+
+			//hpp file
+			File::CreateInfo fci{
+				.isHpp_ = true,
+				.includes_ = includes,
+				.base_ = namespaceObject
+			};
+
+			auto file = std::make_shared<File>(fci);
+
+			auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
+
+			std::filesystem::path includeDirFullPath = GetSubPath(randomEcsFilePath, projectContext->includeDirectory_, ECSGenerator::ResultRange::FromStartToStartFolder, SearchDirection::FromEndToBegin, false);
+
+			std::filesystem::path systemCppFileFullPath = includeDirFullPath / ("auto_OksEngine.SerializeEntity.hpp");
 			FormatPath(systemCppFileFullPath);
 
 			return { systemCppFileFullPath, file };
@@ -1189,13 +1429,13 @@ namespace ECSGenerator {
 
 			//if (!ecs_files.empty()) {
 				// Включаем .ecs файлы текущей директории
-				for (const auto& file : ecs_files) {
-					out << "#include \"" << componentIncludePath.string() + "/" + "auto_" + file.stem().string() + ".hpp" << "\"\n";
-				}
-				// Включаем OksEngine.Components.hpp из поддиректорий
-				for (const auto& subdir : subdirs) {
-					out << "#include \"" << subdir.string() << "/auto_OksEngine.ECS.hpp\"\n";
-				}
+			for (const auto& file : ecs_files) {
+				out << "#include \"" << componentIncludePath.string() + "/" + "auto_" + file.stem().string() + ".hpp" << "\"\n";
+			}
+			// Включаем OksEngine.Components.hpp из поддиректорий
+			for (const auto& subdir : subdirs) {
+				out << "#include \"" << subdir.string() << "/auto_OksEngine.ECS.hpp\"\n";
+			}
 			//}
 		}
 
@@ -1210,7 +1450,7 @@ namespace ECSGenerator {
 
 			//Generate auto_OksEngine.{ComponentName}.hpp
 			projectContext->ForEachComponentEcsFile(
-				[&](std::shared_ptr<ParsedECSFile> ecsFile) {
+				[&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
 					auto componentEcsFile = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
 					ComponentFileStructureGenerator generator{ ci };
 					auto file = generator.GenerateECSCXXFilesStructure(projectContext, componentEcsFile);

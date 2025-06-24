@@ -1,0 +1,13 @@
+system = {
+    name = "EndECSEditorWindow",
+    runAfter = "BeginECSEditorWindow",
+    runBefore = "EndImGuiFrame",
+    processesComponents = { 
+        "ImGuiState", 
+        "MainMenuBar",
+        "ECSMenu",
+        "ECSEditorMenuItem",
+        "ECSEditorWindow",
+        "EditorContext"
+    }
+}

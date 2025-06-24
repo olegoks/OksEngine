@@ -1,13 +1,12 @@
 system = {
     name = "GetNodePosition",
     runAfter = "DrawNodes",
-    runBefore = "CreateSceneSaveRequest",
+    runBefore = "CreateLink",
     processesEntities = {
         {
             processesComponents = { 
                 "ImGuiState",
-                "EditorContext",
-                "LoadECSFilesButtonPressed"
+                "EditorContext"
             }
         },
         {

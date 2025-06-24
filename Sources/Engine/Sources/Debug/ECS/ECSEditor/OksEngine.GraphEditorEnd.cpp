@@ -1,24 +1,28 @@
 #include <Debug/ECS/ECSEditor\auto_OksEngine.GraphEditorEnd.hpp>
 
+#include <imgui-node-editor/imgui_node_editor.h>
+
 namespace OksEngine {
 void GraphEditorEnd::Update(
     ECS2::Entity::Id entityId, const ImGuiState* imGuiState,
     const EditorContext* editorContext) {
 
 
-    // End of interaction with editor.
-    ax::NodeEditor::End();
+   // // End of interaction with editor.
+   ax::NodeEditor::End();
 
-    //if (m_FirstFrame)
-    //    ed::NavigateToContent(0.0f);
+   static bool firstFrame = true;
 
-    //m_FirstFrame = false;
+    if (firstFrame)
+        ax::NodeEditor::NavigateToContent(0.0f);
+
+    firstFrame = false;
 
     ax::NodeEditor::SetCurrentEditor(nullptr);
-   // ImGui::ShowMetricsWindow();
-    ImGui::PopStyleVar(2);
-    ImGui::End();
-    ImGui::PopStyleVar(2);
+   //// ImGui::ShowMetricsWindow();
+   // ImGui::PopStyleVar(2);
+   // ImGui::End();
+   // ImGui::PopStyleVar(2);
 
 
    };

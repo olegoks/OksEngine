@@ -126,6 +126,12 @@ namespace ECS2 {
 		//	std::bitset<256> excludes_;
 		//};
 
+		enum class Type {
+			Dynamic,
+			Archetype,
+			Undefined
+		};
+
 		class Id final {
 		public:
 

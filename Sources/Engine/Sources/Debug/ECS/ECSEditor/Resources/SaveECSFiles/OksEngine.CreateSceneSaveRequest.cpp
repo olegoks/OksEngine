@@ -3,7 +3,7 @@
 namespace OksEngine {
 void CreateSceneSaveRequest::Update(
     ECS2::Entity::Id entity1Id, const ImGuiState* imGuiState,
-    const EditorContext* editorContext,
+    const ECSEditorWindow* editorContext,
     const SaveECSFilesButtonPressed* loadECSFilesButtonPressed,
     ECS2::Entity::Id entity2Id, const ECSController* eCSController) {
 

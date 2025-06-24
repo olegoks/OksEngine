@@ -157,11 +157,15 @@ int main(int argc, char** argv) {
 	auto files = generator->GenerateECSCXXFilesStructure(projectContext);
 	auto editEntityFile = generator->GenerateEditEntityHppFile(projectContext);
 	files.push_back(editEntityFile);
+	auto parseEntityFile = generator->GenerateParseEntityHppFile(projectContext);
+	files.push_back(parseEntityFile);
+	auto serializeEntityFile = generator->GenerateSerializeEntityHppFile(projectContext);
+	files.push_back(serializeEntityFile);
 	ECSGenerator::SystemCallsGraphDescriptionGenerator dotGenerator;
 	auto* graph = dotGenerator.CreateSystemsGraph(projectContext);
 	auto clusters = dotGenerator.FindClusters(graph);
 	auto runSystemFile = generator->GenerateRunSystemsFiles(clusters, projectContext);
-	auto dotFile = dotGenerator.GenerateGraphText(graph, projectContext);
+	//auto dotFile = dotGenerator.GenerateGraphText(graph, projectContext);
 
 	files.push_back(runSystemFile[0]);
 	files.push_back(runSystemFile[1]);

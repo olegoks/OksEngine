@@ -3,6 +3,6 @@ system = {
     processesComponents = { 
         "Animation", 
         "StartAnimation" },
-        createsComponents = { "RunningAnimationState" },
+    createsComponents = { "RunningAnimationState" },
     excludes = { "RunningAnimationState" }
 }

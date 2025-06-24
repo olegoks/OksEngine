@@ -3,13 +3,16 @@
 #include <imgui.h>
 #include <imgui-node-editor/imgui_node_editor.h>
 
+#include <Debug/ECS/ECSEditor/auto_OksEngine.AfterPin.hpp>
+#include <Debug/ECS/ECSEditor/auto_OksEngine.BeforePin.hpp>
+#include <Debug/ECS/ECSEditor/auto_OksEngine.Link.hpp>
+
 namespace OksEngine {
 	void DrawNodes::Update(
-		ECS2::Entity::Id entity1Id, const CallGraphNode* callGraphNode,
-		const Name* name, const RootNode* rootNode,
-		const Position2D* position2D, const RunBefore* runBefore,
-		const RunAfter* runAfter, ECS2::Entity::Id entity2Id,
-		const ImGuiState* imGuiState, const EditorContext* editorContext) {
+		ECS2::Entity::Id entity0id, const CallGraphNode* calClGraphNode0,
+		const Name* name0, const Position2D* position2D0,
+		ECS2::Entity::Id entity1id, const ImGuiState* imGuiState1,
+		const ECSEditorWindow* eCSEditorWindow1) {
 
 
 		//int uniqueId = 1;
@@ -43,25 +46,40 @@ namespace OksEngine {
 		//drawNode(drawNode, entity1Id);
 		static bool firstFrame = true;
 
-		//ax::NodeEditor::SetNodePosition((int)entity1Id, ImVec2(position2D->x_, position2D->y_));
+		ax::NodeEditor::GetNodePosition((int)entity0id);
 
-		ax::NodeEditor::BeginNode((int)entity1Id);
+		ImGui::PushID(static_cast<int>(entity0id));
+		ax::NodeEditor::BeginNode((int)entity0id);
 
-		ImGui::Text(name->value_.c_str());
-		//ax::NodeEditor::BeginPin(nodeA_InputPinId, ed::PinKind::Input);
-		//ImGui::Text("-> In");
-		//ax::NodeEditor::EndPin();
-		//ImGui::SameLine();
-		//ax::NodeEditor::BeginPin(nodeA_OutputPinId, ed::PinKind::Output);
-		//ImGui::Text("Out ->");
-		//ax::NodeEditor::EndPin();
+		ImGui::Text(name0->value_.c_str());
+
+#pragma region Assert
+		OS::AssertMessage(entity0id < Common::Limits<int>::Max(), "");
+#pragma endregion
+
+		const int intEntityId = static_cast<int>(entity0id);
+		ax::NodeEditor::NodeId nodeId = intEntityId;
+		ImGui::BeginGroup();
+		if (IsComponentExist<BeforePin>(entity0id)) {
+			const ECS2::Entity::Id beforePinEntityId = GetComponent<BeforePin>(entity0id)->id_;
+			ax::NodeEditor::BeginPin(static_cast<int>(beforePinEntityId), ax::NodeEditor::PinKind::Input);
+			ImGui::Text("Before");
+			ax::NodeEditor::EndPin();
+		}
+		ImGui::EndGroup();
+		ImGui::SameLine();
+		ImGui::BeginGroup();
+		if (IsComponentExist<AfterPin>(entity0id)) {
+			const ECS2::Entity::Id afterPinEntityId = GetComponent<AfterPin>(entity0id)->id_;
+			ax::NodeEditor::BeginPin(static_cast<int>(afterPinEntityId), ax::NodeEditor::PinKind::Input);
+			ImGui::Text("After");
+			ax::NodeEditor::EndPin();
+		}
+		ImGui::EndGroup();
 		ax::NodeEditor::EndNode();
+		ImGui::PopID();
 
-		//// Submit Node B
-		//ax::NodeEditor::NodeId nodeB_Id = uniqueId++;
-		//ax::NodeEditor::PinId  nodeB_InputPinId1 = uniqueId++;
-		//ax::NodeEditor::PinId  nodeB_InputPinId2 = uniqueId++;
-		//ax::NodeEditor::PinId  nodeB_OutputPinId = uniqueId++;
+
 		if (firstFrame) {
 			firstFrame = false;
 		}

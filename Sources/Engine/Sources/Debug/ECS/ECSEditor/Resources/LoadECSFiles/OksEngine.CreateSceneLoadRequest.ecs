@@ -6,7 +6,7 @@ system = {
         {
             processesComponents = { 
                 "ImGuiState",
-                "EditorContext",
+                "ECSEditorWindow",
                 "LoadECSFilesButtonPressed"
             }
         },

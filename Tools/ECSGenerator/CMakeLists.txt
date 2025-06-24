@@ -99,6 +99,9 @@ foreach (_variableName ${_variableNames})
 message(STATUS "${_variableName}=${${_variableName}}")
 endforeach()
 
+find_package(ZLIB REQUIRED)
+target_link_libraries(ECSGenerator PUBLIC ZLIB::ZLIB)
+
 add_custom_command(TARGET ECSGenerator POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${GRAPHVIZ_PREFIX}/bin/cdt.dll"
