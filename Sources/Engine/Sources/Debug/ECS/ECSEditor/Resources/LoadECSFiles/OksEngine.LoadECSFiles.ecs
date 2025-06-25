@@ -1,16 +1,20 @@
 system = {
-    name = "CreateNewNode",
+    name = "LoadECSFiles",
     runAfter = "GraphEditorBegin",
     runBefore = "GraphEditorEnd",
-    processesEntities  = {
+    processesEntities = {
         {
-            processesComponents = {  
+            processesComponents = { 
                 "ImGuiState",
-                "EditorContext" }
-        }
-    },
-    createsEntities = {
+                "ECSEditorWindow",
+                "EditorContext",
+                "LoadECSFilesButtonPressed"
+            }
+        },
         {
+            processesComponents = { 
+                "ResourceSystem"
+            },
             createsComponents = {
                 "CallGraphNode",
                 "Name",
@@ -22,14 +26,6 @@ system = {
                 "BeforePin",
                 "AfterPin"
             }
-        },
-        {  
-            createsComponents = {
-                "Name",
-                "Pin"
-            }
         }
     }
 }
-
-

@@ -24,13 +24,13 @@ namespace OksEngine {
 				//Not first entity.
 				const Common::Index openingÑurlyBraceIndex = luaScript->text_.rfind('{');
 				if (closingÑurlyBraceIndex > openingÑurlyBraceIndex) {
-					luaScript->text_.push_back(',');
+					luaScript->text_ += ",";
 				}
 			}
 			
 		}
 
-		luaScript->text_ += parsedEntity + "{\n";
+		luaScript->text_ += parsedEntity + "\n\t{\n";
 
 		std::string serializedEntity = SerializeEntity(world_, entity1Id);
 
@@ -40,7 +40,7 @@ namespace OksEngine {
 
 		luaScript->text_ += serializedEntity;
 
-		luaScript->text_ += parsedEntity + "}\n";
+		luaScript->text_ += parsedEntity + "\n\t}";
 
 
 	};

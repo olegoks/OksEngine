@@ -2,8 +2,6 @@
 
 #include <implot3d.h>
 
-#include <Debug/ECS/ECSEditor/auto_OksEngine.AfterPin.hpp>
-#include <Debug/ECS/ECSEditor/auto_OksEngine.BeforePin.hpp>
 // Cube
 constexpr int CUBE_VTX_COUNT = 8;              // Number of cube vertices
 constexpr int CUBE_IDX_COUNT = 36;             // Number of cube indices (12 triangles)

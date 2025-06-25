@@ -182,7 +182,7 @@ namespace ECSGenerator {
 			code.NewLine();
 			code.Add("std::memcpy(" + fieldVariableName + ", " + componentVariableName + "->" + fieldComponentVariableName + ".c_str(), " + componentVariableName + "->" + fieldVariableName + "_.size());");
 			code.NewLine();
-			code.Add(GenerateImGuiInputTypeCode(fieldVariableTypeName, fieldVariableTypeName, fieldVariableName));
+			code.Add(GenerateImGuiInputTypeCode(fieldVariableName, fieldVariableTypeName, fieldVariableName));
 			code.NewLine();
 			code.Add(componentVariableName + "->" + fieldComponentVariableName + " = std::string{ " + fieldVariableName + " };");
 			code.NewLine();
