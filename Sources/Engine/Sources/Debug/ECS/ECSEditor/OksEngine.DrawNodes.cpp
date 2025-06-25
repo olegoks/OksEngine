@@ -14,36 +14,6 @@ namespace OksEngine {
 		ECS2::Entity::Id entity1id, const ImGuiState* imGuiState1,
 		const ECSEditorWindow* eCSEditorWindow1) {
 
-
-		//int uniqueId = 1;
-
-
-		//ed::PinId  nodeA_InputPinId = uniqueId++;
-		//ed::PinId  nodeA_OutputPinId = uniqueId++;
-
-		//const float columnOffset = 100;
-		//const float rowOffset = 100;
-		//Common::UInt64 columnIndex = 0;
-
-
-
-		//auto drawNode = [&](auto&& self, ECS2::Entity::Id nodeEntityId, Common::UInt64 rowIndex)->void{
-
-		//    const RunBefore* nodeRunBefore = GetComponent<RunBefore>(nodeEntityId);
-
-		//    ax::NodeEditor::SetNodePosition((int)entity1Id, ImVec2(columnIndex * columnOffset, ));
-		//    ax::NodeEditor::BeginNode((int)entity1Id);
-		//    ImGui::Text(name->value_.c_str());
-		//    ax::NodeEditor::EndNode();
-
-		//    ++columnIndex;
-		//    for (Common::UInt64 i = 0; i < nodeRunBefore->entities_.size(); i++) {
-		//        const ECS2::Entity::Id nodeEntityId = nodeRunBefore->entities_[i];
-		//        self(self, nodeEntityId, );
-		//    }
-		//    };
-
-		//drawNode(drawNode, entity1Id);
 		static bool firstFrame = true;
 
 		ax::NodeEditor::GetNodePosition((int)entity0id);
@@ -71,7 +41,7 @@ namespace OksEngine {
 		ImGui::BeginGroup();
 		if (IsComponentExist<AfterPin>(entity0id)) {
 			const ECS2::Entity::Id afterPinEntityId = GetComponent<AfterPin>(entity0id)->id_;
-			ax::NodeEditor::BeginPin(static_cast<int>(afterPinEntityId), ax::NodeEditor::PinKind::Input);
+			ax::NodeEditor::BeginPin(static_cast<int>(afterPinEntityId), ax::NodeEditor::PinKind::Output);
 			ImGui::Text("After");
 			ax::NodeEditor::EndPin();
 		}

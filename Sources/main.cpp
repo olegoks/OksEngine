@@ -29,24 +29,24 @@ int main(int argc, char** argv) {
 	camera.AddBehaviour("Camera.lua", "Camera");
 
 	//{
-		//Entity terrain = engine.CreateEntity<
-		//	Name,
-		//	Position3D,
-		//	Rotation3D,
-		//	DriverTransform3D,
-		//	ImmutableRenderGeometry,
-		//	LoadGDFTask,
-		//	GDF,
-		//	GDFInfo,
-		//	GDFLoaded,
-		//	StaticRigidBodyCustomMeshShape,
-		//	Material>();
-		//terrain.AddName("Terrain");
-		//terrain.AddPosition(0, 0, 0);
-		//terrain.AddRotation({ 0, 1, 0 }, 0);
-		//terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom", "");
-		//terrain.AddStaticRigidBodyCustomMeshShape();
-		//terrain.AddMaterial(0.1, 0.1, 0.1);
+		Entity terrain = engine.CreateEntity<
+			Name,
+			Position3D,
+			Rotation3D,
+			DriverTransform3D,
+			ImmutableRenderGeometry,
+			LoadGDFTask,
+			GDF,
+			GDFInfo,
+			GDFLoaded,
+			StaticRigidBodyCustomMeshShape,
+			Material>();
+		terrain.AddName("Terrain");
+		terrain.AddPosition(0, 0, 0);
+		terrain.AddRotation({ 0, 1, 0 }, 0);
+		terrain.AddImmutableRenderGeometry("BigRockyTerrain.geom", "");
+		terrain.AddStaticRigidBodyCustomMeshShape();
+		terrain.AddMaterial(0.1, 0.1, 0.1);
 
 	//	Entity skybox = engine.CreateEntity();
 	//	skybox.AddName("SkyBox");
@@ -55,15 +55,15 @@ int main(int argc, char** argv) {
 	//	skybox.AddImmutableRenderGeometry("SkyBox.geom");
 	//}
 
-	////Entity dragonLore = engine.CreateEntity();
-	////dragonLore.AddName("DragonLore");
-	////dragonLore.AddPosition(0, 10, 0);
-	////dragonLore.AddRotation({ 0, 1, 0 }, 0);
-	////dragonLore.AddImmutableRenderGeometry("dragon_lore.geom");
-	////dragonLore.AddDynamicRigidBodyCustomMeshShape();
-	////dragonLore.AddMapRigidBodyToRenderGeometry();
-	////dragonLore.AddMass(30);
-	////dragonLore.AddMaterial(0.1, 0.1, 0.1);
+	//Entity dragonLore = engine.CreateEntity();
+	//dragonLore.AddName("DragonLore");
+	//dragonLore.AddPosition(0, 10, 0);
+	//dragonLore.AddRotation({ 0, 1, 0 }, 0);
+	//dragonLore.AddImmutableRenderGeometry("dragon_lore.geom", );
+	//dragonLore.AddDynamicRigidBodyCustomMeshShape();
+	//dragonLore.AddMapRigidBodyToRenderGeometry();
+	//dragonLore.AddMass(30);
+	//dragonLore.AddMaterial(0.1, 0.1, 0.1);
 
 
 	////Entity lamp = engine.CreateEntity();

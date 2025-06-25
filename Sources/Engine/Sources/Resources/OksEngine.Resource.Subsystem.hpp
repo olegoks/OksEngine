@@ -322,6 +322,20 @@ namespace OksEngine {
 			);
 		}
 
+		[[nodiscard]]
+		std::vector<std::filesystem::path> GetAddedResourcesSynch(Subsystem::Type subsystemType, const std::vector<std::string>& extensions) {
+			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
+			const Task::Id taskId = AddTask(
+				subsystemType,
+				Subsystem::Type::Resource,
+				CreateTask<GetAddedResourcesTask>(extensions)
+			);
+
+			auto addedResource = GetAddedResources(Subsystem::Type::Debug, taskId);
+
+			return addedResource;
+		}
+
 		Task::Id SetRoot(Subsystem::Type subsystemType, std::vector<std::filesystem::path> rootPaths) {
 			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
 			return AddTask(
@@ -366,6 +380,7 @@ namespace OksEngine {
 			GetAddedResourcesResult getResourceResult = std::move(task.GetData<GetAddedResourcesResult>());
 			return std::move(getResourceResult.addedResources_);
 		}
+
 
 		std::filesystem::path GetFilesystemPath(Subsystem::Type receiverSubsystem, Task::Id taskId) {
 			//OS::LogInfo("Engine/Render", "Waiting for task.");

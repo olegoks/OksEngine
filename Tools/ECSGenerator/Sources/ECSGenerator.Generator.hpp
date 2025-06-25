@@ -777,7 +777,7 @@ namespace ECSGenerator {
 				code.Add(std::format(
 					"if (components.IsSet<{}>()) {{"
 					"	const auto* component = world->GetComponent<{}>(entityId);"
-					"	serializedEntity += Serialize{}(component);",
+					"	serializedEntity += \"\\t\\t\" +Serialize{}(component);",
 					component->GetName(),
 					component->GetName(),
 					component->GetName()));
@@ -797,7 +797,7 @@ namespace ECSGenerator {
 
 				code.Add("std::string serializedEntity;");
 				code.Add("const ECS2::ComponentsFilter components = world->GetEntityComponentsFilter(entityId);");
-				code.Add("serializedEntity += \"ID = \" + std::to_string(entityId) + \", \\n\";");
+				code.Add("serializedEntity += \"\\t\\tID = \" + std::to_string(entityId) + \",\\n\";");
 				//Generate serialize components.
 				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
 

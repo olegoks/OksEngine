@@ -1,0 +1,18 @@
+system = {
+    name = "RemoveLink",
+    runAfter = "CreateLink",
+    runBefore = "DrawLink",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState",
+                "ECSEditorWindow",
+                "EditorContext"
+
+            },
+            removesComponents = {
+                "Link"
+            }
+        }
+    }
+}
