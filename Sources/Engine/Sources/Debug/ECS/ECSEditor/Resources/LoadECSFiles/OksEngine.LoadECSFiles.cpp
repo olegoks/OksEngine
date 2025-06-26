@@ -37,6 +37,8 @@ void LoadECSFiles::Update(
                 RootNode,
                 Position2D,
                 Serializable,
+                RunAfter,
+                RunBefore,
                 BeforePin,
                 AfterPin>();
 
@@ -47,6 +49,39 @@ void LoadECSFiles::Update(
                 systemName
                 //ecsFilePath.filename().stem().string().substr(std::size("OksEngine.")) // Get system name.
                 );
+
+            {
+                std::vector<std::string> runAfterSystems;
+                luabridge::LuaRef runAfterRef = system["runAfter"];
+                if (!runAfterRef.isNil()) {
+                    if (runAfterRef.isTable()) {
+                        for (luabridge::Iterator it(runAfterRef); !it.isNil(); ++it) {
+                            luabridge::LuaRef runAfterSystemRef = it.value();
+                            runAfterSystems.push_back(runAfterSystemRef.cast<std::string>().value());
+                        }
+                    }
+                    else {
+                        runAfterSystems.push_back(runAfterRef.cast<std::string>().value());
+                    }
+                }
+                CreateComponent<RunAfter>(systemEntityId, runAfterSystems);
+            }
+            {
+                std::vector<std::string> runBeforeSystems;
+                luabridge::LuaRef runBeforeRef = system["runBefore"];
+                if (!runBeforeRef.isNil()) {
+                    if (runBeforeRef.isTable()) {
+                        for (luabridge::Iterator it(runBeforeRef); !it.isNil(); ++it) {
+                            luabridge::LuaRef runAfterSystemRef = it.value();
+                            runBeforeSystems.push_back(runAfterSystemRef.cast<std::string>().value());
+                        }
+                    }
+                    else {
+                        runBeforeSystems.push_back(runBeforeRef.cast<std::string>().value());
+                    }
+                }
+                CreateComponent<RunBefore>(systemEntityId, runBeforeSystems);
+            }
             CreateComponent<Position2D>(systemEntityId, 0.f, 0.f);
             CreateComponent<Serializable>(systemEntityId);
 
