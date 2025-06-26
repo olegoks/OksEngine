@@ -2,6 +2,6 @@ component = {
     name = "RunAfter",
     serializable = false,
     fields = { 
-        { type = "std::vector<ECS2::Entity::Id>", name = "entities" }
+        { type = "std::vector<std::string>", name = "runAfterSystems" }
      }
 }
