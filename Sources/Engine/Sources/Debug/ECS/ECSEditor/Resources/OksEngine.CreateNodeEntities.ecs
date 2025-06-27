@@ -5,7 +5,7 @@ system = {
             processesComponents = {  
                 "ImGuiState",
                 "ECSEditorWindow",
-                "LoadECSFilesButtonPressed" }
+                "LoadingECSFiles" }
         },
         {
              processesComponents = { { name = "ResourceSystem", readonly = false } }

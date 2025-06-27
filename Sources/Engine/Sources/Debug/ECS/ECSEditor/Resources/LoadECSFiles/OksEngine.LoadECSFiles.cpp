@@ -2,18 +2,19 @@
 
 namespace OksEngine {
 void LoadECSFiles::Update(
+    ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+    const ECSEditorWindow* eCSEditorWindow0,
+    const EditorContext* editorContext0,
+    const LoadingECSFiles* loadingECSFiles0,
 
-    ECS2::Entity::Id entity1Id, const ImGuiState* imGuiState,
-    const ECSEditorWindow* eCSEditorWindow, const EditorContext* editorContext,
-    const LoadECSFilesButtonPressed* loadECSFilesButtonPressed,
+    ECS2::Entity::Id entity1id,
+    const ResourceSystem* resourceSystem1) {
 
-    ECS2::Entity::Id entity2Id, const ResourceSystem* resourceSystem) {
-
-        const auto addedResources = resourceSystem->system_->GetAddedResourcesSynch(Subsystem::Type::Debug, { ".ecs" });
+        const auto addedResources = resourceSystem1->system_->GetAddedResourcesSynch(Subsystem::Type::Debug, { ".ecs" });
 
         for (auto& ecsFilePath : addedResources) {
             
-            auto ecsFileData = resourceSystem->system_->GetResourceSynch(
+            auto ecsFileData = resourceSystem1->system_->GetResourceSynch(
                     Subsystem::Type::Debug,
                     ecsFilePath);
             ::Lua::Context luaContext;
@@ -84,6 +85,31 @@ void LoadECSFiles::Update(
             }
             CreateComponent<Position2D>(systemEntityId, 0.f, 0.f);
             CreateComponent<Serializable>(systemEntityId);
+
+            //Create pins
+            const  ECS2::Entity::Id beforePinEntityId
+                = CreateEntity<
+                Name,
+                Pin,
+                Serializable>();
+
+            CreateComponent<Name>(beforePinEntityId, "Before");
+            CreateComponent<Pin>(beforePinEntityId);
+            CreateComponent<Serializable>(beforePinEntityId);
+
+            const  ECS2::Entity::Id afterPinEntityId
+                = CreateEntity<
+                Name,
+                Pin,
+                Serializable>();
+
+            CreateComponent<Name>(afterPinEntityId, "After");
+            CreateComponent<Pin>(afterPinEntityId);
+            CreateComponent<Serializable>(afterPinEntityId);
+            //
+
+            CreateComponent<BeforePin>(systemEntityId, beforePinEntityId);
+            CreateComponent<AfterPin>(systemEntityId, afterPinEntityId);
 
         }
 

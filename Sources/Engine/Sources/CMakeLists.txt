@@ -55,11 +55,11 @@ target_sources(OksEngine
 find_package(Boost REQUIRED COMPONENTS asio)
 find_package(winpixevent CONFIG REQUIRED)
 find_package(SFML COMPONENTS Network Graphics Window Audio System CONFIG REQUIRED)
-find_package(imgui CONFIG REQUIRED)
-find_package(unofficial-imgui-node-editor CONFIG REQUIRED)
-find_package(implot3d CONFIG REQUIRED)
+# find_package(imgui CONFIG REQUIRED)
+#find_package(unofficial-imgui-node-editor CONFIG REQUIRED)
+#find_package(implot3d CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
-find_package(imguizmo CONFIG REQUIRED)
+#find_package(imguizmo CONFIG REQUIRED)
 
 target_link_libraries(OksEngine
     PUBLIC
@@ -68,10 +68,11 @@ target_link_libraries(OksEngine
     SFML::Audio
     SFML::System
     yaml-cpp::yaml-cpp
-    imgui::imgui
-    unofficial::imgui-node-editor::imgui-node-editor
-    implot3d::implot3d
-    imguizmo::imguizmo
+    # imgui::imgui
+    ImGui
+    #unofficial::imgui-node-editor::imgui-node-editor
+    #implot3d::implot3d
+    #imguizmo::imguizmo
     Geometry
     ECS2
     LuaLayer

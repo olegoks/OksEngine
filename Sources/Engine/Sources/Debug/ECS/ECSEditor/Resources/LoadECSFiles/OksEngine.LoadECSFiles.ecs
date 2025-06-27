@@ -8,13 +8,17 @@ system = {
                 "ImGuiState",
                 "ECSEditorWindow",
                 "EditorContext",
-                "LoadECSFilesButtonPressed"
+                "LoadingECSFiles"
             }
         },
         {
             processesComponents = { 
                 "ResourceSystem"
             },
+        }
+    },
+    createsEntities = {
+        {
             createsComponents = {
                 "CallGraphNode",
                 "Name",
@@ -25,6 +29,13 @@ system = {
                 "RunAfter",
                 "BeforePin",
                 "AfterPin"
+            }
+        },
+        {
+            createsComponents = {
+                "Pin",
+                "Name",
+                "Serializable"
             }
         }
     }

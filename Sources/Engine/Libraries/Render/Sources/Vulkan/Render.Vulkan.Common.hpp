@@ -460,7 +460,25 @@ namespace Render::Vulkan {
 
 
 	inline PFN_vkSetDebugUtilsObjectNameEXT SetObjectName = nullptr;
-		
+	
+
+	[[nodiscard]]
+	static inline VkIndexType IndexSizeToVulkanType(Common::Size indexSize) {
+		switch (indexSize) {
+		case  2: {
+			return VkIndexType::VK_INDEX_TYPE_UINT16;
+			break;
+		}
+		case  4: {
+			return VkIndexType::VK_INDEX_TYPE_UINT32;
+			break;
+		}
+		default: {
+			OS::AssertFailMessage("Unsupported index type.");
+			return VkIndexType::VK_INDEX_TYPE_MAX_ENUM;
+		}
+		};
+	}
 
 
 }

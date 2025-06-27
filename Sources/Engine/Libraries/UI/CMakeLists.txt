@@ -38,7 +38,8 @@ source_group("Sources"
 target_link_libraries(UI
     PUBLIC
         OS
-        Math)
+        Math
+        ImGui)
 
 target_include_directories(UI
     PUBLIC
@@ -47,9 +48,9 @@ target_include_directories(UI
 find_package(glfw3 CONFIG REQUIRED)
 target_link_libraries(UI PRIVATE glfw)
       
-find_package(imgui CONFIG REQUIRED)
-target_link_libraries(UI PRIVATE imgui::imgui)
-find_package(implot CONFIG REQUIRED)
-target_link_libraries(UI PRIVATE implot::implot)
+# find_package(imgui CONFIG REQUIRED)
+# target_link_libraries(UI PRIVATE imgui::imgui)
+# find_package(implot CONFIG REQUIRED)
+# target_link_libraries(UI PRIVATE implot::implot)
 
 #add_subdirectory(Tests)

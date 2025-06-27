@@ -1,5 +1,6 @@
 #include <Debug/Render\auto_OksEngine.UpdateImGuiRenderData.hpp>
 
+#include <Common.StringLiterals.hpp>
 #include <Geometry.IndexBuffer.hpp>
 
 namespace OksEngine {
@@ -19,14 +20,15 @@ namespace OksEngine {
 		if (fb_width <= 0 || fb_height <= 0)
 			return;
 
-		static Geom::IndexBuffer indices;
+		static Geom::IndexBuffer<Common::UInt32> indices;
 
-		indices.Reserve(Common::Limits<Common::UInt16>().Max());
+		using namespace Common;
+		indices.Reserve(10_MB / indices.GetIndexSize());
 		indices.Clear();
 
 		static Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
 
-		vertices2ftc.Reserve(Common::Limits<Common::UInt16>().Max());
+		vertices2ftc.Reserve(30_MB / vertices2ftc.GetVertexSize());
 		vertices2ftc.Clear();
 
 		for (int n = 0; n < draw_data->CmdListsCount; n++) {

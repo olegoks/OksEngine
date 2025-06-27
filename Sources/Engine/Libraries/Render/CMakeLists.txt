@@ -81,9 +81,9 @@ source_group("Sources/Vulkan/Driver"
         ${PRIVATE_SOURCES_VULKAN_DRIVER}
 )
 
-find_package(imgui CONFIG REQUIRED)
+# find_package(imgui CONFIG REQUIRED)
 find_package(Vulkan REQUIRED)
-find_package(glfw3 CONFIG REQUIRED)
+# find_package(glfw3 CONFIG REQUIRED)
 find_package(VulkanUtilityLibraries CONFIG REQUIRED)
 find_package(glslang CONFIG REQUIRED)
       
@@ -92,9 +92,10 @@ target_link_libraries(Render
         OS
         Geometry
         Math
-        glfw
+        # glfw
     PRIVATE 
-        imgui::imgui
+        # imgui::imgui
+        ImGui
         Vulkan::Vulkan
         Vulkan::LayerSettings
         Vulkan::UtilityHeaders 

@@ -95,7 +95,7 @@ void CreateRenderDriver::Update(
 			.fragmentShader_ = fragmentShader,
 			.topologyType_ = RAL::Driver::TopologyType::TriangleList,
 			.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF4,
-			.indexType_ = RAL::Driver::IndexType::UI16,
+			.indexType_ = RAL::Driver::IndexType::UI32,
 			.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
 			.cullMode_ = RAL::Driver::CullMode::None,
 			.shaderBindings_ = shaderBindings,

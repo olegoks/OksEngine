@@ -32,6 +32,9 @@ namespace OksEngine {
 		ImGui::BeginGroup();
 		if (IsComponentExist<BeforePin>(entity0id)) {
 			const ECS2::Entity::Id beforePinEntityId = GetComponent<BeforePin>(entity0id)->id_;
+#pragma region Assert
+			OS::AssertMessage(beforePinEntityId != ECS2::Entity::Id::invalid_, "");
+#pragma endregion
 			ax::NodeEditor::BeginPin(static_cast<int>(beforePinEntityId), ax::NodeEditor::PinKind::Input);
 			ImGui::Text("Before");
 			ax::NodeEditor::EndPin();
@@ -41,6 +44,9 @@ namespace OksEngine {
 		ImGui::BeginGroup();
 		if (IsComponentExist<AfterPin>(entity0id)) {
 			const ECS2::Entity::Id afterPinEntityId = GetComponent<AfterPin>(entity0id)->id_;
+#pragma region Assert
+			OS::AssertMessage(afterPinEntityId != ECS2::Entity::Id::invalid_, "");
+#pragma endregion
 			ax::NodeEditor::BeginPin(static_cast<int>(afterPinEntityId), ax::NodeEditor::PinKind::Output);
 			ImGui::Text("After");
 			ax::NodeEditor::EndPin();

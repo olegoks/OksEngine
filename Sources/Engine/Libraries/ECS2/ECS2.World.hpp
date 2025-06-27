@@ -276,11 +276,9 @@ namespace ECS2 {
 		bool IsComponentExist(Entity::Id entityId) noexcept {
 			if(archetypeEntitiesComponents_.contains(entityId))
 			{
-				//TODO: if archetype components filter contains component it doesn't mean that archetype has this component.
-				//Need to check archetype container.
 				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
 				if (componentsFilter.IsSet<ComponentType>()) {
-					return true;
+					return archetypeComponents_[componentsFilter]->IsComponentExist<ComponentType>(entityId);
 				}
 			}
 			if(dynamicEntitiesComponentFilters_.contains(entityId))
@@ -374,6 +372,7 @@ namespace ECS2 {
 						[&](FirstT<Components...>* component, Entity::Id entityId) {
 							const ComponentsFilter entityComponentsFilter = dynamicEntitiesComponentFilters_[entityId];
 							if (componentsFilter.IsSubsetOf(entityComponentsFilter) && entityComponentsFilter.IsNotSet(excludes)) {
+
 								processEntity(entityId, component);
 							}
 						});

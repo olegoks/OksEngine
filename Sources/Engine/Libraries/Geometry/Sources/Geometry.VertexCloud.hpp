@@ -26,6 +26,10 @@ namespace Geometry {
 
 		}
 
+		constexpr static inline Common::Size GetVertexSize() noexcept {
+			return sizeof(VertexType);
+		}
+
 		void Add(const VertexType* vertices, Common::Size verticesNumber) noexcept {
 
 			OS::Assert(vertices != nullptr);

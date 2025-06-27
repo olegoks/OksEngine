@@ -6,8 +6,8 @@
 #include <imgui_impl_vulkan.h>
 #include <imgui_impl_glfw.h>
 
-#include <implot.h>
-#include <implot_internal.h>
+#include <implot/implot.h>
+#include <implot/implot_internal.h>
 
 #include <Debug/Performance/auto_OksEngine.DrawEnginePerformance.hpp>
 
