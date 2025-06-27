@@ -163,7 +163,7 @@ namespace Render::Vulkan {
 				GetHandle(),
 				*indexBuffer,
 				offset,
-				VK_INDEX_TYPE_UINT16);
+				IndexSizeToVulkanType(indexBuffer->GetIndexSize()));
 		}
 
 

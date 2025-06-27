@@ -8,7 +8,7 @@ namespace OksEngine {
 
         if (ImGui::Button("Load .ecs files")) {
 
-            CreateComponent<LoadECSFilesButtonPressed>(entityId);
+            CreateComponent<LoadingECSFiles>(entityId);
         };
 }
 }

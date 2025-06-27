@@ -1166,8 +1166,8 @@ namespace ECSGenerator {
 					File::Includes includes{ };
 					includes.paths_.insert("ECS2.hpp");
 					includes.paths_.insert("chrono");
-					if (systemEcsFile->GetName() == "CreateMainWindow") {
-						//__debugbreak();
+					if (systemEcsFile->GetName() == "CreateLinksFromECSFiles") {
+						systemEcsFile = systemEcsFile;
 					}
 
 					for (auto& createsEntities : systemEcsFile->ci_.createsEntities_) {

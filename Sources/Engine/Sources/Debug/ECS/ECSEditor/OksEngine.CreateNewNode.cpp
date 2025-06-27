@@ -1,6 +1,6 @@
 #include <Debug/ECS/ECSEditor\auto_OksEngine.CreateNewNode.hpp>
 
-#include <implot3d.h>
+#include <implot3d/implot3d.h>
 
 // Cube
 constexpr int CUBE_VTX_COUNT = 8;              // Number of cube vertices
@@ -295,7 +295,7 @@ unsigned int duck_idx[DUCK_IDX_COUNT] = {
     249, 252, 248, 249, 248, 243, 248, 252, 245, 248, 245, 241, 245, 252, 250, 245, 250, 242, 250, 252, 249, 250, 249, 253, 228, 222, 250, 228, 250,
     253, 250, 222, 216, 250, 216, 242 };
 
-#include <imguizmo.h>
+#include <imguizmo/imguizmo.h>
 
 namespace OksEngine {
 	void CreateNewNode::Update(

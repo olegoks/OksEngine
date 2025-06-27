@@ -1,0 +1,46 @@
+system = {
+    name = "CreateLinksFromECSFiles",
+    runAfter = "LoadECSFiles",
+    runBefore = "GraphEditorEnd",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState",
+                "EditorContext",
+                "ECSEditorWindow",
+                "LoadingECSFiles"
+            },
+            removesComponents = {
+                "LoadingECSFiles"
+            }
+        },
+        {
+            processesComponents = {
+                "CallGraphNode",
+                "Name",
+                "RunAfter",
+                "RunBefore",
+                "BeforePin",
+                "AfterPin"
+            }
+        },
+        {
+            processesComponents = {
+                "CallGraphNode",
+                "Name",
+                "RunAfter",
+                "RunBefore",
+                "BeforePin",
+                "AfterPin"
+            }
+        }
+    },
+    createsEntities = {
+        {
+            createsComponents = {
+                "Link",
+                "Serializable"
+            }
+        }
+    }
+}

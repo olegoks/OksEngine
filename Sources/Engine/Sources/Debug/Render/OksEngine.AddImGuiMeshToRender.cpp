@@ -74,7 +74,7 @@ namespace OksEngine {
 				transform2DResource0->id_,
 				textureResource0->id_ 
 			} );
-		driver->DrawIndexed(imGuiDriverIndexBuffer0->size_ / sizeof(Common::UInt16));
+		driver->DrawIndexed(imGuiDriverIndexBuffer0->size_ / sizeof(Common::UInt32));
 		driver->EndDrawing();
 
 		//Common::Id driverMeshId = driver->DrawMesh(

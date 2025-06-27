@@ -1,6 +1,7 @@
 #include <Debug/Render/IndexBuffer\auto_OksEngine.CreateImGuiDriverIndexBuffer.hpp>
 
 #include <Common.Types.hpp>
+#include <Common.StringLiterals.hpp>
 
 namespace OksEngine {
 void CreateImGuiDriverIndexBuffer::Update(ECS2::Entity::Id entity1Id,
@@ -11,11 +12,13 @@ void CreateImGuiDriverIndexBuffer::Update(ECS2::Entity::Id entity1Id,
 
 	auto driver = renderDriver->driver_;
 
-	const Common::UInt64 capacity = static_cast<Common::UInt64>(Common::Limits<Common::UInt16>().Max()) * 3;
+	using namespace Common;
+
+	constexpr Common::UInt64 capacity = 30_MB;
 
 	RAL::Driver::IndexBuffer::CreateInfo1 IBCI{
 		.indicesNumber_ = capacity,
-		.indexType_ = RAL::Driver::IndexType::UI16,
+		.indexType_ = RAL::Driver::IndexType::UI32,
 		.type_ = RAL::Driver::IndexBuffer::Type::Const
 	};
 	const RAL::Driver::IndexBuffer::Id IBId = driver->CreateIndexBuffer(IBCI);

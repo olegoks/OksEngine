@@ -2,10 +2,10 @@
 
 namespace OksEngine {
 void CreateNodeEntities::Update(
-    ECS2::Entity::Id entity1Id, const ImGuiState* imGuiState,
-    const ECSEditorWindow* editorContext,
-    const LoadECSFilesButtonPressed* loadECSFilesButtonPressed,
-    ECS2::Entity::Id entity2Id, ResourceSystem* resourceSystem) {
+	ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+	const ECSEditorWindow* eCSEditorWindow0,
+	const LoadingECSFiles* loadingECSFiles0,
+	ECS2::Entity::Id entity1id, ResourceSystem* resourceSystem1) {
 
     // auto taskId = resourceSystem->system_->GetAddedResources(Subsystem::Type::Debug, { ".ecs" });
     // auto addedResource = resourceSystem->system_->GetAddedResources(Subsystem::Type::Debug, taskId);

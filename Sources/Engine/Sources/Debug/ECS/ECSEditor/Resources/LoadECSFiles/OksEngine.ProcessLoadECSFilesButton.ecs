@@ -8,8 +8,8 @@ system = {
                 "ImGuiState",
                 "ECSEditorWindow" 
             },
-            createsComponents= { "LoadECSFilesButtonPressed" },
-            excludes = { "LoadECSFilesButtonPressed" }
+            createsComponents= { "LoadingECSFiles" },
+            excludes = { "LoadingECSFiles" }
         }
     }
    

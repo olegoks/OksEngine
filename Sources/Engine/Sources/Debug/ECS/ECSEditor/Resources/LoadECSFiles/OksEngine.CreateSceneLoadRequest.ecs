@@ -7,7 +7,7 @@ system = {
             processesComponents = { 
                 "ImGuiState",
                 "ECSEditorWindow",
-                "LoadECSFilesButtonPressed"
+                "LoadingECSFiles"
             }
         },
         {

@@ -49,6 +49,7 @@ namespace RAL {
 
 		enum class IndexType : Common::UInt64 {
 			UI16,
+			UI32,
 			Undefined,
 			Size
 		};

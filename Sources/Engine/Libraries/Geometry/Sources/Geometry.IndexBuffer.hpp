@@ -3,6 +3,7 @@
 #include <vector>
 
 #include <Common.Types.hpp>
+#include <Common.StringLiterals.hpp>
 #include <Geometry.Index.hpp>
 
 namespace Geometry {
@@ -28,6 +29,10 @@ namespace Geometry {
 			}
 		}
 
+		constexpr static inline Common::Size GetIndexSize() {
+			return sizeof(IndexType);
+		}
+
 		void Add(const IndexBuffer& indices) noexcept {
 			const Common::Size beginIndicesNumber = GetIndicesNumber();
 			indices_.resize(GetIndicesNumber() + indices.GetIndicesNumber());
@@ -41,20 +46,52 @@ namespace Geometry {
 			}
 		}
 
-		void AddNextMesh(Common::Size currentVerticesNumber, const IndexType* indices, Common::Size indicesNumber) {
+		template<class SourceIndexType>
+		void AddNextMesh(Common::Size currentVerticesNumber, const SourceIndexType* indices, Common::Size indicesNumber)
+			requires(sizeof(SourceIndexType) <= sizeof(IndexType)) {
 			indices_.reserve(GetIndicesNumber() + indicesNumber);
 			indices_.resize(GetIndicesNumber() + indicesNumber);
 
-			std::memcpy(
-				indices_.data() + indices_.size() - indicesNumber, 
-				indices,
-				indicesNumber * sizeof(IndexType)
+			if constexpr (sizeof(sizeof(SourceIndexType) < sizeof(IndexType))) {
+				using namespace Common;
+				static IndexType castedIndices[50_MB];
+				for (Common::Index i = 0; i < indicesNumber; i++) {
+					castedIndices[i] = static_cast<IndexType>(indices[i]);
+				}
+				std::memcpy(
+					indices_.data() + indices_.size() - indicesNumber,
+					castedIndices,
+					indicesNumber * sizeof(IndexType)
 				);
+			}
+			else {
+				std::memcpy(
+					indices_.data() + indices_.size() - indicesNumber,
+					indices,
+					indicesNumber * sizeof(IndexType)
+				);
+			}
+			
 			for (Common::Index i = indices_.size() - indicesNumber; 
 				i < indices_.size(); i++) {
 				indices_[i] += currentVerticesNumber;
 			}
 		}
+
+		//void AddNextMesh(Common::Size currentVerticesNumber, const Common::UInt32* indices, Common::Size indicesNumber) {
+		//	indices_.reserve(GetIndicesNumber() + indicesNumber);
+		//	indices_.resize(GetIndicesNumber() + indicesNumber);
+
+		//	std::memcpy(
+		//		indices_.data() + indices_.size() - indicesNumber,
+		//		indices,
+		//		indicesNumber * sizeof(IndexType)
+		//	);
+		//	for (Common::Index i = indices_.size() - indicesNumber;
+		//		i < indices_.size(); i++) {
+		//		indices_[i] += currentVerticesNumber;
+		//	}
+		//}
 
 		[[nodiscard]]
 		Common::Size GetIndicesNumber() const noexcept { 

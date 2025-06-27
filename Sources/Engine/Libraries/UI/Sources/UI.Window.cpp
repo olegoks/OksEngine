@@ -8,8 +8,6 @@
 
 #include <imgui_impl_glfw.h>
 
-#include <implot.h>
-#include <implot_internal.h>
 
 namespace UI {
 
@@ -52,7 +50,7 @@ namespace UI {
 		io.WantCaptureMouse = true;
 		ImGui::StyleColorsDark();
 
-		ImPlot::CreateContext();
+		//ImPlot::CreateContext();
 		ImGui_ImplGlfw_InitForVulkan(createdWindow, true);
 
 

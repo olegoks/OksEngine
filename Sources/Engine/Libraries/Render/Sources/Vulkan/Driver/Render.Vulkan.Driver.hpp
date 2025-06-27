@@ -1546,16 +1546,16 @@ namespace Render::Vulkan {
 				return sizeof(Common::UInt16);
 				break;
 			}
+			case  IndexType::UI32: {
+				return sizeof(Common::UInt32);
+				break;
+			}
 			default: {
 				OS::AssertFailMessage("Unsupported index type.");
 				return 0;
 			}
 			};
 		}
-
-
-
-
 
 		//Drawing.
 	private:
