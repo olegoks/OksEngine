@@ -13,6 +13,10 @@ void LoadECSFiles::Update(
         const auto addedResources = resourceSystem1->system_->GetAddedResourcesSynch(Subsystem::Type::Debug, { ".ecs" });
 
         for (auto& ecsFilePath : addedResources) {
+
+            //if (ecsFilePath.) {
+
+            //}
             
             auto ecsFileData = resourceSystem1->system_->GetResourceSynch(
                     Subsystem::Type::Debug,

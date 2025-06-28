@@ -10,7 +10,10 @@ void LoadSceneFile::Update(
     ECS2::Entity::Id entity1id, 
     ResourceSystem* resourceSystem1) {
     
-    auto sceneFileData = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/" + loadSceneRequest0->sceneName_);
+    auto sceneFileData = 
+        resourceSystem1->system_->GetResourceSynch(
+            Subsystem::Type::Engine,
+            "Root/" + loadSceneRequest0->sceneName_);
 
     CreateComponent<LuaScript>(entity0id,
         std::string{ 
