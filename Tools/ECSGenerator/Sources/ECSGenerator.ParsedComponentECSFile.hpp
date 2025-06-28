@@ -86,9 +86,12 @@ namespace ECSGenerator {
 	};
 
 
-	inline std::shared_ptr<ParsedComponentECSFile> ParseComponentEcsFile(const std::filesystem::path& path, ::Lua::Context& context) {
+	inline std::shared_ptr<ParsedComponentECSFile> ParseComponentEcsFile(
+		const std::filesystem::path& path, 
+		::Lua::Context& context, 
+		const std::string& componentTableName) {
 
-		luabridge::LuaRef component = context.GetGlobalAsRef("component");
+		luabridge::LuaRef component = context.GetGlobalAsRef((componentTableName == "") ? ("component") : (componentTableName));
 
 		bool serializable = true;
 		luabridge::LuaRef serializableRef = component["serializable"];
@@ -114,8 +117,16 @@ namespace ECSGenerator {
 				parsedFields.push_back(fieldInfo);
 			}
 		}
+		std::string name;
+		if (componentTableName == "") {
+			name = component["name"].cast<std::string>().value();
+		}
+		else {
+			auto itComponentBegin = componentTableName.find(std::string{ "Component" });
+			name = componentTableName.substr(0, itComponentBegin);
+		}
 		ParsedComponentECSFile::CreateInfo ci{
-			.name_ = component["name"].cast<std::string>().value(),
+			.name_ = name,
 			.path_ = path,
 			.serializable_ = serializable,
 			.fields_ = parsedFields

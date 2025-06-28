@@ -7,21 +7,63 @@
 
 namespace ECSGenerator {
 
-	std::shared_ptr<ParsedECSFile> ParseEcsFile(std::filesystem::path path, Resources::ResourceData& ecsFileData) {
+	std::vector<std::shared_ptr<ParsedECSFile>> ParseEcsFile(std::filesystem::path path, Resources::ResourceData& ecsFileData) {
 
+		std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles;
 		::Lua::Script script{ std::string{ ecsFileData.GetData<Common::Byte>(), ecsFileData.GetSize()} };
 
 		::Lua::Context context;
 		context.LoadScript(script);
 		if (!context.GetGlobalAsRef("component").isNil()) {
-			auto parsedComponentEcsFile = ParseComponentEcsFile(path, context);
-			return parsedComponentEcsFile;
+			auto parsedComponentEcsFile = ParseComponentEcsFile(path, context, "");
+			ecsFiles.push_back(parsedComponentEcsFile);
 		}
 
 		if (!context.GetGlobalAsRef("system").isNil()) {
-			auto parsedSystemEcsFile = ECSGenerator::ParseSystemEcsFile(path, context);
-			return parsedSystemEcsFile;
+			auto parsedSystemEcsFile = ECSGenerator::ParseSystemEcsFile(path, context, "");
+			ecsFiles.push_back(parsedSystemEcsFile);
 		}
+
+
+		// Получение глобального пространства
+		luabridge::LuaRef global = luabridge::getGlobal(context.state_, "_G");
+
+		// Сбор всех глобальных таблиц
+		std::vector<std::string> tableNames;
+		for (auto it = luabridge::pairs(global).begin(); !it.isNil(); ++it) {
+			luabridge::LuaRef key = it.key();
+			luabridge::LuaRef value = it.value();
+
+			if (value.isTable() && key.isString()) {
+				tableNames.push_back(key.tostring());
+			}
+		}
+
+		std::vector<std::string> systems;
+		std::vector<std::string> components;
+
+		for (const std::string& globalName : tableNames) {
+			if (globalName.ends_with("Component")) {
+				components.push_back(globalName);
+			}
+			if (globalName.ends_with("System")) {
+				systems.push_back(globalName);
+			}
+		}
+
+		for (auto& systemTableName : systems){
+			auto parsedSystemEcsFile = ECSGenerator::ParseSystemEcsFile(path, context, systemTableName);
+			ecsFiles.push_back(parsedSystemEcsFile);
+			//ECSGenerator::ParseECSFileTest(path, context);
+		}
+
+		for (auto& componentTableName : components) {
+			auto parsedComponentEcsFile = ECSGenerator::ParseComponentEcsFile(path, context, componentTableName);
+			ecsFiles.push_back(parsedComponentEcsFile);
+			//ECSGenerator::ParseECSFileTest(path, context);
+		}
+
+		return ecsFiles;
 	}
 }
 
@@ -121,9 +163,12 @@ int main(int argc, char** argv) {
 
 	for (const ECSFileInfo& ecsFileInfo : ecsFileInfos) {
 		Resources::ResourceData resourceData = resourceSystem.GetResourceData(ecsFileInfo.resourceSystemPath_);
-		auto ecsFile = ECSGenerator::ParseEcsFile(ecsFileInfo.filesystemPath_, resourceData);
-		if (ecsFile != nullptr) {
-			projectContext->AddEcsFile(ecsFile);
+		auto ecsFiles = ECSGenerator::ParseEcsFile(ecsFileInfo.filesystemPath_, resourceData);
+		if (!ecsFiles.empty()) {
+			for (auto ecsFile : ecsFiles) {
+				projectContext->AddEcsFile(ecsFile);
+			}
+			
 		}
 	}
 

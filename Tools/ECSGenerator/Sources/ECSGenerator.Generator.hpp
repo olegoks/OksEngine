@@ -1045,12 +1045,10 @@ namespace ECSGenerator {
 
 					auto ecsFile = projectContext->GetEcsFileByName(systemName.first);
 					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
-					if (systemName.first == "EndDrawingMainMenuBarECSItem") {
-						currentSystemNodeId = currentSystemNodeId;
-					}
+
 					systemEcsFile->ForEachRunAfterSystem([&](const std::string& afterSystem) {
 #pragma region Assert 
-						OS::AssertMessage(thread.systems_.contains(afterSystem), "");
+						OS::AssertMessage(thread.systems_.contains(afterSystem), "Current thread doesn't contain After System:" + afterSystem);
 #pragma endregion		
 						DS::Graph<System>::Node::Id afterSystemNodeId = getCreateSystemNode(thread.callGraph_, afterSystem);
 						thread.callGraph_.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
@@ -1059,7 +1057,7 @@ namespace ECSGenerator {
 
 					systemEcsFile->ForEachRunBeforeSystem([&](const std::string& beforeSystem) {
 #pragma region Assert 
-						OS::AssertMessage(thread.systems_.contains(beforeSystem), "");
+						OS::AssertMessage(thread.systems_.contains(beforeSystem), "Current thread doesn't contain Before System:" + beforeSystem);
 #pragma endregion		
 						DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, beforeSystem);
 						thread.callGraph_.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);

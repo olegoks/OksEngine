@@ -1,0 +1,26 @@
+EnginePerformanceComponent = { }
+
+BeginEnginePerformanceWindowSystem = {
+    runAfter = "StartImGuiFrame",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState"
+            }
+        }
+    }
+
+}
+
+EndEnginePerformanceWindowSystem = {
+    runAfter = "BeginEnginePerformanceWindow",
+    runBefore = "EndImGuiFrame",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState"
+            }
+        }
+    }
+
+}

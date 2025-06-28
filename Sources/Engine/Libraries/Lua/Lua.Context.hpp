@@ -183,7 +183,7 @@ namespace Lua {
 			}
 		}
 
-	private:
+	//private:
 		lua_State* state_ = nullptr;
 	};
 
