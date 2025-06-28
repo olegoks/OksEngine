@@ -9,9 +9,10 @@ namespace OksEngine {
 		ECS2::Entity::Id entity1id, const CallGraphNode* callGraphNode1,
 		const Name* name1, const RunAfter* runAfter1,
 		const RunBefore* runBefore1, const BeforePin* beforePin1,
-		const AfterPin* afterPin1, ECS2::Entity::Id entity2id,
-		const CallGraphNode* callGraphNode2, const Name* name2,
-		const RunAfter* runAfter2, const RunBefore* runBefore2,
+		const AfterPin* afterPin1, 
+		
+		ECS2::Entity::Id entity2id, const CallGraphNode* callGraphNode2,
+		const Name* name2, const RunAfter* runAfter2, const RunBefore* runBefore2,
 		const BeforePin* beforePin2, const AfterPin* afterPin2) {
 
 

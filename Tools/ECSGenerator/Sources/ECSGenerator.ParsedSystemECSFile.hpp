@@ -569,8 +569,7 @@ namespace ECSGenerator {
 	};
 
 
-	ParsedSystemECSFile::Thread GetThread(::Lua::Context& context) {
-		luabridge::LuaRef system = context.GetGlobalAsRef("system");
+	ParsedSystemECSFile::Thread GetThread(luabridge::LuaRef system) {
 		auto thread = ParsedSystemECSFile::Thread::Child;
 		//Nain thread call.
 		if (
@@ -586,9 +585,7 @@ namespace ECSGenerator {
 		return thread;
 	}
 
-	ParsedSystemECSFile::SystemType GetSystemType(::Lua::Context& context) {
-
-		luabridge::LuaRef system = context.GetGlobalAsRef("system");
+	ParsedSystemECSFile::SystemType GetSystemType(luabridge::LuaRef system) {
 
 		luabridge::LuaRef createsEntities = system["createsEntities"];
 		luabridge::LuaRef createsComponents = system["createsComponents"];
@@ -607,7 +604,7 @@ namespace ECSGenerator {
 		}
 		else if (!processesEntities.isNil()) {
 			if (processesEntities.isTable()) {
-				int length = context.GetLength(processesEntities);
+				int length = processesEntities.length();
 
 				if (length == 1) {
 					systemType = ParsedSystemECSFile::SystemType::OneEntity;
@@ -622,7 +619,9 @@ namespace ECSGenerator {
 		return systemType;
 	}
 
-	std::shared_ptr<ParsedSystemECSFile> ParseSystemEcsFile(const std::filesystem::path& ecsFilePath, ::Lua::Context& context) {
+
+	std::shared_ptr<ParsedSystemECSFile> ParseSystemEcsFile(const std::filesystem::path& ecsFilePath, ::Lua::Context& context,
+		const std::string& systemTableName /*Example: "EndEnginePerformanceWindowSystem"*/) {
 
 		auto parseAfterUpdateMethod = [](luabridge::LuaRef systemRef) {
 
@@ -860,17 +859,13 @@ namespace ECSGenerator {
 			return randomAccessComponents;
 			};
 
-		luabridge::LuaRef system = context.GetGlobalAsRef("system");
+		luabridge::LuaRef system = context.GetGlobalAsRef((systemTableName == "") ? ("system") : (systemTableName));
 
 		if (system["disable"].cast<bool>().value()) {
 			return nullptr;
 		}
 
-		ParsedSystemECSFile::SystemType systemType = GetSystemType(context);
-
-		if (system["name"].cast<std::string>().value() == "FindScenes") {
-			//__debugbreak();
-		}
+		ParsedSystemECSFile::SystemType systemType = GetSystemType(system);
 
 		std::vector<ParsedSystemECSFile::RequestEntity> requestEntities;
 
@@ -878,9 +873,6 @@ namespace ECSGenerator {
 		auto parsedIncludes = parseProcessesComponents(system);
 		auto parsedExcludes = parseExcludes(system);
 
-		if (system["name"].cast<std::string>().value() == "CreateSceneEntities") {
-			systemType = systemType;
-		}
 		auto parsedCreatesComponents = parseCreatesComponents(system);
 		auto parsedRemovesComponents = parseRemovesComponents(system);
 		bool randomAccessComponents = parseRandomAccessComponents(system);
@@ -919,14 +911,21 @@ namespace ECSGenerator {
 		auto createsEntities = parseCreatesEntities(system);
 		auto accessesEntities = parseAccessesEntities(system);
 
+		std::string name;
+		if (systemTableName == "") {
+			name = system["name"].cast<std::string>().value();
+		} else {
+			auto itSystemBegin = systemTableName.find(std::string{ "System" });
+			name = systemTableName.substr(0, itSystemBegin);
+		}
 		ParsedSystemECSFile::CreateInfo ci{
-			.name_ = system["name"].cast<std::string>().value(),
+			.name_ = name,
 			.path_ = ecsFilePath,
 			.processesEntities_ = requestEntities,
 			.createsEntities_ = createsEntities,
 			.accessesEntities_ = accessesEntities,
 			.afterUpdateMethod_ = parseAfterUpdateMethod(system),
-			.thread_ = GetThread(context),
+			.thread_ = GetThread(system),
 			.type_ = systemType,
 			.runAfter_ = runAfterSystems,
 			.runBefore_ = runBeforeSystems
@@ -948,7 +947,6 @@ namespace ECSGenerator {
 		std::pair<
 			std::filesystem::path,
 			std::shared_ptr<File>> GenerateSystemRealization(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
-
 			auto generateIncludes = [](std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 				File::Includes includes{ };
 

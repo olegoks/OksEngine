@@ -2,6 +2,6 @@ component = {
     name = "SaveSceneRequest",
     fields = { 
         { type = "ECS2::ComponentsFilter", name = "componentsFilter" },
-        ( type = "std::string", name = "sceneName" )
+        { type = "std::string", name = "sceneName" }
     }
 }
