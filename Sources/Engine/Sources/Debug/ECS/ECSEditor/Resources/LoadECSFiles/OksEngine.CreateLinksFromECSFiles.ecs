@@ -2,16 +2,14 @@ system = {
     name = "CreateLinksFromECSFiles",
     runAfter = "LoadECSFiles",
     runBefore = "GraphEditorEnd",
+    afterUpdateMethod = true,
     processesEntities = {
         {
             processesComponents = {
                 "ImGuiState",
                 "EditorContext",
                 "ECSEditorWindow",
-                "LoadingECSFiles"
-            },
-            removesComponents = {
-                "LoadingECSFiles"
+                "CreateLinksRequest"
             }
         },
         {

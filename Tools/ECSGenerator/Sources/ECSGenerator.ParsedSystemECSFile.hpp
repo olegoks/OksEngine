@@ -191,6 +191,7 @@ namespace ECSGenerator {
 			// Excludes must be empty.
 			std::vector<RandomAccessEntity> accessesEntities_;
 
+			bool afterUpdateMethod_ = false;
 			Thread thread_ = Thread::Undefined;
 			SystemType type_ = SystemType::Undefined;
 			std::vector<std::string> runAfter_;
@@ -621,11 +622,17 @@ namespace ECSGenerator {
 		return systemType;
 	}
 
-
-
-
 	std::shared_ptr<ParsedSystemECSFile> ParseSystemEcsFile(const std::filesystem::path& ecsFilePath, ::Lua::Context& context) {
 
+		auto parseAfterUpdateMethod = [](luabridge::LuaRef systemRef) {
+
+			luabridge::LuaRef afterUpdateMethodRef = systemRef["afterUpdateMethod"];
+			if (!afterUpdateMethodRef.isNil()) {
+				return afterUpdateMethodRef.cast<bool>().value();
+			}
+			return false;
+
+			};
 		auto parseProcessesComponents = [](luabridge::LuaRef entityOrSystemRef) {
 
 			luabridge::LuaRef entityIncludes = entityOrSystemRef["processesComponents"];
@@ -918,6 +925,7 @@ namespace ECSGenerator {
 			.processesEntities_ = requestEntities,
 			.createsEntities_ = createsEntities,
 			.accessesEntities_ = accessesEntities,
+			.afterUpdateMethod_ = parseAfterUpdateMethod(system),
 			.thread_ = GetThread(context),
 			.type_ = systemType,
 			.runAfter_ = runAfterSystems,
@@ -927,8 +935,6 @@ namespace ECSGenerator {
 		auto parsedSystemFile = std::make_shared<ParsedSystemECSFile>(ci);
 		return parsedSystemFile;
 	}
-
-
 
 	class SystemFileStructureGenerator {
 	public:
@@ -943,70 +949,133 @@ namespace ECSGenerator {
 			std::filesystem::path,
 			std::shared_ptr<File>> GenerateSystemRealization(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
-
-			File::Includes includes{ };
-
-
-			const std::string systemName = systemEcsFile->GetName();
-			std::filesystem::path systemsIncludesFilePath;
-			std::filesystem::path systemFullPath = systemEcsFile->GetPath();
-			systemsIncludesFilePath = systemFullPath.parent_path();
-			std::filesystem::path systemIncludePath = GetSubPath(
-				systemFullPath.parent_path(),
-				projectContext->includeDirectory_,
-				ResultRange::FromStartFolderToEnd,
-				SearchDirection::FromEndToBegin,
-				true);
-
-			systemIncludePath /= ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp");
-			includes.paths_.insert(systemIncludePath);
+			auto generateIncludes = [](std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
+				File::Includes includes{ };
 
 
+				const std::string systemName = systemEcsFile->GetName();
+				std::filesystem::path systemsIncludesFilePath;
+				std::filesystem::path systemFullPath = systemEcsFile->GetPath();
+				systemsIncludesFilePath = systemFullPath.parent_path();
+				std::filesystem::path systemIncludePath = GetSubPath(
+					systemFullPath.parent_path(),
+					projectContext->includeDirectory_,
+					ResultRange::FromStartFolderToEnd,
+					SearchDirection::FromEndToBegin,
+					true);
+
+				systemIncludePath /= ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp");
+				includes.paths_.insert(systemIncludePath);
+
+				return includes;
+				};
+
+			const File::Includes includes = generateIncludes(projectContext, systemEcsFile);
+			
 			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
 			{
 				using namespace std::string_literals;
-				//Update method.
-				std::vector<Function::Parameter> updateMethodParameters;
 
+				auto generateUpdateMethod = [](std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
+					
+					auto generateUpdateMethodParameters =
+						[](
+							std::shared_ptr<ProjectContext> projectContext,
+							std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
-				////If system  process all entities need only one paramter Entity::Id
-				//if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
-				//	updateMethodParameters.push_back({ "ECS2::Entity::Id", "entityId" });
-				//}
+								std::vector<Function::Parameter> updateMethodParameters;
 
+								Common::UInt64 currentEntityIndex = 0;
+								systemEcsFile->ForEachRequestEntity([&](const ParsedSystemECSFile::RequestEntity& entity, bool isLast) {
 
-				//TODO: process more than 2 entities.
-				for (Common::Index i = 0; i < systemEcsFile->ci_.processesEntities_.size(); i++) {
+									updateMethodParameters.push_back({
+										"ECS2::Entity::Id",
+										std::format("entity{}id", currentEntityIndex) });
 
-					std::string entityIdString = "";
-					if (systemEcsFile->ci_.processesEntities_.size() == 2) {
-						entityIdString = (i == 0) ? ("1") : ("2");
-					}
+									entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+										Function::Parameter parameter;
+										if (include.IsReadonly()) {
+											parameter.inputType_ = std::format("const {}*", include.GetName());
+										}
+										else {
+											parameter.inputType_ = std::format("{}*", include.GetName());
+										}
 
-					updateMethodParameters.push_back({ "ECS2::Entity::Id", "entity"s + entityIdString + "Id" });
-					const ParsedSystemECSFile::RequestEntity& entity = systemEcsFile->ci_.processesEntities_[i];
-					entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
-						std::string lowerIncludeName = std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1);
-						updateMethodParameters.push_back({
-							((include.readonly_) ? ("const ") : ("")) + include.name_ + "*",
-							lowerIncludeName });
+										parameter.valueName_ = std::format("{}{}", include.GetLowerName(), currentEntityIndex);
+										updateMethodParameters.push_back(parameter);
+										return true;
+										});
 
-						return true;
-						});
+									++currentEntityIndex;
+									return true;
+									});
+
+								return updateMethodParameters;
+
+						};
+					
+					//Update method.
+					const std::vector<Function::Parameter> updateMethodParameters
+						= generateUpdateMethodParameters(projectContext, systemEcsFile);
+
+					////TODO: process more than 2 entities.
+					//for (Common::Index i = 0; i < systemEcsFile->ci_.processesEntities_.size(); i++) {
+
+					//	std::string entityIdString = "";
+					//	if (systemEcsFile->ci_.processesEntities_.size() == 2) {
+					//		entityIdString = (i == 0) ? ("1") : ("2");
+					//	}
+
+					//	updateMethodParameters.push_back({ "ECS2::Entity::Id", "entity"s + entityIdString + "Id" });
+					//	const ParsedSystemECSFile::RequestEntity& entity = systemEcsFile->ci_.processesEntities_[i];
+					//	entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
+					//		std::string lowerIncludeName = std::string{ (char)std::tolower(include.name_[0]) } + include.name_.substr(1);
+					//		updateMethodParameters.push_back({
+					//			((include.readonly_) ? ("const ") : ("")) + include.name_ + "*",
+					//			lowerIncludeName });
+
+					//		return true;
+					//		});
+					//}
+
+					Function::CreateInfo updateMethodCI{
+						.name_ = systemEcsFile->GetName() + "::Update",
+						.parameters_ = updateMethodParameters,
+						.returnType_ = "void",
+						.code_ = "",
+						.isPrototype_ = false,
+						.inlineModifier_ = false
+					};
+
+					auto updateMethod = std::make_shared<Function>(updateMethodCI);
+
+					return updateMethod;
+					};
+
+				namespaceObject->Add(generateUpdateMethod(projectContext, systemEcsFile));
+
+				auto generateAfterUpdateMethod = [](
+					std::shared_ptr<ProjectContext> projectContext,
+					std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
+
+						Function::CreateInfo afterUpdateMethodCI{
+							.name_ = systemEcsFile->GetName() + "::AfterUpdate",
+							.parameters_ = { },
+							.returnType_ = "void",
+							.code_ = "",
+							.isPrototype_ = false,
+							.inlineModifier_ = false
+						};
+
+						auto afterUpdateMethod = std::make_shared<Function>(afterUpdateMethodCI);
+
+						return afterUpdateMethod;
+
+					};
+
+				if (systemEcsFile->ci_.afterUpdateMethod_) {
+					namespaceObject->Add(generateAfterUpdateMethod(projectContext, systemEcsFile));
 				}
-
-				Function::CreateInfo updateMethodCI{
-					.name_ = systemEcsFile->GetName() + "::Update",
-					.parameters_ = updateMethodParameters,
-					.returnType_ = "void",
-					.code_ = "",
-					.isPrototype_ = false,
-					.inlineModifier_ = false
-				};
-
-				auto updateMethod = std::make_shared<Function>(updateMethodCI);
-
-				namespaceObject->Add(updateMethod);
 			}
 
 			File::CreateInfo fci{
@@ -1030,7 +1099,7 @@ namespace ECSGenerator {
 			std::shared_ptr<File>> GenerateECSCXXFilesStructure(
 				std::shared_ptr<ProjectContext> projectContext,
 				std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
-
+			{
 			// // ������� CompilerInstance
 			// clang::CompilerInstance CI;
 			// CI.createDiagnostics();
@@ -1157,7 +1226,7 @@ namespace ECSGenerator {
 
 			// // ������� ��������������� ���
 			// R.getEditBuffer(CI.getSourceManager().getMainFileID()).write(llvm::outs());
-
+			}
 			auto generateIncludes = [](
 				std::shared_ptr<ProjectContext> projectContext,
 				std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
@@ -1271,7 +1340,6 @@ namespace ECSGenerator {
 					return includes;
 
 				};
-
 			auto generateGetComponentsFilter = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				//CreateEntity method.
@@ -1288,7 +1356,22 @@ namespace ECSGenerator {
 
 				return getEntityComponentsFilterMethod;
 				};
+			auto generateAfterUpdateMethodPrototype = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
+				Function::CreateInfo updateMethodCI{
+					.name_ = "AfterUpdate",
+					.parameters_ = { },
+					.returnType_ = "void",
+					.code_ = "",
+					.isPrototype_ = true,
+					.inlineModifier_ = false
+				};
+
+				auto updateMethod = std::make_shared<Function>(updateMethodCI);
+
+				return updateMethod;
+
+				};
 			auto generateUpdateMethodPrototype = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				using namespace std::string_literals;
@@ -1371,7 +1454,6 @@ namespace ECSGenerator {
 				return updateMethod;
 
 				};
-
 			auto generateCreateDynamicEntityRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				//CreateEntity method.
@@ -1388,7 +1470,6 @@ namespace ECSGenerator {
 
 				return createDynamicEntityMethod;
 				};
-
 			auto generateDestroyEntityRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				//CreateEntity method.
@@ -1405,7 +1486,6 @@ namespace ECSGenerator {
 
 				return createDynamicEntityMethod;
 				};
-
 			auto generateCreateArchetypeEntityRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 
@@ -1424,7 +1504,6 @@ namespace ECSGenerator {
 
 				return createArchetypeEntityMethod;
 				};
-
 			auto generateGetComponentMethodRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				Code getComponentCode;
@@ -1462,7 +1541,6 @@ namespace ECSGenerator {
 
 				return getComponentMethod;
 				};
-
 			auto generateCreateComponentMethodRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				//CreateComponent method.
@@ -1480,7 +1558,6 @@ namespace ECSGenerator {
 
 				return createComponentMethod;
 				};
-
 			auto generateRemoveComponentMethodRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				//CreateComponent method.
@@ -1498,7 +1575,6 @@ namespace ECSGenerator {
 
 				return removeComponentMethod;
 				};
-
 			auto generateIsComponentExistMethodRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				//IsComponentExist method.
@@ -1516,7 +1592,6 @@ namespace ECSGenerator {
 
 				return isComponentExistMethod;
 				};
-
 			auto generateIsEntityExistMethodRealization = [](std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 
 				//IsEntityExist method.
@@ -1552,30 +1627,35 @@ namespace ECSGenerator {
 				return isEntityExistMethod;
 				};
 
-
 			File::Includes includes = generateIncludes(projectContext, systemEcsFile);
 
 			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
 
 			//namespaceObject->Add(generateUpdateMethodPrototype(systemEcsFile));
 
+			std::vector<std::shared_ptr<Function>> methods{
+				generateUpdateMethodPrototype(systemEcsFile),
+				generateCreateComponentMethodRealization(systemEcsFile),
+				generateGetComponentsFilter(systemEcsFile),
+				generateRemoveComponentMethodRealization(systemEcsFile),
+				generateGetComponentMethodRealization(systemEcsFile),
+				generateIsComponentExistMethodRealization(systemEcsFile),
+				generateCreateDynamicEntityRealization(systemEcsFile),
+				generateDestroyEntityRealization(systemEcsFile),
+				generateCreateArchetypeEntityRealization(systemEcsFile),
+				generateIsEntityExistMethodRealization(systemEcsFile),
+				generateIsEntityExist2MethodRealization(systemEcsFile)
+			};
+
+			if (systemEcsFile->ci_.afterUpdateMethod_) { 
+				methods.insert(methods.begin() + 1, generateAfterUpdateMethodPrototype(systemEcsFile));
+			}
+
 			Struct::CreateInfo sci{
 				.name_ = systemEcsFile->GetName(),
 				.parent_ = "",
 				.fields_ = { { "std::shared_ptr<ECS2::World>", "world" } },
-				.methods_ = {
-					generateUpdateMethodPrototype(systemEcsFile),
-					generateCreateComponentMethodRealization(systemEcsFile),
-					generateGetComponentsFilter(systemEcsFile),
-					generateRemoveComponentMethodRealization(systemEcsFile),
-					generateGetComponentMethodRealization(systemEcsFile),
-					generateIsComponentExistMethodRealization(systemEcsFile),
-					generateCreateDynamicEntityRealization(systemEcsFile),
-					generateDestroyEntityRealization(systemEcsFile),
-					generateCreateArchetypeEntityRealization(systemEcsFile),
-					generateIsEntityExistMethodRealization(systemEcsFile),
-					generateIsEntityExist2MethodRealization(systemEcsFile)
-				}
+				.methods_ = methods
 			};
 			auto structObject = std::make_shared<Struct>(sci);
 
@@ -1708,6 +1788,10 @@ namespace ECSGenerator {
 					//}
 				}
 
+				if (systemEcsFile->ci_.afterUpdateMethod_) {
+					realization.Add(std::format("{}.AfterUpdate();", systemEcsFile->GetLowerName()));
+				}
+
 				return realization;
 				};
 
@@ -1715,25 +1799,9 @@ namespace ECSGenerator {
 			parameters.push_back({ "std::shared_ptr<ECS2::World>", "world" });
 
 			Code realization;
-			if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::OneEntity ||
-				systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::OneMoreEntities) {
-				realization.Add(generateRunSystemCode(systemEcsFile));
+			
+			realization.Add(generateRunSystemCode(systemEcsFile));
 
-			}
-			else if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
-
-				//realization.Add(std::format(
-				//	"{} {}{{ world }};",
-				//	systemEcsFile->GetName(),
-				//	systemEcsFile->GetLowerName()
-				//));
-				//realization.Add(std::format(
-				//	"{}.Update();",
-				//	systemEcsFile->GetLowerName()
-				//));
-
-				realization.Add(generateRunSystemCode(systemEcsFile));
-			}
 
 			Function::CreateInfo funcci{
 				.name_ = systemEcsFile->GetName() + "System",
