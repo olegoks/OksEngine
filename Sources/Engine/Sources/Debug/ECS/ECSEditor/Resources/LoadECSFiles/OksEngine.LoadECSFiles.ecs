@@ -9,6 +9,9 @@ system = {
                 "ECSEditorWindow",
                 "EditorContext",
                 "LoadingECSFiles"
+            },
+            createsComponents = {
+                "CreateLinksRequest"
             }
         },
         {

@@ -107,7 +107,6 @@ namespace ECSGenerator {
 
 			}
 
-
 			bool IsSystemAdded(System system) {
 				for (Common::Index i = 0; i < order_.size(); i++) {
 					const System& currentSystem = order_[i];

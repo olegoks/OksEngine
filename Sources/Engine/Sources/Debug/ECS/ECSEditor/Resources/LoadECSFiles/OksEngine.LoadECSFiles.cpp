@@ -29,6 +29,9 @@ void LoadECSFiles::Update(
             if (system.isNil()) {
                 continue;
             }
+            if (system["runAfter"].isNil() && system["runBefore"].isNil()) {
+                continue;
+            }
 
             //Create node entity.
             const  ECS2::Entity::Id systemEntityId
@@ -113,7 +116,7 @@ void LoadECSFiles::Update(
 
         }
 
-
-
+        RemoveComponent<LoadingECSFiles>(entity0id);
+        CreateComponent<CreateLinksRequest>(entity0id);
     };
 }

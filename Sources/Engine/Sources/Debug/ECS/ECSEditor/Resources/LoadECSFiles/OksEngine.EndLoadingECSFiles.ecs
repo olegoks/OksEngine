@@ -1,0 +1,19 @@
+system = {
+    name = "EndLoadingECSFiles",
+    runAfter = "CreateLinksFromECSFiles",
+    runBefore = "GraphEditorEnd",
+    processesEntities = {
+        {
+            processesComponents = {
+                "ImGuiState",
+                "ECSEditorWindow",
+                "EditorContext",
+                "CreateLinksRequest"
+            },
+            removesComponents = {
+                "LoadingECSFiles",
+                "CreateLinksRequest"
+            }
+        }
+    }
+}
