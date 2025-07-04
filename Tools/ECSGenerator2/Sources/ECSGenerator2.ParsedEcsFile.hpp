@@ -18,20 +18,24 @@ namespace ECSGenerator2 {
 		ParsedECSFile(const CreateInfo& ci) :
 			ci_{ ci } {  }
 
-		[[nodiscard]]
-		inline const std::filesystem::path GetPath() const noexcept {
-			return ci_.path_;
+		using ProcessSystem = std::function<void(std::shared_ptr<ParsedSystem>)>;
+
+		void ForEachSystem(ProcessSystem&& processSystem) {
+			for (Common::Index i = 0; i < ci_.systems_.size(); i++) {
+				std::shared_ptr<ParsedSystem> system = ci_.systems_[i];
+				processSystem(system);
+			}
 		}
 
 		[[nodiscard]]
-		std::string GetName() const noexcept {
-
-			return ci_.path_.filename().stem().string().substr();
+		const std::filesystem::path GetPath() const noexcept {
+			return ci_.path_;
 		}
 
 	private:
 
 		CreateInfo ci_;
 	};
+
 
 }

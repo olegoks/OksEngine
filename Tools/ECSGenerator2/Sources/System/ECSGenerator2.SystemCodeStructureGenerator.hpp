@@ -11,7 +11,7 @@ namespace ECSGenerator2 {
 	public:
 
 		struct CreateInfo {
-			std::string includeDirectory_;
+			std::filesystem::path includeDirectory_;
 		};
 
 		SystemStructureGenerator(const CreateInfo& createInfo) : ci_{ createInfo } {}
@@ -126,7 +126,6 @@ namespace ECSGenerator2 {
 			File::Includes includes{ };
 
 
-			const std::string systemName = systemName;
 			std::filesystem::path systemsIncludesFilePath;
 			std::filesystem::path systemFullPath = systemEcsFilePath;
 			systemsIncludesFilePath = systemFullPath.parent_path();
@@ -147,58 +146,58 @@ namespace ECSGenerator2 {
 
 		std::pair<
 			std::filesystem::path,
-			std::shared_ptr<File>> GenerateUpdateMethodRealization(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedSystem> systemEcsFile) {
+			std::shared_ptr<File>> GenerateUpdateMethodRealization(std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 
-			//const File::Includes includes = GenerateUpdateMethodIncludes(
-			//	projectContext->includeDirectory_,
-			//	systemEcsFile->GetName(),
-			//	systemEcsFile->GetEcsFilePath());
+			////const File::Includes includes = GenerateUpdateMethodIncludes(
+			////	projectContext->includeDirectory_,
+			////	systemEcsFile->GetName(),
+			////	systemEcsFile->GetEcsFilePath());
 
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
-			{
-				using namespace std::string_literals;
+			//auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			//{
+			//	using namespace std::string_literals;
 
 
 
-				namespaceObject->Add(GenerateUpdateMethodRealization(projectContext, systemEcsFile));
+			//	namespaceObject->Add(GenerateUpdateMethodRealization(systemEcsFile));
 
-				//auto generateAfterUpdateMethod = [](
-				//	std::shared_ptr<ProjectContext> projectContext,
-				//	std::shared_ptr<ParsedSystem> systemEcsFile) {
+			//	//auto generateAfterUpdateMethod = [](
+			//	//	std::shared_ptr<ProjectContext> projectContext,
+			//	//	std::shared_ptr<ParsedSystem> systemEcsFile) {
 
-				//		Function::CreateInfo afterUpdateMethodCI{
-				//			.name_ = systemEcsFile->GetName() + "::AfterUpdate",
-				//			.parameters_ = { },
-				//			.returnType_ = "void",
-				//			.code_ = "",
-				//			.isPrototype_ = false,
-				//			.inlineModifier_ = false
-				//		};
+			//	//		Function::CreateInfo afterUpdateMethodCI{
+			//	//			.name_ = systemEcsFile->GetName() + "::AfterUpdate",
+			//	//			.parameters_ = { },
+			//	//			.returnType_ = "void",
+			//	//			.code_ = "",
+			//	//			.isPrototype_ = false,
+			//	//			.inlineModifier_ = false
+			//	//		};
 
-				//		auto afterUpdateMethod = std::make_shared<Function>(afterUpdateMethodCI);
+			//	//		auto afterUpdateMethod = std::make_shared<Function>(afterUpdateMethodCI);
 
-				//		return afterUpdateMethod;
+			//	//		return afterUpdateMethod;
 
-				//	};
+			//	//	};
 
-				if (systemEcsFile->ci_.afterUpdateMethod_) {
-					namespaceObject->Add(generateAfterUpdateMethod(projectContext, systemEcsFile));
-				}
-			}
+			//	if (systemEcsFile->ci_.afterUpdateMethod_) {
+			//		namespaceObject->Add(generateAfterUpdateMethod(systemEcsFile));
+			//	}
+			//}
 
-			File::CreateInfo fci{
-				.isHpp_ = false,
-				.includes_ = includes,
-				.base_ = namespaceObject
-			};
-			auto file = std::make_shared<File>(fci);
+			//File::CreateInfo fci{
+			//	.isHpp_ = false,
+			//	.includes_ = includes,
+			//	.base_ = namespaceObject
+			//};
+			//auto file = std::make_shared<File>(fci);
 
-			std::filesystem::path componentHppFileFullPath
-				= systemEcsFile->GetEcsFilePath().parent_path() / ("OksEngine." + systemEcsFile->GetName() + ".cpp");
-			std::string componentHppFileFullPathString = componentHppFileFullPath.string();
-			std::replace(componentHppFileFullPathString.begin(), componentHppFileFullPathString.end(), '\\', '/');
-			return { std::filesystem::path{ componentHppFileFullPathString }, file };
+			//std::filesystem::path componentHppFileFullPath
+			//	= systemEcsFile->GetEcsFilePath().parent_path() / ("OksEngine." + systemEcsFile->GetName() + ".cpp");
+			//std::string componentHppFileFullPathString = componentHppFileFullPath.string();
+			//std::replace(componentHppFileFullPathString.begin(), componentHppFileFullPathString.end(), '\\', '/');
+			//return { std::filesystem::path{ componentHppFileFullPathString }, file };
 
 		}
 
@@ -231,6 +230,7 @@ namespace ECSGenerator2 {
 				return true;
 				});
 
+			return updateMethodParameters;
 		}
 
 		std::shared_ptr<Struct> GenerateSystemStructCode(std::shared_ptr<ParsedSystem> system) {
@@ -481,6 +481,8 @@ namespace ECSGenerator2 {
 				.methods_ = methods
 			};
 			auto structObject = std::make_shared<Struct>(sci);
+
+			return structObject;
 		}
 
 		std::shared_ptr<Function> GenerateRunSystemCodeRealization(std::shared_ptr<ParsedSystem> system) {
@@ -624,45 +626,45 @@ namespace ECSGenerator2 {
 
 		}
 
-		std::pair<
-			std::filesystem::path,
-			std::shared_ptr<File>> GenerateECSCXXFilesStructure(
-				std::shared_ptr<ProjectContext> projectContext,
-				std::shared_ptr<ParsedSystem> systemEcsFile) {
-					{
+		//std::pair<
+		//	std::filesystem::path,
+		//	std::shared_ptr<File>> GenerateECSCXXFilesStructure(
+		//		std::shared_ptr<ProjectContext> projectContext,
+		//		std::shared_ptr<ParsedSystem> systemEcsFile) {
+		//			{
 
 
-						namespaceObject->Add(structObject);
-
-
-
-
-
-						Code realization;
-
-						realization.Add(generateRunSystemCode(systemEcsFile));
+		//				namespaceObject->Add(structObject);
 
 
 
 
-						namespaceObject->Add(runSystem);
+
+		//				Code realization;
+
+		//				realization.Add(generateRunSystemCode(systemEcsFile));
 
 
-						File::CreateInfo fci{
-							.isHpp_ = true,
-							.includes_ = includes,
-							.base_ = namespaceObject
-						};
-						auto file = std::make_shared<File>(fci);
-
-						std::filesystem::path systemHppFileFullPath
-							= systemEcsFile->GetEcsFilePath().parent_path() / ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp");
-						std::string systemHppFileFullPathString = systemHppFileFullPath.string();
-						std::replace(systemHppFileFullPathString.begin(), systemHppFileFullPathString.end(), '\\', '/');
-						return { std::filesystem::path{ systemHppFileFullPathString }, file };
 
 
-					}
+		//				namespaceObject->Add(runSystem);
+
+
+		//				File::CreateInfo fci{
+		//					.isHpp_ = true,
+		//					.includes_ = includes,
+		//					.base_ = namespaceObject
+		//				};
+		//				auto file = std::make_shared<File>(fci);
+
+		//				std::filesystem::path systemHppFileFullPath
+		//					= systemEcsFile->GetEcsFilePath().parent_path() / ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp");
+		//				std::string systemHppFileFullPathString = systemHppFileFullPath.string();
+		//				std::replace(systemHppFileFullPathString.begin(), systemHppFileFullPathString.end(), '\\', '/');
+		//				return { std::filesystem::path{ systemHppFileFullPathString }, file };
+
+
+		//			}
 
 
 

@@ -5,104 +5,101 @@
 namespace ECSGenerator2 {
 
 
-	class ComponentStructureGenerator {
+	class ComponentCodeStructureGenerator {
 	public:
 
 		struct CreateInfo {
 			std::string includeDirectory_;
 		};
 
-		ComponentStructureGenerator(const CreateInfo& createInfo) : ci_{ createInfo } {}
+		ComponentCodeStructureGenerator(const CreateInfo& createInfo) : ci_{ createInfo } {}
 
+		//static char {variableName}[256] = "";
+		//static Common::UInt64 {variableName};
+		Code GenerateTypeImGuiInputVariable(const std::string& typeName, std::string variableName) {
+			Code code;
+			const std::string& fieldTypeName = typeName;
+			if (fieldTypeName == "std::string") {
+				code.Add("static char " + variableName + "[4096] = \"\";");
+				return code;
+			}
+			else if (
+				fieldTypeName == "float" ||
+				fieldTypeName == "double" ||
+				fieldTypeName == "Common::Size" ||
+				fieldTypeName == "Common::UInt64" ||
+				fieldTypeName == "Common::Index" ||
+				fieldTypeName == "ECS2::Entity::Id") {
+				code.Add("static " + typeName + " " + variableName + ";");
+				return code;
+			}
+			OS::NotImplemented();
+			return {};
+		}
 
-        
-
-	//static char {variableName}[256] = "";
-	//static Common::UInt64 {variableName};
-	Code GenerateTypeImGuiInputVariable(const std::string& typeName, std::string variableName) {
-		Code code;
-		const std::string& fieldTypeName = typeName;
-		if (fieldTypeName == "std::string") {
-			code.Add("static char " + variableName + "[4096] = \"\";");
-			return code;
-		}
-		else if (
-			fieldTypeName == "float" ||
-			fieldTypeName == "double" ||
-			fieldTypeName == "Common::Size" ||
-			fieldTypeName == "Common::UInt64" ||
-			fieldTypeName == "Common::Index" ||
-			fieldTypeName == "ECS2::Entity::Id") {
-			code.Add("static " + typeName + " " + variableName + ";");
-			return code;
-		}
-		OS::NotImplemented();
-		return {};
-	}
-
-	//// ImGui::InputScalar("Value", ImGuiDataType_Float, {outVariable});\n
-	//// ImGui::InputText("Value", {outVariable}, IM_ARRAYSIZE({outVariable}));\n
-	Code GenerateImGuiInputTypeCode(const std::string& imguiVariableName, const std::string& typeName, std::string outVariable) {
-		Code code;
-		if (typeName == "std::string") {
-			code.Add("ImGui::InputText(\"" + imguiVariableName + "\", " + outVariable + ", IM_ARRAYSIZE(" + outVariable + "));");
-			return code;
-		}
-		else if (
-			typeName == "float" ||
-			typeName == "double" ||
-			typeName == "Common::Size" ||
-			typeName == "Common::UInt64" ||
-			typeName == "Common::Index" ||
-			typeName == "ECS2::Entity::Id") {
-			code.Add("ImGui::InputScalar(\"" + imguiVariableName + "\", " + GetImGuiType(typeName) + ", " + outVariable + ");");
-			return code;
-		}
-		OS::NotImplemented();
-		return code;
-	}
-
-	Code GenerateTypeImGuiEditCode(
-		const std::string& componentVariableName,			// position3D
-		const std::string& fieldVariableTypeName,			// float
-		const std::string& fieldVariableName,				// x
-		const std::string& fieldComponentVariableName) {	// x_
-		Code code;
-		if (fieldVariableTypeName == "std::string") {
-			code.Add(GenerateTypeImGuiInputVariable(fieldVariableTypeName, fieldVariableName));
-			code.NewLine();
-			code.Add("std::memcpy(" + fieldVariableName + ", " + componentVariableName + "->" + fieldComponentVariableName + ".c_str(), " + componentVariableName + "->" + fieldVariableName + "_.size());");
-			code.NewLine();
-			code.Add(GenerateImGuiInputTypeCode(fieldVariableName, fieldVariableTypeName, fieldVariableName));
-			code.NewLine();
-			code.Add(componentVariableName + "->" + fieldComponentVariableName + " = std::string{ " + fieldVariableName + " };");
-			code.NewLine();
-			return code;
-		}
-		else if (
-			fieldVariableTypeName == "float" ||
-			fieldVariableTypeName == "double" ||
-			fieldVariableTypeName == "Common::Size" ||
-			fieldVariableTypeName == "Common::UInt64" ||
-			fieldVariableTypeName == "Common::Index") {
-			code.Add(GenerateImGuiInputTypeCode(
-				fieldVariableName,
-				fieldVariableTypeName,
-				"&" + componentVariableName + "->" + fieldComponentVariableName));
-			return code;
-		}
-		else if (fieldVariableTypeName == "ECS2::Entity::Id") {
-			code.Add(GenerateImGuiInputTypeCode(
-				fieldVariableName,
-				fieldVariableTypeName,
-				"&" + componentVariableName + "->" + fieldComponentVariableName));
+		//// ImGui::InputScalar("Value", ImGuiDataType_Float, {outVariable});\n
+		//// ImGui::InputText("Value", {outVariable}, IM_ARRAYSIZE({outVariable}));\n
+		Code GenerateImGuiInputTypeCode(const std::string& imguiVariableName, const std::string& typeName, std::string outVariable) {
+			Code code;
+			if (typeName == "std::string") {
+				code.Add("ImGui::InputText(\"" + imguiVariableName + "\", " + outVariable + ", IM_ARRAYSIZE(" + outVariable + "));");
+				return code;
+			}
+			else if (
+				typeName == "float" ||
+				typeName == "double" ||
+				typeName == "Common::Size" ||
+				typeName == "Common::UInt64" ||
+				typeName == "Common::Index" ||
+				typeName == "ECS2::Entity::Id") {
+				code.Add("ImGui::InputScalar(\"" + imguiVariableName + "\", " + GetImGuiType(typeName) + ", " + outVariable + ");");
+				return code;
+			}
+			OS::NotImplemented();
 			return code;
 		}
 
-		OS::NotImplemented();
+		Code GenerateTypeImGuiEditCode(
+			const std::string& componentVariableName,			// position3D
+			const std::string& fieldVariableTypeName,			// float
+			const std::string& fieldVariableName,				// x
+			const std::string& fieldComponentVariableName) {	// x_
+			Code code;
+			if (fieldVariableTypeName == "std::string") {
+				code.Add(GenerateTypeImGuiInputVariable(fieldVariableTypeName, fieldVariableName));
+				code.NewLine();
+				code.Add("std::memcpy(" + fieldVariableName + ", " + componentVariableName + "->" + fieldComponentVariableName + ".c_str(), " + componentVariableName + "->" + fieldVariableName + "_.size());");
+				code.NewLine();
+				code.Add(GenerateImGuiInputTypeCode(fieldVariableName, fieldVariableTypeName, fieldVariableName));
+				code.NewLine();
+				code.Add(componentVariableName + "->" + fieldComponentVariableName + " = std::string{ " + fieldVariableName + " };");
+				code.NewLine();
+				return code;
+			}
+			else if (
+				fieldVariableTypeName == "float" ||
+				fieldVariableTypeName == "double" ||
+				fieldVariableTypeName == "Common::Size" ||
+				fieldVariableTypeName == "Common::UInt64" ||
+				fieldVariableTypeName == "Common::Index") {
+				code.Add(GenerateImGuiInputTypeCode(
+					fieldVariableName,
+					fieldVariableTypeName,
+					"&" + componentVariableName + "->" + fieldComponentVariableName));
+				return code;
+			}
+			else if (fieldVariableTypeName == "ECS2::Entity::Id") {
+				code.Add(GenerateImGuiInputTypeCode(
+					fieldVariableName,
+					fieldVariableTypeName,
+					"&" + componentVariableName + "->" + fieldComponentVariableName));
+				return code;
+			}
 
-		return {};
-	}
+			OS::NotImplemented();
+
+			return {};
+		}
 
 
 
@@ -387,7 +384,7 @@ namespace ECSGenerator2 {
 
 			std::vector<Struct::Field> fields;
 
-			componentEcsFile->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast)->bool {
+			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast)->bool {
 
 				Struct::Field field{
 					.type_ = fieldInfo.GetTypeName(),
@@ -404,7 +401,7 @@ namespace ECSGenerator2 {
 				.name_ = "GetName",
 				.parameters_ = {},
 				.returnType_ = "const char*",
-				.code_ = "return Common::TypeInfo<" + componentEcsFile->GetName() + ">::GetTypeName();",
+				.code_ = "return Common::TypeInfo<" + component->GetName() + ">::GetTypeName();",
 				.inlineModifier_ = false,
 				.staticModifier_ = true
 			};
@@ -412,8 +409,8 @@ namespace ECSGenerator2 {
 			auto getNameMethod = std::make_shared<Function>(fci);
 
 			Struct::CreateInfo sci{
-				.name_ = componentEcsFile->GetName(),
-				.parent_ = "OksEngine::IComponent<" + componentEcsFile->GetName() + ">",
+				.name_ = component->GetName(),
+				.parent_ = "OksEngine::IComponent<" + component->GetName() + ">",
 				.fields_ = fields,
 				.methods_ = { getNameMethod }
 			};
