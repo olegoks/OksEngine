@@ -261,7 +261,6 @@ namespace ECSGenerator2 {
 
 		struct CreateInfo {
 			bool isEnabled_ = true;
-			std::filesystem::path ecsFilePath_;
 			std::string name_;
 			Thread thread_ = Thread::Undefined;
 			Type type_ = Type::Undefined;
@@ -273,11 +272,6 @@ namespace ECSGenerator2 {
 
 		ParsedSystem(const CreateInfo& createInfo) :
 			ci_{ createInfo } { }
-
-
-		const std::filesystem::path& GetEcsFilePath() {
-			return ci_.ecsFilePath_;
-		}
 
 		Thread GetThread() {
 			return ci_.thread_;

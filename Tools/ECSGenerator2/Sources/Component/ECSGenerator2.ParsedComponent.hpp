@@ -32,7 +32,6 @@ namespace ECSGenerator2 {
 
 		struct CreateInfo {
 			std::string name_;
-			std::filesystem::path path_;
 			bool serializable_ = true;
 			std::vector<FieldInfo> fields_;
 		};
@@ -85,12 +84,9 @@ namespace ECSGenerator2 {
 	};
 
 
-	inline std::shared_ptr<ParsedComponent> ParseComponentEcsFile(
-		const std::filesystem::path& path,
-		::Lua::Context& context,
-		const std::string& componentTableName) {
-
-		luabridge::LuaRef component = context.GetGlobalAsRef((componentTableName == "") ? ("component") : (componentTableName));
+	inline std::shared_ptr<ParsedComponent> ParseComponent(
+		luabridge::LuaRef component,
+		const std::string& componentName) {
 
 		bool serializable = true;
 		luabridge::LuaRef serializableRef = component["serializable"];
@@ -116,17 +112,8 @@ namespace ECSGenerator2 {
 				parsedFields.push_back(fieldInfo);
 			}
 		}
-		std::string name;
-		if (componentTableName == "") {
-			name = component["name"].cast<std::string>().value();
-		}
-		else {
-			auto itComponentBegin = componentTableName.find(std::string{ "Component" });
-			name = componentTableName.substr(0, itComponentBegin);
-		}
 		ParsedComponent::CreateInfo ci{
-			.name_ = name,
-			.path_ = path,
+			.name_ = componentName,
 			.serializable_ = serializable,
 			.fields_ = parsedFields
 		};
@@ -223,14 +210,14 @@ namespace ECSGenerator2 {
 		return {};
 	}
 
-	class ComponentStructureGenerator {
+	class ComponentCodeStructureGenerator {
 	public:
 
 		struct CreateInfo {
 			std::string includeDirectory_;
 		};
 
-		ComponentStructureGenerator(const CreateInfo& createInfo) : ci_{ createInfo } {}
+		ComponentCodeStructureGenerator(const CreateInfo& createInfo) : ci_{ createInfo } {}
 
 
 

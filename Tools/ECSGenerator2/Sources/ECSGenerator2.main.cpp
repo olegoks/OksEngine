@@ -2,60 +2,13 @@
 
 #include <OS.CommandLineParameters.hpp>
 
-#include <ECSGenerator2.Generator.hpp>
-#include <ECSGenerator2.CodeGenerator.hpp>
-#include <System/ECSGenerator2.SystemParser.hpp>
-#include <ECSGenerator2.ParsedECSFile.hpp>
+#include <Parser/ECSGenerator2.Parser.hpp>
+
+#include <CodeStructureGenerator/ECSGenerator2.CodeStructureGenerator.hpp>
 
 #include <OksEngine.Config.hpp>
 
 #include <Resource.hpp>
-
-namespace ECSGenerator2 {
-
-	std::shared_ptr<ParsedECSFile> ParseEcsFile(std::filesystem::path path, Resources::ResourceData& ecsFileData) {
-
-		::Lua::Script script{ std::string{ ecsFileData.GetData<Common::Byte>(), ecsFileData.GetSize()} };
-
-		::Lua::Context context;
-		context.LoadScript(script);
-		luabridge::LuaRef ecsFile = luabridge::getGlobal(context.state_, "_G");
-
-		//Get all global tables in the script.
-		std::vector<std::string> tableNames;
-		for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
-			luabridge::LuaRef key = it.key();
-			luabridge::LuaRef value = it.value();
-
-			if (value.isTable() && key.isString()) {
-				tableNames.push_back(key.tostring());
-			}
-		}
-
-		std::vector<std::shared_ptr<ParsedSystem>> parsedSystems;
-
-		for (const std::string& globalName : tableNames) {
-			if (globalName.ends_with("Component")) {
-				luabridge::LuaRef componentRef = ecsFile[globalName];
-
-			}
-			if (globalName.ends_with("System")) {
-				luabridge::LuaRef systemRef = ecsFile[globalName];
-				auto parsedSystem = ParseSystem(systemRef, path, globalName);
-
-			}
-		}
-
-		ParsedECSFile::CreateInfo pEcsFileCI{
-			.path_ = path,
-			.systems_ = parsedSystems
-		};
-
-		auto parsedEcsFile = std::make_shared<ParsedECSFile>(pEcsFileCI);
-
-		return parsedEcsFile;
-	}
-}
 
 int main(int argc, char** argv) {
 
@@ -68,6 +21,7 @@ int main(int argc, char** argv) {
 
 	OS::AssertMessage(argc > 1, "");
 	const std::vector<std::string_view> workDirsArgv = parameters.GetValue("-workDir");
+	const std::string_view includeDirArgv = parameters.GetValue("-includeDir")[0];
 
 	std::vector<std::filesystem::path> workDirs{ };
 
@@ -113,25 +67,29 @@ int main(int argc, char** argv) {
 	Resources::ResourceData configResourceData = resourceSystem.GetResourceData(root / std::filesystem::path(configFilePath[0]).filename());
 	auto config = std::make_shared<OksEngine::ConfigFile>(std::string{ configResourceData.GetData<Common::Byte>(), configResourceData.GetSize() });
 
-	auto generator = std::make_shared<ECSGenerator2::CodeStructureGenerator>();
 
-	ECSGenerator2::ProjectContext::CreateInfo pcci{
-		.config = config,
-		.workDirs_ = workDirs
-	};
-
-	auto projectContext = std::make_shared<ECSGenerator2::ProjectContext>(pcci);
+	//Parse ecs files.
+	std::vector<std::shared_ptr<ECSGenerator2::ParsedECSFile>> parsedECSFiles;
+	ECSGenerator2::Parser ecsFileParser;
 
 	for (const ECSFileInfo& ecsFileInfo : ecsFileInfos) {
 		Resources::ResourceData resourceData = resourceSystem.GetResourceData(ecsFileInfo.resourceSystemPath_);
-		auto ecsFile = ECSGenerator2::ParseEcsFile(ecsFileInfo.filesystemPath_, resourceData);
-		/*for (auto ecsFile : ecsFiles) {
-			projectContext->AddEcsFile(ecsFile);
-		}*/
+
+		const std::string ecsFileText{ resourceData.GetData<Common::Byte>(), resourceData.GetSize() };
+		auto ecsFile = ecsFileParser.Parse(ecsFileInfo.filesystemPath_, ecsFileText);
+		parsedECSFiles.push_back(ecsFile);
 	}
 
+	//Generate code structure.
 
-	auto codeGenerator = std::make_shared<ECSGenerator2::CodeGenerator>();
+	ECSGenerator2::CodeStructureGenerator codeStructureGenerator;
+
+	for (auto parsedECSFile : parsedECSFiles) {
+		auto generatedFiles = codeStructureGenerator.Generate(
+			includeDirArgv,
+			parsedECSFile->GetPath(),
+			parsedECSFile);
+	}
 
 
 	//Generate system .cpp files if need.

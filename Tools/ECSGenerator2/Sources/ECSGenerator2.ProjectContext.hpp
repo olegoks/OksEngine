@@ -8,7 +8,7 @@
 
 namespace ECSGenerator2 {
 
-	class ProjectContext {
+	class Generator {
 	public:
 
 		inline static const std::string includeDirectory_ = "Sources";
@@ -16,9 +16,10 @@ namespace ECSGenerator2 {
 		struct CreateInfo {
 			std::shared_ptr<OksEngine::ConfigFile> config = nullptr;
 			std::vector<std::filesystem::path> workDirs_;
+			std::vector<ParsedECSFile> ecsFiles_;
 		};
 
-		ProjectContext(const CreateInfo& createInfo)
+		Generator(const CreateInfo& createInfo)
 			:
 			config_{ createInfo.config },
 			ci_{ createInfo } {
@@ -46,6 +47,10 @@ namespace ECSGenerator2 {
 		//		}
 		//	}
 		//}
+
+		std::vector<std::shared_ptr<OS::TextFile>> Generate() {
+			
+		}
 
 		using ProcessECSFile = std::function<bool(std::shared_ptr<ParsedECSFile>, bool)>;
 		void ForEachECSFile(ProcessECSFile&& processEcsFile) {
