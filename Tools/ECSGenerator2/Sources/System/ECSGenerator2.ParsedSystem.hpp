@@ -186,6 +186,10 @@ namespace ECSGenerator2 {
 			return Thread::Undefined;
 		}
 
+		Thread GetThread() const noexcept {
+			return ci_.thread_;
+		}
+
 		struct UpdateMethodInfo {
 
 			std::vector<ProcessedEntity> processesEntities_;

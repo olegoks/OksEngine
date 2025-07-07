@@ -34,14 +34,15 @@ namespace ECSGenerator2 {
 			for (const std::string& globalName : tableNames) {
 				if (globalName.ends_with("Component")) {
 					luabridge::LuaRef componentRef = ecsFile[globalName];
-
-					auto parsedComponent = ParseComponent(componentRef, globalName);
+					auto parsedComponent = ParseComponent(componentRef,
+						globalName.substr(0, globalName.find("Component")));
 					parsedComponents.push_back(parsedComponent);
 				}
 				if (globalName.ends_with("System")) {
 					luabridge::LuaRef systemRef = ecsFile[globalName];
 					SystemParser systemParser;
-					auto parsedSystem = systemParser.Parse(systemRef, globalName);
+					auto parsedSystem = systemParser.Parse(systemRef,
+						globalName.substr(0, globalName.find("System")));
 					parsedSystems.push_back(parsedSystem);
 				}
 			}
