@@ -9,7 +9,7 @@ namespace ECSGenerator2 {
 	public:
 
 		struct CreateInfo {
-			std::string includeDirectory_;
+			std::filesystem::path includeDirectory_;
 		};
 
 		ComponentCodeStructureGenerator(const CreateInfo& createInfo) : ci_{ createInfo } {}
@@ -378,6 +378,7 @@ namespace ECSGenerator2 {
 
 			auto editFunction = std::make_shared<Function>(fci);
 
+			return editFunction;
 		}
 
 		std::shared_ptr<Struct> GenerateComponentStruct(std::shared_ptr<ParsedComponent> component) {
@@ -491,24 +492,24 @@ namespace ECSGenerator2 {
 			return includes;
 		}
 
-		std::pair<
-			std::filesystem::path,
-			std::shared_ptr<File>> GenerateECSCXXFilesStructure(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedComponent> componentEcsFile) {
+		//std::pair<
+		//	std::filesystem::path,
+		//	std::shared_ptr<File>> GenerateECSCXXFilesStructure(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedComponent> componentEcsFile) {
 
-			File::CreateInfo fci{
-				.isHpp_ = true,
-				.includes_ = includes,
-				.base_ = namespaceObject
-			};
-			auto file = std::make_shared<File>(fci);
+		//	File::CreateInfo fci{
+		//		.isHpp_ = true,
+		//		.includes_ = includes,
+		//		.base_ = namespaceObject
+		//	};
+		//	auto file = std::make_shared<File>(fci);
 
-			std::filesystem::path componentHppFileFullPath
-				= componentEcsFile->GetPath().parent_path() / ("auto_OksEngine." + componentEcsFile->GetName() + ".hpp");
-			std::string componentHppFileFullPathString = componentHppFileFullPath.string();
-			std::replace(componentHppFileFullPathString.begin(), componentHppFileFullPathString.end(), '\\', '/');
-			return { std::filesystem::path{ componentHppFileFullPathString }, file };
+		//	std::filesystem::path componentHppFileFullPath
+		//		= componentEcsFile->GetPath().parent_path() / ("auto_OksEngine." + componentEcsFile->GetName() + ".hpp");
+		//	std::string componentHppFileFullPathString = componentHppFileFullPath.string();
+		//	std::replace(componentHppFileFullPathString.begin(), componentHppFileFullPathString.end(), '\\', '/');
+		//	return { std::filesystem::path{ componentHppFileFullPathString }, file };
 
-		}
+		//}
 
 		CreateInfo ci_;
 	};

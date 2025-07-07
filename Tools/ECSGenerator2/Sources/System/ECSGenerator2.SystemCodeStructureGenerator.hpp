@@ -74,13 +74,13 @@ namespace ECSGenerator2 {
 		}
 
 		//returns array of names of components that needed for Update method.
-		std::vector<std::string> GenerateUpdateMethodRequiredComponentIncludes(std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethodInfo) {
+		std::unordered_set<std::string> GenerateUpdateMethodRequiredComponentIncludes(std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethodInfo) {
 
-			std::vector<std::string> requiredComponentNames{ };
+			std::unordered_set<std::string> requiredComponentNames{ };
 
 			for (auto& createsEntities : updateMethodInfo->createsEntities_) {
 				for (auto& createsEntityComponent : createsEntities) {
-					requiredComponentNames.push_back(createsEntityComponent);
+					requiredComponentNames.insert(createsEntityComponent);
 				}
 			}
 
@@ -89,7 +89,7 @@ namespace ECSGenerator2 {
 				bool isLast) {
 
 					entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
-						requiredComponentNames.push_back(include.GetName());
+						requiredComponentNames.insert(include.GetName());
 						return true;
 						});
 
@@ -100,17 +100,17 @@ namespace ECSGenerator2 {
 
 			for (auto& entity : updateMethodInfo->processesEntities_) {
 				for (auto componentInclude : entity.includes_) {
-					requiredComponentNames.push_back(componentInclude.GetName());
+					requiredComponentNames.insert(componentInclude.GetName());
 				}
 				for (auto componentCreates : entity.creates_) {
-					requiredComponentNames.push_back(componentCreates);
+					requiredComponentNames.insert(componentCreates);
 				}
 
 				for (auto componentRemoves : entity.removes_) {
-					requiredComponentNames.push_back(componentRemoves);
+					requiredComponentNames.insert(componentRemoves);
 				}
 				for (auto componentExclude : entity.excludes_) {
-					requiredComponentNames.push_back(componentExclude);
+					requiredComponentNames.insert(componentExclude);
 				}
 			}
 
