@@ -1,20 +1,21 @@
-system = {
-    name = "FindScenes",
-    initSystem = true,
-    runAfter = "ConfigureResourceSystem",
-    processesEntities  = {
-        {
-             processesComponents = { { name = "ResourceSystem", readonly = false } }
-        }
+FindScenesSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = "ConfigureResource",
     },
-    createsEntities = {
-        {
-        createsComponents = {
-            "Scene",
-            "ResourcePath"
-        }
+    updateMethod = {
+        processesEntities  = {
+            {
+                processesComponents = { { name = "ResourceSystem", readonly = false } }
+            }
+        },
+        createsEntities = {
+            {
+                createsComponents = {
+                    "Scene",
+                    "ResourcePath"
+                }
+            }
         }
     }
 }
-
-

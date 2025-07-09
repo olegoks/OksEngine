@@ -1,10 +1,17 @@
-system = {
-    name = "BeginECSMenu",
-    runAfter = "BeginMainMenuBar",
-    runBefore = "EndECSMenu",
-    processesComponents = { 
-        "ImGuiState", 
-        "MainMenuBar",
-        { name = "ECSMenu", readonly = false }
+BeginECSMenuSystem = {
+    callOrder = {
+        runAfter = "BeginMainMenuBar",
+        runBefore = "EndECSMenu"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+            processesComponents = { 
+                "ImGuiState", 
+                "MainMenuBar",
+                { name = "ECSMenu", readonly = false }
+            }
+            }
+        }
     }
 }

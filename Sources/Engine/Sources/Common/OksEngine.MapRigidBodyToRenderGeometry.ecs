@@ -1,5 +1,2 @@
-component = {
-    name = "MapRigidBodyToRenderGeometry",
-    fields = { 
-     }
+MapRigidBodyToRenderGeometryComponent = {
 }

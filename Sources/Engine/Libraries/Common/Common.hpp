@@ -27,6 +27,16 @@ namespace Common {
 		value = Type::Undefined;
 	};
 
+#if defined __MSC__ || defined _MSC_VER
+#define NOINLINE __declspec(noinline)
+#elif __GNUC__
+#define NOINLINE __attribute__((noinline))
+#else
+#error "Unsupported compiler!!"
+#endif
+
+	void BreakPointLine();
+
 
 #ifdef _DEBUG
 	constexpr static inline Configuration configuration_ = Configuration::Debug;
@@ -38,6 +48,7 @@ namespace Common {
 	constexpr bool IsDebug() {
 		return (configuration_ == Configuration::Debug);
 	}
+
 
 
 	template<class Type>
@@ -65,5 +76,7 @@ namespace Common {
 	void ProcessTemplateList(Callback&& callback) {
 		ProcessType<Callback, Types...>(std::forward<Callback>(callback));
 	}
+
+
 
 }

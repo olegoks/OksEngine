@@ -245,18 +245,19 @@ namespace ECSGenerator2 {
 					};
 
 				luabridge::LuaRef updateMethodRef = luaRef["updateMethod"];
+				if (!updateMethodRef.isNil()) {
+					auto processesEntities = parseProcessesEntities(updateMethodRef);
+					auto randomAccessEntities = parseRandomAccessComponents(updateMethodRef);
+					auto createsEntities = parseCreatesEntities(updateMethodRef);
+					auto updateMethodInfo = std::make_shared<ParsedSystem::UpdateMethodInfo>(
+						processesEntities,
+						randomAccessEntities,
+						createsEntities
+					);
+					return updateMethodInfo;
+				}
 
-				auto processesEntities = parseProcessesEntities(updateMethodRef);
-				auto randomAccessEntities = parseRandomAccessComponents(updateMethodRef);
-				auto createsEntities = parseCreatesEntities(updateMethodRef);
-
-				auto updateMethodInfo = std::make_shared<ParsedSystem::UpdateMethodInfo>(
-					processesEntities,
-					randomAccessEntities,
-					createsEntities
-				);
-
-				return updateMethodInfo;
+				return std::shared_ptr<ParsedSystem::UpdateMethodInfo>();
 				};
 			auto parseAccessesEntities = [](luabridge::LuaRef systemRef) {
 
@@ -322,16 +323,30 @@ namespace ECSGenerator2 {
 
 				};
 
+
+			if (systemName == "CreateScene") {
+				Common::BreakPointLine();
+			}
+
 			const ParsedSystem::Thread thread = parseThread(system);
 			const ParsedSystem::Type type = parseType(system);
 
 			auto afterUpdateMethodInfo = parseAfterUpdateMethod(system);
 			auto callOrderInfo = parseCallOrder(system);
-			auto updateMethodInfo = parseUpdateMethod(system);
+
+
+			//Parse update method.
+			std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethodInfo = nullptr;
+			if (!system["updateMethod"].isNil()) {
+				updateMethodInfo = parseUpdateMethod(system);
+			}
+
 			auto accessesEntities = parseAccessesEntities(system);
 
 #pragma region Assert
-			OS::AssertMessage(updateMethodInfo != nullptr,
+			OS::AssertMessage(
+				((updateMethodInfo == nullptr) && (type == ParsedSystem::Type::Initialize)) ||
+				((updateMethodInfo != nullptr) && ((type == ParsedSystem::Type::FrameToFrame) || (type == ParsedSystem::Type::Initialize))),
 				"System description doesn't contain updateMethod decription.");
 #pragma endregion
 

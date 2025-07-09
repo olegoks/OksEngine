@@ -1,8 +1,15 @@
 
-system = {
-    name = "EndRender",
-    runAfter = "StartRender",
-    processesComponents = {
-        { name = "RenderDriver", readonly = false}
+EndRenderSystem = {
+    callOrder = {
+        runAfter = "StartRender"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+            processesComponents = {
+                { name = "RenderDriver", readonly = false}
+            }
+            }
+        }
     }
 }

@@ -1,5 +1,4 @@
-component = {
-    name = "Width",
+WidthComponent = {
     fields = { 
         { type = "Common::UInt64", name = "value" }
        

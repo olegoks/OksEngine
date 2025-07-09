@@ -1,17 +1,18 @@
-system = {
-    name = "CreateDriverTransform3D",
-    processesEntities = {
-        {
-            processesComponents = { 
-                { name = "Position3D", readonly = true },
-                { name = "Rotation3D", readonly = true }
+CreateDriverTransform3DSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "Position3D", readonly = true },
+                    { name = "Rotation3D", readonly = true }
+                },
+	            excludes = { "DriverTransform3D" },
+                createsComponents = { "DriverTransform3D" }
             },
-	        excludes = { "DriverTransform3D" },
-            createsComponents = { "DriverTransform3D" }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false }
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
     }

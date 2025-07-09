@@ -1,5 +1,12 @@
-system = {
-    name = "EndImGuiFrame",
-    processesComponents = { "ImGuiState" },
-    runAfter = "StartImGuiFrame"
+EndImGuiFrameSystem = {
+    callOrder = {
+        runAfter = "StartImGuiFrame"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { "ImGuiState" }
+            }
+        }
+    }
 }

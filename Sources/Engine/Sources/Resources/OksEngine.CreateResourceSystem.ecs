@@ -1,11 +1,12 @@
-system = {
-    name = "CreateResourceSystem",
-    initSystem = true,
+CreateResourceSystem = {
+    type = "Initialize",
+    updateMethod = {
     createsEntities = {
         {
-        createsComponents = {
-            "ResourceSystem"
+            createsComponents = {
+                "ResourceSystem"
+            }
         }
-        }
+    }
     }
 }

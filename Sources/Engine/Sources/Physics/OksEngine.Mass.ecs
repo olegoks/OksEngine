@@ -1,4 +1,3 @@
-component = {
-    name = "Mass",
+MassComponent = {
     fields = {  { type = "float", name = "value" } }
 }

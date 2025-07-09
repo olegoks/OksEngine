@@ -1,5 +1,4 @@
-component = {
-    name = "DriverTransform3D",
+DriverTransform3DComponent = {
     serializable = false,
     fields = { { type="RAL::Driver::UniformBuffer::Id", name="id" } }
 }

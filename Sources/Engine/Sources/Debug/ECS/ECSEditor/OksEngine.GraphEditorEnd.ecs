@@ -1,8 +1,15 @@
-system = {
-    name = "GraphEditorEnd",
-    runAfter = "GraphEditorBegin",
-    runBefore = "EndECSEditorWindow",
-    processesComponents = { 
-        "ImGuiState",
-        "EditorContext" },
+GraphEditorEndSystem = {
+    callOrder = {
+        runAfter = "GraphEditorBegin",
+        runBefore = "EndECSEditorWindow"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState",
+                    "EditorContext" }
+            }
+        }
+    }
 }

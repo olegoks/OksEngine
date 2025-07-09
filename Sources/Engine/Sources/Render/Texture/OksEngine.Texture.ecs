@@ -1,5 +1,4 @@
-component = {
-    name = "Texture",
+TextureComponent = {
     serializable = false,
     fields = { 
         { type = "Common::Size", name = "width" },

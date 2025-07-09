@@ -1,8 +1,13 @@
-system = {
-    name = "CreateLoadLuaScriptRequest",
-    processesComponents = { 
-        "Behaviour"
-        },
-        createsComponents = { "LoadLuaScriptRequest" },
-    excludes = { "LoadLuaScriptRequest" }
+CreateLoadLuaScriptRequestSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Behaviour"
+                },
+                createsComponents = { "LoadLuaScriptRequest" },
+                excludes = { "LoadLuaScriptRequest" }
+            }
+        }
+    }
 }

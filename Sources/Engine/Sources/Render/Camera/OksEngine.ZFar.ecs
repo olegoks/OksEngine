@@ -1,5 +1,4 @@
-component = {
-    name = "ZFar",
+ZFarComponent = {
     fields = { 
         { type = "float", name = "value" }
 		 }

@@ -1,32 +1,35 @@
-system = {
-    name = "CreateRenderDriver",
-    initSystem = true,
-    runAfter = { 
-        "CreateMainWindow",
-        "ConfigureResourceSystem"
-    },
-    processesEntities = {
-        {
-            processesComponents = {
-                "MainWindow"
-            }
-        },
-        {
-            processesComponents = {
-                "Config",
-                "LuaScript"
-            }
-        },
-        {
-            processesComponents = {
-                { name = "ResourceSystem", readonly = false }
-            }
+CreateRenderDriverSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { 
+            "CreateMainWindow",
+            "ConfigureResource"
         }
     },
-    createsEntities = { 
-        {
-            createsComponents = {
-                "RenderDriver" 
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow"
+                }
+            },
+            {
+                processesComponents = {
+                    "Config",
+                    "LuaScript"
+                }
+            },
+            {
+                processesComponents = {
+                    { name = "ResourceSystem", readonly = false }
+                }
+            }
+        },
+        createsEntities = { 
+            {
+                createsComponents = {
+                    "RenderDriver" 
+                }
             }
         }
     }

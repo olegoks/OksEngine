@@ -1,7 +1,12 @@
-system = {
-    name = "CreateMtlEntity",
-    processesComponents = { "LoadMtlRequest" },
-    createsComponents = { "MtlEntity" },
-	excludes = { "MtlEntity" }
+CreateMtlEntitySystem = {
+    updateMethod = {
+        processesEntities = { 
+            {
+                processesComponents = { "LoadMtlRequest" },
+                createsComponents = { "MtlEntity" },
+	            excludes = { "MtlEntity" }
+            }
+        }
+    }
 }
 

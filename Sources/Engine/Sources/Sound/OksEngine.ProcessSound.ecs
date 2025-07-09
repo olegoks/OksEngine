@@ -1,9 +1,13 @@
-system = {
-    name = "ProcessSound",
-
-    processesComponents = { 
-		"Sound", 
-    "StartPlaySound"
-	 }, 
-   excludes = { "SoundInProgress" }
+ProcessSoundSystem = {
+  updateMethod = {
+    processesEntities = {
+      {
+        processesComponents = { 
+		      "Sound", 
+          "StartPlaySound"
+	      }, 
+        excludes = { "SoundInProgress" }
+      }
+    }
+  }
 }

@@ -1,18 +1,12 @@
-system = {
-    name = "SendWindowMouseEvents",
-    
-    processesEntities = {
-        {
-            processesComponents = {
-                "MainWindow"
+SendWindowMouseEventsSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow"
+                }
             }
         }
-        --[[,
-        {
-            processesComponents = {
-                "HandleMouseInput"
-            },
-            createsComponents = { "MouseInput" }
-        } ]]
     }
+    
 }

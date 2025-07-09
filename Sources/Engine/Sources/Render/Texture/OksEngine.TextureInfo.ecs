@@ -1,5 +1,4 @@
-component = {
-    name = "TextureInfo",
+TextureInfoComponent = {
     fields = { 
         { type = "std::string", name = "name" }}
 }

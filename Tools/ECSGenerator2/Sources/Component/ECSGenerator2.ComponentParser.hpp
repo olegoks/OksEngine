@@ -17,6 +17,10 @@ namespace ECSGenerator2 {
 			}
 			luabridge::LuaRef fields = component["fields"];
 
+			if (componentName == "ECSMenu") {
+				Common::BreakPointLine();
+			}
+
 			std::vector<ParsedComponent::FieldInfo> parsedFields;
 
 			if (!fields.isNil()) {

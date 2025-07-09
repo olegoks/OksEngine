@@ -1,5 +1,4 @@
-component = {
-    name = "AsyncTask",
+AsyncTaskComponent = {
     serializable = false,
     fields = {         
 		{ type = "Common::UInt64", name = "id" }

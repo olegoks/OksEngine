@@ -1,5 +1,4 @@
-component = {
-    name = "Camera",
+CameraComponent = {
     fields = { 
         { type = "float", name = "zNear" },
         { type = "float", name = "zFar"},

@@ -1,5 +1,4 @@
-component = {
-    name = "Name",
+NameComponent = {
     fields = { 
         { type = "std::string", name = "value" }
      }

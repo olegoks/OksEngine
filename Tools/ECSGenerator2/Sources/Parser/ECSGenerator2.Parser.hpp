@@ -3,6 +3,7 @@
 #include <ECSGenerator2.ParsedECSFile.hpp>
 
 #include <System/ECSGenerator2.SystemParser.hpp>
+#include <Component/ECSGenerator2.ComponentParser.hpp>
 
 namespace ECSGenerator2 {
 
@@ -32,9 +33,14 @@ namespace ECSGenerator2 {
 			std::vector<std::shared_ptr<ParsedComponent>> parsedComponents;
 
 			for (const std::string& globalName : tableNames) {
+				if (globalName == "BehaviourComponent") {
+					Common::BreakPointLine();
+				}
 				if (globalName.ends_with("Component")) {
+					
 					luabridge::LuaRef componentRef = ecsFile[globalName];
-					auto parsedComponent = ParseComponent(componentRef,
+					ComponentParser componentParser;
+					auto parsedComponent = componentParser.Parse(componentRef,
 						globalName.substr(0, globalName.find("Component")));
 					parsedComponents.push_back(parsedComponent);
 				}

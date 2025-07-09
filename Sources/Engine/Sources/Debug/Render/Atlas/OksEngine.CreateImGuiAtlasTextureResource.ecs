@@ -1,6 +1,6 @@
 
-system = {
-    name = "CreateImGuiAtlasTextureResource",
+CreateImGuiAtlasTextureResourceSystem = {
+  updateMethod = {
   processesEntities = {
     {
       processesComponents = { 
@@ -15,5 +15,6 @@ system = {
         { name = "RenderDriver", readonly = false}
       }
     }
+  }
   }
 }

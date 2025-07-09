@@ -1,9 +1,12 @@
-system = {
-    name = "GetWindowKeyboardInput",
-
-    processesComponents = {
-        { name = "MainWindow", readonly = false },
-        { name = "KeyboardInput", readonly = false }
+GetWindowKeyboardInputSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MainWindow", readonly = false },
+                    { name = "KeyboardInput", readonly = false }
+                }
+            }
+        }
     }
-
 }

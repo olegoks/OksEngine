@@ -1,5 +1,5 @@
-system = {
-    name = "LoadSceneFile",
+LoadSceneFileSystem = {
+    updateMethod = {
     processesEntities  = {
         {
             processesComponents = { 
@@ -16,6 +16,7 @@ system = {
                 { name = "ResourceSystem", readonly = false }
             }        
         }
+    }
     }
 }
 

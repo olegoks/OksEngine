@@ -1,5 +1,5 @@
-system = {
-    name = "StartWorldSceneSaving",
+StartWorldSceneSavingSystem = {
+    updateMethod = {
     processesEntities  = {
         {
             processesComponents = { 
@@ -11,6 +11,7 @@ system = {
             },
             excludes = { "LuaScript" }
         }
+    }
     }
 }
 

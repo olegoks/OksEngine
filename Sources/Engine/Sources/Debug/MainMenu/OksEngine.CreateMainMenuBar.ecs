@@ -1,18 +1,20 @@
-system = {
-    name = "CreateMainMenuBar",
-    runBefore = "ClearKeyboardInput",
-    processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState"
-            },
-            
-            excludes = {
-                "MainMenuBar"
-            },
-            createsComponents = {
-                "MainMenuBar"
+CreateMainMenuBarSystem = {
+    callOrder = {
+        runBefore = "ClearKeyboardInput"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState"
+                },
+                excludes = {
+                    "MainMenuBar"
+                },
+                createsComponents = {
+                    "MainMenuBar"
+                }
             }
         }
-    },
+    }
 }

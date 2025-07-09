@@ -1,10 +1,13 @@
-
-system = {
-    name = "CreateLoadTextureRequest",
-
-    processesComponents = { 
-		"TextureInfo"
-	 },
-   createsComponents = { "Texture", "LoadTextureRequest" },
-   excludes = { "Texture", "LoadTextureRequest" }
+CreateLoadTextureRequestSystem = {
+  updateMethod = {
+    processesEntities = {
+      {
+        processesComponents = { 
+		      "TextureInfo"
+	      },
+        createsComponents = { "Texture", "LoadTextureRequest" },
+        excludes = { "Texture", "LoadTextureRequest" }
+      }
+    }
+  }
 }

@@ -1,20 +1,24 @@
-system = {
-    name = "SendWindowKeyboardInput",
-    runAfter = "SendWindowKeyboardInput",
-    runAfter = "GetWindowKeyboardInput",
-    processesEntities = {
-        {
-            processesComponents = {
-                "MainWindow",
-                "KeyboardInput"
-            }
-        },
-        {
-            processesComponents = {
-                "HandleKeyboardInput",
-                { name = "KeyboardInput", readonly = false }
+SendWindowKeyboardInputSystem = {
+    callOrder = {
+        runAfter = "SendWindowKeyboardInput",
+        runAfter = "GetWindowKeyboardInput"
+    },
+    updateMethod = {
+         processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    "KeyboardInput"
+                }
             },
-            createsComponents = { "KeyboardInput" }
+            {
+                processesComponents = {
+                    "HandleKeyboardInput",
+                    { name = "KeyboardInput", readonly = false }
+                },
+                createsComponents = { "KeyboardInput" }
+            }
         }
     }
+   
 }

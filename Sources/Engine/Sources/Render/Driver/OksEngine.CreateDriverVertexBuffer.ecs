@@ -1,6 +1,5 @@
-system = {
-    name = "CreateDriverVertexBuffer",
-    
+CreateDriverVertexBufferSystem = {
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = { "Vertices3D", "Indices", "Normals", "UVs" },
@@ -12,6 +11,7 @@ system = {
              processesComponents = { { name = "RenderDriver", readonly = false } }
         }
 
+    }
     }
 
 }

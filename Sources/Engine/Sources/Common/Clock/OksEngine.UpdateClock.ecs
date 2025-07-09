@@ -1,4 +1,10 @@
-system = {
-    name = "UpdateClock",
-    processesComponents = { "Clock" }
+UpdateClockSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { "Clock" }
+            }
+        }
+    }
+    
 }

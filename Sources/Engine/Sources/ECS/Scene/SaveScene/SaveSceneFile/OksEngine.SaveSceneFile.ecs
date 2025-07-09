@@ -1,7 +1,9 @@
-system = {
-    name = "SaveSceneFile",
+SaveSceneFileSystem = {
+    callOrder ={
     runAfter = "CreateSceneFileEnd",
-    runBefore = "EndWorldSceneSaving",
+    runBefore = "EndWorldSceneSaving"
+    },
+    updateMethod = {
     processesEntities  = {
          { 
             processesComponents = {
@@ -27,6 +29,7 @@ system = {
                 "LuaScript"
             }
         }
+    }
     }
 }
 

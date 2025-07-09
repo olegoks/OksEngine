@@ -1,8 +1,13 @@
-system = {
-    name = "CreateModelEntityFromObjMtl",
-    processesComponents = { 
-		"ObjEntity", "MtlEntity"
-	 },
-	 createsComponents = { "ModelEntity" },
-	 excludes = { "ModelEntity" }
+CreateModelEntityFromObjMtlSystem = {
+	updateMethod = {
+		processesEntities = {
+			{
+    			processesComponents = { 
+					"ObjEntity", "MtlEntity"
+				},
+	 			createsComponents = { "ModelEntity" },
+	 			excludes = { "ModelEntity" }
+			}
+		}
+	}
 }

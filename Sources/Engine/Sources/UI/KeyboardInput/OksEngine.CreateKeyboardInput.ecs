@@ -1,9 +1,13 @@
-system = {
-    name = "CreateKeyboardInput",
-
-    processesComponents = {
-        "HandleKeyboardInput"
-    },
-    createsComponents = { "KeyboardInput" },
-    excludes = { "KeyboardInput" }
+CreateKeyboardInputSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "HandleKeyboardInput"
+                },
+                createsComponents = { "KeyboardInput" },
+                excludes = { "KeyboardInput" }
+            }
+        }
+    }
 }

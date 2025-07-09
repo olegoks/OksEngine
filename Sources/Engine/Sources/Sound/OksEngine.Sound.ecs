@@ -1,5 +1,4 @@
-component = {
-    name = "Sound",
+SoundComponent = {
     serializable = false,
     fields = { 
         { type = "sf::SoundBuffer", name = "soundBuffer" }

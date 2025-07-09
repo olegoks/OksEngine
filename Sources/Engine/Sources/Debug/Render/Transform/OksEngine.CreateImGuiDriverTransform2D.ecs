@@ -1,5 +1,5 @@
-system = {
-    name = "CreateImGuiDriverTransform2D",
+CreateImGuiDriverTransform2DSystem = {
+    updateMethod = {
      processesEntities = {
         {
             processesComponents = { 
@@ -15,5 +15,6 @@ system = {
                 { name = "RenderDriver", readonly = false } 
             }
         }
+    }
     }
 }

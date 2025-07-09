@@ -1,7 +1,12 @@
-system = {
-    name = "CreateGDF",
-    processesComponents = { "GDFInfo" },
-    createsComponents = { "GDF" },
-	excludes = { "GDF" }
+CreateGDFSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { "GDFInfo" },
+                createsComponents = { "GDF" },
+	            excludes = { "GDF" }
+            }
+        }
+    }
 }
 

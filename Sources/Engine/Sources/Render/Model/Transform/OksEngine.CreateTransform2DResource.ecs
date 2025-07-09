@@ -1,16 +1,17 @@
-system = {
-    name = "CreateTransform2DResource",
-    processesEntities = {
-        {
-            processesComponents = { 
-                "DriverTransform2D"
+CreateTransform2DResourceSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "DriverTransform2D"
+                },
+	            excludes = { "Transform2DResource" },
+                createsComponents = { "Transform2DResource" }
             },
-	        excludes = { "Transform2DResource" },
-            createsComponents = { "Transform2DResource" }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false }
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
     }

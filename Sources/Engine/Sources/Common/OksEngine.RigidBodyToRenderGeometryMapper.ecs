@@ -1,4 +1,13 @@
-system = {
-    name = "RigidBodyToRenderGeometryMapper",
-    processesComponents = { "DynamicRigidBody", "ImmutableRenderGeometry" }
+RigidBodyToRenderGeometryMapperSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "DynamicRigidBody", 
+                    "ImmutableRenderGeometry"
+                }
+            }
+        }
+    }
+    
 }

@@ -1,8 +1,13 @@
-system = {
-    name = "CreateModelEntityFromFbx",
-    processesComponents = { 
-		"FbxEntity"
-	 },
-	 createsComponents = { "ModelEntity" },
-	 excludes = { "ModelEntity" }
+CreateModelEntityFromFbxSystem = {
+	updateMethod = {
+		processesEntities = {
+			{
+				processesComponents = { 
+					"FbxEntity"
+	 			},
+	 			createsComponents = { "ModelEntity" },
+	 			excludes = { "ModelEntity" }
+			}
+		}
+	}
 }

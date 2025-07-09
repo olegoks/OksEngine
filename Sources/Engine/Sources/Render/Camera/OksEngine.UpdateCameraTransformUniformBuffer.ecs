@@ -1,5 +1,5 @@
-system = {
-    name = "UpdateCameraTransformUniformBuffer",
+UpdateCameraTransformUniformBufferSystem = {
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = { 
@@ -18,7 +18,8 @@ system = {
                 { name = "RenderDriver", readonly = false } 
             }
         }
-    },
+    }
+    }
 
 }
 

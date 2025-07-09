@@ -1,4 +1,3 @@
-component = {
-    name = "GDFInfo",
+GDFInfoComponent = {
     fields = { { type = "std::string", name = "text" } }
 }

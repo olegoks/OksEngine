@@ -1,7 +1,9 @@
-system = {
-    name = "CreateSceneSaveRequest",
+CreateSceneSaveRequestSystem = {
+    callOrder = {
     runAfter = "GraphEditorBegin",
-    runBefore = "GraphEditorEnd",
+    runBefore = "GraphEditorEnd"
+    },
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = { 
@@ -18,5 +20,5 @@ system = {
             excludes = { "SaveSceneRequest" }
         }
     }
-   
+    }
 }

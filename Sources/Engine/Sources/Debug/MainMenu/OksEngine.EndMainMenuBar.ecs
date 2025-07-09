@@ -1,9 +1,16 @@
-system = {
-    name = "EndMainMenuBar",
-    runAfter = { "StartImGuiFrame", "BeginMainMenuBar" },
-    runBefore = "EndImGuiFrame",
-    processesComponents = { 
-        "MainMenuBar",
-        "ImGuiState"
+EndMainMenuBarSystem = {
+    callOrder = {
+        runAfter = { "StartImGuiFrame", "BeginMainMenuBar" },
+        runBefore = "EndImGuiFrame"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "MainMenuBar",
+                    "ImGuiState"
+                }
+            }
+        }
     }
 }

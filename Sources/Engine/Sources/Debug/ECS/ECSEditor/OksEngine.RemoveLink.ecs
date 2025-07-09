@@ -1,17 +1,19 @@
-system = {
-    name = "RemoveLink",
-    runAfter = "CreateLink",
-    runBefore = "DrawLink",
-    processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState",
-                "ECSEditorWindow",
-                "EditorContext"
-
-            },
-            removesComponents = {
-                "Link"
+RemoveLinkSystem = {
+    callOrder = {
+        runAfter = "CreateLink",
+        runBefore = "DrawLink"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ECSEditorWindow",
+                    "EditorContext"
+                },
+                removesComponents = {
+                    "Link"
+                }
             }
         }
     }

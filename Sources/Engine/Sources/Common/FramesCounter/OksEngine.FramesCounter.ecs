@@ -1,5 +1,4 @@
-component = {
-    name = "FramesCounter",
+FramesCounterComponent = {
     fields = { 
         { type = "Common::Size", name = "value" }    
     }

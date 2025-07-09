@@ -1,5 +1,4 @@
-component = {
-    name = "SoundInfo",
+SoundInfoComponent = {
     fields = { 
         { type = "std::string", name = "name" }
      }

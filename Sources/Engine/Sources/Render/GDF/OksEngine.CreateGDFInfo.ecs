@@ -1,17 +1,18 @@
-system = {
-    name = "CreateGDFInfo",
-    processesEntities = {
-        {
-            processesComponents = { 
-                "GDFLoaded", 
-                "LoadGDFTask"
-                },
-	        excludes = { "GDFInfo" },
-            createsComponents = { "GDFInfo" }
-        }, 
-        {
-            processesComponents = {
-                { name = "ResourceSystem", readonly = false }
+CreateGDFInfoSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "GDFLoaded", 
+                    "LoadGDFTask"
+                    },
+	            excludes = { "GDFInfo" },
+                createsComponents = { "GDFInfo" }
+            }, 
+            {
+                processesComponents = {
+                    { name = "ResourceSystem", readonly = false }
+                }
             }
         }
     }

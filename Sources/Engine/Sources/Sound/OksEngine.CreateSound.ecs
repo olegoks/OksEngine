@@ -1,9 +1,13 @@
-system = {
-    name = "CreateSound",
-
-    processesComponents = { 
-		"LoadSoundRequest"
-	 },
-   createsComponents = { "Sound" },
-   excludes = { "Sound" }
+CreateSoundSystem = {
+  updateMethod = {
+    processesEntities = {
+      {
+        processesComponents = { 
+		      "LoadSoundRequest"
+	      },
+        createsComponents = { "Sound" },
+        excludes = { "Sound" }
+      }
+    }
+  }
 }

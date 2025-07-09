@@ -1,4 +1,3 @@
-component = {
-    name = "StaticRigidBodyCustomMeshShape",
+StaticRigidBodyCustomMeshShapeComponent = {
     fields = {  }
 }

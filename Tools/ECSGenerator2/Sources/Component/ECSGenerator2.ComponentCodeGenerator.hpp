@@ -105,7 +105,7 @@ namespace ECSGenerator2 {
 
 		std::shared_ptr<Function> GenerateParseFunction(std::shared_ptr<ParsedComponent> component) {
 
-			if (component->serializable_) {
+			if (component->ci_.serializable_) {
 				Code realization;
 
 				realization.Add(std::format("{} {};",
@@ -151,7 +151,7 @@ namespace ECSGenerator2 {
 		std::shared_ptr<Function> GenerateSerializeFunction(std::shared_ptr<ParsedComponent> component) {
 
 			//Serialize function.
-			if (component->serializable_) {
+			if (component->ci_.serializable_) {
 
 				Code fieldsLuaCode;
 				component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
@@ -383,6 +383,9 @@ namespace ECSGenerator2 {
 
 		std::shared_ptr<Struct> GenerateComponentStruct(std::shared_ptr<ParsedComponent> component) {
 
+			if (component->GetName() == "ECSMenu") {
+				Common::BreakPointLine();
+			}
 			std::vector<Struct::Field> fields;
 
 			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast)->bool {

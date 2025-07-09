@@ -1,12 +1,19 @@
-system = {
-    name = "BeginECSInspectorWindow",
-    runAfter = "EndMainMenuBar",
-    runBefore = "EndECSInspectorWindow",
-    processesComponents = { 
-        "ImGuiState", 
-        "MainMenuBar",
-        "ECSMenu",
-        "ECSInspectorMenuItem",
-        { name = "ECSInspectorWindow", readonly = false }
+BeginECSInspectorWindowSystem = {
+    callOrder = {
+        runAfter = "EndMainMenuBar",
+        runBefore = "EndECSInspectorWindow"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState", 
+                    "MainMenuBar",
+                    "ECSMenu",
+                    "ECSInspectorMenuItem",
+                    { name = "ECSInspectorWindow", readonly = false }
+                }
+            }
+        }
     }
 }

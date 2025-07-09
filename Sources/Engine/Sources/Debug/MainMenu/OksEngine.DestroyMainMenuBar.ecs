@@ -1,16 +1,17 @@
-system = {
-    name = "DestroyMainMenuBar",
-    processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState",
-                "HandleKeyboardInput",
-                "KeyboardInput",
-                "MainMenuBar"
-            },
-            removesComponents = {
-                "MainMenuBar"
+DestroyMainMenuBarSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "HandleKeyboardInput",
+                    "KeyboardInput",
+                    "MainMenuBar"
+                },
+                removesComponents = {
+                    "MainMenuBar"
+                }
             }
         }
-    },
+    }
 }

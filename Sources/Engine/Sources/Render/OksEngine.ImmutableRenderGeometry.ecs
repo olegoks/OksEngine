@@ -1,5 +1,4 @@
-component = {
-    name = "ImmutableRenderGeometry",
+ImmutableRenderGeometryComponent = {
     fields = { 
         { type = "std::string", name = "meshTag" },
         { type = "std::string", name = "shaderTag"} }

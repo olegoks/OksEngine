@@ -1,4 +1,3 @@
-component = {
-    name = "ECSInspectorWindow",
+ECSInspectorWindowComponent = {
     fields = { { type = "bool", name = "show" } }
 }

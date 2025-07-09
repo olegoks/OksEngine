@@ -2,5 +2,5 @@
 
 namespace Common
 {
-
+	NOINLINE void BreakPointLine() {}
 }

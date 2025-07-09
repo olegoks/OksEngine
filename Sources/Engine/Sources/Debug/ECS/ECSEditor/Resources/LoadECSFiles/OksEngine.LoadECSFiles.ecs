@@ -1,44 +1,47 @@
-system = {
-    name = "LoadECSFiles",
-    runAfter = "GraphEditorBegin",
-    runBefore = "GraphEditorEnd",
-    processesEntities = {
-        {
-            processesComponents = { 
-                "ImGuiState",
-                "ECSEditorWindow",
-                "EditorContext",
-                "LoadingECSFiles"
-            },
-            createsComponents = {
-                "CreateLinksRequest"
-            }
-        },
-        {
-            processesComponents = { 
-                "ResourceSystem"
-            },
-        }
+LoadECSFilesSystem = {
+    callOrder = {
+        runAfter = "GraphEditorBegin",
+        runBefore = "GraphEditorEnd"
     },
-    createsEntities = {
-        {
-            createsComponents = {
-                "CallGraphNode",
-                "Name",
-                "RootNode",
-                "Position2D",
-                "Serializable",
-                "RunBefore",
-                "RunAfter",
-                "BeforePin",
-                "AfterPin"
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState",
+                    "ECSEditorWindow",
+                    "EditorContext",
+                    "LoadingECSFiles"
+                },
+                createsComponents = {
+                    "CreateLinksRequest"
+                }
+            },
+            {
+                processesComponents = { 
+                    "ResourceSystem"
+                },
             }
         },
-        {
-            createsComponents = {
-                "Pin",
-                "Name",
-                "Serializable"
+        createsEntities = {
+            {
+                createsComponents = {
+                    "CallGraphNode",
+                    "Name",
+                    "RootNode",
+                    "Position2D",
+                    "Serializable",
+                    "RunBefore",
+                    "RunAfter",
+                    "BeforePin",
+                    "AfterPin"
+                }
+            },
+            {
+                createsComponents = {
+                    "Pin",
+                    "Name",
+                    "Serializable"
+                }
             }
         }
     }

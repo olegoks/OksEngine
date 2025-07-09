@@ -1,6 +1,13 @@
-system = {
-    name = "DrawLink",
-    runAfter = "DrawNodes",
-    runBefore = "GraphEditorEnd",
-    processesComponents = { "Link" },
+DrawLinkSystem = {
+    callOrder = {
+        runAfter = "DrawNodes",
+        runBefore = "GraphEditorEnd"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+               processesComponents = { "Link" }
+            }
+        }
+    }   
 }

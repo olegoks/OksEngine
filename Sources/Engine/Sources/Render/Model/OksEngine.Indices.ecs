@@ -1,5 +1,4 @@
-component = {
-    name = "Indices",
+IndicesComponent = {
     serializable = false,
     fields = { { type="Geom::IndexBuffer<Geom::Index16>", name="indices" } }
 }

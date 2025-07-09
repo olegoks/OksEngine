@@ -1,7 +1,9 @@
-system = {
-    name = "CreateSceneLoadRequest",
-    runAfter = "GraphEditorBegin",
-    runBefore = "GraphEditorEnd",
+CreateSceneLoadRequestSystem = {
+    callOrder = {
+        runAfter = "GraphEditorBegin",
+        runBefore = "GraphEditorEnd"
+    },
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = { 
@@ -18,5 +20,5 @@ system = {
             excludes = { "LoadSceneRequest" }
         }
     }
-   
+    }
 }

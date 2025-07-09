@@ -1,4 +1,3 @@
-component = {
-    name = "ECSMenu",
+ECSMenuComponent = {
     fields = { { type = "bool", name = "show",  } }
 }

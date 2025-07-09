@@ -1,7 +1,14 @@
-system = {
-    name = "ClearKeyboardInput",
-    runAfter = "EndImGuiFrame",
-    processesComponents = {
-        { name = "KeyboardInput", readonly = false }
+ClearKeyboardInputSystem = {
+    callOrder = {
+        runAfter = "EndImGuiFrame"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "KeyboardInput", readonly = false }
+                }
+            }
+        }
     }
 }

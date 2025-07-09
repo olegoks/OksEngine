@@ -1,12 +1,13 @@
-system = {
-    name = "CreateECSController",
-    initSystem = true,
+CreateECSControllerSystem = {
+    type = "Initialize",
+    updateMethod = {
     createsEntities = {
         {
-        createsComponents = {
-            "ECSController"
+            createsComponents = {
+                "ECSController"
+            }
         }
-        }
+    }
     }
 }
 

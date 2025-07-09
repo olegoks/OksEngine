@@ -1,7 +1,11 @@
-system = {
-    name = "CreateResourceEntity",
-
-    processesComponents = { 
-		"LoadResourceRequest", "Name", "AsyncTask"
-	 }
+CreateResourceEntitySystem = {
+  updateMethod = {
+    processesEntities = {
+      {
+        processesComponents = { 
+		      "LoadResourceRequest", "Name", "AsyncTask"
+	      }
+      }
+    }
+  }
 }

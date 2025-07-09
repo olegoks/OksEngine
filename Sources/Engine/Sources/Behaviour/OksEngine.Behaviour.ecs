@@ -1,5 +1,4 @@
-component = {
-    name = "Behaviour",
+BehaviourComponent = {
     fields = { 
         { type = "std::string", name = "scriptName" },
         { type = "std::string", name = "objectName" }

@@ -1,8 +1,13 @@
-system = {
-    name = "CreateAsyncTask",
+CreateAsyncTaskSystem = {
+  updateMethod = {
+    processesEntities = {
+      {
     processesComponents = { 
 		"LoadResourceRequest", "Name"
 	  },
     createsComponents = { "AsyncTask", "WaitingForResourceLoading" },
     excludes = { "AsyncTask", "WaitingForResourceLoading" }
+      }
+    }
+  }
 }

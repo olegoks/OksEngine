@@ -1,5 +1,4 @@
-component = {
-    name = "API",
+APIComponent = {
     serializable = false,
     fields = { 
         { type = "std::shared_ptr<API>", name = "api" }

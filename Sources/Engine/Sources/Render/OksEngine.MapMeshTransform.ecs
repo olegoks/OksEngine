@@ -1,7 +1,11 @@
-system = {
-    name = "MapMeshTransform",
-
-    processesComponents = { 
-		"Position3D", "ModelEntity"
-	 }
+MapMeshTransformSystem = {
+  updateMethod = {
+    processesEntities = {
+      {
+        processesComponents = { 
+		      "Position3D", "ModelEntity"
+	      }
+      }
+    }
+  }
 }

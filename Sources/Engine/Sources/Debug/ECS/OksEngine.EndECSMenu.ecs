@@ -1,10 +1,17 @@
-system = {
-    name = "EndECSMenu",
-    runAfter = "BeginECSMenu",
-    runBefore = "EndMainMenuBar",
-    processesComponents = { 
-        "ImGuiState", 
-        "MainMenuBar",
-        "ECSMenu"
+EndECSMenuSystem = {
+    callOrder = {
+        runAfter = "BeginECSMenu",
+        runBefore = "EndMainMenuBar"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState", 
+                    "MainMenuBar",
+                    "ECSMenu"
+                }
+            }
+        }
     }
 }

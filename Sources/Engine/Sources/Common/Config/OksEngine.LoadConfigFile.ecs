@@ -1,9 +1,11 @@
-system = {
-    name = "LoadConfigFile",
-    initSystem = true,
-    runAfter = "CreateResourceSystem",
-    processesEntities  = {
-        {
+LoadConfigFileSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = "CreateResource"
+    },
+    updateMethod = {
+    processesEntities = {
+         {
             processesComponents = { 
                 "CommandLineParameters",
                 "ConfigFilePath"
@@ -22,6 +24,7 @@ system = {
                 "LuaScript"
             }
         }
+    }
     }
 }
 

@@ -1,9 +1,14 @@
-system = {
-    name = "RunAnimation",
-
-    processesComponents = { 
-         { name = "RunningAnimationState", readonly = false }, 
-        "StartAnimation",
-        "Clock"},
-        excludes = { "AnimationEnded" }
+RunAnimationSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "RunningAnimationState", readonly = false }, 
+                    "StartAnimation",
+                    "Clock"
+                },
+                excludes = { "AnimationEnded" }
+            }
+        }
+    }
 }

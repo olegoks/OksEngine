@@ -1,7 +1,7 @@
 #include <Resources\auto_OksEngine.CreateResourceSystem.hpp>
 
 namespace OksEngine {
-void CreateResourceSystem::Update() {
+void CreateResource::Update() {
 
 
 	auto resourceSubsystem = std::make_shared<AsyncResourceSubsystem>();

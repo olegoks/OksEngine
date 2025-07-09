@@ -1,12 +1,19 @@
-system = {
-    name = "RemoveSceneLoaded",
-    runAfter = "SetNodePosition",
-    runBefore = "DrawNodes",
-    processesComponents = { 
-        "ImGuiState",
-        "EditorContext",
-        "SceneLoaded"},
-    removesComponents = {
-        "SceneLoaded"
+RemoveSceneLoadedSystem = {
+    callOrder = {
+        runAfter = "SetNodePosition",
+        runBefore = "DrawNodes"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState",
+                    "EditorContext",
+                    "SceneLoaded"},
+                removesComponents = {
+                    "SceneLoaded"
+                }
+            }
+        }
     }
 }

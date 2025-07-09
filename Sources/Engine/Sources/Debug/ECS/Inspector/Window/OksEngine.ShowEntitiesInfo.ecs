@@ -1,19 +1,22 @@
-system = {
-    name = "ShowEntitiesInfo",
-    runAfter = { "BeginECSInspectorWindow" },
-    runBefore = { "EndECSInspectorWindow" },
-    processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState",
-                "MainMenuBar",
-                "ECSMenu",
-                "ECSInspectorMenuItem",
-                "ECSInspectorWindow"
-            }
-        },
-        {
-            processesAllCombinations = true
-        }
+ShowEntitiesInfoSystem = {
+    callOrder = {
+        runAfter = { "BeginECSInspectorWindow" },
+        runBefore = { "EndECSInspectorWindow" }
     },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "MainMenuBar",
+                    "ECSMenu",
+                    "ECSInspectorMenuItem",
+                    "ECSInspectorWindow"
+                }
+            },
+            {
+                processesAllCombinations = true
+            }
+        }   
+    }
 }

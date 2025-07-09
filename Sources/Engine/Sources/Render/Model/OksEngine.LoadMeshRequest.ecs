@@ -1,5 +1,4 @@
-component = {
-    name = "LoadMeshRequest",
+LoadMeshRequestComponent = {
     serializable = false,
     fields = { { type="std::map<std::string, ECS2::Entity::Id>", name="resourceEntityId" } }
 }

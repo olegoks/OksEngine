@@ -1,5 +1,5 @@
-system = {
-    name = "RenderImGuiUI",
+RenderImGuiUISystem = {
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = { 
@@ -11,5 +11,6 @@ system = {
                 { name = "RenderDriver", readonly = false } 
             }
         }
+    }
     }
 }

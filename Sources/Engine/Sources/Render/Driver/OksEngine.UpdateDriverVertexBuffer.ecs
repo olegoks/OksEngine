@@ -1,17 +1,18 @@
-system = {
-    name = "UpdateDriverVertexBuffer",
-    processesEntities = {
-        {
-            processesComponents = { 
-                "Vertices2D", 
-                "Indices", 
-                "UVs",
-                { name = "DriverVertexBuffer", readonly = false } 
-            }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
+UpdateDriverVertexBufferSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Vertices2D", 
+                    "Indices", 
+                    "UVs",
+                    { name = "DriverVertexBuffer", readonly = false } 
+                }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false } 
+                }
             }
         }
     }

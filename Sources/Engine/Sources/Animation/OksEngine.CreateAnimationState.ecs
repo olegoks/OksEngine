@@ -1,8 +1,13 @@
-system = {
-    name = "CreateAnimationState",
-    processesComponents = { 
-        "Animation", 
-        "StartAnimation" },
-    createsComponents = { "RunningAnimationState" },
-    excludes = { "RunningAnimationState" }
+CreateAnimationStateSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Animation", 
+                    "StartAnimation" },
+                createsComponents = { "RunningAnimationState" },
+                excludes = { "RunningAnimationState" }
+            }
+        }
+    }
 }

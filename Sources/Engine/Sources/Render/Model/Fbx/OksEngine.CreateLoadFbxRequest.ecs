@@ -1,9 +1,13 @@
-system = {
-    name = "CreateLoadFbxRequest",
-    processesComponents = { 
-		"GDF"
-	 },
-	 createsComponents = { "LoadFbxRequest" },
-	 excludes = { "LoadFbxRequest" }
-
+CreateLoadFbxRequestSystem = {
+	updateMethod = {
+		processesEntities = {
+			{
+    			processesComponents = { 
+					"GDF"
+				},
+	 			createsComponents = { "LoadFbxRequest" },
+	 			excludes = { "LoadFbxRequest" }
+			}
+		}
+	}
 }

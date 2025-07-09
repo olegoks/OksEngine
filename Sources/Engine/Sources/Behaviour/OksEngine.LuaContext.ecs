@@ -1,5 +1,4 @@
-component = {
-    name = "LuaContext",
+LuaContextComponent = {
     serializable = false,
     fields = { 
         { 

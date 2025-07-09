@@ -117,6 +117,9 @@ namespace ECSGenerator2 {
 			return requiredComponentNames;
 		}
 
+		std::unordered_set<std::string> GenerateCreatesEntitiesRequiredComponentIncludes() {
+
+		}
 
 		File::Includes GenerateUpdateMethodIncludes(
 			const std::string& includeDirectory,
@@ -474,6 +477,10 @@ namespace ECSGenerator2 {
 				generateIsEntityExist2MethodRealization(system)
 			};
 
+
+			if (system->ci_.afterUpdateMethod_ != nullptr) {
+				methods.push_back(generateAfterUpdateMethodPrototype(system));
+			}
 			Struct::CreateInfo sci{
 				.name_ = system->GetName(),
 				.parent_ = "",
