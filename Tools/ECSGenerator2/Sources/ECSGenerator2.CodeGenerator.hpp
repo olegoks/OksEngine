@@ -26,8 +26,6 @@ namespace ECSGenerator2 {
 			}
 			code.Add("{");
 
-
-
 			Code structRealization;
 			{
 				if (structObject->ci_.defaultConstructor_) {

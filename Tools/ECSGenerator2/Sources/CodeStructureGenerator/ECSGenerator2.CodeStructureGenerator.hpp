@@ -19,11 +19,9 @@ namespace ECSGenerator2 {
 
 		}
 
-		std::vector<std::shared_ptr<File>> Generate(
+		std::shared_ptr<File> GenerateECSFileHppFile(
 			const std::filesystem::path& includeDirectory,
 			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
-
-
 
 			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
 
@@ -33,7 +31,6 @@ namespace ECSGenerator2 {
 			includes.paths_.insert("OksEngine.IComponent.hpp");
 
 			std::unordered_set<std::string> includeComponents;
-
 
 			parsedECSFile->ForEachComponent(
 				[&](std::shared_ptr<ParsedComponent> parsedComponent) {
@@ -60,18 +57,8 @@ namespace ECSGenerator2 {
 					auto serializeFunction = componentGenerator.GenerateSerializeFunction(parsedComponent);
 					namespaceObject->Add(serializeFunction);
 
-
-
 					auto componentIncludes = componentGenerator.GenerateIncludes(parsedComponent);
 					includes.paths_.insert(componentIncludes.paths_.begin(), componentIncludes.paths_.end());
-					//Generate system structure.
-					//auto systemStruct = systemGenerator.GenerateSystemStructCode(parsedSystem);
-					//namespaceObject->Add(systemStruct);
-
-					////Generate run system function.
-					//auto runSystemFunction = systemGenerator.GenerateRunSystemCodeRealization(parsedSystem);
-					//namespaceObject->Add(runSystemFunction);
-
 				});
 
 			parsedECSFile->ForEachSystem(
@@ -100,9 +87,6 @@ namespace ECSGenerator2 {
 					namespaceObject->Add(runSystemFunction);
 
 				});
-
-
-
 
 			//Generate includes using include directory.
 			for (const std::string componentName : includeComponents) {
@@ -140,10 +124,132 @@ namespace ECSGenerator2 {
 			auto file = std::make_shared<File>(fci);
 
 			return { file };
-
-
 		}
 
+
+		std::shared_ptr<File> GenerateECSFileCppFile(
+			const std::filesystem::path& includeDirectory,
+			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
+
+			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			{
+				using namespace std::string_literals;
+
+				auto generateUpdateMethod = [](std::shared_ptr<ParsedSystem> system) {
+
+					auto generateUpdateMethodParameters =
+						[](std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethodInfo) {
+
+								std::vector<Function::Parameter> updateMethodParameters;
+
+								Common::UInt64 currentEntityIndex = 0;
+								updateMethodInfo->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
+
+									updateMethodParameters.push_back({
+										"ECS2::Entity::Id",
+										std::format("entity{}id", currentEntityIndex) });
+
+									entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
+										Function::Parameter parameter;
+										if (include.IsReadonly()) {
+											parameter.inputType_ = std::format("const {}*", include.GetName());
+										}
+										else {
+											parameter.inputType_ = std::format("{}*", include.GetName());
+										}
+
+										parameter.valueName_ = std::format("{}{}", include.GetLowerName(), currentEntityIndex);
+										updateMethodParameters.push_back(parameter);
+										return true;
+										});
+
+									++currentEntityIndex;
+									return true;
+									});
+
+								return updateMethodParameters;
+
+						};
+
+					//Update method.
+					const std::vector<Function::Parameter> updateMethodParameters
+						= generateUpdateMethodParameters(system->ci_.updateMethod_);
+
+					Function::CreateInfo updateMethodCI{
+						.name_ = system->GetName() + "::Update",
+						.parameters_ = updateMethodParameters,
+						.returnType_ = "void",
+						.code_ = "",
+						.isPrototype_ = false,
+						.inlineModifier_ = false
+					};
+
+					auto updateMethod = std::make_shared<Function>(updateMethodCI);
+
+					return updateMethod;
+					};
+				auto generateAfterUpdateMethod = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
+
+						Function::CreateInfo afterUpdateMethodCI{
+							.name_ = systemEcsFile->GetName() + "::AfterUpdate",
+							.parameters_ = { },
+							.returnType_ = "void",
+							.code_ = "",
+							.isPrototype_ = false,
+							.inlineModifier_ = false
+						};
+
+						auto afterUpdateMethod = std::make_shared<Function>(afterUpdateMethodCI);
+
+						return afterUpdateMethod;
+
+					};
+
+				parsedECSFile->ForEachSystem([&](std::shared_ptr<ParsedSystem> parsedSystem) {
+
+					namespaceObject->Add(generateUpdateMethod(parsedSystem));
+					if (parsedSystem->ci_.afterUpdateMethod_ != nullptr) {
+						namespaceObject->Add(generateAfterUpdateMethod(parsedSystem));
+					}
+
+					});
+
+			}
+
+			File::Includes includes;
+			auto ecsFilePath = parsedECSFile->GetPath();
+
+			//auto [it, _] = std::mismatch(
+			//	ecsFilePath.begin(), ecsFilePath.end(),
+			//	includeDirectory.begin()
+			//);
+			//std::filesystem::path filePath;
+
+			//while (it != ecsFilePath.end()) {
+			//	filePath /= *it;
+			//	++it;
+			//}
+
+			includes.paths_.insert(ecsFilePath.parent_path() / ("auto_OksEngine." + parsedECSFile->GetName() + ".cpp"));
+
+			File::CreateInfo fci{
+				.isHpp_ = true,
+				.includes_ = includes,
+				.base_ = namespaceObject
+			};
+			auto file = std::make_shared<File>(fci);
+
+			return { file };
+		}
+
+		std::vector<std::shared_ptr<File>> Generate(
+			const std::filesystem::path& includeDirectory,
+			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
+
+			auto hppSystemFile = GenerateECSFileHppFile(includeDirectory, parsedECSFile);
+			auto cppSystemFile = GenerateECSFileCppFile(includeDirectory, parsedECSFile);
+			return { hppSystemFile, cppSystemFile };
+		}
 
 		void ProcessDirectory(
 			const std::filesystem::path currentDir,
@@ -623,9 +729,7 @@ namespace ECSGenerator2 {
 			auto file = std::make_shared<File>(fci);
 
 			return file;
-
 		}
-
 
 		std::shared_ptr<File> GenerateEditEntityHppFile(std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) {
 
@@ -789,8 +893,6 @@ namespace ECSGenerator2 {
 			//return { systemCppFileFullPath, file };
 		}
 
-
-
 		using System = std::string;
 		using Component = std::string;
 
@@ -896,7 +998,6 @@ namespace ECSGenerator2 {
 			SystemsOrder systemsOrder_;
 		};
 
-
 		Code GenerateRunSystemCode(std::shared_ptr<ParsedSystem> systemEcsFile) {
 			Code runSystemCode;
 			runSystemCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + systemEcsFile->GetName() + "\");");
@@ -905,7 +1006,6 @@ namespace ECSGenerator2 {
 			runSystemCode.Add("PIXEndEvent();");
 			return runSystemCode;
 		}
-
 
 		std::shared_ptr<Function> GenerateRunInitSystemsFunctionRealization(std::vector<std::shared_ptr<ParsedSystem>> parsedSystems) {
 
@@ -1152,7 +1252,6 @@ namespace ECSGenerator2 {
 
 			return cppCreateThreadsFunctionObject;
 		}
-
 
 		std::shared_ptr<File> GenerateRunSystemsHppFile() {
 
@@ -1754,28 +1853,7 @@ namespace ECSGenerator2 {
 
 			return cppFile;
 
-			//Generate files Paths
-
-			//auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
-
-			//std::filesystem::path includeDirFullPath = GetSubPath(randomEcsFilePath, projectContext->includeDirectory_, ECSGenerator::ResultRange::FromStartToStartFolder, SearchDirection::FromEndToBegin, false);
-
-			//std::filesystem::path systemCppFileFullPath = includeDirFullPath / ("auto_OksEngine.RunSystems.cpp");
-			//FormatPath(systemCppFileFullPath);
-
-			//return { systemCppFileFullPath , cppFile };
-
 		}
-
-		//std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>>
-		//	GenerateRunSystemsFiles(std::vector<std::vector<Agnode_t*>> clusters, std::shared_ptr<ProjectContext> projectContext) {
-
-		//	return {
-		//		GenerateRunSystemsHppFile(projectContext),
-		//		GenerateRunSystemsCppFile(clusters, projectContext)
-		//	};
-		//}
-
 
 		CreateInfo ci_;
 	};
