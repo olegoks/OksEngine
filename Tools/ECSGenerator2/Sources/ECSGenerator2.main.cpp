@@ -95,13 +95,19 @@ int main(int argc, char** argv) {
 	{
 		for (auto parsedECSFile : parsedECSFiles) {
 
-			auto generatedFiles = codeStructureGenerator.Generate(
-				includeDirArgv,
-				parsedECSFile);
+			//Generate system hpp file.
+			//Always generate .hpp files.
+			auto systemHppFile = codeStructureGenerator.GenerateECSFileHppFile(includeDirArgv, parsedECSFile);
+			const auto ecsHppPath = parsedECSFile->GetPath().parent_path() / ("auto_" + parsedECSFile->GetPath().filename().stem().string() + ".hpp");
+			structureFiles[ecsHppPath] = systemHppFile;
+			
+			//Generate system cpp file.
+			//Generate .cpp files if they doesn't exist.
+			const auto ecsCppPath = parsedECSFile->GetPath().parent_path() / (parsedECSFile->GetPath().filename().stem().string() + ".cpp");
 
-			for (auto generateFile : generatedFiles) {
-				const auto ecsHppPath = parsedECSFile->GetPath().parent_path() / ("auto_" + parsedECSFile->GetPath().filename().stem().string() + ".hpp");
-				structureFiles[ecsHppPath] = generateFile;
+			if (!resourceSystem.IsFileExist(ecsCppPath) && parsedECSFile->IsContainsSystems()) {
+				auto systemCppFile = codeStructureGenerator.GenerateECSFileCppFile(includeDirArgv, parsedECSFile);
+				structureFiles[ecsCppPath] = systemCppFile;
 			}
 
 		}
@@ -114,7 +120,6 @@ int main(int argc, char** argv) {
 	}
 
 	//Generate Parse entity code structure.
-
 	auto parseEntityCodeStructure = codeStructureGenerator.GenerateParseEntityHppFile(parsedECSFiles);
 	std::pair<
 		std::filesystem::path,
@@ -171,58 +176,6 @@ int main(int argc, char** argv) {
 		osFile->Create();
 		*osFile << codeFile->code_.code_;
 	}
-
-	//Generate system .cpp files if need.
-	//projectContext->ForEachEcsFile(
-	//	[&](std::shared_ptr<ECSGenerator2::ParsedECSFile> ecsFile) {
-	//		auto systemEcsFile = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(ecsFile);
-	//		ECSGenerator2::SystemFileStructureGenerator::CreateInfo ci{
-	//			.includeDirectory_ = projectContext->includeDirectory_
-	//		};
-	//		ECSGenerator2::SystemFileStructureGenerator generator{ ci };
-	//		auto file = generator.GenerateSystemRealization(projectContext, systemEcsFile);
-
-	//		if (!std::filesystem::exists(file.first)) {
-	//			auto codeFile = codeGenerator->GenerateCode(file.second);
-
-
-
-	//			OS::TextFile cxxECSCodeFile{ file.first };
-	//			cxxECSCodeFile.Create();
-	//			cxxECSCodeFile << codeFile->code_.code_;
-	//		}
-	//		return true;
-	//	});
-
-
-	//auto files = generator->GenerateECSCXXFilesStructure(projectContext);
-	//auto editEntityFile = generator->GenerateEditEntityHppFile(projectContext);
-	//files.push_back(editEntityFile);
-	//auto parseEntityFile = generator->GenerateParseEntityHppFile(projectContext);
-	//files.push_back(parseEntityFile);
-	//auto serializeEntityFile = generator->GenerateSerializeEntityHppFile(projectContext);
-	//files.push_back(serializeEntityFile);
-	//ECSGenerator2::SystemCallsGraphDescriptionGenerator dotGenerator;
-	//auto* graph = dotGenerator.CreateSystemsGraph(projectContext);
-	//auto clusters = dotGenerator.FindClusters(graph);
-	//auto runSystemFile = generator->GenerateRunSystemsFiles(clusters, projectContext);
-	//auto dotFile = dotGenerator.GenerateGraphText(graph, projectContext);
-
-	//files.push_back(runSystemFile[0]);
-	//files.push_back(runSystemFile[1]);
-
-	//for (auto file : files) {
-	//	if (file.first.filename().string() == "auto_OksEngine.RunSystems.cpp") {
-	//		//__debugbreak();
-	//	}
-	//	auto codeFile = codeGenerator->GenerateCode(file.second);
-
-
-
-	//	OS::TextFile cxxECSCodeFile{ file.first };
-	//	cxxECSCodeFile.Create();
-	//	cxxECSCodeFile << codeFile->code_.code_;
-	//}
 
 	return 0;
 }
