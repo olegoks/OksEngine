@@ -19,6 +19,8 @@ namespace ECSGenerator2 {
 
 		}
 
+
+		//Generate .hpp files for .ecs files that contain systems and components
 		std::shared_ptr<File> GenerateECSFileHppFile(
 			const std::filesystem::path& includeDirectory,
 			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
@@ -219,18 +221,18 @@ namespace ECSGenerator2 {
 			File::Includes includes;
 			auto ecsFilePath = parsedECSFile->GetPath();
 
-			//auto [it, _] = std::mismatch(
-			//	ecsFilePath.begin(), ecsFilePath.end(),
-			//	includeDirectory.begin()
-			//);
-			//std::filesystem::path filePath;
+			auto [it, _] = std::mismatch(
+				ecsFilePath.begin(), ecsFilePath.end(),
+				includeDirectory.begin()
+			);
+			std::filesystem::path filePath;
 
-			//while (it != ecsFilePath.end()) {
-			//	filePath /= *it;
-			//	++it;
-			//}
+			while (it != ecsFilePath.end()) {
+				filePath /= *it;
+				++it;
+			}
 
-			includes.paths_.insert(ecsFilePath.parent_path() / ("auto_OksEngine." + parsedECSFile->GetName() + ".cpp"));
+			includes.paths_.insert(filePath.parent_path() / ("auto_" + parsedECSFile->GetName() + ".hpp"));
 
 			File::CreateInfo fci{
 				.isHpp_ = true,
@@ -247,7 +249,11 @@ namespace ECSGenerator2 {
 			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
 
 			auto hppSystemFile = GenerateECSFileHppFile(includeDirectory, parsedECSFile);
+			
+			
 			auto cppSystemFile = GenerateECSFileCppFile(includeDirectory, parsedECSFile);
+
+
 			return { hppSystemFile, cppSystemFile };
 		}
 

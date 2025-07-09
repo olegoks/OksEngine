@@ -1,7 +1,6 @@
 #pragma once
 
 #include <ECSGenerator2.Common.hpp>
-#include <ECSGenerator2.ProjectContext.hpp>
 #include <ECSGenerator2.CodeFile.hpp>
 
 #include <clang/Format/Format.h>

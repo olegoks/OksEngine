@@ -39,6 +39,11 @@ namespace ECSGenerator2 {
 		}
 
 		[[nodiscard]]
+		bool IsContainsSystems() const noexcept {
+			return !ci_.systems_.empty();
+		}
+
+		[[nodiscard]]
 		bool IsContainsComponent(const std::string& componentName) {
 			for (auto parsedComponent : ci_.components_) {
 				if (componentName == parsedComponent->GetName()) {
