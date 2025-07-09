@@ -83,6 +83,9 @@ namespace ECSGenerator2 {
 
 					SystemStructureGenerator systemGenerator{ ssgci };
 
+					if (parsedSystem->GetName() == "CallUpdateMethod") {
+						Common::BreakPointLine();
+					}
 					//Add include components.
 					auto systemIncludeComponents = systemGenerator.GenerateUpdateMethodRequiredComponentIncludes(parsedSystem->ci_.updateMethod_);
 
@@ -122,7 +125,7 @@ namespace ECSGenerator2 {
 							++it;
 						}
 
-						includes.paths_.insert((componentIncludePath / componentName).string() + ".hpp");
+						includes.paths_.insert((componentIncludePath / ("auto_OksEngine." + componentName)).string() + ".hpp");
 
 					}
 				}
@@ -149,6 +152,9 @@ namespace ECSGenerator2 {
 
 			// Рекурсивно обрабатываем поддиректории
 			std::vector<std::filesystem::path> subdirs;
+			if (std::filesystem::path{ "D:/OksEngine/Tools/ECSGenerator2/../../Sources/Engine/Sources/Render" } == currentDir) {
+				Common::BreakPointLine();
+			}
 			for (const auto& entry : std::filesystem::directory_iterator(currentDir)) {
 				if (entry.is_directory()) {
 					ProcessDirectory(entry.path(), includeDirectory, pathToHppECSFile); // Обработка поддиректории
@@ -189,7 +195,7 @@ namespace ECSGenerator2 {
 			}
 			// Включаем OksEngine.Components.hpp из поддиректорий
 			for (const auto& subdir : subdirs) {
-				includes.paths_.insert(subdir.string() + "/auto_OksEngine.ECS.hpp");
+				includes.paths_.insert((filePath / subdir).string() + "/auto_OksEngine.ECS.hpp");
 			}
 
 			File::CreateInfo fci{
@@ -283,7 +289,7 @@ namespace ECSGenerator2 {
 				//Generate edit components.
 				for (auto parsedComponent : parsedComponents) {
 
-					if (!parsedComponent->serializable_) {
+					if (!parsedComponent->ci_.serializable_) {
 						continue;
 					}
 
@@ -399,7 +405,7 @@ namespace ECSGenerator2 {
 
 					auto component = components[i];
 
-					if (!component->serializable_) {
+					if (!component->ci_.serializable_) {
 						continue;
 					}
 					code.Add("{");
@@ -533,7 +539,7 @@ namespace ECSGenerator2 {
 					"auto* nameComponent = world->GetComponent<Name>(entityId);"
 					"name = nameComponent->value_;"
 					"}"
-					"if (ImGui::CollapsingHeader((\"Id: \" + idString + \"  \"\" + name + \"\" \" + magic_enum::enum_name(world->GetEntityType(entityId)).data()).c_str())) {"
+					"if (ImGui::CollapsingHeader((\"Id: \" + idString + \"  \" + name + \" \" + magic_enum::enum_name(world->GetEntityType(entityId)).data()).c_str())) {"
 					"ImGui::Indent(20.f);"
 
 					"auto editComponent = []<class ComponentType>(std::shared_ptr<ECS2::World> world, ECS2::Entity::Id id) {"
@@ -913,30 +919,33 @@ namespace ECSGenerator2 {
 					else {
 						currentSystemNodeId = initCallGraph.FindNode(parsedSystem->GetName());
 					}
-					parsedSystem->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const System& afterSystem) {
-						DS::Graph<System>::Node::Id afterSystemNodeId = DS::Graph<System>::Node::invalidId_;
-						if (!initCallGraph.IsNodeExist(afterSystem)) {
-							afterSystemNodeId = initCallGraph.AddNode(afterSystem);
-						}
-						else {
-							afterSystemNodeId = initCallGraph.FindNode(afterSystem);
-						}
-						initCallGraph.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
-						return true;
-						});
+					if (parsedSystem->ci_.callOrderInfo_ != nullptr) {
+						parsedSystem->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const System& afterSystem) {
+							DS::Graph<System>::Node::Id afterSystemNodeId = DS::Graph<System>::Node::invalidId_;
+							if (!initCallGraph.IsNodeExist(afterSystem)) {
+								afterSystemNodeId = initCallGraph.AddNode(afterSystem);
+							}
+							else {
+								afterSystemNodeId = initCallGraph.FindNode(afterSystem);
+							}
+							initCallGraph.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
+							return true;
+							});
+					}
+					if (parsedSystem->ci_.callOrderInfo_ != nullptr) {
+						parsedSystem->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const System& beforeSystem) {
 
-					parsedSystem->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const System& beforeSystem) {
-
-						DS::Graph<System>::Node::Id beforeSystemNodeId = DS::Graph<System>::Node::invalidId_;
-						if (!initCallGraph.IsNodeExist(beforeSystem)) {
-							beforeSystemNodeId = initCallGraph.AddNode(beforeSystem);
-						}
-						else {
-							beforeSystemNodeId = initCallGraph.FindNode(beforeSystem);
-						}
-						initCallGraph.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);
-						return true;
-						});
+							DS::Graph<System>::Node::Id beforeSystemNodeId = DS::Graph<System>::Node::invalidId_;
+							if (!initCallGraph.IsNodeExist(beforeSystem)) {
+								beforeSystemNodeId = initCallGraph.AddNode(beforeSystem);
+							}
+							else {
+								beforeSystemNodeId = initCallGraph.FindNode(beforeSystem);
+							}
+							initCallGraph.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);
+							return true;
+							});
+					}
 				}
 			}
 
@@ -1201,7 +1210,7 @@ namespace ECSGenerator2 {
 			includes.paths_.insert("boost/asio/thread_pool.hpp");
 			includes.paths_.insert("boost/asio/post.hpp");
 			includes.paths_.insert("ECS2.World.hpp");
-
+			includes.paths_.insert("auto_OksEngine.ECS.hpp");
 
 			//hpp file
 			File::CreateInfo fci{
@@ -1329,15 +1338,19 @@ namespace ECSGenerator2 {
 			for (auto parsedECSFile : parsedECSFiles) {
 				parsedECSFile->ForEachSystem(
 					[&](std::shared_ptr<ParsedSystem> parsedSystem) {
-						if (parsedSystem->GetThread() == ParsedSystem::Thread::Child) {
-							childThread.systems_.push_back(parsedSystem);
-						}
-						if (parsedSystem->GetThread() == ParsedSystem::Thread::Main) {
-							mainThread.systems_.push_back(parsedSystem);
+						if (parsedSystem->ci_.type_ == ParsedSystem::Type::FrameToFrame) {
+
+
+							if (parsedSystem->GetThread() == ParsedSystem::Thread::Child) {
+								childThread.systems_.push_back(parsedSystem);
+							}
+							if (parsedSystem->GetThread() == ParsedSystem::Thread::Main) {
+								mainThread.systems_.push_back(parsedSystem);
+							}
 						}
 					});
 			}
-
+			childThreads.push_back(childThread);
 
 			//{
 			//	for (auto& clusterSystems : clusters) {
@@ -1410,24 +1423,26 @@ namespace ECSGenerator2 {
 
 					DS::Graph<System>::Node::Id currentSystemNodeId = getCreateSystemNode(thread.callGraph_, system->GetName());
 
-					system->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const std::string& afterSystem) {
+					if (system->ci_.callOrderInfo_ != nullptr) {
+						system->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const std::string& afterSystem) {
 #pragma region Assert 
-						//OS::AssertMessage(thread.systems_.contains(afterSystem), "Current thread doesn't contain After System:" + afterSystem);
+							//OS::AssertMessage(thread.systems_.contains(afterSystem), "Current thread doesn't contain After System:" + afterSystem);
 #pragma endregion		
-						DS::Graph<System>::Node::Id afterSystemNodeId = getCreateSystemNode(thread.callGraph_, afterSystem);
-						thread.callGraph_.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
-						return true;
-						});
-
-					system->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const std::string& beforeSystem) {
+							DS::Graph<System>::Node::Id afterSystemNodeId = getCreateSystemNode(thread.callGraph_, afterSystem);
+							thread.callGraph_.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
+							return true;
+							});
+					}
+					if (system->ci_.callOrderInfo_ != nullptr) {
+						system->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const std::string& beforeSystem) {
 #pragma region Assert 
-						//OS::AssertMessage(thread.systems_.contains(beforeSystem), "Current thread doesn't contain Before System:" + beforeSystem);
+							//OS::AssertMessage(thread.systems_.contains(beforeSystem), "Current thread doesn't contain Before System:" + beforeSystem);
 #pragma endregion		
-						DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, beforeSystem);
-						thread.callGraph_.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);
-						return true;
-						});
-
+							DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, beforeSystem);
+							thread.callGraph_.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);
+							return true;
+							});
+					}
 				}
 
 				///CREATE GRAPHVIZ CALL GRAPH

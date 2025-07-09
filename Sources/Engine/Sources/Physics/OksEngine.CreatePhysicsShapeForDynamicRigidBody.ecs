@@ -1,7 +1,5 @@
-system = {
-    name = "CreatePhysicsShapeForDynamicRigidBody",
-
-
+CreatePhysicsShapeForDynamicRigidBodySystem = {
+	updateMethod = {
 	processesEntities = {
 		{
     		processesComponents = { 
@@ -23,6 +21,7 @@ system = {
 		{
 			processesComponents = { { name = "PhysicsEngine", readonly = false } }
 		}
+	}
 	}
 }
 

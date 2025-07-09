@@ -1,10 +1,17 @@
-system = {
-    name = "CreateLuaScriptEntity",
-    processesComponents = { 
-        "LoadLuaScriptRequest"
-        },
-        createsComponents = { "LuaScriptEntity" },
-    excludes = {
-        "LuaScriptEntity"
+CreateLuaScriptEntitySystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "LoadLuaScriptRequest"
+                },
+                createsComponents = { 
+                    "LuaScriptEntity"
+                },
+                excludes = {
+                    "LuaScriptEntity"
+                }
+            }
+        }
     }
 }

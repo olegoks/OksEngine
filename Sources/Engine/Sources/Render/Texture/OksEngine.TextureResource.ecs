@@ -1,5 +1,4 @@
-component = {
-    name = "TextureResource",
+TextureResourceComponent = {
     serializable = false,
     fields = { 
         { type = "RAL::Driver::ResourceSet::Id", name = "id" } }

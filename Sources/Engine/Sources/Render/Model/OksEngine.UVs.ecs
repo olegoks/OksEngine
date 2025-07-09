@@ -1,5 +1,4 @@
-component = {
-    name = "UVs",
+UVsComponent = {
     serializable = false,
     fields = { { type="DS::Vector<Geom::UV2f>", name="uvs" } }
 }

@@ -1,6 +1,11 @@
-system = {
-    name = "CreateImGUIPosition2D",
-    processesComponents = { "ImGuiState" },
-    createsComponents = { "Position2D" },
-	exclude = { "Position2D" }
+CreateImGUIPosition2DSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { "ImGuiState" },
+                createsComponents = { "Position2D" },
+	            exclude = { "Position2D" }
+            }
+        }
+    }
 }

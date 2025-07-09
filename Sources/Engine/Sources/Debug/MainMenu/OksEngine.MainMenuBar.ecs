@@ -1,4 +1,3 @@
-component = {
-    name = "MainMenuBar",
+MainMenuBarComponent = {
     fields = { { type = "bool", name = "show",  } }
 }

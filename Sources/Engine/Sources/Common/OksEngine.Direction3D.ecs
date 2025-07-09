@@ -1,5 +1,4 @@
-component = {
-    name = "Direction3D",
+Direction3DComponent = {
     fields = { 
         { type = "float", name = "x" },
         { type = "float", name = "y" },

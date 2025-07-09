@@ -1,5 +1,5 @@
-system = {
-    name = "UpdateDriverIndexBuffer",
+UpdateDriverIndexBufferSystem = {
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = { 
@@ -11,6 +11,7 @@ system = {
         {
             processesComponents = { { name = "RenderDriver", readonly = false } }
         }
+    }
     }
 }
 

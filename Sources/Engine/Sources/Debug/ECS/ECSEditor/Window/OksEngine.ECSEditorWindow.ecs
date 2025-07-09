@@ -1,4 +1,3 @@
-component = {
-    name = "ECSEditorWindow",
+ECSEditorWindowComponent = {
     fields = { { type = "bool", name = "show" } }
 }

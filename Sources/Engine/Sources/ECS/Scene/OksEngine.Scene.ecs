@@ -1,4 +1,3 @@
-component = {
-    name = "Scene",
+SceneComponent = {
     serializable = false
 }

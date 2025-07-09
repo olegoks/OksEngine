@@ -1,5 +1,5 @@
-system = {
-    name = "CreateDriverVertexBuffer2D",
+CreateDriverVertexBuffer2DSystem = {
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = { "Vertices2D", "Indices", "Colors", "UVs" },
@@ -10,6 +10,6 @@ system = {
             processesComponents = { { name = "RenderDriver", readonly = false } }
         }
     }
-
+    }
 }
 

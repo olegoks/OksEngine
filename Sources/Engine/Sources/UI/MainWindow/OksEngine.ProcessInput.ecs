@@ -1,8 +1,12 @@
-
-system = {
-    name = "ProcessInput",
+ProcessInputSystem = {
     thread = "Main",
-    processesComponents = {
-        { name = "MainWindow", readonly = false}
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MainWindow", readonly = false}
+                }
+            }
+        }
     }
 }

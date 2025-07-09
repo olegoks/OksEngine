@@ -1,5 +1,5 @@
-system = {
-    name = "ValidateECSController",
+ValidateECSControllerSystem = {
+    updateMethod = {
     processesEntities  = {
         {
             processesComponents = { 
@@ -8,6 +8,7 @@ system = {
                 "SaveSceneRequest"
             }
         }
+    }
     }
 }
 

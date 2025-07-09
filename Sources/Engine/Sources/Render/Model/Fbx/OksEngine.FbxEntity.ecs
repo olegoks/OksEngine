@@ -1,5 +1,4 @@
-component = {
-    name = "FbxEntity",
+FbxEntityComponent = {
     serializable = false,
     fields = { { type="ECS2::Entity::Id", name="id" } }
 }

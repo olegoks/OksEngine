@@ -1,5 +1,4 @@
-component = {
-    name = "ImGuiAtlasTexture",
+ImGuiAtlasTextureComponent = {
     serializable = false,
     fields = { 
         { type = "Common::Size", name = "width" },

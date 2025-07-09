@@ -1,9 +1,14 @@
-system = {
-    name = "CallInputProcessor",
-    processesComponents = { 
-        "Behaviour", 
-        { name = "LuaContext", readonly = false }, 
-        { name = "KeyboardInput", readonly = false }, 
-        { name = "MouseInput", readonly = false }
+CallInputProcessorSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Behaviour", 
+                    { name = "LuaContext", readonly = false }, 
+                    { name = "KeyboardInput", readonly = false }, 
+                    { name = "MouseInput", readonly = false }
+                }
+            }
         }
+    }
 }

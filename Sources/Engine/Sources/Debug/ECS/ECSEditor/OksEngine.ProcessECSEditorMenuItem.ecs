@@ -1,14 +1,21 @@
-system = {
-    name = "ProcessECSEditorMenuItem",
-    runAfter = "BeginECSMenu",
-    runBefore = "EndECSMenu",
-    processesComponents = { 
-        "MainMenuBar",
-        "ImGuiState",
-        "ECSMenu",
-        "ECSEditorMenuItem"
+ProcessECSEditorMenuItemSystem = {
+    callOrder = {
+        runAfter = "BeginECSMenu",
+        runBefore = "EndECSMenu"
     },
-    createsComponents = {
-        "ECSEditorWindow"
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "MainMenuBar",
+                    "ImGuiState",
+                    "ECSMenu",
+                    "ECSEditorMenuItem"
+                },
+                createsComponents = {
+                    "ECSEditorWindow"
+                }
+            }
+        }
     }
 }

@@ -1,16 +1,23 @@
-system = {
-    name = "CreateScene",
-    initSystem = true,
-    runAfter = "ConfigureResourceSystem",
-    processesComponents = { 
-        { name = "ResourceSystem", readonly = false }
+CreateSceneSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = "ConfigureResource"
     },
-    createsEntities = {
-        {
-        createsComponents = {
-            "Scene",
-            "ResourcePath"
-        }
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "ResourceSystem", readonly = false }
+                }
+            }
+        },
+        createsEntities = {
+            {
+                createsComponents = {
+                    "Scene",
+                    "ResourcePath"
+                }
+            }
         }
     }
 }

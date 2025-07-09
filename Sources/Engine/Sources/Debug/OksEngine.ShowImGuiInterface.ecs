@@ -1,8 +1,14 @@
-system = {
-    name = "ShowImGuiInterface",
-    processesComponents = { 
-        "ImGuiState", 
-        { name = "KeyboardInput", readonly = false } 
-    },
-    createsComponents = { "MainMenuBar" }
+ShowImGuiInterfaceSystem = {
+    updateMethod ={
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState", 
+                    { name = "KeyboardInput", readonly = false } 
+                },
+                createsComponents = { "MainMenuBar" }
+            }
+        }
+    }
+    
 }

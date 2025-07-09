@@ -1,5 +1,4 @@
-component = {
-    name = "SavedNodePosition2D",
+SavedNodePosition2DComponent = {
     fields = { 
         { type = "float", name = "x" },
         { type = "float", name = "y" }

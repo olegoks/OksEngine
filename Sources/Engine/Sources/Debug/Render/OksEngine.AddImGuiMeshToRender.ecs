@@ -1,21 +1,24 @@
-system = {
-    name = "AddImGuiMeshToRender",
-    runAfter = "StartRender",
-    runBefore = "EndRender",
-     processesEntities = {
-        {
-            processesComponents = { 
-                "ImGuiState",
-                "MainMenuBar",
-                "Transform2DResource",
-                "TextureResource",
-                "ImGuiDriverIndexBuffer",
-                "ImGuiDriverVertexBuffer"
-            }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
+AddImGuiMeshToRenderSystem = {
+    callOrder = {
+        runAfter = "StartRender",
+        runBefore = "EndRender"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState",
+                    "MainMenuBar",
+                    "Transform2DResource",
+                    "TextureResource",
+                    "ImGuiDriverIndexBuffer",
+                    "ImGuiDriverVertexBuffer"
+                }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false } 
+                }
             }
         }
     }

@@ -1,6 +1,8 @@
-system = {
-    name = "CreateImGuiAtlasTexture",
-    
+CreateImGuiAtlasTextureSystem = {
+    callOrder = {
+        runBefore = "StartImGuiFrame"
+    },
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = { 
@@ -9,6 +11,6 @@ system = {
             excludes = { "ImGuiAtlasTexture" },
             createsComponents = { "ImGuiAtlasTexture" }
         }
-    },
-    runBefore = "StartImGuiFrame"
+    }
+    }
 }

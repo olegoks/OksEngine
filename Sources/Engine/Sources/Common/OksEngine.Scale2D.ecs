@@ -1,5 +1,4 @@
-component = {
-    name = "Scale2D",
+Scale2DComponent = {
     fields = { 
         { type = "float", name = "x" },
         { type = "float", name = "y" }

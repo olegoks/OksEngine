@@ -1,5 +1,4 @@
-component = {
-    name = "RunningAnimationState",
+RunningAnimationStateComponent = {
     serializable = false,
     fields = { { type = "std::chrono::high_resolution_clock::time_point", name = "start" } }
 }

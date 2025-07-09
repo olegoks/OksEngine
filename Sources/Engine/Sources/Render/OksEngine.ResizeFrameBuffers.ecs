@@ -1,8 +1,13 @@
-system = {
-    name = "ResizeFrameBuffers",
+ResizeFrameBuffersSystem = {
     serializable = false,
+    updateMethod = {
+      processesEntities = {
+        {
     processesComponents = { 
 		"Window", 
     { name = "FrameBufferResizeEvents", readonly = false }
+    }
+    }
+    }
 	 }
 }

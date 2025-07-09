@@ -1,13 +1,19 @@
-system = {
-    name = "ProcessAnimation",
-    processesComponents = { 
-        "Position3D", 
-        "Rotation3D",
-        "Animation", 
-        { name = "RunningAnimationState", readonly = false }, 
-        "AnimationInProcess", 
-        "Clock"  },
-    excludes = {
-        "AnimationEnded"
-    }
+ProcessAnimationSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Position3D", 
+                    "Rotation3D",
+                    "Animation", 
+                    { name = "RunningAnimationState", readonly = false }, 
+                    "AnimationInProcess", 
+                    "Clock"  
+                },
+                excludes = {
+                    "AnimationEnded"
+                }
+            }
+        }
+    } 
 }

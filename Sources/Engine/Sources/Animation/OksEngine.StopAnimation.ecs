@@ -1,10 +1,15 @@
-system = {
-    name = "StopAnimation",
-    processesComponents = { 
-        "Animation", 
-        { name = "RunningAnimationState", readonly = false },
-        "AnimationInProcess", 
-        "AnimationEnded",
-        "Clock"
+StopAnimationSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Animation", 
+                    { name = "RunningAnimationState", readonly = false },
+                    "AnimationInProcess", 
+                    "AnimationEnded",
+                    "Clock"
+                }
+            }
         }
+    }
 }

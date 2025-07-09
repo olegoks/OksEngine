@@ -1,7 +1,13 @@
-system = {
-    name = "IncreaseFramesCounter",
-    processesComponents = { 
-        "FramesCounter",
-        "Counter"
+IncreaseFramesCounterSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "FramesCounter",
+                    "Counter"
+                }
+            }
         }
+    }
+    
 }

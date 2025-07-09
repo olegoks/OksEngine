@@ -1,5 +1,4 @@
-component = {
-    name = "DriverVertexBuffer",
+DriverVertexBufferComponent = {
     serializable = false,
     fields = { { type="RAL::Driver::VertexBuffer::Id", name="id" } }
 }

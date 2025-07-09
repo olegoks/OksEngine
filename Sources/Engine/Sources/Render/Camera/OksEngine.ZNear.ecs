@@ -1,5 +1,4 @@
-component = {
-    name = "ZNear",
+ZNearComponent = {
     fields = { 
         { type = "float", name = "value" }
 		 }

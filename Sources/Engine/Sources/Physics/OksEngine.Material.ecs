@@ -1,4 +1,4 @@
-component = {
+MaterialComponent = {
     name = "Material",
     fields = { 
         { type = "float", name = "staticFriction" },

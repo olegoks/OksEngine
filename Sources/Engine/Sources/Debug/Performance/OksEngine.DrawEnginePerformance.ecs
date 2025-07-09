@@ -1,9 +1,13 @@
-system = {
-    name = "DrawEnginePerformance",
-
-    processesComponents = { 
-        "ImGuiState",
-        "MainMenuBar",
-        "EnginePerformance"
+DrawEnginePerformanceSystem = {
+    updateMethod = {
+        processesEntities = {
+        {
+            processesComponents = { 
+                "ImGuiState",
+                "MainMenuBar",
+                "EnginePerformance"
+            }
+        }   
+        }
     }
 }

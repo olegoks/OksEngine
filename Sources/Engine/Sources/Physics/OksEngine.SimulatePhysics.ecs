@@ -1,4 +1,11 @@
-system = {
-    name = "SimulatePhysics",
-	processesComponents = { { name = "PhysicsEngine", readonly = false } }
+SimulatePhysicsSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+	            processesComponents = { 
+                    { name = "PhysicsEngine", readonly = false }
+                }
+            }
+        }
+    }
 }

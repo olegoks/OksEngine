@@ -1,7 +1,12 @@
 
-system = {
-    name = "Render",
+RenderSystem = {
+  updateMethod = {
+    processesEntities = {
+      {
       processesComponents = {
         { name = "RenderDriver", readonly = false}
       }
+      }
+    }
+  }
 }

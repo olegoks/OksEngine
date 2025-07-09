@@ -1,6 +1,2 @@
-component = {
-    name = "YAML",
-    fields = { 
-
-     }
+YAMLComponent = {
 }

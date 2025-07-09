@@ -1,35 +1,37 @@
-system = {
-    name = "DrawNodes",
-    runAfter = { 
-        "BeginECSEditorWindow"
+DrawNodesSystem = {
+    callOrder = {
+        runAfter = { 
+            "BeginECSEditorWindow"
+        },
+        runBefore = "EndECSEditorWindow"
     },
-    runBefore = "EndECSEditorWindow",
-    processesEntities = {
-        {
-            processesComponents = { 
-                "CallGraphNode",
-                "Name",
-                "Position2D"
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "CallGraphNode",
+                    "Name",
+                    "Position2D"
+                }
+            },
+            {
+                processesComponents = { 
+                    "ImGuiState",
+                    "ECSEditorWindow"
+                }
             }
         },
-        {
-            processesComponents = { 
-                "ImGuiState",
-                "ECSEditorWindow"
-            }
-        }
-    },
-    accessingEntities = {
-        {
-            accessingComponents = {
-                "Link"
-            }
-        },
-        {
-            accessingComponents = {
-                "Pin"
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "Link"
+                }
+            },
+            {
+                accessingComponents = {
+                    "Pin"
+                }
             }
         }
     }
-    
 }

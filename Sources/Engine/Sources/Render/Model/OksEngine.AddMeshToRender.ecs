@@ -1,15 +1,15 @@
-system = {
-    name = "AddMeshToRender",
-	processesEntities = 
-	{
-       	{
-    		processesComponents = { 
-				"DriverTransform3D",
-				"Meshes"
-			}
-	   	},
-       	{
-           	processesComponents = { { name = "RenderDriver", readonly = false } }
-       	}
-    }
+AddMeshToRenderSystem = {
+	updateMethod = {
+		processesEntities = {
+       		{
+    			processesComponents = { 
+					"DriverTransform3D",
+					"Meshes"
+				}
+	   		},
+       		{
+           		processesComponents = { { name = "RenderDriver", readonly = false } }
+       		}
+    	}
+	}
 }

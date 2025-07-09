@@ -1,15 +1,16 @@
-system = {
-    name = "CheckGDFLoaded",
-    processesEntities = {
-        {
-            processesComponents = { 
-                { name = "LoadGDFTask" }
-            },
-	        excludes = { "GDFLoaded" }
-        }, 
-        {
-            processesComponents = {
-                { name = "ResourceSystem", readonly = false }
+CheckGDFLoadedSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "LoadGDFTask" }
+                },
+	            excludes = { "GDFLoaded" }
+            }, 
+            {
+                processesComponents = {
+                    { name = "ResourceSystem", readonly = false }
+                }
             }
         }
     }

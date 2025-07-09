@@ -1,5 +1,4 @@
-component = {
-    name = "LoadSceneRequest",
+LoadSceneRequestComponent = {
     fields = {
         { type = "std::string", name = "sceneName" },
         { type = "ECS2::Entity::Id", name = "callerId" }

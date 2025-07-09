@@ -1,7 +1,12 @@
-system = {
-    name = "CallUpdateMethod",
-    processesComponents = { 
-        "Behaviour", 
-        { name = "LuaContext", readonly = false }
+CallUpdateMethodSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Behaviour", 
+                    { name = "LuaContext", readonly = false }
+                }
+            }
         }
+    }
 }

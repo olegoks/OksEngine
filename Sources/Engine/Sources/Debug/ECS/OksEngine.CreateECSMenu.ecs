@@ -1,20 +1,23 @@
-system = {
-    name = "CreateECSMenu",
-    runBefore = "ClearKeyboardInput",
-    processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState",
-                "HandleKeyboardInput",
-                "KeyboardInput"
-            },
-            
-            excludes = {
-                "ECSMenu"
-            },
-            createsComponents = {
-                "ECSMenu"
+CreateECSMenuSystem = {
+    callOrder = {
+        runBefore = "ClearKeyboardInput"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "HandleKeyboardInput",
+                    "KeyboardInput"
+                },
+                excludes = {
+                    "ECSMenu"
+                },
+                createsComponents = {
+                    "ECSMenu"
+                }
             }
         }
-    },
+    }
+    
 }

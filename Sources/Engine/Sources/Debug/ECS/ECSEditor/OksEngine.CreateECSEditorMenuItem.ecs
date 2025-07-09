@@ -1,18 +1,19 @@
-system = {
-    name = "CreateECSEditorMenuItem",
-    processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState",
-                "MainMenuBar",
-                "ECSMenu"
-            },
-            createsComponents = {
-                "ECSEditorMenuItem"
-            },
-            excludes = {
-                "ECSEditorMenuItem"
+CreateECSEditorMenuItemSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "MainMenuBar",
+                    "ECSMenu"
+                },
+                createsComponents = {
+                    "ECSEditorMenuItem"
+                },
+                excludes = {
+                    "ECSEditorMenuItem"
+                }
             }
-        }
-    },
+        },
+    }
 }

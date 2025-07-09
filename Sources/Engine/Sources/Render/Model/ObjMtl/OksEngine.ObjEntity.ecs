@@ -1,5 +1,4 @@
-component = {
-    name = "ObjEntity",
+ObjEntityComponent = {
     serializable = false,
     fields = { { type="ECS2::Entity::Id", name="id" } }
 }

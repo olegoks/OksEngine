@@ -1,7 +1,9 @@
-system = {
-    name = "ProcessLoadECSFilesButton",
-    runAfter = "BeginECSEditorWindow",
-    runBefore = "EndECSEditorWindow",
+ProcessLoadECSFilesButtonSystem = {
+    callOrder = {
+        runAfter = "BeginECSEditorWindow",
+        runBefore = "EndECSEditorWindow"
+    },
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = { 
@@ -12,5 +14,5 @@ system = {
             excludes = { "LoadingECSFiles" }
         }
     }
-   
+    }
 }

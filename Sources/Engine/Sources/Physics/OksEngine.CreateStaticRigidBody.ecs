@@ -1,7 +1,6 @@
 
-system = {
-    name = "CreateStaticRigidBody",
-
+CreateStaticRigidBodySystem = {
+updateMethod = {
 	processesEntities = {
 		{
     		processesComponents = { 
@@ -24,4 +23,5 @@ system = {
 			}
 		}
 	}
+}
 }

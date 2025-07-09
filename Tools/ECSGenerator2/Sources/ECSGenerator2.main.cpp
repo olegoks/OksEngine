@@ -73,7 +73,6 @@ int main(int argc, char** argv) {
 	ECSGenerator2::Parser ecsFileParser;
 
 	for (const ECSFileInfo& ecsFileInfo : ecsFileInfos) {
-
 		Resources::ResourceData resourceData = resourceSystem.GetResourceData(ecsFileInfo.resourceSystemPath_);
 		const std::string ecsFileText{ resourceData.GetData<Common::Byte>(), resourceData.GetSize() };
 
@@ -101,7 +100,7 @@ int main(int argc, char** argv) {
 				parsedECSFile);
 
 			for (auto generateFile : generatedFiles) {
-				const auto ecsHppPath = parsedECSFile->GetPath().parent_path() / ("auto_OksEngine." + parsedECSFile->GetPath().filename().stem().string() + ".hpp");
+				const auto ecsHppPath = parsedECSFile->GetPath().parent_path() / ("auto_" + parsedECSFile->GetPath().filename().stem().string() + ".hpp");
 				structureFiles[ecsHppPath] = generateFile;
 			}
 
@@ -155,12 +154,12 @@ int main(int argc, char** argv) {
 	//Merge files with  code structure.
 	std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::File>> allFilesCodeStructure;
 
-	//allFilesCodeStructure.insert(structureFiles.begin(), structureFiles.end());
-	//allFilesCodeStructure.insert(hppECSFiles.begin(), hppECSFiles.end());
+	allFilesCodeStructure.insert(structureFiles.begin(), structureFiles.end());
+	allFilesCodeStructure.insert(hppECSFiles.begin(), hppECSFiles.end());
 
-	//allFilesCodeStructure.insert(pathToParsedEntity);
-	//allFilesCodeStructure.insert(pathToSerializeEntity);
-	//allFilesCodeStructure.insert(pathToEditEntity);
+	allFilesCodeStructure.insert(pathToParsedEntity);
+	allFilesCodeStructure.insert(pathToSerializeEntity);
+	allFilesCodeStructure.insert(pathToEditEntity);
 	allFilesCodeStructure.insert(pathToHppRunSystems);
 	allFilesCodeStructure.insert(pathToCppRunSystems);
 

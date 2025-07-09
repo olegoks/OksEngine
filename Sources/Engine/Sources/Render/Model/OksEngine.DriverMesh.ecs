@@ -1,5 +1,5 @@
-component = {
-    name = "DriverMesh",
+DriverMeshComponent = {
+
     serializable = false,
     fields = { { type="Common::Id", name="id" } }
 }

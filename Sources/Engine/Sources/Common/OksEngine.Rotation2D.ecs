@@ -1,5 +1,4 @@
-component = {
-    name = "Rotation2D",
+Rotation2DComponent = {
     fields = { 
         { type = "float", name = "w" },
         { type = "float", name = "x" },

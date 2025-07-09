@@ -1,5 +1,4 @@
-component = {
-    name = "LuaScript",
+LuaScriptComponent = {
     serializable = false,
     fields = { 
         { type = "std::string", name = "text" }     

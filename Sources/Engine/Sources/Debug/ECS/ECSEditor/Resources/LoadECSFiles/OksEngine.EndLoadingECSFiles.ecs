@@ -1,7 +1,9 @@
-system = {
-    name = "EndLoadingECSFiles",
-    runAfter = "CreateLinksFromECSFiles",
-    runBefore = "GraphEditorEnd",
+EndLoadingECSFilesSystem = {
+    callOrder = {
+        runAfter = "CreateLinksFromECSFiles",
+        runBefore = "GraphEditorEnd"
+    },
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = {
@@ -15,5 +17,6 @@ system = {
                 "CreateLinksRequest"
             }
         }
+    }
     }
 }

@@ -1,17 +1,17 @@
-
-system = {
-    name = "CreateTextureResource",
-  processesEntities = {
-    {
-      processesComponents = { 
-		    "DriverTexture"
-	    }, 
-      createsComponents = { "TextureResource" },
-      excludes = { "TextureResource" }
-    },
-    {
-      processesComponents = {
-        { name = "RenderDriver", readonly = false}
+CreateTextureResourceSystem = {
+  updateMethod = {
+    processesEntities = {
+      {
+        processesComponents = { 
+		      "DriverTexture"
+	      }, 
+        createsComponents = { "TextureResource" },
+        excludes = { "TextureResource" }
+      },
+      {
+        processesComponents = {
+          { name = "RenderDriver", readonly = false}
+        }
       }
     }
   }

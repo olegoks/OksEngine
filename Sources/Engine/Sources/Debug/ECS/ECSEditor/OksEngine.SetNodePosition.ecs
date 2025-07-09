@@ -1,20 +1,23 @@
-system = {
-    name = "SetNodePosition",
-    runAfter = "CreateEditorContext",
-    runBefore = "RemoveSceneLoaded",
-    processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState",
-                "ECSEditorWindow",
-                "EditorContext",
-                "SceneLoaded"
-            }
-        },
-        {
-            processesComponents = {
-                "CallGraphNode",
-                "Position2D"
+SetNodePositionSystem = {
+    callOrder = {
+        runAfter = "CreateEditorContext",
+        runBefore = "RemoveSceneLoaded"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ECSEditorWindow",
+                    "EditorContext",
+                    "SceneLoaded"
+                }
+            },
+            {
+                processesComponents = {
+                    "CallGraphNode",
+                    "Position2D"
+                }
             }
         }
     }

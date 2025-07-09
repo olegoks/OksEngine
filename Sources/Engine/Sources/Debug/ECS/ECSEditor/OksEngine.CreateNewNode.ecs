@@ -1,32 +1,36 @@
-system = {
-    name = "CreateNewNode",
-    runAfter = "GraphEditorBegin",
-    runBefore = "GraphEditorEnd",
-    processesEntities  = {
-        {
-            processesComponents = {  
-                "ImGuiState",
-                "EditorContext" }
-        }
+CreateNewNodeSystem = {
+    callOrder = {
+        runAfter = "GraphEditorBegin",
+        runBefore = "GraphEditorEnd"
     },
-    createsEntities = {
-        {
-            createsComponents = {
-                "CallGraphNode",
-                "Name",
-                "RootNode",
-                "Position2D",
-                "Serializable",
-                "RunBefore",
-                "RunAfter",
-                "BeforePin",
-                "AfterPin"
+    updateMethod = {
+        processesEntities  = {
+            {
+                processesComponents = {  
+                    "ImGuiState",
+                    "EditorContext"
+                }
             }
         },
-        {  
-            createsComponents = {
-                "Name",
-                "Pin"
+        createsEntities = {
+            {
+                createsComponents = {
+                    "CallGraphNode",
+                    "Name",
+                    "RootNode",
+                    "Position2D",
+                    "Serializable",
+                    "RunBefore",
+                    "RunAfter",
+                    "BeforePin",
+                    "AfterPin"
+                }
+            },
+            {  
+                createsComponents = {
+                    "Name",
+                    "Pin"
+                }
             }
         }
     }

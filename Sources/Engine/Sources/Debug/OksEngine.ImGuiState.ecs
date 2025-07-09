@@ -1,5 +1,4 @@
-component = {
-    name = "ImGuiState",
+ImGuiStateComponent = {
     serializable = false,
     fields = { 
         { type = "RAL::Texture::Id", name = "fontsTextureId" },

@@ -1,5 +1,4 @@
-component = {
-    name = "ResourceSystem",
+ResourceSystemComponent = {
     serializable = false,
     fields = {         
 		{ type = "std::shared_ptr<AsyncResourceSubsystem>", name = "system" }

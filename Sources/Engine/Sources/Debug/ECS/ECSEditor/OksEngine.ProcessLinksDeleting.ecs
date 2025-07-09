@@ -1,8 +1,16 @@
-system = {
-    name = "ProcessLinksDeleting",
-    runAfter = "ProcessLinksCreating",
-    runBefore = "GraphEditorEnd",
-    processesComponents = { 
-        "ImGuiState",
-        "EditorContext" },
+ProcessLinksDeletingSystem = {
+    callOrder = {
+        runAfter = "ProcessLinksCreating",
+        runBefore = "GraphEditorEnd"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState",
+                    "EditorContext" }
+            }
+        }
+    }
+    
 }

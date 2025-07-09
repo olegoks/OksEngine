@@ -1,7 +1,12 @@
-system = {
-    name = "CreateObjEntity",
-    processesComponents = { "LoadObjRequest" },
-    createsComponents = { "ObjEntity" },
-	excludes = { "ObjEntity" }
+CreateObjEntitySystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { "LoadObjRequest" },
+                createsComponents = { "ObjEntity" },
+	            excludes = { "ObjEntity" }
+            }
+        }
+    }
 }
 

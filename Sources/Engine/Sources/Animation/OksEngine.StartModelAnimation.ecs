@@ -1,7 +1,12 @@
-system = {
-    name = "StartModelAnimation",
-
-    processesComponents = { 
-        "ModelEntity", 
-        "StartAnimation"}
+StartModelAnimationSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ModelEntity", 
+                    "StartAnimation"
+                }
+            }
+        }
+    }
 }

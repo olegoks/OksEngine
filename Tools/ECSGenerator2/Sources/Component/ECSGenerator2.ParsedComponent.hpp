@@ -38,20 +38,16 @@ namespace ECSGenerator2 {
 
 		ParsedComponent(const CreateInfo& createInfo) :
 			ci_{ createInfo } { }
-
-		bool serializable_ = true;
-		std::vector<FieldInfo> fields_;
-
 		bool AreThereFields() const {
-			return !fields_.empty();
+			return !ci_.fields_.empty();
 		}
 
 		using ProcessField = std::function<bool(const FieldInfo& fieldInfo, bool isLast)>;
 
 		void ForEachField(ProcessField&& processField) const {
-			for (Common::Index i = 0; i < fields_.size(); i++) {
-				const FieldInfo info = fields_[i];
-				if (!processField(info, (i == fields_.size() - 1))) {
+			for (Common::Index i = 0; i < ci_.fields_.size(); i++) {
+				const FieldInfo info = ci_.fields_[i];
+				if (!processField(info, (i == ci_.fields_.size() - 1))) {
 					break;
 				}
 			}

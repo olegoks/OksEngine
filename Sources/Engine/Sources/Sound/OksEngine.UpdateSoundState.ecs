@@ -1,7 +1,11 @@
-system = {
-    name = "UpdateSoundState",
-
-    processesComponents = { 
-		{ name = "Sound", readonly = false }
-	 }
+UpdateSoundStateSystem = {
+  updateMethod = {
+    processesEntities = {
+      {
+        processesComponents = { 
+		      { name = "Sound", readonly = false }
+	      }
+      }
+    }
+  } 
 }

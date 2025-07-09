@@ -1,19 +1,26 @@
 EnginePerformanceComponent = { }
 
 BeginEnginePerformanceWindowSystem = {
-    runAfter = "StartImGuiFrame",
-    processesEntities = {
+    callOrder = {
+        runAfter = "StartImGuiFrame"
+    },
+    updateMethod = {
+        processesEntities = {
         {
             processesComponents = {
                 "ImGuiState"
             }
         }
+    }
     }
 }
 
 EndEnginePerformanceWindowSystem = {
+    callOrder = {
     runAfter = "BeginEnginePerformanceWindow",
-    runBefore = "EndImGuiFrame",
+    runBefore = "EndImGuiFrame"
+    },
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = {
@@ -21,5 +28,5 @@ EndEnginePerformanceWindowSystem = {
             }
         }
     }
-
+    }
 }

@@ -1,13 +1,20 @@
-system = {
-    name = "EndECSEditorWindow",
-    runAfter = "BeginECSEditorWindow",
-    runBefore = "EndImGuiFrame",
-    processesComponents = { 
-        "ImGuiState", 
-        "MainMenuBar",
-        "ECSMenu",
-        "ECSEditorMenuItem",
-        "ECSEditorWindow",
-        "EditorContext"
+EndECSEditorWindowSystem = {
+    callOrder = {
+        runAfter = "BeginECSEditorWindow",
+        runBefore = "EndImGuiFrame"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+            processesComponents = { 
+                "ImGuiState", 
+                "MainMenuBar",
+                "ECSMenu",
+                "ECSEditorMenuItem",
+                "ECSEditorWindow",
+                "EditorContext"
+            }
+            }
+        }
     }
-}
+}   

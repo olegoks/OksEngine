@@ -1,4 +1,3 @@
-component = {
-    name = "Light",
+LightComponent = {
     fields = { }
 }

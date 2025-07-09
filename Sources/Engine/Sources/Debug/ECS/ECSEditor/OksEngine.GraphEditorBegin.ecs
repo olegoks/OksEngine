@@ -1,8 +1,16 @@
-system = {
-    name = "GraphEditorBegin",
-    runAfter = "BeginECSEditorWindow",
-    runBefore = "DrawNodes",
-    processesComponents = { 
-        "ImGuiState",
-        "EditorContext" },
+GraphEditorBeginSystem = {
+    callOrder = {
+        runAfter = "BeginECSEditorWindow",
+        runBefore = "DrawNodes"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState",
+                    "EditorContext"
+                }
+            }
+        }
+    }
 }

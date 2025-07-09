@@ -1,8 +1,10 @@
-system = {
-    name = "CreateLinksFromECSFiles",
-    runAfter = "LoadECSFiles",
-    runBefore = "GraphEditorEnd",
-    afterUpdateMethod = true,
+CreateLinksFromECSFilesSystem = {
+    callOrder = {
+        runAfter = "LoadECSFiles",
+        runBefore = "GraphEditorEnd"
+    },
+    afterUpdateMethod = { },
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = {
@@ -40,5 +42,6 @@ system = {
                 "Serializable"
             }
         }
+    }
     }
 }

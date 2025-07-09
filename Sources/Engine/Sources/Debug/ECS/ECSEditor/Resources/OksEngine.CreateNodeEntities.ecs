@@ -1,5 +1,5 @@
-system = {
-    name = "CreateNodeEntities",
+CreateNodeEntitiesSystem = {
+    updateMethod = {
     processesEntities  = {
         {
             processesComponents = {  
@@ -24,6 +24,7 @@ system = {
             "RunAfter"
         }
         }
+    }
     }
 }
 

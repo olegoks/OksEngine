@@ -1,7 +1,9 @@
-system = {
-    name = "CreateEditorContext",
-    runAfter = "BeginECSEditorWindow",
-    runBefore = "DrawNodes",
+CreateEditorContextSystem = {
+    callOrder = {
+        runAfter = "BeginECSEditorWindow",
+        runBefore = "DrawNodes"
+    },
+    updateMethod = {
     processesEntities = {
         {
             processesComponents = {
@@ -18,5 +20,6 @@ system = {
                 "EditorContext"
             }
         }
+    }
     }
 }

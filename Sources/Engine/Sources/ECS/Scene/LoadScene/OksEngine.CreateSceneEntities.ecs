@@ -1,5 +1,5 @@
-system = {
-    name = "CreateSceneEntities",
+CreateSceneEntitiesSystem = {
+    updateMethod = {
     processesEntities  = {
         {
             processesComponents = { 
@@ -9,6 +9,7 @@ system = {
             },
             createsComponents = { "SceneLoaded" }
         }
+    }
     }
 }
 

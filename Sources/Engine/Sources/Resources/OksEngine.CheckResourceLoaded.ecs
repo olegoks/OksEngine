@@ -1,8 +1,13 @@
-system = {
-    name = "CheckResourceLoaded",
-    processesComponents = { 
-		"LoadResourceRequest", "AsyncTask"
-	 },
-   createsComponents = { "BinaryData", "Completed" },
-   excludes = { "BinaryData", "Completed" }
+CheckResourceLoadedSystem = {
+  updateMethod = {
+    processesEntities = {
+      {
+        processesComponents = { 
+		      "LoadResourceRequest", "AsyncTask"
+	      },
+        createsComponents = { "BinaryData", "Completed" },
+        excludes = { "BinaryData", "Completed" }
+      }
+    }
+  }
 }

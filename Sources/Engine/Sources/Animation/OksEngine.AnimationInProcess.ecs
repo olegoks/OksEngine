@@ -1,4 +1,3 @@
-component = {
-    name = "AnimationInProcess",
+AnimationInProcessComponent = {
     fields = {  }
 }

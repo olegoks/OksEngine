@@ -1,5 +1,4 @@
-component = {
-    name = "ExecutablePath",
+ExecutablePathComponent = {
     fields = {
         { type = "std::string", name = "path" }
     }

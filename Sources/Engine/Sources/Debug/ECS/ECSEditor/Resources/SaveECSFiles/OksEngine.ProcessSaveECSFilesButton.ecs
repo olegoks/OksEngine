@@ -1,10 +1,17 @@
-system = {
-    name = "ProcessSaveECSFilesButton",
+ProcessSaveECSFilesButtonSystem = {
+    callOrder = {
     runAfter = "BeginECSEditorWindow",
-    runBefore = "EndECSEditorWindow",
+    runBefore = "EndECSEditorWindow"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
     processesComponents = { 
         "ImGuiState",
         "ECSEditorWindow" },
     createsComponents= { "SaveECSFilesButtonPressed" },
     excludes = { "SaveECSFilesButtonPressed" }
+        }
+        }
+    }
 }

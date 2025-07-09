@@ -1,21 +1,23 @@
-system = {
-    name = "GetNodePosition",
-    runAfter = "DrawNodes",
-    runBefore = "CreateLink",
-    processesEntities = {
-        {
-            processesComponents = { 
-                "ImGuiState",
-                "EditorContext"
-            }
-        },
-        {
-            processesComponents = { 
-                "CallGraphNode",
-                "Name",
-                { name = "Position2D", readonly = false }
-            }
-        }   
+GetNodePositionSystem = {
+    callOrder = {
+        runAfter = "DrawNodes",
+        runBefore = "CreateLink"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState",
+                    "EditorContext"
+                }
+            },
+            {
+                processesComponents = { 
+                    "CallGraphNode",
+                    "Name",
+                    { name = "Position2D", readonly = false }
+                }
+            }      
+        }
     }
-    
 }

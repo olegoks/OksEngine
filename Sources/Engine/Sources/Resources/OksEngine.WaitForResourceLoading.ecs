@@ -1,6 +1,5 @@
-system = {
-    name = "WaitForResourceLoading",
-
+WaitForResourceLoadingSystem = {
+  updateMethod = {
     processesEntities = {
       {
         processesComponents = { 
@@ -17,5 +16,5 @@ system = {
 	      }
       }
     }
-    
+  }
 }

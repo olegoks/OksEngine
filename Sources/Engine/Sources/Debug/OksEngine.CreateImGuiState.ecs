@@ -1,19 +1,27 @@
-system = {
-    name = "CreateImGuiState",
-    runBefore = { "ClearKeyboardInput", "StartImGuiFrame" },
-    processesEntities = {
-        {
-            processesComponents = {
-                "MainWindow",
-                "KeyboardInput"
-            }
-        }
+CreateImGuiStateSystem = {
+    callOrder = {
+        runAfter = {
+            "GetWindowKeyboardInput"
+        },
+         runBefore = { 
+            "ClearKeyboardInput", 
+            "StartImGuiFrame" },
     },
-    createsEntities = {
-        {
-            createsComponents = {
-                "ImGuiState",
-                "HandleKeyboardInput"
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    "KeyboardInput"
+                }
+            }
+        },
+        createsEntities = {
+            {
+                createsComponents = {
+                    "ImGuiState",
+                    "HandleKeyboardInput"
+                }
             }
         }
     }

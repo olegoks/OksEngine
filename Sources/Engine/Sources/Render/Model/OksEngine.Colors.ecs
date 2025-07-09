@@ -1,5 +1,5 @@
-component = {
-    name = "Colors",
+ColorsComponent = {
+
     serializable = false,
     fields = { { type="DS::Vector<Geom::Color4b>", name="colors" } }
 }

@@ -1,5 +1,4 @@
-component = {
-    name = "PhysicsShape",
+PhysicsShapeComponent = {
     serializable = false,
     fields = { 
         { type = "std::shared_ptr<PAL::Shape>", name = "shape" } }

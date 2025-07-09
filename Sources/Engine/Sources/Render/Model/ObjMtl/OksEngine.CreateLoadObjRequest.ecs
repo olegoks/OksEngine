@@ -1,7 +1,12 @@
-system = {
-    name = "CreateLoadObjRequest",
-    processesComponents = { "GDF" },
-    createsComponents = { "LoadObjRequest" },
-	excludes = { "LoadObjRequest" }
+CreateLoadObjRequestSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { "GDF" },
+                createsComponents = { "LoadObjRequest" },
+	            excludes = { "LoadObjRequest" }
+            }
+        }
+    }
 }
 

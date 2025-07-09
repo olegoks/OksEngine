@@ -1,8 +1,12 @@
-system = {
-    name = "CreateFbx",
-    processesComponents = { 
-		"LoadFbxRequest"
-	 },
-	 excludes = { "FbxEntity" }
-
+CreateFbxSystem = {
+	updateMethod = {
+		processesEntities = {
+			{
+    			processesComponents = { 
+					"LoadFbxRequest"
+	 			},
+	 			excludes = { "FbxEntity" }
+			}
+		}
+	}
 }
