@@ -54,7 +54,7 @@ namespace ECSGenerator2 {
 		}
 
 		[[nodiscard]]
-		const std::filesystem::path GetName() const noexcept {
+		const std::string GetName() const noexcept {
 			return GetPath().filename().stem().string();
 		}
 

@@ -5,6 +5,7 @@
 #include <functional>
 
 #include <Common.hpp>
+#include <OS.Logger.hpp>
 
 #include <ECSGenerator2.Code.hpp>
 

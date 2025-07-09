@@ -3,9 +3,11 @@
 #include <string>
 #include <vector>
 #include <memory>
+#include <format>
+#include <unordered_set>
 #include <OS.Assert.hpp>
 
-#include <ECSGenerator2.Common.hpp>
+#include <Common.StringLiterals.hpp>
 
 namespace ECSGenerator2 {
 
@@ -13,7 +15,8 @@ namespace ECSGenerator2 {
 	public:
 
 		Code() {
-			code_.reserve(1024);
+			using namespace Common;
+			code_.reserve(1_KB);
 		}
 
 		Code(const std::string& code)
@@ -23,6 +26,12 @@ namespace ECSGenerator2 {
 
 		Code& Add(const std::string& code) {
 			code_ += code;
+			return *this;
+		}
+
+		template<class ...Args>
+		Code& Add(const std::string& format, Args... args) {
+			code_ += std::format(format, args...);
 			return *this;
 		}
 

@@ -117,10 +117,6 @@ namespace ECSGenerator2 {
 			return requiredComponentNames;
 		}
 
-		std::unordered_set<std::string> GenerateCreatesEntitiesRequiredComponentIncludes() {
-
-		}
-
 		File::Includes GenerateUpdateMethodIncludes(
 			const std::string& includeDirectory,
 			const std::string& systemName,
@@ -143,65 +139,6 @@ namespace ECSGenerator2 {
 			includes.paths_.insert(systemIncludePath);
 
 			return includes;
-		}
-
-
-
-		std::pair<
-			std::filesystem::path,
-			std::shared_ptr<File>> GenerateUpdateMethodRealization(std::shared_ptr<ParsedSystem> systemEcsFile) {
-
-
-			////const File::Includes includes = GenerateUpdateMethodIncludes(
-			////	projectContext->includeDirectory_,
-			////	systemEcsFile->GetName(),
-			////	systemEcsFile->GetEcsFilePath());
-
-			//auto namespaceObject = std::make_shared<Namespace>("OksEngine");
-			//{
-			//	using namespace std::string_literals;
-
-
-
-			//	namespaceObject->Add(GenerateUpdateMethodRealization(systemEcsFile));
-
-			//	//auto generateAfterUpdateMethod = [](
-			//	//	std::shared_ptr<ProjectContext> projectContext,
-			//	//	std::shared_ptr<ParsedSystem> systemEcsFile) {
-
-			//	//		Function::CreateInfo afterUpdateMethodCI{
-			//	//			.name_ = systemEcsFile->GetName() + "::AfterUpdate",
-			//	//			.parameters_ = { },
-			//	//			.returnType_ = "void",
-			//	//			.code_ = "",
-			//	//			.isPrototype_ = false,
-			//	//			.inlineModifier_ = false
-			//	//		};
-
-			//	//		auto afterUpdateMethod = std::make_shared<Function>(afterUpdateMethodCI);
-
-			//	//		return afterUpdateMethod;
-
-			//	//	};
-
-			//	if (systemEcsFile->ci_.afterUpdateMethod_) {
-			//		namespaceObject->Add(generateAfterUpdateMethod(systemEcsFile));
-			//	}
-			//}
-
-			//File::CreateInfo fci{
-			//	.isHpp_ = false,
-			//	.includes_ = includes,
-			//	.base_ = namespaceObject
-			//};
-			//auto file = std::make_shared<File>(fci);
-
-			//std::filesystem::path componentHppFileFullPath
-			//	= systemEcsFile->GetEcsFilePath().parent_path() / ("OksEngine." + systemEcsFile->GetName() + ".cpp");
-			//std::string componentHppFileFullPathString = componentHppFileFullPath.string();
-			//std::replace(componentHppFileFullPathString.begin(), componentHppFileFullPathString.end(), '\\', '/');
-			//return { std::filesystem::path{ componentHppFileFullPathString }, file };
-
 		}
 
 		std::vector<Function::Parameter> GenerateUpdateMethodParameters(std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethod) {
@@ -492,6 +429,60 @@ namespace ECSGenerator2 {
 			return structObject;
 		}
 
+		std::shared_ptr<Function> GenerateUpdateMethodRealization(std::shared_ptr<ParsedSystem> system) {
+
+			auto generateUpdateMethodParameters =
+				[](std::shared_ptr<ParsedSystem> system) {
+
+				std::vector<Function::Parameter> updateMethodParameters;
+
+				Common::UInt64 currentEntityIndex = 0;
+				system->ci_.updateMethod_->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
+
+					updateMethodParameters.push_back({
+						"ECS2::Entity::Id",
+						std::format("entity{}id", currentEntityIndex) });
+
+					entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
+						Function::Parameter parameter;
+						if (include.IsReadonly()) {
+							parameter.inputType_ = std::format("const {}*", include.GetName());
+						}
+						else {
+							parameter.inputType_ = std::format("{}*", include.GetName());
+						}
+
+						parameter.valueName_ = std::format("{}{}", include.GetLowerName(), currentEntityIndex);
+						updateMethodParameters.push_back(parameter);
+						return true;
+						});
+
+					++currentEntityIndex;
+					return true;
+					});
+
+				return updateMethodParameters;
+
+				};
+
+			//Update method.
+			const std::vector<Function::Parameter> updateMethodParameters
+				= generateUpdateMethodParameters(system);
+
+			Function::CreateInfo updateMethodCI{
+				.name_ = system->GetName() + "::Update",
+				.parameters_ = updateMethodParameters,
+				.returnType_ = "void",
+				.code_ = "",
+				.isPrototype_ = false,
+				.inlineModifier_ = false
+			};
+
+			auto updateMethod = std::make_shared<Function>(updateMethodCI);
+
+			return updateMethod;
+		}
+
 		std::shared_ptr<Function> GenerateRunSystemCodeRealization(std::shared_ptr<ParsedSystem> system) {
 
 			auto generateUpdateMethodCallCode = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
@@ -633,50 +624,8 @@ namespace ECSGenerator2 {
 
 		}
 
-		//std::pair<
-		//	std::filesystem::path,
-		//	std::shared_ptr<File>> GenerateECSCXXFilesStructure(
-		//		std::shared_ptr<ProjectContext> projectContext,
-		//		std::shared_ptr<ParsedSystem> systemEcsFile) {
-		//			{
+		CreateInfo ci_;
+	};
 
 
-		//				namespaceObject->Add(structObject);
-
-
-
-
-
-		//				Code realization;
-
-		//				realization.Add(generateRunSystemCode(systemEcsFile));
-
-
-
-
-		//				namespaceObject->Add(runSystem);
-
-
-		//				File::CreateInfo fci{
-		//					.isHpp_ = true,
-		//					.includes_ = includes,
-		//					.base_ = namespaceObject
-		//				};
-		//				auto file = std::make_shared<File>(fci);
-
-		//				std::filesystem::path systemHppFileFullPath
-		//					= systemEcsFile->GetEcsFilePath().parent_path() / ("auto_OksEngine." + systemEcsFile->GetName() + ".hpp");
-		//				std::string systemHppFileFullPathString = systemHppFileFullPath.string();
-		//				std::replace(systemHppFileFullPathString.begin(), systemHppFileFullPathString.end(), '\\', '/');
-		//				return { std::filesystem::path{ systemHppFileFullPathString }, file };
-
-
-		//			}
-
-
-
-					CreateInfo ci_;
-		};
-
-
-	}
+}

@@ -627,9 +627,6 @@ namespace ECSGenerator2 {
 			//return { systemCppFileFullPath, file };
 		}
 
-
-
-
 		void ProcessNode(
 			SystemsOrder& systemsOrder,
 			const DS::Graph<System>& graph,
@@ -1162,15 +1159,6 @@ namespace ECSGenerator2 {
 
 			return { systemCppFileFullPath , cppFile };
 
-		}
-
-		std::vector<std::pair<std::filesystem::path, std::shared_ptr<File>>>
-			GenerateRunSystemsFiles(std::vector<std::vector<Agnode_t*>> clusters, std::shared_ptr<ProjectContext> projectContext) {
-
-			return {
-				GenerateRunSystemsHppFile(projectContext),
-				GenerateRunSystemsCppFile(clusters, projectContext)
-			};
 		}
 
 

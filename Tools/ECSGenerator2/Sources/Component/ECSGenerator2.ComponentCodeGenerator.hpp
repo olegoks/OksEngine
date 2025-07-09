@@ -60,9 +60,9 @@ namespace ECSGenerator2 {
 		}
 
 		Code GenerateTypeImGuiEditCode(
-			const std::string& componentVariableName,			// position3D
-			const std::string& fieldVariableTypeName,			// float
-			const std::string& fieldVariableName,				// x
+			const std::string& componentVariableName,			
+			const std::string& fieldVariableTypeName,			
+			const std::string& fieldVariableName,				
 			const std::string& fieldComponentVariableName) {	// x_
 			Code code;
 			if (fieldVariableTypeName == "std::string") {
@@ -100,8 +100,6 @@ namespace ECSGenerator2 {
 
 			return {};
 		}
-
-
 
 		std::shared_ptr<Function> GenerateParseFunction(std::shared_ptr<ParsedComponent> component) {
 
@@ -205,7 +203,6 @@ namespace ECSGenerator2 {
 
 			return nullptr;
 		}
-
 
 		std::shared_ptr<Function> GenerateEditFunction(std::shared_ptr<ParsedComponent> component) {
 
@@ -423,7 +420,6 @@ namespace ECSGenerator2 {
 			return structObject;
 		}
 
-
 		File::Includes GenerateIncludes(std::shared_ptr<ParsedComponent> component) {
 
 			File::Includes includes{
@@ -494,25 +490,6 @@ namespace ECSGenerator2 {
 
 			return includes;
 		}
-
-		//std::pair<
-		//	std::filesystem::path,
-		//	std::shared_ptr<File>> GenerateECSCXXFilesStructure(std::shared_ptr<ProjectContext> projectContext, std::shared_ptr<ParsedComponent> componentEcsFile) {
-
-		//	File::CreateInfo fci{
-		//		.isHpp_ = true,
-		//		.includes_ = includes,
-		//		.base_ = namespaceObject
-		//	};
-		//	auto file = std::make_shared<File>(fci);
-
-		//	std::filesystem::path componentHppFileFullPath
-		//		= componentEcsFile->GetPath().parent_path() / ("auto_OksEngine." + componentEcsFile->GetName() + ".hpp");
-		//	std::string componentHppFileFullPathString = componentHppFileFullPath.string();
-		//	std::replace(componentHppFileFullPathString.begin(), componentHppFileFullPathString.end(), '\\', '/');
-		//	return { std::filesystem::path{ componentHppFileFullPathString }, file };
-
-		//}
 
 		CreateInfo ci_;
 	};
