@@ -4,3 +4,74 @@ CameraComponent = {
         { type = "float", name = "zFar"},
         { type = "bool", name = "isActive"} }
 }
+
+DriverCameraComponent = {
+    serializable = false,
+    fields = { 
+        { type = "RAL::Driver::UniformBuffer::Id", name = "matricesBuffer" }
+		 }
+}
+
+ZFarComponent = {
+    fields = { 
+        { type = "float", name = "value" }
+		 }
+}
+
+ZNearComponent = {
+    fields = { 
+        { type = "float", name = "value" }
+		 }
+}
+
+DriverViewProjectionUniformBufferComponent = {
+    serializable = false,
+    fields = { 
+        { type = "RAL::Driver::UniformBuffer::Id", name = "id" }
+         }
+}
+
+
+CreateCameraTransformDriverUniformBufferSystem = {
+    updateMethod = {
+    processesEntities = {
+        {
+            processesComponents = { "Camera" },
+            excludes = { "DriverViewProjectionUniformBuffer" },
+            createsComponents = { "DriverViewProjectionUniformBuffer" }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    }
+    }
+
+}
+
+UpdateCameraTransformUniformBufferSystem = {
+    updateMethod = {
+    processesEntities = {
+        {
+            processesComponents = { 
+                "Camera", 
+                "Position3D", 
+                "Direction3D",
+                "Up3D",
+                "ZNear",
+                "ZFar",
+                "Width",
+                "Height",
+                { name = "UniformBuffer", readonly = false } },
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    }
+    }
+
+}
+

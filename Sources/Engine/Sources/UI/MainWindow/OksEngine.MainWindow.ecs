@@ -4,3 +4,70 @@ MainWindowComponent = {
         { type = "std::shared_ptr<UI::Window>", name = "window" }
      }
 }
+
+CreateMainWindowSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = "LoadConfigFile"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                 processesComponents = {
+                    "Config",
+                    "LuaScript"
+                }
+            }
+        },
+        createsEntities = { 
+        {
+            createsComponents = {
+                "MainWindow",
+                "KeyboardInput",
+                "FrameBufferResizeEvents"
+            }
+        }
+    }
+    }
+    
+}
+
+
+ProcessInputSystem = {
+    thread = "Main",
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MainWindow", readonly = false}
+                }
+            }
+        }
+    }
+}
+
+
+FrameBufferResizeEventsComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::queue<UIAL::Window::FrameBufferResizeEvent>", name = "events" }
+     }
+}
+
+GetWindowResizeEventsSystem = {
+    callOrder = {
+        runBefore = {
+            "StartRender"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    { name = "FrameBufferResizeEvents", readonly = false }
+                }
+            }
+        }
+    }
+}

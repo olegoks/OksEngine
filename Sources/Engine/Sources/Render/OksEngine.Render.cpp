@@ -197,12 +197,16 @@ namespace OksEngine
 
 	};
 
-	void ResizeFrameBuffers::Update(ECS2::Entity::Id entity0id, const MainWindow* mainWindow0,
-		const FrameBufferResizeEvents* frameBufferResizeEvents0, ECS2::Entity::Id entity1id,
+	void ResizeFrameBuffers::Update(
+		ECS2::Entity::Id entity0id, 
+		const MainWindow* mainWindow0,
+		const FrameBufferResizeEvents* frameBufferResizeEvents0,
+		
+		ECS2::Entity::Id entity1id,
 		const RenderDriver* renderDriver1) {
 
 		if (!frameBufferResizeEvents0->events_.empty()) {
-			auto event = frameBufferResizeEvents0->events_.front();
+			auto event = frameBufferResizeEvents0->events_.back();
 			renderDriver1->driver_->FrameBufferResize({ event.newWidth_, event.newHeight_ });
 		}
 

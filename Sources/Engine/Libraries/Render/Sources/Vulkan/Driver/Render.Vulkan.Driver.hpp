@@ -159,6 +159,7 @@ namespace Render::Vulkan {
 			objects_.frameContexts_.clear();
 			objects_.depthTestData_.reset();
 			objects_.multisamplingData_.reset();
+			render_.reset();
 
 			if (newSize.x == 0 || newSize.y == 0) {
 				return;
@@ -291,6 +292,15 @@ namespace Render::Vulkan {
 				objects_.frameContexts_.push_back(frameContext);
 			}
 
+			RenderPacket::CreateInfo rpci{
+	.PD_ = objects_.physicalDevice_,
+	.LD_ = objects_.LD_,
+	.DP_ = objects_.DP_,
+	.swapChain_ = objects_.swapChain_,
+	.framesInFlight_ = concurrentFramesNumber
+			};
+
+			render_ = std::make_unique<RenderPacket>(rpci);
 
 		}
 
@@ -638,7 +648,7 @@ namespace Render::Vulkan {
 			const Common::Size descriptorPoolSize = objects_.swapChain_->GetImagesNumber() * 2000;
 			objects_.DP_ = std::make_shared<DescriptorPool>(objects_.LD_, descriptorPoolSize);
 
-			RenderPacket::CreateInfo rpci{
+			/*RenderPacket::CreateInfo rpci{
 				.PD_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
 				.DP_ = objects_.DP_,
@@ -646,7 +656,7 @@ namespace Render::Vulkan {
 				.framesInFlight_ = concurrentFramesNumber
 			};
 
-			render_ = std::make_unique<RenderPacket>(rpci);
+			render_ = std::make_unique<RenderPacket>(rpci);*/
 
 			objects_.commandBuffers_.resize(concurrentFramesNumber, nullptr);
 
@@ -1042,7 +1052,7 @@ namespace Render::Vulkan {
 		}
 
 		void EndRender() override {
-			
+
 
 
 			//for (auto& context : contexts_) {
@@ -1068,7 +1078,7 @@ namespace Render::Vulkan {
 
 
 			contexts_.clear();
-			
+
 		}
 
 		[[nodiscard]]
@@ -1611,8 +1621,8 @@ namespace Render::Vulkan {
 				.commandPool_ = objects_.commandPool_
 			};
 
-			contexts_.push_back(DrawingContext{dcci});
-		
+			contexts_.push_back(DrawingContext{ dcci });
+
 		}
 
 		virtual void BindPipeline(const std::string& pipelineName) override {
@@ -1651,7 +1661,7 @@ namespace Render::Vulkan {
 		}
 
 		virtual void EndDrawing()override {
-			
+
 		}
 
 		//struct Resource {
@@ -1731,7 +1741,7 @@ namespace Render::Vulkan {
 			auto dsl = std::make_shared<DescriptorSetLayout>(
 				DescriptorSetLayout::CreateInfo{
 					"No name",
-					objects_.LD_, 
+					objects_.LD_,
 					std::vector{ bindings }
 				});
 
@@ -1792,7 +1802,7 @@ namespace Render::Vulkan {
 				.dss_ = dss
 			};
 
-			
+
 
 			resources_[rsId] = std::make_shared<RS>(rsci);
 
@@ -1806,91 +1816,91 @@ namespace Render::Vulkan {
 			};
 			return CreateResourceSet(rsci);
 		}
-//
-//		[[deprecated]]
-//		[[nodiscard]]
-//		virtual Common::Id DrawMesh(
-//			const std::string& pipelineName,
-//			VertexBuffer::Id VBId,
-//			IndexBuffer::Id IBId,
-//			const std::vector<RAL::Driver::ShaderBinding::Data>& bindingsData) override {
-//
-//#pragma region Assert
-//			const RAL::Driver::PipelineDescription& pipelineDesc = createInfo_.namePipelineDescriptions_[pipelineName];
-//			OS::AssertMessage(pipelineDesc.shaderBindings_.size() == bindingsData.size(), "Shaders bindings layout and data are different.");
-//			for (Common::Index i = 0; i < pipelineDesc.shaderBindings_.size(); i++) {
-//				const RAL::Driver::ShaderBinding::Layout& layout = pipelineDesc.shaderBindings_[i];
-//				const RAL::Driver::ShaderBinding::Data& data = bindingsData[i];
-//				OS::AssertMessage(layout.stage_ == data.stage_, "Shaders bindings layout and data are different.");
-//				OS::AssertMessage(layout.type_ == data.type_, "Shaders bindings layout and data are different.");
-//			}
-//#pragma endregion
-//
-//			std::shared_ptr<Vulkan::Pipeline> pipeline = namePipeline_[pipelineName];
-//
-//			std::vector<Mesh::ShaderBinding> shaderBindings;
-//
-//			for (Common::Index i = 0; i < bindingsData.size(); i++) {
-//
-//				const RAL::Driver::ShaderBinding::Data& bindingData = bindingsData[i];
-//
-//				if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Uniform) {
-//
-//					DS::CreateInfo DSCreateInfo;
-//					{
-//						DSCreateInfo.DP_ = objects_.DP_;
-//						DSCreateInfo.DSL_ = pipeline->GetLayout()->GetDSLs()[i];
-//						DSCreateInfo.LD_ = objects_.LD_;
-//					}
-//
-//					auto ds = std::make_shared<DS>(DSCreateInfo);
-//
-//					auto ub = GetUniformBuffer(bindingData.uniformBufferId_);
-//
-//					ds->UpdateBufferWriteConfiguration(
-//						ub,
-//						VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
-//						0, 0, ub->GetSizeInBytes());
-//
-//					Mesh::ShaderBinding shaderBinding{
-//						.ubId_ = bindingData.uniformBufferId_,
-//						.ds_ = ds
-//					};
-//					shaderBindings.push_back(shaderBinding);
-//				}
-//				if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Sampler) {
-//					Mesh::ShaderBinding shaderBinding{
-//						.textureId_ = bindingData.textureId_
-//					};
-//					shaderBindings.push_back(shaderBinding);
-//				}
-//			}
-//
-//			Mesh::CreateInfo meshCreateInfo{
-//				.VBId_ = VBId,
-//				.IBId_ = IBId,
-//				.shaderBindings_ = shaderBindings,
-//				.pipelineName_ = pipelineName
-//			};
-//			auto mesh = std::make_shared<Mesh>(meshCreateInfo);
-//			const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
-//			meshs_[meshId] = mesh;
-//			return meshId;
-//		}
-//		[[deprecated]]
-//		virtual void ResumeMeshDrawing(Common::Id shapeId) override {
-//			meshs_[shapeId]->ResumeDrawing();
-//		}
-//		[[deprecated]]
-//		virtual void StopMeshDrawing(Common::Id shapeId) override {
-//			meshs_[shapeId]->StopDrawing();
-//		}
-//		[[deprecated]]
-//		virtual void RemoveMeshFromDrawing(Common::Id shapeId) override {
-//			auto mesh = meshs_[shapeId];
-//
-//			meshs_.erase(shapeId);
-//		}
+		//
+		//		[[deprecated]]
+		//		[[nodiscard]]
+		//		virtual Common::Id DrawMesh(
+		//			const std::string& pipelineName,
+		//			VertexBuffer::Id VBId,
+		//			IndexBuffer::Id IBId,
+		//			const std::vector<RAL::Driver::ShaderBinding::Data>& bindingsData) override {
+		//
+		//#pragma region Assert
+		//			const RAL::Driver::PipelineDescription& pipelineDesc = createInfo_.namePipelineDescriptions_[pipelineName];
+		//			OS::AssertMessage(pipelineDesc.shaderBindings_.size() == bindingsData.size(), "Shaders bindings layout and data are different.");
+		//			for (Common::Index i = 0; i < pipelineDesc.shaderBindings_.size(); i++) {
+		//				const RAL::Driver::ShaderBinding::Layout& layout = pipelineDesc.shaderBindings_[i];
+		//				const RAL::Driver::ShaderBinding::Data& data = bindingsData[i];
+		//				OS::AssertMessage(layout.stage_ == data.stage_, "Shaders bindings layout and data are different.");
+		//				OS::AssertMessage(layout.type_ == data.type_, "Shaders bindings layout and data are different.");
+		//			}
+		//#pragma endregion
+		//
+		//			std::shared_ptr<Vulkan::Pipeline> pipeline = namePipeline_[pipelineName];
+		//
+		//			std::vector<Mesh::ShaderBinding> shaderBindings;
+		//
+		//			for (Common::Index i = 0; i < bindingsData.size(); i++) {
+		//
+		//				const RAL::Driver::ShaderBinding::Data& bindingData = bindingsData[i];
+		//
+		//				if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Uniform) {
+		//
+		//					DS::CreateInfo DSCreateInfo;
+		//					{
+		//						DSCreateInfo.DP_ = objects_.DP_;
+		//						DSCreateInfo.DSL_ = pipeline->GetLayout()->GetDSLs()[i];
+		//						DSCreateInfo.LD_ = objects_.LD_;
+		//					}
+		//
+		//					auto ds = std::make_shared<DS>(DSCreateInfo);
+		//
+		//					auto ub = GetUniformBuffer(bindingData.uniformBufferId_);
+		//
+		//					ds->UpdateBufferWriteConfiguration(
+		//						ub,
+		//						VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER,
+		//						0, 0, ub->GetSizeInBytes());
+		//
+		//					Mesh::ShaderBinding shaderBinding{
+		//						.ubId_ = bindingData.uniformBufferId_,
+		//						.ds_ = ds
+		//					};
+		//					shaderBindings.push_back(shaderBinding);
+		//				}
+		//				if (bindingData.type_ == RAL::Driver::ShaderBinding::Type::Sampler) {
+		//					Mesh::ShaderBinding shaderBinding{
+		//						.textureId_ = bindingData.textureId_
+		//					};
+		//					shaderBindings.push_back(shaderBinding);
+		//				}
+		//			}
+		//
+		//			Mesh::CreateInfo meshCreateInfo{
+		//				.VBId_ = VBId,
+		//				.IBId_ = IBId,
+		//				.shaderBindings_ = shaderBindings,
+		//				.pipelineName_ = pipelineName
+		//			};
+		//			auto mesh = std::make_shared<Mesh>(meshCreateInfo);
+		//			const Mesh::Id meshId = shapes2IdsGenerator_.Generate();
+		//			meshs_[meshId] = mesh;
+		//			return meshId;
+		//		}
+		//		[[deprecated]]
+		//		virtual void ResumeMeshDrawing(Common::Id shapeId) override {
+		//			meshs_[shapeId]->ResumeDrawing();
+		//		}
+		//		[[deprecated]]
+		//		virtual void StopMeshDrawing(Common::Id shapeId) override {
+		//			meshs_[shapeId]->StopDrawing();
+		//		}
+		//		[[deprecated]]
+		//		virtual void RemoveMeshFromDrawing(Common::Id shapeId) override {
+		//			auto mesh = meshs_[shapeId];
+		//
+		//			meshs_.erase(shapeId);
+		//		}
 
 	private:
 

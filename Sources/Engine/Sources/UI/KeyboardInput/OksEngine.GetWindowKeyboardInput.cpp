@@ -8,6 +8,6 @@ void GetWindowKeyboardInput::Update(ECS2::Entity::Id entityId,
     while (auto event = mainWindow->window_->GetKeyboardEvent()) {
         keyboardInput->events_.push_back({ event.value().key_, event.value().event_ });
     }
-
+    
 };
 }
