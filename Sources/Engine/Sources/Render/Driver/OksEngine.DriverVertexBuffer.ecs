@@ -2,3 +2,57 @@ DriverVertexBufferComponent = {
     serializable = false,
     fields = { { type="RAL::Driver::VertexBuffer::Id", name="id" } }
 }
+
+CreateDriverVertexBufferSystem = {
+    updateMethod = {
+    processesEntities = {
+        {
+            processesComponents = { "Vertices3D", "Indices", "Normals", "UVs" },
+                
+            createsComponents = { "DriverVertexBuffer" },
+            excludes = { "DriverVertexBuffer" }
+        },
+        {
+             processesComponents = { { name = "RenderDriver", readonly = false } }
+        }
+
+    }
+    }
+
+}
+
+CreateDriverVertexBuffer2DSystem = {
+    updateMethod = {
+    processesEntities = {
+        {
+            processesComponents = { "Vertices2D", "Indices", "Colors", "UVs" },
+            createsComponents = { "DriverVertexBuffer" },
+            excludes = { "DriverVertexBuffer" }
+        },
+        {
+            processesComponents = { { name = "RenderDriver", readonly = false } }
+        }
+    }
+    }
+}
+
+UpdateDriverVertexBufferSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Vertices2D", 
+                    "Indices", 
+                    "UVs",
+                    { name = "DriverVertexBuffer", readonly = false } 
+                }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false } 
+                }
+            }
+        }
+    }
+}
+

@@ -1,12 +1,101 @@
+RenderDriverComponent = {
+    serializable = false,
+    fields = { 
+		  { type = "std::shared_ptr<RAL::Driver>", name = "driver" } 
+		}
+}
 
-RenderSystem = {
-  updateMethod = {
-    processesEntities = {
-      {
-      processesComponents = {
-        { name = "RenderDriver", readonly = false}
-      }
-      }
+CreateRenderDriverSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { 
+            "CreateMainWindow",
+            "ConfigureResource"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow"
+                }
+            },
+            {
+                processesComponents = {
+                    "Config",
+                    "LuaScript"
+                }
+            },
+            {
+                processesComponents = {
+                    { name = "ResourceSystem", readonly = false }
+                }
+            }
+        },
+        createsEntities = { 
+            {
+                createsComponents = {
+                    "RenderDriver" 
+                }
+            }
+        }
     }
-  }
+}
+
+
+FrameBufferResizeEventsComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::queue<UIAL::Window::FrameBufferResizeEvent>", name = "events" }
+     }
+}
+
+ResizeFrameBuffersSystem = {
+    serializable = false,
+    updateMethod = {
+        processesEntities = {
+            {
+            processesComponents = { 
+		        "MainWindow", 
+                "FrameBufferResizeEvents"
+            }
+            },
+            {
+                processesComponents = { 
+		            "RenderDriver"
+                }
+            }
+        }
+    }
+}
+
+
+
+StartRenderSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false}
+                }
+            }
+        }
+    }
+}
+
+
+
+EndRenderSystem = {
+    callOrder = {
+        runAfter = "StartRender"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false}
+                }
+            }
+        }
+    }
 }

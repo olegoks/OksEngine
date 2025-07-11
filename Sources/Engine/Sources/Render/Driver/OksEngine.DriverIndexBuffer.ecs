@@ -1,0 +1,36 @@
+DriverIndexBufferComponent = {
+    serializable = false,
+    fields = { { type="RAL::Driver::IndexBuffer::Id", name="id" } }
+}
+
+CreateDriverIndexBufferSystem = {
+    updateMethod = {
+    processesEntities  = {
+        {
+            processesComponents = { "Indices" },
+            createsComponents = { "DriverIndexBuffer" },
+	        excludes = { "DriverIndexBuffer" }
+        },
+        {
+             processesComponents = { { name = "RenderDriver", readonly = false } }
+        }
+    }
+    }
+}
+
+UpdateDriverIndexBufferSystem = {
+    updateMethod = {
+    processesEntities = {
+        {
+            processesComponents = { 
+                "Indices",
+                { name = "DriverIndexBuffer", readonly = false }
+            }
+        },
+        {
+            processesComponents = { { name = "RenderDriver", readonly = false } }
+        }
+    }
+    }
+}
+

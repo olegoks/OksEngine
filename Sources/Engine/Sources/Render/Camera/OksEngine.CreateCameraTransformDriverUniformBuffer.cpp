@@ -1,7 +1,7 @@
 
 #include <Render/Camera/auto_OksEngine.CreateCameraTransformDriverUniformBuffer.hpp>
 
-#include <Render/OksEngine.Render.Subsystem.hpp>
+
 #include <Render/Camera/OksEngine.CameraTransformUniformBufferType.hpp>
 
 namespace OksEngine {

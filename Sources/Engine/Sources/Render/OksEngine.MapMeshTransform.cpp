@@ -1,8 +1,6 @@
 
 #include <Render/auto_OksEngine.MapMeshTransform.hpp>
 
-#include <Render/OksEngine.Render.Subsystem.hpp>
-
 namespace OksEngine {
 
 
