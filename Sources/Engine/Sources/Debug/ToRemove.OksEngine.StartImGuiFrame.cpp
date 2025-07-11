@@ -1,48 +1,48 @@
-#include <Debug\auto_OksEngine.StartImGuiFrame.hpp>
-
-#include <imgui.h>
-#include <imgui-node-editor/imgui_node_editor.h>
-
-namespace ed = ax::NodeEditor;
-
-struct LinkInfo
-{
-    ed::LinkId Id;
-    ed::PinId  InputId;
-    ed::PinId  OutputId;
-};
-
-
-void ImGuiEx_BeginColumn()
-{
-    ImGui::BeginGroup();
-}
-
-void ImGuiEx_NextColumn()
-{
-    ImGui::EndGroup();
-    ImGui::SameLine();
-    ImGui::BeginGroup();
-}
-
-void ImGuiEx_EndColumn()
-{
-    ImGui::EndGroup();
-}
-
-
-
-
-ed::EditorContext* m_Context = ed::CreateEditor();;    // Editor context, required to trace a editor state.
-bool                 m_FirstFrame = true;    // Flag set for first frame only, some action need to be executed once.
-ImVector<LinkInfo>   m_Links;                // List of live links. It is dynamic unless you want to create read-only view over nodes.
-int                  m_NextLinkId = 100;     // Counter to help generate link ids. In real application this will probably based on pointer to user data structure.
-
-namespace OksEngine {
-void StartImGuiFrame::Update(ECS2::Entity::Id entityId,
-                             const ImGuiState* imGuiState) {
+//#include <Debug\auto_OksEngine.StartImGuiFrame.hpp>
+//
+//#include <imgui.h>
+//#include <imgui-node-editor/imgui_node_editor.h>
+//
+//namespace ed = ax::NodeEditor;
+//
+//struct LinkInfo
+//{
+//    ed::LinkId Id;
+//    ed::PinId  InputId;
+//    ed::PinId  OutputId;
+//};
+//
+//
+//void ImGuiEx_BeginColumn()
+//{
+//    ImGui::BeginGroup();
+//}
+//
+//void ImGuiEx_NextColumn()
+//{
+//    ImGui::EndGroup();
+//    ImGui::SameLine();
+//    ImGui::BeginGroup();
+//}
+//
+//void ImGuiEx_EndColumn()
+//{
+//    ImGui::EndGroup();
+//}
+//
+//
+//
+//
+//ed::EditorContext* m_Context = ed::CreateEditor();;    // Editor context, required to trace a editor state.
+//bool                 m_FirstFrame = true;    // Flag set for first frame only, some action need to be executed once.
+//ImVector<LinkInfo>   m_Links;                // List of live links. It is dynamic unless you want to create read-only view over nodes.
+//int                  m_NextLinkId = 100;     // Counter to help generate link ids. In real application this will probably based on pointer to user data structure.
+//
+//namespace OksEngine {
+//void StartImGuiFrame::Update(ECS2::Entity::Id entityId,
+//                             const ImGuiState* imGuiState) {
     
-    ImGui::NewFrame();
+
 
     //auto& io = ImGui::GetIO();
 
@@ -222,5 +222,5 @@ void StartImGuiFrame::Update(ECS2::Entity::Id entityId,
     //ImGui::End();
     //ImGui::PopStyleVar(2);
    // ImGui::ShowMetricsWindow();
-};
-}
+//};
+//}

@@ -5,7 +5,7 @@ RunAnimationSystem = {
                 processesComponents = { 
                     { name = "RunningAnimationState", readonly = false }, 
                     "StartAnimation",
-                    "Clock"
+                    "TimeSinceEpoch"
                 },
                 excludes = { "AnimationEnded" }
             }

@@ -270,6 +270,14 @@ namespace OksEngine {
 			);
 		}
 
+		Resources::ResourceData GetResource(Subsystem::Type receiverSubsystem, Task::Id taskId) {
+			//OS::LogInfo("Engine/Render", "Waiting for task.");
+			Task task = WaitForTask(receiverSubsystem, taskId);
+			//OS::LogInfo("Engine/Render", "Task was got.");
+			GetResourceResult getResourceResult = std::move(task.GetData<GetResourceResult>());
+			return std::move(getResourceResult.resource_);
+		}
+
 		[[nodiscard]]
 		Resources::ResourceData GetResourceSynch(Subsystem::Type subsystemType, std::filesystem::path resourcePath) {
 			Task::Id taskId = GetResource(subsystemType, resourcePath);
@@ -277,7 +285,6 @@ namespace OksEngine {
 			GetResourceResult getResourceResult = std::move(task.GetData<GetResourceResult>());
 			return std::move(getResourceResult.resource_);
 		}
-
 
 		[[nodiscard]]
 		Task::Id GetFilesystemPath(Subsystem::Type subsystemType, const std::filesystem::path resourcePath) {
@@ -299,6 +306,20 @@ namespace OksEngine {
 			);
 		}
 
+
+		bool CreateNewFileSynch(
+			Subsystem::Type subsystemType,
+			const std::filesystem::path osPath,
+			Resources::ResourceData&& resourceData) {
+
+
+			auto createSceneFileTask
+				= CreateNewFile(
+					subsystemType, osPath,
+					std::move(resourceData)); // draw graph settings
+			return CreateNewFile(subsystemType, createSceneFileTask);
+
+		}
 		[[nodiscard]]
 		Task::Id CreateNewFile(Subsystem::Type subsystemType, const std::filesystem::path osPath, Resources::ResourceData&& resourceData) {
 			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
@@ -309,8 +330,30 @@ namespace OksEngine {
 			);
 		}
 
+		bool CreateNewFile(Subsystem::Type receiverSubsystem, Task::Id taskId) {
+			//OS::LogInfo("Engine/Render", "Waiting for task.");
+			Task task = WaitForTask(receiverSubsystem, taskId);
+			//OS::LogInfo("Engine/Render", "Task was got.");
+			CreateNewFileResult getResourceResult = std::move(task.GetData<CreateNewFileResult>());
+			return std::move(getResourceResult.result_);
+		}
 
+		[[nodiscard]]
+		std::vector<std::filesystem::path> GetAddedResourcesSynch(Subsystem::Type subsystemType, const std::vector<std::string>& extensions) {
+			auto addedResource = GetAddedResources(subsystemType, extensions);
+			Task task = WaitForTask(subsystemType, addedResource);
+			GetAddedResourcesResult getAddedResourcesResult = std::move(task.GetData<GetAddedResourcesResult>());
 
+			return std::move(getAddedResourcesResult.addedResources_);
+		}
+
+		std::vector<std::filesystem::path> GetAddedResources(Subsystem::Type receiverSubsystem, Task::Id taskId) {
+			//OS::LogInfo("Engine/Render", "Waiting for task.");
+			Task task = WaitForTask(receiverSubsystem, taskId);
+			//OS::LogInfo("Engine/Render", "Task was got.");
+			GetAddedResourcesResult getResourceResult = std::move(task.GetData<GetAddedResourcesResult>());
+			return std::move(getResourceResult.addedResources_);
+		}
 
 		[[nodiscard]]
 		Task::Id GetAddedResources(Subsystem::Type subsystemType, const std::vector<std::string>& extensions) {
@@ -320,20 +363,6 @@ namespace OksEngine {
 				Subsystem::Type::Resource,
 				CreateTask<GetAddedResourcesTask>(extensions)
 			);
-		}
-
-		[[nodiscard]]
-		std::vector<std::filesystem::path> GetAddedResourcesSynch(Subsystem::Type subsystemType, const std::vector<std::string>& extensions) {
-			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
-			const Task::Id taskId = AddTask(
-				subsystemType,
-				Subsystem::Type::Resource,
-				CreateTask<GetAddedResourcesTask>(extensions)
-			);
-
-			auto addedResource = GetAddedResources(Subsystem::Type::Debug, taskId);
-
-			return addedResource;
 		}
 
 		Task::Id SetRoot(Subsystem::Type subsystemType, std::vector<std::filesystem::path> rootPaths) {
@@ -365,23 +394,6 @@ namespace OksEngine {
 			return std::move(dataInfo);
 		}
 
-		Resources::ResourceData GetResource(Subsystem::Type receiverSubsystem, Task::Id taskId) {
-			//OS::LogInfo("Engine/Render", "Waiting for task.");
-			Task task = WaitForTask(receiverSubsystem, taskId);
-			//OS::LogInfo("Engine/Render", "Task was got.");
-			GetResourceResult getResourceResult = std::move(task.GetData<GetResourceResult>());
-			return std::move(getResourceResult.resource_);
-		}
-
-		std::vector<std::filesystem::path> GetAddedResources(Subsystem::Type receiverSubsystem, Task::Id taskId) {
-			//OS::LogInfo("Engine/Render", "Waiting for task.");
-			Task task = WaitForTask(receiverSubsystem, taskId);
-			//OS::LogInfo("Engine/Render", "Task was got.");
-			GetAddedResourcesResult getResourceResult = std::move(task.GetData<GetAddedResourcesResult>());
-			return std::move(getResourceResult.addedResources_);
-		}
-
-
 		std::filesystem::path GetFilesystemPath(Subsystem::Type receiverSubsystem, Task::Id taskId) {
 			//OS::LogInfo("Engine/Render", "Waiting for task.");
 			Task task = WaitForTask(receiverSubsystem, taskId);
@@ -398,24 +410,16 @@ namespace OksEngine {
 			return std::move(getResourceResult.isFileExist_);
 		}
 
-		bool CreateNewFile(Subsystem::Type receiverSubsystem, Task::Id taskId) {
-			//OS::LogInfo("Engine/Render", "Waiting for task.");
-			Task task = WaitForTask(receiverSubsystem, taskId);
-			//OS::LogInfo("Engine/Render", "Task was got.");
-			CreateNewFileResult getResourceResult = std::move(task.GetData<CreateNewFileResult>());
-			return std::move(getResourceResult.result_);
-		}
-
 
 		[[nodiscard]]
 		Task::Id AddTask(Subsystem::Type senderType, Subsystem::Type receiverType, Task&& task) {
 			const Task::Id taskId = task.GetId();
-			/*OS::LogInfo("Engine/AsyncResourceSubsystem",
-				{ "Task with id {} was sent from {} to {} subsystem by Update function.",
-					taskId,
-					magic_enum::enum_name(senderType).data(),
-					magic_enum::enum_name(receiverType).data()
-				});*/
+			//OS::LogInfo("Engine/AsyncResourceSubsystem",
+			//	{ "Task with id {} was sent from {} to {} subsystem by Update function.",
+			//		taskId,
+			//		magic_enum::enum_name(senderType).data(),
+			//		magic_enum::enum_name(receiverType).data()
+			//	});
 
 			exchangeSystem_.AddData(senderType, receiverType, std::move(task));
 			return taskId;

@@ -5,6 +5,9 @@ CheckGDFLoadedSystem = {
                 processesComponents = { 
                     { name = "LoadGDFTask" }
                 },
+                createsComponents = {
+                    "GDFLoaded"
+                },
 	            excludes = { "GDFLoaded" }
             }, 
             {

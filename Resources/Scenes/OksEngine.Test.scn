@@ -2,13 +2,25 @@ scene = {
 	entities = {
 
 	{
-		ID = 10,
+		ID = 9,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 10,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 11,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 12,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -26,13 +38,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 16,
+		ID = 15,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 16,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 17,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 18,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -50,13 +74,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 22,
+		ID = 21,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 22,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 23,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 24,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -74,13 +110,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 28,
+		ID = 27,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 28,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 29,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 30,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -98,13 +146,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 34,
+		ID = 33,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 34,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 35,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 36,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -122,13 +182,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 40,
+		ID = 39,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 40,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 41,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 42,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -146,13 +218,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 46,
+		ID = 45,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 46,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 47,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 48,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -170,13 +254,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 52,
+		ID = 51,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 52,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 53,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 54,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -194,13 +290,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 58,
+		ID = 57,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 58,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 59,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 60,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -218,13 +326,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 64,
+		ID = 63,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 64,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 65,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 66,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -242,13 +362,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 70,
+		ID = 69,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 70,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 71,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 72,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -266,13 +398,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 76,
+		ID = 75,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 76,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 77,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 78,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -290,13 +434,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 82,
+		ID = 81,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 82,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 83,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 84,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -314,13 +470,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 88,
+		ID = 87,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 88,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 89,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 90,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -338,13 +506,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 94,
+		ID = 93,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 94,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 95,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 96,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -362,13 +542,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 100,
+		ID = 99,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 100,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 101,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 102,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -386,13 +578,25 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 106,
+		ID = 105,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 106,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 107,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 108,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
@@ -410,247 +614,53 @@ scene = {
 		pin = { }
 	},
 	{
-		ID = 112,
+		ID = 111,
 		name = {value ="Before" },
 		serializable = { },
 		pin = { }
 	},
 	{
+		ID = 112,
+		name = {value ="After" },
+		serializable = { },
+		pin = { }
+	},
+	{
 		ID = 113,
+		name = {value ="Before" },
+		serializable = { },
+		pin = { }
+	},
+	{
+		ID = 114,
 		name = {value ="After" },
 		serializable = { },
 		pin = { }
 	},
 	{
 		ID = 115,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 116,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 118,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 119,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 121,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 122,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 124,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 125,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 127,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 128,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 130,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 131,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 133,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 134,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 136,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 137,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 139,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 140,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 142,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 143,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 145,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 146,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 148,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 149,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 151,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 152,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 154,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 155,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 157,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 158,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 160,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 161,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 163,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 164,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 166,
-		name = {value ="Before" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 167,
-		name = {value ="After" },
-		serializable = { },
-		pin = { }
-	},
-	{
-		ID = 9,
 		name = {value ="LoadConfigFile" },
-		position2D = {x =0.000000,y =0.000000 },
+		position2D = {x =243.000000,y =-80.000000 },
 		serializable = { },
-		afterPin = {id =11 },
-		beforePin = {id =10 },
+		afterPin = {id =10 },
+		beforePin = {id =9 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 12,
+		ID = 116,
 		name = {value ="CreateLink" },
-		position2D = {x =0.000000,y =0.000000 },
+		position2D = {x =-604.000000,y =-176.000000 },
+		serializable = { },
+		afterPin = {id =12 },
+		beforePin = {id =11 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 117,
+		name = {value ="CreateNewNode" },
+		position2D = {x =-1404.000000,y =-368.000000 },
 		serializable = { },
 		afterPin = {id =14 },
 		beforePin = {id =13 },
@@ -658,19 +668,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 15,
-		name = {value ="CreateNewNode" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 118,
+		name = {value ="DrawLink" },
+		position2D = {x =-619.000000,y =-288.000000 },
 		serializable = { },
-		afterPin = {id =17 },
-		beforePin = {id =16 },
+		afterPin = {id =16 },
+		beforePin = {id =15 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 18,
-		name = {value ="DrawLink" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 119,
+		name = {value ="DrawNodes" },
+		position2D = {x =-396.000000,y =-288.000000 },
+		serializable = { },
+		afterPin = {id =18 },
+		beforePin = {id =17 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 120,
+		name = {value ="GetNodePosition" },
+		position2D = {x =-620.000000,y =-432.000000 },
 		serializable = { },
 		afterPin = {id =20 },
 		beforePin = {id =19 },
@@ -678,19 +698,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 21,
-		name = {value ="DrawNodes" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 121,
+		name = {value ="GraphEditorBegin" },
+		position2D = {x =-1053.000000,y =-592.000000 },
 		serializable = { },
-		afterPin = {id =23 },
-		beforePin = {id =22 },
+		afterPin = {id =22 },
+		beforePin = {id =21 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 24,
-		name = {value ="GetNodePosition" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 122,
+		name = {value ="GraphEditorEnd" },
+		position2D = {x =-1340.000000,y =-672.000000 },
+		serializable = { },
+		afterPin = {id =24 },
+		beforePin = {id =23 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 123,
+		name = {value ="ProcessECSEditorMenuItem" },
+		position2D = {x =100.000000,y =-928.000000 },
 		serializable = { },
 		afterPin = {id =26 },
 		beforePin = {id =25 },
@@ -698,19 +728,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 27,
-		name = {value ="GraphEditorBegin" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 124,
+		name = {value ="ProcessLinksCreating" },
+		position2D = {x =-844.000000,y =-288.000000 },
 		serializable = { },
-		afterPin = {id =29 },
-		beforePin = {id =28 },
+		afterPin = {id =28 },
+		beforePin = {id =27 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 30,
-		name = {value ="GraphEditorEnd" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 125,
+		name = {value ="ProcessLinksDeleting" },
+		position2D = {x =-1005.000000,y =-272.000000 },
+		serializable = { },
+		afterPin = {id =30 },
+		beforePin = {id =29 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 126,
+		name = {value ="RemoveLink" },
+		position2D = {x =-827.000000,y =-176.000000 },
 		serializable = { },
 		afterPin = {id =32 },
 		beforePin = {id =31 },
@@ -718,19 +758,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 33,
-		name = {value ="ProcessECSEditorMenuItem" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 127,
+		name = {value ="RemoveSceneLoaded" },
+		position2D = {x =-988.000000,y =-816.000000 },
 		serializable = { },
-		afterPin = {id =35 },
-		beforePin = {id =34 },
+		afterPin = {id =34 },
+		beforePin = {id =33 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 36,
-		name = {value ="ProcessLinksCreating" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 128,
+		name = {value ="SetNodePosition" },
+		position2D = {x =-764.000000,y =-816.000000 },
+		serializable = { },
+		afterPin = {id =36 },
+		beforePin = {id =35 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 129,
+		name = {value ="CreateLinksFromECSFiles" },
+		position2D = {x =-1643.000000,y =-496.000000 },
 		serializable = { },
 		afterPin = {id =38 },
 		beforePin = {id =37 },
@@ -738,19 +788,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 39,
-		name = {value ="ProcessLinksDeleting" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 130,
+		name = {value ="CreateSceneLoadRequest" },
+		position2D = {x =-1403.000000,y =-592.000000 },
 		serializable = { },
-		afterPin = {id =41 },
-		beforePin = {id =40 },
+		afterPin = {id =40 },
+		beforePin = {id =39 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 42,
-		name = {value ="RemoveLink" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 131,
+		name = {value ="EndLoadingECSFiles" },
+		position2D = {x =-1868.000000,y =-480.000000 },
+		serializable = { },
+		afterPin = {id =42 },
+		beforePin = {id =41 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 132,
+		name = {value ="LoadECSFiles" },
+		position2D = {x =-1372.000000,y =-496.000000 },
 		serializable = { },
 		afterPin = {id =44 },
 		beforePin = {id =43 },
@@ -758,19 +818,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 45,
-		name = {value ="RemoveSceneLoaded" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 133,
+		name = {value ="ProcessLoadECSFilesButton" },
+		position2D = {x =-588.000000,y =-928.000000 },
 		serializable = { },
-		afterPin = {id =47 },
-		beforePin = {id =46 },
+		afterPin = {id =46 },
+		beforePin = {id =45 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 48,
-		name = {value ="SetNodePosition" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 134,
+		name = {value ="CreateSceneSaveRequest" },
+		position2D = {x =-1372.000000,y =-768.000000 },
+		serializable = { },
+		afterPin = {id =48 },
+		beforePin = {id =47 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 135,
+		name = {value ="ProcessSaveECSFilesButton" },
+		position2D = {x =-749.000000,y =-688.000000 },
 		serializable = { },
 		afterPin = {id =50 },
 		beforePin = {id =49 },
@@ -778,19 +848,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 51,
-		name = {value ="CreateLinksFromECSFiles" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 136,
+		name = {value ="BeginECSEditorWindow" },
+		position2D = {x =-252.000000,y =-688.000000 },
 		serializable = { },
-		afterPin = {id =53 },
-		beforePin = {id =52 },
+		afterPin = {id =52 },
+		beforePin = {id =51 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 54,
-		name = {value ="CreateSceneLoadRequest" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 137,
+		name = {value ="CreateEditorContext" },
+		position2D = {x =-572.000000,y =-816.000000 },
+		serializable = { },
+		afterPin = {id =54 },
+		beforePin = {id =53 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 138,
+		name = {value ="EndECSEditorWindow" },
+		position2D = {x =-540.000000,y =-1024.000000 },
 		serializable = { },
 		afterPin = {id =56 },
 		beforePin = {id =55 },
@@ -798,19 +878,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 57,
-		name = {value ="EndLoadingECSFiles" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 139,
+		name = {value ="ProcessECSInspectorMenuItem" },
+		position2D = {x =116.000000,y =-832.000000 },
 		serializable = { },
-		afterPin = {id =59 },
-		beforePin = {id =58 },
+		afterPin = {id =58 },
+		beforePin = {id =57 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 60,
-		name = {value ="LoadECSFiles" },
-		position2D = {x =0.000000,y =0.000000 },
+		ID = 140,
+		name = {value ="BeginECSInspectorWindow" },
+		position2D = {x =-13.000000,y =-560.000000 },
+		serializable = { },
+		afterPin = {id =60 },
+		beforePin = {id =59 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 141,
+		name = {value ="EndECSInspectorWindow" },
+		position2D = {x =-221.000000,y =-608.000000 },
 		serializable = { },
 		afterPin = {id =62 },
 		beforePin = {id =61 },
@@ -818,19 +908,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 63,
-		name = {value ="ProcessLoadECSFilesButton" },
-		position2D = {x =-412.000000,y =-368.000000 },
+		ID = 142,
+		name = {value ="ShowEntitiesInfo" },
+		position2D = {x =-221.000000,y =-496.000000 },
 		serializable = { },
-		afterPin = {id =65 },
-		beforePin = {id =64 },
+		afterPin = {id =64 },
+		beforePin = {id =63 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 66,
-		name = {value ="CreateSceneSaveRequest" },
-		position2D = {x =51.000000,y =-352.000000 },
+		ID = 143,
+		name = {value ="BeginECSMenu" },
+		position2D = {x =403.000000,y =-928.000000 },
+		serializable = { },
+		afterPin = {id =66 },
+		beforePin = {id =65 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 144,
+		name = {value ="CreateECSMenu" },
+		position2D = {x =404.000000,y =288.000000 },
 		serializable = { },
 		afterPin = {id =68 },
 		beforePin = {id =67 },
@@ -838,19 +938,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 69,
-		name = {value ="ProcessSaveECSFilesButton" },
-		position2D = {x =-604.000000,y =-320.000000 },
+		ID = 145,
+		name = {value ="EndECSMenu" },
+		position2D = {x =276.000000,y =-1024.000000 },
 		serializable = { },
-		afterPin = {id =71 },
-		beforePin = {id =70 },
+		afterPin = {id =70 },
+		beforePin = {id =69 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 72,
-		name = {value ="BeginECSEditorWindow" },
-		position2D = {x =-477.000000,y =-144.000000 },
+		ID = 146,
+		name = {value ="BeginMainMenuBar" },
+		position2D = {x =563.000000,y =-672.000000 },
+		serializable = { },
+		afterPin = {id =72 },
+		beforePin = {id =71 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 147,
+		name = {value ="CreateMainMenuBar" },
+		position2D = {x =644.000000,y =240.000000 },
 		serializable = { },
 		afterPin = {id =74 },
 		beforePin = {id =73 },
@@ -858,19 +968,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 75,
-		name = {value ="CreateEditorContext" },
-		position2D = {x =-188.000000,y =-336.000000 },
+		ID = 148,
+		name = {value ="EndMainMenuBar" },
+		position2D = {x =115.000000,y =-688.000000 },
 		serializable = { },
-		afterPin = {id =77 },
-		beforePin = {id =76 },
+		afterPin = {id =76 },
+		beforePin = {id =75 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 78,
-		name = {value ="EndECSEditorWindow" },
-		position2D = {x =-540.000000,y =128.000000 },
+		ID = 149,
+		name = {value ="CreateImGuiState" },
+		position2D = {x =-92.000000,y =288.000000 },
+		serializable = { },
+		afterPin = {id =78 },
+		beforePin = {id =77 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 150,
+		name = {value ="DestroyImGuiState" },
+		position2D = {x =163.000000,y =-416.000000 },
 		serializable = { },
 		afterPin = {id =80 },
 		beforePin = {id =79 },
@@ -878,19 +998,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 81,
-		name = {value ="ProcessECSInspectorMenuItem" },
-		position2D = {x =-125.000000,y =528.000000 },
+		ID = 151,
+		name = {value ="EndImGuiFrame" },
+		position2D = {x =499.000000,y =-336.000000 },
 		serializable = { },
-		afterPin = {id =83 },
-		beforePin = {id =82 },
+		afterPin = {id =82 },
+		beforePin = {id =81 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 84,
-		name = {value ="BeginECSInspectorWindow" },
-		position2D = {x =227.000000,y =176.000000 },
+		ID = 152,
+		name = {value ="StartImGuiFrame" },
+		position2D = {x =1027.000000,y =-464.000000 },
+		serializable = { },
+		afterPin = {id =84 },
+		beforePin = {id =83 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 153,
+		name = {value ="CreateImGuiAtlasTexture" },
+		position2D = {x =-572.000000,y =288.000000 },
 		serializable = { },
 		afterPin = {id =86 },
 		beforePin = {id =85 },
@@ -898,19 +1028,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 87,
-		name = {value ="EndECSInspectorWindow" },
-		position2D = {x =611.000000,y =208.000000 },
+		ID = 154,
+		name = {value ="AddImGuiMeshToRender" },
+		position2D = {x =132.000000,y =272.000000 },
 		serializable = { },
-		afterPin = {id =89 },
-		beforePin = {id =88 },
+		afterPin = {id =88 },
+		beforePin = {id =87 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 90,
-		name = {value ="ShowEntitiesInfo" },
-		position2D = {x =419.000000,y =464.000000 },
+		ID = 155,
+		name = {value ="CreateScene" },
+		position2D = {x =-317.000000,y =-80.000000 },
+		serializable = { },
+		afterPin = {id =90 },
+		beforePin = {id =89 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 156,
+		name = {value ="EndWorldSceneSaving" },
+		position2D = {x =435.000000,y =-32.000000 },
 		serializable = { },
 		afterPin = {id =92 },
 		beforePin = {id =91 },
@@ -918,19 +1058,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 93,
-		name = {value ="BeginECSMenu" },
-		position2D = {x =147.000000,y =512.000000 },
+		ID = 157,
+		name = {value ="FindScenes" },
+		position2D = {x =-205.000000,y =-176.000000 },
 		serializable = { },
-		afterPin = {id =95 },
-		beforePin = {id =94 },
+		afterPin = {id =94 },
+		beforePin = {id =93 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 96,
-		name = {value ="CreateECSMenu" },
-		position2D = {x =851.000000,y =-16.000000 },
+		ID = 158,
+		name = {value ="CreateSceneFile" },
+		position2D = {x =1059.000000,y =-32.000000 },
+		serializable = { },
+		afterPin = {id =96 },
+		beforePin = {id =95 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 159,
+		name = {value ="CreateSceneFileEnd" },
+		position2D = {x =851.000000,y =-32.000000 },
 		serializable = { },
 		afterPin = {id =98 },
 		beforePin = {id =97 },
@@ -938,19 +1088,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 99,
-		name = {value ="EndECSMenu" },
-		position2D = {x =612.000000,y =432.000000 },
+		ID = 160,
+		name = {value ="CreateSceneFileStart" },
+		position2D = {x =1251.000000,y =-32.000000 },
 		serializable = { },
-		afterPin = {id =101 },
-		beforePin = {id =100 },
+		afterPin = {id =100 },
+		beforePin = {id =99 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 102,
-		name = {value ="BeginMainMenuBar" },
-		position2D = {x =-588.000000,y =288.000000 },
+		ID = 161,
+		name = {value ="SaveSceneFile" },
+		position2D = {x =659.000000,y =-32.000000 },
+		serializable = { },
+		afterPin = {id =102 },
+		beforePin = {id =101 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 162,
+		name = {value ="EndRender" },
+		position2D = {x =-268.000000,y =272.000000 },
 		serializable = { },
 		afterPin = {id =104 },
 		beforePin = {id =103 },
@@ -958,19 +1118,29 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 105,
-		name = {value ="CreateMainMenuBar" },
-		position2D = {x =1123.000000,y =-32.000000 },
+		ID = 163,
+		name = {value ="CreateRenderDriver" },
+		position2D = {x =-253.000000,y =48.000000 },
 		serializable = { },
-		afterPin = {id =107 },
-		beforePin = {id =106 },
+		afterPin = {id =106 },
+		beforePin = {id =105 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 108,
-		name = {value ="EndMainMenuBar" },
-		position2D = {x =-12.000000,y =384.000000 },
+		ID = 164,
+		name = {value ="ConfigureResourceSystem" },
+		position2D = {x =-77.000000,y =-80.000000 },
+		serializable = { },
+		afterPin = {id =108 },
+		beforePin = {id =107 },
+		callGraphNode = { },
+		rootNode = { }
+	},
+	{
+		ID = 165,
+		name = {value ="ClearKeyboardInput" },
+		position2D = {x =147.000000,y =-256.000000 },
 		serializable = { },
 		afterPin = {id =110 },
 		beforePin = {id =109 },
@@ -978,423 +1148,258 @@ scene = {
 		rootNode = { }
 	},
 	{
-		ID = 111,
-		name = {value ="CreateImGuiState" },
-		position2D = {x =-268.000000,y =432.000000 },
-		serializable = { },
-		afterPin = {id =113 },
-		beforePin = {id =112 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 114,
-		name = {value ="DestroyImGuiState" },
-		position2D = {x =323.000000,y =240.000000 },
-		serializable = { },
-		afterPin = {id =116 },
-		beforePin = {id =115 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 117,
-		name = {value ="EndImGuiFrame" },
-		position2D = {x =-316.000000,y =144.000000 },
-		serializable = { },
-		afterPin = {id =119 },
-		beforePin = {id =118 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 120,
-		name = {value ="StartImGuiFrame" },
-		position2D = {x =-28.000000,y =288.000000 },
-		serializable = { },
-		afterPin = {id =122 },
-		beforePin = {id =121 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 123,
-		name = {value ="CreateImGuiAtlasTexture" },
-		position2D = {x =307.000000,y =-144.000000 },
-		serializable = { },
-		afterPin = {id =125 },
-		beforePin = {id =124 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 126,
-		name = {value ="AddImGuiMeshToRender" },
-		position2D = {x =-29.000000,y =-80.000000 },
-		serializable = { },
-		afterPin = {id =128 },
-		beforePin = {id =127 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 129,
-		name = {value ="CreateScene" },
-		position2D = {x =67.000000,y =-160.000000 },
-		serializable = { },
-		afterPin = {id =131 },
-		beforePin = {id =130 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 132,
-		name = {value ="EndWorldSceneSaving" },
-		position2D = {x =-412.000000,y =-240.000000 },
-		serializable = { },
-		afterPin = {id =134 },
-		beforePin = {id =133 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 135,
-		name = {value ="FindScenes" },
-		position2D = {x =612.000000,y =-288.000000 },
-		serializable = { },
-		afterPin = {id =137 },
-		beforePin = {id =136 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 138,
-		name = {value ="CreateSceneFile" },
-		position2D = {x =-668.000000,y =-112.000000 },
-		serializable = { },
-		afterPin = {id =140 },
-		beforePin = {id =139 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 141,
-		name = {value ="CreateSceneFileEnd" },
-		position2D = {x =564.000000,y =272.000000 },
-		serializable = { },
-		afterPin = {id =143 },
-		beforePin = {id =142 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 144,
-		name = {value ="CreateSceneFileStart" },
-		position2D = {x =547.000000,y =80.000000 },
-		serializable = { },
-		afterPin = {id =146 },
-		beforePin = {id =145 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 147,
-		name = {value ="SaveSceneFile" },
-		position2D = {x =-61.000000,y =-272.000000 },
-		serializable = { },
-		afterPin = {id =149 },
-		beforePin = {id =148 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 150,
-		name = {value ="EndRender" },
-		position2D = {x =-396.000000,y =32.000000 },
-		serializable = { },
-		afterPin = {id =152 },
-		beforePin = {id =151 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 153,
-		name = {value ="CreateRenderDriver" },
-		position2D = {x =195.000000,y =400.000000 },
-		serializable = { },
-		afterPin = {id =155 },
-		beforePin = {id =154 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 156,
-		name = {value ="ConfigureResourceSystem" },
-		position2D = {x =691.000000,y =-176.000000 },
-		serializable = { },
-		afterPin = {id =158 },
-		beforePin = {id =157 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 159,
-		name = {value ="ClearKeyboardInput" },
-		position2D = {x =211.000000,y =-288.000000 },
-		serializable = { },
-		afterPin = {id =161 },
-		beforePin = {id =160 },
-		callGraphNode = { },
-		rootNode = { }
-	},
-	{
-		ID = 162,
+		ID = 166,
 		name = {value ="SendWindowKeyboardInput" },
-		position2D = {x =-268.000000,y =-144.000000 },
+		position2D = {x =467.000000,y =-448.000000 },
 		serializable = { },
-		afterPin = {id =164 },
-		beforePin = {id =163 },
+		afterPin = {id =112 },
+		beforePin = {id =111 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
-		ID = 165,
+		ID = 167,
 		name = {value ="CreateMainWindow" },
-		position2D = {x =-220.000000,y =240.000000 },
+		position2D = {x =19.000000,y =48.000000 },
 		serializable = { },
-		afterPin = {id =167 },
-		beforePin = {id =166 },
+		afterPin = {id =114 },
+		beforePin = {id =113 },
 		callGraphNode = { },
 		rootNode = { }
 	},
 	{
 		ID = 168,
 		serializable = { },
-		link = {nodeFrom =14,nodeTo =22 }
+		link = {nodeFrom =12,nodeTo =17 }
 	},
 	{
 		ID = 169,
 		serializable = { },
-		link = {nodeFrom =17,nodeTo =28 }
+		link = {nodeFrom =14,nodeTo =21 }
 	},
 	{
 		ID = 170,
 		serializable = { },
-		link = {nodeFrom =20,nodeTo =22 }
+		link = {nodeFrom =16,nodeTo =17 }
 	},
 	{
 		ID = 171,
 		serializable = { },
-		link = {nodeFrom =23,nodeTo =73 }
+		link = {nodeFrom =18,nodeTo =51 }
 	},
 	{
 		ID = 172,
 		serializable = { },
-		link = {nodeFrom =26,nodeTo =22 }
+		link = {nodeFrom =20,nodeTo =17 }
 	},
 	{
 		ID = 173,
 		serializable = { },
-		link = {nodeFrom =29,nodeTo =73 }
+		link = {nodeFrom =22,nodeTo =51 }
 	},
 	{
 		ID = 174,
 		serializable = { },
-		link = {nodeFrom =32,nodeTo =28 }
+		link = {nodeFrom =24,nodeTo =21 }
 	},
 	{
 		ID = 175,
 		serializable = { },
-		link = {nodeFrom =35,nodeTo =94 }
+		link = {nodeFrom =26,nodeTo =65 }
 	},
 	{
 		ID = 176,
 		serializable = { },
-		link = {nodeFrom =38,nodeTo =19 }
+		link = {nodeFrom =28,nodeTo =15 }
 	},
 	{
 		ID = 177,
 		serializable = { },
-		link = {nodeFrom =41,nodeTo =37 }
+		link = {nodeFrom =30,nodeTo =27 }
 	},
 	{
 		ID = 178,
 		serializable = { },
-		link = {nodeFrom =44,nodeTo =13 }
+		link = {nodeFrom =32,nodeTo =11 }
 	},
 	{
 		ID = 179,
 		serializable = { },
-		link = {nodeFrom =47,nodeTo =49 }
+		link = {nodeFrom =34,nodeTo =35 }
 	},
 	{
 		ID = 180,
 		serializable = { },
-		link = {nodeFrom =50,nodeTo =76 }
+		link = {nodeFrom =36,nodeTo =53 }
 	},
 	{
 		ID = 181,
 		serializable = { },
-		link = {nodeFrom =53,nodeTo =61 }
+		link = {nodeFrom =38,nodeTo =43 }
 	},
 	{
 		ID = 182,
 		serializable = { },
-		link = {nodeFrom =56,nodeTo =28 }
+		link = {nodeFrom =40,nodeTo =21 }
 	},
 	{
 		ID = 183,
 		serializable = { },
-		link = {nodeFrom =59,nodeTo =52 }
+		link = {nodeFrom =42,nodeTo =37 }
 	},
 	{
 		ID = 184,
 		serializable = { },
-		link = {nodeFrom =62,nodeTo =28 }
+		link = {nodeFrom =44,nodeTo =21 }
 	},
 	{
 		ID = 185,
 		serializable = { },
-		link = {nodeFrom =65,nodeTo =73 }
+		link = {nodeFrom =46,nodeTo =51 }
 	},
 	{
 		ID = 186,
 		serializable = { },
-		link = {nodeFrom =68,nodeTo =28 }
+		link = {nodeFrom =48,nodeTo =21 }
 	},
 	{
 		ID = 187,
 		serializable = { },
-		link = {nodeFrom =71,nodeTo =73 }
+		link = {nodeFrom =50,nodeTo =51 }
 	},
 	{
 		ID = 188,
 		serializable = { },
-		link = {nodeFrom =74,nodeTo =109 }
+		link = {nodeFrom =52,nodeTo =75 }
 	},
 	{
 		ID = 189,
 		serializable = { },
-		link = {nodeFrom =77,nodeTo =73 }
+		link = {nodeFrom =54,nodeTo =51 }
 	},
 	{
 		ID = 190,
 		serializable = { },
-		link = {nodeFrom =80,nodeTo =73 }
+		link = {nodeFrom =56,nodeTo =51 }
 	},
 	{
 		ID = 191,
 		serializable = { },
-		link = {nodeFrom =83,nodeTo =94 }
+		link = {nodeFrom =58,nodeTo =65 }
 	},
 	{
 		ID = 192,
 		serializable = { },
-		link = {nodeFrom =86,nodeTo =109 }
+		link = {nodeFrom =60,nodeTo =75 }
 	},
 	{
 		ID = 193,
 		serializable = { },
-		link = {nodeFrom =89,nodeTo =85 }
+		link = {nodeFrom =62,nodeTo =59 }
 	},
 	{
 		ID = 194,
 		serializable = { },
-		link = {nodeFrom =92,nodeTo =85 }
+		link = {nodeFrom =64,nodeTo =59 }
 	},
 	{
 		ID = 195,
 		serializable = { },
-		link = {nodeFrom =95,nodeTo =103 }
+		link = {nodeFrom =66,nodeTo =71 }
 	},
 	{
 		ID = 196,
 		serializable = { },
-		link = {nodeFrom =101,nodeTo =94 }
+		link = {nodeFrom =70,nodeTo =65 }
 	},
 	{
 		ID = 197,
 		serializable = { },
-		link = {nodeFrom =104,nodeTo =121 }
+		link = {nodeFrom =72,nodeTo =83 }
 	},
 	{
 		ID = 198,
 		serializable = { },
-		link = {nodeFrom =110,nodeTo =103 }
+		link = {nodeFrom =76,nodeTo =71 }
 	},
 	{
 		ID = 199,
 		serializable = { },
-		link = {nodeFrom =110,nodeTo =121 }
+		link = {nodeFrom =76,nodeTo =83 }
 	},
 	{
 		ID = 200,
 		serializable = { },
-		link = {nodeFrom =116,nodeTo =118 }
+		link = {nodeFrom =80,nodeTo =81 }
 	},
 	{
 		ID = 201,
 		serializable = { },
-		link = {nodeFrom =116,nodeTo =163 }
+		link = {nodeFrom =80,nodeTo =111 }
 	},
 	{
 		ID = 202,
 		serializable = { },
-		link = {nodeFrom =119,nodeTo =121 }
+		link = {nodeFrom =82,nodeTo =83 }
 	},
 	{
 		ID = 203,
 		serializable = { },
-		link = {nodeFrom =131,nodeTo =157 }
+		link = {nodeFrom =90,nodeTo =107 }
 	},
 	{
 		ID = 204,
 		serializable = { },
-		link = {nodeFrom =134,nodeTo =148 }
+		link = {nodeFrom =92,nodeTo =101 }
 	},
 	{
 		ID = 205,
 		serializable = { },
-		link = {nodeFrom =137,nodeTo =157 }
+		link = {nodeFrom =94,nodeTo =107 }
 	},
 	{
 		ID = 206,
 		serializable = { },
-		link = {nodeFrom =140,nodeTo =145 }
+		link = {nodeFrom =96,nodeTo =99 }
 	},
 	{
 		ID = 207,
 		serializable = { },
-		link = {nodeFrom =143,nodeTo =139 }
+		link = {nodeFrom =98,nodeTo =95 }
 	},
 	{
 		ID = 208,
 		serializable = { },
-		link = {nodeFrom =149,nodeTo =142 }
+		link = {nodeFrom =102,nodeTo =97 }
 	},
 	{
 		ID = 209,
 		serializable = { },
-		link = {nodeFrom =155,nodeTo =157 }
+		link = {nodeFrom =106,nodeTo =107 }
 	},
 	{
 		ID = 210,
 		serializable = { },
-		link = {nodeFrom =155,nodeTo =166 }
+		link = {nodeFrom =106,nodeTo =113 }
 	},
 	{
 		ID = 211,
 		serializable = { },
-		link = {nodeFrom =158,nodeTo =10 }
+		link = {nodeFrom =108,nodeTo =9 }
 	},
 	{
 		ID = 212,
 		serializable = { },
-		link = {nodeFrom =161,nodeTo =118 }
+		link = {nodeFrom =110,nodeTo =81 }
 	},
 	{
 		ID = 213,
 		serializable = { },
-		link = {nodeFrom =167,nodeTo =10 }
+		link = {nodeFrom =114,nodeTo =9 }
+	},
+	{
+		ID = 214,
+		serializable = { },
+		link = {nodeFrom =104,nodeTo =104 }
 	}}
 }

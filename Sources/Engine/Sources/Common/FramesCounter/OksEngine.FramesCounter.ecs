@@ -3,3 +3,26 @@ FramesCounterComponent = {
         { type = "Common::Size", name = "value" }    
     }
 }
+
+CreateFramesCounterEntitySystem = {
+    type = "Initialize",
+    updateMethod = {
+        createsEntities = {
+            createsComponents = {
+                "FramesCounter"
+            }
+        }
+    }
+}
+
+IncreaseFramesCounterSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "FramesCounter", readonly = false }
+                }
+            }
+        }
+    }
+}

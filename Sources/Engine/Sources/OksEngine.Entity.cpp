@@ -20,7 +20,7 @@ namespace OksEngine {
 	}
 
 	void Entity::AddClock() {
-		world_->CreateComponent<Clock>(
+		world_->CreateComponent<TimeSinceEpoch>(
 			GetId());
 	}
 

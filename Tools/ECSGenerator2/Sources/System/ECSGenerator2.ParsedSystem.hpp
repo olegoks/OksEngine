@@ -216,8 +216,8 @@ namespace ECSGenerator2 {
 			void ForEachRandomAccessComponent(ProcessComponentName&& processComponent) const;
 
 			using ProcessRequestEntity = std::function<bool(const ProcessedEntity& entity, bool isLast)>;
-
 			void ForEachProcessEntity(ProcessRequestEntity&& processEntity) const;
+
 
 			[[nodiscard]]
 			bool IsProcessesComponent(const std::string& component);

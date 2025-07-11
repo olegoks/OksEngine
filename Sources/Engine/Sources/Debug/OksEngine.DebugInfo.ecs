@@ -1,5 +1,0 @@
-DebugInfoComponent = {
-    fields = { 
-        { type = "std::string", name = "name" }
-     }
-}

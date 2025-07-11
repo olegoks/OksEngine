@@ -99,10 +99,17 @@ namespace ECSGenerator2 {
 			code.Add("namespace " + namespaceObject->GetName() + " {");
 
 
-			for (auto base : namespaceObject->base_) {
+			for (Common::Index i = 0; i < namespaceObject->base_.size(); i++) {
+				auto base = namespaceObject->base_[i];
 				Code namespaceCode = GenerateECSCXXFilesStructure(base);
 				namespaceCode.ApplyTab();
+				namespaceCode.NewLine();
+				namespaceCode.NewLine();
 				code.Add(namespaceCode);
+				if (i != namespaceObject->base_.size() - 1) {
+					namespaceCode.NewLine();
+					namespaceCode.NewLine();
+				}
 			}
 
 			code.Add("}");

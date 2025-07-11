@@ -1,0 +1,117 @@
+DebugInfoComponent = {
+    fields = { 
+        { type = "std::string", name = "name" }
+     }
+}
+
+
+ImGuiStateComponent = {
+    serializable = false,
+    fields = { 
+        { type = "RAL::Texture::Id", name = "fontsTextureId" },
+        { type = "Common::Size ", name = "fps" },
+        { type = "std::vector<Common::Id>", name = "driverShapesId" }
+     }
+}
+
+
+CreateImGuiStateSystem = {
+    callOrder = {
+        runAfter = {
+            "GetWindowKeyboardInput"
+        },
+         runBefore = { 
+            "ClearKeyboardInput", 
+            "StartImGuiFrame" },
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    "KeyboardInput"
+                }
+            }
+        },
+        createsEntities = {
+            {
+                createsComponents = {
+                    "ImGuiState",
+                    "ImPlotContext",
+                    "HandleKeyboardInput"
+                }
+            }
+        }
+    }
+}
+
+DestroyImGuiStateSystem = {
+    callOrder = {
+        runAfter = { "SendWindowKeyboardInput", "EndImGuiFrame" },
+        runBefore = "ClearKeyboardInput",
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "KeyboardInput"
+                }
+            }
+        }
+    }
+    
+}
+
+
+ImPlotStateComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::shared_ptr<ImPlotContext>", name = "context" }
+    }
+}
+
+CreateImPlotContextSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "HandleKeyboardInput",
+                },
+                excludes = {
+                    "ImPlotState"
+                },
+                createsComponents = {
+                    "ImPlotState"
+                }
+            }
+        }
+    }
+}
+
+StartImGuiFrameSystem = {
+    callOrder = {
+        runAfter = "ProcessInput"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { "ImGuiState" },
+            }
+        }
+    }    
+}
+
+EndImGuiFrameSystem = {
+    callOrder = {
+        runAfter = "StartImGuiFrame"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { "ImGuiState" }
+            }
+        }
+    }
+}

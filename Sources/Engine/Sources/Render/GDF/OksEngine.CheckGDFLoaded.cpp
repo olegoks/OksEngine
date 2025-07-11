@@ -25,7 +25,7 @@ namespace OksEngine {
 
 		AsyncResourceSubsystem::Task task;
 		AsyncResourceSubsystem::Task::Id waitTaskId = loadGDFTask->id_;
-		const bool isGot = resourceSystem->system_->IsIncomeTaskExist(Subsystem::Type::Engine, [waitTaskId](
+		const bool isGot = resourceSystem->system_->IsIncomeTaskExist(Subsystem::Type::ChildThread, [waitTaskId](
 			Subsystem::Type sender,
 			const DS::Vector<Subsystem::Type>& receivers,
 			const AsyncResourceSubsystem::Task& task) {

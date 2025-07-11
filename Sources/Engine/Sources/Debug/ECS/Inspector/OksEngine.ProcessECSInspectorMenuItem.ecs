@@ -14,6 +14,9 @@ ProcessECSInspectorMenuItemSystem = {
             },
             createsComponents = {
                 "ECSInspectorWindow"
+            },
+            excludes = {
+                "ECSInspectorWindow"
             }
             }
         }

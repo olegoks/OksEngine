@@ -1,32 +1,207 @@
 EnginePerformanceComponent = { }
 
-BeginEnginePerformanceWindowSystem = {
-    callOrder = {
-        runAfter = "StartImGuiFrame"
-    },
+-- Menu item
+EnginePerformanceMenuItemComponent = { }
+
+CreateEnginePerformanceMenuItemSystem = {
     updateMethod = {
         processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState"
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImPlotState",
+                    "MainMenuBar"
+                },
+                createsComponents = {
+                    "EnginePerformanceMenuItem"
+                },
+                excludes = {
+                    "EnginePerformanceMenuItem"
+                }
             }
         }
-    }
     }
 }
 
-EndEnginePerformanceWindowSystem = {
+-- Creates Engine Performance Window if menu item selected
+
+EnginePerformanceWindowComponent = { }
+
+ProcessEnginePerformanceMenuItemSystem = {
     callOrder = {
-    runAfter = "BeginEnginePerformanceWindow",
-    runBefore = "EndImGuiFrame"
+        runAfter = "BeginECSMenu",
+        runBefore = "EndECSMenu"
     },
     updateMethod = {
-    processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState"
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "MainMenuBar",
+                    "ImGuiState",
+                    "ImPlotState",
+                    "ECSMenu",
+                    "EnginePerformanceMenuItem"
+                },
+                createsComponents = {
+                    "EnginePerformanceWindow"
+                },
+                excludes = {
+                    "EnginePerformanceWindow"
+                }
             }
         }
     }
+}
+ 
+ -- Menu item
+
+CreateEnginePerformanceSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImPlotState",
+                    "MainMenuBar",
+                    "EnginePerformanceMenuItem",
+                    "EnginePerformanceWindow"
+                },
+                createsComponents = {
+                    "EnginePerformance"
+                },
+                excludes = {
+                    "EnginePerformance"
+                }
+            }
+        }
+    }
+}
+
+BeginEnginePerformanceWindowSystem = {
+    callOrder = {
+        runAfter = "StartImGuiFrame",
+        runBefore = "EndEnginePerformanceWindow"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImPlotState",
+                    "EnginePerformanceMenuItem",
+                    "EnginePerformanceWindow",
+                    "EnginePerformance"
+                }
+            }
+        }
+    }
+}
+
+FPSPlotDataComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<Common::UInt64>", name = "frame" },
+        { type = "std::vector<Common::UInt64>", name = "microsecondsFromEngineStart" },
+        { type = "std::vector<Common::UInt64>", name = "z" }
+    }
+}
+
+UpdateFPSPlotDataSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "FramesCounter"
+                }
+            },
+            {
+                processesComponents = {
+                    "TimeSinceEngineStart"
+                }
+            },
+            {
+                processesComponents = {
+                    { name = "FPSPlotData", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+
+ShowCurrentFPSSystem = {
+    callOrder = {
+        runAfter = "BeginEnginePerformanceWindow",
+        runBefore = { 
+            "ShowFPSPlot",
+            "EndEnginePerformanceWindow"
+        }
+    },
+     updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImPlotState",
+                    "EnginePerformanceMenuItem",
+                    "EnginePerformanceWindow",
+                    "EnginePerformance",
+                    "FPSPlotData"
+                }
+            },
+            {
+                processesComponents = {
+                    "FramesCounter"
+                }
+            },
+            {
+                processesComponents = {
+                    "TimeSinceEngineStart"
+                }
+            }
+        }
+    }
+}
+
+ShowFPSPlotSystem = {
+    callOrder = {
+        runAfter = "BeginEnginePerformanceWindow",
+        runBefore = "EndEnginePerformanceWindow"
+    },
+     updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImPlotState",
+                    "EnginePerformanceMenuItem",
+                    "EnginePerformanceWindow",
+                    "EnginePerformance",
+                    "FPSPlotData"
+                }
+            }
+        }
+    }
+}
+
+
+
+EndEnginePerformanceWindowSystem = {
+    callOrder = {
+        runAfter = "BeginEnginePerformanceWindow",
+        runBefore = "EndImGuiFrame"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImPlotState",
+                    "EnginePerformanceMenuItem",
+                    "EnginePerformanceWindow",
+                    "EnginePerformance"
+                }
+            }
+        }
     }
 }
