@@ -1,155 +1,71 @@
+#pragma once
+#include <Render\Camera\auto_OksEngine.Camera.hpp>
 
-#include <Render/Camera/OksEngine.Camera.hpp>
-#include <Common/auto_OksEngine.Position3D.hpp>
-
-
-namespace OksEngine {
+#include <glm/glm.hpp>
 
 
-	//void Camera::DirectionRight(float angle) {
-	//	direction_ = glm::normalize(glm::rotate(
-	//		direction_,
-	//		glm::radians(-angle),
-	//		{ 0.f, 1.f, 0.f })
-	//	);
-	//	up_ = glm::normalize(glm::rotate(
-	//		up_,
-	//		glm::radians(-angle),
-	//		{ 0.f, 1.f, 0.f })
-	//	);
-	//}
+namespace OksEngine
+{
 
 
-	//void Camera::DirectionLeft(float angle) {
-	//	direction_ = glm::normalize(glm::rotate(
-	//		direction_,
-	//		glm::radians(angle),
-	//		{ 0.f, 1.f, 0.f })
-	//	);
-	//	up_ = glm::normalize(glm::rotate(
-	//		up_,
-	//		glm::radians(angle),
-	//		{ 0.f, 1.f, 0.f })
-	//	);
-	//}
+	struct ViewProjection {
+		alignas(16) glm::mat4 view_;
+		alignas(16) glm::mat4 proj_;
+	};
 
-	//void Camera::DirectionUp(float angle) {
-	//	const glm::vec3 perpendicular = glm::normalize(glm::cross(direction_, up_));
-	//	direction_ = glm::normalize(glm::rotate(direction_, glm::radians(angle), perpendicular));
-	//	up_ = glm::normalize(glm::rotate(up_, glm::radians(angle), perpendicular));
-	//}
-
-	//void Camera::DirectionDown(float angle) {
-	//	const glm::vec3 perpendicular = glm::normalize(glm::cross(up_, direction_));
-	//	direction_ = glm::normalize(glm::rotate(direction_, glm::radians(angle), perpendicular));
-	//	up_ = glm::normalize(glm::rotate(up_, glm::radians(angle), perpendicular));
-	//}
+	void UpdateCameraTransformUniformBuffer::Update(ECS2::Entity::Id entity0id,
+		const Camera* camera0,
+		const Position3D* position3D0, 
+		const Direction3D* direction3D0,
+		const Up3D* up3D0, 
+		const ZNear* zNear0, const ZFar* zFar0,
+		const Width* width0, const Height* height0,
+		UniformBuffer* uniformBuffer0,
 
 
-	//template<>
-	//void Bind<Camera>(::Lua::Context& context) {
-	//	context.GetGlobalNamespace()
-	//		.beginClass<Camera>("Camera")
-	//		.addConstructor<void(*)(
-	//			//const glm::vec3& direction,
-	//			const glm::vec3& up, bool isActive)>()
-	//		//.addFunction("GetDirectionX", &Camera::GetDirectionX)
-	//		//.addFunction("GetDirectionY", &Camera::GetDirectionY)
-	//		//.addFunction("GetDirectionZ", &Camera::GetDirectionZ)
-	//		//.addFunction("SetDirectionX", &Camera::SetDirectionX)
-	//		//.addFunction("SetDirectionY", &Camera::SetDirectionY)
-	//		//.addFunction("SetDirectionZ", &Camera::SetDirectionZ)
-	//		//.addFunction("SetDirection", &Camera::SetDirection)
-	//		.addFunction("GetUpX", &Camera::GetUpX)
-	//		.addFunction("GetUpY", &Camera::GetUpY)
-	//		.addFunction("GetUpZ", &Camera::GetUpZ)
-	//		.addFunction("SetUpX", &Camera::SetUpX)
-	//		.addFunction("SetUpY", &Camera::SetUpY)
-	//		.addFunction("SetUpZ", &Camera::SetUpZ)
-	//		.addFunction("GetUpZ", &Camera::GetUpZ) 
-	//		.addFunction("SetUpX", &Camera::SetUpX)
-	//		.addFunction("SetUpY", &Camera::SetUpY)
-	//		.addFunction("SetUpZ", &Camera::SetUpZ)
-	//		//.addFunction("DirectionUp", &Camera::DirectionUp)
-	//		//.addFunction("DirectionDown", &Camera::DirectionDown)
-	//		//.addFunction("DirectionLeft", &Camera::DirectionLeft)
-	//		//.addFunction("DirectionRight", &Camera::DirectionRight)
-	//		.endClass();
-	//}
-
-	//template<>
-	//void Edit<Camera>(Camera* camera) {
-
-	//	//ImGui::PushID("Direction");
-	//	//{
-	//	//	ImGui::TextDisabled("Direction:");
-	//	//	ImGui::InputFloat("X", &camera->direction_.x);
-	//	//	ImGui::InputFloat("Y", &camera->direction_.y);
-	//	//	ImGui::InputFloat("Z", &camera->direction_.z);
-	//	//}
-	//	ImGui::PopID();
-	//	ImGui::PushID("Up");
-	//	{
-	//		ImGui::TextDisabled("Up:");
-	//		ImGui::InputFloat("X", &camera->up_.x);
-	//		ImGui::InputFloat("Y", &camera->up_.y);
-	//		ImGui::InputFloat("Z", &camera->up_.z);
-	//	}
-	//	ImGui::PopID();
-
-	//	ImGui::Checkbox("Is active", &camera->isActive_);
-
-	//}
+		ECS2::Entity::Id entity1id,
+		RenderDriver* renderDriver1) {
 
 
+		const glm::mat4 view = glm::lookAt(
+			glm::vec3(position3D0->x_, position3D0->y_, position3D0->z_),
+			glm::vec3(position3D0->x_, position3D0->y_, position3D0->z_) + glm::vec3(direction3D0->x_, direction3D0->y_, direction3D0->z_),
+			glm::vec3(up3D0->x_, up3D0->y_, up3D0->z_)
+		);
+
+		glm::mat4 proj = glm::perspective(
+			glm::radians(45.0f),
+			width0->value_ / (float)height0->value_,
+			zNear0->value_, zFar0->value_);
+
+		proj[1][1] *= -1;
+
+		ViewProjection viewProj{
+			.view_ = view,
+			.proj_ = proj
+		};
+
+		renderDriver1->driver_->FillUniformBuffer(uniformBuffer0->id_, &viewProj);
+
+	};
+
+	void CreateCameraTransformDriverUniformBuffer::Update(
+		ECS2::Entity::Id entity0id, 
+		const Camera* camera0,
+
+		ECS2::Entity::Id entity1id,
+		RenderDriver* renderDriver1) {
 
 
-	//template<>
-	//void Add<Camera>(ECS::World* world, ECS::Entity::Id id) {
-	//	static float directionX = 0.0f;
-	//	static float directionY = 1.0f;
-	//	static float directionZ = 0.0f;
-	//	static float upX = 0.0f;
-	//	static float upY = 0.0f;
-	//	static float upZ = 1.0f;
-	//	static bool isActive = true;
-	//	if (ImGui::CollapsingHeader("Create info")) {
+		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+			.size_ = sizeof(ViewProjection),
+			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+		};
+		RAL::Driver::UniformBuffer::Id UBId = renderDriver1->driver_->CreateUniformBuffer(UBCreateInfo);
 
-	//		{
-	//			ImGui::PushID("Direction");
-	//			{
-	//				ImGui::TextDisabled("Direction:");
-	//				ImGui::InputFloat("X", &directionX);
-	//				ImGui::InputFloat("Y", &directionY);
-	//				ImGui::InputFloat("Z", &directionZ);
-	//			}
-	//			ImGui::PopID();
-
-	//			ImGui::PushID("Up");
-	//			{
-	//				ImGui::TextDisabled("Up:");
-	//				ImGui::InputFloat("X", &upX);
-	//				ImGui::InputFloat("Y", &upY);
-	//				ImGui::InputFloat("Z", &upZ);
-	//			}
-	//			ImGui::PopID();
-	//			ImGui::Checkbox("Is active", &isActive);
-	//		}
+		CreateComponent<DriverViewProjectionUniformBuffer>(entity0id, UBId);
 
 
-	//		ImGui::Spacing();
-	//	}
-	//	if (ImGui::Button("Add component")) {
-	//		if (!world->IsComponentExist<Camera>(id)) {
-	//			world->CreateComponent<Camera>(id,
-	//				//glm::vec3{ positionX, positionY, positionZ },
-	//				//glm::vec3{ directionX , directionY, directionZ },
-	//				glm::vec3{ upX, upY, upZ },
-	//				isActive);
-	//		}
-	//	}
-	//}
+	};
 
-
-
-}
+} // namespace OksEngine

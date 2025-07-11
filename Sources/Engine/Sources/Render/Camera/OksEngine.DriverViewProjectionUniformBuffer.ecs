@@ -1,6 +1,0 @@
-DriverViewProjectionUniformBufferComponent = {
-    serializable = false,
-    fields = { 
-        { type = "RAL::Driver::UniformBuffer::Id", name = "id" }
-         }
-}

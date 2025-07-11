@@ -1,7 +1,7 @@
 
 #include <memory>
 
-#include <Render/OksEngine.Render.Subsystem.hpp>
+//#include <Render/OksEngine.Render.Subsystem.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
@@ -10,7 +10,7 @@
 
 #include <OksEngine.Config.hpp>
 
-#include <Render/auto_OksEngine.RenderDriver.hpp>
+//#include <Render/auto_OksEngine.RenderDriver.hpp>
 #include <Resources/auto_OksEngine.ResourceSystem.hpp>
 #include <Common/CommandLineParameters/auto_OksEngine.ECS.hpp>
 

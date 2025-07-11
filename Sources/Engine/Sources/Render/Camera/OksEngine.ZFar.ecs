@@ -1,5 +1,0 @@
-ZFarComponent = {
-    fields = { 
-        { type = "float", name = "value" }
-		 }
-}

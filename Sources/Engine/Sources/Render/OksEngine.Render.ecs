@@ -43,15 +43,13 @@ CreateRenderDriverSystem = {
 }
 
 
-FrameBufferResizeEventsComponent = {
-    serializable = false,
-    fields = { 
-        { type = "std::queue<UIAL::Window::FrameBufferResizeEvent>", name = "events" }
-     }
-}
 
 ResizeFrameBuffersSystem = {
     serializable = false,
+    callOrder = {
+        runBefore = "StartRender",
+        runAfter = "GetWindowResizeEvents"
+    },
     updateMethod = {
         processesEntities = {
             {
