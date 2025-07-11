@@ -1,7 +1,6 @@
 
 #include <Render/Model/Transform/auto_OksEngine.CreateDriverTransform3D.hpp>
 
-#include <Render/OksEngine.Render.Subsystem.hpp>
 
 namespace OksEngine {
 

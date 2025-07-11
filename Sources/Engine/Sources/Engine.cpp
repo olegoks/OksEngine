@@ -8,7 +8,6 @@
 
 #include <OksEngine.Context.hpp>
 
-#include <Render/OksEngine.Render.Subsystem.hpp>
 #include <Resources/OksEngine.Resource.Subsystem.hpp>
 #include <Physics/OksEngine.Physics.Subsystem.hpp>
 

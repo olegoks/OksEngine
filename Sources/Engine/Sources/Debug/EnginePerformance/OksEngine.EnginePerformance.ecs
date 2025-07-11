@@ -184,8 +184,6 @@ ShowFPSPlotSystem = {
     }
 }
 
-
-
 EndEnginePerformanceWindowSystem = {
     callOrder = {
         runAfter = "BeginEnginePerformanceWindow",
