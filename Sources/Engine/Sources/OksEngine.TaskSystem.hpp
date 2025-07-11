@@ -35,7 +35,9 @@ namespace OksEngine {
 			void AddThreadName(ThreadName name) {
 				if(!IsThreadName(name)) {
 					names_.PushBack(name);
+					
 				}
+				OS::Assert(names_.GetSize() == 1);
 			}
 			[[nodiscard]]
 			bool IsThreadName(ThreadName maybeName) const {

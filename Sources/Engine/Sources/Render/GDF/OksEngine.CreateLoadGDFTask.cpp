@@ -23,7 +23,7 @@ namespace OksEngine {
 		//	world->CreateComponent<AsyncTask>(entityId, asyncTaskId);
 		//	subsystem->loading_.insert(resourceName->value_);
 		//}
-		auto asyncTaskId = resourceSystem->system_->GetResource(Subsystem::Type::Engine, "Root\\" + std::string{ immutableRenderGeometry->meshTag_ });
+		auto asyncTaskId = resourceSystem->system_->GetResource(Subsystem::Type::ChildThread, "Root\\" + std::string{ immutableRenderGeometry->meshTag_ });
 
 		CreateComponent<LoadGDFTask>(entity1Id, asyncTaskId);
 	}

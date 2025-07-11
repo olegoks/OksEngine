@@ -11,7 +11,7 @@ namespace OksEngine {
 		RunningAnimationState* runningAnimationState,
 		const AnimationInProcess* animationInProcess,
 		const AnimationEnded* animationEnded,
-		const Clock* clock) {
+		const TimeSinceEpoch* clock) {
 
 		//world->RemoveComponent<RunningAnimationState>(entityId);
 		//world->RemoveComponent<AnimationInProcess>(entityId);

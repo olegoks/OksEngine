@@ -10,7 +10,7 @@ void LoadECSFiles::Update(
     ECS2::Entity::Id entity1id,
     const ResourceSystem* resourceSystem1) {
 
-        const auto addedResources = resourceSystem1->system_->GetAddedResourcesSynch(Subsystem::Type::Debug, { ".ecs" });
+        const auto addedResources = resourceSystem1->system_->GetAddedResourcesSynch(Subsystem::Type::ChildThread, { ".ecs" });
 
         for (auto& ecsFilePath : addedResources) {
 
@@ -19,7 +19,7 @@ void LoadECSFiles::Update(
             //}
             
             auto ecsFileData = resourceSystem1->system_->GetResourceSynch(
-                    Subsystem::Type::Debug,
+                    Subsystem::Type::ChildThread,
                     ecsFilePath);
             ::Lua::Context luaContext;
             luaContext.LoadScript(

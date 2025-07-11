@@ -14,7 +14,7 @@ namespace OksEngine {
 
 		AsyncResourceSubsystem::Task task;
 		AsyncResourceSubsystem::Task::Id waitTaskId = loadGDFTask->id_;
-		const bool isGot = resourceSystem->system_->GetTask(Subsystem::Type::Engine, task, [waitTaskId](
+		const bool isGot = resourceSystem->system_->GetTask(Subsystem::Type::ChildThread, task, [waitTaskId](
 			Subsystem::Type sender,
 			const DS::Vector<Subsystem::Type>& receivers,
 			const AsyncResourceSubsystem::Task& task) {

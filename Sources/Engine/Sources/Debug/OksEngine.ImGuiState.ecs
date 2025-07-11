@@ -1,8 +1,0 @@
-ImGuiStateComponent = {
-    serializable = false,
-    fields = { 
-        { type = "RAL::Texture::Id", name = "fontsTextureId" },
-        { type = "Common::Size ", name = "fps" },
-        { type = "std::vector<Common::Id>", name = "driverShapesId" }
-     }
-}

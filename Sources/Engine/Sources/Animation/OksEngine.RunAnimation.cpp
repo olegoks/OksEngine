@@ -9,7 +9,7 @@ namespace OksEngine {
 		ECS2::Entity::Id entityId,
 		RunningAnimationState* runningAnimationState,
 		const StartAnimation* startAnimation,
-		const Clock* clock) {
+		const TimeSinceEpoch* clock) {
 
 		//runningAnimationState->start_ = clock->value_;
 		//world->RemoveComponent<StartAnimation>(entityId);

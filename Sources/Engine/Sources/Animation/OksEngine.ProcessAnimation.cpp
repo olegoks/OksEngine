@@ -13,7 +13,7 @@ namespace OksEngine {
 		const Animation* animation,
 		RunningAnimationState* runningAnimationState,
 		const AnimationInProcess* animationInProcess,
-		const Clock* clock) {
+		const TimeSinceEpoch* clock) {
 
 		//RunningAnimationState* animationState = world->GetComponent<RunningAnimationState>(entityId);
 		//Clock* clock = world->GetComponent<Clock>(entityId);

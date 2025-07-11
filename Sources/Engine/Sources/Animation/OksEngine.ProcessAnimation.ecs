@@ -8,7 +8,7 @@ ProcessAnimationSystem = {
                     "Animation", 
                     { name = "RunningAnimationState", readonly = false }, 
                     "AnimationInProcess", 
-                    "Clock"  
+                    "TimeSinceEpoch"  
                 },
                 excludes = {
                     "AnimationEnded"

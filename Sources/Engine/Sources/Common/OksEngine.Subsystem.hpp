@@ -17,6 +17,7 @@ namespace OksEngine {
 			Engine,
 			Log,
 			Debug,
+			ChildThread,
 			Undefined
 		};
 

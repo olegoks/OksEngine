@@ -65,7 +65,7 @@ set(CLANG_LIBS
 set_target_properties(ECSGenerator2
     PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
-        "-workDir ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/Test -cfg ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/ecs_gen_config.lua")
+        "-workDir ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources -cfg ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/ecs_gen_config.lua -includeDir ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/")
 target_include_directories(ECSGenerator2
     PUBLIC
         ${LLVM_INCLUDE_DIRS} 

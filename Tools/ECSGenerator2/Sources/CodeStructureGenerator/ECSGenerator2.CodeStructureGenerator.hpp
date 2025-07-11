@@ -32,6 +32,69 @@ namespace ECSGenerator2 {
 			includes.paths_.insert("chrono");
 			includes.paths_.insert("OksEngine.IComponent.hpp");
 
+			parsedECSFile->ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
+
+				parsedComponent->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+
+					if (fieldInfo.GetTypeName() == "std::string") {
+						includes.paths_.insert("string");
+					}
+					if (fieldInfo.GetTypeName().find("Common") != std::string::npos) {
+						includes.paths_.insert("Common.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("std::chrono") != std::string::npos) {
+						includes.paths_.insert("chrono");
+					}
+					if (fieldInfo.GetTypeName().find("PAL") != std::string::npos) {
+						includes.paths_.insert("PAL.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("glm") != std::string::npos) {
+						includes.paths_.insert("glm/glm.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("std::queue") != std::string::npos) {
+						includes.paths_.insert("queue");
+					}
+					if (fieldInfo.GetTypeName().find("std::vector") != std::string::npos) {
+						includes.paths_.insert("vector");
+					}
+					if (fieldInfo.GetTypeName().find("RAL") != std::string::npos) {
+						includes.paths_.insert("RAL.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("Geom:") != std::string::npos) {
+						includes.paths_.insert("Geometry.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("UIAL::Window") != std::string::npos) {
+						includes.paths_.insert("UIAL.Window.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("UI::Window") != std::string::npos) {
+						includes.paths_.insert("UI.Window.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("sf") != std::string::npos) {
+						includes.paths_.insert("SFML/Audio.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("glm::quat") != std::string::npos) {
+						includes.paths_.insert("glm/gtc/quaternion.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("PE") != std::string::npos) {
+						includes.paths_.insert("PE.PhysicsEngine.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("AsyncResourceSubsystem") != std::string::npos) {
+						includes.paths_.insert("Resources/OksEngine.Resource.Subsystem.hpp");
+					}
+					if (fieldInfo.GetTypeName().find("ImGui") != std::string::npos) {
+						includes.paths_.insert("imgui/imgui.h");
+					}
+					if (fieldInfo.GetTypeName().find("ImPlot") != std::string::npos) {
+						includes.paths_.insert("implot/implot.h");
+					}
+
+					return true;
+					});
+
+				});
+
+
+
 			std::unordered_set<std::string> includeComponents;
 
 			parsedECSFile->ForEachComponent(
@@ -90,6 +153,10 @@ namespace ECSGenerator2 {
 
 				});
 
+			if (parsedECSFile->GetName() == "OksEngine.RunAnimation") {
+				Common::BreakPointLine();
+			}
+
 			//Generate includes using include directory.
 			for (const std::string componentName : includeComponents) {
 				for (auto ecsFile : ci_.ecsFiles_) {
@@ -111,7 +178,7 @@ namespace ECSGenerator2 {
 							++it;
 						}
 
-						includes.paths_.insert((componentIncludePath / ("auto_OksEngine." + componentName)).string() + ".hpp");
+						includes.paths_.insert((componentIncludePath / ("auto_" + ecsFile->GetName())).string() + ".hpp");
 
 					}
 				}
@@ -142,34 +209,34 @@ namespace ECSGenerator2 {
 					auto generateUpdateMethodParameters =
 						[](std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethodInfo) {
 
-								std::vector<Function::Parameter> updateMethodParameters;
+						std::vector<Function::Parameter> updateMethodParameters;
 
-								Common::UInt64 currentEntityIndex = 0;
-								updateMethodInfo->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
+						Common::UInt64 currentEntityIndex = 0;
+						updateMethodInfo->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
 
-									updateMethodParameters.push_back({
-										"ECS2::Entity::Id",
-										std::format("entity{}id", currentEntityIndex) });
+							updateMethodParameters.push_back({
+								"ECS2::Entity::Id",
+								std::format("entity{}id", currentEntityIndex) });
 
-									entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
-										Function::Parameter parameter;
-										if (include.IsReadonly()) {
-											parameter.inputType_ = std::format("const {}*", include.GetName());
-										}
-										else {
-											parameter.inputType_ = std::format("{}*", include.GetName());
-										}
+							entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
+								Function::Parameter parameter;
+								if (include.IsReadonly()) {
+									parameter.inputType_ = std::format("const {}*", include.GetName());
+								}
+								else {
+									parameter.inputType_ = std::format("{}*", include.GetName());
+								}
 
-										parameter.valueName_ = std::format("{}{}", include.GetLowerName(), currentEntityIndex);
-										updateMethodParameters.push_back(parameter);
-										return true;
-										});
+								parameter.valueName_ = std::format("{}{}", include.GetLowerName(), currentEntityIndex);
+								updateMethodParameters.push_back(parameter);
+								return true;
+								});
 
-									++currentEntityIndex;
-									return true;
-									});
+							++currentEntityIndex;
+							return true;
+							});
 
-								return updateMethodParameters;
+						return updateMethodParameters;
 
 						};
 
@@ -192,18 +259,18 @@ namespace ECSGenerator2 {
 					};
 				auto generateAfterUpdateMethod = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
-						Function::CreateInfo afterUpdateMethodCI{
-							.name_ = systemEcsFile->GetName() + "::AfterUpdate",
-							.parameters_ = { },
-							.returnType_ = "void",
-							.code_ = "",
-							.isPrototype_ = false,
-							.inlineModifier_ = false
-						};
+					Function::CreateInfo afterUpdateMethodCI{
+						.name_ = systemEcsFile->GetName() + "::AfterUpdate",
+						.parameters_ = { },
+						.returnType_ = "void",
+						.code_ = "",
+						.isPrototype_ = false,
+						.inlineModifier_ = false
+					};
 
-						auto afterUpdateMethod = std::make_shared<Function>(afterUpdateMethodCI);
+					auto afterUpdateMethod = std::make_shared<Function>(afterUpdateMethodCI);
 
-						return afterUpdateMethod;
+					return afterUpdateMethod;
 
 					};
 
@@ -249,8 +316,8 @@ namespace ECSGenerator2 {
 			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
 
 			auto hppSystemFile = GenerateECSFileHppFile(includeDirectory, parsedECSFile);
-			
-			
+
+
 			auto cppSystemFile = GenerateECSFileCppFile(includeDirectory, parsedECSFile);
 
 
@@ -333,7 +400,7 @@ namespace ECSGenerator2 {
 
 		}
 
-		std::shared_ptr<File> 
+		std::shared_ptr<File>
 			GenerateParseEntityHppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
 
 			auto generateParseComponentCode = [](std::shared_ptr<ParsedComponent> component) -> Code {
@@ -576,7 +643,7 @@ namespace ECSGenerator2 {
 			return file;
 		}
 
-		std::shared_ptr<File> 
+		std::shared_ptr<File>
 			GenerateEditEntityHppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
 
 			auto generateAddComponentCode = [](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> Code {

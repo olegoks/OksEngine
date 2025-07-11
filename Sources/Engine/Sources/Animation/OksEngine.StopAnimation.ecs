@@ -7,7 +7,7 @@ StopAnimationSystem = {
                     { name = "RunningAnimationState", readonly = false },
                     "AnimationInProcess", 
                     "AnimationEnded",
-                    "Clock"
+                    "TimeSinceEpoch"
                 }
             }
         }

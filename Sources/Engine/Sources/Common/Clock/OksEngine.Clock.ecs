@@ -1,6 +1,62 @@
-ClockComponent = {
+
+EngineStartTimePointComponent = {
     serializable = false,
     fields = { 
-        { type = "std::chrono::high_resolution_clock::time_point", name = "value" }
-     }
+        { type = "std::chrono::high_resolution_clock::time_point", name = "timepoint" }
+    }
+}
+
+TimeSinceEngineStartComponent = {
+    serializable = false,
+    fields = { 
+        { type = "Common::UInt64", name = "microseconds" }
+    }
+}
+
+TimeSinceEpochComponent = {
+    serializable = false,
+    fields = { 
+        { type = "Common::UInt64", name = "microseconds" }
+    }
+}
+
+CreateClockEntitySystem = {
+    type = "Initialize",
+    updateMethod = {
+        createsEntities = {
+            {
+                createsComponents = {
+                    "Name",
+                    "TimeSinceEpoch",
+                    "TimeSinceEngineStart",
+                    "EngineStartTimePoint"
+                }
+            }
+        }
+    }
+}
+
+UpdateTimeSinceEpochSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "TimeSinceEpoch", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+UpdateTimeSinceEngineStartSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "TimeSinceEngineStart", readonly = false },
+                    "EngineStartTimePoint"
+                }
+            }
+        }
+    }
 }

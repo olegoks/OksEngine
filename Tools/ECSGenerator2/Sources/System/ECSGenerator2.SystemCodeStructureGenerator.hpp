@@ -74,7 +74,8 @@ namespace ECSGenerator2 {
 		}
 
 		//returns array of names of components that needed for Update method.
-		std::unordered_set<std::string> GenerateUpdateMethodRequiredComponentIncludes(std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethodInfo) {
+		std::unordered_set<std::string> GenerateUpdateMethodRequiredComponentIncludes(
+			std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethodInfo) {
 
 			std::unordered_set<std::string> requiredComponentNames{ };
 
@@ -402,14 +403,13 @@ namespace ECSGenerator2 {
 
 			std::vector<std::shared_ptr<Function>> methods{
 				generateUpdateMethodPrototype(system),
-				generateCreateComponentMethodRealization(system),
 				generateGetComponentsFilter(system),
 				generateRemoveComponentMethodRealization(system),
 				generateGetComponentMethodRealization(system),
 				generateIsComponentExistMethodRealization(system),
-				generateCreateDynamicEntityRealization(system),
+
 				generateDestroyEntityRealization(system),
-				generateCreateArchetypeEntityRealization(system),
+
 				generateIsEntityExistMethodRealization(system),
 				generateIsEntityExist2MethodRealization(system)
 			};
@@ -418,6 +418,45 @@ namespace ECSGenerator2 {
 			if (system->ci_.afterUpdateMethod_ != nullptr) {
 				methods.push_back(generateAfterUpdateMethodPrototype(system));
 			}
+
+			//Generate CreateComponent method if needed.
+			{
+				bool isSystemCreatesComponents = false;
+
+				//If update method creates compponents for processed entities -> generate CreateComponent method.
+				system->ci_.updateMethod_->ForEachProcessEntity(
+					[&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
+					
+						if (!entity.creates_.empty()) {
+							isSystemCreatesComponents = true;
+						}
+						if (isSystemCreatesComponents) {
+							return false;
+						}
+						return true;
+					
+					});
+
+				//If update method creates entities -> generate CreateComponent method. 
+				if (!isSystemCreatesComponents && !system->ci_.updateMethod_->createsEntities_.empty()) {
+					isSystemCreatesComponents = true;
+				}
+
+				if (isSystemCreatesComponents) {
+					methods.push_back(generateCreateComponentMethodRealization(system));
+				}
+
+			}
+
+			//Generate create entity method if needed.
+			{
+				//If update method creates entities -> generate CreateComponent method. 
+				if (!system->ci_.updateMethod_->createsEntities_.empty()) {
+					methods.push_back(generateCreateDynamicEntityRealization(system));
+					methods.push_back(generateCreateArchetypeEntityRealization(system));
+				}
+			}
+
 			Struct::CreateInfo sci{
 				.name_ = system->GetName(),
 				.parent_ = "",
