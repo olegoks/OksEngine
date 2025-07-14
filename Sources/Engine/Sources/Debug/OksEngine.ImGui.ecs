@@ -16,13 +16,11 @@ ImGuiStateComponent = {
 
 
 CreateImGuiStateSystem = {
+    type = "Initialize",
     callOrder = {
         runAfter = {
-            "GetWindowKeyboardInput"
-        },
-         runBefore = { 
-            "ClearKeyboardInput", 
-            "StartImGuiFrame" },
+            "CreateMainWindow"
+        }
     },
     updateMethod = {
         processesEntities = {

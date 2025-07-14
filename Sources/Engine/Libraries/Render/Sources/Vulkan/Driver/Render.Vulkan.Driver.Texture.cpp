@@ -5,14 +5,12 @@
 #include <Render.Vulkan.Driver.Sampler.hpp>
 #include <Render.Vulkan.Driver.ImageView.hpp>
 #include <Render.Vulkan.Driver.StagingBuffer.hpp>
-#include <Render.Vulkan.Driver.DescriptorSet.hpp>
-#include <Render.Vulkan.Driver.DescriptorSetLayout.hpp>
 #include <Render.Vulkan.Driver.CommandBuffer.hpp>
 
 namespace Render::Vulkan {
 
 
-	Texture::Texture(const CreateInfo& createInfo) : RAL::Texture{ createInfo.ralCreateInfo_ }{
+	Texture::Texture(const CreateInfo1& createInfo) : RAL::Texture{ createInfo.ralCreateInfo_ }{
 			OS::Assert(createInfo.format_ == VK_FORMAT_R8G8B8A8_UNORM);
 
 			auto textureStagingBuffer = std::make_shared<StagingBuffer>(createInfo.PD_, createInfo.LD_, GetSize().x * GetSize().y * sizeof(RAL::Color4b));

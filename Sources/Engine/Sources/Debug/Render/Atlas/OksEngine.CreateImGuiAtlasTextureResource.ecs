@@ -1,5 +1,9 @@
 
 CreateImGuiAtlasTextureResourceSystem = {
+  type = "Initialize",
+  callOrder = {
+    runAfter = { "CreateImGuiAtlasDriverTexture" }
+  },
   updateMethod = {
   processesEntities = {
     {

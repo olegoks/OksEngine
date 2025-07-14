@@ -1,4 +1,8 @@
 CreateImGuiDriverIndexBufferSystem = {
+      type = "Initialize",
+      callOrder = {
+        runAfter = { "CreateImGuiState", "CreateRenderDriver" }
+      },
     updateMethod = {
      processesEntities = {
         {

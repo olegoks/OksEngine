@@ -9,7 +9,7 @@ namespace Render::Vulkan {
 	class Texture : public RAL::Texture {
 	public:
 
-		struct CreateInfo {
+		struct CreateInfo1 {
 			RAL::Texture::CreateInfo ralCreateInfo_;
 			std::shared_ptr<class PhysicalDevice> PD_ = nullptr;
 			std::shared_ptr<class LogicDevice> LD_ = nullptr;
@@ -19,7 +19,7 @@ namespace Render::Vulkan {
 			VkFormat format_ = VK_FORMAT_UNDEFINED;
 		};
 
-		Texture(const CreateInfo& createInfo);
+		Texture(const CreateInfo1& createInfo);
 
 		//[[nodiscard]]
 		//auto GetDS() noexcept {
@@ -33,6 +33,11 @@ namespace Render::Vulkan {
 		[[nodiscard]]
 		auto GetImageView() {
 			return imageView_;
+		}
+
+		[[nodiscard]]
+		auto GetImage() {
+			return image_;
 		}
 
 	private:

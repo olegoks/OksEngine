@@ -1,4 +1,5 @@
 CreateImGuiDriverTransform2DSystem = {
+  type = "Initialize",
     updateMethod = {
      processesEntities = {
         {

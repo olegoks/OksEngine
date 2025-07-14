@@ -25,6 +25,9 @@ namespace Common {
 
 		Identifier operator++() noexcept { return Identifier{ ++value_ }; }
 
+		operator std::string() noexcept {
+			return std::to_string(value_);
+		}
 
 		auto operator<=>(const Identifier& id) const noexcept = default;
 

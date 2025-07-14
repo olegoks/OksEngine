@@ -1,0 +1,158 @@
+
+ImGuiRenderPassComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "rpId" },
+        { type = "Common::Id", name = "attachmentsSetId" }, -- Synonym of VkFramebuffer
+        { type = "std::vector<Common::Id>", name = "textureIds" }
+    }
+}
+
+CreateImGuiRenderPassSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateImGuiState",
+            "CreateRenderDriver"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState"
+                },
+                excludes = {
+                    "ImGuiRenderPass"
+                },
+                createsComponents = {
+                    "ImGuiRenderPass"
+                }
+            },
+            {
+                processesComponents = {
+                    "RenderDriver"
+                }
+            }
+        }
+    }
+}
+
+
+ImGuiPipelineComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "id" }
+    }
+}
+
+CreateImGuiPipelineSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateRenderDriver",
+            "CreateImGuiRenderPass"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImGuiRenderPass"
+                },
+                excludes = {
+                    "ImGuiPipeline"
+                },
+                createsComponents = {
+                    "ImGuiPipeline"
+                }
+            },
+            {
+                processesComponents = {
+                    "RenderDriver"
+                }
+            },
+            {
+                processesComponents = {
+                    "ResourceSystem"
+                }
+            }
+        }
+    }
+}
+
+BeginImGuiRenderPassSystem = {
+ callOrder = {
+        runAfter = "StartRender",
+        runBefore = "EndRender"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImGuiRenderPass"
+                }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false } 
+                }
+            }
+        }
+    }
+}
+
+AddImGuiMeshToRenderSystem = {
+    callOrder = {
+        runAfter = "BeginImGuiRenderPass",
+        runBefore = "EndImGuiRenderPass"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState",
+                    "ImGuiPipeline",
+                    "ImGuiRenderPass",
+                    "MainMenuBar",
+                    "Transform2DResource",
+                    "TextureResource",
+                    "ImGuiDriverIndexBuffer",
+                    "ImGuiDriverVertexBuffer"
+                }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false } 
+                }
+            }
+        }
+    }
+}
+
+EndImGuiRenderPassSystem = {
+ callOrder = {
+        runAfter = { 
+            "StartRender",
+            "BeginImGuiRenderPass"
+        },
+        runBefore = "EndRender"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImGuiRenderPass"
+                }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false } 
+                }
+            }
+        }
+    }
+}

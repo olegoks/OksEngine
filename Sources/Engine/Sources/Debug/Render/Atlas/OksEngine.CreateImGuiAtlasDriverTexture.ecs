@@ -1,11 +1,19 @@
 
 CreateImGuiAtlasDriverTextureSystem = {
+  type = "Initialize",
+  callOrder = {
+    runAfter = { 
+        "CreateImGuiState",
+        "CreateImGuiAtlasTexture",
+        "CreateRenderDriver"
+    }
+  },
   updateMethod = {
   processesEntities = {
     {
       processesComponents = { 
         "ImGuiState",
-		    "ImGuiAtlasTexture"
+		"ImGuiAtlasTexture"
 	    }, 
       createsComponents = { "ImGuiAtlasDriverTexture" },
       excludes = { "ImGuiAtlasDriverTexture" }

@@ -17,6 +17,7 @@
 #include <Render.Vulkan.Driver.VertexBuffer.hpp>
 #include <Render.Vulkan.Driver.DescriptorSet.hpp>
 #include <Render.Vulkan.Driver.IndexBuffer.hpp>
+#include <Render.Vulkan.Driver.FrameBuffer.hpp>
 
 
 namespace Render::Vulkan {
@@ -55,13 +56,17 @@ namespace Render::Vulkan {
 			VkClearValue clearValue_;
 		};
 
-		void BeginRenderPass(VkRenderPass renderPass, VkFramebuffer frameBuffer, VkExtent2D extent, const std::vector<VkClearValue>& clearColors) noexcept {
+		void BeginRenderPass(
+			std::shared_ptr<RenderPass2> renderPass, 
+			std::shared_ptr<FrameBuffer> frameBuffer,
+			VkExtent2D extent,
+			const std::vector<VkClearValue>& clearColors) noexcept {
 
 			VkRenderPassBeginInfo renderPassInfo{};
 			{
 				renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
-				renderPassInfo.renderPass = renderPass;
-				renderPassInfo.framebuffer = frameBuffer;
+				renderPassInfo.renderPass = *renderPass;
+				renderPassInfo.framebuffer = *frameBuffer;
 				renderPassInfo.renderArea.offset = { 0, 0 };
 				renderPassInfo.renderArea.extent = extent;
 				renderPassInfo.clearValueCount = static_cast<Common::UInt32>(clearColors.size());
@@ -166,10 +171,8 @@ namespace Render::Vulkan {
 				IndexSizeToVulkanType(indexBuffer->GetIndexSize()));
 		}
 
-
-		template<class PipelineType>
 		void BindDescriptorSets(
-			std::shared_ptr<PipelineType> pipeline,
+			std::shared_ptr<Pipeline> pipeline,
 			const std::vector<std::shared_ptr<DescriptorSet>>& descriptorSets) noexcept {
 
 			std::vector<VkDescriptorSet> descriptorSetsHandles;
@@ -301,7 +304,21 @@ namespace Render::Vulkan {
 			Common::UInt32 dstMipLevel,
 			VkImageLayout dstImageLayout) {
 
-			VkImageBlit blit {
+			ImageBlit(*srcImage, srcOffset, srcMipLevel, srcImageLayout, *dstImage, dstOffset, dstMipLevel, dstImageLayout);
+
+		}
+
+		void ImageBlit(
+			VkImage srcImage,
+			VkOffset3D srcOffset[2],
+			Common::UInt32 srcMipLevel,
+			VkImageLayout srcImageLayout,
+			VkImage dstImage,
+			VkOffset3D dstOffset[2],
+			Common::UInt32 dstMipLevel,
+			VkImageLayout dstImageLayout) {
+
+			VkImageBlit blit{
 				.srcSubresource = {
 					.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
 					.mipLevel = srcMipLevel,
@@ -309,7 +326,7 @@ namespace Render::Vulkan {
 					.layerCount = 1
 				},
 				.srcOffsets = { srcOffset[0], srcOffset[1] },
-				
+
 				.dstSubresource = {
 					.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT,
 					.mipLevel = dstMipLevel,
@@ -320,8 +337,8 @@ namespace Render::Vulkan {
 			};
 
 			vkCmdBlitImage(GetHandle(),
-				*srcImage, srcImageLayout,
-				*dstImage, dstImageLayout,
+				srcImage, srcImageLayout,
+				dstImage, dstImageLayout,
 				1, &blit,
 				VK_FILTER_LINEAR);
 
