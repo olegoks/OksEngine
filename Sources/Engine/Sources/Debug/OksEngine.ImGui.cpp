@@ -11,21 +11,21 @@ namespace OksEngine
 		const MainWindow* mainWindow0,
 		const KeyboardInput* keyboardInput0) {
 
-		if (IsEntityExist<ImGuiState>()) {
-			return;
-		}
+		//if (IsEntityExist<ImGuiState>()) {
+		//	return;
+		//}
 
-		bool isKeyPressed = false;
-		for (auto& event : keyboardInput0->events_) {
-			if (event.first == UIAL::Window::KeyboardKey::F5 && event.second == UIAL::Window::KeyboardAction::Pressed) {
-				isKeyPressed = true;
-				break;
-			}
-		}
+		//bool isKeyPressed = false;
+		//for (auto& event : keyboardInput0->events_) {
+		//	if (event.first == UIAL::Window::KeyboardKey::F5 && event.second == UIAL::Window::KeyboardAction::Pressed) {
+		//		isKeyPressed = true;
+		//		break;
+		//	}
+		//}
 
-		if (!isKeyPressed) {
-			return;
-		}
+		//if (!isKeyPressed) {
+		//	return;
+		//}
 
 
 		ECS2::Entity::Id entityId = CreateEntity();

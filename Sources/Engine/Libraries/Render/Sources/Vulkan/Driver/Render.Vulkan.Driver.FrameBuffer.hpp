@@ -13,18 +13,15 @@
 namespace Render::Vulkan {
 
 
+
 	class FrameBuffer : public Abstraction<VkFramebuffer>{
 	public:
 		FrameBuffer() = delete;
 
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
-			//std::shared_ptr<ImageView> colorImageView_ = nullptr;
-			//std::shared_ptr<ImageView> depthBufferImageView_ = nullptr;
-			//std::shared_ptr<ImageView> colorAttachmentResolve_ = nullptr;
 			std::vector<std::shared_ptr<ImageView>> attachments_;
 			std::shared_ptr<RenderPass2> renderPass_ = nullptr;
-			//VkRenderPass renderPass_ = VK_NULL_HANDLE;
 			VkExtent2D extent_{ 0, 0 };
 		};
 

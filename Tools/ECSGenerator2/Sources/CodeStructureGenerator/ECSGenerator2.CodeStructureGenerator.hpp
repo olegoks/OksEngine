@@ -1477,6 +1477,10 @@ namespace ECSGenerator2 {
 				for (auto parsedECSFile : parsedECSFiles) {
 					parsedECSFile->ForEachSystem([&](std::shared_ptr<ParsedSystem> parsedSystem) {
 
+						if (parsedSystem->IsInitializeSystem()) {
+							return true;
+						}
+
 						const std::string systemName = parsedSystem->GetName();
 						for (auto& entity : parsedSystem->ci_.updateMethod_->processesEntities_) {
 							entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {

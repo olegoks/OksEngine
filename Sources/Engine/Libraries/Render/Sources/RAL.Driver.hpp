@@ -39,6 +39,12 @@ namespace RAL {
 	class Driver {
 	public:
 
+		enum class Format : Common::UInt64 {
+			BGRA_32,
+			RGBA_32,
+			Undefined
+		};
+
 		enum class VertexType : Common::UInt64 {
 			VF3_NF3_TF2,
 			VF3_CF4,
@@ -216,6 +222,7 @@ namespace RAL {
 
 		//};
 		//using Res = Resource;
+		virtual std::shared_ptr<RAL::Shader> CreateShader(const RAL::Shader::CreateInfo& createInfo) const = 0;
 
 		struct ResourceSet {
 			using Id = Common::Id;
@@ -246,30 +253,111 @@ namespace RAL {
 		using RS = ResourceSet;
 		using Resource = RS;
 
-
-		virtual ResourceSet::Id CreateResourceSet(const ResourceSet::CreateInfo1& createInfo) = 0;
+		virtual ResourceSet::Id CreateResourceSet(const ResourceSet::CI1& createInfo) = 0;
 		virtual Resource::Id CreateResource(const Resource::CI2& createInfo) = 0;
 
-		struct PipelineDescription {
+		struct RenderPass {
 			using Id = Common::Id;
-			std::string name_ = "";
-			std::shared_ptr<Shader> vertexShader_ = nullptr;
-			std::shared_ptr<Shader> fragmentShader_ = nullptr;
-			TopologyType topologyType_ = TopologyType::Undefined;
-			VertexType vertexType_ = VertexType::Undefined;
-			IndexType indexType_ = IndexType::Undefined;
-			FrontFace frontFace_ = FrontFace::Undefined;
-			CullMode cullMode_ = CullMode::Undefined;
-			std::vector<ShaderBinding::Layout> shaderBindings_;
-			bool enableDepthTest_ = true;
-			DB::CompareOperation dbCompareOperation_ = DB::CompareOperation::Undefined;
+
+			struct AttachmentUsage {
+
+				//What to do with attachment in the begin of render pass.
+				enum class LoadOperation {
+					Load,		//Save current data. 
+					Clear,		//Clear
+					Ignore,		//Ignore old data(optimization)
+					Undefined
+				};
+
+				//What to do with attachment in the end of render pass.
+				enum class StoreOperation {
+					Store,		//Save for smt(for example for display)
+					DontStore,	//Dont save(if data dont need after render pass)
+					Undefined
+				};
+
+				enum class State {
+					DataIsUndefined,
+					DataForAllOperations, //Not optimized
+					DataForColorWrite,
+					DataForShaderRead,
+					DataForCopyingSource,
+					DataForCopyingDestination,
+					DataForPresentation,
+					Undefined
+				};
+
+				using Id = Common::Id;
+				Format format_ = Format::Undefined;
+				State initialState_ = State::Undefined;						//State of attachment before render pass. Excepted by render pass.
+				LoadOperation loadOperation_ = LoadOperation::Undefined;	//What to do with attachment in the begin of render pass.		
+				StoreOperation storeOperation_ = StoreOperation::Undefined;	//What to do with attachment in the end of render pass.
+				State finalState_ = State::Undefined;						//State of attachment after render pass.  Will be set by render pass.
+				
+			};
+
+			struct AttachmentSet {
+				using Id = Common::Id;
+				struct CreateInfo {
+					RenderPass::Id rpId_ = Common::Limits<RenderPass::Id>::Max();
+					std::vector<Texture::Id> textures_;
+				};
+				using CI = CreateInfo;
+			};
+
+			using RS = ResourceSet;
+			
+			struct Subpass {
+				std::vector<Common::UInt32> inputAttachments_;
+				std::vector<Common::UInt32> colorAttachments_;
+				Common::UInt32 resolveAttachment_ = Common::Limits<Common::UInt32>::Max();
+				Common::UInt32 depthStencilAttachment_ = Common::Limits<Common::UInt32>::Max();
+			};
+
+			struct CreateInfo {
+				std::string name_ = "No name";
+				std::vector<AttachmentUsage> attachments_;
+				std::vector<Subpass> subpasses_;
+			};
+			using CI = CreateInfo;
 		};
 
+		using RP = RenderPass;
+
+		virtual std::pair<Common::UInt32, Common::UInt32> GetSwapChainTextureSize() = 0;
+
+		virtual RP::Id CreateRenderPass(const RP::CI& rpCI) = 0;
+		virtual RP::AttachmentSet::Id CreateAttachmentSet(const RP::AttachmentSet::CI& attachmentSetCI) = 0;
+		//Set of images, buffers... that render pass uses.(swapchain, gbuffer, depthbuffer...)
+		//virtual RenderPass::Id CreateRenderPassResourceSet(const RP::RS::CI& rsCI) = 0;
+
+
+		struct Pipeline {
+			using Id = Common::Id;
+
+			struct CreateInfo {
+				std::string name_ = "";
+				RP::Id renderPassId_ = RP::Id::Invalid();
+				std::shared_ptr<Shader> vertexShader_ = nullptr;
+				std::shared_ptr<Shader> fragmentShader_ = nullptr;
+				TopologyType topologyType_ = TopologyType::Undefined;
+				VertexType vertexType_ = VertexType::Undefined;
+				IndexType indexType_ = IndexType::Undefined;
+				FrontFace frontFace_ = FrontFace::Undefined;
+				CullMode cullMode_ = CullMode::Undefined;
+				std::vector<ShaderBinding::Layout> shaderBindings_;
+				bool enableDepthTest_ = true;
+				DB::CompareOperation dbCompareOperation_ = DB::CompareOperation::Undefined;
+			};
+			using CI = CreateInfo;
+		};
+
+		virtual Pipeline::Id CreatePipeline(const Pipeline::CI& pipelineCI) = 0;
 
 		using UB = UniformBuffer;
 
 		struct CreateInfo {
-			std::map<std::string, PipelineDescription> namePipelineDescriptions_;
+			std::map<std::string, Pipeline::CI> namePipelineDescriptions_;
 			RenderSurface surface_;
 		};
 
@@ -290,19 +378,37 @@ namespace RAL {
 		//	IndexType indexType,
 		//	const std::vector<RAL::Driver::ShaderBinding::Data>& bindingData) = 0;
 
-		virtual void StartDrawing() = 0;
-		virtual void BindPipeline(const std::string& pipeline) = 0;
+		
+		virtual void SetViewport(
+			Common::UInt32 x,
+			Common::UInt32 y,
+			Common::UInt32 width,
+			Common::UInt32 height) = 0;
+
+		virtual void SetScissor(
+			Common::UInt32 x,
+			Common::UInt32 y,
+			Common::UInt32 width,
+			Common::UInt32 height) = 0;
+
+		virtual void BeginRenderPass(
+			RP::Id renderPassId,
+			RP::AttachmentSet::Id attachmentsId,
+			std::pair<Common::UInt32, Common::UInt32> offset,
+			std::pair<Common::UInt32, Common::UInt32> area) = 0;
+		virtual void BeginSubpass() = 0;
+		virtual void BindPipeline(RAL::Driver::Pipeline::Id pipelineId) = 0;
 		virtual void BindVertexBuffer(
 			VertexBuffer::Id VBId,
 			Common::UInt64 offset) = 0;
 		virtual void BindIndexBuffer(
 			IndexBuffer::Id IBId,
 			Common::UInt64 offset) = 0;
-		virtual void Bind(const std::vector<Resource::Id>& resourceIds) = 0;
+		virtual void Bind(RAL::Driver::Pipeline::Id pipelineId, const std::vector<Resource::Id>& resourceIds) = 0;
 		virtual void DrawIndexed(Common::Size indicesNumber)= 0;
-
-		virtual void EndDrawing() = 0;
-
+		virtual void EndSubpass() = 0;
+		virtual void EndRenderPass() = 0;
+		virtual void Show(RAL::Texture::Id textureId) = 0;
 		//[[nodiscard]]
 		//virtual Common::Id DrawMesh(
 		//	const std::string& pipelineName,

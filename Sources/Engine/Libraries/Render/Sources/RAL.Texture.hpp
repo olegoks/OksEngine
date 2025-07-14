@@ -18,6 +18,7 @@ namespace RAL {
 			std::string name_;
 			std::vector<Color4b> pixels_;
 			glm::u32vec2 size_{ 0, 0 };
+			Common::UInt32 mipLevels_ = 1;
 		};
 
 		Texture(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {

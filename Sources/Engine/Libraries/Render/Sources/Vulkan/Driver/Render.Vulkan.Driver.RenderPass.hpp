@@ -270,6 +270,10 @@ namespace Render::Vulkan {
 	class RenderPass2 : public Abstraction<VkRenderPass> {
 	public:
 
+		struct AttachmentData {
+			std::shared_ptr<Image> image_ = nullptr;
+			std::shared_ptr<ImageView> imageView_ = nullptr;
+		};
 
 		struct Attachment {
 			VkFormat                        format;

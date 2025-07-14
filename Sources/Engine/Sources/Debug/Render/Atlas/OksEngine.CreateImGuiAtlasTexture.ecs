@@ -1,6 +1,7 @@
 CreateImGuiAtlasTextureSystem = {
+    type = "Initialize",
     callOrder = {
-        runBefore = "StartImGuiFrame"
+        runAfter = "CreateImGuiState"
     },
     updateMethod = {
     processesEntities = {
