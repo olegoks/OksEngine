@@ -1,7 +1,0 @@
-ImGuiAtlasTextureComponent = {
-    serializable = false,
-    fields = { 
-        { type = "Common::Size", name = "width" },
-        { type = "Common::Size", name = "height"},
-        { type = "DS::Vector<Geom::Color4b>", name = "pixels"} }
-}

@@ -1,0 +1,95 @@
+ECSInspectorWindowComponent = {
+    fields = { { type = "bool", name = "show" } }
+}
+
+
+
+BeginECSInspectorWindowSystem = {
+    callOrder = {
+        runAfter = "EndMainMenuBar",
+        runBefore = "EndECSInspectorWindow"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState", 
+                    "MainMenuBar",
+                    "ECSMenu",
+                    "ECSInspectorMenuItem",
+                    { name = "ECSInspectorWindow", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+ProcessCreateEntityButtonSystem = {
+    callOrder = {
+        runAfter = { "BeginECSInspectorWindow" },
+        runBefore = { "ShowEntitiesInfo" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "MainMenuBar",
+                    "ECSMenu",
+                    "ECSInspectorMenuItem",
+                    "ECSInspectorWindow"
+                }
+            }
+        },
+        createsEntities = {
+            createsComponents = {
+                
+            }
+        }
+    }
+}
+
+ShowEntitiesInfoSystem = {
+    callOrder = {
+        runAfter = { "BeginECSInspectorWindow" },
+        runBefore = { "EndECSInspectorWindow" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "MainMenuBar",
+                    "ECSMenu",
+                    "ECSInspectorMenuItem",
+                    "ECSInspectorWindow"
+                }
+            },
+            {
+                processesAllCombinations = true
+            }
+        }   
+    }
+}
+
+
+
+EndECSInspectorWindowSystem = {
+    callOrder = {
+        runAfter = "BeginECSInspectorWindow",
+        runBefore = "EndImGuiFrame"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGuiState", 
+                    "MainMenuBar",
+                    "ECSMenu",
+                    "ECSInspectorMenuItem",
+                    "ECSInspectorWindow"
+                }
+            }
+        }
+    }
+}

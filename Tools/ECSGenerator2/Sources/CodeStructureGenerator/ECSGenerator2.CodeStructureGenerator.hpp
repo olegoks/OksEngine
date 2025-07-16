@@ -654,8 +654,16 @@ namespace ECSGenerator2 {
 				code.Add("const char* items[] = {");
 				code.NewLine();
 
+				std::vector<std::string> componentNames;
+
 				for (auto parsedComponent : parsedComponents) {
-					code.Add(std::format("{}::GetName(),", parsedComponent->GetName()));
+					componentNames.push_back(parsedComponent->GetName());
+				}
+
+				std::sort(componentNames.begin(), componentNames.end());
+
+				for (auto parsedComponent : componentNames) {
+					code.Add(std::format("{}::GetName(),", parsedComponent));
 					code.NewLine();
 				}
 

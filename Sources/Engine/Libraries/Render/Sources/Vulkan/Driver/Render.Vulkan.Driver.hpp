@@ -152,12 +152,12 @@ namespace Render::Vulkan {
 			vkQueueWaitIdle(objects_.LD_->GetPresentQueue());
 
 
-			objects_.frameBuffers_.clear();
+			//objects_.frameBuffers_.clear();
 			objects_.imageContexts_.clear();
 			objects_.swapChain_.reset();
 			objects_.frameContexts_.clear();
-			objects_.depthTestData_.reset();
-			objects_.multisamplingData_.reset();
+			//objects_.depthTestData_.reset();
+			//objects_.multisamplingData_.reset();
 
 			if (newSize.x == 0 || newSize.y == 0) {
 				return;
@@ -180,86 +180,86 @@ namespace Render::Vulkan {
 				objects_.swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
 			}
 
-			//Multisampling
-			{
-				auto multisamplingData = std::make_shared<MultisamplingData>();
-				{
-					Image::CreateInfo multisamplingCreateInfo;
-					{
-						multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-						multisamplingCreateInfo.LD_ = objects_.LD_;
-						multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
-						multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
-						multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-						multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-						multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
-					}
-					multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-					multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-				}
-				objects_.multisamplingData_ = multisamplingData;
-			}
+			////Multisampling
+			//{
+			//	auto multisamplingData = std::make_shared<MultisamplingData>();
+			//	{
+			//		Image::CreateInfo multisamplingCreateInfo;
+			//		{
+			//			multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+			//			multisamplingCreateInfo.LD_ = objects_.LD_;
+			//			multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
+			//			multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
+			//			multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+			//			multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			//			multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
+			//		}
+			//		multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+			//		multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+			//	}
+			//	objects_.multisamplingData_ = multisamplingData;
+			//}
 
-			//Rendered buffer
-			{
+			////Rendered buffer
+			//{
 
-				{
-					Image::CreateInfo multisamplingCreateInfo;
-					{
-						multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-						multisamplingCreateInfo.LD_ = objects_.LD_;
-						multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
-						multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
-						multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-						multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-						multisamplingCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
-					}
-					objects_.renderedBufferImage_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-					objects_.renderedBufferImageView_ = CreateImageViewByImage(objects_.LD_, objects_.renderedBufferImage_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-				}
-			}
+			//	{
+			//		Image::CreateInfo multisamplingCreateInfo;
+			//		{
+			//			multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+			//			multisamplingCreateInfo.LD_ = objects_.LD_;
+			//			multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
+			//			multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
+			//			multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+			//			multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			//			multisamplingCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;//objects_.physicalDevice_->GetMaxUsableSampleCount();
+			//		}
+			//		objects_.renderedBufferImage_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+			//		objects_.renderedBufferImageView_ = CreateImageViewByImage(objects_.LD_, objects_.renderedBufferImage_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+			//	}
+			//}
 
-			//DEPTH BUFFER
-			{
+			////DEPTH BUFFER
+			//{
 
-				Image::CreateInfo depthImageCreateInfo;
-				{
-					depthImageCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-					depthImageCreateInfo.LD_ = objects_.LD_;
-					depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
-					depthImageCreateInfo.size_ = objects_.swapChain_->GetSize();
-					depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-					depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-					depthImageCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
-				}
-				std::shared_ptr<Image> image = std::make_shared<AllocatedImage>(depthImageCreateInfo);
-				std::shared_ptr<ImageView> imageView = CreateImageViewByImage(objects_.LD_, image, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+			//	Image::CreateInfo depthImageCreateInfo;
+			//	{
+			//		depthImageCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+			//		depthImageCreateInfo.LD_ = objects_.LD_;
+			//		depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
+			//		depthImageCreateInfo.size_ = objects_.swapChain_->GetSize();
+			//		depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+			//		depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+			//		depthImageCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
+			//	}
+			//	std::shared_ptr<Image> image = std::make_shared<AllocatedImage>(depthImageCreateInfo);
+			//	std::shared_ptr<ImageView> imageView = CreateImageViewByImage(objects_.LD_, image, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
 
-				auto depthTestData = std::make_shared<DepthTestData>(image, imageView);
-				objects_.depthTestData_ = depthTestData;
+			//	auto depthTestData = std::make_shared<DepthTestData>(image, imageView);
+			//	objects_.depthTestData_ = depthTestData;
 
-			}
+			//}
 
-			{
-				VkExtent2D extent = objects_.swapChain_->GetExtent();
-				for (const auto& imageView : objects_.swapChain_->GetImageViews()) {
-					FrameBuffer::CreateInfo createInfo;
-					{
-						createInfo.LD_ = objects_.LD_;
-						createInfo.attachments_.push_back(objects_.multisamplingData_->imageView_);
-						createInfo.attachments_.push_back(objects_.depthTestData_->imageView_);
-						createInfo.attachments_.push_back(imageView);
+			//{
+			//	VkExtent2D extent = objects_.swapChain_->GetExtent();
+			//	for (const auto& imageView : objects_.swapChain_->GetImageViews()) {
+			//		FrameBuffer::CreateInfo createInfo;
+			//		{
+			//			createInfo.LD_ = objects_.LD_;
+			//			createInfo.attachments_.push_back(objects_.multisamplingData_->imageView_);
+			//			createInfo.attachments_.push_back(objects_.depthTestData_->imageView_);
+			//			createInfo.attachments_.push_back(imageView);
 
-						createInfo.attachments_.push_back(objects_.renderedBufferImageView_);
+			//			createInfo.attachments_.push_back(objects_.renderedBufferImageView_);
 
-						createInfo.extent_ = extent;
-						createInfo.renderPass_ = objects_.renderPass_;
-					}
-					auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
-					objects_.frameBuffers_.push_back(frameBuffer);
-				}
-				OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
-			}
+			//			createInfo.extent_ = extent;
+			//			createInfo.renderPass_ = objects_.renderPass_;
+			//		}
+			//		auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
+			//		objects_.frameBuffers_.push_back(frameBuffer);
+			//	}
+			//	OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
+			//}
 
 			for (Common::Index i = 0; i < objects_.swapChain_->GetImages().size(); i++) {
 
@@ -1129,7 +1129,7 @@ namespace Render::Vulkan {
 					createInfo.attachments_.push_back(texture->GetImageView());
 				}
 
-				createInfo.extent_ = objects_.swapChain_->GetExtent();
+				createInfo.extent_ = { attachmentSetCI.size_.x, attachmentSetCI.size_.y };
 				createInfo.renderPass_ = renderPass;
 			}
 			std::shared_ptr<FrameBuffer> frameBuffer = std::make_shared<FrameBuffer>(createInfo);
@@ -1459,11 +1459,6 @@ namespace Render::Vulkan {
 				VK_ACCESS_MEMORY_READ_BIT,
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
-		}
-
-		void Render() override {
-
-
 		}
 
 		void EndRender() override {

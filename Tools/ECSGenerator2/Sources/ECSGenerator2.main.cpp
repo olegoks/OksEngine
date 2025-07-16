@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 	}
 
 	Resources::ResourceSystem::CreateInfo rsci{
-		.fileExtensions_ = { ".ecs", ".dot", ".lua" }
+		.fileExtensions_ = { ".ecs", ".dot", ".lua", ".gltf"}
 	};
 	Resources::ResourceSystem resourceSystem{ rsci };
 	resourceSystem.SetRoots(workDirs);

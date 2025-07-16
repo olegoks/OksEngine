@@ -36,6 +36,9 @@ namespace OksEngine
 				if (value == "-cfg"s) {
 					world2_->CreateComponent<ConfigFilePath>(commandLineParametersEntity, argv[i + 1]);
 				}
+				if(value == "-scn"s) {
+					world2_->CreateComponent<SceneParameter>(commandLineParametersEntity, argv[i + 1]);
+				}
 			}
 
 		}

@@ -1,0 +1,43 @@
+ModelComponent = { }
+
+ModelFileComponent = {
+    fields = { 
+        { type = "std::string", name = "fileName"} }
+}
+
+CreateModelSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+		            "Model",
+                    "ModelFile"
+	            },
+                excludes = {
+                    "Vertices3D",
+                    "Indices",
+                    "UVs"
+                },
+                createsComponents = {
+                    "Vertices3D",
+                    "Indices",
+                    "Normals",
+                    "UVs"
+                }
+            },
+            {
+                processesComponents = {
+                    "ResourceSystem"
+                }
+            }
+        },
+        createsEntities = {
+            createsComponents = {
+                "Vertices3D",
+                "Indices",
+                "Normals",
+                "UVs"
+            }
+        }
+    }
+}

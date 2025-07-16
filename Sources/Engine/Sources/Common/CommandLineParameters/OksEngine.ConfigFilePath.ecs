@@ -1,5 +1,0 @@
-ConfigFilePathComponent = {
-    fields = {
-        { type = "std::string", name = "path" }
-    }
-}

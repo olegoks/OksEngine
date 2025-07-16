@@ -66,8 +66,6 @@ ResizeFrameBuffersSystem = {
     }
 }
 
-
-
 StartRenderSystem = {
     updateMethod = {
         processesEntities = {
@@ -79,8 +77,6 @@ StartRenderSystem = {
         }
     }
 }
-
-
 
 EndRenderSystem = {
     callOrder = {

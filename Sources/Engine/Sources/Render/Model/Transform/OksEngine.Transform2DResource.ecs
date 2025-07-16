@@ -1,4 +1,0 @@
-Transform2DResourceComponent = {
-    serializable = false,
-    fields = { { type="RAL::Driver::ResourceSet::Id", name="id" } }
-}
