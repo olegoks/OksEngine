@@ -157,6 +157,9 @@ namespace Render::Vulkan {
 
 
 		void Destroy() noexcept {
+
+			imageViews_.clear();
+
 			vkDestroySwapchainKHR(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 		}
 

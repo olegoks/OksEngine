@@ -279,9 +279,8 @@ namespace RE {
 
 		//RenderImGui();
 
-		driver_->StartRender();
-		driver_->Render();
-		driver_->EndRender();
+		//driver_->StartRender();
+		//driver_->EndRender();
 
 
 		//using namespace std::chrono_literals;

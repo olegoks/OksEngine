@@ -20,7 +20,7 @@ namespace Resources {
 	public:
 
 		template<class Type>
-		const Type* GetData() {
+		 Type* GetData() {
 			return static_cast<Type*>(data_.GetData());
 		}
 
@@ -52,7 +52,6 @@ namespace Resources {
 
 		}
 
-	private:
 		DS::Vector<Common::Byte> data_;
 	};
 
@@ -327,6 +326,9 @@ namespace Resources {
 			for (const auto& rootPath : rootPaths) {
 				try {
 					for (const auto& entry : std::filesystem::recursive_directory_iterator(rootPath)) {
+						if (entry.path().extension().string() == ".gltf") {
+							Common::BreakPointLine();
+						}
 						if (std::filesystem::is_regular_file(entry) && ci_.fileExtensions_.contains(entry.path().extension().string())) {
 							AddResource(entry.path().filename().string(), entry.path(), "Root");
 						}

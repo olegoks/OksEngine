@@ -576,7 +576,6 @@ namespace Geometry {
 	[[nodiscard]]
 	Geom::Model2 ParseFbxModelBaked(const std::string& fbxName, const std::string& fbx) {
 
-
 		Assimp::Importer importer;
 
 		importer.SetIOHandler(new FbxIOSystem{ fbxName, fbx });
@@ -597,27 +596,27 @@ namespace Geometry {
 		Geom::Model2 model2;
 
 		auto parseAiAnimation = [](const aiAnimation* aiAnim)->std::shared_ptr<Model2::Animation> {
-				const aiAnimation* animation = aiAnim;
-				
-				auto animationPtr = std::make_shared<Model2::Animation>();
-				animationPtr->name_ = animation->mName.C_Str();
-				animationPtr->ticksNumber_ = animation->mDuration;
-				animationPtr->ticksPerSecond_ = animation->mTicksPerSecond;
-				for (Common::Index j = 0; j < animation->mNumChannels; j++) {
-					for (Common::Index ti = 0; ti < animation->mChannels[j]->mNumPositionKeys; ti++) {
-						const aiVector3D& aiPosition = animation->mChannels[j]->mPositionKeys[ti].mValue;
-						const aiQuaternion& aiRotation = animation->mChannels[j]->mRotationKeys[ti].mValue;
-						Model2::Animation::StateInfo state{
-							.time_ = animation->mChannels[j]->mPositionKeys[ti].mTime,
-							.position_ = glm::vec3{ aiPosition.x ,aiPosition.y, aiPosition.z },
-							.rotation_ = glm::quat::wxyz(aiRotation.w, aiRotation.x, aiRotation.y, aiRotation.z)
-						};
+			const aiAnimation* animation = aiAnim;
 
-						animationPtr->states_.push_back(state);
-					}
+			auto animationPtr = std::make_shared<Model2::Animation>();
+			animationPtr->name_ = animation->mName.C_Str();
+			animationPtr->ticksNumber_ = animation->mDuration;
+			animationPtr->ticksPerSecond_ = animation->mTicksPerSecond;
+			for (Common::Index j = 0; j < animation->mNumChannels; j++) {
+				for (Common::Index ti = 0; ti < animation->mChannels[j]->mNumPositionKeys; ti++) {
+					const aiVector3D& aiPosition = animation->mChannels[j]->mPositionKeys[ti].mValue;
+					const aiQuaternion& aiRotation = animation->mChannels[j]->mRotationKeys[ti].mValue;
+					Model2::Animation::StateInfo state{
+						.time_ = animation->mChannels[j]->mPositionKeys[ti].mTime,
+						.position_ = glm::vec3{ aiPosition.x ,aiPosition.y, aiPosition.z },
+						.rotation_ = glm::quat::wxyz(aiRotation.w, aiRotation.x, aiRotation.y, aiRotation.z)
+					};
+
+					animationPtr->states_.push_back(state);
 				}
+			}
 			return animationPtr;
-		};
+			};
 
 		//if (scene->HasAnimations()) {
 		//	//OS::AssertMessage(scene->mNumAnimations <= 1, "More than one animation is not supported.");
@@ -651,19 +650,8 @@ namespace Geometry {
 			if (slashIndex != -1) {
 				textureName = textureName.substr(slashIndex + 1);
 			}
-			//Found mesh with the same texture name.
-			/*Common::Index foundBackedMesh = Common::Limits<Common::Index>::Max();
-			for (Common::Index i = 0; i < backedMeshs.size(); i++) {
-				const Geom::Mesh& mesh = backedMeshs[i];
-				if (mesh.textureName_ == textureName) {
-					foundBackedMesh = i;
-					break;
-				}
-			}*/
-
 			//If there is no mesh with this name create new
 			Geom::Model2::Mesh& backedMesh = /*(foundBackedMesh != Common::Limits<Common::Index>::Max()) ? (backedMeshs[foundBackedMesh]) : (*/backedMeshs.emplace_back()/*)*/;
-
 
 			//Parse animation
 			backedMesh.name_ = aimesh->mName.C_Str();

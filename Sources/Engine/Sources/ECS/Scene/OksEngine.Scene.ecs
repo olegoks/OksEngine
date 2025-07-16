@@ -1,3 +1,20 @@
+
+SceneLoadedComponent = { }
+
+SaveSceneRequestComponent = {
+    fields = { 
+        -- { type = "ECS2::ComponentsFilter", name = "componentsFilter" },
+        { type = "std::string", name = "sceneName" }
+    }
+}
+
+LoadSceneRequestComponent = {
+    fields = {
+        { type = "std::string", name = "sceneName" },
+        { type = "ECS2::Entity::Id", name = "callerId" }
+    }
+}
+
 CreateSceneFileStartSystem = {
     callOrder = {
     runAfter = "StartWorldSceneSaving",
@@ -157,6 +174,30 @@ EndWorldSceneSavingSystem = {
     }
 }
 
+CreateLoadSceneRequestSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = "CreateECSController"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+              processesComponents = {
+                "CommandLineParameters",
+                "SceneParameter"
+              }  
+            },
+            {
+                processesComponents = {
+                    "ECSController"
+                },
+                createsComponents = {
+                    "LoadSceneRequest"
+                }
+            }
+        }
+    }
+}
 
 LoadSceneFileSystem = {
     updateMethod = {

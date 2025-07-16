@@ -1,2 +1,20 @@
 CommandLineParametersComponent = {
 }
+
+ConfigFilePathComponent = {
+    fields = {
+        { type = "std::string", name = "path" }
+    }
+}
+
+ExecutablePathComponent = {
+    fields = {
+        { type = "std::string", name = "path" }
+    }
+}
+
+SceneParameterComponent = {
+    fields = {
+        { type = "std::string", name = "path" }
+    }
+}

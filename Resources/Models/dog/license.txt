@@ -1,0 +1,11 @@
+Model Information:
+* title:	Behemoth from Horizon Zero Dawn
+* source:	https://sketchfab.com/3d-models/behemoth-from-horizon-zero-dawn-ff683e73f3ef4acb8546e643cd1d070a
+* author:	Théo Domon (https://sketchfab.com/Gloomeskk)
+
+Model License:
+* license type:	CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)
+* requirements:	Author must be credited. No commercial use.
+
+If you use this 3D model in your project be sure to copy paste this credit wherever you share it:
+This work is based on "Behemoth from Horizon Zero Dawn" (https://sketchfab.com/3d-models/behemoth-from-horizon-zero-dawn-ff683e73f3ef4acb8546e643cd1d070a) by Théo Domon (https://sketchfab.com/Gloomeskk) licensed under CC-BY-NC-4.0 (http://creativecommons.org/licenses/by-nc/4.0/)

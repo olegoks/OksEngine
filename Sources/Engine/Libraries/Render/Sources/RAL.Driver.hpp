@@ -40,6 +40,7 @@ namespace RAL {
 	public:
 
 		enum class Format : Common::UInt64 {
+			R_8,
 			BGRA_32,
 			RGBA_32,
 			Undefined
@@ -301,6 +302,7 @@ namespace RAL {
 				struct CreateInfo {
 					RenderPass::Id rpId_ = Common::Limits<RenderPass::Id>::Max();
 					std::vector<Texture::Id> textures_;
+					glm::u32vec2 size_;
 				};
 				using CI = CreateInfo;
 			};
@@ -364,7 +366,6 @@ namespace RAL {
 		Driver(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } { }
 
 		virtual void StartRender() = 0;
-		virtual void Render() = 0;
 		virtual void EndRender() = 0;
 
 		//[[nodiscard]]

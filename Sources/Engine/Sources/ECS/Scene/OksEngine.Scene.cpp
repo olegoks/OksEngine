@@ -29,10 +29,10 @@ namespace OksEngine
 
 	void CreateSceneFile::Update(
 		ECS2::Entity::Id entity0id,
-		const Serializable* serializable0, 
-		
+		const Serializable* serializable0,
+
 		ECS2::Entity::Id entity1id,
-		const ECSController* eCSController1, 
+		const ECSController* eCSController1,
 		const SaveSceneRequest* saveSceneRequest1,
 		LuaScript* luaScript1) {
 
@@ -89,18 +89,18 @@ namespace OksEngine
 
 		ECS2::Entity::Id entity0id,
 		const CommandLineParameters* commandLineParameters0,
-		const ConfigFilePath* configFilePath0, 
-		
+		const ConfigFilePath* configFilePath0,
+
 		ECS2::Entity::Id entity1id,
-		const ECSController* eCSController1, 
+		const ECSController* eCSController1,
 		const SaveSceneRequest* saveSceneRequest1,
-		const LuaScript* luaScript1, 
-		
+		const LuaScript* luaScript1,
+
 		ECS2::Entity::Id entity2id,
 		ResourceSystem* resourceSystem2,
 
-		ECS2::Entity::Id entity3id, 
-		const Config* config3, 
+		ECS2::Entity::Id entity3id,
+		const Config* config3,
 		const LuaScript* luaScript3) {
 
 		::Lua::Context context;
@@ -186,7 +186,7 @@ namespace OksEngine
 	}
 
 	void CreateSceneEntities::Update(
-		ECS2::Entity::Id entity0id, 
+		ECS2::Entity::Id entity0id,
 		const ECSController* eCSController0,
 		const LoadSceneRequest* loadSceneRequest0,
 		const LuaScript* luaScript0) {
@@ -225,6 +225,22 @@ namespace OksEngine
 		}
 		RemoveComponent<LoadSceneRequest>(entity0id);
 		RemoveComponent<LuaScript>(entity0id);
+
+	}
+
+
+	void CreateLoadSceneRequest::Update(
+		ECS2::Entity::Id entity0id,
+		const CommandLineParameters* commandLineParameters0,
+		const SceneParameter* sceneParameter0, 
+		
+		ECS2::Entity::Id entity1id,
+		const ECSController* eCSController1) {
+
+		const std::filesystem::path scenePath = sceneParameter0->path_;
+		;
+
+		CreateComponent<LoadSceneRequest>(entity1id, scenePath.filename().string(), entity0id);
 
 	}
 

@@ -1,3 +1,0 @@
-ECSInspectorWindowComponent = {
-    fields = { { type = "bool", name = "show" } }
-}

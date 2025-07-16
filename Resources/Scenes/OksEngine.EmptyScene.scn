@@ -1,0 +1,10 @@
+scene = {
+	entities = {
+        {
+            ID = 0,
+		    name = {value ="gltf model" },
+		    model = { },
+		    modelFile = { fileName = "LMK03 108.glb" }
+        }
+    }
+}

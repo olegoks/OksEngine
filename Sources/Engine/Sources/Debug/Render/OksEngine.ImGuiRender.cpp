@@ -1,6 +1,12 @@
 #pragma once
 #include <Debug\Render\auto_OksEngine.ImGuiRender.hpp>
 
+#include <Debug/Render/OksEngine.ImGuiTransform.hpp>
+
+#include <Common.StringLiterals.hpp>
+#include <Geometry.IndexBuffer.hpp>
+
+
 namespace OksEngine
 {
 	void CreateImGuiPipeline::Update(
@@ -82,7 +88,7 @@ namespace OksEngine
 			RAL::Driver::RP::AttachmentUsage swapChainAttachment{
 				.format_ = RAL::Driver::Format::RGBA_32,
 				.initialState_ = RAL::Driver::RP::AttachmentUsage::State::DataIsUndefined,
-				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Ignore,
+				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
 				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
 				.finalState_ = RAL::Driver::RP::AttachmentUsage::State::DataForCopyingSource
 			};
@@ -110,18 +116,19 @@ namespace OksEngine
 		const auto [width, height] = driver->GetSwapChainTextureSize();
 
 		std::vector<RAL::Color4b> pixels;
-		pixels.resize(width * height, RAL::Color4b::Zero());
+		pixels.resize(1920 * 1080, RAL::Color4b::Zero());
 
 		RAL::Texture::CreateInfo textureCreateInfo{
 			.name_ = "ImGui render buffer",
 			.pixels_ = pixels,
-			.size_ = { width, height }
+			.size_ = { 1920, 1080 }
 		};
 		const RAL::Texture::Id textureId = driver->CreateDiffuseMap(textureCreateInfo);
 
 		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
 			.rpId_ = renderPassId,
-			.textures_ = { textureId }
+			.textures_ = { textureId },
+			.size_ = glm::u32vec2{ 1920, 1080 }
 		};
 
 		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = driver->CreateAttachmentSet(attachmentSetCI);
@@ -141,7 +148,7 @@ namespace OksEngine
 
 		auto swapChainTextureSize = driver->GetSwapChainTextureSize();
 
-		driver->BeginRenderPass(imGuiRenderPass0->rpId_, imGuiRenderPass0->attachmentsSetId_, { 0, 0 }, swapChainTextureSize);
+		driver->BeginRenderPass(imGuiRenderPass0->rpId_, imGuiRenderPass0->attachmentsSetId_, { 0, 0 }, { 1920, 1080 });
 		driver->BeginSubpass();
 
 	}
@@ -163,59 +170,8 @@ namespace OksEngine
 
 		auto driver = renderDriver1->driver_;
 
-		//std::vector<RAL::Driver::ShaderBinding::Data> shaderBindings;
-
-		////CAMERA BINDING
-		//{
-		//	RAL::Driver::ShaderBinding::Data cameraBinding{
-		//		.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
-		//		.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
-		//		.uniformBufferId_ = driverViewProjectionUniformBuffer->id_
-		//	};
-		//	shaderBindings.push_back(cameraBinding);
-		//}
-
-		//TRANSFORM BINDING
-		{
-			//struct Transform {
-			//	glm::vec2 scale_;
-			//	glm::vec2 translate_;
-			//};
-
-			//Transform transform{ 
-			//	glm::vec2{ scale2D->x_, scale2D->y_ },
-			//	glm::vec2{ position2D->x_, position2D->y_ }
-			//};
-			//RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
-			//	.size_ = sizeof(Transform),
-			//	.type_ = RAL::Driver::UniformBuffer::Type::Mutable
-			//};
-			//RAL::Driver::UniformBuffer::Id ubId = driver->CreateUniformBuffer(UBCreateInfo);
-			//driver->FillUniformBuffer(ubId, &transform);
-			//RAL::Driver::ShaderBinding::Data transformBinding{
-			//	.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
-			//	.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader,
-			//	.uniformBufferId_ = driverTransform2D->id_
-			//};
-			//shaderBindings.push_back(transformBinding);
-		}
-
-		////TEXTURE BINDING
-		//{
-
-		//	RAL::Driver::ShaderBinding::Data textureBinding{
-		//		.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
-		//		.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader,
-		//		.textureId_ = driverTexture->driverTextureId_
-		//	};
-
-		//	shaderBindings.push_back(textureBinding);
-		//}
-
-		auto [width, height] = driver->GetSwapChainTextureSize();
-
-		driver->SetViewport(0, 0, width, height);
-		driver->SetScissor(0, 0, width, height);
+		driver->SetViewport(0, 0, 1920, 1080);
+		driver->SetScissor(0, 0, 1920, 1080);
 		driver->BindPipeline(imGuiPipeline0->id_);
 		driver->BindVertexBuffer(imGuiDriverVertexBuffer0->id_, 0);
 		driver->BindIndexBuffer(imGuiDriverIndexBuffer0->id_, 0);
@@ -226,12 +182,6 @@ namespace OksEngine
 			});
 		driver->DrawIndexed(imGuiDriverIndexBuffer0->size_ / sizeof(Common::UInt32));
 
-		//Common::Id driverMeshId = driver->DrawMesh(
-		//	"ImGui Pipeline",
-		//	driverVertexBuffer->id_,
-		//	driverIndexBuffer->id_,
-		//	shaderBindings
-		//);
 	}
 
 
@@ -247,5 +197,268 @@ namespace OksEngine
 
 	}
 
+	void CreateImGuiDriverVertexBuffer::Update(ECS2::Entity::Id entity1Id,
+		const ImGuiState* imGuiState,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
+
+
+		auto driver = renderDriver->driver_;
+
+		const Common::UInt64 capacity = Common::Limits<Common::UInt16>::Max();
+
+		RAL::Driver::VertexBuffer::CreateInfo1 VBCI{
+			.verticesNumber_ = capacity,
+			.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF4,
+			.type_ = RAL::Driver::VertexBuffer::Type::Const
+		};
+		RAL::Driver::VertexBuffer::Id VBId = driver->CreateVertexBuffer(VBCI);
+		CreateComponent<ImGuiDriverVertexBuffer>(entity1Id, VBId, capacity, 0);
+	};
+
+
+	void CreateImGuiDriverIndexBuffer::Update(ECS2::Entity::Id entity1Id,
+		const ImGuiState* imGuiState,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
+
+
+		auto driver = renderDriver->driver_;
+
+		using namespace Common;
+
+		constexpr Common::UInt64 capacity = 30_MB;
+
+		RAL::Driver::IndexBuffer::CreateInfo1 IBCI{
+			.indicesNumber_ = capacity,
+			.indexType_ = RAL::Driver::IndexType::UI32,
+			.type_ = RAL::Driver::IndexBuffer::Type::Const
+		};
+		const RAL::Driver::IndexBuffer::Id IBId = driver->CreateIndexBuffer(IBCI);
+
+		CreateComponent<ImGuiDriverIndexBuffer>(entity1Id, IBId, capacity, 0);
+
+	};
+
+	void UpdateImGuiDriverTransform2D::Update(
+		ECS2::Entity::Id entity1Id, const ImGuiState* imGuiState,
+		const DriverTransform2D* driverTransform2D, ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
+
+		ImDrawData* draw_data = ImGui::GetDrawData();
+		if (draw_data == nullptr) return;
+		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
+		int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
+		int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
+		if (fb_width <= 0 || fb_height <= 0)
+			return;
+
+
+		const glm::vec2 scale{
+			2.0f / draw_data->DisplaySize.x,
+			2.0f / draw_data->DisplaySize.y
+		};
+
+		const glm::vec2 translate{
+			-1.0f - draw_data->DisplayPos.x * scale[0],
+			-1.0f - draw_data->DisplayPos.y * scale[1]
+		};
+
+		ImGuiTransform transform{
+			scale,
+			translate
+		};
+
+		auto driver = renderDriver->driver_;
+
+		driver->FillUniformBuffer(driverTransform2D->id_, &transform);
+
+	};
+
+
+	void CreateImGuiDriverTransform2D::Update(
+		ECS2::Entity::Id entity1Id,
+		const ImGuiState* imGuiState,
+		ECS2::Entity::Id entity2Id,
+		RenderDriver* renderDriver) {
+
+		auto driver = renderDriver->driver_;
+
+		const RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+			.size_ = sizeof(ImGuiTransform),
+			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+		};
+		const RAL::Driver::UniformBuffer::Id ubId = driver->CreateUniformBuffer(UBCreateInfo);
+
+		CreateComponent<DriverTransform2D>(entity1Id, ubId);
+
+	};
+
+	void CreateImGuiAtlasTexture::Update(ECS2::Entity::Id entity0id, ImGuiState* imGuiState0) {
+
+		ImGuiIO& io = ImGui::GetIO();
+		unsigned char* pixels;
+		int width, height;
+		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+
+		DS::Vector<RAL::Color4b> pixelsRGBA;
+		pixelsRGBA.Resize(width * height);
+		std::memcpy(pixelsRGBA.GetData(), pixels, width * height * sizeof(RAL::Color4b));
+
+
+		CreateComponent<ImGuiAtlasTexture>(entity0id, width, height, pixelsRGBA);
+
+	};
+
+	void CreateImGuiAtlasDriverTexture::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+		const ImGuiAtlasTexture* imGuiAtlasTexture0, ECS2::Entity::Id entity1id,
+		RenderDriver* renderDriver1) {
+
+		auto driver = renderDriver1->driver_;
+
+		std::vector<RAL::Color4b> texturePixels{
+			imGuiAtlasTexture0->pixels_.GetData(),
+			imGuiAtlasTexture0->pixels_.GetData() + imGuiAtlasTexture0->pixels_.GetSize() };
+
+		RAL::Texture::CreateInfo textureCreateInfo{
+			.name_ = "",
+			.pixels_ = texturePixels,
+			.size_ = {
+				imGuiAtlasTexture0->width_,
+				imGuiAtlasTexture0->height_ }
+		};
+		RAL::Texture::Id textureId = driver->CreateDiffuseMap(textureCreateInfo);
+
+		CreateComponent<ImGuiAtlasDriverTexture>(entity0id, textureId);
+
+
+	};
+
+	void CreateImGuiAtlasTextureResource::Update(
+		ECS2::Entity::Id entity0id,
+		const ImGuiState* imGuiState0,
+		const ImGuiAtlasDriverTexture* imGuiAtlasDriverTexture0,
+		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
+
+
+		auto driver = renderDriver1->driver_;
+
+		RAL::Driver::ResourceSet::Binding textureBinding
+		{
+			.stage_ = RAL::Driver::Stage::FragmentShader,
+			.binding_ = 0,
+			.textureId_ = imGuiAtlasDriverTexture0->driverTextureId_
+		};
+
+		const RAL::Driver::Resource::Id textureResourceId = driver->CreateResource(textureBinding);
+
+		CreateComponent<TextureResource>(entity0id, textureResourceId);
+
+	};
+
+	void UpdateImGuiRenderData::Update(
+		ECS2::Entity::Id entity1Id, const ImGuiState* imGuiState,
+		ImGuiDriverVertexBuffer* imGuiDriverVertexBuffer,
+		ImGuiDriverIndexBuffer* imGuiDriverIndexBuffer,
+		ECS2::Entity::Id entity2Id, RenderDriver* renderDriver) {
+
+		static Common::UInt64 skipedFrames = 5;
+		static Common::UInt64 currentFrame = 0;
+		if (currentFrame != 4) {
+			++currentFrame;
+			return;
+		}
+		else {
+			currentFrame = 0;
+		}
+
+
+		ImDrawData* draw_data = ImGui::GetDrawData();
+		if (draw_data == nullptr) {
+			return;
+		}
+		// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
+		int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
+		int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
+		if (fb_width <= 0 || fb_height <= 0)
+			return;
+
+		//TODO: Move to component.
+		static Geom::IndexBuffer<Common::UInt32> indices;
+
+		using namespace Common;
+		indices.Reserve(10_MB / indices.GetIndexSize());
+		indices.Clear();
+
+		static Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
+
+		vertices2ftc.Reserve(30_MB / vertices2ftc.GetVertexSize());
+		vertices2ftc.Clear();
+
+		for (int n = 0; n < draw_data->CmdListsCount; n++) {
+			const ImDrawList* cmd_list = draw_data->CmdLists[n];
+			for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
+			{
+				const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+				{
+
+					const Common::Size verticesNumber = cmd_list->VtxBuffer.Size - pcmd->VtxOffset;
+
+					indices.AddNextMesh(
+						vertices2ftc.GetVerticesNumber(),
+						cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
+						cmd_list->IdxBuffer.Size - pcmd->IdxOffset);
+
+					const ImDrawVert* imVertices = cmd_list->VtxBuffer.Data + pcmd->VtxOffset;
+					vertices2ftc.Add((RAL::Vertex2ftc*)imVertices, verticesNumber);
+
+				}
+			}
+		}
+		if (vertices2ftc.GetVerticesNumber() == 0) {
+			return;
+		}
+
+		auto driver = renderDriver->driver_;
+
+		//Resize buffers if need.
+		if (vertices2ftc.GetSizeInBytes() > renderDriver->driver_->GetVBSizeInBytes(imGuiDriverVertexBuffer->id_)) {
+			renderDriver->driver_->ResizeVertexBuffer(
+				imGuiDriverVertexBuffer->id_,
+				vertices2ftc.GetSizeInBytes());
+			imGuiDriverVertexBuffer->capacity_ = vertices2ftc.GetSizeInBytes();
+		}
+		if (indices.GetSizeInBytes() > renderDriver->driver_->GetIBSizeInBytes(imGuiDriverIndexBuffer->id_)) {
+			renderDriver->driver_->ResizeIndexBuffer(
+				imGuiDriverIndexBuffer->id_,
+				indices.GetSizeInBytes());
+
+			imGuiDriverIndexBuffer->capacity_ = vertices2ftc.GetSizeInBytes();
+		}
+
+
+		//Send vertices and indices data to GPU only if they changed.
+		bool isDataChanged = false;
+
+		//if()
+
+
+		//Fill data.
+		renderDriver->driver_->FillVertexBuffer(
+			imGuiDriverVertexBuffer->id_,
+			0,
+			vertices2ftc.GetData(),
+			vertices2ftc.GetVerticesNumber());
+		imGuiDriverVertexBuffer->size_ = vertices2ftc.GetSizeInBytes();
+
+		driver->FillIndexBuffer(
+			imGuiDriverIndexBuffer->id_,
+			0,
+			indices.GetData(),
+			indices.GetIndicesNumber());
+
+		imGuiDriverIndexBuffer->size_ = indices.GetSizeInBytes();
+
+	};
 
 }

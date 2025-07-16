@@ -10,7 +10,7 @@ add_executable(OksEngineGame)
 set_target_properties(OksEngineGame
     PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
-        "-cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua")
+        "-cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptyScene.scn ")
 
 file(GLOB SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}

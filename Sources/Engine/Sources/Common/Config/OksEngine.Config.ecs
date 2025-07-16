@@ -1,3 +1,35 @@
 ConfigComponent = {
 
 }
+
+LoadConfigFileSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = "CreateResource"
+    },
+    updateMethod = {
+    processesEntities = {
+         {
+            processesComponents = { 
+                "CommandLineParameters",
+                "ConfigFilePath"
+            }
+        },
+        {
+            processesComponents = {
+                { name = "ResourceSystem", readonly = false }
+            }
+        }
+    },
+    createsEntities = {
+        {
+            createsComponents = {
+                "Config",
+                "LuaScript"
+            }
+        }
+    }
+    }
+}
+
+

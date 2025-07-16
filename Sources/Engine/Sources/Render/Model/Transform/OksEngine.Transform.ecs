@@ -1,0 +1,122 @@
+
+-- TRANSFORM 2D
+
+DriverTransform2DComponent = {
+    serializable = false,
+    fields = { { type="RAL::Driver::UniformBuffer::Id", name="id" } }
+}
+
+CreateDriverTransform2DSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Position2D",
+                    "Scale2D",
+                    "Rotation2D"
+                },
+	            excludes = { "DriverTransform2D" },
+                createsComponents = { "DriverTransform2D" }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+Transform2DResourceComponent = {
+    serializable = false,
+    fields = { { type="RAL::Driver::ResourceSet::Id", name="id" } }
+}
+
+CreateTransform2DResourceSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "DriverTransform2D"
+                },
+	            excludes = { "Transform2DResource" },
+                createsComponents = { "Transform2DResource" }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+UpdateDriverTransform2DSystem = {	
+    updateMethod = {
+        processesEntities ={ 
+            {
+            processesComponents = { 
+                "Position2D",
+                "Rotation2D",
+                "Scale2D",
+                "DriverTransform2D" }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+-- TRANSFORM 3D
+
+DriverTransform3DComponent = {
+    serializable = false,
+    fields = { { type="RAL::Driver::UniformBuffer::Id", name="id" } }
+}
+
+
+
+CreateDriverTransform3DSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "Position3D", readonly = true },
+                    { name = "Rotation3D", readonly = true }
+                },
+	            excludes = { "DriverTransform3D" },
+                createsComponents = { "DriverTransform3D" }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+UpdateDriverTransform3DSystem = {
+    updateMethod = {
+    processesEntities = {
+        {
+            processesComponents = { 
+                "Position3D", 
+                "Rotation3D", 
+                { name = "DriverTransform3D", readonly = false }
+            }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false }
+            }
+        }
+    }
+    }
+}
+
+
+
