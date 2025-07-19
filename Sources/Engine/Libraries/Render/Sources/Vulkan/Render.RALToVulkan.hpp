@@ -236,6 +236,14 @@ namespace Render::Vulkan {
 			return VkFormat::VK_FORMAT_R8G8B8A8_UNORM;
 			break;
 		}
+		case RAL::Driver::Texture::Format::RGBA_32_UINT: {
+			return VkFormat::VK_FORMAT_R8G8B8A8_UINT;
+			break;
+		}
+		case RAL::Driver::Texture::Format::BGRA_32_UINT: {
+			return VkFormat::VK_FORMAT_R8G8B8A8_UINT;
+			break;
+		}
 		case RAL::Driver::Texture::Format::BGRA_32_UNORM: {
 			return VkFormat::VK_FORMAT_B8G8R8A8_UNORM;
 			break;

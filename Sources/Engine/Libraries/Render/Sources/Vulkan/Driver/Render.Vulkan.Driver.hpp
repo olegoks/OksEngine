@@ -354,6 +354,8 @@ namespace Render::Vulkan {
 			switch (format) {
 			case VK_FORMAT_R8G8B8A8_UNORM:    return 4;  // 4 компоненты × 8 бит = 32 бита (4 байта)
 			case VK_FORMAT_B8G8R8A8_UNORM:    return 4;
+			case VK_FORMAT_R8G8B8A8_UINT:    return 4;  // 4 компоненты × 8 бит = 32 бита (4 байта)
+			case VK_FORMAT_B8G8R8A8_UINT:    return 4;
 			case VK_FORMAT_D32_SFLOAT:        return 4;  // 32 бита (4 байта)
 			default:
 				OS::NotImplemented();
@@ -702,12 +704,12 @@ namespace Render::Vulkan {
 
 
 			std::shared_ptr<Vulkan::Pipeline::DepthTestInfo> depthTestData;
-			if (pipelineCI.enableDepthTest_) {
+			//if (pipelineCI.enableDepthTest_) {
 				depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
-				depthTestData->enable_ = true;
+				depthTestData->enable_ = pipelineCI.enableDepthTest_;
 				depthTestData->bufferFormat_ = VK_FORMAT_D32_SFLOAT;// objects_.depthTestData_->image_->GetFormat();
 				depthTestData->compareOperation_ = ToVulkanType(pipelineCI.dbCompareOperation_);
-			}
+			//}
 
 			std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo;
 			{
@@ -1180,6 +1182,12 @@ namespace Render::Vulkan {
 		}
 
 		virtual void DrawIndexed(Common::Size indicesNumber) override {
+		/*	VkQueryPoolCreateInfo queryPoolInfo = {
+	.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+	.queryType = VK_QUERY_TYPE_OCCLUSION,
+	.queryCount = 1,
+			};
+			vkCreateQueryPool(*objects_.LD_, &queryPoolInfo, nullptr, &queryPool);*/
 			CB_->DrawIndexed(indicesNumber);
 		}
 

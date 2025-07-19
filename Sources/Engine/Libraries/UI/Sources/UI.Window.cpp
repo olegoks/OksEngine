@@ -50,9 +50,7 @@ namespace UI {
 		io.WantCaptureMouse = true;
 		ImGui::StyleColorsDark();
 
-		//ImPlot::CreateContext();
 		ImGui_ImplGlfw_InitForVulkan(createdWindow, true);
-
 
 		if (!glfwVulkanSupported()) {
 			OS::AssertFail();
@@ -61,6 +59,7 @@ namespace UI {
 		OS::AssertMessage(
 			createdWindow != nullptr,
 			"GLFW Windows was not created.");
+
 		glfwSetWindowUserPointer(createdWindow, this);
 
 		glfwSetFramebufferSizeCallback(createdWindow, [](::GLFWwindow* window, int width, int height) {

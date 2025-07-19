@@ -1,7 +1,7 @@
 #pragma once
-#include <Debug\Render\auto_OksEngine.ImGuiRender.hpp>
+#include <Debug/auto_OksEngine.ImGuiRender.hpp>
 
-#include <Debug/Render/OksEngine.ImGuiTransform.hpp>
+#include <Debug/OksEngine.ImGuiTransform.hpp>
 
 #include <Common.StringLiterals.hpp>
 #include <Geometry.IndexBuffer.hpp>
@@ -85,14 +85,14 @@ namespace OksEngine
 
 		std::vector<RAL::Driver::RP::AttachmentUsage> attachmentsUsage;
 		{
-			RAL::Driver::RP::AttachmentUsage swapChainAttachment{
+			RAL::Driver::RP::AttachmentUsage attachment{
 				.format_ = RAL::Driver::Texture::Format::BGRA_32_UNORM,
 				.initialState_ = RAL::Driver::Texture::State::DataIsUndefined,
 				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
 				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
 				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite
 			};
-			attachmentsUsage.push_back(swapChainAttachment);
+			attachmentsUsage.push_back(attachment);
 		}
 
 		std::vector<RAL::Driver::RP::Subpass> subpasses;
@@ -294,13 +294,17 @@ namespace OksEngine
 	void CreateImGuiAtlasTexture::Update(ECS2::Entity::Id entity0id, ImGuiState* imGuiState0) {
 
 		ImGuiIO& io = ImGui::GetIO();
+		io.Fonts->Build();
+		if (!io.Fonts->IsBuilt()) {
+			OS::AssertFail();
+		}
 		unsigned char* pixels;
 		int width, height;
 		io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
 
-		DS::Vector<RAL::Color4b> pixelsRGBA;
-		pixelsRGBA.Resize(width * height);
-		std::memcpy(pixelsRGBA.GetData(), pixels, width * height * sizeof(RAL::Color4b));
+		std::vector<RAL::Color4b> pixelsRGBA;
+		pixelsRGBA.resize(width * height);
+		std::memcpy(pixelsRGBA.data(), pixels, width * height * sizeof(RAL::Color4b));
 
 
 		CreateComponent<ImGuiAtlasTexture>(entity0id, width, height, pixelsRGBA);
@@ -316,16 +320,18 @@ namespace OksEngine
 		RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
 			.name_ = "",
 			.format_ = RAL::Driver::Texture::Format::BGRA_32_UNORM,
+			.data_ = std::vector<Common::Byte>{ (const Common::Byte*)imGuiAtlasTexture0->pixels_.data(), (const Common::Byte*)imGuiAtlasTexture0->pixels_.data() + imGuiAtlasTexture0->pixels_.size() * 4},
 			.size_ = {
 				imGuiAtlasTexture0->width_,
 				imGuiAtlasTexture0->height_ },
 			.targetState_ = RAL::Driver::Texture::State::DataForShaderRead,
 			.targetAccess_ = RAL::Driver::Texture::Access::ShaderRead,
 			.targetStages_ = { RAL::Driver::Pipeline::Stage::FragmentShader},
-			.usages_ = { RAL::Driver::Texture::Usage::Sampled },
+			.usages_ = { RAL::Driver::Texture::Usage::Sampled, RAL::Driver::Texture::Usage::TransferDestination },
 			.mipLevels_ = 1
 		};
 		RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
+
 
 		CreateComponent<ImGuiAtlasDriverTexture>(entity0id, textureId);
 

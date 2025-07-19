@@ -15,6 +15,8 @@ namespace Render::Vulkan {
 			// ÷ветовые форматы
 		case VK_FORMAT_R8G8B8A8_UNORM:
 		case VK_FORMAT_B8G8R8A8_UNORM:
+		case VK_FORMAT_R8G8B8A8_UINT:
+		case VK_FORMAT_B8G8R8A8_UINT:
 		case VK_FORMAT_B8G8R8A8_SRGB:
 			return VK_IMAGE_ASPECT_COLOR_BIT;
 
@@ -63,7 +65,7 @@ namespace Render::Vulkan {
 
 		VkImageLayout currentLayout = VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
 		VkAccessFlags currentAccess = VkAccessFlagBits::VK_ACCESS_NONE;
-
+		VkPipelineStageFlags currentPipelineStage = VkPipelineStageFlagBits::VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
 		//Copy data if need.
 		if (!createInfo.data_.empty()) {
 
@@ -113,7 +115,7 @@ namespace Render::Vulkan {
 
 			currentLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
 			currentAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
-
+			currentPipelineStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			//Copy data from staging buffer.
 			Image::DataCopy(textureStagingBuffer, image, createInfo.LD_, createInfo.commandPool_);
 
@@ -181,7 +183,7 @@ namespace Render::Vulkan {
 					GetAspectByFormat(createInfo.format_),
 					VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, createInfo.targetLayout_,
 					VK_ACCESS_TRANSFER_READ_BIT, createInfo.targetAccess_,
-					VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
+					VK_PIPELINE_STAGE_TRANSFER_BIT, createInfo.targetPipelineStage_
 				);
 
 				if (mipWidth > 1) mipWidth /= 2;
@@ -198,6 +200,8 @@ namespace Render::Vulkan {
 			);
 
 			currentLayout = createInfo.targetLayout_;
+			currentAccess = createInfo.targetAccess_;
+			currentPipelineStage = createInfo.targetPipelineStage_;
 
 			commandBuffer->End();
 			commandBuffer->Submit(createInfo.LD_->GetGraphicsQueue());
@@ -224,7 +228,7 @@ namespace Render::Vulkan {
 				GetAspectByFormat(createInfo.format_),
 				currentLayout, createInfo.targetLayout_,
 				currentAccess, createInfo.targetAccess_,
-				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, createInfo.targetPipelineStage_
+				currentPipelineStage, createInfo.targetPipelineStage_
 			);
 
 			commandBuffer->End();
@@ -245,6 +249,7 @@ namespace Render::Vulkan {
 		}
 		auto sampler = std::make_shared<Sampler>(samplerCreateInfo);
 
+		ci1_ = createInfo;
 		image_ = image;
 		imageView_ = imageView;
 		sampler_ = sampler;
