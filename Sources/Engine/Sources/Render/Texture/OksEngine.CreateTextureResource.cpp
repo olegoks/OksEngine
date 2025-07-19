@@ -10,7 +10,7 @@ void CreateTextureResource::Update(ECS2::Entity::Id entity1Id,
     
     RAL::Driver::Resource::Binding textureBinding
     {
-        .stage_ = RAL::Driver::Stage::FragmentShader,
+        .stage_ = RAL::Driver::Shader::Stage::FragmentShader,
         .binding_ = 0,
         .textureId_ = driverTexture->driverTextureId_
     };

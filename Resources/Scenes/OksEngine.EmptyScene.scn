@@ -3,6 +3,7 @@ scene = {
         {
             ID = 0,
 		    name = {value ="gltf model" },
+            --position3D = { x = 0.0, y = 0.0, z = 0.0},
 		    model = { },
 		    modelFile = { fileName = "LMK03 108.glb" }
         }

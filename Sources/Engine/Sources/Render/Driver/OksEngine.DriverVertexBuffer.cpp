@@ -76,33 +76,25 @@ namespace OksEngine
 		const Indices* indices0, const Normals* normals0, const UVs* uVs0,
 		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
+		std::vector<RAL::Vertex3fnt> vertices3fnt;
+		vertices3fnt.reserve(vertices3D0->vertices_.GetVerticesNumber());
+		for (Common::Index i = 0; i < vertices3D0->vertices_.GetVerticesNumber(); i++) {
+			RAL::Vertex3fnt vertex;
+			vertex.position_ = vertices3D0->vertices_[i].position_;
+			vertex.normal_ = normals0->normals_[i];
+			vertex.uv_ = uVs0->uvs_[i];
+			vertices3fnt.push_back(vertex);
+		}
 
 
-		//auto* vertices = world->GetComponent<Vertices3D>(entityId);
-		//auto* normals = world->GetComponent<Normals>(entityId);
-		//auto* uvs = world->GetComponent<UVs>(entityId);
-
-		//auto driver = GetContext().GetRenderSubsystem()->GetDriver();
-
-		//std::vector<RAL::Vertex3fnt> vertices3fnt;
-		//vertices3fnt.reserve(vertices->vertices_.GetVerticesNumber());
-		//for (Common::Index i = 0; i < vertices->vertices_.GetVerticesNumber(); i++) {
-		//	RAL::Vertex3fnt vertex;
-		//	vertex.position_ = vertices->vertices_[i].position_;
-		//	vertex.normal_ = normals->normals_[i];
-		//	vertex.uv_ = uvs->uvs_[i];
-		//	vertices3fnt.push_back(vertex);
-		//}
-
-
-		//RAL::Driver::VertexBuffer::CreateInfo1 VBCI{
-		//	.verticesNumber_ = vertices->vertices_.GetVerticesNumber(),
-		//	.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2,
-		//	.type_ = RAL::Driver::VertexBuffer::Type::Const
-		//};
-		//RAL::Driver::VertexBuffer::Id VBId = driver->CreateVertexBuffer(VBCI);
-		//driver->FillVertexBuffer(VBId, 0, vertices3fnt.data(), vertices3fnt.size());
-		//world->CreateComponent<DriverVertexBuffer>(entityId, VBId);
+		RAL::Driver::VertexBuffer::CreateInfo1 VBCI{
+			.verticesNumber_ = vertices3D0->vertices_.GetVerticesNumber(),
+			.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2,
+			.type_ = RAL::Driver::VertexBuffer::Type::Const
+		};
+		RAL::Driver::VertexBuffer::Id VBId = renderDriver1->driver_->CreateVertexBuffer(VBCI);
+		renderDriver1->driver_->FillVertexBuffer(VBId, 0, vertices3fnt.data(), vertices3fnt.size());
+		CreateComponent<DriverVertexBuffer>(entity0id, VBId);
 
 
 

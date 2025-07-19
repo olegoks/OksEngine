@@ -6,148 +6,249 @@
 #include <Render.Vulkan.Driver.ImageView.hpp>
 #include <Render.Vulkan.Driver.StagingBuffer.hpp>
 #include <Render.Vulkan.Driver.CommandBuffer.hpp>
+#include <Render.Vulkan.Driver.hpp>
 
 namespace Render::Vulkan {
 
+	static VkImageAspectFlags GetAspectByFormat(VkFormat format) {
+		switch (format) {
+			// Цветовые форматы
+		case VK_FORMAT_R8G8B8A8_UNORM:
+		case VK_FORMAT_B8G8R8A8_UNORM:
+		case VK_FORMAT_B8G8R8A8_SRGB:
+			return VK_IMAGE_ASPECT_COLOR_BIT;
 
-	Texture::Texture(const CreateInfo1& createInfo) : RAL::Texture{ createInfo.ralCreateInfo_ }{
-			OS::Assert(createInfo.format_ == VK_FORMAT_R8G8B8A8_UNORM);
+			// Форматы глубины
+		case VK_FORMAT_D32_SFLOAT:
+		case VK_FORMAT_D16_UNORM:
+			return VK_IMAGE_ASPECT_DEPTH_BIT;
 
-			auto textureStagingBuffer = std::make_shared<StagingBuffer>(createInfo.PD_, createInfo.LD_, GetSize().x * GetSize().y * sizeof(RAL::Color4b));
+			// Комбинированные форматы глубины/трафарета
+		case VK_FORMAT_D24_UNORM_S8_UINT:
+		case VK_FORMAT_D32_SFLOAT_S8_UINT:
+			return VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT;
+
+			// Трафарет
+		case VK_FORMAT_S8_UINT:
+			return VK_IMAGE_ASPECT_STENCIL_BIT;
+
+		default:
+
+#pragma region Assert
+			OS::AssertFail();
+#pragma endregion
+			return VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;
+		}
+
+	}
+
+	Texture::Texture(const CreateInfo1& createInfo) {
+
+		const Common::Size pixelsNumber = createInfo.size_.x * createInfo.size_.y;
+		const Common::Size pixelSize = Driver::GetElementSize(createInfo.format_);
+
+
+		const bool mipMapGenerationEnabled = createInfo.PD_->SupportsMipMaps(createInfo.format_);
+
+		AllocatedTextureImage::CreateInfo textureImageCreateInfo;
+		{
+			textureImageCreateInfo.size_ = createInfo.size_;
+			textureImageCreateInfo.format_ = createInfo.format_;
+			textureImageCreateInfo.usage_ = createInfo.usages_;
+			textureImageCreateInfo.LD_ = createInfo.LD_;
+			textureImageCreateInfo.physicalDevice_ = createInfo.PD_;
+			textureImageCreateInfo.mipLevels_ = (mipMapGenerationEnabled) ? (createInfo.mipLevels_) : (1);
+		}
+		auto image = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
+
+		VkImageLayout currentLayout = VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
+		VkAccessFlags currentAccess = VkAccessFlagBits::VK_ACCESS_NONE;
+
+		//Copy data if need.
+		if (!createInfo.data_.empty()) {
+
+			auto textureStagingBuffer = std::make_shared<StagingBuffer>(
+				createInfo.PD_,
+				createInfo.LD_,
+				pixelsNumber * pixelSize);
+
 			textureStagingBuffer->Allocate();
-			textureStagingBuffer->Fill(0, GetPixels().data(), GetSize().x* GetSize().y * sizeof(RAL::Color4b));
 
-			AllocatedTextureImage::CreateInfo textureImageCreateInfo;
+#pragma region Assert
+			OS::AssertMessage((createInfo.data_.size() % pixelSize) == 0, "");
+			OS::AssertMessage((createInfo.data_.size() / pixelSize) == pixelsNumber, "");
+#pragma endregion
+
+			textureStagingBuffer->Fill(0, createInfo.data_.data(), pixelsNumber * pixelSize);
+
+			//Change image layout(all mip map levels) to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL.
+			CommandBuffer::CreateInfo commandBufferCreateInfo;
 			{
-				textureImageCreateInfo.size_ = GetSize();
-				textureImageCreateInfo.format_ = createInfo.format_;
-				textureImageCreateInfo.LD_ = createInfo.LD_;
-				textureImageCreateInfo.physicalDevice_ = createInfo.PD_;
-				textureImageCreateInfo.mipLevels_ = createInfo.mipLevels_;
+				commandBufferCreateInfo.LD_ = createInfo.LD_;
+				commandBufferCreateInfo.commandPool_ = createInfo.commandPool_;
+				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			}
-			auto image = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
+			auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+			commandBuffer->Begin();
+			
+			commandBuffer->ImageMemoryBarrier(
+				image,
+				0,
+				createInfo.mipLevels_,
+				GetAspectByFormat(createInfo.format_),
+				currentLayout,
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+				0, VK_ACCESS_TRANSFER_WRITE_BIT,
+				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT
+			);
+			commandBuffer->End();
+			VkSubmitInfo submitInfo{};
+			{
+				submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+				submitInfo.commandBufferCount = 1;
+				submitInfo.pCommandBuffers = &commandBuffer->GetHandle();
+			}
+			vkQueueSubmit(createInfo.LD_->GetGraphicsQueue(), 1, &submitInfo, VK_NULL_HANDLE);
+			vkQueueWaitIdle(createInfo.LD_->GetGraphicsQueue());
 
-			image->ChangeLayout(VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, createInfo.commandPool_);
+			currentLayout = VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
+			currentAccess = VK_ACCESS_TRANSFER_WRITE_BIT;
+
+			//Copy data from staging buffer.
 			Image::DataCopy(textureStagingBuffer, image, createInfo.LD_, createInfo.commandPool_);
 
-			const bool mipMapGenerationEnabled = createInfo.PD_->SupportsMipMaps(image->GetFormat());
+		}
 
-			if(mipMapGenerationEnabled)	{
+		if (mipMapGenerationEnabled && createInfo.mipLevels_ > 1) {
 
-				CommandBuffer::CreateInfo commandBufferCreateInfo;
-				{
-					commandBufferCreateInfo.LD_ = createInfo.LD_;
-					commandBufferCreateInfo.commandPool_ = createInfo.commandPool_;
-					commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-				}
-				auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+			CommandBuffer::CreateInfo commandBufferCreateInfo;
+			{
+				commandBufferCreateInfo.LD_ = createInfo.LD_;
+				commandBufferCreateInfo.commandPool_ = createInfo.commandPool_;
+				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			}
+			auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
-				int32_t mipWidth = createInfo.ralCreateInfo_.size_.x;
-				int32_t mipHeight = createInfo.ralCreateInfo_.size_.y;
+			int32_t mipWidth = createInfo.size_.x;
+			int32_t mipHeight = createInfo.size_.y;
 
-				commandBuffer->Begin();
+			commandBuffer->Begin();
 
-				for (uint32_t i = 1; i < createInfo.mipLevels_; i++) {
+			for (uint32_t i = 1; i < createInfo.mipLevels_; i++) {
 
-					commandBuffer->ImageMemoryBarrier(*image,
-						i - 1, 1, 
-						VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-						VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_TRANSFER_READ_BIT,
-						VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_TRANSFER_BIT
-						);
+				// Previous mip map level as source.
+				commandBuffer->ImageMemoryBarrier(image,
+					i - 1, 1,
+					GetAspectByFormat(createInfo.format_),
+					currentLayout,
+					VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+					currentAccess, VK_ACCESS_TRANSFER_READ_BIT,
+					VK_PIPELINE_STAGE_TRANSFER_BIT,
+					VK_PIPELINE_STAGE_TRANSFER_BIT
+				);
 
-					VkOffset3D srcOfffsets[2]{ { 0, 0, 0 }, { mipWidth, mipHeight, 1 } };
-					VkOffset3D dstOfffsets[2]{ { 0, 0, 0 }, mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
-
-					commandBuffer->ImageBlit(
-						image,
-						srcOfffsets,
-						i - 1,
-						VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
-						image,
-						dstOfffsets,
-						i,
-						VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
-						);
-
-					commandBuffer->ImageMemoryBarrier(*image,
-						i - 1, 1,
-						VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-						VK_ACCESS_TRANSFER_READ_BIT, VK_ACCESS_SHADER_READ_BIT,
-						VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
+				if (currentLayout != VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) {
+					// Current mip map level as destination.
+					commandBuffer->ImageMemoryBarrier(image,
+						i, 1,
+						GetAspectByFormat(createInfo.format_),
+						currentLayout,
+						VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+						currentAccess, VK_ACCESS_TRANSFER_WRITE_BIT,
+						VK_PIPELINE_STAGE_TRANSFER_BIT,
+						VK_PIPELINE_STAGE_TRANSFER_BIT
 					);
-
-					if (mipWidth > 1) mipWidth /= 2;
-					if (mipHeight > 1) mipHeight /= 2;
 				}
 
+				VkOffset3D srcOfffsets[2]{ { 0, 0, 0 }, { mipWidth, mipHeight, 1 } };
+				VkOffset3D dstOfffsets[2]{ { 0, 0, 0 }, mipWidth > 1 ? mipWidth / 2 : 1, mipHeight > 1 ? mipHeight / 2 : 1, 1 };
+
+				commandBuffer->ImageBlit(
+					image,
+					srcOfffsets,
+					i - 1,
+					VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+
+					image,
+					dstOfffsets,
+					i,
+					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL
+				);
+
+				// Image of previous mip map level as source
 				commandBuffer->ImageMemoryBarrier(*image,
-					createInfo.mipLevels_ - 1, 1,
-					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-					VK_ACCESS_TRANSFER_WRITE_BIT, VK_ACCESS_SHADER_READ_BIT,
+					i - 1, 1,
+					GetAspectByFormat(createInfo.format_),
+					VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, createInfo.targetLayout_,
+					VK_ACCESS_TRANSFER_READ_BIT, createInfo.targetAccess_,
 					VK_PIPELINE_STAGE_TRANSFER_BIT, VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT
 				);
 
-				commandBuffer->End();
-				commandBuffer->Submit(createInfo.LD_->GetGraphicsQueue());
-
-				vkQueueWaitIdle(createInfo.LD_->GetGraphicsQueue());
-
-			} else {
-				image->ChangeLayout(
-					VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-					VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-					createInfo.commandPool_);
+				if (mipWidth > 1) mipWidth /= 2;
+				if (mipHeight > 1) mipHeight /= 2;
 			}
 
-			auto imageView = CreateImageViewByImage(createInfo.LD_, image, VK_IMAGE_ASPECT_COLOR_BIT, createInfo.mipLevels_);
+			//Set layout of last mip map level.
+			commandBuffer->ImageMemoryBarrier(*image,
+				createInfo.mipLevels_ - 1, 1,
+				GetAspectByFormat(createInfo.format_),
+				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, createInfo.targetLayout_,
+				VK_ACCESS_TRANSFER_WRITE_BIT, createInfo.targetAccess_,
+				VK_PIPELINE_STAGE_TRANSFER_BIT, createInfo.targetPipelineStage_
+			);
 
-			Sampler::CreateInfo samplerCreateInfo;
-			{
-				samplerCreateInfo.LD_ = createInfo.LD_;
-				samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
-				samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
-				samplerCreateInfo.maxAnisotropy_ = createInfo.PD_->GetProperties().limits.maxSamplerAnisotropy;
-				samplerCreateInfo.mipLevels_ = (mipMapGenerationEnabled) ? (createInfo.mipLevels_) : (1);
-			}
-			auto sampler = std::make_shared<Sampler>(samplerCreateInfo);
+			currentLayout = createInfo.targetLayout_;
 
-			//auto DSL = std::make_shared<DescriptorSetLayout>(
-			//	DescriptorSetLayout::CreateInfo{
-			//		"DiffuseMap",
-			//		createInfo.LD_,
-			//		std::vector<VkDescriptorSetLayoutBinding>{{
-			//			{
-			//		0,
-			//		VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			//		1,
-			//		VK_SHADER_STAGE_FRAGMENT_BIT,
-			//		nullptr
-			//		}
-			//		}}
-			//	});
+			commandBuffer->End();
+			commandBuffer->Submit(createInfo.LD_->GetGraphicsQueue());
 
-			//DescriptorSet::CreateInfo DSCreateInfo;
-			//{
-			//	DSCreateInfo.DP_ = createInfo.DP_;
-			//	DSCreateInfo.DSL_ = DSL;
-			//	DSCreateInfo.LD_ = createInfo.LD_;
-			//}
-
-			//auto DS = std::make_shared<DescriptorSet>(DSCreateInfo);
-			//DS->UpdateImageWriteConfiguration(
-			//	imageView,
-			//	VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-			//	sampler,
-			//	VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-			//	0);
-
-			image_ = image;
-			imageView_ = imageView;
-			sampler_ = sampler;
-	/*		DSL_ = DSL;
-			DS_ = DS;*/
+			vkQueueWaitIdle(createInfo.LD_->GetGraphicsQueue());
 
 		}
+
+		//Set target layout and access if need.
+		if (currentLayout != createInfo.targetLayout_ || currentAccess != createInfo.targetAccess_) {
+
+			CommandBuffer::CreateInfo commandBufferCreateInfo;
+			{
+				commandBufferCreateInfo.LD_ = createInfo.LD_;
+				commandBufferCreateInfo.commandPool_ = createInfo.commandPool_;
+				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			}
+			auto commandBuffer = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+
+			commandBuffer->Begin();
+			//Set layout of last mip map level.
+			commandBuffer->ImageMemoryBarrier(*image,
+				createInfo.mipLevels_ - 1, 1,
+				GetAspectByFormat(createInfo.format_),
+				currentLayout, createInfo.targetLayout_,
+				currentAccess, createInfo.targetAccess_,
+				VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT, createInfo.targetPipelineStage_
+			);
+
+			commandBuffer->End();
+			commandBuffer->Submit(createInfo.LD_->GetGraphicsQueue());
+
+			vkQueueWaitIdle(createInfo.LD_->GetGraphicsQueue());
+		}
+
+		auto imageView = CreateImageViewByImage(createInfo.LD_, image, GetAspectByFormat(createInfo.format_), createInfo.mipLevels_);
+
+		Sampler::CreateInfo samplerCreateInfo;
+		{
+			samplerCreateInfo.LD_ = createInfo.LD_;
+			samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
+			samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
+			samplerCreateInfo.maxAnisotropy_ = createInfo.PD_->GetProperties().limits.maxSamplerAnisotropy;
+			samplerCreateInfo.mipLevels_ = (mipMapGenerationEnabled) ? (createInfo.mipLevels_) : (1);
+		}
+		auto sampler = std::make_shared<Sampler>(samplerCreateInfo);
+
+		image_ = image;
+		imageView_ = imageView;
+		sampler_ = sampler;
+	}
+
 
 }

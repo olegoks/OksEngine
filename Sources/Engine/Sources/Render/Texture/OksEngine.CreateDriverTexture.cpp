@@ -21,13 +21,19 @@ namespace OksEngine {
 		//auto* texture = world->GetComponent<Texture>(entityId);
 
 		auto driver = renderDriver->driver_;
-		std::vector<RAL::Color4b> texturePixels{ texture->pixels_.GetData(), texture->pixels_.GetData() + texture->pixels_.GetSize() };
-		RAL::Texture::CreateInfo textureCreateInfo{
-			.name_ = "",
-			.pixels_ = texturePixels,
-			.size_ = { texture->width_, texture->height_ }
+
+		RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
+			.name_ = textureInfo->GetName(),
+			.data_ = std::vector<Common::Byte>{
+				(Common::Byte*)texture->pixels_.GetData(),
+				(Common::Byte*)(texture->pixels_.GetData() + texture->pixels_.GetSize() * RAL::Driver::Texture::GetElementSize(RAL::Driver::Texture::Format::RGBA_32_UNORM)) },
+			.size_ = { texture->width_, texture->height_ },
+			.targetState_ = RAL::Driver::Texture::State::DataForShaderRead,
+			.usages_ = { RAL::Driver::Texture::Usage::TransferDestination, RAL::Driver::Texture::Usage::Sampled },
+#undef max
+			.mipLevels_ = static_cast<Common::UInt32>(std::floor(std::log2(std::max(texture->width_, texture->height_)))) + 1,
 		};
-		RAL::Texture::Id textureId = driver->CreateDiffuseMap(textureCreateInfo);
+		RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
 
 		CreateComponent<DriverTexture>(entity1Id, textureId);
 	}

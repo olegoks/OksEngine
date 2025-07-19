@@ -14,11 +14,15 @@ CreateModelSystem = {
                     "ModelFile"
 	            },
                 excludes = {
+                    "Position3D",
+                    "Rotation3D",
                     "Vertices3D",
                     "Indices",
                     "UVs"
                 },
                 createsComponents = {
+                    "Position3D",
+                    "Rotation3D",
                     "Vertices3D",
                     "Indices",
                     "Normals",

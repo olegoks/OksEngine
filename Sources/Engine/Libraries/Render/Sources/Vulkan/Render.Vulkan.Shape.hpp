@@ -108,7 +108,7 @@ namespace Render::Vulkan {
 		struct ShaderBinding {
 			RAL::Driver::UniformBuffer::Id ubId_;
 			std::shared_ptr<DescriptorSet> ds_ = nullptr;
-			RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+			RAL::Driver::Texture::Id textureId_ = RAL::Driver::Texture::Id::Invalid();
 		};
 
 		struct CreateInfo {
@@ -165,7 +165,7 @@ namespace Render::Vulkan {
 	//		std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
 	//		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 	//		std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-	//		RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+	//		RAL::Driver::Texture::Id textureId_ = RAL::Driver::Texture::Id::Invalid();
 	//	};
 
 	//	TexturedShape(const CreateInfo& createInfo) :
@@ -183,7 +183,7 @@ namespace Render::Vulkan {
 	//		return textureId_;
 	//	}
 
-	//	RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+	//	RAL::Driver::Texture::Id textureId_ = RAL::Driver::Texture::Id::Invalid();
 	//};
 
 
@@ -196,7 +196,7 @@ namespace Render::Vulkan {
 	//		std::shared_ptr<AllocatedIndexBuffer<Index16>> indexBuffer_ = nullptr;
 	//		std::shared_ptr<UniformBuffer> transformBuffer_ = nullptr;
 	//		std::shared_ptr<DescriptorSet> transformDescriptorSet_ = nullptr;
-	//		RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+	//		RAL::Driver::Texture::Id textureId_ = RAL::Driver::Texture::Id::Invalid();
 	//	};
 
 	//	UIShape(const CreateInfo& createInfo) :
@@ -216,7 +216,7 @@ namespace Render::Vulkan {
 
 	//	glm::vec2 scale_;
 	//	glm::vec2 translate_;
-	//	RAL::Texture::Id textureId_ = RAL::Texture::Id::Invalid();
+	//	RAL::Driver::Texture::Id textureId_ = RAL::Driver::Texture::Id::Invalid();
 	//};
 
 	//class ColoredShape : public Shape<glm::mat4, Vertex3fnc, Index16>{

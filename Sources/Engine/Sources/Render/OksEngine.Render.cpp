@@ -219,11 +219,107 @@ namespace OksEngine
 
 	//}
 
+	void CreateRenderPass::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
+
+
+		auto driver = renderDriver0->driver_;
+
+		std::vector<RAL::Driver::RP::AttachmentUsage> attachmentsUsage;
+		{
+			RAL::Driver::RP::AttachmentUsage depthTestAttachment{
+				.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
+				.initialState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
+				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
+				.finalState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite
+			};
+			attachmentsUsage.push_back(depthTestAttachment);
+
+			RAL::Driver::RP::AttachmentUsage GBufferAttachment{
+				.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
+				.initialState_ = RAL::Driver::Texture::State::DataIsUndefined,
+				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Ignore,
+				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
+				.finalState_ = RAL::Driver::Texture::State::DataForCopyingSource
+			};
+			attachmentsUsage.push_back(GBufferAttachment);
+
+		}
+
+		std::vector<RAL::Driver::RP::Subpass> subpasses;
+		{
+			RAL::Driver::RP::Subpass subpass{
+				.colorAttachments_ = { 1 },
+				.depthStencilAttachment_ { 0 }// Index of attachment.
+			};
+			subpasses.push_back(subpass);
+		}
+
+		RAL::Driver::RP::CI rpCI{
+			.name_ = "RenderPass",
+			.attachments_ = attachmentsUsage,
+			.subpasses_ = subpasses
+		};
+
+		const RAL::Driver::RP::Id renderPassId = driver->CreateRenderPass(rpCI);
+
+		//DEPTH BUFFER
+		RAL::Driver::Texture::CreateInfo1 depthBufferCreateInfo{
+			.name_ = "Depth buffer",
+			.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
+			.size_ = { 1920, 1080 },
+			.targetState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+			.targetAccess_ = RAL::Driver::Texture::Access::DepthStencilWrite,
+			.targetStages_ = { RAL::Driver::Pipeline::Stage::EarlyFragmentTests, RAL::Driver::Pipeline::Stage::LateFragmentTests },
+			.usages_ = { RAL::Driver::Texture::Usage::DepthStencilAttachment },
+			.mipLevels_ = 1
+		};
+		const RAL::Driver::Texture::Id depthBufferId = driver->CreateTexture(depthBufferCreateInfo);
+
+		//RENDER BUFFER
+		RAL::Driver::Texture::CreateInfo1 renderBufferCreateInfo{
+			.name_ = "Render buffer",
+			.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
+			.size_ = { 1920, 1080 },
+			.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
+			.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
+			.targetStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
+			.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment },
+			.mipLevels_ = 1
+		};
+		const RAL::Driver::Texture::Id renderBufferId = driver->CreateTexture(renderBufferCreateInfo);
+
+
+		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
+			.rpId_ = renderPassId,
+			.textures_ = { depthBufferId, renderBufferId },
+			.size_ = glm::u32vec2{ 1920, 1080 }
+		};
+
+		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = driver->CreateAttachmentSet(attachmentSetCI);
+
+		CreateComponent<RenderPass>(entity0id,
+			renderPassId,
+			rpAttachmentsSetId,
+			std::vector<Common::Id>{ depthBufferId, renderBufferId });
+
+
+	}
+
+
+	void CreatePipeline::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0, const RenderPass* renderPass0,
+		ECS2::Entity::Id entity1id, const ResourceSystem* resourceSystem1) {
+
+
+	}
+
+
 	void StartRender::Update(ECS2::Entity::Id entity0id, RenderDriver* renderDriver0) {
 
 		renderDriver0->driver_->StartRender();
 
 	};
+
 
 	void EndRender::Update(ECS2::Entity::Id entity0id, RenderDriver* renderDriver0) {
 

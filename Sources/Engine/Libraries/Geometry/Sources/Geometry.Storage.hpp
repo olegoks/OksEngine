@@ -62,7 +62,7 @@ namespace Geometry {
 		//std::string textureStorageTag_;
 		//Texture::Id textureStorageId_;
 		std::string name_;
-		//RAL::Texture::Id driverTextureId_;
+		//RAL::Driver::Texture::Id driverTextureId_;
 	};
 
 	class Model2 {

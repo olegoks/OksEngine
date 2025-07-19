@@ -37,18 +37,23 @@ namespace ECSGenerator2 {
 					Common::BreakPointLine();
 				}
 				if (globalName.ends_with("Component")) {
-					
+
 					luabridge::LuaRef componentRef = ecsFile[globalName];
 					ComponentParser componentParser;
 					auto parsedComponent = componentParser.Parse(componentRef,
-						globalName.substr(0, globalName.find("Component")));
+						globalName.substr(0, globalName.rfind("Component")));
 					parsedComponents.push_back(parsedComponent);
 				}
 				if (globalName.ends_with("System")) {
+
+					if (globalName == "CreateResourceSystemSystem") {
+						Common::BreakPointLine();
+					}
+
 					luabridge::LuaRef systemRef = ecsFile[globalName];
 					SystemParser systemParser;
 					auto parsedSystem = systemParser.Parse(systemRef,
-						globalName.substr(0, globalName.find("System")));
+						globalName.substr(0, globalName.rfind("System")));
 					parsedSystems.push_back(parsedSystem);
 				}
 			}

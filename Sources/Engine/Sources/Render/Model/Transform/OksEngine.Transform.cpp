@@ -75,7 +75,7 @@ namespace OksEngine
 		auto driver = renderDriver1->driver_;
 
 		const RAL::Driver::Resource::CI2 rci{
-			.stage_ = RAL::Driver::Stage::VertexShader,
+			.stage_ = RAL::Driver::Shader::Stage::VertexShader,
 			.binding_ = 0,
 			.ubid_ = driverTransform2D0->id_,
 			.offset_ = 0,

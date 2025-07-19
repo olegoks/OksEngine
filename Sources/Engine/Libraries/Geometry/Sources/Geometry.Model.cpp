@@ -666,9 +666,9 @@ namespace Geometry {
 				backedMesh.mesh_.vertices_.Add(Vertex3f{ aimesh->mVertices[j].x,
 													aimesh->mVertices[j].y,
 													aimesh->mVertices[j].z });
-				backedMesh.mesh_.normals_.PushBack(Normal3f{ aimesh->mVertices[j].x,
-														aimesh->mVertices[j].y,
-														aimesh->mVertices[j].z });
+				backedMesh.mesh_.normals_.PushBack(Normal3f{ aimesh->mNormals[j].x,
+														aimesh->mNormals[j].y,
+														aimesh->mNormals[j].z });
 				backedMesh.mesh_.uvs_.PushBack(UV2f{ aimesh->mTextureCoords[0][j].x,
 												aimesh->mTextureCoords[0][j].y });
 			}

@@ -90,10 +90,10 @@ namespace Render::Vulkan {
 		}
 
 
-		void ChangeLayout(
-			VkImageLayout oldLayout,
-			VkImageLayout newLayout,
-			std::shared_ptr<class CommandPool> commandPool);
+		//void ChangeLayout(
+		//	VkImageLayout oldLayout,
+		//	VkImageLayout newLayout,
+		//	std::shared_ptr<class CommandPool> commandPool);
 
 
 
@@ -121,6 +121,7 @@ namespace Render::Vulkan {
 			std::string name_;
 			glm::u32vec2 size_;
 			VkFormat format_;
+			VkImageUsageFlags usage_ = VkImageUsageFlagBits::VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM;
 			Common::UInt32 mipLevels_ = 1;
 		};
 
@@ -132,7 +133,7 @@ namespace Render::Vulkan {
 			createInfo.size_,
 			createInfo.format_,
 			VK_IMAGE_TILING_OPTIMAL,
-			VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
+			createInfo.usage_,//VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
 			VK_SAMPLE_COUNT_1_BIT,
 			createInfo.mipLevels_ }
 		} { }

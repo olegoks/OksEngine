@@ -84,6 +84,17 @@ namespace OksEngine
 		Common::Size size_;
 	};
 
+	glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& aiMat) {
+		glm::mat4 glmMat;
+
+		glmMat[0][0] = aiMat.a1; glmMat[0][1] = aiMat.b1; glmMat[0][2] = aiMat.c1; glmMat[0][3] = aiMat.d1;
+		glmMat[1][0] = aiMat.a2; glmMat[1][1] = aiMat.b2; glmMat[1][2] = aiMat.c2; glmMat[1][3] = aiMat.d2;
+		glmMat[2][0] = aiMat.a3; glmMat[2][1] = aiMat.b3; glmMat[2][2] = aiMat.c3; glmMat[2][3] = aiMat.d3;
+		glmMat[3][0] = aiMat.a4; glmMat[3][1] = aiMat.b4; glmMat[3][2] = aiMat.c4; glmMat[3][3] = aiMat.d4;
+
+		return glmMat;
+	}
+
 	void CreateModel::Update(
 		ECS2::Entity::Id entity0id,
 		const Model* model0,
@@ -127,7 +138,7 @@ namespace OksEngine
 
 			Geom::VertexCloud<Geom::Vertex3f>   vertices;
 			DS::Vector<Geom::Normal3f>	        normals;
-			DS::Vector<Geom::Color4b>		    colors;
+			//DS::Vector<Geom::Color4b>		    colors;
 			DS::Vector<Geom::UV2f>		        uvs;
 			Geom::IndexBuffer<Geom::Index16>	indices;
 
@@ -147,6 +158,7 @@ namespace OksEngine
 															mesh->mVertices[j].z });
 					uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x,
 													mesh->mTextureCoords[0][j].y });
+
 				}
 
 				indices.Reserve(mesh->mNumFaces * 3);
@@ -154,9 +166,19 @@ namespace OksEngine
 					indices.Add(mesh->mFaces[j].mIndices[0]);
 					indices.Add(mesh->mFaces[j].mIndices[1]);
 					indices.Add(mesh->mFaces[j].mIndices[2]);
-
 				}
 			}
+
+			glm::mat4 transform{ aiMatrix4x4ToGlm(node->mTransformation) };
+			glm::vec3 translation{};
+			glm::quat rotation;
+			glm::vec3 scale;
+			glm::vec3 skew;
+			glm::vec4 perspective;
+			glm::decompose(transform, scale, rotation, translation, skew, perspective);
+
+			CreateComponent<Position3D>(entityId, translation.x, translation.y, translation.z);
+			CreateComponent<Rotation3D>(entityId, rotation.w, rotation.x, rotation.y, rotation.z);
 
 			CreateComponent<Vertices3D>(entityId, vertices);
 			CreateComponent<Normals>(entityId, normals);

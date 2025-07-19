@@ -109,15 +109,15 @@ namespace Render::Vulkan {
 
 
 
-	class Shader : public RAL::Shader {
+	class Shader : public RAL::Driver::Shader {
 	public:
 
 		struct CreateInfo {
-			RAL::Shader::CreateInfo ralCreateInfo_;
+			RAL::Driver::Shader::CreateInfo ralCreateInfo_;
 		};
 
 		Shader(const CreateInfo& createInfo) :
-			RAL::Shader{ createInfo.ralCreateInfo_ }
+			RAL::Driver::Shader{ createInfo.ralCreateInfo_ }
 		{
 			Compile();
 		}

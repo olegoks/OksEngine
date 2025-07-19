@@ -2,7 +2,7 @@ ConfigureResourceSystemSystem = {
     type = "Initialize",
     callOrder = {
         runAfter = { 
-            "CreateResource",
+            "CreateResourceSystem",
             "LoadConfigFile"
         }
     },
