@@ -71,7 +71,7 @@ namespace RAL {
 		DS::Vector<RAL::Normal3f>		normals_;
 		DS::Vector<RAL::Color3f>		colors_;
 		DS::Vector<RAL::UV2f>			uvs_;
-		std::shared_ptr<RAL::Texture>	texture_ = nullptr;
+		std::shared_ptr<RAL::Driver::Texture>	texture_ = nullptr;
 	};
 
 }

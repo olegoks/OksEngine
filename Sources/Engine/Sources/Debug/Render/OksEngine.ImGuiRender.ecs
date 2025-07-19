@@ -245,7 +245,7 @@ CreateImGuiAtlasTextureSystem = {
 ImGuiAtlasDriverTextureComponent = {
     serializable = false,
     fields = { 
-        { type = "RAL::Texture::Id", name = "driverTextureId" }}
+        { type = "RAL::Driver::Texture::Id", name = "driverTextureId" }}
 }
 
 

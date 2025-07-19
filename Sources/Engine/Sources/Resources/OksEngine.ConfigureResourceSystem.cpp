@@ -1,7 +1,7 @@
 #include <Resources\auto_OksEngine.ConfigureResourceSystem.hpp>
 
 namespace OksEngine {
-	void ConfigureResource::Update(ECS2::Entity::Id entityId1,
+	void ConfigureResourceSystem::Update(ECS2::Entity::Id entityId1,
 		const CommandLineParameters* commandLineParameters,
 		const ConfigFilePath* configFilePath, ECS2::Entity::Id entityId2,
 		ResourceSystem* resourceSystem, ECS2::Entity::Id entityId,

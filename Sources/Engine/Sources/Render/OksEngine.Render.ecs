@@ -10,7 +10,7 @@ CreateRenderDriverSystem = {
     callOrder = {
         runAfter = { 
             "CreateMainWindow",
-            "ConfigureResource"
+            "ConfigureResourceSystem"
         }
     },
     updateMethod = {
@@ -77,6 +77,81 @@ StartRenderSystem = {
         }
     }
 }
+
+RenderPassComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "rpId" },
+        { type = "Common::Id", name = "attachmentsSetId" }, -- Synonym of VkFramebuffer
+        { type = "std::vector<Common::Id>", name = "textureIds" }
+    }
+}
+
+CreateRenderPassSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateRenderDriver"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver"
+                },
+                excludes = {
+                    "RenderPass"
+                },
+                createsComponents = {
+                    "RenderPass"
+                }
+            }
+        }
+    }
+}
+
+
+PipelineComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "id" }
+    }
+}
+
+CreatePipelineSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateRenderDriver",
+            "CreateResourceSystem",
+            "ConfigureResourceSystem",
+            "CreateRenderPass"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver",
+                    "RenderPass"
+                },
+                excludes = {
+                    "Pipeline"
+                },
+                createsComponents = {
+                    "Pipeline"
+                }
+            },
+            {
+                processesComponents = {
+                    "ResourceSystem"
+                }
+            }
+        }
+    }
+}
+
 
 EndRenderSystem = {
     callOrder = {

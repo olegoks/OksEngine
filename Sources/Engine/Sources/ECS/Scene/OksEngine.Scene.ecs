@@ -79,7 +79,7 @@ CreateSceneFileEndSystem = {
 FindScenesSystem = {
     type = "Initialize",
     callOrder = {
-        runAfter = "ConfigureResource",
+        runAfter = "ConfigureResourceSystem",
     },
     updateMethod = {
         processesEntities  = {

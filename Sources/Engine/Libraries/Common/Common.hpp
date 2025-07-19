@@ -1,6 +1,9 @@
 #pragma once 
 
 #include <optional>
+
+#include <type_traits>
+
 #define MAGIC_ENUM_RANGE_MIN 0
 #define MAGIC_ENUM_RANGE_MAX 1024
 #include <magic_enum/magic_enum.hpp>
@@ -77,6 +80,19 @@ namespace Common {
 		ProcessType<Callback, Types...>(std::forward<Callback>(callback));
 	}
 
+	template<typename E>
+	struct EnableBitmaskOperators {
+		static constexpr bool enable = false;
+	};
 
+	template<typename E>
+	typename std::enable_if<EnableBitmaskOperators<E>::enable, E>::type
+		operator|(E lhs, E rhs) {
+		using underlying = typename std::underlying_type<E>::type;
+		return static_cast<E>(
+			static_cast<underlying>(lhs) |
+			static_cast<underlying>(rhs)
+			);
+	}
 
 }

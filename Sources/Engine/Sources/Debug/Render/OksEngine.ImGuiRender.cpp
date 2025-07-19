@@ -25,32 +25,32 @@ namespace OksEngine
 		std::string imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };
 
 
-		RAL::Shader::CreateInfo vertexShaderCreateInfo{
+		RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
 			.name_ = "ImGuiVertexShader",
-			.type_ = RAL::Shader::Type::Vertex,
+			.type_ = RAL::Driver::Shader::Type::Vertex,
 			.code_ = imguiVertexShader
 		};
 		auto vertexShader = driver->CreateShader(vertexShaderCreateInfo);
 
-		RAL::Shader::CreateInfo fragmentShaderCreateInfo{
+		RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
 			.name_ = "ImGuiFragmentShader",
-			.type_ = RAL::Shader::Type::Fragment,
+			.type_ = RAL::Driver::Shader::Type::Fragment,
 			.code_ = imguiFragmentShader
 		};
 		auto fragmentShader = driver->CreateShader(fragmentShaderCreateInfo);
 
-		std::vector<RAL::Driver::ShaderBinding::Layout> shaderBindings;
+		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
 
-		RAL::Driver::ShaderBinding::Layout transformBinding{
+		RAL::Driver::Shader::Binding::Layout transformBinding{
 			.binding_ = 0,
-			.type_ = RAL::Driver::ShaderBinding::Type::Uniform,
-			.stage_ = RAL::Driver::ShaderBinding::Stage::VertexShader
+			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+			.stage_ = RAL::Driver::Shader::Stage::VertexShader
 		};
 
-		RAL::Driver::ShaderBinding::Layout samplerBinding{
+		RAL::Driver::Shader::Binding::Layout samplerBinding{
 			.binding_ = 0,
-			.type_ = RAL::Driver::ShaderBinding::Type::Sampler,
-			.stage_ = RAL::Driver::ShaderBinding::Stage::FragmentShader
+			.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+			.stage_ = RAL::Driver::Shader::Stage::FragmentShader
 		};
 
 		shaderBindings.push_back(transformBinding);
@@ -61,14 +61,14 @@ namespace OksEngine
 			.renderPassId_ = imGuiRenderPass0->rpId_,
 			.vertexShader_ = vertexShader,
 			.fragmentShader_ = fragmentShader,
-			.topologyType_ = RAL::Driver::TopologyType::TriangleList,
+			.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
 			.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF4,
 			.indexType_ = RAL::Driver::IndexType::UI32,
 			.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
 			.cullMode_ = RAL::Driver::CullMode::None,
 			.shaderBindings_ = shaderBindings,
 			.enableDepthTest_ = true,
-			.dbCompareOperation_ = RAL::Driver::DepthBuffer::CompareOperation::Always
+			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Always
 
 		};
 
@@ -86,11 +86,11 @@ namespace OksEngine
 		std::vector<RAL::Driver::RP::AttachmentUsage> attachmentsUsage;
 		{
 			RAL::Driver::RP::AttachmentUsage swapChainAttachment{
-				.format_ = RAL::Driver::Format::RGBA_32,
-				.initialState_ = RAL::Driver::RP::AttachmentUsage::State::DataIsUndefined,
+				.format_ = RAL::Driver::Texture::Format::BGRA_32_UNORM,
+				.initialState_ = RAL::Driver::Texture::State::DataIsUndefined,
 				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
 				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
-				.finalState_ = RAL::Driver::RP::AttachmentUsage::State::DataForCopyingSource
+				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite
 			};
 			attachmentsUsage.push_back(swapChainAttachment);
 		}
@@ -111,19 +111,18 @@ namespace OksEngine
 
 		const RAL::Driver::RP::Id renderPassId = driver->CreateRenderPass(rpCI);
 
-
-
-		const auto [width, height] = driver->GetSwapChainTextureSize();
-
-		std::vector<RAL::Color4b> pixels;
-		pixels.resize(1920 * 1080, RAL::Color4b::Zero());
-
-		RAL::Texture::CreateInfo textureCreateInfo{
+		RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
 			.name_ = "ImGui render buffer",
-			.pixels_ = pixels,
-			.size_ = { 1920, 1080 }
+			.format_ = RAL::Driver::Texture::Format::BGRA_32_UNORM,
+			.size_ = { 1920, 1080 },
+			.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
+			.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
+			.targetStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
+			.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment, RAL::Driver::Texture::Usage::TransferSource },
+			.mipLevels_ = 1
+			
 		};
-		const RAL::Texture::Id textureId = driver->CreateDiffuseMap(textureCreateInfo);
+		const RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
 
 		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
 			.rpId_ = renderPassId,
@@ -145,8 +144,6 @@ namespace OksEngine
 		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
 		auto driver = renderDriver1->driver_;
-
-		auto swapChainTextureSize = driver->GetSwapChainTextureSize();
 
 		driver->BeginRenderPass(imGuiRenderPass0->rpId_, imGuiRenderPass0->attachmentsSetId_, { 0, 0 }, { 1920, 1080 });
 		driver->BeginSubpass();
@@ -175,14 +172,14 @@ namespace OksEngine
 		driver->BindPipeline(imGuiPipeline0->id_);
 		driver->BindVertexBuffer(imGuiDriverVertexBuffer0->id_, 0);
 		driver->BindIndexBuffer(imGuiDriverIndexBuffer0->id_, 0);
-		driver->Bind(imGuiRenderPass0->rpId_,
+		driver->Bind(imGuiPipeline0->id_,
 			{
 				transform2DResource0->id_,
 				textureResource0->id_
 			});
 		driver->DrawIndexed(imGuiDriverIndexBuffer0->size_ / sizeof(Common::UInt32));
 
-	}
+ 	}
 
 
 	void EndImGuiRenderPass::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0, const ImGuiRenderPass* imGuiRenderPass0,
@@ -316,18 +313,19 @@ namespace OksEngine
 
 		auto driver = renderDriver1->driver_;
 
-		std::vector<RAL::Color4b> texturePixels{
-			imGuiAtlasTexture0->pixels_.GetData(),
-			imGuiAtlasTexture0->pixels_.GetData() + imGuiAtlasTexture0->pixels_.GetSize() };
-
-		RAL::Texture::CreateInfo textureCreateInfo{
+		RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
 			.name_ = "",
-			.pixels_ = texturePixels,
+			.format_ = RAL::Driver::Texture::Format::BGRA_32_UNORM,
 			.size_ = {
 				imGuiAtlasTexture0->width_,
-				imGuiAtlasTexture0->height_ }
+				imGuiAtlasTexture0->height_ },
+			.targetState_ = RAL::Driver::Texture::State::DataForShaderRead,
+			.targetAccess_ = RAL::Driver::Texture::Access::ShaderRead,
+			.targetStages_ = { RAL::Driver::Pipeline::Stage::FragmentShader},
+			.usages_ = { RAL::Driver::Texture::Usage::Sampled },
+			.mipLevels_ = 1
 		};
-		RAL::Texture::Id textureId = driver->CreateDiffuseMap(textureCreateInfo);
+		RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
 
 		CreateComponent<ImGuiAtlasDriverTexture>(entity0id, textureId);
 
@@ -345,7 +343,7 @@ namespace OksEngine
 
 		RAL::Driver::ResourceSet::Binding textureBinding
 		{
-			.stage_ = RAL::Driver::Stage::FragmentShader,
+			.stage_ = RAL::Driver::Shader::Stage::FragmentShader,
 			.binding_ = 0,
 			.textureId_ = imGuiAtlasDriverTexture0->driverTextureId_
 		};

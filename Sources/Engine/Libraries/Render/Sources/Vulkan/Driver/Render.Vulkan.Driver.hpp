@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 
 #include <map>
 #include <utility>
@@ -40,6 +40,7 @@
 #include <Render.Vulkan.Driver.Sampler.hpp>
 #include <Render.Vulkan.Shape.hpp>
 
+#include <Render.RALToVulkan.hpp>
 
 namespace Render::Vulkan {
 
@@ -349,239 +350,16 @@ namespace Render::Vulkan {
 			std::shared_ptr<WindowSurface> windowSurface,
 			const Extensions& requiredExtensions) noexcept;
 
-		static VkCullModeFlags ToVulkanType(CullMode cullMode) {
-			switch (cullMode) {
-			case CullMode::None: {
-				return VkCullModeFlagBits::VK_CULL_MODE_NONE;
-				break;
-			}
-			case CullMode::Back: {
-				return VkCullModeFlagBits::VK_CULL_MODE_BACK_BIT;
-				break;
-			}
-			case CullMode::Front: {
-				return VkCullModeFlagBits::VK_CULL_MODE_FRONT_BIT;
-				break;
-			}
-			case CullMode::FrontAndBack: {
-				return VkCullModeFlagBits::VK_CULL_MODE_FRONT_AND_BACK;
-				break;
-			}
-			default:
-				OS::AssertFailMessage("Invalid CullMode value used.");
-				return VkCullModeFlagBits::VK_CULL_MODE_FLAG_BITS_MAX_ENUM;
-			};
-		}
-
-		static VkPrimitiveTopology ToVulkanType(TopologyType topologyType) {
-			switch (topologyType) {
-			case TopologyType::LineList: {
-				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
-				break;
-			}
-			case TopologyType::TriangleList: {
-				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
-				break;
-			}
-			default:
-				OS::AssertFailMessage("Invalid TopologyType value used.");
-				return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
-			};
-		}
-
-		static VkFrontFace ToVulkanType(FrontFace frontFace) {
-			switch (frontFace) {
-			case FrontFace::Clockwise: {
-				return VkFrontFace::VK_FRONT_FACE_CLOCKWISE;
-				break;
-			}
-			case FrontFace::CounterClockwise: {
-				return VkFrontFace::VK_FRONT_FACE_COUNTER_CLOCKWISE;
-				break;
-			}
-			default:
-				OS::AssertFailMessage("Invalid FrontFace value used.");
-				return VkFrontFace::VK_FRONT_FACE_MAX_ENUM;
-			};
-		}
-
-
-		static VkCompareOp ToVulkanType(DepthBuffer::CompareOperation co) {
-			switch (co) {
-			case DepthBuffer::CompareOperation::Less: {
-				return VkCompareOp::VK_COMPARE_OP_LESS;
-				break;
-			}
-			case DepthBuffer::CompareOperation::Always: {
-				return VkCompareOp::VK_COMPARE_OP_ALWAYS;
-				break;
-			}
-			default:
-				OS::AssertFailMessage("Invalid Depth buffer compare operation value used.");
-				return VkCompareOp::VK_COMPARE_OP_MAX_ENUM;
-			};
-		}
-
-		static VkDescriptorType ToVulkanType(ShaderBinding::Type bindingType) {
-			switch (bindingType) {
-			case ShaderBinding::Type::Sampler: {
-				return VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-				break;
-			}
-			case ShaderBinding::Type::Uniform: {
-				return VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-				break;
-			}
-			case ShaderBinding::Type::InputAttachment: {
-				return VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-				break;
-			}
-			default:
-				OS::AssertFailMessage("Invalid ShaderBinding::Type value used.");
-				return VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
-			};
-		}
-
-		//static VkDescriptorType ToVulkanType(RAL::Driver::Resource::Type bindingType) {
-		//	switch (bindingType) {
-		//	case RAL::Driver::Resource::Type::Sampler: {
-		//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		//		break;
-		//	}
-		//	case RAL::Driver::Resource::Type::Uniform: {
-		//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-		//		break;
-		//	}
-		//	case RAL::Driver::Resource::Type::InputAttachment: {
-		//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-		//		break;
-		//	}
-		//	default:
-		//		OS::AssertFailMessage("Invalid ShaderBinding::Type value used.");
-		//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
-		//	};
-		//}
-
-
-		static VkShaderStageFlagBits ToVulkanType(ShaderBinding::Stage stage) {
-			switch (stage) {
-			case ShaderBinding::Stage::VertexShader: {
-				return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
-				break;
-			}
-			case ShaderBinding::Stage::FragmentShader: {
-				return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
-				break;
-			}
-			default:
-				OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
-				return VkShaderStageFlagBits::VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
-			};
-		}
-
-		static VkShaderStageFlagBits ToVulkanType(Stage stage) {
-			switch (stage) {
-			case Stage::VertexShader: {
-				return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;
-				break;
-			}
-			case Stage::FragmentShader: {
-				return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
-				break;
-			}
-			default:
-				OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
-				return VkShaderStageFlagBits::VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
-			};
-		}
-
-
-		static VkAttachmentLoadOp ToVulkanType(RAL::Driver::RP::AttachmentUsage::LoadOperation loadOperation) {
-			switch (loadOperation) {
-			case RAL::Driver::RP::AttachmentUsage::LoadOperation::Load: {
-				return VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_LOAD;
-				break;
-			}
-			case RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear: {
-				return VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_CLEAR;
-				break;
-			}
-			case RAL::Driver::RP::AttachmentUsage::LoadOperation::Ignore: {
-				return VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-				break;
-			}
-			default:
-				OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
-				return VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_MAX_ENUM;
-			};
-		}
-
-		static VkAttachmentStoreOp ToVulkanType(RAL::Driver::RP::AttachmentUsage::StoreOperation storeOperation) {
-			switch (storeOperation) {
-			case RAL::Driver::RP::AttachmentUsage::StoreOperation::Store: {
-				return VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_STORE;
-				break;
-			}
-			case RAL::Driver::RP::AttachmentUsage::StoreOperation::DontStore: {
-				return VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_DONT_CARE;
-				break;
-			}
-			default:
-				OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
-				return VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_MAX_ENUM;
-			};
-		}
-
-		static VkFormat ToVulkanType(RAL::Driver::Format format) {
+		static Common::Size GetElementSize(VkFormat format) {
 			switch (format) {
-			case RAL::Driver::Format::RGBA_32: {
-				return VkFormat::VK_FORMAT_R8G8B8A8_UNORM;
-				break;
-			}
+			case VK_FORMAT_R8G8B8A8_UNORM:    return 4;  // 4 компоненты × 8 бит = 32 бита (4 байта)
+			case VK_FORMAT_B8G8R8A8_UNORM:    return 4;
+			case VK_FORMAT_D32_SFLOAT:        return 4;  // 32 бита (4 байта)
 			default:
-				OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
-				return VkFormat::VK_FORMAT_MAX_ENUM;
-			};
+				OS::NotImplemented();
+				return 0;
+			}
 		}
-
-		static VkImageLayout ToVulkanType(RAL::Driver::RP::AttachmentUsage::State state) {
-			switch (state) {
-			case RAL::Driver::RP::AttachmentUsage::State::DataIsUndefined: {
-				return VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
-				break;
-			}
-			case RAL::Driver::RP::AttachmentUsage::State::DataForAllOperations: {
-				return VkImageLayout::VK_IMAGE_LAYOUT_GENERAL;
-				break;
-			}
-			case RAL::Driver::RP::AttachmentUsage::State::DataForColorWrite: {
-				return VkImageLayout::VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-				break;
-			}
-			case RAL::Driver::RP::AttachmentUsage::State::DataForShaderRead: {
-				return VkImageLayout::VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-				break;
-			}
-			case RAL::Driver::RP::AttachmentUsage::State::DataForCopyingSource: {
-				return VkImageLayout::VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL;
-				break;
-			}
-			case RAL::Driver::RP::AttachmentUsage::State::DataForCopyingDestination: {
-				return VkImageLayout::VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL;
-				break;
-			}
-			case RAL::Driver::RP::AttachmentUsage::State::DataForPresentation: {
-				return VkImageLayout::VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-				break;
-			}
-			default:
-				OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
-				return  VkImageLayout::VK_IMAGE_LAYOUT_MAX_ENUM;
-			};
-		}
-
-
-
 
 		static VkVertexInputBindingDescription GetVertexBindingDescription(VertexType vertexType) {
 			switch (vertexType) {
@@ -888,22 +666,14 @@ namespace Render::Vulkan {
 		std::shared_ptr<ImageContext> image_ = nullptr;
 		std::shared_ptr<CommandBuffer> CB_ = nullptr;
 
-		virtual std::pair<Common::UInt32, Common::UInt32> GetSwapChainTextureSize() override {
-
-			const VkExtent2D extent = objects_.swapChain_->GetExtent();
-
-			return { extent.width, extent.height };
-
-		}
-
 		[[nodiscard]]
-		virtual std::shared_ptr<RAL::Shader> CreateShader(const RAL::Shader::CreateInfo& createInfo) const override {
+		virtual std::shared_ptr<RAL::Driver::Shader> CreateShader(const RAL::Driver::Shader::CreateInfo& createInfo) const override {
 
-			Shader::CreateInfo vulkanShaderCreateInfo{
+			Vulkan::Shader::CreateInfo vulkanShaderCreateInfo{
 				.ralCreateInfo_ = createInfo
 			};
 
-			return std::make_shared<Shader>(vulkanShaderCreateInfo);
+			return std::make_shared<Vulkan::Shader>(vulkanShaderCreateInfo);
 		}
 
 
@@ -963,11 +733,11 @@ namespace Render::Vulkan {
 				.descriptorSetLayouts_ = DSLs,
 				.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					objects_.LD_,
-					std::dynamic_pointer_cast<Shader>(pipelineCI.vertexShader_)->GetSpirv()
+					std::dynamic_pointer_cast<Vulkan::Shader>(pipelineCI.vertexShader_)->GetSpirv()
 					}),
 				.fragmentShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					createInfo.LD_,
-					std::dynamic_pointer_cast<Shader>(pipelineCI.fragmentShader_)->GetSpirv()
+					std::dynamic_pointer_cast<Vulkan::Shader>(pipelineCI.fragmentShader_)->GetSpirv()
 					}),
 				.depthTestInfo_ = depthTestData,
 				.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
@@ -1064,6 +834,7 @@ namespace Render::Vulkan {
 							});
 					}
 
+
 					std::vector<VkAttachmentReference> inputAttachmentRefs;
 					for (const auto& index : subpass.inputAttachments_) {
 						inputAttachmentRefs.push_back(VkAttachmentReference{
@@ -1081,7 +852,7 @@ namespace Render::Vulkan {
 						? (std::make_shared<VkAttachmentReference>(subpass.resolveAttachment_)) : (nullptr),
 						.depthStencilAttachment_
 						= (subpass.depthStencilAttachment_ != Common::Limits<Common::UInt32>::Max())
-						? (std::make_shared<VkAttachmentReference>(subpass.depthStencilAttachment_)) : (nullptr)
+						? (std::make_shared<VkAttachmentReference>(subpass.depthStencilAttachment_, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)) : (nullptr)
 					};
 					vkSubpasses.push_back(vkSubpass);
 				}
@@ -1112,9 +883,9 @@ namespace Render::Vulkan {
 
 		virtual RP::AttachmentSet::Id CreateAttachmentSet(const RP::AttachmentSet::CI& attachmentSetCI) override {
 
-			std::vector<std::shared_ptr<Texture>> textures;
+			std::vector<std::shared_ptr<Vulkan::Texture>> textures;
 
-			for (RAL::Texture::Id textureId : attachmentSetCI.textures_) {
+			for (RAL::Driver::Texture::Id textureId : attachmentSetCI.textures_) {
 				auto texture = GetTextureById(textureId);
 				textures.push_back(texture);
 			}
@@ -1359,13 +1130,13 @@ namespace Render::Vulkan {
 		}
 
 		virtual void SetScissor(
-			Common::UInt32 x,
-			Common::UInt32 y,
+			Common::Int32 x,
+			Common::Int32 y,
 			Common::UInt32 width,
 			Common::UInt32 height) override {
 
 			const VkRect2D scissor{
-				.offset = { 0, 0 },
+				.offset = { x, y },
 				.extent = { width, height }
 			};
 
@@ -1419,7 +1190,7 @@ namespace Render::Vulkan {
 			CB_->EndRenderPass();
 		}
 
-		virtual void Show(RAL::Texture::Id textureId) override {
+		virtual void Show(RAL::Driver::Texture::Id textureId) override {
 			//image_->
 
 			auto image = objects_.swapChain_->GetImages()[image_->index_];
@@ -1427,13 +1198,26 @@ namespace Render::Vulkan {
 
 			VkOffset3D srcOffset[2];
 			srcOffset[0] = { 0, 0, 0 };
-			srcOffset[1] = { (int)textureToShow->GetSize().x, (int)textureToShow->GetSize().y, 1 };
+			srcOffset[1] = { (int)textureToShow->GetWidth(), (int)textureToShow->GetHeight(), 1 };
 
 			VkOffset3D dstOffset[2];
 			dstOffset[0] = { 0, 0, 0 };
 			dstOffset[1] = { (int)objects_.swapChain_->GetExtent().width, (int)objects_.swapChain_->GetExtent().height, 1 };
 
+			CB_->ImageMemoryBarrier(
+				textureToShow->GetImage()->GetHandle(), 0, 1,
+				VK_IMAGE_ASPECT_COLOR_BIT,
+
+				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+				VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+
+				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+				VK_ACCESS_MEMORY_READ_BIT,
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+
 			CB_->ImageMemoryBarrier(image, 0, 1,
+				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_LAYOUT_UNDEFINED,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
@@ -1453,6 +1237,7 @@ namespace Render::Vulkan {
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
 			CB_->ImageMemoryBarrier(image, 0, 1,
+				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 				VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
 				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
@@ -1923,27 +1708,42 @@ namespace Render::Vulkan {
 		//INDEX BUFFER
 
 		[[nodiscard]]
-		virtual RAL::Texture::Id CreateDiffuseMap(const RAL::Texture::CreateInfo& createInfo) override {
+		virtual RAL::Driver::Texture::Id CreateTexture(const RAL::Driver::Texture::CreateInfo1& createInfo) override {
+
+			VkImageUsageFlags usages = 0;
+			for (RAL::Driver::Texture::Usage usage : createInfo.usages_) {
+				usages = usages | ToVulkanType(usage);
+			}
+
+			VkPipelineStageFlags stages = 0;
+			for (RAL::Driver::Pipeline::Stage stage : createInfo.targetStages_) {
+				stages = stages | ToVulkanType(stage);
+			}
 
 			Vulkan::Texture::CreateInfo1 textureCreateInfo{
-				.ralCreateInfo_ = createInfo,
+				.name_ = createInfo.name_,
+				.format_ = ToVulkanType(createInfo.format_),
+				.data_ = createInfo.data_,
+				.size_ = createInfo.size_,
+				.targetLayout_ = ToVulkanType(createInfo.targetState_),
+				.targetAccess_ = ToVulkanType(createInfo.targetAccess_),
+				.targetPipelineStage_ = stages,
+				.usages_ = usages,
+				.mipLevels_ = createInfo.mipLevels_,
 				.PD_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
-				.commandPool_ = objects_.commandPool_,
-				/*.DP_ = objects_.DP_,*/
-				.mipLevels_ = createInfo.mipLevels_,//static_cast<Common::UInt32>(std::floor(std::log2(std::max(createInfo.size_.x, createInfo.size_.y)))) + 1,
-				.format_ = VK_FORMAT_R8G8B8A8_UNORM
-
+				.commandPool_ = objects_.commandPool_
 			};
-			auto texture = std::make_shared<Texture>(std::move(textureCreateInfo));
+			auto texture = std::make_shared<Vulkan::Texture>(std::move(textureCreateInfo));
 
-			const RAL::Texture::Id textureId = textures_.size();
+			const RAL::Driver::Texture::Id textureId = textures_.size();
 			textures_[textureId] = texture;
 			return textureId;
 		}
 
+
 		[[nodiscard]]
-		virtual bool IsTextureExist(RAL::Texture::Id textureId) const noexcept {
+		virtual bool IsTextureExist(RAL::Driver::Texture::Id textureId) const noexcept {
 			return textures_.contains(textureId);
 		}
 
@@ -2017,47 +1817,6 @@ namespace Render::Vulkan {
 
 	public:
 
-		//virtual void StartDrawing() override {
-
-		//	const DrawingContext::CreateInfo dcci{
-		//		.LD_ = objects_.LD_,
-		//		.commandPool_ = objects_.commandPool_
-		//	};
-
-		//	contexts_.push_back(DrawingContext{ dcci });
-
-		//}
-
-
-		//virtual void EndDrawing()override {
-
-		//}
-
-		//struct Resource {
-		//	RAL::Driver::Res::CI ralci_;
-		//};
-
-		//virtual RAL::Driver::Res::Id CreateResource(const RAL::Driver::Res::CI& ci) override {
-		//	RAL::Driver::Res::Id resId = resourceIdsGenerator_.Generate();
-		//	
-		//	switch (ci.type_) {
-		//	case RAL::Driver::Res::Type::Sampler: {
-		//		resources_[resId] = Vulkan::Driver::Resource{ ci };
-		//		break;
-		//	}
-		//	case RAL::Driver::Res::Type::Uniform: {
-		//		resources_[resId] = Vulkan::Driver::Resource{ ci };
-		//		break;
-		//	}
-		//	default: {
-		//		OS::NotImplemented();
-		//	}
-		//	}
-
-		//	return resId;
-
-		//}
-
 		struct ResourceSet {
 			using Id = Common::Id;
 			struct CreateInfo {
@@ -2088,7 +1847,7 @@ namespace Render::Vulkan {
 				const RAL::Driver::ResourceSet::Binding& binding = ci.bindings_[i];
 
 
-				VkDescriptorType type;
+				VkDescriptorType type{};
 				if (!binding.ubid_.IsInvalid()) {
 					type = VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 				}
@@ -2097,7 +1856,7 @@ namespace Render::Vulkan {
 				}
 
 				VkDescriptorSetLayoutBinding inputAttachmentBinding{
-					binding.binding_,
+					static_cast<decltype(VkDescriptorSetLayoutBinding::binding)>(binding.binding_),
 					type,
 					1,
 					static_cast<VkFlags>(ToVulkanType(binding.stage_)),
@@ -2138,8 +1897,6 @@ namespace Render::Vulkan {
 					{
 						updateInfo.binding_ = binding.binding_;
 
-
-						VkDescriptorType type;
 						if (!binding.ubid_.IsInvalid()) {
 							updateInfo.type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 							auto& ubsPerFrame = UBs_[binding.ubid_];
@@ -2292,7 +2049,7 @@ namespace Render::Vulkan {
 	private:
 
 		[[nodiscard]]
-		std::shared_ptr<Texture> GetTextureById(RAL::Texture::Id id) noexcept {
+		std::shared_ptr<Vulkan::Texture> GetTextureById(RAL::Driver::Texture::Id id) noexcept {
 			return textures_[id];
 		}
 
@@ -2312,7 +2069,7 @@ namespace Render::Vulkan {
 
 		Objects objects_;
 
-		std::map<Common::Id, std::shared_ptr<Texture>> textures_;
+		std::map<Common::Id, std::shared_ptr<Vulkan::Texture>> textures_;
 		Common::IdGenerator texturesIdsGenerator_;
 
 		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::UniformBuffer>>> UBs_;
@@ -2411,9 +2168,9 @@ namespace Render::Vulkan {
 
 						VkDescriptorSetLayoutBinding inputAttachmentBinding{
 							0,
-							ToVulkanType(RAL::Driver::ShaderBinding::Type::Sampler),
+							ToVulkanType(RAL::Driver::Shader::Binding::Type::Sampler),
 							1,
-							static_cast<VkFlags>(ToVulkanType(RAL::Driver::ShaderBinding::Stage::FragmentShader)),
+							static_cast<VkFlags>(ToVulkanType(RAL::Driver::Shader::Stage::FragmentShader)),
 							nullptr
 						};
 
