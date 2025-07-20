@@ -20,7 +20,7 @@ namespace OksEngine
 		const Up3D* up3D0, 
 		const ZNear* zNear0, const ZFar* zFar0,
 		const Width* width0, const Height* height0,
-		UniformBuffer* uniformBuffer0,
+		DriverViewProjectionUniformBuffer* uniformBuffer0,
 
 
 		ECS2::Entity::Id entity1id,
@@ -67,5 +67,29 @@ namespace OksEngine
 
 
 	};
+
+	void CreateCameraTransformResource::Update(
+		ECS2::Entity::Id entity0id,
+		RenderDriver* renderDriver0,
+		
+		ECS2::Entity::Id entity1id,
+		const Camera* camera1, 
+		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1) {
+
+		RAL::Driver::ResourceSet::Binding transformUBBinding
+		{
+			.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+			.binding_ = 0,
+			.ubid_ = driverViewProjectionUniformBuffer1->id_,
+			.offset_ = 0,
+			.size_ = sizeof(ViewProjection)
+		};
+
+		RAL::Driver::Resource::Id resourceId = renderDriver0->driver_->CreateResource(transformUBBinding);
+
+		CreateComponent<CameraTransformResource>(entity1id, resourceId);
+
+	}
+
 
 } // namespace OksEngine

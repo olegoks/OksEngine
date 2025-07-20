@@ -40,6 +40,7 @@ namespace OksEngine
 		const EnginePerformanceWindow* enginePerformanceWindow0) {
 
 		CreateComponent<EnginePerformance>(entity0id);
+
 		CreateComponent<FPSPlotData>(entity0id);
 
 	}
@@ -72,6 +73,7 @@ namespace OksEngine
 		FPSPlotData* fPSPlotData2) {
 
 		fPSPlotData2->microsecondsFromEngineStart_.push_back(timeSinceEngineStart1->microseconds_);
+
 		if (fPSPlotData2->microsecondsFromEngineStart_.size() > 100) {
 			fPSPlotData2->microsecondsFromEngineStart_.clear();
 		}
@@ -120,37 +122,37 @@ namespace OksEngine
 		const EnginePerformance* enginePerformance0,
 		const FPSPlotData* fPSPlotData0) {
 
-		//const Common::UInt64 framesNumber = fPSPlotData0->microsecondsFromEngineStart_.size();
+		const Common::UInt64 framesNumber = fPSPlotData0->microsecondsFromEngineStart_.size();
 
-		//static std::vector<Common::UInt64> fpsPerFrame;
+		static std::vector<Common::UInt64> fpsPerFrame;
 
-		//fpsPerFrame.reserve(1000);
+		fpsPerFrame.reserve(1000);
 
-		//for (Common::UInt64 i = 0; i < fPSPlotData0->microsecondsFromEngineStart_.size(); i++) {
-		//	if (i == 0) {
-		//		fpsPerFrame.push_back(0);
-		//	}
-		//	else {
-		//		auto previousFrame = fPSPlotData0->microsecondsFromEngineStart_[i];
-		//		auto prePreviousFrame = fPSPlotData0->microsecondsFromEngineStart_[i - 1];
-		//		auto fps = 1000.f / ((float)(previousFrame - prePreviousFrame) / 1000.f);
-		//		fpsPerFrame.push_back(fps);
-		//	}
-		//}
+		for (Common::UInt64 i = 0; i < fPSPlotData0->microsecondsFromEngineStart_.size(); i++) {
+			if (i == 0) {
+				fpsPerFrame.push_back(0);
+			}
+			else {
+				auto previousFrame = fPSPlotData0->microsecondsFromEngineStart_[i];
+				auto prePreviousFrame = fPSPlotData0->microsecondsFromEngineStart_[i - 1];
+				auto fps = 1000.f / ((float)(previousFrame - prePreviousFrame) / 1000.f);
+				fpsPerFrame.push_back(fps);
+			}
+		}
 
 
-		//if (ImPlot::BeginPlot("My Plot")) {
-		//	ImPlot::PlotLine("Frame time",
-		//		fpsPerFrame.data(),
-		//		fpsPerFrame.size(), 1.f, 0.f);
-		//	//ImPlot::PlotBars("Frame time",
-		//	//	fPSPlotData0->microsecondsFromEngineStart_.data(),
-		//	//	fPSPlotData0->microsecondsFromEngineStart_.size(), 1.f, 0.f);
-		//	
-		//	ImPlot::EndPlot();
-		//}
+		if (ImPlot::BeginPlot("My Plot")) {
+			ImPlot::PlotLine("Frame time",
+				fpsPerFrame.data(),
+				fpsPerFrame.size(), 1.f, 0.f);
+			//ImPlot::PlotBars("Frame time",
+			//	fPSPlotData0->microsecondsFromEngineStart_.data(),
+			//	fPSPlotData0->microsecondsFromEngineStart_.size(), 1.f, 0.f);
+			
+			ImPlot::EndPlot();
+		}
 
-		//fpsPerFrame.clear();
+		fpsPerFrame.clear();
 
 
 	}

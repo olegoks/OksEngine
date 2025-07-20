@@ -152,6 +152,16 @@ namespace OksEngine {
 			GetId(),
 			x, y, z);
 	}
+	void Entity::AddZNear(float zNear) {
+		world_->CreateComponent<ZNear>(
+			GetId(),
+			zNear);
+	}
+	void Entity::AddZFar(float zFar) {
+		world_->CreateComponent<ZFar>(
+			GetId(),
+			zFar);
+	}
 
 	void Entity::AddUp3D(float x, float y, float z) {
 		world_->CreateComponent<Up3D>(

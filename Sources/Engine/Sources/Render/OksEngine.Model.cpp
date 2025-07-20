@@ -5,6 +5,8 @@
 #include <assimp/scene.h>
 #include <assimp/postprocess.h>
 
+#include <stb_image.h>
+
 namespace OksEngine
 {
 
@@ -146,6 +148,43 @@ namespace OksEngine
 				int meshIndex = node->mMeshes[i];
 				aiMesh* mesh = scene->mMeshes[meshIndex];
 
+				aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+				aiString aiTexturePath;
+				material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &aiTexturePath);
+
+				const aiTexture* texture = scene->GetEmbeddedTexture(aiTexturePath.C_Str());
+
+				Common::UInt32 textureWidth = texture->mWidth;
+				Common::UInt32 textureHeight = texture->mHeight;
+				if (textureHeight > 0) {
+					CreateComponent<TextureInfo>(entityId, aiTexturePath.C_Str());
+					CreateComponent<Texture>(
+						entityId, 
+						textureWidth, textureHeight,
+						std::vector<Geom::Color4b>{
+						(Geom::Color4b*)texture->pcData,
+						(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
+				}
+				else {
+					const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
+
+					int width, height, channels;
+					// Декодируем сжатые данные (PNG/JPEG)
+					unsigned char* pixels = stbi_load_from_memory(
+						compressed_data,
+						texture->mWidth,  // Размер данных в байтах
+						&width, &height, &channels,
+						STBI_rgb_alpha    // Формат на выходе: RGBA
+					);
+					CreateComponent<TextureInfo>(entityId, aiTexturePath.C_Str());
+					CreateComponent<Texture>(
+						entityId,
+						width, height,
+						std::vector<Geom::Color4b>{
+						(Geom::Color4b*)pixels,
+						(Geom::Color4b*)pixels + width * height});
+				}
+
 				vertices.Reserve(mesh->mNumVertices);
 				normals.Reserve(mesh->mNumVertices);
 				uvs.Reserve(mesh->mNumVertices);
@@ -208,50 +247,232 @@ namespace OksEngine
 			processChildrenNode(scene, childrenNode);
 		}
 
-		// Common::UInt64 previousMeshIndicesNumber = 0;
-		// for (unsigned i = 0; i < scene->mNumMeshes; i++) {
-
-		//     const aiMesh* aimesh = scene->mMeshes[i];
-		//     const auto materialPtr = scene->mMaterials[aimesh->mMaterialIndex];
-
-		//     const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
-		//     OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
-
-
-		//     //Process mesh only with texture.
-		//     if (texturesNumber != 1) continue;
-
-		//     aiString aiTexturePath;
-		//     const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
-		//     OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
-		//     std::string textureName = aiTexturePath.C_Str();
-		//     const Common::Index slashIndex = textureName.rfind('\\');
-		//     if (slashIndex != -1) {
-		//         textureName = textureName.substr(slashIndex + 1);
-		//     }
-		//     //If there is no mesh with this name create new
-		//     //Geom::Model2::Mesh& backedMesh = /*(foundBackedMesh != Common::Limits<Common::Index>::Max()) ? (backedMeshs[foundBackedMesh]) : (*/backedMeshs.emplace_back()/*)*/;
-
-		//     //Parse animation
-		//     //backedMesh.name_ = aimesh->mName.C_Str();
-
-
-		//     //backedMesh.mesh_.textureName_ = textureName;
-		//     //backedMesh.mesh_.vertices_.Reserve(aimesh->mNumVertices);
-		//     //backedMesh.mesh_.normals_.Reserve(aimesh->mNumVertices);
-		//     //backedMesh.mesh_.uvs_.Reserve(aimesh->mNumVertices);
-
-
-
-		//     //backedMesh.mesh_.indices_.AddNextMesh(startVerticesNumber, meshIndices);
-		// }
-
-		// //for (Geom::Model2::Mesh& mesh : backedMeshs) {
-		// //    model2.meshes_.push_back(std::move(mesh));
-		// //}
-
-		//// return model;
-
 	};
 
+
+	void CreateRenderPass::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
+
+
+		auto driver = renderDriver0->driver_;
+
+		std::vector<RAL::Driver::RP::AttachmentUsage> attachmentsUsage;
+		{
+			RAL::Driver::RP::AttachmentUsage depthTestAttachment{
+				.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
+				.initialState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
+				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
+				.finalState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite
+			};
+			attachmentsUsage.push_back(depthTestAttachment);
+
+			RAL::Driver::RP::AttachmentUsage GBufferAttachment{
+				.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
+				.initialState_ = RAL::Driver::Texture::State::DataIsUndefined,
+				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
+				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
+				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite
+			};
+			attachmentsUsage.push_back(GBufferAttachment);
+
+		}
+
+		std::vector<RAL::Driver::RP::Subpass> subpasses;
+		{
+			RAL::Driver::RP::Subpass subpass{
+				.colorAttachments_ = { 1 },
+				.depthStencilAttachment_ { 0 }// Index of attachment.
+			};
+			subpasses.push_back(subpass);
+		}
+
+		RAL::Driver::RP::CI rpCI{
+			.name_ = "RenderPass",
+			.attachments_ = attachmentsUsage,
+			.subpasses_ = subpasses
+		};
+
+		const RAL::Driver::RP::Id renderPassId = driver->CreateRenderPass(rpCI);
+
+		//DEPTH BUFFER
+		RAL::Driver::Texture::CreateInfo1 depthBufferCreateInfo{
+			.name_ = "Depth buffer",
+			.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
+			.size_ = { 2560, 1440 },
+			.targetState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+			.targetAccess_ = RAL::Driver::Texture::Access::DepthStencilWrite,
+			.targetStages_ = { RAL::Driver::Pipeline::Stage::EarlyFragmentTests, RAL::Driver::Pipeline::Stage::LateFragmentTests },
+			.usages_ = { RAL::Driver::Texture::Usage::DepthStencilAttachment },
+			.mipLevels_ = 1
+		};
+		const RAL::Driver::Texture::Id depthBufferId = driver->CreateTexture(depthBufferCreateInfo);
+
+		//RENDER BUFFER
+		RAL::Driver::Texture::CreateInfo1 renderBufferCreateInfo{
+			.name_ = "Render buffer",
+			.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
+			.size_ = { 2560, 1440 },
+			.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
+			.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
+			.targetStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
+			.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment, RAL::Driver::Texture::Usage::TransferSource },
+			.mipLevels_ = 1
+		};
+		const RAL::Driver::Texture::Id renderBufferId = driver->CreateTexture(renderBufferCreateInfo);
+
+
+		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
+			.rpId_ = renderPassId,
+			.textures_ = { depthBufferId, renderBufferId },
+			.size_ = glm::u32vec2{ 2560, 1440 }
+		};
+
+		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = driver->CreateAttachmentSet(attachmentSetCI);
+
+		CreateComponent<RenderPass>(entity0id,
+			renderPassId,
+			rpAttachmentsSetId,
+			std::vector<Common::Id>{ depthBufferId, renderBufferId });
+
+
+	}
+
+
+	void CreatePipeline::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0, const RenderPass* renderPass0,
+		ECS2::Entity::Id entity1id, const ResourceSystem* resourceSystem1) {
+
+		Resources::ResourceData vertexTextureShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.vert");
+		Resources::ResourceData fragmentTextureShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.frag");
+
+		std::string vertexShaderCode{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
+		std::string fragmentShaderCode{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
+
+
+		RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
+			.name_ = "TexturedVertexShader",
+			.type_ = RAL::Driver::Shader::Type::Vertex,
+			.code_ = vertexShaderCode
+		};
+		auto vertexShader = renderDriver0->driver_->CreateShader(vertexShaderCreateInfo);
+
+		RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
+			.name_ = "TexturedFragmentShader",
+			.type_ = RAL::Driver::Shader::Type::Fragment,
+			.code_ = fragmentShaderCode
+		};
+		auto fragmentShader = renderDriver0->driver_->CreateShader(fragmentShaderCreateInfo);
+
+		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
+
+		RAL::Driver::Shader::Binding::Layout cameraBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+			.stage_ = RAL::Driver::Shader::Stage::VertexShader
+		};
+
+		RAL::Driver::Shader::Binding::Layout transformBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+			.stage_ = RAL::Driver::Shader::Stage::VertexShader
+		};
+
+		RAL::Driver::Shader::Binding::Layout samplerBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+			.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+		};
+
+		shaderBindings.push_back(cameraBinding);
+		shaderBindings.push_back(transformBinding);
+		shaderBindings.push_back(samplerBinding);
+
+		RAL::Driver::Pipeline::CI pipelineCI{
+			.name_ = "Textured Pipeline",
+			.renderPassId_ = renderPass0->rpId_,
+			.vertexShader_ = vertexShader,
+			.fragmentShader_ = fragmentShader,
+			.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
+			.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2,
+			.indexType_ = RAL::Driver::IndexType::UI16,
+			.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
+			.cullMode_ = RAL::Driver::CullMode::Back,
+			.shaderBindings_ = shaderBindings,
+			.enableDepthTest_ = true,
+			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less
+
+		};
+
+		const RAL::Driver::Pipeline::Id pipelineId = renderDriver0->driver_->CreatePipeline(pipelineCI);
+
+		CreateComponent<Pipeline>(entity0id, pipelineId);
+
+	}
+
+
+
+	void BeginRenderPass::Update(
+		ECS2::Entity::Id entity0id,
+		RenderDriver* renderDriver0,
+		const RenderPass* renderPass0,
+		const Pipeline* pipeline0) {
+
+		renderDriver0->driver_->BeginRenderPass(
+			renderPass0->rpId_, 
+			renderPass0->attachmentsSetId_,
+			{ 0, 0 },
+			{ 2560, 1440 });
+
+	}
+
+	void AddModelToRender::Update(
+		ECS2::Entity::Id entity0id, 
+		const Camera* camera0,
+		const Active* active0,
+		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer0,
+		const CameraTransformResource* cameraTransformResource0,
+		
+		ECS2::Entity::Id entity1id,
+		const Model* model1, 
+		const Transform3DResource* transform3DResource1, 
+		const Indices* indices1,
+		const DriverIndexBuffer* driverIndexBuffer1, 
+		const DriverVertexBuffer* driverVertexBuffer1,
+		const TextureResource* textureResource1,
+		
+		ECS2::Entity::Id entity2id, 
+		RenderDriver* renderDriver2,
+		const RenderPass* renderPass2,
+		const Pipeline* pipeline2) {
+
+
+		auto driver = renderDriver2->driver_;
+
+		driver->SetViewport(0, 0, 2560, 1440);
+		driver->SetScissor(0, 0, 2560, 1440);
+		driver->BindPipeline(pipeline2->id_);
+		driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
+		driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
+
+		driver->Bind(pipeline2->id_,
+			{
+				cameraTransformResource0->id_,
+				transform3DResource1->id_,
+				textureResource1->id_
+			});
+		driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
+
+
+	}
+
+	void EndRenderPass::Update(ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const RenderPass* renderPass0,
+		const Pipeline* pipeline0) {
+
+		auto driver = renderDriver0->driver_;
+
+		driver->EndSubpass();
+		driver->EndRenderPass();
+
+		driver->Show(renderPass0->textureIds_[1]);
+
+	}
 }

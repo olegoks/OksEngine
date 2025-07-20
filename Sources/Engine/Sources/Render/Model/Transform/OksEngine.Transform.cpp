@@ -68,6 +68,31 @@ namespace OksEngine
 
 	};
 
+	void CreateTransform3DResource::Update(
+		ECS2::Entity::Id entity0id, 
+		const DriverTransform3D* driverTransform3D0,
+		
+		ECS2::Entity::Id entity1id,
+		RenderDriver* renderDriver1) {
+
+
+		auto driver = renderDriver1->driver_;
+
+		const RAL::Driver::Resource::CI2 rci{
+			.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+			.binding_ = 0,
+			.ubid_ = driverTransform3D0->id_,
+			.offset_ = 0,
+			.size_ = driver->GetUBSizeInBytes(driverTransform3D0->id_)
+		};
+
+		const RAL::Driver::Resource::Id rid = driver->CreateResource(rci);
+
+		CreateComponent<Transform3DResource>(entity0id, rid);
+
+
+	};
+
 	void CreateTransform2DResource::Update(ECS2::Entity::Id entity0id, const DriverTransform2D* driverTransform2D0,
 		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 

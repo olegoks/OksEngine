@@ -147,6 +147,10 @@ namespace Render::Vulkan {
 					"Error while waitting for queue idle.");
 			}
 
+			~FrameContext() {
+
+			}
+
 		};
 
 		virtual void FrameBufferResize(glm::u32vec2 newSize) override {
@@ -157,6 +161,7 @@ namespace Render::Vulkan {
 			objects_.imageContexts_.clear();
 			objects_.swapChain_.reset();
 			objects_.frameContexts_.clear();
+			currentFrame_.reset();
 			//objects_.depthTestData_.reset();
 			//objects_.multisamplingData_.reset();
 

@@ -24,12 +24,18 @@ namespace OksEngine {
 
 		RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
 			.name_ = textureInfo->GetName(),
+			.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
 			.data_ = std::vector<Common::Byte>{
-				(Common::Byte*)texture->pixels_.GetData(),
-				(Common::Byte*)(texture->pixels_.GetData() + texture->pixels_.GetSize() * RAL::Driver::Texture::GetElementSize(RAL::Driver::Texture::Format::RGBA_32_UNORM)) },
+				(Common::Byte*)texture->pixels_.data(),
+				(Common::Byte*)(texture->pixels_.data() + texture->pixels_.size() /** RAL::Driver::Texture::GetElementSize(RAL::Driver::Texture::Format::RGBA_32_UNORM)*/) },
 			.size_ = { texture->width_, texture->height_ },
 			.targetState_ = RAL::Driver::Texture::State::DataForShaderRead,
-			.usages_ = { RAL::Driver::Texture::Usage::TransferDestination, RAL::Driver::Texture::Usage::Sampled },
+			.targetAccess_ = RAL::Driver::Texture::Access::ShaderRead,
+			.targetStages_ = { RAL::Driver::Pipeline::Stage::FragmentShader },
+			.usages_ = { 
+				RAL::Driver::Texture::Usage::TransferDestination,	// To copy texture data to GPU.
+				RAL::Driver::Texture::Usage::TransferSource,		// To generate mipmaps.
+				RAL::Driver::Texture::Usage::Sampled },				// Sampler for shader.
 #undef max
 			.mipLevels_ = static_cast<Common::UInt32>(std::floor(std::log2(std::max(texture->width_, texture->height_)))) + 1,
 		};

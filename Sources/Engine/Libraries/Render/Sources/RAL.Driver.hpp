@@ -319,6 +319,7 @@ namespace RAL {
 				case Format::D_32_SFLOAT:      return 4;  // 32 бита (4 байта)
 				default:
 					OS::NotImplemented();
+					return 0;
 				}
 			}
 
