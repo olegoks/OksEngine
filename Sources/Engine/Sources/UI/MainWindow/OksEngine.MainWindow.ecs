@@ -24,7 +24,7 @@ CreateMainWindowSystem = {
             createsComponents = {
                 "MainWindow",
                 "KeyboardInput",
-                "FrameBufferResizeEvents"
+                "MainWindowResizeEvent"
             }
         }
     }
@@ -47,7 +47,7 @@ ProcessInputSystem = {
 }
 
 
-FrameBufferResizeEventsComponent = {
+MainWindowResizeEventComponent = {
     serializable = false,
     fields = { 
         { type = "std::queue<UIAL::Window::FrameBufferResizeEvent>", name = "events" }
@@ -65,7 +65,25 @@ GetWindowResizeEventsSystem = {
             {
                 processesComponents = {
                     "MainWindow",
-                    { name = "FrameBufferResizeEvents", readonly = false }
+                    { name = "MainWindowResizeEvent", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+ClearWindowResizeEventsSystem = {
+    callOrder = {
+        runAfter = {
+            "EndRender"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    { name = "MainWindowResizeEvent", readonly = false }
                 }
             }
         }

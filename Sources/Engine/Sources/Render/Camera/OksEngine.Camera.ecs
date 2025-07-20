@@ -47,6 +47,38 @@ CreateCameraTransformDriverUniformBufferSystem = {
         }
     }
     }
+}
+
+CameraTransformResourceComponent = {
+        serializable = false,
+    fields = {
+        { type = "RAL::Driver::ResourceSet::Id", name = "id" }
+    }
+}
+
+CreateCameraTransformResourceSystem = {
+
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    "Camera",
+                    "DriverViewProjectionUniformBuffer"
+                },
+                excludes = {
+                    "CameraTransformResource"
+                },
+                createsComponents = {
+                    "CameraTransformResource"
+                }
+            }
+        }
+    }
 
 }
 
@@ -63,7 +95,7 @@ UpdateCameraTransformUniformBufferSystem = {
                 "ZFar",
                 "Width",
                 "Height",
-                { name = "UniformBuffer", readonly = false } },
+                { name = "DriverViewProjectionUniformBuffer", readonly = false } },
         },
         {
             processesComponents = { 

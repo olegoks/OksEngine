@@ -3,8 +3,8 @@
 
 namespace OksEngine
 {
-	#undef CreateWindow
-	
+#undef CreateWindow
+
 	void CreateMainWindow::Update(ECS2::Entity::Id entity0id, const Config* config0, const LuaScript* luaScript0) {
 
 
@@ -28,7 +28,7 @@ namespace OksEngine
 
 		CreateComponent<MainWindow>(mainWindowEntity, window);
 		CreateComponent<KeyboardInput>(mainWindowEntity);
-		CreateComponent<FrameBufferResizeEvents>(mainWindowEntity);
+		CreateComponent<MainWindowResizeEvent>(mainWindowEntity);
 
 	};
 
@@ -41,12 +41,22 @@ namespace OksEngine
 	void GetWindowResizeEvents::Update(
 		ECS2::Entity::Id entity0id,
 		const MainWindow* mainWindow0,
-		FrameBufferResizeEvents* frameBufferResizeEvents0) {
+		MainWindowResizeEvent* frameBufferResizeEvents0) {
 
 		std::optional<UIAL::Window::FrameBufferResizeEvent> maybeEvent = mainWindow0->window_->GetFrameBufferResizeEvent();
 		if (maybeEvent.has_value()) {
 			frameBufferResizeEvents0->events_.push(maybeEvent.value());
 		}
+	}
+
+	void ClearWindowResizeEvents::Update(ECS2::Entity::Id entity0id, const MainWindow* mainWindow0,
+		MainWindowResizeEvent* mainWindowResizeEvent0) {
+
+		while (!mainWindowResizeEvent0->events_.empty()) {
+			mainWindowResizeEvent0->events_.pop();
+		}
+		
+		
 	}
 
 } // namespace OksEngine

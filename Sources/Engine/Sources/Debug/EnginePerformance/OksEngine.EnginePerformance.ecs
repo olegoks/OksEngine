@@ -100,9 +100,7 @@ BeginEnginePerformanceWindowSystem = {
 FPSPlotDataComponent = {
     serializable = false,
     fields = {
-        { type = "std::vector<Common::UInt64>", name = "frame" },
-        { type = "std::vector<Common::UInt64>", name = "microsecondsFromEngineStart" },
-        { type = "std::vector<Common::UInt64>", name = "z" }
+        { type = "std::vector<Common::UInt64>", name = "microsecondsFromEngineStart" }
     }
 }
 

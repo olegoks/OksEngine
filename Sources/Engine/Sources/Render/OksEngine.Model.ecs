@@ -26,7 +26,9 @@ CreateModelSystem = {
                     "Vertices3D",
                     "Indices",
                     "Normals",
-                    "UVs"
+                    "UVs",
+                    "TextureInfo",
+                    "Texture"
                 }
             },
             {
@@ -45,3 +47,151 @@ CreateModelSystem = {
         }
     }
 }
+
+
+RenderPassComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "rpId" },
+        { type = "Common::Id", name = "attachmentsSetId" }, -- Synonym of VkFramebuffer
+        { type = "std::vector<Common::Id>", name = "textureIds" }
+    }
+}
+
+CreateRenderPassSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateRenderDriver"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver"
+                },
+                excludes = {
+                    "RenderPass"
+                },
+                createsComponents = {
+                    "RenderPass"
+                }
+            }
+        }
+    }
+}
+
+
+PipelineComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "id" }
+    }
+}
+
+CreatePipelineSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateRenderDriver",
+            "CreateResourceSystem",
+            "ConfigureResourceSystem",
+            "CreateRenderPass"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver",
+                    "RenderPass"
+                },
+                excludes = {
+                    "Pipeline"
+                },
+                createsComponents = {
+                    "Pipeline"
+                }
+            },
+            {
+                processesComponents = {
+                    "ResourceSystem"
+                }
+            }
+        }
+    }
+}
+
+
+BeginRenderPassSystem = {
+    callOrder = {
+        runAfter = { "StartRender" },
+        runBefore = { "AddModelToRender" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false},
+                    "RenderPass",
+                    "Pipeline"
+                }
+            }
+        }
+    }
+}
+
+AddModelToRenderSystem = {
+    callOrder = {
+        runAfter = "BeginRenderPass",
+        runBefore = "EndRenderPass"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "Camera",
+                    "Active",
+                    "DriverViewProjectionUniformBuffer",
+                    "CameraTransformResource"
+                }
+            },
+            {
+                processesComponents = {
+                    "Model",
+                    "Transform3DResource",
+                    "Indices",
+                    "DriverIndexBuffer",
+                    "DriverVertexBuffer",
+                    "TextureResource"
+                }
+            },
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false},
+                    "RenderPass",
+                    "Pipeline"
+                }
+            }
+        }
+    }
+}
+
+EndRenderPassSystem = {
+    callOrder = {
+        runBefore = { "BeginImGuiRenderPass" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false },
+                    "RenderPass",
+                    "Pipeline"
+                }
+            }
+        }
+    }
+}
+

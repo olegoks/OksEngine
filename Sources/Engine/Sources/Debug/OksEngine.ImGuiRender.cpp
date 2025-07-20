@@ -114,7 +114,7 @@ namespace OksEngine
 		RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
 			.name_ = "ImGui render buffer",
 			.format_ = RAL::Driver::Texture::Format::BGRA_32_UNORM,
-			.size_ = { 1920, 1080 },
+			.size_ = { 2560, 1440 },
 			.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
 			.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
 			.targetStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
@@ -127,7 +127,7 @@ namespace OksEngine
 		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
 			.rpId_ = renderPassId,
 			.textures_ = { textureId },
-			.size_ = glm::u32vec2{ 1920, 1080 }
+			.size_ = glm::u32vec2{ 2560, 1440 }
 		};
 
 		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = driver->CreateAttachmentSet(attachmentSetCI);
@@ -143,10 +143,10 @@ namespace OksEngine
 	void BeginImGuiRenderPass::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0, const ImGuiRenderPass* imGuiRenderPass0,
 		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
-		auto driver = renderDriver1->driver_;
+		//auto driver = renderDriver1->driver_;
 
-		driver->BeginRenderPass(imGuiRenderPass0->rpId_, imGuiRenderPass0->attachmentsSetId_, { 0, 0 }, { 1920, 1080 });
-		driver->BeginSubpass();
+		//driver->BeginRenderPass(imGuiRenderPass0->rpId_, imGuiRenderPass0->attachmentsSetId_, { 0, 0 }, { 2560, 1440 });
+		//driver->BeginSubpass();
 
 	}
 
@@ -165,19 +165,19 @@ namespace OksEngine
 		ECS2::Entity::Id entity1id,
 		RenderDriver* renderDriver1) {
 
-		auto driver = renderDriver1->driver_;
+		//auto driver = renderDriver1->driver_;
 
-		driver->SetViewport(0, 0, 1920, 1080);
-		driver->SetScissor(0, 0, 1920, 1080);
-		driver->BindPipeline(imGuiPipeline0->id_);
-		driver->BindVertexBuffer(imGuiDriverVertexBuffer0->id_, 0);
-		driver->BindIndexBuffer(imGuiDriverIndexBuffer0->id_, 0);
-		driver->Bind(imGuiPipeline0->id_,
-			{
-				transform2DResource0->id_,
-				textureResource0->id_
-			});
-		driver->DrawIndexed(imGuiDriverIndexBuffer0->size_ / sizeof(Common::UInt32));
+		//driver->SetViewport(0, 0, 2560, 1440);
+		//driver->SetScissor(0, 0, 2560, 1440);
+		//driver->BindPipeline(imGuiPipeline0->id_);
+		//driver->BindVertexBuffer(imGuiDriverVertexBuffer0->id_, 0);
+		//driver->BindIndexBuffer(imGuiDriverIndexBuffer0->id_, 0);
+		//driver->Bind(imGuiPipeline0->id_,
+		//	{
+		//		transform2DResource0->id_,
+		//		textureResource0->id_
+		//	});
+		//driver->DrawIndexed(imGuiDriverIndexBuffer0->size_ / sizeof(Common::UInt32));
 
  	}
 
@@ -185,12 +185,12 @@ namespace OksEngine
 	void EndImGuiRenderPass::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0, const ImGuiRenderPass* imGuiRenderPass0,
 		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
-		auto driver = renderDriver1->driver_;
+		//auto driver = renderDriver1->driver_;
 
-		driver->EndSubpass();
-		driver->EndRenderPass();
+		//driver->EndSubpass();
+		//driver->EndRenderPass();
 
-		driver->Show(imGuiRenderPass0->textureIds_[0]);
+		//driver->Show(imGuiRenderPass0->textureIds_[0]);
 
 	}
 

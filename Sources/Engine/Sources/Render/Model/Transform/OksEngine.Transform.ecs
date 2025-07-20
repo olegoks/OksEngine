@@ -99,6 +99,30 @@ CreateDriverTransform3DSystem = {
     }
 }
 
+Transform3DResourceComponent = {
+    serializable = false,
+    fields = { { type="RAL::Driver::ResourceSet::Id", name="id" } }
+}
+
+CreateTransform3DResourceSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "DriverTransform3D"
+                },
+	            excludes = { "Transform3DResource" },
+                createsComponents = { "Transform3DResource" }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false }
+                }
+            }
+        }
+    }
+}
+
 UpdateDriverTransform3DSystem = {
     updateMethod = {
     processesEntities = {

@@ -43,6 +43,10 @@ namespace OksEngine {
 
 		void AddHeight(Common::Size height);
 
+		void AddZNear(float zNear);
+
+		void AddZFar(float zFar);
+
 		void AddActive();
 
 		void AddClock();
