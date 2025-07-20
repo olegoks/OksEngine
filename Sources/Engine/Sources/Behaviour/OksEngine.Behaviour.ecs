@@ -4,3 +4,33 @@ BehaviourComponent = {
         { type = "std::string", name = "objectName" }
      }
 }
+
+CallInputProcessorSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Behaviour", 
+                    { name = "LuaContext", readonly = false }, 
+                    { name = "KeyboardInput", readonly = false }, 
+                    { name = "MouseInput", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+CallUpdateMethodSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Behaviour", 
+                    { name = "LuaContext", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+

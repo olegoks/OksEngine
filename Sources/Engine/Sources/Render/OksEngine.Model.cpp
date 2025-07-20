@@ -139,76 +139,82 @@ namespace OksEngine
 
 		auto createMeshComponents = [this](const aiScene* scene, aiNode* node, ECS2::Entity::Id entityId) {
 
-			Geom::VertexCloud<Geom::Vertex3f>   vertices;
-			DS::Vector<Geom::Normal3f>	        normals;
-			//DS::Vector<Geom::Color4b>		    colors;
-			DS::Vector<Geom::UV2f>		        uvs;
-			Geom::IndexBuffer<Geom::Index16>	indices;
+			if (node->mNumMeshes > 0) {
+				Geom::VertexCloud<Geom::Vertex3f>   vertices;
+				DS::Vector<Geom::Normal3f>	        normals;
+				//DS::Vector<Geom::Color4b>		    colors;
+				DS::Vector<Geom::UV2f>		        uvs;
+				Geom::IndexBuffer<Geom::Index16>	indices;
 
-			for (Common::Index i = 0; i < node->mNumMeshes; i++) {
-				int meshIndex = node->mMeshes[i];
-				aiMesh* mesh = scene->mMeshes[meshIndex];
+				for (Common::Index i = 0; i < node->mNumMeshes; i++) {
+					int meshIndex = node->mMeshes[i];
+					aiMesh* mesh = scene->mMeshes[meshIndex];
 
-				aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-				aiString aiTexturePath;
-				material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &aiTexturePath);
+					aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+					aiString aiTexturePath;
+					material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &aiTexturePath);
 
-				const aiTexture* texture = scene->GetEmbeddedTexture(aiTexturePath.C_Str());
+					const aiTexture* texture = scene->GetEmbeddedTexture(aiTexturePath.C_Str());
 
-				Common::UInt32 textureWidth = texture->mWidth;
-				Common::UInt32 textureHeight = texture->mHeight;
-				if (textureHeight > 0) {
-					CreateComponent<TextureInfo>(entityId, aiTexturePath.C_Str());
-					CreateComponent<Texture>(
-						entityId, 
-						textureWidth, textureHeight,
-						std::vector<Geom::Color4b>{
-						(Geom::Color4b*)texture->pcData,
-						(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
-				}
-				else {
-					const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
+					Common::UInt32 textureWidth = texture->mWidth;
+					Common::UInt32 textureHeight = texture->mHeight;
+					if (textureHeight > 0) {
+						CreateComponent<TextureInfo>(entityId, aiTexturePath.C_Str());
+						CreateComponent<Texture>(
+							entityId,
+							textureWidth, textureHeight,
+							std::vector<Geom::Color4b>{
+							(Geom::Color4b*)texture->pcData,
+								(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
+					}
+					else {
+						const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
 
-					int width, height, channels;
-					// Декодируем сжатые данные (PNG/JPEG)
-					unsigned char* pixels = stbi_load_from_memory(
-						compressed_data,
-						texture->mWidth,  // Размер данных в байтах
-						&width, &height, &channels,
-						STBI_rgb_alpha    // Формат на выходе: RGBA
-					);
-					CreateComponent<TextureInfo>(entityId, aiTexturePath.C_Str());
-					CreateComponent<Texture>(
-						entityId,
-						width, height,
-						std::vector<Geom::Color4b>{
-						(Geom::Color4b*)pixels,
-						(Geom::Color4b*)pixels + width * height});
-				}
+						int width, height, channels;
+						// Декодируем сжатые данные (PNG/JPEG)
+						unsigned char* pixels = stbi_load_from_memory(
+							compressed_data,
+							texture->mWidth,  // Размер данных в байтах
+							&width, &height, &channels,
+							STBI_rgb_alpha    // Формат на выходе: RGBA
+						);
+						CreateComponent<TextureInfo>(entityId, aiTexturePath.C_Str());
+						CreateComponent<Texture>(
+							entityId,
+							width, height,
+							std::vector<Geom::Color4b>{
+							(Geom::Color4b*)pixels,
+								(Geom::Color4b*)pixels + width * height});
+					}
 
-				vertices.Reserve(mesh->mNumVertices);
-				normals.Reserve(mesh->mNumVertices);
-				uvs.Reserve(mesh->mNumVertices);
-				for (unsigned j = 0; j < mesh->mNumVertices; j++) {
-					vertices.Add(Geometry::Vertex3f{ mesh->mVertices[j].x,
-														mesh->mVertices[j].y,
-														mesh->mVertices[j].z });
-					normals.PushBack(Geom::Normal3f{ mesh->mVertices[j].x,
+					vertices.Reserve(mesh->mNumVertices);
+					normals.Reserve(mesh->mNumVertices);
+					uvs.Reserve(mesh->mNumVertices);
+					for (unsigned j = 0; j < mesh->mNumVertices; j++) {
+						vertices.Add(Geometry::Vertex3f{ mesh->mVertices[j].x,
 															mesh->mVertices[j].y,
 															mesh->mVertices[j].z });
-					uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x,
-													mesh->mTextureCoords[0][j].y });
+						normals.PushBack(Geom::Normal3f{ mesh->mVertices[j].x,
+																mesh->mVertices[j].y,
+																mesh->mVertices[j].z });
+						uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x,
+														mesh->mTextureCoords[0][j].y });
 
+					}
+
+					indices.Reserve(mesh->mNumFaces * 3);
+					for (unsigned j = 0; j < mesh->mNumFaces; j++) {
+						indices.Add(mesh->mFaces[j].mIndices[0]);
+						indices.Add(mesh->mFaces[j].mIndices[1]);
+						indices.Add(mesh->mFaces[j].mIndices[2]);
+					}
 				}
 
-				indices.Reserve(mesh->mNumFaces * 3);
-				for (unsigned j = 0; j < mesh->mNumFaces; j++) {
-					indices.Add(mesh->mFaces[j].mIndices[0]);
-					indices.Add(mesh->mFaces[j].mIndices[1]);
-					indices.Add(mesh->mFaces[j].mIndices[2]);
-				}
+				CreateComponent<Vertices3D>(entityId, vertices);
+				CreateComponent<Normals>(entityId, normals);
+				CreateComponent<UVs>(entityId, uvs);
+				CreateComponent<Indices>(entityId, indices);
 			}
-
 			glm::mat4 transform{ aiMatrix4x4ToGlm(node->mTransformation) };
 			glm::vec3 translation{};
 			glm::quat rotation;
@@ -220,10 +226,6 @@ namespace OksEngine
 			CreateComponent<Position3D>(entityId, translation.x, translation.y, translation.z);
 			CreateComponent<Rotation3D>(entityId, rotation.w, rotation.x, rotation.y, rotation.z);
 
-			CreateComponent<Vertices3D>(entityId, vertices);
-			CreateComponent<Normals>(entityId, normals);
-			CreateComponent<UVs>(entityId, uvs);
-			CreateComponent<Indices>(entityId, indices);
 
 			};
 
@@ -433,7 +435,6 @@ namespace OksEngine
 		const CameraTransformResource* cameraTransformResource0,
 		
 		ECS2::Entity::Id entity1id,
-		const Model* model1, 
 		const Transform3DResource* transform3DResource1, 
 		const Indices* indices1,
 		const DriverIndexBuffer* driverIndexBuffer1, 
