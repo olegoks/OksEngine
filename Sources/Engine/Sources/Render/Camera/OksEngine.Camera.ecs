@@ -1,9 +1,4 @@
-CameraComponent = {
-    fields = { 
-        { type = "float", name = "zNear" },
-        { type = "float", name = "zFar"},
-        { type = "bool", name = "isActive"} }
-}
+CameraComponent = { }
 
 DriverCameraComponent = {
     serializable = false,
@@ -23,6 +18,16 @@ ZNearComponent = {
         { type = "float", name = "value" }
 		 }
 }
+
+Up3DComponent = {
+    fields = { 
+        { type = "float", name = "x" },
+        { type = "float", name = "y" },
+        { type = "float", name = "z" },
+     }
+}
+        
+       
 
 DriverViewProjectionUniformBufferComponent = {
     serializable = false,
