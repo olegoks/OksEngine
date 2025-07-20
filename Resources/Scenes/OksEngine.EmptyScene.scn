@@ -5,13 +5,13 @@ scene = {
 		    name = {value ="gltf model" },
             --position3D = { x = 0.0, y = 0.0, z = 0.0},
 		    model = { },
-		    modelFile = { fileName = "Electricians-plier_by_get3dmodels.glb" }
+		    modelFile = { fileName = "rainier_ak_-_3d.glb" }
         },
         {
             ID = 1,
             camera = { },
             name = { value = "Camera" },
-            position3D = { x = 0.5, y = 0.5, z = 0 },
+            position3D = { x = -3, y = 0.5, z = 0 },
             rotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
             scale3D = { x = 1.0, y = 1.0, z = 1.0 },
             zFar = { value = 1000.0 },

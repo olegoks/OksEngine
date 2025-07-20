@@ -159,7 +159,6 @@ AddModelToRenderSystem = {
             },
             {
                 processesComponents = {
-                    "Model",
                     "Transform3DResource",
                     "Indices",
                     "DriverIndexBuffer",
