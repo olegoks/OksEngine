@@ -13,6 +13,8 @@ CreateImGuiRenderPassSystem = {
     callOrder = {
         runAfter = {
             "CreateImGuiState",
+            "CreateRenderPass",
+            "CreatePipeline",
             "CreateRenderDriver"
         }
     },
@@ -31,7 +33,9 @@ CreateImGuiRenderPassSystem = {
             },
             {
                 processesComponents = {
-                    "RenderDriver"
+                    "RenderDriver",
+                    "RenderPass",
+                    "Pipeline"
                 }
             }
         }
