@@ -120,7 +120,8 @@ namespace OksEngine
 			aiProcess_GenNormals |
 			aiProcess_FlipUVs |
 			aiProcess_CalcTangentSpace |
-			aiProcess_OptimizeMeshes;
+			aiProcess_OptimizeMeshes |
+			aiProcess_PreTransformVertices;
 
 		// Чтение файла из памяти
 		const aiScene* scene = importer.ReadFileFromMemory(
@@ -472,7 +473,7 @@ namespace OksEngine
 		driver->EndSubpass();
 		driver->EndRenderPass();
 
-		driver->Show(renderPass0->textureIds_[1]);
+		//driver->Show(renderPass0->textureIds_[1]);
 
 	}
 }

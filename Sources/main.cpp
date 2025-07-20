@@ -20,8 +20,8 @@ int main(int argc, char** argv) {
 
 	Entity camera = engine.CreateEntity();
 	camera.AddCamera(0.1f, 1000.0f, true);
-	camera.AddPosition(1, 0, 0);
-	camera.AddDirection(-20, -4, 0);
+	camera.AddPosition(0.5, 0.5, 0);
+	camera.AddDirection(-20, -15, 0);
 	camera.AddUp3D(0, 1, 0);
 	camera.AddZNear(0.1);
 	camera.AddZFar(1000);

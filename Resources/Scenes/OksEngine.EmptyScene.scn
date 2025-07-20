@@ -5,7 +5,7 @@ scene = {
 		    name = {value ="gltf model" },
             --position3D = { x = 0.0, y = 0.0, z = 0.0},
 		    model = { },
-		    modelFile = { fileName = "LMK03 108.glb" }
+		    modelFile = { fileName = "Electricians-plier_by_get3dmodels.glb" }
         }
     }
 }
