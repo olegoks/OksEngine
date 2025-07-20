@@ -31,7 +31,7 @@ namespace OksEngine {
 			const char* scriptName,
 			const char* objectName);
 
-		void AddCamera(float zNear, float zFar, bool isActive);
+		void AddCamera();
 
 		void AddPosition(float x, float y, float z);
 		void AddLocalPosition(float x, float y, float z);

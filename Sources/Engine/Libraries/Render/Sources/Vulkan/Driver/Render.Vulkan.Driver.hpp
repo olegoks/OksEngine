@@ -929,6 +929,9 @@ namespace Render::Vulkan {
 				return;
 			}
 
+			if (objects_.frameContexts_.empty()) {
+				return;
+			}
 			currentFrame_ = objects_.frameContexts_[currentFrame];
 			image_ = GetNextImage(currentFrame_->imageAvailableSemaphore_);
 
@@ -1096,6 +1099,10 @@ namespace Render::Vulkan {
 			std::pair<Common::UInt32, Common::UInt32> offset,
 			std::pair<Common::UInt32, Common::UInt32> area) override {
 
+			if (CB_ == nullptr) {
+				return;
+			}
+
 			auto renderPass = GetRenderPassById(renderPassId);
 			auto framebuffer = GetFrameBufferById(attachmentsId);
 
@@ -1124,6 +1131,10 @@ namespace Render::Vulkan {
 			Common::UInt32 width,
 			Common::UInt32 height) override {
 
+			if (CB_ == nullptr) {
+				return;
+			}
+
 			const VkViewport viewport{
 				.x = (float)x,
 				.y = (float)y,
@@ -1142,6 +1153,10 @@ namespace Render::Vulkan {
 			Common::UInt32 width,
 			Common::UInt32 height) override {
 
+			if (CB_ == nullptr) {
+				return;
+			}
+
 			const VkRect2D scissor{
 				.offset = { x, y },
 				.extent = { width, height }
@@ -1154,6 +1169,11 @@ namespace Render::Vulkan {
 
 
 		virtual void BindPipeline(RAL::Driver::Pipeline::Id pipelineId) override {
+
+			if (CB_ == nullptr) {
+				return;
+			}
+
 			CB_->BindPipeline(idPipeline_[pipelineId]);
 			//contexts_.back().pipeline_ = idPipeline_[pipelineId];
 		}
@@ -1161,6 +1181,11 @@ namespace Render::Vulkan {
 		virtual void BindVertexBuffer(
 			VertexBuffer::Id VBId,
 			Common::UInt64 offset) override {
+
+			if (CB_ == nullptr) {
+				return;
+			}
+
 			CB_->BindBuffer(GetVB(VBId), offset);
 		}
 
@@ -1168,10 +1193,20 @@ namespace Render::Vulkan {
 			IndexBuffer::Id IBId,
 			Common::UInt64 offset) override {
 
+			if (CB_ == nullptr) {
+				return;
+			}
+
+
 			CB_->BindBuffer(GetIB(IBId), offset);
 		}
 
 		virtual void Bind(RAL::Driver::Pipeline::Id pipelineId, const std::vector<Resource::Id>& resourceIds) override {
+			
+			if (CB_ == nullptr) {
+				return;
+			}
+			
 			std::vector<std::shared_ptr<DescriptorSet>> dss{ };
 
 			for (Resource::Id resourceId : resourceIds) {
@@ -1193,6 +1228,11 @@ namespace Render::Vulkan {
 	.queryCount = 1,
 			};
 			vkCreateQueryPool(*objects_.LD_, &queryPoolInfo, nullptr, &queryPool);*/
+
+			if (CB_ == nullptr) {
+				return;
+			}
+
 			CB_->DrawIndexed(indicesNumber);
 		}
 
@@ -1200,12 +1240,20 @@ namespace Render::Vulkan {
 
 		}
 		virtual void EndRenderPass() override {
+			
+			if (CB_ == nullptr) {
+				return;
+			}
+
 			CB_->EndRenderPass();
+			
 		}
 
 		virtual void Show(RAL::Driver::Texture::Id textureId) override {
 			//image_->
-
+			if (CB_ == nullptr) {
+				return;
+			}
 			auto image = objects_.swapChain_->GetImages()[image_->index_];
 			auto textureToShow = GetTextureById(textureId);
 
@@ -1261,7 +1309,9 @@ namespace Render::Vulkan {
 
 		void EndRender() override {
 
-
+			if (CB_ == nullptr) {
+				return;
+			}
 
 			//for (auto& context : contexts_) {
 			//	CB_->ExecuteCommands(context.commandBuffer_);

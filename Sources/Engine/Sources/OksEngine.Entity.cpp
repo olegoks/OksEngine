@@ -188,10 +188,10 @@ namespace OksEngine {
 
 	void Entity::AddRotation(const glm::vec3& rotateVector, Math::Angle angle) {
 
-		// Преобразование угла из градусов в радианы
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		float radians = glm::radians(angle.ToDegrees().GetValue());
 
-		// Создание кватерниона
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		glm::quat quat = glm::angleAxis(radians, glm::normalize(rotateVector));
 
 		world_->CreateComponent<Rotation3D>(
@@ -203,13 +203,9 @@ namespace OksEngine {
 			);
 	}
 
-	void Entity::AddCamera(
-		float zNear, float zFar, bool isActive) {
+	void Entity::AddCamera() {
 		world_->CreateComponent<Camera>(
-			GetId(),
-			zNear,
-			zFar,
-			isActive);
+			GetId());
 	}
 
 

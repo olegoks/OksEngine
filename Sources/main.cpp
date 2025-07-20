@@ -18,17 +18,17 @@ int main(int argc, char** argv) {
 	//Entity testEntity = engine.CreateEntity();
 	//testEntity.AddClock();
 
-	Entity camera = engine.CreateEntity();
-	camera.AddCamera(0.1f, 1000.0f, true);
-	camera.AddPosition(0.5, 0.5, 0);
-	camera.AddDirection(-20, -15, 0);
-	camera.AddUp3D(0, 1, 0);
-	camera.AddZNear(0.1);
-	camera.AddZFar(1000);
-	camera.AddWidth(1000);
-	camera.AddHeight(700);
-	camera.AddActive();
-	camera.AddBehaviour("Camera.lua", "Camera");
+	//Entity camera = engine.CreateEntity();
+	//camera.AddCamera(0.1f, 1000.0f, true);
+	//camera.AddPosition(0.5, 0.5, 0);
+	//camera.AddDirection(-20, -15, 0);
+	//camera.AddUp3D(0, 1, 0);
+	//camera.AddZNear(0.1);
+	//camera.AddZFar(1000);
+	//camera.AddWidth(1000);
+	//camera.AddHeight(700);
+	//camera.AddActive();
+	//camera.AddBehaviour("Camera.lua", "Camera");
 
 	//{
 		//Entity terrain = engine.CreateEntity<
