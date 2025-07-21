@@ -12,7 +12,7 @@ add_library(OksEngine STATIC)
 
 if(MSVC)
   #target_compile_options(OksEngine PUBLIC "/MP" "/bigobj")
-  target_compile_options(OksEngine PUBLIC "/MP" "/bigobj")
+  target_compile_options(OksEngine PUBLIC "/MP 5" "/bigobj")
   #  target_compile_options(OksEngine PUBLIC "/MP 20")
   target_link_options(OksEngine PUBLIC "/INCREMENTAL")
 endif()

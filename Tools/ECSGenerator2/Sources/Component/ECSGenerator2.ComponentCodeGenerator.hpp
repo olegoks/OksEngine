@@ -29,7 +29,8 @@ namespace ECSGenerator2 {
 				fieldTypeName == "Common::Size" ||
 				fieldTypeName == "Common::UInt64" ||
 				fieldTypeName == "Common::Index" ||
-				fieldTypeName == "ECS2::Entity::Id") {
+				fieldTypeName == "ECS2::Entity::Id" || 
+				fieldTypeName == "std::vector<ECS2::Entity::Id>") {
 				code.Add("static " + typeName + " " + variableName + ";");
 				return code;
 			}
@@ -55,15 +56,23 @@ namespace ECSGenerator2 {
 				code.Add("ImGui::InputScalar(\"" + imguiVariableName + "\", " + GetImGuiType(typeName) + ", " + outVariable + ");");
 				return code;
 			}
+			else if (typeName == "std::vector<ECS2::Entity::Id>") {
+				code.Add("static ECS2::Entity::Id refEntityId = ECS2::Entity::Id::invalid_;");
+				code.Add("ImGui::InputScalar(\"refEntityId\", " + GetImGuiType("ECS2::Entity::Id") + ", &refEntityId);");
+				code.Add("if(ImGui::Button(\"Add refEntity\")){{");
+				code.Add("	");
+				code.Add("}}");
+				return code;
+			}
 			OS::NotImplemented();
 			return code;
 		}
 
 		Code GenerateTypeImGuiEditCode(
-			const std::string& componentVariableName,			
-			const std::string& fieldVariableTypeName,			
-			const std::string& fieldVariableName,				
-			const std::string& fieldComponentVariableName) {	// x_
+			const std::string& componentVariableName,			// position3D	//name
+			const std::string& fieldVariableTypeName,			// float		//std::string
+			const std::string& fieldVariableName,				// x			//value
+			const std::string& fieldComponentVariableName) {	// x_			//value_
 			Code code;
 			if (fieldVariableTypeName == "std::string") {
 				code.Add(GenerateTypeImGuiInputVariable(fieldVariableTypeName, fieldVariableName));
@@ -89,10 +98,27 @@ namespace ECSGenerator2 {
 				return code;
 			}
 			else if (fieldVariableTypeName == "ECS2::Entity::Id") {
-				code.Add(GenerateImGuiInputTypeCode(
-					fieldVariableName,
-					fieldVariableTypeName,
-					"&" + componentVariableName + "->" + fieldComponentVariableName));
+				code.Add("EditEntity(ecsWorld, {}->{});", componentVariableName, fieldComponentVariableName);
+				return code;
+			}
+			else if (fieldVariableTypeName == "std::vector<ECS2::Entity::Id>") {
+				//code.Add("static std::vector<ECS2::Entity::Id> {} = {}->{};", fieldVariableName, componentVariableName, fieldComponentVariableName);
+				//code.Add("for(Common::Index i = 0; i < {}.size(); i++){{", fieldVariableName);
+				//code.Add("	ImGui::PushID(i);");
+				//code.Add("	ImGui::InputScalar((\"##\" + std::to_string(i)).c_str()," + GetImGuiType("ECS2::Entity::Id") + ", &{}[i]);", fieldVariableName);
+				//code.Add("	ImGui::PopID();");
+				//code.Add("	ImGui::SameLine();");
+				//code.Add("	if (ImGui::Button((\"Delete##\" + std::to_string(i)).c_str())) {");
+				//code.Add("		{}.erase({}.begin() + i);", fieldVariableName, fieldVariableName);
+				//code.Add("		i--;");
+				//code.Add("	}");
+				//code.Add("}");
+				//code.Add("{}->{} = {};", componentVariableName, fieldComponentVariableName, fieldVariableName);
+				
+				code.Add("for(Common::Index i = 0; i < {}->{}.size(); i++){{", componentVariableName, fieldComponentVariableName);
+				code.Add("	EditEntity(ecsWorld, {}->{}[i]);", componentVariableName, fieldComponentVariableName);
+				code.Add("}");
+				
 				return code;
 			}
 
@@ -206,7 +232,9 @@ namespace ECSGenerator2 {
 
 		std::shared_ptr<Function> GenerateEditFunction(std::shared_ptr<ParsedComponent> component) {
 
-
+			if (component->GetName() == "ChildModelNodeEntities") {
+				Common::BreakPointLine();
+			}
 			Code realization;
 			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 				if (IsTypeCanBeEnteredFromImGui(fieldInfo.GetTypeName())) {
@@ -224,6 +252,7 @@ namespace ECSGenerator2 {
 			Function::CreateInfo fci1{
 				.name_ = "Edit" + component->GetName(),
 				.parameters_ = {
+					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
 					{ component->GetName() + "*", component->GetLowerName()}
 				},
 				.returnType_ = "void",
@@ -243,10 +272,11 @@ namespace ECSGenerator2 {
 			Function::CreateInfo fci2{
 				.name_ = "Edit",
 				.parameters_ = {
+					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
 					{ component->GetName() + "*", component->GetLowerName()}
 				},
 				.returnType_ = "void",
-				.code_ = std::format("Edit{}({});", component->GetName(), component->GetLowerName()),
+				.code_ = std::format("Edit{}(ecsWorld,{});", component->GetName(), component->GetLowerName()),
 				.inlineModifier_ = true,
 				.templateParameters_ = {},
 				.specializedTemplateParameters_ = { component->GetName() }
@@ -334,10 +364,10 @@ namespace ECSGenerator2 {
 				realization.Add("\tif (ImGui::Button(\"Add component\")) {");
 				{
 					realization.NewLine();
-					realization.Add("if (!world->IsComponentExist<" + component->GetName() + ">(entityId)) {");
+					realization.Add("if (!ecsWorld->IsComponentExist<" + component->GetName() + ">(entityId)) {");
 					realization.NewLine();
 
-					realization.Add("world->CreateComponent<" + component->GetName() + ">(entityId");
+					realization.Add("ecsWorld->CreateComponent<" + component->GetName() + ">(entityId");
 					if (component->CanBeCreatedFromImGui()) {
 						if (component->AreThereFields()) {
 							realization.Add(", ");
@@ -365,7 +395,7 @@ namespace ECSGenerator2 {
 			Function::CreateInfo fci{
 				.name_ = "Add" + component->GetName(),
 				.parameters_ = {
-					{ "ECS2::World*", "world" },
+					{ "ECS2::World*", "ecsWorld" },
 					{ "ECS2::Entity::Id", "entityId" }
 				},
 				.returnType_ = "void",

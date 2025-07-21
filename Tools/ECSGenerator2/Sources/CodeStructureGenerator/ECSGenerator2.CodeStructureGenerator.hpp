@@ -32,6 +32,24 @@ namespace ECSGenerator2 {
 			includes.paths_.insert("chrono");
 			includes.paths_.insert("OksEngine.IComponent.hpp");
 
+			//Add "OksEngine.EditEntity.hpp" header if component contains fields with ECS2::Entity::Id.
+			bool needToIncludeEditEntity = false;
+			parsedECSFile->ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
+
+				parsedComponent->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+					if (fieldInfo.GetTypeName() == "std::vector<ECS2::Entity::Id>" || fieldInfo.GetTypeName() == "ECS2::Entity::Id") {
+						needToIncludeEditEntity = true;
+						return false;
+					}
+
+					return true;
+					});
+
+				});
+			if (needToIncludeEditEntity) {
+				includes.paths_.insert("auto_OksEngine.EditEntity.hpp");
+			}
+
 			parsedECSFile->ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
 
 				parsedComponent->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
@@ -109,10 +127,10 @@ namespace ECSGenerator2 {
 					//Add include components.
 					auto componentStruct = componentGenerator.GenerateComponentStruct(parsedComponent);
 					namespaceObject->Add(componentStruct);
-					auto addFunction = componentGenerator.GenerateAddFunction(parsedComponent);
-					namespaceObject->Add(addFunction);
 					auto editFunction = componentGenerator.GenerateEditFunction(parsedComponent);
 					namespaceObject->Add(editFunction);
+					auto addFunction = componentGenerator.GenerateAddFunction(parsedComponent);
+					namespaceObject->Add(addFunction);
 					auto templateEditFunction = componentGenerator.GenerateTemplateEditFunction(parsedComponent);
 					namespaceObject->Add(templateEditFunction);
 					auto bindFunction = componentGenerator.GenerateBindFunction(parsedComponent);
@@ -135,7 +153,7 @@ namespace ECSGenerator2 {
 
 					SystemStructureGenerator systemGenerator{ ssgci };
 
-					if (parsedSystem->GetName() == "CallUpdateMethod") {
+					if (parsedSystem->GetName() == "CreateModel") {
 						Common::BreakPointLine();
 					}
 					//Add include components.
@@ -644,7 +662,7 @@ namespace ECSGenerator2 {
 		}
 
 		std::shared_ptr<File>
-			GenerateEditEntityHppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
+			GenerateEditEntityCppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
 
 			auto generateAddComponentCode = [](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> Code {
 
@@ -734,7 +752,7 @@ namespace ECSGenerator2 {
 					"bool isExist = world->IsComponentExist<ComponentType>(id);"
 					"if (ImGui::CollapsingHeader(ComponentType::GetName(), &isExist)) {"
 					"ComponentType* component = world->GetComponent<ComponentType>(id);"
-					"Edit<ComponentType>(component);"
+					"Edit<ComponentType>(world, component);"
 					"ImGui::Spacing();"
 					"}"
 					"if (!isExist) {"
@@ -799,6 +817,48 @@ namespace ECSGenerator2 {
 			includes.paths_.insert("imgui.h");
 			includes.paths_.insert("OksEngine.ECS.hpp");
 			includes.paths_.insert("magic_enum/magic_enum.hpp");
+			includes.paths_.insert("auto_OksEngine.EditEntity.hpp");
+
+			//hpp file
+			File::CreateInfo fci{
+				.isHpp_ = false,
+				.includes_ = includes,
+				.base_ = namespaceObject
+			};
+
+			auto file = std::make_shared<File>(fci);
+
+			return file;
+		}
+
+		std::shared_ptr<File>
+			GenerateEditEntityHppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
+
+			auto generateEditEntityFunctionPrototype = [&]() -> std::shared_ptr<Function> {
+
+				Function::CreateInfo editEntityFunction{
+					.name_ = "EditEntity",
+					.parameters_ = {
+						{ "std::shared_ptr<ECS2::World>", "world" },
+						{ "ECS2::Entity::Id", "entityId" }
+					},
+					.returnType_ = "void",
+					.code_ = {},
+					.isPrototype_ = true,
+					.inlineModifier_ = false
+				};
+
+				auto editEntityFunctionObject = std::make_shared<Function>(editEntityFunction);
+
+				return editEntityFunctionObject;
+				};
+
+			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+
+			namespaceObject->Add(generateEditEntityFunctionPrototype());
+
+			File::Includes includes{ };
+			includes.paths_.insert("ECS2.World.hpp");
 
 			//hpp file
 			File::CreateInfo fci{

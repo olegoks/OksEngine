@@ -18,7 +18,8 @@ namespace ECSGenerator2{
 		Common_UInt64,
 		Size,
 		Index,
-		ECS_Entity_Id
+		ECS_Entity_Id,
+		std_vector_ECS_Entity_Id
 	};
 
 	inline Type TypeStringToEnum(const std::string typeString) {
@@ -28,7 +29,8 @@ namespace ECSGenerator2{
 			{ "Common::UInt64", Type::Common_UInt64 },
 			{ "Size", Type::Size },
 			{ "Index", Type::Index },
-			{ "ECS2::Entity::Id", Type::ECS_Entity_Id }
+			{ "ECS2::Entity::Id", Type::ECS_Entity_Id },
+			{ "std::vector<ECS2::Entity::Id>", Type::std_vector_ECS_Entity_Id }
 		};
 		OS::AssertMessage(strToEnum.contains(typeString), "");
 		return strToEnum[typeString];
@@ -43,7 +45,8 @@ namespace ECSGenerator2{
 			"Common::UInt64",
 			"Common::Size",
 			"Common::Index",
-			"ECS2::Entity::Id"
+			"ECS2::Entity::Id",
+			"std::vector<ECS2::Entity::Id>"
 		};
 		return bindableType.contains(typeName);
 	}

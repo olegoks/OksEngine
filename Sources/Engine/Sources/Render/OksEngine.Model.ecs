@@ -1,4 +1,25 @@
-ModelComponent = { }
+ModelComponent = {
+    serializable = false
+ }
+
+ModelNodeComponent = { 
+    serializable = false
+
+}
+
+ChildModelNodeEntitiesComponent = {
+        serializable = false,
+    fields = { 
+        { type = "std::vector<ECS2::Entity::Id>", name = "childEntityIds" }
+    }
+}
+
+MeshEntitiesComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::vector<ECS2::Entity::Id>", name = "meshEntityIds" }
+    }
+}
 
 ModelFileComponent = {
     fields = { 
@@ -10,7 +31,6 @@ CreateModelSystem = {
         processesEntities = {
             {
                 processesComponents = { 
-		            "Model",
                     "ModelFile"
 	            },
                 excludes = {
@@ -21,14 +41,8 @@ CreateModelSystem = {
                     "UVs"
                 },
                 createsComponents = {
-                    "Position3D",
-                    "Rotation3D",
-                    "Vertices3D",
-                    "Indices",
-                    "Normals",
-                    "UVs",
-                    "TextureInfo",
-                    "Texture"
+                    "Model",
+                    "ChildModelNodeEntities"
                 }
             },
             {
@@ -38,11 +52,25 @@ CreateModelSystem = {
             }
         },
         createsEntities = {
-            createsComponents = {
-                "Vertices3D",
-                "Indices",
-                "Normals",
-                "UVs"
+            {
+                createsComponents = {
+                    "ModelNode",
+                    "ChildModelNodeEntities",
+                    "MeshEntities",
+                    "Position3D",
+                    "Rotation3D",
+                    "Scale3D"
+                }
+            },
+            {
+                createsComponents = {
+                    "Vertices3D",
+                    "Indices",
+                    "Normals",
+                    "UVs",
+                    "TextureInfo",
+                    "Texture"
+                }
             }
         }
     }

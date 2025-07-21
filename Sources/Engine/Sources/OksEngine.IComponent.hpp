@@ -11,7 +11,7 @@ namespace OksEngine {
 
 
 	template<class Component>
-	inline void Edit(Component* component) {
+	inline void Edit(std::shared_ptr<ECS2::World>, Component* component) {
 
 	}
 

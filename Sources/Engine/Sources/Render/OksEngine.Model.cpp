@@ -98,10 +98,9 @@ namespace OksEngine
 	}
 
 	void CreateModel::Update(
-		ECS2::Entity::Id entity0id,
-		const Model* model0,
+		ECS2::Entity::Id entity0id, 
 		const ModelFile* modelFile0,
-
+		
 		ECS2::Entity::Id entity1id,
 		const ResourceSystem* resourceSystem1) {
 
@@ -137,9 +136,13 @@ namespace OksEngine
 			throw std::runtime_error("Failed to load model: " + std::string(importer.GetErrorString()));
 		}
 
-		auto createMeshComponents = [this](const aiScene* scene, aiNode* node, ECS2::Entity::Id entityId) {
+		auto createNodeComponents = [this](const aiScene* scene, aiNode* node, ECS2::Entity::Id entityId) {
+
+			std::vector<ECS2::Entity::Id> meshEntities;
 
 			if (node->mNumMeshes > 0) {
+
+
 				Geom::VertexCloud<Geom::Vertex3f>   vertices;
 				DS::Vector<Geom::Normal3f>	        normals;
 				//DS::Vector<Geom::Color4b>		    colors;
@@ -150,6 +153,8 @@ namespace OksEngine
 					int meshIndex = node->mMeshes[i];
 					aiMesh* mesh = scene->mMeshes[meshIndex];
 
+					const ECS2::Entity::Id meshEntity = CreateEntity();
+					meshEntities.push_back(meshEntity);
 					aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 					aiString aiTexturePath;
 					material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &aiTexturePath);
@@ -159,9 +164,9 @@ namespace OksEngine
 					Common::UInt32 textureWidth = texture->mWidth;
 					Common::UInt32 textureHeight = texture->mHeight;
 					if (textureHeight > 0) {
-						CreateComponent<TextureInfo>(entityId, aiTexturePath.C_Str());
+						CreateComponent<TextureInfo>(meshEntity, aiTexturePath.C_Str());
 						CreateComponent<Texture>(
-							entityId,
+							meshEntity,
 							textureWidth, textureHeight,
 							std::vector<Geom::Color4b>{
 							(Geom::Color4b*)texture->pcData,
@@ -178,9 +183,9 @@ namespace OksEngine
 							&width, &height, &channels,
 							STBI_rgb_alpha    // Формат на выходе: RGBA
 						);
-						CreateComponent<TextureInfo>(entityId, aiTexturePath.C_Str());
+						CreateComponent<TextureInfo>(meshEntity, aiTexturePath.C_Str());
 						CreateComponent<Texture>(
-							entityId,
+							meshEntity,
 							width, height,
 							std::vector<Geom::Color4b>{
 							(Geom::Color4b*)pixels,
@@ -208,12 +213,18 @@ namespace OksEngine
 						indices.Add(mesh->mFaces[j].mIndices[1]);
 						indices.Add(mesh->mFaces[j].mIndices[2]);
 					}
+					CreateComponent<Vertices3D>(meshEntity, vertices);
+					CreateComponent<Normals>(meshEntity, normals);
+					CreateComponent<UVs>(meshEntity, uvs);
+					CreateComponent<Indices>(meshEntity, indices);
+
+					vertices.Clear();
+					normals.Clear();
+					uvs.Clear();
+					indices.Clear();
 				}
 
-				CreateComponent<Vertices3D>(entityId, vertices);
-				CreateComponent<Normals>(entityId, normals);
-				CreateComponent<UVs>(entityId, uvs);
-				CreateComponent<Indices>(entityId, indices);
+
 			}
 			glm::mat4 transform{ aiMatrix4x4ToGlm(node->mTransformation) };
 			glm::vec3 translation{};
@@ -222,6 +233,9 @@ namespace OksEngine
 			glm::vec3 skew;
 			glm::vec4 perspective;
 			glm::decompose(transform, scale, rotation, translation, skew, perspective);
+			if (!meshEntities.empty()) {
+				CreateComponent<MeshEntities>(entityId, meshEntities);
+			}
 
 			CreateComponent<Position3D>(entityId, translation.x, translation.y, translation.z);
 			CreateComponent<Rotation3D>(entityId, rotation.w, rotation.x, rotation.y, rotation.z);
@@ -229,27 +243,31 @@ namespace OksEngine
 
 			};
 
-		std::function<void(const aiScene*, aiNode*)> processChildrenNode
-			= [this, &processChildrenNode, &createMeshComponents](const aiScene* scene, aiNode* node) {
+		std::function<ECS2::Entity::Id(const aiScene*, aiNode*)> processChildrenNode
+			= [this, &processChildrenNode, &createNodeComponents](const aiScene* scene, aiNode* node) -> ECS2::Entity::Id {
 
 			const ECS2::Entity::Id nodeEntityId = CreateEntity();
 
-			createMeshComponents(scene, node, nodeEntityId);
-
+			createNodeComponents(scene, node, nodeEntityId);
+			std::vector<ECS2::Entity::Id> childNodeEntityIds;
 			for (Common::Index i = 0; i < node->mNumChildren; i++) {
 				aiNode* childrenNode = node->mChildren[i];
-				processChildrenNode(scene, childrenNode);
+				const ECS2::Entity::Id childEntityId = processChildrenNode(scene, childrenNode);
 			}
-
+			CreateComponent<ChildModelNodeEntities>(nodeEntityId, childNodeEntityIds);
+			return nodeEntityId;
 			};
 
 
-		createMeshComponents(scene, scene->mRootNode, entity0id);
+		createNodeComponents(scene, scene->mRootNode, entity0id);
+		std::vector<ECS2::Entity::Id> childNodeEntityIds;
 		for (Common::Index i = 0; i < scene->mRootNode->mNumChildren; i++) {
 			aiNode* childrenNode = scene->mRootNode->mChildren[i];
-			processChildrenNode(scene, childrenNode);
+			const ECS2::Entity::Id childEntityId = processChildrenNode(scene, childrenNode);
+			childNodeEntityIds.push_back(childEntityId);
 		}
-
+		CreateComponent<ChildModelNodeEntities>(entity0id, childNodeEntityIds);
+		CreateComponent<Model>(entity0id);
 	};
 
 
