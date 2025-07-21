@@ -134,12 +134,20 @@ int main(int argc, char** argv) {
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.SerializeEntity.hpp",
 		serializeEntityCodeStructure };
 
-	auto editEntityCodeStructure = codeStructureGenerator.GenerateEditEntityHppFile(parsedECSFiles);
+	auto editEntityHppCodeStructure = codeStructureGenerator.GenerateEditEntityHppFile(parsedECSFiles);
 	std::pair<
 		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::File>> pathToEditEntity{
+		std::shared_ptr<ECSGenerator2::File>> pathToEditHppEntity{
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.hpp",
-		editEntityCodeStructure };
+		editEntityHppCodeStructure };
+
+	auto editEntityCppCodeStructure = codeStructureGenerator.GenerateEditEntityCppFile(parsedECSFiles);
+	std::pair<
+		std::filesystem::path,
+		std::shared_ptr<ECSGenerator2::File>> pathToEditCppEntity{
+		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.cpp",
+		editEntityCppCodeStructure };
+
 
 	auto hppRunSystemsCodeStructure = codeStructureGenerator.GenerateRunSystemsHppFile();
 	std::pair<
@@ -164,7 +172,8 @@ int main(int argc, char** argv) {
 
 	allFilesCodeStructure.insert(pathToParsedEntity);
 	allFilesCodeStructure.insert(pathToSerializeEntity);
-	allFilesCodeStructure.insert(pathToEditEntity);
+	allFilesCodeStructure.insert(pathToEditHppEntity);
+	allFilesCodeStructure.insert(pathToEditCppEntity);
 	allFilesCodeStructure.insert(pathToHppRunSystems);
 	allFilesCodeStructure.insert(pathToCppRunSystems);
 

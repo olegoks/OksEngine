@@ -24,14 +24,32 @@ namespace ECSGenerator2 {
 
 		}
 
-		Code& Add(const std::string& code) {
-			code_ += code;
+		//Code& Add(const std::string& code) {
+		//	code_ += code;
+		//	return *this;
+		//}
+
+		//template<class ...Args>
+		//Code& Add(const std::string& format, Args... args) {
+		//	code_ += std::format(format, args...);
+		//	return *this;
+		//}
+
+		//template<class ...Args>
+		//Code& Add(const char* formatString, Args... args) {
+		//	code_ += std::vformat(formatString, std::make_format_args(args...));
+		//	return *this;
+		//}
+
+		template<class ...Args>
+		Code& Add(const std::string& formatString, Args... args) {
+			code_ += std::vformat(formatString, std::make_format_args(args...));
 			return *this;
 		}
 
-		template<class ...Args>
-		Code& Add(const std::string& format, Args... args) {
-			code_ += std::format(format, args...);
+		template<>
+		Code& Add<>(const std::string& formatString) {
+			code_ += formatString;//std::format(formatString);
 			return *this;
 		}
 
