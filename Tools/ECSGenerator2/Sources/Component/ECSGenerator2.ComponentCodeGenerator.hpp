@@ -102,21 +102,10 @@ namespace ECSGenerator2 {
 				return code;
 			}
 			else if (fieldVariableTypeName == "std::vector<ECS2::Entity::Id>") {
-				//code.Add("static std::vector<ECS2::Entity::Id> {} = {}->{};", fieldVariableName, componentVariableName, fieldComponentVariableName);
-				//code.Add("for(Common::Index i = 0; i < {}.size(); i++){{", fieldVariableName);
-				//code.Add("	ImGui::PushID(i);");
-				//code.Add("	ImGui::InputScalar((\"##\" + std::to_string(i)).c_str()," + GetImGuiType("ECS2::Entity::Id") + ", &{}[i]);", fieldVariableName);
-				//code.Add("	ImGui::PopID();");
-				//code.Add("	ImGui::SameLine();");
-				//code.Add("	if (ImGui::Button((\"Delete##\" + std::to_string(i)).c_str())) {");
-				//code.Add("		{}.erase({}.begin() + i);", fieldVariableName, fieldVariableName);
-				//code.Add("		i--;");
-				//code.Add("	}");
-				//code.Add("}");
-				//code.Add("{}->{} = {};", componentVariableName, fieldComponentVariableName, fieldVariableName);
-				
 				code.Add("for(Common::Index i = 0; i < {}->{}.size(); i++){{", componentVariableName, fieldComponentVariableName);
+				code.Add("ImGui::Indent(20.f);");
 				code.Add("	EditEntity(ecsWorld, {}->{}[i]);", componentVariableName, fieldComponentVariableName);
+				code.Add("ImGui::Unindent(20.0f);");
 				code.Add("}");
 				
 				return code;
