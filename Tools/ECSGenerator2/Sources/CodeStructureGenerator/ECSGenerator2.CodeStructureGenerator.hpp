@@ -744,7 +744,7 @@ namespace ECSGenerator2 {
 					"auto* nameComponent = world->GetComponent<Name>(entityId);"
 					"name = nameComponent->value_;"
 					"}"
-					"if (ImGui::CollapsingHeader((\"Id: \" + idString + \"  \" + name + \" \" + magic_enum::enum_name(world->GetEntityType(entityId)).data()).c_str())) {"
+					"if (ImGui::CollapsingHeader((\"Id: \" + idString + \"  \" + magic_enum::enum_name(world->GetEntityType(entityId)).data() + \" \" + name).c_str())) {"
 					"ImGui::Indent(20.f);"
 
 					"auto editComponent = []<class ComponentType>(std::shared_ptr<ECS2::World> world, ECS2::Entity::Id id) {"

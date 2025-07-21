@@ -153,7 +153,10 @@ namespace OksEngine
 					int meshIndex = node->mMeshes[i];
 					aiMesh* mesh = scene->mMeshes[meshIndex];
 
+
+
 					const ECS2::Entity::Id meshEntity = CreateEntity();
+					CreateComponent<Name>(meshEntity, std::string{ mesh->mName.C_Str() });
 					meshEntities.push_back(meshEntity);
 					aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 					aiString aiTexturePath;
@@ -247,14 +250,17 @@ namespace OksEngine
 			= [this, &processChildrenNode, &createNodeComponents](const aiScene* scene, aiNode* node) -> ECS2::Entity::Id {
 
 			const ECS2::Entity::Id nodeEntityId = CreateEntity();
-
+			CreateComponent<ModelNode>(nodeEntityId);
+			CreateComponent<Name>(nodeEntityId, std::string{ node->mName.C_Str() });
 			createNodeComponents(scene, node, nodeEntityId);
 			std::vector<ECS2::Entity::Id> childNodeEntityIds;
 			for (Common::Index i = 0; i < node->mNumChildren; i++) {
 				aiNode* childrenNode = node->mChildren[i];
 				const ECS2::Entity::Id childEntityId = processChildrenNode(scene, childrenNode);
 			}
-			CreateComponent<ChildModelNodeEntities>(nodeEntityId, childNodeEntityIds);
+			if (!childNodeEntityIds.empty()) {
+				CreateComponent<ChildModelNodeEntities>(nodeEntityId, childNodeEntityIds);
+			}
 			return nodeEntityId;
 			};
 
@@ -266,7 +272,9 @@ namespace OksEngine
 			const ECS2::Entity::Id childEntityId = processChildrenNode(scene, childrenNode);
 			childNodeEntityIds.push_back(childEntityId);
 		}
-		CreateComponent<ChildModelNodeEntities>(entity0id, childNodeEntityIds);
+		if (!childNodeEntityIds.empty()) {
+			CreateComponent<ChildModelNodeEntities>(entity0id, childNodeEntityIds);
+		}
 		CreateComponent<Model>(entity0id);
 	};
 

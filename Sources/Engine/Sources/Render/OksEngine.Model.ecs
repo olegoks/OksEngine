@@ -64,6 +64,7 @@ CreateModelSystem = {
             },
             {
                 createsComponents = {
+                    "Name",
                     "Vertices3D",
                     "Indices",
                     "Normals",
