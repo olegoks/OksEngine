@@ -76,8 +76,53 @@ namespace ECSGenerator2 {
 				return nullptr;
 
 				};
+			
 			auto parseUpdateMethod = [&](luabridge::LuaRef luaRef) {
 
+				auto parseAccessesEntities = [](luabridge::LuaRef systemRef) {
+
+					std::vector<ParsedSystem::RandomAccessEntity> accessesEntities;
+
+					//Access entities by id.
+					luabridge::LuaRef accessingEntities = systemRef["accessingEntities"];
+
+
+					if (!accessingEntities.isNil()) {
+						for (luabridge::Iterator it(accessingEntities); !it.isNil(); ++it) {
+
+							std::vector<ParsedSystem::Include> accessesComponents;
+							std::vector<std::string> createsComponents;
+
+							luabridge::LuaRef toAccess = it.value();
+							luabridge::LuaRef accessingComponentsRef = toAccess["accessingComponents"];
+							for (luabridge::Iterator itJ(accessingComponentsRef); !itJ.isNil(); ++itJ) {
+								luabridge::LuaRef accessingComponentRef = itJ.value();
+
+								ParsedSystem::Include include{
+									.name_ = accessingComponentRef.cast<std::string>().value(),
+									.readonly_ = false // TODO: add option to access component only to read.
+								};
+								accessesComponents.push_back(include);
+								OS::AssertMessage(std::isupper(accessesComponents.back().name_[0]), "");
+							}
+							luabridge::LuaRef createsComponentsRef = toAccess["createsComponents"];
+							if (!createsComponentsRef.isNil()) {
+								for (luabridge::Iterator itJ(createsComponentsRef); !itJ.isNil(); ++itJ) {
+									luabridge::LuaRef createsComponentRef = itJ.value();
+									createsComponents.push_back(createsComponentRef.cast<std::string>().value());
+									OS::AssertMessage(std::isupper(createsComponents.back()[0]), "");
+								}
+							}
+							ParsedSystem::RandomAccessEntity randomAccessEntity{
+								.includes_ = accessesComponents,
+								.creates_ = createsComponents,
+							};
+							accessesEntities.push_back(randomAccessEntity);
+						}
+					}
+
+					return accessesEntities;
+					};
 				auto parseProcessesEntities = [&](luabridge::LuaRef luaRef) {
 
 					auto parseProcessesComponents = [](luabridge::LuaRef luaRef) {
@@ -247,7 +292,7 @@ namespace ECSGenerator2 {
 				luabridge::LuaRef updateMethodRef = luaRef["updateMethod"];
 				if (!updateMethodRef.isNil()) {
 					auto processesEntities = parseProcessesEntities(updateMethodRef);
-					auto randomAccessEntities = parseRandomAccessComponents(updateMethodRef);
+					auto randomAccessEntities = parseAccessesEntities(updateMethodRef);
 					auto createsEntities = parseCreatesEntities(updateMethodRef);
 					auto updateMethodInfo = std::make_shared<ParsedSystem::UpdateMethodInfo>(
 						processesEntities,
@@ -259,50 +304,7 @@ namespace ECSGenerator2 {
 
 				return std::shared_ptr<ParsedSystem::UpdateMethodInfo>();
 				};
-			auto parseAccessesEntities = [](luabridge::LuaRef systemRef) {
-
-				std::vector<ParsedSystem::RandomAccessEntity> accessesEntities;
-
-				//Access entities by id.
-				luabridge::LuaRef accessingEntities = systemRef["accessingEntities"];
-
-
-				if (!accessingEntities.isNil()) {
-					for (luabridge::Iterator it(accessingEntities); !it.isNil(); ++it) {
-
-						std::vector<ParsedSystem::Include> accessesComponents;
-						std::vector<std::string> createsComponents;
-
-						luabridge::LuaRef toAccess = it.value();
-						luabridge::LuaRef accessingComponentsRef = toAccess["accessingComponents"];
-						for (luabridge::Iterator itJ(accessingComponentsRef); !itJ.isNil(); ++itJ) {
-							luabridge::LuaRef accessingComponentRef = itJ.value();
-
-							ParsedSystem::Include include{
-								.name_ = accessingComponentRef.cast<std::string>().value(),
-								.readonly_ = false // TODO: add option to access component only to read.
-							};
-							accessesComponents.push_back(include);
-							OS::AssertMessage(std::isupper(accessesComponents.back().name_[0]), "");
-						}
-						luabridge::LuaRef createsComponentsRef = toAccess["createsComponents"];
-						if (!createsComponentsRef.isNil()) {
-							for (luabridge::Iterator itJ(createsComponentsRef); !itJ.isNil(); ++itJ) {
-								luabridge::LuaRef createsComponentRef = itJ.value();
-								createsComponents.push_back(createsComponentRef.cast<std::string>().value());
-								OS::AssertMessage(std::isupper(createsComponents.back()[0]), "");
-							}
-						}
-						ParsedSystem::ProcessedEntity parsedEntity{
-							.includes_ = accessesComponents,
-							.creates_ = createsComponents,
-						};
-
-					}
-				}
-
-				return accessesEntities;
-				};
+			
 			auto parseThread = [](luabridge::LuaRef systemRef) {
 				luabridge::LuaRef threadRef = systemRef["thread"];
 				if (!threadRef.isNil()) {
@@ -324,7 +326,7 @@ namespace ECSGenerator2 {
 				};
 
 
-			if (systemName == "CreateScene") {
+			if (systemName == "AddModelToRender") {
 				Common::BreakPointLine();
 			}
 
@@ -341,7 +343,7 @@ namespace ECSGenerator2 {
 				updateMethodInfo = parseUpdateMethod(system);
 			}
 
-			auto accessesEntities = parseAccessesEntities(system);
+			//auto accessesEntities = parseAccessesEntities(system);
 
 #pragma region Assert
 			OS::AssertMessage(

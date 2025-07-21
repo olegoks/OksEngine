@@ -153,7 +153,7 @@ namespace ECSGenerator2 {
 
 					SystemStructureGenerator systemGenerator{ ssgci };
 
-					if (parsedSystem->GetName() == "CreateModel") {
+					if (parsedSystem->GetName() == "AddModelToRender") {
 						Common::BreakPointLine();
 					}
 					//Add include components.
@@ -171,7 +171,7 @@ namespace ECSGenerator2 {
 
 				});
 
-			if (parsedECSFile->GetName() == "OksEngine.RunAnimation") {
+			if (parsedECSFile->GetName() == "OksEngine.Model") {
 				Common::BreakPointLine();
 			}
 
@@ -711,7 +711,7 @@ namespace ECSGenerator2 {
 
 				Code code;
 				code.Add(std::format("editComponent.template operator()<{}>(world, entityId);", component->GetName()));
-				code.NewLine();
+				/*code.NewLine();
 				component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 
 					if (fieldInfo.GetTypeName() == "ECS2::Entity::Id") {
@@ -728,7 +728,7 @@ namespace ECSGenerator2 {
 					}
 
 					return true;
-					});
+					});*/
 				return code;
 				};
 

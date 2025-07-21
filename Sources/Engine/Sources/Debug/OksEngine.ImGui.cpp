@@ -63,7 +63,8 @@ namespace OksEngine
 	void EndImGuiFrame::Update(
 		ECS2::Entity::Id entity0id,
 		const ImGuiState* imGuiState0) {
-
+		using namespace std::chrono_literals;
+		std::this_thread::sleep_for(1ms);
 		ImGui::Render();
 
 	};

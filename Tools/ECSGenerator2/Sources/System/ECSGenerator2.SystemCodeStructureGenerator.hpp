@@ -84,7 +84,6 @@ namespace ECSGenerator2 {
 					requiredComponentNames.insert(createsEntityComponent);
 				}
 			}
-
 			updateMethodInfo->ForEachRandomAccessEntity([&](
 				const ParsedSystem::RandomAccessEntity& entity,
 				bool isLast) {
@@ -175,6 +174,10 @@ namespace ECSGenerator2 {
 		}
 
 		std::shared_ptr<Struct> GenerateSystemStructCode(std::shared_ptr<ParsedSystem> system) {
+
+			if (system->GetName() == "DrawNodes") {
+				Common::BreakPointLine();
+			}
 
 			auto generateGetComponentsFilter = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 

@@ -136,7 +136,7 @@ namespace OksEngine
 			throw std::runtime_error("Failed to load model: " + std::string(importer.GetErrorString()));
 		}
 
-		auto createNodeComponents = [this](const aiScene* scene, aiNode* node, ECS2::Entity::Id entityId) {
+		auto createNodeComponents = [this](const aiScene* scene, aiNode* node, ECS2::Entity::Id nodeEntityId) {
 
 			std::vector<ECS2::Entity::Id> meshEntities;
 
@@ -157,6 +157,7 @@ namespace OksEngine
 
 					const ECS2::Entity::Id meshEntity = CreateEntity();
 					CreateComponent<Name>(meshEntity, std::string{ mesh->mName.C_Str() });
+					CreateComponent<ModelNodeEntityId>(meshEntity, nodeEntityId);
 					meshEntities.push_back(meshEntity);
 					aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 					aiString aiTexturePath;
@@ -237,11 +238,11 @@ namespace OksEngine
 			glm::vec4 perspective;
 			glm::decompose(transform, scale, rotation, translation, skew, perspective);
 			if (!meshEntities.empty()) {
-				CreateComponent<MeshEntities>(entityId, meshEntities);
+				CreateComponent<MeshEntities>(nodeEntityId, meshEntities);
 			}
 
-			CreateComponent<Position3D>(entityId, translation.x, translation.y, translation.z);
-			CreateComponent<Rotation3D>(entityId, rotation.w, rotation.x, rotation.y, rotation.z);
+			CreateComponent<Position3D>(nodeEntityId, translation.x, translation.y, translation.z);
+			CreateComponent<Rotation3D>(nodeEntityId, rotation.w, rotation.x, rotation.y, rotation.z);
 
 
 			};
@@ -461,15 +462,15 @@ namespace OksEngine
 		const CameraTransformResource* cameraTransformResource0,
 		
 		ECS2::Entity::Id entity1id,
-		const Transform3DResource* transform3DResource1, 
 		const Indices* indices1,
-		const DriverIndexBuffer* driverIndexBuffer1, 
+		const DriverIndexBuffer* driverIndexBuffer1,
 		const DriverVertexBuffer* driverVertexBuffer1,
 		const TextureResource* textureResource1,
+		const ModelNodeEntityId* modelNodeEntityId1, 
 		
-		ECS2::Entity::Id entity2id, 
+		ECS2::Entity::Id entity2id,
 		RenderDriver* renderDriver2,
-		const RenderPass* renderPass2,
+		const RenderPass* renderPass2, 
 		const Pipeline* pipeline2) {
 
 
@@ -481,10 +482,19 @@ namespace OksEngine
 		driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
 		driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
 
+		const ECS2::Entity::Id nodeEntityId = modelNodeEntityId1->nodeEntityId_;
+
+
+#pragma region Assert
+		OS::AssertMessage(IsComponentExist<Transform3DResource>(nodeEntityId), "");
+		const auto* transform3DResource = GetComponent<Transform3DResource>(nodeEntityId);
+#pragma endregion
+
+
 		driver->Bind(pipeline2->id_,
 			{
 				cameraTransformResource0->id_,
-				transform3DResource1->id_,
+				transform3DResource->id_,
 				textureResource1->id_
 			});
 		driver->DrawIndexed(indices1->indices_.GetIndicesNumber());

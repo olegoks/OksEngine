@@ -14,6 +14,13 @@ ChildModelNodeEntitiesComponent = {
     }
 }
 
+ModelNodeEntityIdComponent = {
+    serializable = false,
+    fields = { 
+        { type = "ECS2::Entity::Id", name = "nodeEntityId" }
+    }
+}
+
 MeshEntitiesComponent = {
     serializable = false,
     fields = { 
@@ -65,6 +72,7 @@ CreateModelSystem = {
             {
                 createsComponents = {
                     "Name",
+                    "NodeEntityId",
                     "Vertices3D",
                     "Indices",
                     "Normals",
@@ -188,11 +196,11 @@ AddModelToRenderSystem = {
             },
             {
                 processesComponents = {
-                    "Transform3DResource",
                     "Indices",
                     "DriverIndexBuffer",
                     "DriverVertexBuffer",
-                    "TextureResource"
+                    "TextureResource",
+                    "ModelNodeEntityId"
                 }
             },
             {
@@ -200,6 +208,14 @@ AddModelToRenderSystem = {
                     { name = "RenderDriver", readonly = false},
                     "RenderPass",
                     "Pipeline"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "DriverTransform3D",
+                    "Transform3DResource"
                 }
             }
         }

@@ -20,7 +20,7 @@ namespace ECSGenerator2 {
 			Code code;
 			const std::string& fieldTypeName = typeName;
 			if (fieldTypeName == "std::string") {
-				code.Add("static char " + variableName + "[4096] = \"\";");
+				code.Add("static char " + variableName + "[1024] = \"\";");
 				return code;
 			}
 			else if (
@@ -76,13 +76,10 @@ namespace ECSGenerator2 {
 			Code code;
 			if (fieldVariableTypeName == "std::string") {
 				code.Add(GenerateTypeImGuiInputVariable(fieldVariableTypeName, fieldVariableName));
-				code.NewLine();
 				code.Add("std::memcpy(" + fieldVariableName + ", " + componentVariableName + "->" + fieldComponentVariableName + ".c_str(), " + componentVariableName + "->" + fieldVariableName + "_.size());");
-				code.NewLine();
 				code.Add(GenerateImGuiInputTypeCode(fieldVariableName, fieldVariableTypeName, fieldVariableName));
-				code.NewLine();
 				code.Add(componentVariableName + "->" + fieldComponentVariableName + " = std::string{ " + fieldVariableName + " };");
-				code.NewLine();
+				code.Add("std::memset({}, 0, 1024);", fieldVariableName);
 				return code;
 			}
 			else if (
@@ -98,7 +95,9 @@ namespace ECSGenerator2 {
 				return code;
 			}
 			else if (fieldVariableTypeName == "ECS2::Entity::Id") {
+				code.Add("ImGui::Indent(20.f);");
 				code.Add("EditEntity(ecsWorld, {}->{});", componentVariableName, fieldComponentVariableName);
+				code.Add("ImGui::Unindent(20.0f);");
 				return code;
 			}
 			else if (fieldVariableTypeName == "std::vector<ECS2::Entity::Id>") {

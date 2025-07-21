@@ -110,11 +110,11 @@ namespace ECSGenerator2 {
 
 	void ParsedSystem::UpdateMethodInfo::ForEachRandomAccessComponent(ProcessComponentName&& processComponent) const {
 
-		ForEachRandomAccessEntity([&](const RandomAccessEntity& entity, bool isLast) {
+		ForEachRandomAccessEntity([&](const RandomAccessEntity& entity, bool isLastEntity) {
 
 			for (Common::Index i = 0; i < entity.includes_.size(); i++) {
 				const std::string& componentName = entity.includes_[i].name_;
-				if (!processComponent(componentName, (i == entity.includes_.size() - 1))) {
+				if (!processComponent(componentName, isLastEntity && (i == entity.includes_.size() - 1))) {
 					break;
 				}
 			}
