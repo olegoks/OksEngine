@@ -47,6 +47,7 @@ namespace UI {
 		//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		ImGuiIO& io = ImGui::GetIO(); 
 		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		io.WantCaptureMouse = true;
 		ImGui::StyleColorsDark();
 
