@@ -93,7 +93,7 @@ UpdateCameraTransformUniformBufferSystem = {
         {
             processesComponents = { 
                 "Camera", 
-                "Position3D", 
+                "WorldPosition3D", 
                 "Direction3D",
                 "Up3D",
                 "ZNear",

@@ -224,8 +224,10 @@ namespace ECSGenerator2 {
 				Common::BreakPointLine();
 			}
 			Code realization;
+			realization.Add("ImGui::PushID({}::GetTypeId());", component->GetName());
 			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 				if (IsTypeCanBeEnteredFromImGui(fieldInfo.GetTypeName())) {
+					
 					realization.Add(GenerateTypeImGuiEditCode(
 						component->GetLowerName(),
 						fieldInfo.GetTypeName(),
@@ -235,7 +237,7 @@ namespace ECSGenerator2 {
 				}
 				return true;
 				});
-
+			realization.Add("ImGui::PopID();");
 
 			Function::CreateInfo fci1{
 				.name_ = "Edit" + component->GetName(),

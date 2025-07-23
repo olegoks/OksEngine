@@ -15,7 +15,7 @@ namespace OksEngine
 
 	void UpdateCameraTransformUniformBuffer::Update(ECS2::Entity::Id entity0id,
 		const Camera* camera0,
-		const Position3D* position3D0, 
+		const WorldPosition3D* position3D0, 
 		const Direction3D* direction3D0,
 		const Up3D* up3D0, 
 		const ZNear* zNear0, const ZFar* zFar0,

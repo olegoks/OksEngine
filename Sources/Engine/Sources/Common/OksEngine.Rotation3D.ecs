@@ -6,3 +6,21 @@ Rotation3DComponent = {
         { type = "float", name = "z" }
     }
 }
+
+WorldRotation3DComponent = {
+    fields = { 
+        { type = "float", name = "w" },
+        { type = "float", name = "x" },
+        { type = "float", name = "y" },
+        { type = "float", name = "z" }
+    }
+}
+
+LocalRotation3DComponent = {
+    fields = { 
+        { type = "float", name = "w" },
+        { type = "float", name = "x" },
+        { type = "float", name = "y" },
+        { type = "float", name = "z" }
+    }
+}

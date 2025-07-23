@@ -38,14 +38,14 @@ CreateModelSystem = {
         processesEntities = {
             {
                 processesComponents = { 
-                    "ModelFile"
+                    "ModelFile",
+                    "WorldPosition3D",
+                    "WorldRotation3D",
+                    "WorldScale3D"
 	            },
                 excludes = {
-                    "Position3D",
-                    "Rotation3D",
-                    "Vertices3D",
-                    "Indices",
-                    "UVs"
+                    "Model",
+                    "ChildModelNodeEntities"
                 },
                 createsComponents = {
                     "Model",
@@ -64,9 +64,9 @@ CreateModelSystem = {
                     "ModelNode",
                     "ChildModelNodeEntities",
                     "MeshEntities",
-                    "Position3D",
-                    "Rotation3D",
-                    "Scale3D"
+                    "LocalPosition3D",
+                    "LocalRotation3D",
+                    "LocalScale3D"
                 }
             },
             {
@@ -160,6 +160,24 @@ CreatePipelineSystem = {
     }
 }
 
+UpdateLocalPosition3DSystem = {
+    callOrder = {
+        runBefore = { "StartRender" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "Model",
+                    "ChildModelNodeEntities",
+                    "WorldPosition3D",
+                    "WorldRotation3D",
+                    "WorldScale3D"
+                }
+            }
+        }
+    }
+}
 
 BeginRenderPassSystem = {
     callOrder = {

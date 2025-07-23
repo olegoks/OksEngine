@@ -84,8 +84,9 @@ CreateDriverTransform3DSystem = {
         processesEntities = {
             {
                 processesComponents = { 
-                    { name = "Position3D", readonly = true },
-                    { name = "Rotation3D", readonly = true }
+                    { name = "WorldPosition3D", readonly = true },
+                    { name = "WorldRotation3D", readonly = true },
+                    { name = "WorldScale3D", readonly = true }
                 },
 	            excludes = { "DriverTransform3D" },
                 createsComponents = { "DriverTransform3D" }
@@ -128,8 +129,9 @@ UpdateDriverTransform3DSystem = {
     processesEntities = {
         {
             processesComponents = { 
-                "Position3D", 
-                "Rotation3D", 
+                "WorldPosition3D", 
+                "WorldRotation3D", 
+                "WorldScale3D",
                 { name = "DriverTransform3D", readonly = false }
             }
         },
