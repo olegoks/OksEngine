@@ -99,11 +99,11 @@ namespace OksEngine
 
 	void CreateModel::Update(
 		ECS2::Entity::Id entity0id,
-		const ModelFile* modelFile0, 
+		const ModelFile* modelFile0,
 		const WorldPosition3D* worldPosition3D0,
-		const WorldRotation3D* worldRotation3D0, 
+		const WorldRotation3D* worldRotation3D0,
 		const WorldScale3D* worldScale3D0,
-		
+
 		ECS2::Entity::Id entity1id,
 		const ResourceSystem* resourceSystem1) {
 
@@ -282,9 +282,9 @@ namespace OksEngine
 			return nodeEntityId;
 			};
 
-		
+
 		const ECS2::Entity::Id rootNodeEntityId = processChildrenNode(scene, scene->mRootNode);
-		
+
 		CreateComponent<ChildModelNodeEntities>(entity0id, std::vector{ rootNodeEntityId });
 		CreateComponent<Model>(entity0id);
 	};
@@ -378,7 +378,7 @@ namespace OksEngine
 
 	void CreatePipeline::Update(
 		ECS2::Entity::Id entity0id,
-		const RenderDriver* renderDriver0, 
+		const RenderDriver* renderDriver0,
 		const RenderPass* renderPass0,
 
 		ECS2::Entity::Id entity1id,
@@ -460,7 +460,7 @@ namespace OksEngine
 		const Pipeline* pipeline0) {
 
 		renderDriver0->driver_->BeginRenderPass(
-			renderPass0->rpId_, 
+			renderPass0->rpId_,
 			renderPass0->attachmentsSetId_,
 			{ 0, 0 },
 			{ 2560, 1440 });
@@ -476,14 +476,14 @@ namespace OksEngine
 		const WorldScale3D* worldScale3D0) {
 
 		std::function<void(ECS2::Entity::Id,
-			const glm::fvec3&	position3D,
-			const glm::quat&	rotation3D,
-			const glm::fvec3&	scale3D)> processModelNode = [&processModelNode, this](
+			const glm::fvec3& position3D,
+			const glm::quat& rotation3D,
+			const glm::fvec3& scale3D)> processModelNode = [&processModelNode, this](
 				ECS2::Entity::Id nodeEntityId,
-				const glm::fvec3&	parentPosition3D,
-				const glm::quat&	parentRotation3D,
-				const glm::fvec3&	parentScale3D) {
-			
+				const glm::fvec3& parentPosition3D,
+				const glm::quat& parentRotation3D,
+				const glm::fvec3& parentScale3D) {
+
 
 					if (IsComponentExist<Name>(nodeEntityId)) {
 						if (GetComponent<Name>(nodeEntityId)->value_ == "robot_base.025_low_53") {
@@ -491,15 +491,8 @@ namespace OksEngine
 						}
 
 					}
-					const auto* localNodePosition3D		= GetComponent<LocalPosition3D>(nodeEntityId);
-					auto* worldNodePosition3D			= GetComponent<WorldPosition3D>(nodeEntityId);
-
-					worldNodePosition3D->x_ = parentPosition3D.x + localNodePosition3D->x_;
-					worldNodePosition3D->y_ = parentPosition3D.y + localNodePosition3D->y_;
-					worldNodePosition3D->z_ = parentPosition3D.z + localNodePosition3D->z_;
-
-					const auto* localNodeRotation3D		= GetComponent<LocalRotation3D>(nodeEntityId);
-					auto* worldNodeRotation3D			= GetComponent<WorldRotation3D>(nodeEntityId);
+					const auto* localNodeRotation3D = GetComponent<LocalRotation3D>(nodeEntityId);
+					auto* worldNodeRotation3D = GetComponent<WorldRotation3D>(nodeEntityId);
 
 					glm::quat worldRotationQuat = parentRotation3D * glm::quat(localNodeRotation3D->w_, localNodeRotation3D->x_, localNodeRotation3D->y_, localNodeRotation3D->z_);
 
@@ -508,8 +501,19 @@ namespace OksEngine
 					worldNodeRotation3D->y_ = worldRotationQuat.y;
 					worldNodeRotation3D->z_ = worldRotationQuat.z;
 
-					const auto* localNodeScale3D		= GetComponent<LocalScale3D>(nodeEntityId);
-					auto* worldNodeScale3D				= GetComponent<WorldScale3D>(nodeEntityId);
+					const auto* localNodePosition3D = GetComponent<LocalPosition3D>(nodeEntityId);
+					auto* worldNodePosition3D = GetComponent<WorldPosition3D>(nodeEntityId);
+
+					{
+						glm::vec3 worldNodePosition3DVec = parentPosition3D + parentRotation3D * (parentScale3D * glm::vec3{ localNodePosition3D->x_, localNodePosition3D->y_, localNodePosition3D->z_ });
+
+						worldNodePosition3D->x_ = worldNodePosition3DVec.x;
+						worldNodePosition3D->y_ = worldNodePosition3DVec.y;
+						worldNodePosition3D->z_ = worldNodePosition3DVec.z;
+					}
+
+					const auto* localNodeScale3D = GetComponent<LocalScale3D>(nodeEntityId);
+					auto* worldNodeScale3D = GetComponent<WorldScale3D>(nodeEntityId);
 
 					worldNodeScale3D->x_ = parentScale3D.x * localNodeScale3D->x_;
 					worldNodeScale3D->y_ = parentScale3D.y * localNodeScale3D->y_;
@@ -525,7 +529,7 @@ namespace OksEngine
 							processModelNode(childModelNodeEntityId, currentNodePosition3D, currentNodeRotation3D, currentNodeScale3D);
 						}
 					}
-			
+
 			};
 
 
@@ -542,22 +546,22 @@ namespace OksEngine
 	}
 
 	void AddModelToRender::Update(
-		ECS2::Entity::Id entity0id, 
+		ECS2::Entity::Id entity0id,
 		const Camera* camera0,
 		const Active* active0,
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer0,
 		const CameraTransformResource* cameraTransformResource0,
-		
+
 		ECS2::Entity::Id entity1id,
 		const Indices* indices1,
 		const DriverIndexBuffer* driverIndexBuffer1,
 		const DriverVertexBuffer* driverVertexBuffer1,
 		const TextureResource* textureResource1,
-		const ModelNodeEntityId* modelNodeEntityId1, 
-		
+		const ModelNodeEntityId* modelNodeEntityId1,
+
 		ECS2::Entity::Id entity2id,
 		RenderDriver* renderDriver2,
-		const RenderPass* renderPass2, 
+		const RenderPass* renderPass2,
 		const Pipeline* pipeline2) {
 
 
