@@ -1,4 +1,8 @@
 
+ClockComponent = {
+    serializable = false,
+}
+
 EngineStartTimePointComponent = {
     serializable = false,
     fields = { 
@@ -27,6 +31,7 @@ CreateClockEntitySystem = {
             {
                 createsComponents = {
                     "Name",
+                    "Clock",
                     "TimeSinceEpoch",
                     "TimeSinceEngineStart",
                     "EngineStartTimePoint"

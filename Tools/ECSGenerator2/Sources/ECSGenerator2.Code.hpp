@@ -184,6 +184,7 @@ namespace ECSGenerator2 {
 			std::vector<std::shared_ptr<Function>> methods_;
 			bool defaultConstructor_ = true;
 			bool constructor_ = true;
+			bool forwardDeclaration_ = false;
 		};
 
 		Struct(const CreateInfo& createInfo)

@@ -2,6 +2,7 @@
 
 #include <System/ECSGenerator2.SystemCodeStructureGenerator.hpp>
 #include <Component/ECSGenerator2.ComponentCodeGenerator.hpp>
+#include <Struct/ECSGenerator2.StructCodeStructureGenerator.hpp>
 #include <ECSGenerator2.CodeGenerator.hpp>
 
 namespace ECSGenerator2 {
@@ -111,10 +112,43 @@ namespace ECSGenerator2 {
 
 				});
 
+			//Generate forward declarations for structures.
+			parsedECSFile->ForEachStruct([&](std::shared_ptr<ParsedStruct> parsedStruct) {
+
+
+				StructCodeStructureGenerator::CreateInfo scgci{
+					.includeDirectory_ = includeDirectory
+				};
+
+				StructCodeStructureGenerator structGenerator{ scgci };
+
+				auto structForwardDeclarationCodeStructure = structGenerator.GenerateStructForwardDeclaration(parsedStruct);
+				namespaceObject->Add(structForwardDeclarationCodeStructure);
+
+
+				});
+
+			// Generate STRUCTS code structure.
+			parsedECSFile->ForEachStruct([&](std::shared_ptr<ParsedStruct> parsedStruct) {
+				
+
+				StructCodeStructureGenerator::CreateInfo scgci{
+					.includeDirectory_ = includeDirectory
+				};
+
+				StructCodeStructureGenerator structGenerator{ scgci };
+
+				auto structCodeStructure = structGenerator.GenerateStructCodeStructure(parsedStruct);
+				namespaceObject->Add(structCodeStructure);
+				auto structsIncludes = structGenerator.GenerateIncludes(parsedStruct);
+				includes.paths_.insert(structsIncludes.paths_.begin(), structsIncludes.paths_.end());
+
+				});
 
 
 			std::unordered_set<std::string> includeComponents;
 
+			//Generate COMPONENTS code structure.
 			parsedECSFile->ForEachComponent(
 				[&](std::shared_ptr<ParsedComponent> parsedComponent) {
 

@@ -2,24 +2,45 @@ scene = {
 	entities = {
         {
             ID = 0,
-		    name = {value ="gltf model" },
-            --position3D = { x = 0.0, y = 0.0, z = 0.0},
+            name = {value ="Tank" },
             worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
-		    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
             worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
             model = { },
-		    modelFile = { fileName = "fictional_cold_war_tank.glb" }
+            runModelAnimation = { animationName = "Animation" }, 
+            modelFile = { fileName = "fictional_cold_war_tank.glb" }
         },
         {
             ID = 1,
+            name = {value ="Robotic arm" },
+            worldPosition3D = { x = 10.0, y = 0.0, z = 10.0 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+            model = { },
+            runModelAnimation = { animationName = "Robotics" }, 
+            modelFile = { fileName = "black_honey_-_robotic_arm.glb" }
+        },
+        {
+            ID = 2,
+		    name = {value ="Magnum" },
+            worldPosition3D = { x = 5.0, y = 0.0, z = 0.0 },
+		    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+            model = { },
+            runModelAnimation = { animationName = "sh_snip_stand_reload" }, 
+		    modelFile = { fileName = "rifle__awp_weapon_model_cs2.glb" }
+        },
+
+        {
+            ID = 3,
             camera = { },
             name = { value = "Camera" },
-            worldPosition3D = { x = 0.0, y = 0.0, z = 1.0 },
+            worldPosition3D = { x = 0.0, y = 4.0, z = -10.0 },
             worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
             worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
             zFar = { value = 1000.0 },
             zNear = { value = 0.1 },
-            direction3D = { x = 0.0, y = 0.0,  z = -1.0 },
+            direction3D = { x = 0.0, y = -0.3,  z = 1.0 },
             up3D = { x = 0, y = 1, z = 0 },
             width = { value = 2560 },
             height = { value = 1440 },

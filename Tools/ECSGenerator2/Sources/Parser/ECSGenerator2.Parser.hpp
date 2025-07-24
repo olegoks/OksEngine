@@ -4,6 +4,7 @@
 
 #include <System/ECSGenerator2.SystemParser.hpp>
 #include <Component/ECSGenerator2.ComponentParser.hpp>
+#include <Struct/ECSGenerator2.StructParser.hpp>
 
 namespace ECSGenerator2 {
 
@@ -31,10 +32,20 @@ namespace ECSGenerator2 {
 
 			std::vector<std::shared_ptr<ParsedSystem>> parsedSystems;
 			std::vector<std::shared_ptr<ParsedComponent>> parsedComponents;
+			std::vector<std::shared_ptr<ParsedStruct>> parsedStructs;
+
+
 
 			for (const std::string& globalName : tableNames) {
 				if (globalName == "BehaviourComponent") {
 					Common::BreakPointLine();
+				}
+				if (globalName.ends_with("Struct")) {
+					luabridge::LuaRef structRef = ecsFile[globalName];
+					StructParser structParser;
+					auto parsedStruct = structParser.Parse(structRef,
+						globalName.substr(0, globalName.rfind("Struct")));
+					parsedStructs.push_back(parsedStruct);
 				}
 				if (globalName.ends_with("Component")) {
 
@@ -61,7 +72,8 @@ namespace ECSGenerator2 {
 			ParsedECSFile::CreateInfo pEcsFileCI{
 				.path_ = ecsFilePath,
 				.systems_ = parsedSystems,
-				.components_ = parsedComponents
+				.components_ = parsedComponents,
+				.structs_ = parsedStructs
 			};
 
 			auto parsedEcsFile = std::make_shared<ParsedECSFile>(pEcsFileCI);

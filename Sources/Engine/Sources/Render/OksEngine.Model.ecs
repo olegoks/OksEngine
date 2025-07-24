@@ -33,6 +33,141 @@ ModelFileComponent = {
         { type = "std::string", name = "fileName"} }
 }
 
+-- ANIMATION
+
+--NODE
+ChannelPositionKeyStruct = {
+    fields = {
+        { type = "double", name = "time" },
+        { type = "glm::vec3", name = "position3D" }
+    }
+}
+
+ChannelRotationKeyStruct = {
+    fields = {
+        { type = "double", name = "time" },
+        { type = "glm::quat", name = "rotation3D" }
+    }
+}
+
+ChannelScaleKeyStruct = {
+    fields = {
+        { type = "double", name = "time" },
+        { type = "glm::vec3", name = "scale3D" }
+    }
+}
+
+NodeAnimationChannelStruct = {
+    fields = {
+        { type = "std::vector<ChannelPositionKey>", name = "position3DValues" },
+        { type = "std::vector<ChannelRotationKey>", name = "rotation3DValues" },
+        { type = "std::vector<ChannelScaleKey>", name = "scale3DValues" },
+    }
+}
+
+ModelNodeAnimationComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::map<std::string, NodeAnimationChannel>", name = "animationNameToChannel" }
+    }
+}
+--NODE
+
+--MODEL
+
+ModelAnimationStruct = {
+    serializable = false,
+    fields = {
+        { type = "std::string", name = "name" },
+        { type = "double", name = "durationInTicks" },
+        { type = "double", name = "ticksPerSecond" }
+    }
+}
+
+ModelAnimationsComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<ModelAnimation>", name = "animations" }
+    }
+}
+
+RunModelAnimationComponent = {
+    fields = {
+        { type = "std::string", name = "animationName" }
+    }
+}
+
+AnimationInProgressComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::string", name = "animationName" },
+        { type = "double", name = "currentTick" },
+        { type = "Common::UInt64", name = "animationStartTimeSinceEngineStart" }
+    }
+}
+
+StartModelAnimationSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Model",
+                    "RunModelAnimation",
+                    "ModelAnimations"
+	            },
+                excludes = {
+                    "AnimationInProgress"
+                },
+                createsComponents = {
+                    "AnimationInProgress"
+                },
+                removesComponents = {
+                    "RunModelAnimation"
+                }
+            },
+            {
+                processesComponents = { 
+                    "Clock",
+                    "TimeSinceEngineStart"
+                }
+            }
+        }
+    }
+}
+
+ProcessModelAnimationSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Model",
+                    "ModelAnimations",
+                    "AnimationInProgress",
+                    "ChildModelNodeEntities"
+	            },
+                removesComponents = {
+                    "AnimationInProgress"
+                },
+                -- Debug
+                createsComponents = {
+                    "RunAnimation"
+                }
+            },
+            {
+                processesComponents = { 
+                    "Clock",
+                    "TimeSinceEngineStart"
+                }
+            }
+        }
+    }
+}
+
+--MODEL
+
+--ANIMATION
+
+
 CreateModelSystem = {
     updateMethod = {
         processesEntities = {

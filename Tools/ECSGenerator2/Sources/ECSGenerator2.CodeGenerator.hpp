@@ -19,6 +19,12 @@ namespace ECSGenerator2 {
 
 		Code GenerateECSCXXFilesStructure(std::shared_ptr<Struct> structObject) {
 			Code code;
+
+			if (structObject->ci_.forwardDeclaration_) {
+				code.Add("struct " + structObject->GetName() + ";");
+				return code;
+			}
+
 			code.Add("struct " + structObject->GetName() + " ");
 			if (structObject->HasParent()) {
 				code.Add(": " + structObject->GetParentName() + " ");

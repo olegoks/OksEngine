@@ -10,7 +10,7 @@ namespace OksEngine
 		const ECS2::Entity::Id entityId = CreateEntity();
 
 		CreateComponent<Name>(entityId, "Clock");
-
+		CreateComponent<Clock>(entityId);
 		CreateComponent<TimeSinceEngineStart>(entityId, 0);
 
 		const auto nowTimePoint = std::chrono::high_resolution_clock::now();
