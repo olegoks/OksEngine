@@ -167,6 +167,43 @@ ProcessModelAnimationSystem = {
 
 --ANIMATION
 
+--CreateAssimpSceneSystem = {
+--    updateMethod = {
+--        processesEntities = {
+--            {
+--                processesComponents = {
+--                    "ModelInfo"
+--                }
+--            },
+--            {
+--                
+--            }
+--        }
+--    }
+--}
+--
+--AssimpSceneComponent = {
+--    fields = {
+--        { type = "std::shared_ptr<aiScene>", name = "aiScene" }
+--    }
+--}
+
+-- CreateModelMeshesSystem = {
+--     updateMethod = {
+--         processesEntities = {
+--             {
+--                 processesComponents = { 
+--                     "ModelFile"
+-- 	            }
+--             },
+--             {
+--                 processesComponents = {
+--                     "ResourceSystem"
+--                 }
+--             }
+--         }
+--     }
+-- }
 
 CreateModelSystem = {
     updateMethod = {

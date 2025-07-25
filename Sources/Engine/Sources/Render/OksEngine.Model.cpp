@@ -22,7 +22,6 @@ namespace OksEngine
 		ECS2::Entity::Id entity1id, const Clock* clock1,
 		const TimeSinceEngineStart* timeSinceEngineStart1) {
 
-
 #pragma region Assert
 		OS::AssertMessage(
 			std::find_if(
@@ -33,7 +32,6 @@ namespace OksEngine
 				}) != modelAnimations0->animations_.cend(),
 					"Attempt to start animation that doesnt exist.");
 #pragma endregion
-
 
 		CreateComponent<AnimationInProgress>(entity0id, runModelAnimation0->animationName_, 0.0, timeSinceEngineStart1->microseconds_);
 		RemoveComponent<RunModelAnimation>(entity0id);
@@ -269,17 +267,6 @@ namespace OksEngine
 		Common::Size size_;
 	};
 
-	glm::mat4 aiMatrix4x4ToGlm(const aiMatrix4x4& aiMat) {
-		glm::mat4 glmMat;
-
-		glmMat[0][0] = aiMat.a1; glmMat[0][1] = aiMat.b1; glmMat[0][2] = aiMat.c1; glmMat[0][3] = aiMat.d1;
-		glmMat[1][0] = aiMat.a2; glmMat[1][1] = aiMat.b2; glmMat[1][2] = aiMat.c2; glmMat[1][3] = aiMat.d2;
-		glmMat[2][0] = aiMat.a3; glmMat[2][1] = aiMat.b3; glmMat[2][2] = aiMat.c3; glmMat[2][3] = aiMat.d3;
-		glmMat[3][0] = aiMat.a4; glmMat[3][1] = aiMat.b4; glmMat[3][2] = aiMat.c4; glmMat[3][3] = aiMat.d4;
-
-		return glmMat;
-	}
-
 	void CreateModel::Update(
 		ECS2::Entity::Id entity0id,
 		const ModelFile* modelFile0,
@@ -313,16 +300,21 @@ namespace OksEngine
 			flags,
 			"gltf"
 		);
-
+		
 		auto errorString = std::string(importer.GetErrorString());
 
 		if (!scene || !scene->mRootNode) {
 			throw std::runtime_error("Failed to load model: " + std::string(importer.GetErrorString()));
 		}
 
+		std::map<aiNode*, ECS2::Entity::Id> nodeToEntityId;
+		 
+
 		auto createNodeComponents = [this](const aiScene* scene, aiNode* node, ECS2::Entity::Id nodeEntityId) {
 
 			std::vector<ECS2::Entity::Id> meshEntities;
+
+			std::cout << node->mName.C_Str() << std::endl;
 
 			if (node->mNumMeshes > 0) {
 
@@ -337,12 +329,16 @@ namespace OksEngine
 					int meshIndex = node->mMeshes[i];
 					aiMesh* mesh = scene->mMeshes[meshIndex];
 
-
+					std::cout <<"\t" << mesh->mName.C_Str() << std::endl;
 
 					const ECS2::Entity::Id meshEntity
 						= CreateEntity();
 					CreateComponent<Name>(meshEntity, std::string{ mesh->mName.C_Str() });
 					CreateComponent<ModelNodeEntityId>(meshEntity, nodeEntityId);
+
+
+
+
 					meshEntities.push_back(meshEntity);
 					aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 					aiString aiTexturePath;
@@ -436,7 +432,7 @@ namespace OksEngine
 
 			};
 
-		std::map<std::string, ECS2::Entity::Id> nodeNameToEntityId;
+		//std::map<std::string, ECS2::Entity::Id> nodeNameToEntityId;
 
 		std::function<ECS2::Entity::Id(const aiScene*, aiNode*)> processChildrenNode = [&](const aiScene* scene, aiNode* node) -> ECS2::Entity::Id {
 
@@ -534,6 +530,27 @@ namespace OksEngine
 			};
 			modelAnimations.push_back(std::move(modelAnimation));
 		}
+		//for (std::uint32_t i = 0; i < scene->mNumAnimations; i++) {
+		//	aiAnimation* anim = scene->mAnimations[i];
+		//	std::cout << "Animation: " << anim->mName.C_Str()
+		//		<< ", Duration: " << anim->mDuration
+		//		<< ", Ticks/sec: " << anim->mTicksPerSecond << std::endl;
+
+		//	for (std::uint32_t k = 0; k < anim->mNumChannels; k++) {
+		//		aiNodeAnim* nodeAnim = anim->mChannels[k];
+		//		std::cout << "Animation channel name: " << nodeAnim->mNodeName.C_Str() << std::endl;
+		//	}
+
+		//	// Обработка каждой костной анимации
+		//	for (uint32_t j = 0; j < anim->mNumChannels; j++) {
+		//		aiNodeAnim* nodeAnim = anim->mChannels[j];
+		//		std::cout << "  Bone: " << nodeAnim->mNodeName.C_Str()
+		//			<< ", Pos keys: " << nodeAnim->mNumPositionKeys
+		//			<< ", Rot keys: " << nodeAnim->mNumRotationKeys << std::endl;
+		//	}
+
+
+		//}
 		CreateComponent<ModelAnimations>(entity0id, std::move(modelAnimations));
 
 

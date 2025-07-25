@@ -21,7 +21,7 @@ namespace Resources {
 
 		template<class Type>
 		 Type* GetData() {
-			return static_cast<Type*>(data_.GetData());
+			return reinterpret_cast<Type*>(data_.GetData());
 		}
 
 		[[nodiscard]]

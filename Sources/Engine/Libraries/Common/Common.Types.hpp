@@ -10,6 +10,7 @@ namespace Common {
 	using Size = Unsigned;
 	using Index = Unsigned;
 	using Byte = char;
+	using UByte = unsigned char;
 
 	using Float = float;
 	using Double = double;

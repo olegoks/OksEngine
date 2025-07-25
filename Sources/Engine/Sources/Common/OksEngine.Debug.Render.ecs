@@ -1,0 +1,217 @@
+-- LINES
+
+-- LINES
+
+-- TEXT
+DebugTextRendererComponent = { }
+
+CreateDebugTextRendererSystem = {
+    type = "Initialize",
+    updateMethod = {
+        -- TODO: read fonts atlas from Config
+        createsEntities = {
+            {
+                createsComponents = {
+                    "DebugTextRenderer"
+                }
+            }
+        }
+    }
+}
+
+CreateDebugTextAtlasSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = "CreateDebugTextRenderer"
+    },
+    updateMethod = {
+        -- TODO: read fonts atlas from Config
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "ResourceSystem", readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    "DebugTextRenderer"
+                },
+                excludes = { "Texture" },
+                createsComponents = { "Texture" }
+            }
+        }
+    }
+}
+
+
+DebugTextRenderPassComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "rpId" },
+        { type = "Common::Id", name = "attachmentsSetId" }, -- Synonym of VkFramebuffer
+        { type = "std::vector<Common::Id>", name = "textureIds" }
+    }
+}
+
+CreateDebugTextRenderPassSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateRenderDriver",
+            "CreateDebugTextRenderer"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver",
+                    "RenderPass",
+                    "Pipeline"
+                }
+            },
+            {   
+                processesComponents = {
+                    "DebugTextRenderer"
+                },
+                excludes = {
+                    "DebugTextRenderPass"
+                },
+                createsComponents = {
+                    "DebugTextRenderPass"
+                }
+            }
+        }
+    }
+}
+
+DebugTextPipelineComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "id" }
+    }
+}
+
+
+
+CreateDebugTextPipelineSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateRenderDriver",
+            "CreateResourceSystem",
+            "CreateDebugTextRenderer",
+            "CreateDebugTextRenderPass"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+             {
+                processesComponents = {
+                    "RenderDriver"
+                }
+            },
+            {
+                processesComponents = {
+                    "ResourceSystem"
+                }
+            },
+            {   
+                processesComponents = {
+                    "DebugTextRenderer",
+                    "DebugTextRenderPass"
+                },
+                excludes = {
+                    "DebugTextPipeline"
+                },
+                createsComponents = {
+                    "DebugTextPipeline"
+                }
+            }
+        }
+    }
+}
+
+BeginDebugTextRenderPassSystem = {
+    callOrder = {
+        runAfter = { "StartRender" },
+        runBefore = { "DrawWorldPositionName" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false},
+                    "RenderPass",
+                    "Pipeline"
+                }
+            },
+            {
+                processesComponents = {
+                    "DebugTextRenderer",
+                    "DebugTextRenderPass",
+                    "DebugTextPipeline"
+                }
+            }
+        }
+    }
+}
+
+DrawWorldPositionNameSystem = {
+    callOrder = {
+        runAfter = "BeginDebugTextRenderPass",
+        runBefore = "EndDebugTextRenderPass"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false},
+                    "RenderPass",
+                    "Pipeline"
+                }
+            },
+            {
+                processesComponents = {
+                    "DebugTextRenderer",
+                    "DebugTextRenderPass",
+                    "DebugTextPipeline"
+                }
+            },
+            {
+                processesComponents = {
+                    "Name",
+                    "WorldPosition3D"
+                }
+            }
+        }
+    }
+}
+
+EndDebugTextRenderPassSystem = {
+    callOrder = {
+        runAfter = { "DrawWorldPositionName" },
+        runBefore = { "BeginImGuiRenderPass" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false},
+                    "RenderPass",
+                    "Pipeline"
+                }
+            },
+            {
+                processesComponents = {
+                    "DebugTextRenderer",
+                    "DebugTextRenderPass",
+                    "DebugTextPipeline"
+                }
+            }
+        }
+    }
+}
+
+
+-- TEXT

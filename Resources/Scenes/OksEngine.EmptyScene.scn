@@ -1,38 +1,49 @@
 scene = {
 	entities = {
+--{
+--    ID = 0,
+--    name = {value ="Tank" },
+--    worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+--    model = { },
+--    runModelAnimation = { animationName = "Animation" }, 
+--    modelFile = { fileName = "fictional_cold_war_tank.glb" }
+--},
+        
         {
-            ID = 0,
-            name = {value ="Tank" },
+            ID = 1,
+            name = {value ="Striker" },
             worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
             worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
             worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
             model = { },
-            runModelAnimation = { animationName = "Animation" }, 
-            modelFile = { fileName = "fictional_cold_war_tank.glb" }
+            runModelAnimation = { animationName = "ArmatureAction" }, 
+            modelFile = { fileName = "TwoBonesExample.glb" }
         },
-        {
-            ID = 1,
-            name = {value ="Robotic arm" },
-            worldPosition3D = { x = 10.0, y = 0.0, z = 10.0 },
-            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-            worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-            model = { },
-            runModelAnimation = { animationName = "Robotics" }, 
-            modelFile = { fileName = "black_honey_-_robotic_arm.glb" }
-        },
-        {
-            ID = 2,
-		    name = {value ="Magnum" },
-            worldPosition3D = { x = 5.0, y = 0.0, z = 0.0 },
-		    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-            worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-            model = { },
-            runModelAnimation = { animationName = "sh_snip_stand_reload" }, 
-		    modelFile = { fileName = "rifle__awp_weapon_model_cs2.glb" }
-        },
+--{
+--    ID = 2,
+--    name = {value ="Robotic arm" },
+--    worldPosition3D = { x = 10.0, y = 0.0, z = 10.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+--    model = { },
+--    runModelAnimation = { animationName = "Robotics" }, 
+--    modelFile = { fileName = "black_honey_-_robotic_arm.glb" }
+--},
+--{
+--    ID = 3,
+--    name = {value ="Magnum" },
+--    worldPosition3D = { x = 5.0, y = 0.0, z = 0.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+--    model = { },
+--    runModelAnimation = { animationName = "sh_snip_stand_reload" }, 
+--    modelFile = { fileName = "rifle__awp_weapon_model_cs2.glb" }
+--},
 
         {
-            ID = 3,
+            ID = 4,
             camera = { },
             name = { value = "Camera" },
             worldPosition3D = { x = 0.0, y = 4.0, z = -10.0 },
@@ -46,6 +57,56 @@ scene = {
             height = { value = 1440 },
             active = {},
             behaviour = { scriptName = "Camera.lua", objectName = "Camera" }
-        }
+        }--,
+--  {
+--      ID = 4,
+--      name = {value ="Tank" },
+--      worldPosition3D = { x = 5.0, y = 0.0, z = 0.0 },
+--      worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--      worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+--      model = { },
+--      runModelAnimation = { animationName = "Animation" }, 
+--      modelFile = { fileName = "fictional_cold_war_tank.glb" }
+--  },
+--  {
+--      ID = 5,
+--      name = {value ="Tank" },
+--      worldPosition3D = { x = -5.0, y = 0.0, z = 0.0 },
+--      worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--      worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+--      model = { },
+--      runModelAnimation = { animationName = "Animation" }, 
+--      modelFile = { fileName = "fictional_cold_war_tank.glb" }
+--  },
+--  {
+--      ID = 6,
+--      name = {value ="Tank" },
+--      worldPosition3D = { x = 10.0, y = 0.0, z = 0.0 },
+--      worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--      worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+--      model = { },
+--      runModelAnimation = { animationName = "Animation" }, 
+--      modelFile = { fileName = "fictional_cold_war_tank.glb" }
+--  },
+--  {
+--      ID = 7,
+--      name = {value ="Tank" },
+--      worldPosition3D = { x = -10.0, y = 0.0, z = 0.0 },
+--      worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--      worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+--      model = { },
+--      runModelAnimation = { animationName = "Animation" }, 
+--      modelFile = { fileName = "fictional_cold_war_tank.glb" }
+--  },
+--  {
+--      ID = 8,
+--      name = {value ="Tank" },
+--      worldPosition3D = { x = -15.0, y = 0.0, z = 0.0 },
+--      worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--      worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+--      model = { },
+--      runModelAnimation = { animationName = "Animation" }, 
+--      modelFile = { fileName = "fictional_cold_war_tank.glb" }
+--  }
     }
 }

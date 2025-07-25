@@ -70,6 +70,9 @@ find_package(SFML COMPONENTS Network Graphics Window Audio System CONFIG REQUIRE
 find_package(yaml-cpp CONFIG REQUIRED)
 #find_package(imguizmo CONFIG REQUIRED)
 
+find_package(Freetype REQUIRED)
+target_include_directories(OksEngine PRIVATE ${FREETYPE_INCLUDE_DIRS})
+
 target_link_libraries(OksEngine
     PUBLIC
     Boost::asio
@@ -77,6 +80,7 @@ target_link_libraries(OksEngine
     SFML::Audio
     SFML::System
     yaml-cpp::yaml-cpp
+    ${FREETYPE_LIBRARIES}
     # imgui::imgui
     ImGui
     #unofficial::imgui-node-editor::imgui-node-editor

@@ -18,6 +18,7 @@ namespace Render::Vulkan {
 		};
 
 		struct CreateInfo {
+			std::string name_ = "No name render pass";
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			VkFormat colorAttachmentFormat_ = VkFormat::VK_FORMAT_UNDEFINED;
 			VkSampleCountFlagBits samplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
@@ -240,7 +241,7 @@ namespace Render::Vulkan {
 				nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
 				nameInfo.objectType = VK_OBJECT_TYPE_RENDER_PASS; // Тип объекта,, VK_OBJECT_TYPE_BUFFER
 				nameInfo.objectHandle = (uint64_t)renderPass;   // Объект, которому назначается имя
-				nameInfo.pObjectName = "MY RENEDER PASS";      // Имя объекта
+				nameInfo.pObjectName = createInfo.name_.c_str();      // Имя объекта
 				SetObjectName(*createInfo.LD_, &nameInfo);
 
 				SetHandle(renderPass);
