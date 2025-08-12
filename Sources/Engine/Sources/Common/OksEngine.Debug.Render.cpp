@@ -31,8 +31,8 @@ namespace OksEngine
 
 		auto& vertices = debugTextVertexBuffer0->vertices_;
 
-		float x = 100.f;// debugText2D1->x_;
-		float y = 100.f; //debugText2D1->y_;
+		float x = debugText2D1->x_;
+		float y = debugText2D1->y_;
 		const float scale = 1.0;
 		// Для каждого символа в тексте
 		for (char c : debugText2D1->text_) {
@@ -44,6 +44,7 @@ namespace OksEngine
 			float w = ch.size_.x * scale;
 			float h = ch.size_.y * scale;
 			//glm::u32vec2{ 2560, 1440 }
+			//TODO: use current frame buffer size.
 			const float screenHalfX = 1280;
 			const float screenHalfY = 720;
 			vertices.Add({ { (cx - screenHalfX) / screenHalfX, ((cy + h) - screenHalfY) / screenHalfY}, { ch.uvMin_.x, ch.uvMax_.y }, Geom::Color4b::Zero()});
@@ -144,7 +145,7 @@ namespace OksEngine
 		}
 
 		// Установка размера шрифта
-		FT_Set_Pixel_Sizes(face, 0, 48);
+		FT_Set_Pixel_Sizes(face, 0, 18);
 
 		constexpr int atlasWidth = 1024; // Ширина атласа
 		constexpr int atlasHeight = 1024; // Высота атласа
@@ -164,21 +165,8 @@ namespace OksEngine
 #pragma region Assert
 			OS::AssertMessage(!error, "");
 #pragma endregion
-//
-//			FT_UInt glyph_index = FT_Get_Char_Index(face, c);
-//			const FT_Error errorLoad = FT_Load_Glyph(face, glyph_index, FT_LOAD_DEFAULT);
-//#pragma region Assert
-//			OS::AssertMessage(!errorLoad, "");
-//#pragma endregion
-//
-//			const FT_Error errorRender = FT_Render_Glyph(face->glyph, FT_RENDER_MODE_NORMAL);
-//#pragma region Assert
-//			OS::AssertMessage(!errorRender, "");
-//#pragma endregion
 			//Symbol bitmap.
 			FT_Bitmap& bitmap = face->glyph->bitmap;
-
-			//FT_Pixel_Mode_::FT_PIXEL_MODE_BGRA
 
 			// Проверяем, помещается ли символ в текущую строку
 			if (x + bitmap.width > atlasWidth) {
@@ -399,7 +387,7 @@ namespace OksEngine
 
 	}
 
-	void DrawWorldPositionName::Update(
+	void DrawDebugText2D::Update(
 		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const RenderPass* renderPass0,
 		const Pipeline* pipeline0, ECS2::Entity::Id entity1id, const DebugTextRenderer* debugTextRenderer1,
 		const DebugTextRenderPass* debugTextRenderPass1, const DebugTextPipeline* debugTextPipeline1,

@@ -278,7 +278,7 @@ CreateDebugTextPipelineSystem = {
 BeginDebugTextRenderPassSystem = {
     callOrder = {
         runAfter = { "StartRender" },
-        runBefore = { "DrawWorldPositionName" }
+        runBefore = { " DrawDebugText2D" }
     },
     updateMethod = {
         processesEntities = {
@@ -299,8 +299,8 @@ BeginDebugTextRenderPassSystem = {
         }
     }
 }
--- TODO: delete this system, its just for tests
-DrawWorldPositionNameSystem = {
+
+ DrawDebugText2DSystem = {
     callOrder = {
         runAfter = "BeginDebugTextRenderPass",
         runBefore = "EndDebugTextRenderPass"
@@ -335,7 +335,7 @@ DrawWorldPositionNameSystem = {
 
 EndDebugTextRenderPassSystem = {
     callOrder = {
-        runAfter = { "DrawWorldPositionName" },
+        runAfter = { " DrawDebugText2D" },
         runBefore = { "BeginImGuiRenderPass" }
     },
     updateMethod = {

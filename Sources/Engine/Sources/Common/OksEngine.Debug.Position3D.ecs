@@ -1,0 +1,46 @@
+--Debug 
+CreatePosition3DDebugText2DSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "WorldPosition3D"
+                },
+                excludes = {
+                    "DebugText2D"
+                },
+                createsComponents = {
+                    "DebugText2D"
+                }
+            }
+        }
+    }
+}
+
+UpdatePosition3DDebugText2DSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "Camera",
+                    "ZFar",
+                    "ZNear",
+                    "Direction3D",
+                    "WorldPosition3D",
+                    "WorldRotation3D",
+                    "Width",
+                    "Height",
+                    "Up3D"
+                }
+            },
+            {
+                processesComponents = {
+                    "WorldPosition3D",
+                    { name = "DebugText2D", readonly = false }
+                }
+            }            
+        }
+    }
+}
+
+--Debug 
