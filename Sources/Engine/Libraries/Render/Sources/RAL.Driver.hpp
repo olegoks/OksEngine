@@ -522,6 +522,7 @@ namespace RAL {
 			Common::UInt64 offset) = 0;
 		virtual void Bind(RAL::Driver::Pipeline::Id pipelineId, const std::vector<Resource::Id>& resourceIds) = 0;
 		virtual void DrawIndexed(Common::Size indicesNumber) = 0;
+		virtual void Draw(Common::Size verticesNumber) = 0;
 		virtual void EndSubpass() = 0;
 		virtual void EndRenderPass() = 0;
 		virtual void Show(RAL::Driver::Texture::Id textureId) = 0;

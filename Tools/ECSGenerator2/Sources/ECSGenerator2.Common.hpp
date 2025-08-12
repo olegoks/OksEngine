@@ -43,6 +43,7 @@ namespace ECSGenerator2{
 			"float",
 			"int",
 			"Common::UInt64",
+			"Common::UInt32",
 			"Common::Size",
 			"Common::Index",
 			"ECS2::Entity::Id",
@@ -72,6 +73,9 @@ namespace ECSGenerator2{
 		}
 		else if (fieldType == "Common::UInt64") {
 			return "ImGuiDataType_U64";
+		}
+		else if (fieldType == "Common::UInt32") {
+			return "ImGuiDataType_U32";
 		}
 		else if (fieldType == "Common::Size") {
 			return "ImGuiDataType_U64";

@@ -1236,6 +1236,14 @@ namespace Render::Vulkan {
 			CB_->DrawIndexed(indicesNumber);
 		}
 
+		virtual void Draw(Common::Size verticesNumber) override {
+			if (CB_ == nullptr) {
+				return;
+			}
+
+			CB_->Draw(verticesNumber);
+		}
+
 		virtual void EndSubpass() override {
 
 		}

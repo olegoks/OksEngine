@@ -28,6 +28,7 @@ namespace ECSGenerator2 {
 				fieldTypeName == "double" ||
 				fieldTypeName == "Common::Size" ||
 				fieldTypeName == "Common::UInt64" ||
+				fieldTypeName == "Common::UInt32" ||
 				fieldTypeName == "Common::Index" ||
 				fieldTypeName == "ECS2::Entity::Id" || 
 				fieldTypeName == "std::vector<ECS2::Entity::Id>") {
@@ -51,6 +52,7 @@ namespace ECSGenerator2 {
 				typeName == "double" ||
 				typeName == "Common::Size" ||
 				typeName == "Common::UInt64" ||
+				typeName == "Common::UInt32" ||
 				typeName == "Common::Index" ||
 				typeName == "ECS2::Entity::Id") {
 				code.Add("ImGui::InputScalar(\"" + imguiVariableName + "\", " + GetImGuiType(typeName) + ", " + outVariable + ");");
@@ -87,6 +89,7 @@ namespace ECSGenerator2 {
 				fieldVariableTypeName == "double" ||
 				fieldVariableTypeName == "Common::Size" ||
 				fieldVariableTypeName == "Common::UInt64" ||
+				fieldVariableTypeName == "Common::UInt32" ||
 				fieldVariableTypeName == "Common::Index") {
 				code.Add(GenerateImGuiInputTypeCode(
 					fieldVariableName,

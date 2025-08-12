@@ -13,7 +13,8 @@ add_library(OksEngine STATIC)
 if(MSVC)
   #target_compile_options(OksEngine PUBLIC "/MP" "/bigobj")
     string(TIMESTAMP CURRENT_HOUR "%H")
-    if(CURRENT_HOUR GREATER_EQUAL "00" AND CURRENT_HOUR LESS "03")
+    if(FALSE)
+    #if(CURRENT_HOUR GREATER_EQUAL "00" AND CURRENT_HOUR LESS "03")
         target_compile_options(OksEngine PUBLIC "/bigobj")
         message(STATUS "Ночной режим активирован (00:00–03:00)")
     else()
@@ -70,6 +71,10 @@ find_package(SFML COMPONENTS Network Graphics Window Audio System CONFIG REQUIRE
 find_package(yaml-cpp CONFIG REQUIRED)
 #find_package(imguizmo CONFIG REQUIRED)
 
+find_package(Stb REQUIRED)
+target_include_directories(OksEngine PRIVATE ${Stb_INCLUDE_DIR})
+
+
 find_package(Freetype REQUIRED)
 target_include_directories(OksEngine PRIVATE ${FREETYPE_INCLUDE_DIRS})
 
@@ -79,6 +84,7 @@ target_link_libraries(OksEngine
     Microsoft::WinPixEventRuntime
     SFML::Audio
     SFML::System
+    
     yaml-cpp::yaml-cpp
     ${FREETYPE_LIBRARIES}
     # imgui::imgui

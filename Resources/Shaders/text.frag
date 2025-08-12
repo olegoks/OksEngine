@@ -1,10 +1,11 @@
-#version 450 core
-layout(location = 0) out vec4 fColor;
-layout(set = 1, binding = 0) uniform sampler2D sTexture;
-layout(location = 0) in struct { vec4 Color; vec2 UV; } In;
+#version 450
 
-void main()
-{
-    fColor = In.Color * texture(sTexture, In.UV.st);
-    
+layout(location = 0) in vec2 fragTexCoord;
+layout(location = 0) out vec4 outColor;
+
+layout(binding = 0) uniform sampler2D texSampler;
+
+void main() {
+    float alpha = texture(texSampler, fragTexCoord).a;
+    outColor = vec4(0, 0, 0, alpha);
 }

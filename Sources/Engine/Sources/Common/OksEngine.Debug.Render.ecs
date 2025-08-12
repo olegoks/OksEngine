@@ -3,6 +3,16 @@
 -- LINES
 
 -- TEXT
+
+-- Add this component to show debug text
+DebugText2DComponent = {
+    fields = {
+        { type = "std::string", name = "text" },
+        { type = "Common::UInt32", name = "x" },
+        { type = "Common::UInt32", name = "y" },
+    }
+}
+
 DebugTextRendererComponent = { }
 
 CreateDebugTextRendererSystem = {
@@ -16,6 +26,139 @@ CreateDebugTextRendererSystem = {
                 }
             }
         }
+    }
+}
+
+SymbolMetadataStruct = {
+
+    fields = {
+        { type = "glm::vec2", name = "uvMin" },
+        { type = "glm::vec2", name = "uvMax" },
+        { type = "glm::ivec2", name = "size" },
+        { type = "glm::ivec2", name = "bearing" },
+        { type = "Common::UInt32", name = "advanceX" },
+        { type = "Common::UInt32", name = "advanceY" }
+    }
+}
+
+SymbolsMetadataComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::map<char, SymbolMetadata>", name = "symbolsMetadata"}
+    }
+}
+
+DebugTextVertexBufferComponent = {
+    serializable = false,
+    fields = { { type = "Geom::VertexCloud<Geom::Vertex2ftc>", name = "vertices" } }
+}
+
+CreateDebugTextVertexBufferSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { 
+        "CreateDebugTextRenderer",
+        "CreateRenderDriver" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "DebugTextRenderer"
+                },
+                createsComponents = {
+                    "DebugTextVertexBuffer"
+                },
+                excludes = { "DebugTextVertexBuffer" }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false } 
+                }
+            }
+        }
+    }
+}
+
+UpdateDebugTextVertexBufferSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "DebugTextRenderer",
+                    "SymbolsMetadata",
+                    { name = "DebugTextVertexBuffer", readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    "DebugText2D"
+                }
+            }
+        }
+    }
+}
+
+
+DebugTextDriverVertexBufferComponent = {
+    serializable = false,
+    fields = { 
+        { type="RAL::Driver::VertexBuffer::Id", name="id" },
+        { type="Common::Size", name="capacity" },
+        { type="Common::Size", name="size" }
+    }
+}
+
+CreateTextDriverVertexBufferSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { 
+        "CreateDebugTextRenderer",
+        "CreateRenderDriver" }
+
+    
+    },
+    updateMethod = {
+     processesEntities = {
+        {
+            processesComponents = {
+                "DebugTextRenderer"
+            },
+            createsComponents = {
+                "DebugTextDriverVertexBuffer"
+            },
+            excludes = { "DebugTextDriverVertexBuffer" }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        }
+    }
+    }
+}
+
+UpdateDebugTextDriverVertexBufferSystem = {
+    updateMethod = {
+     processesEntities = {
+        {
+            processesComponents = {
+                "DebugTextRenderer",
+                { name = "DebugTextVertexBuffer",readonly = false },
+                { name = "DebugTextDriverVertexBuffer", readonly = false }
+            }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false } 
+            }
+        },
+        {
+            processesComponents = { 
+                "DebugText2D"
+            }
+        }
+    }
     }
 }
 
@@ -156,7 +299,7 @@ BeginDebugTextRenderPassSystem = {
         }
     }
 }
-
+-- TODO: delete this system, its just for tests
 DrawWorldPositionNameSystem = {
     callOrder = {
         runAfter = "BeginDebugTextRenderPass",
@@ -175,13 +318,15 @@ DrawWorldPositionNameSystem = {
                 processesComponents = {
                     "DebugTextRenderer",
                     "DebugTextRenderPass",
-                    "DebugTextPipeline"
+                    "DebugTextPipeline",
+                    "SymbolsMetadata",
+                    "DebugTextDriverVertexBuffer",
+                    "TextureResource"
                 }
             },
             {
                 processesComponents = {
-                    "Name",
-                    "WorldPosition3D"
+                    "DebugText2D"
                 }
             }
         }
