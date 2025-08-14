@@ -50,13 +50,14 @@ namespace OksEngine
 		debugText2D1->text_ = positionText;
 		debugText2D1->x_ = screenX;
 		debugText2D1->y_ = screenY;
+
 	};
 
 	void CreatePosition3DDebugText2D::Update(
 		ECS2::Entity::Id entity0id, 
 		const WorldPosition3D* position3D0) {
 	
-		CreateComponent<DebugText2D>(entity0id, "DebugText2D", 0, 0);
+		//CreateComponent<DebugText2D>(entity0id, "DebugText2D", 0, 0);
 	};
 
 } // namespace OksEngine

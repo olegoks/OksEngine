@@ -199,7 +199,7 @@ namespace OksEngine
 		const DebugDrawBonesRenderer* debugDrawBonesRenderer0,
 		Vertices3D* vertices3D0) {
 
-		//vertices3D0->vertices_.Clear();
+		vertices3D0->vertices_.Clear();
 
 	}
 
