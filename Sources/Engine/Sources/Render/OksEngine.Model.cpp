@@ -173,7 +173,7 @@ namespace OksEngine
 			std::random_device rd;
 			std::mt19937 gen(rd());
 
-			// Диапазон [a, b]
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ [a, b]
 			Common::Index a = 0, b = animationsNumber - 1;
 			std::uniform_int_distribution<> dist(a, b);
 			const Common::Index randomAnimationIndex = dist(gen);
@@ -286,29 +286,41 @@ namespace OksEngine
 
 		importer.SetIOHandler(new GltfIOSystem{ resourceSystem1->system_ });
 
-		// Флаги обработки
+		// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		const unsigned int flags =
 			aiProcess_Triangulate |
 			aiProcess_GenNormals |
 			aiProcess_FlipUVs |
 			aiProcess_ConvertToLeftHanded;
 
-		// Чтение файла из памяти
+		// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		const aiScene* scene = importer.ReadFileFromMemory(
 			resourceData.GetData<Common::Byte>(),
 			resourceData.GetSize(),
 			flags,
 			"gltf"
 		);
-		
+
+#pragma region Assert
 		auto errorString = std::string(importer.GetErrorString());
 
-		if (!scene || !scene->mRootNode) {
-			throw std::runtime_error("Failed to load model: " + std::string(importer.GetErrorString()));
-		}
+		OS::AssertMessage(scene && scene->mRootNode,
+			"Failed to load model: " + errorString);
+#pragma endregion
+
 
 		std::map<aiNode*, ECS2::Entity::Id> nodeToEntityId;
 		 
+		
+		//Get bone node names.
+		std::unordered_set<std::string> boneNodeNames;
+		for (Common::Index i = 0; i < scene->mNumMeshes; i++) {
+			const aiMesh* mesh = scene->mMeshes[i];
+			for (Common::Index j = 0; j < mesh->mNumBones; j++) {
+				const aiBone* bone = mesh->mBones[j];
+				boneNodeNames.insert(bone->mName.C_Str());
+			}
+		}
 
 		auto createNodeComponents = [this](const aiScene* scene, aiNode* node, ECS2::Entity::Id nodeEntityId) {
 
@@ -318,28 +330,16 @@ namespace OksEngine
 
 			if (node->mNumMeshes > 0) {
 
+				auto createMeshComponents = [this](const aiScene* scene, ECS2::Entity::Id nodeEntityId, const aiMesh* mesh, ECS2::Entity::Id meshEntityId) {
+					
+					static Geom::VertexCloud<Geom::Vertex3f>   vertices;
+					static DS::Vector<Geom::Normal3f>	        normals;
+					//DS::Vector<Geom::Color4b>		    colors;
+					static DS::Vector<Geom::UV2f>		        uvs;
+					static Geom::IndexBuffer<Geom::Index16>	indices;
 
-				Geom::VertexCloud<Geom::Vertex3f>   vertices;
-				DS::Vector<Geom::Normal3f>	        normals;
-				//DS::Vector<Geom::Color4b>		    colors;
-				DS::Vector<Geom::UV2f>		        uvs;
-				Geom::IndexBuffer<Geom::Index16>	indices;
-
-				for (Common::Index i = 0; i < node->mNumMeshes; i++) {
-					int meshIndex = node->mMeshes[i];
-					aiMesh* mesh = scene->mMeshes[meshIndex];
-
-					std::cout <<"\t" << mesh->mName.C_Str() << std::endl;
-
-					const ECS2::Entity::Id meshEntity
-						= CreateEntity();
-					CreateComponent<Name>(meshEntity, std::string{ mesh->mName.C_Str() });
-					CreateComponent<ModelNodeEntityId>(meshEntity, nodeEntityId);
-
-
-
-
-					meshEntities.push_back(meshEntity);
+					CreateComponent<Name>(meshEntityId, std::string{ mesh->mName.C_Str() });
+					CreateComponent<ModelNodeEntityId>(meshEntityId, nodeEntityId);
 					aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 					aiString aiTexturePath;
 					material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &aiTexturePath);
@@ -349,9 +349,9 @@ namespace OksEngine
 					Common::UInt32 textureWidth = texture->mWidth;
 					Common::UInt32 textureHeight = texture->mHeight;
 					if (textureHeight > 0) {
-						CreateComponent<TextureInfo>(meshEntity, aiTexturePath.C_Str());
+						CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
 						CreateComponent<Texture>(
-							meshEntity,
+							meshEntityId,
 							textureWidth, textureHeight,
 							std::vector<Geom::Color4b>{
 							(Geom::Color4b*)texture->pcData,
@@ -361,16 +361,16 @@ namespace OksEngine
 						const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
 
 						int width, height, channels;
-						// Декодируем сжатые данные (PNG/JPEG)
+						// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ (PNG/JPEG)
 						unsigned char* pixels = stbi_load_from_memory(
 							compressed_data,
-							texture->mWidth,  // Размер данных в байтах
+							texture->mWidth,  // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 							&width, &height, &channels,
-							STBI_rgb_alpha    // Формат на выходе: RGBA
+							STBI_rgb_alpha    // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ: RGBA
 						);
-						CreateComponent<TextureInfo>(meshEntity, aiTexturePath.C_Str());
+						CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
 						CreateComponent<Texture>(
-							meshEntity,
+							meshEntityId,
 							width, height,
 							std::vector<Geom::Color4b>{
 							(Geom::Color4b*)pixels,
@@ -398,15 +398,26 @@ namespace OksEngine
 						indices.Add(mesh->mFaces[j].mIndices[1]);
 						indices.Add(mesh->mFaces[j].mIndices[2]);
 					}
-					CreateComponent<Vertices3D>(meshEntity, vertices);
-					CreateComponent<Normals>(meshEntity, normals);
-					CreateComponent<UVs>(meshEntity, uvs);
-					CreateComponent<Indices>(meshEntity, indices);
+					CreateComponent<Vertices3D>(meshEntityId, vertices);
+					CreateComponent<Normals>(meshEntityId, normals);
+					CreateComponent<UVs>(meshEntityId, uvs);
+					CreateComponent<Indices>(meshEntityId, indices);
 
 					vertices.Clear();
 					normals.Clear();
 					uvs.Clear();
 					indices.Clear();
+
+					};
+
+				for (Common::Index i = 0; i < node->mNumMeshes; i++) {
+					int meshIndex = node->mMeshes[i];
+					aiMesh* mesh = scene->mMeshes[meshIndex];
+
+					const ECS2::Entity::Id meshEntity = CreateEntity();
+
+					createMeshComponents(scene, nodeEntityId, mesh, meshEntity);
+					meshEntities.push_back(meshEntity);
 				}
 
 
@@ -500,6 +511,10 @@ namespace OksEngine
 
 			CreateComponent<ModelNode>(nodeEntityId);
 
+			if (boneNodeNames.contains(node->mName.C_Str())) {
+				CreateComponent<BoneNode>(nodeEntityId);
+			}
+
 			CreateComponent<Name>(nodeEntityId, std::string{ node->mName.C_Str() });
 
 			//Parse meshes.
@@ -530,27 +545,6 @@ namespace OksEngine
 			};
 			modelAnimations.push_back(std::move(modelAnimation));
 		}
-		//for (std::uint32_t i = 0; i < scene->mNumAnimations; i++) {
-		//	aiAnimation* anim = scene->mAnimations[i];
-		//	std::cout << "Animation: " << anim->mName.C_Str()
-		//		<< ", Duration: " << anim->mDuration
-		//		<< ", Ticks/sec: " << anim->mTicksPerSecond << std::endl;
-
-		//	for (std::uint32_t k = 0; k < anim->mNumChannels; k++) {
-		//		aiNodeAnim* nodeAnim = anim->mChannels[k];
-		//		std::cout << "Animation channel name: " << nodeAnim->mNodeName.C_Str() << std::endl;
-		//	}
-
-		//	// Обработка каждой костной анимации
-		//	for (uint32_t j = 0; j < anim->mNumChannels; j++) {
-		//		aiNodeAnim* nodeAnim = anim->mChannels[j];
-		//		std::cout << "  Bone: " << nodeAnim->mNodeName.C_Str()
-		//			<< ", Pos keys: " << nodeAnim->mNumPositionKeys
-		//			<< ", Rot keys: " << nodeAnim->mNumRotationKeys << std::endl;
-		//	}
-
-
-		//}
 		CreateComponent<ModelAnimations>(entity0id, std::move(modelAnimations));
 
 

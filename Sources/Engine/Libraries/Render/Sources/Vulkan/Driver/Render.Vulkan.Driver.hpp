@@ -1833,6 +1833,10 @@ namespace Render::Vulkan {
 				return sizeof(Vertex2ftc);
 				break;
 			}
+			case VertexType::VF3_CF4: {
+				return sizeof(Vertex3fc);
+				break;
+			}
 			default: {
 				OS::AssertFailMessage("Unsupported vertex type.");
 				return 0;

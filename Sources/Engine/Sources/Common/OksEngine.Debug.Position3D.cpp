@@ -4,10 +4,20 @@
 namespace OksEngine
 {
 	void UpdatePosition3DDebugText2D::Update(
-		ECS2::Entity::Id entity0id, const Camera* camera0, const ZFar* zFar0, const ZNear* zNear0,
-		const Direction3D* direction3D0, const WorldPosition3D* worldPosition3D0,
-		const WorldRotation3D* worldRotation3D0, const Width* width0, const Height* height0, const Up3D* up3D0,
-		ECS2::Entity::Id entity1id, const WorldPosition3D* worldPosition3D1, DebugText2D* debugText2D1) {
+		ECS2::Entity::Id entity0id,
+		const Camera* camera0,
+		const ZFar* zFar0,
+		const ZNear* zNear0,
+		const Direction3D* direction3D0,
+		const WorldPosition3D* worldPosition3D0,
+		const WorldRotation3D* worldRotation3D0,
+		const Width* width0,
+		const Height* height0,
+		const Up3D* up3D0,
+
+		ECS2::Entity::Id entity1id,
+		const WorldPosition3D* worldPosition3D1, 
+		DebugText2D* debugText2D1) {
 
 		//debugText2D0->text_ = 
 		const glm::mat4 view = glm::lookAt(

@@ -1,0 +1,192 @@
+DebugDrawBonesRendererComponent = {
+    serializable = false
+}
+
+CreateDrawBonesRendererSystem = {
+    type = "Initialize",
+    updateMethod = {
+        createsEntities = {
+            {
+                createsComponents = {
+                    "DebugDrawBonesRenderer",
+                    "Vertices3D"
+                }
+            }
+        }
+    }
+}
+
+DebugDrawBonesPipelineComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "id" }
+    }
+}
+
+CreateDebugDrawBonesPipelineSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateRenderDriver", "CreateDrawBonesRenderer"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "DebugDrawBonesRenderer"
+                },
+                excludes = {
+                    "DebugDrawBonesPipeline"
+                },
+                createsComponents = {
+                    "DebugDrawBonesPipeline"
+                }
+            },
+            {
+                processesComponents = {
+                    "ResourceSystem"
+                }
+            },
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false },
+                    "RenderPass"
+                }
+            }
+        }
+    }
+}
+
+AddBoneVerticesSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "DebugDrawBonesRenderer",
+                    { name = "Vertices3D", readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    "BoneNode",
+                    "ModelNode",
+                    "WorldPosition3D",
+                    "ChildModelNodeEntities"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "WorldPosition3D"
+                }
+            }
+        }
+    }
+}
+
+DebugDrawBonesDriverVertexBufferComponent = {
+    serializable = false,
+    fields = { 
+        { type="RAL::Driver::VertexBuffer::Id", name="id" },
+        { type="Common::Size", name="capacity" },
+        { type="Common::Size", name="size" }
+    }
+}
+
+CreateDebugDrawBonesDriverVertexBufferSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { "CreateRenderDriver", "CreateDrawBonesRenderer" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "DebugDrawBonesRenderer"
+                },
+                createsComponents = {
+                    "DebugDrawBonesDriverVertexBuffer"
+                },
+                excludes = { "DebugDrawBonesDriverVertexBuffer" }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false } 
+                }   
+            }
+        }
+    }
+}
+
+UpdateDebugDrawBonesDriverVertexBufferSystem = {
+    callOrder = {
+        runBefore = {
+            "StartRender"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    "DebugDrawBonesRenderer",
+                    "Vertices3D",
+                    { name = "DebugDrawBonesDriverVertexBuffer", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+DebugDrawBonesSystem = {
+    callOrder = {
+        runAfter = "BeginRenderPass",
+        runBefore = "EndRenderPass"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "DebugDrawBonesRenderer",
+                    "DebugDrawBonesPipeline",
+                    "DebugDrawBonesDriverVertexBuffer"
+                }
+            },
+            {
+                processesComponents = {
+                    "Camera",
+                    "Active",
+                    "DriverViewProjectionUniformBuffer",
+                    "CameraTransformResource"
+                }
+            },
+            {
+                processesComponents = { 
+                    { name = "RenderDriver", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+ClearDebugDrawBonesVertexBufferSystem = {
+    callOrder = {
+        runAfter = { "EndRender" }
+    },
+    updateMethod = {
+    processesEntities = {
+        {
+            processesComponents = {
+                "DebugDrawBonesRenderer",
+                { name = "Vertices3D", readonly = false }
+            }
+        }
+    }
+    }
+}

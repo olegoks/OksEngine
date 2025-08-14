@@ -8,6 +8,7 @@
 namespace OS {
 
 	void AssertMessage(bool expression, Common::Format&& format, const std::source_location& location) {
+
 		if constexpr (!Common::IsDebug()) {
 			return;
 		}

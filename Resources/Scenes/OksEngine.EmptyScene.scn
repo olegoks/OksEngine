@@ -21,26 +21,26 @@ scene = {
         runModelAnimation = { animationName = "ArmatureAction" }, 
         modelFile = { fileName = "TwoBonesExample.glb" }
     },
-{
-    ID = 2,
-    name = {value ="Robotic arm" },
-    worldPosition3D = { x = 3.0, y = 0.0, z = 3.0 },
-    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-    model = { },
-    runModelAnimation = { animationName = "Robotics" }, 
-    modelFile = { fileName = "black_honey_-_robotic_arm.glb" }
-},
 --{
---    ID = 3,
---    name = {value ="Magnum" },
---    worldPosition3D = { x = 5.0, y = 0.0, z = 0.0 },
+--    ID = 2,
+--    name = {value ="Robotic arm" },
+--    worldPosition3D = { x = 3.0, y = 0.0, z = 3.0 },
 --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
 --    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
 --    model = { },
---    runModelAnimation = { animationName = "sh_snip_stand_reload" }, 
---    modelFile = { fileName = "rifle__awp_weapon_model_cs2.glb" }
+--    runModelAnimation = { animationName = "Robotics" }, 
+--    modelFile = { fileName = "black_honey_-_robotic_arm.glb" }
 --},
+{
+    ID = 3,
+    name = {value ="Magnum" },
+    worldPosition3D = { x = 5.0, y = 0.0, z = 0.0 },
+    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+    model = { },
+    runModelAnimation = { animationName = "sh_snip_stand_reload" }, 
+    modelFile = { fileName = "rifle__awp_weapon_model_cs2.glb" }
+},
 
         {
             ID = 4,

@@ -36,6 +36,9 @@ ModelFileComponent = {
 -- ANIMATION
 
 --NODE
+BoneNodeComponent = {
+    serializable = false
+}
 ChannelPositionKeyStruct = {
     fields = {
         { type = "double", name = "time" },
