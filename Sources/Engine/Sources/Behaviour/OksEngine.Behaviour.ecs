@@ -5,6 +5,28 @@ BehaviourComponent = {
      }
 }
 
+CreateBehaviourLuaScriptSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "Behaviour"
+                }
+            }
+        }
+    }
+}
+
+BehaviourLuaScriptComponent = {
+    serializable = false
+}
+
+
+BehaviourLuaContextComponent = {
+    serializable = false
+}
+
+
 CallInputProcessorSystem = {
     updateMethod = {
         processesEntities = {

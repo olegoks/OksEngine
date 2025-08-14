@@ -45,3 +45,15 @@ Render = {
 
     }
 }
+
+Input = {
+    Bindings = {
+        Keyboard = {
+            { systemKey = "W", bindings = { "UI_INPUT_CAMERA_FORWARD" } },
+            { systemKey = "Shift+W", bindings = { "UI_INPUT_CAMERA_FAST_FORWARD" } },
+            { systemKey = "A", bindings = { "UI_INPUT_CAMERA_LEFT" } },
+            { systemKey = "S", bindings = { "UI_INPUT_CAMERA_BACK" } },
+            { systemKey = "D", bindings = { "UI_INPUT_CAMERA_RIGHT" } }
+        }
+    }
+}

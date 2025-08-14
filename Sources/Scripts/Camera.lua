@@ -127,7 +127,7 @@ end
 
 CameraInputProcessor = {}
 
-function CameraInputProcessor:ProcessInput(camera, Key, Event, offsetX, offsetY)
+function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
 
 
 
@@ -174,12 +174,17 @@ function CameraInputProcessor:ProcessInput(camera, Key, Event, offsetX, offsetY)
             camera.SpeedBoost = false
         end
     end 
+    
+
+end
+
+function CameraInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY)
+
     print("pre camera:DirectionUpDown(offsetY / 1000.0)")
     camera:DirectionUpDown(offsetY / 1000.0)
     print("camera:DirectionUpDown(offsetY / 1000.0)")
     camera:DirectionLeftRight(offsetX / 1000.0)
     print("camera:DirectionLeftRight(offsetX / 1000.0)")
 end
-
 
 
