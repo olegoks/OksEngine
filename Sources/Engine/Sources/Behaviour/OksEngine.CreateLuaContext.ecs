@@ -3,7 +3,7 @@ CreateLuaContextSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "Behaviour",
+                    "Behaviour::Behaviour",
                     "LuaScriptEntity"
                 },
                 createsComponents = { "LuaContext" },

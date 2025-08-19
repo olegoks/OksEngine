@@ -16,8 +16,8 @@ namespace ECSGenerator2 {
 
 		//static char {variableName}[256] = "";
 		//static Common::UInt64 {variableName};
-		Code GenerateTypeImGuiInputVariable(const std::string& typeName, std::string variableName) {
-			Code code;
+		CodeStructure::Code GenerateTypeImGuiInputVariable(const std::string& typeName, std::string variableName) {
+			CodeStructure::Code code;
 			const std::string& fieldTypeName = typeName;
 			if (fieldTypeName == "std::string") {
 				code.Add("static char " + variableName + "[1024] = \"\";");
@@ -41,8 +41,8 @@ namespace ECSGenerator2 {
 
 		//// ImGui::InputScalar("Value", ImGuiDataType_Float, {outVariable});\n
 		//// ImGui::InputText("Value", {outVariable}, IM_ARRAYSIZE({outVariable}));\n
-		Code GenerateImGuiInputTypeCode(const std::string& imguiVariableName, const std::string& typeName, std::string outVariable) {
-			Code code;
+		CodeStructure::Code GenerateImGuiInputTypeCode(const std::string& imguiVariableName, const std::string& typeName, std::string outVariable) {
+			CodeStructure::Code code;
 			if (typeName == "std::string") {
 				code.Add("ImGui::InputText(\"" + imguiVariableName + "\", " + outVariable + ", IM_ARRAYSIZE(" + outVariable + "));");
 				return code;
@@ -70,12 +70,12 @@ namespace ECSGenerator2 {
 			return code;
 		}
 
-		Code GenerateTypeImGuiEditCode(
+		CodeStructure::Code GenerateTypeImGuiEditCode(
 			const std::string& componentVariableName,			// position3D	//name
 			const std::string& fieldVariableTypeName,			// float		//std::string
 			const std::string& fieldVariableName,				// x			//value
 			const std::string& fieldComponentVariableName) {	// x_			//value_
-			Code code;
+			CodeStructure::Code code;
 			if (fieldVariableTypeName == "std::string") {
 				code.Add(GenerateTypeImGuiInputVariable(fieldVariableTypeName, fieldVariableName));
 				code.Add("std::memcpy(" + fieldVariableName + ", " + componentVariableName + "->" + fieldComponentVariableName + ".c_str(), " + componentVariableName + "->" + fieldVariableName + "_.size());");
@@ -118,10 +118,10 @@ namespace ECSGenerator2 {
 			return {};
 		}
 
-		std::shared_ptr<Function> GenerateParseFunction(std::shared_ptr<ParsedComponent> component) {
+		std::shared_ptr<CodeStructure::Function> GenerateParseFunction(std::shared_ptr<ParsedComponent> component) {
 
 			if (component->ci_.serializable_) {
-				Code realization;
+				CodeStructure::Code realization;
 
 				realization.Add(std::format("{} {};",
 					component->GetName(),
@@ -144,7 +144,7 @@ namespace ECSGenerator2 {
 				realization.Add(std::format("return {};", component->GetLowerName()));
 
 
-				Function::CreateInfo fci{
+				CodeStructure::Function::CreateInfo fci{
 					.name_ = "Parse" + component->GetName(),
 					.parameters_ = {
 						{ "luabridge::LuaRef&", component->GetLowerName() + "Ref"}
@@ -154,7 +154,7 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = true
 				};
 
-				auto parseFunuction = std::make_shared<Function>(fci);
+				auto parseFunuction = std::make_shared<CodeStructure::Function>(fci);
 
 				return parseFunuction;
 			}
@@ -163,15 +163,15 @@ namespace ECSGenerator2 {
 
 		}
 
-		std::shared_ptr<Function> GenerateSerializeFunction(std::shared_ptr<ParsedComponent> component) {
+		std::shared_ptr<CodeStructure::Function> GenerateSerializeFunction(std::shared_ptr<ParsedComponent> component) {
 
 			//Serialize function.
 			if (component->ci_.serializable_) {
 
-				Code fieldsLuaCode;
+				CodeStructure::Code fieldsLuaCode;
 				component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 
-					Code convertValueToStringCode;
+					CodeStructure::Code convertValueToStringCode;
 					if (fieldInfo.GetTypeName() == "std::string") {
 						convertValueToStringCode.Add(std::format("\"\\\"\"s + {}->{}_ + \"\\\"\"",
 							component->GetLowerName(),
@@ -194,7 +194,7 @@ namespace ECSGenerator2 {
 					return true;
 					});
 
-				Code luaScriptCode;
+				CodeStructure::Code luaScriptCode;
 				luaScriptCode.Add("using namespace std::string_literals;");
 				luaScriptCode.Add(std::format(
 					"std::string luaScript = \"{} = {{"
@@ -203,7 +203,7 @@ namespace ECSGenerator2 {
 
 				luaScriptCode.Add("return luaScript;");
 
-				Function::CreateInfo fci{
+				CodeStructure::Function::CreateInfo fci{
 					.name_ = "Serialize" + component->GetName(),
 					.parameters_ = {
 						{ "const " + component->GetName() + "*", component->GetLowerName()}
@@ -213,7 +213,7 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = true
 				};
 
-				auto serializeFunction = std::make_shared<Function>(fci);
+				auto serializeFunction = std::make_shared<CodeStructure::Function>(fci);
 
 				return serializeFunction;
 			}
@@ -221,12 +221,12 @@ namespace ECSGenerator2 {
 			return nullptr;
 		}
 
-		std::shared_ptr<Function> GenerateEditFunction(std::shared_ptr<ParsedComponent> component) {
+		std::shared_ptr<CodeStructure::Function> GenerateEditFunction(std::shared_ptr<ParsedComponent> component) {
 
 			if (component->GetName() == "ChildModelNodeEntities") {
 				Common::BreakPointLine();
 			}
-			Code realization;
+			CodeStructure::Code realization;
 			realization.Add("ImGui::PushID({}::GetTypeId());", component->GetName());
 			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 				if (IsTypeCanBeEnteredFromImGui(fieldInfo.GetTypeName())) {
@@ -242,8 +242,8 @@ namespace ECSGenerator2 {
 				});
 			realization.Add("ImGui::PopID();");
 
-			Function::CreateInfo fci1{
-				.name_ = "Edit" + component->GetName(),
+			CodeStructure::Function::CreateInfo fci1{
+				.name_ = "Edit" + component->GetName(), 
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
 					{ component->GetName() + "*", component->GetLowerName()}
@@ -253,17 +253,17 @@ namespace ECSGenerator2 {
 				.inlineModifier_ = true
 			};
 
-			auto editFunction = std::make_shared<Function>(fci1);
+			auto editFunction = std::make_shared<CodeStructure::Function>(fci1);
 
 			return editFunction;
 
 		}
 
-		std::shared_ptr<Function> GenerateTemplateEditFunction(std::shared_ptr<ParsedComponent> component) {
+		std::shared_ptr<CodeStructure::Function> GenerateTemplateEditFunction(std::shared_ptr<ParsedComponent> component) {
 
 			//Template variant
-			Function::CreateInfo fci2{
-				.name_ = "Edit",
+			CodeStructure::Function::CreateInfo fci2{
+				.name_ = "::OksEngine::Edit",//Exlicit OksEngine namespace to overload default Edit Function
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
 					{ component->GetName() + "*", component->GetLowerName()}
@@ -275,15 +275,47 @@ namespace ECSGenerator2 {
 				.specializedTemplateParameters_ = { component->GetName() }
 			};
 
-			auto templateEditFunction = std::make_shared<Function>(fci2);
+			auto templateEditFunction = std::make_shared<CodeStructure::Function>(fci2);
 
 			return templateEditFunction;
 
 		}
 
-		std::shared_ptr<Function> GenerateBindFunction(std::shared_ptr<ParsedComponent> component) {
+		std::shared_ptr<CodeStructure::Function> GenerateTemplateEditFunctionWithNamespace(
+			std::vector<std::string> currentNamespace, std::shared_ptr<ParsedComponent> component) {
 
-			Code realization;
+			std::string forFunctionName;
+			std::string forTypeName;
+			for (Common::Index i = 0; i < currentNamespace.size(); i++) {
+				forFunctionName += currentNamespace[i];
+				forFunctionName += "_";
+
+				forTypeName += currentNamespace[i];
+				forTypeName += "::";
+			}
+			//Template variant
+			CodeStructure::Function::CreateInfo fci2{
+				.name_ = "Edit",//Exlicit OksEngine namespace to overload default Edit Function
+				.parameters_ = {
+					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
+					{ forTypeName + component->GetName() + "*", component->GetLowerName()}
+				},
+				.returnType_ = "void",
+				.code_ = std::format("{}Edit{}(ecsWorld,{});", forTypeName, component->GetName(), component->GetLowerName()),
+				.inlineModifier_ = true,
+				.templateParameters_ = {},
+				.specializedTemplateParameters_ = { forTypeName + component->GetName() }
+			};
+
+			auto templateEditFunction = std::make_shared<CodeStructure::Function>(fci2);
+
+			return templateEditFunction;
+
+		}
+
+		std::shared_ptr<CodeStructure::Function> GenerateBindFunction(std::shared_ptr<ParsedComponent> component) {
+
+			CodeStructure::Code realization;
 			realization.Add("context.GetGlobalNamespace()");
 			realization.NewLine();
 			realization.Add("\t.beginClass<" + component->GetName() + ">(\"" + component->GetName() + "\")");
@@ -298,7 +330,7 @@ namespace ECSGenerator2 {
 			realization.Add("\t.endClass();");
 			realization.NewLine();
 
-			Function::CreateInfo fci{
+			CodeStructure::Function::CreateInfo fci{
 				.name_ = "Bind" + component->GetName(),
 				.parameters_ = {
 					{ "::Lua::Context&", "context" }
@@ -308,15 +340,15 @@ namespace ECSGenerator2 {
 				.inlineModifier_ = true
 			};
 
-			auto editFunction = std::make_shared<Function>(fci);
+			auto editFunction = std::make_shared<CodeStructure::Function>(fci);
 
 			return editFunction;
 
 		}
 
-		std::shared_ptr<Function> GenerateAddFunction(std::shared_ptr<ParsedComponent> component) {
+		std::shared_ptr<CodeStructure::Function> GenerateAddFunction(std::shared_ptr<ParsedComponent> component) {
 
-			Code realization;
+			CodeStructure::Code realization;
 			if (component->CanBeCreatedFromImGui()) {
 				component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 					realization.Add(GenerateTypeImGuiInputVariable(
@@ -338,7 +370,7 @@ namespace ECSGenerator2 {
 							variableName += "&"; // If string we dont need &, because array id is pointer.
 						}
 						variableName += fieldInfo.GetName();
-						Code addRealization =
+						CodeStructure::Code addRealization =
 							GenerateImGuiInputTypeCode(
 								fieldInfo.GetName(),
 								fieldInfo.GetTypeName(),
@@ -385,7 +417,7 @@ namespace ECSGenerator2 {
 			}
 			realization.NewLine();
 			realization.Add("}");
-			Function::CreateInfo fci{
+			CodeStructure::Function::CreateInfo fci{
 				.name_ = "Add" + component->GetName(),
 				.parameters_ = {
 					{ "ECS2::World*", "ecsWorld" },
@@ -396,21 +428,21 @@ namespace ECSGenerator2 {
 				.inlineModifier_ = true
 			};
 
-			auto editFunction = std::make_shared<Function>(fci);
+			auto editFunction = std::make_shared<CodeStructure::Function>(fci);
 
 			return editFunction;
 		}
 
-		std::shared_ptr<Struct> GenerateComponentStruct(std::shared_ptr<ParsedComponent> component) {
+		std::shared_ptr<CodeStructure::Struct> GenerateComponentStruct(std::shared_ptr<ParsedComponent> component) {
 
 			if (component->GetName() == "ECSMenu") {
 				Common::BreakPointLine();
 			}
-			std::vector<Struct::Field> fields;
+			std::vector<CodeStructure::Struct::Field> fields;
 
 			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast)->bool {
 
-				Struct::Field field{
+				CodeStructure::Struct::Field field{
 					.type_ = fieldInfo.GetTypeName(),
 					.name_ = fieldInfo.GetName(),
 					.copyable_ = fieldInfo.copyable_
@@ -421,7 +453,7 @@ namespace ECSGenerator2 {
 				return true;
 				});
 
-			Function::CreateInfo fci{
+			CodeStructure::Function::CreateInfo fci{
 				.name_ = "GetName",
 				.parameters_ = {},
 				.returnType_ = "const char*",
@@ -430,22 +462,22 @@ namespace ECSGenerator2 {
 				.staticModifier_ = true
 			};
 
-			auto getNameMethod = std::make_shared<Function>(fci);
+			auto getNameMethod = std::make_shared<CodeStructure::Function>(fci);
 
-			Struct::CreateInfo sci{
+			CodeStructure::Struct::CreateInfo sci{
 				.name_ = component->GetName(),
 				.parent_ = "OksEngine::IComponent<" + component->GetName() + ">",
 				.fields_ = fields,
 				.methods_ = { getNameMethod }
 			};
-			auto structObject = std::make_shared<Struct>(sci);
+			auto structObject = std::make_shared<CodeStructure::Struct>(sci);
 
 			return structObject;
 		}
 
-		File::Includes GenerateIncludes(std::shared_ptr<ParsedComponent> component) {
+		CodeStructure::File::Includes GenerateIncludes(std::shared_ptr<ParsedComponent> component) {
 
-			File::Includes includes{
+			CodeStructure::File::Includes includes{
 				{	"imgui.h",
 					"ECS2.World.hpp",
 					"ECS2.Entity.hpp",

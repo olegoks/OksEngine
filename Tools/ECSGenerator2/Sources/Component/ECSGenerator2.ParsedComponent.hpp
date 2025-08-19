@@ -10,10 +10,11 @@
 #include <random>  
 #include <format>
 
+#include <ECSGenerator2.ParsedTable.hpp>
 
 namespace ECSGenerator2 {
 
-	class ParsedComponent {
+	class ParsedComponent : public ParsedTable {
 	public:
 
 		struct FieldInfo {
@@ -38,6 +39,11 @@ namespace ECSGenerator2 {
 
 		ParsedComponent(const CreateInfo& createInfo) :
 			ci_{ createInfo } { }
+
+		virtual ParsedTable::Type GetType() const noexcept override {
+			return ParsedTable::Type::Component;
+		}
+
 		bool AreThereFields() const {
 			return !ci_.fields_.empty();
 		}
@@ -121,8 +127,8 @@ namespace ECSGenerator2 {
 
 	//static char {variableName}[256] = "";
 	//static Common::UInt64 {variableName};
-	Code GenerateTypeImGuiInputVariable(const std::string& typeName, std::string variableName) {
-		Code code;
+	CodeStructure::Code GenerateTypeImGuiInputVariable(const std::string& typeName, std::string variableName) {
+		CodeStructure::Code code;
 		const std::string& fieldTypeName = typeName;
 		if (fieldTypeName == "std::string") {
 			code.Add("static char " + variableName + "[4096] = \"\";");
@@ -144,8 +150,8 @@ namespace ECSGenerator2 {
 
 	//// ImGui::InputScalar("Value", ImGuiDataType_Float, {outVariable});\n
 	//// ImGui::InputText("Value", {outVariable}, IM_ARRAYSIZE({outVariable}));\n
-	Code GenerateImGuiInputTypeCode(const std::string& imguiVariableName, const std::string& typeName, std::string outVariable) {
-		Code code;
+	CodeStructure::Code GenerateImGuiInputTypeCode(const std::string& imguiVariableName, const std::string& typeName, std::string outVariable) {
+		CodeStructure::Code code;
 		if (typeName == "std::string") {
 			code.Add("ImGui::InputText(\"" + imguiVariableName + "\", " + outVariable + ", IM_ARRAYSIZE(" + outVariable + "));");
 			return code;
@@ -164,12 +170,12 @@ namespace ECSGenerator2 {
 		return code;
 	}
 
-	Code GenerateTypeImGuiEditCode(
+	CodeStructure::Code GenerateTypeImGuiEditCode(
 		const std::string& componentVariableName,			// position3D
 		const std::string& fieldVariableTypeName,			// float
 		const std::string& fieldVariableName,				// x
 		const std::string& fieldComponentVariableName) {	// x_
-		Code code;
+		CodeStructure::Code code;
 		if (fieldVariableTypeName == "std::string") {
 			code.Add(GenerateTypeImGuiInputVariable(fieldVariableTypeName, fieldVariableName));
 			code.NewLine();

@@ -14,16 +14,16 @@ namespace ECSGenerator2 {
 
 		StructCodeStructureGenerator(const CreateInfo& createInfo) : ci_{ createInfo } {}
 
-		std::shared_ptr<Struct> GenerateStructCodeStructure(std::shared_ptr<ParsedStruct> parsedStruct) {
+		std::shared_ptr<CodeStructure::Struct> GenerateStructCodeStructure(std::shared_ptr<ParsedStruct> parsedStruct) {
 
 			if (parsedStruct->GetName() == "ECSMenu") {
 				Common::BreakPointLine();
 			}
-			std::vector<Struct::Field> fields;
+			std::vector<CodeStructure::Struct::Field> fields;
 
 			parsedStruct->ForEachField([&](const ParsedStruct::FieldInfo& fieldInfo, bool isLast)->bool {
 
-				Struct::Field field{
+				CodeStructure::Struct::Field field{
 					.type_ = fieldInfo.GetTypeName(),
 					.name_ = fieldInfo.GetName()
 				};
@@ -33,30 +33,30 @@ namespace ECSGenerator2 {
 				return true;
 				});
 
-			Struct::CreateInfo sci{
+			CodeStructure::Struct::CreateInfo sci{
 				.name_ = parsedStruct->GetName(),
 				.fields_ = fields,
 				.methods_ = {  }
 			};
-			auto structObject = std::make_shared<Struct>(sci);
+			auto structObject = std::make_shared<CodeStructure::Struct>(sci);
 
 			return structObject;
 		}
 
-		std::shared_ptr<Struct> GenerateStructForwardDeclaration(std::shared_ptr<ParsedStruct> parsedStruct) {
+		std::shared_ptr<CodeStructure::Struct> GenerateStructForwardDeclaration(std::shared_ptr<ParsedStruct> parsedStruct) {
 
-			Struct::CreateInfo sci{
+			CodeStructure::Struct::CreateInfo sci{
 				.name_ = parsedStruct->GetName(),
 				.forwardDeclaration_ = true
 			};
-			auto structObject = std::make_shared<Struct>(sci);
+			auto structObject = std::make_shared<CodeStructure::Struct>(sci);
 
 			return structObject;
 		}
 
-		File::Includes GenerateIncludes(std::shared_ptr<ParsedStruct> parsedStruct) {
+		CodeStructure::File::Includes GenerateIncludes(std::shared_ptr<ParsedStruct> parsedStruct) {
 
-			File::Includes includes{
+			CodeStructure::File::Includes includes{
 				
 			};
 

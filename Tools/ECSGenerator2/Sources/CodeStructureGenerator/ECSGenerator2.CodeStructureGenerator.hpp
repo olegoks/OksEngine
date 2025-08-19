@@ -22,13 +22,11 @@ namespace ECSGenerator2 {
 
 
 		//Generate .hpp files for .ecs files that contain systems and components
-		std::shared_ptr<File> GenerateECSFileHppFile(
+		std::shared_ptr<CodeStructure::File> GenerateECSFileHppFile(
 			const std::filesystem::path& includeDirectory,
 			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
 
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
-
-			File::Includes includes;
+			CodeStructure::File::Includes includes;
 			includes.paths_.insert("ECS2.hpp");
 			includes.paths_.insert("chrono");
 			includes.paths_.insert("OksEngine.IComponent.hpp");
@@ -112,6 +110,12 @@ namespace ECSGenerator2 {
 
 				});
 
+			if (parsedECSFile->GetName() == "OksEngine.Clock") {
+				Common::BreakPointLine();
+			}
+
+			//New code generation
+			std::vector<std::shared_ptr<CodeStructure::Base>> bases;
 			//Generate forward declarations for structures.
 			parsedECSFile->ForEachStruct([&](std::shared_ptr<ParsedStruct> parsedStruct) {
 
@@ -123,136 +127,220 @@ namespace ECSGenerator2 {
 				StructCodeStructureGenerator structGenerator{ scgci };
 
 				auto structForwardDeclarationCodeStructure = structGenerator.GenerateStructForwardDeclaration(parsedStruct);
-				namespaceObject->Add(structForwardDeclarationCodeStructure);
+				bases.push_back(structForwardDeclarationCodeStructure);
 
 
 				});
-
-			// Generate STRUCTS code structure.
-			parsedECSFile->ForEachStruct([&](std::shared_ptr<ParsedStruct> parsedStruct) {
-				
-
-				StructCodeStructureGenerator::CreateInfo scgci{
-					.includeDirectory_ = includeDirectory
-				};
-
-				StructCodeStructureGenerator structGenerator{ scgci };
-
-				auto structCodeStructure = structGenerator.GenerateStructCodeStructure(parsedStruct);
-				namespaceObject->Add(structCodeStructure);
-				auto structsIncludes = structGenerator.GenerateIncludes(parsedStruct);
-				includes.paths_.insert(structsIncludes.paths_.begin(), structsIncludes.paths_.end());
-
-				});
+			
+			parsedECSFile->ForEachRootTable([&](std::shared_ptr<ParsedTable> table) {
 
 
-			std::unordered_set<std::string> includeComponents;
+				std::function<std::vector<std::shared_ptr<CodeStructure::Base>>(std::shared_ptr<ParsedTable>)> processTable
+					= [&](std::shared_ptr<ParsedTable> parsedTable) {
 
-			//Generate COMPONENTS code structure.
-			parsedECSFile->ForEachComponent(
-				[&](std::shared_ptr<ParsedComponent> parsedComponent) {
+					const ParsedTable::Type tableType = parsedTable->GetType();
 
-					ComponentCodeStructureGenerator::CreateInfo ccgci{
-						.includeDirectory_ = includeDirectory
-					};
+					if (tableType == ParsedTable::Type::Namespace) {
+						const auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(parsedTable);
 
-					ComponentCodeStructureGenerator componentGenerator{ ccgci };
+						auto namespaceObject = std::make_shared<CodeStructure::Namespace>(parsedNamespace->GetName());
 
-					//Add include components.
-					auto componentStruct = componentGenerator.GenerateComponentStruct(parsedComponent);
-					namespaceObject->Add(componentStruct);
-					auto editFunction = componentGenerator.GenerateEditFunction(parsedComponent);
-					namespaceObject->Add(editFunction);
-					auto addFunction = componentGenerator.GenerateAddFunction(parsedComponent);
-					namespaceObject->Add(addFunction);
-					auto templateEditFunction = componentGenerator.GenerateTemplateEditFunction(parsedComponent);
-					namespaceObject->Add(templateEditFunction);
-					auto bindFunction = componentGenerator.GenerateBindFunction(parsedComponent);
-					namespaceObject->Add(bindFunction);
-					auto parseFunction = componentGenerator.GenerateParseFunction(parsedComponent);
-					namespaceObject->Add(parseFunction);
-					auto serializeFunction = componentGenerator.GenerateSerializeFunction(parsedComponent);
-					namespaceObject->Add(serializeFunction);
+						parsedNamespace->ForEachChildTable([&](std::shared_ptr<ParsedTable> parsedTable) {
+							auto base = processTable(parsedTable);
+							for (Common::Index i = 0; i < base.size(); i++) {
+								namespaceObject->Add(base[i]);
+							}
 
-					auto componentIncludes = componentGenerator.GenerateIncludes(parsedComponent);
-					includes.paths_.insert(componentIncludes.paths_.begin(), componentIncludes.paths_.end());
-				});
+							});
 
-			parsedECSFile->ForEachSystem(
-				[&](std::shared_ptr<ParsedSystem> parsedSystem) {
-
-					SystemStructureGenerator::CreateInfo ssgci{
-						.includeDirectory_ = includeDirectory
-					};
-
-					SystemStructureGenerator systemGenerator{ ssgci };
-
-					if (parsedSystem->GetName() == "AddModelToRender") {
-						Common::BreakPointLine();
+						return std::vector<std::shared_ptr<CodeStructure::Base>>{ namespaceObject };
 					}
-					//Add include components.
-					auto systemIncludeComponents = systemGenerator.GenerateUpdateMethodRequiredComponentIncludes(parsedSystem->ci_.updateMethod_);
+					else if (tableType == ParsedTable::Type::System) {
 
-					includeComponents.insert(systemIncludeComponents.begin(), systemIncludeComponents.end());
+						const auto parsedSystem = std::dynamic_pointer_cast<ParsedSystem>(parsedTable);
 
-					//Generate system structure.
-					auto systemStruct = systemGenerator.GenerateSystemStructCode(parsedSystem);
-					namespaceObject->Add(systemStruct);
+						SystemStructureGenerator::CreateInfo ssgci{
+							.includeDirectory_ = includeDirectory
+						};
 
-					//Generate run system function.
-					auto runSystemFunction = systemGenerator.GenerateRunSystemCodeRealization(parsedSystem);
-					namespaceObject->Add(runSystemFunction);
+						SystemStructureGenerator systemGenerator{ ssgci };
 
-				});
-
-			if (parsedECSFile->GetName() == "OksEngine.Model") {
-				Common::BreakPointLine();
-			}
-
-			//Generate includes using include directory.
-			for (const std::string componentName : includeComponents) {
-				for (auto ecsFile : ci_.ecsFiles_) {
-					//Skip component include if ecs file contains defintion of the component.
-					if (parsedECSFile->IsContainsComponent(componentName)) {
-						continue;
-					}
-					if (ecsFile->IsContainsComponent(componentName)) {
-						const std::filesystem::path ecsFilePath = ecsFile->GetPath().parent_path();
-
-						auto [it, _] = std::mismatch(
-							ecsFilePath.begin(), ecsFilePath.end(),
-							includeDirectory.begin()
-						);
-						std::filesystem::path componentIncludePath;
-
-						while (it != ecsFilePath.end()) {
-							componentIncludePath /= *it;
-							++it;
+						if (parsedSystem->GetName() == "AddModelToRender") {
+							Common::BreakPointLine();
 						}
+						//Add include components.
+						auto systemIncludeComponents = systemGenerator.GenerateUpdateMethodRequiredComponentIncludes(parsedSystem->ci_.updateMethod_);
+						std::unordered_set<std::string> includeComponents;
 
-						includes.paths_.insert((componentIncludePath / ("auto_" + ecsFile->GetName())).string() + ".hpp");
+						includeComponents.insert(systemIncludeComponents.begin(), systemIncludeComponents.end());
+						//Generate includes using include directory.
+						for (const std::string componentName : includeComponents) {
+							for (auto ecsFile : ci_.ecsFiles_) {
+								//Skip component include if ecs file contains defintion of the component.
+								if (parsedECSFile->IsContainsComponent(componentName)) {
+									continue;
+								}
+								if (ecsFile->IsContainsComponent(componentName)) {
+									const std::filesystem::path ecsFilePath = ecsFile->GetPath().parent_path();
+
+									auto [it, _] = std::mismatch(
+										ecsFilePath.begin(), ecsFilePath.end(),
+										includeDirectory.begin()
+									);
+									std::filesystem::path componentIncludePath;
+
+									while (it != ecsFilePath.end()) {
+										componentIncludePath /= *it;
+										++it;
+									}
+
+									includes.paths_.insert((componentIncludePath / ("auto_" + ecsFile->GetName())).string() + ".hpp");
+
+								}
+							}
+
+						}
+						//Generate system structure.
+						std::vector<std::shared_ptr<CodeStructure::Base>> bases;
+						auto systemStruct = systemGenerator.GenerateSystemStructCode(parsedSystem);
+						bases.push_back(systemStruct);
+						//Generate run system function.
+						auto runSystemFunction = systemGenerator.GenerateRunSystemCodeRealization(parsedSystem);
+						bases.push_back(runSystemFunction);
+
+						return bases;
 
 					}
+					else if (tableType == ParsedTable::Type::Struct) {
+
+						const auto parsedStruct = std::dynamic_pointer_cast<ParsedStruct>(parsedTable);
+
+						StructCodeStructureGenerator::CreateInfo scgci{
+							.includeDirectory_ = includeDirectory
+						};
+
+						StructCodeStructureGenerator structGenerator{ scgci };
+
+						auto structCodeStructure = structGenerator.GenerateStructCodeStructure(parsedStruct);
+						std::vector<std::shared_ptr<CodeStructure::Base>> bases;
+						bases.push_back(structCodeStructure);
+						auto structsIncludes = structGenerator.GenerateIncludes(parsedStruct);
+						includes.paths_.insert(structsIncludes.paths_.begin(), structsIncludes.paths_.end());
+
+						return bases;
+
+					}
+					else if (tableType == ParsedTable::Type::Component) {
+
+						const auto parsedComponent = std::dynamic_pointer_cast<ParsedComponent>(parsedTable);
+
+						ComponentCodeStructureGenerator::CreateInfo ccgci{
+							.includeDirectory_ = includeDirectory
+						};
+
+						ComponentCodeStructureGenerator componentGenerator{ ccgci };
+
+						//Add include components.
+						std::vector<std::shared_ptr<CodeStructure::Base>> bases;
+						auto componentStruct = componentGenerator.GenerateComponentStruct(parsedComponent);
+						bases.push_back(componentStruct);
+						auto editFunction = componentGenerator.GenerateEditFunction(parsedComponent);
+						bases.push_back(editFunction);
+						auto addFunction = componentGenerator.GenerateAddFunction(parsedComponent);
+						bases.push_back(addFunction);
+						//auto templateEditFunction = componentGenerator.GenerateTemplateEditFunction(parsedComponent);
+						//bases.push_back(templateEditFunction);
+						auto bindFunction = componentGenerator.GenerateBindFunction(parsedComponent);
+						bases.push_back(bindFunction);
+						auto parseFunction = componentGenerator.GenerateParseFunction(parsedComponent);
+						bases.push_back(parseFunction);
+						auto serializeFunction = componentGenerator.GenerateSerializeFunction(parsedComponent);
+						bases.push_back(serializeFunction);
+
+						auto componentIncludes = componentGenerator.GenerateIncludes(parsedComponent);
+						includes.paths_.insert(componentIncludes.paths_.begin(), componentIncludes.paths_.end());
+
+						return bases;
+					}
+
+					};
+
+
+				auto BASES = processTable(table);
+				bases.insert(bases.end(), BASES.begin(), BASES.end());
+				});
+			{
+				auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
+				for (auto base : bases) {
+					namespaceObject->Add(base);
 				}
 
+				//Hack Move template edit functions to end of .hpp file. Because of template specializetion cant be in child namespaces.
+				std::vector<std::string> currentNamespace;
+				parsedECSFile->ForEachRootTable([&](std::shared_ptr<ParsedTable> table) {
+
+
+					std::function<void(std::shared_ptr<ParsedTable>)> processTable
+						= [&](std::shared_ptr<ParsedTable> parsedTable) {
+
+						const ParsedTable::Type tableType = parsedTable->GetType();
+						if (tableType == ParsedTable::Type::Namespace) {
+
+							const auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(parsedTable);
+
+							currentNamespace.push_back(parsedNamespace->GetName());
+
+							parsedNamespace->ForEachChildTable([&](std::shared_ptr<ParsedTable> parsedTable) {
+								processTable(parsedTable);
+								});
+
+						}
+						if (tableType == ParsedTable::Type::Component) {
+
+							const auto parsedComponent = std::dynamic_pointer_cast<ParsedComponent>(parsedTable);
+
+							ComponentCodeStructureGenerator::CreateInfo ccgci{
+								.includeDirectory_ = includeDirectory
+							};
+
+							ComponentCodeStructureGenerator componentGenerator{ ccgci };
+
+
+							auto templateEditFunction = componentGenerator.GenerateTemplateEditFunctionWithNamespace(currentNamespace, parsedComponent);
+
+							namespaceObject->Add(templateEditFunction);
+						}
+
+						};
+
+					processTable(table);
+					});
+				//Hack
+
+
+
+				CodeStructure::File::CreateInfo fci{
+					.isHpp_ = true,
+					.includes_ = includes,
+					.base_ = { namespaceObject }
+				};
+				auto file = std::make_shared<CodeStructure::File>(fci);
+
+				return { file };
 			}
+			//New code generation
 
-			File::CreateInfo fci{
-				.isHpp_ = true,
-				.includes_ = includes,
-				.base_ = namespaceObject
-			};
-			auto file = std::make_shared<File>(fci);
-
-			return { file };
 		}
 
 
-		std::shared_ptr<File> GenerateECSFileCppFile(
+		std::shared_ptr<CodeStructure::File> GenerateECSFileCppFile(
 			const std::filesystem::path& includeDirectory,
 			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
 
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			if (parsedECSFile->GetName() == "OksEngine.Behaviour") {
+				Common::BreakPointLine();
+			}
+			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 			{
 				using namespace std::string_literals;
 
@@ -261,7 +349,7 @@ namespace ECSGenerator2 {
 					auto generateUpdateMethodParameters =
 						[](std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethodInfo) {
 
-						std::vector<Function::Parameter> updateMethodParameters;
+						std::vector<CodeStructure::Function::Parameter> updateMethodParameters;
 
 						Common::UInt64 currentEntityIndex = 0;
 						updateMethodInfo->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
@@ -271,7 +359,7 @@ namespace ECSGenerator2 {
 								std::format("entity{}id", currentEntityIndex) });
 
 							entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
-								Function::Parameter parameter;
+								CodeStructure::Function::Parameter parameter;
 								if (include.IsReadonly()) {
 									parameter.inputType_ = std::format("const {}*", include.GetName());
 								}
@@ -293,10 +381,10 @@ namespace ECSGenerator2 {
 						};
 
 					//Update method.
-					const std::vector<Function::Parameter> updateMethodParameters
+					const std::vector<CodeStructure::Function::Parameter> updateMethodParameters
 						= generateUpdateMethodParameters(system->ci_.updateMethod_);
 
-					Function::CreateInfo updateMethodCI{
+					CodeStructure::Function::CreateInfo updateMethodCI{
 						.name_ = system->GetName() + "::Update",
 						.parameters_ = updateMethodParameters,
 						.returnType_ = "void",
@@ -305,13 +393,13 @@ namespace ECSGenerator2 {
 						.inlineModifier_ = false
 					};
 
-					auto updateMethod = std::make_shared<Function>(updateMethodCI);
+					auto updateMethod = std::make_shared<CodeStructure::Function>(updateMethodCI);
 
 					return updateMethod;
 					};
 				auto generateAfterUpdateMethod = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
-					Function::CreateInfo afterUpdateMethodCI{
+					CodeStructure::Function::CreateInfo afterUpdateMethodCI{
 						.name_ = systemEcsFile->GetName() + "::AfterUpdate",
 						.parameters_ = { },
 						.returnType_ = "void",
@@ -320,24 +408,56 @@ namespace ECSGenerator2 {
 						.inlineModifier_ = false
 					};
 
-					auto afterUpdateMethod = std::make_shared<Function>(afterUpdateMethodCI);
+					auto afterUpdateMethod = std::make_shared<CodeStructure::Function>(afterUpdateMethodCI);
 
 					return afterUpdateMethod;
 
 					};
 
-				parsedECSFile->ForEachSystem([&](std::shared_ptr<ParsedSystem> parsedSystem) {
+				//New generation
+				parsedECSFile->ForEachRootTable([&](std::shared_ptr<ParsedTable> table) {
 
-					namespaceObject->Add(generateUpdateMethod(parsedSystem));
-					if (parsedSystem->ci_.afterUpdateMethod_ != nullptr) {
-						namespaceObject->Add(generateAfterUpdateMethod(parsedSystem));
+					std::function<std::vector<std::shared_ptr<CodeStructure::Base>>(std::shared_ptr<ParsedTable>)> processTable
+						= [&](std::shared_ptr<ParsedTable> table) {
+						if (table->GetType() == ParsedTable::Type::Namespace) {
+							auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(table);
+							auto namespaceObject = std::make_shared<CodeStructure::Namespace>(parsedNamespace->GetName());
+							parsedNamespace->ForEachChildTable([&](std::shared_ptr<ParsedTable> parsedTable) {
+								auto bases = processTable(parsedTable);
+								for (auto base : bases) {
+									namespaceObject->Add(base);
+								}
+								});
+
+							return std::vector<std::shared_ptr<CodeStructure::Base>>{ namespaceObject };
+						}
+						if (table->GetType() == ParsedTable::Type::System) {
+							auto parsedSystem = std::dynamic_pointer_cast<ParsedSystem>(table);
+							std::vector<std::shared_ptr<CodeStructure::Base>> bases;
+							bases.push_back(generateUpdateMethod(parsedSystem));
+							if (parsedSystem->ci_.afterUpdateMethod_ != nullptr) {
+								bases.push_back(generateAfterUpdateMethod(parsedSystem));
+							}
+							return bases;
+						}
+						return std::vector<std::shared_ptr<CodeStructure::Base>>{};
+						};
+
+					auto bases = processTable(table);
+					for (auto base : bases) {
+						namespaceObject->Add(base);
 					}
-
 					});
+				//New generation
+
+				//parsedECSFile->ForEachSystem([&](std::shared_ptr<ParsedSystem> parsedSystem) {
+
+
+				//	});
 
 			}
 
-			File::Includes includes;
+			CodeStructure::File::Includes includes;
 			auto ecsFilePath = parsedECSFile->GetPath();
 
 			auto [it, _] = std::mismatch(
@@ -353,17 +473,17 @@ namespace ECSGenerator2 {
 
 			includes.paths_.insert(filePath.parent_path() / ("auto_" + parsedECSFile->GetName() + ".hpp"));
 
-			File::CreateInfo fci{
+			CodeStructure::File::CreateInfo fci{
 				.isHpp_ = true,
 				.includes_ = includes,
 				.base_ = namespaceObject
 			};
-			auto file = std::make_shared<File>(fci);
+			auto file = std::make_shared<CodeStructure::File>(fci);
 
 			return { file };
 		}
 
-		std::vector<std::shared_ptr<File>> Generate(
+		std::vector<std::shared_ptr<CodeStructure::File>> Generate(
 			const std::filesystem::path& includeDirectory,
 			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
 
@@ -379,7 +499,7 @@ namespace ECSGenerator2 {
 		void ProcessDirectory(
 			const std::filesystem::path currentDir,
 			const std::filesystem::path includeDirectory,
-			std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::File>>& pathToHppECSFile) {
+			std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::CodeStructure::File>>& pathToHppECSFile) {
 
 			// Рекурсивно обрабатываем поддиректории
 			std::vector<std::filesystem::path> subdirs;
@@ -418,7 +538,7 @@ namespace ECSGenerator2 {
 
 
 
-			File::Includes includes;
+			CodeStructure::File::Includes includes;
 
 			// Включаем .ecs файлы текущей директории
 			for (const auto& file : ecs_files) {
@@ -429,22 +549,22 @@ namespace ECSGenerator2 {
 				includes.paths_.insert((filePath / subdir).string() + "/auto_OksEngine.ECS.hpp");
 			}
 
-			File::CreateInfo fci{
+			CodeStructure::File::CreateInfo fci{
 				.isHpp_ = true,
 				.includes_ = includes,
 				.base_ = nullptr
 			};
-			auto codeStructureFile = std::make_shared<File>(fci);
+			auto codeStructureFile = std::make_shared<CodeStructure::File>(fci);
 
 			pathToHppECSFile[currentDir / "auto_OksEngine.ECS.hpp"] = codeStructureFile;
 
 		}
 
 		//Generate auto_OksEngine.ECS.hpp files in each dir.
-		std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::File>>
+		std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::CodeStructure::File>>
 			GenerateDirECSIncludeHppFiles(const std::filesystem::path currentDir, const std::filesystem::path includeDirectory) {
 
-			std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::File>> hppECSFiles;
+			std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::CodeStructure::File>> hppECSFiles;
 
 			ProcessDirectory(currentDir, includeDirectory, hppECSFiles);
 
@@ -452,62 +572,60 @@ namespace ECSGenerator2 {
 
 		}
 
-		std::shared_ptr<File>
+		std::shared_ptr<CodeStructure::File>
 			GenerateParseEntityHppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
 
-			auto generateParseComponentCode = [](std::shared_ptr<ParsedComponent> component) -> Code {
+			auto generateParseEntityFunctionRealization 
+				= [&](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> std::shared_ptr<CodeStructure::Function> {
 
-				Code code;
+				auto generateParseComponentCode 
+					= [](
+						std::shared_ptr<ParsedComponent> component) -> CodeStructure::Code {
 
-				//luabridge::LuaRef position2DRef = entity["position2D"];
-				code.Add(std::format(
-					"luabridge::LuaRef {}Ref = entity[\"{}\"];",
-					component->GetLowerName(),
-					component->GetLowerName()));
+					CodeStructure::Code code;
 
-				//if (!position2DRef.isNil()) {
-				code.Add(std::format(
-					"if (!{}Ref.isNil()) {{",
-					component->GetLowerName()));
+					code.Add(std::format(
+						"luabridge::LuaRef {}Ref = entity[\"{}\"];",
+						component->GetLowerName(),
+						component->GetLowerName()));
 
-				//Position2D position2D = ParsePosition2D(position2DRef);
-				code.Add(std::format("{} {} = Parse{}({}Ref);",
-					component->GetName(),
-					component->GetLowerName(),
-					component->GetName(),
-					component->GetLowerName()));
+					code.Add(std::format(
+						"if (!{}Ref.isNil()) {{",
+						component->GetLowerName()));
 
-				//CreateComponent<Position2D>(newEntityId
-				code.Add(std::format("world->CreateComponent<{}>(newEntityId",
-					component->GetName()));
+					code.Add(std::format("{} {} = Parse{}({}Ref);",
+						component->GetName(),
+						component->GetLowerName(),
+						component->GetName(),
+						component->GetLowerName()));
 
-				//, position2D.x_, position2D.y_
-				component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+					code.Add(std::format("world->CreateComponent<{}>(newEntityId",
+						component->GetName()));
 
-					code.Comma();
+					component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 
-					if (fieldInfo.typeName_ == "ECS2::Entity::Id") {
-						code.Add(std::format("getNewId({}.{}_)",
-							component->GetLowerName(),
-							fieldInfo.GetName()));
-					}
-					else {
-						code.Add(std::format("{}.{}_",
-							component->GetLowerName(),
-							fieldInfo.GetName()));
-					}
-					return true;
-					});
+						code.Comma();
 
-				code.Add(");");
-				code.Add("}");
+						if (fieldInfo.typeName_ == "ECS2::Entity::Id") {
+							code.Add(std::format("getNewId({}.{}_)",
+								component->GetLowerName(),
+								fieldInfo.GetName()));
+						}
+						else {
+							code.Add(std::format("{}.{}_",
+								component->GetLowerName(),
+								fieldInfo.GetName()));
+						}
+						return true;
+						});
 
-				return code;
-				};
+					code.Add(");");
+					code.Add("}");
 
-			auto generateParseEntityFunctionRealization = [&](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> std::shared_ptr<Function> {
+					return code;
+					};
 
-				Code code;
+				CodeStructure::Code code;
 				code.Add(
 					"auto getNewId = [&](ECS2::Entity::Id oldId) {"
 					"	#pragma region Assert\n"
@@ -532,7 +650,7 @@ namespace ECSGenerator2 {
 
 				}
 
-				Function::CreateInfo editEntityFunction{
+				CodeStructure::Function::CreateInfo editEntityFunction{
 					.name_ = "ParseEntity",
 					.parameters_ = {
 						{ "std::shared_ptr<ECS2::World>", "world" },
@@ -546,12 +664,12 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				auto editEntityFunctionObject = std::make_shared<Function>(editEntityFunction);
+				auto editEntityFunctionObject = std::make_shared<CodeStructure::Function>(editEntityFunction);
 
 				return editEntityFunctionObject;
 				};
 
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
 			std::vector<std::shared_ptr<ParsedComponent>> allParsedComponents;
 			for (auto ecsFile : ecsFiles) {
@@ -562,19 +680,19 @@ namespace ECSGenerator2 {
 
 			namespaceObject->Add(generateParseEntityFunctionRealization(allParsedComponents));
 
-			File::Includes includes{ };
+			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");
 			includes.paths_.insert("OksEngine.ECS.hpp");
 			//includes.paths_.insert("magic_enum/magic_enum.hpp");
 
 			//hpp file
-			File::CreateInfo fci{
+			CodeStructure::File::CreateInfo fci{
 				.isHpp_ = true,
 				.includes_ = includes,
 				.base_ = namespaceObject
 			};
 
-			auto file = std::make_shared<File>(fci);
+			auto file = std::make_shared<CodeStructure::File>(fci);
 
 			return file;
 
@@ -594,12 +712,12 @@ namespace ECSGenerator2 {
 			//return { systemCppFileFullPath, file };
 		}
 
-		std::shared_ptr<File>
+		std::shared_ptr<CodeStructure::File>
 			GenerateSerializeEntityHppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
 
-			auto generateSerializeComponentCode = [](std::shared_ptr<ParsedComponent> component, bool isLast) -> Code {
+			auto generateSerializeComponentCode = [](std::shared_ptr<ParsedComponent> component, bool isLast) -> CodeStructure::Code {
 
-				Code code;
+				CodeStructure::Code code;
 
 				code.Add(std::format(
 					"if (components.IsSet<{}>()) {{"
@@ -618,9 +736,9 @@ namespace ECSGenerator2 {
 				return code;
 				};
 
-			auto generateSerializeEntityFunctionRealization = [&](std::vector<std::shared_ptr<ParsedComponent>> components) -> std::shared_ptr<Function> {
+			auto generateSerializeEntityFunctionRealization = [&](std::vector<std::shared_ptr<ParsedComponent>> components) -> std::shared_ptr<CodeStructure::Function> {
 
-				Code code;
+				CodeStructure::Code code;
 
 				code.Add("std::string serializedEntity;");
 				code.Add("const ECS2::ComponentsFilter components = world->GetEntityComponentsFilter(entityId);");
@@ -651,7 +769,7 @@ namespace ECSGenerator2 {
 
 				code.Add("return serializedEntity;");
 
-				Function::CreateInfo serializeEntityFunction{
+				CodeStructure::Function::CreateInfo serializeEntityFunction{
 					.name_ = "SerializeEntity",
 					.parameters_ = {
 						{ "std::shared_ptr<ECS2::World>", "world" },
@@ -663,12 +781,12 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				auto serializedEntityFunctionObject = std::make_shared<Function>(serializeEntityFunction);
+				auto serializedEntityFunctionObject = std::make_shared<CodeStructure::Function>(serializeEntityFunction);
 
 				return serializedEntityFunctionObject;
 				};
 
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
 			std::vector<std::shared_ptr<ParsedComponent>> allParsedComponents;
 			for (auto ecsFile : ecsFiles) {
@@ -678,29 +796,29 @@ namespace ECSGenerator2 {
 			}
 			namespaceObject->Add(generateSerializeEntityFunctionRealization(allParsedComponents));
 
-			File::Includes includes{ };
+			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");
 			includes.paths_.insert("OksEngine.ECS.hpp");
 			//includes.paths_.insert("magic_enum/magic_enum.hpp");
 
 			//hpp file
-			File::CreateInfo fci{
+			CodeStructure::File::CreateInfo fci{
 				.isHpp_ = true,
 				.includes_ = includes,
 				.base_ = namespaceObject
 			};
 
-			auto file = std::make_shared<File>(fci);
+			auto file = std::make_shared<CodeStructure::File>(fci);
 
 			return file;
 		}
 
-		std::shared_ptr<File>
+		std::shared_ptr<CodeStructure::File>
 			GenerateEditEntityCppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
 
-			auto generateAddComponentCode = [](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> Code {
+			auto generateAddComponentCode = [](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> CodeStructure::Code {
 
-				Code code;
+				CodeStructure::Code code;
 
 				// Components to add list.
 				code.Add("const char* items[] = {");
@@ -741,9 +859,9 @@ namespace ECSGenerator2 {
 				return code;
 				};
 
-			auto generateEditComponentCode = [](std::shared_ptr<ParsedComponent> component) -> Code {
+			auto generateEditComponentCode = [](std::shared_ptr<ParsedComponent> component) -> CodeStructure::Code {
 
-				Code code;
+				CodeStructure::Code code;
 				code.Add(std::format("editComponent.template operator()<{}>(world, entityId);", component->GetName()));
 				/*code.NewLine();
 				component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
@@ -766,9 +884,9 @@ namespace ECSGenerator2 {
 				return code;
 				};
 
-			auto generateEditEntityFunctionRealization = [&](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> std::shared_ptr<Function> {
+			auto generateEditEntityFunctionRealization = [&](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> std::shared_ptr<CodeStructure::Function> {
 
-				Code code;
+				CodeStructure::Code code;
 
 				code.Add(
 					"const std::string idString = std::to_string(entityId);"
@@ -818,7 +936,7 @@ namespace ECSGenerator2 {
 				code.Add("}");
 				code.Add("ImGui::PopID();");
 
-				Function::CreateInfo editEntityFunction{
+				CodeStructure::Function::CreateInfo editEntityFunction{
 					.name_ = "EditEntity",
 					.parameters_ = {
 						{ "std::shared_ptr<ECS2::World>", "world" },
@@ -830,12 +948,12 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				auto editEntityFunctionObject = std::make_shared<Function>(editEntityFunction);
+				auto editEntityFunctionObject = std::make_shared<CodeStructure::Function>(editEntityFunction);
 
 				return editEntityFunctionObject;
 				};
 
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
 			std::vector<std::shared_ptr<ParsedComponent>> allParsedComponents;
 			for (auto ecsFile : ecsFiles) {
@@ -846,7 +964,7 @@ namespace ECSGenerator2 {
 
 			namespaceObject->Add(generateEditEntityFunctionRealization(allParsedComponents));
 
-			File::Includes includes{ };
+			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");
 			includes.paths_.insert("imgui.h");
 			includes.paths_.insert("OksEngine.ECS.hpp");
@@ -854,23 +972,23 @@ namespace ECSGenerator2 {
 			includes.paths_.insert("auto_OksEngine.EditEntity.hpp");
 
 			//hpp file
-			File::CreateInfo fci{
+			CodeStructure::File::CreateInfo fci{
 				.isHpp_ = false,
 				.includes_ = includes,
 				.base_ = namespaceObject
 			};
 
-			auto file = std::make_shared<File>(fci);
+			auto file = std::make_shared<CodeStructure::File>(fci);
 
 			return file;
 		}
 
-		std::shared_ptr<File>
+		std::shared_ptr<CodeStructure::File>
 			GenerateEditEntityHppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
 
-			auto generateEditEntityFunctionPrototype = [&]() -> std::shared_ptr<Function> {
+			auto generateEditEntityFunctionPrototype = [&]() -> std::shared_ptr<CodeStructure::Function> {
 
-				Function::CreateInfo editEntityFunction{
+				CodeStructure::Function::CreateInfo editEntityFunction{
 					.name_ = "EditEntity",
 					.parameters_ = {
 						{ "std::shared_ptr<ECS2::World>", "world" },
@@ -882,35 +1000,35 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				auto editEntityFunctionObject = std::make_shared<Function>(editEntityFunction);
+				auto editEntityFunctionObject = std::make_shared<CodeStructure::Function>(editEntityFunction);
 
 				return editEntityFunctionObject;
 				};
 
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
 			namespaceObject->Add(generateEditEntityFunctionPrototype());
 
-			File::Includes includes{ };
+			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");
 
 			//hpp file
-			File::CreateInfo fci{
+			CodeStructure::File::CreateInfo fci{
 				.isHpp_ = true,
 				.includes_ = includes,
 				.base_ = namespaceObject
 			};
 
-			auto file = std::make_shared<File>(fci);
+			auto file = std::make_shared<CodeStructure::File>(fci);
 
 			return file;
 		}
 
-		std::shared_ptr<File> GenerateEditEntityHppFile(std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) {
+		std::shared_ptr<CodeStructure::File> GenerateEditEntityHppFile(std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) {
 
-			auto generateAddComponentCode = [](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> Code {
+			auto generateAddComponentCode = [](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> CodeStructure::Code {
 
-				Code code;
+				CodeStructure::Code code;
 
 				// Components to add list.
 				code.Add("const char* items[] = {");
@@ -943,9 +1061,9 @@ namespace ECSGenerator2 {
 				return code;
 				};
 
-			auto generateEditComponentCode = [](std::shared_ptr<ParsedComponent> component) -> Code {
+			auto generateEditComponentCode = [](std::shared_ptr<ParsedComponent> component) -> CodeStructure::Code {
 
-				Code code;
+				CodeStructure::Code code;
 				code.Add(std::format("editComponent.template operator()<{}>(world, entityId);", component->GetName()));
 				code.NewLine();
 				component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
@@ -968,9 +1086,9 @@ namespace ECSGenerator2 {
 				return code;
 				};
 
-			auto generateEditEntityFunctionRealization = [&](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> std::shared_ptr<Function> {
+			auto generateEditEntityFunctionRealization = [&](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> std::shared_ptr<CodeStructure::Function> {
 
-				Code code;
+				CodeStructure::Code code;
 
 				code.Add(
 					"const std::string idString = std::to_string(entityId);"
@@ -1020,7 +1138,7 @@ namespace ECSGenerator2 {
 				code.Add("}");
 				code.Add("ImGui::PopID();");
 
-				Function::CreateInfo editEntityFunction{
+				CodeStructure::Function::CreateInfo editEntityFunction{
 					.name_ = "EditEntity",
 					.parameters_ = {
 						{ "std::shared_ptr<ECS2::World>", "world" },
@@ -1032,29 +1150,29 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				auto editEntityFunctionObject = std::make_shared<Function>(editEntityFunction);
+				auto editEntityFunctionObject = std::make_shared<CodeStructure::Function>(editEntityFunction);
 
 				return editEntityFunctionObject;
 				};
 
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
 			namespaceObject->Add(generateEditEntityFunctionRealization(parsedComponents));
 
-			File::Includes includes{ };
+			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");
 			includes.paths_.insert("imgui.h");
 			includes.paths_.insert("OksEngine.ECS.hpp");
 			includes.paths_.insert("magic_enum/magic_enum.hpp");
 
 			//hpp file
-			File::CreateInfo fci{
+			CodeStructure::File::CreateInfo fci{
 				.isHpp_ = true,
 				.includes_ = includes,
 				.base_ = namespaceObject
 			};
 
-			auto file = std::make_shared<File>(fci);
+			auto file = std::make_shared<CodeStructure::File>(fci);
 
 			return file;
 
@@ -1173,8 +1291,8 @@ namespace ECSGenerator2 {
 			SystemsOrder systemsOrder_;
 		};
 
-		Code GenerateRunSystemCode(std::shared_ptr<ParsedSystem> systemEcsFile) {
-			Code runSystemCode;
+		CodeStructure::Code GenerateRunSystemCode(std::shared_ptr<ParsedSystem> systemEcsFile) {
+			CodeStructure::Code runSystemCode;
 			runSystemCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + systemEcsFile->GetName() + "\");");
 			runSystemCode.Add(systemEcsFile->GetName() + "System(world2);");
 			runSystemCode.NewLine();
@@ -1182,7 +1300,7 @@ namespace ECSGenerator2 {
 			return runSystemCode;
 		}
 
-		std::shared_ptr<Function> GenerateRunInitSystemsFunctionRealization(std::vector<std::shared_ptr<ParsedSystem>> parsedSystems) {
+		std::shared_ptr<CodeStructure::Function> GenerateRunInitSystemsFunctionRealization(std::vector<std::shared_ptr<ParsedSystem>> parsedSystems) {
 
 			DS::Graph<System> initCallGraph;
 			for (auto parsedSystem : parsedSystems) {
@@ -1254,7 +1372,7 @@ namespace ECSGenerator2 {
 
 			}
 
-			Code runInitSystemsCode;
+			CodeStructure::Code runInitSystemsCode;
 			runInitSystemsCode.Add(
 				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Start initialize frame\");"
 				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"StartFrame\");"
@@ -1310,7 +1428,7 @@ namespace ECSGenerator2 {
 			runInitSystemsCode.Add("PIXEndEvent();");
 
 			//CreateThreads method realization.
-			Function::CreateInfo cppRunSystemsFunction{
+			CodeStructure::Function::CreateInfo cppRunSystemsFunction{
 				.name_ = "RunInitializeSystems",
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "world2" }
@@ -1321,17 +1439,17 @@ namespace ECSGenerator2 {
 				.inlineModifier_ = false
 			};
 
-			auto runInitializeSystemsFunctionRealization = std::make_shared<Function>(cppRunSystemsFunction);
+			auto runInitializeSystemsFunctionRealization = std::make_shared<CodeStructure::Function>(cppRunSystemsFunction);
 
 			return runInitializeSystemsFunctionRealization;
 
 		}
 
-		std::shared_ptr<Function> GenerateCreateThreadRealization(const std::vector<Thread>& threads) {
+		std::shared_ptr<CodeStructure::Function> GenerateCreateThreadRealization(const std::vector<Thread>& threads) {
 
 
 			//Create threads
-			Code cppCreateThreadsCode;
+			CodeStructure::Code cppCreateThreadsCode;
 			{
 
 				for (Common::Index i = 0; i < threads.size(); ++i) {
@@ -1381,7 +1499,7 @@ namespace ECSGenerator2 {
 					//}
 
 
-					Code runThreadSystems;
+					CodeStructure::Code runThreadSystems;
 					for (Common::Index i = 0; i < thread.systemsOrder_.order_.size(); i++) {
 						runThreadSystems.Add(std::format(
 							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
@@ -1412,7 +1530,7 @@ namespace ECSGenerator2 {
 			}
 
 			//CreateThreads method realization.
-			Function::CreateInfo cppCreateThreadsFunction{
+			CodeStructure::Function::CreateInfo cppCreateThreadsFunction{
 				.name_ = "CreateThreads",
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "world2" }
@@ -1423,15 +1541,15 @@ namespace ECSGenerator2 {
 				.inlineModifier_ = false
 			};
 
-			auto cppCreateThreadsFunctionObject = std::make_shared<Function>(cppCreateThreadsFunction);
+			auto cppCreateThreadsFunctionObject = std::make_shared<CodeStructure::Function>(cppCreateThreadsFunction);
 
 			return cppCreateThreadsFunctionObject;
 		}
 
-		std::shared_ptr<File> GenerateRunSystemsHppFile() {
+		std::shared_ptr<CodeStructure::File> GenerateRunSystemsHppFile() {
 
-			auto generateRunSystemsFunctionPrototype = []() -> std::shared_ptr<Function> {
-				Function::CreateInfo hppRunSystemsFunction{
+			auto generateRunSystemsFunctionPrototype = []() -> std::shared_ptr<CodeStructure::Function> {
+				CodeStructure::Function::CreateInfo hppRunSystemsFunction{
 					.name_ = "RunSystems",
 					.parameters_ = {
 						{ "std::shared_ptr<ECS2::World>", "world2"}},
@@ -1441,12 +1559,12 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				return std::make_shared<Function>(hppRunSystemsFunction);
+				return std::make_shared<CodeStructure::Function>(hppRunSystemsFunction);
 				};
 
-			auto generateCreateThreadsFunctionPrototype = []() -> std::shared_ptr<Function> {
+			auto generateCreateThreadsFunctionPrototype = []() -> std::shared_ptr<CodeStructure::Function> {
 				//Create threads method prototype.
-				Function::CreateInfo hppCreateThreadsFunction{
+				CodeStructure::Function::CreateInfo hppCreateThreadsFunction{
 					.name_ = "CreateThreads",
 					.parameters_ = { { "std::shared_ptr<ECS2::World>", "world2"} },
 					.returnType_ = "void",
@@ -1455,12 +1573,12 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				return std::make_shared<Function>(hppCreateThreadsFunction);
+				return std::make_shared<CodeStructure::Function>(hppCreateThreadsFunction);
 				};
 
-			auto generateRunInitSystemsFunctionPrototype = []() -> std::shared_ptr<Function> {
+			auto generateRunInitSystemsFunctionPrototype = []() -> std::shared_ptr<CodeStructure::Function> {
 				//CreateThreads method prototype.
-				Function::CreateInfo cppRunSystemsFunction{
+				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
 					.name_ = "RunInitializeSystems",
 					.parameters_ = {
 						{ "std::shared_ptr<ECS2::World>", "world2" }
@@ -1471,29 +1589,29 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				return std::make_shared<Function>(cppRunSystemsFunction);
+				return std::make_shared<CodeStructure::Function>(cppRunSystemsFunction);
 				};
 
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
 			namespaceObject->Add(generateRunSystemsFunctionPrototype());
 			namespaceObject->Add(generateCreateThreadsFunctionPrototype());
 			namespaceObject->Add(generateRunInitSystemsFunctionPrototype());
 
-			File::Includes includes{ };
+			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("boost/asio/thread_pool.hpp");
 			includes.paths_.insert("boost/asio/post.hpp");
 			includes.paths_.insert("ECS2.World.hpp");
 			includes.paths_.insert("auto_OksEngine.ECS.hpp");
 
 			//hpp file
-			File::CreateInfo fci{
+			CodeStructure::File::CreateInfo fci{
 			.isHpp_ = true,
 			.includes_ = includes,
 			.base_ = namespaceObject
 			};
 
-			auto file = std::make_shared<File>(fci);
+			auto file = std::make_shared<CodeStructure::File>(fci);
 
 			return file;
 
@@ -1570,7 +1688,7 @@ namespace ECSGenerator2 {
 
 		}
 
-		std::shared_ptr<File>
+		std::shared_ptr<CodeStructure::File>
 			GenerateRunSystemsCppFile(/*std::vector<std::vector<Agnode_t*>> clusters,*/ std::vector<std::shared_ptr<ParsedECSFile>> parsedECSFiles) {
 
 			//Components and which systems uses them.
@@ -1847,7 +1965,7 @@ namespace ECSGenerator2 {
 			//Generate .CPP.
 
 			//Generate Includes.
-			File::Includes cppIncludes{ };
+			CodeStructure::File::Includes cppIncludes{ };
 			{
 				//Must be first to escape 
 				//error C1189: #error:  WinSock.h has already been included
@@ -1872,51 +1990,51 @@ namespace ECSGenerator2 {
 				cppIncludes.paths_.insert("pix3.h");
 			}
 
-			auto cppNamespaceObject = std::make_shared<Namespace>("OksEngine");
+			auto cppNamespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
 			{
 
 				for (Common::Index i = 0; i < childThreads.size(); ++i) {
 					auto& thread = childThreads[i];
 
-					Variable::CreateInfo threadVariable{
+					CodeStructure::Variable::CreateInfo threadVariable{
 						.type_ = "std::thread",
 						.name_ = "thread" + std::to_string(i)
 					};
-					cppNamespaceObject->Add(std::make_shared<Variable>(threadVariable));
+					cppNamespaceObject->Add(std::make_shared<CodeStructure::Variable>(threadVariable));
 
 					std::mutex thread16Mutex;
 
-					Variable::CreateInfo threadMutexVariable{
+					CodeStructure::Variable::CreateInfo threadMutexVariable{
 						.type_ = "std::mutex",
 						.name_ = "thread" + std::to_string(i) + "Mutex"
 					};
-					cppNamespaceObject->Add(std::make_shared<Variable>(threadMutexVariable));
+					cppNamespaceObject->Add(std::make_shared<CodeStructure::Variable>(threadMutexVariable));
 
 
-					Variable::CreateInfo runSystemThreadVariable{
+					CodeStructure::Variable::CreateInfo runSystemThreadVariable{
 						.type_ = "std::atomic_bool",
 						.name_ = "runSystemThread" + std::to_string(i),
 						.initValue_ = "false"
 					};
-					cppNamespaceObject->Add(std::make_shared<Variable>(runSystemThreadVariable));
+					cppNamespaceObject->Add(std::make_shared<CodeStructure::Variable>(runSystemThreadVariable));
 
-					Variable::CreateInfo threadCVVariable{
+					CodeStructure::Variable::CreateInfo threadCVVariable{
 						.type_ = "std::condition_variable",
 						.name_ = "thread" + std::to_string(i) + "CV"
 					};
-					cppNamespaceObject->Add(std::make_shared<Variable>(threadCVVariable));
+					cppNamespaceObject->Add(std::make_shared<CodeStructure::Variable>(threadCVVariable));
 				}
 
-				Variable::CreateInfo threadCVVariable{
+				CodeStructure::Variable::CreateInfo threadCVVariable{
 						.type_ = "Common::UInt64",
 						.name_ = "frameNumber",
 						.initValue_ = "0"
 				};
-				cppNamespaceObject->Add(std::make_shared<Variable>(threadCVVariable));
+				cppNamespaceObject->Add(std::make_shared<CodeStructure::Variable>(threadCVVariable));
 			}
 
-			Code cppRunSystemsCode;
+			CodeStructure::Code cppRunSystemsCode;
 			{
 				cppRunSystemsCode.Add(
 					"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Frame %d\", frameNumber);"
@@ -1942,7 +2060,7 @@ namespace ECSGenerator2 {
 
 				//Generate code to run main thread systems.
 				{
-					Code runMainThreadSystems;
+					CodeStructure::Code runMainThreadSystems;
 					for (Common::Index i = 0; i < mainThread.systemsOrder_.order_.size(); i++) {
 						runMainThreadSystems.Add(std::format(
 							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
@@ -1996,7 +2114,7 @@ namespace ECSGenerator2 {
 			}
 
 			//CreateThreads method realization.
-			Function::CreateInfo cppRunSystemsFunction{
+			CodeStructure::Function::CreateInfo cppRunSystemsFunction{
 				.name_ = "RunSystems",
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "world2" }
@@ -2007,7 +2125,7 @@ namespace ECSGenerator2 {
 				.inlineModifier_ = false
 			};
 
-			auto cppRunSystemsFunctionObject = std::make_shared<Function>(cppRunSystemsFunction);
+			auto cppRunSystemsFunctionObject = std::make_shared<CodeStructure::Function>(cppRunSystemsFunction);
 			cppNamespaceObject->Add(cppRunSystemsFunctionObject);
 
 			std::vector<std::shared_ptr<ParsedSystem>> parsedSystems;
@@ -2022,13 +2140,13 @@ namespace ECSGenerator2 {
 
 
 			//cpp file
-			File::CreateInfo cppfci{
+			CodeStructure::File::CreateInfo cppfci{
 			.isHpp_ = false,
 			.includes_ = cppIncludes,
 			.base_ = cppNamespaceObject
 			};
 
-			auto cppFile = std::make_shared<File>(cppfci);
+			auto cppFile = std::make_shared<CodeStructure::File>(cppfci);
 
 			return cppFile;
 

@@ -3,7 +3,7 @@ CreateLoadLuaScriptRequestSystem = {
         processesEntities = {
             {
                 processesComponents = { 
-                    "Behaviour"
+                    "Behaviour::Behaviour"
                 },
                 createsComponents = { "LoadLuaScriptRequest" },
                 excludes = { "LoadLuaScriptRequest" }

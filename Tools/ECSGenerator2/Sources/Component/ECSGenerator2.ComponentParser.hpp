@@ -6,7 +6,7 @@ namespace ECSGenerator2 {
 
 	class ComponentParser {
 	public:
-		std::shared_ptr<ParsedComponent> Parse(
+		std::shared_ptr<ParsedTable> Parse(
 			luabridge::LuaRef component,
 			const std::string& componentName) {
 

@@ -7,12 +7,13 @@
 #include <Common.hpp>
 #include <OS.Logger.hpp>
 
+#include <ECSGenerator2.ParsedTable.hpp>
 #include <ECSGenerator2.Code.hpp>
 
 namespace ECSGenerator2 {
 
 
-	class ParsedSystem {
+	class ParsedSystem : public ParsedTable {
 	public:
 
 		using Exclude = std::string;
@@ -27,13 +28,17 @@ namespace ECSGenerator2 {
 			}
 
 			[[nodiscard]]
-			const std::string GetName() const noexcept {
+			const std::string& GetName() const noexcept {
 				return name_;
 			}
 
 			[[nodiscard]]
 			const std::string GetLowerName() const noexcept {
-				return std::string{ (char)std::tolower(GetName()[0]) } + GetName().substr(1);
+				//If include contains type with namespace (exmpl: "Behaviour::LuaContext")need to exchange :: to _
+				std::string name = GetName();
+				std::replace(name.begin(), name.end(), ':', '_');
+				//
+				return std::string{ (char)std::tolower(name[0]) } + name.substr(1);
 			}
 		};
 
@@ -171,6 +176,10 @@ namespace ECSGenerator2 {
 			Undefined
 		};
 
+		virtual ParsedTable::Type GetType() const noexcept override {
+			return ParsedTable::Type::System;
+		}
+
 		static Thread StringToThread(const std::string& threadString) noexcept {
 
 			if (threadString == "Main") {
@@ -266,6 +275,7 @@ namespace ECSGenerator2 {
 
 		struct CreateInfo {
 			bool isEnabled_ = true;
+			std::vector<std::string> namespace_;
 			std::string name_;
 			Thread thread_ = Thread::Undefined;
 			Type type_ = Type::Undefined;

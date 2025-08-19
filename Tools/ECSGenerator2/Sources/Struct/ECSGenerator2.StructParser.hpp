@@ -6,7 +6,7 @@ namespace ECSGenerator2 {
 
 	class StructParser {
 	public:
-		std::shared_ptr<ParsedStruct> Parse(
+		std::shared_ptr<ParsedTable> Parse(
 			luabridge::LuaRef component,
 			const std::string& componentName) {
 

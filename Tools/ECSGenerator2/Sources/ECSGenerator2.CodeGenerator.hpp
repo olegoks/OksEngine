@@ -11,14 +11,14 @@ namespace ECSGenerator2 {
 	class CodeGenerator {
 	public:
 
-		static Code GenerateInclude(const std::filesystem::path& path) {
-			Code code{ "#include <" + path.string() + ">" };
+		static CodeStructure::Code GenerateInclude(const std::filesystem::path& path) {
+			CodeStructure::Code code{ "#include <" + path.string() + ">" };
 
 			return code;
 		}
 
-		Code GenerateECSCXXFilesStructure(std::shared_ptr<Struct> structObject) {
-			Code code;
+		CodeStructure::Code GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::Struct> structObject) {
+			CodeStructure::Code code;
 
 			if (structObject->ci_.forwardDeclaration_) {
 				code.Add("struct " + structObject->GetName() + ";");
@@ -31,7 +31,7 @@ namespace ECSGenerator2 {
 			}
 			code.Add("{");
 
-			Code structRealization;
+			CodeStructure::Code structRealization;
 			{
 				if (structObject->ci_.defaultConstructor_) {
 					//Default constructor.
@@ -43,7 +43,7 @@ namespace ECSGenerator2 {
 
 
 					//Fields
-					structObject->ForEachField([&](const Struct::Field& field, bool isLast) {
+					structObject->ForEachField([&](const CodeStructure::Struct::Field& field, bool isLast) {
 						structRealization.Add(field.type_ + " " + field.name_ + "_;");
 						structRealization.NewLine();
 						});
@@ -53,7 +53,7 @@ namespace ECSGenerator2 {
 					if (structObject->ci_.constructor_) {
 						//Main constructor.
 						structRealization.Add(structObject->GetName() + "(");
-						structObject->ForEachField([&](const Struct::Field& field, bool isLast) {
+						structObject->ForEachField([&](const CodeStructure::Struct::Field& field, bool isLast) {
 							structRealization.Add(field.type_ + ((!field.copyable_) ? ("&& ") : (" ")) + field.name_);
 							if (!isLast) {
 								structRealization.Add(", ");
@@ -64,7 +64,7 @@ namespace ECSGenerator2 {
 						structRealization.NewLine();
 						structRealization.NewLine();
 
-						structObject->ForEachField([&](const Struct::Field& field, bool isLast) {
+						structObject->ForEachField([&](const CodeStructure::Struct::Field& field, bool isLast) {
 							structRealization.Add(field.name_ + "_{ "
 								+ ((!field.copyable_) ? ("std::move(") : ("")) +
 								field.name_
@@ -85,7 +85,7 @@ namespace ECSGenerator2 {
 				}
 
 				for (auto functionObject : structObject->ci_.methods_) {
-					Code code;
+					CodeStructure::Code code;
 					code.Add(GenerateECSCXXFilesStructure(functionObject));
 					structRealization.Add(code);
 				}
@@ -99,15 +99,15 @@ namespace ECSGenerator2 {
 			return code;
 		}
 
-		Code GenerateECSCXXFilesStructure(std::shared_ptr<Namespace> namespaceObject) {
-			Code code;
+		CodeStructure::Code GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::Namespace> namespaceObject) {
+			CodeStructure::Code code;
 
 			code.Add("namespace " + namespaceObject->GetName() + " {");
 
 
 			for (Common::Index i = 0; i < namespaceObject->base_.size(); i++) {
 				auto base = namespaceObject->base_[i];
-				Code namespaceCode = GenerateECSCXXFilesStructure(base);
+				CodeStructure::Code namespaceCode = GenerateECSCXXFilesStructure(base);
 				namespaceCode.ApplyTab();
 				namespaceCode.NewLine();
 				namespaceCode.NewLine();
@@ -123,8 +123,8 @@ namespace ECSGenerator2 {
 			return code;
 		}
 
-		Code GenerateECSCXXFilesStructure(std::shared_ptr<Variable> variableObject) {
-			Code code;
+		CodeStructure::Code GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::Variable> variableObject) {
+			CodeStructure::Code code;
 			code.Add(
 				variableObject->ci_.type_ +
 				" " +
@@ -133,8 +133,8 @@ namespace ECSGenerator2 {
 			return code;
 		}
 
-		Code GenerateECSCXXFilesStructure(std::shared_ptr<Function> functionObject) {
-			Code code;
+		CodeStructure::Code GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::Function> functionObject) {
+			CodeStructure::Code code;
 
 			if (!functionObject->ci_.templateParameters_.empty() ||
 				!functionObject->ci_.specializedTemplateParameters_.empty()) {
@@ -167,7 +167,7 @@ namespace ECSGenerator2 {
 				}
 				code.Add("(");
 				for (Common::Index i = 0; i < functionObject->ci_.parameters_.size(); i++) {
-					const Function::Parameter& parameter = functionObject->ci_.parameters_[i];
+					const CodeStructure::Function::Parameter& parameter = functionObject->ci_.parameters_[i];
 					code.Add(parameter.inputType_ + " " + parameter.valueName_);
 					if (i < functionObject->ci_.parameters_.size() - 1) {
 						code.Add(", ");
@@ -175,7 +175,7 @@ namespace ECSGenerator2 {
 				}
 				code.Add("){");
 
-				Code realization = functionObject->ci_.code_;
+				CodeStructure::Code realization = functionObject->ci_.code_;
 				realization.ApplyTab();
 				code.Add(realization);
 
@@ -186,7 +186,7 @@ namespace ECSGenerator2 {
 				code.Add((functionObject->ci_.inlineModifier_) ? ("inline") : ("") + functionObject->ci_.returnType_ + " " + functionObject->ci_.name_ + "(");
 
 				for (Common::Index i = 0; i < functionObject->ci_.parameters_.size(); i++) {
-					const Function::Parameter& paramter = functionObject->ci_.parameters_[i];
+					const CodeStructure::Function::Parameter& paramter = functionObject->ci_.parameters_[i];
 					code.Add(paramter.inputType_ + " " + paramter.valueName_);
 					if (i < functionObject->ci_.parameters_.size() - 1) {
 						code.Add(", ");
@@ -200,26 +200,26 @@ namespace ECSGenerator2 {
 			return code;
 		}
 
-		Code GenerateECSCXXFilesStructure(std::shared_ptr<Base> base) {
-			Code code;
+		CodeStructure::Code GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::Base> base) {
+			CodeStructure::Code code;
 			if (base == nullptr) {
 				return code;
 			}
-			if (base->GetType() == Base::Type::Namespace) {
-				auto namespaceObject = std::dynamic_pointer_cast<Namespace>(base);
+			if (base->GetType() == CodeStructure::Base::Type::Namespace) {
+				auto namespaceObject = std::dynamic_pointer_cast<CodeStructure::Namespace>(base);
 				code = GenerateECSCXXFilesStructure(namespaceObject);
 
 			}
-			else if (base->GetType() == Base::Type::Struct) {
-				auto structObject = std::dynamic_pointer_cast<Struct>(base);
+			else if (base->GetType() == CodeStructure::Base::Type::Struct) {
+				auto structObject = std::dynamic_pointer_cast<CodeStructure::Struct>(base);
 				code = GenerateECSCXXFilesStructure(structObject);
 			}
-			else if (base->GetType() == Base::Type::Function) {
-				auto functionObject = std::dynamic_pointer_cast<Function>(base);
+			else if (base->GetType() == CodeStructure::Base::Type::Function) {
+				auto functionObject = std::dynamic_pointer_cast<CodeStructure::Function>(base);
 				code = GenerateECSCXXFilesStructure(functionObject);
 			}
-			else if (base->GetType() == Base::Type::Variable) {
-				auto functionObject = std::dynamic_pointer_cast<Variable>(base);
+			else if (base->GetType() == CodeStructure::Base::Type::Variable) {
+				auto functionObject = std::dynamic_pointer_cast<CodeStructure::Variable>(base);
 				code = GenerateECSCXXFilesStructure(functionObject);
 			}
 			clang::format::FormatStyle style = clang::format::getMicrosoftStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);
@@ -236,16 +236,16 @@ namespace ECSGenerator2 {
 			return code;
 		}
 
-		std::shared_ptr<CodeFile> GenerateCode(std::shared_ptr<File> fileStructure) {
+		std::shared_ptr<CodeStructure::CodeFile> GenerateCode(std::shared_ptr<CodeStructure::File> fileStructure) {
 			return GenerateECSCXXFilesStructure(fileStructure);
 		}
 
-		std::shared_ptr<CodeFile> GenerateECSCXXFilesStructure(std::shared_ptr<File> fileStructure) {
+		std::shared_ptr<CodeStructure::CodeFile> GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::File> fileStructure) {
 
-			auto codeFile = std::make_shared<CodeFile>();
+			auto codeFile = std::make_shared<CodeStructure::CodeFile>();
 
 			if (fileStructure->IsHpp()) {
-				Code code;
+				CodeStructure::Code code;
 				code.Add("#pragma once");
 				code.NewLine();
 
@@ -256,7 +256,7 @@ namespace ECSGenerator2 {
 			}
 			//Includes.
 			{
-				Code includes;
+				CodeStructure::Code includes;
 				fileStructure->ForEachInclude([&](const std::filesystem::path& path) {
 					includes.Add(GenerateInclude(path));
 					includes.NewLine();
@@ -264,7 +264,7 @@ namespace ECSGenerator2 {
 				includes.NewLine();
 				codeFile->AddCode(includes);
 			}
-			const Code code = GenerateECSCXXFilesStructure(fileStructure->GetBase());
+			const CodeStructure::Code code = GenerateECSCXXFilesStructure(fileStructure->GetBase());
 			//codeFile->path_ = fileStructure->cr
 			codeFile->AddCode(code);
 			return codeFile;

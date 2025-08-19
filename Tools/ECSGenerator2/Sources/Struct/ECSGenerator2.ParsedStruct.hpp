@@ -10,14 +10,16 @@
 #include <random>  
 #include <format>
 
+#include <ECSGenerator2.ParsedTable.hpp>
 
 namespace ECSGenerator2 {
 
 
-	class ParsedStruct {
+	class ParsedStruct : public ParsedTable {
 	public:
 
 		struct FieldInfo {
+			std::vector<std::string> namespace_;
 			std::string typeName_;
 			std::string name_;
 
@@ -37,6 +39,11 @@ namespace ECSGenerator2 {
 		ParsedStruct(const CreateInfo& createInfo) :
 			ci_{ createInfo } { }
             
+
+		virtual ParsedTable::Type GetType() const noexcept override {
+			return ParsedTable::Type::Struct;
+		}
+
 		bool AreThereFields() const {
 			return !ci_.fields_.empty();
 		}

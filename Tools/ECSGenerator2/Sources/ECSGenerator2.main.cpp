@@ -41,44 +41,52 @@ int main(int argc, char** argv) {
 	};
 
 	std::vector<ECSFileInfo> ecsFileInfos;
-	std::filesystem::path dotSystemPath_;
-	const std::filesystem::path root = "Root";
-	resourceSystem.ForEachAddedResource([&](const std::filesystem::path resourceData) ->bool {
-		const bool ecsFile = resourceData.extension() == ".ecs"; // Systems and components
-		const bool dotFile = resourceData.extension() == ".dot"; //Systems graph
-		const bool cfgFile = resourceData.extension() == ".cfg";
-		if (dotFile) {
-			dotSystemPath_ = resourceData;
-		}
-		if (ecsFile) {
-			ecsFileInfos.push_back(ECSFileInfo{
-					.resourceSystemPath_ = resourceData,
-					.filesystemPath_ = resourceSystem.GetOSResourcePath(resourceData)
-				});
-		}
-		resourceSystem.LoadResource(resourceData);
-		return true;
-		});
+	{
+		std::filesystem::path dotSystemPath_;
+		const std::filesystem::path root = "Root";
+		resourceSystem.ForEachAddedResource([&](const std::filesystem::path resourceData) ->bool {
+			const bool ecsFile = resourceData.extension() == ".ecs"; // Systems and components
+			const bool dotFile = resourceData.extension() == ".dot"; //Systems graph
+			const bool cfgFile = resourceData.extension() == ".cfg";
+			if (dotFile) {
+				dotSystemPath_ = resourceData;
+			}
+			if (ecsFile) {
+				ecsFileInfos.push_back(ECSFileInfo{
+						.resourceSystemPath_ = resourceData,
+						.filesystemPath_ = resourceSystem.GetOSResourcePath(resourceData)
+					});
+			}
+			resourceSystem.LoadResource(resourceData);
+			return true;
+			});
 
-	std::vector<std::string_view> configFilePath = parameters.GetValue("-cfg");
-	resourceSystem.AddResource(std::filesystem::path{ configFilePath[0] }.filename().string(), std::filesystem::path{ configFilePath[0] }, "Root");
-	resourceSystem.LoadResource("Root" / std::filesystem::path{ configFilePath[0] }.filename());
-	OS::Assert(configFilePath.size() == 1);
-	Resources::ResourceData configResourceData = resourceSystem.GetResourceData(root / std::filesystem::path(configFilePath[0]).filename());
-	auto config = std::make_shared<OksEngine::ConfigFile>(std::string{ configResourceData.GetData<Common::Byte>(), configResourceData.GetSize() });
-
+		std::vector<std::string_view> configFilePath = parameters.GetValue("-cfg");
+		resourceSystem.AddResource(std::filesystem::path{ configFilePath[0] }.filename().string(), std::filesystem::path{ configFilePath[0] }, "Root");
+		resourceSystem.LoadResource("Root" / std::filesystem::path{ configFilePath[0] }.filename());
+		OS::Assert(configFilePath.size() == 1);
+		Resources::ResourceData configResourceData = resourceSystem.GetResourceData(root / std::filesystem::path(configFilePath[0]).filename());
+		auto config = std::make_shared<OksEngine::ConfigFile>(std::string{ configResourceData.GetData<Common::Byte>(), configResourceData.GetSize() });
+	}
 
 	//Parse ecs files.
 	std::vector<std::shared_ptr<ECSGenerator2::ParsedECSFile>> parsedECSFiles;
-	ECSGenerator2::Parser ecsFileParser;
+	{
+		ECSGenerator2::Parser ecsFileParser;
 
-	for (const ECSFileInfo& ecsFileInfo : ecsFileInfos) {
-		Resources::ResourceData resourceData = resourceSystem.GetResourceData(ecsFileInfo.resourceSystemPath_);
-		const std::string ecsFileText{ resourceData.GetData<Common::Byte>(), resourceData.GetSize() };
+		for (const ECSFileInfo& ecsFileInfo : ecsFileInfos) {
+			Resources::ResourceData resourceData = resourceSystem.GetResourceData(ecsFileInfo.resourceSystemPath_);
+			const std::string ecsFileText{ resourceData.GetData<Common::Byte>(), resourceData.GetSize() };
 
-		auto ecsFile = ecsFileParser.Parse(ecsFileInfo.filesystemPath_, ecsFileText);
-
-		parsedECSFiles.push_back(ecsFile);
+			if (ecsFileInfo.filesystemPath_.stem() == "OksEngine.Behaviour") {
+				Common::BreakPointLine();
+			}
+			auto ecsFile = ecsFileParser.Parse(ecsFileInfo.filesystemPath_, ecsFileText);
+			if (ecsFile != nullptr) {
+				parsedECSFiles.push_back(ecsFile);
+			}
+			
+		}
 	}
 
 	//GENERATE CODE STRUCTURE.
@@ -91,9 +99,13 @@ int main(int argc, char** argv) {
 
 
 	//Generate code structure for ecs files.
-	std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::File>> structureFiles;
+	std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::CodeStructure::File>> structureFiles;
 	{
 		for (auto parsedECSFile : parsedECSFiles) {
+
+			if (parsedECSFile->GetName() == "OksEngine.Behaviour") {
+				Common::BreakPointLine();
+			}
 
 			//Generate system hpp file.
 			//Always generate .hpp files.
@@ -105,16 +117,20 @@ int main(int argc, char** argv) {
 			//Generate .cpp files if they doesn't exist.
 			const auto ecsCppPath = parsedECSFile->GetPath().parent_path() / (parsedECSFile->GetPath().filename().stem().string() + ".cpp");
 
-			if (!resourceSystem.IsFileExist(ecsCppPath) && parsedECSFile->IsContainsSystems()) {
-				auto systemCppFile = codeStructureGenerator.GenerateECSFileCppFile(includeDirArgv, parsedECSFile);
-				structureFiles[ecsCppPath] = systemCppFile;
+			const bool isFileExist = resourceSystem.IsFileExist(ecsCppPath);
+			if (!isFileExist) {
+				const bool isContainsSystem = parsedECSFile->IsContainsSystems();
+				if (isContainsSystem) {
+					auto systemCppFile = codeStructureGenerator.GenerateECSFileCppFile(includeDirArgv, parsedECSFile);
+					structureFiles[ecsCppPath] = systemCppFile;
+				}
 			}
 
 		}
 	}
 
 	//Generate code structure for auto_OksEngine.ECS.hpp files
-	std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::File>> hppECSFiles;
+	std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::CodeStructure::File>> hppECSFiles;
 	{
 		hppECSFiles = codeStructureGenerator.GenerateDirECSIncludeHppFiles(includeDirArgv, includeDirArgv);
 	}
@@ -123,28 +139,28 @@ int main(int argc, char** argv) {
 	auto parseEntityCodeStructure = codeStructureGenerator.GenerateParseEntityHppFile(parsedECSFiles);
 	std::pair<
 		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::File>> pathToParsedEntity{ 
+		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToParsedEntity{
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.ParseEntity.hpp",
 		parseEntityCodeStructure };
 
 	auto serializeEntityCodeStructure = codeStructureGenerator.GenerateSerializeEntityHppFile(parsedECSFiles);
 	std::pair<
 		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::File>> pathToSerializeEntity{
+		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToSerializeEntity{
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.SerializeEntity.hpp",
 		serializeEntityCodeStructure };
 
 	auto editEntityHppCodeStructure = codeStructureGenerator.GenerateEditEntityHppFile(parsedECSFiles);
 	std::pair<
 		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::File>> pathToEditHppEntity{
+		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToEditHppEntity{
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.hpp",
 		editEntityHppCodeStructure };
 
 	auto editEntityCppCodeStructure = codeStructureGenerator.GenerateEditEntityCppFile(parsedECSFiles);
 	std::pair<
 		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::File>> pathToEditCppEntity{
+		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToEditCppEntity{
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.cpp",
 		editEntityCppCodeStructure };
 
@@ -152,20 +168,20 @@ int main(int argc, char** argv) {
 	auto hppRunSystemsCodeStructure = codeStructureGenerator.GenerateRunSystemsHppFile();
 	std::pair<
 		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::File>> pathToHppRunSystems{
+		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToHppRunSystems{
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.RunSystems.hpp",
 		hppRunSystemsCodeStructure };
 
 	auto cppRunSystemsCodeStructure = codeStructureGenerator.GenerateRunSystemsCppFile(parsedECSFiles);
 	std::pair<
 		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::File>> pathToCppRunSystems{
+		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToCppRunSystems{
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.RunSystems.cpp",
 		cppRunSystemsCodeStructure };
 
 
 	//Merge files with  code structure.
-	std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::File>> allFilesCodeStructure;
+	std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::CodeStructure::File>> allFilesCodeStructure;
 
 	allFilesCodeStructure.insert(structureFiles.begin(), structureFiles.end());
 	allFilesCodeStructure.insert(hppECSFiles.begin(), hppECSFiles.end());

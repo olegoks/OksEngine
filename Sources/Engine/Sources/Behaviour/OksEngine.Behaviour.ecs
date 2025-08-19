@@ -1,58 +1,62 @@
-BehaviourComponent = {
-    fields = { 
-        { type = "std::string", name = "scriptName" },
-        { type = "std::string", name = "objectName" }
-     }
-}
+BehaviourNamespace = {
+    
+    BehaviourComponent = {
+        fields = {
+            { type = "std::string", name = "scriptName" },
+            { type = "std::string", name = "objectName" }
+        }
+    },
 
-CreateBehaviourLuaScriptSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "Behaviour"
+    
+
+    CreateBehaviourLuaScriptSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Behaviour"
+                    }
+                }
+            }
+        }
+    },
+
+    BehaviourLuaScriptComponent = {
+        serializable = false
+    },
+
+
+    BehaviourLuaContextComponent = {
+        serializable = false
+    },
+
+
+    CallInputProcessorSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Behaviour",
+                        { name = "LuaContext",    readonly = false },
+                        { name = "KeyboardInput", readonly = false },
+                        { name = "MouseInput",    readonly = false }
+                    }
+                }
+            }
+        }
+    },
+
+    CallUpdateMethodSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Behaviour",
+                        { name = "LuaContext", readonly = false }
+                    }
                 }
             }
         }
     }
+
 }
-
-BehaviourLuaScriptComponent = {
-    serializable = false
-}
-
-
-BehaviourLuaContextComponent = {
-    serializable = false
-}
-
-
-CallInputProcessorSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = { 
-                    "Behaviour", 
-                    { name = "LuaContext", readonly = false }, 
-                    { name = "KeyboardInput", readonly = false }, 
-                    { name = "MouseInput", readonly = false }
-                }
-            }
-        }
-    }
-}
-
-CallUpdateMethodSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = { 
-                    "Behaviour", 
-                    { name = "LuaContext", readonly = false }
-                }
-            }
-        }
-    }
-}
-
-

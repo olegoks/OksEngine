@@ -3,6 +3,7 @@
 #include <System/ECSGenerator2.ParsedSystem.hpp>
 #include <Component/ECSGenerator2.ParsedComponent.hpp>
 #include <Struct/ECSGenerator2.ParsedStruct.hpp>
+#include <Namespace/ECSGenerator2.ParsedNamespace.hpp>
 
 namespace ECSGenerator2 {
 
@@ -12,56 +13,130 @@ namespace ECSGenerator2 {
 
 		struct CreateInfo {
 			std::filesystem::path path_;
-			std::vector<std::shared_ptr<ParsedSystem>> systems_;
-			std::vector<std::shared_ptr<ParsedComponent>> components_;
-			std::vector<std::shared_ptr<ParsedStruct>> structs_;
+			std::vector<std::shared_ptr<ParsedTable>> tables_;
 		};
 
 		ParsedECSFile(const CreateInfo& ci) :
 			ci_{ ci } {  }
 
+		//Access tables.
+		using ProcessTable = std::function<void(std::shared_ptr<ParsedTable> table)>;
+		void ForEachRootTable(ProcessTable&& processTable) {
+
+			//std::function<void(std::shared_ptr<ParsedTable>)> processTable
+			//	= [](std::shared_ptr<ParsedTable> table) {
+			//		
+			//	};
+			for (Common::Index i = 0; i < ci_.tables_.size(); i++) {
+				auto parsedTable = ci_.tables_[i];
+				processTable(parsedTable);
+			}
+		}
+
+		void ForEachTable(ProcessTable&& processTable) const {
+
+			std::function<void(std::shared_ptr<ParsedTable>)> processParsedTable
+				= [&](std::shared_ptr<ParsedTable> table) {
+					processTable(table);
+					if (table->GetType() == ParsedTable::Type::Namespace) {
+						auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(table);
+						parsedNamespace->ForEachChildTable([&](std::shared_ptr<ParsedTable> parsedTable) {
+							processParsedTable(parsedTable);
+							});
+					}
+				};
+			for (auto table : ci_.tables_) {
+				processParsedTable(table);
+			}
+			
+		}
+
+		using ProcessTableWithChilds 
+			= std::function<void(
+				std::vector<std::shared_ptr<ParsedTable>>& childTables,
+				std::shared_ptr<ParsedTable> table)>;
+
+		void ForEachTable(ProcessTableWithChilds&& processTable) const {
+
+			std::vector<std::shared_ptr<ParsedTable>> childTables;
+			
+			std::function<void(
+				std::vector<std::shared_ptr<ParsedTable>>&,
+				std::shared_ptr<ParsedTable>)> processParsedTable
+				= [&](std::vector<std::shared_ptr<ParsedTable>>& thisChildTables,
+					std::shared_ptr<ParsedTable> table) {
+
+				processTable(thisChildTables, table);
+
+				if (table->GetType() == ParsedTable::Type::Namespace) {
+					auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(table);
+					childTables.push_back(table);
+					parsedNamespace->ForEachChildTable([&](std::shared_ptr<ParsedTable> parsedTable) {
+						processParsedTable(childTables, parsedTable);
+						});
+					childTables.pop_back();
+				}
+
+				};
+
+			for (auto table : ci_.tables_) {
+				processParsedTable(childTables, table);
+			}
+		}
+
 		//Access systems.
 		using ProcessSystem = std::function<void(std::shared_ptr<ParsedSystem>)>;
 
-		void ForEachSystem(ProcessSystem&& processSystem) {
-			for (Common::Index i = 0; i < ci_.systems_.size(); i++) {
-				std::shared_ptr<ParsedSystem> system = ci_.systems_[i];
-				processSystem(system);
-			}
+		void ForEachSystem(ProcessSystem&& processSystem) const {
+			ForEachTable([&](std::shared_ptr<ParsedTable> table) {
+				if (table->GetType() == ParsedTable::Type::System) {
+					auto parsedSystem = std::dynamic_pointer_cast<ParsedSystem>(table);
+					processSystem(parsedSystem);
+				}
+				});
 		}
 
 		//Access components.
 		using ProcessComponent = std::function<void(std::shared_ptr<ParsedComponent>)>;
 
 		void ForEachComponent(ProcessComponent&& processComponent) {
-			for (Common::Index i = 0; i < ci_.components_.size(); i++) {
-				std::shared_ptr<ParsedComponent> component = ci_.components_[i];
-				processComponent(component);
-			}
+			ForEachTable([&](std::shared_ptr<ParsedTable> table) {
+				if (table->GetType() == ParsedTable::Type::Component) {
+					auto parsedComponent = std::dynamic_pointer_cast<ParsedComponent>(table);
+					processComponent(parsedComponent);
+				}
+				});
 		}
 
 		using ProcessStruct = std::function<void(std::shared_ptr<ParsedStruct>)>;
 
 		void ForEachStruct(ProcessStruct&& processStruct) {
-			for (Common::Index i = 0; i < ci_.structs_.size(); i++) {
-				std::shared_ptr<ParsedStruct> parsedStruct = ci_.structs_[i];
-				processStruct(parsedStruct);
-			}
+			ForEachTable([&](std::shared_ptr<ParsedTable> table) {
+				if (table->GetType() == ParsedTable::Type::Struct) {
+					auto parsedStruct = std::dynamic_pointer_cast<ParsedStruct>(table);
+					processStruct(parsedStruct);
+				}
+				});
 		}
 
 		[[nodiscard]]
 		bool IsContainsSystems() const noexcept {
-			return !ci_.systems_.empty();
+			bool isContainsSystems = false;
+			ForEachSystem([&](std::shared_ptr<ParsedSystem> parsedSystem) {
+				isContainsSystems = true;
+				});
+			return isContainsSystems;
 		}
 
 		[[nodiscard]]
 		bool IsContainsComponent(const std::string& componentName) {
-			for (auto parsedComponent : ci_.components_) {
+			bool isContainsComponent = false;
+			ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
 				if (componentName == parsedComponent->GetName()) {
-					return true;
+					isContainsComponent = true;
 				}
-			}
-			return false;
+				});
+			return isContainsComponent;
 		}
 
 		[[nodiscard]]

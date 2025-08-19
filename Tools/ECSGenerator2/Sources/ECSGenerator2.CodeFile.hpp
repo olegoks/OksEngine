@@ -3,7 +3,7 @@
 #include <ECSGenerator2.Common.hpp>
 #include <ECSGenerator2.Code.hpp>
 
-namespace ECSGenerator2 {
+namespace ECSGenerator2::CodeStructure {
 
 
 	class CodeFile {

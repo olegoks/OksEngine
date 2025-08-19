@@ -16,14 +16,14 @@ namespace ECSGenerator2 {
 
 		SystemStructureGenerator(const CreateInfo& createInfo) : ci_{ createInfo } {}
 
-		std::shared_ptr<Function> GenerateUpdateMethodRealization(
+		std::shared_ptr<CodeStructure::Function> GenerateUpdateMethodRealization(
 			const std::string& systemName,
 			std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethodInfo) {
 
 			auto generateUpdateMethodParameters =
 				[](std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethodInfo) {
 
-				std::vector<Function::Parameter> updateMethodParameters;
+				std::vector<CodeStructure::Function::Parameter> updateMethodParameters;
 
 				Common::UInt64 currentEntityIndex = 0;
 				updateMethodInfo->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
@@ -33,7 +33,7 @@ namespace ECSGenerator2 {
 						std::format("entity{}id", currentEntityIndex) });
 
 					entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
-						Function::Parameter parameter;
+						CodeStructure::Function::Parameter parameter;
 						if (include.IsReadonly()) {
 							parameter.inputType_ = std::format("const {}*", include.GetName());
 						}
@@ -55,10 +55,10 @@ namespace ECSGenerator2 {
 				};
 
 			//Update method.
-			const std::vector<Function::Parameter> updateMethodParameters
+			const std::vector<CodeStructure::Function::Parameter> updateMethodParameters
 				= generateUpdateMethodParameters(updateMethodInfo);
 
-			Function::CreateInfo updateMethodCI{
+			CodeStructure::Function::CreateInfo updateMethodCI{
 				.name_ = systemName + "::Update",
 				.parameters_ = updateMethodParameters,
 				.returnType_ = "void",
@@ -67,7 +67,7 @@ namespace ECSGenerator2 {
 				.inlineModifier_ = false
 			};
 
-			auto updateMethod = std::make_shared<Function>(updateMethodCI);
+			auto updateMethod = std::make_shared<CodeStructure::Function>(updateMethodCI);
 
 			return updateMethod;
 
@@ -117,12 +117,12 @@ namespace ECSGenerator2 {
 			return requiredComponentNames;
 		}
 
-		File::Includes GenerateUpdateMethodIncludes(
+		CodeStructure::File::Includes GenerateUpdateMethodIncludes(
 			const std::string& includeDirectory,
 			const std::string& systemName,
 			const std::filesystem::path& systemEcsFilePath) {
 
-			File::Includes includes{ };
+			CodeStructure::File::Includes includes{ };
 
 
 			std::filesystem::path systemsIncludesFilePath;
@@ -141,9 +141,9 @@ namespace ECSGenerator2 {
 			return includes;
 		}
 
-		std::vector<Function::Parameter> GenerateUpdateMethodParameters(std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethod) {
+		std::vector<CodeStructure::Function::Parameter> GenerateUpdateMethodParameters(std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethod) {
 
-			std::vector<Function::Parameter> updateMethodParameters;
+			std::vector<CodeStructure::Function::Parameter> updateMethodParameters;
 
 			Common::UInt64 currentEntityIndex = 0;
 			updateMethod->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
@@ -153,7 +153,7 @@ namespace ECSGenerator2 {
 					std::format("entity{}id", currentEntityIndex) });
 
 				entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
-					Function::Parameter parameter;
+					CodeStructure::Function::Parameter parameter;
 					if (include.IsReadonly()) {
 						parameter.inputType_ = std::format("const {}*", include.GetName());
 					}
@@ -173,7 +173,7 @@ namespace ECSGenerator2 {
 			return updateMethodParameters;
 		}
 
-		std::shared_ptr<Struct> GenerateSystemStructCode(std::shared_ptr<ParsedSystem> system) {
+		std::shared_ptr<CodeStructure::Struct> GenerateSystemStructCode(std::shared_ptr<ParsedSystem> system) {
 
 			if (system->GetName() == "DrawNodes") {
 				Common::BreakPointLine();
@@ -182,7 +182,7 @@ namespace ECSGenerator2 {
 			auto generateGetComponentsFilter = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				//CreateEntity method.
-				Function::CreateInfo createDynamicEntityCI{
+				CodeStructure::Function::CreateInfo createDynamicEntityCI{
 					.name_ = "GetComponentsFilter",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId" } },
 					.returnType_ = "ECS2::ComponentsFilter",
@@ -191,13 +191,13 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				auto getEntityComponentsFilterMethod = std::make_shared<Function>(createDynamicEntityCI);
+				auto getEntityComponentsFilterMethod = std::make_shared<CodeStructure::Function>(createDynamicEntityCI);
 
 				return getEntityComponentsFilterMethod;
 				};
 			auto generateAfterUpdateMethodPrototype = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
-				Function::CreateInfo updateMethodCI{
+				CodeStructure::Function::CreateInfo updateMethodCI{
 					.name_ = "AfterUpdate",
 					.parameters_ = { },
 					.returnType_ = "void",
@@ -206,7 +206,7 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				auto updateMethod = std::make_shared<Function>(updateMethodCI);
+				auto updateMethod = std::make_shared<CodeStructure::Function>(updateMethodCI);
 
 				return updateMethod;
 
@@ -215,9 +215,9 @@ namespace ECSGenerator2 {
 
 				using namespace std::string_literals;
 
-				std::vector<Function::Parameter> updateMethodParameters = GenerateUpdateMethodParameters(system->ci_.updateMethod_);
+				std::vector<CodeStructure::Function::Parameter> updateMethodParameters = GenerateUpdateMethodParameters(system->ci_.updateMethod_);
 
-				Function::CreateInfo updateMethodCI{
+				CodeStructure::Function::CreateInfo updateMethodCI{
 					.name_ = "Update",
 					.parameters_ = updateMethodParameters,
 					.returnType_ = "void",
@@ -226,7 +226,7 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				auto updateMethod = std::make_shared<Function>(updateMethodCI);
+				auto updateMethod = std::make_shared<CodeStructure::Function>(updateMethodCI);
 
 				return updateMethod;
 
@@ -234,7 +234,7 @@ namespace ECSGenerator2 {
 			auto generateCreateDynamicEntityRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				//CreateEntity method.
-				Function::CreateInfo createDynamicEntityCI{
+				CodeStructure::Function::CreateInfo createDynamicEntityCI{
 					.name_ = "CreateEntity",
 					.parameters_ = { },
 					.returnType_ = "ECS2::Entity::Id",
@@ -243,14 +243,14 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				auto createDynamicEntityMethod = std::make_shared<Function>(createDynamicEntityCI);
+				auto createDynamicEntityMethod = std::make_shared<CodeStructure::Function>(createDynamicEntityCI);
 
 				return createDynamicEntityMethod;
 				};
 			auto generateDestroyEntityRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				//CreateEntity method.
-				Function::CreateInfo createDynamicEntityCI{
+				CodeStructure::Function::CreateInfo createDynamicEntityCI{
 					.name_ = "DestroyEntity",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId" }},
 					.returnType_ = "void",
@@ -259,7 +259,7 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				auto createDynamicEntityMethod = std::make_shared<Function>(createDynamicEntityCI);
+				auto createDynamicEntityMethod = std::make_shared<CodeStructure::Function>(createDynamicEntityCI);
 
 				return createDynamicEntityMethod;
 				};
@@ -267,7 +267,7 @@ namespace ECSGenerator2 {
 
 
 				//CreateEntity<> method.
-				Function::CreateInfo createArchetypeEntityCI{
+				CodeStructure::Function::CreateInfo createArchetypeEntityCI{
 					.name_ = "CreateEntity",
 					.parameters_ = { },
 					.returnType_ = "ECS2::Entity::Id",
@@ -277,13 +277,13 @@ namespace ECSGenerator2 {
 					.templateParameters_ = { "...Components" }
 				};
 
-				auto createArchetypeEntityMethod = std::make_shared<Function>(createArchetypeEntityCI);
+				auto createArchetypeEntityMethod = std::make_shared<CodeStructure::Function>(createArchetypeEntityCI);
 
 				return createArchetypeEntityMethod;
 				};
 			auto generateGetComponentMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
-				Code getComponentCode;
+				CodeStructure::Code getComponentCode;
 				{
 					if (!systemEcsFile->ci_.updateMethod_->randomAccessesEntities_.empty()) {
 						//Add Assert.
@@ -304,7 +304,7 @@ namespace ECSGenerator2 {
 					}
 					getComponentCode.Add("return world_->GetComponent<Component>(entityId);");
 				}
-				Function::CreateInfo getComponentCI{
+				CodeStructure::Function::CreateInfo getComponentCI{
 					.name_ = "GetComponent",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId" } },
 					.returnType_ = "Component*",
@@ -314,14 +314,14 @@ namespace ECSGenerator2 {
 					.templateParameters_ = { "Component" }
 				};
 
-				auto getComponentMethod = std::make_shared<Function>(getComponentCI);
+				auto getComponentMethod = std::make_shared<CodeStructure::Function>(getComponentCI);
 
 				return getComponentMethod;
 				};
 			auto generateCreateComponentMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				//CreateComponent method.
-				Function::CreateInfo createComponentCI{
+				CodeStructure::Function::CreateInfo createComponentCI{
 					.name_ = "CreateComponent",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId" }, { "Args&&", "...args"}},
 					.returnType_ = "void",
@@ -331,14 +331,14 @@ namespace ECSGenerator2 {
 					.templateParameters_ = { "Component", "...Args" }
 				};
 
-				auto createComponentMethod = std::make_shared<Function>(createComponentCI);
+				auto createComponentMethod = std::make_shared<CodeStructure::Function>(createComponentCI);
 
 				return createComponentMethod;
 				};
 			auto generateRemoveComponentMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				//CreateComponent method.
-				Function::CreateInfo removeComponentCI{
+				CodeStructure::Function::CreateInfo removeComponentCI{
 					.name_ = "RemoveComponent",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId" }, { "Args&&", "...args"}},
 					.returnType_ = "void",
@@ -348,14 +348,14 @@ namespace ECSGenerator2 {
 					.templateParameters_ = { "Component", "...Args" }
 				};
 
-				auto removeComponentMethod = std::make_shared<Function>(removeComponentCI);
+				auto removeComponentMethod = std::make_shared<CodeStructure::Function>(removeComponentCI);
 
 				return removeComponentMethod;
 				};
 			auto generateIsComponentExistMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				//IsComponentExist method.
-				Function::CreateInfo isComponentExistCI{
+				CodeStructure::Function::CreateInfo isComponentExistCI{
 					.name_ = "IsComponentExist",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId" } },
 					.returnType_ = "bool",
@@ -365,14 +365,14 @@ namespace ECSGenerator2 {
 					.templateParameters_ = { "Component" }
 				};
 
-				auto isComponentExistMethod = std::make_shared<Function>(isComponentExistCI);
+				auto isComponentExistMethod = std::make_shared<CodeStructure::Function>(isComponentExistCI);
 
 				return isComponentExistMethod;
 				};
 			auto generateIsEntityExistMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				//IsEntityExist method.
-				Function::CreateInfo isEntityExistCI{
+				CodeStructure::Function::CreateInfo isEntityExistCI{
 					.name_ = "IsEntityExist",
 					.parameters_ = { },
 					.returnType_ = "bool",
@@ -382,14 +382,14 @@ namespace ECSGenerator2 {
 					.templateParameters_ = { "...Components" }
 				};
 
-				auto isEntityExistMethod = std::make_shared<Function>(isEntityExistCI);
+				auto isEntityExistMethod = std::make_shared<CodeStructure::Function>(isEntityExistCI);
 
 				return isEntityExistMethod;
 				};
 			auto generateIsEntityExist2MethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				//IsEntityExist method.
-				Function::CreateInfo isEntityExistCI{
+				CodeStructure::Function::CreateInfo isEntityExistCI{
 					.name_ = "IsEntityExist",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId"} },
 					.returnType_ = "bool",
@@ -399,12 +399,12 @@ namespace ECSGenerator2 {
 					.templateParameters_ = { }
 				};
 
-				auto isEntityExistMethod = std::make_shared<Function>(isEntityExistCI);
+				auto isEntityExistMethod = std::make_shared<CodeStructure::Function>(isEntityExistCI);
 
 				return isEntityExistMethod;
 				};
 
-			std::vector<std::shared_ptr<Function>> methods{
+			std::vector<std::shared_ptr<CodeStructure::Function>> methods{
 				generateUpdateMethodPrototype(system),
 				generateGetComponentsFilter(system),
 				generateRemoveComponentMethodRealization(system),
@@ -460,23 +460,23 @@ namespace ECSGenerator2 {
 				}
 			}
 
-			Struct::CreateInfo sci{
+			CodeStructure::Struct::CreateInfo sci{
 				.name_ = system->GetName(),
 				.parent_ = "",
 				.fields_ = { { "std::shared_ptr<ECS2::World>", "world" } },
 				.methods_ = methods
 			};
-			auto structObject = std::make_shared<Struct>(sci);
+			auto structObject = std::make_shared<CodeStructure::Struct>(sci);
 
 			return structObject;
 		}
 
-		std::shared_ptr<Function> GenerateUpdateMethodRealization(std::shared_ptr<ParsedSystem> system) {
+		std::shared_ptr<CodeStructure::Function> GenerateUpdateMethodRealization(std::shared_ptr<ParsedSystem> system) {
 
 			auto generateUpdateMethodParameters =
 				[](std::shared_ptr<ParsedSystem> system) {
 
-				std::vector<Function::Parameter> updateMethodParameters;
+				std::vector<CodeStructure::Function::Parameter> updateMethodParameters;
 
 				Common::UInt64 currentEntityIndex = 0;
 				system->ci_.updateMethod_->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
@@ -486,7 +486,7 @@ namespace ECSGenerator2 {
 						std::format("entity{}id", currentEntityIndex) });
 
 					entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
-						Function::Parameter parameter;
+						CodeStructure::Function::Parameter parameter;
 						if (include.IsReadonly()) {
 							parameter.inputType_ = std::format("const {}*", include.GetName());
 						}
@@ -508,10 +508,10 @@ namespace ECSGenerator2 {
 				};
 
 			//Update method.
-			const std::vector<Function::Parameter> updateMethodParameters
+			const std::vector<CodeStructure::Function::Parameter> updateMethodParameters
 				= generateUpdateMethodParameters(system);
 
-			Function::CreateInfo updateMethodCI{
+			CodeStructure::Function::CreateInfo updateMethodCI{
 				.name_ = system->GetName() + "::Update",
 				.parameters_ = updateMethodParameters,
 				.returnType_ = "void",
@@ -520,16 +520,16 @@ namespace ECSGenerator2 {
 				.inlineModifier_ = false
 			};
 
-			auto updateMethod = std::make_shared<Function>(updateMethodCI);
+			auto updateMethod = std::make_shared<CodeStructure::Function>(updateMethodCI);
 
 			return updateMethod;
 		}
 
-		std::shared_ptr<Function> GenerateRunSystemCodeRealization(std::shared_ptr<ParsedSystem> system) {
+		std::shared_ptr<CodeStructure::Function> GenerateRunSystemCodeRealization(std::shared_ptr<ParsedSystem> system) {
 
 			auto generateUpdateMethodCallCode = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
-				Code realization;
+				CodeStructure::Code realization;
 
 				Common::UInt64 currentEntityIndex = 0;
 				realization.Add(systemEcsFile->GetLowerName() + ".Update(");
@@ -562,7 +562,7 @@ namespace ECSGenerator2 {
 				};
 
 
-			Code realization;
+			CodeStructure::Code realization;
 			//Render render{ world };
 			realization.Add(std::format(
 				"{} {}{{ world }};",
@@ -650,17 +650,17 @@ namespace ECSGenerator2 {
 				realization.Add(std::format("{}.AfterUpdate();", system->GetLowerName()));
 			}
 
-			std::vector<Function::Parameter> parameters;
+			std::vector<CodeStructure::Function::Parameter> parameters;
 			parameters.push_back({ "std::shared_ptr<ECS2::World>", "world" });
 
-			Function::CreateInfo funcci{
+			CodeStructure::Function::CreateInfo funcci{
 				.name_ = system->GetName() + "System",
 				.parameters_ = parameters,
 				.returnType_ = "void",
 				.code_ = realization,
 				.inlineModifier_ = true
 			};
-			auto runSystem = std::make_shared<Function>(funcci);
+			auto runSystem = std::make_shared<CodeStructure::Function>(funcci);
 
 			return runSystem;
 

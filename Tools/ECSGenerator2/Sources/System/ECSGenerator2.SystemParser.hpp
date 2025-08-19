@@ -8,7 +8,7 @@ namespace ECSGenerator2 {
 	public:
 
 		[[nodiscard]]
-		std::shared_ptr<ParsedSystem> Parse(
+		std::shared_ptr<ParsedTable> Parse(
 			luabridge::LuaRef system,
 			const std::string& systemName) {
 

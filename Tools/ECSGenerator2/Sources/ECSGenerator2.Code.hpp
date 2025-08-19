@@ -9,7 +9,7 @@
 
 #include <Common.StringLiterals.hpp>
 
-namespace ECSGenerator2 {
+namespace ECSGenerator2::CodeStructure {
 
 	class Code {
 	public:
