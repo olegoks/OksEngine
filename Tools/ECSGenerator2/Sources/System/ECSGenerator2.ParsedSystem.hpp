@@ -244,7 +244,7 @@ namespace ECSGenerator2 {
 			std::vector<std::string> runAfter_;
 			std::vector<std::string> runBefore_;
 
-			using ProcessSystemName = std::function<bool(const std::string&)>;
+			using ProcessSystemName = std::function<bool(std::string)>;
 
 			void ForEachRunAfterSystem(ProcessSystemName&& processSystemName);
 			void ForEachRunBeforeSystem(ProcessSystemName&& processSystemName);
@@ -292,7 +292,7 @@ namespace ECSGenerator2 {
 			return ci_.thread_;
 		}
 
-		std::string GetName() const {
+		const std::string& GetName() const noexcept override {
 			return ci_.name_;
 		}
 
@@ -307,6 +307,8 @@ namespace ECSGenerator2 {
 
 		CreateInfo ci_;
 	};
+
+	using ParsedSystemPtr = std::shared_ptr<ParsedSystem>;
 
 	[[nodiscard]]
 	inline bool AreSystemsCodependent(

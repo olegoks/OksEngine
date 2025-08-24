@@ -5,6 +5,8 @@
 #include <Struct/ECSGenerator2.StructCodeStructureGenerator.hpp>
 #include <ECSGenerator2.CodeGenerator.hpp>
 
+#include <Namespace/ECSGenerator2.ParsedNamespace.hpp>
+
 namespace ECSGenerator2 {
 
 	class CodeStructureGenerator {
@@ -131,7 +133,7 @@ namespace ECSGenerator2 {
 
 
 				});
-			
+
 			parsedECSFile->ForEachRootTable([&](std::shared_ptr<ParsedTable> table) {
 
 
@@ -165,7 +167,7 @@ namespace ECSGenerator2 {
 
 						SystemStructureGenerator systemGenerator{ ssgci };
 
-						if (parsedSystem->GetName() == "AddModelToRender") {
+						if (parsedSystem->GetName() == "CreateLoadLuaScriptRequest") {
 							Common::BreakPointLine();
 						}
 						//Add include components.
@@ -268,6 +270,7 @@ namespace ECSGenerator2 {
 
 				auto BASES = processTable(table);
 				bases.insert(bases.end(), BASES.begin(), BASES.end());
+				return true;
 				});
 			{
 				auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
@@ -314,6 +317,8 @@ namespace ECSGenerator2 {
 						};
 
 					processTable(table);
+
+					return true;
 					});
 				//Hack
 
@@ -447,6 +452,8 @@ namespace ECSGenerator2 {
 					for (auto base : bases) {
 						namespaceObject->Add(base);
 					}
+
+					return true;
 					});
 				//New generation
 
@@ -575,110 +582,184 @@ namespace ECSGenerator2 {
 		std::shared_ptr<CodeStructure::File>
 			GenerateParseEntityHppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
 
-			auto generateParseEntityFunctionRealization 
-				= [&](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> std::shared_ptr<CodeStructure::Function> {
+			auto generateParseComponentCode
+				= [](
+					std::shared_ptr<ParsedComponent> component) -> CodeStructure::Code {
 
-				auto generateParseComponentCode 
-					= [](
-						std::shared_ptr<ParsedComponent> component) -> CodeStructure::Code {
+						CodeStructure::Code code;
 
-					CodeStructure::Code code;
+						code.Add(std::format(
+							"luabridge::LuaRef {}Ref = entity[\"{}\"];",
+							component->GetLowerName(),
+							component->GetLowerName()));
 
-					code.Add(std::format(
-						"luabridge::LuaRef {}Ref = entity[\"{}\"];",
-						component->GetLowerName(),
-						component->GetLowerName()));
+						code.Add(std::format(
+							"if (!{}Ref.isNil()) {{",
+							component->GetLowerName()));
 
-					code.Add(std::format(
-						"if (!{}Ref.isNil()) {{",
-						component->GetLowerName()));
+						code.Add(std::format("{} {} = Parse{}({}Ref);",
+							component->GetName(),
+							component->GetLowerName(),
+							component->GetName(),
+							component->GetLowerName()));
 
-					code.Add(std::format("{} {} = Parse{}({}Ref);",
-						component->GetName(),
-						component->GetLowerName(),
-						component->GetName(),
-						component->GetLowerName()));
+						code.Add(std::format("world->CreateComponent<{}>(newEntityId",
+							component->GetName()));
 
-					code.Add(std::format("world->CreateComponent<{}>(newEntityId",
-						component->GetName()));
+						component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 
-					component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+							code.Comma();
 
-						code.Comma();
+							if (fieldInfo.typeName_ == "ECS2::Entity::Id") {
+								code.Add(std::format("getNewId({}.{}_)",
+									component->GetLowerName(),
+									fieldInfo.GetName()));
+							}
+							else {
+								code.Add(std::format("{}.{}_",
+									component->GetLowerName(),
+									fieldInfo.GetName()));
+							}
+							return true;
+							});
 
-						if (fieldInfo.typeName_ == "ECS2::Entity::Id") {
-							code.Add(std::format("getNewId({}.{}_)",
-								component->GetLowerName(),
-								fieldInfo.GetName()));
-						}
-						else {
-							code.Add(std::format("{}.{}_",
-								component->GetLowerName(),
-								fieldInfo.GetName()));
-						}
-						return true;
-						});
+						code.Add(");");
+						code.Add("}");
 
-					code.Add(");");
-					code.Add("}");
-
-					return code;
-					};
-
-				CodeStructure::Code code;
-				code.Add(
-					"auto getNewId = [&](ECS2::Entity::Id oldId) {"
-					"	#pragma region Assert\n"
-					"	OS::AssertMessage(oldToNewId.contains(oldId),\n"
-					"	std::format(\"Invalid scene file. Can not define all entities ids: {}.\", static_cast<Common::Index>(oldId)));\n"
-					"	#pragma endregion\n"
-					"	return oldToNewId.at(oldId);\n"
-					"};");
-
-				//Generate edit components.
-				for (auto parsedComponent : parsedComponents) {
-
-					if (!parsedComponent->ci_.serializable_) {
-						continue;
-					}
-
-					code.Add("{");
-					code.Add(generateParseComponentCode(parsedComponent));
-					code.Add("}");
-
-					code.NewLine();
-
-				}
-
-				CodeStructure::Function::CreateInfo editEntityFunction{
-					.name_ = "ParseEntity",
-					.parameters_ = {
-						{ "std::shared_ptr<ECS2::World>", "world" },
-						{ "luabridge::LuaRef", "entity" },
-						{ "ECS2::Entity::Id", "newEntityId" },
-						{ "const std::map<ECS2::Entity::Id, ECS2::Entity::Id>&", "oldToNewId" }
-					},
-					.returnType_ = "void",
-					.code_ = code,
-					.isPrototype_ = false,
-					.inlineModifier_ = false
+						return code;
 				};
 
-				auto editEntityFunctionObject = std::make_shared<CodeStructure::Function>(editEntityFunction);
+			//auto generateParseEntityFunctionRealization
+			//	= [&](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> std::shared_ptr<CodeStructure::Function> {
 
-				return editEntityFunctionObject;
-				};
+			//	CodeStructure::Code code;
+			//	code.Add(
+			//		"auto getNewId = [&](ECS2::Entity::Id oldId) {"
+			//		"	#pragma region Assert\n"
+			//		"	OS::AssertMessage(oldToNewId.contains(oldId),\n"
+			//		"	std::format(\"Invalid scene file. Can not define all entities ids: {}.\", static_cast<Common::Index>(oldId)));\n"
+			//		"	#pragma endregion\n"
+			//		"	return oldToNewId.at(oldId);\n"
+			//		"};");
+
+			//	//Generate edit components.
+			//	for (auto parsedComponent : parsedComponents) {
+
+			//		if (!parsedComponent->ci_.serializable_) {
+			//			continue;
+			//		}
+
+			//		code.Add("{");
+			//		code.Add(generateParseComponentCode(parsedComponent));
+			//		code.Add("}");
+
+			//		code.NewLine();
+
+			//	}
+
+			//	CodeStructure::Function::CreateInfo editEntityFunction{
+			//		.name_ = "ParseEntity",
+			//		.parameters_ = {
+			//			{ "std::shared_ptr<ECS2::World>", "world" },
+			//			{ "luabridge::LuaRef", "entity" },
+			//			{ "ECS2::Entity::Id", "newEntityId" },
+			//			{ "const std::map<ECS2::Entity::Id, ECS2::Entity::Id>&", "oldToNewId" }
+			//		},
+			//		.returnType_ = "void",
+			//		.code_ = code,
+			//		.isPrototype_ = false,
+			//		.inlineModifier_ = false
+			//	};
+
+			//	auto editEntityFunctionObject = std::make_shared<CodeStructure::Function>(editEntityFunction);
+
+			//	return editEntityFunctionObject;
+			//	};
 
 			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
 			std::vector<std::shared_ptr<ParsedComponent>> allParsedComponents;
+
+
+			CodeStructure::Code code;
+			code.Add(
+				"auto getNewId = [&](ECS2::Entity::Id oldId) {"
+				"	#pragma region Assert\n"
+				"	OS::AssertMessage(oldToNewId.contains(oldId),\n"
+				"	std::format(\"Invalid scene file. Can not define all entities ids: {}.\", static_cast<Common::Index>(oldId)));\n"
+				"	#pragma endregion\n"
+				"	return oldToNewId.at(oldId);\n"
+				"};");
+
 			for (auto ecsFile : ecsFiles) {
-				ecsFile->ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
-					allParsedComponents.push_back(parsedComponent);
+
+				//New generation.
+				ecsFile->ForEachComponent([&](
+					std::vector<std::shared_ptr<ParsedTable>>& childTables,
+					std::shared_ptr<ParsedComponent> component) {
+
+						if (!component->ci_.serializable_) {
+							return;
+						}
+
+						code.Add("{");
+
+						std::vector<std::string> namespaceStrings;
+						for (auto childTable : childTables) {
+							if (childTable->GetType() == ParsedTable::Type::Namespace) {
+								auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(childTable);
+								namespaceStrings.push_back(parsedNamespace->GetName());
+							}
+						}
+
+						if (!namespaceStrings.empty()) {
+							std::string fullNamespace;
+							for (Common::Index i = 0; i < namespaceStrings.size(); i++) {
+								fullNamespace += namespaceStrings[i];
+								if (i != namespaceStrings.size() - 1) {
+									fullNamespace += "::";
+								}
+							}
+
+							code.Add("using namespace {};", fullNamespace);
+						}
+
+						code.Add(generateParseComponentCode(component));
+						code.Add("}");
+
+						code.NewLine();
+
+
 					});
+
+
+
+				//New generation.
+
+				// 
+				//ecsFile->ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
+				//	allParsedComponents.push_back(parsedComponent);
+				//	});
 			}
 
-			namespaceObject->Add(generateParseEntityFunctionRealization(allParsedComponents));
+			CodeStructure::Function::CreateInfo editEntityFunction{
+				.name_ = "ParseEntity",
+				.parameters_ = {
+					{ "std::shared_ptr<ECS2::World>", "world" },
+					{ "luabridge::LuaRef", "entity" },
+					{ "ECS2::Entity::Id", "newEntityId" },
+					{ "const std::map<ECS2::Entity::Id, ECS2::Entity::Id>&", "oldToNewId" }
+				},
+				.returnType_ = "void",
+				.code_ = code,
+				.isPrototype_ = false,
+				.inlineModifier_ = false
+			};
+
+			auto editEntityFunctionObject = std::make_shared<CodeStructure::Function>(editEntityFunction);
+
+			//namespaceObject->Add(generateParseEntityFunctionRealization(allParsedComponents));
+			namespaceObject->Add(editEntityFunctionObject);
 
 			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");
@@ -955,14 +1036,201 @@ namespace ECSGenerator2 {
 
 			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
-			std::vector<std::shared_ptr<ParsedComponent>> allParsedComponents;
+
+			CodeStructure::Code code;
+
+			code.Add(
+				"const std::string idString = std::to_string(entityId);"
+				"ImGui::PushID(idString.c_str());"
+				"std::string name;"
+				"if (world->IsComponentExist<Name>(entityId)) {"
+				"auto* nameComponent = world->GetComponent<Name>(entityId);"
+				"name = nameComponent->value_;"
+				"}"
+				"if (ImGui::CollapsingHeader((\"Id: \" + idString + \"  \" + magic_enum::enum_name(world->GetEntityType(entityId)).data() + \" \" + name).c_str())) {"
+				"ImGui::Indent(20.f);"
+
+				"auto editComponent = []<class ComponentType>(std::shared_ptr<ECS2::World> world, ECS2::Entity::Id id) {"
+
+				"bool isExist = world->IsComponentExist<ComponentType>(id);"
+				"if (ImGui::CollapsingHeader(ComponentType::GetName(), &isExist)) {"
+				"ComponentType* component = world->GetComponent<ComponentType>(id);"
+				"Edit<ComponentType>(world, component);"
+				"ImGui::Spacing();"
+				"}"
+				"if (!isExist) {"
+				"if (world->IsComponentExist<ComponentType>(id)) {"
+				"world->RemoveComponent<ComponentType>(id);"
+				"}"
+				"}"
+				"};"
+				"{"
+				"ImGui::PushID(\"Edit\");");
+
+			//Generate 
+			// {
+			//	using namespace XXX;
+			//	editComponent.template operator()<YYY>(world, entityId);
+			// }
+			// code for all components.
 			for (auto ecsFile : ecsFiles) {
-				ecsFile->ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
-					allParsedComponents.push_back(parsedComponent);
+
+				ecsFile->ForEachComponent([&](
+					std::vector<std::shared_ptr<ParsedTable>> childTables,
+					std::shared_ptr<ParsedComponent> parsedComponent) {
+
+						code.Add("{");
+						std::vector<std::string> namespaceStrings;
+						for (auto childTable : childTables) {
+							if (childTable->GetType() == ParsedTable::Type::Namespace) {
+								auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(childTable);
+								namespaceStrings.push_back(parsedNamespace->GetName());
+							}
+						}
+
+						if (!namespaceStrings.empty()) {
+							std::string fullNamespace;
+							for (Common::Index i = 0; i < namespaceStrings.size(); i++) {
+								fullNamespace += namespaceStrings[i];
+								if (i != namespaceStrings.size() - 1) {
+									fullNamespace += "::";
+								}
+							}
+
+							code.Add("using namespace {};", fullNamespace);
+						}
+
+						code.Add(generateEditComponentCode(parsedComponent));
+						code.Add("}");
 					});
+
 			}
 
-			namespaceObject->Add(generateEditEntityFunctionRealization(allParsedComponents));
+
+			code.Add("ImGui::PopID();");
+			code.Add("ImGui::SeparatorText(\"Add component\");");
+			code.Add("ImGui::Indent(20.0f);");
+
+			// Components to add list.
+			// Generate
+			//const char* items[] = {
+			//	API::GetName(),
+			//	Active::GetName(),
+			//	AfterPin::GetName(),
+			//	Animation::GetName(),
+			//	AnimationEnded::GetName(),
+			// };
+			code.Add("const char* items[] = {");
+
+			std::vector<std::string> componentNames;
+
+			for (auto ecsFile : ecsFiles) {
+
+				ecsFile->ForEachComponent([&](
+					std::vector<std::shared_ptr<ParsedTable>> childTables,
+					std::shared_ptr<ParsedComponent> parsedComponent) {
+
+						std::vector<std::string> namespaceStrings;
+						for (auto childTable : childTables) {
+							if (childTable->GetType() == ParsedTable::Type::Namespace) {
+								auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(childTable);
+								namespaceStrings.push_back(parsedNamespace->GetName());
+							}
+						}
+
+						std::string componentFullName;
+						if (!namespaceStrings.empty()) {
+							std::string fullNamespace;
+							for (Common::Index i = 0; i < namespaceStrings.size(); i++) {
+								fullNamespace += namespaceStrings[i];
+								fullNamespace += "::";
+							}
+
+							componentFullName += fullNamespace;
+						}
+						componentFullName += parsedComponent->GetName();
+						componentNames.push_back(componentFullName);
+					});
+
+			}
+
+			std::sort(componentNames.begin(), componentNames.end());
+
+			for (auto parsedComponent : componentNames) {
+				code.Add(std::format("{}::GetName(),", parsedComponent));
+				code.NewLine();
+			}
+
+			code.Add("};");
+
+			//ImGui combo box with components list.
+			code.Add(
+				"static int addComponentIndex = 0;"
+				"ImGui::Combo(\"\", &addComponentIndex, items, std::size(items));"
+				"ImGui::PushID(\"Add\");"
+				"const std::string currentComponent = items[addComponentIndex];"
+			);
+
+			for (auto ecsFile : ecsFiles) {
+
+				ecsFile->ForEachComponent([&](
+					std::vector<std::shared_ptr<ParsedTable>> childTables,
+					std::shared_ptr<ParsedComponent> parsedComponent) {
+
+						std::vector<std::string> namespaceStrings;
+						for (auto childTable : childTables) {
+							if (childTable->GetType() == ParsedTable::Type::Namespace) {
+								auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(childTable);
+								namespaceStrings.push_back(parsedNamespace->GetName());
+							}
+						}
+
+						std::string fullNamespace;
+						std::string componentFullName;
+						if (!namespaceStrings.empty()) {
+
+							for (Common::Index i = 0; i < namespaceStrings.size(); i++) {
+								fullNamespace += namespaceStrings[i];
+								fullNamespace += "::";
+							}
+
+							componentFullName += fullNamespace;
+						}
+						componentFullName += parsedComponent->GetName();
+
+						code.Add(std::format("if (currentComponent == {}::GetName()) {{", componentFullName));
+						code.Add(std::format("{}Add{}(world.get(), entityId);", fullNamespace, parsedComponent->GetName()));
+						code.Add("}");
+					});
+
+			}
+
+
+			code.Add("ImGui::PopID();");
+
+			code.Add("ImGui::Unindent(20.0f);");
+
+			code.Add("}");
+			code.Add("ImGui::Separator();");
+			code.Add("ImGui::Unindent(20.f);");
+			code.Add("}");
+			code.Add("ImGui::PopID();");
+
+			CodeStructure::Function::CreateInfo editEntityFunction{
+				.name_ = "EditEntity",
+				.parameters_ = {
+					{ "std::shared_ptr<ECS2::World>", "world" },
+					{ "ECS2::Entity::Id", "entityId" }
+				},
+				.returnType_ = "void",
+				.code_ = code,
+				.isPrototype_ = false,
+				.inlineModifier_ = false
+			};
+
+			auto editEntityFunctionObject = std::make_shared<CodeStructure::Function>(editEntityFunction);
+
+			namespaceObject->Add(editEntityFunctionObject);
 
 			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");
@@ -1192,10 +1460,18 @@ namespace ECSGenerator2 {
 		class SystemsOrder {
 		public:
 
-			void AddSystemAfter(System system, System afterSystem) {
+			void AddSystemAfter(ParsedSystemPtr system, ParsedSystemPtr afterSystem) {
+
+#pragma region Assert
+				OS::AssertMessage(afterSystem != nullptr, "");
+#pragma endregion
+
 				for (Common::Index i = 0; i < order_.size(); i++) {
-					const System& currentSystem = order_[i];
+					const ParsedSystemPtr& currentSystem = order_[i];
 					if (currentSystem == afterSystem) {
+#pragma region Assert
+						OS::AssertMessage(system != nullptr, "");
+#pragma endregion
 						if (i != order_.size() - 1) {
 							order_.insert(order_.begin() + i + 1, system);
 						}
@@ -1208,13 +1484,18 @@ namespace ECSGenerator2 {
 
 			}
 
-			void AddSystemAfter(System system, std::unordered_set<System> afterSystems) {
-				std::unordered_set<System> checkedSystems;
+			void AddSystemAfter(ParsedSystemPtr system, std::unordered_set<ParsedSystemPtr> afterSystems) {
+
+
+				std::unordered_set<ParsedSystemPtr> checkedSystems;
 				for (Common::Index i = 0; i < order_.size(); i++) {
-					const System& currentSystem = order_[i];
+					const ParsedSystemPtr& currentSystem = order_[i];
 					if (afterSystems.contains(currentSystem)) {
 						checkedSystems.insert(currentSystem);
 						if (checkedSystems.size() == afterSystems.size()) {
+#pragma region Assert
+							OS::AssertMessage(system != nullptr, "");
+#pragma endregion
 							if (i != order_.size() - 1) {
 								order_.insert(order_.begin() + i + 1, system);
 							}
@@ -1228,7 +1509,7 @@ namespace ECSGenerator2 {
 
 			}
 
-			void AddSystem(System system, std::unordered_set<System> afterSystems, std::unordered_set<System> beforeSystems) {
+			void AddSystem(ParsedSystemPtr system, std::unordered_set<ParsedSystemPtr> afterSystems, std::unordered_set<ParsedSystemPtr> beforeSystems) {
 
 				auto findLastAfterSystem = [](
 					const std::vector<System>& systems,
@@ -1242,20 +1523,23 @@ namespace ECSGenerator2 {
 					};
 
 				auto findFirstBeforeSystem = [](
-					const std::vector<System>& systems,
-					const std::unordered_set<System>& afterSystems) {
+					const std::vector<ParsedSystemPtr>& systems,
+					const std::unordered_set<ParsedSystemPtr>& afterSystems) {
 
 					};
 
-				std::unordered_set<System> checkedSystems;
+				std::unordered_set<ParsedSystemPtr> checkedSystems;
 
 
 
 				for (Common::Index i = 0; i < order_.size(); i++) {
-					const System& currentSystem = order_[i];
+					const ParsedSystemPtr& currentSystem = order_[i];
 					if (afterSystems.contains(currentSystem)) {
 						checkedSystems.insert(currentSystem);
 						if (checkedSystems.size() == afterSystems.size()) {
+#pragma region Assert
+							OS::AssertMessage(system != nullptr, "");
+#pragma endregion
 							if (i != order_.size() - 1) {
 								order_.insert(order_.begin() + i + 1, system);
 							}
@@ -1269,9 +1553,9 @@ namespace ECSGenerator2 {
 
 			}
 
-			bool IsSystemAdded(System system) {
+			bool IsSystemAdded(ParsedSystemPtr system) {
 				for (Common::Index i = 0; i < order_.size(); i++) {
-					const System& currentSystem = order_[i];
+					const ParsedSystemPtr& currentSystem = order_[i];
 					if (currentSystem == system) {
 						return true;
 					}
@@ -1279,61 +1563,82 @@ namespace ECSGenerator2 {
 				return false;
 			}
 
-			std::vector<System> order_;
+			std::vector<ParsedSystemPtr> order_;
 		};
 
 		struct Thread {
 
 			//std::map<System, std::set<Component>> systems_;
-			std::vector<std::shared_ptr<ParsedSystem>> systems_;
+			std::vector<ParsedSystemPtr> systems_;
 
-			DS::Graph<System> callGraph_;
+			DS::Graph<ParsedSystemPtr> callGraph_;
 			SystemsOrder systemsOrder_;
 		};
 
 		CodeStructure::Code GenerateRunSystemCode(std::shared_ptr<ParsedSystem> systemEcsFile) {
+
+			const std::string fullSystemName = GetFullTableNameWithNamespace(systemEcsFile);
 			CodeStructure::Code runSystemCode;
-			runSystemCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + systemEcsFile->GetName() + "\");");
-			runSystemCode.Add(systemEcsFile->GetName() + "System(world2);");
+			runSystemCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + fullSystemName + "\");");
+			runSystemCode.Add(fullSystemName + "System(world2);");
 			runSystemCode.NewLine();
 			runSystemCode.Add("PIXEndEvent();");
 			return runSystemCode;
 		}
 
-		std::shared_ptr<CodeStructure::Function> GenerateRunInitSystemsFunctionRealization(std::vector<std::shared_ptr<ParsedSystem>> parsedSystems) {
+		std::shared_ptr<CodeStructure::Function> GenerateRunInitSystemsFunctionRealization(std::vector<ParsedSystemPtr> parsedSystems) {
 
-			DS::Graph<System> initCallGraph;
+			DS::Graph<ParsedSystemPtr> initCallGraph;
 			for (auto parsedSystem : parsedSystems) {
 				if (parsedSystem->ci_.type_ == ParsedSystem::Type::Initialize) {
-					DS::Graph<System>::Node::Id currentSystemNodeId = DS::Graph<System>::Node::invalidId_;
-					if (!initCallGraph.IsNodeExist(parsedSystem->GetName())) {
-						currentSystemNodeId = initCallGraph.AddNode(parsedSystem->GetName());
+					DS::Graph<ParsedSystemPtr>::Node::Id currentSystemNodeId = DS::Graph<ParsedSystemPtr>::Node::invalidId_;
+					if (!initCallGraph.IsNodeExist(parsedSystem)) {
+						currentSystemNodeId = initCallGraph.AddNode(parsedSystem);
 					}
 					else {
-						currentSystemNodeId = initCallGraph.FindNode(parsedSystem->GetName());
+						currentSystemNodeId = initCallGraph.FindNode(parsedSystem);
 					}
 					if (parsedSystem->ci_.callOrderInfo_ != nullptr) {
-						parsedSystem->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const System& afterSystem) {
-							DS::Graph<System>::Node::Id afterSystemNodeId = DS::Graph<System>::Node::invalidId_;
-							if (!initCallGraph.IsNodeExist(afterSystem)) {
-								afterSystemNodeId = initCallGraph.AddNode(afterSystem);
+						parsedSystem->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const std::string& afterSystem) {
+							DS::Graph<ParsedSystemPtr>::Node::Id afterSystemNodeId = DS::Graph<ParsedSystemPtr>::Node::invalidId_;
+
+							ParsedSystemPtr afterSystemPtr = nullptr;
+							for (auto parsedSystem : parsedSystems) {
+								auto fullSystemName = GetFullTableNameWithNamespace(parsedSystem);
+								if (afterSystem == fullSystemName) {
+									afterSystemPtr = parsedSystem;
+								}
+							}
+
+
+							if (!initCallGraph.IsNodeExist(afterSystemPtr)) {
+								afterSystemNodeId = initCallGraph.AddNode(afterSystemPtr);
 							}
 							else {
-								afterSystemNodeId = initCallGraph.FindNode(afterSystem);
+								afterSystemNodeId = initCallGraph.FindNode(afterSystemPtr);
 							}
 							initCallGraph.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
 							return true;
 							});
 					}
 					if (parsedSystem->ci_.callOrderInfo_ != nullptr) {
-						parsedSystem->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const System& beforeSystem) {
+						parsedSystem->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const std::string& beforeSystem) {
 
-							DS::Graph<System>::Node::Id beforeSystemNodeId = DS::Graph<System>::Node::invalidId_;
-							if (!initCallGraph.IsNodeExist(beforeSystem)) {
-								beforeSystemNodeId = initCallGraph.AddNode(beforeSystem);
+							DS::Graph<ParsedSystemPtr>::Node::Id beforeSystemNodeId = DS::Graph<ParsedSystemPtr>::Node::invalidId_;
+
+							ParsedSystemPtr beforeSystemPtr = nullptr;
+							for (auto parsedSystem : parsedSystems) {
+								auto fullSystemName = GetFullTableNameWithNamespace(parsedSystem);
+								if (beforeSystem == fullSystemName) {
+									beforeSystemPtr = parsedSystem;
+								}
+							}
+
+							if (!initCallGraph.IsNodeExist(beforeSystemPtr)) {
+								beforeSystemNodeId = initCallGraph.AddNode(beforeSystemPtr);
 							}
 							else {
-								beforeSystemNodeId = initCallGraph.FindNode(beforeSystem);
+								beforeSystemNodeId = initCallGraph.FindNode(beforeSystemPtr);
 							}
 							initCallGraph.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);
 							return true;
@@ -1343,11 +1648,11 @@ namespace ECSGenerator2 {
 			}
 
 			//Find systems that root of dependence and generate code.
-			auto findRoots = [&](DS::Graph<System>& graph) {
-				std::unordered_set<DS::Graph<System>::NodeId> roots;
+			auto findRoots = [&](DS::Graph<ParsedSystemPtr>& graph) {
+				std::unordered_set<DS::Graph<ParsedSystemPtr>::NodeId> roots;
 				graph.ForEachNode([&](
-					DS::Graph<System>::NodeId systemNodeId,
-					DS::Graph<System>::Node& systemNode
+					DS::Graph<ParsedSystemPtr>::NodeId systemNodeId,
+					DS::Graph<ParsedSystemPtr>::Node& systemNode
 					) {
 						if (!systemNode.HasLinksFrom()) {
 							roots.insert(systemNodeId);
@@ -1358,11 +1663,14 @@ namespace ECSGenerator2 {
 				return roots;
 				};
 
-			std::unordered_set<DS::Graph<System>::Node::Id> roots = findRoots(initCallGraph);
+			std::unordered_set<DS::Graph<ParsedSystemPtr>::Node::Id> roots = findRoots(initCallGraph);
 
 			SystemsOrder systemsOrder;
 			for (auto rootNodeId : roots) {
 				auto rootNode = initCallGraph.GetNode(rootNodeId);
+#pragma region Assert
+				OS::AssertMessage(rootNode.GetValue() != nullptr, "");
+#pragma endregion
 				systemsOrder.order_.push_back(rootNode.GetValue());
 			}
 
@@ -1379,7 +1687,7 @@ namespace ECSGenerator2 {
 				"world2->StartFrame();"
 				"PIXEndEvent();");
 
-			auto getECSSystemByName = [](std::vector<std::shared_ptr<ParsedSystem>> parsedSystems, const std::string& systemName) {
+			auto getECSSystemByName = [](std::vector<ParsedSystemPtr> parsedSystems, const std::string& systemName) {
 
 				for (auto parsedSystem : parsedSystems) {
 					if (parsedSystem->GetName() == systemName) {
@@ -1394,7 +1702,7 @@ namespace ECSGenerator2 {
 
 			//Generate code to run systems that process all entities.
 			for (auto& systemName : systemsOrder.order_) {
-				auto parsedSystem = getECSSystemByName(parsedSystems, systemName);
+				auto parsedSystem = systemName;
 
 				runInitSystemsCode.Add(GenerateRunSystemCode(parsedSystem));
 
@@ -1498,15 +1806,15 @@ namespace ECSGenerator2 {
 					//	));
 					//}
 
-
+					
 					CodeStructure::Code runThreadSystems;
 					for (Common::Index i = 0; i < thread.systemsOrder_.order_.size(); i++) {
 						runThreadSystems.Add(std::format(
 							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
 							"{}System(world2);"
 							"PIXEndEvent();",
-							thread.systemsOrder_.order_[i],
-							thread.systemsOrder_.order_[i]
+							GetFullTableNameWithNamespace(thread.systemsOrder_.order_[i]),
+							GetFullTableNameWithNamespace(thread.systemsOrder_.order_[i])
 						));
 						if (i != thread.systemsOrder_.order_.size() - 1) {
 							runThreadSystems.NewLine();
@@ -1619,22 +1927,16 @@ namespace ECSGenerator2 {
 
 		void ProcessNode(
 			SystemsOrder& systemsOrder,
-			const DS::Graph<System>& graph,
-			const DS::Graph<System>::Node::Id& nodeId,
+			const DS::Graph<ParsedSystemPtr>& graph,
+			const DS::Graph<ParsedSystemPtr>::Node::Id& nodeId,
 			bool isFrom = false) {
 
 			auto& node = graph.GetNode(nodeId);
 			if (node.HasLinks()) {
 				isFrom = isFrom;
 			}
-			if (node.GetValue() == "StartMainMenuBar") {
-				isFrom = isFrom;
-			}
-			if (node.GetValue() == "EndWorldSceneSaving") {
-				isFrom = isFrom;
-			}
-			std::unordered_set<System> systemsFrom;
-			node.ForEachLinksFrom([&](DS::Graph<System>::Node::Id fromNodeToId) {
+			std::unordered_set<ParsedSystemPtr> systemsFrom;
+			node.ForEachLinksFrom([&](DS::Graph<ParsedSystemPtr>::Node::Id fromNodeToId) {
 				auto& fromNode = graph.GetNode(fromNodeToId);
 				if (!systemsOrder.IsSystemAdded(fromNode.GetValue())) {
 					ProcessNode(systemsOrder, graph, fromNodeToId, true);
@@ -1659,10 +1961,10 @@ namespace ECSGenerator2 {
 
 			//Find systems that root of dependence and generate code.
 			auto findRoots = [](const Thread& thread) {
-				std::unordered_set<DS::Graph<System>::Node::Id> roots;
+				std::unordered_set<DS::Graph<ParsedSystemPtr>::Node::Id> roots;
 				thread.callGraph_.ForEachNode([&](
-					const DS::Graph<System>::Node::Id systemNodeId,
-					const DS::Graph<System>::Node& systemNode
+					const DS::Graph<ParsedSystemPtr>::Node::Id systemNodeId,
+					const DS::Graph<ParsedSystemPtr>::Node& systemNode
 					) {
 						if (!systemNode.HasLinksFrom()) {
 							roots.insert(systemNodeId);
@@ -1672,11 +1974,16 @@ namespace ECSGenerator2 {
 				return roots;
 				};
 
-			std::unordered_set<DS::Graph<System>::Node::Id> roots = findRoots(thread);
+			std::unordered_set<DS::Graph<ParsedSystemPtr>::Node::Id> roots = findRoots(thread);
 
 			SystemsOrder systemsOrder;
 			for (auto rootNodeId : roots) {
 				auto rootNode = thread.callGraph_.GetNode(rootNodeId);
+
+#pragma region Assert
+				OS::AssertMessage(rootNode.GetValue() != nullptr, "");
+#pragma endregion
+
 				thread.systemsOrder_.order_.push_back(rootNode.GetValue());
 			}
 
@@ -1689,42 +1996,64 @@ namespace ECSGenerator2 {
 		}
 
 		std::shared_ptr<CodeStructure::File>
-			GenerateRunSystemsCppFile(/*std::vector<std::vector<Agnode_t*>> clusters,*/ std::vector<std::shared_ptr<ParsedECSFile>> parsedECSFiles) {
+			GenerateRunSystemsCppFile(std::vector<std::shared_ptr<ParsedECSFile>> parsedECSFiles) {
 
-			//Components and which systems uses them.
-			std::map<System, std::set<Component>> componentSystem;
-			{
-				for (auto parsedECSFile : parsedECSFiles) {
-					parsedECSFile->ForEachSystem([&](std::shared_ptr<ParsedSystem> parsedSystem) {
+			////Systems and which components they use.
+			//std::map<ParsedSystemPtr, std::set<ParsedComponentPtr>> componentSystem;
+			//{
+			//	for (auto parsedECSFile : parsedECSFiles) {
+			//		parsedECSFile->ForEachSystem([&](std::shared_ptr<ParsedSystem> parsedSystem) {
 
-						if (parsedSystem->IsInitializeSystem()) {
-							return true;
-						}
+			//			if (parsedSystem->IsInitializeSystem()) {
+			//				return true;
+			//			}
 
-						const std::string systemName = parsedSystem->GetName();
-						for (auto& entity : parsedSystem->ci_.updateMethod_->processesEntities_) {
-							entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
-								if (componentSystem.find(include.name_) != componentSystem.end()) {
-									componentSystem.insert({});
-								}
-								componentSystem[include.name_].insert(systemName);
-								return true;
-								});
-						}
+			//			const std::string systemName = parsedSystem->GetName();
+			//			for (auto& entity : parsedSystem->ci_.updateMethod_->processesEntities_) {
+			//				entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
 
-						});
-				}
-			}
+			//					const std::string includeName = include.GetName();
 
-			//Systems and which components they use
-			std::map<std::string, std::set<std::string>> systemComponents;
-			{
-				for (auto& [component, systems] : componentSystem) {
-					for (const auto& system : systems) {
-						systemComponents[system].insert(component);
-					}
-				}
-			}
+			//					//"Behaviour::ScriptName::X" -> "Behaviour", "ScriptName", "X"
+			//					auto parseIncludeName = [](const std::string& name) {
+			//						std::vector<std::string> result;
+			//						size_t start = 0;
+			//						size_t end = name.find("::");
+
+			//						while (end != std::string::npos) {
+			//							result.push_back(name.substr(start, end - start));
+			//							start = end + 2; // Пропускаем "::"
+			//							end = name.find("::", start);
+			//						}
+
+			//						// Добавляем последнюю часть
+			//						result.push_back(name.substr(start));
+
+			//						return result;
+			//						};
+
+			//					
+			//					//if (componentSystem.find(include.name_) != componentSystem.end()) {
+			//					//	componentSystem.insert({});
+			//					//}
+			//					//componentSystem[include.name_].insert(systemName);
+			//					return true;
+			//					});
+			//			}
+			//			return true;
+			//			});
+			//	}
+			//}
+
+			////Systems and which components they use
+			//std::map<std::string, std::set<std::string>> systemComponents;
+			//{
+			//	for (auto& [component, systems] : componentSystem) {
+			//		for (const auto& system : systems) {
+			//			//systemComponents[system].insert(component);
+			//		}
+			//	}
+			//}
 
 			//Separate systems on threads.
 			std::vector<Thread> childThreads;
@@ -1744,6 +2073,7 @@ namespace ECSGenerator2 {
 								mainThread.systems_.push_back(parsedSystem);
 							}
 						}
+						return true;
 					});
 			}
 			childThreads.push_back(childThread);
@@ -1754,7 +2084,6 @@ namespace ECSGenerator2 {
 			//		for (Agnode_t* systemNode : clusterSystems) {
 			//			std::string systemName = agnameof(systemNode);
 			//			const auto ecsFile = projectContext->GetEcsFileByName(systemName);
-
 			//			auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystem>(ecsFile);
 			//			if (systemEcsFile->IsInitializeSystem()) {
 			//				continue;
@@ -1773,7 +2102,6 @@ namespace ECSGenerator2 {
 			//			//	}
 			//			//	return true;
 			//			//	});
-
 			//		}
 			//		Thread clusterThread;
 			//		std::map<std::string, DS::Graph<std::string>::Node::Id> systemNameToNode;
@@ -1781,9 +2109,6 @@ namespace ECSGenerator2 {
 			//			std::string systemName = agnameof(systemNode);
 
 			//			clusterThread.systems_[systemName] = componentSystem[systemName];
-
-
-
 
 			//		}
 			//		if (isMainThread) {
@@ -1799,6 +2124,21 @@ namespace ECSGenerator2 {
 			//	}
 			//}
 
+			auto getSystemByFullName = [](std::vector<std::shared_ptr<ParsedECSFile>> parsedEcsFiles, const std::string& systemFullName) {
+
+				for (auto parsedEcsFile : parsedEcsFiles) {
+					const auto systemParsedFullName = ParseFullName(systemFullName);
+					if (parsedEcsFile->GetName() == "OksEngine.Debug.Render") {
+						Common::BreakPointLine();
+					}
+					const auto tablesPath = GetTablePathByFullName(parsedEcsFile, systemParsedFullName);
+					if (!tablesPath.empty()) {
+						return std::dynamic_pointer_cast<ParsedSystem>(tablesPath.back());
+					}
+				}
+				OS::AssertFail();
+				return ParsedSystemPtr{};
+				};
 
 			//Create call graph for each thread.
 			auto createClusterSystemsCallGraph =
@@ -1806,25 +2146,34 @@ namespace ECSGenerator2 {
 
 				for (auto system : thread.systems_) {
 
-					auto getCreateSystemNode = [](DS::Graph<System>& graph, const System& system) {
+					auto getCreateSystemNode = [&](DS::Graph<ParsedSystemPtr>& graph, ParsedSystemPtr parsedSystem) {
 						DS::Graph<System>::Node::Id nodeId = DS::Graph<System>::Node::invalidId_;
-						if (!graph.IsNodeExist(system)) {
-							nodeId = graph.AddNode(system);
+
+
+						if (!graph.IsNodeExist(parsedSystem)) {
+							nodeId = graph.AddNode(parsedSystem);
 						}
 						else {
-							nodeId = graph.FindNode(system);
+							nodeId = graph.FindNode(parsedSystem);
 						}
 						return nodeId;
 						};
 
-					DS::Graph<System>::Node::Id currentSystemNodeId = getCreateSystemNode(thread.callGraph_, system->GetName());
+					DS::Graph<System>::Node::Id currentSystemNodeId = getCreateSystemNode(thread.callGraph_, system);
 
 					if (system->ci_.callOrderInfo_ != nullptr) {
 						system->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const std::string& afterSystem) {
 #pragma region Assert 
 							//OS::AssertMessage(thread.systems_.contains(afterSystem), "Current thread doesn't contain After System:" + afterSystem);
 #pragma endregion		
-							DS::Graph<System>::Node::Id afterSystemNodeId = getCreateSystemNode(thread.callGraph_, afterSystem);
+
+							auto parsedSystem = getSystemByFullName(parsedECSFiles, afterSystem);
+
+#pragma region Assert
+							OS::AssertMessage(parsedSystem != nullptr, "");
+#pragma endregion
+
+							DS::Graph<System>::Node::Id afterSystemNodeId = getCreateSystemNode(thread.callGraph_, parsedSystem);
 							thread.callGraph_.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
 							return true;
 							});
@@ -1834,7 +2183,13 @@ namespace ECSGenerator2 {
 #pragma region Assert 
 							//OS::AssertMessage(thread.systems_.contains(beforeSystem), "Current thread doesn't contain Before System:" + beforeSystem);
 #pragma endregion		
-							DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, beforeSystem);
+							auto parsedSystem = getSystemByFullName(parsedECSFiles, beforeSystem);
+#pragma region Assert
+							OS::AssertMessage(parsedSystem != nullptr, "");
+#pragma endregion
+							DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, parsedSystem);
+							
+							
 							thread.callGraph_.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);
 							return true;
 							});
@@ -2011,7 +2366,6 @@ namespace ECSGenerator2 {
 					};
 					cppNamespaceObject->Add(std::make_shared<CodeStructure::Variable>(threadMutexVariable));
 
-
 					CodeStructure::Variable::CreateInfo runSystemThreadVariable{
 						.type_ = "std::atomic_bool",
 						.name_ = "runSystemThread" + std::to_string(i),
@@ -2058,6 +2412,7 @@ namespace ECSGenerator2 {
 					).c_str());
 				}
 
+				
 				//Generate code to run main thread systems.
 				{
 					CodeStructure::Code runMainThreadSystems;
@@ -2066,8 +2421,8 @@ namespace ECSGenerator2 {
 							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
 							"{}System(world2);"
 							"PIXEndEvent();",
-							mainThread.systemsOrder_.order_[i],
-							mainThread.systemsOrder_.order_[i]
+							GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i]),
+							GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i])
 						));
 						if (i != mainThread.systemsOrder_.order_.size() - 1) {
 							runMainThreadSystems.NewLine();
@@ -2132,6 +2487,7 @@ namespace ECSGenerator2 {
 			for (auto parsedECSFile : parsedECSFiles) {
 				parsedECSFile->ForEachSystem([&](std::shared_ptr<ParsedSystem> parsedSystem) {
 					parsedSystems.push_back(parsedSystem);
+					return true;
 					});
 			}
 

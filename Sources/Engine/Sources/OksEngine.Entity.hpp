@@ -27,7 +27,7 @@ namespace OksEngine {
 			std::string mtlName,
 			const std::vector<std::string>& textures);
 
-		void AddBehaviour(
+		void AddBehaviourScriptName(
 			const char* scriptName,
 			const char* objectName);
 

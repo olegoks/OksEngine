@@ -123,13 +123,12 @@ namespace OksEngine {
 			radius);*/
 	}
 
-	void Entity::AddBehaviour(
+	void Entity::AddBehaviourScriptName(
 		const char* scriptName,
 		const char* objectName) {
-		world_->CreateComponent<Behaviour>(
+		world_->CreateComponent<Behaviour::ScriptName>(
 			GetId(),
-			scriptName,
-			objectName);
+			scriptName);
 	}
 
 	void Entity::AddPosition(float x, float y, float z) {

@@ -5,8 +5,8 @@ namespace OksEngine {
 
 
 	void CreateLoadLuaScriptRequest::Update(
-		ECS2::Entity::Id entityId,
-		const Behaviour* behaviour) {
+		ECS2::Entity::Id entity0id, const Behaviour::ScriptName *behaviour__ScriptName0,
+                const Behaviour::ObjectName *behaviour__ObjectName0) {
 
 		//const ECS::Entity::Id loadResourceRequestEntity = world->CreateEntity();
 		//{

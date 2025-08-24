@@ -24,7 +24,7 @@ namespace ECSGenerator2 {
 			return ParsedTable::Type::Namespace;
 		}
 
-		std::string GetName() const noexcept {
+		virtual const std::string& GetName() const noexcept override {
 			return ci_.name_;
 		}
 
@@ -38,5 +38,43 @@ namespace ECSGenerator2 {
 
 		CreateInfo ci_;
 	};
+
+	//ParsedTable(Behaviour) -> ParsedTable(ScriptName)
+	//Convert to:
+	//Behaviour::ScriptName
+	inline static std::string GetFullTableNameWithNamespace(ParsedTablePtr table) {
+		std::string fullName;
+		fullName.reserve(512);
+		fullName = table->GetName();
+		ParsedTablePtr currentTable = table;
+		while (currentTable->parentTable_ != nullptr) {
+			fullName.insert(0, currentTable->parentTable_->GetName() + "::");
+
+			currentTable = currentTable->parentTable_;
+		}
+		return fullName;
+	}
+
+	std::vector<std::string> ParseFullName(const std::string& fullName) {
+		//"Behaviour::ScriptName::X" -> "Behaviour", "ScriptName", "X"
+			auto parseIncludeName = [](const std::string& name) {
+				std::vector<std::string> result;
+				size_t start = 0;
+				size_t end = name.find("::");
+
+				while (end != std::string::npos) {
+					result.push_back(name.substr(start, end - start));
+					start = end + 2; // Пропускаем "::"
+					end = name.find("::", start);
+				}
+
+				// Добавляем последнюю часть
+				result.push_back(name.substr(start));
+
+			return result;
+			};
+
+			return parseIncludeName(fullName);
+	}
 
 }

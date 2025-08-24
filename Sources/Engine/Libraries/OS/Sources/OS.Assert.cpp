@@ -25,7 +25,7 @@ namespace OS {
 	}
 
 	void Assert(bool expression) {
-		if (Common::IsDebug()) {
+		if (!Common::IsDebug()) {
 			return;
 		}
 		if (expression) {

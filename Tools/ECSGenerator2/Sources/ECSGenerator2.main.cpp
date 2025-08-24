@@ -81,6 +81,7 @@ int main(int argc, char** argv) {
 			if (ecsFileInfo.filesystemPath_.stem() == "OksEngine.Behaviour") {
 				Common::BreakPointLine();
 			}
+			//PARSING ECS FILE.
 			auto ecsFile = ecsFileParser.Parse(ecsFileInfo.filesystemPath_, ecsFileText);
 			if (ecsFile != nullptr) {
 				parsedECSFiles.push_back(ecsFile);

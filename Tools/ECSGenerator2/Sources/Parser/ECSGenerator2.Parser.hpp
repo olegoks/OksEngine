@@ -41,8 +41,8 @@ namespace ECSGenerator2 {
 				//2. Components
 				//3. Systems
 				std::sort(tables.begin(), tables.end(), [](
-					std::shared_ptr<ParsedTable> first,
-					std::shared_ptr<ParsedTable> second) {
+					ParsedTablePtr first,
+					ParsedTablePtr second) {
 						const auto type1 = first->GetType();
 						const auto type2 = second->GetType();
 
@@ -86,14 +86,12 @@ namespace ECSGenerator2 {
 								if (value.isTable()) {
 									if (key.isString()) {
 										const std::string tableName = key.tostring();
+										//TODO: move setting of child table to processTable function.
 										auto parsedTable = processTable(tableName, value);
-
 #pragma region Assert
 										OS::AssertMessage(parsedTable != nullptr , "");
 #pragma endregion
-
 										parsedNamespaceTables.push_back(parsedTable);
-
 									}
 								}
 							}
@@ -103,6 +101,12 @@ namespace ECSGenerator2 {
 								.childTables_ = parsedNamespaceTables
 							};
 							auto parsedNamespace = std::make_shared<ParsedNamespace>(namespaceCI);
+
+							parsedNamespace->childTables_ = parsedNamespaceTables;
+
+							for (auto childTable : parsedNamespaceTables) {
+								childTable->parentTable_ = parsedNamespace;
+							}
 
 							return parsedNamespace;
 						}

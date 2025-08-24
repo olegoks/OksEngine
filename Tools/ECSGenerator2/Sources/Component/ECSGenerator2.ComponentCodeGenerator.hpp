@@ -77,11 +77,12 @@ namespace ECSGenerator2 {
 			const std::string& fieldComponentVariableName) {	// x_			//value_
 			CodeStructure::Code code;
 			if (fieldVariableTypeName == "std::string") {
-				code.Add(GenerateTypeImGuiInputVariable(fieldVariableTypeName, fieldVariableName));
-				code.Add("std::memcpy(" + fieldVariableName + ", " + componentVariableName + "->" + fieldComponentVariableName + ".c_str(), " + componentVariableName + "->" + fieldVariableName + "_.size());");
-				code.Add(GenerateImGuiInputTypeCode(fieldVariableName, fieldVariableTypeName, fieldVariableName));
-				code.Add(componentVariableName + "->" + fieldComponentVariableName + " = std::string{ " + fieldVariableName + " };");
-				code.Add("std::memset({}, 0, 1024);", fieldVariableName);
+				const std::string stringArrayName = componentVariableName + '_' + fieldVariableName;
+				code.Add(GenerateTypeImGuiInputVariable(fieldVariableTypeName, stringArrayName));
+				code.Add("std::memcpy(" + stringArrayName + ", " + componentVariableName + "->" + fieldComponentVariableName + ".c_str(), " + componentVariableName + "->" + fieldVariableName + "_.size());");
+				code.Add(GenerateImGuiInputTypeCode(stringArrayName, fieldVariableTypeName, stringArrayName));
+				code.Add(componentVariableName + "->" + fieldComponentVariableName + " = std::string{ " + stringArrayName + " };");
+				code.Add("std::memset({}, 0, 1024);", stringArrayName);
 				return code;
 			}
 			else if (

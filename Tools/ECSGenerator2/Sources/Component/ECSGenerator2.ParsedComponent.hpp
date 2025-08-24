@@ -72,7 +72,7 @@ namespace ECSGenerator2 {
 		}
 
 		[[nodiscard]]
-		std::string GetName() {
+		virtual const std::string& GetName() const noexcept override {
 			return ci_.name_;
 		}
 
@@ -85,6 +85,7 @@ namespace ECSGenerator2 {
 
 	};
 
+	using ParsedComponentPtr = std::shared_ptr<ParsedComponent>;
 
 	inline std::shared_ptr<ParsedComponent> ParseComponent(
 		luabridge::LuaRef component,

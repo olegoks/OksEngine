@@ -26,6 +26,7 @@ namespace ECSGenerator2 {
 			const std::string& GetName() const {
 				return name_;
 			}
+
 			const std::string& GetTypeName() const {
 				return typeName_;
 			}
@@ -60,7 +61,7 @@ namespace ECSGenerator2 {
 		}
         
 		[[nodiscard]]
-		std::string GetName() {
+		const std::string& GetName() const noexcept override {
 			return ci_.name_;
 		}
 

@@ -278,7 +278,7 @@ CreateDebugTextPipelineSystem = {
 BeginDebugTextRenderPassSystem = {
     callOrder = {
         runAfter = { "StartRender" },
-        runBefore = { " DrawDebugText2D" }
+        runBefore = { "DrawDebugText2D" }
     },
     updateMethod = {
         processesEntities = {
@@ -335,7 +335,7 @@ BeginDebugTextRenderPassSystem = {
 
 EndDebugTextRenderPassSystem = {
     callOrder = {
-        runAfter = { " DrawDebugText2D" },
+        runAfter = { "DrawDebugText2D" },
         runBefore = { "BeginImGuiRenderPass" }
     },
     updateMethod = {

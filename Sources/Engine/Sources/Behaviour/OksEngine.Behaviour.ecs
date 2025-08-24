@@ -1,12 +1,16 @@
 BehaviourNamespace = {
     
-    BehaviourComponent = {
+    ScriptNameComponent = {
         fields = {
-            { type = "std::string", name = "scriptName" },
             { type = "std::string", name = "objectName" }
         }
     },
 
+    ObjectNameComponent = {
+        fields = {
+            { type = "std::string", name = "objectName" }
+        }
+    },
     
 
     CreateBehaviourLuaScriptSystem = {
@@ -14,7 +18,8 @@ BehaviourNamespace = {
             processesEntities = {
                 {
                     processesComponents = {
-                        "Behaviour"
+                        "ScriptName",
+                        "ObjectName"
                     }
                 }
             }
@@ -36,7 +41,8 @@ BehaviourNamespace = {
             processesEntities = {
                 {
                     processesComponents = {
-                        "Behaviour",
+                        "ScriptName",
+                        "ObjectName",
                         { name = "LuaContext",    readonly = false },
                         { name = "KeyboardInput", readonly = false },
                         { name = "MouseInput",    readonly = false }
@@ -51,7 +57,8 @@ BehaviourNamespace = {
             processesEntities = {
                 {
                     processesComponents = {
-                        "Behaviour",
+                        "ScriptName",
+                        "ObjectName",
                         { name = "LuaContext", readonly = false }
                     }
                 }

@@ -33,6 +33,7 @@ namespace ECSGenerator2 {
 				for (Common::Index i = 0; i < order_.size(); i++) {
 					const System& currentSystem = order_[i];
 					if (currentSystem == afterSystem) {
+
 						if (i != order_.size() - 1) {
 							order_.insert(order_.begin() + i + 1, system);
 						}
@@ -211,7 +212,7 @@ namespace ECSGenerator2 {
 
 			}
 
-			Code runInitSystemsCode;
+			CodeStructure::Code runInitSystemsCode;
 			runInitSystemsCode.Add(
 				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Start initialize frame\");"
 				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"StartFrame\");"
@@ -268,7 +269,7 @@ namespace ECSGenerator2 {
 			runInitSystemsCode.Add("PIXEndEvent();");
 
 			//CreateThreads method realization.
-			Function::CreateInfo cppRunSystemsFunction{
+			CodeStructure::Function::CreateInfo cppRunSystemsFunction{
 				.name_ = "RunInitializeSystems",
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "world2" }
@@ -285,11 +286,11 @@ namespace ECSGenerator2 {
 
 		}
 
-		std::shared_ptr<Function> GenerateCreateThreadRealization(const std::vector<Thread>& threads) {
+		std::shared_ptr<CodeStructure::Function> GenerateCreateThreadRealization(const std::vector<Thread>& threads) {
 
 
 			//Create threads
-			Code cppCreateThreadsCode;
+			CodeStructure::Code cppCreateThreadsCode;
 			{
 
 				for (Common::Index i = 0; i < threads.size(); ++i) {
@@ -339,7 +340,7 @@ namespace ECSGenerator2 {
 					//}
 
 
-					Code runThreadSystems;
+					CodeStructure::Code runThreadSystems;
 					for (Common::Index i = 0; i < thread.systemsOrder_.order_.size(); i++) {
 						runThreadSystems.Add(std::format(
 							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
@@ -370,7 +371,7 @@ namespace ECSGenerator2 {
 			}
 
 			//CreateThreads method realization.
-			Function::CreateInfo cppCreateThreadsFunction{
+			CodeStructure::Function::CreateInfo cppCreateThreadsFunction{
 				.name_ = "CreateThreads",
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "world2" }
@@ -381,16 +382,16 @@ namespace ECSGenerator2 {
 				.inlineModifier_ = false
 			};
 
-			auto cppCreateThreadsFunctionObject = std::make_shared<Function>(cppCreateThreadsFunction);
+			auto cppCreateThreadsFunctionObject = std::make_shared<CodeStructure::Function>(cppCreateThreadsFunction);
 
 			return cppCreateThreadsFunctionObject;
 		}
 
 
-		 std::shared_ptr<File> GenerateRunSystemsHppFile() {
+		 std::shared_ptr<CodeStructure::File> GenerateRunSystemsHppFile() {
 
 			auto generateRunSystemsFunctionPrototype = []() -> std::shared_ptr<Function> {
-				Function::CreateInfo hppRunSystemsFunction{
+				CodeStructure::Function::CreateInfo hppRunSystemsFunction{
 					.name_ = "RunSystems",
 					.parameters_ = {
 						{ "std::shared_ptr<ECS2::World>", "world2"}},
@@ -405,7 +406,7 @@ namespace ECSGenerator2 {
 
 			auto generateCreateThreadsFunctionPrototype = []() -> std::shared_ptr<Function> {
 				//Create threads method prototype.
-				Function::CreateInfo hppCreateThreadsFunction{
+				CodeStructure::Function::CreateInfo hppCreateThreadsFunction{
 					.name_ = "CreateThreads",
 					.parameters_ = { { "std::shared_ptr<ECS2::World>", "world2"} },
 					.returnType_ = "void",
@@ -414,12 +415,12 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				return std::make_shared<Function>(hppCreateThreadsFunction);
+				return std::make_shared<CodeStructure::Function>(hppCreateThreadsFunction);
 				};
 
 			auto generateRunInitSystemsFunctionPrototype = []() -> std::shared_ptr<Function> {
 				//CreateThreads method prototype.
-				Function::CreateInfo cppRunSystemsFunction{
+				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
 					.name_ = "RunInitializeSystems",
 					.parameters_ = {
 						{ "std::shared_ptr<ECS2::World>", "world2" }
@@ -430,29 +431,29 @@ namespace ECSGenerator2 {
 					.inlineModifier_ = false
 				};
 
-				return std::make_shared<Function>(cppRunSystemsFunction);
+				return std::make_shared<CodeStructure::Function>(cppRunSystemsFunction);
 				};
 
-			auto namespaceObject = std::make_shared<Namespace>("OksEngine");
+			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
 			namespaceObject->Add(generateRunSystemsFunctionPrototype());
 			namespaceObject->Add(generateCreateThreadsFunctionPrototype());
 			namespaceObject->Add(generateRunInitSystemsFunctionPrototype());
 
-			File::Includes includes{ };
+			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("boost/asio/thread_pool.hpp");
 			includes.paths_.insert("boost/asio/post.hpp");
 			includes.paths_.insert("ECS2.World.hpp");
 
 
 			//hpp file
-			File::CreateInfo fci{
+			CodeStructure::File::CreateInfo fci{
 			.isHpp_ = true,
 			.includes_ = includes,
 			.base_ = namespaceObject
 			};
 
-			auto file = std::make_shared<File>(fci);
+			auto file = std::make_shared<CodeStructure::File>(fci);
 
 			return file;
 
@@ -466,7 +467,7 @@ namespace ECSGenerator2 {
 			//return { systemCppFileFullPath, file };
 		}
 
-		std::shared_ptr<File> GenerateEditEntityHppFile(std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) {
+		std::shared_ptr<CodeStructure::File> GenerateEditEntityHppFile(std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) {
 
 			auto generateAddComponentCode = [](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> Code {
 
@@ -699,7 +700,7 @@ namespace ECSGenerator2 {
 
 		}
 
-		std::pair<std::filesystem::path, std::shared_ptr<File>>
+		std::pair<std::filesystem::path, std::shared_ptr<CodeStructure::File>>
 			GenerateRunSystemsCppFile(/*std::vector<std::vector<Agnode_t*>> clusters,*/ std::vector<std::shared_ptr<ParsedECSFile>> parsedECSFiles) {
 
 			//Components and which systems uses them.

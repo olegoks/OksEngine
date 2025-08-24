@@ -4,9 +4,8 @@
 namespace OksEngine {
 
 	void CreateLuaContext::Update(
-		ECS2::Entity::Id entityId,
-		const Behaviour* behaviour,
-		const LuaScriptEntity* luaScriptEntity) {
+		ECS2::Entity::Id entity0id, const Behaviour::ScriptName *behaviour__ScriptName0,
+                const Behaviour::ObjectName *behaviour__ObjectName0, const LuaScriptEntity *luaScriptEntity0) {
 
 		//::Lua::Context context;
 
