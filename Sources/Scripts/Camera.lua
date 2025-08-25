@@ -1,9 +1,9 @@
-local function hook(event, line)
-    local info = debug.getinfo(2)
-    print(string.format("Event: %s, Line: %d [%s]", event, line, info.source))
-end
-
-debug.sethook(hook, "с")
+--local function hook(event, line)
+--    local info = debug.getinfo(2)
+--    print(string.format("Event: %s, Line: %d [%s]", event, line, info.source))
+--end
+--
+--debug.sethook(hook, "с")
 Camera = {}
 
 function extended (child, parent)
@@ -24,25 +24,27 @@ function Camera:New()
     camera.MovingRight = false
     camera.MovingUp = false
     camera.MovingDown = false
-
+    print("Camera:New() bnegin",     camera.MovingForward)
     function camera:Forward()
-        local position = self:GetComponent("Position")
-        local direction = self:GetComponent("Direction")
+        print("camera:Forward()")
+        local position = self:GetComponent("WorldPosition3D")
+        local direction = self:GetComponent("Direction3D")
         position.x = (position.x + direction.x * self.Speed)
         position.y = (position.y + direction.y * self.Speed)
         position.z = (position.z + direction.z * self.Speed)
+       
     end
     function camera:Backward()
-        local position = self:GetComponent("Position")
-        local direction = self:GetComponent("Direction")
+        local position = self:GetComponent("WorldPosition3D")
+        local direction = self:GetComponent("Direction3D")
         position.x = (position.x - direction.x * self.Speed)
         position.y = (position.y - direction.y * self.Speed)
         position.z = (position.z - direction.z * self.Speed)
     end
 
     function camera:DirectionUpDown(degree)
-        local position = self:GetComponent("Position")
-        local direction = self:GetComponent("Direction")
+        local position = self:GetComponent("WorldPosition3D")
+        local direction = self:GetComponent("Direction3D")
         
         local up = self:GetComponent("Up")
         local upDirPerpendicular = Math3D():CrossProduct(direction, up)
@@ -104,14 +106,18 @@ function Camera:New()
         position.y = (position.y + npy * speed)
         position.z = (position.z + npz * speed)
     end
+
+    print("Camera:New() end: ", camera)
     return camera
 end
 
 CameraUpdater = {}
 
 function CameraUpdater:Update(camera, deltaMs)
-
+    print("CameraUpdater:Update")
+    print("camera.MovingForward: ", tostring(camera.MovingForward))
     if camera.MovingForward then
+       
         camera:Forward(camera.Speed)
     end
     if camera.MovingBackward then

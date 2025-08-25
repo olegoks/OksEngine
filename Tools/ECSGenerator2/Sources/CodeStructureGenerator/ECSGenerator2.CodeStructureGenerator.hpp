@@ -796,86 +796,72 @@ namespace ECSGenerator2 {
 		std::shared_ptr<CodeStructure::File>
 			GenerateSerializeEntityHppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
 
-			auto generateSerializeComponentCode = [](std::shared_ptr<ParsedComponent> component, bool isLast) -> CodeStructure::Code {
-
-				CodeStructure::Code code;
-
-				code.Add(std::format(
-					"if (components.IsSet<{}>()) {{"
-					"	const auto* component = world->GetComponent<{}>(entityId);"
-					"	serializedEntity += \"\\t\\t\" +Serialize{}(component);",
-					component->GetName(),
-					component->GetName(),
-					component->GetName()));
-
-				//if (!isLast) {
-				code.Add("	serializedEntity += \",\\n\";");
-				//}
-
-				code.Add("}");
-
-				return code;
-				};
-
-			auto generateSerializeEntityFunctionRealization = [&](std::vector<std::shared_ptr<ParsedComponent>> components) -> std::shared_ptr<CodeStructure::Function> {
-
-				CodeStructure::Code code;
-
-				code.Add("std::string serializedEntity;");
-				code.Add("const ECS2::ComponentsFilter components = world->GetEntityComponentsFilter(entityId);");
-				code.Add("serializedEntity += \"\\t\\tID = \" + std::to_string(entityId) + \",\\n\";");
-				//Generate serialize components.
-				std::vector<std::shared_ptr<ParsedComponent>> allParsedComponents;
-				for (auto ecsFile : ecsFiles) {
-					ecsFile->ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
-						allParsedComponents.push_back(parsedComponent);
-						});
-				}
-				for (Common::Index i = 0; i < components.size(); i++) {
-
-					auto component = components[i];
-
-					if (!component->ci_.serializable_) {
-						continue;
-					}
-					code.Add("{");
-					code.Add(generateSerializeComponentCode(
-						component,
-						(i == components.size() - 1)));
-					code.Add("}");
-
-					code.NewLine();
-
-				}
-
-				code.Add("return serializedEntity;");
-
-				CodeStructure::Function::CreateInfo serializeEntityFunction{
-					.name_ = "SerializeEntity",
-					.parameters_ = {
-						{ "std::shared_ptr<ECS2::World>", "world" },
-						{ "ECS2::Entity::Id", "entityId" }
-					},
-					.returnType_ = "std::string",
-					.code_ = code,
-					.isPrototype_ = false,
-					.inlineModifier_ = false
-				};
-
-				auto serializedEntityFunctionObject = std::make_shared<CodeStructure::Function>(serializeEntityFunction);
-
-				return serializedEntityFunctionObject;
-				};
-
 			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
-			std::vector<std::shared_ptr<ParsedComponent>> allParsedComponents;
+
+			CodeStructure::Code code;
+
+			code.Add("std::string serializedEntity;");
+			code.Add("const ECS2::ComponentsFilter components = world->GetEntityComponentsFilter(entityId);");
+			code.Add("serializedEntity += \"\\t\\tID = \" + std::to_string(entityId) + \",\\n\";");
+
 			for (auto ecsFile : ecsFiles) {
-				ecsFile->ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
-					allParsedComponents.push_back(parsedComponent);
+
+				ecsFile->ForEachComponent([&](std::vector<std::shared_ptr<ParsedTable>>& childTables,
+					std::shared_ptr<ParsedComponent> component) {
+
+						if (!component->ci_.serializable_) {
+							return;
+						}
+
+						std::string fullComponentNamespace;
+
+						for (Common::Index i = 0; i < childTables.size();i++) {
+							fullComponentNamespace += childTables[i]->GetName();
+							if (i != childTables.size() - 1) {
+								fullComponentNamespace += "::";
+							}
+						}
+						
+						code.Add("{");
+						if (!childTables.empty()) {
+							code.Add("using namespace {};", fullComponentNamespace);
+						}
+						code.Add(std::format(
+							"if (components.IsSet<{}>()) {{"
+							"	const auto* component = world->GetComponent<{}>(entityId);"
+							"	serializedEntity += \"\\t\\t\" +Serialize{}(component);",
+							component->GetName(),
+							component->GetName(),
+							component->GetName()));
+
+						code.Add("	serializedEntity += \",\\n\";");
+						code.Add("}");
+						code.Add("}");
+
 					});
+
+
 			}
-			namespaceObject->Add(generateSerializeEntityFunctionRealization(allParsedComponents));
+
+			code.Add("return serializedEntity;");
+
+
+			CodeStructure::Function::CreateInfo serializeEntityFunction{
+				.name_ = "SerializeEntity",
+				.parameters_ = {
+					{ "std::shared_ptr<ECS2::World>", "world" },
+					{ "ECS2::Entity::Id", "entityId" }
+				},
+				.returnType_ = "std::string",
+				.code_ = code,
+				.isPrototype_ = false,
+				.inlineModifier_ = false
+			};
+
+			auto serializedEntityFunctionObject = std::make_shared<CodeStructure::Function>(serializeEntityFunction);
+
+			namespaceObject->Add(serializedEntityFunctionObject);
 
 			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");

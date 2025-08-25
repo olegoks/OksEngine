@@ -2,39 +2,72 @@ BehaviourNamespace = {
     
     ScriptNameComponent = {
         fields = {
-            { type = "std::string", name = "objectName" }
+            { type = "std::string", name = "name" }
         }
     },
 
     ObjectNameComponent = {
         fields = {
-            { type = "std::string", name = "objectName" }
+            { type = "std::string", name = "name" }
         }
     },
     
+    LuaScriptComponent = {
+        serializable = false,
+        fields = {
+            { type="std::string", name="text" }
+        }
+    },
 
-    CreateBehaviourLuaScriptSystem = {
+    CreateLuaScriptSystem = {
         updateMethod = {
             processesEntities = {
                 {
                     processesComponents = {
-                        "ScriptName",
-                        "ObjectName"
+                        { name = "ResourceSystem", readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        "ScriptName"
+                    },
+                    createsComponents = {
+                        "LuaScript"
+                    },
+                    excludes = {
+                        "LuaScript"
                     }
                 }
             }
         }
     },
 
-    BehaviourLuaScriptComponent = {
-        serializable = false
+    LuaContextComponent = {
+        serializable = false,
+        fields = {
+            { type = "std::shared_ptr<::Lua::Context>",  name="context"}
+        }
     },
 
-
-    BehaviourLuaContextComponent = {
-        serializable = false
+    CreateLuaContextSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "ScriptName",
+                        "ObjectName",
+                        "LuaScript"
+                    },
+                    createsComponents = {
+                        "LuaContext"
+                    },
+                    excludes = {
+                        "LuaContext"
+                    }
+                }
+            }
+        }
     },
-
 
     CallInputProcessorSystem = {
         updateMethod = {

@@ -1,15 +1,38 @@
 
 #include <Behaviour/OksEngine.LuaEntity.hpp>
 
-namespace OksEngine::Lua {
+#include <OksEngine.ECS.hpp>
+
+namespace OksEngine {
 
 
-	Position3D* Entity::GetPosition() {
-		auto position = world_->GetComponent<Position3D>(id_);
+	void BindLuaEntity(::Lua::Context& context) {
+
+		context.GetGlobalNamespace()
+			.beginClass<Entity>("EngineEntity")
+			.addConstructor<void(*)()>()
+			.addFunction("GetWorldPosition3D", &Entity::GetWorldPosition3D)
+			.addFunction("GetDirection3D", &Entity::GetDirection3D)
+			.addFunction("GetImmutableRenderGeometry", &Entity::GetImmutableRenderGeometry)
+			.addFunction("GetCamera", &Entity::GetCamera)
+			.addFunction("GetActive", &Entity::GetActive)
+			.addFunction("GetUp3D", &Entity::GetUp3D)
+			.addFunction("GetHeight", &Entity::GetHeight)
+			.addFunction("GetWidth", &Entity::GetWidth)
+			.addFunction("SetWorld", &Entity::SetWorld)
+			.addFunction("SetId", &Entity::SetId)
+			.addFunction("GetId", &Entity::GetId)
+			//.addFunction("GetRigidBodyBox", &LuaEntity::GetRigidBodyBox)
+			//.addFunction("GetRigidBodyCapsule", &LuaEntity::GetRigidBodyCapsule)
+			.endClass();
+	}
+
+	WorldPosition3D* Entity::GetWorldPosition3D() {
+		auto position = world_->GetComponent<WorldPosition3D>(id_);
 		return position;
 	}
 
-	Direction3D* Entity::GetDirection()
+	Direction3D* Entity::GetDirection3D()
 	{
 		auto direction = world_->GetComponent<Direction3D>(id_);
 		return direction;
@@ -54,6 +77,12 @@ namespace OksEngine::Lua {
 		world_ = world;
 	}
 
-	void Entity::SetId(std::uint64_t id) { id_ = id; }
+	void Entity::SetId(std::uint64_t id) { 
+		id_ = id;
+	}
 
-}
+
+	std::uint64_t Entity::GetId() {
+		return	id_;
+	}
+};
