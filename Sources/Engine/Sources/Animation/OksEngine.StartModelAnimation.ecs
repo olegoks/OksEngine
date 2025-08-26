@@ -1,0 +1,12 @@
+StartModelAnimationSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ModelEntity", 
+                    "StartAnimation"
+                }
+            }
+        }
+    }
+}

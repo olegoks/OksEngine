@@ -1,0 +1,6 @@
+MouseInputComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::queue<UIAL::Window::MouseEvent>", name = "events" }
+     }
+}

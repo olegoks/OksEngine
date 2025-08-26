@@ -1,0 +1,12 @@
+SendWindowMouseEventsSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow"
+                }
+            }
+        }
+    }
+    
+}
