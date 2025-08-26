@@ -1,0 +1,22 @@
+CameraNamespace = {
+
+    MoveCameraForwardSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "WorldPosition3D", readonly = false },
+                        "Direction3D"
+                    }
+                }
+            },
+            code = function(position, direction)
+                print("camera:Forward()")
+                position.x = (position.x + direction.x) * 0.005
+                position.y = (position.y + direction.y) * 0.005
+                position.z = (position.z + direction.z) * 0.005
+            end
+        }
+    }
+
+}

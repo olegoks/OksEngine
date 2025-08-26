@@ -58,8 +58,8 @@ function Entity:GetComponent(componentName)
     if componentName == "Direction3D" then
         return self.EngineEntity:GetDirection3D()
     end
-    if componentName == "Up" then
-        return self.EngineEntity:GetUp()
+    if componentName == "Up3D" then
+        return self.EngineEntity:GetUp3D()
     end
     if componentName == "Width" then
         return self.EngineEntity:GetWidth()
@@ -67,5 +67,4 @@ function Entity:GetComponent(componentName)
     if componentName == "Height" then
         return self.EngineEntity:GetHeight()
     end
-    print('Entity:GetComponent('..componentName..')')
 end

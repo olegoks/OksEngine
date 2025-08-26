@@ -221,7 +221,7 @@ namespace UIAL {
 			KeyboardEvent event = keyboardEvents_.front();
 			keyboardEvents_.erase(keyboardEvents_.begin());
 			return event;
-		}
+		} 
 
 		[[nodiscard]]
 		std::optional<MouseEvent> GetMouseEvent() noexcept {

@@ -69,7 +69,11 @@ BehaviourNamespace = {
         }
     },
 
-    CallInputProcessorSystem = {
+    CallKeyboardInputProcessorSystem = {
+        callOrder = {
+            runAfter = "SendWindowKeyboardInput",
+            runBefore = "ClearKeyboardInput"
+        },
         updateMethod = {
             processesEntities = {
                 {
@@ -78,7 +82,27 @@ BehaviourNamespace = {
                         "ObjectName",
                         { name = "LuaContext",    readonly = false },
                         { name = "KeyboardInput", readonly = false },
-                        { name = "MouseInput",    readonly = false }
+                        -- { name = "MouseInput",    readonly = false }
+                    }
+                }
+            }
+        }
+    },
+
+    CallMouseInputProcessorSystem = {
+        callOrder = {
+            runAfter = "SendWindowMouseInput",
+            runBefore = "ClearMouseInput"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "ScriptName",
+                        "ObjectName",
+                        { name = "LuaContext",    readonly = false },
+                        { name = "MouseInput", readonly = false },
+                        -- { name = "MouseInput",    readonly = false }
                     }
                 }
             }

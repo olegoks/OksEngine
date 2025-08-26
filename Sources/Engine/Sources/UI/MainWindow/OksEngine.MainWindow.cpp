@@ -28,6 +28,7 @@ namespace OksEngine
 
 		CreateComponent<MainWindow>(mainWindowEntity, window);
 		CreateComponent<KeyboardInput>(mainWindowEntity);
+		CreateComponent<MouseInput>(mainWindowEntity);
 		CreateComponent<MainWindowResizeEvent>(mainWindowEntity);
 
 	};

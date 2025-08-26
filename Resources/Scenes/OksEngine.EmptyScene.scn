@@ -58,7 +58,8 @@ scene = {
             active = {},
             scriptName = { name = "Camera.lua" },
             objectName = { name = "Camera" },
-            handleKeyboardInput = {}
+            handleKeyboardInput = {},
+            handleMouseInput = {}
         }--,
 --  {
 --      ID = 4,

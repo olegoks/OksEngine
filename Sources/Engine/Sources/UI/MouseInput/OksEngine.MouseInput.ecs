@@ -1,3 +1,8 @@
+HandleMouseInputComponent = {
+    fields = { }
+}
+
+
 MouseInputComponent = {
     serializable = false,
     fields = { 

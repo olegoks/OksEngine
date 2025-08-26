@@ -1,0 +1,69 @@
+
+GetWindowMouseInputSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MainWindow", readonly = false },
+                    { name = "MouseInput", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+
+CreateMouseInputSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "HandleMouseInput"
+                },
+                createsComponents = { "MouseInput" },
+                excludes = { "MouseInput" }
+            }
+        }
+    }
+}
+
+SendWindowMouseInputSystem = {
+    callOrder = {
+        runAfter = "GetWindowMouseInput"
+    },
+    updateMethod = {
+         processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    "MouseInput"
+                }
+            },
+            {
+                processesComponents = {
+                    "HandleMouseInput",
+                    { name = "MouseInput", readonly = false }
+                },
+                createsComponents = { "MouseInput" }
+            }
+        }
+    }
+   
+}
+
+
+
+ClearMouseInputSystem = {
+    callOrder = {
+        runAfter = "EndImGuiFrame"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MouseInput", readonly = false }
+                }
+            }
+        }
+    }
+}

@@ -6,8 +6,8 @@
 --debug.sethook(hook, "с")
 Camera = {}
 
-function extended (child, parent)
-    setmetatable(child,{__index = parent}) 
+function extended(child, parent)
+    setmetatable(child, { __index = parent })
 end
 
 extended(Camera, Entity)
@@ -24,16 +24,17 @@ function Camera:New()
     camera.MovingRight = false
     camera.MovingUp = false
     camera.MovingDown = false
-    print("Camera:New() bnegin",     camera.MovingForward)
+    --print("Camera:New() bnegin",     camera.MovingForward)
+
     function camera:Forward()
-        print("camera:Forward()")
+        --print("camera:Forward()")
         local position = self:GetComponent("WorldPosition3D")
         local direction = self:GetComponent("Direction3D")
         position.x = (position.x + direction.x * self.Speed)
         position.y = (position.y + direction.y * self.Speed)
         position.z = (position.z + direction.z * self.Speed)
-       
     end
+
     function camera:Backward()
         local position = self:GetComponent("WorldPosition3D")
         local direction = self:GetComponent("Direction3D")
@@ -42,11 +43,13 @@ function Camera:New()
         position.z = (position.z - direction.z * self.Speed)
     end
 
+    --For mouse
     function camera:DirectionUpDown(degree)
+        print("DirectionUpDown degree:", degree)
         local position = self:GetComponent("WorldPosition3D")
         local direction = self:GetComponent("Direction3D")
-        
-        local up = self:GetComponent("Up")
+
+        local up = self:GetComponent("Up3D")
         local upDirPerpendicular = Math3D():CrossProduct(direction, up)
         print("got components")
         upDirPerpendicular:Normalize()
@@ -60,73 +63,87 @@ function Camera:New()
         up.x = newUp.x
         up.y = newUp.y
         up.z = newUp.z
-
-       
     end
 
+    --For mouse
     function camera:DirectionLeftRight(degree)
-        local direction = self:GetComponent("Direction")
-        local up = self:GetComponent("Up")
-        local rotatedDirection = Math3D():RotateVector(direction, up, degree)
+        print("DirectionLeftRight degree:", degree)
+  
+        local direction = self:GetComponent("Direction3D")
+        local up = self:GetComponent("Up3D")
+        local verticalUp = Vector(0.0, 1.0, 0.0)
+
+        local rotatedDirection = Math3D():RotateVector(direction, verticalUp, degree)
         rotatedDirection:Normalize()
         direction.x = rotatedDirection.x
         direction.y = rotatedDirection.y
         direction.z = rotatedDirection.z
+
+        local rotatedUp = Math3D():RotateVector(up, verticalUp, degree)
+        rotatedUp:Normalize()
+        up.x = rotatedUp.x
+        up.y = rotatedUp.y
+        up.z = rotatedUp.z
+
+        rotatedUp:Normalize()
+
     end
-    
+
     function camera:Left(speed)
-        local position = self:GetComponent("Position")
-        local camera = self:GetComponent("Camera")
-        local px, py, pz  = Math3D:CrossProduct(
-            camera:GetUpX(),
-            camera:GetUpY(),
-            camera:GetUpZ(),
-            camera:GetDirectionX(), 
-            camera:GetDirectionY(),
-            camera:GetDirectionZ())
-        local npx, npy, npz = Math3D:Normalize(px, py, pz)
 
-        position.x = (position.x + npx * speed)
-        position.y = (position.y + npy * speed)
-        position.z = (position.z + npz * speed)
+        local position   = self:GetComponent("WorldPosition3D")
+        local direction  = self:GetComponent("Direction3D")
+        local up         = self:GetComponent("Up3D")
+
+        local test = Vector(up.x, up.y, up.z)
+
+        local pVector = Math3D():CrossProduct(
+            Vector(up.x, up.y, up.z),
+            Vector(direction.x, direction.y, direction.z))
+        
+        pVector:Normalize()
+        position.x = (position.x + pVector.x * speed)
+        position.y = (position.y + pVector.y * speed)
+        position.z = (position.z + pVector.z * speed)
     end
+
     function camera:Right(speed)
-        local position = self:GetComponent("Position")
-        local camera = self:GetComponent("Camera")
-        local px, py, pz  = Math3D:CrossProduct(
-            camera:GetDirectionX(), 
-            camera:GetDirectionY(),
-            camera:GetDirectionZ(),
-            camera:GetUpX(),
-            camera:GetUpY(),
-            camera:GetUpZ())
-        local npx, npy, npz = Math3D:Normalize(px, py, pz)
+        local position   = self:GetComponent("WorldPosition3D")
+        local direction  = self:GetComponent("Direction3D")
+        local up         = self:GetComponent("Up3D")
 
-        position.x = (position.x + npx * speed)
-        position.y = (position.y + npy * speed)
-        position.z = (position.z + npz * speed)
+        local pVector = Math3D():CrossProduct(
+            Vector(direction.x,
+            direction.y,
+            direction.z),
+            Vector(up.x,
+            up.y,
+            up.z))
+        pVector:Normalize()
+
+        position.x = (position.x + pVector.x * speed)
+        position.y = (position.y + pVector.y * speed)
+        position.z = (position.z + pVector.z * speed)
     end
 
-    print("Camera:New() end: ", camera)
     return camera
 end
 
 CameraUpdater = {}
 
 function CameraUpdater:Update(camera, deltaMs)
-    print("CameraUpdater:Update")
-    print("camera.MovingForward: ", tostring(camera.MovingForward))
+    --print("CameraUpdater:Update")
+    --print("camera.MovingForward: ", tostring(camera.MovingForward))
     if camera.MovingForward then
-       
         camera:Forward(camera.Speed)
     end
     if camera.MovingBackward then
         camera:Backward(camera.Speed)
     end
-    if camera.MovingLeft then 
+    if camera.MovingLeft then
         camera:Left(camera.Speed)
     end
-    if camera.MovingRight then 
+    if camera.MovingRight then
         camera:Right(camera.Speed)
     end
 end
@@ -134,9 +151,6 @@ end
 CameraInputProcessor = {}
 
 function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
-
-
-
     if Key == "W" then
         if Event == "Pressed" then
             camera.MovingForward = true
@@ -179,18 +193,12 @@ function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
         elseif Event == "Released" then
             camera.SpeedBoost = false
         end
-    end 
-    
-
+    end
 end
 
 function CameraInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY)
-
-    print("pre camera:DirectionUpDown(offsetY / 1000.0)")
-    camera:DirectionUpDown(offsetY / 1000.0)
-    print("camera:DirectionUpDown(offsetY / 1000.0)")
-    camera:DirectionLeftRight(offsetX / 1000.0)
-    print("camera:DirectionLeftRight(offsetX / 1000.0)")
+    print("OffsetX:", offsetX)
+    print("OffsetY:", offsetY)
+    camera:DirectionUpDown((offsetY / 1000.0))
+    camera:DirectionLeftRight((offsetX / 1000.0))
 end
-
-

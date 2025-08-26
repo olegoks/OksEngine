@@ -24,6 +24,7 @@ CreateMainWindowSystem = {
             createsComponents = {
                 "MainWindow",
                 "KeyboardInput",
+                "MouseInput",
                 "MainWindowResizeEvent"
             }
         }
