@@ -126,6 +126,16 @@ function Camera:New()
         position.z = (position.z + pVector.z * speed)
     end
 
+    function camera:Up(speed)
+        local position   = self:GetComponent("WorldPosition3D")
+        position.y = (position.y + speed)
+    end
+
+    function camera:Down(speed)
+        local position   = self:GetComponent("WorldPosition3D")
+        position.y = (position.y - speed)
+    end
+
     return camera
 end
 
@@ -145,6 +155,12 @@ function CameraUpdater:Update(camera, deltaMs)
     end
     if camera.MovingRight then
         camera:Right(camera.Speed)
+    end
+    if camera.MovingUp then
+        camera:Up(camera.Speed)
+    end
+    if camera.MovingDown then
+        camera:Down(camera.Speed)
     end
 end
 

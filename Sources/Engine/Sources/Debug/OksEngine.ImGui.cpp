@@ -81,17 +81,15 @@ namespace OksEngine
 
 		bool isKeyPressed = false;
 		for (auto& event : keyboardInput0->events_) {
-			if (event.first == UIAL::Window::KeyboardKey::F5 && event.second == UIAL::Window::KeyboardAction::Pressed) {
-				isKeyPressed = true;
-				break;
-			}
+			//if (event.first == UIAL::Window::KeyboardKey::F5 && event.second == UIAL::Window::KeyboardAction::Pressed) {
+			//	isKeyPressed = true;
+			//	break;
+			//}
 		}
 
 		if (!isKeyPressed) {
 			return;
 		}
-
-		DestroyEntity(entity0id);
 
 	};
 

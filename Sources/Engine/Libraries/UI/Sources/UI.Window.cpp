@@ -24,7 +24,7 @@ namespace UI {
 
 		glfwMakeContextCurrent(createdWindow);
 
-		glfwSetInputMode(createdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);/*GLFW_CURSOR_HIDDEN);*//*GLFW_CURSOR_NORMAL);*/
+		glfwSetInputMode(createdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);/*GLFW_CURSOR_HIDDEN);*///GLFW_CURSOR_NORMAL);
 		glfwSetCursorPosCallback(createdWindow, [](::GLFWwindow* window, double xpos, double ypos) {
 
 			static double xPrevious = xpos;
@@ -110,6 +110,7 @@ namespace UI {
 	}
 
 	void Window::EnableCursor() {
+
 		glfwSetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
 	}
 

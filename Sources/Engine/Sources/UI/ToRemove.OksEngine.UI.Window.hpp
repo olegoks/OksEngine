@@ -255,7 +255,7 @@ namespace OksEngine {
 	//			if (event.key_ == UIAL::Window::KeyboardKey::F5 && event.event_ == UIAL::Window::KeyboardAction::Released) {
 	//				if (!cursorEnabled) {
 	//					window->window_->EnableCursor();
-	//					disableEvents = true;
+	//					  = true;
 	//					cursorEnabled = true;
 	//				} else {
 	//					window->window_->DisableCursor();
