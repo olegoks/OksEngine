@@ -106,12 +106,15 @@ namespace UI {
 
 
 	void Window::DisableCursor() {
+		glfwSetWindowAttrib(reinterpret_cast<::GLFWwindow*>(window_), GLFW_FOCUSED, GLFW_TRUE);
 		glfwSetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
 	}
 
 	void Window::EnableCursor() {
 
-		glfwSetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		glfwSetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
+		glfwSetWindowAttrib(reinterpret_cast<::GLFWwindow*>(window_), GLFW_FOCUSED, GLFW_TRUE);
 	}
 
 	[[nodiscard]]

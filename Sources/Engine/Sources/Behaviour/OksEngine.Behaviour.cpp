@@ -113,8 +113,6 @@ namespace OksEngine
 				OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
 			}
 
-
-
 		};
 
 		void CallMouseInputProcessor::Update(

@@ -25,7 +25,6 @@ function Camera:New()
     camera.MovingRight = false
     camera.MovingUp = false
     camera.MovingDown = false
-    --print("Camera:New() bnegin",     camera.MovingForward)
 
     function camera:GetSpeed()
         if self.SpeedBoostEnabled then
@@ -36,7 +35,6 @@ function Camera:New()
     end
 
     function camera:Forward(speed)
-        --print("camera:Forward()")
         local position = self:GetComponent("WorldPosition3D")
         local direction = self:GetComponent("Direction3D")
 
@@ -108,7 +106,6 @@ function Camera:New()
 
         local up = self:GetComponent("Up3D")
         local upDirPerpendicular = Math3D():CrossProduct(direction, up)
-        print("got components")
         upDirPerpendicular:Normalize()
         local newDirection = Math3D():RotateVector(direction, upDirPerpendicular, degree);
         newDirection:Normalize()
@@ -223,8 +220,8 @@ function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
 end
 
 function CameraInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY)
-    print("OffsetX:", offsetX)
-    print("OffsetY:", offsetY)
+    --print("OffsetX:", offsetX)
+    --print("OffsetY:", offsetY)
 
     --TODO: change SpeedBoostFactor by mouse wheel movement
     camera:DirectionUpDown((offsetY / 1000.0))
