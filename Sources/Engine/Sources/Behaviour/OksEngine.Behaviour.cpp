@@ -108,45 +108,10 @@ namespace OksEngine
 				std::string keyboardEvent = "";
 				keyboardKey = magic_enum::enum_name(key).data();		// "W"
 				keyboardEvent = magic_enum::enum_name(event).data();	// "Pressed"
-				processKeyboardInputMethod(luaObjectInputProcessor, luaObject, keyboardKey, keyboardEvent);
+				const auto result = processKeyboardInputMethod(luaObjectInputProcessor, luaObject, keyboardKey, keyboardEvent);
+			
+				OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
 			}
-
-			//while (keyboardInput0->events_) {
-			//	std::string keyboardKey = "";
-			//	std::string keyboardEvent = "";
-			//	if (keyboardInput->HasEvent()) {
-			//		auto event = keyboardInput->GetEvent();
-			//		keyboardKey = magic_enum::enum_name(event.key_).data();
-			//		keyboardEvent = magic_enum::enum_name(event.event_).data();
-			//	}
-			//	float xOffset = 0.f;
-			//	float yOffset = 0.f;
-			//	const luabridge::LuaResult result = processInput(inputProcessor,
-			//		object,
-			//		keyboardKey.c_str(),
-			//		keyboardEvent.c_str(),
-			//		xOffset,
-			//		yOffset);
-			//	OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
-			//}
-			//while (mouseInput->HasEvent()) {
-			//	std::string keyboardKey = "";
-			//	std::string keyboardEvent = "";
-			//	float xOffset = 0.f;
-			//	float yOffset = 0.f;
-			//	if (mouseInput->HasEvent()) {
-			//		auto event = mouseInput->GetEvent();
-			//		xOffset = event.offset_.x;
-			//		yOffset = event.offset_.y;
-			//	}
-			//	const luabridge::LuaResult result = processInput(inputProcessor,
-			//		object,
-			//		keyboardKey.c_str(),
-			//		keyboardEvent.c_str(),
-			//		xOffset,
-			//		yOffset);
-			//	OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
-			//}
 
 
 
@@ -174,8 +139,8 @@ namespace OksEngine
 				std::string mouseEvent = "";
 				//mouseKey = magic_enum::enum_name(event.key_).data();		// "LEFT_BUTTON"
 				//mouseEvent = magic_enum::enum_name(event.event_).data();	// "Pressed"
-				processMouseInputMethod(luaObjectInputProcessor, luaObject, mouseKey, mouseEvent, event.offset_.x, event.offset_.y);
-
+				const auto result = processMouseInputMethod(luaObjectInputProcessor, luaObject, mouseKey, mouseEvent, event.offset_.x, event.offset_.y);
+				OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
 				mouseEvents.pop();
 			}
 

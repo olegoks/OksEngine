@@ -18,7 +18,8 @@ function Camera:New()
     camera.DirectionUp = false
     camera.DirectionDown = false
     camera.MovingForward = false
-    camera.SpeedBoost = false
+    camera.SpeedBoostFactor = 2.0
+    camera.SpeedBoostEnabled = false
     camera.MovingBackward = false
     camera.MovingLeft = false
     camera.MovingRight = false
@@ -26,76 +27,39 @@ function Camera:New()
     camera.MovingDown = false
     --print("Camera:New() bnegin",     camera.MovingForward)
 
-    function camera:Forward()
+    function camera:GetSpeed()
+        if self.SpeedBoostEnabled then
+            return self.Speed * self.SpeedBoostFactor
+        else 
+            return self.Speed
+        end
+    end
+
+    function camera:Forward(speed)
         --print("camera:Forward()")
         local position = self:GetComponent("WorldPosition3D")
         local direction = self:GetComponent("Direction3D")
-        position.x = (position.x + direction.x * self.Speed)
-        position.y = (position.y + direction.y * self.Speed)
-        position.z = (position.z + direction.z * self.Speed)
+
+        position.x = (position.x + direction.x * speed)
+        position.y = (position.y + direction.y * speed)
+        position.z = (position.z + direction.z * speed)
     end
 
-    function camera:Backward()
-        local position = self:GetComponent("WorldPosition3D")
-        local direction = self:GetComponent("Direction3D")
-        position.x = (position.x - direction.x * self.Speed)
-        position.y = (position.y - direction.y * self.Speed)
-        position.z = (position.z - direction.z * self.Speed)
-    end
-
-    --For mouse
-    function camera:DirectionUpDown(degree)
-        print("DirectionUpDown degree:", degree)
+    function camera:Backward(speed)
         local position = self:GetComponent("WorldPosition3D")
         local direction = self:GetComponent("Direction3D")
 
-        local up = self:GetComponent("Up3D")
-        local upDirPerpendicular = Math3D():CrossProduct(direction, up)
-        print("got components")
-        upDirPerpendicular:Normalize()
-        local newDirection = Math3D():RotateVector(direction, upDirPerpendicular, degree);
-        newDirection:Normalize()
-        direction.x = newDirection.x
-        direction.y = newDirection.y
-        direction.z = newDirection.z
-        local newUp = Math3D():RotateVector(up, upDirPerpendicular, degree)
-        newUp:Normalize()
-        up.x = newUp.x
-        up.y = newUp.y
-        up.z = newUp.z
+        position.x = (position.x - direction.x * speed)
+        position.y = (position.y - direction.y * speed)
+        position.z = (position.z - direction.z * speed)
     end
 
-    --For mouse
-    function camera:DirectionLeftRight(degree)
-        print("DirectionLeftRight degree:", degree)
-  
-        local direction = self:GetComponent("Direction3D")
-        local up = self:GetComponent("Up3D")
-        local verticalUp = Vector(0.0, 1.0, 0.0)
-
-        local rotatedDirection = Math3D():RotateVector(direction, verticalUp, degree)
-        rotatedDirection:Normalize()
-        direction.x = rotatedDirection.x
-        direction.y = rotatedDirection.y
-        direction.z = rotatedDirection.z
-
-        local rotatedUp = Math3D():RotateVector(up, verticalUp, degree)
-        rotatedUp:Normalize()
-        up.x = rotatedUp.x
-        up.y = rotatedUp.y
-        up.z = rotatedUp.z
-
-        rotatedUp:Normalize()
-
-    end
 
     function camera:Left(speed)
 
         local position   = self:GetComponent("WorldPosition3D")
         local direction  = self:GetComponent("Direction3D")
         local up         = self:GetComponent("Up3D")
-
-        local test = Vector(up.x, up.y, up.z)
 
         local pVector = Math3D():CrossProduct(
             Vector(up.x, up.y, up.z),
@@ -128,12 +92,56 @@ function Camera:New()
 
     function camera:Up(speed)
         local position   = self:GetComponent("WorldPosition3D")
-        position.y = (position.y + speed)
+        position.y = (position.y + speed * self.SpeedBoostFactor)
     end
 
     function camera:Down(speed)
         local position   = self:GetComponent("WorldPosition3D")
-        position.y = (position.y - speed)
+        position.y = (position.y - speed * self.SpeedBoostFactor)
+    end
+
+
+    --For mouse
+    function camera:DirectionUpDown(degree)
+        local position = self:GetComponent("WorldPosition3D")
+        local direction = self:GetComponent("Direction3D")
+
+        local up = self:GetComponent("Up3D")
+        local upDirPerpendicular = Math3D():CrossProduct(direction, up)
+        print("got components")
+        upDirPerpendicular:Normalize()
+        local newDirection = Math3D():RotateVector(direction, upDirPerpendicular, degree);
+        newDirection:Normalize()
+        direction.x = newDirection.x
+        direction.y = newDirection.y
+        direction.z = newDirection.z
+        local newUp = Math3D():RotateVector(up, upDirPerpendicular, degree)
+        newUp:Normalize()
+        up.x = newUp.x
+        up.y = newUp.y
+        up.z = newUp.z
+    end
+
+    --For mouse
+    function camera:DirectionLeftRight(degree)
+        local direction = self:GetComponent("Direction3D")
+        local up = self:GetComponent("Up3D")
+        local verticalUp = Vector(0.0, 1.0, 0.0)
+
+        local rotatedDirection = Math3D():RotateVector(direction, verticalUp, degree)
+        rotatedDirection:Normalize()
+        direction.x = rotatedDirection.x
+        direction.y = rotatedDirection.y
+        direction.z = rotatedDirection.z
+
+        local rotatedUp = Math3D():RotateVector(up, verticalUp, degree)
+        rotatedUp:Normalize()
+        up.x = rotatedUp.x
+        up.y = rotatedUp.y
+        up.z = rotatedUp.z
+
+        rotatedUp:Normalize()
+
     end
 
     return camera
@@ -142,25 +150,27 @@ end
 CameraUpdater = {}
 
 function CameraUpdater:Update(camera, deltaMs)
-    --print("CameraUpdater:Update")
-    --print("camera.MovingForward: ", tostring(camera.MovingForward))
+
+
+    local speed = camera:GetSpeed()
+
     if camera.MovingForward then
-        camera:Forward(camera.Speed)
+        camera:Forward(speed)
     end
     if camera.MovingBackward then
-        camera:Backward(camera.Speed)
+        camera:Backward(speed)
     end
     if camera.MovingLeft then
-        camera:Left(camera.Speed)
+        camera:Left(speed)
     end
     if camera.MovingRight then
-        camera:Right(camera.Speed)
+        camera:Right(speed)
     end
     if camera.MovingUp then
-        camera:Up(camera.Speed)
+        camera:Up(speed)
     end
     if camera.MovingDown then
-        camera:Down(camera.Speed)
+        camera:Down(speed)
     end
 end
 
@@ -203,11 +213,11 @@ function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
         elseif Event == "Released" then
             camera.MovingBackward = false
         end
-    elseif Key == "LeftShift" then
+    elseif Key == "LEFT_SHIFT" then
         if Event == "Pressed" then
-            camera.SpeedBoost = true
+            camera.SpeedBoostEnabled = true
         elseif Event == "Released" then
-            camera.SpeedBoost = false
+            camera.SpeedBoostEnabled = false
         end
     end
 end
@@ -215,6 +225,8 @@ end
 function CameraInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY)
     print("OffsetX:", offsetX)
     print("OffsetY:", offsetY)
+
+    --TODO: change SpeedBoostFactor by mouse wheel movement
     camera:DirectionUpDown((offsetY / 1000.0))
     camera:DirectionLeftRight((offsetX / 1000.0))
 end
