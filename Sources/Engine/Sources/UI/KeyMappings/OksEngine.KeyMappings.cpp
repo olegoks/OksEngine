@@ -3,25 +3,77 @@
 
 namespace OksEngine
 {
-namespace UI
-{
-void EditKeyMappings(std::shared_ptr<ECS2::World> ecsWorld, KeyMappings *keyMappings) {};
+	namespace UI
+	{
+		void EditKeyMappings(std::shared_ptr<ECS2::World> ecsWorld, KeyMappings* keyMappings) {
+			
+			if (ImGui::BeginTable("KeyMappings", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
+				// Заголовки таблицы
+				ImGui::TableSetupColumn("Key");
+				ImGui::TableSetupColumn("Value");
+				ImGui::TableHeadersRow();
 
-void AddKeyMappings(ECS2::World *ecsWorld, ECS2::Entity::Id entityId) {};
+				// Вывод данных
+				for (const auto& [key, value] : keyMappings->mappings_) {
+					ImGui::TableNextRow();
 
-void BindKeyMappings(::Lua::Context &context) {};
+					ImGui::TableSetColumnIndex(0);
+					ImGui::Text("%s", key.c_str());
 
-KeyMappings ParseKeyMappings(luabridge::LuaRef &keyMappingsRef) {
-	
-	return KeyMappings{};
+					ImGui::TableSetColumnIndex(1);
+					ImGui::Text("%s", value.c_str());
+				}
 
-};
+				ImGui::EndTable();
+			}
+		
+		};
 
-std::string SerializeKeyMappings(const KeyMappings *keyMappings) {
-	
-	return "";
-};
+		void AddKeyMappings(ECS2::World* ecsWorld, ECS2::Entity::Id entityId) {
+		
+		
+		
+		};
 
-} // namespace UI
+		void BindKeyMappings(::Lua::Context& context) {
+		
+		
+		
+		};
+
+		KeyMappings ParseKeyMappings(luabridge::LuaRef& keyMappingsRef) {
+
+			KeyMappings keyMappings;
+
+			for (luabridge::Iterator it(keyMappingsRef); !it.isNil(); ++it) {
+				luabridge::LuaRef record = it.value();
+
+				const std::string key = record["key"].cast<std::string>().value();
+				const std::string value = record["value"].cast<std::string>().value();
+
+				keyMappings.mappings_[key] = value;
+
+			}
+
+			return keyMappings;
+
+		};
+
+		std::string SerializeKeyMappings(const KeyMappings* keyMappings) {
+
+			using namespace std::string_literals;
+			
+			std::string luaScript = "keyMappings = {";
+
+			for (auto [key, value] : keyMappings->mappings_) {
+				luaScript += "{ key = \"" + key + "\", value = \"" + value + "\" },";
+			}
+
+			luaScript += "}";
+
+			return luaScript;
+		};
+
+	} // namespace UI
 
 } // namespace OksEngine

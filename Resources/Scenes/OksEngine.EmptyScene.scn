@@ -58,6 +58,13 @@ scene = {
             active = {},
             scriptName = { name = "Camera.lua" },
             objectName = { name = "Camera" },
+            keyMappings = { 
+                { key = "W", value = "UI_CAMERA_FORWARD" }, 
+                { key = "S", value = "UI_CAMERA_BACK" },
+                { key = "A", value = "UI_CAMERA_LEFT" },
+                { key = "D", value = "UI_CAMERA_RIGHT" }, 
+                { key = "LEFT_SHIFT", value = "UI_CAMERA_SPEED_BOOST" }
+            },
             handleKeyboardInput = {},
             handleMouseInput = {}
         },
