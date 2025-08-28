@@ -45,7 +45,7 @@ namespace ECSGenerator2 {
 
 					return true;
 					});
-
+				return true;
 				});
 			if (needToIncludeEditEntity) {
 				includes.paths_.insert("auto_OksEngine.EditEntity.hpp");
@@ -82,6 +82,9 @@ namespace ECSGenerator2 {
 					if (fieldInfo.GetTypeName().find("Geom:") != std::string::npos) {
 						includes.paths_.insert("Geometry.hpp");
 					}
+					if (fieldInfo.GetTypeName().find("std::map") != std::string::npos) {
+						includes.paths_.insert("map");
+					}
 					if (fieldInfo.GetTypeName().find("UIAL::Window") != std::string::npos) {
 						includes.paths_.insert("UIAL.Window.hpp");
 					}
@@ -110,6 +113,7 @@ namespace ECSGenerator2 {
 					return true;
 					});
 
+				return true;
 				});
 
 			if (parsedECSFile->GetName() == "OksEngine.Clock") {
@@ -246,18 +250,48 @@ namespace ECSGenerator2 {
 						std::vector<std::shared_ptr<CodeStructure::Base>> bases;
 						auto componentStruct = componentGenerator.GenerateComponentStruct(parsedComponent);
 						bases.push_back(componentStruct);
-						auto editFunction = componentGenerator.GenerateEditFunction(parsedComponent);
-						bases.push_back(editFunction);
-						auto addFunction = componentGenerator.GenerateAddFunction(parsedComponent);
-						bases.push_back(addFunction);
-						//auto templateEditFunction = componentGenerator.GenerateTemplateEditFunction(parsedComponent);
-						//bases.push_back(templateEditFunction);
-						auto bindFunction = componentGenerator.GenerateBindFunction(parsedComponent);
-						bases.push_back(bindFunction);
-						auto parseFunction = componentGenerator.GenerateParseFunction(parsedComponent);
-						bases.push_back(parseFunction);
-						auto serializeFunction = componentGenerator.GenerateSerializeFunction(parsedComponent);
-						bases.push_back(serializeFunction);
+
+						//If we want to create realization of help functions manually generate only prototype in .hpp file.
+						{
+							auto editFunction
+								= (parsedComponent->ci_.manualEditFunction_)
+								? (componentGenerator.GenerateEditFunctionPrototype(parsedComponent))
+								: (componentGenerator.GenerateEditFunctionRealization(parsedComponent));
+
+							bases.push_back(editFunction);
+						}
+						{
+							auto addFunction
+								= (parsedComponent->ci_.manualAddFunction_)
+								? (componentGenerator.GenerateAddFunctionPrototype(parsedComponent))
+								: (componentGenerator.GenerateAddFunctionRealization(parsedComponent));
+
+							bases.push_back(addFunction);
+						}
+						{
+							auto bindFunction
+								= (parsedComponent->ci_.manualBindFunction_)
+								? (componentGenerator.GenerateBindFunctionPrototype(parsedComponent))
+								: (componentGenerator.GenerateBindFunctionRealization(parsedComponent));
+
+							bases.push_back(bindFunction);
+						}
+						{
+							auto parseFunction
+								= (parsedComponent->ci_.manualParseFunction_)
+								? (componentGenerator.GenerateParseFunctionPrototype(parsedComponent))
+								: (componentGenerator.GenerateParseFunctionRealization(parsedComponent));
+
+							bases.push_back(parseFunction);
+						}
+						{
+							auto serializeFunction
+								= (parsedComponent->ci_.manualSerializeFunction_)
+								? (componentGenerator.GenerateSerializeFunctionPrototype(parsedComponent))
+								: (componentGenerator.GenerateSerializeFunctionRealization(parsedComponent));
+
+							bases.push_back(serializeFunction);
+						}
 
 						auto componentIncludes = componentGenerator.GenerateIncludes(parsedComponent);
 						includes.paths_.insert(componentIncludes.paths_.begin(), componentIncludes.paths_.end());
@@ -265,6 +299,7 @@ namespace ECSGenerator2 {
 						return bases;
 					}
 
+					return std::vector<std::shared_ptr<ECSGenerator2::CodeStructure::Base>>{};
 					};
 
 
@@ -443,6 +478,43 @@ namespace ECSGenerator2 {
 							if (parsedSystem->ci_.afterUpdateMethod_ != nullptr) {
 								bases.push_back(generateAfterUpdateMethod(parsedSystem));
 							}
+							return bases;
+						}
+						if (table->GetType() == ParsedTable::Type::Component) {
+							auto parsedComponent = std::dynamic_pointer_cast<ParsedComponent>(table);
+							//If we want to create realization of help functions manually generate only prototype in .hpp file.
+
+							ComponentCodeStructureGenerator::CreateInfo ccsgci{
+								.includeDirectory_ = includeDirectory
+							};
+
+							ComponentCodeStructureGenerator componentGenerator{ ccsgci };
+
+							std::vector<std::shared_ptr<CodeStructure::Base>> bases;
+
+							if (parsedComponent->ci_.manualEditFunction_) {
+								auto editFunction = componentGenerator.GenerateEditFunctionEmptyRealization(parsedComponent);
+								bases.push_back(editFunction);
+							}
+							if (parsedComponent->ci_.manualAddFunction_) {
+								auto addFunction = componentGenerator.GenerateAddFunctionEmptyRealization(parsedComponent);
+
+								bases.push_back(addFunction);
+							}
+							if (parsedComponent->ci_.manualBindFunction_) {
+								auto bindFunction = componentGenerator.GenerateBindFunctionEmptyRealization(parsedComponent);
+								bases.push_back(bindFunction);
+							}
+							if (parsedComponent->ci_.manualParseFunction_) {
+								auto parseFunction = componentGenerator.GenerateParseFunctionEmptyRealization(parsedComponent);
+								bases.push_back(parseFunction);
+							}
+							if (parsedComponent->ci_.manualSerializeFunction_) {
+								auto serializeFunction = componentGenerator.GenerateSerializeFunctionEmptyRealization(parsedComponent);
+
+								bases.push_back(serializeFunction);
+							}
+
 							return bases;
 						}
 						return std::vector<std::shared_ptr<CodeStructure::Base>>{};
@@ -816,13 +888,13 @@ namespace ECSGenerator2 {
 
 						std::string fullComponentNamespace;
 
-						for (Common::Index i = 0; i < childTables.size();i++) {
+						for (Common::Index i = 0; i < childTables.size(); i++) {
 							fullComponentNamespace += childTables[i]->GetName();
 							if (i != childTables.size() - 1) {
 								fullComponentNamespace += "::";
 							}
 						}
-						
+
 						code.Add("{");
 						if (!childTables.empty()) {
 							code.Add("using namespace {};", fullComponentNamespace);
@@ -1792,7 +1864,7 @@ namespace ECSGenerator2 {
 					//	));
 					//}
 
-					
+
 					CodeStructure::Code runThreadSystems;
 					for (Common::Index i = 0; i < thread.systemsOrder_.order_.size(); i++) {
 						runThreadSystems.Add(std::format(
@@ -2174,8 +2246,8 @@ namespace ECSGenerator2 {
 							OS::AssertMessage(parsedSystem != nullptr, "");
 #pragma endregion
 							DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, parsedSystem);
-							
-							
+
+
 							thread.callGraph_.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);
 							return true;
 							});
@@ -2398,7 +2470,7 @@ namespace ECSGenerator2 {
 					).c_str());
 				}
 
-				
+
 				//Generate code to run main thread systems.
 				{
 					CodeStructure::Code runMainThreadSystems;

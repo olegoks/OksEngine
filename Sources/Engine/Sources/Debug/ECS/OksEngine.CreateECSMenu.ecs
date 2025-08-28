@@ -1,14 +1,14 @@
 CreateECSMenuSystem = {
     callOrder = {
-        runBefore = "ClearKeyboardInput"
+        runBefore = "ClearKeyboardEvents"
     },
     updateMethod = {
         processesEntities = {
             {
                 processesComponents = {
                     "ImGuiState",
-                    "HandleKeyboardInput",
-                    "KeyboardInput"
+                    "HandleKeyboardEvents",
+                    "KeyboardEvents"
                 },
                 excludes = {
                     "ECSMenu"

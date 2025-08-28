@@ -1,11 +1,12 @@
 
-GetWindowMouseInputSystem = {
+-- Mouse keys
+GetWindowMouseEventsSystem = {
     updateMethod = {
         processesEntities = {
             {
                 processesComponents = {
                     { name = "MainWindow", readonly = false },
-                    { name = "MouseInput", readonly = false }
+                    { name = "MouseEvents", readonly = false }
                 }
             }
         }
@@ -13,38 +14,38 @@ GetWindowMouseInputSystem = {
 }
 
 
-CreateMouseInputSystem = {
+CreateMouseEventsSystem = {
     updateMethod = {
         processesEntities = {
             {
                 processesComponents = {
-                    "HandleMouseInput"
+                    "HandleMouseEvents"
                 },
-                createsComponents = { "MouseInput" },
-                excludes = { "MouseInput" }
+                createsComponents = { "MouseEvents" },
+                excludes = { "MouseEvents" }
             }
         }
     }
 }
 
-SendWindowMouseInputSystem = {
+SendWindowMouseEventsSystem = {
     callOrder = {
-        runAfter = "GetWindowMouseInput"
+        runAfter = "GetWindowMouseEvents"
     },
     updateMethod = {
          processesEntities = {
             {
                 processesComponents = {
                     "MainWindow",
-                    "MouseInput"
+                    "MouseEvents"
                 }
             },
             {
                 processesComponents = {
-                    "HandleMouseInput",
-                    { name = "MouseInput", readonly = false }
+                    "HandleMouseEvents",
+                    { name = "MouseEvents", readonly = false }
                 },
-                createsComponents = { "MouseInput" }
+                createsComponents = { "MouseEvents" }
             }
         }
     }
@@ -53,7 +54,7 @@ SendWindowMouseInputSystem = {
 
 
 
-ClearMouseInputSystem = {
+ClearMouseEventsSystem = {
     callOrder = {
         runAfter = "EndImGuiFrame"
     },
@@ -61,9 +62,10 @@ ClearMouseInputSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    { name = "MouseInput", readonly = false }
+                    { name = "MouseEvents", readonly = false }
                 }
             }
         }
     }
 }
+-- CUrsor

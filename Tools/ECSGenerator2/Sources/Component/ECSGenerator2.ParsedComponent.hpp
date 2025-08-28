@@ -33,7 +33,12 @@ namespace ECSGenerator2 {
 
 		struct CreateInfo {
 			std::string name_;
-			bool serializable_ = true;
+			bool serializable_ = true;		
+			bool manualEditFunction_ = false;
+			bool manualBindFunction_ = false;
+			bool manualAddFunction_ = false;
+			bool manualParseFunction_ = false;
+			bool manualSerializeFunction_ = false;
 			std::vector<FieldInfo> fields_;
 		};
 
@@ -48,6 +53,16 @@ namespace ECSGenerator2 {
 			return !ci_.fields_.empty();
 		}
 
+		[[nodiscard]]
+		bool IsNeedToImplementHelpFunction() const {
+			return 
+				ci_.manualEditFunction_ 
+				|| ci_.manualBindFunction_ 
+				|| ci_.manualAddFunction_ 
+				|| ci_.manualParseFunction_ 
+				|| ci_.manualSerializeFunction_;
+		}
+
 		using ProcessField = std::function<bool(const FieldInfo& fieldInfo, bool isLast)>;
 
 		void ForEachField(ProcessField&& processField) const {
@@ -58,6 +73,25 @@ namespace ECSGenerator2 {
 				}
 			}
 		}
+
+		[[nodiscard]]
+		bool IsContainsFieldWithType(std::string typeName) const {
+
+			bool isContainsFieldWithType = false;
+
+			ForEachField([&](const FieldInfo& fieldInfo, bool isLast) {
+				
+				if (fieldInfo.typeName_ == typeName) {
+					isContainsFieldWithType = true;
+					return false;
+				}
+
+				return true;
+				});
+
+			return isContainsFieldWithType;
+		}
+
 
 		bool CanBeCreatedFromImGui() const {
 			bool canCreateFromImgui = true;

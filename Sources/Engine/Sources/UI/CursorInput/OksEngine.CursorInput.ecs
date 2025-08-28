@@ -1,0 +1,12 @@
+
+HandleCursorEventsComponent = {
+    fields = { }
+}
+
+
+CursorEventsComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::queue<UIAL::Window::CursorEvent>", name = "events" }
+     }
+}

@@ -1,0 +1,66 @@
+CreateKeyboardEventsSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "HandleKeyboardEvents"
+                },
+                createsComponents = { "KeyboardEvents" },
+                excludes = { "KeyboardEvents" }
+            }
+        }
+    }
+}
+
+
+GetWindowKeyboardEventsSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MainWindow", readonly = false },
+                    { name = "KeyboardEvents", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+SendWindowKeyboardEventsSystem = {
+    callOrder = {
+        runAfter = "GetWindowKeyboardEvents"
+    },
+    updateMethod = {
+         processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    "KeyboardEvents"
+                }
+            },
+            {
+                processesComponents = {
+                    "HandleKeyboardEvents",
+                    { name = "KeyboardEvents", readonly = false }
+                },
+                createsComponents = { "KeyboardEvents" }
+            }
+        }
+    }
+   
+}
+
+ClearKeyboardEventsSystem = {
+    callOrder = {
+        runAfter = "EndImGuiFrame"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "KeyboardEvents", readonly = false }
+                }
+            }
+        }
+    }
+}

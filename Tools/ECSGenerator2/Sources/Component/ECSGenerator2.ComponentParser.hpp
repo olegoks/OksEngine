@@ -10,11 +10,48 @@ namespace ECSGenerator2 {
 			luabridge::LuaRef component,
 			const std::string& componentName) {
 
+			//Serializable
 			bool serializable = true;
 			luabridge::LuaRef serializableRef = component["serializable"];
 			if (!serializableRef.isNil()) {
 				serializable = serializableRef.cast<bool>().value();
 			}
+
+			//ManualEditFunction
+			bool manualEditFunction = false;
+			luabridge::LuaRef manualEditFunctionRef = component["manualEditFunction"];
+			if (!manualEditFunctionRef.isNil()) {
+				manualEditFunction = manualEditFunctionRef.cast<bool>().value();
+			}
+
+			//ManualBindFunction
+			bool manualBindFunction = false;
+			luabridge::LuaRef manualBindFunctionRef = component["manualBindFunction"];
+			if (!manualBindFunctionRef.isNil()) {
+				manualBindFunction = manualBindFunctionRef.cast<bool>().value();
+			}
+
+			//ManualAddFunction
+			bool manualAddFunction = false;
+			luabridge::LuaRef manualAddFunctionRef = component["manualAddFunction"];
+			if (!manualAddFunctionRef.isNil()) {
+				manualAddFunction = manualAddFunctionRef.cast<bool>().value();
+			}
+
+			//ManualParseFunction
+			bool manualParseFunction = false;
+			luabridge::LuaRef manualParseFunctionRef = component["manualParseFunction"];
+			if (!manualParseFunctionRef.isNil()) {
+				manualParseFunction = manualParseFunctionRef.cast<bool>().value();
+			}
+
+			//ManualSerializeFunction
+			bool manualSerializeFunction = false;
+			luabridge::LuaRef manualSerializeFunctionRef = component["manualSerializeFunction"];
+			if (!manualSerializeFunctionRef.isNil()) {
+				manualSerializeFunction = manualSerializeFunctionRef.cast<bool>().value();
+			}
+
 			luabridge::LuaRef fields = component["fields"];
 
 			if (componentName == "ECSMenu") {
@@ -41,6 +78,11 @@ namespace ECSGenerator2 {
 			ParsedComponent::CreateInfo ci{
 				.name_ = componentName,
 				.serializable_ = serializable,
+				.manualEditFunction_ = manualEditFunction,
+				.manualBindFunction_ = manualBindFunction,
+				.manualAddFunction_ = manualAddFunction,
+				.manualParseFunction_ = manualParseFunction,
+				.manualSerializeFunction_ = manualSerializeFunction,
 				.fields_ = parsedFields
 			};
 			auto parsedComponentFile = std::make_shared<ParsedComponent>(ci);

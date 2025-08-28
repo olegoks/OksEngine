@@ -119,7 +119,8 @@ namespace ECSGenerator2 {
 			return {};
 		}
 
-		std::shared_ptr<CodeStructure::Function> GenerateParseFunction(std::shared_ptr<ParsedComponent> component) {
+		//PARSE FUNCTION
+		std::shared_ptr<CodeStructure::Function> GenerateParseFunctionRealization(std::shared_ptr<ParsedComponent> component) {
 
 			if (component->ci_.serializable_) {
 				CodeStructure::Code realization;
@@ -163,8 +164,56 @@ namespace ECSGenerator2 {
 			return nullptr;
 
 		}
+		
+		std::shared_ptr<CodeStructure::Function> GenerateParseFunctionEmptyRealization(std::shared_ptr<ParsedComponent> component) {
 
-		std::shared_ptr<CodeStructure::Function> GenerateSerializeFunction(std::shared_ptr<ParsedComponent> component) {
+			if (component->ci_.serializable_) {
+				CodeStructure::Code realization;
+
+				CodeStructure::Function::CreateInfo fci{
+					.name_ = "Parse" + component->GetName(),
+					.parameters_ = {
+						{ "luabridge::LuaRef&", component->GetLowerName() + "Ref"}
+					},
+					.returnType_ = component->GetName(),
+					.code_ = realization,
+					.inlineModifier_ = false
+				};
+
+				auto parseFunuction = std::make_shared<CodeStructure::Function>(fci);
+
+				return parseFunuction;
+			}
+
+			return nullptr;
+
+		}
+
+		std::shared_ptr<CodeStructure::Function> GenerateParseFunctionPrototype(std::shared_ptr<ParsedComponent> component) {
+
+			if (component->ci_.serializable_) {
+
+				CodeStructure::Function::CreateInfo fci{
+					.name_ = "Parse" + component->GetName(),
+					.parameters_ = {
+						{ "luabridge::LuaRef&", component->GetLowerName() + "Ref"}
+					},
+					.returnType_ = component->GetName(),
+					.isPrototype_ = true,
+					.inlineModifier_ = false
+				};
+
+				auto parseFunuction = std::make_shared<CodeStructure::Function>(fci);
+
+				return parseFunuction;
+			}
+
+			return nullptr;
+
+		}
+
+		//SERIALIZE FUNCTION
+		std::shared_ptr<CodeStructure::Function> GenerateSerializeFunctionRealization(std::shared_ptr<ParsedComponent> component) {
 
 			//Serialize function.
 			if (component->ci_.serializable_) {
@@ -222,7 +271,56 @@ namespace ECSGenerator2 {
 			return nullptr;
 		}
 
-		std::shared_ptr<CodeStructure::Function> GenerateEditFunction(std::shared_ptr<ParsedComponent> component) {
+		std::shared_ptr<CodeStructure::Function> GenerateSerializeFunctionEmptyRealization(std::shared_ptr<ParsedComponent> component) {
+
+			//Serialize function.
+			if (component->ci_.serializable_) {
+
+				CodeStructure::Code luaScriptCode;
+
+				CodeStructure::Function::CreateInfo fci{
+					.name_ = "Serialize" + component->GetName(),
+					.parameters_ = {
+						{ "const " + component->GetName() + "*", component->GetLowerName()}
+					},
+					.returnType_ = "std::string",
+					.code_ = luaScriptCode,
+					.inlineModifier_ = false
+				};
+
+				auto serializeFunction = std::make_shared<CodeStructure::Function>(fci);
+
+				return serializeFunction;
+			}
+
+			return nullptr;
+		}
+
+		std::shared_ptr<CodeStructure::Function> GenerateSerializeFunctionPrototype(std::shared_ptr<ParsedComponent> component) {
+
+			//Serialize function.
+			if (component->ci_.serializable_) {
+
+				CodeStructure::Function::CreateInfo fci{
+					.name_ = "Serialize" + component->GetName(),
+					.parameters_ = {
+						{ "const " + component->GetName() + "*", component->GetLowerName()}
+					},
+					.returnType_ = "std::string",
+					.isPrototype_ = true,
+					.inlineModifier_ = false
+				};
+
+				auto serializeFunction = std::make_shared<CodeStructure::Function>(fci);
+
+				return serializeFunction;
+			}
+
+			return nullptr;
+		}
+
+		//EDIT FUNCTION
+		std::shared_ptr<CodeStructure::Function> GenerateEditFunctionRealization(std::shared_ptr<ParsedComponent> component) {
 
 			if (component->GetName() == "ChildModelNodeEntities") {
 				Common::BreakPointLine();
@@ -252,6 +350,49 @@ namespace ECSGenerator2 {
 				.returnType_ = "void",
 				.code_ = realization,
 				.inlineModifier_ = true
+			};
+
+			auto editFunction = std::make_shared<CodeStructure::Function>(fci1);
+
+			return editFunction;
+
+		}
+
+		std::shared_ptr<CodeStructure::Function> GenerateEditFunctionEmptyRealization(std::shared_ptr<ParsedComponent> component) {
+
+			if (component->GetName() == "ChildModelNodeEntities") {
+				Common::BreakPointLine();
+			}
+			CodeStructure::Code realization;
+
+			CodeStructure::Function::CreateInfo fci1{
+				.name_ = "Edit" + component->GetName(),
+				.parameters_ = {
+					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
+					{ component->GetName() + "*", component->GetLowerName()}
+				},
+				.returnType_ = "void",
+				.code_ = realization,
+				.inlineModifier_ = false
+			};
+
+			auto editFunction = std::make_shared<CodeStructure::Function>(fci1);
+
+			return editFunction;
+
+		}
+
+		std::shared_ptr<CodeStructure::Function> GenerateEditFunctionPrototype(std::shared_ptr<ParsedComponent> component) {
+
+			CodeStructure::Function::CreateInfo fci1{
+				.name_ = "Edit" + component->GetName(),
+				.parameters_ = {
+					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
+					{ component->GetName() + "*", component->GetLowerName()}
+				},
+				.returnType_ = "void",
+				.isPrototype_ = true,
+				.inlineModifier_ = false
 			};
 
 			auto editFunction = std::make_shared<CodeStructure::Function>(fci1);
@@ -314,7 +455,8 @@ namespace ECSGenerator2 {
 
 		}
 
-		std::shared_ptr<CodeStructure::Function> GenerateBindFunction(std::shared_ptr<ParsedComponent> component) {
+		//BIND FUNCTION
+		std::shared_ptr<CodeStructure::Function> GenerateBindFunctionRealization(std::shared_ptr<ParsedComponent> component) {
 
 			CodeStructure::Code realization;
 			realization.Add("context.GetGlobalNamespace()");
@@ -347,7 +489,46 @@ namespace ECSGenerator2 {
 
 		}
 
-		std::shared_ptr<CodeStructure::Function> GenerateAddFunction(std::shared_ptr<ParsedComponent> component) {
+		std::shared_ptr<CodeStructure::Function> GenerateBindFunctionEmptyRealization(std::shared_ptr<ParsedComponent> component) {
+
+			CodeStructure::Code realization;
+			CodeStructure::Function::CreateInfo fci{
+				.name_ = "Bind" + component->GetName(),
+				.parameters_ = {
+					{ "::Lua::Context&", "context" }
+				},
+				.returnType_ = "void",
+				.code_ = realization,
+				.inlineModifier_ = false
+			};
+
+			auto editFunction = std::make_shared<CodeStructure::Function>(fci);
+
+			return editFunction;
+
+		}
+
+
+		std::shared_ptr<CodeStructure::Function> GenerateBindFunctionPrototype(std::shared_ptr<ParsedComponent> component) {
+
+			CodeStructure::Function::CreateInfo fci{
+				.name_ = "Bind" + component->GetName(),
+				.parameters_ = {
+					{ "::Lua::Context&", "context" }
+				},
+				.returnType_ = "void",
+				.isPrototype_ = true,
+				.inlineModifier_ = false
+			};
+
+			auto editFunction = std::make_shared<CodeStructure::Function>(fci);
+
+			return editFunction;
+
+		}
+
+		//ADD FUNCTION
+		std::shared_ptr<CodeStructure::Function> GenerateAddFunctionRealization(std::shared_ptr<ParsedComponent> component) {
 
 			CodeStructure::Code realization;
 			if (component->CanBeCreatedFromImGui()) {
@@ -433,6 +614,45 @@ namespace ECSGenerator2 {
 
 			return editFunction;
 		}
+
+		std::shared_ptr<CodeStructure::Function> GenerateAddFunctionEmptyRealization(std::shared_ptr<ParsedComponent> component) {
+
+			CodeStructure::Code realization;
+
+			CodeStructure::Function::CreateInfo fci{
+				.name_ = "Add" + component->GetName(),
+				.parameters_ = {
+					{ "ECS2::World*", "ecsWorld" },
+					{ "ECS2::Entity::Id", "entityId" }
+				},
+				.returnType_ = "void",
+				.code_ = realization,
+				.inlineModifier_ = false
+			};
+
+			auto editFunction = std::make_shared<CodeStructure::Function>(fci);
+
+			return editFunction;
+		}
+
+		std::shared_ptr<CodeStructure::Function> GenerateAddFunctionPrototype(std::shared_ptr<ParsedComponent> component) {
+
+			CodeStructure::Function::CreateInfo fci{
+				.name_ = "Add" + component->GetName(),
+				.parameters_ = {
+					{ "ECS2::World*", "ecsWorld" },
+					{ "ECS2::Entity::Id", "entityId" }
+				},
+				.returnType_ = "void",
+				.isPrototype_ = true,
+				.inlineModifier_ = false
+			};
+
+			auto editFunction = std::make_shared<CodeStructure::Function>(fci);
+
+			return editFunction;
+		}
+
 
 		std::shared_ptr<CodeStructure::Struct> GenerateComponentStruct(std::shared_ptr<ParsedComponent> component) {
 

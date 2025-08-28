@@ -25,30 +25,77 @@ namespace UI {
 		glfwMakeContextCurrent(createdWindow);
 
 		glfwSetInputMode(createdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);/*GLFW_CURSOR_HIDDEN);*///GLFW_CURSOR_NORMAL);
-		glfwSetCursorPosCallback(createdWindow, [](::GLFWwindow* window, double xpos, double ypos) {
 
-			static double xPrevious = xpos;
-			static double yPrevious = ypos;
-			const double deltaX = xPrevious - xpos;
-			const double deltaY = yPrevious - ypos;
-			if (!Math::IsEqual(deltaX, 0.0) || !Math::IsEqual(deltaY, 0.0)) {
-				xPrevious = xpos;
-				yPrevious = ypos;
-				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
-				MouseEvent event;
-				event.position_ = { xpos, ypos };
-				event.offset_ = { deltaX, deltaY };
-				windowPtr->PushEvent(event);
+
+		//Keyboard callback.
+		glfwSetKeyCallback(createdWindow, [](::GLFWwindow* window, int key, int scancode, int action, int mods) {
+
+			//ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
+
+			Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
+			KeyboardKey keyboardKey = KeyboardKey::Undefined;
+			KeyAction event = KeyAction::Undefined;
+			keyboardKey = static_cast<KeyboardKey>(key);
+			if (action == GLFW_PRESS) {
+				event = KeyAction::Pressed;
 			}
+			else if (action == GLFW_RELEASE) {
+				event = KeyAction::Released;
+			}
+			else {
+				return;
+			}
+			windowPtr->PushEvent(KeyboardEvent{ keyboardKey, event });
 
 			});
 
+		//Cursor callback.
+		glfwSetCursorPosCallback(createdWindow,
+			[](::GLFWwindow* window, double xpos, double ypos) {
+
+				//OS::LogInfo("cursor_pos", { "X: {}, Y: {}", xpos, ypos });
+
+				//static double xPrevious = xpos;
+				//static double yPrevious = ypos;
+				//const double deltaX = xPrevious - xpos;
+				//const double deltaY = yPrevious - ypos;
+				//if (!Math::IsEqual(deltaX, 0.0) || !Math::IsEqual(deltaY, 0.0)) {
+				//	xPrevious = xpos;
+				//	yPrevious = ypos;
+				//	Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
+				//	MouseEvent event;
+				//	event.position_ = { xpos, ypos };
+				//	event.offset_ = { deltaX, deltaY };
+				//	windowPtr->PushEvent(event);
+				//}
+
+			});
+
+
+		//glfwSetMouseButtonCallback(createdWindow,
+		//	[](GLFWwindow* window, int button, int action, int mods) {
+
+
+
+		//	});
+
+		//glfwSetScrollCallback(createdWindow, [](GLFWwindow* window, double xoffset, double yoffset) {
+
+		//	//if (!Math::IsEqual(yoffset, 0.0)) {
+		//	//	Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
+		//	//	CursorEvent event;
+		//	//	event.scroll_ = yoffset;
+		//	//	windowPtr->PushEvent(event);
+		//	//}
+
+		//	});
+
 		ImGui::CreateContext();
 		//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		ImGuiIO& io = ImGui::GetIO(); 
-		io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
-		io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
-		io.WantCaptureMouse = true;
+		ImGuiIO& io = ImGui::GetIO();
+		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
+		//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		//io.WantCaptureMouse = true;
 		ImGui::StyleColorsDark();
 
 		ImGui_ImplGlfw_InitForVulkan(createdWindow, true);
@@ -76,26 +123,6 @@ namespace UI {
 
 			});
 
-		glfwSetKeyCallback(createdWindow, [](::GLFWwindow* window, int key, int scancode, int action, int mods) {
-			
-			ImGui_ImplGlfw_KeyCallback(window, key, scancode, action, mods);
-
-			Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
-			KeyboardKey keyboardKey = KeyboardKey::Undefined;
-			KeyboardAction event = KeyboardAction::Undefined;
-			keyboardKey = static_cast<KeyboardKey>(key);
-			if (action == GLFW_PRESS) {
-				event = KeyboardAction::Pressed;
-			}
-			else if (action == GLFW_RELEASE) {
-				event = KeyboardAction::Released;
-			}
-			else {
-				return;
-			}
-			windowPtr->PushEvent(KeyboardEvent{ keyboardKey, event });
-
-			});
 		glfwSetErrorCallback([](int error, const char* description) {
 			std::cerr << "GLFW Error (" << error << "): " << description << std::endl;
 			});
@@ -106,7 +133,7 @@ namespace UI {
 
 
 	void Window::DisableCursor() {
-		glfwSetWindowAttrib(reinterpret_cast<::GLFWwindow*>(window_), GLFW_FOCUSED, GLFW_TRUE);
+		//glfwSetWindowAttrib(reinterpret_cast<::GLFWwindow*>(window_), GLFW_FOCUSED, GLFW_TRUE);
 		glfwSetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
 	}
@@ -114,7 +141,8 @@ namespace UI {
 	void Window::EnableCursor() {
 
 		glfwSetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
-		glfwSetWindowAttrib(reinterpret_cast<::GLFWwindow*>(window_), GLFW_FOCUSED, GLFW_TRUE);
+
+
 	}
 
 	[[nodiscard]]
@@ -152,7 +180,7 @@ namespace UI {
 	void Window::ProcessInput() {
 		ImGui_ImplGlfw_NewFrame();
 		if (!glfwWindowShouldClose(reinterpret_cast<::GLFWwindow*>(window_))) {
-			
+
 			glfwPollEvents();
 		}
 	}

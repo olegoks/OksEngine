@@ -1,0 +1,12 @@
+UINamespace = {
+    KeyMappingsComponent = {
+        fields = {
+            { type = "std::map<std::string, std::string>", name = "mappings" }
+        },
+        manualEditFunction = true,
+        manualBindFunction = true,
+        manualAddFunction = true,
+        manualParseFunction = true,
+        manualSerializeFunction = true,
+    }
+}

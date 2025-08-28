@@ -121,7 +121,17 @@ int main(int argc, char** argv) {
 			const bool isFileExist = resourceSystem.IsFileExist(ecsCppPath);
 			if (!isFileExist) {
 				const bool isContainsSystem = parsedECSFile->IsContainsSystems();
-				if (isContainsSystem) {
+				bool needToRealizeHelpFunctions = false;
+				
+				parsedECSFile->ForEachComponent([&](ECSGenerator2::ParsedComponentPtr parsedComponent) {
+					
+					needToRealizeHelpFunctions = parsedComponent->IsNeedToImplementHelpFunction();
+					if (needToRealizeHelpFunctions) {
+						return false;
+					}
+					return true;
+					});
+				if (isContainsSystem || needToRealizeHelpFunctions) {
 					auto systemCppFile = codeStructureGenerator.GenerateECSFileCppFile(includeDirArgv, parsedECSFile);
 					structureFiles[ecsCppPath] = systemCppFile;
 				}

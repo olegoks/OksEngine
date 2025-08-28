@@ -117,16 +117,18 @@ namespace ECSGenerator2 {
 		}
 
 		//Access components.
-		using ProcessComponent = std::function<void(std::shared_ptr<ParsedComponent>)>;
+		using ProcessComponent = std::function<bool(std::shared_ptr<ParsedComponent>)>;
 
 		void ForEachComponent(ProcessComponent&& processComponent) {
 			ForEachTable([&](std::shared_ptr<ParsedTable> table) {
 				if (table->GetType() == ParsedTable::Type::Component) {
 					auto parsedComponent = std::dynamic_pointer_cast<ParsedComponent>(table);
-					processComponent(parsedComponent);
+					const bool isContinue = processComponent(parsedComponent);
+					return isContinue;
 					//TODO: process
-					return true;
+
 				}
+				return true;
 				});
 		}
 
@@ -154,8 +156,9 @@ namespace ECSGenerator2 {
 					auto parsedStruct = std::dynamic_pointer_cast<ParsedStruct>(table);
 					processStruct(parsedStruct);
 					//TODO: process
-					return true;
+
 				}
+				return true;
 				});
 		}
 
