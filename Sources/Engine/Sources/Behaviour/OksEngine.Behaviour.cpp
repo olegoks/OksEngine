@@ -27,9 +27,9 @@ namespace OksEngine
 				= resourceSystem0->system_->GetResourceSynch(
 					Subsystem::Type::ChildThread, "Root/Entity.lua");
 
-			Resources::ResourceData math3DResourceData
-				= resourceSystem0->system_->GetResourceSynch(
-					Subsystem::Type::ChildThread, "Root/Math3D.lua");
+			//Resources::ResourceData math3DResourceData
+			//	= resourceSystem0->system_->GetResourceSynch(
+			//		Subsystem::Type::ChildThread, "Root/Math3D.lua");
 
 			CreateComponent<LuaScript>(entity1id,
 	/*			std::string{
@@ -115,33 +115,62 @@ namespace OksEngine
 
 		};
 
+		void CallCursorEventsProcessor::Update(
+			ECS2::Entity::Id entity0id,
+			const ScriptName* scriptName0,
+			const ObjectName* objectName0,
+			LuaContext* luaContext0,
+			CursorEvents* cursorInput0) {
+
+
+			luabridge::LuaRef luaObject = luaContext0->context_->GetGlobalAsRef("object");
+
+			luabridge::LuaRef luaObjectInputProcessor = luaContext0->context_->GetGlobalAsRef(objectName0->name_ + "InputProcessor");
+			luabridge::LuaRef processMouseInputMethod = luaObjectInputProcessor["ProcessMouseInput"];
+
+			auto cursorEvents = cursorInput0->events_;
+
+			while (!cursorEvents.empty()) {
+				const auto& event = cursorEvents.back();
+
+				std::string mouseKey = "";
+				std::string mouseEvent = "";
+				//mouseKey = magic_enum::enum_name(event.key_).data();		// "LEFT_BUTTON"
+				//mouseEvent = magic_enum::enum_name(event.event_).data();	// "Pressed"
+				const auto result = processMouseInputMethod(luaObjectInputProcessor, luaObject, mouseKey, mouseEvent, event.offset_.x, event.offset_.y, 0.0f);
+				OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
+				cursorEvents.pop();
+			}
+
+
+		}
+
 		void CallMouseEventsProcessor::Update(
 			ECS2::Entity::Id entity0id,
 			const ScriptName* scriptName0,
 			const ObjectName* objectName0,
 			LuaContext* luaContext0,
-			MouseEvents* mouseInput0) {
+			MouseEvents* mouseEvents0) {
 
 
-			//luabridge::LuaRef luaObject = luaContext0->context_->GetGlobalAsRef("object");
+			luabridge::LuaRef luaObject = luaContext0->context_->GetGlobalAsRef("object");
 
-			//luabridge::LuaRef luaObjectInputProcessor = luaContext0->context_->GetGlobalAsRef(objectName0->name_ + "InputProcessor");
-			//luabridge::LuaRef processMouseInputMethod = luaObjectInputProcessor["ProcessMouseInput"];
+			luabridge::LuaRef luaObjectInputProcessor = luaContext0->context_->GetGlobalAsRef(objectName0->name_ + "InputProcessor");
+			luabridge::LuaRef processMouseInputMethod = luaObjectInputProcessor["ProcessMouseInput"];
 
-			//auto mouseEvents = mouseInput0->events_;
+			auto mouseEvents = mouseEvents0->events_;
 
-			//while (!mouseEvents.empty()) {
-			//	const auto& event = mouseEvents.back();
+			while (!mouseEvents.empty()) {
+				const auto& event = mouseEvents.back();
 
-			//	std::string mouseKey = "";
-			//	std::string mouseEvent = "";
-			//	//mouseKey = magic_enum::enum_name(event.key_).data();		// "LEFT_BUTTON"
-			//	//mouseEvent = magic_enum::enum_name(event.event_).data();	// "Pressed"
-			//	const auto result = processMouseInputMethod(luaObjectInputProcessor, luaObject, mouseKey, mouseEvent, event.offset_.x, event.offset_.y);
-			//	OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
-			//	mouseEvents.pop();
-			//}
-
+				std::string mouseKey = "";
+				std::string mouseEvent = "";
+				//mouseKey = magic_enum::enum_name(event.key_).data();		// "LEFT_BUTTON"
+				//mouseEvent = magic_enum::enum_name(event.event_).data();	// "Pressed"
+				const auto result = processMouseInputMethod(luaObjectInputProcessor, luaObject, mouseKey, mouseEvent, 0.0f, 0.0f, event.scroll_);
+				OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
+				mouseEvents.pop();
+			}
 
 		}
 

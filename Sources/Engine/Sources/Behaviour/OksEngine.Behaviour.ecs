@@ -89,6 +89,26 @@ BehaviourNamespace = {
         }
     },
 
+    CallCursorEventsProcessorSystem = {
+        callOrder = {
+            runAfter = "SendWindowCursorEvents",
+            runBefore = "ClearCursorEvents"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "ScriptName",
+                        "ObjectName",
+                        { name = "LuaContext",    readonly = false },
+                        { name = "CursorEvents", readonly = false },
+                        -- { name = "MouseEvents",    readonly = false }
+                    }
+                }
+            }
+        }
+    },
+
     CallMouseEventsProcessorSystem = {
         callOrder = {
             runAfter = "SendWindowMouseEvents",

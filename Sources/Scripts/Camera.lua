@@ -18,7 +18,7 @@ function Camera:New()
     camera.DirectionUp = false
     camera.DirectionDown = false
     camera.MovingForward = false
-    camera.SpeedBoostFactor = 2.0
+    camera.SpeedBoostFactor = 8.0
     camera.SpeedBoostEnabled = false
     camera.MovingBackward = false
     camera.MovingLeft = false
@@ -219,10 +219,21 @@ function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
     end
 end
 
-function CameraInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY)
+function CameraInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY, scroll)
     --print("OffsetX:", offsetX)
     --print("OffsetY:", offsetY)
+    --print("Scroll: ", scroll)
 
+    camera.SpeedBoostFactor = camera.SpeedBoostFactor + scroll / 5
+
+    if camera.SpeedBoostFactor < 2.0 then
+        camera.SpeedBoostFactor = 2.0
+    end
+
+    if camera.SpeedBoostFactor > 30.0 then
+        camera.SpeedBoostFactor = 30.0
+    end
+    
     --TODO: change SpeedBoostFactor by mouse wheel movement
     camera:DirectionUpDown((offsetY / 1000.0))
     camera:DirectionLeftRight((offsetX / 1000.0))

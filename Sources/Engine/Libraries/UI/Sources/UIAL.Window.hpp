@@ -235,6 +235,14 @@ namespace UIAL {
 		}
 
 		[[nodiscard]]
+		std::optional<CursorEvent> GetCursorEvent() noexcept {
+			if (cursorEvents_.empty()) return {};
+			CursorEvent event = cursorEvents_.front();
+			cursorEvents_.erase(cursorEvents_.begin());
+			return event;
+		}
+
+		[[nodiscard]]
 		std::optional<FrameBufferResizeEvent> GetFrameBufferResizeEvent() noexcept {
 			if (frameBufferResizeEvents_.empty()) return {};
 			FrameBufferResizeEvent event = frameBufferResizeEvents_.front();
@@ -257,6 +265,9 @@ namespace UIAL {
 		}
 		void PushEvent(const MouseEvent& event) noexcept {
 			mouseEvents_.push_back(event);
+		}
+		void PushEvent(const CursorEvent& event) noexcept {
+			cursorEvents_.push_back(event);
 		}
 		void PushEvent(const FrameBufferResizeEvent& event) noexcept {
 			frameBufferResizeEvents_.push_back(event);

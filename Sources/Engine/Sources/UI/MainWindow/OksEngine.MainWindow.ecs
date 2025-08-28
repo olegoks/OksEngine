@@ -25,6 +25,7 @@ CreateMainWindowSystem = {
                 "MainWindow",
                 "KeyboardEvents",
                 "MouseEvents",
+                "CursorEvents",
                 "MainWindowResizeEvent"
             }
         }

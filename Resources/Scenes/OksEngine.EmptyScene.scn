@@ -58,18 +58,19 @@ scene = {
             active = {},
             scriptName = { name = "Camera.lua" },
             objectName = { name = "Camera" },
+            handleKeyboardEvents = {},
+            handleMouseEvents = {},
+            handleCursorEvents = {},
             keyMappings = { 
-                { key = "W", value = "UI_CAMERA_FORWARD" }, 
-                { key = "S", value = "UI_CAMERA_BACK" },
-                { key = "A", value = "UI_CAMERA_LEFT" },
-                { key = "D", value = "UI_CAMERA_RIGHT" }, 
-                { key = "LEFT_SHIFT", value = "UI_CAMERA_SPEED_BOOST" }
-            },
-            handleKeyboardInput = {},
-            handleMouseInput = {}
+                { key = "W", value = "CAMERA_FORWARD" }, 
+                { key = "S", value = "CAMERA_BACK" },
+                { key = "A", value = "CAMERA_LEFT" },
+                { key = "D", value = "CAMERA_RIGHT" }, 
+                { key = "LEFT_SHIFT", value = "CAMERA_SPEED_BOOST" }
+            }
         },
  {
-     ID = 4,
+     ID = 5,
      name = {value ="Military" },
      worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
      worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },

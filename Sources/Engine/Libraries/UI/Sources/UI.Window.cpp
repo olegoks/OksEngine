@@ -53,42 +53,71 @@ namespace UI {
 		glfwSetCursorPosCallback(createdWindow,
 			[](::GLFWwindow* window, double xpos, double ypos) {
 
-				//OS::LogInfo("cursor_pos", { "X: {}, Y: {}", xpos, ypos });
+				OS::LogInfo("cursor_pos", { "X: {}, Y: {}", xpos, ypos });
 
-				//static double xPrevious = xpos;
-				//static double yPrevious = ypos;
-				//const double deltaX = xPrevious - xpos;
-				//const double deltaY = yPrevious - ypos;
-				//if (!Math::IsEqual(deltaX, 0.0) || !Math::IsEqual(deltaY, 0.0)) {
-				//	xPrevious = xpos;
-				//	yPrevious = ypos;
-				//	Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
-				//	MouseEvent event;
-				//	event.position_ = { xpos, ypos };
-				//	event.offset_ = { deltaX, deltaY };
-				//	windowPtr->PushEvent(event);
-				//}
+				static double xPrevious = xpos;
+				static double yPrevious = ypos;
+				const double deltaX = xPrevious - xpos;
+				const double deltaY = yPrevious - ypos;
+				if (!Math::IsEqual(deltaX, 0.0) || !Math::IsEqual(deltaY, 0.0)) {
+					xPrevious = xpos;
+					yPrevious = ypos;
+					Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
+					CursorEvent event;
+					event.position_ = { xpos, ypos };
+					event.offset_ = { deltaX, deltaY };
+					windowPtr->PushEvent(event);
+				}
 
 			});
 
 
-		//glfwSetMouseButtonCallback(createdWindow,
-		//	[](GLFWwindow* window, int button, int action, int mods) {
+		glfwSetMouseButtonCallback(createdWindow,
+			[](::GLFWwindow* window, int button, int action, int mods) {
 
+				MouseEvent event;
+				if (action == GLFW_PRESS) {
+					event.event_ = KeyAction::Pressed;
+				}
+				else if (action == GLFW_RELEASE) {
+					event.event_ = KeyAction::Released;
+				}
+				else {
+					return;
+				}
 
+				
+				MouseKey key = MouseKey::Undefined;
+				
+				if (button == GLFW_MOUSE_BUTTON_LEFT) {
+					event.key_ = MouseKey::Left;
+				}
+				else if (button == GLFW_MOUSE_BUTTON_RIGHT) {
+					event.key_ = MouseKey::Right;
+				}
+				else if (button == GLFW_MOUSE_BUTTON_MIDDLE) {
+					event.key_ = MouseKey::Middle;
+				}
+				else {
+					return;
+				}
 
-		//	});
+				Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
 
-		//glfwSetScrollCallback(createdWindow, [](GLFWwindow* window, double xoffset, double yoffset) {
+				windowPtr->PushEvent(event);
 
-		//	//if (!Math::IsEqual(yoffset, 0.0)) {
-		//	//	Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
-		//	//	CursorEvent event;
-		//	//	event.scroll_ = yoffset;
-		//	//	windowPtr->PushEvent(event);
-		//	//}
+			});
 
-		//	});
+		glfwSetScrollCallback(createdWindow, [](::GLFWwindow* window, double xoffset, double yoffset) {
+
+			MouseEvent event;
+
+			event.scroll_ += yoffset;
+
+			Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
+
+			windowPtr->PushEvent(event);
+			});
 
 		ImGui::CreateContext();
 		//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
