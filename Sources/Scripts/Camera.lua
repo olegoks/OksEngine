@@ -174,43 +174,43 @@ end
 CameraInputProcessor = {}
 
 function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
-    if Key == "W" then
+    if Key == "CAMERA_FORWARD" then
         if Event == "Pressed" then
             camera.MovingForward = true
         elseif Event == "Released" then
             camera.MovingForward = false
         end
-    elseif Key == "A" then
+    elseif Key == "CAMERA_LEFT" then
         if Event == "Pressed" then
             camera.MovingLeft = true
         elseif Event == "Released" then
             camera.MovingLeft = false
         end
-    elseif Key == "D" then
+    elseif Key == "CAMERA_RIGHT" then
         if Event == "Pressed" then
             camera.MovingRight = true
         elseif Event == "Released" then
             camera.MovingRight = false
         end
-    elseif Key == "Q" then
+    elseif Key == "CAMERA_UP" then
         if Event == "Pressed" then
             camera.MovingUp = true
         elseif Event == "Released" then
             camera.MovingUp = false
         end
-    elseif Key == "E" then
+    elseif Key == "CAMERA_DOWN" then
         if Event == "Pressed" then
             camera.MovingDown = true
         elseif Event == "Released" then
             camera.MovingDown = false
         end
-    elseif Key == "S" then
+    elseif Key == "CAMERA_BACK" then
         if Event == "Pressed" then
             camera.MovingBackward = true
         elseif Event == "Released" then
             camera.MovingBackward = false
         end
-    elseif Key == "LEFT_SHIFT" then
+    elseif Key == "CAMERA_SPEED_BOOST" then
         if Event == "Pressed" then
             camera.SpeedBoostEnabled = true
         elseif Event == "Released" then

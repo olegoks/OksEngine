@@ -93,8 +93,13 @@ namespace OksEngine
 
 		};
 
-		void CallKeyboardEventsProcessor::Update(ECS2::Entity::Id entity0id, const ScriptName* scriptName0, const ObjectName* objectName0,
-			LuaContext* luaContext0, KeyboardEvents* keyboardInput0) {
+		void CallKeyboardEventsProcessor::Update(
+			ECS2::Entity::Id entity0id, 
+			const ScriptName* scriptName0,
+			const ObjectName* objectName0,
+			LuaContext* luaContext0,
+			KeyboardEvents* keyboardEvents0,
+			const Input::KeyMappings* input__KeyMappings0) {
 
 			luabridge::LuaRef luaObject = luaContext0->context_->GetGlobalAsRef("object");
 
@@ -103,14 +108,20 @@ namespace OksEngine
 
 
 
-			for (auto [key, event] : keyboardInput0->events_) {
+			for (auto [key, event] : keyboardEvents0->events_) {
+
 				std::string keyboardKey = "";
 				std::string keyboardEvent = "";
 				keyboardKey = magic_enum::enum_name(key).data();		// "W"
 				keyboardEvent = magic_enum::enum_name(event).data();	// "Pressed"
-				const auto result = processKeyboardInputMethod(luaObjectInputProcessor, luaObject, keyboardKey, keyboardEvent);
-			
-				OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
+
+				auto it = input__KeyMappings0->mappings_.find(keyboardKey);
+				if (it != input__KeyMappings0->mappings_.cend()) {
+					keyboardKey = it->second;
+					const auto result = processKeyboardInputMethod(luaObjectInputProcessor, luaObject, keyboardKey, keyboardEvent);
+
+					OS::AssertMessage(!result.hasFailed() && result.wasOk(), result.errorCode().message() + result.errorMessage());
+				}
 			}
 
 		};

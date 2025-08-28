@@ -3,17 +3,17 @@
 
 namespace OksEngine
 {
-	namespace UI
+	namespace Input
 	{
 		void EditKeyMappings(std::shared_ptr<ECS2::World> ecsWorld, KeyMappings* keyMappings) {
 			
 			if (ImGui::BeginTable("KeyMappings", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
-				// Заголовки таблицы
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				ImGui::TableSetupColumn("Key");
 				ImGui::TableSetupColumn("Value");
 				ImGui::TableHeadersRow();
 
-				// Вывод данных
+				// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 				for (const auto& [key, value] : keyMappings->mappings_) {
 					ImGui::TableNextRow();
 

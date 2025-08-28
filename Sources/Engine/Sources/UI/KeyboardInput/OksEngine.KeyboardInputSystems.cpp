@@ -30,7 +30,7 @@ void SendWindowKeyboardEvents::Update(
 
 
 
-                                      };
+ };
 
 void GetWindowKeyboardEvents::Update(ECS2::Entity::Id entity0id, MainWindow *mainWindow0,
                                      KeyboardEvents *keyboardEvents0) {

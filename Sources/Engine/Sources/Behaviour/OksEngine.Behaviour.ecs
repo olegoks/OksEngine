@@ -82,6 +82,7 @@ BehaviourNamespace = {
                         "ObjectName",
                         { name = "LuaContext",    readonly = false },
                         { name = "KeyboardEvents", readonly = false },
+                        "Input::KeyMappings"
                         -- { name = "MouseEvents",    readonly = false }
                     }
                 }

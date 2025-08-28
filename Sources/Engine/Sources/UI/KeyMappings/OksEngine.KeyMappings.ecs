@@ -1,4 +1,4 @@
-UINamespace = {
+InputNamespace = {
     KeyMappingsComponent = {
         fields = {
             { type = "std::map<std::string, std::string>", name = "mappings" }

@@ -66,6 +66,8 @@ scene = {
                 { key = "S", value = "CAMERA_BACK" },
                 { key = "A", value = "CAMERA_LEFT" },
                 { key = "D", value = "CAMERA_RIGHT" }, 
+                { key = "E", value = "CAMERA_UP" },
+                { key = "Q", value = "CAMERA_DOWN" }, 
                 { key = "LEFT_SHIFT", value = "CAMERA_SPEED_BOOST" }
             }
         },
