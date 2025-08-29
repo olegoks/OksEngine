@@ -39,6 +39,119 @@ ModelFileComponent = {
 BoneNodeComponent = {
     serializable = false
 }
+
+BoneNodeEntitiesComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<ECS2::Entity::Id>", name = "boneEntityIds" }
+    }  
+}
+--Index of array its bone index
+BonesPalletComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<glm::mat4>", name = "bonesPallets" }
+    }
+}
+
+DriverBonesPalletComponent = {
+    serializable = false,
+    fields = {
+        { type="RAL::Driver::UniformBuffer::Id", name="id" } 
+    }
+}
+
+BonesPalletResourceComponent = {
+    serializable = false,
+    fields = {
+        { type = "RAL::Driver::ResourceSet::Id", name = "id" }
+    }
+}
+
+
+CreateDriverBonesPalletSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    "BonesPallet"
+                },
+                excludes = {
+                    "DriverBonesPallet"
+                },
+                createsComponents = {
+                    "DriverBonesPallet"
+                }
+            }
+        }
+    }
+}
+
+CreateBonesPalletResourceSystem = {
+
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    "BonesPallet",
+                    "DriverBonesPallet"
+                },
+                excludes = {
+                    "BonesPalletResource"
+                },
+                createsComponents = {
+                    "BonesPalletResource"
+                }
+            }
+        }
+    }
+
+}
+
+UpdateBonePalletSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "BoneNodeEntities",
+                    { name = "BonesPallet", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+
+
+UpdateDriverBonesPalletSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    "BonesPallet",
+                    { name = "DriverBonesPallet", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+
 ChannelPositionKeyStruct = {
     fields = {
         { type = "double", name = "time" },
@@ -170,43 +283,6 @@ ProcessModelAnimationSystem = {
 
 --ANIMATION
 
---CreateAssimpSceneSystem = {
---    updateMethod = {
---        processesEntities = {
---            {
---                processesComponents = {
---                    "ModelInfo"
---                }
---            },
---            {
---                
---            }
---        }
---    }
---}
---
---AssimpSceneComponent = {
---    fields = {
---        { type = "std::shared_ptr<aiScene>", name = "aiScene" }
---    }
---}
-
--- CreateModelMeshesSystem = {
---     updateMethod = {
---         processesEntities = {
---             {
---                 processesComponents = { 
---                     "ModelFile"
--- 	            }
---             },
---             {
---                 processesComponents = {
---                     "ResourceSystem"
---                 }
---             }
---         }
---     }
--- }
 
 CreateModelSystem = {
     updateMethod = {
@@ -252,6 +328,7 @@ CreateModelSystem = {
                     "Indices",
                     "Normals",
                     "UVs",
+                    "VertexBones",
                     "TextureInfo",
                     "Texture"
                 }
@@ -335,6 +412,46 @@ CreatePipelineSystem = {
     }
 }
 
+SkeletonModelPipelineComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "id" }
+    }
+}
+
+CreateSkeletonModelPipelineSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateRenderDriver",
+            "CreateResourceSystem",
+            "ConfigureResourceSystem",
+            "CreateRenderPass"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver",
+                    "RenderPass"
+                },
+                excludes = {
+                    "SkeletonModelPipeline"
+                },
+                createsComponents = {
+                    "SkeletonModelPipeline"
+                }
+            },
+            {
+                processesComponents = {
+                    "ResourceSystem"
+                }
+            }
+        }
+    }
+}
+
 UpdateLocalPosition3DSystem = {
     callOrder = {
         runBefore = { "StartRender" }
@@ -394,6 +511,9 @@ AddModelToRenderSystem = {
                     "DriverVertexBuffer",
                     "TextureResource",
                     "ModelNodeEntityId"
+                },
+                excludes = {
+                    "VertexBones"
                 }
             },
             {
@@ -401,6 +521,51 @@ AddModelToRenderSystem = {
                     { name = "RenderDriver", readonly = false},
                     "RenderPass",
                     "Pipeline"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "DriverTransform3D",
+                    "Transform3DResource"
+                }
+            }
+        }
+    }
+}
+
+AddSkeletonModelToRenderSystem = {
+    callOrder = {
+        runAfter = "BeginRenderPass",
+        runBefore = "EndRenderPass"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "Camera",
+                    "Active",
+                    "DriverViewProjectionUniformBuffer",
+                    "CameraTransformResource"
+                }
+            },
+            {
+                processesComponents = {
+                    "Indices",
+                    "DriverIndexBuffer",
+                    "DriverVertexBuffer",
+                    "TextureResource",
+                    "ModelNodeEntityId",
+                    "BonesPalletResource",
+                    "VertexBones"
+                }
+            },
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false},
+                    "RenderPass",
+                    "SkeletonModelPipeline"
                 }
             }
         },

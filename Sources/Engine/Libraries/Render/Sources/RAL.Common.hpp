@@ -21,6 +21,7 @@ namespace RAL {
 	using Normal3f = Geom::Normal3f;
 	using UV2f = Geom::UV2f;
 	using Vertex3fnt = Geometry::Vertex3fnt;
+	using Vertex3fntbw = Geometry::Vertex3fntbw;
 	using Vertex2ftc = Geom::Vertex2ftc;
 	//using Vertex3fnñt = Geometry::Vertex3fnct;
 	//using Texture = Geometry::Texture<Geom::Color4b>;

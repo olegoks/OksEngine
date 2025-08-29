@@ -192,6 +192,46 @@ namespace Geometry {
 
 	};
 
+	struct Vertex3fntbw : public Vertex3fnt {
+		BonesIds boneIds_	= { 255, 255, 255, 255 };
+		Weights weights_	= { 255, 255, 255, 255 };
+
+		Vertex3fntbw() noexcept = default;
+
+
+		Vertex3fntbw(
+			const Vertex3f& position,
+			const Normal3f& normal,
+			const UV2f& texel, 
+			const BonesIds& boneIds,
+			const Weights& weights) noexcept :
+			Vertex3fnt{ position , normal, texel }, boneIds_{ boneIds }, weights_{ weights } { }
+
+
+		struct Hash {
+			[[nodiscard]]
+			Common::UInt64 operator()(const Vertex3fntbw& vertex) const noexcept {
+				return
+					vertex.position_.GetHash() ^
+					vertex.normal_.GetHash() ^
+					vertex.uv_.GetHash() ^
+					vertex.boneIds_.GetHash() ^
+					vertex.weights_.GetHash();
+			}
+		};
+
+		[[nodiscard]]
+		bool operator==(const Vertex3fntbw& vertex) const noexcept {
+			return
+				(position_ == vertex.position_) &&
+				(normal_ == vertex.normal_) &&
+				(uv_ == vertex.uv_) &&
+				(boneIds_ == vertex.boneIds_) &&
+				(weights_ == vertex.weights_);
+		}
+
+	};
+
 	//struct Vertex3fnct {
 	//	Vertex3f position_{ 0.f, 0.f, 0.f };
 	//	Math::Vector3f normal_ = { 0.f, 0.f, 0.f };

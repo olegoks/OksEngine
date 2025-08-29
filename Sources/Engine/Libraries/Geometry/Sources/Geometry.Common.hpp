@@ -14,4 +14,6 @@ namespace Geometry {
 	using Color4f = Math::Vector4f;
 	using Normal3f = Math::Vector3f;
 	using UV2f = Math::Vector2f;
+	using BonesIds = Math::Vector4ub;
+	using Weights = Math::Vector4ub;
 }

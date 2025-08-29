@@ -10,7 +10,10 @@ CreateDriverVertexBufferSystem = {
             processesComponents = { "Vertices3D", "Indices", "Normals", "UVs" },
                 
             createsComponents = { "DriverVertexBuffer" },
-            excludes = { "DriverVertexBuffer" }
+            excludes = { 
+                "VertexBones",
+                "DriverVertexBuffer"
+            }
         },
         {
              processesComponents = { { name = "RenderDriver", readonly = false } }
@@ -21,13 +24,32 @@ CreateDriverVertexBufferSystem = {
 
 }
 
+CreateDriverRiggedVertexBufferSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { "Vertices3D", "Indices", "Normals", "UVs", "VertexBones" },
+                
+                createsComponents = { "DriverVertexBuffer" },
+                excludes = { "DriverVertexBuffer" }
+            },
+            {
+                processesComponents = { { name = "RenderDriver", readonly = false } }
+            }
+        }
+    }
+}
+
 CreateDriverVertexBuffer2DSystem = {
     updateMethod = {
     processesEntities = {
         {
             processesComponents = { "Vertices2D", "Indices", "Colors", "UVs" },
             createsComponents = { "DriverVertexBuffer" },
-            excludes = { "DriverVertexBuffer" }
+            excludes = { 
+                "VertexBones",
+                "DriverVertexBuffer"
+            }
         },
         {
             processesComponents = { { name = "RenderDriver", readonly = false } }

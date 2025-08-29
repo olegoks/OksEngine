@@ -232,6 +232,82 @@ namespace Render::Vulkan {
 		}
 	};
 
+	class Vertex3fntbw : public Geometry::Vertex3fntbw {
+	public:
+
+
+		static VkVertexInputBindingDescription GetBindingDescription() {
+			VkVertexInputBindingDescription bindingDescription{};
+
+			bindingDescription.binding = 0;
+			bindingDescription.stride = sizeof(Vertex3fntbw);
+			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+			return bindingDescription;
+		}
+
+		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() {
+			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 0;
+					attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fntbw, position_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 1;
+					attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;//VK_FORMAT_R32G32B32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fntbw, normal_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 2;
+					attributeDescription.format = VK_FORMAT_R32G32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3fntbw, uv_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 3;
+					attributeDescription.format = VK_FORMAT_R8G8B8A8_UINT;
+					attributeDescription.offset = offsetof(Vertex3fntbw, boneIds_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 4;
+					attributeDescription.format = VK_FORMAT_R8G8B8A8_UINT;
+					attributeDescription.offset = offsetof(Vertex3fntbw, weights_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
+
+			return attributeDescriptions;
+		}
+	};
+
 
 
 

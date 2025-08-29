@@ -1,0 +1,18 @@
+
+
+VertexBonesInfoStruct = {
+    fields = {
+        { type = "glm::u8vec4", name = "boneIndices" }, -- indices of 4  bones in BonesPallete
+        { type = "glm::u8vec4", name = "boneWeights" }, -- weights for 4 bones
+    }
+
+
+}
+
+-- Information about bones for each vertex
+VertexBonesComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<VertexBonesInfo>", name = "vertexBonesInfos" }
+    }
+}

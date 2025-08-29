@@ -124,6 +124,9 @@ UpdateDebugDrawBonesDriverVertexBufferSystem = {
     callOrder = {
         runBefore = {
             "StartRender"
+        },
+        runAfter = {
+            "AddBoneVertices"
         }
     },
     updateMethod = {

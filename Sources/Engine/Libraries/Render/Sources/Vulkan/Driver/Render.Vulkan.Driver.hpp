@@ -374,6 +374,10 @@ namespace Render::Vulkan {
 				return Vertex3fnt::GetBindingDescription();
 				break;
 			}
+			case VertexType::VF3_NF3_TF2_BIDUB4_WUB4: {
+				return Vertex3fntbw::GetBindingDescription();
+				break;
+			}
 			case VertexType::VF3_CF4: {
 				return Vertex3fc::GetBindingDescription();
 				break;
@@ -392,6 +396,10 @@ namespace Render::Vulkan {
 			switch (vertexType) {
 			case VertexType::VF3_NF3_TF2: {
 				return Vertex3fnt::GetAttributeDescriptions();
+				break;
+			}
+			case VertexType::VF3_NF3_TF2_BIDUB4_WUB4: {
+				return Vertex3fntbw::GetAttributeDescriptions();
 				break;
 			}
 			case VertexType::VF3_CF4: {
@@ -1211,6 +1219,11 @@ namespace Render::Vulkan {
 
 			for (Resource::Id resourceId : resourceIds) {
 				std::shared_ptr<Vulkan::Driver::ResourceSet> resource = resources_[resourceId];
+
+#pragma region Assert
+				OS::AssertMessage(resource != nullptr, "Attempt to bind resource with incorrect id.");
+#pragma endregion
+
 				std::shared_ptr<DescriptorSet> ds = resource->dss_[currentFrame];
 				dss.push_back(ds);
 			}
@@ -1827,6 +1840,10 @@ namespace Render::Vulkan {
 			switch (vertexType) {
 			case  VertexType::VF3_NF3_TF2: {
 				return sizeof(Vertex3fnt);
+				break;
+			}
+			case  VertexType::VF3_NF3_TF2_BIDUB4_WUB4: {
+				return sizeof(Vertex3fntbw);
 				break;
 			}
 			case  VertexType::VF2_TF2_CF4: {
