@@ -68,6 +68,12 @@ BonesPalletResourceComponent = {
     }
 }
 
+BoneInverseBindPoseMatrixComponent = {
+    serializable = false,
+    fields = {
+        { type = "glm::mat4", name = "matrix" }
+    }
+}
 
 CreateDriverBonesPalletSystem = {
     updateMethod = {
@@ -125,6 +131,16 @@ UpdateBonePalletSystem = {
                 processesComponents = {
                     "BoneNodeEntities",
                     { name = "BonesPallet", readonly = false }
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "WorldPosition3D",
+                    "WorldRotation3D",
+                    "WorldScale3D",
+                    "BoneInverseBindPoseMatrix"
                 }
             }
         }
@@ -313,6 +329,8 @@ CreateModelSystem = {
             {
                 createsComponents = {
                     "ModelNode",
+                    "BoneNode",
+                    "BoneInverseBindPoseMatrix",
                     "ChildModelNodeEntities",
                     "MeshEntities",
                     "LocalPosition3D",

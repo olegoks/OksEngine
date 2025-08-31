@@ -20,8 +20,6 @@ layout(set = 2, binding = 0) uniform BonesPalette {
     mat4 matrices[128];
 } bonesPalette;
 
-
-
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 outUV;
 
@@ -29,13 +27,13 @@ void main() {
 
     vec4 position = vec4(inPosition, 1.0);
 
-    vec4 newPosition = 
-        (float(inBoneWeights[0]) / 255.0) * bonesPalette.matrices[inBoneIds[0]] * position + 
-        (float(inBoneWeights[1]) / 255.0) * bonesPalette.matrices[inBoneIds[1]] * position +
-        (float(inBoneWeights[2]) / 255.0) * bonesPalette.matrices[inBoneIds[2]] * position +
-        (float(inBoneWeights[3]) / 255.0) * bonesPalette.matrices[inBoneIds[3]] * position;
+    vec4 newPosition = vec4(1, 1, 1, 1);
+    newPosition = newPosition + (float(inBoneWeights[0]) / 255.0) * bonesPalette.matrices[inBoneIds[0]] * position;
+    newPosition = newPosition + (float(inBoneWeights[1]) / 255.0) * bonesPalette.matrices[inBoneIds[1]] * position;
+    newPosition = newPosition + (float(inBoneWeights[2]) / 255.0) * bonesPalette.matrices[inBoneIds[2]] * position;
+    newPosition = newPosition + (float(inBoneWeights[3]) / 255.0) * bonesPalette.matrices[inBoneIds[3]] * position;
 
-    outUV = outUV;
+    outUV = inUV;
 
     gl_Position = camera.proj * camera.view * transform.model * (vec4(newPosition.xyz, 1.0));
 }

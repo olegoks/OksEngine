@@ -275,6 +275,23 @@ namespace OksEngine
 		ECS2::Entity::Id entity1id,
 		const ResourceSystem* resourceSystem1) {
 
+		auto aiMatrixToGlmMatrix = [](const aiMatrix4x4& aiMatrix) {
+
+			aiVector3D position3D;
+			aiQuaternion rotation3D;
+			aiVector3D scale3D;
+			aiMatrix4x4 flipYtoZ;
+			aiMatrix.Decompose(scale3D, rotation3D, position3D);
+
+			const glm::mat4 translateMatrix = glm::mat4{ glm::translate(glm::vec3(position3D.x, position3D.y, position3D.z)) };
+			const glm::mat4 rotationMatrix = glm::toMat4(glm::quat{ rotation3D.w, rotation3D.x, rotation3D.y, rotation3D.z });;
+			const glm::mat4 scaleMatrix = glm::scale(glm::vec3(scale3D.x, scale3D.y, scale3D.z));
+
+			glm::mat4 transform = glm::mat4{ 1 }  *translateMatrix * rotationMatrix * scaleMatrix;
+
+			return transform;
+			};
+
 
 		Resources::ResourceData resourceData = resourceSystem1->system_->GetResourceSynch(
 			Subsystem::Type::ChildThread,
@@ -289,7 +306,8 @@ namespace OksEngine
 			aiProcess_GenNormals |
 			aiProcess_FlipUVs |
 			aiProcess_LimitBoneWeights |
-			aiProcess_Debone | 
+			aiProcess_PopulateArmatureData |
+			aiProcess_Debone |
 			aiProcess_ConvertToLeftHanded;
 
 		importer.SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
@@ -309,7 +327,7 @@ namespace OksEngine
 #pragma endregion
 
 		//Node to Entity id 
-		std::map<aiNode*, ECS2::Entity::Id> nodeToEntityId;
+		std::map<const aiNode*, ECS2::Entity::Id> nodeToEntityId;
 		{
 			std::function<void(const aiScene*, aiNode*)> createNodeEntity = [&](const aiScene* scene, aiNode* node) {
 
@@ -320,19 +338,27 @@ namespace OksEngine
 					createNodeEntity(scene, childrenNode);
 				}
 
-			};
+				};
 
 			createNodeEntity(scene, scene->mRootNode);
 		}
 
 		//Get bone node names.
-		std::unordered_set<std::string> boneNodeNames;
+		std::unordered_set<std::string> boneNames;
+		std::map<std::string, const aiBone*> nameToBone;
+		std::map<std::string, const aiNode*> nameToBoneNode;
+
 		{
 			for (Common::Index i = 0; i < scene->mNumMeshes; i++) {
 				const aiMesh* mesh = scene->mMeshes[i];
 				for (Common::Index j = 0; j < mesh->mNumBones; j++) {
+
 					const aiBone* bone = mesh->mBones[j];
-					boneNodeNames.insert(bone->mName.C_Str());
+					const aiString& boneName = bone->mName;
+					boneNames.insert(boneName.C_Str());
+					nameToBone[boneName.C_Str()] = bone;
+					const aiNode* boneNode = scene->mRootNode->FindNode(boneName.C_Str());
+					nameToBoneNode[boneName.C_Str()] = boneNode;
 				}
 			}
 		}
@@ -344,7 +370,7 @@ namespace OksEngine
 			if (node->mNumMeshes > 0) {
 
 				auto createMeshComponents = [&](const aiScene* scene, ECS2::Entity::Id nodeEntityId, const aiMesh* mesh, ECS2::Entity::Id meshEntityId) {
-					
+
 					static Geom::VertexCloud<Geom::Vertex3f>	vertices;
 					static DS::Vector<Geom::Normal3f>			normals;
 					static DS::Vector<Geom::UV2f>		        uvs;
@@ -353,10 +379,11 @@ namespace OksEngine
 
 					//Fill bones info.
 
-					vertexBonesInfos.resize(mesh->mNumVertices, 
-						VertexBonesInfo{ 
-							{ 255, 255, 255, 255 }, // default invalid values.
-							{ 255, 255, 255, 255 }  // default invalid values.
+					vertexBonesInfos.resize(mesh->mNumVertices,
+						VertexBonesInfo{
+							//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
+							{ 255, 255, 255, 255 },
+							{ 0, 0, 0, 0 }	// no influence on vertex by default  
 						});
 
 					std::vector<ECS2::Entity::Id>				boneEntityIds;
@@ -367,33 +394,40 @@ namespace OksEngine
 							aiBone* bone = mesh->mBones[i];
 							for (Common::Index j = 0; j < bone->mNumWeights; j++) {
 								const aiVertexWeight* weight = bone->mWeights + j;
-								
-									//Find free cell and set value
-									[[maybe_unused]]
-									bool isFind = false;
-									for (Common::Index k = 0; k < 4; k++) {
-										if (vertexBonesInfos[weight->mVertexId].boneIndices_[k] == 255) {
-											vertexBonesInfos[weight->mVertexId].boneIndices_[k] = i;
-											vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight * 255;
-											isFind = true;
-											break;
-										}
+								if (Math::IsEqual(weight->mWeight, 0.0f)) {
+									//Skip bones with zero weight. We will use zero weight to mark empty cells.
+									continue;
+								}
+								//Find free cell and set value
+								[[maybe_unused]]
+								bool isFind = false;
+								for (Common::Index k = 0; k < 4; k++) {
+									if (vertexBonesInfos[weight->mVertexId].boneWeights_[k] == 0) {
+										//Free cell found.
+										vertexBonesInfos[weight->mVertexId].boneIndices_[k] = i;
+#pragma region Assert
+										OS::AssertMessage(Math::IsLess(weight->mWeight, 1.0), "");
+#pragma endregion
+										vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight * 255;
+										isFind = true;
+										break;
 									}
+								}
 
 #pragma region Assert
-									OS::AssertMessage(isFind, "");
+								OS::AssertMessage(isFind, "");
 #pragma endregion
 
 							}
 							//Save ids of bones entities for the mesh entity.
-							for (auto [key, value] : nodeToEntityId) {
-								if (bone->mName == key->mName) {
-									boneEntityIds.push_back(nodeToEntityId[key]);
-								}
-							}
+							const aiNode* boneNode = nameToBoneNode[bone->mName.C_Str()];
+							ECS2::Entity::Id boneEntityId = nodeToEntityId[boneNode];
+							boneEntityIds.push_back(boneEntityId);
 						}
-						CreateComponent<BoneNodeEntities>(meshEntityId, boneEntityIds);
-						CreateComponent<VertexBones>(meshEntityId, std::move(vertexBonesInfos));
+						if (mesh->mNumBones > 0) {
+							CreateComponent<BoneNodeEntities>(meshEntityId, boneEntityIds);
+							CreateComponent<VertexBones>(meshEntityId, std::move(vertexBonesInfos));
+						}
 					}
 
 					vertexBonesInfos.clear();
@@ -402,6 +436,7 @@ namespace OksEngine
 					//Create bones pallete with identity matrices.
 					std::vector<glm::mat4> palette;
 					{
+
 						palette.resize(128, glm::mat4{ 1 });
 
 						CreateComponent<BonesPallet>(meshEntityId, std::move(palette));
@@ -432,12 +467,12 @@ namespace OksEngine
 						const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
 
 						int width, height, channels;
-												
+
 						unsigned char* pixels = stbi_load_from_memory(
 							compressed_data,
-							texture->mWidth,  
+							texture->mWidth,
 							&width, &height, &channels,
-							STBI_rgb_alpha   
+							STBI_rgb_alpha
 						);
 						CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
 						CreateComponent<Texture>(
@@ -447,7 +482,7 @@ namespace OksEngine
 							(Geom::Color4b*)pixels,
 								(Geom::Color4b*)pixels + width * height});
 					}
-					
+
 					vertices.Reserve(mesh->mNumVertices);
 					normals.Reserve(mesh->mNumVertices);
 					uvs.Reserve(mesh->mNumVertices);
@@ -491,7 +526,6 @@ namespace OksEngine
 					meshEntities.push_back(meshEntity);
 				}
 
-
 			}
 			aiVector3D position3D;
 			aiQuaternion rotation3D;
@@ -520,7 +554,7 @@ namespace OksEngine
 			if (std::string{ node->mName.C_Str() } == "driver_11") {
 				Common::BreakPointLine();
 			}
-			auto createNodeAnimationChannel = [&]( aiNode* node, const aiScene* scene) {
+			auto createNodeAnimationChannel = [&](aiNode* node, const aiScene* scene) {
 
 				std::map<std::string, NodeAnimationChannel> animationNameToChannel;
 				const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
@@ -564,11 +598,11 @@ namespace OksEngine
 						}
 					}
 				}
-				if(!animationNameToChannel.empty()) {
+				if (!animationNameToChannel.empty()) {
 					CreateComponent<ModelNodeAnimation>(nodeEntityId, animationNameToChannel);
 					animationNameToChannel.clear();
 				}
-				
+
 
 				};
 			//Parse animations.
@@ -579,8 +613,14 @@ namespace OksEngine
 			CreateComponent<ModelNode>(nodeEntityId);
 
 			//Mark that this node is Bone
-			if (boneNodeNames.contains(node->mName.C_Str())) {
+			if (boneNames.contains(node->mName.C_Str())) {
+
+				const aiBone* bone = nameToBone[node->mName.C_Str()];
+				glm::mat4 transform = aiMatrixToGlmMatrix(bone->mOffsetMatrix);
+
+				CreateComponent<BoneInverseBindPoseMatrix>(nodeEntityId, transform);
 				CreateComponent<BoneNode>(nodeEntityId);
+
 			}
 
 			CreateComponent<Name>(nodeEntityId, std::string{ node->mName.C_Str() });
@@ -615,7 +655,7 @@ namespace OksEngine
 		}
 		CreateComponent<ModelAnimations>(entity0id, std::move(modelAnimations));
 
-		CreateComponent<ChildModelNodeEntities>(entity0id, std::vector{ nodeToEntityId[scene->mRootNode]});
+		CreateComponent<ChildModelNodeEntities>(entity0id, std::vector{ nodeToEntityId[scene->mRootNode] });
 		CreateComponent<Model>(entity0id);
 	};
 
@@ -623,7 +663,7 @@ namespace OksEngine
 	void CreateDriverBonesPallet::Update(
 		ECS2::Entity::Id entity0id,
 		RenderDriver* renderDriver0,
-		
+
 		ECS2::Entity::Id entity1id,
 		const BonesPallet* bonesPallet1) {
 
@@ -643,9 +683,9 @@ namespace OksEngine
 	}
 
 	void CreateBonesPalletResource::Update(
-		ECS2::Entity::Id entity0id, 
+		ECS2::Entity::Id entity0id,
 		RenderDriver* renderDriver0,
-		
+
 		ECS2::Entity::Id entity1id,
 		const BonesPallet* bonesPallet1,
 		const DriverBonesPallet* driverBonesPallet1) {
@@ -656,7 +696,7 @@ namespace OksEngine
 			.binding_ = 0,
 			.ubid_ = driverBonesPallet1->id_,
 			.offset_ = 0,
-			.size_ =  128 * sizeof(glm::mat4)
+			.size_ = 128 * sizeof(glm::mat4)
 		};
 
 		RAL::Driver::Resource::Id resourceId = renderDriver0->driver_->CreateResource(transformUBBinding);
@@ -666,61 +706,63 @@ namespace OksEngine
 	}
 
 	void UpdateBonePallet::Update(
-		ECS2::Entity::Id entity0id,
-		const BoneNodeEntities* boneNodeEntities0,
-		BonesPallet* bonesPallet0) {
+		ECS2::Entity::Id entity0id, const BoneNodeEntities* boneNodeEntities0,
+		 BonesPallet* bonesPallet0) {
 
 		for (Common::Index i = 0; i < boneNodeEntities0->boneEntityIds_.size(); i++) {
 
 			const ECS2::Entity::Id boneEntityId = boneNodeEntities0->boneEntityIds_[i];
 
-			auto* worldPosition3D	= GetComponent<WorldPosition3D>(boneEntityId);
-			auto* worldRotation3D	= GetComponent<WorldRotation3D>(boneEntityId);
-			auto* worldScale3D		= GetComponent<WorldScale3D>(boneEntityId);
+			auto* worldPosition3D = GetComponent<WorldPosition3D>(boneEntityId);
+			auto* worldRotation3D = GetComponent<WorldRotation3D>(boneEntityId);
+			auto* worldScale3D = GetComponent<WorldScale3D>(boneEntityId);
 
 			const glm::mat4 nodeTranslateMatrix
 				= glm::mat4{ glm::translate(
 					glm::vec3(
-						worldPosition3D->x_, 
-						worldPosition3D->y_, 
+						worldPosition3D->x_,
+						worldPosition3D->y_,
 						worldPosition3D->z_)
 				) };
 
 			const glm::mat4 nodeRotationMatrix
 				= glm::toMat4(
-					glm::quat{ 
-						worldRotation3D->w_, 
+					glm::quat{
+						worldRotation3D->w_,
 						worldRotation3D->x_,
 						worldRotation3D->y_,
 						worldRotation3D->z_ }
 						);
 
-			const glm::mat4 nodeScaleMatrix 
+			const glm::mat4 nodeScaleMatrix
 				= glm::scale(
 					glm::vec3(
 						worldScale3D->x_,
 						worldScale3D->y_,
 						worldScale3D->z_));
 
-			const glm::mat4 boneTransformMatrix 
-				= glm::mat4{ 1 } * nodeTranslateMatrix * nodeRotationMatrix * nodeScaleMatrix;
+			const glm::mat4 boneTransformMatrix
+				= glm::mat4{ 1 } *nodeTranslateMatrix * nodeRotationMatrix * nodeScaleMatrix;
 
-			bonesPallet0->bonesPallets_[i] = boneTransformMatrix;
+			const auto* boneInverseBindPoseMatrix = GetComponent<BoneInverseBindPoseMatrix>(boneEntityId);
+
+			bonesPallet0->bonesPallets_[i] = boneTransformMatrix * boneInverseBindPoseMatrix->matrix_;
 
 		}
 
 	}
 
 	void UpdateDriverBonesPallet::Update(
-		ECS2::Entity::Id entity0id, 
-		RenderDriver* renderDriver0,
 
+		ECS2::Entity::Id entity0id,
+		RenderDriver* renderDriver0,
+		
 		ECS2::Entity::Id entity1id,
 		const BonesPallet* bonesPallet1,
 		DriverBonesPallet* driverBonesPallet1) {
 
 		renderDriver0->driver_->FillUniformBuffer(
-			driverBonesPallet1->id_, 
+			driverBonesPallet1->id_,
 			(void*)bonesPallet1->bonesPallets_.data());
 
 	}
@@ -889,24 +931,24 @@ namespace OksEngine
 
 
 	void CreateSkeletonModelPipeline::Update(
-		ECS2::Entity::Id entity0id, 
-		const RenderDriver* renderDriver0, 
+		ECS2::Entity::Id entity0id,
+		const RenderDriver* renderDriver0,
 		const RenderPass* renderPass0,
 
 		ECS2::Entity::Id entity1id,
 		const ResourceSystem* resourceSystem1) {
 
 
-		Resources::ResourceData vertexTextureShaderResource 
+		Resources::ResourceData vertexTextureShaderResource
 			= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/skeleton.vert");
-		Resources::ResourceData fragmentTextureShaderResource 
+		Resources::ResourceData fragmentTextureShaderResource
 			= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/skeleton.frag");
 
-		std::string vertexShaderCode{ 
+		std::string vertexShaderCode{
 			vertexTextureShaderResource.GetData<Common::Byte>(),
 			vertexTextureShaderResource.GetSize() };
 
-		std::string fragmentShaderCode{ 
+		std::string fragmentShaderCode{
 			fragmentTextureShaderResource.GetData<Common::Byte>(),
 			fragmentTextureShaderResource.GetSize() };
 
@@ -1123,21 +1165,21 @@ namespace OksEngine
 	}
 
 	void AddSkeletonModelToRender::Update(
-		ECS2::Entity::Id entity0id, 
+		ECS2::Entity::Id entity0id,
 		const Camera* camera0,
 		const Active* active0,
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer0,
 		const CameraTransformResource* cameraTransformResource0,
-		
+
 		ECS2::Entity::Id entity1id,
-		const Indices* indices1, 
+		const Indices* indices1,
 		const DriverIndexBuffer* driverIndexBuffer1,
 		const DriverVertexBuffer* driverVertexBuffer1,
 		const TextureResource* textureResource1,
 		const ModelNodeEntityId* modelNodeEntityId1,
 		const BonesPalletResource* bonesPalletResource1,
 		const VertexBones* vertexBones1,
-		
+
 		ECS2::Entity::Id entity2id,
 		RenderDriver* renderDriver2,
 		const RenderPass* renderPass2,
