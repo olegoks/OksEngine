@@ -44,7 +44,7 @@ namespace OksEngine
 		glm::vec3 ndc = glm::vec3(clipPos) / clipPos.w;
 
 		float screenX = (ndc.x + 1.0f) * 0.5f * width0->value_;
-		float screenY = (1.0f - ndc.y) * 0.5f * height0->value_; // Инвертируем Y
+		float screenY = (1.0f - ndc.y) * 0.5f * height0->value_; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ Y
 
 		const std::string positionText = std::format("({:.2f}, {:.2f}, {:.2f})", worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_);
 		debugText2D1->text_ = positionText;
@@ -57,7 +57,7 @@ namespace OksEngine
 		ECS2::Entity::Id entity0id, 
 		const WorldPosition3D* position3D0) {
 	
-		//CreateComponent<DebugText2D>(entity0id, "DebugText2D", 0, 0);
+		CreateComponent<DebugText2D>(entity0id, "DebugText2D", 0, 0);
 	};
 
 } // namespace OksEngine
