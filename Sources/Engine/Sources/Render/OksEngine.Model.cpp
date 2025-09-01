@@ -65,12 +65,12 @@ namespace OksEngine
 
 			if (IsComponentExist<ModelNodeAnimation>(nodeEntityId)) {
 
-				if (IsComponentExist<Name>(nodeEntityId)) {
-					if (auto name = GetComponent<Name>(nodeEntityId)->value_ == "Object_55") {
-						Common::BreakPointLine();
-					}
-				}
-				auto name = GetComponent<Name>(nodeEntityId);
+				//if (IsComponentExist<Name>(nodeEntityId)) {
+				//	if (auto name = GetComponent<Name>(nodeEntityId)->value_ == "Object_55") {
+				//		Common::BreakPointLine();
+				//	}
+				//}
+				//auto name = GetComponent<Name>(nodeEntityId);
 				auto* modelNodeAnimation = GetComponent<ModelNodeAnimation>(nodeEntityId);
 
 				const std::string& currentAnimationName = animationInProgress0->animationName_;
@@ -1051,11 +1051,11 @@ namespace OksEngine
 				const glm::quat& parentRotation3D,
 				const glm::fvec3& parentScale3D) {
 
-					if (IsComponentExist<Name>(nodeEntityId)) {
-						if (auto name = GetComponent<Name>(nodeEntityId)->value_ == "Object_55") {
-							Common::BreakPointLine();
-						}
-					}
+					//if (IsComponentExist<Name>(nodeEntityId)) {
+					//	if (auto name = GetComponent<Name>(nodeEntityId)->value_ == "Object_55") {
+					//		Common::BreakPointLine();
+					//	}
+					//}
 
 					const auto* localNodeRotation3D = GetComponent<LocalRotation3D>(nodeEntityId);
 					auto* worldNodeRotation3D = GetComponent<WorldRotation3D>(nodeEntityId);

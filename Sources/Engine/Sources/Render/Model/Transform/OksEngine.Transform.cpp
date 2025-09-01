@@ -35,12 +35,12 @@ namespace OksEngine
 		const glm::mat4 scaleMatrix = glm::scale(glm::vec3(scale3D0->x_, scale3D0->y_, scale3D0->z_));
 
 		glm::mat4 transform = glm::mat4{ 1 }; // * translateMatrix *rotationMatrix * scaleMatrix;
-		if(IsComponentExist<Name>(entity0id)) {
-			if (GetComponent<Name>(entity0id)->value_ == "robot_base.025_low_53") {
-				Common::BreakPointLine();
-			}
-			
-		}
+		//if(IsComponentExist<Name>(entity0id)) {
+		//	if (GetComponent<Name>(entity0id)->value_ == "robot_base.025_low_53") {
+		//		Common::BreakPointLine();
+		//	}
+		//	
+		//}
 
 		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
 			.size_ = sizeof(glm::mat4),
