@@ -287,20 +287,24 @@ namespace ECSGenerator2 {
 				{
 					if (!systemEcsFile->ci_.updateMethod_->randomAccessesEntities_.empty()) {
 						//Add Assert.
-						getComponentCode.Add("OS::AssertMessage(");
-						systemEcsFile->ci_.updateMethod_->ForEachRandomAccessComponent(
-							[&](const std::string& componentName, bool isLast) {
-								getComponentCode.Add(std::format("std::is_same_v<Component, {}>", componentName));
-								if (!isLast) {
-									getComponentCode.Add(" || ");
-								}
-								return true;
-							});
-						getComponentCode.Add(
-							",std::format(\"Attempt to access component{} that system("
-							+ systemEcsFile->GetName() +
-							") can't access. Added access entities description to .ecs file that corresponds to system\", Component::GetName()));"
-						);
+						getComponentCode.Add("if constexpr (Common::IsDebug()) {");
+						{
+							getComponentCode.Add("OS::AssertMessage(");
+							systemEcsFile->ci_.updateMethod_->ForEachRandomAccessComponent(
+								[&](const std::string& componentName, bool isLast) {
+									getComponentCode.Add(std::format("std::is_same_v<Component, {}>", componentName));
+									if (!isLast) {
+										getComponentCode.Add(" || ");
+									}
+									return true;
+								});
+							getComponentCode.Add(
+								",std::format(\"Attempt to access component{} that system("
+								+ systemEcsFile->GetName() +
+								") can't access. Added access entities description to .ecs file that corresponds to system\", Component::GetName()));"
+							);
+						}
+						getComponentCode.Add("}");
 					}
 					getComponentCode.Add("return world_->GetComponent<Component>(entityId);");
 				}
@@ -408,7 +412,7 @@ namespace ECSGenerator2 {
 				generateUpdateMethodPrototype(system),
 				generateGetComponentsFilter(system),
 				generateRemoveComponentMethodRealization(system),
-				generateGetComponentMethodRealization(system),
+
 				generateIsComponentExistMethodRealization(system),
 
 				generateDestroyEntityRealization(system),
@@ -420,6 +424,10 @@ namespace ECSGenerator2 {
 
 			if (system->ci_.afterUpdateMethod_ != nullptr) {
 				methods.push_back(generateAfterUpdateMethodPrototype(system));
+			}
+
+			if (!system->ci_.updateMethod_->randomAccessesEntities_.empty()) {
+				methods.push_back(generateGetComponentMethodRealization(system));
 			}
 
 			//Generate CreateComponent method if needed.
