@@ -291,6 +291,17 @@ ProcessModelAnimationSystem = {
                     "TimeSinceEngineStart"
                 }
             }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "ModelNodeAnimation",
+                    "LocalPosition3D",
+                    "LocalRotation3D",
+                    "LocalScale3D",
+                    "ChildModelNodeEntities"
+                }
+            }
         }
     }
 }
@@ -483,6 +494,19 @@ UpdateLocalPosition3DSystem = {
                     "WorldPosition3D",
                     "WorldRotation3D",
                     "WorldScale3D"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "WorldPosition3D",
+                    "WorldRotation3D",
+                    "WorldScale3D",
+                    "LocalPosition3D",
+                    "LocalRotation3D",
+                    "LocalScale3D",
+                    "ChildModelNodeEntities"
                 }
             }
         }
