@@ -98,8 +98,6 @@ namespace OksEngine
 			vertices3D0->vertices_.Add({ worldPosition3D->x_, worldPosition3D->y_, worldPosition3D->z_ });
 		}
 
-
-
 	}
 
 	void CreateDebugDrawBonesDriverVertexBuffer::Update(ECS2::Entity::Id entity0id,
@@ -172,7 +170,7 @@ namespace OksEngine
 		const Camera* camera1, 
 		const Active* active1,
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
-		const CameraTransformResource* cameraTransformResource1,\
+		const CameraTransformResource* cameraTransformResource1,
 		
 		ECS2::Entity::Id entity2id,
 		RenderDriver* renderDriver2) {
