@@ -53,7 +53,7 @@ namespace UI {
 		glfwSetCursorPosCallback(createdWindow,
 			[](::GLFWwindow* window, double xpos, double ypos) {
 
-				OS::LogInfo("cursor_pos", { "X: {}, Y: {}", xpos, ypos });
+				//OS::LogInfo("cursor_pos", { "X: {}, Y: {}", xpos, ypos });
 
 				static double xPrevious = xpos;
 				static double yPrevious = ypos;
