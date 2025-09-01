@@ -27,7 +27,7 @@ void main() {
 
     vec4 position = vec4(inPosition, 1.0);
 
-    vec4 newPosition = vec4(1, 1, 1, 1);
+    vec4 newPosition = vec4(0, 0, 0, 0);
     newPosition = newPosition + (float(inBoneWeights[0]) / 255.0) * bonesPalette.matrices[inBoneIds[0]] * position;
     newPosition = newPosition + (float(inBoneWeights[1]) / 255.0) * bonesPalette.matrices[inBoneIds[1]] * position;
     newPosition = newPosition + (float(inBoneWeights[2]) / 255.0) * bonesPalette.matrices[inBoneIds[2]] * position;
@@ -35,5 +35,5 @@ void main() {
 
     outUV = inUV;
 
-    gl_Position = camera.proj * camera.view * transform.model * (vec4(newPosition.xyz, 1.0));
+    gl_Position = camera.proj * camera.view * (vec4(newPosition.xyz, 1.0));//* transform.model * (vec4(newPosition.xyz, 1.0));
 }
