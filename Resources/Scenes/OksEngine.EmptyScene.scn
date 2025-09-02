@@ -39,7 +39,7 @@ scene = {
     worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
     model = { },
     runModelAnimation = { animationName = "Robotics" }, 
-    modelFile = { fileName = "black_honey_-_robotic_arm.glb" }
+    modelFile = { fileName = "black_honey_-_robotic_arm_DEBUG.glb" }
 },
 --{
 --    ID = 3,
