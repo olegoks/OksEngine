@@ -6,8 +6,6 @@ CreatePhysicsShapeForDynamicRigidBodySystem = {
 				"Material",
 				"Vertices3D",
 				"Indices",
-				"ImmutableRenderGeometry",
-				"ModelEntity",
 				"DynamicRigidBodyCustomMeshShape"
 	 		},
 	 		createsComponents = {

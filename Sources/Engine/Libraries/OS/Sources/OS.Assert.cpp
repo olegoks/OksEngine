@@ -16,8 +16,9 @@ namespace OS {
 			return;
 		}
 		LogError("/assert/", std::move(format), location);
-		assert(expression);
 		__debugbreak();
+		assert(expression);
+
 	}
 
 	void AssertFailMessage(Common::Format&& format, const std::source_location& location) {

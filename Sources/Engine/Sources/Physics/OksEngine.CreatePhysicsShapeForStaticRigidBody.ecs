@@ -4,8 +4,8 @@ updateMethod = {
 	processesEntities = {
 		{
     		processesComponents = { 
-				"ImmutableRenderGeometry",
-				"ModelEntity",
+				-- "ImmutableRenderGeometry",
+				-- "ModelEntity",
 				"StaticRigidBodyCustomMeshShape"
 	 		},
 	 		createsComponents = {

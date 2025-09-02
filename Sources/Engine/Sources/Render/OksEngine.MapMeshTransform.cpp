@@ -6,8 +6,7 @@ namespace OksEngine {
 
 	void MapMeshTransform::Update(
 		ECS2::Entity::Id entityId,
-		const Position3D* position3D1,
-		const ModelEntity* modelEntity1) {
+		const Position3D* position3D1) {
 
 		//auto* position = world->GetComponent<Position3D>(entityId);
 		/*auto* driverModel = world->GetComponent<DriverModel>(entityId);
@@ -27,15 +26,5 @@ namespace OksEngine {
 
 	}
 
-	//std::pair<ECS::Entity::Filter, ECS::Entity::Filter> MapMeshTransform::GetFilter() const noexcept {
-	//	static std::pair<ECS::Entity::Filter, ECS::Entity::Filter> filter = 
-	//	{ ECS::Entity::Filter{}
-	//		.Include<Position3D>()
-	//		.Include<ModelEntity>(),
-	//		ECS::Entity::Filter{}.ExcludeAll() };
-
-	//	return filter;
-
-	//}
 
 }

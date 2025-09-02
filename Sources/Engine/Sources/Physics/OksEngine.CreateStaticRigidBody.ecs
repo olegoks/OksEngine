@@ -9,7 +9,7 @@ updateMethod = {
 				"Rotation3D",
 				"Material",
 				"PhysicsShape",
-				"ModelEntity",
+				-- "ModelEntity",
 				"StaticRigidBodyCustomMeshShape"
 	 		},
 	 		createsComponents = {

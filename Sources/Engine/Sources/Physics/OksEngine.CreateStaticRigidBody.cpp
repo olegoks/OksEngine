@@ -13,7 +13,6 @@ namespace OksEngine {
 		const Rotation3D* rotation3D,
 		const Material* material,
 		const PhysicsShape* physicsShape,
-		const ModelEntity* modelEntity,
 		const StaticRigidBodyCustomMeshShape* staticRigidBodyCustomMeshShape,
 		ECS2::Entity::Id entity2Id,
 		PhysicsEngine* physicsEngine) {
