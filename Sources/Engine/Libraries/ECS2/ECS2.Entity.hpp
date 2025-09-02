@@ -10,7 +10,7 @@
 #include <utility>
 #include <set>
 #include <bitset>
-#include <Common.hpp>
+#include <Common.Types.hpp>
 
 namespace ECS2 {
 

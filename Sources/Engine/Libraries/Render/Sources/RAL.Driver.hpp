@@ -294,6 +294,11 @@ namespace RAL {
 			}
 
 			[[nodiscard]]
+			const std::string& GetName() const noexcept {
+				return createInfo_.name_;
+			}
+
+			[[nodiscard]]
 			Type GetType() const noexcept { return createInfo_.type_; }
 
 			virtual ~Shader() noexcept = default;

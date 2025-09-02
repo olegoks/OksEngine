@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Common.hpp>
+#include <Common.Types.hpp>
 #include <Math.Common.hpp>
 
 namespace Math {

@@ -7,6 +7,7 @@
 #include <iostream>
 
 #include <Common.Types.hpp>
+#include <Common.hpp>
 
 namespace Common {
 
@@ -15,15 +16,21 @@ namespace Common {
 
 		template<class ...Args>
 		Format(const char* format, Args&& ...args) {
-			text_ = std::vformat(format, std::make_format_args(args...));
+			if (IsDebug()) {
+				text_ = std::vformat(format, std::make_format_args(args...));
+			}
 		}
 
 		Format(const std::string format) {
-			text_ = format;
+			if (IsDebug()) {
+				text_ = format;
+			}
 		}
 
 		Format(const char* format) {
-			text_ = format;
+			if (IsDebug()) {
+				text_ = format;
+			}
 		}
 
 

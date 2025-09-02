@@ -106,7 +106,52 @@ namespace Render::Vulkan {
 
 
 
+	class Includer : public glslang::TShader::Includer {
+	public:
 
+		Includer(const std::vector<std::string>& includePaths)
+			: includePaths_(includePaths) {}
+
+		IncludeResult* includeLocal(const char* headerName,
+			const char* includerName,
+			size_t inclusionDepth) override {
+			return includeSystem(headerName, includerName, inclusionDepth);
+		}
+
+		IncludeResult* includeSystem(const char* headerName,
+			const char* includerName,
+			size_t inclusionDepth) override {
+			// Ищем файл в указанных путях
+			for (const auto& path : includePaths_) {
+				std::string fullPath = path + "/" + headerName;
+				if (std::filesystem::exists(fullPath)) {
+					//TODO: need nromal solutution
+					static std::string content = readFile(fullPath);
+					return new IncludeResult(
+						headerName,
+						content.c_str(),
+						content.size(),
+						nullptr
+					);
+				}
+			}
+			return nullptr; // Файл не найден
+		}
+
+		void releaseInclude(IncludeResult* result) override {
+			delete result;
+		}
+
+		std::string readFile(const std::string& filepath) {
+			std::ifstream file(filepath);
+			return std::string(
+				(std::istreambuf_iterator<char>(file)),
+				std::istreambuf_iterator<char>()
+			);
+		}
+
+		std::vector<std::string> includePaths_;
+	};
 
 
 	class Shader : public RAL::Driver::Shader {
@@ -145,29 +190,64 @@ namespace Render::Vulkan {
 			const char* shaderStrings[1];
 			shaderStrings[0] = GetCode().c_str();
 
-			EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules);
+			EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules/* | EShMsgDebugInfo*/);
 
-			glslang::TShader shader(TypeToStage(GetType()));
-			shader.setStrings(shaderStrings, 1);
-
+			//TODO: take shaders include dir from config
+			std::vector<std::string> includePaths = {
+				"D:/OksEngine/Resources/Shaders/"
+			};
 			TBuiltInResource resources;
 			initResources(resources);
 
-			if (!shader.parse(&resources, 100, false, messages)) {
+
+			Includer includer(includePaths);
+
+
+			glslang::TShader shader(TypeToStage(GetType()));
+			shader.setStrings(shaderStrings, 1);
+			shader.setDebugInfo(true);
+			shader.setSourceFile(GetName().c_str());
+			//shader.addSourceText(GetCode().c_str(), GetCode().size());
+			
+			//shader.addProcesses
+			//shader.preprocess();
+			//shader.setSourceEntryPoint("main");
+			std::string preprocessedCode;
+			const bool result = shader.preprocess(&resources, 450, ENoProfile, false, false, messages, &preprocessedCode, includer);
+
+
+#pragma region Assert
+			OS::Assert(result);
+#pragma endregion
+
+
+			if (!shader.parse(&resources, 100, false, messages, includer)) {
 				OS::AssertFailMessage({ "Shader compilation failed: {}", shader.getInfoLog() });
 				glslang::FinalizeProcess();
 
 			}
 
+
 			glslang::TProgram program;
+			//program.ы
 			program.addShader(&shader);
 
 			if (!program.link(messages)) {
 				OS::AssertFailMessage({ "Shader linking failed: {}", program.getInfoDebugLog() });
 				glslang::FinalizeProcess();
 			}
+
+			spv::SpvBuildLogger logger;
+			glslang::SpvOptions spvOptions;
+
+			// Критически важные настройки для NonSemantic.Shader.DebugInfo.100
+			spvOptions.generateDebugInfo = true;
+			spvOptions.stripDebugInfo = false;
+			spvOptions.disableOptimizer = true;
+			spvOptions.validate = true;
+
 			std::vector<unsigned> spirv;
-			glslang::GlslangToSpv(*program.getIntermediate(TypeToStage(GetType())), spirv);
+			glslang::GlslangToSpv(*program.getIntermediate(TypeToStage(GetType())), spirv, &logger, &spvOptions);
 
 			glslang::FinalizeProcess();
 

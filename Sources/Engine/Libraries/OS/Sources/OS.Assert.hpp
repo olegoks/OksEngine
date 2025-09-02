@@ -4,6 +4,8 @@
 
 #include <Common.hpp>
 
+#include <Common.Format.hpp>
+
 namespace OS {
 
 	void AssertMessage(bool expression, Common::Format&& format, const std::source_location& location = std::source_location::current());
