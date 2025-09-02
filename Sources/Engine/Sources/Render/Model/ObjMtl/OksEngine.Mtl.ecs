@@ -1,4 +1,0 @@
-MtlComponent = {
-    fields = { { type="std::string", name="data" },
-    { type="std::string", name="name" }  }
-}
