@@ -39,9 +39,13 @@ namespace OksEngine
 	}
 
 	void ProcessModelAnimation::Update(
-		ECS2::Entity::Id entity0id, const Model* model0,
-		const ModelAnimations* modelAnimations0, const AnimationInProgress* animationInProgress0,
-		const ChildModelNodeEntities* childModelNodeEntities0, ECS2::Entity::Id entity1id, const Clock* clock1,
+		ECS2::Entity::Id entity0id, 
+		const Model* model0,
+		const ModelAnimations* modelAnimations0,
+		const AnimationInProgress* animationInProgress0,
+		const ChildModelNodeEntities* childModelNodeEntities0,
+		ECS2::Entity::Id entity1id,
+		const Clock* clock1,
 		const TimeSinceEngineStart* timeSinceEngineStart1) {
 
 		auto it = std::find_if(
@@ -82,7 +86,6 @@ namespace OksEngine
 				const double ticksSinceAnimationStart = modelAnimation.ticksPerSecond_ * (timeSinceAnimationStart / 1000000.0);
 
 
-				auto* localNodeRotation3D = GetComponent<LocalRotation3D>(nodeEntityId);
 
 				auto* localNodePosition3D = GetComponent<LocalPosition3D>(nodeEntityId);
 
@@ -90,9 +93,11 @@ namespace OksEngine
 				for (Common::Index i = 1; i < nodeChannel.position3DValues_.size(); i++) {
 					const ChannelPositionKey& previousPosition3DKey = nodeChannel.position3DValues_[i - 1];
 					const ChannelPositionKey& currentPosition3DKey = nodeChannel.position3DValues_[i];
+
+
 					if (ticksSinceAnimationStart > previousPosition3DKey.time_ && ticksSinceAnimationStart < currentPosition3DKey.time_) {
 
-						if (glm::distance(currentPosition3DKey.position3D_, previousPosition3DKey.position3D_) < 10000 * std::numeric_limits<decltype(previousPosition3DKey.position3D_.x)>::epsilon()) {
+						if (glm::distance(currentPosition3DKey.position3D_, previousPosition3DKey.position3D_) < 0.00001) {
 							break;
 						}
 
@@ -102,12 +107,12 @@ namespace OksEngine
 						float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTime;
 						const glm::vec3 currentPosition3D = glm::mix(previousPosition3DKey.position3D_, currentPosition3DKey.position3D_, normalizedCurrentTimeInInterval);
 
-						if (
-							std::isnan(currentPosition3D.x) ||
-							std::isnan(currentPosition3D.y) ||
-							std::isnan(currentPosition3D.z)) {
-							Common::BreakPointLine();
-						}
+#pragma region Assert
+						OS::AssertMessage(
+							!std::isnan(currentPosition3D.x) &&
+							!std::isnan(currentPosition3D.y) &&
+							!std::isnan(currentPosition3D.z), "");
+#pragma endregion
 
 #pragma region Assert
 						OS::AssertMessage(
@@ -122,10 +127,7 @@ namespace OksEngine
 					}
 				}
 
-				auto* localNodeScale3D = GetComponent<LocalScale3D>(nodeEntityId);
-
-
-
+				auto* localNodeRotation3D = GetComponent<LocalRotation3D>(nodeEntityId);
 
 				for (Common::Index i = 1; i < nodeChannel.rotation3DValues_.size(); i++) {
 					const ChannelRotationKey& previousRotation3DKey = nodeChannel.rotation3DValues_[i - 1];
@@ -144,6 +146,38 @@ namespace OksEngine
 						break;
 					}
 				}
+
+
+				auto* localNodeScale3D = GetComponent<LocalScale3D>(nodeEntityId);
+
+				for (Common::Index i = 1; i < nodeChannel.scale3DValues_.size(); i++) {
+					const ChannelScaleKey& previousScale3DKey = nodeChannel.scale3DValues_[i - 1];
+					const ChannelScaleKey& currentScale3DKey = nodeChannel.scale3DValues_[i];
+
+					if (ticksSinceAnimationStart > previousScale3DKey.time_ && ticksSinceAnimationStart < currentScale3DKey.time_) {
+
+						if (glm::distance(currentScale3DKey.scale3D_, previousScale3DKey.scale3D_) < 0.001) {
+							break;
+						}
+
+						const double intervalTime = currentScale3DKey.time_ - previousScale3DKey.time_;
+						const double currentTimeInInterval = ticksSinceAnimationStart - previousScale3DKey.time_;
+						//currentTimeInInterval to [0 .. 1].
+						float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTime;
+						const glm::vec3 currentScale3D = glm::slerp(previousScale3DKey.scale3D_, currentScale3DKey.scale3D_, normalizedCurrentTimeInInterval);
+#pragma region Assert
+						OS::AssertMessage(
+							!std::isnan(currentScale3D.x) &&
+							!std::isnan(currentScale3D.y) &&
+							!std::isnan(currentScale3D.z), "");
+#pragma endregion
+						localNodeScale3D->x_ = currentScale3D.x;
+						localNodeScale3D->y_ = currentScale3D.y;
+						localNodeScale3D->z_ = currentScale3D.z;
+						break;
+					}
+				}
+
 			}
 
 
