@@ -90,44 +90,9 @@ int main(int argc, char** argv) {
 		}
 	}
 
-
-
 	//Set pointers to systems, components
+	//TODO: move to separate function.
 	{
-		//auto findSystem = [](ECSGenerator2::ParsedSystemPtr parsedSystem, const std::string& systemFullName) {
-
-		//	const auto systemParsedFullName = ECSGenerator2::ParseFullName(systemFullName);
-
-		//	std::vector<std::string> systemNamespace;
-		//	if (systemParsedFullName.size() > 1) {
-		//		for (Common::Index i = 0; i < systemParsedFullName.size() - 1; i++) {
-		//			systemNamespace.push_back(systemParsedFullName[i]);
-		//		}
-		//	}
-		//	const std::string systemName = systemParsedFullName.back();
-		//	//Find namespace
-		//	if (!systemNamespace.empty()) {
-		//		std::function<void(ECSGenerator2::ParsedTablePtr)> processParent = [&](ECSGenerator2::ParsedTablePtr parsedTable) {
-
-
-		//			if (parsedTable->GetName() == systemNamespace[0]) {
-		//				//Found namespace 
-
-		//			}
-
-		//			if (parsedTable->parentTable_ != nullptr) {
-		//				processParent(parsedTable->parentTable_);
-		//			}
-		//	};
-
-
-		//		if (parsedSystem->parentTable_ != nullptr) {
-		//			processParent(parsedSystem->parentTable_);
-		//		}
-		//	};
-
-		//};
-
 		auto mergeArraysPreserveOrder = [](const std::vector<std::string>& arr1,
 			const std::vector<std::string>& arr2) {
 				std::vector<std::string> result;
