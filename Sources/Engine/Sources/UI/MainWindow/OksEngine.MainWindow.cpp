@@ -27,7 +27,7 @@ namespace OksEngine
 		const ECS2::Entity::Id mainWindowEntity = CreateEntity();
 
 		CreateComponent<MainWindow>(mainWindowEntity, window);
-		CreateComponent<KeyboardEvents>(mainWindowEntity);
+		CreateComponent<Input::KeyboardEvents>(mainWindowEntity);
 		CreateComponent<MouseEvents>(mainWindowEntity);
 		CreateComponent<CursorEvents>(mainWindowEntity);
 		CreateComponent<MainWindowResizeEvent>(mainWindowEntity);

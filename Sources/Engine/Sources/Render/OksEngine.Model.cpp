@@ -846,18 +846,13 @@ namespace OksEngine
 
 		const RAL::Driver::RP::Id renderPassId = driver->CreateRenderPass(rpCI);
 
-		//DEPTH BUFFER
-		RAL::Driver::Texture::CreateInfo1 depthBufferCreateInfo{
-			.name_ = "Depth buffer",
-			.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
-			.size_ = { 2560, 1440 },
-			.targetState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
-			.targetAccess_ = RAL::Driver::Texture::Access::DepthStencilWrite,
-			.targetStages_ = { RAL::Driver::Pipeline::Stage::EarlyFragmentTests, RAL::Driver::Pipeline::Stage::LateFragmentTests },
-			.usages_ = { RAL::Driver::Texture::Usage::DepthStencilAttachment },
-			.mipLevels_ = 1
-		};
-		const RAL::Driver::Texture::Id depthBufferId = driver->CreateTexture(depthBufferCreateInfo);
+
+		CreateComponent<RenderPass>(entity0id, renderPassId);
+	}
+
+
+	void CreateRenderAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
+
 
 		//RENDER BUFFER
 		RAL::Driver::Texture::CreateInfo1 renderBufferCreateInfo{
@@ -870,23 +865,51 @@ namespace OksEngine
 			.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment, RAL::Driver::Texture::Usage::TransferSource },
 			.mipLevels_ = 1
 		};
-		const RAL::Driver::Texture::Id renderBufferId = driver->CreateTexture(renderBufferCreateInfo);
+		const RAL::Driver::Texture::Id renderBufferId = renderDriver0->driver_->CreateTexture(renderBufferCreateInfo);
 
+		CreateComponent<RenderAttachment>(entity0id, renderBufferId);
+
+	}
+
+	void CreateDepthAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
+
+
+		//DEPTH BUFFER
+		RAL::Driver::Texture::CreateInfo1 depthBufferCreateInfo{
+			.name_ = "Depth buffer",
+			.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
+			.size_ = { 2560, 1440 },
+			.targetState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+			.targetAccess_ = RAL::Driver::Texture::Access::DepthStencilWrite,
+			.targetStages_ = { RAL::Driver::Pipeline::Stage::EarlyFragmentTests, RAL::Driver::Pipeline::Stage::LateFragmentTests },
+			.usages_ = { RAL::Driver::Texture::Usage::DepthStencilAttachment },
+			.mipLevels_ = 1
+		};
+
+		const RAL::Driver::Texture::Id depthBufferId = renderDriver0->driver_->CreateTexture(depthBufferCreateInfo);
+
+		CreateComponent<DepthAttachment>(entity0id, depthBufferId);
+
+	}
+
+	void CreateAttachmentSet::Update(
+		ECS2::Entity::Id entity0id,
+		const RenderDriver* renderDriver0, 
+		const RenderPass* renderPass0,
+		const RenderAttachment* renderAttachment0, 
+		const DepthAttachment* depthAttachment0) {
 
 		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
-			.rpId_ = renderPassId,
-			.textures_ = { depthBufferId, renderBufferId },
+			.rpId_ = renderPass0->rpId_,
+			.textures_ = { depthAttachment0->textureId_, renderAttachment0->textureId_ },
 			.size_ = glm::u32vec2{ 2560, 1440 }
 		};
 
-		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = driver->CreateAttachmentSet(attachmentSetCI);
+		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = renderDriver0->driver_->CreateAttachmentSet(attachmentSetCI);
 
-		CreateComponent<RenderPass>(entity0id,
-			renderPassId,
-			rpAttachmentsSetId,
-			std::vector<Common::Id>{ depthBufferId, renderBufferId });
+		CreateComponent<AttachmentSet>(entity0id, rpAttachmentsSetId);
+
 	}
-
 
 	void CreatePipeline::Update(
 		ECS2::Entity::Id entity0id,
@@ -1058,15 +1081,17 @@ namespace OksEngine
 		ECS2::Entity::Id entity0id,
 		RenderDriver* renderDriver0,
 		const RenderPass* renderPass0,
+		const AttachmentSet* attachmentSet0, 
 		const Pipeline* pipeline0) {
 
 		renderDriver0->driver_->BeginRenderPass(
 			renderPass0->rpId_,
-			renderPass0->attachmentsSetId_,
+			attachmentSet0->attachmentsSetId_,
 			{ 0, 0 },
 			{ 2560, 1440 });
 
 	}
+
 
 	void UpdateLocalPosition3D::Update(
 		ECS2::Entity::Id entity0id,

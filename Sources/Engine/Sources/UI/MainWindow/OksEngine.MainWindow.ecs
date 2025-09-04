@@ -23,7 +23,7 @@ CreateMainWindowSystem = {
         {
             createsComponents = {
                 "MainWindow",
-                "KeyboardEvents",
+                "Input::KeyboardEvents",
                 "MouseEvents",
                 "CursorEvents",
                 "MainWindowResizeEvent"

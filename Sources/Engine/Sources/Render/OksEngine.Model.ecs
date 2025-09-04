@@ -370,9 +370,7 @@ CreateModelSystem = {
 RenderPassComponent = {
     serializable = false,
     fields = {
-        { type = "Common::Id", name = "rpId" },
-        { type = "Common::Id", name = "attachmentsSetId" }, -- Synonym of VkFramebuffer
-        { type = "std::vector<Common::Id>", name = "textureIds" }
+        { type = "Common::Id", name = "rpId" }
     }
 }
 
@@ -400,6 +398,98 @@ CreateRenderPassSystem = {
     }
 }
 
+RenderAttachmentComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "textureId" }
+    }
+}
+
+CreateRenderAttachmentSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { "CreateRenderPass" },
+        runBefore = {}
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver"
+                },
+                excludes = {
+                    "RenderAttachment"
+                },
+                createsComponents = {
+                    "RenderAttachment"
+                }
+            }
+        }
+    }
+}
+
+DepthAttachmentComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "textureId" }
+    }
+}
+
+CreateDepthAttachmentSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { "CreateRenderPass" },
+        runBefore = {}
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver"
+                },
+                excludes = {
+                    "DepthAttachment"
+                },
+                createsComponents = {
+                    "DepthAttachment"
+                }
+            }
+        }
+    }
+}
+
+AttachmentSetComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "attachmentsSetId" } -- Synonym of VkFramebuffer
+    }
+}
+
+CreateAttachmentSetSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { "CreateRenderAttachment", "CreateDepthAttachment" },
+        runBefore = {}
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver",
+                    "RenderPass",
+                    "RenderAttachment",
+                    "DepthAttachment"
+                },
+                excludes = {
+                    "AttachmentSet"
+                },
+                createsComponents = {
+                    "AttachmentSet"
+                }
+            }
+        }
+    }
+}
 
 PipelineComponent = {
     serializable = false,
@@ -455,7 +545,9 @@ CreateSkeletonModelPipelineSystem = {
             "CreateRenderDriver",
             "CreateResourceSystem",
             "ConfigureResourceSystem",
-            "CreateRenderPass"
+            "CreateRenderPass",
+            "CreateDepthAttachment",
+            "CreateRenderAttachment"
         }
     },
     updateMethod = {
@@ -524,6 +616,7 @@ BeginRenderPassSystem = {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false},
                     "RenderPass",
+                    "AttachmentSet",
                     "Pipeline"
                 }
             }

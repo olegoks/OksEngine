@@ -232,6 +232,28 @@ namespace OksEngine
 
 	}
 
+
+	void CreateDebugTextAttachmentSet::Update(
+		ECS2::Entity::Id entity0id, 
+		const RenderDriver* renderDriver0,
+		const RenderAttachment* renderAttachment0,
+		
+		ECS2::Entity::Id entity1id,
+		const DebugTextRenderer* debugTextRenderer1,
+		const DebugTextRenderPass* debugTextRenderPass1) {
+
+		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
+			.rpId_ = debugTextRenderPass1->rpId_,
+			.textures_ = { renderAttachment0->textureId_ }, // Render target attachment texture id 
+			.size_ = glm::u32vec2{ 2560, 1440 }
+		};
+
+		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = renderDriver0->driver_->CreateAttachmentSet(attachmentSetCI);
+
+		CreateComponent<DebugTextAttachmentSet>(entity1id, rpAttachmentsSetId);
+
+	}
+
 	void CreateDebugTextRenderPass::Update(
 		ECS2::Entity::Id entity0id,
 		const RenderDriver* renderDriver0,
@@ -285,20 +307,13 @@ namespace OksEngine
 		//};
 		//const RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
 
-		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
-			.rpId_ = renderPassId,
-			.textures_ = { renderPass0->textureIds_[1] }, // Render target attachment texture id 
-			.size_ = glm::u32vec2{ 2560, 1440 }
-		};
-
-		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = driver->CreateAttachmentSet(attachmentSetCI);
 
 		CreateComponent<DebugTextRenderPass>(entity1id,
-			renderPassId,
-			rpAttachmentsSetId,
-			std::vector<Common::Id>{ renderPass0->textureIds_[1] });
+			renderPassId);
 
 	};
+
+
 
 	void CreateDebugTextPipeline::Update(
 		ECS2::Entity::Id entity0id,
@@ -370,19 +385,21 @@ namespace OksEngine
 	};
 
 	void BeginDebugTextRenderPass::Update(
-		ECS2::Entity::Id entity0id,
+		ECS2::Entity::Id entity0id, 
 		RenderDriver* renderDriver0,
-		const RenderPass* renderPass0,
-		const Pipeline* pipeline0,
-
+		
 		ECS2::Entity::Id entity1id,
-		const DebugTextRenderer* debugTextRenderer1,
+		const DebugTextRenderer* debugTextRenderer1, 
 		const DebugTextRenderPass* debugTextRenderPass1,
+		const DebugTextAttachmentSet* debugTextAttachmentSet1,
 		const DebugTextPipeline* debugTextPipeline1) {
 
 		auto driver = renderDriver0->driver_;
 
-		driver->BeginRenderPass(debugTextRenderPass1->rpId_, debugTextRenderPass1->attachmentsSetId_, { 0, 0 }, { 2560, 1440 });
+		driver->BeginRenderPass(
+			debugTextRenderPass1->rpId_, 
+			debugTextAttachmentSet1->attachmentSetId_,
+			{ 0, 0 }, { 2560, 1440 });
 		driver->BeginSubpass();
 
 	}

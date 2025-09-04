@@ -79,11 +79,12 @@ namespace OksEngine
 	};
 
 	void CreateImGuiRenderPass::Update(
-		ECS2::Entity::Id entity0id,
-		const ImGuiState* imGuiState0, 
+		ECS2::Entity::Id entity0id, 
+		const ImGuiState* imGuiState0,
+		
 		ECS2::Entity::Id entity1id,
-		const RenderDriver* renderDriver1, 
-		const RenderPass* renderPass1, 
+		const RenderDriver* renderDriver1,
+		const RenderPass* renderPass1,
 		const Pipeline* pipeline1) {
 
 		auto driver = renderDriver1->driver_;
@@ -129,28 +130,38 @@ namespace OksEngine
 		//};
 		//const RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
 
-		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
-			.rpId_ = renderPassId,
-			.textures_ = { renderPass1->textureIds_[1] },
-			.size_ = glm::u32vec2{ 2560, 1440 }
-		};
 
-		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = driver->CreateAttachmentSet(attachmentSetCI);
-
-		CreateComponent<ImGuiRenderPass>(entity0id,
-			renderPassId,
-			rpAttachmentsSetId,
-			std::vector<Common::Id>{ renderPass1->textureIds_[1] });
-
+		CreateComponent<ImGuiRenderPass>(entity0id, renderPassId);
 
 	}
 
+	void CreateImGuiAttachmentSet::Update(
+		ECS2::Entity::Id entity0id, 
+		const RenderDriver* renderDriver0,
+		const RenderAttachment* renderAttachment0,
+		
+		ECS2::Entity::Id entity1id,
+		const ImGuiState* imGuiState1,
+		const ImGuiRenderPass* imGuiRenderPass1) {
+
+
+		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
+			.rpId_ = imGuiRenderPass1->rpId_,
+			.textures_ = { renderAttachment0->textureId_ },
+			.size_ = glm::u32vec2{ 2560, 1440 }
+		};
+
+		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = renderDriver0->driver_->CreateAttachmentSet(attachmentSetCI);
+
+		CreateComponent<ImGuiAttachmentSet>(entity1id, rpAttachmentsSetId);
+	}
+
 	void BeginImGuiRenderPass::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0, const ImGuiRenderPass* imGuiRenderPass0,
-		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
+		const ImGuiAttachmentSet* imGuiAttachmentSet0, ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
 		auto driver = renderDriver1->driver_;
 
-		driver->BeginRenderPass(imGuiRenderPass0->rpId_, imGuiRenderPass0->attachmentsSetId_, { 0, 0 }, { 2560, 1440 });
+		driver->BeginRenderPass(imGuiRenderPass0->rpId_, imGuiAttachmentSet0->attachmentsSetId_, { 0, 0 }, { 2560, 1440 });
 		driver->BeginSubpass();
 
 	}
@@ -194,8 +205,6 @@ namespace OksEngine
 
 		driver->EndSubpass();
 		driver->EndRenderPass();
-
-		driver->Show(imGuiRenderPass0->textureIds_[0]);
 
 	}
 

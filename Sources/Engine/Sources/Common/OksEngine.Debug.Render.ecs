@@ -190,9 +190,9 @@ CreateDebugTextAtlasSystem = {
 DebugTextRenderPassComponent = {
     serializable = false,
     fields = {
-        { type = "Common::Id", name = "rpId" },
-        { type = "Common::Id", name = "attachmentsSetId" }, -- Synonym of VkFramebuffer
-        { type = "std::vector<Common::Id>", name = "textureIds" }
+        { type = "Common::Id", name = "rpId" }
+        -- { type = "Common::Id", name = "attachmentsSetId" }, -- Synonym of VkFramebuffer
+        -- { type = "std::vector<Common::Id>", name = "textureIds" }
     }
 }
 
@@ -222,6 +222,47 @@ CreateDebugTextRenderPassSystem = {
                 },
                 createsComponents = {
                     "DebugTextRenderPass"
+                }
+            }
+        }
+    }
+}
+
+DebugTextAttachmentSetComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "attachmentSetId" }
+    }
+}
+
+CreateDebugTextAttachmentSetSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { 
+            "CreateRenderAttachment", 
+            "CreateDepthAttachment",
+            "CreateDebugTextRenderer",
+            "CreateDebugTextRenderPass" },
+        runBefore = {}
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver",
+                    "RenderAttachment"
+                }
+            },
+            {
+                processesComponents = {
+                    "DebugTextRenderer",
+                    "DebugTextRenderPass"
+                },
+                excludes = {
+                    "DebugTextAttachmentSet"
+                },
+                createsComponents = {
+                    "DebugTextAttachmentSet"
                 }
             }
         }
@@ -284,15 +325,14 @@ BeginDebugTextRenderPassSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    { name = "RenderDriver", readonly = false},
-                    "RenderPass",
-                    "Pipeline"
+                    { name = "RenderDriver", readonly = false}
                 }
             },
             {
                 processesComponents = {
                     "DebugTextRenderer",
                     "DebugTextRenderPass",
+                    "DebugTextAttachmentSet",
                     "DebugTextPipeline"
                 }
             }

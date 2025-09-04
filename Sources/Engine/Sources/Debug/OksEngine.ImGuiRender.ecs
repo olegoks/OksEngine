@@ -1,10 +1,7 @@
-
 ImGuiRenderPassComponent = {
     serializable = false,
     fields = {
-        { type = "Common::Id", name = "rpId" },
-        { type = "Common::Id", name = "attachmentsSetId" }, -- Synonym of VkFramebuffer
-        { type = "std::vector<Common::Id>", name = "textureIds" }
+        { type = "Common::Id",              name = "rpId" }
     }
 }
 
@@ -42,6 +39,43 @@ CreateImGuiRenderPassSystem = {
     }
 }
 
+ImGuiAttachmentSetComponent = {
+    type = "Initialize",
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "attachmentsSetId" }
+    }
+}
+
+CreateImGuiAttachmentSetSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { "CreateRenderAttachment" },
+        runBefore = {}
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver",
+                    "RenderAttachment"
+                }
+            },
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImGuiRenderPass"
+                },
+                excludes = {
+                    "ImGuiAttachmentSet"
+                },
+                createsComponents = {
+                    "ImGuiAttachmentSet"
+                }
+            }
+        }
+    }
+}
 
 ImGuiPipelineComponent = {
     serializable = false,
@@ -104,127 +138,127 @@ ImGuiRenderBufferAttachmentComponent = {
 
 ImGuiDriverIndexBufferComponent = {
     serializable = false,
-    fields = { 
-        { type="RAL::Driver::IndexBuffer::Id", name="id" },
-        { type="Common::Size", name="capacity" },
-        { type="Common::Size", name="size" }
+    fields = {
+        { type = "RAL::Driver::IndexBuffer::Id", name = "id" },
+        { type = "Common::Size",               name = "capacity" },
+        { type = "Common::Size",               name = "size" }
     }
 }
 
 CreateImGuiDriverIndexBufferSystem = {
-      type = "Initialize",
-      callOrder = {
+    type = "Initialize",
+    callOrder = {
         runAfter = { "CreateImGuiState", "CreateRenderDriver" }
-      },
+    },
     updateMethod = {
-     processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState"
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState"
+                },
+                createsComponents = {
+                    "ImGuiDriverIndexBuffer"
+                },
+                excludes = { "ImGuiDriverIndexBuffer" }
             },
-            createsComponents = {
-                "ImGuiDriverIndexBuffer"
-            },
-            excludes = { "ImGuiDriverIndexBuffer" }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
-    }
     }
 }
 
 ImGuiDriverVertexBufferComponent = {
     serializable = false,
-    fields = { 
-        { type="RAL::Driver::VertexBuffer::Id", name="id" },
-        { type="Common::Size", name="capacity" },
-        { type="Common::Size", name="size" }
+    fields = {
+        { type = "RAL::Driver::VertexBuffer::Id", name = "id" },
+        { type = "Common::Size",                name = "capacity" },
+        { type = "Common::Size",                name = "size" }
     }
 }
 
 CreateImGuiDriverVertexBufferSystem = {
     type = "Initialize",
     callOrder = {
-        runAfter = { 
-        "CreateImGuiState",
-        "CreateRenderDriver" }
+        runAfter = {
+            "CreateImGuiState",
+            "CreateRenderDriver" }
 
-    
+
     },
     updateMethod = {
-     processesEntities = {
-        {
-            processesComponents = {
-                "ImGuiState"
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState"
+                },
+                createsComponents = {
+                    "ImGuiDriverVertexBuffer"
+                },
+                excludes = { "ImGuiDriverVertexBuffer" }
             },
-            createsComponents = {
-                "ImGuiDriverVertexBuffer"
-            },
-            excludes = { "ImGuiDriverVertexBuffer" }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
-    }
     }
 }
 
 CreateImGuiDriverTransform2DSystem = {
-  type = "Initialize",
-  callOrder = {
-  
-    runAfter = { "CreateImGuiState", "CreateRenderDriver" }
-  },
+    type = "Initialize",
+    callOrder = {
+
+        runAfter = { "CreateImGuiState", "CreateRenderDriver" }
+    },
     updateMethod = {
-     processesEntities = {
-        {
-            processesComponents = { 
-                "ImGuiState"
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState"
+                },
+                excludes = { "DriverTransform2D" },
+                createsComponents = {
+                    "DriverTransform2D"
+                }
             },
-            excludes = { "DriverTransform2D" },
-            createsComponents = {
-                "DriverTransform2D"
-            }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
-    }
     }
 }
 
 
 UpdateImGuiDriverTransform2DSystem = {
     updateMethod = {
-     processesEntities = {
-        {
-            processesComponents = { 
-                "ImGuiState",
-                 "DriverTransform2D"
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "DriverTransform2D"
+                },
             },
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
-    }
     }
 }
 
 ImGuiAtlasTextureComponent = {
     serializable = false,
-    fields = { 
-        { type = "Common::Size", name = "width" },
-        { type = "Common::Size", name = "height"},
-        { type = "std::vector<Geom::Color4b>", name = "pixels"} }
+    fields = {
+        { type = "Common::Size",               name = "width" },
+        { type = "Common::Size",               name = "height" },
+        { type = "std::vector<Geom::Color4b>", name = "pixels" } }
 }
 
 CreateImGuiAtlasTextureSystem = {
@@ -233,83 +267,83 @@ CreateImGuiAtlasTextureSystem = {
         runAfter = "CreateImGuiState"
     },
     updateMethod = {
-    processesEntities = {
-        {
-            processesComponents = { 
-                { name = "ImGuiState", readonly = false } 
-            },
-            excludes = { "ImGuiAtlasTexture" },
-            createsComponents = { "ImGuiAtlasTexture" }
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "ImGuiState", readonly = false }
+                },
+                excludes = { "ImGuiAtlasTexture" },
+                createsComponents = { "ImGuiAtlasTexture" }
+            }
         }
-    }
     }
 }
 
 
 ImGuiAtlasDriverTextureComponent = {
     serializable = false,
-    fields = { 
-        { type = "RAL::Driver::Texture::Id", name = "driverTextureId" }}
+    fields = {
+        { type = "RAL::Driver::Texture::Id", name = "driverTextureId" } }
 }
 
 
 CreateImGuiAtlasDriverTextureSystem = {
-  type = "Initialize",
-  callOrder = {
-    runAfter = { 
-        "CreateImGuiState",
-        "CreateImGuiAtlasTexture",
-        "CreateRenderDriver"
-    }
-  },
-  updateMethod = {
-  processesEntities = {
-    {
-      processesComponents = { 
-        "ImGuiState",
-		"ImGuiAtlasTexture"
-	    }, 
-      createsComponents = { "ImGuiAtlasDriverTexture" },
-      excludes = { "ImGuiAtlasDriverTexture" }
+    type = "Initialize",
+    callOrder = {
+        runAfter = {
+            "CreateImGuiState",
+            "CreateImGuiAtlasTexture",
+            "CreateRenderDriver"
+        }
     },
-    {
-      processesComponents = {
-        { name = "RenderDriver", readonly = false}
-      }
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImGuiAtlasTexture"
+                },
+                createsComponents = { "ImGuiAtlasDriverTexture" },
+                excludes = { "ImGuiAtlasDriverTexture" }
+            },
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
+            }
+        }
     }
-  }
-  }
 }
 
 
 CreateImGuiAtlasTextureResourceSystem = {
-  type = "Initialize",
-  callOrder = {
-    runAfter = { "CreateImGuiAtlasDriverTexture" }
-  },
-  updateMethod = {
-  processesEntities = {
-    {
-      processesComponents = { 
-            "ImGuiState",
-		    "ImGuiAtlasDriverTexture"
-	    }, 
-      createsComponents = { "TextureResource" },
-      excludes = { "TextureResource" }
+    type = "Initialize",
+    callOrder = {
+        runAfter = { "CreateImGuiAtlasDriverTexture" }
     },
-    {
-      processesComponents = {
-        { name = "RenderDriver", readonly = false}
-      }
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "ImGuiAtlasDriverTexture"
+                },
+                createsComponents = { "TextureResource" },
+                excludes = { "TextureResource" }
+            },
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
+            }
+        }
     }
-  }
-  }
 }
 
 
 
 BeginImGuiRenderPassSystem = {
- callOrder = {
+    callOrder = {
         runAfter = "StartRender",
         runBefore = "EndRender"
     },
@@ -318,12 +352,13 @@ BeginImGuiRenderPassSystem = {
             {
                 processesComponents = {
                     "ImGuiState",
-                    "ImGuiRenderPass"
+                    "ImGuiRenderPass",
+                    "ImGuiAttachmentSet"
                 }
             },
             {
-                processesComponents = { 
-                    { name = "RenderDriver", readonly = false } 
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
                 }
             }
         }
@@ -332,20 +367,20 @@ BeginImGuiRenderPassSystem = {
 
 UpdateImGuiRenderDataSystem = {
     updateMethod = {
-    processesEntities = {
-        {
-            processesComponents = { 
-                { name = "ImGuiState", readonly = true},
-                { name = "ImGuiDriverVertexBuffer", readonly = false },
-                { name = "ImGuiDriverIndexBuffer", readonly = false }
-            }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "ImGuiState",              readonly = true },
+                    { name = "ImGuiDriverVertexBuffer", readonly = false },
+                    { name = "ImGuiDriverIndexBuffer",  readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
-    }
     }
 }
 
@@ -358,7 +393,7 @@ AddImGuiMeshToRenderSystem = {
     updateMethod = {
         processesEntities = {
             {
-                processesComponents = { 
+                processesComponents = {
                     "ImGuiState",
                     "ImGuiPipeline",
                     "ImGuiRenderPass",
@@ -370,8 +405,8 @@ AddImGuiMeshToRenderSystem = {
                 }
             },
             {
-                processesComponents = { 
-                    { name = "RenderDriver", readonly = false } 
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
                 }
             }
         }
@@ -379,8 +414,8 @@ AddImGuiMeshToRenderSystem = {
 }
 
 EndImGuiRenderPassSystem = {
- callOrder = {
-        runAfter = { 
+    callOrder = {
+        runAfter = {
             "StartRender",
             "BeginImGuiRenderPass"
         },
@@ -395,8 +430,8 @@ EndImGuiRenderPassSystem = {
                 }
             },
             {
-                processesComponents = { 
-                    { name = "RenderDriver", readonly = false } 
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
                 }
             }
         }

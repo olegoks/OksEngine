@@ -1,0 +1,17 @@
+
+ShowRenderAttachmentSystem = {
+    callOrder = {
+        runBefore = "EndRender",
+        runAfter = "EndImGuiRenderPass"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false},
+                    "RenderAttachment"
+                }
+            }
+        }
+    }
+}
