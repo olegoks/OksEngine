@@ -241,10 +241,16 @@ namespace ECSGenerator2 {
 		};
 
 		struct CallOrderInfo {
-			std::vector<std::string> runAfter_;
-			std::vector<std::string> runBefore_;
 
-			using ProcessSystemName = std::function<bool(std::string)>;
+			struct System {
+				std::string name_;
+				std::shared_ptr<ParsedSystem> ptr_ = nullptr;
+			};
+
+			std::vector<System> runAfter_;
+			std::vector<System> runBefore_;
+
+			using ProcessSystemName = std::function<bool(System)>;
 
 			void ForEachRunAfterSystem(ProcessSystemName&& processSystemName);
 			void ForEachRunBeforeSystem(ProcessSystemName&& processSystemName);
@@ -309,6 +315,21 @@ namespace ECSGenerator2 {
 	};
 
 	using ParsedSystemPtr = std::shared_ptr<ParsedSystem>;
+
+	inline std::vector<std::string> GetSystemNamespace(ParsedSystemPtr parsedSystem) {
+
+		std::vector<std::string> systemNamespace;
+
+		parsedSystem->ForEachParentTable([&](ParsedTablePtr parsedTable) {
+			
+			systemNamespace.insert(systemNamespace.begin(), parsedTable->GetName());
+
+			return true;
+			
+			});
+
+		return systemNamespace;
+	}
 
 	[[nodiscard]]
 	inline bool AreSystemsCodependent(

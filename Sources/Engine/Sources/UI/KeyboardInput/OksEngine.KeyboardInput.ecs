@@ -1,10 +1,14 @@
-HandleKeyboardEventsComponent = {
-    fields = { }
-}
+InputNamespace = {
 
-KeyboardEventsComponent = {
-    serializable = false,
-    fields = { 
-        { type = "std::vector<std::pair<UIAL::Window::KeyboardKey, UIAL::Window::KeyAction>>", name = "events" }
-     }
+    HandleKeyboardEventsComponent = {
+        fields = {}
+    },
+
+    KeyboardEventsComponent = {
+        serializable = false,
+        fields = {
+            { type = "std::vector<std::pair<UIAL::Window::KeyboardKey, UIAL::Window::KeyAction>>", name = "events" }
+        }
+    }
+
 }

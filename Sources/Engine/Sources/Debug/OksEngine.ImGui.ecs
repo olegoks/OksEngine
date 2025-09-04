@@ -27,7 +27,7 @@ CreateImGuiStateSystem = {
             {
                 processesComponents = {
                     "MainWindow",
-                    "KeyboardEvents"
+                    "Input::KeyboardEvents"
                 }
             }
         },
@@ -36,7 +36,7 @@ CreateImGuiStateSystem = {
                 createsComponents = {
                     "ImGuiState",
                     "ImPlotContext",
-                    "HandleKeyboardEvents"
+                    "Input::HandleKeyboardEvents"
                 }
             }
         }
@@ -45,15 +45,15 @@ CreateImGuiStateSystem = {
 
 DestroyImGuiStateSystem = {
     callOrder = {
-        runAfter = { "SendWindowKeyboardEvents", "EndImGuiFrame" },
-        runBefore = "ClearKeyboardEvents",
+        runAfter = { "Input::SendWindowKeyboardEvents", "EndImGuiFrame" },
+        runBefore = "Input::ClearKeyboardEvents",
     },
     updateMethod = {
         processesEntities = {
             {
                 processesComponents = {
                     "ImGuiState",
-                    "KeyboardEvents"
+                    "Input::KeyboardEvents"
                 }
             }
         }
@@ -75,7 +75,7 @@ CreateImPlotContextSystem = {
             {
                 processesComponents = {
                     "ImGuiState",
-                    "HandleKeyboardEvents",
+                    "Input::HandleKeyboardEvents",
                 },
                 excludes = {
                     "ImPlotState"

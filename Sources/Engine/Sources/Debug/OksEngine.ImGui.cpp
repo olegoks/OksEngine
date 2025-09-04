@@ -9,7 +9,7 @@ namespace OksEngine
 	void CreateImGuiState::Update(
 		ECS2::Entity::Id entity0id,
 		const MainWindow* mainWindow0,
-		const KeyboardEvents* keyboardInput0) {
+		const Input::KeyboardEvents* keyboardInput0) {
 
 		//if (IsEntityExist<ImGuiState>()) {
 		//	return;
@@ -31,14 +31,14 @@ namespace OksEngine
 		ECS2::Entity::Id entityId = CreateEntity();
 
 		CreateComponent<ImGuiState>(entityId);
-		CreateComponent<HandleKeyboardEvents>(entityId);
+		CreateComponent<Input::HandleKeyboardEvents>(entityId);
 
 	};
 
 	void CreateImPlotContext::Update(
 		ECS2::Entity::Id entity0id,
 		const ImGuiState* imGuiState0,
-		const HandleKeyboardEvents* handleKeyboardInput0) {
+		const Input::HandleKeyboardEvents* handleKeyboardInput0) {
 
 		std::shared_ptr<ImPlotContext> implotState{
 			ImPlot::CreateContext(), [](ImPlotContext* context) {
@@ -73,7 +73,7 @@ namespace OksEngine
 	void DestroyImGuiState::Update(
 		ECS2::Entity::Id entity0id,
 		const ImGuiState* imGuiState0,
-		const KeyboardEvents* keyboardInput0) {
+		const Input::KeyboardEvents* keyboardInput0) {
 
 		if (!IsEntityExist<ImGuiState>()) {
 			return;

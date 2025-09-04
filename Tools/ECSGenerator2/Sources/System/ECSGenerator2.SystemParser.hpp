@@ -29,33 +29,33 @@ namespace ECSGenerator2 {
 
 				auto parseRunAfter = [](luabridge::LuaRef systemRef) {
 
-					std::vector<std::string> runAfterSystems;
+					std::vector<ParsedSystem::CallOrderInfo::System> runAfterSystems;
 					luabridge::LuaRef runAfterRef = systemRef["runAfter"];
 					if (!runAfterRef.isNil()) {
 						if (runAfterRef.isTable()) {
 							for (luabridge::Iterator it(runAfterRef); !it.isNil(); ++it) {
 								luabridge::LuaRef runAfterSystemRef = it.value();
-								runAfterSystems.push_back(runAfterSystemRef.cast<std::string>().value());
+								runAfterSystems.push_back({ runAfterSystemRef.cast<std::string>().value(), nullptr });
 							}
 						}
 						else {
-							runAfterSystems.push_back(runAfterRef.cast<std::string>().value());
+							runAfterSystems.push_back( { runAfterRef.cast<std::string>().value(), nullptr });
 						}
 					}
 					return runAfterSystems;
 					};
 				auto parseRunBefore = [](luabridge::LuaRef systemRef) {
-					std::vector<std::string> runBeforeSystems;
+					std::vector<ParsedSystem::CallOrderInfo::System> runBeforeSystems;
 					luabridge::LuaRef runBeforeRef = systemRef["runBefore"];
 					if (!runBeforeRef.isNil()) {
 						if (runBeforeRef.isTable()) {
 							for (luabridge::Iterator it(runBeforeRef); !it.isNil(); ++it) {
 								luabridge::LuaRef runAfterSystemRef = it.value();
-								runBeforeSystems.push_back(runAfterSystemRef.cast<std::string>().value());
+								runBeforeSystems.push_back({ runAfterSystemRef.cast<std::string>().value(), nullptr });
 							}
 						}
 						else {
-							runBeforeSystems.push_back(runBeforeRef.cast<std::string>().value());
+							runBeforeSystems.push_back({ runBeforeRef.cast<std::string>().value(), nullptr });
 						}
 					}
 					return runBeforeSystems;

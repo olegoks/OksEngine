@@ -3,8 +3,8 @@
 namespace OksEngine {
 void DestroyMainMenuBar::Update(ECS2::Entity::Id entityId,
                                 const ImGuiState* imGuiState,
-                                const HandleKeyboardEvents* handleKeyboardInput,
-                                const KeyboardEvents* keyboardInput,
+                                const Input::HandleKeyboardEvents* handleKeyboardInput,
+                                const Input::KeyboardEvents* keyboardInput,
                                 const MainMenuBar* mainMenuBar) {
 	//RemoveComponent<MainMenuBar>(entityId);
 };

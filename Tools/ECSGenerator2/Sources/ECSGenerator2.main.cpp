@@ -86,7 +86,149 @@ int main(int argc, char** argv) {
 			if (ecsFile != nullptr) {
 				parsedECSFiles.push_back(ecsFile);
 			}
-			
+
+		}
+	}
+
+
+
+	//Set pointers to systems, components
+	{
+		//auto findSystem = [](ECSGenerator2::ParsedSystemPtr parsedSystem, const std::string& systemFullName) {
+
+		//	const auto systemParsedFullName = ECSGenerator2::ParseFullName(systemFullName);
+
+		//	std::vector<std::string> systemNamespace;
+		//	if (systemParsedFullName.size() > 1) {
+		//		for (Common::Index i = 0; i < systemParsedFullName.size() - 1; i++) {
+		//			systemNamespace.push_back(systemParsedFullName[i]);
+		//		}
+		//	}
+		//	const std::string systemName = systemParsedFullName.back();
+		//	//Find namespace
+		//	if (!systemNamespace.empty()) {
+		//		std::function<void(ECSGenerator2::ParsedTablePtr)> processParent = [&](ECSGenerator2::ParsedTablePtr parsedTable) {
+
+
+		//			if (parsedTable->GetName() == systemNamespace[0]) {
+		//				//Found namespace 
+
+		//			}
+
+		//			if (parsedTable->parentTable_ != nullptr) {
+		//				processParent(parsedTable->parentTable_);
+		//			}
+		//	};
+
+
+		//		if (parsedSystem->parentTable_ != nullptr) {
+		//			processParent(parsedSystem->parentTable_);
+		//		}
+		//	};
+
+		//};
+
+		auto mergeArraysPreserveOrder = [](const std::vector<std::string>& arr1,
+			const std::vector<std::string>& arr2) {
+				std::vector<std::string> result;
+				std::unordered_set<std::string> seen;
+
+				// Сначала добавляем все уникальные элементы из первого массива
+				for (const auto& str : arr1) {
+					if (seen.find(str) == seen.end()) {
+						result.push_back(str);
+						seen.insert(str);
+					}
+				}
+
+				// Затем добавляем уникальные элементы из второго массива
+				for (const auto& str : arr2) {
+					if (seen.find(str) == seen.end()) {
+						result.push_back(str);
+						seen.insert(str);
+					}
+				}
+
+				return result;
+			};
+
+		auto getTableByFullName = [](
+			const std::vector<std::shared_ptr<ECSGenerator2::ParsedECSFile>> parsedECSFiles,
+			const std::vector<std::string>& arr1) {
+
+				for (const auto parsedEcsFile : parsedECSFiles) {
+					if (parsedEcsFile->GetName() == "OksEngine.KeyboardInputSystems") {
+						Common::BreakPointLine();
+					}
+					auto fullPath = ECSGenerator2::GetTablePathByFullName(parsedEcsFile, arr1);
+					if (!fullPath.empty()) {
+						return fullPath;
+					}
+				}
+
+				return ECSGenerator2::ParsedTablesPath{};
+			};
+
+		for (const auto parsedEcsFile : parsedECSFiles) {
+			parsedEcsFile->ForEachSystem([&](ECSGenerator2::ParsedSystemPtr parsedSystem) {
+
+				const auto systemNamespace = ECSGenerator2::GetSystemNamespace(parsedSystem);
+				const auto systemName = parsedSystem->GetName();
+
+				if (parsedSystem->ci_.callOrderInfo_ != nullptr) {
+
+					for (auto& runAfterSystem : parsedSystem->ci_.callOrderInfo_->runAfter_) {
+						//at first lets find run after system in namespace of current system.
+						const auto runAfterName = ECSGenerator2::ParseFullName(runAfterSystem.name_);
+						const auto runAfterSystemFullName = mergeArraysPreserveOrder(systemNamespace, runAfterName);
+
+						if (runAfterSystem.name_ == "SendWindowKeyboardEvents") {
+							Common::BreakPointLine();
+						}
+
+						//Try to find from namespace of current system and using source system name.
+						const auto runAfterSystemTablesFullPathFirst = getTableByFullName(parsedECSFiles, runAfterSystemFullName);
+						const auto runAfterSystemTablesFullPathSecond = getTableByFullName(parsedECSFiles, runAfterName);
+
+						if (!runAfterSystemTablesFullPathFirst.empty()) {
+							runAfterSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(runAfterSystemTablesFullPathFirst.back());
+						}
+						else if (!runAfterSystemTablesFullPathSecond.empty()) {
+							runAfterSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(runAfterSystemTablesFullPathSecond.back());
+						}
+						else {
+							OS::AssertFailMessage({ "Incorrect run after system name \"{}\" in system {}", runAfterSystem.name_, parsedSystem->GetName() });
+						}
+					}
+
+					for (auto& runBeforeSystem : parsedSystem->ci_.callOrderInfo_->runBefore_) {
+						//at first lets find run after system in namespace of current system.
+						const auto runBeforeName = ECSGenerator2::ParseFullName(runBeforeSystem.name_);
+						const auto runBeforeSystemFullName = mergeArraysPreserveOrder(systemNamespace, runBeforeName);
+
+						if (runBeforeSystem.name_ == "SendWindowKeyboardEvents") {
+							Common::BreakPointLine();
+						}
+
+						//Try to find from namespace of current system and using source system name.
+						const auto runBeforeSystemTablesFullPathFirst = getTableByFullName(parsedECSFiles, runBeforeSystemFullName);
+						const auto runBeforeSystemTablesFullPathSecond = getTableByFullName(parsedECSFiles, runBeforeName);
+
+						if (!runBeforeSystemTablesFullPathFirst.empty()) {
+							runBeforeSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(runBeforeSystemTablesFullPathFirst.back());
+						}
+						else if (!runBeforeSystemTablesFullPathSecond.empty()) {
+							runBeforeSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(runBeforeSystemTablesFullPathSecond.back());
+						}
+						else {
+							OS::AssertFailMessage({ "Incorrect run after system name \"{}\" in system {}", runBeforeSystem.name_, parsedSystem->GetName() });
+						}
+					}
+
+				}
+
+				return true;
+				});
 		}
 	}
 
@@ -113,7 +255,7 @@ int main(int argc, char** argv) {
 			auto systemHppFile = codeStructureGenerator.GenerateECSFileHppFile(includeDirArgv, parsedECSFile);
 			const auto ecsHppPath = parsedECSFile->GetPath().parent_path() / ("auto_" + parsedECSFile->GetPath().filename().stem().string() + ".hpp");
 			structureFiles[ecsHppPath] = systemHppFile;
-			
+
 			//Generate system cpp file.
 			//Generate .cpp files if they doesn't exist.
 			const auto ecsCppPath = parsedECSFile->GetPath().parent_path() / (parsedECSFile->GetPath().filename().stem().string() + ".cpp");
@@ -122,9 +264,9 @@ int main(int argc, char** argv) {
 			if (!isFileExist) {
 				const bool isContainsSystem = parsedECSFile->IsContainsSystems();
 				bool needToRealizeHelpFunctions = false;
-				
+
 				parsedECSFile->ForEachComponent([&](ECSGenerator2::ParsedComponentPtr parsedComponent) {
-					
+
 					needToRealizeHelpFunctions = parsedComponent->IsNeedToImplementHelpFunction();
 					if (needToRealizeHelpFunctions) {
 						return false;

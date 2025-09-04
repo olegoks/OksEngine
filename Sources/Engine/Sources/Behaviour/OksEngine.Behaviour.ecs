@@ -71,8 +71,8 @@ BehaviourNamespace = {
 
     CallKeyboardEventsProcessorSystem = {
         callOrder = {
-            runAfter = "SendWindowKeyboardEvents",
-            runBefore = "ClearKeyboardEvents"
+            runAfter = "Input::SendWindowKeyboardEvents",
+            runBefore = "Input::ClearKeyboardEvents"
         },
         updateMethod = {
             processesEntities = {
@@ -81,7 +81,7 @@ BehaviourNamespace = {
                         "ScriptName",
                         "ObjectName",
                         { name = "LuaContext",    readonly = false },
-                        { name = "KeyboardEvents", readonly = false },
+                        { name = "Input::KeyboardEvents", readonly = false },
                         "Input::KeyMappings"
                         -- { name = "MouseEvents",    readonly = false }
                     }

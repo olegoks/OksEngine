@@ -1657,13 +1657,13 @@ namespace ECSGenerator2 {
 						currentSystemNodeId = initCallGraph.FindNode(parsedSystem);
 					}
 					if (parsedSystem->ci_.callOrderInfo_ != nullptr) {
-						parsedSystem->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const std::string& afterSystem) {
+						parsedSystem->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const ParsedSystem::CallOrderInfo::System& afterSystem) {
 							DS::Graph<ParsedSystemPtr>::Node::Id afterSystemNodeId = DS::Graph<ParsedSystemPtr>::Node::invalidId_;
 
 							ParsedSystemPtr afterSystemPtr = nullptr;
 							for (auto parsedSystem : parsedSystems) {
 								auto fullSystemName = GetFullTableNameWithNamespace(parsedSystem);
-								if (afterSystem == fullSystemName) {
+								if (afterSystem.name_ == fullSystemName) {
 									afterSystemPtr = parsedSystem;
 								}
 							}
@@ -1680,14 +1680,14 @@ namespace ECSGenerator2 {
 							});
 					}
 					if (parsedSystem->ci_.callOrderInfo_ != nullptr) {
-						parsedSystem->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const std::string& beforeSystem) {
+						parsedSystem->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const ParsedSystem::CallOrderInfo::System& beforeSystem) {
 
 							DS::Graph<ParsedSystemPtr>::Node::Id beforeSystemNodeId = DS::Graph<ParsedSystemPtr>::Node::invalidId_;
 
 							ParsedSystemPtr beforeSystemPtr = nullptr;
 							for (auto parsedSystem : parsedSystems) {
 								auto fullSystemName = GetFullTableNameWithNamespace(parsedSystem);
-								if (beforeSystem == fullSystemName) {
+								if (beforeSystem.name_ == fullSystemName) {
 									beforeSystemPtr = parsedSystem;
 								}
 							}
@@ -2220,12 +2220,12 @@ namespace ECSGenerator2 {
 					DS::Graph<System>::Node::Id currentSystemNodeId = getCreateSystemNode(thread.callGraph_, system);
 
 					if (system->ci_.callOrderInfo_ != nullptr) {
-						system->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const std::string& afterSystem) {
+						system->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const ParsedSystem::CallOrderInfo::System& afterSystem) {
 #pragma region Assert 
 							//OS::AssertMessage(thread.systems_.contains(afterSystem), "Current thread doesn't contain After System:" + afterSystem);
 #pragma endregion		
 
-							auto parsedSystem = getSystemByFullName(parsedECSFiles, afterSystem);
+							auto parsedSystem = afterSystem.ptr_;//getSystemByFullName(parsedECSFiles, afterSystem);
 
 #pragma region Assert
 							OS::AssertMessage(parsedSystem != nullptr, "");
@@ -2237,11 +2237,11 @@ namespace ECSGenerator2 {
 							});
 					}
 					if (system->ci_.callOrderInfo_ != nullptr) {
-						system->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const std::string& beforeSystem) {
+						system->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const ParsedSystem::CallOrderInfo::System& beforeSystem) {
 #pragma region Assert 
 							//OS::AssertMessage(thread.systems_.contains(beforeSystem), "Current thread doesn't contain Before System:" + beforeSystem);
 #pragma endregion		
-							auto parsedSystem = getSystemByFullName(parsedECSFiles, beforeSystem);
+							auto parsedSystem = beforeSystem.ptr_;//getSystemByFullName(parsedECSFiles, beforeSystem);
 #pragma region Assert
 							OS::AssertMessage(parsedSystem != nullptr, "");
 #pragma endregion

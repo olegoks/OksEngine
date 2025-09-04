@@ -1,6 +1,6 @@
 CreateMainMenuBarSystem = {
     callOrder = {
-        runBefore = "ClearKeyboardEvents"
+        runBefore = "Input::ClearKeyboardEvents"
     },
     updateMethod = {
         processesEntities = {

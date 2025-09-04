@@ -98,7 +98,7 @@ namespace OksEngine
 			const ScriptName* scriptName0,
 			const ObjectName* objectName0,
 			LuaContext* luaContext0,
-			KeyboardEvents* keyboardEvents0,
+			Input::KeyboardEvents* keyboardEvents0,
 			const Input::KeyMappings* input__KeyMappings0) {
 
 			luabridge::LuaRef luaObject = luaContext0->context_->GetGlobalAsRef("object");

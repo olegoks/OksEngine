@@ -4,8 +4,8 @@ DestroyMainMenuBarSystem = {
             {
                 processesComponents = {
                     "ImGuiState",
-                    "HandleKeyboardEvents",
-                    "KeyboardEvents",
+                    "Input::HandleKeyboardEvents",
+                    "Input::KeyboardEvents",
                     "MainMenuBar"
                 },
                 removesComponents = {
