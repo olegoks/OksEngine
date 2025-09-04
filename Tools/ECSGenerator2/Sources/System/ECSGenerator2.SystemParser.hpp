@@ -155,7 +155,7 @@ namespace ECSGenerator2 {
 							}
 
 							parsedEntityIncludes.push_back(parsedInclude);
-							OS::AssertMessage(std::isupper(parsedEntityIncludes.back().name_[0]), "");
+							OS::AssertMessage(std::isupper(parsedEntityIncludes.back().name_[0]), "Name of component must be uppercase");
 						}
 
 						return parsedEntityIncludes;

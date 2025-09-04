@@ -8,6 +8,7 @@
 #include <OS.Logger.hpp>
 
 #include <ECSGenerator2.ParsedTable.hpp>
+#include <Component/ECSGenerator2.ParsedComponent.hpp>
 #include <ECSGenerator2.Code.hpp>
 
 namespace ECSGenerator2 {
@@ -19,6 +20,7 @@ namespace ECSGenerator2 {
 		using Exclude = std::string;
 
 		struct Include {
+			std::shared_ptr<ParsedComponent> ptr_ = nullptr;
 			std::string name_;
 			bool readonly_ = true;
 
@@ -107,9 +109,19 @@ namespace ECSGenerator2 {
 			std::vector<std::string> removes_;
 			bool randomAccessComponents_ = false; // Process components that are not required using IsComponentExist()/GetComponentsFilter() and GetComponent()
 
-			using ProcessInclude = std::function<bool(const Include& include, bool isLast)>;
+			using ProcessInclude = std::function<bool(Include& include, bool isLast)>;
 
-			void ForEachInclude(ProcessInclude&& processInclude) const {
+			void ForEachInclude(ProcessInclude&& processInclude) {
+				for (Common::Index i = 0; i < includes_.size(); i++) {
+					Include& include = includes_[i];
+					if (!processInclude(include, (i == includes_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+			using ProcessConstInclude = std::function<bool(const Include& include, bool isLast)>;
+			void ForEachInclude(ProcessConstInclude&& processInclude) const {
 				for (Common::Index i = 0; i < includes_.size(); i++) {
 					const Include& include = includes_[i];
 					if (!processInclude(include, (i == includes_.size() - 1))) {
@@ -224,9 +236,11 @@ namespace ECSGenerator2 {
 
 			void ForEachRandomAccessComponent(ProcessComponentName&& processComponent) const;
 
-			using ProcessRequestEntity = std::function<bool(const ProcessedEntity& entity, bool isLast)>;
-			void ForEachProcessEntity(ProcessRequestEntity&& processEntity) const;
+			using ProcessConstRequestEntity = std::function<bool(const ProcessedEntity& entity, bool isLast)>;
+			void ForEachProcessEntity(ProcessConstRequestEntity&& processEntity) const;
 
+			using ProcessRequestEntity = std::function<bool(ProcessedEntity& entity, bool isLast)>;
+			void ForEachProcessEntity(ProcessRequestEntity&& processEntity);
 
 			[[nodiscard]]
 			bool IsProcessesComponent(const std::string& component);

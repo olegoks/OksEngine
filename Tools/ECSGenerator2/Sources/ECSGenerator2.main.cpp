@@ -175,6 +175,40 @@ int main(int argc, char** argv) {
 				const auto systemNamespace = ECSGenerator2::GetSystemNamespace(parsedSystem);
 				const auto systemName = parsedSystem->GetName();
 
+				parsedSystem->ci_.updateMethod_->ForEachProcessEntity(
+					[&](ECSGenerator2::ParsedSystem::ProcessedEntity& entity, bool isLast) {
+						entity.ForEachInclude([&](ECSGenerator2::ParsedSystem::Include& include, bool isLast) {
+						
+							const auto componentName = include.GetName();
+
+							//at first lets find run after system in namespace of current system.
+							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
+
+							//if (runAfterSystem.name_ == "SendWindowKeyboardEvents") {
+							//	Common::BreakPointLine();
+							//}
+
+							//Try to find from namespace of current system and using source system name.
+							const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
+							const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
+
+							if (!componentTablesFullPathFirst.empty()) {
+								include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
+							}
+							else if (!componentTablesFullPathSecond.empty()) {
+								include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
+							}
+							else {
+								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+							}
+
+							return true;
+							});
+
+						return true;
+					});
+				
 				if (parsedSystem->ci_.callOrderInfo_ != nullptr) {
 
 					for (auto& runAfterSystem : parsedSystem->ci_.callOrderInfo_->runAfter_) {

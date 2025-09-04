@@ -16,7 +16,7 @@ namespace ECSGenerator2 {
 
 		//static char {variableName}[256] = "";
 		//static Common::UInt64 {variableName};
-		CodeStructure::Code GenerateTypeImGuiInputVariable(const std::string& typeName, std::string variableName) {
+		inline CodeStructure::Code GenerateTypeImGuiInputVariable(const std::string& typeName, std::string variableName) {
 			CodeStructure::Code code;
 			const std::string& fieldTypeName = typeName;
 			if (fieldTypeName == "std::string") {
@@ -41,7 +41,7 @@ namespace ECSGenerator2 {
 
 		//// ImGui::InputScalar("Value", ImGuiDataType_Float, {outVariable});\n
 		//// ImGui::InputText("Value", {outVariable}, IM_ARRAYSIZE({outVariable}));\n
-		CodeStructure::Code GenerateImGuiInputTypeCode(const std::string& imguiVariableName, const std::string& typeName, std::string outVariable) {
+		inline CodeStructure::Code GenerateImGuiInputTypeCode(const std::string& imguiVariableName, const std::string& typeName, std::string outVariable) {
 			CodeStructure::Code code;
 			if (typeName == "std::string") {
 				code.Add("ImGui::InputText(\"" + imguiVariableName + "\", " + outVariable + ", IM_ARRAYSIZE(" + outVariable + "));");
@@ -70,7 +70,7 @@ namespace ECSGenerator2 {
 			return code;
 		}
 
-		CodeStructure::Code GenerateTypeImGuiEditCode(
+		inline CodeStructure::Code GenerateTypeImGuiEditCode(
 			const std::string& componentVariableName,			// position3D	//name
 			const std::string& fieldVariableTypeName,			// float		//std::string
 			const std::string& fieldVariableName,				// x			//value

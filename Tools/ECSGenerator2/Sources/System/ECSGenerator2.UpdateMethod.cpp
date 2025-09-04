@@ -124,11 +124,22 @@ namespace ECSGenerator2 {
 
 	}
 
-	using ProcessRequestEntity = std::function<bool(const ParsedSystem::ProcessedEntity& entity, bool isLast)>;
+	//using ProcessConstRequestEntity = std::function<bool(const ParsedSystem::ProcessedEntity& entity, bool isLast)>;
 
-	void ParsedSystem::UpdateMethodInfo::ForEachProcessEntity(ProcessRequestEntity&& processEntity) const {
+	void ParsedSystem::UpdateMethodInfo::ForEachProcessEntity(ProcessConstRequestEntity&& processEntity) const {
 		for (Common::Index i = 0; i < processesEntities_.size(); i++) {
 			const ProcessedEntity& entity = processesEntities_[i];
+			if (!processEntity(entity, (i == processesEntities_.size() - 1))) {
+				break;
+			}
+		}
+	}
+
+	//using ProcessRequestEntity = std::function<bool(ParsedSystem::ProcessedEntity& entity, bool isLast)>;
+
+	void ParsedSystem::UpdateMethodInfo::ForEachProcessEntity(ProcessRequestEntity&& processEntity) {
+		for (Common::Index i = 0; i < processesEntities_.size(); i++) {
+			ProcessedEntity& entity = processesEntities_[i];
 			if (!processEntity(entity, (i == processesEntities_.size() - 1))) {
 				break;
 			}
