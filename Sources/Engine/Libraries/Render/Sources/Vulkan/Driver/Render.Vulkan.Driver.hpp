@@ -1107,6 +1107,7 @@ namespace Render::Vulkan {
 			std::pair<Common::UInt32, Common::UInt32> offset,
 			std::pair<Common::UInt32, Common::UInt32> area) override {
 
+			Common::DiscardUnusedParameter(offset);
 			if (CB_ == nullptr) {
 				return;
 			}
@@ -2401,6 +2402,7 @@ namespace Render::Vulkan {
 					{
 						VkExtent2D extent = ci.swapChain_->GetExtent();
 						for (const auto& imageView : ci.swapChain_->GetImageViews()) {
+							Common::DiscardUnusedParameter(imageView);
 							FrameBuffer::CreateInfo createInfo;
 							{
 								createInfo.LD_ = ci.LD_;

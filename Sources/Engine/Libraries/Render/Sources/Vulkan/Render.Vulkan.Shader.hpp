@@ -121,6 +121,8 @@ namespace Render::Vulkan {
 		IncludeResult* includeSystem(const char* headerName,
 			const char* includerName,
 			size_t inclusionDepth) override {
+			Common::DiscardUnusedParameter(includerName);
+			Common::DiscardUnusedParameter(inclusionDepth);
 			// »щем файл в указанных пут€х
 			for (const auto& path : includePaths_) {
 				std::string fullPath = path + "/" + headerName;
