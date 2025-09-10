@@ -1,67 +1,189 @@
 scene = {
-	entities = {
+    entities = {
+        --{
+        --    ID = 0,
+        --    name = {value ="Tank" },
+        --    worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
+        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+        --    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+        --    model = { },
+        --    runModelAnimation = { animationName = "Animation" },
+        --    modelFile = { fileName = "fictional_cold_war_tank.glb" }
+        --},
+
+        --{
+        --    ID = 1,
+        --    name = {value ="Striker" },
+        --    worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
+        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+        --    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+        --    model = { },
+        --    runModelAnimation = { animationName = "ArmatureAction" },
+        --    modelFile = { fileName = "TwoBonesExample.glb" }
+        --},
+        {
+            ID = 2,
+            name = { value = "Man" },
+            worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+            model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
 --{
---    ID = 0,
---    name = {value ="Tank" },
---    worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
+--    ID = 22,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 5.0, y = 0.0, z = 0.0 },
 --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
---    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
---    model = { },
---    runModelAnimation = { animationName = "Animation" }, 
---    modelFile = { fileName = "fictional_cold_war_tank.glb" }
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
 --},
-        
 --{
---    ID = 1,
---    name = {value ="Striker" },
---    worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
+--    ID = 23,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 10.0, y = 0.0, z = 0.0 },
 --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
---    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
---    model = { },
---    runModelAnimation = { animationName = "ArmatureAction" }, 
---    modelFile = { fileName = "TwoBonesExample.glb" }
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
 --},
-{
-    ID = 2,
-    name = {value ="Man" },
-    worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
-    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
-    model = { },
-    runModelAnimation = { animationName = "Mutant Jumping" }, 
-    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-},
-{
-    ID = 2,
-    name = {value ="Robotic arm" },
-    worldPosition3D = { x = 3.0, y = 0.0, z = 3.0 },
-    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-    model = { },
-    runModelAnimation = { animationName = "Robotics" }, 
-    modelFile = { fileName = "black_honey_-_robotic_arm.glb" }
-},
 --{
---    ID = 3,
---    name = {value ="Magnum" },
---    worldPosition3D = { x = 5.0, y = 0.0, z = -2.0 },
+--    ID = 24,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 15.0, y = 0.0, z = 0.0 },
 --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
---    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
---    model = { },
---    runModelAnimation = { animationName = "sh_snip_stand_reload" }, 
---    modelFile = { fileName = "rifle__awp_weapon_model_cs2.glb" }
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
 --},
+--{
+--    ID = 25,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 20.0, y = 0.0, z = 0.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+--},
+--{
+--    ID = 32,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 5.0, y = 0.0, z = 5.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+--},
+--{
+--    ID = 33,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 10.0, y = 0.0, z = 5.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+--},
+--{
+--    ID = 34,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 15.0, y = 0.0, z = 5.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+--},
+--{
+--    ID = 35,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 20.0, y = 0.0, z = 5.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+--},
+--
+--{
+--    ID = 42,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 5.0, y = 0.0, z = 10.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+--},
+--{
+--    ID = 43,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 10.0, y = 0.0, z = 10.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+--},
+--{
+--    ID = 44,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 15.0, y = 0.0, z = 10.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+--},
+--{
+--    ID = 45,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 20.0, y = 0.0, z = 10.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+--},
+
+--     {
+--         ID = 3,
+--         name = { value = "Robotic arm" },
+--         worldPosition3D = { x = 3.0, y = 0.0, z = 3.0 },
+--         worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--         worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+--         model = {},
+--         runModelAnimation = { animationName = "Robotics" },
+--         modelFile = { fileName = "black_honey_-_robotic_arm.glb" }
+--     },
+        --{
+        --    ID = 3,
+        --    name = {value ="Magnum" },
+        --    worldPosition3D = { x = 5.0, y = 0.0, z = -2.0 },
+        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+        --    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+        --    model = { },
+        --    runModelAnimation = { animationName = "sh_snip_stand_reload" },
+        --    modelFile = { fileName = "rifle__awp_weapon_model_cs2.glb" }
+        --},
 
         {
             ID = 4,
-            camera = { },
+            camera = {},
             name = { value = "Camera" },
             worldPosition3D = { x = 0.0, y = 4.0, z = -10.0 },
             worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
             worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
             zFar = { value = 1000.0 },
             zNear = { value = 0.1 },
-            direction3D = { x = 0.0, y = -0.3,  z = 1.0 },
+            direction3D = { x = 0.0, y = -0.3, z = 1.0 },
             up3D = { x = 0, y = 1, z = 0 },
             width = { value = 2560 },
             height = { value = 1440 },
@@ -71,68 +193,15 @@ scene = {
             handleKeyboardEvents = {},
             handleMouseEvents = {},
             handleCursorEvents = {},
-            keyMappings = { 
-                { key = "W", value = "CAMERA_FORWARD" }, 
-                { key = "S", value = "CAMERA_BACK" },
-                { key = "A", value = "CAMERA_LEFT" },
-                { key = "D", value = "CAMERA_RIGHT" }, 
-                { key = "E", value = "CAMERA_UP" },
-                { key = "Q", value = "CAMERA_DOWN" }, 
+            keyMappings = {
+                { key = "W",          value = "CAMERA_FORWARD" },
+                { key = "S",          value = "CAMERA_BACK" },
+                { key = "A",          value = "CAMERA_LEFT" },
+                { key = "D",          value = "CAMERA_RIGHT" },
+                { key = "E",          value = "CAMERA_UP" },
+                { key = "Q",          value = "CAMERA_DOWN" },
                 { key = "LEFT_SHIFT", value = "CAMERA_SPEED_BOOST" }
             }
-        },
-    --{
-    --    ID = 5,
-    --    name = {value ="Military" },
-    --    worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
-    --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-    --    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-    --    model = { },
-    --    modelFile = { fileName = "Military.glb" }
-    --},
---  {
---      ID = 5,
---      name = {value ="Tank" },
---      worldPosition3D = { x = -5.0, y = 0.0, z = 0.0 },
---      worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
---      worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
---      model = { },
---      runModelAnimation = { animationName = "Animation" }, 
---      modelFile = { fileName = "fictional_cold_war_tank.glb" }
---  },
---  {
---      ID = 6,
---      name = {value ="Tank" },
---      worldPosition3D = { x = 10.0, y = 0.0, z = 0.0 },
---      worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
---      worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
---      model = { },
---      runModelAnimation = { animationName = "Animation" }, 
---      modelFile = { fileName = "fictional_cold_war_tank.glb" }
---  },
---  {
---      ID = 7,
---      name = {value ="Tank" },
---      worldPosition3D = { x = -10.0, y = 0.0, z = 0.0 },
---      worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
---      worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
---      model = { },
---      runModelAnimation = { animationName = "Animation" }, 
---      modelFile = { fileName = "fictional_cold_war_tank.glb" }
---  },
---  {
---      ID = 8,
---      name = {value ="Tank" },
---      worldPosition3D = { x = -15.0, y = 0.0, z = 0.0 },
---      worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
---      worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
---      model = { },
---      runModelAnimation = { animationName = "Animation" }, 
---      modelFile = { fileName = "fictional_cold_war_tank.glb" }
---  }
---  {
---      ID = 9,
---      debugText2D = { text = "matrix.xx = (FT_Fixed)( cos( angle ) * 0x10000L );", x = 100, y = 100 }
---  }
+        }
     }
 }

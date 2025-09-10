@@ -192,6 +192,10 @@ namespace ECSGenerator2 {
 			return ParsedTable::Type::System;
 		}
 
+		virtual std::shared_ptr<ParsedTable> Clone() const noexcept override {
+			return std::make_shared<ParsedSystem>(*this);
+		}
+
 		static Thread StringToThread(const std::string& threadString) noexcept {
 
 			if (threadString == "Main") {

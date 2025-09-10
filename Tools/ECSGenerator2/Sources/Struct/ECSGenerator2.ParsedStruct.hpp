@@ -45,6 +45,11 @@ namespace ECSGenerator2 {
 			return ParsedTable::Type::Struct;
 		}
 
+
+		virtual std::shared_ptr<ParsedTable> Clone() const noexcept override {
+			return std::make_shared<ParsedStruct>(*this);
+		}
+
 		bool AreThereFields() const {
 			return !ci_.fields_.empty();
 		}

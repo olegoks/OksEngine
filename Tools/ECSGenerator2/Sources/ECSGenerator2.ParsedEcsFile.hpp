@@ -49,22 +49,26 @@ namespace ECSGenerator2 {
 			}
 		}
 
-		void ForEachTable(ProcessTable&& processTable) const {
-
-			std::function<void(std::shared_ptr<ParsedTable>)> processParsedTable
-				= [&](std::shared_ptr<ParsedTable> table) {
-				processTable(table);
-				if (table->GetType() == ParsedTable::Type::Namespace) {
-					auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(table);
-					parsedNamespace->ForEachChildTable([&](std::shared_ptr<ParsedTable> parsedTable) {
-						processParsedTable(parsedTable);
-						});
-				}
-				};
+		void ForEachTable(const ProcessTable& processTable) const {
 			for (auto table : ci_.tables_) {
-				processParsedTable(table);
+				processTable(table);
+				table->ForEachChildTable(processTable);
 			}
 
+		}
+
+		void ForEachChildlessTable(const ProcessTable& processChildLessTable) {
+			for (auto table : ci_.tables_) {
+				if (!table->HasChilds()) {
+					const bool isContinue = processChildLessTable(table);
+					if (!isContinue) {
+						break;
+					}
+				}
+				else {
+					table->ForEachChildlessTable(processChildLessTable);
+				}
+			}
 		}
 
 		using ProcessTableWithChilds
@@ -87,9 +91,13 @@ namespace ECSGenerator2 {
 						if (table->GetType() == ParsedTable::Type::Namespace) {
 							auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(table);
 							childTables.push_back(table);
-							parsedNamespace->ForEachChildTable([&](std::shared_ptr<ParsedTable> parsedTable) {
+
+							auto processChildTable = [&](std::shared_ptr<ParsedTable> parsedTable) {
 								processParsedTable(childTables, parsedTable);
-								});
+								return true;
+								};
+
+							parsedNamespace->ForEachChildTable(processChildTable);
 							childTables.pop_back();
 						}
 
@@ -103,8 +111,8 @@ namespace ECSGenerator2 {
 		//Access systems.
 		using ProcessSystem = std::function<bool(std::shared_ptr<ParsedSystem>)>;
 
-		void ForEachSystem(ProcessSystem&& processSystem) const {
-			ForEachTable([&](std::shared_ptr<ParsedTable> table) {
+		void ForEachSystem(const ProcessSystem& processSystem) const {
+			auto processTable = [&](std::shared_ptr<ParsedTable> table) {
 				if (table->GetType() == ParsedTable::Type::System) {
 					auto parsedSystem = std::dynamic_pointer_cast<ParsedSystem>(table);
 					const bool isContinue = processSystem(parsedSystem);
@@ -113,7 +121,9 @@ namespace ECSGenerator2 {
 					}
 				}
 				return true;
-				});
+				};
+
+			ForEachTable(processTable);
 		}
 
 		//Access components.
@@ -151,7 +161,7 @@ namespace ECSGenerator2 {
 		using ProcessStruct = std::function<void(std::shared_ptr<ParsedStruct>)>;
 
 		void ForEachStruct(ProcessStruct&& processStruct) {
-			ForEachTable([&](std::shared_ptr<ParsedTable> table) {
+			auto processTable = [&](std::shared_ptr<ParsedTable> table) {
 				if (table->GetType() == ParsedTable::Type::Struct) {
 					auto parsedStruct = std::dynamic_pointer_cast<ParsedStruct>(table);
 					processStruct(parsedStruct);
@@ -159,7 +169,9 @@ namespace ECSGenerator2 {
 
 				}
 				return true;
-				});
+				};
+
+			ForEachTable(processTable);
 		}
 
 		[[nodiscard]]
@@ -254,34 +266,69 @@ namespace ECSGenerator2 {
 	//Get ParsedTables path if ParsedECSFile contains needed tables otherwise function returs empty ParsedTablesPath.
 	ParsedTablesPath GetTablePathByFullName(ParsedECSFilePtr parsedEcsFile, const std::vector<std::string>& path) {
 
-		ParsedTablesPath tablesPath;
-		Common::Index currentTable = 0;
+#pragma region Assert
+		OS::AssertMessage(!path.empty(), "");
+#pragma endregion
 
-		std::function<bool(ParsedTablePtr)> processTable = [&](ParsedTablePtr table) {
+		std::vector<std::string> parentRecursivePath;
+		for (Common::Int64 i = path.size() - 1; i >= 0; i--) {
+			parentRecursivePath.push_back(path[i]);
+		}
+		parentRecursivePath.erase(parentRecursivePath.begin());
 
-			if (table->GetName() == path[currentTable]) {
-				tablesPath.push_back(table);
-				++currentTable;
-				for (auto childTable : table->childTables_) {
-					const bool isContinue = processTable(childTable);
-					if (!isContinue) {
-						break;
-					}
-				}
-				return false;
-			}
-			
-			return true;
-
-			};
-
-		parsedEcsFile->ForEachRootTable(std::move(processTable));
-		
-		if (!tablesPath.empty() && tablesPath.back()->GetName() != path.back()) {
-			tablesPath.clear();
+		if ("OksEngine.ResourceSystem" == parsedEcsFile->GetName() && path[0] == "ResourceSystem") {
+			Common::BreakPointLine();
 		}
 
-		return tablesPath;
+
+		ParsedTablesPath resultTablePath;
+
+		bool pathIsFound = false;
+
+
+		auto processChildLessTable = [&](ParsedTablePtr childLessTable) {
+
+			if (path.back() == childLessTable->GetName()) {
+
+				if (parentRecursivePath.empty()) {
+					resultTablePath.push_back(childLessTable);
+					pathIsFound = true;
+					return false;
+				}
+
+				ParsedTablesPath tablesPath;
+				Common::Index index = 0;
+				//Found table with needed name.
+				childLessTable->ForEachParentTable([&](ParsedTablePtr table) {
+					if (table->GetName() == parentRecursivePath[index]) {
+						tablesPath.insert(tablesPath.begin(), table);
+						++index;
+						return true;
+					} else {
+						return false;
+					}
+
+					});
+
+				pathIsFound = tablesPath.size() == parentRecursivePath.size();
+				if (pathIsFound) {
+					tablesPath.push_back(childLessTable);
+					for (auto& tablePath : tablesPath) {
+						resultTablePath.push_back(tablePath);
+					}
+					return false;
+				}
+			}
+
+			return true;
+			};
+
+		parsedEcsFile->ForEachChildlessTable(processChildLessTable);
+
+		if (!pathIsFound) {
+			resultTablePath.clear();
+		}
+		return resultTablePath;
 	}
 
 };

@@ -48,8 +48,8 @@ namespace OS {
 		};
 
 		Logger(CreateInfo& createInfo) {
-			loguru::init(createInfo.argc_, createInfo.argv_);
-			loguru::add_file("auto_engine.log", loguru::Append, loguru::Verbosity_MAX);
+			//loguru::init(createInfo.argc_, createInfo.argv_);
+			//loguru::add_file("auto_engine.log", loguru::Append, loguru::Verbosity_MAX);
 		}
 
 		void Log(Severity severity, const std::string_view path, const Common::Format& format, const std::source_location& location = std::source_location::current()) {
@@ -57,7 +57,7 @@ namespace OS {
 			Common::DiscardUnusedParameter(path);
 			Common::DiscardUnusedParameter(location);
 			using namespace std::string_literals;
-			LOG_F(INFO, ("Location: "s + location.file_name() + " " + static_cast<std::string>(format)).c_str());
+			//LOG_F(INFO, ("Location: "s + location.file_name() + " " + static_cast<std::string>(format)).c_str());
 		}
 
 	private:

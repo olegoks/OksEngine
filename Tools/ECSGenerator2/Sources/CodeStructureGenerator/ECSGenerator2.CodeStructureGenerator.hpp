@@ -109,6 +109,11 @@ namespace ECSGenerator2 {
 					if (fieldInfo.GetTypeName().find("ImPlot") != std::string::npos) {
 						includes.paths_.insert("implot/implot.h");
 					}
+					if (fieldInfo.GetTypeName().find("ai") != std::string::npos) {
+						includes.paths_.insert("assimp/Importer.hpp");
+						includes.paths_.insert("assimp/scene.h");
+						includes.paths_.insert("assimp/postprocess.h");
+					}
 
 					return true;
 					});
@@ -116,7 +121,7 @@ namespace ECSGenerator2 {
 				return true;
 				});
 
-			if (parsedECSFile->GetName() == "OksEngine.Clock") {
+			if (parsedECSFile->GetName() == "OksEngine.Behaviour") {
 				Common::BreakPointLine();
 			}
 
@@ -156,7 +161,7 @@ namespace ECSGenerator2 {
 							for (Common::Index i = 0; i < base.size(); i++) {
 								namespaceObject->Add(base[i]);
 							}
-
+							return true;
 							});
 
 						return std::vector<std::shared_ptr<CodeStructure::Base>>{ namespaceObject };
@@ -314,10 +319,10 @@ namespace ECSGenerator2 {
 				}
 
 				//Hack Move template edit functions to end of .hpp file. Because of template specializetion cant be in child namespaces.
-				std::vector<std::string> currentNamespace;
+				
 				parsedECSFile->ForEachRootTable([&](std::shared_ptr<ParsedTable> table) {
 
-
+					std::vector<std::string> currentNamespace;
 					std::function<void(std::shared_ptr<ParsedTable>)> processTable
 						= [&](std::shared_ptr<ParsedTable> parsedTable) {
 
@@ -330,6 +335,7 @@ namespace ECSGenerator2 {
 
 							parsedNamespace->ForEachChildTable([&](std::shared_ptr<ParsedTable> parsedTable) {
 								processTable(parsedTable);
+								return true;
 								});
 
 						}
@@ -467,6 +473,7 @@ namespace ECSGenerator2 {
 								for (auto base : bases) {
 									namespaceObject->Add(base);
 								}
+								return true;
 								});
 
 							return std::vector<std::shared_ptr<CodeStructure::Base>>{ namespaceObject };

@@ -133,7 +133,11 @@ namespace DataStructures {
 		void ForEachData(ProcessData&& processor) noexcept;
 
 		Node& GetNode(Node::Id nodeId) noexcept;
-		const Node& GetNode(Node::Id nodeId) const noexcept;
+
+		const Node& GetNode(Node::Id nodeId) const {
+			return nodes_.GetElement(nodeId);
+		}
+
 		void Clear() noexcept;
 	private:
 
@@ -197,10 +201,7 @@ namespace DataStructures {
 		return nodes_.GetElement(nodeId);
 	}
 
-	template<class Type>
-	const Graph<Type>::Node& Graph<Type>::GetNode(Node::Id nodeId) const noexcept {
-		return nodes_.GetElement(nodeId);
-	}
+
 
 	template<class Type>
 	void Graph<Type>::Clear() noexcept {

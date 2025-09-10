@@ -122,7 +122,13 @@ int main(int argc, char** argv) {
 			const std::vector<std::string>& arr1) {
 
 				for (const auto parsedEcsFile : parsedECSFiles) {
-					if (parsedEcsFile->GetName() == "OksEngine.KeyboardInputSystems") {
+					if (parsedEcsFile->GetName() == "OksEngine.Behaviour") {
+						Common::BreakPointLine();
+					}
+					if (arr1[0] == "Behaviour" && arr1[1] == "ScriptName" && parsedEcsFile->GetName() == "OksEngine.Behaviour") {
+						Common::BreakPointLine();
+					}
+					if (arr1[0] == "ResourceSystem" && parsedEcsFile->GetName() == "OksEngine.ResourceSystem") {
 						Common::BreakPointLine();
 					}
 					auto fullPath = ECSGenerator2::GetTablePathByFullName(parsedEcsFile, arr1);

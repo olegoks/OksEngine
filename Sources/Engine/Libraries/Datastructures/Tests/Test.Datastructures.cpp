@@ -41,9 +41,9 @@ TEST(TestVersionedMap, Test5) {
 	std::thread thread1{ [&](){
 
 		queue.Push(10);
-		std::this_thread::sleep_for(500ms);
+		//std::this_thread::sleep_for(500ms);
 		queue.Push(20);
-		std::this_thread::sleep_for(1s);
+		//std::this_thread::sleep_for(1s);
 		queue.Push(10);
 	} };
 

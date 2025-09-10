@@ -322,7 +322,7 @@ namespace ECSGenerator2 {
 		//EDIT FUNCTION
 		std::shared_ptr<CodeStructure::Function> GenerateEditFunctionRealization(std::shared_ptr<ParsedComponent> component) {
 
-			if (component->GetName() == "ChildModelNodeEntities") {
+			if (component->GetName() == "ScriptName") {
 				Common::BreakPointLine();
 			}
 			CodeStructure::Code realization;

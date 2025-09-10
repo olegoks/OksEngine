@@ -83,9 +83,7 @@ namespace OksEngine
 		const ImGuiState* imGuiState0,
 		
 		ECS2::Entity::Id entity1id,
-		const RenderDriver* renderDriver1,
-		const RenderPass* renderPass1,
-		const Pipeline* pipeline1) {
+		const RenderDriver* renderDriver1) {
 
 		auto driver = renderDriver1->driver_;
 

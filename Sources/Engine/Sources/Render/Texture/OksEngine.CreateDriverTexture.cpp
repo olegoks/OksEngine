@@ -41,6 +41,12 @@ namespace OksEngine {
 		};
 		RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
 
+
+#pragma region Assert
+		OS::AssertMessage(!textureId.IsInvalid(), "");
+#pragma endregion
+
+
 		CreateComponent<DriverTexture>(entity1Id, textureId);
 	}
 

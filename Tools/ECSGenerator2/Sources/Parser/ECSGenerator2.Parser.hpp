@@ -43,11 +43,15 @@ namespace ECSGenerator2 {
 				std::sort(tables.begin(), tables.end(), [](
 					ParsedTablePtr first,
 					ParsedTablePtr second) {
+
+						
+
 						const auto type1 = first->GetType();
 						const auto type2 = second->GetType();
 
 						// Определяем приоритеты типов
 						const auto getPriority = [](ParsedTable::Type type) {
+
 							switch (type) {
 							case ParsedTable::Type::Struct:    return 0; // Высший приоритет
 							case ParsedTable::Type::Component: return 1;
@@ -97,8 +101,7 @@ namespace ECSGenerator2 {
 							}
 							sortTables(parsedNamespaceTables);
 							ParsedNamespace::CreateInfo namespaceCI{
-								.name_ = namespaceName,
-								.childTables_ = parsedNamespaceTables
+								.name_ = namespaceName
 							};
 							auto parsedNamespace = std::make_shared<ParsedNamespace>(namespaceCI);
 
@@ -148,11 +151,69 @@ namespace ECSGenerator2 {
 				}
 				luabridge::LuaRef table = ecsFile[globalName];
 				auto parsedTable = processTable(globalName, table);
-				if (parsedTable != nullptr) {
-					parsedTables.push_back(parsedTable);
+
+				//Separate namespace tables:
+				//namespace {
+				//	struct{}
+				//	struct {}
+				//}
+				//to:
+				//namespace {
+				//struct {}
+				// }
+				// namespace {
+				// struct {}
+				// }
+				if (parsedTable == nullptr) {
+					continue;
+				}
+				std::vector<ParsedTablePtr> separatedTables;
+
+				parsedTable->ForEachChildlessTable([&](ParsedTablePtr childlessTable) {
+
+#pragma region Assert
+					OS::AssertMessage(!childlessTable->HasChilds(), "");
+#pragma endregion							
+					auto parentTables = childlessTable->GetParentTables();
+
+					std::vector<ParsedTablePtr> clonedTables;
+					for (Common::Index i = 0; i < parentTables.size(); i++) {
+						auto clonedTable = parentTables[i]->Clone();
+						clonedTable->childTables_.clear();
+						//Set child table. If cloned table is not last
+						if (i < parentTables.size() - 1) {
+							clonedTable->childTables_.push_back(parentTables[i + 1]);
+						}
+						clonedTables.push_back(clonedTable);
+
+					}
+
+					auto clonedChildLessTable = childlessTable->Clone();
+					
+					if (!parentTables.empty()) {
+						clonedTables.back()->childTables_.push_back(clonedChildLessTable);
+					}
+
+					clonedTables.push_back(clonedChildLessTable);
+
+
+					separatedTables.push_back(clonedTables[0]);
+
+					return true;
+					});
+
+				//If there are no separated tables it means that parsed table doesnt have childs.
+				if (separatedTables.empty()) {
+					separatedTables.push_back(parsedTable);
+				}
+
+				for (auto separatedTable : separatedTables) {
+					parsedTables.push_back(separatedTable);
 				}
 			}
 			sortTables(parsedTables);
+
+
 
 			ParsedECSFile::CreateInfo pEcsFileCI{
 				.path_ = ecsFilePath,

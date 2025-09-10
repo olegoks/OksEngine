@@ -39,7 +39,7 @@ namespace OksEngine
 	}
 
 	void ProcessModelAnimation::Update(
-		ECS2::Entity::Id entity0id, 
+		ECS2::Entity::Id entity0id,
 		const Model* model0,
 		const ModelAnimations* modelAnimations0,
 		const AnimationInProgress* animationInProgress0,
@@ -299,6 +299,724 @@ namespace OksEngine
 		Common::Size size_;
 	};
 
+	void CreateAiScene::Update(
+		ECS2::Entity::Id entity0id,
+		const ModelFile* modelFile0,
+
+		ECS2::Entity::Id entity1id,
+		const ResourceSystem* resourceSystem1) {
+
+
+
+		Resources::ResourceData resourceData = resourceSystem1->system_->GetResourceSynch(
+			Subsystem::Type::ChildThread,
+			"Root/" + modelFile0->fileName_);
+
+		auto importer = std::make_shared<Assimp::Importer>();
+
+		importer->SetIOHandler(new GltfIOSystem{ resourceSystem1->system_ });
+
+		const unsigned int flags =
+			aiProcess_Triangulate |
+			aiProcess_GenNormals |
+			aiProcess_FlipUVs |
+			aiProcess_LimitBoneWeights |
+			aiProcess_PopulateArmatureData |
+			aiProcess_Debone |
+			aiProcess_ConvertToLeftHanded;
+
+		importer->SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
+
+		const aiScene* scene = importer->ReadFileFromMemory(
+			resourceData.GetData<Common::Byte>(),
+			resourceData.GetSize(),
+			flags,
+			"gltf"
+		);
+
+#pragma region Assert
+		auto errorString = std::string(importer->GetErrorString());
+
+		OS::AssertMessage(scene && scene->mRootNode,
+			"Failed to load model: " + errorString);
+#pragma endregion
+
+
+		std::shared_ptr<const aiScene> scenePtr(scene, [importer](const aiScene* scene) { importer->FreeScene(); });
+		CreateComponent<Model>(entity0id);
+		CreateComponent<AiScene>(entity0id, scenePtr);
+
+	}
+
+	void CreateModelNodes::Update(
+		ECS2::Entity::Id entity0id,
+		const Model* model0, 
+		const ModelFile* modelFile0,
+		const Ai::Scene* aiScene0) {
+		
+		const auto scene = aiScene0->scene_.get();
+
+		//Node to Entity id 
+		std::map<const aiNode*, ECS2::Entity::Id> nodeToEntityId;
+		{
+			std::function<void(const aiScene*, aiNode*)> createNodeEntity = [&](const aiScene* scene, aiNode* node) {
+
+				nodeToEntityId[node] = CreateEntity();
+
+				for (Common::Index i = 0; i < node->mNumChildren; i++) {
+					aiNode* childrenNode = node->mChildren[i];
+					createNodeEntity(scene, childrenNode);
+				}
+
+				};
+
+			createNodeEntity(scene, scene->mRootNode);
+		}
+
+		//Get bone node names.
+		std::unordered_set<std::string> boneNames;
+		std::map<std::string, const aiBone*> nameToBone;
+		std::map<std::string, const aiNode*> nameToBoneNode;
+
+		{
+			for (Common::Index i = 0; i < scene->mNumMeshes; i++) {
+				const aiMesh* mesh = scene->mMeshes[i];
+				for (Common::Index j = 0; j < mesh->mNumBones; j++) {
+
+					const aiBone* bone = mesh->mBones[j];
+					const aiString& boneName = bone->mName;
+					boneNames.insert(boneName.C_Str());
+					nameToBone[boneName.C_Str()] = bone;
+					const aiNode* boneNode = scene->mRootNode->FindNode(boneName.C_Str());
+					nameToBoneNode[boneName.C_Str()] = boneNode;
+				}
+			}
+		}
+
+
+		auto aiMatrixToGlmMatrix = [](const aiMatrix4x4& aiMatrix) {
+
+			aiVector3D position3D;
+			aiQuaternion rotation3D;
+			aiVector3D scale3D;
+			aiMatrix4x4 flipYtoZ;
+			aiMatrix.Decompose(scale3D, rotation3D, position3D);
+
+			const glm::mat4 translateMatrix = glm::mat4{ glm::translate(glm::vec3(position3D.x, position3D.y, position3D.z)) };
+			const glm::mat4 rotationMatrix = glm::toMat4(glm::quat{ rotation3D.w, rotation3D.x, rotation3D.y, rotation3D.z });;
+			const glm::mat4 scaleMatrix = glm::scale(glm::vec3(scale3D.x, scale3D.y, scale3D.z));
+
+			glm::mat4 transform = glm::mat4{ 1 }  *translateMatrix * rotationMatrix * scaleMatrix;
+
+			return transform;
+			};
+
+		auto createNodeComponents = [&](const aiScene* scene, const aiNode* node, ECS2::Entity::Id nodeEntityId) {
+
+			//std::vector<ECS2::Entity::Id> meshEntities;
+
+//			if (node->mNumMeshes > 0) {
+//
+//				auto createMeshComponents = [&](const aiScene* scene, ECS2::Entity::Id nodeEntityId, const aiMesh* mesh, ECS2::Entity::Id meshEntityId) {
+//
+//					static Geom::VertexCloud<Geom::Vertex3f>	vertices;
+//					static DS::Vector<Geom::Normal3f>			normals;
+//					static DS::Vector<Geom::UV2f>		        uvs;
+//					static Geom::IndexBuffer<Geom::Index16>		indices;
+//					static std::vector<VertexBonesInfo>			vertexBonesInfos;
+//
+//					//Fill bones info.
+//
+//					vertexBonesInfos.resize(mesh->mNumVertices,
+//						VertexBonesInfo{
+//							//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
+//							{ 255, 255, 255, 255 },
+//							{ 0, 0, 0, 0 }	// no influence on vertex by default  
+//						});
+//
+//					std::vector<ECS2::Entity::Id>				boneEntityIds;
+//					boneEntityIds.reserve(mesh->mNumBones);
+//					{
+//						for (Common::Index i = 0; i < mesh->mNumBones; i++) {
+//							//Save vertex bone info
+//							aiBone* bone = mesh->mBones[i];
+//							for (Common::Index j = 0; j < bone->mNumWeights; j++) {
+//								const aiVertexWeight* weight = bone->mWeights + j;
+//								if (Math::IsEqual(weight->mWeight, 0.0f)) {
+//									//Skip bones with zero weight. We will use zero weight to mark empty cells.
+//									continue;
+//								}
+//								//Find free cell and set value
+//								[[maybe_unused]]
+//								bool isFind = false;
+//								for (Common::Index k = 0; k < 4; k++) {
+//									if (vertexBonesInfos[weight->mVertexId].boneWeights_[k] == 0) {
+//										//Free cell found.
+//										vertexBonesInfos[weight->mVertexId].boneIndices_[k] = i;
+//#pragma region Assert
+//										OS::AssertMessage(Math::IsLess(weight->mWeight, 1.0), "");
+//#pragma endregion
+//										vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight * 255;
+//										isFind = true;
+//										break;
+//									}
+//								}
+//
+//#pragma region Assert
+//								OS::AssertMessage(isFind, "");
+//#pragma endregion
+//
+//							}
+//							//Save ids of bones entities for the mesh entity.
+//							const aiNode* boneNode = nameToBoneNode[bone->mName.C_Str()];
+//							ECS2::Entity::Id boneEntityId = nodeToEntityId[boneNode];
+//							boneEntityIds.push_back(boneEntityId);
+//						}
+//						if (mesh->mNumBones > 0) {
+//							CreateComponent<BoneNodeEntities>(meshEntityId, boneEntityIds);
+//							CreateComponent<VertexBones>(meshEntityId, std::move(vertexBonesInfos));
+//						}
+//					}
+//
+//					vertexBonesInfos.clear();
+//
+//
+//					//Create bones pallete with identity matrices.
+//					std::vector<glm::mat4> palette;
+//					{
+//
+//						palette.resize(128, glm::mat4{ 1 });
+//
+//						CreateComponent<BonesPallet>(meshEntityId, std::move(palette));
+//					}
+//
+//					CreateComponent<Mesh>(meshEntityId);
+//
+//					auto generateFullNodeName = [](aiNode* node) {
+//
+//						std::string nodeName;
+//						aiNode* currentNode = node->mParent;
+//						while (currentNode != nullptr) {
+//
+//							nodeName = "/" + (currentNode->mName.C_Str() + nodeName);
+//
+//							currentNode = currentNode->mParent;
+//						}
+//
+//						return nodeName;
+//						};
+//
+//			
+//					CreateComponent<Name>(meshEntityId, scene->mName.C_Str() + generateFullNodeName(node) + mesh->mName.C_Str());
+//					CreateComponent<ModelNodeEntityId>(meshEntityId, nodeEntityId);
+//
+//					//Add texture info.
+//					aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+//					aiString aiTexturePath;
+//					material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &aiTexturePath);
+//
+//					const aiTexture* texture = scene->GetEmbeddedTexture(aiTexturePath.C_Str());
+//
+//					Common::UInt32 textureWidth = texture->mWidth;
+//					Common::UInt32 textureHeight = texture->mHeight;
+//					if (textureHeight > 0) {
+//						CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
+//						CreateComponent<Texture>(
+//							meshEntityId,
+//							textureWidth, textureHeight,
+//							std::vector<Geom::Color4b>{
+//							(Geom::Color4b*)texture->pcData,
+//								(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
+//					}
+//					else {
+//						const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
+//
+//						int width, height, channels;
+//
+//						unsigned char* pixels = stbi_load_from_memory(
+//							compressed_data,
+//							texture->mWidth,
+//							&width, &height, &channels,
+//							STBI_rgb_alpha
+//						);
+//						CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
+//						CreateComponent<Texture>(
+//							meshEntityId,
+//							width, height,
+//							std::vector<Geom::Color4b>{
+//							(Geom::Color4b*)pixels,
+//								(Geom::Color4b*)pixels + width * height});
+//					}
+//
+//					vertices.Reserve(mesh->mNumVertices);
+//					normals.Reserve(mesh->mNumVertices);
+//					uvs.Reserve(mesh->mNumVertices);
+//					for (unsigned j = 0; j < mesh->mNumVertices; j++) {
+//						vertices.Add(Geometry::Vertex3f{ mesh->mVertices[j].x,
+//															mesh->mVertices[j].y,
+//															mesh->mVertices[j].z });
+//						normals.PushBack(Geom::Normal3f{ mesh->mVertices[j].x,
+//																mesh->mVertices[j].y,
+//																mesh->mVertices[j].z });
+//						uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x,
+//														mesh->mTextureCoords[0][j].y });
+//
+//					}
+//
+//					indices.Reserve(mesh->mNumFaces * 3);
+//					for (unsigned j = 0; j < mesh->mNumFaces; j++) {
+//						indices.Add(mesh->mFaces[j].mIndices[0]);
+//						indices.Add(mesh->mFaces[j].mIndices[1]);
+//						indices.Add(mesh->mFaces[j].mIndices[2]);
+//					}
+//					CreateComponent<Vertices3D>(meshEntityId, vertices);
+//					CreateComponent<Normals>(meshEntityId, normals);
+//					CreateComponent<UVs>(meshEntityId, uvs);
+//					CreateComponent<Indices>(meshEntityId, indices);
+//
+//					vertices.Clear();
+//					normals.Clear();
+//					uvs.Clear();
+//					indices.Clear();
+//
+//					};
+//
+//				for (Common::Index i = 0; i < node->mNumMeshes; i++) {
+//					int meshIndex = node->mMeshes[i];
+//					aiMesh* mesh = scene->mMeshes[meshIndex];
+//
+//					const ECS2::Entity::Id meshEntity = CreateEntity();
+//
+//					createMeshComponents(scene, nodeEntityId, mesh, meshEntity);
+//					meshEntities.push_back(meshEntity);
+//				}
+//
+//			}
+			aiVector3D position3D;
+			aiQuaternion rotation3D;
+			aiVector3D scale3D;
+			aiMatrix4x4 flipYtoZ;
+			node->mTransformation.Decompose(scale3D, rotation3D, position3D);
+
+			//auto generateFullNodeName = [](aiNode* node) {
+
+			//	std::string nodeName;
+			//	aiNode* currentNode = node->mParent;
+			//	while (currentNode != nullptr) {
+
+			//		nodeName = "/" + (currentNode->mName.C_Str() + nodeName);
+
+			//		currentNode = currentNode->mParent;
+			//	}
+
+			//	return nodeName;
+			//	};
+
+			//for (Common::Index i = 0; i < node->mNumMeshes; i++) {
+			//	int meshIndex = node->mMeshes[i];
+			//	aiMesh* mesh = scene->mMeshes[meshIndex];
+
+			//	const ECS2::Entity::Id meshEntity = CreateEntity();
+
+			//	createMeshComponents(scene, nodeEntityId, mesh, meshEntity);
+			//	meshEntities.push_back(meshEntity);
+			//}
+
+			//if (!meshEntities.empty()) {
+			//	CreateComponent<MeshEntities>(nodeEntityId, meshEntities);
+			//}
+
+			auto createNodeAnimationChannel = [&](const aiNode* node, const aiScene* scene) {
+
+				std::map<std::string, NodeAnimationChannel> animationNameToChannel;
+				const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
+				for (Common::Index i = 0; i < scene->mNumAnimations; i++) {
+					aiAnimation* animation = scene->mAnimations[i];
+					for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
+						aiNodeAnim* nodeAnim = animation->mChannels[channelIndex];
+						if (nodeAnim->mNodeName == node->mName) {
+
+							NodeAnimationChannel nodeAnimationChannel;
+							nodeAnimationChannel.position3DValues_.reserve(nodeAnim->mNumPositionKeys);
+							nodeAnimationChannel.rotation3DValues_.reserve(nodeAnim->mNumRotationKeys);
+							nodeAnimationChannel.scale3DValues_.reserve(nodeAnim->mNumScalingKeys);
+
+							for (Common::Index positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
+								aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
+								nodeAnimationChannel.position3DValues_.push_back(
+									{ positionKey.mTime, { positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z } }
+								);
+							}
+
+							for (Common::Index rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
+								aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
+								nodeAnimationChannel.rotation3DValues_.push_back(
+									{ rotationKey.mTime, {  rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z } }
+								);
+							}
+
+							for (Common::Index scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumScalingKeys; scaleKeyIndex++) {
+								aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
+								nodeAnimationChannel.scale3DValues_.push_back(
+									{ scaleKey.mTime, { scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z } }
+								);
+							}
+							if (
+								!nodeAnimationChannel.position3DValues_.empty() ||
+								!nodeAnimationChannel.rotation3DValues_.empty() ||
+								!nodeAnimationChannel.scale3DValues_.empty()) {
+								animationNameToChannel[animation->mName.C_Str()] = nodeAnimationChannel;
+							}
+						}
+					}
+				}
+				if (!animationNameToChannel.empty()) {
+					CreateComponent<ModelNodeAnimation>(nodeEntityId, animationNameToChannel);
+					animationNameToChannel.clear();
+				}
+
+
+				};
+			//Parse animations.
+			if (scene->HasAnimations()) {
+				createNodeAnimationChannel(node, scene);
+			}
+
+			CreateComponent<ModelNode>(nodeEntityId);
+
+			//Mark that this node is Bone
+			if (boneNames.contains(node->mName.C_Str())) {
+
+				const aiBone* bone = nameToBone[node->mName.C_Str()];
+				glm::mat4 transform = aiMatrixToGlmMatrix(bone->mOffsetMatrix);
+
+				CreateComponent<BoneInverseBindPoseMatrix>(nodeEntityId, transform);
+				CreateComponent<BoneNode>(nodeEntityId);
+
+			}
+
+			auto getNodeFullName = [&]() {
+				std::string nodeName;
+
+				const aiNode* currentNode = node;
+				while (currentNode != nullptr) {
+
+					nodeName = ("/") + nodeName;
+					nodeName = currentNode->mName.C_Str() + nodeName;
+
+					currentNode = currentNode->mParent;
+				}
+
+				nodeName = modelFile0->fileName_ + "/" + scene->mName.C_Str() + "/" + nodeName;
+				return nodeName;
+				};
+			
+			CreateComponent<Name>(nodeEntityId, getNodeFullName());
+			
+
+			std::vector<MeshInfo> meshInfos;
+			std::vector<std::shared_ptr<aiMesh>> meshs;
+			for (Common::Index i = 0; i < node->mNumMeshes; i++) {
+				int meshIndex = node->mMeshes[i];
+				aiMesh* mesh = scene->mMeshes[meshIndex];
+				meshs.push_back(std::shared_ptr<aiMesh>{ mesh, [](aiMesh*) {  } });
+				meshInfos.push_back(
+					{ modelFile0->fileName_ + "/" + mesh->mName.C_Str(), ECS2::Entity::Id::invalid_ });
+			}
+
+			if (!meshInfos.empty()) {
+				CreateComponent<Ai::Meshs>(nodeEntityId, std::move(meshs));
+				CreateComponent<MeshInfos>(nodeEntityId, std::move(meshInfos));
+			}
+
+			std::shared_ptr<const aiNode> nodePtr(node, [](const aiNode* node) { /*Do nothing.*/ });
+			CreateComponent<Ai::Node>(nodeEntityId, nodePtr);
+
+
+			CreateComponent<LocalPosition3D>(nodeEntityId, position3D.x, position3D.y, position3D.z);
+			CreateComponent<WorldPosition3D>(nodeEntityId, 0.0f, 0.0f, 0.0f);
+
+			CreateComponent<LocalRotation3D>(nodeEntityId, rotation3D.w, rotation3D.x, rotation3D.y, rotation3D.z);
+			CreateComponent<WorldRotation3D>(nodeEntityId, 1.0f, 0.0f, 0.0f, 0.0f);
+
+			CreateComponent<LocalScale3D>(nodeEntityId, scale3D.x, scale3D.y, scale3D.z);
+			CreateComponent<WorldScale3D>(nodeEntityId, 0.0f, 0.0f, 0.0f);
+
+			};
+
+		std::function<void(const aiScene*, aiNode*)> processChildrenNode = [&](const aiScene* scene, aiNode* node) {
+
+			const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
+
+			//if (std::string{ node->mName.C_Str() } == "driver_11") {
+			//	Common::BreakPointLine();
+			//}
+
+			
+
+			//Parse meshes.
+			createNodeComponents(scene, node, nodeEntityId);
+
+			std::vector<ECS2::Entity::Id> childNodeEntityIds;
+			for (Common::Index i = 0; i < node->mNumChildren; i++) {
+				aiNode* childrenNode = node->mChildren[i];
+				processChildrenNode(scene, childrenNode);
+				childNodeEntityIds.push_back(nodeToEntityId[childrenNode]);
+			}
+			//if (std::string{ node->mName.C_Str()} == "nodes[70]") {
+			//	Common::BreakPointLine();
+			//}
+
+			if (!childNodeEntityIds.empty()) {
+				CreateComponent<ChildModelNodeEntities>(nodeEntityId, childNodeEntityIds);
+			}
+			return nodeEntityId;
+			};
+
+		processChildrenNode(scene, scene->mRootNode);
+
+
+		//Create ModelAnimations.
+		std::vector<ModelAnimation> modelAnimations;
+		modelAnimations.reserve(scene->mNumAnimations);
+		for (Common::Index i = 0; i < scene->mNumAnimations; i++) {
+			aiAnimation* animation = scene->mAnimations[i];
+			ModelAnimation modelAnimation{
+				animation->mName.C_Str(),
+				animation->mDuration,
+				animation->mTicksPerSecond
+			};
+			modelAnimations.push_back(std::move(modelAnimation));
+		}
+		CreateComponent<ModelAnimations>(entity0id, std::move(modelAnimations));
+
+		CreateComponent<ChildModelNodeEntities>(entity0id, std::vector{ nodeToEntityId[scene->mRootNode] });
+	}
+
+	void FindNodeMesh::Update(
+		ECS2::Entity::Id entity0id,
+		const Name* name0, 
+		const ModelNode* modelNode0,
+		const Ai::Node* aiNode0,
+		MeshInfos* meshInfos0,
+		
+		ECS2::Entity::Id entity1id,
+		const Mesh* mesh1,
+		const Name* name1,
+		MeshNodes* meshNodes1) {
+
+
+		//if (isMeshFound0->isMeshFound_) {
+		//	return;
+		//}
+
+		for (MeshInfo& meshInfo : meshInfos0->meshInfos_) {
+
+			if (!meshInfo.meshEntityId_.IsInvalid()) {
+				continue;
+			}
+
+			if (meshInfo.name_ == name1->value_) {
+				meshInfo.meshEntityId_ = entity1id;
+			}
+		}
+
+	}
+
+	void CreateNodeMeshs::Update(
+		ECS2::Entity::Id entity0id,
+		const ModelNode* modelNode0,
+		const Ai::Node* aiNode0,
+		MeshInfos* meshInfos0) {
+
+		const aiNode* node = aiNode0->node_.get();
+		
+		for (MeshInfo& meshInfo : meshInfos0->meshInfos_) {
+
+			if (!meshInfo.meshEntityId_.IsInvalid()) {
+				continue;
+			}
+
+
+			if (node->mNumMeshes > 0) {
+
+				auto createMeshComponents = [&](const aiScene* scene, ECS2::Entity::Id nodeEntityId, const aiMesh* mesh, ECS2::Entity::Id meshEntityId) {
+
+					static Geom::VertexCloud<Geom::Vertex3f>	vertices;
+					static DS::Vector<Geom::Normal3f>			normals;
+					static DS::Vector<Geom::UV2f>		        uvs;
+					static Geom::IndexBuffer<Geom::Index16>		indices;
+					static std::vector<VertexBonesInfo>			vertexBonesInfos;
+
+					//Fill bones info.
+
+					vertexBonesInfos.resize(mesh->mNumVertices,
+						VertexBonesInfo{
+							//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
+							{ 255, 255, 255, 255 },
+							{ 0, 0, 0, 0 }	// no influence on vertex by default  
+						});
+
+					std::vector<ECS2::Entity::Id>				boneEntityIds;
+					boneEntityIds.reserve(mesh->mNumBones);
+					{
+						for (Common::Index i = 0; i < mesh->mNumBones; i++) {
+							//Save vertex bone info
+							aiBone* bone = mesh->mBones[i];
+							for (Common::Index j = 0; j < bone->mNumWeights; j++) {
+								const aiVertexWeight* weight = bone->mWeights + j;
+								if (Math::IsEqual(weight->mWeight, 0.0f)) {
+									//Skip bones with zero weight. We will use zero weight to mark empty cells.
+									continue;
+								}
+								//Find free cell and set value
+								[[maybe_unused]]
+								bool isFind = false;
+								for (Common::Index k = 0; k < 4; k++) {
+									if (vertexBonesInfos[weight->mVertexId].boneWeights_[k] == 0) {
+										//Free cell found.
+										vertexBonesInfos[weight->mVertexId].boneIndices_[k] = i;
+#pragma region Assert
+										OS::AssertMessage(Math::IsLess(weight->mWeight, 1.0), "");
+#pragma endregion
+										vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight * 255;
+										isFind = true;
+										break;
+									}
+								}
+
+#pragma region Assert
+								OS::AssertMessage(isFind, "");
+#pragma endregion
+
+							}
+							//Save ids of bones entities for the mesh entity.
+							const aiNode* boneNode = nameToBoneNode[bone->mName.C_Str()];
+							ECS2::Entity::Id boneEntityId = nodeToEntityId[boneNode];
+							boneEntityIds.push_back(boneEntityId);
+						}
+						if (mesh->mNumBones > 0) {
+							CreateComponent<BoneNodeEntities>(meshEntityId, boneEntityIds);
+							CreateComponent<VertexBones>(meshEntityId, std::move(vertexBonesInfos));
+						}
+					}
+
+					vertexBonesInfos.clear();
+
+
+					//Create bones pallete with identity matrices.
+					std::vector<glm::mat4> palette;
+					{
+
+						palette.resize(128, glm::mat4{ 1 });
+
+						CreateComponent<BonesPallet>(meshEntityId, std::move(palette));
+					}
+
+					CreateComponent<Mesh>(meshEntityId);
+
+					std::string meshName;
+
+					aiNode* currentNode = node->mParent;
+					while (currentNode != nullptr) {
+
+						meshName = "/" + (currentNode->mName.C_Str() + meshName);
+
+						currentNode = currentNode->mParent;
+					}
+
+					meshName = scene->mName.C_Str() + meshName;
+
+					CreateComponent<Name>(meshEntityId, meshName);
+					CreateComponent<ModelNodeEntityId>(meshEntityId, nodeEntityId);
+
+					//Add texture info.
+					aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+					aiString aiTexturePath;
+					material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &aiTexturePath);
+
+					const aiTexture* texture = scene->GetEmbeddedTexture(aiTexturePath.C_Str());
+
+					Common::UInt32 textureWidth = texture->mWidth;
+					Common::UInt32 textureHeight = texture->mHeight;
+					if (textureHeight > 0) {
+						CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
+						CreateComponent<Texture>(
+							meshEntityId,
+							textureWidth, textureHeight,
+							std::vector<Geom::Color4b>{
+							(Geom::Color4b*)texture->pcData,
+								(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
+					}
+					else {
+						const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
+
+						int width, height, channels;
+
+						unsigned char* pixels = stbi_load_from_memory(
+							compressed_data,
+							texture->mWidth,
+							&width, &height, &channels,
+							STBI_rgb_alpha
+						);
+						CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
+						CreateComponent<Texture>(
+							meshEntityId,
+							width, height,
+							std::vector<Geom::Color4b>{
+							(Geom::Color4b*)pixels,
+								(Geom::Color4b*)pixels + width * height});
+					}
+
+					vertices.Reserve(mesh->mNumVertices);
+					normals.Reserve(mesh->mNumVertices);
+					uvs.Reserve(mesh->mNumVertices);
+					for (unsigned j = 0; j < mesh->mNumVertices; j++) {
+						vertices.Add(Geometry::Vertex3f{ mesh->mVertices[j].x,
+															mesh->mVertices[j].y,
+															mesh->mVertices[j].z });
+						normals.PushBack(Geom::Normal3f{ mesh->mVertices[j].x,
+																mesh->mVertices[j].y,
+																mesh->mVertices[j].z });
+						uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x,
+														mesh->mTextureCoords[0][j].y });
+
+					}
+
+					indices.Reserve(mesh->mNumFaces * 3);
+					for (unsigned j = 0; j < mesh->mNumFaces; j++) {
+						indices.Add(mesh->mFaces[j].mIndices[0]);
+						indices.Add(mesh->mFaces[j].mIndices[1]);
+						indices.Add(mesh->mFaces[j].mIndices[2]);
+					}
+					CreateComponent<Vertices3D>(meshEntityId, vertices);
+					CreateComponent<Normals>(meshEntityId, normals);
+					CreateComponent<UVs>(meshEntityId, uvs);
+					CreateComponent<Indices>(meshEntityId, indices);
+
+					vertices.Clear();
+					normals.Clear();
+					uvs.Clear();
+					indices.Clear();
+
+					};
+
+				for (Common::Index i = 0; i < node->mNumMeshes; i++) {
+					int meshIndex = node->mMeshes[i];
+					aiMesh* mesh = scene->mMeshes[meshIndex];
+
+					const ECS2::Entity::Id meshEntity = CreateEntity();
+
+					createMeshComponents(scene, nodeEntityId, mesh, meshEntity);
+					meshEntities.push_back(meshEntity);
+				}
+
+			}
+
+		}
+
+	}
+
 	void CreateModel::Update(
 		ECS2::Entity::Id entity0id,
 		const ModelFile* modelFile0,
@@ -308,6 +1026,8 @@ namespace OksEngine
 
 		ECS2::Entity::Id entity1id,
 		const ResourceSystem* resourceSystem1) {
+
+		return;
 
 		auto aiMatrixToGlmMatrix = [](const aiMatrix4x4& aiMatrix) {
 
@@ -476,7 +1196,21 @@ namespace OksEngine
 						CreateComponent<BonesPallet>(meshEntityId, std::move(palette));
 					}
 
-					CreateComponent<Name>(meshEntityId, std::string{ mesh->mName.C_Str() });
+					CreateComponent<Mesh>(meshEntityId);
+
+					std::string meshName;
+
+					aiNode* currentNode = node->mParent;
+					while (currentNode != nullptr) {
+
+						meshName = "/" + (currentNode->mName.C_Str() + meshName);
+
+						currentNode = currentNode->mParent;
+					}
+
+					meshName = scene->mName.C_Str() + meshName;
+
+					CreateComponent<Name>(meshEntityId, meshName);
 					CreateComponent<ModelNodeEntityId>(meshEntityId, nodeEntityId);
 
 					//Add texture info.
@@ -741,7 +1475,7 @@ namespace OksEngine
 
 	void UpdateBonePallet::Update(
 		ECS2::Entity::Id entity0id, const BoneNodeEntities* boneNodeEntities0,
-		 BonesPallet* bonesPallet0) {
+		BonesPallet* bonesPallet0) {
 
 		for (Common::Index i = 0; i < boneNodeEntities0->boneEntityIds_.size(); i++) {
 
@@ -790,7 +1524,7 @@ namespace OksEngine
 
 		ECS2::Entity::Id entity0id,
 		RenderDriver* renderDriver0,
-		
+
 		ECS2::Entity::Id entity1id,
 		const BonesPallet* bonesPallet1,
 		DriverBonesPallet* driverBonesPallet1) {
@@ -894,9 +1628,9 @@ namespace OksEngine
 
 	void CreateAttachmentSet::Update(
 		ECS2::Entity::Id entity0id,
-		const RenderDriver* renderDriver0, 
+		const RenderDriver* renderDriver0,
 		const RenderPass* renderPass0,
-		const RenderAttachment* renderAttachment0, 
+		const RenderAttachment* renderAttachment0,
 		const DepthAttachment* depthAttachment0) {
 
 		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
@@ -1081,7 +1815,7 @@ namespace OksEngine
 		ECS2::Entity::Id entity0id,
 		RenderDriver* renderDriver0,
 		const RenderPass* renderPass0,
-		const AttachmentSet* attachmentSet0, 
+		const AttachmentSet* attachmentSet0,
 		const Pipeline* pipeline0) {
 
 		renderDriver0->driver_->BeginRenderPass(

@@ -1,7 +1,7 @@
 ImGuiRenderPassComponent = {
     serializable = false,
     fields = {
-        { type = "Common::Id",              name = "rpId" }
+        { type = "Common::Id", name = "rpId" }
     }
 }
 
@@ -10,8 +10,6 @@ CreateImGuiRenderPassSystem = {
     callOrder = {
         runAfter = {
             "CreateImGuiState",
-            "CreateRenderPass",
-            "CreatePipeline",
             "CreateRenderDriver"
         }
     },
@@ -30,9 +28,7 @@ CreateImGuiRenderPassSystem = {
             },
             {
                 processesComponents = {
-                    "RenderDriver",
-                    "RenderPass",
-                    "Pipeline"
+                    "RenderDriver"
                 }
             }
         }

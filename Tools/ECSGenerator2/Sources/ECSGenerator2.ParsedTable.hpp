@@ -14,6 +14,7 @@ namespace ECSGenerator2 {
         };
 
         virtual Type GetType() const noexcept = 0;
+        virtual std::shared_ptr<ParsedTable> Clone() const noexcept = 0;
         virtual const std::string& GetName() const noexcept = 0;
 
         virtual ~ParsedTable() = default;
@@ -46,9 +47,23 @@ namespace ECSGenerator2 {
             }
         }
 
+        //From parent to child without start table.
+        std::vector<std::shared_ptr<ParsedTable>> GetParentTables() {
+
+            std::vector<std::shared_ptr<ParsedTable>> parentTables;
+            parentTables.reserve(5); // Medium Max number of parents.
+
+            ForEachParentTable([&](std::shared_ptr<ParsedTable> parentTable) {
+                parentTables.insert(parentTables.begin(), parentTable);
+                return true;
+                });
+
+            return parentTables;
+        }
+
         using ProcessChildTable = std::function<bool(std::shared_ptr<ParsedTable>)>;
 
-        void ForEachChildTable(ProcessChildTable&& processChildTable) {
+        void ForEachChildTable(const ProcessChildTable& processChildTable) {
             for (auto childTable : childTables_) {
                 const bool isContinue = processChildTable(childTable);
                 if (!isContinue) {
@@ -57,18 +72,36 @@ namespace ECSGenerator2 {
             }
         }
 
-        void ForEachChildTableRecursive(ProcessChildTable&& processChildTable) {
+        
+        void ForEachChildTableRecursive(const ProcessChildTable& processChildTable) {
 
             ForEachChildTable([&](std::shared_ptr<ParsedTable> childTable) {
                 
                 const bool isContinue = processChildTable(childTable);
-                childTable->ForEachChildTableRecursive(std::move(processChildTable));
+                childTable->ForEachChildTableRecursive(processChildTable);
                 return isContinue;
                 
                 });
 
         }
 
+        void ForEachChildlessTable(const ProcessChildTable& processChildTables) {
+            ForEachChildTableRecursive([&](std::shared_ptr<ParsedTable> childTable) {
+                
+                if (!childTable->HasChilds()) {
+                    const bool isContinue = processChildTables(childTable);
+                    return isContinue;
+                }
+
+                return true;
+                
+                });
+        }
+
+        [[nodiscard]]
+        bool HasChilds() const noexcept {
+            return !childTables_.empty();
+        }
 
     };
 
