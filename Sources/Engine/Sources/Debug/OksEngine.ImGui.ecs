@@ -35,7 +35,7 @@ CreateImGuiStateSystem = {
             {
                 createsComponents = {
                     "ImGuiState",
-                    "ImPlotContext",
+                    "ImPlotState",
                     "Input::HandleKeyboardEvents"
                 }
             }

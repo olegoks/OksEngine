@@ -17,10 +17,39 @@ namespace ECSGenerator2 {
 	class ParsedSystem : public ParsedTable {
 	public:
 
-		using Exclude = std::string;
-
-		struct Include {
+		struct Dependence {
 			std::shared_ptr<ParsedComponent> ptr_ = nullptr;
+		};
+
+		struct Exclude : public Dependence {
+			std::string name_;
+
+			[[nodiscard]]
+			const std::string& GetName() const noexcept {
+				return name_;
+			}
+		};
+		
+		struct Create : public Dependence {
+			std::string name_;
+
+			[[nodiscard]]
+			const std::string& GetName() const noexcept {
+				return name_;
+			}
+		};
+
+		struct Remove : public Dependence {
+			std::string name_;
+
+			[[nodiscard]]
+			const std::string& GetName() const noexcept {
+				return name_;
+			}
+		};
+
+		struct Include : public Dependence {
+			//std::shared_ptr<ParsedComponent> ptr_ = nullptr;
 			std::string name_;
 			bool readonly_ = true;
 
@@ -46,15 +75,128 @@ namespace ECSGenerator2 {
 
 		struct RandomAccessEntity {
 			std::vector<Include> includes_;
-			std::vector<std::string> creates_;
+			std::vector<Create> creates_;
 			bool randomAccessComponents_ = false;
 
-			using ProcessInclude = std::function<bool(const Include& include, bool isLast)>;
+			using ProcessInclude = std::function<bool(Include& include, bool isLast)>;
 
-			void ForEachInclude(ProcessInclude&& processInclude) const {
+			void ForEachInclude(ProcessInclude&& processInclude){
+				for (Common::Index i = 0; i < includes_.size(); i++) {
+					Include& include = includes_[i];
+					if (!processInclude(include, (i == includes_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+			using ProcessCreate = std::function<bool(Create& create, bool isLast)>;
+			void ForEachCreate(ProcessCreate&& processInclude) {
+				for (Common::Index i = 0; i < creates_.size(); i++) {
+					Create& include = creates_[i];
+					if (!processInclude(include, (i == creates_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+			[[nodiscard]]
+			bool IsProcessesComponent(std::string& component){
+				bool isProcessesComponent = false;
+				ForEachInclude([&](const ParsedSystem::Include& dependenceSystemInclude, bool isLast) {
+					if (dependenceSystemInclude.name_ == component) {
+						isProcessesComponent = true;
+						return false;
+					}
+					return true;
+					});
+				return isProcessesComponent;
+			}
+
+			[[nodiscard]]
+			bool IsReadsComponent(const std::string& component) {
+				bool isReadsComponent = false;
+				ForEachInclude([&](ParsedSystem::Include& dependenceSystemInclude, bool isLast) {
+					if (dependenceSystemInclude.name_ == component && dependenceSystemInclude.readonly_) {
+						isReadsComponent = true;
+						return false;
+					}
+					return true;
+					});
+				return isReadsComponent;
+			}
+
+			[[nodiscard]]
+			bool IsChangesComponent(const std::string& component) {
+				bool isChangesComponent = false;
+				ForEachInclude([&](ParsedSystem::Include& dependenceSystemInclude, bool isLast) {
+					if (dependenceSystemInclude.name_ == component && !dependenceSystemInclude.readonly_) {
+						isChangesComponent = true;
+						return false;
+					}
+					return true;
+					});
+				return isChangesComponent;
+			}
+
+		};
+
+		struct ProcessedEntity {
+			std::vector<Include> includes_;
+			bool processesAllCombinations_ = false;
+			std::vector<Exclude> excludes_;
+			std::vector<Create> creates_;
+			std::vector<Remove> removes_;
+			bool randomAccessComponents_ = false; // Process components that are not required using IsComponentExist()/GetComponentsFilter() and GetComponent()
+
+			using ProcessInclude = std::function<bool(Include& include, bool isLast)>;
+
+			void ForEachInclude(ProcessInclude&& processInclude) {
+				for (Common::Index i = 0; i < includes_.size(); i++) {
+					Include& include = includes_[i];
+					if (!processInclude(include, (i == includes_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+			using ProcessConstInclude = std::function<bool(const Include& include, bool isLast)>;
+			void ForEachInclude(ProcessConstInclude&& processInclude) const {
 				for (Common::Index i = 0; i < includes_.size(); i++) {
 					const Include& include = includes_[i];
 					if (!processInclude(include, (i == includes_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+			using ProcessExclude = std::function<bool(Exclude& include, bool isLast)>;
+
+			void ForEachExclude(ProcessExclude&& processExclude) {
+				for (Common::Index i = 0; i < excludes_.size(); i++) {
+					Exclude& include = excludes_[i];
+					if (!processExclude(include, (i == excludes_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+			using ProcessCreate = std::function<bool(Create& include, bool isLast)>;
+
+			void ForEachCreate(ProcessCreate&& processExclude) {
+				for (Common::Index i = 0; i < creates_.size(); i++) {
+					Create& include = creates_[i];
+					if (!processExclude(include, (i == creates_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+			using ProcessRemove = std::function<bool(Remove& include, bool isLast)>;
+
+			void ForEachRemove(ProcessRemove&& processExclude) {
+				for (Common::Index i = 0; i < removes_.size(); i++) {
+					Remove& include = removes_[i];
+					if (!processExclude(include, (i == removes_.size() - 1))) {
 						break;
 					}
 				}
@@ -101,83 +243,18 @@ namespace ECSGenerator2 {
 
 		};
 
-		struct ProcessedEntity {
-			std::vector<Include> includes_;
-			bool processesAllCombinations_ = false;
-			std::vector<Exclude> excludes_;
-			std::vector<std::string> creates_;
-			std::vector<std::string> removes_;
-			bool randomAccessComponents_ = false; // Process components that are not required using IsComponentExist()/GetComponentsFilter() and GetComponent()
+		struct CreatesEntity {
+			std::vector<Create> creates_;
 
-			using ProcessInclude = std::function<bool(Include& include, bool isLast)>;
-
-			void ForEachInclude(ProcessInclude&& processInclude) {
-				for (Common::Index i = 0; i < includes_.size(); i++) {
-					Include& include = includes_[i];
-					if (!processInclude(include, (i == includes_.size() - 1))) {
+			using ProcessCreate = std::function<bool(Create& create, bool isLast)>;
+			void ForEachCreate(const ProcessCreate& processCreate) {
+				for (Common::Index i = 0; i < creates_.size(); i++) {
+					Create& create = creates_[i];
+					const bool isContinue = processCreate(create, (i == creates_.size() - 1));
+					if (!isContinue) {
 						break;
 					}
 				}
-			}
-
-			using ProcessConstInclude = std::function<bool(const Include& include, bool isLast)>;
-			void ForEachInclude(ProcessConstInclude&& processInclude) const {
-				for (Common::Index i = 0; i < includes_.size(); i++) {
-					const Include& include = includes_[i];
-					if (!processInclude(include, (i == includes_.size() - 1))) {
-						break;
-					}
-				}
-			}
-
-			using ProcessExclude = std::function<bool(const Exclude& include, bool isLast)>;
-
-			void ForEachExclude(ProcessExclude&& processExclude) const {
-				for (Common::Index i = 0; i < excludes_.size(); i++) {
-					const Exclude& include = excludes_[i];
-					if (!processExclude(include, (i == excludes_.size() - 1))) {
-						break;
-					}
-				}
-			}
-
-			[[nodiscard]]
-			bool IsProcessesComponent(const std::string& component) const {
-				bool isProcessesComponent = false;
-				ForEachInclude([&](const ParsedSystem::Include& dependenceSystemInclude, bool isLast) {
-					if (dependenceSystemInclude.name_ == component) {
-						isProcessesComponent = true;
-						return false;
-					}
-					return true;
-					});
-				return isProcessesComponent;
-			}
-
-			[[nodiscard]]
-			bool IsReadsComponent(const std::string& component) const {
-				bool isReadsComponent = false;
-				ForEachInclude([&](const ParsedSystem::Include& dependenceSystemInclude, bool isLast) {
-					if (dependenceSystemInclude.name_ == component && dependenceSystemInclude.readonly_) {
-						isReadsComponent = true;
-						return false;
-					}
-					return true;
-					});
-				return isReadsComponent;
-			}
-
-			[[nodiscard]]
-			bool IsChangesComponent(const std::string& component) const {
-				bool isChangesComponent = false;
-				ForEachInclude([&](const ParsedSystem::Include& dependenceSystemInclude, bool isLast) {
-					if (dependenceSystemInclude.name_ == component && !dependenceSystemInclude.readonly_) {
-						isChangesComponent = true;
-						return false;
-					}
-					return true;
-					});
-				return isChangesComponent;
 			}
 
 		};
@@ -220,25 +297,28 @@ namespace ECSGenerator2 {
 
 			std::vector<ProcessedEntity> processesEntities_;
 			std::vector<RandomAccessEntity> randomAccessesEntities_;
-			std::vector<std::vector<std::string>> createsEntities_; // we dont need info: dynamic or archetype entity to create because we need generate only to add components includes.
+			std::vector<CreatesEntity> createsEntities_; // we dont need info: dynamic or archetype entity to create because we need generate only to add components includes.
 
 			bool IsCreatesComponent(const std::string& componentName);
 
 			[[nodiscard]]
-			bool IsChangesComponent(const std::string& component) const;
+			bool IsChangesComponent(const std::string& component);
 
 			[[nodiscard]]
-			bool IsReadsComponent(const std::string& component) const;
+			bool IsReadsComponent(const std::string& component);
 
 			[[nodiscard]]
 			Common::Size GetProcessesEntitiesNumber() const noexcept;
 
-			using ProcessComponentName = std::function<bool(const std::string& systemName, bool isLast)>;
+			using ProcessComponentName = std::function<bool(std::string& systemName, bool isLast)>;
 
-			using ProcessRandomAccessEntity = std::function<bool(const RandomAccessEntity& entity, bool isLast)>;
-			void ForEachRandomAccessEntity(ProcessRandomAccessEntity&& processEntity) const;
+			using ProcessRandomAccessEntity = std::function<bool(RandomAccessEntity& entity, bool isLast)>;
+			void ForEachRandomAccessEntity(ProcessRandomAccessEntity&& processEntity);
 
-			void ForEachRandomAccessComponent(ProcessComponentName&& processComponent) const;
+			using ProcessCreateEntity = std::function<bool(CreatesEntity& entity, bool isLast)>;
+			void ForEachCreateEntity(ProcessCreateEntity&& processEntity);
+
+			void ForEachRandomAccessComponent(ProcessComponentName&& processComponent);
 
 			using ProcessConstRequestEntity = std::function<bool(const ProcessedEntity& entity, bool isLast)>;
 			void ForEachProcessEntity(ProcessConstRequestEntity&& processEntity) const;
@@ -247,7 +327,7 @@ namespace ECSGenerator2 {
 			void ForEachProcessEntity(ProcessRequestEntity&& processEntity);
 
 			[[nodiscard]]
-			bool IsProcessesComponent(const std::string& component);
+			bool IsProcessesComponent(std::string& component);
 		
 
 			bool IsAccessesComponentByRandomAccess(const std::string& componentName);
@@ -360,12 +440,12 @@ namespace ECSGenerator2 {
 
 		bool isDepends = false;
 
-		firstSystem->ci_.updateMethod_->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
+		firstSystem->ci_.updateMethod_->ForEachProcessEntity([&](ParsedSystem::ProcessedEntity& entity, bool isLast) {
 			if (entity.randomAccessComponents_ || entity.processesAllCombinations_) {
 				isDepends = true;
 				return false;
 			}
-			entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
+			entity.ForEachInclude([&](ParsedSystem::Include& include, bool isLast) {
 				if (secondSystem->ci_.updateMethod_->IsCreatesComponent(include.name_)) {
 					isDepends = true;
 					OS::LogInfo("Dependence",

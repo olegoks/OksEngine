@@ -176,22 +176,26 @@ namespace ECSGenerator2 {
 
 						SystemStructureGenerator systemGenerator{ ssgci };
 
-						if (parsedSystem->GetName() == "CreateLoadLuaScriptRequest") {
+						if (parsedSystem->GetName() == "LoadConfigFile") {
 							Common::BreakPointLine();
 						}
 						//Add include components.
 						auto systemIncludeComponents = systemGenerator.GenerateUpdateMethodRequiredComponentIncludes(parsedSystem->ci_.updateMethod_);
-						std::unordered_set<std::string> includeComponents;
+						//std::unordered_set<std::string> includeComponents;
 
-						includeComponents.insert(systemIncludeComponents.begin(), systemIncludeComponents.end());
+						//includeComponents.insert(systemIncludeComponents.begin(), systemIncludeComponents.end());
+
 						//Generate includes using include directory.
-						for (const std::string componentName : includeComponents) {
+						for (const ParsedComponentPtr component : systemIncludeComponents) {
 							for (auto ecsFile : ci_.ecsFiles_) {
+								if (ecsFile->GetName() == "OksEngine.Behaviour" && component->GetName() == "LuaScript") {
+									Common::BreakPointLine();
+								}
 								//Skip component include if ecs file contains defintion of the component.
-								if (parsedECSFile->IsContainsComponent(componentName)) {
+								if (parsedECSFile->IsContainsComponent(component)) {
 									continue;
 								}
-								if (ecsFile->IsContainsComponent(componentName)) {
+								if (ecsFile->IsContainsComponent(component)) {
 									const std::filesystem::path ecsFilePath = ecsFile->GetPath().parent_path();
 
 									auto [it, _] = std::mismatch(

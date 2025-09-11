@@ -116,7 +116,6 @@ int main(int argc, char** argv) {
 
 				return result;
 			};
-
 		auto getTableByFullName = [](
 			const std::vector<std::shared_ptr<ECSGenerator2::ParsedECSFile>> parsedECSFiles,
 			const std::vector<std::string>& arr1) {
@@ -148,6 +147,7 @@ int main(int argc, char** argv) {
 
 				parsedSystem->ci_.updateMethod_->ForEachProcessEntity(
 					[&](ECSGenerator2::ParsedSystem::ProcessedEntity& entity, bool isLast) {
+						
 						entity.ForEachInclude([&](ECSGenerator2::ParsedSystem::Include& include, bool isLast) {
 						
 							const auto componentName = include.GetName();
@@ -169,6 +169,181 @@ int main(int argc, char** argv) {
 							}
 							else if (!componentTablesFullPathSecond.empty()) {
 								include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
+							}
+							else {
+								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+							}
+
+							return true;
+							});
+
+						entity.ForEachExclude([&](ECSGenerator2::ParsedSystem::Exclude& exclude, bool isLast) {
+
+							const auto componentName = exclude.GetName();
+
+							//at first lets find run after system in namespace of current system.
+							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
+
+							//Try to find from namespace of current system and using source system name.
+							const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
+							const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
+
+							if (!componentTablesFullPathFirst.empty()) {
+								exclude.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
+							}
+							else if (!componentTablesFullPathSecond.empty()) {
+								exclude.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
+							}
+							else {
+								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+							}
+
+							return true;
+							});
+
+						entity.ForEachCreate([&](ECSGenerator2::ParsedSystem::Create& create, bool isLast) {
+
+							const auto componentName = create.GetName();
+
+							//at first lets find run after system in namespace of current system.
+							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
+
+							//Try to find from namespace of current system and using source system name.
+							const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
+							const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
+
+							if (!componentTablesFullPathFirst.empty()) {
+								create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
+							}
+							else if (!componentTablesFullPathSecond.empty()) {
+								create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
+							}
+							else {
+								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+							}
+
+							return true;
+							});
+
+						entity.ForEachRemove([&](ECSGenerator2::ParsedSystem::Remove& remove, bool isLast) {
+
+							const auto componentName = remove.GetName();
+
+							//at first lets find run after system in namespace of current system.
+							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
+
+							//Try to find from namespace of current system and using source system name.
+							const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
+							const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
+
+							if (!componentTablesFullPathFirst.empty()) {
+								remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
+							}
+							else if (!componentTablesFullPathSecond.empty()) {
+								remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
+							}
+							else {
+								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+							}
+
+							return true;
+							});
+
+						return true;
+					});
+
+				if (parsedSystem->GetName() == "CreateLuaScript") {
+					Common::BreakPointLine();
+				}
+
+				parsedSystem->ci_.updateMethod_->ForEachRandomAccessEntity(
+					[&](ECSGenerator2::ParsedSystem::RandomAccessEntity& entity, bool isLast) {
+					
+						entity.ForEachInclude([&](ECSGenerator2::ParsedSystem::Include& include, bool isLast) {
+
+							const auto componentName = include.GetName();
+
+							//at first lets find run after system in namespace of current system.
+							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
+
+							//if (runAfterSystem.name_ == "SendWindowKeyboardEvents") {
+							//	Common::BreakPointLine();
+							//}
+
+							//Try to find from namespace of current system and using source system name.
+							const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
+							const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
+
+							if (!componentTablesFullPathFirst.empty()) {
+								include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
+							}
+							else if (!componentTablesFullPathSecond.empty()) {
+								include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
+							}
+							else {
+								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+							}
+
+							return true;
+							});
+
+
+						entity.ForEachCreate([&](ECSGenerator2::ParsedSystem::Create& create, bool isLast) {
+
+							const auto componentName = create.GetName();
+
+							//at first lets find run after system in namespace of current system.
+							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
+
+							//Try to find from namespace of current system and using source system name.
+							const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
+							const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
+
+							if (!componentTablesFullPathFirst.empty()) {
+								create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
+							}
+							else if (!componentTablesFullPathSecond.empty()) {
+								create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
+							}
+							else {
+								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+							}
+
+							return true;
+							});
+					
+					return true;
+					});
+
+				parsedSystem->ci_.updateMethod_->ForEachCreateEntity(
+					[&](ECSGenerator2::ParsedSystem::CreatesEntity& entity, bool isLast) {
+
+						entity.ForEachCreate([&](ECSGenerator2::ParsedSystem::Create& create, bool isLast) {
+
+							const auto componentName = create.GetName();
+
+							//at first lets find run after system in namespace of current system.
+							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
+
+							//if (runAfterSystem.name_ == "SendWindowKeyboardEvents") {
+							//	Common::BreakPointLine();
+							//}
+
+							//Try to find from namespace of current system and using source system name.
+							const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
+							const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
+
+							if (!componentTablesFullPathFirst.empty()) {
+								create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
+							}
+							else if (!componentTablesFullPathSecond.empty()) {
+								create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
 							}
 							else {
 								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });

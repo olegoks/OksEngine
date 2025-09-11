@@ -91,7 +91,7 @@ namespace ECSGenerator2 {
 						for (luabridge::Iterator it(accessingEntities); !it.isNil(); ++it) {
 
 							std::vector<ParsedSystem::Include> accessesComponents;
-							std::vector<std::string> createsComponents;
+							std::vector<ParsedSystem::Create> createsComponents;
 
 							luabridge::LuaRef toAccess = it.value();
 							luabridge::LuaRef accessingComponentsRef = toAccess["accessingComponents"];
@@ -109,8 +109,8 @@ namespace ECSGenerator2 {
 							if (!createsComponentsRef.isNil()) {
 								for (luabridge::Iterator itJ(createsComponentsRef); !itJ.isNil(); ++itJ) {
 									luabridge::LuaRef createsComponentRef = itJ.value();
-									createsComponents.push_back(createsComponentRef.cast<std::string>().value());
-									OS::AssertMessage(std::isupper(createsComponents.back()[0]), "");
+									createsComponents.push_back({ nullptr, createsComponentRef.cast<std::string>().value() });
+									OS::AssertMessage(std::isupper(createsComponents.back().GetName()[0]), "");
 								}
 							}
 							ParsedSystem::RandomAccessEntity randomAccessEntity{
@@ -180,12 +180,12 @@ namespace ECSGenerator2 {
 
 						luabridge::LuaRef entityCreates = systemOrEntityRef["createsComponents"];
 
-						std::vector<std::string> parsedEntityCreates;
+						std::vector<ParsedSystem::Create> parsedEntityCreates;
 						if (!entityCreates.isNil()) {
 							for (luabridge::Iterator it(entityCreates); !it.isNil(); ++it) {
 								luabridge::LuaRef toCreate = it.value();
-								parsedEntityCreates.push_back(toCreate.cast<std::string>().value());
-								OS::AssertMessage(std::isupper(parsedEntityCreates.back()[0]), "");
+								parsedEntityCreates.push_back({ nullptr, toCreate.cast<std::string>().value() });
+								OS::AssertMessage(std::isupper(parsedEntityCreates.back().GetName()[0]), "");
 							}
 						}
 
@@ -199,9 +199,9 @@ namespace ECSGenerator2 {
 						if (!entityExcludes.isNil()) {
 							for (luabridge::Iterator it(entityExcludes); !it.isNil(); ++it) {
 								luabridge::LuaRef exclude = it.value();
-								parsedEntityExcludes.push_back(exclude.cast<std::string>().value());
+								parsedEntityExcludes.push_back({ nullptr, exclude.cast<std::string>().value() });
 
-								OS::AssertMessage(std::isupper(parsedEntityExcludes.back()[0]), "");
+								OS::AssertMessage(std::isupper(parsedEntityExcludes.back().name_[0]), "");
 
 							}
 						}
@@ -232,7 +232,7 @@ namespace ECSGenerator2 {
 						std::vector<ParsedSystem::Exclude> parsedEntityExcludes
 							= parseExcludes(entity);
 
-						std::vector<std::string> createsComponents = parseCreatesComponents(entity);
+						std::vector<ParsedSystem::Create> createsComponents = parseCreatesComponents(entity);
 
 						ParsedSystem::ProcessedEntity parsedEntity{
 							.includes_ = parsedEntityIncludes,
@@ -262,12 +262,12 @@ namespace ECSGenerator2 {
 
 						luabridge::LuaRef entityCreates = luaRef["createsComponents"];
 
-						std::vector<std::string> parsedEntityCreates;
+						std::vector<ParsedSystem::Create> parsedEntityCreates;
 						if (!entityCreates.isNil()) {
 							for (luabridge::Iterator it(entityCreates); !it.isNil(); ++it) {
 								luabridge::LuaRef toCreate = it.value();
-								parsedEntityCreates.push_back(toCreate.cast<std::string>().value());
-								OS::AssertMessage(std::isupper(parsedEntityCreates.back()[0]), "");
+								parsedEntityCreates.push_back({ nullptr, toCreate.cast<std::string>().value() });
+								OS::AssertMessage(std::isupper(parsedEntityCreates.back().GetName()[0]), "");
 							}
 						}
 
@@ -275,15 +275,15 @@ namespace ECSGenerator2 {
 
 						};
 
-					std::vector<std::vector<std::string>> createsEntities_;
+					std::vector<ParsedSystem::CreatesEntity> createsEntities_;
 
 					luabridge::LuaRef createsEntity = luaRef["createsEntities"];
 					if (!createsEntity.isNil()) {
 						for (luabridge::Iterator it(createsEntity); !it.isNil(); ++it) {
 
-							std::vector<std::string> createsComponents = parseCreatesComponents(it.value());
+							std::vector<ParsedSystem::Create> createsComponents = parseCreatesComponents(it.value());
 
-							createsEntities_.push_back(createsComponents);
+							createsEntities_.push_back(ParsedSystem::CreatesEntity{ createsComponents });
 						}
 					}
 					return createsEntities_;

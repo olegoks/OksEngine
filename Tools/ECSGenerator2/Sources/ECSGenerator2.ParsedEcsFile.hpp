@@ -185,6 +185,22 @@ namespace ECSGenerator2 {
 		}
 
 		[[nodiscard]]
+		bool IsContainsComponent(ParsedComponentPtr findParsedComponent) {
+			
+			bool isContainsComponent = false;
+			ForEachTable([&](ParsedTablePtr parsedComponent) {
+				
+				if (parsedComponent == findParsedComponent) {
+					isContainsComponent = true;
+					return false;
+				}
+				return true;
+				});
+
+			return isContainsComponent;
+		}
+
+		[[nodiscard]]
 		bool IsContainsComponent(const std::string& componentName) {
 
 			const auto parsedFullName = ParseFullName(componentName);

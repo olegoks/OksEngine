@@ -281,9 +281,9 @@ ProcessModelAnimationSystem = {
                     "AnimationInProgress"
                 },
                 -- Debug
-                createsComponents = {
-                    "RunAnimation"
-                }
+                -- createsComponents = {
+                --     "RunAnimation"
+                -- }
             },
             {
                 processesComponents = {
@@ -359,7 +359,6 @@ AiNamespace = {
             }
         }
     }
-    
 }
 
 
@@ -403,7 +402,7 @@ CreateModelNodesSystem = {
                 createsComponents = {
                     "ModelNode",
                     "Ai::Node",
-                    "Ai::Meshes",
+                    --"Ai::Meshes",
                     "BoneNode",
                     "BoneInverseBindPoseMatrix",
                     "ChildModelNodeEntities",
@@ -529,7 +528,6 @@ CreateModelSystem = {
                 createsComponents = {
                     "Mesh",
                     "Name",
-                    "NodeEntityId",
                     "Vertices3D",
                     "Indices",
                     "Normals",

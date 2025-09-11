@@ -9,10 +9,12 @@ namespace ECSGenerator2 {
 
 		ForEachProcessEntity([&](const ProcessedEntity& entity, bool isLast) {
 
-			auto itResult = std::find(
-				entity.creates_.begin(),
-				entity.creates_.end(),
-				componentName);
+			auto itResult = std::find_if(
+				entity.creates_.cbegin(),
+				entity.creates_.cend(),
+				[&](const ParsedSystem::Create& create) {
+					return create.GetName() == componentName;
+				});
 
 			if (itResult != entity.creates_.end()) {
 				isCreates = true;
@@ -24,10 +26,12 @@ namespace ECSGenerator2 {
 
 		ForEachRandomAccessEntity([&](const RandomAccessEntity& entity, bool isLast) {
 
-			auto itResult = std::find(
-				entity.creates_.begin(),
-				entity.creates_.end(),
-				componentName);
+			auto itResult = std::find_if(
+				entity.creates_.cbegin(),
+				entity.creates_.cend(),
+				[&](const ParsedSystem::Create& create) { 
+					return create.GetName() == componentName;
+				});
 
 			if (itResult != entity.creates_.end()) {
 				isCreates = true;
@@ -41,7 +45,7 @@ namespace ECSGenerator2 {
 	}
 
 	[[nodiscard]]
-	bool ParsedSystem::UpdateMethodInfo::IsChangesComponent(const std::string& component) const {
+	bool ParsedSystem::UpdateMethodInfo::IsChangesComponent(const std::string& component) {
 		bool isChangesComponent = false;
 		ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
 			if (entity.IsChangesComponent(component)) {
@@ -53,7 +57,7 @@ namespace ECSGenerator2 {
 		if (isChangesComponent) {
 			return true;
 		}
-		ForEachRandomAccessEntity([&](const ParsedSystem::RandomAccessEntity& entity, bool isLast) {
+		ForEachRandomAccessEntity([&](ParsedSystem::RandomAccessEntity& entity, bool isLast) {
 			if (entity.IsChangesComponent(component)) {
 				isChangesComponent = true;
 				return false;
@@ -66,9 +70,9 @@ namespace ECSGenerator2 {
 	}
 
 	[[nodiscard]]
-	bool ParsedSystem::UpdateMethodInfo::IsReadsComponent(const std::string& component) const {
+	bool ParsedSystem::UpdateMethodInfo::IsReadsComponent(const std::string& component) {
 		bool isReadsComponent = false;
-		ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
+		ForEachProcessEntity([&](ParsedSystem::ProcessedEntity& entity, bool isLast) {
 			if (entity.IsReadsComponent(component)) {
 				isReadsComponent = true;
 				return false;
@@ -79,7 +83,7 @@ namespace ECSGenerator2 {
 		if (isReadsComponent) {
 			return true;
 		}
-		ForEachRandomAccessEntity([&](const ParsedSystem::RandomAccessEntity& entity, bool isLast) {
+		ForEachRandomAccessEntity([&](ParsedSystem::RandomAccessEntity& entity, bool isLast) {
 			if (entity.IsReadsComponent(component)) {
 				isReadsComponent = true;
 				return false;
@@ -98,22 +102,32 @@ namespace ECSGenerator2 {
 
 	using ProcessComponentName = std::function<bool(const std::string& systemName, bool isLast)>;
 
-	using ProcessRandomAccessEntity = std::function<bool(const ParsedSystem::RandomAccessEntity& entity, bool isLast)>;
-	void ParsedSystem::UpdateMethodInfo::ForEachRandomAccessEntity(ProcessRandomAccessEntity&& processEntity) const {
+	using ProcessRandomAccessEntity = std::function<bool(ParsedSystem::RandomAccessEntity& entity, bool isLast)>;
+	void ParsedSystem::UpdateMethodInfo::ForEachRandomAccessEntity(ProcessRandomAccessEntity&& processEntity) {
 		for (Common::Index i = 0; i < randomAccessesEntities_.size(); i++) {
-			const RandomAccessEntity& entity = randomAccessesEntities_[i];
+			 RandomAccessEntity& entity = randomAccessesEntities_[i];
 			if (!processEntity(entity, (i == randomAccessesEntities_.size() - 1))) {
 				break;
 			}
 		}
 	}
 
-	void ParsedSystem::UpdateMethodInfo::ForEachRandomAccessComponent(ProcessComponentName&& processComponent) const {
+	void ParsedSystem::UpdateMethodInfo::ForEachCreateEntity(ProcessCreateEntity&& processEntity) {
+		for (Common::Index i = 0; i < createsEntities_.size(); i++) {
+			CreatesEntity& entity = createsEntities_[i];
+			if (!processEntity(entity, (i == createsEntities_.size() - 1))) {
+				break;
+			}
+		}
+	}
 
-		ForEachRandomAccessEntity([&](const RandomAccessEntity& entity, bool isLastEntity) {
+
+	void ParsedSystem::UpdateMethodInfo::ForEachRandomAccessComponent(ProcessComponentName&& processComponent){
+
+		ForEachRandomAccessEntity([&](RandomAccessEntity& entity, bool isLastEntity) {
 
 			for (Common::Index i = 0; i < entity.includes_.size(); i++) {
-				const std::string& componentName = entity.includes_[i].name_;
+				std::string& componentName = entity.includes_[i].name_;
 				if (!processComponent(componentName, isLastEntity && (i == entity.includes_.size() - 1))) {
 					break;
 				}
@@ -147,7 +161,7 @@ namespace ECSGenerator2 {
 	}
 
 	[[nodiscard]]
-	bool ParsedSystem::UpdateMethodInfo::IsProcessesComponent(const std::string& component) {
+	bool ParsedSystem::UpdateMethodInfo::IsProcessesComponent(std::string& component) {
 		bool isProcessesComponent = false;
 		ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
 			if (entity.IsProcessesComponent(component)) {
@@ -159,7 +173,7 @@ namespace ECSGenerator2 {
 		if (isProcessesComponent) {
 			return true;
 		}
-		ForEachRandomAccessEntity([&](const ParsedSystem::RandomAccessEntity& entity, bool isLast) {
+		ForEachRandomAccessEntity([&](ParsedSystem::RandomAccessEntity& entity, bool isLast) {
 			if (entity.IsProcessesComponent(component)) {
 				isProcessesComponent = true;
 				return false;

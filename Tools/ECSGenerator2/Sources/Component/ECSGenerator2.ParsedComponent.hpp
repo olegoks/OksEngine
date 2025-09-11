@@ -125,6 +125,21 @@ namespace ECSGenerator2 {
 
 	using ParsedComponentPtr = std::shared_ptr<ParsedComponent>;
 
+	inline std::vector<std::string> GetComponentNamespace(ParsedComponentPtr parsedComponent) {
+
+		std::vector<std::string> componentNamespace;
+
+		parsedComponent->ForEachParentTable([&](ParsedTablePtr parsedTable) {
+
+			componentNamespace.insert(componentNamespace.begin(), parsedTable->GetName());
+
+			return true;
+
+			});
+
+		return componentNamespace;
+	}
+
 	inline std::shared_ptr<ParsedComponent> ParseComponent(
 		luabridge::LuaRef component,
 		const std::string& componentName) {
