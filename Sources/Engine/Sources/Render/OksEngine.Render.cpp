@@ -10,7 +10,7 @@ namespace OksEngine
 
 		ECS2::Entity::Id entity1id,
 		const Config* config1,
-		const LuaScript* luaScript1,
+		const Behaviour::LuaScript* luaScript1,
 
 		ECS2::Entity::Id entity2id,
 		ResourceSystem* resourceSystem2) {

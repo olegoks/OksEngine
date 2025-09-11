@@ -5,7 +5,7 @@ namespace OksEngine
 {
 #undef CreateWindow
 
-	void CreateMainWindow::Update(ECS2::Entity::Id entity0id, const Config* config0, const LuaScript* luaScript0) {
+	void CreateMainWindow::Update(ECS2::Entity::Id entity0id, const Config* config0, const Behaviour::LuaScript* luaScript0) {
 
 
 		::Lua::Context context;

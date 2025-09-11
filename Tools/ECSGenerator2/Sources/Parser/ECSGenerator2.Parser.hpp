@@ -44,10 +44,23 @@ namespace ECSGenerator2 {
 					ParsedTablePtr first,
 					ParsedTablePtr second) {
 
-						
+						auto getChildLessTableType = [](ParsedTablePtr table) {
+							ParsedTable::Type type1 = ParsedTable::Type::Undefined;
+							if (!table->HasChilds()) {
+								type1 = table->GetType();
+							}
+							else {
+								auto processChildLessTable = [&](ParsedTablePtr childLessTable) {
+									type1 = childLessTable->GetType();
+									return false;
+									};
+								table->ForEachChildlessTable(processChildLessTable);
+							}
+							return type1;
+							};
 
-						const auto type1 = first->GetType();
-						const auto type2 = second->GetType();
+						auto type1 = getChildLessTableType(first);
+						auto type2 = getChildLessTableType(second);
 
 						// Определяем приоритеты типов
 						const auto getPriority = [](ParsedTable::Type type) {

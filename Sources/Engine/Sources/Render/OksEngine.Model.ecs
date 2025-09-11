@@ -281,9 +281,9 @@ ProcessModelAnimationSystem = {
                     "AnimationInProgress"
                 },
                 -- Debug
-                -- createsComponents = {
-                --     "RunAnimation"
-                -- }
+                 createsComponents = {
+                     "RunModelAnimation"
+                 }
             },
             {
                 processesComponents = {
