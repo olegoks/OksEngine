@@ -59,26 +59,5 @@ namespace ECSGenerator2 {
 		return fullName;
 	}
 
-	std::vector<std::string> ParseFullName(const std::string& fullName) {
-		//"Behaviour::ScriptName::X" -> "Behaviour", "ScriptName", "X"
-			auto parseIncludeName = [](const std::string& name) {
-				std::vector<std::string> result;
-				size_t start = 0;
-				size_t end = name.find("::");
-
-				while (end != std::string::npos) {
-					result.push_back(name.substr(start, end - start));
-					start = end + 2; // Пропускаем "::"
-					end = name.find("::", start);
-				}
-
-				// Добавляем последнюю часть
-				result.push_back(name.substr(start));
-
-			return result;
-			};
-
-			return parseIncludeName(fullName);
-	}
 
 }

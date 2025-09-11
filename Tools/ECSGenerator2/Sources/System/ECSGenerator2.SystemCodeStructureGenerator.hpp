@@ -95,10 +95,7 @@ namespace ECSGenerator2 {
 
 					return true;
 				});
-#pragma region Assert
 
-			OS::AssertMessage(!requiredComponentNames.contains(nullptr), "");
-#pragma endregion
 			updateMethodInfo->ForEachCreateEntity([&](
 				ParsedSystem::CreatesEntity& entity,
 				bool isLast) {
@@ -109,39 +106,20 @@ namespace ECSGenerator2 {
 
 					return true;
 				});
-#pragma region Assert
 
-			OS::AssertMessage(!requiredComponentNames.contains(nullptr), "");
-#pragma endregion
 			for (auto& entity : updateMethodInfo->processesEntities_) {
 				for (auto componentInclude : entity.includes_) {
 					requiredComponentNames.insert(componentInclude.ptr_);
 				}
-#pragma region Assert
-
-				OS::AssertMessage(!requiredComponentNames.contains(nullptr), "");
-#pragma endregion
 				for (auto componentCreates : entity.creates_) {
 					requiredComponentNames.insert(componentCreates.ptr_);
 				}
-#pragma region Assert
-
-				OS::AssertMessage(!requiredComponentNames.contains(nullptr), "");
-#pragma endregion
 				for (auto componentRemoves : entity.removes_) {
 					requiredComponentNames.insert(componentRemoves.ptr_);
 				}
-#pragma region Assert
-
-				OS::AssertMessage(!requiredComponentNames.contains(nullptr), "");
-#pragma endregion
 				for (auto componentExclude : entity.excludes_) {
 					requiredComponentNames.insert(componentExclude.ptr_);
 				}
-#pragma region Assert
-
-				OS::AssertMessage(!requiredComponentNames.contains(nullptr), "");
-#pragma endregion
 			}
 
 
@@ -180,29 +158,7 @@ namespace ECSGenerator2 {
 
 		std::vector<CodeStructure::Function::Parameter> GenerateUpdateMethodParameters(std::shared_ptr<ParsedSystem::UpdateMethodInfo> updateMethod) {
 
-			auto mergeArraysPreserveOrder = [](const std::vector<std::string>& arr1,
-				const std::vector<std::string>& arr2) {
-					std::vector<std::string> result;
-					std::unordered_set<std::string> seen;
 
-					// Сначала добавляем все уникальные элементы из первого массива
-					for (const auto& str : arr1) {
-						if (seen.find(str) == seen.end()) {
-							result.push_back(str);
-							seen.insert(str);
-						}
-					}
-
-					// Затем добавляем уникальные элементы из второго массива
-					for (const auto& str : arr2) {
-						if (seen.find(str) == seen.end()) {
-							result.push_back(str);
-							seen.insert(str);
-						}
-					}
-
-					return result;
-				};
 
 			std::vector<CodeStructure::Function::Parameter> updateMethodParameters;
 
@@ -215,26 +171,13 @@ namespace ECSGenerator2 {
 
 				entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
 
-					const auto namespaceStrings = GetComponentNamespace(include.ptr_);
-
-
-					const auto parsedComponentName = ECSGenerator2::ParseFullName(include.GetName());
-					const auto componentFullName = mergeArraysPreserveOrder(namespaceStrings, parsedComponentName);
-
-					std::string fullNamespace;
-					for (Common::Index i = 0; i < componentFullName.size(); i++) {
-						fullNamespace += componentFullName[i];
-						if (i != componentFullName.size() - 1) {
-							fullNamespace += "::";
-						}
-					}
 
 					CodeStructure::Function::Parameter parameter;
 					if (include.IsReadonly()) {
-						parameter.inputType_ = std::format("const {}*", fullNamespace);
+						parameter.inputType_ = std::format("const {}*", include.GetFullName());
 					}
 					else {
-						parameter.inputType_ = std::format("{}*", fullNamespace);
+						parameter.inputType_ = std::format("{}*", include.GetFullName());
 					}
 
 					parameter.valueName_ = std::format("{}{}", include.GetLowerName(), currentEntityIndex);
@@ -576,10 +519,10 @@ namespace ECSGenerator2 {
 					entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
 						CodeStructure::Function::Parameter parameter;
 						if (include.IsReadonly()) {
-							parameter.inputType_ = std::format("const {}*", include.GetName());
+							parameter.inputType_ = std::format("const {}*", include.GetFullName());
 						}
 						else {
-							parameter.inputType_ = std::format("{}*", include.GetName());
+							parameter.inputType_ = std::format("{}*", include.GetFullName());
 						}
 
 						parameter.valueName_ = std::format("{}{}", include.GetLowerName(), currentEntityIndex);
@@ -671,7 +614,7 @@ namespace ECSGenerator2 {
 
 
 					for (Common::Index i = 0; i < entity.excludes_.size(); ++i) {
-						realization.Add(entity.excludes_[i].name_);
+						realization.Add(entity.excludes_[i].GetFullName());
 						if (i != entity.excludes_.size() - 1) {
 							realization.Add(", ");
 						}
@@ -693,7 +636,8 @@ namespace ECSGenerator2 {
 					realization.Add("world->ForEachEntity<");
 					realization.NewLine();
 					entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
-						realization.Add(include.name_);
+
+						realization.Add(include.GetFullName());
 						if (!isLast) {
 							realization.Add(", ");
 						}
@@ -705,7 +649,7 @@ namespace ECSGenerator2 {
 					entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
 						realization.Add(std::format("{}*{}{}",
 
-							include.name_, include.GetLowerName(), currentEntityIndex));
+							include.GetFullName(), include.GetLowerName(), currentEntityIndex));
 						if (!isLast) {
 							realization.Add(", ");
 						}

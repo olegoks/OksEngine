@@ -19,6 +19,51 @@ namespace ECSGenerator2 {
 
 		struct Dependence {
 			std::shared_ptr<ParsedComponent> ptr_ = nullptr;
+
+			std::string GetFullName() const {
+				auto mergeArraysPreserveOrder = [](const std::vector<std::string>& arr1,
+					const std::vector<std::string>& arr2) {
+						std::vector<std::string> result;
+						std::unordered_set<std::string> seen;
+
+						// Сначала добавляем все уникальные элементы из первого массива
+						for (const auto& str : arr1) {
+							if (seen.find(str) == seen.end()) {
+								result.push_back(str);
+								seen.insert(str);
+							}
+						}
+
+						// Затем добавляем уникальные элементы из второго массива
+						for (const auto& str : arr2) {
+							if (seen.find(str) == seen.end()) {
+								result.push_back(str);
+								seen.insert(str);
+							}
+						}
+
+						return result;
+					};
+
+
+				const auto namespaceStrings = GetComponentNamespace(ptr_);
+
+
+				const auto parsedComponentName = ECSGenerator2::ParseFullName(ptr_->GetName());
+				const auto componentFullName = mergeArraysPreserveOrder(namespaceStrings, parsedComponentName);
+
+				std::string fullNamespace;
+				for (Common::Index i = 0; i < componentFullName.size(); i++) {
+					fullNamespace += componentFullName[i];
+					if (i != componentFullName.size() - 1) {
+						fullNamespace += "::";
+					}
+				}
+
+				return fullNamespace;
+
+			}
+
 		};
 
 		struct Exclude : public Dependence {
