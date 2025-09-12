@@ -180,10 +180,12 @@ namespace ECS2 {
 
 		}
 
+
+
 		template<class ComponentType, class ...Args>
-		void CreateComponent(Entity::Id entityId, Args&&... args) noexcept {
+		void CreateComponent(Entity::Id entityId, const char* callerSystemName, Args&&... args) noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
-			requests_.emplace_back([entityId, componentCreateArgs = std::make_tuple(std::forward<Args>(args)...), this]() mutable {
+			requests_.emplace_back([callerSystemName, entityId, componentCreateArgs = std::make_tuple(std::forward<Args>(args)...), this]() mutable {
 				std::apply([&](auto&&... unpackedArgs) {
 					//Archetype entity.
 					if (archetypeEntitiesComponents_.contains(entityId)) {
@@ -203,7 +205,7 @@ namespace ECS2 {
 #pragma region Assert
 						OS::AssertMessage(
 							!dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
-							"Attempt to add component to the entity that was already added.");
+							{ "Attempt to add component by system \"{}\" to the entity that was already added.", callerSystemName });
 #pragma endregion
 
 						auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
@@ -219,10 +221,17 @@ namespace ECS2 {
 				});
 		}
 
+		template<class ComponentType, class ...Args>
+		void CreateComponent(Entity::Id entityId, Args&&... args) noexcept {
+			CreateComponent<ComponentType, Args...>(
+				
+				entityId, "Called not from a system, maybe user manually created component", std::forward<Args&&>(args)...);
+		}
+
 		template<class ComponentType>
-		void RemoveComponent(Entity::Id entityId) noexcept {
+		void RemoveComponent(Entity::Id entityId, const char* callerSystemName) noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
-			requests_.emplace_back([entityId, this]() mutable {
+			requests_.emplace_back([callerSystemName, entityId, this]() mutable {
 				//Archetype entity.
 				if (archetypeEntitiesComponents_.contains(entityId)) {
 					const ComponentsFilter archetypeComponentsFilter = archetypeEntitiesComponents_[entityId];
@@ -238,17 +247,22 @@ namespace ECS2 {
 				else {
 #pragma region Assert
 					OS::AssertMessage(dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
-						"Attempt to remove component, but component container doesn't exist.");
+						{ "Attempt to remove component by system \"{}\", but component container doesn't exist.", callerSystemName });
 					OS::AssertMessage(dynamicEntitiesComponentFilters_.contains(entityId),
 						"Attempt to remove entity component, but entity doesn't exist.");
 					OS::AssertMessage(dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
-						"Attempt ot remove entity component, but entity doesn't contain this component.");
+						{ "Attempt ot remove entity component by system \"{}\", but entity doesn't contain this component.", callerSystemName });
 #pragma endregion
 					auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
 					container->RemoveComponent(entityId);
 					dynamicEntitiesComponentFilters_[entityId].RemoveBits<ComponentType>();
 				}
 				});
+		}
+
+		template<class ComponentType>
+		void RemoveComponent(Entity::Id entityId) noexcept {
+			RemoveComponent<ComponentType>(entityId, "Called not from a system, maybe user manually removed component");
 		}
 
 		template<class ComponentType>

@@ -352,7 +352,7 @@ namespace ECSGenerator2 {
 					.name_ = "CreateComponent",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId" }, { "Args&&", "...args"}},
 					.returnType_ = "void",
-					.code_ = "world_->CreateComponent<Component>(entityId, std::forward<Args>(args)...);",
+					.code_ = "world_->CreateComponent<Component>(entityId,\"" + systemEcsFile->GetFullName() + "\", std::forward<Args>(args)...);",
 					.isPrototype_ = false,
 					.inlineModifier_ = false,
 					.templateParameters_ = { "Component", "...Args" }
@@ -369,7 +369,7 @@ namespace ECSGenerator2 {
 					.name_ = "RemoveComponent",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId" }, { "Args&&", "...args"}},
 					.returnType_ = "void",
-					.code_ = "world_->RemoveComponent<Component>(entityId, std::forward<Args>(args)...);",
+					.code_ = "world_->RemoveComponent<Component>(entityId, \"" + systemEcsFile->GetFullName() + "\",std::forward<Args>(args)...);",
 					.isPrototype_ = false,
 					.inlineModifier_ = false,
 					.templateParameters_ = { "Component", "...Args" }

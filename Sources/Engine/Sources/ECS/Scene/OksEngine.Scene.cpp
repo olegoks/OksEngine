@@ -166,7 +166,7 @@ namespace OksEngine
 				Subsystem::Type::ChildThread,
 				"Root/" + loadSceneRequest0->sceneName_);
 
-		CreateComponent<LuaScript>(entity0id,
+		CreateComponent<Behaviour::LuaScript>(entity0id,
 			std::string{
 				sceneFileData.GetData<Common::Byte>(),
 				sceneFileData.GetSize()
@@ -213,7 +213,7 @@ namespace OksEngine
 			CreateComponent<SceneLoaded>(loadSceneRequest0->callerId_);
 		}
 		RemoveComponent<LoadSceneRequest>(entity0id);
-		RemoveComponent<LuaScript>(entity0id);
+		RemoveComponent<Behaviour::LuaScript>(entity0id);
 
 	}
 
