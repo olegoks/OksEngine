@@ -86,22 +86,11 @@ namespace OksEngine
 	};
 
 	void SaveSceneFile::Update(
-
-		ECS2::Entity::Id entity0id,
-		const CommandLineParameters* commandLineParameters0,
-		const ConfigFilePath* configFilePath0,
-
-		ECS2::Entity::Id entity1id,
-		const ECSController* eCSController1,
-		const SaveSceneRequest* saveSceneRequest1,
-		const LuaScript* luaScript1,
-
-		ECS2::Entity::Id entity2id,
-		ResourceSystem* resourceSystem2,
-
-		ECS2::Entity::Id entity3id,
-		const Config* config3,
-		const Behaviour::LuaScript* luaScript3) {
+		ECS2::Entity::Id entity0id, const CommandLineParameters* commandLineParameters0,
+		const ConfigFilePath* configFilePath0, ECS2::Entity::Id entity1id, const ECSController* eCSController1,
+		const SaveSceneRequest* saveSceneRequest1, const Behaviour::LuaScript* luaScript1,
+		ECS2::Entity::Id entity2id, ResourceSystem* resourceSystem2, ECS2::Entity::Id entity3id,
+		const Config* config3, const Behaviour::LuaScript* luaScript3) {
 
 		::Lua::Context context;
 
@@ -189,7 +178,7 @@ namespace OksEngine
 		ECS2::Entity::Id entity0id,
 		const ECSController* eCSController0,
 		const LoadSceneRequest* loadSceneRequest0,
-		const LuaScript* luaScript0) {
+		const Behaviour::LuaScript* luaScript0) {
 
 
 		::Lua::Context context;

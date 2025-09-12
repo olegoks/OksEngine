@@ -156,9 +156,14 @@ int main(int argc, char** argv) {
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
 							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
 
-							//if (runAfterSystem.name_ == "SendWindowKeyboardEvents") {
-							//	Common::BreakPointLine();
-							//}
+
+							if (parsedSystem->GetName() == "SaveSceneFile") {
+								Common::BreakPointLine();
+							}
+
+							if (componentName == "LuaScript") {
+								Common::BreakPointLine();
+							}
 
 							//Try to find from namespace of current system and using source system name.
 							const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
@@ -331,9 +336,6 @@ int main(int argc, char** argv) {
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
 							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
 
-							//if (runAfterSystem.name_ == "SendWindowKeyboardEvents") {
-							//	Common::BreakPointLine();
-							//}
 
 							//Try to find from namespace of current system and using source system name.
 							const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);

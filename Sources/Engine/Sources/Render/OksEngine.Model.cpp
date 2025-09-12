@@ -299,55 +299,56 @@ namespace OksEngine
 		Common::Size size_;
 	};
 
-	void CreateAiScene::Update(
-		ECS2::Entity::Id entity0id,
-		const ModelFile* modelFile0,
+	namespace Ai {
+		void CreateScene::Update(
+			ECS2::Entity::Id entity0id,
+			const ModelFile* modelFile0,
 
-		ECS2::Entity::Id entity1id,
-		const ResourceSystem* resourceSystem1) {
+			ECS2::Entity::Id entity1id,
+			const ResourceSystem* resourceSystem1) {
 
 
 
-		Resources::ResourceData resourceData = resourceSystem1->system_->GetResourceSynch(
-			Subsystem::Type::ChildThread,
-			"Root/" + modelFile0->fileName_);
+			Resources::ResourceData resourceData = resourceSystem1->system_->GetResourceSynch(
+				Subsystem::Type::ChildThread,
+				"Root/" + modelFile0->fileName_);
 
-		auto importer = std::make_shared<Assimp::Importer>();
+			auto importer = std::make_shared<Assimp::Importer>();
 
-		importer->SetIOHandler(new GltfIOSystem{ resourceSystem1->system_ });
+			importer->SetIOHandler(new GltfIOSystem{ resourceSystem1->system_ });
 
-		const unsigned int flags =
-			aiProcess_Triangulate |
-			aiProcess_GenNormals |
-			aiProcess_FlipUVs |
-			aiProcess_LimitBoneWeights |
-			aiProcess_PopulateArmatureData |
-			aiProcess_Debone |
-			aiProcess_ConvertToLeftHanded;
+			const unsigned int flags =
+				aiProcess_Triangulate |
+				aiProcess_GenNormals |
+				aiProcess_FlipUVs |
+				aiProcess_LimitBoneWeights |
+				aiProcess_PopulateArmatureData |
+				aiProcess_Debone |
+				aiProcess_ConvertToLeftHanded;
 
-		importer->SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
+			importer->SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
 
-		const aiScene* scene = importer->ReadFileFromMemory(
-			resourceData.GetData<Common::Byte>(),
-			resourceData.GetSize(),
-			flags,
-			"gltf"
-		);
+			const aiScene* scene = importer->ReadFileFromMemory(
+				resourceData.GetData<Common::Byte>(),
+				resourceData.GetSize(),
+				flags,
+				"gltf"
+			);
 
 #pragma region Assert
-		auto errorString = std::string(importer->GetErrorString());
+			auto errorString = std::string(importer->GetErrorString());
 
-		OS::AssertMessage(scene && scene->mRootNode,
-			"Failed to load model: " + errorString);
+			OS::AssertMessage(scene && scene->mRootNode,
+				"Failed to load model: " + errorString);
 #pragma endregion
 
 
-		std::shared_ptr<const aiScene> scenePtr(scene, [importer](const aiScene* scene) { importer->FreeScene(); });
-		CreateComponent<Model>(entity0id);
-		CreateComponent<AiScene>(entity0id, scenePtr);
+			std::shared_ptr<const aiScene> scenePtr(scene, [importer](const aiScene* scene) { importer->FreeScene(); });
+			CreateComponent<Model>(entity0id);
+			CreateComponent<Ai::Scene>(entity0id, scenePtr);
 
+		}
 	}
-
 	void CreateModelNodes::Update(
 		ECS2::Entity::Id entity0id,
 		const Model* model0, 
@@ -715,7 +716,7 @@ namespace OksEngine
 			
 
 			std::vector<MeshInfo> meshInfos;
-			std::vector<std::shared_ptr<aiMesh>> meshs;
+			std::vector<std::shared_ptr<const aiMesh>> meshs;
 			for (Common::Index i = 0; i < node->mNumMeshes; i++) {
 				int meshIndex = node->mMeshes[i];
 				aiMesh* mesh = scene->mMeshes[meshIndex];
@@ -891,9 +892,9 @@ namespace OksEngine
 
 							}
 							//Save ids of bones entities for the mesh entity.
-							const aiNode* boneNode = nameToBoneNode[bone->mName.C_Str()];
-							ECS2::Entity::Id boneEntityId = nodeToEntityId[boneNode];
-							boneEntityIds.push_back(boneEntityId);
+							//const aiNode* boneNode = nameToBoneNode[bone->mName.C_Str()];
+							//ECS2::Entity::Id boneEntityId = nodeToEntityId[boneNode];
+							//boneEntityIds.push_back(boneEntityId);
 						}
 						if (mesh->mNumBones > 0) {
 							CreateComponent<BoneNodeEntities>(meshEntityId, boneEntityIds);
@@ -1003,12 +1004,12 @@ namespace OksEngine
 
 				for (Common::Index i = 0; i < node->mNumMeshes; i++) {
 					int meshIndex = node->mMeshes[i];
-					aiMesh* mesh = scene->mMeshes[meshIndex];
+					//aiMesh* mesh = scene->mMeshes[meshIndex];
 
-					const ECS2::Entity::Id meshEntity = CreateEntity();
+					//const ECS2::Entity::Id meshEntity = CreateEntity();
 
-					createMeshComponents(scene, nodeEntityId, mesh, meshEntity);
-					meshEntities.push_back(meshEntity);
+					//createMeshComponents(scene, nodeEntityId, mesh, meshEntity);
+					//meshEntities.push_back(meshEntity);
 				}
 
 			}

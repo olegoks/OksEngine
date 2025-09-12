@@ -186,10 +186,10 @@ namespace ECSGenerator2 {
 
 		[[nodiscard]]
 		bool IsContainsComponent(ParsedComponentPtr findParsedComponent) {
-			
+
 			bool isContainsComponent = false;
 			ForEachTable([&](ParsedTablePtr parsedComponent) {
-				
+
 				if (parsedComponent == findParsedComponent) {
 					isContainsComponent = true;
 					return false;
@@ -268,7 +268,7 @@ namespace ECSGenerator2 {
 			return GetPath().filename().stem().string();
 		}
 
-		
+
 
 
 	private:
@@ -292,7 +292,7 @@ namespace ECSGenerator2 {
 		}
 		parentRecursivePath.erase(parentRecursivePath.begin());
 
-		if ("OksEngine.ResourceSystem" == parsedEcsFile->GetName() && path[0] == "ResourceSystem") {
+		if ("OksEngine.Behaviour" == parsedEcsFile->GetName() && path[0] == "LuaScript") {
 			Common::BreakPointLine();
 		}
 
@@ -301,33 +301,38 @@ namespace ECSGenerator2 {
 
 		bool pathIsFound = false;
 
-
 		auto processChildLessTable = [&](ParsedTablePtr childLessTable) {
 
 			if (path.back() == childLessTable->GetName()) {
 
-				if (parentRecursivePath.empty()) {
-					resultTablePath.push_back(childLessTable);
-					pathIsFound = true;
-					return false;
-				}
+				//if (parentRecursivePath.empty()) {
+				//	resultTablePath.push_back(childLessTable);
+				//	pathIsFound = true;
+				//	return false;
+				//}
 
 				ParsedTablesPath tablesPath;
-				Common::Index index = 0;
-				//Found table with needed name.
-				childLessTable->ForEachParentTable([&](ParsedTablePtr table) {
-					if (table->GetName() == parentRecursivePath[index]) {
-						tablesPath.insert(tablesPath.begin(), table);
-						++index;
-						return true;
-					} else {
-						return false;
-					}
+				if (!parentRecursivePath.empty()) {
+					Common::Index index = 0;
+					//Found table with needed name.
+					childLessTable->ForEachParentTable([&](ParsedTablePtr table) {
+						if (table->GetName() == parentRecursivePath[index]) {
+							tablesPath.insert(tablesPath.begin(), table);
+							++index;
+							return true;
+						}
+						else {
+							return false;
+						}
 
-					});
+						});
+				}
 
 				pathIsFound = tablesPath.size() == parentRecursivePath.size();
 				if (pathIsFound) {
+
+
+
 					tablesPath.push_back(childLessTable);
 					for (auto& tablePath : tablesPath) {
 						resultTablePath.push_back(tablePath);

@@ -1012,7 +1012,7 @@ namespace ECSGenerator2 {
 			auto generateEditComponentCode = [](std::shared_ptr<ParsedComponent> component) -> CodeStructure::Code {
 
 				CodeStructure::Code code;
-				code.Add(std::format("editComponent.template operator()<{}>(world, entityId);", component->GetName()));
+				code.Add(std::format("editComponent.template operator()<{}>(world, entityId);", component->GetFullName()));
 				/*code.NewLine();
 				component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 
@@ -1149,25 +1149,25 @@ namespace ECSGenerator2 {
 					std::shared_ptr<ParsedComponent> parsedComponent) {
 
 						code.Add("{");
-						std::vector<std::string> namespaceStrings;
-						for (auto childTable : childTables) {
-							if (childTable->GetType() == ParsedTable::Type::Namespace) {
-								auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(childTable);
-								namespaceStrings.push_back(parsedNamespace->GetName());
-							}
-						}
+						//std::vector<std::string> namespaceStrings;
+						//for (auto childTable : childTables) {
+						//	if (childTable->GetType() == ParsedTable::Type::Namespace) {
+						//		auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(childTable);
+						//		namespaceStrings.push_back(parsedNamespace->GetName());
+						//	}
+						//}
 
-						if (!namespaceStrings.empty()) {
-							std::string fullNamespace;
-							for (Common::Index i = 0; i < namespaceStrings.size(); i++) {
-								fullNamespace += namespaceStrings[i];
-								if (i != namespaceStrings.size() - 1) {
-									fullNamespace += "::";
-								}
-							}
+						//if (!namespaceStrings.empty()) {
+						//	std::string fullNamespace;
+						//	for (Common::Index i = 0; i < namespaceStrings.size(); i++) {
+						//		fullNamespace += namespaceStrings[i];
+						//		if (i != namespaceStrings.size() - 1) {
+						//			fullNamespace += "::";
+						//		}
+						//	}
 
-							code.Add("using namespace {};", fullNamespace);
-						}
+						//	code.Add("using namespace {};", fullNamespace);
+						//}
 
 						code.Add(generateEditComponentCode(parsedComponent));
 						code.Add("}");

@@ -1,5 +1,7 @@
 #pragma once 
 
+#include <OS.Assert.hpp>
+
 namespace ECSGenerator2 {
 
     class ParsedTable {
@@ -16,6 +18,46 @@ namespace ECSGenerator2 {
         virtual Type GetType() const noexcept = 0;
         virtual std::shared_ptr<ParsedTable> Clone() const noexcept = 0;
         virtual const std::string& GetName() const noexcept = 0;
+
+
+        //Now all parent tables are only namespaces. Get namespace as "XXX", "YYY".
+        inline std::vector<std::string> GetNamespace() {
+
+            std::vector<std::string> namespaceStrings;
+            namespaceStrings.reserve(5);
+            ForEachParentTable([&](std::shared_ptr<ParsedTable> parentParsedTable) {
+
+#pragma region Assert
+                OS::AssertMessage(parentParsedTable->GetType() == Type::Namespace, "");
+#pragma endregion
+
+                namespaceStrings.insert(namespaceStrings.begin(), parentParsedTable->GetName());
+
+                return true;
+
+                });
+
+            return namespaceStrings;
+        }
+
+        //Get full name as XXX::YYY::Zzzz
+        inline std::string GetFullName() {
+
+            std::vector<std::string> namespaceStrings = GetNamespace();
+            namespaceStrings.push_back(GetName());
+            decltype(namespaceStrings)& fullNameStrings = namespaceStrings;
+
+            std::string fullNamespace;
+            for (Common::Index i = 0; i < fullNameStrings.size(); i++) {
+                fullNamespace += fullNameStrings[i];
+                if (i != fullNameStrings.size() - 1) {
+                    fullNamespace += "::";
+                }
+            }
+
+            return fullNamespace;
+
+        }
 
         virtual ~ParsedTable() = default;
         
@@ -59,6 +101,10 @@ namespace ECSGenerator2 {
                 });
 
             return parentTables;
+        }
+
+        bool HasParent() const {
+            return parentTable_ != nullptr;
         }
 
         using ProcessChildTable = std::function<bool(std::shared_ptr<ParsedTable>)>;
