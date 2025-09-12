@@ -286,6 +286,16 @@ namespace ECSGenerator2 {
 				return isChangesComponent;
 			}
 
+			[[nodiscard]]
+			bool IsRemovesComponents() {
+				return !removes_.empty();
+			}
+
+			[[nodiscard]]
+			bool IsCreatesComponents() {
+				return !creates_.empty();
+			}
+
 		};
 
 		struct CreatesEntity {
@@ -344,16 +354,63 @@ namespace ECSGenerator2 {
 			std::vector<RandomAccessEntity> randomAccessesEntities_;
 			std::vector<CreatesEntity> createsEntities_; // we dont need info: dynamic or archetype entity to create because we need generate only to add components includes.
 
+			[[deprecated]]
 			bool IsCreatesComponent(const std::string& componentName);
 
+			[[deprecated]]
 			[[nodiscard]]
 			bool IsChangesComponent(const std::string& component);
 
+			[[deprecated]]
 			[[nodiscard]]
 			bool IsReadsComponent(const std::string& component);
 
 			[[nodiscard]]
 			Common::Size GetProcessesEntitiesNumber() const noexcept;
+
+			[[nodiscard]]
+			bool IsRemovesComponents() noexcept {
+				bool isRemovesComponents = false;
+				ForEachProcessEntity([&](ProcessedEntity& entity, bool isLast) {
+					if (entity.IsRemovesComponents()) {
+						isRemovesComponents = true;
+						return false;
+					}
+
+					return true;
+					});
+
+				//TODO: in random access we can remove component too.
+				//ForEachRandomAccessEntity([]() {
+				//	
+				//	
+				//	});
+				return isRemovesComponents;
+			}
+
+			[[nodiscard]]
+			bool IsCreatesComponents() noexcept {
+				bool isCreatesComponents = false;
+				ForEachProcessEntity([&](ProcessedEntity& entity, bool isLast) {
+					if (entity.IsCreatesComponents()) {
+						isCreatesComponents = true;
+						return false;
+					}
+
+					return true;
+					});
+
+				ForEachCreateEntity([&](CreatesEntity& entity, bool isLast) {
+					
+					if (!entity.creates_.empty()) {
+						isCreatesComponents = true;
+						return false;
+					}
+
+					return true;
+					});
+				return isCreatesComponents;
+			}
 
 			using ProcessComponentName = std::function<bool(std::string& systemName, bool isLast)>;
 
@@ -371,10 +428,11 @@ namespace ECSGenerator2 {
 			using ProcessRequestEntity = std::function<bool(ProcessedEntity& entity, bool isLast)>;
 			void ForEachProcessEntity(ProcessRequestEntity&& processEntity);
 
+			[[deprecated]]
 			[[nodiscard]]
 			bool IsProcessesComponent(std::string& component);
 		
-
+			[[deprecated]]
 			bool IsAccessesComponentByRandomAccess(const std::string& componentName);
 
 		};

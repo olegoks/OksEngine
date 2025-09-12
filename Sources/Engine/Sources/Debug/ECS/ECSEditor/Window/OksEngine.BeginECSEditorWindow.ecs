@@ -13,6 +13,9 @@ BeginECSEditorWindowSystem = {
                     "ECSEditorMenuItem",
                     { name = "ECSEditorWindow", readonly = false },
                     "EditorContext"
+                },
+                removesComponents = {
+                    "ECSEditorWindow"
                 }
             }
         }

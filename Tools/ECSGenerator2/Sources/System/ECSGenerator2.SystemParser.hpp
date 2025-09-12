@@ -164,12 +164,12 @@ namespace ECSGenerator2 {
 
 						luabridge::LuaRef entityRemoves = systemOrEntityRef["removesComponents"];
 
-						std::vector<std::string> parsedEntityRemoves;
+						std::vector<ParsedSystem::Remove> parsedEntityRemoves;
 						if (!entityRemoves.isNil()) {
 							for (luabridge::Iterator it(entityRemoves); !it.isNil(); ++it) {
 								luabridge::LuaRef toRemove = it.value();
-								parsedEntityRemoves.push_back(toRemove.cast<std::string>().value());
-								OS::AssertMessage(std::isupper(parsedEntityRemoves.back()[0]), "");
+								parsedEntityRemoves.push_back({ nullptr, toRemove.cast<std::string>().value() });
+								OS::AssertMessage(std::isupper(parsedEntityRemoves.back().GetName()[0]), "");
 							}
 						}
 
@@ -234,11 +234,14 @@ namespace ECSGenerator2 {
 
 						std::vector<ParsedSystem::Create> createsComponents = parseCreatesComponents(entity);
 
+						std::vector<ParsedSystem::Remove> removesComponents = parseRemovesComponents(entity);
+
 						ParsedSystem::ProcessedEntity parsedEntity{
 							.includes_ = parsedEntityIncludes,
 							.processesAllCombinations_ = !processesAllCombinations.isNil(),
 							.excludes_ = parsedEntityExcludes,
-							.creates_ = createsComponents
+							.creates_ = createsComponents,
+							.removes_ = removesComponents
 						};
 						parsedEntities.push_back(parsedEntity);
 
@@ -288,6 +291,10 @@ namespace ECSGenerator2 {
 					}
 					return createsEntities_;
 					};
+
+				if ("BeginECSEditorWindow" == systemName) {
+					Common::BreakPointLine();
+				}
 
 				luabridge::LuaRef updateMethodRef = luaRef["updateMethod"];
 				if (!updateMethodRef.isNil()) {

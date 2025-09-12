@@ -8,8 +8,10 @@ CreateFramesCounterEntitySystem = {
     type = "Initialize",
     updateMethod = {
         createsEntities = {
-            createsComponents = {
-                "FramesCounter"
+            {
+                createsComponents = {
+                    "FramesCounter"
+                }
             }
         }
     }

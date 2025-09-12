@@ -80,7 +80,7 @@ namespace OksEngine
 	void EndWorldSceneSaving::Update(ECS2::Entity::Id entity0id, const ECSController* eCSController0,
 		const SaveSceneRequest* saveSceneRequest0, const Behaviour::LuaScript* luaScript0) {
 
-		RemoveComponent<LuaScript>(entity0id);
+		RemoveComponent<Behaviour::LuaScript>(entity0id);
 		RemoveComponent<SaveSceneRequest>(entity0id);
 
 	};

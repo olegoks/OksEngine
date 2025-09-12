@@ -18,6 +18,9 @@ BeginECSInspectorWindowSystem = {
                     "ECSMenu",
                     "ECSInspectorMenuItem",
                     { name = "ECSInspectorWindow", readonly = false }
+                },
+                removesComponents = {
+                    "ECSInspectorWindow"
                 }
             }
         }
@@ -37,6 +40,9 @@ ProcessCreateEntityButtonSystem = {
                     "MainMenuBar",
                     "ECSMenu",
                     "ECSInspectorMenuItem",
+                    "ECSInspectorWindow"
+                },
+                removesComponents = {
                     "ECSInspectorWindow"
                 }
             }

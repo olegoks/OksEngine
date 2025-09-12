@@ -364,12 +364,45 @@ namespace ECSGenerator2 {
 				};
 			auto generateRemoveComponentMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
+				CodeStructure::Code expression;
+				{
+					systemEcsFile->ci_.updateMethod_->ForEachProcessEntity([&](ParsedSystem::ProcessedEntity& processedEntity, bool isLast) {
+						processedEntity.ForEachRemove([&](ParsedSystem::Remove& remove, bool isLast) {
+							expression.Add(std::format("std::is_same_v<Component, {}>", remove.ptr_->GetFullName()));
+							if (!isLast) {
+								expression.Add(" || ");
+							}
+							return true;
+							});
+						return true;
+						});
+				}
+
+				CodeStructure::Code removeComponentRealization;
+				{
+					if (!expression.code_.empty()) {
+						//Add Assert.
+						removeComponentRealization.Add("if constexpr (Common::IsDebug()) {");
+						{
+							removeComponentRealization.Add("OS::AssertMessage(");
+							removeComponentRealization.Add(expression);
+							removeComponentRealization.Add(
+								",std::format(\"Attempt to remove component{} that system("
+								+ systemEcsFile->GetName() +
+								") can't remove. Added access entities description to .ecs file that corresponds to system\", Component::GetName()));"
+							);
+						}
+						removeComponentRealization.Add("}");
+					}
+					removeComponentRealization.Add("world_->RemoveComponent<Component>(entityId, \"" + systemEcsFile->GetFullName() + "\",std::forward<Args>(args)...);");
+				}
+
 				//CreateComponent method.
 				CodeStructure::Function::CreateInfo removeComponentCI{
 					.name_ = "RemoveComponent",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId" }, { "Args&&", "...args"}},
 					.returnType_ = "void",
-					.code_ = "world_->RemoveComponent<Component>(entityId, \"" + systemEcsFile->GetFullName() + "\",std::forward<Args>(args)...);",
+					.code_ = removeComponentRealization,//"world_->RemoveComponent<Component>(entityId, \"" + systemEcsFile->GetFullName() + "\",std::forward<Args>(args)...);",
 					.isPrototype_ = false,
 					.inlineModifier_ = false,
 					.templateParameters_ = { "Component", "...Args" }
@@ -434,7 +467,6 @@ namespace ECSGenerator2 {
 			std::vector<std::shared_ptr<CodeStructure::Function>> methods{
 				generateUpdateMethodPrototype(system),
 				generateGetComponentsFilter(system),
-				generateRemoveComponentMethodRealization(system),
 
 				generateIsComponentExistMethodRealization(system),
 
@@ -455,30 +487,36 @@ namespace ECSGenerator2 {
 
 			//Generate CreateComponent method if needed.
 			{
-				bool isSystemCreatesComponents = false;
+				//bool isSystemCreatesComponents = false;
 
-				//If update method creates compponents for processed entities -> generate CreateComponent method.
-				system->ci_.updateMethod_->ForEachProcessEntity(
-					[&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
-					
-						if (!entity.creates_.empty()) {
-							isSystemCreatesComponents = true;
-						}
-						if (isSystemCreatesComponents) {
-							return false;
-						}
-						return true;
-					
-					});
+				////If update method creates compponents for processed entities -> generate CreateComponent method.
+				//system->ci_.updateMethod_->ForEachProcessEntity(
+				//	[&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
+				//	
+				//		if (!entity.creates_.empty()) {
+				//			isSystemCreatesComponents = true;
+				//		}
+				//		if (isSystemCreatesComponents) {
+				//			return false;
+				//		}
+				//		return true;
+				//	
+				//	});
 
-				//If update method creates entities -> generate CreateComponent method. 
-				if (!isSystemCreatesComponents && !system->ci_.updateMethod_->createsEntities_.empty()) {
-					isSystemCreatesComponents = true;
-				}
+				////If update method creates entities -> generate CreateComponent method. 
+				//if (!isSystemCreatesComponents && !system->ci_.updateMethod_->createsEntities_.empty()) {
+				//	isSystemCreatesComponents = true;
+				//}
 
-				if (isSystemCreatesComponents) {
+				if (system->ci_.updateMethod_->IsCreatesComponents()) {
 					methods.push_back(generateCreateComponentMethodRealization(system));
 				}
+
+				if (system->ci_.updateMethod_->IsRemovesComponents()) {
+					methods.push_back(generateRemoveComponentMethodRealization(system));
+				}
+				
+
 
 			}
 

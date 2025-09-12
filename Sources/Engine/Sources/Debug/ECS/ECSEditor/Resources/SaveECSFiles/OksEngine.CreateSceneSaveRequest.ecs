@@ -10,6 +10,9 @@ CreateSceneSaveRequestSystem = {
                 "ImGuiState",
                 "ECSEditorWindow",
                 "SaveECSFilesButtonPressed"
+            },
+            removesComponents = {
+                "SaveECSFilesButtonPressed"
             }
         },
         {

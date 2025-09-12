@@ -168,6 +168,10 @@ EndWorldSceneSavingSystem = {
                 "ECSController",
                 "SaveSceneRequest",
                 "LuaScript"
+            },
+            removesComponents = {
+                "Behaviour::LuaScript",
+                "SaveSceneRequest"
             }
         }
     }
@@ -230,7 +234,11 @@ CreateSceneEntitiesSystem = {
                     "LoadSceneRequest",
                     "LuaScript"
                 },
-                createsComponents = { "SceneLoaded" }
+                createsComponents = { "SceneLoaded" },
+                removesComponents = {
+                    "LoadSceneRequest",
+                    "Behaviour::LuaScript"
+                }
             }
         },
         createsEntities = {

@@ -24,6 +24,7 @@ namespace OksEngine {
 			ImGuiWindowFlags_NoBringToFrontOnFocus);
 
 		if (!isOpen) {
+			
 			RemoveComponent<ECSEditorWindow>(entity0id);
 			return;
 		}

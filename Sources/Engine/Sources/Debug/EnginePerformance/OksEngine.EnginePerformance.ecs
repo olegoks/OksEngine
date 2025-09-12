@@ -91,6 +91,9 @@ BeginEnginePerformanceWindowSystem = {
                     "EnginePerformanceMenuItem",
                     "EnginePerformanceWindow",
                     "EnginePerformance"
+                },
+                removesComponents = {
+                    "EnginePerformanceWindow"
                 }
             }
         }
