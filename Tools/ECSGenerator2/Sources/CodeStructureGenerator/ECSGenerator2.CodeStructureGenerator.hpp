@@ -2193,21 +2193,21 @@ namespace ECSGenerator2 {
 			//	}
 			//}
 
-			auto getSystemByFullName = [](std::vector<std::shared_ptr<ParsedECSFile>> parsedEcsFiles, const std::string& systemFullName) {
+			//auto getSystemByFullName = [](std::vector<std::shared_ptr<ParsedECSFile>> parsedEcsFiles, const std::string& systemFullName) {
 
-				for (auto parsedEcsFile : parsedEcsFiles) {
-					const auto systemParsedFullName = ParseFullName(systemFullName);
-					if (parsedEcsFile->GetName() == "OksEngine.Debug.Render") {
-						Common::BreakPointLine();
-					}
-					const auto tablesPath = GetTablePathByFullName(parsedEcsFile, systemParsedFullName);
-					if (!tablesPath.empty()) {
-						return std::dynamic_pointer_cast<ParsedSystem>(tablesPath.back());
-					}
-				}
-				OS::AssertFail();
-				return ParsedSystemPtr{};
-				};
+			//	for (auto parsedEcsFile : parsedEcsFiles) {
+			//		const auto systemParsedFullName = ParseFullName(systemFullName);
+			//		if (parsedEcsFile->GetName() == "OksEngine.Debug.Render") {
+			//			Common::BreakPointLine();
+			//		}
+			//		const auto tablesPath = GetTablePathByFullName(parsedEcsFile, systemParsedFullName);
+			//		if (!tablesPath.empty()) {
+			//			return std::dynamic_pointer_cast<ParsedSystem>(tablesPath.back());
+			//		}
+			//	}
+			//	OS::AssertFail();
+			//	return ParsedSystemPtr{};
+			//	};
 
 			//Create call graph for each thread.
 			auto createClusterSystemsCallGraph =

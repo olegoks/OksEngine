@@ -301,10 +301,12 @@ namespace ECSGenerator2 {
 
 		bool pathIsFound = false;
 
+		std::vector<ParsedTablePtr> potencialTables;
+
 		auto processChildLessTable = [&](ParsedTablePtr childLessTable) {
 
 			if (path.back() == childLessTable->GetName()) {
-
+				potencialTables.push_back(childLessTable);
 				//if (parentRecursivePath.empty()) {
 				//	resultTablePath.push_back(childLessTable);
 				//	pathIsFound = true;
@@ -330,9 +332,6 @@ namespace ECSGenerator2 {
 
 				pathIsFound = tablesPath.size() == parentRecursivePath.size();
 				if (pathIsFound) {
-
-
-
 					tablesPath.push_back(childLessTable);
 					for (auto& tablePath : tablesPath) {
 						resultTablePath.push_back(tablePath);
@@ -343,6 +342,13 @@ namespace ECSGenerator2 {
 
 			return true;
 			};
+
+		for (ParsedTablePtr parsedTable : potencialTables ) {
+			auto namespaceStrings = parsedTable->GetNamespace();
+
+
+
+		}
 
 		parsedEcsFile->ForEachChildlessTable(processChildLessTable);
 

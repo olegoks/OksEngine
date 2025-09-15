@@ -351,10 +351,10 @@ namespace OksEngine
 	}
 	void CreateModelNodes::Update(
 		ECS2::Entity::Id entity0id,
-		const Model* model0, 
+		const Model* model0,
 		const ModelFile* modelFile0,
 		const Ai::Scene* aiScene0) {
-		
+
 		const auto scene = aiScene0->scene_.get();
 
 		//Node to Entity id 
@@ -684,6 +684,7 @@ namespace OksEngine
 			}
 
 			CreateComponent<ModelNode>(nodeEntityId);
+			CreateComponent<ModelEntity>(nodeEntityId, entity0id);
 
 			//Mark that this node is Bone
 			if (boneNames.contains(node->mName.C_Str())) {
@@ -711,16 +712,16 @@ namespace OksEngine
 				nodeName = modelFile0->fileName_ + "/" + scene->mName.C_Str() + "/" + nodeName;
 				return nodeName;
 				};
-			
+
 			CreateComponent<Name>(nodeEntityId, getNodeFullName());
-			
+
 
 			std::vector<MeshInfo> meshInfos;
 			std::vector<std::shared_ptr<const aiMesh>> meshs;
 			for (Common::Index i = 0; i < node->mNumMeshes; i++) {
 				int meshIndex = node->mMeshes[i];
 				aiMesh* mesh = scene->mMeshes[meshIndex];
-				meshs.push_back(std::shared_ptr<aiMesh>{ mesh, [](aiMesh*) {  } });
+				meshs.push_back(std::shared_ptr<aiMesh>{ mesh, [](aiMesh*) {} });
 				meshInfos.push_back(
 					{ modelFile0->fileName_ + "/" + mesh->mName.C_Str(), ECS2::Entity::Id::invalid_ });
 			}
@@ -732,7 +733,6 @@ namespace OksEngine
 
 			std::shared_ptr<const aiNode> nodePtr(node, [](const aiNode* node) { /*Do nothing.*/ });
 			CreateComponent<Ai::Node>(nodeEntityId, nodePtr);
-
 
 			CreateComponent<LocalPosition3D>(nodeEntityId, position3D.x, position3D.y, position3D.z);
 			CreateComponent<WorldPosition3D>(nodeEntityId, 0.0f, 0.0f, 0.0f);
@@ -749,11 +749,13 @@ namespace OksEngine
 
 			const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
 
+#pragma region Assert
+			OS::AssertMessage(nodeEntityId.IsValid(), "");
+#pragma endregion
+
 			//if (std::string{ node->mName.C_Str() } == "driver_11") {
 			//	Common::BreakPointLine();
 			//}
-
-			
 
 			//Parse meshes.
 			createNodeComponents(scene, node, nodeEntityId);
@@ -762,7 +764,11 @@ namespace OksEngine
 			for (Common::Index i = 0; i < node->mNumChildren; i++) {
 				aiNode* childrenNode = node->mChildren[i];
 				processChildrenNode(scene, childrenNode);
-				childNodeEntityIds.push_back(nodeToEntityId[childrenNode]);
+				const ECS2::Entity::Id childNodeEntityId = nodeToEntityId[childrenNode];
+#pragma region Assert
+				OS::AssertMessage(childNodeEntityId.IsValid(), "");
+#pragma endregion
+				childNodeEntityIds.push_back(childNodeEntityId);
 			}
 			//if (std::string{ node->mName.C_Str()} == "nodes[70]") {
 			//	Common::BreakPointLine();
@@ -775,7 +781,6 @@ namespace OksEngine
 			};
 
 		processChildrenNode(scene, scene->mRootNode);
-
 
 		//Create ModelAnimations.
 		std::vector<ModelAnimation> modelAnimations;
@@ -791,16 +796,21 @@ namespace OksEngine
 		}
 		CreateComponent<ModelAnimations>(entity0id, std::move(modelAnimations));
 
-		CreateComponent<ChildModelNodeEntities>(entity0id, std::vector{ nodeToEntityId[scene->mRootNode] });
+		const ECS2::Entity::Id rootNodeEntityId = nodeToEntityId[scene->mRootNode];
+
+		CreateComponent<ChildModelNodeEntities>(entity0id, std::vector{ rootNodeEntityId });
+
+		CreateComponent<NodeToEntityId>(entity0id, std::move(nodeToEntityId));
+
 	}
 
 	void FindNodeMesh::Update(
 		ECS2::Entity::Id entity0id,
-		const Name* name0, 
+		const Name* name0,
 		const ModelNode* modelNode0,
 		const Ai::Node* aiNode0,
 		MeshInfos* meshInfos0,
-		
+
 		ECS2::Entity::Id entity1id,
 		const Mesh* mesh1,
 		const Name* name1,
@@ -827,11 +837,35 @@ namespace OksEngine
 	void CreateNodeMeshs::Update(
 		ECS2::Entity::Id entity0id,
 		const ModelNode* modelNode0,
-		const Ai::Node* aiNode0,
+		const ModelEntity* modelEntity0,
+		const Ai::Node* ai__Node0,
 		MeshInfos* meshInfos0) {
 
-		const aiNode* node = aiNode0->node_.get();
-		
+		const aiScene* scene = GetComponent<Ai::Scene>(modelEntity0->id_)->scene_.get();
+		auto& nodeToEntityId = GetComponent<NodeToEntityId>(modelEntity0->id_)->aiNodeToEntityId_;
+		const aiNode* node = ai__Node0->node_.get();
+
+		//Get bone node names.
+		std::unordered_set<std::string> boneNames;
+		std::map<std::string, const aiBone*> nameToBone;
+		std::map<std::string, const aiNode*> nameToBoneNode;
+		{
+			for (Common::Index i = 0; i < scene->mNumMeshes; i++) {
+				const aiMesh* mesh = scene->mMeshes[i];
+				for (Common::Index j = 0; j < mesh->mNumBones; j++) {
+
+					const aiBone* bone = mesh->mBones[j];
+					const aiString& boneName = bone->mName;
+					boneNames.insert(boneName.C_Str());
+					nameToBone[boneName.C_Str()] = bone;
+					const aiNode* boneNode = scene->mRootNode->FindNode(boneName.C_Str());
+					nameToBoneNode[boneName.C_Str()] = boneNode;
+				}
+			}
+		}
+
+		std::vector<ECS2::Entity::Id> meshEntities;
+
 		for (MeshInfo& meshInfo : meshInfos0->meshInfos_) {
 
 			if (!meshInfo.meshEntityId_.IsInvalid()) {
@@ -841,180 +875,192 @@ namespace OksEngine
 
 			if (node->mNumMeshes > 0) {
 
-				auto createMeshComponents = [&](const aiScene* scene, ECS2::Entity::Id nodeEntityId, const aiMesh* mesh, ECS2::Entity::Id meshEntityId) {
+				auto createMeshComponents = [&](
+					const aiScene* scene,
+					ECS2::Entity::Id nodeEntityId,
+					const aiMesh* mesh,
+					ECS2::Entity::Id meshEntityId) {
 
-					static Geom::VertexCloud<Geom::Vertex3f>	vertices;
-					static DS::Vector<Geom::Normal3f>			normals;
-					static DS::Vector<Geom::UV2f>		        uvs;
-					static Geom::IndexBuffer<Geom::Index16>		indices;
-					static std::vector<VertexBonesInfo>			vertexBonesInfos;
+						CreateComponent<Mesh>(meshEntityId);
 
-					//Fill bones info.
+						//Create bones pallete with identity matrices.
+						std::vector<glm::mat4> palette;
+						{
 
-					vertexBonesInfos.resize(mesh->mNumVertices,
-						VertexBonesInfo{
-							//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
-							{ 255, 255, 255, 255 },
-							{ 0, 0, 0, 0 }	// no influence on vertex by default  
-						});
+							palette.resize(128, glm::mat4{ 1 });
 
-					std::vector<ECS2::Entity::Id>				boneEntityIds;
-					boneEntityIds.reserve(mesh->mNumBones);
-					{
-						for (Common::Index i = 0; i < mesh->mNumBones; i++) {
-							//Save vertex bone info
-							aiBone* bone = mesh->mBones[i];
-							for (Common::Index j = 0; j < bone->mNumWeights; j++) {
-								const aiVertexWeight* weight = bone->mWeights + j;
-								if (Math::IsEqual(weight->mWeight, 0.0f)) {
-									//Skip bones with zero weight. We will use zero weight to mark empty cells.
-									continue;
-								}
-								//Find free cell and set value
-								[[maybe_unused]]
-								bool isFind = false;
-								for (Common::Index k = 0; k < 4; k++) {
-									if (vertexBonesInfos[weight->mVertexId].boneWeights_[k] == 0) {
-										//Free cell found.
-										vertexBonesInfos[weight->mVertexId].boneIndices_[k] = i;
+							CreateComponent<BonesPallet>(meshEntityId, std::move(palette));
+						}
+
+						//Create mesh info.
+						{
+							std::string meshName;
+
+							aiNode* currentNode = node->mParent;
+							while (currentNode != nullptr) {
+
+								meshName = "/" + (currentNode->mName.C_Str() + meshName);
+
+								currentNode = currentNode->mParent;
+							}
+
+							meshName = scene->mName.C_Str() + meshName;
+
+							CreateComponent<Name>(meshEntityId, meshName);
+						}
+
+						CreateComponent<ModelNodeEntityId>(meshEntityId, nodeEntityId);
+
+						//Create texture.
+						{
+							aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+							aiString aiTexturePath;
+							material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &aiTexturePath);
+
+							const aiTexture* texture = scene->GetEmbeddedTexture(aiTexturePath.C_Str());
+
+							Common::UInt32 textureWidth = texture->mWidth;
+							Common::UInt32 textureHeight = texture->mHeight;
+							if (textureHeight > 0) {
+								CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
+								CreateComponent<Texture>(
+									meshEntityId,
+									textureWidth, textureHeight,
+									std::vector<Geom::Color4b>{
+									(Geom::Color4b*)texture->pcData,
+										(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
+							}
+							else {
+								const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
+
+								int width, height, channels;
+
+								unsigned char* pixels = stbi_load_from_memory(
+									compressed_data,
+									texture->mWidth,
+									&width, &height, &channels,
+									STBI_rgb_alpha
+								);
+								CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
+								CreateComponent<Texture>(
+									meshEntityId,
+									width, height,
+									std::vector<Geom::Color4b>{
+									(Geom::Color4b*)pixels,
+										(Geom::Color4b*)pixels + width * height});
+							}
+						}
+
+						//Create vertices, normals, uvs, indices, vertex bones
+						{
+							static Geom::VertexCloud<Geom::Vertex3f>	vertices;
+							static DS::Vector<Geom::Normal3f>			normals;
+							static DS::Vector<Geom::UV2f>		        uvs;
+							static Geom::IndexBuffer<Geom::Index16>		indices;
+							static std::vector<VertexBonesInfo>			vertexBonesInfos;
+
+							vertexBonesInfos.resize(mesh->mNumVertices,
+								VertexBonesInfo{
+									//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
+									{ 255, 255, 255, 255 },
+									{ 0, 0, 0, 0 }	// no influence on vertex by default  
+								});
+
+							std::vector<ECS2::Entity::Id>				boneEntityIds;
+							boneEntityIds.reserve(mesh->mNumBones);
+							{
+								for (Common::Index i = 0; i < mesh->mNumBones; i++) {
+									//Save vertex bone info
+									aiBone* bone = mesh->mBones[i];
+									for (Common::Index j = 0; j < bone->mNumWeights; j++) {
+										const aiVertexWeight* weight = bone->mWeights + j;
+										if (Math::IsEqual(weight->mWeight, 0.0f)) {
+											//Skip bones with zero weight. We will use zero weight to mark empty cells.
+											continue;
+										}
+										//Find free cell and set value
+										[[maybe_unused]]
+										bool isFind = false;
+										for (Common::Index k = 0; k < 4; k++) {
+											if (vertexBonesInfos[weight->mVertexId].boneWeights_[k] == 0) {
+												//Free cell found.
+												vertexBonesInfos[weight->mVertexId].boneIndices_[k] = i;
 #pragma region Assert
-										OS::AssertMessage(Math::IsLess(weight->mWeight, 1.0), "");
+												OS::AssertMessage(Math::IsLess(weight->mWeight, 1.0), "");
 #pragma endregion
-										vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight * 255;
-										isFind = true;
-										break;
+												vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight * 255;
+												isFind = true;
+												break;
+											}
+										}
+
+#pragma region Assert
+										OS::AssertMessage(isFind, "");
+#pragma endregion
+
 									}
-								}
 
-#pragma region Assert
-								OS::AssertMessage(isFind, "");
-#pragma endregion
+									//Save ids of bones entities for the mesh entity.
+									const aiNode* boneNode = nameToBoneNode[bone->mName.C_Str()];
+									const ECS2::Entity::Id boneEntityId = nodeToEntityId[boneNode];
+									boneEntityIds.push_back(boneEntityId);
+								}
+								if (mesh->mNumBones > 0) {
+									CreateComponent<BoneNodeEntities>(meshEntityId, boneEntityIds);
+									CreateComponent<VertexBones>(meshEntityId, std::move(vertexBonesInfos));
+								}
+							}
+
+							vertexBonesInfos.clear();
+
+							vertices.Reserve(mesh->mNumVertices);
+							normals.Reserve(mesh->mNumVertices);
+							uvs.Reserve(mesh->mNumVertices);
+							for (unsigned j = 0; j < mesh->mNumVertices; j++) {
+								vertices.Add(Geometry::Vertex3f{ mesh->mVertices[j].x,
+																	mesh->mVertices[j].y,
+																	mesh->mVertices[j].z });
+								normals.PushBack(Geom::Normal3f{ mesh->mVertices[j].x,
+																		mesh->mVertices[j].y,
+																		mesh->mVertices[j].z });
+								uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x,
+																mesh->mTextureCoords[0][j].y });
 
 							}
-							//Save ids of bones entities for the mesh entity.
-							//const aiNode* boneNode = nameToBoneNode[bone->mName.C_Str()];
-							//ECS2::Entity::Id boneEntityId = nodeToEntityId[boneNode];
-							//boneEntityIds.push_back(boneEntityId);
+
+							indices.Reserve(mesh->mNumFaces * 3);
+							for (unsigned j = 0; j < mesh->mNumFaces; j++) {
+								indices.Add(mesh->mFaces[j].mIndices[0]);
+								indices.Add(mesh->mFaces[j].mIndices[1]);
+								indices.Add(mesh->mFaces[j].mIndices[2]);
+							}
+							CreateComponent<Vertices3D>(meshEntityId, vertices);
+							CreateComponent<Normals>(meshEntityId, normals);
+							CreateComponent<UVs>(meshEntityId, uvs);
+							CreateComponent<Indices>(meshEntityId, indices);
+
+							vertices.Clear();
+							normals.Clear();
+							uvs.Clear();
+							indices.Clear();
 						}
-						if (mesh->mNumBones > 0) {
-							CreateComponent<BoneNodeEntities>(meshEntityId, boneEntityIds);
-							CreateComponent<VertexBones>(meshEntityId, std::move(vertexBonesInfos));
-						}
-					}
-
-					vertexBonesInfos.clear();
-
-
-					//Create bones pallete with identity matrices.
-					std::vector<glm::mat4> palette;
-					{
-
-						palette.resize(128, glm::mat4{ 1 });
-
-						CreateComponent<BonesPallet>(meshEntityId, std::move(palette));
-					}
-
-					CreateComponent<Mesh>(meshEntityId);
-
-					std::string meshName;
-
-					aiNode* currentNode = node->mParent;
-					while (currentNode != nullptr) {
-
-						meshName = "/" + (currentNode->mName.C_Str() + meshName);
-
-						currentNode = currentNode->mParent;
-					}
-
-					meshName = scene->mName.C_Str() + meshName;
-
-					CreateComponent<Name>(meshEntityId, meshName);
-					CreateComponent<ModelNodeEntityId>(meshEntityId, nodeEntityId);
-
-					//Add texture info.
-					aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-					aiString aiTexturePath;
-					material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &aiTexturePath);
-
-					const aiTexture* texture = scene->GetEmbeddedTexture(aiTexturePath.C_Str());
-
-					Common::UInt32 textureWidth = texture->mWidth;
-					Common::UInt32 textureHeight = texture->mHeight;
-					if (textureHeight > 0) {
-						CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
-						CreateComponent<Texture>(
-							meshEntityId,
-							textureWidth, textureHeight,
-							std::vector<Geom::Color4b>{
-							(Geom::Color4b*)texture->pcData,
-								(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
-					}
-					else {
-						const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
-
-						int width, height, channels;
-
-						unsigned char* pixels = stbi_load_from_memory(
-							compressed_data,
-							texture->mWidth,
-							&width, &height, &channels,
-							STBI_rgb_alpha
-						);
-						CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
-						CreateComponent<Texture>(
-							meshEntityId,
-							width, height,
-							std::vector<Geom::Color4b>{
-							(Geom::Color4b*)pixels,
-								(Geom::Color4b*)pixels + width * height});
-					}
-
-					vertices.Reserve(mesh->mNumVertices);
-					normals.Reserve(mesh->mNumVertices);
-					uvs.Reserve(mesh->mNumVertices);
-					for (unsigned j = 0; j < mesh->mNumVertices; j++) {
-						vertices.Add(Geometry::Vertex3f{ mesh->mVertices[j].x,
-															mesh->mVertices[j].y,
-															mesh->mVertices[j].z });
-						normals.PushBack(Geom::Normal3f{ mesh->mVertices[j].x,
-																mesh->mVertices[j].y,
-																mesh->mVertices[j].z });
-						uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x,
-														mesh->mTextureCoords[0][j].y });
-
-					}
-
-					indices.Reserve(mesh->mNumFaces * 3);
-					for (unsigned j = 0; j < mesh->mNumFaces; j++) {
-						indices.Add(mesh->mFaces[j].mIndices[0]);
-						indices.Add(mesh->mFaces[j].mIndices[1]);
-						indices.Add(mesh->mFaces[j].mIndices[2]);
-					}
-					CreateComponent<Vertices3D>(meshEntityId, vertices);
-					CreateComponent<Normals>(meshEntityId, normals);
-					CreateComponent<UVs>(meshEntityId, uvs);
-					CreateComponent<Indices>(meshEntityId, indices);
-
-					vertices.Clear();
-					normals.Clear();
-					uvs.Clear();
-					indices.Clear();
-
 					};
 
 				for (Common::Index i = 0; i < node->mNumMeshes; i++) {
 					int meshIndex = node->mMeshes[i];
-					//aiMesh* mesh = scene->mMeshes[meshIndex];
+					aiMesh* mesh = scene->mMeshes[meshIndex];
 
-					//const ECS2::Entity::Id meshEntity = CreateEntity();
+					const ECS2::Entity::Id meshEntity = CreateEntity();
 
-					//createMeshComponents(scene, nodeEntityId, mesh, meshEntity);
-					//meshEntities.push_back(meshEntity);
+					createMeshComponents(scene, entity0id, mesh, meshEntity);
+					meshEntities.push_back(meshEntity);
 				}
 
 			}
 
 		}
+
+		CreateComponent<MeshEntities>(entity0id, std::move(meshEntities));
 
 	}
 

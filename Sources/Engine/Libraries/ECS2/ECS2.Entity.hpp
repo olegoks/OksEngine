@@ -151,6 +151,11 @@ namespace ECS2 {
 				return value_ == invalid_;
 			}
 
+			[[nodiscard]]
+			bool IsValid() const noexcept {
+				return value_ != invalid_;
+			}
+
 			Id operator++(int value) noexcept {
 				return ++value_;
 			}

@@ -118,6 +118,51 @@ namespace ECSGenerator2 {
             }
         }
 
+        using ProcessTablePath = std::function<bool(std::vector<std::shared_ptr<ParsedTable>>&)>;
+
+        void ForEachTablePath(const ProcessTablePath& processTablePath) {
+
+
+
+            std::function<void(
+                std::shared_ptr<ParsedTable>,
+                std::vector<std::shared_ptr<ParsedTable>>&, 
+                std::vector<std::vector<std::shared_ptr<ParsedTable>>>&)> dfs = [&](
+                    std::shared_ptr<ParsedTable> node,
+                std::vector<std::shared_ptr<ParsedTable>>& currentPath,
+                std::vector<std::vector<std::shared_ptr<ParsedTable>>>& allPaths) {
+
+                // Добавляем текущую ноду в путь
+                currentPath.push_back(node);
+
+                // Если это лист (нет дочерних) - сохраняем путь
+                if (node->childTables_.empty()) {
+                    allPaths.push_back(currentPath);
+                }
+                else {
+                    // Рекурсивно обходим всех детей
+                    for (std::shared_ptr<ParsedTable> child : node->childTables_) {
+                        dfs(child, currentPath, allPaths);
+                    }
+                }
+
+                // Backtracking - удаляем текущую ноду из пути
+                currentPath.pop_back();
+                
+                };
+
+            std::vector<std::vector<std::shared_ptr<ParsedTable>>> allPaths;
+            std::vector<std::shared_ptr<ParsedTable>> currentPath;
+
+            auto root = std::shared_ptr<ParsedTable>{this, [](ParsedTable* table) { /*Do nothing.*/ }};
+
+            dfs(root, currentPath, allPaths);
+
+            for (auto& path : allPaths) {
+                processTablePath(path);
+            }
+
+        }
         
         void ForEachChildTableRecursive(const ProcessChildTable& processChildTable) {
 

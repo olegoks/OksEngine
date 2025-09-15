@@ -2,6 +2,13 @@ ModelComponent = {
     serializable = false
 }
 
+ModelEntityComponent = {
+    serializable = false,
+    fields = {
+        { type = "ECS2::Entity::Id", name = "id" }
+    }
+}
+
 ModelNodeComponent = {
     serializable = false
 
@@ -380,6 +387,13 @@ MeshFoundCreatedComponent = {
     serializable = false
 }
 
+NodeToEntityIdComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::map<const aiNode*, ECS2::Entity::Id>", name = "aiNodeToEntityId" }
+    }
+}
+
 CreateModelNodesSystem = {
     updateMethod = {
         processesEntities = {
@@ -393,6 +407,7 @@ CreateModelNodesSystem = {
                     "ChildModelNodeEntities"
                 },
                 createsComponents = {
+                    "NodeToEntityId",
                     "ChildModelNodeEntities"
                 }
             }
@@ -401,6 +416,7 @@ CreateModelNodesSystem = {
             {
                 createsComponents = {
                     "ModelNode",
+                    "ModelEntity",
                     "Ai::Node",
                     --"Ai::Meshes",
                     "BoneNode",
@@ -459,11 +475,12 @@ CreateNodeMeshsSystem = {
             {
                 processesComponents = {
                     "ModelNode",
+                    "ModelEntity",
                     "Ai::Node",
                     { name = "MeshInfos", readonly = false }
                 },
                 excludes = {
-                    "NodeMeshes"
+                    "MeshEntities"
                 }
             }
         },
@@ -480,6 +497,14 @@ CreateNodeMeshsSystem = {
                     "VertexBones",
                     "TextureInfo",
                     "Texture"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "Ai::Scene",
+                    "NodeToEntityId"
                 }
             }
         }

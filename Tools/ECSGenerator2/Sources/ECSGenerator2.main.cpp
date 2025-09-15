@@ -116,6 +116,50 @@ int main(int argc, char** argv) {
 
 				return result;
 			};
+
+		auto getTableByFullName2 = [](
+			const std::vector<std::shared_ptr<ECSGenerator2::ParsedECSFile>> parsedECSFiles,
+			const std::vector<std::string>& usageNamespace,
+			const std::vector<std::string>& table) {
+
+				for (const auto parsedEcsFile : parsedECSFiles) {
+					if (parsedEcsFile->GetName() == "OksEngine.Model") {
+						Common::BreakPointLine();
+					}
+					parsedEcsFile->ForEachRootTable([&](ECSGenerator2::ParsedTablePtr parsedTable) {
+						
+						if (parsedTable->GetName() == "Ai") {
+							Common::BreakPointLine();
+						}
+
+						parsedTable->ForEachTablePath([&](ECSGenerator2::ParsedTablesPath& path) {
+							
+							if (path.size() >= usageNamespace.size()) {
+
+								//Check
+								//bool isEcsFileContainsNeeded
+								//for (Common::Index i = 0; i < usageNamespace.size(); i++) {
+
+								//}
+
+							}
+
+							return true;
+							});
+
+						return true;
+						});
+
+					//auto fullPath = ECSGenerator2::GetTablePathByFullName(parsedEcsFile, arr1);
+					//if (!fullPath.empty()) {
+					//	return fullPath;
+					//}
+				}
+
+				return ECSGenerator2::ParsedTablesPath{};
+			};
+
+
 		auto getTableByFullName = [](
 			const std::vector<std::shared_ptr<ECSGenerator2::ParsedECSFile>> parsedECSFiles,
 			const std::vector<std::string>& arr1) {
@@ -147,9 +191,9 @@ int main(int argc, char** argv) {
 
 				parsedSystem->ci_.updateMethod_->ForEachProcessEntity(
 					[&](ECSGenerator2::ParsedSystem::ProcessedEntity& entity, bool isLast) {
-						
+
 						entity.ForEachInclude([&](ECSGenerator2::ParsedSystem::Include& include, bool isLast) {
-						
+
 							const auto componentName = include.GetName();
 
 							//at first lets find run after system in namespace of current system.
@@ -164,6 +208,8 @@ int main(int argc, char** argv) {
 							if (componentName == "LuaScript") {
 								Common::BreakPointLine();
 							}
+
+							getTableByFullName2(parsedECSFiles, systemNamespace, parsedComponentName);
 
 							//Try to find from namespace of current system and using source system name.
 							const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
@@ -266,7 +312,7 @@ int main(int argc, char** argv) {
 
 				parsedSystem->ci_.updateMethod_->ForEachRandomAccessEntity(
 					[&](ECSGenerator2::ParsedSystem::RandomAccessEntity& entity, bool isLast) {
-					
+
 						entity.ForEachInclude([&](ECSGenerator2::ParsedSystem::Include& include, bool isLast) {
 
 							const auto componentName = include.GetName();
@@ -321,8 +367,8 @@ int main(int argc, char** argv) {
 
 							return true;
 							});
-					
-					return true;
+
+						return true;
 					});
 
 				parsedSystem->ci_.updateMethod_->ForEachCreateEntity(
@@ -356,7 +402,7 @@ int main(int argc, char** argv) {
 
 						return true;
 					});
-				
+
 				if (parsedSystem->ci_.callOrderInfo_ != nullptr) {
 
 					for (auto& runAfterSystem : parsedSystem->ci_.callOrderInfo_->runAfter_) {
