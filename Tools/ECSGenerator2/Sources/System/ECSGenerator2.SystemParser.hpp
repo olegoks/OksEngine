@@ -103,14 +103,14 @@ namespace ECSGenerator2 {
 									.readonly_ = false // TODO: add option to access component only to read.
 								};
 								accessesComponents.push_back(include);
-								OS::AssertMessage(std::isupper(accessesComponents.back().name_[0]), "");
+								ASSERT_FMSG(std::isupper(accessesComponents.back().name_[0]), "");
 							}
 							luabridge::LuaRef createsComponentsRef = toAccess["createsComponents"];
 							if (!createsComponentsRef.isNil()) {
 								for (luabridge::Iterator itJ(createsComponentsRef); !itJ.isNil(); ++itJ) {
 									luabridge::LuaRef createsComponentRef = itJ.value();
 									createsComponents.push_back({ nullptr, createsComponentRef.cast<std::string>().value() });
-									OS::AssertMessage(std::isupper(createsComponents.back().GetName()[0]), "");
+									ASSERT_FMSG(std::isupper(createsComponents.back().GetName()[0]), "");
 								}
 							}
 							ParsedSystem::RandomAccessEntity randomAccessEntity{
@@ -155,7 +155,7 @@ namespace ECSGenerator2 {
 							}
 
 							parsedEntityIncludes.push_back(parsedInclude);
-							OS::AssertMessage(std::isupper(parsedEntityIncludes.back().name_[0]), "Name of component must be uppercase");
+							ASSERT_FMSG(std::isupper(parsedEntityIncludes.back().name_[0]), "Name of component must be uppercase");
 						}
 
 						return parsedEntityIncludes;
@@ -169,7 +169,7 @@ namespace ECSGenerator2 {
 							for (luabridge::Iterator it(entityRemoves); !it.isNil(); ++it) {
 								luabridge::LuaRef toRemove = it.value();
 								parsedEntityRemoves.push_back({ nullptr, toRemove.cast<std::string>().value() });
-								OS::AssertMessage(std::isupper(parsedEntityRemoves.back().GetName()[0]), "");
+								ASSERT_FMSG(std::isupper(parsedEntityRemoves.back().GetName()[0]), "");
 							}
 						}
 
@@ -185,7 +185,7 @@ namespace ECSGenerator2 {
 							for (luabridge::Iterator it(entityCreates); !it.isNil(); ++it) {
 								luabridge::LuaRef toCreate = it.value();
 								parsedEntityCreates.push_back({ nullptr, toCreate.cast<std::string>().value() });
-								OS::AssertMessage(std::isupper(parsedEntityCreates.back().GetName()[0]), "");
+								ASSERT_FMSG(std::isupper(parsedEntityCreates.back().GetName()[0]), "");
 							}
 						}
 
@@ -201,7 +201,7 @@ namespace ECSGenerator2 {
 								luabridge::LuaRef exclude = it.value();
 								parsedEntityExcludes.push_back({ nullptr, exclude.cast<std::string>().value() });
 
-								OS::AssertMessage(std::isupper(parsedEntityExcludes.back().name_[0]), "");
+								ASSERT_FMSG(std::isupper(parsedEntityExcludes.back().name_[0]), "");
 
 							}
 						}
@@ -223,7 +223,7 @@ namespace ECSGenerator2 {
 						std::vector<ParsedSystem::Include> parsedEntityIncludes
 							= parseProcessesComponents(entity);
 
-						OS::AssertMessage(
+						ASSERT_FMSG(
 							(parsedEntityIncludes.empty() && !processesAllCombinations.isNil())
 							|| (!parsedEntityIncludes.empty() && processesAllCombinations.isNil()),
 							"System description error."
@@ -270,7 +270,7 @@ namespace ECSGenerator2 {
 							for (luabridge::Iterator it(entityCreates); !it.isNil(); ++it) {
 								luabridge::LuaRef toCreate = it.value();
 								parsedEntityCreates.push_back({ nullptr, toCreate.cast<std::string>().value() });
-								OS::AssertMessage(std::isupper(parsedEntityCreates.back().GetName()[0]), "");
+								ASSERT_FMSG(std::isupper(parsedEntityCreates.back().GetName()[0]), "");
 							}
 						}
 
@@ -353,7 +353,7 @@ namespace ECSGenerator2 {
 			//auto accessesEntities = parseAccessesEntities(system);
 
 #pragma region Assert
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				((updateMethodInfo == nullptr) && (type == ParsedSystem::Type::Initialize)) ||
 				((updateMethodInfo != nullptr) && ((type == ParsedSystem::Type::FrameToFrame) || (type == ParsedSystem::Type::Initialize))),
 				"System description doesn't contain updateMethod decription.");

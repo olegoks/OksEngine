@@ -8,7 +8,7 @@ int main(int argc, char** argv) {
 
 	//OS::Assert(ImGUIPosition2D::GetTypeId() != OksEngine::Position::GetTypeId());
 
-	OS::AssertMessage(argc > 0, "First parameter must be config file name.");
+	ASSERT_FMSG(argc > 0, "First parameter must be config file name.");
 
 	const Engine::CreateInfo engineCreateInfo{
 		argc, argv

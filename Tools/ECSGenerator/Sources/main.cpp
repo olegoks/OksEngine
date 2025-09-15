@@ -76,7 +76,7 @@ int main(int argc, char** argv) {
 		parameters.GetArgc(),
 		parameters.GetArgv());
 
-	OS::AssertMessage(argc > 1, "");
+	ASSERT_FMSG(argc > 1, "");
 	const std::vector<std::string_view> workDirsArgv = parameters.GetValue("-workDir");
 
 	std::vector<std::filesystem::path> workDirs{ };

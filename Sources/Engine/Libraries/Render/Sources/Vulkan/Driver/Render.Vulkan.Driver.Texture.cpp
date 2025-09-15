@@ -77,8 +77,8 @@ namespace Render::Vulkan {
 			textureStagingBuffer->Allocate();
 
 #pragma region Assert
-			OS::AssertMessage((createInfo.data_.size() % pixelSize) == 0, "");
-			OS::AssertMessage((createInfo.data_.size() / pixelSize) == pixelsNumber, "");
+			ASSERT_FMSG((createInfo.data_.size() % pixelSize) == 0, "");
+			ASSERT_FMSG((createInfo.data_.size() / pixelSize) == pixelsNumber, "");
 #pragma endregion
 
 			textureStagingBuffer->Fill(0, createInfo.data_.data(), pixelsNumber * pixelSize);

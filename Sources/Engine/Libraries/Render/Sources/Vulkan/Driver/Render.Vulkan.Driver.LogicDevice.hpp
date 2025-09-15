@@ -25,7 +25,7 @@ namespace Render::Vulkan {
 
 		LogicDevice(const CreateInfo& createInfo) noexcept {
 
-			OS::AssertMessage(createInfo.physicalDevice_ != nullptr, "Attempt create logic device using nullptr physical device.");
+			ASSERT_FMSG(createInfo.physicalDevice_ != nullptr, "Attempt create logic device using nullptr physical device.");
 
 			VkDeviceCreateInfo logicDeviceCreateInfo{};
 			{
@@ -84,11 +84,11 @@ namespace Render::Vulkan {
 
 			{
 				vkGetDeviceQueue(GetHandle(), createInfo.graphicsQueueFamily_.index_, 0, &graphicsQueue_);
-				OS::AssertMessage(graphicsQueue_ != VK_NULL_HANDLE, "Error while getting qraphics queue family handle.");
+				ASSERT_FMSG(graphicsQueue_ != VK_NULL_HANDLE, "Error while getting qraphics queue family handle.");
 			}
 			{
 				vkGetDeviceQueue(GetHandle(), createInfo.presentQueueFamily_.index_, 0, &presentQueue_);
-				OS::AssertMessage(presentQueue_ != VK_NULL_HANDLE, "Error while getting  present queue family handle.");
+				ASSERT_FMSG(presentQueue_ != VK_NULL_HANDLE, "Error while getting  present queue family handle.");
 			}
 
 		}

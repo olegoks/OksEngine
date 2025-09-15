@@ -23,7 +23,7 @@ namespace Render::Vulkan {
 		ShaderModule(const CreateInfo& createInfo) noexcept :
 			LD_{ createInfo.LD_ } {
 
-			OS::AssertMessage(createInfo.LD_ != nullptr, "Attempt to create Shader module using nullptr Logic device.");
+			ASSERT_FMSG(createInfo.LD_ != nullptr, "Attempt to create Shader module using nullptr Logic device.");
 
 			VkShaderModuleCreateInfo shaderModuleCreateInfo{};
 			{
@@ -45,8 +45,8 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(LD_ != nullptr, "Logic device is nullptr.");
-			OS::AssertMessage(GetHandle(), "Attempt to destroy VK_NULL_HANDLE VkShaderModule.");
+			ASSERT_FMSG(LD_ != nullptr, "Logic device is nullptr.");
+			ASSERT_FMSG(GetHandle(), "Attempt to destroy VK_NULL_HANDLE VkShaderModule.");
 			vkDestroyShaderModule(LD_->GetHandle(), GetHandle(), nullptr);
 		}
 

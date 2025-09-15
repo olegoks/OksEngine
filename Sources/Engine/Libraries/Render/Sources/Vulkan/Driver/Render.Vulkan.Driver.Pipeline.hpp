@@ -261,7 +261,7 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkPipelineLayout.");
+			ASSERT_FMSG(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkPipelineLayout.");
 			vkDestroyPipeline(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 		}
 

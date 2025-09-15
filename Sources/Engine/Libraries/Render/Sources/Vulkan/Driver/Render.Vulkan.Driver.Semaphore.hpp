@@ -28,13 +28,13 @@ namespace Render::Vulkan {
 			VkSemaphore semaphore = VK_NULL_HANDLE;
 			[[maybe_unused]]
 			const VkResult result = vkCreateSemaphore(logicDevice->GetHandle(), &semaphoreInfo, nullptr, &semaphore);
-			OS::AssertMessage(result == VK_SUCCESS, "Error while creating semaphore.");
+			ASSERT_FMSG(result == VK_SUCCESS, "Error while creating semaphore.");
 			SetNative(semaphore);
 		}
 
 		void Destroy() noexcept {
-			OS::AssertMessage(semaphore_ != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkSemaphore.");
-			OS::AssertMessage(LD_ != nullptr, "Logic device is not initialized.");
+			ASSERT_FMSG(semaphore_ != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkSemaphore.");
+			ASSERT_FMSG(LD_ != nullptr, "Logic device is not initialized.");
 			vkDestroySemaphore(LD_->GetHandle(), semaphore_, nullptr);
 			SetNative(VK_NULL_HANDLE);
 		}

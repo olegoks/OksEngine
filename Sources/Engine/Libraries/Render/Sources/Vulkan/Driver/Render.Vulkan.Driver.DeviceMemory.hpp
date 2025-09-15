@@ -44,7 +44,7 @@ namespace Render::Vulkan {
 
 			OS::Assert(memory != nullptr);
 			OS::Assert(bytesNumber > 0);
-			OS::AssertMessage(offsetInBytes + bytesNumber <= GetSize(), "Attempt to write to device memory more or less bytes than device memory size.");
+			ASSERT_FMSG(offsetInBytes + bytesNumber <= GetSize(), "Attempt to write to device memory more or less bytes than device memory size.");
 
 			void* pointerToMappedMemory = nullptr;
 			{

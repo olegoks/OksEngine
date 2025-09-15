@@ -24,7 +24,7 @@ namespace Render::Vulkan {
 			break;
 		}
 		default:
-			OS::AssertFailMessage("Invalid CullMode value used.");
+			ASSERT_FAIL_MSG("Invalid CullMode value used.");
 			return VkCullModeFlagBits::VK_CULL_MODE_FLAG_BITS_MAX_ENUM;
 		};
 	}
@@ -40,7 +40,7 @@ namespace Render::Vulkan {
 			break;
 		}
 		default:
-			OS::AssertFailMessage("Invalid TopologyType value used.");
+			ASSERT_FAIL_MSG("Invalid TopologyType value used.");
 			return VkPrimitiveTopology::VK_PRIMITIVE_TOPOLOGY_MAX_ENUM;
 		};
 	}
@@ -56,7 +56,7 @@ namespace Render::Vulkan {
 			break;
 		}
 		default:
-			OS::AssertFailMessage("Invalid FrontFace value used.");
+			ASSERT_FAIL_MSG("Invalid FrontFace value used.");
 			return VkFrontFace::VK_FRONT_FACE_MAX_ENUM;
 		};
 	}
@@ -72,7 +72,7 @@ namespace Render::Vulkan {
 			break;
 		}
 		default:
-			OS::AssertFailMessage("Invalid Depth buffer compare operation value used.");
+			ASSERT_FAIL_MSG("Invalid Depth buffer compare operation value used.");
 			return VkCompareOp::VK_COMPARE_OP_MAX_ENUM;
 		};
 	}
@@ -92,7 +92,7 @@ namespace Render::Vulkan {
 			break;
 		}
 		default:
-			OS::AssertFailMessage("Invalid ShaderBinding::Type value used.");
+			ASSERT_FAIL_MSG("Invalid ShaderBinding::Type value used.");
 			return VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
 		};
 	}
@@ -108,7 +108,7 @@ namespace Render::Vulkan {
 			break;
 		}
 		default:
-			OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
+			ASSERT_FAIL_MSG("Invalid ShaderBinding::Stage value used.");
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
 		};
 	}
@@ -128,7 +128,7 @@ namespace Render::Vulkan {
 			break;
 		}
 		default:
-			OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
+			ASSERT_FAIL_MSG("Invalid ShaderBinding::Stage value used.");
 			return VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_MAX_ENUM;
 		};
 	}
@@ -144,7 +144,7 @@ namespace Render::Vulkan {
 			break;
 		}
 		default:
-			OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
+			ASSERT_FAIL_MSG("Invalid ShaderBinding::Stage value used.");
 			return VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_MAX_ENUM;
 		};
 	}
@@ -225,7 +225,7 @@ namespace Render::Vulkan {
 			break;
 		}
 		default:
-			OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
+			ASSERT_FAIL_MSG("Invalid ShaderBinding::Stage value used.");
 			return  VkImageLayout::VK_IMAGE_LAYOUT_MAX_ENUM;
 		};
 	}
@@ -252,7 +252,7 @@ namespace Render::Vulkan {
 			return VkFormat::VK_FORMAT_D32_SFLOAT;
 		}
 		default:
-			OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
+			ASSERT_FAIL_MSG("Invalid ShaderBinding::Stage value used.");
 			return VkFormat::VK_FORMAT_MAX_ENUM;
 		};
 	}
@@ -278,7 +278,7 @@ namespace Render::Vulkan {
 			return VkImageUsageFlagBits::VK_IMAGE_USAGE_SAMPLED_BIT;
 		}
 		default:
-			OS::AssertFailMessage("Invalid ShaderBinding::Stage value used.");
+			ASSERT_FAIL_MSG("Invalid ShaderBinding::Stage value used.");
 			return VkImageUsageFlagBits::VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM;
 		};
 	}

@@ -33,8 +33,9 @@ namespace Render::Vulkan {
 
 				OS::LogInfo("/render/vulkan/driver/debug", "Checking are required validation layers enabled.");
 				for (const ValidationLayer& requiredLayer : createInfo.requiredValidationLayers_) {
+					[[maybe_unused]]
 					const bool isRequiredValidationLayerAvailable = availableValidationLayers.IsContains(requiredLayer);
-					OS::AssertMessage(isRequiredValidationLayerAvailable, { "Required validation layer %s is not enabled.", requiredLayer.GetRawName() });
+					ASSERT_FMSG(isRequiredValidationLayerAvailable, "Required validation layer %s is not enabled.", requiredLayer.GetRawName());
 				}
 				OS::LogInfo("/render/vulkan/driver/debug", "All required validation layers are enabled.");
 			}
@@ -49,11 +50,11 @@ namespace Render::Vulkan {
 			}
 			{
 				auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(createInfo.instance_->GetHandle(), "vkCreateDebugUtilsMessengerEXT");
-				OS::AssertMessage(func != nullptr, "VK_EXT_debug_utils extension is not enabled.");
+				ASSERT_FMSG(func != nullptr, "VK_EXT_debug_utils extension is not enabled.");
 				VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
 				[[maybe_unused]]
 				const VkResult result = func(createInfo.instance_->GetHandle(), &messengerCreateInfo, nullptr, &debugMessenger);
-				OS::AssertMessage(result == VK_SUCCESS, "Error while creating PFN_vkCreateDebugUtilsMessengerEXT.");
+				ASSERT_FMSG(result == VK_SUCCESS, "Error while creating PFN_vkCreateDebugUtilsMessengerEXT.");
 				SetNative(debugMessenger);
 				OS::LogInfo("/render/vulkan/driver/debug", "Debug messenger was created successfuly.");
 			}
@@ -65,13 +66,13 @@ namespace Render::Vulkan {
 			{
 				[[maybe_unused]]
 				const VkResult result = vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-				OS::AssertMessage(result == VK_SUCCESS, "Error while getting number of available validation layers.");
+				ASSERT_FMSG(result == VK_SUCCESS, "Error while getting number of available validation layers.");
 			}
 			std::vector<VkLayerProperties> availableLayers(layerCount);
 			{
 				[[maybe_unused]]
 				const VkResult result = vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
-				OS::AssertMessage(result == VK_SUCCESS, "Error while getting available validation layers.");
+				ASSERT_FMSG(result == VK_SUCCESS, "Error while getting available validation layers.");
 			}
 
 			ValidationLayers availableLayerNames{};
@@ -90,7 +91,7 @@ namespace Render::Vulkan {
 			Common::DiscardUnusedParameter(pUserData);
 			Common::DiscardUnusedParameter(messageType);
 			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT || messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
-				OS::AssertFailMessage(pCallbackData->pMessage);
+				ASSERT_FAIL_MSG(pCallbackData->pMessage);
 			} else {
 				OS::LogInfo("/render/vulkan/layers errors", pCallbackData->pMessage);
 			}
@@ -115,9 +116,9 @@ namespace Render::Vulkan {
 
 		void Destroy() noexcept {
 			auto func = (PFN_vkDestroyDebugUtilsMessengerEXT)vkGetInstanceProcAddr(instance_->GetHandle(), "vkDestroyDebugUtilsMessengerEXT");
-			OS::AssertMessage(func != nullptr, "VK_EXT_debug_utils extension is not enabled.");
-			OS::AssertMessage(GetNative() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkDebugUtilsMessengerEXT.");
-			OS::AssertMessage(instance_->GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VkDebugUtilsMessengerEXT with VK_NULL_HANDLE VkInstance.");
+			ASSERT_FMSG(func != nullptr, "VK_EXT_debug_utils extension is not enabled.");
+			ASSERT_FMSG(GetNative() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkDebugUtilsMessengerEXT.");
+			ASSERT_FMSG(instance_->GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VkDebugUtilsMessengerEXT with VK_NULL_HANDLE VkInstance.");
 			func(instance_->GetHandle(), GetNative(), nullptr);
 			OS::LogError("/render/vulkan/driver", "Debug messenger destroyed.");
 		}

@@ -43,7 +43,7 @@ namespace OksEngine {
 
 
 #pragma region Assert
-		OS::AssertMessage(!textureId.IsInvalid(), "");
+		ASSERT_FMSG(!textureId.IsInvalid(), "");
 #pragma endregion
 
 

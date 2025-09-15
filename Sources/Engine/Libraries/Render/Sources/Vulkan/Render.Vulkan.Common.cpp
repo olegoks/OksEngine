@@ -9,7 +9,7 @@ namespace Render::Vulkan {
 			std::string errorMessage = string_VkResult(nativeAPICallResult);
 			errorMessage += ". ";
 			errorMessage += format;
-			OS::AssertFailMessage(errorMessage);
+			ASSERT_FAIL_MSG(errorMessage.c_str());
 		}
 	}
 }

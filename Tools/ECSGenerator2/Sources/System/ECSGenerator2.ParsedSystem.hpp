@@ -338,7 +338,7 @@ namespace ECSGenerator2 {
 			}
 
 #pragma region Assert
-			OS::AssertFailMessage("Invalid thread name.");
+			ASSERT_FAIL_MSG("Invalid thread name.");
 #pragma endregion
 
 			return Thread::Undefined;
@@ -474,7 +474,7 @@ namespace ECSGenerator2 {
 			}
 
 #pragma region Assert
-			OS::AssertFailMessage("Invalid thread name.");
+			ASSERT_FAIL_MSG("Invalid thread name.");
 #pragma endregion
 
 			return Type::Undefined;
@@ -538,7 +538,7 @@ namespace ECSGenerator2 {
 		std::shared_ptr<ParsedSystem> secondSystem) {
 
 #pragma region Assert
-		OS::AssertMessage(firstSystem->GetName() != secondSystem->GetName(), "");
+		ASSERT_FMSG(firstSystem->GetName() != secondSystem->GetName(), "");
 #pragma endregion
 
 		bool isDepends = false;

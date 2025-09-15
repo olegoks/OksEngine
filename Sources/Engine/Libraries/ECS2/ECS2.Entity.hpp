@@ -22,57 +22,57 @@ namespace ECS2 {
 		//public:
 		//	template<class ComponentType>
 		//	Filter& Include() {
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		const ComponentTypeId typeId = ComponentType::GetTypeId();
 		//		includes_.set(typeId);
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		//debugInfo_.idName_[typeId] = ComponentType::GetName();
 		//		return *this;
 		//	}
 
 		//	template<class ComponentType>
 		//	Filter& DeleteInclude() {
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		includes_.reset(ComponentType::GetTypeId());
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		//debugInfo_.idName_.erase(ComponentType::GetTypeId());
 		//		return *this;
 		//	}
 
 		//	template<class ComponentType>
 		//	Filter& Exclude() {
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		const ComponentTypeId typeId = ComponentType::GetTypeId();
 		//		excludes_.set(typeId);
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		return *this;
 		//	}
 
 		//	Filter& ExcludeAll() {
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		excludes_.set();
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		return *this;
 		//	}
 
 		//	template<class ComponentType>
 		//	Filter& DeleteExclude() {
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		excludes_.reset(ComponentType::GetTypeId());
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		return *this;
 		//	}
 
 		//	[[nodiscard]]
 		//	bool operator==(const Filter& filter) const noexcept {
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		if (this == &filter) { return true; }
 		//		return (includes_ == filter.includes_) && (excludes_ == filter.excludes_);
 		//	}
 
 		//	[[nodiscard]]
 		//	bool Matches(const Filter& filter) const noexcept {
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		const bool thereAreAllNeedIncludes =
 		//			/*(includes_.count() == 0) || */((filter.includes_ & includes_) == includes_);
 		//		if (thereAreAllNeedIncludes) {
@@ -86,19 +86,19 @@ namespace ECS2 {
 
 		//	[[nodiscard]]
 		//	Filter operator+(const Filter& filter) const noexcept {
-		//		//OS::AssertMessage(IsValid(), "Error while merging entity filters.");
-		//		//OS::AssertMessage(filter.IsValid(), "Error while merging entity filters.");
+		//		//ASSERT_FMSG(IsValid(), "Error while merging entity filters.");
+		//		//ASSERT_FMSG(filter.IsValid(), "Error while merging entity filters.");
 		//		Filter result;
 		//		{
 		//			result.includes_ = (includes_ & ~filter.excludes_) | (filter.includes_ & ~excludes_);
 		//			result.excludes_ = 0;
 		//		}
-		//		//OS::AssertMessage(IsValid(), "Error while merging entity filters.");
+		//		//ASSERT_FMSG(IsValid(), "Error while merging entity filters.");
 		//		return result;
 		//	}
 
 		//	void Clear() noexcept {
-		//		//OS::AssertMessage(IsValid(), "Invalid filter state.");
+		//		//ASSERT_FMSG(IsValid(), "Invalid filter state.");
 		//		includes_.reset();
 		//		excludes_.reset();
 		//	}

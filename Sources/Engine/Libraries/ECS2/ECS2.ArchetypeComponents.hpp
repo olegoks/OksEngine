@@ -20,7 +20,7 @@ namespace ECS2 {
 		template<class Component>
 		inline std::shared_ptr<ArchetypeContainer<Component>> GetContainer() {
 #pragma region Assert
-			OS::AssertMessage(containers_.contains(Component::GetTypeId()),
+			ASSERT_FMSG(containers_.contains(Component::GetTypeId()),
 				"Attempt to get container in the archetype components structure that doesn't exist.");
 #pragma endregion
 			std::shared_ptr<IArchetypeContainer> container = containers_[Component::GetTypeId()];
@@ -54,10 +54,10 @@ namespace ECS2 {
 			const ComponentIndex componentIndex = entityIdComponentIndex_[entityId];
 
 #pragma region Assert
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				entityIdComponentIndex_.contains(entityId), 
 				"");
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				!freeComponentIndices_.contains(componentIndex),
 				"");
 #pragma endregion
@@ -89,7 +89,7 @@ namespace ECS2 {
 		inline void RemoveComponent(Entity::Id entityId) {
 			auto container = GetContainer<Component>();
 #pragma region Assert
-			OS::AssertMessage(entityIdComponentIndex_.contains(entityId), "");
+			ASSERT_FMSG(entityIdComponentIndex_.contains(entityId), "");
 #pragma endregion
 			entityIdComponentsFilter_[entityId].RemoveBits<Component>();
 		}
@@ -97,12 +97,12 @@ namespace ECS2 {
 		template<class Component>
 		inline Component* GetComponent(Entity::Id entityId) {
 #pragma region Assert
-			OS::AssertMessage(entityIdComponentIndex_.contains(entityId),
+			ASSERT_FMSG(entityIdComponentIndex_.contains(entityId),
 				"Attempt to get component of entity that doesn't exist.");
 #pragma endregion
 			const ComponentIndex componentIndex = entityIdComponentIndex_[entityId];
 #pragma region Assert
-			OS::AssertMessage(componentIndex != invalidComponentIndex_,
+			ASSERT_FMSG(componentIndex != invalidComponentIndex_,
 				"Attempt to get component of entity but component doesn't exist.");
 #pragma endregion
 			auto container = std::dynamic_pointer_cast<ArchetypeContainer<Component>>(containers_[Component::GetTypeId()]);
@@ -136,7 +136,7 @@ namespace ECS2 {
 		template<class ComponentType>
 		inline void CreateContainer(Common::Size startSize) {
 #pragma region Assert
-			OS::AssertMessage(!containers_.contains(ComponentType::GetTypeId()),
+			ASSERT_FMSG(!containers_.contains(ComponentType::GetTypeId()),
 				"Attempt to create container in the archetype components structure that exist.");
 #pragma endregion
 			containers_[ComponentType::GetTypeId()] = std::make_shared<ArchetypeContainer<ComponentType>>(startSize);

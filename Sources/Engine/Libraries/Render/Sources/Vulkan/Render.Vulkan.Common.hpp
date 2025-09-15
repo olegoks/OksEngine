@@ -554,7 +554,7 @@ namespace Render::Vulkan {
 			break;
 		}
 		default: {
-			OS::AssertFailMessage("Unsupported index type.");
+			ASSERT_FAIL_MSG("Unsupported index type.");
 			return VkIndexType::VK_INDEX_TYPE_MAX_ENUM;
 		}
 		};

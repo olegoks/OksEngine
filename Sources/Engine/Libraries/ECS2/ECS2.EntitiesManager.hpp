@@ -19,7 +19,7 @@ namespace ECS2 {
 		//[[nodiscard]]
 		//Entity::Id CreateEntity() noexcept {
 		//	Maybe<Entity::Id> freeId = GetFreeId();
-		//	OS::AssertMessage(freeId.has_value(), "Error while creating entity.");
+		//	ASSERT_FMSG(freeId.has_value(), "Error while creating entity.");
 
 		//	idEntity_.insert(std::pair{ freeId.value(), std::make_unique<Entity>(freeId.value()) });
 		//	return freeId.value();
@@ -28,13 +28,13 @@ namespace ECS2 {
 		//[[nodiscard]]
 		//Entity::Id CreateEntity(const ComponentsFilter& archetype) noexcept {
 		//	Maybe<Entity::Id> freeId = GetFreeId();
-		//	OS::AssertMessage(freeId.has_value(), "Error while creating entity.");
+		//	ASSERT_FMSG(freeId.has_value(), "Error while creating entity.");
 		//	idEntity_.insert(std::pair{ freeId.value(), std::make_unique<Entity>(freeId.value(), archetype) });
 		//	return freeId.value();
 		//}
 
 	//	void DestroyEntity(Entity::Id id) noexcept {
-	//		OS::AssertMessage(
+	//		ASSERT_FMSG(
 	//			idEntity_.contains(id),
 	//			"Error while deleting entity.");
 	//		idEntity_.erase(id);
@@ -70,13 +70,13 @@ namespace ECS2 {
 				}
 
 			}
-			OS::AssertFailMessage("There are no free id's.");
+			ASSERT_FAIL_MSG("There are no free id's.");
 			return {};
 		}*/
 
 	//	[[nodiscard]]
 	//	Entity& GetEntity(Entity::Id entityId) noexcept {
-	//		OS::AssertMessage(IsEntityExist(entityId), "Attempt to get entity by id, but entity doesn't exist.");
+	//		ASSERT_FMSG(IsEntityExist(entityId), "Attempt to get entity by id, but entity doesn't exist.");
 	//		auto it = idEntity_.find(entityId);
 	//		return *it->second;
 	//	}

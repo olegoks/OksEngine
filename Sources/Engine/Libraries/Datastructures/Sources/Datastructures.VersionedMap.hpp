@@ -86,7 +86,7 @@ namespace DataStructures {
 		inline bool IsFree() const noexcept { return (data_ == nullptr); }
 
 		void Free() {
-			OS::AssertMessage(IsFree(),
+			ASSERT_MSG(IsFree(),
 				"Attempt to free slot that was free.");
 			Memory::Destruct<Type>(data_);
 			allocationCallbacks_.freeCallback(
@@ -107,7 +107,7 @@ namespace DataStructures {
 		inline Type* GetData() noexcept { return data_; }
 
 		void SetData(Type* data) noexcept {
-			OS::AssertMessage(IsFree(),
+			ASSERT_MSG(IsFree(),
 				"Attempt to set data to not free slot.");
 			data_ = data;
 		}
@@ -206,7 +206,7 @@ namespace DataStructures {
 	template<class Type>
 	void VersionedMap<Type>::DeleteElement(Id id) {
 		Slot& slot = GetSlot(SlotId{ id });
-		OS::AssertMessage(!slot.IsFree(),
+		ASSERT_MSG(!slot.IsFree(),
 			"Attempt to get data of free slot.");
 		slot.Free();
 	}
@@ -244,7 +244,7 @@ namespace DataStructures {
 	template<class Type>
 	Type& VersionedMap<Type>::GetElement(Id id) noexcept {
 		Slot& slot = GetSlot(id);
-		OS::AssertMessage(!slot.IsFree(),
+		ASSERT_MSG(!slot.IsFree(),
 			"Attempt to get data of free slot.");
 		return *slot.GetData();
 	}
@@ -252,7 +252,7 @@ namespace DataStructures {
 	template<class Type>
 	const Type& VersionedMap<Type>::GetElement(Id id) const noexcept {
 		const Slot& slot = GetSlot(id);
-		OS::AssertMessage(!slot.IsFree(),
+		ASSERT_MSG(!slot.IsFree(),
 			"Attempt to get data of free slot.");
 		return *slot.GetData();
 	}
@@ -288,7 +288,7 @@ namespace DataStructures {
 				return slotIndex;
 			}
 		}
-		OS::AssertFailMessage("There are no free slots.");
+		ASSERT_FAIL_MSG("There are no free slots.");
 		return Common::Limits<SlotIndex>::Max();
 	}
 

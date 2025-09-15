@@ -40,7 +40,7 @@ namespace UI {
 
 	private:
 		static void ErrorCallback(int error_code, const char* description) {
-			OS::AssertFailMessage(description);
+			ASSERT_FAIL_MSG(description);
 		}
 
 	private:

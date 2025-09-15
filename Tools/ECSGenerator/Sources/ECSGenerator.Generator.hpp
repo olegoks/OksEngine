@@ -695,7 +695,7 @@ namespace ECSGenerator {
 				code.Add(
 					"auto getNewId = [&](ECS2::Entity::Id oldId) {"
 					"	#pragma region Assert\n"
-					"	OS::AssertMessage(oldToNewId.contains(oldId),\n"
+					"	ASSERT_FMSG(oldToNewId.contains(oldId),\n"
 					"	std::format(\"Invalid scene file. Can not define all entities ids: {}.\", static_cast<Common::Index>(oldId)));\n"
 					"	#pragma endregion\n"
 					"	return oldToNewId.at(oldId);\n"
@@ -1048,7 +1048,7 @@ namespace ECSGenerator {
 
 					systemEcsFile->ForEachRunAfterSystem([&](const std::string& afterSystem) {
 #pragma region Assert 
-						OS::AssertMessage(thread.systems_.contains(afterSystem), "Current thread doesn't contain After System:" + afterSystem);
+						ASSERT_FMSG(thread.systems_.contains(afterSystem), "Current thread doesn't contain After System:" + afterSystem);
 #pragma endregion		
 						DS::Graph<System>::Node::Id afterSystemNodeId = getCreateSystemNode(thread.callGraph_, afterSystem);
 						thread.callGraph_.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
@@ -1057,7 +1057,7 @@ namespace ECSGenerator {
 
 					systemEcsFile->ForEachRunBeforeSystem([&](const std::string& beforeSystem) {
 #pragma region Assert 
-						OS::AssertMessage(thread.systems_.contains(beforeSystem), "Current thread doesn't contain Before System:" + beforeSystem);
+						ASSERT_FMSG(thread.systems_.contains(beforeSystem), "Current thread doesn't contain Before System:" + beforeSystem);
 #pragma endregion		
 						DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, beforeSystem);
 						thread.callGraph_.AddLinkFromTo(currentSystemNodeId, beforeSystemNodeId);

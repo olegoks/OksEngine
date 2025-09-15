@@ -13,7 +13,7 @@ namespace UI {
 
 	Window::Window(const Window::CreateInfo& createInfo) : UIAL::Window{ createInfo } {
 		const int initResult = glfwInit();
-		OS::AssertMessage(initResult != GLFW_FALSE, "Error while initializing GLFW.");
+		ASSERT_FMSG(initResult != GLFW_FALSE, "Error while initializing GLFW.");
 		glfwWindowHint(GLFW_CLIENT_API, GLFW_NO_API);
 		::GLFWwindow* createdWindow = glfwCreateWindow(
 			createInfo.windowSize_.GetX(),
@@ -133,7 +133,7 @@ namespace UI {
 			OS::AssertFail();
 		}
 
-		OS::AssertMessage(
+		ASSERT_FMSG(
 			createdWindow != nullptr,
 			"GLFW Windows was not created.");
 

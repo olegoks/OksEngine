@@ -243,15 +243,15 @@ namespace OksEngine {
 
 		void AddData(ThreadName sender, const DS::Vector<ThreadName>& receivers, Type&& data) {
 
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				receivers.GetSize() <= maxReceiversNumber_,
 				"Number of receivers is more tham limit value."
 			);
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				receivers.GetSize() > 0,
 				"Receivers are not set."
 			);
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				sender != ThreadName::Undefined,
 				"Sender can't be undefined."
 			);

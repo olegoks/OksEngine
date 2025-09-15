@@ -88,7 +88,7 @@ namespace Render::Vulkan {
 					return i;
 				}
 			}
-			OS::AssertFailMessage("Suitable device memory was not found.");
+			ASSERT_FAIL_MSG("Suitable device memory was not found.");
 			return std::numeric_limits<uint32_t>::max();
 		}
 

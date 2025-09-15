@@ -65,7 +65,7 @@ namespace OS {
 				}
 
 				default: {
-					OS::AssertFailMessage("Attempt to get duration value and cast it to unsupported type.");
+					ASSERT_FAIL_MSG("Attempt to get duration value and cast it to unsupported type.");
 					return 0;
 				}
 				};*/

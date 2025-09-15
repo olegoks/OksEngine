@@ -78,7 +78,7 @@ namespace Render::Vulkan {
 				}
 			}
 
-			OS::AssertFailMessage("Supported format for depth image was not found.");
+			ASSERT_FAIL_MSG("Supported format for depth image was not found.");
 			return VkFormat::VK_FORMAT_UNDEFINED;
 		}
 

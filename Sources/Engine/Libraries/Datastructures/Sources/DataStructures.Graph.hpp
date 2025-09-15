@@ -170,7 +170,7 @@ namespace DataStructures {
 		Node& node = nodes_.GetElement(nodeId);
 		node.ForEachLinksTo([this, nodeId](Node::Id linkTo) {
 			Node& node = nodes_.GetElement(linkTo);
-			OS::AssertMessage(node.HasLinkFrom(nodeId), "Node links error.");
+			ASSERT_MSG(node.HasLinkFrom(nodeId), "Node links error.");
 			node.DeleteLinkFrom(nodeId);
 			});
 	}

@@ -31,12 +31,12 @@ namespace Memory {
 			}
 
 			void AddLink() noexcept {
-				OS::AssertMessage(GetLinksNumber() >= 1, "Invalid links number. It must be more than 0.");
+				ASSERT_FMSG(GetLinksNumber() >= 1, "Invalid links number. It must be more than 0.");
 				++linksNumber_;
 			}
 
 			void RemoveLink() noexcept {
-				OS::AssertMessage(GetLinksNumber() >= 1, "To remove reference counter must be more than 0.");
+				ASSERT_FMSG(GetLinksNumber() >= 1, "To remove reference counter must be more than 0.");
 				--linksNumber_;
 			}
 
@@ -47,12 +47,12 @@ namespace Memory {
 
 			[[nodiscard]] 
 			Type* GetObject() noexcept {
-				OS::AssertMessage(data_ != nullptr, "Invalid data pointer.");
+				ASSERT_FMSG(data_ != nullptr, "Invalid data pointer.");
 				return data_;
 			}
 
 			~ControlBlock() noexcept {
-				OS::AssertMessage(GetLinksNumber() == 0, 
+				ASSERT_FMSG(GetLinksNumber() == 0, 
 					"Attempt to destroy control block when there are more than one link.");
 				allocator_.deallocate(GetObject());
 				allocator_.destroy(GetObject());
@@ -73,7 +73,7 @@ namespace Memory {
 
 		SharedPointer(Type* pointer = nullptr) noexcept : controlBlock_{ nullptr } {
 		
-			OS::AssertMessage(pointer == nullptr, "Class doesn't support using raw pointers.");
+			ASSERT_FMSG(pointer == nullptr, "Class doesn't support using raw pointers.");
 			
 		}
 
@@ -140,9 +140,9 @@ namespace Memory {
 		[[nodiscard]]
 		Type& operator*() noexcept {
 			
-			OS::AssertMessage(controlBlock_ != nullptr, "Invalid state of smart pointer.");
-			OS::AssertMessage(controlBlock_->GetLinksNumber() >= 1, "Invalid links number value.");
-			OS::AssertMessage(Get() != nullptr, "Control block doesn't contain valid pointer.");
+			ASSERT_FMSG(controlBlock_ != nullptr, "Invalid state of smart pointer.");
+			ASSERT_FMSG(controlBlock_->GetLinksNumber() >= 1, "Invalid links number value.");
+			ASSERT_FMSG(Get() != nullptr, "Control block doesn't contain valid pointer.");
 
 			return *Get();
 
@@ -151,9 +151,9 @@ namespace Memory {
 		[[nodiscard]]
 		Type* operator->() noexcept {
 
-			OS::AssertMessage(controlBlock_ != nullptr, "Invalid state of smart pointer.");
-			OS::AssertMessage(controlBlock_->GetLinksNumber() >= 1, "Invalid links number value.");
-			OS::AssertMessage(Get() != nullptr, "Control block doesn't contain valid pointer.");
+			ASSERT_FMSG(controlBlock_ != nullptr, "Invalid state of smart pointer.");
+			ASSERT_FMSG(controlBlock_->GetLinksNumber() >= 1, "Invalid links number value.");
+			ASSERT_FMSG(Get() != nullptr, "Control block doesn't contain valid pointer.");
 
 			return Get();
 
@@ -162,8 +162,8 @@ namespace Memory {
 		[[nodiscard]]
 		Type* Get() noexcept {
 
-			OS::AssertMessage(controlBlock_ != nullptr, "Invalid state of smart pointer.");
-			OS::AssertMessage(controlBlock_->GetLinksNumber() >= 1, "Invalid links number value.");
+			ASSERT_FMSG(controlBlock_ != nullptr, "Invalid state of smart pointer.");
+			ASSERT_FMSG(controlBlock_->GetLinksNumber() >= 1, "Invalid links number value.");
 
 			return controlBlock_->GetObject();
 		}
@@ -171,9 +171,9 @@ namespace Memory {
 		~SharedPointer() noexcept {
 			
 			if (controlBlock_ != nullptr) {
-				OS::AssertMessage(controlBlock_->GetObject() != nullptr,
+				ASSERT_FMSG(controlBlock_->GetObject() != nullptr,
 					"Invalid value of data pointer.");
-				OS::AssertMessage(controlBlock_->GetLinksNumber() >= 1,
+				ASSERT_FMSG(controlBlock_->GetLinksNumber() >= 1,
 					"Invalid value of number of links.");
 				controlBlock_->RemoveLink();
 				if (controlBlock_->GetLinksNumber() == 0) {
@@ -196,15 +196,15 @@ namespace Memory {
 	private:
 
 		//void DestroyData() noexcept {
-		//	OS::AssertMessage(controlBlock_ != nullptr, "Invalid state of control block.");
-		//	OS::AssertMessage(controlBlock_->GetLinksNumber() == 0, "Attempt to delete control block with links.");
+		//	ASSERT_FMSG(controlBlock_ != nullptr, "Invalid state of control block.");
+		//	ASSERT_FMSG(controlBlock_->GetLinksNumber() == 0, "Attempt to delete control block with links.");
 		//	allocator_.destroy(controlBlock_->GetData());
 		//	allocator_.deallocate(controlBlock_->GetData());
 		//}
 
 		void DestroyControlBlock() {
-			OS::AssertMessage(controlBlock_ != nullptr, "Invalid state of control block.");
-			OS::AssertMessage(controlBlock_->GetLinksNumber() == 0, "Attempt to delete control block with links.");
+			ASSERT_FMSG(controlBlock_ != nullptr, "Invalid state of control block.");
+			ASSERT_FMSG(controlBlock_->GetLinksNumber() == 0, "Attempt to delete control block with links.");
 			Memory::StdCompatible::DynamicPoolAllocator<ControlBlock<Type>> controlBlockAllocator = controlBlock_->GetAllocator();
 			controlBlockAllocator.destroy(controlBlock_);
 			controlBlockAllocator.deallocate(controlBlock_);

@@ -31,11 +31,11 @@ namespace Render::Vulkan {
 
 		Image(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
 
-			OS::AssertMessage(createInfo.size_.length() != 0, "Incorrect image extent.");
-			OS::AssertMessage(createInfo.format_ != VK_FORMAT_MAX_ENUM, "Incorrect image format.");
-			OS::AssertMessage(createInfo.tiling_ != VK_IMAGE_TILING_MAX_ENUM, "Incorrect image tiling.");
-			OS::AssertMessage(createInfo.usage_ != VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM, "Incorrect image usage.");
-			OS::AssertMessage(createInfo.LD_ != nullptr, "Logic device is not set.");
+			ASSERT_FMSG(createInfo.size_.length() != 0, "Incorrect image extent.");
+			ASSERT_FMSG(createInfo.format_ != VK_FORMAT_MAX_ENUM, "Incorrect image format.");
+			ASSERT_FMSG(createInfo.tiling_ != VK_IMAGE_TILING_MAX_ENUM, "Incorrect image tiling.");
+			ASSERT_FMSG(createInfo.usage_ != VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM, "Incorrect image usage.");
+			ASSERT_FMSG(createInfo.LD_ != nullptr, "Logic device is not set.");
 
 			VkImageCreateInfo imageInfo{};
 			{

@@ -106,7 +106,7 @@ namespace ECSGenerator2 {
 										//TODO: move setting of child table to processTable function.
 										auto parsedTable = processTable(tableName, value);
 #pragma region Assert
-										OS::AssertMessage(parsedTable != nullptr , "");
+										ASSERT_FMSG(parsedTable != nullptr , "");
 #pragma endregion
 										parsedNamespaceTables.push_back(parsedTable);
 									}
@@ -185,7 +185,7 @@ namespace ECSGenerator2 {
 				parsedTable->ForEachChildlessTable([&](ParsedTablePtr childlessTable) {
 
 #pragma region Assert
-					OS::AssertMessage(!childlessTable->HasChilds(), "");
+					ASSERT_FMSG(!childlessTable->HasChilds(), "");
 #pragma endregion							
 					auto parentTables = childlessTable->GetParentTables();
 

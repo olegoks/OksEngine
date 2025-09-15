@@ -664,7 +664,7 @@ namespace ECSGenerator {
 
 
 				parsedEntityIncludes.push_back(parsedInclude);
-				OS::AssertMessage(std::isupper(parsedEntityIncludes.back().name_[0]), "");
+				ASSERT_FMSG(std::isupper(parsedEntityIncludes.back().name_[0]), "");
 			}
 
 			return parsedEntityIncludes;
@@ -678,7 +678,7 @@ namespace ECSGenerator {
 				for (luabridge::Iterator it(entityCreates); !it.isNil(); ++it) {
 					luabridge::LuaRef toCreate = it.value();
 					parsedEntityCreates.push_back(toCreate.cast<std::string>().value());
-					OS::AssertMessage(std::isupper(parsedEntityCreates.back()[0]), "");
+					ASSERT_FMSG(std::isupper(parsedEntityCreates.back()[0]), "");
 				}
 			}
 
@@ -694,7 +694,7 @@ namespace ECSGenerator {
 				for (luabridge::Iterator it(entityRemoves); !it.isNil(); ++it) {
 					luabridge::LuaRef toRemove = it.value();
 					parsedEntityRemoves.push_back(toRemove.cast<std::string>().value());
-					OS::AssertMessage(std::isupper(parsedEntityRemoves.back()[0]), "");
+					ASSERT_FMSG(std::isupper(parsedEntityRemoves.back()[0]), "");
 				}
 			}
 
@@ -725,7 +725,7 @@ namespace ECSGenerator {
 					luabridge::LuaRef exclude = it.value();
 					parsedEntityExcludes.push_back(exclude.cast<std::string>().value());
 
-					OS::AssertMessage(std::isupper(parsedEntityExcludes.back()[0]), "");
+					ASSERT_FMSG(std::isupper(parsedEntityExcludes.back()[0]), "");
 
 				}
 			}
@@ -748,7 +748,7 @@ namespace ECSGenerator {
 				std::vector<ParsedSystemECSFile::Include> parsedEntityIncludes
 					= parseProcessesComponents(entity);
 
-				OS::AssertMessage(
+				ASSERT_FMSG(
 					(parsedEntityIncludes.empty() && !processesAllCombinations.isNil())
 					|| (!parsedEntityIncludes.empty() && processesAllCombinations.isNil()),
 					"System description error."
@@ -830,14 +830,14 @@ namespace ECSGenerator {
 							.readonly_ = false // TODO: add option to access component only to read.
 						};
 						accessesComponents.push_back(include);
-						OS::AssertMessage(std::isupper(accessesComponents.back().name_[0]), "");
+						ASSERT_FMSG(std::isupper(accessesComponents.back().name_[0]), "");
 					}
 					luabridge::LuaRef createsComponentsRef = toAccess["createsComponents"];
 					if (!createsComponentsRef.isNil()) {
 						for (luabridge::Iterator itJ(createsComponentsRef); !itJ.isNil(); ++itJ) {
 							luabridge::LuaRef createsComponentRef = itJ.value();
 							createsComponents.push_back(createsComponentRef.cast<std::string>().value());
-							OS::AssertMessage(std::isupper(createsComponents.back()[0]), "");
+							ASSERT_FMSG(std::isupper(createsComponents.back()[0]), "");
 						}
 					}
 					ParsedSystemECSFile::RequestEntity parsedEntity{
@@ -894,7 +894,7 @@ namespace ECSGenerator {
 		}
 		else {
 			//One more entities.
-			OS::AssertMessage(parsedIncludes.empty(), "");
+			ASSERT_FMSG(parsedIncludes.empty(), "");
 			requestEntities.insert(
 				requestEntities.end(),
 				std::make_move_iterator(parsedRequestEntities.begin()),
@@ -1508,7 +1508,7 @@ namespace ECSGenerator {
 				{
 					if (!systemEcsFile->ci_.accessesEntities_.empty()) {
 						//Add Assert.
-						getComponentCode.Add("OS::AssertMessage(");
+						getComponentCode.Add("ASSERT_FMSG(");
 						systemEcsFile->ForEachRandomAccessComponent(
 							[&](const std::string& componentName, bool isLast) {
 								getComponentCode.Add(std::format("std::is_same_v<Component, {}>", componentName));

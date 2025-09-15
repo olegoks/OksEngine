@@ -2,7 +2,6 @@
 
 #include <source_location>
 
-#include <Common.hpp>
 #include <format>
 
 namespace OS {
@@ -10,18 +9,26 @@ namespace OS {
 	void AssertMessage(bool expression, const char* message, const std::source_location& location);
 
 	template<class ...Args>
-	void AssertMessage(bool expression, const std::source_location& location, const char* format, Args&& ...args) {
+	void AssertMessage(bool expression, const std::source_location& location, const char* formatString, Args&& ...args) {
 
 		if (expression) {
 			return;
 		}
 
-		const std::string message = std::format(format, std::forward<Args&&>(args)...);
-		AssertMessage(expression, message, location);
+		const std::string message; //= ::std::format(formatString, std::forward<Args&&>(args)...);
+		AssertMessage(expression, message.c_str(), location);
 
 	}
  
 	void AssertFailMessage(const char* message, const std::source_location& location = std::source_location::current());
+	
+	template<class ...Args>
+	void AssertFailMessage(const char* message, const std::source_location& location, const char* format, Args&& ...args) {
+		
+		const std::string message = std::format(format, std::forward<Args&&>(args)...);
+		AssertFailMessage(message, location);
+
+	}
 
 	void Assert(bool expression);
 	void AssertFail();
@@ -45,6 +52,12 @@ namespace OS {
 #define ASSERT_FAIL()\
 	OS::AssertFail()
 
+#define ASSERT_FAIL_MSG(message)\
+	OS::AssertFailMessage(message)
+
+#define ASSERT_FAIL_FMSG(message, ...)\
+	OS::AssertFailMessage(message)
+
 #define NOT_IMPLEMENTED()\
 	OS::NotImplemented()
 
@@ -57,6 +70,10 @@ namespace OS {
 #define ASSERT(expression) ((void)0)
 
 #define ASSERT_FAIL() ((void)0)
+
+#define ASSERT_FAIL_MSG(message) ((void)0)
+
+#define ASSERT_FAIL_FMSG(message, ...)  ((void)0)
 
 #define NOT_IMPLEMENTED() ((void)0)
 

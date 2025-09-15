@@ -97,7 +97,7 @@ namespace Render::Vulkan {
 
 			void WaitForRenderToImageFinish() noexcept {
 				if (imageContext_ != nullptr) {
-					OS::AssertMessage(imageContext_->inRender_ == renderFinishedFence_, "Fence of image and frame are different.");
+					ASSERT_FMSG(imageContext_->inRender_ == renderFinishedFence_, "Fence of image and frame are different.");
 					imageContext_->inRender_->Wait();
 					imageContext_->inRender_->Reset();
 				}
@@ -387,7 +387,7 @@ namespace Render::Vulkan {
 				break;
 			}
 			default:
-				OS::AssertFailMessage("Invalid VertexType value used.");
+				ASSERT_FAIL_MSG("Invalid VertexType value used.");
 				return VkVertexInputBindingDescription{	};
 			};
 		}
@@ -411,7 +411,7 @@ namespace Render::Vulkan {
 				break;
 			}
 			default:
-				OS::AssertFailMessage("Invalid VertexType value used.");
+				ASSERT_FAIL_MSG("Invalid VertexType value used.");
 				return {};
 			};
 		}
@@ -888,7 +888,7 @@ namespace Render::Vulkan {
 			const RenderPass::Id rpId = renderPassIdsGenerator_.Generate();
 
 #pragma region Assert
-			OS::AssertMessage(!idRenderPass_.contains(rpId), "");
+			ASSERT_FMSG(!idRenderPass_.contains(rpId), "");
 #pragma endregion
 
 			idRenderPass_[rpId] = renderPass;
@@ -1009,11 +1009,11 @@ namespace Render::Vulkan {
 				////		for (auto& shaderBinding : mesh->GetShaderBindings()) {
 				////			if (shaderBinding.ds_ != nullptr) {
 				////				descriptorSets.push_back(shaderBinding.ds_);
-				////				OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
+				////				ASSERT_FMSG(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
 				////				continue;
 				////			}
 				////			if (!shaderBinding.textureId_.IsInvalid()) {
-				////				OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
+				////				ASSERT_FMSG(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
 				////				const auto texture = GetTextureById(shaderBinding.textureId_);
 				////				descriptorSets.push_back(texture->GetDS());
 				////			}
@@ -1081,11 +1081,11 @@ namespace Render::Vulkan {
 						for (auto& shaderBinding : mesh->GetShaderBindings()) {
 							if (shaderBinding.ds_ != nullptr) {
 								descriptorSets.push_back(shaderBinding.ds_);
-								OS::AssertMessage(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
+								ASSERT_FMSG(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
 								continue;
 							}
 							if (!shaderBinding.textureId_.IsInvalid()) {
-								OS::AssertMessage(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
+								ASSERT_FMSG(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
 								const auto texture = GetTextureById(shaderBinding.textureId_);
 								descriptorSets.push_back(texture->GetDS());
 							}
@@ -1222,7 +1222,7 @@ namespace Render::Vulkan {
 				std::shared_ptr<Vulkan::Driver::ResourceSet> resource = resources_[resourceId];
 
 #pragma region Assert
-				OS::AssertMessage(resource != nullptr, "Attempt to bind resource with incorrect id.");
+				ASSERT_FMSG(resource != nullptr, "Attempt to bind resource with incorrect id.");
 #pragma endregion
 
 				std::shared_ptr<DescriptorSet> ds = resource->dss_[currentFrame];
@@ -1470,7 +1470,7 @@ namespace Render::Vulkan {
 				break;
 			}
 			default: {
-				OS::AssertFailMessage("Invalid type of uniform buffer.");
+				ASSERT_FAIL_MSG("Invalid type of uniform buffer.");
 				return Common::Id::Invalid();
 			}
 			};
@@ -1503,7 +1503,7 @@ namespace Render::Vulkan {
 				ub[0]->Fill(0, data, ub[0]->GetSizeInBytes());
 			}
 			else {
-				OS::AssertMessage(ub.size() == concurrentFramesNumber, "Incorrect number of ubs.");
+				ASSERT_FMSG(ub.size() == concurrentFramesNumber, "Incorrect number of ubs.");
 				ub[currentFrame]->Fill(0, data, ub[currentFrame]->GetSizeInBytes());
 			}
 		}
@@ -1559,7 +1559,7 @@ namespace Render::Vulkan {
 				break;
 			}
 			default: {
-				OS::AssertFailMessage("Invalid type of uniform buffer.");
+				ASSERT_FAIL_MSG("Invalid type of uniform buffer.");
 				return {};
 			}
 			};
@@ -1588,7 +1588,7 @@ namespace Render::Vulkan {
 				vb[0]->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
 			}
 			else {
-				OS::AssertMessage(vb.size() == concurrentFramesNumber, "Incorrect number of vbs.");
+				ASSERT_FMSG(vb.size() == concurrentFramesNumber, "Incorrect number of vbs.");
 				vb[currentFrame]->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
 			}
 		}
@@ -1603,7 +1603,7 @@ namespace Render::Vulkan {
 			}
 		}
 		virtual void ResizeVertexBuffer(VertexBuffer::Id vbid, Common::Size verticesNumber) override {
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				VBs_.find(vbid) != VBs_.end(),
 				"Attempt to destroy vertexbuffer that doesnt exist.");
 
@@ -1622,7 +1622,7 @@ namespace Render::Vulkan {
 		}
 		[[nodiscard]]
 		virtual void DestroyVertexBuffer(VertexBuffer::Id VBId) override {
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				VBs_.find(VBId) != VBs_.end(),
 				"Attempt to destroy vertexbuffer that doesnt exist.");
 
@@ -1700,7 +1700,7 @@ namespace Render::Vulkan {
 				break;
 			}
 			default: {
-				OS::AssertFailMessage("Invalid type of index buffer.");
+				ASSERT_FAIL_MSG("Invalid type of index buffer.");
 				return {};
 			}
 			};
@@ -1731,13 +1731,13 @@ namespace Render::Vulkan {
 				ib[0]->FillData(offset, indices, indicesNumber, objects_.commandPool_);
 			}
 			else {
-				OS::AssertMessage(ib.size() == concurrentFramesNumber, "Incorrect number of vbs.");
+				ASSERT_FMSG(ib.size() == concurrentFramesNumber, "Incorrect number of vbs.");
 				ib[currentFrame]->FillData(offset, indices, indicesNumber, objects_.commandPool_);
 			}
 		}
 
 		virtual void ResizeIndexBuffer(IndexBuffer::Id ibid, Common::Size indicesNumber) override {
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				IBs_.find(ibid) != IBs_.end(),
 				"Attempt to destroy vertexbuffer that doesnt exist.");
 
@@ -1754,7 +1754,7 @@ namespace Render::Vulkan {
 		}
 
 		virtual void DestroyIndexBuffer(IndexBuffer::Id IBId) override {
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				IBs_.find(IBId) != IBs_.end(),
 				"Attempt to destroy vertexbuffer that doesnt exist.");
 
@@ -1856,7 +1856,7 @@ namespace Render::Vulkan {
 				break;
 			}
 			default: {
-				OS::AssertFailMessage("Unsupported vertex type.");
+				ASSERT_FAIL_MSG("Unsupported vertex type.");
 				return 0;
 			}
 			};
@@ -1874,7 +1874,7 @@ namespace Render::Vulkan {
 				break;
 			}
 			default: {
-				OS::AssertFailMessage("Unsupported index type.");
+				ASSERT_FAIL_MSG("Unsupported index type.");
 				return 0;
 			}
 			};
@@ -2046,12 +2046,12 @@ namespace Render::Vulkan {
 		//
 		//#pragma region Assert
 		//			const RAL::Driver::PipelineDescription& pipelineDesc = createInfo_.namePipelineDescriptions_[pipelineName];
-		//			OS::AssertMessage(pipelineDesc.shaderBindings_.size() == bindingsData.size(), "Shaders bindings layout and data are different.");
+		//			ASSERT_FMSG(pipelineDesc.shaderBindings_.size() == bindingsData.size(), "Shaders bindings layout and data are different.");
 		//			for (Common::Index i = 0; i < pipelineDesc.shaderBindings_.size(); i++) {
 		//				const RAL::Driver::ShaderBinding::Layout& layout = pipelineDesc.shaderBindings_[i];
 		//				const RAL::Driver::ShaderBinding::Data& data = bindingsData[i];
-		//				OS::AssertMessage(layout.stage_ == data.stage_, "Shaders bindings layout and data are different.");
-		//				OS::AssertMessage(layout.type_ == data.type_, "Shaders bindings layout and data are different.");
+		//				ASSERT_FMSG(layout.stage_ == data.stage_, "Shaders bindings layout and data are different.");
+		//				ASSERT_FMSG(layout.type_ == data.type_, "Shaders bindings layout and data are different.");
 		//			}
 		//#pragma endregion
 		//

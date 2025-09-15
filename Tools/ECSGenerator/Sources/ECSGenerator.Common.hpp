@@ -30,7 +30,7 @@ namespace ECSGenerator{
 			{ "Index", Type::Index },
 			{ "ECS2::Entity::Id", Type::ECS_Entity_Id }
 		};
-		OS::AssertMessage(strToEnum.contains(typeString), "");
+		ASSERT_FMSG(strToEnum.contains(typeString), "");
 		return strToEnum[typeString];
 	}
 
@@ -147,7 +147,7 @@ namespace ECSGenerator{
 
 		if (resultRange == ResultRange::FromStartFolderToEnd) {
 #pragma region Assert
-			OS::AssertMessage(startFolderIt != path.end(), "");
+			ASSERT_FMSG(startFolderIt != path.end(), "");
 #pragma endregion
 
 			for (auto it = (skipStartFolder) ? (++startFolderIt) : (startFolderIt) ;

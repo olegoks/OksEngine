@@ -27,7 +27,7 @@ namespace PhysX {
 			physx::PxTransform t{ pxMatrix };
 			auto shape = std::static_pointer_cast<PhysX::Shape>(createInfo.palCreateInfo_.rbCreateInfo_.shape_);
 			body_ = createInfo.physics_->createRigidDynamic(t);
-			OS::AssertMessage(body_ != nullptr,
+			ASSERT_FMSG(body_ != nullptr,
 				"Error while creating rigid body.");
 			body_->attachShape(*shape->GetPxShape());
 			body_->setLinearDamping(createInfo.palCreateInfo_.linearDamping_);
@@ -96,7 +96,7 @@ namespace PhysX {
 			physx::PxTransform t{ pxMatrix };
 			auto shape = std::static_pointer_cast<PhysX::Shape>(createInfo.palCreateInfo_.rbCreateInfo_.shape_);
 			body_ = createInfo.physics_->createRigidStatic(t);
-			OS::AssertMessage(body_ != nullptr,
+			ASSERT_FMSG(body_ != nullptr,
 				"Error while creating rigid body.");
 			body_->attachShape(*shape->GetPxShape());
 			body_->setName(createInfo.palCreateInfo_.rbCreateInfo_.name_.c_str());

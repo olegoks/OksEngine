@@ -23,7 +23,7 @@ namespace OksEngine
 		const TimeSinceEngineStart* timeSinceEngineStart1) {
 
 #pragma region Assert
-		OS::AssertMessage(
+		ASSERT_FMSG(
 			std::find_if(
 				modelAnimations0->animations_.cbegin(),
 				modelAnimations0->animations_.cend(),
@@ -57,7 +57,7 @@ namespace OksEngine
 
 
 #pragma region Assert
-		OS::AssertMessage(it != modelAnimations0->animations_.cend(), "");
+		ASSERT_FMSG(it != modelAnimations0->animations_.cend(), "");
 #pragma endregion
 
 		const ModelAnimation& modelAnimation = *it;
@@ -108,14 +108,14 @@ namespace OksEngine
 						const glm::vec3 currentPosition3D = glm::mix(previousPosition3DKey.position3D_, currentPosition3DKey.position3D_, normalizedCurrentTimeInInterval);
 
 #pragma region Assert
-						OS::AssertMessage(
+						ASSERT_FMSG(
 							!std::isnan(currentPosition3D.x) &&
 							!std::isnan(currentPosition3D.y) &&
 							!std::isnan(currentPosition3D.z), "");
 #pragma endregion
 
 #pragma region Assert
-						OS::AssertMessage(
+						ASSERT_FMSG(
 							!std::isnan(currentPosition3D.x) &&
 							!std::isnan(currentPosition3D.y) &&
 							!std::isnan(currentPosition3D.z), "");
@@ -166,7 +166,7 @@ namespace OksEngine
 						float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTime;
 						const glm::vec3 currentScale3D = glm::slerp(previousScale3DKey.scale3D_, currentScale3DKey.scale3D_, normalizedCurrentTimeInInterval);
 #pragma region Assert
-						OS::AssertMessage(
+						ASSERT_FMSG(
 							!std::isnan(currentScale3D.x) &&
 							!std::isnan(currentScale3D.y) &&
 							!std::isnan(currentScale3D.z), "");
@@ -338,8 +338,8 @@ namespace OksEngine
 #pragma region Assert
 			auto errorString = std::string(importer->GetErrorString());
 
-			OS::AssertMessage(scene && scene->mRootNode,
-				"Failed to load model: " + errorString);
+			ASSERT_FMSG(scene && scene->mRootNode,
+				"Failed to load model: {}", errorString);
 #pragma endregion
 
 
@@ -455,7 +455,7 @@ namespace OksEngine
 //										//Free cell found.
 //										vertexBonesInfos[weight->mVertexId].boneIndices_[k] = i;
 //#pragma region Assert
-//										OS::AssertMessage(Math::IsLess(weight->mWeight, 1.0), "");
+//										ASSERT_FMSG(Math::IsLess(weight->mWeight, 1.0), "");
 //#pragma endregion
 //										vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight * 255;
 //										isFind = true;
@@ -464,7 +464,7 @@ namespace OksEngine
 //								}
 //
 //#pragma region Assert
-//								OS::AssertMessage(isFind, "");
+//								ASSERT_FMSG(isFind, "");
 //#pragma endregion
 //
 //							}
@@ -750,7 +750,7 @@ namespace OksEngine
 			const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
 
 #pragma region Assert
-			OS::AssertMessage(nodeEntityId.IsValid(), "");
+			ASSERT_FMSG(nodeEntityId.IsValid(), "");
 #pragma endregion
 
 			//if (std::string{ node->mName.C_Str() } == "driver_11") {
@@ -766,7 +766,7 @@ namespace OksEngine
 				processChildrenNode(scene, childrenNode);
 				const ECS2::Entity::Id childNodeEntityId = nodeToEntityId[childrenNode];
 #pragma region Assert
-				OS::AssertMessage(childNodeEntityId.IsValid(), "");
+				ASSERT_FMSG(childNodeEntityId.IsValid(), "");
 #pragma endregion
 				childNodeEntityIds.push_back(childNodeEntityId);
 			}
@@ -986,7 +986,7 @@ namespace OksEngine
 												//Free cell found.
 												vertexBonesInfos[weight->mVertexId].boneIndices_[k] = i;
 #pragma region Assert
-												OS::AssertMessage(Math::IsLess(weight->mWeight, 1.0), "");
+												ASSERT_FMSG(Math::IsLess(weight->mWeight, 1.0), "");
 #pragma endregion
 												vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight * 255;
 												isFind = true;
@@ -995,7 +995,7 @@ namespace OksEngine
 										}
 
 #pragma region Assert
-										OS::AssertMessage(isFind, "");
+										ASSERT_FMSG(isFind, "");
 #pragma endregion
 
 									}
@@ -1123,8 +1123,8 @@ namespace OksEngine
 #pragma region Assert
 		auto errorString = std::string(importer.GetErrorString());
 
-		OS::AssertMessage(scene && scene->mRootNode,
-			"Failed to load model: " + errorString);
+		ASSERT_FMSG(scene && scene->mRootNode,
+			"Failed to load model: {}", errorString);
 #pragma endregion
 
 		//Node to Entity id 
@@ -1207,7 +1207,7 @@ namespace OksEngine
 										//Free cell found.
 										vertexBonesInfos[weight->mVertexId].boneIndices_[k] = i;
 #pragma region Assert
-										OS::AssertMessage(Math::IsLess(weight->mWeight, 1.0), "");
+										ASSERT_FMSG(Math::IsLess(weight->mWeight, 1.0), "");
 #pragma endregion
 										vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight * 255;
 										isFind = true;
@@ -1216,7 +1216,7 @@ namespace OksEngine
 								}
 
 #pragma region Assert
-								OS::AssertMessage(isFind, "");
+								ASSERT_FMSG(isFind, "");
 #pragma endregion
 
 							}
@@ -1483,7 +1483,7 @@ namespace OksEngine
 		const BonesPallet* bonesPallet1) {
 
 #pragma region Assert
-		OS::AssertMessage(bonesPallet1->bonesPallets_.size() <= 128, "");
+		ASSERT_FMSG(bonesPallet1->bonesPallets_.size() <= 128, "");
 #pragma endregion
 
 		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
@@ -1915,7 +1915,7 @@ namespace OksEngine
 
 
 #pragma region Assert
-						OS::AssertMessage(
+						ASSERT_FMSG(
 							!std::isnan(worldNodePosition3DVec.x) &&
 							!std::isnan(worldNodePosition3DVec.y) &&
 							!std::isnan(worldNodePosition3DVec.z), "");
@@ -1990,7 +1990,7 @@ namespace OksEngine
 		const ECS2::Entity::Id nodeEntityId = modelNodeEntityId1->nodeEntityId_;
 
 #pragma region Assert
-		OS::AssertMessage(IsComponentExist<Transform3DResource>(nodeEntityId), "");
+		ASSERT_FMSG(IsComponentExist<Transform3DResource>(nodeEntityId), "");
 		const auto* transform3DResource = GetComponent<Transform3DResource>(nodeEntityId);
 #pragma endregion
 
@@ -2036,7 +2036,7 @@ namespace OksEngine
 		const ECS2::Entity::Id nodeEntityId = modelNodeEntityId1->nodeEntityId_;
 
 #pragma region Assert
-		OS::AssertMessage(IsComponentExist<Transform3DResource>(nodeEntityId), "");
+		ASSERT_FMSG(IsComponentExist<Transform3DResource>(nodeEntityId), "");
 		const auto* transform3DResource = GetComponent<Transform3DResource>(nodeEntityId);
 #pragma endregion
 

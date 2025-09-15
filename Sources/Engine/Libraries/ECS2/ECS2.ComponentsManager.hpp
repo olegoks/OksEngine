@@ -49,7 +49,7 @@ namespace ECS2 {
 //			ComponentsFilter componentsFilter;
 //			componentsFilter.SetBits<ComponentType...>();
 //#pragma region Assert
-//			OS::AssertMessage(!IsArchetypeAdded(), "This archetype was added.");
+//			ASSERT_FMSG(!IsArchetypeAdded(), "This archetype was added.");
 //#pragma endregion
 //			archetypeEntitiesComponents_[componentsFilter] = std::make_shared<ArchetypeComponents<ComponentType...>>();
 //
@@ -66,13 +66,13 @@ namespace ECS2 {
 //		void CreateComponent(Entity::Id entityId, Args&&... args) noexcept {
 //			EntityInfo& entityComponents = GetCreateEntityComponents(entityId);
 //#pragma region Assert
-//			OS::AssertMessage(
+//			ASSERT_FMSG(
 //				!entityComponents.IsComponentExist<ComponentType>(),
 //				"Attempt to add component to entity, but component exists yet.");
 //#pragma endregion
 //			Ptr<Container<ComponentType>> container = GetCreateContainer<ComponentType>();
 //#pragma region Assert
-//			OS::AssertMessage(container != nullptr,
+//			ASSERT_FMSG(container != nullptr,
 //				"Error while creating/getting components container.");
 //#pragma endregion
 //			const ComponentIndex index = container->CreateComponent(std::forward<Args>(args)...);
@@ -83,13 +83,13 @@ namespace ECS2 {
 //		void RemoveComponent(Entity::Id entityId) noexcept {
 //			EntityInfo& entityComponents = GetEntityComponents(entityId);
 //#pragma region Assert
-//			OS::AssertMessage(
+//			ASSERT_FMSG(
 //				entityComponents.IsComponentExist<ComponentType>(),
 //				"Attempt to remove component that doesnt exist.");
 //#pragma endregion
 //			Maybe<Ptr<Container<ComponentType>>> maybeContainer = GetContainer<ComponentType>();
 //#pragma region Assert
-//			OS::AssertMessage(
+//			ASSERT_FMSG(
 //				maybeContainer.has_value(),
 //				"Attempt to remove component but container doesnt exist.");
 //#pragma endregion
@@ -97,7 +97,7 @@ namespace ECS2 {
 //			entityComponents.RemoveComponent<ComponentType>();
 //			const ComponentIndex componentIndex = entityComponents.GetComponentIndex<ComponentType>();
 //#pragma region Assert
-//			OS::AssertMessage(
+//			ASSERT_FMSG(
 //				(*container)[componentIndex] != nullptr,
 //				"Attempt to delete component that doesnt exist.");
 //#pragma endregion
@@ -123,16 +123,16 @@ namespace ECS2 {
 	//	//[[nodiscard]]
 	//	//ComponentType* GetComponent(Entity::Id entityId) noexcept {
 	//	//	EntityComponents& entityComponents = GetEntityComponents(entityId);
-	//	//	OS::AssertMessage(
+	//	//	ASSERT_FMSG(
 	//	//		entityComponents.IsComponentExist<ComponentType>(),
 	//	//		"Attempt to get component that doesnt exist.");
 	//	//	Maybe<Ptr<Container<ComponentType>>> maybeContainer = GetContainer<ComponentType>();
-	//	//	OS::AssertMessage(
+	//	//	ASSERT_FMSG(
 	//	//		maybeContainer.has_value(),
 	//	//		"Attempt to get component but container doesnt exist.");
 	//	//	Ptr<Container<ComponentType>> container = maybeContainer.value();
 	//	//	const ComponentIndex componentIndex = entityComponents.GetComponentIndex<ComponentType>();
-	//	//	OS::AssertMessage(
+	//	//	ASSERT_FMSG(
 	//	//		container->IsComponentExist(componentIndex),
 	//	//		"Attempt to get component that doesnt exist.");
 	//	//	return (*container)[componentIndex];
@@ -167,7 +167,7 @@ namespace ECS2 {
 	//	template<class ComponentType>
 	//	[[nodiscard]]
 	//	bool IsComponentExist(Entity::Id entityId) const noexcept {
-	//		OS::AssertMessage(!entityId.IsInvalid(), "Attempt to check is component exist using invalid entity id.");
+	//		ASSERT_FMSG(!entityId.IsInvalid(), "Attempt to check is component exist using invalid entity id.");
 	//		return GetEntityComponents(entityId).IsComponentExist<ComponentType>();
 	//	}
 
@@ -252,7 +252,7 @@ namespace ECS2 {
 
 		//[[nodiscard]]
 		//EntityInfo& GetEntityComponents(Entity::Id entityId) noexcept {
-		//	//OS::AssertMessage(IsEntityComponentsExist(entityId), "Attempt to get entity components, but entity doesn't have them.");
+		//	//ASSERT_FMSG(IsEntityComponentsExist(entityId), "Attempt to get entity components, but entity doesn't have them.");
 		//	if (!IsEntityComponentsExist(entityId)) {
 		//		CreateEntityComponents(entityId);
 		//	}
@@ -267,7 +267,7 @@ namespace ECS2 {
 		//}
 
 		//EntityInfo& CreateEntityComponents(Entity::Id entityId) noexcept {
-		//	OS::AssertMessage(!IsEntityComponentsExist(entityId),
+		//	ASSERT_FMSG(!IsEntityComponentsExist(entityId),
 		//		"Attempt to create entity components structure when it exists yet.");
 		//	entityComponents_.insert({ entityId, EntityInfo{} });
 		//	return GetEntityComponents(entityId);

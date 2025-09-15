@@ -33,7 +33,7 @@ namespace ECS2 {
 
 		void Resize(Common::Size newSize) noexcept {
 #pragma region Assert
-			OS::AssertMessage(newSize > components_.size(),
+			ASSERT_FMSG(newSize > components_.size(),
 				"New size must be more than previous.");
 #pragma endregion
 			components_.resize(newSize);
@@ -47,10 +47,10 @@ namespace ECS2 {
 		[[nodiscard]]
 		ComponentType* operator[](ComponentIndex index) noexcept {
 #pragma region Assert
-			//OS::AssertMessage(
+			//ASSERT_FMSG(
 			//	!IsComponentIndexFree(index),
 			//	"Attempt to get component by index but component with this index was removed.");
-			//OS::AssertMessage(
+			//ASSERT_FMSG(
 			//	index < components_.size(),
 			//	"Attempt to use incorrect component index.");
 #pragma endregion
@@ -112,7 +112,7 @@ namespace ECS2 {
 
 		void Resize(Common::Size newSize) noexcept {
 #pragma region Assert
-			OS::AssertMessage(newSize > components_.size(),
+			ASSERT_FMSG(newSize > components_.size(),
 				"New size must be more than previous.");
 #pragma endregion
 			const Common::Size oldSize = components_.size();
@@ -133,10 +133,10 @@ namespace ECS2 {
 		[[nodiscard]]
 		ComponentType* operator[](ComponentIndex index) noexcept {
 #pragma region Assert
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				!freeComponentIndices_.contains(index),
 				"Attempt to get component by index but component with this index was removed.");
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				index < components_.size(),
 				"Attempt to use incorrect component index.");
 #pragma endregion
@@ -181,7 +181,7 @@ namespace ECS2 {
 		[[nodiscard]]
 		virtual bool IsComponentExist(ComponentIndex index) const noexcept override {
 #pragma region Assert
-			OS::AssertMessage(index < components_.size(),
+			ASSERT_FMSG(index < components_.size(),
 				"Invalid component index.");
 #pragma endregion
 			return componentIndexToEntityId_[index] != Entity::Id::invalid_;
@@ -189,7 +189,7 @@ namespace ECS2 {
 
 		ComponentType* GetComponent(Entity::Id entityId) {
 #pragma region Assert
-			OS::AssertMessage(entityIdComponentIndex_.contains(entityId), 
+			ASSERT_FMSG(entityIdComponentIndex_.contains(entityId), 
 				"Container doesn't contain component of this entity.");
 #pragma endregion
 			const ComponentIndex componentIndex = entityIdComponentIndex_[entityId];
@@ -199,13 +199,13 @@ namespace ECS2 {
 		
 		virtual void RemoveComponent(Entity::Id entityId) noexcept override {
 #pragma region Assert
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				entityIdComponentIndex_.contains(entityId),
 				"Attempt to remove component, but this entity doesnt' have component of this type.");
 #pragma endregion
 			const ComponentIndex componentIndex = entityIdComponentIndex_[entityId];
 #pragma region Assert
-			OS::AssertMessage(!freeComponentIndices_.contains(componentIndex), 
+			ASSERT_FMSG(!freeComponentIndices_.contains(componentIndex), 
 				"Attempt to remove component with index that was remove early.");
 #pragma endregion
 			freeComponentIndices_.insert(componentIndex);

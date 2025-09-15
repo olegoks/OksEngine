@@ -6,7 +6,7 @@ namespace OksEngine {
 void DrawLink::Update(ECS2::Entity::Id entityId, const Link* link) {
 
 #pragma region Assert
-	OS::AssertMessage(entityId < Common::Limits<int>::Max(), "");
+	ASSERT_FMSG(entityId < Common::Limits<int>::Max(), "");
 #pragma endregion
 
 	// Draw new link.

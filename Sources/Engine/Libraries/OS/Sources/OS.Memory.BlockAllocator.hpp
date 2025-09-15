@@ -21,8 +21,8 @@ namespace Memory {
 		AllocationStrategy(Common::Byte* memory, Common::Size size) noexcept : 
 			memory_{ memory }, size_{ size } { 
 		
-			OS::AssertMessage(memory != nullptr, "Attempt to use nullptr pointer with allocation strategy.");
-			OS::AssertMessage(size > 0, "Attempt to use memory with size 0 to use with allocation strategy.");
+			ASSERT_FMSG(memory != nullptr, "Attempt to use nullptr pointer with allocation strategy.");
+			ASSERT_FMSG(size > 0, "Attempt to use memory with size 0 to use with allocation strategy.");
 
 		}
 		
@@ -44,7 +44,7 @@ namespace Memory {
 
 		[[nodiscard]]
 		Common::Size GetSize() const noexcept { 
-			OS::AssertMessage(size_ > 0, "Invalid value of memory size.");
+			ASSERT_FMSG(size_ > 0, "Invalid value of memory size.");
 			return size_;
 		}
 
@@ -63,13 +63,13 @@ namespace Memory {
 
 			[[nodiscard]]
 			constexpr static Common::Size GetSize() noexcept { 
-				OS::AssertMessage(size > 0, "Invalid value of size.");
+				ASSERT_FMSG(size > 0, "Invalid value of size.");
 				return size;
 			}
 
 			[[nodiscard]]
 			Common::Byte* GetData() noexcept { 
-				OS::AssertMessage(data_ != nullptr, "Invalid value of data pointer.");
+				ASSERT_FMSG(data_ != nullptr, "Invalid value of data pointer.");
 				return data_.data();
 			}
 
@@ -82,9 +82,9 @@ namespace Memory {
 		explicit BlockStrategy(Common::Byte* memory, Common::Size size) noexcept : 
 			AllocationStrategy{ memory, size } { 
 			
-			OS::AssertMessage(memory != nullptr, "Attempt to use invalid memory pointer.");
-			OS::AssertMessage(size > 0, "Attempt to use memory with size 0.");
-			OS::AssertMessage((size % blockSize) == 0, "Memory size doesn't suit to block size.");
+			ASSERT_FMSG(memory != nullptr, "Attempt to use invalid memory pointer.");
+			ASSERT_FMSG(size > 0, "Attempt to use memory with size 0.");
+			ASSERT_FMSG((size % blockSize) == 0, "Memory size doesn't suit to block size.");
 
 			blockStates_.reset();
 
@@ -92,9 +92,9 @@ namespace Memory {
 
 		[[nodiscard]]
 		virtual Common::Byte* Allocate(Common::Size bytesNumber) noexcept override {
-			OS::AssertMessage(bytesNumber <= blockSize, "Attempt to allocate more bytes than block size.");
+			ASSERT_FMSG(bytesNumber <= blockSize, "Attempt to allocate more bytes than block size.");
 			const Common::Maybe<Common::Index> maybeFreeBlockIndex = GetFreeBlockIndex();
-			OS::AssertMessage(maybeFreeBlockIndex.has_value(), "There is no free block to allocate memory.");
+			ASSERT_FMSG(maybeFreeBlockIndex.has_value(), "There is no free block to allocate memory.");
 			const Common::Index freeBlockIndex = maybeFreeBlockIndex.value();
 			auto* freeBlockMemory = GetBlockMemory(freeBlockIndex);
 			UseBlock(freeBlockIndex);
@@ -111,7 +111,7 @@ namespace Memory {
 		[[nodiscard]]
 		[[maybe_unused]]
 		bool IsBlockPointer(const void* maybeBlockPointer) const noexcept {
-			OS::AssertMessage(maybeBlockPointer != nullptr, "Invalid value of pointer.");
+			ASSERT_FMSG(maybeBlockPointer != nullptr, "Invalid value of pointer.");
 			const Block* maybeBlockPointer = reinterpret_cast<const Block*>(maybeBlockPointer);
 			auto* memory = GetMemory<Block*>();
 			const Common::Size offset = maybeBlockPointer - memory;
@@ -131,14 +131,14 @@ namespace Memory {
 		}
 
 		void FreeBlock(Common::Index blockIndex) noexcept {
-			OS::AssertMessage(blockIndex < blocksNumber, "Attempt to use incorrect block index.");
-			OS::AssertMessage(!IsBlockFree(blockIndex), "Attempt to free black that is free yet.");
+			ASSERT_FMSG(blockIndex < blocksNumber, "Attempt to use incorrect block index.");
+			ASSERT_FMSG(!IsBlockFree(blockIndex), "Attempt to free black that is free yet.");
 			blockStates_[blockIndex] = 0;
 		}
 
 		void UseBlock(Common::Index blockIndex) noexcept {
-			OS::AssertMessage(blockIndex < blocksNumber, "Attempt to use incorrect block index.");
-			OS::AssertMessage(IsBlockFree(blockIndex), "Attempt to used not free block.");
+			ASSERT_FMSG(blockIndex < blocksNumber, "Attempt to use incorrect block index.");
+			ASSERT_FMSG(IsBlockFree(blockIndex), "Attempt to used not free block.");
 			blockStates_[blockIndex] = 1;
 		}
 
@@ -155,7 +155,7 @@ namespace Memory {
 
 		[[nodiscard]]
 		Common::Index GetBlockIndex(const Block<blockSize>* block) const noexcept {
-			OS::AssertMessage(IsBlockPointer(block), "Attempt to deallocate pointer that is not block begin.");
+			ASSERT_FMSG(IsBlockPointer(block), "Attempt to deallocate pointer that is not block begin.");
 			const Block* firstBlock = GetMemory<Block>();
 			return (block - firstBlock);
 		}
@@ -205,33 +205,33 @@ namespace Memory {
 
 			//template<class Type, class ...Args>
 			//Type* Construct(Args&&... args) noexcept {
-			//	OS::AssertMessage(!IsFree(), "Attempt to construct object in not allocated memory.");
-			//	OS::AssertMessage(AreBarriersValid(), "Validation barriers are not valid before object creation.");
+			//	ASSERT_FMSG(!IsFree(), "Attempt to construct object in not allocated memory.");
+			//	ASSERT_FMSG(AreBarriersValid(), "Validation barriers are not valid before object creation.");
 			//	Type* object = Common::Memory::Construct<Type>(GetData(), std::forward<Args&&>(args)...);
-			//	OS::AssertMessage(AreBarriersValid(), "Validation barriers are not valid after object creation.");
+			//	ASSERT_FMSG(AreBarriersValid(), "Validation barriers are not valid after object creation.");
 			//	return object;
 			//}
 
 			//template<class Type>
 			//void Destroy() noexcept {
-			//	OS::AssertMessage(!IsFree(), "Attempt to construct object in not allocated memory.");
-			//	OS::AssertMessage(AreBarriersValid(), "Validation barriers are not valid before object destroying.");
+			//	ASSERT_FMSG(!IsFree(), "Attempt to construct object in not allocated memory.");
+			//	ASSERT_FMSG(AreBarriersValid(), "Validation barriers are not valid before object destroying.");
 			//	Type* object = GetData<Type>();
 			//	object->~Type();
-			//	OS::AssertMessage(AreBarriersValid(), "Validation barriers are not valid after object destroying.");
+			//	ASSERT_FMSG(AreBarriersValid(), "Validation barriers are not valid after object destroying.");
 			//}
 
 			[[nodiscard]]
 			Common::Byte* Allocate(Common::Size size) noexcept {
-				OS::AssertMessage(IsFree(), "Attempt to allocate object in not free block.");
-				OS::AssertMessage(size <= GetDataSize(), "Attempt to allocate memory in the block that doesn't have enouth memory.");
-				OS::AssertMessage(AreBarriersValid(), "Validation barriers are not valid after object allocation.");
+				ASSERT_FMSG(IsFree(), "Attempt to allocate object in not free block.");
+				ASSERT_FMSG(size <= GetDataSize(), "Attempt to allocate memory in the block that doesn't have enouth memory.");
+				ASSERT_FMSG(AreBarriersValid(), "Validation barriers are not valid after object allocation.");
 				Use();
 				return GetData<Common::Byte>();
 			}
 
 			void Deallocate(void* ptr) noexcept {
-				OS::AssertMessage(GetData() == ptr, "Attempt to deallocate memory using invalid pointer.");
+				ASSERT_FMSG(GetData() == ptr, "Attempt to deallocate memory using invalid pointer.");
 				Free();
 			}
 
@@ -256,20 +256,20 @@ namespace Memory {
 			}
 
 			static Common::Size CalculateDataSize(Common::Size blockSize) noexcept {
-				OS::AssertMessage(IsMemorySizeAligned(blockSize), "Attempt to calculate data size by memory size, but it is not aligned.");
+				ASSERT_FMSG(IsMemorySizeAligned(blockSize), "Attempt to calculate data size by memory size, but it is not aligned.");
 				return blockSize - GetMetadataSize();
 			}
 
 			[[nodiscard]]
 			Common::Size GetDataSize() const noexcept {
 				const Common::Size dataSize = GetSize() - GetMetadataSize();
-				OS::AssertMessage(IsMemorySizeAligned(dataSize), "Block stores not aligned data memory size.");
+				ASSERT_FMSG(IsMemorySizeAligned(dataSize), "Block stores not aligned data memory size.");
 				return dataSize;
 			}
 
 			[[nodiscard]]
 			Common::Size GetSize() const noexcept {
-				OS::AssertMessage(size_ > GetMetadataSize(), "Block size is incorrect or block stores zero bytes.");
+				ASSERT_FMSG(size_ > GetMetadataSize(), "Block size is incorrect or block stores zero bytes.");
 				return size_;
 			}
 
@@ -295,16 +295,16 @@ namespace Memory {
 
 			void SetSize(Common::Size newBlockSize) noexcept {
 
-				OS::AssertMessage(IsMemorySizeAligned(newBlockSize), "Attempt to set not aligned block size.");
-				OS::AssertMessage(newBlockSize > GetMetadataSize(), "Attempt to resize block to size less tham min block size.");
+				ASSERT_FMSG(IsMemorySizeAligned(newBlockSize), "Attempt to set not aligned block size.");
+				ASSERT_FMSG(newBlockSize > GetMetadataSize(), "Attempt to resize block to size less tham min block size.");
 
 				size_ = newBlockSize;
 			}
 
 			void Resize(Common::Size newBlockSize) noexcept {
 
-				OS::AssertMessage(IsFree(), "Attempt to resize not free block.");
-				OS::AssertMessage(AreBarriersValid(), "Memory barriers are not valid.");
+				ASSERT_FMSG(IsFree(), "Attempt to resize not free block.");
+				ASSERT_FMSG(AreBarriersValid(), "Memory barriers are not valid.");
 
 				SetSize(newBlockSize);
 				ZeroData();
@@ -317,14 +317,14 @@ namespace Memory {
 
 			void Use() noexcept {
 
-				OS::AssertMessage(IsFree(), "Attempt to use block twice.");
+				ASSERT_FMSG(IsFree(), "Attempt to use block twice.");
 
 				isFree_ = false;
 			}
 
 			void Free() noexcept {
 
-				OS::AssertMessage(!IsFree(), "Attempt to free block twice.");
+				ASSERT_FMSG(!IsFree(), "Attempt to free block twice.");
 
 				isFree_ = false;
 			}
@@ -377,7 +377,7 @@ namespace Memory {
 		PoolStrategy(Common::Byte* memory, Common::Size bytesNumber) noexcept :
 			AllocationStrategy{ memory, bytesNumber } {
 
-			OS::AssertMessage(bytesNumber > Block::GetMetadataSize(), "Attempt to allocate block in memory that doesn't have enough size.");
+			ASSERT_FMSG(bytesNumber > Block::GetMetadataSize(), "Attempt to allocate block in memory that doesn't have enough size.");
 
 			Block* block = Memory::Construct<Block>(GetMemory(), bytesNumber);
 			firstBlock_ = block;
@@ -388,35 +388,35 @@ namespace Memory {
 
 			const Common::Size alignedSize = GetAlignedMemorySize(size);
 
-			OS::AssertMessage(size > 0, "Attempt to allocate zero bytes.");
+			ASSERT_FMSG(size > 0, "Attempt to allocate zero bytes.");
 
 			Maybe<Block*> maybeBlock = FindFreeBlock(alignedSize);
-			OS::AssertMessage(maybeBlock.has_value(), "There are no suitable block for allocation.");
+			ASSERT_FMSG(maybeBlock.has_value(), "There are no suitable block for allocation.");
 
 			auto separateBlock = [](Block* block, Common::Size firstBlockSize, Common::Size secondBlockSize) noexcept -> Block* {
-				OS::AssertMessage(firstBlockSize > Block::GetMetadataSize(), 
+				ASSERT_FMSG(firstBlockSize > Block::GetMetadataSize(), 
 					"Attempt to resize block to not valid size.");
-				OS::AssertMessage(secondBlockSize > Block::GetMetadataSize(),
+				ASSERT_FMSG(secondBlockSize > Block::GetMetadataSize(),
 					"Attempt to reisze block to not valid size.");
-				OS::AssertMessage(block->GetSize() == firstBlockSize + secondBlockSize,
+				ASSERT_FMSG(block->GetSize() == firstBlockSize + secondBlockSize,
 					"Incorrect sizes to separate block.");
-				OS::AssertMessage(IsMemorySizeAligned(firstBlockSize) && IsMemorySizeAligned(secondBlockSize),
+				ASSERT_FMSG(IsMemorySizeAligned(firstBlockSize) && IsMemorySizeAligned(secondBlockSize),
 					"Attempt to separate block to parts with sizes that are not aligned.");
 				block->Resize(firstBlockSize);
-				OS::AssertMessage(block->GetSize() == firstBlockSize,
+				ASSERT_FMSG(block->GetSize() == firstBlockSize,
 					"Size of resized block is not correct.");
 				Common::Byte* secondBlockMemory = reinterpret_cast<Common::Byte*>(block) + block->GetSize();
 				Block* secondBlock = reinterpret_cast<Block*>(secondBlockMemory);
 				Block* createdSecondBlock = Memory::Construct<Block>(secondBlock, secondBlockSize);
-				OS::AssertMessage(createdSecondBlock->GetSize() == secondBlockSize,
+				ASSERT_FMSG(createdSecondBlock->GetSize() == secondBlockSize,
 					"Size of resized block is not valid.");
 
 				return createdSecondBlock;
 				};
 
 			Block* block = maybeBlock.value();
-			OS::AssertMessage(IsMemorySizeAligned(block->GetSize()), "Block size is not aligned.");
-			OS::AssertMessage(IsMemorySizeAligned(block->GetDataSize()), "Block data size is not aligned.");
+			ASSERT_FMSG(IsMemorySizeAligned(block->GetSize()), "Block size is not aligned.");
+			ASSERT_FMSG(IsMemorySizeAligned(block->GetDataSize()), "Block data size is not aligned.");
 			const bool isThereEnoughMemoryForBlockSeparating = 
 				(block->GetDataSize() >= alignedSize) &&
 				(block->GetDataSize() - alignedSize > Block::GetMetadataSize());
@@ -439,7 +439,7 @@ namespace Memory {
 
 		void Deallocate(void* pointer) noexcept {
 			Maybe<Block*> maybeBlock = GetBlockByBlockDataPointer(pointer);
-			OS::AssertMessage(maybeBlock.has_value(), "There is no block with this block data pointer.");
+			ASSERT_FMSG(maybeBlock.has_value(), "There is no block with this block data pointer.");
 			Block* block = maybeBlock.value();
 			block->Deallocate(pointer);
 		}
@@ -448,9 +448,9 @@ namespace Memory {
 
 		//template<class Type, class ...Args>
 		//Type* Construct(void* p, Args&&... args) noexcept {
-		//	OS::AssertMessage(IsBlockDataPointer(p), "Attempt to construct object using incorrect pointer.");
+		//	ASSERT_FMSG(IsBlockDataPointer(p), "Attempt to construct object using incorrect pointer.");
 		//	Maybe<Block*> maybeBlock = GetBlockByBlockDataPointer(p);
-		//	OS::AssertMessage(maybeBlock.has_value(), "There is no block with this block data pointer.");
+		//	ASSERT_FMSG(maybeBlock.has_value(), "There is no block with this block data pointer.");
 		//	Block* block = maybeBlock.value();
 		//	return block->Construct<Type>(std::forward<Args&&>(args)...);
 		//}
@@ -458,9 +458,9 @@ namespace Memory {
 
 		//template<class Type>
 		//void destroy(void* p) {
-		//	OS::AssertMessage(IsBlockDataPointer(p), "Attempt to construct object using incorrect pointer.");
+		//	ASSERT_FMSG(IsBlockDataPointer(p), "Attempt to construct object using incorrect pointer.");
 		//	Maybe<Block*> maybeBlock = GetBlockByBlockDataPointer(p);
-		//	OS::AssertMessage(maybeBlock.has_value(), "There is no block with this block data pointer.");
+		//	ASSERT_FMSG(maybeBlock.has_value(), "There is no block with this block data pointer.");
 		//	Block* block = maybeBlock.value();
 		//	block->Destroy<Type>();
 		//}
@@ -653,12 +653,12 @@ namespace Memory {
 
 			[[nodiscard]]
 			pointer allocate(size_type objectsNumber = 1)noexcept {
-				OS::AssertMessage(objectsNumber != 0, "Attempt to allocate zero objects.");
+				ASSERT_FMSG(objectsNumber != 0, "Attempt to allocate zero objects.");
 				return (pointer)poolAllocator_->Allocate(sizeof(Type) * objectsNumber);
 			}
 
 			void deallocate(pointer pointer, size_type objectsNumber = 1) noexcept {
-				OS::AssertMessage(objectsNumber != 0, "Attempt to deallocate zero objects.");
+				ASSERT_FMSG(objectsNumber != 0, "Attempt to deallocate zero objects.");
 				poolAllocator_->Deallocate(pointer);
 			}
 
@@ -720,7 +720,7 @@ namespace Memory {
 
 	//	BlockAllocator(Common::Byte* memory, Common::Size bytesNumber) noexcept {
 	//		const Common::Size objectsNumber = bytesNumber / Block::GetSize();
-	//		OS::AssertMessage(bytesNumber % Block::GetSize() == 0, "Bytes number doesn't fit to block size.");
+	//		ASSERT_FMSG(bytesNumber % Block::GetSize() == 0, "Bytes number doesn't fit to block size.");
 	//		memory_ = new (memory) Block[objectsNumber];
 	//		size_ = objectsNumber;
 	//		firstFreeBlock_ = memory_;
@@ -740,8 +740,8 @@ namespace Memory {
 	//	[[nodiscard]]
 	//	void* Allocate(Common::Size objectsNumber = 1) {
 
-	//		OS::AssertMessage(objectsNumber != 0, "Attempt to allocate zero objects.");
-	//		OS::AssertMessage(objectsNumber == 1, "Allocate multiple objects is not suported.");
+	//		ASSERT_FMSG(objectsNumber != 0, "Attempt to allocate zero objects.");
+	//		ASSERT_FMSG(objectsNumber == 1, "Allocate multiple objects is not suported.");
 
 	//		if (firstFreeBlock_ == nullptr) {
 	//			throw Exception{};
@@ -763,13 +763,13 @@ namespace Memory {
 	//	}
 
 	//	void Deallocate(void* pointer) noexcept {
-	//		OS::AssertMessage((pointer - memory_) % Block::GetSize() == 0, "Incorrect block pointer for deallocation.");
+	//		ASSERT_FMSG((pointer - memory_) % Block::GetSize() == 0, "Incorrect block pointer for deallocation.");
 	//		[[maybe_unused]]
 	//		bool pointerIsFreeBlock = false;
 	//		ForEachFreeBlock([&pointerIsFreeBlock](Block* block) {
 	//			if (block == pointer) { pointerIsFreeBlock = true; }
 	//			});
-	//		OS::AssertMessage(!pointerIsFreeBlock, "Incorrect pointer to deallocate.");
+	//		ASSERT_FMSG(!pointerIsFreeBlock, "Incorrect pointer to deallocate.");
 	//		Block* block = reinterpret_cast<Block*>(pointer);
 	//		block->SetNext(firstFreeBlock_);
 	//		firstFreeBlock_ = block;

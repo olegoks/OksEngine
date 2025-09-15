@@ -13,7 +13,7 @@ namespace OS {
 			std::lock_guard guard{ mutex };
 			auto this_id = std::this_thread::get_id();
 #pragma region Assert
-				OS::AssertMessage(this_id == ownerThread, "");
+				ASSERT_FMSG(this_id == ownerThread, "");
 #pragma endregion
 			ownerThread = this_id;
 		}

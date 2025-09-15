@@ -242,7 +242,7 @@ namespace ECSGenerator2 {
 
 #pragma region Assert
 
-			OS::AssertMessage(tablesPath.back()->GetName() == parsedFullName.back(), "");
+			ASSERT_FMSG(tablesPath.back()->GetName() == parsedFullName.back(), "");
 #pragma endregion
 
 			if (tablesPath.back()->GetName() == parsedFullName.back()) {
@@ -283,7 +283,7 @@ namespace ECSGenerator2 {
 	ParsedTablesPath GetTablePathByFullName(ParsedECSFilePtr parsedEcsFile, const std::vector<std::string>& path) {
 
 #pragma region Assert
-		OS::AssertMessage(!path.empty(), "");
+		ASSERT_FMSG(!path.empty(), "");
 #pragma endregion
 
 		std::vector<std::string> parentRecursivePath;

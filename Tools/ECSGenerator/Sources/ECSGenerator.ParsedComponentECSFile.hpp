@@ -132,7 +132,7 @@ namespace ECSGenerator {
 			.fields_ = parsedFields
 		};
 		auto parsedComponentFile = std::make_shared<ParsedComponentECSFile>(ci);
-		OS::AssertMessage(std::isupper(parsedComponentFile->GetName()[0]), "First component name symbol must be uppercase.");
+		ASSERT_FMSG(std::isupper(parsedComponentFile->GetName()[0]), "First component name symbol must be uppercase.");
 		return parsedComponentFile;
 	}
 
@@ -290,7 +290,7 @@ namespace ECSGenerator {
 				//					clang::CompilerInstance CI;
 				//					CI.createDiagnostics();
 				//#pragma region Assert
-				//					OS::AssertMessage(CI.hasDiagnostics(), "");
+				//					ASSERT_FMSG(CI.hasDiagnostics(), "");
 				//#pragma endregion
 				//					// ����������� LangOptions (��������� �����)
 				//					clang::LangOptions LO;
@@ -307,17 +307,17 @@ namespace ECSGenerator {
 				//					// ����������� FileManager
 				//					CI.createFileManager();
 				//#pragma region Assert
-				//					OS::AssertMessage(CI.hasFileManager(), "");
+				//					ASSERT_FMSG(CI.hasFileManager(), "");
 				//#pragma endregion
 				//					// ����������� SourceManager
 				//					CI.createSourceManager(CI.getFileManager());
 				//#pragma region Assert
-				//					OS::AssertMessage(CI.hasSourceManager(), "");
+				//					ASSERT_FMSG(CI.hasSourceManager(), "");
 				//#pragma endregion
 				//					// ����������� Preprocessor
 				//					CI.createPreprocessor(clang::TranslationUnitKind::TU_Complete);
 				//#pragma region Assert
-				//					OS::AssertMessage(CI.hasPreprocessor(), "������: �� ������� ������� Preprocessor.");
+				//					ASSERT_FMSG(CI.hasPreprocessor(), "������: �� ������� ������� Preprocessor.");
 				//#pragma endregion
 				//					// ������� ASTContext
 				//					CI.createASTContext();

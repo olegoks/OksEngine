@@ -182,7 +182,7 @@ namespace OksEngine
 		driver->BindPipeline(debugDrawBonesPipeline0->id_);
 		driver->BindVertexBuffer(debugDrawBonesDriverVertexBuffer0->id_, 0);
 #pragma region Assert
-		OS::AssertMessage(debugDrawBonesDriverVertexBuffer0->size_ % 2 == 0, "");
+		ASSERT_FMSG(debugDrawBonesDriverVertexBuffer0->size_ % 2 == 0, "");
 #pragma endregion
 		driver->Bind(debugDrawBonesPipeline0->id_,
 			{

@@ -258,8 +258,8 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(LD_ != nullptr, "Logic device is not initialized.");
-			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkRenderPass.");
+			ASSERT_FMSG(LD_ != nullptr, "Logic device is not initialized.");
+			ASSERT_FMSG(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkRenderPass.");
 			vkDestroyRenderPass(LD_->GetHandle(), GetHandle(), nullptr);
 		}
 
@@ -405,8 +405,8 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(LD_ != nullptr, "Logic device is not initialized.");
-			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkRenderPass.");
+			ASSERT_FMSG(LD_ != nullptr, "Logic device is not initialized.");
+			ASSERT_FMSG(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkRenderPass.");
 			vkDestroyRenderPass(LD_->GetHandle(), GetHandle(), nullptr);
 		}
 

@@ -46,8 +46,8 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(createInfo_.LD_ != nullptr, "Logic device is nullptr.");
-			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkCommandPool.");
+			ASSERT_FMSG(createInfo_.LD_ != nullptr, "Logic device is nullptr.");
+			ASSERT_FMSG(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkCommandPool.");
 			vkDestroyCommandPool(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 			SetHandle(VK_NULL_HANDLE);
 		}

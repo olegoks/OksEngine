@@ -20,6 +20,13 @@ namespace OS {
 
 	}
 
+
+	void AssertMessage(bool expression, const std::string& message, const std::source_location& location) {
+
+		AssertMessage(expression, message.c_str(), location);
+
+	}
+
 	void AssertFailMessage(const char* message, const std::source_location& location) {
 		AssertMessage(false, message, location);
 	}

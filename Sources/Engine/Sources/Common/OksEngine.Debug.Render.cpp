@@ -136,7 +136,7 @@ namespace OksEngine
 		const FT_Error error = FT_Init_FreeType(&ft);
 
 #pragma region Assert
-		OS::AssertMessage(!error, "Error while initting FT_Library.");
+		ASSERT_FMSG(!error, "Error while initting FT_Library.");
 #pragma endregion
 
 		FT_Face face;
@@ -163,7 +163,7 @@ namespace OksEngine
 			const FT_Error error = FT_Load_Char(face, c, FT_LOAD_RENDER);
 
 #pragma region Assert
-			OS::AssertMessage(!error, "");
+			ASSERT_FMSG(!error, "");
 #pragma endregion
 			//Symbol bitmap.
 			FT_Bitmap& bitmap = face->glyph->bitmap;

@@ -12,7 +12,7 @@ namespace PhysX {
 			materialInfo.staticFriction_,
 			materialInfo.dynamicFriction_,
 			materialInfo.restitution_);
-		OS::AssertMessage(material != nullptr, "Error while creating physx material.");
+		ASSERT_FMSG(material != nullptr, "Error while creating physx material.");
 		return material;
 	}
 
@@ -31,7 +31,7 @@ namespace PhysX {
 				createInfo.palCreateInfo_.halfExtentZ_),
 			*material);
 
-		OS::AssertMessage(shape != nullptr,
+		ASSERT_FMSG(shape != nullptr,
 			"Error while creating physx shape.");
 
 		material_ = material;
@@ -52,7 +52,7 @@ namespace PhysX {
 				createInfo.palCreateInfo_.height_),
 			*material);
 
-		OS::AssertMessage(shape != nullptr,
+		ASSERT_FMSG(shape != nullptr,
 			"Error while creating physx shape.");
 
 		material_ = material;
@@ -117,7 +117,7 @@ namespace PhysX {
 		//#ifdef _DEBUG
 		//		// mesh should be validated before cooked without the mesh cleaning
 		//		//bool res = PxValidateTriangleMesh(params, meshDesc);
-		//		//OS::AssertMessage(res, "Attempt to use invalid mesh to create static rigid body.");
+		//		//ASSERT_FMSG(res, "Attempt to use invalid mesh to create static rigid body.");
 		//#endif
 		//		physx::PxDefaultMemoryOutputStream writeBuffer;
 		//		physx::PxTriangleMeshCookingResult::Enum result;
@@ -154,7 +154,7 @@ namespace PhysX {
 		PxConvexMeshGeometry convexGeometry{ convexMesh };
 		physx::PxShape* pxShape = createInfo.physics_->createShape(convexGeometry, *material);
 
-		OS::AssertMessage(pxShape != nullptr,
+		ASSERT_FMSG(pxShape != nullptr,
 			"Error while creating physx shape.");
 
 		//physx::PxShape* shape = createInfo.physics_->createShape(physx::PxBoxGeometry(1, 1, 1), *material);

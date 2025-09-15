@@ -8,7 +8,7 @@ namespace PhysX {
 
 	World::World(const CreateInfo& pxCreateInfo) : PAL::World{ pxCreateInfo.palWorldCreateInfo_ }, physics_{ pxCreateInfo.physics_ }{
 
-		OS::AssertMessage(pxCreateInfo.physics_ != nullptr, "PxPhysics is not initialized.");
+		ASSERT_FMSG(pxCreateInfo.physics_ != nullptr, "PxPhysics is not initialized.");
 
 		physx::PxSceneDesc sceneDescription(pxCreateInfo.physics_->getTolerancesScale());
 		const Math::Vector3f gravity = pxCreateInfo.palWorldCreateInfo_.gravity_;
@@ -52,7 +52,7 @@ namespace PhysX {
 	}
 
 	void World::Simulate(float ms) {
-		OS::AssertMessage(!Math::IsEqual(ms, 0.f), "Invalid simulation time");
+		ASSERT_FMSG(!Math::IsEqual(ms, 0.f), "Invalid simulation time");
 		scene_->simulate(ms);
 		scene_->fetchResults(true);
 	}
@@ -69,7 +69,7 @@ namespace PhysX {
 			0.5,
 			0.5,
 			0.5);
-		OS::AssertMessage(material != nullptr, "Error while creating physx material.");
+		ASSERT_FMSG(material != nullptr, "Error while creating physx material.");
 		PxShape* shape = physics_->createShape(PxBoxGeometry(1, 1, 1), *material);
 		for (PxU32 i = 0; i < 5; i++) {
 			for (PxU32 j = 0; j < 5 - i; j++) {

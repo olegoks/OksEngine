@@ -38,9 +38,9 @@ namespace Render::Vulkan {
 
 		ImageView(const CreateInfo& createInfo) noexcept : createInfo_{ createInfo } {
 		
-			OS::AssertMessage(createInfo.LD_ != nullptr, "");
-			OS::AssertMessage(createInfo.format_ != VK_FORMAT_MAX_ENUM, "");
-			OS::AssertMessage(createInfo.aspectFlags_ != VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM, "Aspect flags were not set for image view.");
+			ASSERT_FMSG(createInfo.LD_ != nullptr, "");
+			ASSERT_FMSG(createInfo.format_ != VK_FORMAT_MAX_ENUM, "");
+			ASSERT_FMSG(createInfo.aspectFlags_ != VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM, "Aspect flags were not set for image view.");
 
 			VkImageViewCreateInfo vkCreateInfo{};
 			{
@@ -67,9 +67,9 @@ namespace Render::Vulkan {
 
 		ImageView(const CreateInfo2& createInfo) noexcept : createInfo_{ 0 } {
 
-			OS::AssertMessage(createInfo.LD_ != nullptr, "");
-			OS::AssertMessage(createInfo.format_ != VK_FORMAT_MAX_ENUM, "");
-			OS::AssertMessage(createInfo.aspectFlags_ != VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM, "Aspect flags were not set for image view.");
+			ASSERT_FMSG(createInfo.LD_ != nullptr, "");
+			ASSERT_FMSG(createInfo.format_ != VK_FORMAT_MAX_ENUM, "");
+			ASSERT_FMSG(createInfo.aspectFlags_ != VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM, "Aspect flags were not set for image view.");
 
 			createInfo_.format_ = createInfo.format_;
 			createInfo_.aspectFlags_ = createInfo.aspectFlags_;
@@ -105,7 +105,7 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(createInfo_.LD_ != nullptr, "Logic device is not set.");
+			ASSERT_FMSG(createInfo_.LD_ != nullptr, "Logic device is not set.");
 			vkDestroyImageView(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 			SetHandle(VK_NULL_HANDLE);
 		}

@@ -32,7 +32,7 @@ namespace ECSGenerator2{
 			{ "ECS2::Entity::Id", Type::ECS_Entity_Id },
 			{ "std::vector<ECS2::Entity::Id>", Type::std_vector_ECS_Entity_Id }
 		};
-		OS::AssertMessage(strToEnum.contains(typeString), "");
+		ASSERT_FMSG(strToEnum.contains(typeString), "");
 		return strToEnum[typeString];
 	}
 
@@ -154,7 +154,7 @@ namespace ECSGenerator2{
 
 		if (resultRange == ResultRange::FromStartFolderToEnd) {
 #pragma region Assert
-			OS::AssertMessage(startFolderIt != path.end(), "");
+			ASSERT_FMSG(startFolderIt != path.end(), "");
 #pragma endregion
 
 			for (auto it = (skipStartFolder) ? (++startFolderIt) : (startFolderIt) ;

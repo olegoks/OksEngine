@@ -23,8 +23,8 @@ namespace Render::Vulkan {
 		explicit DescriptorSetLayout(const CreateInfo& createInfo) :
 			createInfo_{ createInfo } {
 
-			OS::AssertMessage(createInfo.name_ != CreateInfo::defaultDSLName_, "Please, set name to descriptor set layout create info.");
-			OS::AssertMessage(createInfo.LD_ != nullptr, "Please, set Physical Device to descriptor set layout create info.");
+			ASSERT_FMSG(createInfo.name_ != CreateInfo::defaultDSLName_, "Please, set name to descriptor set layout create info.");
+			ASSERT_FMSG(createInfo.LD_ != nullptr, "Please, set Physical Device to descriptor set layout create info.");
 
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			{
@@ -38,7 +38,7 @@ namespace Render::Vulkan {
 			SetHandle(descriptorSetLayout);
 		}
 		~DescriptorSetLayout() {
-			OS::AssertMessage(!IsNullHandle(), "Attempt to delete null DSL.");
+			ASSERT_FMSG(!IsNullHandle(), "Attempt to delete null DSL.");
 			vkDestroyDescriptorSetLayout(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);
 		}
 

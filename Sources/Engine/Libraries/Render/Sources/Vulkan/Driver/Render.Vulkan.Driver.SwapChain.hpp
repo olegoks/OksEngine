@@ -44,7 +44,7 @@ namespace Render::Vulkan {
 			createInfo_{ createInfo },
 			imagesNumber_{ CalculateImagesNumber(createInfo.capabilities_) } {
 
-			OS::AssertMessage(createInfo.imageSize_.length() != 0, "Please, set correct swap chain images size.");
+			ASSERT_FMSG(createInfo.imageSize_.length() != 0, "Please, set correct swap chain images size.");
 
 			VkSwapchainCreateInfoKHR swapChainCreateInfo{};
 			{
@@ -128,7 +128,7 @@ namespace Render::Vulkan {
 
 		[[nodiscard]]
 		uint32_t GetImagesNumber() const noexcept {
-			OS::AssertMessage(imagesNumber_ != 0, "Image count can't be zero.");
+			ASSERT_FMSG(imagesNumber_ != 0, "Image count can't be zero.");
 			return imagesNumber_;
 		}
 

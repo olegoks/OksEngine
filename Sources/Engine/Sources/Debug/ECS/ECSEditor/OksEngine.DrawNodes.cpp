@@ -24,7 +24,7 @@ namespace OksEngine {
 		ImGui::Text(name0->value_.c_str());
 
 #pragma region Assert
-		OS::AssertMessage(entity0id < Common::Limits<int>::Max(), "");
+		ASSERT_FMSG(entity0id < Common::Limits<int>::Max(), "");
 #pragma endregion
 
 		const int intEntityId = static_cast<int>(entity0id);
@@ -33,7 +33,7 @@ namespace OksEngine {
 		if (IsComponentExist<BeforePin>(entity0id)) {
 			const ECS2::Entity::Id beforePinEntityId = GetComponent<BeforePin>(entity0id)->id_;
 #pragma region Assert
-			OS::AssertMessage(beforePinEntityId != ECS2::Entity::Id::invalid_, "");
+			ASSERT_FMSG(beforePinEntityId != ECS2::Entity::Id::invalid_, "");
 #pragma endregion
 			ax::NodeEditor::BeginPin(static_cast<int>(beforePinEntityId), ax::NodeEditor::PinKind::Input);
 			ImGui::Text("Before");
@@ -45,7 +45,7 @@ namespace OksEngine {
 		if (IsComponentExist<AfterPin>(entity0id)) {
 			const ECS2::Entity::Id afterPinEntityId = GetComponent<AfterPin>(entity0id)->id_;
 #pragma region Assert
-			OS::AssertMessage(afterPinEntityId != ECS2::Entity::Id::invalid_, "");
+			ASSERT_FMSG(afterPinEntityId != ECS2::Entity::Id::invalid_, "");
 #pragma endregion
 			ax::NodeEditor::BeginPin(static_cast<int>(afterPinEntityId), ax::NodeEditor::PinKind::Output);
 			ImGui::Text("After");

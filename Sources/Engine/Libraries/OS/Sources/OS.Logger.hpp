@@ -48,6 +48,7 @@ namespace OS {
 		};
 
 		Logger(CreateInfo& createInfo) {
+			Common::DiscardUnusedParameter(createInfo);
 			//loguru::init(createInfo.argc_, createInfo.argv_);
 			//loguru::add_file("auto_engine.log", loguru::Append, loguru::Verbosity_MAX);
 		}
@@ -56,6 +57,7 @@ namespace OS {
 			Common::DiscardUnusedParameter(severity);
 			Common::DiscardUnusedParameter(path);
 			Common::DiscardUnusedParameter(location);
+			Common::DiscardUnusedParameter(format);
 			using namespace std::string_literals;
 			//LOG_F(INFO, ("Location: "s + location.file_name() + " " + static_cast<std::string>(format)).c_str());
 		}
@@ -131,7 +133,7 @@ namespace OS {
 
 		//	Entry(Severity severity, const std::string_view path, const Common::Format& format, const std::source_location& location) {
 
-		//		OS::AssertMessage(!path.empty(), "Attempt to use empty log path.");
+		//		ASSERT_FMSG(!path.empty(), "Attempt to use empty log path.");
 
 		//		columns_.emplace_back(Column{ 10, severity });
 		//		columns_.emplace_back(Column{ 30, path.data() });

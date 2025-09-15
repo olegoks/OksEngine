@@ -26,7 +26,7 @@ namespace Render::Vulkan {
 			VkFence fence = VK_NULL_HANDLE;
 			[[maybe_unused]]
 			const VkResult result = vkCreateFence(createInfo.LD_->GetHandle(), &fenceInfo, nullptr, &fence);
-			OS::AssertMessage(result == VK_SUCCESS, "Error while creating fence.");
+			ASSERT_FMSG(result == VK_SUCCESS, "Error while creating fence.");
 			SetNative(fence);
 		}
 
@@ -58,13 +58,13 @@ namespace Render::Vulkan {
 		void Wait() noexcept {
 			[[maybe_unused]]
 			const VkResult result = vkWaitForFences(LD_->GetHandle(), 1, &GetNative(), VK_TRUE, UINT64_MAX);
-			OS::AssertMessage(result == VK_SUCCESS, "Errow while waitting fence.");
+			ASSERT_FMSG(result == VK_SUCCESS, "Errow while waitting fence.");
 		}
 
 		void Reset() noexcept {
 			[[maybe_unused]]
 			const VkResult result = vkResetFences(LD_->GetHandle(), 1, &GetNative());
-			OS::AssertMessage(result == VK_SUCCESS, "Error while resetting fence.");
+			ASSERT_FMSG(result == VK_SUCCESS, "Error while resetting fence.");
 		}
 
 		[[nodiscard]]
@@ -83,7 +83,7 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			OS::AssertMessage(GetNative() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkFence.");
+			ASSERT_FMSG(GetNative() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkFence.");
 			OS::Assert(LD_ != nullptr);
 			vkDestroyFence(LD_->GetHandle(), fence_, nullptr);
 			SetNative(VK_NULL_HANDLE);

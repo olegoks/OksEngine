@@ -56,10 +56,10 @@ namespace Render::Vulkan {
 	std::pair<QueueFamily, QueueFamily> Driver::ChooseQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
 		const QueueFamilies graphicsQueueFamilies = physicalDevice->GetGraphicsQueueFamilies();
-		OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any graphics queue family.");
+		ASSERT_FMSG(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any graphics queue family.");
 
 		const QueueFamilies presentQueueFamilies = GetPresentQueueFamilies(physicalDevice, windowSurface);
-		OS::AssertMessage(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any present queue family.");
+		ASSERT_FMSG(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any present queue family.");
 
 		for (const QueueFamily& graphicsQueueFamily : graphicsQueueFamilies) {
 			for (const QueueFamily& presentQueueFamily : presentQueueFamilies) {
@@ -155,7 +155,7 @@ namespace Render::Vulkan {
 			}
 		}
 
-		OS::AssertFailMessage("Failed to find a suitable GPU!");
+		ASSERT_FAIL_MSG("Failed to find a suitable GPU!");
 		return nullptr;
 	}
 	

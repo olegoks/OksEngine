@@ -381,7 +381,7 @@ namespace ECSGenerator {
 	//		Code getComponentCode;
 	//		{
 	//			if (!systemEcsFile->ci_.accessEntityComponents_.empty()) {
-	//				getComponentCode.Add("OS::AssertMessage(");
+	//				getComponentCode.Add("ASSERT_FMSG(");
 	//				systemEcsFile->ForEachAccessComponent(
 	//					[&](const std::string& systemName, bool isLast) {
 	//						getComponentCode.Add(std::format("{} == Component::GetName()", "\"" + systemName + "\""));
@@ -710,7 +710,7 @@ namespace ECSGenerator {
 	//			//					clang::CompilerInstance CI;
 	//			//					CI.createDiagnostics();
 	//			//#pragma region Assert
-	//			//					OS::AssertMessage(CI.hasDiagnostics(), "");
+	//			//					ASSERT_FMSG(CI.hasDiagnostics(), "");
 	//			//#pragma endregion
 	//			//					// ����������� LangOptions (��������� �����)
 	//			//					clang::LangOptions LO;
@@ -727,17 +727,17 @@ namespace ECSGenerator {
 	//			//					// ����������� FileManager
 	//			//					CI.createFileManager();
 	//			//#pragma region Assert
-	//			//					OS::AssertMessage(CI.hasFileManager(), "");
+	//			//					ASSERT_FMSG(CI.hasFileManager(), "");
 	//			//#pragma endregion
 	//			//					// ����������� SourceManager
 	//			//					CI.createSourceManager(CI.getFileManager());
 	//			//#pragma region Assert
-	//			//					OS::AssertMessage(CI.hasSourceManager(), "");
+	//			//					ASSERT_FMSG(CI.hasSourceManager(), "");
 	//			//#pragma endregion
 	//			//					// ����������� Preprocessor
 	//			//					CI.createPreprocessor(clang::TranslationUnitKind::TU_Complete);
 	//			//#pragma region Assert
-	//			//					OS::AssertMessage(CI.hasPreprocessor(), "������: �� ������� ������� Preprocessor.");
+	//			//					ASSERT_FMSG(CI.hasPreprocessor(), "������: �� ������� ������� Preprocessor.");
 	//			//#pragma endregion
 	//			//					// ������� ASTContext
 	//			//					CI.createASTContext();

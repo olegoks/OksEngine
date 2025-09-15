@@ -59,7 +59,7 @@ namespace Memory {
 			Tag(const char* tag) noexcept : 
 				tag_{ tag },
 				hash_{ Hash()(*this) } {
-				OS::AssertMessage(IsValidTagString(tag),
+				ASSERT_FMSG(IsValidTagString(tag),
 					"Attempt to use invalid tag string.");
 			}
 

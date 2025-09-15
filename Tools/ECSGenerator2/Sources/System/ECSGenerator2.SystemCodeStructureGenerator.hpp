@@ -125,7 +125,7 @@ namespace ECSGenerator2 {
 
 #pragma region Assert
 			
-			OS::AssertMessage(!requiredComponentNames.contains(nullptr), "");
+			ASSERT_FMSG(!requiredComponentNames.contains(nullptr), "");
 #pragma endregion
 
 
@@ -312,7 +312,8 @@ namespace ECSGenerator2 {
 						//Add Assert.
 						getComponentCode.Add("if constexpr (Common::IsDebug()) {");
 						{
-							getComponentCode.Add("OS::AssertMessage(");
+							getComponentCode.Add("ASSERT_FMSG(");
+							getComponentCode.Add("(");
 							systemEcsFile->ci_.updateMethod_->ForEachRandomAccessComponent(
 								[&](const std::string& componentName, bool isLast) {
 									getComponentCode.Add(std::format("std::is_same_v<Component, {}>", componentName));
@@ -321,10 +322,11 @@ namespace ECSGenerator2 {
 									}
 									return true;
 								});
+							getComponentCode.Add(")");
 							getComponentCode.Add(
-								",std::format(\"Attempt to access component{} that system("
+								", \"Attempt to access component{} that system("
 								+ systemEcsFile->GetName() +
-								") can't access. Added access entities description to .ecs file that corresponds to system\", Component::GetName()));"
+								") can't access. Added access entities description to .ecs file that corresponds to system\", Component::GetName());"
 							);
 						}
 						getComponentCode.Add("}");
@@ -384,12 +386,12 @@ namespace ECSGenerator2 {
 						//Add Assert.
 						removeComponentRealization.Add("if constexpr (Common::IsDebug()) {");
 						{
-							removeComponentRealization.Add("OS::AssertMessage(");
-							removeComponentRealization.Add(expression);
+							removeComponentRealization.Add("ASSERT_FMSG(");
+							removeComponentRealization.Add("(" + expression.code_ + ")");
 							removeComponentRealization.Add(
-								",std::format(\"Attempt to remove component{} that system("
+								",\"Attempt to remove component{} that system("
 								+ systemEcsFile->GetName() +
-								") can't remove. Added access entities description to .ecs file that corresponds to system\", Component::GetName()));"
+								") can't remove. Added access entities description to .ecs file that corresponds to system\", Component::GetName());"
 							);
 						}
 						removeComponentRealization.Add("}");

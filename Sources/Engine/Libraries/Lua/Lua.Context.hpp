@@ -2,6 +2,7 @@
 
 #include <concepts>
 #include <map>
+#include <string>
 #include <filesystem>
 #include <Lua.Common.hpp>
 #include <Common.Identifier.hpp>
@@ -14,9 +15,9 @@ namespace Lua {
 	public:
 		using Id = Common::Id;
 		
-		Script(const std::string& text);
+		Script(const ::std::string& text);
 		
-		std::string text_;
+		::std::string text_;
 	};
 
 
@@ -26,7 +27,7 @@ namespace Lua {
 
 		Context() {
 			state_ = luaL_newstate();
-			OS::AssertMessage(state_ != nullptr, "Error while creating Lua context.");
+			ASSERT_FMSG(state_ != nullptr, "Error while creating Lua context.");
 			luaL_openlibs(state_);
 		}
 
@@ -39,7 +40,7 @@ namespace Lua {
 				return *this;
 			}
 
-			OS::AssertMessage(state_ != nullptr, 
+			ASSERT_FMSG(state_ != nullptr, 
 				"Lua state must be not nullptr");
 			lua_close(state_);
 			state_ = nullptr;
@@ -49,20 +50,20 @@ namespace Lua {
 		}
 
 		void LoadScript(const Script& script) {
-			OS::AssertMessage(state_ != nullptr, "");
+			ASSERT_FMSG(state_ != nullptr, "");
 			if(!LuaCall(luaL_dostring(state_, script.text_.c_str()))){
-				OS::AssertFailMessage("Error while loading config script.");
+				ASSERT_FAIL_MSG("Error while loading config script.");
 			}
 		}
 
-		void ExecuteCode(const std::string& code) {
+		void ExecuteCode(const ::std::string& code) {
 			if (!LuaCall(luaL_dostring(state_, code.c_str()))) {
-				OS::AssertFailMessage({ "Error while executing code {}", code });
+				ASSERT_FAIL_FMSG("Error while executing code {}", code);
 			}
 		}
 
 		template<class ...Args>
-		void CallFunction(const std::string& functionName, Args&&... args) {
+		void CallFunction(const ::std::string& functionName, Args&&... args) {
 			luabridge::LuaRef function = luabridge::getGlobal(state_, functionName.c_str());
 			function(std::forward(args)...);
 		}
@@ -81,29 +82,29 @@ namespace Lua {
 
 		template<>
 		[[nodiscard]]
-		bool IsTopStackValue<std::string>() const noexcept {
-			OS::AssertMessage(state_ != nullptr, "State must be not nullptr.");
+		bool IsTopStackValue<::std::string>() const noexcept {
+			ASSERT_FMSG(state_ != nullptr, "State must be not nullptr.");
 			return lua_isstring(state_, -1);
 		}
 
 		[[nodiscard]]
 		bool IsTopStackValueUserData() const noexcept {
-			OS::AssertMessage(state_ != nullptr, "State must be not nullptr.");
+			ASSERT_FMSG(state_ != nullptr, "State must be not nullptr.");
 			return lua_isuserdata(state_, -1);
 		}
 
 		template<class Type>
-		requires std::integral<Type>
+		requires ::std::integral<Type>
 		[[nodiscard]]
 		bool IsTopStackValue() const noexcept {
-			OS::AssertMessage(state_ != nullptr, "State must be not nullptr.");
+			ASSERT_FMSG(state_ != nullptr, "State must be not nullptr.");
 			return lua_isnumber(state_, -1);
 		}
 
 		template<>
 		[[nodiscard]]
 		bool IsTopStackValue<bool>() const noexcept {
-			OS::AssertMessage(state_ != nullptr, "State must be not nullptr.");
+			ASSERT_FMSG(state_ != nullptr, "State must be not nullptr.");
 			return lua_istable(state_, -1);
 		}
 
@@ -121,7 +122,7 @@ namespace Lua {
 
 		template<>
 		[[nodiscard]]
-		std::string ConvertStackTopValueTo<std::string>() const noexcept {
+		::std::string ConvertStackTopValueTo<::std::string>() const noexcept {
 			return lua_tostring(state_, -1);
 		}
 
@@ -139,11 +140,11 @@ namespace Lua {
 			/* Assign the Lua expression to a Lua global variable. */
 			sprintf(saveVariableScript, "variable=%s", variableName);
 			if(!LuaCall(luaL_dostring(state_, saveVariableScript))) {
-				OS::AssertFailMessage({ "Attempt to get global value with name %s that is not correct.", variableName });
+				ASSERT_FAIL_FMSG("Attempt to get global value with name %s that is not correct.", variableName);
 			}
 			[[maybe_unused]]
 			const int valueType = lua_getglobal(state_, "variable");
-			OS::AssertMessage(IsTopStackValue<Type>(),
+			ASSERT_FMSG(IsTopStackValue<Type>(),
 				"Attempt to get lua value with incorrect type conversation.");
 
 			const Type configVariable = ConvertStackTopValueTo<Type>();
@@ -184,7 +185,7 @@ namespace Lua {
 		}
 
 	//private:
-		lua_State* state_ = nullptr;
+		::lua_State* state_ = nullptr;
 	};
 
 }

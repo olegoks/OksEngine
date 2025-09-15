@@ -102,7 +102,7 @@ namespace Geometry {
 
 	//	tinyobj::ObjReader objReader;
 	//	objReader.ParseFromString(obj, mtl);
-	//	OS::AssertMessage(objReader.Valid(),
+	//	ASSERT_FMSG(objReader.Valid(),
 	//		"Attempt to use incorrect .obj/mtl model file.");
 	//	const auto& attributes = objReader.GetAttrib();
 	//	auto shapes = objReader.GetShapes();
@@ -142,7 +142,7 @@ namespace Geometry {
 	//		Shape shape{ vertices, normals, colors, indices };
 	//		model.AddShape(shape);
 	//	}
-	//	OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
+	//	ASSERT_FMSG(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
 	//	return model;
 	//}
 
@@ -150,7 +150,7 @@ namespace Geometry {
 
 	//	tinyobj::ObjReader objReader;
 	//	objReader.ParseFromString(obj, mtl);
-	//	OS::AssertMessage(objReader.Valid(),
+	//	ASSERT_FMSG(objReader.Valid(),
 	//		"Attempt to use incorrect .obj/mtl model file.");
 	//	const auto& attributes = objReader.GetAttrib();
 	//	auto shapes = objReader.GetShapes();
@@ -190,7 +190,7 @@ namespace Geometry {
 	//	//    Shape shape{ vertices, normals, uvs_, indices,  textureObject };
 	//	//    model.AddShape(shape);
 	//	//}
-	//	//OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
+	//	//ASSERT_FMSG(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
 	//	return model;
 	//}
 
@@ -199,7 +199,7 @@ namespace Geometry {
 	//	tinyobj::ObjReader objReader;
 	//	objReader.ParseFromString(obj, "");
 
-	//	OS::AssertMessage(objReader.Valid(),
+	//	ASSERT_FMSG(objReader.Valid(),
 	//		"Attempt to use incorrect .obj/mtl model file.");
 
 	//	const auto& attributes = objReader.GetAttrib();
@@ -249,9 +249,9 @@ namespace Geometry {
 	//		//Shape shape{ vertices, indices ,""};
 	//	   // model.AddShape(shape);
 	//	}
-	//	OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
+	//	ASSERT_FMSG(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
 
-	//	OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
+	//	ASSERT_FMSG(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
 	//	return model;
 	//}
 
@@ -261,7 +261,7 @@ namespace Geometry {
 	//    tinyobj::ObjReader objReader;
 	//    objReader.ParseFromString(obj, mtl);
 
-	//    OS::AssertMessage(objReader.Valid(),
+	//    ASSERT_FMSG(objReader.Valid(),
 	//        "Attempt to use incorrect .obj/mtl model file.");
 
 	//    const auto& attributes = objReader.GetAttrib();
@@ -333,7 +333,7 @@ namespace Geometry {
 	//        //model.AddShape(shape);
 	//    }
 
-	//    OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
+	//    ASSERT_FMSG(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
 	//    return model;
 	//}
 
@@ -343,7 +343,7 @@ namespace Geometry {
 	//	tinyobj::ObjReader objReader;
 	//	objReader.ParseFromString(obj, mtl);
 
-	//	OS::AssertMessage(objReader.Valid(),
+	//	ASSERT_FMSG(objReader.Valid(),
 	//		"Attempt to use incorrect .obj/mtl model file.");
 
 	//	const auto& attributes = objReader.GetAttrib();
@@ -415,7 +415,7 @@ namespace Geometry {
 	//		//model.AddShape(shape);
 	//	}
 
-	//	OS::AssertMessage(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
+	//	ASSERT_FMSG(model.GetShapesNumber() > 0, "Attempt to parse .obj file with no geometry.");
 	//	return model;
 	//}
 
@@ -441,7 +441,7 @@ namespace Geometry {
 	//		aiProcess_JoinIdenticalVertices |
 	//		aiProcess_SortByPType, "fbx");
 
-	//	OS::AssertMessage(
+	//	ASSERT_FMSG(
 	//		scene != nullptr,
 	//		importer.GetErrorString());
 
@@ -588,7 +588,7 @@ namespace Geometry {
 			aiProcess_FlipUVs |
 			aiProcess_SortByPType);
 
-		OS::AssertMessage(
+		ASSERT_FMSG(
 			scene != nullptr,
 			importer.GetErrorString());
 
@@ -619,7 +619,7 @@ namespace Geometry {
 			};
 
 		//if (scene->HasAnimations()) {
-		//	//OS::AssertMessage(scene->mNumAnimations <= 1, "More than one animation is not supported.");
+		//	//ASSERT_FMSG(scene->mNumAnimations <= 1, "More than one animation is not supported.");
 		//	for (unsigned int i = 0; i < scene->mNumAnimations; i++) {
 
 		//	}
@@ -636,7 +636,7 @@ namespace Geometry {
 			const auto materialPtr = scene->mMaterials[aimesh->mMaterialIndex];
 
 			const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
-			OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
+			ASSERT_FMSG(texturesNumber <= 1, "Mesh has more than 1 texture.");
 
 
 			//Process mesh only with texture.
@@ -644,7 +644,7 @@ namespace Geometry {
 
 			aiString aiTexturePath;
 			const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
-			OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
+			ASSERT_FMSG(result == AI_SUCCESS, "Error while getting texture.");
 			std::string textureName = aiTexturePath.C_Str();
 			const Common::Index slashIndex = textureName.rfind('\\');
 			if (slashIndex != -1) {
@@ -706,7 +706,7 @@ namespace Geometry {
 		//	aiProcess_FlipUVs |
 		//	aiProcess_SortByPType);
 
-		//OS::AssertMessage(
+		//ASSERT_FMSG(
 		//	scene != nullptr,
 		//	importer.GetErrorString());
 
@@ -720,14 +720,14 @@ namespace Geometry {
 		//	const auto materialPtr = scene->mMaterials[aimesh->mMaterialIndex];
 
 		//	const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
-		//	OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
+		//	ASSERT_FMSG(texturesNumber <= 1, "Mesh has more than 1 texture.");
 
 		//	//Process mesh only with texture.
 		//	if (texturesNumber != 1) continue;
 
 		//	aiString aiTexturePath;
 		//	const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
-		//	OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
+		//	ASSERT_FMSG(result == AI_SUCCESS, "Error while getting texture.");
 		//	const std::string textureName = aiTexturePath.C_Str();
 
 		//	//Found mesh with the same texture name.
@@ -792,7 +792,7 @@ namespace Geometry {
 		//	aiProcess_JoinIdenticalVertices |
 		//	aiProcess_SortByPType);
 
-		//OS::AssertMessage(
+		//ASSERT_FMSG(
 		//	scene != nullptr,
 		//	importer.GetErrorString());
 
@@ -805,12 +805,12 @@ namespace Geometry {
 		//	const auto materialPtr = scene->mMaterials[mesh->mMaterialIndex];
 
 		//	const int texturesNumber = materialPtr->GetTextureCount(aiTextureType_DIFFUSE);
-		//	OS::AssertMessage(texturesNumber <= 1, "Mesh has more than 1 texture.");
+		//	ASSERT_FMSG(texturesNumber <= 1, "Mesh has more than 1 texture.");
 		//	Geom::Mesh geomMesh;
 		//	if (texturesNumber == 1) {
 		//		aiString aiTexturePath;
 		//		const aiReturn result = materialPtr->GetTexture(aiTextureType_DIFFUSE, 0, &aiTexturePath);
-		//		OS::AssertMessage(result == AI_SUCCESS, "Error while getting texture.");
+		//		ASSERT_FMSG(result == AI_SUCCESS, "Error while getting texture.");
 		//		const std::string textureFileName = aiTexturePath.C_Str();
 		//		geomMesh.textureName_ = textureFileName;
 		//	}

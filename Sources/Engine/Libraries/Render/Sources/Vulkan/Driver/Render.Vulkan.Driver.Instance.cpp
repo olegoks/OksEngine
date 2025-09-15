@@ -16,7 +16,7 @@ namespace Render::Vulkan {
 		{
 			OS::LogInfo("/render/vulkan/driver", "Checking are required extensions enabled.");
 			for (const Extension& requiredExtension : info.requiredExtensions_) {
-				OS::AssertMessage(enabledExtensions.Contains(requiredExtension), { "Required extension %s is not enabled.", requiredExtension.GetRawName() });
+				ASSERT_FMSG(enabledExtensions.Contains(requiredExtension), "Required extension %s is not enabled.", requiredExtension.GetRawName());
 			}
 			OS::LogInfo("/render/vulkan/driver", "All required extensions are enabled.");
 		}
@@ -90,7 +90,7 @@ namespace Render::Vulkan {
 	}
 
 	void Instance::Destroy() noexcept {
-		OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkInstance.");
+		ASSERT_FMSG(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkInstance.");
 		vkDestroyInstance(GetHandle(), nullptr);
 		SetHandle(VK_NULL_HANDLE);
 		OS::LogError("/render/vulkan/driver", "Instance destroyed successfuly.");

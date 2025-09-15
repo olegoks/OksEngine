@@ -10,9 +10,9 @@ namespace Memory {
 		}
 		else {
 			const Common::Size remainder = memorySize % 8;
-			OS::AssertMessage(remainder != 0, "Remainder can't be zero.");
+			ASSERT_MSG(remainder != 0, "Remainder can't be zero.");
 			const Common::Size memorySizeWithAlignment = (memorySize - remainder + 8);
-			OS::AssertMessage(IsMemorySizeAligned(memorySizeWithAlignment), "Aligned memory is not aligned.");
+			ASSERT_MSG(IsMemorySizeAligned(memorySizeWithAlignment), "Aligned memory is not aligned.");
 			return memorySizeWithAlignment;
 		}
 

@@ -22,7 +22,7 @@ namespace OS
 		std::vector<std::string_view> GetValue(const std::string_view valueName) const noexcept {
 
 #pragma region Assert
-			OS::AssertMessage(valueName.starts_with('-'), "");
+			ASSERT_FMSG(valueName.starts_with('-'), "");
 #pragma endregion
 
 			std::vector<std::string_view> values;

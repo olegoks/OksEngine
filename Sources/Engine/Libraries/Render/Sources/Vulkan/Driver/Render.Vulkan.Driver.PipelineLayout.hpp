@@ -46,7 +46,7 @@ namespace Render::Vulkan {
 		}
 
 		~PipelineLayout() {
-			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkPipelineLayout.");
+			ASSERT_FMSG(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkPipelineLayout.");
 			vkDestroyPipelineLayout(*createInfo_.LD_, GetHandle(), nullptr);
 			SetHandle(VK_NULL_HANDLE);
 		}

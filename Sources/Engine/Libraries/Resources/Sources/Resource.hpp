@@ -169,7 +169,7 @@ namespace Resources {
 
 		Resources::ResourceData ForceGetResourceData(std::filesystem::path OSResourcePath) {
 			Resources::Resource forceResource = ForceGetResource(OSResourcePath);
-			//OS::AssertMessage(forceResource.IsLoaded(), "Resource must be loaded at the moment.");
+			//ASSERT_FMSG(forceResource.IsLoaded(), "Resource must be loaded at the moment.");
 			auto file = std::dynamic_pointer_cast<OS::BinaryFile>(forceResource.GetFile());
 			return { file->GetData(), file->GetSize() };
 		}
@@ -224,7 +224,7 @@ namespace Resources {
 		}
 
 		void LoadResource(std::filesystem::path resourcePath) {
-			//OS::AssertMessage(IsNodeExist(resourcePath), "Resource node that required doesn't exist.");
+			//ASSERT_FMSG(IsNodeExist(resourcePath), "Resource node that required doesn't exist.");
 			const Graph::Node::Id nodeId = GetNodeId(resourcePath);
 			LoadResource(nodeId);
 		}
@@ -235,15 +235,15 @@ namespace Resources {
 		}
 
 		bool IsResourceExist(std::filesystem::path resourcePath) {
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				(*resourcePath.begin()).string() == rootName_,
 				"Attempt to use incorrect resource path.");
 
 			Graph::Node::Id currentNodeId = rootNodeId_;
 			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				currentNode.GetValue().GetName() == rootName_,
-				{ "Root note must have name \"%s\"", rootName_ }
+				"Root note must have name \"%s\"", rootName_
 			);
 			for (const std::filesystem::path path : resourcePath) {
 				const std::string resourceName = path.string();
@@ -270,9 +270,9 @@ namespace Resources {
 		bool IsResourceExist(const std::string& resourceName) {
 			Graph::Node::Id currentNodeId = rootNodeId_;
 			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				currentNode.GetValue().GetName() == rootName_,
-				{ "Root note must have name \"%s\"", rootName_ }
+				"Root note must have name \"%s\"", rootName_
 			);
 
 			bool isExist = false;
@@ -417,9 +417,9 @@ namespace Resources {
 		ResourceInfo& GetResourceInfo(const std::string& resourceName) {
 			Graph::Node::Id currentNodeId = rootNodeId_;
 			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				currentNode.GetValue().GetName() == rootName_,
-				{ "Root note must have name \"%s\"", rootName_ }
+				"Root note must have name \"%s\"", rootName_
 			);
 
 			Graph::NodeId foundNodeId = Graph::Node::invalidId_;
@@ -435,10 +435,10 @@ namespace Resources {
 				});
 
 #pragma region Assert
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				foundNodeId != Graph::Node::invalidId_,
-				std::format("There is not resource with such resource name:{}.",
-					resourceName));
+				"There is not resource with such resource name:{}.",
+					resourceName);
 #pragma endregion
 			
 			Graph::Node& node = graph_.GetNode(foundNodeId);
@@ -448,15 +448,15 @@ namespace Resources {
 	public:
 		[[nodiscard]]
 		bool IsNodeExist(std::filesystem::path nodePath) {
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				(*nodePath.begin()).string() == rootName_,
 				"Attempt to use incorrect resource path.");
 
 			Graph::Node::Id currentNodeId = rootNodeId_;
 			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				currentNode.GetValue().GetName() == rootName_,
-				{ "Root note must have name \"%s\"", rootName_ }
+				"Root note must have name \"%s\"", rootName_
 			);
 			for (const std::filesystem::path path : nodePath) {
 				const std::string resourceName = path.string();
@@ -478,10 +478,10 @@ namespace Resources {
 
 			[[maybe_unused]]
 			std::string findResourceName = (*(--nodePath.end())).string();
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				GetResourceInfo(currentNodeId).GetName() == findResourceName,
-				{ "Attempt to find node with path that doesn't exist.\n"
-					"Incorrect path:\n%s", nodePath.string().c_str() });
+				"Attempt to find node with path that doesn't exist.\n"
+					"Incorrect path:\n{}", nodePath.string().c_str());
 			return true;
 		}
 
@@ -489,15 +489,15 @@ namespace Resources {
 
 		[[nodiscard]]
 		Graph::Node::Id GetNodeId(std::filesystem::path nodePath) {
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				(*nodePath.begin()).string() == rootName_,
 				"Attempt to use incorrect resource path.");
 
 			Graph::Node::Id currentNodeId = rootNodeId_;
 			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				currentNode.GetValue().GetName() == rootName_,
-				{ "Root note must have name \"%s\"", rootName_ }
+				"Root note must have name \"%s\"", rootName_
 			);
 			for (const std::filesystem::path path : nodePath) {
 				const std::string resourceName = path.string();
@@ -513,17 +513,17 @@ namespace Resources {
 						}
 						return true;
 						});
-					OS::AssertMessage(found,
+					ASSERT_FMSG(found,
 						"Attempt to use incorrect resource path.");
 				}
 			}
 
 			[[maybe_unused]]
 			std::string findResourceName = (*(--nodePath.end())).string();
-			OS::AssertMessage(
+			ASSERT_FMSG(
 				GetResourceInfo(currentNodeId).GetName() == findResourceName,
-				{ "Attempt to find node with path that doesn't exist.\n"
-					"Incorrect path:\n%s", nodePath.string().c_str() });
+				"Attempt to find node with path that doesn't exist.\n"
+					"Incorrect path:\n%s", nodePath.string().c_str());
 			return currentNodeId;
 		}
 

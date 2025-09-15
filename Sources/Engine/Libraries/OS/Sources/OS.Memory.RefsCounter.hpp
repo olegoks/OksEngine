@@ -26,7 +26,7 @@ namespace Memory {
 		}
 
 		void Remove() noexcept { 
-			OS::AssertMessage(GetValue() != 0, "Attempt to remove reference when value of counter is zero.");
+			ASSERT_FMSG(GetValue() != 0, "Attempt to remove reference when value of counter is zero.");
 			--counter_;
 			if (GetValue() == 0) {
 				noRefsCallback_();

@@ -21,7 +21,7 @@ namespace Render::Vulkan {
 			features_{ GetFeatures() }
 		{
 
-			OS::AssertMessage(GetHandle() != VK_NULL_HANDLE,
+			ASSERT_FMSG(GetHandle() != VK_NULL_HANDLE,
 				"Attempt to create PhysicalDevice using VK_NULL_HANDLE VkPhysicalDevice.");
 
 		}
@@ -74,7 +74,7 @@ namespace Render::Vulkan {
 					return i;
 				}
 			}
-			OS::AssertFailMessage("Suitable device memory was not found.");
+			ASSERT_FAIL_MSG("Suitable device memory was not found.");
 			return Common::Limits<uint32_t>::Max();
 		}
 

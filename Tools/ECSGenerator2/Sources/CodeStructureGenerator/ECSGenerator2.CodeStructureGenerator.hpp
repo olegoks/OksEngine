@@ -719,7 +719,7 @@ namespace ECSGenerator2 {
 			//	code.Add(
 			//		"auto getNewId = [&](ECS2::Entity::Id oldId) {"
 			//		"	#pragma region Assert\n"
-			//		"	OS::AssertMessage(oldToNewId.contains(oldId),\n"
+			//		"	ASSERT_FMSG(oldToNewId.contains(oldId),\n"
 			//		"	std::format(\"Invalid scene file. Can not define all entities ids: {}.\", static_cast<Common::Index>(oldId)));\n"
 			//		"	#pragma endregion\n"
 			//		"	return oldToNewId.at(oldId);\n"
@@ -768,7 +768,7 @@ namespace ECSGenerator2 {
 			code.Add(
 				"auto getNewId = [&](ECS2::Entity::Id oldId) {"
 				"	#pragma region Assert\n"
-				"	OS::AssertMessage(oldToNewId.contains(oldId),\n"
+				"	ASSERT_FMSG(oldToNewId.contains(oldId),\n"
 				"	std::format(\"Invalid scene file. Can not define all entities ids: {}.\", static_cast<Common::Index>(oldId)));\n"
 				"	#pragma endregion\n"
 				"	return oldToNewId.at(oldId);\n"
@@ -1532,14 +1532,14 @@ namespace ECSGenerator2 {
 			void AddSystemAfter(ParsedSystemPtr system, ParsedSystemPtr afterSystem) {
 
 #pragma region Assert
-				OS::AssertMessage(afterSystem != nullptr, "");
+				ASSERT_FMSG(afterSystem != nullptr, "");
 #pragma endregion
 
 				for (Common::Index i = 0; i < order_.size(); i++) {
 					const ParsedSystemPtr& currentSystem = order_[i];
 					if (currentSystem == afterSystem) {
 #pragma region Assert
-						OS::AssertMessage(system != nullptr, "");
+						ASSERT_FMSG(system != nullptr, "");
 #pragma endregion
 						if (i != order_.size() - 1) {
 							order_.insert(order_.begin() + i + 1, system);
@@ -1563,7 +1563,7 @@ namespace ECSGenerator2 {
 						checkedSystems.insert(currentSystem);
 						if (checkedSystems.size() == afterSystems.size()) {
 #pragma region Assert
-							OS::AssertMessage(system != nullptr, "");
+							ASSERT_FMSG(system != nullptr, "");
 #pragma endregion
 							if (i != order_.size() - 1) {
 								order_.insert(order_.begin() + i + 1, system);
@@ -1607,7 +1607,7 @@ namespace ECSGenerator2 {
 						checkedSystems.insert(currentSystem);
 						if (checkedSystems.size() == afterSystems.size()) {
 #pragma region Assert
-							OS::AssertMessage(system != nullptr, "");
+							ASSERT_FMSG(system != nullptr, "");
 #pragma endregion
 							if (i != order_.size() - 1) {
 								order_.insert(order_.begin() + i + 1, system);
@@ -1738,7 +1738,7 @@ namespace ECSGenerator2 {
 			for (auto rootNodeId : roots) {
 				auto rootNode = initCallGraph.GetNode(rootNodeId);
 #pragma region Assert
-				OS::AssertMessage(rootNode.GetValue() != nullptr, "");
+				ASSERT_FMSG(rootNode.GetValue() != nullptr, "");
 #pragma endregion
 				systemsOrder.order_.push_back(rootNode.GetValue());
 			}
@@ -2050,7 +2050,7 @@ namespace ECSGenerator2 {
 				auto rootNode = thread.callGraph_.GetNode(rootNodeId);
 
 #pragma region Assert
-				OS::AssertMessage(rootNode.GetValue() != nullptr, "");
+				ASSERT_FMSG(rootNode.GetValue() != nullptr, "");
 #pragma endregion
 
 				thread.systemsOrder_.order_.push_back(rootNode.GetValue());
@@ -2233,13 +2233,13 @@ namespace ECSGenerator2 {
 					if (system->ci_.callOrderInfo_ != nullptr) {
 						system->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const ParsedSystem::CallOrderInfo::System& afterSystem) {
 #pragma region Assert 
-							//OS::AssertMessage(thread.systems_.contains(afterSystem), "Current thread doesn't contain After System:" + afterSystem);
+							//ASSERT_FMSG(thread.systems_.contains(afterSystem), "Current thread doesn't contain After System:" + afterSystem);
 #pragma endregion		
 
 							auto parsedSystem = afterSystem.ptr_;//getSystemByFullName(parsedECSFiles, afterSystem);
 
 #pragma region Assert
-							OS::AssertMessage(parsedSystem != nullptr, "");
+							ASSERT_FMSG(parsedSystem != nullptr, "");
 #pragma endregion
 
 							DS::Graph<System>::Node::Id afterSystemNodeId = getCreateSystemNode(thread.callGraph_, parsedSystem);
@@ -2250,11 +2250,11 @@ namespace ECSGenerator2 {
 					if (system->ci_.callOrderInfo_ != nullptr) {
 						system->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const ParsedSystem::CallOrderInfo::System& beforeSystem) {
 #pragma region Assert 
-							//OS::AssertMessage(thread.systems_.contains(beforeSystem), "Current thread doesn't contain Before System:" + beforeSystem);
+							//ASSERT_FMSG(thread.systems_.contains(beforeSystem), "Current thread doesn't contain Before System:" + beforeSystem);
 #pragma endregion		
 							auto parsedSystem = beforeSystem.ptr_;//getSystemByFullName(parsedECSFiles, beforeSystem);
 #pragma region Assert
-							OS::AssertMessage(parsedSystem != nullptr, "");
+							ASSERT_FMSG(parsedSystem != nullptr, "");
 #pragma endregion
 							DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, parsedSystem);
 

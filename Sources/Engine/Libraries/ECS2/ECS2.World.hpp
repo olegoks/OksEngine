@@ -37,7 +37,7 @@ namespace ECS2 {
 		void FreeEntityId(Entity::Id entityId) {
 
 #pragma region Assert
-			OS::AssertMessage(!freeEntityIds_.contains(entityId), 
+			ASSERT_FMSG(!freeEntityIds_.contains(entityId), 
 				"");
 #pragma endregion
 
@@ -48,7 +48,7 @@ namespace ECS2 {
 
 
 #pragma region Assert
-			OS::AssertMessage(IsEntityExist(entityId), "");
+			ASSERT_FMSG(IsEntityExist(entityId), "");
 #pragma endregion
 
 
@@ -112,7 +112,7 @@ namespace ECS2 {
 				else { 
 
 #pragma region Assert
-					OS::AssertMessage(
+					ASSERT_FMSG(
 						dynamicEntitiesComponentFilters_.contains(entityId),
 						"");
 #pragma endregion
@@ -123,7 +123,7 @@ namespace ECS2 {
 					componentsFilter.ForEachSetComponent([&](ComponentTypeId componentTypeId) {
 
 #pragma region Assert
-						OS::AssertMessage(
+						ASSERT_FMSG(
 							dynamicEntitiesContainers_.contains(componentTypeId),
 							"Attempt to get component that doesn't exist.");
 #pragma endregion
@@ -192,7 +192,7 @@ namespace ECS2 {
 
 						const ComponentsFilter archetypeComponentsFilter = archetypeEntitiesComponents_[entityId];
 #pragma region Assert
-						OS::AssertMessage(archetypeComponentsFilter.IsSet<ComponentType>(),
+						ASSERT_FMSG(archetypeComponentsFilter.IsSet<ComponentType>(),
 							"Attempt to add component to an archetype entity "
 							"that can't contain this component");
 #pragma endregion
@@ -203,9 +203,9 @@ namespace ECS2 {
 					else {
 
 #pragma region Assert
-						OS::AssertMessage(
+						ASSERT_FMSG(
 							!dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
-							{ "Attempt to add component by system \"{}\" to the entity that was already added.", callerSystemName });
+							"Attempt to add component by system \"{}\" to the entity that was already added.", callerSystemName);
 #pragma endregion
 
 						auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
@@ -236,7 +236,7 @@ namespace ECS2 {
 				if (archetypeEntitiesComponents_.contains(entityId)) {
 					const ComponentsFilter archetypeComponentsFilter = archetypeEntitiesComponents_[entityId];
 #pragma region Assert
-					OS::AssertMessage(archetypeComponentsFilter.IsSet<ComponentType>(),
+					ASSERT_FMSG(archetypeComponentsFilter.IsSet<ComponentType>(),
 						"Attempt to add component to an archetype entity "
 						"that can't contain this component");
 #pragma endregion
@@ -246,12 +246,12 @@ namespace ECS2 {
 				}
 				else {
 #pragma region Assert
-					OS::AssertMessage(dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
-						{ "Attempt to remove component by system \"{}\", but component container doesn't exist.", callerSystemName });
-					OS::AssertMessage(dynamicEntitiesComponentFilters_.contains(entityId),
+					ASSERT_FMSG(dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
+						"Attempt to remove component by system \"{}\", but component container doesn't exist.", callerSystemName);
+					ASSERT_FMSG(dynamicEntitiesComponentFilters_.contains(entityId),
 						"Attempt to remove entity component, but entity doesn't exist.");
-					OS::AssertMessage(dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
-						{ "Attempt ot remove entity component by system \"{}\", but entity doesn't contain this component.", callerSystemName });
+					ASSERT_FMSG(dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
+						"Attempt ot remove entity component by system \"{}\", but entity doesn't contain this component.", callerSystemName);
 #pragma endregion
 					auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
 					container->RemoveComponent(entityId);
@@ -276,7 +276,7 @@ namespace ECS2 {
 			}
 			else {
 #pragma region Assert
-				OS::AssertMessage(
+				ASSERT_FMSG(
 					dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
 					"Attempt to get component that doesn't exist.");
 #pragma endregion
@@ -317,7 +317,7 @@ namespace ECS2 {
 				const ComponentsFilter componentsFilter = dynamicEntitiesComponentFilters_[entityId];
 				return componentsFilter;
 			}
-			OS::AssertFailMessage("Entity with such id is doesnt exist.");
+			ASSERT_FAIL_MSG("Entity with such id is doesnt exist.");
 			return ComponentsFilter{};
 		}
 

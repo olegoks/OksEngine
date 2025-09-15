@@ -19,7 +19,7 @@ int main(int argc, char** argv) {
 		parameters.GetArgc(),
 		parameters.GetArgv());
 
-	OS::AssertMessage(argc > 1, "");
+	ASSERT_FMSG(argc > 1, "");
 	const std::vector<std::string_view> workDirsArgv = parameters.GetValue("-workDir");
 	const std::string_view includeDirArgv = parameters.GetValue("-includeDir")[0];
 
@@ -222,7 +222,7 @@ int main(int argc, char** argv) {
 								include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
 							}
 							else {
-								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+								ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
 							}
 
 							return true;
@@ -247,7 +247,7 @@ int main(int argc, char** argv) {
 								exclude.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
 							}
 							else {
-								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+								ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
 							}
 
 							return true;
@@ -272,7 +272,7 @@ int main(int argc, char** argv) {
 								create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
 							}
 							else {
-								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+								ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
 							}
 
 							return true;
@@ -297,7 +297,7 @@ int main(int argc, char** argv) {
 								remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
 							}
 							else {
-								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+								ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
 							}
 
 							return true;
@@ -336,7 +336,7 @@ int main(int argc, char** argv) {
 								include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
 							}
 							else {
-								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+								ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
 							}
 
 							return true;
@@ -362,7 +362,7 @@ int main(int argc, char** argv) {
 								create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
 							}
 							else {
-								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+								ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
 							}
 
 							return true;
@@ -394,7 +394,7 @@ int main(int argc, char** argv) {
 								create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
 							}
 							else {
-								OS::AssertFailMessage({ "Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName() });
+								ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
 							}
 
 							return true;
@@ -425,7 +425,7 @@ int main(int argc, char** argv) {
 							runAfterSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(runAfterSystemTablesFullPathSecond.back());
 						}
 						else {
-							OS::AssertFailMessage({ "Incorrect run after system name \"{}\" in system {}", runAfterSystem.name_, parsedSystem->GetName() });
+							ASSERT_FAIL_FMSG("Incorrect run after system name \"{}\" in system {}", runAfterSystem.name_, parsedSystem->GetName());
 						}
 					}
 
@@ -449,7 +449,7 @@ int main(int argc, char** argv) {
 							runBeforeSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(runBeforeSystemTablesFullPathSecond.back());
 						}
 						else {
-							OS::AssertFailMessage({ "Incorrect run after system name \"{}\" in system {}", runBeforeSystem.name_, parsedSystem->GetName() });
+							ASSERT_FAIL_FMSG("Incorrect run after system name \"{}\" in system {}", runBeforeSystem.name_, parsedSystem->GetName());
 						}
 					}
 

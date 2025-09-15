@@ -224,7 +224,7 @@ namespace Render::Vulkan {
 
 
 			if (!shader.parse(&resources, 100, false, messages, includer)) {
-				OS::AssertFailMessage({ "Shader compilation failed: {}", shader.getInfoLog() });
+				ASSERT_FAIL_FMSG("Shader compilation failed: {}", shader.getInfoLog());
 				glslang::FinalizeProcess();
 
 			}
@@ -235,7 +235,7 @@ namespace Render::Vulkan {
 			program.addShader(&shader);
 
 			if (!program.link(messages)) {
-				OS::AssertFailMessage({ "Shader linking failed: {}", program.getInfoDebugLog() });
+				ASSERT_FAIL_FMSG("Shader linking failed: {}", program.getInfoDebugLog());
 				glslang::FinalizeProcess();
 			}
 

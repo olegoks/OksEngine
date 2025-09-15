@@ -95,7 +95,7 @@ namespace Render::Vulkan {
 
 
 	void Image::Destroy() noexcept {
-		OS::AssertMessage(
+		ASSERT_FMSG(
 			!IsNullHandle(),
 			"Attempt to destroy image twice.");
 		vkDestroyImage(createInfo_.LD_->GetHandle(), GetHandle(), nullptr);

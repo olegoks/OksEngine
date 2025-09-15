@@ -28,7 +28,7 @@ namespace ECSGenerator2 {
             ForEachParentTable([&](std::shared_ptr<ParsedTable> parentParsedTable) {
 
 #pragma region Assert
-                OS::AssertMessage(parentParsedTable->GetType() == Type::Namespace, "");
+                ASSERT_FMSG(parentParsedTable->GetType() == Type::Namespace, "");
 #pragma endregion
 
                 namespaceStrings.insert(namespaceStrings.begin(), parentParsedTable->GetName());

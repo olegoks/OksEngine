@@ -18,7 +18,7 @@ namespace OksEngine {
 
 		//	sf::SoundBuffer buffer;
 		//	const bool success = buffer.loadFromMemory(binaryData->data_.data(), binaryData->data_.size());
-		//	OS::AssertMessage(success, "");
+		//	ASSERT_FMSG(success, "");
 		//	world->CreateComponent<Sound>(entityId, buffer);
 
 		//	
