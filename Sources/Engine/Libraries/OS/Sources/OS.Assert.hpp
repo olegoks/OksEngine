@@ -37,8 +37,9 @@ namespace OS {
 
 }
 
+//#define USE_ASSERTS
 
-#ifndef NDEBUG
+#if !defined(NDEBUG) && defined(USE_ASSERTS) 
 
 #define ASSERT_MSG(expression, message)\
 	OS::AssertMessage(expression, message, std::source_location::current())

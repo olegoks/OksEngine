@@ -1557,7 +1557,7 @@ namespace OksEngine
 						worldScale3D->z_));
 
 			const glm::mat4 boneTransformMatrix
-				= glm::mat4{ 1 } *nodeTranslateMatrix * nodeRotationMatrix * nodeScaleMatrix;
+				= nodeTranslateMatrix * nodeRotationMatrix * nodeScaleMatrix;
 
 			const auto* boneInverseBindPoseMatrix = GetComponent<BoneInverseBindPoseMatrix>(boneEntityId);
 
