@@ -1,28 +1,27 @@
+
 #include <cassert>
-#include <format>
-
 #include <OS.Assert.hpp>
-
 #include <OS.Logger.hpp>
+
 
 namespace OS {
 
-	void AssertMessage(bool expression, Common::Format&& format, const std::source_location& location) {
-
+	void AssertMessage(bool expression, const char* message, const std::source_location& location) {
+	
 		if constexpr (!Common::IsDebug()) {
 			return;
 		}
 		if (expression) {
 			return;
 		}
-		LogError("/assert/", std::move(format), location);
+		LogError("/assert/", message, location);
 		__debugbreak();
 		assert(expression);
 
 	}
 
-	void AssertFailMessage(Common::Format&& format, const std::source_location& location) {
-		AssertMessage(false, std::move(format), location);
+	void AssertFailMessage(const char* message, const std::source_location& location) {
+		AssertMessage(false, message, location);
 	}
 
 	void Assert(bool expression) {
@@ -41,7 +40,15 @@ namespace OS {
 	}
 
 	void NotImplemented(const std::source_location& location) noexcept {
-		AssertFailMessage({ "Attempt to call not implemented function %s, file %s, line %d.", location.function_name(), location.file_name(), location.line() });
+
+		const std::string message = std::format(
+			"Attempt to call not implemented function %s, file %s, line %d.",
+			location.function_name(),
+			location.file_name(),
+			location.line()
+		);
+
+		AssertFailMessage(message.c_str());
 	}
 
 }
