@@ -28,6 +28,13 @@ ModelNodeEntityIdComponent = {
     }
 }
 
+ModelNodeEntityIdsComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<ECS2::Entity::Id>", name = "nodeEntityIds" }
+    }
+}
+
 MeshEntitiesComponent = {
     serializable = false,
     fields = {
@@ -45,6 +52,21 @@ ModelFileComponent = {
 --NODE
 BoneNodeComponent = {
     serializable = false
+}
+
+DrawStruct = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<ECS2::Entity::Id>", name = "boneEntityIds" },
+        { type = "std::vector<glm::mat4>", name = "bonePallets" }
+    }
+}
+
+DrawInfosComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<Draw>", name = "draws" }
+    }
 }
 
 BoneNodeEntitiesComponent = {
@@ -212,8 +234,6 @@ ModelNodeAnimationComponent = {
 }
 --NODE
 
---MODEL
-
 ModelAnimationStruct = {
     serializable = false,
     fields = {
@@ -313,10 +333,6 @@ ProcessModelAnimationSystem = {
     }
 }
 
---MODEL
-
---ANIMATION
-
 MeshComponent = {
     serializable = false
 }
@@ -347,6 +363,17 @@ AiNamespace = {
             processesEntities = {
                 {
                     processesComponents = {
+                        "MeshsController",
+                        { name = "MeshNameToEntity", readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        "ResourceSystem"
+                    }
+                },
+                {
+                    processesComponents = {
                         "ModelFile"
                     },
                     excludes = {
@@ -357,10 +384,37 @@ AiNamespace = {
                         "Model",
                         "Ai::Scene"
                     }
+                }
+            },
+            createsEntities = {
+                {
+                    createsComponents = {
+                        "Mesh",
+                        "Name",
+                        "MeshNodes",
+                        "Vertices3D",
+                        "Indices",
+                        "Normals",
+                        "UVs",
+                        "VertexBones",
+                        "TextureInfo",
+                        "Texture"
+                    }
                 },
                 {
-                    processesComponents = {
-                        "ResourceSystem"
+                    createsComponents = {
+                        "ModelNode",
+                        "ModelEntity",
+                        "Ai::Node",
+                        --"Ai::Meshes",
+                        "BoneNode",
+                        "BoneInverseBindPoseMatrix",
+                        "ChildModelNodeEntities",
+                        "MeshInfos",
+                        --"MeshEntities",
+                        "LocalPosition3D",
+                        "LocalRotation3D",
+                        "LocalScale3D"
                     }
                 }
             }
@@ -368,6 +422,30 @@ AiNamespace = {
     }
 }
 
+MeshsControllerComponent = {
+    serializable = false
+}
+
+MeshNameToEntityComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::map<std::string, ECS2::Entity::Id>", name = "meshNameToEntityId" }
+    }
+}
+
+CreateMeshsControllerSystem = {
+    type = "Initialize",
+    updateMethod = {
+        createsEntities = {
+            {
+                createsComponents = {
+                    "MeshsController",
+                    "MeshNameToEntity"
+                }
+            }
+        }
+    }
+}
 
 MeshInfoStruct = {
     fields = {
@@ -447,31 +525,39 @@ MeshNodesComponent = {
     }
 }
 
-FindNodeMeshSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "Name",
-                    "ModelNode",
-                    "Ai::Node",
-                    { name = "MeshInfos", readonly = false }
-                }
-            },
-            {
-                processesComponents = {
-                    "Mesh",
-                    "Name",
-                    { name = "MeshNodes", readonly = false }
-                }
-            }
-        }
-    }
-}
+-- FindNodeMeshSystem = {
+--     updateMethod = {
+--         processesEntities = {
+--             {
+--                 processesComponents = {
+--                     "Name",
+--                     "ModelNode",
+--                     "Ai::Node",
+--                     { name = "MeshInfos", readonly = false }
+--                 }
+--             },
+--             {
+--                 processesComponents = {
+--                     "Mesh",
+--                     "Name"
+--                 }
+--             }
+--         }
+--     }
+-- }
 
 CreateNodeMeshsSystem = {
+    -- callOrder = {
+    --     runAfter = "FindNodeMesh"
+    -- },
     updateMethod = {
         processesEntities = {
+            {
+                processesComponents = {
+                    "MeshsController",
+                    { name = "MeshNameToEntity", readonly = false }
+                }
+            },
             {
                 processesComponents = {
                     "ModelNode",
@@ -505,6 +591,11 @@ CreateNodeMeshsSystem = {
                 accessingComponents = {
                     "Ai::Scene",
                     "NodeToEntityId"
+                }
+            },
+            {
+                accessingComponents = {
+                    "MeshNodes"
                 }
             }
         }

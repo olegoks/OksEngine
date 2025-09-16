@@ -712,53 +712,6 @@ namespace ECSGenerator2 {
 						return code;
 				};
 
-			//auto generateParseEntityFunctionRealization
-			//	= [&](std::vector<std::shared_ptr<ParsedComponent>> parsedComponents) -> std::shared_ptr<CodeStructure::Function> {
-
-			//	CodeStructure::Code code;
-			//	code.Add(
-			//		"auto getNewId = [&](ECS2::Entity::Id oldId) {"
-			//		"	#pragma region Assert\n"
-			//		"	ASSERT_FMSG(oldToNewId.contains(oldId),\n"
-			//		"	std::format(\"Invalid scene file. Can not define all entities ids: {}.\", static_cast<Common::Index>(oldId)));\n"
-			//		"	#pragma endregion\n"
-			//		"	return oldToNewId.at(oldId);\n"
-			//		"};");
-
-			//	//Generate edit components.
-			//	for (auto parsedComponent : parsedComponents) {
-
-			//		if (!parsedComponent->ci_.serializable_) {
-			//			continue;
-			//		}
-
-			//		code.Add("{");
-			//		code.Add(generateParseComponentCode(parsedComponent));
-			//		code.Add("}");
-
-			//		code.NewLine();
-
-			//	}
-
-			//	CodeStructure::Function::CreateInfo editEntityFunction{
-			//		.name_ = "ParseEntity",
-			//		.parameters_ = {
-			//			{ "std::shared_ptr<ECS2::World>", "world" },
-			//			{ "luabridge::LuaRef", "entity" },
-			//			{ "ECS2::Entity::Id", "newEntityId" },
-			//			{ "const std::map<ECS2::Entity::Id, ECS2::Entity::Id>&", "oldToNewId" }
-			//		},
-			//		.returnType_ = "void",
-			//		.code_ = code,
-			//		.isPrototype_ = false,
-			//		.inlineModifier_ = false
-			//	};
-
-			//	auto editEntityFunctionObject = std::make_shared<CodeStructure::Function>(editEntityFunction);
-
-			//	return editEntityFunctionObject;
-			//	};
-
 			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
 			std::vector<std::shared_ptr<ParsedComponent>> allParsedComponents;
@@ -769,7 +722,7 @@ namespace ECSGenerator2 {
 				"auto getNewId = [&](ECS2::Entity::Id oldId) {"
 				"	#pragma region Assert\n"
 				"	ASSERT_FMSG(oldToNewId.contains(oldId),\n"
-				"	std::format(\"Invalid scene file. Can not define all entities ids: {}.\", static_cast<Common::Index>(oldId)));\n"
+				"	\"Invalid scene file. Can not define all entities ids: {}.\", static_cast<Common::Index>(oldId));\n"
 				"	#pragma endregion\n"
 				"	return oldToNewId.at(oldId);\n"
 				"};");

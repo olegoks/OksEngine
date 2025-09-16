@@ -37,7 +37,7 @@ namespace OS {
 
 }
 
-//#define USE_ASSERTS
+#define USE_ASSERTS
 
 #if !defined(NDEBUG) && defined(USE_ASSERTS) 
 

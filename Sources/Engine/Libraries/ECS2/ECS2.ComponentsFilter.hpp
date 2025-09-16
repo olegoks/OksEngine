@@ -4,7 +4,10 @@
 
 #include <Common.hpp>
 
+#define DEBUG_ECS
+
 namespace ECS2 {
+
 
 
 	class ComponentsFilter {
@@ -22,9 +25,11 @@ namespace ECS2 {
 
 			(filter_.set(ComponentType::GetTypeId()), ...);
 
+#if !defined(NDEBUG) && defined(DEBUG_ECS)
 			if constexpr (Common::IsDebug()) {
 				(componentNames_.push_back(std::string{ ComponentType::GetName() }), ...);
 			}
+#endif
 
 		}
 
@@ -33,6 +38,7 @@ namespace ECS2 {
 
 			(filter_.reset(ComponentType::GetTypeId()), ...);
 
+#if !defined(NDEBUG) && defined(DEBUG_ECS)
 			if constexpr (Common::IsDebug()) {
 				([&] {
 					std::string name = ComponentType::GetName();
@@ -42,6 +48,7 @@ namespace ECS2 {
 					);
 					}(), ...);
 			}
+#endif
 
 		}
 
@@ -125,7 +132,9 @@ namespace ECS2 {
 
 	private:
 
+#if !defined(NDEBUG) && defined(DEBUG_ECS)
 		std::vector<std::string> componentNames_;
+#endif
 
 		std::bitset<maxComponentsNumber_> filter_;
 	};
