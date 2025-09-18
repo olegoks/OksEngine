@@ -69,10 +69,30 @@ namespace OksEngine
 				const char* items[] = {
 					COMPONENTS_LIST_NAMES()
 				};
-				static int addComponentIndex = 0;
-				ImGui::Combo("Includes list", &addComponentIndex, items, std::size(items));
+				static char buffer[256] = { 0 };
+				ImGui::InputText("Name", buffer, 256);
 
-				const char* currentComponent = items[addComponentIndex];
+				std::vector<const char*> suitableNames;
+				suitableNames.reserve(sizeof(items) / 8);
+
+				for (Common::Index i = 0; i < sizeof(items) / 8; i ++) {
+					if (std::string{ items[i] }.starts_with(buffer)) {
+						suitableNames.push_back(items[i]);
+					}
+				}
+
+				static int addComponentIndex = 0;
+				const char* currentComponent = nullptr;
+				if (!suitableNames.empty()) {
+					ImGui::Combo("Includes list", &addComponentIndex, suitableNames.data(), std::size(suitableNames));
+					currentComponent = suitableNames[addComponentIndex];
+				}
+				else {
+					ImGui::Combo("Includes list", &addComponentIndex, items, std::size(items));
+					currentComponent = items[addComponentIndex];
+				}
+
+				
 				if (ImGui::Button("Add include")) {
 					const ECS2::ComponentTypeId componentTypeIdToInclude = GetComponentTypeIdByName(currentComponent);
 
