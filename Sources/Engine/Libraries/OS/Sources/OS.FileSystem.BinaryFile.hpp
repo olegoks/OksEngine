@@ -63,7 +63,7 @@ namespace OS {
 		}
 
 		void Load() override {
-			ASSERT_FMSG(IsOpened(), "Attempt to load file that wasn't opened.");
+			ASSERT_MSG(IsOpened(), "Attempt to load file that wasn't opened.");
 			
 			//Commented to have opportunity to update data. 
 			//ASSERT_FMSG(!IsLoaded(), "Attempt to load file that was loaded yet.");
@@ -87,13 +87,13 @@ namespace OS {
 		}
 
 		void Unload() override {
-			ASSERT_FMSG(IsOpened(), "Attempt to unload file that wasn't opened.");
-			ASSERT_FMSG(IsLoaded(), "Attempt to unload file that wasn't loaded.");
+			ASSERT_MSG(IsOpened(), "Attempt to unload file that wasn't opened.");
+			ASSERT_MSG(IsLoaded(), "Attempt to unload file that wasn't loaded.");
 			data_.Clear();
 		}
 
 		void Close() override {
-			ASSERT_FMSG(IsOpened(), "Attempt to unload file that wasn't opened.");
+			ASSERT_MSG(IsOpened(), "Attempt to unload file that wasn't opened.");
 			fstream_->close();
 			fstream_ = nullptr;
 		}
@@ -118,7 +118,7 @@ namespace OS {
 		bool IsExist() const { return std::filesystem::exists(GetPath()); }
 		[[nodiscard]]
 		Common::Size GetSize() const {
-			ASSERT_FMSG(IsExist(), "Attempt to get files size that doesn't exist.");
+			ASSERT_MSG(IsExist(), "Attempt to get files size that doesn't exist.");
 			return std::filesystem::file_size(path_);
 		}
 		[[nodiscard]]

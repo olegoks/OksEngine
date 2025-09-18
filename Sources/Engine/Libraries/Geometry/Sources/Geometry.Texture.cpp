@@ -10,7 +10,7 @@ namespace Geometry {
 
 		int texWidth, texHeight, texChannels;
 		stbi_uc* pixels = stbi_load_from_memory((stbi_uc*)memory_, size, &texWidth, &texHeight, &texChannels, STBI_rgb_alpha);
-		ASSERT_FMSG(pixels != nullptr, "Error while creating texture. %s.",  stbi_failure_reason());
+		ASSERT_FMSG(pixels != nullptr, "Error while creating texture. {}.",  stbi_failure_reason());
 
 		Texture::CreateInfo textureCreateInfo;
 		{

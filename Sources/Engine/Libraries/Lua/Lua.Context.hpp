@@ -27,7 +27,7 @@ namespace Lua {
 
 		Context() {
 			state_ = luaL_newstate();
-			ASSERT_FMSG(state_ != nullptr, "Error while creating Lua context.");
+			ASSERT_MSG(state_ != nullptr, "Error while creating Lua context.");
 			luaL_openlibs(state_);
 		}
 
@@ -40,7 +40,7 @@ namespace Lua {
 				return *this;
 			}
 
-			ASSERT_FMSG(state_ != nullptr, 
+			ASSERT_MSG(state_ != nullptr, 
 				"Lua state must be not nullptr");
 			lua_close(state_);
 			state_ = nullptr;

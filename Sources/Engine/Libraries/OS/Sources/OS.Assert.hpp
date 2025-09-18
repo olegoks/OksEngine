@@ -3,6 +3,7 @@
 #include <source_location>
 
 #include <format>
+#include <Common.hpp>
 
 namespace OS {
 
@@ -15,7 +16,9 @@ namespace OS {
 			return;
 		}
 
-		const std::string message; //= ::std::format(formatString, std::forward<Args&&>(args)...);
+		const std::string message = ::std::vformat(formatString, std::make_format_args(std::forward<Args>(args)...));
+
+
 		AssertMessage(expression, message.c_str(), location);
 
 	}
@@ -37,9 +40,9 @@ namespace OS {
 
 }
 
-#define USE_ASSERTS
+//#define USE_ASSERTS
 
-#if !defined(NDEBUG) && defined(USE_ASSERTS) 
+#if !defined(NDEBUG) || defined(USE_ASSERTS) 
 
 #define ASSERT_MSG(expression, message)\
 	OS::AssertMessage(expression, message, std::source_location::current())

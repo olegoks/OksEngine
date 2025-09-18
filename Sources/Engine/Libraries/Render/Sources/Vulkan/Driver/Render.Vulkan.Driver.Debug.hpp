@@ -35,7 +35,7 @@ namespace Render::Vulkan {
 				for (const ValidationLayer& requiredLayer : createInfo.requiredValidationLayers_) {
 					[[maybe_unused]]
 					const bool isRequiredValidationLayerAvailable = availableValidationLayers.IsContains(requiredLayer);
-					ASSERT_FMSG(isRequiredValidationLayerAvailable, "Required validation layer %s is not enabled.", requiredLayer.GetRawName());
+					ASSERT_FMSG(isRequiredValidationLayerAvailable, "Required validation layer {} is not enabled.", requiredLayer.GetRawName());
 				}
 				OS::LogInfo("/render/vulkan/driver/debug", "All required validation layers are enabled.");
 			}

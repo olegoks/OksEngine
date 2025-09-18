@@ -4,7 +4,13 @@
 
 #include <Common.hpp>
 
-#define DEBUG_ECS
+//#define DEBUG_ECS
+
+#if !defined(NDEBUG)
+
+#define ENABLE_ECS_DEBUG
+
+#endif
 
 namespace ECS2 {
 
@@ -25,7 +31,7 @@ namespace ECS2 {
 
 			(filter_.set(ComponentType::GetTypeId()), ...);
 
-#if !defined(NDEBUG) && defined(DEBUG_ECS)
+#ifdef ENABLE_ECS_DEBUG
 			if constexpr (Common::IsDebug()) {
 				(componentNames_.push_back(std::string{ ComponentType::GetName() }), ...);
 			}
@@ -38,7 +44,7 @@ namespace ECS2 {
 
 			(filter_.reset(ComponentType::GetTypeId()), ...);
 
-#if !defined(NDEBUG) && defined(DEBUG_ECS)
+#ifdef ENABLE_ECS_DEBUG
 			if constexpr (Common::IsDebug()) {
 				([&] {
 					std::string name = ComponentType::GetName();
@@ -141,7 +147,7 @@ namespace ECS2 {
 
 	private:
 
-#if !defined(NDEBUG) && defined(DEBUG_ECS)
+#ifdef ENABLE_ECS_DEBUG
 		std::vector<std::string> componentNames_;
 #endif
 

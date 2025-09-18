@@ -1,4 +1,15 @@
+read -p "Press enter to exit."
+echo "Файлы .ecs:"
 cd ../
-git ls-files | grep -P ".*(hpp|cpp|ecs)" | xargs wc -l
+
+read -p "Press enter to exit."
+find . -name "*.ecs" -type f -exec wc -l {} + | tail -1
+
+echo "Файлы .cpp:"
+find . -name "*.cpp" -type f -exec wc -l {} + | tail -1
+
+echo "Файлы .hpp:"
+find . -name "*.hpp" -type f -exec wc -l {} + | tail -1
+
 cd Scripts/
 read -p "Press enter to exit."

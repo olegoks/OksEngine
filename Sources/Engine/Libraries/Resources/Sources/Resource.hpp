@@ -243,7 +243,7 @@ namespace Resources {
 			Graph::Node& currentNode = graph_.GetNode(currentNodeId);
 			ASSERT_FMSG(
 				currentNode.GetValue().GetName() == rootName_,
-				"Root note must have name \"%s\"", rootName_
+				"Root note must have name \"{}\"", rootName_
 			);
 			for (const std::filesystem::path path : resourcePath) {
 				const std::string resourceName = path.string();
@@ -490,7 +490,7 @@ namespace Resources {
 		[[nodiscard]]
 		Graph::Node::Id GetNodeId(std::filesystem::path nodePath) {
 			ASSERT_FMSG(
-				(*nodePath.begin()).string() == rootName_,
+				nodePath.begin()->string() == rootName_,
 				"Attempt to use incorrect resource path.");
 
 			Graph::Node::Id currentNodeId = rootNodeId_;

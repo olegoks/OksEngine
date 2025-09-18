@@ -16,7 +16,7 @@ namespace Render::Vulkan {
 		{
 			OS::LogInfo("/render/vulkan/driver", "Checking are required extensions enabled.");
 			for (const Extension& requiredExtension : info.requiredExtensions_) {
-				ASSERT_FMSG(enabledExtensions.Contains(requiredExtension), "Required extension %s is not enabled.", requiredExtension.GetRawName());
+				ASSERT_FMSG(enabledExtensions.Contains(requiredExtension), "Required extension {} is not enabled.", requiredExtension.GetRawName());
 			}
 			OS::LogInfo("/render/vulkan/driver", "All required extensions are enabled.");
 		}
