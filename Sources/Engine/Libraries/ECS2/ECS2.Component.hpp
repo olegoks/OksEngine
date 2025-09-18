@@ -18,12 +18,7 @@ namespace ECS2 {
 	class IComponent {
 	public:
 
-		//Id starts with 0 and grows to +infinity.
-		[[nodiscard]]
-		static ComponentTypeId GetTypeId() noexcept {
-			static ComponentTypeId id = ++nextId;
-			return id;
-		}
+
 
 	};
 

@@ -659,6 +659,25 @@ namespace ECSGenerator2 {
 			if (component->GetName() == "ECSMenu") {
 				Common::BreakPointLine();
 			}
+			//GetTypeId function
+
+			//HACK
+
+			static Common::Index id = 0;
+
+			//HACK
+			CodeStructure::Function::CreateInfo tidfci{
+				.name_ = "GetTypeId",
+				.parameters_ = {},
+				.returnType_ = "ECS2::ComponentTypeId",
+				.code_ = "return " + std::to_string(++id) + ";",
+				.inlineModifier_ = true,
+				.staticModifier_ = true
+			};
+
+			auto getTypeIdMethod = std::make_shared<CodeStructure::Function>(tidfci);
+
+			//GetName  function
 			std::vector<CodeStructure::Struct::Field> fields;
 
 			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast)->bool {
@@ -689,7 +708,7 @@ namespace ECSGenerator2 {
 				.name_ = component->GetName(),
 				.parent_ = "OksEngine::IComponent<" + component->GetName() + ">",
 				.fields_ = fields,
-				.methods_ = { getNameMethod }
+				.methods_ = { getNameMethod, getTypeIdMethod }
 			};
 			auto structObject = std::make_shared<CodeStructure::Struct>(sci);
 
