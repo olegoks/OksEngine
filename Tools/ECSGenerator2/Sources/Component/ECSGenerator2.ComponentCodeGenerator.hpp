@@ -678,7 +678,7 @@ namespace ECSGenerator2 {
 				.name_ = "GetName",
 				.parameters_ = {},
 				.returnType_ = "const char*",
-				.code_ = "return Common::TypeInfo<" + component->GetName() + ">::GetTypeName();",
+				.code_ = "return \"" + component->GetFullName() + "\";",
 				.inlineModifier_ = false,
 				.staticModifier_ = true
 			};

@@ -97,6 +97,7 @@ namespace ECSGenerator2::CodeStructure {
 			Scope,
 			File,
 			Variable,
+			CodeBlock,
 			Undefined
 		};
 
@@ -120,6 +121,17 @@ namespace ECSGenerator2::CodeStructure {
 
 	};
 
+	class CodeBlock : public Base {
+	public:
+
+		CodeBlock(Code code) : code_{ code } { }
+
+		virtual Type GetType() const noexcept override {
+			return Type::CodeBlock;
+		}
+		Code code_;
+	};
+
 	class Function : public Base {
 	public:
 
@@ -139,6 +151,7 @@ namespace ECSGenerator2::CodeStructure {
 			bool staticModifier_ = false;
 			std::vector<std::string> templateParameters_;
 			std::vector<std::string> specializedTemplateParameters_;
+			std::string descriptionComment_ = "";
 		};
 
 		Function(const CreateInfo& ci) : ci_{ ci } {}
@@ -307,6 +320,7 @@ namespace ECSGenerator2::CodeStructure {
 			bool isHpp_ = true;
 			Includes includes_;
 			std::shared_ptr<Base> base_;
+			bool isFormat_ = true;
 		};
 
 		virtual Type GetType() const noexcept override {

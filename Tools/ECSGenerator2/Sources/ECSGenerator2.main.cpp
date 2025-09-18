@@ -531,19 +531,19 @@ int main(int argc, char** argv) {
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.SerializeEntity.hpp",
 		serializeEntityCodeStructure };
 
-	auto editEntityHppCodeStructure = codeStructureGenerator.GenerateEditEntityHppFile(parsedECSFiles);
-	std::pair<
-		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToEditHppEntity{
-		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.hpp",
-		editEntityHppCodeStructure };
+	//auto editEntityHppCodeStructure = codeStructureGenerator.GenerateEditEntityHppFile(parsedECSFiles);
+	//std::pair<
+	//	std::filesystem::path,
+	//	std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToEditHppEntity{
+	//	std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.hpp",
+	//	editEntityHppCodeStructure };
 
-	auto editEntityCppCodeStructure = codeStructureGenerator.GenerateEditEntityCppFile(parsedECSFiles);
-	std::pair<
-		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToEditCppEntity{
-		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.cpp",
-		editEntityCppCodeStructure };
+	//auto editEntityCppCodeStructure = codeStructureGenerator.GenerateEditEntityCppFile(parsedECSFiles);
+	//std::pair<
+	//	std::filesystem::path,
+	//	std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToEditCppEntity{
+	//	std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.cpp",
+	//	editEntityCppCodeStructure };
 
 
 	auto hppRunSystemsCodeStructure = codeStructureGenerator.GenerateRunSystemsHppFile();
@@ -560,6 +560,12 @@ int main(int argc, char** argv) {
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.RunSystems.cpp",
 		cppRunSystemsCodeStructure };
 
+	auto hppUtilsCodeStructure = codeStructureGenerator.GenerateUtilsHppFile(parsedECSFiles);
+	std::pair<
+		std::filesystem::path,
+		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToHppUtils{
+		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.Utils.hpp",
+		hppUtilsCodeStructure };
 
 	//Merge files with  code structure.
 	std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::CodeStructure::File>> allFilesCodeStructure;
@@ -573,6 +579,8 @@ int main(int argc, char** argv) {
 	allFilesCodeStructure.insert(pathToEditCppEntity);
 	allFilesCodeStructure.insert(pathToHppRunSystems);
 	allFilesCodeStructure.insert(pathToCppRunSystems);
+	allFilesCodeStructure.insert(pathToHppUtils);
+
 
 	//Create files.
 	for (auto [path, structureFile] : allFilesCodeStructure) {

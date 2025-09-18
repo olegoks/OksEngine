@@ -56,6 +56,10 @@ namespace ECS2 {
 			filter_.reset(componentTypeId);
 		}
 
+		void SetBit(ComponentTypeId componentTypeId) {
+			filter_.set(componentTypeId);
+		}
+
 		ComponentsFilter() { }
 
 
@@ -128,6 +132,11 @@ namespace ECS2 {
 		[[nodiscard]]
 		bool IsSetOneComponent() const {
 			return filter_.count() == 1;
+		}
+
+		[[nodiscard]]
+		bool IsSetOneMoreComponent() const {
+			return filter_.count() >= 1;
 		}
 
 	private:

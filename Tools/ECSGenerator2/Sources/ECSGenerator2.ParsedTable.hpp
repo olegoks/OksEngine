@@ -40,6 +40,20 @@ namespace ECSGenerator2 {
             return namespaceStrings;
         }
 
+        inline std::string GetConcatedNamespace() {
+            const auto separatedNamespace = GetNamespace();
+            std::string concatedNamespace;
+
+            for (Common::Index i = 0; i < separatedNamespace.size(); i++) {
+                concatedNamespace += separatedNamespace[i];
+                if (i != separatedNamespace.size() - 1) {
+                    concatedNamespace += "::";
+                }
+            }
+            return concatedNamespace;
+        }
+
+
         //Get full name as XXX::YYY::Zzzz
         inline std::string GetFullName() {
 

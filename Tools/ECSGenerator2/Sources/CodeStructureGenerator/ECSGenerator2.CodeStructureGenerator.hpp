@@ -323,7 +323,7 @@ namespace ECSGenerator2 {
 				}
 
 				//Hack Move template edit functions to end of .hpp file. Because of template specializetion cant be in child namespaces.
-				
+
 				parsedECSFile->ForEachRootTable([&](std::shared_ptr<ParsedTable> table) {
 
 					std::vector<std::string> currentNamespace;
@@ -1939,6 +1939,163 @@ namespace ECSGenerator2 {
 			.isHpp_ = true,
 			.includes_ = includes,
 			.base_ = namespaceObject
+			};
+
+			auto file = std::make_shared<CodeStructure::File>(fci);
+
+			return file;
+
+		}
+
+		std::shared_ptr<CodeStructure::File> GenerateUtilsHppFile(std::vector<std::shared_ptr<ParsedECSFile>> parsedECSFiles) {
+
+			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
+
+
+			{
+				CodeStructure::Code code;
+				code.Add("\n#define FOR_EACH_COMPONENT(prefix, postfix) \\\n");
+
+				for (auto parsedECSFile : parsedECSFiles) {
+					parsedECSFile->ForEachComponent([&](ParsedComponentPtr parsedComponent) {
+
+						using namespace std::string_literals;
+						std::string format = "\tprefix {} postfix \\\n";
+						code.Add(format, parsedComponent->GetFullName());
+
+						return true;
+						});
+				}
+
+				auto defineForEachComponent = std::make_shared<CodeStructure::CodeBlock>(code);
+
+				namespaceObject->Add(defineForEachComponent);
+
+			}
+			{
+				CodeStructure::Code code;
+				code.Add("\n#define COMPONENTS_LIST_NAMES() \\\n");
+
+				for (auto parsedECSFile : parsedECSFiles) {
+					parsedECSFile->ForEachComponent([&](ParsedComponentPtr parsedComponent) {
+
+						using namespace std::string_literals;
+						std::string format = "\t{}::GetName(),\\\n";
+						code.Add(format, parsedComponent->GetFullName());
+
+						return true;
+						});
+				}
+
+				auto defineForEachComponent = std::make_shared<CodeStructure::CodeBlock>(code);
+
+				namespaceObject->Add(defineForEachComponent);
+
+			}
+
+			{
+				CodeStructure::Code code;
+
+				for (auto parsedECSFile : parsedECSFiles) {
+					parsedECSFile->ForEachComponent([&](ParsedComponentPtr parsedComponent) {
+
+						code.Add("\nif({} == {}::GetTypeId()) {{\n", "componentTypeId", parsedComponent->GetFullName());
+						code.Add("	return {}::GetName();\n", parsedComponent->GetFullName());
+						code.Add("}\n");
+
+						return true;
+						});
+				}
+
+				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
+					.name_ = "GetComponentNameByTypeId",
+					.parameters_ = {
+						{ "ECS2::ComponentTypeId", "componentTypeId" }
+					},
+					.returnType_ = "const char*",
+					.code_ = {code},
+					.isPrototype_ = false,
+					.inlineModifier_ = true
+				};
+
+				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
+			}
+
+			{
+				CodeStructure::Code code;
+
+				for (auto parsedECSFile : parsedECSFiles) {
+					parsedECSFile->ForEachComponent([&](ParsedComponentPtr parsedComponent) {
+
+						code.Add("\nif({} == {}::GetName()) {{\n", "componentName", parsedComponent->GetFullName());
+						const std::string concatedNamespace = parsedComponent->GetConcatedNamespace();
+						if (concatedNamespace != "") {
+							code.Add("	{}::Add{}(world, entityId);\n", concatedNamespace, parsedComponent->GetName());
+						}
+						else {
+							code.Add("	Add{}(world, entityId);\n",  parsedComponent->GetName());
+						}
+						code.Add("}\n");
+
+						return true;
+						});
+				}
+
+				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
+					.name_ = "AddComponentWithName",
+					.parameters_ = {
+						{ "const char*", "componentName" },
+						{ "ECS2::World*", "world" },
+						{ "ECS2::Entity::Id", "entityId" }
+					},
+					.returnType_ = "void",
+					.code_ = {code},
+					.isPrototype_ = false,
+					.inlineModifier_ = true
+				};
+
+				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
+			}
+
+			{
+				CodeStructure::Code code;
+
+				for (auto parsedECSFile : parsedECSFiles) {
+					parsedECSFile->ForEachComponent([&](ParsedComponentPtr parsedComponent) {
+
+						code.Add("\nif({} == {}::GetName()) {{\n", "name", parsedComponent->GetFullName());
+						code.Add("	return {}::GetTypeId();\n", parsedComponent->GetFullName());
+						code.Add("}\n");
+
+						return true;
+						});
+				}
+
+				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
+					.name_ = "GetComponentTypeIdByName",
+					.parameters_ = {
+						{ "const char*", "name" }
+					},
+					.returnType_ = "ECS2::ComponentTypeId",
+					.code_ = {code},
+					.isPrototype_ = false,
+					.inlineModifier_ = true,
+					.descriptionComment_ = "Input component name must be pointer taked from call Component::GetName()!!!"
+				};
+
+				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
+			}
+
+			CodeStructure::File::Includes includes{ };
+			includes.paths_.insert("ECS2.World.hpp");
+			includes.paths_.insert("auto_OksEngine.ECS.hpp");
+
+			//hpp file
+			CodeStructure::File::CreateInfo fci{
+			.isHpp_ = true,
+			.includes_ = includes,
+			.base_ = namespaceObject,
+			.isFormat_ = false // Do not format this file because formater work bad with multiline #define
 			};
 
 			auto file = std::make_shared<CodeStructure::File>(fci);

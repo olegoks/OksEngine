@@ -133,8 +133,18 @@ namespace ECSGenerator2 {
 			return code;
 		}
 
+		CodeStructure::Code GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::CodeBlock> codeBlockObject) {
+			CodeStructure::Code code;
+			code.Add(codeBlockObject->code_);
+			return code;
+		}
+
 		CodeStructure::Code GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::Function> functionObject) {
 			CodeStructure::Code code;
+
+			if (functionObject->ci_.descriptionComment_ != "") {
+				code.Add("//" + functionObject->ci_.descriptionComment_ + "\n");
+			}
 
 			if (!functionObject->ci_.templateParameters_.empty() ||
 				!functionObject->ci_.specializedTemplateParameters_.empty()) {
@@ -222,17 +232,11 @@ namespace ECSGenerator2 {
 				auto functionObject = std::dynamic_pointer_cast<CodeStructure::Variable>(base);
 				code = GenerateECSCXXFilesStructure(functionObject);
 			}
-			clang::format::FormatStyle style = clang::format::getMicrosoftStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);
-			llvm::StringRef codeToFormat = code.code_.c_str();  // ������ ������ ����
-
-			// ���������� �������� ��� ����� ����
-			clang::tooling::Replacements replacements = clang::format::reformat(style, codeToFormat, { clang::tooling::Range(0, codeToFormat.size()) });
-
-			auto formattedCode = clang::tooling::applyAllReplacements(codeToFormat, replacements);
-			if (!formattedCode) {
-				llvm::errs() << "Error formatting the code.\n";
+			else if (base->GetType() == CodeStructure::Base::Type::CodeBlock) {
+				auto functionObject = std::dynamic_pointer_cast<CodeStructure::CodeBlock>(base);
+				code = GenerateECSCXXFilesStructure(functionObject);
 			}
-			code.code_ = *formattedCode;
+
 			return code;
 		}
 
@@ -264,8 +268,24 @@ namespace ECSGenerator2 {
 				includes.NewLine();
 				codeFile->AddCode(includes);
 			}
-			const CodeStructure::Code code = GenerateECSCXXFilesStructure(fileStructure->GetBase());
+			CodeStructure::Code code = GenerateECSCXXFilesStructure(fileStructure->GetBase());
 			//codeFile->path_ = fileStructure->cr
+
+			if (fileStructure->createInfo_.isFormat_) {
+				clang::format::FormatStyle style = clang::format::getMicrosoftStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);
+				llvm::StringRef codeToFormat = code.code_.c_str();  // ������ ������ ����
+
+				// ���������� �������� ��� ����� ����
+				clang::tooling::Replacements replacements = clang::format::reformat(style, codeToFormat, { clang::tooling::Range(0, codeToFormat.size()) });
+
+				auto formattedCode = clang::tooling::applyAllReplacements(codeToFormat, replacements);
+				if (!formattedCode) {
+					llvm::errs() << "Error formatting the code.\n";
+				}
+				code.code_ = *formattedCode;
+			}
+
+
 			codeFile->AddCode(code);
 			return codeFile;
 		}

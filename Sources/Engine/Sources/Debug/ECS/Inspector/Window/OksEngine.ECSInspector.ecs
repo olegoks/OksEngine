@@ -30,6 +30,41 @@ BeginECSInspectorWindowSystem = {
 ProcessCreateEntityButtonSystem = {
     callOrder = {
         runAfter = { "BeginECSInspectorWindow" },
+        runBefore = { "ProcessEntityFilter" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGuiState",
+                    "MainMenuBar",
+                    "ECSMenu",
+                    "ECSInspectorMenuItem",
+                    "ECSInspectorWindow"
+                }
+            }
+        },
+        createsEntities = {
+            createsComponents = {
+                
+            }
+        }
+    }
+}
+
+-- Filter
+
+EntityFilterComponent = {
+    serializable = false,
+    fields = {
+        { type = "ECS2::ComponentsFilter", name = "includes" },
+        { type = "ECS2::ComponentsFilter", name = "excludes" }
+    }
+}
+
+ProcessEntityFilterSystem = {
+    callOrder = {
+        runAfter = { "ProcessCreateEntityButton" },
         runBefore = { "ShowEntitiesInfo" }
     },
     updateMethod = {
@@ -42,18 +77,25 @@ ProcessCreateEntityButtonSystem = {
                     "ECSInspectorMenuItem",
                     "ECSInspectorWindow"
                 },
+                createsComponents = {
+                    "EntityFilter"
+                },
                 removesComponents = {
-                    "ECSInspectorWindow"
+                    "EntityFilter"
                 }
             }
         },
-        createsEntities = {
-            createsComponents = {
-                
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "EntityFilter"
+                }
             }
         }
     }
 }
+
+-- Filter
 
 ShowEntitiesInfoSystem = {
     callOrder = {
@@ -74,7 +116,14 @@ ShowEntitiesInfoSystem = {
             {
                 processesAllCombinations = true
             }
-        }   
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "EntityFilter"
+                }
+            }
+        }
     }
 }
 
