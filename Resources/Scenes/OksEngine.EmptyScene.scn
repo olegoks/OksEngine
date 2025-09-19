@@ -71,16 +71,16 @@ scene = {
     runModelAnimation = { animationName = "Mutant Jumping" },
     modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
 },
-{
-    ID = 32,
-    name = { value = "Man" },
-    worldPosition3D = { x = 5.0, y = 0.0, z = 5.0 },
-    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
-    model = {},
-    runModelAnimation = { animationName = "Mutant Jumping" },
-    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-},
+--{
+--    ID = 32,
+--    name = { value = "Man" },
+--    worldPosition3D = { x = 5.0, y = 0.0, z = 5.0 },
+--    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+--    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+--    model = {},
+--    runModelAnimation = { animationName = "Mutant Jumping" },
+--    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+--},
 --{
 --    ID = 33,
 --    name = { value = "Man" },

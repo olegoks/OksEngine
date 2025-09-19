@@ -696,8 +696,8 @@ namespace OksEngine
 									{ 0, 0, 0, 0 }	// no influence on vertex by default  
 								});
 
-							std::vector<ECS2::Entity::Id>				boneEntityIds;
-							boneEntityIds.reserve(mesh->mNumBones);
+							/*std::vector<ECS2::Entity::Id>				boneEntityIds;
+							boneEntityIds.reserve(mesh->mNumBones);*/
 							{
 								for (Common::Index i = 0; i < mesh->mNumBones; i++) {
 									//Save vertex bone info
@@ -714,7 +714,17 @@ namespace OksEngine
 										for (Common::Index k = 0; k < 4; k++) {
 											if (vertexBonesInfos[weight->mVertexId].boneWeights_[k] == 0) {
 												//Free cell found.
-												vertexBonesInfos[weight->mVertexId].boneIndices_[k] = i;
+
+												
+												const ECS2::Entity::Id boneEntityId = nodeToEntityId[nameToBoneNode[bone->mName.C_Str()]];
+												Common::Index boneEntityIdIndex = Common::Limits<Common::Index>::Max();
+												for (Common::Index i = 0; i < boneEntityIds.size(); i++) {
+													if (boneEntityId == boneEntityIds[i]) {
+														boneEntityIdIndex = i;
+													}
+												}
+												ASSERT(boneEntityIdIndex != Common::Limits<Common::Index>::Max());
+												vertexBonesInfos[weight->mVertexId].boneIndices_[k] = boneEntityIdIndex;
 #pragma region Assert
 												ASSERT_FMSG(Math::IsLess(weight->mWeight, 1.0), "");
 #pragma endregion
@@ -732,7 +742,7 @@ namespace OksEngine
 									const aiNode* boneNode = nameToBoneNode[bone->mName.C_Str()];
 									const ECS2::Entity::Id boneEntityId = nodeToEntityId[boneNode];
 									ASSERT(boneEntityId.IsValid());
-									boneEntityIds.push_back(boneEntityId);
+									//boneEntityIds.push_back(boneEntityId);
 								}
 								if (mesh->mNumBones > 0) {
 									//	CreateComponent<BoneNodeEntities>(meshEntityId, boneEntityIds);
@@ -742,19 +752,19 @@ namespace OksEngine
 
 
 
-							std::vector<Draw> drawInfos;
-							{
-								std::vector<glm::mat4> palette;
-								palette.resize(128, glm::mat4{ 1 });
-								Draw draw{
-									boneEntityIds,
-									palette
-								};
-								drawInfos.push_back(draw);
-								vertexBonesInfos.clear();
+							//std::vector<Draw> drawInfos;
+							//{
+							//	std::vector<glm::mat4> palette;
+							//	palette.resize(128, glm::mat4{ 1 });
+							//	Draw draw{
+							//		boneEntityIds,
+							//		palette
+							//	};
+							//	drawInfos.push_back(draw);
+							//	vertexBonesInfos.clear();
 
-								CreateComponent<DrawInfos>(meshEntityId, drawInfos);
-							}
+							//	CreateComponent<DrawInfos>(meshEntityId, drawInfos);
+							//}
 
 							vertices.Reserve(mesh->mNumVertices);
 							normals.Reserve(mesh->mNumVertices);
