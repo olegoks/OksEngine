@@ -32,6 +32,7 @@ namespace OksEngine
 		const WorldRotation3D* rotation3D0, const WorldScale3D* scale3D0, DriverTransform3D* driverTransform3D0,
 		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
+		return;
 
 		//const glm::mat4 translateMatrix = glm::mat4{ glm::translate(glm::vec3(position3D0->x_, position3D0->y_, position3D0->z_)) };
 		//const glm::mat4 rotationMatrix = glm::toMat4(glm::quat{ rotation3D0->w_, rotation3D0->x_, rotation3D0->y_, rotation3D0->z_ });;
@@ -108,7 +109,6 @@ namespace OksEngine
 	void CreateDriverTransform3D::Update(ECS2::Entity::Id entity0id, const WorldPosition3D* position3D0,
 		const WorldRotation3D* rotation3D0, const WorldScale3D* scale3D0, ECS2::Entity::Id entity1id,
 		RenderDriver* renderDriver1) {
-
 
 		//const glm::mat4 nodeTranslateMatrix = glm::mat4{ glm::translate(glm::vec3(position3D0->x_, position3D0->y_, position3D0->z_)) };
 		//const glm::mat4 nodeRotationMatrix = glm::toMat4(glm::quat{ rotation3D0->w_, rotation3D0->x_, rotation3D0->y_, rotation3D0->z_ });

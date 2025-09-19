@@ -2,6 +2,7 @@
 #include <Engine.hpp>
 #include <OksEngine.ECS.hpp>
 
+#include <string>
 int main(int argc, char** argv) {
 
 	using namespace OksEngine;
@@ -15,6 +16,25 @@ int main(int argc, char** argv) {
 	};
 
 	Engine engine{ engineCreateInfo };
+
+	std::string scene;
+
+	for (Common::Index i = 0; i < 30; i++) {
+		for (Common::Index j = 0; j < 10; j++) {
+			scene += std::format("{{\n"
+								"	ID = {},\n"
+								"	name = {{ value = \"Man\" }},\n"
+								"	worldPosition3D = {{ x = {}, y = 0.0, z = {} }},\n"
+								"	worldRotation3D = {{ w = 1.0, x = 0.0, y = 0.0, z = 0.0 }},\n"
+								"	worldScale3D = {{ x = 0.05, y = 0.05, z = 0.05 }},"
+								"	model = {{}},\n"
+								"	runModelAnimation = {{ animationName = \"Mutant Jumping\" }},\n"
+								"	modelFile = {{ fileName = \"7F82YHYEX1M01RF8TJOBED87E.glb\" }}\n"
+				"}},\n", i + j + 30, i * 5.0, j * 5.0 );
+		}
+	}
+	scene = scene;
+
 	//Entity testEntity = engine.CreateEntity();
 	//testEntity.AddClock();
 
