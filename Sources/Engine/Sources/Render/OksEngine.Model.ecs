@@ -9,6 +9,20 @@ ModelEntityComponent = {
     }
 }
 
+ModelEntityIdsComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<ECS2::Entity::Id>", name = "modelEntityIds" }
+    }
+}
+
+ModelNameComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::string", name = "modelName" }
+    }
+}
+
 ModelNodeComponent = {
     serializable = false
 
@@ -35,12 +49,6 @@ ModelNodeEntityIdsComponent = {
     }
 }
 
-MeshEntitiesComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::vector<ECS2::Entity::Id>", name = "meshEntityIds" }
-    }
-}
 
 ModelFileComponent = {
     fields = {
@@ -158,6 +166,7 @@ UpdateBonePalletSystem = {
         processesEntities = {
             {
                 processesComponents = {
+                    "Model",
                     "BoneNodeEntities",
                     { name = "BonesPallet", readonly = false }
                 }
@@ -337,6 +346,24 @@ MeshComponent = {
     serializable = false
 }
 
+MeshNamesComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<std::string>", name = "meshNames" }
+    }
+}
+
+MeshEntitiesComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<ECS2::Entity::Id>", name = "meshEntityIds" }
+    }
+}
+
+MeshsFoundComponent = {
+    serializable = false
+}
+
 AiNamespace = {
     SceneComponent = {
         serializable = false,
@@ -382,7 +409,15 @@ AiNamespace = {
                     },
                     createsComponents = {
                         "Model",
-                        "Ai::Scene"
+                        "Ai::Scene",
+                        "MeshNames"
+                    }
+                }
+            },
+            accessingEntities = {
+                {
+                    accessingComponents = {
+                        "DrawInfos"
                     }
                 }
             },
@@ -525,26 +560,32 @@ MeshNodesComponent = {
     }
 }
 
--- FindNodeMeshSystem = {
---     updateMethod = {
---         processesEntities = {
---             {
---                 processesComponents = {
---                     "Name",
---                     "ModelNode",
---                     "Ai::Node",
---                     { name = "MeshInfos", readonly = false }
---                 }
---             },
---             {
---                 processesComponents = {
---                     "Mesh",
---                     "Name"
---                 }
---             }
---         }
---     }
--- }
+FindModelMeshsSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "Model",
+                    "MeshNames",
+                    { name = "MeshEntities", readonly = false }
+                },
+                excludes = {
+                    "MeshsFound"
+                },
+                createsComponents = {
+                    "MeshsFound"
+                }
+            },
+            {
+                processesComponents = {
+                    "Mesh",
+                    "Name",
+                    { name = "ModelEntityIds", readonly = false }
+                }
+            }
+        }
+    }
+}
 
 CreateNodeMeshsSystem = {
     -- callOrder = {
@@ -970,6 +1011,13 @@ AddSkeletonModelToRenderSystem = {
         processesEntities = {
             {
                 processesComponents = {
+                    { name = "RenderDriver", readonly = false },
+                    "RenderPass",
+                    "SkeletonModelPipeline"
+                }
+            },
+            {
+                processesComponents = {
                     "Camera",
                     "Active",
                     "DriverViewProjectionUniformBuffer",
@@ -978,28 +1026,22 @@ AddSkeletonModelToRenderSystem = {
             },
             {
                 processesComponents = {
+                    "ModelEntityIds",
                     "Indices",
                     "DriverIndexBuffer",
                     "DriverVertexBuffer",
                     "TextureResource",
-                    "ModelNodeEntityId",
-                    "BonesPalletResource",
                     "VertexBones"
                 }
             },
-            {
-                processesComponents = {
-                    { name = "RenderDriver", readonly = false },
-                    "RenderPass",
-                    "SkeletonModelPipeline"
-                }
-            }
+
         },
         accessingEntities = {
             {
                 accessingComponents = {
                     "DriverTransform3D",
-                    "Transform3DResource"
+                    "Transform3DResource",
+                    "BonesPalletResource"
                 }
             }
         }
