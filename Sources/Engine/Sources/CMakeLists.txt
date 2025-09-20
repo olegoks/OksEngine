@@ -28,6 +28,15 @@ endif()
 
 target_compile_definitions(OksEngine PUBLIC USE_PIX)
 
+target_compile_options(OksEngine INTERFACE
+    $<$<CONFIG:Release>:
+        -O3
+        -Ot
+        -DNDEBUG
+        -march=native  # Оптимизация под текущий процессор
+    >
+)
+
 #Test code
 
 function(get_source_files DIRECTORY FILE_LIST)

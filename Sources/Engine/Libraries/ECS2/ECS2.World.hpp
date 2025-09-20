@@ -285,6 +285,28 @@ namespace ECS2 {
 			}
 		}
 
+		//Archetype entity can not contain need component, in the case we will return nullptr.
+		template<class ...Components>
+		[[nodiscard]]
+		std::tuple<Components*...> GetComponents(Entity::Id entityId) noexcept {
+
+			auto archetypeComponentsIt = archetypeEntitiesComponents_.find(entityId);
+			if (archetypeComponentsIt != archetypeEntitiesComponents_.end()) {
+				const ComponentsFilter componentsFilter = archetypeComponentsIt->second;
+				std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponents_[componentsFilter];
+				return archetypeComponents->GetComponents<Components...>(entityId);
+			}
+			else {
+				return std::make_tuple(
+					[this, entityId]() -> Components* {
+						auto container = std::dynamic_pointer_cast<Container<Components>>(dynamicEntitiesContainers_[Components::GetTypeId()]);
+						return container->GetComponent(entityId);
+					}()...
+				);
+			}
+			return std::tuple<Components*...>{};
+		}
+
 		template<class ComponentType>
 		[[nodiscard]]
 		bool IsComponentExist(Entity::Id entityId) noexcept {

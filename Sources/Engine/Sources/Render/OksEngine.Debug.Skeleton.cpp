@@ -91,9 +91,15 @@ namespace OksEngine
 		const WorldPosition3D* worldPosition3D1,
 		const ChildModelNodeEntities* childModelNodeEntities1) {
 
-		for (Common::Index i = 0; i < childModelNodeEntities1->childEntityIds_.size(); i++) {
+		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->childEntityIds_;
+
+		const Common::Size childModelNodeEntitiesNumber = childEntityIds.size();
+
+		vertices3D0->vertices_.Reserve(childModelNodeEntitiesNumber);
+
+		for (Common::Index i = 0; i < childModelNodeEntitiesNumber; i++) {
 			vertices3D0->vertices_.Add({ worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ });
-			const ECS2::Entity::Id childEntityId = childModelNodeEntities1->childEntityIds_[i];
+			const ECS2::Entity::Id childEntityId = childEntityIds[i];
 			auto* worldPosition3D = GetComponent<WorldPosition3D>(childEntityId);
 			vertices3D0->vertices_.Add({ worldPosition3D->x_, worldPosition3D->y_, worldPosition3D->z_ });
 		}

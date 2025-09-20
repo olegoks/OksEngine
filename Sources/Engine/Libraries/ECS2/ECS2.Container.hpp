@@ -188,13 +188,17 @@ namespace ECS2 {
 		}
 
 		ComponentType* GetComponent(Entity::Id entityId) {
-#pragma region Assert
-			ASSERT_FMSG(entityIdComponentIndex_.contains(entityId), 
-				"Container doesn't contain component of this entity.");
-#pragma endregion
-			const ComponentIndex componentIndex = entityIdComponentIndex_[entityId];
+//#pragma region Assert
+//			ASSERT_FMSG(entityIdComponentIndex_.contains(entityId), 
+//				"Container doesn't contain component of this entity.");
+//#pragma endregion
+			auto componentIndexIt = entityIdComponentIndex_.find(entityId);
+			if (componentIndexIt != entityIdComponentIndex_.end()) {
+				return components_.data() + componentIndexIt->second;
+			} else {
+				return nullptr;
+			}
 			
-			return components_.data() + componentIndex;
 		}
 		
 		virtual void RemoveComponent(Entity::Id entityId) noexcept override {

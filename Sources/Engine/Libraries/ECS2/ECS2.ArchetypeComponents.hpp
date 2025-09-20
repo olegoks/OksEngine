@@ -108,6 +108,29 @@ namespace ECS2 {
 			auto container = std::dynamic_pointer_cast<ArchetypeContainer<Component>>(containers_[Component::GetTypeId()]);
 			return (*container)[componentIndex];
 		}
+		
+		//Archetype entity can not contain need component, in the case we will return nullptr.
+		template<class ...Components>
+		inline std::tuple<Components*...> GetComponents(Entity::Id entityId) {
+
+			const ComponentIndex componentIndex = entityIdComponentIndex_[entityId];
+
+			return std::make_tuple(
+				[this, componentIndex]() -> Components* {
+
+					auto containerIt = containers_.find(Components::GetTypeId());
+					if (containerIt != containers_.end()) {
+						auto container = std::dynamic_pointer_cast<ArchetypeContainer<Components>>(containerIt->second);
+						ASSERT_FMSG(container != nullptr,
+							"Failed to cast to appropriate container type");
+						return (*container)[componentIndex];
+					} else {
+						//Return nullptr if archetype entity doesnt contain need component.
+						return nullptr;
+					}
+				}()...
+			);
+		}
 
 		template<class ...Components>
 		inline void ForEachEntity(const ComponentsFilter& exclude, std::function<void(Entity::Id, Components*...)>&& processEntity) {
