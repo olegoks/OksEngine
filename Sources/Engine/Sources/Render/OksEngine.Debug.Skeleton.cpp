@@ -91,6 +91,7 @@ namespace OksEngine
 		const WorldPosition3D* worldPosition3D1,
 		const ChildModelNodeEntities* childModelNodeEntities1) {
 
+
 		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->childEntityIds_;
 
 		const Common::Size childModelNodeEntitiesNumber = childEntityIds.size();
@@ -159,6 +160,9 @@ namespace OksEngine
 	}
 
 	void CreateDrawBonesRenderer::Update() {
+
+
+		return;
 
 		const ECS2::Entity::Id entityId = CreateEntity();
 
