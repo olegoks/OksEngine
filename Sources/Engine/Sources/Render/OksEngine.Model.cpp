@@ -319,52 +319,76 @@ namespace OksEngine
 	};
 
 	namespace Ai {
+
+		void CreateCache::Update() {
+
+			const ECS2::Entity::Id cacheEntityId = CreateEntity();
+
+			CreateComponent<Cache>(cacheEntityId, std::map<std::string, std::shared_ptr<const aiScene>>{});
+
+		}
+
 		void CreateScene::Update(
 			ECS2::Entity::Id entity0id,
-			const MeshsController* meshsController0,
-			MeshNameToEntity* meshNameToEntity0,
-
+			Ai::Cache* ai__Cache0, 
+			
 			ECS2::Entity::Id entity1id,
-			const ResourceSystem* resourceSystem1,
-
+			const MeshsController* meshsController1,
+			MeshNameToEntity* meshNameToEntity1,
 			ECS2::Entity::Id entity2id,
-			const ModelFile* modelFile2) {
+			const ResourceSystem* resourceSystem2, 
+			
+			ECS2::Entity::Id entity3id,
+			const ModelFile* modelFile3) {
 
-			Resources::ResourceData resourceData = resourceSystem1->system_->GetResourceSynch(
-				Subsystem::Type::ChildThread,
-				"Root/" + modelFile2->fileName_);
+			const aiScene* scene = nullptr;
 
-			auto importer = std::make_shared<Assimp::Importer>();
+			if (ai__Cache0->nametToScene_.contains(modelFile3->fileName_)) {
+				scene = ai__Cache0->nametToScene_[modelFile3->fileName_].get();
+			}
+			else {
 
-			importer->SetIOHandler(new GltfIOSystem{ resourceSystem1->system_ });
+				Resources::ResourceData resourceData = resourceSystem2->system_->GetResourceSynch(
+					Subsystem::Type::ChildThread,
+					"Root/" + modelFile3->fileName_);
 
-			const unsigned int flags =
-				aiProcess_Triangulate |
-				aiProcess_GenNormals |
-				aiProcess_FlipUVs |
-				aiProcess_LimitBoneWeights |
-				aiProcess_PopulateArmatureData |
-				aiProcess_Debone |
-				aiProcess_ConvertToLeftHanded;
+				auto importer = std::make_shared<Assimp::Importer>();
 
-			importer->SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
+				importer->SetIOHandler(new GltfIOSystem{ resourceSystem2->system_ });
 
-			const aiScene* scene = importer->ReadFileFromMemory(
-				resourceData.GetData<Common::Byte>(),
-				resourceData.GetSize(),
-				flags,
-				"gltf"
-			);
+				const unsigned int flags =
+					aiProcess_Triangulate |
+					aiProcess_GenNormals |
+					aiProcess_FlipUVs |
+					aiProcess_LimitBoneWeights |
+					aiProcess_PopulateArmatureData |
+					aiProcess_Debone |
+					aiProcess_ConvertToLeftHanded;
+
+				importer->SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
+
+				const aiScene* readScene = importer->ReadFileFromMemory(
+					resourceData.GetData<Common::Byte>(),
+					resourceData.GetSize(),
+					flags,
+					"gltf"
+				);
 
 #pragma region Assert
-			auto errorString = std::string(importer->GetErrorString());
+				auto errorString = std::string(importer->GetErrorString());
 
-			ASSERT_FMSG(scene && scene->mRootNode,
-				"Failed to load model: {}", errorString);
+				ASSERT_FMSG(readScene && readScene->mRootNode,
+					"Failed to load model: {}", errorString);
 #pragma endregion
 
-			std::shared_ptr<const aiScene> scenePtr(scene, [importer](const aiScene* scene) { importer->FreeScene(); });
-			CreateComponent<Model>(entity2id);
+				std::shared_ptr<const aiScene> scenePtr(readScene, [importer](const aiScene* scene) { importer->FreeScene(); });
+
+				ai__Cache0->nametToScene_[modelFile3->fileName_] = scenePtr;
+
+				scene = readScene;
+			}
+
+			CreateComponent<Model>(entity3id);
 			//CreateComponent<Ai::Scene>(entity2id, scenePtr);
 
 			//Node to Entity id 
@@ -427,12 +451,12 @@ namespace OksEngine
 			}
 
 			if (!boneEntityIds.empty()) {
-				CreateComponent<BoneNodeEntities>(entity2id, boneEntityIds);
+				CreateComponent<BoneNodeEntities>(entity3id, boneEntityIds);
 
 				std::vector<glm::mat4> palette;
 				palette.resize(128, glm::mat4{ 1 });
 
-				CreateComponent<BonesPallet>(entity2id, std::move(palette));
+				CreateComponent<BonesPallet>(entity3id, std::move(palette));
 			}
 
 			auto createNodesHierarchy = [&]() {
@@ -538,7 +562,7 @@ namespace OksEngine
 						aiMesh* mesh = scene->mMeshes[meshIndex];
 						meshs.push_back(std::shared_ptr<aiMesh>{ mesh, [](aiMesh*) {} });
 						meshInfos.push_back(
-							{ modelFile2->fileName_ + "/" + mesh->mName.C_Str(), ECS2::Entity::Id::invalid_ });
+							{ modelFile3->fileName_ + "/" + mesh->mName.C_Str(), ECS2::Entity::Id::invalid_ });
 					}
 
 					if (!meshInfos.empty()) {
@@ -579,12 +603,12 @@ namespace OksEngine
 							currentNode = currentNode->mParent;
 						}
 
-						nodeName = modelFile2->fileName_ + "/" + scene->mName.C_Str() + "/" + nodeName;
+						nodeName = modelFile3->fileName_ + "/" + scene->mName.C_Str() + "/" + nodeName;
 						return nodeName;
 						};
 
 					CreateComponent<Name>(nodeEntityId, getNodeFullName());
-					CreateComponent<ModelEntity>(nodeEntityId, entity2id);
+					CreateComponent<ModelEntity>(nodeEntityId, entity3id);
 
 					if (nodeEntityId == 21) {
 						Common::BreakPointLine();
@@ -628,12 +652,12 @@ namespace OksEngine
 						};
 						modelAnimations.push_back(std::move(modelAnimation));
 					}
-					CreateComponent<ModelAnimations>(entity2id, std::move(modelAnimations));
+					CreateComponent<ModelAnimations>(entity3id, std::move(modelAnimations));
 				}
 
 				const ECS2::Entity::Id rootNodeEntityId = nodeToEntityId[scene->mRootNode];
 
-				CreateComponent<ChildModelNodeEntities>(entity2id, std::vector{ rootNodeEntityId });
+				CreateComponent<ChildModelNodeEntities>(entity3id, std::vector{ rootNodeEntityId });
 
 				//CreateComponent<NodeToEntityId>(entity2id, nodeToEntityId);
 
@@ -829,14 +853,14 @@ namespace OksEngine
 
 					meshNames.push_back(meshName);
 
-					auto it = meshNameToEntity0->meshNameToEntityId_.find(meshName);
+					auto it = meshNameToEntity1->meshNameToEntityId_.find(meshName);
 
-					if (it != meshNameToEntity0->meshNameToEntityId_.end()) {
+					if (it != meshNameToEntity1->meshNameToEntityId_.end()) {
 
 						continue;
 					}
 
-					if (!meshNameToEntity0->meshNameToEntityId_.contains(meshName)) {
+					if (!meshNameToEntity1->meshNameToEntityId_.contains(meshName)) {
 						//Create mesh info.
 						const ECS2::Entity::Id meshEntity = CreateEntity<
 							Mesh,
@@ -859,13 +883,13 @@ namespace OksEngine
 						CreateComponent<Mesh>(meshEntity);
 						CreateComponent<Name>(meshEntity, meshName);
 						CreateComponent<ModelName>(meshEntity, scene->mName.C_Str());
-						CreateComponent<ModelEntityIds>(meshEntity, std::vector<ECS2::Entity::Id>{ entity2id });
+						CreateComponent<ModelEntityIds>(meshEntity, std::vector<ECS2::Entity::Id>{ entity3id });
 
 						createMeshComponents(scene, mesh, meshEntity);
 
 						//CreateComponent<ModelNodeEntityIds>(meshEntity, std::vector<ECS2::Entity::Id>{});
 
-						meshNameToEntity0->meshNameToEntityId_[meshName] = meshEntity;
+						meshNameToEntity1->meshNameToEntityId_[meshName] = meshEntity;
 						meshEntityIds[i] = (meshEntity);
 
 					}
@@ -874,8 +898,8 @@ namespace OksEngine
 					}
 				}
 
-				CreateComponent<MeshNames>(entity2id, meshNames);
-				CreateComponent<MeshEntities>(entity2id, meshEntityIds);
+				CreateComponent<MeshNames>(entity3id, meshNames);
+				CreateComponent<MeshEntities>(entity3id, meshEntityIds);
 
 				Common::Size foundMeshsCount = 0;
 				for (Common::Index i = 0; i < meshEntityIds.size(); i++) {
@@ -885,7 +909,7 @@ namespace OksEngine
 
 				}
 				if (foundMeshsCount == scene->mNumMeshes) {
-					CreateComponent<MeshsFound>(entity2id);
+					CreateComponent<MeshsFound>(entity3id);
 				}
 
 				};

@@ -161,9 +161,6 @@ namespace OksEngine
 
 	void CreateDrawBonesRenderer::Update() {
 
-
-		return;
-
 		const ECS2::Entity::Id entityId = CreateEntity();
 
 		CreateComponent<DebugDrawBonesRenderer>(entityId);

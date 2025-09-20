@@ -372,6 +372,26 @@ AiNamespace = {
         }
     },
 
+    CacheComponent = {
+        serializable = false,
+        fields = {
+            { type = "std::map<std::string, std::shared_ptr<const aiScene>>", name = "nametToScene" }
+        }
+    },
+
+    CreateCacheSystem = {
+        type = "Initialize",
+        updateMethod = {
+            createsEntities = {
+                {
+                    createsComponents = {
+                        "Ai::Cache"
+                    }
+                }
+            }
+        }
+    },
+
     NodeComponent = {
         serializable = false,
         fields = {
@@ -388,6 +408,11 @@ AiNamespace = {
     CreateSceneSystem = {
         updateMethod = {
             processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "Ai::Cache", readonly = false }
+                    }
+                },
                 {
                     processesComponents = {
                         "MeshsController",
