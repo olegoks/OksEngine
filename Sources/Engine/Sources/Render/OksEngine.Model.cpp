@@ -17,6 +17,9 @@
 #include <Render/Texture/auto_OksEngine.DriverTexture.hpp>
 #include <Render/Texture/auto_OksEngine.TextureResource.hpp>
 
+
+#include <Common/auto_OksEngine.Debug.Position3D.hpp>
+
 namespace OksEngine
 {
 
@@ -392,11 +395,12 @@ namespace OksEngine
 			//CreateComponent<Ai::Scene>(entity2id, scenePtr);
 
 			//Node to Entity id 
+			std::vector<ECS2::Entity::Id> nodeEntityIds;
 			std::map<const aiNode*, ECS2::Entity::Id> nodeToEntityId;
 			{
 				std::function<void(const aiScene*, aiNode*)> createNodeEntity = [&](const aiScene* scene, aiNode* node) {
 
-					nodeToEntityId[node] = CreateEntity<
+					const ECS2::Entity::Id nodeEntityId = CreateEntity<
 						ModelNode,
 						BoneNode,
 						Name,
@@ -411,7 +415,14 @@ namespace OksEngine
 						ChildModelNodeEntities,
 						ModelNodeAnimation,
 						DriverTransform3D,
-						Transform3DResource>();
+						Transform3DResource,
+
+						DebugText2D
+					>();
+
+					nodeEntityIds.push_back(nodeEntityId);
+					nodeToEntityId[node] = nodeEntityId;
+
 
 					for (Common::Index i = 0; i < node->mNumChildren; i++) {
 						aiNode* childrenNode = node->mChildren[i];
@@ -422,6 +433,9 @@ namespace OksEngine
 
 				createNodeEntity(scene, scene->mRootNode);
 			}
+
+
+			CreateComponent<ModelNodeEntityIds>(entity3id, nodeEntityIds);
 
 			//Get bone node names.
 			std::unordered_set<std::string> boneNames;
@@ -542,7 +556,7 @@ namespace OksEngine
 					if (scene->HasAnimations()) {
 						createNodeAnimationChannel(node, scene);
 					}
-
+					
 					//Mark that this node is Bone
 					if (boneNames.contains(node->mName.C_Str())) {
 
@@ -784,7 +798,28 @@ namespace OksEngine
 									CreateComponent<VertexBones>(meshEntityId, std::move(vertexBonesInfos));
 								}
 							}
-
+							{
+								//Иерархическая анимация
+								if (mesh->mNumBones == 0) {
+									std::vector<ECS2::Entity::Id> meshNodeEntityIds;
+									for (auto [node, entityId] : nodeToEntityId) {
+										for (Common::Index k = 0; k < node->mNumMeshes; k++) {
+											aiMesh* maybeThisMesh = scene->mMeshes[node->mMeshes[k]];
+											if (maybeThisMesh == mesh) {
+												meshNodeEntityIds.push_back(entityId);
+											}
+										}
+									}
+									std::vector<Common::Index> nodeEntityIndices;
+									for (ECS2::Entity::Id nodeEntityId : meshNodeEntityIds) {
+										auto nodeEntityIdIt = std::find(nodeEntityIds.begin(), nodeEntityIds.end(), nodeEntityId);
+										nodeEntityIndices.push_back(std::distance(nodeEntityIds.begin(), nodeEntityIdIt));
+									}
+									
+									CreateComponent<ModelNodeEntityIndices>(meshEntityId, nodeEntityIndices);
+									CreateComponent<ModelNodeEntityIds>(meshEntityId, meshNodeEntityIds);
+								}
+							}
 
 
 							//std::vector<Draw> drawInfos;
@@ -867,6 +902,8 @@ namespace OksEngine
 							Name,
 							ModelName,
 							ModelEntityIds,
+							ModelNodeEntityIndices,
+							ModelNodeEntityIds,
 							Vertices3D,
 							DriverVertexBuffer,
 							Indices,
@@ -1195,7 +1232,14 @@ namespace OksEngine
 				modelEntityIds1->modelEntityIds_.push_back(entity0id);
 			}
 		}
-		if (std::find(meshEntities0->meshEntityIds_.begin(), meshEntities0->meshEntityIds_.end(), ECS2::Entity::Id::invalid_) == meshEntities0->meshEntityIds_.end()) {
+		if (
+			std::find(
+				meshEntities0->meshEntityIds_.begin(),
+				meshEntities0->meshEntityIds_.end(),
+				ECS2::Entity::Id::invalid_) == meshEntities0->meshEntityIds_.end()) {
+
+			ASSERT(!IsComponentExist<MeshsFound>(entity0id));
+
 			CreateComponent<MeshsFound>(entity0id);
 		}
 	}
@@ -2447,18 +2491,19 @@ namespace OksEngine
 	}
 
 	void AddModelToRender::Update(
-		ECS2::Entity::Id entity0id,
+		ECS2::Entity::Id entity0id, 
 		const Camera* camera0,
 		const Active* active0,
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer0,
-		const CameraTransformResource* cameraTransformResource0,
-
+		const CameraTransformResource* cameraTransformResource0, 
+		
 		ECS2::Entity::Id entity1id,
-		const Indices* indices1,
+		const Indices* indices1, 
 		const DriverIndexBuffer* driverIndexBuffer1,
-		const DriverVertexBuffer* driverVertexBuffer1,
+		const DriverVertexBuffer* driverVertexBuffer1, 
 		const TextureResource* textureResource1,
-		const ModelNodeEntityId* modelNodeEntityId1,
+		const ModelEntityIds* modelEntityIds1,
+		const ModelNodeEntityIndices* modelNodeEntityIndices1,
 
 		ECS2::Entity::Id entity2id,
 		RenderDriver* renderDriver2,
@@ -2470,23 +2515,32 @@ namespace OksEngine
 		driver->SetViewport(0, 0, 2560, 1440);
 		driver->SetScissor(0, 0, 2560, 1440);
 		driver->BindPipeline(pipeline2->id_);
-		driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
-		driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
 
-		const ECS2::Entity::Id nodeEntityId = modelNodeEntityId1->nodeEntityId_;
+		const std::vector<Common::Index>& nodeEntityIndices = modelNodeEntityIndices1->nodeEntityIndices_;
 
-#pragma region Assert
-		ASSERT_FMSG(IsComponentExist<Transform3DResource>(nodeEntityId), "");
-		const auto* transform3DResource = GetComponent<Transform3DResource>(nodeEntityId);
-#pragma endregion
+		for (ECS2::Entity::Id modelEntityId : modelEntityIds1->modelEntityIds_) {
+			const auto* modelNodeEntityIds = GetComponent<ModelNodeEntityIds>(modelEntityId);
+			for (Common::Index nodeEntityIndex : nodeEntityIndices) {
 
-		driver->Bind(pipeline2->id_,
-			{
-				cameraTransformResource0->id_,
-				transform3DResource->id_,
-				textureResource1->id_
-			});
-		driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
+				const ECS2::Entity::Id modelNodeEntity = modelNodeEntityIds->nodeEntityIds_[nodeEntityIndex];
+
+				driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
+				driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
+
+				const auto* transform3DResource = GetComponent<Transform3DResource>(modelNodeEntity);
+
+				driver->Bind(pipeline2->id_,
+					{
+						cameraTransformResource0->id_,
+						transform3DResource->id_,
+						textureResource1->id_
+					});
+				driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
+
+			}
+		}
+
+
 
 	}
 
@@ -2515,11 +2569,13 @@ namespace OksEngine
 		driver->SetViewport(0, 0, 2560, 1440);
 		driver->SetScissor(0, 0, 2560, 1440);
 
-		for (ECS2::Entity::Id modelEntityId : modelEntityIds2->modelEntityIds_) {
+		driver->BindPipeline(skeletonModelPipeline0->id_);
 
-			driver->BindPipeline(skeletonModelPipeline0->id_);
-			driver->BindVertexBuffer(driverVertexBuffer2->id_, 0);
-			driver->BindIndexBuffer(driverIndexBuffer2->id_, 0);
+		driver->BindVertexBuffer(driverVertexBuffer2->id_, 0);
+		driver->BindIndexBuffer(driverIndexBuffer2->id_, 0);
+
+
+		for (ECS2::Entity::Id modelEntityId : modelEntityIds2->modelEntityIds_) {
 
 			//const auto* transform3DResource = GetComponent<Transform3DResource>(modelEntityId);
 			const auto* bonesPalletResource = GetComponent<BonesPalletResource>(modelEntityId);

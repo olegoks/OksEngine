@@ -49,6 +49,13 @@ ModelNodeEntityIdsComponent = {
     }
 }
 
+ModelNodeEntityIndicesComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::vector<Common::Index>", name = "nodeEntityIndices" }
+    }
+}
+
 
 ModelFileComponent = {
     fields = {
@@ -62,20 +69,20 @@ BoneNodeComponent = {
     serializable = false
 }
 
-DrawStruct = {
-    serializable = false,
-    fields = {
-        { type = "std::vector<ECS2::Entity::Id>", name = "boneEntityIds" },
-        { type = "std::vector<glm::mat4>", name = "bonePallets" }
-    }
-}
+-- DrawStruct = {
+--     serializable = false,
+--     fields = {
+--         { type = "std::vector<ECS2::Entity::Id>", name = "boneEntityIds" },
+--         { type = "std::vector<glm::mat4>", name = "bonePallets" }
+--     }
+-- }
 
-DrawInfosComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::vector<Draw>", name = "draws" }
-    }
-}
+-- DrawInfosComponent = {
+--     serializable = false,
+--     fields = {
+--         { type = "std::vector<Draw>", name = "draws" }
+--     }
+-- }
 
 BoneNodeEntitiesComponent = {
     serializable = false,
@@ -233,6 +240,14 @@ NodeAnimationChannelStruct = {
         { type = "std::vector<ChannelRotationKey>", name = "rotation3DValues" },
         { type = "std::vector<ChannelScaleKey>",    name = "scale3DValues" },
     }
+}
+
+HierarchicalAnimationComponent = {
+    serializable = false
+}
+
+BoneAnimationComponent = {
+    serializable = false
 }
 
 ModelNodeAnimationComponent = {
@@ -439,13 +454,6 @@ AiNamespace = {
                     }
                 }
             },
-            accessingEntities = {
-                {
-                    accessingComponents = {
-                        "DrawInfos"
-                    }
-                }
-            },
             createsEntities = {
                 {
                     createsComponents = {
@@ -465,6 +473,8 @@ AiNamespace = {
                     createsComponents = {
                         "ModelNode",
                         "ModelEntity",
+                        "ModelNodeEntityIds",
+                        "ModelNodeEntityIndices",
                         "Ai::Node",
                         --"Ai::Meshes",
                         "BoneNode",
@@ -1002,7 +1012,8 @@ AddModelToRenderSystem = {
                     "DriverIndexBuffer",
                     "DriverVertexBuffer",
                     "TextureResource",
-                    "ModelNodeEntityId"
+                    "ModelEntityIds",
+                    "ModelNodeEntityIndices"
                 },
                 excludes = {
                     "VertexBones"
@@ -1017,6 +1028,11 @@ AddModelToRenderSystem = {
             }
         },
         accessingEntities = {
+            {
+                accessingComponents = {
+                    "ModelNodeEntityIds"
+                }
+            },
             {
                 accessingComponents = {
                     "DriverTransform3D",

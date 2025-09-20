@@ -21,34 +21,44 @@ scene = {
         --    runModelAnimation = { animationName = "ArmatureAction" },
         --    modelFile = { fileName = "TwoBonesExample.glb" }
         --},
-        {
-            ID = 2,
-            name = { value = "Man" },
-            worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
-            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
-            model = {},
-            runModelAnimation = { animationName = "Mutant Jumping" },
-            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        },        
-        {
-           ID = 131,
-           name = { value = "Man with pistol" },
-           worldPosition3D = { x = 0, y = 0.0, z = 5 },
-           worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-           worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },	model = {},
-           runModelAnimation = { animationName = "golf" },
-           modelFile = { fileName = "wooden_mannequin_for_artist (1).glb" }
-        },
         --{
-        --    ID = 31,
+        --    ID = 2,
         --    name = { value = "Man" },
-        --    worldPosition3D = { x = 0, y = 0.0, z = 5 },
+        --    worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
         --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },
+        --    model = {},
         --    runModelAnimation = { animationName = "Mutant Jumping" },
         --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        --},        
+        --{
+        --   ID = 131,
+        --   name = { value = "Man with pistol" },
+        --   worldPosition3D = { x = 0, y = 0.0, z = 5 },
+        --   worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+        --   worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },	model = {},
+        --   runModelAnimation = { animationName = "golf" },
+        --   modelFile = { fileName = "wooden_mannequin_for_artist (1).glb" }
         --},
+
+        {
+            ID = 132,
+            name = { value = "Mech" },
+            worldPosition3D = { x = 0, y = 0.0, z = 5 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },	model = {},
+            runModelAnimation = { animationName = "Mesh_Mech_Full_Config" },
+            modelFile = { fileName = "walker_mech.glb" }
+         },
+        {
+            ID = 31,
+            name = { value = "Man" },
+            worldPosition3D = { x = 0, y = 0.0, z = 5 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
         --{
         --    ID = 32,
         --    name = { value = "Man" },
