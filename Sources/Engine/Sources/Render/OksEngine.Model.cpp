@@ -2490,6 +2490,33 @@ namespace OksEngine
 
 	}
 
+	struct RTS {
+		alignas(16) float rotation[4];
+		alignas(16) float transform[3]; // + 4 padding
+		alignas(16) float scale[3];		// + 4 padding
+	};
+
+	void UpdateHierarchicalNodeDriverTransform3D::Update(ECS2::Entity::Id entity0id, const WorldPosition3D* position3D0,
+		const WorldRotation3D* rotation3D0, const WorldScale3D* scale3D0, DriverTransform3D* driverTransform3D0,
+		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
+
+		RTS rts{
+			{ rotation3D0->w_, rotation3D0->x_, rotation3D0->y_, rotation3D0->z_ },
+			{ position3D0->x_, position3D0->y_, position3D0->z_ },
+			{ scale3D0->x_, scale3D0->y_, scale3D0->z_ }
+		};
+
+
+		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+			.size_ = sizeof(RTS),
+			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+		};
+
+		renderDriver1->driver_->FillUniformBuffer(driverTransform3D0->id_, &rts);
+
+
+	};
+
 	void AddModelToRender::Update(
 		ECS2::Entity::Id entity0id, 
 		const Camera* camera0,
@@ -2516,6 +2543,9 @@ namespace OksEngine
 		driver->SetScissor(0, 0, 2560, 1440);
 		driver->BindPipeline(pipeline2->id_);
 
+		driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
+		driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
+
 		const std::vector<Common::Index>& nodeEntityIndices = modelNodeEntityIndices1->nodeEntityIndices_;
 
 		for (ECS2::Entity::Id modelEntityId : modelEntityIds1->modelEntityIds_) {
@@ -2523,9 +2553,6 @@ namespace OksEngine
 			for (Common::Index nodeEntityIndex : nodeEntityIndices) {
 
 				const ECS2::Entity::Id modelNodeEntity = modelNodeEntityIds->nodeEntityIds_[nodeEntityIndex];
-
-				driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
-				driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
 
 				const auto* transform3DResource = GetComponent<Transform3DResource>(modelNodeEntity);
 
@@ -2539,8 +2566,6 @@ namespace OksEngine
 
 			}
 		}
-
-
 
 	}
 

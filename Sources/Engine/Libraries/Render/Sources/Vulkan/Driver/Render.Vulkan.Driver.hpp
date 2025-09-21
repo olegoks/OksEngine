@@ -28,6 +28,7 @@
 #include <Render.Vulkan.Driver.DescriptorSet.hpp>
 //
 #include <Render.Vulkan.Driver.Pipeline.hpp>
+#include <Render.Vulkan.Driver.ComputePipeline.hpp>
 #include <Render.Vulkan.Driver.FrameBuffer.hpp>
 //
 #include <Render.Vulkan.Driver.Fence.hpp>
@@ -773,6 +774,46 @@ namespace Render::Vulkan {
 			return pipelineId;
 		}
 
+		virtual ComputePipeline::Id CreateComputePipeline(const ComputePipeline::CI& pipelineCI) override {
+
+			std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
+			for (auto& binding : pipelineCI.shaderBindings_) {
+				std::vector<VkDescriptorSetLayoutBinding> bindings;
+				VkDescriptorSetLayoutBinding vBinding{
+					binding.binding_,
+					ToVulkanType(binding.type_),
+					1,
+					static_cast<VkFlags>(ToVulkanType(binding.stage_)),
+					nullptr
+				};
+				bindings.push_back(vBinding);
+
+				auto DSL = std::make_shared<DescriptorSetLayout>(
+					DescriptorSetLayout::CreateInfo{
+						binding.name_,
+						objects_.LD_,
+						bindings
+					});
+				DSLs.push_back(DSL);
+			}
+
+			Vulkan::ComputePipeline::CreateInfo createInfo{
+				.physicalDevice_ = objects_.physicalDevice_,
+				.LD_ = objects_.LD_,
+				.descriptorSetLayouts_ = DSLs,
+				.computeShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					objects_.LD_,
+					std::dynamic_pointer_cast<Vulkan::Shader>(pipelineCI.computeShader_)->GetSpirv()
+					}),
+			};
+
+			const ComputePipeline::Id pipelineId = computePipelineIdsGenerator_.Generate();
+
+			idComputePipeline_[pipelineId] = std::make_shared<Vulkan::ComputePipeline>(createInfo);
+
+			return pipelineId;
+		}
+
 		virtual RP::Id CreateRenderPass(const RenderPass::CI& rpCI) override {
 
 			auto createAttachment = [](RAL::Driver::RP::AttachmentUsage attachmentUsage) {
@@ -1130,6 +1171,7 @@ namespace Render::Vulkan {
 			}
 			CB_->BeginRenderPass(renderPass, framebuffer, { area.first, area.second }, clearValues);
 		}
+
 		virtual void BeginSubpass() override {
 
 		}
@@ -1184,6 +1226,16 @@ namespace Render::Vulkan {
 			}
 
 			CB_->BindPipeline(idPipeline_[pipelineId]);
+			//contexts_.back().pipeline_ = idPipeline_[pipelineId];
+		}
+
+		virtual void BindComputePipeline(RAL::Driver::ComputePipeline::Id pipelineId) override {
+
+			if (CB_ == nullptr) {
+				return;
+			}
+
+			CB_->BindPipeline(idComputePipeline_[pipelineId]);
 			//contexts_.back().pipeline_ = idPipeline_[pipelineId];
 		}
 
@@ -1428,6 +1480,15 @@ namespace Render::Vulkan {
 			}
 		}
 
+		//Compute pipeline
+
+		void Dispatch(Common::Size groupCountX, Common::Size groupCountY, Common::Size groupCountZ) override {
+
+			CB_->Dispatch(groupCountX, groupCountY, groupCountZ);
+
+		}
+
+		//Compute pipeline
 
 		// UNIFORM BUFFER
 		[[nodiscard]]
@@ -2138,6 +2199,9 @@ namespace Render::Vulkan {
 
 		Common::IdGenerator pipelineIdsGenerator_;
 		std::map<Pipeline::Id, std::shared_ptr<Vulkan::Pipeline>> idPipeline_;
+
+		Common::IdGenerator computePipelineIdsGenerator_;
+		std::map<ComputePipeline::Id, std::shared_ptr<Vulkan::ComputePipeline>> idComputePipeline_;
 
 	private:
 

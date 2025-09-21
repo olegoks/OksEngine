@@ -14,6 +14,7 @@
 #include <Render.Vulkan.Driver.CommandPool.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.Pipeline.hpp>
+#include <Render.Vulkan.Driver.ComputePipeline.hpp>
 #include <Render.Vulkan.Driver.VertexBuffer.hpp>
 #include <Render.Vulkan.Driver.DescriptorSet.hpp>
 #include <Render.Vulkan.Driver.IndexBuffer.hpp>
@@ -92,6 +93,14 @@ namespace Render::Vulkan {
 			vkCmdBindPipeline(
 				GetHandle(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS,
+				pipeline->GetHandle());
+		}
+
+		template<>
+		void BindPipeline<ComputePipeline>(std::shared_ptr<ComputePipeline> pipeline) noexcept {
+			vkCmdBindPipeline(
+				GetHandle(),
+				VK_PIPELINE_BIND_POINT_COMPUTE,
 				pipeline->GetHandle());
 		}
 
@@ -210,6 +219,12 @@ namespace Render::Vulkan {
 
 		void EndRenderPass() noexcept {
 			vkCmdEndRenderPass(GetHandle());
+		}
+
+		void Dispatch(Common::Size groupCountX, Common::Size groupCountY, Common::Size groupCountZ) noexcept {
+
+			vkCmdDispatch(GetHandle(), groupCountX, groupCountY, groupCountZ);
+
 		}
 
 		void Copy(std::shared_ptr<Buffer> from, std::shared_ptr<Buffer> to, Common::Size offsetFrom, Common::Size offsetTo, Common::Size bytesNumber) noexcept {

@@ -84,6 +84,30 @@ BoneNodeComponent = {
 --     }
 -- }
 
+
+UpdateHierarchicalNodeDriverTransform3DSystem = {
+    updateMethod = {
+    processesEntities = {
+        {
+            processesComponents = { 
+                "WorldPosition3D", 
+                "WorldRotation3D", 
+                "WorldScale3D",
+                { name = "DriverTransform3D", readonly = false }
+            },
+            excludes = {
+                "BoneNode"
+            }
+        },
+        {
+            processesComponents = { 
+                { name = "RenderDriver", readonly = false }
+            }
+        }
+    }
+    }
+}
+
 BoneNodeEntitiesComponent = {
     serializable = false,
     fields = {

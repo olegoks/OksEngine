@@ -487,7 +487,19 @@ namespace RAL {
 			using CI = CreateInfo;
 		};
 
+		struct ComputePipeline {
+			using Id = Common::Id;
+
+			struct CreateInfo {
+				std::string name_ = "";
+				std::shared_ptr<Shader> computeShader_ = nullptr;
+				std::vector<Shader::Binding::Layout> shaderBindings_;
+			};
+			using CI = CreateInfo;
+		};
+
 		virtual Pipeline::Id CreatePipeline(const Pipeline::CI& pipelineCI) = 0;
+		virtual ComputePipeline::Id CreateComputePipeline(const ComputePipeline::CI& pipelineCI) = 0;
 		//Pipeline
 
 
@@ -520,6 +532,7 @@ namespace RAL {
 			std::pair<Common::UInt32, Common::UInt32> area) = 0;
 		virtual void BeginSubpass() = 0;
 		virtual void BindPipeline(RAL::Driver::Pipeline::Id pipelineId) = 0;
+		virtual void BindComputePipeline(RAL::Driver::ComputePipeline::Id pipelineId) = 0;
 		virtual void BindVertexBuffer(
 			VertexBuffer::Id VBId,
 			Common::UInt64 offset) = 0;
@@ -535,7 +548,11 @@ namespace RAL {
 
 		virtual void FrameBufferResize(glm::u32vec2 newSize) = 0;
 
+		//Compute pipeline
 
+		virtual void Dispatch(Common::Size groupCountX, Common::Size groupCountY, Common::Size groupCountZ) = 0;
+
+		//Compute pipeline
 
 
 		virtual ~Driver() = default;
