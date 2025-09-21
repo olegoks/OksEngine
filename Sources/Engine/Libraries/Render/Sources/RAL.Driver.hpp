@@ -91,6 +91,24 @@ namespace RAL {
 		virtual void FillUniformBuffer(UniformBuffer::Id UBId, void* data) = 0;
 		//Uniform buffer
 
+
+		// Storage buffer
+		class StorageBuffer {
+		public:
+			using Id = Common::Id;
+			struct CreateInfo {
+				Common::Size size_ = 0;
+			};
+		};
+		using SB = StorageBuffer;
+
+		[[nodiscard]]
+		virtual StorageBuffer::Id CreateStorageBuffer(const StorageBuffer::CreateInfo& createInfo) = 0;
+		virtual Common::Size GetSBSizeInBytes(SB::Id ubid) = 0;
+		[[nodiscard]]
+		virtual void FillStorageBuffer(StorageBuffer::Id UBId, void* data) = 0;
+		// Storage buffer
+
 		//Vertex buffer
 		class VertexBuffer {
 		public:
@@ -360,6 +378,7 @@ namespace RAL {
 				Common::UInt32 binding_ = Common::Limits<Common::UInt32>::Max();
 				//Uniform buffer.
 				UB::Id ubid_ = UB::Id::Invalid();
+				
 				Common::UInt64 offset_ = 0;
 				Common::UInt64 size_ = Common::Limits<Common::UInt64>::Max();
 

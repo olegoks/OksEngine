@@ -21,6 +21,7 @@
 #include <Render.Vulkan.Driver.VertexBuffer.hpp>
 #include <Render.Vulkan.Driver.IndexBuffer.hpp>
 #include <Render.Vulkan.Driver.UniformBuffer.hpp>
+#include <Render.Vulkan.Driver.StorageBuffer.hpp>
 #include <Render.Vulkan.Driver.StagingBuffer.hpp>
 //
 #include <Render.Vulkan.Driver.DescriptorPool.hpp>
@@ -719,10 +720,10 @@ namespace Render::Vulkan {
 
 			std::shared_ptr<Vulkan::Pipeline::DepthTestInfo> depthTestData;
 			//if (pipelineCI.enableDepthTest_) {
-				depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
-				depthTestData->enable_ = pipelineCI.enableDepthTest_;
-				depthTestData->bufferFormat_ = VK_FORMAT_D32_SFLOAT;// objects_.depthTestData_->image_->GetFormat();
-				depthTestData->compareOperation_ = ToVulkanType(pipelineCI.dbCompareOperation_);
+			depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
+			depthTestData->enable_ = pipelineCI.enableDepthTest_;
+			depthTestData->bufferFormat_ = VK_FORMAT_D32_SFLOAT;// objects_.depthTestData_->image_->GetFormat();
+			depthTestData->compareOperation_ = ToVulkanType(pipelineCI.dbCompareOperation_);
 			//}
 
 			std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo;
@@ -1263,11 +1264,11 @@ namespace Render::Vulkan {
 		}
 
 		virtual void Bind(RAL::Driver::Pipeline::Id pipelineId, const std::vector<Resource::Id>& resourceIds) override {
-			
+
 			if (CB_ == nullptr) {
 				return;
 			}
-			
+
 			std::vector<std::shared_ptr<DescriptorSet>> dss{ };
 
 			for (Resource::Id resourceId : resourceIds) {
@@ -1288,12 +1289,12 @@ namespace Render::Vulkan {
 		}
 
 		virtual void DrawIndexed(Common::Size indicesNumber) override {
-		/*	VkQueryPoolCreateInfo queryPoolInfo = {
-	.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
-	.queryType = VK_QUERY_TYPE_OCCLUSION,
-	.queryCount = 1,
-			};
-			vkCreateQueryPool(*objects_.LD_, &queryPoolInfo, nullptr, &queryPool);*/
+			/*	VkQueryPoolCreateInfo queryPoolInfo = {
+		.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
+		.queryType = VK_QUERY_TYPE_OCCLUSION,
+		.queryCount = 1,
+				};
+				vkCreateQueryPool(*objects_.LD_, &queryPoolInfo, nullptr, &queryPool);*/
 
 			if (CB_ == nullptr) {
 				return;
@@ -1314,13 +1315,13 @@ namespace Render::Vulkan {
 
 		}
 		virtual void EndRenderPass() override {
-			
+
 			if (CB_ == nullptr) {
 				return;
 			}
 
 			CB_->EndRenderPass();
-			
+
 		}
 
 		virtual void Show(RAL::Driver::Texture::Id textureId) override {
@@ -1570,6 +1571,49 @@ namespace Render::Vulkan {
 		}
 
 		// UNIFORM BUFFER
+
+		// STORAGE BUFFER
+		[[nodiscard]]
+		virtual StorageBuffer::Id CreateStorageBuffer(const StorageBuffer::CreateInfo& createInfo) override {
+
+			Vulkan::SB::CreateInfo sbci{
+				.PD_ = objects_.physicalDevice_,
+				.LD_ = objects_.LD_,
+				.sizeInBytes_ = createInfo.size_
+			};
+
+			auto storageBuffer = std::make_shared<Vulkan::StorageBuffer>(sbci);
+
+			storageBuffer->Allocate();
+
+			Common::Id id = SBsIdsGenerator_.Generate();
+			SBs_[id] = std::vector<std::shared_ptr<Vulkan::StorageBuffer>>{ storageBuffer };
+			return id;
+
+		}
+
+		virtual Common::Size GetSBSizeInBytes(SB::Id sbid) override {
+			return GetStorageBuffer(sbid)->GetSizeInBytes();
+		}
+
+		std::shared_ptr<Vulkan::StorageBuffer> GetStorageBuffer(StorageBuffer::Id SBId) {
+			auto SB = SBs_[SBId];
+			return SB[0];
+		}
+
+		void RemoveStorageBuffer(StorageBuffer::Id SBId) {
+			SBs_.erase(SBId);
+		}
+
+
+		[[nodiscard]]
+		virtual void FillStorageBuffer(StorageBuffer::Id SBId, void* data) override {
+			std::vector<std::shared_ptr<Vulkan::StorageBuffer>>& sb = SBs_[SBId];
+			sb[0]->Fill(0, data, sb[0]->GetSizeInBytes());
+
+		}
+
+		// STORAGE BUFFER
 
 		//VERTEX BUFFER
 
@@ -2234,6 +2278,12 @@ namespace Render::Vulkan {
 
 		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::UBDS>>> UBDSs_;
 		Common::IdGenerator UBDSsIdsGenerator_;
+
+		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::StorageBuffer>>> SBs_;
+		Common::IdGenerator SBsIdsGenerator_;
+
+		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::SBDS>>> SBDSs_;
+		Common::IdGenerator SBDSsIdsGenerator_;
 
 		std::map<Common::Id, std::vector<std::shared_ptr<HostVisibleVertexBuffer>>> VBs_;
 		Common::IdGenerator VBsIdsGenerator_;
