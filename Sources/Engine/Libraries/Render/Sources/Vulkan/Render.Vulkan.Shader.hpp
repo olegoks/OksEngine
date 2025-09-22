@@ -268,6 +268,10 @@ namespace Render::Vulkan {
 				return EShLanguage::EShLangFragment;
 				break;
 			}
+			case Type::Compute: {
+				return EShLanguage::EShLangCompute;
+				break;
+			}
 			default: {
 				OS::NotImplemented();
 				return EShLanguage::EShLangCount;

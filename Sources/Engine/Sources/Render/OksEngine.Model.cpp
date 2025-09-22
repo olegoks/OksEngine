@@ -104,15 +104,12 @@ namespace OksEngine
 
 				const double ticksSinceAnimationStart = modelAnimation.ticksPerSecond_ * (timeSinceAnimationStart / 1000000.0);
 
-
-
 				auto* localNodePosition3D = std::get<LocalPosition3D*>(components); //GetComponent<LocalPosition3D>(nodeEntityId);
 
 				//TODO: binary search
 				for (Common::Index i = 1; i < nodeChannel.position3DValues_.size(); i++) {
 					const ChannelPositionKey& previousPosition3DKey = nodeChannel.position3DValues_[i - 1];
 					const ChannelPositionKey& currentPosition3DKey = nodeChannel.position3DValues_[i];
-
 
 					if (ticksSinceAnimationStart > previousPosition3DKey.time_ && ticksSinceAnimationStart < currentPosition3DKey.time_) {
 
@@ -333,14 +330,14 @@ namespace OksEngine
 
 		void CreateScene::Update(
 			ECS2::Entity::Id entity0id,
-			Ai::Cache* ai__Cache0, 
-			
+			Ai::Cache* ai__Cache0,
+
 			ECS2::Entity::Id entity1id,
 			const MeshsController* meshsController1,
 			MeshNameToEntity* meshNameToEntity1,
 			ECS2::Entity::Id entity2id,
-			const ResourceSystem* resourceSystem2, 
-			
+			const ResourceSystem* resourceSystem2,
+
 			ECS2::Entity::Id entity3id,
 			const ModelFile* modelFile3) {
 
@@ -556,7 +553,7 @@ namespace OksEngine
 					if (scene->HasAnimations()) {
 						createNodeAnimationChannel(node, scene);
 					}
-					
+
 					//Mark that this node is Bone
 					if (boneNames.contains(node->mName.C_Str())) {
 
@@ -815,7 +812,7 @@ namespace OksEngine
 										auto nodeEntityIdIt = std::find(nodeEntityIds.begin(), nodeEntityIds.end(), nodeEntityId);
 										nodeEntityIndices.push_back(std::distance(nodeEntityIds.begin(), nodeEntityIdIt));
 									}
-									
+
 									CreateComponent<ModelNodeEntityIndices>(meshEntityId, nodeEntityIndices);
 									CreateComponent<ModelNodeEntityIds>(meshEntityId, meshNodeEntityIds);
 								}
@@ -2045,10 +2042,10 @@ namespace OksEngine
 					worldRotation3D->x_,
 					worldRotation3D->y_,
 					worldRotation3D->z_ },
-				glm::vec3(
-					worldScale3D->x_,
-					worldScale3D->y_,
-					worldScale3D->z_)
+					glm::vec3(
+						worldScale3D->x_,
+						worldScale3D->y_,
+						worldScale3D->z_)
 
 			);
 			//const glm::mat4 nodeTranslateMatrix
@@ -2378,17 +2375,61 @@ namespace OksEngine
 
 	void Compute::CreatePipeline::Update(
 		ECS2::Entity::Id entity0id,
-		const RenderDriver* renderDriver0) {
+		const ResourceSystem* resourceSystem0,
 
+		ECS2::Entity::Id entity1id,
+		const RenderDriver* renderDriver1) {
 
+		auto driver = renderDriver1->driver_;
+
+		Resources::ResourceData computeTextureShaderResource
+			= resourceSystem0->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/Test.comp");
+
+		std::string computeShaderCode{
+			computeTextureShaderResource.GetData<Common::Byte>(),
+			computeTextureShaderResource.GetSize() };
+
+		RAL::Driver::Shader::CreateInfo computeShaderCreateInfo{
+			.name_ = "ComputeShader",
+			.type_ = RAL::Driver::Shader::Type::Compute,
+			.code_ = computeShaderCode
+		};
+		auto computeShader = driver->CreateShader(computeShaderCreateInfo);
+
+		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
+
+		RAL::Driver::Shader::Binding::Layout bonesPalleteBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
+		};
+		shaderBindings.push_back(bonesPalleteBinding);
+
+		RAL::Driver::ComputePipeline::CreateInfo cpci{
+			.name_ = "Test compute pipeline",
+			.computeShader_ = computeShader,
+			.shaderBindings_ = shaderBindings
+		};
+
+		RAL::Driver::ComputePipeline::Id coimputePipelineId = driver->CreateComputePipeline(cpci);
+
+		CreateComponent<Compute::Pipeline>(entity1id, coimputePipelineId);
 
 	}
 
 
 	void Compute::TestPipeline::Update(
-		ECS2::Entity::Id entity0id, 
+		ECS2::Entity::Id entity0id,
 		const RenderDriver* renderDriver0,
 		const Compute::Pipeline* pipeline0) {
+
+		auto driver = renderDriver0->driver_;
+
+		driver->BindComputePipeline(pipeline0->pipelineId_);
+		//driver->Bind();
+		//driver->Dispatch();
+
+
 
 	}
 
@@ -2533,16 +2574,16 @@ namespace OksEngine
 	};
 
 	void AddModelToRender::Update(
-		ECS2::Entity::Id entity0id, 
+		ECS2::Entity::Id entity0id,
 		const Camera* camera0,
 		const Active* active0,
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer0,
-		const CameraTransformResource* cameraTransformResource0, 
-		
+		const CameraTransformResource* cameraTransformResource0,
+
 		ECS2::Entity::Id entity1id,
-		const Indices* indices1, 
+		const Indices* indices1,
 		const DriverIndexBuffer* driverIndexBuffer1,
-		const DriverVertexBuffer* driverVertexBuffer1, 
+		const DriverVertexBuffer* driverVertexBuffer1,
 		const TextureResource* textureResource1,
 		const ModelEntityIds* modelEntityIds1,
 		const ModelNodeEntityIndices* modelNodeEntityIndices1,

@@ -1012,7 +1012,13 @@ ComputeNamespace = {
             }
         },
         updateMethod = {
+
             processesEntities = {
+                {
+                    processesComponents = {
+                        "ResourceSystem"
+                    }
+                },
                 {
                     processesComponents = {
                         "RenderDriver"
@@ -1020,7 +1026,7 @@ ComputeNamespace = {
                     excludes = {
                         "Pipeline"
                     },
-                    creates = {
+                    createsComponents = {
                         "Pipeline"
                     }
                 }

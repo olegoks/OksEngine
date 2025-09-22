@@ -263,12 +263,14 @@ namespace RAL {
 			enum class Stage {
 				VertexShader,
 				FragmentShader,
+				ComputeShader,
 				Undefined
 			};
 
 			struct Binding {
 				enum class Type {
 					Uniform,
+					Storage,
 					Sampler,
 					InputAttachment,
 					Undefined
@@ -292,6 +294,7 @@ namespace RAL {
 			enum class Type {
 				Vertex,
 				Fragment,
+				Compute,
 				Undefined
 			};
 			struct CreateInfo {

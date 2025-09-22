@@ -370,6 +370,10 @@ namespace ECSGenerator2 {
 				{
 					systemEcsFile->ci_.updateMethod_->ForEachProcessEntity([&](ParsedSystem::ProcessedEntity& processedEntity, bool isLast) {
 						processedEntity.ForEachRemove([&](ParsedSystem::Remove& remove, bool isLast) {
+
+							if (systemEcsFile->GetName() == "CreateSceneFileStart") {
+								Common::BreakPointLine();
+							}
 							expression.Add(std::format("std::is_same_v<Component, {}>", remove.ptr_->GetFullName()));
 							if (!isLast) {
 								expression.Add(" || ");

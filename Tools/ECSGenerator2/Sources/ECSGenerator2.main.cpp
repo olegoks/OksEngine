@@ -219,30 +219,6 @@ int main(int argc, char** argv) {
 
 			};
 
-
-		/*auto getTableByFullName = [](
-			const std::vector<std::shared_ptr<ECSGenerator2::ParsedECSFile>> parsedECSFiles,
-			const std::vector<std::string>& arr1) {
-
-				for (const auto parsedEcsFile : parsedECSFiles) {
-					if (parsedEcsFile->GetName() == "OksEngine.Behaviour") {
-						Common::BreakPointLine();
-					}
-					if (arr1[0] == "Behaviour" && arr1[1] == "ScriptName" && parsedEcsFile->GetName() == "OksEngine.Behaviour") {
-						Common::BreakPointLine();
-					}
-					if (arr1[0] == "ResourceSystem" && parsedEcsFile->GetName() == "OksEngine.ResourceSystem") {
-						Common::BreakPointLine();
-					}
-					auto fullPath = ECSGenerator2::GetTablePathByFullName(parsedEcsFile, arr1);
-					if (!fullPath.empty()) {
-						return fullPath;
-					}
-				}
-
-				return ECSGenerator2::ParsedTablesPath{};
-			};*/
-
 		for (const auto parsedEcsFile : parsedECSFiles) {
 			parsedEcsFile->ForEachSystem([&](ECSGenerator2::ParsedSystemPtr parsedSystem) {
 
@@ -258,10 +234,8 @@ int main(int argc, char** argv) {
 
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
-							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
 
-
-							if (parsedSystem->GetName() == "SaveSceneFile") {
+							if (parsedSystem->GetName() == "CreateSceneFileStart") {
 								Common::BreakPointLine();
 							}
 
@@ -269,23 +243,7 @@ int main(int argc, char** argv) {
 								Common::BreakPointLine();
 							}
 
-
-
 							include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
-
-							////Try to find from namespace of current system and using source system name.
-							//const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
-							//const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
-
-							//if (!componentTablesFullPathFirst.empty()) {
-							//	include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
-							//}
-							//else if (!componentTablesFullPathSecond.empty()) {
-							//	include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
-							//}
-							//else {
-							//	ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
-							//}
 
 							return true;
 							});
@@ -296,23 +254,8 @@ int main(int argc, char** argv) {
 
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
-							// const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
 
 							exclude.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
-
-							////Try to find from namespace of current system and using source system name.
-							//const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
-							//const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
-
-							//if (!componentTablesFullPathFirst.empty()) {
-							//	exclude.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
-							//}
-							//else if (!componentTablesFullPathSecond.empty()) {
-							//	exclude.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
-							//}
-							//else {
-							//	ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
-							//}
 
 							return true;
 							});
@@ -323,23 +266,8 @@ int main(int argc, char** argv) {
 
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
-							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
 
 							create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
-
-							////Try to find from namespace of current system and using source system name.
-							//const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
-							//const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
-
-							//if (!componentTablesFullPathFirst.empty()) {
-							//	create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
-							//}
-							//else if (!componentTablesFullPathSecond.empty()) {
-							//	create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
-							//}
-							//else {
-							//	ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
-							//}
 
 							return true;
 							});
@@ -350,24 +278,8 @@ int main(int argc, char** argv) {
 
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
-							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
 
 							remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
-
-
-							////Try to find from namespace of current system and using source system name.
-							//const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
-							//const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
-
-							//if (!componentTablesFullPathFirst.empty()) {
-							//	remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
-							//}
-							//else if (!componentTablesFullPathSecond.empty()) {
-							//	remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
-							//}
-							//else {
-							//	ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
-							//}
 
 							return true;
 							});
@@ -388,27 +300,8 @@ int main(int argc, char** argv) {
 
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
-							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
-
-							//if (runAfterSystem.name_ == "SendWindowKeyboardEvents") {
-							//	Common::BreakPointLine();
-							//}
 
 							include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
-
-							////Try to find from namespace of current system and using source system name.
-							//const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
-							//const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
-
-							//if (!componentTablesFullPathFirst.empty()) {
-							//	include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
-							//}
-							//else if (!componentTablesFullPathSecond.empty()) {
-							//	include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
-							//}
-							//else {
-							//	ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
-							//}
 
 							return true;
 							});
@@ -420,23 +313,8 @@ int main(int argc, char** argv) {
 
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
-							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
 
 							create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
-
-							////Try to find from namespace of current system and using source system name.
-							//const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
-							//const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
-
-							//if (!componentTablesFullPathFirst.empty()) {
-							//	create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
-							//}
-							//else if (!componentTablesFullPathSecond.empty()) {
-							//	create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
-							//}
-							//else {
-							//	ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
-							//}
 
 							return true;
 							});
@@ -453,23 +331,8 @@ int main(int argc, char** argv) {
 
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
-							const auto componentFullName = mergeArraysPreserveOrder(systemNamespace, parsedComponentName);
 
 							create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
-
-							////Try to find from namespace of current system and using source system name.
-							//const auto componentTablesFullPathFirst = getTableByFullName(parsedECSFiles, parsedComponentName);
-							//const auto componentTablesFullPathSecond = getTableByFullName(parsedECSFiles, componentFullName);
-
-							//if (!componentTablesFullPathFirst.empty()) {
-							//	create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathFirst.back());
-							//}
-							//else if (!componentTablesFullPathSecond.empty()) {
-							//	create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(componentTablesFullPathSecond.back());
-							//}
-							//else {
-							//	ASSERT_FAIL_FMSG("Incorrect name of proccess component \"{}\" in system {}", componentName, parsedSystem->GetName());
-							//}
 
 							return true;
 							});
@@ -482,7 +345,6 @@ int main(int argc, char** argv) {
 					for (auto& runAfterSystem : parsedSystem->ci_.callOrderInfo_->runAfter_) {
 						//at first lets find run after system in namespace of current system.
 						const auto runAfterName = ECSGenerator2::ParseFullName(runAfterSystem.name_);
-						const auto runAfterSystemFullName = mergeArraysPreserveOrder(systemNamespace, runAfterName);
 
 						if (runAfterSystem.name_ == "SendWindowKeyboardEvents") {
 							Common::BreakPointLine();
@@ -490,25 +352,11 @@ int main(int argc, char** argv) {
 
 						runAfterSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(getTableByFullName2(parsedECSFiles, parsedSystem, runAfterName));
 
-						////Try to find from namespace of current system and using source system name.
-						//const auto runAfterSystemTablesFullPathFirst = getTableByFullName(parsedECSFiles, runAfterSystemFullName);
-						//const auto runAfterSystemTablesFullPathSecond = getTableByFullName(parsedECSFiles, runAfterName);
-
-						//if (!runAfterSystemTablesFullPathFirst.empty()) {
-						//	runAfterSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(runAfterSystemTablesFullPathFirst.back());
-						//}
-						//else if (!runAfterSystemTablesFullPathSecond.empty()) {
-						//	runAfterSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(runAfterSystemTablesFullPathSecond.back());
-						//}
-						//else {
-						//	ASSERT_FAIL_FMSG("Incorrect run after system name \"{}\" in system {}", runAfterSystem.name_, parsedSystem->GetName());
-						//}
 					}
 
 					for (auto& runBeforeSystem : parsedSystem->ci_.callOrderInfo_->runBefore_) {
 						//at first lets find run after system in namespace of current system.
 						const auto runBeforeName = ECSGenerator2::ParseFullName(runBeforeSystem.name_);
-						const auto runBeforeSystemFullName = mergeArraysPreserveOrder(systemNamespace, runBeforeName);
 
 						if (runBeforeSystem.name_ == "SendWindowKeyboardEvents") {
 							Common::BreakPointLine();
@@ -516,19 +364,6 @@ int main(int argc, char** argv) {
 
 						runBeforeSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(getTableByFullName2(parsedECSFiles, parsedSystem, runBeforeName));
 
-						////Try to find from namespace of current system and using source system name.
-						//const auto runBeforeSystemTablesFullPathFirst = getTableByFullName(parsedECSFiles, runBeforeSystemFullName);
-						//const auto runBeforeSystemTablesFullPathSecond = getTableByFullName(parsedECSFiles, runBeforeName);
-
-						//if (!runBeforeSystemTablesFullPathFirst.empty()) {
-						//	runBeforeSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(runBeforeSystemTablesFullPathFirst.back());
-						//}
-						//else if (!runBeforeSystemTablesFullPathSecond.empty()) {
-						//	runBeforeSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(runBeforeSystemTablesFullPathSecond.back());
-						//}
-						//else {
-						//	ASSERT_FAIL_FMSG("Incorrect run after system name \"{}\" in system {}", runBeforeSystem.name_, parsedSystem->GetName());
-						//}
 					}
 
 				}

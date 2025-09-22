@@ -7,6 +7,7 @@
 
 #include <Common.hpp>
 #include <Common.Format.hpp>
+#include <iostream>
 
 namespace OS {
 
@@ -59,6 +60,7 @@ namespace OS {
 			Common::DiscardUnusedParameter(location);
 			Common::DiscardUnusedParameter(format);
 			using namespace std::string_literals;
+
 			//LOG_F(INFO, ("Location: "s + location.file_name() + " " + static_cast<std::string>(format)).c_str());
 		}
 

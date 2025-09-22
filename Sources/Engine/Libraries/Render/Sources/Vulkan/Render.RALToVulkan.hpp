@@ -107,6 +107,10 @@ namespace Render::Vulkan {
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_FRAGMENT_BIT;
 			break;
 		}
+		case RAL::Driver::Shader::Stage::ComputeShader: {
+			return VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT;
+			break;
+		}
 		default:
 			ASSERT_FAIL_MSG("Invalid ShaderBinding::Stage value used.");
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_FLAG_BITS_MAX_ENUM;
@@ -190,7 +194,7 @@ namespace Render::Vulkan {
 		}
 	}
 
-	inline VkImageLayout			ToVulkanType(RAL::Driver::Texture::State state) {
+	inline VkImageLayout ToVulkanType(RAL::Driver::Texture::State state) {
 		switch (state) {
 		case RAL::Driver::Texture::State::DataIsUndefined: {
 			return VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
