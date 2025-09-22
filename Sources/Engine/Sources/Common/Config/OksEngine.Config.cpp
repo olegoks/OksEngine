@@ -12,7 +12,7 @@ void LoadConfigFile::Update(ECS2::Entity::Id entity0id, const CommandLineParamet
     const ECS2::Entity::Id entityId = CreateEntity();
 
     CreateComponent<Config>(entityId);
-    CreateComponent<Behaviour::LuaScript>(entityId,
+    CreateComponent<LuaScript>(entityId,
         std::string{ resourceData.GetData<Common::Byte>(), resourceData.GetSize() });
 
 

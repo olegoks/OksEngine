@@ -2376,6 +2376,21 @@ namespace OksEngine
 
 	}
 
+	void Compute::CreatePipeline::Update(
+		ECS2::Entity::Id entity0id,
+		const RenderDriver* renderDriver0) {
+
+
+
+	}
+
+
+	void Compute::TestPipeline::Update(
+		ECS2::Entity::Id entity0id, 
+		const RenderDriver* renderDriver0,
+		const Compute::Pipeline* pipeline0) {
+
+	}
 
 	void BeginRenderPass::Update(
 		ECS2::Entity::Id entity0id,

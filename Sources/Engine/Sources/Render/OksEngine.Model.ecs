@@ -996,6 +996,52 @@ UpdateLocalPosition3DSystem = {
     }
 }
 
+ComputeNamespace = {
+
+    PipelineComponent = {
+        serializable = false,
+        fields = {
+            { type = "Common::Id", name = "pipelineId" }
+        }
+    },
+    CreatePipelineSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = {
+                "CreateRenderDriver"
+            }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "RenderDriver"
+                    },
+                    excludes = {
+                        "Pipeline"
+                    },
+                    creates = {
+                        "Pipeline"
+                    }
+                }
+            }
+        }
+    },
+    TestPipelineSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "RenderDriver",
+                        "Pipeline"
+                    }
+                }
+            }
+        }
+    }
+}
+
+
 BeginRenderPassSystem = {
     callOrder = {
         runAfter = { "StartRender" },

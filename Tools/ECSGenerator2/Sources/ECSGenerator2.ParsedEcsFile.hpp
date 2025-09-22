@@ -126,6 +126,22 @@ namespace ECSGenerator2 {
 			ForEachTable(processTable);
 		}
 
+		void ForEachTablePath(const ParsedTable::ProcessTablePath& processTablePath) {
+			
+			ForEachRootTable([&](std::shared_ptr<ParsedTable> table) {
+				bool eachRootTableContinue = true;
+				table->ForEachTablePath([&](std::vector<std::shared_ptr<ParsedTable>>& path) {
+					
+					const bool isContinue = processTablePath(path);
+					eachRootTableContinue = isContinue;
+					return isContinue;
+					});
+
+				return eachRootTableContinue;
+				});
+
+		}
+
 		//Access components.
 		using ProcessComponent = std::function<bool(std::shared_ptr<ParsedComponent>)>;
 
