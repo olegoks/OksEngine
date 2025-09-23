@@ -16,7 +16,7 @@ layout(set = 0, binding = 0) uniform Camera {
 //    mat4 model;
 //} transform;
 
-layout(set = 1, binding = 0) uniform BonesPalette {
+layout(set = 2, binding = 0) uniform BonesPalette {
     mat4 matrices[128];
 } bonesPalette;
 

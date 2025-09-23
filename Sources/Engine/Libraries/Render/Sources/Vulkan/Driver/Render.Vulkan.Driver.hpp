@@ -1263,7 +1263,7 @@ namespace Render::Vulkan {
 			CB_->BindBuffer(GetIB(IBId), offset);
 		}
 
-		virtual void Bind(RAL::Driver::Pipeline::Id pipelineId, const std::vector<Resource::Id>& resourceIds) override {
+		virtual void Bind(RAL::Driver::Pipeline::Id pipelineId, Common::UInt32 firstResourceIndex, const std::vector<Resource::Id>& resourceIds) override {
 
 			if (CB_ == nullptr) {
 				return;
@@ -1285,7 +1285,7 @@ namespace Render::Vulkan {
 			auto pipeline = idPipeline_[pipelineId];
 
 			CB_->BindDescriptorSets(
-				pipeline, dss);
+				pipeline, firstResourceIndex, dss);
 		}
 
 		virtual void DrawIndexed(Common::Size indicesNumber) override {

@@ -389,8 +389,6 @@ namespace OksEngine
 			}
 
 			CreateComponent<Model>(entity3id);
-			//CreateComponent<Ai::Scene>(entity2id, scenePtr);
-
 			//Node to Entity id 
 			std::vector<ECS2::Entity::Id> nodeEntityIds;
 			std::map<const aiNode*, ECS2::Entity::Id> nodeToEntityId;
@@ -880,9 +878,11 @@ namespace OksEngine
 					aiMesh* mesh = scene->mMeshes[i];
 
 
-					std::string meshName = scene->mName.C_Str() + std::string{ mesh->mName.C_Str() };
+					std::string meshName = modelFile3->fileName_ + scene->mName.C_Str() + std::string{ mesh->mName.C_Str() };
 
-
+					if (meshName == "Sketchfab_SceneObject_0") {
+						Common::BreakPointLine();
+					}
 					meshNames.push_back(meshName);
 
 					auto it = meshNameToEntity1->meshNameToEntityId_.find(meshName);
@@ -916,7 +916,7 @@ namespace OksEngine
 
 						CreateComponent<Mesh>(meshEntity);
 						CreateComponent<Name>(meshEntity, meshName);
-						CreateComponent<ModelName>(meshEntity, scene->mName.C_Str());
+						CreateComponent<ModelName>(meshEntity, modelFile3->fileName_ + scene->mName.C_Str());
 						CreateComponent<ModelEntityIds>(meshEntity, std::vector<ECS2::Entity::Id>{ entity3id });
 
 						createMeshComponents(scene, mesh, meshEntity);
@@ -1219,6 +1219,20 @@ namespace OksEngine
 		ModelEntityIds* modelEntityIds1) {
 
 		ASSERT(meshNames0->meshNames_.size() == meshEntities0->meshEntityIds_.size());
+
+		if (entity1id == 146) {
+			Common::BreakPointLine();
+		}
+
+		if (
+			std::find(
+				meshEntities0->meshEntityIds_.begin(),
+				meshEntities0->meshEntityIds_.end(),
+				ECS2::Entity::Id::invalid_) == meshEntities0->meshEntityIds_.end()) {
+
+			//Skip models that already have all required meshs
+			return;
+		}
 
 		for (Common::Index i = 0; i < meshNames0->meshNames_.size(); i++) {
 			if (
@@ -2245,11 +2259,6 @@ namespace OksEngine
 			.stage_ = RAL::Driver::Shader::Stage::VertexShader
 		};
 
-		RAL::Driver::Shader::Binding::Layout transformBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
 
 		RAL::Driver::Shader::Binding::Layout samplerBinding{
 			.binding_ = 0,
@@ -2257,9 +2266,16 @@ namespace OksEngine
 			.stage_ = RAL::Driver::Shader::Stage::FragmentShader
 		};
 
-		shaderBindings.push_back(cameraBinding);
-		shaderBindings.push_back(transformBinding);
-		shaderBindings.push_back(samplerBinding);
+
+		RAL::Driver::Shader::Binding::Layout transformBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+			.stage_ = RAL::Driver::Shader::Stage::VertexShader
+		};
+
+		shaderBindings.push_back(cameraBinding);		//set 0
+		shaderBindings.push_back(samplerBinding);		//set 1
+		shaderBindings.push_back(transformBinding);		//set 2
 
 		RAL::Driver::Pipeline::CI pipelineCI{
 			.name_ = "Textured Pipeline",
@@ -2334,11 +2350,6 @@ namespace OksEngine
 		//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
 		//};
 
-		RAL::Driver::Shader::Binding::Layout bonesPalleteBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
 
 		RAL::Driver::Shader::Binding::Layout samplerBinding{
 			.binding_ = 0,
@@ -2346,10 +2357,17 @@ namespace OksEngine
 			.stage_ = RAL::Driver::Shader::Stage::FragmentShader
 		};
 
+		RAL::Driver::Shader::Binding::Layout bonesPalleteBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+			.stage_ = RAL::Driver::Shader::Stage::VertexShader
+		};
+
+
 		shaderBindings.push_back(cameraBinding);
 		//shaderBindings.push_back(transformBinding);
-		shaderBindings.push_back(bonesPalleteBinding);
 		shaderBindings.push_back(samplerBinding);
+		shaderBindings.push_back(bonesPalleteBinding);
 
 		RAL::Driver::Pipeline::CI pipelineCI{
 			.name_ = "Skeleton Pipeline",
@@ -2440,11 +2458,15 @@ namespace OksEngine
 		const AttachmentSet* attachmentSet0,
 		const Pipeline* pipeline0) {
 
-		renderDriver0->driver_->BeginRenderPass(
+		auto driver = renderDriver0->driver_;
+		driver->BeginRenderPass(
 			renderPass0->rpId_,
 			attachmentSet0->attachmentsSetId_,
 			{ 0, 0 },
 			{ 2560, 1440 });
+
+		driver->SetViewport(0, 0, 2560, 1440);
+		driver->SetScissor(0, 0, 2560, 1440);
 
 	}
 
@@ -2593,14 +2615,22 @@ namespace OksEngine
 		const RenderPass* renderPass2,
 		const Pipeline* pipeline2) {
 
+		//return;
+
+		ASSERT(!IsComponentExist<VertexBones>(entity1id));
+
 		auto driver = renderDriver2->driver_;
 
-		driver->SetViewport(0, 0, 2560, 1440);
-		driver->SetScissor(0, 0, 2560, 1440);
 		driver->BindPipeline(pipeline2->id_);
 
 		driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
 		driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
+
+		driver->Bind(pipeline2->id_, 0,
+			{
+				cameraTransformResource0->id_,	// set 0
+				textureResource1->id_			// set 1
+			});
 
 		const std::vector<Common::Index>& nodeEntityIndices = modelNodeEntityIndices1->nodeEntityIndices_;
 
@@ -2612,11 +2642,9 @@ namespace OksEngine
 
 				const auto* transform3DResource = GetComponent<Transform3DResource>(modelNodeEntity);
 
-				driver->Bind(pipeline2->id_,
+				driver->Bind(pipeline2->id_, 2,
 					{
-						cameraTransformResource0->id_,
-						transform3DResource->id_,
-						textureResource1->id_
+						transform3DResource->id_, // set 2
 					});
 				driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
 
@@ -2647,26 +2675,24 @@ namespace OksEngine
 
 		auto driver = renderDriver0->driver_;
 
-		driver->SetViewport(0, 0, 2560, 1440);
-		driver->SetScissor(0, 0, 2560, 1440);
-
 		driver->BindPipeline(skeletonModelPipeline0->id_);
 
 		driver->BindVertexBuffer(driverVertexBuffer2->id_, 0);
 		driver->BindIndexBuffer(driverIndexBuffer2->id_, 0);
-
+		driver->Bind(skeletonModelPipeline0->id_, 0,
+			{
+				cameraTransformResource1->id_,	// set 0
+				textureResource2->id_			// set 1
+			});
 
 		for (ECS2::Entity::Id modelEntityId : modelEntityIds2->modelEntityIds_) {
 
 			//const auto* transform3DResource = GetComponent<Transform3DResource>(modelEntityId);
 			const auto* bonesPalletResource = GetComponent<BonesPalletResource>(modelEntityId);
 
-			driver->Bind(skeletonModelPipeline0->id_,
+			driver->Bind(skeletonModelPipeline0->id_, 2,
 				{
-					cameraTransformResource1->id_,
-					//transform3DResource->id_, // this transform will not be use
-					bonesPalletResource->id_,
-					textureResource2->id_
+					bonesPalletResource->id_, // set 2
 				});
 			driver->DrawIndexed(indices2->indices_.GetIndicesNumber());
 		}

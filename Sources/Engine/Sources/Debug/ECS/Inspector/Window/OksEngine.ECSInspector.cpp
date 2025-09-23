@@ -161,14 +161,14 @@ namespace OksEngine
 			const auto* requaredFilter =  GetComponent<EntityFilter>(entity0id);
 			const ECS2::ComponentsFilter componentFilter = GetComponentsFilter(entity1id);
 
-			if (entity1id == 0) {
+			if (entity1id == 93) {
 				Common::BreakPointLine();
 			}
 			if (!requaredFilter->includes_.IsSubsetOf(componentFilter) || !requaredFilter->includes_.IsSetOneMoreComponent()) {
 				return;
 			}
 
-			if (requaredFilter->excludes_.IsSubsetOf(componentFilter) && requaredFilter->excludes_.IsSetOneMoreComponent()) {
+			if (requaredFilter->excludes_.IsSetOneMoreComponent() && requaredFilter->excludes_.IsSubsetOf(componentFilter)) {
 				return;
 			}
 

@@ -72,6 +72,10 @@ namespace ECS2 {
 			return entityIdComponentsFilter_[entityId].IsSet<Component>();
 		}
 
+		ComponentsFilter GetComponentsFilter(Entity::Id entityId) {
+			return entityIdComponentsFilter_[entityId];
+		}
+
 		template<class ...Components>
 		inline bool IsComponentsExist(Entity::Id entityId) {
 			return entityIdComponentsFilter_[entityId].IsSet<Components...>();

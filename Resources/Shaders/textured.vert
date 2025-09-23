@@ -12,7 +12,7 @@ layout(set = 0, binding = 0) uniform Camera {
 //    mat4 model;
 //} transform;
 
-layout(std140, set = 1, binding = 0) uniform Transform {
+layout(std140, set = 2, binding = 0) uniform Transform {
     vec4 rotation;
     vec3 translation;
 	vec3 scale;

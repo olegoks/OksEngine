@@ -193,7 +193,7 @@ namespace OksEngine
 #pragma region Assert
 		ASSERT_FMSG(debugDrawBonesDriverVertexBuffer0->size_ % 2 == 0, "");
 #pragma endregion
-		driver->Bind(debugDrawBonesPipeline0->id_,
+		driver->Bind(debugDrawBonesPipeline0->id_, 0,
 			{
 				cameraTransformResource1->id_,
 			});

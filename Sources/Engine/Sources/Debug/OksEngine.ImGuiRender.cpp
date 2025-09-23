@@ -186,7 +186,7 @@ namespace OksEngine
 		driver->BindPipeline(imGuiPipeline0->id_);
 		driver->BindVertexBuffer(imGuiDriverVertexBuffer0->id_, 0);
 		driver->BindIndexBuffer(imGuiDriverIndexBuffer0->id_, 0);
-		driver->Bind(imGuiPipeline0->id_,
+		driver->Bind(imGuiPipeline0->id_,0,
 			{
 				transform2DResource0->id_,
 				textureResource0->id_

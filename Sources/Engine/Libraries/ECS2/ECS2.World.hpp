@@ -332,7 +332,7 @@ namespace ECS2 {
 			if (archetypeEntitiesComponents_.contains(entityId))
 			{
 				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
-				return componentsFilter;
+				return archetypeComponents_[componentsFilter]->GetComponentsFilter(entityId);
 			}
 			if (dynamicEntitiesComponentFilters_.contains(entityId))
 			{

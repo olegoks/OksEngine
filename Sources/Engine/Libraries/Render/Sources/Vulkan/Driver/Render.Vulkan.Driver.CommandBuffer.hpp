@@ -182,6 +182,7 @@ namespace Render::Vulkan {
 
 		void BindDescriptorSets(
 			std::shared_ptr<Pipeline> pipeline,
+			Common::UInt32 firstDSIndex,
 			const std::vector<std::shared_ptr<DescriptorSet>>& descriptorSets) noexcept {
 
 			std::vector<VkDescriptorSet> descriptorSetsHandles;
@@ -193,7 +194,7 @@ namespace Render::Vulkan {
 				GetHandle(),
 				VK_PIPELINE_BIND_POINT_GRAPHICS, // Bind to graphics pipeline(not computation pipeline)
 				pipeline->GetLayout()->GetHandle(),
-				0,
+				firstDSIndex,
 				static_cast<Common::UInt32>(descriptorSets.size()),
 				descriptorSetsHandles.data(),
 				0,

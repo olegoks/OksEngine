@@ -420,7 +420,7 @@ namespace OksEngine
 
 		// Активируем пайплайн для рендеринга текста
 		driver->BindPipeline(debugTextPipeline1->id_);
-		driver->Bind(debugTextPipeline1->id_, { textureResource1->id_ });
+		driver->Bind(debugTextPipeline1->id_, 0, { textureResource1->id_ });
 		driver->BindVertexBuffer(debugTextDriverVertexBuffer1->id_, 0);
 		//static Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
 
