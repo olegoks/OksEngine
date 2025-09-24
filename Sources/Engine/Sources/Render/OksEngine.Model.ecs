@@ -1012,7 +1012,6 @@ ComputeNamespace = {
             }
         },
         updateMethod = {
-
             processesEntities = {
                 {
                     processesComponents = {
@@ -1028,6 +1027,11 @@ ComputeNamespace = {
                     },
                     createsComponents = {
                         "Pipeline"
+                    }
+                },
+                {
+                    processesComponents = {
+                        
                     }
                 }
             }

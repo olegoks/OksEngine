@@ -22,13 +22,16 @@ namespace Render::Vulkan {
 		}
 
 		VkInstanceCreateInfo createInfo{};
-		{	//GLSL Shaders DebugPrintf feature ON:
+		{	
+#if defined(SHADER_DEBUG_PRINTF)
 			{
+				Common::SetEnvVariable("VK_LAYER_PRINTF_BUFFER_SIZE", "4194304");
+
 				// Populate the VkValidationFeaturesEXT
 				VkValidationFeaturesEXT validationFeatures = {};
 				validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
 				validationFeatures.enabledValidationFeatureCount = 1;
-
+				
 				VkValidationFeatureEnableEXT enabledValidationFeatures[1] = {
 					VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT };
 				validationFeatures.pEnabledValidationFeatures = enabledValidationFeatures;
@@ -37,7 +40,7 @@ namespace Render::Vulkan {
 				validationFeatures.pNext = createInfo.pNext;
 				createInfo.pNext = &validationFeatures;
 			}
-
+#endif
 			createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
 			
 			VkApplicationInfo appInfo{};

@@ -128,9 +128,8 @@ namespace Render::Vulkan {
 			Common::DiscardUnusedParameter(pUserData);
 			Common::DiscardUnusedParameter(messageType);
 
-			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT ||
-				messageSeverity & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT ||
-				messageSeverity & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) {
+			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_INFO_BIT_EXT ||
+				messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
 				std::cout << pCallbackData->pMessage << std::endl;
 				OS::LogInfo("/render/vulkan/layers errors", pCallbackData->pMessage);
 			}

@@ -49,6 +49,6 @@ layout(std430, set = 0, binding = 0) buffer Positions {
 void main() {
     //uint index = gl_GlobalInvocationID.x;
     //if(index == 1){
-        debugPrintfEXT("Invocated %d %d %d", gl_GlobalInvocationID.x, gl_GlobalInvocationID.y, gl_GlobalInvocationID.z);
+        debugPrintfEXT("Work group ID %d,  %d %d", gl_GlobalInvocationID.x, gl_GlobalInvocationID.y, gl_GlobalInvocationID.z);
     //}
 }
