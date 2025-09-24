@@ -14,6 +14,8 @@
 
 namespace Render::Vulkan {
 
+#define SHADER_DEBUG_PRINTF
+
 	void VkCall(VkResult nativeAPICallResult, Common::Format&& format) noexcept;
 
 

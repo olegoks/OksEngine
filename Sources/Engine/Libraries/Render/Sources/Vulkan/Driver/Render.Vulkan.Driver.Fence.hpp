@@ -4,12 +4,13 @@
 #include <vulkan/vulkan.hpp>
 
 
+#include <Render.Vulkan.Abstraction.hpp>
 #include <Render.Vulkan.Common.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 
 namespace Render::Vulkan {
 
-	class Fence final {
+	class Fence final : public Abstraction<VkFence>{
 	public:
 
 		struct CreateInfo {
@@ -31,9 +32,13 @@ namespace Render::Vulkan {
 		}
 
 
-		Fence(Fence&& moveFence) noexcept :  LD_{ nullptr }, fence_{ VK_NULL_HANDLE } {
-			std::swap(fence_, moveFence.fence_);
+		Fence(Fence&& moveFence) noexcept : LD_{ nullptr } {
+
+			VkFence fence = moveFence.GetHandle();
+			moveFence.SetHandle(VK_NULL_HANDLE);
+			SetHandle(fence);
 			std::swap(LD_, moveFence.LD_);
+		
 		}
 
 		Fence& operator=(Fence&& moveFence) noexcept {
@@ -44,7 +49,8 @@ namespace Render::Vulkan {
 
 			Destroy();
 
-			std::swap(fence_, moveFence.fence_);
+			SetHandle(moveFence.GetHandle());
+			moveFence.SetHandle(VK_NULL_HANDLE);
 			std::swap(LD_, moveFence.LD_);
 
 			return *this;
@@ -53,28 +59,29 @@ namespace Render::Vulkan {
 
 		Fence() noexcept = default;
 
-		Fence(VkFence fence) noexcept : fence_{ fence } {}
+		Fence(VkFence fence) noexcept {  
+		
+			SetHandle(fence);
+			
+		}
 
 		void Wait() noexcept {
 			[[maybe_unused]]
-			const VkResult result = vkWaitForFences(LD_->GetHandle(), 1, &GetNative(), VK_TRUE, UINT64_MAX);
+			const VkResult result = vkWaitForFences(LD_->GetHandle(), 1, &GetHandle(), VK_TRUE, UINT64_MAX);
 			ASSERT_FMSG(result == VK_SUCCESS, "Errow while waitting fence.");
 		}
 
 		void Reset() noexcept {
 			[[maybe_unused]]
-			const VkResult result = vkResetFences(LD_->GetHandle(), 1, &GetNative());
+			const VkResult result = vkResetFences(LD_->GetHandle(), 1, &GetHandle());
 			ASSERT_FMSG(result == VK_SUCCESS, "Error while resetting fence.");
 		}
 
 		[[nodiscard]]
 		bool IsSignaled() const noexcept {
-			const VkResult result = vkGetFenceStatus(LD_->GetHandle(), GetNative());
+			const VkResult result = vkGetFenceStatus(LD_->GetHandle(), GetHandle());
 			return result == VK_SUCCESS;
 		}
-
-		[[nodiscard]]
-		const VkFence& GetNative() const noexcept { return fence_; }
 
 		~Fence() noexcept {
 			Destroy();
@@ -83,22 +90,22 @@ namespace Render::Vulkan {
 	private:
 
 		void Destroy() noexcept {
-			ASSERT_FMSG(GetNative() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkFence.");
+			ASSERT_MSG(GetHandle() != VK_NULL_HANDLE, "Attempt to destroy VK_NULL_HANDLE VkFence.");
 			OS::Assert(LD_ != nullptr);
-			vkDestroyFence(LD_->GetHandle(), fence_, nullptr);
+			vkDestroyFence(LD_->GetHandle(), GetHandle(), nullptr);
 			SetNative(VK_NULL_HANDLE);
 		}
 
 		void SetNative(VkFence fence) noexcept {
 			OS::Assert(
-				(fence != VK_NULL_HANDLE) && (GetNative() == VK_NULL_HANDLE) ||
-				((fence == VK_NULL_HANDLE) && (GetNative() != VK_NULL_HANDLE)));
-			fence_ = fence;
+				(fence != VK_NULL_HANDLE) && (GetHandle() == VK_NULL_HANDLE) ||
+				((fence == VK_NULL_HANDLE) && (GetHandle() != VK_NULL_HANDLE)));
+			SetHandle(fence);
 		}
 
 	private:
 		std::shared_ptr<LogicDevice> LD_ = nullptr;
-		VkFence fence_ = VK_NULL_HANDLE;
+		//VkFence fence_ = VK_NULL_HANDLE;
 	};
 
 }

@@ -21,6 +21,7 @@ namespace Render::Vulkan {
 			ValidationLayers requiredValidationLayers_;
 			QueueFamily presentQueueFamily_;
 			QueueFamily graphicsQueueFamily_;
+			QueueFamily computeQueueFamily_;
 		};
 
 		LogicDevice(const CreateInfo& createInfo) noexcept {
@@ -30,8 +31,10 @@ namespace Render::Vulkan {
 			VkDeviceCreateInfo logicDeviceCreateInfo{};
 			{
 				logicDeviceCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+				logicDeviceCreateInfo.pNext = nullptr;
 				const float queuePriority = 1.0f;
 				std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+				//TODO: CHECK ALL POSSIBLE VARIATIONS OF queueFamilyIndices to get Logic Device to create only unique queue!!!
 				{
 					{
 						VkDeviceQueueCreateInfo queueCreateInfo{};
@@ -49,6 +52,17 @@ namespace Render::Vulkan {
 						{
 							queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 							queueCreateInfo.queueFamilyIndex = createInfo.presentQueueFamily_.index_;
+							queueCreateInfo.queueCount = 1;
+
+							queueCreateInfo.pQueuePriorities = &queuePriority;
+						}
+						queueCreateInfos.push_back(queueCreateInfo);
+					}
+					if (createInfo.computeQueueFamily_.index_ != createInfo.presentQueueFamily_.index_) {
+						VkDeviceQueueCreateInfo queueCreateInfo{};
+						{
+							queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+							queueCreateInfo.queueFamilyIndex = createInfo.computeQueueFamily_.index_;
 							queueCreateInfo.queueCount = 1;
 
 							queueCreateInfo.pQueuePriorities = &queuePriority;
@@ -77,7 +91,7 @@ namespace Render::Vulkan {
 				}
 
 				VkDevice logicDevice = VK_NULL_HANDLE;
-				VkCall(vkCreateDevice(createInfo.physicalDevice_->GetHandle(), &logicDeviceCreateInfo, nullptr, &logicDevice), 
+				VkCall(vkCreateDevice(createInfo.physicalDevice_->GetHandle(), &logicDeviceCreateInfo, nullptr, &logicDevice),
 					"Error while creating logic device");
 				SetHandle(logicDevice);
 			}
@@ -90,8 +104,15 @@ namespace Render::Vulkan {
 				vkGetDeviceQueue(GetHandle(), createInfo.presentQueueFamily_.index_, 0, &presentQueue_);
 				ASSERT_FMSG(presentQueue_ != VK_NULL_HANDLE, "Error while getting  present queue family handle.");
 			}
+			{
+				vkGetDeviceQueue(GetHandle(), createInfo.computeQueueFamily_.index_, 0, &computeQueue_);
+				ASSERT_FMSG(presentQueue_ != VK_NULL_HANDLE, "Error while getting  present queue family handle.");
+			}
 
 		}
+
+		[[nodiscard]]
+		VkQueue& GetComputeQueue() noexcept { return computeQueue_; }
 
 		[[nodiscard]]
 		VkQueue& GetGraphicsQueue() noexcept { return graphicsQueue_; }
@@ -110,6 +131,7 @@ namespace Render::Vulkan {
 		}
 
 	private:
+		VkQueue computeQueue_;
 		VkQueue graphicsQueue_;
 		VkQueue presentQueue_;
 	};

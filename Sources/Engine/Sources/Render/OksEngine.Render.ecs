@@ -35,7 +35,9 @@ CreateRenderDriverSystem = {
         createsEntities = { 
             {
                 createsComponents = {
-                    "RenderDriver" 
+                    "RenderDriver",
+                    "Render::StorageBuffer",
+                    "Render::StorageBufferResource"
                 }
             }
         }

@@ -11,6 +11,7 @@
 #include <Render.Vulkan.Shape.hpp>
 #include <Render.Vulkan.Abstraction.hpp>
 #include <Render.Vulkan.Shader.hpp>
+#include <Driver/Render.Vulkan.Driver.Fence.hpp>
 #include <Render.Vulkan.Driver.CommandPool.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.Pipeline.hpp>
@@ -180,8 +181,9 @@ namespace Render::Vulkan {
 				IndexSizeToVulkanType(indexBuffer->GetIndexSize()));
 		}
 
+		template<class PipelineType>
 		void BindDescriptorSets(
-			std::shared_ptr<Pipeline> pipeline,
+			std::shared_ptr<PipelineType> pipeline,
 			Common::UInt32 firstDSIndex,
 			const std::vector<std::shared_ptr<DescriptorSet>>& descriptorSets) noexcept {
 
@@ -424,16 +426,36 @@ namespace Render::Vulkan {
 				&commandBuffer->GetHandle());
 		}
 
-		void Submit(VkQueue queue) {
+		void Submit(VkQueue queue, std::shared_ptr<Fence> fence = nullptr) {
 
 			VkSubmitInfo submitInfo{
 				.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,
 				.commandBufferCount = 1,
 				.pCommandBuffers = &GetHandle()
 			};
-			VkCall(vkQueueSubmit(queue, 1, &submitInfo, VK_NULL_HANDLE),
+			VkCall(vkQueueSubmit(queue, 1, &submitInfo, (fence != nullptr) ? (fence->GetHandle()) : (VK_NULL_HANDLE)),
 				"Error while submitting command buffer.");
 
+		}
+
+		void BeginDebug(const char* labelString) {
+
+#if !define(NDEBUG)
+			//VkDebugUtilsLabelEXT label{
+			//	.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
+			//	.pLabelName = labelString
+			//};
+
+			//vkCmdBeginDebugUtilsLabelEXT(GetHandle(), &label);
+
+#endif
+		}
+
+		void EndDebug() {
+
+#if !define(NDEBUG)
+				//vkCmdEndDebugUtilsLabelEXT(GetHandle());
+#endif
 		}
 
 		~CommandBuffer() noexcept {

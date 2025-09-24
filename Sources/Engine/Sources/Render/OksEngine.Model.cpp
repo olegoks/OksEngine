@@ -2391,6 +2391,8 @@ namespace OksEngine
 
 	}
 
+	//TEST
+
 	void Compute::CreatePipeline::Update(
 		ECS2::Entity::Id entity0id,
 		const ResourceSystem* resourceSystem0,
@@ -2418,7 +2420,7 @@ namespace OksEngine
 
 		RAL::Driver::Shader::Binding::Layout bonesPalleteBinding{
 			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
 			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
 		};
 		shaderBindings.push_back(bonesPalleteBinding);
@@ -2436,20 +2438,40 @@ namespace OksEngine
 	}
 
 
+
 	void Compute::TestPipeline::Update(
 		ECS2::Entity::Id entity0id,
 		const RenderDriver* renderDriver0,
-		const Compute::Pipeline* pipeline0) {
+		const Compute::Pipeline* pipeline0,
+		const Render::StorageBufferResource* render__StorageBufferResource0) {
 
 		auto driver = renderDriver0->driver_;
-
+		driver->StartCompute();
 		driver->BindComputePipeline(pipeline0->pipelineId_);
-		//driver->Bind();
-		//driver->Dispatch();
-
-
+		driver->ComputeBind(
+			pipeline0->pipelineId_,
+			0,
+			{ render__StorageBufferResource0->id_ });
+		//Total Threads = Workgroups × Local Size
+		//
+		//Где:
+		//- Workgroups: (X, Y, Z) из vkCmdDispatch
+		//- Local Size: (X, Y, Z) из layout(local_size_*)
+		// 
+		// Шейдер:
+		//layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+		// 
+		// Dispatch:
+		//vkCmdDispatch(cmd, 16, 8, 1);
+		//Всего потоков : 16 × 8 × 1 = 128 workgroups
+		//Потоков в каждой группе : 64 × 1 × 1 = 64 threads
+		//Общее количество потоков : 128 × 64 = 8192 threads
+		driver->Dispatch(64, 1, 1);
+		driver->EndCompute();
 
 	}
+
+	//TEST
 
 	void BeginRenderPass::Update(
 		ECS2::Entity::Id entity0id,

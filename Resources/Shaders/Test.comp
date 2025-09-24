@@ -1,13 +1,54 @@
 #version 450
+#extension GL_EXT_debug_printf : enable
+//Total Threads = Workgroups × Local Size
+//
+//Где:
+//- Workgroups: (X, Y, Z) из vkCmdDispatch
+//- Local Size: (X, Y, Z) из layout(local_size_*)
+// 
+// Шейдер:
+//layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+// 
+// Dispatch:
+//vkCmdDispatch(cmd, 16, 8, 1);
+//Всего потоков : 16 × 8 × 1 = 128 workgroups
+//Потоков в каждой группе : 64 × 1 × 1 = 64 threads
+//Общее количество потоков : 128 × 64 = 8192 threads
+// Глобальный ID потока (уникальный для всего dispatch)
+//uvec3 globalId = gl_GlobalInvocationID;
+// = gl_WorkGroupID * gl_WorkGroupSize + gl_LocalInvocationID
+
+// ID рабочей группы
+//uvec3 workGroupId = gl_WorkGroupID;
+// От 0 до параметров dispatch - 1
+
+// Размер рабочей группы
+// uvec3 workGroupSize = gl_WorkGroupSize;
+// = layout(local_size_x, local_size_y, local_size_z)
+
+// Локальный ID внутри группы
+//uvec3 localId = gl_LocalInvocationID;
+// От 0 до gl_WorkGroupSize - 1
+
+// ID внутри подгруппы (для оптимизаций)
+//uint subgroupId = gl_SubgroupID;
+//uint laneId = gl_SubgroupInvocationID;
 layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 
 
-layout(set = 0, binding = 0) uniform Uniforms {
-    float multiplier;
-    uint dataSize;
-} uniforms;
+struct Position3D {
+    float x_;
+    float y_;
+    float z_;
+};
+
+layout(std430, set = 0, binding = 0) buffer Positions {
+    Position3D positions[];
+} positions;
 
 void main() {
-    uint index = gl_GlobalInvocationID.x;
-    
+    //uint index = gl_GlobalInvocationID.x;
+    //if(index == 1){
+        debugPrintfEXT("Invocated %d %d %d", gl_GlobalInvocationID.x, gl_GlobalInvocationID.y, gl_GlobalInvocationID.z);
+    //}
 }

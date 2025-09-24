@@ -91,6 +91,10 @@ namespace Render::Vulkan {
 			return VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 			break;
 		}
+		case RAL::Driver::Shader::Binding::Type::Storage: {
+			return VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			break;
+		}
 		default:
 			ASSERT_FAIL_MSG("Invalid ShaderBinding::Type value used.");
 			return VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;

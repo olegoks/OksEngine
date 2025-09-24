@@ -125,6 +125,19 @@ namespace Render::Vulkan {
 		}
 
 		[[nodiscard]]
+		QueueFamilies GetComputeQueueFamilies() const noexcept {
+
+			const QueueFamilies queueFamilies = GetQueueFamilies();
+			QueueFamilies graphicsQueueFamilies;
+			for (const QueueFamily& queueFamily : queueFamilies) {
+				if (queueFamily.properties_.queueFlags & VK_QUEUE_COMPUTE_BIT) {
+					graphicsQueueFamilies.AddQueueFamily(queueFamily);
+				}
+			}
+			return graphicsQueueFamilies;
+		}
+
+		[[nodiscard]]
 		VkPhysicalDeviceFeatures GetFeatures() const noexcept {
 			VkPhysicalDeviceFeatures deviceFeatures;
 			vkGetPhysicalDeviceFeatures(GetHandle(), &deviceFeatures);

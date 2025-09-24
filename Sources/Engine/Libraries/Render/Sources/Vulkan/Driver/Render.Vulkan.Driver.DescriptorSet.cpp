@@ -58,6 +58,27 @@ namespace Render::Vulkan {
 					descriptorWrite.pTexelBufferView = nullptr;
 				}
 			}
+			else if (info.type_ == VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) {
+				VkDescriptorBufferInfo bufferInfo{};
+				{
+					bufferInfo.buffer = *info.bufferInfo_.buffer_;
+					bufferInfo.offset = info.bufferInfo_.offset_;
+					bufferInfo.range = info.bufferInfo_.range_;
+				}
+				descriptorBufferInfos.push_back(bufferInfo);
+				{
+					descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
+					descriptorWrite.pNext = nullptr;
+					descriptorWrite.dstSet = GetHandle();
+					descriptorWrite.dstBinding = info.binding_; // Descriptor binding that we want to update.
+					descriptorWrite.dstArrayElement = 0; // Descriptors can be arrrays. We also need to specify the first index in the array that we want to update.
+					descriptorWrite.descriptorType = info.type_; //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+					descriptorWrite.descriptorCount = 1; //Specifies how many array elements you want to update.
+					descriptorWrite.pBufferInfo = &descriptorBufferInfos.back();
+					descriptorWrite.pImageInfo = nullptr;
+					descriptorWrite.pTexelBufferView = nullptr;
+				}
+			}
 			else {
 				OS::NotImplemented();
 			}

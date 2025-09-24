@@ -1039,7 +1039,8 @@ ComputeNamespace = {
                 {
                     processesComponents = {
                         "RenderDriver",
-                        "Pipeline"
+                        "Pipeline",
+                        "Render::StorageBufferResource"
                     }
                 }
             }

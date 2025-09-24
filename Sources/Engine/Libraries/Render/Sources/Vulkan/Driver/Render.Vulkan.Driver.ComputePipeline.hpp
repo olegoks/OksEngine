@@ -25,6 +25,7 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
+			std::string name_ = "No name";
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;

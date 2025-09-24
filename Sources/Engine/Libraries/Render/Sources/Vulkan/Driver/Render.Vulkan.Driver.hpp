@@ -119,7 +119,7 @@ namespace Render::Vulkan {
 					submitInfo.signalSemaphoreCount = 1;
 					submitInfo.pSignalSemaphores = &renderFinishedSemaphore_->GetNative();
 
-					VkCall(vkQueueSubmit(LD_->GetGraphicsQueue(), 1, &submitInfo, renderFinishedFence_->GetNative()),
+					VkCall(vkQueueSubmit(LD_->GetGraphicsQueue(), 1, &submitInfo, renderFinishedFence_->GetHandle()),
 						"Error while submitting commands.");
 				}
 
@@ -314,6 +314,7 @@ namespace Render::Vulkan {
 			std::shared_ptr<DescriptorPool> DP_ = nullptr;
 			QueueFamily graphicsQueueFamily_;
 			QueueFamily presentQueueFamily_;
+			QueueFamily computeQueueFamily_;
 			std::vector<std::shared_ptr<CommandBuffer>> commandBuffers_{ { nullptr } };
 			std::vector<std::shared_ptr<ImageContext>> imageContexts_;
 			std::vector<std::shared_ptr<FrameContext>> frameContexts_;
@@ -342,7 +343,7 @@ namespace Render::Vulkan {
 			const PhysicalDevice::PresentModes& availablePresentModes) noexcept;
 
 		[[nodiscard]]
-		std::pair<QueueFamily, QueueFamily> ChooseQueueFamilies(
+		std::array<QueueFamily, 3> ChooseQueueFamilies(
 			std::shared_ptr<PhysicalDevice> physicalDevice,
 			std::shared_ptr<WindowSurface> windowSurface) noexcept;
 
@@ -438,6 +439,7 @@ namespace Render::Vulkan {
 
 			ValidationLayers requiredValidationLayers;
 			requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_validation");
+			//requiredValidationLayers.AddLayer("printf_verbose");
 			//requiredValidationLayers.AddLayer("VK_LAYER_LUNARG_api_dump");
 			//requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_profiles");
 
@@ -461,13 +463,16 @@ namespace Render::Vulkan {
 			Extensions requiredDeviceExtensions;
 			requiredDeviceExtensions.AddExtension("VK_KHR_swapchain");
 
+#if defined(SHADER_DEBUG_PRINTF)
+			requiredDeviceExtensions.AddExtension("VK_KHR_shader_non_semantic_info");
+#endif
 			const auto availablePhysicalDevices = objects_.instance_->GetPhysicalDevices();
 			objects_.physicalDevice_ = ChoosePhysicalDevice(availablePhysicalDevices, objects_.windowSurface_, requiredDeviceExtensions);
 
-			auto [graphicsQueueFamily, presentQueueFamily] = ChooseQueueFamilies(objects_.physicalDevice_, objects_.windowSurface_);
-			objects_.graphicsQueueFamily_ = graphicsQueueFamily;
-			objects_.presentQueueFamily_ = presentQueueFamily;
-
+			std::array<QueueFamily, 3> queueFamilies = ChooseQueueFamilies(objects_.physicalDevice_, objects_.windowSurface_);
+			objects_.graphicsQueueFamily_ = queueFamilies[0];
+			objects_.presentQueueFamily_ = queueFamilies[1];
+			objects_.computeQueueFamily_ = queueFamilies[2];
 
 			objects_.commandBuffers_.resize(1, nullptr);
 
@@ -488,6 +493,7 @@ namespace Render::Vulkan {
 				logicDeviceCreateInfo.requiredValidationLayers_ = requiredValidationLayers;
 				logicDeviceCreateInfo.presentQueueFamily_ = objects_.presentQueueFamily_;
 				logicDeviceCreateInfo.graphicsQueueFamily_ = objects_.graphicsQueueFamily_;
+				logicDeviceCreateInfo.computeQueueFamily_ = objects_.computeQueueFamily_;
 				objects_.LD_ = std::make_shared<LogicDevice>(logicDeviceCreateInfo);
 			}
 
@@ -681,7 +687,8 @@ namespace Render::Vulkan {
 
 		std::shared_ptr<FrameContext> currentFrame_ = nullptr;
 		std::shared_ptr<ImageContext> image_ = nullptr;
-		std::shared_ptr<CommandBuffer> CB_ = nullptr;
+		std::shared_ptr<CommandBuffer> GCB_ = nullptr; // Graphics Command buffer
+		std::shared_ptr<CommandBuffer> CCB_ = nullptr; // Compute Command buffer
 
 		[[nodiscard]]
 		virtual std::shared_ptr<RAL::Driver::Shader> CreateShader(const RAL::Driver::Shader::CreateInfo& createInfo) const override {
@@ -799,6 +806,7 @@ namespace Render::Vulkan {
 			}
 
 			Vulkan::ComputePipeline::CreateInfo createInfo{
+				.name_ = pipelineCI.name_,
 				.physicalDevice_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
 				.descriptorSetLayouts_ = DSLs,
@@ -993,152 +1001,11 @@ namespace Render::Vulkan {
 				commandBufferCreateInfo.commandPool_ = objects_.commandPool_;
 				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
 			}
-			CB_ = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+			GCB_ = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
 
 
-			CB_->Begin();
-			{
-				//std::vector<VkClearValue> clearValues;
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
-				//const VkClearValue depthBufferClearColor{
-				//	.depthStencil = {
-				//		.depth = 1.f,
-				//		.stencil = 0
-				//	}
-				//};
-				//clearValues.push_back(depthBufferClearColor); // 1
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
-
-				//static VkClearValue clearValue;
-				//CommandBuffer::DepthBufferInfo depthBufferInfo;
-				//{
-				//	const bool enableDepthTest = (objects_.depthTestData_ != nullptr);
-				//	depthBufferInfo.enable = enableDepthTest;
-				//	depthBufferInfo.clearValue_.depthStencil = {  };
-				//}
-				//CB_->BeginRenderPass(
-				//	*render_->renderPasses_[0].renderPass_,
-				//	render_->renderPasses_[0].frameBuffers_[image_->index_]->GetHandle(),
-				//	objects_.swapChain_->GetExtent(),
-				//	clearValues);
-
-				//const VkViewport viewport{
-				//	.x = 0.f,
-				//	.y = 0.f,
-				//	.width = static_cast<float>(objects_.swapChain_->GetSize().x),
-				//	.height = static_cast<float>(objects_.swapChain_->GetSize().y),
-				//	.minDepth = 0.0f,
-				//	.maxDepth = 1.0f
-				//};
-				//CB_->SetViewport(viewport);
-
-				//const VkRect2D scissor{
-				//	.offset = { 0, 0 },
-				//	.extent = objects_.swapChain_->GetExtent()
-				//};
-				//CB_->SetScissor(scissor);
-
-				////for (auto& [id, mesh] : meshs_) {
-				////	if (mesh->GetPipelineName() == "ImGui Pipeline") {
-				////		continue;
-				////	}
-				////	commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
-				////	commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
-				////	commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
-				////	{
-				////		std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-				////		for (auto& shaderBinding : mesh->GetShaderBindings()) {
-				////			if (shaderBinding.ds_ != nullptr) {
-				////				descriptorSets.push_back(shaderBinding.ds_);
-				////				ASSERT_FMSG(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
-				////				continue;
-				////			}
-				////			if (!shaderBinding.textureId_.IsInvalid()) {
-				////				ASSERT_FMSG(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
-				////				const auto texture = GetTextureById(shaderBinding.textureId_);
-				////				descriptorSets.push_back(texture->GetDS());
-				////			}
-				////		}
-				////		commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
-				////	}
-				////	commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
-				////}
-
-
-
-				//CB_->EndRenderPass();
-			}
-			{
-				//std::vector<VkClearValue> clearValues;
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
-				//const VkClearValue depthBufferClearColor{
-				//	.depthStencil = {
-				//		.depth = 1.f,
-				//		.stencil = 0
-				//	}
-				//};
-				//clearValues.push_back(depthBufferClearColor); // 1
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
-
-				//CB_->BeginRenderPass(
-				//	*render_->renderPasses_[1].renderPass_,
-				//	render_->renderPasses_[1].frameBuffers_[image_->index_]->GetHandle(),
-				//	objects_.swapChain_->GetExtent(),
-				//	clearValues);
-				//CB_->BindPipeline(namePipeline_["Post-process"]);
-				//CB_->BindDescriptorSets(namePipeline_["Post-process"], std::vector{ render_->gBufferInfo_->ds_ });
-				//CB_->Draw(3);
-				//CB_->EndRenderPass();
-			}
-			{
-				//std::vector<VkClearValue> clearValues;
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
-				//const VkClearValue depthBufferClearColor{
-				//	.depthStencil = {
-				//		.depth = 1.f,
-				//		.stencil = 0
-				//	}
-				//};
-				//clearValues.push_back(depthBufferClearColor); // 1
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
-				//clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
-
-				//CB_->BeginRenderPass(
-				//	*render_->renderPasses_[2].renderPass_,
-				//	render_->renderPasses_[2].frameBuffers_[image_->index_]->GetHandle(),
-				//	objects_.swapChain_->GetExtent(),
-				//	clearValues);
-				/*
-				for (auto& [id, mesh] : meshs_) {
-					if (mesh->GetPipelineName() != "ImGui Pipeline") {
-						continue;
-					}
-					commandBuffer->BindPipeline(namePipeline_[mesh->GetPipelineName()]);
-					commandBuffer->BindBuffer(GetVB(mesh->GetVertexBuffer()));
-					commandBuffer->BindBuffer(GetIB(mesh->GetIndexBuffer()));
-					{
-						std::vector<std::shared_ptr<DescriptorSet>> descriptorSets{};
-						for (auto& shaderBinding : mesh->GetShaderBindings()) {
-							if (shaderBinding.ds_ != nullptr) {
-								descriptorSets.push_back(shaderBinding.ds_);
-								ASSERT_FMSG(shaderBinding.textureId_.IsInvalid(), "Binding can not contain DS and texture.");
-								continue;
-							}
-							if (!shaderBinding.textureId_.IsInvalid()) {
-								ASSERT_FMSG(shaderBinding.ds_ == nullptr, "Binding can not contain DS and texture.");
-								const auto texture = GetTextureById(shaderBinding.textureId_);
-								descriptorSets.push_back(texture->GetDS());
-							}
-						}
-						commandBuffer->BindDescriptorSets(namePipeline_[mesh->GetPipelineName()], descriptorSets);
-					}
-					commandBuffer->DrawIndexed(GetIB(mesh->GetIndexBuffer()));
-				}*/
-
-			}
-
+			GCB_->Begin();
+			
 		}
 
 
@@ -1150,7 +1017,7 @@ namespace Render::Vulkan {
 			std::pair<Common::UInt32, Common::UInt32> area) override {
 
 			Common::DiscardUnusedParameter(offset);
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
@@ -1170,7 +1037,7 @@ namespace Render::Vulkan {
 				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
 				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
 			}
-			CB_->BeginRenderPass(renderPass, framebuffer, { area.first, area.second }, clearValues);
+			GCB_->BeginRenderPass(renderPass, framebuffer, { area.first, area.second }, clearValues);
 		}
 
 		virtual void BeginSubpass() override {
@@ -1183,7 +1050,7 @@ namespace Render::Vulkan {
 			Common::UInt32 width,
 			Common::UInt32 height) override {
 
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
@@ -1195,7 +1062,7 @@ namespace Render::Vulkan {
 				.minDepth = 0.0f,
 				.maxDepth = 1.0f
 			};
-			CB_->SetViewport(viewport);
+			GCB_->SetViewport(viewport);
 
 		}
 
@@ -1205,7 +1072,7 @@ namespace Render::Vulkan {
 			Common::UInt32 width,
 			Common::UInt32 height) override {
 
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
@@ -1214,7 +1081,7 @@ namespace Render::Vulkan {
 				.extent = { width, height }
 			};
 
-			CB_->SetScissor(scissor);
+			GCB_->SetScissor(scissor);
 
 		}
 
@@ -1222,50 +1089,41 @@ namespace Render::Vulkan {
 
 		virtual void BindPipeline(RAL::Driver::Pipeline::Id pipelineId) override {
 
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
-			CB_->BindPipeline(idPipeline_[pipelineId]);
+			GCB_->BindPipeline(idPipeline_[pipelineId]);
 			//contexts_.back().pipeline_ = idPipeline_[pipelineId];
 		}
 
-		virtual void BindComputePipeline(RAL::Driver::ComputePipeline::Id pipelineId) override {
-
-			if (CB_ == nullptr) {
-				return;
-			}
-
-			CB_->BindPipeline(idComputePipeline_[pipelineId]);
-			//contexts_.back().pipeline_ = idPipeline_[pipelineId];
-		}
 
 		virtual void BindVertexBuffer(
 			VertexBuffer::Id VBId,
 			Common::UInt64 offset) override {
 
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
-			CB_->BindBuffer(GetVB(VBId), offset);
+			GCB_->BindBuffer(GetVB(VBId), offset);
 		}
 
 		virtual void BindIndexBuffer(
 			IndexBuffer::Id IBId,
 			Common::UInt64 offset) override {
 
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
 
-			CB_->BindBuffer(GetIB(IBId), offset);
+			GCB_->BindBuffer(GetIB(IBId), offset);
 		}
 
 		virtual void Bind(RAL::Driver::Pipeline::Id pipelineId, Common::UInt32 firstResourceIndex, const std::vector<Resource::Id>& resourceIds) override {
 
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
@@ -1284,7 +1142,7 @@ namespace Render::Vulkan {
 
 			auto pipeline = idPipeline_[pipelineId];
 
-			CB_->BindDescriptorSets(
+			GCB_->BindDescriptorSets(
 				pipeline, firstResourceIndex, dss);
 		}
 
@@ -1296,19 +1154,19 @@ namespace Render::Vulkan {
 				};
 				vkCreateQueryPool(*objects_.LD_, &queryPoolInfo, nullptr, &queryPool);*/
 
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
-			CB_->DrawIndexed(indicesNumber);
+			GCB_->DrawIndexed(indicesNumber);
 		}
 
 		virtual void Draw(Common::Size verticesNumber) override {
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
-			CB_->Draw(verticesNumber);
+			GCB_->Draw(verticesNumber);
 		}
 
 		virtual void EndSubpass() override {
@@ -1316,17 +1174,17 @@ namespace Render::Vulkan {
 		}
 		virtual void EndRenderPass() override {
 
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
-			CB_->EndRenderPass();
+			GCB_->EndRenderPass();
 
 		}
 
 		virtual void Show(RAL::Driver::Texture::Id textureId) override {
 			//image_->
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 			auto image = objects_.swapChain_->GetImages()[image_->index_];
@@ -1340,7 +1198,7 @@ namespace Render::Vulkan {
 			dstOffset[0] = { 0, 0, 0 };
 			dstOffset[1] = { (int)objects_.swapChain_->GetExtent().width, (int)objects_.swapChain_->GetExtent().height, 1 };
 
-			CB_->ImageMemoryBarrier(
+			GCB_->ImageMemoryBarrier(
 				textureToShow->GetImage()->GetHandle(), 0, 1,
 				VK_IMAGE_ASPECT_COLOR_BIT,
 
@@ -1352,7 +1210,7 @@ namespace Render::Vulkan {
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
-			CB_->ImageMemoryBarrier(image, 0, 1,
+			GCB_->ImageMemoryBarrier(image, 0, 1,
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_LAYOUT_UNDEFINED,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -1361,7 +1219,7 @@ namespace Render::Vulkan {
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
-			CB_->ImageBlit(
+			GCB_->ImageBlit(
 				textureToShow->GetImage()->GetHandle(),
 				srcOffset,//textureToShow->GetSize(),
 				0,
@@ -1372,7 +1230,7 @@ namespace Render::Vulkan {
 				0,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
 
-			CB_->ImageMemoryBarrier(image, 0, 1,
+			GCB_->ImageMemoryBarrier(image, 0, 1,
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 				VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
@@ -1384,7 +1242,7 @@ namespace Render::Vulkan {
 
 		void EndRender() override {
 
-			if (CB_ == nullptr) {
+			if (GCB_ == nullptr) {
 				return;
 			}
 
@@ -1393,10 +1251,10 @@ namespace Render::Vulkan {
 			//}
 
 			//CB_->EndRenderPass();
-			CB_->End();
+			GCB_->End(); 
 
 
-			objects_.commandBuffers_[currentFrame] = std::move(CB_);
+			objects_.commandBuffers_[currentFrame] = std::move(GCB_);
 			image_->commandBuffer_ = objects_.commandBuffers_[currentFrame];
 
 			currentFrame_->SetImage(image_);
@@ -1454,7 +1312,7 @@ namespace Render::Vulkan {
 				submitInfo.signalSemaphoreCount = 1;
 				submitInfo.pSignalSemaphores = &semaphoreExecutionFinish->GetNative();
 
-				VkCall(vkQueueSubmit(queue, 1, &submitInfo, fenceExecutionFinished->GetNative()),
+				VkCall(vkQueueSubmit(queue, 1, &submitInfo, fenceExecutionFinished->GetHandle()),
 					"Error while submitting commands.");
 			}
 
@@ -1483,9 +1341,79 @@ namespace Render::Vulkan {
 
 		//Compute pipeline
 
+		void StartCompute() override {
+
+			CommandBuffer::CreateInfo commandBufferCreateInfo;
+			{
+				commandBufferCreateInfo.LD_ = objects_.LD_;
+				commandBufferCreateInfo.commandPool_ = objects_.commandPool_;
+				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+			}
+			CCB_ = std::make_shared<CommandBuffer>(commandBufferCreateInfo);
+
+
+			CCB_->Begin();
+			CCB_->BeginDebug("Compute pipeline");
+		}
+
+
+		virtual void BindComputePipeline(RAL::Driver::ComputePipeline::Id pipelineId) override {
+
+			if (CCB_ == nullptr) {
+				return;
+			}
+
+			CCB_->BindPipeline(idComputePipeline_[pipelineId]);
+			//contexts_.back().pipeline_ = idPipeline_[pipelineId];
+		}
+
+		virtual void ComputeBind(RAL::Driver::Pipeline::Id pipelineId, Common::UInt32 firstResourceIndex, const std::vector<Resource::Id>& resourceIds) override {
+
+			if (CCB_ == nullptr) {
+				return;
+			}
+
+			std::vector<std::shared_ptr<DescriptorSet>> dss{ };
+
+			for (Resource::Id resourceId : resourceIds) {
+				std::shared_ptr<Vulkan::Driver::ResourceSet> resource = resources_[resourceId];
+
+#pragma region Assert
+				ASSERT_FMSG(resource != nullptr, "Attempt to bind resource with incorrect id.");
+#pragma endregion
+
+				std::shared_ptr<DescriptorSet> ds = resource->dss_[currentFrame];
+				dss.push_back(ds);
+			}
+
+			auto pipeline = idComputePipeline_[pipelineId];
+
+			CCB_->BindDescriptorSets(
+				pipeline, firstResourceIndex, dss);
+		}
+
 		void Dispatch(Common::Size groupCountX, Common::Size groupCountY, Common::Size groupCountZ) override {
 
-			CB_->Dispatch(groupCountX, groupCountY, groupCountZ);
+			CCB_->Dispatch(groupCountX, groupCountY, groupCountZ);
+
+		}
+
+		void EndCompute() override {
+
+			CCB_->EndDebug();
+			CCB_->End();
+
+			Fence::CreateInfo fenceCI {
+				.LD_ = objects_.LD_
+			};
+			
+			auto computeEndedFence = std::make_shared<Fence>(fenceCI);
+
+			computeEndedFence->Reset();
+
+			CCB_->Submit(objects_.LD_->GetComputeQueue(), computeEndedFence);
+
+			computeEndedFence->Wait();
 
 		}
 
@@ -2052,6 +1980,9 @@ namespace Render::Vulkan {
 				else if (!binding.textureId_.IsInvalid()) {
 					type = VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 				}
+				else if (!binding.sbid_.IsInvalid()) {
+					type = VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+				}
 
 				VkDescriptorSetLayoutBinding inputAttachmentBinding{
 					static_cast<decltype(VkDescriptorSetLayoutBinding::binding)>(binding.binding_),
@@ -2110,9 +2041,13 @@ namespace Render::Vulkan {
 							updateInfo.imageInfo_.sampler_ = texture->GetSampler();
 							updateInfo.imageInfo_.imageView_ = texture->GetImageView();
 						}
-
-
-
+						else if (!binding.sbid_.IsInvalid()) {
+							updateInfo.type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+							std::shared_ptr<Vulkan::StorageBuffer> sb = SBs_[binding.sbid_][0];
+							updateInfo.bufferInfo_.buffer_ = sb;
+							updateInfo.bufferInfo_.offset_ = binding.offset_;
+							updateInfo.bufferInfo_.range_ = binding.size_;
+						}
 					}
 
 					updateDSsInfo.push_back(updateInfo);
@@ -2300,503 +2235,503 @@ namespace Render::Vulkan {
 
 
 
-		//pack of render passes, framebuffer and attachments
-		class RenderPacket {
-		public:
-
-
-			struct GBufferInfo {
-				std::shared_ptr<Image> image_ = nullptr;
-				std::shared_ptr<ImageView> imageView_ = nullptr;
-				std::shared_ptr<Sampler> sampler_ = nullptr;
-				std::shared_ptr<DSL> dsl_ = nullptr;
-				std::shared_ptr<DS> ds_ = nullptr;
-			};
-
-			struct RenderPassContext {
-
-				struct Attachment {
-					enum class Type {
-						Depth,
-						Undefined
-					};
-				};
-				std::shared_ptr<MultisamplingData> multisamplingData_ = nullptr;
-				std::shared_ptr<DepthTestData> depthStencilData_ = nullptr;
-
-				std::vector<std::shared_ptr<FrameBuffer>> frameBuffers_;
-				std::shared_ptr<RenderPass2> renderPass_ = nullptr;
-			};
-
-			struct CreateInfo {
-				std::shared_ptr<PhysicalDevice> PD_ = nullptr;
-				std::shared_ptr<LogicDevice> LD_ = nullptr;
-				std::shared_ptr<DescriptorPool> DP_ = nullptr;
-				std::shared_ptr<SwapChain> swapChain_ = nullptr;
-				Common::Size framesInFlight_ = 0;
-			};
-			std::shared_ptr<GBufferInfo> gBufferInfo_ = nullptr;
-
-			RenderPacket(const CreateInfo& ci) {
-
-				//Rendered buffer
-				{
-
-					{
-						gBufferInfo_ = std::make_shared<GBufferInfo>();
-
-						Image::CreateInfo gBufferCreateInfo;
-						{
-							gBufferCreateInfo.physicalDevice_ = ci.PD_;
-							gBufferCreateInfo.LD_ = ci.LD_;
-							gBufferCreateInfo.name_ = "G-Buffer";
-							gBufferCreateInfo.format_ = ci.swapChain_->GetFormat().format;
-							gBufferCreateInfo.size_ = ci.swapChain_->GetSize();
-							gBufferCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-							gBufferCreateInfo.usage_ = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
-							gBufferCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;
-						}
-
-						gBufferInfo_->image_ = std::make_shared<AllocatedImage>(gBufferCreateInfo);
-						gBufferInfo_->imageView_ = CreateImageViewByImage(ci.LD_, gBufferInfo_->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-
-						Sampler::CreateInfo samplerCreateInfo;
-						{
-							samplerCreateInfo.LD_ = ci.LD_;
-							samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
-							samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
-							samplerCreateInfo.maxAnisotropy_ = 1.0;//ci.PD_->GetProperties().limits.maxSamplerAnisotropy;
-							samplerCreateInfo.mipLevels_ = 1;
-						}
-
-						auto sampler = std::make_shared<Sampler>(samplerCreateInfo);
-
-						gBufferInfo_->sampler_ = sampler;
-
-						VkDescriptorSetLayoutBinding inputAttachmentBinding{
-							0,
-							ToVulkanType(RAL::Driver::Shader::Binding::Type::Sampler),
-							1,
-							static_cast<VkFlags>(ToVulkanType(RAL::Driver::Shader::Stage::FragmentShader)),
-							nullptr
-						};
-
-						auto DSL = std::make_shared<DescriptorSetLayout>(
-							DescriptorSetLayout::CreateInfo{
-								"Rendered buffer",
-								ci.LD_,
-								std::vector{ inputAttachmentBinding }
-							});
-						gBufferInfo_->dsl_ = DSL;
-
-						DS::CreateInfo DSCreateInfo;
-						{
-							DSCreateInfo.DP_ = ci.DP_;
-							DSCreateInfo.DSL_ = DSL;
-							DSCreateInfo.LD_ = ci.LD_;
-						}
-
-						auto ds = std::make_shared<DS>(DSCreateInfo);
-
-						ds->UpdateImageWriteConfiguration(
-							gBufferInfo_->imageView_,
-							VkImageLayout::VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
-							sampler,
-							VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
-							0);
-
-						gBufferInfo_->ds_ = ds;
-
-					}
-				}
-
-
-				//First render pass
-				{
-
-					RenderPassContext rpContext{};
-
-
-					//DEPTH BUFFER
-					{
-						rpContext.depthStencilData_ = std::make_shared<DepthTestData>();
-						{
-							Image::CreateInfo depthImageCreateInfo;
-							{
-								depthImageCreateInfo.physicalDevice_ = ci.PD_;
-								depthImageCreateInfo.LD_ = ci.LD_;
-								depthImageCreateInfo.name_ = "Depth image",
-									depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
-								depthImageCreateInfo.size_ = ci.swapChain_->GetSize();
-								depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-								depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
-								depthImageCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;/*objects_.physicalDevice_->GetMaxUsableSampleCount();*/
-							}
-							rpContext.depthStencilData_->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
-							rpContext.depthStencilData_->imageView_ = CreateImageViewByImage(ci.LD_, rpContext.depthStencilData_->image_, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
-						}
-					}
-
-
-					//Depth attachment
-					Vulkan::RP::Attachment depthAttachment{
-						.format = rpContext.depthStencilData_->image_->GetFormat(),
-						.samples = VK_SAMPLE_COUNT_1_BIT,
-						.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-						.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
-						.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-						.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-					};
-					VkAttachmentReference depthAttachmentRef{
-						.attachment = 0,
-						.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
-					};
-
-					//Rendered buffer
-					Vulkan::RP::Attachment renderedAttachment{
-						.format = ci.swapChain_->GetFormat().format,
-						.samples = VK_SAMPLE_COUNT_1_BIT,
-						.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-						.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-						.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-						.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-					};
-
-					VkAttachmentReference renderedAttachmentRef{
-						.attachment = 1,
-						.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-					};
-
-					Vulkan::RP::Subpass::Dependency inExternalToFirstSubpass{
-						.srcSubpass_ = VK_SUBPASS_EXTERNAL,
-						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-						.dstSubpass_ = 0,
-						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
-					};
-
-					Vulkan::RP::Subpass::Dependency firstSubpassToOutExternal{
-						.srcSubpass_ = 0,
-						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-						.dstSubpass_ = VK_SUBPASS_EXTERNAL,
-						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
-					};
-
-
-					Vulkan::RP::Subpass renderSubpassDesc{
-						.inputAttachments_ = {  },
-						.colorAttachments_ = { renderedAttachmentRef },
-						.resolveAttachment_ = {  },
-						.depthStencilAttachment_ = std::make_shared<VkAttachmentReference>(depthAttachmentRef)
-					};
-
-					RenderPass2::CreateInfo rp2ci{
-						.name_ = "Main pass",
-						.LD_ = ci.LD_,
-						.attachments_ = {
-							depthAttachment,
-							renderedAttachment
-						},
-						.subpasses_ = {
-							renderSubpassDesc,
-						},
-						.dependencies_ = {
-							inExternalToFirstSubpass,
-							firstSubpassToOutExternal
-						},
-
-					};
-
-					auto renderPass = std::make_shared<RenderPass2>(rp2ci);
-
-					std::vector<std::shared_ptr<FrameBuffer>> frameBuffers;
-					{
-						VkExtent2D extent = ci.swapChain_->GetExtent();
-						for (const auto& imageView : ci.swapChain_->GetImageViews()) {
-							Common::DiscardUnusedParameter(imageView);
-							FrameBuffer::CreateInfo createInfo;
-							{
-								createInfo.LD_ = ci.LD_;
-								createInfo.attachments_.push_back(rpContext.depthStencilData_->imageView_);
-								createInfo.attachments_.push_back(gBufferInfo_->imageView_);
-								createInfo.extent_ = extent;
-								createInfo.renderPass_ = renderPass;
-							}
-							auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
-							frameBuffers.push_back(frameBuffer);
-						}
-						OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
-					}
-
-					rpContext.frameBuffers_ = std::move(frameBuffers);
-					rpContext.renderPass_ = renderPass;
-
-					renderPasses_.push_back(std::move(rpContext));
-				}
-
-
-				//second render pass
-				{
-					RenderPassContext rpContext{ };
-
-
-					//Multisampling
-					{
-						rpContext.multisamplingData_ = std::make_shared<MultisamplingData>();
-						{
-							Image::CreateInfo multisamplingCreateInfo;
-							{
-								multisamplingCreateInfo.physicalDevice_ = ci.PD_;
-								multisamplingCreateInfo.LD_ = ci.LD_;
-								multisamplingCreateInfo.name_ = "Multisampling image";
-								multisamplingCreateInfo.format_ = ci.swapChain_->GetFormat().format;
-								multisamplingCreateInfo.size_ = ci.swapChain_->GetSize();
-								multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-								multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-								multisamplingCreateInfo.samplesCount_ = ci.PD_->GetMaxUsableSampleCount();
-							}
-							rpContext.multisamplingData_->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-							rpContext.multisamplingData_->imageView_ = CreateImageViewByImage(ci.LD_, rpContext.multisamplingData_->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-						}
-					}
-
-					Vulkan::RP::Attachment multisampleAttachment{
-						.format = ci.swapChain_->GetFormat().format,
-						.samples = ci.PD_->GetMaxUsableSampleCount(),
-						.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-						.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-						.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-						.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-					};
-
-					VkAttachmentReference multisampleAttachmentRef{
-						.attachment = 0,
-						.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-					};
-
-					//swap chain
-					Vulkan::RP::Attachment swapChainAttachment{
-						.format = ci.swapChain_->GetFormat().format,
-						.samples = VK_SAMPLE_COUNT_1_BIT,
-						.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
-						.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-						.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
-						.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-					};
-					VkAttachmentReference swapChainAttachmentRef{
-						.attachment = 1,
-						.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-					};
-
-					//Rendered buffer
-					Vulkan::RP::Attachment renderedAttachment{
-						.format = ci.swapChain_->GetFormat().format,
-						.samples = VK_SAMPLE_COUNT_1_BIT,
-						.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-						.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-						.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-						.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-					};
-
-					VkAttachmentReference renderedAttachmentSubpass2Ref{
-						.attachment = 2,
-						.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-					};
-
-					Vulkan::RP::Subpass::Dependency inExternalToFirstSubpassDependency{
-						.srcSubpass_ = VK_SUBPASS_EXTERNAL,
-						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-						.dstSubpass_ = 0,
-						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
-					};
-
-					Vulkan::RP::Subpass::Dependency firstSubpassToOutExternalDependency_{
-						.srcSubpass_ = 0,
-						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-						.dstSubpass_ = VK_SUBPASS_EXTERNAL,
-						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT
-					};
-
-					Vulkan::RP::Subpass postProcessSubpassDesc{
-						.inputAttachments_ = { renderedAttachmentSubpass2Ref },
-						.colorAttachments_ = { multisampleAttachmentRef },
-						.resolveAttachment_ = std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),//std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
-						.depthStencilAttachment_ = nullptr
-					};
-
-					Vulkan::RenderPass2::CreateInfo rp2ci{
-						.name_ = "Post process pass",
-						.LD_ = ci.LD_,
-						.attachments_ = {
-							multisampleAttachment,
-							swapChainAttachment,
-							renderedAttachment
-						},
-						.subpasses_ = {
-							postProcessSubpassDesc
-						},
-						.dependencies_ = {
-							inExternalToFirstSubpassDependency,
-							firstSubpassToOutExternalDependency_
-						},
-
-					};
-
-					auto renderPass = std::make_shared<RenderPass2>(rp2ci);
-
-					std::vector<std::shared_ptr<FrameBuffer>> frameBuffers;
-					{
-						VkExtent2D extent = ci.swapChain_->GetExtent();
-						for (const auto& imageView : ci.swapChain_->GetImageViews()) {
-							FrameBuffer::CreateInfo createInfo;
-							{
-								createInfo.LD_ = ci.LD_;
-								createInfo.attachments_.push_back(rpContext.multisamplingData_->imageView_);
-								//createInfo.attachments_.push_back(depthStencilData_->imageView_);
-								createInfo.attachments_.push_back(imageView);
-								createInfo.attachments_.push_back(gBufferInfo_->imageView_);
-
-
-								createInfo.extent_ = extent;
-								createInfo.renderPass_ = renderPass;
-							}
-							auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
-							frameBuffers.push_back(frameBuffer);
-						}
-						OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
-					}
-
-					rpContext.frameBuffers_ = std::move(frameBuffers);
-					rpContext.renderPass_ = renderPass;
-
-					renderPasses_.push_back(std::move(rpContext));
-				}
-
-
-				//ui render pass
-				{
-					RenderPassContext rpContext{ };
-
-					//swap chain
-					Vulkan::RP::Attachment swapChainAttachment{
-						.format = ci.swapChain_->GetFormat().format,
-						.samples = VK_SAMPLE_COUNT_1_BIT,
-						.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-						.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-						.initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
-						.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
-					};
-					VkAttachmentReference swapChainAttachmentRef{
-						.attachment = 0,
-						.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-					};
-
-					////Rendered buffer
-					//RP::Attachment renderedAttachment{
-					//	.format = ci.swapChain_->GetFormat().format,
-					//	.samples = VK_SAMPLE_COUNT_1_BIT,
-					//	.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
-					//	.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
-					//	.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
-					//	.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
-					//};
-
-					//VkAttachmentReference renderedAttachmentSubpass2Ref{
-					//	.attachment = 1,
-					//	.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
-					//};
-
-					Vulkan::RP::Subpass::Dependency inExternalToFirstSubpassDependency{
-						.srcSubpass_ = VK_SUBPASS_EXTERNAL,
-						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-						.dstSubpass_ = 0,
-						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
-					};
-
-					Vulkan::RP::Subpass::Dependency firstSubpassToOutExternalDependency_{
-						.srcSubpass_ = 0,
-						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-						.dstSubpass_ = VK_SUBPASS_EXTERNAL,
-						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT
-					};
-
-					Vulkan::RP::Subpass postProcessSubpassDesc{
-						.inputAttachments_ = { /*renderedAttachmentSubpass2Ref*/ },
-						.colorAttachments_ = { swapChainAttachmentRef },
-						.resolveAttachment_ = nullptr,
-						.depthStencilAttachment_ = nullptr
-					};
-
-					Vulkan::RenderPass2::CreateInfo rp2ci{
-						.name_ = "UI pass",
-						.LD_ = ci.LD_,
-						.attachments_ = {
-							swapChainAttachment,
-							/*renderedAttachment*/
-						},
-						.subpasses_ = {
-							postProcessSubpassDesc
-						},
-						.dependencies_ = {
-							inExternalToFirstSubpassDependency,
-							firstSubpassToOutExternalDependency_
-						},
-
-					};
-
-					auto renderPass = std::make_shared<RenderPass2>(rp2ci);
-
-					std::vector<std::shared_ptr<FrameBuffer>> frameBuffers;
-					{
-						VkExtent2D extent = ci.swapChain_->GetExtent();
-						for (const auto& swapChainImageView : ci.swapChain_->GetImageViews()) {
-							FrameBuffer::CreateInfo createInfo;
-							{
-								createInfo.LD_ = ci.LD_;
-								createInfo.attachments_.push_back(swapChainImageView);
-								//createInfo.attachments_.push_back(gBufferInfo_->imageView_);
-
-
-								createInfo.extent_ = extent;
-								createInfo.renderPass_ = renderPass;
-							}
-							auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
-							frameBuffers.push_back(frameBuffer);
-						}
-						OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
-					}
-
-					rpContext.frameBuffers_ = std::move(frameBuffers);
-					rpContext.renderPass_ = renderPass;
-
-					renderPasses_.push_back(std::move(rpContext));
-				}
-
-
-			}
-
-			void ForEachRenderPass(std::function<void(RenderPassContext&)>&& processRenderPass) {
-				for (RenderPassContext& renderPassContext : renderPasses_) {
-					processRenderPass(renderPassContext);
-				}
-			}
-
-			std::vector<RenderPassContext> renderPasses_;
-		};
-
-
-		std::unique_ptr<RenderPacket> render_ = nullptr;
+		////pack of render passes, framebuffer and attachments
+		//class RenderPacket {
+		//public:
+
+
+		//	struct GBufferInfo {
+		//		std::shared_ptr<Image> image_ = nullptr;
+		//		std::shared_ptr<ImageView> imageView_ = nullptr;
+		//		std::shared_ptr<Sampler> sampler_ = nullptr;
+		//		std::shared_ptr<DSL> dsl_ = nullptr;
+		//		std::shared_ptr<DS> ds_ = nullptr;
+		//	};
+
+		//	struct RenderPassContext {
+
+		//		struct Attachment {
+		//			enum class Type {
+		//				Depth,
+		//				Undefined
+		//			};
+		//		};
+		//		std::shared_ptr<MultisamplingData> multisamplingData_ = nullptr;
+		//		std::shared_ptr<DepthTestData> depthStencilData_ = nullptr;
+
+		//		std::vector<std::shared_ptr<FrameBuffer>> frameBuffers_;
+		//		std::shared_ptr<RenderPass2> renderPass_ = nullptr;
+		//	};
+
+		//	struct CreateInfo {
+		//		std::shared_ptr<PhysicalDevice> PD_ = nullptr;
+		//		std::shared_ptr<LogicDevice> LD_ = nullptr;
+		//		std::shared_ptr<DescriptorPool> DP_ = nullptr;
+		//		std::shared_ptr<SwapChain> swapChain_ = nullptr;
+		//		Common::Size framesInFlight_ = 0;
+		//	};
+		//	std::shared_ptr<GBufferInfo> gBufferInfo_ = nullptr;
+
+		//	RenderPacket(const CreateInfo& ci) {
+
+		//		//Rendered buffer
+		//		{
+
+		//			{
+		//				gBufferInfo_ = std::make_shared<GBufferInfo>();
+
+		//				Image::CreateInfo gBufferCreateInfo;
+		//				{
+		//					gBufferCreateInfo.physicalDevice_ = ci.PD_;
+		//					gBufferCreateInfo.LD_ = ci.LD_;
+		//					gBufferCreateInfo.name_ = "G-Buffer";
+		//					gBufferCreateInfo.format_ = ci.swapChain_->GetFormat().format;
+		//					gBufferCreateInfo.size_ = ci.swapChain_->GetSize();
+		//					gBufferCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+		//					gBufferCreateInfo.usage_ = VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_INPUT_ATTACHMENT_BIT;
+		//					gBufferCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;
+		//				}
+
+		//				gBufferInfo_->image_ = std::make_shared<AllocatedImage>(gBufferCreateInfo);
+		//				gBufferInfo_->imageView_ = CreateImageViewByImage(ci.LD_, gBufferInfo_->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+
+		//				Sampler::CreateInfo samplerCreateInfo;
+		//				{
+		//					samplerCreateInfo.LD_ = ci.LD_;
+		//					samplerCreateInfo.magFilter_ = VK_FILTER_LINEAR;
+		//					samplerCreateInfo.minFilter_ = VK_FILTER_LINEAR;
+		//					samplerCreateInfo.maxAnisotropy_ = 1.0;//ci.PD_->GetProperties().limits.maxSamplerAnisotropy;
+		//					samplerCreateInfo.mipLevels_ = 1;
+		//				}
+
+		//				auto sampler = std::make_shared<Sampler>(samplerCreateInfo);
+
+		//				gBufferInfo_->sampler_ = sampler;
+
+		//				VkDescriptorSetLayoutBinding inputAttachmentBinding{
+		//					0,
+		//					ToVulkanType(RAL::Driver::Shader::Binding::Type::Sampler),
+		//					1,
+		//					static_cast<VkFlags>(ToVulkanType(RAL::Driver::Shader::Stage::FragmentShader)),
+		//					nullptr
+		//				};
+
+		//				auto DSL = std::make_shared<DescriptorSetLayout>(
+		//					DescriptorSetLayout::CreateInfo{
+		//						"Rendered buffer",
+		//						ci.LD_,
+		//						std::vector{ inputAttachmentBinding }
+		//					});
+		//				gBufferInfo_->dsl_ = DSL;
+
+		//				DS::CreateInfo DSCreateInfo;
+		//				{
+		//					DSCreateInfo.DP_ = ci.DP_;
+		//					DSCreateInfo.DSL_ = DSL;
+		//					DSCreateInfo.LD_ = ci.LD_;
+		//				}
+
+		//				auto ds = std::make_shared<DS>(DSCreateInfo);
+
+		//				ds->UpdateImageWriteConfiguration(
+		//					gBufferInfo_->imageView_,
+		//					VkImageLayout::VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		//					sampler,
+		//					VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER,
+		//					0);
+
+		//				gBufferInfo_->ds_ = ds;
+
+		//			}
+		//		}
+
+
+		//		//First render pass
+		//		{
+
+		//			RenderPassContext rpContext{};
+
+
+		//			//DEPTH BUFFER
+		//			{
+		//				rpContext.depthStencilData_ = std::make_shared<DepthTestData>();
+		//				{
+		//					Image::CreateInfo depthImageCreateInfo;
+		//					{
+		//						depthImageCreateInfo.physicalDevice_ = ci.PD_;
+		//						depthImageCreateInfo.LD_ = ci.LD_;
+		//						depthImageCreateInfo.name_ = "Depth image",
+		//							depthImageCreateInfo.format_ = VK_FORMAT_D32_SFLOAT;
+		//						depthImageCreateInfo.size_ = ci.swapChain_->GetSize();
+		//						depthImageCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+		//						depthImageCreateInfo.usage_ = VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT;
+		//						depthImageCreateInfo.samplesCount_ = VK_SAMPLE_COUNT_1_BIT;/*objects_.physicalDevice_->GetMaxUsableSampleCount();*/
+		//					}
+		//					rpContext.depthStencilData_->image_ = std::make_shared<AllocatedImage>(depthImageCreateInfo);
+		//					rpContext.depthStencilData_->imageView_ = CreateImageViewByImage(ci.LD_, rpContext.depthStencilData_->image_, VK_IMAGE_ASPECT_DEPTH_BIT, 1);
+		//				}
+		//			}
+
+
+		//			//Depth attachment
+		//			Vulkan::RP::Attachment depthAttachment{
+		//				.format = rpContext.depthStencilData_->image_->GetFormat(),
+		//				.samples = VK_SAMPLE_COUNT_1_BIT,
+		//				.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+		//				.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE,
+		//				.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		//				.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+		//			};
+		//			VkAttachmentReference depthAttachmentRef{
+		//				.attachment = 0,
+		//				.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL
+		//			};
+
+		//			//Rendered buffer
+		//			Vulkan::RP::Attachment renderedAttachment{
+		//				.format = ci.swapChain_->GetFormat().format,
+		//				.samples = VK_SAMPLE_COUNT_1_BIT,
+		//				.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+		//				.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		//				.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		//				.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		//			};
+
+		//			VkAttachmentReference renderedAttachmentRef{
+		//				.attachment = 1,
+		//				.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		//			};
+
+		//			Vulkan::RP::Subpass::Dependency inExternalToFirstSubpass{
+		//				.srcSubpass_ = VK_SUBPASS_EXTERNAL,
+		//				.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		//				.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		//				.dstSubpass_ = 0,
+		//				.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+		//				.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
+		//			};
+
+		//			Vulkan::RP::Subpass::Dependency firstSubpassToOutExternal{
+		//				.srcSubpass_ = 0,
+		//				.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		//				.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		//				.dstSubpass_ = VK_SUBPASS_EXTERNAL,
+		//				.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+		//				.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
+		//			};
+
+
+		//			Vulkan::RP::Subpass renderSubpassDesc{
+		//				.inputAttachments_ = {  },
+		//				.colorAttachments_ = { renderedAttachmentRef },
+		//				.resolveAttachment_ = {  },
+		//				.depthStencilAttachment_ = std::make_shared<VkAttachmentReference>(depthAttachmentRef)
+		//			};
+
+		//			RenderPass2::CreateInfo rp2ci{
+		//				.name_ = "Main pass",
+		//				.LD_ = ci.LD_,
+		//				.attachments_ = {
+		//					depthAttachment,
+		//					renderedAttachment
+		//				},
+		//				.subpasses_ = {
+		//					renderSubpassDesc,
+		//				},
+		//				.dependencies_ = {
+		//					inExternalToFirstSubpass,
+		//					firstSubpassToOutExternal
+		//				},
+
+		//			};
+
+		//			auto renderPass = std::make_shared<RenderPass2>(rp2ci);
+
+		//			std::vector<std::shared_ptr<FrameBuffer>> frameBuffers;
+		//			{
+		//				VkExtent2D extent = ci.swapChain_->GetExtent();
+		//				for (const auto& imageView : ci.swapChain_->GetImageViews()) {
+		//					Common::DiscardUnusedParameter(imageView);
+		//					FrameBuffer::CreateInfo createInfo;
+		//					{
+		//						createInfo.LD_ = ci.LD_;
+		//						createInfo.attachments_.push_back(rpContext.depthStencilData_->imageView_);
+		//						createInfo.attachments_.push_back(gBufferInfo_->imageView_);
+		//						createInfo.extent_ = extent;
+		//						createInfo.renderPass_ = renderPass;
+		//					}
+		//					auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
+		//					frameBuffers.push_back(frameBuffer);
+		//				}
+		//				OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
+		//			}
+
+		//			rpContext.frameBuffers_ = std::move(frameBuffers);
+		//			rpContext.renderPass_ = renderPass;
+
+		//			renderPasses_.push_back(std::move(rpContext));
+		//		}
+
+
+		//		//second render pass
+		//		{
+		//			RenderPassContext rpContext{ };
+
+
+		//			//Multisampling
+		//			{
+		//				rpContext.multisamplingData_ = std::make_shared<MultisamplingData>();
+		//				{
+		//					Image::CreateInfo multisamplingCreateInfo;
+		//					{
+		//						multisamplingCreateInfo.physicalDevice_ = ci.PD_;
+		//						multisamplingCreateInfo.LD_ = ci.LD_;
+		//						multisamplingCreateInfo.name_ = "Multisampling image";
+		//						multisamplingCreateInfo.format_ = ci.swapChain_->GetFormat().format;
+		//						multisamplingCreateInfo.size_ = ci.swapChain_->GetSize();
+		//						multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+		//						multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		//						multisamplingCreateInfo.samplesCount_ = ci.PD_->GetMaxUsableSampleCount();
+		//					}
+		//					rpContext.multisamplingData_->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+		//					rpContext.multisamplingData_->imageView_ = CreateImageViewByImage(ci.LD_, rpContext.multisamplingData_->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+		//				}
+		//			}
+
+		//			Vulkan::RP::Attachment multisampleAttachment{
+		//				.format = ci.swapChain_->GetFormat().format,
+		//				.samples = ci.PD_->GetMaxUsableSampleCount(),
+		//				.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+		//				.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		//				.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		//				.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		//			};
+
+		//			VkAttachmentReference multisampleAttachmentRef{
+		//				.attachment = 0,
+		//				.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		//			};
+
+		//			//swap chain
+		//			Vulkan::RP::Attachment swapChainAttachment{
+		//				.format = ci.swapChain_->GetFormat().format,
+		//				.samples = VK_SAMPLE_COUNT_1_BIT,
+		//				.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR,
+		//				.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		//				.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED,
+		//				.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+		//			};
+		//			VkAttachmentReference swapChainAttachmentRef{
+		//				.attachment = 1,
+		//				.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		//			};
+
+		//			//Rendered buffer
+		//			Vulkan::RP::Attachment renderedAttachment{
+		//				.format = ci.swapChain_->GetFormat().format,
+		//				.samples = VK_SAMPLE_COUNT_1_BIT,
+		//				.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+		//				.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		//				.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+		//				.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		//			};
+
+		//			VkAttachmentReference renderedAttachmentSubpass2Ref{
+		//				.attachment = 2,
+		//				.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+		//			};
+
+		//			Vulkan::RP::Subpass::Dependency inExternalToFirstSubpassDependency{
+		//				.srcSubpass_ = VK_SUBPASS_EXTERNAL,
+		//				.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		//				.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		//				.dstSubpass_ = 0,
+		//				.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+		//				.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
+		//			};
+
+		//			Vulkan::RP::Subpass::Dependency firstSubpassToOutExternalDependency_{
+		//				.srcSubpass_ = 0,
+		//				.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		//				.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		//				.dstSubpass_ = VK_SUBPASS_EXTERNAL,
+		//				.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+		//				.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT
+		//			};
+
+		//			Vulkan::RP::Subpass postProcessSubpassDesc{
+		//				.inputAttachments_ = { renderedAttachmentSubpass2Ref },
+		//				.colorAttachments_ = { multisampleAttachmentRef },
+		//				.resolveAttachment_ = std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),//std::make_shared<VkAttachmentReference>(swapChainAttachmentRef),
+		//				.depthStencilAttachment_ = nullptr
+		//			};
+
+		//			Vulkan::RenderPass2::CreateInfo rp2ci{
+		//				.name_ = "Post process pass",
+		//				.LD_ = ci.LD_,
+		//				.attachments_ = {
+		//					multisampleAttachment,
+		//					swapChainAttachment,
+		//					renderedAttachment
+		//				},
+		//				.subpasses_ = {
+		//					postProcessSubpassDesc
+		//				},
+		//				.dependencies_ = {
+		//					inExternalToFirstSubpassDependency,
+		//					firstSubpassToOutExternalDependency_
+		//				},
+
+		//			};
+
+		//			auto renderPass = std::make_shared<RenderPass2>(rp2ci);
+
+		//			std::vector<std::shared_ptr<FrameBuffer>> frameBuffers;
+		//			{
+		//				VkExtent2D extent = ci.swapChain_->GetExtent();
+		//				for (const auto& imageView : ci.swapChain_->GetImageViews()) {
+		//					FrameBuffer::CreateInfo createInfo;
+		//					{
+		//						createInfo.LD_ = ci.LD_;
+		//						createInfo.attachments_.push_back(rpContext.multisamplingData_->imageView_);
+		//						//createInfo.attachments_.push_back(depthStencilData_->imageView_);
+		//						createInfo.attachments_.push_back(imageView);
+		//						createInfo.attachments_.push_back(gBufferInfo_->imageView_);
+
+
+		//						createInfo.extent_ = extent;
+		//						createInfo.renderPass_ = renderPass;
+		//					}
+		//					auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
+		//					frameBuffers.push_back(frameBuffer);
+		//				}
+		//				OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
+		//			}
+
+		//			rpContext.frameBuffers_ = std::move(frameBuffers);
+		//			rpContext.renderPass_ = renderPass;
+
+		//			renderPasses_.push_back(std::move(rpContext));
+		//		}
+
+
+		//		//ui render pass
+		//		{
+		//			RenderPassContext rpContext{ };
+
+		//			//swap chain
+		//			Vulkan::RP::Attachment swapChainAttachment{
+		//				.format = ci.swapChain_->GetFormat().format,
+		//				.samples = VK_SAMPLE_COUNT_1_BIT,
+		//				.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+		//				.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		//				.initialLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+		//				.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR
+		//			};
+		//			VkAttachmentReference swapChainAttachmentRef{
+		//				.attachment = 0,
+		//				.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		//			};
+
+		//			////Rendered buffer
+		//			//RP::Attachment renderedAttachment{
+		//			//	.format = ci.swapChain_->GetFormat().format,
+		//			//	.samples = VK_SAMPLE_COUNT_1_BIT,
+		//			//	.loadOp = VK_ATTACHMENT_LOAD_OP_LOAD,
+		//			//	.storeOp = VK_ATTACHMENT_STORE_OP_STORE,
+		//			//	.initialLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+		//			//	.finalLayout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+		//			//};
+
+		//			//VkAttachmentReference renderedAttachmentSubpass2Ref{
+		//			//	.attachment = 1,
+		//			//	.layout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL
+		//			//};
+
+		//			Vulkan::RP::Subpass::Dependency inExternalToFirstSubpassDependency{
+		//				.srcSubpass_ = VK_SUBPASS_EXTERNAL,
+		//				.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		//				.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		//				.dstSubpass_ = 0,
+		//				.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+		//				.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
+		//			};
+
+		//			Vulkan::RP::Subpass::Dependency firstSubpassToOutExternalDependency_{
+		//				.srcSubpass_ = 0,
+		//				.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+		//				.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+		//				.dstSubpass_ = VK_SUBPASS_EXTERNAL,
+		//				.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
+		//				.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT
+		//			};
+
+		//			Vulkan::RP::Subpass postProcessSubpassDesc{
+		//				.inputAttachments_ = { /*renderedAttachmentSubpass2Ref*/ },
+		//				.colorAttachments_ = { swapChainAttachmentRef },
+		//				.resolveAttachment_ = nullptr,
+		//				.depthStencilAttachment_ = nullptr
+		//			};
+
+		//			Vulkan::RenderPass2::CreateInfo rp2ci{
+		//				.name_ = "UI pass",
+		//				.LD_ = ci.LD_,
+		//				.attachments_ = {
+		//					swapChainAttachment,
+		//					/*renderedAttachment*/
+		//				},
+		//				.subpasses_ = {
+		//					postProcessSubpassDesc
+		//				},
+		//				.dependencies_ = {
+		//					inExternalToFirstSubpassDependency,
+		//					firstSubpassToOutExternalDependency_
+		//				},
+
+		//			};
+
+		//			auto renderPass = std::make_shared<RenderPass2>(rp2ci);
+
+		//			std::vector<std::shared_ptr<FrameBuffer>> frameBuffers;
+		//			{
+		//				VkExtent2D extent = ci.swapChain_->GetExtent();
+		//				for (const auto& swapChainImageView : ci.swapChain_->GetImageViews()) {
+		//					FrameBuffer::CreateInfo createInfo;
+		//					{
+		//						createInfo.LD_ = ci.LD_;
+		//						createInfo.attachments_.push_back(swapChainImageView);
+		//						//createInfo.attachments_.push_back(gBufferInfo_->imageView_);
+
+
+		//						createInfo.extent_ = extent;
+		//						createInfo.renderPass_ = renderPass;
+		//					}
+		//					auto frameBuffer = std::make_shared<FrameBuffer>(createInfo);
+		//					frameBuffers.push_back(frameBuffer);
+		//				}
+		//				OS::LogInfo("/render/vulkan/driver/", "Frame buffers created successfuly.");
+		//			}
+
+		//			rpContext.frameBuffers_ = std::move(frameBuffers);
+		//			rpContext.renderPass_ = renderPass;
+
+		//			renderPasses_.push_back(std::move(rpContext));
+		//		}
+
+
+		//	}
+
+		//	void ForEachRenderPass(std::function<void(RenderPassContext&)>&& processRenderPass) {
+		//		for (RenderPassContext& renderPassContext : renderPasses_) {
+		//			processRenderPass(renderPassContext);
+		//		}
+		//	}
+
+		//	std::vector<RenderPassContext> renderPasses_;
+		//};
+
+
+		//std::unique_ptr<RenderPacket> render_ = nullptr;
 	};
 
 }

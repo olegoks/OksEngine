@@ -24,7 +24,7 @@ namespace Render::Vulkan {
 		Debug(const CreateInfo& createInfo) : instance_{ createInfo.instance_ } {
 
 			const ValidationLayers availableValidationLayers = GetAvailableValidationLayers();
-			
+
 			{
 				OS::LogInfo("/render/vulkan/driver/debug", "Vulkan enabled layers: ");
 				for (const ValidationLayer& validationLayer : availableValidationLayers) {
@@ -40,15 +40,34 @@ namespace Render::Vulkan {
 				OS::LogInfo("/render/vulkan/driver/debug", "All required validation layers are enabled.");
 			}
 
-			VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo{};
+#if defined(SHADER_DEBUG_PRINTF)
 			{
-				messengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
-				messengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
-				messengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
-				messengerCreateInfo.pfnUserCallback = Debug::Callback;
-				messengerCreateInfo.pUserData = nullptr; // Optional
+				VkDebugReportCallbackEXT debugCallbackHandle;
+
+				// Populate the VkDebugReportCallbackCreateInfoEXT
+				VkDebugReportCallbackCreateInfoEXT ci = {};
+				{
+					ci.sType = VK_STRUCTURE_TYPE_DEBUG_REPORT_CALLBACK_CREATE_INFO_EXT;
+					ci.pfnCallback = myDebugCallback;
+					ci.flags = VK_DEBUG_REPORT_INFORMATION_BIT_EXT;
+					ci.pUserData = nullptr;
+				}
+
+				// Create the callback handle
+				auto func = (PFN_vkCreateDebugReportCallbackEXT)vkGetInstanceProcAddr(createInfo.instance_->GetHandle(), "vkCreateDebugReportCallbackEXT");
+				ASSERT_FMSG(func != nullptr, "Unable to find vkCreateDebugReportCallbackEXT");
+				func(createInfo.instance_->GetHandle(), &ci, nullptr, &debugCallbackHandle);
 			}
+#endif
 			{
+				VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo{};
+				{
+					messengerCreateInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_MESSENGER_CREATE_INFO_EXT;
+					messengerCreateInfo.messageSeverity = VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT;
+					messengerCreateInfo.messageType = VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT | VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT;
+					messengerCreateInfo.pfnUserCallback = Debug::Callback;
+					messengerCreateInfo.pUserData = nullptr; // Optional
+				}
 				auto func = (PFN_vkCreateDebugUtilsMessengerEXT)vkGetInstanceProcAddr(createInfo.instance_->GetHandle(), "vkCreateDebugUtilsMessengerEXT");
 				ASSERT_FMSG(func != nullptr, "VK_EXT_debug_utils extension is not enabled.");
 				VkDebugUtilsMessengerEXT debugMessenger = VK_NULL_HANDLE;
@@ -83,6 +102,24 @@ namespace Render::Vulkan {
 			return availableLayerNames;
 		}
 
+#if defined(SHADER_DEBUG_PRINTF)
+		// And this is the callback that the validator will call
+		static VKAPI_ATTR VkBool32 VKAPI_CALL myDebugCallback(VkDebugReportFlagsEXT flags,
+			VkDebugReportObjectTypeEXT objectType,
+			uint64_t object,
+			size_t location,
+			int32_t messageCode,
+			const char* pLayerPrefix,
+			const char* pMessage,
+			void* pUserData)
+		{
+			if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
+				printf("debugPrintfEXT: %s\n", pMessage);
+			}
+
+			return false;
+		}
+#endif
 		static VKAPI_ATTR VkBool32 VKAPI_CALL Callback(
 			VkDebugUtilsMessageSeverityFlagBitsEXT messageSeverity,
 			VkDebugUtilsMessageTypeFlagsEXT messageType,
@@ -90,9 +127,22 @@ namespace Render::Vulkan {
 			void* pUserData) {
 			Common::DiscardUnusedParameter(pUserData);
 			Common::DiscardUnusedParameter(messageType);
-			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT || messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
+
+			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_TYPE_GENERAL_BIT_EXT ||
+				messageSeverity & VK_DEBUG_UTILS_MESSAGE_TYPE_VALIDATION_BIT_EXT ||
+				messageSeverity & VK_DEBUG_UTILS_MESSAGE_TYPE_PERFORMANCE_BIT_EXT) {
+				std::cout << pCallbackData->pMessage << std::endl;
+				OS::LogInfo("/render/vulkan/layers errors", pCallbackData->pMessage);
+			}
+
+			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
+				std::cout << pCallbackData->pMessage << std::endl;
+				OS::LogWarning("/render/vulkan/layers errors", pCallbackData->pMessage);
+			}
+			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
 				ASSERT_FAIL_MSG(pCallbackData->pMessage);
-			} else {
+			}
+			else {
 				OS::LogInfo("/render/vulkan/layers errors", pCallbackData->pMessage);
 			}
 
@@ -106,7 +156,7 @@ namespace Render::Vulkan {
 		const VkDebugUtilsMessengerEXT& GetNative() const noexcept { return debugMessenger_; }
 
 		[[nodiscard]]
-		void SetNative(VkDebugUtilsMessengerEXT debugMessenger) noexcept { 
+		void SetNative(VkDebugUtilsMessengerEXT debugMessenger) noexcept {
 			OS::Assert((debugMessenger != VK_NULL_HANDLE) && (GetNative() == VK_NULL_HANDLE) ||
 				((debugMessenger == VK_NULL_HANDLE) && (GetNative() != VK_NULL_HANDLE)));
 			debugMessenger_ = debugMessenger;

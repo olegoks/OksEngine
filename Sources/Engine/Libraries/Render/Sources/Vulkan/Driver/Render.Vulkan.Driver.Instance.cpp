@@ -22,9 +22,24 @@ namespace Render::Vulkan {
 		}
 
 		VkInstanceCreateInfo createInfo{};
-		{
-			createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+		{	//GLSL Shaders DebugPrintf feature ON:
+			{
+				// Populate the VkValidationFeaturesEXT
+				VkValidationFeaturesEXT validationFeatures = {};
+				validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+				validationFeatures.enabledValidationFeatureCount = 1;
 
+				VkValidationFeatureEnableEXT enabledValidationFeatures[1] = {
+					VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT };
+				validationFeatures.pEnabledValidationFeatures = enabledValidationFeatures;
+
+				// Then add the VkValidationFeaturesEXT to the VkInstanceCreateInfo
+				validationFeatures.pNext = createInfo.pNext;
+				createInfo.pNext = &validationFeatures;
+			}
+
+			createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
+			
 			VkApplicationInfo appInfo{};
 			{
 				appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;

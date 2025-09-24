@@ -53,32 +53,47 @@ namespace Render::Vulkan {
 	}
 
 	[[nodiscard]]
-	std::pair<QueueFamily, QueueFamily> Driver::ChooseQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
+	std::array<QueueFamily, 3> Driver::ChooseQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
 		const QueueFamilies graphicsQueueFamilies = physicalDevice->GetGraphicsQueueFamilies();
 		ASSERT_FMSG(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any graphics queue family.");
 
 		const QueueFamilies presentQueueFamilies = GetPresentQueueFamilies(physicalDevice, windowSurface);
-		ASSERT_FMSG(!graphicsQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any present queue family.");
+		ASSERT_FMSG(!presentQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any present queue family.");
+
+		const QueueFamilies computeQueueFamilies = physicalDevice->GetComputeQueueFamilies();
+		ASSERT_FMSG(!computeQueueFamilies.IsEmpty(), "Chosen physical device doesn't have any compute queue family.");
 
 		for (const QueueFamily& graphicsQueueFamily : graphicsQueueFamilies) {
 			for (const QueueFamily& presentQueueFamily : presentQueueFamilies) {
-				if (graphicsQueueFamily.index_ == presentQueueFamily.index_) {
-					objects_.graphicsQueueFamily_ = graphicsQueueFamily;
-					objects_.presentQueueFamily_ = presentQueueFamily;
-					OS::LogInfo("/render/vulkan/driver/physical device", "Found queue family that supports present and graphics commands.");
+				for (const QueueFamily& computeQueueFamily : computeQueueFamilies) {
+					if (graphicsQueueFamily.index_ == presentQueueFamily.index_ && computeQueueFamily.index_ == presentQueueFamily.index_) {
+						objects_.graphicsQueueFamily_ = graphicsQueueFamily;
+						objects_.presentQueueFamily_ = presentQueueFamily;
+						objects_.computeQueueFamily_ = presentQueueFamily;
+						OS::LogInfo(
+							"/render/vulkan/driver/physical device",
+							"Found queue family that supports present, graphics and compute commands.");
+						goto EndFindQueueFamily;
+					}
 				}
 			}
 		}
 
+
 		objects_.graphicsQueueFamily_ = *graphicsQueueFamilies.begin();
 		objects_.presentQueueFamily_ = *presentQueueFamilies.begin();
+		objects_.computeQueueFamily_ = *computeQueueFamilies.begin();
+		
+	EndFindQueueFamily:
 
-		return { objects_.graphicsQueueFamily_, objects_.presentQueueFamily_ };
+		return { objects_.graphicsQueueFamily_, objects_.presentQueueFamily_, objects_.computeQueueFamily_ };
 	}
 
 	[[nodiscard]]
-	QueueFamilies Driver::GetPresentQueueFamilies(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
+	QueueFamilies Driver::GetPresentQueueFamilies(
+		std::shared_ptr<PhysicalDevice> physicalDevice,
+		std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
 		const QueueFamilies queueFamilies = physicalDevice->GetQueueFamilies();
 		QueueFamilies presentQueueFamilies;
@@ -158,5 +173,5 @@ namespace Render::Vulkan {
 		ASSERT_FAIL_MSG("Failed to find a suitable GPU!");
 		return nullptr;
 	}
-	
+
 }

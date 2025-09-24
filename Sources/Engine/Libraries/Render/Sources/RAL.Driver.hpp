@@ -381,7 +381,8 @@ namespace RAL {
 				Common::UInt32 binding_ = Common::Limits<Common::UInt32>::Max();
 				//Uniform buffer.
 				UB::Id ubid_ = UB::Id::Invalid();
-				
+				SB::Id sbid_ = SB::Id::Invalid();
+
 				Common::UInt64 offset_ = 0;
 				Common::UInt64 size_ = Common::Limits<Common::UInt64>::Max();
 
@@ -554,7 +555,7 @@ namespace RAL {
 			std::pair<Common::UInt32, Common::UInt32> area) = 0;
 		virtual void BeginSubpass() = 0;
 		virtual void BindPipeline(RAL::Driver::Pipeline::Id pipelineId) = 0;
-		virtual void BindComputePipeline(RAL::Driver::ComputePipeline::Id pipelineId) = 0;
+
 		virtual void BindVertexBuffer(
 			VertexBuffer::Id VBId,
 			Common::UInt64 offset) = 0;
@@ -565,6 +566,7 @@ namespace RAL {
 			RAL::Driver::Pipeline::Id pipelineId,
 			Common::UInt32 firstResourceIndex, // layout(set = firstResourceIndex + (number of resources), binding = 0) uniform Camera {
 			const std::vector<Resource::Id>& resourceIds) = 0;
+
 		virtual void DrawIndexed(Common::Size indicesNumber) = 0;
 		virtual void Draw(Common::Size verticesNumber) = 0;
 		virtual void EndSubpass() = 0;
@@ -575,7 +577,17 @@ namespace RAL {
 
 		//Compute pipeline
 
+		virtual void StartCompute() = 0;
+
+		virtual void BindComputePipeline(RAL::Driver::ComputePipeline::Id pipelineId) = 0;
+		virtual void ComputeBind(
+			RAL::Driver::Pipeline::Id pipelineId,
+			Common::UInt32 firstResourceIndex, // layout(set = firstResourceIndex + (number of resources), binding = 0) uniform Camera {
+			const std::vector<Resource::Id>& resourceIds) = 0;
+
 		virtual void Dispatch(Common::Size groupCountX, Common::Size groupCountY, Common::Size groupCountZ) = 0;
+
+		virtual void EndCompute() = 0;
 
 		//Compute pipeline
 
