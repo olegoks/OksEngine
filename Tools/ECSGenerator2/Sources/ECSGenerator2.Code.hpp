@@ -187,12 +187,14 @@ namespace ECSGenerator2::CodeStructure {
 		struct Field {
 			std::string type_;
 			std::string name_;
+			Common::Size alignment_ = Common::Limits<Common::Size>::Max();
 			bool copyable_ = true;
 		};
 
 		struct CreateInfo {
 			std::string name_;
 			std::string parent_;
+			Common::Size alignment_ = Common::Limits<Common::Size>::Max();
 			std::vector<Field> fields_;
 			std::vector<std::shared_ptr<Function>> methods_;
 			bool defaultConstructor_ = true;

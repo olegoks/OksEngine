@@ -685,6 +685,7 @@ namespace ECSGenerator2 {
 				CodeStructure::Struct::Field field{
 					.type_ = fieldInfo.GetTypeName(),
 					.name_ = fieldInfo.GetName(),
+					.alignment_ = fieldInfo.alignment_,
 					.copyable_ = fieldInfo.copyable_
 				};
 
@@ -707,6 +708,7 @@ namespace ECSGenerator2 {
 			CodeStructure::Struct::CreateInfo sci{
 				.name_ = component->GetName(),
 				.parent_ = "OksEngine::IComponent<" + component->GetName() + ">",
+				.alignment_ = component->ci_.alignment_,
 				.fields_ = fields,
 				.methods_ = { getNameMethod, getTypeIdMethod }
 			};

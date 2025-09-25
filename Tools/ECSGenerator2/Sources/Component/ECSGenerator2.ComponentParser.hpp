@@ -17,6 +17,13 @@ namespace ECSGenerator2 {
 				serializable = serializableRef.cast<bool>().value();
 			}
 
+			//Alignment
+			Common::Size alignment = Common::Limits<Common::Size>::Max();
+			luabridge::LuaRef alignmentRef = component["alignment"];
+			if (!alignmentRef.isNil()) {
+				alignment = alignmentRef.cast<Common::Size>().value();
+			}
+
 			//ManualEditFunction
 			bool manualEditFunction = false;
 			luabridge::LuaRef manualEditFunctionRef = component["manualEditFunction"];
@@ -68,6 +75,10 @@ namespace ECSGenerator2 {
 						.name_ = field["name"].cast<std::string>().value()
 					};
 
+					if (!field["alignment"].isNil()) {
+						fieldInfo.alignment_ = field["alignment"].cast<Common::Size>().value();
+					}
+
 					if (!field["copyable"].isNil()) {
 						fieldInfo.copyable_ = field["copyable"].cast<bool>().value();
 					}
@@ -83,6 +94,7 @@ namespace ECSGenerator2 {
 				.manualAddFunction_ = manualAddFunction,
 				.manualParseFunction_ = manualParseFunction,
 				.manualSerializeFunction_ = manualSerializeFunction,
+				.alignment_ = alignment,
 				.fields_ = parsedFields
 			};
 			auto parsedComponentFile = std::make_shared<ParsedComponent>(ci);

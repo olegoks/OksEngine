@@ -19,6 +19,7 @@ namespace ECSGenerator2 {
 
 		struct FieldInfo {
 			Type type_;
+			Common::Size alignment_ = Common::Limits<Common::Size>::Max();
 			std::string typeName_;
 			std::string name_;
 			bool copyable_ = true;
@@ -39,6 +40,7 @@ namespace ECSGenerator2 {
 			bool manualAddFunction_ = false;
 			bool manualParseFunction_ = false;
 			bool manualSerializeFunction_ = false;
+			Common::Size alignment_ = Common::Limits<Common::Size>::Max();
 			std::vector<FieldInfo> fields_;
 		};
 

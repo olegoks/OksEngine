@@ -21,11 +21,17 @@ namespace ECSGenerator2 {
 			CodeStructure::Code code;
 
 			if (structObject->ci_.forwardDeclaration_) {
-				code.Add("struct " + structObject->GetName() + ";");
+				code.Add("struct "); 
+				code.Add(structObject->GetName() + ";");
 				return code;
 			}
 
-			code.Add("struct " + structObject->GetName() + " ");
+			code.Add("struct ");
+			if (structObject->ci_.alignment_ != Common::Limits<Common::Size>::Max()) {
+				code.Add(" alignas({})  ", structObject->ci_.alignment_);
+			}
+			code.Add(structObject->GetName() + " ");
+
 			if (structObject->HasParent()) {
 				code.Add(": " + structObject->GetParentName() + " ");
 			}
@@ -44,6 +50,11 @@ namespace ECSGenerator2 {
 
 					//Fields
 					structObject->ForEachField([&](const CodeStructure::Struct::Field& field, bool isLast) {
+
+						if (field.alignment_ != Common::Limits<Common::Size>::Max()) {
+							structRealization.Add("alignas({})", field.alignment_);
+						}
+
 						structRealization.Add(field.type_ + " " + field.name_ + "_;");
 						structRealization.NewLine();
 						});
