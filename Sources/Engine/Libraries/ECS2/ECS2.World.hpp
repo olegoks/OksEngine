@@ -307,6 +307,35 @@ namespace ECS2 {
 			return std::tuple<Components*...>{};
 		}
 
+		template<class ...Components>
+		[[nodiscard]]
+		std::tuple<Components*...> GetComponents() noexcept {
+
+			ComponentsFilter componentsFilter;
+			componentsFilter.SetBits<Components...>();
+			auto archetypeComponentsIt = archetypeComponents_.find(componentsFilter);
+			if (archetypeComponentsIt != archetypeComponents_.end()) {
+				return archetypeComponentsIt->second->GetComponents<Components...>();
+			}
+			else {
+				return std::make_tuple(
+					[]() -> Components* {
+						return nullptr;
+					}()...
+				);
+			}
+			
+		}
+
+		template<class ...Components>
+		[[nodiscard]]
+		Common::Size GetEntitiesNumber() noexcept {
+			ComponentsFilter componentsFilter;
+			componentsFilter.SetBits<Components...>();
+			auto archetypeComponentsIt = archetypeComponents_.find(componentsFilter);
+			return (archetypeComponentsIt == archetypeComponents_.end()) ? (0) : (archetypeComponentsIt->second->GetEntitiesNumber());
+		}
+
 		template<class ComponentType>
 		[[nodiscard]]
 		bool IsComponentExist(Entity::Id entityId) noexcept {

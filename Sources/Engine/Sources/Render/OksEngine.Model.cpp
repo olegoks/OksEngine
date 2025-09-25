@@ -2445,6 +2445,41 @@ namespace OksEngine
 		const Compute::Pipeline* pipeline0,
 		const Render::StorageBufferResource* render__StorageBufferResource0) {
 
+
+		Common::Size entitiesNumber = world_->GetEntitiesNumber<ModelNode,
+			BoneNode,
+			Name,
+			ModelEntity,
+			BoneInverseBindPoseMatrix,
+			LocalPosition3D,
+			WorldPosition3D,
+			LocalRotation3D,
+			WorldRotation3D,
+			LocalScale3D,
+			WorldScale3D,
+			ChildModelNodeEntities,
+			ModelNodeAnimation,
+			DriverTransform3D,
+			Transform3DResource,
+			DebugText2D>();
+
+		auto componentPointers = world_->GetComponents<ModelNode,
+			BoneNode,
+			Name,
+			ModelEntity,
+			BoneInverseBindPoseMatrix,
+			LocalPosition3D,
+			WorldPosition3D,
+			LocalRotation3D,
+			WorldRotation3D,
+			LocalScale3D,
+			WorldScale3D,
+			ChildModelNodeEntities,
+			ModelNodeAnimation,
+			DriverTransform3D,
+			Transform3DResource,
+			DebugText2D>();
+
 		auto driver = renderDriver0->driver_;
 		driver->StartCompute();
 		driver->BindComputePipeline(pipeline0->pipelineId_);

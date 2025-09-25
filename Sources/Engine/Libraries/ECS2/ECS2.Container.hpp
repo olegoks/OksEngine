@@ -62,6 +62,10 @@ namespace ECS2 {
 			return &components_[index];
 		}
 		
+		ComponentType* GetComponents() noexcept {
+			return components_.data();
+		}
+
 		template<class ComponentType, class ...Args>
 		void CreateComponent(ComponentIndex componentIndex, Args&& ...args) {
 

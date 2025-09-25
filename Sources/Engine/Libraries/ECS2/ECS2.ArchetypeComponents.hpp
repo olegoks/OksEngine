@@ -132,7 +132,7 @@ namespace ECS2 {
 		// ComponentX	ComponentY  ComponentZ	EntityId
 		//	[		]	[		]	[		]	23
 		//	[		]	[		]	[		]	13
-		//	[		]	[		]	[		]	5
+		//	[		]	[		]	[		]	Invalid
 		//	[		]	[		]	[		]	20	<- For example we can get ComponentX and Component Z of entity with id 20
 		//	[		]	[		]	[		]	21
 		//	[		]	[		]	[		]	22
@@ -155,6 +155,39 @@ namespace ECS2 {
 						//Return nullptr if archetype entity doesnt contain need component.
 						return nullptr;
 					}
+				}()...
+			);
+		}
+
+
+		// Get certain component pointers definite archetype
+		// Archetype entity can not contain some components, component will initialized with default constructor.
+		// 
+		//   ptr to					   ptr to
+		//	   |						 |
+		//	  \ /						\ /
+		// ComponentX	ComponentY  ComponentZ	EntityId
+		//	[		]	[		]	[		]	23
+		//	[		]	[		]	[		]	13
+		//	[ def	]	[ def	]	[ def	]	Invalid
+		//	[		]	[		]	[		]	20
+		//	[		]	[		]	[		]	21
+		//	[		]	[		]	[		]	22
+		//	[		]	[		]	[		]	23
+
+		template<class ...Components>
+		inline std::tuple<Components*...> GetComponents() {
+			return std::make_tuple(
+				[this]() -> Components* {
+
+					if (containers_.contains(Components::GetTypeId())) {
+						auto container = GetContainer<Components>();
+						return container->GetComponents();
+					}
+					else {
+						return nullptr;
+					}
+					
 				}()...
 			);
 		}
