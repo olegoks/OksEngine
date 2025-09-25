@@ -27,6 +27,17 @@ namespace ECS2 {
 			return std::dynamic_pointer_cast<ArchetypeContainer<Component>>(container);
 		}
 
+		Common::Size GetEntitiesNumber() const noexcept {
+			//AllContainers must have the same size.
+			const Common::Size size = containers_.begin()->second->GetSize();
+#if !defined(NDEBUG)
+			for (auto& [componentTypeId, container] : containers_) {
+				ASSERT_MSG(container->GetSize() == size, "All archetype containers must have the same size.");
+			}
+#endif
+			return size;
+		}
+
 		void CreateEntity(Entity::Id entityId) {
 			if (freeComponentIndices_.empty()) {
 				//All buffers have same size.
@@ -113,7 +124,19 @@ namespace ECS2 {
 			return (*container)[componentIndex];
 		}
 		
-		//Archetype entity can not contain need component, in the case we will return nullptr.
+
+
+
+		// Get certain components set of  the definite entity
+		// Archetype entity can not contain need component, in the case we will return nullptr.
+		// ComponentX	ComponentY  ComponentZ	EntityId
+		//	[		]	[		]	[		]	23
+		//	[		]	[		]	[		]	13
+		//	[		]	[		]	[		]	5
+		//	[		]	[		]	[		]	20	<- For example we can get ComponentX and Component Z of entity with id 20
+		//	[		]	[		]	[		]	21
+		//	[		]	[		]	[		]	22
+		//	[		]	[		]	[		]	23
 		template<class ...Components>
 		inline std::tuple<Components*...> GetComponents(Entity::Id entityId) {
 

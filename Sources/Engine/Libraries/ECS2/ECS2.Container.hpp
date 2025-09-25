@@ -28,15 +28,20 @@ namespace ECS2 {
 		ArchetypeContainer(Common::Size startSize) noexcept : IArchetypeContainer{ ComponentType::GetTypeId() } {
 			
 			components_.resize(startSize);
-		
+			
+			//std::memset(components_.data(), 0, startSize * sizeof(ComponentType));
 		}
 
 		void Resize(Common::Size newSize) noexcept {
+			const Common::Size oldSize = components_.size();
 #pragma region Assert
-			ASSERT_FMSG(newSize > components_.size(),
+			ASSERT_FMSG(newSize > oldSize,
 				"New size must be more than previous.");
 #pragma endregion
+
 			components_.resize(newSize);
+
+			//std::memset(components_.data() + oldSize, 0, (newSize - oldSize) * sizeof(ComponentType));
 		}
 
 		[[nodiscard]]
@@ -63,10 +68,8 @@ namespace ECS2 {
 			components_[componentIndex].~ComponentType();
 			new(components_.data() + componentIndex) ComponentType(std::forward<Args>(args)...);
 		}
+		
 
-		//bool IsComponentExist(ComponentIndex componentIndex) {
-		//	return IsComponentIndexFree(componentIndex)
-		//}
 
 		[[nodiscard]]
 		const ComponentType* operator[](ComponentIndex index) const noexcept {
@@ -108,6 +111,7 @@ namespace ECS2 {
 
 		Container() noexcept : IContainer{ ComponentType::GetTypeId() } {
 			Resize(10);
+			//std::memset(components_.data(), 0, components_.size() * sizeof(ComponentType));
 		}
 
 		void Resize(Common::Size newSize) noexcept {
@@ -117,6 +121,8 @@ namespace ECS2 {
 #pragma endregion
 			const Common::Size oldSize = components_.size();
 			components_.resize(newSize);
+			//std::memset(components_.data() + oldSize, 0, (newSize - oldSize) * sizeof(ComponentType));
+
 			componentIndexToEntityId_.resize(newSize, Entity::Id::invalid_);
 			for (Common::Index i = oldSize; i < newSize; i++) {
 				freeComponentIndices_.insert(i);

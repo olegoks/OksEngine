@@ -707,7 +707,7 @@ namespace ECSGenerator2 {
 
 			CodeStructure::Struct::CreateInfo sci{
 				.name_ = component->GetName(),
-				.parent_ = "OksEngine::IComponent<" + component->GetName() + ">",
+				//.parent_ = "OksEngine::IComponent<" + component->GetName() + ">",
 				.alignment_ = component->ci_.alignment_,
 				.fields_ = fields,
 				.methods_ = { getNameMethod, getTypeIdMethod }
