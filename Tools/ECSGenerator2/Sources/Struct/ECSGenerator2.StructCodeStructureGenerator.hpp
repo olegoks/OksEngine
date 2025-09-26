@@ -25,7 +25,9 @@ namespace ECSGenerator2 {
 
 				CodeStructure::Struct::Field field{
 					.type_ = fieldInfo.GetTypeName(),
-					.name_ = fieldInfo.GetName()
+					.name_ = fieldInfo.GetName(),
+					.alignment_ = fieldInfo.alignment_,
+					.defaultValue_ = fieldInfo.defaultValue_
 				};
 
 				fields.push_back(field);

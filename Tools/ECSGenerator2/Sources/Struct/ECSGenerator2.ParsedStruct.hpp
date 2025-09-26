@@ -22,7 +22,8 @@ namespace ECSGenerator2 {
 			std::vector<std::string> namespace_;
 			std::string typeName_;
 			std::string name_;
-
+			Common::Size alignment_ = Common::Limits<Common::Size>::Max();
+			std::string defaultValue_ = "";
 			const std::string& GetName() const {
 				return name_;
 			}
@@ -34,6 +35,7 @@ namespace ECSGenerator2 {
 
 		struct CreateInfo {
 			std::string name_;
+			Common::Size alignment_ = Common::Limits<Common::Size>::Max();
 			std::vector<FieldInfo> fields_;
 		};
 

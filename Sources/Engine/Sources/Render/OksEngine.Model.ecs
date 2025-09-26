@@ -87,24 +87,24 @@ BoneNodeComponent = {
 
 UpdateHierarchicalNodeDriverTransform3DSystem = {
     updateMethod = {
-    processesEntities = {
-        {
-            processesComponents = { 
-                "WorldPosition3D", 
-                "WorldRotation3D", 
-                "WorldScale3D",
-                { name = "DriverTransform3D", readonly = false }
+        processesEntities = {
+            {
+                processesComponents = {
+                    "WorldPosition3D",
+                    "WorldRotation3D",
+                    "WorldScale3D",
+                    { name = "DriverTransform3D", readonly = false }
+                },
+                excludes = {
+                    "BoneNode"
+                }
             },
-            excludes = {
-                "BoneNode"
-            }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false }
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
-    }
     }
 }
 
@@ -356,9 +356,9 @@ ProcessModelAnimationSystem = {
                     "AnimationInProgress"
                 },
                 -- Debug
-                 createsComponents = {
-                     "RunModelAnimation"
-                 }
+                createsComponents = {
+                    "RunModelAnimation"
+                }
             },
             {
                 processesComponents = {
@@ -1028,7 +1028,7 @@ ComputeNamespace = {
                     createsComponents = {
                         "Pipeline"
                     }
-                }-- },
+                } -- },
                 -- {
                 --     processesComponents = {
 

@@ -15,6 +15,15 @@ namespace ECSGenerator2 {
 			if (!serializableRef.isNil()) {
 				serializable = serializableRef.cast<bool>().value();
 			}
+			
+			//Alignment
+			Common::Size alignment = Common::Limits<Common::Size>::Max();
+			luabridge::LuaRef alignmentRef = component["alignment"];
+			if (!alignmentRef.isNil()) {
+				alignment = alignmentRef.cast<Common::Size>().value();
+			}
+
+			
 			luabridge::LuaRef fields = component["fields"];
 
 			if (componentName == "ECSMenu") {
@@ -30,11 +39,22 @@ namespace ECSGenerator2 {
 						.typeName_ = field["type"].cast<std::string>().value(),
 						.name_ = field["name"].cast<std::string>().value()
 					};
+
+					if (!field["defaultValue"].isNil()) {
+						fieldInfo.defaultValue_ = field["defaultValue"].cast<std::string>().value();
+					}
+
+					if (!field["alignment"].isNil()) {
+						fieldInfo.alignment_ = field["alignment"].cast<Common::Size>().value();
+					}
+
+
 					parsedFields.push_back(fieldInfo);
 				}
 			}
 			ParsedStruct::CreateInfo ci{
 				.name_ = componentName,
+				.alignment_ = alignment,
 				.fields_ = parsedFields
 			};
 			auto parsedComponentFile = std::make_shared<ParsedStruct>(ci);

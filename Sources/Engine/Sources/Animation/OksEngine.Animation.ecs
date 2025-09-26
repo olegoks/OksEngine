@@ -1,12 +1,12 @@
-AnimationComponent = {
-    serializable = false,
-    fields = { 
-        { type = "std::string", name = "name" },
-        { type = "Common::Double", name = "durationInTicks" },
-        { type = "float", name = "ticksPerSecond" },
-        { type = "std::vector<std::pair<Common::Double, glm::vec3>>", name = "positionKeys" },
-        { type = "std::vector<std::pair<Common::Double, glm::quat>>", name = "rotationKeys" },
-        { type = "std::vector<std::pair<Common::Double, glm::vec3>>", name = "scalingKeys" }
+-- AnimationComponent = {
+--     serializable = false,
+--     fields = { 
+--         { type = "std::string", name = "name" },
+--         { type = "Common::Double", name = "durationInTicks" },
+--         { type = "float", name = "ticksPerSecond" },
+--         { type = "std::vector<std::pair<Common::Double, glm::vec3>>", name = "positionKeys" },
+--         { type = "std::vector<std::pair<Common::Double, glm::quat>>", name = "rotationKeys" },
+--         { type = "std::vector<std::pair<Common::Double, glm::vec3>>", name = "scalingKeys" }
 
-     }
-}
+--      }
+-- }

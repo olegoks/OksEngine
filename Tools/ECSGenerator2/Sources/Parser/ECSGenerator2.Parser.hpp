@@ -1,5 +1,7 @@
 #pragma once 
 
+#include <ranges>
+
 #include <ECSGenerator2.ParsedECSFile.hpp>
 
 #include <Namespace/ECSGenerator2.ParsedNamespace.hpp>
@@ -21,7 +23,12 @@ namespace ECSGenerator2 {
 			context.LoadScript(script);
 			luabridge::LuaRef ecsFile = luabridge::getGlobal(context.state_, "_G");
 
+			if (ecsFilePath.filename() == "OksEngine.Model.Animation.ecs") {
+				Common::BreakPointLine();
+			}
+
 			//Get all global tables in the script.
+			//TODO: 
 			std::vector<std::string> tableNames;
 			{
 				for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
@@ -189,26 +196,32 @@ namespace ECSGenerator2 {
 #pragma endregion							
 					auto parentTables = childlessTable->GetParentTables();
 
-					std::vector<ParsedTablePtr> clonedTables;
-					for (Common::Index i = 0; i < parentTables.size(); i++) {
-						auto clonedTable = parentTables[i]->Clone();
-						clonedTable->childTables_.clear();
-						//Set child table. If cloned table is not last
-						if (i < parentTables.size() - 1) {
-							clonedTable->childTables_.push_back(parentTables[i + 1]);
+					std::vector<std::shared_ptr<ParsedTable>> clonedTables;
+					std::ranges::for_each(parentTables, [&](std::shared_ptr<ParsedTable> parentTable) {
+						auto clonedParentTable = parentTable->Clone();
+						clonedParentTable->childTables_.clear();
+						clonedParentTable->parentTable_ = nullptr;
+						clonedTables.push_back(clonedParentTable);
+						
+						});
+					auto clonedChildlessTable = childlessTable->Clone();
+					clonedChildlessTable->childTables_.clear();
+					clonedChildlessTable->parentTable_ = nullptr;
+
+					clonedTables.push_back(clonedChildlessTable);
+
+					{
+						const Common::Index lastTableIndex = clonedTables.size() - 1;
+						for (Common::Index i = 0; i < clonedTables.size(); i++) {
+							auto clonedTable = clonedTables[i];
+							const Common::Index nextTableIndex = i + 1;
+							if (nextTableIndex <= lastTableIndex) {
+								auto nextClonedTable = clonedTables[nextTableIndex];
+								nextClonedTable->parentTable_ = clonedTable;
+								clonedTable->childTables_.push_back(nextClonedTable);
+							}
 						}
-						clonedTables.push_back(clonedTable);
-
 					}
-
-					auto clonedChildLessTable = childlessTable->Clone();
-					
-					if (!parentTables.empty()) {
-						clonedTables.back()->childTables_.push_back(clonedChildLessTable);
-					}
-
-					clonedTables.push_back(clonedChildLessTable);
-
 
 					separatedTables.push_back(clonedTables[0]);
 

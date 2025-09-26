@@ -23,6 +23,7 @@ namespace ECSGenerator2 {
 			std::string typeName_;
 			std::string name_;
 			bool copyable_ = true;
+			std::string defaultValue_ = "";
 
 			const std::string& GetName() const {
 				return name_;

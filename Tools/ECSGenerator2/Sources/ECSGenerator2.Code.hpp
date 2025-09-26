@@ -189,6 +189,7 @@ namespace ECSGenerator2::CodeStructure {
 			std::string name_;
 			Common::Size alignment_ = Common::Limits<Common::Size>::Max();
 			bool copyable_ = true;
+			std::string defaultValue_ = "";
 		};
 
 		struct CreateInfo {

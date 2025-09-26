@@ -55,7 +55,7 @@ namespace ECSGenerator2 {
 							structRealization.Add("alignas({})", field.alignment_);
 						}
 
-						structRealization.Add(field.type_ + " " + field.name_ + "_{};");
+						structRealization.Add(field.type_ + " " + field.name_ + "_{" + field.defaultValue_ + "};");
 						structRealization.NewLine();
 						});
 

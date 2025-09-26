@@ -686,7 +686,8 @@ namespace ECSGenerator2 {
 					.type_ = fieldInfo.GetTypeName(),
 					.name_ = fieldInfo.GetName(),
 					.alignment_ = fieldInfo.alignment_,
-					.copyable_ = fieldInfo.copyable_
+					.copyable_ = fieldInfo.copyable_,
+					.defaultValue_ = fieldInfo.defaultValue_
 				};
 
 				fields.push_back(field);
