@@ -224,6 +224,7 @@ namespace Render::Vulkan {
 
 
 			if (!shader.parse(&resources, 100, false, messages, includer)) {
+
 				ASSERT_FAIL_FMSG("Shader compilation failed: {}", shader.getInfoLog());
 				glslang::FinalizeProcess();
 

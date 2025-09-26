@@ -57,12 +57,34 @@ namespace Render::Vulkan {
 					&pointerToMappedMemory),
 					"Error while mapping buffer to device memory.");
 			}
-			memcpy(pointerToMappedMemory, memory, (size_t)bytesNumber);
+			std::memcpy(pointerToMappedMemory, memory, (size_t)bytesNumber);
 			{
 				vkUnmapMemory(createInfo_.LD_->GetHandle(), GetHandle());
 			}
 		}
 
+		void GetData(Common::Size offsetInBytes, void* memory, Common::Size bytesNumber) {
+
+			OS::Assert(memory != nullptr);
+			OS::Assert(bytesNumber > 0);
+			ASSERT_FMSG(offsetInBytes + bytesNumber <= GetSize(), "Attempt to read device memory more or less bytes than device memory size.");
+
+			void* pointerToMappedMemory = nullptr;
+			{
+				VkCall(vkMapMemory(
+					createInfo_.LD_->GetHandle(),
+					GetHandle(),
+					offsetInBytes,
+					bytesNumber,
+					0,
+					&pointerToMappedMemory),
+					"Error while mapping buffer to device memory.");
+			}
+			std::memcpy(memory, pointerToMappedMemory, (size_t)bytesNumber);
+			{
+				vkUnmapMemory(createInfo_.LD_->GetHandle(), GetHandle());
+			}
+		}
 
 		~DeviceMemory() noexcept {
 			OS::Assert(!IsNullHandle());

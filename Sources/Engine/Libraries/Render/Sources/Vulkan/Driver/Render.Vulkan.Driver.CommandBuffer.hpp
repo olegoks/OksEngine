@@ -203,6 +203,29 @@ namespace Render::Vulkan {
 				nullptr);
 		}
 
+
+		template<class PipelineType>
+		void BindComputeDescriptorSets(
+			std::shared_ptr<PipelineType> pipeline,
+			Common::UInt32 firstDSIndex,
+			const std::vector<std::shared_ptr<DescriptorSet>>& descriptorSets) noexcept {
+
+			std::vector<VkDescriptorSet> descriptorSetsHandles;
+			for (auto descriptorSetPtr : descriptorSets) {
+				descriptorSetsHandles.push_back(descriptorSetPtr->GetHandle());
+			}
+
+			vkCmdBindDescriptorSets(
+				GetHandle(),
+				VK_PIPELINE_BIND_POINT_COMPUTE, // Bind to graphics pipeline(not computation pipeline)
+				pipeline->GetLayout()->GetHandle(),
+				firstDSIndex,
+				static_cast<Common::UInt32>(descriptorSets.size()),
+				descriptorSetsHandles.data(),
+				0,
+				nullptr);
+		}
+
 		void Draw(Common::Size verticesNumber) {
 			vkCmdDraw(
 				GetHandle(),
@@ -435,6 +458,15 @@ namespace Render::Vulkan {
 			};
 			VkCall(vkQueueSubmit(queue, 1, &submitInfo, (fence != nullptr) ? (fence->GetHandle()) : (VK_NULL_HANDLE)),
 				"Error while submitting command buffer.");
+
+		}
+
+		void WaitIdle() {
+
+			VkCall(vkQueueWaitIdle(createInfo_.LD_->GetComputeQueue()),
+				"Error while waitting for queue idle.");
+
+			vkDeviceWaitIdle(createInfo_.LD_->GetHandle());
 
 		}
 

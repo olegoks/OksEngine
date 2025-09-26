@@ -26,10 +26,10 @@ namespace OS {
 	void AssertFailMessage(const char* message, const std::source_location& location = std::source_location::current());
 	
 	template<class ...Args>
-	void AssertFailMessage(const char* message, const std::source_location& location, const char* format, Args&& ...args) {
+	void AssertFailMessage(const std::source_location& location, const char* format, Args&& ...args) {
 		
-		const std::string message = std::format(format, std::forward<Args&&>(args)...);
-		AssertFailMessage(message, location);
+		const std::string message = std::vformat(format, std::make_format_args(std::forward<Args>(args)...));
+		AssertFailMessage(message.c_str(), location);
 
 	}
 
@@ -59,8 +59,8 @@ namespace OS {
 #define ASSERT_FAIL_MSG(message)\
 	OS::AssertFailMessage(message)
 
-#define ASSERT_FAIL_FMSG(message, ...)\
-	OS::AssertFailMessage(message)
+#define ASSERT_FAIL_FMSG(format, ...)\
+	OS::AssertFailMessage(std::source_location::current(), format,  __VA_ARGS__)
 
 #define NOT_IMPLEMENTED()\
 	OS::NotImplemented()

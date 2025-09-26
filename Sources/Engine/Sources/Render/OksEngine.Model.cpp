@@ -2445,6 +2445,9 @@ namespace OksEngine
 		const Compute::Pipeline* pipeline0,
 		const Render::StorageBufferResource* render__StorageBufferResource0) {
 
+		auto driver = renderDriver0->driver_;
+
+
 
 		Common::Size entitiesNumber = world_->GetEntitiesNumber<ModelNode,
 			BoneNode,
@@ -2463,6 +2466,30 @@ namespace OksEngine
 			Transform3DResource,
 			DebugText2D>();
 
+		if (entitiesNumber > 0) {
+			Common::BreakPointLine();
+		}
+		else {
+			return;
+		}
+
+
+		RAL::Driver::StorageBuffer::CreateInfo sbci{
+			.size_ = entitiesNumber * sizeof(LocalPosition3D)
+		};
+
+		const RAL::Driver::StorageBuffer::Id sbid = driver->CreateStorageBuffer(sbci);
+
+		RAL::Driver::ResourceSet::Binding storageBinding
+		{
+			.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+			.binding_ = 0,
+			.sbid_ = sbid
+		};
+		const RAL::Driver::ResourceSet::Id sbrid = driver->CreateResource(storageBinding);
+
+
+
 		auto componentPointers = world_->GetComponents<ModelNode,
 			BoneNode,
 			Name,
@@ -2480,13 +2507,16 @@ namespace OksEngine
 			Transform3DResource,
 			DebugText2D>();
 
-		auto driver = renderDriver0->driver_;
+		LocalPosition3D* localPositions = std::get<LocalPosition3D*>(componentPointers);
+
+		driver->FillStorageBuffer(sbid, localPositions);
+
 		driver->StartCompute();
 		driver->BindComputePipeline(pipeline0->pipelineId_);
 		driver->ComputeBind(
 			pipeline0->pipelineId_,
 			0,
-			{ render__StorageBufferResource0->id_ });
+			{ sbrid });
 		//Total Threads = Workgroups × Local Size
 		//
 		//Где:
@@ -2501,9 +2531,12 @@ namespace OksEngine
 		//Всего потоков : 16 × 8 × 1 = 128 workgroups
 		//Потоков в каждой группе : 64 × 1 × 1 = 64 threads
 		//Общее количество потоков : 128 × 64 = 8192 threads
-		driver->Dispatch(64, 1, 1);
+		driver->Dispatch(entitiesNumber / 64, 1, 1);
 		driver->EndCompute();
 
+		driver->GetStorageBufferData(
+			sbid,
+			0, entitiesNumber * sizeof(LocalPosition3D), localPositions);
 	}
 
 	//TEST

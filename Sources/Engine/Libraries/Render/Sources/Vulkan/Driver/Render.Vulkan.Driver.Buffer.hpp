@@ -30,6 +30,7 @@ namespace Render::Vulkan {
 		Buffer(const CreateInfo& createInfo);
 
 		void Fill(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept;
+		void GetData(Common::Size offset, void* data, Common::Size sizeInBytes) noexcept;
 
 		static void DataCopy(
 			const std::shared_ptr<Buffer> bufferFrom, 

@@ -107,6 +107,7 @@ namespace RAL {
 		virtual Common::Size GetSBSizeInBytes(SB::Id ubid) = 0;
 		[[nodiscard]]
 		virtual void FillStorageBuffer(StorageBuffer::Id UBId, void* data) = 0;
+		virtual void GetStorageBufferData(StorageBuffer::Id UBId, Common::Size offset, Common::Size size, void* data) = 0;
 		// Storage buffer
 
 		//Vertex buffer

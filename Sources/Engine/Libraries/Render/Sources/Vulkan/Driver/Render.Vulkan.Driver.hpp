@@ -1388,14 +1388,17 @@ namespace Render::Vulkan {
 
 			auto pipeline = idComputePipeline_[pipelineId];
 
-			CCB_->BindDescriptorSets(
+			ASSERT_MSG(!dss.empty(), "Attempt to bind empty array with Descriptor Sets.");
+			CCB_->BindComputeDescriptorSets(
 				pipeline, firstResourceIndex, dss);
 		}
 
 		void Dispatch(Common::Size groupCountX, Common::Size groupCountY, Common::Size groupCountZ) override {
 
+			if (CCB_ == nullptr) {
+				return;
+			}
 			CCB_->Dispatch(groupCountX, groupCountY, groupCountZ);
-
 		}
 
 		void EndCompute() override {
@@ -1413,7 +1416,11 @@ namespace Render::Vulkan {
 
 			CCB_->Submit(objects_.LD_->GetComputeQueue(), computeEndedFence);
 
+
 			computeEndedFence->Wait();
+
+
+			CCB_->WaitIdle();
 
 		}
 
@@ -1539,6 +1546,15 @@ namespace Render::Vulkan {
 			std::vector<std::shared_ptr<Vulkan::StorageBuffer>>& sb = SBs_[SBId];
 			sb[0]->Fill(0, data, sb[0]->GetSizeInBytes());
 
+		}
+
+		virtual void GetStorageBufferData(
+			StorageBuffer::Id SBId,
+			Common::Size offset,
+			Common::Size size,
+			void* data) override {
+			std::vector<std::shared_ptr<Vulkan::StorageBuffer>>& sb = SBs_[SBId];
+			sb[0]->GetData(offset, data, size);
 		}
 
 		// STORAGE BUFFER

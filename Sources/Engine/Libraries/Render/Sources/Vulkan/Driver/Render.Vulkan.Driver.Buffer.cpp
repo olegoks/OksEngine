@@ -29,6 +29,11 @@ namespace Render::Vulkan
 		memory_->Fill(offset, data, sizeInBytes);
 	}
 
+	void Buffer::GetData(Common::Size offsetInBytes, void* memory, Common::Size bytesNumber) noexcept {
+		ASSERT(memory_ != nullptr);
+		memory_->GetData(offsetInBytes, memory, bytesNumber);
+	}
+
 	void Buffer::CopyDataTo(std::shared_ptr<Buffer> bufferTo, std::shared_ptr<CommandPool> commandPool) {
 		CopyFullDataTo(*bufferTo, commandPool);
 
