@@ -4,7 +4,7 @@ AnimationNamespace = {
         --Position
         Position3DKeyStruct = {
             fields = {
-                { type = "float", name = "time", defaultValue = "0" },
+                { type = "float", name = "time", defaultValue = "0.0" },
                 { type = "float", name = "x",    defaultValue = "0.0" },
                 { type = "float", name = "y",    defaultValue = "0.0" },
                 { type = "float", name = "z",    defaultValue = "0.0" }
@@ -19,11 +19,11 @@ AnimationNamespace = {
         --Rotation
         Rotation3DKeyStruct = {
             fields = {
-                { type = "float", name = "time" },
-                { type = "float", name = "w" },
-                { type = "float", name = "x" },
-                { type = "float", name = "y" },
-                { type = "float", name = "z" }
+                { type = "float", name = "time", defaultValue = "0.0" },
+                { type = "float", name = "w",    defaultValue = "0.0" },
+                { type = "float", name = "x",    defaultValue = "0.0" },
+                { type = "float", name = "y",    defaultValue = "0.0" },
+                { type = "float", name = "z",    defaultValue = "0.0" }
             }
         },
         RotationKeysComponent = {
@@ -35,10 +35,10 @@ AnimationNamespace = {
         --Scale
         Scale3DKeyStruct = {
             fields = {
-                { type = "float", name = "time" },
-                { type = "float", name = "x" },
-                { type = "float", name = "y" },
-                { type = "float", name = "z" }
+                { type = "float", name = "time", defaultValue = "0.0" },
+                { type = "float", name = "x",    defaultValue = "0.0" },
+                { type = "float", name = "y",    defaultValue = "0.0" },
+                { type = "float", name = "z",    defaultValue = "0.0" }
             }
         },
         Scale3DKeysComponent = {
