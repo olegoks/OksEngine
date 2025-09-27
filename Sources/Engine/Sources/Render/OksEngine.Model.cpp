@@ -547,6 +547,9 @@ namespace OksEngine
 
 
 						};
+
+
+
 					//Parse animations.
 					if (scene->HasAnimations()) {
 						createNodeAnimationChannel(node, scene);

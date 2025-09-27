@@ -203,6 +203,29 @@ namespace ECSGenerator2 {
                 });
         }
 
+        Common::Size GetChildlessTablesNumber() {
+            if (HasChilds()) {
+                Common::Size number = 0;
+                ForEachChildlessTable([&](std::shared_ptr<ParsedTable> childLessTable) {
+                    number++;
+                    return true;
+                    });
+                return number;
+            }
+            else {
+                return 1;
+            }
+        }
+
+        std::vector<std::shared_ptr<ParsedTable>> GetChildLessTables() {
+            std::vector<std::shared_ptr<ParsedTable>> childLessTables;
+            ForEachChildlessTable([&](std::shared_ptr<ParsedTable> childLessTable) {
+                childLessTables.push_back(childLessTable);
+                return true;
+                });
+            return childLessTables;
+        }
+
         [[nodiscard]]
         bool HasChilds() const noexcept {
             return !childTables_.empty();

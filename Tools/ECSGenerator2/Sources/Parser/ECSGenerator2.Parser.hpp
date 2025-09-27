@@ -1,6 +1,8 @@
 #pragma once 
 
 #include <ranges>
+#include <regex>
+#include <algorithm>
 
 #include <ECSGenerator2.ParsedECSFile.hpp>
 
@@ -41,13 +43,60 @@ namespace ECSGenerator2 {
 				}
 			}
 
-			auto sortTables = [](std::vector<std::shared_ptr<ParsedTable>>& tables) {
+			std::vector<std::string> abstractionsOrder;
+			// Get ECS abstraction order from .lua script source.
+			//TODO: Take into account namespaces and their heir
+			{
+
+				auto processLine = [&](const std::string& line) {
+					std::smatch match;
+					std::regex systemRegex{ R"(\w+System\s*=\s*\{)" };
+					std::regex componentRegex{ R"(\w+Component\s*=\s*\{)" };
+					std::regex structRegex{ R"(\w+Struct\s*=\s*\{)" };
+					// Ищем System
+					if (std::regex_search(line, match, systemRegex)) {
+						std::string name = match[0].str();
+						name = name.substr(0, name.find("=")); // Убираем "= {"
+						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
+						name.erase(name.size() - sizeof("System") + 1, name.size());
+						abstractionsOrder.push_back(name);
+					}
+					// Ищем Component
+					else if (std::regex_search(line, match, componentRegex)) {
+						std::string name = match[0].str();
+						name = name.substr(0, name.find("="));
+						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
+						name.erase(name.size() - sizeof("Component") + 1, name.size());
+						abstractionsOrder.push_back(name);
+					}
+					// Ищем Struct
+					else if (std::regex_search(line, match, structRegex)) {
+						std::string name = match[0].str();
+						name = name.substr(0, name.find("="));
+						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
+
+						name.erase(name.size() - sizeof("Struct") + 1, name.size());
+						abstractionsOrder.push_back(name);
+					}
+					};
+				std::string line;
+				std::stringstream stream{ ecsFileText };
+				while (std::getline(stream, line)) {
+					processLine(line);
+				}
+			}
+			if (ecsFilePath.filename().string() == "OksEngine.Model.Animation.ecs") {
+				Common::BreakPointLine();
+			}
+
+
+			auto sortTables = [](std::vector<std::string>& abstractionsOrder, std::vector<std::shared_ptr<ParsedTable>>& tables) {
 
 				//Sort tables:
 				//1. Structs
 				//2. Components
 				//3. Systems
-				std::sort(tables.begin(), tables.end(), [](
+				std::sort(tables.begin(), tables.end(), [&](
 					ParsedTablePtr first,
 					ParsedTablePtr second) {
 
@@ -80,14 +129,81 @@ namespace ECSGenerator2 {
 							}
 							};
 
-						const int priority1 = getPriority(type1);
-						const int priority2 = getPriority(type2);
+						const int abstractionPriority1 = getPriority(type1);
+						const int abstractionPriority2 = getPriority(type2);
 
-						// Сначала сортируем по приоритету типа
-						if (priority1 != priority2) {
-							return priority1 < priority2;
+						ASSERT(first->GetChildlessTablesNumber() == 1);
+						ASSERT(second->GetChildlessTablesNumber() == 1);
+
+						std::string firstName;
+						if (first->HasChilds()) {
+							firstName = first->GetChildLessTables()[0]->GetName();
 						}
-						return false;
+						else {
+							firstName = first->GetName();
+						}
+
+						std::string secondName;
+						if (second->HasChilds()) {
+							secondName = second->GetChildLessTables()[0]->GetName();
+						}
+						else {
+							secondName = second->GetName();
+						}
+
+						auto firstIt = std::ranges::find(abstractionsOrder, firstName);
+						Common::Index firstIndex = std::distance(abstractionsOrder.begin(), firstIt);
+
+						auto secondIt = std::ranges::find(abstractionsOrder, secondName);
+						Common::Index secondIndex = std::distance(abstractionsOrder.begin(), secondIt);
+
+						if (abstractionPriority1 == abstractionPriority2) {
+							return firstIndex < secondIndex;
+
+						} else {
+							return abstractionPriority1 < abstractionPriority2;
+						}
+
+						//Old order realiztion.
+						{
+							//auto getChildLessTableType = [](ParsedTablePtr table) {
+							//	ParsedTable::Type type1 = ParsedTable::Type::Undefined;
+							//	if (!table->HasChilds()) {
+							//		type1 = table->GetType();
+							//	}
+							//	else {
+							//		auto processChildLessTable = [&](ParsedTablePtr childLessTable) {
+							//			type1 = childLessTable->GetType();
+							//			return false;
+							//			};
+							//		table->ForEachChildlessTable(processChildLessTable);
+							//	}
+							//	return type1;
+							//	};
+
+							//auto type1 = getChildLessTableType(first);
+							//auto type2 = getChildLessTableType(second);
+
+							//// Определяем приоритеты типов
+							//const auto getPriority = [](ParsedTable::Type type) {
+
+							//	switch (type) {
+							//	case ParsedTable::Type::Struct:    return 0; // Высший приоритет
+							//	case ParsedTable::Type::Component: return 1;
+							//	case ParsedTable::Type::System:    return 2; // Низший приоритет
+							//	default:                           return 3;
+							//	}
+							//	};
+
+							//const int priority1 = getPriority(type1);
+							//const int priority2 = getPriority(type2);
+
+							//// Сначала сортируем по приоритету типа
+							//if (priority1 != priority2) {
+							//	return priority1 < priority2;
+							//}
+							//return false;
+						}
 					});
 				};
 
@@ -113,13 +229,13 @@ namespace ECSGenerator2 {
 										//TODO: move setting of child table to processTable function.
 										auto parsedTable = processTable(tableName, value);
 #pragma region Assert
-										ASSERT_FMSG(parsedTable != nullptr , "");
+										ASSERT_FMSG(parsedTable != nullptr, "");
 #pragma endregion
 										parsedNamespaceTables.push_back(parsedTable);
 									}
 								}
 							}
-							sortTables(parsedNamespaceTables);
+							//sortTables(abstractionsOrder, parsedNamespaceTables);
 							ParsedNamespace::CreateInfo namespaceCI{
 								.name_ = namespaceName
 							};
@@ -202,7 +318,7 @@ namespace ECSGenerator2 {
 						clonedParentTable->childTables_.clear();
 						clonedParentTable->parentTable_ = nullptr;
 						clonedTables.push_back(clonedParentTable);
-						
+
 						});
 					auto clonedChildlessTable = childlessTable->Clone();
 					clonedChildlessTable->childTables_.clear();
@@ -237,7 +353,7 @@ namespace ECSGenerator2 {
 					parsedTables.push_back(separatedTable);
 				}
 			}
-			sortTables(parsedTables);
+			sortTables(abstractionsOrder, parsedTables);
 
 
 

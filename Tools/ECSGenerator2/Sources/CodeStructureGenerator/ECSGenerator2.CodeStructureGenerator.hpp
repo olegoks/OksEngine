@@ -128,20 +128,59 @@ namespace ECSGenerator2 {
 			//New code generation
 			std::vector<std::shared_ptr<CodeStructure::Base>> bases;
 			//Generate forward declarations for structures.
-			parsedECSFile->ForEachStruct([&](std::shared_ptr<ParsedStruct> parsedStruct) {
+			//parsedECSFile->ForEachRootTable([&](std::shared_ptr<ParsedTable> parsedTable) {
+			//	
+			//	//TODO:: add ForEachChildlessTable that process root table too.
+			//	// remove duplication.
+			//	if (parsedTable->HasChilds()) {
+			//		parsedTable->ForEachChildlessTable([&](std::shared_ptr<ParsedTable> parsedTable) {
+
+			//			if (parsedTable->GetType() == ParsedTable::Type::Struct) {
+
+			//				CodeStructure::Struct::CreateInfo sci{
+			//					.name_ = parsedTable->GetFullName(),
+			//					.forwardDeclaration_ = true
+			//				};
+			//				auto structObject = std::make_shared<CodeStructure::Struct>(sci);
+
+			//				bases.push_back(structObject);
+
+			//			}
 
 
-				StructCodeStructureGenerator::CreateInfo scgci{
-					.includeDirectory_ = includeDirectory
-				};
+			//			return true;
+			//			});
+			//	}
+			//	else {
 
-				StructCodeStructureGenerator structGenerator{ scgci };
+			//		if (parsedTable->GetType() == ParsedTable::Type::Struct) {
 
-				auto structForwardDeclarationCodeStructure = structGenerator.GenerateStructForwardDeclaration(parsedStruct);
-				bases.push_back(structForwardDeclarationCodeStructure);
+			//			CodeStructure::Struct::CreateInfo sci{
+			//				.name_ = parsedTable->GetFullName(),
+			//				.forwardDeclaration_ = true
+			//			};
+			//			auto structObject = std::make_shared<CodeStructure::Struct>(sci);
+
+			//			bases.push_back(structObject);
+
+			//		}
+			//	}
+			//	return true;
+			//	});
+			//parsedECSFile->ForEachStruct([&](std::shared_ptr<ParsedStruct> parsedStruct) {
 
 
-				});
+			//	StructCodeStructureGenerator::CreateInfo scgci{
+			//		.includeDirectory_ = includeDirectory
+			//	};
+
+			//	StructCodeStructureGenerator structGenerator{ scgci };
+
+			//	auto structForwardDeclarationCodeStructure = structGenerator.GenerateStructForwardDeclaration(parsedStruct);
+			//	bases.push_back(structForwardDeclarationCodeStructure);
+
+
+			//	});
 
 			parsedECSFile->ForEachRootTable([&](std::shared_ptr<ParsedTable> table) {
 

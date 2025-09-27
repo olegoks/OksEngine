@@ -10,7 +10,7 @@ AnimationNamespace = {
                 { type = "float", name = "z",    defaultValue = "0.0" }
             }
         },
-        Position3DKeysComponent = {
+        Position3DKeysStruct = {
             serializable = false,
             fields = {
                 { type = "std::array<Position3DKey, 32>", name = "keys" }
@@ -26,7 +26,7 @@ AnimationNamespace = {
                 { type = "float", name = "z",    defaultValue = "0.0" }
             }
         },
-        RotationKeysComponent = {
+        RotationKeysStruct = {
             serializable = false,
             fields = {
                 { type = "std::array<Rotation3DKey, 32>", name = "keys" }
@@ -41,11 +41,26 @@ AnimationNamespace = {
                 { type = "float", name = "z",    defaultValue = "0.0" }
             }
         },
-        Scale3DKeysComponent = {
+        Scale3DKeysStruct = {
             serializable = false,
             fields = {
                 { type = "std::array<Scale3DKey, 32>", name = "keys" }
             }
-        },
+        }
+    },
+    ModelNodeAnimationStruct = {
+        serializable = false,
+        fields = {
+            { type = "Channel::Position3DKeys", name = "position3DKeys" },
+            { type = "Channel::RotationKeys", name = "rotationKeys" },
+            { type = "Channel::Scale3DKeys",    name = "scale3DKeys" }
+        }
+    },
+    ModelNodeAnimationsComponent = {
+        serializable = false,
+        fields = {
+            --Max 8 animations per node
+            { type = "std::array<ModelNodeAnimation, 8>", name = "animations" }
+        }
     }
 }

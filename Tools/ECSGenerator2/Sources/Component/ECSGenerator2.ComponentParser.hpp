@@ -67,8 +67,10 @@ namespace ECSGenerator2 {
 
 			std::vector<ParsedComponent::FieldInfo> parsedFields;
 			if (!fields.isNil()) {
+				std::vector<std::pair<std::string, std::string>> tablesNames;
 				for (luabridge::Iterator it(fields); !it.isNil(); ++it) {
 					luabridge::LuaRef field = it.value();
+
 					ParsedComponent::FieldInfo fieldInfo{
 						.typeName_ = field["type"].cast<std::string>().value(),
 						.name_ = field["name"].cast<std::string>().value()
@@ -88,6 +90,7 @@ namespace ECSGenerator2 {
 
 					parsedFields.push_back(fieldInfo);
 				}
+
 			}
 			ParsedComponent::CreateInfo ci{
 				.name_ = componentName,

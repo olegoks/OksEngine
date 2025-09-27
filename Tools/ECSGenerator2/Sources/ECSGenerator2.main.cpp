@@ -96,29 +96,6 @@ int main(int argc, char** argv) {
 	//Set pointers to systems, components
 	//TODO: move to separate function.
 	{
-		auto mergeArraysPreserveOrder = [](const std::vector<std::string>& arr1,
-			const std::vector<std::string>& arr2) {
-				std::vector<std::string> result;
-				std::unordered_set<std::string> seen;
-
-				// Сначала добавляем все уникальные элементы из первого массива
-				for (const auto& str : arr1) {
-					if (seen.find(str) == seen.end()) {
-						result.push_back(str);
-						seen.insert(str);
-					}
-				}
-
-				// Затем добавляем уникальные элементы из второго массива
-				for (const auto& str : arr2) {
-					if (seen.find(str) == seen.end()) {
-						result.push_back(str);
-						seen.insert(str);
-					}
-				}
-
-				return result;
-			};
 
 		auto getTableByFullName2 = [](
 			const std::vector<std::shared_ptr<ECSGenerator2::ParsedECSFile>> parsedECSFiles,
