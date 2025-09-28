@@ -308,6 +308,7 @@ AnimationInProgressComponent = {
     serializable = false,
     fields = {
         { type = "std::string",    name = "animationName" },
+        { type = "Common::UInt64", name = "animationIndex" },
         { type = "double",         name = "currentTick" },
         { type = "Common::UInt64", name = "animationStartTimeSinceEngineStart" }
     }
@@ -320,7 +321,8 @@ StartModelAnimationSystem = {
                 processesComponents = {
                     "Model",
                     "RunModelAnimation",
-                    "ModelAnimations"
+                    "ModelAnimations",
+                    "ChildModelNodeEntities"
                 },
                 excludes = {
                     "AnimationInProgress"
@@ -336,6 +338,16 @@ StartModelAnimationSystem = {
                 processesComponents = {
                     "Clock",
                     "TimeSinceEngineStart"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "ChildModelNodeEntities"
+                },
+                createsComponents = {
+                    "Animation::Model::Node::RunningState"
                 }
             }
         }
@@ -505,6 +517,7 @@ AiNamespace = {
                         "BoneInverseBindPoseMatrix",
                         "ChildModelNodeEntities",
                         "MeshInfos",
+                        "Animation::ModelNodeAnimations",
                         --"MeshEntities",
                         "LocalPosition3D",
                         "LocalRotation3D",

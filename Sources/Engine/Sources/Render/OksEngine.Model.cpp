@@ -28,10 +28,14 @@ namespace OksEngine
 	//#define MESH
 
 	void StartModelAnimation::Update(
-		ECS2::Entity::Id entity0id, const Model* model0, const RunModelAnimation* runModelAnimation0,
+		ECS2::Entity::Id entity0id, 
+		const Model* model0,
+		const RunModelAnimation* runModelAnimation0,
 		const ModelAnimations* modelAnimations0,
+		const ChildModelNodeEntities* childModelNodeEntities0,
 
-		ECS2::Entity::Id entity1id, const Clock* clock1,
+		ECS2::Entity::Id entity1id, 
+		const Clock* clock1, 
 		const TimeSinceEngineStart* timeSinceEngineStart1) {
 
 #pragma region Assert
@@ -45,161 +49,36 @@ namespace OksEngine
 					"Attempt to start animation that doesnt exist.");
 #pragma endregion
 
-		CreateComponent<AnimationInProgress>(entity0id, runModelAnimation0->animationName_, 0.0, timeSinceEngineStart1->microseconds_);
-		RemoveComponent<RunModelAnimation>(entity0id);
-
-	}
-
-	void ProcessModelAnimation::Update(
-		ECS2::Entity::Id entity0id,
-		const Model* model0,
-		const ModelAnimations* modelAnimations0,
-		const AnimationInProgress* animationInProgress0,
-		const ChildModelNodeEntities* childModelNodeEntities0,
-		ECS2::Entity::Id entity1id,
-		const Clock* clock1,
-		const TimeSinceEngineStart* timeSinceEngineStart1) {
-
-		auto it = std::find_if(
+		//Find needed animation.
+		auto modelAnimationIt = std::find_if(
 			modelAnimations0->animations_.cbegin(),
 			modelAnimations0->animations_.cend(),
 			[&](const ModelAnimation& modelAnimation) {
-				return modelAnimation.name_ == animationInProgress0->animationName_;
+				return modelAnimation.name_ == runModelAnimation0->animationName_;
 			});
 
+		//Get index of animation, shader that will calculate animation will use this index to access animation data.
+		const Common::UInt32 animationIndex = std::distance(modelAnimations0->animations_.cbegin(), modelAnimationIt);
+		
+		CreateComponent<AnimationInProgress>(
+			entity0id,
+			runModelAnimation0->animationName_,
+			animationIndex,
+			0.0,
+			timeSinceEngineStart1->microseconds_);
 
-#pragma region Assert
-		ASSERT_FMSG(it != modelAnimations0->animations_.cend(), "");
-#pragma endregion
+		RemoveComponent<RunModelAnimation>(entity0id);
 
-		const ModelAnimation& modelAnimation = *it;
+		//Create animation state for nodes.
+		std::function<void(ECS2::Entity::Id)> processModelNode = [&](ECS2::Entity::Id nodeEntityId) {
 
-		std::function<void(ECS2::Entity::Id)> processModelNode
-			= [&](ECS2::Entity::Id nodeEntityId) {
+			CreateComponent<Animation::Model::Node::RunningState>(
+				nodeEntityId,
+				animationIndex,
+				modelAnimationIt->durationInTicks_,
+				0.0);
 
-			auto components = world_->GetComponents<
-				ModelNodeAnimation,
-				LocalPosition3D,
-				LocalRotation3D,
-				LocalScale3D,
-				ChildModelNodeEntities
-			>(nodeEntityId);
-
-			auto* modelNodeAnimation = std::get<ModelNodeAnimation*>(components);
-
-			if (modelNodeAnimation != nullptr) {
-
-				//if (IsComponentExist<Name>(nodeEntityId)) {
-				//	if (auto name = GetComponent<Name>(nodeEntityId)->value_ == "Object_55") {
-				//		Common::BreakPointLine();
-				//	}
-				//}
-				//auto name = GetComponent<Name>(nodeEntityId);
-
-				const std::string& currentAnimationName = animationInProgress0->animationName_;
-
-				const NodeAnimationChannel& nodeChannel = modelNodeAnimation->animationNameToChannel_[currentAnimationName];
-
-				const Common::UInt64 timeSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress0->animationStartTimeSinceEngineStart_;
-
-				const double ticksSinceAnimationStart = modelAnimation.ticksPerSecond_ * (timeSinceAnimationStart / 1000000.0);
-
-				auto* localNodePosition3D = std::get<LocalPosition3D*>(components); //GetComponent<LocalPosition3D>(nodeEntityId);
-
-				//TODO: binary search
-				for (Common::Index i = 1; i < nodeChannel.position3DValues_.size(); i++) {
-					const ChannelPositionKey& previousPosition3DKey = nodeChannel.position3DValues_[i - 1];
-					const ChannelPositionKey& currentPosition3DKey = nodeChannel.position3DValues_[i];
-
-					if (ticksSinceAnimationStart > previousPosition3DKey.time_ && ticksSinceAnimationStart < currentPosition3DKey.time_) {
-
-						if (glm::distance(currentPosition3DKey.position3D_, previousPosition3DKey.position3D_) < 0.00001) {
-							break;
-						}
-
-						const double intervalTime = currentPosition3DKey.time_ - previousPosition3DKey.time_;
-						const double currentTimeInInterval = ticksSinceAnimationStart - previousPosition3DKey.time_;
-						//currentTimeInInterval to [0 .. 1].
-						float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTime;
-						const glm::vec3 currentPosition3D = glm::mix(previousPosition3DKey.position3D_, currentPosition3DKey.position3D_, normalizedCurrentTimeInInterval);
-
-#pragma region Assert
-						ASSERT_FMSG(
-							!std::isnan(currentPosition3D.x) &&
-							!std::isnan(currentPosition3D.y) &&
-							!std::isnan(currentPosition3D.z), "");
-#pragma endregion
-
-#pragma region Assert
-						ASSERT_FMSG(
-							!std::isnan(currentPosition3D.x) &&
-							!std::isnan(currentPosition3D.y) &&
-							!std::isnan(currentPosition3D.z), "");
-#pragma endregion
-						localNodePosition3D->x_ = currentPosition3D.x;
-						localNodePosition3D->y_ = currentPosition3D.y;
-						localNodePosition3D->z_ = currentPosition3D.z;
-						break;
-					}
-				}
-
-				auto* localNodeRotation3D = std::get<LocalRotation3D*>(components);//GetComponent<LocalRotation3D>(nodeEntityId);
-
-				for (Common::Index i = 1; i < nodeChannel.rotation3DValues_.size(); i++) {
-					const ChannelRotationKey& previousRotation3DKey = nodeChannel.rotation3DValues_[i - 1];
-					const ChannelRotationKey& currentRotation3DKey = nodeChannel.rotation3DValues_[i];
-
-					if (ticksSinceAnimationStart > previousRotation3DKey.time_ && ticksSinceAnimationStart < currentRotation3DKey.time_) {
-						const double intervalTime = currentRotation3DKey.time_ - previousRotation3DKey.time_;
-						const double currentTimeInInterval = ticksSinceAnimationStart - previousRotation3DKey.time_;
-						//currentTimeInInterval to [0 .. 1].
-						float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTime;
-						const glm::quat currentRotation3D = glm::slerp(previousRotation3DKey.rotation3D_, currentRotation3DKey.rotation3D_, normalizedCurrentTimeInInterval);
-						localNodeRotation3D->w_ = currentRotation3D.w;
-						localNodeRotation3D->x_ = currentRotation3D.x;
-						localNodeRotation3D->y_ = currentRotation3D.y;
-						localNodeRotation3D->z_ = currentRotation3D.z;
-						break;
-					}
-				}
-
-
-				auto* localNodeScale3D = std::get<LocalScale3D*>(components);//GetComponent<LocalScale3D>(nodeEntityId);
-
-				for (Common::Index i = 1; i < nodeChannel.scale3DValues_.size(); i++) {
-					const ChannelScaleKey& previousScale3DKey = nodeChannel.scale3DValues_[i - 1];
-					const ChannelScaleKey& currentScale3DKey = nodeChannel.scale3DValues_[i];
-
-					if (ticksSinceAnimationStart > previousScale3DKey.time_ && ticksSinceAnimationStart < currentScale3DKey.time_) {
-
-						if (glm::distance(currentScale3DKey.scale3D_, previousScale3DKey.scale3D_) < 0.001) {
-							break;
-						}
-
-						const double intervalTime = currentScale3DKey.time_ - previousScale3DKey.time_;
-						const double currentTimeInInterval = ticksSinceAnimationStart - previousScale3DKey.time_;
-						//currentTimeInInterval to [0 .. 1].
-						float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTime;
-						const glm::vec3 currentScale3D = glm::slerp(previousScale3DKey.scale3D_, currentScale3DKey.scale3D_, normalizedCurrentTimeInInterval);
-#pragma region Assert
-						ASSERT_FMSG(
-							!std::isnan(currentScale3D.x) &&
-							!std::isnan(currentScale3D.y) &&
-							!std::isnan(currentScale3D.z), "");
-#pragma endregion
-						localNodeScale3D->x_ = currentScale3D.x;
-						localNodeScale3D->y_ = currentScale3D.y;
-						localNodeScale3D->z_ = currentScale3D.z;
-						break;
-					}
-				}
-
-			}
-
-
-			//modelNodeAnimation->animationNameToChannel_
-
-			const auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
+			auto* childModelNodeEntities = GetComponent<ChildModelNodeEntities>(nodeEntityId);
 
 			if (childModelNodeEntities != nullptr) {
 
@@ -211,29 +90,83 @@ namespace OksEngine
 
 			};
 
-		const Common::UInt64 timeSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress0->animationStartTimeSinceEngineStart_;
-
-		const double ticksSinceAnimationStart = modelAnimation.ticksPerSecond_ * (timeSinceAnimationStart / 1000000.0);
-
-		if (ticksSinceAnimationStart > modelAnimation.durationInTicks_) {
-			RemoveComponent<AnimationInProgress>(entity0id);
-
-			//DEBUG
-			const Common::Size animationsNumber = modelAnimations0->animations_.size();
-
-			std::random_device rd;
-			std::mt19937 gen(rd());
-
-			// �������� [a, b]
-			Common::Index a = 0, b = animationsNumber - 1;
-			std::uniform_int_distribution<> dist(a, b);
-			const Common::Index randomAnimationIndex = dist(gen);
-
-			const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[randomAnimationIndex];
-
-			CreateComponent<RunModelAnimation>(entity0id, randomModelAnimation.name_);
-			return;
+		for (ECS2::Entity::Id childModelNodeEntityId : childModelNodeEntities0->childEntityIds_) {
+			processModelNode(childModelNodeEntityId);
 		}
+
+	}
+
+	void ProcessModelAnimation::Update(
+		ECS2::Entity::Id entity0id,
+		const Model* model0,
+		const ModelAnimations* modelAnimations0,
+		const AnimationInProgress* animationInProgress0,
+		const ChildModelNodeEntities* childModelNodeEntities0,
+
+		ECS2::Entity::Id entity1id,
+		const Clock* clock1,
+		const TimeSinceEngineStart* timeSinceEngineStart1) {
+
+		std::function<void(ECS2::Entity::Id)> processModelNode
+			= [&](ECS2::Entity::Id nodeEntityId) {
+
+			auto components = world_->GetComponents<
+				Animation::Model::Node::RunningState,
+				ChildModelNodeEntities
+			>(nodeEntityId);
+
+			auto* animationRunningState = std::get<Animation::Model::Node::RunningState*>(components);
+			auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
+
+			if (animationRunningState != nullptr) {
+
+				const ModelAnimation& modelAnimation = modelAnimations0->animations_[animationRunningState->animationIndex_];
+				//Calculate current animation tick.
+				const Common::UInt64 msSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress0->animationStartTimeSinceEngineStart_;
+				const float secSinceAnimationStart = msSinceAnimationStart / 1000000.0;
+				const float ticksSinceAnimationStart = modelAnimation.ticksPerSecond_ * secSinceAnimationStart;
+				const float animationDurationInTicks = modelAnimation.durationInTicks_;
+
+				// Calculate current animation state from [0..1].
+				const float currentAnimationStage = ticksSinceAnimationStart / animationDurationInTicks;
+
+				animationRunningState->currentTime_ = currentAnimationStage;
+
+			}
+
+			if (childModelNodeEntities != nullptr) {
+
+				const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->childEntityIds_;
+				for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
+					processModelNode(childModelNodeEntityId);
+				}
+			}
+
+			};
+
+		//const Common::UInt64 timeSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress0->animationStartTimeSinceEngineStart_;
+
+		//const double ticksSinceAnimationStart = modelAnimation.ticksPerSecond_ * (timeSinceAnimationStart / 1000000.0);
+
+		//if (ticksSinceAnimationStart > modelAnimation.durationInTicks_) {
+		//	RemoveComponent<AnimationInProgress>(entity0id);
+
+		//	//DEBUG
+		//	const Common::Size animationsNumber = modelAnimations0->animations_.size();
+
+		//	std::random_device rd;
+		//	std::mt19937 gen(rd());
+
+		//	// �������� [a, b]
+		//	Common::Index a = 0, b = animationsNumber - 1;
+		//	std::uniform_int_distribution<> dist(a, b);
+		//	const Common::Index randomAnimationIndex = dist(gen);
+
+		//	const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[randomAnimationIndex];
+
+		//	CreateComponent<RunModelAnimation>(entity0id, randomModelAnimation.name_);
+		//	return;
+		//}
 
 		for (ECS2::Entity::Id childModelNodeEntityId : childModelNodeEntities0->childEntityIds_) {
 
@@ -395,7 +328,7 @@ namespace OksEngine
 			{
 				std::function<void(const aiScene*, aiNode*)> createNodeEntity = [&](const aiScene* scene, aiNode* node) {
 
-					const ECS2::Entity::Id nodeEntityId = CreateEntity<
+					const ECS2::Entity::Id nodeEntityId = CreateEntity <
 						ModelNode,
 						BoneNode,
 						Name,
@@ -408,12 +341,16 @@ namespace OksEngine
 						LocalScale3D,
 						WorldScale3D,
 						ChildModelNodeEntities,
-						ModelNodeAnimation,
+						//
+						//ModelNodeAnimation,
+						Animation::Model::Node::RunningState,
+						Animation::ModelNodeAnimations,
+						//
 						DriverTransform3D,
 						Transform3DResource,
 
 						DebugText2D
-					>();
+					> ();
 
 					nodeEntityIds.push_back(nodeEntityId);
 					nodeToEntityId[node] = nodeEntityId;
@@ -498,54 +435,138 @@ namespace OksEngine
 
 					auto createNodeAnimationChannel = [&](const aiNode* node, const aiScene* scene) {
 
-						std::map<std::string, NodeAnimationChannel> animationNameToChannel;
-						const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
-						for (Common::Index i = 0; i < scene->mNumAnimations; i++) {
-							aiAnimation* animation = scene->mAnimations[i];
-							for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
-								aiNodeAnim* nodeAnim = animation->mChannels[channelIndex];
-								if (nodeAnim->mNodeName == node->mName) {
+						//Old animation parsing.
+						//{
+						//	std::map<std::string, NodeAnimationChannel> animationNameToChannel;
+						//	const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
+						//	for (Common::Index i = 0; i < scene->mNumAnimations; i++) {
+						//		aiAnimation* animation = scene->mAnimations[i];
+						//		for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
+						//			aiNodeAnim* nodeAnim = animation->mChannels[channelIndex];
+						//			if (nodeAnim->mNodeName == node->mName) {
 
-									NodeAnimationChannel nodeAnimationChannel;
-									nodeAnimationChannel.position3DValues_.reserve(nodeAnim->mNumPositionKeys);
-									nodeAnimationChannel.rotation3DValues_.reserve(nodeAnim->mNumRotationKeys);
-									nodeAnimationChannel.scale3DValues_.reserve(nodeAnim->mNumScalingKeys);
+						//				NodeAnimationChannel nodeAnimationChannel;
+						//				nodeAnimationChannel.position3DValues_.reserve(nodeAnim->mNumPositionKeys);
+						//				nodeAnimationChannel.rotation3DValues_.reserve(nodeAnim->mNumRotationKeys);
+						//				nodeAnimationChannel.scale3DValues_.reserve(nodeAnim->mNumScalingKeys);
 
-									for (Common::Index positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
-										aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
-										nodeAnimationChannel.position3DValues_.push_back(
-											{ positionKey.mTime, { positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z } }
-										);
-									}
+						//				for (Common::Index positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
+						//					aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
+						//					nodeAnimationChannel.position3DValues_.push_back(
+						//						{ positionKey.mTime, { positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z } }
+						//					);
+						//				}
 
-									for (Common::Index rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
-										aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
-										nodeAnimationChannel.rotation3DValues_.push_back(
-											{ rotationKey.mTime, {  rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z } }
-										);
-									}
+						//				for (Common::Index rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
+						//					aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
+						//					nodeAnimationChannel.rotation3DValues_.push_back(
+						//						{ rotationKey.mTime, {  rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z } }
+						//					);
+						//				}
 
-									for (Common::Index scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumScalingKeys; scaleKeyIndex++) {
-										aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
-										nodeAnimationChannel.scale3DValues_.push_back(
-											{ scaleKey.mTime, { scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z } }
-										);
-									}
-									if (
-										!nodeAnimationChannel.position3DValues_.empty() ||
-										!nodeAnimationChannel.rotation3DValues_.empty() ||
-										!nodeAnimationChannel.scale3DValues_.empty()) {
-										animationNameToChannel[animation->mName.C_Str()] = nodeAnimationChannel;
+						//				for (Common::Index scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumScalingKeys; scaleKeyIndex++) {
+						//					aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
+						//					nodeAnimationChannel.scale3DValues_.push_back(
+						//						{ scaleKey.mTime, { scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z } }
+						//					);
+						//				}
+						//				if (
+						//					!nodeAnimationChannel.position3DValues_.empty() ||
+						//					!nodeAnimationChannel.rotation3DValues_.empty() ||
+						//					!nodeAnimationChannel.scale3DValues_.empty()) {
+						//					animationNameToChannel[animation->mName.C_Str()] = nodeAnimationChannel;
+						//				}
+						//			}
+						//		}
+						//	}
+						//	if (!animationNameToChannel.empty()) {
+						//		CreateComponent<ModelNodeAnimation>(nodeEntityId, animationNameToChannel);
+						//		animationNameToChannel.clear();
+						//	}
+						//}
+
+						{
+
+							std::array<Animation::ModelNodeAnimation, 8> animationChannels;
+							Common::Size nodeAnimationsNumber = 0;
+							const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
+							for (Common::Index i = 0; i < scene->mNumAnimations; i++) {
+								aiAnimation* animation = scene->mAnimations[i];
+
+								for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
+									aiNodeAnim* nodeAnim = animation->mChannels[channelIndex];
+									if (nodeAnim->mNodeName == node->mName) {
+										++nodeAnimationsNumber;
+										Animation::ModelNodeAnimation modelNodeAnimation;
+
+										//TODO: reduce number of keys to size of modelNodeAnimation arrays.
+										ASSERT_MSG(nodeAnim->mNumPositionKeys <= modelNodeAnimation.position3DKeys_.keys_.max_size(), "");
+										ASSERT_MSG(nodeAnim->mNumRotationKeys <= modelNodeAnimation.rotationKeys_.keys_.max_size(), "");
+										ASSERT_MSG(nodeAnim->mNumScalingKeys <= modelNodeAnimation.scale3DKeys_.keys_.max_size(), "");
+
+										{//Position keys
+											//fill empty keys with last key
+											aiVectorKey lastPositionKey = nodeAnim->mPositionKeys[nodeAnim->mNumPositionKeys - 1];
+											for (Common::Index positionKeyIndex = 0; positionKeyIndex < modelNodeAnimation.position3DKeys_.keys_.max_size(); positionKeyIndex++) {
+
+												modelNodeAnimation.position3DKeys_.keys_[positionKeyIndex] = {
+													static_cast<float>(lastPositionKey.mTime),
+													lastPositionKey.mValue.x, lastPositionKey.mValue.y, lastPositionKey.mValue.z };
+											}
+											for (Common::Index positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
+												aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
+												modelNodeAnimation.position3DKeys_.keys_[positionKeyIndex] = {
+													static_cast<float>(positionKey.mTime),
+													positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z };
+											}
+
+										}
+										{//Rotation keys
+											//fill empty keys with last key
+											aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
+											for (Common::Index rotationKeyIndex = nodeAnim->mNumRotationKeys; rotationKeyIndex < modelNodeAnimation.rotationKeys_.keys_.max_size(); rotationKeyIndex++) {
+												
+												modelNodeAnimation.rotationKeys_.keys_[rotationKeyIndex] = {
+													static_cast<float>(lastRotationKey.mTime),
+													lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z };
+											}
+											for (Common::Index rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
+												aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
+												modelNodeAnimation.rotationKeys_.keys_[rotationKeyIndex] = {
+													static_cast<float>(rotationKey.mTime),
+													rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z };
+											}
+
+										}
+										{ // Scake keys
+											//fill empty keys with last key
+											aiVectorKey lastScaleKey = nodeAnim->mScalingKeys[nodeAnim->mNumScalingKeys - 1];
+											for (Common::Index scaleKeyIndex = nodeAnim->mNumScalingKeys; scaleKeyIndex < modelNodeAnimation.scale3DKeys_.keys_.max_size(); scaleKeyIndex++) {
+
+												modelNodeAnimation.scale3DKeys_.keys_[scaleKeyIndex] = {
+													static_cast<float>(lastScaleKey.mTime),
+													lastScaleKey.mValue.x, lastScaleKey.mValue.y, lastScaleKey.mValue.z };
+											}
+											for (Common::Index scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumScalingKeys; scaleKeyIndex++) {
+												aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
+												modelNodeAnimation.position3DKeys_.keys_[scaleKeyIndex] = {
+													static_cast<float>(scaleKey.mTime),
+													scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z };
+											}
+										}
+										if (
+											nodeAnim->mNumPositionKeys > 0 ||
+											nodeAnim->mNumRotationKeys > 0 ||
+											nodeAnim->mNumScalingKeys > 0) {
+											animationChannels[i] = modelNodeAnimation;
+										}
 									}
 								}
 							}
+							if (nodeAnimationsNumber > 0) {
+								CreateComponent<Animation::ModelNodeAnimations>(nodeEntityId, animationChannels);
+							}
 						}
-						if (!animationNameToChannel.empty()) {
-							CreateComponent<ModelNodeAnimation>(nodeEntityId, animationNameToChannel);
-							animationNameToChannel.clear();
-						}
-
-
 						};
 
 
@@ -2421,12 +2442,19 @@ namespace OksEngine
 
 		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
 
-		RAL::Driver::Shader::Binding::Layout bonesPalleteBinding{
+		RAL::Driver::Shader::Binding::Layout modelNodeAnimationsBinding{
 			.binding_ = 0,
 			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
 			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
 		};
-		shaderBindings.push_back(bonesPalleteBinding);
+		shaderBindings.push_back(modelNodeAnimationsBinding);
+
+		RAL::Driver::Shader::Binding::Layout modelNodeAnimationStatesBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
+		};
+		shaderBindings.push_back(modelNodeAnimationStatesBinding);
 
 		RAL::Driver::ComputePipeline::CreateInfo cpci{
 			.name_ = "Test compute pipeline",
@@ -2464,36 +2492,51 @@ namespace OksEngine
 			LocalScale3D,
 			WorldScale3D,
 			ChildModelNodeEntities,
-			ModelNodeAnimation,
+			Animation::Model::Node::RunningState,
+			Animation::ModelNodeAnimations,
 			DriverTransform3D,
 			Transform3DResource,
 			DebugText2D>();
 
 		if (entitiesNumber > 0) {
-			Common::BreakPointLine();
-		}
-		else {
+ 			Common::BreakPointLine();
+		} else {
 			return;
 		}
 
-
-		RAL::Driver::StorageBuffer::CreateInfo sbci{
-			.size_ = entitiesNumber * sizeof(LocalPosition3D)
+		//Create storage buffer for node animations.
+		RAL::Driver::StorageBuffer::CreateInfo nodeAnimationsSBCI{
+			.size_ = entitiesNumber * sizeof(Animation::ModelNodeAnimations)
 		};
 
-		const RAL::Driver::StorageBuffer::Id sbid = driver->CreateStorageBuffer(sbci);
+		const RAL::Driver::StorageBuffer::Id nodeAnimationsSBId = driver->CreateStorageBuffer(nodeAnimationsSBCI);
 
-		RAL::Driver::ResourceSet::Binding storageBinding
+		RAL::Driver::ResourceSet::Binding nodeAnimationsStorageBinding
 		{
 			.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
 			.binding_ = 0,
-			.sbid_ = sbid
+			.sbid_ = nodeAnimationsSBId
 		};
-		const RAL::Driver::ResourceSet::Id sbrid = driver->CreateResource(storageBinding);
+		const RAL::Driver::ResourceSet::Id nodeAnimationsSBResId = driver->CreateResource(nodeAnimationsStorageBinding);
+
+		//Create storage buffer for node animation states.
+		RAL::Driver::StorageBuffer::CreateInfo nodeAnimationStatesSBCI{
+			.size_ = entitiesNumber * sizeof(Animation::Model::Node::RunningState)
+		};
+
+		const RAL::Driver::StorageBuffer::Id nodeAnimationStatesSBId = driver->CreateStorageBuffer(nodeAnimationStatesSBCI);
+
+		RAL::Driver::ResourceSet::Binding nodeAnimationStatesStorageBinding
+		{
+			.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+			.binding_ = 0,
+			.sbid_ = nodeAnimationStatesSBId
+		};
+		const RAL::Driver::ResourceSet::Id nodeAnimationStatesSBResId = driver->CreateResource(nodeAnimationStatesStorageBinding);
 
 
-
-		auto componentPointers = world_->GetComponents<ModelNode,
+		auto componentPointers = world_->GetComponents<
+			ModelNode,
 			BoneNode,
 			Name,
 			ModelEntity,
@@ -2505,21 +2548,27 @@ namespace OksEngine
 			LocalScale3D,
 			WorldScale3D,
 			ChildModelNodeEntities,
-			ModelNodeAnimation,
+			Animation::Model::Node::RunningState,
+			Animation::ModelNodeAnimations,
 			DriverTransform3D,
 			Transform3DResource,
-			DebugText2D>();
+			DebugText2D >();
 
-		LocalPosition3D* localPositions = std::get<LocalPosition3D*>(componentPointers);
+		auto* modelNodeAnimations = std::get<Animation::ModelNodeAnimations*>(componentPointers);
+		driver->FillStorageBuffer(nodeAnimationsSBId, modelNodeAnimations);
 
-		driver->FillStorageBuffer(sbid, localPositions);
+		auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
+		driver->FillStorageBuffer(nodeAnimationStatesSBId, modelNodeAnimationStates);
 
 		driver->StartCompute();
 		driver->BindComputePipeline(pipeline0->pipelineId_);
 		driver->ComputeBind(
 			pipeline0->pipelineId_,
 			0,
-			{ sbrid });
+			{ 
+				nodeAnimationsSBResId,
+				nodeAnimationStatesSBResId 
+			});
 		//Total Threads = Workgroups × Local Size
 		//
 		//Где:
@@ -2534,12 +2583,14 @@ namespace OksEngine
 		//Всего потоков : 16 × 8 × 1 = 128 workgroups
 		//Потоков в каждой группе : 64 × 1 × 1 = 64 threads
 		//Общее количество потоков : 128 × 64 = 8192 threads
+		
 		driver->Dispatch(entitiesNumber / 64, 1, 1);
 		driver->EndCompute();
 
 		driver->GetStorageBufferData(
-			sbid,
-			0, entitiesNumber * sizeof(LocalPosition3D), localPositions);
+			nodeAnimationsSBId,
+			0, entitiesNumber * sizeof(Animation::ModelNodeAnimations), modelNodeAnimations);
+
 	}
 
 	//TEST

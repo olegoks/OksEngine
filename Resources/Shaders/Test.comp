@@ -53,8 +53,18 @@ struct Position3D {
     float w_;
 };
 
-layout(std430, binding = 0) writeonly buffer Positions {
+layout(std430, set = 0, binding = 0) writeonly buffer Positions {
     vec4 positions[];
+};
+
+struct AnimationState {
+    uint animationIndex_;
+    float animationDuration_;
+    float currentTime_;
+};
+
+layout(std430, set = 1, binding = 0) writeonly buffer AnimationStates {
+    AnimationState states[];
 };
 
 void main() {
