@@ -41,15 +41,15 @@ scene = {
         --   modelFile = { fileName = "wooden_mannequin_for_artist (1).glb" }
         --},
 --
-        {
-           ID = 132,
-           name = { value = "Mech" },
-           worldPosition3D = { x = 0, y = 0.0, z = 5 },
-           worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-           worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },	model = {},
-           runModelAnimation = { animationName = "Mesh_Mech_Full_Config" },
-           modelFile = { fileName = "walker_mech.glb" }
-        },
+        --{
+        --   ID = 132,
+        --   name = { value = "Mech" },
+        --   worldPosition3D = { x = 0, y = 0.0, z = 5 },
+        --   worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+        --   worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },	model = {},
+        --   runModelAnimation = { animationName = "Mesh_Mech_Full_Config" },
+        --   modelFile = { fileName = "walker_mech.glb" }
+        --},
         --{
         --    ID = 31,
         --    name = { value = "Man" },
@@ -2744,16 +2744,16 @@ scene = {
         
         
 
-          {
-              ID = 3,
-              name = { value = "Robotic arm" },
-              worldPosition3D = { x = 3.0, y = 0.0, z = 3.0 },
-              worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-              worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-              model = {},
-              runModelAnimation = { animationName = "Robotics" },
-              modelFile = { fileName = "black_honey_-_robotic_arm.glb" }
-          },
+          --{
+          --    ID = 3,
+          --    name = { value = "Robotic arm" },
+          --    worldPosition3D = { x = 3.0, y = 0.0, z = 3.0 },
+          --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+          --    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+          --    model = {},
+          --    runModelAnimation = { animationName = "Robotics" },
+          --    modelFile = { fileName = "black_honey_-_robotic_arm.glb" }
+          --},
         --{
         --    ID = 3,
         --    name = {value ="Magnum" },

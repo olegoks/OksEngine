@@ -2442,6 +2442,8 @@ namespace OksEngine
 
 		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
 
+
+
 		RAL::Driver::Shader::Binding::Layout modelNodeAnimationsBinding{
 			.binding_ = 0,
 			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
@@ -2456,9 +2458,20 @@ namespace OksEngine
 		};
 		shaderBindings.push_back(modelNodeAnimationStatesBinding);
 
+		std::vector<RAL::Driver::PushConstant> pushConstants;
+		{
+			RAL::Driver::PushConstant pushConstant{
+				.shaderStage_ = RAL::Driver::Shader::Stage::ComputeShader,
+				.offset_ = 0,
+				.size_ = sizeof(Common::Size)
+			};
+			pushConstants.emplace_back(pushConstant);
+		}
+
 		RAL::Driver::ComputePipeline::CreateInfo cpci{
 			.name_ = "Test compute pipeline",
 			.computeShader_ = computeShader,
+			.pushConstants_ = pushConstants,
 			.shaderBindings_ = shaderBindings
 		};
 
@@ -2562,6 +2575,8 @@ namespace OksEngine
 
 		driver->StartCompute();
 		driver->BindComputePipeline(pipeline0->pipelineId_);
+
+		driver->ComputePushConstants(pipeline0->pipelineId_, sizeof(decltype(entitiesNumber)), &entitiesNumber);
 		driver->ComputeBind(
 			pipeline0->pipelineId_,
 			0,

@@ -724,6 +724,18 @@ namespace Render::Vulkan {
 				DSLs.push_back(DSL);
 			}
 
+			std::vector<VkPushConstantRange> vkPushConstantRanges;
+			for (auto ralPushConstant : pipelineCI.pushConstants_) {
+
+				VkPushConstantRange vkPushConstantRange{
+					ToVulkanType(ralPushConstant.shaderStage_),
+					ralPushConstant.offset_,
+					ralPushConstant.size_
+
+				};
+
+				vkPushConstantRanges.push_back(vkPushConstantRange);
+			}
 
 			std::shared_ptr<Vulkan::Pipeline::DepthTestInfo> depthTestData;
 			//if (pipelineCI.enableDepthTest_) {
@@ -753,7 +765,7 @@ namespace Render::Vulkan {
 				.physicalDevice_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
 				.renderPass_ = renderPass,//(pipelineCI.name_ != "ImGui Pipeline") ? (render_->renderPasses_[0].renderPass_) : (render_->renderPasses_[2].renderPass_),//objects_.renderPass_,
-				.pushConstants_ = {},
+				.pushConstants_ = vkPushConstantRanges,
 				.descriptorSetLayouts_ = DSLs,
 				.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					objects_.LD_,
@@ -805,10 +817,24 @@ namespace Render::Vulkan {
 				DSLs.push_back(DSL);
 			}
 
+			std::vector<VkPushConstantRange> vkPushConstantRanges;
+			for (auto ralPushConstant : pipelineCI.pushConstants_) {
+
+				VkPushConstantRange vkPushConstantRange{
+					ToVulkanType(ralPushConstant.shaderStage_),
+					ralPushConstant.offset_,
+					ralPushConstant.size_
+
+				};
+
+				vkPushConstantRanges.push_back(vkPushConstantRange);
+			}
+
 			Vulkan::ComputePipeline::CreateInfo createInfo{
 				.name_ = pipelineCI.name_,
 				.physicalDevice_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
+				.pushConstants_ = vkPushConstantRanges,
 				.descriptorSetLayouts_ = DSLs,
 				.computeShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					objects_.LD_,
@@ -1146,6 +1172,8 @@ namespace Render::Vulkan {
 				pipeline, firstResourceIndex, dss);
 		}
 
+
+
 		virtual void DrawIndexed(Common::Size indicesNumber) override {
 			/*	VkQueryPoolCreateInfo queryPoolInfo = {
 		.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
@@ -1393,6 +1421,18 @@ namespace Render::Vulkan {
 				pipeline, firstResourceIndex, dss);
 		}
 
+		virtual void ComputePushConstants(
+			RAL::Driver::Pipeline::Id pipelineId,
+			Common::Size sizeInBytes, void* data) override {
+
+			if (CCB_ == nullptr) {
+				return;
+			}
+			auto pipeline = idComputePipeline_[pipelineId];
+
+			CCB_->PushConstants(pipeline->GetLayout(), RAL::Driver::Shader::Stage::ComputeShader, sizeInBytes, data);
+		}
+
 		void Dispatch(Common::Size groupCountX, Common::Size groupCountY, Common::Size groupCountZ) override {
 
 			if (CCB_ == nullptr) {
@@ -1545,7 +1585,7 @@ namespace Render::Vulkan {
 		//TODO:  rename this and childs
 		virtual void FillStorageBuffer(StorageBuffer::Id SBId, void* data) override {
 			std::vector<std::shared_ptr<Vulkan::StorageBuffer>>& sb = SBs_[SBId];
-			sb[0]->Fill(0, data, sb[0]->GetSizeInBytes());
+			sb[0]->Write(0, data, sb[0]->GetSizeInBytes(), objects_.commandPool_);
 
 		}
 
@@ -1556,7 +1596,7 @@ namespace Render::Vulkan {
 			Common::Size size,
 			void* data) override {
 			std::vector<std::shared_ptr<Vulkan::StorageBuffer>>& sb = SBs_[SBId];
-			sb[0]->GetData(offset, data, size);
+			sb[0]->Read(offset, data, size, objects_.commandPool_);
 		}
 
 		// STORAGE BUFFER

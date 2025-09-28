@@ -331,6 +331,7 @@ namespace RAL {
 		virtual std::shared_ptr<Shader> CreateShader(const Shader::CreateInfo& createInfo) const = 0;
 		//Shader
 
+
 		//Texture
 		class Texture {
 		public:
@@ -474,6 +475,14 @@ namespace RAL {
 		//Render pass
 
 		//Pipeline
+
+
+		struct PushConstant {
+			Shader::Stage shaderStage_ = Shader::Stage::Undefined;
+			Common::UInt32 offset_ = 0;
+			Common::UInt32 size_ = 0;
+		};
+
 		struct Pipeline {
 			using Id = Common::Id;
 			using Stage = Pipeline_Stage;
@@ -504,6 +513,7 @@ namespace RAL {
 				IndexType indexType_ = IndexType::Undefined;
 				FrontFace frontFace_ = FrontFace::Undefined;
 				CullMode cullMode_ = CullMode::Undefined;
+				std::vector<PushConstant> pushConstants_;
 				std::vector<Shader::Binding::Layout> shaderBindings_;
 				bool enableDepthTest_ = true;
 				DB::CompareOperation dbCompareOperation_ = DB::CompareOperation::Undefined;
@@ -517,6 +527,7 @@ namespace RAL {
 			struct CreateInfo {
 				std::string name_ = "";
 				std::shared_ptr<Shader> computeShader_ = nullptr;
+				std::vector<PushConstant> pushConstants_;
 				std::vector<Shader::Binding::Layout> shaderBindings_;
 			};
 			using CI = CreateInfo;
@@ -568,6 +579,8 @@ namespace RAL {
 			Common::UInt32 firstResourceIndex, // layout(set = firstResourceIndex + (number of resources), binding = 0) uniform Camera {
 			const std::vector<Resource::Id>& resourceIds) = 0;
 
+
+
 		virtual void DrawIndexed(Common::Size indicesNumber) = 0;
 		virtual void Draw(Common::Size verticesNumber) = 0;
 		virtual void EndSubpass() = 0;
@@ -581,6 +594,9 @@ namespace RAL {
 		virtual void StartCompute() = 0;
 
 		virtual void BindComputePipeline(RAL::Driver::ComputePipeline::Id pipelineId) = 0;
+		virtual void ComputePushConstants(
+			RAL::Driver::Pipeline::Id pipelineId,
+			Common::Size sizeInBytes, void* data) = 0;
 		virtual void ComputeBind(
 			RAL::Driver::Pipeline::Id pipelineId,
 			Common::UInt32 firstResourceIndex, // layout(set = firstResourceIndex + (number of resources), binding = 0) uniform Camera {

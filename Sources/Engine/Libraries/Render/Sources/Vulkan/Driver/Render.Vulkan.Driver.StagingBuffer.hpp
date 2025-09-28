@@ -15,7 +15,7 @@ namespace Render::Vulkan {
 		StagingBuffer(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<LogicDevice> logicDevice, Common::Size bufferSizeInBytes) :
 			Buffer{ Buffer::CreateInfo{
 				physicalDevice, logicDevice, bufferSizeInBytes,
-				VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
+				VK_BUFFER_USAGE_TRANSFER_SRC_BIT | VK_BUFFER_USAGE_TRANSFER_DST_BIT, // TODO: for vertex index buffers DST not need
 				VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT } } {
 
 		}

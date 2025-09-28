@@ -28,6 +28,7 @@ namespace Render::Vulkan {
 			std::string name_ = "No name";
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
+			std::vector<VkPushConstantRange> pushConstants_;
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 			std::shared_ptr<ShaderModule> computeShader_ = nullptr;
 		};
@@ -45,6 +46,7 @@ namespace Render::Vulkan {
 			PipelineLayout::CreateInfo pipelineLayoutCreateInfo;
 			{
 				pipelineLayoutCreateInfo.LD_ = createInfo.LD_;
+				pipelineLayoutCreateInfo.pushConstants_ = createInfo.pushConstants_;
 				pipelineLayoutCreateInfo.descriptorSetLayouts_.insert(
 					pipelineLayoutCreateInfo.descriptorSetLayouts_.begin(),
 					createInfo.descriptorSetLayouts_.begin(),

@@ -4,6 +4,7 @@
 #include <vulkan/vulkan.hpp>
 
 #include <Common.Types.hpp>
+#include <Render.RALToVulkan.hpp>
 
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
@@ -203,6 +204,22 @@ namespace Render::Vulkan {
 				nullptr);
 		}
 
+		void PushConstants(
+			std::shared_ptr<PipelineLayout> pipelineLayout,
+			RAL::Driver::Shader::Stage shaderType, 
+			Common::Size dataSizeInBytes,
+			void* data) {
+
+			//TODO::support offset.
+			vkCmdPushConstants(
+				GetHandle(),
+				pipelineLayout->GetHandle(),
+				ToVulkanType(shaderType),
+				0,
+				dataSizeInBytes,
+				data
+			);
+		}
 
 		template<class PipelineType>
 		void BindComputeDescriptorSets(

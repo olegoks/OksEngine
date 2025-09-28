@@ -46,6 +46,10 @@ layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
 //
 //Структуры: выравнивание = максимальное выравнивание среди полей
 
+layout(push_constant) uniform PushConstants {
+    uint entitiesNumber_;
+};
+
 struct Position3D {
     float x_;
     float y_;
@@ -69,17 +73,11 @@ layout(std430, set = 1, binding = 0) writeonly buffer AnimationStates {
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
-    //if(index == 1){
-        //debugPrintfEXT("Work group ID %d,  %d %d", gl_GlobalInvocationID.x, gl_GlobalInvocationID.y, gl_GlobalInvocationID.z);
-    //}
-       positions[index].x = 1111.0;
-       positions[index].y = 1111.0;
-       positions[index].z = 1111.0;
-    debugPrintfEXT("ID %d x:%f y:%f z:%f",
-        gl_GlobalInvocationID.x,
-        positions[gl_GlobalInvocationID.x].x, 
-        positions[gl_GlobalInvocationID.x].y, 
-        positions[gl_GlobalInvocationID.x].z);
+    if(index < entitiesNumber_){
+        //TODO: Calculate local positions 
+
+    }
+
     
 
 }

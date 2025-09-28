@@ -30,12 +30,41 @@ namespace Render::Vulkan {
 			VK_BUFFER_USAGE_STORAGE_BUFFER_BIT |
 			VK_BUFFER_USAGE_TRANSFER_DST_BIT |
 			VK_BUFFER_USAGE_TRANSFER_SRC_BIT,
-			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT } } {
+			VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT | VK_MEMORY_PROPERTY_HOST_CACHED_BIT } }, ci_{ ci } {
 
-
+			stagingBuffer_ = std::make_shared<StagingBuffer>(ci.PD_, ci.LD_, ci.sizeInBytes_);
+			stagingBuffer_->Allocate();
 
 		}
 
+		void Write(Common::Size offset, const void* data, Common::Size sizeInBytes, std::shared_ptr<CommandPool> commandPool) {
+
+			stagingBuffer_->Fill(offset, data, sizeInBytes);
+
+			Buffer::DataCopy(
+				*stagingBuffer_, *this,
+				offset, offset,
+				sizeInBytes,
+				ci_.LD_,
+				commandPool);
+		}
+
+		void Read(Common::Size offset, void* data, Common::Size sizeInBytes, std::shared_ptr<CommandPool> commandPool) {
+
+			Buffer::DataCopy(
+				*this, *stagingBuffer_,
+				offset, offset,
+				sizeInBytes,
+				ci_.LD_,
+				commandPool);
+
+			stagingBuffer_->GetData(offset, data, sizeInBytes);
+
+		}
+
+	private:
+		CreateInfo ci_;
+		std::shared_ptr<StagingBuffer> stagingBuffer_ = nullptr;
 	};
 
 	using SB = StorageBuffer;
