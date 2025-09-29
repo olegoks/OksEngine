@@ -19,23 +19,56 @@
 
 
 #include <Common/auto_OksEngine.Debug.Position3D.hpp>
+#include <pix3.h>
+
 
 namespace OksEngine
 {
+#define NODE								\
+		ModelNode,							\
+		Name,								\
+		ModelEntity,						\
+		LocalPosition3D,					\
+		WorldPosition3D,					\
+		LocalRotation3D,					\
+		WorldRotation3D,					\
+		LocalScale3D,						\
+		WorldScale3D,						\
+		ChildModelNodeEntities,				\
+		DriverTransform3D,					\
+		Transform3DResource,				\
+		DebugText2D							
 
-	//#define MODEL 
-	//#define NODE ModelNode, Name, ModelNodeAnimation, ModelEntity, Bone, BoneInverseMatrix, ChildrenNodes, 
-	//#define MESH
+#define ANIMATION								\
+		Animation::Model::Node::RunningState,	\
+		Animation::ModelNodeAnimations	
+
+#define BONE								\
+		BoneNode,							\
+		BoneInverseBindPoseMatrix			
+
+#define NODE_ANIMATED							\
+		NODE,									\
+		ANIMATION
+
+#define NODE_BONE							\
+		NODE,								\
+		BONE
+
+#define NODE_BONE_ANIMATED						\
+		NODE_BONE,								\
+		ANIMATION				
+
 
 	void StartModelAnimation::Update(
-		ECS2::Entity::Id entity0id, 
+		ECS2::Entity::Id entity0id,
 		const Model* model0,
 		const RunModelAnimation* runModelAnimation0,
 		const ModelAnimations* modelAnimations0,
 		const ChildModelNodeEntities* childModelNodeEntities0,
 
-		ECS2::Entity::Id entity1id, 
-		const Clock* clock1, 
+		ECS2::Entity::Id entity1id,
+		const Clock* clock1,
 		const TimeSinceEngineStart* timeSinceEngineStart1) {
 
 #pragma region Assert
@@ -59,7 +92,7 @@ namespace OksEngine
 
 		//Get index of animation, shader that will calculate animation will use this index to access animation data.
 		const Common::UInt32 animationIndex = std::distance(modelAnimations0->animations_.cbegin(), modelAnimationIt);
-		
+
 		CreateComponent<AnimationInProgress>(
 			entity0id,
 			runModelAnimation0->animationName_,
@@ -69,19 +102,32 @@ namespace OksEngine
 
 		RemoveComponent<RunModelAnimation>(entity0id);
 
+		ECS2::ComponentsFilter animationComponentsFilter;
+		animationComponentsFilter.SetBits<ANIMATION>();
+
 		//Create animation state for nodes.
 		std::function<void(ECS2::Entity::Id)> processModelNode = [&](ECS2::Entity::Id nodeEntityId) {
 
-			CreateComponent<Animation::Model::Node::RunningState>(
-				nodeEntityId,
-				animationIndex,
-				modelAnimationIt->durationInTicks_,
-				0.0);
+			const ECS2::ComponentsFilter entityComponentFilter = GetComponentsFilter(nodeEntityId);
+
+#if !defined(NDEBUG)
+			ASSERT_MSG(
+				entityComponentFilter.IsSet<ModelNode>(),
+				"Entity in model hier is not node, check hier construction.");
+#endif			
+
+			//Check if node has animation.
+			if (animationComponentsFilter.IsSubsetOf(entityComponentFilter)) {
+				CreateComponent<Animation::Model::Node::RunningState>(
+					nodeEntityId,
+					animationIndex,
+					modelAnimationIt->durationInTicks_,
+					0.0);
+			}
 
 			auto* childModelNodeEntities = GetComponent<ChildModelNodeEntities>(nodeEntityId);
 
 			if (childModelNodeEntities != nullptr) {
-
 				const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->childEntityIds_;
 				for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
 					processModelNode(childModelNodeEntityId);
@@ -322,52 +368,7 @@ namespace OksEngine
 			}
 
 			CreateComponent<Model>(entity3id);
-			//Node to Entity id 
-			std::vector<ECS2::Entity::Id> nodeEntityIds;
-			std::map<const aiNode*, ECS2::Entity::Id> nodeToEntityId;
-			{
-				std::function<void(const aiScene*, aiNode*)> createNodeEntity = [&](const aiScene* scene, aiNode* node) {
 
-					const ECS2::Entity::Id nodeEntityId = CreateEntity <
-						ModelNode,
-						BoneNode,
-						Name,
-						ModelEntity,
-						BoneInverseBindPoseMatrix,
-						LocalPosition3D,
-						WorldPosition3D,
-						LocalRotation3D,
-						WorldRotation3D,
-						LocalScale3D,
-						WorldScale3D,
-						ChildModelNodeEntities,
-						//
-						//ModelNodeAnimation,
-						Animation::Model::Node::RunningState,
-						Animation::ModelNodeAnimations,
-						//
-						DriverTransform3D,
-						Transform3DResource,
-
-						DebugText2D
-					> ();
-
-					nodeEntityIds.push_back(nodeEntityId);
-					nodeToEntityId[node] = nodeEntityId;
-
-
-					for (Common::Index i = 0; i < node->mNumChildren; i++) {
-						aiNode* childrenNode = node->mChildren[i];
-						createNodeEntity(scene, childrenNode);
-					}
-
-					};
-
-				createNodeEntity(scene, scene->mRootNode);
-			}
-
-
-			CreateComponent<ModelNodeEntityIds>(entity3id, nodeEntityIds);
 
 			//Get bone node names.
 			std::unordered_set<std::string> boneNames;
@@ -391,10 +392,176 @@ namespace OksEngine
 				}
 			}
 
+			std::map<std::string, aiNode*> boneNameToBone;
+			{
+				std::function<void(aiNode* node)> processNode = [&](aiNode* node) {
+
+					boneNameToBone[node->mName.C_Str()] = node;
+
+					for (Common::Index i = 0; i < node->mNumChildren; i++) {
+						aiNode* childrenNode = node->mChildren[i];
+						processNode(childrenNode);
+					}
+
+					};
+
+				processNode(scene->mRootNode);
+
+			}
+
+			std::map<aiNode*, std::vector<aiNodeAnim*>> nodeToNodeAnim;
+			{
+
+				std::function<void(aiNode* node)> processNode = [&](aiNode* node) {
+
+					for (Common::Index i = 0; i < scene->mNumAnimations; i++) {
+						aiAnimation* animation = scene->mAnimations[i];
+
+						for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
+							aiNodeAnim* nodeAnim = animation->mChannels[channelIndex];
+							if (nodeAnim->mNodeName == node->mName) {
+								auto nodeIt = nodeToNodeAnim.find(node);
+								if (nodeIt != nodeToNodeAnim.end()) {
+									nodeIt->second.push_back(nodeAnim);
+								}
+								else {
+									nodeToNodeAnim[node] = std::vector{ nodeAnim };
+								}
+							}
+						}
+					}
+
+					for (Common::Index i = 0; i < node->mNumChildren; i++) {
+						aiNode* childrenNode = node->mChildren[i];
+						processNode(childrenNode);
+					}
+
+					};
+
+				processNode(scene->mRootNode);
+			}
+
+			//Node to Entity id 
+			std::vector<ECS2::Entity::Id> nodeEntityIds;
+			std::map<const aiNode*, ECS2::Entity::Id> nodeToEntityId;
+
+
+			[[maybe_unused]]
+			Common::Size nodesNumber = 0;
+			[[maybe_unused]]
+			Common::Size nodesAnimatedNumber = 0;
+			[[maybe_unused]]
+			Common::Size nodeBonesNumber = 0;
+			[[maybe_unused]]
+			Common::Size nodeBonesAnimatedNumber = 0;
+
+
+			{
+				std::function<void(const aiScene*, aiNode*)> createNodeEntity = [&](const aiScene* scene, aiNode* node) {
+
+					const bool isNodeBone = nameToBone.contains(node->mName.C_Str());
+					const bool isAnimatedNode = nodeToNodeAnim.contains(node);
+
+					ECS2::Entity::Id nodeEntityId = ECS2::Entity::Id::invalid_;
+
+					if (!isNodeBone && !isAnimatedNode) {
+						nodeEntityId = CreateEntity<NODE>();
+
+						nodesNumber++;
+					}
+					else if (isNodeBone && !isAnimatedNode) {
+						nodeEntityId = CreateEntity<NODE_BONE>();
+						nodeBonesNumber++;
+					}
+					else if (!isNodeBone && isAnimatedNode) {
+						nodeEntityId = CreateEntity<NODE_ANIMATED>();
+						nodesAnimatedNumber++;
+					}
+					else if (isNodeBone && isAnimatedNode) {
+						nodeEntityId = CreateEntity<NODE_BONE_ANIMATED>();
+						nodeBonesAnimatedNumber++;
+					}
+					//Need to create different arhetypes for nodes-bones, 
+					//if (nameToBoneNode.contains(node->mName.C_Str())) {
+					//	//Node is bone.
+					//	const ECS2::Entity::Id nodeEntityId = CreateEntity <
+					//		ModelNode,
+					//		BoneNode,
+					//		Name,
+					//		ModelEntity,
+					//		BoneInverseBindPoseMatrix,
+					//		LocalPosition3D,
+					//		WorldPosition3D,
+					//		LocalRotation3D,
+					//		WorldRotation3D,
+					//		LocalScale3D,
+					//		WorldScale3D,
+					//		ChildModelNodeEntities,
+					//		//
+					//		//ModelNodeAnimation,
+					//		Animation::Model::Node::RunningState,
+					//		Animation::ModelNodeAnimations,
+					//		//
+					//		DriverTransform3D,
+					//		Transform3DResource,
+
+					//		DebugText2D
+					//	> ();
+					//	nodeEntityIds.push_back(nodeEntityId);
+					//	nodeToEntityId[node] = nodeEntityId;
+					//}
+					//else if (node->) {
+
+					//}
+
+					//const ECS2::Entity::Id nodeEntityId = CreateEntity <
+					//	ModelNode,
+					//	BoneNode,
+					//	Name,
+					//	ModelEntity,
+					//	BoneInverseBindPoseMatrix,
+					//	LocalPosition3D,
+					//	WorldPosition3D,
+					//	LocalRotation3D,
+					//	WorldRotation3D,
+					//	LocalScale3D,
+					//	WorldScale3D,
+					//	ChildModelNodeEntities,
+					//	//
+					//	//ModelNodeAnimation,
+					//	Animation::Model::Node::RunningState,
+					//	Animation::ModelNodeAnimations,
+					//	//
+					//	DriverTransform3D,
+					//	Transform3DResource,
+
+					//	DebugText2D
+					//> ();
+
+					nodeEntityIds.push_back(nodeEntityId);
+					nodeToEntityId[node] = nodeEntityId;
+
+
+					for (Common::Index i = 0; i < node->mNumChildren; i++) {
+						aiNode* childrenNode = node->mChildren[i];
+						createNodeEntity(scene, childrenNode);
+					}
+
+					};
+
+				createNodeEntity(scene, scene->mRootNode);
+			}
+
+
+			CreateComponent<ModelNodeEntityIds>(entity3id, nodeEntityIds);
+
 			std::vector<ECS2::Entity::Id> boneEntityIds;
 			for (const auto& boneName : boneNames) {
 				boneEntityIds.push_back(nodeToEntityId[nameToBoneNode[boneName]]);
 			}
+
+
+
 
 			if (!boneEntityIds.empty()) {
 				CreateComponent<BoneNodeEntities>(entity3id, boneEntityIds);
@@ -525,7 +692,7 @@ namespace OksEngine
 											//fill empty keys with last key
 											aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
 											for (Common::Index rotationKeyIndex = nodeAnim->mNumRotationKeys; rotationKeyIndex < modelNodeAnimation.rotationKeys_.keys_.max_size(); rotationKeyIndex++) {
-												
+
 												modelNodeAnimation.rotationKeys_.keys_[rotationKeyIndex] = {
 													static_cast<float>(lastRotationKey.mTime),
 													lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z };
@@ -2442,8 +2609,6 @@ namespace OksEngine
 
 		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
 
-
-
 		RAL::Driver::Shader::Binding::Layout modelNodeAnimationsBinding{
 			.binding_ = 0,
 			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
@@ -2457,6 +2622,13 @@ namespace OksEngine
 			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
 		};
 		shaderBindings.push_back(modelNodeAnimationStatesBinding);
+
+		RAL::Driver::Shader::Binding::Layout localPositionsBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
+		};
+		shaderBindings.push_back(localPositionsBinding);
 
 		std::vector<RAL::Driver::PushConstant> pushConstants;
 		{
@@ -2493,96 +2665,103 @@ namespace OksEngine
 
 
 
-		Common::Size entitiesNumber = world_->GetEntitiesNumber<ModelNode,
-			BoneNode,
-			Name,
-			ModelEntity,
-			BoneInverseBindPoseMatrix,
-			LocalPosition3D,
-			WorldPosition3D,
-			LocalRotation3D,
-			WorldRotation3D,
-			LocalScale3D,
-			WorldScale3D,
-			ChildModelNodeEntities,
-			Animation::Model::Node::RunningState,
-			Animation::ModelNodeAnimations,
-			DriverTransform3D,
-			Transform3DResource,
-			DebugText2D>();
+		Common::Size entitiesNumber = world_->GetEntitiesNumber<NODE_BONE_ANIMATED>();
 
 		if (entitiesNumber > 0) {
- 			Common::BreakPointLine();
-		} else {
+			Common::BreakPointLine();
+		}
+		else {
 			return;
 		}
 
-		//Create storage buffer for node animations.
-		RAL::Driver::StorageBuffer::CreateInfo nodeAnimationsSBCI{
-			.size_ = entitiesNumber * sizeof(Animation::ModelNodeAnimations)
-		};
+		auto componentPointers = world_->GetComponents<NODE_BONE_ANIMATED>();
 
-		const RAL::Driver::StorageBuffer::Id nodeAnimationsSBId = driver->CreateStorageBuffer(nodeAnimationsSBCI);
 
-		RAL::Driver::ResourceSet::Binding nodeAnimationsStorageBinding
+		//Create storage buffer for nodes LOCAL POSITIONS.
+		RAL::Driver::ResourceSet::Id localPositionsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
+		RAL::Driver::StorageBuffer::Id localPositionsSBId = RAL::Driver::ResourceSet::Id::Invalid();
+		auto* localPositions = std::get<LocalPosition3D*>(componentPointers);
 		{
-			.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
-			.binding_ = 0,
-			.sbid_ = nodeAnimationsSBId
-		};
-		const RAL::Driver::ResourceSet::Id nodeAnimationsSBResId = driver->CreateResource(nodeAnimationsStorageBinding);
+			RAL::Driver::StorageBuffer::CreateInfo localPositionsSBCI{
+				.size_ = entitiesNumber * sizeof(LocalPosition3D)
+			};
 
-		//Create storage buffer for node animation states.
-		RAL::Driver::StorageBuffer::CreateInfo nodeAnimationStatesSBCI{
-			.size_ = entitiesNumber * sizeof(Animation::Model::Node::RunningState)
-		};
+			localPositionsSBId = driver->CreateStorageBuffer(localPositionsSBCI);
 
-		const RAL::Driver::StorageBuffer::Id nodeAnimationStatesSBId = driver->CreateStorageBuffer(nodeAnimationStatesSBCI);
 
-		RAL::Driver::ResourceSet::Binding nodeAnimationStatesStorageBinding
+			driver->FillStorageBuffer(localPositionsSBId, localPositions);
+
+			RAL::Driver::ResourceSet::Binding localPositionsStorageBinding
+			{
+				.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+				.binding_ = 0,
+				.sbid_ = localPositionsSBId
+			};
+			localPositionsSBResId = driver->CreateResource(localPositionsStorageBinding);
+		}
+
+
+		//Create storage buffer for node ANIMATION STATES.
+		RAL::Driver::ResourceSet::Id nodeAnimationStatesSBResId = RAL::Driver::ResourceSet::Id::Invalid();
 		{
-			.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
-			.binding_ = 0,
-			.sbid_ = nodeAnimationStatesSBId
-		};
-		const RAL::Driver::ResourceSet::Id nodeAnimationStatesSBResId = driver->CreateResource(nodeAnimationStatesStorageBinding);
+			RAL::Driver::StorageBuffer::CreateInfo nodeAnimationStatesSBCI{
+				.size_ = entitiesNumber * sizeof(Animation::Model::Node::RunningState)
+			};
+
+			const RAL::Driver::StorageBuffer::Id nodeAnimationStatesSBId = driver->CreateStorageBuffer(nodeAnimationStatesSBCI);
+
+			auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
+			driver->FillStorageBuffer(nodeAnimationStatesSBId, modelNodeAnimationStates);
+
+			RAL::Driver::ResourceSet::Binding nodeAnimationStatesStorageBinding
+			{
+				.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+				.binding_ = 0,
+				.sbid_ = nodeAnimationStatesSBId
+			};
+			nodeAnimationStatesSBResId = driver->CreateResource(nodeAnimationStatesStorageBinding);
+		}
 
 
-		auto componentPointers = world_->GetComponents<
-			ModelNode,
-			BoneNode,
-			Name,
-			ModelEntity,
-			BoneInverseBindPoseMatrix,
-			LocalPosition3D,
-			WorldPosition3D,
-			LocalRotation3D,
-			WorldRotation3D,
-			LocalScale3D,
-			WorldScale3D,
-			ChildModelNodeEntities,
-			Animation::Model::Node::RunningState,
-			Animation::ModelNodeAnimations,
-			DriverTransform3D,
-			Transform3DResource,
-			DebugText2D >();
 
-		auto* modelNodeAnimations = std::get<Animation::ModelNodeAnimations*>(componentPointers);
-		driver->FillStorageBuffer(nodeAnimationsSBId, modelNodeAnimations);
+		//Create storage buffer for node ANIMATION DATA.
+		RAL::Driver::ResourceSet::Id nodeAnimationsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
+		{
 
-		auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
-		driver->FillStorageBuffer(nodeAnimationStatesSBId, modelNodeAnimationStates);
+			RAL::Driver::StorageBuffer::CreateInfo nodeAnimationsSBCI{
+				.size_ = entitiesNumber * sizeof(Animation::ModelNodeAnimations)
+			};
+			const RAL::Driver::StorageBuffer::Id nodeAnimationsSBId = driver->CreateStorageBuffer(nodeAnimationsSBCI);
+
+			auto* modelNodeAnimations = std::get<Animation::ModelNodeAnimations*>(componentPointers);
+			driver->FillStorageBuffer(nodeAnimationsSBId, modelNodeAnimations);
+
+			RAL::Driver::ResourceSet::Binding nodeAnimationsStorageBinding
+			{
+				.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+				.binding_ = 0,
+				.sbid_ = nodeAnimationsSBId
+			};
+			nodeAnimationsSBResId = driver->CreateResource(nodeAnimationsStorageBinding);
+		}
+
+
 
 		driver->StartCompute();
 		driver->BindComputePipeline(pipeline0->pipelineId_);
 
-		driver->ComputePushConstants(pipeline0->pipelineId_, sizeof(decltype(entitiesNumber)), &entitiesNumber);
+		driver->ComputePushConstants(
+			pipeline0->pipelineId_,
+			sizeof(decltype(entitiesNumber)),
+			&entitiesNumber);
+
 		driver->ComputeBind(
 			pipeline0->pipelineId_,
 			0,
-			{ 
+			{	
+				localPositionsSBResId,
 				nodeAnimationsSBResId,
-				nodeAnimationStatesSBResId 
+				nodeAnimationStatesSBResId
 			});
 		//Total Threads = Workgroups × Local Size
 		//
@@ -2598,14 +2777,17 @@ namespace OksEngine
 		//Всего потоков : 16 × 8 × 1 = 128 workgroups
 		//Потоков в каждой группе : 64 × 1 × 1 = 64 threads
 		//Общее количество потоков : 128 × 64 = 8192 threads
-		
+
+		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader Dispatch + EndCompute.");
 		driver->Dispatch(entitiesNumber / 64, 1, 1);
 		driver->EndCompute();
+		PIXEndEvent();
 
+		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader read data.");
 		driver->GetStorageBufferData(
-			nodeAnimationsSBId,
-			0, entitiesNumber * sizeof(Animation::ModelNodeAnimations), modelNodeAnimations);
-
+			localPositionsSBId,
+			0, entitiesNumber * sizeof(LocalPosition3D), localPositions);
+		PIXEndEvent();
 	}
 
 	//TEST

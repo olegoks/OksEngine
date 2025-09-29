@@ -10,7 +10,9 @@ namespace ECS2 {
 		IArchetypeContainer(ComponentTypeId typeId) noexcept : typeId_{ typeId } { }
 
 		virtual void Resize(Common::Size newSize) noexcept = 0;
+		[[nodiscard]]
 		virtual Common::Size GetSize() const noexcept = 0;
+		virtual Common::Size GetReservedSize() const noexcept = 0;
 		ComponentTypeId GetTypeId() const noexcept { return typeId_; }
 
 	private:
@@ -46,6 +48,12 @@ namespace ECS2 {
 
 		[[nodiscard]]
 		virtual Common::Size GetSize() const noexcept override {
+			NOT_IMPLEMENTED();
+			return 0;
+		}
+
+		[[nodiscard]]
+		virtual Common::Size GetReservedSize() const noexcept override {
 			return components_.size();
 		}
 

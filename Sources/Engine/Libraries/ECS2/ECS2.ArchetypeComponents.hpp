@@ -29,19 +29,20 @@ namespace ECS2 {
 
 		Common::Size GetEntitiesNumber() const noexcept {
 			//AllContainers must have the same size.
-			const Common::Size size = containers_.begin()->second->GetSize();
+			const Common::Size size = containers_.begin()->second->GetReservedSize();
 #if !defined(NDEBUG)
 			for (auto& [componentTypeId, container] : containers_) {
-				ASSERT_MSG(container->GetSize() == size, "All archetype containers must have the same size.");
+				ASSERT_MSG(container->GetReservedSize() == size, "All archetype containers must have the same size.");
 			}
 #endif
-			return size;
+
+			return entityIdComponentIndex_.size();
 		}
 
 		void CreateEntity(Entity::Id entityId) {
 			if (freeComponentIndices_.empty()) {
 				//All buffers have same size.
-				const Common::Size previousSize = containers_.begin()->second->GetSize();
+				const Common::Size previousSize = containers_.begin()->second->GetReservedSize();
 				const Common::Size newSize = previousSize + (previousSize / 2);
 				for (auto& [componentTypeId, container] : containers_) {
 					container->Resize(newSize);

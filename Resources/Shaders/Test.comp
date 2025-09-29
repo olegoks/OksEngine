@@ -50,34 +50,91 @@ layout(push_constant) uniform PushConstants {
     uint entitiesNumber_;
 };
 
+//POSITIONS
 struct Position3D {
     float x_;
     float y_;
     float z_;
-    float w_;
 };
 
-layout(std430, set = 0, binding = 0) writeonly buffer Positions {
-    vec4 positions[];
+layout(std430, set = 0, binding = 0) buffer Positions {
+    Position3D positions[];
 };
 
+//ANIMATION STATE
 struct AnimationState {
     uint animationIndex_;
     float animationDuration_;
     float currentTime_;
 };
 
-layout(std430, set = 1, binding = 0) writeonly buffer AnimationStates {
+layout(std430, set = 1, binding = 0) readonly buffer AnimationStates {
     AnimationState states[];
+};
+
+//ANIMATION INFO
+
+struct Position3DKey {
+    float time_;
+    float x_; 
+    float y_; 
+    float z_; 
+};
+
+struct Position3DKeys {
+    Position3DKey keys_[256];
+};
+
+struct Rotation3DKey {
+    float time_;
+    float w_;
+    float x_;
+    float y_;
+    float z_;
+};
+
+struct RotationKeys {
+    Rotation3DKey keys_[256];
+};
+
+struct Scale3DKey {
+    float time_;
+    float x_;
+    float y_;
+    float z_;
+};
+
+struct Scale3DKeys {
+    Scale3DKey keys_[256];
+};
+    
+struct ModelNodeAnimation {
+    Position3DKeys position3DKeys_;
+    RotationKeys  rotationKeys_;
+    Scale3DKeys  scale3DKeys_;
+};
+
+struct ModelNodeAnimations {
+    ModelNodeAnimation animations_[8];
+};
+
+layout(std430, set = 2, binding = 0) readonly buffer AnimationsData {
+    ModelNodeAnimations animations[];
 };
 
 void main() {
     uint index = gl_GlobalInvocationID.x;
     if(index < entitiesNumber_){
-        //TODO: Calculate local positions 
+        AnimationState state = states[index];
+        Position3D position = positions[index];
+        if(state.animationIndex_ < 8) {
+            ModelNodeAnimations animations = animations[index];
+            ModelNodeAnimation animation = animations.animations_[state.animationIndex_];
+        } else {
+            debugPrintfEXT("Invalid animation index.");
+        }
 
+
+        
     }
-
-    
-
 }
