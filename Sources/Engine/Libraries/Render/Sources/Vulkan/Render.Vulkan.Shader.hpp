@@ -223,7 +223,7 @@ namespace Render::Vulkan {
 #pragma endregion
 
 
-			if (!shader.parse(&resources, 100, false, messages, includer)) {
+			if (!shader.parse(&resources, 450, false, messages, includer)) {
 
 				ASSERT_FAIL_FMSG("Shader compilation failed: {}", shader.getInfoLog());
 				glslang::FinalizeProcess();

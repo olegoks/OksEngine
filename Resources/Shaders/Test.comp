@@ -52,23 +52,21 @@ layout(push_constant) uniform PushConstants {
 
 //POSITIONS
 struct Position3D {
-    float x_;
-    float y_;
-    float z_;
+    vec3 position_;
 };
 
 layout(std430, set = 0, binding = 0) buffer Positions {
-    Position3D positions[];
+    Position3D positions_[];
 };
 
 //ANIMATION STATE
 struct AnimationState {
     uint animationIndex_;
-    float animationDuration_;
-    float currentTime_;
+    float animationDuration_; // Duration in ticks.
+    float currentTime_; //[0..1].
 };
 
-layout(std430, set = 1, binding = 0) readonly buffer AnimationStates {
+layout(std430, set = 1, binding = 0) buffer AnimationStates {
     AnimationState states[];
 };
 
@@ -82,7 +80,7 @@ struct Position3DKey {
 };
 
 struct Position3DKeys {
-    Position3DKey keys_[256];
+    Position3DKey keys_[32];
 };
 
 struct Rotation3DKey {
@@ -94,7 +92,7 @@ struct Rotation3DKey {
 };
 
 struct RotationKeys {
-    Rotation3DKey keys_[256];
+    Rotation3DKey keys_[32];
 };
 
 struct Scale3DKey {
@@ -105,7 +103,7 @@ struct Scale3DKey {
 };
 
 struct Scale3DKeys {
-    Scale3DKey keys_[256];
+    Scale3DKey keys_[32];
 };
     
 struct ModelNodeAnimation {
@@ -118,23 +116,148 @@ struct ModelNodeAnimations {
     ModelNodeAnimation animations_[8];
 };
 
-layout(std430, set = 2, binding = 0) readonly buffer AnimationsData {
-    ModelNodeAnimations animations[];
+layout(std430, set = 2, binding = 0) buffer AnimationsData {
+    ModelNodeAnimations nodeAnimations_[];
 };
 
 void main() {
-    uint index = gl_GlobalInvocationID.x;
-    if(index < entitiesNumber_){
-        AnimationState state = states[index];
-        Position3D position = positions[index];
-        if(state.animationIndex_ < 8) {
-            ModelNodeAnimations animations = animations[index];
-            ModelNodeAnimation animation = animations.animations_[state.animationIndex_];
-        } else {
-            debugPrintfEXT("Invalid animation index.");
-        }
+    
+    debugPrintfEXT("started");
+    // uint index = gl_GlobalInvocationID.x;
+    // debugPrintfEXT("%d", index);
+    // if(index < entitiesNumber_){
+    //     AnimationState state = states[index];
+    //     if(state.animationIndex_ >= 8) {
+    //         debugPrintfEXT("Invalid animation index %d.", state.animationIndex_);
+    //         return;
+    //     }
+    //     ModelNodeAnimations nodeAnimations = nodeAnimations_[index];
+    //     ModelNodeAnimation animation = nodeAnimations.animations_[state.animationIndex_];
+    //     float currentTick = state.animationDuration_ * state.currentTime_;
+    //     debugPrintfEXT("float currentTick = state.animationDuration_ * state.currentTime_;");
+    //     for(uint i = 1; i < 64; i++){
+    //         const Position3DKey previousPositionKey = animation.position3DKeys_.keys_[i - 1];
+	// 		const Position3DKey currentPositionKey = animation.position3DKeys_.keys_[i];
+    //         if(previousPositionKey.time_ < currentTick && currentTick > currentPositionKey.time_){
+    //             vec3 previousPosition = vec3(previousPositionKey.x_, previousPositionKey.y_, previousPositionKey.z_);
+    //             vec3 currentPosition = vec3(currentPositionKey.x_, currentPositionKey.y_, currentPositionKey.z_);
+    //             if(distance(previousPosition, currentPosition) < 0.00001){
+    //                 break;
+    //             }
+    //             float intervalTimeInTicks = currentPositionKey.time_ - previousPositionKey.time_;
+	// 			float currentTimeInInterval = currentTick - previousPositionKey.time_;
+	// 			//currentTimeInInterval to [0 .. 1].
+	// 			float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
+    //             vec3 calculatedPosition = mix(previousPosition, currentPosition,normalizedCurrentTimeInInterval);
+    //             debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
+    //             positions_[index].position_ = calculatedPosition;
+                
+    //         }
 
+    //     }
+    //}
 
+//         //TODO: binary search
+// 		for (Common::Index i = 1; i < nodeChannel.position3DValues_.size(); i++) {
+// 			const ChannelPositionKey& previousPosition3DKey = nodeChannel.position3DValues_[i - 1];
+// 			const ChannelPositionKey& currentPosition3DKey = nodeChannel.position3DValues_[i];
+
+// 			if (ticksSinceAnimationStart > previousPosition3DKey.time_ && ticksSinceAnimationStart < currentPosition3DKey.time_) {
+
+// 						if (glm::distance(currentPosition3DKey.position3D_, previousPosition3DKey.position3D_) < 0.00001) {
+// 							break;
+// 						}
+
+// 						const double intervalTime = currentPosition3DKey.time_ - previousPosition3DKey.time_;
+// 						const double currentTimeInInterval = ticksSinceAnimationStart - previousPosition3DKey.time_;
+// 						//currentTimeInInterval to [0 .. 1].
+// 						float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTime;
+// 						const glm::vec3 currentPosition3D = glm::mix(previousPosition3DKey.position3D_, currentPosition3DKey.position3D_, normalizedCurrentTimeInInterval);
+
+// #pragma region Assert
+// 						ASSERT_FMSG(
+// 							!std::isnan(currentPosition3D.x) &&
+// 							!std::isnan(currentPosition3D.y) &&
+// 							!std::isnan(currentPosition3D.z), "");
+// #pragma endregion
+
+// #pragma region Assert
+// 						ASSERT_FMSG(
+// 							!std::isnan(currentPosition3D.x) &&
+// 							!std::isnan(currentPosition3D.y) &&
+// 							!std::isnan(currentPosition3D.z), "");
+// #pragma endregion
+// 						localNodePosition3D->x_ = currentPosition3D.x;
+// 						localNodePosition3D->y_ = currentPosition3D.y;
+// 						localNodePosition3D->z_ = currentPosition3D.z;
+// 						break;
+// 					}
+// 				}
+
+				// auto* localNodeRotation3D = std::get<LocalRotation3D*>(components);//GetComponent<LocalRotation3D>(nodeEntityId);
+
+				// for (Common::Index i = 1; i < nodeChannel.rotation3DValues_.size(); i++) {
+				// 	const ChannelRotationKey& previousRotation3DKey = nodeChannel.rotation3DValues_[i - 1];
+				// 	const ChannelRotationKey& currentRotation3DKey = nodeChannel.rotation3DValues_[i];
+
+				// 	if (ticksSinceAnimationStart > previousRotation3DKey.time_ && ticksSinceAnimationStart < currentRotation3DKey.time_) {
+				// 		const double intervalTime = currentRotation3DKey.time_ - previousRotation3DKey.time_;
+				// 		const double currentTimeInInterval = ticksSinceAnimationStart - previousRotation3DKey.time_;
+				// 		//currentTimeInInterval to [0 .. 1].
+				// 		float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTime;
+				// 		const glm::quat currentRotation3D = glm::slerp(previousRotation3DKey.rotation3D_, currentRotation3DKey.rotation3D_, normalizedCurrentTimeInInterval);
+				// 		localNodeRotation3D->w_ = currentRotation3D.w;
+				// 		localNodeRotation3D->x_ = currentRotation3D.x;
+				// 		localNodeRotation3D->y_ = currentRotation3D.y;
+				// 		localNodeRotation3D->z_ = currentRotation3D.z;
+				// 		break;
+				// 	}
+				// }
+
+// 			auto* animationRunningState = std::get<Animation::Model::Node::RunningState*>(components);
+// 			auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
+
+// 				auto* localNodeScale3D = std::get<LocalScale3D*>(components);//GetComponent<LocalScale3D>(nodeEntityId);
+// 			if (animationRunningState != nullptr) {
+
+// 				for (Common::Index i = 1; i < nodeChannel.scale3DValues_.size(); i++) {
+// 					const ChannelScaleKey& previousScale3DKey = nodeChannel.scale3DValues_[i - 1];
+// 					const ChannelScaleKey& currentScale3DKey = nodeChannel.scale3DValues_[i];
+// 				const ModelAnimation& modelAnimation = modelAnimations0->animations_[animationRunningState->animationIndex_];
+// 				//Calculate current animation tick.
+// 				const Common::UInt64 msSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress0->animationStartTimeSinceEngineStart_;
+// 				const float secSinceAnimationStart = msSinceAnimationStart / 1000000.0;
+// 				const float ticksSinceAnimationStart = modelAnimation.ticksPerSecond_ * secSinceAnimationStart;
+// 				const float animationDurationInTicks = modelAnimation.durationInTicks_;
+
+// 					if (ticksSinceAnimationStart > previousScale3DKey.time_ && ticksSinceAnimationStart < currentScale3DKey.time_) {
+// 				// Calculate current animation state from [0..1].
+// 				const float currentAnimationStage = ticksSinceAnimationStart / animationDurationInTicks;
+
+// 						if (glm::distance(currentScale3DKey.scale3D_, previousScale3DKey.scale3D_) < 0.001) {
+// 							break;
+// 						}
+
+// 						const double intervalTime = currentScale3DKey.time_ - previousScale3DKey.time_;
+// 						const double currentTimeInInterval = ticksSinceAnimationStart - previousScale3DKey.time_;
+// 						//currentTimeInInterval to [0 .. 1].
+// 						float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTime;
+// 						const glm::vec3 currentScale3D = glm::slerp(previousScale3DKey.scale3D_, currentScale3DKey.scale3D_, normalizedCurrentTimeInInterval);
+// #pragma region Assert
+// 						ASSERT_FMSG(
+// 							!std::isnan(currentScale3D.x) &&
+// 							!std::isnan(currentScale3D.y) &&
+// 							!std::isnan(currentScale3D.z), "");
+// #pragma endregion
+// 						localNodeScale3D->x_ = currentScale3D.x;
+// 						localNodeScale3D->y_ = currentScale3D.y;
+// 						localNodeScale3D->z_ = currentScale3D.z;
+// 						break;
+// 					}
+// 				}
+// 				animationRunningState->currentTime_ = currentAnimationStage;
+
+// 			}
         
-    }
+    //}
 }

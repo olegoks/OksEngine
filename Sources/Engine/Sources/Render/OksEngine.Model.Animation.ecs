@@ -13,7 +13,7 @@ AnimationNamespace = {
         Position3DKeysStruct = {
             serializable = false,
             fields = {
-                { type = "std::array<Position3DKey, 256>", name = "keys" }
+                { type = "std::array<Position3DKey, 32>", name = "keys" }
             }
         },
         --Rotation
@@ -29,7 +29,7 @@ AnimationNamespace = {
         RotationKeysStruct = {
             serializable = false,
             fields = {
-                { type = "std::array<Rotation3DKey, 256>", name = "keys" }
+                { type = "std::array<Rotation3DKey, 32>", name = "keys" }
             }
         },
         --Scale
@@ -44,7 +44,7 @@ AnimationNamespace = {
         Scale3DKeysStruct = {
             serializable = false,
             fields = {
-                { type = "std::array<Scale3DKey, 256>", name = "keys" }
+                { type = "std::array<Scale3DKey, 32>", name = "keys" }
             }
         }
     },

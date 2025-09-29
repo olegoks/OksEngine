@@ -43,3 +43,4 @@ mat4 RTS_to_mat4_optimized(vec3 translation, vec4 rotation, vec3 scale) {
         1.0
     );
 }
+

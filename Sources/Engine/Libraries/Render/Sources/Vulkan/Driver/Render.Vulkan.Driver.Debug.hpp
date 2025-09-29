@@ -113,9 +113,9 @@ namespace Render::Vulkan {
 			const char* pMessage,
 			void* pUserData)
 		{
-			if (flags & VK_DEBUG_REPORT_INFORMATION_BIT_EXT) {
+			//if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
 				printf("debugPrintfEXT: %s\n", pMessage);
-			}
+			//}
 
 			return false;
 		}
