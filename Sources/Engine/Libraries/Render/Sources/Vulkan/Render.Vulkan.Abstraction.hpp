@@ -24,6 +24,11 @@ namespace Render::Vulkan {
 			return (GetHandle() == VK_NULL_HANDLE);
 		}
 
+		[[nodiscard]]
+		bool IsHandleValid() const noexcept {
+			return !IsNullHandle();
+		}
+
 		void SetHandle(VkAbstractionType handle) noexcept {
 
 			OS::Assert((handle != VK_NULL_HANDLE) && (GetHandle() == VK_NULL_HANDLE) ||

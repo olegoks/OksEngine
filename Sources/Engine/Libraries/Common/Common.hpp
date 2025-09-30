@@ -18,12 +18,12 @@ namespace Common {
 		return setenv(variableName, value, 1) == 0;
 #endif
 	}
-
+#define _CRT_SECURE_NO_WARNINGS
 	inline std::string GetEnvVariable(const char* variableName) {
 		const char* value = std::getenv(variableName);
 		return value ? std::string(value) : std::string();
 	}
-
+#undef _CRT_SECURE_NO_WARNINGS
 	inline bool UnsetEnvVariable(const char* variableName) {
 #ifdef _WIN32
 		return _putenv_s(variableName, "") == 0;

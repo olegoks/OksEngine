@@ -110,11 +110,9 @@ namespace OksEngine
 
 			const ECS2::ComponentsFilter entityComponentFilter = GetComponentsFilter(nodeEntityId);
 
-#if !defined(NDEBUG)
 			ASSERT_MSG(
 				entityComponentFilter.IsSet<ModelNode>(),
 				"Entity in model hier is not node, check hier construction.");
-#endif			
 
 			//Check if node has animation.
 			if (animationComponentsFilter.IsSubsetOf(entityComponentFilter)) {
@@ -2953,7 +2951,7 @@ namespace OksEngine
 		//Потоков в каждой группе : 64 × 1 × 1 = 64 threads
 		//Общее количество потоков : 128 × 64 = 8192 threads
 
-		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader Dispatch + EndCompute.");
+		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader Dispatch");
 		//Calculate work group number.
 		Common::Size fullWorkGroupNumber = entitiesNumber / 64;
 		if (entitiesNumber % 64 > 0) {
@@ -2961,6 +2959,8 @@ namespace OksEngine
 		}
 
 		driver->Dispatch(fullWorkGroupNumber, 1, 1);
+		PIXEndEvent();
+		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Wait for computation");
 		driver->EndCompute();
 		PIXEndEvent();
 

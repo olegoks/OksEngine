@@ -24,12 +24,14 @@ namespace Render::Vulkan
 		SetHandle(buffer);
 	}
 
-	void Buffer::Fill(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept {
-		OS::Assert(memory_ != nullptr);
+	void Buffer::Write(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept {
+		ASSERT(memory_ != nullptr);
+		ASSERT(offset < memory_->GetSize());
+		ASSERT(sizeInBytes < memory_->GetSize());
 		memory_->Write(offset, data, sizeInBytes);
 	}
 
-	void Buffer::GetData(Common::Size offsetInBytes, void* memory, Common::Size bytesNumber) noexcept {
+	void Buffer::Read(Common::Size offsetInBytes, void* memory, Common::Size bytesNumber) noexcept {
 		ASSERT(memory_ != nullptr);
 		memory_->Read(offsetInBytes, memory, bytesNumber);
 	}
@@ -40,7 +42,7 @@ namespace Render::Vulkan
 	}
 
 	void Buffer::CopyFullDataTo(Buffer& bufferTo, std::shared_ptr<CommandPool> commandPool) {
-		OS::Assert(GetSizeInBytes() == bufferTo.GetSizeInBytes());
+		ASSERT(GetSizeInBytes() == bufferTo.GetSizeInBytes());
 		DataCopy(*this, bufferTo, 0, 0, bufferTo.GetSizeInBytes(), createInfo_.LD_, commandPool);
 	}
 

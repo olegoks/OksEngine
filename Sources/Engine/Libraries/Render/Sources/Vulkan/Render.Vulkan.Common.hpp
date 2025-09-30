@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <ranges>
 #include <vulkan/vulkan.hpp>
+#include <vulkan/vk_enum_string_helper.h>
 #include <Math.hpp>
 #include <Geometry.hpp>
 #include <RAL.Common.hpp>
@@ -14,20 +15,29 @@
 
 namespace Render::Vulkan {
 
+#if !defined(NDEBUG) || defined(USE_ASSERTS)
 #define SHADER_DEBUG_PRINTF
+#endif
 
-	void VkCall(VkResult nativeAPICallResult, Common::Format&& format) noexcept;
+inline void VkCall(VkResult nativeAPICallResult, const char* message) noexcept {
+	const bool success = (nativeAPICallResult == VK_SUCCESS);
+	if (!success) {
+		std::string errorMessage = string_VkResult(nativeAPICallResult);
+		errorMessage += ". ";
+		errorMessage += message;
+		ASSERT_FAIL_MSG(errorMessage.c_str());
+	}
+}
 
 
-
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) || defined(USE_ASSERTS)
 
 #define VK_CALL(vulkanAPICallResult, message)\
 	VkCall(vulkanAPICallResult, message)
 
 #else 
 
-#define VK_CALL(vulkanAPICallResult, message) ((void)0)
+#define VK_CALL(vulkanAPICallResult, message) (vulkanAPICallResult)
 
 #endif
 

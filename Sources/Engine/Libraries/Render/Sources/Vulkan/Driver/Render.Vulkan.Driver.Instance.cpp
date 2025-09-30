@@ -22,27 +22,27 @@ namespace Render::Vulkan {
 		}
 
 		VkInstanceCreateInfo createInfo{};
-		{	
+		{
 #if defined(SHADER_DEBUG_PRINTF)
-			{
-				Common::SetEnvVariable("VK_LAYER_PRINTF_BUFFER_SIZE", "4194304");
 
-				// Populate the VkValidationFeaturesEXT
-				VkValidationFeaturesEXT validationFeatures = {};
-				validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
-				validationFeatures.enabledValidationFeatureCount = 1;
-				
-				VkValidationFeatureEnableEXT enabledValidationFeatures[1] = {
-					VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT };
-				validationFeatures.pEnabledValidationFeatures = enabledValidationFeatures;
+			Common::SetEnvVariable("VK_LAYER_PRINTF_BUFFER_SIZE", "4194304");
 
-				// Then add the VkValidationFeaturesEXT to the VkInstanceCreateInfo
-				validationFeatures.pNext = createInfo.pNext;
-				createInfo.pNext = &validationFeatures;
-			}
+			// Populate the VkValidationFeaturesEXT
+			VkValidationFeaturesEXT validationFeatures = {};
+			validationFeatures.sType = VK_STRUCTURE_TYPE_VALIDATION_FEATURES_EXT;
+			validationFeatures.enabledValidationFeatureCount = 1;
+
+			VkValidationFeatureEnableEXT enabledValidationFeatures[1] = {
+				VK_VALIDATION_FEATURE_ENABLE_DEBUG_PRINTF_EXT };
+			validationFeatures.pEnabledValidationFeatures = enabledValidationFeatures;
+
+			// Then add the VkValidationFeaturesEXT to the VkInstanceCreateInfo
+			validationFeatures.pNext = createInfo.pNext;
+			createInfo.pNext = &validationFeatures;
+
 #endif
 			createInfo.sType = VK_STRUCTURE_TYPE_INSTANCE_CREATE_INFO;
-			
+
 			VkApplicationInfo appInfo{};
 			{
 				appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
@@ -63,7 +63,7 @@ namespace Render::Vulkan {
 			createInfo.enabledLayerCount = static_cast<Common::UInt32>(rawNames.size());
 			createInfo.ppEnabledLayerNames = rawNames.data();
 			VkInstance instance = VK_NULL_HANDLE;
-			VK_CALL(vkCreateInstance(&createInfo, nullptr, &instance), 
+			VK_CALL(vkCreateInstance(&createInfo, nullptr, &instance),
 				"Error while creating instance.");
 			SetHandle(instance);
 		}
@@ -73,8 +73,12 @@ namespace Render::Vulkan {
 	[[nodiscard]]
 	std::vector<std::shared_ptr<PhysicalDevice>> Instance::GetPhysicalDevices() noexcept {
 
+		ASSERT_MSG(IsHandleValid(), "Invalid instance handle.");
+
 		uint32_t physicalDevicesCount = 0;
 		vkEnumeratePhysicalDevices(GetHandle(), &physicalDevicesCount, nullptr);
+
+		ASSERT_MSG(physicalDevicesCount > 0, "There are no accessible physical devices.");
 
 		std::vector<VkPhysicalDevice> devices(physicalDevicesCount, VK_NULL_HANDLE);
 		vkEnumeratePhysicalDevices(GetHandle(), &physicalDevicesCount, devices.data());

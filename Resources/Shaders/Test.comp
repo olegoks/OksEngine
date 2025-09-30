@@ -196,7 +196,7 @@ void main() {
 				float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
                 
                 vec4 slerp = normalize(mix(previousRotation, currentRotation, normalizedCurrentTimeInInterval));
-                debugPrintfEXT("Rotations set");
+                //debugPrintfEXT("Rotations set");
                 rotations_[index].rotation_.x = slerp.x;
                 rotations_[index].rotation_.y = slerp.y;
                 rotations_[index].rotation_.z = slerp.z;
