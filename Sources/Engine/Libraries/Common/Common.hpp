@@ -12,27 +12,24 @@
 namespace Common {
 
 	inline bool SetEnvVariable(const char* variableName, const char* value) {
-//#ifdef _WIN32
-//		return _putenv_s(variableName, value) == 0;
-//#else
-//		return setenv(variableName, value, 1) == 0;
-//#endif
-		return true;
+#ifdef _WIN32
+		return _putenv_s(variableName, value) == 0;
+#else
+		return setenv(variableName, value, 1) == 0;
+#endif
 	}
 
 	inline std::string GetEnvVariable(const char* variableName) {
-		//const char* value = std::getenv(variableName);
-		//return value ? std::string(value) : std::string();
-		return "";
+		const char* value = std::getenv(variableName);
+		return value ? std::string(value) : std::string();
 	}
 
 	inline bool UnsetEnvVariable(const char* variableName) {
-//#ifdef _WIN32
-//		return _putenv_s(variableName, "") == 0;
-//#else
-//		return unsetenv(variableName) == 0;
-//#endif
-		return true;
+#ifdef _WIN32
+		return _putenv_s(variableName, "") == 0;
+#else
+		return unsetenv(variableName) == 0;
+#endif
 	}
 
 	enum class Configuration {
