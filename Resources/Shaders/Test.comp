@@ -59,6 +59,15 @@ layout(std430, set = 0, binding = 0) buffer Positions {
     Position3D positions_[];
 };
 
+//ROTATIONS
+struct Rotaion3D {
+    vec4 rotation_;
+};
+
+layout(std430, set = 1, binding = 0) buffer Rotations {
+    Rotaion3D rotations_[];
+};
+
 //ANIMATION STATE
 struct AnimationState {
     uint animationIndex_;
@@ -66,7 +75,7 @@ struct AnimationState {
     float currentTime_; //[0..1].
 };
 
-layout(std430, set = 1, binding = 0) buffer AnimationStates {
+layout(std430, set = 2, binding = 0) buffer AnimationStates {
     AnimationState states[];
 };
 
@@ -116,46 +125,105 @@ struct ModelNodeAnimations {
     ModelNodeAnimation animations_[8];
 };
 
-layout(std430, set = 2, binding = 0) buffer AnimationsData {
+layout(std430, set = 3, binding = 0) buffer AnimationsData {
     ModelNodeAnimations nodeAnimations_[];
 };
 
 void main() {
     
-    debugPrintfEXT("started");
-    // uint index = gl_GlobalInvocationID.x;
-    // debugPrintfEXT("%d", index);
-    // if(index < entitiesNumber_){
-    //     AnimationState state = states[index];
-    //     if(state.animationIndex_ >= 8) {
-    //         debugPrintfEXT("Invalid animation index %d.", state.animationIndex_);
-    //         return;
-    //     }
-    //     ModelNodeAnimations nodeAnimations = nodeAnimations_[index];
-    //     ModelNodeAnimation animation = nodeAnimations.animations_[state.animationIndex_];
-    //     float currentTick = state.animationDuration_ * state.currentTime_;
-    //     debugPrintfEXT("float currentTick = state.animationDuration_ * state.currentTime_;");
-    //     for(uint i = 1; i < 64; i++){
-    //         const Position3DKey previousPositionKey = animation.position3DKeys_.keys_[i - 1];
-	// 		const Position3DKey currentPositionKey = animation.position3DKeys_.keys_[i];
-    //         if(previousPositionKey.time_ < currentTick && currentTick > currentPositionKey.time_){
-    //             vec3 previousPosition = vec3(previousPositionKey.x_, previousPositionKey.y_, previousPositionKey.z_);
-    //             vec3 currentPosition = vec3(currentPositionKey.x_, currentPositionKey.y_, currentPositionKey.z_);
-    //             if(distance(previousPosition, currentPosition) < 0.00001){
-    //                 break;
-    //             }
-    //             float intervalTimeInTicks = currentPositionKey.time_ - previousPositionKey.time_;
-	// 			float currentTimeInInterval = currentTick - previousPositionKey.time_;
-	// 			//currentTimeInInterval to [0 .. 1].
-	// 			float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
-    //             vec3 calculatedPosition = mix(previousPosition, currentPosition,normalizedCurrentTimeInInterval);
-    //             debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
-    //             positions_[index].position_ = calculatedPosition;
-                
-    //         }
+    //debugPrintfEXT("started");
+    uint index = gl_GlobalInvocationID.x;
+    //debugPrintfEXT("%d", index);
+    if(index < entitiesNumber_){
+        AnimationState state = states[index];
+        if(state.animationIndex_ >= 8) {
+            debugPrintfEXT("Invalid animation index %d.", state.animationIndex_);
+            return;
+        }
+        ModelNodeAnimations nodeAnimations = nodeAnimations_[index];
+        ModelNodeAnimation animation = nodeAnimations.animations_[state.animationIndex_];
+        float currentTick = state.animationDuration_ * state.currentTime_;
 
-    //     }
-    //}
+        //if(state.animationDuration_ > 10){
+            //debugPrintfEXT(
+            //"\nIndex %d \nDuration: %f\n Time factor: %f\n Current time: %f\n", 
+            //    index,
+            //    state.animationDuration_,
+            //    state.currentTime_,
+            //    currentTick);
+        //}
+        
+        for(uint i = 1; i < 32; i++){
+            const Position3DKey previousPositionKey = animation.position3DKeys_.keys_[i - 1];
+			const Position3DKey currentPositionKey = animation.position3DKeys_.keys_[i];
+            if(state.animationDuration_ > 10){
+                //debugPrintfEXT(
+                //    "\nIndex %d \nprevios: %f\n Current: %f\n Current key: %f\n", 
+                //    index,
+                //    previousPositionKey.time_,
+                //    currentTick,
+                //    currentPositionKey.time_);
+            }
+            if(previousPositionKey.time_ < currentTick && currentTick < currentPositionKey.time_){
+                debugPrintfEXT("after compare");
+                vec3 previousPosition = vec3(previousPositionKey.x_, previousPositionKey.y_, previousPositionKey.z_);
+                vec3 currentPosition = vec3(currentPositionKey.x_, currentPositionKey.y_, currentPositionKey.z_);
+                if(distance(previousPosition, currentPosition) < 0.00001){
+                    break;
+                }
+                float intervalTimeInTicks = currentPositionKey.time_ - previousPositionKey.time_;
+				float currentTimeInInterval = currentTick - previousPositionKey.time_;
+				//currentTimeInInterval to [0 .. 1].
+				float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
+                vec3 calculatedPosition = mix(previousPosition, currentPosition,normalizedCurrentTimeInInterval);
+                //debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
+                //positions_[index].position_ = calculatedPosition;
+                
+            }
+
+        }
+
+        for(uint i = 1; i < 32; i++){
+            const Rotation3DKey previousRotationKey = animation.rotationKeys_.keys_[i - 1];
+			const Rotation3DKey currentRotationKey = animation.rotationKeys_.keys_[i];
+            if(previousRotationKey.time_ < currentTick && currentTick < currentRotationKey.time_){
+                vec4 previousRotation = vec4(previousRotationKey.w_, previousRotationKey.x_, previousRotationKey.y_, previousRotationKey.z_);
+                vec4 currentRotation = vec4(currentRotationKey.w_, currentRotationKey.x_, currentRotationKey.y_, currentRotationKey.z_);
+
+                float intervalTimeInTicks = currentRotationKey.time_ - previousRotationKey.time_;
+				float currentTimeInInterval = currentTick - previousRotationKey.time_;
+				//currentTimeInInterval to [0 .. 1].
+				float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
+                
+                vec4 slerp = normalize(mix(previousRotation, currentRotation, normalizedCurrentTimeInInterval));
+                debugPrintfEXT("Rotations set");
+                rotations_[index].rotation_.x = slerp.x;
+                rotations_[index].rotation_.y = slerp.y;
+                rotations_[index].rotation_.z = slerp.z;
+                rotations_[index].rotation_.w = slerp.w;
+
+            }
+        }
+
+				// for (Common::Index i = 1; i < nodeChannel.rotation3DValues_.size(); i++) {
+				// 	const ChannelRotationKey& previousRotation3DKey = nodeChannel.rotation3DValues_[i - 1];
+				// 	const ChannelRotationKey& currentRotation3DKey = nodeChannel.rotation3DValues_[i];
+
+				// 	if (ticksSinceAnimationStart > previousRotation3DKey.time_ && ticksSinceAnimationStart < currentRotation3DKey.time_) {
+				// 		const double intervalTime = currentRotation3DKey.time_ - previousRotation3DKey.time_;
+				// 		const double currentTimeInInterval = ticksSinceAnimationStart - previousRotation3DKey.time_;
+				// 		//currentTimeInInterval to [0 .. 1].
+				// 		float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTime;
+				// 		const glm::quat currentRotation3D = glm::slerp(previousRotation3DKey.rotation3D_, currentRotation3DKey.rotation3D_, normalizedCurrentTimeInInterval);
+				// 		localNodeRotation3D->w_ = currentRotation3D.w;
+				// 		localNodeRotation3D->x_ = currentRotation3D.x;
+				// 		localNodeRotation3D->y_ = currentRotation3D.y;
+				// 		localNodeRotation3D->z_ = currentRotation3D.z;
+				// 		break;
+				// 	}
+				// }
+
+    }
 
 //         //TODO: binary search
 // 		for (Common::Index i = 1; i < nodeChannel.position3DValues_.size(); i++) {

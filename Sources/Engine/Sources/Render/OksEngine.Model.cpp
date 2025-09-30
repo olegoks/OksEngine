@@ -103,7 +103,7 @@ namespace OksEngine
 		RemoveComponent<RunModelAnimation>(entity0id);
 
 		ECS2::ComponentsFilter animationComponentsFilter;
-		animationComponentsFilter.SetBits<ANIMATION>();
+		animationComponentsFilter.SetBits<Animation::ModelNodeAnimations>();
 
 		//Create animation state for nodes.
 		std::function<void(ECS2::Entity::Id)> processModelNode = [&](ECS2::Entity::Id nodeEntityId) {
@@ -153,6 +153,37 @@ namespace OksEngine
 		const Clock* clock1,
 		const TimeSinceEngineStart* timeSinceEngineStart1) {
 
+		
+
+		const ModelAnimation& modelAnimation = modelAnimations0->animations_[animationInProgress0->animationIndex_];
+		//Calculate current animation tick.
+		const Common::UInt64 msSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress0->animationStartTimeSinceEngineStart_;
+		const float secSinceAnimationStart = msSinceAnimationStart / 1000000.0;
+		const float ticksSinceAnimationStart = modelAnimation.ticksPerSecond_ * secSinceAnimationStart;
+		const float animationDurationInTicks = modelAnimation.durationInTicks_;
+
+		// Calculate current animation state from [0..1].
+		const float currentAnimationStage = ticksSinceAnimationStart / animationDurationInTicks;
+
+		const bool isAnimationEnded = currentAnimationStage > 1.0;
+
+		if (isAnimationEnded) {
+			//Animation ended.
+			RemoveComponent<AnimationInProgress>(entity0id);
+
+			const Common::Size animationsNumber = modelAnimations0->animations_.size();
+
+			std::random_device rd;
+			std::mt19937 gen(rd());
+
+			Common::Index a = 0, b = animationsNumber - 1;
+			std::uniform_int_distribution<> dist(a, b);
+			const Common::Index randomAnimationIndex = dist(gen);
+			const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[randomAnimationIndex];
+
+			CreateComponent<RunModelAnimation>(entity0id, randomModelAnimation.name_);
+		}
+
 		std::function<void(ECS2::Entity::Id)> processModelNode
 			= [&](ECS2::Entity::Id nodeEntityId) {
 
@@ -165,18 +196,12 @@ namespace OksEngine
 			auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
 
 			if (animationRunningState != nullptr) {
-
-				const ModelAnimation& modelAnimation = modelAnimations0->animations_[animationRunningState->animationIndex_];
-				//Calculate current animation tick.
-				const Common::UInt64 msSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress0->animationStartTimeSinceEngineStart_;
-				const float secSinceAnimationStart = msSinceAnimationStart / 1000000.0;
-				const float ticksSinceAnimationStart = modelAnimation.ticksPerSecond_ * secSinceAnimationStart;
-				const float animationDurationInTicks = modelAnimation.durationInTicks_;
-
-				// Calculate current animation state from [0..1].
-				const float currentAnimationStage = ticksSinceAnimationStart / animationDurationInTicks;
-
+				animationRunningState->animationDuration_ = modelAnimation.durationInTicks_;
 				animationRunningState->currentTime_ = currentAnimationStage;
+				if (isAnimationEnded) {
+					RemoveComponent<Animation::Model::Node::RunningState>(nodeEntityId);
+					animationRunningState->currentTime_ = 1.0;
+				}
 
 			}
 
@@ -189,30 +214,6 @@ namespace OksEngine
 			}
 
 			};
-
-		//const Common::UInt64 timeSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress0->animationStartTimeSinceEngineStart_;
-
-		//const double ticksSinceAnimationStart = modelAnimation.ticksPerSecond_ * (timeSinceAnimationStart / 1000000.0);
-
-		//if (ticksSinceAnimationStart > modelAnimation.durationInTicks_) {
-		//	RemoveComponent<AnimationInProgress>(entity0id);
-
-		//	//DEBUG
-		//	const Common::Size animationsNumber = modelAnimations0->animations_.size();
-
-		//	std::random_device rd;
-		//	std::mt19937 gen(rd());
-
-		//	// �������� [a, b]
-		//	Common::Index a = 0, b = animationsNumber - 1;
-		//	std::uniform_int_distribution<> dist(a, b);
-		//	const Common::Index randomAnimationIndex = dist(gen);
-
-		//	const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[randomAnimationIndex];
-
-		//	CreateComponent<RunModelAnimation>(entity0id, randomModelAnimation.name_);
-		//	return;
-		//}
 
 		for (ECS2::Entity::Id childModelNodeEntityId : childModelNodeEntities0->childEntityIds_) {
 
@@ -480,63 +481,6 @@ namespace OksEngine
 						nodeEntityId = CreateEntity<NODE_BONE_ANIMATED>();
 						nodeBonesAnimatedNumber++;
 					}
-					//Need to create different arhetypes for nodes-bones, 
-					//if (nameToBoneNode.contains(node->mName.C_Str())) {
-					//	//Node is bone.
-					//	const ECS2::Entity::Id nodeEntityId = CreateEntity <
-					//		ModelNode,
-					//		BoneNode,
-					//		Name,
-					//		ModelEntity,
-					//		BoneInverseBindPoseMatrix,
-					//		LocalPosition3D,
-					//		WorldPosition3D,
-					//		LocalRotation3D,
-					//		WorldRotation3D,
-					//		LocalScale3D,
-					//		WorldScale3D,
-					//		ChildModelNodeEntities,
-					//		//
-					//		//ModelNodeAnimation,
-					//		Animation::Model::Node::RunningState,
-					//		Animation::ModelNodeAnimations,
-					//		//
-					//		DriverTransform3D,
-					//		Transform3DResource,
-
-					//		DebugText2D
-					//	> ();
-					//	nodeEntityIds.push_back(nodeEntityId);
-					//	nodeToEntityId[node] = nodeEntityId;
-					//}
-					//else if (node->) {
-
-					//}
-
-					//const ECS2::Entity::Id nodeEntityId = CreateEntity <
-					//	ModelNode,
-					//	BoneNode,
-					//	Name,
-					//	ModelEntity,
-					//	BoneInverseBindPoseMatrix,
-					//	LocalPosition3D,
-					//	WorldPosition3D,
-					//	LocalRotation3D,
-					//	WorldRotation3D,
-					//	LocalScale3D,
-					//	WorldScale3D,
-					//	ChildModelNodeEntities,
-					//	//
-					//	//ModelNodeAnimation,
-					//	Animation::Model::Node::RunningState,
-					//	Animation::ModelNodeAnimations,
-					//	//
-					//	DriverTransform3D,
-					//	Transform3DResource,
-
-					//	DebugText2D
-					//> ();
-
 					nodeEntityIds.push_back(nodeEntityId);
 					nodeToEntityId[node] = nodeEntityId;
 
@@ -601,56 +545,6 @@ namespace OksEngine
 
 					auto createNodeAnimationChannel = [&](const aiNode* node, const aiScene* scene) {
 
-						//Old animation parsing.
-						//{
-						//	std::map<std::string, NodeAnimationChannel> animationNameToChannel;
-						//	const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
-						//	for (Common::Index i = 0; i < scene->mNumAnimations; i++) {
-						//		aiAnimation* animation = scene->mAnimations[i];
-						//		for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
-						//			aiNodeAnim* nodeAnim = animation->mChannels[channelIndex];
-						//			if (nodeAnim->mNodeName == node->mName) {
-
-						//				NodeAnimationChannel nodeAnimationChannel;
-						//				nodeAnimationChannel.position3DValues_.reserve(nodeAnim->mNumPositionKeys);
-						//				nodeAnimationChannel.rotation3DValues_.reserve(nodeAnim->mNumRotationKeys);
-						//				nodeAnimationChannel.scale3DValues_.reserve(nodeAnim->mNumScalingKeys);
-
-						//				for (Common::Index positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
-						//					aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
-						//					nodeAnimationChannel.position3DValues_.push_back(
-						//						{ positionKey.mTime, { positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z } }
-						//					);
-						//				}
-
-						//				for (Common::Index rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
-						//					aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
-						//					nodeAnimationChannel.rotation3DValues_.push_back(
-						//						{ rotationKey.mTime, {  rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z } }
-						//					);
-						//				}
-
-						//				for (Common::Index scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumScalingKeys; scaleKeyIndex++) {
-						//					aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
-						//					nodeAnimationChannel.scale3DValues_.push_back(
-						//						{ scaleKey.mTime, { scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z } }
-						//					);
-						//				}
-						//				if (
-						//					!nodeAnimationChannel.position3DValues_.empty() ||
-						//					!nodeAnimationChannel.rotation3DValues_.empty() ||
-						//					!nodeAnimationChannel.scale3DValues_.empty()) {
-						//					animationNameToChannel[animation->mName.C_Str()] = nodeAnimationChannel;
-						//				}
-						//			}
-						//		}
-						//	}
-						//	if (!animationNameToChannel.empty()) {
-						//		CreateComponent<ModelNodeAnimation>(nodeEntityId, animationNameToChannel);
-						//		animationNameToChannel.clear();
-						//	}
-						//}
-
 						{
 
 							std::array<Animation::ModelNodeAnimation, 8> animationChannels;
@@ -669,7 +563,7 @@ namespace OksEngine
 										//ASSERT_MSG(nodeAnim->mNumPositionKeys <= modelNodeAnimation.position3DKeys_.keys_.max_size(), "");
 										//ASSERT_MSG(nodeAnim->mNumRotationKeys <= modelNodeAnimation.rotationKeys_.keys_.max_size(), "");
 										//ASSERT_MSG(nodeAnim->mNumScalingKeys <= modelNodeAnimation.scale3DKeys_.keys_.max_size(), "");
-										
+
 										STATIC_ASSERT_MSG(modelNodeAnimation.position3DKeys_.keys_.max_size() > 2, "");
 										STATIC_ASSERT_MSG(modelNodeAnimation.rotationKeys_.keys_.max_size() > 2, "");
 										STATIC_ASSERT_MSG(modelNodeAnimation.scale3DKeys_.keys_.max_size() > 2, "");
@@ -709,7 +603,7 @@ namespace OksEngine
 												}
 
 												//Sort by importance.
-												
+
 												std::ranges::sort(keyIndexImportance,
 													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
 														return first.second > second.second;
@@ -718,7 +612,7 @@ namespace OksEngine
 												keyIndexImportance.resize(modelNodeAnimation.position3DKeys_.keys_.max_size() - 2); // minus first and last
 
 												//Sort by index
-												std::ranges::sort(keyIndexImportance, 
+												std::ranges::sort(keyIndexImportance,
 													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
 														return first.first < second.first;
 													});
@@ -754,8 +648,8 @@ namespace OksEngine
 													{
 														static_cast<float>(lastPositionKey.mTime),
 														lastPositionKey.mValue.x,
-														lastPositionKey.mValue.y, 
-														lastPositionKey.mValue.z 
+														lastPositionKey.mValue.y,
+														lastPositionKey.mValue.z
 													});
 
 												for (Common::Index positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
@@ -769,8 +663,8 @@ namespace OksEngine
 										{//Rotation keys
 											//fill empty keys with last key
 
-											if(nodeAnim->mNumRotationKeys > modelNodeAnimation.rotationKeys_.keys_.max_size()){
-											
+											if (nodeAnim->mNumRotationKeys > modelNodeAnimation.rotationKeys_.keys_.max_size()) {
+
 												auto calculateRotationImportanceByAxis = [](
 													aiQuatKey prevKey,
 													aiQuatKey currentKey,
@@ -810,8 +704,8 @@ namespace OksEngine
 
 														return axisChange * 0.6f + velocityChange * 0.4f;
 													};
-											
-											
+
+
 												std::vector<std::pair<Common::Index, float>> keyIndexImportance;
 
 												//Calculte importance for keys except first and last.
@@ -837,7 +731,7 @@ namespace OksEngine
 													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
 														return first.first < second.first;
 													});
-											
+
 												//Set first.
 												aiQuatKey firstRotationKey = nodeAnim->mRotationKeys[0];
 												modelNodeAnimation.rotationKeys_.keys_[0] = {
@@ -860,8 +754,8 @@ namespace OksEngine
 												modelNodeAnimation.rotationKeys_.keys_[modelNodeAnimation.rotationKeys_.keys_.max_size() - 1] = {
 													static_cast<float>(lastRotationKey.mTime),
 													lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z };
-											
-											
+
+
 											}
 											else {
 												aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
@@ -2853,6 +2747,20 @@ namespace OksEngine
 
 		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
 
+		RAL::Driver::Shader::Binding::Layout localPositionsBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
+		};
+		shaderBindings.push_back(localPositionsBinding);
+
+		RAL::Driver::Shader::Binding::Layout localRotationsBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
+		};
+		shaderBindings.push_back(localRotationsBinding);
+
 		RAL::Driver::Shader::Binding::Layout modelNodeAnimationsBinding{
 			.binding_ = 0,
 			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
@@ -2867,12 +2775,7 @@ namespace OksEngine
 		};
 		shaderBindings.push_back(modelNodeAnimationStatesBinding);
 
-		RAL::Driver::Shader::Binding::Layout localPositionsBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
-		};
-		shaderBindings.push_back(localPositionsBinding);
+
 
 		std::vector<RAL::Driver::PushConstant> pushConstants;
 		{
@@ -2947,6 +2850,29 @@ namespace OksEngine
 			localPositionsSBResId = driver->CreateResource(localPositionsStorageBinding);
 		}
 
+		//Create storage buffer for nodes LOCAL ROTATIONS.
+		RAL::Driver::ResourceSet::Id localRotationsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
+		RAL::Driver::StorageBuffer::Id localRotationsSBId = RAL::Driver::ResourceSet::Id::Invalid();
+		auto* localRotations = std::get<LocalRotation3D*>(componentPointers);
+		{
+			RAL::Driver::StorageBuffer::CreateInfo localPositionsSBCI{
+				.size_ = entitiesNumber * sizeof(LocalRotation3D)
+			};
+
+			localRotationsSBId = driver->CreateStorageBuffer(localPositionsSBCI);
+
+
+			driver->FillStorageBuffer(localRotationsSBId, localRotations);
+
+			RAL::Driver::ResourceSet::Binding localRotationsStorageBinding
+			{
+				.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+				.binding_ = 0,
+				.sbid_ = localRotationsSBId
+			};
+			localRotationsSBResId = driver->CreateResource(localRotationsStorageBinding);
+		}
+
 
 		//Create storage buffer for node ANIMATION STATES.
 		RAL::Driver::ResourceSet::Id nodeAnimationStatesSBResId = RAL::Driver::ResourceSet::Id::Invalid();
@@ -3005,10 +2931,12 @@ namespace OksEngine
 		driver->ComputeBind(
 			pipeline0->pipelineId_,
 			0,
-			{	
+			{
 				localPositionsSBResId,
+				localRotationsSBResId,
+				nodeAnimationStatesSBResId,
 				nodeAnimationsSBResId,
-				nodeAnimationStatesSBResId
+
 			});
 		//Total Threads = Workgroups × Local Size
 		//
@@ -3026,7 +2954,13 @@ namespace OksEngine
 		//Общее количество потоков : 128 × 64 = 8192 threads
 
 		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader Dispatch + EndCompute.");
-		driver->Dispatch(entitiesNumber / 64, 1, 1);
+		//Calculate work group number.
+		Common::Size fullWorkGroupNumber = entitiesNumber / 64;
+		if (entitiesNumber % 64 > 0) {
+			++fullWorkGroupNumber;
+		}
+
+		driver->Dispatch(fullWorkGroupNumber, 1, 1);
 		driver->EndCompute();
 		PIXEndEvent();
 
@@ -3034,6 +2968,10 @@ namespace OksEngine
 		driver->GetStorageBufferData(
 			localPositionsSBId,
 			0, entitiesNumber * sizeof(LocalPosition3D), localPositions);
+
+		driver->GetStorageBufferData(
+			localRotationsSBId,
+			0, entitiesNumber * sizeof(LocalRotation3D), localRotations);
 		PIXEndEvent();
 	}
 

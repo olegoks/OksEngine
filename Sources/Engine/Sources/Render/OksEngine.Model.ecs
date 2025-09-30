@@ -355,6 +355,7 @@ StartModelAnimationSystem = {
 }
 
 ProcessModelAnimationSystem = {
+
     updateMethod = {
         processesEntities = {
             {
@@ -387,6 +388,9 @@ ProcessModelAnimationSystem = {
                     "LocalRotation3D",
                     "LocalScale3D",
                     "ChildModelNodeEntities"
+                },
+                removesComponents = {
+                    "Animation::Model::Node::RunningState"
                 }
             }
         }
@@ -1051,6 +1055,7 @@ ComputeNamespace = {
         }
     },
     TestPipelineSystem = {
+        runAfter = "ProcessModelAnimation",
         updateMethod = {
             processesEntities = {
                 {
