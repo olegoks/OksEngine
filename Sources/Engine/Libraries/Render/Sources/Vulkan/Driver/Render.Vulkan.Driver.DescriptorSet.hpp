@@ -128,7 +128,7 @@ namespace Render::Vulkan {
 				allocInfo.pSetLayouts = &descriptorSetLayout;
 			}
 			VkDescriptorSet descriptorSet = VK_NULL_HANDLE;
-			VkCall(vkAllocateDescriptorSets(logicDevice, &allocInfo, &descriptorSet),
+			VK_CALL(vkAllocateDescriptorSets(logicDevice, &allocInfo, &descriptorSet),
 				"Error while allocating memory for Descriptor Set");
 			SetHandle(descriptorSet);
 		}

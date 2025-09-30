@@ -13,7 +13,7 @@ namespace Render::Vulkan {
 		RAL::RenderSurface renderSurface = createInfo.renderSurface_;
 		if (renderSurface.uiSubsystem_ == RAL::UISubsystem::GLFW) {
 			auto* window = std::any_cast<GLFWwindow*>(createInfo.renderSurface_.param1_);
-			VkCall(glfwCreateWindowSurface(*createInfo.instance_, window, nullptr, &surface),
+			VK_CALL(glfwCreateWindowSurface(*createInfo.instance_, window, nullptr, &surface),
 				"Error while creating window surface.");
 			SetHandle(surface);
 		} else {

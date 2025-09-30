@@ -33,7 +33,7 @@ namespace Render::Vulkan {
 				layoutInfo.pBindings = (!createInfo.bindings_.empty()) ? (createInfo.bindings_.data()) : (nullptr);
 			}
 			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-			VkCall(vkCreateDescriptorSetLayout(createInfo.LD_->GetHandle(), &layoutInfo, nullptr, &descriptorSetLayout),
+			VK_CALL(vkCreateDescriptorSetLayout(createInfo.LD_->GetHandle(), &layoutInfo, nullptr, &descriptorSetLayout),
 				"Error while creating descriptor set layout.");
 			SetHandle(descriptorSetLayout);
 		}

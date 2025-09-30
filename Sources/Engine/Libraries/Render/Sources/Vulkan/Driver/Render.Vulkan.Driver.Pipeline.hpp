@@ -239,7 +239,7 @@ namespace Render::Vulkan {
 				pipelineInfo.basePipelineIndex = -1;
 			}
 			VkPipeline pipeline = VK_NULL_HANDLE;
-			VkCall(vkCreateGraphicsPipelines(
+			VK_CALL(vkCreateGraphicsPipelines(
 				createInfo.LD_->GetHandle(),
 				VK_NULL_HANDLE,
 				1,

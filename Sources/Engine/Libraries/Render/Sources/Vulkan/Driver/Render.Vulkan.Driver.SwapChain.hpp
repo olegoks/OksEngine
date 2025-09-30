@@ -77,7 +77,7 @@ namespace Render::Vulkan {
 				swapChainCreateInfo.oldSwapchain = VK_NULL_HANDLE; //if window was resized.
 
 				VkSwapchainKHR swapChain = VK_NULL_HANDLE;
-				VkCall(vkCreateSwapchainKHR(createInfo.LD_->GetHandle(), &swapChainCreateInfo, nullptr, &swapChain),
+				VK_CALL(vkCreateSwapchainKHR(createInfo.LD_->GetHandle(), &swapChainCreateInfo, nullptr, &swapChain),
 					"Error while creating swap chain.");
 
 				SetHandle(swapChain);

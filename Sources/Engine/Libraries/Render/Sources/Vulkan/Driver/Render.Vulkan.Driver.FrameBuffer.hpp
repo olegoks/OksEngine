@@ -52,7 +52,7 @@ namespace Render::Vulkan {
 			//framebufferInfo.flags = VK_FRAMEBUFFER_CREATE_IMAGELESS_BIT;
 		}
 		VkFramebuffer frameBuffer = VK_NULL_HANDLE;
-		VkCall(vkCreateFramebuffer(createInfo.LD_->GetHandle(), &framebufferInfo, nullptr, &frameBuffer),
+		VK_CALL(vkCreateFramebuffer(createInfo.LD_->GetHandle(), &framebufferInfo, nullptr, &frameBuffer),
 			"Framebuffer create info.");
 		SetHandle(frameBuffer);
 	}

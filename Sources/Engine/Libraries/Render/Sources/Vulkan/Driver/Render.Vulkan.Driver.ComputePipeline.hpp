@@ -63,7 +63,7 @@ namespace Render::Vulkan {
 
 			VkPipeline pipeline = VK_NULL_HANDLE;
 
-			VkCall(vkCreateComputePipelines(
+			VK_CALL(vkCreateComputePipelines(
 				createInfo.LD_->GetHandle(),
 				VK_NULL_HANDLE,
 				1,

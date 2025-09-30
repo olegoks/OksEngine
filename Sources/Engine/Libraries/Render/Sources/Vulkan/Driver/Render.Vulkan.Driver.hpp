@@ -119,7 +119,7 @@ namespace Render::Vulkan {
 					submitInfo.signalSemaphoreCount = 1;
 					submitInfo.pSignalSemaphores = &renderFinishedSemaphore_->GetNative();
 
-					VkCall(vkQueueSubmit(LD_->GetGraphicsQueue(), 1, &submitInfo, renderFinishedFence_->GetHandle()),
+					VK_CALL(vkQueueSubmit(LD_->GetGraphicsQueue(), 1, &submitInfo, renderFinishedFence_->GetHandle()),
 						"Error while submitting commands.");
 				}
 
@@ -139,13 +139,13 @@ namespace Render::Vulkan {
 					presentInfo.pImageIndices = &imageContext_->index_;
 					presentInfo.pResults = nullptr;
 
-					VkCall(vkQueuePresentKHR(LD_->GetPresentQueue(), &presentInfo),
+					VK_CALL(vkQueuePresentKHR(LD_->GetPresentQueue(), &presentInfo),
 						"Error while showing image.");
 				}
 			}
 
 			void WaitForQueueIdle() const noexcept {
-				VkCall(vkQueueWaitIdle(LD_->GetPresentQueue()),
+				VK_CALL(vkQueueWaitIdle(LD_->GetPresentQueue()),
 					"Error while waitting for queue idle.");
 			}
 
@@ -1304,7 +1304,7 @@ namespace Render::Vulkan {
 		std::shared_ptr<ImageContext> GetNextImage(std::shared_ptr<Semaphore> imageAvailableSemaphore) noexcept {
 
 			uint32_t imageIndex;
-			VkCall(vkAcquireNextImageKHR(
+			VK_CALL(vkAcquireNextImageKHR(
 				objects_.LD_->GetHandle(),
 				objects_.swapChain_->GetHandle(),
 				UINT64_MAX,
@@ -1340,7 +1340,7 @@ namespace Render::Vulkan {
 				submitInfo.signalSemaphoreCount = 1;
 				submitInfo.pSignalSemaphores = &semaphoreExecutionFinish->GetNative();
 
-				VkCall(vkQueueSubmit(queue, 1, &submitInfo, fenceExecutionFinished->GetHandle()),
+				VK_CALL(vkQueueSubmit(queue, 1, &submitInfo, fenceExecutionFinished->GetHandle()),
 					"Error while submitting commands.");
 			}
 
@@ -1362,7 +1362,7 @@ namespace Render::Vulkan {
 				presentInfo.pImageIndices = &imageIndex;
 				presentInfo.pResults = nullptr;
 
-				VkCall(vkQueuePresentKHR(objects_.LD_->GetPresentQueue(), &presentInfo),
+				VK_CALL(vkQueuePresentKHR(objects_.LD_->GetPresentQueue(), &presentInfo),
 					"Error while showing image.");
 			}
 		}

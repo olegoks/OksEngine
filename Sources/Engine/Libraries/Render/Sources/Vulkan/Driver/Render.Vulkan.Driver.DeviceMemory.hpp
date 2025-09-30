@@ -32,7 +32,7 @@ namespace Render::Vulkan {
 			}
 
 			VkDeviceMemory memory = VK_NULL_HANDLE;
-			VkCall(vkAllocateMemory(createInfo.LD_->GetHandle(), &alloccationInfo, nullptr, &memory),
+			VK_CALL(vkAllocateMemory(createInfo.LD_->GetHandle(), &alloccationInfo, nullptr, &memory),
 				"Allocating GPU memory error.");
 			SetHandle(memory);
 		}
@@ -48,7 +48,7 @@ namespace Render::Vulkan {
 
 			void* pointerToMappedMemory = nullptr;
 			{
-				VkCall(vkMapMemory(
+				VK_CALL(vkMapMemory(
 					createInfo_.LD_->GetHandle(),
 					GetHandle(), 
 					offsetInBytes,
@@ -71,7 +71,7 @@ namespace Render::Vulkan {
 
 			void* pointerToMappedMemory = nullptr;
 			{
-				VkCall(vkMapMemory(
+				VK_CALL(vkMapMemory(
 					createInfo_.LD_->GetHandle(),
 					GetHandle(),
 					offsetInBytes,

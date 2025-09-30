@@ -32,7 +32,7 @@ namespace Render::Vulkan {
 				shaderModuleCreateInfo.pCode = reinterpret_cast<const uint32_t*>(createInfo.spirv_.data());
 			}
 			VkShaderModule shaderModule = VK_NULL_HANDLE;
-			VkCall(vkCreateShaderModule(createInfo.LD_->GetHandle(), &shaderModuleCreateInfo, nullptr, &shaderModule),
+			VK_CALL(vkCreateShaderModule(createInfo.LD_->GetHandle(), &shaderModuleCreateInfo, nullptr, &shaderModule),
 				"Error while creating shader module.");
 			OS::LogInfo("render/vulkan/driver/shader", { "Shader module was created successfuly." });
 			SetHandle(shaderModule);

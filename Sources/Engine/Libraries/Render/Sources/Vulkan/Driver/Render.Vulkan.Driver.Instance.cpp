@@ -63,7 +63,7 @@ namespace Render::Vulkan {
 			createInfo.enabledLayerCount = static_cast<Common::UInt32>(rawNames.size());
 			createInfo.ppEnabledLayerNames = rawNames.data();
 			VkInstance instance = VK_NULL_HANDLE;
-			VkCall(vkCreateInstance(&createInfo, nullptr, &instance), 
+			VK_CALL(vkCreateInstance(&createInfo, nullptr, &instance), 
 				"Error while creating instance.");
 			SetHandle(instance);
 		}

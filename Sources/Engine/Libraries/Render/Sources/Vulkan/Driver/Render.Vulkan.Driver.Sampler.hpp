@@ -40,7 +40,7 @@ namespace Render::Vulkan {
 				samplerCreateInfo.maxLod = static_cast<float>(createInfo.mipLevels_);
 				//samplerCreateInfo.flags = 0;
 				VkSampler sampler_ = VK_NULL_HANDLE;
-				VkCall(vkCreateSampler(*createInfo.LD_, &samplerCreateInfo, nullptr, &sampler_),
+				VK_CALL(vkCreateSampler(*createInfo.LD_, &samplerCreateInfo, nullptr, &sampler_),
 					"Error while creating sampler.");
 				SetHandle(sampler_);
 			}

@@ -7,14 +7,14 @@ namespace Render::Vulkan {
 	PhysicalDevice::Formats Driver::GetAvailablePhysicalDeviceSurfaceFormats(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 
 		uint32_t formatCount;
-		VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, nullptr),
+		VK_CALL(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, nullptr),
 			"Error while getting number of available formats.");
 
 		std::vector<VkSurfaceFormatKHR> formats;
 		if (formatCount != 0) {
 			formats.resize(formatCount);
 			formats.shrink_to_fit();
-			VkCall(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, formats.data()),
+			VK_CALL(vkGetPhysicalDeviceSurfaceFormatsKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &formatCount, formats.data()),
 				"Error while getting available formats.");
 		}
 
@@ -28,12 +28,12 @@ namespace Render::Vulkan {
 
 		uint32_t presentModeCount;
 		{
-			VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, nullptr),
+			VK_CALL(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, nullptr),
 				"Error while getting number of present modes.");
 		}
 		if (presentModeCount != 0) {
 			presentModes.resize(presentModeCount);
-			VkCall(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, presentModes.data()),
+			VK_CALL(vkGetPhysicalDeviceSurfacePresentModesKHR(physicalDevice->GetHandle(), windowSurface->GetHandle(), &presentModeCount, presentModes.data()),
 				"Error while getting number of present modes.");
 		}
 
@@ -100,7 +100,7 @@ namespace Render::Vulkan {
 
 		for (const QueueFamily& queueFamily : queueFamilies) {
 			VkBool32 presentSupport = false;
-			VkCall(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice->GetHandle(), queueFamily.index_, windowSurface->GetHandle(), &presentSupport),
+			VK_CALL(vkGetPhysicalDeviceSurfaceSupportKHR(physicalDevice->GetHandle(), queueFamily.index_, windowSurface->GetHandle(), &presentSupport),
 				"Error while checking queue family present commands support.");
 			if (presentSupport) {
 				presentQueueFamilies.AddQueueFamily(queueFamily);

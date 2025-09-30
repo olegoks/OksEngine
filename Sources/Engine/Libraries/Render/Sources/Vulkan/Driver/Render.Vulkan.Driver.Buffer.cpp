@@ -18,7 +18,7 @@ namespace Render::Vulkan
 			bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
 		}
 		VkBuffer buffer = VK_NULL_HANDLE;
-		VkCall(vkCreateBuffer(createInfo_.LD_->GetHandle(), &bufferInfo, nullptr, &buffer), 
+		VK_CALL(vkCreateBuffer(createInfo_.LD_->GetHandle(), &bufferInfo, nullptr, &buffer), 
 			"Error while creating buffer.");
 
 		SetHandle(buffer);
@@ -79,7 +79,7 @@ namespace Render::Vulkan
 
 		OS::Assert(memory_ == nullptr);
 
-		VkCall(vkBindBufferMemory(
+		VK_CALL(vkBindBufferMemory(
 			createInfo_.LD_->GetHandle(),
 			GetHandle(),
 			memory->GetHandle(),

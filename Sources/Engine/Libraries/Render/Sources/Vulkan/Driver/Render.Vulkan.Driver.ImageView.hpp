@@ -60,7 +60,7 @@ namespace Render::Vulkan {
 			}
 
 			VkImageView imageView = VK_NULL_HANDLE;
-			VkCall(vkCreateImageView(createInfo.LD_->GetHandle(), &vkCreateInfo, nullptr, &imageView), 
+			VK_CALL(vkCreateImageView(createInfo.LD_->GetHandle(), &vkCreateInfo, nullptr, &imageView), 
 				"Error while creating image view.");
 			SetHandle(imageView);
 		}
@@ -93,7 +93,7 @@ namespace Render::Vulkan {
 			}
 
 			VkImageView imageView = VK_NULL_HANDLE;
-			VkCall(vkCreateImageView(createInfo.LD_->GetHandle(), &vkCreateInfo, nullptr, &imageView),
+			VK_CALL(vkCreateImageView(createInfo.LD_->GetHandle(), &vkCreateInfo, nullptr, &imageView),
 				"Error while creating image view.");
 			SetHandle(imageView);
 		}

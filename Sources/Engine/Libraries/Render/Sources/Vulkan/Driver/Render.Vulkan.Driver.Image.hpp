@@ -56,7 +56,7 @@ namespace Render::Vulkan {
 			}
 
 			VkImage image = VK_NULL_HANDLE;
-			VkCall(vkCreateImage(createInfo.LD_->GetHandle(), &imageInfo, nullptr, &image),
+			VK_CALL(vkCreateImage(createInfo.LD_->GetHandle(), &imageInfo, nullptr, &image),
 				"Errow while creating image.");
 			VkDebugUtilsObjectNameInfoEXT nameInfo = {};
 			nameInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT;
@@ -68,7 +68,7 @@ namespace Render::Vulkan {
 		}
 
 		void BindMemory(std::shared_ptr<DeviceMemory> deviceMemory) noexcept {
-			VkCall(vkBindImageMemory(createInfo_.LD_->GetHandle(), GetHandle(), deviceMemory->GetHandle(), 0),
+			VK_CALL(vkBindImageMemory(createInfo_.LD_->GetHandle(), GetHandle(), deviceMemory->GetHandle(), 0),
 				"Error while binding device memory to image. Maybe double memory binding.");
 		}
 

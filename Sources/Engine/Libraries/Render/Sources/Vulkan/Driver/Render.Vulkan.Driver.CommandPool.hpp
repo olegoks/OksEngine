@@ -33,7 +33,7 @@ namespace Render::Vulkan {
 			}
 
 			VkCommandPool commandPool = VK_NULL_HANDLE;
-			VkCall(vkCreateCommandPool(createInfo.LD_->GetHandle(), &poolInfo, nullptr, &commandPool),
+			VK_CALL(vkCreateCommandPool(createInfo.LD_->GetHandle(), &poolInfo, nullptr, &commandPool),
 				"Error while creating command pool." );
 			SetHandle(commandPool);
 			OS::LogInfo("/render/vulkan/driver", "Command pool was created successfuly.");

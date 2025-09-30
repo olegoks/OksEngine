@@ -234,7 +234,7 @@ namespace Render::Vulkan {
 					renderPassInfo.pDependencies = subpassesDependencies.data();
 				}
 				VkRenderPass renderPass = VK_NULL_HANDLE;
-				VkCall(vkCreateRenderPass(createInfo.LD_->GetHandle(), &renderPassInfo, nullptr, &renderPass),
+				VK_CALL(vkCreateRenderPass(createInfo.LD_->GetHandle(), &renderPassInfo, nullptr, &renderPass),
 					"Error while creating render pass.");
 
 				VkDebugUtilsObjectNameInfoEXT nameInfo = {};
@@ -382,7 +382,7 @@ namespace Render::Vulkan {
 				renderPassInfo.pDependencies = dependencies.data();
 			}
 			VkRenderPass renderPass = VK_NULL_HANDLE;
-			VkCall(vkCreateRenderPass(createInfo.LD_->GetHandle(), &renderPassInfo, nullptr, &renderPass),
+			VK_CALL(vkCreateRenderPass(createInfo.LD_->GetHandle(), &renderPassInfo, nullptr, &renderPass),
 				"Error while creating render pass.");
 
 			VkDebugUtilsObjectNameInfoEXT nameInfo{

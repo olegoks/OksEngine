@@ -33,7 +33,7 @@ namespace Render::Vulkan {
 				pipelineLayoutInfo.pPushConstantRanges = (!createInfo.pushConstants_.empty()) ? (createInfo.pushConstants_.data()) : (nullptr); // Optional
 			
 				VkPipelineLayout pipelineLayout = VK_NULL_HANDLE;
-				VkCall(vkCreatePipelineLayout(createInfo.LD_->GetHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout),
+				VK_CALL(vkCreatePipelineLayout(createInfo.LD_->GetHandle(), &pipelineLayoutInfo, nullptr, &pipelineLayout),
 					"Error while creating pipeline layout.");
 				SetHandle(pipelineLayout);
 			}

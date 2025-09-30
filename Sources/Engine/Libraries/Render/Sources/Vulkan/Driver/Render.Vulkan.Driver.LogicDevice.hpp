@@ -91,7 +91,7 @@ namespace Render::Vulkan {
 				}
 
 				VkDevice logicDevice = VK_NULL_HANDLE;
-				VkCall(vkCreateDevice(createInfo.physicalDevice_->GetHandle(), &logicDeviceCreateInfo, nullptr, &logicDevice),
+				VK_CALL(vkCreateDevice(createInfo.physicalDevice_->GetHandle(), &logicDeviceCreateInfo, nullptr, &logicDevice),
 					"Error while creating logic device");
 				SetHandle(logicDevice);
 			}

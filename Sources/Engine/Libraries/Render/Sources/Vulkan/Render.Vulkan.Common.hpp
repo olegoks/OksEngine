@@ -19,6 +19,18 @@ namespace Render::Vulkan {
 	void VkCall(VkResult nativeAPICallResult, Common::Format&& format) noexcept;
 
 
+
+#if !defined(NDEBUG)
+
+#define VK_CALL(vulkanAPICallResult, message)\
+	VkCall(vulkanAPICallResult, message)
+
+#else 
+
+#define VK_CALL(vulkanAPICallResult, message) ((void)0)
+
+#endif
+
 	using Vector3f = Geom::Vector3f;
 	using Index16 = Geom::Index16;
 	using Color4b = Geom::Color4b;

@@ -50,7 +50,7 @@ namespace Render::Vulkan {
 
 				beginInfo.pInheritanceInfo = nullptr;
 			};
-			VkCall(vkBeginCommandBuffer(GetHandle(), &beginInfo), "Error while begin command buffer.");
+			VK_CALL(vkBeginCommandBuffer(GetHandle(), &beginInfo), "Error while begin command buffer.");
 		}
 
 
@@ -455,7 +455,7 @@ namespace Render::Vulkan {
 		}
 
 		void End() noexcept {
-			VkCall(vkEndCommandBuffer(GetHandle()),
+			VK_CALL(vkEndCommandBuffer(GetHandle()),
 				"Error on ending executing commands.");
 		}
 
@@ -473,14 +473,14 @@ namespace Render::Vulkan {
 				.commandBufferCount = 1,
 				.pCommandBuffers = &GetHandle()
 			};
-			VkCall(vkQueueSubmit(queue, 1, &submitInfo, (fence != nullptr) ? (fence->GetHandle()) : (VK_NULL_HANDLE)),
+			VK_CALL(vkQueueSubmit(queue, 1, &submitInfo, (fence != nullptr) ? (fence->GetHandle()) : (VK_NULL_HANDLE)),
 				"Error while submitting command buffer.");
 
 		}
 
 		void WaitIdle() {
 
-			VkCall(vkQueueWaitIdle(createInfo_.LD_->GetComputeQueue()),
+			VK_CALL(vkQueueWaitIdle(createInfo_.LD_->GetComputeQueue()),
 				"Error while waitting for queue idle.");
 
 			vkDeviceWaitIdle(createInfo_.LD_->GetHandle());
@@ -525,7 +525,7 @@ namespace Render::Vulkan {
 			}
 
 			VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-			VkCall(vkAllocateCommandBuffers(logicDevice, &allocInfo, &commandBuffer),
+			VK_CALL(vkAllocateCommandBuffers(logicDevice, &allocInfo, &commandBuffer),
 				"Command buffer allocation error.");
 			SetHandle(commandBuffer);
 
