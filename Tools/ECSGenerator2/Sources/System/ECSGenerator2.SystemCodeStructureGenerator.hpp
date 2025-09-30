@@ -124,7 +124,7 @@ namespace ECSGenerator2 {
 
 
 #pragma region Assert
-			
+
 			ASSERT_FMSG(!requiredComponentNames.contains(nullptr), "");
 #pragma endregion
 
@@ -368,20 +368,32 @@ namespace ECSGenerator2 {
 
 				CodeStructure::Code expression;
 				{
+					std::vector<std::string> componentNamesToRemove;
+
 					systemEcsFile->ci_.updateMethod_->ForEachProcessEntity([&](ParsedSystem::ProcessedEntity& processedEntity, bool isLast) {
 						processedEntity.ForEachRemove([&](ParsedSystem::Remove& remove, bool isLast) {
-
-							if (systemEcsFile->GetName() == "CreateSceneFileStart") {
-								Common::BreakPointLine();
-							}
-							expression.Add(std::format("std::is_same_v<Component, {}>", remove.ptr_->GetFullName()));
-							if (!isLast) {
-								expression.Add(" || ");
-							}
+							componentNamesToRemove.push_back(remove.ptr_->GetFullName());
 							return true;
 							});
 						return true;
 						});
+
+					systemEcsFile->ci_.updateMethod_->ForEachRandomAccessEntity([&](ParsedSystem::RandomAccessEntity& randomAccessEntity, bool isLast) {
+						randomAccessEntity.ForEachRemove([&](ParsedSystem::Remove& remove, bool isLast) {
+							componentNamesToRemove.push_back(remove.ptr_->GetFullName());
+							return true;
+							});
+						return true;
+						});
+
+					for (Common::Index i = 0; i < componentNamesToRemove.size(); i++) {
+						std::string componentNameToRemove = componentNamesToRemove[i];
+						expression.Add(std::format("std::is_same_v<Component, {}>", componentNameToRemove));
+						if (!(i == componentNamesToRemove.size() - 1)) {
+							expression.Add(" || ");
+						}
+					}
+
 				}
 
 				CodeStructure::Code removeComponentRealization;
@@ -521,7 +533,7 @@ namespace ECSGenerator2 {
 				if (system->ci_.updateMethod_->IsRemovesComponents()) {
 					methods.push_back(generateRemoveComponentMethodRealization(system));
 				}
-				
+
 
 
 			}

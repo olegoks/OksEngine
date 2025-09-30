@@ -121,6 +121,7 @@ namespace ECSGenerator2 {
 		struct RandomAccessEntity {
 			std::vector<Include> includes_;
 			std::vector<Create> creates_;
+			std::vector<Remove> removes_;
 			bool randomAccessComponents_ = false;
 
 			using ProcessInclude = std::function<bool(Include& include, bool isLast)>;
@@ -139,6 +140,17 @@ namespace ECSGenerator2 {
 				for (Common::Index i = 0; i < creates_.size(); i++) {
 					Create& include = creates_[i];
 					if (!processInclude(include, (i == creates_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+			using ProcessRemove = std::function<bool(Remove& include, bool isLast)>;
+
+			void ForEachRemove(ProcessRemove&& processExclude) {
+				for (Common::Index i = 0; i < removes_.size(); i++) {
+					Remove& include = removes_[i];
+					if (!processExclude(include, (i == removes_.size() - 1))) {
 						break;
 					}
 				}

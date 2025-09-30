@@ -299,6 +299,18 @@ int main(int argc, char** argv) {
 							return true;
 							});
 
+						entity.ForEachRemove([&](ECSGenerator2::ParsedSystem::Remove& remove, bool isLast) {
+
+							const auto componentName = remove.GetName();
+
+							//at first lets find run after system in namespace of current system.
+							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+
+							remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
+
+							return true;
+							});
+
 						return true;
 					});
 

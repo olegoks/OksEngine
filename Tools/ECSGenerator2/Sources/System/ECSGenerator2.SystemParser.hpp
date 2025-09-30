@@ -92,6 +92,7 @@ namespace ECSGenerator2 {
 
 							std::vector<ParsedSystem::Include> accessesComponents;
 							std::vector<ParsedSystem::Create> createsComponents;
+							std::vector<ParsedSystem::Remove> removesComponents;
 
 							luabridge::LuaRef toAccess = it.value();
 							luabridge::LuaRef accessingComponentsRef = toAccess["accessingComponents"];
@@ -113,9 +114,18 @@ namespace ECSGenerator2 {
 									ASSERT_FMSG(std::isupper(createsComponents.back().GetName()[0]), "");
 								}
 							}
+							luabridge::LuaRef removesComponentsRef = toAccess["removesComponents"];
+							if (!removesComponentsRef.isNil()) {
+								for (luabridge::Iterator itJ(removesComponentsRef); !itJ.isNil(); ++itJ) {
+									luabridge::LuaRef removesComponentRef = itJ.value();
+									removesComponents.push_back({ nullptr, removesComponentRef.cast<std::string>().value() });
+									ASSERT_FMSG(std::isupper(removesComponents.back().GetName()[0]), "");
+								}
+							}
 							ParsedSystem::RandomAccessEntity randomAccessEntity{
 								.includes_ = accessesComponents,
 								.creates_ = createsComponents,
+								.removes_ = removesComponents
 							};
 							accessesEntities.push_back(randomAccessEntity);
 						}
