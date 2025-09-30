@@ -44,3 +44,5 @@ mat4 RTS_to_mat4_optimized(vec3 translation, vec4 rotation, vec3 scale) {
     );
 }
 
+// #define ASSERT_MSG(condition, message)\
+//     if(!condition) {  debugPrintfEXT("ASSERT_MSG(condition, %s)", message) }

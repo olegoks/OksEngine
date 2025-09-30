@@ -653,42 +653,42 @@ scene = {
         --    runModelAnimation = { animationName = "Mutant Jumping" },
         --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
         --},
-        --{
-        --    ID = 44,
-        --    name = { value = "Man" },
-        --    worldPosition3D = { x = 30, y = 0.0, z = 40 },
-        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
-        --    runModelAnimation = { animationName = "Mutant Jumping" },
-        --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        --},
-        --{
-        --    ID = 45,
-        --    name = { value = "Man" },
-        --    worldPosition3D = { x = 30, y = 0.0, z = 45 },
-        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
-        --    runModelAnimation = { animationName = "Mutant Jumping" },
-        --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        --},
-        --{
-        --    ID = 37,
-        --    name = { value = "Man" },
-        --    worldPosition3D = { x = 35, y = 0.0, z = 0 },
-        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
-        --    runModelAnimation = { animationName = "Mutant Jumping" },
-        --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        --},
-        --{
-        --    ID = 38,
-        --    name = { value = "Man" },
-        --    worldPosition3D = { x = 35, y = 0.0, z = 5 },
-        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
-        --    runModelAnimation = { animationName = "Mutant Jumping" },
-        --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        --},
+        {
+            ID = 44,
+            name = { value = "Man" },
+            worldPosition3D = { x = 30, y = 0.0, z = 40 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
+        {
+            ID = 45,
+            name = { value = "Man" },
+            worldPosition3D = { x = 30, y = 0.0, z = 45 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
+        {
+            ID = 37,
+            name = { value = "Man" },
+            worldPosition3D = { x = 35, y = 0.0, z = 0 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
+        {
+            ID = 38,
+            name = { value = "Man" },
+            worldPosition3D = { x = 35, y = 0.0, z = 5 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
         --{
         --    ID = 39,
         --    name = { value = "Man" },
@@ -1904,60 +1904,60 @@ scene = {
         --    runModelAnimation = { animationName = "Mutant Jumping" },
         --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
         --},
-        --{
-        --    ID = 57,
-        --    name = { value = "Man" },
-        --    worldPosition3D = { x = 100, y = 0.0, z = 35 },
-        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
-        --    runModelAnimation = { animationName = "Mutant Jumping" },
-        --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        --},
-        --{
-        --    ID = 58,
-        --    name = { value = "Man" },
-        --    worldPosition3D = { x = 100, y = 0.0, z = 40 },
-        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
-        --    runModelAnimation = { animationName = "Mutant Jumping" },
-        --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        --},
-        --{
-        --    ID = 59,
-        --    name = { value = "Man" },
-        --    worldPosition3D = { x = 100, y = 0.0, z = 45 },
-        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
-        --    runModelAnimation = { animationName = "Mutant Jumping" },
-        --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        --},
-        --{
-        --    ID = 51,
-        --    name = { value = "Man" },
-        --    worldPosition3D = { x = 105, y = 0.0, z = 0 },
-        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
-        --    runModelAnimation = { animationName = "Mutant Jumping" },
-        --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        --},
-        --{
-        --    ID = 52,
-        --    name = { value = "Man" },
-        --    worldPosition3D = { x = 105, y = 0.0, z = 5 },
-        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
-        --    runModelAnimation = { animationName = "Mutant Jumping" },
-        --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        --},
-        --{
-        --    ID = 53,
-        --    name = { value = "Man" },
-        --    worldPosition3D = { x = 105, y = 0.0, z = 10 },
-        --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-        --    worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
-        --    runModelAnimation = { animationName = "Mutant Jumping" },
-        --    modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
-        --},
+        {
+            ID = 57,
+            name = { value = "Man" },
+            worldPosition3D = { x = 100, y = 0.0, z = 35 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
+        {
+            ID = 58,
+            name = { value = "Man" },
+            worldPosition3D = { x = 100, y = 0.0, z = 40 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
+        {
+            ID = 59,
+            name = { value = "Man" },
+            worldPosition3D = { x = 100, y = 0.0, z = 45 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
+        {
+            ID = 51,
+            name = { value = "Man" },
+            worldPosition3D = { x = 105, y = 0.0, z = 0 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
+        {
+            ID = 52,
+            name = { value = "Man" },
+            worldPosition3D = { x = 105, y = 0.0, z = 5 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
+        {
+            ID = 53,
+            name = { value = "Man" },
+            worldPosition3D = { x = 105, y = 0.0, z = 10 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 0.05, y = 0.05, z = 0.05 },	model = {},
+            runModelAnimation = { animationName = "Mutant Jumping" },
+            modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
+        },
         --{
         --    ID = 54,
         --    name = { value = "Man" },

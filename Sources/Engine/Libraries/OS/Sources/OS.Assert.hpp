@@ -42,10 +42,12 @@ namespace OS {
 
 //#define USE_ASSERTS
 
-#if !defined(NDEBUG) || defined(USE_ASSERTS) 
 
 #define STATIC_ASSERT_MSG(expression, message)\
 	static_assert(expression, message)
+
+#if !defined(NDEBUG) || defined(USE_ASSERTS) 
+
 
 #define ASSERT_MSG(expression, message)\
 	OS::AssertMessage(expression, message, std::source_location::current())

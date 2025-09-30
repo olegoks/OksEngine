@@ -40,10 +40,10 @@ namespace Render::Vulkan {
 		[[nodiscard]]
 		Common::Size GetSize() const noexcept { return createInfo_.requirements_.size; }
 
-		void Fill(Common::Size offsetInBytes, const void* memory, Common::Size bytesNumber) noexcept {
+		void Write(Common::Size offsetInBytes, const void* memory, Common::Size bytesNumber) noexcept {
 
-			OS::Assert(memory != nullptr);
-			OS::Assert(bytesNumber > 0);
+			ASSERT(memory != nullptr);
+			ASSERT(bytesNumber > 0);
 			ASSERT_FMSG(offsetInBytes + bytesNumber <= GetSize(), "Attempt to write to device memory more or less bytes than device memory size.");
 
 			void* pointerToMappedMemory = nullptr;
@@ -63,10 +63,10 @@ namespace Render::Vulkan {
 			}
 		}
 
-		void GetData(Common::Size offsetInBytes, void* memory, Common::Size bytesNumber) {
+		void Read(Common::Size offsetInBytes, void* memory, Common::Size bytesNumber) {
 
-			OS::Assert(memory != nullptr);
-			OS::Assert(bytesNumber > 0);
+			ASSERT(memory != nullptr);
+			ASSERT(bytesNumber > 0);
 			ASSERT_FMSG(offsetInBytes + bytesNumber <= GetSize(), "Attempt to read device memory more or less bytes than device memory size.");
 
 			void* pointerToMappedMemory = nullptr;

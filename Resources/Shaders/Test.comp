@@ -131,7 +131,7 @@ layout(std430, set = 3, binding = 0) buffer AnimationsData {
 
 void main() {
     
-    //debugPrintfEXT("started");
+    //debugPrintfEXT("%d", entitiesNumber_);
     uint index = gl_GlobalInvocationID.x;
     //debugPrintfEXT("%d", index);
     if(index < entitiesNumber_){
@@ -144,28 +144,28 @@ void main() {
         ModelNodeAnimation animation = nodeAnimations.animations_[state.animationIndex_];
         float currentTick = state.animationDuration_ * state.currentTime_;
 
-        //if(state.animationDuration_ > 10){
+
             //debugPrintfEXT(
             //"\nIndex %d \nDuration: %f\n Time factor: %f\n Current time: %f\n", 
             //    index,
             //    state.animationDuration_,
             //    state.currentTime_,
             //    currentTick);
-        //}
+        
         
         for(uint i = 1; i < 32; i++){
             const Position3DKey previousPositionKey = animation.position3DKeys_.keys_[i - 1];
 			const Position3DKey currentPositionKey = animation.position3DKeys_.keys_[i];
-            if(state.animationDuration_ > 10){
+            
                 //debugPrintfEXT(
                 //    "\nIndex %d \nprevios: %f\n Current: %f\n Current key: %f\n", 
                 //    index,
                 //    previousPositionKey.time_,
                 //    currentTick,
                 //    currentPositionKey.time_);
-            }
+            
             if(previousPositionKey.time_ < currentTick && currentTick < currentPositionKey.time_){
-                debugPrintfEXT("after compare");
+                //debugPrintfEXT("after compare");
                 vec3 previousPosition = vec3(previousPositionKey.x_, previousPositionKey.y_, previousPositionKey.z_);
                 vec3 currentPosition = vec3(currentPositionKey.x_, currentPositionKey.y_, currentPositionKey.z_);
                 if(distance(previousPosition, currentPosition) < 0.00001){
@@ -177,7 +177,7 @@ void main() {
 				float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
                 vec3 calculatedPosition = mix(previousPosition, currentPosition,normalizedCurrentTimeInInterval);
                 //debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
-                //positions_[index].position_ = calculatedPosition;
+                positions_[index].position_ = calculatedPosition;
                 
             }
 

@@ -12,4 +12,13 @@ namespace Render::Vulkan {
 			ASSERT_FAIL_MSG(errorMessage.c_str());
 		}
 	}
+
+#if !defined(NDEBUG)
+
+#define VK_CALL(vulkanAPICallResult, message)\
+	VkCall(vulkanAPICallResult, message)
+
+#else 
+#define VK_CALL(vulkanAPICallResult, message) ((void)0)
+#endif
 }
