@@ -65,7 +65,7 @@ namespace OksEngine
 
 		//Animation
 		{
-			Common::Size preallocatedEntitiesNumber = 256;
+			Common::Size preallocatedEntitiesNumber = 8384;
 
 			//Create storage buffer for nodes LOCAL POSITIONS.
 			RAL::Driver::ResourceSet::Id localPositionsSBResId = RAL::Driver::ResourceSet::Id::Invalid();

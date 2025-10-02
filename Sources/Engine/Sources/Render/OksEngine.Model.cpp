@@ -2983,7 +2983,7 @@ namespace OksEngine
 					auto* worldNodePosition3D = std::get<WorldPosition3D*>(components);//GetComponent<WorldPosition3D>(nodeEntityId);
 
 					{
-						glm::vec3 worldNodePosition3DVec = parentPosition3D + parentRotation3D * (parentScale3D * glm::vec3{ localNodePosition3D->x_, localNodePosition3D->y_, localNodePosition3D->z_ });
+						const glm::vec3 worldNodePosition3DVec = parentPosition3D + parentRotation3D * (parentScale3D * glm::vec3{ localNodePosition3D->x_, localNodePosition3D->y_, localNodePosition3D->z_ });
 
 
 #pragma region Assert
@@ -3008,7 +3008,7 @@ namespace OksEngine
 
 					const auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
 					if (childModelNodeEntities != nullptr) {
-						const std::vector<ECS2::Entity::Id> childEntityIds = childModelNodeEntities->childEntityIds_;
+						const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->childEntityIds_;
 						for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
 							const glm::fvec3 currentNodePosition3D = { worldNodePosition3D->x_, worldNodePosition3D->y_, worldNodePosition3D->z_ };
 							const glm::quat currentNodeRotation3D = { worldNodeRotation3D->w_, worldNodeRotation3D->x_, worldNodeRotation3D->y_, worldNodeRotation3D->z_ };
