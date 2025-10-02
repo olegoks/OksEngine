@@ -26,8 +26,7 @@ namespace Render::Vulkan
 
 	void Buffer::Write(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept {
 		ASSERT(memory_ != nullptr);
-		ASSERT(offset < memory_->GetSize());
-		ASSERT(sizeInBytes < memory_->GetSize());
+		ASSERT(offset + sizeInBytes <= memory_->GetSize());
 		memory_->Write(offset, data, sizeInBytes);
 	}
 

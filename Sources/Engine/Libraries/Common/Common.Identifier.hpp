@@ -37,6 +37,10 @@ namespace Common {
 			}
 		};
 
+		Type GetValue() const noexcept {
+			return value_;
+		}
+
 		//[[nodiscard]]
 		//Type operator Type() const noexcept {
 		//	return value_;
@@ -71,5 +75,23 @@ namespace Common {
 	};
 
 	using IdGenerator = IdentifierGenerator;
+
+	template<class Type>
+	class IdData {
+	public:
+
+		Type& operator[](Id id) {
+			const auto idValue = id.GetValue();
+			if (idValue >= idToData_.size()) {
+				idToData_.resize(idValue * 2, Type{});
+			}
+			return idToData_[idValue];
+		}
+
+	private:
+
+		//Index of the vector is id.
+		std::vector<Type> idToData_;
+	};
 
 }

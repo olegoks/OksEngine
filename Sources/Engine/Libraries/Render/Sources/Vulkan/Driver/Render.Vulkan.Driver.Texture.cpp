@@ -81,7 +81,7 @@ namespace Render::Vulkan {
 			ASSERT_FMSG((createInfo.data_.size() / pixelSize) == pixelsNumber, "");
 #pragma endregion
 
-			textureStagingBuffer->Fill(0, createInfo.data_.data(), pixelsNumber * pixelSize);
+			textureStagingBuffer->Write(0, createInfo.data_.data(), pixelsNumber * pixelSize);
 
 			//Change image layout(all mip map levels) to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL.
 			CommandBuffer::CreateInfo commandBufferCreateInfo;

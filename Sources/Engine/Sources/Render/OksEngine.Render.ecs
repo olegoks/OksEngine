@@ -37,7 +37,11 @@ CreateRenderDriverSystem = {
                 createsComponents = {
                     "RenderDriver",
                     "Render::StorageBuffer",
-                    "Render::StorageBufferResource"
+                    "Render::StorageBufferResource",
+                    "Animation::DriverLocalPosition3DComponents",
+                    "Animation::LocalPosition3DComponentsResource",
+                    "Animation::DriverLocalRotation3DComponents",
+                    "Animation::LocalRotation3DComponentsResource"
                 }
             }
         }

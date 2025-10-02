@@ -107,7 +107,7 @@ namespace Render::Vulkan {
 
 		void FillData(Common::Size offset, const void* indices, Common::Size indicesNumber, std::shared_ptr<CommandPool> commandPool) {
 
-			stagingBuffer_->Fill(0, indices, indicesNumber * GetIndexSize());
+			stagingBuffer_->Write(0, indices, indicesNumber * GetIndexSize());
 
 			Buffer::DataCopy(
 				*stagingBuffer_, *this,

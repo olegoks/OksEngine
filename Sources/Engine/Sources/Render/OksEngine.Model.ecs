@@ -521,7 +521,7 @@ AiNamespace = {
                         "BoneInverseBindPoseMatrix",
                         "ChildModelNodeEntities",
                         "MeshInfos",
-                        "Animation::ModelNodeAnimations",
+                        "Animation::Model::Node::Animations",
                         --"MeshEntities",
                         "LocalPosition3D",
                         "LocalRotation3D",
@@ -1062,7 +1062,15 @@ ComputeNamespace = {
                     processesComponents = {
                         "RenderDriver",
                         "Pipeline",
-                        "Render::StorageBufferResource"
+                        "Render::StorageBufferResource",
+                        "Animation::Model::Node::DriverAnimationsComponents",
+                        "Animation::Model::Node::AnimationsComponentsResource",
+                        "Animation::Model::Node::DriverRunningStates",
+                        "Animation::Model::Node::RunningStatesResource",
+                        "Animation::DriverLocalPosition3DComponents",
+                        "Animation::LocalPosition3DComponentsResource",
+                        "Animation::DriverLocalRotation3DComponents",
+                        "Animation::LocalRotation3DComponentsResource"
                     }
                 }
             }

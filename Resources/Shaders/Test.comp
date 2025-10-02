@@ -177,7 +177,7 @@ void main() {
 				float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
                 vec3 calculatedPosition = mix(previousPosition, currentPosition,normalizedCurrentTimeInInterval);
                 //debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
-                positions_[index].position_ = calculatedPosition;
+                //positions_[index].position_ = calculatedPosition;
                 
             }
 

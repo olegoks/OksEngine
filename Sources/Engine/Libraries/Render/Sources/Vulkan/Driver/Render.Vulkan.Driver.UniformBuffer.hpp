@@ -120,7 +120,7 @@ namespace Render::Vulkan {
 		}
 
 		void Fill(const StructureType* structure) {
-			UniformBuffer::Fill(structure);
+			UniformBuffer::Write(structure);
 		}
 
 	};
@@ -143,7 +143,7 @@ VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT }
 		} { }
 
 		void Fill(const ElementType* structure) {
-			UniformBuffer::Fill(structure);
+			UniformBuffer::Write(structure);
 		}
 
 	};

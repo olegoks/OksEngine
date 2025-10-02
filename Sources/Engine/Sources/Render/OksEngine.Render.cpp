@@ -1,6 +1,11 @@
 #pragma once
 #include <Render\auto_OksEngine.Render.hpp>
 
+#include <Common/auto_OksEngine.Position3D.hpp>
+#include <Common/auto_OksEngine.Rotation3D.hpp>
+#include <Common/auto_OksEngine.Scale3D.hpp>
+#include <Render/auto_OksEngine.Model.Animation.hpp>
+
 namespace OksEngine
 {
 
@@ -62,6 +67,104 @@ namespace OksEngine
 		const RAL::Driver::ResourceSet::Id sbrid = driver->CreateResource(storageBinding);
 
 		CreateComponent<Render::StorageBufferResource>(driverEntityId, sbrid);
+
+		//Animation
+		{
+			Common::Size preallocatedEntitiesNumber = 256;
+
+			//Create storage buffer for nodes LOCAL POSITIONS.
+			RAL::Driver::ResourceSet::Id localPositionsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
+			RAL::Driver::StorageBuffer::Id localPositionsSBId = RAL::Driver::ResourceSet::Id::Invalid();
+			{
+				RAL::Driver::StorageBuffer::CreateInfo localPositionsSBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(LocalPosition3D)
+				};
+
+				localPositionsSBId = driver->CreateStorageBuffer(localPositionsSBCI);
+
+				CreateComponent<Animation::DriverLocalPosition3DComponents>(driverEntityId, localPositionsSBId);
+				
+
+				RAL::Driver::ResourceSet::Binding localPositionsStorageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+					.binding_ = 0,
+					.sbid_ = localPositionsSBId
+				};
+				localPositionsSBResId = driver->CreateResource(localPositionsStorageBinding);
+				CreateComponent<Animation::LocalPosition3DComponentsResource>(driverEntityId, localPositionsSBResId);
+			}
+
+			//Create storage buffer for nodes LOCAL ROTATIONS.
+			RAL::Driver::ResourceSet::Id localRotationsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
+			RAL::Driver::StorageBuffer::Id localRotationsSBId = RAL::Driver::ResourceSet::Id::Invalid();
+			{
+				RAL::Driver::StorageBuffer::CreateInfo localPositionsSBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(LocalRotation3D)
+				};
+
+				localRotationsSBId = driver->CreateStorageBuffer(localPositionsSBCI);
+				CreateComponent<Animation::DriverLocalRotation3DComponents>(driverEntityId, localRotationsSBId);
+
+				//driver->StorageBufferWrite(localRotationsSBId, localRotations);
+
+				RAL::Driver::ResourceSet::Binding localRotationsStorageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+					.binding_ = 0,
+					.sbid_ = localRotationsSBId
+				};
+				localRotationsSBResId = driver->CreateResource(localRotationsStorageBinding);
+
+				CreateComponent<Animation::LocalRotation3DComponentsResource>(driverEntityId, localRotationsSBResId);
+			}
+
+
+			//Create storage buffer for node ANIMATION STATES.
+			RAL::Driver::ResourceSet::Id nodeAnimationStatesSBResId = RAL::Driver::ResourceSet::Id::Invalid();
+			{
+				RAL::Driver::StorageBuffer::CreateInfo nodeAnimationStatesSBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(Animation::Model::Node::RunningState)
+				};
+
+				const RAL::Driver::StorageBuffer::Id nodeAnimationStatesSBId = driver->CreateStorageBuffer(nodeAnimationStatesSBCI);
+				CreateComponent<Animation::Model::Node::DriverRunningStates>(driverEntityId, localRotationsSBId);
+				//auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
+				//driver->StorageBufferWrite(nodeAnimationStatesSBId, modelNodeAnimationStates);
+
+				RAL::Driver::ResourceSet::Binding nodeAnimationStatesStorageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+					.binding_ = 0,
+					.sbid_ = nodeAnimationStatesSBId
+				};
+				nodeAnimationStatesSBResId = driver->CreateResource(nodeAnimationStatesStorageBinding);
+				CreateComponent<Animation::Model::Node::RunningStatesResource>(driverEntityId, nodeAnimationStatesSBResId);
+			}
+
+			//Create storage buffer for node ANIMATION DATA.
+			RAL::Driver::ResourceSet::Id nodeAnimationsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
+			{
+
+				RAL::Driver::StorageBuffer::CreateInfo nodeAnimationsSBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(Animation::Model::Node::Animations)
+				};
+				const RAL::Driver::StorageBuffer::Id nodeAnimationsSBId = driver->CreateStorageBuffer(nodeAnimationsSBCI);
+
+				CreateComponent<Animation::Model::Node::DriverAnimationsComponents>(driverEntityId, nodeAnimationsSBId);
+				//auto* modelNodeAnimations = std::get<Animation::ModelNodeAnimations*>(componentPointers);
+				//driver->StorageBufferWrite(nodeAnimationsSBId, modelNodeAnimations);
+
+				RAL::Driver::ResourceSet::Binding nodeAnimationsStorageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+					.binding_ = 0,
+					.sbid_ = nodeAnimationsSBId
+				};
+				nodeAnimationsSBResId = driver->CreateResource(nodeAnimationsStorageBinding);
+				CreateComponent<Animation::Model::Node::AnimationsComponentsResource>(driverEntityId, nodeAnimationsSBResId);
+			}
+		}
 	};
 
 

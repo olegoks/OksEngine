@@ -48,32 +48,73 @@ AnimationNamespace = {
             }
         }
     },
-    ModelNodeAnimationStruct = {
-        serializable = false,
-        fields = {
-            { type = "Channel::Position3DKeys", name = "position3DKeys" },
-            { type = "Channel::RotationKeys",   name = "rotationKeys" },
-            { type = "Channel::Scale3DKeys",    name = "scale3DKeys" }
-        }
-    },
-    ModelNodeAnimationsComponent = {
-        serializable = false,
-        fields = {
-            --Max 8 animations per node
-            { type = "std::array<ModelNodeAnimation, 8>", name = "animations" }
-        }
-    },
+    
     ModelNamespace = {
         NodeNamespace = {
+            AnimationStruct = {
+                serializable = false,
+                fields = {
+                    { type = "Channel::Position3DKeys", name = "position3DKeys" },
+                    { type = "Channel::RotationKeys",   name = "rotationKeys" },
+                    { type = "Channel::Scale3DKeys",    name = "scale3DKeys" }
+                }
+            },
+            AnimationsComponent = {
+                serializable = false,
+                fields = {
+                    --Max 8 animations per node
+                    { type = "std::array<Animation, 8>", name = "animations" }
+                }
+            },
+            --RunningAnimationStates GPU STORAGE buffers
+            DriverAnimationsComponentsComponent = {
+                serializable = false,
+                fields = { { type = "RAL::Driver::StorageBuffer::Id", name = "id" } }
+            },
+            AnimationsComponentsResourceComponent = {
+                serializable = false,
+                fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
+            },
             RunningStateComponent = {
                 serializable = false,
                 fields = {
                     { type = "Common::UInt32", name = "animationIndex" },
-                    { type = "float", name = "animationDuration" },
-                    { type = "float", name = "currentTime" },
+                    { type = "float",          name = "animationDuration" },
+                    { type = "float",          name = "currentTime" },
                 }
+            },
+            --RunningAnimationStates GPU STORAGE buffers
+            DriverRunningStatesComponent = {
+                serializable = false,
+                fields = { { type = "RAL::Driver::StorageBuffer::Id", name = "id" } }
+            },
+            RunningStatesResourceComponent = {
+                serializable = false,
+                fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
             }
         }
-    }
+    },
+
+    --LocalPosition3D GPU storage buffers.
+    DriverLocalPosition3DComponentsComponent = {
+        serializable = false,
+        fields = { { type = "RAL::Driver::StorageBuffer::Id", name = "id" } }
+    },
+    LocalPosition3DComponentsResourceComponent = {
+        serializable = false,
+        fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
+    },
+
+    --LocalRotation3D GPU storage buffers.
+    DriverLocalRotation3DComponentsComponent = {
+        serializable = false,
+        fields = { { type = "RAL::Driver::StorageBuffer::Id", name = "id" } }
+    },
+    LocalRotation3DComponentsResourceComponent = {
+        serializable = false,
+        fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
+    },
+
+
 
 }

@@ -39,7 +39,7 @@ namespace Render::Vulkan {
 
 		void Write(Common::Size offset, const void* data, Common::Size sizeInBytes, std::shared_ptr<CommandPool> commandPool) {
 
-			stagingBuffer_->Fill(offset, data, sizeInBytes);
+			stagingBuffer_->Write(offset, data, sizeInBytes);
 
 			Buffer::DataCopy(
 				*stagingBuffer_, *this,
@@ -58,7 +58,7 @@ namespace Render::Vulkan {
 				ci_.LD_,
 				commandPool);
 
-			stagingBuffer_->GetData(offset, data, sizeInBytes);
+			stagingBuffer_->Read(offset, data, sizeInBytes);
 
 		}
 

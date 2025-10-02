@@ -1537,11 +1537,11 @@ namespace Render::Vulkan {
 		virtual void FillUniformBuffer(UniformBuffer::Id UBId, void* data) override {
 			std::vector<std::shared_ptr<Vulkan::UniformBuffer>>& ub = UBs_[UBId];
 			if (ub.size() == 1) {
-				ub[0]->Fill(0, data, ub[0]->GetSizeInBytes());
+				ub[0]->Write(0, data, ub[0]->GetSizeInBytes());
 			}
 			else {
 				ASSERT_FMSG(ub.size() == concurrentFramesNumber, "Incorrect number of ubs.");
-				ub[currentFrame]->Fill(0, data, ub[currentFrame]->GetSizeInBytes());
+				ub[currentFrame]->Write(0, data, ub[currentFrame]->GetSizeInBytes());
 			}
 		}
 
@@ -1577,20 +1577,27 @@ namespace Render::Vulkan {
 		}
 
 		void RemoveStorageBuffer(StorageBuffer::Id SBId) {
-			SBs_.erase(SBId);
+			SBs_[SBId] = {};
 		}
 
 
 		[[nodiscard]]
 		//TODO:  rename this and childs
-		virtual void FillStorageBuffer(StorageBuffer::Id SBId, void* data) override {
+		virtual void StorageBufferWrite(
+			StorageBuffer::Id SBId,
+			Common::Size offsetInBytes,
+			void* data,
+			Common::Size bytesNumber) override {
+			ASSERT(data != nullptr);
+			ASSERT(bytesNumber > 0);
+
 			std::vector<std::shared_ptr<Vulkan::StorageBuffer>>& sb = SBs_[SBId];
-			sb[0]->Write(0, data, sb[0]->GetSizeInBytes(), objects_.commandPool_);
+			sb[0]->Write(offsetInBytes, data, bytesNumber, objects_.commandPool_);
 
 		}
 
 		//TODO: rename this and childs
-		virtual void GetStorageBufferData(
+		virtual void StorageBufferRead(
 			StorageBuffer::Id SBId,
 			Common::Size offset,
 			Common::Size size,
@@ -2272,7 +2279,9 @@ namespace Render::Vulkan {
 		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::UBDS>>> UBDSs_;
 		Common::IdGenerator UBDSsIdsGenerator_;
 
-		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::StorageBuffer>>> SBs_;
+		//std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::StorageBuffer>>> SBs_;
+
+		Common::IdData< std::vector<std::shared_ptr<Vulkan::StorageBuffer>>> SBs_;
 		Common::IdGenerator SBsIdsGenerator_;
 
 		std::map<Common::Id, std::vector<std::shared_ptr<Vulkan::SBDS>>> SBDSs_;

@@ -75,7 +75,7 @@ namespace Render::Vulkan {
 		}, createInfo_{ createInfo } { }
 
 		void Fill(Common::Index firstVertex, void* vertices, Common::Size vertexCount) {
-			Buffer::Fill(firstVertex * createInfo_.vertexSize_, vertices, vertexCount * createInfo_.vertexSize_);
+			Buffer::Write(firstVertex * createInfo_.vertexSize_, vertices, vertexCount * createInfo_.vertexSize_);
 		}
 
 		[[nodiscard]]
@@ -159,7 +159,7 @@ namespace Render::Vulkan {
 
 
 		void FillData(Common::Size verticesOffset, const void* vertices, Common::Size verticesNumber, std::shared_ptr<CommandPool> commandPool) {
-			stagingBuffer_->Fill(
+			stagingBuffer_->Write(
 				verticesOffset,
 				vertices,
 				createInfo_.vertexSize_ * verticesNumber);
