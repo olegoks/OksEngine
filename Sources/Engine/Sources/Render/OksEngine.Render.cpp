@@ -43,11 +43,6 @@ namespace OksEngine
 		}
 
 		auto driver = api->CreateDriver(driverCreateInfo);
-		{
-
-
-
-		}
 
 		const ECS2::Entity::Id driverEntityId = CreateEntity();
 		CreateComponent<RenderDriver>(driverEntityId, driver);
@@ -99,14 +94,12 @@ namespace OksEngine
 			RAL::Driver::ResourceSet::Id localRotationsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
 			RAL::Driver::StorageBuffer::Id localRotationsSBId = RAL::Driver::ResourceSet::Id::Invalid();
 			{
-				RAL::Driver::StorageBuffer::CreateInfo localPositionsSBCI{
+				RAL::Driver::StorageBuffer::CreateInfo localRotationsSBCI{
 					.size_ = preallocatedEntitiesNumber * sizeof(LocalRotation3D)
 				};
 
-				localRotationsSBId = driver->CreateStorageBuffer(localPositionsSBCI);
+				localRotationsSBId = driver->CreateStorageBuffer(localRotationsSBCI);
 				CreateComponent<Animation::DriverLocalRotation3DComponents>(driverEntityId, localRotationsSBId);
-
-				//driver->StorageBufferWrite(localRotationsSBId, localRotations);
 
 				RAL::Driver::ResourceSet::Binding localRotationsStorageBinding
 				{
@@ -128,9 +121,7 @@ namespace OksEngine
 				};
 
 				const RAL::Driver::StorageBuffer::Id nodeAnimationStatesSBId = driver->CreateStorageBuffer(nodeAnimationStatesSBCI);
-				CreateComponent<Animation::Model::Node::DriverRunningStates>(driverEntityId, localRotationsSBId);
-				//auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
-				//driver->StorageBufferWrite(nodeAnimationStatesSBId, modelNodeAnimationStates);
+				CreateComponent<Animation::Model::Node::DriverRunningStates>(driverEntityId, nodeAnimationStatesSBId);
 
 				RAL::Driver::ResourceSet::Binding nodeAnimationStatesStorageBinding
 				{
@@ -152,8 +143,6 @@ namespace OksEngine
 				const RAL::Driver::StorageBuffer::Id nodeAnimationsSBId = driver->CreateStorageBuffer(nodeAnimationsSBCI);
 
 				CreateComponent<Animation::Model::Node::DriverAnimationsComponents>(driverEntityId, nodeAnimationsSBId);
-				//auto* modelNodeAnimations = std::get<Animation::ModelNodeAnimations*>(componentPointers);
-				//driver->StorageBufferWrite(nodeAnimationsSBId, modelNodeAnimations);
 
 				RAL::Driver::ResourceSet::Binding nodeAnimationsStorageBinding
 				{

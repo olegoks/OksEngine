@@ -2834,121 +2834,29 @@ namespace OksEngine
 		auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
 		auto* modelNodeAnimations = std::get<Animation::Model::Node::Animations*>(componentPointers);
 		 
+		driver->StorageBufferWrite(
+			animation__DriverLocalPosition3DComponents0->id_, 
+			0, 
+			localPositions,
+			entitiesNumber * sizeof(LocalPosition3D));
 
-		//Create storage buffer for nodes LOCAL POSITIONS.
-		RAL::Driver::ResourceSet::Id localPositionsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
-		RAL::Driver::StorageBuffer::Id localPositionsSBId = RAL::Driver::ResourceSet::Id::Invalid();
-		//auto* localPositions = std::get<LocalPosition3D*>(componentPointers);
-		{
-			RAL::Driver::StorageBuffer::CreateInfo localPositionsSBCI{
-				.size_ = entitiesNumber * sizeof(LocalPosition3D)
-			};
+		driver->StorageBufferWrite(
+			animation__DriverLocalRotation3DComponents0->id_,
+			0, 
+			localRotations,
+			entitiesNumber * sizeof(LocalRotation3D));
 
-			localPositionsSBId = driver->CreateStorageBuffer(localPositionsSBCI);
+		driver->StorageBufferWrite(
+			animation__Model__Node__DriverRunningStates0->id_,
+			0,
+			modelNodeAnimationStates,
+			entitiesNumber * sizeof(Animation::Model::Node::RunningState));
 
-
-			driver->StorageBufferWrite(localPositionsSBId, 0, localPositions, entitiesNumber * sizeof(LocalPosition3D));
-
-			RAL::Driver::ResourceSet::Binding localPositionsStorageBinding
-			{
-				.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
-				.binding_ = 0,
-				.sbid_ = localPositionsSBId
-			};
-			localPositionsSBResId = driver->CreateResource(localPositionsStorageBinding);
-		}
-
-		//Create storage buffer for nodes LOCAL ROTATIONS.
-		RAL::Driver::ResourceSet::Id localRotationsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
-		RAL::Driver::StorageBuffer::Id localRotationsSBId = RAL::Driver::ResourceSet::Id::Invalid();
-		//auto* localRotations = std::get<LocalRotation3D*>(componentPointers);
-		{
-			RAL::Driver::StorageBuffer::CreateInfo localPositionsSBCI{
-				.size_ = entitiesNumber * sizeof(LocalRotation3D)
-			};
-
-			localRotationsSBId = driver->CreateStorageBuffer(localPositionsSBCI);
-
-
-			driver->StorageBufferWrite(localRotationsSBId, 0, localRotations, entitiesNumber * sizeof(LocalRotation3D));
-
-			RAL::Driver::ResourceSet::Binding localRotationsStorageBinding
-			{
-				.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
-				.binding_ = 0,
-				.sbid_ = localRotationsSBId
-			};
-			localRotationsSBResId = driver->CreateResource(localRotationsStorageBinding);
-		}
-
-
-		//Create storage buffer for node ANIMATION STATES.
-		RAL::Driver::ResourceSet::Id nodeAnimationStatesSBResId = RAL::Driver::ResourceSet::Id::Invalid();
-		{
-			RAL::Driver::StorageBuffer::CreateInfo nodeAnimationStatesSBCI{
-				.size_ = entitiesNumber * sizeof(Animation::Model::Node::RunningState)
-			};
-
-			const RAL::Driver::StorageBuffer::Id nodeAnimationStatesSBId = driver->CreateStorageBuffer(nodeAnimationStatesSBCI);
-
-			auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
-			driver->StorageBufferWrite(nodeAnimationStatesSBId, 0, modelNodeAnimationStates, entitiesNumber * sizeof(Animation::Model::Node::RunningState));
-
-			RAL::Driver::ResourceSet::Binding nodeAnimationStatesStorageBinding
-			{
-				.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
-				.binding_ = 0,
-				.sbid_ = nodeAnimationStatesSBId
-			};
-			nodeAnimationStatesSBResId = driver->CreateResource(nodeAnimationStatesStorageBinding);
-		}
-
-
-
-		//Create storage buffer for node ANIMATION DATA.
-		RAL::Driver::ResourceSet::Id nodeAnimationsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
-		{
-
-			RAL::Driver::StorageBuffer::CreateInfo nodeAnimationsSBCI{
-				.size_ = entitiesNumber * sizeof(Animation::Model::Node::Animations)
-			};
-			const RAL::Driver::StorageBuffer::Id nodeAnimationsSBId = driver->CreateStorageBuffer(nodeAnimationsSBCI);
-
-			auto* modelNodeAnimations = std::get<Animation::Model::Node::Animations*>(componentPointers);
-			driver->StorageBufferWrite(nodeAnimationsSBId, 0, modelNodeAnimations, entitiesNumber * sizeof(Animation::Model::Node::Animations));
-
-			RAL::Driver::ResourceSet::Binding nodeAnimationsStorageBinding
-			{
-				.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
-				.binding_ = 0,
-				.sbid_ = nodeAnimationsSBId
-			};
-			nodeAnimationsSBResId = driver->CreateResource(nodeAnimationsStorageBinding);
-		}
-
-		//driver->StorageBufferWrite(
-		//	animation__DriverLocalPosition3DComponents0->id_, 
-		//	0, 
-		//	localPositions,
-		//	entitiesNumber * sizeof(LocalPosition3D));
-
-		//driver->StorageBufferWrite(
-		//	animation__DriverLocalRotation3DComponents0->id_,
-		//	0, 
-		//	localRotations,
-		//	entitiesNumber * sizeof(LocalRotation3D));
-
-		//driver->StorageBufferWrite(
-		//	animation__Model__Node__DriverRunningStates0->id_,
-		//	0,
-		//	modelNodeAnimationStates,
-		//	entitiesNumber * sizeof(Animation::Model::Node::RunningState));
-
-		//driver->StorageBufferWrite(
-		//	animation__Model__Node__DriverAnimationsComponents0->id_, 
-		//	0,
-		//	modelNodeAnimations,
-		//	entitiesNumber * sizeof(Animation::Model::Node::Animations));
+		driver->StorageBufferWrite(
+			animation__Model__Node__DriverAnimationsComponents0->id_, 
+			0,
+			modelNodeAnimations,
+			entitiesNumber * sizeof(Animation::Model::Node::Animations));
 
 		driver->StartCompute();
 		driver->BindComputePipeline(pipeline0->pipelineId_);
@@ -2962,15 +2870,10 @@ namespace OksEngine
 			pipeline0->pipelineId_,
 			0,
 			{
-				localPositionsSBResId,
-				localRotationsSBResId,
-				nodeAnimationStatesSBResId,
-				nodeAnimationsSBResId
-
-				/*animation__LocalPosition3DComponentsResource0->id_,
+				animation__LocalPosition3DComponentsResource0->id_,
 				animation__LocalRotation3DComponentsResource0->id_,
 				animation__Model__Node__RunningStatesResource0->id_,
-				animation__Model__Node__AnimationsComponentsResource0->id_,*/
+				animation__Model__Node__AnimationsComponentsResource0->id_,
 
 			});
 		//Total Threads = Workgroups × Local Size
@@ -3003,13 +2906,11 @@ namespace OksEngine
 
 		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader read data.");
 		driver->StorageBufferRead(
-			//animation__DriverLocalPosition3DComponents0->id_,
-			localPositionsSBId,
+			animation__DriverLocalPosition3DComponents0->id_,
 			0, entitiesNumber * sizeof(LocalPosition3D), localPositions);
 
 		driver->StorageBufferRead(
-			//animation__DriverLocalRotation3DComponents0->id_,
-			localRotationsSBId,
+			animation__DriverLocalRotation3DComponents0->id_,
 			0, entitiesNumber * sizeof(LocalRotation3D), localRotations);
 		PIXEndEvent();
 	}
