@@ -1,5 +1,5 @@
 #version 450
-#extension GL_EXT_debug_printf : enable
+//#extension GL_EXT_debug_printf : enable
 //Total Threads = Workgroups × Local Size
 //
 //Где:
@@ -137,7 +137,7 @@ void main() {
     if(index < entitiesNumber_){
         AnimationState state = states[index];
         if(state.animationIndex_ >= 8) {
-            debugPrintfEXT("Invalid animation index %d.", state.animationIndex_);
+            //debugPrintfEXT("Invalid animation index %d.", state.animationIndex_);
             return;
         }
         ModelNodeAnimations nodeAnimations = nodeAnimations_[index];

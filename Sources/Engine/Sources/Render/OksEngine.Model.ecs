@@ -320,57 +320,16 @@ StartModelAnimationSystem = {
             {
                 processesComponents = {
                     "Model",
+                    "ModelAnimations",
+                    "ChildModelNodeEntities"
+                },
+                createsComponents = {
+                    "AnimationInProgress"
+                },
+                removesComponents = {
                     "RunModelAnimation",
-                    "ModelAnimations",
-                    "ChildModelNodeEntities"
-                },
-                excludes = {
-                    "AnimationInProgress"
-                },
-                createsComponents = {
-                    "AnimationInProgress"
-                },
-                removesComponents = {
-                    "RunModelAnimation"
-                }
-            },
-            {
-                processesComponents = {
-                    "Clock",
-                    "TimeSinceEngineStart"
-                }
-            }
-        },
-        accessingEntities = {
-            {
-                accessingComponents = {
-                    "ChildModelNodeEntities"
-                },
-                createsComponents = {
-                    "Animation::Model::Node::RunningState"
-                }
-            }
-        }
-    }
-}
-
-ProcessModelAnimationSystem = {
-
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "Model",
-                    "ModelAnimations",
                     "AnimationInProgress",
-                    "ChildModelNodeEntities"
-                },
-                removesComponents = {
-                    "AnimationInProgress"
-                },
-                -- Debug
-                createsComponents = {
-                    "RunModelAnimation"
+                    "Animation::Model::Node::RunningState"
                 }
             },
             {
@@ -383,19 +342,61 @@ ProcessModelAnimationSystem = {
         accessingEntities = {
             {
                 accessingComponents = {
-                    "ModelNodeAnimation",
-                    "LocalPosition3D",
-                    "LocalRotation3D",
-                    "LocalScale3D",
-                    "ChildModelNodeEntities"
+                    "ChildModelNodeEntities",
+                    "AnimationInProgress",
+                    "RunModelAnimation",
+                    "Animation::Model::Node::RunningState"
                 },
-                removesComponents = {
+                createsComponents = {
                     "Animation::Model::Node::RunningState"
                 }
             }
         }
     }
 }
+
+-- ProcessModelAnimationSystem = {
+
+--     updateMethod = {
+--         processesEntities = {
+--             {
+--                 processesComponents = {
+--                     "Model",
+--                     "ModelAnimations",
+--                     "AnimationInProgress",
+--                     "ChildModelNodeEntities"
+--                 },
+--                 removesComponents = {
+--                     "AnimationInProgress"
+--                 },
+--                 -- Debug
+--                 createsComponents = {
+--                     "RunModelAnimation"
+--                 }
+--             },
+--             {
+--                 processesComponents = {
+--                     "Clock",
+--                     "TimeSinceEngineStart"
+--                 }
+--             }
+--         },
+--         accessingEntities = {
+--             {
+--                 accessingComponents = {
+--                     "ModelNodeAnimation",
+--                     "LocalPosition3D",
+--                     "LocalRotation3D",
+--                     "LocalScale3D",
+--                     "ChildModelNodeEntities"
+--                 },
+--                 removesComponents = {
+--                     "Animation::Model::Node::RunningState"
+--                 }
+--             }
+--         }
+--     }
+-- }
 
 MeshComponent = {
     serializable = false
@@ -583,45 +584,6 @@ NodeToEntityIdComponent = {
     }
 }
 
-CreateModelNodesSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "Model",
-                    "ModelFile",
-                    "Ai::Scene"
-                },
-                excludes = {
-                    "ChildModelNodeEntities"
-                },
-                createsComponents = {
-                    "NodeToEntityId",
-                    "ChildModelNodeEntities"
-                }
-            }
-        },
-        createsEntities = {
-            {
-                createsComponents = {
-                    "ModelNode",
-                    "ModelEntity",
-                    "Ai::Node",
-                    --"Ai::Meshes",
-                    "BoneNode",
-                    "BoneInverseBindPoseMatrix",
-                    "ChildModelNodeEntities",
-                    "MeshInfos",
-                    --"MeshEntities",
-                    "LocalPosition3D",
-                    "LocalRotation3D",
-                    "LocalScale3D"
-                }
-            }
-        }
-    }
-}
-
 NodeMeshesComponent = {
     serializable = false,
     fields = {
@@ -662,118 +624,6 @@ FindModelMeshsSystem = {
         }
     }
 }
-
-CreateNodeMeshsSystem = {
-    -- callOrder = {
-    --     runAfter = "FindNodeMesh"
-    -- },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "MeshsController",
-                    { name = "MeshNameToEntity", readonly = false }
-                }
-            },
-            {
-                processesComponents = {
-                    "ModelNode",
-                    "ModelEntity",
-                    "Ai::Node",
-                    { name = "MeshInfos", readonly = false }
-                },
-                excludes = {
-                    "MeshEntities"
-                }
-            }
-        },
-        createsEntities = {
-            {
-                createsComponents = {
-                    "Mesh",
-                    "Name",
-                    "MeshNodes",
-                    "Vertices3D",
-                    "Indices",
-                    "Normals",
-                    "UVs",
-                    "VertexBones",
-                    "TextureInfo",
-                    "Texture"
-                }
-            }
-        },
-        accessingEntities = {
-            {
-                accessingComponents = {
-                    "Ai::Scene",
-                    "NodeToEntityId"
-                }
-            },
-            {
-                accessingComponents = {
-                    "MeshNodes"
-                }
-            }
-        }
-    }
-}
-
-CreateModelSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "ModelFile",
-                    "WorldPosition3D",
-                    "WorldRotation3D",
-                    "WorldScale3D"
-                },
-                excludes = {
-                    "Model",
-                    "ChildModelNodeEntities"
-                },
-                createsComponents = {
-                    "Model",
-                    "ChildModelNodeEntities"
-                }
-            },
-            {
-                processesComponents = {
-                    "ResourceSystem"
-                }
-            }
-        },
-        createsEntities = {
-            {
-                createsComponents = {
-                    "ModelNode",
-                    "BoneNode",
-                    "BoneInverseBindPoseMatrix",
-                    "ChildModelNodeEntities",
-                    "MeshEntities",
-                    "LocalPosition3D",
-                    "LocalRotation3D",
-                    "LocalScale3D"
-                }
-            },
-            {
-                createsComponents = {
-                    "Mesh",
-                    "Name",
-                    "Vertices3D",
-                    "Indices",
-                    "Normals",
-                    "UVs",
-                    "VertexBones",
-                    "TextureInfo",
-                    "Texture"
-                }
-            }
-        }
-    }
-}
-
 
 RenderPassComponent = {
     serializable = false,
@@ -981,37 +831,37 @@ CreateSkeletonModelPipelineSystem = {
     }
 }
 
-UpdateLocalPosition3DSystem = {
-    callOrder = {
-        runBefore = { "StartRender" }
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "Model",
-                    "ChildModelNodeEntities",
-                    "WorldPosition3D",
-                    "WorldRotation3D",
-                    "WorldScale3D"
-                }
-            }
-        },
-        accessingEntities = {
-            {
-                accessingComponents = {
-                    "WorldPosition3D",
-                    "WorldRotation3D",
-                    "WorldScale3D",
-                    "LocalPosition3D",
-                    "LocalRotation3D",
-                    "LocalScale3D",
-                    "ChildModelNodeEntities"
-                }
-            }
-        }
-    }
-}
+-- UpdateLocalPosition3DSystem = {
+--     callOrder = {
+--         runBefore = { "StartRender" }
+--     },
+--     updateMethod = {
+--         processesEntities = {
+--             {
+--                 processesComponents = {
+--                     "Model",
+--                     "ChildModelNodeEntities",
+--                     "WorldPosition3D",
+--                     "WorldRotation3D",
+--                     "WorldScale3D"
+--                 }
+--             }
+--         },
+--         accessingEntities = {
+--             {
+--                 accessingComponents = {
+--                     "WorldPosition3D",
+--                     "WorldRotation3D",
+--                     "WorldScale3D",
+--                     "LocalPosition3D",
+--                     "LocalRotation3D",
+--                     "LocalScale3D",
+--                     "ChildModelNodeEntities"
+--                 }
+--             }
+--         }
+--     }
+-- }
 
 ComputeNamespace = {
 
@@ -1055,7 +905,7 @@ ComputeNamespace = {
         }
     },
     TestPipelineSystem = {
-        runAfter = "ProcessModelAnimation",
+        runAfter = "StartModelAnimation",
         updateMethod = {
             processesEntities = {
                 {

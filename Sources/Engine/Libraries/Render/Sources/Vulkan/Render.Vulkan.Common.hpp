@@ -16,7 +16,7 @@
 namespace Render::Vulkan {
 
 #if !defined(NDEBUG) || defined(USE_ASSERTS)
-#define SHADER_DEBUG_PRINTF
+//#define SHADER_DEBUG_PRINTF
 #endif
 
 inline void VkCall(VkResult nativeAPICallResult, const char* message) noexcept {

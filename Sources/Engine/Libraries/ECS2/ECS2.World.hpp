@@ -271,6 +271,7 @@ namespace ECS2 {
 			//Archetype entity.
 			if (archetypeEntitiesComponents_.contains(entityId)) {
 				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
+				
 				std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponents_[componentsFilter];
 				return archetypeComponents->GetComponent<ComponentType>(entityId);
 			}
@@ -279,9 +280,23 @@ namespace ECS2 {
 				ASSERT_FMSG(
 					dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
 					"Attempt to get component that doesn't exist.");
-#pragma endregion
-				auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
-				return container->GetComponent(entityId);
+#pragma endregion	
+				auto containerIt = dynamicEntitiesContainers_.find(ComponentType::GetTypeId());
+				if (containerIt != dynamicEntitiesContainers_.end()) {
+					auto container = std::dynamic_pointer_cast<Container<ComponentType>>(containerIt->second);
+					
+					//TODO: remove taking value by operator[], take only by find and iterator to not create map pairs with empty container pointer.
+					if (container != nullptr) {
+						return container->GetComponent(entityId);
+					}
+					else {
+						return nullptr;
+					}
+				}
+				else {
+					return nullptr;
+				}
+				
 			}
 		}
 
@@ -299,8 +314,18 @@ namespace ECS2 {
 			else {
 				return std::make_tuple(
 					[this, entityId]() -> Components* {
-						auto container = std::dynamic_pointer_cast<Container<Components>>(dynamicEntitiesContainers_[Components::GetTypeId()]);
-						return container->GetComponent(entityId);
+
+						auto dynamicEntitiesContainerIt = dynamicEntitiesContainers_.find(Components::GetTypeId());
+						if (dynamicEntitiesContainerIt != dynamicEntitiesContainers_.end()) {
+							auto container = std::dynamic_pointer_cast<Container<Components>>(dynamicEntitiesContainerIt->second);
+							return container->GetComponent(entityId);
+						}
+						else {
+							return nullptr;
+						}
+
+						
+						
 					}()...
 				);
 			}
