@@ -101,7 +101,7 @@ namespace Render::Vulkan {
 		};
 	}
 
-	inline VkShaderStageFlagBits	ToVulkanType(RAL::Driver::Shader::Stage stage) {
+	inline VkShaderStageFlags	ToVulkanType(RAL::Driver::Shader::Stage stage) {
 		switch (stage) {
 		case RAL::Driver::Shader::Stage::VertexShader: {
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_VERTEX_BIT;

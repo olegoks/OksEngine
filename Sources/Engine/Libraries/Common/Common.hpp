@@ -18,12 +18,30 @@ namespace Common {
 		return setenv(variableName, value, 1) == 0;
 #endif
 	}
-#define _CRT_SECURE_NO_WARNINGS
+
 	inline std::string GetEnvVariable(const char* variableName) {
-		const char* value = std::getenv(variableName);
-		return value ? std::string(value) : std::string();
+		char* value = nullptr;
+		size_t sz = 0;
+
+#ifdef _MSC_VER
+		errno_t err = _dupenv_s(&value, &sz, variableName);
+#else
+		const char* tmp = getenv(varname);
+		if (tmp) {
+			value = strdup(tmp);   // POSIX: свободная память
+			sz = strlen(value) + 1;
+		}
+		else {
+			err = ENOENT;
+		}
+#endif
+		if (err != 0 || value == nullptr) {
+			return std::string{};
+		}
+		std::string valueStr{ value };
+		free(value);
+		return valueStr;
 	}
-#undef _CRT_SECURE_NO_WARNINGS
 	inline bool UnsetEnvVariable(const char* variableName) {
 #ifdef _WIN32
 		return _putenv_s(variableName, "") == 0;
