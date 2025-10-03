@@ -2046,6 +2046,10 @@ namespace ECSGenerator2 {
 						});
 				}
 
+
+				code.Add("ASSERT_FAIL_MSG(\"Attempt to use type that is not ECS component type.\")");
+				code.Add("return nullptr;");
+
 				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
 					.name_ = "GetComponentNameByTypeId",
 					.parameters_ = {
