@@ -200,6 +200,11 @@ int main(int argc, char** argv) {
 			};
 
 		for (const auto parsedEcsFile : parsedECSFiles) {
+
+			if (parsedEcsFile->GetName() == "OksEngine.Editor.InfiniteGrid") {
+				Common::BreakPointLine();
+			}
+
 			parsedEcsFile->ForEachSystem([&](ECSGenerator2::ParsedSystemPtr parsedSystem) {
 
 				const auto systemNamespace = ECSGenerator2::GetSystemNamespace(parsedSystem);
@@ -215,7 +220,7 @@ int main(int argc, char** argv) {
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
 
-							if (parsedSystem->GetName() == "CreateSceneFileStart") {
+							if (parsedSystem->GetName() == "CreatePipeline") {
 								Common::BreakPointLine();
 							}
 

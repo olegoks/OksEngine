@@ -582,7 +582,9 @@ namespace RAL {
 			Common::UInt32 firstResourceIndex, // layout(set = firstResourceIndex + (number of resources), binding = 0) uniform Camera {
 			const std::vector<Resource::Id>& resourceIds) = 0;
 
-
+		virtual void PushConstants(
+			RAL::Driver::Pipeline::Id pipelineId, RAL::Driver::Shader::Stage stage,
+			Common::Size sizeInBytes, void* data) = 0;
 
 		virtual void DrawIndexed(Common::Size indicesNumber) = 0;
 		virtual void Draw(Common::Size verticesNumber) = 0;

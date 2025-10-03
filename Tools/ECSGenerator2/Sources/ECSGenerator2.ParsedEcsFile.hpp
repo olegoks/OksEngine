@@ -52,7 +52,7 @@ namespace ECSGenerator2 {
 		void ForEachTable(const ProcessTable& processTable) const {
 			for (auto table : ci_.tables_) {
 				processTable(table);
-				table->ForEachChildTable(processTable);
+				table->ForEachChildTableRecursive(processTable);
 			}
 
 		}

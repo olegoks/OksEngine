@@ -1,0 +1,78 @@
+EditorNamespace = {
+    InfiniteGridNamespace = {
+        CameraPushConstantStruct = {
+            fields = {
+                { type = "glm::mat4", name = "view" },
+                { type = "glm::mat4", name = "projection" },
+                { type = "std::array<float, 4>", name = "position" }
+            }
+        },
+        PipelineComponent = {
+            serializable = false,
+            fields = {
+                { type = "Common::Id", name = "pipelineId" }
+            }
+        },
+        CreatePipelineSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = {
+                    "CreateRenderDriver",
+                    "CreateRenderPass",
+                    "CreateResourceSystem"
+                }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "ResourceSystem"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "RenderDriver",
+                            "RenderPass"
+                        },
+                        excludes = {
+                            "Pipeline"
+                        },
+                        createsComponents = {
+                            "Pipeline"
+                        }
+                    }
+                }
+            }
+        },
+        AddToRenderSystem = {
+            callOrder = {
+                runAfter = "BeginRenderPass",
+                runBefore = "EndRenderPass"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false },
+                            "RenderPass",
+                            "Pipeline"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Camera",
+                            "Direction3D",
+                            "WorldPosition3D",
+                            "Up3D",
+                            "ZNear",
+                            "ZFar",
+                            "Width",
+                            "Height",
+                            "Active"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

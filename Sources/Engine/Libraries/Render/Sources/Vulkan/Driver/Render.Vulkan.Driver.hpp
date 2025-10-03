@@ -751,8 +751,8 @@ namespace Render::Vulkan {
 				multisampleInfo->samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
 			}
 
-			std::shared_ptr<Vulkan::Pipeline::VertexInfo> vertexInfo;
-			{
+			std::shared_ptr<Vulkan::Pipeline::VertexInfo> vertexInfo = nullptr;
+			if(pipelineCI.vertexType_ != VertexType::Undefined){
 				vertexInfo = std::make_shared<Vulkan::Pipeline::VertexInfo>(
 					GetVertexBindingDescription(pipelineCI.vertexType_),
 					GetVertexAttributeDescriptions(pipelineCI.vertexType_)
@@ -1172,7 +1172,19 @@ namespace Render::Vulkan {
 				pipeline, firstResourceIndex, dss);
 		}
 
+		virtual void PushConstants(
+			RAL::Driver::Pipeline::Id pipelineId,
+			RAL::Driver::Shader::Stage stage,
+			Common::Size sizeInBytes,
+			void* data) override {
 
+			if (GCB_ == nullptr) {
+				return;
+			}
+			auto pipeline = idPipeline_[pipelineId];
+
+			GCB_->PushConstants(pipeline->GetLayout(), stage, sizeInBytes, data);
+		}
 
 		virtual void DrawIndexed(Common::Size indicesNumber) override {
 			/*	VkQueryPoolCreateInfo queryPoolInfo = {

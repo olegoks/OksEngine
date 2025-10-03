@@ -1296,7 +1296,7 @@ namespace ECSGenerator2 {
 			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");
 			includes.paths_.insert("imgui.h");
-			includes.paths_.insert("OksEngine.ECS.hpp");
+			includes.paths_.insert("auto_OksEngine.ECS.hpp");
 			includes.paths_.insert("magic_enum/magic_enum.hpp");
 			includes.paths_.insert("auto_OksEngine.EditEntity.hpp");
 
