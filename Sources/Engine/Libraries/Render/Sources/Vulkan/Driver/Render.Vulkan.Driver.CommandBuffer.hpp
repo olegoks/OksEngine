@@ -216,7 +216,7 @@ namespace Render::Vulkan {
 				pipelineLayout->GetHandle(),
 				ToVulkanType(shaderType),
 				0,
-				dataSizeInBytes,
+				static_cast<uint32_t>(dataSizeInBytes),
 				data
 			);
 		}
@@ -266,7 +266,10 @@ namespace Render::Vulkan {
 
 		void Dispatch(Common::Size groupCountX, Common::Size groupCountY, Common::Size groupCountZ) noexcept {
 
-			vkCmdDispatch(GetHandle(), groupCountX, groupCountY, groupCountZ);
+			vkCmdDispatch(GetHandle(), 
+				static_cast<uint32_t>(groupCountX), 
+				static_cast<uint32_t>(groupCountY),
+				static_cast<uint32_t>(groupCountZ));
 
 		}
 
@@ -488,8 +491,8 @@ namespace Render::Vulkan {
 		}
 
 		void BeginDebug(const char* labelString) {
-
-#if !define(NDEBUG)
+			Common::DiscardUnusedParameter(labelString);
+#if !defined(NDEBUG)
 			//VkDebugUtilsLabelEXT label{
 			//	.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
 			//	.pLabelName = labelString
@@ -502,7 +505,7 @@ namespace Render::Vulkan {
 
 		void EndDebug() {
 
-#if !define(NDEBUG)
+#if !defined(NDEBUG)
 				//vkCmdEndDebugUtilsLabelEXT(GetHandle());
 #endif
 		}
