@@ -444,6 +444,19 @@ namespace RAL {
 
 			};
 
+			//Value that will be used by API depends on attachment format.
+			union ClearValue {
+				union Color {
+					float       float32[4];
+					int32_t     int32[4];
+					uint32_t    uint32[4];
+				} color_;
+				union DepthStencil {
+					float       depth_;
+					uint32_t    stencil_;
+				} depthStencil_;
+			};
+
 			struct AttachmentSet {
 				using Id = Common::Id;
 				struct CreateInfo {
@@ -566,8 +579,10 @@ namespace RAL {
 		virtual void BeginRenderPass(
 			RP::Id renderPassId,
 			RP::AttachmentSet::Id attachmentsId,
-			std::pair<Common::UInt32, Common::UInt32> offset,
+			const std::vector<RP::ClearValue>& clearValues,
+			std::pair<Common::Int32, Common::Int32> offset,
 			std::pair<Common::UInt32, Common::UInt32> area) = 0;
+
 		virtual void BeginSubpass() = 0;
 		virtual void BindPipeline(RAL::Driver::Pipeline::Id pipelineId) = 0;
 

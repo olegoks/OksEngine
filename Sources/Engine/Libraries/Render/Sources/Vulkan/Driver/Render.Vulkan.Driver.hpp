@@ -1039,7 +1039,8 @@ namespace Render::Vulkan {
 		virtual void BeginRenderPass(
 			RP::Id renderPassId,
 			RP::AttachmentSet::Id attachmentsId,
-			std::pair<Common::UInt32, Common::UInt32> offset,
+			const std::vector<RP::ClearValue>& clearValues,
+			std::pair<Common::Int32, Common::Int32> offset,
 			std::pair<Common::UInt32, Common::UInt32> area) override {
 
 			Common::DiscardUnusedParameter(offset);
@@ -1050,20 +1051,21 @@ namespace Render::Vulkan {
 			auto renderPass = GetRenderPassById(renderPassId);
 			auto framebuffer = GetFrameBufferById(attachmentsId);
 
-			std::vector<VkClearValue> clearValues;
+			std::vector<VkClearValue> vkClearValues;
 			{
-				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 0
-				const VkClearValue depthBufferClearColor{
-					.depthStencil = {
-						.depth = 1.f,
-						.stencil = 0
+				for (const auto& clearValue : clearValues) {
+					VkClearValue vkClearValue{0};
+					{
+						vkClearValue.color.float32[0] = clearValue.color_.float32[0];
+						vkClearValue.color.float32[1] = clearValue.color_.float32[1];
+						vkClearValue.color.float32[2] = clearValue.color_.float32[2];
+						vkClearValue.color.float32[3] = clearValue.color_.float32[3];
+						vkClearValue.depthStencil.depth = clearValue.depthStencil_.depth_;
 					}
-				};
-				clearValues.push_back(depthBufferClearColor); // 1
-				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 2
-				clearValues.push_back({ 1.0, 0.5, 1.0, 0.0 }); // 3
+					vkClearValues.push_back(vkClearValue);
+				}
 			}
-			GCB_->BeginRenderPass(renderPass, framebuffer, { area.first, area.second }, clearValues);
+			GCB_->BeginRenderPass(renderPass, framebuffer, { offset.first, offset.second }, { area.first, area.second }, vkClearValues);
 		}
 
 		virtual void BeginSubpass() override {

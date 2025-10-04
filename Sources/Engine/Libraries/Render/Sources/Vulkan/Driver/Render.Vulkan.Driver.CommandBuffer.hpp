@@ -62,6 +62,7 @@ namespace Render::Vulkan {
 		void BeginRenderPass(
 			std::shared_ptr<RenderPass2> renderPass, 
 			std::shared_ptr<FrameBuffer> frameBuffer,
+			VkOffset2D offset,
 			VkExtent2D extent,
 			const std::vector<VkClearValue>& clearColors) noexcept {
 
@@ -70,7 +71,7 @@ namespace Render::Vulkan {
 				renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
 				renderPassInfo.renderPass = *renderPass;
 				renderPassInfo.framebuffer = *frameBuffer;
-				renderPassInfo.renderArea.offset = { 0, 0 };
+				renderPassInfo.renderArea.offset = offset;
 				renderPassInfo.renderArea.extent = extent;
 				renderPassInfo.clearValueCount = static_cast<Common::UInt32>(clearColors.size());
 				renderPassInfo.pClearValues = clearColors.data();

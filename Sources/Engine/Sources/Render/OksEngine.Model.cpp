@@ -1718,7 +1718,7 @@ namespace OksEngine
 		CreateComponent<RenderPass>(entity0id, renderPassId);
 	}
 
-
+	
 	void CreateRenderAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
 
 
@@ -2155,9 +2155,31 @@ namespace OksEngine
 		const Pipeline* pipeline0) {
 
 		auto driver = renderDriver0->driver_;
+
+		std::vector<RAL::Driver::RP::ClearValue> clearValues;
+		{
+			RAL::Driver::RP::ClearValue clearValue;
+			{
+				clearValue.depthStencil_.depth_ = 1.0f;
+			}
+			clearValues.push_back(clearValue);
+		}
+		{
+			RAL::Driver::RP::ClearValue clearValue;
+			{
+				clearValue.color_.uint32[0] = 0;
+				clearValue.color_.uint32[1] = 0;
+				clearValue.color_.uint32[2] = 0;
+				clearValue.color_.uint32[3] = 255;
+			}
+			clearValues.push_back(clearValue);
+		}
+
+
 		driver->BeginRenderPass(
 			renderPass0->rpId_,
 			attachmentSet0->attachmentsSetId_,
+			clearValues,
 			{ 0, 0 },
 			{ 2560, 1440 });
 

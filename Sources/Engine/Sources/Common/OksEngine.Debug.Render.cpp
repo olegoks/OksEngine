@@ -399,6 +399,7 @@ namespace OksEngine
 		driver->BeginRenderPass(
 			debugTextRenderPass1->rpId_, 
 			debugTextAttachmentSet1->attachmentSetId_,
+			{},
 			{ 0, 0 }, { 2560, 1440 });
 		driver->BeginSubpass();
 

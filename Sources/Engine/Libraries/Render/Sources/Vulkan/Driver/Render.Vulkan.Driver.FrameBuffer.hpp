@@ -68,6 +68,11 @@ namespace Render::Vulkan {
 
 		return *this;
 	}
+
+	Common::Size GetAttachmentsNumber() const noexcept {
+		return createInfo_.attachments_.size();
+	}
+
 	void Destroy() { }
 
 	~FrameBuffer() {

@@ -79,9 +79,9 @@ namespace OksEngine
 	};
 
 	void CreateImGuiRenderPass::Update(
-		ECS2::Entity::Id entity0id, 
+		ECS2::Entity::Id entity0id,
 		const ImGuiState* imGuiState0,
-		
+
 		ECS2::Entity::Id entity1id,
 		const RenderDriver* renderDriver1) {
 
@@ -134,10 +134,10 @@ namespace OksEngine
 	}
 
 	void CreateImGuiAttachmentSet::Update(
-		ECS2::Entity::Id entity0id, 
+		ECS2::Entity::Id entity0id,
 		const RenderDriver* renderDriver0,
 		const RenderAttachment* renderAttachment0,
-		
+
 		ECS2::Entity::Id entity1id,
 		const ImGuiState* imGuiState1,
 		const ImGuiRenderPass* imGuiRenderPass1) {
@@ -159,7 +159,10 @@ namespace OksEngine
 
 		auto driver = renderDriver1->driver_;
 
-		driver->BeginRenderPass(imGuiRenderPass0->rpId_, imGuiAttachmentSet0->attachmentsSetId_, { 0, 0 }, { 2560, 1440 });
+		driver->BeginRenderPass(
+			imGuiRenderPass0->rpId_,
+			imGuiAttachmentSet0->attachmentsSetId_,
+			{}, { 0, 0 }, { 2560, 1440 });
 		driver->BeginSubpass();
 
 	}
@@ -186,14 +189,14 @@ namespace OksEngine
 		driver->BindPipeline(imGuiPipeline0->id_);
 		driver->BindVertexBuffer(imGuiDriverVertexBuffer0->id_, 0);
 		driver->BindIndexBuffer(imGuiDriverIndexBuffer0->id_, 0);
-		driver->Bind(imGuiPipeline0->id_,0,
+		driver->Bind(imGuiPipeline0->id_, 0,
 			{
 				transform2DResource0->id_,
 				textureResource0->id_
 			});
 		driver->DrawIndexed(imGuiDriverIndexBuffer0->size_ / sizeof(Common::UInt32));
 
- 	}
+	}
 
 
 	void EndImGuiRenderPass::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0, const ImGuiRenderPass* imGuiRenderPass0,
