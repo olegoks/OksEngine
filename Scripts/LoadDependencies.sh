@@ -27,6 +27,7 @@ echo $(pwd)
 ./vcpkg.exe install gtest
 ./vcpkg.exe install stb
 ./vcpkg.exe install loguru
+./vcpkg.exe install spdlog
 ./vcpkg.exe install magic-enum
 ./vcpkg.exe install graphviz
 ./vcpkg.exe install physx

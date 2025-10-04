@@ -28,7 +28,7 @@ namespace Common {
 #else
 		const char* tmp = getenv(varname);
 		if (tmp) {
-			value = strdup(tmp);   // POSIX: свободная память
+			value = strdup(tmp); 
 			sz = strlen(value) + 1;
 		}
 		else {

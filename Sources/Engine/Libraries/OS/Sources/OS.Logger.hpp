@@ -3,11 +3,15 @@
 #include <source_location>
 
 #include <string>
-#include <loguru/loguru.hpp>
 
 #include <Common.hpp>
 #include <Common.Format.hpp>
 #include <iostream>
+
+#define FMT_UNICODE 0
+#include <spdlog/spdlog.h>
+#include <spdlog/sinks/basic_file_sink.h>
+#include <spdlog/sinks/stdout_color_sinks.h>
 
 namespace OS {
 
@@ -52,6 +56,18 @@ namespace OS {
 			Common::DiscardUnusedParameter(createInfo);
 			//loguru::init(createInfo.argc_, createInfo.argv_);
 			//loguru::add_file("auto_engine.log", loguru::Append, loguru::Verbosity_MAX);
+
+
+			spdlog::filename_t logFileName{ "auto_engine.log" };
+			auto file_sink = std::make_shared<spdlog::sinks::basic_file_sink_st>(logFileName);
+
+			auto console_sink = std::make_shared<spdlog::sinks::stdout_color_sink_mt>();
+
+			std::vector<spdlog::sink_ptr> sinks{ file_sink, console_sink };
+
+			logger_ = std::make_shared<spdlog::logger>("Logger",
+				sinks.begin(),
+				sinks.end());
 		}
 
 		void Log(Severity severity, const std::string_view path, const Common::Format& format, const std::source_location& location = std::source_location::current()) {
@@ -61,125 +77,12 @@ namespace OS {
 			Common::DiscardUnusedParameter(format);
 			using namespace std::string_literals;
 
-			//LOG_F(INFO, ("Location: "s + location.file_name() + " " + static_cast<std::string>(format)).c_str());
+			logger_->info("Location: "s + location.file_name() + " " + static_cast<std::string>(format));
+			//LOG_F(INFO, ();
 		}
 
 	private:
-		//class Entry {
-		//public:
-
-		//	class Column {
-		//	public:
-		//		Column(Common::Size width, const std::string_view& text) noexcept :
-		//			width_{ width } {
-		//			textLines_ = SeparateToLines(text);
-		//			for (auto& line : textLines_) {
-		//				textLinesViews_.emplace_back(Common::StringView{ line }).SetView(0, width);
-		//			}
-		//		}
-
-		//		static std::vector<std::string> SeparateToLines(const std::string_view& text) noexcept {
-		//			std::vector<std::string> lines;
-		//			const Common::Index textLastSymbolIndex = text.size() - 1;
-		//			const Common::Size textSize = text.size();
-		//			for (
-		//				Common::Index lineStart = 0,
-		//				symbolIndex = 0; 
-		//				symbolIndex < textSize;
-		//				symbolIndex++) {
-		//				const char symbol = text[symbolIndex];
-		//				if (symbol == '\n') {
-		//					const std::string line{ text.substr(lineStart, symbolIndex - lineStart) };
-		//					lines.push_back(line);
-		//					lineStart = symbolIndex + 1;
-		//				}
-		//				else if (symbolIndex == textLastSymbolIndex) {
-		//					const std::string line{ text.substr(lineStart, symbolIndex - lineStart + 1).data() };
-		//					lines.push_back(line);
-		//				}
-		//			}
-		//			return lines;
-		//		}
-		//		
-		//		void NextColumnLine() noexcept {
-		//			Common::StringView& lineView = textLinesViews_[currentTextLine_];
-		//			lineView.OffsetViewRight(width_);
-		//			if (lineView.GetViewLength() == 0) {
-		//				const bool isLastTextLine = (currentTextLine_ == textLinesViews_.size() - 1);
-		//				if (!isLastTextLine) {
-		//					++currentTextLine_;
-		//				}
-		//			}
-		//		}
-
-		//		[[nodiscard]]
-		//		Common::Size GetWidth() const noexcept {
-		//			return width_;
-		//		}
-
-		//		[[nodiscard]]
-		//		std::optional<std::string> GetColumnLine() const noexcept {
-		//			const Common::StringView& textLineView = textLinesViews_[currentTextLine_];
-		//			if (textLineView.GetViewLength() != 0) {
-		//				return textLineView.GetView();
-		//			}
-		//			return {};
-		//		}
-
-		//	private:
-		//		Common::Index currentTextLine_ = 0;
-		//		Common::Size width_ = 20;
-		//		std::vector<std::string> textLines_;
-		//		std::vector<Common::StringView> textLinesViews_;
-		//	};
-
-		//	Entry(Severity severity, const std::string_view path, const Common::Format& format, const std::source_location& location) {
-
-		//		ASSERT_FMSG(!path.empty(), "Attempt to use empty log path.");
-
-		//		columns_.emplace_back(Column{ 10, severity });
-		//		columns_.emplace_back(Column{ 30, path.data() });
-		//		columns_.emplace_back(Column{ 60, format });
-		//		columns_.emplace_back(Column{ 20, location.function_name() });
-		//		std::filesystem::path pathToSource{ location.file_name() };
-		//		columns_.emplace_back(Column{ 30, pathToSource.filename().string() });
-		//		columns_.emplace_back(Column{  5, std::to_string(location.line()) });
-
-		//		bool isLastLine = true;
-		//		do {
-		//			isLastLine = true;
-		//			std::stringstream line;
-		//			for (Column& column : columns_) {
-		//				std::optional<std::string> maybeColumnLine = column.GetColumnLine();
-		//				line << std::setw(column.GetWidth());
-		//				line << std::left;
-		//				if (maybeColumnLine.has_value()) {
-		//					line << maybeColumnLine.value();
-		//					column.NextColumnLine();
-		//					if (column.GetColumnLine().has_value()) {
-		//						isLastLine = false;
-		//					}
-		//				}
-		//				line << "";
-		//				line << delimiter_;
-		//			}
-		//			spirv_ << line.str();
-		//			spirv_ << std::endl;
-		//		} while (!isLastLine);
-
-		//	}
-
-		//	friend std::ostream& operator<<(std::ostream& os, Entry& entry) {
-		//		return os << entry.spirv_.str();
-		//	}
-
-		//private:
-		//	std::vector<Common::Size> columnsWidth_{ 10, 30, 90, 20, 30, 5 };
-		//	char delimiter_ = '|';
-		//	std::stringstream spirv_;
-		//	std::vector<Column> columns_;
-
-		//};
+		std::shared_ptr<spdlog::logger> logger_ = nullptr;
 	};
 
 	void InitializeLogger(int argc, char** argv);

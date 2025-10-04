@@ -38,11 +38,12 @@ FILES
 ${PUBLIC_SOURCES}
 ${PRIVATE_SOURCES})
 
-find_package(loguru CONFIG REQUIRED)
-# find_path(LOGURU_INCLUDE_DIRS "loguru/")
+ # Or use the header-only version
+ find_package(spdlog CONFIG REQUIRED)
+ target_link_libraries(OS PRIVATE spdlog::spdlog_header_only)
 
-# add_library(loguru
-#     ${LOGURU_INCLUDE_DIRS}/loguru/loguru.cpp)
+
+#find_package(loguru CONFIG REQUIRED)
 
 target_include_directories(OS
     PUBLIC
@@ -50,6 +51,6 @@ target_include_directories(OS
     
 target_link_libraries(OS
     PUBLIC
-        loguru::loguru
+        #loguru::loguru
         Common
         Datastructures)

@@ -15,8 +15,10 @@ namespace Resources
 				//{ "Resource %s was loaded", GetPath().string().c_str() });
 		}
 		catch (const OS::Exception& error) {
+#undef GetMessage
 			const std::string logMessage = "Error while loading resource: " + error.GetMessage() + " Resource skipped.";
 			OS::LogError("/resources/", logMessage.c_str());
+
 		}
 	}
 
