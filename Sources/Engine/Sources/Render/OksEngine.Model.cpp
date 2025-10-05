@@ -1682,7 +1682,8 @@ namespace OksEngine
 				.initialState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
 				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
 				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
-				.finalState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite
+				.finalState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+				.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
 			};
 			attachmentsUsage.push_back(depthTestAttachment);
 
@@ -1691,17 +1692,28 @@ namespace OksEngine
 				.initialState_ = RAL::Driver::Texture::State::DataIsUndefined,
 				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
 				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
-				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite
+				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
+				.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
 			};
 			attachmentsUsage.push_back(GBufferAttachment);
 
+			RAL::Driver::RP::AttachmentUsage multisamplingAttachment{
+				.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
+				.initialState_ = RAL::Driver::Texture::State::DataForColorWrite,
+				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
+				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
+				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
+				.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
+			};
+			attachmentsUsage.push_back(multisamplingAttachment);
 		}
 
 		std::vector<RAL::Driver::RP::Subpass> subpasses;
 		{
 			RAL::Driver::RP::Subpass subpass{
-				.colorAttachments_ = { 1 },
-				.depthStencilAttachment_ { 0 }// Index of attachment.
+				.colorAttachments_ = { 1 }, // Index of attachment in attachment set.
+				.resolveAttachment_ = 2,
+				.depthStencilAttachment_ = 0
 			};
 			subpasses.push_back(subpass);
 		}
@@ -1729,9 +1741,10 @@ namespace OksEngine
 			.size_ = { 2560, 1440 },
 			.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
 			.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
-			.targetStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
-			.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment, RAL::Driver::Texture::Usage::TransferSource },
-			.mipLevels_ = 1
+			.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
+			.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment },
+			.mipLevels_ = 1,
+			.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
 		};
 		const RAL::Driver::Texture::Id renderBufferId = renderDriver0->driver_->CreateTexture(renderBufferCreateInfo);
 
@@ -1749,9 +1762,10 @@ namespace OksEngine
 			.size_ = { 2560, 1440 },
 			.targetState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
 			.targetAccess_ = RAL::Driver::Texture::Access::DepthStencilWrite,
-			.targetStages_ = { RAL::Driver::Pipeline::Stage::EarlyFragmentTests, RAL::Driver::Pipeline::Stage::LateFragmentTests },
+			.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::EarlyFragmentTests, RAL::Driver::Pipeline::Stage::LateFragmentTests },
 			.usages_ = { RAL::Driver::Texture::Usage::DepthStencilAttachment },
-			.mipLevels_ = 1
+			.mipLevels_ = 1,
+			.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
 		};
 
 		const RAL::Driver::Texture::Id depthBufferId = renderDriver0->driver_->CreateTexture(depthBufferCreateInfo);
@@ -1760,16 +1774,56 @@ namespace OksEngine
 
 	}
 
+	void CreateMultisamplingAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
+
+		////Multisampling
+		//{
+		//	auto multisamplingData = std::make_shared<MultisamplingData>();
+		//	{
+		//		Image::CreateInfo multisamplingCreateInfo;
+		//		{
+		//			multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+		//			multisamplingCreateInfo.LD_ = objects_.LD_;
+		//			multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
+		//			multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
+		//			multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+		//			multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		//			multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
+		//		}
+		//		multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+		//		multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+		//	}
+		//	objects_.multisamplingData_ = multisamplingData;
+		//}
+		//RENDER BUFFER
+		RAL::Driver::Texture::CreateInfo1 renderBufferCreateInfo{
+			.name_ = "Multisampling buffer",
+			.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
+			.size_ = { 2560, 1440 },
+			.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
+			.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
+			.targetPipelineStages_= { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
+			.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment, RAL::Driver::Texture::Usage::TransferSource },
+			.mipLevels_ = 1,
+			.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
+		};
+		const RAL::Driver::Texture::Id multisamplingBufferId = renderDriver0->driver_->CreateTexture(renderBufferCreateInfo);
+
+		CreateComponent<MultisamplingAttachment>(entity0id, multisamplingBufferId);
+
+	}
+
 	void CreateAttachmentSet::Update(
 		ECS2::Entity::Id entity0id,
 		const RenderDriver* renderDriver0,
 		const RenderPass* renderPass0,
 		const RenderAttachment* renderAttachment0,
+		const MultisamplingAttachment* multisamplingAttachment0,
 		const DepthAttachment* depthAttachment0) {
 
 		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
 			.rpId_ = renderPass0->rpId_,
-			.textures_ = { depthAttachment0->textureId_, renderAttachment0->textureId_ },
+			.textures_ = { depthAttachment0->textureId_, renderAttachment0->textureId_, multisamplingAttachment0->textureId_ },
 			.size_ = glm::u32vec2{ 2560, 1440 }
 		};
 
@@ -1834,6 +1888,13 @@ namespace OksEngine
 		shaderBindings.push_back(samplerBinding);		//set 1
 		shaderBindings.push_back(transformBinding);		//set 2
 
+		
+		auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
+		{
+			multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
+		}
+
+
 		RAL::Driver::Pipeline::CI pipelineCI{
 			.name_ = "Textured Pipeline",
 			.renderPassId_ = renderPass0->rpId_,
@@ -1846,7 +1907,8 @@ namespace OksEngine
 			.cullMode_ = RAL::Driver::CullMode::Back,
 			.shaderBindings_ = shaderBindings,
 			.enableDepthTest_ = true,
-			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less
+			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
+			.multisamplingInfo_ = multisamplingInfo
 
 		};
 
@@ -1926,6 +1988,12 @@ namespace OksEngine
 		shaderBindings.push_back(samplerBinding);
 		shaderBindings.push_back(bonesPalleteBinding);
 
+
+		auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
+		{
+			multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
+		}
+
 		RAL::Driver::Pipeline::CI pipelineCI{
 			.name_ = "Skeleton Pipeline",
 			.renderPassId_ = renderPass0->rpId_,
@@ -1938,8 +2006,8 @@ namespace OksEngine
 			.cullMode_ = RAL::Driver::CullMode::Back,
 			.shaderBindings_ = shaderBindings,
 			.enableDepthTest_ = true,
-			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less
-
+			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
+			.multisamplingInfo_ = multisamplingInfo
 		};
 
 		const RAL::Driver::Pipeline::Id pipelineId = renderDriver0->driver_->CreatePipeline(pipelineCI);
@@ -2161,6 +2229,16 @@ namespace OksEngine
 			RAL::Driver::RP::ClearValue clearValue;
 			{
 				clearValue.depthStencil_.depth_ = 1.0f;
+			}
+			clearValues.push_back(clearValue);
+		}
+		{
+			RAL::Driver::RP::ClearValue clearValue;
+			{
+				clearValue.color_.uint32[0] = 0;
+				clearValue.color_.uint32[1] = 0;
+				clearValue.color_.uint32[2] = 0;
+				clearValue.color_.uint32[3] = 255;
 			}
 			clearValues.push_back(clearValue);
 		}

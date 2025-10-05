@@ -234,17 +234,13 @@ namespace OksEngine
 
 
 	void CreateDebugTextAttachmentSet::Update(
-		ECS2::Entity::Id entity0id, 
-		const RenderDriver* renderDriver0,
-		const RenderAttachment* renderAttachment0,
-		
-		ECS2::Entity::Id entity1id,
-		const DebugTextRenderer* debugTextRenderer1,
-		const DebugTextRenderPass* debugTextRenderPass1) {
+		ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0,
+		const MultisamplingAttachment* multisamplingAttachment0, ECS2::Entity::Id entity1id,
+		const DebugTextRenderer* debugTextRenderer1, const DebugTextRenderPass* debugTextRenderPass1) {
 
 		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
 			.rpId_ = debugTextRenderPass1->rpId_,
-			.textures_ = { renderAttachment0->textureId_ }, // Render target attachment texture id 
+			.textures_ = { multisamplingAttachment0->textureId_ }, // Render target attachment texture id 
 			.size_ = glm::u32vec2{ 2560, 1440 }
 		};
 
@@ -273,7 +269,8 @@ namespace OksEngine
 				.initialState_ = RAL::Driver::Texture::State::DataForColorWrite,
 				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Load,
 				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
-				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite
+				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
+				.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
 			};
 			attachmentsUsage.push_back(attachment);
 		}

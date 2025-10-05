@@ -188,25 +188,7 @@ namespace Render::Vulkan {
 				objects_.swapChain_ = std::make_shared<SwapChain>(swapChainCreateInfo);
 			}
 
-			////Multisampling
-			//{
-			//	auto multisamplingData = std::make_shared<MultisamplingData>();
-			//	{
-			//		Image::CreateInfo multisamplingCreateInfo;
-			//		{
-			//			multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-			//			multisamplingCreateInfo.LD_ = objects_.LD_;
-			//			multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
-			//			multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
-			//			multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-			//			multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-			//			multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
-			//		}
-			//		multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-			//		multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-			//	}
-			//	objects_.multisamplingData_ = multisamplingData;
-			//}
+
 
 			////Rendered buffer
 			//{
@@ -703,6 +685,7 @@ namespace Render::Vulkan {
 
 		virtual Pipeline::Id CreatePipeline(const Pipeline::CI& pipelineCI) override {
 
+			//Descriptor set layouts
 			std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
 			for (auto& binding : pipelineCI.shaderBindings_) {
 				std::vector<VkDescriptorSetLayoutBinding> bindings;
@@ -724,6 +707,7 @@ namespace Render::Vulkan {
 				DSLs.push_back(DSL);
 			}
 
+			//Push constants
 			std::vector<VkPushConstantRange> vkPushConstantRanges;
 			for (auto ralPushConstant : pipelineCI.pushConstants_) {
 
@@ -745,11 +729,11 @@ namespace Render::Vulkan {
 			depthTestData->compareOperation_ = ToVulkanType(pipelineCI.dbCompareOperation_);
 			//}
 
-			std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo;
+			/*std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo;
 			{
 				multisampleInfo = std::make_shared<Vulkan::Pipeline::MultisampleInfo>();
 				multisampleInfo->samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
-			}
+			}*/
 
 			std::shared_ptr<Vulkan::Pipeline::VertexInfo> vertexInfo = nullptr;
 			if(pipelineCI.vertexType_ != VertexType::Undefined){
@@ -760,6 +744,13 @@ namespace Render::Vulkan {
 			}
 
 			auto renderPass = idRenderPass_[pipelineCI.renderPassId_];
+
+			//Multisampling info.
+			std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo = nullptr;
+			if (pipelineCI.multisamplingInfo_ != nullptr) {
+				multisampleInfo = std::make_shared<Vulkan::Pipeline::MultisampleInfo>();
+				multisampleInfo->samplesCount_ = ToVulkanType(pipelineCI.multisamplingInfo_->samplesCount_);
+			}
 
 			Vulkan::Pipeline::CreateInfo createInfo{
 				.physicalDevice_ = objects_.physicalDevice_,
@@ -778,7 +769,7 @@ namespace Render::Vulkan {
 				.depthTestInfo_ = depthTestData,
 				.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
 				.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
-				.multisampleInfo_ = nullptr,//multisampleInfo,
+				.multisampleInfo_ = multisampleInfo,
 				.subpassIndex_ = 0,
 				.vertexInfo_ = vertexInfo,
 				.topology_ = ToVulkanType(pipelineCI.topologyType_),
@@ -855,11 +846,12 @@ namespace Render::Vulkan {
 
 				Vulkan::RP::Attachment swapChainAttachment{
 					.format = ToVulkanType(attachmentUsage.format_),
-					.samples = VK_SAMPLE_COUNT_1_BIT,
+					.samples = ToVulkanType(attachmentUsage.samplesCount_),
 					.loadOp = ToVulkanType(attachmentUsage.loadOperation_),
 					.storeOp = ToVulkanType(attachmentUsage.storeOperation_),
 					.initialLayout = ToVulkanType(attachmentUsage.initialState_),
-					.finalLayout = ToVulkanType(attachmentUsage.finalState_)
+					.finalLayout = ToVulkanType(attachmentUsage.finalState_),
+					
 				};
 
 				return swapChainAttachment;
@@ -940,7 +932,7 @@ namespace Render::Vulkan {
 						.colorAttachments_ = { colorAttachmentRefs },
 						.resolveAttachment_
 						= (subpass.resolveAttachment_ != Common::Limits<Common::UInt32>::Max())
-						? (std::make_shared<VkAttachmentReference>(subpass.resolveAttachment_)) : (nullptr),
+						? (std::make_shared<VkAttachmentReference>(subpass.resolveAttachment_,VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)) : (nullptr),
 						.depthStencilAttachment_
 						= (subpass.depthStencilAttachment_ != Common::Limits<Common::UInt32>::Max())
 						? (std::make_shared<VkAttachmentReference>(subpass.depthStencilAttachment_, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)) : (nullptr)
@@ -1240,6 +1232,7 @@ namespace Render::Vulkan {
 			dstOffset[0] = { 0, 0, 0 };
 			dstOffset[1] = { (int)objects_.swapChain_->GetExtent().width, (int)objects_.swapChain_->GetExtent().height, 1 };
 
+			//Image with final render from VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL to VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL
 			GCB_->ImageMemoryBarrier(
 				textureToShow->GetImage()->GetHandle(), 0, 1,
 				VK_IMAGE_ASPECT_COLOR_BIT,
@@ -1252,7 +1245,7 @@ namespace Render::Vulkan {
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
-			GCB_->ImageMemoryBarrier(image, 0, 1,
+ 			GCB_->ImageMemoryBarrier(image, 0, 1,
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_LAYOUT_UNDEFINED,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -1276,6 +1269,17 @@ namespace Render::Vulkan {
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
 				VK_IMAGE_LAYOUT_PRESENT_SRC_KHR,
+				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
+				VK_ACCESS_MEMORY_READ_BIT,
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
+				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
+
+			GCB_->ImageMemoryBarrier(
+				textureToShow->GetImage()->GetHandle(), 0, 1,
+				VK_IMAGE_ASPECT_COLOR_BIT,
+				VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL,
+				VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL,
+
 				VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
 				VK_ACCESS_MEMORY_READ_BIT,
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
@@ -1913,7 +1917,7 @@ namespace Render::Vulkan {
 			}
 
 			VkPipelineStageFlags stages = 0;
-			for (RAL::Driver::Pipeline::Stage stage : createInfo.targetStages_) {
+			for (RAL::Driver::Pipeline::Stage stage : createInfo.targetPipelineStages_) {
 				stages = stages | ToVulkanType(stage);
 			}
 
@@ -1927,6 +1931,7 @@ namespace Render::Vulkan {
 				.targetPipelineStage_ = stages,
 				.usages_ = usages,
 				.mipLevels_ = createInfo.mipLevels_,
+				.samplesCount_ = ToVulkanType(createInfo.samplesCount_),
 				.PD_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
 				.commandPool_ = objects_.commandPool_

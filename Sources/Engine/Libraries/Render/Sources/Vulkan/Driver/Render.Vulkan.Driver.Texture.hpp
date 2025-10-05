@@ -19,6 +19,7 @@ namespace Render::Vulkan {
 			VkPipelineStageFlags targetPipelineStage_ = VkPipelineStageFlagBits::VK_PIPELINE_STAGE_FLAG_BITS_MAX_ENUM;
 			VkImageUsageFlags usages_ = VkImageUsageFlagBits::VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM;
 			Common::UInt32 mipLevels_ = 0;
+			VkSampleCountFlagBits samplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 			std::shared_ptr<class PhysicalDevice> PD_ = nullptr;
 			std::shared_ptr<class LogicDevice> LD_ = nullptr;
 			std::shared_ptr<class CommandPool> commandPool_ = nullptr;

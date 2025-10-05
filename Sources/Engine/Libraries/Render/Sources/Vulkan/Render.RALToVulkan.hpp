@@ -285,9 +285,45 @@ namespace Render::Vulkan {
 		case RAL::Driver::Texture::Usage::Sampled: {
 			return VkImageUsageFlagBits::VK_IMAGE_USAGE_SAMPLED_BIT;
 		}
+		case RAL::Driver::Texture::Usage::TransientAttachment: {
+			return VkImageUsageFlagBits::VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT;
+		}
 		default:
-			ASSERT_FAIL_MSG("Invalid ShaderBinding::Stage value used.");
+			ASSERT_FAIL_MSG("");
 			return VkImageUsageFlagBits::VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM;
+		};
+	}
+
+
+	inline VkSampleCountFlagBits ToVulkanType(RAL::Driver::SamplesCount samplesCount) {
+		
+		switch (samplesCount) {
+		case RAL::Driver::SamplesCount::SamplesCount_1: {
+			return VkSampleCountFlagBits::VK_SAMPLE_COUNT_1_BIT;
+			break;
+		}
+		case RAL::Driver::SamplesCount::SamplesCount_2: {
+			return VkSampleCountFlagBits::VK_SAMPLE_COUNT_2_BIT;
+		}
+		case RAL::Driver::SamplesCount::SamplesCount_4: {
+			return VkSampleCountFlagBits::VK_SAMPLE_COUNT_4_BIT;
+			break;
+		}
+		case RAL::Driver::SamplesCount::SamplesCount_8: {
+			return VkSampleCountFlagBits::VK_SAMPLE_COUNT_8_BIT;
+		}
+		case RAL::Driver::SamplesCount::SamplesCount_16: {
+			return VkSampleCountFlagBits::VK_SAMPLE_COUNT_16_BIT;
+		}
+		case RAL::Driver::SamplesCount::SamplesCount_32: {
+			return VkSampleCountFlagBits::VK_SAMPLE_COUNT_32_BIT;
+		}
+		case RAL::Driver::SamplesCount::SamplesCount_64: {
+			return VkSampleCountFlagBits::VK_SAMPLE_COUNT_64_BIT;
+		}
+		default:
+			ASSERT_FAIL_MSG("");
+			return VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 		};
 	}
 

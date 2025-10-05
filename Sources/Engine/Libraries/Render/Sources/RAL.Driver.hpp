@@ -201,6 +201,7 @@ namespace RAL {
 			ColorAttachment,
 			Sampled,
 			DepthStencilAttachment,
+			TransientAttachment, // 
 			Undefined
 		};
 
@@ -335,6 +336,18 @@ namespace RAL {
 		//Shader
 
 
+		enum class SamplesCount {
+			SamplesCount_1,
+			SamplesCount_2,
+			SamplesCount_4,
+			SamplesCount_8,
+			SamplesCount_16,
+			SamplesCount_32,
+			SamplesCount_64,
+			Undefined
+		};
+
+
 		//Texture
 		class Texture {
 		public:
@@ -362,9 +375,10 @@ namespace RAL {
 				glm::u32vec2 size_{ 0, 0 };
 				State targetState_ = State::Undefined;
 				Access targetAccess_ = Access::Undefined;
-				std::vector<Pipeline_Stage> targetStages_{};
+				std::vector<Pipeline_Stage> targetPipelineStages_{};
 				std::vector<Usage> usages_;
 				Common::UInt32 mipLevels_ = 1;
+				SamplesCount samplesCount_ = SamplesCount::Undefined;
 			};
 			using CI1 = CreateInfo1;
 
@@ -441,6 +455,7 @@ namespace RAL {
 				LoadOperation loadOperation_;	//What to do with attachment in the begin of render pass.		
 				StoreOperation storeOperation_;	//What to do with attachment in the end of render pass.
 				Texture_State finalState_;		//State of attachment after render pass.  Will be set by render pass.
+				SamplesCount samplesCount_ = SamplesCount::Undefined;
 
 			};
 
@@ -516,8 +531,11 @@ namespace RAL {
 					Undefined
 				};
 			};
-
 			using DB = DepthBuffer;
+
+			struct MultisamplingInfo {
+				SamplesCount samplesCount_ = SamplesCount::Undefined;
+			};
 
 			struct CreateInfo {
 				std::string name_ = "";
@@ -533,6 +551,7 @@ namespace RAL {
 				std::vector<Shader::Binding::Layout> shaderBindings_;
 				bool enableDepthTest_ = true;
 				DB::CompareOperation dbCompareOperation_ = DB::CompareOperation::Undefined;
+				std::shared_ptr<MultisamplingInfo> multisamplingInfo_ = nullptr;
 			};
 			using CI = CreateInfo;
 		};

@@ -68,8 +68,8 @@ namespace OksEngine
 			.cullMode_ = RAL::Driver::CullMode::None,
 			.shaderBindings_ = shaderBindings,
 			.enableDepthTest_ = true,
-			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Always
-
+			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Always,
+			//.multisamplingInfo_ = multisamplingInfo
 		};
 
 		const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipelineCI);
@@ -94,7 +94,8 @@ namespace OksEngine
 				.initialState_ = RAL::Driver::Texture::State::DataForColorWrite,
 				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Ignore,
 				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
-				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite
+				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
+				.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
 			};
 			attachmentsUsage.push_back(attachment);
 		}
@@ -134,18 +135,14 @@ namespace OksEngine
 	}
 
 	void CreateImGuiAttachmentSet::Update(
-		ECS2::Entity::Id entity0id,
-		const RenderDriver* renderDriver0,
-		const RenderAttachment* renderAttachment0,
-
-		ECS2::Entity::Id entity1id,
-		const ImGuiState* imGuiState1,
-		const ImGuiRenderPass* imGuiRenderPass1) {
+		ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0,
+		const MultisamplingAttachment* multisamplingAttachment0, ECS2::Entity::Id entity1id,
+		const ImGuiState* imGuiState1, const ImGuiRenderPass* imGuiRenderPass1) {
 
 
 		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
 			.rpId_ = imGuiRenderPass1->rpId_,
-			.textures_ = { renderAttachment0->textureId_ },
+			.textures_ = { multisamplingAttachment0->textureId_ },
 			.size_ = glm::u32vec2{ 2560, 1440 }
 		};
 
@@ -341,9 +338,10 @@ namespace OksEngine
 				imGuiAtlasTexture0->height_ },
 			.targetState_ = RAL::Driver::Texture::State::DataForShaderRead,
 			.targetAccess_ = RAL::Driver::Texture::Access::ShaderRead,
-			.targetStages_ = { RAL::Driver::Pipeline::Stage::FragmentShader},
+			.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::FragmentShader},
 			.usages_ = { RAL::Driver::Texture::Usage::Sampled, RAL::Driver::Texture::Usage::TransferDestination },
-			.mipLevels_ = 1
+			.mipLevels_ = 1,
+			.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
 		};
 		RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
 

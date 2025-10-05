@@ -31,13 +31,14 @@ namespace OksEngine {
 			.size_ = { texture->width_, texture->height_ },
 			.targetState_ = RAL::Driver::Texture::State::DataForShaderRead,
 			.targetAccess_ = RAL::Driver::Texture::Access::ShaderRead,
-			.targetStages_ = { RAL::Driver::Pipeline::Stage::FragmentShader },
+			.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::FragmentShader },
 			.usages_ = { 
 				RAL::Driver::Texture::Usage::TransferDestination,	// To copy texture data to GPU.
 				RAL::Driver::Texture::Usage::TransferSource,		// To generate mipmaps.
 				RAL::Driver::Texture::Usage::Sampled },				// Sampler for shader.
 #undef max
 			.mipLevels_ = static_cast<Common::UInt32>(std::floor(std::log2(std::max(texture->width_, texture->height_)))) + 1,
+			.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
 		};
 		RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
 

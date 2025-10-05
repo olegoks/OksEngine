@@ -57,6 +57,13 @@ namespace OksEngine
 					pushConstants.emplace_back(pushConstant);
 				}
 
+
+				auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
+				{
+					multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
+				}
+
+
 				RAL::Driver::Pipeline::CI pipelineCI{
 					.name_ = "Infinite grid Pipeline",
 					.renderPassId_ = renderPass1->rpId_,
@@ -70,7 +77,8 @@ namespace OksEngine
 					.pushConstants_ = pushConstants,
 					.shaderBindings_ = shaderBindings,
 					.enableDepthTest_ = true,
-					.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less
+					.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
+					.multisamplingInfo_ = multisamplingInfo
 
 				};
 

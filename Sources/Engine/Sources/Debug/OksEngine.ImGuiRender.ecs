@@ -54,7 +54,7 @@ CreateImGuiAttachmentSetSystem = {
             {
                 processesComponents = {
                     "RenderDriver",
-                    "RenderAttachment"
+                    "MultisamplingAttachment"
                 }
             },
             {

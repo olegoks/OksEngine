@@ -60,6 +60,7 @@ namespace Render::Vulkan {
 			textureImageCreateInfo.LD_ = createInfo.LD_;
 			textureImageCreateInfo.physicalDevice_ = createInfo.PD_;
 			textureImageCreateInfo.mipLevels_ = (mipMapGenerationEnabled) ? (createInfo.mipLevels_) : (1);
+			textureImageCreateInfo.samplesCount_ = createInfo.samplesCount_;
 		}
 		auto image = std::make_shared<AllocatedTextureImage>(textureImageCreateInfo);
 

@@ -123,6 +123,7 @@ namespace Render::Vulkan {
 			VkFormat format_;
 			VkImageUsageFlags usage_ = VkImageUsageFlagBits::VK_IMAGE_USAGE_FLAG_BITS_MAX_ENUM;
 			Common::UInt32 mipLevels_ = 1;
+			VkSampleCountFlagBits samplesCount_ = VkSampleCountFlagBits::VK_SAMPLE_COUNT_FLAG_BITS_MAX_ENUM;
 		};
 
 		TextureImage(const CreateInfo& createInfo) :
@@ -134,7 +135,7 @@ namespace Render::Vulkan {
 			createInfo.format_,
 			VK_IMAGE_TILING_OPTIMAL,
 			createInfo.usage_,//VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_TRANSFER_SRC_BIT | VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT,
-			VK_SAMPLE_COUNT_1_BIT,
+			createInfo.samplesCount_,
 			createInfo.mipLevels_ }
 		} { }
 

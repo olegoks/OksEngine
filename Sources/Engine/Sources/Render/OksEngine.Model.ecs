@@ -693,6 +693,7 @@ DepthAttachmentComponent = {
     }
 }
 
+
 CreateDepthAttachmentSystem = {
     type = "Initialize",
     callOrder = {
@@ -710,6 +711,37 @@ CreateDepthAttachmentSystem = {
                 },
                 createsComponents = {
                     "DepthAttachment"
+                }
+            }
+        }
+    }
+}
+
+
+MultisamplingAttachmentComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Id", name = "textureId" }
+    }
+}
+
+CreateMultisamplingAttachmentSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = { "CreateRenderPass" },
+        runBefore = {}
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "RenderDriver"
+                },
+                excludes = {
+                    "MultisamplingAttachment"
+                },
+                createsComponents = {
+                    "MultisamplingAttachment"
                 }
             }
         }
@@ -736,6 +768,7 @@ CreateAttachmentSetSystem = {
                     "RenderDriver",
                     "RenderPass",
                     "RenderAttachment",
+                    "MultisamplingAttachment",
                     "DepthAttachment"
                 },
                 excludes = {

@@ -35,7 +35,7 @@ vec3 UnprojectPoint(float x, float y, float z, mat4 view, mat4 projection) {
 void main() {
     vec3 p = gridPlane[gl_VertexIndex].xyz;
     near = 0.01;
-    far = 100.0;
+    far = 2.0;
     nearPoint = UnprojectPoint(p.x, p.y, 0.0, view.view, view.proj).xyz; // unprojecting on the near plane
     farPoint = UnprojectPoint(p.x, p.y, 1.0, view.view, view.proj).xyz; // unprojecting on the far plane
     fragView = view.view;

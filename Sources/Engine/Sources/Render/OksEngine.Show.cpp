@@ -4,9 +4,9 @@
 namespace OksEngine
 {
 	void ShowRenderAttachment::Update(ECS2::Entity::Id entity0id, RenderDriver* renderDriver0,
-		const RenderAttachment* renderAttachment0) {
+		const MultisamplingAttachment* multisamplingAttachment0) {
 
-		renderDriver0->driver_->Show(renderAttachment0->textureId_);
+		renderDriver0->driver_->Show(multisamplingAttachment0->textureId_);
 
 	};
 
