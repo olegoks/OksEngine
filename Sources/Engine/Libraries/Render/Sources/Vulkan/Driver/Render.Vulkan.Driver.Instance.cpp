@@ -46,9 +46,9 @@ namespace Render::Vulkan {
 			VkApplicationInfo appInfo{};
 			{
 				appInfo.sType = VK_STRUCTURE_TYPE_APPLICATION_INFO;
-				appInfo.pApplicationName = "OksEngine";
+				appInfo.pApplicationName = "OksEngineTestGame";
 				appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
-				appInfo.pEngineName = "No Engine";
+				appInfo.pEngineName = "OksEngine";
 				appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
 				appInfo.apiVersion = VK_API_VERSION_1_0;
 			}

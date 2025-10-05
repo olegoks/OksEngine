@@ -52,7 +52,7 @@ layout(push_constant) uniform PushConstants {
 
 //POSITIONS
 struct Position3D {
-    vec3 position_;
+    vec4 position_;
 };
 
 layout(std430, set = 0, binding = 0) buffer Positions {
@@ -177,7 +177,10 @@ void main() {
 				float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
                 vec3 calculatedPosition = mix(previousPosition, currentPosition,normalizedCurrentTimeInInterval);
                 //debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
-                //positions_[index].position_ = calculatedPosition;
+                positions_[index].position_.x = calculatedPosition.x;
+                positions_[index].position_.y = calculatedPosition.y;
+                positions_[index].position_.z = calculatedPosition.z;
+                positions_[index].position_.w = 0.0;
                 
             }
 
