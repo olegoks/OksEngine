@@ -168,19 +168,19 @@ void main() {
                 //debugPrintfEXT("after compare");
                 vec3 previousPosition = vec3(previousPositionKey.x_, previousPositionKey.y_, previousPositionKey.z_);
                 vec3 currentPosition = vec3(currentPositionKey.x_, currentPositionKey.y_, currentPositionKey.z_);
-                if(distance(previousPosition, currentPosition) < 0.00001){
-                    break;
-                }
+                //if(distance(previousPosition, currentPosition) < 0.00001){
+                //    break;
+                //}
                 float intervalTimeInTicks = currentPositionKey.time_ - previousPositionKey.time_;
 				float currentTimeInInterval = currentTick - previousPositionKey.time_;
 				//currentTimeInInterval to [0 .. 1].
 				float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
                 vec3 calculatedPosition = mix(previousPosition, currentPosition,normalizedCurrentTimeInInterval);
                 //debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
-                positions_[index].position_.x = calculatedPosition.x;
-                positions_[index].position_.y = calculatedPosition.y;
-                positions_[index].position_.z = calculatedPosition.z;
-                positions_[index].position_.w = 0.0;
+                //positions_[index].position_.x = calculatedPosition.x;
+                //positions_[index].position_.y = calculatedPosition.y;
+                //positions_[index].position_.z = calculatedPosition.z;
+                //positions_[index].position_.w = 0.0;
                 
             }
 

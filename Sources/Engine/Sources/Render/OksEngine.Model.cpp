@@ -60,6 +60,19 @@ namespace OksEngine
 		ANIMATION				
 
 
+	void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, AnimationInProgress* animationInProgress) {
+		ImGui::PushID(AnimationInProgress::GetTypeId());
+
+		ImGui::TextDisabled("Animation name %s", animationInProgress->animationName_.c_str());
+
+		//animationInProgress->durationInTicks_
+		double min = 0.0;
+		ImGui::SliderScalar("", ImGuiDataType_Double, &animationInProgress->currentTick_, &min, &animationInProgress->durationInTicks_, "%.3f");
+		//ImGui::SliderDouble("Scale", &scale, 1.0f, max_scale, "%.3f", ImGuiSliderFlags_Logarithmic);
+
+		ImGui::PopID();
+	}
+
 	void StartModelAnimation::Update(
 		ECS2::Entity::Id entity0id,
 		const Model* model0,
@@ -87,23 +100,38 @@ namespace OksEngine
 			WorldRotation3D,
 			WorldScale3D,
 			RunModelAnimation,
+			PauseAnimation,
 			AnimationInProgress>(entity0id);
 
 		const auto* runModelAnimation = std::get<RunModelAnimation*>(components);
 		const bool needToRunAnimation = (runModelAnimation != nullptr);
 
-		const auto* animationInProgress = std::get<AnimationInProgress*>(components);
+		auto* animationInProgress = std::get<AnimationInProgress*>(components);
 		const bool needToProcessAnimation = (animationInProgress != nullptr);
+
+		const auto* pauseAnimation = std::get<PauseAnimation*>(components);
+		const bool animationPaused = (pauseAnimation != nullptr);
+
 		ASSERT(!(needToRunAnimation && animationInProgress));
 
 		//PROSESS RUNNING ANIMATION
 		ModelAnimation runningModelAnimation;
-		float currentAnimationStage = 0.0f;
+		float currentAnimationStage = 0.0;
+
+		if (needToProcessAnimation) {
+			currentAnimationStage = animationInProgress->currentTick_ / animationInProgress->durationInTicks_;
+		}
+
 		bool isAnimationEnded = false;
+
 		if (needToProcessAnimation) {
 			runningModelAnimation = modelAnimations0->animations_[animationInProgress->animationIndex_];
+		}
 
+		if (needToProcessAnimation && !animationPaused) {
+			
 			//Calculate current animation tick.
+
 			const Common::UInt64 msSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress->animationStartTimeSinceEngineStart_;
 			const float secSinceAnimationStart = msSinceAnimationStart / 1000000.0;
 			const float ticksSinceAnimationStart = runningModelAnimation.ticksPerSecond_ * secSinceAnimationStart;
@@ -116,19 +144,25 @@ namespace OksEngine
 
 			if (isAnimationEnded) {
 				//Animation ended.
+
+				Common::UInt64 animationIndex = animationInProgress->animationIndex_;
+
 				RemoveComponent<AnimationInProgress>(entity0id);
 
-				const Common::Size animationsNumber = modelAnimations0->animations_.size();
+				//const Common::Size animationsNumber = modelAnimations0->animations_.size();
 
-				std::random_device rd;
-				std::mt19937 gen(rd());
+				//std::random_device rd;
+				//std::mt19937 gen(rd());
 
-				Common::Index a = 0, b = animationsNumber - 1;
-				std::uniform_int_distribution<> dist(a, b);
-				const Common::Index randomAnimationIndex = dist(gen);
-				const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[randomAnimationIndex];
+				//Common::Index a = 0, b = animationsNumber - 1;
+				//std::uniform_int_distribution<> dist(a, b);
+				//const Common::Index randomAnimationIndex = dist(gen);
+				const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[animationIndex/*randomAnimationIndex*/];
 
 				CreateComponent<RunModelAnimation>(entity0id, randomModelAnimation.name_);
+			}
+			else {
+				animationInProgress->currentTick_ = currentAnimationStage * animationInProgress->durationInTicks_;
 			}
 		}
 
@@ -160,6 +194,8 @@ namespace OksEngine
 				runModelAnimation->animationName_,
 				animationIndex,
 				0.0,
+				modelAnimationIt->durationInTicks_,
+				modelAnimationIt->ticksPerSecond_,
 				timeSinceEngineStart1->microseconds_);
 
 			RemoveComponent<RunModelAnimation>(entity0id);
@@ -700,8 +736,8 @@ namespace OksEngine
 							std::array<Animation::Model::Node::Animation, 8> animationChannels;
 							Common::Size nodeAnimationsNumber = 0;
 							const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
-							ASSERT_MSG(scene->mNumAnimations <= animationChannels.max_size(), "Unsupported number of animations per model.");
-							for (Common::Index i = 0; i < scene->mNumAnimations; i++) {
+							//ASSERT_MSG(scene->mNumAnimations % animationChannels.max_size() , "Unsupported number of animations per model.");
+							for (Common::Index i = 0; i < scene->mNumAnimations % animationChannels.max_size(); i++) {
 								aiAnimation* animation = scene->mAnimations[i];
 
 								for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
@@ -1730,7 +1766,7 @@ namespace OksEngine
 		CreateComponent<RenderPass>(entity0id, renderPassId);
 	}
 
-	
+
 	void CreateRenderAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
 
 
@@ -1802,7 +1838,7 @@ namespace OksEngine
 			.size_ = { 2560, 1440 },
 			.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
 			.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
-			.targetPipelineStages_= { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
+			.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
 			.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment, RAL::Driver::Texture::Usage::TransferSource },
 			.mipLevels_ = 1,
 			.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
@@ -1888,7 +1924,7 @@ namespace OksEngine
 		shaderBindings.push_back(samplerBinding);		//set 1
 		shaderBindings.push_back(transformBinding);		//set 2
 
-		
+
 		auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
 		{
 			multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
@@ -2267,102 +2303,102 @@ namespace OksEngine
 	}
 
 
-//	void UpdateLocalPosition3D::Update(
-//		ECS2::Entity::Id entity0id,
-//		const Model* model0,
-//		const ChildModelNodeEntities* childModelNodeEntities0,
-//		const WorldPosition3D* worldPosition3D0,
-//		const WorldRotation3D* worldRotation3D0,
-//		const WorldScale3D* worldScale3D0) {
-////
-////		std::function<void(ECS2::Entity::Id,
-////			const glm::fvec3& position3D,
-////			const glm::quat& rotation3D,
-////			const glm::fvec3& scale3D)> processModelNode = [&processModelNode, this](
-////				ECS2::Entity::Id nodeEntityId,
-////				const glm::fvec3& parentPosition3D,
-////				const glm::quat& parentRotation3D,
-////				const glm::fvec3& parentScale3D) {
-////
-////					//if (IsComponentExist<Name>(nodeEntityId)) {
-////					//	if (auto name = GetComponent<Name>(nodeEntityId)->value_ == "Object_55") {
-////					//		Common::BreakPointLine();
-////					//	}
-////					//}
-////
-////					auto components = world_->GetComponents<
-////						LocalPosition3D,
-////						WorldPosition3D,
-////						LocalRotation3D,
-////						WorldRotation3D,
-////						LocalScale3D,
-////						WorldScale3D,
-////						ChildModelNodeEntities>(nodeEntityId);
-////
-////					const auto* localNodeRotation3D = std::get<LocalRotation3D*>(components);//GetComponent<LocalRotation3D>(nodeEntityId);
-////					auto* worldNodeRotation3D = std::get<WorldRotation3D*>(components);
-////
-////					const glm::quat worldRotationQuat = parentRotation3D * glm::quat(localNodeRotation3D->w_, localNodeRotation3D->x_, localNodeRotation3D->y_, localNodeRotation3D->z_);
-////
-////					worldNodeRotation3D->w_ = worldRotationQuat.w;
-////					worldNodeRotation3D->x_ = worldRotationQuat.x;
-////					worldNodeRotation3D->y_ = worldRotationQuat.y;
-////					worldNodeRotation3D->z_ = worldRotationQuat.z;
-////
-////					const auto* localNodePosition3D = std::get<LocalPosition3D*>(components);//GetComponent<LocalPosition3D>(nodeEntityId);
-////					auto* worldNodePosition3D = std::get<WorldPosition3D*>(components);//GetComponent<WorldPosition3D>(nodeEntityId);
-////
-////					{
-////						const glm::vec3 worldNodePosition3DVec = parentPosition3D + parentRotation3D * (parentScale3D * glm::vec3{ localNodePosition3D->x_, localNodePosition3D->y_, localNodePosition3D->z_ });
-////
-////
-////#pragma region Assert
-////						ASSERT_FMSG(
-////							!std::isnan(worldNodePosition3DVec.x) &&
-////							!std::isnan(worldNodePosition3DVec.y) &&
-////							!std::isnan(worldNodePosition3DVec.z), "");
-////#pragma endregion
-////
-////
-////						worldNodePosition3D->x_ = worldNodePosition3DVec.x;
-////						worldNodePosition3D->y_ = worldNodePosition3DVec.y;
-////						worldNodePosition3D->z_ = worldNodePosition3DVec.z;
-////					}
-////
-////					const auto* localNodeScale3D = std::get<LocalScale3D*>(components);//GetComponent<LocalScale3D>(nodeEntityId);
-////					auto* worldNodeScale3D = std::get<WorldScale3D*>(components);//GetComponent<WorldScale3D>(nodeEntityId);
-////
-////					worldNodeScale3D->x_ = parentScale3D.x * localNodeScale3D->x_;
-////					worldNodeScale3D->y_ = parentScale3D.y * localNodeScale3D->y_;
-////					worldNodeScale3D->z_ = parentScale3D.z * localNodeScale3D->z_;
-////
-////					const auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
-////					if (childModelNodeEntities != nullptr) {
-////						const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->childEntityIds_;
-////						for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
-////							const glm::fvec3 currentNodePosition3D = { worldNodePosition3D->x_, worldNodePosition3D->y_, worldNodePosition3D->z_ };
-////							const glm::quat currentNodeRotation3D = { worldNodeRotation3D->w_, worldNodeRotation3D->x_, worldNodeRotation3D->y_, worldNodeRotation3D->z_ };
-////							const glm::fvec3 currentNodeScale3D = { worldNodeScale3D->x_, worldNodeScale3D->y_, worldNodeScale3D->z_ };
-////							processModelNode(childModelNodeEntityId, currentNodePosition3D, currentNodeRotation3D, currentNodeScale3D);
-////						}
-////					}
-////
-////			};
-////
-////
-////
-////		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities0->childEntityIds_;
-////
-////		for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
-////
-////			const glm::fvec3 position3D = { worldPosition3D0->x_, worldPosition3D0->y_, worldPosition3D0->z_ };
-////			const glm::quat rotation3D = { worldRotation3D0->w_, worldRotation3D0->x_, worldRotation3D0->y_, worldRotation3D0->z_ };
-////			const glm::fvec3 scale3D = { worldScale3D0->x_, worldScale3D0->y_, worldScale3D0->z_ };
-////			processModelNode(childModelNodeEntityId, position3D, rotation3D, scale3D);
-////		}
-//
-//
-//	}
+	//	void UpdateLocalPosition3D::Update(
+	//		ECS2::Entity::Id entity0id,
+	//		const Model* model0,
+	//		const ChildModelNodeEntities* childModelNodeEntities0,
+	//		const WorldPosition3D* worldPosition3D0,
+	//		const WorldRotation3D* worldRotation3D0,
+	//		const WorldScale3D* worldScale3D0) {
+	////
+	////		std::function<void(ECS2::Entity::Id,
+	////			const glm::fvec3& position3D,
+	////			const glm::quat& rotation3D,
+	////			const glm::fvec3& scale3D)> processModelNode = [&processModelNode, this](
+	////				ECS2::Entity::Id nodeEntityId,
+	////				const glm::fvec3& parentPosition3D,
+	////				const glm::quat& parentRotation3D,
+	////				const glm::fvec3& parentScale3D) {
+	////
+	////					//if (IsComponentExist<Name>(nodeEntityId)) {
+	////					//	if (auto name = GetComponent<Name>(nodeEntityId)->value_ == "Object_55") {
+	////					//		Common::BreakPointLine();
+	////					//	}
+	////					//}
+	////
+	////					auto components = world_->GetComponents<
+	////						LocalPosition3D,
+	////						WorldPosition3D,
+	////						LocalRotation3D,
+	////						WorldRotation3D,
+	////						LocalScale3D,
+	////						WorldScale3D,
+	////						ChildModelNodeEntities>(nodeEntityId);
+	////
+	////					const auto* localNodeRotation3D = std::get<LocalRotation3D*>(components);//GetComponent<LocalRotation3D>(nodeEntityId);
+	////					auto* worldNodeRotation3D = std::get<WorldRotation3D*>(components);
+	////
+	////					const glm::quat worldRotationQuat = parentRotation3D * glm::quat(localNodeRotation3D->w_, localNodeRotation3D->x_, localNodeRotation3D->y_, localNodeRotation3D->z_);
+	////
+	////					worldNodeRotation3D->w_ = worldRotationQuat.w;
+	////					worldNodeRotation3D->x_ = worldRotationQuat.x;
+	////					worldNodeRotation3D->y_ = worldRotationQuat.y;
+	////					worldNodeRotation3D->z_ = worldRotationQuat.z;
+	////
+	////					const auto* localNodePosition3D = std::get<LocalPosition3D*>(components);//GetComponent<LocalPosition3D>(nodeEntityId);
+	////					auto* worldNodePosition3D = std::get<WorldPosition3D*>(components);//GetComponent<WorldPosition3D>(nodeEntityId);
+	////
+	////					{
+	////						const glm::vec3 worldNodePosition3DVec = parentPosition3D + parentRotation3D * (parentScale3D * glm::vec3{ localNodePosition3D->x_, localNodePosition3D->y_, localNodePosition3D->z_ });
+	////
+	////
+	////#pragma region Assert
+	////						ASSERT_FMSG(
+	////							!std::isnan(worldNodePosition3DVec.x) &&
+	////							!std::isnan(worldNodePosition3DVec.y) &&
+	////							!std::isnan(worldNodePosition3DVec.z), "");
+	////#pragma endregion
+	////
+	////
+	////						worldNodePosition3D->x_ = worldNodePosition3DVec.x;
+	////						worldNodePosition3D->y_ = worldNodePosition3DVec.y;
+	////						worldNodePosition3D->z_ = worldNodePosition3DVec.z;
+	////					}
+	////
+	////					const auto* localNodeScale3D = std::get<LocalScale3D*>(components);//GetComponent<LocalScale3D>(nodeEntityId);
+	////					auto* worldNodeScale3D = std::get<WorldScale3D*>(components);//GetComponent<WorldScale3D>(nodeEntityId);
+	////
+	////					worldNodeScale3D->x_ = parentScale3D.x * localNodeScale3D->x_;
+	////					worldNodeScale3D->y_ = parentScale3D.y * localNodeScale3D->y_;
+	////					worldNodeScale3D->z_ = parentScale3D.z * localNodeScale3D->z_;
+	////
+	////					const auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
+	////					if (childModelNodeEntities != nullptr) {
+	////						const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->childEntityIds_;
+	////						for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
+	////							const glm::fvec3 currentNodePosition3D = { worldNodePosition3D->x_, worldNodePosition3D->y_, worldNodePosition3D->z_ };
+	////							const glm::quat currentNodeRotation3D = { worldNodeRotation3D->w_, worldNodeRotation3D->x_, worldNodeRotation3D->y_, worldNodeRotation3D->z_ };
+	////							const glm::fvec3 currentNodeScale3D = { worldNodeScale3D->x_, worldNodeScale3D->y_, worldNodeScale3D->z_ };
+	////							processModelNode(childModelNodeEntityId, currentNodePosition3D, currentNodeRotation3D, currentNodeScale3D);
+	////						}
+	////					}
+	////
+	////			};
+	////
+	////
+	////
+	////		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities0->childEntityIds_;
+	////
+	////		for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
+	////
+	////			const glm::fvec3 position3D = { worldPosition3D0->x_, worldPosition3D0->y_, worldPosition3D0->z_ };
+	////			const glm::quat rotation3D = { worldRotation3D0->w_, worldRotation3D0->x_, worldRotation3D0->y_, worldRotation3D0->z_ };
+	////			const glm::fvec3 scale3D = { worldScale3D0->x_, worldScale3D0->y_, worldScale3D0->z_ };
+	////			processModelNode(childModelNodeEntityId, position3D, rotation3D, scale3D);
+	////		}
+	//
+	//
+	//	}
 
 	struct RTS {
 		alignas(16) float rotation[4];

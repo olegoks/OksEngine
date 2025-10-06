@@ -306,12 +306,19 @@ RunModelAnimationComponent = {
 
 AnimationInProgressComponent = {
     serializable = false,
+    manualEditFunction = true,
     fields = {
         { type = "std::string",    name = "animationName" },
         { type = "Common::UInt64", name = "animationIndex" },
         { type = "double",         name = "currentTick" },
+        { type = "double",         name = "durationInTicks" },
+        { type = "double",         name = "ticksPerSecond" },
         { type = "Common::UInt64", name = "animationStartTimeSinceEngineStart" }
     }
+}
+
+PauseAnimationComponent = {
+    serializable = false
 }
 
 StartModelAnimationSystem = {

@@ -56,8 +56,7 @@ namespace OksEngine
 	void CreatePosition3DDebugText2D::Update(
 		ECS2::Entity::Id entity0id, 
 		const WorldPosition3D* position3D0) {
-		
-		return;
+
 		CreateComponent<DebugText2D>(entity0id, "DebugText2D", 0, 0);
 	};
 

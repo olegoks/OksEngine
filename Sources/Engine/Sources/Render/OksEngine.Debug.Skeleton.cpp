@@ -58,6 +58,12 @@ namespace OksEngine
 		//shaderBindings.push_back(transformBinding);
 		//shaderBindings.push_back(samplerBinding);
 
+
+		auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
+		{
+			multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
+		}
+
 		RAL::Driver::Pipeline::CI pipelineCI{
 			.name_ = "Debug Draw Bones",
 			.renderPassId_ = renderPass2->rpId_,
@@ -70,7 +76,8 @@ namespace OksEngine
 			.cullMode_ = RAL::Driver::CullMode::None,
 			.shaderBindings_ = shaderBindings,
 			.enableDepthTest_ = false,
-			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Always
+			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Always,
+			.multisamplingInfo_ = multisamplingInfo
 
 		};
 
@@ -160,8 +167,6 @@ namespace OksEngine
 	}
 
 	void CreateDrawBonesRenderer::Update() {
-		
-		return;
 
 		const ECS2::Entity::Id entityId = CreateEntity();
 
