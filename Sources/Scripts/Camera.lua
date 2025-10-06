@@ -14,6 +14,7 @@ extended(Camera, Entity)
 
 function Camera:New()
     local camera = Entity:New()
+    camera.Disable = false
     camera.Speed = 0.005
     camera.DirectionUp = false
     camera.DirectionDown = false
@@ -29,7 +30,7 @@ function Camera:New()
     function camera:GetSpeed()
         if self.SpeedBoostEnabled then
             return self.Speed * self.SpeedBoostFactor
-        else 
+        else
             return self.Speed
         end
     end
@@ -52,17 +53,15 @@ function Camera:New()
         position.z = (position.z - direction.z * speed)
     end
 
-
     function camera:Left(speed)
+        local position  = self:GetComponent("WorldPosition3D")
+        local direction = self:GetComponent("Direction3D")
+        local up        = self:GetComponent("Up3D")
 
-        local position   = self:GetComponent("WorldPosition3D")
-        local direction  = self:GetComponent("Direction3D")
-        local up         = self:GetComponent("Up3D")
-
-        local pVector = Math3D():CrossProduct(
+        local pVector   = Math3D():CrossProduct(
             Vector(up.x, up.y, up.z),
             Vector(direction.x, direction.y, direction.z))
-        
+
         pVector:Normalize()
         position.x = (position.x + pVector.x * speed)
         position.y = (position.y + pVector.y * speed)
@@ -70,17 +69,17 @@ function Camera:New()
     end
 
     function camera:Right(speed)
-        local position   = self:GetComponent("WorldPosition3D")
-        local direction  = self:GetComponent("Direction3D")
-        local up         = self:GetComponent("Up3D")
+        local position  = self:GetComponent("WorldPosition3D")
+        local direction = self:GetComponent("Direction3D")
+        local up        = self:GetComponent("Up3D")
 
-        local pVector = Math3D():CrossProduct(
+        local pVector   = Math3D():CrossProduct(
             Vector(direction.x,
-            direction.y,
-            direction.z),
+                direction.y,
+                direction.z),
             Vector(up.x,
-            up.y,
-            up.z))
+                up.y,
+                up.z))
         pVector:Normalize()
 
         position.x = (position.x + pVector.x * speed)
@@ -89,15 +88,14 @@ function Camera:New()
     end
 
     function camera:Up(speed)
-        local position   = self:GetComponent("WorldPosition3D")
-        position.y = (position.y + speed * self.SpeedBoostFactor)
+        local position = self:GetComponent("WorldPosition3D")
+        position.y     = (position.y + speed * self.SpeedBoostFactor)
     end
 
     function camera:Down(speed)
-        local position   = self:GetComponent("WorldPosition3D")
-        position.y = (position.y - speed * self.SpeedBoostFactor)
+        local position = self:GetComponent("WorldPosition3D")
+        position.y     = (position.y - speed * self.SpeedBoostFactor)
     end
-
 
     --For mouse
     function camera:DirectionUpDown(degree)
@@ -138,7 +136,6 @@ function Camera:New()
         up.z = rotatedUp.z
 
         rotatedUp:Normalize()
-
     end
 
     return camera
@@ -147,7 +144,9 @@ end
 CameraUpdater = {}
 
 function CameraUpdater:Update(camera, deltaMs)
-
+    if camera.Disable then
+        return
+    end
 
     local speed = camera:GetSpeed()
 
@@ -174,7 +173,11 @@ end
 CameraInputProcessor = {}
 
 function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
-    if Key == "CAMERA_FORWARD" then
+    if Key == "CAMERA_DISABLE" then
+        if Event == "Pressed" then
+            camera.Disable = not camera.Disable
+        end
+    elseif Key == "CAMERA_FORWARD" then
         if Event == "Pressed" then
             camera.MovingForward = true
         elseif Event == "Released" then
@@ -220,9 +223,10 @@ function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
 end
 
 function CameraInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY, scroll)
-    --print("OffsetX:", offsetX)
-    --print("OffsetY:", offsetY)
-    --print("Scroll: ", scroll)
+
+    if camera.Disable then
+        return
+    end
 
     camera.SpeedBoostFactor = camera.SpeedBoostFactor + scroll / 5
 
@@ -233,7 +237,7 @@ function CameraInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, off
     if camera.SpeedBoostFactor > 30.0 then
         camera.SpeedBoostFactor = 30.0
     end
-    
+
     --TODO: change SpeedBoostFactor by mouse wheel movement
     camera:DirectionUpDown((offsetY / 1000.0))
     camera:DirectionLeftRight((offsetX / 1000.0))

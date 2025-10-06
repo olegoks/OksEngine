@@ -18,7 +18,7 @@ namespace UI {
 		::GLFWwindow* createdWindow = glfwCreateWindow(
 			createInfo.windowSize_.GetX(),
 			createInfo.windowSize_.GetY(),
-			"Vulkan",
+			"OksEngineGame",
 			nullptr,
 			nullptr);
 
@@ -133,7 +133,7 @@ namespace UI {
 			OS::AssertFail();
 		}
 
-		ASSERT_FMSG(
+		ASSERT_MSG(
 			createdWindow != nullptr,
 			"GLFW Windows was not created.");
 

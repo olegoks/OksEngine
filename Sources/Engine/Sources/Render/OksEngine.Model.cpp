@@ -64,6 +64,10 @@ namespace OksEngine
 		ImGui::PushID(AnimationInProgress::GetTypeId());
 
 		ImGui::TextDisabled("Animation name %s", animationInProgress->animationName_.c_str());
+		ImGui::TextDisabled("Duration in ticks %f", animationInProgress->durationInTicks_);
+		ImGui::TextDisabled("Current tick %f", animationInProgress->currentTick_);
+		ImGui::TextDisabled("Ticks per second %f", animationInProgress->ticksPerSecond_);
+		ImGui::TextDisabled("Duration in seconds %f", animationInProgress->durationInTicks_ * animationInProgress->ticksPerSecond_);
 
 		//animationInProgress->durationInTicks_
 		double min = 0.0;

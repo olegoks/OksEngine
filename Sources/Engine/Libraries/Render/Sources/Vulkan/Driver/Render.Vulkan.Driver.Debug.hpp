@@ -132,14 +132,17 @@ namespace Render::Vulkan {
 				messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_VERBOSE_BIT_EXT) {
 				std::cout << pCallbackData->pMessage << std::endl;
 				OS::LogInfo("/render/vulkan/layers errors", pCallbackData->pMessage);
+				return VK_FALSE;
 			}
 
 			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_WARNING_BIT_EXT) {
 				std::cout << pCallbackData->pMessage << std::endl;
 				OS::LogWarning("/render/vulkan/layers errors", pCallbackData->pMessage);
+				return VK_FALSE;
 			}
 			if (messageSeverity & VK_DEBUG_UTILS_MESSAGE_SEVERITY_ERROR_BIT_EXT) {
 				ASSERT_FAIL_MSG(pCallbackData->pMessage);
+				return VK_FALSE;
 			}
 			else {
 				OS::LogInfo("/render/vulkan/layers errors", pCallbackData->pMessage);
