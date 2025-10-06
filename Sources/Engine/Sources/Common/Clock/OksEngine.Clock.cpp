@@ -26,7 +26,7 @@ namespace OksEngine
 
 		const auto timeSinceEpoch = std::chrono::high_resolution_clock::now().time_since_epoch();
 		const auto microsecondsSinceEpoch = std::chrono::duration_cast<std::chrono::microseconds>(timeSinceEpoch);
-		timeSinceEpoch0->microseconds_ = microsecondsSinceEpoch.count()/ 10;
+		timeSinceEpoch0->microseconds_ = microsecondsSinceEpoch.count()/ 20;
 
 	}
 
@@ -38,7 +38,7 @@ namespace OksEngine
 		const auto durationSinceEngineStart = std::chrono::high_resolution_clock::now() - engineStartTimePoint0->timepoint_;
 		const auto microsecondsSinceEngineStart = std::chrono::duration_cast<std::chrono::microseconds>(durationSinceEngineStart);
 
-		timeSinceEngineStart0->microseconds_ = microsecondsSinceEngineStart.count()/ 10;
+		timeSinceEngineStart0->microseconds_ = microsecondsSinceEngineStart.count()/ 20;
 
 	}
 
