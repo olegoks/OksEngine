@@ -44,5 +44,33 @@ mat4 RTS_to_mat4_optimized(vec3 translation, vec4 rotation, vec3 scale) {
     );
 }
 
-// #define ASSERT_MSG(condition, message)\
-//     if(!condition) {  debugPrintfEXT("ASSERT_MSG(condition, %s)", message) }
+
+vec4 quat_slerp(vec4 q1, vec4 q2, float t) {
+    // Нормализуем входные кватернионы
+    q1 = normalize(q1);
+    q2 = normalize(q2);
+    
+    // Вычисляем косинус угла между кватернионами
+    float cos_theta = dot(q1, q2);
+    
+    // Корректируем для кратчайшего пути
+    if (cos_theta < 0.0) {
+        q2 = -q2;
+        cos_theta = -cos_theta;
+    }
+    
+    // Если кватернионы очень близки, используем линейную интерполяцию
+    const float epsilon = 0.0001;
+    if (cos_theta > 1.0 - epsilon) {
+        return normalize(mix(q1, q2, t));
+    }
+    
+    // Вычисляем угол и коэффициенты SLERP
+    float theta = acos(cos_theta);
+    float sin_theta = sin(theta);
+    
+    float w1 = sin((1.0 - t) * theta) / sin_theta;
+    float w2 = sin(t * theta) / sin_theta;
+    
+    return w1 * q1 + w2 * q2;
+}

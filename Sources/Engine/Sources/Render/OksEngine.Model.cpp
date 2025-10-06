@@ -67,13 +67,27 @@ namespace OksEngine
 		ImGui::TextDisabled("Duration in ticks %f", animationInProgress->durationInTicks_);
 		ImGui::TextDisabled("Current tick %f", animationInProgress->currentTick_);
 		ImGui::TextDisabled("Ticks per second %f", animationInProgress->ticksPerSecond_);
-		ImGui::TextDisabled("Duration in seconds %f", animationInProgress->durationInTicks_ * animationInProgress->ticksPerSecond_);
+		ImGui::TextDisabled("Duration in seconds %f", animationInProgress->durationInTicks_ / animationInProgress->ticksPerSecond_);
 
 		//animationInProgress->durationInTicks_
 		double min = 0.0;
 		ImGui::SliderScalar("", ImGuiDataType_Double, &animationInProgress->currentTick_, &min, &animationInProgress->durationInTicks_, "%.3f");
 		//ImGui::SliderDouble("Scale", &scale, 1.0f, max_scale, "%.3f", ImGuiSliderFlags_Logarithmic);
 
+		ImGui::PopID();
+	}
+
+	void EditModelAnimations(std::shared_ptr<ECS2::World> ecsWorld, ModelAnimations* modelAnimations) {
+		ImGui::PushID(ModelAnimations::GetTypeId());
+		for (const auto& animation : modelAnimations->animations_) {
+			ImGui::Indent(20.f);
+			ImGui::TextDisabled("Animation name %s", animation.name_.c_str());
+			ImGui::TextDisabled("Duration in ticks %f", animation.durationInTicks_);
+			ImGui::TextDisabled("Ticks per second %f", animation.ticksPerSecond_);
+			ImGui::TextDisabled("Duration in seconds %f", animation.durationInTicks_ / animation.ticksPerSecond_);
+			ImGui::Unindent(20.f);
+			ImGui::Separator();
+		}
 		ImGui::PopID();
 	}
 
@@ -133,7 +147,7 @@ namespace OksEngine
 		}
 
 		if (needToProcessAnimation && !animationPaused) {
-			
+
 			//Calculate current animation tick.
 
 			const Common::UInt64 msSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress->animationStartTimeSinceEngineStart_;
@@ -2151,106 +2165,209 @@ namespace OksEngine
 		const Animation::DriverLocalRotation3DComponents* animation__DriverLocalRotation3DComponents0,
 		const Animation::LocalRotation3DComponentsResource* animation__LocalRotation3DComponentsResource0) {
 
+
+		//CALCULATE ANIMATIONS FOR BONES AND HIER ANIMATED NODES!!
 		auto driver = renderDriver0->driver_;
+		{
+			Common::Size entitiesNumber = world_->GetEntitiesNumber<NODE_BONE_ANIMATED>();
 
-		Common::Size entitiesNumber = world_->GetEntitiesNumber<NODE_BONE_ANIMATED>();
+			if (entitiesNumber > 0) {
+				Common::BreakPointLine();
+			}
+			else {
+				return;
+			}
 
-		if (entitiesNumber > 0) {
-			Common::BreakPointLine();
+			auto componentPointers = world_->GetComponents<NODE_BONE_ANIMATED>();
+
+			if (std::get<Animation::Model::Node::RunningState*>(componentPointers) == nullptr) {
+				return;
+			}
+			auto* localPositions = std::get<LocalPosition3D*>(componentPointers);
+			auto* localRotations = std::get<LocalRotation3D*>(componentPointers);
+			auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
+			auto* modelNodeAnimations = std::get<Animation::Model::Node::Animations*>(componentPointers);
+
+			driver->StorageBufferWrite(
+				animation__DriverLocalPosition3DComponents0->id_,
+				0,
+				localPositions,
+				entitiesNumber * sizeof(LocalPosition3D));
+
+			driver->StorageBufferWrite(
+				animation__DriverLocalRotation3DComponents0->id_,
+				0,
+				localRotations,
+				entitiesNumber * sizeof(LocalRotation3D));
+
+			driver->StorageBufferWrite(
+				animation__Model__Node__DriverRunningStates0->id_,
+				0,
+				modelNodeAnimationStates,
+				entitiesNumber * sizeof(Animation::Model::Node::RunningState));
+
+			driver->StorageBufferWrite(
+				animation__Model__Node__DriverAnimationsComponents0->id_,
+				0,
+				modelNodeAnimations,
+				entitiesNumber * sizeof(Animation::Model::Node::Animations));
+
+			driver->StartCompute();
+			driver->BindComputePipeline(pipeline0->pipelineId_);
+
+			driver->ComputePushConstants(
+				pipeline0->pipelineId_,
+				sizeof(decltype(entitiesNumber)),
+				&entitiesNumber);
+
+			driver->ComputeBind(
+				pipeline0->pipelineId_,
+				0,
+				{
+					animation__LocalPosition3DComponentsResource0->id_,
+					animation__LocalRotation3DComponentsResource0->id_,
+					animation__Model__Node__RunningStatesResource0->id_,
+					animation__Model__Node__AnimationsComponentsResource0->id_,
+
+				});
+			//Total Threads = Workgroups × Local Size
+			//
+			//Где:
+			//- Workgroups: (X, Y, Z) из vkCmdDispatch
+			//- Local Size: (X, Y, Z) из layout(local_size_*)
+			// 
+			// Шейдер:
+			//layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+			// 
+			// Dispatch:
+			//vkCmdDispatch(cmd, 16, 8, 1);
+			//Всего потоков : 16 × 8 × 1 = 128 workgroups
+			//Потоков в каждой группе : 64 × 1 × 1 = 64 threads
+			//Общее количество потоков : 128 × 64 = 8192 threads
+
+			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader Dispatch");
+			//Calculate work group number.
+			Common::Size fullWorkGroupNumber = entitiesNumber / 64;
+			if (entitiesNumber % 64 > 0) {
+				++fullWorkGroupNumber;
+			}
+
+			driver->Dispatch(fullWorkGroupNumber, 1, 1);
+			PIXEndEvent();
+			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Wait for computation");
+			driver->EndCompute();
+			PIXEndEvent();
+
+			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader read data.");
+			driver->StorageBufferRead(
+				animation__DriverLocalPosition3DComponents0->id_,
+				0, entitiesNumber * sizeof(LocalPosition3D), localPositions);
+
+			driver->StorageBufferRead(
+				animation__DriverLocalRotation3DComponents0->id_,
+				0, entitiesNumber * sizeof(LocalRotation3D), localRotations);
+			PIXEndEvent();
 		}
-		else {
-			return;
+		{
+			Common::Size entitiesNumber = world_->GetEntitiesNumber<NODE_ANIMATED>();
+
+			if (entitiesNumber > 0) {
+				Common::BreakPointLine();
+			}
+			else {
+				return;
+			}
+
+			auto componentPointers = world_->GetComponents<NODE_ANIMATED>();
+
+			if (std::get<Animation::Model::Node::RunningState*>(componentPointers) == nullptr) {
+				return;
+			}
+			auto* localPositions = std::get<LocalPosition3D*>(componentPointers);
+			auto* localRotations = std::get<LocalRotation3D*>(componentPointers);
+			auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
+			auto* modelNodeAnimations = std::get<Animation::Model::Node::Animations*>(componentPointers);
+
+			driver->StorageBufferWrite(
+				animation__DriverLocalPosition3DComponents0->id_,
+				0,
+				localPositions,
+				entitiesNumber * sizeof(LocalPosition3D));
+
+			driver->StorageBufferWrite(
+				animation__DriverLocalRotation3DComponents0->id_,
+				0,
+				localRotations,
+				entitiesNumber * sizeof(LocalRotation3D));
+
+			driver->StorageBufferWrite(
+				animation__Model__Node__DriverRunningStates0->id_,
+				0,
+				modelNodeAnimationStates,
+				entitiesNumber * sizeof(Animation::Model::Node::RunningState));
+
+			driver->StorageBufferWrite(
+				animation__Model__Node__DriverAnimationsComponents0->id_,
+				0,
+				modelNodeAnimations,
+				entitiesNumber * sizeof(Animation::Model::Node::Animations));
+
+			driver->StartCompute();
+			driver->BindComputePipeline(pipeline0->pipelineId_);
+
+			driver->ComputePushConstants(
+				pipeline0->pipelineId_,
+				sizeof(decltype(entitiesNumber)),
+				&entitiesNumber);
+
+			driver->ComputeBind(
+				pipeline0->pipelineId_,
+				0,
+				{
+					animation__LocalPosition3DComponentsResource0->id_,
+					animation__LocalRotation3DComponentsResource0->id_,
+					animation__Model__Node__RunningStatesResource0->id_,
+					animation__Model__Node__AnimationsComponentsResource0->id_,
+
+				});
+			//Total Threads = Workgroups × Local Size
+			//
+			//Где:
+			//- Workgroups: (X, Y, Z) из vkCmdDispatch
+			//- Local Size: (X, Y, Z) из layout(local_size_*)
+			// 
+			// Шейдер:
+			//layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
+			// 
+			// Dispatch:
+			//vkCmdDispatch(cmd, 16, 8, 1);
+			//Всего потоков : 16 × 8 × 1 = 128 workgroups
+			//Потоков в каждой группе : 64 × 1 × 1 = 64 threads
+			//Общее количество потоков : 128 × 64 = 8192 threads
+
+			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader Dispatch");
+			//Calculate work group number.
+			Common::Size fullWorkGroupNumber = entitiesNumber / 64;
+			if (entitiesNumber % 64 > 0) {
+				++fullWorkGroupNumber;
+			}
+
+			driver->Dispatch(fullWorkGroupNumber, 1, 1);
+			PIXEndEvent();
+			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Wait for computation");
+			driver->EndCompute();
+			PIXEndEvent();
+
+			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader read data.");
+			driver->StorageBufferRead(
+				animation__DriverLocalPosition3DComponents0->id_,
+				0, entitiesNumber * sizeof(LocalPosition3D), localPositions);
+
+			driver->StorageBufferRead(
+				animation__DriverLocalRotation3DComponents0->id_,
+				0, entitiesNumber * sizeof(LocalRotation3D), localRotations);
+			PIXEndEvent();
 		}
-
-		auto componentPointers = world_->GetComponents<NODE_BONE_ANIMATED>();
-
-		if (std::get<Animation::Model::Node::RunningState*>(componentPointers) == nullptr) {
-			return;
-		}
-		auto* localPositions = std::get<LocalPosition3D*>(componentPointers);
-		auto* localRotations = std::get<LocalRotation3D*>(componentPointers);
-		auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
-		auto* modelNodeAnimations = std::get<Animation::Model::Node::Animations*>(componentPointers);
-
-		driver->StorageBufferWrite(
-			animation__DriverLocalPosition3DComponents0->id_,
-			0,
-			localPositions,
-			entitiesNumber * sizeof(LocalPosition3D));
-
-		driver->StorageBufferWrite(
-			animation__DriverLocalRotation3DComponents0->id_,
-			0,
-			localRotations,
-			entitiesNumber * sizeof(LocalRotation3D));
-
-		driver->StorageBufferWrite(
-			animation__Model__Node__DriverRunningStates0->id_,
-			0,
-			modelNodeAnimationStates,
-			entitiesNumber * sizeof(Animation::Model::Node::RunningState));
-
-		driver->StorageBufferWrite(
-			animation__Model__Node__DriverAnimationsComponents0->id_,
-			0,
-			modelNodeAnimations,
-			entitiesNumber * sizeof(Animation::Model::Node::Animations));
-
-		driver->StartCompute();
-		driver->BindComputePipeline(pipeline0->pipelineId_);
-
-		driver->ComputePushConstants(
-			pipeline0->pipelineId_,
-			sizeof(decltype(entitiesNumber)),
-			&entitiesNumber);
-
-		driver->ComputeBind(
-			pipeline0->pipelineId_,
-			0,
-			{
-				animation__LocalPosition3DComponentsResource0->id_,
-				animation__LocalRotation3DComponentsResource0->id_,
-				animation__Model__Node__RunningStatesResource0->id_,
-				animation__Model__Node__AnimationsComponentsResource0->id_,
-
-			});
-		//Total Threads = Workgroups × Local Size
-		//
-		//Где:
-		//- Workgroups: (X, Y, Z) из vkCmdDispatch
-		//- Local Size: (X, Y, Z) из layout(local_size_*)
-		// 
-		// Шейдер:
-		//layout(local_size_x = 64, local_size_y = 1, local_size_z = 1) in;
-		// 
-		// Dispatch:
-		//vkCmdDispatch(cmd, 16, 8, 1);
-		//Всего потоков : 16 × 8 × 1 = 128 workgroups
-		//Потоков в каждой группе : 64 × 1 × 1 = 64 threads
-		//Общее количество потоков : 128 × 64 = 8192 threads
-
-		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader Dispatch");
-		//Calculate work group number.
-		Common::Size fullWorkGroupNumber = entitiesNumber / 64;
-		if (entitiesNumber % 64 > 0) {
-			++fullWorkGroupNumber;
-		}
-
-		driver->Dispatch(fullWorkGroupNumber, 1, 1);
-		PIXEndEvent();
-		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Wait for computation");
-		driver->EndCompute();
-		PIXEndEvent();
-
-		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader read data.");
-		driver->StorageBufferRead(
-			animation__DriverLocalPosition3DComponents0->id_,
-			0, entitiesNumber * sizeof(LocalPosition3D), localPositions);
-
-		driver->StorageBufferRead(
-			animation__DriverLocalRotation3DComponents0->id_,
-			0, entitiesNumber * sizeof(LocalRotation3D), localRotations);
-		PIXEndEvent();
 	}
 
 	//TEST
