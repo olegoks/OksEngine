@@ -28,6 +28,16 @@ ModelNodeComponent = {
 
 }
 
+ModelNodesMaxNumberConstant = {
+    type = "Common::Size",
+    value = "128"
+}
+
+ChildModelNodeEntitiesMaxNumberConstant = {
+    type = "Common::Size",
+    value = "32"
+}
+
 ChildModelNodeEntitiesComponent = {
     serializable = false,
     fields = {

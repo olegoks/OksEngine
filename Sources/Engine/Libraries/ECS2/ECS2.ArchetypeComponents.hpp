@@ -177,10 +177,10 @@ namespace ECS2 {
 		//	[		]	[		]	[		]	23
 
 		template<class ...Components>
-		inline std::tuple<Components*...> GetComponents() {
+		inline std::tuple<Entity::Id*, Components*...> GetComponents() {
 			return std::make_tuple(
+				componentIndexEntityId_.data(),
 				[this]() -> Components* {
-
 					if (containers_.contains(Components::GetTypeId())) {
 						auto container = GetContainer<Components>();
 						return container->GetComponents();

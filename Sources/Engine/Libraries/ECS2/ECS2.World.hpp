@@ -334,7 +334,7 @@ namespace ECS2 {
 
 		template<class ...Components>
 		[[nodiscard]]
-		std::tuple<Components*...> GetComponents() noexcept {
+		std::tuple<Entity::Id*, Components*...> GetComponents() noexcept {
 
 			ComponentsFilter componentsFilter;
 			componentsFilter.SetBits<Components...>();
@@ -344,6 +344,7 @@ namespace ECS2 {
 			}
 			else {
 				return std::make_tuple(
+					nullptr,
 					[]() -> Components* {
 						return nullptr;
 					}()...

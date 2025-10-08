@@ -2145,6 +2145,8 @@ namespace OksEngine
 
 			auto componentPointers = world_->GetComponents<NODE_BONE_ANIMATED>();
 
+			auto* entityIds = std::get<ECS2::Entity::Id*>(componentPointers);
+
 			if (std::get<Animation::Model::Node::RunningState*>(componentPointers) == nullptr) {
 				return;
 			}
@@ -2533,7 +2535,7 @@ namespace OksEngine
 		const RenderPass* renderPass2,
 		const Pipeline* pipeline2) {
 
-		//return;
+		return;
 
 		ASSERT(!IsComponentExist<VertexBones>(entity1id));
 
