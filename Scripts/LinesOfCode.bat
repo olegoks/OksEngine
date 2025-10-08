@@ -1,4 +1,3 @@
-read -p "Press enter to exit."
 echo "Файлы .ecs:"
 cd ../
 

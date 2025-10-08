@@ -1103,3 +1103,50 @@ EndRenderPassSystem = {
         }
     }
 }
+
+NodeArchetype = {
+    components = {
+        "ModelNode",
+        "Name",
+        "ModelEntity",
+        "LocalPosition3D",
+        "WorldPosition3D",
+        "LocalRotation3D",
+        "WorldRotation3D",
+        "LocalScale3D",
+        "WorldScale3D",
+        "ChildModelNodeEntities",
+        "DriverTransform3D",
+        "Transform3DResource",
+        "DebugText2D"
+    }
+}
+
+BoneArchetype = {
+    components = {
+        "BoneNode",
+        "BoneInverseBindPoseMatrix"
+    }
+}
+
+Node_AnimatedArchetype = {
+    archetypes = {
+        "Node",
+        "Animation::Animation"
+    }
+}
+
+Node_BoneArchetype = {
+    archetypes = {
+        "Node",
+        "Bone"
+    }
+}
+
+Node_Bone_AnimatedArchetype = {
+    archetypes = {
+        "Node",
+        "Bone",
+        "Animation::Animation"
+    }
+}

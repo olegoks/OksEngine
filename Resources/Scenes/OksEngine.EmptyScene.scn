@@ -10,17 +10,17 @@ scene = {
       --    runModelAnimation = { animationName = "Animation" },
       --    modelFile = { fileName = "fictional_cold_war_tank.glb" }
       --},
-
-      --{
-      --    ID = 1,
-      --    name = {value ="Striker" },
-      --    worldPosition3D = { x = 0.0, y = 0.0, z = 0.0 },
-      --    worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-      --    worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-      --    model = { },
-      --    runModelAnimation = { animationName = "ArmatureAction" },
-      --    modelFile = { fileName = "TwoBonesExample.glb" }
-      --},
+      
+      {
+          ID = 1,
+          name = {value ="Striker" },
+          worldPosition3D = { x = 15.0, y = 0.0, z = 0.0 },
+          worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+          worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+          model = { },
+          runModelAnimation = { animationName = "ArmatureAction" },
+          modelFile = { fileName = "TwoBonesExample.glb" }
+      },
       {
          ID = 2,
          name = { value = "Man" },
@@ -59,6 +59,26 @@ scene = {
          runModelAnimation = { animationName = "Mutant Jumping" },
          modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
       },
+
+      --{
+      --   ID = 32,
+      --   name = { value = "Sity" },
+      --   worldPosition3D = { x = -30, y = 5.0, z = 0 },
+      --   worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+      --   worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },	model = {},
+      --   modelFile = { fileName = "abandoned_factory_remodelled__gameready.glb" }
+      --},
+
+      {
+         ID = 33,
+         name = { value = "Dust" },
+         worldPosition3D = { x = -30, y = 5.0, z = 0 },
+         worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+         worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },	model = {},
+         modelFile = { fileName = "de_dust_2_original__y_en_honor_a_justin_dejong.glb" }
+      },
+
+      
       --{
       --   ID = 39,
       --   name = { value = "Man" },

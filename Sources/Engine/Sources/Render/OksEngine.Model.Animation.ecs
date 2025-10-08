@@ -1,5 +1,10 @@
 AnimationNamespace = {
 
+    KeysPerChannelNumberConstant = {
+        type = "Common::Size",
+        value = "32"
+    },
+
     ChannelNamespace = {
         --Position
         Position3DKeyStruct = {
@@ -13,7 +18,7 @@ AnimationNamespace = {
         Position3DKeysStruct = {
             serializable = false,
             fields = {
-                { type = "std::array<Position3DKey, 32>", name = "keys" }
+                { type = "std::array<Position3DKey, KeysPerChannelNumber>", name = "keys" }
             }
         },
         --Rotation
@@ -115,6 +120,11 @@ AnimationNamespace = {
         fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
     },
 
-
+    AnimationArchetype = {
+        components = {
+            "Model::Node::RunningState",
+            "Model::Node::Animations"
+        }
+    }
 
 }

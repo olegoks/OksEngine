@@ -24,7 +24,7 @@
 
 namespace OksEngine
 {
-#define NODE								\
+/*#define NODE								\
 		ModelNode,							\
 		Name,								\
 		ModelEntity,						\
@@ -57,7 +57,7 @@ namespace OksEngine
 
 #define NODE_BONE_ANIMATED						\
 		NODE_BONE,								\
-		ANIMATION				
+		ANIMATION			*/	
 
 
 	void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, AnimationInProgress* animationInProgress) {
@@ -167,15 +167,15 @@ namespace OksEngine
 
 				RemoveComponent<AnimationInProgress>(entity0id);
 
-				//const Common::Size animationsNumber = modelAnimations0->animations_.size();
+				const Common::Size animationsNumber = modelAnimations0->animations_.size();
 
-				//std::random_device rd;
-				//std::mt19937 gen(rd());
+				std::random_device rd;
+				std::mt19937 gen(rd());
 
-				//Common::Index a = 0, b = animationsNumber - 1;
-				//std::uniform_int_distribution<> dist(a, b);
-				//const Common::Index randomAnimationIndex = dist(gen);
-				const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[animationIndex/*randomAnimationIndex*/];
+				Common::Index a = 0, b = animationsNumber - 1;
+				std::uniform_int_distribution<> dist(a, b);
+				const Common::Index randomAnimationIndex = dist(gen);
+				const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[randomAnimationIndex];
 
 				CreateComponent<RunModelAnimation>(entity0id, randomModelAnimation.name_);
 			}
@@ -2175,7 +2175,7 @@ namespace OksEngine
 				Common::BreakPointLine();
 			}
 			else {
-				return;
+				return; // TODO: remove to calculate not bone nodes animation later 
 			}
 
 			auto componentPointers = world_->GetComponents<NODE_BONE_ANIMATED>();

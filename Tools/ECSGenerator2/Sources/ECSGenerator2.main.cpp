@@ -100,7 +100,7 @@ int main(int argc, char** argv) {
 		auto getTableByFullName2 = [](
 			const std::vector<std::shared_ptr<ECSGenerator2::ParsedECSFile>> parsedECSFiles,
 			std::shared_ptr<ECSGenerator2::ParsedTable> usageTable,
-			const std::vector<std::string>& findTable) {
+			const std::vector<std::string>& findTable, ECSGenerator2::ParsedTable::Type findTableType) {
 
 				// Component name: "Compute::Pipeline"
 				// algorithm :
@@ -124,12 +124,6 @@ int main(int argc, char** argv) {
 				std::shared_ptr<ECSGenerator2::ParsedTable> foundTable = nullptr;
 				//From child to root.
 				// 
-
-
-				if (findTable[0] == "Input" || findTable[0] == "ResourceSystem") {
-					Common::BreakPointLine();
-				}
-
 				auto usageNamespace = usageTable->GetNamespace();
 
 				for (Common::Int64 i = usageNamespace.size(); i >= 0; --i) {
@@ -152,11 +146,6 @@ int main(int argc, char** argv) {
 						if (foundTable != nullptr) {
 							break;
 						}
-
-						if (parsedECSFile->GetName() == "OksEngine.MouseInput") {
-							Common::BreakPointLine();
-						}
-
 						parsedECSFile->ForEachRootTable([&](std::shared_ptr<ECSGenerator2::ParsedTable> parsedTable) {
 							
 
@@ -166,7 +155,7 @@ int main(int argc, char** argv) {
 
 							parsedTable->ForEachTablePath([&](std::vector<std::shared_ptr<ECSGenerator2::ParsedTable>>& path) {
 
-								if (currentNamespace.size() == path.size()) {
+								if (currentNamespace.size() == path.size() && path.back()->GetType() == findTableType) {
 									for (Common::Index k = 0; k < currentNamespace.size(); k++) {
 										if (currentNamespace[k] != path[k]->GetName()) {
 											return true;
@@ -205,6 +194,47 @@ int main(int argc, char** argv) {
 				Common::BreakPointLine();
 			}
 
+			parsedEcsFile->ForEachArchetype([&](ECSGenerator2::ParsedArchetypePtr parsedArchetype) {
+				
+				const auto archetypeNamespace = ECSGenerator2::GetArchetypeNamespace(parsedArchetype);
+				const auto archetypeName = parsedArchetype->GetName();
+
+				if (archetypeName == "Node_Animated") {
+					Common::BreakPointLine();
+				}
+				parsedArchetype->ForEachComponent([&](ECSGenerator2::ParsedArchetype::Component& component, bool isLast) {
+					
+					const auto componentName = component.name_;
+					const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+
+					component.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(
+						getTableByFullName2(
+							parsedECSFiles, 
+							parsedArchetype,
+							parsedComponentName, ECSGenerator2::ParsedTable::Type::Component));
+
+					ASSERT(component.ptr_ != nullptr);
+
+					});
+
+				parsedArchetype->ForEachRefArchetype([&](ECSGenerator2::ParsedArchetype::Archetype& archetype, bool isLast) {
+
+					const auto archetypeRefName = archetype.name_;
+					const auto parsedArchetypeName = ECSGenerator2::ParseFullName(archetypeRefName);
+
+					archetype.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedArchetype>(
+						getTableByFullName2(
+							parsedECSFiles,
+							parsedArchetype,
+							parsedArchetypeName, ECSGenerator2::ParsedTable::Type::Archetype));
+
+					ASSERT(archetype.ptr_ != nullptr);
+
+					});
+
+				return true;
+				});
+
 			parsedEcsFile->ForEachSystem([&](ECSGenerator2::ParsedSystemPtr parsedSystem) {
 
 				const auto systemNamespace = ECSGenerator2::GetSystemNamespace(parsedSystem);
@@ -228,7 +258,12 @@ int main(int argc, char** argv) {
 								Common::BreakPointLine();
 							}
 
-							include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
+							include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(
+								getTableByFullName2(
+									parsedECSFiles,
+									parsedSystem, 
+									parsedComponentName,
+									ECSGenerator2::ParsedTable::Type::Component));
 
 							return true;
 							});
@@ -240,7 +275,12 @@ int main(int argc, char** argv) {
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
 
-							exclude.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
+							exclude.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(
+								getTableByFullName2(
+									parsedECSFiles, 
+									parsedSystem, 
+									parsedComponentName,
+									ECSGenerator2::ParsedTable::Type::Component));
 
 							return true;
 							});
@@ -252,7 +292,12 @@ int main(int argc, char** argv) {
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
 
-							create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
+							create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(
+								getTableByFullName2(
+									parsedECSFiles, 
+									parsedSystem,
+									parsedComponentName,
+									ECSGenerator2::ParsedTable::Type::Component));
 
 							return true;
 							});
@@ -264,7 +309,12 @@ int main(int argc, char** argv) {
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
 
-							remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
+							remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(
+								getTableByFullName2(
+									parsedECSFiles,
+									parsedSystem, 
+									parsedComponentName, 
+									ECSGenerator2::ParsedTable::Type::Component));
 
 							return true;
 							});
@@ -286,7 +336,12 @@ int main(int argc, char** argv) {
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
 
-							include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
+							include.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(
+								getTableByFullName2(
+									parsedECSFiles,
+									parsedSystem, 
+									parsedComponentName,
+									ECSGenerator2::ParsedTable::Type::Component));
 
 							return true;
 							});
@@ -299,7 +354,12 @@ int main(int argc, char** argv) {
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
 
-							create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
+							create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(
+								getTableByFullName2(
+									parsedECSFiles,
+									parsedSystem, 
+									parsedComponentName,
+									ECSGenerator2::ParsedTable::Type::Component));
 
 							return true;
 							});
@@ -311,7 +371,12 @@ int main(int argc, char** argv) {
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
 
-							remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
+							remove.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(
+								getTableByFullName2(
+									parsedECSFiles, 
+									parsedSystem,
+									parsedComponentName,
+									ECSGenerator2::ParsedTable::Type::Component));
 
 							return true;
 							});
@@ -329,7 +394,12 @@ int main(int argc, char** argv) {
 							//at first lets find run after system in namespace of current system.
 							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
 
-							create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(parsedECSFiles, parsedSystem, parsedComponentName));
+							create.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedComponent>(
+								getTableByFullName2(
+									parsedECSFiles, 
+									parsedSystem,
+									parsedComponentName,
+									ECSGenerator2::ParsedTable::Type::Component));
 
 							return true;
 							});
@@ -347,7 +417,12 @@ int main(int argc, char** argv) {
 							Common::BreakPointLine();
 						}
 
-						runAfterSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(getTableByFullName2(parsedECSFiles, parsedSystem, runAfterName));
+						runAfterSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(
+							getTableByFullName2(
+								parsedECSFiles,
+								parsedSystem, 
+								runAfterName,
+								ECSGenerator2::ParsedTable::Type::System));
 
 					}
 
@@ -359,7 +434,12 @@ int main(int argc, char** argv) {
 							Common::BreakPointLine();
 						}
 
-						runBeforeSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(getTableByFullName2(parsedECSFiles, parsedSystem, runBeforeName));
+						runBeforeSystem.ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedSystem>(
+							getTableByFullName2(
+								parsedECSFiles,
+								parsedSystem,
+								runBeforeName,
+								ECSGenerator2::ParsedTable::Type::System));
 
 					}
 

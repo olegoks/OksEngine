@@ -9,6 +9,8 @@
 #include <Namespace/ECSGenerator2.ParsedNamespace.hpp>
 #include <System/ECSGenerator2.SystemParser.hpp>
 #include <Component/ECSGenerator2.ComponentParser.hpp>
+#include <Constant/ECSGenerator2.ConstantParser.hpp>
+#include <Archetype/ECSGenerator2.ArchetypeParser.hpp>
 #include <Struct/ECSGenerator2.StructParser.hpp>
 
 
@@ -53,6 +55,8 @@ namespace ECSGenerator2 {
 					std::regex systemRegex{ R"(\w+System\s*=\s*\{)" };
 					std::regex componentRegex{ R"(\w+Component\s*=\s*\{)" };
 					std::regex structRegex{ R"(\w+Struct\s*=\s*\{)" };
+					std::regex constantRegex{ R"(\w+Constant\s*=\s*\{)" };
+					std::regex archetypeRegex{ R"(\w+Archetype\s*=\s*\{)" };
 					// Ищем System
 					if (std::regex_search(line, match, systemRegex)) {
 						std::string name = match[0].str();
@@ -76,6 +80,24 @@ namespace ECSGenerator2 {
 						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
 
 						name.erase(name.size() - sizeof("Struct") + 1, name.size());
+						abstractionsOrder.push_back(name);
+					}
+					// Ищем Constant
+					else if (std::regex_search(line, match, constantRegex)) {
+						std::string name = match[0].str();
+						name = name.substr(0, name.find("="));
+						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
+
+						name.erase(name.size() - sizeof("Constant") + 1, name.size());
+						abstractionsOrder.push_back(name);
+					}
+					// Ищем Archetype
+					else if (std::regex_search(line, match, archetypeRegex)) {
+						std::string name = match[0].str();
+						name = name.substr(0, name.find("="));
+						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
+
+						name.erase(name.size() - sizeof("Archetype") + 1, name.size());
 						abstractionsOrder.push_back(name);
 					}
 					};
@@ -122,10 +144,13 @@ namespace ECSGenerator2 {
 						const auto getPriority = [](ParsedTable::Type type) {
 
 							switch (type) {
-							case ParsedTable::Type::Struct:    return 0; // Высший приоритет
-							case ParsedTable::Type::Component: return 1;
-							case ParsedTable::Type::System:    return 2; // Низший приоритет
-							default:                           return 3;
+							case ParsedTable::Type::Constant:		return 0; // Высший приоритет
+							case ParsedTable::Type::Struct:			return 1; // Высший приоритет
+							case ParsedTable::Type::Component:		return 2;
+							case ParsedTable::Type::Archetype:		return 3; // Высший приоритет
+							case ParsedTable::Type::System:			return 4; // Низший приоритет
+							default:
+								ASSERT_FAIL_MSG("Unknown table type!");
 							}
 							};
 
@@ -160,50 +185,11 @@ namespace ECSGenerator2 {
 						if (abstractionPriority1 == abstractionPriority2) {
 							return firstIndex < secondIndex;
 
-						} else {
+						}
+						else {
 							return abstractionPriority1 < abstractionPriority2;
 						}
 
-						//Old order realiztion.
-						{
-							//auto getChildLessTableType = [](ParsedTablePtr table) {
-							//	ParsedTable::Type type1 = ParsedTable::Type::Undefined;
-							//	if (!table->HasChilds()) {
-							//		type1 = table->GetType();
-							//	}
-							//	else {
-							//		auto processChildLessTable = [&](ParsedTablePtr childLessTable) {
-							//			type1 = childLessTable->GetType();
-							//			return false;
-							//			};
-							//		table->ForEachChildlessTable(processChildLessTable);
-							//	}
-							//	return type1;
-							//	};
-
-							//auto type1 = getChildLessTableType(first);
-							//auto type2 = getChildLessTableType(second);
-
-							//// Определяем приоритеты типов
-							//const auto getPriority = [](ParsedTable::Type type) {
-
-							//	switch (type) {
-							//	case ParsedTable::Type::Struct:    return 0; // Высший приоритет
-							//	case ParsedTable::Type::Component: return 1;
-							//	case ParsedTable::Type::System:    return 2; // Низший приоритет
-							//	default:                           return 3;
-							//	}
-							//	};
-
-							//const int priority1 = getPriority(type1);
-							//const int priority2 = getPriority(type2);
-
-							//// Сначала сортируем по приоритету типа
-							//if (priority1 != priority2) {
-							//	return priority1 < priority2;
-							//}
-							//return false;
-						}
 					});
 				};
 
@@ -263,6 +249,20 @@ namespace ECSGenerator2 {
 							auto parsedComponent = componentParser.Parse(table,
 								name.substr(0, name.rfind("Component")));
 							return parsedComponent;
+						}
+						if (name.ends_with("Constant")) {
+
+							ConstantParser constantParser;
+							auto parsedConstant = constantParser.Parse(table,
+								name.substr(0, name.rfind("Constant")));
+							return parsedConstant;
+						}
+						if (name.ends_with("Archetype")) {
+
+							ArchetypeParser archetypeParser;
+							auto parsedArchetype = archetypeParser.Parse(table,
+								name.substr(0, name.rfind("Archetype")));
+							return parsedArchetype;
 						}
 						if (name.ends_with("System")) {
 

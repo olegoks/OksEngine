@@ -12,6 +12,8 @@ namespace ECSGenerator2 {
             System,
             Component,
             Struct,
+            Constant,
+            Archetype,
             Undefined
         };
 

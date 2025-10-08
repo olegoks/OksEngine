@@ -4,6 +4,7 @@
 #include <Component/ECSGenerator2.ParsedComponent.hpp>
 #include <Struct/ECSGenerator2.ParsedStruct.hpp>
 #include <Namespace/ECSGenerator2.ParsedNamespace.hpp>
+#include <Archetype/ECSGenerator2.ParsedArchetype.hpp>
 
 namespace ECSGenerator2 {
 
@@ -116,6 +117,21 @@ namespace ECSGenerator2 {
 				if (table->GetType() == ParsedTable::Type::System) {
 					auto parsedSystem = std::dynamic_pointer_cast<ParsedSystem>(table);
 					const bool isContinue = processSystem(parsedSystem);
+					if (!isContinue) {
+						return false;
+					}
+				}
+				return true;
+				};
+
+			ForEachTable(processTable);
+		}
+		using ProcessArchetype = std::function<bool(std::shared_ptr<ParsedArchetype>)>;
+		void ForEachArchetype(const ProcessArchetype& processArchetype) const {
+			auto processTable = [&](std::shared_ptr<ParsedTable> table) {
+				if (table->GetType() == ParsedTable::Type::Archetype) {
+					auto parsedArchetype = std::dynamic_pointer_cast<ParsedArchetype>(table);
+					const bool isContinue = processArchetype(parsedArchetype);
 					if (!isContinue) {
 						return false;
 					}

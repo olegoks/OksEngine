@@ -3,6 +3,8 @@
 #include <System/ECSGenerator2.SystemCodeStructureGenerator.hpp>
 #include <Component/ECSGenerator2.ComponentCodeGenerator.hpp>
 #include <Struct/ECSGenerator2.StructCodeStructureGenerator.hpp>
+#include <Constant/ECSGenerator2.ConstantCodeGenerator.hpp>
+#include <Archetype/ECSGenerator2.ArchetypeCodeGenerator.hpp>
 #include <ECSGenerator2.CodeGenerator.hpp>
 
 #include <Namespace/ECSGenerator2.ParsedNamespace.hpp>
@@ -127,60 +129,6 @@ namespace ECSGenerator2 {
 
 			//New code generation
 			std::vector<std::shared_ptr<CodeStructure::Base>> bases;
-			//Generate forward declarations for structures.
-			//parsedECSFile->ForEachRootTable([&](std::shared_ptr<ParsedTable> parsedTable) {
-			//	
-			//	//TODO:: add ForEachChildlessTable that process root table too.
-			//	// remove duplication.
-			//	if (parsedTable->HasChilds()) {
-			//		parsedTable->ForEachChildlessTable([&](std::shared_ptr<ParsedTable> parsedTable) {
-
-			//			if (parsedTable->GetType() == ParsedTable::Type::Struct) {
-
-			//				CodeStructure::Struct::CreateInfo sci{
-			//					.name_ = parsedTable->GetFullName(),
-			//					.forwardDeclaration_ = true
-			//				};
-			//				auto structObject = std::make_shared<CodeStructure::Struct>(sci);
-
-			//				bases.push_back(structObject);
-
-			//			}
-
-
-			//			return true;
-			//			});
-			//	}
-			//	else {
-
-			//		if (parsedTable->GetType() == ParsedTable::Type::Struct) {
-
-			//			CodeStructure::Struct::CreateInfo sci{
-			//				.name_ = parsedTable->GetFullName(),
-			//				.forwardDeclaration_ = true
-			//			};
-			//			auto structObject = std::make_shared<CodeStructure::Struct>(sci);
-
-			//			bases.push_back(structObject);
-
-			//		}
-			//	}
-			//	return true;
-			//	});
-			//parsedECSFile->ForEachStruct([&](std::shared_ptr<ParsedStruct> parsedStruct) {
-
-
-			//	StructCodeStructureGenerator::CreateInfo scgci{
-			//		.includeDirectory_ = includeDirectory
-			//	};
-
-			//	StructCodeStructureGenerator structGenerator{ scgci };
-
-			//	auto structForwardDeclarationCodeStructure = structGenerator.GenerateStructForwardDeclaration(parsedStruct);
-			//	bases.push_back(structForwardDeclarationCodeStructure);
-
-
-			//	});
 
 			parsedECSFile->ForEachRootTable([&](std::shared_ptr<ParsedTable> table) {
 
@@ -281,6 +229,38 @@ namespace ECSGenerator2 {
 						auto structsIncludes = structGenerator.GenerateIncludes(parsedStruct);
 						includes.paths_.insert(structsIncludes.paths_.begin(), structsIncludes.paths_.end());
 
+						return bases;
+
+					}
+					else if (tableType == ParsedTable::Type::Constant) {
+
+						const auto parsedConstant = std::dynamic_pointer_cast<ParsedConstant>(parsedTable);
+
+						ConstantCodeStructureGenerator::CreateInfo scgci{
+							.includeDirectory_ = includeDirectory
+						};
+
+						ConstantCodeStructureGenerator structGenerator{ scgci };
+
+						auto constantCodeStructure = structGenerator.GenerateConstantVariable(parsedConstant);
+						std::vector<std::shared_ptr<CodeStructure::Base>> bases;
+						bases.push_back(constantCodeStructure);
+						return bases;
+
+					}
+					else if (tableType == ParsedTable::Type::Archetype) {
+
+						const auto parsedArchetype = std::dynamic_pointer_cast<ParsedArchetype>(parsedTable);
+
+						ArchetypeCodeStructureGenerator::CreateInfo scgci{
+							.includeDirectory_ = includeDirectory
+						};
+
+						ArchetypeCodeStructureGenerator arhetypeGenerator{ scgci };
+
+						auto constantCodeStructure = arhetypeGenerator.GenerateArchetypeDefine(parsedArchetype);
+						std::vector<std::shared_ptr<CodeStructure::Base>> bases;
+						bases.push_back(constantCodeStructure);
 						return bases;
 
 					}
@@ -2076,7 +2056,7 @@ namespace ECSGenerator2 {
 							code.Add("	{}::Add{}(world, entityId);\n", concatedNamespace, parsedComponent->GetName());
 						}
 						else {
-							code.Add("	Add{}(world, entityId);\n",  parsedComponent->GetName());
+							code.Add("	Add{}(world, entityId);\n", parsedComponent->GetName());
 						}
 						code.Add("}\n");
 
