@@ -24,41 +24,6 @@
 
 namespace OksEngine
 {
-/*#define NODE								\
-		ModelNode,							\
-		Name,								\
-		ModelEntity,						\
-		LocalPosition3D,					\
-		WorldPosition3D,					\
-		LocalRotation3D,					\
-		WorldRotation3D,					\
-		LocalScale3D,						\
-		WorldScale3D,						\
-		ChildModelNodeEntities,				\
-		DriverTransform3D,					\
-		Transform3DResource,				\
-		DebugText2D							
-
-#define ANIMATION								\
-		Animation::Model::Node::RunningState,	\
-		Animation::Model::Node::Animations	
-
-#define BONE								\
-		BoneNode,							\
-		BoneInverseBindPoseMatrix			
-
-#define NODE_ANIMATED							\
-		NODE,									\
-		ANIMATION
-
-#define NODE_BONE							\
-		NODE,								\
-		BONE
-
-#define NODE_BONE_ANIMATED						\
-		NODE_BONE,								\
-		ANIMATION			*/	
-
 
 	void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, AnimationInProgress* animationInProgress) {
 		ImGui::PushID(AnimationInProgress::GetTypeId());

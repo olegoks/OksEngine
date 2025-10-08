@@ -1,5 +1,5 @@
 Position3DComponent = {
-    fields = { 
+    fields = {
         { type = "float", name = "x" },
         { type = "float", name = "y" },
         { type = "float", name = "z" }
@@ -8,7 +8,7 @@ Position3DComponent = {
 
 LocalPosition3DComponent = {
     alignment = 16,
-    fields = { 
+    fields = {
         { alignment = 4, type = "float", name = "x" },
         { alignment = 4, type = "float", name = "y" },
         { alignment = 4, type = "float", name = "z" }
@@ -17,9 +17,19 @@ LocalPosition3DComponent = {
 
 WorldPosition3DComponent = {
     alignment = 16,
-    fields = { 
+    fields = {
         { alignment = 4, type = "float", name = "x" },
         { alignment = 4, type = "float", name = "y" },
         { alignment = 4, type = "float", name = "z" }
     }
+}
+
+DriverWorldPosition3DComponentsComponent = {
+    serializable = false,
+    fields = { { type = "RAL::Driver::StorageBuffer::Id", name = "id" } }
+}
+
+WorldPosition3DComponentsResourceComponent = {
+    serializable = false,
+    fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
 }

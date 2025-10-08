@@ -153,6 +153,26 @@ namespace OksEngine
 				nodeAnimationsSBResId = driver->CreateResource(nodeAnimationsStorageBinding);
 				CreateComponent<Animation::Model::Node::AnimationsComponentsResource>(driverEntityId, nodeAnimationsSBResId);
 			}
+			//Create storage buffer for WORLD positions.
+			RAL::Driver::ResourceSet::Id worldPositionsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
+			{
+
+				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(WorldPosition3D)
+				};
+				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
+
+				CreateComponent<DriverWorldPosition3DComponents>(driverEntityId, worldPositionsSBId);
+
+				RAL::Driver::ResourceSet::Binding worldPositionsStorageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+					.binding_ = 0,
+					.sbid_ = worldPositionsSBId
+				};
+				worldPositionsSBResId = driver->CreateResource(worldPositionsStorageBinding);
+				CreateComponent<WorldPosition3DComponentsResource>(driverEntityId, worldPositionsSBResId);
+			}
 		}
 	};
 

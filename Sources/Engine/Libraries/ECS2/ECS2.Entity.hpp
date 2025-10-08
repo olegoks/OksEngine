@@ -184,6 +184,7 @@ namespace ECS2 {
 
 	};
 
+	static_assert(sizeof(Entity::Id) == sizeof(Common::Size), "");
 
 	inline const Entity::Id Entity::Id::invalid_ = Common::Limits<Entity::Id::ValueType>::Max();
 
