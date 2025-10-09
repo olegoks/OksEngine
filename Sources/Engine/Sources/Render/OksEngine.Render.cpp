@@ -3,7 +3,7 @@
 
 #include <Common/auto_OksEngine.Position3D.hpp>
 #include <Common/auto_OksEngine.Rotation3D.hpp>
-#include <Common/auto_OksEngine.Scale3D.hpp>
+#include <Render/auto_OksEngine.Model.hpp>
 #include <Render/auto_OksEngine.Model.Animation.hpp>
 
 namespace OksEngine
@@ -154,7 +154,6 @@ namespace OksEngine
 				CreateComponent<Animation::Model::Node::AnimationsComponentsResource>(driverEntityId, nodeAnimationsSBResId);
 			}
 			//Create storage buffer for WORLD positions.
-			RAL::Driver::ResourceSet::Id worldPositionsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
 			{
 
 				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
@@ -162,16 +161,80 @@ namespace OksEngine
 				};
 				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
 
-				CreateComponent<DriverWorldPosition3DComponents>(driverEntityId, worldPositionsSBId);
-
 				RAL::Driver::ResourceSet::Binding worldPositionsStorageBinding
 				{
-					.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
 					.binding_ = 0,
 					.sbid_ = worldPositionsSBId
 				};
-				worldPositionsSBResId = driver->CreateResource(worldPositionsStorageBinding);
-				CreateComponent<WorldPosition3DComponentsResource>(driverEntityId, worldPositionsSBResId);
+				RAL::Driver::ResourceSet::Id worldPositionsSBResId = driver->CreateResource(worldPositionsStorageBinding);
+				CreateComponent<GPGPUECS::StorageBuffer::WorldPositions3D>(driverEntityId, worldPositionsSBId, worldPositionsSBResId);
+			}
+			{
+
+				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(WorldRotation3D)
+				};
+				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
+
+				RAL::Driver::ResourceSet::Binding worldPositionsStorageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.binding_ = 0,
+					.sbid_ = worldPositionsSBId
+				};
+				RAL::Driver::ResourceSet::Id worldPositionsSBResId = driver->CreateResource(worldPositionsStorageBinding);
+				CreateComponent<GPGPUECS::StorageBuffer::WorldRotations3D>(driverEntityId, worldPositionsSBId, worldPositionsSBResId);
+			}
+			{
+
+				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(WorldScale3D)
+				};
+				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
+
+				RAL::Driver::ResourceSet::Binding worldPositionsStorageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.binding_ = 0,
+					.sbid_ = worldPositionsSBId
+				};
+				RAL::Driver::ResourceSet::Id worldPositionsSBResId = driver->CreateResource(worldPositionsStorageBinding);
+				CreateComponent<GPGPUECS::StorageBuffer::WorldScales3D>(driverEntityId, worldPositionsSBId, worldPositionsSBResId);
+			}
+
+			{
+
+				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(BoneInverseBindPoseMatrix)
+				};
+				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
+
+				RAL::Driver::ResourceSet::Binding worldPositionsStorageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.binding_ = 0,
+					.sbid_ = worldPositionsSBId
+				};
+				RAL::Driver::ResourceSet::Id worldPositionsSBResId = driver->CreateResource(worldPositionsStorageBinding);
+				CreateComponent<GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices>(driverEntityId, worldPositionsSBId, worldPositionsSBResId);
+			}
+			
+			{
+				RAL::Driver::StorageBuffer::CreateInfo SBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(GPGPUECS::EntityIdToComponentIndex)
+				};
+				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
+
+				RAL::Driver::ResourceSet::Binding storageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.binding_ = 0,
+					.sbid_ = SBId
+				};
+				RAL::Driver::ResourceSet::Id SBResId = driver->CreateResource(storageBinding);
+
+				CreateComponent<GPGPUECS::StorageBuffer::EntityIdsToComponentIndices>(driverEntityId, SBId, SBResId);
 			}
 		}
 	};

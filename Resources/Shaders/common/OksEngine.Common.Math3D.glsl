@@ -74,3 +74,7 @@ vec4 quat_slerp(vec4 q1, vec4 q2, float t) {
     
     return w1 * q1 + w2 * q2;
 }
+
+bool IsEqual(float first, float second) {
+    return abs(first - second) < 0.0001;
+}

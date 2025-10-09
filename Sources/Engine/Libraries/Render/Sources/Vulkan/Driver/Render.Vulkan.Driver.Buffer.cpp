@@ -66,8 +66,15 @@ namespace Render::Vulkan
 		commandBuffer->Copy(bufferFrom, bufferTo, offsetFrom, offsetTo, bytesNumber);
 		commandBuffer->End();
 
-		commandBuffer->Submit(ld->GetGraphicsQueue());
+		//Fence::CreateInfo fenceCI{
+		//	.LD_ = ld
+		//};
 
+		//auto fence = std::make_shared<Fence>(fenceCI);
+		//fence->Reset();
+		commandBuffer->Submit(ld->GetGraphicsQueue()/*, fence*/);
+
+		//fence->Wait();
 		vkQueueWaitIdle(ld->GetGraphicsQueue());
 
 	}

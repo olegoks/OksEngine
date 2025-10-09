@@ -43,7 +43,12 @@ CreateRenderDriverSystem = {
                     "DriverWorldPosition3DComponents",
                     "WorldPosition3DComponentsResource",
                     "Animation::DriverLocalRotation3DComponents",
-                    "Animation::LocalRotation3DComponentsResource"
+                    "Animation::LocalRotation3DComponentsResource",
+                    "GPGPUECS::StorageBuffer::EntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::WorldPositions3D",
+                    "GPGPUECS::StorageBuffer::WorldRotations3D",
+                    "GPGPUECS::StorageBuffer::WorldScales3D",
+                    "GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices"
                 }
             }
         }

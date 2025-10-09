@@ -1,0 +1,46 @@
+GPGPUECSNamespace = {
+    EntityIdToComponentIndexStruct = {
+        fields = {
+            { type = "ECS2::Entity::Id", name = "entityId" },
+            { type = "Common::UInt64",   name = "componentIndex" }
+        }
+    },
+
+    StorageBufferNamespace = {
+        EntityIdsToComponentIndicesComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
+        },
+        WorldPositions3DComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
+        },
+        WorldRotations3DComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
+        },
+        WorldScales3DComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
+        },
+        BoneInverseBindPoseMatricesComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
+        }
+    }
+}

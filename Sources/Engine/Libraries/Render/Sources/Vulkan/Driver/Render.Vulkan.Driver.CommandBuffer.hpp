@@ -13,6 +13,7 @@
 #include <Render.Vulkan.Abstraction.hpp>
 #include <Render.Vulkan.Shader.hpp>
 #include <Driver/Render.Vulkan.Driver.Fence.hpp>
+//#include <Driver/Render.Vulkan.Driver.Semaphore.hpp>
 #include <Render.Vulkan.Driver.CommandPool.hpp>
 #include <Render.Vulkan.Driver.LogicDevice.hpp>
 #include <Render.Vulkan.Driver.Pipeline.hpp>
@@ -253,8 +254,13 @@ namespace Render::Vulkan {
 				0);
 		}
 
-		void DrawIndexed(Common::Size indicesNumber) {
-			vkCmdDrawIndexed(GetHandle(), static_cast<uint32_t>(indicesNumber), 1, 0, 0, 0);
+		void DrawIndexed(Common::Size indicesNumber, Common::UInt32 firstInstance, Common::UInt32 instanceCount) {
+			vkCmdDrawIndexed(
+				GetHandle(), 
+				static_cast<uint32_t>(indicesNumber),
+				instanceCount,
+				0, 0,
+				firstInstance);
 		}
 
 		void NextSubpass() {
@@ -454,9 +460,9 @@ namespace Render::Vulkan {
 		//	BindBuffer(shape->GetIndexBuffer());
 		//}
 
-		void DrawIndexed(std::shared_ptr<IndexBuffer2> ib) {
-			DrawIndexed(ib->GetIndicesNumber());
-		}
+		//void DrawIndexed(std::shared_ptr<IndexBuffer2> ib) {
+		//	DrawIndexed(ib->GetIndicesNumber());
+		//}
 
 		void End() noexcept {
 			VK_CALL(vkEndCommandBuffer(GetHandle()),
@@ -470,7 +476,7 @@ namespace Render::Vulkan {
 				&commandBuffer->GetHandle());
 		}
 
-		void Submit(VkQueue queue, std::shared_ptr<Fence> fence = nullptr) {
+		void Submit(VkQueue queue,/* std::shared_ptr<Semaphore> semaphore = nullptr, */ std::shared_ptr<Fence> fence = nullptr) {
 
 			VkSubmitInfo submitInfo{
 				.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO,

@@ -1180,7 +1180,10 @@ namespace Render::Vulkan {
 			GCB_->PushConstants(pipeline->GetLayout(), stage, sizeInBytes, data);
 		}
 
-		virtual void DrawIndexed(Common::Size indicesNumber) override {
+		virtual void DrawIndexed(
+			Common::Size indicesNumber,
+			Common::UInt32 firstInstance,
+			Common::UInt32 instanceCount) override {
 			/*	VkQueryPoolCreateInfo queryPoolInfo = {
 		.sType = VK_STRUCTURE_TYPE_QUERY_POOL_CREATE_INFO,
 		.queryType = VK_QUERY_TYPE_OCCLUSION,
@@ -1192,7 +1195,7 @@ namespace Render::Vulkan {
 				return;
 			}
 
-			GCB_->DrawIndexed(indicesNumber);
+			GCB_->DrawIndexed(indicesNumber, firstInstance, instanceCount);
 		}
 
 		virtual void Draw(Common::Size verticesNumber) override {

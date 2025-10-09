@@ -1062,7 +1062,12 @@ AddSkeletonModelToRenderSystem = {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
                     "RenderPass",
-                    "SkeletonModelPipeline"
+                    "SkeletonModelPipeline",
+                    "GPGPUECS::StorageBuffer::EntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::WorldPositions3D",
+                    "GPGPUECS::StorageBuffer::WorldRotations3D",
+                    "GPGPUECS::StorageBuffer::WorldScales3D",
+                    "GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices"
                 }
             },
             {

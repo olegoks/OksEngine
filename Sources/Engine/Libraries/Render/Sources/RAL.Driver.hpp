@@ -620,7 +620,9 @@ namespace RAL {
 			RAL::Driver::Pipeline::Id pipelineId, RAL::Driver::Shader::Stage stage,
 			Common::Size sizeInBytes, void* data) = 0;
 
-		virtual void DrawIndexed(Common::Size indicesNumber) = 0;
+		virtual void DrawIndexed(Common::Size indicesNumber,
+			Common::UInt32 firstInstance = 0,
+			Common::UInt32 instanceCount = 1) = 0;
 		virtual void Draw(Common::Size verticesNumber) = 0;
 		virtual void EndSubpass() = 0;
 		virtual void EndRenderPass() = 0;

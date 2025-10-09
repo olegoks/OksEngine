@@ -1,23 +1,26 @@
 Scale3DComponent = {
+    alignment = 16,
     fields = { 
-        { type = "float", name = "x" },
-        { type = "float", name = "y" },
-        { type = "float", name = "z" }
+        { alignment = 4, type = "float", name = "x" },
+        { alignment = 4, type = "float", name = "y" },
+        { alignment = 4, type = "float", name = "z" }
     }
 }
 
 LocalScale3DComponent = {
+    alignment = 16,
     fields = { 
-        { type = "float", name = "x" },
-        { type = "float", name = "y" },
-        { type = "float", name = "z" }
+        { alignment = 4, type = "float", name = "x" },
+        { alignment = 4, type = "float", name = "y" },
+        { alignment = 4, type = "float", name = "z" }
     }
 }
 
 WorldScale3DComponent = {
+    alignment = 16,
     fields = { 
-        { type = "float", name = "x" },
-        { type = "float", name = "y" },
-        { type = "float", name = "z" }
+        { alignment = 4, type = "float", name = "x" },
+        { alignment = 4, type = "float", name = "y" },
+        { alignment = 4, type = "float", name = "z" }
     }
 }
