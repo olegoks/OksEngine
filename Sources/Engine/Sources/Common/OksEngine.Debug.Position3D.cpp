@@ -57,7 +57,7 @@ namespace OksEngine
 		ECS2::Entity::Id entity0id, 
 		const WorldPosition3D* position3D0) {
 
-		CreateComponent<DebugText2D>(entity0id, "DebugText2D", 0, 0);
+		//CreateComponent<DebugText2D>(entity0id, "DebugText2D", 0, 0);
 	};
 
 } // namespace OksEngine

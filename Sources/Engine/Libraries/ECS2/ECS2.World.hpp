@@ -89,6 +89,30 @@ namespace ECS2 {
 			return entityId;
 		}
 
+		////Create archetype entity.
+		//[[nodiscard]]
+		//Entity::Id CreateEntity(ComponentsFilter archetypeComponentsFilter) noexcept {
+		//	std::lock_guard lock{ addRequestMutex_ };
+		//	const Entity::Id entityId = GetFreeEntityId();
+		//	requests_.emplace_back([entityId, archetypeComponentsFilter, this]() mutable {
+		//		archetypeEntitiesComponents_[entityId] = archetypeComponentsFilter;
+
+		//		auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
+		//		const bool isArchetypeComponentsContainersCreated = archetypeComponentsIt != archetypeComponents_.end();
+		//		std::shared_ptr<ArchetypeComponents<Components...>> archetypeComponents = nullptr;
+		//		if (!isArchetypeComponentsContainersCreated) {
+		//			archetypeComponents = std::make_shared<ArchetypeComponents<Components...>>(100);
+		//			archetypeComponents_[archetypeComponentsFilter] = archetypeComponents;
+		//		}
+		//		else {
+		//			std::shared_ptr<IArchetypeComponents> iArchetypeComponents = archetypeComponentsIt->second;
+		//			archetypeComponents = std::dynamic_pointer_cast<ArchetypeComponents<Components...>>(iArchetypeComponents);
+		//		}
+		//		archetypeComponents->CreateEntity(entityId);
+		//		});
+		//	return entityId;
+		//}
+
 		Entity::Id CreateEntity() noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
 			const Entity::Id entityId = GetFreeEntityId();

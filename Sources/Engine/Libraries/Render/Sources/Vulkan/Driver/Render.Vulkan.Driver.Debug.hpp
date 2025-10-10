@@ -59,6 +59,7 @@ namespace Render::Vulkan {
 				func(createInfo.instance_->GetHandle(), &ci, nullptr, &debugCallbackHandle);
 			}
 #endif
+#if !defined(NDEBUG)
 			{
 				VkDebugUtilsMessengerCreateInfoEXT messengerCreateInfo{};
 				{
@@ -77,6 +78,7 @@ namespace Render::Vulkan {
 				SetNative(debugMessenger);
 				OS::LogInfo("/render/vulkan/driver/debug", "Debug messenger was created successfuly.");
 			}
+#endif
 		}
 
 		[[nodiscard]]

@@ -39,14 +39,18 @@ namespace Render::Vulkan {
 
 		void Write(Common::Size offset, const void* data, Common::Size sizeInBytes, std::shared_ptr<CommandPool> commandPool) {
 
+			PIXBeginEvent(PIX_COLOR(255, 255, 0), "Storage buffer: write to staging buffer.");
 			stagingBuffer_->Write(offset, data, sizeInBytes);
+			PIXEndEvent();
 
+			PIXBeginEvent(PIX_COLOR(255, 255, 0), "Storage buffer: copy from staging buffer to storage");
 			Buffer::DataCopy(
 				*stagingBuffer_, *this,
 				offset, offset,
 				sizeInBytes,
 				ci_.LD_,
 				commandPool);
+			PIXEndEvent();
 		}
 
 		void Read(Common::Size offset, void* data, Common::Size sizeInBytes, std::shared_ptr<CommandPool> commandPool) {

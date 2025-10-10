@@ -4,6 +4,10 @@ AnimationNamespace = {
         type = "Common::Size",
         value = "32"
     },
+    AnimationsMaxNumberConstant = {
+        type = "Common::Size",
+        value = "4"
+    },
 
     ChannelNamespace = {
         --Position
@@ -34,7 +38,7 @@ AnimationNamespace = {
         RotationKeysStruct = {
             serializable = false,
             fields = {
-                { type = "std::array<Rotation3DKey, 32>", name = "keys" }
+                { type = "std::array<Rotation3DKey, KeysPerChannelNumber>", name = "keys" }
             }
         },
         --Scale
@@ -49,7 +53,7 @@ AnimationNamespace = {
         Scale3DKeysStruct = {
             serializable = false,
             fields = {
-                { type = "std::array<Scale3DKey, 32>", name = "keys" }
+                { type = "std::array<Scale3DKey, KeysPerChannelNumber>", name = "keys" }
             }
         }
     },
@@ -68,7 +72,7 @@ AnimationNamespace = {
                 serializable = false,
                 fields = {
                     --Max 8 animations per node
-                    { type = "std::array<Animation, 8>", name = "animations" }
+                    { type = "std::array<Animation, AnimationsMaxNumber>", name = "animations" }
                 }
             },
             --RunningAnimationStates GPU STORAGE buffers

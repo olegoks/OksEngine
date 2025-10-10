@@ -407,10 +407,11 @@ namespace Render::Vulkan {
 			auto windowInfo = info.surface_;
 
 			Extensions requiredExtensions;
+#if !defined(NDEBUG)
 			requiredExtensions.AddExtension("VK_EXT_debug_utils");
 			requiredExtensions.AddExtension("VK_EXT_debug_report");
 			//requiredExtensions.AddExtension("VK_KHR_portability_subset");
-
+#endif
 			if (windowInfo.uiSubsystem_ == RAL::UISubsystem::GLFW) {
 				const Common::UInt32 extensionsCount = std::any_cast<Common::UInt32>(windowInfo.param2_);
 				const char** extensions = std::any_cast<const char**>(windowInfo.param3_);
@@ -420,7 +421,9 @@ namespace Render::Vulkan {
 			}
 
 			ValidationLayers requiredValidationLayers;
+#if !defined(NDEBUG)
 			requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_validation");
+#endif
 			//requiredValidationLayers.AddLayer("printf_verbose");
 			//requiredValidationLayers.AddLayer("VK_LAYER_LUNARG_api_dump");
 			//requiredValidationLayers.AddLayer("VK_LAYER_KHRONOS_profiles");

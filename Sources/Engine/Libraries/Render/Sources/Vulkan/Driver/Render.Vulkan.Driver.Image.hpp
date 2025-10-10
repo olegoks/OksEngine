@@ -63,7 +63,9 @@ namespace Render::Vulkan {
 			nameInfo.objectType = VK_OBJECT_TYPE_IMAGE; // Тип объекта,, VK_OBJECT_TYPE_BUFFER
 			nameInfo.objectHandle = (uint64_t)image;   // Объект, которому назначается имя
 			nameInfo.pObjectName = createInfo.name_.c_str();      // Имя объекта
+#if !defined(NDEBUG)
 			SetObjectName(*createInfo.LD_, &nameInfo);
+#endif
 			SetHandle(image);
 		}
 

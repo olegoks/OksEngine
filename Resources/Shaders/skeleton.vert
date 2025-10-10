@@ -42,7 +42,15 @@ layout(std430, set = 4, binding = 0) buffer WorldScales3D {
     WorldScale3D scales_[];
 };
 
-layout(std430, set = 5, binding = 0) buffer BoneInverseBindPoseMatrices {
+struct ModelNodeEntityIds {
+    uint64_t nodeIds_[128];
+};
+
+layout(std430, set = 5, binding = 0) buffer ModelsNodeEntityIds {
+    ModelNodeEntityIds modelNodeEntityIds_[];
+};
+
+layout(std430, set = 6, binding = 0) buffer BoneInverseBindPoseMatrices {
     mat4 boneInverseBindPoseMatrices[];
 };
 
@@ -51,7 +59,7 @@ struct EntityIdToComponentIndex {
     uint64_t componentIndex_;
 };
 
-layout(std430, set = 6, binding = 0) buffer EntityIdsToComponentIndices {
+layout(std430, set = 7, binding = 0) buffer EntityIdsToComponentIndices {
     EntityIdToComponentIndex idsToIndices[];
 };
 
@@ -65,6 +73,7 @@ layout(push_constant) uniform PushConstants {
 uint64_t GetComponentIndexByEntityId(uint64_t entityId){
 
     //debugPrintfEXT("entitiesNumber %d, Bone entity index %d",entitiesNumber_, entityId);
+    //TODO: use binary search
     for(uint i = 0; i < entitiesNumber_; i++){
         if(idsToIndices[i].entityId_ == entityId){
             return idsToIndices[i].componentIndex_;
@@ -107,8 +116,13 @@ void main() {
 
     //mat4 bone1Transform = positions_[bone1Pos];
 
+    ModelNodeEntityIds modelNodeEntityIds = modelNodeEntityIds_[gl_InstanceIndex];
+
     if(float(inBoneWeights[0]) / 255.0 >  0.001) {
-        uint boneIndex = uint(GetComponentIndexByEntityId(inBoneIds[0]));
+
+        uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[0]];
+        
+        uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
 
         vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
         vec4 rotation = rotations_[boneIndex].rotation_;
@@ -122,7 +136,11 @@ void main() {
     }
 
     if(float(inBoneWeights[1]) / 255.0 >  0.001) {
-        uint boneIndex = uint(GetComponentIndexByEntityId(inBoneIds[1]));
+
+        uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[1]];
+        
+
+        uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
 
         vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
         vec4 rotation = rotations_[boneIndex].rotation_;
@@ -136,7 +154,11 @@ void main() {
     }
 
     if(float(inBoneWeights[2]) / 255.0 >  0.001) {
-        uint boneIndex = uint(GetComponentIndexByEntityId(inBoneIds[2]));
+
+        uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[2]];
+        
+
+        uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
 
         vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
         vec4 rotation = rotations_[boneIndex].rotation_;
@@ -150,7 +172,10 @@ void main() {
     }
 
     if(float(inBoneWeights[3]) / 255.0 >  0.001) {
-        uint boneIndex = uint(GetComponentIndexByEntityId(inBoneIds[3]));
+
+        uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[3]];
+
+        uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
 
         vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
         vec4 rotation = rotations_[boneIndex].rotation_;

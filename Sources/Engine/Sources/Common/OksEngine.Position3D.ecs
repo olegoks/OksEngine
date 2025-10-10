@@ -11,7 +11,8 @@ LocalPosition3DComponent = {
     fields = {
         { alignment = 4, type = "float", name = "x" },
         { alignment = 4, type = "float", name = "y" },
-        { alignment = 4, type = "float", name = "z" }
+        { alignment = 4, type = "float", name = "z" },
+        { alignment = 4, type = "float", name = "w" }
     }
 }
 
@@ -20,7 +21,8 @@ WorldPosition3DComponent = {
     fields = {
         { alignment = 4, type = "float", name = "x" },
         { alignment = 4, type = "float", name = "y" },
-        { alignment = 4, type = "float", name = "z" }
+        { alignment = 4, type = "float", name = "z" },
+        { alignment = 4, type = "float", name = "w" }
     }
 }
 

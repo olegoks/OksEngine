@@ -11,6 +11,7 @@
 #include <RAL.Common.hpp>
 #include <OS.Assert.hpp>
 #include <OS.Logger.hpp>
+#include <pix3.h>
 #include <Common.Identifier.hpp>
 
 namespace Render::Vulkan {

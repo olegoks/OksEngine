@@ -28,6 +28,11 @@ ModelNodeComponent = {
 
 }
 
+ModelNodeAnimationsMaxNumberConstant = {
+    type = "Common::Size",
+    value = "8"
+}
+
 ModelNodesMaxNumberConstant = {
     type = "Common::Size",
     value = "128"
@@ -55,7 +60,7 @@ ModelNodeEntityIdComponent = {
 ModelNodeEntityIdsComponent = {
     serializable = false,
     fields = {
-        { type = "std::vector<ECS2::Entity::Id>", name = "nodeEntityIds" }
+        { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "nodeEntityIds" }
     }
 }
 
@@ -121,7 +126,7 @@ UpdateHierarchicalNodeDriverTransform3DSystem = {
 BoneNodeEntitiesComponent = {
     serializable = false,
     fields = {
-        { type = "std::vector<ECS2::Entity::Id>", name = "boneEntityIds" }
+        { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "boneEntityIds" }
     }
 }
 --Index of array its bone index
@@ -1067,6 +1072,7 @@ AddSkeletonModelToRenderSystem = {
                     "GPGPUECS::StorageBuffer::WorldPositions3D",
                     "GPGPUECS::StorageBuffer::WorldRotations3D",
                     "GPGPUECS::StorageBuffer::WorldScales3D",
+                    "GPGPUECS::StorageBuffer::BoneNodeEntities",
                     "GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices"
                 }
             },
@@ -1095,7 +1101,8 @@ AddSkeletonModelToRenderSystem = {
                 accessingComponents = {
                     "DriverTransform3D",
                     "Transform3DResource",
-                    "BonesPalletResource"
+                    "BonesPalletResource",
+                    "BoneNodeEntities"
                 }
             }
         }

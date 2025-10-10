@@ -391,8 +391,9 @@ namespace Render::Vulkan {
 				.objectHandle = (uint64_t)renderPass,
 				.pObjectName = createInfo.name_.c_str()
 			};
+#if !defined(NDEBUG)
 			SetObjectName(*createInfo.LD_, &nameInfo);
-
+#endif
 			SetHandle(renderPass);
 
 

@@ -125,7 +125,7 @@ struct ModelNodeAnimation {
 };
 
 struct ModelNodeAnimations {
-    ModelNodeAnimation animations_[8];
+    ModelNodeAnimation animations_[4];
 };
 
 layout(std430, set = 3, binding = 0) buffer AnimationsData {

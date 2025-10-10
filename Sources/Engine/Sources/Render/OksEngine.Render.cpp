@@ -219,7 +219,42 @@ namespace OksEngine
 				RAL::Driver::ResourceSet::Id worldPositionsSBResId = driver->CreateResource(worldPositionsStorageBinding);
 				CreateComponent<GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices>(driverEntityId, worldPositionsSBId, worldPositionsSBResId);
 			}
-			
+
+
+			{
+
+				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(ModelNodeEntityIds)
+				};
+				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
+
+				RAL::Driver::ResourceSet::Binding worldPositionsStorageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.binding_ = 0,
+					.sbid_ = worldPositionsSBId
+				};
+				RAL::Driver::ResourceSet::Id worldPositionsSBResId = driver->CreateResource(worldPositionsStorageBinding);
+				CreateComponent<GPGPUECS::StorageBuffer::ModelNodeEntityIds>(driverEntityId, worldPositionsSBId, worldPositionsSBResId);
+			}
+
+			{
+
+				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(BoneNodeEntities)
+				};
+				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
+
+				RAL::Driver::ResourceSet::Binding worldPositionsStorageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.binding_ = 0,
+					.sbid_ = worldPositionsSBId
+				};
+				RAL::Driver::ResourceSet::Id worldPositionsSBResId = driver->CreateResource(worldPositionsStorageBinding);
+				CreateComponent<GPGPUECS::StorageBuffer::BoneNodeEntities>(driverEntityId, worldPositionsSBId, worldPositionsSBResId);
+			}
+
 			{
 				RAL::Driver::StorageBuffer::CreateInfo SBCI{
 					.size_ = preallocatedEntitiesNumber * sizeof(GPGPUECS::EntityIdToComponentIndex)

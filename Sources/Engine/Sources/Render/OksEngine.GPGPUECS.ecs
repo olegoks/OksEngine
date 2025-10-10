@@ -41,6 +41,20 @@ GPGPUECSNamespace = {
                 { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
                 { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
             }
+        },
+        ModelNodeEntityIdsComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
+        },
+        BoneNodeEntitiesComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
         }
     }
 }
