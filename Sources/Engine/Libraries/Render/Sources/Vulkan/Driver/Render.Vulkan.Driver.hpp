@@ -1315,7 +1315,7 @@ namespace Render::Vulkan {
 			currentFrame_->Render();
 			currentFrame_->ShowImage();
 
-			//currentFrame_->WaitForQueueIdle();
+			currentFrame_->WaitForQueueIdle();
 
 			currentFrame = (currentFrame + 1) % concurrentFramesNumber;
 
