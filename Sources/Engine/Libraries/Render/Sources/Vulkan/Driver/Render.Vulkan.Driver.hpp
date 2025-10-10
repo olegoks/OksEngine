@@ -1315,7 +1315,11 @@ namespace Render::Vulkan {
 			currentFrame_->Render();
 			currentFrame_->ShowImage();
 
+			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Wait for render end.");
+
 			currentFrame_->WaitForQueueIdle();
+
+			PIXEndEvent();
 
 			currentFrame = (currentFrame + 1) % concurrentFramesNumber;
 
