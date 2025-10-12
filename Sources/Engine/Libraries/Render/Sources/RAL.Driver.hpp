@@ -582,6 +582,7 @@ namespace RAL {
 
 		virtual void StartRender() = 0;
 		virtual void EndRender() = 0;
+		virtual void WaitRenderEnd() = 0;
 
 		virtual void SetViewport(
 			Common::UInt32 x,

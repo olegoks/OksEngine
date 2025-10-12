@@ -25,7 +25,7 @@ if(MSVC)
   #  target_compile_options(OksEngine PUBLIC "/MP 20")
   target_link_options(OksEngine PUBLIC "/INCREMENTAL")
 endif()
-
+#TODO: Move this definition to code.
 target_compile_definitions(OksEngine PUBLIC USE_PIX)
 
 # target_compile_options(OksEngine INTERFACE

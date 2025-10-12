@@ -50,7 +50,7 @@ namespace Render::Vulkan {
 	private:
 		size_t currentFrame = 0;
 
-		static inline constexpr Common::Size concurrentFramesNumber = 1;
+		static inline constexpr Common::Size concurrentFramesNumber = 2;
 
 	public:
 
@@ -1315,17 +1315,19 @@ namespace Render::Vulkan {
 			currentFrame_->Render();
 			currentFrame_->ShowImage();
 
-			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Wait for render end.");
 
-			currentFrame_->WaitForQueueIdle();
-
-			PIXEndEvent();
 
 			currentFrame = (currentFrame + 1) % concurrentFramesNumber;
 
 
 			contexts_.clear();
 
+		}
+
+		void WaitRenderEnd() override {
+			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Wait for render end.");
+			currentFrame_->WaitForQueueIdle();
+			PIXEndEvent();
 		}
 
 		[[nodiscard]]
@@ -1585,12 +1587,16 @@ namespace Render::Vulkan {
 				.sizeInBytes_ = createInfo.size_
 			};
 
-			auto storageBuffer = std::make_shared<Vulkan::StorageBuffer>(sbci);
+			auto storageBuffer1 = std::make_shared<Vulkan::StorageBuffer>(sbci);
 
-			storageBuffer->Allocate();
+			storageBuffer1->Allocate();
+
+			auto storageBuffer2 = std::make_shared<Vulkan::StorageBuffer>(sbci);
+
+			storageBuffer2->Allocate();
 
 			Common::Id id = SBsIdsGenerator_.Generate();
-			SBs_[id] = std::vector<std::shared_ptr<Vulkan::StorageBuffer>>{ storageBuffer };
+			SBs_[id] = std::vector<std::shared_ptr<Vulkan::StorageBuffer>>{ storageBuffer1, storageBuffer2 };
 			return id;
 
 		}
@@ -1601,7 +1607,7 @@ namespace Render::Vulkan {
 
 		std::shared_ptr<Vulkan::StorageBuffer> GetStorageBuffer(StorageBuffer::Id SBId) {
 			auto SB = SBs_[SBId];
-			return SB[0];
+			return SB[(currentFrame == 0) ? (1) : (0)];
 		}
 
 		void RemoveStorageBuffer(StorageBuffer::Id SBId) {
@@ -1619,8 +1625,9 @@ namespace Render::Vulkan {
 			ASSERT(data != nullptr);
 			ASSERT(bytesNumber > 0);
 
-			std::vector<std::shared_ptr<Vulkan::StorageBuffer>>& sb = SBs_[SBId];
-			sb[0]->Write(offsetInBytes, data, bytesNumber, objects_.commandPool_);
+			auto storageBuffer = GetStorageBuffer(SBId);
+			//std::vector<std::shared_ptr<Vulkan::StorageBuffer>>& sb = SBs_[SBId];
+			storageBuffer->Write(offsetInBytes, data, bytesNumber, objects_.commandPool_);
 
 		}
 
@@ -1630,8 +1637,8 @@ namespace Render::Vulkan {
 			Common::Size offset,
 			Common::Size size,
 			void* data) override {
-			std::vector<std::shared_ptr<Vulkan::StorageBuffer>>& sb = SBs_[SBId];
-			sb[0]->Read(offset, data, size, objects_.commandPool_);
+			auto storageBuffer = GetStorageBuffer(SBId);
+			storageBuffer->Read(offset, data, size, objects_.commandPool_);
 		}
 
 		// STORAGE BUFFER
@@ -2137,7 +2144,7 @@ namespace Render::Vulkan {
 						}
 						else if (!binding.sbid_.IsInvalid()) {
 							updateInfo.type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-							std::shared_ptr<Vulkan::StorageBuffer> sb = SBs_[binding.sbid_][0];
+							std::shared_ptr<Vulkan::StorageBuffer> sb = GetStorageBuffer(binding.sbid_);//SBs_[binding.sbid_][0];
 							updateInfo.bufferInfo_.buffer_ = sb;
 							updateInfo.bufferInfo_.offset_ = binding.offset_;
 							updateInfo.bufferInfo_.range_ = binding.size_;

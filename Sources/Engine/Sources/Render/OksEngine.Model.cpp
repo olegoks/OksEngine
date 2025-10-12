@@ -2076,6 +2076,9 @@ namespace OksEngine
 			auto* localRotations = std::get<LocalRotation3D*>(componentPointers);
 			auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
 			auto* modelNodeAnimations = std::get<Animation::Model::Node::Animations*>(componentPointers);
+
+			//driver->WaitRenderEnd();
+
 			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Write animation data for nodes");
 			driver->StorageBufferWrite(
 				animation__DriverLocalPosition3DComponents0->id_,
