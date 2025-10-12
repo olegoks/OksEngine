@@ -66,16 +66,18 @@ namespace Render::Vulkan
 		commandBuffer->Copy(bufferFrom, bufferTo, offsetFrom, offsetTo, bytesNumber);
 		commandBuffer->End();
 
-		//Fence::CreateInfo fenceCI{
-		//	.LD_ = ld
-		//};
+		Fence::CreateInfo fenceCI{
+			.LD_ = ld
+		};
 
-		//auto fence = std::make_shared<Fence>(fenceCI);
-		//fence->Reset();
-		commandBuffer->Submit(ld->GetGraphicsQueue()/*, fence*/);
+		auto fence = std::make_shared<Fence>(fenceCI);
+		fence->Reset();
+		commandBuffer->Submit(ld->GetGraphicsQueue(), fence);
 
-		//fence->Wait();
-		vkQueueWaitIdle(ld->GetGraphicsQueue());
+		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Waitting for copying data from staging to aim buffer.");
+		fence->Wait();
+		PIXEndEvent();
+		//vkQueueWaitIdle(ld->GetGraphicsQueue());
 
 	}
 
