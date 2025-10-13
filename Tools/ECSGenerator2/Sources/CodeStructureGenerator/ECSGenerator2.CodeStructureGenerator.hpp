@@ -9,6 +9,10 @@
 
 #include <Namespace/ECSGenerator2.ParsedNamespace.hpp>
 
+extern "C" {
+#include <graphviz/gvc.h>
+}
+
 namespace ECSGenerator2 {
 
 	class CodeStructureGenerator {
@@ -2269,7 +2273,6 @@ namespace ECSGenerator2 {
 					[&](std::shared_ptr<ParsedSystem> parsedSystem) {
 						if (parsedSystem->ci_.type_ == ParsedSystem::Type::FrameToFrame) {
 
-
 							if (parsedSystem->GetThread() == ParsedSystem::Thread::Child) {
 								childThread.systems_.push_back(parsedSystem);
 							}
@@ -2328,21 +2331,6 @@ namespace ECSGenerator2 {
 			//	}
 			//}
 
-			//auto getSystemByFullName = [](std::vector<std::shared_ptr<ParsedECSFile>> parsedEcsFiles, const std::string& systemFullName) {
-
-			//	for (auto parsedEcsFile : parsedEcsFiles) {
-			//		const auto systemParsedFullName = ParseFullName(systemFullName);
-			//		if (parsedEcsFile->GetName() == "OksEngine.Debug.Render") {
-			//			Common::BreakPointLine();
-			//		}
-			//		const auto tablesPath = GetTablePathByFullName(parsedEcsFile, systemParsedFullName);
-			//		if (!tablesPath.empty()) {
-			//			return std::dynamic_pointer_cast<ParsedSystem>(tablesPath.back());
-			//		}
-			//	}
-			//	OS::AssertFail();
-			//	return ParsedSystemPtr{};
-			//	};
 
 			//Create call graph for each thread.
 			auto createClusterSystemsCallGraph =
@@ -2367,11 +2355,7 @@ namespace ECSGenerator2 {
 
 					if (system->ci_.callOrderInfo_ != nullptr) {
 						system->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const ParsedSystem::CallOrderInfo::System& afterSystem) {
-#pragma region Assert 
-							//ASSERT_FMSG(thread.systems_.contains(afterSystem), "Current thread doesn't contain After System:" + afterSystem);
-#pragma endregion		
-
-							auto parsedSystem = afterSystem.ptr_;//getSystemByFullName(parsedECSFiles, afterSystem);
+							auto parsedSystem = afterSystem.ptr_;
 
 #pragma region Assert
 							ASSERT_FMSG(parsedSystem != nullptr, "");
@@ -2384,10 +2368,8 @@ namespace ECSGenerator2 {
 					}
 					if (system->ci_.callOrderInfo_ != nullptr) {
 						system->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const ParsedSystem::CallOrderInfo::System& beforeSystem) {
-#pragma region Assert 
-							//ASSERT_FMSG(thread.systems_.contains(beforeSystem), "Current thread doesn't contain Before System:" + beforeSystem);
-#pragma endregion		
-							auto parsedSystem = beforeSystem.ptr_;//getSystemByFullName(parsedECSFiles, beforeSystem);
+
+							auto parsedSystem = beforeSystem.ptr_;
 #pragma region Assert
 							ASSERT_FMSG(parsedSystem != nullptr, "");
 #pragma endregion
@@ -2403,19 +2385,19 @@ namespace ECSGenerator2 {
 				///CREATE GRAPHVIZ CALL GRAPH
 
 				// �������� ������ �����
-			/*	Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
+				Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
 
-				thread.callGraph_.ForEachNode([&](DS::Graph<System>::NodeId nodeId, DS::Graph<System>::Node& node) {
+				thread.callGraph_.ForEachNode([&](DS::Graph<ParsedSystemPtr>::NodeId nodeId, DS::Graph<ParsedSystemPtr>::Node& node) {
 
 					if (node.HasLinksFrom() || node.HasLinksTo()) {
 
-						Agnode_t* gSystemNode = agnode(g, (char*)node.GetValue().c_str(), 1);
+						Agnode_t* gSystemNode = agnode(g, (char*)node.GetValue()->GetFullName().c_str(), 1);
 						agsafeset(gSystemNode, (char*)"shape", (char*)"rect", (char*)"");
 
 						node.ForEachLinksFrom([&](DS::Graph<System>::NodeId nodeId) {
-							const DS::Graph<System>::Node& fromNode = thread.callGraph_.GetNode(nodeId);
+							const DS::Graph<ParsedSystemPtr>::Node& fromNode = thread.callGraph_.GetNode(nodeId);
 
-							Agnode_t* gFromNode = agnode(g, (char*)fromNode.GetValue().c_str(), 1);
+							Agnode_t* gFromNode = agnode(g, (char*)fromNode.GetValue()->GetFullName().c_str(), 1);
 
 							Agedge_t* gEdge = agedge(g, gFromNode, gSystemNode, nullptr, 1);
 
@@ -2423,64 +2405,64 @@ namespace ECSGenerator2 {
 							});
 
 						node.ForEachLinksTo([&](DS::Graph<System>::NodeId nodeId) {
-							const DS::Graph<System>::Node& toNode = thread.callGraph_.GetNode(nodeId);
+							const DS::Graph<ParsedSystemPtr>::Node& toNode = thread.callGraph_.GetNode(nodeId);
 
-							Agnode_t* gToNode = agnode(g, (char*)toNode.GetValue().c_str(), 1);
+							Agnode_t* gToNode = agnode(g, (char*)toNode.GetValue()->GetFullName().c_str(), 1);
 
 							Agedge_t* gEdge = agedge(g, gSystemNode, gToNode, nullptr, 1);
 
 							return true;
 							});
 					}
-
+					 
 
 					return true;
-					});*/
+					});
 
 
 					//Parse .dot
-					//{
-					//	GVC_t* gvc = gvContext();
+					{
+						GVC_t* gvc = gvContext();
 
 
-					//	//Get path
-					//	auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
+						//Get path
+						//auto randomEcsFilePath = parsedECSFiles[0]->GetPath();
 
-					//	std::filesystem::path includeDirFullPath;
+						//std::filesystem::path includeDirFullPath;
 
-					//	std::filesystem::path::iterator includeDirIt;
-					//	for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
-					//		auto folder = *it;
-					//		if (folder == projectContext->includeDirectory_) {
-					//			includeDirIt = it;
-					//			break;
-					//		}
-					//	}
+						//std::filesystem::path::iterator includeDirIt;
+						//for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
+						//	auto folder = *it;
+						//	if (folder == projectContext->includeDirectory_) {
+						//		includeDirIt = it;
+						//		break;
+						//	}
+						//}
 
-					//	for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
-					//		includeDirFullPath /= *it;
-					//	}
+						//for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
+						//	includeDirFullPath /= *it;
+						//}
 
-					//	includeDirFullPath /= *includeDirIt;
-					//	//Get path
+						//includeDirFullPath /= *includeDirIt;
+						//Get path
 
+						static int clusterIndex = 0;
+						auto dotfile = std::make_shared<OS::TextFile>("D:/OksEngine/auto_ECSSystemsCallGraph" + std::to_string(clusterIndex) + ".dot");
+						clusterIndex++;
+						char* dotData = nullptr;
+						unsigned int length = 0;
 
-					//	auto dotfile = std::make_shared<OS::TextFile>(includeDirFullPath / "auto_ECSSystemsCallGraph.dot");
+						gvLayout(gvc, g, "dot");
+						gvRenderData(gvc, g, "dot", &dotData, &length);
 
-					//	char* dotData = nullptr;
-					//	unsigned int length = 0;
-
-					//	gvLayout(gvc, g, "dot");
-					//	gvRenderData(gvc, g, "dot", &dotData, &length);
-
-					//	agclose(g);
-					//	gvFreeContext(gvc);
-					//	dotfile->Create();
-					//	std::string dotText{ dotData };
-					//	(*dotfile) << dotText;
-					//	dotfile->Close();
-					//}
-					//////
+						agclose(g);
+						gvFreeContext(gvc);
+						dotfile->Create();
+						std::string dotText{ dotData };
+						(*dotfile) << dotText;
+						dotfile->Close();
+					}
+					////
 
 				};
 
