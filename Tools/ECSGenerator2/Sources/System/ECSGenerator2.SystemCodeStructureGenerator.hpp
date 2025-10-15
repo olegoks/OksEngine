@@ -505,17 +505,15 @@ namespace ECSGenerator2 {
 				{
 					if (!expression.code_.empty()) {
 						//Add Assert.
-						removeComponentRealization.Add("if constexpr (Common::IsDebug()) {");
 						{
-							removeComponentRealization.Add("ASSERT_FMSG(");
+							removeComponentRealization.Add("STATIC_ASSERT_MSG(");
 							removeComponentRealization.Add("(" + expression.code_ + ")");
 							removeComponentRealization.Add(
-								",\"Attempt to remove component{} that system("
+								",\"Attempt to remove component that system("
 								+ systemEcsFile->GetName() +
-								") can't remove. Added access entities description to .ecs file that corresponds to system\", Component::GetName());"
+								") can't remove. Added access entities description to .ecs file that corresponds to system\");"
 							);
 						}
-						removeComponentRealization.Add("}");
 					}
 					removeComponentRealization.Add("world_->RemoveComponent<Component>(entityId, \"" + systemEcsFile->GetFullName() + "\",std::forward<Args>(args)...);");
 				}
