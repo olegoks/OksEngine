@@ -35,10 +35,12 @@ namespace ECSGenerator2 {
 			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
 
 			CodeStructure::File::Includes includes;
-			includes.paths_.insert("ECS2.hpp");
-			includes.paths_.insert("chrono");
-			includes.paths_.insert("OksEngine.IComponent.hpp");
-
+			{
+				includes.paths_.insert("ECS2.hpp");
+				includes.paths_.insert("chrono");
+				includes.paths_.insert("tuple");
+				includes.paths_.insert("OksEngine.IComponent.hpp");
+			}
 			//Add "OksEngine.EditEntity.hpp" header if component contains fields with ECS2::Entity::Id.
 			bool needToIncludeEditEntity = false;
 			parsedECSFile->ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
@@ -1959,11 +1961,11 @@ namespace ECSGenerator2 {
 
 			//hpp file
 			CodeStructure::File::CreateInfo fci{
-			.isHpp_ = true,
-			.includes_ = includes,
-			.base_ = namespaceObject
+				.isHpp_ = true,
+				.includes_ = includes,
+				.base_ = namespaceObject
 			};
-
+			 
 			auto file = std::make_shared<CodeStructure::File>(fci);
 
 			return file;
@@ -2414,55 +2416,55 @@ namespace ECSGenerator2 {
 							return true;
 							});
 					}
-					 
+
 
 					return true;
 					});
 
 
-					//Parse .dot
-					{
-						GVC_t* gvc = gvContext();
+				//Parse .dot
+				{
+					GVC_t* gvc = gvContext();
 
 
-						//Get path
-						//auto randomEcsFilePath = parsedECSFiles[0]->GetPath();
+					//Get path
+					//auto randomEcsFilePath = parsedECSFiles[0]->GetPath();
 
-						//std::filesystem::path includeDirFullPath;
+					//std::filesystem::path includeDirFullPath;
 
-						//std::filesystem::path::iterator includeDirIt;
-						//for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
-						//	auto folder = *it;
-						//	if (folder == projectContext->includeDirectory_) {
-						//		includeDirIt = it;
-						//		break;
-						//	}
-						//}
+					//std::filesystem::path::iterator includeDirIt;
+					//for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
+					//	auto folder = *it;
+					//	if (folder == projectContext->includeDirectory_) {
+					//		includeDirIt = it;
+					//		break;
+					//	}
+					//}
 
-						//for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
-						//	includeDirFullPath /= *it;
-						//}
+					//for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
+					//	includeDirFullPath /= *it;
+					//}
 
-						//includeDirFullPath /= *includeDirIt;
-						//Get path
+					//includeDirFullPath /= *includeDirIt;
+					//Get path
 
-						static int clusterIndex = 0;
-						auto dotfile = std::make_shared<OS::TextFile>("D:/OksEngine/auto_ECSSystemsCallGraph" + std::to_string(clusterIndex) + ".dot");
-						clusterIndex++;
-						char* dotData = nullptr;
-						unsigned int length = 0;
+					static int clusterIndex = 0;
+					auto dotfile = std::make_shared<OS::TextFile>("D:/OksEngine/auto_ECSSystemsCallGraph" + std::to_string(clusterIndex) + ".dot");
+					clusterIndex++;
+					char* dotData = nullptr;
+					unsigned int length = 0;
 
-						gvLayout(gvc, g, "dot");
-						gvRenderData(gvc, g, "dot", &dotData, &length);
+					gvLayout(gvc, g, "dot");
+					gvRenderData(gvc, g, "dot", &dotData, &length);
 
-						agclose(g);
-						gvFreeContext(gvc);
-						dotfile->Create();
-						std::string dotText{ dotData };
-						(*dotfile) << dotText;
-						dotfile->Close();
-					}
-					////
+					agclose(g);
+					gvFreeContext(gvc);
+					dotfile->Create();
+					std::string dotText{ dotData };
+					(*dotfile) << dotText;
+					dotfile->Close();
+				}
+				////
 
 				};
 

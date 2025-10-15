@@ -20,7 +20,7 @@ namespace ECSGenerator2 {
 			}
 
 			luabridge::LuaRef archetypes = archetype["archetypes"];
-			std::vector<ParsedArchetype::Archetype> archetypeRefArchetypes;
+			std::vector<ParsedArchetype::ChildArchetype> archetypeRefArchetypes;
 			if (!archetypes.isNil()) {
 				for (luabridge::Iterator itJ(archetypes); !itJ.isNil(); ++itJ) {
 					luabridge::LuaRef archetypeRef = itJ.value();

@@ -90,22 +90,37 @@ namespace ECSGenerator2 {
 					if (!accessingEntities.isNil()) {
 						for (luabridge::Iterator it(accessingEntities); !it.isNil(); ++it) {
 
+							std::shared_ptr<ParsedSystem::Archetype> archetype = nullptr;
 							std::vector<ParsedSystem::Include> accessesComponents;
 							std::vector<ParsedSystem::Create> createsComponents;
 							std::vector<ParsedSystem::Remove> removesComponents;
 
 							luabridge::LuaRef toAccess = it.value();
 							luabridge::LuaRef accessingComponentsRef = toAccess["accessingComponents"];
-							for (luabridge::Iterator itJ(accessingComponentsRef); !itJ.isNil(); ++itJ) {
-								luabridge::LuaRef accessingComponentRef = itJ.value();
 
-								ParsedSystem::Include include{
-									.name_ = accessingComponentRef.cast<std::string>().value(),
-									.readonly_ = false // TODO: add option to access component only to read.
-								};
-								accessesComponents.push_back(include);
-								ASSERT_FMSG(std::isupper(accessesComponents.back().name_[0]), "");
+							if (!accessingComponentsRef.isNil()) {
+								for (luabridge::Iterator itJ(accessingComponentsRef); !itJ.isNil(); ++itJ) {
+									luabridge::LuaRef accessingComponentRef = itJ.value();
+
+									ParsedSystem::Include include{
+										.name_ = accessingComponentRef.cast<std::string>().value(),
+										.readonly_ = false // TODO: add option to access component only to read.
+									};
+									accessesComponents.push_back(include);
+									ASSERT_FMSG(std::isupper(accessesComponents.back().name_[0]), "");
+								}
 							}
+
+							luabridge::LuaRef archetypeRef = toAccess["archetype"];
+							if (!archetypeRef.isNil()) {
+								archetype = std::make_shared<ParsedSystem::Archetype>(archetypeRef.cast<std::string>().value(), nullptr);
+							}
+
+							ASSERT_MSG(
+								(accessesComponents.empty() && archetype != nullptr) || 
+								(!accessesComponents.empty() && archetype == nullptr),
+								"Access entity can't access archetype components and raw components at one time.");
+
 							luabridge::LuaRef createsComponentsRef = toAccess["createsComponents"];
 							if (!createsComponentsRef.isNil()) {
 								for (luabridge::Iterator itJ(createsComponentsRef); !itJ.isNil(); ++itJ) {
@@ -123,6 +138,7 @@ namespace ECSGenerator2 {
 								}
 							}
 							ParsedSystem::RandomAccessEntity randomAccessEntity{
+								.archetype_ = archetype,
 								.includes_ = accessesComponents,
 								.creates_ = createsComponents,
 								.removes_ = removesComponents

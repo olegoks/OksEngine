@@ -78,7 +78,7 @@ namespace OksEngine
 		//					"Attempt to start animation that doesnt exist.");
 		//#pragma endregion
 
-		auto components = world_->GetComponents<
+		auto components = GetComponents<
 			WorldPosition3D,
 			WorldRotation3D,
 			WorldScale3D,
@@ -193,7 +193,7 @@ namespace OksEngine
 				const glm::quat& parentRotation3D,
 				const glm::fvec3& parentScale3D) {
 
-					auto components = world_->GetComponents<
+					auto components = GetComponents<
 						LocalPosition3D,
 						WorldPosition3D,
 						LocalRotation3D,
@@ -2715,7 +2715,7 @@ namespace OksEngine
 		auto driver = renderDriver0->driver_;
 
 		Common::Size entitiesNumber = world_->GetEntitiesNumber<NODE_BONE_ANIMATED>();
-		auto components = world_->GetComponents<NODE_BONE_ANIMATED>();
+		auto components = GetComponents<NODE_BONE_ANIMATED>();
 
 		auto* worldPositions = std::get<WorldPosition3D*>(components);
 		auto* worldRotations = std::get<WorldRotation3D*>(components);

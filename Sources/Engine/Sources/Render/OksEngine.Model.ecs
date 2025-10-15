@@ -365,9 +365,32 @@ StartModelAnimationSystem = {
         accessingEntities = {
             {
                 accessingComponents = {
-                    "ChildModelNodeEntities",
-                    "AnimationInProgress",
+                    "WorldPosition3D",
+                    "WorldRotation3D",
+                    "WorldScale3D",
                     "RunModelAnimation",
+                    "PauseAnimation",
+                    "AnimationInProgress"
+                },
+                removesComponents = {
+                    "AnimationInProgress"
+                },
+                createsComponents = {
+                    "RunModelAnimation"
+                }
+            },
+            {
+                accessingComponents = {
+                    "LocalPosition3D",
+                    "WorldPosition3D",
+                    "LocalRotation3D",
+                    "WorldRotation3D",
+                    "LocalScale3D",
+                    "WorldScale3D",
+                    "Animation::Model::Node::RunningState",
+                    "ChildModelNodeEntities"
+                },
+                removesComponents = {
                     "Animation::Model::Node::RunningState"
                 },
                 createsComponents = {
@@ -1094,20 +1117,42 @@ AddSkeletonModelToRenderSystem = {
                     "VertexBones"
                 }
             },
-
         },
         accessingEntities = {
             {
+                archetype = "Node_Bone_Animated",
+                -- accessingComponents = {
+                --     "ModelNode",
+                --     "Name",
+                --     "ModelEntity",
+                --     "LocalPosition3D",
+                --     "WorldPosition3D",
+                --     "LocalRotation3D",
+                --     "WorldRotation3D",
+                --     "LocalScale3D",
+                --     "WorldScale3D",
+                --     "ChildModelNodeEntities",
+                --     "DriverTransform3D",
+                --     "Transform3DResource",
+                --     "DebugText2D",
+                --     "BoneNode",
+                --     "BoneInverseBindPoseMatrix",
+                --     "Animation::Model::Node::RunningState",
+                --     "Animation::Model::Node::Animations",
+    
+                -- }
+            },
+            {
                 accessingComponents = {
-                    "DriverTransform3D",
-                    "Transform3DResource",
-                    "BonesPalletResource",
                     "BoneNodeEntities"
                 }
             }
         }
+
     }
+    
 }
+
 
 EndRenderPassSystem = {
     callOrder = {

@@ -1490,7 +1490,7 @@ namespace Render::Vulkan {
 			computeEndedFence->Wait();
 
 
-			CCB_->WaitIdle();
+			//CCB_->WaitIdle();
 
 		}
 

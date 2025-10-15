@@ -3,16 +3,6 @@
 -- LINES
 
 -- TEXT
-
--- Add this component to show debug text
-DebugText2DComponent = {
-    fields = {
-        { type = "std::string", name = "text" },
-        { type = "Common::UInt32", name = "x" },
-        { type = "Common::UInt32", name = "y" },
-    }
-}
-
 DebugTextRendererComponent = { }
 
 CreateDebugTextRendererSystem = {

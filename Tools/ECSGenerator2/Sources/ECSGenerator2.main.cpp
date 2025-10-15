@@ -217,7 +217,7 @@ int main(int argc, char** argv) {
 
 					});
 
-				parsedArchetype->ForEachRefArchetype([&](ECSGenerator2::ParsedArchetype::Archetype& archetype, bool isLast) {
+				parsedArchetype->ForEachRefArchetype([&](ECSGenerator2::ParsedArchetype::ChildArchetype& archetype, bool isLast) {
 
 					const auto archetypeRefName = archetype.name_;
 					const auto parsedArchetypeName = ECSGenerator2::ParseFullName(archetypeRefName);
@@ -328,6 +328,21 @@ int main(int argc, char** argv) {
 
 				parsedSystem->ci_.updateMethod_->ForEachRandomAccessEntity(
 					[&](ECSGenerator2::ParsedSystem::RandomAccessEntity& entity, bool isLast) {
+
+						//Find archetype
+						{
+							if (entity.archetype_ != nullptr) {
+								const auto archetypeName = entity.archetype_->name_;
+								const auto parsedArchetypeName = ECSGenerator2::ParseFullName(archetypeName);
+								entity.archetype_->ptr_ = std::dynamic_pointer_cast<ECSGenerator2::ParsedArchetype>(
+									getTableByFullName2(
+										parsedECSFiles,
+										parsedSystem,
+										parsedArchetypeName,
+										ECSGenerator2::ParsedTable::Type::Archetype));
+							}
+							
+						}
 
 						entity.ForEachInclude([&](ECSGenerator2::ParsedSystem::Include& include, bool isLast) {
 

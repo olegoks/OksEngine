@@ -88,6 +88,17 @@ namespace ECSGenerator2 {
 				ParsedSystem::RandomAccessEntity& entity,
 				bool isLast) {
 
+					ParsedArchetype::ProcessComponentRecursive processComponentName = [&](ParsedArchetype::Component& component) {
+						
+						ASSERT(component.ptr_->GetType() == ParsedTable::Type::Component);
+
+						requiredComponentNames.insert(std::dynamic_pointer_cast<ParsedComponent>(component.ptr_));
+						
+						};
+
+					if (entity.archetype_ != nullptr) {
+						entity.archetype_->ptr_->ForEachComponentRecursive(processComponentName);
+					}
 					entity.ForEachInclude([&](ParsedSystem::Include& include, bool isLast) {
 						requiredComponentNames.insert(include.ptr_);
 						return true;
@@ -304,17 +315,112 @@ namespace ECSGenerator2 {
 
 				return createArchetypeEntityMethod;
 				};
+			
+			
+			auto generateGetComponentsMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
+
+				CodeStructure::Code getComponentsCode;
+				{
+					if (!systemEcsFile->ci_.updateMethod_->randomAccessesEntities_.empty()) {
+						//Add Assert.
+						{
+							getComponentsCode.Add("STATIC_ASSERT_MSG(");
+							getComponentsCode.Add("(");
+
+							getComponentsCode.Add("Common::IsAnyOf<Components, ");
+
+							systemEcsFile->ci_.updateMethod_->ForEachRandomAccessComponentName(
+								[&](const std::string& componentName, bool isLast) {
+									getComponentsCode.Add(componentName);
+									if (!isLast) {
+										getComponentsCode.Add(",");
+									}
+									return true;
+								});
+							getComponentsCode.Add(">() && ...");
+							getComponentsCode.Add(")");
+							getComponentsCode.Add(
+								", \"Attempt to access component that system("
+								+ systemEcsFile->GetName() +
+								") can't access. Added access entities description to .ecs file that corresponds to system\");"
+							);
+						}
+					}
+					getComponentsCode.Add("return world_->GetComponents<Components...>();");
+				}	
+				CodeStructure::Function::CreateInfo getComponentsCI{
+					.name_ = "GetComponents",
+					.parameters_ = {},
+					.returnType_ = "std::tuple<ECS2::Entity::Id*, Components*...>",
+					.code_ = getComponentsCode,
+					.isPrototype_ = false,
+					.inlineModifier_ = false,
+					.templateParameters_ = { "...Components" }
+				};
+
+				auto getComponentsMethod = std::make_shared<CodeStructure::Function>(getComponentsCI);
+
+				return getComponentsMethod;
+				};
+
+			auto generateGetEntityComponentsMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
+
+				CodeStructure::Code getComponentsCode;
+				{
+					if (!systemEcsFile->ci_.updateMethod_->randomAccessesEntities_.empty()) {
+						//Add Assert.
+						{
+							getComponentsCode.Add("STATIC_ASSERT_MSG(");
+							getComponentsCode.Add("(");
+
+							getComponentsCode.Add("Common::IsAnyOf<Components, ");
+
+							systemEcsFile->ci_.updateMethod_->ForEachRandomAccessComponentName(
+								[&](const std::string& componentName, bool isLast) {
+									getComponentsCode.Add(componentName);
+									if (!isLast) {
+										getComponentsCode.Add(",");
+									}
+									return true;
+								});
+							getComponentsCode.Add(">() && ...");
+							getComponentsCode.Add(")");
+							getComponentsCode.Add(
+								", \"Attempt to access component that system("
+								+ systemEcsFile->GetName() +
+								") can't access. Added access entities description to .ecs file that corresponds to system\");"
+							);
+						}
+					}
+					getComponentsCode.Add("return world_->GetComponents<Components...>(entityId);");
+				}
+				CodeStructure::Function::CreateInfo getComponentsCI{
+					.name_ = "GetComponents",
+					.parameters_ = { { "ECS2::Entity::Id", "entityId" } },
+					.returnType_ = "std::tuple<Components*...>",
+					.code_ = getComponentsCode,
+					.isPrototype_ = false,
+					.inlineModifier_ = false,
+					.templateParameters_ = { "...Components" }
+				};
+
+				auto getComponentsMethod = std::make_shared<CodeStructure::Function>(getComponentsCI);
+
+				return getComponentsMethod;
+				};
+
+
+
 			auto generateGetComponentMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				CodeStructure::Code getComponentCode;
 				{
 					if (!systemEcsFile->ci_.updateMethod_->randomAccessesEntities_.empty()) {
 						//Add Assert.
-						getComponentCode.Add("if constexpr (Common::IsDebug()) {");
 						{
-							getComponentCode.Add("ASSERT_FMSG(");
+							getComponentCode.Add("STATIC_ASSERT_MSG(");
 							getComponentCode.Add("(");
-							systemEcsFile->ci_.updateMethod_->ForEachRandomAccessComponent(
+							systemEcsFile->ci_.updateMethod_->ForEachRandomAccessComponentName(
 								[&](const std::string& componentName, bool isLast) {
 									getComponentCode.Add(std::format("std::is_same_v<Component, {}>", componentName));
 									if (!isLast) {
@@ -326,10 +432,9 @@ namespace ECSGenerator2 {
 							getComponentCode.Add(
 								", \"Attempt to access component{} that system("
 								+ systemEcsFile->GetName() +
-								") can't access. Added access entities description to .ecs file that corresponds to system\", Component::GetName());"
+								") can't access. Added access entities description to .ecs file that corresponds to system\");"
 							);
 						}
-						getComponentCode.Add("}");
 					}
 					getComponentCode.Add("return world_->GetComponent<Component>(entityId);");
 				}
@@ -500,7 +605,9 @@ namespace ECSGenerator2 {
 			}
 
 			if (!system->ci_.updateMethod_->randomAccessesEntities_.empty()) {
+				methods.push_back(generateGetComponentsMethodRealization(system));
 				methods.push_back(generateGetComponentMethodRealization(system));
+				methods.push_back(generateGetEntityComponentsMethodRealization(system));
 			}
 
 			//Generate CreateComponent method if needed.

@@ -122,9 +122,31 @@ namespace ECSGenerator2 {
 	}
 
 
-	void ParsedSystem::UpdateMethodInfo::ForEachRandomAccessComponent(ProcessComponentName&& processComponent){
+	void ParsedSystem::UpdateMethodInfo::ForEachRandomAccessComponentName(ProcessComponentName&& processComponent){
 
 		ForEachRandomAccessEntity([&](RandomAccessEntity& entity, bool isLastEntity) {
+
+			std::vector<std::string> componentNames;
+
+			if (entity.archetype_ != nullptr) {
+				ASSERT(entity.archetype_->ptr_ != nullptr);
+
+
+				 ParsedArchetype::ProcessComponentRecursive processComponentName = [&](ParsedArchetype::Component& component) {
+
+					componentNames.push_back(component.ptr_->GetFullName());
+
+					};
+
+				entity.archetype_->ptr_->ForEachComponentRecursive(processComponentName);
+			}
+
+			for (Common::Index i = 0; i < componentNames.size(); i++) {
+				std::string& componentName = componentNames[i];
+				if (!processComponent(componentName, isLastEntity && entity.includes_.empty() && (i == componentNames.size() - 1))) {
+					break;
+				}
+			}
 
 			for (Common::Index i = 0; i < entity.includes_.size(); i++) {
 				std::string& componentName = entity.includes_[i].name_;
@@ -137,7 +159,7 @@ namespace ECSGenerator2 {
 			});
 
 	}
-
+	
 	//using ProcessConstRequestEntity = std::function<bool(const ParsedSystem::ProcessedEntity& entity, bool isLast)>;
 
 	void ParsedSystem::UpdateMethodInfo::ForEachProcessEntity(ProcessConstRequestEntity&& processEntity) const {

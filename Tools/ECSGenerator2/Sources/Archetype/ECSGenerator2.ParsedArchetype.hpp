@@ -22,7 +22,7 @@ namespace ECSGenerator2 {
 			std::string name_ = "";
 		};
 
-		struct Archetype {
+		struct ChildArchetype {
 			ParsedTablePtr ptr_ = nullptr;
 			std::string name_ = "";
 		};
@@ -31,7 +31,7 @@ namespace ECSGenerator2 {
 			std::string name_;
 
 			std::vector<Component> components_;
-			std::vector<Archetype> archetypes_; // References to other arhetypes.
+			std::vector<ChildArchetype> archetypes_; // References to other arhetypes.
 		};
 
 		ParsedArchetype(const CreateInfo& createInfo) :
@@ -55,14 +55,29 @@ namespace ECSGenerator2 {
 			}
 		}
 
-		using ProcessRefArchetype = std::function<void(Archetype&, bool isLast)>;
+		using ProcessRefArchetype = std::function<void(ChildArchetype&, bool isLast)>;
 
 		void ForEachRefArchetype(ProcessRefArchetype&& processArchetype) {
 			for (Common::Index i = 0; i < ci_.archetypes_.size(); i++) {
-				Archetype& archetype = ci_.archetypes_[i];
+				ChildArchetype& archetype = ci_.archetypes_[i];
 				const bool isLast = (i == (ci_.archetypes_.size() - 1));
 				processArchetype(archetype, isLast);
 			}
+		}
+
+		using ProcessComponentRecursive = std::function<void(Component&)>;
+		void ForEachComponentRecursive(ProcessComponentRecursive& processComponent) {
+
+			for (auto& component : ci_.components_) {
+				processComponent(component);
+			}
+
+			for (auto archetype : ci_.archetypes_) {
+				auto childArchetype = std::dynamic_pointer_cast<ParsedArchetype>(archetype.ptr_);
+				childArchetype->ForEachComponentRecursive(processComponent);
+			}
+
+
 		}
 
 		[[nodiscard]]

@@ -24,7 +24,9 @@ DrawNodesSystem = {
         accessingEntities = {
             {
                 accessingComponents = {
-                    "Link"
+                    "Link",
+                    "BeforePin",
+                    "AfterPin"
                 }
             },
             {

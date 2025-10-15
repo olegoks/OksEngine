@@ -33,7 +33,7 @@ namespace ECSGenerator2 {
 				}
 				});
 
-			archetype->ForEachRefArchetype([&](ParsedArchetype::Archetype& refArchetype, bool isLast) {
+			archetype->ForEachRefArchetype([&](ParsedArchetype::ChildArchetype& refArchetype, bool isLast) {
 
 				std::string refArchetypeName = refArchetype.ptr_->GetName();
 

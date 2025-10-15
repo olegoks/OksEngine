@@ -9,6 +9,7 @@
 
 #include <ECSGenerator2.ParsedTable.hpp>
 #include <Component/ECSGenerator2.ParsedComponent.hpp>
+#include <Archetype/ECSGenerator2.ParsedArchetype.hpp>
 #include <ECSGenerator2.Code.hpp>
 
 namespace ECSGenerator2 {
@@ -66,6 +67,11 @@ namespace ECSGenerator2 {
 
 		};
 
+		struct Archetype {
+			std::string name_ = "";
+			ParsedArchetypePtr ptr_ = nullptr;
+		};
+
 		struct Exclude : public Dependence {
 			std::string name_;
 
@@ -119,6 +125,7 @@ namespace ECSGenerator2 {
 		};
 
 		struct RandomAccessEntity {
+			std::shared_ptr<Archetype> archetype_ = nullptr;
 			std::vector<Include> includes_;
 			std::vector<Create> creates_;
 			std::vector<Remove> removes_;
@@ -432,7 +439,7 @@ namespace ECSGenerator2 {
 			using ProcessCreateEntity = std::function<bool(CreatesEntity& entity, bool isLast)>;
 			void ForEachCreateEntity(ProcessCreateEntity&& processEntity);
 
-			void ForEachRandomAccessComponent(ProcessComponentName&& processComponent);
+			void ForEachRandomAccessComponentName(ProcessComponentName&& processComponent);
 
 			using ProcessConstRequestEntity = std::function<bool(const ProcessedEntity& entity, bool isLast)>;
 			void ForEachProcessEntity(ProcessConstRequestEntity&& processEntity) const;

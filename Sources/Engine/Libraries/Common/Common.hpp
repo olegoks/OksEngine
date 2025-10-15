@@ -131,4 +131,13 @@ namespace Common {
 			);
 	}
 
+	template<typename Type, typename... AllowedTypes>
+	constexpr bool IsAnyOf() {
+		return std::disjunction_v<std::is_same<Type, AllowedTypes>...>;
+		// std::is_same<T, Allowed1>::value || 
+		// std::is_same<T, Allowed2>::value || 
+		// std::is_same<T, Allowed3>::value || ...
+	}
+
+
 }
