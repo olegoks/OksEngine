@@ -30,8 +30,8 @@ namespace OksEngine
 
 		ECS2::Entity::Id entityId = CreateEntity();
 
-		//CreateComponent<ImGuiState>(entityId);
-		//CreateComponent<Input::HandleKeyboardEvents>(entityId);
+		CreateComponent<ImGuiState>(entityId);
+		CreateComponent<Input::HandleKeyboardEvents>(entityId);
 
 	};
 

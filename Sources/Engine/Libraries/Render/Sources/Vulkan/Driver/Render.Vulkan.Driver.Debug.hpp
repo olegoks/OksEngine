@@ -115,6 +115,13 @@ namespace Render::Vulkan {
 			const char* pMessage,
 			void* pUserData)
 		{
+			Common::DiscardUnusedParameter(flags);
+			Common::DiscardUnusedParameter(objectType);
+			Common::DiscardUnusedParameter(object);
+			Common::DiscardUnusedParameter(location);
+			Common::DiscardUnusedParameter(messageCode);
+			Common::DiscardUnusedParameter(pLayerPrefix);
+			Common::DiscardUnusedParameter(pUserData);
 			//if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
 				printf("debugPrintfEXT: %s\n", pMessage);
 			//}

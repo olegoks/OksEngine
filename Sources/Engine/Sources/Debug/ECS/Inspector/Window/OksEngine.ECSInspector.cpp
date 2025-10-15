@@ -212,10 +212,37 @@ namespace OksEngine
                 const char* items[] = {
                     COMPONENTS_LIST_NAMES()
                 };
-                static int addComponentIndex = 0;
-                ImGui::Combo("", &addComponentIndex, items, std::size(items));
+
+
+
+				static char buffer[256] = { 0 };
+				ImGui::InputText("Name", buffer, 256);
+
+				std::vector<const char*> suitableNames;
+				suitableNames.reserve(sizeof(items) / 8);
+
+				for (Common::Index i = 0; i < sizeof(items) / 8; i++) {
+					if (std::string{ items[i] }.starts_with(buffer)) {
+						suitableNames.push_back(items[i]);
+					}
+				}
+
+				static int addComponentIndex = 0;
+				const char* currentComponent = nullptr;
+				if (!suitableNames.empty()) {
+					ImGui::Combo("Components list", &addComponentIndex, suitableNames.data(), std::size(suitableNames));
+					currentComponent = suitableNames[addComponentIndex];
+				}
+				else {
+					ImGui::Combo("Components list", &addComponentIndex, items, std::size(items));
+					currentComponent = items[addComponentIndex];
+				}
+
+
+                //static int addComponentIndex = 0;
+                //ImGui::Combo("", &addComponentIndex, items, std::size(items));
                 ImGui::PushID("Add");
-                const char* currentComponent = items[addComponentIndex];
+                //const char* currentComponent = items[addComponentIndex];
 				AddComponentWithName(currentComponent, world_.get(), entity1id);
                 ImGui::PopID();
                 ImGui::Unindent(20.0f);

@@ -3,6 +3,10 @@ ClockComponent = {
     serializable = false,
 }
 
+PauseClockComponent = {
+    serializable = false
+}
+
 EngineStartTimePointComponent = {
     serializable = false,
     fields = { 
@@ -47,6 +51,9 @@ UpdateTimeSinceEpochSystem = {
             {
                 processesComponents = { 
                     { name = "TimeSinceEpoch", readonly = false }
+                },
+                excludes = {
+                    "PauseClock"
                 }
             }
         }
@@ -60,6 +67,9 @@ UpdateTimeSinceEngineStartSystem = {
                 processesComponents = { 
                     { name = "TimeSinceEngineStart", readonly = false },
                     "EngineStartTimePoint"
+                },
+                excludes = {
+                    "PauseClock"
                 }
             }
         }
