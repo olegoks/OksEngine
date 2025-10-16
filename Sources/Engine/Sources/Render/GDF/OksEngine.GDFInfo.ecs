@@ -1,3 +1,0 @@
-GDFInfoComponent = {
-    fields = { { type = "std::string", name = "text" } }
-}
