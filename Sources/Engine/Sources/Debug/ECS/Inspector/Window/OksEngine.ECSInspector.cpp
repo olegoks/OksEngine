@@ -238,11 +238,7 @@ namespace OksEngine
 					currentComponent = items[addComponentIndex];
 				}
 
-
-                //static int addComponentIndex = 0;
-                //ImGui::Combo("", &addComponentIndex, items, std::size(items));
                 ImGui::PushID("Add");
-                //const char* currentComponent = items[addComponentIndex];
 				AddComponentWithName(currentComponent, world_.get(), entity1id);
                 ImGui::PopID();
                 ImGui::Unindent(20.0f);

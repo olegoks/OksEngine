@@ -1,3 +1,14 @@
-LightComponent = {
-    fields = { }
+RenderNamespace = {
+
+    LightNamespace = {
+        LightComponent = {
+        },
+        IntensityComponent = {
+            fields = {
+                { type = "float", name = "value" }
+            }
+        },
+        PointLightComponent = {
+        }
+    }
 }

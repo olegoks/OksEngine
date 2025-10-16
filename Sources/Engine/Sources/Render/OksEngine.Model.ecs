@@ -35,7 +35,7 @@ ModelNodeAnimationsMaxNumberConstant = {
 
 ModelNodesMaxNumberConstant = {
     type = "Common::Size",
-    value = "128"
+    value = "512"
 }
 
 ChildModelNodeEntitiesMaxNumberConstant = {
@@ -337,12 +337,15 @@ PauseAnimationComponent = {
     serializable = false
 }
 
-StartModelAnimationSystem = {
+ProcessModelSystem = {
     updateMethod = {
         processesEntities = {
             {
                 processesComponents = {
                     "Model",
+                    "WorldPosition3D",
+                    "WorldRotation3D",
+                    "WorldScale3D",
                     "ModelAnimations",
                     "ChildModelNodeEntities"
                 },
@@ -984,7 +987,7 @@ ComputeNamespace = {
         }
     },
     TestPipelineSystem = {
-        runAfter = "StartModelAnimation",
+        runAfter = "ProcessModel",
         updateMethod = {
             processesEntities = {
                 {

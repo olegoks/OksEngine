@@ -67,7 +67,7 @@ layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 outUV;
 
 layout(push_constant) uniform PushConstants {
-    uint64_t entitiesNumber_;
+    uint64_t entitiesNumber_; // Node bone entities number
 };
 
 uint64_t GetComponentIndexByEntityId(uint64_t entityId){
@@ -76,6 +76,7 @@ uint64_t GetComponentIndexByEntityId(uint64_t entityId){
     //TODO: use binary search
     for(uint i = 0; i < entitiesNumber_; i++){
         if(idsToIndices[i].entityId_ == entityId){
+            ASSERT_MSG(entityId != INVALID_ENTITY_ID, "Invalid bone node entity id.");
             return idsToIndices[i].componentIndex_;
         }
     }
@@ -103,14 +104,15 @@ uint64_t GetComponentIndexByEntityId(uint64_t entityId){
 
 }
 
+
+bool IsBoneWeightSignificant(uint weight) {
+    ASSERT_MSG(weight <= 255, "Invalid bone weight.");
+    return float(weight) / 255.0 > 0.01;
+}
+
 void main() {
 
     vec4 position = vec4(inPosition, 1.0);
-
-
-    //uint64_t bone2Pos = GetComponentIndexByEntityId(inBoneIds[1]);
-    //uint64_t bone3Pos = GetComponentIndexByEntityId(inBoneIds[2]);
-    //uint64_t bone4Pos = GetComponentIndexByEntityId(inBoneIds[3]);
 
     vec4 newPosition = vec4(0, 0, 0, 0);
 
@@ -118,10 +120,10 @@ void main() {
 
     ModelNodeEntityIds modelNodeEntityIds = modelNodeEntityIds_[gl_InstanceIndex];
 
-    if(float(inBoneWeights[0]) / 255.0 >  0.001) {
+    if(IsBoneWeightSignificant(inBoneWeights[0])) {
 
         uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[0]];
-        
+
         uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
 
         vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
@@ -135,10 +137,9 @@ void main() {
         newPosition = newPosition + (float(inBoneWeights[0]) / 255.0) * boneWorldTransform * boneInverseBindPoseMatrix * position;
     }
 
-    if(float(inBoneWeights[1]) / 255.0 >  0.001) {
+    if(IsBoneWeightSignificant(inBoneWeights[1])) {
 
         uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[1]];
-        
 
         uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
 
@@ -153,10 +154,9 @@ void main() {
         newPosition = newPosition + (float(inBoneWeights[1]) / 255.0) * boneWorldTransform * boneInverseBindPoseMatrix* position;
     }
 
-    if(float(inBoneWeights[2]) / 255.0 >  0.001) {
+    if(IsBoneWeightSignificant(inBoneWeights[2])) {
 
         uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[2]];
-        
 
         uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
 
@@ -171,11 +171,12 @@ void main() {
         newPosition = newPosition + (float(inBoneWeights[2]) / 255.0) * boneWorldTransform * boneInverseBindPoseMatrix* position;
     }
 
-    if(float(inBoneWeights[3]) / 255.0 >  0.001) {
+    if(IsBoneWeightSignificant(inBoneWeights[3])) {
 
         uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[3]];
 
         uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
+        
 
         vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
         vec4 rotation = rotations_[boneIndex].rotation_;
@@ -198,7 +199,11 @@ void main() {
     //newPosition = newPosition + (float(inBoneWeights[2]) / 255.0) * bonesPalette.matrices[inBoneIds[2]] * position;
     //newPosition = newPosition + (float(inBoneWeights[3]) / 255.0) * bonesPalette.matrices[inBoneIds[3]] * position;
 
+    
+
     outUV = inUV;
+
+    ASSERT_MSG(!any(isnan(newPosition)), "Calculated vertex position is nan.");
 
     gl_Position = camera.proj * camera.view * (vec4(newPosition.xyz, 1.0));//* transform.model * (vec4(newPosition.xyz, 1.0));
 }

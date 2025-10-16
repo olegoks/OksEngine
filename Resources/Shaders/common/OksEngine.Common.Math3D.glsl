@@ -1,4 +1,3 @@
-
 mat4 RTS_to_mat4_optimized(vec3 translation, vec4 rotation, vec3 scale) {
     float w = rotation.x;
     float x = rotation.y;
@@ -78,3 +77,23 @@ vec4 quat_slerp(vec4 q1, vec4 q2, float t) {
 bool IsEqual(float first, float second) {
     return abs(first - second) < 0.0001;
 }
+
+#define ASSERT_MSG(expression, message)             \
+    if(!(expression)) {                             \
+        debugPrintfEXT(message);                    \
+    }   
+
+#define ASSERT_FMSG_1(expression, message, arg1)    \
+    if(!(expression)) {                             \
+        debugPrintfEXT(message, arg1);               \
+    }   
+
+
+#define ASSERT_FMSG_2(expression, message, arg1, arg2)  \
+    if(!(expression)) {                                 \
+        debugPrintfEXT(message, arg1, arg2);             \
+    }   
+
+
+
+#define INVALID_ENTITY_ID uint64_t(-1)

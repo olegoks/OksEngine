@@ -216,11 +216,8 @@ namespace Render::Vulkan {
 			//shader.setSourceEntryPoint("main");
 			std::string preprocessedCode;
 			const bool result = shader.preprocess(&resources, 450, ENoProfile, false, false, messages, &preprocessedCode, includer);
-
-
-#pragma region Assert
-			OS::Assert(result);
-#pragma endregion
+			
+			ASSERT_FMSG(result, "Errors while preprocessing glsl shader: {}", shader.getInfoLog());
 
 
 			if (!shader.parse(&resources, 450, false, messages, includer)) {

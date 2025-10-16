@@ -56,14 +56,16 @@ namespace OksEngine
 		ImGui::PopID();
 	}
 
-	void StartModelAnimation::Update(
-		ECS2::Entity::Id entity0id,
-		const Model* model0,
-		//const RunModelAnimation* runModelAnimation0,
-		const ModelAnimations* modelAnimations0,
+	void ProcessModel::Update(
+		ECS2::Entity::Id entity0id, 
+		const Model* model0, 
+		const WorldPosition3D* worldPosition3D0,
+		const WorldRotation3D* worldRotation3D0, 
+		const WorldScale3D* worldScale3D0,
+		const ModelAnimations* modelAnimations0, 
 		const ChildModelNodeEntities* childModelNodeEntities0,
 
-		ECS2::Entity::Id entity1id,
+		ECS2::Entity::Id entity1id, 
 		const Clock* clock1,
 		const TimeSinceEngineStart* timeSinceEngineStart1) {
 
@@ -298,9 +300,9 @@ namespace OksEngine
 
 			};
 
-		auto& worldPosition3D0 = std::get<WorldPosition3D*>(components);
-		auto& worldRotation3D0 = std::get<WorldRotation3D*>(components);
-		auto& worldScale3D0 = std::get<WorldScale3D*>(components);
+		//auto& worldPosition3D0 = std::get<WorldPosition3D*>(components);
+		//auto& worldRotation3D0 = std::get<WorldRotation3D*>(components);
+		//auto& worldScale3D0 = std::get<WorldScale3D*>(components);
 
 		for (ECS2::Entity::Id childModelNodeEntityId : childModelNodeEntities0->childEntityIds_) {
 			const glm::fvec3 position3D = { worldPosition3D0->x_, worldPosition3D0->y_, worldPosition3D0->z_ };
@@ -1241,7 +1243,7 @@ namespace OksEngine
 							static Geom::VertexCloud<Geom::Vertex3f>	vertices;
 							static DS::Vector<Geom::Normal3f>			normals;
 							static DS::Vector<Geom::UV2f>		        uvs;
-							static Geom::IndexBuffer<Geom::Index16>		indices;
+							static Geom::IndexBuffer<Geom::Index32>		indices;
 							static std::vector<VertexBonesInfo>			vertexBonesInfos;
 
 
@@ -1941,7 +1943,7 @@ namespace OksEngine
 			.fragmentShader_ = fragmentShader,
 			.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
 			.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2,
-			.indexType_ = RAL::Driver::IndexType::UI16,
+			.indexType_ = RAL::Driver::IndexType::UI32,
 			.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
 			.cullMode_ = RAL::Driver::CullMode::Back,
 			.shaderBindings_ = shaderBindings,
@@ -2513,8 +2515,6 @@ namespace OksEngine
 		const RenderPass* renderPass2,
 		const Pipeline* pipeline2) {
 
-		return;
-
 		ASSERT(!IsComponentExist<VertexBones>(entity1id));
 
 		auto driver = renderDriver2->driver_;
@@ -2670,7 +2670,7 @@ namespace OksEngine
 			.fragmentShader_ = fragmentShader,
 			.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
 			.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2_BIDUB4_WUB4,
-			.indexType_ = RAL::Driver::IndexType::UI16,
+			.indexType_ = RAL::Driver::IndexType::UI32,
 			.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
 			.cullMode_ = RAL::Driver::CullMode::Back,
 			.pushConstants_ = pushConstants,
