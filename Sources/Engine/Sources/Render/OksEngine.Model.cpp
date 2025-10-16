@@ -57,15 +57,15 @@ namespace OksEngine
 	}
 
 	void ProcessModel::Update(
-		ECS2::Entity::Id entity0id, 
-		const Model* model0, 
+		ECS2::Entity::Id entity0id,
+		const Model* model0,
 		const WorldPosition3D* worldPosition3D0,
-		const WorldRotation3D* worldRotation3D0, 
+		const WorldRotation3D* worldRotation3D0,
 		const WorldScale3D* worldScale3D0,
-		const ModelAnimations* modelAnimations0, 
+		const ModelAnimations* modelAnimations0,
 		const ChildModelNodeEntities* childModelNodeEntities0,
 
-		ECS2::Entity::Id entity1id, 
+		ECS2::Entity::Id entity1id,
 		const Clock* clock1,
 		const TimeSinceEngineStart* timeSinceEngineStart1) {
 
@@ -289,11 +289,13 @@ namespace OksEngine
 
 					if (childModelNodeEntities != nullptr) {
 
+						const glm::fvec3 currentNodePosition3D = { worldNodePosition3D->x_, worldNodePosition3D->y_, worldNodePosition3D->z_ };
+						const glm::quat currentNodeRotation3D = { worldNodeRotation3D->w_, worldNodeRotation3D->x_, worldNodeRotation3D->y_, worldNodeRotation3D->z_ };
+						const glm::fvec3 currentNodeScale3D = { worldNodeScale3D->x_, worldNodeScale3D->y_, worldNodeScale3D->z_ };
+
 						const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->childEntityIds_;
 						for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
-							const glm::fvec3 currentNodePosition3D = { worldNodePosition3D->x_, worldNodePosition3D->y_, worldNodePosition3D->z_ };
-							const glm::quat currentNodeRotation3D = { worldNodeRotation3D->w_, worldNodeRotation3D->x_, worldNodeRotation3D->y_, worldNodeRotation3D->z_ };
-							const glm::fvec3 currentNodeScale3D = { worldNodeScale3D->x_, worldNodeScale3D->y_, worldNodeScale3D->z_ };
+
 							processModelNode(childModelNodeEntityId, currentNodePosition3D, currentNodeRotation3D, currentNodeScale3D);
 						}
 					}
@@ -303,11 +305,11 @@ namespace OksEngine
 		//auto& worldPosition3D0 = std::get<WorldPosition3D*>(components);
 		//auto& worldRotation3D0 = std::get<WorldRotation3D*>(components);
 		//auto& worldScale3D0 = std::get<WorldScale3D*>(components);
-
-		for (ECS2::Entity::Id childModelNodeEntityId : childModelNodeEntities0->childEntityIds_) {
-			const glm::fvec3 position3D = { worldPosition3D0->x_, worldPosition3D0->y_, worldPosition3D0->z_ };
-			const glm::quat rotation3D = { worldRotation3D0->w_, worldRotation3D0->x_, worldRotation3D0->y_, worldRotation3D0->z_ };
-			const glm::fvec3 scale3D = { worldScale3D0->x_, worldScale3D0->y_, worldScale3D0->z_ };
+		const glm::fvec3 position3D = { worldPosition3D0->x_, worldPosition3D0->y_, worldPosition3D0->z_ };
+		const glm::quat rotation3D = { worldRotation3D0->w_, worldRotation3D0->x_, worldRotation3D0->y_, worldRotation3D0->z_ };
+		const glm::fvec3 scale3D = { worldScale3D0->x_, worldScale3D0->y_, worldScale3D0->z_ };
+		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities0->childEntityIds_;
+		for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
 			processModelNode(childModelNodeEntityId, position3D, rotation3D, scale3D);
 		}
 
@@ -1250,10 +1252,10 @@ namespace OksEngine
 							vertexBonesInfos.resize(mesh->mNumVertices,
 								VertexBonesInfo{
 									//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
-									{ 
-										ModelNodesMaxNumber, 
-										ModelNodesMaxNumber, 
-										ModelNodesMaxNumber, 
+									{
+										ModelNodesMaxNumber,
+										ModelNodesMaxNumber,
+										ModelNodesMaxNumber,
 										ModelNodesMaxNumber
 									},
 									{ 0.0f, 0.0f, 0.0f, 0.0f }	// no influence on vertex by default  
@@ -2062,7 +2064,7 @@ namespace OksEngine
 		const Animation::DriverLocalRotation3DComponents* animation__DriverLocalRotation3DComponents0,
 		const Animation::LocalRotation3DComponentsResource* animation__LocalRotation3DComponentsResource0) {
 
-			//DEBUG CODE
+		//DEBUG CODE
 			{
 				//RAL::Driver::ResourceSet::Id localPositionsSBResId = RAL::Driver::ResourceSet::Id::Invalid();
 				//RAL::Driver::StorageBuffer::Id localPositionsSBId = RAL::Driver::ResourceSet::Id::Invalid();

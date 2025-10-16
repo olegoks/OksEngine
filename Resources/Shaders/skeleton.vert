@@ -107,7 +107,7 @@ uint64_t GetComponentIndexByEntityId(uint64_t entityId){
 
 bool IsBoneWeightSignificant(float weight) {
     ASSERT_MSG(weight <= 1.0, "Invalid bone weight.");
-    return weight > 0.01;
+    return weight > 0.00001;
 }
 
 void main() {
@@ -198,11 +198,10 @@ void main() {
     //newPosition = newPosition + (float(inBoneWeights[2]) / 255.0) * bonesPalette.matrices[inBoneIds[2]] * position;
     //newPosition = newPosition + (float(inBoneWeights[3]) / 255.0) * bonesPalette.matrices[inBoneIds[3]] * position;
 
-    
 
     outUV = inUV;
 
     ASSERT_MSG(!any(isnan(newPosition)), "Calculated vertex position is nan.");
 
-    gl_Position = camera.proj * camera.view * (vec4(newPosition.xyz, 1.0));//* transform.model * (vec4(newPosition.xyz, 1.0));
+    gl_Position = camera.proj * camera.view * (vec4(newPosition.xyz, 1.0));
 }
