@@ -72,35 +72,33 @@ layout(push_constant) uniform PushConstants {
 
 uint64_t GetComponentIndexByEntityId(uint64_t entityId){
 
-    //debugPrintfEXT("entitiesNumber %d, Bone entity index %d",entitiesNumber_, entityId);
-    //TODO: use binary search
-    for(uint i = 0; i < entitiesNumber_; i++){
-        if(idsToIndices[i].entityId_ == entityId){
-            ASSERT_MSG(entityId != INVALID_ENTITY_ID, "Invalid bone node entity id.");
-            return idsToIndices[i].componentIndex_;
-        }
-    }
-    //debugPrintfEXT("Component index is not found for entity %d", entityId);
-    return 0;
-    // //idsToIndices sorted
-    // uint left = 0;
-    // uint right = uint(entitiesNumber_) - 1;
-    
-    // while (left <= right) {
-    //     uint mid = left + (right - left) / 2;
-        
-    //     if (idsToIndices[mid].entityId_ == entityId) {
-    //         return mid;
-    //     }
-        
-    //     if (idsToIndices[mid].entityId_ < entityId) {
-    //         left = mid + 1;
-    //     } else {
-    //         right = mid - 1;
+    // //TODO: use binary search
+    // for(uint i = 0; i < entitiesNumber_; i++){
+    //     if(idsToIndices[i].entityId_ == entityId){
+    //         ASSERT_MSG(entityId != INVALID_ENTITY_ID, "Invalid bone node entity id.");
+    //         return idsToIndices[i].componentIndex_;
     //     }
     // }
+    // return 0;
+    // //idsToIndices sorted
+    uint left = 0;
+    uint right = uint(entitiesNumber_) - 1;
     
-    // return uint64_t(-1);
+    while (left <= right) {
+        uint mid = left + (right - left) / 2;
+        
+        if (idsToIndices[mid].entityId_ == entityId) {
+            return mid;
+        }
+        
+        if (idsToIndices[mid].entityId_ < entityId) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return uint64_t(-1);
 
 }
 
