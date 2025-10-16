@@ -1,9 +1,14 @@
 
+VertexMaxBonesNumberConstant = {
+    type = "Common::Size",
+    value = "4"
+}
+
 
 VertexBonesInfoStruct = {
     fields = {
-        { type = "glm::u8vec4", name = "boneIndices" }, -- indices of 4  bones in BonesPallete
-        { type = "glm::u8vec4", name = "boneWeights" }, -- weights for 4 bones
+        { type = "glm::u32vec4", name = "boneEntityIndices" }, -- indices of 4  bones in BonesPallete
+        { type = "glm::vec4",   name = "boneWeights" }, -- weights for 4 bones
     }
 
 

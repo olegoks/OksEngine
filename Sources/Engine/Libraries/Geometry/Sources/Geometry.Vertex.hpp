@@ -193,8 +193,13 @@ namespace Geometry {
 	};
 
 	struct Vertex3fntbw : public Vertex3fnt {
-		BonesIds boneIds_	= { 255, 255, 255, 255 };
-		Weights weights_	= { 255, 255, 255, 255 };
+		BonesIds boneIds_	= { 
+			Common::Limits<Common::UInt32>::Max(),
+			Common::Limits<Common::UInt32>::Max(),
+			Common::Limits<Common::UInt32>::Max(),
+			Common::Limits<Common::UInt32>::Max()
+		};
+		Weights weights_	= { 0.0f, 0.0f, 0.0f, 0.0f };
 
 		Vertex3fntbw() noexcept = default;
 

@@ -313,7 +313,7 @@ inline void VkCall(VkResult nativeAPICallResult, const char* message) noexcept {
 				{
 					attributeDescription.binding = 0;
 					attributeDescription.location = 3;
-					attributeDescription.format = VK_FORMAT_R8G8B8A8_UINT;
+					attributeDescription.format = VK_FORMAT_R32G32B32A32_UINT;
 					attributeDescription.offset = offsetof(Vertex3fntbw, boneIds_);
 				}
 				attributeDescriptions.push_back(attributeDescription);
@@ -324,7 +324,7 @@ inline void VkCall(VkResult nativeAPICallResult, const char* message) noexcept {
 				{
 					attributeDescription.binding = 0;
 					attributeDescription.location = 4;
-					attributeDescription.format = VK_FORMAT_R8G8B8A8_UINT;
+					attributeDescription.format = VK_FORMAT_R32G32B32A32_SFLOAT;
 					attributeDescription.offset = offsetof(Vertex3fntbw, weights_);
 				}
 				attributeDescriptions.push_back(attributeDescription);

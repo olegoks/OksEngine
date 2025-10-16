@@ -119,10 +119,10 @@ namespace OksEngine
 			vertex.normal_ = normals0->normals_[i];
 			vertex.uv_ = uVs0->uvs_[i];
 
-			const glm::u8vec4 boneIndices = vertexBones0->vertexBonesInfos_[i].boneIndices_;
+			const glm::u32vec4 boneIndices = vertexBones0->vertexBonesInfos_[i].boneEntityIndices_;
 			vertex.boneIds_ = { boneIndices[0], boneIndices[1], boneIndices[2], boneIndices[3]};
 
-			const glm::u8vec4 weights = vertexBones0->vertexBonesInfos_[i].boneWeights_;
+			const glm::vec4 weights = vertexBones0->vertexBonesInfos_[i].boneWeights_;
 			vertex.weights_ = { weights[0], weights[1], weights[2], weights[3] };
 
 			vertices3fntbw.push_back(vertex);

@@ -1250,8 +1250,13 @@ namespace OksEngine
 							vertexBonesInfos.resize(mesh->mNumVertices,
 								VertexBonesInfo{
 									//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
-									{ 255, 255, 255, 255 },
-									{ 0, 0, 0, 0 }	// no influence on vertex by default  
+									{ 
+										ModelNodesMaxNumber, 
+										ModelNodesMaxNumber, 
+										ModelNodesMaxNumber, 
+										ModelNodesMaxNumber
+									},
+									{ 0.0f, 0.0f, 0.0f, 0.0f }	// no influence on vertex by default  
 								});
 
 							{
@@ -1267,7 +1272,7 @@ namespace OksEngine
 										//Find free cell and set value
 										[[maybe_unused]]
 										bool isFind = false;
-										for (Common::Index k = 0; k < 4; k++) {
+										for (Common::Index k = 0; k < VertexMaxBonesNumber; k++) {
 											if (vertexBonesInfos[weight->mVertexId].boneWeights_[k] == 0) {
 												//Free cell found.
 
@@ -1280,12 +1285,13 @@ namespace OksEngine
 													}
 												}
 												ASSERT(boneEntityIdIndex != Common::Limits<Common::Index>::Max());
-												ASSERT(boneEntityId < 255);
-												vertexBonesInfos[weight->mVertexId].boneIndices_[k] = boneEntityIdIndex;
+												ASSERT(boneEntityIdIndex < ModelNodesMaxNumber);
+
+												vertexBonesInfos[weight->mVertexId].boneEntityIndices_[k] = boneEntityIdIndex;
 #pragma region Assert
 												ASSERT_FMSG(Math::IsLess(weight->mWeight, 1.0), "");
 #pragma endregion
-												vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight * 255; // from [0.0 .. 1.0] to [0 .. 255]
+												vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight;
 												isFind = true;
 												break;
 											}

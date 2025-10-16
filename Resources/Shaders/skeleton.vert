@@ -11,7 +11,7 @@ layout(location = 1) in vec3 inNormal;
 layout(location = 2) in vec2 inUV;
 
 layout (location = 3) in uvec4 inBoneIds;
-layout (location = 4) in uvec4 inBoneWeights;
+layout (location = 4) in vec4 inBoneWeights;
 
 layout(set = 0, binding = 0) uniform Camera {
     mat4 view;
@@ -105,9 +105,9 @@ uint64_t GetComponentIndexByEntityId(uint64_t entityId){
 }
 
 
-bool IsBoneWeightSignificant(uint weight) {
-    ASSERT_MSG(weight <= 255, "Invalid bone weight.");
-    return float(weight) / 255.0 > 0.01;
+bool IsBoneWeightSignificant(float weight) {
+    ASSERT_MSG(weight <= 1.0, "Invalid bone weight.");
+    return weight > 0.01;
 }
 
 void main() {
@@ -134,7 +134,7 @@ void main() {
         mat4 boneInverseBindPoseMatrix = boneInverseBindPoseMatrices[boneIndex];
         mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
 
-        newPosition = newPosition + (float(inBoneWeights[0]) / 255.0) * boneWorldTransform * boneInverseBindPoseMatrix * position;
+        newPosition = newPosition + inBoneWeights[0] * boneWorldTransform * boneInverseBindPoseMatrix * position;
     }
 
     if(IsBoneWeightSignificant(inBoneWeights[1])) {
@@ -151,7 +151,7 @@ void main() {
 
         mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
 
-        newPosition = newPosition + (float(inBoneWeights[1]) / 255.0) * boneWorldTransform * boneInverseBindPoseMatrix* position;
+        newPosition = newPosition + inBoneWeights[1] * boneWorldTransform * boneInverseBindPoseMatrix* position;
     }
 
     if(IsBoneWeightSignificant(inBoneWeights[2])) {
@@ -168,7 +168,7 @@ void main() {
 
         mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
 
-        newPosition = newPosition + (float(inBoneWeights[2]) / 255.0) * boneWorldTransform * boneInverseBindPoseMatrix* position;
+        newPosition = newPosition + inBoneWeights[2] * boneWorldTransform * boneInverseBindPoseMatrix* position;
     }
 
     if(IsBoneWeightSignificant(inBoneWeights[3])) {
@@ -176,8 +176,7 @@ void main() {
         uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[3]];
 
         uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
-        
-
+    
         vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
         vec4 rotation = rotations_[boneIndex].rotation_;
         vec3 scale = vec3(scales_[boneIndex].scale_.x, scales_[boneIndex].scale_.y, scales_[boneIndex].scale_.z);
@@ -186,7 +185,7 @@ void main() {
 
         mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
 
-        newPosition = newPosition + (float(inBoneWeights[3]) / 255.0) * boneWorldTransform * boneInverseBindPoseMatrix *position;
+        newPosition = newPosition + inBoneWeights[3] * boneWorldTransform * boneInverseBindPoseMatrix *position;
     }
 
 
