@@ -123,7 +123,8 @@ namespace Render::Vulkan {
 			Common::DiscardUnusedParameter(pLayerPrefix);
 			Common::DiscardUnusedParameter(pUserData);
 			//if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
-				printf("debugPrintfEXT: %s\n", pMessage);
+			//debugPrintfEXT
+			OS::LogInfo("render", { "{}\n", pMessage });
 			//}
 
 			return false;
