@@ -245,10 +245,12 @@ namespace Render::Vulkan {
 			spvOptions.stripDebugInfo = false;
 			spvOptions.disableOptimizer = true;
 			spvOptions.validate = true;
+			spvOptions.optimizeSize = false;
 
 			std::vector<unsigned> spirv;
 			glslang::GlslangToSpv(*program.getIntermediate(TypeToStage(GetType())), spirv, &logger, &spvOptions);
 
+			OS::LogInfo("render/shader_compile", logger.getAllMessages());
 			glslang::FinalizeProcess();
 
 			spirv_ = std::move(spirv);
