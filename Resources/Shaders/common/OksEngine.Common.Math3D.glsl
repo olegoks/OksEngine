@@ -78,6 +78,19 @@ bool IsEqual(float first, float second) {
     return abs(first - second) < 0.0001;
 }
 
+
+//debugPrintfEXT:
+//%d - only uint(not uint64)
+#define ASSERT_FAIL_MSG(message)\
+    debugPrintfEXT(message); 
+
+
+#define ASSERT_FAIL_FMSG_1(message, arg1)\
+    debugPrintfEXT(message, arg1); 
+
+#define ASSERT_FAIL_FMSG_2(message, arg1, arg2)\
+    debugPrintfEXT(message, arg1, arg2); 
+
 #define ASSERT_MSG(expression, message)             \
     if(!(expression)) {                             \
         debugPrintfEXT(message);                    \
@@ -90,6 +103,11 @@ bool IsEqual(float first, float second) {
 
 
 #define ASSERT_FMSG_2(expression, message, arg1, arg2)  \
+    if(!(expression)) {                                 \
+        debugPrintfEXT(message, arg1, arg2);             \
+    }   
+
+#define ASSERT_FMSG_3(expression, message, arg1, arg2, arg3)  \
     if(!(expression)) {                                 \
         debugPrintfEXT(message, arg1, arg2);             \
     }   
