@@ -43,7 +43,7 @@ layout(std430, set = 4, binding = 0) buffer WorldScales3D {
 };
 
 struct ModelNodeEntityIds {
-    uint64_t nodeIds_[128];
+    uint64_t nodeIds_[512];
 };
 
 layout(std430, set = 5, binding = 0) buffer ModelsNodeEntityIds {
@@ -72,33 +72,34 @@ layout(push_constant) uniform PushConstants {
 
 uint64_t GetComponentIndexByEntityId(uint64_t entityId){
 
-    // //TODO: use binary search
-    // for(uint i = 0; i < entitiesNumber_; i++){
-    //     if(idsToIndices[i].entityId_ == entityId){
-    //         ASSERT_MSG(entityId != INVALID_ENTITY_ID, "Invalid bone node entity id.");
-    //         return idsToIndices[i].componentIndex_;
-    //     }
-    // }
-    // return 0;
-    // //idsToIndices sorted
-    uint left = 0;
-    uint right = uint(entitiesNumber_) - 1;
-    
-    while (left <= right) {
-        uint mid = left + (right - left) / 2;
-        
-        if (idsToIndices[mid].entityId_ == entityId) {
-            return mid;
-        }
-        
-        if (idsToIndices[mid].entityId_ < entityId) {
-            left = mid + 1;
-        } else {
-            right = mid - 1;
+    //TODO: use binary search
+    for(uint i = 0; i < entitiesNumber_; i++){
+        if(idsToIndices[i].entityId_ == entityId){
+            ASSERT_MSG(entityId != INVALID_ENTITY_ID, "Invalid bone node entity id.");
+            return idsToIndices[i].componentIndex_;
         }
     }
+    //ASSERT_FAIL_FMSG_1("Error while finding Component index by entity id %d.", entityId);
+    return (-1);
+    // //idsToIndices sorted
+    // uint left = 0;
+    // uint right = uint(entitiesNumber_) - 1;
     
-    return uint64_t(-1);
+    // while (left <= right) {
+    //     uint mid = left + (right - left) / 2;
+        
+    //     if (idsToIndices[mid].entityId_ == entityId) {
+    //         return mid;
+    //     }
+        
+    //     if (idsToIndices[mid].entityId_ < entityId) {
+    //         left = mid + 1;
+    //     } else {
+    //         right = mid - 1;
+    //     }
+    // }
+    
+    // return uint64_t(-1);
 
 }
 
@@ -108,94 +109,55 @@ bool IsBoneWeightSignificant(float weight) {
     return weight > 0.00001;
 }
 
+//position - position that bone will effect.
+//bone - index of one of 4 bones.
+vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint bone) {
+
+    ModelNodeEntityIds modelNodeEntityIds = modelNodeEntityIds_[gl_InstanceIndex];
+
+    float boneWeight = inBoneWeights[bone];
+    if(IsBoneWeightSignificant(boneWeight)) {
+
+        uint boneIndexInModelSpace = inBoneIds[bone];
+        if(boneIndexInModelSpace == 512) {
+            return position;
+        }
+        uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[boneIndexInModelSpace];
+
+        uint64_t boneComponentIndex = GetComponentIndexByEntityId(nodeEntityId);
+
+        ASSERT_FMSG_3(boneComponentIndex != -1, 
+         "Invalid bone component index calculated for bone entity id %d. Vertex bone index %d. Bone index in model space %d.",
+          uint(nodeEntityId), bone, boneIndexInModelSpace);
+
+        uint uintBoneComponentIndex = uint(boneComponentIndex); // cast to use in []
+
+
+        vec3 translate = vec3(positions_[uintBoneComponentIndex].position_.x, positions_[uintBoneComponentIndex].position_.y, positions_[uintBoneComponentIndex].position_.z);
+        vec4 rotation = rotations_[uintBoneComponentIndex].rotation_;
+        vec3 scale = vec3(scales_[uintBoneComponentIndex].scale_.x, scales_[uintBoneComponentIndex].scale_.y, scales_[uintBoneComponentIndex].scale_.z);
+
+
+        mat4 boneInverseBindPoseMatrix = boneInverseBindPoseMatrices[uintBoneComponentIndex];
+        mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
+
+        position = position + boneWeight * boneWorldTransform * boneInverseBindPoseMatrix * vertexPosition;
+    }
+
+    return position;
+}
+
+
 void main() {
 
     vec4 position = vec4(inPosition, 1.0);
 
     vec4 newPosition = vec4(0, 0, 0, 0);
 
-    //mat4 bone1Transform = positions_[bone1Pos];
-
-    ModelNodeEntityIds modelNodeEntityIds = modelNodeEntityIds_[gl_InstanceIndex];
-
-    if(IsBoneWeightSignificant(inBoneWeights[0])) {
-
-        uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[0]];
-
-        uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
-
-        vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
-        vec4 rotation = rotations_[boneIndex].rotation_;
-        vec3 scale = vec3(scales_[boneIndex].scale_.x, scales_[boneIndex].scale_.y, scales_[boneIndex].scale_.z);
-
-
-        mat4 boneInverseBindPoseMatrix = boneInverseBindPoseMatrices[boneIndex];
-        mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
-
-        newPosition = newPosition + inBoneWeights[0] * boneWorldTransform * boneInverseBindPoseMatrix * position;
-    }
-
-    if(IsBoneWeightSignificant(inBoneWeights[1])) {
-
-        uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[1]];
-
-        uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
-
-        vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
-        vec4 rotation = rotations_[boneIndex].rotation_;
-        vec3 scale = vec3(scales_[boneIndex].scale_.x, scales_[boneIndex].scale_.y, scales_[boneIndex].scale_.z);
-
-        mat4 boneInverseBindPoseMatrix = boneInverseBindPoseMatrices[boneIndex];
-
-        mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
-
-        newPosition = newPosition + inBoneWeights[1] * boneWorldTransform * boneInverseBindPoseMatrix* position;
-    }
-
-    if(IsBoneWeightSignificant(inBoneWeights[2])) {
-
-        uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[2]];
-
-        uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
-
-        vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
-        vec4 rotation = rotations_[boneIndex].rotation_;
-        vec3 scale = vec3(scales_[boneIndex].scale_.x, scales_[boneIndex].scale_.y, scales_[boneIndex].scale_.z);
-
-        mat4 boneInverseBindPoseMatrix = boneInverseBindPoseMatrices[boneIndex];
-
-        mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
-
-        newPosition = newPosition + inBoneWeights[2] * boneWorldTransform * boneInverseBindPoseMatrix* position;
-    }
-
-    if(IsBoneWeightSignificant(inBoneWeights[3])) {
-
-        uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[inBoneIds[3]];
-
-        uint boneIndex = uint(GetComponentIndexByEntityId(nodeEntityId));
-    
-        vec3 translate = vec3(positions_[boneIndex].position_.x, positions_[boneIndex].position_.y, positions_[boneIndex].position_.z);
-        vec4 rotation = rotations_[boneIndex].rotation_;
-        vec3 scale = vec3(scales_[boneIndex].scale_.x, scales_[boneIndex].scale_.y, scales_[boneIndex].scale_.z);
-
-        mat4 boneInverseBindPoseMatrix = boneInverseBindPoseMatrices[boneIndex];
-
-        mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
-
-        newPosition = newPosition + inBoneWeights[3] * boneWorldTransform * boneInverseBindPoseMatrix *position;
-    }
-
-
-    //newPosition = newPosition + (float(inBoneWeights[1]) / 255.0) * bonesPalette.matrices[inBoneIds[1]] * position;
-    //newPosition = newPosition + (float(inBoneWeights[2]) / 255.0) * bonesPalette.matrices[inBoneIds[2]] * position;
-    //newPosition = newPosition + (float(inBoneWeights[3]) / 255.0) * bonesPalette.matrices[inBoneIds[3]] * position;
-
-    //newPosition = newPosition + (float(inBoneWeights[0]) / 255.0) * bonesPalette.matrices[inBoneIds[0]] * position;
-    ///newPosition = newPosition + (float(inBoneWeights[1]) / 255.0) * bonesPalette.matrices[inBoneIds[1]] * position;
-    //newPosition = newPosition + (float(inBoneWeights[2]) / 255.0) * bonesPalette.matrices[inBoneIds[2]] * position;
-    //newPosition = newPosition + (float(inBoneWeights[3]) / 255.0) * bonesPalette.matrices[inBoneIds[3]] * position;
-
+    newPosition = TakeBoneIntoAccount(newPosition, position, uint(0));
+    newPosition = TakeBoneIntoAccount(newPosition, position, uint(1));
+    newPosition = TakeBoneIntoAccount(newPosition, position, uint(2));
+    newPosition = TakeBoneIntoAccount(newPosition, position, uint(3));
 
     outUV = inUV;
 

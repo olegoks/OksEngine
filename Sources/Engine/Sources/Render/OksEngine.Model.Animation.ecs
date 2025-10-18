@@ -4,10 +4,6 @@ AnimationNamespace = {
         type = "Common::Size",
         value = "32"
     },
-    AnimationsMaxNumberConstant = {
-        type = "Common::Size",
-        value = "4"
-    },
 
     ChannelNamespace = {
         --Position
@@ -59,6 +55,10 @@ AnimationNamespace = {
     },
     
     ModelNamespace = {
+        AnimationsMaxNumberConstant = {
+            type = "Common::Size",
+            value = "8"
+        },
         NodeNamespace = {
             AnimationStruct = {
                 serializable = false,

@@ -56,6 +56,21 @@ namespace OksEngine
 		ImGui::PopID();
 	}
 
+	void EditModelNodeEntityIds(std::shared_ptr<ECS2::World> ecsWorld, ModelNodeEntityIds* modelNodeEntityIds) {
+		ImGui::PushID(ChildModelNodeEntities::GetTypeId());
+		for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeEntityIds_){
+			if (modelNodeEntityId.IsInvalid()) {
+				const std::string idString = std::to_string(modelNodeEntityId);
+				ImGui::TextDisabled(idString.c_str());
+				continue;
+			}
+			ImGui::Indent(20.f);
+			EditEntity(ecsWorld, modelNodeEntityId);
+			ImGui::Unindent(20.0f);
+		}
+		ImGui::PopID();
+	}
+
 	void ProcessModel::Update(
 		ECS2::Entity::Id entity0id,
 		const Model* model0,
@@ -545,7 +560,8 @@ namespace OksEngine
 
 
 			//Get bone node names.
-			std::vector<std::string> boneNames;
+			std::set<std::string> bonesSet;//To discard same bone names.
+
 			std::map<std::string, const aiBone*> nameToBone;
 			std::map<std::string, const aiNode*> nameToBoneNode;
 
@@ -556,7 +572,7 @@ namespace OksEngine
 
 						const aiBone* bone = mesh->mBones[j];
 						const aiString& boneName = bone->mName;
-						boneNames.push_back(boneName.C_Str());
+						bonesSet.insert(boneName.C_Str());
 						nameToBone[boneName.C_Str()] = bone;
 						const aiNode* boneNode = scene->mRootNode->FindNode(boneName.C_Str());
 						nameToBoneNode[boneName.C_Str()] = boneNode;
@@ -564,6 +580,11 @@ namespace OksEngine
 					}
 				}
 			}
+			std::vector<std::string> boneNames;
+			for(auto& boneName : bonesSet){
+				boneNames.push_back(boneName);
+			}
+
 
 			std::map<std::string, aiNode*> boneNameToBone;
 			{
@@ -587,7 +608,7 @@ namespace OksEngine
 
 				std::function<void(aiNode* node)> processNode = [&](aiNode* node) {
 
-					for (Common::Index i = 0; i < std::clamp((size_t)scene->mNumAnimations, (size_t)0, Animation::AnimationsMaxNumber); i++) {
+					for (Common::Index i = 0; i < std::clamp((size_t)scene->mNumAnimations, (size_t)0, Animation::Model::AnimationsMaxNumber); i++) {
 						aiAnimation* animation = scene->mAnimations[i];
 
 						for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
@@ -646,15 +667,15 @@ namespace OksEngine
 
 						nodesNumber++;
 					}
-					else if (isNodeBone && !isAnimatedNode) {
-						nodeEntityId = CreateEntity<NODE_BONE>();
-						nodeBonesNumber++;
-					}
+					//else if (isNodeBone && !isAnimatedNode) {
+					//	nodeEntityId = CreateEntity<NODE_BONE>();
+					//	nodeBonesNumber++;
+					//}
 					else if (!isNodeBone && isAnimatedNode) {
 						nodeEntityId = CreateEntity<NODE_ANIMATED>();
 						nodesAnimatedNumber++;
 					}
-					else if (isNodeBone && isAnimatedNode) {
+					else if (isNodeBone/* && isAnimatedNode*/) {
 						nodeEntityId = CreateEntity<NODE_BONE_ANIMATED>();
 						nodeBonesAnimatedNumber++;
 					}
@@ -693,11 +714,6 @@ namespace OksEngine
 
 			if (!boneEntityIds.empty()) {
 				CreateComponent<BoneNodeEntities>(modelEntityId, boneEntityIds);
-
-				std::vector<glm::mat4> palette;
-				palette.resize(128, glm::mat4{ 1 });
-
-				CreateComponent<BonesPallet>(modelEntityId, std::move(palette));
 			}
 
 			auto createNodesHierarchy = [&]() {
@@ -1086,15 +1102,7 @@ namespace OksEngine
 						meshInfos.push_back(
 							{ modelFile3->fileName_ + "/" + mesh->mName.C_Str(), ECS2::Entity::Id::invalid_ });
 					}
-
-					if (!meshInfos.empty()) {
-						//CreateComponent<Ai::Meshs>(nodeEntityId, std::move(meshs));
-						//CreateComponent<MeshInfos>(nodeEntityId, std::move(meshInfos));
-					}
-
-					std::shared_ptr<const aiNode> nodePtr(node, [](const aiNode* node) { /*Do nothing.*/ });
-					//CreateComponent<Ai::Node>(nodeEntityId, nodePtr);
-
+					
 					CreateComponent<LocalPosition3D>(nodeEntityId, position3D.x, position3D.y, position3D.z, 0.0);
 					CreateComponent<WorldPosition3D>(nodeEntityId, 0.0f, 0.0f, 0.0f, 0.0f);
 
@@ -1132,9 +1140,6 @@ namespace OksEngine
 					CreateComponent<Name>(nodeEntityId, getNodeFullName());
 					CreateComponent<ModelEntity>(nodeEntityId, modelEntityId);
 
-					if (nodeEntityId == 21) {
-						Common::BreakPointLine();
-					}
 #pragma region Assert
 					ASSERT_FMSG(nodeEntityId.IsValid(), "");
 #pragma endregion
@@ -1166,7 +1171,7 @@ namespace OksEngine
 					std::vector<ModelAnimation> modelAnimations;
 					modelAnimations.reserve(scene->mNumAnimations);
 
-					for (Common::Index i = 0; i < std::clamp((size_t)scene->mNumAnimations, (size_t)0, (size_t)Animation::AnimationsMaxNumber); i++) {
+					for (Common::Index i = 0; i < std::clamp((size_t)scene->mNumAnimations, (size_t)0, (size_t)Animation::Model::AnimationsMaxNumber); i++) {
 						aiAnimation* animation = scene->mAnimations[i];
 						ModelAnimation modelAnimation{
 							animation->mName.C_Str(),
@@ -1182,14 +1187,11 @@ namespace OksEngine
 
 				CreateComponent<ChildModelNodeEntities>(modelEntityId, std::vector{ rootNodeEntityId });
 
-				//CreateComponent<NodeToEntityId>(entity2id, nodeToEntityId);
-
 				};
 
 			createNodesHierarchy();
 
 			auto createMeshEntities = [&]() {
-
 
 				auto createMeshComponents = [&](
 					const aiScene* scene,
@@ -1281,9 +1283,9 @@ namespace OksEngine
 
 												const ECS2::Entity::Id boneEntityId = nodeToEntityId[nameToBoneNode[bone->mName.C_Str()]];
 												Common::Index boneEntityIdIndex = Common::Limits<Common::Index>::Max();
-												for (Common::Index i = 0; i < boneEntityIds.size(); i++) {
-													if (boneEntityId == boneEntityIds[i]) {
-														boneEntityIdIndex = i;
+												for (Common::Index l = 0; l < boneEntityIds.size(); l++) {
+													if (boneEntityId == boneEntityIds[l]) {
+														boneEntityIdIndex = l;
 													}
 												}
 												ASSERT(boneEntityIdIndex != Common::Limits<Common::Index>::Max());
@@ -1367,7 +1369,6 @@ namespace OksEngine
 																		mesh->mVertices[j].z });
 								uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x,
 																mesh->mTextureCoords[0][j].y });
-
 							}
 
 							indices.Reserve(mesh->mNumFaces * 3);
@@ -1401,12 +1402,8 @@ namespace OksEngine
 				for (Common::Index i = 0; i < scene->mNumMeshes; i++) {
 					aiMesh* mesh = scene->mMeshes[i];
 
-
 					std::string meshName = modelFile3->fileName_ + scene->mName.C_Str() + std::string{ mesh->mName.C_Str() };
 
-					if (meshName == "Sketchfab_SceneObject_0") {
-						Common::BreakPointLine();
-					}
 					meshNames.push_back(meshName);
 
 					auto it = meshNameToEntity1->meshNameToEntityId_.find(meshName);
@@ -1418,25 +1415,7 @@ namespace OksEngine
 
 					if (!meshNameToEntity1->meshNameToEntityId_.contains(meshName)) {
 						//Create mesh info.
-						const ECS2::Entity::Id meshEntity = CreateEntity<
-							Mesh,
-							Name,
-							ModelName,
-							ModelEntityIds,
-							ModelNodeEntityIndices,
-							ModelNodeEntityIds,
-							Vertices3D,
-							DriverVertexBuffer,
-							Indices,
-							DriverIndexBuffer,
-							Normals,
-							UVs,
-							VertexBones,
-							Texture,
-							TextureInfo,
-							DriverTexture,
-							TextureResource
-						>();
+						const ECS2::Entity::Id meshEntity = CreateEntity<MESH>();
 
 						CreateComponent<Mesh>(meshEntity);
 						CreateComponent<Name>(meshEntity, meshName);
@@ -1444,8 +1423,6 @@ namespace OksEngine
 						CreateComponent<ModelEntityIds>(meshEntity, std::vector<ECS2::Entity::Id>{ modelEntityId });
 
 						createMeshComponents(scene, mesh, meshEntity);
-
-						//CreateComponent<ModelNodeEntityIds>(meshEntity, std::vector<ECS2::Entity::Id>{});
 
 						meshNameToEntity1->meshNameToEntityId_[meshName] = meshEntity;
 						meshEntityIds[i] = (meshEntity);
@@ -1533,190 +1510,190 @@ namespace OksEngine
 		}
 	}
 
-	void CreateDriverBonesPallet::Update(
-		ECS2::Entity::Id entity0id,
-		RenderDriver* renderDriver0,
+//	void CreateDriverBonesPallet::Update(
+//		ECS2::Entity::Id entity0id,
+//		RenderDriver* renderDriver0,
+//
+//		ECS2::Entity::Id entity1id,
+//		const BonesPallet* bonesPallet1) {
+//
+//#pragma region Assert
+//		ASSERT_FMSG(bonesPallet1->bonesPallets_.size() <= 128, "");
+//#pragma endregion
+//
+//		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+//			.size_ = bonesPallet1->bonesPallets_.size() * sizeof(glm::mat4),
+//			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+//		};
+//		RAL::Driver::UniformBuffer::Id ubId = renderDriver0->driver_->CreateUniformBuffer(UBCreateInfo);
+//		renderDriver0->driver_->FillUniformBuffer(ubId, (void*)bonesPallet1->bonesPallets_.data());
+//
+//		CreateComponent<DriverBonesPallet>(entity1id, ubId);
+//
+//	}
 
-		ECS2::Entity::Id entity1id,
-		const BonesPallet* bonesPallet1) {
+	//void CreateBonesPalletResource::Update(
+	//	ECS2::Entity::Id entity0id,
+	//	RenderDriver* renderDriver0,
 
-#pragma region Assert
-		ASSERT_FMSG(bonesPallet1->bonesPallets_.size() <= 128, "");
-#pragma endregion
+	//	ECS2::Entity::Id entity1id,
+	//	const BonesPallet* bonesPallet1,
+	//	const DriverBonesPallet* driverBonesPallet1) {
 
-		RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
-			.size_ = bonesPallet1->bonesPallets_.size() * sizeof(glm::mat4),
-			.type_ = RAL::Driver::UniformBuffer::Type::Mutable
-		};
-		RAL::Driver::UniformBuffer::Id ubId = renderDriver0->driver_->CreateUniformBuffer(UBCreateInfo);
-		renderDriver0->driver_->FillUniformBuffer(ubId, (void*)bonesPallet1->bonesPallets_.data());
+	//	RAL::Driver::ResourceSet::Binding transformUBBinding
+	//	{
+	//		.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+	//		.binding_ = 0,
+	//		.ubid_ = driverBonesPallet1->id_,
+	//		.offset_ = 0,
+	//		.size_ = 128 * sizeof(glm::mat4)
+	//	};
 
-		CreateComponent<DriverBonesPallet>(entity1id, ubId);
+	//	RAL::Driver::Resource::Id resourceId = renderDriver0->driver_->CreateResource(transformUBBinding);
 
-	}
+	//	CreateComponent<BonesPalletResource>(entity1id, resourceId);
 
-	void CreateBonesPalletResource::Update(
-		ECS2::Entity::Id entity0id,
-		RenderDriver* renderDriver0,
+	//}
 
-		ECS2::Entity::Id entity1id,
-		const BonesPallet* bonesPallet1,
-		const DriverBonesPallet* driverBonesPallet1) {
+	//glm::mat4 RTS_to_mat4_optimized(glm::vec3 translation, glm::quat rotation, glm::vec3 scale) {
+	//	float w = rotation.w;
+	//	float x = rotation.x;
+	//	float y = rotation.y;
+	//	float z = rotation.z;
 
-		RAL::Driver::ResourceSet::Binding transformUBBinding
-		{
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader,
-			.binding_ = 0,
-			.ubid_ = driverBonesPallet1->id_,
-			.offset_ = 0,
-			.size_ = 128 * sizeof(glm::mat4)
-		};
+	//	// Предварительные вычисления
+	//	float x2 = x * x;
+	//	float y2 = y * y;
+	//	float z2 = z * z;
+	//	float xy = x * y;
+	//	float xz = x * z;
+	//	float yz = y * z;
+	//	float wx = w * x;
+	//	float wy = w * y;
+	//	float wz = w * z;
 
-		RAL::Driver::Resource::Id resourceId = renderDriver0->driver_->CreateResource(transformUBBinding);
+	//	// Создаём матрицу напрямую
+	//	return glm::mat4(
+	//		// Первый столбец
+	//		scale.x * (1.0 - 2.0 * (y2 + z2)),
+	//		scale.x * (2.0 * (xy + wz)),
+	//		scale.x * (2.0 * (xz - wy)),
+	//		0.0,
 
-		CreateComponent<BonesPalletResource>(entity1id, resourceId);
+	//		// Второй столбец
+	//		scale.y * (2.0 * (xy - wz)),
+	//		scale.y * (1.0 - 2.0 * (x2 + z2)),
+	//		scale.y * (2.0 * (yz + wx)),
+	//		0.0,
 
-	}
+	//		// Третий столбец
+	//		scale.z * (2.0 * (xz + wy)),
+	//		scale.z * (2.0 * (yz - wx)),
+	//		scale.z * (1.0 - 2.0 * (x2 + y2)),
+	//		0.0,
 
-	glm::mat4 RTS_to_mat4_optimized(glm::vec3 translation, glm::quat rotation, glm::vec3 scale) {
-		float w = rotation.w;
-		float x = rotation.x;
-		float y = rotation.y;
-		float z = rotation.z;
+	//		// Четвертый столбец
+	//		translation.x,
+	//		translation.y,
+	//		translation.z,
+	//		1.0
+	//	);
+	//}
 
-		// Предварительные вычисления
-		float x2 = x * x;
-		float y2 = y * y;
-		float z2 = z * z;
-		float xy = x * y;
-		float xz = x * z;
-		float yz = y * z;
-		float wx = w * x;
-		float wy = w * y;
-		float wz = w * z;
+	//void UpdateBonePallet::Update(
+	//	ECS2::Entity::Id entity0id,
+	//	const Model* model0,
+	//	const BoneNodeEntities* boneNodeEntities0,
+	//	BonesPallet* bonesPallet0) {
 
-		// Создаём матрицу напрямую
-		return glm::mat4(
-			// Первый столбец
-			scale.x * (1.0 - 2.0 * (y2 + z2)),
-			scale.x * (2.0 * (xy + wz)),
-			scale.x * (2.0 * (xz - wy)),
-			0.0,
+	//	//return;
+	//	//const std::vector<ECS2::Entity::Id>& boneEntityIds = boneNodeEntities0->boneEntityIds_;
 
-			// Второй столбец
-			scale.y * (2.0 * (xy - wz)),
-			scale.y * (1.0 - 2.0 * (x2 + z2)),
-			scale.y * (2.0 * (yz + wx)),
-			0.0,
+	//	//const Common::Size bineEntityIdsNumber = boneEntityIds.size();
 
-			// Третий столбец
-			scale.z * (2.0 * (xz + wy)),
-			scale.z * (2.0 * (yz - wx)),
-			scale.z * (1.0 - 2.0 * (x2 + y2)),
-			0.0,
+	//	//ASSERT(bineEntityIdsNumber <= 128);
 
-			// Четвертый столбец
-			translation.x,
-			translation.y,
-			translation.z,
-			1.0
-		);
-	}
+	//	//for (Common::Index i = 0; i < bineEntityIdsNumber; i++) {
 
-	void UpdateBonePallet::Update(
-		ECS2::Entity::Id entity0id,
-		const Model* model0,
-		const BoneNodeEntities* boneNodeEntities0,
-		BonesPallet* bonesPallet0) {
+	//	//	const ECS2::Entity::Id boneEntityId = boneEntityIds[i];
 
-		//return;
-		//const std::vector<ECS2::Entity::Id>& boneEntityIds = boneNodeEntities0->boneEntityIds_;
+	//	//	auto components = world_->GetComponents<
+	//	//		WorldPosition3D,
+	//	//		WorldRotation3D,
+	//	//		WorldScale3D,
+	//	//		BoneInverseBindPoseMatrix>(boneEntityId);
 
-		//const Common::Size bineEntityIdsNumber = boneEntityIds.size();
-
-		//ASSERT(bineEntityIdsNumber <= 128);
-
-		//for (Common::Index i = 0; i < bineEntityIdsNumber; i++) {
-
-		//	const ECS2::Entity::Id boneEntityId = boneEntityIds[i];
-
-		//	auto components = world_->GetComponents<
-		//		WorldPosition3D,
-		//		WorldRotation3D,
-		//		WorldScale3D,
-		//		BoneInverseBindPoseMatrix>(boneEntityId);
-
-		//	auto* worldPosition3D = std::get<WorldPosition3D*>(components);//GetComponent<WorldPosition3D>(boneEntityId);
-		//	auto* worldRotation3D = std::get<WorldRotation3D*>(components);//GetComponent<WorldRotation3D>(boneEntityId);
-		//	auto* worldScale3D = std::get<WorldScale3D*>(components);//GetComponent<WorldScale3D>(boneEntityId);
+	//	//	auto* worldPosition3D = std::get<WorldPosition3D*>(components);//GetComponent<WorldPosition3D>(boneEntityId);
+	//	//	auto* worldRotation3D = std::get<WorldRotation3D*>(components);//GetComponent<WorldRotation3D>(boneEntityId);
+	//	//	auto* worldScale3D = std::get<WorldScale3D*>(components);//GetComponent<WorldScale3D>(boneEntityId);
 
 
-		//	const glm::mat4 boneTransformMatrix = RTS_to_mat4_optimized(
-		//		glm::vec3(
-		//			worldPosition3D->x_,
-		//			worldPosition3D->y_,
-		//			worldPosition3D->z_),
-		//		glm::quat{
-		//			worldRotation3D->w_,
-		//			worldRotation3D->x_,
-		//			worldRotation3D->y_,
-		//			worldRotation3D->z_ },
-		//			glm::vec3(
-		//				worldScale3D->x_,
-		//				worldScale3D->y_,
-		//				worldScale3D->z_)
+	//	//	const glm::mat4 boneTransformMatrix = RTS_to_mat4_optimized(
+	//	//		glm::vec3(
+	//	//			worldPosition3D->x_,
+	//	//			worldPosition3D->y_,
+	//	//			worldPosition3D->z_),
+	//	//		glm::quat{
+	//	//			worldRotation3D->w_,
+	//	//			worldRotation3D->x_,
+	//	//			worldRotation3D->y_,
+	//	//			worldRotation3D->z_ },
+	//	//			glm::vec3(
+	//	//				worldScale3D->x_,
+	//	//				worldScale3D->y_,
+	//	//				worldScale3D->z_)
 
-		//	);
-		//	//const glm::mat4 nodeTranslateMatrix
-		//	//	= glm::mat4{ glm::translate(
-		//	//		glm::vec3(
-		//	//			worldPosition3D->x_,
-		//	//			worldPosition3D->y_,
-		//	//			worldPosition3D->z_)
-		//	//	) };
+	//	//	);
+	//	//	//const glm::mat4 nodeTranslateMatrix
+	//	//	//	= glm::mat4{ glm::translate(
+	//	//	//		glm::vec3(
+	//	//	//			worldPosition3D->x_,
+	//	//	//			worldPosition3D->y_,
+	//	//	//			worldPosition3D->z_)
+	//	//	//	) };
 
-		//	//const glm::mat4 nodeRotationMatrix
-		//	//	= glm::toMat4(
-		//	//		glm::quat{
-		//	//			worldRotation3D->w_,
-		//	//			worldRotation3D->x_,
-		//	//			worldRotation3D->y_,
-		//	//			worldRotation3D->z_ }
-		//	//			);
+	//	//	//const glm::mat4 nodeRotationMatrix
+	//	//	//	= glm::toMat4(
+	//	//	//		glm::quat{
+	//	//	//			worldRotation3D->w_,
+	//	//	//			worldRotation3D->x_,
+	//	//	//			worldRotation3D->y_,
+	//	//	//			worldRotation3D->z_ }
+	//	//	//			);
 
-		//	//const glm::mat4 nodeScaleMatrix
-		//	//	= glm::scale(
-		//	//		glm::vec3(
-		//	//			worldScale3D->x_,
-		//	//			worldScale3D->y_,
-		//	//			worldScale3D->z_));
+	//	//	//const glm::mat4 nodeScaleMatrix
+	//	//	//	= glm::scale(
+	//	//	//		glm::vec3(
+	//	//	//			worldScale3D->x_,
+	//	//	//			worldScale3D->y_,
+	//	//	//			worldScale3D->z_));
 
-		//	//const glm::mat4 boneTransformMatrix
-		//	//	= nodeTranslateMatrix * nodeRotationMatrix * nodeScaleMatrix;
+	//	//	//const glm::mat4 boneTransformMatrix
+	//	//	//	= nodeTranslateMatrix * nodeRotationMatrix * nodeScaleMatrix;
 
-		//	const auto* boneInverseBindPoseMatrix = std::get<BoneInverseBindPoseMatrix*>(components);// GetComponent<BoneInverseBindPoseMatrix>(boneEntityId);
+	//	//	const auto* boneInverseBindPoseMatrix = std::get<BoneInverseBindPoseMatrix*>(components);// GetComponent<BoneInverseBindPoseMatrix>(boneEntityId);
 
-		//	bonesPallet0->bonesPallets_[i] = boneTransformMatrix * boneInverseBindPoseMatrix->matrix_;
+	//	//	bonesPallet0->bonesPallets_[i] = boneTransformMatrix * boneInverseBindPoseMatrix->matrix_;
 
-		//}
+	//	//}
 
-	}
+	//}
 
-	void UpdateDriverBonesPallet::Update(
+	//void UpdateDriverBonesPallet::Update(
 
-		ECS2::Entity::Id entity0id,
-		RenderDriver* renderDriver0,
+	//	ECS2::Entity::Id entity0id,
+	//	RenderDriver* renderDriver0,
 
-		ECS2::Entity::Id entity1id,
-		const BonesPallet* bonesPallet1,
-		DriverBonesPallet* driverBonesPallet1) {
+	//	ECS2::Entity::Id entity1id,
+	//	const BonesPallet* bonesPallet1,
+	//	DriverBonesPallet* driverBonesPallet1) {
 
-		return;
-		renderDriver0->driver_->FillUniformBuffer(
-			driverBonesPallet1->id_,
-			(void*)bonesPallet1->bonesPallets_.data());
+	//	return;
+	//	renderDriver0->driver_->FillUniformBuffer(
+	//		driverBonesPallet1->id_,
+	//		(void*)bonesPallet1->bonesPallets_.data());
 
-	}
+	//}
 
 
 	void CreateRenderPass::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
@@ -2725,6 +2702,9 @@ namespace OksEngine
 		Common::Size entitiesNumber = world_->GetEntitiesNumber<NODE_BONE_ANIMATED>();
 		auto components = GetComponents<NODE_BONE_ANIMATED>();
 
+		/*Common::Size bonesNotAnimatedntitiesNumber = world_->GetEntitiesNumber<NODE_BONE_ANIMATED>();
+		auto bonesNotAnimated = GetComponents<NODE_BONE>();*/
+
 		auto* worldPositions = std::get<WorldPosition3D*>(components);
 		auto* worldRotations = std::get<WorldRotation3D*>(components);
 		auto* worldScales = std::get<WorldScale3D*>(components);
@@ -2754,7 +2734,6 @@ namespace OksEngine
 		{
 			std::vector<BoneNodeEntities> modelsBoneNodesIds;
 
-
 			const auto& modelEntityIds = modelEntityIds2->modelEntityIds_;
 
 			for (ECS2::Entity::Id modelEntityId : modelEntityIds) {
@@ -2767,7 +2746,69 @@ namespace OksEngine
 				gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
 				0,
 				modelsBoneNodesIds.data(),
-				modelsBoneNodesIds.size() * sizeof(ModelNodeEntityIds));
+				modelsBoneNodesIds.size() * sizeof(BoneNodeEntities));
+
+#if !defined(NDEBUG)
+			for (const VertexBonesInfo& vertexBonesInfo : vertexBones2->vertexBonesInfos_) {
+				glm::u32vec4 boneEntityIndices = vertexBonesInfo.boneEntityIndices_;
+				ASSERT(boneEntityIndices[0] <= ModelNodesMaxNumber);
+				ASSERT(boneEntityIndices[1] <= ModelNodesMaxNumber);
+				ASSERT(boneEntityIndices[2] <= ModelNodesMaxNumber);
+				ASSERT(boneEntityIndices[3] <= ModelNodesMaxNumber);
+
+				for (const BoneNodeEntities& boneNodeEntities : modelsBoneNodesIds) {
+					if (boneEntityIndices[0] != ModelNodesMaxNumber) {
+						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[0]] != ECS2::Entity::Id::invalid_);
+						bool isFound = false;
+						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[0]];
+						for (auto [id, index] : idIndex) {
+							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[0]]) {
+								isFound = true;
+								break;
+							}
+						}
+						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
+					}
+					if (boneEntityIndices[1] != ModelNodesMaxNumber) {
+						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[1]] != ECS2::Entity::Id::invalid_);
+						bool isFound = false;
+						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[1]];
+						for (auto [id, index] : idIndex) {
+							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[1]]) {
+								isFound = true;
+								break;
+							}
+						}
+						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
+					}
+					if (boneEntityIndices[2] != ModelNodesMaxNumber) {
+						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[2]] != ECS2::Entity::Id::invalid_);
+						bool isFound = false;
+						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[2]];
+						for (auto [id, index] : idIndex) {
+							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[2]]) {
+								isFound = true;
+								break;
+							}
+						}
+						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
+					}
+					if (boneEntityIndices[3] != ModelNodesMaxNumber) {
+						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[3]] != ECS2::Entity::Id::invalid_);
+						bool isFound = false;
+						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[3]];
+						for (auto [id, index] : idIndex) {
+							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[3]]) {
+								isFound = true;
+								break;
+							}
+						}
+						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
+					}
+				}
+
+			}
+#endif
 		}
 
 		driver->StorageBufferWrite(

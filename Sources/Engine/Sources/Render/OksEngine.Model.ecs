@@ -28,10 +28,7 @@ ModelNodeComponent = {
 
 }
 
-ModelNodeAnimationsMaxNumberConstant = {
-    type = "Common::Size",
-    value = "8"
-}
+
 
 ModelNodesMaxNumberConstant = {
     type = "Common::Size",
@@ -59,6 +56,7 @@ ModelNodeEntityIdComponent = {
 
 ModelNodeEntityIdsComponent = {
     serializable = false,
+    manualEditFunction = true,
     fields = {
         { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "nodeEntityIds" }
     }
@@ -129,27 +127,6 @@ BoneNodeEntitiesComponent = {
         { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "boneEntityIds" }
     }
 }
---Index of array its bone index
-BonesPalletComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::vector<glm::mat4>", name = "bonesPallets" }
-    }
-}
-
-DriverBonesPalletComponent = {
-    serializable = false,
-    fields = {
-        { type = "RAL::Driver::UniformBuffer::Id", name = "id" }
-    }
-}
-
-BonesPalletResourceComponent = {
-    serializable = false,
-    fields = {
-        { type = "RAL::Driver::ResourceSet::Id", name = "id" }
-    }
-}
 
 BoneInverseBindPoseMatrixComponent = {
     serializable = false,
@@ -158,144 +135,6 @@ BoneInverseBindPoseMatrixComponent = {
     }
 }
 
-CreateDriverBonesPalletSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    { name = "RenderDriver", readonly = false }
-                }
-            },
-            {
-                processesComponents = {
-                    "BonesPallet"
-                },
-                excludes = {
-                    "DriverBonesPallet"
-                },
-                createsComponents = {
-                    "DriverBonesPallet"
-                }
-            }
-        }
-    }
-}
-
-CreateBonesPalletResourceSystem = {
-
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    { name = "RenderDriver", readonly = false }
-                }
-            },
-            {
-                processesComponents = {
-                    "BonesPallet",
-                    "DriverBonesPallet"
-                },
-                excludes = {
-                    "BonesPalletResource"
-                },
-                createsComponents = {
-                    "BonesPalletResource"
-                }
-            }
-        }
-    }
-
-}
-
-UpdateBonePalletSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "Model",
-                    "BoneNodeEntities",
-                    { name = "BonesPallet", readonly = false }
-                }
-            }
-        },
-        accessingEntities = {
-            {
-                accessingComponents = {
-                    "WorldPosition3D",
-                    "WorldRotation3D",
-                    "WorldScale3D",
-                    "BoneInverseBindPoseMatrix"
-                }
-            }
-        }
-    }
-}
-
-
-
-UpdateDriverBonesPalletSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    { name = "RenderDriver", readonly = false }
-                }
-            },
-            {
-                processesComponents = {
-                    "BonesPallet",
-                    { name = "DriverBonesPallet", readonly = false }
-                }
-            }
-        }
-    }
-}
-
-
-ChannelPositionKeyStruct = {
-    fields = {
-        { type = "double",    name = "time" },
-        { type = "glm::vec3", name = "position3D" }
-    }
-}
-
-ChannelRotationKeyStruct = {
-    fields = {
-        { type = "double",    name = "time" },
-        { type = "glm::quat", name = "rotation3D" }
-    }
-}
-
-ChannelScaleKeyStruct = {
-    fields = {
-        { type = "double",    name = "time" },
-        { type = "glm::vec3", name = "scale3D" }
-    }
-}
-
-NodeAnimationChannelStruct = {
-    fields = {
-        { type = "std::vector<ChannelPositionKey>", name = "position3DValues" },
-        { type = "std::vector<ChannelRotationKey>", name = "rotation3DValues" },
-        { type = "std::vector<ChannelScaleKey>",    name = "scale3DValues" },
-    }
-}
-
-HierarchicalAnimationComponent = {
-    serializable = false
-}
-
-BoneAnimationComponent = {
-    serializable = false
-}
-
-ModelNodeAnimationComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::map<std::string, NodeAnimationChannel>", name = "animationNameToChannel" }
-    }
-}
---NODE
 
 ModelAnimationStruct = {
     serializable = false,
@@ -1142,7 +981,7 @@ AddSkeletonModelToRenderSystem = {
                 --     "BoneInverseBindPoseMatrix",
                 --     "Animation::Model::Node::RunningState",
                 --     "Animation::Model::Node::Animations",
-    
+
                 -- }
             },
             {
@@ -1153,7 +992,7 @@ AddSkeletonModelToRenderSystem = {
         }
 
     }
-    
+
 }
 
 
@@ -1171,6 +1010,27 @@ EndRenderPassSystem = {
                 }
             }
         }
+    }
+}
+
+MeshArchetype = {
+    components = {
+        "Mesh",
+        "Name",
+        "ModelName",
+        "ModelEntityIds",
+        "ModelNodeEntityIndices",
+        "Vertices3D",
+        "DriverVertexBuffer",
+        "Indices",
+        "DriverIndexBuffer",
+        "Normals",
+        "UVs",
+        "VertexBones",
+        "Texture",
+        "TextureInfo",
+        "DriverTexture",
+        "TextureResource"
     }
 }
 
