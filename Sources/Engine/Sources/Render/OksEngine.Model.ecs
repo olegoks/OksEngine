@@ -1015,6 +1015,12 @@ EndRenderPassSystem = {
 
 ModelArchetype = {
     components = {
+        "Name",
+        "WorldPosition3D",
+        "WorldRotation3D",
+        "WorldScale3D",
+        "DriverTransform3D",
+        "Transform3DResource",
         "ModelFile",
         "Model",
         "ModelNodeEntityIds",

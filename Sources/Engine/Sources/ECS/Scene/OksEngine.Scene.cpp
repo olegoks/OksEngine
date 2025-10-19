@@ -4,6 +4,8 @@
 #include <auto_OksEngine.SerializeEntity.hpp>
 #include <auto_OksEngine.ParseEntity.hpp>
 
+#include <auto_OksEngine.Utils.hpp>
+
 namespace OksEngine
 {
 
@@ -195,10 +197,26 @@ namespace OksEngine
 		std::vector<std::pair<luabridge::LuaRef, ECS2::Entity::Id>> entityLuaRefNewIds;
 
 		for (luabridge::Iterator it(entities); !it.isNil(); ++it) {
-			ECS2::Entity::Id newEntityId = CreateEntity();
+
 			luabridge::LuaRef entity = it.value();
 
 			const ECS2::Entity::Id oldId = entity["ID"].cast<Common::Index>().value();
+
+			ECS2::Entity::Id newEntityId = ECS2::Entity::Id::invalid_;
+			if (!entity["ARCHETYPE"].isNil()) {
+				const std::string archetypeName = entity["ARCHETYPE"].cast<std::string>().value();
+
+				ECS2::ComponentsFilter archetypeComponentsFilter = GetArchetypeComponentsFilterByArchetypeName(archetypeName);
+
+				newEntityId = world_->CreateEntity(archetypeComponentsFilter);
+
+			}
+			
+			if (newEntityId.IsInvalid()) {
+				newEntityId = CreateEntity();
+			}
+
+
 			oldToNewId[oldId] = newEntityId;
 			entityLuaRefNewIds.push_back({ entity, newEntityId });
 		}

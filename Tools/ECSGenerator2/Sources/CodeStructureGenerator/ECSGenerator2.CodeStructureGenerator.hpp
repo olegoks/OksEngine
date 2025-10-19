@@ -2174,12 +2174,12 @@ namespace ECSGenerator2 {
 				}
 
 				code.Add("ASSERT_FAIL_MSG(\"Attempt to use archetype name that is not archetype.\");");
-				code.Add("return 0;");
+				code.Add("return ECS2::ComponentsFilter{};");
 
 				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
 					.name_ = "GetArchetypeComponentsFilterByArchetypeName",
 					.parameters_ = {
-						{ "const char*", "archetypeName" }
+						{ "const std::string&", "archetypeName" }
 					},
 					.returnType_ = "ECS2::ComponentsFilter",
 					.code_ = {code},

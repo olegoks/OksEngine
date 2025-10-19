@@ -14,6 +14,8 @@
 #include <Resources/auto_OksEngine.ResourceSystem.hpp>
 #include <Common/CommandLineParameters/auto_OksEngine.ECS.hpp>
 
+#include <Render/auto_OksEngine.Model.hpp>
+
 namespace OksEngine
 {
 	Context::Context(const CreateInfo& createInfo) :
@@ -43,6 +45,10 @@ namespace OksEngine
 
 		}
 
+		//Preallocate archetype entities containers.
+		{
+			world2_->PreallocateArchetypeEntities<MODEL>();
+		}
 
 		{
 			LogSubsystem::CreateInfo lsci{
