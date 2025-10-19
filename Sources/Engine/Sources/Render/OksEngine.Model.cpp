@@ -22,6 +22,7 @@
 #include <pix3.h>
 
 
+
 namespace OksEngine
 {
 
@@ -2687,23 +2688,20 @@ namespace OksEngine
 		const Camera* camera1,
 		const Active* active1,
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
-		const CameraTransformResource* cameraTransformResource1,
-
+		const CameraTransformResource* cameraTransformResource1//,
+/*
 		ECS2::Entity::Id entity2id,
 		const ModelEntityIds* modelEntityIds2,
 		const Indices* indices2,
 		const DriverIndexBuffer* driverIndexBuffer2,
 		const DriverVertexBuffer* driverVertexBuffer2,
 		const TextureResource* textureResource2,
-		const VertexBones* vertexBones2) {
+		const VertexBones* vertexBones2*/) {
 
 		auto driver = renderDriver0->driver_;
 
 		Common::Size entitiesNumber = world_->GetEntitiesNumber<NODE_BONE_ANIMATED>();
 		auto components = GetComponents<NODE_BONE_ANIMATED>();
-
-		/*Common::Size bonesNotAnimatedntitiesNumber = world_->GetEntitiesNumber<NODE_BONE_ANIMATED>();
-		auto bonesNotAnimated = GetComponents<NODE_BONE>();*/
 
 		auto* worldPositions = std::get<WorldPosition3D*>(components);
 		auto* worldRotations = std::get<WorldRotation3D*>(components);
@@ -2734,81 +2732,81 @@ namespace OksEngine
 		{
 			std::vector<BoneNodeEntities> modelsBoneNodesIds;
 
-			const auto& modelEntityIds = modelEntityIds2->modelEntityIds_;
+			/*const auto& modelEntityIds = modelEntityIds2->modelEntityIds_;
 
 			for (ECS2::Entity::Id modelEntityId : modelEntityIds) {
 
 				const auto* boneNodeEntities = GetComponent<BoneNodeEntities>(modelEntityId);
 
 				modelsBoneNodesIds.push_back(*boneNodeEntities);
-			}
+			}*/
 			driver->StorageBufferWrite(
 				gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
 				0,
 				modelsBoneNodesIds.data(),
 				modelsBoneNodesIds.size() * sizeof(BoneNodeEntities));
-
-#if !defined(NDEBUG)
-			for (const VertexBonesInfo& vertexBonesInfo : vertexBones2->vertexBonesInfos_) {
-				glm::u32vec4 boneEntityIndices = vertexBonesInfo.boneEntityIndices_;
-				ASSERT(boneEntityIndices[0] <= ModelNodesMaxNumber);
-				ASSERT(boneEntityIndices[1] <= ModelNodesMaxNumber);
-				ASSERT(boneEntityIndices[2] <= ModelNodesMaxNumber);
-				ASSERT(boneEntityIndices[3] <= ModelNodesMaxNumber);
-
-				for (const BoneNodeEntities& boneNodeEntities : modelsBoneNodesIds) {
-					if (boneEntityIndices[0] != ModelNodesMaxNumber) {
-						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[0]] != ECS2::Entity::Id::invalid_);
-						bool isFound = false;
-						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[0]];
-						for (auto [id, index] : idIndex) {
-							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[0]]) {
-								isFound = true;
-								break;
-							}
-						}
-						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
-					}
-					if (boneEntityIndices[1] != ModelNodesMaxNumber) {
-						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[1]] != ECS2::Entity::Id::invalid_);
-						bool isFound = false;
-						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[1]];
-						for (auto [id, index] : idIndex) {
-							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[1]]) {
-								isFound = true;
-								break;
-							}
-						}
-						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
-					}
-					if (boneEntityIndices[2] != ModelNodesMaxNumber) {
-						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[2]] != ECS2::Entity::Id::invalid_);
-						bool isFound = false;
-						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[2]];
-						for (auto [id, index] : idIndex) {
-							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[2]]) {
-								isFound = true;
-								break;
-							}
-						}
-						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
-					}
-					if (boneEntityIndices[3] != ModelNodesMaxNumber) {
-						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[3]] != ECS2::Entity::Id::invalid_);
-						bool isFound = false;
-						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[3]];
-						for (auto [id, index] : idIndex) {
-							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[3]]) {
-								isFound = true;
-								break;
-							}
-						}
-						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
-					}
-				}
-
-			}
-#endif
+//
+//#if !defined(NDEBUG)
+//			for (const VertexBonesInfo& vertexBonesInfo : vertexBones2->vertexBonesInfos_) {
+//				glm::u32vec4 boneEntityIndices = vertexBonesInfo.boneEntityIndices_;
+//				ASSERT(boneEntityIndices[0] <= ModelNodesMaxNumber);
+//				ASSERT(boneEntityIndices[1] <= ModelNodesMaxNumber);
+//				ASSERT(boneEntityIndices[2] <= ModelNodesMaxNumber);
+//				ASSERT(boneEntityIndices[3] <= ModelNodesMaxNumber);
+//
+//				for (const BoneNodeEntities& boneNodeEntities : modelsBoneNodesIds) {
+//					if (boneEntityIndices[0] != ModelNodesMaxNumber) {
+//						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[0]] != ECS2::Entity::Id::invalid_);
+//						bool isFound = false;
+//						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[0]];
+//						for (auto [id, index] : idIndex) {
+//							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[0]]) {
+//								isFound = true;
+//								break;
+//							}
+//						}
+//						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
+//					}
+//					if (boneEntityIndices[1] != ModelNodesMaxNumber) {
+//						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[1]] != ECS2::Entity::Id::invalid_);
+//						bool isFound = false;
+//						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[1]];
+//						for (auto [id, index] : idIndex) {
+//							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[1]]) {
+//								isFound = true;
+//								break;
+//							}
+//						}
+//						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
+//					}
+//					if (boneEntityIndices[2] != ModelNodesMaxNumber) {
+//						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[2]] != ECS2::Entity::Id::invalid_);
+//						bool isFound = false;
+//						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[2]];
+//						for (auto [id, index] : idIndex) {
+//							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[2]]) {
+//								isFound = true;
+//								break;
+//							}
+//						}
+//						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
+//					}
+//					if (boneEntityIndices[3] != ModelNodesMaxNumber) {
+//						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[3]] != ECS2::Entity::Id::invalid_);
+//						bool isFound = false;
+//						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[3]];
+//						for (auto [id, index] : idIndex) {
+//							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[3]]) {
+//								isFound = true;
+//								break;
+//							}
+//						}
+//						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
+//					}
+//				}
+//
+//			}
+//#endif
 		}
 
 		driver->StorageBufferWrite(
@@ -2843,12 +2841,14 @@ namespace OksEngine
 
 		driver->BindPipeline(skeletonModelPipeline0->id_);
 
-		driver->BindVertexBuffer(driverVertexBuffer2->id_, 0);
-		driver->BindIndexBuffer(driverIndexBuffer2->id_, 0);
+
+
+		//driver->BindVertexBuffer(driverVertexBuffer2->id_, 0);
+		//driver->BindIndexBuffer(driverIndexBuffer2->id_, 0);
 		driver->Bind(skeletonModelPipeline0->id_, 0,
 			{
 				cameraTransformResource1->id_,											// set 0
-				textureResource2->id_,													// set 1
+				//textureResource2->id_,													// set 1
 				gPGPUECS__StorageBuffer__WorldPositions3D0->resourceSetId_,				// set 2
 				gPGPUECS__StorageBuffer__WorldRotations3D0->resourceSetId_,				// set 3
 				gPGPUECS__StorageBuffer__WorldScales3D0->resourceSetId_,				// set 4
@@ -2863,7 +2863,7 @@ namespace OksEngine
 			sizeof(Common::UInt64),
 			&entitiesNumber);
 
-		driver->DrawIndexed(indices2->indices_.GetIndicesNumber(), 0, modelEntityIds2->modelEntityIds_.size());
+		//driver->DrawIndexed(indices2->indices_.GetIndicesNumber(), 0, modelEntityIds2->modelEntityIds_.size());
 
 	}
 

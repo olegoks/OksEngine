@@ -208,7 +208,6 @@ namespace OksEngine
 		}
 
 		//Notify caller that scene loaded.
-
 		if (IsEntityExist(loadSceneRequest0->callerId_)) {
 			CreateComponent<SceneLoaded>(loadSceneRequest0->callerId_);
 		}

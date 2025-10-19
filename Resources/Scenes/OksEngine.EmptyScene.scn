@@ -34,6 +34,7 @@ scene = {
       --},
       {
          ID = 37,
+         ARCHETYPE = "Model",
          name = { value = "Man" },
          worldPosition3D = { x = 5, y = 0.0, z = 0, w = 0 },
          worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -41,7 +42,7 @@ scene = {
          --runModelAnimation = { animationName = "Mutant Jumping" },
          modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
       },
-       {
+      {
          ID = 3,
          name = { value = "Man" },
          worldPosition3D = { x = 3.0, y = 0.0, z = 0.0, w = 0.0 },

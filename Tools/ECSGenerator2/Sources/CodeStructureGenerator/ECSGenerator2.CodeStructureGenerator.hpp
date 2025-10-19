@@ -265,6 +265,39 @@ namespace ECSGenerator2 {
 						ArchetypeCodeStructureGenerator arhetypeGenerator{ scgci };
 
 						auto constantCodeStructure = arhetypeGenerator.GenerateArchetypeDefine(parsedArchetype);
+
+						auto archetypeIncludeComponents = arhetypeGenerator.GenerateArchetypeRequiredComponentIncludes(parsedArchetype);
+
+						//TODO: this is copy paste from system include generation
+						//Generate includes using include directory.
+						for (const ParsedComponentPtr component : archetypeIncludeComponents) {
+							for (auto ecsFile : ci_.ecsFiles_) {
+								//Skip component include if ecs file contains defintion of the component.
+								if (parsedECSFile->IsContainsComponent(component)) {
+									continue;
+								}
+								if (ecsFile->IsContainsComponent(component)) {
+									const std::filesystem::path ecsFilePath = ecsFile->GetPath().parent_path();
+
+									auto [it, _] = std::mismatch(
+										ecsFilePath.begin(), ecsFilePath.end(),
+										includeDirectory.begin()
+									);
+									std::filesystem::path componentIncludePath;
+
+									while (it != ecsFilePath.end()) {
+										componentIncludePath /= *it;
+										++it;
+									}
+
+									includes.paths_.insert((componentIncludePath / ("auto_" + ecsFile->GetName())).string() + ".hpp");
+
+								}
+							}
+
+						}
+
+
 						std::vector<std::shared_ptr<CodeStructure::Base>> bases;
 						bases.push_back(constantCodeStructure);
 						return bases;
@@ -2112,6 +2145,47 @@ namespace ECSGenerator2 {
 					.isPrototype_ = false,
 					.inlineModifier_ = true,
 					.descriptionComment_ = "Input component name must be pointer taked from call Component::GetName()!!!"
+				};
+
+				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
+			}
+
+			{
+				CodeStructure::Code code;
+
+				for (auto parsedECSFile : parsedECSFiles) {
+
+					parsedECSFile->ForEachArchetype([&](ParsedArchetypePtr parsedArchetype) {
+
+						code.Add("\nif({} == \"{}\") {{\n", "archetypeName", parsedArchetype->GetFullName());
+
+						std::string concatedNamespace = parsedArchetype->GetConcatedNamespace();
+						if (concatedNamespace.empty()) {
+							code.Add("	return {}ArchetypeComponentsFilter;\n", parsedArchetype->GetName());
+						}
+						else {
+							code.Add("	return {}::{}ArchetypeComponentsFilter;\n", parsedArchetype->GetConcatedNamespace(), parsedArchetype->GetName());
+						}
+						
+						code.Add("}\n");
+
+						return true;
+						});
+				}
+
+				code.Add("ASSERT_FAIL_MSG(\"Attempt to use archetype name that is not archetype.\");");
+				code.Add("return 0;");
+
+				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
+					.name_ = "GetArchetypeComponentsFilterByArchetypeName",
+					.parameters_ = {
+						{ "const char*", "archetypeName" }
+					},
+					.returnType_ = "ECS2::ComponentsFilter",
+					.code_ = {code},
+					.isPrototype_ = false,
+					.inlineModifier_ = true,
+					.descriptionComment_ = "Input archetype name must be with namespace: \"Animation::Animation\""
 				};
 
 				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));

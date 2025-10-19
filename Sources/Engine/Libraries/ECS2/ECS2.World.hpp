@@ -37,13 +37,13 @@ namespace ECS2 {
 		void FreeEntityId(Entity::Id entityId) {
 
 #pragma region Assert
-			ASSERT_FMSG(!freeEntityIds_.contains(entityId), 
+			ASSERT_FMSG(!freeEntityIds_.contains(entityId),
 				"");
 #pragma endregion
 
 			freeEntityIds_.insert(entityId);
 		}
-		
+
 		Entity::Type GetEntityType(Entity::Id entityId) {
 
 
@@ -63,7 +63,7 @@ namespace ECS2 {
 
 		//Create archetype entity.
 		template<class ...Components>
-		requires (sizeof...(Components) > 0)
+			requires (sizeof...(Components) > 0)
 		[[nodiscard]]
 		Entity::Id CreateEntity() noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
@@ -89,29 +89,47 @@ namespace ECS2 {
 			return entityId;
 		}
 
-		////Create archetype entity.
-		//[[nodiscard]]
-		//Entity::Id CreateEntity(ComponentsFilter archetypeComponentsFilter) noexcept {
-		//	std::lock_guard lock{ addRequestMutex_ };
-		//	const Entity::Id entityId = GetFreeEntityId();
-		//	requests_.emplace_back([entityId, archetypeComponentsFilter, this]() mutable {
-		//		archetypeEntitiesComponents_[entityId] = archetypeComponentsFilter;
+		//Create archetype entity by components filer. So you must preallocate containers if you want to use this method.
+		[[nodiscard]]
+		Entity::Id CreateEntity(ComponentsFilter archetypeComponentsFilter) noexcept {
+			std::lock_guard lock{ addRequestMutex_ };
+			const Entity::Id entityId = GetFreeEntityId();
+			requests_.emplace_back([entityId, archetypeComponentsFilter, this]() mutable {
+				archetypeEntitiesComponents_[entityId] = archetypeComponentsFilter;
 
-		//		auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
-		//		const bool isArchetypeComponentsContainersCreated = archetypeComponentsIt != archetypeComponents_.end();
-		//		std::shared_ptr<ArchetypeComponents<Components...>> archetypeComponents = nullptr;
-		//		if (!isArchetypeComponentsContainersCreated) {
-		//			archetypeComponents = std::make_shared<ArchetypeComponents<Components...>>(100);
-		//			archetypeComponents_[archetypeComponentsFilter] = archetypeComponents;
-		//		}
-		//		else {
-		//			std::shared_ptr<IArchetypeComponents> iArchetypeComponents = archetypeComponentsIt->second;
-		//			archetypeComponents = std::dynamic_pointer_cast<ArchetypeComponents<Components...>>(iArchetypeComponents);
-		//		}
-		//		archetypeComponents->CreateEntity(entityId);
-		//		});
-		//	return entityId;
-		//}
+				auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
+				
+				ASSERT_FMSG(archetypeComponentsIt != archetypeComponents_.end(),
+					"Attempt to create archetype entity that is not preallocated. Archetype: {}",
+					archetypeComponentsFilter.GetComponentsList());
+
+				std::shared_ptr<IArchetypeComponents> iArchetypeComponents = archetypeComponentsIt->second;
+				iArchetypeComponents->CreateEntity(entityId);
+				});
+			return entityId;
+		}
+
+		template<class ...Components>
+			requires (sizeof...(Components) > 0)
+		void PreallocateArchetypeEntities() noexcept {
+
+			std::lock_guard lock{ addRequestMutex_ };
+			requests_.emplace_back([this]() mutable {
+
+				ComponentsFilter archetypeComponentsFilter;
+				archetypeComponentsFilter.SetBits<Components...>();
+				auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
+
+				ASSERT_MSG(
+					archetypeComponentsIt == archetypeComponents_.end(), 
+					"Attempt to preallocate archetype that allocated yet.");
+				
+				auto archetypeComponents = std::make_shared<ArchetypeComponents<Components...>>(100);
+				archetypeComponents_[archetypeComponentsFilter] = archetypeComponents;
+				
+				});
+			
+		}
 
 		Entity::Id CreateEntity() noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
@@ -121,6 +139,8 @@ namespace ECS2 {
 				});
 			return entityId;
 		}
+
+
 
 		void DestroyEntity(Entity::Id entityId) noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
@@ -133,7 +153,7 @@ namespace ECS2 {
 					archetypeComponents->DestroyEntity(entityId);
 					archetypeEntitiesComponents_.erase(entityId);
 				}
-				else { 
+				else {
 
 #pragma region Assert
 					ASSERT_FMSG(
@@ -163,11 +183,11 @@ namespace ECS2 {
 				FreeEntityId(entityId);
 				});
 
-			
+
 		}
 
 		template<class ...Components>
-		requires (sizeof...(Components) > 0)
+			requires (sizeof...(Components) > 0)
 		bool IsEntityExist() {
 			ComponentsFilter componentsFilter;
 			componentsFilter.SetBits<Components...>();
@@ -188,7 +208,7 @@ namespace ECS2 {
 						continue;
 					}
 					std::shared_ptr<IArchetypeComponents> iArchetypeComponents = archetypeComponentsIt->second;
-					if(iArchetypeComponents->IsComponentsExist<Components...>(entity.first)){
+					if (iArchetypeComponents->IsComponentsExist<Components...>(entity.first)) {
 						return true;
 					}
 				}
@@ -198,7 +218,7 @@ namespace ECS2 {
 
 		bool IsEntityExist(Entity::Id entityId) const {
 			//TODO: Optimize
-			return 
+			return
 				dynamicEntitiesComponentFilters_.contains(entityId) ||
 				archetypeEntitiesComponents_.contains(entityId);
 
@@ -248,7 +268,7 @@ namespace ECS2 {
 		template<class ComponentType, class ...Args>
 		void CreateComponent(Entity::Id entityId, Args&&... args) noexcept {
 			CreateComponent<ComponentType, Args...>(
-				
+
 				entityId, "Called not from a system, maybe user manually created component", std::forward<Args&&>(args)...);
 		}
 
@@ -295,7 +315,7 @@ namespace ECS2 {
 			//Archetype entity.
 			if (archetypeEntitiesComponents_.contains(entityId)) {
 				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
-				
+
 				std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponents_[componentsFilter];
 				return archetypeComponents->GetComponent<ComponentType>(entityId);
 			}
@@ -308,7 +328,7 @@ namespace ECS2 {
 				auto containerIt = dynamicEntitiesContainers_.find(ComponentType::GetTypeId());
 				if (containerIt != dynamicEntitiesContainers_.end()) {
 					auto container = std::dynamic_pointer_cast<Container<ComponentType>>(containerIt->second);
-					
+
 					//TODO: remove taking value by operator[], take only by find and iterator to not create map pairs with empty container pointer.
 					if (container != nullptr) {
 						return container->GetComponent(entityId);
@@ -320,7 +340,7 @@ namespace ECS2 {
 				else {
 					return nullptr;
 				}
-				
+
 			}
 		}
 
@@ -348,10 +368,10 @@ namespace ECS2 {
 							return nullptr;
 						}
 
-						
-						
+
+
 					}()...
-				);
+						);
 			}
 			return std::tuple<Components*...>{};
 		}
@@ -372,9 +392,9 @@ namespace ECS2 {
 					[]() -> Components* {
 						return nullptr;
 					}()...
-				);
+						);
 			}
-			
+
 		}
 
 		template<class ...Components>
@@ -389,14 +409,14 @@ namespace ECS2 {
 		template<class ComponentType>
 		[[nodiscard]]
 		bool IsComponentExist(Entity::Id entityId) noexcept {
-			if(archetypeEntitiesComponents_.contains(entityId))
+			if (archetypeEntitiesComponents_.contains(entityId))
 			{
 				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
 				if (componentsFilter.IsSet<ComponentType>()) {
 					return archetypeComponents_[componentsFilter]->IsComponentExist<ComponentType>(entityId);
 				}
 			}
-			if(dynamicEntitiesComponentFilters_.contains(entityId))
+			if (dynamicEntitiesComponentFilters_.contains(entityId))
 			{
 				const ComponentsFilter componentsFilter = dynamicEntitiesComponentFilters_[entityId];
 				if (componentsFilter.IsSet<ComponentType>()) {
@@ -520,7 +540,7 @@ namespace ECS2 {
 		void ApplyDelayedRequests() {
 			for (auto& addition : requests_) {
 				addition();
-			}      
+			}
 			requests_.clear();
 		}
 	private:

@@ -22,12 +22,44 @@ namespace ECS2 {
 
 		constexpr static Common::UInt16 maxComponentsNumber_ = 256;
 
+
+		ComponentsFilter() { }
+
+		ComponentsFilter(const ComponentsFilter& copyComponentsFilter) 
+			: filter_{ copyComponentsFilter.filter_ } { }
+
+		ComponentsFilter(ComponentsFilter&& moveComponentsFilter)
+			: filter_{ std::move(moveComponentsFilter.filter_) } { }
+
+		ComponentsFilter& operator=(const ComponentsFilter& copyComponentsFilter) {
+
+			if (&copyComponentsFilter == this) {
+				return *this;
+			}
+
+			filter_ = copyComponentsFilter.filter_;
+
+			return *this;
+		}
+
+		ComponentsFilter& operator=(ComponentsFilter&& moveComponentsFilter) {
+
+			if (&moveComponentsFilter == this) {
+				return *this;
+			}
+
+			filter_ = std::move(moveComponentsFilter.filter_);
+
+			return *this;
+		}
+
+
 		void SetAllBits() {
 			filter_.set();
 		}
 
 		template<class ...ComponentType>
-		void SetBits() {
+		ComponentsFilter& SetBits() {
 
 			(filter_.set(ComponentType::GetTypeId()), ...);
 
@@ -36,7 +68,7 @@ namespace ECS2 {
 				(componentNames_.push_back(std::string{ ComponentType::GetName() }), ...);
 			}
 #endif
-
+			return *this;
 		}
 
 		template<class ...ComponentType>
@@ -58,6 +90,20 @@ namespace ECS2 {
 
 		}
 
+#ifdef ENABLE_ECS_DEBUG
+
+		std::string GetComponentsList() const noexcept {
+
+			std::string componentsList;
+
+			for (auto componentName : componentNames_) {
+				componentsList += componentsList + " ";
+			}
+			return componentsList;
+		}
+
+#endif
+
 		void RemoveBit(ComponentTypeId componentTypeId) {
 			filter_.reset(componentTypeId);
 		}
@@ -65,9 +111,6 @@ namespace ECS2 {
 		void SetBit(ComponentTypeId componentTypeId) {
 			filter_.set(componentTypeId);
 		}
-
-		ComponentsFilter() { }
-
 
 		template<class ...ComponentType>
 		bool IsSet() const {

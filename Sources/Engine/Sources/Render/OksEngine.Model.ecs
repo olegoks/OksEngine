@@ -949,16 +949,16 @@ AddSkeletonModelToRenderSystem = {
                     "CameraTransformResource"
                 }
             },
-            {
-                processesComponents = {
-                    "ModelEntityIds",
-                    "Indices",
-                    "DriverIndexBuffer",
-                    "DriverVertexBuffer",
-                    "TextureResource",
-                    "VertexBones"
-                }
-            },
+            -- {
+            --     processesComponents = {
+            --         "ModelEntityIds",
+            --         "Indices",
+            --         "DriverIndexBuffer",
+            --         "DriverVertexBuffer",
+            --         "TextureResource",
+            --         "VertexBones"
+            --     }
+            -- },
         },
         accessingEntities = {
             {
@@ -1013,6 +1013,21 @@ EndRenderPassSystem = {
     }
 }
 
+ModelArchetype = {
+    components = {
+        "ModelFile",
+        "Model",
+        "ModelNodeEntityIds",
+        "BoneNodeEntities",
+        "ModelAnimations",
+        "ChildModelNodeEntities",
+        "MeshNames",
+        "MeshEntities",
+        "MeshsFound"
+    }
+}
+
+--Skeleton mesh
 MeshArchetype = {
     components = {
         "Mesh",
