@@ -25,7 +25,6 @@ namespace OksEngine
 		RAL::Driver::CreateInfo driverCreateInfo{};
 
 		{
-
 			auto windowInfo = mainWindow0->window_->GetInfo(UIAL::Render::Vulkan);
 			RAL::RenderSurface renderSurface;
 			if (windowInfo.subsystem_ == UIAL::Subsystem::GLFW) {
@@ -269,7 +268,41 @@ namespace OksEngine
 				};
 				RAL::Driver::ResourceSet::Id SBResId = driver->CreateResource(storageBinding);
 
-				CreateComponent<GPGPUECS::StorageBuffer::EntityIdsToComponentIndices>(driverEntityId, SBId, SBResId);
+				CreateComponent<GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices>(driverEntityId, SBId, SBResId);
+			}
+
+			{
+				RAL::Driver::StorageBuffer::CreateInfo SBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(GPGPUECS::EntityIdToComponentIndex)
+				};
+				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
+
+				RAL::Driver::ResourceSet::Binding storageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.binding_ = 0,
+					.sbid_ = SBId
+				};
+				RAL::Driver::ResourceSet::Id SBResId = driver->CreateResource(storageBinding);
+
+				CreateComponent<GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices>(driverEntityId, SBId, SBResId);
+			}
+
+			{
+				RAL::Driver::StorageBuffer::CreateInfo SBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(ModelEntityIds)
+				};
+				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
+
+				RAL::Driver::ResourceSet::Binding storageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.binding_ = 0,
+					.sbid_ = SBId
+				};
+				RAL::Driver::ResourceSet::Id SBResId = driver->CreateResource(storageBinding);
+
+				CreateComponent<GPGPUECS::StorageBuffer::ModelEntityIds>(driverEntityId, SBId, SBResId);
 			}
 		}
 	};

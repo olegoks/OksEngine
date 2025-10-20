@@ -141,7 +141,7 @@ void main() {
     //debugPrintfEXT("%d", index);
     if(index < entitiesNumber_){
         AnimationState state = states[index];
-        if(state.animationIndex_ >= 8) {
+        if(state.animationIndex_ >= 8 || IsEqual(state.animationDuration_, 0.0)) {
             //debugPrintfEXT("Invalid animation index %d.", state.animationIndex_);
             return;
         }

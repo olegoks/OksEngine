@@ -109,8 +109,18 @@ bool IsEqual(float first, float second) {
 
 #define ASSERT_FMSG_3(expression, message, arg1, arg2, arg3)  \
     if(!(expression)) {                                 \
-        debugPrintfEXT(message, arg1, arg2);             \
+        debugPrintfEXT(message, arg1, arg2, arg3);             \
     }   
+
+
+#define LOG_MSG(message)\
+    debugPrintfEXT(message); 
+
+#define LOG_FMSG_1(message, arg1)\
+    debugPrintfEXT(message, arg1); 
+
+#define LOG_FMSG_2(message, arg1, arg2)\
+    debugPrintfEXT(message, arg1, arg2); 
 
 
 

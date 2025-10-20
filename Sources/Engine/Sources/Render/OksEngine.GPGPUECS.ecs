@@ -7,7 +7,21 @@ GPGPUECSNamespace = {
     },
 
     StorageBufferNamespace = {
-        EntityIdsToComponentIndicesComponent = {
+        NodeEntityIdsToComponentIndicesComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
+        },
+        ModelEntityIdsComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
+        },
+        ModelEntityIdsToComponentIndicesComponent = {
             serializable = false,
             fields = {
                 { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
@@ -55,6 +69,7 @@ GPGPUECSNamespace = {
                 { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
                 { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
             }
-        }
+        },
+        
     }
 }

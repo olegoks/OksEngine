@@ -56,7 +56,7 @@ namespace OS {
 	OS::AssertMessage(expression, std::source_location::current(), message, __VA_ARGS__)
 
 #define ASSERT(expression)\
-	OS::Assert(expression)
+	OS::AssertMessage(expression, #expression, std::source_location::current())
 
 #define ASSERT_FAIL()\
 	OS::AssertFail()

@@ -9,10 +9,15 @@ ModelEntityComponent = {
     }
 }
 
+MeshMaxModelsNumberConstant = {
+    type = "Common::Size",
+    value = "512"
+}
+
 ModelEntityIdsComponent = {
     serializable = false,
     fields = {
-        { type = "std::vector<ECS2::Entity::Id>", name = "modelEntityIds" }
+        { type = "std::array<ECS2::Entity::Id, MeshMaxModelsNumber>", name = "modelEntityIds" }
     }
 }
 
@@ -933,7 +938,9 @@ AddSkeletonModelToRenderSystem = {
                     { name = "RenderDriver", readonly = false },
                     "RenderPass",
                     "SkeletonModelPipeline",
-                    "GPGPUECS::StorageBuffer::EntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::ModelEntityIds",
                     "GPGPUECS::StorageBuffer::WorldPositions3D",
                     "GPGPUECS::StorageBuffer::WorldRotations3D",
                     "GPGPUECS::StorageBuffer::WorldScales3D",
@@ -985,9 +992,10 @@ AddSkeletonModelToRenderSystem = {
                 -- }
             },
             {
-                accessingComponents = {
-                    "BoneNodeEntities"
-                }
+                archetype = "Model"
+            },
+            {
+                archetype = "Mesh"
             }
         }
 
@@ -1026,6 +1034,9 @@ ModelArchetype = {
         "ModelNodeEntityIds",
         "BoneNodeEntities",
         "ModelAnimations",
+        "RunModelAnimation",
+        "AnimationInProgress",
+        "PauseAnimation",
         "ChildModelNodeEntities",
         "MeshNames",
         "MeshEntities",

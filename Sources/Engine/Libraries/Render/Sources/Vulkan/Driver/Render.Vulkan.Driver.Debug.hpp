@@ -124,7 +124,18 @@ namespace Render::Vulkan {
 			Common::DiscardUnusedParameter(pUserData);
 			//if (flags & VK_DEBUG_REPORT_DEBUG_BIT_EXT) {
 			//debugPrintfEXT
-			OS::LogInfo("render", { "{}\n", pMessage });
+
+			std::string message = pMessage;
+
+			auto offfset = message.find("pSubmits[0]");
+			
+			if (std::string::npos != offfset) {
+				message = message.substr(offfset);
+			}
+			if (message.find("ASSERT") != std::string::npos) {
+				ASSERT_FAIL_MSG(message.c_str());
+			}
+			OS::LogInfo("render", { "{}\n", message });
 			//}
 
 			return false;

@@ -53,7 +53,7 @@ AnimationNamespace = {
             }
         }
     },
-    
+
     ModelNamespace = {
         AnimationsMaxNumberConstant = {
             type = "Common::Size",
@@ -87,9 +87,9 @@ AnimationNamespace = {
             RunningStateComponent = {
                 serializable = false,
                 fields = {
-                    { type = "Common::UInt32", name = "animationIndex" },
-                    { type = "float",          name = "animationDuration" },
-                    { type = "float",          name = "currentTime" },
+                    { type = "Common::UInt32", name = "animationIndex",    defaultValue = "0" },
+                    { type = "float",          name = "animationDuration", defaultValue = "0.0" },
+                    { type = "float",          name = "currentTime",       defaultValue = "0.0" },
                 }
             },
             --RunningAnimationStates GPU STORAGE buffers
