@@ -755,6 +755,12 @@ namespace ECSGenerator2 {
 
 
 			CodeStructure::Code realization;
+			//"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+			//	"{}System(world2);"
+			//	"PIXEndEvent();",
+			//	GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i]),
+			//	GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i])
+			//realization.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{} Call\");", system->GetName());
 			//Render render{ world };
 			realization.Add(std::format(
 				"{} {}{{ world }};",
@@ -843,6 +849,8 @@ namespace ECSGenerator2 {
 				realization.Add(std::format("{}.AfterUpdate();", system->GetLowerName()));
 			}
 
+			//realization.Add("PIXEndEvent();");
+
 			std::vector<CodeStructure::Function::Parameter> parameters;
 			parameters.push_back({ "std::shared_ptr<ECS2::World>", "world" });
 
@@ -850,7 +858,8 @@ namespace ECSGenerator2 {
 				.name_ = system->GetName() + "System",
 				.parameters_ = parameters,
 				.returnType_ = "void",
-				.code_ = realization,
+				//Save run system function code realization to validate system .ecs description.
+				.code_ = (system->ci_.isEnabled_) ? (realization) : (CodeStructure::Code{""}),
 				.inlineModifier_ = true
 			};
 			auto runSystem = std::make_shared<CodeStructure::Function>(funcci);

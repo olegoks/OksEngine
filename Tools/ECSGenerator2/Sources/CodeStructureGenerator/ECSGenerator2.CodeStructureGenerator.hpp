@@ -40,6 +40,7 @@ namespace ECSGenerator2 {
 				includes.paths_.insert("chrono");
 				includes.paths_.insert("tuple");
 				includes.paths_.insert("OksEngine.IComponent.hpp");
+				includes.paths_.insert("pix3.h");
 			}
 			//Add "OksEngine.EditEntity.hpp" header if component contains fields with ECS2::Entity::Id.
 			bool needToIncludeEditEntity = false;

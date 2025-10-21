@@ -467,6 +467,13 @@ namespace ECS2 {
 		void ForEachEntity(std::function<void(Entity::Id)>&& processEachEntityId) {
 			ComponentsFilter componentsFilter;
 			componentsFilter.SetBits<Components...>();
+
+			//{
+			//	for (auto [archetypeComponentsFilter, archetypeContainer] : archetypeComponents_) {
+
+			//	}
+			//}
+
 			for (const auto& [entityId, componentsFilter] : archetypeEntitiesComponents_) {
 				if (componentsFilter.IsSubsetOf(componentsFilter)) {
 					processEachEntityId(entityId);
@@ -485,15 +492,18 @@ namespace ECS2 {
 			componentsFilter.SetBits<Components...>();
 
 			//Find archetype that corresponds to components filter.
-
+			//PIXBeginEvent(PIX_COLOR(255, 0, 0), "Search archetype entities.");
 			for (const auto& [archetypeComponentsFilter, archetypeComponents] : archetypeComponents_) {
 				if (componentsFilter.IsSubsetOf(archetypeComponentsFilter)) {
 					//TODO: Add exclude.
 					archetypeComponents->ForEachEntity<Components...>(excludes, std::forward<SystemUpdateFunction<Components...>&&>(processEntity));
 				}
 			}
+			//PIXEndEvent();
+
 
 			//Process dynamic entities.
+			//PIXBeginEvent(PIX_COLOR(255, 0, 0), "Search dynamic entities.");
 			auto containers = std::make_tuple(std::dynamic_pointer_cast<Container<Components>>(dynamicEntitiesContainers_[Components::GetTypeId()])...);
 			bool allContainersExist = false;
 			std::apply([&](auto&&... containers) {
@@ -525,7 +535,7 @@ namespace ECS2 {
 						});
 				}
 			}
-
+			//PIXEndEvent();
 
 		}
 

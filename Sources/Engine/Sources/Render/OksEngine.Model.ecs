@@ -104,6 +104,7 @@ BoneNodeComponent = {
 
 
 UpdateHierarchicalNodeDriverTransform3DSystem = {
+    disable = true,
     updateMethod = {
         processesEntities = {
             {

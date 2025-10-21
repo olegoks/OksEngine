@@ -12,8 +12,9 @@ namespace ECSGenerator2 {
 			luabridge::LuaRef system,
 			const std::string& systemName) {
 
+			bool isEnabled = true;
 			if (system["disable"].cast<bool>().value()) {
-				return nullptr;
+				isEnabled = false;
 			}
 
 			auto parseAfterUpdateMethod = [](luabridge::LuaRef luaRef) -> std::shared_ptr<ParsedSystem::AfterUpdateMethodInfo> {
@@ -386,7 +387,7 @@ namespace ECSGenerator2 {
 #pragma endregion
 
 			ParsedSystem::CreateInfo ci{
-				.isEnabled_ = true,
+				.isEnabled_ = isEnabled,
 				.name_ = systemName,
 				.thread_ = thread,
 				.type_ = type,

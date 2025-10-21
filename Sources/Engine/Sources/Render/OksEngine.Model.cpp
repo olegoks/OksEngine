@@ -85,6 +85,7 @@ namespace OksEngine
 		const Clock* clock1,
 		const TimeSinceEngineStart* timeSinceEngineStart1) {
 
+
 		//#pragma region Assert
 		//		ASSERT_FMSG(
 		//			std::find_if(
@@ -95,6 +96,8 @@ namespace OksEngine
 		//				}) != modelAnimations0->animations_.cend(),
 		//					"Attempt to start animation that doesnt exist.");
 		//#pragma endregion
+
+		PIXBeginEvent(PIX_COLOR(255, 255, 0), "Processing model with entity id %d.", entity0id);
 
 		auto components = GetComponents<
 			WorldPosition3D,
@@ -154,13 +157,21 @@ namespace OksEngine
 
 				const Common::Size animationsNumber = modelAnimations0->animations_.size();
 
-				std::random_device rd;
+				/*std::random_device rd;
 				std::mt19937 gen(rd());
 
 				Common::Index a = 0, b = animationsNumber - 1;
 				std::uniform_int_distribution<> dist(a, b);
-				const Common::Index randomAnimationIndex = dist(gen);
-				const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[randomAnimationIndex];
+				const Common::Index randomAnimationIndex = dist(gen);*/
+				//const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[randomAnimationIndex];
+
+
+				animationIndex++;
+				if (animationIndex == animationsNumber) {
+					animationIndex = 0;
+				}
+
+				const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[animationIndex];
 
 				CreateComponent<RunModelAnimation>(entity0id, randomModelAnimation.name_);
 			}
@@ -212,6 +223,10 @@ namespace OksEngine
 				const glm::fvec3& parentPosition3D,
 				const glm::quat& parentRotation3D,
 				const glm::fvec3& parentScale3D) {
+
+
+					PIXBeginEvent(PIX_COLOR(255, 255, 0), "Processing model node with entity id %d", nodeEntityId);
+
 
 					auto components = GetComponents<
 						LocalPosition3D,
@@ -293,6 +308,7 @@ namespace OksEngine
 						worldNodePosition3D->y_ = worldNodePosition3DVec.y;
 						worldNodePosition3D->z_ = worldNodePosition3DVec.z;
 					}
+					
 
 					const auto* localNodeScale3D = std::get<LocalScale3D*>(components);
 					auto* worldNodeScale3D = std::get<WorldScale3D*>(components);
@@ -301,6 +317,7 @@ namespace OksEngine
 					worldNodeScale3D->y_ = parentScale3D.y * localNodeScale3D->y_;
 					worldNodeScale3D->z_ = parentScale3D.z * localNodeScale3D->z_;
 
+					PIXEndEvent();
 					//UPDATE WORLD POSITION
 
 					auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
@@ -330,6 +347,8 @@ namespace OksEngine
 		for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
 			processModelNode(childModelNodeEntityId, position3D, rotation3D, scale3D);
 		}
+
+		PIXEndEvent();
 
 	}
 
