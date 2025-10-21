@@ -447,6 +447,7 @@ namespace Render::Vulkan {
 
 			Extensions requiredDeviceExtensions;
 			requiredDeviceExtensions.AddExtension("VK_KHR_swapchain");
+			//requiredDeviceExtensions.AddExtension("VK_KHR_get_physical_device_properties2");
 
 #if defined(SHADER_DEBUG_PRINTF)
 			requiredDeviceExtensions.AddExtension("VK_KHR_shader_non_semantic_info");

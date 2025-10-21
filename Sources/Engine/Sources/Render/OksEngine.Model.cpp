@@ -2749,118 +2749,65 @@ namespace OksEngine
 		auto* meshTextureResources = std::get<TextureResource*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 
-		struct IdIndex {
-			ECS2::Entity::Id id_;
-			Common::UInt64 index_;
-		};
-		STATIC_ASSERT_MSG(sizeof(IdIndex) == 16, "");
+		//struct IdIndex {
+		//	ECS2::Entity::Id id_;
+		//	Common::UInt64 index_;
+		//};
+		//STATIC_ASSERT_MSG(sizeof(IdIndex) == 16, "");
 
-		std::vector<IdIndex> nodeIdIndex;
-		std::vector<IdIndex> modelIdIndex;
+		//std::vector<IdIndex> nodeIdIndex;
+
+		std::vector<Common::UInt64> nodeIndices;
+		std::vector<Common::UInt64> modelIndices;
+
+		//std::vector<IdIndex> modelIdIndex;
+
+
 		{
-			nodeIdIndex.reserve(nodeBoneAnimatedEntitiesNumber);
+			//nodeIdIndex.reserve(nodeBoneAnimatedEntitiesNumber);
 			for (Common::Index i = 0; i < nodeBoneAnimatedEntitiesNumber; i++) {
-				nodeIdIndex.push_back(IdIndex{ std::get<ECS2::Entity::Id*>(nodesBoneAnimatedComponents)[i], i });
+
+				ECS2::Entity::Id nodeEntityId = std::get<ECS2::Entity::Id*>(nodesBoneAnimatedComponents)[i];
+
+				//nodeIdIndex.push_back(IdIndex{ nodeEntityId, i });
+
+				if (nodeEntityId >= nodeIndices.size()) {
+					nodeIndices.resize(nodeEntityId + 1, 0);
+				}
+
+				nodeIndices[nodeEntityId] = i;
 			}
-			std::ranges::sort(nodeIdIndex,
+
+			/*std::ranges::sort(nodeIdIndex,
 				[](const IdIndex& first, const IdIndex& second) {
 
 					ASSERT(first.id_ != second.id_);
 
 					return first.id_ < second.id_;
-				});
+				});*/
 
-			modelIdIndex.reserve(modelEntitiesNumber);
+			//modelIdIndex.reserve(modelEntitiesNumber);
 			for (Common::Index i = 0; i < modelEntitiesNumber; i++) {
-				modelIdIndex.push_back(IdIndex{ std::get<ECS2::Entity::Id*>(modelComponents)[i], i });
-			}
+
+				ECS2::Entity::Id modelEntityId = std::get<ECS2::Entity::Id*>(modelComponents)[i];
+
+				if (modelEntityId >= modelIndices.size()) {
+					modelIndices.resize(modelEntityId + 1, 0);
+				}
+
+				modelIndices[modelEntityId] = i;
+
+				//modelIdIndex.push_back(IdIndex{ , i });
+
+
+			}/*
 			std::ranges::sort(modelIdIndex,
 				[](const IdIndex& first, const IdIndex& second) {
 
 					ASSERT(first.id_ != second.id_);
 
 					return first.id_ < second.id_;
-				});
-		}
-
-		{
-
-
-			//std::vector<BoneNodeEntities> modelsBoneNodesIds;
-
-
-
-			/*const auto& modelEntityIds = modelEntityIds2->modelEntityIds_;
-
-			for (ECS2::Entity::Id modelEntityId : modelEntityIds) {
-
-				const auto* boneNodeEntities = GetComponent<BoneNodeEntities>(modelEntityId);
-
-				modelsBoneNodesIds.push_back(*boneNodeEntities);
-			}*/
-
-			//
-			//#if !defined(NDEBUG)
-			//			for (const VertexBonesInfo& vertexBonesInfo : vertexBones2->vertexBonesInfos_) {
-			//				glm::u32vec4 boneEntityIndices = vertexBonesInfo.boneEntityIndices_;
-			//				ASSERT(boneEntityIndices[0] <= ModelNodesMaxNumber);
-			//				ASSERT(boneEntityIndices[1] <= ModelNodesMaxNumber);
-			//				ASSERT(boneEntityIndices[2] <= ModelNodesMaxNumber);
-			//				ASSERT(boneEntityIndices[3] <= ModelNodesMaxNumber);
-			//
-			//				for (const BoneNodeEntities& boneNodeEntities : modelsBoneNodesIds) {
-			//					if (boneEntityIndices[0] != ModelNodesMaxNumber) {
-			//						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[0]] != ECS2::Entity::Id::invalid_);
-			//						bool isFound = false;
-			//						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[0]];
-			//						for (auto [id, index] : idIndex) {
-			//							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[0]]) {
-			//								isFound = true;
-			//								break;
-			//							}
-			//						}
-			//						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
-			//					}
-			//					if (boneEntityIndices[1] != ModelNodesMaxNumber) {
-			//						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[1]] != ECS2::Entity::Id::invalid_);
-			//						bool isFound = false;
-			//						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[1]];
-			//						for (auto [id, index] : idIndex) {
-			//							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[1]]) {
-			//								isFound = true;
-			//								break;
-			//							}
-			//						}
-			//						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
-			//					}
-			//					if (boneEntityIndices[2] != ModelNodesMaxNumber) {
-			//						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[2]] != ECS2::Entity::Id::invalid_);
-			//						bool isFound = false;
-			//						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[2]];
-			//						for (auto [id, index] : idIndex) {
-			//							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[2]]) {
-			//								isFound = true;
-			//								break;
-			//							}
-			//						}
-			//						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
-			//					}
-			//					if (boneEntityIndices[3] != ModelNodesMaxNumber) {
-			//						ASSERT(boneNodeEntities.boneEntityIds_[boneEntityIndices[3]] != ECS2::Entity::Id::invalid_);
-			//						bool isFound = false;
-			//						ECS2::Entity::Id entityId = boneNodeEntities.boneEntityIds_[boneEntityIndices[3]];
-			//						for (auto [id, index] : idIndex) {
-			//							if (id == boneNodeEntities.boneEntityIds_[boneEntityIndices[3]]) {
-			//								isFound = true;
-			//								break;
-			//							}
-			//						}
-			//						ASSERT_FMSG(isFound, "Attempt to get component index by entity index failed. {} ", (Common::Size)entityId);
-			//					}
-			//				}
-			//
-			//			}
-			//#endif
+				});*/
 		}
 
 		driver->StorageBufferWrite(
@@ -2896,14 +2843,18 @@ namespace OksEngine
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->sbid_,
 			0,
-			nodeIdIndex.data(),
-			nodeBoneAnimatedEntitiesNumber * sizeof(IdIndex));
+			//nodeIdIndex.data(),
+			nodeIndices.data(),
+			nodeIndices.size() * sizeof(Common::Size));
+			//nodeBoneAnimatedEntitiesNumber * sizeof(IdIndex));
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->sbid_,
 			0,
-			modelIdIndex.data(),
-			modelEntitiesNumber * sizeof(IdIndex));
+			modelIndices.data(),
+			modelIndices.size() * sizeof(Common::Size));
+			/*modelIdIndex.data(),
+			modelEntitiesNumber * sizeof(IdIndex));*/
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__ModelEntityIds0->sbid_,
@@ -2994,22 +2945,22 @@ namespace OksEngine
 
 				//ASSERT(meshModelEntitiesNumber == 1);
 
-#if !defined(NDEBUG)
-				for (Common::Index instanceIndex = 0; instanceIndex < meshModelEntitiesNumber; instanceIndex++) {
-					auto currentModelEntityId = modelEntityIds->modelEntityIds_[instanceIndex];
-					ASSERT(currentModelEntityId.IsValid());
-
-					bool isComponentsIndexFound = false;
-					for (auto [modelEntityId, modelComponentsIndex] : modelIdIndex) {
-						if (currentModelEntityId == modelEntityId) {
-							isComponentsIndexFound = true;
-							ASSERT(modelComponentsIndex < modelEntitiesNumber);
-						}
-					}
-					ASSERT_FMSG(isComponentsIndexFound, "Find model entity id {}", (Common::Size)currentModelEntityId);
-
-				}
-#endif
+//#if !defined(NDEBUG)
+//				for (Common::Index instanceIndex = 0; instanceIndex < meshModelEntitiesNumber; instanceIndex++) {
+//					auto currentModelEntityId = modelEntityIds->modelEntityIds_[instanceIndex];
+//					ASSERT(currentModelEntityId.IsValid());
+//
+//					bool isComponentsIndexFound = false;
+//					for (auto [modelEntityId, modelComponentsIndex] : modelIdIndex) {
+//						if (currentModelEntityId == modelEntityId) {
+//							isComponentsIndexFound = true;
+//							ASSERT(modelComponentsIndex < modelEntitiesNumber);
+//						}
+//					}
+//					ASSERT_FMSG(isComponentsIndexFound, "Find model entity id {}", (Common::Size)currentModelEntityId);
+//
+//				}
+//#endif
 
 
 			}

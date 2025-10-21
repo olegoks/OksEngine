@@ -1,6 +1,6 @@
 #version 450
 //#extension GL_EXT_debug_printf : enable
-
+#extension GL_EXT_buffer_reference : enable
 #extension GL_GOOGLE_include_directive : require
 #include "/common/OksEngine.Common.Math3D.glsl"
 //Total Threads = Workgroups × Local Size
@@ -132,7 +132,11 @@ layout(std430, set = 3, binding = 0) buffer AnimationsData {
     ModelNodeAnimations nodeAnimations_[];
 };
 
+//Pointers
 
+//  layout(buffer_reference) buffer ModelNodeAnimationPointer {
+//          ModelNodeAnimation pointer;
+//  };
 
 void main() {
     
@@ -145,8 +149,10 @@ void main() {
             //debugPrintfEXT("Invalid animation index %d.", state.animationIndex_);
             return;
         }
-        ModelNodeAnimations nodeAnimations = nodeAnimations_[index];
-        ModelNodeAnimation animation = nodeAnimations.animations_[state.animationIndex_];
+        //ModelNodeAnimations nodeAnimations = nodeAnimations_[index];
+        
+        ModelNodeAnimation animation = nodeAnimations_[index].animations_[state.animationIndex_];
+
         float currentTick = state.animationDuration_ * state.currentTime_;
 
 

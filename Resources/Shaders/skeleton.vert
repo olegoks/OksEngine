@@ -65,11 +65,13 @@ struct EntityIdToComponentIndex {
 };
 
 layout(std430, set = 7, binding = 0) buffer NodeEntityIdsToComponentIndices {
-    EntityIdToComponentIndex nodeIdsToIndices[];
+    //EntityIdToComponentIndex nodeIdsToIndices[];
+    uint64_t nodeComponentsIndices_[];
 };
 
 layout(std430, set = 8, binding = 0) buffer ModelEntityIdsToComponentIndices {
-    EntityIdToComponentIndex modelIdsToIndices_[];
+    //EntityIdToComponentIndex modelIdsToIndices_[];
+    uint64_t modelComponentsIndices_[];
 };
 
 layout(std430, set = 9, binding = 0) buffer ModelEntityIdentifires{
@@ -87,6 +89,8 @@ layout(push_constant) uniform PushConstants {
 
 uint64_t GetComponentIndexByNodeEntityId(uint64_t entityId){
 
+    return nodeComponentsIndices_[uint(entityId)];
+
     //TODO: use binary search
     // for(uint i = 0; i < nodeEntitiesNumber_; i++){
     //     if(nodeIdsToIndices[i].entityId_ == entityId){
@@ -99,28 +103,31 @@ uint64_t GetComponentIndexByNodeEntityId(uint64_t entityId){
 
 
     //idsToIndices sorted
-    uint left = 0;
-    uint right = uint(nodeEntitiesNumber_) - 1;
+    // uint left = 0;
+    // uint right = uint(nodeEntitiesNumber_) - 1;
     
-    while (left <= right) {
-        uint mid = left + (right - left) / 2;
+    // while (left <= right) {
+    //     uint mid = left + (right - left) / 2;
         
-        if (nodeIdsToIndices[mid].entityId_ == entityId) {
-            return uint64_t(mid);
-        }
+    //     if (nodeIdsToIndices[mid].entityId_ == entityId) {
+    //         return uint64_t(mid);
+    //     }
         
-        if (nodeIdsToIndices[mid].entityId_ < entityId) {
-            left = mid + 1;
-        } else {
-            right = mid - 1;
-        }
-    }
+    //     if (nodeIdsToIndices[mid].entityId_ < entityId) {
+    //         left = mid + 1;
+    //     } else {
+    //         right = mid - 1;
+    //     }
+    // }
     
-    return (-1);
+    // return (-1);
 
 }
 
 uint64_t GetComponentIndexByModelEntityId(uint64_t modelEntityId){
+
+    return modelComponentsIndices_[uint(modelEntityId)];
+
 
     //TODO: use binary search
     // for(uint i = 0; i < modelEntitiesNumber_; i++){
@@ -132,24 +139,24 @@ uint64_t GetComponentIndexByModelEntityId(uint64_t modelEntityId){
     // }
     // return (-1);
 
-    uint left = 0;
-    uint right = uint(modelEntitiesNumber_) - 1;
+    // uint left = 0;
+    // uint right = uint(modelEntitiesNumber_) - 1;
     
-    while (left <= right) {
-        uint mid = left + (right - left) / 2;
+    // while (left <= right) {
+    //     uint mid = left + (right - left) / 2;
         
-        if (modelIdsToIndices_[mid].entityId_ == modelEntityId) {
-            return mid;
-        }
+    //     if (modelIdsToIndices_[mid].entityId_ == modelEntityId) {
+    //         return mid;
+    //     }
         
-        if (modelIdsToIndices_[mid].entityId_ < modelEntityId) {
-            left = mid + 1;
-        } else {
-            right = mid - 1;
-        }
-    }
+    //     if (modelIdsToIndices_[mid].entityId_ < modelEntityId) {
+    //         left = mid + 1;
+    //     } else {
+    //         right = mid - 1;
+    //     }
+    // }
     
-    return uint64_t(-1);
+    // return uint64_t(-1);
 
 }
 
