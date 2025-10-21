@@ -75,7 +75,63 @@ namespace Render::Vulkan {
 					logicDeviceCreateInfo.queueCreateInfoCount = static_cast<Common::UInt32>(queueCreateInfos.size());
 				}
 
-				const VkPhysicalDeviceFeatures deviceFeatures = createInfo.physicalDevice_->GetFeatures();
+				VkPhysicalDeviceFeatures deviceFeatures = createInfo.physicalDevice_->GetFeatures();
+
+				//Enable only required features.
+				{
+					deviceFeatures.robustBufferAccess = VK_TRUE;        // Важно для стабильности
+					deviceFeatures.samplerAnisotropy = VK_TRUE;        // Можно выключить для минимализма
+					deviceFeatures.sampleRateShading = VK_FALSE;        
+					deviceFeatures.textureCompressionETC2 = VK_FALSE;   
+					deviceFeatures.textureCompressionASTC_LDR = VK_FALSE;
+					deviceFeatures.textureCompressionBC = VK_FALSE;     
+					deviceFeatures.occlusionQueryPrecise = VK_FALSE;    
+					deviceFeatures.pipelineStatisticsQuery = VK_FALSE;  
+					deviceFeatures.vertexPipelineStoresAndAtomics = VK_FALSE; 
+					deviceFeatures.fragmentStoresAndAtomics = VK_FALSE;
+					deviceFeatures.shaderTessellationAndGeometryPointSize = VK_FALSE;
+					deviceFeatures.shaderImageGatherExtended = VK_FALSE; 
+					deviceFeatures.shaderStorageImageExtendedFormats = VK_FALSE; 
+					deviceFeatures.shaderStorageImageMultisample = VK_FALSE;
+					deviceFeatures.shaderStorageImageReadWithoutFormat = VK_FALSE;
+					deviceFeatures.shaderStorageImageWriteWithoutFormat = VK_FALSE;
+					deviceFeatures.shaderUniformBufferArrayDynamicIndexing = VK_FALSE; 
+					deviceFeatures.shaderSampledImageArrayDynamicIndexing = VK_FALSE;
+					deviceFeatures.shaderStorageBufferArrayDynamicIndexing = VK_FALSE;
+					deviceFeatures.shaderStorageImageArrayDynamicIndexing = VK_FALSE;
+					deviceFeatures.shaderClipDistance = VK_FALSE;       
+					deviceFeatures.shaderCullDistance = VK_FALSE;       
+					deviceFeatures.shaderFloat64 = VK_FALSE;            
+					deviceFeatures.shaderInt64 = VK_TRUE;              
+					deviceFeatures.shaderInt16 = VK_FALSE;              
+					deviceFeatures.shaderResourceResidency = VK_FALSE;  
+					deviceFeatures.shaderResourceMinLod = VK_FALSE;     
+					deviceFeatures.sparseBinding = VK_FALSE;            
+					deviceFeatures.sparseResidencyBuffer = VK_FALSE;    
+					deviceFeatures.sparseResidencyImage2D = VK_FALSE;   
+					deviceFeatures.sparseResidencyImage3D = VK_FALSE;   
+					deviceFeatures.sparseResidency2Samples = VK_FALSE;  
+					deviceFeatures.sparseResidency4Samples = VK_FALSE;  
+					deviceFeatures.sparseResidency8Samples = VK_FALSE;  
+					deviceFeatures.sparseResidency16Samples = VK_FALSE; 
+					deviceFeatures.sparseResidencyAliased = VK_FALSE;   
+					deviceFeatures.variableMultisampleRate = VK_FALSE;  
+					deviceFeatures.inheritedQueries = VK_FALSE;         
+					deviceFeatures.multiDrawIndirect = VK_FALSE;        
+					deviceFeatures.drawIndirectFirstInstance = VK_FALSE;
+					deviceFeatures.depthClamp = VK_FALSE;               
+					deviceFeatures.depthBiasClamp = VK_FALSE;           
+					deviceFeatures.fillModeNonSolid = VK_FALSE;         
+					deviceFeatures.depthBounds = VK_FALSE;              
+					deviceFeatures.wideLines = VK_FALSE;                
+					deviceFeatures.largePoints = VK_FALSE;              
+					deviceFeatures.alphaToOne = VK_FALSE;               
+					deviceFeatures.multiViewport = VK_FALSE;            
+					deviceFeatures.tessellationShader = VK_FALSE;       
+					deviceFeatures.geometryShader = VK_FALSE;           
+					deviceFeatures.dualSrcBlend = VK_FALSE;             
+					deviceFeatures.logicOp = VK_FALSE;                  
+				}
 				logicDeviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
 				std::vector<const char*> rawExtensionsNames = createInfo.requiredExtensions_.GetRawNames();
