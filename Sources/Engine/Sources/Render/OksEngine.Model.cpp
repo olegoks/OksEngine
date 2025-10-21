@@ -2992,8 +2992,9 @@ namespace OksEngine
 					meshModelEntitiesNumber);
 					//modelEntityIds->modelEntityIds_.size());
 
-				ASSERT(meshModelEntitiesNumber == 1);
+				//ASSERT(meshModelEntitiesNumber == 1);
 
+#if !defined(NDEBUG)
 				for (Common::Index instanceIndex = 0; instanceIndex < meshModelEntitiesNumber; instanceIndex++) {
 					auto currentModelEntityId = modelEntityIds->modelEntityIds_[instanceIndex];
 					ASSERT(currentModelEntityId.IsValid());
@@ -3005,10 +3006,10 @@ namespace OksEngine
 							ASSERT(modelComponentsIndex < modelEntitiesNumber);
 						}
 					}
-					ASSERT(isComponentsIndexFound);
+					ASSERT_FMSG(isComponentsIndexFound, "Find model entity id {}", (Common::Size)currentModelEntityId);
 
 				}
-				
+#endif
 
 
 			}

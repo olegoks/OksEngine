@@ -162,7 +162,7 @@ bool IsBoneWeightSignificant(float weight) {
 //bone - index of one of 4 bones.
 vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint64_t modelComponentsIndex, uint bone) {
 
-    ModelNodeEntityIds modelNodeEntityIds = modelNodeEntityIds_[uint(modelComponentsIndex)];
+    //ModelNodeEntityIds modelNodeEntityIds = ;
 
     float boneWeight = inBoneWeights[bone];
     if(IsBoneWeightSignificant(boneWeight)) {
@@ -171,7 +171,7 @@ vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint64_t modelCompo
         if(boneIndexInModelSpace == 512) {
             return position;
         }
-        uint64_t nodeEntityId = modelNodeEntityIds.nodeIds_[boneIndexInModelSpace];
+        uint64_t nodeEntityId = modelNodeEntityIds_[uint(modelComponentsIndex)].nodeIds_[boneIndexInModelSpace];
 
         ASSERT_FMSG_2(
             (nodeEntityId != INVALID_ENTITY_ID) && (nodeEntityId != 0), 
@@ -212,10 +212,10 @@ void main() {
 
 
     //Get models ids that uses that mesh.
-    ModelEntityIds modelEntityIds = meshModelIds_[uint(meshComponentsIndex_)]; 
+    //ModelEntityIds modelEntityIds = ; 
 
     //Get model entity that we are rendering at the moment.
-    uint64_t modelEntityId = modelEntityIds.modelIds_[gl_InstanceIndex];
+    uint64_t modelEntityId = meshModelIds_[uint(meshComponentsIndex_)].modelIds_[gl_InstanceIndex];
 
     ASSERT_FMSG_2(
         (modelEntityId != INVALID_ENTITY_ID) && (modelEntityId != 0), 
