@@ -88,73 +88,74 @@ layout(push_constant) uniform PushConstants {
 uint64_t GetComponentIndexByNodeEntityId(uint64_t entityId){
 
     //TODO: use binary search
-    for(uint i = 0; i < nodeEntitiesNumber_; i++){
-        if(nodeIdsToIndices[i].entityId_ == entityId){
-            ASSERT_MSG(entityId != INVALID_ENTITY_ID, "ASSERT: Invalid bone node entity id.");
-            return nodeIdsToIndices[i].componentIndex_;
-        }
-    }
-    //ASSERT_FAIL_FMSG_1("Error while finding Component index by entity id %d.", entityId);
-    return (-1);
-    // //idsToIndices sorted
-    // uint left = 0;
-    // uint right = uint(entitiesNumber_) - 1;
-    
-    // while (left <= right) {
-    //     uint mid = left + (right - left) / 2;
-        
-    //     if (idsToIndices[mid].entityId_ == entityId) {
-    //         return mid;
-    //     }
-        
-    //     if (idsToIndices[mid].entityId_ < entityId) {
-    //         left = mid + 1;
-    //     } else {
-    //         right = mid - 1;
+    // for(uint i = 0; i < nodeEntitiesNumber_; i++){
+    //     if(nodeIdsToIndices[i].entityId_ == entityId){
+    //         //ASSERT_MSG(entityId != INVALID_ENTITY_ID, "ASSERT: Invalid bone node entity id.");
+    //         return nodeIdsToIndices[i].componentIndex_;
     //     }
     // }
+
+    // return (-1);
+
+
+    //idsToIndices sorted
+    uint left = 0;
+    uint right = uint(nodeEntitiesNumber_) - 1;
     
-    // return uint64_t(-1);
+    while (left <= right) {
+        uint mid = left + (right - left) / 2;
+        
+        if (nodeIdsToIndices[mid].entityId_ == entityId) {
+            return uint64_t(mid);
+        }
+        
+        if (nodeIdsToIndices[mid].entityId_ < entityId) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return (-1);
 
 }
 
 uint64_t GetComponentIndexByModelEntityId(uint64_t modelEntityId){
 
     //TODO: use binary search
-    for(uint i = 0; i < modelEntitiesNumber_; i++){
-        ASSERT_FMSG_1(modelIdsToIndices_[i].entityId_ != 0, "modelIdsToIndices_ contains invalid entity id 0. Index %d.", i);
-        if(modelIdsToIndices_[i].entityId_ == modelEntityId){
-            ASSERT_MSG(modelEntityId != INVALID_ENTITY_ID, "ASSERT: Invalid bone node entity id.");
-            return modelIdsToIndices_[i].componentIndex_;
-        }
-    }
-    //ASSERT_FAIL_FMSG_1("Error while finding Component index by entity id %d.", entityId);
-    return (-1);
-    // //idsToIndices sorted
-    // uint left = 0;
-    // uint right = uint(entitiesNumber_) - 1;
-    
-    // while (left <= right) {
-    //     uint mid = left + (right - left) / 2;
-        
-    //     if (idsToIndices[mid].entityId_ == entityId) {
-    //         return mid;
-    //     }
-        
-    //     if (idsToIndices[mid].entityId_ < entityId) {
-    //         left = mid + 1;
-    //     } else {
-    //         right = mid - 1;
+    // for(uint i = 0; i < modelEntitiesNumber_; i++){
+    //     //ASSERT_FMSG_1(modelIdsToIndices_[i].entityId_ != 0, "modelIdsToIndices_ contains invalid entity id 0. Index %d.", i);
+    //     if(modelIdsToIndices_[i].entityId_ == modelEntityId){
+    //         //ASSERT_MSG(modelEntityId != INVALID_ENTITY_ID, "ASSERT: Invalid bone node entity id.");
+    //         return modelIdsToIndices_[i].componentIndex_;
     //     }
     // }
+    // return (-1);
+
+    uint left = 0;
+    uint right = uint(modelEntitiesNumber_) - 1;
     
-    // return uint64_t(-1);
+    while (left <= right) {
+        uint mid = left + (right - left) / 2;
+        
+        if (modelIdsToIndices_[mid].entityId_ == modelEntityId) {
+            return mid;
+        }
+        
+        if (modelIdsToIndices_[mid].entityId_ < modelEntityId) {
+            left = mid + 1;
+        } else {
+            right = mid - 1;
+        }
+    }
+    
+    return uint64_t(-1);
 
 }
 
 
 bool IsBoneWeightSignificant(float weight) {
-    ASSERT_MSG(weight <= 1.0, "ASSERT: Invalid bone weight.");
+    //ASSERT_MSG(weight <= 1.0, "ASSERT: Invalid bone weight.");
     return weight > 0.00001;
 }
 
@@ -173,17 +174,17 @@ vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint64_t modelCompo
         }
         uint64_t nodeEntityId = modelNodeEntityIds_[uint(modelComponentsIndex)].nodeIds_[boneIndexInModelSpace];
 
-        ASSERT_FMSG_2(
-            (nodeEntityId != INVALID_ENTITY_ID) && (nodeEntityId != 0), 
-            "ASSERT: Bone node invalid entity id. boneIndexInModelSpace %d modelComponentsIndex %d",
-            uint(boneIndexInModelSpace), 
-            uint(modelComponentsIndex));
+        // ASSERT_FMSG_2(
+        //     (nodeEntityId != INVALID_ENTITY_ID) && (nodeEntityId != 0), 
+        //     "ASSERT: Bone node invalid entity id. boneIndexInModelSpace %d modelComponentsIndex %d",
+        //     uint(boneIndexInModelSpace), 
+        //     uint(modelComponentsIndex));
 
         uint64_t boneComponentIndex = GetComponentIndexByNodeEntityId(nodeEntityId);
 
-        ASSERT_FMSG_3(boneComponentIndex != -1, 
-         "ASSERT: Invalid bone component index calculated for bone entity id %d. Vertex bone index %d. Bone index in model space %d.",
-          uint(nodeEntityId), bone, boneIndexInModelSpace);
+        // ASSERT_FMSG_3(boneComponentIndex != -1, 
+        //  "ASSERT: Invalid bone component index calculated for bone entity id %d. Vertex bone index %d. Bone index in model space %d.",
+        //   uint(nodeEntityId), bone, boneIndexInModelSpace);
 
         uint uintBoneComponentIndex = uint(boneComponentIndex); // cast to use in []
 
@@ -217,23 +218,18 @@ void main() {
     //Get model entity that we are rendering at the moment.
     uint64_t modelEntityId = meshModelIds_[uint(meshComponentsIndex_)].modelIds_[gl_InstanceIndex];
 
-    ASSERT_FMSG_2(
-        (modelEntityId != INVALID_ENTITY_ID) && (modelEntityId != 0), 
-        "ASSERT: Model invalid entity id %d. meshComponentsIndex_ %d",
-         int(modelEntityId),
-         int(meshComponentsIndex_));
-
-    //if(modelEntityId == INVALID_ENTITY_ID){
-         //outUV = inUV;
-         //gl_Position = camera.proj * camera.view * (vec4(inPosition.xyz, 1.0));
-    //}
+    // ASSERT_FMSG_2(
+    //     (modelEntityId != INVALID_ENTITY_ID) && (modelEntityId != 0), 
+    //     "ASSERT: Model invalid entity id %d. meshComponentsIndex_ %d",
+    //      int(modelEntityId),
+    //      int(meshComponentsIndex_));
 
     //Get index of model components.
     uint64_t modelComponentsIndex = GetComponentIndexByModelEntityId(modelEntityId);
-    ASSERT_FMSG_3(modelComponentsIndex != -1, 
-         "ASSERT: Invalid model component index calculated for model entity id %i. meshComponentsIndex_ %i gl_InstanceIndex %i",
-          int(modelEntityId),
-            int(meshComponentsIndex_), int(gl_InstanceIndex));
+    // ASSERT_FMSG_3(modelComponentsIndex != -1, 
+    //      "ASSERT: Invalid model component index calculated for model entity id %i. meshComponentsIndex_ %i gl_InstanceIndex %i",
+    //       int(modelEntityId),
+    //         int(meshComponentsIndex_), int(gl_InstanceIndex));
 
     newPosition = TakeBoneIntoAccount(newPosition, position, modelComponentsIndex, uint(0));
     newPosition = TakeBoneIntoAccount(newPosition, position, modelComponentsIndex, uint(1));
@@ -242,7 +238,7 @@ void main() {
 
     outUV = inUV;
 
-    ASSERT_MSG(!any(isnan(newPosition)), "Calculated vertex position is nan.");
+    //ASSERT_MSG(!any(isnan(newPosition)), "Calculated vertex position is nan.");
 
     gl_Position = camera.proj * camera.view * (vec4(newPosition.xyz, 1.0));
 }

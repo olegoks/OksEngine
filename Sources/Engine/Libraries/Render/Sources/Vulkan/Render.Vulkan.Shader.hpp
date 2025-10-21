@@ -207,7 +207,9 @@ namespace Render::Vulkan {
 
 			glslang::TShader shader(TypeToStage(GetType()));
 			shader.setStrings(shaderStrings, 1);
+#if !defined(NDEBUG)
 			shader.setDebugInfo(true);
+#endif
 			shader.setSourceFile(GetName().c_str());
 			//shader.addSourceText(GetCode().c_str(), GetCode().size());
 			
@@ -241,12 +243,19 @@ namespace Render::Vulkan {
 			glslang::SpvOptions spvOptions;
 
 			// Критически важные настройки для NonSemantic.Shader.DebugInfo.100
+#if !defined(NDEBUG)
 			spvOptions.generateDebugInfo = true;
 			spvOptions.stripDebugInfo = false;
 			spvOptions.disableOptimizer = true;
 			spvOptions.validate = true;
 			spvOptions.optimizeSize = false;
-
+#else
+			spvOptions.generateDebugInfo = false;
+			spvOptions.stripDebugInfo = true;
+			spvOptions.disableOptimizer = false;
+			spvOptions.validate = false;
+			spvOptions.optimizeSize = true;
+#endif
 			std::vector<unsigned> spirv;
 			glslang::GlslangToSpv(*program.getIntermediate(TypeToStage(GetType())), spirv, &logger, &spvOptions);
 
