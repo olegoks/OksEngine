@@ -70,7 +70,7 @@ target_sources(OksEngine
     )
 
 find_package(Boost REQUIRED COMPONENTS asio)
-find_package(winpixevent CONFIG REQUIRED)
+
 find_package(SFML COMPONENTS Network Graphics Window Audio System CONFIG REQUIRED)
 # find_package(imgui CONFIG REQUIRED)
 #find_package(unofficial-imgui-node-editor CONFIG REQUIRED)
@@ -88,7 +88,7 @@ target_include_directories(OksEngine PRIVATE ${FREETYPE_INCLUDE_DIRS})
 target_link_libraries(OksEngine
     PUBLIC
     Boost::asio
-    Microsoft::WinPixEventRuntime
+
     SFML::Audio
     SFML::System
     

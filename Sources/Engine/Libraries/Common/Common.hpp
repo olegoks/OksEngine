@@ -8,6 +8,12 @@
 #define MAGIC_ENUM_RANGE_MAX 1024
 #include <magic_enum/magic_enum.hpp>
 
+#define USE_PIX 1
+#include <Windows.h>
+#undef max
+#undef min
+#undef GetMessage
+#include <pix3.h>
 
 namespace Common {
 

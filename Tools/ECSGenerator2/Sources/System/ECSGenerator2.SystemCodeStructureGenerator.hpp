@@ -724,6 +724,7 @@ namespace ECSGenerator2 {
 				CodeStructure::Code realization;
 
 				Common::UInt64 currentEntityIndex = 0;
+				realization.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{} Call\");", systemEcsFile->GetName());
 				realization.Add(systemEcsFile->GetLowerName() + ".Update(");
 				systemEcsFile->ci_.updateMethod_->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
 
@@ -750,6 +751,9 @@ namespace ECSGenerator2 {
 
 				realization.Add(");");
 
+
+				realization.Add("PIXEndEvent();");
+
 				return realization;
 				};
 
@@ -760,7 +764,7 @@ namespace ECSGenerator2 {
 			//	"PIXEndEvent();",
 			//	GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i]),
 			//	GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i])
-			//realization.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{} Call\");", system->GetName());
+			
 			//Render render{ world };
 			realization.Add(std::format(
 				"{} {}{{ world }};",
@@ -849,7 +853,6 @@ namespace ECSGenerator2 {
 				realization.Add(std::format("{}.AfterUpdate();", system->GetLowerName()));
 			}
 
-			//realization.Add("PIXEndEvent();");
 
 			std::vector<CodeStructure::Function::Parameter> parameters;
 			parameters.push_back({ "std::shared_ptr<ECS2::World>", "world" });

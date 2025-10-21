@@ -1,8 +1,8 @@
 
 #include <auto_OksEngine.RunSystems.hpp>
 
-
-#include <pix3.h>
+//
+//#include <pix3.h>
 
 #include <Engine.hpp>
 
