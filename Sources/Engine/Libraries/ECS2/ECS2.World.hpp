@@ -23,6 +23,17 @@ namespace ECS2 {
 				freeEntityIds_.insert(entityId);
 			}
 
+			dynamicEntitiesComponentFilters_.max_load_factor(0.5);
+			dynamicEntitiesComponentFilters_.reserve(1000);
+
+			dynamicEntitiesContainers_.max_load_factor(0.5);
+			dynamicEntitiesContainers_.reserve(ComponentsFilter::GetMaxComponentsNumber());
+
+			archetypeEntitiesComponents_.max_load_factor(0.5);
+			archetypeEntitiesComponents_.reserve(30000);
+
+			archetypeComponents_.max_load_factor(0.5);
+			archetypeComponents_.reserve(ComponentsFilter::GetMaxComponentsNumber());
 		}
 
 		using DelayedRequest = std::function<void()>;
@@ -561,15 +572,15 @@ namespace ECS2 {
 		std::set<Entity::Id, std::less<Entity::Id>> freeEntityIds_;
 
 		//Dynamic entities.
-		std::map<Entity::Id, ComponentsFilter> dynamicEntitiesComponentFilters_; //Components filter contains current entity components.
-		std::map<ComponentTypeId, std::shared_ptr<IContainer>> dynamicEntitiesContainers_;
+		std::unordered_map<Entity::Id, ComponentsFilter, Entity::Id::Hash> dynamicEntitiesComponentFilters_; //Components filter contains current entity components.
+		std::unordered_map<ComponentTypeId, std::shared_ptr<IContainer>> dynamicEntitiesContainers_;
 
 		//Archetype components.
-		std::map<Entity::Id, ComponentsFilter> archetypeEntitiesComponents_; // Components filter contains archetype components.
-		std::map<
+		std::unordered_map<Entity::Id, ComponentsFilter, Entity::Id::Hash> archetypeEntitiesComponents_; // Components filter contains archetype components.
+		std::unordered_map<
 			ComponentsFilter,
-			std::shared_ptr<IArchetypeComponents>,
-			ComponentsFilter::LessComparator> archetypeComponents_;
+			std::shared_ptr<IArchetypeComponents>, ComponentsFilter::Hash/*,
+			ComponentsFilter::LessComparator*/> archetypeComponents_;
 
 	};
 }

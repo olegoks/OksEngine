@@ -161,9 +161,8 @@ namespace ECS2 {
 			}
 
 			struct Hash {
-				std::size_t operator()(const Id& id) const noexcept {
-					const Id::ValueType value = id.operator size_t();
-					return std::hash<Id::ValueType>{}(value);
+				Common::Size operator()(const Id id) const noexcept {
+					return id.value_;
 				}
 			};
 

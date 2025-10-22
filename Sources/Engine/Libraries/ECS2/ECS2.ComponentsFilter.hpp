@@ -162,6 +162,14 @@ namespace ECS2 {
 			}
 		};
 
+		struct Hash {
+			size_t operator()(const ComponentsFilter& componentsFilter) const noexcept {
+				// Hash first 64 bits for speed.
+				//TODO: correct hash calculation.
+				return /*std::hash<decltype(*/componentsFilter.filter_._Getword(0);/*)>{}(componentsFilter.filter_);*///std::hash<uint64_t>{}(componentsFilter.filter_.to_ullong());
+			}
+		};
+
 		[[nodiscard]]
 		bool IsSubsetOf(const ComponentsFilter& componentsFilter) const noexcept {
 			return (componentsFilter.filter_ & filter_) == filter_;

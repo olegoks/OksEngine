@@ -34,7 +34,7 @@ namespace Common {
 #else
 		const char* tmp = getenv(varname);
 		if (tmp) {
-			value = strdup(tmp); 
+			value = strdup(tmp);
 			sz = strlen(value) + 1;
 		}
 		else {
@@ -74,11 +74,14 @@ namespace Common {
 
 #if defined __MSC__ || defined _MSC_VER
 #define NOINLINE __declspec(noinline)
+#define FORCE_INLINE __forceinline
 #elif __GNUC__
 #define NOINLINE __attribute__((noinline))
+#define FORCE_INLINE inline
 #else
 #error "Unsupported compiler!!"
 #endif
+
 
 	void BreakPointLine();
 
@@ -145,5 +148,14 @@ namespace Common {
 		// std::is_same<T, Allowed3>::value || ...
 	}
 
+	template <class To, class From>
+	[[nodiscard]]
+	inline std::shared_ptr<To> pointer_cast(std::shared_ptr<From>&& ptr) noexcept {
+#if !defined(NDEBUG)
+		return std::dynamic_pointer_cast<To>(ptr);
+#else
+		return std::static_pointer_cast<To>(ptr);
+#endif
+	}
 
 }

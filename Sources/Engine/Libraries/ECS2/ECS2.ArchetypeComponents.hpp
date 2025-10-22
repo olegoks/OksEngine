@@ -148,7 +148,8 @@ namespace ECS2 {
 
 					auto containerIt = containers_.find(Components::GetTypeId());
 					if (containerIt != containers_.end()) {
-						auto container = std::dynamic_pointer_cast<ArchetypeContainer<Components>>(containerIt->second);
+						
+						auto container = std::pointer_cast<ArchetypeContainer<Components>>(containerIt->second);
 						ASSERT_FMSG(container != nullptr,
 							"Failed to cast to appropriate container type");
 						return (*container)[componentIndex];
@@ -227,10 +228,10 @@ namespace ECS2 {
 		}
 
 		std::vector<Entity::Id> componentIndexEntityId_; // vector index - component index, value - entity id.
-		std::map<Entity::Id, ComponentIndex> entityIdComponentIndex_;
-		std::map<Entity::Id, ComponentsFilter> entityIdComponentsFilter_; // quick solution, need to create EntityInfo to use only one map with key entityId;
+		std::unordered_map<Entity::Id, ComponentIndex, Entity::Id::Hash> entityIdComponentIndex_;
+		std::unordered_map<Entity::Id, ComponentsFilter, Entity::Id::Hash> entityIdComponentsFilter_; // quick solution, need to create EntityInfo to use only one map with key entityId;
 		std::set<ComponentIndex, std::less<ComponentIndex>> freeComponentIndices_;
-		std::map<ComponentTypeId, std::shared_ptr<IArchetypeContainer>> containers_;
+		std::unordered_map<ComponentTypeId, std::shared_ptr<IArchetypeContainer>> containers_;
 
 	};
 

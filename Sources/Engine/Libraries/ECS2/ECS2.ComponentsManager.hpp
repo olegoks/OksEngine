@@ -273,7 +273,7 @@ namespace ECS2 {
 		//	return GetEntityComponents(entityId);
 		//}
 
-		std::map<Entity::Id, ComponentsFilter> entityComponents_;
+		std::unordered_map<Entity::Id, ComponentsFilter, Entity::Id::Hash> entityComponents_;
 
 		//std::map<ComponentTypeId, std::shared_ptr<IContainer>> componentContainer_;
 
