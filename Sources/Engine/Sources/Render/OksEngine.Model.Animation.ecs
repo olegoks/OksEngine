@@ -57,7 +57,7 @@ AnimationNamespace = {
     ModelNamespace = {
         AnimationsMaxNumberConstant = {
             type = "Common::Size",
-            value = "8"
+            value = "4"
         },
         NodeNamespace = {
             AnimationStruct = {

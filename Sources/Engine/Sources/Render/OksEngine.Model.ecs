@@ -1079,8 +1079,6 @@ NodeArchetype = {
         "LocalScale3D",
         "WorldScale3D",
         "ChildModelNodeEntities",
-        "DriverTransform3D",
-        "Transform3DResource",
         "DebugText2D"
     }
 }

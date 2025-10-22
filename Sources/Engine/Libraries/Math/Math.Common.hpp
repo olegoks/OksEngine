@@ -3,6 +3,7 @@
 #include <cmath>
 
 #define GLM_FORCE_RADIANS
+#define GLM_FORCE_SSE3
 //#define GLM_FORCE_LEFT_HANDED
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/glm.hpp>

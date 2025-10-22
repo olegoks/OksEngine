@@ -80,6 +80,7 @@ DriverTransform3DComponent = {
 
 
 CreateDriverTransform3DSystem = {
+    disable = true,
     updateMethod = {
         processesEntities = {
             {

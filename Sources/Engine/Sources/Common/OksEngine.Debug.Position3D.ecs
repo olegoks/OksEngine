@@ -1,7 +1,22 @@
 --Debug 
+
+DebugNamespace = {
+
+    WorldPosition3DComponent = {
+        serializable = false
+    }
+
+}
+
+
 CreatePosition3DDebugText2DSystem = {
     updateMethod = {
         processesEntities = {
+            {
+                processesComponents = {
+                    "Debug::WorldPosition3D"
+                }
+            },
             {
                 processesComponents = {
                     "WorldPosition3D"
@@ -20,6 +35,11 @@ CreatePosition3DDebugText2DSystem = {
 UpdatePosition3DDebugText2DSystem = {
     updateMethod = {
         processesEntities = {
+             {
+                processesComponents = {
+                    "Debug::WorldPosition3D"
+                }
+            },
             {
                 processesComponents = {
                     "Camera",
