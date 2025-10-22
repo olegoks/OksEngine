@@ -608,6 +608,7 @@ namespace OksEngine
 					}
 				}
 			}
+			//Move to std::vector to have definite order.
 			std::vector<std::string> boneNames;
 			for (auto& boneName : bonesSet) {
 				boneNames.push_back(boneName);
@@ -2243,43 +2244,43 @@ namespace OksEngine
 				auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
 				auto* modelNodeAnimations = std::get<Animation::Model::Node::Animations*>(componentPointers);
 
-				PIXBeginEvent(PIX_COLOR(255, 0, 0), "Write animation data for bones");
+				BEGIN_PROFILE("Write animation data for bones");
 
-				PIXBeginEvent(PIX_COLOR(255, 0, 0), "Write rotations for bones");
+				BEGIN_PROFILE("Write rotations for bones");
 				driver->StorageBufferWrite(
 					animation__DriverLocalRotation3DComponents0->id_,
 					0,
 					localRotations,
 					entitiesNumber * sizeof(LocalRotation3D));
-				PIXEndEvent();
+				END_PROFILE();
 
 
-				PIXBeginEvent(PIX_COLOR(255, 0, 0), "Write positions for bones");
+				BEGIN_PROFILE("Write positions for bones");
 				driver->StorageBufferWrite(
 					animation__DriverLocalPosition3DComponents0->id_,
 					0,
 					localPositions,
 					entitiesNumber * sizeof(LocalPosition3D));
-				PIXEndEvent();
+				END_PROFILE();
 
 
-				PIXBeginEvent(PIX_COLOR(255, 0, 0), "Write running states for bones");
+				BEGIN_PROFILE("Write running states for bones");
 				driver->StorageBufferWrite(
 					animation__Model__Node__DriverRunningStates0->id_,
 					0,
 					modelNodeAnimationStates,
 					entitiesNumber * sizeof(Animation::Model::Node::RunningState));
-				PIXEndEvent();
+				END_PROFILE();
 
-				PIXBeginEvent(PIX_COLOR(255, 0, 0), "Write animations for bones");
+				BEGIN_PROFILE("Write animations for bones");
 				driver->StorageBufferWrite(
 					animation__Model__Node__DriverAnimationsComponents0->id_,
 					0,
 					modelNodeAnimations,
 					entitiesNumber * sizeof(Animation::Model::Node::Animations));
-				PIXEndEvent();
+				END_PROFILE();
 
-				PIXEndEvent();
+				END_PROFILE();
 
 				driver->StartCompute();
 				driver->BindComputePipeline(pipeline0->pipelineId_);
@@ -2314,7 +2315,7 @@ namespace OksEngine
 				//Потоков в каждой группе : 64 × 1 × 1 = 64 threads
 				//Общее количество потоков : 128 × 64 = 8192 threads
 
-				PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader Dispatch");
+				BEGIN_PROFILE("Compute shader Dispatch");
 				//Calculate work group number.
 				Common::Size fullWorkGroupNumber = entitiesNumber / 64;
 				if (entitiesNumber % 64 > 0) {
@@ -2322,12 +2323,12 @@ namespace OksEngine
 				}
 
 				driver->Dispatch(fullWorkGroupNumber, 1, 1);
-				PIXEndEvent();
-				PIXBeginEvent(PIX_COLOR(255, 0, 0), "Wait for computation");
+				END_PROFILE();
+				BEGIN_PROFILE("Wait for computation");
 				driver->EndCompute();
-				PIXEndEvent();
+				END_PROFILE();
 
-				PIXBeginEvent(PIX_COLOR(255, 0, 0), "Compute shader read data.");
+				BEGIN_PROFILE("Compute shader read data.");
 				driver->StorageBufferRead(
 					animation__DriverLocalPosition3DComponents0->id_,
 					0, entitiesNumber * sizeof(LocalPosition3D), localPositions);
@@ -2335,7 +2336,7 @@ namespace OksEngine
 				driver->StorageBufferRead(
 					animation__DriverLocalRotation3DComponents0->id_,
 					0, entitiesNumber * sizeof(LocalRotation3D), localRotations);
-				PIXEndEvent();
+				END_PROFILE();
 			}
 
 	}
