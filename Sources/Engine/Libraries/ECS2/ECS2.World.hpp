@@ -93,7 +93,7 @@ namespace ECS2 {
 				}
 				else {
 					std::shared_ptr<IArchetypeComponents> iArchetypeComponents = archetypeComponentsIt->second;
-					archetypeComponents = std::dynamic_pointer_cast<ArchetypeComponents<Components...>>(iArchetypeComponents);
+					archetypeComponents = Common::pointer_cast<ArchetypeComponents<Components...>>(iArchetypeComponents);
 				}
 				archetypeComponents->CreateEntity(entityId);
 				});
@@ -263,7 +263,7 @@ namespace ECS2 {
 							"Attempt to add component by system \"{}\" to the entity that was already added.", callerSystemName);
 #pragma endregion
 
-						auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
+						auto container = Common::pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
 						if (container == nullptr) {
 							auto newContainer = std::make_shared<Container<ComponentType>>();
 							dynamicEntitiesContainers_[ComponentType::GetTypeId()] = newContainer;
@@ -308,7 +308,7 @@ namespace ECS2 {
 					ASSERT_FMSG(dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
 						"Attempt ot remove entity component by system \"{}\", but entity doesn't contain this component.", callerSystemName);
 #pragma endregion
-					auto container = std::dynamic_pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
+					auto container = Common::pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
 					container->RemoveComponent(entityId);
 					dynamicEntitiesComponentFilters_[entityId].RemoveBits<ComponentType>();
 				}
@@ -338,7 +338,7 @@ namespace ECS2 {
 #pragma endregion	
 				auto containerIt = dynamicEntitiesContainers_.find(ComponentType::GetTypeId());
 				if (containerIt != dynamicEntitiesContainers_.end()) {
-					auto container = std::dynamic_pointer_cast<Container<ComponentType>>(containerIt->second);
+					auto container = Common::pointer_cast<Container<ComponentType>>(containerIt->second);
 
 					//TODO: remove taking value by operator[], take only by find and iterator to not create map pairs with empty container pointer.
 					if (container != nullptr) {
@@ -372,7 +372,7 @@ namespace ECS2 {
 
 						auto dynamicEntitiesContainerIt = dynamicEntitiesContainers_.find(Components::GetTypeId());
 						if (dynamicEntitiesContainerIt != dynamicEntitiesContainers_.end()) {
-							auto container = std::dynamic_pointer_cast<Container<Components>>(dynamicEntitiesContainerIt->second);
+							auto container = Common::pointer_cast<Container<Components>>(dynamicEntitiesContainerIt->second);
 							return container->GetComponent(entityId);
 						}
 						else {
@@ -515,7 +515,7 @@ namespace ECS2 {
 
 			//Process dynamic entities.
 			//PIXBeginEvent(PIX_COLOR(255, 0, 0), "Search dynamic entities.");
-			auto containers = std::make_tuple(std::dynamic_pointer_cast<Container<Components>>(dynamicEntitiesContainers_[Components::GetTypeId()])...);
+			auto containers = std::make_tuple(Common::pointer_cast<Container<Components>>(dynamicEntitiesContainers_[Components::GetTypeId()])...);
 			bool allContainersExist = false;
 			std::apply([&](auto&&... containers) {
 				allContainersExist = ((containers != nullptr) && ...);

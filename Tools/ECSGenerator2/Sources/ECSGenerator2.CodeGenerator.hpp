@@ -227,24 +227,24 @@ namespace ECSGenerator2 {
 				return code;
 			}
 			if (base->GetType() == CodeStructure::Base::Type::Namespace) {
-				auto namespaceObject = std::dynamic_pointer_cast<CodeStructure::Namespace>(base);
+				auto namespaceObject = Common::pointer_cast<CodeStructure::Namespace>(base);
 				code = GenerateECSCXXFilesStructure(namespaceObject);
 
 			}
 			else if (base->GetType() == CodeStructure::Base::Type::Struct) {
-				auto structObject = std::dynamic_pointer_cast<CodeStructure::Struct>(base);
+				auto structObject = Common::pointer_cast<CodeStructure::Struct>(base);
 				code = GenerateECSCXXFilesStructure(structObject);
 			}
 			else if (base->GetType() == CodeStructure::Base::Type::Function) {
-				auto functionObject = std::dynamic_pointer_cast<CodeStructure::Function>(base);
+				auto functionObject = Common::pointer_cast<CodeStructure::Function>(base);
 				code = GenerateECSCXXFilesStructure(functionObject);
 			}
 			else if (base->GetType() == CodeStructure::Base::Type::Variable) {
-				auto functionObject = std::dynamic_pointer_cast<CodeStructure::Variable>(base);
+				auto functionObject = Common::pointer_cast<CodeStructure::Variable>(base);
 				code = GenerateECSCXXFilesStructure(functionObject);
 			}
 			else if (base->GetType() == CodeStructure::Base::Type::CodeBlock) {
-				auto functionObject = std::dynamic_pointer_cast<CodeStructure::CodeBlock>(base);
+				auto functionObject = Common::pointer_cast<CodeStructure::CodeBlock>(base);
 				code = GenerateECSCXXFilesStructure(functionObject);
 			}
 

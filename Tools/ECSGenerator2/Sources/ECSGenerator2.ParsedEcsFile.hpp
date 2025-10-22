@@ -90,7 +90,7 @@ namespace ECSGenerator2 {
 						processTable(thisChildTables, table);
 
 						if (table->GetType() == ParsedTable::Type::Namespace) {
-							auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(table);
+							auto parsedNamespace = Common::pointer_cast<ParsedNamespace>(table);
 							childTables.push_back(table);
 
 							auto processChildTable = [&](std::shared_ptr<ParsedTable> parsedTable) {
@@ -115,7 +115,7 @@ namespace ECSGenerator2 {
 		void ForEachSystem(const ProcessSystem& processSystem) const {
 			auto processTable = [&](std::shared_ptr<ParsedTable> table) {
 				if (table->GetType() == ParsedTable::Type::System) {
-					auto parsedSystem = std::dynamic_pointer_cast<ParsedSystem>(table);
+					auto parsedSystem = Common::pointer_cast<ParsedSystem>(table);
 					const bool isContinue = processSystem(parsedSystem);
 					if (!isContinue) {
 						return false;
@@ -130,7 +130,7 @@ namespace ECSGenerator2 {
 		void ForEachArchetype(const ProcessArchetype& processArchetype) const {
 			auto processTable = [&](std::shared_ptr<ParsedTable> table) {
 				if (table->GetType() == ParsedTable::Type::Archetype) {
-					auto parsedArchetype = std::dynamic_pointer_cast<ParsedArchetype>(table);
+					auto parsedArchetype = Common::pointer_cast<ParsedArchetype>(table);
 					const bool isContinue = processArchetype(parsedArchetype);
 					if (!isContinue) {
 						return false;
@@ -164,7 +164,7 @@ namespace ECSGenerator2 {
 		void ForEachComponent(ProcessComponent&& processComponent) {
 			ForEachTable([&](std::shared_ptr<ParsedTable> table) {
 				if (table->GetType() == ParsedTable::Type::Component) {
-					auto parsedComponent = std::dynamic_pointer_cast<ParsedComponent>(table);
+					auto parsedComponent = Common::pointer_cast<ParsedComponent>(table);
 					const bool isContinue = processComponent(parsedComponent);
 					return isContinue;
 					//TODO: process
@@ -184,7 +184,7 @@ namespace ECSGenerator2 {
 				std::vector<std::shared_ptr<ParsedTable>>& childTables,
 				std::shared_ptr<ParsedTable> table) {
 					if (table->GetType() == ParsedTable::Type::Component) {
-						auto parsedComponent = std::dynamic_pointer_cast<ParsedComponent>(table);
+						auto parsedComponent = Common::pointer_cast<ParsedComponent>(table);
 						processComponent(childTables, parsedComponent);
 					}
 				});
@@ -195,7 +195,7 @@ namespace ECSGenerator2 {
 		void ForEachStruct(ProcessStruct&& processStruct) {
 			auto processTable = [&](std::shared_ptr<ParsedTable> table) {
 				if (table->GetType() == ParsedTable::Type::Struct) {
-					auto parsedStruct = std::dynamic_pointer_cast<ParsedStruct>(table);
+					auto parsedStruct = Common::pointer_cast<ParsedStruct>(table);
 					processStruct(parsedStruct);
 					//TODO: process
 

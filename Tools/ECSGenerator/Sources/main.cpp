@@ -179,7 +179,7 @@ int main(int argc, char** argv) {
 	//Generate system .cpp files if need.
 	projectContext->ForEachSystemEcsFile(
 		[&](std::shared_ptr<ECSGenerator::ParsedECSFile> ecsFile) {
-			auto systemEcsFile = std::dynamic_pointer_cast<ECSGenerator::ParsedSystemECSFile>(ecsFile);
+			auto systemEcsFile = Common::pointer_cast<ECSGenerator::ParsedSystemECSFile>(ecsFile);
 			ECSGenerator::SystemFileStructureGenerator::CreateInfo ci{
 				.includeDirectory_ = projectContext->includeDirectory_
 			};

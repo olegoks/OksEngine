@@ -20,15 +20,15 @@ namespace ECSGenerator2 {
 			std::vector<ParsedComponentPtr> requiredComponentIncludes;
 
 			archetype->ForEachComponent([&](ParsedArchetype::Component& component, bool isLast) {
-				requiredComponentIncludes.push_back(std::dynamic_pointer_cast<ParsedComponent>(component.ptr_));
+				requiredComponentIncludes.push_back(Common::pointer_cast<ParsedComponent>(component.ptr_));
 				});
 
 			archetype->ForEachRefArchetype([&](ParsedArchetype::ChildArchetype& refArchetype, bool isLastArchetype) {
 
-				std::dynamic_pointer_cast<ParsedArchetype>(refArchetype.ptr_)->ForEachComponent(
+				Common::pointer_cast<ParsedArchetype>(refArchetype.ptr_)->ForEachComponent(
 					[&](ParsedArchetype::Component& component, bool isLastComponent) {
 
-						requiredComponentIncludes.push_back(std::dynamic_pointer_cast<ParsedComponent>(component.ptr_));
+						requiredComponentIncludes.push_back(Common::pointer_cast<ParsedComponent>(component.ptr_));
 
 					});
 
@@ -75,7 +75,7 @@ namespace ECSGenerator2 {
 					defineComponentsList += ", ";
 				}
 
-				std::dynamic_pointer_cast<ParsedArchetype>(refArchetype.ptr_)->ForEachComponent(
+				Common::pointer_cast<ParsedArchetype>(refArchetype.ptr_)->ForEachComponent(
 					[&](ParsedArchetype::Component& component, bool isLastComponent) {
 					
 						archetypeComponentsFilterComponentsList += component.ptr_->GetFullName();

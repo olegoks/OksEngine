@@ -3,6 +3,7 @@
 #include <optional>
 
 #include <type_traits>
+#include <memory>
 
 #define MAGIC_ENUM_RANGE_MIN 0
 #define MAGIC_ENUM_RANGE_MAX 1024
@@ -150,9 +151,19 @@ namespace Common {
 
 	template <class To, class From>
 	[[nodiscard]]
+	inline std::shared_ptr<To> pointer_cast(const std::shared_ptr<From>& ptr) noexcept {
+#if !defined(NDEBUG)
+		return Common::pointer_cast<To>(ptr);
+#else
+		return std::static_pointer_cast<To>(ptr);
+#endif
+	}
+
+	template <class To, class From>
+	[[nodiscard]]
 	inline std::shared_ptr<To> pointer_cast(std::shared_ptr<From>&& ptr) noexcept {
 #if !defined(NDEBUG)
-		return std::dynamic_pointer_cast<To>(ptr);
+		return Common::pointer_cast<To>(ptr);
 #else
 		return std::static_pointer_cast<To>(ptr);
 #endif

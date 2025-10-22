@@ -56,7 +56,7 @@ namespace ECSGenerator2 {
 
 			//projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> systemEcs) {
 
-			//	auto system = std::dynamic_pointer_cast<ParsedSystem>(systemEcs);
+			//	auto system = Common::pointer_cast<ParsedSystem>(systemEcs);
 			//	if (system->GetName() == "FindScenes") {
 			//		//__debugbreak();
 			//	}
@@ -67,7 +67,7 @@ namespace ECSGenerator2 {
 			//	agsafeset(systemNode, (char*)"shape", (char*)"rect", (char*)"");
 
 			//	projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> systemEcsFile) {
-			//		auto maybeDependenceSystem = std::dynamic_pointer_cast<ParsedSystem>(systemEcsFile);
+			//		auto maybeDependenceSystem = Common::pointer_cast<ParsedSystem>(systemEcsFile);
 
 			//		if (maybeDependenceSystem->GetName() == "CreateECSInspector" && !maybeDependenceSystem->IsInitializeSystem()) {
 			//			//__debugbreak();

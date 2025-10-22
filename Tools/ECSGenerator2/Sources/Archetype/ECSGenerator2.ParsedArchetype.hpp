@@ -73,7 +73,7 @@ namespace ECSGenerator2 {
 			}
 
 			for (auto archetype : ci_.archetypes_) {
-				auto childArchetype = std::dynamic_pointer_cast<ParsedArchetype>(archetype.ptr_);
+				auto childArchetype = Common::pointer_cast<ParsedArchetype>(archetype.ptr_);
 				childArchetype->ForEachComponentRecursive(processComponent);
 			}
 

@@ -32,7 +32,7 @@ namespace OksEngine {
 		Resources::ResourceData GetResource(std::filesystem::path resourcePath) {
 			resourceSystem_.LoadResource(resourcePath);
 			Resources::Resource resource = resourceSystem_.GetResource(resourcePath);
-			auto binaryFile = std::dynamic_pointer_cast<OS::BinaryFile>(resource.GetFile());
+			auto binaryFile = Common::pointer_cast<OS::BinaryFile>(resource.GetFile());
 			Resources::ResourceData engineResource(binaryFile->GetData(), binaryFile->GetSize());
 			return engineResource;
 		}

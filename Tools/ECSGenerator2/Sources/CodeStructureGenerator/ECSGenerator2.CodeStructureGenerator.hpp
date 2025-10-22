@@ -146,7 +146,7 @@ namespace ECSGenerator2 {
 					const ParsedTable::Type tableType = parsedTable->GetType();
 
 					if (tableType == ParsedTable::Type::Namespace) {
-						const auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(parsedTable);
+						const auto parsedNamespace = Common::pointer_cast<ParsedNamespace>(parsedTable);
 
 						auto namespaceObject = std::make_shared<CodeStructure::Namespace>(parsedNamespace->GetName());
 
@@ -162,7 +162,7 @@ namespace ECSGenerator2 {
 					}
 					else if (tableType == ParsedTable::Type::System) {
 
-						const auto parsedSystem = std::dynamic_pointer_cast<ParsedSystem>(parsedTable);
+						const auto parsedSystem = Common::pointer_cast<ParsedSystem>(parsedTable);
 
 						SystemStructureGenerator::CreateInfo ssgci{
 							.includeDirectory_ = includeDirectory
@@ -222,7 +222,7 @@ namespace ECSGenerator2 {
 					}
 					else if (tableType == ParsedTable::Type::Struct) {
 
-						const auto parsedStruct = std::dynamic_pointer_cast<ParsedStruct>(parsedTable);
+						const auto parsedStruct = Common::pointer_cast<ParsedStruct>(parsedTable);
 
 						StructCodeStructureGenerator::CreateInfo scgci{
 							.includeDirectory_ = includeDirectory
@@ -241,7 +241,7 @@ namespace ECSGenerator2 {
 					}
 					else if (tableType == ParsedTable::Type::Constant) {
 
-						const auto parsedConstant = std::dynamic_pointer_cast<ParsedConstant>(parsedTable);
+						const auto parsedConstant = Common::pointer_cast<ParsedConstant>(parsedTable);
 
 						ConstantCodeStructureGenerator::CreateInfo scgci{
 							.includeDirectory_ = includeDirectory
@@ -257,7 +257,7 @@ namespace ECSGenerator2 {
 					}
 					else if (tableType == ParsedTable::Type::Archetype) {
 
-						const auto parsedArchetype = std::dynamic_pointer_cast<ParsedArchetype>(parsedTable);
+						const auto parsedArchetype = Common::pointer_cast<ParsedArchetype>(parsedTable);
 
 						ArchetypeCodeStructureGenerator::CreateInfo scgci{
 							.includeDirectory_ = includeDirectory
@@ -306,7 +306,7 @@ namespace ECSGenerator2 {
 					}
 					else if (tableType == ParsedTable::Type::Component) {
 
-						const auto parsedComponent = std::dynamic_pointer_cast<ParsedComponent>(parsedTable);
+						const auto parsedComponent = Common::pointer_cast<ParsedComponent>(parsedTable);
 
 						ComponentCodeStructureGenerator::CreateInfo ccgci{
 							.includeDirectory_ = includeDirectory
@@ -392,7 +392,7 @@ namespace ECSGenerator2 {
 						const ParsedTable::Type tableType = parsedTable->GetType();
 						if (tableType == ParsedTable::Type::Namespace) {
 
-							const auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(parsedTable);
+							const auto parsedNamespace = Common::pointer_cast<ParsedNamespace>(parsedTable);
 
 							currentNamespace.push_back(parsedNamespace->GetName());
 
@@ -404,7 +404,7 @@ namespace ECSGenerator2 {
 						}
 						if (tableType == ParsedTable::Type::Component) {
 
-							const auto parsedComponent = std::dynamic_pointer_cast<ParsedComponent>(parsedTable);
+							const auto parsedComponent = Common::pointer_cast<ParsedComponent>(parsedTable);
 
 							ComponentCodeStructureGenerator::CreateInfo ccgci{
 								.includeDirectory_ = includeDirectory
@@ -529,7 +529,7 @@ namespace ECSGenerator2 {
 					std::function<std::vector<std::shared_ptr<CodeStructure::Base>>(std::shared_ptr<ParsedTable>)> processTable
 						= [&](std::shared_ptr<ParsedTable> table) {
 						if (table->GetType() == ParsedTable::Type::Namespace) {
-							auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(table);
+							auto parsedNamespace = Common::pointer_cast<ParsedNamespace>(table);
 							auto namespaceObject = std::make_shared<CodeStructure::Namespace>(parsedNamespace->GetName());
 							parsedNamespace->ForEachChildTable([&](std::shared_ptr<ParsedTable> parsedTable) {
 								auto bases = processTable(parsedTable);
@@ -542,7 +542,7 @@ namespace ECSGenerator2 {
 							return std::vector<std::shared_ptr<CodeStructure::Base>>{ namespaceObject };
 						}
 						if (table->GetType() == ParsedTable::Type::System) {
-							auto parsedSystem = std::dynamic_pointer_cast<ParsedSystem>(table);
+							auto parsedSystem = Common::pointer_cast<ParsedSystem>(table);
 							std::vector<std::shared_ptr<CodeStructure::Base>> bases;
 							bases.push_back(generateUpdateMethod(parsedSystem));
 							if (parsedSystem->ci_.afterUpdateMethod_ != nullptr) {
@@ -551,7 +551,7 @@ namespace ECSGenerator2 {
 							return bases;
 						}
 						if (table->GetType() == ParsedTable::Type::Component) {
-							auto parsedComponent = std::dynamic_pointer_cast<ParsedComponent>(table);
+							auto parsedComponent = Common::pointer_cast<ParsedComponent>(table);
 							//If we want to create realization of help functions manually generate only prototype in .hpp file.
 
 							ComponentCodeStructureGenerator::CreateInfo ccsgci{
@@ -802,7 +802,7 @@ namespace ECSGenerator2 {
 						std::vector<std::string> namespaceStrings;
 						for (auto childTable : childTables) {
 							if (childTable->GetType() == ParsedTable::Type::Namespace) {
-								auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(childTable);
+								auto parsedNamespace = Common::pointer_cast<ParsedNamespace>(childTable);
 								namespaceStrings.push_back(parsedNamespace->GetName());
 							}
 						}
@@ -1164,7 +1164,7 @@ namespace ECSGenerator2 {
 						//std::vector<std::string> namespaceStrings;
 						//for (auto childTable : childTables) {
 						//	if (childTable->GetType() == ParsedTable::Type::Namespace) {
-						//		auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(childTable);
+						//		auto parsedNamespace = Common::pointer_cast<ParsedNamespace>(childTable);
 						//		namespaceStrings.push_back(parsedNamespace->GetName());
 						//	}
 						//}
@@ -1214,7 +1214,7 @@ namespace ECSGenerator2 {
 						std::vector<std::string> namespaceStrings;
 						for (auto childTable : childTables) {
 							if (childTable->GetType() == ParsedTable::Type::Namespace) {
-								auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(childTable);
+								auto parsedNamespace = Common::pointer_cast<ParsedNamespace>(childTable);
 								namespaceStrings.push_back(parsedNamespace->GetName());
 							}
 						}
@@ -1261,7 +1261,7 @@ namespace ECSGenerator2 {
 						std::vector<std::string> namespaceStrings;
 						for (auto childTable : childTables) {
 							if (childTable->GetType() == ParsedTable::Type::Namespace) {
-								auto parsedNamespace = std::dynamic_pointer_cast<ParsedNamespace>(childTable);
+								auto parsedNamespace = Common::pointer_cast<ParsedNamespace>(childTable);
 								namespaceStrings.push_back(parsedNamespace->GetName());
 							}
 						}
@@ -2368,7 +2368,7 @@ namespace ECSGenerator2 {
 			//		for (Agnode_t* systemNode : clusterSystems) {
 			//			std::string systemName = agnameof(systemNode);
 			//			const auto ecsFile = projectContext->GetEcsFileByName(systemName);
-			//			auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystem>(ecsFile);
+			//			auto systemEcsFile = Common::pointer_cast<ParsedSystem>(ecsFile);
 			//			if (systemEcsFile->IsInitializeSystem()) {
 			//				continue;
 			//			}
@@ -2715,7 +2715,7 @@ namespace ECSGenerator2 {
 				////Generate code to run systems that process all entities.
 				//projectContext->ForEachSystemEcsFile(
 				//	[&](std::shared_ptr<ParsedECSFile> ecsFile) {
-				//		auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+				//		auto systemEcsFile = Common::pointer_cast<ParsedSystemECSFile>(ecsFile);
 				//		if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::AllEntities) {
 
 				//			cppRunSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));

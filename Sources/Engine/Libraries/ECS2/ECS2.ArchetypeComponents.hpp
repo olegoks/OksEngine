@@ -24,7 +24,7 @@ namespace ECS2 {
 				"Attempt to get container in the archetype components structure that doesn't exist.");
 #pragma endregion
 			std::shared_ptr<IArchetypeContainer> container = containers_[Component::GetTypeId()];
-			return std::dynamic_pointer_cast<ArchetypeContainer<Component>>(container);
+			return Common::pointer_cast<ArchetypeContainer<Component>>(container);
 		}
 
 		Common::Size GetEntitiesNumber() const noexcept {
@@ -121,7 +121,7 @@ namespace ECS2 {
 			ASSERT_FMSG(componentIndex != invalidComponentIndex_,
 				"Attempt to get component of entity but component doesn't exist.");
 #pragma endregion
-			auto container = std::dynamic_pointer_cast<ArchetypeContainer<Component>>(containers_[Component::GetTypeId()]);
+			auto container = Common::pointer_cast<ArchetypeContainer<Component>>(containers_[Component::GetTypeId()]);
 			return (*container)[componentIndex];
 		}
 		
@@ -149,7 +149,7 @@ namespace ECS2 {
 					auto containerIt = containers_.find(Components::GetTypeId());
 					if (containerIt != containers_.end()) {
 						
-						auto container = std::pointer_cast<ArchetypeContainer<Components>>(containerIt->second);
+						auto container = Common::pointer_cast<ArchetypeContainer<Components>>(containerIt->second);
 						ASSERT_FMSG(container != nullptr,
 							"Failed to cast to appropriate container type");
 						return (*container)[componentIndex];

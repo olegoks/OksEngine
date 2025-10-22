@@ -764,11 +764,11 @@ namespace Render::Vulkan {
 				.descriptorSetLayouts_ = DSLs,
 				.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					objects_.LD_,
-					std::dynamic_pointer_cast<Vulkan::Shader>(pipelineCI.vertexShader_)->GetSpirv()
+					Common::pointer_cast<Vulkan::Shader>(pipelineCI.vertexShader_)->GetSpirv()
 					}),
 				.fragmentShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					createInfo.LD_,
-					std::dynamic_pointer_cast<Vulkan::Shader>(pipelineCI.fragmentShader_)->GetSpirv()
+					Common::pointer_cast<Vulkan::Shader>(pipelineCI.fragmentShader_)->GetSpirv()
 					}),
 				.depthTestInfo_ = depthTestData,
 				.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
@@ -833,7 +833,7 @@ namespace Render::Vulkan {
 				.descriptorSetLayouts_ = DSLs,
 				.computeShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					objects_.LD_,
-					std::dynamic_pointer_cast<Vulkan::Shader>(pipelineCI.computeShader_)->GetSpirv()
+					Common::pointer_cast<Vulkan::Shader>(pipelineCI.computeShader_)->GetSpirv()
 					}),
 			};
 

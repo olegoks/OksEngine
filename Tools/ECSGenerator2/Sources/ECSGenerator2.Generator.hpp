@@ -759,7 +759,7 @@ namespace ECSGenerator2 {
 			//			std::string systemName = agnameof(systemNode);
 			//			const auto ecsFile = projectContext->GetEcsFileByName(systemName);
 
-			//			auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystem>(ecsFile);
+			//			auto systemEcsFile = Common::pointer_cast<ParsedSystem>(ecsFile);
 			//			if (systemEcsFile->IsInitializeSystem()) {
 			//				continue;
 			//			}
@@ -1098,7 +1098,7 @@ namespace ECSGenerator2 {
 				////Generate code to run systems that process all entities.
 				//projectContext->ForEachSystemEcsFile(
 				//	[&](std::shared_ptr<ParsedECSFile> ecsFile) {
-				//		auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+				//		auto systemEcsFile = Common::pointer_cast<ParsedSystemECSFile>(ecsFile);
 				//		if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::AllEntities) {
 
 				//			cppRunSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));

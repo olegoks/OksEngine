@@ -191,7 +191,7 @@ namespace ECS2 {
 	//		const ComponentTypeId componentTypeId = IComponent<ComponentType>::GetTypeId();
 	//		auto it = componentContainer_.find(componentTypeId);
 	//		if (it != componentContainer_.end()) {
-	//			return std::dynamic_pointer_cast<Container<ComponentType>>(it->second);
+	//			return Common::pointer_cast<Container<ComponentType>>(it->second);
 	//		}
 	//		else {
 	//			return {};
@@ -204,7 +204,7 @@ namespace ECS2 {
 	//		const ComponentTypeId componentTypeId = IComponent<ComponentType>::GetTypeId();
 	//		auto it = componentContainer_.find(componentTypeId);
 	//		if (it != componentContainer_.end()) {
-	//			return std::dynamic_pointer_cast<Container<ComponentType>>(it->second);
+	//			return Common::pointer_cast<Container<ComponentType>>(it->second);
 	//		}
 	//		else {
 	//			return {};

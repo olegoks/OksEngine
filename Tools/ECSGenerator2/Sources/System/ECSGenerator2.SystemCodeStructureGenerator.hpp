@@ -92,7 +92,7 @@ namespace ECSGenerator2 {
 						
 						ASSERT(component.ptr_->GetType() == ParsedTable::Type::Component);
 
-						requiredComponentNames.insert(std::dynamic_pointer_cast<ParsedComponent>(component.ptr_));
+						requiredComponentNames.insert(Common::pointer_cast<ParsedComponent>(component.ptr_));
 						
 						};
 

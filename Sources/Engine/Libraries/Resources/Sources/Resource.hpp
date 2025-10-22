@@ -170,14 +170,14 @@ namespace Resources {
 		Resources::ResourceData ForceGetResourceData(std::filesystem::path OSResourcePath) {
 			Resources::Resource forceResource = ForceGetResource(OSResourcePath);
 			//ASSERT_FMSG(forceResource.IsLoaded(), "Resource must be loaded at the moment.");
-			auto file = std::dynamic_pointer_cast<OS::BinaryFile>(forceResource.GetFile());
+			auto file = Common::pointer_cast<OS::BinaryFile>(forceResource.GetFile());
 			return { file->GetData(), file->GetSize() };
 		}
 
 		Resources::ResourceData GetResourceData(std::filesystem::path resourcePath) {
 			//LoadResource(resourcePath);
 			Resources::Resource resource = GetResource(resourcePath);
-			auto binaryFile = std::dynamic_pointer_cast<OS::BinaryFile>(resource.GetFile());
+			auto binaryFile = Common::pointer_cast<OS::BinaryFile>(resource.GetFile());
 			Resources::ResourceData engineResource(binaryFile->GetData(), binaryFile->GetSize());
 			return engineResource;
 		}
@@ -198,7 +198,7 @@ namespace Resources {
 
 			if (IsResourceExist(filename)) {
 				
-				auto file = std::dynamic_pointer_cast<OS::BinaryFile>(GetResource(filename).GetFile());
+				auto file = Common::pointer_cast<OS::BinaryFile>(GetResource(filename).GetFile());
 				file->Clear();
 				OS::BinaryFile::WriteInfo writeInfo{
 				.data_ = resourceData.GetData<Common::Byte>(),

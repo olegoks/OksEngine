@@ -195,20 +195,20 @@ namespace ECSGenerator {
 				return code;
 			}
 			if (base->GetType() == Base::Type::Namespace) {
-				auto namespaceObject = std::dynamic_pointer_cast<Namespace>(base);
+				auto namespaceObject = Common::pointer_cast<Namespace>(base);
 				code = GenerateECSCXXFilesStructure(namespaceObject);
 
 			}
 			else if (base->GetType() == Base::Type::Struct) {
-				auto structObject = std::dynamic_pointer_cast<Struct>(base);
+				auto structObject = Common::pointer_cast<Struct>(base);
 				code = GenerateECSCXXFilesStructure(structObject);
 			}
 			else if (base->GetType() == Base::Type::Function) {
-				auto functionObject = std::dynamic_pointer_cast<Function>(base);
+				auto functionObject = Common::pointer_cast<Function>(base);
 				code = GenerateECSCXXFilesStructure(functionObject);
 			}
 			else if (base->GetType() == Base::Type::Variable) {
-				auto functionObject = std::dynamic_pointer_cast<Variable>(base);
+				auto functionObject = Common::pointer_cast<Variable>(base);
 				code = GenerateECSCXXFilesStructure(functionObject);
 			}
 			clang::format::FormatStyle style = clang::format::getGoogleStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);

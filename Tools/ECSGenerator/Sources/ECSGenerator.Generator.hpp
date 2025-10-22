@@ -148,7 +148,7 @@ namespace ECSGenerator {
 			DS::Graph<System> initCallGraph;
 			projectContext->ForEachSystemEcsFile(
 				[&](std::shared_ptr<ParsedECSFile> ecsFile) {
-					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+					auto systemEcsFile = Common::pointer_cast<ParsedSystemECSFile>(ecsFile);
 					if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::Initialize) {
 						DS::Graph<System>::Node::Id currentSystemNodeId = DS::Graph<System>::Node::invalidId_;
 						if (!initCallGraph.IsNodeExist(systemEcsFile->GetName())) {
@@ -233,7 +233,7 @@ namespace ECSGenerator {
 			//Generate code to run systems that process all entities.
 			for (auto& systemName : systemsOrder.order_) {
 				auto ecsFile = projectContext->GetEcsFileByName(systemName);
-				auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+				auto systemEcsFile = Common::pointer_cast<ParsedSystemECSFile>(ecsFile);
 				runInitSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
 
 				//Check if system creates new components, if yes we need to add them immideatly
@@ -480,7 +480,7 @@ namespace ECSGenerator {
 
 				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
 
-					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+					auto component = Common::pointer_cast<ParsedComponentECSFile>(ecsFile);
 					code.Add(std::format("{}::GetName(),", component->GetName()));
 					code.NewLine();
 					return true;
@@ -498,7 +498,7 @@ namespace ECSGenerator {
 
 				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
 
-					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+					auto component = Common::pointer_cast<ParsedComponentECSFile>(ecsFile);
 					code.Add(std::format("if (currentComponent == {}::GetName()) {{", component->GetName()));
 					code.Add(std::format("Add{}(world.get(), entityId);", component->GetName()));
 					code.Add("}");
@@ -570,7 +570,7 @@ namespace ECSGenerator {
 				//Generate edit components.
 				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
 
-					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+					auto component = Common::pointer_cast<ParsedComponentECSFile>(ecsFile);
 
 					code.Add(generateEditComponentCode(component));
 					code.NewLine();
@@ -704,7 +704,7 @@ namespace ECSGenerator {
 				//Generate edit components.
 				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
 
-					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+					auto component = Common::pointer_cast<ParsedComponentECSFile>(ecsFile);
 
 					if (!component->serializable_) {
 						return true;
@@ -800,7 +800,7 @@ namespace ECSGenerator {
 				//Generate serialize components.
 				projectContext->ForEachComponentEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
 
-					auto component = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+					auto component = Common::pointer_cast<ParsedComponentECSFile>(ecsFile);
 
 					if (!component->serializable_) {
 						return true;
@@ -943,7 +943,7 @@ namespace ECSGenerator {
 			{
 				projectContext->ForEachSystemEcsFile(
 					[&](std::shared_ptr<ParsedECSFile> ecsFile) {
-						auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+						auto systemEcsFile = Common::pointer_cast<ParsedSystemECSFile>(ecsFile);
 						const std::string systemName = systemEcsFile->GetName();
 						for (auto& entity : systemEcsFile->ci_.processesEntities_) {
 							entity.ForEachInclude([&](const ParsedSystemECSFile::Include& include, bool isLast) {
@@ -978,7 +978,7 @@ namespace ECSGenerator {
 						std::string systemName = agnameof(systemNode);
 						const auto ecsFile = projectContext->GetEcsFileByName(systemName);
 
-						auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+						auto systemEcsFile = Common::pointer_cast<ParsedSystemECSFile>(ecsFile);
 						if (systemEcsFile->IsInitializeSystem()) {
 							continue;
 						}
@@ -1044,7 +1044,7 @@ namespace ECSGenerator {
 
 
 					auto ecsFile = projectContext->GetEcsFileByName(systemName.first);
-					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+					auto systemEcsFile = Common::pointer_cast<ParsedSystemECSFile>(ecsFile);
 
 					systemEcsFile->ForEachRunAfterSystem([&](const std::string& afterSystem) {
 #pragma region Assert 
@@ -1198,7 +1198,7 @@ namespace ECSGenerator {
 
 				projectContext->ForEachSystemEcsFile(
 					[&](std::shared_ptr<ParsedECSFile> ecsFile) {
-						auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+						auto systemEcsFile = Common::pointer_cast<ParsedSystemECSFile>(ecsFile);
 						if ("OksEngine.ProcessInput.ecs" == systemEcsFile->GetPath().filename()) {
 							//__debugbreak();
 						}
@@ -1321,7 +1321,7 @@ namespace ECSGenerator {
 				////Generate code to run systems that process all entities.
 				//projectContext->ForEachSystemEcsFile(
 				//	[&](std::shared_ptr<ParsedECSFile> ecsFile) {
-				//		auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+				//		auto systemEcsFile = Common::pointer_cast<ParsedSystemECSFile>(ecsFile);
 				//		if (systemEcsFile->ci_.type_ == ParsedSystemECSFile::SystemType::AllEntities) {
 
 				//			cppRunSystemsCode.Add(GenerateRunSystemCode(systemEcsFile));
@@ -1448,7 +1448,7 @@ namespace ECSGenerator {
 			//Generate auto_OksEngine.{ComponentName}.hpp
 			projectContext->ForEachComponentEcsFile(
 				[&](std::shared_ptr<ParsedECSFile> ecsFile, bool isLast) {
-					auto componentEcsFile = std::dynamic_pointer_cast<ParsedComponentECSFile>(ecsFile);
+					auto componentEcsFile = Common::pointer_cast<ParsedComponentECSFile>(ecsFile);
 					ComponentFileStructureGenerator generator{ ci };
 					auto file = generator.GenerateECSCXXFilesStructure(projectContext, componentEcsFile);
 					files.push_back(file);
@@ -1458,7 +1458,7 @@ namespace ECSGenerator {
 			//Generate auto_OksEngine.{SystemName}.hpp
 			projectContext->ForEachSystemEcsFile(
 				[&](std::shared_ptr<ParsedECSFile> ecsFile) {
-					auto systemEcsFile = std::dynamic_pointer_cast<ParsedSystemECSFile>(ecsFile);
+					auto systemEcsFile = Common::pointer_cast<ParsedSystemECSFile>(ecsFile);
 					SystemFileStructureGenerator::CreateInfo ci{
 						.includeDirectory_ = projectContext->includeDirectory_
 					};
