@@ -20,7 +20,7 @@ int main(int argc, char** argv) {
 	std::string scene;
 	Common::Size id = 0;
 	for (Common::Index i = 0; i < 30; i++) {
-		for (Common::Index j = 0; j < 10; j++) {
+		for (Common::Index j = 0; j < 30; j++) {
 			scene += std::format("{{\n"
 								"	ID = {},\n"
 								"	ARCHETYPE = \"Model\","
@@ -29,9 +29,9 @@ int main(int argc, char** argv) {
 								"	worldRotation3D = {{ w = 1.0, x = 0.0, y = 0.0, z = 0.0 }},\n"
 								"	worldScale3D = {{ x = 1.0, y = 1.0, z = 1.0 }},"
 								"	model = {{}},\n"
-								"	runModelAnimation = {{ animationName = \"Armature.001|mixamo.com|Layer0\" }},\n"
-								"	modelFile = {{ fileName = \"Crypto.glb\" }}\n"
-				"}},\n", id++, i * 5.0, j * 5.0 );
+								"	runModelAnimation = {{ animationName = \"Armature|mixamo.com|Layer0\" }},\n"
+								"	modelFile = {{ fileName = \"HipHop.glb\" }}\n"
+				"}},\n", id++, i * 3.0, j * 3.0 );
 		}
 	}
 	scene = scene;

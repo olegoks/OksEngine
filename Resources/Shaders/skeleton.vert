@@ -48,7 +48,7 @@ struct ModelNodeEntityIds {
 };
 
 struct ModelEntityIds {
-    uint64_t modelIds_[512];
+    uint64_t modelIds_[1024];
 };
 
 layout(std430, set = 5, binding = 0) buffer ModelsNodeEntityIds {

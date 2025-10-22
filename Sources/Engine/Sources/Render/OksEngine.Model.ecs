@@ -11,7 +11,7 @@ ModelEntityComponent = {
 
 MeshMaxModelsNumberConstant = {
     type = "Common::Size",
-    value = "512"
+    value = "1024"
 }
 
 ModelEntityIdsComponent = {
