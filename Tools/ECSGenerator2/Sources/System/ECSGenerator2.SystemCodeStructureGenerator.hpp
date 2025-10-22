@@ -724,7 +724,7 @@ namespace ECSGenerator2 {
 				CodeStructure::Code realization;
 
 				Common::UInt64 currentEntityIndex = 0;
-				realization.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{} Call\");", systemEcsFile->GetName());
+				realization.Add("BEGIN_PROFILE( \"{} Call\");", systemEcsFile->GetName());
 				realization.Add(systemEcsFile->GetLowerName() + ".Update(");
 				systemEcsFile->ci_.updateMethod_->ForEachProcessEntity([&](const ParsedSystem::ProcessedEntity& entity, bool isLast) {
 
@@ -752,16 +752,16 @@ namespace ECSGenerator2 {
 				realization.Add(");");
 
 
-				realization.Add("PIXEndEvent();");
+				realization.Add("END_PROFILE();");
 
 				return realization;
 				};
 
 
 			CodeStructure::Code realization;
-			//"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+			//"BEGIN_PROFILE( \"{}\");"
 			//	"{}System(world2);"
-			//	"PIXEndEvent();",
+			//	"END_PROFILE();",
 			//	GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i]),
 			//	GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i])
 			

@@ -1660,10 +1660,10 @@ namespace ECSGenerator2 {
 
 			const std::string fullSystemName = GetFullTableNameWithNamespace(systemEcsFile);
 			CodeStructure::Code runSystemCode;
-			runSystemCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + fullSystemName + "\");");
+			runSystemCode.Add("BEGIN_PROFILE( \"" + fullSystemName + "\");");
 			runSystemCode.Add(fullSystemName + "System(world2);");
 			runSystemCode.NewLine();
-			runSystemCode.Add("PIXEndEvent();");
+			runSystemCode.Add("END_PROFILE();");
 			return runSystemCode;
 		}
 
@@ -1763,10 +1763,10 @@ namespace ECSGenerator2 {
 
 			CodeStructure::Code runInitSystemsCode;
 			runInitSystemsCode.Add(
-				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Start initialize frame\");"
-				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"StartFrame\");"
+				"BEGIN_PROFILE( \"Start initialize frame\");"
+				"BEGIN_PROFILE( \"StartFrame\");"
 				"world2->StartFrame();"
-				"PIXEndEvent();");
+				"END_PROFILE();");
 
 			auto getECSSystemByName = [](std::vector<ParsedSystemPtr> parsedSystems, const std::string& systemName) {
 
@@ -1812,9 +1812,9 @@ namespace ECSGenerator2 {
 				}
 			};
 
-			runInitSystemsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"End enitialize frame\");");
+			runInitSystemsCode.Add("BEGIN_PROFILE( \"End enitialize frame\");");
 			runInitSystemsCode.Add("world2->EndFrame();");
-			runInitSystemsCode.Add("PIXEndEvent();");
+			runInitSystemsCode.Add("END_PROFILE();");
 
 			//CreateThreads method realization.
 			CodeStructure::Function::CreateInfo cppRunSystemsFunction{
@@ -1866,7 +1866,7 @@ namespace ECSGenerator2 {
 						"GetCurrentThread(),"
 						"L\"Thread {}\""
 						");"
-						"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Thread {}\");",
+						"BEGIN_PROFILE( \"Thread {}\");",
 						threadIdStr,
 						threadIdStr,
 						threadIdStr,
@@ -1879,9 +1879,9 @@ namespace ECSGenerator2 {
 					//for (auto it = thread.systems_.begin(); it != thread.systems_.end(); it++) {
 					//	const std::string systemName = it->first;
 					//	runThreadSystems.Add(std::format(
-					//		"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+					//		"BEGIN_PROFILE( \"{}\");"
 					//		"{}System(world2);"
-					//		"PIXEndEvent();",
+					//		"END_PROFILE();",
 					//		systemName,
 					//		systemName
 					//	));
@@ -1891,9 +1891,9 @@ namespace ECSGenerator2 {
 					CodeStructure::Code runThreadSystems;
 					for (Common::Index i = 0; i < thread.systemsOrder_.order_.size(); i++) {
 						runThreadSystems.Add(std::format(
-							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+							"BEGIN_PROFILE( \"{}\");"
 							"{}System(world2);"
-							"PIXEndEvent();",
+							"END_PROFILE();",
 							GetFullTableNameWithNamespace(thread.systemsOrder_.order_[i]),
 							GetFullTableNameWithNamespace(thread.systemsOrder_.order_[i])
 						));
@@ -1906,7 +1906,7 @@ namespace ECSGenerator2 {
 					//runThreadSystems.ApplyTab();
 					cppCreateThreadsCode.Add(runThreadSystems);
 					cppCreateThreadsCode.Add(std::format(
-						"PIXEndEvent();"
+						"END_PROFILE();"
 						"runSystemThread{} = false;"
 						"thread{}CV.notify_all();"
 						"}}"
@@ -2654,10 +2654,10 @@ namespace ECSGenerator2 {
 			CodeStructure::Code cppRunSystemsCode;
 			{
 				cppRunSystemsCode.Add(
-					"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Frame %d\", frameNumber);"
-					"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"StartFrame\");"
+					"BEGIN_PROFILE( \"Frame %d\", frameNumber);"
+					"BEGIN_PROFILE( \"StartFrame\");"
 					"world2->StartFrame();"
-					"PIXEndEvent();");
+					"END_PROFILE();");
 
 				//Start threads.
 				for (Common::Index i = 0; i < childThreads.size(); ++i) {
@@ -2681,9 +2681,9 @@ namespace ECSGenerator2 {
 					CodeStructure::Code runMainThreadSystems;
 					for (Common::Index i = 0; i < mainThread.systemsOrder_.order_.size(); i++) {
 						runMainThreadSystems.Add(std::format(
-							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+							"BEGIN_PROFILE( \"{}\");"
 							"{}System(world2);"
-							"PIXEndEvent();",
+							"END_PROFILE();",
 							GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i]),
 							GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i])
 						));
@@ -2724,10 +2724,10 @@ namespace ECSGenerator2 {
 				//	});
 
 				cppRunSystemsCode.Add(
-					"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"EndFrame\");"
+					"BEGIN_PROFILE( \"EndFrame\");"
 					"world2->EndFrame();"
-					"PIXEndEvent();"
-					"PIXEndEvent();"
+					"END_PROFILE();"
+					"END_PROFILE();"
 					"++frameNumber;");
 			}
 

@@ -74,9 +74,9 @@ namespace Render::Vulkan
 		fence->Reset();
 		commandBuffer->Submit(ld->GetGraphicsQueue(), fence);
 
-		PIXBeginEvent(PIX_COLOR(255, 0, 0), "Waitting for copying data from staging to aim buffer.");
+		BEGIN_PROFILE("Waitting for copying data from staging to aim buffer.");
 		fence->Wait();
-		PIXEndEvent();
+		END_PROFILE();
 		//vkQueueWaitIdle(ld->GetGraphicsQueue());
 
 	}

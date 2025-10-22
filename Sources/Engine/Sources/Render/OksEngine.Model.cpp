@@ -97,7 +97,7 @@ namespace OksEngine
 		//					"Attempt to start animation that doesnt exist.");
 		//#pragma endregion
 
-		PIXBeginEvent(PIX_COLOR(255, 255, 0), "Processing model with entity id %d.", entity0id);
+		BEGIN_PROFILE("Processing model with entity id %d.", entity0id);
 
 		auto components = GetComponents<
 			WorldPosition3D,
@@ -157,21 +157,21 @@ namespace OksEngine
 
 				const Common::Size animationsNumber = modelAnimations0->animations_.size();
 
-				/*std::random_device rd;
+				std::random_device rd;
 				std::mt19937 gen(rd());
 
 				Common::Index a = 0, b = animationsNumber - 1;
 				std::uniform_int_distribution<> dist(a, b);
-				const Common::Index randomAnimationIndex = dist(gen);*/
-				//const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[randomAnimationIndex];
+				const Common::Index randomAnimationIndex = dist(gen);
+				const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[randomAnimationIndex];
 
 
-				animationIndex++;
-				if (animationIndex == animationsNumber) {
-					animationIndex = 0;
-				}
+				//animationIndex++;
+				//if (animationIndex == animationsNumber) {
+				//	animationIndex = 0;
+				//}
 
-				const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[animationIndex];
+				//const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[animationIndex];
 
 				CreateComponent<RunModelAnimation>(entity0id, randomModelAnimation.name_);
 			}
@@ -225,7 +225,7 @@ namespace OksEngine
 				const glm::fvec3& parentScale3D) {
 
 
-					PIXBeginEvent(PIX_COLOR(255, 255, 0), "Processing model node with entity id %d", nodeEntityId);
+					BEGIN_PROFILE("Processing model node with entity id %d", nodeEntityId);
 
 
 					auto components = GetComponents<
@@ -321,7 +321,7 @@ namespace OksEngine
 					worldNodeScale3D->y_ = parentScale3D.y * localNodeScale3D->y_;
 					worldNodeScale3D->z_ = parentScale3D.z * localNodeScale3D->z_;
 
-					PIXEndEvent();
+					END_PROFILE();
 					//UPDATE WORLD POSITION
 
 					auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
@@ -354,7 +354,7 @@ namespace OksEngine
 			processModelNode(childModelNodeEntityId, position3D, rotation3D, scale3D);
 		}
 
-		PIXEndEvent();
+		END_PROFILE();
 
 	}
 

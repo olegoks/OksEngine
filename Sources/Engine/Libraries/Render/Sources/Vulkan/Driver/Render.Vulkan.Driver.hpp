@@ -1326,9 +1326,9 @@ namespace Render::Vulkan {
 		}
 
 		void WaitRenderEnd() override {
-			PIXBeginEvent(PIX_COLOR(255, 0, 0), "Wait for render end.");
+			BEGIN_PROFILE("Wait for render end.");
 			currentFrame_->WaitForQueueIdle();
-			PIXEndEvent();
+			END_PROFILE();
 		}
 
 		[[nodiscard]]

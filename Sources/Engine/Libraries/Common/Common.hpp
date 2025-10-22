@@ -153,7 +153,7 @@ namespace Common {
 	[[nodiscard]]
 	inline std::shared_ptr<To> pointer_cast(const std::shared_ptr<From>& ptr) noexcept {
 #if !defined(NDEBUG)
-		return Common::pointer_cast<To>(ptr);
+		return std::dynamic_pointer_cast<To>(ptr);
 #else
 		return std::static_pointer_cast<To>(ptr);
 #endif
@@ -163,10 +163,26 @@ namespace Common {
 	[[nodiscard]]
 	inline std::shared_ptr<To> pointer_cast(std::shared_ptr<From>&& ptr) noexcept {
 #if !defined(NDEBUG)
-		return Common::pointer_cast<To>(ptr);
+		return std::dynamic_pointer_cast<To>(ptr);
 #else
 		return std::static_pointer_cast<To>(ptr);
 #endif
 	}
 
+
+#if !defined(NDEBUG)
+
+#define BEGIN_PROFILE(format, ...)\
+	PIXBeginEvent(PIX_COLOR(255, 0, 0), format, __VA_ARGS__);
+
+#define END_PROFILE()\
+	PIXEndEvent();
+
+#else
+
+#define BEGIN_PROFILE(format, ...)  ((void)0)
+
+#define END_PROFILE() ((void)0)
+
+#endif
 }

@@ -130,10 +130,10 @@ namespace ECSGenerator {
 
 		Code GenerateRunSystemCode(std::shared_ptr<ParsedSystemECSFile> systemEcsFile) {
 			Code runSystemCode;
-			runSystemCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"" + systemEcsFile->GetName() + "\");");
+			runSystemCode.Add("BEGIN_PROFILE( \"" + systemEcsFile->GetName() + "\");");
 			runSystemCode.Add(systemEcsFile->GetName() + "System(world2);");
 			runSystemCode.NewLine();
-			runSystemCode.Add("PIXEndEvent();");
+			runSystemCode.Add("END_PROFILE();");
 			return runSystemCode;
 		}
 
@@ -225,10 +225,10 @@ namespace ECSGenerator {
 
 			Code runInitSystemsCode;
 			runInitSystemsCode.Add(
-				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Start initialize frame\");"
-				"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"StartFrame\");"
+				"BEGIN_PROFILE( \"Start initialize frame\");"
+				"BEGIN_PROFILE( \"StartFrame\");"
 				"world2->StartFrame();"
-				"PIXEndEvent();");
+				"END_PROFILE();");
 
 			//Generate code to run systems that process all entities.
 			for (auto& systemName : systemsOrder.order_) {
@@ -261,9 +261,9 @@ namespace ECSGenerator {
 				}
 			};
 
-			runInitSystemsCode.Add("PIXBeginEvent(PIX_COLOR(255, 0, 0), \"End enitialize frame\");");
+			runInitSystemsCode.Add("BEGIN_PROFILE( \"End enitialize frame\");");
 			runInitSystemsCode.Add("world2->EndFrame();");
-			runInitSystemsCode.Add("PIXEndEvent();");
+			runInitSystemsCode.Add("END_PROFILE();");
 
 			//CreateThreads method realization.
 			Function::CreateInfo cppRunSystemsFunction{
@@ -315,7 +315,7 @@ namespace ECSGenerator {
 						"GetCurrentThread(),"
 						"L\"Thread {}\""
 						");"
-						"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Thread {}\");",
+						"BEGIN_PROFILE( \"Thread {}\");",
 						threadIdStr,
 						threadIdStr,
 						threadIdStr,
@@ -328,9 +328,9 @@ namespace ECSGenerator {
 					//for (auto it = thread.systems_.begin(); it != thread.systems_.end(); it++) {
 					//	const std::string systemName = it->first;
 					//	runThreadSystems.Add(std::format(
-					//		"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+					//		"BEGIN_PROFILE( \"{}\");"
 					//		"{}System(world2);"
-					//		"PIXEndEvent();",
+					//		"END_PROFILE();",
 					//		systemName,
 					//		systemName
 					//	));
@@ -340,9 +340,9 @@ namespace ECSGenerator {
 					Code runThreadSystems;
 					for (Common::Index i = 0; i < thread.systemsOrder_.order_.size(); i++) {
 						runThreadSystems.Add(std::format(
-							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+							"BEGIN_PROFILE( \"{}\");"
 							"{}System(world2);"
-							"PIXEndEvent();",
+							"END_PROFILE();",
 							thread.systemsOrder_.order_[i],
 							thread.systemsOrder_.order_[i]
 						));
@@ -355,7 +355,7 @@ namespace ECSGenerator {
 					//runThreadSystems.ApplyTab();
 					cppCreateThreadsCode.Add(runThreadSystems);
 					cppCreateThreadsCode.Add(std::format(
-						"PIXEndEvent();"
+						"END_PROFILE();"
 						"runSystemThread{} = false;"
 						"thread{}CV.notify_all();"
 						"}}"
@@ -1261,10 +1261,10 @@ namespace ECSGenerator {
 			Code cppRunSystemsCode;
 			{
 				cppRunSystemsCode.Add(
-					"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"Frame %d\", frameNumber);"
-					"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"StartFrame\");"
+					"BEGIN_PROFILE( \"Frame %d\", frameNumber);"
+					"BEGIN_PROFILE( \"StartFrame\");"
 					"world2->StartFrame();"
-					"PIXEndEvent();");
+					"END_PROFILE();");
 
 				//Start threads.
 				for (Common::Index i = 0; i < childThreads.size(); ++i) {
@@ -1287,9 +1287,9 @@ namespace ECSGenerator {
 					Code runMainThreadSystems;
 					for (Common::Index i = 0; i < mainThread.systemsOrder_.order_.size(); i++) {
 						runMainThreadSystems.Add(std::format(
-							"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"{}\");"
+							"BEGIN_PROFILE( \"{}\");"
 							"{}System(world2);"
-							"PIXEndEvent();",
+							"END_PROFILE();",
 							mainThread.systemsOrder_.order_[i],
 							mainThread.systemsOrder_.order_[i]
 						));
@@ -1330,10 +1330,10 @@ namespace ECSGenerator {
 				//	});
 
 				cppRunSystemsCode.Add(
-					"PIXBeginEvent(PIX_COLOR(255, 0, 0), \"EndFrame\");"
+					"BEGIN_PROFILE( \"EndFrame\");"
 					"world2->EndFrame();"
-					"PIXEndEvent();"
-					"PIXEndEvent();"
+					"END_PROFILE();"
+					"END_PROFILE();"
 					"++frameNumber;");
 			}
 
