@@ -118,7 +118,7 @@ namespace OksEngine
 				{
 					ImGui::Indent(20.0f);
 					ImGui::TextDisabled("Includes:");
-					entityFilter->includes_.ForEachSetComponent([&](ECS2::ComponentTypeId componentTypeId) {
+					entityFilter->includes_.ForEachSetComponent([&](ECS2::ComponentTypeId componentTypeId, bool isLast) {
 						ImGui::TextDisabled(GetComponentNameByTypeId(componentTypeId));
 						ImGui::SameLine();
 						ImGui::PushID(componentTypeId);
@@ -132,7 +132,7 @@ namespace OksEngine
 				{
 					ImGui::Indent(20.0f);
 					ImGui::TextDisabled("Excludes:");
-					entityFilter->excludes_.ForEachSetComponent([&](ECS2::ComponentTypeId componentTypeId) {
+					entityFilter->excludes_.ForEachSetComponent([&](ECS2::ComponentTypeId componentTypeId, bool isLast) {
 						ImGui::TextDisabled(GetComponentNameByTypeId(componentTypeId));
 						ImGui::SameLine();
 						ImGui::PushID(componentTypeId);
@@ -161,9 +161,6 @@ namespace OksEngine
 			const auto* requaredFilter =  GetComponent<EntityFilter>(entity0id);
 			const ECS2::ComponentsFilter componentFilter = GetComponentsFilter(entity1id);
 
-			if (entity1id == 93) {
-				Common::BreakPointLine();
-			}
 			if (!requaredFilter->includes_.IsSubsetOf(componentFilter) || !requaredFilter->includes_.IsSetOneMoreComponent()) {
 				return;
 			}
@@ -186,7 +183,32 @@ namespace OksEngine
             ("Id: " + idString + "  " + magic_enum::enum_name(world_->GetEntityType(entity1id)).data() + " " + name)
             .c_str()))
         {
-            ImGui::Indent(20.f);
+			ImGui::Indent(20.f);
+			//Show entity Archetype components for archetype entities.
+			{
+				const ECS2::Entity::Type entityType = world_->GetEntityType(entity1id);
+				ASSERT_MSG(
+					entityType != ECS2::Entity::Type::Undefined, 
+					"Entity cant have ECS2::Entity::Type::Undefined because if system processes entity it must exist at system call moment.");
+
+				if (entityType == ECS2::Entity::Type::Archetype) {
+					const ECS2::ComponentsFilter archetypeComponents = world_->GetArchetypeComponents(entity1id);
+					std::string archetypeComponentsList;
+					archetypeComponents.ForEachSetComponent(
+						[&archetypeComponentsList](ECS2::ComponentTypeId componentTypeId, bool isLast) {
+							archetypeComponentsList += GetComponentNameByTypeId(componentTypeId);
+							if (!isLast) {
+								archetypeComponentsList += ",\n";
+							}
+						});
+					ImGui::TextDisabled("Archetype components:");
+					ImGui::TextDisabled(archetypeComponentsList.c_str());
+				}
+
+			}
+
+
+            
             auto editComponent = []<class ComponentType>(std::shared_ptr<ECS2::World> world, ECS2::Entity::Id id) {
                 bool isExist = world->IsComponentExist<ComponentType>(id);
                 if (ImGui::CollapsingHeader(ComponentType::GetName(), &isExist))

@@ -39,7 +39,7 @@ namespace ECS2 {
 #endif
 			filter_ { std::move(moveComponentsFilter.filter_) } { }
 
-		ComponentsFilter& operator=(const ComponentsFilter& copyComponentsFilter) {
+		ComponentsFilter& operator=(const ComponentsFilter& copyComponentsFilter) noexcept {
 
 			if (&copyComponentsFilter == this) {
 				return *this;
@@ -52,7 +52,7 @@ namespace ECS2 {
 			return *this;
 		}
 
-		ComponentsFilter& operator=(ComponentsFilter&& moveComponentsFilter) {
+		ComponentsFilter& operator=(ComponentsFilter&& moveComponentsFilter) noexcept {
 
 			if (&moveComponentsFilter == this) {
 				return *this;
@@ -141,12 +141,24 @@ namespace ECS2 {
 			return ((filter_ & componentsFilter.filter_).none());
 		}
 
-		using ProcessSetComponent = std::function<void(ComponentTypeId)>;
+		[[nodiscard]]
+		Common::Size GetSetComponentsNumber() const noexcept {
+			return filter_.count();
+		}
+
+		using ProcessSetComponent = std::function<void(ComponentTypeId, bool isLast)>;
 
 		void ForEachSetComponent(ProcessSetComponent&& processSetComponent) const {
+
+			const Common::Size setComponentsNumber = GetSetComponentsNumber();
+
+			Common::Size currentSetComponentsNumber = 0;
 			for (Common::Index i = 0; i < maxComponentsNumber_; i++) {
 				if (IsSet(i)) {
-					processSetComponent(i);
+					++currentSetComponentsNumber;
+					processSetComponent(
+						i,
+						(currentSetComponentsNumber == setComponentsNumber));
 				}
 			}
 		}

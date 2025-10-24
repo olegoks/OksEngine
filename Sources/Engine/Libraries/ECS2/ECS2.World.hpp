@@ -180,7 +180,7 @@ namespace ECS2 {
 					const ComponentsFilter componentsFilter = dynamicEntitiesComponentFilters_[entityId];
 
 					//Remove entity components in containers.
-					componentsFilter.ForEachSetComponent([&](ComponentTypeId componentTypeId) {
+					componentsFilter.ForEachSetComponent([&](ComponentTypeId componentTypeId, bool isLast) {
 
 #pragma region Assert
 						ASSERT_FMSG(
