@@ -169,8 +169,9 @@ namespace Common {
 #endif
 	}
 
+#define ENABLE_PROFILE
 
-#if !defined(NDEBUG)
+#if !defined(NDEBUG) || defined(ENABLE_PROFILE)
 
 #define BEGIN_PROFILE(format, ...)\
 	PIXBeginEvent(PIX_COLOR(255, 0, 0), format, __VA_ARGS__);
