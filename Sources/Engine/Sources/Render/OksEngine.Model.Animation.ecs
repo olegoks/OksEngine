@@ -55,6 +55,42 @@ AnimationNamespace = {
     },
 
     ModelNamespace = {
+
+
+        -- --Create copy of hierarhy  only with animation to not store copy for each model hier
+        -- AnimationDataControllerComponent = {
+        --     serializable = false
+        -- },
+        
+        -- AnimationDataNameToEntityComponent = {
+        --     serializable = false,
+        --     fields = {
+        --         { type = "std::map<std::string, ECS2::Entity::Id>", name = "animationDataNameToEntityId" }
+        --     }
+        -- },
+
+        -- CreateAnimationDataControllerSystem = {
+        --     type = "Initialize",
+        --     updateMethod = {
+        --         createsEntities = {
+        --             {
+        --                 createsComponents = {
+        --                     "AnimationDataController",
+        --                     "AnimationDataNameToEntity"
+        --                 }
+        --             }
+        --         }
+        --     }
+        -- },
+
+        -- AnimationDataInfoStruct = {
+        --     fields = {
+        --         { type = "std::string",      name = "name" },
+        --         { type = "ECS2::Entity::Id", name = "animationDataEntityId" }
+        --     }
+        -- },
+        --
+
         AnimationsMaxNumberConstant = {
             type = "Common::Size",
             value = "4"

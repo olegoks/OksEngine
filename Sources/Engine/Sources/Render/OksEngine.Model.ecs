@@ -387,6 +387,12 @@ AiNamespace = {
                         "Ai::Scene",
                         "MeshNames"
                     }
+                },
+                {
+                    processesComponents = {
+                        "Render::Model::Data::DataController",
+                        { name = "Render::Model::Data::ModelNameToDataEntityId", readonly = false }
+                    }
                 }
             },
             createsEntities = {
@@ -427,6 +433,56 @@ AiNamespace = {
         }
     }
 }
+
+
+--MODEL DATA
+RenderNamespace = {
+    ModelNamespace = {
+        DataNamespace = {
+            DataComponent = {
+                serializable = false
+            },
+            DataEntityIdComponent = {
+                description =
+                "This component will have model entity to have access to model data like animations, mesh data.",
+                serializable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "modelDataEntityId" }
+                }
+            },
+
+            DataControllerComponent = {
+            },
+
+            ModelNameToDataEntityIdComponent = {
+                description =
+                "Controller for models data. It will be used by model loader to find model data and take it if model was loaded early or to add model data if it is not exist.",
+                serializable = false,
+                fields = {
+                    {
+                        type = "std::map<std::string, ECS2::Entity::Id>",
+                        name = "modelNameToDataEntityId"
+                    }
+                }
+            },
+            CreateDataControllerSystem = {
+                type = "Initialize",
+                updateMethod = {
+                    createsEntities = {
+                        {
+                            createsComponents = {
+                                "DataController",
+                                "MeshNameToEntity"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+--MODEL DATA
 
 MeshsControllerComponent = {
     serializable = false
@@ -1041,7 +1097,8 @@ ModelArchetype = {
         "ChildModelNodeEntities",
         "MeshNames",
         "MeshEntities",
-        "MeshsFound"
+        "MeshsFound",
+        "Render::Model::Data::DataEntityId"
     }
 }
 
@@ -1079,7 +1136,8 @@ NodeArchetype = {
         "LocalScale3D",
         "WorldScale3D",
         "ChildModelNodeEntities",
-        "DebugText2D"
+        "DebugText2D",
+        "Render::Model::Data::DataEntityId"
     }
 }
 

@@ -321,6 +321,7 @@ namespace ECSGenerator2 {
 
 				CodeStructure::Code getComponentsCode;
 				{
+
 					if (!systemEcsFile->ci_.updateMethod_->randomAccessesEntities_.empty()) {
 						//Add Assert.
 						{
@@ -454,12 +455,24 @@ namespace ECSGenerator2 {
 				};
 			auto generateCreateComponentMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
+
+				CodeStructure::Code createComponentCode;
+				//If entity is archetype check if entity can contain this component.
+				{
+					createComponentCode.Add("ASSERT_FMSG("
+						"(world_->IsArchetypeEntity(entityId)) ?"
+						"(world_->GetArchetypeComponents(entityId).IsSet<Component>()) :"
+						"(true), \"Attempt to create component {} for archetype entity that can't containt this component.\", Component::GetName());");
+				}
+
+				createComponentCode.Add("world_->CreateComponent<Component>(entityId,\"" + systemEcsFile->GetFullName() + "\", std::forward<Args>(args)...);");
+
 				//CreateComponent method.
 				CodeStructure::Function::CreateInfo createComponentCI{
 					.name_ = "CreateComponent",
 					.parameters_ = { { "ECS2::Entity::Id", "entityId" }, { "Args&&", "...args"}},
 					.returnType_ = "void",
-					.code_ = "world_->CreateComponent<Component>(entityId,\"" + systemEcsFile->GetFullName() + "\", std::forward<Args>(args)...);",
+					.code_ = createComponentCode,
 					.isPrototype_ = false,
 					.inlineModifier_ = false,
 					.templateParameters_ = { "Component", "...Args" }

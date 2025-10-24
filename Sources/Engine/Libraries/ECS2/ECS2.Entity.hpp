@@ -127,8 +127,8 @@ namespace ECS2 {
 		//};
 
 		enum class Type {
-			Dynamic,
-			Archetype,
+			Dynamic,	//Can contain all types of components.
+			Archetype,	//Have a definite set of components that entity can contain.
 			Undefined
 		};
 
@@ -143,6 +143,11 @@ namespace ECS2 {
 			Id(ValueType value) noexcept : value_{ value } {}
 
 			operator ValueType() const noexcept {
+				return value_;
+			}
+
+			[[nodiscard]]
+			ValueType GetRawValue() const noexcept {
 				return value_;
 			}
 

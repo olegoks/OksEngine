@@ -18,7 +18,7 @@ namespace ECS2 {
 
 			for (
 				Entity::Id entityId = 0;
-				entityId < 100'000;
+				entityId < 200'000;
 				entityId++) {
 				freeEntityIds_.insert(entityId);
 			}
@@ -55,13 +55,12 @@ namespace ECS2 {
 			freeEntityIds_.insert(entityId);
 		}
 
-		Entity::Type GetEntityType(Entity::Id entityId) {
+		[[nodiscard]]
+		//So we have delayed entities creation logic and if we created entity and in current frame trying to get entity type 
+		//we will return Entity::Type::Undefined because we dont know type at the moment. 
+		Entity::Type GetEntityType(Entity::Id entityId) const noexcept {
 
-
-#pragma region Assert
-			ASSERT_FMSG(IsEntityExist(entityId), "");
-#pragma endregion
-
+			ASSERT_FMSG(entityId.IsValid(), "Attempt to get type if entity with invalid id.");
 
 			if (archetypeEntitiesComponents_.contains(entityId)) {
 				return Entity::Type::Archetype;
@@ -69,7 +68,13 @@ namespace ECS2 {
 			else if (dynamicEntitiesComponentFilters_.contains(entityId)) {
 				return Entity::Type::Dynamic;
 			}
+
 			return Entity::Type::Undefined;
+		}
+
+		[[nodiscard]]
+		bool IsArchetypeEntity(Entity::Id entityId) const noexcept {
+			return GetEntityType(entityId) == ECS2::Entity::Type::Archetype;
 		}
 
 		//Create archetype entity.
@@ -109,7 +114,7 @@ namespace ECS2 {
 				archetypeEntitiesComponents_[entityId] = archetypeComponentsFilter;
 
 				auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
-				
+
 				ASSERT_FMSG(archetypeComponentsIt != archetypeComponents_.end(),
 					"Attempt to create archetype entity that is not preallocated. Archetype: {}",
 					archetypeComponentsFilter.GetComponentsList());
@@ -132,14 +137,14 @@ namespace ECS2 {
 				auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
 
 				ASSERT_MSG(
-					archetypeComponentsIt == archetypeComponents_.end(), 
+					archetypeComponentsIt == archetypeComponents_.end(),
 					"Attempt to preallocate archetype that allocated yet.");
-				
+
 				auto archetypeComponents = std::make_shared<ArchetypeComponents<Components...>>(100);
 				archetypeComponents_[archetypeComponentsFilter] = archetypeComponents;
-				
+
 				});
-			
+
 		}
 
 		Entity::Id CreateEntity() noexcept {
@@ -246,22 +251,24 @@ namespace ECS2 {
 					if (archetypeEntitiesComponents_.contains(entityId)) {
 
 						const ComponentsFilter archetypeComponentsFilter = archetypeEntitiesComponents_[entityId];
-#pragma region Assert
+
 						ASSERT_FMSG(archetypeComponentsFilter.IsSet<ComponentType>(),
-							"Attempt to add component to an archetype entity "
-							"that can't contain this component");
-#pragma endregion
+							"Attempt to add component {} by {} to an archetype|{}| entity with id {} "
+							"that can't contain this component", 
+							ComponentType::GetName(), 
+							callerSystemName, 
+							archetypeComponentsFilter.GetComponentsList(),
+							entityId.GetRawValue());
+						
 						auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
 						std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponentsIt->second;
 						archetypeComponents->CreateComponent<ComponentType>(entityId, unpackedArgs...);
 					}
 					else {
 
-#pragma region Assert
 						ASSERT_FMSG(
 							!dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
 							"Attempt to add component by system \"{}\" to the entity that was already added.", callerSystemName);
-#pragma endregion
 
 						auto container = Common::pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
 						if (container == nullptr) {
@@ -438,7 +445,9 @@ namespace ECS2 {
 		}
 
 		[[nodiscard]]
+		//For archetypes returns existing entity components not archetype components.
 		ComponentsFilter GetEntityComponentsFilter(Entity::Id entityId) noexcept {
+			//TODO: optimize double map access.
 			if (archetypeEntitiesComponents_.contains(entityId))
 			{
 				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
@@ -451,6 +460,14 @@ namespace ECS2 {
 			}
 			ASSERT_FAIL_MSG("Entity with such id is doesnt exist.");
 			return ComponentsFilter{};
+		}
+
+		[[nodiscard]]
+		ComponentsFilter GetArchetypeComponents(Entity::Id entityId) noexcept {
+			ASSERT_MSG(GetEntityType(entityId) == ECS2::Entity::Type::Archetype,
+				"Attempt to get archetype components for not archetype entity.");
+
+			return archetypeEntitiesComponents_[entityId];
 		}
 
 

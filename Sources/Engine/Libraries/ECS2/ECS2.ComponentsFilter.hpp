@@ -25,18 +25,28 @@ namespace ECS2 {
 
 		ComponentsFilter() { }
 
-		ComponentsFilter(const ComponentsFilter& copyComponentsFilter) 
-			: filter_{ copyComponentsFilter.filter_ } { }
+		ComponentsFilter(const ComponentsFilter& copyComponentsFilter)
+			: 
+#ifdef ENABLE_ECS_DEBUG
+			componentNames_{ copyComponentsFilter.componentNames_ },
+#endif
+			filter_{ copyComponentsFilter.filter_ } { }
 
-		ComponentsFilter(ComponentsFilter&& moveComponentsFilter)
-			: filter_{ std::move(moveComponentsFilter.filter_) } { }
+		ComponentsFilter(ComponentsFilter&& moveComponentsFilter) noexcept
+			:
+#ifdef ENABLE_ECS_DEBUG
+			componentNames_{std::move(moveComponentsFilter.componentNames_)},
+#endif
+			filter_ { std::move(moveComponentsFilter.filter_) } { }
 
 		ComponentsFilter& operator=(const ComponentsFilter& copyComponentsFilter) {
 
 			if (&copyComponentsFilter == this) {
 				return *this;
 			}
-
+#ifdef ENABLE_ECS_DEBUG
+			componentNames_ = copyComponentsFilter.componentNames_;
+#endif
 			filter_ = copyComponentsFilter.filter_;
 
 			return *this;
@@ -47,7 +57,9 @@ namespace ECS2 {
 			if (&moveComponentsFilter == this) {
 				return *this;
 			}
-
+#ifdef ENABLE_ECS_DEBUG
+			componentNames_ = std::move(moveComponentsFilter.componentNames_);
+#endif
 			filter_ = std::move(moveComponentsFilter.filter_);
 
 			return *this;
@@ -64,9 +76,7 @@ namespace ECS2 {
 			(filter_.set(ComponentType::GetTypeId()), ...);
 
 #ifdef ENABLE_ECS_DEBUG
-			if constexpr (Common::IsDebug()) {
-				(componentNames_.push_back(std::string{ ComponentType::GetName() }), ...);
-			}
+			(componentNames_.push_back(std::string{ ComponentType::GetName() }), ...);
 #endif
 			return *this;
 		}
@@ -77,15 +87,13 @@ namespace ECS2 {
 			(filter_.reset(ComponentType::GetTypeId()), ...);
 
 #ifdef ENABLE_ECS_DEBUG
-			if constexpr (Common::IsDebug()) {
-				([&] {
-					std::string name = ComponentType::GetName();
-					componentNames_.erase(
-						std::remove(componentNames_.begin(), componentNames_.end(), name),
-						componentNames_.end()
-					);
-					}(), ...);
-			}
+			([&] {
+				std::string name = ComponentType::GetName();
+				componentNames_.erase(
+					std::remove(componentNames_.begin(), componentNames_.end(), name),
+					componentNames_.end()
+				);
+				}(), ...);
 #endif
 
 		}
@@ -97,7 +105,7 @@ namespace ECS2 {
 			std::string componentsList;
 
 			for (auto componentName : componentNames_) {
-				componentsList += componentsList + " ";
+				componentsList += componentName + " ";
 			}
 			return componentsList;
 		}
