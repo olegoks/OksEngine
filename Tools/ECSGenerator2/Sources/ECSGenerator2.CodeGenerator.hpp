@@ -284,6 +284,13 @@ namespace ECSGenerator2 {
 
 			if (fileStructure->createInfo_.isFormat_) {
 				clang::format::FormatStyle style = clang::format::getMicrosoftStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);
+				{
+					style.AlignEscapedNewlines = clang::format::FormatStyle::EscapedNewlineAlignmentStyle::ENAS_DontAlign;
+					//style.MacroBlockBegin
+					//style.AlignConsecutiveMacros 
+					//style.ColumnLimit
+				}
+
 				llvm::StringRef codeToFormat = code.code_.c_str();  // ������ ������ ����
 
 				// ���������� �������� ��� ����� ����

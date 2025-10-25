@@ -86,6 +86,26 @@ namespace ECSGenerator2 {
 		}
 
 		[[nodiscard]]
+		//Get archetype name with namespace:
+		//Render__Model__Data__Model_Node
+		//Where: 
+		// Render::Model::Data - namespace
+		// ModelNode - archetypeName
+		std::string GetFullName() {
+			std::string archetypeName; /*= archetype->ci_.name_;*/
+
+			std::vector<std::string> namespaceStrings = GetNamespace();
+			for (std::string namespaceString : namespaceStrings) {
+				archetypeName += namespaceString + "__";
+			}
+
+			archetypeName += GetName();
+
+			return archetypeName;
+
+		}
+
+		[[nodiscard]]
 		std::string GetLowerName() {
 			return std::string{ static_cast<char>(std::tolower(GetName()[0])) } + GetName().substr(1);
 		}

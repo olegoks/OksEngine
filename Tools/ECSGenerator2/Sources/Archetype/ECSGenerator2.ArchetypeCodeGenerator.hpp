@@ -46,9 +46,10 @@ namespace ECSGenerator2 {
 				Common::BreakPointLine();
 			}
 
-			std::string archetypeName = archetype->ci_.name_;
+			code.Add("// clang-format off\n");
+			std::string archetypeFullName = archetype->GetFullName();
 
-			std::transform(archetypeName.begin(), archetypeName.end(), archetypeName.begin(),
+			std::transform(archetypeFullName.begin(), archetypeFullName.end(), archetypeFullName.begin(),
 				[](unsigned char c) { return std::toupper(c); });
 
 			std::string archetypeComponentsFilterComponentsList;
@@ -58,39 +59,39 @@ namespace ECSGenerator2 {
 				defineComponentsList += component.ptr_->GetFullName();
 				archetypeComponentsFilterComponentsList += component.ptr_->GetFullName();
 				if (!isLast || !archetype->ci_.archetypes_.empty()) {
-					defineComponentsList += ", ";
+					defineComponentsList += ",\\\n";
 					archetypeComponentsFilterComponentsList += ", ";
 				}
 				});
 
 			archetype->ForEachRefArchetype([&](ParsedArchetype::ChildArchetype& refArchetype, bool isLastArchetype) {
 
-				std::string refArchetypeName = refArchetype.ptr_->GetName();
+				std::string refArchetypeName = Common::pointer_cast<ParsedArchetype>(refArchetype.ptr_)->GetFullName();
 
 				std::transform(refArchetypeName.begin(), refArchetypeName.end(), refArchetypeName.begin(),
 					[](unsigned char c) { return std::toupper(c); });
 
 				defineComponentsList += refArchetypeName;
 				if (!isLastArchetype) {
-					defineComponentsList += ", ";
+					defineComponentsList += ",\\\n";
 				}
 
 				Common::pointer_cast<ParsedArchetype>(refArchetype.ptr_)->ForEachComponent(
 					[&](ParsedArchetype::Component& component, bool isLastComponent) {
-					
+
 						archetypeComponentsFilterComponentsList += component.ptr_->GetFullName();
 						if (!isLastArchetype || !isLastComponent) {
 							archetypeComponentsFilterComponentsList += ", ";
 						}
-					
+
 					});
 
 				});
 
-			code.Add("#define {} {}\n", archetypeName, defineComponentsList);
-
+			code.Add("#define {} {}\n", archetypeFullName, defineComponentsList);
+			code.Add("// clang-format on\n");
 			code.Add(
-				"\nstatic const ::ECS2::ComponentsFilter {}ArchetypeComponentsFilter{{::ECS2::ComponentsFilter{{}}.SetBits<{}>()}};", 
+				"\nstatic const ::ECS2::ComponentsFilter {}ArchetypeComponentsFilter{{::ECS2::ComponentsFilter{{}}.SetBits<{}>()}};",
 				archetype->GetName(), archetypeComponentsFilterComponentsList);
 
 
