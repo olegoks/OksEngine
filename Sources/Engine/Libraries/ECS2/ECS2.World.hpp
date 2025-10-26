@@ -576,10 +576,12 @@ namespace ECS2 {
 		}
 
 		void ApplyDelayedRequests() {
+			BEGIN_PROFILE("ECS2::World ApplyingDelayedRequests");
 			for (auto& addition : requests_) {
 				addition();
 			}
 			requests_.clear();
+			END_PROFILE();
 		}
 	private:
 

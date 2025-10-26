@@ -27,23 +27,11 @@ namespace ECSGenerator2 {
 			context.LoadScript(script);
 			luabridge::LuaRef ecsFile = luabridge::getGlobal(context.state_, "_G");
 
-			if (ecsFilePath.filename() == "OksEngine.Model.Animation.ecs") {
+			if (ecsFilePath.filename() == "OksEngine.Render.ecs") {
 				Common::BreakPointLine();
 			}
 
-			//Get all global tables in the script.
-			//TODO: 
-			std::vector<std::string> tableNames;
-			{
-				for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
-					luabridge::LuaRef key = it.key();
-					luabridge::LuaRef value = it.value();
 
-					if (value.isTable() && key.isString()) {
-						tableNames.push_back(key.tostring());
-					}
-				}
-			}
 
 			std::vector<std::string> abstractionsOrder;
 			// Get ECS abstraction order from .lua script source.
@@ -203,6 +191,10 @@ namespace ECSGenerator2 {
 						if (name.ends_with("Namespace")) {
 							const std::string namespaceName = name.substr(0, name.rfind("Namespace"));
 
+							if (namespaceName == "Render") {
+								Common::BreakPointLine();
+							}
+
 							std::vector<std::shared_ptr<ParsedTable>> parsedNamespaceTables;
 
 							for (auto it = luabridge::Iterator(table); !it.isNil(); ++it) {
@@ -281,12 +273,35 @@ namespace ECSGenerator2 {
 						return nullptr;
 				};
 
-			for (const std::string& globalName : tableNames) {
-				if (globalName == "BehaviourComponent") {
+			//Get all global tables in the script.
+			std::vector<std::string> tableNames;
+			{
+				for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
+					luabridge::LuaRef key = it.key();
+					luabridge::LuaRef value = it.value();
+
+					if (value.isTable() && key.isString()) {
+						tableNames.push_back(key.tostring());
+					}
+				}
+			}
+
+			for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
+
+				luabridge::LuaRef key = it.key();
+				luabridge::LuaRef value = it.value();
+
+				if (key.tostring() == "RenderDriverComponent") {
 					Common::BreakPointLine();
 				}
-				luabridge::LuaRef table = ecsFile[globalName];
-				auto parsedTable = processTable(globalName, table);
+
+				if (!value.isTable() || !key.isString()) {
+					continue;
+				}
+
+
+				luabridge::LuaRef table = key;
+				auto parsedTable = processTable(key.tostring(), ecsFile[key.tostring()]);
 
 				//Separate namespace tables:
 				//namespace {

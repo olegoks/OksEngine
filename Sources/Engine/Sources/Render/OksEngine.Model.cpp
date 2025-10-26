@@ -539,8 +539,8 @@ namespace OksEngine
 			const ModelFile* modelFile3,
 
 			ECS2::Entity::Id entity4id,
-			const Render::Model::Data::DataController* render__Model__Data__DataController4,
-			Render::Model::Data::ModelNameToDataEntityId* render__Model__Data__ModelNameToDataEntityId4) {
+			const Render::Model::DataController* render__Model__Data__DataController4,
+			Render::Model::ModelNameToModelDataEntityId* render__Model__Data__ModelNameToDataEntityId4) {
 
 			const ECS2::Entity::Id modelEntityId = entity3id;
 
@@ -698,23 +698,26 @@ namespace OksEngine
 
 					ECS2::Entity::Id nodeEntityId = ECS2::Entity::Id::invalid_;
 
-					if (!isNodeBone && !isAnimatedNode) {
-						nodeEntityId = CreateEntity<NODE>();
+					nodeEntityId = CreateEntity<RENDER__MODEL__NODE>();
 
-						nodesNumber++;
-					}
-					//else if (isNodeBone && !isAnimatedNode) {
-					//	nodeEntityId = CreateEntity<NODE_BONE>();
-					//	nodeBonesNumber++;
+					//if (!isNodeBone && !isAnimatedNode) {
+					//	nodeEntityId = CreateEntity<NODE>();
+
+					//	nodesNumber++;
 					//}
-					else if (!isNodeBone && isAnimatedNode) {
-						nodeEntityId = CreateEntity<NODE_ANIMATED>();
-						nodesAnimatedNumber++;
-					}
-					else if (isNodeBone/* && isAnimatedNode*/) {
-						nodeEntityId = CreateEntity<NODE_BONE_ANIMATED>();
-						nodeBonesAnimatedNumber++;
-					}
+					////else if (isNodeBone && !isAnimatedNode) {
+					////	nodeEntityId = CreateEntity<NODE_BONE>();
+					////	nodeBonesNumber++;
+					////}
+					//else if (!isNodeBone && isAnimatedNode) {
+					//	nodeEntityId = CreateEntity<NODE>();
+					//	nodesAnimatedNumber++;
+					//}
+					//else if (isNodeBone/* && isAnimatedNode*/) {
+					//	nodeEntityId = CreateEntity<NODE_BONE>();
+					//	nodeBonesAnimatedNumber++;
+					//}
+
 					foundNodesEntityIds.push_back(nodeEntityId);
 					nodeToEntityId[node] = nodeEntityId;
 
@@ -747,14 +750,16 @@ namespace OksEngine
 
 			//Try to find model data.
 			{
-				ASSERT_MSG(!IsComponentExist<Render::Model::Data::DataEntityId>(modelEntityId),
+				ASSERT_MSG(!IsComponentExist<Render::Model::ModelDataEntityId>(modelEntityId),
 					"ModelDataEntityId cant exist in the creating model step.");
 
-				auto modelDataIt = render__Model__Data__ModelNameToDataEntityId4->modelNameToDataEntityId_.find(modelFile3->fileName_);
-				if (modelDataIt == render__Model__Data__ModelNameToDataEntityId4->modelNameToDataEntityId_.end()) {
+				auto modelDataIt = render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_.find(modelFile3->fileName_);
+				if (modelDataIt == render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_.end()) {
 					//Controller doesnt contain model data.
 
 					ECS2::Entity::Id modelDataEntityId = CreateEntity();
+
+					CreateComponent<Name>(modelDataEntityId, "ModelData");
 
 					std::map<const aiNode*, ECS2::Entity::Id> dataNodeToEntityId;
 					decltype(ModelNodeEntityIds::nodeEntityIds_) dataNodeEntityIds;
@@ -768,19 +773,7 @@ namespace OksEngine
 
 						ECS2::Entity::Id nodeEntityId = ECS2::Entity::Id::invalid_;
 
-						if (!isNodeBone && !isAnimatedNode) {
-							nodeEntityId = CreateEntity<NODE>();
-						}
-						//else if (isNodeBone && !isAnimatedNode) {
-						//	nodeEntityId = CreateEntity<NODE_BONE>();
-						//	nodeBonesNumber++;
-						//}
-						else if (!isNodeBone && isAnimatedNode) {
-							nodeEntityId = CreateEntity<NODE_ANIMATED>();
-						}
-						else if (isNodeBone/* && isAnimatedNode*/) {
-							nodeEntityId = CreateEntity<NODE_BONE_ANIMATED>();
-						}
+						nodeEntityId = CreateEntity<RENDER__MODEL__NODE_DATA>();
 						foundDataNodesEntityIds.push_back(nodeEntityId);
 						dataNodeToEntityId[node] = nodeEntityId;
 
@@ -801,7 +794,7 @@ namespace OksEngine
 
 					CreateComponent<ModelNodeEntityIds>(modelDataEntityId, dataNodeEntityIds);
 
-					
+
 
 					auto createDataNodesHierarchy = [&]() {
 
@@ -823,7 +816,7 @@ namespace OksEngine
 							return transform;
 							};
 
-						auto createDataNodeComponents = [&](const aiScene* scene, const aiNode* node, ECS2::Entity::Id nodeEntityId) {
+						auto createDataNodeComponents = [&](const aiScene* scene, const aiNode* node, ECS2::Entity::Id dataNodeEntityId) {
 
 							aiVector3D position3D;
 							aiQuaternion rotation3D;
@@ -1172,8 +1165,8 @@ namespace OksEngine
 								const aiBone* bone = nameToBone[node->mName.C_Str()];
 								glm::mat4 transform = aiMatrixToGlmMatrix(bone->mOffsetMatrix);
 
-								CreateComponent<BoneInverseBindPoseMatrix>(nodeEntityId, transform);
-								CreateComponent<BoneNode>(nodeEntityId);
+								CreateComponent<BoneInverseBindPoseMatrix>(dataNodeEntityId, transform);
+								CreateComponent<BoneNode>(dataNodeEntityId);
 
 							}
 
@@ -1182,9 +1175,12 @@ namespace OksEngine
 						std::function<void(const aiScene*, const aiNode*)> processChildrenDataNode = [&](const aiScene* scene, const aiNode* node) {
 
 							const ECS2::Entity::Id dataNodeEntityId = dataNodeToEntityId[node];
-
+							const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
 
 							CreateComponent<ModelNode>(dataNodeEntityId);
+
+							//Model node -> model data node.
+							CreateComponent<Render::Model::ModelNodeDataEntityId>(nodeEntityId, dataNodeEntityId);
 
 							auto getNodeFullName = [&]() {
 								std::string nodeName;
@@ -1203,11 +1199,9 @@ namespace OksEngine
 								};
 
 							CreateComponent<Name>(dataNodeEntityId, getNodeFullName());
-							CreateComponent<Render::Model::Data::DataEntityId>(dataNodeEntityId, modelEntityId);
+							CreateComponent<Render::Model::ModelDataEntityId>(dataNodeEntityId, modelEntityId);
 
-#pragma region Assert
 							ASSERT_FMSG(dataNodeEntityId.IsValid(), "");
-#pragma endregion
 
 							createDataNodeComponents(scene, node, dataNodeEntityId);
 
@@ -1216,9 +1210,7 @@ namespace OksEngine
 								const aiNode* childrenNode = node->mChildren[i];
 								processChildrenDataNode(scene, childrenNode);
 								const ECS2::Entity::Id childDataNodeEntityId = dataNodeToEntityId[childrenNode];
-#pragma region Assert
 								ASSERT_FMSG(childDataNodeEntityId.IsValid(), "");
-#pragma endregion
 								childNodeEntityIds.push_back(childDataNodeEntityId);
 							}
 
@@ -1255,12 +1247,35 @@ namespace OksEngine
 
 					createDataNodesHierarchy();
 
-					render__Model__Data__ModelNameToDataEntityId4->modelNameToDataEntityId_[modelFile3->fileName_] = modelDataEntityId;
+					render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_[modelFile3->fileName_] = modelDataEntityId;
+
+
+					CreateComponent<Render::Model::ModelDataEntityId>(
+						modelEntityId,
+						render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_[modelFile3->fileName_]);
+				}
+				else {
+					//Model data exists.
+
+					const ECS2::Entity::Id modelDataEntityId = render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_[modelFile3->fileName_];
+
+					const auto* dataModelNodeEntityIds = world_->GetComponent<ModelNodeEntityIds>(modelDataEntityId);
+
+					for (Common::Index i = 0; i < nodeEntityIds.max_size(); i++) {
+						const ECS2::Entity::Id modelNodeEntityId = nodeEntityIds[i];
+						if (modelNodeEntityId.IsValid()) {
+							const ECS2::Entity::Id dataModelNodeEntityId = dataModelNodeEntityIds->nodeEntityIds_[i];
+							CreateComponent<Render::Model::ModelNodeDataEntityId>(modelNodeEntityId, dataModelNodeEntityId);
+						}
+					}
+
+
+					//For each ai node
+					for (auto [node, modelNodeEntityId] : nodeToEntityId) {
+
+					}
 				}
 
-				CreateComponent<Render::Model::Data::DataEntityId>(
-					modelEntityId,
-					render__Model__Data__ModelNameToDataEntityId4->modelNameToDataEntityId_[modelFile3->fileName_]);
 
 			}
 
@@ -1296,342 +1311,342 @@ namespace OksEngine
 					aiMatrix4x4 flipYtoZ;
 					node->mTransformation.Decompose(scale3D, rotation3D, position3D);
 
-					auto createNodeAnimationChannel = [&](const aiNode* node, const aiScene* scene) {
-
-						{
-
-
-							decltype(Animation::Model::Node::Animations::animations_) animationChannels;
-							Common::Size nodeAnimationsNumber = 0;
-							const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
-							//ASSERT_MSG(scene->mNumAnimations % animationChannels.max_size() , "Unsupported number of animations per model.");
-							for (Common::Index i = 0; i < std::clamp((size_t)scene->mNumAnimations, (size_t)0, animationChannels.max_size()); i++) {
-								aiAnimation* animation = scene->mAnimations[i];
-
-								for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
-									aiNodeAnim* nodeAnim = animation->mChannels[channelIndex];
-									if (nodeAnim->mNodeName == node->mName) {
-										++nodeAnimationsNumber;
-										ASSERT_MSG(nodeAnimationsNumber <= animationChannels.max_size(), "Unsupported number of animations per mode node.");
-										Animation::Model::Node::Animation modelNodeAnimation;
-
-										STATIC_ASSERT_MSG(modelNodeAnimation.position3DKeys_.keys_.max_size() > 2, "");
-										STATIC_ASSERT_MSG(modelNodeAnimation.rotationKeys_.keys_.max_size() > 2, "");
-										STATIC_ASSERT_MSG(modelNodeAnimation.scale3DKeys_.keys_.max_size() > 2, "");
-
-										{	//Position keys
-											//avoid not important keys.
-											if (nodeAnim->mNumPositionKeys > modelNodeAnimation.position3DKeys_.keys_.max_size()) {
-												auto calculateKeyImportance = [](
-													aiVectorKey previous,
-													aiVectorKey current,
-													aiVectorKey next) {
-
-														const glm::vec3 previousValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
-														const glm::vec3 currentValue{ current.mValue.x, current.mValue.y, current.mValue.z };
-														const glm::vec3 nextValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
-
-														const glm::vec3 middleValue = glm::mix(previousValue, nextValue, 0.5);
-
-														const float distance = glm::distance(middleValue, currentValue);
-
-														const float distanceFactor = std::abs(1.0 / distance);
-														const float timeFactor = 1.0f / (next.mTime - previous.mTime);
-
-														return distanceFactor * timeFactor;
-
-													};
-
-												std::vector<std::pair<Common::Index, float>> keyIndexImportance;
-
-												//Calculte importance for keys except first and last.
-												for (Common::Index positionKeyIndex = 1; positionKeyIndex < nodeAnim->mNumPositionKeys - 1; positionKeyIndex++) {
-													keyIndexImportance.push_back({ positionKeyIndex , calculateKeyImportance(
-														nodeAnim->mPositionKeys[positionKeyIndex - 1],
-														nodeAnim->mPositionKeys[positionKeyIndex],
-														nodeAnim->mPositionKeys[positionKeyIndex + 1]
-													) });
-												}
-
-												//Sort by importance.
-
-												std::ranges::sort(keyIndexImportance,
-													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-														return first.second > second.second;
-													});
-
-												keyIndexImportance.resize(modelNodeAnimation.position3DKeys_.keys_.max_size() - 2); // minus first and last
-
-												//Sort by index
-												std::ranges::sort(keyIndexImportance,
-													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-														return first.first < second.first;
-													});
-
-												//Set first.
-												aiVectorKey firstPositionKey = nodeAnim->mPositionKeys[0];
-												modelNodeAnimation.position3DKeys_.keys_[0] = {
-													static_cast<float>(firstPositionKey.mTime),
-													firstPositionKey.mValue.x, firstPositionKey.mValue.y, firstPositionKey.mValue.z };
-
-												for (Common::Index resultPositionKeyIndex = 1; resultPositionKeyIndex < modelNodeAnimation.position3DKeys_.keys_.max_size() - 1; resultPositionKeyIndex++) {
-
-													Common::Index positionKeyIndex = keyIndexImportance[resultPositionKeyIndex - 1].first;
-
-													aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
-
-													modelNodeAnimation.position3DKeys_.keys_[resultPositionKeyIndex] = {
-														static_cast<float>(positionKey.mTime),
-														positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z };
-												}
-
-												//Set last.
-												aiVectorKey lastPositionKey = nodeAnim->mPositionKeys[nodeAnim->mNumPositionKeys - 1];
-												modelNodeAnimation.position3DKeys_.keys_[modelNodeAnimation.position3DKeys_.keys_.max_size() - 1] = {
-													static_cast<float>(lastPositionKey.mTime),
-													lastPositionKey.mValue.x, lastPositionKey.mValue.y, lastPositionKey.mValue.z };
-
-											}
-											else {
-												//Fill with last position key.	
-												aiVectorKey lastPositionKey = nodeAnim->mPositionKeys[nodeAnim->mNumPositionKeys - 1];
-												modelNodeAnimation.position3DKeys_.keys_.fill(
-													{
-														static_cast<float>(lastPositionKey.mTime),
-														lastPositionKey.mValue.x,
-														lastPositionKey.mValue.y,
-														lastPositionKey.mValue.z
-													});
-
-												for (Common::Index positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
-													aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
-													modelNodeAnimation.position3DKeys_.keys_[positionKeyIndex] = {
-														static_cast<float>(positionKey.mTime),
-														positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z };
-												}
-											}
-										}
-										{//Rotation keys
-											//fill empty keys with last key
-
-											if (nodeAnim->mNumRotationKeys > modelNodeAnimation.rotationKeys_.keys_.max_size()) {
-
-												auto calculateRotationImportanceByAxis = [](
-													aiQuatKey prevKey,
-													aiQuatKey currentKey,
-													aiQuatKey nextKey) {
-
-														// 1. Извлекаем оси вращения для каждого интервала
-														aiQuaternion delta1 = currentKey.mValue * prevKey.mValue.Conjugate();
-														aiQuaternion delta2 = nextKey.mValue * currentKey.mValue.Conjugate();
-
-														// Нормализуем для извлечения осей
-														delta1.Normalize();
-														delta2.Normalize();
-
-														// 2. Оси вращения (vector part)
-														aiVector3D axis1(delta1.x, delta1.y, delta1.z);
-														aiVector3D axis2(delta2.x, delta2.y, delta2.z);
-
-														// 3. Углы вращения
-														float angle1 = 2.0f * std::acos(std::abs(delta1.w));
-														float angle2 = 2.0f * std::acos(std::abs(delta2.w));
-
-														// 4. Изменение оси вращения (dot product осей)
-														float axisChange = 0.0f;
-														if (axis1.Length() > 0.001f && axis2.Length() > 0.001f) {
-															axis1.Normalize();
-															axis2.Normalize();
-															float dot = axis1 * axis2; // dot product
-															axisChange = 1.0f - std::abs(dot); // 0 = одинаковые оси, 1 = перпендикулярные
-														}
-
-														// 5. Изменение угловой скорости
-														float time1 = currentKey.mTime - prevKey.mTime;
-														float time2 = nextKey.mTime - currentKey.mTime;
-														float velocity1 = (time1 > 0.0f) ? angle1 / time1 : 0.0f;
-														float velocity2 = (time2 > 0.0f) ? angle2 / time2 : 0.0f;
-														float velocityChange = std::abs(velocity2 - velocity1);
-
-														return axisChange * 0.6f + velocityChange * 0.4f;
-													};
-
-
-												std::vector<std::pair<Common::Index, float>> keyIndexImportance;
-
-												//Calculte importance for keys except first and last.
-												for (Common::Index rotationKeyIndex = 1; rotationKeyIndex < nodeAnim->mNumRotationKeys - 1; rotationKeyIndex++) {
-													keyIndexImportance.push_back({ rotationKeyIndex , calculateRotationImportanceByAxis(
-														nodeAnim->mRotationKeys[rotationKeyIndex - 1],
-														nodeAnim->mRotationKeys[rotationKeyIndex],
-														nodeAnim->mRotationKeys[rotationKeyIndex + 1]
-													) });
-												}
-
-												//Sort by importance.
-
-												std::ranges::sort(keyIndexImportance,
-													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-														return first.second > second.second;
-													});
-
-												keyIndexImportance.resize(modelNodeAnimation.rotationKeys_.keys_.max_size() - 2); // minus first and last
-
-												//Sort by index
-												std::ranges::sort(keyIndexImportance,
-													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-														return first.first < second.first;
-													});
-
-												//Set first.
-												aiQuatKey firstRotationKey = nodeAnim->mRotationKeys[0];
-												modelNodeAnimation.rotationKeys_.keys_[0] = {
-													static_cast<float>(firstRotationKey.mTime),
-													firstRotationKey.mValue.w, firstRotationKey.mValue.x, firstRotationKey.mValue.y, firstRotationKey.mValue.z };
-
-												for (Common::Index resultRotationKeyIndex = 1; resultRotationKeyIndex < modelNodeAnimation.rotationKeys_.keys_.max_size() - 1; resultRotationKeyIndex++) {
-
-													Common::Index rotationKeyIndex = keyIndexImportance[resultRotationKeyIndex - 1].first;
-
-													aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
-
-													modelNodeAnimation.rotationKeys_.keys_[resultRotationKeyIndex] = {
-														static_cast<float>(rotationKey.mTime),
-														rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z };
-												}
-
-												//Set last.
-												aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
-												modelNodeAnimation.rotationKeys_.keys_[modelNodeAnimation.rotationKeys_.keys_.max_size() - 1] = {
-													static_cast<float>(lastRotationKey.mTime),
-													lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z };
-
-
-											}
-											else {
-												aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
-												modelNodeAnimation.rotationKeys_.keys_.fill({
-														static_cast<float>(lastRotationKey.mTime),
-														lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z });
-
-												for (Common::Index rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
-													aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
-													modelNodeAnimation.rotationKeys_.keys_[rotationKeyIndex] = {
-														static_cast<float>(rotationKey.mTime),
-														rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z };
-												}
-											}
-										}
-										{ // Scake keys
-											//fill empty keys with last key
-											if (nodeAnim->mNumScalingKeys > modelNodeAnimation.scale3DKeys_.keys_.max_size()) {
-												auto calculateKeyImportance = [](
-													aiVectorKey previous,
-													aiVectorKey current,
-													aiVectorKey next) {
-
-														const glm::vec3 previousValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
-														const glm::vec3 currentValue{ current.mValue.x, current.mValue.y, current.mValue.z };
-														const glm::vec3 nextValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
-
-														const glm::vec3 middleValue = glm::mix(previousValue, nextValue, 0.5);
-
-														const float distance = glm::distance(middleValue, currentValue);
-
-														const float distanceFactor = std::abs(1.0 / distance);
-														const float timeFactor = 1.0f / (next.mTime - previous.mTime);
-
-														return distanceFactor * timeFactor;
-
-													};
-
-												std::vector<std::pair<Common::Index, float>> keyIndexImportance;
-
-												//Calculte importance for keys except first and last.
-												for (Common::Index scaleKeyIndex = 1; scaleKeyIndex < nodeAnim->mNumScalingKeys - 1; scaleKeyIndex++) {
-													keyIndexImportance.push_back({ scaleKeyIndex , calculateKeyImportance(
-														nodeAnim->mScalingKeys[scaleKeyIndex - 1],
-														nodeAnim->mScalingKeys[scaleKeyIndex],
-														nodeAnim->mScalingKeys[scaleKeyIndex + 1]
-													) });
-												}
-
-												//Sort by importance.
-
-												std::ranges::sort(keyIndexImportance,
-													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-														return first.second > second.second;
-													});
-
-												keyIndexImportance.resize(modelNodeAnimation.scale3DKeys_.keys_.max_size() - 2); // minus first and last
-
-												//Sort by index
-												std::ranges::sort(keyIndexImportance,
-													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-														return first.first < second.first;
-													});
-
-												//Set first.
-												aiVectorKey firstScaleKey = nodeAnim->mScalingKeys[0];
-												modelNodeAnimation.scale3DKeys_.keys_[0] = {
-													static_cast<float>(firstScaleKey.mTime),
-													firstScaleKey.mValue.x, firstScaleKey.mValue.y, firstScaleKey.mValue.z };
-
-												for (Common::Index resultScaleKeyIndex = 1; resultScaleKeyIndex < modelNodeAnimation.scale3DKeys_.keys_.max_size() - 1; resultScaleKeyIndex++) {
-
-													Common::Index scaleKeyIndex = keyIndexImportance[resultScaleKeyIndex - 1].first;
-
-													aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
-
-													modelNodeAnimation.scale3DKeys_.keys_[resultScaleKeyIndex] = {
-														static_cast<float>(scaleKey.mTime),
-														scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z };
-												}
-
-												//Set last.
-												aiVectorKey lastScaleKey = nodeAnim->mScalingKeys[nodeAnim->mNumScalingKeys - 1];
-												modelNodeAnimation.scale3DKeys_.keys_[modelNodeAnimation.scale3DKeys_.keys_.max_size() - 1] = {
-													static_cast<float>(lastScaleKey.mTime),
-													lastScaleKey.mValue.x, lastScaleKey.mValue.y, lastScaleKey.mValue.z };
-											}
-											else {
-												aiVectorKey lastScaleKey = nodeAnim->mScalingKeys[nodeAnim->mNumScalingKeys - 1];
-												for (Common::Index scaleKeyIndex = nodeAnim->mNumScalingKeys; scaleKeyIndex < modelNodeAnimation.scale3DKeys_.keys_.max_size(); scaleKeyIndex++) {
-
-													modelNodeAnimation.scale3DKeys_.keys_[scaleKeyIndex] = {
-														static_cast<float>(lastScaleKey.mTime),
-														lastScaleKey.mValue.x, lastScaleKey.mValue.y, lastScaleKey.mValue.z };
-												}
-												for (Common::Index scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumScalingKeys; scaleKeyIndex++) {
-													aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
-													modelNodeAnimation.scale3DKeys_.keys_[scaleKeyIndex] = {
-														static_cast<float>(scaleKey.mTime),
-														scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z };
-												}
-											}
-										}
-										if (
-											nodeAnim->mNumPositionKeys > 0 ||
-											nodeAnim->mNumRotationKeys > 0 ||
-											nodeAnim->mNumScalingKeys > 0) {
-
-											animationChannels[i] = modelNodeAnimation;
-										}
-									}
-								}
-							}
-							if (nodeAnimationsNumber > 0) {
-								CreateComponent<Animation::Model::Node::Animations>(nodeEntityId, animationChannels);
-							}
-						}
-						};
-
-
-
-					//Parse animations.
-					if (scene->HasAnimations()) {
-						createNodeAnimationChannel(node, scene);
-					}
+					//auto createNodeAnimationChannel = [&](const aiNode* node, const aiScene* scene) {
+
+					//	{
+
+
+					//		decltype(Animation::Model::Node::Animations::animations_) animationChannels;
+					//		Common::Size nodeAnimationsNumber = 0;
+					//		const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
+					//		//ASSERT_MSG(scene->mNumAnimations % animationChannels.max_size() , "Unsupported number of animations per model.");
+					//		for (Common::Index i = 0; i < std::clamp((size_t)scene->mNumAnimations, (size_t)0, animationChannels.max_size()); i++) {
+					//			aiAnimation* animation = scene->mAnimations[i];
+
+					//			for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
+					//				aiNodeAnim* nodeAnim = animation->mChannels[channelIndex];
+					//				if (nodeAnim->mNodeName == node->mName) {
+					//					++nodeAnimationsNumber;
+					//					ASSERT_MSG(nodeAnimationsNumber <= animationChannels.max_size(), "Unsupported number of animations per mode node.");
+					//					Animation::Model::Node::Animation modelNodeAnimation;
+
+					//					STATIC_ASSERT_MSG(modelNodeAnimation.position3DKeys_.keys_.max_size() > 2, "");
+					//					STATIC_ASSERT_MSG(modelNodeAnimation.rotationKeys_.keys_.max_size() > 2, "");
+					//					STATIC_ASSERT_MSG(modelNodeAnimation.scale3DKeys_.keys_.max_size() > 2, "");
+
+					//					{	//Position keys
+					//						//avoid not important keys.
+					//						if (nodeAnim->mNumPositionKeys > modelNodeAnimation.position3DKeys_.keys_.max_size()) {
+					//							auto calculateKeyImportance = [](
+					//								aiVectorKey previous,
+					//								aiVectorKey current,
+					//								aiVectorKey next) {
+
+					//									const glm::vec3 previousValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
+					//									const glm::vec3 currentValue{ current.mValue.x, current.mValue.y, current.mValue.z };
+					//									const glm::vec3 nextValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
+
+					//									const glm::vec3 middleValue = glm::mix(previousValue, nextValue, 0.5);
+
+					//									const float distance = glm::distance(middleValue, currentValue);
+
+					//									const float distanceFactor = std::abs(1.0 / distance);
+					//									const float timeFactor = 1.0f / (next.mTime - previous.mTime);
+
+					//									return distanceFactor * timeFactor;
+
+					//								};
+
+					//							std::vector<std::pair<Common::Index, float>> keyIndexImportance;
+
+					//							//Calculte importance for keys except first and last.
+					//							for (Common::Index positionKeyIndex = 1; positionKeyIndex < nodeAnim->mNumPositionKeys - 1; positionKeyIndex++) {
+					//								keyIndexImportance.push_back({ positionKeyIndex , calculateKeyImportance(
+					//									nodeAnim->mPositionKeys[positionKeyIndex - 1],
+					//									nodeAnim->mPositionKeys[positionKeyIndex],
+					//									nodeAnim->mPositionKeys[positionKeyIndex + 1]
+					//								) });
+					//							}
+
+					//							//Sort by importance.
+
+					//							std::ranges::sort(keyIndexImportance,
+					//								[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+					//									return first.second > second.second;
+					//								});
+
+					//							keyIndexImportance.resize(modelNodeAnimation.position3DKeys_.keys_.max_size() - 2); // minus first and last
+
+					//							//Sort by index
+					//							std::ranges::sort(keyIndexImportance,
+					//								[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+					//									return first.first < second.first;
+					//								});
+
+					//							//Set first.
+					//							aiVectorKey firstPositionKey = nodeAnim->mPositionKeys[0];
+					//							modelNodeAnimation.position3DKeys_.keys_[0] = {
+					//								static_cast<float>(firstPositionKey.mTime),
+					//								firstPositionKey.mValue.x, firstPositionKey.mValue.y, firstPositionKey.mValue.z };
+
+					//							for (Common::Index resultPositionKeyIndex = 1; resultPositionKeyIndex < modelNodeAnimation.position3DKeys_.keys_.max_size() - 1; resultPositionKeyIndex++) {
+
+					//								Common::Index positionKeyIndex = keyIndexImportance[resultPositionKeyIndex - 1].first;
+
+					//								aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
+
+					//								modelNodeAnimation.position3DKeys_.keys_[resultPositionKeyIndex] = {
+					//									static_cast<float>(positionKey.mTime),
+					//									positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z };
+					//							}
+
+					//							//Set last.
+					//							aiVectorKey lastPositionKey = nodeAnim->mPositionKeys[nodeAnim->mNumPositionKeys - 1];
+					//							modelNodeAnimation.position3DKeys_.keys_[modelNodeAnimation.position3DKeys_.keys_.max_size() - 1] = {
+					//								static_cast<float>(lastPositionKey.mTime),
+					//								lastPositionKey.mValue.x, lastPositionKey.mValue.y, lastPositionKey.mValue.z };
+
+					//						}
+					//						else {
+					//							//Fill with last position key.	
+					//							aiVectorKey lastPositionKey = nodeAnim->mPositionKeys[nodeAnim->mNumPositionKeys - 1];
+					//							modelNodeAnimation.position3DKeys_.keys_.fill(
+					//								{
+					//									static_cast<float>(lastPositionKey.mTime),
+					//									lastPositionKey.mValue.x,
+					//									lastPositionKey.mValue.y,
+					//									lastPositionKey.mValue.z
+					//								});
+
+					//							for (Common::Index positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
+					//								aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
+					//								modelNodeAnimation.position3DKeys_.keys_[positionKeyIndex] = {
+					//									static_cast<float>(positionKey.mTime),
+					//									positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z };
+					//							}
+					//						}
+					//					}
+					//					{//Rotation keys
+					//						//fill empty keys with last key
+
+					//						if (nodeAnim->mNumRotationKeys > modelNodeAnimation.rotationKeys_.keys_.max_size()) {
+
+					//							auto calculateRotationImportanceByAxis = [](
+					//								aiQuatKey prevKey,
+					//								aiQuatKey currentKey,
+					//								aiQuatKey nextKey) {
+
+					//									// 1. Извлекаем оси вращения для каждого интервала
+					//									aiQuaternion delta1 = currentKey.mValue * prevKey.mValue.Conjugate();
+					//									aiQuaternion delta2 = nextKey.mValue * currentKey.mValue.Conjugate();
+
+					//									// Нормализуем для извлечения осей
+					//									delta1.Normalize();
+					//									delta2.Normalize();
+
+					//									// 2. Оси вращения (vector part)
+					//									aiVector3D axis1(delta1.x, delta1.y, delta1.z);
+					//									aiVector3D axis2(delta2.x, delta2.y, delta2.z);
+
+					//									// 3. Углы вращения
+					//									float angle1 = 2.0f * std::acos(std::abs(delta1.w));
+					//									float angle2 = 2.0f * std::acos(std::abs(delta2.w));
+
+					//									// 4. Изменение оси вращения (dot product осей)
+					//									float axisChange = 0.0f;
+					//									if (axis1.Length() > 0.001f && axis2.Length() > 0.001f) {
+					//										axis1.Normalize();
+					//										axis2.Normalize();
+					//										float dot = axis1 * axis2; // dot product
+					//										axisChange = 1.0f - std::abs(dot); // 0 = одинаковые оси, 1 = перпендикулярные
+					//									}
+
+					//									// 5. Изменение угловой скорости
+					//									float time1 = currentKey.mTime - prevKey.mTime;
+					//									float time2 = nextKey.mTime - currentKey.mTime;
+					//									float velocity1 = (time1 > 0.0f) ? angle1 / time1 : 0.0f;
+					//									float velocity2 = (time2 > 0.0f) ? angle2 / time2 : 0.0f;
+					//									float velocityChange = std::abs(velocity2 - velocity1);
+
+					//									return axisChange * 0.6f + velocityChange * 0.4f;
+					//								};
+
+
+					//							std::vector<std::pair<Common::Index, float>> keyIndexImportance;
+
+					//							//Calculte importance for keys except first and last.
+					//							for (Common::Index rotationKeyIndex = 1; rotationKeyIndex < nodeAnim->mNumRotationKeys - 1; rotationKeyIndex++) {
+					//								keyIndexImportance.push_back({ rotationKeyIndex , calculateRotationImportanceByAxis(
+					//									nodeAnim->mRotationKeys[rotationKeyIndex - 1],
+					//									nodeAnim->mRotationKeys[rotationKeyIndex],
+					//									nodeAnim->mRotationKeys[rotationKeyIndex + 1]
+					//								) });
+					//							}
+
+					//							//Sort by importance.
+
+					//							std::ranges::sort(keyIndexImportance,
+					//								[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+					//									return first.second > second.second;
+					//								});
+
+					//							keyIndexImportance.resize(modelNodeAnimation.rotationKeys_.keys_.max_size() - 2); // minus first and last
+
+					//							//Sort by index
+					//							std::ranges::sort(keyIndexImportance,
+					//								[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+					//									return first.first < second.first;
+					//								});
+
+					//							//Set first.
+					//							aiQuatKey firstRotationKey = nodeAnim->mRotationKeys[0];
+					//							modelNodeAnimation.rotationKeys_.keys_[0] = {
+					//								static_cast<float>(firstRotationKey.mTime),
+					//								firstRotationKey.mValue.w, firstRotationKey.mValue.x, firstRotationKey.mValue.y, firstRotationKey.mValue.z };
+
+					//							for (Common::Index resultRotationKeyIndex = 1; resultRotationKeyIndex < modelNodeAnimation.rotationKeys_.keys_.max_size() - 1; resultRotationKeyIndex++) {
+
+					//								Common::Index rotationKeyIndex = keyIndexImportance[resultRotationKeyIndex - 1].first;
+
+					//								aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
+
+					//								modelNodeAnimation.rotationKeys_.keys_[resultRotationKeyIndex] = {
+					//									static_cast<float>(rotationKey.mTime),
+					//									rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z };
+					//							}
+
+					//							//Set last.
+					//							aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
+					//							modelNodeAnimation.rotationKeys_.keys_[modelNodeAnimation.rotationKeys_.keys_.max_size() - 1] = {
+					//								static_cast<float>(lastRotationKey.mTime),
+					//								lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z };
+
+
+					//						}
+					//						else {
+					//							aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
+					//							modelNodeAnimation.rotationKeys_.keys_.fill({
+					//									static_cast<float>(lastRotationKey.mTime),
+					//									lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z });
+
+					//							for (Common::Index rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
+					//								aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
+					//								modelNodeAnimation.rotationKeys_.keys_[rotationKeyIndex] = {
+					//									static_cast<float>(rotationKey.mTime),
+					//									rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z };
+					//							}
+					//						}
+					//					}
+					//					{ // Scake keys
+					//						//fill empty keys with last key
+					//						if (nodeAnim->mNumScalingKeys > modelNodeAnimation.scale3DKeys_.keys_.max_size()) {
+					//							auto calculateKeyImportance = [](
+					//								aiVectorKey previous,
+					//								aiVectorKey current,
+					//								aiVectorKey next) {
+
+					//									const glm::vec3 previousValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
+					//									const glm::vec3 currentValue{ current.mValue.x, current.mValue.y, current.mValue.z };
+					//									const glm::vec3 nextValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
+
+					//									const glm::vec3 middleValue = glm::mix(previousValue, nextValue, 0.5);
+
+					//									const float distance = glm::distance(middleValue, currentValue);
+
+					//									const float distanceFactor = std::abs(1.0 / distance);
+					//									const float timeFactor = 1.0f / (next.mTime - previous.mTime);
+
+					//									return distanceFactor * timeFactor;
+
+					//								};
+
+					//							std::vector<std::pair<Common::Index, float>> keyIndexImportance;
+
+					//							//Calculte importance for keys except first and last.
+					//							for (Common::Index scaleKeyIndex = 1; scaleKeyIndex < nodeAnim->mNumScalingKeys - 1; scaleKeyIndex++) {
+					//								keyIndexImportance.push_back({ scaleKeyIndex , calculateKeyImportance(
+					//									nodeAnim->mScalingKeys[scaleKeyIndex - 1],
+					//									nodeAnim->mScalingKeys[scaleKeyIndex],
+					//									nodeAnim->mScalingKeys[scaleKeyIndex + 1]
+					//								) });
+					//							}
+
+					//							//Sort by importance.
+
+					//							std::ranges::sort(keyIndexImportance,
+					//								[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+					//									return first.second > second.second;
+					//								});
+
+					//							keyIndexImportance.resize(modelNodeAnimation.scale3DKeys_.keys_.max_size() - 2); // minus first and last
+
+					//							//Sort by index
+					//							std::ranges::sort(keyIndexImportance,
+					//								[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+					//									return first.first < second.first;
+					//								});
+
+					//							//Set first.
+					//							aiVectorKey firstScaleKey = nodeAnim->mScalingKeys[0];
+					//							modelNodeAnimation.scale3DKeys_.keys_[0] = {
+					//								static_cast<float>(firstScaleKey.mTime),
+					//								firstScaleKey.mValue.x, firstScaleKey.mValue.y, firstScaleKey.mValue.z };
+
+					//							for (Common::Index resultScaleKeyIndex = 1; resultScaleKeyIndex < modelNodeAnimation.scale3DKeys_.keys_.max_size() - 1; resultScaleKeyIndex++) {
+
+					//								Common::Index scaleKeyIndex = keyIndexImportance[resultScaleKeyIndex - 1].first;
+
+					//								aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
+
+					//								modelNodeAnimation.scale3DKeys_.keys_[resultScaleKeyIndex] = {
+					//									static_cast<float>(scaleKey.mTime),
+					//									scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z };
+					//							}
+
+					//							//Set last.
+					//							aiVectorKey lastScaleKey = nodeAnim->mScalingKeys[nodeAnim->mNumScalingKeys - 1];
+					//							modelNodeAnimation.scale3DKeys_.keys_[modelNodeAnimation.scale3DKeys_.keys_.max_size() - 1] = {
+					//								static_cast<float>(lastScaleKey.mTime),
+					//								lastScaleKey.mValue.x, lastScaleKey.mValue.y, lastScaleKey.mValue.z };
+					//						}
+					//						else {
+					//							aiVectorKey lastScaleKey = nodeAnim->mScalingKeys[nodeAnim->mNumScalingKeys - 1];
+					//							for (Common::Index scaleKeyIndex = nodeAnim->mNumScalingKeys; scaleKeyIndex < modelNodeAnimation.scale3DKeys_.keys_.max_size(); scaleKeyIndex++) {
+
+					//								modelNodeAnimation.scale3DKeys_.keys_[scaleKeyIndex] = {
+					//									static_cast<float>(lastScaleKey.mTime),
+					//									lastScaleKey.mValue.x, lastScaleKey.mValue.y, lastScaleKey.mValue.z };
+					//							}
+					//							for (Common::Index scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumScalingKeys; scaleKeyIndex++) {
+					//								aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
+					//								modelNodeAnimation.scale3DKeys_.keys_[scaleKeyIndex] = {
+					//									static_cast<float>(scaleKey.mTime),
+					//									scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z };
+					//							}
+					//						}
+					//					}
+					//					if (
+					//						nodeAnim->mNumPositionKeys > 0 ||
+					//						nodeAnim->mNumRotationKeys > 0 ||
+					//						nodeAnim->mNumScalingKeys > 0) {
+
+					//						animationChannels[i] = modelNodeAnimation;
+					//					}
+					//				}
+					//			}
+					//		}
+					//		if (nodeAnimationsNumber > 0) {
+					//			CreateComponent<Animation::Model::Node::Animations>(nodeEntityId, animationChannels);
+					//		}
+					//	}
+					//	};
+
+
+
+					////Parse animations.
+					//if (scene->HasAnimations()) {
+					//	createNodeAnimationChannel(node, scene);
+					//}
 
 					//Mark that this node is Bone
 					if (std::ranges::find(boneNames, node->mName.C_Str()) != boneNames.end()) {
@@ -1639,21 +1654,21 @@ namespace OksEngine
 						const aiBone* bone = nameToBone[node->mName.C_Str()];
 						glm::mat4 transform = aiMatrixToGlmMatrix(bone->mOffsetMatrix);
 
-						CreateComponent<BoneInverseBindPoseMatrix>(nodeEntityId, transform);
+						//CreateComponent<BoneInverseBindPoseMatrix>(nodeEntityId, transform);
 						CreateComponent<BoneNode>(nodeEntityId);
 
 					}
 
 
-					std::vector<MeshInfo> meshInfos;
-					std::vector<std::shared_ptr<const aiMesh>> meshs;
-					for (Common::Index i = 0; i < node->mNumMeshes; i++) {
-						int meshIndex = node->mMeshes[i];
-						aiMesh* mesh = scene->mMeshes[meshIndex];
-						meshs.push_back(std::shared_ptr<aiMesh>{ mesh, [](aiMesh*) {} });
-						meshInfos.push_back(
-							{ modelFile3->fileName_ + "/" + mesh->mName.C_Str(), ECS2::Entity::Id::invalid_ });
-					}
+					//std::vector<MeshInfo> meshInfos;
+					//std::vector<std::shared_ptr<const aiMesh>> meshs;
+					//for (Common::Index i = 0; i < node->mNumMeshes; i++) {
+					//	int meshIndex = node->mMeshes[i];
+					//	aiMesh* mesh = scene->mMeshes[meshIndex];
+					//	meshs.push_back(std::shared_ptr<aiMesh>{ mesh, [](aiMesh*) {} });
+					//	meshInfos.push_back(
+					//		{ modelFile3->fileName_ + "/" + mesh->mName.C_Str(), ECS2::Entity::Id::invalid_ });
+					//}
 
 					CreateComponent<LocalPosition3D>(nodeEntityId, position3D.x, position3D.y, position3D.z, 0.0);
 					CreateComponent<WorldPosition3D>(nodeEntityId, 0.0f, 0.0f, 0.0f, 0.0f);
@@ -2006,11 +2021,11 @@ namespace OksEngine
 		}
 	}
 
-	namespace Render::Model::Data {
+	namespace Render::Model {
 		void CreateDataController::Update() {
 			const ECS2::Entity::Id modelDataControllerEntity = CreateEntity();
 			CreateComponent<DataController>(modelDataControllerEntity);
-			CreateComponent<ModelNameToDataEntityId>(modelDataControllerEntity, std::map<std::string, ECS2::Entity::Id>{});
+			CreateComponent<ModelNameToModelDataEntityId>(modelDataControllerEntity, std::map<std::string, ECS2::Entity::Id>{});
 		}
 	}
 
@@ -2597,10 +2612,10 @@ namespace OksEngine
 
 
 	void Compute::TestPipeline::Update(
-		ECS2::Entity::Id entity0id,
-		const RenderDriver* renderDriver0,
-		const Compute::Pipeline* pipeline0,
-		const Render::StorageBufferResource* render__StorageBufferResource0, // remove
+		ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0, const Compute::Pipeline* pipeline0,
+		const Render::StorageBufferResource* render__StorageBufferResource0,
+		const GPGPUECS::StorageBuffer::ModelNodeDataEntityIds* gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0,
+		const GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0,
 		const Animation::Model::Node::DriverAnimationsComponents* animation__Model__Node__DriverAnimationsComponents0,
 		const Animation::Model::Node::AnimationsComponentsResource* animation__Model__Node__AnimationsComponentsResource0,
 		const Animation::Model::Node::DriverRunningStates* animation__Model__Node__DriverRunningStates0,
@@ -2647,6 +2662,20 @@ namespace OksEngine
 			//DEBUG CODE
 
 			//CALCULATE ANIMATIONS FOR BONES AND HIER ANIMATED NODES!!
+			auto createEntityIndices = [](ECS2::Entity::Id* entityIds, Common::Size entitiesNumber) {
+				std::vector<Common::UInt64> indices;
+				for (Common::Index i = 0; i < entitiesNumber; i++) {
+
+					const ECS2::Entity::Id entityId = entityIds[i];
+
+					if (entityId >= indices.size()) {
+						indices.resize(entityId + 1, 0);
+					}
+
+					indices[entityId] = i;
+				}
+				return indices;
+				};
 			auto driver = renderDriver0->driver_;
 			//{
 			//	Common::Size entitiesNumber = world_->GetEntitiesNumber<NODE_ANIMATED>();
@@ -2753,27 +2782,28 @@ namespace OksEngine
 			//	PIXEndEvent();
 			//}
 			{
-				//driver->WaitRenderEnd();
-				Common::Size entitiesNumber = world_->GetEntitiesNumber<NODE_BONE_ANIMATED>();
+				//Model nodes.
+				Common::Size nodeEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE>();
+				auto nodesComponents = world_->GetComponents<RENDER__MODEL__NODE>();
+				auto* nodesEntityIds = std::get<ECS2::Entity::Id*>(nodesComponents);
+				auto* localPositions = std::get<LocalPosition3D*>(nodesComponents);
+				auto* localRotations = std::get<LocalRotation3D*>(nodesComponents);
+				auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(nodesComponents);
+				auto* modelNodeDataEntityIds = std::get<Render::Model::ModelNodeDataEntityId*>(nodesComponents);
 
-				if (entitiesNumber > 0) {
+				//Model nodes data.
+				Common::Size nodeDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE_DATA>();
+				auto nodesDataComponents = world_->GetComponents<RENDER__MODEL__NODE_DATA>();
+				auto* nodesDataEntityIds = std::get<ECS2::Entity::Id*>(nodesDataComponents);
+				auto* modelNodeDataAnimations = std::get<Animation::Model::Node::Animations*>(nodesDataComponents);
+				std::vector<Common::UInt64> nodesDataIds = createEntityIndices(nodesDataEntityIds, nodeDataEntitiesNumber);
+
+				if (nodeEntitiesNumber > 0 && nodeDataEntitiesNumber > 0) {
 					Common::BreakPointLine();
 				}
 				else {
 					return; // TODO: remove to calculate not bone nodes animation later 
 				}
-
-				auto componentPointers = world_->GetComponents<NODE_BONE_ANIMATED>();
-
-				auto* entityIds = std::get<ECS2::Entity::Id*>(componentPointers);
-
-				if (std::get<Animation::Model::Node::RunningState*>(componentPointers) == nullptr) {
-					return;
-				}
-				auto* localPositions = std::get<LocalPosition3D*>(componentPointers);
-				auto* localRotations = std::get<LocalRotation3D*>(componentPointers);
-				auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(componentPointers);
-				auto* modelNodeAnimations = std::get<Animation::Model::Node::Animations*>(componentPointers);
 
 				BEGIN_PROFILE("Write animation data for bones");
 
@@ -2782,7 +2812,7 @@ namespace OksEngine
 					animation__DriverLocalRotation3DComponents0->id_,
 					0,
 					localRotations,
-					entitiesNumber * sizeof(LocalRotation3D));
+					nodeEntitiesNumber * sizeof(LocalRotation3D));
 				END_PROFILE();
 
 
@@ -2791,7 +2821,7 @@ namespace OksEngine
 					animation__DriverLocalPosition3DComponents0->id_,
 					0,
 					localPositions,
-					entitiesNumber * sizeof(LocalPosition3D));
+					nodeEntitiesNumber * sizeof(LocalPosition3D));
 				END_PROFILE();
 
 
@@ -2800,16 +2830,28 @@ namespace OksEngine
 					animation__Model__Node__DriverRunningStates0->id_,
 					0,
 					modelNodeAnimationStates,
-					entitiesNumber * sizeof(Animation::Model::Node::RunningState));
+					nodeDataEntitiesNumber * sizeof(Animation::Model::Node::RunningState));
 				END_PROFILE();
 
 				BEGIN_PROFILE("Write animations for bones");
 				driver->StorageBufferWrite(
 					animation__Model__Node__DriverAnimationsComponents0->id_,
 					0,
-					modelNodeAnimations,
-					entitiesNumber * sizeof(Animation::Model::Node::Animations));
+					modelNodeDataAnimations,
+					nodeEntitiesNumber * sizeof(Animation::Model::Node::Animations));
 				END_PROFILE();
+
+				driver->StorageBufferWrite(
+					gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0->resourceSetId_,
+					0,
+					modelNodeDataEntityIds,
+					nodeEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId));
+
+				driver->StorageBufferWrite(
+					gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0->resourceSetId_,
+					0,
+					nodesDataIds.data(),
+					nodesDataIds.size() * sizeof(ECS2::Entity::Id));
 
 				END_PROFILE();
 
@@ -2818,8 +2860,8 @@ namespace OksEngine
 
 				driver->ComputePushConstants(
 					pipeline0->pipelineId_,
-					sizeof(decltype(entitiesNumber)),
-					&entitiesNumber);
+					sizeof(decltype(nodeEntitiesNumber)),
+					&nodeEntitiesNumber);
 
 				driver->ComputeBind(
 					pipeline0->pipelineId_,
@@ -2848,8 +2890,8 @@ namespace OksEngine
 
 				BEGIN_PROFILE("Compute shader Dispatch");
 				//Calculate work group number.
-				Common::Size fullWorkGroupNumber = entitiesNumber / 64;
-				if (entitiesNumber % 64 > 0) {
+				Common::Size fullWorkGroupNumber = nodeEntitiesNumber / 64;
+				if (nodeEntitiesNumber % 64 > 0) {
 					++fullWorkGroupNumber;
 				}
 
@@ -2862,11 +2904,11 @@ namespace OksEngine
 				BEGIN_PROFILE("Compute shader read data.");
 				driver->StorageBufferRead(
 					animation__DriverLocalPosition3DComponents0->id_,
-					0, entitiesNumber * sizeof(LocalPosition3D), localPositions);
+					0, nodeEntitiesNumber * sizeof(LocalPosition3D), localPositions);
 
 				driver->StorageBufferRead(
 					animation__DriverLocalRotation3DComponents0->id_,
-					0, entitiesNumber * sizeof(LocalRotation3D), localRotations);
+					0, nodeEntitiesNumber * sizeof(LocalRotation3D), localRotations);
 				END_PROFILE();
 			}
 
@@ -3266,6 +3308,9 @@ namespace OksEngine
 	void AddSkeletonModelToRender::Update(
 		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const RenderPass* renderPass0,
 		const SkeletonModelPipeline* skeletonModelPipeline0,
+		const GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices
+		* gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0,
+		const GPGPUECS::StorageBuffer::ModelNodeDataEntityIds* gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0,
 		const GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices
 		* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
 		const GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices
@@ -3281,20 +3326,49 @@ namespace OksEngine
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
 		const CameraTransformResource* cameraTransformResource1) {
 
+		auto createEntityIndices = [](ECS2::Entity::Id* entityIds, Common::Size entitiesNumber) {
+			std::vector<Common::UInt64> indices;
+			for (Common::Index i = 0; i < entitiesNumber; i++) {
+
+				const ECS2::Entity::Id entityId = entityIds[i];
+
+				if (entityId >= indices.size()) {
+					indices.resize(entityId + 1, 0);
+				}
+
+				indices[entityId] = i;
+			}
+			return indices;
+			};
+
 		auto driver = renderDriver0->driver_;
 
-		//NODES
-		Common::Size nodeBoneAnimatedEntitiesNumber = world_->GetEntitiesNumber<NODE_BONE_ANIMATED>();
-		auto nodesBoneAnimatedComponents = GetComponents<NODE_BONE_ANIMATED>();
-		auto* worldPositions = std::get<WorldPosition3D*>(nodesBoneAnimatedComponents);
-		auto* worldRotations = std::get<WorldRotation3D*>(nodesBoneAnimatedComponents);
-		auto* worldScales = std::get<WorldScale3D*>(nodesBoneAnimatedComponents);
-		auto* inverBindPoseMatrices = std::get<BoneInverseBindPoseMatrix*>(nodesBoneAnimatedComponents);
+		//Model nodes.
+		Common::Size nodesEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE>();
+		auto nodesComponents = GetComponents<RENDER__MODEL__NODE>();
+		auto* nodeEntitiesIds = std::get<ECS2::Entity::Id*>(nodesComponents);
+		auto* worldPositions = std::get<WorldPosition3D*>(nodesComponents);
+		auto* worldRotations = std::get<WorldRotation3D*>(nodesComponents);
+		auto* worldScales = std::get<WorldScale3D*>(nodesComponents);
+		auto* nodesDataEntityIds = std::get<Render::Model::ModelNodeDataEntityId*>(nodesComponents);
+		std::vector<Common::UInt64> modelNodeIndices = createEntityIndices(nodeEntitiesIds, nodesEntitiesNumber);
+
+
+		//Model nodes data.
+		Common::Size nodesDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE_DATA>();
+		auto nodesDataComponents = GetComponents<RENDER__MODEL__NODE_DATA>();
+		auto* nodeDataEntitiesIds = std::get<ECS2::Entity::Id*>(nodesDataComponents);
+		auto* boneInverseBindPoseMatrix = std::get<BoneInverseBindPoseMatrix*>(nodesDataComponents);
+		std::vector<Common::UInt64> modelNodeDataIndices = createEntityIndices(nodeDataEntitiesIds, nodesDataEntitiesNumber);
+
+		ASSERT(nodesEntitiesNumber == nodesDataEntitiesNumber);
 
 		//MODELS
 		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
 		auto modelComponents = GetComponents<MODEL>();
 		auto* modelsBoneNodesIds = std::get<BoneNodeEntities*>(modelComponents);
+		auto* modelEntitiesIds = std::get<ECS2::Entity::Id*>(modelComponents);
+		std::vector<Common::UInt64> modelIndices = createEntityIndices(modelEntitiesIds, modelEntitiesNumber);
 
 		//MESHS
 		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<MESH>();
@@ -3305,67 +3379,7 @@ namespace OksEngine
 		auto* meshIndices = std::get<Indices*>(meshComponents);
 		auto* meshTextureResources = std::get<TextureResource*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
-
-		//struct IdIndex {
-		//	ECS2::Entity::Id id_;
-		//	Common::UInt64 index_;
-		//};
-		//STATIC_ASSERT_MSG(sizeof(IdIndex) == 16, "");
-
-		//std::vector<IdIndex> nodeIdIndex;
-
-		std::vector<Common::UInt64> nodeIndices;
-		std::vector<Common::UInt64> modelIndices;
-
-		//std::vector<IdIndex> modelIdIndex;
-
-
-		{
-			//nodeIdIndex.reserve(nodeBoneAnimatedEntitiesNumber);
-			for (Common::Index i = 0; i < nodeBoneAnimatedEntitiesNumber; i++) {
-
-				ECS2::Entity::Id nodeEntityId = std::get<ECS2::Entity::Id*>(nodesBoneAnimatedComponents)[i];
-
-				//nodeIdIndex.push_back(IdIndex{ nodeEntityId, i });
-
-				if (nodeEntityId >= nodeIndices.size()) {
-					nodeIndices.resize(nodeEntityId + 1, 0);
-				}
-
-				nodeIndices[nodeEntityId] = i;
-			}
-
-			/*std::ranges::sort(nodeIdIndex,
-				[](const IdIndex& first, const IdIndex& second) {
-
-					ASSERT(first.id_ != second.id_);
-
-					return first.id_ < second.id_;
-				});*/
-
-				//modelIdIndex.reserve(modelEntitiesNumber);
-			for (Common::Index i = 0; i < modelEntitiesNumber; i++) {
-
-				ECS2::Entity::Id modelEntityId = std::get<ECS2::Entity::Id*>(modelComponents)[i];
-
-				if (modelEntityId >= modelIndices.size()) {
-					modelIndices.resize(modelEntityId + 1, 0);
-				}
-
-				modelIndices[modelEntityId] = i;
-
-				//modelIdIndex.push_back(IdIndex{ , i });
-
-
-			}/*
-			std::ranges::sort(modelIdIndex,
-				[](const IdIndex& first, const IdIndex& second) {
-
-					ASSERT(first.id_ != second.id_);
-
-					return first.id_ < second.id_;
-				});*/
-		}
+		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
@@ -3377,41 +3391,43 @@ namespace OksEngine
 			gPGPUECS__StorageBuffer__WorldPositions3D0->sbid_,
 			0,
 			worldPositions,
-			nodeBoneAnimatedEntitiesNumber * sizeof(WorldPosition3D));
+			nodesEntitiesNumber * sizeof(WorldPosition3D));
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__WorldRotations3D0->sbid_,
 			0,
 			worldRotations,
-			nodeBoneAnimatedEntitiesNumber * sizeof(WorldRotation3D));
+			nodesEntitiesNumber * sizeof(WorldRotation3D));
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__WorldScales3D0->sbid_,
 			0,
 			worldScales,
-			nodeBoneAnimatedEntitiesNumber * sizeof(WorldScale3D));
+			nodesEntitiesNumber * sizeof(WorldScale3D));
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__BoneInverseBindPoseMatrices0->sbid_,
 			0,
-			inverBindPoseMatrices,
-			nodeBoneAnimatedEntitiesNumber * sizeof(BoneInverseBindPoseMatrix));
+			boneInverseBindPoseMatrix,
+			nodesDataEntitiesNumber * sizeof(BoneInverseBindPoseMatrix));
+
+		driver->StorageBufferWrite(
+			gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0->sbid_,
+			0,
+			modelNodeDataIndices.data(),
+			modelNodeDataIndices.size() * sizeof(ECS2::Entity::Id));
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->sbid_,
 			0,
-			//nodeIdIndex.data(),
-			nodeIndices.data(),
-			nodeIndices.size() * sizeof(Common::Size));
-		//nodeBoneAnimatedEntitiesNumber * sizeof(IdIndex));
+			modelNodeIndices.data(),
+			modelNodeIndices.size() * sizeof(ECS2::Entity::Id));
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->sbid_,
 			0,
 			modelIndices.data(),
-			modelIndices.size() * sizeof(Common::Size));
-		/*modelIdIndex.data(),
-		modelEntitiesNumber * sizeof(IdIndex));*/
+			modelIndices.size() * sizeof(ECS2::Entity::Id));
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__ModelEntityIds0->sbid_,
@@ -3466,10 +3482,6 @@ namespace OksEngine
 						gPGPUECS__StorageBuffer__ModelEntityIds0->resourceSetId_					// set 9
 					});
 
-				if (meshEntitiesIds[i] == 6) {
-					Common::BreakPointLine();
-				}
-
 				auto invalidEntityIdIt = std::find(
 					modelEntityIds->modelEntityIds_.begin(),
 					modelEntityIds->modelEntityIds_.end(),
@@ -3480,13 +3492,10 @@ namespace OksEngine
 				MeshData meshInfo{  };
 
 
-				meshInfo.nodeBoneAnimatedEntitiesNumber_ = nodeBoneAnimatedEntitiesNumber;
+				meshInfo.nodeBoneAnimatedEntitiesNumber_ = nodesEntitiesNumber;
 				meshInfo.modelEntitiesNumber_ = modelEntitiesNumber;
 				meshInfo.meshComponentsIndex_ = i;
 
-				if (i == 2) {
-					Common::BreakPointLine();
-				}
 
 				driver->PushConstants(
 					skeletonModelPipeline0->id_,
@@ -3498,27 +3507,6 @@ namespace OksEngine
 					indices->indices_.GetIndicesNumber(),
 					0,
 					meshModelEntitiesNumber);
-				//modelEntityIds->modelEntityIds_.size());
-
-			//ASSERT(meshModelEntitiesNumber == 1);
-
-//#if !defined(NDEBUG)
-//				for (Common::Index instanceIndex = 0; instanceIndex < meshModelEntitiesNumber; instanceIndex++) {
-//					auto currentModelEntityId = modelEntityIds->modelEntityIds_[instanceIndex];
-//					ASSERT(currentModelEntityId.IsValid());
-//
-//					bool isComponentsIndexFound = false;
-//					for (auto [modelEntityId, modelComponentsIndex] : modelIdIndex) {
-//						if (currentModelEntityId == modelEntityId) {
-//							isComponentsIndexFound = true;
-//							ASSERT(modelComponentsIndex < modelEntitiesNumber);
-//						}
-//					}
-//					ASSERT_FMSG(isComponentsIndexFound, "Find model entity id {}", (Common::Size)currentModelEntityId);
-//
-//				}
-//#endif
-
 
 			}
 		}

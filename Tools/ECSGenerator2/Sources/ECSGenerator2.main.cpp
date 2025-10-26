@@ -78,7 +78,7 @@ int main(int argc, char** argv) {
 			Resources::ResourceData resourceData = resourceSystem.GetResourceData(ecsFileInfo.resourceSystemPath_);
 			const std::string ecsFileText{ resourceData.GetData<Common::Byte>(), resourceData.GetSize() };
 
-			if (ecsFileInfo.filesystemPath_.stem() == "OksEngine.Behaviour") {
+			if (ecsFileInfo.filesystemPath_.stem() == "OksEngine.Model") {
 				Common::BreakPointLine();
 			}
 			//PARSING ECS FILE.
@@ -146,6 +146,10 @@ int main(int argc, char** argv) {
 						if (foundTable != nullptr) {
 							break;
 						}
+
+						if (parsedECSFile->GetName() == "OksEngine.Model") {
+							Common::BreakPointLine();
+						}
 						parsedECSFile->ForEachRootTable([&](std::shared_ptr<ECSGenerator2::ParsedTable> parsedTable) {
 							
 
@@ -199,7 +203,7 @@ int main(int argc, char** argv) {
 				const auto archetypeNamespace = ECSGenerator2::GetArchetypeNamespace(parsedArchetype);
 				const auto archetypeName = parsedArchetype->GetName();
 
-				if (archetypeName == "Node_Animated") {
+				if (archetypeName == "Model") {
 					Common::BreakPointLine();
 				}
 				parsedArchetype->ForEachComponent([&](ECSGenerator2::ParsedArchetype::Component& component, bool isLast) {

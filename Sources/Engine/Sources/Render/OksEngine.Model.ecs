@@ -390,8 +390,8 @@ AiNamespace = {
                 },
                 {
                     processesComponents = {
-                        "Render::Model::Data::DataController",
-                        { name = "Render::Model::Data::ModelNameToDataEntityId", readonly = false }
+                        "Render::Model::DataController",
+                        { name = "Render::Model::ModelNameToModelDataEntityId", readonly = false }
                     }
                 }
             },
@@ -438,47 +438,84 @@ AiNamespace = {
 --MODEL DATA
 RenderNamespace = {
     ModelNamespace = {
-        DataNamespace = {
-            DataComponent = {
-                serializable = false
+        NodeArchetype = {
+            components = {
+                "ModelNode",
+                "BoneNode",
+                "Name",
+                "ModelEntity",
+                "LocalPosition3D",
+                "WorldPosition3D",
+                "LocalRotation3D",
+                "WorldRotation3D",
+                "LocalScale3D",
+                "WorldScale3D",
+                "ChildModelNodeEntities",
+                "DebugText2D",
+                "Animation::Model::Node::RunningState",
+                "ModelDataEntityId",
+                "ModelNodeDataEntityId"
+            }
+        },
+        Node_DataArchetype = {
+            components = {
+                "ModelNode",
+                "Name",
+                "ModelEntity",
+                "ChildModelNodeEntities",
+                "ModelDataEntityId", -- Data model entity id
+
             },
-            DataEntityIdComponent = {
-                description =
-                "This component will have model entity to have access to model data like animations, mesh data.",
-                serializable = false,
-                fields = {
-                    { type = "ECS2::Entity::Id", name = "modelDataEntityId" }
+            archetypes = {
+                "Animation::Animation",
+                "Bone"
+            }
+        },
+        ModelDataComponent = {
+            serializable = false
+        },
+        ModelNodeDataEntityIdComponent = {
+            description =
+            "This component will have node entity to have access to node data like animations, bone inverse bind pose matrix.",
+            serializable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "modelNodeDataEntityId" }
+            }
+        },
+        ModelDataEntityIdComponent = {
+            description =
+            "This component will have model entity to have access to model data like animations, mesh data.",
+            serializable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "modelDataEntityId" }
+            }
+        },
+        DataControllerComponent = {},
+        ModelNameToModelDataEntityIdComponent = {
+            description =
+            "Controller for models data. It will be used by model loader to find model data and take it if model was loaded early or to add model data if it is not exist.",
+            serializable = false,
+            fields = {
+                {
+                    type = "std::map<std::string, ECS2::Entity::Id>",
+                    name = "modelNameToModelDataEntityId"
                 }
-            },
-
-            DataControllerComponent = {
-            },
-
-            ModelNameToDataEntityIdComponent = {
-                description =
-                "Controller for models data. It will be used by model loader to find model data and take it if model was loaded early or to add model data if it is not exist.",
-                serializable = false,
-                fields = {
+            }
+        },
+        CreateDataControllerSystem = {
+            type = "Initialize",
+            updateMethod = {
+                createsEntities = {
                     {
-                        type = "std::map<std::string, ECS2::Entity::Id>",
-                        name = "modelNameToDataEntityId"
-                    }
-                }
-            },
-            CreateDataControllerSystem = {
-                type = "Initialize",
-                updateMethod = {
-                    createsEntities = {
-                        {
-                            createsComponents = {
-                                "DataController",
-                                "MeshNameToEntity"
-                            }
+                        createsComponents = {
+                            "DataController",
+                            "ModelNameToModelDataEntityId"
                         }
                     }
                 }
             }
         }
+
     }
 }
 
@@ -814,37 +851,6 @@ CreateSkeletonModelPipelineSystem = {
     }
 }
 
--- UpdateLocalPosition3DSystem = {
---     callOrder = {
---         runBefore = { "StartRender" }
---     },
---     updateMethod = {
---         processesEntities = {
---             {
---                 processesComponents = {
---                     "Model",
---                     "ChildModelNodeEntities",
---                     "WorldPosition3D",
---                     "WorldRotation3D",
---                     "WorldScale3D"
---                 }
---             }
---         },
---         accessingEntities = {
---             {
---                 accessingComponents = {
---                     "WorldPosition3D",
---                     "WorldRotation3D",
---                     "WorldScale3D",
---                     "LocalPosition3D",
---                     "LocalRotation3D",
---                     "LocalScale3D",
---                     "ChildModelNodeEntities"
---                 }
---             }
---         }
---     }
--- }
 
 ComputeNamespace = {
 
@@ -896,6 +902,8 @@ ComputeNamespace = {
                         "RenderDriver",
                         "Pipeline",
                         "Render::StorageBufferResource",
+                        "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
+                        "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",
                         "Animation::Model::Node::DriverAnimationsComponents",
                         "Animation::Model::Node::AnimationsComponentsResource",
                         "Animation::Model::Node::DriverRunningStates",
@@ -995,6 +1003,8 @@ AddSkeletonModelToRenderSystem = {
                     { name = "RenderDriver", readonly = false },
                     "RenderPass",
                     "SkeletonModelPipeline",
+                    "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
                     "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
                     "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
                     "GPGPUECS::StorageBuffer::ModelEntityIds",
@@ -1098,7 +1108,7 @@ ModelArchetype = {
         "MeshNames",
         "MeshEntities",
         "MeshsFound",
-        "Render::Model::Data::DataEntityId"
+        "Render::Model::ModelDataEntityId"
     }
 }
 
@@ -1124,22 +1134,7 @@ MeshArchetype = {
     }
 }
 
-NodeArchetype = {
-    components = {
-        "ModelNode",
-        "Name",
-        "ModelEntity",
-        "LocalPosition3D",
-        "WorldPosition3D",
-        "LocalRotation3D",
-        "WorldRotation3D",
-        "LocalScale3D",
-        "WorldScale3D",
-        "ChildModelNodeEntities",
-        "DebugText2D",
-        "Render::Model::Data::DataEntityId"
-    }
-}
+
 
 BoneArchetype = {
     components = {
@@ -1150,21 +1145,21 @@ BoneArchetype = {
 
 Node_AnimatedArchetype = {
     archetypes = {
-        "Node",
+        "Render::Model::Node",
         "Animation::Animation"
     }
 }
 
 Node_BoneArchetype = {
     archetypes = {
-        "Node",
+        "Render::Model::Node",
         "Bone"
     }
 }
 
 Node_Bone_AnimatedArchetype = {
     archetypes = {
-        "Node",
+        "Render::Model::Node",
         "Bone",
         "Animation::Animation"
     }

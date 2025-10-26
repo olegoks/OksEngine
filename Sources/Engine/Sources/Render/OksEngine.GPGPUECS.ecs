@@ -1,13 +1,13 @@
 GPGPUECSNamespace = {
-    EntityIdToComponentIndexStruct = {
-        fields = {
-            { type = "ECS2::Entity::Id", name = "entityId" },
-            { type = "Common::UInt64",   name = "componentIndex" }
-        }
-    },
-
     StorageBufferNamespace = {
         NodeEntityIdsToComponentIndicesComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
+        },
+        NodeDataEntityIdsToComponentIndicesComponent = {
             serializable = false,
             fields = {
                 { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
@@ -70,6 +70,12 @@ GPGPUECSNamespace = {
                 { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
             }
         },
-        
+        ModelNodeDataEntityIdsComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+            }
+        },
     }
 }

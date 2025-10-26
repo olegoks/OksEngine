@@ -122,8 +122,8 @@ namespace OksEngine
 	void CreateDebugTextRenderer::Update() {
 
 		const ECS2::Entity::Id debugTextRendererEntityId = CreateEntity();
-		//CreateComponent<DebugTextRenderer>(debugTextRendererEntityId);
-		//CreateComponent<DebugTextVertexBuffer>(debugTextRendererEntityId);
+		CreateComponent<DebugTextRenderer>(debugTextRendererEntityId);
+		CreateComponent<DebugTextVertexBuffer>(debugTextRendererEntityId);
 	};
 
 	void CreateDebugTextAtlas::Update(
@@ -135,9 +135,7 @@ namespace OksEngine
 		FT_Library ft;
 		const FT_Error error = FT_Init_FreeType(&ft);
 
-#pragma region Assert
 		ASSERT_FMSG(!error, "Error while initting FT_Library.");
-#pragma endregion
 
 		FT_Face face;
 		if (FT_New_Memory_Face(ft, fontResourceData.GetData<Common::UByte>(), fontResourceData.GetSize(), 0, &face)) {
