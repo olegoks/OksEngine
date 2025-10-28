@@ -514,8 +514,41 @@ RenderNamespace = {
                     }
                 }
             }
+        },
+        
+    }
+}
+FindModelDataSystem = {
+    description = "Find model data for models and set nodes data entity ids for model nodes to have fast acces to animations and bone inverse bind matices.",
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "Model",
+                    "ModelFile",
+                    "ModelNodeEntityIds"
+                },
+                excludes = {
+                    "Render::Model::ModelDataEntityId"
+                },
+                createsComponents = {
+                    "Render::Model::ModelDataEntityId"
+                }
+            },
+            {
+                processesComponents = {
+                    "Render::Model::DataController",
+                    "Render::Model::ModelNameToModelDataEntityId"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "ModelNodeEntityIds"
+                }
+            }
         }
-
     }
 }
 
@@ -902,8 +935,8 @@ ComputeNamespace = {
                         "RenderDriver",
                         "Pipeline",
                         "Render::StorageBufferResource",
-                        "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
-                        "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",
+                        "Animation::ModelNodeDataEntityIds",
+                        "Animation::NodeDataEntityIdsToComponentIndices",
                         "Animation::Model::Node::DriverAnimationsComponents",
                         "Animation::Model::Node::AnimationsComponentsResource",
                         "Animation::Model::Node::DriverRunningStates",
@@ -1109,6 +1142,17 @@ ModelArchetype = {
         "MeshEntities",
         "MeshsFound",
         "Render::Model::ModelDataEntityId"
+    }
+}
+
+Model_DataArchetype = {
+    components = {
+        "Name",
+        "Model",
+        "BoneNodeEntities",
+        "ModelNodeEntityIds",
+        "ModelAnimations",
+        "ChildModelNodeEntities",
     }
 }
 

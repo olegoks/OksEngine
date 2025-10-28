@@ -245,6 +245,7 @@ namespace ECS2 {
 		template<class ComponentType, class ...Args>
 		void CreateComponent(Entity::Id entityId, const char* callerSystemName, Args&&... args) noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
+			ASSERT(entityId.IsValid());
 			requests_.emplace_back([callerSystemName, entityId, componentCreateArgs = std::make_tuple(std::forward<Args>(args)...), this]() mutable {
 				std::apply([&](auto&&... unpackedArgs) {
 					//Archetype entity.

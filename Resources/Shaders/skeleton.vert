@@ -82,9 +82,11 @@ layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 outUV;
 
 layout(push_constant) uniform PushConstants {
-    uint64_t nodeEntitiesNumber_; // Node bone entities number
-    uint64_t modelEntitiesNumber_;
-    uint64_t meshComponentsIndex_; // Components index for current mesh.
+    uint64_t nodeDataEntitiesNumber_;   // Node data entities number.
+    uint64_t nodeEntitiesNumber_;       // Node entities number.
+    uint64_t modelEntitiesNumber_;     
+    uint64_t modelDataEntitiesNumber_;     
+    uint64_t meshComponentsIndex_;      // Components index for current mesh.
 };
 
 uint64_t GetComponentIndexByNodeEntityId(uint64_t entityId){
@@ -181,17 +183,17 @@ vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint64_t modelCompo
         }
         uint64_t nodeEntityId = modelNodeEntityIds_[uint(modelComponentsIndex)].nodeIds_[boneIndexInModelSpace];
 
-        // ASSERT_FMSG_2(
-        //     (nodeEntityId != INVALID_ENTITY_ID) && (nodeEntityId != 0), 
-        //     "ASSERT: Bone node invalid entity id. boneIndexInModelSpace %d modelComponentsIndex %d",
-        //     uint(boneIndexInModelSpace), 
-        //     uint(modelComponentsIndex));
+        ASSERT_FMSG_2(
+            (nodeEntityId != INVALID_ENTITY_ID) && (nodeEntityId != 0), 
+            "ASSERT: Bone node invalid entity id. boneIndexInModelSpace %d modelComponentsIndex %d",
+            uint(boneIndexInModelSpace), 
+            uint(modelComponentsIndex));
 
         uint64_t boneComponentIndex = GetComponentIndexByNodeEntityId(nodeEntityId);
 
-        // ASSERT_FMSG_3(boneComponentIndex != -1, 
-        //  "ASSERT: Invalid bone component index calculated for bone entity id %d. Vertex bone index %d. Bone index in model space %d.",
-        //   uint(nodeEntityId), bone, boneIndexInModelSpace);
+        ASSERT_FMSG_3(boneComponentIndex != -1, 
+         "ASSERT: Invalid bone component index calculated for bone entity id %d. Vertex bone index %d. Bone index in model space %d.",
+          uint(nodeEntityId), bone, boneIndexInModelSpace);
 
         uint uintBoneComponentIndex = uint(boneComponentIndex); // cast to use in []
 
@@ -217,26 +219,21 @@ void main() {
 
     vec4 newPosition = vec4(0, 0, 0, 0);
 
-
-
-    //Get models ids that uses that mesh.
-    //ModelEntityIds modelEntityIds = ; 
-
     //Get model entity that we are rendering at the moment.
     uint64_t modelEntityId = meshModelIds_[uint(meshComponentsIndex_)].modelIds_[gl_InstanceIndex];
 
-    // ASSERT_FMSG_2(
-    //     (modelEntityId != INVALID_ENTITY_ID) && (modelEntityId != 0), 
-    //     "ASSERT: Model invalid entity id %d. meshComponentsIndex_ %d",
-    //      int(modelEntityId),
-    //      int(meshComponentsIndex_));
+    ASSERT_FMSG_2(
+        (modelEntityId != INVALID_ENTITY_ID) && (modelEntityId != 0), 
+        "ASSERT: Model invalid entity id %d. meshComponentsIndex_ %d",
+         int(modelEntityId),
+         int(meshComponentsIndex_));
 
     //Get index of model components.
     uint64_t modelComponentsIndex = GetComponentIndexByModelEntityId(modelEntityId);
-    // ASSERT_FMSG_3(modelComponentsIndex != -1, 
-    //      "ASSERT: Invalid model component index calculated for model entity id %i. meshComponentsIndex_ %i gl_InstanceIndex %i",
-    //       int(modelEntityId),
-    //         int(meshComponentsIndex_), int(gl_InstanceIndex));
+    ASSERT_FMSG_3(modelComponentsIndex != -1, 
+         "ASSERT: Invalid model component index calculated for model entity id %i. meshComponentsIndex_ %i gl_InstanceIndex %i",
+          int(modelEntityId),
+            int(meshComponentsIndex_), int(gl_InstanceIndex));
 
     newPosition = TakeBoneIntoAccount(newPosition, position, modelComponentsIndex, uint(0));
     newPosition = TakeBoneIntoAccount(newPosition, position, modelComponentsIndex, uint(1));
@@ -245,7 +242,7 @@ void main() {
 
     outUV = inUV;
 
-    //ASSERT_MSG(!any(isnan(newPosition)), "Calculated vertex position is nan.");
+    ASSERT_MSG(!any(isnan(newPosition)), "Calculated vertex position is nan.");
 
     gl_Position = camera.proj * camera.view * (vec4(newPosition.xyz, 1.0));
 }

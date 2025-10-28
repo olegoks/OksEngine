@@ -160,6 +160,22 @@ AnimationNamespace = {
         fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
     },
 
+    NodeDataEntityIdsToComponentIndicesComponent = {
+        serializable = false,
+        fields = {
+            { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+            { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+        }
+    },
+
+    ModelNodeDataEntityIdsComponent = {
+        serializable = false,
+        fields = {
+            { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+            { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+        }
+    },
+
     AnimationArchetype = {
         components = {
             "Model::Node::RunningState",

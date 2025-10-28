@@ -295,6 +295,39 @@ namespace OksEngine
 
 				RAL::Driver::ResourceSet::Binding storageBinding
 				{
+					.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+					.binding_ = 0,
+					.sbid_ = SBId
+				};
+				RAL::Driver::ResourceSet::Id SBResId = driver->CreateResource(storageBinding);
+
+				CreateComponent<Animation::NodeDataEntityIdsToComponentIndices>(driverEntityId, SBId, SBResId);
+			}
+			{
+				RAL::Driver::StorageBuffer::CreateInfo SBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId)
+				};
+				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
+
+				RAL::Driver::ResourceSet::Binding storageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
+					.binding_ = 0,
+					.sbid_ = SBId
+				};
+				RAL::Driver::ResourceSet::Id SBResId = driver->CreateResource(storageBinding);
+
+				CreateComponent<Animation::ModelNodeDataEntityIds>(driverEntityId, SBId, SBResId);
+			}
+
+			{
+				RAL::Driver::StorageBuffer::CreateInfo SBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(ECS2::Entity::Id)
+				};
+				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
+
+				RAL::Driver::ResourceSet::Binding storageBinding
+				{
 					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
 					.binding_ = 0,
 					.sbid_ = SBId

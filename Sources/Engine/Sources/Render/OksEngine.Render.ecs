@@ -44,6 +44,8 @@ CreateRenderDriverSystem = {
                     "WorldPosition3DComponentsResource",
                     "Animation::DriverLocalRotation3DComponents",
                     "Animation::LocalRotation3DComponentsResource",
+                    "Animation::NodeDataEntityIdsToComponentIndices",
+                    "Animation::ModelNodeDataEntityIds",
                     "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",
                     "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
                     "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
