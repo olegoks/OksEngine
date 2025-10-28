@@ -122,8 +122,10 @@ namespace OksEngine
 	void CreateDebugTextRenderer::Update() {
 
 		const ECS2::Entity::Id debugTextRendererEntityId = CreateEntity();
+#if !defined(NDEBUG)
 		CreateComponent<DebugTextRenderer>(debugTextRendererEntityId);
 		CreateComponent<DebugTextVertexBuffer>(debugTextRendererEntityId);
+#endif
 	};
 
 	void CreateDebugTextAtlas::Update(

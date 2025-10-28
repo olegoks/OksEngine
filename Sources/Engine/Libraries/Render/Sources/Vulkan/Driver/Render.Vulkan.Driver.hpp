@@ -1311,13 +1311,13 @@ namespace Render::Vulkan {
 			image_->commandBuffer_ = objects_.commandBuffers_[currentFrame];
 
 			currentFrame_->SetImage(image_);
-			BEGIN_PROFILE("Wait for render finish.")
+			BEGIN_PROFILE("Wait for render finish.");
 			currentFrame_->WaitForRenderToImageFinish();
 			END_PROFILE();
-			BEGIN_PROFILE("Submit new frame.")
+			BEGIN_PROFILE("Submit new frame.");
 			currentFrame_->Render();
 			END_PROFILE();
-			BEGIN_PROFILE("Show image.")
+			BEGIN_PROFILE("Show image.");
 			currentFrame_->ShowImage();
 			END_PROFILE();
 

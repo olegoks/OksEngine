@@ -169,9 +169,10 @@ namespace OksEngine
 	void CreateDrawBonesRenderer::Update() {
 
 		const ECS2::Entity::Id entityId = CreateEntity();
-
-		//CreateComponent<DebugDrawBonesRenderer>(entityId);
-		//CreateComponent<Vertices3D>(entityId);
+#if !defined(NDEBUG)
+		CreateComponent<DebugDrawBonesRenderer>(entityId);
+		CreateComponent<Vertices3D>(entityId);
+#endif
 	};
 
 	void DebugDrawBones::Update(

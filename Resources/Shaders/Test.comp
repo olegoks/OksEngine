@@ -161,20 +161,16 @@ void main() {
     //debugPrintfEXT("%d", index);
     if(index < nodeEntitiesNumber_){
         AnimationState state = states[index];
-        if(state.animationIndex_ >= 4 || IsEqual(state.animationDuration_, 0.0)) {
-            //debugPrintfEXT("Invalid animation index %d.", state.animationIndex_);
-            return;
-        }
+        // if(state.animationIndex_ >= 4 || IsEqual(state.animationDuration_, 0.0)) {
+        //     //debugPrintfEXT("Invalid animation index %d.", state.animationIndex_);
+        //     return;
+        // }
         //ModelNodeAnimations nodeAnimations = nodeAnimations_[index];
         
-        uint64_t modelNodeDataEntityId = modelNodeDataEntityIds_[index];
-        uint64_t modelNodeDataComponentsIndex = nodeDataEntityIdsToComponentIndices_[uint(modelNodeDataEntityId)];
+        //uint64_t modelNodeDataEntityId = modelNodeDataEntityIds_[index];
+        //uint64_t modelNodeDataComponentsIndex = nodeDataEntityIdsToComponentIndices_[uint(modelNodeDataEntityIds_[index])];
 
-
-
-        ModelNodeAnimations nodeAnimations = nodeAnimations_[uint(modelNodeDataComponentsIndex)];
-
-        ModelNodeAnimation animation = nodeAnimations.animations_[state.animationIndex_];
+        ModelNodeAnimation animation = nodeAnimations_[uint(nodeDataEntityIdsToComponentIndices_[uint(modelNodeDataEntityIds_[index])])].animations_[state.animationIndex_];
 
         float currentTick = state.animationDuration_ * state.currentTime_;
 
@@ -199,22 +195,20 @@ void main() {
                 //    currentPositionKey.time_);
             
             if(previousPositionKey.time_ < currentTick && currentTick < currentPositionKey.time_){
-                //debugPrintfEXT("after compare");
                 vec3 previousPosition = vec3(previousPositionKey.x_, previousPositionKey.y_, previousPositionKey.z_);
                 vec3 currentPosition = vec3(currentPositionKey.x_, currentPositionKey.y_, currentPositionKey.z_);
-                //if(distance(previousPosition, currentPosition) < 0.00001){
-                //    break;
-                //}
-                float intervalTimeInTicks = currentPositionKey.time_ - previousPositionKey.time_;
-				float currentTimeInInterval = currentTick - previousPositionKey.time_;
+
+                //float intervalTimeInTicks = currentPositionKey.time_ - previousPositionKey.time_;
+				//float currentTimeInInterval = currentTick - previousPositionKey.time_;
 				//currentTimeInInterval to [0 .. 1].
-				float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
-                vec3 calculatedPosition = mix(previousPosition, currentPosition,normalizedCurrentTimeInInterval);
+				//float normalizedCurrentTimeInInterval = currentTimeInInterval / (currentPositionKey.time_ - previousPositionKey.time_);//intervalTimeInTicks;
+                vec3 calculatedPosition = mix(previousPosition, currentPosition, (currentTick - previousPositionKey.time_) / (currentPositionKey.time_ - previousPositionKey.time_));//normalizedCurrentTimeInInterval);
                 //debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
-                positions_[index].position_.x = calculatedPosition.x;
-                positions_[index].position_.y = calculatedPosition.y;
-                positions_[index].position_.z = calculatedPosition.z;
-                positions_[index].position_.w = 0.0;
+                positions_[index].position_ = vec4(calculatedPosition, 0.0);
+                //positions_[index].position_.x = calculatedPosition.x;
+                //positions_[index].position_.y = calculatedPosition.y;
+                //positions_[index].position_.z = calculatedPosition.z;
+                //positions_[index].position_.w = 0.0;
                 
             }
 
@@ -227,17 +221,19 @@ void main() {
                 vec4 previousRotation = vec4(previousRotationKey.w_, previousRotationKey.x_, previousRotationKey.y_, previousRotationKey.z_);
                 vec4 currentRotation = vec4(currentRotationKey.w_, currentRotationKey.x_, currentRotationKey.y_, currentRotationKey.z_);
 
-                float intervalTimeInTicks = currentRotationKey.time_ - previousRotationKey.time_;
-				float currentTimeInInterval = currentTick - previousRotationKey.time_;
-				//currentTimeInInterval to [0 .. 1].
-				float normalizedCurrentTimeInInterval = currentTimeInInterval / intervalTimeInTicks;
+                //float intervalTimeInTicks = currentRotationKey.time_ - previousRotationKey.time_;
+				//float currentTimeInInterval = currentTick - previousRotationKey.time_;
+				
+                //currentTimeInInterval to [0 .. 1].
+				float normalizedCurrentTimeInInterval = (currentTick - previousRotationKey.time_)/*currentTimeInInterval*/ / (currentRotationKey.time_ - previousRotationKey.time_);//intervalTimeInTicks;
                 
                 vec4 slerp = quat_slerp(previousRotation, currentRotation, normalizedCurrentTimeInInterval);
-                //debugPrintfEXT("Rotations set");
-                rotations_[index].rotation_.x = slerp.x;
-                rotations_[index].rotation_.y = slerp.y;
-                rotations_[index].rotation_.z = slerp.z;
-                rotations_[index].rotation_.w = slerp.w;
+
+                rotations_[index].rotation_ = slerp;
+                // rotations_[index].rotation_.x = slerp.x;
+                // rotations_[index].rotation_.y = slerp.y;
+                // rotations_[index].rotation_.z = slerp.z;
+                // rotations_[index].rotation_.w = slerp.w;
 
             }
         }

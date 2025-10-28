@@ -30,9 +30,10 @@ namespace OksEngine
 
 		ECS2::Entity::Id entityId = CreateEntity();
 
+#if !defined(NDEBUG)
 		CreateComponent<ImGuiState>(entityId);
 		CreateComponent<Input::HandleKeyboardEvents>(entityId);
-
+#endif
 	};
 
 	void CreateImPlotContext::Update(

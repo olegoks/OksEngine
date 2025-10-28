@@ -327,9 +327,9 @@ namespace OksEngine
 					worldNodeScale3D->y_ = parentScale3D.y * localNodeScale3D->y_;
 					worldNodeScale3D->z_ = parentScale3D.z * localNodeScale3D->z_;
 
-					END_PROFILE();
+					
 					//UPDATE WORLD POSITION
-
+					BEGIN_PROFILE("Process child nodes.");
 					auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
 
 					if (childModelNodeEntities != nullptr) {
@@ -346,7 +346,8 @@ namespace OksEngine
 							processModelNode(childModelNodeEntityId, currentNodePosition3D, currentNodeRotation3D, currentNodeScale3D);
 						}
 					}
-
+					END_PROFILE();
+					END_PROFILE();
 			};
 
 		//auto& worldPosition3D0 = std::get<WorldPosition3D*>(components);
