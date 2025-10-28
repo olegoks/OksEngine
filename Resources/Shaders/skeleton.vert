@@ -59,23 +59,26 @@ layout(std430, set = 6, binding = 0) buffer BoneInverseBindPoseMatrices {
     mat4 boneInverseBindPoseMatrices[];
 };
 
-struct EntityIdToComponentIndex {
-    uint64_t entityId_;
-    uint64_t componentIndex_;
-};
 
 layout(std430, set = 7, binding = 0) buffer NodeEntityIdsToComponentIndices {
-    //EntityIdToComponentIndex nodeIdsToIndices[];
     uint64_t nodeComponentsIndices_[];
 };
 
 layout(std430, set = 8, binding = 0) buffer ModelEntityIdsToComponentIndices {
-    //EntityIdToComponentIndex modelIdsToIndices_[];
     uint64_t modelComponentsIndices_[];
 };
 
 layout(std430, set = 9, binding = 0) buffer ModelEntityIdentifires{
     ModelEntityIds meshModelIds_[];
+};
+
+// Model node data ids for model nodes.
+layout(std430, set = 10, binding = 0) buffer ModelNodeDataEntityIds {
+    uint64_t modelNodeDataEntityIds_[]; //[modelNodeComponentsIndex] -> model node data id
+};
+
+layout(std430, set = 11, binding = 0) buffer ModelNodeDataEntityIdsToComponentIndices {
+    uint64_t modelNodeDataEntityIdsToComponentIndices_[];
 };
 
 layout(location = 0) out vec4 fragColor;
@@ -189,21 +192,23 @@ vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint64_t modelCompo
             uint(boneIndexInModelSpace), 
             uint(modelComponentsIndex));
 
-        uint64_t boneComponentIndex = GetComponentIndexByNodeEntityId(nodeEntityId);
+        uint64_t nodeComponentsIndex = GetComponentIndexByNodeEntityId(nodeEntityId);
+        uint64_t modelNodeDataEntityId = modelNodeDataEntityIds_[uint(nodeComponentsIndex)];
+        uint64_t modelNodeDataComponentsIndex = modelNodeDataEntityIdsToComponentIndices_[uint(modelNodeDataEntityId)];
+        
 
-        ASSERT_FMSG_3(boneComponentIndex != -1, 
+        ASSERT_FMSG_3(nodeComponentsIndex != -1, 
          "ASSERT: Invalid bone component index calculated for bone entity id %d. Vertex bone index %d. Bone index in model space %d.",
           uint(nodeEntityId), bone, boneIndexInModelSpace);
 
-        uint uintBoneComponentIndex = uint(boneComponentIndex); // cast to use in []
+        uint uintNodeComponentIndex = uint(nodeComponentsIndex); // cast to use in []
+
+        vec3 translate = vec3(positions_[uintNodeComponentIndex].position_.x, positions_[uintNodeComponentIndex].position_.y, positions_[uintNodeComponentIndex].position_.z);
+        vec4 rotation = rotations_[uintNodeComponentIndex].rotation_;
+        vec3 scale = vec3(scales_[uintNodeComponentIndex].scale_.x, scales_[uintNodeComponentIndex].scale_.y, scales_[uintNodeComponentIndex].scale_.z);
 
 
-        vec3 translate = vec3(positions_[uintBoneComponentIndex].position_.x, positions_[uintBoneComponentIndex].position_.y, positions_[uintBoneComponentIndex].position_.z);
-        vec4 rotation = rotations_[uintBoneComponentIndex].rotation_;
-        vec3 scale = vec3(scales_[uintBoneComponentIndex].scale_.x, scales_[uintBoneComponentIndex].scale_.y, scales_[uintBoneComponentIndex].scale_.z);
-
-
-        mat4 boneInverseBindPoseMatrix = boneInverseBindPoseMatrices[uintBoneComponentIndex];
+        mat4 boneInverseBindPoseMatrix = boneInverseBindPoseMatrices[uint(modelNodeDataComponentsIndex)];
         mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
 
         position = position + boneWeight * boneWorldTransform * boneInverseBindPoseMatrix * vertexPosition;

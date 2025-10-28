@@ -191,7 +191,7 @@ ProcessModelSystem = {
                     "WorldPosition3D",
                     "WorldRotation3D",
                     "WorldScale3D",
-                    "ModelAnimations",
+                    "Render::Model::ModelDataEntityId",
                     "ChildModelNodeEntities"
                 },
                 createsComponents = {
@@ -211,6 +211,11 @@ ProcessModelSystem = {
             }
         },
         accessingEntities = {
+            {
+                accessingComponents = {
+                    "ModelAnimations"
+                }
+            },
             {
                 accessingComponents = {
                     "WorldPosition3D",
@@ -464,11 +469,12 @@ RenderNamespace = {
                 "ModelEntity",
                 "ChildModelNodeEntities",
                 "ModelDataEntityId", -- Data model entity id
+                "BoneNode",
+                "BoneInverseBindPoseMatrix"
 
             },
             archetypes = {
-                "Animation::Animation",
-                "Bone"
+                "Animation::Animation"
             }
         },
         ModelDataComponent = {
@@ -1069,7 +1075,7 @@ AddSkeletonModelToRenderSystem = {
         },
         accessingEntities = {
             {
-                archetype = "Node_Bone_Animated",
+                archetype = "Render::Model::Node",
                 -- accessingComponents = {
                 --     "ModelNode",
                 --     "Name",
@@ -1092,7 +1098,13 @@ AddSkeletonModelToRenderSystem = {
                 -- }
             },
             {
+                archetype = "Render::Model::Node_Data"
+            },
+            {
                 archetype = "Model"
+            },
+            {
+                archetype = "Model_Data"
             },
             {
                 archetype = "Mesh"
@@ -1133,7 +1145,6 @@ ModelArchetype = {
         "Model",
         "ModelNodeEntityIds",
         "BoneNodeEntities",
-        "ModelAnimations",
         "RunModelAnimation",
         "AnimationInProgress",
         "PauseAnimation",
@@ -1180,31 +1191,31 @@ MeshArchetype = {
 
 
 
-BoneArchetype = {
-    components = {
-        "BoneNode",
-        "BoneInverseBindPoseMatrix"
-    }
-}
+-- BoneArchetype = {
+--     components = {
+--         "BoneNode",
+--         "BoneInverseBindPoseMatrix"
+--     }
+-- }
 
-Node_AnimatedArchetype = {
-    archetypes = {
-        "Render::Model::Node",
-        "Animation::Animation"
-    }
-}
+-- Node_AnimatedArchetype = {
+--     archetypes = {
+--         "Render::Model::Node",
+--         "Animation::Animation"
+--     }
+-- }
 
-Node_BoneArchetype = {
-    archetypes = {
-        "Render::Model::Node",
-        "Bone"
-    }
-}
+-- Node_BoneArchetype = {
+--     archetypes = {
+--         "Render::Model::Node",
+--         "Bone"
+--     }
+-- }
 
-Node_Bone_AnimatedArchetype = {
-    archetypes = {
-        "Render::Model::Node",
-        "Bone",
-        "Animation::Animation"
-    }
-}
+-- Node_Bone_AnimatedArchetype = {
+--     archetypes = {
+--         "Render::Model::Node",
+--         "Bone",
+--         "Animation::Animation"
+--     }
+-- }
