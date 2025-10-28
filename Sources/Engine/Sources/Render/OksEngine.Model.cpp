@@ -188,9 +188,6 @@ namespace OksEngine
 
 		//PROSESS RUNNING ANIMATION
 
-
-
-
 		//PROCESS ANIMATION START
 
 		Common::UInt32 animationIndex = 0;
@@ -224,6 +221,14 @@ namespace OksEngine
 		}
 		//PROCESS ANIMATION START
 
+
+		{
+			/*auto nodesComponents = GetComponents<RENDER__MODEL__NODE>();
+			childModelNodeEntities0->childEntityIds_;*/
+
+		}
+
+
 		std::function<void(ECS2::Entity::Id, const glm::fvec3&, const glm::quat&, const glm::fvec3&)> processModelNode
 			= [&](ECS2::Entity::Id nodeEntityId,
 				const glm::fvec3& parentPosition3D,
@@ -232,7 +237,6 @@ namespace OksEngine
 
 
 					BEGIN_PROFILE("Processing model node with entity id %d", nodeEntityId);
-
 
 					auto components = GetComponents<
 						LocalPosition3D,
@@ -253,6 +257,7 @@ namespace OksEngine
 						auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
 
 						if (animationRunningState != nullptr) {
+							animationRunningState->animationIndex_ = animationInProgress->animationIndex_;
 							animationRunningState->animationDuration_ = runningModelAnimation.durationInTicks_;
 							animationRunningState->currentTime_ = currentAnimationStage;
 							if (isAnimationEnded) {
@@ -305,13 +310,10 @@ namespace OksEngine
 					{
 						const glm::vec3 worldNodePosition3DVec = parentPosition3D + parentRotation3D * (parentScale3D * glm::vec3{ localNodePosition3D->x_, localNodePosition3D->y_, localNodePosition3D->z_ });
 
-
-#pragma region Assert
 						ASSERT_FMSG(
 							!std::isnan(worldNodePosition3DVec.x) &&
 							!std::isnan(worldNodePosition3DVec.y) &&
 							!std::isnan(worldNodePosition3DVec.z), "");
-#pragma endregion
 
 						worldNodePosition3D->x_ = worldNodePosition3DVec.x;
 						worldNodePosition3D->y_ = worldNodePosition3DVec.y;
@@ -329,7 +331,6 @@ namespace OksEngine
 
 					
 					//UPDATE WORLD POSITION
-					BEGIN_PROFILE("Process child nodes.");
 					auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
 
 					if (childModelNodeEntities != nullptr) {
@@ -338,15 +339,12 @@ namespace OksEngine
 						const glm::quat currentNodeRotation3D = { worldNodeRotation3D->w_, worldNodeRotation3D->x_, worldNodeRotation3D->y_, worldNodeRotation3D->z_ };
 						const glm::fvec3 currentNodeScale3D = { worldNodeScale3D->x_, worldNodeScale3D->y_, worldNodeScale3D->z_ };
 
-
-
 						const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->childEntityIds_;
 						for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
 
 							processModelNode(childModelNodeEntityId, currentNodePosition3D, currentNodeRotation3D, currentNodeScale3D);
 						}
 					}
-					END_PROFILE();
 					END_PROFILE();
 			};
 

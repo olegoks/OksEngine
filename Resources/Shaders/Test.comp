@@ -154,6 +154,28 @@ layout(std430, set = 5, binding = 0) buffer NodeDataEntityIdsToComponentIndices 
 //          ModelNodeAnimation pointer;
 //  };
 
+
+uint binarySearchPositionKeys(in Position3DKeys keys, float currentTick) {
+    uint low = 0;
+    uint high = 31;
+    
+    while (low <= high) {
+        uint mid = (low + high) / 2;
+        float midTime = keys.keys_[mid].time_;
+        
+        if (midTime < currentTick) {
+            low = mid + 1;
+        } else if (midTime > currentTick) {
+            high = mid - 1;
+        } else {
+            return mid;
+        }
+    }
+    
+    return low; // Возвращаем верхнюю границу интервала
+}
+
+
 void main() {
     
     //debugPrintfEXT("%d", entitiesNumber_);

@@ -249,7 +249,10 @@ ProcessModelSystem = {
                 createsComponents = {
                     "Animation::Model::Node::RunningState"
                 }
-            }
+            },
+            {
+                archetype = "Render::Model::Node",
+            },
         }
     }
 }

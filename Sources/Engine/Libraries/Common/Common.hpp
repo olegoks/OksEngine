@@ -169,7 +169,7 @@ namespace Common {
 #endif
 	}
 
-//#define ENABLE_PROFILE
+#define ENABLE_PROFILE
 
 #if !defined(NDEBUG) || defined(ENABLE_PROFILE)
 
