@@ -29,7 +29,7 @@ namespace OksEngine
 	void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, AnimationInProgress* animationInProgress) {
 		ImGui::PushID(AnimationInProgress::GetTypeId());
 
-		ImGui::TextDisabled("Animation name %s", animationInProgress->animationName_.c_str());
+		ImGui::TextDisabled("Animation index %d", animationInProgress->animationIndex_);
 		ImGui::TextDisabled("Duration in ticks %f", animationInProgress->durationInTicks_);
 		ImGui::TextDisabled("Current tick %f", animationInProgress->currentTick_);
 		ImGui::TextDisabled("Ticks per second %f", animationInProgress->ticksPerSecond_);
@@ -80,7 +80,7 @@ namespace OksEngine
 		const WorldScale3D* worldScale3D0,
 		const Render::Model::ModelDataEntityId* render__Model__ModelDataEntityId0,
 		const ChildModelNodeEntities* childModelNodeEntities0,
-		
+
 		ECS2::Entity::Id entity1id,
 		const Clock* clock1,
 		const TimeSinceEngineStart* timeSinceEngineStart1) {
@@ -208,7 +208,7 @@ namespace OksEngine
 
 			CreateComponent<AnimationInProgress>(
 				modelEntityId,
-				runModelAnimation->animationName_,
+				//runModelAnimation->animationName_,
 				animationIndex,
 				0.0,
 				modelAnimationIt->durationInTicks_,
@@ -329,7 +329,7 @@ namespace OksEngine
 					worldNodeScale3D->y_ = parentScale3D.y * localNodeScale3D->y_;
 					worldNodeScale3D->z_ = parentScale3D.z * localNodeScale3D->z_;
 
-					
+
 					//UPDATE WORLD POSITION
 					auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
 
@@ -2451,6 +2451,14 @@ namespace OksEngine
 				auto* modelNodeDataAnimations = std::get<Animation::Model::Node::Animations*>(nodesDataComponents);
 				std::vector<Common::UInt64> nodesDataIds = createEntityIndices(nodesDataEntityIds, nodeDataEntitiesNumber);
 
+				//Models.
+				Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
+				auto modelsComponents = world_->GetComponents<MODEL>();
+				auto* modelsEntityIds = std::get<ECS2::Entity::Id*>(modelsComponents);
+				auto* animationInProgressEntityIds = std::get<AnimationInProgress*>(modelsComponents);
+
+
+
 				if (nodeEntitiesNumber > 0 && nodeDataEntitiesNumber > 0) {
 					Common::BreakPointLine();
 				}
@@ -2510,6 +2518,17 @@ namespace OksEngine
 
 				driver->StartCompute();
 				driver->BindComputePipeline(pipeline0->pipelineId_);
+
+
+				//struct AnimationInfo {
+				//	Common::UInt32 modelNodesNumber_ = Common::Limits<Common::UInt32>::Max();
+				//	Common::UInt32 animationIndex_ = Common::Limits<Common::UInt32>::Max();
+				//	float animationDuration_ = 0.0; // Duration in ticks.
+				//	float currentTime_ = 0.0; //[0..1].
+				//} animationInfo{
+				//	.modelNodesNumber_ = nodeEntitiesNumber,
+				//	.animationIndex_ = 
+				//}
 
 				driver->ComputePushConstants(
 					pipeline0->pipelineId_,
@@ -3113,8 +3132,23 @@ namespace OksEngine
 			0,
 			nodesDataEntityIds,
 			nodesEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId));
-		
+
 		driver->BindPipeline(skeletonModelPipeline0->id_);
+
+		driver->Bind(skeletonModelPipeline0->id_, 2,
+			{
+			gPGPUECS__StorageBuffer__WorldPositions3D0->resourceSetId_,						// set 2
+			gPGPUECS__StorageBuffer__WorldRotations3D0->resourceSetId_,						// set 3
+			gPGPUECS__StorageBuffer__WorldScales3D0->resourceSetId_,						// set 4
+			gPGPUECS__StorageBuffer__BoneNodeEntities0->resourceSetId_,						// set 5
+			gPGPUECS__StorageBuffer__BoneInverseBindPoseMatrices0->resourceSetId_,			// set 6
+			gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->resourceSetId_,		// set 7
+			gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->resourceSetId_,		// set 8
+			gPGPUECS__StorageBuffer__ModelEntityIds0->resourceSetId_,						// set 9
+			gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0->resourceSetId_,				// set 10
+			gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0->resourceSetId_	// set 11
+			}
+		);
 
 		for (Common::Index i = 0; i < meshEntitiesNumber; i++) {
 			if (meshEntitiesIds[i].IsValid()) {
@@ -3148,17 +3182,8 @@ namespace OksEngine
 				driver->Bind(skeletonModelPipeline0->id_, 0,
 					{
 						cameraTransformResource1->id_,													// set 0
-						textureResource->id_,															// set 1
-						gPGPUECS__StorageBuffer__WorldPositions3D0->resourceSetId_,						// set 2
-						gPGPUECS__StorageBuffer__WorldRotations3D0->resourceSetId_,						// set 3
-						gPGPUECS__StorageBuffer__WorldScales3D0->resourceSetId_,						// set 4
-						gPGPUECS__StorageBuffer__BoneNodeEntities0->resourceSetId_,						// set 5
-						gPGPUECS__StorageBuffer__BoneInverseBindPoseMatrices0->resourceSetId_,			// set 6
-						gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->resourceSetId_,		// set 7
-						gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->resourceSetId_,		// set 8
-						gPGPUECS__StorageBuffer__ModelEntityIds0->resourceSetId_,						// set 9
-						gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0->resourceSetId_,				// set 10
-						gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0->resourceSetId_	// set 11
+						textureResource->id_															// set 1
+
 					});
 
 				auto invalidEntityIdIt = std::find(

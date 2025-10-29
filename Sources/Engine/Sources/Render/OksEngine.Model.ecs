@@ -169,7 +169,6 @@ AnimationInProgressComponent = {
     serializable = false,
     manualEditFunction = true,
     fields = {
-        { type = "std::string",    name = "animationName" },
         { type = "Common::UInt64", name = "animationIndex" },
         { type = "double",         name = "currentTick" },
         { type = "double",         name = "durationInTicks" },

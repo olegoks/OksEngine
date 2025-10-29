@@ -92,99 +92,99 @@ layout(push_constant) uniform PushConstants {
     uint64_t meshComponentsIndex_;      // Components index for current mesh.
 };
 
-uint64_t GetComponentIndexByNodeEntityId(uint64_t entityId){
+// uint64_t GetComponentIndexByNodeEntityId(uint64_t entityId){
 
-    return nodeComponentsIndices_[uint(entityId)];
+//     return ;
 
-    //TODO: use binary search
-    // for(uint i = 0; i < nodeEntitiesNumber_; i++){
-    //     if(nodeIdsToIndices[i].entityId_ == entityId){
-    //         //ASSERT_MSG(entityId != INVALID_ENTITY_ID, "ASSERT: Invalid bone node entity id.");
-    //         return nodeIdsToIndices[i].componentIndex_;
-    //     }
-    // }
+//     //TODO: use binary search
+//     // for(uint i = 0; i < nodeEntitiesNumber_; i++){
+//     //     if(nodeIdsToIndices[i].entityId_ == entityId){
+//     //         //ASSERT_MSG(entityId != INVALID_ENTITY_ID, "ASSERT: Invalid bone node entity id.");
+//     //         return nodeIdsToIndices[i].componentIndex_;
+//     //     }
+//     // }
 
-    // return (-1);
+//     // return (-1);
 
 
-    //idsToIndices sorted
-    // uint left = 0;
-    // uint right = uint(nodeEntitiesNumber_) - 1;
+//     //idsToIndices sorted
+//     // uint left = 0;
+//     // uint right = uint(nodeEntitiesNumber_) - 1;
     
-    // while (left <= right) {
-    //     uint mid = left + (right - left) / 2;
+//     // while (left <= right) {
+//     //     uint mid = left + (right - left) / 2;
         
-    //     if (nodeIdsToIndices[mid].entityId_ == entityId) {
-    //         return uint64_t(mid);
-    //     }
+//     //     if (nodeIdsToIndices[mid].entityId_ == entityId) {
+//     //         return uint64_t(mid);
+//     //     }
         
-    //     if (nodeIdsToIndices[mid].entityId_ < entityId) {
-    //         left = mid + 1;
-    //     } else {
-    //         right = mid - 1;
-    //     }
-    // }
+//     //     if (nodeIdsToIndices[mid].entityId_ < entityId) {
+//     //         left = mid + 1;
+//     //     } else {
+//     //         right = mid - 1;
+//     //     }
+//     // }
     
-    // return (-1);
+//     // return (-1);
 
-}
+// }
 
-uint64_t GetComponentIndexByModelEntityId(uint64_t modelEntityId){
+// uint64_t GetComponentIndexByModelEntityId(uint64_t modelEntityId){
 
-    return modelComponentsIndices_[uint(modelEntityId)];
+//     return modelComponentsIndices_[uint(modelEntityId)];
 
 
-    //TODO: use binary search
-    // for(uint i = 0; i < modelEntitiesNumber_; i++){
-    //     //ASSERT_FMSG_1(modelIdsToIndices_[i].entityId_ != 0, "modelIdsToIndices_ contains invalid entity id 0. Index %d.", i);
-    //     if(modelIdsToIndices_[i].entityId_ == modelEntityId){
-    //         //ASSERT_MSG(modelEntityId != INVALID_ENTITY_ID, "ASSERT: Invalid bone node entity id.");
-    //         return modelIdsToIndices_[i].componentIndex_;
-    //     }
-    // }
-    // return (-1);
+//     //TODO: use binary search
+//     // for(uint i = 0; i < modelEntitiesNumber_; i++){
+//     //     //ASSERT_FMSG_1(modelIdsToIndices_[i].entityId_ != 0, "modelIdsToIndices_ contains invalid entity id 0. Index %d.", i);
+//     //     if(modelIdsToIndices_[i].entityId_ == modelEntityId){
+//     //         //ASSERT_MSG(modelEntityId != INVALID_ENTITY_ID, "ASSERT: Invalid bone node entity id.");
+//     //         return modelIdsToIndices_[i].componentIndex_;
+//     //     }
+//     // }
+//     // return (-1);
 
-    // uint left = 0;
-    // uint right = uint(modelEntitiesNumber_) - 1;
+//     // uint left = 0;
+//     // uint right = uint(modelEntitiesNumber_) - 1;
     
-    // while (left <= right) {
-    //     uint mid = left + (right - left) / 2;
+//     // while (left <= right) {
+//     //     uint mid = left + (right - left) / 2;
         
-    //     if (modelIdsToIndices_[mid].entityId_ == modelEntityId) {
-    //         return mid;
-    //     }
+//     //     if (modelIdsToIndices_[mid].entityId_ == modelEntityId) {
+//     //         return mid;
+//     //     }
         
-    //     if (modelIdsToIndices_[mid].entityId_ < modelEntityId) {
-    //         left = mid + 1;
-    //     } else {
-    //         right = mid - 1;
-    //     }
-    // }
+//     //     if (modelIdsToIndices_[mid].entityId_ < modelEntityId) {
+//     //         left = mid + 1;
+//     //     } else {
+//     //         right = mid - 1;
+//     //     }
+//     // }
     
-    // return uint64_t(-1);
+//     // return uint64_t(-1);
 
-}
+// }
 
 
-bool IsBoneWeightSignificant(float weight) {
-    //ASSERT_MSG(weight <= 1.0, "ASSERT: Invalid bone weight.");
-    return weight > 0.00001;
-}
+// bool IsBoneWeightSignificant(float weight) {
+//     //ASSERT_MSG(weight <= 1.0, "ASSERT: Invalid bone weight.");
+//     return weight > 0.00001;
+// }
 
 //position - position that bone will effect.
 //bone - index of one of 4 bones.
-vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint64_t modelComponentsIndex, uint bone) {
+vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint modelComponentsIndex, uint bone) {
 
     //ModelNodeEntityIds modelNodeEntityIds = ;
 
     float boneWeight = inBoneWeights[bone];
-    if(IsBoneWeightSignificant(boneWeight)) {
+    if(boneWeight > 0.00001) {
 
         uint boneIndexInModelSpace = inBoneIds[bone];
         if(boneIndexInModelSpace == 512) {
             return position;
         }
-        uint64_t nodeEntityId = modelNodeEntityIds_[uint(modelComponentsIndex)].nodeIds_[boneIndexInModelSpace];
+        uint64_t nodeEntityId = modelNodeEntityIds_[modelComponentsIndex].nodeIds_[boneIndexInModelSpace];
 
         // ASSERT_FMSG_2(
         //     (nodeEntityId != INVALID_ENTITY_ID) && (nodeEntityId != 0), 
@@ -192,26 +192,23 @@ vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint64_t modelCompo
         //     uint(boneIndexInModelSpace), 
         //     uint(modelComponentsIndex));
 
-        uint64_t nodeComponentsIndex = GetComponentIndexByNodeEntityId(nodeEntityId);
-        uint64_t modelNodeDataEntityId = modelNodeDataEntityIds_[uint(nodeComponentsIndex)];
+        uint nodeComponentsIndex = uint(nodeComponentsIndices_[uint(nodeEntityId)]);
+        uint64_t modelNodeDataEntityId = modelNodeDataEntityIds_[nodeComponentsIndex];
         uint64_t modelNodeDataComponentsIndex = modelNodeDataEntityIdsToComponentIndices_[uint(modelNodeDataEntityId)];
         
 
         // ASSERT_FMSG_3(nodeComponentsIndex != -1, 
         //  "ASSERT: Invalid bone component index calculated for bone entity id %d. Vertex bone index %d. Bone index in model space %d.",
         //   uint(nodeEntityId), bone, boneIndexInModelSpace);
-
-        uint uintNodeComponentIndex = uint(nodeComponentsIndex); // cast to use in []
-
-        vec3 translate = vec3(positions_[uintNodeComponentIndex].position_.x, positions_[uintNodeComponentIndex].position_.y, positions_[uintNodeComponentIndex].position_.z);
-        vec4 rotation = rotations_[uintNodeComponentIndex].rotation_;
-        vec3 scale = vec3(scales_[uintNodeComponentIndex].scale_.x, scales_[uintNodeComponentIndex].scale_.y, scales_[uintNodeComponentIndex].scale_.z);
+        vec3 translate = vec3(positions_[nodeComponentsIndex].position_.x, positions_[nodeComponentsIndex].position_.y, positions_[nodeComponentsIndex].position_.z);
+        vec4 rotation = rotations_[nodeComponentsIndex].rotation_;
+        vec3 scale = vec3(scales_[nodeComponentsIndex].scale_.x, scales_[nodeComponentsIndex].scale_.y, scales_[nodeComponentsIndex].scale_.z);
 
 
-        mat4 boneInverseBindPoseMatrix = boneInverseBindPoseMatrices[uint(modelNodeDataComponentsIndex)];
-        mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
+        //mat4 boneInverseBindPoseMatrix = boneInverseBindPoseMatrices[uint(modelNodeDataComponentsIndex)];
+        //mat4 boneWorldTransform = RTS_to_mat4_optimized(translate, rotation, scale);
 
-        position = position + boneWeight * boneWorldTransform * boneInverseBindPoseMatrix * vertexPosition;
+        position = position + boneWeight * RTS_to_mat4_optimized(translate, rotation, scale) * boneInverseBindPoseMatrices[uint(modelNodeDataComponentsIndex)] * vertexPosition;
     }
 
     return position;
@@ -234,7 +231,7 @@ void main() {
     //      int(meshComponentsIndex_));
 
     //Get index of model components.
-    uint64_t modelComponentsIndex = GetComponentIndexByModelEntityId(modelEntityId);
+    uint modelComponentsIndex = uint(modelComponentsIndices_[uint(modelEntityId)]);//GetComponentIndexByModelEntityId(modelEntityId);
     // ASSERT_FMSG_3(modelComponentsIndex != -1, 
     //      "ASSERT: Invalid model component index calculated for model entity id %i. meshComponentsIndex_ %i gl_InstanceIndex %i",
     //       int(modelEntityId),
@@ -247,7 +244,7 @@ void main() {
 
     outUV = inUV;
 
-    ASSERT_MSG(!any(isnan(newPosition)), "Calculated vertex position is nan.");
+    //ASSERT_MSG(!any(isnan(newPosition)), "Calculated vertex position is nan.");
 
     gl_Position = camera.proj * camera.view * (vec4(newPosition.xyz, 1.0));
 }

@@ -7,10 +7,7 @@
 namespace OS {
 
 	void AssertMessage(bool expression, const char* message, const std::source_location& location) {
-	
-		if constexpr (!Common::IsDebug()) {
-			return;
-		}
+
 		if (expression) {
 			return;
 		}
@@ -32,9 +29,6 @@ namespace OS {
 	}
 
 	void Assert(bool expression) {
-		if (!Common::IsDebug()) {
-			return;
-		}
 		if (expression) {
 			return;
 		}

@@ -3,6 +3,7 @@
 #extension GL_EXT_buffer_reference : enable
 #extension GL_GOOGLE_include_directive : require
 #extension GL_ARB_gpu_shader_int64 : enable
+#extension GL_EXT_debug_printf : enable
 #include "/common/OksEngine.Common.Math3D.glsl"
 //Total Threads = Workgroups × Local Size
 //
@@ -158,23 +159,82 @@ layout(std430, set = 5, binding = 0) buffer NodeDataEntityIdsToComponentIndices 
 uint binarySearchPositionKeys(in Position3DKeys keys, float currentTick) {
     uint low = 0;
     uint high = 31;
-    
+
+    if(IsEqual(keys.keys_[low].time_, 0.0) && IsEqual(keys.keys_[high].time_, 0.0)){
+       return 1;
+    }
+
+    if(keys.keys_[low].time_ <= currentTick && currentTick  <= keys.keys_[low + 1].time_){
+        return 1;
+    }
+
+    if(keys.keys_[high - 1].time_ <= currentTick && currentTick  <= keys.keys_[high].time_){
+        return 31;
+    }
+    //uint counter = 0;
     while (low <= high) {
         uint mid = (low + high) / 2;
         float midTime = keys.keys_[mid].time_;
         
+        if(midTime <= currentTick && currentTick <= keys.keys_[mid + 1].time_) {
+            return mid + 1;
+        }
+
         if (midTime < currentTick) {
             low = mid + 1;
-        } else if (midTime > currentTick) {
-            high = mid - 1;
         } else {
-            return mid;
+            high = mid - 1;
         }
+
+        if(low == high) {
+            return high;
+        }
+        // counter = counter + 1;
+        // if(counter > 16) {
+        //     return 1;
+        // }
+        // ASSERT_MSG(counter < 16, "ASSERT: Infinite loop.");
+        // ASSERT_MSG(low < 32, "ASSERT: Invalid low index");
+        // ASSERT_MSG(high < 32, "ASSERT: Invalid high index");
     }
     
-    return low; // Возвращаем верхнюю границу интервала
+    return low; 
 }
 
+void Calculate(in ModelNodeAnimation animation, float currentTick, uint index) {
+        for(uint i = 1; i < 32; i++){
+            const Position3DKey previousPositionKey = animation.position3DKeys_.keys_[i - 1];
+			const Position3DKey currentPositionKey = animation.position3DKeys_.keys_[i];
+
+            if(previousPositionKey.time_ < currentTick && currentTick < currentPositionKey.time_){
+                vec3 previousPosition = vec3(previousPositionKey.x_, previousPositionKey.y_, previousPositionKey.z_);
+                vec3 currentPosition = vec3(currentPositionKey.x_, currentPositionKey.y_, currentPositionKey.z_);
+				//currentTimeInInterval to [0 .. 1].
+				//float normalizedCurrentTimeInInterval = currentTimeInInterval / (currentPositionKey.time_ - previousPositionKey.time_);//intervalTimeInTicks;
+                vec3 calculatedPosition = mix(previousPosition, currentPosition, (currentTick - previousPositionKey.time_) / (currentPositionKey.time_ - previousPositionKey.time_));//normalizedCurrentTimeInInterval);
+                //debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
+                positions_[index].position_ = vec4(calculatedPosition, 0.0);
+
+            }
+
+        }
+
+        for(uint i = 1; i < 32; i++){
+            const Rotation3DKey previousRotationKey = animation.rotationKeys_.keys_[i - 1];
+			const Rotation3DKey currentRotationKey = animation.rotationKeys_.keys_[i];
+            if(previousRotationKey.time_ < currentTick && currentTick < currentRotationKey.time_){
+                vec4 previousRotation = vec4(previousRotationKey.w_, previousRotationKey.x_, previousRotationKey.y_, previousRotationKey.z_);
+                vec4 currentRotation = vec4(currentRotationKey.w_, currentRotationKey.x_, currentRotationKey.y_, currentRotationKey.z_);
+                //currentTimeInInterval to [0 .. 1].
+				float normalizedCurrentTimeInInterval = (currentTick - previousRotationKey.time_)/*currentTimeInInterval*/ / (currentRotationKey.time_ - previousRotationKey.time_);//intervalTimeInTicks;
+                
+                vec4 slerp = quat_slerp(previousRotation, currentRotation, normalizedCurrentTimeInInterval);
+
+                rotations_[index].rotation_ = slerp;
+
+            }
+        }
+}
 
 void main() {
     
@@ -192,10 +252,14 @@ void main() {
         //uint64_t modelNodeDataEntityId = modelNodeDataEntityIds_[index];
         //uint64_t modelNodeDataComponentsIndex = nodeDataEntityIdsToComponentIndices_[uint(modelNodeDataEntityIds_[index])];
 
-        ModelNodeAnimation animation = nodeAnimations_[uint(nodeDataEntityIdsToComponentIndices_[uint(modelNodeDataEntityIds_[index])])].animations_[state.animationIndex_];
+        //ModelNodeAnimation animation = nodeAnimations_[uint(nodeDataEntityIdsToComponentIndices_[uint(modelNodeDataEntityIds_[index])])].animations_[state.animationIndex_];
 
         float currentTick = state.animationDuration_ * state.currentTime_;
 
+
+        Calculate(
+            nodeAnimations_[uint(nodeDataEntityIdsToComponentIndices_[uint(modelNodeDataEntityIds_[index])])].animations_[state.animationIndex_],
+            state.animationDuration_ * state.currentTime_, index);
 
             //debugPrintfEXT(
             //"\nIndex %d \nDuration: %f\n Time factor: %f\n Current time: %f\n", 
@@ -204,61 +268,81 @@ void main() {
             //    state.currentTime_,
             //    currentTick);
         
-        
-        for(uint i = 1; i < 32; i++){
-            const Position3DKey previousPositionKey = animation.position3DKeys_.keys_[i - 1];
-			const Position3DKey currentPositionKey = animation.position3DKeys_.keys_[i];
-            
-                //debugPrintfEXT(
-                //    "\nIndex %d \nprevios: %f\n Current: %f\n Current key: %f\n", 
-                //    index,
-                //    previousPositionKey.time_,
-                //    currentTick,
-                //    currentPositionKey.time_);
-            
-            if(previousPositionKey.time_ < currentTick && currentTick < currentPositionKey.time_){
-                vec3 previousPosition = vec3(previousPositionKey.x_, previousPositionKey.y_, previousPositionKey.z_);
-                vec3 currentPosition = vec3(currentPositionKey.x_, currentPositionKey.y_, currentPositionKey.z_);
+        // {
+        //     uint positionKeyIndex = binarySearchPositionKeys(animation.position3DKeys_, currentTick);
 
-                //float intervalTimeInTicks = currentPositionKey.time_ - previousPositionKey.time_;
-				//float currentTimeInInterval = currentTick - previousPositionKey.time_;
-				//currentTimeInInterval to [0 .. 1].
-				//float normalizedCurrentTimeInInterval = currentTimeInInterval / (currentPositionKey.time_ - previousPositionKey.time_);//intervalTimeInTicks;
-                vec3 calculatedPosition = mix(previousPosition, currentPosition, (currentTick - previousPositionKey.time_) / (currentPositionKey.time_ - previousPositionKey.time_));//normalizedCurrentTimeInInterval);
-                //debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
-                positions_[index].position_ = vec4(calculatedPosition, 0.0);
-                //positions_[index].position_.x = calculatedPosition.x;
-                //positions_[index].position_.y = calculatedPosition.y;
-                //positions_[index].position_.z = calculatedPosition.z;
-                //positions_[index].position_.w = 0.0;
+        //     ASSERT_FMSG_1(positionKeyIndex < 32, "ASSERT: Invalid position key index %d", positionKeyIndex);
+            
+        //     if(positionKeyIndex < 32){
                 
-            }
+            
+        //     const Position3DKey previousPositionKey = animation.position3DKeys_.keys_[positionKeyIndex - 1];
+		// 	const Position3DKey currentPositionKey = animation.position3DKeys_.keys_[positionKeyIndex];
+        //      if(previousPositionKey.time_ < currentTick && currentTick < currentPositionKey.time_){
+        //         vec3 previousPosition = vec3(previousPositionKey.x_, previousPositionKey.y_, previousPositionKey.z_);
+        //         vec3 currentPosition = vec3(currentPositionKey.x_, currentPositionKey.y_, currentPositionKey.z_);
 
-        }
+        //         vec3 calculatedPosition = mix(previousPosition, currentPosition, (currentTick - previousPositionKey.time_) / (currentPositionKey.time_ - previousPositionKey.time_));
+        //         positions_[index].position_ = vec4(calculatedPosition, 0.0);
+                
+        //     }
+        //     }
+        // }
 
-        for(uint i = 1; i < 32; i++){
-            const Rotation3DKey previousRotationKey = animation.rotationKeys_.keys_[i - 1];
-			const Rotation3DKey currentRotationKey = animation.rotationKeys_.keys_[i];
-            if(previousRotationKey.time_ < currentTick && currentTick < currentRotationKey.time_){
-                vec4 previousRotation = vec4(previousRotationKey.w_, previousRotationKey.x_, previousRotationKey.y_, previousRotationKey.z_);
-                vec4 currentRotation = vec4(currentRotationKey.w_, currentRotationKey.x_, currentRotationKey.y_, currentRotationKey.z_);
+        // for(uint i = 1; i < 32; i++){
+        //     const Position3DKey previousPositionKey = animation.position3DKeys_.keys_[i - 1];
+		// 	const Position3DKey currentPositionKey = animation.position3DKeys_.keys_[i];
+            
+        //         //debugPrintfEXT(
+        //         //    "\nIndex %d \nprevios: %f\n Current: %f\n Current key: %f\n", 
+        //         //    index,
+        //         //    previousPositionKey.time_,
+        //         //    currentTick,
+        //         //    currentPositionKey.time_);
+            
+        //     if(previousPositionKey.time_ < currentTick && currentTick < currentPositionKey.time_){
+        //         vec3 previousPosition = vec3(previousPositionKey.x_, previousPositionKey.y_, previousPositionKey.z_);
+        //         vec3 currentPosition = vec3(currentPositionKey.x_, currentPositionKey.y_, currentPositionKey.z_);
 
-                //float intervalTimeInTicks = currentRotationKey.time_ - previousRotationKey.time_;
-				//float currentTimeInInterval = currentTick - previousRotationKey.time_;
+        //         //float intervalTimeInTicks = currentPositionKey.time_ - previousPositionKey.time_;
+		// 		//float currentTimeInInterval = currentTick - previousPositionKey.time_;
+		// 		//currentTimeInInterval to [0 .. 1].
+		// 		//float normalizedCurrentTimeInInterval = currentTimeInInterval / (currentPositionKey.time_ - previousPositionKey.time_);//intervalTimeInTicks;
+        //         vec3 calculatedPosition = mix(previousPosition, currentPosition, (currentTick - previousPositionKey.time_) / (currentPositionKey.time_ - previousPositionKey.time_));//normalizedCurrentTimeInInterval);
+        //         //debugPrintfEXT("previous %f changed %f.", positions_[index].position_.x, calculatedPosition.x);
+        //         positions_[index].position_ = vec4(calculatedPosition, 0.0);
+        //         //positions_[index].position_.x = calculatedPosition.x;
+        //         //positions_[index].position_.y = calculatedPosition.y;
+        //         //positions_[index].position_.z = calculatedPosition.z;
+        //         //positions_[index].position_.w = 0.0;
+                
+        //     }
+
+        // }
+
+        // for(uint i = 1; i < 32; i++){
+        //     const Rotation3DKey previousRotationKey = animation.rotationKeys_.keys_[i - 1];
+		// 	const Rotation3DKey currentRotationKey = animation.rotationKeys_.keys_[i];
+        //     if(previousRotationKey.time_ < currentTick && currentTick < currentRotationKey.time_){
+        //         vec4 previousRotation = vec4(previousRotationKey.w_, previousRotationKey.x_, previousRotationKey.y_, previousRotationKey.z_);
+        //         vec4 currentRotation = vec4(currentRotationKey.w_, currentRotationKey.x_, currentRotationKey.y_, currentRotationKey.z_);
+
+        //         //float intervalTimeInTicks = currentRotationKey.time_ - previousRotationKey.time_;
+		// 		//float currentTimeInInterval = currentTick - previousRotationKey.time_;
 				
-                //currentTimeInInterval to [0 .. 1].
-				float normalizedCurrentTimeInInterval = (currentTick - previousRotationKey.time_)/*currentTimeInInterval*/ / (currentRotationKey.time_ - previousRotationKey.time_);//intervalTimeInTicks;
+        //         //currentTimeInInterval to [0 .. 1].
+		// 		float normalizedCurrentTimeInInterval = (currentTick - previousRotationKey.time_)/*currentTimeInInterval*/ / (currentRotationKey.time_ - previousRotationKey.time_);//intervalTimeInTicks;
                 
-                vec4 slerp = quat_slerp(previousRotation, currentRotation, normalizedCurrentTimeInInterval);
+        //         vec4 slerp = quat_slerp(previousRotation, currentRotation, normalizedCurrentTimeInInterval);
 
-                rotations_[index].rotation_ = slerp;
-                // rotations_[index].rotation_.x = slerp.x;
-                // rotations_[index].rotation_.y = slerp.y;
-                // rotations_[index].rotation_.z = slerp.z;
-                // rotations_[index].rotation_.w = slerp.w;
+        //         rotations_[index].rotation_ = slerp;
+        //         // rotations_[index].rotation_.x = slerp.x;
+        //         // rotations_[index].rotation_.y = slerp.y;
+        //         // rotations_[index].rotation_.z = slerp.z;
+        //         // rotations_[index].rotation_.w = slerp.w;
 
-            }
-        }
+        //     }
+        // }
 
 				// for (Common::Index i = 1; i < nodeChannel.rotation3DValues_.size(); i++) {
 				// 	const ChannelRotationKey& previousRotation3DKey = nodeChannel.rotation3DValues_[i - 1];
