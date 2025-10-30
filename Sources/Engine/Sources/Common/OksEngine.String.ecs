@@ -1,0 +1,6 @@
+FixedString64Component = {
+    serializable = false,
+    fields = {
+        { type = "std::array<char, 64>", name = "symbols" }
+    }
+}

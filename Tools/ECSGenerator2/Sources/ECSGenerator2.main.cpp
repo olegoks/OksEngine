@@ -187,9 +187,23 @@ int main(int argc, char** argv) {
 
 		for (const auto parsedEcsFile : parsedECSFiles) {
 
-			if (parsedEcsFile->GetName() == "OksEngine.Editor.InfiniteGrid") {
-				Common::BreakPointLine();
-			}
+			parsedEcsFile->ForEachComponent([&](ECSGenerator2::ParsedComponentPtr component) {
+				
+				if (!component->ci_.aliasForName_.empty()) {
+
+					const auto componentName = component->ci_.aliasForName_;
+					const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+
+					component->ci_.aliasFor_ = Common::pointer_cast<ECSGenerator2::ParsedComponent>(getTableByFullName2(
+						parsedECSFiles,
+						component,
+						parsedComponentName, ECSGenerator2::ParsedTable::Type::Component));
+
+					ASSERT(component->ci_.aliasFor_ != nullptr);
+				}
+
+				return true;
+			});
 
 			parsedEcsFile->ForEachArchetype([&](ECSGenerator2::ParsedArchetypePtr parsedArchetype) {
 				

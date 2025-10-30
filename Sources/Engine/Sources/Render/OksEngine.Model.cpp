@@ -1262,26 +1262,6 @@ namespace OksEngine
 						modelEntityId,
 						render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_[modelFile3->fileName_]);
 				}
-				//else {
-				//	//Model data exists.
-				//	//TODO: move to separate system like find model meshs
-				//	const ECS2::Entity::Id modelDataEntityId = render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_[modelFile3->fileName_];
-
-				//	const auto* dataModelNodeEntityIds = world_->GetComponent<ModelNodeEntityIds>(modelDataEntityId);
-
-				//	for (Common::Index i = 0; i < nodeEntityIds.max_size(); i++) {
-				//		const ECS2::Entity::Id modelNodeEntityId = nodeEntityIds[i];
-				//		if (modelNodeEntityId.IsValid()) {
-				//			const ECS2::Entity::Id dataModelNodeEntityId = dataModelNodeEntityIds->nodeEntityIds_[i];
-				//			CreateComponent<Render::Model::ModelNodeDataEntityId>(modelNodeEntityId, dataModelNodeEntityId);
-				//		}
-				//	}
-
-				//	//For each ai node
-				//	for (auto [node, modelNodeEntityId] : nodeToEntityId) {
-
-				//	}
-				//}
 
 
 			}
@@ -1367,40 +1347,59 @@ namespace OksEngine
 						auto createDiffuseTexture = [&](ECS2::Entity::Id meshEntityId) {
 
 							aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-							aiString aiTexturePath;
-							material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &aiTexturePath);
+							{
+								aiString diffuseTexturePath;
+								material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &diffuseTexturePath);
 
-							const aiTexture* texture = scene->GetEmbeddedTexture(aiTexturePath.C_Str());
+								const aiTexture* texture = scene->GetEmbeddedTexture(diffuseTexturePath.C_Str());
 
-							Common::UInt32 textureWidth = texture->mWidth;
-							Common::UInt32 textureHeight = texture->mHeight;
-							if (textureHeight > 0) {
-								CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
-								CreateComponent<Texture>(
-									meshEntityId,
-									textureWidth, textureHeight,
-									std::vector<Geom::Color4b>{
-									(Geom::Color4b*)texture->pcData,
-										(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
+								Common::UInt32 textureWidth = texture->mWidth;
+								Common::UInt32 textureHeight = texture->mHeight;
+								if (textureHeight > 0) {
+									CreateComponent<TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
+									CreateComponent<Texture>(
+										meshEntityId,
+										textureWidth, textureHeight,
+										std::vector<Geom::Color4b>{
+										(Geom::Color4b*)texture->pcData,
+											(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
+								}
+								else {
+									//Texture is compressed
+									const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
+
+									int width, height, channels;
+
+									unsigned char* pixels = stbi_load_from_memory(
+										compressed_data,
+										texture->mWidth,
+										&width, &height, &channels,
+										STBI_rgb_alpha
+									);
+									CreateComponent<TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
+									CreateComponent<Texture>(
+										meshEntityId,
+										width, height,
+										std::vector<Geom::Color4b>{
+										(Geom::Color4b*)pixels,
+											(Geom::Color4b*)pixels + width * height});
+								}
 							}
-							else {
-								const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
-
-								int width, height, channels;
-
-								unsigned char* pixels = stbi_load_from_memory(
-									compressed_data,
-									texture->mWidth,
-									&width, &height, &channels,
-									STBI_rgb_alpha
-								);
-								CreateComponent<TextureInfo>(meshEntityId, aiTexturePath.C_Str());
-								CreateComponent<Texture>(
-									meshEntityId,
-									width, height,
-									std::vector<Geom::Color4b>{
-									(Geom::Color4b*)pixels,
-										(Geom::Color4b*)pixels + width * height});
+							{
+								aiString normalTexturePath;
+								material->GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &normalTexturePath);
+								const aiTexture* normalTexture = scene->GetEmbeddedTexture(normalTexturePath.C_Str());
+								Common::UInt32 textureWidth = normalTexture->mWidth;
+								Common::UInt32 textureHeight = normalTexture->mHeight;
+								//if (textureHeight > 0) {
+								//	CreateComponent<TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
+								//	CreateComponent<Texture>(
+								//		meshEntityId,
+								//		textureWidth, textureHeight,
+								//		std::vector<Geom::Color4b>{
+								//		(Geom::Color4b*)texture->pcData,
+								//			(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
+								//}
 							}
 
 							};

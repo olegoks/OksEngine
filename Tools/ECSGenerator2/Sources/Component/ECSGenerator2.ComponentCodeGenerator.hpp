@@ -121,15 +121,16 @@ namespace ECSGenerator2 {
 
 		//PARSE FUNCTION
 		std::shared_ptr<CodeStructure::Function> GenerateParseFunctionRealization(std::shared_ptr<ParsedComponent> component) {
+			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
+			if (componentPtr->ci_.serializable_) {
 
-			if (component->ci_.serializable_) {
 				CodeStructure::Code realization;
 
 				realization.Add(std::format("{} {};",
 					component->GetName(),
 					component->GetLowerName()));
 
-				component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+				componentPtr->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 
 					realization.Add(std::format("{}.{}_ = {}Ref[\"{}\"].cast<{}>().value();",
 						component->GetLowerName(),
@@ -166,8 +167,8 @@ namespace ECSGenerator2 {
 		}
 		
 		std::shared_ptr<CodeStructure::Function> GenerateParseFunctionEmptyRealization(std::shared_ptr<ParsedComponent> component) {
-
-			if (component->ci_.serializable_) {
+			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
+			if (componentPtr->ci_.serializable_) {
 				CodeStructure::Code realization;
 
 				CodeStructure::Function::CreateInfo fci{
@@ -191,7 +192,8 @@ namespace ECSGenerator2 {
 
 		std::shared_ptr<CodeStructure::Function> GenerateParseFunctionPrototype(std::shared_ptr<ParsedComponent> component) {
 
-			if (component->ci_.serializable_) {
+			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
+			if (componentPtr->ci_.serializable_) {
 
 				CodeStructure::Function::CreateInfo fci{
 					.name_ = "Parse" + component->GetName(),
@@ -215,11 +217,15 @@ namespace ECSGenerator2 {
 		//SERIALIZE FUNCTION
 		std::shared_ptr<CodeStructure::Function> GenerateSerializeFunctionRealization(std::shared_ptr<ParsedComponent> component) {
 
+			//BRK_IF(component->GetName() == "NormalTextureInfo");
+			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
 			//Serialize function.
-			if (component->ci_.serializable_) {
+			if (componentPtr->ci_.serializable_) {
+
+				
 
 				CodeStructure::Code fieldsLuaCode;
-				component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+				componentPtr->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 
 					CodeStructure::Code convertValueToStringCode;
 					if (fieldInfo.GetTypeName() == "std::string") {
@@ -273,8 +279,9 @@ namespace ECSGenerator2 {
 
 		std::shared_ptr<CodeStructure::Function> GenerateSerializeFunctionEmptyRealization(std::shared_ptr<ParsedComponent> component) {
 
+			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
 			//Serialize function.
-			if (component->ci_.serializable_) {
+			if (componentPtr->ci_.serializable_) {
 
 				CodeStructure::Code luaScriptCode;
 
@@ -298,8 +305,9 @@ namespace ECSGenerator2 {
 
 		std::shared_ptr<CodeStructure::Function> GenerateSerializeFunctionPrototype(std::shared_ptr<ParsedComponent> component) {
 
+			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
 			//Serialize function.
-			if (component->ci_.serializable_) {
+			if (componentPtr->ci_.serializable_) {
 
 				CodeStructure::Function::CreateInfo fci{
 					.name_ = "Serialize" + component->GetName(),
@@ -322,12 +330,12 @@ namespace ECSGenerator2 {
 		//EDIT FUNCTION
 		std::shared_ptr<CodeStructure::Function> GenerateEditFunctionRealization(std::shared_ptr<ParsedComponent> component) {
 
-			if (component->GetName() == "ScriptName") {
-				Common::BreakPointLine();
-			}
 			CodeStructure::Code realization;
 			realization.Add("ImGui::PushID({}::GetTypeId());", component->GetName());
-			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+
+			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
+
+			componentPtr->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 				if (IsTypeCanBeEnteredFromImGui(fieldInfo.GetTypeName())) {
 					
 					realization.Add(GenerateTypeImGuiEditCode(
@@ -360,9 +368,6 @@ namespace ECSGenerator2 {
 
 		std::shared_ptr<CodeStructure::Function> GenerateEditFunctionEmptyRealization(std::shared_ptr<ParsedComponent> component) {
 
-			if (component->GetName() == "ChildModelNodeEntities") {
-				Common::BreakPointLine();
-			}
 			CodeStructure::Code realization;
 
 			CodeStructure::Function::CreateInfo fci1{
@@ -463,7 +468,11 @@ namespace ECSGenerator2 {
 			realization.NewLine();
 			realization.Add("\t.beginClass<" + component->GetName() + ">(\"" + component->GetName() + "\")");
 			realization.NewLine();
-			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+
+
+			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
+
+			componentPtr->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 				if (IsBindableType(fieldInfo.GetTypeName())) {
 					realization.Add("\t.addProperty (\"" + fieldInfo.GetName() + "\", &" + component->GetName() + "::" + fieldInfo.GetName() + "_)");
 					realization.NewLine();
@@ -656,9 +665,6 @@ namespace ECSGenerator2 {
 
 		std::shared_ptr<CodeStructure::Struct> GenerateComponentStruct(std::shared_ptr<ParsedComponent> component) {
 
-			if (component->GetName() == "ECSMenu") {
-				Common::BreakPointLine();
-			}
 			//GetTypeId function
 
 			//HACK
@@ -680,7 +686,9 @@ namespace ECSGenerator2 {
 			//GetName  function
 			std::vector<CodeStructure::Struct::Field> fields;
 
-			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast)->bool {
+			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
+
+			componentPtr->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast)->bool {
 
 				CodeStructure::Struct::Field field{
 					.type_ = fieldInfo.GetTypeName(),
@@ -728,7 +736,9 @@ namespace ECSGenerator2 {
 					"Lua.Context.hpp" }
 			};
 
-			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
+
+			componentPtr->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 
 				if (fieldInfo.GetTypeName() == "std::string") {
 					includes.paths_.insert("string");

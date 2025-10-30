@@ -35,6 +35,8 @@ namespace ECSGenerator2 {
 
 		struct CreateInfo {
 			std::string name_;
+			std::string aliasForName_;
+			std::shared_ptr<ParsedComponent> aliasFor_ = nullptr;
 			bool serializable_ = true;		
 			bool manualEditFunction_ = false;
 			bool manualBindFunction_ = false;

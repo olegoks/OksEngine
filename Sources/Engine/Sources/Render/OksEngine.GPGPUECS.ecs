@@ -1,12 +1,15 @@
 GPGPUECSNamespace = {
     StorageBufferNamespace = {
-        NodeEntityIdsToComponentIndicesComponent = {
+
+        BufferInfoComponent = {
             serializable = false,
             fields = {
                 { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
                 { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
             }
         },
+
+        NodeEntityIdsToComponentIndicesComponent = "BufferInfo",
         NodeDataEntityIdsToComponentIndicesComponent = {
             serializable = false,
             fields = {

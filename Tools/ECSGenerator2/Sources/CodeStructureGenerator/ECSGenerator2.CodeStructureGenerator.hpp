@@ -793,7 +793,9 @@ namespace ECSGenerator2 {
 					std::vector<std::shared_ptr<ParsedTable>>& childTables,
 					std::shared_ptr<ParsedComponent> component) {
 
-						if (!component->ci_.serializable_) {
+						auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
+
+						if (!componentPtr->ci_.serializable_) {
 							return;
 						}
 
@@ -905,7 +907,9 @@ namespace ECSGenerator2 {
 				ecsFile->ForEachComponent([&](std::vector<std::shared_ptr<ParsedTable>>& childTables,
 					std::shared_ptr<ParsedComponent> component) {
 
-						if (!component->ci_.serializable_) {
+						auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
+
+						if (!componentPtr->ci_.serializable_) {
 							return;
 						}
 

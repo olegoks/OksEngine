@@ -5,3 +5,9 @@ TextureComponent = {
         { type = "Common::Size", name = "height"},
         { type = "std::vector<Geom::Color4b>", name = "pixels"} }
 }
+
+
+RenderNamespace = {
+
+    NormalTextureInfoComponent = "FixedString64";
+}

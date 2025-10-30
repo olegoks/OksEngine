@@ -10,6 +10,19 @@ namespace ECSGenerator2 {
 			luabridge::LuaRef component,
 			const std::string& componentName) {
 
+			std::string aliasFor;
+			//At first check if component is alias for another component with short declaration.
+			auto castResult = component.cast<std::string>();
+			if (castResult) {
+				aliasFor = castResult.value();
+			}
+
+			//Alias for
+			luabridge::LuaRef aliasForRef = component["aliasFor"];
+			if (!aliasForRef.isNil()) {
+				aliasFor = aliasForRef.cast<std::string>().value();
+			}
+
 			//Serializable
 			bool serializable = true;
 			luabridge::LuaRef serializableRef = component["serializable"];
@@ -61,10 +74,6 @@ namespace ECSGenerator2 {
 
 			luabridge::LuaRef fields = component["fields"];
 
-			if (componentName == "ECSMenu") {
-				Common::BreakPointLine();
-			}
-
 			std::vector<ParsedComponent::FieldInfo> parsedFields;
 			if (!fields.isNil()) {
 				std::vector<std::pair<std::string, std::string>> tablesNames;
@@ -94,6 +103,7 @@ namespace ECSGenerator2 {
 			}
 			ParsedComponent::CreateInfo ci{
 				.name_ = componentName,
+				.aliasForName_ = aliasFor,
 				.serializable_ = serializable,
 				.manualEditFunction_ = manualEditFunction,
 				.manualBindFunction_ = manualBindFunction,

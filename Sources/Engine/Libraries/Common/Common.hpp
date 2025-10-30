@@ -85,13 +85,14 @@ namespace Common {
 
 
 	void BreakPointLine();
+	void BreakPoint();
 
 #if !defined(NDEBUG)
-#define BRK do{ ::Common::BreakPointLine(); } while(0)
+#define BRK do{ ::Common::BreakPoint(); } while(0)
 #define BRK_IF(expression)					\
 	do {									\
 		if (expression) {					\
-			::Common::BreakPointLine();		\
+			::Common::BreakPoint();		\
 		}									\
 	} while(0)
 #else 

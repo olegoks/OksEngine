@@ -445,6 +445,9 @@ AiNamespace = {
 
 --MODEL DATA
 RenderNamespace = {
+
+    
+
     ModelNamespace = {
         NodeArchetype = {
             components = {
@@ -892,6 +895,8 @@ CreateSkeletonModelPipelineSystem = {
         }
     }
 }
+
+
 
 
 ComputeNamespace = {

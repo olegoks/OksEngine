@@ -27,12 +27,6 @@ namespace ECSGenerator2 {
 			context.LoadScript(script);
 			luabridge::LuaRef ecsFile = luabridge::getGlobal(context.state_, "_G");
 
-			if (ecsFilePath.filename() == "OksEngine.Render.ecs") {
-				Common::BreakPointLine();
-			}
-
-
-
 			std::vector<std::string> abstractionsOrder;
 			// Get ECS abstraction order from .lua script source.
 			//TODO: Take into account namespaces and their heir
@@ -95,8 +89,186 @@ namespace ECSGenerator2 {
 					processLine(line);
 				}
 			}
-			if (ecsFilePath.filename().string() == "OksEngine.Model.Animation.ecs") {
-				Common::BreakPointLine();
+
+			//BRK_IF(ecsFilePath == "D:/OksEngine/Tools/ECSGenerator2/../../Sources/Engine/Sources/Render/Texture/OksEngine.Texture.ecs");
+
+			std::vector<std::shared_ptr<ParsedTable>> parsedTables;
+
+			std::function<std::shared_ptr<ParsedTable>(const std::string&, luabridge::LuaRef)> processTable
+				= [&](
+					const std::string& name,
+					luabridge::LuaRef table) -> std::shared_ptr<ParsedTable> {
+
+						if (name.ends_with("Namespace")) {
+							const std::string namespaceName = name.substr(0, name.rfind("Namespace"));
+
+							std::vector<std::shared_ptr<ParsedTable>> parsedNamespaceTables;
+
+							for (auto it = luabridge::Iterator(table); !it.isNil(); ++it) {
+								luabridge::LuaRef key = it.key();
+								luabridge::LuaRef value = it.value();
+
+								if (value.isTable() ||
+									value.isString()/*For aliases*/) {
+									if (key.isString()) {
+										const std::string tableName = key.tostring();
+										//TODO: move setting of child table to processTable function.
+										auto parsedTable = processTable(tableName, value);
+										ASSERT_FMSG(parsedTable != nullptr, "");
+										parsedNamespaceTables.push_back(parsedTable);
+									}
+								}
+							}
+
+							ParsedNamespace::CreateInfo namespaceCI{
+								.name_ = namespaceName
+							};
+							auto parsedNamespace = std::make_shared<ParsedNamespace>(namespaceCI);
+
+							parsedNamespace->childTables_ = parsedNamespaceTables;
+
+							for (auto childTable : parsedNamespaceTables) {
+								childTable->parentTable_ = parsedNamespace;
+							}
+
+							return parsedNamespace;
+						}
+
+						if (name.ends_with("Struct")) {
+
+							StructParser structParser;
+							auto parsedStruct = structParser.Parse(table,
+								name.substr(0, name.rfind("Struct")));
+							return parsedStruct;
+						}
+						if (name.ends_with("Component")) {
+
+							ComponentParser componentParser;
+							auto parsedComponent = componentParser.Parse(table,
+								name.substr(0, name.rfind("Component")));
+							return parsedComponent;
+						}
+						if (name.ends_with("Constant")) {
+
+							ConstantParser constantParser;
+							auto parsedConstant = constantParser.Parse(table,
+								name.substr(0, name.rfind("Constant")));
+							return parsedConstant;
+						}
+						if (name.ends_with("Archetype")) {
+
+							ArchetypeParser archetypeParser;
+							auto parsedArchetype = archetypeParser.Parse(table,
+								name.substr(0, name.rfind("Archetype")));
+							return parsedArchetype;
+						}
+						if (name.ends_with("System")) {
+
+							if (name == "CreateResourceSystemSystem") {
+								Common::BreakPointLine();
+							}
+
+							SystemParser systemParser;
+							auto parsedSystem = systemParser.Parse(table,
+								name.substr(0, name.rfind("System")));
+							return parsedSystem;
+
+						}
+
+
+						return nullptr;
+				};
+
+			//Get all global tables in the script.
+			std::vector<std::string> tableNames;
+			{
+				for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
+					luabridge::LuaRef key = it.key();
+					luabridge::LuaRef value = it.value();
+
+					if (value.isTable() && key.isString()) {
+						tableNames.push_back(key.tostring());
+					}
+				}
+			}
+
+			for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
+
+				luabridge::LuaRef key = it.key();
+				luabridge::LuaRef value = it.value();
+
+				if (!value.isTable() || !key.isString()) {
+					continue;
+				}
+
+
+				luabridge::LuaRef table = key;
+				auto parsedTable = processTable(key.tostring(), ecsFile[key.tostring()]);
+
+				//Separate namespace tables:
+				//namespace {
+				//	struct{}
+				//	struct {}
+				//}
+				//to:
+				//namespace {
+				//struct {}
+				// }
+				// namespace {
+				// struct {}
+				// }
+				if (parsedTable == nullptr) {
+					continue;
+				}
+				std::vector<ParsedTablePtr> separatedTables;
+
+				parsedTable->ForEachChildlessTable([&](ParsedTablePtr childlessTable) {
+
+#pragma region Assert
+					ASSERT_FMSG(!childlessTable->HasChilds(), "");
+#pragma endregion							
+					auto parentTables = childlessTable->GetParentTables();
+
+					std::vector<std::shared_ptr<ParsedTable>> clonedTables;
+					std::ranges::for_each(parentTables, [&](std::shared_ptr<ParsedTable> parentTable) {
+						auto clonedParentTable = parentTable->Clone();
+						clonedParentTable->childTables_.clear();
+						clonedParentTable->parentTable_ = nullptr;
+						clonedTables.push_back(clonedParentTable);
+
+						});
+					auto clonedChildlessTable = childlessTable->Clone();
+					clonedChildlessTable->childTables_.clear();
+					clonedChildlessTable->parentTable_ = nullptr;
+
+					clonedTables.push_back(clonedChildlessTable);
+
+					{
+						const Common::Index lastTableIndex = clonedTables.size() - 1;
+						for (Common::Index i = 0; i < clonedTables.size(); i++) {
+							auto clonedTable = clonedTables[i];
+							const Common::Index nextTableIndex = i + 1;
+							if (nextTableIndex <= lastTableIndex) {
+								auto nextClonedTable = clonedTables[nextTableIndex];
+								nextClonedTable->parentTable_ = clonedTable;
+								clonedTable->childTables_.push_back(nextClonedTable);
+							}
+						}
+					}
+
+					separatedTables.push_back(clonedTables[0]);
+
+					return true;
+					});
+
+				//If there are no separated tables it means that parsed table doesnt have childs.
+				if (separatedTables.empty()) {
+					separatedTables.push_back(parsedTable);
+				}
+
+				for (auto separatedTable : separatedTables) {
+					parsedTables.push_back(separatedTable);
+				}
 			}
 
 
@@ -181,193 +353,6 @@ namespace ECSGenerator2 {
 					});
 				};
 
-			std::vector<std::shared_ptr<ParsedTable>> parsedTables;
-
-			std::function<std::shared_ptr<ParsedTable>(const std::string&, luabridge::LuaRef)> processTable
-				= [&](
-					const std::string& name,
-					luabridge::LuaRef table) -> std::shared_ptr<ParsedTable> {
-
-						if (name.ends_with("Namespace")) {
-							const std::string namespaceName = name.substr(0, name.rfind("Namespace"));
-
-							if (namespaceName == "Render") {
-								Common::BreakPointLine();
-							}
-
-							std::vector<std::shared_ptr<ParsedTable>> parsedNamespaceTables;
-
-							for (auto it = luabridge::Iterator(table); !it.isNil(); ++it) {
-								luabridge::LuaRef key = it.key();
-								luabridge::LuaRef value = it.value();
-
-								if (value.isTable()) {
-									if (key.isString()) {
-										const std::string tableName = key.tostring();
-										//TODO: move setting of child table to processTable function.
-										auto parsedTable = processTable(tableName, value);
-#pragma region Assert
-										ASSERT_FMSG(parsedTable != nullptr, "");
-#pragma endregion
-										parsedNamespaceTables.push_back(parsedTable);
-									}
-								}
-							}
-							//sortTables(abstractionsOrder, parsedNamespaceTables);
-							ParsedNamespace::CreateInfo namespaceCI{
-								.name_ = namespaceName
-							};
-							auto parsedNamespace = std::make_shared<ParsedNamespace>(namespaceCI);
-
-							parsedNamespace->childTables_ = parsedNamespaceTables;
-
-							for (auto childTable : parsedNamespaceTables) {
-								childTable->parentTable_ = parsedNamespace;
-							}
-
-							return parsedNamespace;
-						}
-
-						if (name.ends_with("Struct")) {
-
-							StructParser structParser;
-							auto parsedStruct = structParser.Parse(table,
-								name.substr(0, name.rfind("Struct")));
-							return parsedStruct;
-						}
-						if (name.ends_with("Component")) {
-
-							ComponentParser componentParser;
-							auto parsedComponent = componentParser.Parse(table,
-								name.substr(0, name.rfind("Component")));
-							return parsedComponent;
-						}
-						if (name.ends_with("Constant")) {
-
-							ConstantParser constantParser;
-							auto parsedConstant = constantParser.Parse(table,
-								name.substr(0, name.rfind("Constant")));
-							return parsedConstant;
-						}
-						if (name.ends_with("Archetype")) {
-
-							ArchetypeParser archetypeParser;
-							auto parsedArchetype = archetypeParser.Parse(table,
-								name.substr(0, name.rfind("Archetype")));
-							return parsedArchetype;
-						}
-						if (name.ends_with("System")) {
-
-							if (name == "CreateResourceSystemSystem") {
-								Common::BreakPointLine();
-							}
-
-							SystemParser systemParser;
-							auto parsedSystem = systemParser.Parse(table,
-								name.substr(0, name.rfind("System")));
-							return parsedSystem;
-
-						}
-
-
-						return nullptr;
-				};
-
-			//Get all global tables in the script.
-			std::vector<std::string> tableNames;
-			{
-				for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
-					luabridge::LuaRef key = it.key();
-					luabridge::LuaRef value = it.value();
-
-					if (value.isTable() && key.isString()) {
-						tableNames.push_back(key.tostring());
-					}
-				}
-			}
-
-			for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
-
-				luabridge::LuaRef key = it.key();
-				luabridge::LuaRef value = it.value();
-
-				if (key.tostring() == "RenderDriverComponent") {
-					Common::BreakPointLine();
-				}
-
-				if (!value.isTable() || !key.isString()) {
-					continue;
-				}
-
-
-				luabridge::LuaRef table = key;
-				auto parsedTable = processTable(key.tostring(), ecsFile[key.tostring()]);
-
-				//Separate namespace tables:
-				//namespace {
-				//	struct{}
-				//	struct {}
-				//}
-				//to:
-				//namespace {
-				//struct {}
-				// }
-				// namespace {
-				// struct {}
-				// }
-				if (parsedTable == nullptr) {
-					continue;
-				}
-				std::vector<ParsedTablePtr> separatedTables;
-
-				parsedTable->ForEachChildlessTable([&](ParsedTablePtr childlessTable) {
-
-#pragma region Assert
-					ASSERT_FMSG(!childlessTable->HasChilds(), "");
-#pragma endregion							
-					auto parentTables = childlessTable->GetParentTables();
-
-					std::vector<std::shared_ptr<ParsedTable>> clonedTables;
-					std::ranges::for_each(parentTables, [&](std::shared_ptr<ParsedTable> parentTable) {
-						auto clonedParentTable = parentTable->Clone();
-						clonedParentTable->childTables_.clear();
-						clonedParentTable->parentTable_ = nullptr;
-						clonedTables.push_back(clonedParentTable);
-
-						});
-					auto clonedChildlessTable = childlessTable->Clone();
-					clonedChildlessTable->childTables_.clear();
-					clonedChildlessTable->parentTable_ = nullptr;
-
-					clonedTables.push_back(clonedChildlessTable);
-
-					{
-						const Common::Index lastTableIndex = clonedTables.size() - 1;
-						for (Common::Index i = 0; i < clonedTables.size(); i++) {
-							auto clonedTable = clonedTables[i];
-							const Common::Index nextTableIndex = i + 1;
-							if (nextTableIndex <= lastTableIndex) {
-								auto nextClonedTable = clonedTables[nextTableIndex];
-								nextClonedTable->parentTable_ = clonedTable;
-								clonedTable->childTables_.push_back(nextClonedTable);
-							}
-						}
-					}
-
-					separatedTables.push_back(clonedTables[0]);
-
-					return true;
-					});
-
-				//If there are no separated tables it means that parsed table doesnt have childs.
-				if (separatedTables.empty()) {
-					separatedTables.push_back(parsedTable);
-				}
-
-				for (auto separatedTable : separatedTables) {
-					parsedTables.push_back(separatedTable);
-				}
-			}
 			sortTables(abstractionsOrder, parsedTables);
 
 
