@@ -4,3 +4,9 @@ FixedString64Component = {
         { type = "std::array<char, 64>", name = "symbols" }
     }
 }
+DynamicStringComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::string", name = "string" }
+    }
+}

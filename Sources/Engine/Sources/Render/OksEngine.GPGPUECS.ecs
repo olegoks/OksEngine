@@ -10,75 +10,15 @@ GPGPUECSNamespace = {
         },
 
         NodeEntityIdsToComponentIndicesComponent = "BufferInfo",
-        NodeDataEntityIdsToComponentIndicesComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
-                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
-            }
-        },
-        ModelEntityIdsComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
-                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
-            }
-        },
-        ModelEntityIdsToComponentIndicesComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
-                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
-            }
-        },
-        WorldPositions3DComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
-                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
-            }
-        },
-        WorldRotations3DComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
-                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
-            }
-        },
-        WorldScales3DComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
-                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
-            }
-        },
-        BoneInverseBindPoseMatricesComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
-                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
-            }
-        },
-        ModelNodeEntityIdsComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
-                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
-            }
-        },
-        BoneNodeEntitiesComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
-                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
-            }
-        },
-        ModelNodeDataEntityIdsComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
-                { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
-            }
-        },
+        NodeDataEntityIdsToComponentIndicesComponent = "BufferInfo",
+        ModelEntityIdsComponent = "BufferInfo",
+        ModelEntityIdsToComponentIndicesComponent = "BufferInfo",
+        WorldPositions3DComponent = "BufferInfo",
+        WorldRotations3DComponent = "BufferInfo",
+        WorldScales3DComponent = "BufferInfo",
+        BoneInverseBindPoseMatricesComponent = "BufferInfo",
+        ModelNodeEntityIdsComponent = "BufferInfo",
+        BoneNodeEntitiesComponent = "BufferInfo",
+        ModelNodeDataEntityIdsComponent = "BufferInfo",
     }
 }

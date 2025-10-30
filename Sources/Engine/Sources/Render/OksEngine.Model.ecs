@@ -446,7 +446,7 @@ AiNamespace = {
 --MODEL DATA
 RenderNamespace = {
 
-    
+
 
     ModelNamespace = {
         NodeArchetype = {
@@ -1193,7 +1193,9 @@ MeshArchetype = {
         "Texture",
         "TextureInfo",
         "DriverTexture",
-        "TextureResource"
+        "TextureResource",
+        "Render::NormalMap::TextureInfo",
+        "Render::NormalMap::TextureData"
     }
 }
 

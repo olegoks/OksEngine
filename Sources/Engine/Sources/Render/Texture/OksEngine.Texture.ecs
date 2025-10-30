@@ -1,13 +1,21 @@
 TextureComponent = {
     serializable = false,
-    fields = { 
-        { type = "Common::Size", name = "width" },
-        { type = "Common::Size", name = "height"},
-        { type = "std::vector<Geom::Color4b>", name = "pixels"} }
+    fields = {
+        { type = "Common::Size",               name = "width" },
+        { type = "Common::Size",               name = "height" },
+        { type = "std::vector<Geom::Color4b>", name = "pixels" } }
 }
 
 
 RenderNamespace = {
-
-    NormalTextureInfoComponent = "FixedString64";
+    NormalMapNamespace = {
+        TextureInfoComponent = "DynamicString",
+        TextureDataComponent = {
+            serializable = false,
+            fields = {
+                { type = "Common::Size",               name = "width" },
+                { type = "Common::Size",               name = "height" },
+                { type = "std::vector<Geom::Color4b>", name = "pixels" } }
+        }
+    }
 }

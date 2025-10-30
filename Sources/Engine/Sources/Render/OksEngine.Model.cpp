@@ -1391,15 +1391,35 @@ namespace OksEngine
 								const aiTexture* normalTexture = scene->GetEmbeddedTexture(normalTexturePath.C_Str());
 								Common::UInt32 textureWidth = normalTexture->mWidth;
 								Common::UInt32 textureHeight = normalTexture->mHeight;
-								//if (textureHeight > 0) {
-								//	CreateComponent<TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
-								//	CreateComponent<Texture>(
-								//		meshEntityId,
-								//		textureWidth, textureHeight,
-								//		std::vector<Geom::Color4b>{
-								//		(Geom::Color4b*)texture->pcData,
-								//			(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
-								//}
+								if (textureHeight > 0 && textureHeight > 0) {
+									CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
+									CreateComponent<Render::NormalMap::TextureData>(
+										meshEntityId,
+										textureWidth, textureHeight,
+										std::vector<Geom::Color4b>{
+										(Geom::Color4b*)normalTexture->pcData,
+											(Geom::Color4b*)normalTexture->pcData + textureWidth * textureHeight});
+								}
+								else {
+									//Texture is compressed
+									const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(normalTexture->pcData);
+
+									int width, height, channels;
+
+									unsigned char* pixels = stbi_load_from_memory(
+										compressed_data,
+										normalTexture->mWidth,
+										&width, &height, &channels,
+										STBI_rgb_alpha
+									);
+									CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
+									CreateComponent<Render::NormalMap::TextureData>(
+										meshEntityId,
+										width, height,
+										std::vector<Geom::Color4b>{
+										(Geom::Color4b*)pixels,
+											(Geom::Color4b*)pixels + width * height});
+								}
 							}
 
 							};
