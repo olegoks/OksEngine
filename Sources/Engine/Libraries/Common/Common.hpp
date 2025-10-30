@@ -86,6 +86,20 @@ namespace Common {
 
 	void BreakPointLine();
 
+#if !defined(NDEBUG)
+#define BRK do{ ::Common::BreakPointLine(); } while(0)
+#define BRK_IF(expression)					\
+	do {									\
+		if (expression) {					\
+			::Common::BreakPointLine();		\
+		}									\
+	} while(0)
+#else 
+#define BRK  ((void)0)
+#define BRK_IF(expression) ((void)0)
+#endif
+
+
 
 #ifdef _DEBUG
 	constexpr static inline Configuration configuration_ = Configuration::Debug;

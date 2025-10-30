@@ -8,6 +8,7 @@ AnimationNamespace = {
     ChannelNamespace = {
         --Position
         Position3DKeyStruct = {
+            
             fields = {
                 { type = "float", name = "time", defaultValue = "0.0" },
                 { type = "float", name = "x",    defaultValue = "0.0" },

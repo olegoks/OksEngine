@@ -73,31 +73,20 @@ namespace OksEngine
 	}
 
 	void ProcessModel::Update(
-		ECS2::Entity::Id entityId0,
-		const Model* model0,
-		const WorldPosition3D* worldPosition3D0,
-		const WorldRotation3D* worldRotation3D0,
-		const WorldScale3D* worldScale3D0,
-		const Render::Model::ModelDataEntityId* render__Model__ModelDataEntityId0,
-		const ChildModelNodeEntities* childModelNodeEntities0,
 
-		ECS2::Entity::Id entity1id,
-		const Clock* clock1,
-		const TimeSinceEngineStart* timeSinceEngineStart1) {
+		ECS2::Entity::Id entity0id,
+		const Clock* clock0,
+		const TimeSinceEngineStart* timeSinceEngineStart0,
 
+		ECS2::Entity::Id entityId1,
+		const Model* model1,
+		const WorldPosition3D* worldPosition3D1,
+		const WorldRotation3D* worldRotation3D1,
+		const WorldScale3D* worldScale3D1,
+		const Render::Model::ModelDataEntityId* render__Model__ModelDataEntityId1,
+		const ChildModelNodeEntities* childModelNodeEntities1) {
 
-		//#pragma region Assert
-		//		ASSERT_FMSG(
-		//			std::find_if(
-		//				modelAnimations0->animations_.cbegin(),
-		//				modelAnimations0->animations_.cend(),
-		//				[&](const ModelAnimation& modelAnimation) {
-		//					return modelAnimation.name_ == runModelAnimation0->animationName_;
-		//				}) != modelAnimations0->animations_.cend(),
-		//					"Attempt to start animation that doesnt exist.");
-		//#pragma endregion
-
-		ECS2::Entity::Id modelEntityId = entityId0;
+		ECS2::Entity::Id modelEntityId = entityId1;
 
 		BEGIN_PROFILE("Processing model with entity id %d.", modelEntityId);
 
@@ -111,7 +100,7 @@ namespace OksEngine
 
 		auto modelComponentsFilter = GetComponentsFilter(modelEntityId);
 
-		const auto* modelDataEntityId = render__Model__ModelDataEntityId0;
+		const auto* modelDataEntityId = render__Model__ModelDataEntityId1;
 		const auto* modelAnimations = GetComponent<ModelAnimations>(modelDataEntityId->modelDataEntityId_);
 
 
@@ -144,7 +133,7 @@ namespace OksEngine
 
 			//Calculate current animation tick.
 
-			const Common::UInt64 msSinceAnimationStart = timeSinceEngineStart1->microseconds_ - animationInProgress->animationStartTimeSinceEngineStart_;
+			const Common::UInt64 msSinceAnimationStart = timeSinceEngineStart0->microseconds_ - animationInProgress->animationStartTimeSinceEngineStart_;
 			const float secSinceAnimationStart = msSinceAnimationStart / 1000000.0;
 			const float ticksSinceAnimationStart = runningModelAnimation.ticksPerSecond_ * secSinceAnimationStart;
 			const float animationDurationInTicks = runningModelAnimation.durationInTicks_;
@@ -213,7 +202,7 @@ namespace OksEngine
 				0.0,
 				modelAnimationIt->durationInTicks_,
 				modelAnimationIt->ticksPerSecond_,
-				timeSinceEngineStart1->microseconds_);
+				timeSinceEngineStart0->microseconds_);
 
 			RemoveComponent<RunModelAnimation>(modelEntityId);
 
@@ -351,10 +340,10 @@ namespace OksEngine
 		//auto& worldPosition3D0 = std::get<WorldPosition3D*>(components);
 		//auto& worldRotation3D0 = std::get<WorldRotation3D*>(components);
 		//auto& worldScale3D0 = std::get<WorldScale3D*>(components);
-		const glm::fvec3 position3D = { worldPosition3D0->x_, worldPosition3D0->y_, worldPosition3D0->z_ };
-		const glm::quat rotation3D = { worldRotation3D0->w_, worldRotation3D0->x_, worldRotation3D0->y_, worldRotation3D0->z_ };
-		const glm::fvec3 scale3D = { worldScale3D0->x_, worldScale3D0->y_, worldScale3D0->z_ };
-		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities0->childEntityIds_;
+		const glm::fvec3 position3D = { worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ };
+		const glm::quat rotation3D = { worldRotation3D1->w_, worldRotation3D1->x_, worldRotation3D1->y_, worldRotation3D1->z_ };
+		const glm::fvec3 scale3D = { worldScale3D1->x_, worldScale3D1->y_, worldScale3D1->z_ };
+		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->childEntityIds_;
 		for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
 			processModelNode(childModelNodeEntityId, position3D, rotation3D, scale3D);
 		}
@@ -2786,6 +2775,8 @@ namespace OksEngine
 		const RenderPass* renderPass2,
 		const Pipeline* pipeline2) {
 
+		BRK_IF(entity0id.IsInvalid());
+		
 		return;
 
 		ASSERT(!IsComponentExist<VertexBones>(entity1id));
@@ -2802,6 +2793,8 @@ namespace OksEngine
 				cameraTransformResource0->id_,	// set 0
 				textureResource1->id_			// set 1
 			});
+
+
 
 		const std::vector<Common::Index>& nodeEntityIndices = modelNodeEntityIndices1->nodeEntityIndices_;
 

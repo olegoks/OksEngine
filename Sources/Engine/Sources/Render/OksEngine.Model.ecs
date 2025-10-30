@@ -186,6 +186,12 @@ ProcessModelSystem = {
         processesEntities = {
             {
                 processesComponents = {
+                    "Clock",
+                    "TimeSinceEngineStart"
+                }
+            },
+            {
+                processesComponents = {
                     "Model",
                     "WorldPosition3D",
                     "WorldRotation3D",
@@ -202,12 +208,7 @@ ProcessModelSystem = {
                     "Animation::Model::Node::RunningState"
                 }
             },
-            {
-                processesComponents = {
-                    "Clock",
-                    "TimeSinceEngineStart"
-                }
-            }
+
         },
         accessingEntities = {
             {

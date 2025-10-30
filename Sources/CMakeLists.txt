@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION  3.26.4)
+cmake_minimum_required(VERSION 3.26.4)
 
 set(CMAKE_CXX_STANDARD 20)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
@@ -6,11 +6,16 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 add_executable(OksEngineGame)
 
-
-set_target_properties(OksEngineGame
-    PROPERTIES
+if(CMAKE_BUILD_TYPE_INIT STREQUAL "Debug")
+    set_target_properties(OksEngineGame
+        PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
-        "-cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptyScene.scn ")
+        "$<$<CONFIG:Debug>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptySceneDebug.scn>
+         $<$<CONFIG:Release>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptyScene.scn>
+         $<$<CONFIG:RelWithDebInfo>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptyScene.scn>"
+    )
+endif()
+
 
 file(GLOB SOURCES
     RELATIVE ${CMAKE_CURRENT_LIST_DIR}
@@ -25,15 +30,15 @@ file(GLOB SOURCES
 
 
 
-set(CPACK_PACKAGE_NAME "OksEngineGame") 
+set(CPACK_PACKAGE_NAME "OksEngineGame")
 set(CPACK_PACKAGE_VERSION "1.0")
 set(CPACK_PACKAGE_DESCRIPTION "A brief description of my software")
-set(CPACK_INSTALL_PREFIX "C:/ProgramFiles (x86)/") 
+set(CPACK_INSTALL_PREFIX "C:/ProgramFiles (x86)/")
 set(CPACK_GENERATOR "ZIP")
-set (CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
-include (InstallRequiredSystemLibraries)
-install (PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
-        DESTINATION bin)
+set(CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS_SKIP TRUE)
+include(InstallRequiredSystemLibraries)
+install(PROGRAMS ${CMAKE_INSTALL_SYSTEM_RUNTIME_LIBS}
+    DESTINATION bin)
 # install(FILES ${CMAKE_CURRENT_LIST_DIR}/../Build/Sources/Debug/ DESTINATION bin)
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../Build/Sources/Release/ DESTINATION bin)
 install(DIRECTORY ${CMAKE_CURRENT_LIST_DIR}/../Resources DESTINATION bin)
@@ -64,13 +69,13 @@ source_group("Sources/Engine"
 
 target_sources(OksEngineGame
     PRIVATE
-        ${SOURCES})
+    ${SOURCES})
 
 
 target_link_libraries(OksEngineGame
     PRIVATE
-        OksEngine
-    )   
+    OksEngine
+)
 
 
 add_subdirectory(Engine)

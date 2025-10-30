@@ -30,7 +30,7 @@ int main(int argc, char** argv) {
 	}
 
 	Resources::ResourceSystem::CreateInfo rsci{
-		.fileExtensions_ = { ".ecs", ".dot", ".lua", ".gltf"}
+		.fileExtensions_ = { ".ecs", ".dot", ".lua" }
 	};
 	Resources::ResourceSystem resourceSystem{ rsci };
 	resourceSystem.SetRoots(workDirs);
@@ -77,15 +77,8 @@ int main(int argc, char** argv) {
 		for (const ECSFileInfo& ecsFileInfo : ecsFileInfos) {
 			Resources::ResourceData resourceData = resourceSystem.GetResourceData(ecsFileInfo.resourceSystemPath_);
 			const std::string ecsFileText{ resourceData.GetData<Common::Byte>(), resourceData.GetSize() };
-
-			if (ecsFileInfo.filesystemPath_.stem() == "OksEngine.Model") {
-				Common::BreakPointLine();
-			}
 			//PARSING ECS FILE.
 			auto ecsFile = ecsFileParser.Parse(ecsFileInfo.filesystemPath_, ecsFileText);
-			if (ecsFile->GetName() == "OksEngine.Model") {
-				Common::BreakPointLine();
-			}
 			if (ecsFile != nullptr) {
 				parsedECSFiles.push_back(ecsFile);
 			}
