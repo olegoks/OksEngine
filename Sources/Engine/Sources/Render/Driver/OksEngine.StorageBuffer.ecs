@@ -1,14 +1,14 @@
 
 RenderNamespace = {
 
-    StorageBufferComponent = {
-        serializable = false,
-        fields = { { type="RAL::Driver::StorageBuffer::Id", name="id" } }
-    },
+    -- StorageBufferComponent = {
+    --     serializable = false,
+    --     fields = { { type="RAL::Driver::StorageBuffer::Id", name="id" } }
+    -- },
     
-    StorageBufferResourceComponent = {
-        serializable = false,
-        fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
-    }
+    -- StorageBufferResourceComponent = {
+    --     serializable = false,
+    --     fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
+    -- }
 
 }

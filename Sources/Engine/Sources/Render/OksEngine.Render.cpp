@@ -46,22 +46,6 @@ namespace OksEngine
 		const ECS2::Entity::Id driverEntityId = CreateEntity();
 		CreateComponent<RenderDriver>(driverEntityId, driver);
 
-		RAL::Driver::StorageBuffer::CreateInfo sbci{
-			.size_ = 1024
-		};
-
-		const RAL::Driver::StorageBuffer::Id sbid = driver->CreateStorageBuffer(sbci);
-
-		RAL::Driver::ResourceSet::Binding storageBinding
-		{
-			.stage_ = RAL::Driver::Shader::Stage::ComputeShader,
-			.binding_ = 0,
-			.sbid_ = sbid
-		};
-		const RAL::Driver::ResourceSet::Id sbrid = driver->CreateResource(storageBinding);
-
-		CreateComponent<Render::StorageBufferResource>(driverEntityId, sbrid);
-
 		//Animation
 		{
 			Common::Size preallocatedEntitiesNumber = 65'536;

@@ -2273,7 +2273,6 @@ namespace OksEngine
 
 	void Compute::TestPipeline::Update(
 		ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0, const Compute::Pipeline* pipeline0,
-		const Render::StorageBufferResource* render__StorageBufferResource0,
 		const Animation::ModelNodeDataEntityIds* animation__ModelNodeDataEntityIds0,
 		const Animation::NodeDataEntityIdsToComponentIndices* animation__NodeDataEntityIdsToComponentIndices0,
 		const Animation::Model::Node::DriverAnimationsComponents* animation__Model__Node__DriverAnimationsComponents0,
@@ -2954,6 +2953,13 @@ namespace OksEngine
 			.stage_ = RAL::Driver::Shader::Stage::VertexShader
 		};
 
+		RAL::Driver::Shader::Binding::Layout normalSamplerBinding{
+			.binding_ = 0,
+			.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+			.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+		};
+
+
 
 		std::vector<RAL::Driver::PushConstant> pushConstants;
 		{
@@ -2977,6 +2983,7 @@ namespace OksEngine
 		shaderBindings.push_back(modelEntityIdsBinding);
 		shaderBindings.push_back(modelNodeDataEntityIds);
 		shaderBindings.push_back(modelNodeDataEntityIdsToComponentIndices);
+		shaderBindings.push_back(normalSamplerBinding);
 
 
 		auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
@@ -3082,6 +3089,7 @@ namespace OksEngine
 		auto* meshModelEntityIds = std::get<ModelEntityIds*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
 		auto* meshTextureResources = std::get<TextureResource*>(meshComponents);
+		auto* meshNormalTextureResources = std::get<Render::NormalMap::TextureResource*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
@@ -3171,6 +3179,7 @@ namespace OksEngine
 					DriverVertexBuffer,
 					DriverIndexBuffer,
 					TextureResource,
+					Render::NormalMap::TextureResource,
 					ModelEntityIds,
 					VertexBones,
 					Indices>()) {
@@ -3180,7 +3189,7 @@ namespace OksEngine
 				if (textureResource->id_.IsInvalid()) {
 					continue;
 				}
-
+				 
 				auto* driverVertexBuffer = meshVertexBuffers + i;
 				driver->BindVertexBuffer(driverVertexBuffer->id_, 0);
 
@@ -3196,6 +3205,11 @@ namespace OksEngine
 						cameraTransformResource1->id_,													// set 0
 						textureResource->id_															// set 1
 
+					});
+
+				driver->Bind(skeletonModelPipeline0->id_, 12,
+					{
+						(meshNormalTextureResources + i)->id_												// set 12
 					});
 
 				auto invalidEntityIdIt = std::find(

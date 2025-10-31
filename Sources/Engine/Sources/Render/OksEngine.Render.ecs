@@ -5,6 +5,23 @@ RenderDriverComponent = {
 		}
 }
 
+RenderNamespace = {
+    TextureResourceComponent = {
+        serializable = false,
+        fields = {
+            { type = "RAL::Driver::Texture::Id", name = "driverTextureId" },
+            { type = "RAL::Driver::ResourceSet::Id", name = "id" }
+        }
+    },
+    StorageBufferResourceComponent = {
+        serializable = false,
+        fields = {
+            { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+            { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
+        }
+    }
+}
+
 CreateRenderDriverSystem = {
     type = "Initialize",
     callOrder = {
@@ -36,8 +53,6 @@ CreateRenderDriverSystem = {
             {
                 createsComponents = {
                     "RenderDriver",
-                    "Render::StorageBuffer",
-                    "Render::StorageBufferResource",
                     "Animation::DriverLocalPosition3DComponents",
                     "Animation::LocalPosition3DComponentsResource",
                     "DriverWorldPosition3DComponents",

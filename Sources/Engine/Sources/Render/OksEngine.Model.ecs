@@ -948,7 +948,6 @@ ComputeNamespace = {
                     processesComponents = {
                         "RenderDriver",
                         "Pipeline",
-                        "Render::StorageBufferResource",
                         "Animation::ModelNodeDataEntityIds",
                         "Animation::NodeDataEntityIdsToComponentIndices",
                         "Animation::Model::Node::DriverAnimationsComponents",
@@ -1195,7 +1194,8 @@ MeshArchetype = {
         "DriverTexture",
         "TextureResource",
         "Render::NormalMap::TextureInfo",
-        "Render::NormalMap::TextureData"
+        "Render::NormalMap::TextureData",
+        "Render::NormalMap::TextureResource"
     }
 }
 

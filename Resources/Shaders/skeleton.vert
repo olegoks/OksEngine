@@ -81,6 +81,7 @@ layout(std430, set = 11, binding = 0) buffer ModelNodeDataEntityIdsToComponentIn
     uint64_t modelNodeDataEntityIdsToComponentIndices_[];
 };
 
+
 layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 outUV;
 
