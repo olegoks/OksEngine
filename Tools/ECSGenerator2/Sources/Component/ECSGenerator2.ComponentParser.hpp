@@ -10,8 +10,11 @@ namespace ECSGenerator2 {
 			luabridge::LuaRef component,
 			const std::string& componentName) {
 
+			//BRK_IF(componentName == "RenderPass");
+
 			std::string aliasFor;
 			//At first check if component is alias for another component with short declaration.
+			bool isString = component.isString();
 			auto castResult = component.cast<std::string>();
 			if (castResult) {
 				aliasFor = castResult.value();

@@ -6,7 +6,7 @@ namespace OksEngine
 	void CreateDebugDrawBonesPipeline::Update(
 		ECS2::Entity::Id entity0id, const DebugDrawBonesRenderer* debugDrawBonesRenderer0,
 		ECS2::Entity::Id entity1id, const ResourceSystem* resourceSystem1, ECS2::Entity::Id entity2id,
-		RenderDriver* renderDriver2, const RenderPass* renderPass2) {
+		RenderDriver* renderDriver2, const Render::MainRenderPass* renderPass2) {
 
 
 		auto driver = renderDriver2->driver_;
@@ -93,10 +93,10 @@ namespace OksEngine
 		Vertices3D* vertices3D0,
 
 		ECS2::Entity::Id entity1id,
-		const BoneNode* boneNode1,
-		const ModelNode* modelNode1,
+		const Render::Mdl::BoneNode* boneNode1,
+		const Render::Mdl::ModelNode* modelNode1,
 		const WorldPosition3D* worldPosition3D1,
-		const ChildModelNodeEntities* childModelNodeEntities1) {
+		const Render::Mdl::ChildModelNodeEntities* childModelNodeEntities1) {
 
 
 		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->childEntityIds_;

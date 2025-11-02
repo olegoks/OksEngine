@@ -19,6 +19,31 @@ RenderNamespace = {
             { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
             { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
         }
+    },
+    RenderPassComponent = {
+        serializable = false,
+        fields = {
+            { type = "Common::Id", name = "rpId" }
+        }
+    },
+    PipelineIdComponent = {
+        serializable = false,
+        fields = {
+            { type = "Common::Id", name = "id" }
+        }
+    },
+    AttachmentComponent = {
+        serializable = false,
+        fields = {
+            { type = "Common::Id", name = "textureId" }
+        }
+    },
+    AttachmentSetComponent = {
+        description = "Analog of VkFrameBuffer in Vulkan. Driver creates attachment set using attachments.",
+        serializable = false,
+        fields = {
+            { type = "Common::Id", name = "attachmentsSetId" } -- Synonym of VkFramebuffer
+        }
     }
 }
 

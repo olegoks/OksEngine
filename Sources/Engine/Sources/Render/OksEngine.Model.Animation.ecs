@@ -55,7 +55,7 @@ AnimationNamespace = {
         }
     },
 
-    ModelNamespace = {
+    MdlNamespace = {
 
         AnimationsMaxNumberConstant = {
             type = "Common::Size",
@@ -144,8 +144,8 @@ AnimationNamespace = {
 
     AnimationArchetype = {
         components = {
-            "Model::Node::RunningState",
-            "Model::Node::Animations"
+            "Mdl::Node::RunningState",
+            "Mdl::Node::Animations"
         }
     }
 

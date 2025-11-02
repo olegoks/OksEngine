@@ -25,331 +25,336 @@
 
 namespace OksEngine
 {
+	
 
-	void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, AnimationInProgress* animationInProgress) {
-		ImGui::PushID(AnimationInProgress::GetTypeId());
+		void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, AnimationInProgress* animationInProgress) {
+			ImGui::PushID(AnimationInProgress::GetTypeId());
 
-		ImGui::TextDisabled("Animation index %d", animationInProgress->animationIndex_);
-		ImGui::TextDisabled("Duration in ticks %f", animationInProgress->durationInTicks_);
-		ImGui::TextDisabled("Current tick %f", animationInProgress->currentTick_);
-		ImGui::TextDisabled("Ticks per second %f", animationInProgress->ticksPerSecond_);
-		ImGui::TextDisabled("Duration in seconds %f", animationInProgress->durationInTicks_ / animationInProgress->ticksPerSecond_);
+			ImGui::TextDisabled("Animation index %d", animationInProgress->animationIndex_);
+			ImGui::TextDisabled("Duration in ticks %f", animationInProgress->durationInTicks_);
+			ImGui::TextDisabled("Current tick %f", animationInProgress->currentTick_);
+			ImGui::TextDisabled("Ticks per second %f", animationInProgress->ticksPerSecond_);
+			ImGui::TextDisabled("Duration in seconds %f", animationInProgress->durationInTicks_ / animationInProgress->ticksPerSecond_);
 
-		//animationInProgress->durationInTicks_
-		double min = 0.0;
-		ImGui::SliderScalar("", ImGuiDataType_Double, &animationInProgress->currentTick_, &min, &animationInProgress->durationInTicks_, "%.3f");
-		//ImGui::SliderDouble("Scale", &scale, 1.0f, max_scale, "%.3f", ImGuiSliderFlags_Logarithmic);
+			//animationInProgress->durationInTicks_
+			double min = 0.0;
+			ImGui::SliderScalar("", ImGuiDataType_Double, &animationInProgress->currentTick_, &min, &animationInProgress->durationInTicks_, "%.3f");
+			//ImGui::SliderDouble("Scale", &scale, 1.0f, max_scale, "%.3f", ImGuiSliderFlags_Logarithmic);
 
-		ImGui::PopID();
+			ImGui::PopID();
+		}
+
+		void EditModelAnimations(std::shared_ptr<ECS2::World> ecsWorld, ModelAnimations* modelAnimations) {
+			ImGui::PushID(ModelAnimations::GetTypeId());
+			for (const auto& animation : modelAnimations->animations_) {
+				ImGui::Indent(20.f);
+				ImGui::TextDisabled("Animation name %s", animation.name_.c_str());
+				ImGui::TextDisabled("Duration in ticks %f", animation.durationInTicks_);
+				ImGui::TextDisabled("Ticks per second %f", animation.ticksPerSecond_);
+				ImGui::TextDisabled("Duration in seconds %f", animation.durationInTicks_ / animation.ticksPerSecond_);
+				ImGui::Unindent(20.f);
+				ImGui::Separator();
+			}
+			ImGui::PopID();
+		}
+
+		namespace Render::Mdl {
+		void EditModelNodeEntityIds(std::shared_ptr<ECS2::World> ecsWorld, Render::Mdl::ModelNodeEntityIds* modelNodeEntityIds) {
+			ImGui::PushID(Render::Mdl::ChildModelNodeEntities::GetTypeId());
+			for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeEntityIds_) {
+				if (modelNodeEntityId.IsInvalid()) {
+					const std::string idString = std::to_string(modelNodeEntityId);
+					ImGui::TextDisabled(idString.c_str());
+					continue;
+				}
+				ImGui::Indent(20.f);
+				EditEntity(ecsWorld, modelNodeEntityId);
+				ImGui::Unindent(20.0f);
+			}
+			ImGui::PopID();
+		}
 	}
 
-	void EditModelAnimations(std::shared_ptr<ECS2::World> ecsWorld, ModelAnimations* modelAnimations) {
-		ImGui::PushID(ModelAnimations::GetTypeId());
-		for (const auto& animation : modelAnimations->animations_) {
-			ImGui::Indent(20.f);
-			ImGui::TextDisabled("Animation name %s", animation.name_.c_str());
-			ImGui::TextDisabled("Duration in ticks %f", animation.durationInTicks_);
-			ImGui::TextDisabled("Ticks per second %f", animation.ticksPerSecond_);
-			ImGui::TextDisabled("Duration in seconds %f", animation.durationInTicks_ / animation.ticksPerSecond_);
-			ImGui::Unindent(20.f);
-			ImGui::Separator();
-		}
-		ImGui::PopID();
-	}
+	namespace Render::Mdl {
+		void ProcessModel::Update(
 
-	void EditModelNodeEntityIds(std::shared_ptr<ECS2::World> ecsWorld, ModelNodeEntityIds* modelNodeEntityIds) {
-		ImGui::PushID(ChildModelNodeEntities::GetTypeId());
-		for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeEntityIds_) {
-			if (modelNodeEntityId.IsInvalid()) {
-				const std::string idString = std::to_string(modelNodeEntityId);
-				ImGui::TextDisabled(idString.c_str());
-				continue;
+			ECS2::Entity::Id entity0id,
+			const Clock* clock0,
+			const TimeSinceEngineStart* timeSinceEngineStart0,
+
+			ECS2::Entity::Id entityId1,
+			const Mdl::Model* model1,
+			const WorldPosition3D* worldPosition3D1,
+			const WorldRotation3D* worldRotation3D1,
+			const WorldScale3D* worldScale3D1,
+			const Render::Mdl::ModelDataEntityId* render__Model__ModelDataEntityId1,
+			const Mdl::ChildModelNodeEntities* childModelNodeEntities1) {
+
+			ECS2::Entity::Id modelEntityId = entityId1;
+
+			BEGIN_PROFILE("Processing model with entity id %d.", modelEntityId);
+
+			auto components = GetComponents<
+				WorldPosition3D,
+				WorldRotation3D,
+				WorldScale3D,
+				RunModelAnimation,
+				PauseAnimation,
+				AnimationInProgress>(modelEntityId);
+
+			auto modelComponentsFilter = GetComponentsFilter(modelEntityId);
+
+			const auto* modelDataEntityId = render__Model__ModelDataEntityId1;
+			const auto* modelAnimations = GetComponent<ModelAnimations>(modelDataEntityId->modelDataEntityId_);
+
+
+			const auto* runModelAnimation = std::get<RunModelAnimation*>(components);
+			const bool needToRunAnimation = modelComponentsFilter.IsSet<RunModelAnimation>();
+
+			auto* animationInProgress = std::get<AnimationInProgress*>(components);
+			const bool needToProcessAnimation = modelComponentsFilter.IsSet<AnimationInProgress>();
+
+			const auto* pauseAnimation = std::get<PauseAnimation*>(components);
+			const bool animationPaused = modelComponentsFilter.IsSet<PauseAnimation>();
+
+			ASSERT(!(needToRunAnimation && needToProcessAnimation));
+
+			//PROSESS RUNNING ANIMATION
+			ModelAnimation runningModelAnimation;
+			float currentAnimationStage = 0.0;
+
+			if (needToProcessAnimation) {
+				currentAnimationStage = animationInProgress->currentTick_ / animationInProgress->durationInTicks_;
 			}
-			ImGui::Indent(20.f);
-			EditEntity(ecsWorld, modelNodeEntityId);
-			ImGui::Unindent(20.0f);
-		}
-		ImGui::PopID();
-	}
 
-	void ProcessModel::Update(
+			bool isAnimationEnded = false;
 
-		ECS2::Entity::Id entity0id,
-		const Clock* clock0,
-		const TimeSinceEngineStart* timeSinceEngineStart0,
-
-		ECS2::Entity::Id entityId1,
-		const Model* model1,
-		const WorldPosition3D* worldPosition3D1,
-		const WorldRotation3D* worldRotation3D1,
-		const WorldScale3D* worldScale3D1,
-		const Render::Model::ModelDataEntityId* render__Model__ModelDataEntityId1,
-		const ChildModelNodeEntities* childModelNodeEntities1) {
-
-		ECS2::Entity::Id modelEntityId = entityId1;
-
-		BEGIN_PROFILE("Processing model with entity id %d.", modelEntityId);
-
-		auto components = GetComponents<
-			WorldPosition3D,
-			WorldRotation3D,
-			WorldScale3D,
-			RunModelAnimation,
-			PauseAnimation,
-			AnimationInProgress>(modelEntityId);
-
-		auto modelComponentsFilter = GetComponentsFilter(modelEntityId);
-
-		const auto* modelDataEntityId = render__Model__ModelDataEntityId1;
-		const auto* modelAnimations = GetComponent<ModelAnimations>(modelDataEntityId->modelDataEntityId_);
-
-
-		const auto* runModelAnimation = std::get<RunModelAnimation*>(components);
-		const bool needToRunAnimation = modelComponentsFilter.IsSet<RunModelAnimation>();
-
-		auto* animationInProgress = std::get<AnimationInProgress*>(components);
-		const bool needToProcessAnimation = modelComponentsFilter.IsSet<AnimationInProgress>();
-
-		const auto* pauseAnimation = std::get<PauseAnimation*>(components);
-		const bool animationPaused = modelComponentsFilter.IsSet<PauseAnimation>();
-
-		ASSERT(!(needToRunAnimation && needToProcessAnimation));
-
-		//PROSESS RUNNING ANIMATION
-		ModelAnimation runningModelAnimation;
-		float currentAnimationStage = 0.0;
-
-		if (needToProcessAnimation) {
-			currentAnimationStage = animationInProgress->currentTick_ / animationInProgress->durationInTicks_;
-		}
-
-		bool isAnimationEnded = false;
-
-		if (needToProcessAnimation) {
-			runningModelAnimation = modelAnimations->animations_[animationInProgress->animationIndex_];
-		}
-
-		if (needToProcessAnimation && !animationPaused) {
-
-			//Calculate current animation tick.
-
-			const Common::UInt64 msSinceAnimationStart = timeSinceEngineStart0->microseconds_ - animationInProgress->animationStartTimeSinceEngineStart_;
-			const float secSinceAnimationStart = msSinceAnimationStart / 1000000.0;
-			const float ticksSinceAnimationStart = runningModelAnimation.ticksPerSecond_ * secSinceAnimationStart;
-			const float animationDurationInTicks = runningModelAnimation.durationInTicks_;
-
-			// Calculate current animation state from [0..1].
-			currentAnimationStage = ticksSinceAnimationStart / animationDurationInTicks;
-
-			isAnimationEnded = currentAnimationStage > 1.0;
-
-			if (isAnimationEnded) {
-				//Animation ended.
-
-				Common::UInt64 animationIndex = animationInProgress->animationIndex_;
-
-				RemoveComponent<AnimationInProgress>(modelEntityId);
-
-				const Common::Size animationsNumber = modelAnimations->animations_.size();
-
-				std::random_device rd;
-				std::mt19937 gen(rd());
-
-				Common::Index a = 0, b = animationsNumber - 1;
-				std::uniform_int_distribution<> dist(a, b);
-				const Common::Index randomAnimationIndex = dist(gen);
-				const ModelAnimation& randomModelAnimation = modelAnimations->animations_[randomAnimationIndex];
-
-
-				//animationIndex++;
-				//if (animationIndex == animationsNumber) {
-				//	animationIndex = 0;
-				//}
-
-				//const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[animationIndex];
-
-				CreateComponent<RunModelAnimation>(modelEntityId, randomModelAnimation.name_);
+			if (needToProcessAnimation) {
+				runningModelAnimation = modelAnimations->animations_[animationInProgress->animationIndex_];
 			}
-			else {
-				animationInProgress->currentTick_ = currentAnimationStage * animationInProgress->durationInTicks_;
+
+			if (needToProcessAnimation && !animationPaused) {
+
+				//Calculate current animation tick.
+
+				const Common::UInt64 msSinceAnimationStart = timeSinceEngineStart0->microseconds_ - animationInProgress->animationStartTimeSinceEngineStart_;
+				const float secSinceAnimationStart = msSinceAnimationStart / 1000000.0;
+				const float ticksSinceAnimationStart = runningModelAnimation.ticksPerSecond_ * secSinceAnimationStart;
+				const float animationDurationInTicks = runningModelAnimation.durationInTicks_;
+
+				// Calculate current animation state from [0..1].
+				currentAnimationStage = ticksSinceAnimationStart / animationDurationInTicks;
+
+				isAnimationEnded = currentAnimationStage > 1.0;
+
+				if (isAnimationEnded) {
+					//Animation ended.
+
+					Common::UInt64 animationIndex = animationInProgress->animationIndex_;
+
+					RemoveComponent<AnimationInProgress>(modelEntityId);
+
+					const Common::Size animationsNumber = modelAnimations->animations_.size();
+
+					std::random_device rd;
+					std::mt19937 gen(rd());
+
+					Common::Index a = 0, b = animationsNumber - 1;
+					std::uniform_int_distribution<> dist(a, b);
+					const Common::Index randomAnimationIndex = dist(gen);
+					const ModelAnimation& randomModelAnimation = modelAnimations->animations_[randomAnimationIndex];
+
+
+					//animationIndex++;
+					//if (animationIndex == animationsNumber) {
+					//	animationIndex = 0;
+					//}
+
+					//const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[animationIndex];
+
+					CreateComponent<RunModelAnimation>(modelEntityId, randomModelAnimation.name_);
+				}
+				else {
+					animationInProgress->currentTick_ = currentAnimationStage * animationInProgress->durationInTicks_;
+				}
 			}
-		}
 
-		//PROSESS RUNNING ANIMATION
+			//PROSESS RUNNING ANIMATION
 
-		//PROCESS ANIMATION START
+			//PROCESS ANIMATION START
 
-		Common::UInt32 animationIndex = 0;
-		auto modelAnimationIt = modelAnimations->animations_.cend();
-		ECS2::ComponentsFilter animationComponentsFilter;
-		animationComponentsFilter.SetBits<Animation::Model::Node::Animations>();
-		if (needToRunAnimation) {
-			//Find needed animation.
-			modelAnimationIt = std::find_if(
-				modelAnimations->animations_.cbegin(),
-				modelAnimations->animations_.cend(),
-				[&](const ModelAnimation& modelAnimation) {
-					return modelAnimation.name_ == runModelAnimation->animationName_;
-				});
-			ASSERT(modelAnimationIt != modelAnimations->animations_.cend());
-			//Get index of animation, shader that will calculate animation will use this index to access animation data.
-			animationIndex = std::distance(modelAnimations->animations_.cbegin(), modelAnimationIt);
+			Common::UInt32 animationIndex = 0;
+			auto modelAnimationIt = modelAnimations->animations_.cend();
+			ECS2::ComponentsFilter animationComponentsFilter;
+			animationComponentsFilter.SetBits<Animation::Mdl::Node::Animations>();
+			if (needToRunAnimation) {
+				//Find needed animation.
+				modelAnimationIt = std::find_if(
+					modelAnimations->animations_.cbegin(),
+					modelAnimations->animations_.cend(),
+					[&](const ModelAnimation& modelAnimation) {
+						return modelAnimation.name_ == runModelAnimation->animationName_;
+					});
+				ASSERT(modelAnimationIt != modelAnimations->animations_.cend());
+				//Get index of animation, shader that will calculate animation will use this index to access animation data.
+				animationIndex = std::distance(modelAnimations->animations_.cbegin(), modelAnimationIt);
 
-			CreateComponent<AnimationInProgress>(
-				modelEntityId,
-				//runModelAnimation->animationName_,
-				animationIndex,
-				0.0,
-				modelAnimationIt->durationInTicks_,
-				modelAnimationIt->ticksPerSecond_,
-				timeSinceEngineStart0->microseconds_);
+				CreateComponent<AnimationInProgress>(
+					modelEntityId,
+					//runModelAnimation->animationName_,
+					animationIndex,
+					0.0,
+					modelAnimationIt->durationInTicks_,
+					modelAnimationIt->ticksPerSecond_,
+					timeSinceEngineStart0->microseconds_);
 
-			RemoveComponent<RunModelAnimation>(modelEntityId);
-
-
-		}
-		//PROCESS ANIMATION START
+				RemoveComponent<RunModelAnimation>(modelEntityId);
 
 
-		{
-			/*auto nodesComponents = GetComponents<RENDER__MODEL__NODE>();
-			childModelNodeEntities0->childEntityIds_;*/
-
-		}
+			}
+			//PROCESS ANIMATION START
 
 
-		std::function<void(ECS2::Entity::Id, const glm::fvec3&, const glm::quat&, const glm::fvec3&)> processModelNode
-			= [&](ECS2::Entity::Id nodeEntityId,
-				const glm::fvec3& parentPosition3D,
-				const glm::quat& parentRotation3D,
-				const glm::fvec3& parentScale3D) {
+			{
+				/*auto nodesComponents = GetComponents<RENDER__MODEL__NODE>();
+				childModelNodeEntities0->childEntityIds_;*/
+
+			}
 
 
-					BEGIN_PROFILE("Processing model node with entity id %d", nodeEntityId);
-
-					auto components = GetComponents<
-						LocalPosition3D,
-						WorldPosition3D,
-						LocalRotation3D,
-						WorldRotation3D,
-						LocalScale3D,
-						WorldScale3D,
-						Animation::Model::Node::RunningState,
-						ChildModelNodeEntities
-					>(nodeEntityId);
-
-					//PROSESS RUNNING ANIMATION
-					if (needToProcessAnimation) {
+			std::function<void(ECS2::Entity::Id, const glm::fvec3&, const glm::quat&, const glm::fvec3&)> processModelNode
+				= [&](ECS2::Entity::Id nodeEntityId,
+					const glm::fvec3& parentPosition3D,
+					const glm::quat& parentRotation3D,
+					const glm::fvec3& parentScale3D) {
 
 
-						auto* animationRunningState = std::get<Animation::Model::Node::RunningState*>(components);
+						BEGIN_PROFILE("Processing model node with entity id %d", nodeEntityId);
+
+						auto components = GetComponents<
+							LocalPosition3D,
+							WorldPosition3D,
+							LocalRotation3D,
+							WorldRotation3D,
+							LocalScale3D,
+							WorldScale3D,
+							Animation::Mdl::Node::RunningState,
+							ChildModelNodeEntities
+						>(nodeEntityId);
+
+						//PROSESS RUNNING ANIMATION
+						if (needToProcessAnimation) {
+
+
+							auto* animationRunningState = std::get<Animation::Mdl::Node::RunningState*>(components);
+							auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
+
+							if (animationRunningState != nullptr) {
+								animationRunningState->animationIndex_ = animationInProgress->animationIndex_;
+								animationRunningState->animationDuration_ = runningModelAnimation.durationInTicks_;
+								animationRunningState->currentTime_ = currentAnimationStage;
+								if (isAnimationEnded) {
+									RemoveComponent<Animation::Mdl::Node::RunningState>(nodeEntityId);
+									animationRunningState->currentTime_ = 1.0;
+								}
+
+							}
+						}
+						//PROSESS RUNNING ANIMATION
+
+						//PROSESS START ANIMATION
+						if (needToRunAnimation) {
+							const ECS2::ComponentsFilter entityComponentFilter = GetComponentsFilter(nodeEntityId);
+
+							ASSERT_MSG(
+								entityComponentFilter.IsSet<ModelNode>(),
+								"Entity in model hier is not node, check hier construction.");
+
+							//Check if node has animation.
+							if (animationComponentsFilter.IsSubsetOf(entityComponentFilter)) {
+								CreateComponent<Animation::Mdl::Node::RunningState>(
+									nodeEntityId,
+									animationIndex,
+									modelAnimationIt->durationInTicks_,
+									0.0);
+							}
+						}
+						//PROSESS START ANIMATION
+
+						//UPDATE WORLD POSITION
+
+						const auto* localNodeRotation3D = std::get<LocalRotation3D*>(components);
+						auto* worldNodeRotation3D = std::get<WorldRotation3D*>(components);
+
+						const glm::quat worldRotationQuat = parentRotation3D * glm::quat(
+							localNodeRotation3D->w_,
+							localNodeRotation3D->x_,
+							localNodeRotation3D->y_,
+							localNodeRotation3D->z_);
+
+						worldNodeRotation3D->w_ = worldRotationQuat.w;
+						worldNodeRotation3D->x_ = worldRotationQuat.x;
+						worldNodeRotation3D->y_ = worldRotationQuat.y;
+						worldNodeRotation3D->z_ = worldRotationQuat.z;
+
+						const auto* localNodePosition3D = std::get<LocalPosition3D*>(components);
+						auto* worldNodePosition3D = std::get<WorldPosition3D*>(components);
+
+						{
+							const glm::vec3 worldNodePosition3DVec = parentPosition3D + parentRotation3D * (parentScale3D * glm::vec3{ localNodePosition3D->x_, localNodePosition3D->y_, localNodePosition3D->z_ });
+
+							ASSERT_FMSG(
+								!std::isnan(worldNodePosition3DVec.x) &&
+								!std::isnan(worldNodePosition3DVec.y) &&
+								!std::isnan(worldNodePosition3DVec.z), "");
+
+							worldNodePosition3D->x_ = worldNodePosition3DVec.x;
+							worldNodePosition3D->y_ = worldNodePosition3DVec.y;
+							worldNodePosition3D->z_ = worldNodePosition3DVec.z;
+						}
+
+
+						const auto* localNodeScale3D = std::get<LocalScale3D*>(components);
+
+						auto* worldNodeScale3D = std::get<WorldScale3D*>(components);
+
+						worldNodeScale3D->x_ = parentScale3D.x * localNodeScale3D->x_;
+						worldNodeScale3D->y_ = parentScale3D.y * localNodeScale3D->y_;
+						worldNodeScale3D->z_ = parentScale3D.z * localNodeScale3D->z_;
+
+
+						//UPDATE WORLD POSITION
 						auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
 
-						if (animationRunningState != nullptr) {
-							animationRunningState->animationIndex_ = animationInProgress->animationIndex_;
-							animationRunningState->animationDuration_ = runningModelAnimation.durationInTicks_;
-							animationRunningState->currentTime_ = currentAnimationStage;
-							if (isAnimationEnded) {
-								RemoveComponent<Animation::Model::Node::RunningState>(nodeEntityId);
-								animationRunningState->currentTime_ = 1.0;
+						if (childModelNodeEntities != nullptr) {
+
+							const glm::fvec3 currentNodePosition3D = { worldNodePosition3D->x_, worldNodePosition3D->y_, worldNodePosition3D->z_ };
+							const glm::quat currentNodeRotation3D = { worldNodeRotation3D->w_, worldNodeRotation3D->x_, worldNodeRotation3D->y_, worldNodeRotation3D->z_ };
+							const glm::fvec3 currentNodeScale3D = { worldNodeScale3D->x_, worldNodeScale3D->y_, worldNodeScale3D->z_ };
+
+							const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->childEntityIds_;
+							for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
+
+								processModelNode(childModelNodeEntityId, currentNodePosition3D, currentNodeRotation3D, currentNodeScale3D);
 							}
-
 						}
-					}
-					//PROSESS RUNNING ANIMATION
+						END_PROFILE();
+				};
 
-					//PROSESS START ANIMATION
-					if (needToRunAnimation) {
-						const ECS2::ComponentsFilter entityComponentFilter = GetComponentsFilter(nodeEntityId);
+			//auto& worldPosition3D0 = std::get<WorldPosition3D*>(components);
+			//auto& worldRotation3D0 = std::get<WorldRotation3D*>(components);
+			//auto& worldScale3D0 = std::get<WorldScale3D*>(components);
+			const glm::fvec3 position3D = { worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ };
+			const glm::quat rotation3D = { worldRotation3D1->w_, worldRotation3D1->x_, worldRotation3D1->y_, worldRotation3D1->z_ };
+			const glm::fvec3 scale3D = { worldScale3D1->x_, worldScale3D1->y_, worldScale3D1->z_ };
+			const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->childEntityIds_;
+			for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
+				processModelNode(childModelNodeEntityId, position3D, rotation3D, scale3D);
+			}
 
-						ASSERT_MSG(
-							entityComponentFilter.IsSet<ModelNode>(),
-							"Entity in model hier is not node, check hier construction.");
+			END_PROFILE();
 
-						//Check if node has animation.
-						if (animationComponentsFilter.IsSubsetOf(entityComponentFilter)) {
-							CreateComponent<Animation::Model::Node::RunningState>(
-								nodeEntityId,
-								animationIndex,
-								modelAnimationIt->durationInTicks_,
-								0.0);
-						}
-					}
-					//PROSESS START ANIMATION
-
-					//UPDATE WORLD POSITION
-
-					const auto* localNodeRotation3D = std::get<LocalRotation3D*>(components);
-					auto* worldNodeRotation3D = std::get<WorldRotation3D*>(components);
-
-					const glm::quat worldRotationQuat = parentRotation3D * glm::quat(
-						localNodeRotation3D->w_,
-						localNodeRotation3D->x_,
-						localNodeRotation3D->y_,
-						localNodeRotation3D->z_);
-
-					worldNodeRotation3D->w_ = worldRotationQuat.w;
-					worldNodeRotation3D->x_ = worldRotationQuat.x;
-					worldNodeRotation3D->y_ = worldRotationQuat.y;
-					worldNodeRotation3D->z_ = worldRotationQuat.z;
-
-					const auto* localNodePosition3D = std::get<LocalPosition3D*>(components);
-					auto* worldNodePosition3D = std::get<WorldPosition3D*>(components);
-
-					{
-						const glm::vec3 worldNodePosition3DVec = parentPosition3D + parentRotation3D * (parentScale3D * glm::vec3{ localNodePosition3D->x_, localNodePosition3D->y_, localNodePosition3D->z_ });
-
-						ASSERT_FMSG(
-							!std::isnan(worldNodePosition3DVec.x) &&
-							!std::isnan(worldNodePosition3DVec.y) &&
-							!std::isnan(worldNodePosition3DVec.z), "");
-
-						worldNodePosition3D->x_ = worldNodePosition3DVec.x;
-						worldNodePosition3D->y_ = worldNodePosition3DVec.y;
-						worldNodePosition3D->z_ = worldNodePosition3DVec.z;
-					}
-
-
-					const auto* localNodeScale3D = std::get<LocalScale3D*>(components);
-
-					auto* worldNodeScale3D = std::get<WorldScale3D*>(components);
-
-					worldNodeScale3D->x_ = parentScale3D.x * localNodeScale3D->x_;
-					worldNodeScale3D->y_ = parentScale3D.y * localNodeScale3D->y_;
-					worldNodeScale3D->z_ = parentScale3D.z * localNodeScale3D->z_;
-
-
-					//UPDATE WORLD POSITION
-					auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
-
-					if (childModelNodeEntities != nullptr) {
-
-						const glm::fvec3 currentNodePosition3D = { worldNodePosition3D->x_, worldNodePosition3D->y_, worldNodePosition3D->z_ };
-						const glm::quat currentNodeRotation3D = { worldNodeRotation3D->w_, worldNodeRotation3D->x_, worldNodeRotation3D->y_, worldNodeRotation3D->z_ };
-						const glm::fvec3 currentNodeScale3D = { worldNodeScale3D->x_, worldNodeScale3D->y_, worldNodeScale3D->z_ };
-
-						const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->childEntityIds_;
-						for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
-
-							processModelNode(childModelNodeEntityId, currentNodePosition3D, currentNodeRotation3D, currentNodeScale3D);
-						}
-					}
-					END_PROFILE();
-			};
-
-		//auto& worldPosition3D0 = std::get<WorldPosition3D*>(components);
-		//auto& worldRotation3D0 = std::get<WorldRotation3D*>(components);
-		//auto& worldScale3D0 = std::get<WorldScale3D*>(components);
-		const glm::fvec3 position3D = { worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ };
-		const glm::quat rotation3D = { worldRotation3D1->w_, worldRotation3D1->x_, worldRotation3D1->y_, worldRotation3D1->z_ };
-		const glm::fvec3 scale3D = { worldScale3D1->x_, worldScale3D1->y_, worldScale3D1->z_ };
-		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->childEntityIds_;
-		for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
-			processModelNode(childModelNodeEntityId, position3D, rotation3D, scale3D);
 		}
-
-		END_PROFILE();
-
 	}
 
 	//void ProcessModelAnimation::Update(
@@ -518,23 +523,23 @@ namespace OksEngine
 
 		}
 
-		void CreateScene::Update(
+		void CreateModel::Update(
 			ECS2::Entity::Id entity0id,
 			Ai::Cache* ai__Cache0,
 
-			ECS2::Entity::Id entity1id,
-			const MeshsController* meshsController1,
-			MeshNameToEntity* meshNameToEntity1,
+			ECS2::Entity::Id entity1id, 
+			const Render::Mdl::Msh::MeshsController* meshsController1,
+			Render::Mdl::Msh::MeshNameToEntity* meshNameToEntity1,
 
 			ECS2::Entity::Id entity2id,
 			const ResourceSystem* resourceSystem2,
 
 			ECS2::Entity::Id entity3id,
-			const ModelFile* modelFile3,
+			const Render::Mdl::ModelFile* modelFile3,
 
 			ECS2::Entity::Id entity4id,
-			const Render::Model::DataController* render__Model__Data__DataController4,
-			Render::Model::ModelNameToModelDataEntityId* render__Model__Data__ModelNameToDataEntityId4) {
+			const Render::Mdl::DataController* render__Model__Data__DataController4,
+			Render::Mdl::ModelNameToModelDataEntityId* render__Model__Data__ModelNameToDataEntityId4) {
 
 
 			auto getNodeFullName = [modelFile3](const aiScene* scene, const aiNode* node) {
@@ -622,7 +627,7 @@ namespace OksEngine
 				scene = readScene;
 			}
 
-			CreateComponent<Model>(modelEntityId);
+			CreateComponent<Render::Mdl::Model>(modelEntityId);
 
 
 			//Get bone node names.
@@ -675,7 +680,7 @@ namespace OksEngine
 
 				std::function<void(aiNode* node)> processNode = [&](aiNode* node) {
 
-					for (Common::Index i = 0; i < std::clamp((size_t)scene->mNumAnimations, (size_t)0, Animation::Model::AnimationsMaxNumber); i++) {
+					for (Common::Index i = 0; i < std::clamp((size_t)scene->mNumAnimations, (size_t)0, Animation::Mdl::AnimationsMaxNumber); i++) {
 						aiAnimation* animation = scene->mAnimations[i];
 
 						for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
@@ -703,7 +708,7 @@ namespace OksEngine
 			}
 
 
-			decltype(ModelNodeEntityIds::nodeEntityIds_) modelNodeEntityIds;
+			decltype(Render::Mdl::ModelNodeEntityIds::nodeEntityIds_) modelNodeEntityIds;
 			modelNodeEntityIds.fill(ECS2::Entity::Id::invalid_);
 
 			std::map<const aiNode*, ECS2::Entity::Id> nodeToEntityId;
@@ -721,7 +726,7 @@ namespace OksEngine
 
 					ECS2::Entity::Id nodeEntityId = ECS2::Entity::Id::invalid_;
 
-					nodeEntityId = CreateEntity<RENDER__MODEL__NODE>();
+					nodeEntityId = CreateEntity<RENDER__MDL__NODE>();
 
 					foundNodesEntityIds.push_back(nodeEntityId);
 					nodeToEntityId[node] = nodeEntityId;
@@ -744,9 +749,9 @@ namespace OksEngine
 			}
 
 
-			CreateComponent<ModelNodeEntityIds>(modelEntityId, modelNodeEntityIds);
+			CreateComponent<Render::Mdl::ModelNodeEntityIds>(modelEntityId, modelNodeEntityIds);
 
-			decltype(BoneNodeEntities::boneEntityIds_) boneEntityIds;
+			decltype(Render::Mdl::BoneNodeEntities::boneEntityIds_) boneEntityIds;
 			boneEntityIds.fill(ECS2::Entity::Id::invalid_);
 			for (Common::Index i = 0; i < boneNames.size(); i++) {
 				const auto& boneName = boneNames[i];
@@ -754,13 +759,13 @@ namespace OksEngine
 			}
 
 			if (!boneEntityIds.empty()) {
-				CreateComponent<BoneNodeEntities>(modelEntityId, boneEntityIds);
+				CreateComponent<Render::Mdl::BoneNodeEntities>(modelEntityId, boneEntityIds);
 			}
 
 
 			//CREATE MODEL DATA AND MODEL DATA NODES
 			{
-				ASSERT_MSG(!IsComponentExist<Render::Model::ModelDataEntityId>(modelEntityId),
+				ASSERT_MSG(!IsComponentExist<Render::Mdl::ModelDataEntityId>(modelEntityId),
 					"ModelDataEntityId cant exist in the creating model step.");
 
 				auto modelDataIt = render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_.find(modelFile3->fileName_);
@@ -772,7 +777,7 @@ namespace OksEngine
 					CreateComponent<Name>(modelDataEntityId, "ModelData");
 
 					std::map<const aiNode*, ECS2::Entity::Id> dataNodeToEntityId;
-					decltype(ModelNodeEntityIds::nodeEntityIds_) dataNodeEntityIds;
+					decltype(Render::Mdl::ModelNodeEntityIds::nodeEntityIds_) dataNodeEntityIds;
 					dataNodeEntityIds.fill(ECS2::Entity::Id::invalid_);
 
 					std::vector<ECS2::Entity::Id> foundDataNodesEntityIds;
@@ -783,7 +788,7 @@ namespace OksEngine
 
 						ECS2::Entity::Id nodeEntityId = ECS2::Entity::Id::invalid_;
 
-						nodeEntityId = CreateEntity<RENDER__MODEL__NODE_DATA>();
+						nodeEntityId = CreateEntity<RENDER__MDL__NODE_DATA>();
 						foundDataNodesEntityIds.push_back(nodeEntityId);
 						dataNodeToEntityId[node] = nodeEntityId;
 
@@ -802,7 +807,7 @@ namespace OksEngine
 						foundDataNodesEntityIds.end(),
 						dataNodeEntityIds.begin());
 
-					CreateComponent<ModelNodeEntityIds>(modelDataEntityId, dataNodeEntityIds);
+					CreateComponent<Render::Mdl::ModelNodeEntityIds>(modelDataEntityId, dataNodeEntityIds);
 
 					auto createDataNodesHierarchy = [&]() {
 
@@ -835,7 +840,7 @@ namespace OksEngine
 							auto createDataNodeAnimationChannel = [&dataNodeToEntityId, this](const aiNode* node, const aiScene* scene) {
 
 								{
-									decltype(Animation::Model::Node::Animations::animations_) animationChannels;
+									decltype(Animation::Mdl::Node::Animations::animations_) animationChannels;
 									Common::Size nodeAnimationsNumber = 0;
 									const ECS2::Entity::Id nodeEntityId = dataNodeToEntityId[node];
 									//ASSERT_MSG(scene->mNumAnimations % animationChannels.max_size() , "Unsupported number of animations per model.");
@@ -847,7 +852,7 @@ namespace OksEngine
 											if (nodeAnim->mNodeName == node->mName) {
 												++nodeAnimationsNumber;
 												ASSERT_MSG(nodeAnimationsNumber <= animationChannels.max_size(), "Unsupported number of animations per mode node.");
-												Animation::Model::Node::Animation modelNodeAnimation;
+												Animation::Mdl::Node::Animation modelNodeAnimation;
 
 												STATIC_ASSERT_MSG(modelNodeAnimation.position3DKeys_.keys_.max_size() > 2, "");
 												STATIC_ASSERT_MSG(modelNodeAnimation.rotationKeys_.keys_.max_size() > 2, "");
@@ -1155,7 +1160,7 @@ namespace OksEngine
 										}
 									}
 									if (nodeAnimationsNumber > 0) {
-										CreateComponent<Animation::Model::Node::Animations>(nodeEntityId, animationChannels);
+										CreateComponent<Animation::Mdl::Node::Animations>(nodeEntityId, animationChannels);
 									}
 								}
 								};
@@ -1174,7 +1179,7 @@ namespace OksEngine
 								glm::mat4 transform = aiMatrixToGlmMatrix(bone->mOffsetMatrix);
 
 								CreateComponent<BoneInverseBindPoseMatrix>(dataNodeEntityId, transform);
-								CreateComponent<BoneNode>(dataNodeEntityId);
+								CreateComponent<Render::Mdl::BoneNode>(dataNodeEntityId);
 
 							}
 
@@ -1185,10 +1190,10 @@ namespace OksEngine
 							const ECS2::Entity::Id dataNodeEntityId = dataNodeToEntityId[node];
 							const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
 
-							CreateComponent<ModelNode>(dataNodeEntityId);
+							CreateComponent<Render::Mdl::ModelNode>(dataNodeEntityId);
 
 							//Model node -> model data node.
-							CreateComponent<Render::Model::ModelNodeDataEntityId>(nodeEntityId, dataNodeEntityId);
+							CreateComponent<Render::Mdl::ModelNodeDataEntityId>(nodeEntityId, dataNodeEntityId);
 
 							auto getNodeFullName = [&]() {
 								std::string nodeName;
@@ -1207,7 +1212,7 @@ namespace OksEngine
 								};
 
 							CreateComponent<Name>(dataNodeEntityId, getNodeFullName());
-							CreateComponent<Render::Model::ModelDataEntityId>(dataNodeEntityId, modelEntityId);
+							CreateComponent<Render::Mdl::ModelDataEntityId>(dataNodeEntityId, modelEntityId);
 
 							ASSERT_FMSG(dataNodeEntityId.IsValid(), "");
 
@@ -1223,7 +1228,7 @@ namespace OksEngine
 							}
 
 							if (!childNodeEntityIds.empty()) {
-								CreateComponent<ChildModelNodeEntities>(dataNodeEntityId, childNodeEntityIds);
+								CreateComponent<Render::Mdl::ChildModelNodeEntities>(dataNodeEntityId, childNodeEntityIds);
 							}
 							return dataNodeEntityId;
 							};
@@ -1235,7 +1240,7 @@ namespace OksEngine
 							std::vector<ModelAnimation> modelAnimations;
 							modelAnimations.reserve(scene->mNumAnimations);
 
-							for (Common::Index i = 0; i < std::clamp((size_t)scene->mNumAnimations, (size_t)0, (size_t)Animation::Model::AnimationsMaxNumber); i++) {
+							for (Common::Index i = 0; i < std::clamp((size_t)scene->mNumAnimations, (size_t)0, (size_t)Animation::Mdl::AnimationsMaxNumber); i++) {
 								aiAnimation* animation = scene->mAnimations[i];
 								ModelAnimation modelAnimation{
 									animation->mName.C_Str(),
@@ -1249,7 +1254,7 @@ namespace OksEngine
 
 						const ECS2::Entity::Id rootNodeEntityId = nodeToEntityId[scene->mRootNode];
 
-						CreateComponent<ChildModelNodeEntities>(modelDataEntityId, std::vector{ rootNodeEntityId });
+						CreateComponent<Render::Mdl::ChildModelNodeEntities>(modelDataEntityId, std::vector{ rootNodeEntityId });
 
 						};
 
@@ -1258,7 +1263,7 @@ namespace OksEngine
 					render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_[modelFile3->fileName_] = modelDataEntityId;
 
 
-					CreateComponent<Render::Model::ModelDataEntityId>(
+					CreateComponent<Render::Mdl::ModelDataEntityId>(
 						modelEntityId,
 						render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_[modelFile3->fileName_]);
 				}
@@ -1283,7 +1288,7 @@ namespace OksEngine
 						const aiBone* bone = nameToBone[node->mName.C_Str()];
 						glm::mat4 transform = aiMatrixToGlmMatrix(bone->mOffsetMatrix);
 
-						CreateComponent<BoneNode>(nodeEntityId);
+						CreateComponent<Render::Mdl::BoneNode>(nodeEntityId);
 
 					}
 
@@ -1302,9 +1307,9 @@ namespace OksEngine
 
 					const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
 
-					CreateComponent<ModelNode>(nodeEntityId);
+					CreateComponent<Render::Mdl::ModelNode>(nodeEntityId);
 					CreateComponent<Name>(nodeEntityId, getNodeFullName(scene, node));
-					CreateComponent<ModelEntity>(nodeEntityId, modelEntityId);
+					CreateComponent<Render::Mdl::ModelEntity>(nodeEntityId, modelEntityId);
 
 					createNodeComponents(scene, node, nodeEntityId);
 
@@ -1320,7 +1325,7 @@ namespace OksEngine
 					}
 
 					if (!childNodeEntityIds.empty()) {
-						CreateComponent<ChildModelNodeEntities>(nodeEntityId, childNodeEntityIds);
+						CreateComponent<Render::Mdl::ChildModelNodeEntities>(nodeEntityId, childNodeEntityIds);
 					}
 					return nodeEntityId;
 					};
@@ -1329,7 +1334,7 @@ namespace OksEngine
 
 				const ECS2::Entity::Id rootNodeEntityId = nodeToEntityId[scene->mRootNode];
 
-				CreateComponent<ChildModelNodeEntities>(modelEntityId, std::vector{ rootNodeEntityId });
+				CreateComponent<Render::Mdl::ChildModelNodeEntities>(modelEntityId, std::vector{ rootNodeEntityId });
 
 				};
 
@@ -1421,6 +1426,42 @@ namespace OksEngine
 											(Geom::Color4b*)pixels + width * height});
 								}
 							}
+							//{
+							//	aiString ambientTexturePath;
+							//	material->GetTexture(aiTextureType::aiTextureType_AMBIENT, 0, &ambientTexturePath);
+							//	const aiTexture* ambientTexture = scene->GetEmbeddedTexture(ambientTexture.C_Str());
+							//	Common::UInt32 textureWidth = ambientTexture->mWidth;
+							//	Common::UInt32 textureHeight = ambientTexture->mHeight;
+							//	if (textureHeight > 0 && textureHeight > 0) {
+							//		CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, ambientTexture.C_Str());
+							//		CreateComponent<Render::NormalMap::TextureData>(
+							//			meshEntityId,
+							//			textureWidth, textureHeight,
+							//			std::vector<Geom::Color4b>{
+							//			(Geom::Color4b*)normalTexture->pcData,
+							//				(Geom::Color4b*)normalTexture->pcData + textureWidth * textureHeight});
+							//	}
+							//	else {
+							//		//Texture is compressed
+							//		const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(normalTexture->pcData);
+
+							//		int width, height, channels;
+
+							//		unsigned char* pixels = stbi_load_from_memory(
+							//			compressed_data,
+							//			normalTexture->mWidth,
+							//			&width, &height, &channels,
+							//			STBI_rgb_alpha
+							//		);
+							//		CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
+							//		CreateComponent<Render::NormalMap::TextureData>(
+							//			meshEntityId,
+							//			width, height,
+							//			std::vector<Geom::Color4b>{
+							//			(Geom::Color4b*)pixels,
+							//				(Geom::Color4b*)pixels + width * height});
+							//	}
+							//}
 
 							};
 						createDiffuseTexture(meshEntityId);
@@ -1439,10 +1480,10 @@ namespace OksEngine
 								VertexBonesInfo{
 									//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
 									{
-										ModelNodesMaxNumber,
-										ModelNodesMaxNumber,
-										ModelNodesMaxNumber,
-										ModelNodesMaxNumber
+										Render::Mdl::ModelNodesMaxNumber,
+										Render::Mdl::ModelNodesMaxNumber,
+										Render::Mdl::ModelNodesMaxNumber,
+										Render::Mdl::ModelNodesMaxNumber
 									},
 									{ 0.0f, 0.0f, 0.0f, 0.0f }	// no influence on vertex by default  
 								});
@@ -1473,7 +1514,7 @@ namespace OksEngine
 													}
 												}
 												ASSERT(boneEntityIdIndex != Common::Limits<Common::Index>::Max());
-												ASSERT(boneEntityIdIndex < ModelNodesMaxNumber);
+												ASSERT(boneEntityIdIndex < Render::Mdl::ModelNodesMaxNumber);
 
 												vertexBonesInfos[weight->mVertexId].boneEntityIndices_[k] = boneEntityIdIndex;
 #pragma region Assert
@@ -1518,7 +1559,7 @@ namespace OksEngine
 										nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
 									}
 
-									CreateComponent<ModelNodeEntityIndices>(meshEntityId, nodeEntityIndices);
+									CreateComponent<Render::Mdl::ModelNodeEntityIndices>(meshEntityId, nodeEntityIndices);
 
 								}
 							}
@@ -1598,10 +1639,10 @@ namespace OksEngine
 						//Create mesh info.
 						const ECS2::Entity::Id meshEntity = CreateEntity<MESH>();
 
-						CreateComponent<Mesh>(meshEntity);
+						CreateComponent<Render::Mdl::Msh::Mesh>(meshEntity);
 						CreateComponent<Name>(meshEntity, meshName);
-						CreateComponent<ModelName>(meshEntity, modelFile3->fileName_ + scene->mName.C_Str());
-						CreateComponent<ModelEntityIds>(meshEntity, std::array<ECS2::Entity::Id, MeshMaxModelsNumber>{ modelEntityId });
+						CreateComponent<Render::Mdl::ModelName>(meshEntity, modelFile3->fileName_ + scene->mName.C_Str());
+						CreateComponent<Render::Mdl::ModelEntityIds>(meshEntity, std::array<ECS2::Entity::Id, Render::Mdl::MeshMaxModelsNumber>{ modelEntityId });
 
 						createMeshComponents(scene, mesh, meshEntity);
 
@@ -1614,8 +1655,8 @@ namespace OksEngine
 					}
 				}
 
-				CreateComponent<MeshNames>(modelEntityId, meshNames);
-				CreateComponent<MeshEntities>(modelEntityId, meshEntityIds);
+				CreateComponent<Render::Mdl::Msh::MeshNames>(modelEntityId, meshNames);
+				CreateComponent<Render::Mdl::Msh::MeshEntities>(modelEntityId, meshEntityIds);
 
 				Common::Size foundMeshsCount = 0;
 				for (Common::Index i = 0; i < meshEntityIds.size(); i++) {
@@ -1625,7 +1666,7 @@ namespace OksEngine
 
 				}
 				if (foundMeshsCount == scene->mNumMeshes) {
-					CreateComponent<MeshsFound>(modelEntityId);
+					CreateComponent<Render::Mdl::MeshsFound>(modelEntityId);
 				}
 
 				};
@@ -1635,7 +1676,7 @@ namespace OksEngine
 		}
 	}
 
-	namespace Render::Model {
+	namespace Render::Mdl {
 		void CreateDataController::Update() {
 			const ECS2::Entity::Id modelDataControllerEntity = CreateEntity();
 			CreateComponent<DataController>(modelDataControllerEntity);
@@ -1644,101 +1685,108 @@ namespace OksEngine
 
 	}
 
+	namespace Render::Mdl {
+		void FindModelData::Update(
+			ECS2::Entity::Id entity0id,
+			const Model* model0,
+			const ModelFile* modelFile0,
+			const ModelNodeEntityIds* modelNodeEntityIds0,
 
-	void FindModelData::Update(
-		ECS2::Entity::Id entity0id,
-		const Model* model0,
-		const ModelFile* modelFile0,
-		const ModelNodeEntityIds* modelNodeEntityIds0,
+			ECS2::Entity::Id entity1id,
+			const Render::Mdl::DataController* render__Model__DataController1,
+			const Render::Mdl::ModelNameToModelDataEntityId* render__Model__ModelNameToModelDataEntityId1) {
 
-		ECS2::Entity::Id entity1id,
-		const Render::Model::DataController* render__Model__DataController1,
-		const Render::Model::ModelNameToModelDataEntityId* render__Model__ModelNameToModelDataEntityId1) {
+			auto modelDataIt = render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.find(modelFile0->fileName_);
+			if (modelDataIt != render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.end()) {
+				const ECS2::Entity::Id modelDataEntityId = modelDataIt->second;
+				if (IsEntityExist(modelDataEntityId)) {
 
-		auto modelDataIt = render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.find(modelFile0->fileName_);
-		if (modelDataIt != render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.end()) {
-			const ECS2::Entity::Id modelDataEntityId = modelDataIt->second;
-			if (IsEntityExist(modelDataEntityId)) {
+					auto* modelDataNodeEntityIds = GetComponent<ModelNodeEntityIds>(modelDataEntityId);
 
-				auto* modelDataNodeEntityIds = GetComponent<ModelNodeEntityIds>(modelDataEntityId);
+					for (Common::Index i = 0; i < modelNodeEntityIds0->nodeEntityIds_.size(); i++) {
+						const ECS2::Entity::Id nodeEntityId = modelNodeEntityIds0->nodeEntityIds_[i];
+						if (nodeEntityId.IsValid()) {
+							ASSERT(!IsComponentExist<Render::Mdl::ModelNodeDataEntityId>(nodeEntityId));
+							CreateComponent<Render::Mdl::ModelNodeDataEntityId>(nodeEntityId, modelDataNodeEntityIds->nodeEntityIds_[i]);
 
-				for (Common::Index i = 0; i < modelNodeEntityIds0->nodeEntityIds_.size(); i++) {
-					const ECS2::Entity::Id nodeEntityId = modelNodeEntityIds0->nodeEntityIds_[i];
-					if (nodeEntityId.IsValid()) {
-						ASSERT(!IsComponentExist<Render::Model::ModelNodeDataEntityId>(nodeEntityId));
-						CreateComponent<Render::Model::ModelNodeDataEntityId>(nodeEntityId, modelDataNodeEntityIds->nodeEntityIds_[i]);
-
+						}
 					}
+					CreateComponent<Render::Mdl::ModelDataEntityId>(entity0id, modelDataEntityId);
 				}
-				CreateComponent<Render::Model::ModelDataEntityId>(entity0id, modelDataEntityId);
 			}
+
 		}
 
-	}
-	void CreateMeshsController::Update() {
 
-		const ECS2::Entity::Id meshsControllerEntity = CreateEntity();
-		CreateComponent<MeshsController>(meshsControllerEntity);
-		CreateComponent<MeshNameToEntity>(meshsControllerEntity, std::map<std::string, ECS2::Entity::Id>{});
+		void FindModelMeshs::Update(
+			ECS2::Entity::Id entity0id,
+			const Model* model0,
+			const Render::Mdl::Msh::MeshNames* meshNames0,
+			Render::Mdl::Msh::MeshEntities* meshEntities0,
 
-	}
+			ECS2::Entity::Id entity1id,
+			const Render::Mdl::Msh::Mesh* mesh1,
+			const Name* name1,
+			ModelEntityIds* modelEntityIds1) {
 
-	void FindModelMeshs::Update(
-		ECS2::Entity::Id entity0id,
-		const Model* model0,
-		const MeshNames* meshNames0,
-		MeshEntities* meshEntities0,
+			const ECS2::Entity::Id& modelEntityId = entity0id;
+			const ECS2::Entity::Id& meshEntityId = entity1id;
 
-		ECS2::Entity::Id entity1id,
-		const Mesh* mesh1,
-		const Name* name1,
-		ModelEntityIds* modelEntityIds1) {
-
-		const ECS2::Entity::Id& modelEntityId = entity0id;
-		const ECS2::Entity::Id& meshEntityId = entity1id;
-
-		ASSERT(meshNames0->meshNames_.size() == meshEntities0->meshEntityIds_.size());
+			ASSERT(meshNames0->meshNames_.size() == meshEntities0->meshEntityIds_.size());
 
 
-		if (
-			std::find(
-				meshEntities0->meshEntityIds_.begin(),
-				meshEntities0->meshEntityIds_.end(),
-				ECS2::Entity::Id::invalid_) == meshEntities0->meshEntityIds_.end()) {
-
-			//Skip models that already have all required meshs
-			return;
-		}
-
-		for (Common::Index i = 0; i < meshNames0->meshNames_.size(); i++) {
 			if (
-				meshEntities0->meshEntityIds_[i].IsInvalid() &&
-				meshNames0->meshNames_[i] == name1->value_) {
-				meshEntities0->meshEntityIds_[i] = meshEntityId;
+				std::find(
+					meshEntities0->meshEntityIds_.begin(),
+					meshEntities0->meshEntityIds_.end(),
+					ECS2::Entity::Id::invalid_) == meshEntities0->meshEntityIds_.end()) {
 
-				bool isFoundFreeCell = false;
-				for (Common::Index j = 0; j < modelEntityIds1->modelEntityIds_.max_size(); j++) {
-					if (modelEntityIds1->modelEntityIds_[j].IsInvalid()) {
-						modelEntityIds1->modelEntityIds_[j] = modelEntityId;
-						isFoundFreeCell = true;
-						break;
+				//Skip models that already have all required meshs
+				return;
+			}
+
+			for (Common::Index i = 0; i < meshNames0->meshNames_.size(); i++) {
+				if (
+					meshEntities0->meshEntityIds_[i].IsInvalid() &&
+					meshNames0->meshNames_[i] == name1->value_) {
+					meshEntities0->meshEntityIds_[i] = meshEntityId;
+
+					bool isFoundFreeCell = false;
+					for (Common::Index j = 0; j < modelEntityIds1->modelEntityIds_.max_size(); j++) {
+						if (modelEntityIds1->modelEntityIds_[j].IsInvalid()) {
+							modelEntityIds1->modelEntityIds_[j] = modelEntityId;
+							isFoundFreeCell = true;
+							break;
+						}
 					}
+					ASSERT(isFoundFreeCell);
+					//modelEntityIds1->modelEntityIds_.push_back(entity0id);
 				}
-				ASSERT(isFoundFreeCell);
-				//modelEntityIds1->modelEntityIds_.push_back(entity0id);
+			}
+			if (
+				std::find(
+					meshEntities0->meshEntityIds_.begin(),
+					meshEntities0->meshEntityIds_.end(),
+					ECS2::Entity::Id::invalid_) == meshEntities0->meshEntityIds_.end()) {
+
+				ASSERT(!IsComponentExist<MeshsFound>(modelEntityId));
+
+				CreateComponent<MeshsFound>(modelEntityId);
 			}
 		}
-		if (
-			std::find(
-				meshEntities0->meshEntityIds_.begin(),
-				meshEntities0->meshEntityIds_.end(),
-				ECS2::Entity::Id::invalid_) == meshEntities0->meshEntityIds_.end()) {
+	}
 
-			ASSERT(!IsComponentExist<MeshsFound>(modelEntityId));
+	namespace Render::Mdl::Msh {
+		void CreateMeshsController::Update() {
 
-			CreateComponent<MeshsFound>(modelEntityId);
+			const ECS2::Entity::Id meshsControllerEntity = CreateEntity();
+			CreateComponent<MeshsController>(meshsControllerEntity);
+			CreateComponent<MeshNameToEntity>(meshsControllerEntity, std::map<std::string, ECS2::Entity::Id>{});
+
 		}
 	}
+
+
 
 	//	void CreateDriverBonesPallet::Update(
 	//		ECS2::Entity::Id entity0id,
@@ -1925,256 +1973,256 @@ namespace OksEngine
 
 		//}
 
+	namespace Render {
+		void CreateRenderPass::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
 
-	void CreateRenderPass::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
+
+			auto driver = renderDriver0->driver_;
+
+			std::vector<RAL::Driver::RP::AttachmentUsage> attachmentsUsage;
+			{
+				RAL::Driver::RP::AttachmentUsage depthTestAttachment{
+					.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
+					.initialState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+					.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
+					.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
+					.finalState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+					.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
+				};
+				attachmentsUsage.push_back(depthTestAttachment);
+
+				RAL::Driver::RP::AttachmentUsage GBufferAttachment{
+					.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
+					.initialState_ = RAL::Driver::Texture::State::DataIsUndefined,
+					.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
+					.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
+					.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
+					.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
+				};
+				attachmentsUsage.push_back(GBufferAttachment);
+
+				RAL::Driver::RP::AttachmentUsage multisamplingAttachment{
+					.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
+					.initialState_ = RAL::Driver::Texture::State::DataForColorWrite,
+					.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
+					.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
+					.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
+					.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
+				};
+				attachmentsUsage.push_back(multisamplingAttachment);
+			}
+
+			std::vector<RAL::Driver::RP::Subpass> subpasses;
+			{
+				RAL::Driver::RP::Subpass subpass{
+					.colorAttachments_ = { 1 }, // Index of attachment in attachment set.
+					.resolveAttachment_ = 2,
+					.depthStencilAttachment_ = 0
+				};
+				subpasses.push_back(subpass);
+			}
+
+			RAL::Driver::RP::CI rpCI{
+				.name_ = "RenderPass",
+				.attachments_ = attachmentsUsage,
+				.subpasses_ = subpasses
+			};
+
+			const RAL::Driver::RP::Id renderPassId = driver->CreateRenderPass(rpCI);
 
 
-		auto driver = renderDriver0->driver_;
+			CreateComponent<MainRenderPass>(entity0id, renderPassId);
+		}
 
-		std::vector<RAL::Driver::RP::AttachmentUsage> attachmentsUsage;
-		{
-			RAL::Driver::RP::AttachmentUsage depthTestAttachment{
+
+		void CreateRenderAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
+
+
+			//RENDER BUFFER
+			RAL::Driver::Texture::CreateInfo1 renderBufferCreateInfo{
+				.name_ = "Render buffer",
+				.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
+				.size_ = { 2560, 1440 },
+				.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
+				.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
+				.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
+				.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment },
+				.mipLevels_ = 1,
+				.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
+			};
+			const RAL::Driver::Texture::Id renderBufferId = renderDriver0->driver_->CreateTexture(renderBufferCreateInfo);
+
+			CreateComponent<RenderAttachment>(entity0id, renderBufferId);
+
+		}
+
+		void CreateDepthAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
+
+
+			//DEPTH BUFFER
+			RAL::Driver::Texture::CreateInfo1 depthBufferCreateInfo{
+				.name_ = "Depth buffer",
 				.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
-				.initialState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
-				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
-				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
-				.finalState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+				.size_ = { 2560, 1440 },
+				.targetState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+				.targetAccess_ = RAL::Driver::Texture::Access::DepthStencilWrite,
+				.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::EarlyFragmentTests, RAL::Driver::Pipeline::Stage::LateFragmentTests },
+				.usages_ = { RAL::Driver::Texture::Usage::DepthStencilAttachment },
+				.mipLevels_ = 1,
 				.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
 			};
-			attachmentsUsage.push_back(depthTestAttachment);
 
-			RAL::Driver::RP::AttachmentUsage GBufferAttachment{
-				.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
-				.initialState_ = RAL::Driver::Texture::State::DataIsUndefined,
-				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
-				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
-				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
-				.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
-			};
-			attachmentsUsage.push_back(GBufferAttachment);
+			const RAL::Driver::Texture::Id depthBufferId = renderDriver0->driver_->CreateTexture(depthBufferCreateInfo);
 
-			RAL::Driver::RP::AttachmentUsage multisamplingAttachment{
+			CreateComponent<DepthAttachment>(entity0id, depthBufferId);
+
+		}
+
+		void CreateMultisamplingAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
+
+			////Multisampling
+			//{
+			//	auto multisamplingData = std::make_shared<MultisamplingData>();
+			//	{
+			//		Image::CreateInfo multisamplingCreateInfo;
+			//		{
+			//			multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
+			//			multisamplingCreateInfo.LD_ = objects_.LD_;
+			//			multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
+			//			multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
+			//			multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
+			//			multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+			//			multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
+			//		}
+			//		multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
+			//		multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
+			//	}
+			//	objects_.multisamplingData_ = multisamplingData;
+			//}
+			//RENDER BUFFER
+			RAL::Driver::Texture::CreateInfo1 renderBufferCreateInfo{
+				.name_ = "Multisampling buffer",
 				.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
-				.initialState_ = RAL::Driver::Texture::State::DataForColorWrite,
-				.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
-				.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
-				.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
+				.size_ = { 2560, 1440 },
+				.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
+				.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
+				.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
+				.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment, RAL::Driver::Texture::Usage::TransferSource },
+				.mipLevels_ = 1,
 				.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
 			};
-			attachmentsUsage.push_back(multisamplingAttachment);
+			const RAL::Driver::Texture::Id multisamplingBufferId = renderDriver0->driver_->CreateTexture(renderBufferCreateInfo);
+
+			CreateComponent<MultisamplingAttachment>(entity0id, multisamplingBufferId);
+
 		}
 
-		std::vector<RAL::Driver::RP::Subpass> subpasses;
-		{
-			RAL::Driver::RP::Subpass subpass{
-				.colorAttachments_ = { 1 }, // Index of attachment in attachment set.
-				.resolveAttachment_ = 2,
-				.depthStencilAttachment_ = 0
+		void CreateAttachmentSet::Update(
+			ECS2::Entity::Id entity0id,
+			const RenderDriver* renderDriver0,
+			const MainRenderPass* renderPass0,
+			const RenderAttachment* renderAttachment0,
+			const MultisamplingAttachment* multisamplingAttachment0,
+			const DepthAttachment* depthAttachment0) {
+
+			RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
+				.rpId_ = renderPass0->rpId_,
+				.textures_ = { depthAttachment0->textureId_, renderAttachment0->textureId_, multisamplingAttachment0->textureId_ },
+				.size_ = glm::u32vec2{ 2560, 1440 }
 			};
-			subpasses.push_back(subpass);
+
+			RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = renderDriver0->driver_->CreateAttachmentSet(attachmentSetCI);
+
+			CreateComponent<AttachmentSet>(entity0id, rpAttachmentsSetId);
+
 		}
 
-		RAL::Driver::RP::CI rpCI{
-			.name_ = "RenderPass",
-			.attachments_ = attachmentsUsage,
-			.subpasses_ = subpasses
-		};
+		void CreatePipeline::Update(
+			ECS2::Entity::Id entity0id,
+			const RenderDriver* renderDriver0,
+			const MainRenderPass* renderPass0,
 
-		const RAL::Driver::RP::Id renderPassId = driver->CreateRenderPass(rpCI);
+			ECS2::Entity::Id entity1id,
+			const ResourceSystem* resourceSystem1) {
 
+			Resources::ResourceData vertexTextureShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.vert");
+			Resources::ResourceData fragmentTextureShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.frag");
 
-		CreateComponent<RenderPass>(entity0id, renderPassId);
-	}
-
-
-	void CreateRenderAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
-
-
-		//RENDER BUFFER
-		RAL::Driver::Texture::CreateInfo1 renderBufferCreateInfo{
-			.name_ = "Render buffer",
-			.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
-			.size_ = { 2560, 1440 },
-			.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
-			.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
-			.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
-			.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment },
-			.mipLevels_ = 1,
-			.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
-		};
-		const RAL::Driver::Texture::Id renderBufferId = renderDriver0->driver_->CreateTexture(renderBufferCreateInfo);
-
-		CreateComponent<RenderAttachment>(entity0id, renderBufferId);
-
-	}
-
-	void CreateDepthAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
+			std::string vertexShaderCode{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
+			std::string fragmentShaderCode{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
 
 
-		//DEPTH BUFFER
-		RAL::Driver::Texture::CreateInfo1 depthBufferCreateInfo{
-			.name_ = "Depth buffer",
-			.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
-			.size_ = { 2560, 1440 },
-			.targetState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
-			.targetAccess_ = RAL::Driver::Texture::Access::DepthStencilWrite,
-			.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::EarlyFragmentTests, RAL::Driver::Pipeline::Stage::LateFragmentTests },
-			.usages_ = { RAL::Driver::Texture::Usage::DepthStencilAttachment },
-			.mipLevels_ = 1,
-			.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
-		};
+			RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
+				.name_ = "TexturedVertexShader",
+				.type_ = RAL::Driver::Shader::Type::Vertex,
+				.code_ = vertexShaderCode
+			};
+			auto vertexShader = renderDriver0->driver_->CreateShader(vertexShaderCreateInfo);
 
-		const RAL::Driver::Texture::Id depthBufferId = renderDriver0->driver_->CreateTexture(depthBufferCreateInfo);
+			RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
+				.name_ = "TexturedFragmentShader",
+				.type_ = RAL::Driver::Shader::Type::Fragment,
+				.code_ = fragmentShaderCode
+			};
+			auto fragmentShader = renderDriver0->driver_->CreateShader(fragmentShaderCreateInfo);
 
-		CreateComponent<DepthAttachment>(entity0id, depthBufferId);
+			std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
 
-	}
-
-	void CreateMultisamplingAttachment::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0) {
-
-		////Multisampling
-		//{
-		//	auto multisamplingData = std::make_shared<MultisamplingData>();
-		//	{
-		//		Image::CreateInfo multisamplingCreateInfo;
-		//		{
-		//			multisamplingCreateInfo.physicalDevice_ = objects_.physicalDevice_;
-		//			multisamplingCreateInfo.LD_ = objects_.LD_;
-		//			multisamplingCreateInfo.format_ = objects_.swapChain_->GetFormat().format;
-		//			multisamplingCreateInfo.size_ = objects_.swapChain_->GetSize();
-		//			multisamplingCreateInfo.tiling_ = VK_IMAGE_TILING_OPTIMAL;
-		//			multisamplingCreateInfo.usage_ = VK_IMAGE_USAGE_TRANSIENT_ATTACHMENT_BIT | VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
-		//			multisamplingCreateInfo.samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
-		//		}
-		//		multisamplingData->image_ = std::make_shared<AllocatedImage>(multisamplingCreateInfo);
-		//		multisamplingData->imageView_ = CreateImageViewByImage(objects_.LD_, multisamplingData->image_, VK_IMAGE_ASPECT_COLOR_BIT, 1);
-		//	}
-		//	objects_.multisamplingData_ = multisamplingData;
-		//}
-		//RENDER BUFFER
-		RAL::Driver::Texture::CreateInfo1 renderBufferCreateInfo{
-			.name_ = "Multisampling buffer",
-			.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
-			.size_ = { 2560, 1440 },
-			.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
-			.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
-			.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
-			.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment, RAL::Driver::Texture::Usage::TransferSource },
-			.mipLevels_ = 1,
-			.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
-		};
-		const RAL::Driver::Texture::Id multisamplingBufferId = renderDriver0->driver_->CreateTexture(renderBufferCreateInfo);
-
-		CreateComponent<MultisamplingAttachment>(entity0id, multisamplingBufferId);
-
-	}
-
-	void CreateAttachmentSet::Update(
-		ECS2::Entity::Id entity0id,
-		const RenderDriver* renderDriver0,
-		const RenderPass* renderPass0,
-		const RenderAttachment* renderAttachment0,
-		const MultisamplingAttachment* multisamplingAttachment0,
-		const DepthAttachment* depthAttachment0) {
-
-		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
-			.rpId_ = renderPass0->rpId_,
-			.textures_ = { depthAttachment0->textureId_, renderAttachment0->textureId_, multisamplingAttachment0->textureId_ },
-			.size_ = glm::u32vec2{ 2560, 1440 }
-		};
-
-		RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = renderDriver0->driver_->CreateAttachmentSet(attachmentSetCI);
-
-		CreateComponent<AttachmentSet>(entity0id, rpAttachmentsSetId);
-
-	}
-
-	void CreatePipeline::Update(
-		ECS2::Entity::Id entity0id,
-		const RenderDriver* renderDriver0,
-		const RenderPass* renderPass0,
-
-		ECS2::Entity::Id entity1id,
-		const ResourceSystem* resourceSystem1) {
-
-		Resources::ResourceData vertexTextureShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.vert");
-		Resources::ResourceData fragmentTextureShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.frag");
-
-		std::string vertexShaderCode{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
-		std::string fragmentShaderCode{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
+			RAL::Driver::Shader::Binding::Layout cameraBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
 
 
-		RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
-			.name_ = "TexturedVertexShader",
-			.type_ = RAL::Driver::Shader::Type::Vertex,
-			.code_ = vertexShaderCode
-		};
-		auto vertexShader = renderDriver0->driver_->CreateShader(vertexShaderCreateInfo);
-
-		RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
-			.name_ = "TexturedFragmentShader",
-			.type_ = RAL::Driver::Shader::Type::Fragment,
-			.code_ = fragmentShaderCode
-		};
-		auto fragmentShader = renderDriver0->driver_->CreateShader(fragmentShaderCreateInfo);
-
-		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
-
-		RAL::Driver::Shader::Binding::Layout cameraBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
+			RAL::Driver::Shader::Binding::Layout samplerBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+				.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+			};
 
 
-		RAL::Driver::Shader::Binding::Layout samplerBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-			.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-		};
+			RAL::Driver::Shader::Binding::Layout transformBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			shaderBindings.push_back(cameraBinding);		//set 0
+			shaderBindings.push_back(samplerBinding);		//set 1
+			shaderBindings.push_back(transformBinding);		//set 2
 
 
-		RAL::Driver::Shader::Binding::Layout transformBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		shaderBindings.push_back(cameraBinding);		//set 0
-		shaderBindings.push_back(samplerBinding);		//set 1
-		shaderBindings.push_back(transformBinding);		//set 2
+			auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
+			{
+				multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
+			}
 
 
-		auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
-		{
-			multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
+			RAL::Driver::Pipeline::CI pipelineCI{
+				.name_ = "Textured Pipeline",
+				.renderPassId_ = renderPass0->rpId_,
+				.vertexShader_ = vertexShader,
+				.fragmentShader_ = fragmentShader,
+				.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
+				.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2,
+				.indexType_ = RAL::Driver::IndexType::UI32,
+				.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
+				.cullMode_ = RAL::Driver::CullMode::Back,
+				.shaderBindings_ = shaderBindings,
+				.enableDepthTest_ = true,
+				.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
+				.multisamplingInfo_ = multisamplingInfo
+
+			};
+
+			const RAL::Driver::Pipeline::Id pipelineId = renderDriver0->driver_->CreatePipeline(pipelineCI);
+
+			CreateComponent<Pipeline>(entity0id, pipelineId);
+
 		}
 
-
-		RAL::Driver::Pipeline::CI pipelineCI{
-			.name_ = "Textured Pipeline",
-			.renderPassId_ = renderPass0->rpId_,
-			.vertexShader_ = vertexShader,
-			.fragmentShader_ = fragmentShader,
-			.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
-			.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2,
-			.indexType_ = RAL::Driver::IndexType::UI32,
-			.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
-			.cullMode_ = RAL::Driver::CullMode::Back,
-			.shaderBindings_ = shaderBindings,
-			.enableDepthTest_ = true,
-			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
-			.multisamplingInfo_ = multisamplingInfo
-
-		};
-
-		const RAL::Driver::Pipeline::Id pipelineId = renderDriver0->driver_->CreatePipeline(pipelineCI);
-
-		CreateComponent<Pipeline>(entity0id, pipelineId);
-
 	}
-
-
 
 	//TEST
 
@@ -2271,15 +2319,15 @@ namespace OksEngine
 	}
 
 
-	void Compute::TestPipeline::Update(
+	void Compute::CalculateAnimations::Update(
 		ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0, const Compute::Pipeline* pipeline0,
 		const Animation::ModelNodeDataEntityIds* animation__ModelNodeDataEntityIds0,
 		const Animation::NodeDataEntityIdsToComponentIndices* animation__NodeDataEntityIdsToComponentIndices0,
-		const Animation::Model::Node::DriverAnimationsComponents* animation__Model__Node__DriverAnimationsComponents0,
-		const Animation::Model::Node::AnimationsComponentsResource
+		const Animation::Mdl::Node::DriverAnimationsComponents* animation__Model__Node__DriverAnimationsComponents0,
+		const Animation::Mdl::Node::AnimationsComponentsResource
 		* animation__Model__Node__AnimationsComponentsResource0,
-		const Animation::Model::Node::DriverRunningStates* animation__Model__Node__DriverRunningStates0,
-		const Animation::Model::Node::RunningStatesResource* animation__Model__Node__RunningStatesResource0,
+		const Animation::Mdl::Node::DriverRunningStates* animation__Model__Node__DriverRunningStates0,
+		const Animation::Mdl::Node::RunningStatesResource* animation__Model__Node__RunningStatesResource0,
 		const Animation::DriverLocalPosition3DComponents* animation__DriverLocalPosition3DComponents0,
 		const Animation::LocalPosition3DComponentsResource* animation__LocalPosition3DComponentsResource0,
 		const Animation::DriverLocalRotation3DComponents* animation__DriverLocalRotation3DComponents0,
@@ -2443,19 +2491,19 @@ namespace OksEngine
 			//}
 			{
 				//Model nodes.
-				Common::Size nodeEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE>();
-				auto nodesComponents = world_->GetComponents<RENDER__MODEL__NODE>();
+				Common::Size nodeEntitiesNumber = world_->GetEntitiesNumber<RENDER__MDL__NODE>();
+				auto nodesComponents = world_->GetComponents<RENDER__MDL__NODE>();
 				auto* nodesEntityIds = std::get<ECS2::Entity::Id*>(nodesComponents);
 				auto* localPositions = std::get<LocalPosition3D*>(nodesComponents);
 				auto* localRotations = std::get<LocalRotation3D*>(nodesComponents);
-				auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(nodesComponents);
-				auto* modelNodeDataEntityIds = std::get<Render::Model::ModelNodeDataEntityId*>(nodesComponents);
+				auto* modelNodeAnimationStates = std::get<Animation::Mdl::Node::RunningState*>(nodesComponents);
+				auto* modelNodeDataEntityIds = std::get<Render::Mdl::ModelNodeDataEntityId*>(nodesComponents);
 
 				//Model nodes data.
-				Common::Size nodeDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE_DATA>();
-				auto nodesDataComponents = world_->GetComponents<RENDER__MODEL__NODE_DATA>();
+				Common::Size nodeDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MDL__NODE_DATA>();
+				auto nodesDataComponents = world_->GetComponents<RENDER__MDL__NODE_DATA>();
 				auto* nodesDataEntityIds = std::get<ECS2::Entity::Id*>(nodesDataComponents);
-				auto* modelNodeDataAnimations = std::get<Animation::Model::Node::Animations*>(nodesDataComponents);
+				auto* modelNodeDataAnimations = std::get<Animation::Mdl::Node::Animations*>(nodesDataComponents);
 				std::vector<Common::UInt64> nodesDataIds = createEntityIndices(nodesDataEntityIds, nodeDataEntitiesNumber);
 
 				//Models.
@@ -2498,7 +2546,7 @@ namespace OksEngine
 					animation__Model__Node__DriverRunningStates0->id_,
 					0,
 					modelNodeAnimationStates,
-					nodeEntitiesNumber * sizeof(Animation::Model::Node::RunningState));
+					nodeEntitiesNumber * sizeof(Animation::Mdl::Node::RunningState));
 				END_PROFILE();
 
 				BEGIN_PROFILE("Write animations for bones");
@@ -2506,14 +2554,14 @@ namespace OksEngine
 					animation__Model__Node__DriverAnimationsComponents0->id_,
 					0,
 					modelNodeDataAnimations,
-					nodeDataEntitiesNumber * sizeof(Animation::Model::Node::Animations));
+					nodeDataEntitiesNumber * sizeof(Animation::Mdl::Node::Animations));
 				END_PROFILE();
 
 				driver->StorageBufferWrite(
 					animation__ModelNodeDataEntityIds0->sbid_,
 					0,
 					modelNodeDataEntityIds,
-					nodeEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId));
+					nodeEntitiesNumber * sizeof(Render::Mdl::ModelNodeDataEntityId));
 
 				driver->StorageBufferWrite(
 					animation__NodeDataEntityIdsToComponentIndices0->sbid_,
@@ -2524,7 +2572,7 @@ namespace OksEngine
 				END_PROFILE();
 
 				driver->StartCompute();
-				driver->BindComputePipeline(pipeline0->pipelineId_);
+				driver->BindComputePipeline(pipeline0->id_);
 
 
 				//struct AnimationInfo {
@@ -2538,12 +2586,12 @@ namespace OksEngine
 				//}
 
 				driver->ComputePushConstants(
-					pipeline0->pipelineId_,
+					pipeline0->id_,
 					sizeof(decltype(nodeEntitiesNumber)),
 					&nodeEntitiesNumber);
 
 				driver->ComputeBind(
-					pipeline0->pipelineId_,
+					pipeline0->id_,
 					0,
 					{
 						animation__LocalPosition3DComponentsResource0->id_,								//set 0 
@@ -2597,58 +2645,57 @@ namespace OksEngine
 
 	//TEST
 
-	void BeginRenderPass::Update(
-		ECS2::Entity::Id entity0id,
-		RenderDriver* renderDriver0,
-		const RenderPass* renderPass0,
-		const AttachmentSet* attachmentSet0,
-		const Pipeline* pipeline0) {
+	//namespace Render {
+		void BeginRenderPass::Update(
+			ECS2::Entity::Id entity0id, RenderDriver* renderDriver0,
+			const Render::MainRenderPass* render__MainRenderPass0,
+			const Render::AttachmentSet* render__AttachmentSet0, const Render::Pipeline* render__Pipeline0) {
 
-		auto driver = renderDriver0->driver_;
+			auto driver = renderDriver0->driver_;
 
-		std::vector<RAL::Driver::RP::ClearValue> clearValues;
-		{
-			RAL::Driver::RP::ClearValue clearValue;
+			std::vector<RAL::Driver::RP::ClearValue> clearValues;
 			{
-				clearValue.depthStencil_.depth_ = 1.0f;
+				RAL::Driver::RP::ClearValue clearValue;
+				{
+					clearValue.depthStencil_.depth_ = 1.0f;
+				}
+				clearValues.push_back(clearValue);
 			}
-			clearValues.push_back(clearValue);
-		}
-		{
-			RAL::Driver::RP::ClearValue clearValue;
 			{
-				clearValue.color_.uint32[0] = 0;
-				clearValue.color_.uint32[1] = 0;
-				clearValue.color_.uint32[2] = 0;
-				clearValue.color_.uint32[3] = 255;
+				RAL::Driver::RP::ClearValue clearValue;
+				{
+					clearValue.color_.uint32[0] = 0;
+					clearValue.color_.uint32[1] = 0;
+					clearValue.color_.uint32[2] = 0;
+					clearValue.color_.uint32[3] = 255;
+				}
+				clearValues.push_back(clearValue);
 			}
-			clearValues.push_back(clearValue);
-		}
-		{
-			RAL::Driver::RP::ClearValue clearValue;
 			{
-				clearValue.color_.uint32[0] = 0;
-				clearValue.color_.uint32[1] = 0;
-				clearValue.color_.uint32[2] = 0;
-				clearValue.color_.uint32[3] = 255;
+				RAL::Driver::RP::ClearValue clearValue;
+				{
+					clearValue.color_.uint32[0] = 0;
+					clearValue.color_.uint32[1] = 0;
+					clearValue.color_.uint32[2] = 0;
+					clearValue.color_.uint32[3] = 255;
+				}
+				clearValues.push_back(clearValue);
 			}
-			clearValues.push_back(clearValue);
+
+
+			driver->BeginRenderPass(
+				render__MainRenderPass0->rpId_,
+				render__AttachmentSet0->attachmentsSetId_,
+				clearValues,
+				{ 0, 0 },
+				{ 2560, 1440 });
+
+			driver->SetViewport(0, 0, 2560, 1440);
+			driver->SetScissor(0, 0, 2560, 1440);
+
 		}
 
-
-		driver->BeginRenderPass(
-			renderPass0->rpId_,
-			attachmentSet0->attachmentsSetId_,
-			clearValues,
-			{ 0, 0 },
-			{ 2560, 1440 });
-
-		driver->SetViewport(0, 0, 2560, 1440);
-		driver->SetScissor(0, 0, 2560, 1440);
-
-	}
-
-
+	//}
 	//	void UpdateLocalPosition3D::Update(
 	//		ECS2::Entity::Id entity0id,
 	//		const Model* model0,
@@ -2773,67 +2820,67 @@ namespace OksEngine
 
 	};
 
-	void AddModelToRender::Update(
-		ECS2::Entity::Id entity0id,
-		const Camera* camera0,
-		const Active* active0,
-		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer0,
-		const CameraTransformResource* cameraTransformResource0,
+		void AddModelToRender::Update(
+			ECS2::Entity::Id entity0id,
+			const Camera* camera0,
+			const Active* active0,
+			const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer0,
+			const CameraTransformResource* cameraTransformResource0,
 
-		ECS2::Entity::Id entity1id,
-		const Indices* indices1,
-		const DriverIndexBuffer* driverIndexBuffer1,
-		const DriverVertexBuffer* driverVertexBuffer1,
-		const TextureResource* textureResource1,
-		const ModelEntityIds* modelEntityIds1,
-		const ModelNodeEntityIndices* modelNodeEntityIndices1,
+			ECS2::Entity::Id entity1id,
+			const Indices* indices1,
+			const DriverIndexBuffer* driverIndexBuffer1,
+			const DriverVertexBuffer* driverVertexBuffer1,
+			const TextureResource* textureResource1,
+			const Render::Mdl::ModelEntityIds* modelEntityIds1,
+			const Render::Mdl::ModelNodeEntityIndices* modelNodeEntityIndices1,
 
-		ECS2::Entity::Id entity2id,
-		RenderDriver* renderDriver2,
-		const RenderPass* renderPass2,
-		const Pipeline* pipeline2) {
+			ECS2::Entity::Id entity2id,
+			RenderDriver* renderDriver2,
+			const Render::MainRenderPass* renderPass2,
+			const Render::Pipeline* pipeline2) {
 
-		BRK_IF(entity0id.IsInvalid());
-		
-		return;
+			BRK_IF(entity0id.IsInvalid());
 
-		ASSERT(!IsComponentExist<VertexBones>(entity1id));
+			return;
 
-		auto driver = renderDriver2->driver_;
+			ASSERT(!IsComponentExist<VertexBones>(entity1id));
 
-		driver->BindPipeline(pipeline2->id_);
+			auto driver = renderDriver2->driver_;
 
-		driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
-		driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
+			driver->BindPipeline(pipeline2->id_);
 
-		driver->Bind(pipeline2->id_, 0,
-			{
-				cameraTransformResource0->id_,	// set 0
-				textureResource1->id_			// set 1
-			});
+			driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
+			driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
+
+			driver->Bind(pipeline2->id_, 0,
+				{
+					cameraTransformResource0->id_,	// set 0
+					textureResource1->id_			// set 1
+				});
 
 
 
-		const std::vector<Common::Index>& nodeEntityIndices = modelNodeEntityIndices1->nodeEntityIndices_;
+			const std::vector<Common::Index>& nodeEntityIndices = modelNodeEntityIndices1->nodeEntityIndices_;
 
-		for (ECS2::Entity::Id modelEntityId : modelEntityIds1->modelEntityIds_) {
-			const auto* modelNodeEntityIds = GetComponent<ModelNodeEntityIds>(modelEntityId);
-			for (Common::Index nodeEntityIndex : nodeEntityIndices) {
+			for (ECS2::Entity::Id modelEntityId : modelEntityIds1->modelEntityIds_) {
+				const auto* modelNodeEntityIds = GetComponent<Render::Mdl::ModelNodeEntityIds>(modelEntityId);
+				for (Common::Index nodeEntityIndex : nodeEntityIndices) {
 
-				const ECS2::Entity::Id modelNodeEntity = modelNodeEntityIds->nodeEntityIds_[nodeEntityIndex];
+					const ECS2::Entity::Id modelNodeEntity = modelNodeEntityIds->nodeEntityIds_[nodeEntityIndex];
 
-				const auto* transform3DResource = GetComponent<Transform3DResource>(modelNodeEntity);
+					const auto* transform3DResource = GetComponent<Transform3DResource>(modelNodeEntity);
 
-				driver->Bind(pipeline2->id_, 2,
-					{
-						transform3DResource->id_, // set 2
-					});
-				driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
+					driver->Bind(pipeline2->id_, 2,
+						{
+							transform3DResource->id_, // set 2
+						});
+					driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
 
+				}
 			}
-		}
 
-	}
+		}
 
 	struct MeshData {
 		Common::UInt64 nodeDataEntitiesNumber_ = 0;
@@ -2843,180 +2890,179 @@ namespace OksEngine
 		Common::UInt64 meshComponentsIndex_ = 0;
 	};
 
-	void CreateSkeletonModelPipeline::Update(
-		ECS2::Entity::Id entity0id,
-		const RenderDriver* renderDriver0,
-		const RenderPass* renderPass0,
-
-		ECS2::Entity::Id entity1id,
-		const ResourceSystem* resourceSystem1) {
+	namespace Render {
+		void CreateSkeletonModelPipeline::Update(
+			ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0, const Render::MainRenderPass* renderPass0,
+			ECS2::Entity::Id entity1id, const ResourceSystem* resourceSystem1) {
 
 
-		Resources::ResourceData vertexTextureShaderResource
-			= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/skeleton.vert");
-		Resources::ResourceData fragmentTextureShaderResource
-			= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/skeleton.frag");
+			Resources::ResourceData vertexTextureShaderResource
+				= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/skeleton.vert");
+			Resources::ResourceData fragmentTextureShaderResource
+				= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/skeleton.frag");
 
-		std::string vertexShaderCode{
-			vertexTextureShaderResource.GetData<Common::Byte>(),
-			vertexTextureShaderResource.GetSize() };
+			std::string vertexShaderCode{
+				vertexTextureShaderResource.GetData<Common::Byte>(),
+				vertexTextureShaderResource.GetSize() };
 
-		std::string fragmentShaderCode{
-			fragmentTextureShaderResource.GetData<Common::Byte>(),
-			fragmentTextureShaderResource.GetSize() };
+			std::string fragmentShaderCode{
+				fragmentTextureShaderResource.GetData<Common::Byte>(),
+				fragmentTextureShaderResource.GetSize() };
 
-		RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
-			.name_ = "SkeletonVertexShader",
-			.type_ = RAL::Driver::Shader::Type::Vertex,
-			.code_ = vertexShaderCode
-		};
-		auto vertexShader = renderDriver0->driver_->CreateShader(vertexShaderCreateInfo);
-
-		RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
-			.name_ = "SkeletonFragmentShader",
-			.type_ = RAL::Driver::Shader::Type::Fragment,
-			.code_ = fragmentShaderCode
-		};
-		auto fragmentShader = renderDriver0->driver_->CreateShader(fragmentShaderCreateInfo);
-
-		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
-
-		RAL::Driver::Shader::Binding::Layout cameraBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout samplerBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-			.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout worldPositionsBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout worldRotationsBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout worldScalesBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout modelNodeEntityIdsBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout boneInverseBindPoseMaticesBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout nodeIdsToIndicesBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout modelIdsToIndicesBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout modelEntityIdsBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout modelNodeDataEntityIds{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout modelNodeDataEntityIdsToComponentIndices{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-			.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		};
-
-		RAL::Driver::Shader::Binding::Layout normalSamplerBinding{
-			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-			.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-		};
-
-
-
-		std::vector<RAL::Driver::PushConstant> pushConstants;
-		{
-			RAL::Driver::PushConstant pushConstant{
-				.shaderStage_ = RAL::Driver::Shader::Stage::VertexShader,
-				.offset_ = 0,
-				.size_ = sizeof(MeshData)
+			RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
+				.name_ = "SkeletonVertexShader",
+				.type_ = RAL::Driver::Shader::Type::Vertex,
+				.code_ = vertexShaderCode
 			};
-			pushConstants.emplace_back(pushConstant);
+			auto vertexShader = renderDriver0->driver_->CreateShader(vertexShaderCreateInfo);
+
+			RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
+				.name_ = "SkeletonFragmentShader",
+				.type_ = RAL::Driver::Shader::Type::Fragment,
+				.code_ = fragmentShaderCode
+			};
+			auto fragmentShader = renderDriver0->driver_->CreateShader(fragmentShaderCreateInfo);
+
+			std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
+
+			RAL::Driver::Shader::Binding::Layout cameraBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout samplerBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+				.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout worldPositionsBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout worldRotationsBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout worldScalesBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout modelNodeEntityIdsBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout boneInverseBindPoseMaticesBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout nodeIdsToIndicesBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout modelIdsToIndicesBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout modelEntityIdsBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout modelNodeDataEntityIds{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout modelNodeDataEntityIdsToComponentIndices{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout normalSamplerBinding{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+				.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+			};
+
+
+
+			std::vector<RAL::Driver::PushConstant> pushConstants;
+			{
+				RAL::Driver::PushConstant pushConstant{
+					.shaderStage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.offset_ = 0,
+					.size_ = sizeof(MeshData)
+				};
+				pushConstants.emplace_back(pushConstant);
+			}
+
+			shaderBindings.push_back(cameraBinding);
+			shaderBindings.push_back(samplerBinding);
+			shaderBindings.push_back(worldPositionsBinding);
+			shaderBindings.push_back(worldRotationsBinding);
+			shaderBindings.push_back(worldScalesBinding);
+			shaderBindings.push_back(modelNodeEntityIdsBinding);
+			shaderBindings.push_back(boneInverseBindPoseMaticesBinding);
+			shaderBindings.push_back(nodeIdsToIndicesBinding);
+			shaderBindings.push_back(modelIdsToIndicesBinding);
+			shaderBindings.push_back(modelEntityIdsBinding);
+			shaderBindings.push_back(modelNodeDataEntityIds);
+			shaderBindings.push_back(modelNodeDataEntityIdsToComponentIndices);
+			shaderBindings.push_back(normalSamplerBinding);
+
+
+			auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
+			{
+				multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
+			}
+
+			RAL::Driver::Pipeline::CI pipelineCI{
+				.name_ = "Skeleton Pipeline",
+				.renderPassId_ = renderPass0->rpId_,
+				.vertexShader_ = vertexShader,
+				.fragmentShader_ = fragmentShader,
+				.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
+				.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2_BIDUB4_WUB4,
+				.indexType_ = RAL::Driver::IndexType::UI32,
+				.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
+				.cullMode_ = RAL::Driver::CullMode::Back,
+				.pushConstants_ = pushConstants,
+				.shaderBindings_ = shaderBindings,
+				.enableDepthTest_ = true,
+				.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
+				.multisamplingInfo_ = multisamplingInfo
+			};
+
+			const RAL::Driver::Pipeline::Id pipelineId = renderDriver0->driver_->CreatePipeline(pipelineCI);
+
+			CreateComponent<SkeletonModelPipeline>(entity0id, pipelineId);
+
 		}
-
-		shaderBindings.push_back(cameraBinding);
-		shaderBindings.push_back(samplerBinding);
-		shaderBindings.push_back(worldPositionsBinding);
-		shaderBindings.push_back(worldRotationsBinding);
-		shaderBindings.push_back(worldScalesBinding);
-		shaderBindings.push_back(modelNodeEntityIdsBinding);
-		shaderBindings.push_back(boneInverseBindPoseMaticesBinding);
-		shaderBindings.push_back(nodeIdsToIndicesBinding);
-		shaderBindings.push_back(modelIdsToIndicesBinding);
-		shaderBindings.push_back(modelEntityIdsBinding);
-		shaderBindings.push_back(modelNodeDataEntityIds);
-		shaderBindings.push_back(modelNodeDataEntityIdsToComponentIndices);
-		shaderBindings.push_back(normalSamplerBinding);
-
-
-		auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
-		{
-			multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
-		}
-
-		RAL::Driver::Pipeline::CI pipelineCI{
-			.name_ = "Skeleton Pipeline",
-			.renderPassId_ = renderPass0->rpId_,
-			.vertexShader_ = vertexShader,
-			.fragmentShader_ = fragmentShader,
-			.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
-			.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2_BIDUB4_WUB4,
-			.indexType_ = RAL::Driver::IndexType::UI32,
-			.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
-			.cullMode_ = RAL::Driver::CullMode::Back,
-			.pushConstants_ = pushConstants,
-			.shaderBindings_ = shaderBindings,
-			.enableDepthTest_ = true,
-			.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
-			.multisamplingInfo_ = multisamplingInfo
-		};
-
-		const RAL::Driver::Pipeline::Id pipelineId = renderDriver0->driver_->CreatePipeline(pipelineCI);
-
-		CreateComponent<SkeletonModelPipeline>(entity0id, pipelineId);
-
 	}
 
+
 	void AddSkeletonModelToRender::Update(
-		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const RenderPass* renderPass0,
-		const SkeletonModelPipeline* skeletonModelPipeline0,
+		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const Render::MainRenderPass* renderPass0,
+		const Render::SkeletonModelPipeline* skeletonModelPipeline0,
 		const GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0,
 		const GPGPUECS::StorageBuffer::ModelNodeDataEntityIds* gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0,
 		const GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
@@ -3051,18 +3097,18 @@ namespace OksEngine
 		auto driver = renderDriver0->driver_;
 
 		//Model nodes.
-		Common::Size nodesEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE>();
-		auto nodesComponents = GetComponents<RENDER__MODEL__NODE>();
+		Common::Size nodesEntitiesNumber = world_->GetEntitiesNumber<RENDER__MDL__NODE>();
+		auto nodesComponents = GetComponents<RENDER__MDL__NODE>();
 		auto* nodeEntitiesIds = std::get<ECS2::Entity::Id*>(nodesComponents);
 		auto* worldPositions = std::get<WorldPosition3D*>(nodesComponents);
 		auto* worldRotations = std::get<WorldRotation3D*>(nodesComponents);
 		auto* worldScales = std::get<WorldScale3D*>(nodesComponents);
-		auto* nodesDataEntityIds = std::get<Render::Model::ModelNodeDataEntityId*>(nodesComponents);
+		auto* nodesDataEntityIds = std::get<Render::Mdl::ModelNodeDataEntityId*>(nodesComponents);
 		std::vector<Common::UInt64> modelNodeIndices = createEntityIndices(nodeEntitiesIds, nodesEntitiesNumber);
 
 		//Model nodes data.
-		Common::Size nodesDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE_DATA>();
-		auto nodesDataComponents = GetComponents<RENDER__MODEL__NODE_DATA>();
+		Common::Size nodesDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MDL__NODE_DATA>();
+		auto nodesDataComponents = GetComponents<RENDER__MDL__NODE_DATA>();
 		auto* nodeDataEntitiesIds = std::get<ECS2::Entity::Id*>(nodesDataComponents);
 		auto* boneInverseBindPoseMatrix = std::get<BoneInverseBindPoseMatrix*>(nodesDataComponents);
 		std::vector<Common::UInt64> modelNodeDataIndices = createEntityIndices(nodeDataEntitiesIds, nodesDataEntitiesNumber);
@@ -3070,14 +3116,14 @@ namespace OksEngine
 		//MODELS
 		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
 		auto modelComponents = GetComponents<MODEL>();
-		auto* modelsBoneNodesIds = std::get<BoneNodeEntities*>(modelComponents);
+		auto* modelsBoneNodesIds = std::get<Render::Mdl::BoneNodeEntities*>(modelComponents);
 		auto* modelEntitiesIds = std::get<ECS2::Entity::Id*>(modelComponents);
 		std::vector<Common::UInt64> modelIndices = createEntityIndices(modelEntitiesIds, modelEntitiesNumber);
 
 		//MODELS DATA
 		Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<MODEL_DATA>();
 		auto modelDataComponents = GetComponents<MODEL_DATA>();
-		auto* modelDataBoneNodesIds = std::get<BoneNodeEntities*>(modelDataComponents);
+		auto* modelDataBoneNodesIds = std::get<Render::Mdl::BoneNodeEntities*>(modelDataComponents);
 		auto* modelDataEntitiesIds = std::get<ECS2::Entity::Id*>(modelDataComponents);
 		std::vector<Common::UInt64> modelDataIndices = createEntityIndices(modelDataEntitiesIds, modelDataEntitiesNumber);
 
@@ -3086,7 +3132,7 @@ namespace OksEngine
 		auto meshComponents = GetComponents<MESH>();
 		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
-		auto* meshModelEntityIds = std::get<ModelEntityIds*>(meshComponents);
+		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
 		auto* meshTextureResources = std::get<TextureResource*>(meshComponents);
 		auto* meshNormalTextureResources = std::get<Render::NormalMap::TextureResource*>(meshComponents);
@@ -3097,7 +3143,7 @@ namespace OksEngine
 			gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
 			0,
 			modelsBoneNodesIds,
-			modelEntitiesNumber * sizeof(BoneNodeEntities));
+			modelEntitiesNumber * sizeof(Render::Mdl::BoneNodeEntities));
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__WorldPositions3D0->sbid_,
@@ -3145,13 +3191,13 @@ namespace OksEngine
 			gPGPUECS__StorageBuffer__ModelEntityIds0->sbid_,
 			0,
 			meshModelEntityIds,
-			meshEntitiesNumber * sizeof(ModelEntityIds));
+			meshEntitiesNumber * sizeof(Render::Mdl::ModelEntityIds));
 
 		driver->StorageBufferWrite(
 			gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0->sbid_,
 			0,
 			nodesDataEntityIds,
-			nodesEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId));
+			nodesEntitiesNumber * sizeof(Render::Mdl::ModelNodeDataEntityId));
 
 		driver->BindPipeline(skeletonModelPipeline0->id_);
 
@@ -3180,7 +3226,7 @@ namespace OksEngine
 					DriverIndexBuffer,
 					TextureResource,
 					Render::NormalMap::TextureResource,
-					ModelEntityIds,
+					Render::Mdl::ModelEntityIds,
 					VertexBones,
 					Indices>()) {
 					continue;
@@ -3246,8 +3292,8 @@ namespace OksEngine
 	}
 
 
-	void EndRenderPass::Update(ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const RenderPass* renderPass0,
-		const Pipeline* pipeline0) {
+	void EndRenderPass::Update(ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const Render::MainRenderPass* renderPass0,
+		const Render::Pipeline* pipeline0) {
 
 		auto driver = renderDriver0->driver_;
 

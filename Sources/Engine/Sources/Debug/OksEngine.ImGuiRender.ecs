@@ -46,7 +46,7 @@ ImGuiAttachmentSetComponent = {
 CreateImGuiAttachmentSetSystem = {
     type = "Initialize",
     callOrder = {
-        runAfter = { "CreateRenderAttachment" },
+        runAfter = { "Render::CreateRenderAttachment" },
         runBefore = {}
     },
     updateMethod = {
@@ -54,7 +54,7 @@ CreateImGuiAttachmentSetSystem = {
             {
                 processesComponents = {
                     "RenderDriver",
-                    "MultisamplingAttachment"
+                    "Render::MultisamplingAttachment"
                 }
             },
             {

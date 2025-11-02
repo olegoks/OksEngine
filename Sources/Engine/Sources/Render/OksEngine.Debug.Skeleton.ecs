@@ -51,7 +51,7 @@ CreateDebugDrawBonesPipelineSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
-                    "RenderPass"
+                    "Render::MainRenderPass"
                 }
             }
         }
@@ -69,10 +69,10 @@ AddBoneVerticesSystem = {
             },
             {
                 processesComponents = {
-                    "BoneNode",
-                    "ModelNode",
+                    "Render::Mdl::BoneNode",
+                    "Render::Mdl::ModelNode",
                     "WorldPosition3D",
-                    "ChildModelNodeEntities"
+                    "Render::Mdl::ChildModelNodeEntities"
                 }
             }
         },

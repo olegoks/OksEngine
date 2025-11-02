@@ -197,7 +197,13 @@ namespace ECSGenerator2 {
 				luabridge::LuaRef key = it.key();
 				luabridge::LuaRef value = it.value();
 
-				if (!value.isTable() || !key.isString()) {
+				//Key must be string.
+				if (!key.isString()) {
+					continue;
+				}
+				
+				//Value must be a table(description of component, system...) or a string(component alias)
+				if (!(value.isTable() || value.isString())) {
 					continue;
 				}
 

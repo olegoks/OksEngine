@@ -9,7 +9,7 @@ ShowRenderAttachmentSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false},
-                    "MultisamplingAttachment"
+                    "Render::MultisamplingAttachment"
                 }
             }
         }

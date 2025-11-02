@@ -266,6 +266,11 @@ namespace ECS2 {
 						archetypeComponents->CreateComponent<ComponentType>(entityId, unpackedArgs...);
 					}
 					else {
+						ASSERT_FMSG([&]() {
+							auto it = dynamicEntitiesComponentFilters_.find(entityId);
+							return (it != dynamicEntitiesComponentFilters_.cend());
+							}(),
+							"Attempt to add component by system \"{}\" to the entity that was already added.", callerSystemName);
 
 						ASSERT_FMSG(
 							!dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),

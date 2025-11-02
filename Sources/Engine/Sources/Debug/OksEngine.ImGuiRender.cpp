@@ -136,7 +136,7 @@ namespace OksEngine
 
 	void CreateImGuiAttachmentSet::Update(
 		ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0,
-		const MultisamplingAttachment* multisamplingAttachment0, ECS2::Entity::Id entity1id,
+		const Render::MultisamplingAttachment* multisamplingAttachment0, ECS2::Entity::Id entity1id,
 		const ImGuiState* imGuiState1, const ImGuiRenderPass* imGuiRenderPass1) {
 
 

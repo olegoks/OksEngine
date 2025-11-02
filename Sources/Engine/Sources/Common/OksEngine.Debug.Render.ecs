@@ -199,8 +199,8 @@ CreateDebugTextRenderPassSystem = {
             {
                 processesComponents = {
                     "RenderDriver",
-                    "RenderPass",
-                    "Pipeline"
+                    "Render::MainRenderPass",
+                    "Render::Pipeline"
                 }
             },
             {   
@@ -229,8 +229,8 @@ CreateDebugTextAttachmentSetSystem = {
     type = "Initialize",
     callOrder = {
         runAfter = { 
-            "CreateRenderAttachment", 
-            "CreateDepthAttachment",
+            "Render::CreateRenderAttachment", 
+            "Render::CreateDepthAttachment",
             "CreateDebugTextRenderer",
             "CreateDebugTextRenderPass" },
         runBefore = {}
@@ -240,7 +240,7 @@ CreateDebugTextAttachmentSetSystem = {
             {
                 processesComponents = {
                     "RenderDriver",
-                    "MultisamplingAttachment"
+                    "Render::MultisamplingAttachment"
                 }
             },
             {
@@ -340,8 +340,8 @@ BeginDebugTextRenderPassSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false},
-                    "RenderPass",
-                    "Pipeline"
+                    "Render::MainRenderPass",
+                    "Render::Pipeline"
                 }
             },
             {
@@ -373,8 +373,8 @@ EndDebugTextRenderPassSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false},
-                    "RenderPass",
-                    "Pipeline"
+                    "Render::MainRenderPass",
+                    "Render::Pipeline"
                 }
             },
             {

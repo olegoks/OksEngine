@@ -20,7 +20,7 @@ namespace ECS2 {
 	public:
 
 
-		constexpr static Common::UInt16 maxComponentsNumber_ = 256;
+		constexpr static Common::UInt16 maxComponentsNumber_ = 512;
 
 
 		ComponentsFilter() { }

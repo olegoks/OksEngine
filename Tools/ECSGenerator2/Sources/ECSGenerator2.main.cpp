@@ -113,6 +113,7 @@ int main(int argc, char** argv) {
 				//						    \/
 				//						Compute -> Pipeline
 
+				//BRK_IF(findTable[0] == "RenderPass");
 
 				std::shared_ptr<ECSGenerator2::ParsedTable> foundTable = nullptr;
 				//From child to root.
@@ -138,10 +139,6 @@ int main(int argc, char** argv) {
 
 						if (foundTable != nullptr) {
 							break;
-						}
-
-						if (parsedECSFile->GetName() == "OksEngine.Model") {
-							Common::BreakPointLine();
 						}
 						parsedECSFile->ForEachRootTable([&](std::shared_ptr<ECSGenerator2::ParsedTable> parsedTable) {
 							
@@ -176,10 +173,13 @@ int main(int argc, char** argv) {
 					}
 				}
 
-				ASSERT_FMSG(foundTable != nullptr,
-					"Can't find required ECS abstraction {}, in {}",
-					findTable.back(),
-					usageTable->GetFullName());
+				if (foundTable == nullptr) {
+					OS::LogError("", { "Can't find required ECS abstraction {}, in {}",
+						findTable.back(),
+						usageTable->GetFullName() });
+				}
+				//ASSERT_FMSG(,
+				//	);
 
 				return foundTable;
 

@@ -1675,9 +1675,11 @@ namespace ECSGenerator2 {
 
 			DS::Graph<ParsedSystemPtr> initCallGraph;
 			for (auto parsedSystem : parsedSystems) {
+				ASSERT(parsedSystem != nullptr);
 				if (parsedSystem->ci_.type_ == ParsedSystem::Type::Initialize) {
 					DS::Graph<ParsedSystemPtr>::Node::Id currentSystemNodeId = DS::Graph<ParsedSystemPtr>::Node::invalidId_;
 					if (!initCallGraph.IsNodeExist(parsedSystem)) {
+
 						currentSystemNodeId = initCallGraph.AddNode(parsedSystem);
 					}
 					else {
@@ -1687,16 +1689,19 @@ namespace ECSGenerator2 {
 						parsedSystem->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const ParsedSystem::CallOrderInfo::System& afterSystem) {
 							DS::Graph<ParsedSystemPtr>::Node::Id afterSystemNodeId = DS::Graph<ParsedSystemPtr>::Node::invalidId_;
 
-							ParsedSystemPtr afterSystemPtr = nullptr;
-							for (auto parsedSystem : parsedSystems) {
-								auto fullSystemName = GetFullTableNameWithNamespace(parsedSystem);
-								if (afterSystem.name_ == fullSystemName) {
-									afterSystemPtr = parsedSystem;
-								}
-							}
+							ParsedSystemPtr afterSystemPtr = afterSystem.ptr_;
+							
+							//for (auto maybeAfterSystem : parsedSystems) {
+							//	auto fullSystemName = GetFullTableNameWithNamespace(maybeAfterSystem);
+							//	if (afterSystem.name_ == fullSystemName) {
+							//		ASSERT(parsedSystem != nullptr);
+							//		afterSystemPtr = maybeAfterSystem;
+							//	}
+							//}
 
-
+							//ASSERT_FMSG(afterSystemPtr != nullptr, "Can't find run after system {}", GetFullTableNameWithNamespace(afterSystem.ptr_));
 							if (!initCallGraph.IsNodeExist(afterSystemPtr)) {
+								
 								afterSystemNodeId = initCallGraph.AddNode(afterSystemPtr);
 							}
 							else {
@@ -1720,6 +1725,7 @@ namespace ECSGenerator2 {
 							}
 
 							if (!initCallGraph.IsNodeExist(beforeSystemPtr)) {
+								ASSERT(beforeSystemPtr != nullptr);
 								beforeSystemNodeId = initCallGraph.AddNode(beforeSystemPtr);
 							}
 							else {
@@ -1740,6 +1746,7 @@ namespace ECSGenerator2 {
 					DS::Graph<ParsedSystemPtr>::Node& systemNode
 					) {
 						if (!systemNode.HasLinksFrom()) {
+							ASSERT(graph.GetNode(systemNodeId).GetValue() != nullptr);
 							roots.insert(systemNodeId);
 						}
 						return true;
@@ -1753,9 +1760,9 @@ namespace ECSGenerator2 {
 			SystemsOrder systemsOrder;
 			for (auto rootNodeId : roots) {
 				auto rootNode = initCallGraph.GetNode(rootNodeId);
-#pragma region Assert
+
 				ASSERT_FMSG(rootNode.GetValue() != nullptr, "");
-#pragma endregion
+
 				systemsOrder.order_.push_back(rootNode.GetValue());
 			}
 

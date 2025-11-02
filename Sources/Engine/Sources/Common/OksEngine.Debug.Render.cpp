@@ -235,7 +235,7 @@ namespace OksEngine
 
 	void CreateDebugTextAttachmentSet::Update(
 		ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0,
-		const MultisamplingAttachment* multisamplingAttachment0, ECS2::Entity::Id entity1id,
+		const Render::MultisamplingAttachment* multisamplingAttachment0, ECS2::Entity::Id entity1id,
 		const DebugTextRenderer* debugTextRenderer1, const DebugTextRenderPass* debugTextRenderPass1) {
 
 		RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
@@ -253,8 +253,8 @@ namespace OksEngine
 	void CreateDebugTextRenderPass::Update(
 		ECS2::Entity::Id entity0id,
 		const RenderDriver* renderDriver0,
-		const RenderPass* renderPass0,
-		const Pipeline* pipeline0,
+		const Render::MainRenderPass* renderPass0,
+		const Render::Pipeline* pipeline0,
 
 		ECS2::Entity::Id entity1id,
 		const DebugTextRenderer* debugTextRenderer1) {
@@ -403,8 +403,8 @@ namespace OksEngine
 	}
 
 	void DrawDebugText2D::Update(
-		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const RenderPass* renderPass0,
-		const Pipeline* pipeline0, ECS2::Entity::Id entity1id, const DebugTextRenderer* debugTextRenderer1,
+		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const Render::MainRenderPass* renderPass0,
+		const Render::Pipeline* pipeline0, ECS2::Entity::Id entity1id, const DebugTextRenderer* debugTextRenderer1,
 		const DebugTextRenderPass* debugTextRenderPass1, const DebugTextPipeline* debugTextPipeline1,
 		const SymbolsMetadata* symbolsMetadata1,
 		const DebugTextDriverVertexBuffer* debugTextDriverVertexBuffer1,
@@ -461,8 +461,8 @@ namespace OksEngine
 	void EndDebugTextRenderPass::Update(
 		ECS2::Entity::Id entity0id,
 		RenderDriver* renderDriver0,
-		const RenderPass* renderPass0,
-		const Pipeline* pipeline0,
+		const Render::MainRenderPass* renderPass0,
+		const Render::Pipeline* pipeline0,
 
 		ECS2::Entity::Id entity1id,
 		const DebugTextRenderer* debugTextRenderer1,

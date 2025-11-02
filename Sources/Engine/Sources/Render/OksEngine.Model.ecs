@@ -1,106 +1,3 @@
-ModelComponent = {
-    serializable = false
-}
-
-ModelEntityComponent = {
-    serializable = false,
-    fields = {
-        { type = "ECS2::Entity::Id", name = "id" }
-    }
-}
-
-MeshMaxModelsNumberConstant = {
-    type = "Common::Size",
-    value = "1024"
-}
-
-ModelEntityIdsComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::array<ECS2::Entity::Id, MeshMaxModelsNumber>", name = "modelEntityIds" }
-    }
-}
-
-ModelNameComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::string", name = "modelName" }
-    }
-}
-
-ModelNodeComponent = {
-    serializable = false
-
-}
-
-
-
-ModelNodesMaxNumberConstant = {
-    type = "Common::Size",
-    value = "512"
-}
-
-ChildModelNodeEntitiesMaxNumberConstant = {
-    type = "Common::Size",
-    value = "32"
-}
-
-ChildModelNodeEntitiesComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::vector<ECS2::Entity::Id>", name = "childEntityIds" }
-    }
-}
-
-ModelNodeEntityIdComponent = {
-    serializable = false,
-    fields = {
-        { type = "ECS2::Entity::Id", name = "nodeEntityId" }
-    }
-}
-
-ModelNodeEntityIdsComponent = {
-    serializable = false,
-    manualEditFunction = true,
-    fields = {
-        { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "nodeEntityIds" }
-    }
-}
-
-ModelNodeEntityIndicesComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::vector<Common::Index>", name = "nodeEntityIndices" }
-    }
-}
-
-
-ModelFileComponent = {
-    fields = {
-        { type = "std::string", name = "fileName" } }
-}
-
--- ANIMATION
-
---NODE
-BoneNodeComponent = {
-    serializable = false
-}
-
--- DrawStruct = {
---     serializable = false,
---     fields = {
---         { type = "std::vector<ECS2::Entity::Id>", name = "boneEntityIds" },
---         { type = "std::vector<glm::mat4>", name = "bonePallets" }
---     }
--- }
-
--- DrawInfosComponent = {
---     serializable = false,
---     fields = {
---         { type = "std::vector<Draw>", name = "draws" }
---     }
--- }
 
 
 UpdateHierarchicalNodeDriverTransform3DSystem = {
@@ -115,7 +12,7 @@ UpdateHierarchicalNodeDriverTransform3DSystem = {
                     { name = "DriverTransform3D", readonly = false }
                 },
                 excludes = {
-                    "BoneNode"
+                    "Render::Mdl::BoneNode"
                 }
             },
             {
@@ -127,12 +24,7 @@ UpdateHierarchicalNodeDriverTransform3DSystem = {
     }
 }
 
-BoneNodeEntitiesComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "boneEntityIds" }
-    }
-}
+
 
 BoneInverseBindPoseMatrixComponent = {
     serializable = false,
@@ -181,81 +73,6 @@ PauseAnimationComponent = {
     serializable = false
 }
 
-ProcessModelSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "Clock",
-                    "TimeSinceEngineStart"
-                }
-            },
-            {
-                processesComponents = {
-                    "Model",
-                    "WorldPosition3D",
-                    "WorldRotation3D",
-                    "WorldScale3D",
-                    "Render::Model::ModelDataEntityId",
-                    "ChildModelNodeEntities"
-                },
-                createsComponents = {
-                    "AnimationInProgress"
-                },
-                removesComponents = {
-                    "RunModelAnimation",
-                    "AnimationInProgress",
-                    "Animation::Model::Node::RunningState"
-                }
-            },
-
-        },
-        accessingEntities = {
-            {
-                accessingComponents = {
-                    "ModelAnimations"
-                }
-            },
-            {
-                accessingComponents = {
-                    "WorldPosition3D",
-                    "WorldRotation3D",
-                    "WorldScale3D",
-                    "RunModelAnimation",
-                    "PauseAnimation",
-                    "AnimationInProgress"
-                },
-                removesComponents = {
-                    "AnimationInProgress"
-                },
-                createsComponents = {
-                    "RunModelAnimation"
-                }
-            },
-            {
-                accessingComponents = {
-                    "LocalPosition3D",
-                    "WorldPosition3D",
-                    "LocalRotation3D",
-                    "WorldRotation3D",
-                    "LocalScale3D",
-                    "WorldScale3D",
-                    "Animation::Model::Node::RunningState",
-                    "ChildModelNodeEntities"
-                },
-                removesComponents = {
-                    "Animation::Model::Node::RunningState"
-                },
-                createsComponents = {
-                    "Animation::Model::Node::RunningState"
-                }
-            },
-            {
-                archetype = "Render::Model::Node",
-            },
-        }
-    }
-}
 
 -- ProcessModelAnimationSystem = {
 
@@ -300,27 +117,8 @@ ProcessModelSystem = {
 --     }
 -- }
 
-MeshComponent = {
-    serializable = false
-}
 
-MeshNamesComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::vector<std::string>", name = "meshNames" }
-    }
-}
 
-MeshEntitiesComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::vector<ECS2::Entity::Id>", name = "meshEntityIds" }
-    }
-}
-
-MeshsFoundComponent = {
-    serializable = false
-}
 
 AiNamespace = {
     SceneComponent = {
@@ -363,7 +161,7 @@ AiNamespace = {
             { type = "std::vector<std::shared_ptr<const aiMesh>>", name = "meshs" }
         }
     },
-    CreateSceneSystem = {
+    CreateModelSystem = {
         updateMethod = {
             processesEntities = {
                 {
@@ -373,8 +171,8 @@ AiNamespace = {
                 },
                 {
                     processesComponents = {
-                        "MeshsController",
-                        { name = "MeshNameToEntity", readonly = false }
+                        "Render::Mdl::Msh::MeshsController",
+                        { name = "Render::Mdl::Msh::MeshNameToEntity", readonly = false }
                     }
                 },
                 {
@@ -384,31 +182,31 @@ AiNamespace = {
                 },
                 {
                     processesComponents = {
-                        "ModelFile"
+                        "Render::Mdl::ModelFile"
                     },
                     excludes = {
-                        "Model",
+                        "Render::Mdl::Model",
                         "Ai::Scene"
                     },
                     createsComponents = {
-                        "Model",
+                        "Render::Mdl::Model",
                         "Ai::Scene",
-                        "MeshNames"
+                        "Render::Mdl::Msh::MeshNames"
                     }
                 },
                 {
                     processesComponents = {
-                        "Render::Model::DataController",
-                        { name = "Render::Model::ModelNameToModelDataEntityId", readonly = false }
+                        "Render::Mdl::DataController",
+                        { name = "Render::Mdl::ModelNameToModelDataEntityId", readonly = false }
                     }
                 }
             },
             createsEntities = {
                 {
                     createsComponents = {
-                        "Mesh",
+                        "Render::Mdl::Msh::Mesh",
                         "Name",
-                        "MeshNodes",
+                        "Render::Mdl::Msh::MeshNodes",
                         "Vertices3D",
                         "Indices",
                         "Normals",
@@ -420,17 +218,17 @@ AiNamespace = {
                 },
                 {
                     createsComponents = {
-                        "ModelNode",
-                        "ModelEntity",
-                        "ModelNodeEntityIds",
-                        "ModelNodeEntityIndices",
+                        "Render::Mdl::ModelNode",
+                        "Render::Mdl::ModelEntity",
+                        "Render::Mdl::ModelNodeEntityIds",
+                        "Render::Mdl::ModelNodeEntityIndices",
                         "Ai::Node",
                         --"Ai::Meshes",
-                        "BoneNode",
+                        "Render::Mdl::BoneNode",
                         "BoneInverseBindPoseMatrix",
-                        "ChildModelNodeEntities",
-                        "MeshInfos",
-                        "Animation::Model::Node::Animations",
+                        "Render::Mdl::ChildModelNodeEntities",
+                        "Render::Mdl::Msh::MeshInfos",
+                        "Animation::Mdl::Node::Animations",
                         --"MeshEntities",
                         "LocalPosition3D",
                         "LocalRotation3D",
@@ -447,8 +245,7 @@ AiNamespace = {
 RenderNamespace = {
 
 
-
-    ModelNamespace = {
+    MdlNamespace = {
         NodeArchetype = {
             components = {
                 "ModelNode",
@@ -463,10 +260,99 @@ RenderNamespace = {
                 "WorldScale3D",
                 "ChildModelNodeEntities",
                 "DebugText2D",
-                "Animation::Model::Node::RunningState",
+                "Animation::Mdl::Node::RunningState",
                 "ModelDataEntityId",
                 "ModelNodeDataEntityId"
             }
+        },
+        ModelComponent = {
+            serializable = false
+        },
+        ModelEntityComponent = {
+            serializable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+        
+        MeshMaxModelsNumberConstant = {
+            type = "Common::Size",
+            value = "1024"
+        },
+        
+        ModelEntityIdsComponent = {
+            serializable = false,
+            fields = {
+                { type = "std::array<ECS2::Entity::Id, MeshMaxModelsNumber>", name = "modelEntityIds" }
+            }
+        },
+        
+        ModelNameComponent = {
+            serializable = false,
+            fields = {
+                { type = "std::string", name = "modelName" }
+            }
+        },
+        
+        ModelNodeComponent = {
+            serializable = false
+        
+        },
+        
+        ModelNodesMaxNumberConstant = {
+            type = "Common::Size",
+            value = "512"
+        },
+        
+        ChildModelNodeEntitiesMaxNumberConstant = {
+            type = "Common::Size",
+            value = "32"
+        },
+        
+        ChildModelNodeEntitiesComponent = {
+            serializable = false,
+            fields = {
+                { type = "std::vector<ECS2::Entity::Id>", name = "childEntityIds" }
+            }
+        },
+        BoneNodeEntitiesComponent = {
+            serializable = false,
+            fields = {
+                { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "boneEntityIds" }
+            }
+        },
+        ModelNodeEntityIdComponent = {
+            serializable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "nodeEntityId" }
+            }
+        },
+        
+        ModelNodeEntityIdsComponent = {
+            serializable = false,
+            manualEditFunction = true,
+            fields = {
+                { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "nodeEntityIds" }
+            }
+        },
+        
+        ModelNodeEntityIndicesComponent = {
+            serializable = false,
+            fields = {
+                { type = "std::vector<Common::Index>", name = "nodeEntityIndices" }
+            }
+        },
+        
+        
+        ModelFileComponent = {
+            fields = {
+                { type = "std::string", name = "fileName" } }
+        },
+        BoneNodeComponent = {
+            serializable = false
+        },
+        MeshsFoundComponent = {
+            serializable = false
         },
         Node_DataArchetype = {
             components = {
@@ -477,7 +363,6 @@ RenderNamespace = {
                 "ModelDataEntityId", -- Data model entity id
                 "BoneNode",
                 "BoneInverseBindPoseMatrix"
-
             },
             archetypes = {
                 "Animation::Animation"
@@ -527,386 +412,440 @@ RenderNamespace = {
                 }
             }
         },
-        
-    }
-}
-FindModelDataSystem = {
-    description = "Find model data for models and set nodes data entity ids for model nodes to have fast acces to animations and bone inverse bind matices.",
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "Model",
-                    "ModelFile",
-                    "ModelNodeEntityIds"
+        FindModelDataSystem = {
+            description =
+            "Find model data for models and set nodes data entity ids for model nodes to have fast acces to animations and bone inverse bind matices.",
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Model",
+                            "ModelFile",
+                            "ModelNodeEntityIds"
+                        },
+                        excludes = {
+                            "ModelDataEntityId"
+                        },
+                        createsComponents = {
+                            "ModelDataEntityId"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "DataController",
+                            "ModelNameToModelDataEntityId"
+                        }
+                    }
                 },
-                excludes = {
-                    "Render::Model::ModelDataEntityId"
-                },
-                createsComponents = {
-                    "Render::Model::ModelDataEntityId"
-                }
-            },
-            {
-                processesComponents = {
-                    "Render::Model::DataController",
-                    "Render::Model::ModelNameToModelDataEntityId"
+                accessingEntities = {
+                    {
+                        accessingComponents = {
+                            "ModelNodeEntityIds"
+                        }
+                    }
                 }
             }
         },
-        accessingEntities = {
-            {
-                accessingComponents = {
-                    "ModelNodeEntityIds"
+
+        FindModelMeshsSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Render::Mdl::Model",
+                            "Render::Mdl::Msh::MeshNames",
+                            { name = "Render::Mdl::Msh::MeshEntities", readonly = false }
+                        },
+                        excludes = {
+                            "Render::Mdl::MeshsFound"
+                        },
+                        createsComponents = {
+                            "Render::Mdl::MeshsFound"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Render::Mdl::Msh::Mesh",
+                            "Name",
+                            { name = "Render::Mdl::ModelEntityIds", readonly = false }
+                        }
+                    }
+                }
+            }
+        },
+        ProcessModelSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Clock",
+                            "TimeSinceEngineStart"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Mdl::Model",
+                            "WorldPosition3D",
+                            "WorldRotation3D",
+                            "WorldScale3D",
+                            "Mdl::ModelDataEntityId",
+                            "ChildModelNodeEntities"
+                        },
+                        createsComponents = {
+                            "AnimationInProgress"
+                        },
+                        removesComponents = {
+                            "RunModelAnimation",
+                            "AnimationInProgress",
+                            "Animation::Mdl::Node::RunningState"
+                        }
+                    },
+
+                },
+                accessingEntities = {
+                    {
+                        accessingComponents = {
+                            "ModelAnimations"
+                        }
+                    },
+                    {
+                        accessingComponents = {
+                            "WorldPosition3D",
+                            "WorldRotation3D",
+                            "WorldScale3D",
+                            "RunModelAnimation",
+                            "PauseAnimation",
+                            "AnimationInProgress"
+                        },
+                        removesComponents = {
+                            "AnimationInProgress"
+                        },
+                        createsComponents = {
+                            "RunModelAnimation"
+                        }
+                    },
+                    {
+                        accessingComponents = {
+                            "LocalPosition3D",
+                            "WorldPosition3D",
+                            "LocalRotation3D",
+                            "WorldRotation3D",
+                            "LocalScale3D",
+                            "WorldScale3D",
+                            "Animation::Mdl::Node::RunningState",
+                            "ChildModelNodeEntities"
+                        },
+                        removesComponents = {
+                            "Animation::Mdl::Node::RunningState"
+                        },
+                        createsComponents = {
+                            "Animation::Mdl::Node::RunningState"
+                        }
+                    },
+                    {
+                        archetype = "Render::Mdl::Node",
+                    },
+                }
+            }
+        },
+
+        MshNamespace = {
+            MeshComponent = {
+                serializable = false
+            },
+            
+            MeshNamesComponent = {
+                serializable = false,
+                fields = {
+                    { type = "std::vector<std::string>", name = "meshNames" }
+                }
+            },
+            
+            MeshEntitiesComponent = {
+                serializable = false,
+                fields = {
+                    { type = "std::vector<ECS2::Entity::Id>", name = "meshEntityIds" }
+                }
+            },
+            
+            MeshsControllerComponent = {
+                serializable = false
+            },
+
+            MeshNameToEntityComponent = {
+                serializable = false,
+                fields = {
+                    { type = "std::map<std::string, ECS2::Entity::Id>", name = "meshNameToEntityId" }
+                }
+            },
+
+            CreateMeshsControllerSystem = {
+                type = "Initialize",
+                updateMethod = {
+                    createsEntities = {
+                        {
+                            createsComponents = {
+                                "MeshsController",
+                                "MeshNameToEntity"
+                            }
+                        }
+                    }
+                }
+            },
+
+            MeshInfoStruct = {
+                fields = {
+                    { type = "std::string",      name = "name" },
+                    { type = "ECS2::Entity::Id", name = "meshEntityId" }
+                }
+            },
+
+            MeshInfosComponent = {
+                serializable = false,
+                fields = {
+                    { type = "std::vector<MeshInfo>", name = "meshInfos" }
+                }
+            },
+
+            MeshFoundCreatedComponent = {
+                serializable = false
+            },
+
+            NodeToEntityIdComponent = {
+                serializable = false,
+                fields = {
+                    { type = "std::map<const aiNode*, ECS2::Entity::Id>", name = "aiNodeToEntityId" }
+                }
+            },
+
+            NodeMeshesComponent = {
+                serializable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "id" }
+                }
+            },
+
+            MeshNodesComponent = {
+                serializable = false,
+                fields = {
+                    { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                }
+            }
+        }
+    },
+    MainRenderPassComponent = 'Render::RenderPass',
+
+    CreateRenderPassSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = {
+                "CreateRenderDriver"
+            }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "RenderDriver"
+                    },
+                    excludes = {
+                        "MainRenderPass"
+                    },
+                    createsComponents = {
+                        "MainRenderPass"
+                    }
+                }
+            }
+        }
+    },
+
+    RenderAttachmentComponent = "Render::Attachment",
+
+    CreateRenderAttachmentSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = { "CreateRenderPass" },
+            runBefore = {}
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "RenderDriver"
+                    },
+                    excludes = {
+                        "RenderAttachment"
+                    },
+                    createsComponents = {
+                        "RenderAttachment"
+                    }
+                }
+            }
+        }
+    },
+
+    DepthAttachmentComponent = "Render::Attachment",
+
+    CreateDepthAttachmentSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = { "CreateRenderPass" },
+            runBefore = {}
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "RenderDriver"
+                    },
+                    excludes = {
+                        "DepthAttachment"
+                    },
+                    createsComponents = {
+                        "DepthAttachment"
+                    }
+                }
+            }
+        }
+    },
+
+
+    MultisamplingAttachmentComponent = "Render::Attachment",
+
+    CreateMultisamplingAttachmentSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = { "CreateRenderPass" },
+            runBefore = {}
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "RenderDriver"
+                    },
+                    excludes = {
+                        "MultisamplingAttachment"
+                    },
+                    createsComponents = {
+                        "MultisamplingAttachment"
+                    }
+                }
+            }
+        }
+    },
+
+    CreateAttachmentSetSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = { "CreateRenderAttachment", "CreateDepthAttachment" },
+            runBefore = {}
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "RenderDriver",
+                        "MainRenderPass",
+                        "RenderAttachment",
+                        "MultisamplingAttachment",
+                        "DepthAttachment"
+                    },
+                    excludes = {
+                        "AttachmentSet"
+                    },
+                    createsComponents = {
+                        "AttachmentSet"
+                    }
+                }
+            }
+        }
+    },
+
+    PipelineComponent = "Render::PipelineId",
+
+    CreatePipelineSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = {
+                "CreateRenderDriver",
+                "CreateResourceSystem",
+                "ConfigureResourceSystem",
+                "CreateRenderPass"
+            }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "RenderDriver",
+                        "MainRenderPass"
+                    },
+                    excludes = {
+                        "Pipeline"
+                    },
+                    createsComponents = {
+                        "Pipeline"
+                    }
+                },
+                {
+                    processesComponents = {
+                        "ResourceSystem"
+                    }
+                }
+            }
+        }
+    },
+
+    SkeletonModelPipelineComponent = "Render::PipelineId",
+
+    CreateSkeletonModelPipelineSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = {
+                "CreateRenderDriver",
+                "CreateResourceSystem",
+                "ConfigureResourceSystem",
+                "CreateRenderPass",
+                "CreateDepthAttachment",
+                "CreateRenderAttachment"
+            }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "RenderDriver",
+                        "MainRenderPass"
+                    },
+                    excludes = {
+                        "SkeletonModelPipeline"
+                    },
+                    createsComponents = {
+                        "SkeletonModelPipeline"
+                    }
+                },
+                {
+                    processesComponents = {
+                        "ResourceSystem"
+                    }
                 }
             }
         }
     }
+
+
 }
+
 
 --MODEL DATA
-
-MeshsControllerComponent = {
-    serializable = false
-}
-
-MeshNameToEntityComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::map<std::string, ECS2::Entity::Id>", name = "meshNameToEntityId" }
-    }
-}
-
-CreateMeshsControllerSystem = {
-    type = "Initialize",
-    updateMethod = {
-        createsEntities = {
-            {
-                createsComponents = {
-                    "MeshsController",
-                    "MeshNameToEntity"
-                }
-            }
-        }
-    }
-}
-
-MeshInfoStruct = {
-    fields = {
-        { type = "std::string",      name = "name" },
-        { type = "ECS2::Entity::Id", name = "meshEntityId" }
-    }
-}
-
-MeshInfosComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::vector<MeshInfo>", name = "meshInfos" }
-    }
-}
-
-MeshFoundCreatedComponent = {
-    serializable = false
-}
-
-NodeToEntityIdComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::map<const aiNode*, ECS2::Entity::Id>", name = "aiNodeToEntityId" }
-    }
-}
-
-NodeMeshesComponent = {
-    serializable = false,
-    fields = {
-        { type = "ECS2::Entity::Id", name = "id" }
-    }
-}
-
-MeshNodesComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
-    }
-}
-
-FindModelMeshsSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "Model",
-                    "MeshNames",
-                    { name = "MeshEntities", readonly = false }
-                },
-                excludes = {
-                    "MeshsFound"
-                },
-                createsComponents = {
-                    "MeshsFound"
-                }
-            },
-            {
-                processesComponents = {
-                    "Mesh",
-                    "Name",
-                    { name = "ModelEntityIds", readonly = false }
-                }
-            }
-        }
-    }
-}
-
-RenderPassComponent = {
-    serializable = false,
-    fields = {
-        { type = "Common::Id", name = "rpId" }
-    }
-}
-
-CreateRenderPassSystem = {
-    type = "Initialize",
-    callOrder = {
-        runAfter = {
-            "CreateRenderDriver"
-        }
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "RenderDriver"
-                },
-                excludes = {
-                    "RenderPass"
-                },
-                createsComponents = {
-                    "RenderPass"
-                }
-            }
-        }
-    }
-}
-
-RenderAttachmentComponent = {
-    serializable = false,
-    fields = {
-        { type = "Common::Id", name = "textureId" }
-    }
-}
-
-CreateRenderAttachmentSystem = {
-    type = "Initialize",
-    callOrder = {
-        runAfter = { "CreateRenderPass" },
-        runBefore = {}
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "RenderDriver"
-                },
-                excludes = {
-                    "RenderAttachment"
-                },
-                createsComponents = {
-                    "RenderAttachment"
-                }
-            }
-        }
-    }
-}
-
-DepthAttachmentComponent = {
-    serializable = false,
-    fields = {
-        { type = "Common::Id", name = "textureId" }
-    }
-}
-
-
-CreateDepthAttachmentSystem = {
-    type = "Initialize",
-    callOrder = {
-        runAfter = { "CreateRenderPass" },
-        runBefore = {}
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "RenderDriver"
-                },
-                excludes = {
-                    "DepthAttachment"
-                },
-                createsComponents = {
-                    "DepthAttachment"
-                }
-            }
-        }
-    }
-}
-
-
-MultisamplingAttachmentComponent = {
-    serializable = false,
-    fields = {
-        { type = "Common::Id", name = "textureId" }
-    }
-}
-
-CreateMultisamplingAttachmentSystem = {
-    type = "Initialize",
-    callOrder = {
-        runAfter = { "CreateRenderPass" },
-        runBefore = {}
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "RenderDriver"
-                },
-                excludes = {
-                    "MultisamplingAttachment"
-                },
-                createsComponents = {
-                    "MultisamplingAttachment"
-                }
-            }
-        }
-    }
-}
-
-AttachmentSetComponent = {
-    serializable = false,
-    fields = {
-        { type = "Common::Id", name = "attachmentsSetId" } -- Synonym of VkFramebuffer
-    }
-}
-
-CreateAttachmentSetSystem = {
-    type = "Initialize",
-    callOrder = {
-        runAfter = { "CreateRenderAttachment", "CreateDepthAttachment" },
-        runBefore = {}
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "RenderDriver",
-                    "RenderPass",
-                    "RenderAttachment",
-                    "MultisamplingAttachment",
-                    "DepthAttachment"
-                },
-                excludes = {
-                    "AttachmentSet"
-                },
-                createsComponents = {
-                    "AttachmentSet"
-                }
-            }
-        }
-    }
-}
-
-PipelineComponent = {
-    serializable = false,
-    fields = {
-        { type = "Common::Id", name = "id" }
-    }
-}
-
-CreatePipelineSystem = {
-    type = "Initialize",
-    callOrder = {
-        runAfter = {
-            "CreateRenderDriver",
-            "CreateResourceSystem",
-            "ConfigureResourceSystem",
-            "CreateRenderPass"
-        }
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "RenderDriver",
-                    "RenderPass"
-                },
-                excludes = {
-                    "Pipeline"
-                },
-                createsComponents = {
-                    "Pipeline"
-                }
-            },
-            {
-                processesComponents = {
-                    "ResourceSystem"
-                }
-            }
-        }
-    }
-}
-
-SkeletonModelPipelineComponent = {
-    serializable = false,
-    fields = {
-        { type = "Common::Id", name = "id" }
-    }
-}
-
-CreateSkeletonModelPipelineSystem = {
-    type = "Initialize",
-    callOrder = {
-        runAfter = {
-            "CreateRenderDriver",
-            "CreateResourceSystem",
-            "ConfigureResourceSystem",
-            "CreateRenderPass",
-            "CreateDepthAttachment",
-            "CreateRenderAttachment"
-        }
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "RenderDriver",
-                    "RenderPass"
-                },
-                excludes = {
-                    "SkeletonModelPipeline"
-                },
-                createsComponents = {
-                    "SkeletonModelPipeline"
-                }
-            },
-            {
-                processesComponents = {
-                    "ResourceSystem"
-                }
-            }
-        }
-    }
-}
 
 
 
 
 ComputeNamespace = {
 
-    PipelineComponent = {
-        serializable = false,
-        fields = {
-            { type = "Common::Id", name = "pipelineId" }
-        }
-    },
+    PipelineComponent = "Render::PipelineId",
     CreatePipelineSystem = {
         type = "Initialize",
         callOrder = {
@@ -940,7 +879,7 @@ ComputeNamespace = {
             }
         }
     },
-    TestPipelineSystem = {
+    CalculateAnimationsSystem = {
         runAfter = "ProcessModel",
         updateMethod = {
             processesEntities = {
@@ -950,10 +889,10 @@ ComputeNamespace = {
                         "Pipeline",
                         "Animation::ModelNodeDataEntityIds",
                         "Animation::NodeDataEntityIdsToComponentIndices",
-                        "Animation::Model::Node::DriverAnimationsComponents",
-                        "Animation::Model::Node::AnimationsComponentsResource",
-                        "Animation::Model::Node::DriverRunningStates",
-                        "Animation::Model::Node::RunningStatesResource",
+                        "Animation::Mdl::Node::DriverAnimationsComponents",
+                        "Animation::Mdl::Node::AnimationsComponentsResource",
+                        "Animation::Mdl::Node::DriverRunningStates",
+                        "Animation::Mdl::Node::RunningStatesResource",
                         "Animation::DriverLocalPosition3DComponents",
                         "Animation::LocalPosition3DComponentsResource",
                         "Animation::DriverLocalRotation3DComponents",
@@ -976,9 +915,9 @@ BeginRenderPassSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
-                    "RenderPass",
-                    "AttachmentSet",
-                    "Pipeline"
+                    "Render::MainRenderPass",
+                    "Render::AttachmentSet",
+                    "Render::Pipeline"
                 }
             }
         }
@@ -1006,8 +945,8 @@ AddModelToRenderSystem = {
                     "DriverIndexBuffer",
                     "DriverVertexBuffer",
                     "TextureResource",
-                    "ModelEntityIds",
-                    "ModelNodeEntityIndices"
+                    "Render::Mdl::ModelEntityIds",
+                    "Render::Mdl::ModelNodeEntityIndices"
                 },
                 excludes = {
                     "VertexBones"
@@ -1016,15 +955,15 @@ AddModelToRenderSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
-                    "RenderPass",
-                    "Pipeline"
+                    "Render::MainRenderPass",
+                    "Render::Pipeline"
                 }
             }
         },
         accessingEntities = {
             {
                 accessingComponents = {
-                    "ModelNodeEntityIds"
+                    "Render::Mdl::ModelNodeEntityIds"
                 }
             },
             {
@@ -1047,8 +986,8 @@ AddSkeletonModelToRenderSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
-                    "RenderPass",
-                    "SkeletonModelPipeline",
+                    "Render::MainRenderPass",
+                    "Render::SkeletonModelPipeline",
                     "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",
                     "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
                     "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
@@ -1082,7 +1021,7 @@ AddSkeletonModelToRenderSystem = {
         },
         accessingEntities = {
             {
-                archetype = "Render::Model::Node",
+                archetype = "Render::Mdl::Node",
                 -- accessingComponents = {
                 --     "ModelNode",
                 --     "Name",
@@ -1105,7 +1044,7 @@ AddSkeletonModelToRenderSystem = {
                 -- }
             },
             {
-                archetype = "Render::Model::Node_Data"
+                archetype = "Render::Mdl::Node_Data"
             },
             {
                 archetype = "Model"
@@ -1132,8 +1071,8 @@ EndRenderPassSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
-                    "RenderPass",
-                    "Pipeline"
+                    "Render::MainRenderPass",
+                    "Render::Pipeline"
                 }
             }
         }
@@ -1148,40 +1087,40 @@ ModelArchetype = {
         "WorldScale3D",
         "DriverTransform3D",
         "Transform3DResource",
-        "ModelFile",
-        "Model",
-        "ModelNodeEntityIds",
-        "BoneNodeEntities",
+        "Render::Mdl::ModelFile",
+        "Render::Mdl::Model",
+        "Render::Mdl::ModelNodeEntityIds",
+        "Render::Mdl::BoneNodeEntities",
         "RunModelAnimation",
         "AnimationInProgress",
         "PauseAnimation",
-        "ChildModelNodeEntities",
-        "MeshNames",
-        "MeshEntities",
-        "MeshsFound",
-        "Render::Model::ModelDataEntityId"
+        "Render::Mdl::ChildModelNodeEntities",
+        "Render::Mdl::Msh::MeshNames",
+        "Render::Mdl::Msh::MeshEntities",
+        "Render::Mdl::MeshsFound",
+        "Render::Mdl::ModelDataEntityId"
     }
 }
 
 Model_DataArchetype = {
     components = {
         "Name",
-        "Model",
-        "BoneNodeEntities",
-        "ModelNodeEntityIds",
+        "Render::Mdl::Model",
+        "Render::Mdl::BoneNodeEntities",
+        "Render::Mdl::ModelNodeEntityIds",
         "ModelAnimations",
-        "ChildModelNodeEntities",
+        "Render::Mdl::ChildModelNodeEntities",
     }
 }
 
 --Skeleton mesh
 MeshArchetype = {
     components = {
-        "Mesh",
+        "Render::Mdl::Msh::Mesh",
         "Name",
-        "ModelName",
-        "ModelEntityIds",
-        "ModelNodeEntityIndices",
+        "Render::Mdl::ModelName",
+        "Render::Mdl::ModelEntityIds",
+        "Render::Mdl::ModelNodeEntityIndices",
         "Vertices3D",
         "DriverVertexBuffer",
         "Indices",

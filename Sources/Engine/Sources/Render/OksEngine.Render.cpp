@@ -100,11 +100,11 @@ namespace OksEngine
 			RAL::Driver::ResourceSet::Id nodeAnimationStatesSBResId = RAL::Driver::ResourceSet::Id::Invalid();
 			{
 				RAL::Driver::StorageBuffer::CreateInfo nodeAnimationStatesSBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(Animation::Model::Node::RunningState)
+					.size_ = preallocatedEntitiesNumber * sizeof(Animation::Mdl::Node::RunningState)
 				};
 
 				const RAL::Driver::StorageBuffer::Id nodeAnimationStatesSBId = driver->CreateStorageBuffer(nodeAnimationStatesSBCI);
-				CreateComponent<Animation::Model::Node::DriverRunningStates>(driverEntityId, nodeAnimationStatesSBId);
+				CreateComponent<Animation::Mdl::Node::DriverRunningStates>(driverEntityId, nodeAnimationStatesSBId);
 
 				RAL::Driver::ResourceSet::Binding nodeAnimationStatesStorageBinding
 				{
@@ -113,7 +113,7 @@ namespace OksEngine
 					.sbid_ = nodeAnimationStatesSBId
 				};
 				nodeAnimationStatesSBResId = driver->CreateResource(nodeAnimationStatesStorageBinding);
-				CreateComponent<Animation::Model::Node::RunningStatesResource>(driverEntityId, nodeAnimationStatesSBResId);
+				CreateComponent<Animation::Mdl::Node::RunningStatesResource>(driverEntityId, nodeAnimationStatesSBResId);
 			}
 
 			//Create storage buffer for node ANIMATION DATA.
@@ -121,11 +121,11 @@ namespace OksEngine
 			{
 
 				RAL::Driver::StorageBuffer::CreateInfo nodeAnimationsSBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(Animation::Model::Node::Animations)
+					.size_ = preallocatedEntitiesNumber * sizeof(Animation::Mdl::Node::Animations)
 				};
 				const RAL::Driver::StorageBuffer::Id nodeAnimationsSBId = driver->CreateStorageBuffer(nodeAnimationsSBCI);
 
-				CreateComponent<Animation::Model::Node::DriverAnimationsComponents>(driverEntityId, nodeAnimationsSBId);
+				CreateComponent<Animation::Mdl::Node::DriverAnimationsComponents>(driverEntityId, nodeAnimationsSBId);
 
 				RAL::Driver::ResourceSet::Binding nodeAnimationsStorageBinding
 				{
@@ -134,7 +134,7 @@ namespace OksEngine
 					.sbid_ = nodeAnimationsSBId
 				};
 				nodeAnimationsSBResId = driver->CreateResource(nodeAnimationsStorageBinding);
-				CreateComponent<Animation::Model::Node::AnimationsComponentsResource>(driverEntityId, nodeAnimationsSBResId);
+				CreateComponent<Animation::Mdl::Node::AnimationsComponentsResource>(driverEntityId, nodeAnimationsSBResId);
 			}
 			//Create storage buffer for WORLD positions.
 			{
@@ -207,7 +207,7 @@ namespace OksEngine
 			{
 
 				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(ModelNodeEntityIds)
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Mdl::ModelNodeEntityIds)
 				};
 				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
 
@@ -224,7 +224,7 @@ namespace OksEngine
 			{
 
 				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(BoneNodeEntities)
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Mdl::BoneNodeEntities)
 				};
 				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
 
@@ -256,7 +256,7 @@ namespace OksEngine
 			}
 			{
 				RAL::Driver::StorageBuffer::CreateInfo SBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId)
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Mdl::ModelNodeDataEntityId)
 				};
 				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
 
@@ -289,7 +289,7 @@ namespace OksEngine
 			}
 			{
 				RAL::Driver::StorageBuffer::CreateInfo SBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId)
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Mdl::ModelNodeDataEntityId)
 				};
 				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
 
@@ -340,7 +340,7 @@ namespace OksEngine
 
 			{
 				RAL::Driver::StorageBuffer::CreateInfo SBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(ModelEntityIds)
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Mdl::ModelEntityIds)
 				};
 				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
 
