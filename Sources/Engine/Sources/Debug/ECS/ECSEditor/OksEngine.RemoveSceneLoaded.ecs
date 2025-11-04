@@ -7,7 +7,7 @@ RemoveSceneLoadedSystem = {
         processesEntities = {
             {
                 processesComponents = { 
-                    "ImGuiState",
+                    "ImGui::State",
                     "EditorContext",
                     "SceneLoaded"},
                 removesComponents = {

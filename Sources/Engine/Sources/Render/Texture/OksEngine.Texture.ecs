@@ -8,6 +8,35 @@ TextureComponent = {
 
 
 RenderNamespace = {
+    DiffuseMapNamespace = {
+        TextureInfoComponent = "DynamicString",
+        TextureDataComponent = {
+            serializable = false,
+            fields = {
+                { type = "Common::Size",               name = "width" },
+                { type = "Common::Size",               name = "height" },
+                { type = "std::vector<Geom::Color4b>", name = "pixels" } }
+        },
+        TextureResourceComponent = "Render::TextureResource",
+        CreateTextureResourceSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "TextureInfo", "TextureData"
+                        },
+                        createsComponents = { "TextureResource" },
+                        excludes = { "TextureResource" }
+                    }
+                }
+            }
+        }
+    },
     NormalMapNamespace = {
         TextureInfoComponent = "DynamicString",
         TextureDataComponent = {

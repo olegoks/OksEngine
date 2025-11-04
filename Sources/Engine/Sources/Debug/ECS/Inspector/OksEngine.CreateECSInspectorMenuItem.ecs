@@ -3,7 +3,7 @@ CreateECSInspectorMenuItemSystem = {
     processesEntities = {
         {
             processesComponents = {
-                "ImGuiState",
+                "ImGui::State",
                 "MainMenuBar",
                 "ECSMenu"
             },

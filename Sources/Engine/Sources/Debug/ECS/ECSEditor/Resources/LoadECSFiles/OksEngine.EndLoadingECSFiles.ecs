@@ -7,7 +7,7 @@ EndLoadingECSFilesSystem = {
     processesEntities = {
         {
             processesComponents = {
-                "ImGuiState",
+                "ImGui::State",
                 "ECSEditorWindow",
                 "EditorContext",
                 "CreateLinksRequest"

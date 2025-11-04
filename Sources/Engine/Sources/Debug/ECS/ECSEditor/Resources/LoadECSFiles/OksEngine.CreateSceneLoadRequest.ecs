@@ -7,7 +7,7 @@ CreateSceneLoadRequestSystem = {
     processesEntities = {
         {
             processesComponents = { 
-                "ImGuiState",
+                "ImGui::State",
                 "ECSEditorWindow",
                 "LoadingECSFiles"
             }

@@ -212,8 +212,8 @@ AiNamespace = {
                         "Normals",
                         "UVs",
                         "VertexBones",
-                        "TextureInfo",
-                        "Texture"
+                        "Render::DiffuseMap::TextureInfo",
+                        "Render::DiffuseMap::TextureData"
                     }
                 },
                 {
@@ -944,7 +944,7 @@ AddModelToRenderSystem = {
                     "Indices",
                     "DriverIndexBuffer",
                     "DriverVertexBuffer",
-                    "TextureResource",
+                    "Render::DiffuseMap::TextureResource",
                     "Render::Mdl::ModelEntityIds",
                     "Render::Mdl::ModelNodeEntityIndices"
                 },
@@ -1064,7 +1064,7 @@ AddSkeletonModelToRenderSystem = {
 
 EndRenderPassSystem = {
     callOrder = {
-        runBefore = { "BeginImGuiRenderPass" }
+        runBefore = { "ImGui::Render::BeginRenderPass" }
     },
     updateMethod = {
         processesEntities = {
@@ -1128,13 +1128,15 @@ MeshArchetype = {
         "Normals",
         "UVs",
         "VertexBones",
-        "Texture",
-        "TextureInfo",
-        "DriverTexture",
-        "TextureResource",
+        "Render::DiffuseMap::TextureInfo",
+        "Render::DiffuseMap::TextureData",
+        "Render::DiffuseMap::TextureResource",
         "Render::NormalMap::TextureInfo",
         "Render::NormalMap::TextureData",
-        "Render::NormalMap::TextureResource"
+        "Render::NormalMap::TextureResource",
+        "Render::AmbientMap::TextureInfo",
+        "Render::AmbientMap::TextureData",
+        "Render::AmbientMap::TextureResource"
     }
 }
 

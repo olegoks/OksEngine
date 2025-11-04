@@ -8,7 +8,7 @@ CreateLinksFromECSFilesSystem = {
     processesEntities = {
         {
             processesComponents = {
-                "ImGuiState",
+                "ImGui::State",
                 "EditorContext",
                 "ECSEditorWindow",
                 "CreateLinksRequest"

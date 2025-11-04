@@ -7,7 +7,7 @@ CreateEditorContextSystem = {
     processesEntities = {
         {
             processesComponents = {
-                "ImGuiState",
+                "ImGui::State",
                 "MainMenuBar",
                 "ECSMenu",
                 "ECSEditorMenuItem",

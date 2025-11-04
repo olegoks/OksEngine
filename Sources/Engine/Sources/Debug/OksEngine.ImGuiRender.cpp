@@ -172,7 +172,7 @@ namespace OksEngine
 		const ImGuiRenderPass* imGuiRenderPass0,
 		const MainMenuBar* mainMenuBar0,
 		const Transform2DResource* transform2DResource0,
-		const TextureResource* textureResource0,
+		const Render::DiffuseMap::TextureResource* textureResource0,
 		const ImGuiDriverIndexBuffer* imGuiDriverIndexBuffer0,
 		const ImGuiDriverVertexBuffer* imGuiDriverVertexBuffer0,
 
@@ -323,11 +323,28 @@ namespace OksEngine
 
 	};
 
-	void CreateImGuiAtlasDriverTexture::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
-		const ImGuiAtlasTexture* imGuiAtlasTexture0, ECS2::Entity::Id entity1id,
-		RenderDriver* renderDriver1) {
+	//void CreateImGuiAtlasDriverTexture::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+	//	const ImGuiAtlasTexture* imGuiAtlasTexture0, ECS2::Entity::Id entity1id,
+	//	RenderDriver* renderDriver1) {
+
+	//	auto driver = renderDriver1->driver_;
+
+
+
+	//	CreateComponent<ImGuiAtlasDriverTexture>(entity0id, textureId);
+
+
+	//};
+
+	void CreateImGuiAtlasTextureResource::Update(
+		ECS2::Entity::Id entity0id,
+		const ImGuiState* imGuiState0,
+		const ImGuiAtlasDriverTexture* imGuiAtlasDriverTexture0,
+		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
+
 
 		auto driver = renderDriver1->driver_;
+
 
 		RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
 			.name_ = "",
@@ -345,21 +362,6 @@ namespace OksEngine
 		};
 		RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
 
-
-		CreateComponent<ImGuiAtlasDriverTexture>(entity0id, textureId);
-
-
-	};
-
-	void CreateImGuiAtlasTextureResource::Update(
-		ECS2::Entity::Id entity0id,
-		const ImGuiState* imGuiState0,
-		const ImGuiAtlasDriverTexture* imGuiAtlasDriverTexture0,
-		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
-
-
-		auto driver = renderDriver1->driver_;
-
 		RAL::Driver::ResourceSet::Binding textureBinding
 		{
 			.stage_ = RAL::Driver::Shader::Stage::FragmentShader,
@@ -369,7 +371,7 @@ namespace OksEngine
 
 		const RAL::Driver::Resource::Id textureResourceId = driver->CreateResource(textureBinding);
 
-		CreateComponent<TextureResource>(entity0id, textureResourceId);
+		CreateComponent<Render::DiffuseMap::TextureResource>(entity0id, textureId, textureResourceId);
 
 	};
 

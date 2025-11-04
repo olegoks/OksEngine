@@ -7,7 +7,7 @@ ProcessSaveECSFilesButtonSystem = {
         processesEntities = {
             {
     processesComponents = { 
-        "ImGuiState",
+        "ImGui::State",
         "ECSEditorWindow" },
     createsComponents= { "SaveECSFilesButtonPressed" },
     excludes = { "SaveECSFilesButtonPressed" }

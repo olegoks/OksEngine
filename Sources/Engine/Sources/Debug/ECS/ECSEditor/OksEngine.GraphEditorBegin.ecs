@@ -7,7 +7,7 @@ GraphEditorBeginSystem = {
         processesEntities = {
             {
                 processesComponents = { 
-                    "ImGuiState",
+                    "ImGui::State",
                     "EditorContext"
                 }
             }

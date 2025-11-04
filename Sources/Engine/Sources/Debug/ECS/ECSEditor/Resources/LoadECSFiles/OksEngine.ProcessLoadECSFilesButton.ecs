@@ -7,7 +7,7 @@ ProcessLoadECSFilesButtonSystem = {
     processesEntities = {
         {
             processesComponents = { 
-                "ImGuiState",
+                "ImGui::State",
                 "ECSEditorWindow" 
             },
             createsComponents= { "LoadingECSFiles" },

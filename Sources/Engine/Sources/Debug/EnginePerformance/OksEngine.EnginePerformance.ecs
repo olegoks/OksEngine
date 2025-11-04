@@ -8,8 +8,8 @@ CreateEnginePerformanceMenuItemSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGuiState",
-                    "ImPlotState",
+                    "ImGui::State",
+                    "ImGui::ImPlotState",
                     "MainMenuBar"
                 },
                 createsComponents = {
@@ -37,8 +37,8 @@ ProcessEnginePerformanceMenuItemSystem = {
             {
                 processesComponents = { 
                     "MainMenuBar",
-                    "ImGuiState",
-                    "ImPlotState",
+                    "ImGui::State",
+                    "ImGui::ImPlotState",
                     "ECSMenu",
                     "EnginePerformanceMenuItem"
                 },
@@ -60,8 +60,8 @@ CreateEnginePerformanceSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGuiState",
-                    "ImPlotState",
+                    "ImGui::State",
+                    "ImGui::ImPlotState",
                     "MainMenuBar",
                     "EnginePerformanceMenuItem",
                     "EnginePerformanceWindow"
@@ -79,15 +79,15 @@ CreateEnginePerformanceSystem = {
 
 BeginEnginePerformanceWindowSystem = {
     callOrder = {
-        runAfter = "StartImGuiFrame",
+        runAfter = "ImGui::StartFrame",
         runBefore = "EndEnginePerformanceWindow"
     },
     updateMethod = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGuiState",
-                    "ImPlotState",
+                    "ImGui::State",
+                    "ImGui::ImPlotState",
                     "EnginePerformanceMenuItem",
                     "EnginePerformanceWindow",
                     "EnginePerformance"
@@ -142,8 +142,8 @@ ShowCurrentFPSSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGuiState",
-                    "ImPlotState",
+                    "ImGui::State",
+                    "ImGui::ImPlotState",
                     "EnginePerformanceMenuItem",
                     "EnginePerformanceWindow",
                     "EnginePerformance",
@@ -173,8 +173,8 @@ ShowFPSPlotSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGuiState",
-                    "ImPlotState",
+                    "ImGui::State",
+                    "ImGui::ImPlotState",
                     "EnginePerformanceMenuItem",
                     "EnginePerformanceWindow",
                     "EnginePerformance",
@@ -188,14 +188,14 @@ ShowFPSPlotSystem = {
 EndEnginePerformanceWindowSystem = {
     callOrder = {
         runAfter = "BeginEnginePerformanceWindow",
-        runBefore = "EndImGuiFrame"
+        runBefore = "ImGui::EndFrame"
     },
     updateMethod = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGuiState",
-                    "ImPlotState",
+                    "ImGui::State",
+                    "ImGui::ImPlotState",
                     "EnginePerformanceMenuItem",
                     "EnginePerformanceWindow",
                     "EnginePerformance"

@@ -6,7 +6,7 @@ CreateMainMenuBarSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGuiState"
+                    "ImGui::State"
                 },
                 excludes = {
                     "MainMenuBar"

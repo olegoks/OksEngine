@@ -2,7 +2,7 @@
 ShowRenderAttachmentSystem = {
     callOrder = {
         runBefore = "EndRender",
-        runAfter = "EndImGuiRenderPass"
+        runAfter = "ImGui::Render::EndRenderPass"
     },
     updateMethod = {
         processesEntities = {

@@ -55,7 +55,7 @@ SendWindowCursorEventsSystem = {
 
 ClearCursorEventsSystem = {
     callOrder = {
-        runAfter = "EndImGuiFrame"
+        runAfter = "ImGui::EndFrame"
     },
     updateMethod = {
         processesEntities = {

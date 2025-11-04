@@ -14,8 +14,7 @@
 //DEBUG
 #include <random>
 
-#include <Render/Texture/auto_OksEngine.DriverTexture.hpp>
-#include <Render/Texture/auto_OksEngine.TextureResource.hpp>
+#include <Render/Texture/auto_OksEngine.Texture.hpp>
 
 
 #include <Common/auto_OksEngine.Debug.Position3D.hpp>
@@ -1351,6 +1350,7 @@ namespace OksEngine
 						//Create texture.
 						auto createDiffuseTexture = [&](ECS2::Entity::Id meshEntityId) {
 
+							//TODO: remove copy-paste
 							aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 							{
 								aiString diffuseTexturePath;
@@ -1361,8 +1361,8 @@ namespace OksEngine
 								Common::UInt32 textureWidth = texture->mWidth;
 								Common::UInt32 textureHeight = texture->mHeight;
 								if (textureHeight > 0) {
-									CreateComponent<TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
-									CreateComponent<Texture>(
+									CreateComponent<Render::DiffuseMap::TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
+									CreateComponent<Render::DiffuseMap::TextureData>(
 										meshEntityId,
 										textureWidth, textureHeight,
 										std::vector<Geom::Color4b>{
@@ -1381,8 +1381,8 @@ namespace OksEngine
 										&width, &height, &channels,
 										STBI_rgb_alpha
 									);
-									CreateComponent<TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
-									CreateComponent<Texture>(
+									CreateComponent<Render::DiffuseMap::TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
+									CreateComponent<Render::DiffuseMap::TextureData>(
 										meshEntityId,
 										width, height,
 										std::vector<Geom::Color4b>{
@@ -1396,7 +1396,7 @@ namespace OksEngine
 								const aiTexture* normalTexture = scene->GetEmbeddedTexture(normalTexturePath.C_Str());
 								Common::UInt32 textureWidth = normalTexture->mWidth;
 								Common::UInt32 textureHeight = normalTexture->mHeight;
-								if (textureHeight > 0 && textureHeight > 0) {
+								if (textureHeight > 0) {
 									CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
 									CreateComponent<Render::NormalMap::TextureData>(
 										meshEntityId,
@@ -1426,42 +1426,45 @@ namespace OksEngine
 											(Geom::Color4b*)pixels + width * height});
 								}
 							}
-							//{
-							//	aiString ambientTexturePath;
-							//	material->GetTexture(aiTextureType::aiTextureType_AMBIENT, 0, &ambientTexturePath);
-							//	const aiTexture* ambientTexture = scene->GetEmbeddedTexture(ambientTexture.C_Str());
-							//	Common::UInt32 textureWidth = ambientTexture->mWidth;
-							//	Common::UInt32 textureHeight = ambientTexture->mHeight;
-							//	if (textureHeight > 0 && textureHeight > 0) {
-							//		CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, ambientTexture.C_Str());
-							//		CreateComponent<Render::NormalMap::TextureData>(
-							//			meshEntityId,
-							//			textureWidth, textureHeight,
-							//			std::vector<Geom::Color4b>{
-							//			(Geom::Color4b*)normalTexture->pcData,
-							//				(Geom::Color4b*)normalTexture->pcData + textureWidth * textureHeight});
-							//	}
-							//	else {
-							//		//Texture is compressed
-							//		const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(normalTexture->pcData);
+							{
+								aiString ambientTexturePath;
+								//material->
+								aiReturn isAmbientExist = material->GetTexture(aiTextureType::aiTextureType_AMBIENT, 0, &ambientTexturePath);
+								if (isAmbientExist == aiReturn_SUCCESS) {
+									const aiTexture* ambientTexture = scene->GetEmbeddedTexture(ambientTexturePath.C_Str());
+									Common::UInt32 textureWidth = ambientTexture->mWidth;
+									Common::UInt32 textureHeight = ambientTexture->mHeight;
+									if (textureHeight > 0) {
+										CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, ambientTexturePath.C_Str());
+										CreateComponent<Render::NormalMap::TextureData>(
+											meshEntityId,
+											textureWidth, textureHeight,
+											std::vector<Geom::Color4b>{
+											(Geom::Color4b*)ambientTexture->pcData,
+												(Geom::Color4b*)ambientTexture->pcData + textureWidth * textureHeight});
+									}
+									else {
+										//Texture is compressed
+										const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(ambientTexture->pcData);
 
-							//		int width, height, channels;
+										int width, height, channels;
 
-							//		unsigned char* pixels = stbi_load_from_memory(
-							//			compressed_data,
-							//			normalTexture->mWidth,
-							//			&width, &height, &channels,
-							//			STBI_rgb_alpha
-							//		);
-							//		CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
-							//		CreateComponent<Render::NormalMap::TextureData>(
-							//			meshEntityId,
-							//			width, height,
-							//			std::vector<Geom::Color4b>{
-							//			(Geom::Color4b*)pixels,
-							//				(Geom::Color4b*)pixels + width * height});
-							//	}
-							//}
+										unsigned char* pixels = stbi_load_from_memory(
+											compressed_data,
+											ambientTexture->mWidth,
+											&width, &height, &channels,
+											STBI_rgb_alpha
+										);
+										CreateComponent<Render::AmbientMap::TextureInfo>(meshEntityId, ambientTexturePath.C_Str());
+										CreateComponent<Render::AmbientMap::TextureData>(
+											meshEntityId,
+											width, height,
+											std::vector<Geom::Color4b>{
+											(Geom::Color4b*)pixels,
+												(Geom::Color4b*)pixels + width * height});
+									}
+								}
+							}
 
 							};
 						createDiffuseTexture(meshEntityId);

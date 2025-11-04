@@ -351,7 +351,7 @@ BeginDebugTextRenderPassSystem = {
                     "DebugTextPipeline",
                     "SymbolsMetadata",
                     "DebugTextDriverVertexBuffer",
-                    "TextureResource"
+                    "Render::DiffuseMap::TextureResource"
                 }
             },
             {
@@ -366,7 +366,7 @@ BeginDebugTextRenderPassSystem = {
 EndDebugTextRenderPassSystem = {
     callOrder = {
         runAfter = { "DrawDebugText2D" },
-        runBefore = { "BeginImGuiRenderPass" }
+        runBefore = { "ImGui::Render::BeginRenderPass" }
     },
     updateMethod = {
         processesEntities = {

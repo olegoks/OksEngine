@@ -1,13 +1,13 @@
 EndECSEditorWindowSystem = {
     callOrder = {
         runAfter = "BeginECSEditorWindow",
-        runBefore = "EndImGuiFrame"
+        runBefore = "ImGui::EndFrame"
     },
     updateMethod = {
         processesEntities = {
             {
             processesComponents = { 
-                "ImGuiState", 
+                "ImGui::State", 
                 "MainMenuBar",
                 "ECSMenu",
                 "ECSEditorMenuItem",

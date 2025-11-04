@@ -8,7 +8,7 @@ ProcessECSInspectorMenuItemSystem = {
             {
             processesComponents = { 
                 "MainMenuBar",
-                "ImGuiState",
+                "ImGui::State",
                 "ECSMenu",
                 "ECSInspectorMenuItem"
             },

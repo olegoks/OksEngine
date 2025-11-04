@@ -6,7 +6,7 @@ CreateECSMenuSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGuiState",
+                    "ImGui::State",
                     "Input::HandleKeyboardEvents",
                     "Input::KeyboardEvents"
                 },

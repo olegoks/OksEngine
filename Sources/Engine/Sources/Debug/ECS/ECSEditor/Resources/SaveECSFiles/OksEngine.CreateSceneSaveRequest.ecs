@@ -7,7 +7,7 @@ CreateSceneSaveRequestSystem = {
     processesEntities = {
         {
             processesComponents = { 
-                "ImGuiState",
+                "ImGui::State",
                 "ECSEditorWindow",
                 "SaveECSFilesButtonPressed"
             },

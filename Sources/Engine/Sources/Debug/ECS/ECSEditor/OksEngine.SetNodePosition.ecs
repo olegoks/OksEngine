@@ -7,7 +7,7 @@ SetNodePositionSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGuiState",
+                    "ImGui::State",
                     "ECSEditorWindow",
                     "EditorContext",
                     "SceneLoaded"

@@ -1,5 +1,0 @@
-DriverTextureComponent = {
-    serializable = false,
-    fields = { 
-        { type = "RAL::Driver::Texture::Id", name = "driverTextureId" }}
-}

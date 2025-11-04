@@ -1,115 +1,116 @@
 DebugInfoComponent = {
-    fields = { 
+    fields = {
         { type = "std::string", name = "name" }
-     }
+    }
 }
 
-
-ImGuiStateComponent = {
-    serializable = false,
-    fields = { 
-        { type = "RAL::Driver::Texture::Id", name = "fontsTextureId" },
-        { type = "Common::Size ", name = "fps" },
-        { type = "std::vector<Common::Id>", name = "driverShapesId" }
-     }
-}
-
-
-CreateImGuiStateSystem = {
-    type = "Initialize",
-    callOrder = {
-        runAfter = {
-            "CreateMainWindow"
+ImGuiNamespace = {
+    StateComponent = {
+        serializable = false,
+        fields = {
+            { type = "RAL::Driver::Texture::Id", name = "fontsTextureId" },
+            { type = "Common::Size ",            name = "fps" },
+            { type = "std::vector<Common::Id>",  name = "driverShapesId" }
         }
     },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "MainWindow",
-                    "Input::KeyboardEvents"
-                }
+    CreateStateSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = {
+                "CreateMainWindow"
             }
         },
-        createsEntities = {
-            {
-                createsComponents = {
-                    "ImGuiState",
-                    "ImPlotState",
-                    "Input::HandleKeyboardEvents"
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "MainWindow",
+                        "Input::KeyboardEvents"
+                    }
+                }
+            },
+            createsEntities = {
+                {
+                    createsComponents = {
+                        "State",
+                        "ImGui::ImPlotState",
+                        "Input::HandleKeyboardEvents"
+                    }
                 }
             }
         }
-    }
-}
-
-DestroyImGuiStateSystem = {
-    callOrder = {
-        runAfter = { "Input::SendWindowKeyboardEvents", "EndImGuiFrame" },
-        runBefore = "Input::ClearKeyboardEvents",
     },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "ImGuiState",
-                    "Input::KeyboardEvents"
+
+    DestroyStateSystem = {
+        callOrder = {
+            runAfter = { "Input::SendWindowKeyboardEvents", "ImGui::EndFrame" },
+            runBefore = "Input::ClearKeyboardEvents",
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State",
+                        "Input::KeyboardEvents"
+                    }
                 }
             }
         }
-    }
-    
-}
 
-
-ImPlotStateComponent = {
-    serializable = false,
-    fields = {
-        { type = "std::shared_ptr<ImPlotContext>", name = "context" }
-    }
-}
-
-CreateImPlotContextSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "ImGuiState",
-                    "Input::HandleKeyboardEvents",
-                },
-                excludes = {
-                    "ImPlotState"
-                },
-                createsComponents = {
-                    "ImPlotState"
-                }
-            }
-        }
-    }
-}
-
-StartImGuiFrameSystem = {
---    callOrder = {
---        runAfter = "ProcessInput"
---    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = { "ImGuiState" },
-            }
-        }
-    }    
-}
-
-EndImGuiFrameSystem = {
-    callOrder = {
-        runAfter = "StartImGuiFrame"
     },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = { "ImGuiState" }
+
+    ImPlotStateComponent = {
+        serializable = false,
+        fields = {
+            { type = "std::shared_ptr<ImPlotContext>", name = "context" }
+        }
+    },
+
+    CreateImPlotContextSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State",
+                        "Input::HandleKeyboardEvents",
+                    },
+                    excludes = {
+                        "ImGui::ImPlotState"
+                    },
+                    createsComponents = {
+                        "ImGui::ImPlotState"
+                    }
+                }
+            }
+        }
+    },
+
+    StartFrameSystem = {
+        --    callOrder = {
+        --        runAfter = "ProcessInput"
+        --    },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = { "State" },
+                }
+            }
+        }
+    },
+
+    EndFrameSystem = {
+        callOrder = {
+            runAfter = "StartFrame"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = { "State" }
+                }
             }
         }
     }
+
+
+
 }
