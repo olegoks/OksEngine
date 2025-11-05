@@ -1,6 +1,0 @@
-RunBeforeComponent = {
-    serializable = false,
-    fields = { 
-        { type = "std::vector<std::string>", name = "runBeforeSystems" }
-     }
-}

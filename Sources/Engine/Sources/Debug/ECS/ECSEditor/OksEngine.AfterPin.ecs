@@ -1,3 +1,0 @@
-AfterPinComponent = {
-    fields = { { type = "ECS2::Entity::Id", name = "id" } }
-}

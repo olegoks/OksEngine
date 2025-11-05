@@ -1,6 +1,0 @@
-LinkComponent = {
-    fields = { 
-        --Link entity id will be used as link id
-        { type = "ECS2::Entity::Id", name = "nodeFrom" },
-        { type = "ECS2::Entity::Id", name = "nodeTo" } }
-}

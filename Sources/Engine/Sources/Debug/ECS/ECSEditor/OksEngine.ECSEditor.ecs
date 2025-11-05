@@ -1,2 +1,323 @@
 ECSEditorComponent = {
 }
+ECSEditorMenuItemComponent = {
+
+}
+EditorContextComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::shared_ptr<ax::NodeEditor::EditorContext>", name = "context" }
+     }
+}
+GetNodePositionSystem = {
+    callOrder = {
+        runAfter = "DrawNodes",
+        runBefore = "CreateLink"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGUI::State",
+                    "EditorContext"
+                }
+            },
+            {
+                processesComponents = { 
+                    "CallGraphNode",
+                    "Name",
+                    { name = "Position2D", readonly = false }
+                }
+            }      
+        }
+    }
+}
+GraphEditorBeginSystem = {
+    callOrder = {
+        runAfter = "BeginECSEditorWindow",
+        runBefore = "DrawNodes"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGUI::State",
+                    "EditorContext"
+                }
+            }
+        }
+    }
+}
+GraphEditorEndSystem = {
+    callOrder = {
+        runAfter = "GraphEditorBegin",
+        runBefore = "EndECSEditorWindow"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGUI::State",
+                    "EditorContext" }
+            }
+        }
+    }
+}
+
+LinkComponent = {
+    fields = { 
+        --Link entity id will be used as link id
+        { type = "ECS2::Entity::Id", name = "nodeFrom" },
+        { type = "ECS2::Entity::Id", name = "nodeTo" } }
+}
+
+PinComponent = {
+}
+ProcessECSEditorMenuItemSystem = {
+    callOrder = {
+        runAfter = "BeginECSMenu",
+        runBefore = "EndECSMenu"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "MainMenuBar",
+                    "ImGUI::State",
+                    "ECSMenu",
+                    "ECSEditorMenuItem"
+                },
+                createsComponents = {
+                    "ECSEditorWindow"
+                }
+            }
+        }
+    }
+}
+RemoveLinkSystem = {
+    callOrder = {
+        runAfter = "CreateLink",
+        runBefore = "DrawLink"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGUI::State",
+                    "ECSEditorWindow",
+                    "EditorContext"
+                },
+                removesComponents = {
+                    "Link"
+                }
+            }
+        }
+    }
+}
+RemoveSceneLoadedSystem = {
+    callOrder = {
+        runAfter = "SetNodePosition",
+        runBefore = "DrawNodes"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "ImGUI::State",
+                    "EditorContext",
+                    "SceneLoaded"},
+                removesComponents = {
+                    "SceneLoaded"
+                }
+            }
+        }
+    }
+}
+RootNodeComponent = {
+
+}
+RunAfterComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::vector<std::string>", name = "runAfterSystems" }
+     }
+}
+RunBeforeComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::vector<std::string>", name = "runBeforeSystems" }
+     }
+}
+SavedNodePosition2DComponent = {
+    fields = { 
+        { type = "float", name = "x" },
+        { type = "float", name = "y" }
+    }
+}
+SetNodePositionSystem = {
+    callOrder = {
+        runAfter = "CreateEditorContext",
+        runBefore = "RemoveSceneLoaded"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGUI::State",
+                    "ECSEditorWindow",
+                    "EditorContext",
+                    "SceneLoaded"
+                }
+            },
+            {
+                processesComponents = {
+                    "CallGraphNode",
+                    "Position2D"
+                }
+            }
+        }
+    }
+}
+DrawNodesSystem = {
+    callOrder = {
+        runAfter = { 
+            "BeginECSEditorWindow"
+        },
+        runBefore = "EndECSEditorWindow"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "CallGraphNode",
+                    "Name",
+                    "Position2D"
+                }
+            },
+            {
+                processesComponents = { 
+                    "ImGUI::State",
+                    "ECSEditorWindow"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "Link",
+                    "BeforePin",
+                    "AfterPin"
+                }
+            },
+            {
+                accessingComponents = {
+                    "Pin"
+                }
+            }
+        }
+    }
+}
+DrawLinkSystem = {
+    callOrder = {
+        runAfter = "DrawNodes",
+        runBefore = "GraphEditorEnd"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+               processesComponents = { "Link" }
+            }
+        }
+    }   
+}
+CreateNewNodeSystem = {
+    callOrder = {
+        runAfter = "GraphEditorBegin",
+        runBefore = "GraphEditorEnd"
+    },
+    updateMethod = {
+        processesEntities  = {
+            {
+                processesComponents = {  
+                    "ImGUI::State",
+                    "EditorContext"
+                }
+            }
+        },
+        createsEntities = {
+            {
+                createsComponents = {
+                    "CallGraphNode",
+                    "Name",
+                    "RootNode",
+                    "Position2D",
+                    "Serializable",
+                    "RunBefore",
+                    "RunAfter",
+                    "BeforePin",
+                    "AfterPin"
+                }
+            },
+            {  
+                createsComponents = {
+                    "Name",
+                    "Pin"
+                }
+            }
+        }
+    }
+}
+CreateLinkSystem = {
+    callOrder = {
+        runAfter = "DrawNodes",
+        runBefore = "DrawLink"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGUI::State",
+                    "ECSEditorWindow",
+                    "EditorContext"
+                }
+            }
+        },
+        createsEntities = {
+            {
+                createsComponents = {
+                    "Link",
+                    "Serializable"
+                }
+            }
+        }
+    }
+}
+CreateECSEditorMenuItemSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGUI::State",
+                    "MainMenuBar",
+                    "ECSMenu"
+                },
+                createsComponents = {
+                    "ECSEditorMenuItem"
+                },
+                excludes = {
+                    "ECSEditorMenuItem"
+                }
+            }
+        },
+    }
+}
+CallGraphNodeComponent = {
+}
+
+
+BeforePinComponent = {
+    fields = { { type = "ECS2::Entity::Id", name = "id" } }
+}
+AfterPinComponent = {
+    fields = { { type = "ECS2::Entity::Id", name = "id" } }
+}
