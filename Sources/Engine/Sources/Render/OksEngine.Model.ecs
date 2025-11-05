@@ -633,7 +633,7 @@ RenderNamespace = {
             }
         }
     },
-    MainRenderPassComponent = 'Render::RenderPass',
+    MainRenderPassComponent = 'Render::RenderPassId',
 
     CreateRenderPassSystem = {
         type = "Initialize",
@@ -1064,7 +1064,7 @@ AddSkeletonModelToRenderSystem = {
 
 EndRenderPassSystem = {
     callOrder = {
-        runBefore = { "ImGui::Render::BeginRenderPass" }
+        runBefore = { "ImGUI::BeginRenderPass" }
     },
     updateMethod = {
         processesEntities = {

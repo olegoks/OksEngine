@@ -1,14 +1,14 @@
 BeginMainMenuBarSystem = {
     callOrder = {
-        runAfter = "ImGui::StartFrame",
-        runBefore = "ImGui::EndFrame"
+        runAfter = "ImGUI::StartFrame",
+        runBefore = "ImGUI::EndFrame"
     },
     updateMethod = {
         processesEntities = {
             {
                 processesComponents = { 
                     { name = "MainMenuBar", readonly = false },
-                    "ImGui::State"
+                    "ImGUI::State"
                 }
             }
         }

@@ -7,7 +7,7 @@ CreateLinkSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGui::State",
+                    "ImGUI::State",
                     "ECSEditorWindow",
                     "EditorContext"
                 }

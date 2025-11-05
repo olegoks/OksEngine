@@ -2,7 +2,7 @@
 
 namespace OksEngine {
 void CreateECSMenu::Update(ECS2::Entity::Id entityId,
-                           const ImGuiState* imGuiState,
+                           const ImGUI::State* imGuiState,
                            const Input::HandleKeyboardEvents* handleKeyboardInput,
                            const Input::KeyboardEvents* keyboardInput) {
 

@@ -4,7 +4,7 @@
 
 namespace OksEngine {
 void SetNodePosition::Update(
-    ECS2::Entity::Id entity1Id, const ImGuiState* imGuiState,
+    ECS2::Entity::Id entity1Id, const ImGUI::State* imGuiState,
     const ECSEditorWindow* eCSEditorWindow, const EditorContext* editorContext,
     const SceneLoaded* sceneLoaded, ECS2::Entity::Id entity2Id,
     const CallGraphNode* callGraphNode, const Position2D* position2D) {

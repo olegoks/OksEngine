@@ -4,7 +4,7 @@ namespace OksEngine {
 	void ProcessECSInspectorMenuItem::Update(
 		ECS2::Entity::Id entity0id,
 		const MainMenuBar* mainMenuBar0,
-		const ImGuiState* imGuiState0, 
+		const ImGUI::State* imGuiState0, 
 		const ECSMenu* eCSMenu0,
 		const ECSInspectorMenuItem* eCSInspectorMenuItem0) {
 

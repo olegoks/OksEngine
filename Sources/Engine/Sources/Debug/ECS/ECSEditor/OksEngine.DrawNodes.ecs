@@ -16,7 +16,7 @@ DrawNodesSystem = {
             },
             {
                 processesComponents = { 
-                    "ImGui::State",
+                    "ImGUI::State",
                     "ECSEditorWindow"
                 }
             }

@@ -6,7 +6,7 @@
 
 namespace OksEngine
 {
-	void BeginECSInspectorWindow::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+	void BeginECSInspectorWindow::Update(ECS2::Entity::Id entity0id, const ImGUI::State* imGuiState0,
 		const MainMenuBar* mainMenuBar0, const ECSMenu* eCSMenu0,
 		const ECSInspectorMenuItem* eCSInspectorMenuItem0,
 		ECSInspectorWindow* eCSInspectorWindow0) {
@@ -25,7 +25,7 @@ namespace OksEngine
 
 	};
 
-	void ProcessCreateEntityButton::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0, const MainMenuBar* mainMenuBar0,
+	void ProcessCreateEntityButton::Update(ECS2::Entity::Id entity0id, const ImGUI::State* imGuiState0, const MainMenuBar* mainMenuBar0,
 		const ECSMenu* eCSMenu0, const ECSInspectorMenuItem* eCSInspectorMenuItem0,
 		const ECSInspectorWindow* eCSInspectorWindow0) {
 
@@ -38,7 +38,7 @@ namespace OksEngine
 
 	void ProcessEntityFilter::Update(
 		ECS2::Entity::Id entity0id,
-		const ImGuiState* imGuiState0,
+		const ImGUI::State* imGuiState0,
 		const MainMenuBar* mainMenuBar0,
 		const ECSMenu* eCSMenu0,
 		const ECSInspectorMenuItem* eCSInspectorMenuItem0,
@@ -150,7 +150,7 @@ namespace OksEngine
 
 	}
 
-	void ShowEntitiesInfo::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+	void ShowEntitiesInfo::Update(ECS2::Entity::Id entity0id, const ImGUI::State* imGuiState0,
 		const MainMenuBar* mainMenuBar0, const ECSMenu* eCSMenu0,
 		const ECSInspectorMenuItem* eCSInspectorMenuItem0,
 		const ECSInspectorWindow* eCSInspectorWindow0, ECS2::Entity::Id entity1id) {
@@ -272,7 +272,7 @@ namespace OksEngine
 
 	};
 
-	void EndECSInspectorWindow::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+	void EndECSInspectorWindow::Update(ECS2::Entity::Id entity0id, const ImGUI::State* imGuiState0,
 		const MainMenuBar* mainMenuBar0, const ECSMenu* eCSMenu0,
 		const ECSInspectorMenuItem* eCSInspectorMenuItem0,
 		const ECSInspectorWindow* eCSInspectorWindow0) {

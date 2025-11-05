@@ -2,7 +2,7 @@
 
 namespace OksEngine {
 void CreateECSInspectorMenuItem::Update(ECS2::Entity::Id entityId,
-                                        const ImGuiState* imGuiState,
+                                        const ImGUI::State* imGuiState,
                                         const MainMenuBar* mainMenuBar,
                                         const ECSMenu* eCSMenu) {
 

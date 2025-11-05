@@ -3,7 +3,7 @@ CreateNodeEntitiesSystem = {
     processesEntities  = {
         {
             processesComponents = {  
-                "ImGui::State",
+                "ImGUI::State",
                 "ECSEditorWindow",
                 "LoadingECSFiles" }
         },

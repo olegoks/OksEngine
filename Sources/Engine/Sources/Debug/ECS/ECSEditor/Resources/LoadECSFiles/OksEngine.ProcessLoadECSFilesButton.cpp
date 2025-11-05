@@ -3,7 +3,7 @@
 namespace OksEngine {
     void ProcessLoadECSFilesButton::Update(
         ECS2::Entity::Id entityId, 
-        const ImGuiState* imGuiState,
+        const ImGUI::State* imGuiState,
         const ECSEditorWindow* editorContext) {
 
         if (ImGui::Button("Load .ecs files")) {

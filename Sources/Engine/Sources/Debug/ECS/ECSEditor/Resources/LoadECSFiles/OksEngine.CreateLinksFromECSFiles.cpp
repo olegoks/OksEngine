@@ -2,7 +2,7 @@
 
 namespace OksEngine {
 	void CreateLinksFromECSFiles::Update(
-		ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+		ECS2::Entity::Id entity0id, const ImGUI::State* imGuiState0,
 		const EditorContext* editorContext0,
 		const ECSEditorWindow* eCSEditorWindow0,
 		const CreateLinksRequest* createLinksRequest0,

@@ -55,7 +55,7 @@ InputNamespace = {
 
     ClearKeyboardEventsSystem = {
         callOrder = {
-            runAfter = "ImGui::EndFrame"
+            runAfter = "ImGUI::EndFrame"
         },
         updateMethod = {
             processesEntities = {

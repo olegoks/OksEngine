@@ -13,7 +13,7 @@ BeginECSInspectorWindowSystem = {
         processesEntities = {
             {
                 processesComponents = { 
-                    "ImGui::State", 
+                    "ImGUI::State", 
                     "MainMenuBar",
                     "ECSMenu",
                     "ECSInspectorMenuItem",
@@ -36,7 +36,7 @@ ProcessCreateEntityButtonSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGui::State",
+                    "ImGUI::State",
                     "MainMenuBar",
                     "ECSMenu",
                     "ECSInspectorMenuItem",
@@ -71,7 +71,7 @@ ProcessEntityFilterSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGui::State",
+                    "ImGUI::State",
                     "MainMenuBar",
                     "ECSMenu",
                     "ECSInspectorMenuItem",
@@ -106,7 +106,7 @@ ShowEntitiesInfoSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGui::State",
+                    "ImGUI::State",
                     "MainMenuBar",
                     "ECSMenu",
                     "ECSInspectorMenuItem",
@@ -132,13 +132,13 @@ ShowEntitiesInfoSystem = {
 EndECSInspectorWindowSystem = {
     callOrder = {
         runAfter = "BeginECSInspectorWindow",
-        runBefore = "ImGui::EndFrame"
+        runBefore = "ImGUI::EndFrame"
     },
     updateMethod = {
         processesEntities = {
             {
                 processesComponents = { 
-                    "ImGui::State", 
+                    "ImGUI::State", 
                     "MainMenuBar",
                     "ECSMenu",
                     "ECSInspectorMenuItem",

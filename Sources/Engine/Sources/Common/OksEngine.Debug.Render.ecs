@@ -366,7 +366,7 @@ BeginDebugTextRenderPassSystem = {
 EndDebugTextRenderPassSystem = {
     callOrder = {
         runAfter = { "DrawDebugText2D" },
-        runBefore = { "ImGui::Render::BeginRenderPass" }
+        runBefore = { "ImGUI::BeginRenderPass" }
     },
     updateMethod = {
         processesEntities = {

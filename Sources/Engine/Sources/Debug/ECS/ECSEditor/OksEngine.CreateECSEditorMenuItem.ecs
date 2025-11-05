@@ -3,7 +3,7 @@ CreateECSEditorMenuItemSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "ImGui::State",
+                    "ImGUI::State",
                     "MainMenuBar",
                     "ECSMenu"
                 },

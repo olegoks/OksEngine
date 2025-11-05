@@ -3,7 +3,7 @@
 namespace OksEngine {
 void BeginMainMenuBar::Update(ECS2::Entity::Id entityId,
                               MainMenuBar* mainMenuBar,
-                              const ImGuiState* imGuiState) {
+                              const ImGUI::State* imGuiState) {
                                 mainMenuBar->show_ = false;
                                 if(ImGui::BeginMainMenuBar()){
                                   mainMenuBar->show_ = true;

@@ -4,7 +4,7 @@
 
 namespace OksEngine {
 void GraphEditorEnd::Update(
-    ECS2::Entity::Id entityId, const ImGuiState* imGuiState,
+    ECS2::Entity::Id entityId, const ImGUI::State* imGuiState,
     const EditorContext* editorContext) {
 
 

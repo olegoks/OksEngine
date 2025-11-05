@@ -1,7 +1,7 @@
 #include <Debug/ECS/ECSEditor\auto_OksEngine.RemoveLink.hpp>
 
 namespace OksEngine {
-	void RemoveLink::Update(ECS2::Entity::Id entityId, const ImGuiState* imGuiState,
+	void RemoveLink::Update(ECS2::Entity::Id entityId, const ImGUI::State* imGuiState,
 		const ECSEditorWindow* eCSEditorWindow,
 		const EditorContext* editorContext) {
 

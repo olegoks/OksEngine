@@ -4,7 +4,7 @@ DebugInfoComponent = {
     }
 }
 
-ImGuiNamespace = {
+ImGUINamespace = {
     StateComponent = {
         serializable = false,
         fields = {
@@ -33,7 +33,7 @@ ImGuiNamespace = {
                 {
                     createsComponents = {
                         "State",
-                        "ImGui::ImPlotState",
+                        "ImGUI::ImPlotState",
                         "Input::HandleKeyboardEvents"
                     }
                 }
@@ -43,7 +43,7 @@ ImGuiNamespace = {
 
     DestroyStateSystem = {
         callOrder = {
-            runAfter = { "Input::SendWindowKeyboardEvents", "ImGui::EndFrame" },
+            runAfter = { "Input::SendWindowKeyboardEvents", "ImGUI::EndFrame" },
             runBefore = "Input::ClearKeyboardEvents",
         },
         updateMethod = {
@@ -75,10 +75,10 @@ ImGuiNamespace = {
                         "Input::HandleKeyboardEvents",
                     },
                     excludes = {
-                        "ImGui::ImPlotState"
+                        "ImGUI::ImPlotState"
                     },
                     createsComponents = {
-                        "ImGui::ImPlotState"
+                        "ImGUI::ImPlotState"
                     }
                 }
             }

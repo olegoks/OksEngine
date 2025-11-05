@@ -7,7 +7,7 @@ BeginECSMenuSystem = {
         processesEntities = {
             {
             processesComponents = { 
-                "ImGui::State", 
+                "ImGUI::State", 
                 "MainMenuBar",
                 { name = "ECSMenu", readonly = false }
             }

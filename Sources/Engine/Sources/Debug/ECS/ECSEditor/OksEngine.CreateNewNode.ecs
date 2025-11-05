@@ -7,7 +7,7 @@ CreateNewNodeSystem = {
         processesEntities  = {
             {
                 processesComponents = {  
-                    "ImGui::State",
+                    "ImGUI::State",
                     "EditorContext"
                 }
             }

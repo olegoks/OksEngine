@@ -3,7 +3,7 @@
 #include <imgui-node-editor/imgui_node_editor.h>
 
 namespace OksEngine {
-void CreateLink::Update(ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+void CreateLink::Update(ECS2::Entity::Id entity0id, const ImGUI::State* imGuiState0,
 	const ECSEditorWindow* eCSEditorWindow0,
 	const EditorContext* editorContext0) {
 

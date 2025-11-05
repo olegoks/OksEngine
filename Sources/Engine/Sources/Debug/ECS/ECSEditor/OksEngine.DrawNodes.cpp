@@ -11,7 +11,7 @@ namespace OksEngine {
 	void DrawNodes::Update(
 		ECS2::Entity::Id entity0id, const CallGraphNode* calClGraphNode0,
 		const Name* name0, const Position2D* position2D0,
-		ECS2::Entity::Id entity1id, const ImGuiState* imGuiState1,
+		ECS2::Entity::Id entity1id, const ImGUI::State* imGuiState1,
 		const ECSEditorWindow* eCSEditorWindow1) {
 
 		static bool firstFrame = true;

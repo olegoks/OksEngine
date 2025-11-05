@@ -2834,7 +2834,7 @@ namespace OksEngine
 			const Indices* indices1,
 			const DriverIndexBuffer* driverIndexBuffer1,
 			const DriverVertexBuffer* driverVertexBuffer1,
-			const TextureResource* textureResource1,
+			const Render::DiffuseMap::TextureResource* textureResource1,
 			const Render::Mdl::ModelEntityIds* modelEntityIds1,
 			const Render::Mdl::ModelNodeEntityIndices* modelNodeEntityIndices1,
 
@@ -3137,7 +3137,7 @@ namespace OksEngine
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
 		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
-		auto* meshTextureResources = std::get<TextureResource*>(meshComponents);
+		auto* meshTextureResources = std::get<Render::DiffuseMap::TextureResource*>(meshComponents);
 		auto* meshNormalTextureResources = std::get<Render::NormalMap::TextureResource*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
@@ -3227,7 +3227,7 @@ namespace OksEngine
 				if (!meshComponentsFilter.IsSet<
 					DriverVertexBuffer,
 					DriverIndexBuffer,
-					TextureResource,
+					Render::DiffuseMap::TextureResource,
 					Render::NormalMap::TextureResource,
 					Render::Mdl::ModelEntityIds,
 					VertexBones,

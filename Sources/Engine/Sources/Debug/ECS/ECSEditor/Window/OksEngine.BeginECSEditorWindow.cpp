@@ -2,7 +2,7 @@
 
 namespace OksEngine {
 	void BeginECSEditorWindow::Update(
-		ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0,
+		ECS2::Entity::Id entity0id, const ImGUI::State* imGuiState0,
 		const MainMenuBar* mainMenuBar0, const ECSMenu* eCSMenu0,
 		const ECSEditorMenuItem* eCSEditorMenuItem0,
 		ECSEditorWindow* eCSEditorWindow0,

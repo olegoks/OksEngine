@@ -5,95 +5,95 @@
 
 namespace OksEngine
 {
+	namespace ImGUI {
+		void CreateState::Update(
+			ECS2::Entity::Id entity0id,
+			const MainWindow* mainWindow0,
+			const Input::KeyboardEvents* keyboardInput0) {
 
-	void CreateImGuiState::Update(
-		ECS2::Entity::Id entity0id,
-		const MainWindow* mainWindow0,
-		const Input::KeyboardEvents* keyboardInput0) {
+			//if (IsEntityExist<ImGuiState>()) {
+			//	return;
+			//}
 
-		//if (IsEntityExist<ImGuiState>()) {
-		//	return;
-		//}
+			//bool isKeyPressed = false;
+			//for (auto& event : keyboardInput0->events_) {
+			//	if (event.first == UIAL::Window::KeyboardKey::F5 && event.second == UIAL::Window::KeyboardAction::Pressed) {
+			//		isKeyPressed = true;
+			//		break;
+			//	}
+			//}
 
-		//bool isKeyPressed = false;
-		//for (auto& event : keyboardInput0->events_) {
-		//	if (event.first == UIAL::Window::KeyboardKey::F5 && event.second == UIAL::Window::KeyboardAction::Pressed) {
-		//		isKeyPressed = true;
-		//		break;
-		//	}
-		//}
-
-		//if (!isKeyPressed) {
-		//	return;
-		//}
+			//if (!isKeyPressed) {
+			//	return;
+			//}
 
 
-		ECS2::Entity::Id entityId = CreateEntity();
+			ECS2::Entity::Id entityId = CreateEntity();
 
 #if !defined(NDEBUG)
-		CreateComponent<ImGuiState>(entityId);
-		CreateComponent<Input::HandleKeyboardEvents>(entityId);
+			CreateComponent<State>(entityId);
+			CreateComponent<Input::HandleKeyboardEvents>(entityId);
 #endif
-	};
+		};
 
-	void CreateImPlotContext::Update(
-		ECS2::Entity::Id entity0id,
-		const ImGuiState* imGuiState0,
-		const Input::HandleKeyboardEvents* handleKeyboardInput0) {
+		void CreateImPlotContext::Update(
+			ECS2::Entity::Id entity0id,
+			const State* imGuiState0,
+			const Input::HandleKeyboardEvents* handleKeyboardInput0) {
 
-		std::shared_ptr<ImPlotContext> implotState{
-			ImPlot::CreateContext(), [](ImPlotContext* context) {
+			std::shared_ptr<ImPlotContext> implotState{
+				ImPlot::CreateContext(), [](ImPlotContext* context) {
 
-				ImPlot::DestroyContext(context);
+					ImPlot::DestroyContext(context);
 
-			} };
+				} };
 
-		CreateComponent<ImPlotState>(entity0id, implotState);
+			CreateComponent<ImPlotState>(entity0id, implotState);
 
-	};
-
-
-	void StartImGuiFrame::Update(
-		ECS2::Entity::Id entity0id,
-		const ImGuiState* imGuiState0) {
-
-		ImGui::NewFrame();
-
-	};
-
-	void EndImGuiFrame::Update(
-		ECS2::Entity::Id entity0id,
-		const ImGuiState* imGuiState0) {
-		using namespace std::chrono_literals;
-		std::this_thread::sleep_for(1ms);
-		ImGui::Render();
-
-	};
+		};
 
 
-	void DestroyImGuiState::Update(
-		ECS2::Entity::Id entity0id,
-		const ImGuiState* imGuiState0,
-		const Input::KeyboardEvents* keyboardInput0) {
+		void StartFrame::Update(
+			ECS2::Entity::Id entity0id,
+			const State* imGuiState0) {
 
-		if (!IsEntityExist<ImGuiState>()) {
-			return;
-		}
+			::ImGui::NewFrame();
 
-		bool isKeyPressed = false;
-		for (auto& event : keyboardInput0->events_) {
-			//if (event.first == UIAL::Window::KeyboardKey::F5 && event.second == UIAL::Window::KeyboardAction::Pressed) {
-			//	isKeyPressed = true;
-			//	break;
-			//}
-		}
+		};
 
-		if (!isKeyPressed) {
-			return;
-		}
+		void EndFrame::Update(
+			ECS2::Entity::Id entity0id,
+			const State* imGuiState0) {
+			using namespace std::chrono_literals;
+			std::this_thread::sleep_for(1ms);
+			::ImGui::Render();
 
-	};
+		};
 
 
+		void DestroyState::Update(
+			ECS2::Entity::Id entity0id,
+			const State* imGuiState0,
+			const Input::KeyboardEvents* keyboardInput0) {
+
+			if (!IsEntityExist<State>()) {
+				return;
+			}
+
+			bool isKeyPressed = false;
+			for (auto& event : keyboardInput0->events_) {
+				//if (event.first == UIAL::Window::KeyboardKey::F5 && event.second == UIAL::Window::KeyboardAction::Pressed) {
+				//	isKeyPressed = true;
+				//	break;
+				//}
+			}
+
+			if (!isKeyPressed) {
+				return;
+			}
+
+		};
+
+	}
 
 } // namespace OksEngine

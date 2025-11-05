@@ -20,7 +20,7 @@ RenderNamespace = {
             { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" }
         }
     },
-    RenderPassComponent = {
+    RenderPassIdComponent = {
         serializable = false,
         fields = {
             { type = "Common::Id", name = "rpId" }

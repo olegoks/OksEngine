@@ -3,7 +3,7 @@
 namespace OksEngine {
 void BeginECSMenu::Update(
 	ECS2::Entity::Id entity0id, 
-	const ImGuiState* imGuiState0,
+	const ImGUI::State* imGuiState0,
 	const MainMenuBar* mainMenuBar0,
 	ECSMenu* eCSMenu0
 						  ) {

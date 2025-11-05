@@ -4,7 +4,7 @@
 
 namespace OksEngine {
 void CreateMainMenuBar::Update(ECS2::Entity::Id entityId,
-                               const ImGuiState* imGuiState) {
+                               const ImGUI::State* imGuiState) {
 			CreateComponent<MainMenuBar>(entityId);
 
 

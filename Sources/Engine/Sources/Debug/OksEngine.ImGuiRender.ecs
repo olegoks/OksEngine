@@ -1,11 +1,10 @@
-ImGuiNamespace = {
-    RenderNamespace = {
-        RenderPassComponent = "Render::RenderPass",
+ImGUINamespace = {
+        RenderPassComponent = "Render::RenderPassId",
         CreateRenderPassSystem = {
             type = "Initialize",
             callOrder = {
                 runAfter = {
-                    "ImGui::CreateState",
+                    "ImGUI::CreateState",
                     "CreateRenderDriver"
                 }
             },
@@ -98,7 +97,6 @@ ImGuiNamespace = {
                 }
             }
         },
-
         DriverIndexBufferComponent = {
             serializable = false,
             fields = {
@@ -192,7 +190,6 @@ ImGuiNamespace = {
                 }
             }
         },
-
         UpdateDriverTransform2DSystem = {
             updateMethod = {
                 processesEntities = {
@@ -210,7 +207,6 @@ ImGuiNamespace = {
                 }
             }
         },
-
         AtlasNamespace = {
             TextureDataComponent = {
                 serializable = false,
@@ -223,7 +219,7 @@ ImGuiNamespace = {
             CreateTextureDataSystem = {
                 type = "Initialize",
                 callOrder = {
-                    runAfter = "ImGui::CreateState"
+                    runAfter = "ImGUI::CreateState"
                 },
                 updateMethod = {
                     processesEntities = {
@@ -267,13 +263,6 @@ ImGuiNamespace = {
                 }
             }
         },
-
-
-
-
-
-
-
         BeginRenderPassSystem = {
             callOrder = {
                 runAfter = "StartRender",
@@ -296,7 +285,6 @@ ImGuiNamespace = {
                 }
             }
         },
-
         UpdateRenderDataSystem = {
             updateMethod = {
                 processesEntities = {
@@ -315,8 +303,6 @@ ImGuiNamespace = {
                 }
             }
         },
-
-
         AddMeshToRenderSystem = {
             callOrder = {
                 runAfter = "BeginRenderPass",
@@ -344,7 +330,6 @@ ImGuiNamespace = {
                 }
             }
         },
-
         EndRenderPassSystem = {
             callOrder = {
                 runAfter = {
@@ -369,8 +354,6 @@ ImGuiNamespace = {
                 }
             }
         }
-
-    }
 }
 
 
@@ -425,7 +408,7 @@ ImGuiNamespace = {
 --         processesEntities = {
 --             {
 --                 processesComponents = {
---                     "ImGui::State",
+--                     "ImGUI::State",
 --                     "ImGuiAtlasTexture"
 --                 },
 --                 createsComponents = { "ImGuiAtlasDriverTexture" },

@@ -2,7 +2,7 @@
 
 namespace OksEngine {
 	void GraphEditorBegin::Update(
-		ECS2::Entity::Id entityId, const ImGuiState* imGuiState,
+		ECS2::Entity::Id entityId, const ImGUI::State* imGuiState,
 		const EditorContext* editorContext) {
 
 		ax::NodeEditor::Begin("");

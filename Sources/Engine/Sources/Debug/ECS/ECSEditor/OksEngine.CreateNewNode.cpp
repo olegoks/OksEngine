@@ -299,7 +299,7 @@ unsigned int duck_idx[DUCK_IDX_COUNT] = {
 
 namespace OksEngine {
 	void CreateNewNode::Update(
-		ECS2::Entity::Id entityId, const ImGuiState* imGuiState,
+		ECS2::Entity::Id entityId, const ImGUI::State* imGuiState,
 		const EditorContext* editorContext) {
 
 		ax::NodeEditor::Suspend();

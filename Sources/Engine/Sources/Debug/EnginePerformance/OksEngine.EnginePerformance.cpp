@@ -8,7 +8,7 @@ namespace OksEngine
 {
 
 	void CreateEnginePerformanceMenuItem::Update(
-		ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0, const ImPlotState* imPlotState0,
+		ECS2::Entity::Id entity0id, const ImGUI::State* imGuiState0, const ImGUI::ImPlotState* imPlotState0,
 		const MainMenuBar* mainMenuBar0) {
 
 		CreateComponent<EnginePerformanceMenuItem>(entity0id);
@@ -16,8 +16,8 @@ namespace OksEngine
 	}
 
 	void ProcessEnginePerformanceMenuItem::Update(
-		ECS2::Entity::Id entity0id, const MainMenuBar* mainMenuBar0, const ImGuiState* imGuiState0,
-		const ImPlotState* imPlotState0, const ECSMenu* eCSMenu0,
+		ECS2::Entity::Id entity0id, const MainMenuBar* mainMenuBar0, const ImGUI::State* imGuiState0,
+		const ImGUI::ImPlotState* imPlotState0, const ECSMenu* eCSMenu0,
 		const EnginePerformanceMenuItem* enginePerformanceMenuItem0) {
 
 
@@ -33,8 +33,8 @@ namespace OksEngine
 
 	void CreateEnginePerformance::Update(
 		ECS2::Entity::Id entity0id,
-		const ImGuiState* imGuiState0,
-		const ImPlotState* imPlotState0,
+		const ImGUI::State* imGuiState0,
+		const ImGUI::ImPlotState* imPlotState0,
 		const MainMenuBar* mainMenuBar0,
 		const EnginePerformanceMenuItem* enginePerformanceMenuItem0,
 		const EnginePerformanceWindow* enginePerformanceWindow0) {
@@ -47,7 +47,7 @@ namespace OksEngine
 
 
 	void BeginEnginePerformanceWindow::Update(
-		ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0, const ImPlotState* imPlotState0,
+		ECS2::Entity::Id entity0id, const ImGUI::State * imGuiState0, const ImGUI::ImPlotState* imPlotState0,
 		const EnginePerformanceMenuItem* enginePerformanceMenuItem0,
 		const EnginePerformanceWindow* enginePerformanceWindow0, const EnginePerformance* enginePerformance0) {
 
@@ -82,8 +82,8 @@ namespace OksEngine
 
 	void ShowCurrentFPS::Update(
 		ECS2::Entity::Id entity0id, 
-		const ImGuiState* imGuiState0, 
-		const ImPlotState* imPlotState0,
+		const ImGUI::State* imGuiState0, 
+		const ImGUI::ImPlotState* imPlotState0,
 		const EnginePerformanceMenuItem* enginePerformanceMenuItem0,
 		const EnginePerformanceWindow* enginePerformanceWindow0, 
 		const EnginePerformance* enginePerformance0,
@@ -115,8 +115,8 @@ namespace OksEngine
 
 	void ShowFPSPlot::Update(
 		ECS2::Entity::Id entity0id,
-		const ImGuiState* imGuiState0,
-		const ImPlotState* imPlotState0,
+		const ImGUI::State* imGuiState0,
+		const ImGUI::ImPlotState* imPlotState0,
 		const EnginePerformanceMenuItem* enginePerformanceMenuItem0,
 		const EnginePerformanceWindow* enginePerformanceWindow0,
 		const EnginePerformance* enginePerformance0,
@@ -158,7 +158,7 @@ namespace OksEngine
 	}
 
 	void EndEnginePerformanceWindow::Update(
-		ECS2::Entity::Id entity0id, const ImGuiState* imGuiState0, const ImPlotState* imPlotState0,
+		ECS2::Entity::Id entity0id, const ImGUI::State* imGuiState0, const ImGUI::ImPlotState* imPlotState0,
 		const EnginePerformanceMenuItem* enginePerformanceMenuItem0,
 		const EnginePerformanceWindow* enginePerformanceWindow0, const EnginePerformance* enginePerformance0) {
 

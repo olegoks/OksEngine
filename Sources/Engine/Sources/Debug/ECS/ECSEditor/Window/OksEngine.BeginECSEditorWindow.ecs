@@ -7,7 +7,7 @@ BeginECSEditorWindowSystem = {
         processesEntities = {
             {
                 processesComponents = { 
-                    "ImGui::State", 
+                    "ImGUI::State", 
                     "MainMenuBar",
                     "ECSMenu",
                     "ECSEditorMenuItem",

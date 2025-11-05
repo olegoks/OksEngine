@@ -3,7 +3,7 @@ DrawEnginePerformanceSystem = {
         processesEntities = {
         {
             processesComponents = { 
-                "ImGui::State",
+                "ImGUI::State",
                 "MainMenuBar",
                 "EnginePerformance"
             }
