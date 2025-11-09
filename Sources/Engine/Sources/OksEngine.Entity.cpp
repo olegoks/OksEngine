@@ -40,22 +40,22 @@ namespace OksEngine {
 	}
 
 	void Entity::AddStaticRigidBodyCustomMeshShape() {
-		world_->CreateComponent<StaticRigidBodyCustomMeshShape>(
+		world_->CreateComponent<Physics::StaticRigidBodyCustomMeshShape>(
 			GetId());
 	}
 
 	void Entity::AddDynamicRigidBodyCustomMeshShape() {
-		world_->CreateComponent<DynamicRigidBodyCustomMeshShape>(
+		world_->CreateComponent<Physics::DynamicRigidBodyCustomMeshShape>(
 			GetId());
 	}
 
 	void Entity::AddMass(float mass) {
-		world_->CreateComponent<Mass>(
+		world_->CreateComponent<Physics::Mass>(
 			GetId(), mass);
 	}
 
 	void Entity::AddMaterial(float staticFriction, float dynamicFriction, float restitution) {
-		world_->CreateComponent<Material>(
+		world_->CreateComponent<Physics::Material>(
 			GetId(),
 			staticFriction,
 			dynamicFriction,

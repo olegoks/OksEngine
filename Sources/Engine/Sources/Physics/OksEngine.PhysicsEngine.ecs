@@ -1,4 +1,0 @@
-PhysicsEngineComponent = {
-    serializable = false,
-    fields = { { type="std::shared_ptr<PE::PhysicsEngine>", name="physicsEngine" } }
-}

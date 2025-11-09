@@ -147,10 +147,10 @@ namespace OksEngine
 		//const ECS2::Entity::Id entityId = world2_->CreateEntity();
 		//world2_->CreateComponent<RenderDriver>(entityId, renderSubsystem_->GetDriver());
 
-		PhysicsSubsystem::CreateInfo physicsSubsystemCreateInfo{
+		/*PhysicsSubsystem::CreateInfo physicsSubsystemCreateInfo{
 			*this
 		};
-		physicsSubsystem_ = std::make_shared<PhysicsSubsystem>(physicsSubsystemCreateInfo);
+		physicsSubsystem_ = std::make_shared<PhysicsSubsystem>(physicsSubsystemCreateInfo);*/
 
 	}
 

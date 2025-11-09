@@ -117,7 +117,13 @@ PauseAnimationComponent = {
 --     }
 -- }
 
-
+VovaComponent = {
+    serializable = false,
+    fields = {
+        { type = "Common::Size", name = "age" },
+        --...
+    }
+}
 
 
 AiNamespace = {

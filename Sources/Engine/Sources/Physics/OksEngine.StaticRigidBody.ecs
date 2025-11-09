@@ -1,5 +1,0 @@
-StaticRigidBodyComponent = {
-    serializable = false,
-    fields = { 
-        { type = "PAL::StaticRigidBody::Id", name = "id" } }
-}

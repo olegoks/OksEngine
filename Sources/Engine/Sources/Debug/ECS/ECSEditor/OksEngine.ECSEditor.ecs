@@ -308,7 +308,7 @@ CreateECSEditorMenuItemSystem = {
                     "ECSEditorMenuItem"
                 }
             }
-        },
+        }
     }
 }
 CallGraphNodeComponent = {

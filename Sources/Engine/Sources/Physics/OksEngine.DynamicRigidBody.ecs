@@ -1,6 +1,0 @@
-DynamicRigidBodyComponent = {
-    serializable = false,
-    fields = { 
-        { type = "PAL::DynamicRigidBody::Id", name = "id" }
-     }
-}

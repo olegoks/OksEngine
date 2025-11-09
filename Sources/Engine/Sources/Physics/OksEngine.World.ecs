@@ -1,5 +1,0 @@
-WorldComponent = {
-    serializable = false,
-    fields = { 
-        { type = "std::shared_ptr<World>", name = "world" } }
-}

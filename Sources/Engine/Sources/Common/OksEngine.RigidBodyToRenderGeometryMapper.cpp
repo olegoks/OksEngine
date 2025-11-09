@@ -6,7 +6,7 @@ namespace OksEngine {
 
 	void RigidBodyToRenderGeometryMapper::Update(
 		ECS2::Entity::Id entityId,
-		const DynamicRigidBody* dynamicRigidBody,
+		const Physics::DynamicRigidBody* dynamicRigidBody,
 		const ImmutableRenderGeometry* immutableRenderGeometry) {
 		//DynamicRigidBody* rigidBody = world->GetComponent<DynamicRigidBody>(entityId);
 		//ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);

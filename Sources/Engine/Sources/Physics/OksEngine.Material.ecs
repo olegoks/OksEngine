@@ -1,7 +1,0 @@
-MaterialComponent = {
-    name = "Material",
-    fields = { 
-        { type = "float", name = "staticFriction" },
-        { type = "float", name = "dynamicFriction" },
-        { type = "float", name = "restitution" } }
-}

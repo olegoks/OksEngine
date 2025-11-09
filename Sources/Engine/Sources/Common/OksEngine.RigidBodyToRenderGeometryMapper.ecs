@@ -3,7 +3,7 @@ RigidBodyToRenderGeometryMapperSystem = {
         processesEntities = {
             {
                 processesComponents = { 
-                    "DynamicRigidBody", 
+                    "Physics::DynamicRigidBody", 
                     "ImmutableRenderGeometry"
                 }
             }

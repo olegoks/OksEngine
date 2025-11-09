@@ -1,0 +1,219 @@
+PhysicsNamespace = {
+
+    EngineComponent = {
+        serializable = false,
+        fields = { 
+            { type = "std::shared_ptr<PE::PhysicsEngine>", name = "engine" }
+        }
+    },
+    CreateEngineSystem = {
+        type = "Initialize",
+
+        updateMethod = {
+            createsEntities = {
+                {
+                    createsComponents = {
+                        "Engine"
+                    }
+                }
+            }
+        }
+    },
+    WorldComponent = {
+        serializable = false,
+        fields = {
+            { type = "std::shared_ptr<PAL::World>", name = "world" } }
+    },
+    CreateWorldSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = { "CreateEngine" }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Engine"
+                    }
+                }
+            },
+            createsEntities = {
+                {
+                    createsComponents = {
+                        "World"
+                    }
+                }
+            }
+        }
+    },
+
+
+    StaticRigidBodyComponent = {
+        serializable = false,
+        fields = {
+            { type = "PAL::StaticRigidBody::Id", name = "id" } }
+    },
+    CreateStaticRigidBodySystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "World", readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        "Name",
+                        "Position3D",
+                        "Rotation3D",
+                        "Material",
+                        "PhysicsShape",
+                        -- "ModelEntity",
+                        "StaticRigidBodyCustomMeshShape"
+                    },
+                    createsComponents = {
+                        "StaticRigidBody"
+                    },
+                    excludes = { "StaticRigidBody" }
+                }
+            }
+        }
+    },
+    DynamicRigidBodyComponent = {
+        serializable = false,
+        fields = { 
+            { type = "PAL::DynamicRigidBody::Id", name = "id" }
+         }
+    },    
+    ShapeVertexStruct = {
+        fields = {
+            { type = "float", name = "x" },
+            { type = "float", name = "y" },
+            { type = "float", name = "z" } 
+        }
+    },
+    ShapeGeometryDataComponent = {
+        manualEditFunction = true,
+        manualAddFunction = true,
+        manualParseFunction = true,
+        manualSerializeFunction = true,
+        fields = {
+            { type = "std::vector<ShapeVertex>", name = "vertices" },
+            { type = "std::vector<Common::UInt16>", name = "indices" }
+        }
+    },
+    PhysicsShapeComponent = {
+        serializable = false,
+        fields = {
+            { type = "std::shared_ptr<PAL::Shape>", name = "shape" }
+        }
+    },
+    StaticRigidBodyCustomMeshShapeComponent = {
+        fields = {}
+    },
+    DynamicRigidBodyCustomMeshShapeComponent = {
+        fields = {
+        }
+    },
+    CreatePhysicsShapeForStaticRigidBodySystem = {
+
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        -- "ImmutableRenderGeometry",
+                        -- "ModelEntity",
+                        "StaticRigidBodyCustomMeshShape"
+                    },
+                    createsComponents = {
+                        "StaticRigidBody"
+                    },
+                    excludes = {
+                        "PhysicsShape",
+                        "StaticRigidBody"
+                    }
+                },
+                {
+                    processesComponents = {
+                        { name = "Engine", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+    CreatePhysicsShapeForDynamicRigidBodySystem = {
+        updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    "Material",
+                    "Vertices3D",
+                    "Indices",
+                    "DynamicRigidBodyCustomMeshShape"
+                 },
+                 createsComponents = {
+                    "DynamicRigidBody"
+                 },
+                 excludes = {
+                    "PhysicsShape",
+                    "DynamicRigidBody"
+                }
+            },
+            {
+                processesComponents = { { name = "Engine", readonly = false } }
+            }
+        }
+        }
+    },
+    CreateDynamicRigidBodySystem = {
+        updateMethod = {
+        processesEntities = {
+            {
+        processesComponents = { 
+            "Position3D",
+            "Material",
+            "Mass",
+            "PhysicsShape",
+            "DynamicRigidBodyCustomMeshShape"
+         },
+         createsComponents = {
+            "DynamicRigidBody"
+         },
+         excludes = { "DynamicRigidBody" }
+         },
+                {
+                    processesComponents = { { name = "Engine", readonly = false } }
+                }
+            }
+        }
+    },
+    
+    
+
+
+
+    MassComponent = {
+        fields = { { type = "float", name = "value" } }
+    },
+    MaterialComponent = {
+        name = "Material",
+        fields = {
+            { type = "float", name = "staticFriction" },
+            { type = "float", name = "dynamicFriction" },
+            { type = "float", name = "restitution" } }
+    },
+    SimulatePhysicsSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "Engine", readonly = false }
+                    }
+                }
+            }
+        }
+    }
+
+
+
+}
