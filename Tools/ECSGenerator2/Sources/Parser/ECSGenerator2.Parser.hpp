@@ -132,37 +132,31 @@ namespace ECSGenerator2 {
 							}
 
 							return parsedNamespace;
-						}
-
-						if (name.ends_with("Struct")) {
+						} else if (name.ends_with("Struct")) {
 
 							StructParser structParser;
 							auto parsedStruct = structParser.Parse(table,
 								name.substr(0, name.rfind("Struct")));
 							return parsedStruct;
-						}
-						if (name.ends_with("Component")) {
+						} else if (name.ends_with("Component")) {
 
 							ComponentParser componentParser;
 							auto parsedComponent = componentParser.Parse(table,
 								name.substr(0, name.rfind("Component")));
 							return parsedComponent;
-						}
-						if (name.ends_with("Constant")) {
+						} else if (name.ends_with("Constant")) {
 
 							ConstantParser constantParser;
 							auto parsedConstant = constantParser.Parse(table,
 								name.substr(0, name.rfind("Constant")));
 							return parsedConstant;
-						}
-						if (name.ends_with("Archetype")) {
+						} else if (name.ends_with("Archetype")) {
 
 							ArchetypeParser archetypeParser;
 							auto parsedArchetype = archetypeParser.Parse(table,
 								name.substr(0, name.rfind("Archetype")));
 							return parsedArchetype;
-						}
-						if (name.ends_with("System")) {
+						} else if (name.ends_with("System")) {
 
 							if (name == "CreateResourceSystemSystem") {
 								Common::BreakPointLine();

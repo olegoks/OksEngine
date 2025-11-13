@@ -275,7 +275,6 @@ RenderNamespace = {
             serializable = false
         },
         ModelEntityComponent = {
-            serializable = false,
             fields = {
                 { type = "ECS2::Entity::Id", name = "id" }
             }
@@ -1104,8 +1103,13 @@ ModelArchetype = {
         "Render::Mdl::Msh::MeshNames",
         "Render::Mdl::Msh::MeshEntities",
         "Render::Mdl::MeshsFound",
-        "Render::Mdl::ModelDataEntityId"
-    }
+        "Render::Mdl::ModelDataEntityId",
+
+    },
+    -- --TEST component
+    -- archetypes = {
+    --     "Physics::Rigid_Body"
+    -- }
 }
 
 Model_DataArchetype = {

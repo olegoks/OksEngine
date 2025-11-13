@@ -267,6 +267,8 @@ namespace ECSGenerator2 {
 
 						auto constantCodeStructure = arhetypeGenerator.GenerateArchetypeDefine(parsedArchetype);
 
+						auto archetypeComponentsFilterCode = arhetypeGenerator.GenerateArchetypeComponentsFilterConstant(parsedArchetype);
+
 						auto archetypeIncludeComponents = arhetypeGenerator.GenerateArchetypeRequiredComponentIncludes(parsedArchetype);
 
 						//TODO: this is copy paste from system include generation
@@ -301,6 +303,7 @@ namespace ECSGenerator2 {
 
 						std::vector<std::shared_ptr<CodeStructure::Base>> bases;
 						bases.push_back(constantCodeStructure);
+						bases.push_back(archetypeComponentsFilterCode);
 						return bases;
 
 					}

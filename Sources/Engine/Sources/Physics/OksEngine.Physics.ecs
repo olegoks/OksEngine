@@ -2,7 +2,7 @@ PhysicsNamespace = {
 
     EngineComponent = {
         serializable = false,
-        fields = { 
+        fields = {
             { type = "std::shared_ptr<PE::PhysicsEngine>", name = "engine" }
         }
     },
@@ -46,9 +46,14 @@ PhysicsNamespace = {
             }
         }
     },
-
-
+    RigidBodyEntityIdComponent = {
+        fields = {
+            { type = "ECS2::Entity::Id", name = "id" }
+        }
+    },
     StaticRigidBodyComponent = {
+    },
+    StaticRigidBodyIdComponent = {
         serializable = false,
         fields = {
             { type = "PAL::StaticRigidBody::Id", name = "id" } }
@@ -64,32 +69,32 @@ PhysicsNamespace = {
                 {
                     processesComponents = {
                         "Name",
-                        "Position3D",
-                        "Rotation3D",
+                        "WorldPosition3D",
+                        "WorldRotation3D",
                         "Material",
                         "PhysicsShape",
-                        -- "ModelEntity",
-                        "StaticRigidBodyCustomMeshShape"
                     },
                     createsComponents = {
-                        "StaticRigidBody"
+                        "StaticRigidBodyId"
                     },
-                    excludes = { "StaticRigidBody" }
+                    excludes = { "StaticRigidBodyId" }
                 }
             }
         }
     },
     DynamicRigidBodyComponent = {
+    },
+    DynamicRigidBodyIdComponent = {
         serializable = false,
-        fields = { 
+        fields = {
             { type = "PAL::DynamicRigidBody::Id", name = "id" }
-         }
-    },    
+        }
+    },
     ShapeVertexStruct = {
         fields = {
             { type = "float", name = "x" },
             { type = "float", name = "y" },
-            { type = "float", name = "z" } 
+            { type = "float", name = "z" }
         }
     },
     ShapeGeometryDataComponent = {
@@ -98,7 +103,7 @@ PhysicsNamespace = {
         manualParseFunction = true,
         manualSerializeFunction = true,
         fields = {
-            { type = "std::vector<ShapeVertex>", name = "vertices" },
+            { type = "std::vector<ShapeVertex>",    name = "vertices" },
             { type = "std::vector<Common::UInt16>", name = "indices" }
         }
     },
@@ -115,83 +120,79 @@ PhysicsNamespace = {
         fields = {
         }
     },
-    CreatePhysicsShapeForStaticRigidBodySystem = {
+    CreatePhysicsShapeSystem = {
 
         updateMethod = {
             processesEntities = {
                 {
                     processesComponents = {
-                        -- "ImmutableRenderGeometry",
-                        -- "ModelEntity",
-                        "StaticRigidBodyCustomMeshShape"
-                    },
-                    createsComponents = {
-                        "StaticRigidBody"
-                    },
-                    excludes = {
-                        "PhysicsShape",
-                        "StaticRigidBody"
+                        { name = "Engine", readonly = false }
                     }
                 },
                 {
                     processesComponents = {
-                        { name = "Engine", readonly = false }
+                        "Material",
+                        "ShapeGeometryData"
+                    },
+                    createsComponents = {
+                        "PhysicsShape"
+                    },
+                    excludes = {
+                        "PhysicsShape"
                     }
-                }
+                },
+
             }
         }
     },
     CreatePhysicsShapeForDynamicRigidBodySystem = {
         updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = { 
-                    "Material",
-                    "Vertices3D",
-                    "Indices",
-                    "DynamicRigidBodyCustomMeshShape"
-                 },
-                 createsComponents = {
-                    "DynamicRigidBody"
-                 },
-                 excludes = {
-                    "PhysicsShape",
-                    "DynamicRigidBody"
-                }
-            },
-            {
-                processesComponents = { { name = "Engine", readonly = false } }
-            }
-        }
-        }
-    },
-    CreateDynamicRigidBodySystem = {
-        updateMethod = {
-        processesEntities = {
-            {
-        processesComponents = { 
-            "Position3D",
-            "Material",
-            "Mass",
-            "PhysicsShape",
-            "DynamicRigidBodyCustomMeshShape"
-         },
-         createsComponents = {
-            "DynamicRigidBody"
-         },
-         excludes = { "DynamicRigidBody" }
-         },
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Material",
+                        "Vertices3D",
+                        "Indices",
+                        "DynamicRigidBodyCustomMeshShape"
+                    },
+                    createsComponents = {
+                        "DynamicRigidBodyId"
+                    },
+                    excludes = {
+                        "PhysicsShape",
+                        "DynamicRigidBodyId"
+                    }
+                },
                 {
                     processesComponents = { { name = "Engine", readonly = false } }
                 }
             }
         }
     },
-    
-    
-
-
-
+    CreateDynamicRigidBodySystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "World",  readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        "DynamicRigidBody",
+                        "WorldPosition3D",
+                        "Material",
+                        "Mass",
+                        "PhysicsShape"
+                    },
+                    createsComponents = {
+                        "DynamicRigidBodyId"
+                    },
+                    excludes = { "DynamicRigidBodyId" }
+                }
+            }
+        }
+    },
     MassComponent = {
         fields = { { type = "float", name = "value" } }
     },
@@ -211,6 +212,33 @@ PhysicsNamespace = {
                     }
                 }
             }
+        }
+    },
+
+    Rigid_BodyArchetype = {
+        components = {
+            "Material",
+            "ShapeGeometryData",
+            "PhysicsShape"
+        }
+    },
+    Dynamic_Rigid_BodyArchetype = {
+        components = {
+            "Mass",
+            "DynamicRigidBody",
+            "DynamicRigidBodyId",
+        },
+        archetypes = {
+            "Rigid_Body"
+        }
+    },
+    Static_Rigid_BodyArchetype = {
+        components = {
+            "StaticRigidBody",
+            "StaticRigidBodyId",
+        },
+        archetypes = {
+            "Rigid_Body"
         }
     }
 
