@@ -7,7 +7,47 @@ namespace OksEngine
 {
 	namespace Physics
 	{
+		//Capsule
+		void EditShapeGeometryCapsule(std::shared_ptr<ECS2::World> ecsWorld, ShapeGeometryCapsule* shapeGeometryCapsule) {
+			
+			ImGui::PushID(ShapeGeometryCapsule::GetTypeId());
 
+			
+
+			ImGui::PopID();
+		}
+
+		void AddShapeGeometryCapsule(ECS2::World* ecsWorld, ECS2::Entity::Id entityId) {
+			if (ImGui::CollapsingHeader("Create info"))
+			{
+				if (ImGui::Button("Add component"))
+				{
+					if (!ecsWorld->IsComponentExist<ShapeGeometryCapsule>(entityId))
+					{
+						ecsWorld->CreateComponent<ShapeGeometryCapsule>(entityId, 1.0, 4, 3, 4);
+					}
+				}
+			}
+		}
+
+		ShapeGeometryCapsule ParseShapeGeometryCapsule(luabridge::LuaRef& shapeGeometryCapsuleRef) {
+
+			float radius = shapeGeometryCapsuleRef["radius"].cast<float>().value();
+			float height = shapeGeometryCapsuleRef["height"].cast<float>().value();
+			float segments = shapeGeometryCapsuleRef["segments"].cast<float>().value();
+			float rings = shapeGeometryCapsuleRef["rings"].cast<float>().value();
+
+
+			return ShapeGeometryCapsule{ radius, height, segments, rings };
+		}
+
+		std::string SerializeShapeGeometryCapsule(const ShapeGeometryCapsule* shapeGeometryCapsule) {
+
+			NOT_IMPLEMENTED();
+			return "";
+		}
+
+		//Custom mesh shape
 		void EditShapeGeometryData(std::shared_ptr<ECS2::World> ecsWorld, ShapeGeometryData* shapeGeometryData) {
 
 			ImGui::PushID(ShapeGeometryData::GetTypeId());
@@ -70,7 +110,7 @@ namespace OksEngine
 				for (auto index : shapeGeometryData->indices_) {
 					imIndices.push_back(index);
 				}
-				float offset = 0.05f;
+				float offset = 1.f;
 				ImPlot3D::SetupAxesLimits(
 					min_x - offset, max_x + offset,
 					min_y - offset, max_y + offset,
@@ -236,6 +276,100 @@ namespace OksEngine
 					indices.push_back(it.value().cast<Common::UInt16>().value());
 				}
 			}
+			else if (!shapeGeometryDataRef["capsule"].isNil()) {
+				luabridge::LuaRef capsuleRef = shapeGeometryDataRef["capsule"];
+
+				float radius = capsuleRef["radius"].cast<float>().value();
+				float height = capsuleRef["height"].cast<float>().value();
+				float segments = capsuleRef["segments"].cast<float>().value();
+				float rings = capsuleRef["rings"].cast<float>().value();
+
+				float halfHeight = height * 0.5f;
+				int totalRings = rings * 2 + 1; // +1 для центрального кольца
+
+				// Генерация вертексов
+				for (int ring = 0; ring <= totalRings; ++ring) {
+					// Нормализованная координата по высоте от -1 до 1
+					float v = static_cast<float>(ring) / totalRings;
+					float y = (v - 0.5f) * 2.0f;
+
+					for (int segment = 0; segment <= segments; ++segment) {
+						// Угол вокруг оси Y
+						float u = static_cast<float>(segment) / segments;
+						float angle = u * 2.0f * 3.14;
+
+						float cosA = cos(angle);
+						float sinA = sin(angle);
+
+						glm::vec3 vertex;
+						glm::vec3 normal;
+						//glm::vec2 texCoord(u, 1.0f - v);
+
+						if (y > 0.5f) {
+							// Верхняя полусфера
+							float sphereY = (y - 0.5f) * 2.0f; // Преобразуем к диапазону [0,1]
+							float phi = acosf(sphereY);
+							float cosPhi = cosf(phi);
+							float sinPhi = sinf(phi);
+
+							vertex = glm::vec3(
+								radius * sinPhi * cosA,
+								halfHeight + radius * sphereY,
+								radius * sinPhi * sinA
+							);
+							//normal = glm::vec3(sinPhi * cosA, sphereY, sinPhi * sinA);
+						}
+						else if (y < -0.5f) {
+							// Нижняя полусфера
+							float sphereY = (y + 0.5f) * -2.0f; // Преобразуем к диапазону [0,1]
+							float phi = acosf(sphereY);
+							float cosPhi = cosf(phi);
+							float sinPhi = sinf(phi);
+
+							vertex = glm::vec3(
+								radius * sinPhi * cosA,
+								-halfHeight - radius * sphereY,
+								radius * sinPhi * sinA
+							);
+							//normal = glm::vec3(sinPhi * cosA, -sphereY, sinPhi * sinA);
+						}
+						else {
+							// Цилиндрическая часть
+							vertex = glm::vec3(
+								radius * cosA,
+								y * height,
+								radius * sinA
+							);
+							//normal = glm::vec3(cosA, 0.0f, sinA);
+						}
+
+						vertices.push_back(ShapeVertex{ vertex.x,vertex.y,vertex.z });
+						//mesh.normals.push_back(glm::normalize(normal));
+						//mesh.texCoords.push_back(texCoord);
+					}
+				}
+
+				// Генерация индексов
+				int verticesPerRing = segments + 1;
+
+				for (int ring = 0; ring < totalRings; ++ring) {
+					for (int segment = 0; segment < segments; ++segment) {
+						int current = ring * verticesPerRing + segment;
+						int next = current + verticesPerRing;
+
+						// Первый треугольник
+						indices.push_back(current);
+						indices.push_back(next);
+						indices.push_back(current + 1);
+
+						// Второй треугольник
+						indices.push_back(current + 1);
+						indices.push_back(next);
+						indices.push_back(next + 1);
+					}
+				}
+
+			}
 
 			return ShapeGeometryData{ vertices,indices };
 		}
@@ -273,8 +407,8 @@ namespace OksEngine
 			Physics::World* world0,
 			ECS2::Entity::Id entity1id,
 			const Name* name1,
-			const WorldPosition3D* position3D1, 
-			const WorldRotation3D* rotation3D1, 
+			const WorldPosition3D* position3D1,
+			const WorldRotation3D* rotation3D1,
 			const Physics::Material* material1,
 			const Physics::PhysicsShape* physicsShape1) {
 
@@ -295,11 +429,34 @@ namespace OksEngine
 
 		};
 
+		void CreatePhysicsShapeCapsule::Update(
+			ECS2::Entity::Id entity0id,
+			Physics::Engine* engine0,
+
+			ECS2::Entity::Id entity1id,
+			const Physics::Material* material1,
+			const Physics::ShapeGeometryCapsule *shapeGeometryCapsule1) {
+
+			PAL::Shape::Material material{
+				.staticFriction_ = material1->staticFriction_,
+				.dynamicFriction_ = material1->dynamicFriction_,
+				.restitution_ = material1->restitution_
+			};
+
+			PAL::Shape::CreateInfoCapsule shapeCreateInfo{
+				.material_ = material,
+				.radius_ = shapeGeometryCapsule1->radius_,
+				.height_ = shapeGeometryCapsule1->height_
+			};
+		
+			auto shape = engine0->engine_->CreateShape(shapeCreateInfo);
+			CreateComponent<PhysicsShape>(entity1id, shape);
+		}
 
 		void CreatePhysicsShape::Update(
 			ECS2::Entity::Id entity0id,
 			Physics::Engine* engine0,
-			
+
 			ECS2::Entity::Id entity1id,
 			const Physics::Material* material1,
 			const Physics::ShapeGeometryData* shapeGeometryData1) {
@@ -309,12 +466,12 @@ namespace OksEngine
 				.dynamicFriction_ = material1->dynamicFriction_,
 				.restitution_ = material1->restitution_
 			};
-		
+
 			Geometry::VertexCloud<Geom::Vertex3f> vertices;
 			vertices.Reserve(shapeGeometryData1->vertices_.size());
 
 			for (auto vertex : shapeGeometryData1->vertices_) {
-				vertices.Add({vertex.x_, vertex.y_, vertex.z_});
+				vertices.Add({ vertex.x_, vertex.y_, vertex.z_ });
 			}
 
 			Geom::IndexBuffer<Geom::Index16> indices;
@@ -328,49 +485,59 @@ namespace OksEngine
 				.vertices_ = vertices,
 				.indices_ = indices
 			};
-		
+
 			auto shape = engine0->engine_->CreateShape(shapeCreateInfo);
 			CreateComponent<PhysicsShape>(entity1id, shape);
-	
-	//		//{
-	////	DynamicRigidBodyCustomMeshShape* dynamicRigidBody = world->GetComponent<DynamicRigidBodyCustomMeshShape>(entityId);
-	//
-	////	if (dynamicRigidBody != nullptr) {
-	////		auto physicsSubsystem = GetContext().GetPhysicsSubsystem();
-	////		if (dynamicRigidBody->id_ == Common::Limits<Common::Index>::Max()) {
-	////			auto modelGeom = physicsSubsystem->GetGeom(dynamicRigidBody->meshName_);
-	////			PAL::Shape::CreateInfoMesh shapeCreateInfo{
-	////				.material_ = PAL::Shape::Material{
-	////					.staticFriction_ = dynamicRigidBody->material_.staticFriction_,
-	////					.dynamicFriction_ = dynamicRigidBody->material_.dynamicFriction_,
-	////					.restitution_ = dynamicRigidBody->material_.restitution_
-	////				},
-	////				.shape_ = *(modelGeom->begin())
-	////			};
-	//
-	////			auto shape = physicsSubsystem->CreateShape(shapeCreateInfo);
-	////			PAL::RigidBody::CreateInfo createInfo{
-	////				.transform_ = dynamicRigidBody->transform_,
-	////				.shape_ = shape
-	////			};
-	////			dynamicRigidBody->id_ = physicsSubsystem->CreateRigidBody(createInfo);
-	////			physicsSubsystem->AddRigidBodyToWorld(dynamicRigidBody->id_);
-	////		}
-	//
-	////		//}
-	////		//auto rbTransform = physicsSubsystem->GetRigidBodyTransform(rigidBodyCapsule->id_);
-	////		////Delete rotate component
-	////		//rbTransform[0][0] = 1.0f; rbTransform[0][1] = 0.0f; rbTransform[0][2] = 0.0f;
-	////		//rbTransform[1][0] = 0.0f; rbTransform[1][1] = 1.f; rbTransform[1][2] = 0.0f;
-	////		//rbTransform[2][0] = 0.0f; rbTransform[2][1] = 0.0f; rbTransform[2][2] = 1.0f;
-	////		//rbTransform = glm::rotate(rbTransform, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
-	////		//physicsSubsystem->SetRigidBodyTransform(rigidBodyCapsule->id_, rbTransform);
-	////		//rigidBodyCapsule->SetTransform(rbTransform);
-	////	}
-	////}
+
+			//		//{
+			////	DynamicRigidBodyCustomMeshShape* dynamicRigidBody = world->GetComponent<DynamicRigidBodyCustomMeshShape>(entityId);
+			//
+			////	if (dynamicRigidBody != nullptr) {
+			////		auto physicsSubsystem = GetContext().GetPhysicsSubsystem();
+			////		if (dynamicRigidBody->id_ == Common::Limits<Common::Index>::Max()) {
+			////			auto modelGeom = physicsSubsystem->GetGeom(dynamicRigidBody->meshName_);
+			////			PAL::Shape::CreateInfoMesh shapeCreateInfo{
+			////				.material_ = PAL::Shape::Material{
+			////					.staticFriction_ = dynamicRigidBody->material_.staticFriction_,
+			////					.dynamicFriction_ = dynamicRigidBody->material_.dynamicFriction_,
+			////					.restitution_ = dynamicRigidBody->material_.restitution_
+			////				},
+			////				.shape_ = *(modelGeom->begin())
+			////			};
+			//
+			////			auto shape = physicsSubsystem->CreateShape(shapeCreateInfo);
+			////			PAL::RigidBody::CreateInfo createInfo{
+			////				.transform_ = dynamicRigidBody->transform_,
+			////				.shape_ = shape
+			////			};
+			////			dynamicRigidBody->id_ = physicsSubsystem->CreateRigidBody(createInfo);
+			////			physicsSubsystem->AddRigidBodyToWorld(dynamicRigidBody->id_);
+			////		}
+			//
+			////		//}
+			////		//auto rbTransform = physicsSubsystem->GetRigidBodyTransform(rigidBodyCapsule->id_);
+			////		////Delete rotate component
+			////		//rbTransform[0][0] = 1.0f; rbTransform[0][1] = 0.0f; rbTransform[0][2] = 0.0f;
+			////		//rbTransform[1][0] = 0.0f; rbTransform[1][1] = 1.f; rbTransform[1][2] = 0.0f;
+			////		//rbTransform[2][0] = 0.0f; rbTransform[2][1] = 0.0f; rbTransform[2][2] = 1.0f;
+			////		//rbTransform = glm::rotate(rbTransform, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
+			////		//physicsSubsystem->SetRigidBodyTransform(rigidBodyCapsule->id_, rbTransform);
+			////		//rigidBodyCapsule->SetTransform(rbTransform);
+			////	}
+			////}
 
 		};
 
+		void UpdateDynamicRigidBodyPosition::Update(ECS2::Entity::Id entity0id, const Physics::World* world0, ECS2::Entity::Id entity1id,
+			WorldPosition3D* worldPosition3D1, const Physics::DynamicRigidBodyId* dynamicRigidBodyId1) {
+
+			Math::Vector3f position = world0->world_->GetRigidBodyPosition(dynamicRigidBodyId1->id_);
+
+			worldPosition3D1->x_ = position.GetX();
+			worldPosition3D1->y_ = position.GetY();
+			worldPosition3D1->z_ = position.GetZ();
+
+		}
 
 		void CreatePhysicsShapeForDynamicRigidBody::Update(
 			ECS2::Entity::Id entity0id,
@@ -460,7 +627,7 @@ namespace OksEngine
 
 			PAL::DynamicRigidBody::CreateInfo createInfo{
 				.rbCreateInfo_ = {
-					.transform_ = glm::mat4{ glm::translate(glm::vec3(worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ )) },
+					.transform_ = glm::mat4{ glm::translate(glm::vec3(worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_)) },
 					.shape_ = physicsShape1->shape_,
 					.name_ = "DynamicRigidBody"
 				},
@@ -479,7 +646,7 @@ namespace OksEngine
 			using namespace std::chrono_literals;
 			static std::chrono::high_resolution_clock::time_point previousUpdate = std::chrono::high_resolution_clock::now();
 			static std::chrono::high_resolution_clock::duration remainder = 0ms;
-			const auto simulationGranularity = 100ms;
+			const auto simulationGranularity = 10ms;
 			const auto now = std::chrono::high_resolution_clock::now();
 			const auto delta = (now - previousUpdate);
 			auto toSimulate = delta + remainder;

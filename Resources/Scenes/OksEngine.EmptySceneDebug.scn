@@ -71,12 +71,13 @@ scene = {
                   ID = 5,
                   name = { value = "TestGameObject" },
                   modelEntity = { id = 1 },
-                  rigidBodyEntityId = { id = 6 }
+                  rigidBodyEntityId = { id = 6 },
+                  mapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
                   ID = 6,
-                  name =  { value = "TestRigidBody" },
-                  worldPosition3D = { x = 0, y = 3.0, z = 3, w = 0.0 },
+                  name = { value = "TestRigidBody" },
+                  worldPosition3D = { x = 0, y = 100.0, z = 3, w = 0.0 },
                   dynamicRigidBody = {},
                   mass = { value = 1.0 },
                   material = {
@@ -84,13 +85,25 @@ scene = {
                         dynamicFriction = 0.5,
                         restitution = 0.5
                   },
-                  shapeGeometryData = {
-                        box = {
-                              xExtent = 0.2,
-                              yExtent = 0.2,
-                              zExtent = 0.2
-                        }
+                  shapeGeometryCapsule = {
+                        radius = 1.0,
+                        height = 2.0,
+                        segments = 12,
+                        rings = 5
                   }
+                  -- shapeGeometryData = {
+                  --       -- capsule = {
+                  --       --       radius = 1.0,
+                  --       --       height = 2.0,
+                  --       --       segments = 12,
+                  --       --       rings = 5
+                  --       -- }
+                  --       box = {
+                  --             xExtent = 0.5,
+                  --             yExtent = 0.5,
+                  --             zExtent = 0.5
+                  --       }
+                  -- }
             },
             {
                   ID = 1,
@@ -101,7 +114,7 @@ scene = {
                   worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   model = {},
                   runModelAnimation = { animationName = "Armature|mixamo.com|Layer0" },
-                  modelFile = { fileName = "HipHop.glb" } 
+                  modelFile = { fileName = "HipHop.glb" }
             },
             {
                   ID = 2,
@@ -119,10 +132,10 @@ scene = {
                   shapeGeometryData = {
                         mesh = {
                               vertices = {
-                                    { x = -25.0, y = 0.0, z = -25.0, },          -- 0: задний-левый
-                                    { x = 25.0, y = 0.0, z = -25.0, },           -- 1: задний-правый
-                                    { x = 25.0, y = 0.0, z = 25.0, },            -- 2: передний-правый
-                                    { x = -25.0, y = 0.0, z = 25.0 }             -- 3: передний-левый
+                                    { x = -25.0, y = 0.0, z = -25.0, }, -- 0: задний-левый
+                                    { x = 25.0, y = 0.0, z = -25.0, },  -- 1: задний-правый
+                                    { x = 25.0, y = 0.0, z = 25.0, },   -- 2: передний-правый
+                                    { x = -25.0, y = 0.0, z = 25.0 }    -- 3: передний-левый
                               },
                               indices = {
                                     0, 1, 2, -- первый треугольник (правый нижний)

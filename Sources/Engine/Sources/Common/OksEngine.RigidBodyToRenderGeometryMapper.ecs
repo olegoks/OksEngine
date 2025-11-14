@@ -1,13 +1,26 @@
-RigidBodyToRenderGeometryMapperSystem = {
+MapRigidBodyWorldPositionToModelWorldPositionComponent = {
+
+}
+
+RigidBodyWorldPositionToModelWorldPositionMapperSystem = {
     updateMethod = {
         processesEntities = {
             {
                 processesComponents = { 
-                    "Physics::DynamicRigidBodyId", 
-                    "ImmutableRenderGeometry"
+                    "Physics::RigidBodyEntityId", 
+                    "Render::Mdl::ModelEntity"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                accessingComponents = {
+                    "WorldPosition3D"
                 }
             }
         }
     }
     
 }
+
+

@@ -61,7 +61,7 @@ namespace PhysX {
 	void World::AddDynamicRigidBody(PAL::DynamicRigidBody::Id drbId) {
 		OS::Assert(scene_ != nullptr);
 		auto drbPtr = GetRigidBodyById(drbId);
-		auto physxRB = std::static_pointer_cast<PhysX::DynamicRigidBody>(drbPtr);
+		auto physxRB = Common::pointer_cast<PhysX::DynamicRigidBody>(drbPtr);
 		scene_->addActor(*physxRB->GetBody());
 		/*using namespace physx;
 		PxTransform t{PxVec3(0)};
@@ -81,6 +81,23 @@ namespace PhysX {
 			}
 		}*/
 	}
+
+	Math::Vector3f World::GetRigidBodyPosition(PAL::DynamicRigidBody::Id drbId) {
+
+		auto rb = GetRigidBodyById(drbId);
+	
+		glm::vec3 scale;
+		glm::quat rotation;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		glm::decompose(rb->GetTransform(), scale, rotation, translation, skew, perspective);
+
+		return { translation.x, translation.y, translation.z };
+
+
+	}
+
 
 	void World::AddStaticRigidBody(PAL::StaticRigidBody::Id srbId) {
 		OS::Assert(scene_ != nullptr);

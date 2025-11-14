@@ -1,19 +1,19 @@
+#pragma once
+#include <Common\auto_OksEngine.RigidBodyToRenderGeometryMapper.hpp>
 
-#include <Common/auto_OksEngine.RigidBodyToRenderGeometryMapper.hpp>
+namespace OksEngine
+{
+void RigidBodyWorldPositionToModelWorldPositionMapper::Update(
+    ECS2::Entity::Id entity0id, const Physics::RigidBodyEntityId *physics__RigidBodyEntityId0,
+    const Render::Mdl::ModelEntity *render__Mdl__ModelEntity0) {
 
-#include <Physics/OksEngine.Physics.Subsystem.hpp>
-namespace OksEngine {
+    auto* modelPosition = GetComponent<WorldPosition3D>(render__Mdl__ModelEntity0->id_);
+    const auto* rbPosition = GetComponent<WorldPosition3D>(physics__RigidBodyEntityId0->id_);
 
-	void RigidBodyToRenderGeometryMapper::Update(
-		ECS2::Entity::Id entityId,
-		const Physics::DynamicRigidBodyId* dynamicRigidBody,
-		const ImmutableRenderGeometry* immutableRenderGeometry) {
-		//DynamicRigidBody* rigidBody = world->GetComponent<DynamicRigidBody>(entityId);
-		//ImmutableRenderGeometry* renderGeometry = world->GetComponent<ImmutableRenderGeometry>(entityId);
-		//auto rigidBodyPtr = GetContext().GetPhysicsSubsystem()->GetWorld()->GetRigidBodyById(rigidBody->id_);
+    modelPosition->x_ = rbPosition->x_;
+    modelPosition->y_ = rbPosition->y_;
+    modelPosition->z_ = rbPosition->z_;
 
-		////const auto& rigidBodyTransform = rigidBodyPtr->GetTransform();
-
-	}
+    };
 
 }

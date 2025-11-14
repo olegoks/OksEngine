@@ -18,6 +18,8 @@ namespace PhysX {
 
 		virtual void AddDynamicRigidBody(PAL::DynamicRigidBody::Id drbId) override;
 
+		virtual Math::Vector3f GetRigidBodyPosition(PAL::DynamicRigidBody::Id drbId) override;
+
 		virtual void AddStaticRigidBody(PAL::StaticRigidBody::Id srbId) override;
 
 		virtual void Simulate(float ms) override;

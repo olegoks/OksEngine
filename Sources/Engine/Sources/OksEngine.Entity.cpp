@@ -35,8 +35,8 @@ namespace OksEngine {
 	}
 
 	void Entity::AddMapRigidBodyToRenderGeometry() {
-		world_->CreateComponent<MapRigidBodyToRenderGeometry>(
-			GetId());
+		/*world_->CreateComponent<MapRigidBodyToRenderGeometry>(
+			GetId());*/
 	}
 
 	void Entity::AddStaticRigidBodyCustomMeshShape() {

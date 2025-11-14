@@ -107,17 +107,22 @@ PhysicsNamespace = {
             { type = "std::vector<Common::UInt16>", name = "indices" }
         }
     },
+    ShapeGeometryCapsuleComponent = {
+        manualEditFunction = true,
+        manualAddFunction = true,
+        manualParseFunction = true,
+        manualSerializeFunction = true,
+        fields = {
+            { type = "float",    name = "radius" },
+            { type = "float",    name = "height" },
+            { type = "float",    name = "segments" },
+            { type = "float",    name = "rings" }
+        }
+    },
     PhysicsShapeComponent = {
         serializable = false,
         fields = {
             { type = "std::shared_ptr<PAL::Shape>", name = "shape" }
-        }
-    },
-    StaticRigidBodyCustomMeshShapeComponent = {
-        fields = {}
-    },
-    DynamicRigidBodyCustomMeshShapeComponent = {
-        fields = {
         }
     },
     CreatePhysicsShapeSystem = {
@@ -145,6 +150,39 @@ PhysicsNamespace = {
             }
         }
     },
+    CreatePhysicsShapeCapsuleSystem = {
+
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "Engine", readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        "Material",
+                        "ShapeGeometryCapsule"
+                    },
+                    createsComponents = {
+                        "PhysicsShape"
+                    },
+                    excludes = {
+                        "PhysicsShape"
+                    }
+                },
+
+            }
+        }
+    },
+    StaticRigidBodyCustomMeshShapeComponent = {
+        fields = {}
+    },
+    DynamicRigidBodyCustomMeshShapeComponent = {
+        fields = {
+        }
+    },
+
     CreatePhysicsShapeForDynamicRigidBodySystem = {
         updateMethod = {
             processesEntities = {
@@ -214,7 +252,23 @@ PhysicsNamespace = {
             }
         }
     },
-
+    UpdateDynamicRigidBodyPositionSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "World"
+                    }
+                },
+                {
+                    processesComponents = {
+                        { name = "WorldPosition3D", readonly = false },
+                        "DynamicRigidBodyId"
+                    }
+                }
+            }
+        }
+    },
     Rigid_BodyArchetype = {
         components = {
             "Material",

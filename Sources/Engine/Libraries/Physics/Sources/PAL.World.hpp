@@ -23,6 +23,8 @@ namespace PAL {
 		[[nodiscard]]
 		std::shared_ptr<RigidBody> GetRigidBodyById(RigidBody::Id drbid);
 
+		virtual Math::Vector3f GetRigidBodyPosition(PAL::DynamicRigidBody::Id drbId) = 0;
+
 		virtual void AddDynamicRigidBody(PAL::DynamicRigidBody::Id drbId) = 0;
 
 		virtual void AddStaticRigidBody(PAL::StaticRigidBody::Id srbId) = 0;

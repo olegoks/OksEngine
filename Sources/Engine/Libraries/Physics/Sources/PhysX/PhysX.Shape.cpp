@@ -135,7 +135,7 @@ namespace PhysX {
 		convexDesc.points.stride = sizeof(PxVec3);
 		convexDesc.points.data = createInfo.palCreateInfo_.vertices_.GetData();
 		convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
-		convexDesc.vertexLimit = 10;
+		convexDesc.vertexLimit = 255;
 
 		physx::PxTolerancesScale scale;
 		physx::PxCookingParams params(scale);
@@ -146,16 +146,23 @@ namespace PhysX {
 			//params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
 		}
 		PxDefaultMemoryOutputStream writeBuffer;
-		if (!PxCookConvexMesh(params, convexDesc, writeBuffer))
-			OS::AssertFail();
+		bool cookResult = PxCookConvexMesh(params, convexDesc, writeBuffer);
+		ASSERT_MSG(cookResult, "Invalid mesh data to create phys shape.");
 
 		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
 		physx::PxConvexMesh* convexMesh = createInfo.physics_->createConvexMesh(readBuffer);
 		PxConvexMeshGeometry convexGeometry{ convexMesh };
+		PxTransform localTransform(PxVec3(0, 0, 0));
 		physx::PxShape* pxShape = createInfo.physics_->createShape(convexGeometry, *material);
+		pxShape->setLocalPose(localTransform);
 
-		ASSERT_FMSG(pxShape != nullptr,
-			"Error while creating physx shape.");
+		physx::PxReal mass;
+		physx::PxMat33 inertia;
+		physx::PxVec3 massCenter;
+
+		convexMesh->getMassInformation(mass, inertia, massCenter);
+
+		ASSERT_FMSG(pxShape != nullptr, "Error while creating physx shape.");
 
 		//physx::PxShape* shape = createInfo.physics_->createShape(physx::PxBoxGeometry(1, 1, 1), *material);
 
