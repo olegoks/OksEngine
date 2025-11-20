@@ -38,7 +38,7 @@ namespace OksEngine {
 
 		private:
 			ECS2::World* world_ = nullptr;
-			ECS2::Entity::Id id_ = 0;
+			ECS2::Entity::Id id_ = ECS2::Entity::Id::invalid_;
 		};
 
 

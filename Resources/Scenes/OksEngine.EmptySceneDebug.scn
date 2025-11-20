@@ -56,28 +56,33 @@ scene = {
             --       --runModelAnimation = { animationName = "Armature|mixamo.com|Layer0" },
             --       modelFile = { fileName = "HipHop.glb" }
             --    },
-            {
-                  ID = 0,
-                  ARCHETYPE = "Model",
-                  name = { value = "Man" },
-                  worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  model = {},
-                  runModelAnimation = { animationName = "Armature|mixamo.com|Layer0" },
-                  modelFile = { fileName = "HipHop.glb" }
-            },
+            -- {
+            --       ID = 0,
+            --       ARCHETYPE = "Model",
+            --       name = { value = "Man" },
+            --       worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
+            --       worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            --       worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+            --       model = {},
+            --       runModelAnimation = { animationName = "Armature|mixamo.com|Layer0" },
+            --       modelFile = { fileName = "HipHop.glb" }
+            -- },
             {
                   ID = 5,
                   name = { value = "TestGameObject" },
                   modelEntity = { id = 1 },
                   rigidBodyEntityId = { id = 6 },
+                  -- scriptName = { name = "Camera.lua" },
+                  -- objectName = { name = "Camera" },
+                  -- handleKeyboardEvents = {},
                   mapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
                   ID = 6,
                   name = { value = "TestRigidBody" },
-                  worldPosition3D = { x = 0, y = 100.0, z = 3, w = 0.0 },
+                  worldPosition3D = { x = 0, y = 1.0, z = 0, w = 0.0 },
+                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   dynamicRigidBody = {},
                   mass = { value = 1.0 },
                   material = {
@@ -90,7 +95,8 @@ scene = {
                         height = 2.0,
                         segments = 12,
                         rings = 5
-                  }
+                  },
+
                   -- shapeGeometryData = {
                   --       -- capsule = {
                   --       --       radius = 1.0,

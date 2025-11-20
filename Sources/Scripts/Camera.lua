@@ -10,7 +10,7 @@ function extended(child, parent)
     setmetatable(child, { __index = parent })
 end
 
-extended(Camera, Entity)
+extended(Camera, EngineEntity)
 
 function Camera:New()
     local camera = Entity:New()
@@ -36,17 +36,17 @@ function Camera:New()
     end
 
     function camera:Forward(speed)
-        local position = self:GetComponent("WorldPosition3D")
-        local direction = self:GetComponent("Direction3D")
-
+        local position = self:GetWorldPosition3D()
+        local direction = self:GetDirection3D()
+        
         position.x = (position.x + direction.x * speed)
         position.y = (position.y + direction.y * speed)
         position.z = (position.z + direction.z * speed)
     end
 
     function camera:Backward(speed)
-        local position = self:GetComponent("WorldPosition3D")
-        local direction = self:GetComponent("Direction3D")
+        local position = self:GetWorldPosition3D()
+        local direction = self:GetDirection3D()
 
         position.x = (position.x - direction.x * speed)
         position.y = (position.y - direction.y * speed)
@@ -54,9 +54,9 @@ function Camera:New()
     end
 
     function camera:Left(speed)
-        local position  = self:GetComponent("WorldPosition3D")
-        local direction = self:GetComponent("Direction3D")
-        local up        = self:GetComponent("Up3D")
+        local position  = self:GetWorldPosition3D()
+        local direction = self:GetDirection3D()
+        local up        = self:GetUp3D()
 
         local pVector   = Math3D():CrossProduct(
             Vector(up.x, up.y, up.z),
@@ -69,9 +69,9 @@ function Camera:New()
     end
 
     function camera:Right(speed)
-        local position  = self:GetComponent("WorldPosition3D")
-        local direction = self:GetComponent("Direction3D")
-        local up        = self:GetComponent("Up3D")
+        local position  = self:GetWorldPosition3D()
+        local direction = self:GetDirection3D()
+        local up        = self:GetUp3D()
 
         local pVector   = Math3D():CrossProduct(
             Vector(direction.x,
@@ -88,21 +88,21 @@ function Camera:New()
     end
 
     function camera:Up(speed)
-        local position = self:GetComponent("WorldPosition3D")
+        local position = self:GetWorldPosition3D()
         position.y     = (position.y + speed * self.SpeedBoostFactor)
     end
 
     function camera:Down(speed)
-        local position = self:GetComponent("WorldPosition3D")
+        local position = self:GetWorldPosition3D()
         position.y     = (position.y - speed * self.SpeedBoostFactor)
     end
 
     --For mouse
     function camera:DirectionUpDown(degree)
-        local position = self:GetComponent("WorldPosition3D")
-        local direction = self:GetComponent("Direction3D")
+        local position = self:GetWorldPosition3D()
+        local direction = self:GetDirection3D()
 
-        local up = self:GetComponent("Up3D")
+        local up = self:GetUp3D()
         local upDirPerpendicular = Math3D():CrossProduct(direction, up)
         upDirPerpendicular:Normalize()
         local newDirection = Math3D():RotateVector(direction, upDirPerpendicular, degree);
@@ -119,8 +119,8 @@ function Camera:New()
 
     --For mouse
     function camera:DirectionLeftRight(degree)
-        local direction = self:GetComponent("Direction3D")
-        local up = self:GetComponent("Up3D")
+        local direction = self:GetDirection3D()
+        local up = self:GetUp3D()
         local verticalUp = Vector(0.0, 1.0, 0.0)
 
         local rotatedDirection = Math3D():RotateVector(direction, verticalUp, degree)
@@ -168,11 +168,13 @@ function CameraUpdater:Update(camera, deltaMs)
     if camera.MovingDown then
         camera:Down(speed)
     end
+    --print("CameraUpdater:Update end")
 end
 
 CameraInputProcessor = {}
 
 function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
+    print("CameraInputProcessor:ProcessKeyboardInput")
     if Key == "CAMERA_DISABLE" then
         if Event == "Pressed" then
             camera.Disable = not camera.Disable

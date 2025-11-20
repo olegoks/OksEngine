@@ -69,6 +69,7 @@ PhysicsNamespace = {
                 {
                     processesComponents = {
                         "Name",
+                        "StaticRigidBody",
                         "WorldPosition3D",
                         "WorldRotation3D",
                         "Material",
@@ -108,15 +109,17 @@ PhysicsNamespace = {
         }
     },
     ShapeGeometryCapsuleComponent = {
+        description = [[Capsules are shaped as the union of a cylinder of length 2 * halfHeight and
+        with the given radius centered at the origin and extending along the x axis, and two hemispherical ends.]],
         manualEditFunction = true,
         manualAddFunction = true,
         manualParseFunction = true,
         manualSerializeFunction = true,
         fields = {
-            { type = "float",    name = "radius" },
-            { type = "float",    name = "height" },
-            { type = "float",    name = "segments" },
-            { type = "float",    name = "rings" }
+            { type = "float", name = "radius" },
+            { type = "float", name = "height" },
+            { type = "float", name = "segments" },
+            { type = "float", name = "rings" }
         }
     },
     PhysicsShapeComponent = {
@@ -212,7 +215,7 @@ PhysicsNamespace = {
             processesEntities = {
                 {
                     processesComponents = {
-                        { name = "World",  readonly = false }
+                        { name = "World", readonly = false }
                     }
                 },
                 {

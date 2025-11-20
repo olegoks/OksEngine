@@ -407,6 +407,7 @@ namespace OksEngine
 			Physics::World* world0,
 			ECS2::Entity::Id entity1id,
 			const Name* name1,
+			const StaticRigidBody* staticRigidBody1,
 			const WorldPosition3D* position3D1,
 			const WorldRotation3D* rotation3D1,
 			const Physics::Material* material1,

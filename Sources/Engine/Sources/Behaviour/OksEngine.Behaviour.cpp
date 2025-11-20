@@ -69,7 +69,8 @@ namespace OksEngine
 			luaContext->ExecuteCode(createObjectCode);
 
 			luabridge::LuaRef luaObject = luaContext->GetGlobalAsRef("object");
-			luabridge::LuaRef luaEngineEntity = luaObject["EngineEntity"];
+
+			luabridge::LuaRef luaEngineEntity = luaObject["engineEntity"];
 			Entity* luaEntity = luaEngineEntity.cast<Entity*>().value();
 			luaEntity->SetWorld(world_.get());
 			luaEntity->SetId((std::uint64_t)entity0id);

@@ -58,7 +58,8 @@ namespace Lua {
 
 		void ExecuteCode(const ::std::string& code) {
 			if (!LuaCall(luaL_dostring(state_, code.c_str()))) {
-				ASSERT_FAIL_FMSG("Error while executing code {}", code);
+				const char* error_message = lua_tostring(state_, -1);
+				ASSERT_FAIL_FMSG("Error while executing code {} with error {}", code, error_message);
 			}
 		}
 

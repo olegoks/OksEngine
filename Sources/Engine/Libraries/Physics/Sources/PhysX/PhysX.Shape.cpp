@@ -19,7 +19,6 @@ namespace PhysX {
 	Shape::Shape(const CreateInfoBox& createInfo) :
 		PAL::Shape{ createInfo.palCreateInfo_ }{
 
-
 		physx::PxMaterial* material = CreateMaterial(
 			createInfo.physics_,
 			createInfo.palCreateInfo_.material_);
@@ -51,6 +50,16 @@ namespace PhysX {
 				createInfo.palCreateInfo_.radius_,
 				createInfo.palCreateInfo_.height_),
 			*material);
+
+
+		//90 dg around Z
+		physx::PxQuat rotation(physx::PxPi / 2, physx::PxVec3(0.0f, 0.0f, 1.0f));
+		physx::PxTransform localTransform = shape->getLocalPose();
+
+		localTransform.p = physx::PxVec3{ 0, 3, 0};
+		localTransform.q = rotation;
+
+		shape->setLocalPose(localTransform);
 
 		ASSERT_FMSG(shape != nullptr,
 			"Error while creating physx shape.");
