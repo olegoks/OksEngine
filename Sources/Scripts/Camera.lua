@@ -10,7 +10,7 @@ function extended(child, parent)
     setmetatable(child, { __index = parent })
 end
 
-extended(Camera, EngineEntity)
+--extended(Camera, EngineEntity)
 
 function Camera:New()
     local camera = Entity:New()
@@ -174,7 +174,7 @@ end
 CameraInputProcessor = {}
 
 function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
-    print("CameraInputProcessor:ProcessKeyboardInput")
+
     if Key == "CAMERA_DISABLE" then
         if Event == "Pressed" then
             camera.Disable = not camera.Disable

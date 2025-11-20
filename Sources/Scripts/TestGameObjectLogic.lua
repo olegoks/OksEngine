@@ -1,11 +1,5 @@
 TestGameObject = {}
 
-function extended(child, parent)
-    setmetatable(child, { __index = parent })
-end
-
-extended(TestGameObject, Entity)
-
 function TestGameObject:New()
     local object = Entity:New()
 

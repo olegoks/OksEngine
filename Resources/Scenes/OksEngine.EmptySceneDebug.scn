@@ -72,9 +72,9 @@ scene = {
                   name = { value = "TestGameObject" },
                   modelEntity = { id = 1 },
                   rigidBodyEntityId = { id = 6 },
-                  -- scriptName = { name = "Camera.lua" },
-                  -- objectName = { name = "Camera" },
-                  -- handleKeyboardEvents = {},
+                  scriptName = { name = "TestGameObjectLogic.lua" },
+                  objectName = { name = "TestGameObject" },
+                  handleKeyboardEvents = {},
                   mapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {

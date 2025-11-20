@@ -5,8 +5,6 @@
 #include <list>
 #include <utility>
 
-#include <OksEngine.Entity.hpp>
-
 #include <Common/auto_OksEngine.Position3D.hpp>
 #include <Common/auto_OksEngine.Rotation3D.hpp>
 #include <Common/auto_OksEngine.Active.hpp>
@@ -25,25 +23,6 @@ namespace OksEngine {
 		};
 
 		explicit Engine(const CreateInfo& createInfo) noexcept;
-
-
-		Entity CreateEntity() noexcept {
-			ECS2::Entity::Id id = context_->GetECS2World()->CreateEntity();
-
-			return Entity{ *context_, context_->GetECS2World(), id };
-		}
-
-		template<class ...Components>
-		void AddArchetype() noexcept {
-			//context_->GetECS2World()->AddArchetype<Components...>();
-		}
-
-		template<class ...Components>
-		Entity CreateEntity() noexcept {
-			ECS2::Entity::Id id = context_->GetECS2World()->CreateEntity<Components...>();
-			
-			return Entity{ *context_, context_->GetECS2World(), id };
-		}
 
 		void Run() {
 			isRunning_ = true;
