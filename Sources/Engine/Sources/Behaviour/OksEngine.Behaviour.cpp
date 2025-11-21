@@ -7,9 +7,11 @@
 #include <Common/auto_OksEngine.Position3D.hpp>
 #include <Common/auto_OksEngine.Direction3D.hpp>
 #include <Render/Camera/auto_OksEngine.Camera.hpp>
-
+#include <Physics/auto_OksEngine.Physics.hpp>
 
 #include <magic_enum/magic_enum.hpp>
+
+#include <OksEngine.BindECSWorld.hpp>
 
 namespace OksEngine
 {
@@ -58,7 +60,12 @@ namespace OksEngine
 			BindLuaEntity(*luaContext);
 			BindWorldPosition3D(*luaContext);
 			BindDirection3D(*luaContext);
+			Physics::BindRigidBodyEntityId(*luaContext);
+			Physics::BindSetVelocityRequests(*luaContext);
 			BindUp3D(*luaContext);
+			BindECSWorld(*luaContext);
+
+			luabridge::setGlobal(luaContext->state_, world_.get(), "ECSWorld");
 
 			luaContext->LoadScript(luaScript0->text_);
 

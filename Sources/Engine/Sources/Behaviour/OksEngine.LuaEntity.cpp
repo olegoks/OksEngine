@@ -1,7 +1,6 @@
 
 #include <Behaviour/OksEngine.LuaEntity.hpp>
 
-#include <OksEngine.ECS.hpp>
 
 namespace OksEngine {
 
@@ -14,6 +13,8 @@ namespace OksEngine {
 			.addFunction("GetWorldPosition3D", &Entity::GetWorldPosition3D)
 			.addFunction("GetDirection3D", &Entity::GetDirection3D)
 			.addFunction("GetImmutableRenderGeometry", &Entity::GetImmutableRenderGeometry)
+			.addFunction("GetSetVelocityRequests", &Entity::GetSetVelocityRequests)
+			.addFunction("GetRigidBodyEntityId", &Entity::GetRigidBodyEntityId)
 			.addFunction("GetCamera", &Entity::GetCamera)
 			.addFunction("GetActive", &Entity::GetActive)
 			.addFunction("GetUp3D", &Entity::GetUp3D)
@@ -63,6 +64,16 @@ namespace OksEngine {
 		return direction;
 	}
 
+	Physics::SetVelocityRequests* Entity::GetSetVelocityRequests() {
+		auto direction = world_->GetComponent<Physics::SetVelocityRequests>(id_);
+		return direction;
+	}
+
+	Physics::RigidBodyEntityId* Entity::GetRigidBodyEntityId() {
+		auto direction = world_->GetComponent<Physics::RigidBodyEntityId>(id_);
+		return direction;
+	}
+
 	ImmutableRenderGeometry* Entity::GetImmutableRenderGeometry() {
 		auto position = world_->GetComponent<ImmutableRenderGeometry>(id_);
 		return position;
@@ -80,7 +91,6 @@ namespace OksEngine {
 	void Entity::SetId(std::uint64_t id) { 
 		id_ = id;
 	}
-
 
 	std::uint64_t Entity::GetId() {
 		return	id_;

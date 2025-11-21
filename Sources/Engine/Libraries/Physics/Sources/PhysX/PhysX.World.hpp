@@ -17,7 +17,7 @@ namespace PhysX {
 		virtual PAL::StaticRigidBody::Id CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& srbCreateInfo) override;
 
 		virtual void AddDynamicRigidBody(PAL::DynamicRigidBody::Id drbId) override;
-
+		virtual void ApplyForce(PAL::DynamicRigidBody::Id drbId) override;
 		virtual Math::Vector3f GetRigidBodyPosition(PAL::DynamicRigidBody::Id drbId) override;
 
 		virtual void AddStaticRigidBody(PAL::StaticRigidBody::Id srbId) override;

@@ -57,6 +57,13 @@ namespace PhysX {
 		scene_->fetchResults(true);
 	}
 
+	void World::ApplyForce(PAL::DynamicRigidBody::Id drbId) {
+
+		auto drbPtr = GetRigidBodyById(drbId);
+		auto physxRB = Common::pointer_cast<PhysX::DynamicRigidBody>(drbPtr);
+		physxRB->ApplyForce({ 0, 1, 0 }, 10);
+
+	}
 
 	void World::AddDynamicRigidBody(PAL::DynamicRigidBody::Id drbId) {
 		OS::Assert(scene_ != nullptr);

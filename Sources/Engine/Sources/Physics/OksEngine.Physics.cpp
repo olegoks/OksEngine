@@ -97,11 +97,11 @@ namespace OksEngine
 					max_x = std::max(max_x, vertex.x_);
 					min_x = std::min(min_x, vertex.x_);
 
-					max_y = std::max(max_y, vertex.x_);
-					min_y = std::min(min_y, vertex.x_);
+					max_y = std::max(max_y, vertex.y_);
+					min_y = std::min(min_y, vertex.y_);
 
-					max_z = std::max(max_z, vertex.x_);
-					min_z = std::min(min_z, vertex.x_);
+					max_z = std::max(max_z, vertex.z_);
+					min_z = std::min(min_z, vertex.z_);
 
 					imVertices.push_back({ vertex.x_, vertex.y_, vertex.z_ });
 				}
@@ -379,6 +379,46 @@ namespace OksEngine
 			return "";
 		}
 
+		//SetVelocityRequests
+
+
+		void BindSetVelocityRequests(::Lua::Context& context) {
+			context.GetGlobalNamespace()
+				.beginClass<SetVelocityRequests>("SetVelocityRequests")
+				.addFunction("AddSetVelocityRequest", [](SetVelocityRequests* self, float dirX, float dirY, float dirZ, float velocity) {
+					self->requests_.push_back(
+						SetVelocityRequest{ glm::vec3{ dirX, dirY, dirZ }, velocity }
+					);
+					})
+				.endClass();
+		}
+
+		SetVelocityRequests ParseSetVelocityRequests(luabridge::LuaRef& setVelocityRequestsRef) {
+
+			return SetVelocityRequests{};
+		}
+
+		std::string SerializeSetVelocityRequests(const SetVelocityRequests* setVelocityRequests) {
+			return {};
+		}
+
+		//RigidBodyEntityId
+
+		void BindRigidBodyEntityId(::Lua::Context& context) {
+			context.GetGlobalNamespace()
+				.beginClass<RigidBodyEntityId>("RigidBodyEntityId")
+				.addProperty("id",
+					[](RigidBodyEntityId* rigidBodyEntityId) { 
+						return rigidBodyEntityId->id_.GetRawValue();
+					},
+					[](RigidBodyEntityId* rigidBodyEntityId, ECS2::Entity::Id::ValueType entityId) {
+						rigidBodyEntityId->id_ = entityId;
+					})
+					
+				.endClass();
+		}
+
+
 		void CreateEngine::Update() {
 
 			ECS2::Entity::Id physicsEngineEntity = CreateEntity();
@@ -641,6 +681,24 @@ namespace OksEngine
 
 
 		};
+
+		void SetVelocityToDynamicRigidBody::Update(
+			ECS2::Entity::Id entity0id, 
+			Physics::World* world0, ECS2::Entity::Id entity1id,
+			const Physics::DynamicRigidBody* dynamicRigidBody1,
+			const Physics::DynamicRigidBodyId* dynamicRigidBodyId1, const Physics::PhysicsShape* physicsShape1,
+			Physics::SetVelocityRequests* setVelocityRequests1) {
+
+			if (setVelocityRequests1->requests_.empty()) return;
+
+			auto rb = Common::pointer_cast<PAL::DynamicRigidBody>(world0->world_->GetRigidBodyById(dynamicRigidBodyId1->id_));
+
+			const SetVelocityRequest& request = setVelocityRequests1->requests_.back();
+			rb->SetLinearVelocity(request.direction_, request.velocity_);
+
+			setVelocityRequests1->requests_.clear();
+
+		}
 
 		void SimulatePhysics::Update(ECS2::Entity::Id entity0id, Engine* physicsEngine0) {
 

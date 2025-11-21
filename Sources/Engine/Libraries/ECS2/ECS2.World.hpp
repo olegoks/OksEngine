@@ -368,6 +368,7 @@ namespace ECS2 {
 			}
 		}
 
+
 		//Archetype entity can not contain need component, in the case we will return nullptr.
 		template<class ...Components>
 		[[nodiscard]]
@@ -433,17 +434,22 @@ namespace ECS2 {
 		template<class ComponentType>
 		[[nodiscard]]
 		bool IsComponentExist(Entity::Id entityId) noexcept {
+			return IsComponentExist(entityId, ComponentType::GetTypeId());
+		}
+
+		[[nodiscard]]
+		bool IsComponentExist(Entity::Id entityId, ComponentTypeId componentTypeId) noexcept {
 			if (archetypeEntitiesComponents_.contains(entityId))
 			{
 				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
-				if (componentsFilter.IsSet<ComponentType>()) {
-					return archetypeComponents_[componentsFilter]->IsComponentExist<ComponentType>(entityId);
+				if (componentsFilter.IsSet(componentTypeId)) {
+					return archetypeComponents_[componentsFilter]->IsComponentExist(entityId, componentTypeId);
 				}
 			}
 			if (dynamicEntitiesComponentFilters_.contains(entityId))
 			{
 				const ComponentsFilter componentsFilter = dynamicEntitiesComponentFilters_[entityId];
-				if (componentsFilter.IsSet<ComponentType>()) {
+				if (componentsFilter.IsSet(componentTypeId)) {
 					return true;
 				}
 			}

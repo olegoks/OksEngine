@@ -93,6 +93,10 @@ namespace ECS2 {
 			return entityIdComponentsFilter_[entityId].IsSet<Components...>();
 		}
 
+		inline bool IsComponentExist(ECS2::Entity::Id entityId, ECS2::ComponentTypeId componentTypeId) {
+			return entityIdComponentsFilter_[entityId].IsSet(componentTypeId);
+		}
+
 		template<class Component, class ...Args>
 		inline void CreateComponent(Entity::Id entityId, Args&&... args) {
 			const ComponentIndex entityComponentIndex = entityIdComponentIndex_[entityId];
@@ -125,8 +129,6 @@ namespace ECS2 {
 			return (*container)[componentIndex];
 		}
 		
-
-
 
 		// Get certain components set of  the definite entity
 		// Archetype entity can not contain need component, in the case we will return nullptr.

@@ -88,6 +88,7 @@ namespace ECS2 {
 			return const_cast<ArchetypeContainer<ComponentType>*>(this)->operator[](index);
 		}
 
+
 		[[maybe_unused]]
 		[[nodiscard]]
 		bool IsComponentIndexValid(ComponentIndex index) const noexcept {

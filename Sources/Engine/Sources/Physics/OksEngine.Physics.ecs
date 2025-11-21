@@ -47,6 +47,7 @@ PhysicsNamespace = {
         }
     },
     RigidBodyEntityIdComponent = {
+        manualBindFunction = true,
         fields = {
             { type = "ECS2::Entity::Id", name = "id" }
         }
@@ -87,10 +88,52 @@ PhysicsNamespace = {
     },
     DynamicRigidBodyIdComponent = {
         serializable = false,
+
         fields = {
             { type = "PAL::DynamicRigidBody::Id", name = "id" }
         }
     },
+
+    --Velocity
+    SetVelocityRequestStruct = {
+        fields = {
+            { type = "glm::vec3", name = "direction" },
+            { type = "float", name = "velocity" },
+        }
+    },
+
+    SetVelocityRequestsComponent = {
+        -- manualEditFunction = true,
+        -- manualAddFunction = true,
+        manualParseFunction = true,
+        manualSerializeFunction = true,
+        manualBindFunction = true,
+        fields = {
+            { type = "std::vector<SetVelocityRequest>", name = "requests" }
+        }
+    },
+
+    SetVelocityToDynamicRigidBodySystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "World", readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        "DynamicRigidBody",
+                        "DynamicRigidBodyId",
+                        "PhysicsShape",
+                        { name = "SetVelocityRequests", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+
+
     ShapeVertexStruct = {
         fields = {
             { type = "float", name = "x" },

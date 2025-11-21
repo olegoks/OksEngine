@@ -4,10 +4,14 @@
 
 #include <Lua.Context.hpp>
 
+#include <auto_OksEngine.ECS.hpp>
+
 namespace OksEngine {
 
 		class Entity {
 		public:
+
+
 
 			class WorldPosition3D* GetWorldPosition3D();
 			class Direction3D* GetDirection3D();
@@ -15,6 +19,8 @@ namespace OksEngine {
 			class Up3D* GetUp3D();
 			class Width* GetWidth();
 			class Height* GetHeight();
+			class Physics::SetVelocityRequests* GetSetVelocityRequests();
+			Physics::RigidBodyEntityId* GetRigidBodyEntityId();
 
 
 			class ImmutableRenderGeometry* GetImmutableRenderGeometry();
@@ -29,11 +35,14 @@ namespace OksEngine {
 			//	return rigidBody;
 			//}
 
+
+
 			class Camera* GetCamera();
 
 			void SetWorld(ECS2::World* world);
 
 			void SetId(std::uint64_t id);
+
 			std::uint64_t GetId();
 
 		private:

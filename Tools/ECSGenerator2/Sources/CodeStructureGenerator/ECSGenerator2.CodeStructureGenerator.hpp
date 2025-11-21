@@ -2169,6 +2169,36 @@ namespace ECSGenerator2 {
 				CodeStructure::Code code;
 
 				for (auto parsedECSFile : parsedECSFiles) {
+					parsedECSFile->ForEachComponent([&](ParsedComponentPtr parsedComponent) {
+
+						code.Add("\nif({} == {}::GetName()) {{\n", "name", parsedComponent->GetFullName());
+						code.Add("	return {}::GetTypeId();\n", parsedComponent->GetFullName());
+						code.Add("}\n");
+
+						return true;
+						});
+				}
+				code.Add("ASSERT_FAIL_MSG(\"Attempt to use component name that is not component.\");");
+				code.Add("return 0;");
+
+				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
+					.name_ = "GetComponentTypeIdByName",
+					.parameters_ = {
+						{ "const std::string&", "name" }
+					},
+					.returnType_ = "ECS2::ComponentTypeId",
+					.code_ = {code},
+					.isPrototype_ = false,
+					.inlineModifier_ = true
+				};
+
+				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
+			}
+
+			{
+				CodeStructure::Code code;
+
+				for (auto parsedECSFile : parsedECSFiles) {
 
 					parsedECSFile->ForEachArchetype([&](ParsedArchetypePtr parsedArchetype) {
 

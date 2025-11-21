@@ -72,9 +72,17 @@ scene = {
                   name = { value = "TestGameObject" },
                   modelEntity = { id = 1 },
                   rigidBodyEntityId = { id = 6 },
+
                   scriptName = { name = "TestGameObjectLogic.lua" },
                   objectName = { name = "TestGameObject" },
                   handleKeyboardEvents = {},
+                  keyMappings = {
+                        { key = "W",          value = "MOVE_FORWARD" },
+                        { key = "S",          value = "MOVE_BACK" },
+                        { key = "A",          value = "MOVE_LEFT" },
+                        { key = "D",          value = "MOVE_RIGHT" },
+                        { key = "E",          value = "MOVE_UP" }
+                  },
                   mapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
@@ -84,6 +92,7 @@ scene = {
                   worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   dynamicRigidBody = {},
+                  setVelocityRequests = {},
                   mass = { value = 1.0 },
                   material = {
                         staticFriction = 0.5,

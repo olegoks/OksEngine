@@ -61,23 +61,30 @@ namespace PhysX {
 			const physx::PxMat44 pxMatrix = convertToPxMat44(transform);
 			const physx::PxTransform pxTransform{ pxMatrix };
 			GetBody()->setGlobalPose(pxTransform);
+
 		}
 
+		virtual void SetLinearVelocity(const glm::vec3& direction, float velocity) {
+
+			glm::vec3 velocityVector = glm::normalize(direction) * velocity;
+
+			GetBody()->setLinearVelocity({ velocityVector.x, velocityVector.y, velocityVector.z });
+		}
 
 		virtual void ApplyForce(const glm::vec3& direction, float force) override {
 			const glm::vec3 directionalForce = glm::normalize(direction) * force;
 			GetBody()->addForce({ directionalForce.x, directionalForce.y, directionalForce.z });
 		}
 
-		virtual void SetVelocity(const glm::vec3& direction, float velocity) override {
-			if (Math::IsEqual(velocity, 0.0)) {
-				GetBody()->setLinearVelocity({ 0.f, 0.f, 0.f });
-			}
-			else {
-				const glm::vec3 directionalForce = glm::normalize(direction) * velocity;
-				GetBody()->setLinearVelocity({ directionalForce.x, directionalForce.y, directionalForce.z });
-			}
-		}
+		//virtual void SetVelocity(const glm::vec3& direction, float velocity) override {
+		//	if (Math::IsEqual(velocity, 0.0)) {
+		//		GetBody()->setLinearVelocity({ 0.f, 0.f, 0.f });
+		//	}
+		//	else {
+		//		const glm::vec3 directionalForce = glm::normalize(direction) * velocity;
+		//		GetBody()->setLinearVelocity({ directionalForce.x, directionalForce.y, directionalForce.z });
+		//	}
+		//}
 
 
 	private:
