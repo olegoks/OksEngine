@@ -88,6 +88,10 @@ CreateCameraTransformResourceSystem = {
 }
 
 UpdateCameraTransformUniformBufferSystem = {
+    callOrder = {
+        runAfter = { "Character::UpdateBindedCameraPosition" },
+        runBefore = { "StartRender" }
+    },
     updateMethod = {
         processesEntities = {
             {

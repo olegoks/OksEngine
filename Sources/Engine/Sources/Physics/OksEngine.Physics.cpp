@@ -728,7 +728,7 @@ namespace OksEngine
 			using namespace std::chrono_literals;
 			static std::chrono::high_resolution_clock::time_point previousUpdate = std::chrono::high_resolution_clock::now();
 			static std::chrono::high_resolution_clock::duration remainder = 0ms;
-			const auto simulationGranularity = 10ms;
+			const auto simulationGranularity = 1ms;
 			const auto now = std::chrono::high_resolution_clock::now();
 			const auto delta = (now - previousUpdate);
 			auto toSimulate = delta + remainder;

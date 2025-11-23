@@ -3,6 +3,14 @@ MapRigidBodyWorldPositionToModelWorldPositionComponent = {
 }
 
 RigidBodyWorldPositionToModelWorldPositionMapperSystem = {
+    callOrder = {
+        runAfter = {
+            "Physics::UpdateDynamicRigidBodyPosition"
+        },
+        runBefore = {
+            "StartRender"
+        }
+    },
     updateMethod = {
         processesEntities = {
             {

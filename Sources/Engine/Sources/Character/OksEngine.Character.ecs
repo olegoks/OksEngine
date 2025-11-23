@@ -2,21 +2,32 @@ CharacterNamespace = {
 
     CharacterEntityComponent = { },
 
-    BindedCameraEntityIdComponent = {
-        serializable = false,
+    BindedCameraOffsetComponent = {
         fields = {
-            { type = "glm::vec3",        name = "offset" },
+            { type = "float",        name = "x" },
+            { type = "float",        name = "y" },
+            { type = "float",        name = "z" }
+        }
+    },
+    BindedCameraEntityIdComponent = {
+        fields = {
             { type = "ECS2::Entity::Id", name = "id" }
         }
     },
 
     UpdateBindedCameraPositionSystem = {
+        callOrder = {
+            runAfter = { "Physics::UpdateDynamicRigidBodyPosition" },
+            runBefore = { "StartRender" }
+        },
         updateMethod = {
             processesEntities = {
                 {
                     processesComponents = { 
                         "CharacterEntity",
-                        "BindedCameraEntityId"
+                        "BindedCameraEntityId",
+                        "BindedCameraOffset",
+                        "Physics::RigidBodyEntityId"
                     }
                 },
                 {
@@ -24,6 +35,19 @@ CharacterNamespace = {
                         { name = "RenderDriver", readonly = false }
                     }
                 }
+            },
+            accessingEntities = {
+                {
+                    accessingComponents = {
+                        "WorldPosition3D"
+                    }
+                }
+                -- },
+                -- {
+                --     accessingComponents = {
+                --         ""
+                --     }
+                -- }
             }
         }
     }

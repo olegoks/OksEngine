@@ -23,7 +23,7 @@ function TestGameObjectInputProcessor:ProcessKeyboardInput(camera, Key, Event)
             local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(cameraEntityId)
             local rbEntityId = rigidBodyEntityId.id
             local setVelocityRequests = ECSWorld:GetPhysics_SetVelocityRequests(rbEntityId)
-            setVelocityRequests:AddSetVelocityRequest(1.0, 0.0, 0.0, 10.0)
+            setVelocityRequests:AddSetVelocityRequest(0.0, 0.0, -1.0, 10.0)
         end
     end
 

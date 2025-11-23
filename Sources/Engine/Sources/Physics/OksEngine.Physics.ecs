@@ -290,6 +290,9 @@ PhysicsNamespace = {
             { type = "float", name = "restitution" } }
     },
     SimulatePhysicsSystem = {
+        callOrder = {
+            runBefore = "StartRender"
+        },
         updateMethod = {
             processesEntities = {
                 {
@@ -301,6 +304,10 @@ PhysicsNamespace = {
         }
     },
     UpdateDynamicRigidBodyPositionSystem = {
+        callOrder = {
+            runAfter = "SimulatePhysics",
+            runBefore = "StartRender"
+        },
         updateMethod = {
             processesEntities = {
                 {

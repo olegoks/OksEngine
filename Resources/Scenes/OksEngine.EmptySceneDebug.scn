@@ -70,6 +70,9 @@ scene = {
             {
                   ID = 5,
                   name = { value = "TestGameObject" },
+                  characterEntity = { },
+                  bindedCameraOffset = { x = 0.0, y = 2.0, z = 2.0 },
+                  bindedCameraEntityId = { id = 14 },
                   modelEntity = { id = 1 },
                   rigidBodyEntityId = { id = 6 },
 
@@ -135,6 +138,21 @@ scene = {
                   modelFile = { fileName = "HipHop.glb" }
             },
             {
+                  ID = 14,
+                  camera = {},
+                  name = { value = "Camera" },
+                  worldPosition3D = { x = 0.0, y = 4.0, z = -10.0, w = 0.0 },
+                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  zFar = { value = 1000.0 },
+                  zNear = { value = 0.1 },
+                  direction3D = { x = 0.0, y = -0.3, z = -1.0 },
+                  up3D = { x = 0, y = 1, z = 0 },
+                  width = { value = 2560 },
+                  height = { value = 1440 },
+                  active = {}
+            },
+            {
                   ID = 2,
                   ARCHETYPE = "Preset__Static_Game_Object",
                   name = { value = "Phys plane" },
@@ -180,7 +198,7 @@ scene = {
                   up3D = { x = 0, y = 1, z = 0 },
                   width = { value = 2560 },
                   height = { value = 1440 },
-                  active = {},
+                  --active = {},
                   scriptName = { name = "Camera.lua" },
                   objectName = { name = "Camera" },
                   handleKeyboardEvents = {},
