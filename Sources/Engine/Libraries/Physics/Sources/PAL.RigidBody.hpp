@@ -50,6 +50,8 @@ namespace PAL {
 			float mass_ = 10.f;
 			float linearDamping_ = 2.f;
 			float angularDamping_ = 0.f;
+			bool lockAngularX_ = false;
+			bool lockAngularZ_ = false;
 			
 		};
 

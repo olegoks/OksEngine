@@ -967,7 +967,7 @@ namespace ECSGenerator2 {
 
 			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");
-			includes.paths_.insert("OksEngine.ECS.hpp");
+			includes.paths_.insert("auto_OksEngine.ECS.hpp");
 			//includes.paths_.insert("magic_enum/magic_enum.hpp");
 
 			//hpp file
@@ -2253,6 +2253,93 @@ namespace ECSGenerator2 {
 			return file;
 
 		}
+
+		std::shared_ptr<CodeStructure::File> GenerateBindECSWorldHppFile(std::vector<std::shared_ptr<ParsedECSFile>> parsedECSFiles) {
+
+			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
+
+
+			{
+				CodeStructure::Code code;
+
+				code.Add("\ncontext.GetGlobalNamespace()\n");
+				code.Add(".beginClass<ECS2::World>(\"ECSWorld\")\n");
+				code.Add(".addConstructor<void(*)()>()\n\n");
+
+				code.Add(
+					".addFunction(\"IsComponentExist\", [](ECS2::World* world, ECS2::Entity::Id::ValueType entityId, std::string componentName){\n"
+					"	const ECS2::ComponentTypeId componentTypeId = GetComponentTypeIdByName(componentName);\n"
+					"	return world->IsComponentExist(entityId, componentTypeId);\n"
+					"})\n\n");
+
+				code.Add(
+					".addFunction(\"IsComponentExist\", [](ECS2::World* world, ECS2::Entity::Id::ValueType entityId, std::string componentName) {\n"
+					"	const ECS2::ComponentTypeId componentTypeId = GetComponentTypeIdByName(componentName);\n"
+					"	return world->IsComponentExist(entityId, componentTypeId);\n"
+					"})\n\n");
+
+
+
+				for (auto parsedECSFile : parsedECSFiles) {
+					parsedECSFile->ForEachComponent([&](ParsedComponentPtr parsedComponent) {
+
+						auto componentNamespace = parsedComponent->GetNamespace();
+						componentNamespace.push_back(parsedComponent->GetName());
+						std::string fullName;
+						for (Common::Index i = 0; i < componentNamespace.size(); i++) {
+							fullName += componentNamespace[i];
+							if (i != componentNamespace.size() - 1) {
+								fullName += "_";
+							}
+						}
+
+						code.Add(".addFunction(\"Get{}\", \n[](ECS2::World* world, ECS2::Entity::Id::ValueType entityId) {{\n", fullName);
+						code.Add("	auto* componentPtr = world->GetComponent<{}>(entityId);\n", parsedComponent->GetFullName());
+						code.Add("	return componentPtr;\n");
+						code.Add("})\n");
+						code.NewLine();
+
+						return true;
+						});
+				}
+
+
+				code.Add(".endClass();");
+
+				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
+					.name_ = "BindECSWorld",
+					.parameters_ = {
+						{ "::Lua::Context&", "context" }
+					},
+					.returnType_ = "void",
+					.code_ = {code},
+					.isPrototype_ = false,
+					.inlineModifier_ = false
+				};
+
+				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
+			}
+
+
+			CodeStructure::File::Includes includes{ };
+			includes.paths_.insert("ECS2.World.hpp");
+			includes.paths_.insert("auto_OksEngine.ECS.hpp");
+			includes.paths_.insert("auto_OksEngine.Utils.hpp");
+
+			//hpp file
+			CodeStructure::File::CreateInfo fci{
+			.isHpp_ = true,
+			.includes_ = includes,
+			.base_ = namespaceObject,
+			.isFormat_ = false // Do not format this file because formater work bad with multiline #define
+			};
+
+			auto file = std::make_shared<CodeStructure::File>(fci);
+
+			return file;
+
+		}
+
 
 		void ProcessNode(
 			SystemsOrder& systemsOrder,

@@ -86,6 +86,8 @@ PhysicsNamespace = {
     },
     DynamicRigidBodyComponent = {
     },
+    LockAngularXComponent = { },
+    LockAngularZComponent = { }, 
     DynamicRigidBodyIdComponent = {
         serializable = false,
 
@@ -315,6 +317,60 @@ PhysicsNamespace = {
             }
         }
     },
+
+    CharacterNamespace = {
+        CapsuleControllerComponent = { },
+        CapsuleControllerIdComponent = {
+            serializable = false,
+
+            fields = {
+                { type = "PAL::CapsuleController::Id", name = "id" }
+            }
+        },
+
+        CreateCapsuleControllerSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "World", readonly = false },
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "CapsuleController",
+                            "Material",
+                            "WorldPosition3D",
+                            "ShapeGeometryCapsule"
+                        },
+                        excludes = {
+                            "CapsuleControllerId"
+                        },
+                        createsComponents = {
+                            "CapsuleControllerId"
+                        }
+                    }
+                }
+            }
+        },
+        -- UpdateCapsuleControllerPositionSystem = {
+        --     updateMethod = {
+        --         processesEntities = {
+        --             {
+        --                 processesComponents = {
+        --                     "World"
+        --                 }
+        --             },
+        --             {
+        --                 processesComponents = {
+        --                     { name = "WorldPosition3D", readonly = false },
+        --                     "CapsuleControllerId"
+        --                 }
+        --             }
+        --         }
+        --     }
+        -- },
+    },
     Rigid_BodyArchetype = {
         components = {
             "Material",
@@ -340,7 +396,7 @@ PhysicsNamespace = {
         archetypes = {
             "Rigid_Body"
         }
-    }
+    },
 
 
 

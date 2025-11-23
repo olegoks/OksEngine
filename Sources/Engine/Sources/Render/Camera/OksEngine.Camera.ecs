@@ -1,61 +1,61 @@
-CameraComponent = { }
+CameraComponent = {}
 
 DriverCameraComponent = {
     serializable = false,
-    fields = { 
+    fields = {
         { type = "RAL::Driver::UniformBuffer::Id", name = "matricesBuffer" }
-		 }
+    }
 }
 
 ZFarComponent = {
-    fields = { 
+    fields = {
         { type = "float", name = "value" }
-		 }
+    }
 }
 
 ZNearComponent = {
-    fields = { 
+    fields = {
         { type = "float", name = "value" }
-		 }
+    }
 }
 
 Up3DComponent = {
-    fields = { 
+    fields = {
         { type = "float", name = "x" },
         { type = "float", name = "y" },
         { type = "float", name = "z" },
-     }
+    }
 }
-        
-       
+
+
 
 DriverViewProjectionUniformBufferComponent = {
     serializable = false,
-    fields = { 
+    fields = {
         { type = "RAL::Driver::UniformBuffer::Id", name = "id" }
-         }
+    }
 }
 
 
 CreateCameraTransformDriverUniformBufferSystem = {
     updateMethod = {
-    processesEntities = {
-        {
-            processesComponents = { "Camera" },
-            excludes = { "DriverViewProjectionUniformBuffer" },
-            createsComponents = { "DriverViewProjectionUniformBuffer" }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
+        processesEntities = {
+            {
+                processesComponents = { "Camera" },
+                excludes = { "DriverViewProjectionUniformBuffer" },
+                createsComponents = { "DriverViewProjectionUniformBuffer" }
+            },
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
-    }
     }
 }
 
 CameraTransformResourceComponent = {
-        serializable = false,
+    serializable = false,
     fields = {
         { type = "RAL::Driver::ResourceSet::Id", name = "id" }
     }
@@ -89,26 +89,25 @@ CreateCameraTransformResourceSystem = {
 
 UpdateCameraTransformUniformBufferSystem = {
     updateMethod = {
-    processesEntities = {
-        {
-            processesComponents = { 
-                "Camera", 
-                "WorldPosition3D", 
-                "Direction3D",
-                "Up3D",
-                "ZNear",
-                "ZFar",
-                "Width",
-                "Height",
-                { name = "DriverViewProjectionUniformBuffer", readonly = false } },
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
+        processesEntities = {
+            {
+                processesComponents = {
+                    "Camera",
+                    "WorldPosition3D",
+                    "Direction3D",
+                    "Up3D",
+                    "ZNear",
+                    "ZFar",
+                    "Width",
+                    "Height",
+                    { name = "DriverViewProjectionUniformBuffer", readonly = false } },
+            },
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
     }
-    }
-
 }
 

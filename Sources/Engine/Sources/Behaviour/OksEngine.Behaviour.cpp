@@ -11,7 +11,7 @@
 
 #include <magic_enum/magic_enum.hpp>
 
-#include <OksEngine.BindECSWorld.hpp>
+#include <auto_OksEngine.BindECSWorld.hpp>
 
 namespace OksEngine
 {

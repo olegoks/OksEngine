@@ -6,6 +6,18 @@
 
 namespace PAL {
 
+	class CapsuleController {
+	public:
+		using Id = Common::Id;
+
+		struct CreateInfo {
+			glm::vec3 position_{};
+			float capsuleHeight_ = 2.0f;
+			float capsuleRadius_ = 0.5f;
+		};
+
+	};
+
 	class World {
 	public:
 		struct CreateInfo {
@@ -19,6 +31,9 @@ namespace PAL {
 		virtual PAL::DynamicRigidBody::Id CreateDynamicRigidBody(const PAL::DynamicRigidBody::CreateInfo& drbCreateInfo) = 0;
 		[[nodiscard]]
 		virtual PAL::StaticRigidBody::Id CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& srbCreateInfo) = 0;
+
+		[[nodiscard]]
+		virtual PAL::CapsuleController::Id CreateCapsuleController(const PAL::CapsuleController::CreateInfo& srbCreateInfo) = 0;
 
 		[[nodiscard]]
 		std::shared_ptr<RigidBody> GetRigidBodyById(RigidBody::Id drbid);
@@ -43,6 +58,7 @@ namespace PAL {
 		CreateInfo createInfo_;
 		Common::IdGenerator rbIdGenerator_;
 		std::map<PAL::RigidBody::Id, std::shared_ptr<RigidBody>> IdRb_;
+
 
 	};
 

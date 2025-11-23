@@ -493,7 +493,27 @@ namespace OksEngine
 			auto shape = engine0->engine_->CreateShape(shapeCreateInfo);
 			CreateComponent<PhysicsShape>(entity1id, shape);
 		}
+		
+		namespace Character {
+			void CreateCapsuleController::Update(
+				ECS2::Entity::Id entity0id, Physics::World* world0, ECS2::Entity::Id entity1id,
+				const Physics::Character::CapsuleController* capsuleController1, const Physics::Material* material1,
+				const WorldPosition3D* worldPosition3D1, const Physics::ShapeGeometryCapsule* shapeGeometryCapsule1) {
 
+				PAL::CapsuleController::CreateInfo ci{
+					.position_ = { worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ },
+					.capsuleHeight_ = shapeGeometryCapsule1->height_,
+					.capsuleRadius_ = shapeGeometryCapsule1->radius_
+				};
+
+				PAL::CapsuleController::Id capsuleControllerId = world0->world_->CreateCapsuleController(ci);
+
+				CreateComponent<Physics::Character::CapsuleControllerId>(entity1id, capsuleControllerId);
+
+			}
+
+
+		}
 		void CreatePhysicsShape::Update(
 			ECS2::Entity::Id entity0id,
 			Physics::Engine* engine0,
@@ -665,6 +685,7 @@ namespace OksEngine
 			const Physics::Mass* mass1,
 			const Physics::PhysicsShape* physicsShape1) {
 
+			auto rbComponentsFilter = GetComponentsFilter(entity1id);
 
 			PAL::DynamicRigidBody::CreateInfo createInfo{
 				.rbCreateInfo_ = {
@@ -673,6 +694,8 @@ namespace OksEngine
 					.name_ = "DynamicRigidBody"
 				},
 				.mass_ = mass1->value_,
+				.lockAngularX_ = rbComponentsFilter.IsSet<LockAngularX>(),
+				.lockAngularZ_ = rbComponentsFilter.IsSet<LockAngularZ>()
 			};
 			PAL::DRB::Id drbId = world0->world_->CreateDynamicRigidBody(createInfo);
 			world0->world_->AddDynamicRigidBody(drbId);

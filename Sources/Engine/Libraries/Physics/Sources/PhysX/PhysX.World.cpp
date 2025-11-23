@@ -6,7 +6,10 @@
 #include <PxPhysics.h>
 namespace PhysX {
 
-	World::World(const CreateInfo& pxCreateInfo) : PAL::World{ pxCreateInfo.palWorldCreateInfo_ }, physics_{ pxCreateInfo.physics_ }{
+	World::World(const CreateInfo& pxCreateInfo) 
+		: 
+		PAL::World{ pxCreateInfo.palWorldCreateInfo_ },
+		physics_{ pxCreateInfo.physics_ }{
 
 		ASSERT_FMSG(pxCreateInfo.physics_ != nullptr, "PxPhysics is not initialized.");
 
@@ -28,6 +31,7 @@ namespace PhysX {
 		//physx::PxMaterial* material = pxCreateInfo.physics_->createMaterial(0.5f, 0.5f, 0.6f);
 		//physx::PxRigidStatic* groundPlane = PxCreatePlane(*pxCreateInfo.physics_, physx::PxPlane({ 0.f, 1.f, 0.f }, { 0.f, 1.f, 0.f }), *material);
 		//scene->addActor(*groundPlane);
+		controllerManager_ = PxCreateControllerManager(*scene);
 
 	}
 
@@ -50,6 +54,29 @@ namespace PhysX {
 		auto srbPtr = std::make_shared<PhysX::StaticRigidBody>(physxCreateInfo);
 		return GenerateId(srbPtr);
 	}
+
+	PAL::CapsuleController::Id World::CreateCapsuleController(const PAL::CapsuleController::CreateInfo& srbCreateInfo)
+	{
+		physx::PxMaterial* material = physics_->createMaterial(0.5f, 0.5f, 0.6f);
+
+		physx::PxCapsuleControllerDesc desc;
+		desc.height = 2.0f;        
+		desc.radius = 0.5f;        
+		desc.position = physx::PxExtendedVec3(srbCreateInfo.position_.x, srbCreateInfo.position_.y, srbCreateInfo.position_.z); 
+		desc.upDirection = physx::PxVec3(0.0f, 1.0f, 0.0f);
+		desc.material = material;
+		physx::PxCapsuleController* controller = static_cast<physx::PxCapsuleController*>(controllerManager_->createController(desc));
+		
+		//controller->move()
+		std::shared_ptr<physx::PxCapsuleController> ptr{ controller, [](physx::PxCapsuleController* ctrl) {
+			if (ctrl) {
+				ctrl->release(); // Используем метод release() вместо delete
+			}
+			} };
+		return GenerateCapsuleControllerId(ptr);
+	}
+
+
 
 	void World::Simulate(float ms) {
 		ASSERT_FMSG(!Math::IsEqual(ms, 0.f), "Invalid simulation time");

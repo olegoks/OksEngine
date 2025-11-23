@@ -16,12 +16,13 @@ TestGameObjectInputProcessor = {}
 
 function TestGameObjectInputProcessor:ProcessKeyboardInput(camera, Key, Event)
 
+    local cameraEntityId = camera:GetId()
     if Key == "MOVE_FORWARD" then
         if Event == "Pressed" then
-            local rigidBodyEntityId = camera:GetRigidBodyEntityId()
+
+            local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(cameraEntityId)
             local rbEntityId = rigidBodyEntityId.id
-            --local isWorldExist = ECSWorld:IsComponentExist(rbEntityId, "Physics::SetVelocityRequests")
-            local setVelocityRequests = ECSWorld:GetSetVelocityRequests(rbEntityId)
+            local setVelocityRequests = ECSWorld:GetPhysics_SetVelocityRequests(rbEntityId)
             setVelocityRequests:AddSetVelocityRequest(1.0, 0.0, 0.0, 10.0)
         end
     end

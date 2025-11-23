@@ -1,0 +1,30 @@
+CharacterNamespace = {
+
+    CharacterEntityComponent = { },
+
+    BindedCameraEntityIdComponent = {
+        serializable = false,
+        fields = {
+            { type = "glm::vec3",        name = "offset" },
+            { type = "ECS2::Entity::Id", name = "id" }
+        }
+    },
+
+    UpdateBindedCameraPositionSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = { 
+                        "CharacterEntity",
+                        "BindedCameraEntityId"
+                    }
+                },
+                {
+                    processesComponents = {
+                        { name = "RenderDriver", readonly = false }
+                    }
+                }
+            }
+        }
+    }
+}

@@ -36,6 +36,18 @@ namespace PhysX {
 			body_->setMass(createInfo.palCreateInfo_.mass_);
 			//body_->setmass
 
+			physx::PxRigidDynamicLockFlags axisLockFlags;
+			{
+				if (createInfo.palCreateInfo_.lockAngularX_) {
+					axisLockFlags |= physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X;
+				}
+				if (createInfo.palCreateInfo_.lockAngularZ_) {
+					axisLockFlags |= physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z;
+				}
+				body_->setRigidDynamicLockFlags(axisLockFlags);
+			}
+
+
 			physx::PxVec3 massCenter = { 0, 0, 0 };
 			bool massAndInertiaUpdated = physx::PxRigidBodyExt::updateMassAndInertia(*body_, 100/*createInfo.palCreateInfo_.mass_*/);
 			ASSERT(massAndInertiaUpdated);

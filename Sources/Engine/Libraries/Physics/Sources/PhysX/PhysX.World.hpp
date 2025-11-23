@@ -1,6 +1,8 @@
 #pragma once 
 #include <PAL.World.hpp>
 #include <PxScene.h>
+#include <physx/characterkinematic/PxControllerManager.h>
+
 namespace PhysX {
 
 	class World : public PAL::World {
@@ -15,6 +17,8 @@ namespace PhysX {
 
 		virtual PAL::DynamicRigidBody::Id CreateDynamicRigidBody(const PAL::DynamicRigidBody::CreateInfo& drbCreateInfo) override;
 		virtual PAL::StaticRigidBody::Id CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& srbCreateInfo) override;
+		[[nodiscard]]
+		virtual PAL::CapsuleController::Id CreateCapsuleController(const PAL::CapsuleController::CreateInfo& srbCreateInfo) override;
 
 		virtual void AddDynamicRigidBody(PAL::DynamicRigidBody::Id drbId) override;
 		virtual void ApplyForce(PAL::DynamicRigidBody::Id drbId) override;
@@ -23,10 +27,19 @@ namespace PhysX {
 		virtual void AddStaticRigidBody(PAL::StaticRigidBody::Id srbId) override;
 
 		virtual void Simulate(float ms) override;
-
+		PAL::CapsuleController::Id GenerateCapsuleControllerId(std::shared_ptr<physx::PxController> controller) {
+			PAL::CapsuleController::Id rbId = capsuleControllerIdGenerator_.Generate();
+			IdCapsuleController_[rbId] = controller;
+			return rbId;
+		}
 	private:
 		physx::PxScene* scene_ = nullptr;
 		physx::PxPhysics* physics_ = nullptr;
+
+
+		physx::PxControllerManager* controllerManager_ = nullptr;
+		Common::IdGenerator capsuleControllerIdGenerator_;
+		std::map<PAL::CapsuleController::Id, std::shared_ptr<physx::PxController>> IdCapsuleController_;
 	};
 
 }

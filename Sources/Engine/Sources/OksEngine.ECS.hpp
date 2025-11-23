@@ -1,3 +1,4 @@
+#include <Character/auto_OksEngine.Character.hpp>
 #include <Animation/auto_OksEngine.ECS.hpp>
 #include <Debug/auto_OksEngine.ECS.hpp>
 #include <Render/auto_OksEngine.ECS.hpp>

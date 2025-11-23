@@ -583,6 +583,13 @@ int main(int argc, char** argv) {
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.Utils.hpp",
 		hppUtilsCodeStructure };
 
+	auto hppBindECSWorldCodeStructure = codeStructureGenerator.GenerateBindECSWorldHppFile(parsedECSFiles);
+	std::pair<
+		std::filesystem::path,
+		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToHppBindECSWorld{
+		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.BindECSWorld.hpp",
+		hppBindECSWorldCodeStructure };
+
 	//Merge files with  code structure.
 	std::map<std::filesystem::path, std::shared_ptr<ECSGenerator2::CodeStructure::File>> allFilesCodeStructure;
 
@@ -596,6 +603,7 @@ int main(int argc, char** argv) {
 	allFilesCodeStructure.insert(pathToHppRunSystems);
 	allFilesCodeStructure.insert(pathToCppRunSystems);
 	allFilesCodeStructure.insert(pathToHppUtils);
+	allFilesCodeStructure.insert(pathToHppBindECSWorld);
 
 
 	//Create files.
