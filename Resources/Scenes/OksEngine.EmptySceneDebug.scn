@@ -52,7 +52,7 @@ scene = {
                   bindedCameraEntityId = { id = 14 },
                   modelEntity = { id = 1 },
                   rigidBodyEntityId = { id = 6 },
-
+                  direction3D = { x=0.0, y=0.0, z=-1.0 },
                   scriptName = { name = "TestGameObjectLogic.lua" },
                   objectName = { name = "TestGameObject" },
                   handleKeyboardEvents = {},

@@ -8,14 +8,16 @@ end
 
 TestGameObjectUpdater = {}
 
-function TestGameObjectUpdater:Update(camera, deltaMs)
-    local cameraEntityId = camera:GetId()
-    if camera.movingForward then
+function TestGameObjectUpdater:Update(object, deltaMs)
+    local objectEntityId = object:GetId()
+    if object.movingForward then
         --print("camera.movingForward == true")
-        local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(cameraEntityId)
+        local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(objectEntityId)
         local rbEntityId = rigidBodyEntityId.id
         local setVelocityRequests = ECSWorld:GetPhysics_SetVelocityRequests(rbEntityId)
-        setVelocityRequests:AddSetVelocityRequest(0.0, 0.0, -1.0, 2.0)
+        local direction = ECSWorld:GetDirection3D(objectEntityId)
+        setVelocityRequests:AddSetVelocityRequest(direction.x, direction.y, direction.z, 2.0)
+        print("setVelocityRequests:AddSetVelocityRequest(direction.x, direction.y, direction.z, 2.0)")
     end
 
 end
@@ -65,13 +67,13 @@ function TestGameObjectInputProcessor:ProcessKeyboardInput(camera, Key, Event)
 end
 
 function TestGameObjectInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY, scroll)
-    print("TestGameObjectInputProcessor:ProcessMouseInput(")
+    --print("TestGameObjectInputProcessor:ProcessMouseInput(")
     local cameraEntityId = camera:GetId()
     local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(cameraEntityId)
     local rbEntityId = rigidBodyEntityId.id
 
     local setAngularVelocityRequests = ECSWorld:GetPhysics_SetAngularVelocityRequests(rbEntityId)
-    print("local setAngularVelocityRequests = ECSWorld:GetPhysics_SetAngularVelocityRequests(rbEntityId)")
+    --print("local setAngularVelocityRequests = ECSWorld:GetPhysics_SetAngularVelocityRequests(rbEntityId)")
     setAngularVelocityRequests:AddSetAngularVelocityRequest(0.0, 1.0, 0.0, 2.0 * offsetX * 0.02)
-    print("setAngularVelocityRequests:AddSetAngularVelocityRequest(0.0, 1.0, 0.0, 2.0)")
+    --print("setAngularVelocityRequests:AddSetAngularVelocityRequest(0.0, 1.0, 0.0, 2.0)")
 end

@@ -408,7 +408,7 @@ namespace OksEngine
 				.beginClass<SetAngularVelocityRequests>("SetAngularVelocityRequests")
 				.addFunction("AddSetAngularVelocityRequest", [](SetAngularVelocityRequests* self, float rotateAxisX, float rotateAxisY, float rotateAxisZ, float degreesInSecond) {
 				self->requests_.push_back(
-					SetAngularVelocityRequest{ glm::vec3{ rotateAxisX, rotateAxisY, rotateAxisZ }, degreesInSecond }
+					SetAngularVelocityRequest{ glm::normalize(glm::vec3{ rotateAxisX, rotateAxisY, rotateAxisZ }), degreesInSecond }
 				);
 					})
 				.endClass();

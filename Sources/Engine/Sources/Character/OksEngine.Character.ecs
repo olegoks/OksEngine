@@ -29,11 +29,6 @@ CharacterNamespace = {
                         "BindedCameraOffset",
                         "Physics::RigidBodyEntityId"
                     }
-                },
-                {
-                    processesComponents = {
-                        { name = "RenderDriver", readonly = false }
-                    }
                 }
             },
             accessingEntities = {
@@ -42,6 +37,35 @@ CharacterNamespace = {
                         "WorldPosition3D",
                         "WorldRotation3D",
                         "Direction3D"
+                    }
+                }
+                -- },
+                -- {
+                --     accessingComponents = {
+                --         ""
+                --     }
+                -- }
+            }
+        }
+    },
+    UpdateCharacterDirectionSystem = {
+        callOrder = {
+            runAfter = { "Physics::UpdateDynamicRigidBodyTransform" }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = { 
+                        "CharacterEntity",
+                        { name = "Direction3D", readonly = false },
+                        "Physics::RigidBodyEntityId"
+                    }
+                }
+            },
+            accessingEntities = {
+                {
+                    accessingComponents = {
+                        "WorldRotation3D"
                     }
                 }
                 -- },
