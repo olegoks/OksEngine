@@ -5,7 +5,7 @@ MapRigidBodyWorldPositionToModelWorldPositionComponent = {
 RigidBodyWorldPositionToModelWorldPositionMapperSystem = {
     callOrder = {
         runAfter = {
-            "Physics::UpdateDynamicRigidBodyPosition"
+            "Physics::UpdateDynamicRigidBodyTransform"
         },
         runBefore = {
             "StartRender"
@@ -23,7 +23,8 @@ RigidBodyWorldPositionToModelWorldPositionMapperSystem = {
         accessingEntities = {
             {
                 accessingComponents = {
-                    "WorldPosition3D"
+                    "WorldPosition3D",
+                    "WorldRotation3D"
                 }
             }
         }

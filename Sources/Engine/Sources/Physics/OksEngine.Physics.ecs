@@ -96,7 +96,7 @@ PhysicsNamespace = {
         }
     },
 
-    --Velocity
+    --SET LINEAR VELOCITY
     SetVelocityRequestStruct = {
         fields = {
             { type = "glm::vec3", name = "direction" },
@@ -129,6 +129,45 @@ PhysicsNamespace = {
                         "DynamicRigidBodyId",
                         "PhysicsShape",
                         { name = "SetVelocityRequests", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+
+    --SET ANGULAR VELOCITY
+    SetAngularVelocityRequestStruct = {
+        fields = {
+            { type = "glm::vec3", name = "axis" },
+            { type = "float", name = "degreesInSecond" },
+        }
+    },
+
+    SetAngularVelocityRequestsComponent = {
+        -- manualEditFunction = true,
+        -- manualAddFunction = true,
+        manualParseFunction = true,
+        manualSerializeFunction = true,
+        manualBindFunction = true,
+        fields = {
+            { type = "std::vector<SetAngularVelocityRequest>", name = "requests" }
+        }
+    },
+
+    SetAngularVelocityToDynamicRigidBodySystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "World", readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        "DynamicRigidBody",
+                        "DynamicRigidBodyId",
+                        "PhysicsShape",
+                        { name = "SetAngularVelocityRequests", readonly = false }
                     }
                 }
             }
@@ -198,6 +237,7 @@ PhysicsNamespace = {
             }
         }
     },
+
     CreatePhysicsShapeCapsuleSystem = {
 
         updateMethod = {
@@ -295,6 +335,10 @@ PhysicsNamespace = {
         },
         updateMethod = {
             processesEntities = {
+                -- {
+                --     "Clock",
+
+                -- },
                 {
                     processesComponents = {
                         { name = "Engine", readonly = false }
@@ -303,7 +347,7 @@ PhysicsNamespace = {
             }
         }
     },
-    UpdateDynamicRigidBodyPositionSystem = {
+    UpdateDynamicRigidBodyTransformSystem = {
         callOrder = {
             runAfter = "SimulatePhysics",
             runBefore = "StartRender"
@@ -318,6 +362,7 @@ PhysicsNamespace = {
                 {
                     processesComponents = {
                         { name = "WorldPosition3D", readonly = false },
+                        { name = "WorldRotation3D", readonly = false },
                         "DynamicRigidBodyId"
                     }
                 }

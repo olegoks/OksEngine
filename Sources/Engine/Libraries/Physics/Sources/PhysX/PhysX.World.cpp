@@ -132,6 +132,19 @@ namespace PhysX {
 
 	}
 
+	glm::quat World::GetRigidBodyRotation(PAL::DynamicRigidBody::Id drbId) {
+		auto rb = GetRigidBodyById(drbId);
+
+		glm::vec3 scale;
+		glm::quat rotation;
+		glm::vec3 translation;
+		glm::vec3 skew;
+		glm::vec4 perspective;
+		glm::decompose(rb->GetTransform(), scale, rotation, translation, skew, perspective);
+
+		return rotation;
+	}
+
 
 	void World::AddStaticRigidBody(PAL::StaticRigidBody::Id srbId) {
 		OS::Assert(scene_ != nullptr);

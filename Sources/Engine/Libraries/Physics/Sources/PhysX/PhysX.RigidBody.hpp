@@ -83,6 +83,17 @@ namespace PhysX {
 			GetBody()->setLinearVelocity({ velocityVector.x, velocityVector.y, velocityVector.z });
 		}
 
+		virtual void SetAngularVelocity(const glm::vec3& axis, float angleInDegrees) override {
+
+			float angleDegrees = 5.0f;
+			float angleRadians = angleDegrees * 3.14 / 180.0f;
+
+			physx::PxVec3 rotation{axis.x, axis.y, axis.z};
+			rotation *= angleInDegrees;
+			GetBody()->setAngularVelocity(rotation);
+
+		}
+
 		virtual void ApplyForce(const glm::vec3& direction, float force) override {
 			const glm::vec3 directionalForce = glm::normalize(direction) * force;
 			GetBody()->addForce({ directionalForce.x, directionalForce.y, directionalForce.z });

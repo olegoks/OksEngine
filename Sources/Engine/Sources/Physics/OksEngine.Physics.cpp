@@ -402,6 +402,28 @@ namespace OksEngine
 			return {};
 		}
 
+		//SetAngularVelocityRequests
+		void BindSetAngularVelocityRequests(::Lua::Context& context) {
+			context.GetGlobalNamespace()
+				.beginClass<SetAngularVelocityRequests>("SetAngularVelocityRequests")
+				.addFunction("AddSetAngularVelocityRequest", [](SetAngularVelocityRequests* self, float rotateAxisX, float rotateAxisY, float rotateAxisZ, float degreesInSecond) {
+				self->requests_.push_back(
+					SetAngularVelocityRequest{ glm::vec3{ rotateAxisX, rotateAxisY, rotateAxisZ }, degreesInSecond }
+				);
+					})
+				.endClass();
+		}
+
+
+		SetAngularVelocityRequests ParseSetAngularVelocityRequests(luabridge::LuaRef& setVelocityRequestsRef) {
+
+			return SetAngularVelocityRequests{};
+		}
+
+		std::string SerializeSetAngularVelocityRequests(const SetAngularVelocityRequests* setAngularVelocityRequests) {
+			return {};
+		}
+
 		//RigidBodyEntityId
 
 		void BindRigidBodyEntityId(::Lua::Context& context) {
@@ -589,14 +611,23 @@ namespace OksEngine
 
 		};
 
-		void UpdateDynamicRigidBodyPosition::Update(ECS2::Entity::Id entity0id, const Physics::World* world0, ECS2::Entity::Id entity1id,
-			WorldPosition3D* worldPosition3D1, const Physics::DynamicRigidBodyId* dynamicRigidBodyId1) {
+		void UpdateDynamicRigidBodyTransform::Update(ECS2::Entity::Id entity0id, const Physics::World* world0, ECS2::Entity::Id entity1id,
+			WorldPosition3D* worldPosition3D1, WorldRotation3D* worldRotation3D1,
+			const Physics::DynamicRigidBodyId* dynamicRigidBodyId1) {
 
 			Math::Vector3f position = world0->world_->GetRigidBodyPosition(dynamicRigidBodyId1->id_);
 
 			worldPosition3D1->x_ = position.GetX();
 			worldPosition3D1->y_ = position.GetY();
 			worldPosition3D1->z_ = position.GetZ();
+
+			//Move to separate system or rename this function
+			glm::quat rotation = world0->world_->GetRigidBodyRotation(dynamicRigidBodyId1->id_);
+
+			worldRotation3D1->w_ = rotation.w;
+			worldRotation3D1->x_ = rotation.x;
+				worldRotation3D1->y_ = rotation.y;
+				worldRotation3D1->z_ = rotation.z;
 
 		}
 
@@ -704,6 +735,23 @@ namespace OksEngine
 
 
 		};
+
+		void SetAngularVelocityToDynamicRigidBody::Update(
+			ECS2::Entity::Id entity0id, Physics::World* world0, ECS2::Entity::Id entity1id,
+			const Physics::DynamicRigidBody* dynamicRigidBody1,
+			const Physics::DynamicRigidBodyId* dynamicRigidBodyId1, const Physics::PhysicsShape* physicsShape1,
+			SetAngularVelocityRequests* setAngularVelocityRequests1) {
+
+			if (setAngularVelocityRequests1->requests_.empty()) return;
+
+			auto rb = Common::pointer_cast<PAL::DynamicRigidBody>(world0->world_->GetRigidBodyById(dynamicRigidBodyId1->id_));
+
+			const SetAngularVelocityRequest& request = setAngularVelocityRequests1->requests_.back();
+			rb->SetAngularVelocity(request.axis_, request.degreesInSecond_);
+
+			//setVelocityRequests1->requests_.clear();
+
+		}
 
 		void SetVelocityToDynamicRigidBody::Update(
 			ECS2::Entity::Id entity0id, 

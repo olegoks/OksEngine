@@ -34,7 +34,7 @@ namespace OksEngine
 			//		Subsystem::Type::ChildThread, "Root/Math3D.lua");
 
 			CreateComponent<LuaScript>(entity1id,
-	/*			std::string{
+				/*std::string{
 					math3DResourceData.GetData<char>(),
 					math3DResourceData.GetSize()
 				} +*/
@@ -62,6 +62,7 @@ namespace OksEngine
 			BindDirection3D(*luaContext);
 			Physics::BindRigidBodyEntityId(*luaContext);
 			Physics::BindSetVelocityRequests(*luaContext);
+			Physics::BindSetAngularVelocityRequests(*luaContext);
 			BindUp3D(*luaContext);
 			BindECSWorld(*luaContext);
 
@@ -97,8 +98,8 @@ namespace OksEngine
 
 			luabridge::LuaRef luaObjectUpdater = luaContext0->context_->GetGlobalAsRef(objectName0->name_ + "Updater");
 			luabridge::LuaRef luaUpdateMethod = luaObjectUpdater["Update"];
-			luaUpdateMethod(luaObjectUpdater, luaObject, 1);
-
+			const auto result = luaUpdateMethod(luaObjectUpdater, luaObject, 1);
+			ASSERT_MSG(!result.hasFailed() && result.wasOk(), (result.errorCode().message() + result.errorMessage()).c_str());
 		};
 
 		void CallKeyboardEventsProcessor::Update(

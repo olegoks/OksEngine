@@ -17,7 +17,7 @@ CharacterNamespace = {
 
     UpdateBindedCameraPositionSystem = {
         callOrder = {
-            runAfter = { "Physics::UpdateDynamicRigidBodyPosition" },
+            runAfter = { "Physics::UpdateDynamicRigidBodyTransform" },
             runBefore = { "StartRender" }
         },
         updateMethod = {
@@ -39,7 +39,9 @@ CharacterNamespace = {
             accessingEntities = {
                 {
                     accessingComponents = {
-                        "WorldPosition3D"
+                        "WorldPosition3D",
+                        "WorldRotation3D",
+                        "Direction3D"
                     }
                 }
                 -- },

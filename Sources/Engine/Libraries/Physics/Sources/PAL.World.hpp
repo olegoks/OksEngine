@@ -41,6 +41,7 @@ namespace PAL {
 		virtual void ApplyForce(PAL::DynamicRigidBody::Id drbId) = 0;
 
 		virtual Math::Vector3f GetRigidBodyPosition(PAL::DynamicRigidBody::Id drbId) = 0;
+		virtual glm::quat GetRigidBodyRotation(PAL::DynamicRigidBody::Id drbId) = 0;
 
 		virtual void AddDynamicRigidBody(PAL::DynamicRigidBody::Id drbId) = 0;
 
