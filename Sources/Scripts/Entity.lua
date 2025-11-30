@@ -8,7 +8,7 @@ function Entity:New()
     -- entity.EngineEntity = EngineEntity()
 
     local luaEntity = {
-        engineEntity = EngineEntity()
+        entityId = EntityId()
     }
 
     -- Make Entity as metatable for entity
@@ -35,12 +35,12 @@ function Entity:New()
          end
          
          -- Затем C++ базовый класс
-         local value = t.engineEntity[k]
+         local value = t.entityId[k]
          if type(value) == "function" then
             --print("__index function in engineEntity")
             --print(k)
             return function(...)
-                return value(t.engineEntity, ...)
+                return value(t.entityId, ...)
             end
          else 
             return value

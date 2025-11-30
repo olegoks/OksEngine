@@ -55,15 +55,12 @@ namespace OksEngine
 			const LuaScript* luaScript0) {
 
 			auto luaContext = std::make_shared<::Lua::Context>();
+
+			BindComponents(*luaContext);
+
 			BindVector(*luaContext);
 			BindMath3D(*luaContext);
-			BindLuaEntity(*luaContext);
-			BindWorldPosition3D(*luaContext);
-			BindDirection3D(*luaContext);
-			Physics::BindRigidBodyEntityId(*luaContext);
-			Physics::BindSetVelocityRequests(*luaContext);
-			Physics::BindSetAngularVelocityRequests(*luaContext);
-			BindUp3D(*luaContext);
+			BindEntityId(*luaContext);
 			BindECSWorld(*luaContext);
 
 			luabridge::setGlobal(luaContext->state_, world_.get(), "ECSWorld");
@@ -78,9 +75,8 @@ namespace OksEngine
 
 			luabridge::LuaRef luaObject = luaContext->GetGlobalAsRef("object");
 
-			luabridge::LuaRef luaEngineEntity = luaObject["engineEntity"];
-			Entity* luaEntity = luaEngineEntity.cast<Entity*>().value();
-			luaEntity->SetWorld(world_.get());
+			luabridge::LuaRef luaEngineEntity = luaObject["entityId"];
+			EntityId* luaEntity = luaEngineEntity.cast<EntityId*>().value();
 			luaEntity->SetId((std::uint64_t)entity0id);
 
 			CreateComponent<LuaContext>(entity0id, luaContext);

@@ -340,12 +340,19 @@ namespace ECSGenerator2 {
 							bases.push_back(addFunction);
 						}
 						{
-							auto bindFunction
-								= (parsedComponent->ci_.manualBindFunction_)
-								? (componentGenerator.GenerateBindFunctionPrototype(parsedComponent))
-								: (componentGenerator.GenerateBindFunctionRealization(parsedComponent));
-
-							bases.push_back(bindFunction);
+							if (parsedComponent->IsBindable()) {
+								if (parsedComponent->GetName() == "ResourceSystem") {
+									Common::BreakPointLine();
+								}
+								auto bindFunction
+									= (parsedComponent->ci_.manualBindFunction_)
+									? (componentGenerator.GenerateBindFunctionPrototype(parsedComponent))
+									: (componentGenerator.GenerateBindFunctionRealization(parsedComponent));
+								auto bindCreateComponentFunction = componentGenerator.GenerateBindCreateComponentFunctionRealization(parsedComponent);
+								bases.push_back(bindCreateComponentFunction);
+								bases.push_back(bindFunction);
+							}
+							
 						}
 						{
 							auto parseFunction
@@ -574,7 +581,7 @@ namespace ECSGenerator2 {
 
 								bases.push_back(addFunction);
 							}
-							if (parsedComponent->ci_.manualBindFunction_) {
+							if (parsedComponent->IsBindable() && parsedComponent->ci_.manualBindFunction_) {
 								auto bindFunction = componentGenerator.GenerateBindFunctionEmptyRealization(parsedComponent);
 								bases.push_back(bindFunction);
 							}
@@ -1693,7 +1700,7 @@ namespace ECSGenerator2 {
 							DS::Graph<ParsedSystemPtr>::Node::Id afterSystemNodeId = DS::Graph<ParsedSystemPtr>::Node::invalidId_;
 
 							ParsedSystemPtr afterSystemPtr = afterSystem.ptr_;
-							
+
 							//for (auto maybeAfterSystem : parsedSystems) {
 							//	auto fullSystemName = GetFullTableNameWithNamespace(maybeAfterSystem);
 							//	if (afterSystem.name_ == fullSystemName) {
@@ -1704,7 +1711,7 @@ namespace ECSGenerator2 {
 
 							//ASSERT_FMSG(afterSystemPtr != nullptr, "Can't find run after system {}", GetFullTableNameWithNamespace(afterSystem.ptr_));
 							if (!initCallGraph.IsNodeExist(afterSystemPtr)) {
-								
+
 								afterSystemNodeId = initCallGraph.AddNode(afterSystemPtr);
 							}
 							else {
@@ -2013,7 +2020,7 @@ namespace ECSGenerator2 {
 				.includes_ = includes,
 				.base_ = namespaceObject
 			};
-			 
+
 			auto file = std::make_shared<CodeStructure::File>(fci);
 
 			return file;
@@ -2199,6 +2206,39 @@ namespace ECSGenerator2 {
 				CodeStructure::Code code;
 
 				for (auto parsedECSFile : parsedECSFiles) {
+					parsedECSFile->ForEachComponent([&](ParsedComponentPtr parsedComponent) {
+						if (!parsedComponent->IsBindable()) {
+							return true;
+						}
+						const std::string concatedNamespace = parsedComponent->GetConcatedNamespace();
+						if (concatedNamespace != "") {
+							code.Add("	{}::Bind{}(context);\n", concatedNamespace, parsedComponent->GetName());
+						}
+						else {
+							code.Add("	Bind{}(context);\n", parsedComponent->GetName());
+						}
+						return true;
+						});
+				}
+
+				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
+					.name_ = "BindComponents",
+					.parameters_ = {
+						{ "::Lua::Context&", "context" }
+					},
+					.returnType_ = "void",
+					.code_ = {code},
+					.isPrototype_ = false,
+					.inlineModifier_ = true
+				};
+
+				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
+			}
+
+			{
+				CodeStructure::Code code;
+
+				for (auto parsedECSFile : parsedECSFiles) {
 
 					parsedECSFile->ForEachArchetype([&](ParsedArchetypePtr parsedArchetype) {
 
@@ -2211,7 +2251,7 @@ namespace ECSGenerator2 {
 						else {
 							code.Add("	return {}::{}ArchetypeComponentsFilter;\n", parsedArchetype->GetConcatedNamespace(), parsedArchetype->GetName());
 						}
-						
+
 						code.Add("}\n");
 
 						return true;
@@ -2272,16 +2312,17 @@ namespace ECSGenerator2 {
 					"	return world->IsComponentExist(entityId, componentTypeId);\n"
 					"})\n\n");
 
-				code.Add(
-					".addFunction(\"IsComponentExist\", [](ECS2::World* world, ECS2::Entity::Id::ValueType entityId, std::string componentName) {\n"
-					"	const ECS2::ComponentTypeId componentTypeId = GetComponentTypeIdByName(componentName);\n"
-					"	return world->IsComponentExist(entityId, componentTypeId);\n"
+				code.Add(".addFunction(\"RemoveComponent\", [](ECS2::World* world, ECS2::Entity::Id::ValueType entityId, std::string componentName) {\n"
+					"const ECS2::ComponentTypeId componentTypeId = GetComponentTypeIdByName(componentName);\n"
+					"return world->RemoveComponent(entityId, componentTypeId);\n"
 					"})\n\n");
-
-
 
 				for (auto parsedECSFile : parsedECSFiles) {
 					parsedECSFile->ForEachComponent([&](ParsedComponentPtr parsedComponent) {
+
+						if (!parsedComponent->IsBindable()) {
+							return true;
+						}
 
 						auto componentNamespace = parsedComponent->GetNamespace();
 						componentNamespace.push_back(parsedComponent->GetName());
@@ -2292,12 +2333,49 @@ namespace ECSGenerator2 {
 								fullName += "_";
 							}
 						}
-
+		                              
 						code.Add(".addFunction(\"Get{}\", \n[](ECS2::World* world, ECS2::Entity::Id::ValueType entityId) {{\n", fullName);
 						code.Add("	auto* componentPtr = world->GetComponent<{}>(entityId);\n", parsedComponent->GetFullName());
 						code.Add("	return componentPtr;\n");
 						code.Add("})\n");
 						code.NewLine();
+
+						CodeStructure::Code typesParametersList;
+						CodeStructure::Code parametersList;
+						parsedComponent->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+							typesParametersList.Add(fieldInfo.GetTypeName() + ((!fieldInfo.copyable_) ? ("&& ") : (" ")) + parsedComponent->GetLowerName() + fieldInfo.name_);
+							parametersList.Add(parsedComponent->GetLowerName() + fieldInfo.name_);
+							if (!isLast) {
+								typesParametersList.Add(", ");
+								parametersList.Add(", ");
+							}
+							return true;
+							});
+
+						if (typesParametersList.code_ != "") {
+							typesParametersList = ", " + typesParametersList.code_;
+						}
+
+						if (parametersList.code_ != "") {
+							parametersList = ", " + parametersList.code_;
+						}
+
+						std::string fullNamespace = parsedComponent->GetConcatedNamespace();
+
+						if (fullNamespace.empty()) {
+							code.Add(".addFunction(\"Create{}\", BindCreateComponent{})",
+								fullName,
+								fullName);
+						}
+						else {
+							code.Add(".addFunction(\"Create{}\", {}::BindCreateComponent{})",
+								fullName,
+								parsedComponent->GetConcatedNamespace(),
+								fullName);
+						}
+						code.NewLine();
+
+
 
 						return true;
 						});

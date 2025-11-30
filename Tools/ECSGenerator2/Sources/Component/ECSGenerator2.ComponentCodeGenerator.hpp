@@ -466,7 +466,10 @@ namespace ECSGenerator2 {
 			CodeStructure::Code realization;
 			realization.Add("context.GetGlobalNamespace()");
 			realization.NewLine();
-			realization.Add("\t.beginClass<" + component->GetName() + ">(\"" + component->GetName() + "\")");
+
+
+
+			realization.Add("\t.beginClass<" + component->GetName() + ">(\"" + component->GetFullName("_") + "\")");
 			realization.NewLine();
 
 
@@ -486,6 +489,68 @@ namespace ECSGenerator2 {
 				.name_ = "Bind" + component->GetName(),
 				.parameters_ = {
 					{ "::Lua::Context&", "context" }
+				},
+				.returnType_ = "void",
+				.code_ = realization,
+				.inlineModifier_ = true
+			};
+
+			auto editFunction = std::make_shared<CodeStructure::Function>(fci);
+
+			return editFunction;
+
+		}
+
+		std::shared_ptr<CodeStructure::Function> GenerateBindCreateComponentFunctionRealization(std::shared_ptr<ParsedComponent> component) {
+			
+			CodeStructure::Code realization;
+
+			auto componentNamespace = component->GetNamespace();
+			componentNamespace.push_back(component->GetName());
+			std::string fullName;
+			for (Common::Index i = 0; i < componentNamespace.size(); i++) {
+				fullName += componentNamespace[i];
+				if (i != componentNamespace.size() - 1) {
+					fullName += "_";
+				}
+			}
+
+			
+			std::vector<CodeStructure::Function::Parameter> functionInputParameters;
+
+			functionInputParameters.push_back({ "ECS2::World*", "world" });
+			functionInputParameters.push_back({ "ECS2::Entity::Id::ValueType", "entityId" });
+
+			CodeStructure::Code typesParametersList;
+			CodeStructure::Code parametersList;
+			component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
+
+				functionInputParameters.push_back({
+					fieldInfo.GetTypeName() + ((!fieldInfo.copyable_) ? ("&&") : ("")), 
+					component->GetLowerName() + fieldInfo.name_ });
+
+				parametersList.Add(component->GetLowerName() + fieldInfo.name_);
+				if (!isLast) {
+					typesParametersList.Add(", ");
+					parametersList.Add(", ");
+				}
+				return true;
+				});
+
+			if (typesParametersList.code_ != "") {
+				typesParametersList = ", " + typesParametersList.code_;
+			}
+
+			if (parametersList.code_ != "") {
+				parametersList = ", " + parametersList.code_;
+			}
+
+			realization.Add("	world->CreateComponent<{}>(entityId{});\n", component->GetName(), parametersList.code_);
+
+			CodeStructure::Function::CreateInfo fci{
+				.name_ = "BindCreateComponent" + fullName,
+				.parameters_ = {
+					functionInputParameters
 				},
 				.returnType_ = "void",
 				.code_ = realization,

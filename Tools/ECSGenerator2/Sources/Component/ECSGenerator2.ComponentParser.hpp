@@ -33,6 +33,13 @@ namespace ECSGenerator2 {
 				serializable = serializableRef.cast<bool>().value();
 			}
 
+			//Bindable
+			bool bindable = true;
+			luabridge::LuaRef bindableRef = component["bindable"];
+			if (!bindableRef.isNil()) {
+				bindable = bindableRef.cast<bool>().value();
+			}
+
 			//Alignment
 			Common::Size alignment = Common::Limits<Common::Size>::Max();
 			luabridge::LuaRef alignmentRef = component["alignment"];
@@ -104,10 +111,20 @@ namespace ECSGenerator2 {
 				}
 
 			}
+
+#ifdef _DEBUG
+			if (!bindable) {
+				if (manualBindFunction) {
+					ASSERT_FAIL_MSG("Attempt to use \"manualBindFunction == true\" option when bindable == false.");
+				}
+			}
+#endif
+
 			ParsedComponent::CreateInfo ci{
 				.name_ = componentName,
 				.aliasForName_ = aliasFor,
 				.serializable_ = serializable,
+				.bindable_ = bindable,
 				.manualEditFunction_ = manualEditFunction,
 				.manualBindFunction_ = manualBindFunction,
 				.manualAddFunction_ = manualAddFunction,

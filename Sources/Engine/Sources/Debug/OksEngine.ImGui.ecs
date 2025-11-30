@@ -60,6 +60,7 @@ ImGUINamespace = {
     },
 
     ImPlotStateComponent = {
+        bindable = false,
         serializable = false,
         fields = {
             { type = "std::shared_ptr<ImPlotContext>", name = "context" }

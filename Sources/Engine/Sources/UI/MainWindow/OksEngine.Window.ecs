@@ -1,4 +1,5 @@
 WindowComponent = {
+    bindable = false,
     serializable = false,
     fields = {
         { type = "std::string", name = "title" },

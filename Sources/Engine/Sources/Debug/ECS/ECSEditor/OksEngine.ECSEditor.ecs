@@ -4,6 +4,7 @@ ECSEditorMenuItemComponent = {
 
 }
 EditorContextComponent = {
+    bindable = false,
     serializable = false,
     fields = { 
         { type = "std::shared_ptr<ax::NodeEditor::EditorContext>", name = "context" }

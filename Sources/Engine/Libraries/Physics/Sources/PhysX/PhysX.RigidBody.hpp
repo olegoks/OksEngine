@@ -10,6 +10,9 @@
 
 #include <PhysX.Common.hpp>
 #include <PhysX.Shape.hpp>
+#include <physx/PxRigidDynamic.h>
+#include <physx/foundation/PxMat44.h>
+#include <physx/extensions/PxRigidBodyExt.h>
 
 namespace PhysX {
 

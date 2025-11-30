@@ -1,6 +1,7 @@
 PhysicsNamespace = {
 
     EngineComponent = {
+        bindable = false,
         serializable = false,
         fields = {
             { type = "std::shared_ptr<PE::PhysicsEngine>", name = "engine" }
@@ -20,6 +21,7 @@ PhysicsNamespace = {
         }
     },
     WorldComponent = {
+        bindable = false,
         serializable = false,
         fields = {
             { type = "std::shared_ptr<PAL::World>", name = "world" } }
@@ -207,6 +209,7 @@ PhysicsNamespace = {
         }
     },
     PhysicsShapeComponent = {
+        bindable = false,
         serializable = false,
         fields = {
             { type = "std::shared_ptr<PAL::Shape>", name = "shape" }

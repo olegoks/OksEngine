@@ -37,7 +37,8 @@ namespace ECSGenerator2 {
 			std::string name_;
 			std::string aliasForName_;
 			std::shared_ptr<ParsedComponent> aliasFor_ = nullptr;
-			bool serializable_ = true;		
+			bool serializable_ = true;	
+			bool bindable_ = true;
 			bool manualEditFunction_ = false;
 			bool manualBindFunction_ = false;
 			bool manualAddFunction_ = false;
@@ -48,7 +49,9 @@ namespace ECSGenerator2 {
 		};
 
 		ParsedComponent(const CreateInfo& createInfo) :
-			ci_{ createInfo } { }
+			ci_{ createInfo } {
+
+		}
 
 		virtual ParsedTable::Type GetType() const noexcept override {
 			return ParsedTable::Type::Component;
@@ -60,6 +63,10 @@ namespace ECSGenerator2 {
 
 		bool AreThereFields() const {
 			return !ci_.fields_.empty();
+		}
+
+		bool IsBindable() const {
+			return ci_.bindable_;
 		}
 
 		[[nodiscard]]

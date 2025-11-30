@@ -296,41 +296,79 @@ namespace ECS2 {
 				entityId, "Called not from a system, maybe user manually created component", std::forward<Args&&>(args)...);
 		}
 
-		template<class ComponentType>
-		void RemoveComponent(Entity::Id entityId, const char* callerSystemName) noexcept {
+		////TODO: Using const char* callerSystemName is not safe in mt enviroment
+		//template<class ComponentType>
+		//void RemoveComponent(Entity::Id entityId, const char* callerSystemName) noexcept {
+		//	std::lock_guard lock{ addRequestMutex_ };
+		//	requests_.emplace_back([callerSystemName, entityId, this]() mutable {
+		//		//Archetype entity.
+		//		if (archetypeEntitiesComponents_.contains(entityId)) {
+		//			const ComponentsFilter archetypeComponentsFilter = archetypeEntitiesComponents_[entityId];
+
+		//			ASSERT_FMSG(archetypeComponentsFilter.IsSet<ComponentType>(),
+		//				"Attempt to add component to an archetype entity "
+		//				"that can't contain this component");
+
+		//			auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
+		//			std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponentsIt->second;
+		//			archetypeComponents->RemoveComponent<ComponentType>(entityId);
+		//		}
+		//		else {
+
+		//			ASSERT_FMSG(dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
+		//				"Attempt to remove component by system \"{}\", but component container doesn't exist.", callerSystemName);
+		//			ASSERT_FMSG(dynamicEntitiesComponentFilters_.contains(entityId),
+		//				"Attempt to remove entity component, but entity doesn't exist.");
+		//			ASSERT_FMSG(dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
+		//				"Attempt ot remove entity component by system \"{}\", but entity doesn't contain this component.", callerSystemName);
+
+		//			auto container = Common::pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
+		//			container->RemoveComponent(entityId);
+		//			dynamicEntitiesComponentFilters_[entityId].RemoveBits<ComponentType>();
+		//		}
+		//		});
+		//}
+
+		//TODO: Using const char* callerSystemName is not safe in mt enviroment
+		void RemoveComponent(Entity::Id entityId, ComponentTypeId componentTypeId, const char* callerSystemName) noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
-			requests_.emplace_back([callerSystemName, entityId, this]() mutable {
+			requests_.emplace_back([callerSystemName, entityId, componentTypeId, this]() mutable {
 				//Archetype entity.
 				if (archetypeEntitiesComponents_.contains(entityId)) {
 					const ComponentsFilter archetypeComponentsFilter = archetypeEntitiesComponents_[entityId];
-#pragma region Assert
-					ASSERT_FMSG(archetypeComponentsFilter.IsSet<ComponentType>(),
+
+					ASSERT_FMSG(archetypeComponentsFilter.IsSet(componentTypeId),
 						"Attempt to add component to an archetype entity "
 						"that can't contain this component");
-#pragma endregion
+
 					auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
 					std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponentsIt->second;
-					archetypeComponents->RemoveComponent<ComponentType>(entityId);
+					archetypeComponents->RemoveComponent(entityId, componentTypeId);
 				}
 				else {
-#pragma region Assert
-					ASSERT_FMSG(dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
+
+					ASSERT_FMSG(dynamicEntitiesContainers_.contains(componentTypeId),
 						"Attempt to remove component by system \"{}\", but component container doesn't exist.", callerSystemName);
 					ASSERT_FMSG(dynamicEntitiesComponentFilters_.contains(entityId),
 						"Attempt to remove entity component, but entity doesn't exist.");
-					ASSERT_FMSG(dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
+					ASSERT_FMSG(dynamicEntitiesComponentFilters_[entityId].IsSet(componentTypeId),
 						"Attempt ot remove entity component by system \"{}\", but entity doesn't contain this component.", callerSystemName);
-#pragma endregion
-					auto container = Common::pointer_cast<Container<ComponentType>>(dynamicEntitiesContainers_[ComponentType::GetTypeId()]);
+
+					auto container = dynamicEntitiesContainers_[componentTypeId];
 					container->RemoveComponent(entityId);
-					dynamicEntitiesComponentFilters_[entityId].RemoveBits<ComponentType>();
+					dynamicEntitiesComponentFilters_[entityId].RemoveBit(componentTypeId);
 				}
 				});
 		}
 
 		template<class ComponentType>
-		void RemoveComponent(Entity::Id entityId) noexcept {
-			RemoveComponent<ComponentType>(entityId, "Called not from a system, maybe user manually removed component");
+		void RemoveComponent(Entity::Id entityId, const char* callerSystemName = "Called not from a system, maybe user manually removed component") noexcept {
+			//RemoveComponent<ComponentType>(entityId, "Called not from a system, maybe user manually removed component");
+			RemoveComponent(entityId, ComponentType::GetTypeId(), callerSystemName);
+		}
+
+		void RemoveComponent(Entity::Id entityId, ComponentTypeId componentTypeId) noexcept {
+			RemoveComponent(entityId, componentTypeId, "Called not from a system, maybe user manually removed component");
 		}
 
 		template<class ComponentType>

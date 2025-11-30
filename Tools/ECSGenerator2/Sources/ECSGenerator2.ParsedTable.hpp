@@ -55,6 +55,24 @@ namespace ECSGenerator2 {
             return concatedNamespace;
         }
 
+        //Get full name as XXX::YYY::Zzzz
+        inline std::string GetFullName(const char* separator) {
+
+            std::vector<std::string> namespaceStrings = GetNamespace();
+            namespaceStrings.push_back(GetName());
+            decltype(namespaceStrings)& fullNameStrings = namespaceStrings;
+
+            std::string fullNamespace;
+            for (Common::Index i = 0; i < fullNameStrings.size(); i++) {
+                fullNamespace += fullNameStrings[i];
+                if (i != fullNameStrings.size() - 1) {
+                    fullNamespace += separator;
+                }
+            }
+
+            return fullNamespace;
+
+        }
 
         //Get full name as XXX::YYY::Zzzz
         inline std::string GetFullName() {

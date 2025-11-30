@@ -24,40 +24,40 @@
 
 namespace OksEngine
 {
-	
 
-		void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, AnimationInProgress* animationInProgress) {
-			ImGui::PushID(AnimationInProgress::GetTypeId());
 
-			ImGui::TextDisabled("Animation index %d", animationInProgress->animationIndex_);
-			ImGui::TextDisabled("Duration in ticks %f", animationInProgress->durationInTicks_);
-			ImGui::TextDisabled("Current tick %f", animationInProgress->currentTick_);
-			ImGui::TextDisabled("Ticks per second %f", animationInProgress->ticksPerSecond_);
-			ImGui::TextDisabled("Duration in seconds %f", animationInProgress->durationInTicks_ / animationInProgress->ticksPerSecond_);
+	void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, AnimationInProgress* animationInProgress) {
+		ImGui::PushID(AnimationInProgress::GetTypeId());
 
-			//animationInProgress->durationInTicks_
-			double min = 0.0;
-			ImGui::SliderScalar("", ImGuiDataType_Double, &animationInProgress->currentTick_, &min, &animationInProgress->durationInTicks_, "%.3f");
-			//ImGui::SliderDouble("Scale", &scale, 1.0f, max_scale, "%.3f", ImGuiSliderFlags_Logarithmic);
+		ImGui::TextDisabled("Animation index %d", animationInProgress->animationIndex_);
+		ImGui::TextDisabled("Duration in ticks %f", animationInProgress->durationInTicks_);
+		ImGui::TextDisabled("Current tick %f", animationInProgress->currentTick_);
+		ImGui::TextDisabled("Ticks per second %f", animationInProgress->ticksPerSecond_);
+		ImGui::TextDisabled("Duration in seconds %f", animationInProgress->durationInTicks_ / animationInProgress->ticksPerSecond_);
 
-			ImGui::PopID();
+		//animationInProgress->durationInTicks_
+		double min = 0.0;
+		ImGui::SliderScalar("", ImGuiDataType_Double, &animationInProgress->currentTick_, &min, &animationInProgress->durationInTicks_, "%.3f");
+		//ImGui::SliderDouble("Scale", &scale, 1.0f, max_scale, "%.3f", ImGuiSliderFlags_Logarithmic);
+
+		ImGui::PopID();
+	}
+
+	void EditModelAnimations(std::shared_ptr<ECS2::World> ecsWorld, ModelAnimations* modelAnimations) {
+		ImGui::PushID(ModelAnimations::GetTypeId());
+		for (const auto& animation : modelAnimations->animations_) {
+			ImGui::Indent(20.f);
+			ImGui::TextDisabled("Animation name %s", animation.name_.c_str());
+			ImGui::TextDisabled("Duration in ticks %f", animation.durationInTicks_);
+			ImGui::TextDisabled("Ticks per second %f", animation.ticksPerSecond_);
+			ImGui::TextDisabled("Duration in seconds %f", animation.durationInTicks_ / animation.ticksPerSecond_);
+			ImGui::Unindent(20.f);
+			ImGui::Separator();
 		}
+		ImGui::PopID();
+	}
 
-		void EditModelAnimations(std::shared_ptr<ECS2::World> ecsWorld, ModelAnimations* modelAnimations) {
-			ImGui::PushID(ModelAnimations::GetTypeId());
-			for (const auto& animation : modelAnimations->animations_) {
-				ImGui::Indent(20.f);
-				ImGui::TextDisabled("Animation name %s", animation.name_.c_str());
-				ImGui::TextDisabled("Duration in ticks %f", animation.durationInTicks_);
-				ImGui::TextDisabled("Ticks per second %f", animation.ticksPerSecond_);
-				ImGui::TextDisabled("Duration in seconds %f", animation.durationInTicks_ / animation.ticksPerSecond_);
-				ImGui::Unindent(20.f);
-				ImGui::Separator();
-			}
-			ImGui::PopID();
-		}
-
-		namespace Render::Mdl {
+	namespace Render::Mdl {
 		void EditModelNodeEntityIds(std::shared_ptr<ECS2::World> ecsWorld, Render::Mdl::ModelNodeEntityIds* modelNodeEntityIds) {
 			ImGui::PushID(Render::Mdl::ChildModelNodeEntities::GetTypeId());
 			for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeEntityIds_) {
@@ -72,8 +72,15 @@ namespace OksEngine
 			}
 			ImGui::PopID();
 		}
-	}
 
+
+
+	}
+	void BindRunModelAnimation(::Lua::Context& context) {
+		context.GetGlobalNamespace()
+			.beginClass<RunModelAnimation>("RunModelAnimation")
+			.endClass();
+	}
 	namespace Render::Mdl {
 		void ProcessModel::Update(
 
@@ -526,7 +533,7 @@ namespace OksEngine
 			ECS2::Entity::Id entity0id,
 			Ai::Cache* ai__Cache0,
 
-			ECS2::Entity::Id entity1id, 
+			ECS2::Entity::Id entity1id,
 			const Render::Mdl::Msh::MeshsController* meshsController1,
 			Render::Mdl::Msh::MeshNameToEntity* meshNameToEntity1,
 
@@ -2649,54 +2656,54 @@ namespace OksEngine
 	//TEST
 
 	//namespace Render {
-		void BeginRenderPass::Update(
-			ECS2::Entity::Id entity0id, RenderDriver* renderDriver0,
-			const Render::MainRenderPass* render__MainRenderPass0,
-			const Render::AttachmentSet* render__AttachmentSet0, const Render::Pipeline* render__Pipeline0) {
+	void BeginRenderPass::Update(
+		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0,
+		const Render::MainRenderPass* render__MainRenderPass0,
+		const Render::AttachmentSet* render__AttachmentSet0, const Render::Pipeline* render__Pipeline0) {
 
-			auto driver = renderDriver0->driver_;
+		auto driver = renderDriver0->driver_;
 
-			std::vector<RAL::Driver::RP::ClearValue> clearValues;
+		std::vector<RAL::Driver::RP::ClearValue> clearValues;
+		{
+			RAL::Driver::RP::ClearValue clearValue;
 			{
-				RAL::Driver::RP::ClearValue clearValue;
-				{
-					clearValue.depthStencil_.depth_ = 1.0f;
-				}
-				clearValues.push_back(clearValue);
+				clearValue.depthStencil_.depth_ = 1.0f;
 			}
-			{
-				RAL::Driver::RP::ClearValue clearValue;
-				{
-					clearValue.color_.uint32[0] = 0;
-					clearValue.color_.uint32[1] = 0;
-					clearValue.color_.uint32[2] = 0;
-					clearValue.color_.uint32[3] = 255;
-				}
-				clearValues.push_back(clearValue);
-			}
-			{
-				RAL::Driver::RP::ClearValue clearValue;
-				{
-					clearValue.color_.uint32[0] = 0;
-					clearValue.color_.uint32[1] = 0;
-					clearValue.color_.uint32[2] = 0;
-					clearValue.color_.uint32[3] = 255;
-				}
-				clearValues.push_back(clearValue);
-			}
-
-
-			driver->BeginRenderPass(
-				render__MainRenderPass0->rpId_,
-				render__AttachmentSet0->attachmentsSetId_,
-				clearValues,
-				{ 0, 0 },
-				{ 2560, 1440 });
-
-			driver->SetViewport(0, 0, 2560, 1440);
-			driver->SetScissor(0, 0, 2560, 1440);
-
+			clearValues.push_back(clearValue);
 		}
+		{
+			RAL::Driver::RP::ClearValue clearValue;
+			{
+				clearValue.color_.uint32[0] = 0;
+				clearValue.color_.uint32[1] = 0;
+				clearValue.color_.uint32[2] = 0;
+				clearValue.color_.uint32[3] = 255;
+			}
+			clearValues.push_back(clearValue);
+		}
+		{
+			RAL::Driver::RP::ClearValue clearValue;
+			{
+				clearValue.color_.uint32[0] = 0;
+				clearValue.color_.uint32[1] = 0;
+				clearValue.color_.uint32[2] = 0;
+				clearValue.color_.uint32[3] = 255;
+			}
+			clearValues.push_back(clearValue);
+		}
+
+
+		driver->BeginRenderPass(
+			render__MainRenderPass0->rpId_,
+			render__AttachmentSet0->attachmentsSetId_,
+			clearValues,
+			{ 0, 0 },
+			{ 2560, 1440 });
+
+		driver->SetViewport(0, 0, 2560, 1440);
+		driver->SetScissor(0, 0, 2560, 1440);
+
+	}
 
 	//}
 	//	void UpdateLocalPosition3D::Update(
@@ -2823,67 +2830,67 @@ namespace OksEngine
 
 	};
 
-		void AddModelToRender::Update(
-			ECS2::Entity::Id entity0id,
-			const Camera* camera0,
-			const Active* active0,
-			const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer0,
-			const CameraTransformResource* cameraTransformResource0,
+	void AddModelToRender::Update(
+		ECS2::Entity::Id entity0id,
+		const Camera* camera0,
+		const Active* active0,
+		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer0,
+		const CameraTransformResource* cameraTransformResource0,
 
-			ECS2::Entity::Id entity1id,
-			const Indices* indices1,
-			const DriverIndexBuffer* driverIndexBuffer1,
-			const DriverVertexBuffer* driverVertexBuffer1,
-			const Render::DiffuseMap::TextureResource* textureResource1,
-			const Render::Mdl::ModelEntityIds* modelEntityIds1,
-			const Render::Mdl::ModelNodeEntityIndices* modelNodeEntityIndices1,
+		ECS2::Entity::Id entity1id,
+		const Indices* indices1,
+		const DriverIndexBuffer* driverIndexBuffer1,
+		const DriverVertexBuffer* driverVertexBuffer1,
+		const Render::DiffuseMap::TextureResource* textureResource1,
+		const Render::Mdl::ModelEntityIds* modelEntityIds1,
+		const Render::Mdl::ModelNodeEntityIndices* modelNodeEntityIndices1,
 
-			ECS2::Entity::Id entity2id,
-			RenderDriver* renderDriver2,
-			const Render::MainRenderPass* renderPass2,
-			const Render::Pipeline* pipeline2) {
+		ECS2::Entity::Id entity2id,
+		RenderDriver* renderDriver2,
+		const Render::MainRenderPass* renderPass2,
+		const Render::Pipeline* pipeline2) {
 
-			BRK_IF(entity0id.IsInvalid());
+		BRK_IF(entity0id.IsInvalid());
 
-			return;
+		return;
 
-			ASSERT(!IsComponentExist<VertexBones>(entity1id));
+		ASSERT(!IsComponentExist<VertexBones>(entity1id));
 
-			auto driver = renderDriver2->driver_;
+		auto driver = renderDriver2->driver_;
 
-			driver->BindPipeline(pipeline2->id_);
+		driver->BindPipeline(pipeline2->id_);
 
-			driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
-			driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
+		driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
+		driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
 
-			driver->Bind(pipeline2->id_, 0,
-				{
-					cameraTransformResource0->id_,	// set 0
-					textureResource1->id_			// set 1
-				});
+		driver->Bind(pipeline2->id_, 0,
+			{
+				cameraTransformResource0->id_,	// set 0
+				textureResource1->id_			// set 1
+			});
 
 
 
-			const std::vector<Common::Index>& nodeEntityIndices = modelNodeEntityIndices1->nodeEntityIndices_;
+		const std::vector<Common::Index>& nodeEntityIndices = modelNodeEntityIndices1->nodeEntityIndices_;
 
-			for (ECS2::Entity::Id modelEntityId : modelEntityIds1->modelEntityIds_) {
-				const auto* modelNodeEntityIds = GetComponent<Render::Mdl::ModelNodeEntityIds>(modelEntityId);
-				for (Common::Index nodeEntityIndex : nodeEntityIndices) {
+		for (ECS2::Entity::Id modelEntityId : modelEntityIds1->modelEntityIds_) {
+			const auto* modelNodeEntityIds = GetComponent<Render::Mdl::ModelNodeEntityIds>(modelEntityId);
+			for (Common::Index nodeEntityIndex : nodeEntityIndices) {
 
-					const ECS2::Entity::Id modelNodeEntity = modelNodeEntityIds->nodeEntityIds_[nodeEntityIndex];
+				const ECS2::Entity::Id modelNodeEntity = modelNodeEntityIds->nodeEntityIds_[nodeEntityIndex];
 
-					const auto* transform3DResource = GetComponent<Transform3DResource>(modelNodeEntity);
+				const auto* transform3DResource = GetComponent<Transform3DResource>(modelNodeEntity);
 
-					driver->Bind(pipeline2->id_, 2,
-						{
-							transform3DResource->id_, // set 2
-						});
-					driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
+				driver->Bind(pipeline2->id_, 2,
+					{
+						transform3DResource->id_, // set 2
+					});
+				driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
 
-				}
 			}
-
 		}
+
+	}
 
 	struct MeshData {
 		Common::UInt64 nodeDataEntitiesNumber_ = 0;
@@ -3238,7 +3245,7 @@ namespace OksEngine
 				if (textureResource->id_.IsInvalid()) {
 					continue;
 				}
-				 
+
 				auto* driverVertexBuffer = meshVertexBuffers + i;
 				driver->BindVertexBuffer(driverVertexBuffer->id_, 0);
 

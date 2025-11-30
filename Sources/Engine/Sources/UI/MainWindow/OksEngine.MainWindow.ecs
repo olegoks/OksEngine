@@ -1,4 +1,5 @@
 MainWindowComponent = {
+    bindable = false,
     serializable = false,
     fields = { 
         { type = "std::shared_ptr<UI::Window>", name = "window" }

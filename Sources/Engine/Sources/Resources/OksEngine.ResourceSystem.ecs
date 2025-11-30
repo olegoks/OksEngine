@@ -1,4 +1,5 @@
 ResourceSystemComponent = {
+    bindable = false,
     serializable = false,
     fields = {         
 		{ type = "std::shared_ptr<AsyncResourceSubsystem>", name = "system" }
