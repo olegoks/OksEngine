@@ -187,20 +187,20 @@ vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint modelComponent
         }
         uint64_t nodeEntityId = modelNodeEntityIds_[modelComponentsIndex].nodeIds_[boneIndexInModelSpace];
 
-        // ASSERT_FMSG_2(
-        //     (nodeEntityId != INVALID_ENTITY_ID) && (nodeEntityId != 0), 
-        //     "ASSERT: Bone node invalid entity id. boneIndexInModelSpace %d modelComponentsIndex %d",
-        //     uint(boneIndexInModelSpace), 
-        //     uint(modelComponentsIndex));
+        ASSERT_FMSG_2(
+            (nodeEntityId != INVALID_ENTITY_ID) && (nodeEntityId != 0), 
+            "ASSERT: Bone node invalid entity id. boneIndexInModelSpace %d modelComponentsIndex %d",
+            uint(boneIndexInModelSpace), 
+            uint(modelComponentsIndex));
 
         uint nodeComponentsIndex = uint(nodeComponentsIndices_[uint(nodeEntityId)]);
         uint64_t modelNodeDataEntityId = modelNodeDataEntityIds_[nodeComponentsIndex];
         uint64_t modelNodeDataComponentsIndex = modelNodeDataEntityIdsToComponentIndices_[uint(modelNodeDataEntityId)];
         
 
-        // ASSERT_FMSG_3(nodeComponentsIndex != -1, 
-        //  "ASSERT: Invalid bone component index calculated for bone entity id %d. Vertex bone index %d. Bone index in model space %d.",
-        //   uint(nodeEntityId), bone, boneIndexInModelSpace);
+        ASSERT_FMSG_3(nodeComponentsIndex != -1, 
+         "ASSERT: Invalid bone component index calculated for bone entity id %d. Vertex bone index %d. Bone index in model space %d.",
+          uint(nodeEntityId), bone, boneIndexInModelSpace);
         vec3 translate = vec3(positions_[nodeComponentsIndex].position_.x, positions_[nodeComponentsIndex].position_.y, positions_[nodeComponentsIndex].position_.z);
         vec4 rotation = rotations_[nodeComponentsIndex].rotation_;
         vec3 scale = vec3(scales_[nodeComponentsIndex].scale_.x, scales_[nodeComponentsIndex].scale_.y, scales_[nodeComponentsIndex].scale_.z);
@@ -225,18 +225,18 @@ void main() {
     //Get model entity that we are rendering at the moment.
     uint64_t modelEntityId = meshModelIds_[uint(meshComponentsIndex_)].modelIds_[gl_InstanceIndex];
 
-    // ASSERT_FMSG_2(
-    //     (modelEntityId != INVALID_ENTITY_ID) && (modelEntityId != 0), 
-    //     "ASSERT: Model invalid entity id %d. meshComponentsIndex_ %d",
-    //      int(modelEntityId),
-    //      int(meshComponentsIndex_));
+    ASSERT_FMSG_2(
+        (modelEntityId != INVALID_ENTITY_ID) && (modelEntityId != 0), 
+        "ASSERT: Model invalid entity id %d. meshComponentsIndex_ %d",
+         int(modelEntityId),
+         int(meshComponentsIndex_));
 
     //Get index of model components.
     uint modelComponentsIndex = uint(modelComponentsIndices_[uint(modelEntityId)]);//GetComponentIndexByModelEntityId(modelEntityId);
-    // ASSERT_FMSG_3(modelComponentsIndex != -1, 
-    //      "ASSERT: Invalid model component index calculated for model entity id %i. meshComponentsIndex_ %i gl_InstanceIndex %i",
-    //       int(modelEntityId),
-    //         int(meshComponentsIndex_), int(gl_InstanceIndex));
+    ASSERT_FMSG_3(modelComponentsIndex != -1, 
+         "ASSERT: Invalid model component index calculated for model entity id %i. meshComponentsIndex_ %i gl_InstanceIndex %i",
+          int(modelEntityId),
+            int(meshComponentsIndex_), int(gl_InstanceIndex));
 
     newPosition = TakeBoneIntoAccount(newPosition, position, modelComponentsIndex, uint(0));
     newPosition = TakeBoneIntoAccount(newPosition, position, modelComponentsIndex, uint(1));

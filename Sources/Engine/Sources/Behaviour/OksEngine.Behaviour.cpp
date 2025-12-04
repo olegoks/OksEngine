@@ -94,12 +94,82 @@ namespace OksEngine
 
 			luabridge::LuaRef luaObjectUpdater = luaContext0->context_->GetGlobalAsRef(objectName0->name_ + "Updater");
 			luabridge::LuaRef luaUpdateMethod = luaObjectUpdater["Update"];
+
 			const auto result = luaUpdateMethod(luaObjectUpdater, luaObject, 1);
 			ASSERT_MSG(!result.hasFailed() && result.wasOk(), (result.errorCode().message() + result.errorMessage()).c_str());
 		};
 
+		static void debugHook(lua_State* L, lua_Debug* ar) {
+			if (ar->event == LUA_HOOKCALL) {
+
+
+				lua_getinfo(L, "Snl", ar);
+
+
+				//[[maybe_unused]]
+				//const bool CppFunctionDefined = (ar->what != nullptr) && (strcmp(ar->what, "C") != 0) && (ar->name != nullptr);
+				//ASSERT_FMSG(CppFunctionDefined,
+				//	"Error while execution lua script:{}\n"
+				//	"Attempt to call unknown function in line {}:\n{}\n",
+				//	ar->source,
+				//	ar->currentline,
+				//	[ar]() -> std::string {
+				//		const char* text = ar->source;
+				//		int line_number = ar->currentline;
+				//		if (!text || line_number <= 0) {
+				//			return "";
+				//		}
+
+				//		const char* current = text;
+				//		const char* line_start = text;
+				//		int current_line = 1;
+
+				//		// Ищем начало нужной строки
+				//		while (*current && current_line < line_number) {
+				//			if (*current == '\n') {
+				//				current_line++;
+				//				line_start = current + 1;  // Начало следующей строки
+				//			}
+				//			current++;
+				//		}
+
+				//		// Если строка не найдена (текст закончился раньше)
+				//		if (current_line < line_number) {
+				//			return "";
+				//		}
+
+				//		// Ищем конец строки
+				//		const char* line_end = line_start;
+				//		while (*line_end && *line_end != '\n') {
+				//			line_end++;
+				//		}
+
+				//		// Создаем строку от начала до конца
+				//		return std::string(line_start, line_end - line_start);
+				//	}()
+				//);
+							
+				//lua_getinfo(L, "n", ar);
+				//if (ar->name == NULL) {
+				//	// Функция без имени - возможно, незарегистрированная глобальная
+				//	lua_Debug info;
+				//	if (!lua_getstack(L, 1, ar)) {
+				//		OS::AssertFail();
+				//	}
+				//	if (!lua_getinfo(L, "l", ar)) {
+				//		OS::AssertFail();
+				//	}
+
+				//	
+
+				//	/*std::cerr << "Предупреждение: вызов неизвестной функции в строке "
+				//		<< info.currentline << std::endl;*/
+				//}
+			}
+		}
+
 		void CallKeyboardEventsProcessor::Update(
-			ECS2::Entity::Id entity0id, 
+			ECS2::Entity::Id entity0id,
 			const ScriptName* scriptName0,
 			const ObjectName* objectName0,
 			LuaContext* luaContext0,
@@ -111,7 +181,7 @@ namespace OksEngine
 			luabridge::LuaRef luaObjectInputProcessor = luaContext0->context_->GetGlobalAsRef(objectName0->name_ + "InputProcessor");
 			luabridge::LuaRef processKeyboardInputMethod = luaObjectInputProcessor["ProcessKeyboardInput"];
 
-
+			lua_sethook(luaContext0->context_->state_, debugHook, LUA_MASKCALL, 0);
 
 			for (auto [key, event] : keyboardEvents0->events_) {
 

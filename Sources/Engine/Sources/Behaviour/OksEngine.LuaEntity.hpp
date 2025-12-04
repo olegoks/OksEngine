@@ -8,16 +8,16 @@
 
 namespace OksEngine {
 
-		class EntityId {
-		public:
+	class EntityId {
+	public:
 
-			void SetId(std::uint64_t id);
+		void SetId(std::uint64_t id);
 
-			std::uint64_t GetId();
+		std::uint64_t GetId();
 
-		private:
-			ECS2::Entity::Id id_ = ECS2::Entity::Id::invalid_;
-		};
+	private:
+		ECS2::Entity::Id id_ = ECS2::Entity::Id::invalid_;
+	};
 
 
 	void BindEntityId(::Lua::Context& context);

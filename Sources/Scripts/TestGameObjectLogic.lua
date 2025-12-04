@@ -9,7 +9,7 @@ end
 TestGameObjectUpdater = {}
 
 function TestGameObjectUpdater:Update(object, deltaMs)
-    local objectEntityId = object:GetValue()
+    local objectEntityId = object:GetIdValue()
     if object.movingForward then
         --print("camera.movingForward == true")
         local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(objectEntityId)
@@ -24,15 +24,15 @@ end
 
 TestGameObjectInputProcessor = {}
 
-function TestGameObjectInputProcessor:ProcessKeyboardInput(camera, Key, Event)
+function TestGameObjectInputProcessor:ProcessKeyboardInput(object, Key, Event)
 
-    local cameraEntityId = camera:GetValue()
+    local cameraEntityId = object:GetIdValue()
     if Key == "MOVE_FORWARD" then
         if Event == "Pressed" then
-            camera.movingForward = true
+            object.movingForward = true
             --print("camera.movingForward = true")
         elseif Event == "Released" then
-            camera.movingForward = false
+            object.movingForward = false
             --print("camera.movingForward = false")
         end
     end
@@ -41,7 +41,7 @@ end
 
 function TestGameObjectInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY, scroll)
     --print("TestGameObjectInputProcessor:ProcessMouseInput(")
-    local cameraEntityId = camera:GetValue()
+    local cameraEntityId = camera:GetIdValue()
     local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(cameraEntityId)
     local rbEntityId = rigidBodyEntityId.id
 

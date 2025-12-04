@@ -59,7 +59,7 @@ AnimationNamespace = {
 
         AnimationsMaxNumberConstant = {
             type = "Common::Size",
-            value = "4"
+            value = "6"
         },
         NodeNamespace = {
             AnimationStruct = {
@@ -73,7 +73,6 @@ AnimationNamespace = {
             AnimationsComponent = {
                 serializable = false,
                 fields = {
-                    --Max 8 animations per node
                     { type = "std::array<Animation, AnimationsMaxNumber>", name = "animations" }
                 }
             },

@@ -610,7 +610,7 @@ namespace OksEngine
 					aiProcess_Debone |
 					aiProcess_ConvertToLeftHanded;
 
-				importer->SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, 4);
+				importer->SetPropertyInteger(AI_CONFIG_PP_LBW_MAX_WEIGHTS, VertexMaxBonesNumber);
 
 				const aiScene* readScene = importer->ReadFileFromMemory(
 					resourceData.GetData<Common::Byte>(),
@@ -619,12 +619,10 @@ namespace OksEngine
 					"gltf"
 				);
 
-#pragma region Assert
 				auto errorString = std::string(importer->GetErrorString());
 
 				ASSERT_FMSG(readScene && readScene->mRootNode,
 					"Failed to load model: {}", errorString);
-#pragma endregion
 
 				std::shared_ptr<const aiScene> scenePtr(readScene, [importer](const aiScene* scene) { importer->FreeScene(); });
 

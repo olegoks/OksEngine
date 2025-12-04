@@ -11,7 +11,7 @@ namespace OksEngine {
 			.beginClass<EntityId>("EntityId")
 			.addConstructor<void(*)()>()
 			.addFunction("SetValue", &EntityId::SetId)
-			.addFunction("GetValue", &EntityId::GetId)
+			.addFunction("GetIdValue", &EntityId::GetId)
 			.endClass();
 	}
 
