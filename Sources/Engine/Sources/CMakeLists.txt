@@ -22,7 +22,7 @@ if(MSVC)
         message(STATUS "Дневной режим (03:00–23:59)")
     endif()
   
-  #  target_compile_options(OksEngine PUBLIC "/MP 20")
+    target_compile_options(OksEngine PUBLIC "/MP 8")
   target_link_options(OksEngine PUBLIC "/INCREMENTAL")
 endif()
 #TODO: Move this definition to code.

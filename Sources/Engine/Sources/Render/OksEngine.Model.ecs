@@ -46,6 +46,7 @@ ModelAnimationStruct = {
 ModelAnimationsComponent = {
     serializable = false,
     manualEditFunction = true,
+    manualBindFunction = true,
     fields = {
         { type = "std::vector<ModelAnimation>", name = "animations" }
     }
@@ -272,6 +273,7 @@ RenderNamespace = {
             serializable = false
         },
         ModelEntityComponent = {
+            manualBindFunction = true,
             fields = {
                 { type = "ECS2::Entity::Id", name = "id" }
             }

@@ -718,6 +718,18 @@ namespace OksEngine
 
 			auto rbComponentsFilter = GetComponentsFilter(entity1id);
 
+
+			float angularDamping = 0.05;
+			float linearDamping = 0.1;
+			if (rbComponentsFilter.IsSet<AngularDamping>()) {
+				auto* angularDampingComponent = GetComponent<AngularDamping>(entity1id);
+				angularDamping = angularDampingComponent->value_;
+			}
+			if (rbComponentsFilter.IsSet<LinearDamping>()) {
+				auto* linearDampingComponent = GetComponent<LinearDamping>(entity1id);
+				linearDamping = linearDampingComponent->value_;
+			}
+
 			PAL::DynamicRigidBody::CreateInfo createInfo{
 				.rbCreateInfo_ = {
 					.transform_ = glm::mat4{ glm::translate(glm::vec3(worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_)) },
@@ -725,6 +737,8 @@ namespace OksEngine
 					.name_ = "DynamicRigidBody"
 				},
 				.mass_ = mass1->value_,
+				.linearDamping_ = linearDamping,
+				.angularDamping_ = angularDamping,
 				.lockAngularX_ = rbComponentsFilter.IsSet<LockAngularX>(),
 				.lockAngularZ_ = rbComponentsFilter.IsSet<LockAngularZ>()
 			};
@@ -749,7 +763,7 @@ namespace OksEngine
 			const SetAngularVelocityRequest& request = setAngularVelocityRequests1->requests_.back();
 			rb->SetAngularVelocity(request.axis_, request.degreesInSecond_);
 
-			//setVelocityRequests1->requests_.clear();
+			setAngularVelocityRequests1->requests_.clear();
 
 		}
 

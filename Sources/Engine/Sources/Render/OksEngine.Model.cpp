@@ -72,16 +72,46 @@ namespace OksEngine
 			}
 			ImGui::PopID();
 		}
-
-
-
 	}
+
+	void BindModelAnimations(::Lua::Context& context) {
+		context.GetGlobalNamespace()
+			.beginClass<ModelAnimations>("ModelAnimations")
+			.addFunction("GetAnimationsNumber", [](const ModelAnimations* modelAnimations) {
+			ASSERT(!modelAnimations->animations_.empty());
+			return modelAnimations->animations_.size();
+				})
+			.addFunction("GetAnimationName", [](const ModelAnimations* modelAnimations, Common::UInt64 animationIndex) {
+			ASSERT(animationIndex < modelAnimations->animations_.size());
+			return modelAnimations->animations_[animationIndex];
+				})
+			.endClass();
+	}
+
 	void BindRunModelAnimation(::Lua::Context& context) {
 		context.GetGlobalNamespace()
 			.beginClass<RunModelAnimation>("RunModelAnimation")
 			.endClass();
 	}
 	namespace Render::Mdl {
+
+		void BindModelEntity(::Lua::Context& context)
+		{
+
+			context.GetGlobalNamespace()
+				.beginClass<ModelEntity>("Render_Mdl_ModelEntity")
+				.addProperty("id",
+					[](const ModelEntity* modelEntity) {
+						return modelEntity->id_.GetRawValue();
+					},
+					[](ModelEntity* modelEntity, ECS2::Entity::Id::ValueType value) {
+						return modelEntity->id_ = value;
+					}
+				)
+				.endClass();
+		};
+
+
 		void ProcessModel::Update(
 
 			ECS2::Entity::Id entity0id,
@@ -160,25 +190,25 @@ namespace OksEngine
 
 					RemoveComponent<AnimationInProgress>(modelEntityId);
 
-					const Common::Size animationsNumber = modelAnimations->animations_.size();
+					//const Common::Size animationsNumber = modelAnimations->animations_.size();
 
-					std::random_device rd;
-					std::mt19937 gen(rd());
+					//std::random_device rd;
+					//std::mt19937 gen(rd());
 
-					Common::Index a = 0, b = animationsNumber - 1;
-					std::uniform_int_distribution<> dist(a, b);
-					const Common::Index randomAnimationIndex = dist(gen);
-					const ModelAnimation& randomModelAnimation = modelAnimations->animations_[randomAnimationIndex];
+					//Common::Index a = 0, b = animationsNumber - 1;
+					//std::uniform_int_distribution<> dist(a, b);
+					//const Common::Index randomAnimationIndex = dist(gen);
+					//const ModelAnimation& randomModelAnimation = modelAnimations->animations_[randomAnimationIndex];
 
 
-					//animationIndex++;
-					//if (animationIndex == animationsNumber) {
-					//	animationIndex = 0;
-					//}
+					////animationIndex++;
+					////if (animationIndex == animationsNumber) {
+					////	animationIndex = 0;
+					////}
 
-					//const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[animationIndex];
+					////const ModelAnimation& randomModelAnimation = modelAnimations0->animations_[animationIndex];
 
-					CreateComponent<RunModelAnimation>(modelEntityId, randomModelAnimation.name_);
+					//CreateComponent<RunModelAnimation>(modelEntityId, randomModelAnimation.name_);
 				}
 				else {
 					animationInProgress->currentTick_ = currentAnimationStage * animationInProgress->durationInTicks_;

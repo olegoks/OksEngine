@@ -317,7 +317,16 @@ PhysicsNamespace = {
                     createsComponents = {
                         "DynamicRigidBodyId"
                     },
-                    excludes = { "DynamicRigidBodyId" }
+                    excludes = { "DynamicRigidBodyId" },
+                    
+                }
+            },
+            accessingEntities = {
+                {
+                    accessingComponents = {
+                        "AngularDamping",
+                        "LinearDamping"
+                    }
                 }
             }
         }
@@ -326,11 +335,20 @@ PhysicsNamespace = {
         fields = { { type = "float", name = "value" } }
     },
     MaterialComponent = {
-        name = "Material",
         fields = {
             { type = "float", name = "staticFriction" },
             { type = "float", name = "dynamicFriction" },
             { type = "float", name = "restitution" } }
+    },
+    AngularDampingComponent = {
+        fields = {
+            { type = "float", name = "value" }
+        }
+    },
+    LinearDampingComponent = {
+        fields = {
+            { type = "float", name = "value" }
+        }
     },
     SimulatePhysicsSystem = {
         callOrder = {

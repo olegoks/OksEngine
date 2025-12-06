@@ -48,7 +48,7 @@ scene = {
                   ID = 5,
                   name = { value = "TestGameObject" },
                   characterEntity = { },
-                  bindedCameraOffset = { x = 0.0, y = 2.0, z = 2.0 },
+                  bindedCameraOffset = { x = 0.0, y = 2.0, z = 3.0 },
                   bindedCameraEntityId = { id = 14 },
                   modelEntity = { id = 1 },
                   rigidBodyEntityId = { id = 6 },
@@ -84,6 +84,12 @@ scene = {
                         dynamicFriction = 0.5,
                         restitution = 0.5
                   },
+                  angularDamping = {
+                        value = 5.0
+                  },
+                  linearDamping = {
+                        value = 0.5
+                  },
                   shapeGeometryCapsule = {
                         radius = 1.0,
                         height = 2.0,
@@ -111,10 +117,10 @@ scene = {
                   name = { value = "Man" },
                   worldPosition3D = { x = 0, y = 0.0, z = 3, w = 0.0 },
                   worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  worldScale3D = { x = 0.01, y = 0.01, z = 0.01 },
                   model = {},
-                  runModelAnimation = { animationName = "Armature|mixamo.com|Layer0" },
-                  modelFile = { fileName = "HipHop.glb" }
+                  --runModelAnimation = { animationName = "Walk" },
+                  modelFile = { fileName = "Soldier.glb" }
             },
             {
                   ID = 14,
@@ -125,7 +131,7 @@ scene = {
                   worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   zFar = { value = 1000.0 },
                   zNear = { value = 0.1 },
-                  direction3D = { x = 0.0, y = -0.3, z = -1.0 },
+                  direction3D = { x = 0.0, y = -0.0, z = -20.0 },
                   up3D = { x = 0, y = 1, z = 0 },
                   width = { value = 2560 },
                   height = { value = 1440 },

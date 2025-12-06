@@ -28,9 +28,7 @@ namespace PhysX {
 			pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_CONTACTS, true);
 			pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 		}
-		//physx::PxMaterial* material = pxCreateInfo.physics_->createMaterial(0.5f, 0.5f, 0.6f);
-		//physx::PxRigidStatic* groundPlane = PxCreatePlane(*pxCreateInfo.physics_, physx::PxPlane({ 0.f, 1.f, 0.f }, { 0.f, 1.f, 0.f }), *material);
-		//scene->addActor(*groundPlane);
+
 		controllerManager_ = PxCreateControllerManager(*scene);
 
 	}
