@@ -41,7 +41,7 @@ function TestGameObjectInputProcessor:ProcessKeyboardInput(object, Key, Event)
     if Key == "MOVE_FORWARD" then
         if Event == "Pressed" then
             object.movingForward = true
-            print("local animationInProgressName = AnimationInProgress")
+            --print("local animationInProgressName = AnimationInProgress")
             if ECSWorld:IsComponentExist(modelEntityId.id,  "AnimationInProgress") then
                 ECSWorld:RemoveComponent(modelEntityId.id, "AnimationInProgress")
             end

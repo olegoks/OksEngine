@@ -2264,6 +2264,148 @@ namespace OksEngine
 
 	//TEST
 
+	void GPGPUECS::StorageBuffer::WriteComponentsToGPU::Update(
+		ECS2::Entity::Id entity0id,
+		RenderDriver* renderDriver0,
+		const GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0,
+		const GPGPUECS::StorageBuffer::ModelNodeDataEntityIds* gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0,
+		const GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
+		const GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0,
+		const GPGPUECS::StorageBuffer::ModelEntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
+		const GPGPUECS::StorageBuffer::WorldPositions3D* gPGPUECS__StorageBuffer__WorldPositions3D0,
+		const GPGPUECS::StorageBuffer::WorldRotations3D* gPGPUECS__StorageBuffer__WorldRotations3D0,
+		const GPGPUECS::StorageBuffer::WorldScales3D* gPGPUECS__StorageBuffer__WorldScales3D0,
+		const GPGPUECS::StorageBuffer::BoneNodeEntities* gPGPUECS__StorageBuffer__BoneNodeEntities0,
+		const GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices* gPGPUECS__StorageBuffer__BoneInverseBindPoseMatrices0) {
+
+
+		auto driver = renderDriver0->driver_;
+
+		auto createEntityIndices = [](ECS2::Entity::Id* entityIds, Common::Size entitiesNumber) {
+			std::vector<Common::UInt64> indices;
+			for (Common::Index i = 0; i < entitiesNumber; i++) {
+
+				const ECS2::Entity::Id entityId = entityIds[i];
+
+				if (entityId >= indices.size()) {
+					indices.resize(entityId + 1, 0);
+				}
+
+				indices[entityId] = i;
+			}
+			return indices;
+			};
+
+		//Model nodes.
+		Common::Size nodesEntitiesNumber = world_->GetEntitiesNumber<RENDER__MDL__NODE>();
+		auto nodesComponents = GetComponents<RENDER__MDL__NODE>();
+		auto* nodeEntitiesIds = std::get<ECS2::Entity::Id*>(nodesComponents);
+		auto* worldPositions = std::get<WorldPosition3D*>(nodesComponents);
+		auto* worldRotations = std::get<WorldRotation3D*>(nodesComponents);
+		auto* worldScales = std::get<WorldScale3D*>(nodesComponents);
+		auto* nodesDataEntityIds = std::get<Render::Mdl::ModelNodeDataEntityId*>(nodesComponents);
+		std::vector<Common::UInt64> modelNodeIndices = createEntityIndices(nodeEntitiesIds, nodesEntitiesNumber);
+		
+		if (nodesEntitiesNumber > 0) {
+
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__WorldPositions3D0->sbid_,
+				0,
+				worldPositions,
+				nodesEntitiesNumber * sizeof(WorldPosition3D));
+
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__WorldRotations3D0->sbid_,
+				0,
+				worldRotations,
+				nodesEntitiesNumber * sizeof(WorldRotation3D));
+
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__WorldScales3D0->sbid_,
+				0,
+				worldScales,
+				nodesEntitiesNumber * sizeof(WorldScale3D));
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->sbid_,
+				0,
+				modelNodeIndices.data(),
+				modelNodeIndices.size() * sizeof(ECS2::Entity::Id));
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0->sbid_,
+				0,
+				nodesDataEntityIds,
+				nodesEntitiesNumber * sizeof(Render::Mdl::ModelNodeDataEntityId));
+		}
+
+		//Model nodes data.
+		Common::Size nodesDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MDL__NODE_DATA>();
+		auto nodesDataComponents = GetComponents<RENDER__MDL__NODE_DATA>();
+		auto* nodeDataEntitiesIds = std::get<ECS2::Entity::Id*>(nodesDataComponents);
+		auto* boneInverseBindPoseMatrix = std::get<BoneInverseBindPoseMatrix*>(nodesDataComponents);
+		std::vector<Common::UInt64> modelNodeDataIndices = createEntityIndices(nodeDataEntitiesIds, nodesDataEntitiesNumber);
+
+		if (nodesDataEntitiesNumber > 0) {
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__BoneInverseBindPoseMatrices0->sbid_,
+				0,
+				boneInverseBindPoseMatrix,
+				nodesDataEntitiesNumber * sizeof(BoneInverseBindPoseMatrix));
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0->sbid_,
+				0,
+				modelNodeDataIndices.data(),
+				modelNodeDataIndices.size() * sizeof(ECS2::Entity::Id));
+		}
+
+		//MODELS
+		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
+		auto modelComponents = GetComponents<MODEL>();
+		auto* modelsBoneNodesIds = std::get<Render::Mdl::BoneNodeEntities*>(modelComponents);
+		auto* modelEntitiesIds = std::get<ECS2::Entity::Id*>(modelComponents);
+		std::vector<Common::UInt64> modelIndices = createEntityIndices(modelEntitiesIds, modelEntitiesNumber);
+		if (modelEntitiesNumber > 0) {
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
+				0,
+				modelsBoneNodesIds,
+				modelEntitiesNumber * sizeof(Render::Mdl::BoneNodeEntities));
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->sbid_,
+				0,
+				modelIndices.data(),
+				modelIndices.size() * sizeof(ECS2::Entity::Id));
+		}
+
+		//MODELS DATA
+		Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<MODEL_DATA>();
+		auto modelDataComponents = GetComponents<MODEL_DATA>();
+		auto* modelDataBoneNodesIds = std::get<Render::Mdl::BoneNodeEntities*>(modelDataComponents);
+		auto* modelDataEntitiesIds = std::get<ECS2::Entity::Id*>(modelDataComponents);
+		std::vector<Common::UInt64> modelDataIndices = createEntityIndices(modelDataEntitiesIds, modelDataEntitiesNumber);
+
+		//MESHS
+		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<MESH>();
+		auto meshComponents = GetComponents<MESH>();
+		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
+		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
+		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
+		auto* meshIndices = std::get<Indices*>(meshComponents);
+		auto* meshTextureResources = std::get<Render::DiffuseMap::TextureResource*>(meshComponents);
+		auto* meshNormalTextureResources = std::get<Render::NormalMap::TextureResource*>(meshComponents);
+		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
+		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
+
+		if (meshEntitiesNumber > 0) {
+
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__ModelEntityIds0->sbid_,
+				0,
+				meshModelEntityIds,
+				meshEntitiesNumber * sizeof(Render::Mdl::ModelEntityIds));
+		}
+	};
+
+
 	void Compute::CreatePipeline::Update(
 		ECS2::Entity::Id entity0id,
 		const ResourceSystem* resourceSystem0,
@@ -2859,61 +3001,74 @@ namespace OksEngine
 	};
 
 	void AddModelToRender::Update(
-		ECS2::Entity::Id entity0id,
-		const Camera* camera0,
-		const Active* active0,
-		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer0,
-		const CameraTransformResource* cameraTransformResource0,
+		ECS2::Entity::Id entity0id, 
+		RenderDriver* renderDriver0,
+		const Render::MainRenderPass* render__MainRenderPass0,
+		const Render::Pipeline* render__Pipeline0,
 
 		ECS2::Entity::Id entity1id,
-		const Indices* indices1,
-		const DriverIndexBuffer* driverIndexBuffer1,
-		const DriverVertexBuffer* driverVertexBuffer1,
-		const Render::DiffuseMap::TextureResource* textureResource1,
-		const Render::Mdl::ModelEntityIds* modelEntityIds1,
-		const Render::Mdl::ModelNodeEntityIndices* modelNodeEntityIndices1,
-
+		const Camera* camera1,
+		const Active* active1,
+		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
+		const CameraTransformResource* cameraTransformResource1, 
+		
 		ECS2::Entity::Id entity2id,
-		RenderDriver* renderDriver2,
-		const Render::MainRenderPass* renderPass2,
-		const Render::Pipeline* pipeline2) {
-
-		BRK_IF(entity0id.IsInvalid());
+		const Indices* indices2,
+		const DriverIndexBuffer* driverIndexBuffer2,
+		const DriverVertexBuffer* driverVertexBuffer2,
+		const Render::DiffuseMap::TextureResource* render__DiffuseMap__TextureResource2,
+		const Render::Mdl::ModelEntityIds* render__Mdl__ModelEntityIds2,
+		const Render::Mdl::ModelNodeEntityIndices* render__Mdl__ModelNodeEntityIndices2) {
 
 		return;
 
-		ASSERT(!IsComponentExist<VertexBones>(entity1id));
+		auto driver = renderDriver0->driver_;
 
-		auto driver = renderDriver2->driver_;
+		driver->BindPipeline(render__Pipeline0->id_);
 
-		driver->BindPipeline(pipeline2->id_);
+		driver->BindVertexBuffer(driverVertexBuffer2->id_, 0);
+		driver->BindIndexBuffer(driverIndexBuffer2->id_, 0);
 
-		driver->BindVertexBuffer(driverVertexBuffer1->id_, 0);
-		driver->BindIndexBuffer(driverIndexBuffer1->id_, 0);
-
-		driver->Bind(pipeline2->id_, 0,
+		driver->Bind(render__Pipeline0->id_, 0,
 			{
-				cameraTransformResource0->id_,	// set 0
-				textureResource1->id_			// set 1
+				cameraTransformResource1->id_,	// set 0
+				render__DiffuseMap__TextureResource2->id_			// set 1
 			});
 
+		const std::vector<Common::Index>& nodeEntityIndices = render__Mdl__ModelNodeEntityIndices2->nodeEntityIndices_;
+		struct RTS {
+			alignas(16) float rotation[4];
+			alignas(16) float transform[3]; // + 4 padding
+			alignas(16) float scale[3];		// + 4 padding
+		} rts;
 
-
-		const std::vector<Common::Index>& nodeEntityIndices = modelNodeEntityIndices1->nodeEntityIndices_;
-
-		for (ECS2::Entity::Id modelEntityId : modelEntityIds1->modelEntityIds_) {
+		for (ECS2::Entity::Id modelEntityId : render__Mdl__ModelNodeEntityIndices2->nodeEntityIndices_) {
 			const auto* modelNodeEntityIds = GetComponent<Render::Mdl::ModelNodeEntityIds>(modelEntityId);
 			for (Common::Index nodeEntityIndex : nodeEntityIndices) {
 
 				const ECS2::Entity::Id modelNodeEntity = modelNodeEntityIds->nodeEntityIds_[nodeEntityIndex];
 
-				const auto* transform3DResource = GetComponent<Transform3DResource>(modelNodeEntity);
+				const auto* position = GetComponent<WorldPosition3D>(modelNodeEntity);
+				const auto* rotation = GetComponent<WorldRotation3D>(modelNodeEntity);
+				const auto* scale = GetComponent<WorldScale3D>(modelNodeEntity);
 
-				driver->Bind(pipeline2->id_, 2,
-					{
-						transform3DResource->id_, // set 2
-					});
-				driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
+				rts.rotation[0] = rotation->w_;
+				rts.rotation[1] = rotation->x_;
+				rts.rotation[2] = rotation->y_;
+				rts.rotation[3] = rotation->z_;
+
+				rts.transform[0] = position->x_;
+				rts.transform[1] = position->y_;
+				rts.transform[2] = position->z_;
+
+				//driver->PushConstants(
+				//	pipeline2->id_,
+				//	RAL::Driver::Shader::Stage::VertexShader, );
+				//driver->Bind(pipeline2->id_, 2,
+				//	{
+				//		transform3DResource->id_, // set 2
+				//	});
+				//driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
 
 			}
 		}
@@ -3134,38 +3289,38 @@ namespace OksEngine
 
 		auto driver = renderDriver0->driver_;
 
-		//Model nodes.
+		////Model nodes.
 		Common::Size nodesEntitiesNumber = world_->GetEntitiesNumber<RENDER__MDL__NODE>();
-		auto nodesComponents = GetComponents<RENDER__MDL__NODE>();
-		auto* nodeEntitiesIds = std::get<ECS2::Entity::Id*>(nodesComponents);
-		auto* worldPositions = std::get<WorldPosition3D*>(nodesComponents);
-		auto* worldRotations = std::get<WorldRotation3D*>(nodesComponents);
-		auto* worldScales = std::get<WorldScale3D*>(nodesComponents);
-		auto* nodesDataEntityIds = std::get<Render::Mdl::ModelNodeDataEntityId*>(nodesComponents);
-		std::vector<Common::UInt64> modelNodeIndices = createEntityIndices(nodeEntitiesIds, nodesEntitiesNumber);
+		//auto nodesComponents = GetComponents<RENDER__MDL__NODE>();
+		//auto* nodeEntitiesIds = std::get<ECS2::Entity::Id*>(nodesComponents);
+		//auto* worldPositions = std::get<WorldPosition3D*>(nodesComponents);
+		//auto* worldRotations = std::get<WorldRotation3D*>(nodesComponents);
+		//auto* worldScales = std::get<WorldScale3D*>(nodesComponents);
+		//auto* nodesDataEntityIds = std::get<Render::Mdl::ModelNodeDataEntityId*>(nodesComponents);
+		//std::vector<Common::UInt64> modelNodeIndices = createEntityIndices(nodeEntitiesIds, nodesEntitiesNumber);
 
-		//Model nodes data.
+		////Model nodes data.
 		Common::Size nodesDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MDL__NODE_DATA>();
-		auto nodesDataComponents = GetComponents<RENDER__MDL__NODE_DATA>();
-		auto* nodeDataEntitiesIds = std::get<ECS2::Entity::Id*>(nodesDataComponents);
-		auto* boneInverseBindPoseMatrix = std::get<BoneInverseBindPoseMatrix*>(nodesDataComponents);
-		std::vector<Common::UInt64> modelNodeDataIndices = createEntityIndices(nodeDataEntitiesIds, nodesDataEntitiesNumber);
+		//auto nodesDataComponents = GetComponents<RENDER__MDL__NODE_DATA>();
+		//auto* nodeDataEntitiesIds = std::get<ECS2::Entity::Id*>(nodesDataComponents);
+		//auto* boneInverseBindPoseMatrix = std::get<BoneInverseBindPoseMatrix*>(nodesDataComponents);
+		//std::vector<Common::UInt64> modelNodeDataIndices = createEntityIndices(nodeDataEntitiesIds, nodesDataEntitiesNumber);
 
-		//MODELS
+		////MODELS
 		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
-		auto modelComponents = GetComponents<MODEL>();
-		auto* modelsBoneNodesIds = std::get<Render::Mdl::BoneNodeEntities*>(modelComponents);
-		auto* modelEntitiesIds = std::get<ECS2::Entity::Id*>(modelComponents);
-		std::vector<Common::UInt64> modelIndices = createEntityIndices(modelEntitiesIds, modelEntitiesNumber);
+		//auto modelComponents = GetComponents<MODEL>();
+		//auto* modelsBoneNodesIds = std::get<Render::Mdl::BoneNodeEntities*>(modelComponents);
+		//auto* modelEntitiesIds = std::get<ECS2::Entity::Id*>(modelComponents);
+		//std::vector<Common::UInt64> modelIndices = createEntityIndices(modelEntitiesIds, modelEntitiesNumber);
 
-		//MODELS DATA
+		////MODELS DATA
 		Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<MODEL_DATA>();
-		auto modelDataComponents = GetComponents<MODEL_DATA>();
-		auto* modelDataBoneNodesIds = std::get<Render::Mdl::BoneNodeEntities*>(modelDataComponents);
-		auto* modelDataEntitiesIds = std::get<ECS2::Entity::Id*>(modelDataComponents);
-		std::vector<Common::UInt64> modelDataIndices = createEntityIndices(modelDataEntitiesIds, modelDataEntitiesNumber);
+		//auto modelDataComponents = GetComponents<MODEL_DATA>();
+		//auto* modelDataBoneNodesIds = std::get<Render::Mdl::BoneNodeEntities*>(modelDataComponents);
+		//auto* modelDataEntitiesIds = std::get<ECS2::Entity::Id*>(modelDataComponents);
+		//std::vector<Common::UInt64> modelDataIndices = createEntityIndices(modelDataEntitiesIds, modelDataEntitiesNumber);
 
-		//MESHS
+		////MESHS
 		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<MESH>();
 		auto meshComponents = GetComponents<MESH>();
 		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
@@ -3177,65 +3332,65 @@ namespace OksEngine
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
-		driver->StorageBufferWrite(
-			gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
-			0,
-			modelsBoneNodesIds,
-			modelEntitiesNumber * sizeof(Render::Mdl::BoneNodeEntities));
+		//driver->StorageBufferWrite(
+		//	gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
+		//	0,
+		//	modelsBoneNodesIds,
+		//	modelEntitiesNumber * sizeof(Render::Mdl::BoneNodeEntities));
 
-		driver->StorageBufferWrite(
-			gPGPUECS__StorageBuffer__WorldPositions3D0->sbid_,
-			0,
-			worldPositions,
-			nodesEntitiesNumber * sizeof(WorldPosition3D));
+		//driver->StorageBufferWrite(
+		//	gPGPUECS__StorageBuffer__WorldPositions3D0->sbid_,
+		//	0,
+		//	worldPositions,
+		//	nodesEntitiesNumber * sizeof(WorldPosition3D));
 
-		driver->StorageBufferWrite(
-			gPGPUECS__StorageBuffer__WorldRotations3D0->sbid_,
-			0,
-			worldRotations,
-			nodesEntitiesNumber * sizeof(WorldRotation3D));
+		//driver->StorageBufferWrite(
+		//	gPGPUECS__StorageBuffer__WorldRotations3D0->sbid_,
+		//	0,
+		//	worldRotations,
+		//	nodesEntitiesNumber * sizeof(WorldRotation3D));
 
-		driver->StorageBufferWrite(
-			gPGPUECS__StorageBuffer__WorldScales3D0->sbid_,
-			0,
-			worldScales,
-			nodesEntitiesNumber * sizeof(WorldScale3D));
+		//driver->StorageBufferWrite(
+		//	gPGPUECS__StorageBuffer__WorldScales3D0->sbid_,
+		//	0,
+		//	worldScales,
+		//	nodesEntitiesNumber * sizeof(WorldScale3D));
 
-		driver->StorageBufferWrite(
-			gPGPUECS__StorageBuffer__BoneInverseBindPoseMatrices0->sbid_,
-			0,
-			boneInverseBindPoseMatrix,
-			nodesDataEntitiesNumber * sizeof(BoneInverseBindPoseMatrix));
+		//driver->StorageBufferWrite(
+		//	gPGPUECS__StorageBuffer__BoneInverseBindPoseMatrices0->sbid_,
+		//	0,
+		//	boneInverseBindPoseMatrix,
+		//	nodesDataEntitiesNumber * sizeof(BoneInverseBindPoseMatrix));
 
-		driver->StorageBufferWrite(
-			gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0->sbid_,
-			0,
-			modelNodeDataIndices.data(),
-			modelNodeDataIndices.size() * sizeof(ECS2::Entity::Id));
+		//driver->StorageBufferWrite(
+		//	gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0->sbid_,
+		//	0,
+		//	modelNodeDataIndices.data(),
+		//	modelNodeDataIndices.size() * sizeof(ECS2::Entity::Id));
 
-		driver->StorageBufferWrite(
-			gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->sbid_,
-			0,
-			modelNodeIndices.data(),
-			modelNodeIndices.size() * sizeof(ECS2::Entity::Id));
+		//driver->StorageBufferWrite(
+		//	gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->sbid_,
+		//	0,
+		//	modelNodeIndices.data(),
+		//	modelNodeIndices.size() * sizeof(ECS2::Entity::Id));
 
-		driver->StorageBufferWrite(
-			gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->sbid_,
-			0,
-			modelIndices.data(),
-			modelIndices.size() * sizeof(ECS2::Entity::Id));
+		//driver->StorageBufferWrite(
+		//	gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->sbid_,
+		//	0,
+		//	modelIndices.data(),
+		//	modelIndices.size() * sizeof(ECS2::Entity::Id));
 
-		driver->StorageBufferWrite(
-			gPGPUECS__StorageBuffer__ModelEntityIds0->sbid_,
-			0,
-			meshModelEntityIds,
-			meshEntitiesNumber * sizeof(Render::Mdl::ModelEntityIds));
+		//driver->StorageBufferWrite(
+		//	gPGPUECS__StorageBuffer__ModelEntityIds0->sbid_,
+		//	0,
+		//	meshModelEntityIds,
+		//	meshEntitiesNumber * sizeof(Render::Mdl::ModelEntityIds));
 
-		driver->StorageBufferWrite(
-			gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0->sbid_,
-			0,
-			nodesDataEntityIds,
-			nodesEntitiesNumber * sizeof(Render::Mdl::ModelNodeDataEntityId));
+		//driver->StorageBufferWrite(
+		//	gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0->sbid_,
+		//	0,
+		//	nodesDataEntityIds,
+		//	nodesEntitiesNumber * sizeof(Render::Mdl::ModelNodeDataEntityId));
 
 		driver->BindPipeline(skeletonModelPipeline0->id_);
 

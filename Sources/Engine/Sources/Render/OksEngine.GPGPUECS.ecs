@@ -20,5 +20,6 @@ GPGPUECSNamespace = {
         ModelNodeEntityIdsComponent = "BufferInfo",
         BoneNodeEntitiesComponent = "BufferInfo",
         ModelNodeDataEntityIdsComponent = "BufferInfo",
+
     }
 }

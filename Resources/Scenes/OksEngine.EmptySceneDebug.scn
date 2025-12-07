@@ -44,6 +44,25 @@ scene = {
             --     runModelAnimation = { animationName = "Mutant Jumping" },
             --     modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
             --},
+
+            {
+                  ID = 8,
+                  name = { value = "Car" },
+                  modelEntity = { id = 9 },
+                  rigidBodyEntityId = { id = 6 },
+                  mapRigidBodyWorldPositionToModelWorldPosition = {}
+            },
+            {
+                  ID = 9,
+                  ARCHETYPE = "Model",
+                  name = { value = "Car" },
+                  worldPosition3D = { x = 0, y = 0.0, z = 3, w = 0.0 },
+                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  worldScale3D = { x = 0.01, y = 0.01, z = 0.01 },
+                  model = {},
+                  modelFile = { fileName = "old_rusty_car.glb" }
+            },
+
             {
                   ID = 5,
                   name = { value = "TestGameObject" },

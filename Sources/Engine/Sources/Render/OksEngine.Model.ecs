@@ -852,8 +852,54 @@ RenderNamespace = {
 
 --MODEL DATA
 
+GPGPUECSNamespace = {
+    StorageBufferNamespace = {
+WriteComponentsToGPUSystem = {
+    callOrder = {
+        runAfter = "StartRender",
+        runBefore = "BeginRenderPass"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false },
+                    "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
+                    "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::ModelEntityIds",
+                    "GPGPUECS::StorageBuffer::WorldPositions3D",
+                    "GPGPUECS::StorageBuffer::WorldRotations3D",
+                    "GPGPUECS::StorageBuffer::WorldScales3D",
+                    "GPGPUECS::StorageBuffer::BoneNodeEntities",
+                    "GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                archetype = "Render::Mdl::Node",
+            },
+            {
+                archetype = "Render::Mdl::Node_Data"
+            },
+            {
+                archetype = "Model"
+            },
+            {
+                archetype = "Model_Data"
+            },
+            {
+                archetype = "Mesh"
+            }
+        }
 
+    }
 
+}
+    }
+}
 
 ComputeNamespace = {
 
@@ -945,6 +991,13 @@ AddModelToRenderSystem = {
         processesEntities = {
             {
                 processesComponents = {
+                    { name = "RenderDriver", readonly = false },
+                    "Render::MainRenderPass",
+                    "Render::Pipeline"
+                }
+            },
+            {
+                processesComponents = {
                     "Camera",
                     "Active",
                     "DriverViewProjectionUniformBuffer",
@@ -963,16 +1016,16 @@ AddModelToRenderSystem = {
                 excludes = {
                     "VertexBones"
                 }
-            },
-            {
-                processesComponents = {
-                    { name = "RenderDriver", readonly = false },
-                    "Render::MainRenderPass",
-                    "Render::Pipeline"
-                }
-            }
+            }            
         },
         accessingEntities = {
+            {
+                accessingComponents = {
+                    "WorldPosition3D",
+                    "WorldRotation3D",
+                    "WorldScale3D"
+                }
+            },
             {
                 accessingComponents = {
                     "Render::Mdl::ModelNodeEntityIds"
@@ -1020,50 +1073,20 @@ AddSkeletonModelToRenderSystem = {
                     "CameraTransformResource"
                 }
             },
-            -- {
-            --     processesComponents = {
-            --         "ModelEntityIds",
-            --         "Indices",
-            --         "DriverIndexBuffer",
-            --         "DriverVertexBuffer",
-            --         "TextureResource",
-            --         "VertexBones"
-            --     }
-            -- },
         },
         accessingEntities = {
-            {
-                archetype = "Render::Mdl::Node",
-                -- accessingComponents = {
-                --     "ModelNode",
-                --     "Name",
-                --     "ModelEntity",
-                --     "LocalPosition3D",
-                --     "WorldPosition3D",
-                --     "LocalRotation3D",
-                --     "WorldRotation3D",
-                --     "LocalScale3D",
-                --     "WorldScale3D",
-                --     "ChildModelNodeEntities",
-                --     "DriverTransform3D",
-                --     "Transform3DResource",
-                --     "DebugText2D",
-                --     "BoneNode",
-                --     "BoneInverseBindPoseMatrix",
-                --     "Animation::Model::Node::RunningState",
-                --     "Animation::Model::Node::Animations",
-
-                -- }
-            },
-            {
-                archetype = "Render::Mdl::Node_Data"
-            },
-            {
-                archetype = "Model"
-            },
-            {
-                archetype = "Model_Data"
-            },
+            -- {
+            --     archetype = "Render::Mdl::Node",
+            -- },
+            -- {
+            --     archetype = "Render::Mdl::Node_Data"
+            -- },
+            -- {
+            --     archetype = "Model"
+            -- },
+            -- {
+            --     archetype = "Model_Data"
+            -- },
             {
                 archetype = "Mesh"
             }
