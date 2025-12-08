@@ -873,6 +873,7 @@ WriteComponentsToGPUSystem = {
                     "GPGPUECS::StorageBuffer::WorldRotations3D",
                     "GPGPUECS::StorageBuffer::WorldScales3D",
                     "GPGPUECS::StorageBuffer::BoneNodeEntities",
+                    "GPGPUECS::StorageBuffer::ModelNodeEntityIds",
                     "GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices"
                 }
             }
@@ -993,7 +994,14 @@ AddModelToRenderSystem = {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
                     "Render::MainRenderPass",
-                    "Render::Pipeline"
+                    "Render::Pipeline",
+                    "GPGPUECS::StorageBuffer::WorldPositions3D",
+                    "GPGPUECS::StorageBuffer::WorldRotations3D",
+                    "GPGPUECS::StorageBuffer::WorldScales3D",
+                    "GPGPUECS::StorageBuffer::ModelEntityIds",
+                    "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::ModelNodeEntityIds",
+                    "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices"
                 }
             },
             {
@@ -1004,21 +1012,24 @@ AddModelToRenderSystem = {
                     "CameraTransformResource"
                 }
             },
-            {
-                processesComponents = {
-                    "Indices",
-                    "DriverIndexBuffer",
-                    "DriverVertexBuffer",
-                    "Render::DiffuseMap::TextureResource",
-                    "Render::Mdl::ModelEntityIds",
-                    "Render::Mdl::ModelNodeEntityIndices"
-                },
-                excludes = {
-                    "VertexBones"
-                }
-            }            
+            -- {
+            --     processesComponents = {
+            --         "Indices",
+            --         "DriverIndexBuffer",
+            --         "DriverVertexBuffer",
+            --         "Render::DiffuseMap::TextureResource",
+            --         "Render::Mdl::ModelEntityIds",
+            --         "Render::Mdl::ModelNodeEntityIndices"
+            --     },
+            --     excludes = {
+            --         "VertexBones"
+            --     }
+            -- }            
         },
         accessingEntities = {
+            {
+                archetype = "Mesh"
+            },
             {
                 accessingComponents = {
                     "WorldPosition3D",

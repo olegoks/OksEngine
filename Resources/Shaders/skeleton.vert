@@ -4,7 +4,10 @@
 #extension GL_EXT_debug_printf : enable
 #extension GL_GOOGLE_include_directive : require
 
+#include "/common/OksEngine.GPGPUECS.glsl"
 #include "/common/OksEngine.Common.Math3D.glsl"
+
+
 
 layout(location = 0) in vec3 inPosition;
 layout(location = 1) in vec3 inNormal;
@@ -19,37 +22,21 @@ layout(set = 0, binding = 0) uniform Camera {
 } camera;
 
 //NODES
-struct WorldPosition3D {
-    vec4 position_;
-};
 
 layout(std430, set = 2, binding = 0) buffer WorldPositions3D {
     WorldPosition3D positions_[];
 };
 
-struct WorldRotation3D {
-    vec4 rotation_;
-};
 
 layout(std430, set = 3, binding = 0) buffer WorldRotations3D {
     WorldRotation3D rotations_[];
 };
 
-struct WorldScale3D {
-    vec4 scale_;
-};
 
 layout(std430, set = 4, binding = 0) buffer WorldScales3D {
     WorldScale3D scales_[];
 };
 
-struct ModelNodeEntityIds {
-    uint64_t nodeIds_[512];
-};
-
-struct ModelEntityIds {
-    uint64_t modelIds_[1024];
-};
 
 layout(std430, set = 5, binding = 0) buffer ModelsNodeEntityIds {
     ModelNodeEntityIds modelNodeEntityIds_[];

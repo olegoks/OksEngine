@@ -2,6 +2,7 @@
 
 #extension GL_GOOGLE_include_directive : require
 #include "/common/OksEngine.Common.Math3D.glsl"
+#include "/common/OksEngine.GPGPUECS.glsl"
 
 layout(set = 0, binding = 0) uniform Camera {
     mat4 view;

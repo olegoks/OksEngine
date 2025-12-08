@@ -128,13 +128,14 @@ namespace Render::Vulkan {
 				std::string fullPath = path + "/" + headerName;
 				if (std::filesystem::exists(fullPath)) {
 					//TODO: need nromal solutution
-					static std::string content = readFile(fullPath);
+					readFiles_.push_back(readFile(fullPath));
 					return new IncludeResult(
 						headerName,
-						content.c_str(),
-						content.size(),
+						readFiles_.back().c_str(),
+						readFiles_.back().size(),
 						nullptr
 					);
+					
 				}
 			}
 			return nullptr; // Файл не найден
@@ -151,7 +152,7 @@ namespace Render::Vulkan {
 				std::istreambuf_iterator<char>()
 			);
 		}
-
+		std::vector<std::string> readFiles_;
 		std::vector<std::string> includePaths_;
 	};
 
