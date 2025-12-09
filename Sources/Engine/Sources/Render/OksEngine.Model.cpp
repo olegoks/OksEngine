@@ -72,6 +72,30 @@ namespace OksEngine
 			}
 			ImGui::PopID();
 		}
+		void EditModelNodeEntityIndices(std::shared_ptr<ECS2::World> ecsWorld, ModelNodeEntityIndices* modelNodeEntityIndices) {
+			ImGui::PushID(Render::Mdl::ModelNodeEntityIndices::GetTypeId());
+
+			//auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);
+			//nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
+
+			auto firstInvalidIndexIt = std::find(
+				modelNodeEntityIndices->nodeEntityIndices_.begin(),
+				modelNodeEntityIndices->nodeEntityIndices_.end(), 
+				Common::Limits<Common::UInt64>::Max());
+
+			Common::UInt64 firstInvalidIndexIndex = 
+				(firstInvalidIndexIt != modelNodeEntityIndices->nodeEntityIndices_.end()) 
+				? (std::distance(modelNodeEntityIndices->nodeEntityIndices_.begin(), firstInvalidIndexIt)) 
+				: modelNodeEntityIndices->nodeEntityIndices_.max_size();
+
+			ImGui::Begin("Mesh node indices.");
+			for (int i = 0; i < firstInvalidIndexIndex; i++) {
+				ImGui::Text("Index %d", i, modelNodeEntityIndices->nodeEntityIndices_[i]);
+			}
+			ImGui::End();
+
+			ImGui::PopID();
+		}
 	}
 
 	void BindModelAnimations(::Lua::Context& context) {
@@ -1597,7 +1621,16 @@ namespace OksEngine
 										nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
 									}
 
-									CreateComponent<Render::Mdl::ModelNodeEntityIndices>(meshEntityId, nodeEntityIndices);
+									decltype(Render::Mdl::ModelNodeEntityIndices::nodeEntityIndices_) meshNodeEntityIndices;
+									meshNodeEntityIndices.fill(Common::Limits<Common::UInt64>::Max());
+
+									ASSERT(nodeEntityIndices.size() <= meshNodeEntityIndices.max_size());
+
+									for (Common::Index j = 0; j < nodeEntityIndices.size(); j++) {
+										meshNodeEntityIndices[j] = nodeEntityIndices[j];
+									}
+
+									CreateComponent<Render::Mdl::ModelNodeEntityIndices>(meshEntityId, meshNodeEntityIndices);
 
 								}
 							}
@@ -2175,6 +2208,14 @@ namespace OksEngine
 
 		}
 
+		struct MeshData {
+			//Common::UInt64 nodeDataEntitiesNumber_ = 0;
+			//Common::UInt64 nodeEntitiesNumber_ = 0;
+			//Common::UInt64 modelEntitiesNumber_ = 0;
+			//Common::UInt64 modelDataEntitiesNumber_ = 0;
+			Common::UInt64 meshComponentsIndex_ = 0;
+		};
+
 		void CreatePipeline::Update(
 			ECS2::Entity::Id entity0id,
 			const RenderDriver* renderDriver0,
@@ -2220,16 +2261,73 @@ namespace OksEngine
 			};
 
 
-			RAL::Driver::Shader::Binding::Layout transformBinding{
+
+			RAL::Driver::Shader::Binding::Layout ModelEntityIdentifires{
 				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
 				.stage_ = RAL::Driver::Shader::Stage::VertexShader
 			};
 
-			shaderBindings.push_back(cameraBinding);		//set 0
-			shaderBindings.push_back(samplerBinding);		//set 1
-			shaderBindings.push_back(transformBinding);		//set 2
+			RAL::Driver::Shader::Binding::Layout ModelEntityIdsToComponentIndices{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
 
+			RAL::Driver::Shader::Binding::Layout ModelsNodeEntityIds{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout ModelsNodeEntityIndices{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout NodeEntityIdsToComponentIndices{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout WorldPositions3D{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
+			RAL::Driver::Shader::Binding::Layout WorldRotations3D{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+			RAL::Driver::Shader::Binding::Layout WorldScales3D{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+			shaderBindings.push_back(cameraBinding);					//set 0
+			shaderBindings.push_back(samplerBinding);					//set 1
+			shaderBindings.push_back(ModelEntityIdentifires);			//set 2
+			shaderBindings.push_back(ModelEntityIdsToComponentIndices);	//set 3
+			shaderBindings.push_back(ModelsNodeEntityIds);				//set 4
+			shaderBindings.push_back(ModelsNodeEntityIndices);			//set 5 
+			shaderBindings.push_back(NodeEntityIdsToComponentIndices);	//set 6
+			shaderBindings.push_back(WorldPositions3D);					//set 7
+			shaderBindings.push_back(WorldRotations3D);					//set 8
+			shaderBindings.push_back(WorldScales3D);					//set 9
+
+			std::vector<RAL::Driver::PushConstant> pushConstants;
+			{
+				RAL::Driver::PushConstant pushConstant{
+					.shaderStage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.offset_ = 0,
+					.size_ = sizeof(MeshData)
+				};
+				pushConstants.emplace_back(pushConstant);
+			}
 
 			auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
 			{
@@ -2247,6 +2345,7 @@ namespace OksEngine
 				.indexType_ = RAL::Driver::IndexType::UI32,
 				.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
 				.cullMode_ = RAL::Driver::CullMode::Back,
+				.pushConstants_ = pushConstants,
 				.shaderBindings_ = shaderBindings,
 				.enableDepthTest_ = true,
 				.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
@@ -2266,6 +2365,7 @@ namespace OksEngine
 
 	void GPGPUECS::StorageBuffer::WriteComponentsToGPU::Update(
 		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0,
+		const GPGPUECS::StorageBuffer::MeshNodeEntityIndices* gPGPUECS__StorageBuffer__MeshNodeEntityIndices0,
 		const GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices
 		* gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0,
 		const GPGPUECS::StorageBuffer::ModelNodeDataEntityIds* gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0,
@@ -2364,10 +2464,19 @@ namespace OksEngine
 		//MODELS
 		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
 		auto modelComponents = GetComponents<MODEL>();
+
+		auto* modelNodeEntityIds = std::get<Render::Mdl::ModelNodeEntityIds*>(modelComponents);
 		auto* modelsBoneNodesIds = std::get<Render::Mdl::BoneNodeEntities*>(modelComponents);
 		auto* modelEntitiesIds = std::get<ECS2::Entity::Id*>(modelComponents);
 		std::vector<Common::UInt64> modelIndices = createEntityIndices(modelEntitiesIds, modelEntitiesNumber);
 		if (modelEntitiesNumber > 0) {
+
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__ModelNodeEntityIds0->sbid_,
+				0,
+				modelNodeEntityIds,
+				modelEntitiesNumber * sizeof(Render::Mdl::ModelNodeEntityIds));
+
 			driver->StorageBufferWrite(
 				gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
 				0,
@@ -2398,6 +2507,7 @@ namespace OksEngine
 		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
 		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
+		auto* meshModelEntityIndices = std::get<Render::Mdl::ModelNodeEntityIndices*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
 		auto* meshTextureResources = std::get<Render::DiffuseMap::TextureResource*>(meshComponents);
 		auto* meshNormalTextureResources = std::get<Render::NormalMap::TextureResource*>(meshComponents);
@@ -2411,6 +2521,13 @@ namespace OksEngine
 				0,
 				meshModelEntityIds,
 				meshEntitiesNumber * sizeof(Render::Mdl::ModelEntityIds));
+
+			driver->StorageBufferWrite(
+				gPGPUECS__StorageBuffer__MeshNodeEntityIndices0->sbid_,
+				0,
+				meshModelEntityIndices,
+				meshEntitiesNumber * sizeof(Render::Mdl::ModelNodeEntityIndices));
+
 		}
 	};
 
@@ -3016,9 +3133,12 @@ namespace OksEngine
 		const GPGPUECS::StorageBuffer::WorldRotations3D* gPGPUECS__StorageBuffer__WorldRotations3D0,
 		const GPGPUECS::StorageBuffer::WorldScales3D* gPGPUECS__StorageBuffer__WorldScales3D0,
 		const GPGPUECS::StorageBuffer::ModelEntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
-		const GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0,
+		const GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices
+		* gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0,
 		const GPGPUECS::StorageBuffer::ModelNodeEntityIds* gPGPUECS__StorageBuffer__ModelNodeEntityIds0,
-		const GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
+		const GPGPUECS::StorageBuffer::MeshNodeEntityIndices* gPGPUECS__StorageBuffer__MeshNodeEntityIndices0,
+		const GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices
+		* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
 		ECS2::Entity::Id entity1id, const Camera* camera1, const Active* active1,
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
 		const CameraTransformResource* cameraTransformResource1) {
@@ -3060,7 +3180,7 @@ namespace OksEngine
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
 
-		return;
+		//return;
 
 
 		driver->BindPipeline(render__Pipeline0->id_);
@@ -3093,23 +3213,24 @@ namespace OksEngine
 						gPGPUECS__StorageBuffer__ModelEntityIds0->resourceSetId_,					// set 2 to get model ids from mesh
 						gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->resourceSetId_, // set 3 to get model components index
 						gPGPUECS__StorageBuffer__ModelNodeEntityIds0->resourceSetId_,				// set 4 to get node ids that model contain
-						gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->resourceSetId_,	// set 5 to get components index of node to get Pos, rot, sacle of node
-						gPGPUECS__StorageBuffer__WorldPositions3D0->resourceSetId_,					// set 6
-						gPGPUECS__StorageBuffer__WorldRotations3D0->resourceSetId_,					// set 7
-						gPGPUECS__StorageBuffer__WorldScales3D0->resourceSetId_,					// set 8
+						gPGPUECS__StorageBuffer__MeshNodeEntityIndices0->resourceSetId_,			// set 5
+						gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->resourceSetId_,	// set 6 to get components index of node to get Pos, rot, sacle of node
+						gPGPUECS__StorageBuffer__WorldPositions3D0->resourceSetId_,					// set 7
+						gPGPUECS__StorageBuffer__WorldRotations3D0->resourceSetId_,					// set 8
+						gPGPUECS__StorageBuffer__WorldScales3D0->resourceSetId_,					// set 9
 					});
 
 
 				struct MeshInfo {
 					Common::UInt64 meshIndex_ = Common::Limits<Common::UInt64>::Max();
-				} meshInfo{
+				} meshInfo {
 					.meshIndex_ = i
 				};
 
 				driver->PushConstants(
 					render__Pipeline0->id_,
 					RAL::Driver::Shader::Stage::VertexShader,
-					sizeof(MeshInfo), 
+					sizeof(MeshInfo),  
 					&meshInfo);
 				auto meshModelEntitiesNumber = std::distance(modelEntityIds->modelEntityIds_.begin(), invalidModelEntityIdIt);
 				driver->DrawIndexed(
@@ -3175,13 +3296,7 @@ namespace OksEngine
 
 	}
 
-	struct MeshData {
-		Common::UInt64 nodeDataEntitiesNumber_ = 0;
-		Common::UInt64 nodeEntitiesNumber_ = 0;
-		Common::UInt64 modelEntitiesNumber_ = 0;
-		Common::UInt64 modelDataEntitiesNumber_ = 0;
-		Common::UInt64 meshComponentsIndex_ = 0;
-	};
+
 
 	namespace Render {
 		void CreateSkeletonModelPipeline::Update(
@@ -3480,20 +3595,20 @@ namespace OksEngine
 
 				auto meshModelEntitiesNumber = std::distance(modelEntityIds->modelEntityIds_.begin(), invalidEntityIdIt);
 
-				MeshData meshInfo{  };
+				Render::MeshData meshInfo{  };
 
 
-				meshInfo.nodeDataEntitiesNumber_ = nodesDataEntitiesNumber;
-				meshInfo.nodeEntitiesNumber_ = nodesEntitiesNumber;
-				meshInfo.modelEntitiesNumber_ = modelEntitiesNumber;
-				meshInfo.modelDataEntitiesNumber_ = modelDataEntitiesNumber;
+				//meshInfo.nodeDataEntitiesNumber_ = nodesDataEntitiesNumber;
+				//meshInfo.nodeEntitiesNumber_ = nodesEntitiesNumber;
+				//meshInfo.modelEntitiesNumber_ = modelEntitiesNumber;
+				//meshInfo.modelDataEntitiesNumber_ = modelDataEntitiesNumber;
 				meshInfo.meshComponentsIndex_ = i;
 
 
 				driver->PushConstants(
 					skeletonModelPipeline0->id_,
 					RAL::Driver::Shader::Stage::VertexShader,
-					sizeof(MeshData),
+					sizeof(Render::MeshData),
 					&meshInfo);
 
 				driver->DrawIndexed(

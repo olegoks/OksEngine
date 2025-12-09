@@ -10,6 +10,8 @@ GPGPUECSNamespace = {
         },
 
         NodeEntityIdsToComponentIndicesComponent = "BufferInfo",
+        --Components of mesh with indices of nodes in model.
+        MeshNodeEntityIndicesComponent = "BufferInfo",
         NodeDataEntityIdsToComponentIndicesComponent = "BufferInfo",
         ModelEntityIdsComponent = "BufferInfo",
         ModelEntityIdsToComponentIndicesComponent = "BufferInfo",

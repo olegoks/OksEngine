@@ -354,6 +354,24 @@ namespace OksEngine
 
 				CreateComponent<GPGPUECS::StorageBuffer::ModelEntityIds>(driverEntityId, SBId, SBResId);
 			}
+
+			{
+				RAL::Driver::StorageBuffer::CreateInfo SBCI{
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Mdl::ModelNodeEntityIndices)
+				};
+				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
+
+				RAL::Driver::ResourceSet::Binding storageBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.binding_ = 0,
+					.sbid_ = SBId
+				};
+				RAL::Driver::ResourceSet::Id SBResId = driver->CreateResource(storageBinding);
+
+				CreateComponent<GPGPUECS::StorageBuffer::MeshNodeEntityIndices>(driverEntityId, SBId, SBResId);
+			}
+
 		}
 	};
 

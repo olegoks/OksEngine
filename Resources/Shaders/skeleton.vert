@@ -39,7 +39,7 @@ layout(std430, set = 4, binding = 0) buffer WorldScales3D {
 
 
 layout(std430, set = 5, binding = 0) buffer ModelsNodeEntityIds {
-    ModelNodeEntityIds modelNodeEntityIds_[];
+    ModelNodeEntityIds modelBoneNodeEntityIds_[];
 };
 
 layout(std430, set = 6, binding = 0) buffer BoneInverseBindPoseMatrices {
@@ -73,10 +73,10 @@ layout(location = 0) out vec4 fragColor;
 layout(location = 1) out vec2 outUV;
 
 layout(push_constant) uniform PushConstants {
-    uint64_t nodeDataEntitiesNumber_;   // Node data entities number.
-    uint64_t nodeEntitiesNumber_;       // Node entities number.
-    uint64_t modelEntitiesNumber_;     
-    uint64_t modelDataEntitiesNumber_;     
+    // uint64_t nodeDataEntitiesNumber_;   // Node data entities number.
+    // uint64_t nodeEntitiesNumber_;       // Node entities number.
+    // uint64_t modelEntitiesNumber_;     
+    // uint64_t modelDataEntitiesNumber_;     
     uint64_t meshComponentsIndex_;      // Components index for current mesh.
 };
 
@@ -172,7 +172,7 @@ vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint modelComponent
         if(boneIndexInModelSpace == 512) {
             return position;
         }
-        uint64_t nodeEntityId = modelNodeEntityIds_[modelComponentsIndex].nodeIds_[boneIndexInModelSpace];
+        uint64_t nodeEntityId = modelBoneNodeEntityIds_[modelComponentsIndex].nodeIds_[boneIndexInModelSpace];
 
         ASSERT_FMSG_2(
             (nodeEntityId != INVALID_ENTITY_ID) && (nodeEntityId != 0), 

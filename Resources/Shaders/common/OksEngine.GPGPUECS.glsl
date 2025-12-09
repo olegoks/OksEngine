@@ -17,3 +17,7 @@ struct ModelNodeEntityIds {
 struct ModelEntityIds {
     uint64_t modelIds_[1024];
 };
+
+struct ModelNodeEntityIndices {
+    uint64_t modelNodeIndices_[16];
+};

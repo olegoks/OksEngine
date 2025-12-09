@@ -49,8 +49,8 @@ scene = {
                   ID = 8,
                   name = { value = "Car" },
                   modelEntity = { id = 9 },
-                  rigidBodyEntityId = { id = 6 },
-                  mapRigidBodyWorldPositionToModelWorldPosition = {}
+                  --rigidBodyEntityId = { id = 6 },
+                  --mapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
                   ID = 9,

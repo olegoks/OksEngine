@@ -345,8 +345,9 @@ RenderNamespace = {
         ModelNodeEntityIndicesComponent = {
             bindable = false,
             serializable = false,
+            manualEditFunction = true,
             fields = {
-                { type = "std::vector<Common::Index>", name = "nodeEntityIndices" }
+                { type = "std::array<Common::Index, 16>", name = "nodeEntityIndices" }
             }
         },
         
@@ -864,6 +865,7 @@ WriteComponentsToGPUSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
+                    "GPGPUECS::StorageBuffer::MeshNodeEntityIndices",
                     "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",
                     "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
                     "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
@@ -1001,6 +1003,7 @@ AddModelToRenderSystem = {
                     "GPGPUECS::StorageBuffer::ModelEntityIds",
                     "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
                     "GPGPUECS::StorageBuffer::ModelNodeEntityIds",
+                    "GPGPUECS::StorageBuffer::MeshNodeEntityIndices",
                     "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices"
                 }
             },
