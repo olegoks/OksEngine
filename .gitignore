@@ -76,3 +76,5 @@ Resources/Models/Barrel/Barrel.glb
 Resources/Models/Barrel/Barrel.blend
 Resources/Models/animatedHero/animatedHero.geom
 Resources/Models/animatedHero/animatedHero.fbx
+.vs/slnx.sqlite
+.vs/slnx.sqlite-journal
