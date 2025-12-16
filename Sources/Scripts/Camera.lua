@@ -127,7 +127,7 @@ function Camera:New()
     function camera:DirectionLeftRight(degree)
         local cameraEntityId = self:GetIdValue()
         local direction = ECSWorld:GetDirection3D(cameraEntityId)
-        local up = self:GetUp3D()
+        local up = ECSWorld:GetUp3D(cameraEntityId)
         local verticalUp = Vector(0.0, 1.0, 0.0)
 
         local rotatedDirection = Math3D():RotateVector(direction, verticalUp, degree)

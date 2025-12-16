@@ -28,6 +28,7 @@ namespace PAL {
 
 		struct CreateInfoMesh {
 			Material material_;
+			bool convexGeometry_ = true;
 			Geom::VertexCloud<Geom::Vertex3f>	vertices_;
 			Geom::IndexBuffer<Geom::Index16>	indices_;
 		};

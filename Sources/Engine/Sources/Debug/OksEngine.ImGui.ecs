@@ -101,7 +101,8 @@ ImGUINamespace = {
 
     EndFrameSystem = {
         callOrder = {
-            runAfter = "StartFrame"
+            runAfter = "StartFrame",
+            runBefore = "StartRender",
         },
         updateMethod = {
             processesEntities = {

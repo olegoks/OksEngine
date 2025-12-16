@@ -1,4 +1,5 @@
 Vertices3DComponent = {
     serializable = false,
+    manualEditFunction = true,
     fields = { { type="Geom::VertexCloud<Geom::Vertex3f>", name="vertices" } }
 }

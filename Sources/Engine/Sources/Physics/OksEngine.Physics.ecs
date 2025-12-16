@@ -62,6 +62,11 @@ PhysicsNamespace = {
             { type = "PAL::StaticRigidBody::Id", name = "id" } }
     },
     CreateStaticRigidBodySystem = {
+        callOrder = {
+            runBefore = {
+                "CreateDynamicRigidBody"
+            }
+        },
         updateMethod = {
             processesEntities = {
                 {
@@ -136,6 +141,51 @@ PhysicsNamespace = {
             }
         }
     },
+    --Add linear velocity
+    AddVelocityRequestStruct = {
+        fields = {
+            { type = "glm::vec3", name = "direction" },
+            { type = "float", name = "velocity" },
+        }
+    },
+
+    AddVelocityRequestsComponent = {
+        manualParseFunction = true,
+        manualSerializeFunction = true,
+        manualBindFunction = true,
+        fields = {
+            { type = "std::vector<AddVelocityRequest>", name = "requests" }
+        }
+    },
+
+    AddVelocityToDynamicRigidBodySystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "World", readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        "DynamicRigidBody",
+                        "DynamicRigidBodyId",
+                        "PhysicsShape",
+                        { name = "AddVelocityRequests", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+
+    VelocityComponent = {
+        serializable = false,
+        manualBindFunction = true,
+        fields = {
+            { type = "glm::vec3", name = "direction" },
+            { type = "float", name = "value" }
+        }
+    },
 
     --SET ANGULAR VELOCITY
     SetAngularVelocityRequestStruct = {
@@ -185,18 +235,20 @@ PhysicsNamespace = {
         }
     },
     ShapeGeometryDataComponent = {
+        description = "Shape geometry data. If convexGeometry is set Physics engine will try to create convex shape using given geometry.",
         manualEditFunction = true,
         manualAddFunction = true,
         manualParseFunction = true,
         manualSerializeFunction = true,
         fields = {
+            { type = "bool", name = "convexGeometry", defaultValue = "true" },
             { type = "std::vector<ShapeVertex>",    name = "vertices" },
             { type = "std::vector<Common::UInt16>", name = "indices" }
         }
     },
     ShapeGeometryCapsuleComponent = {
         description = [[Capsules are shaped as the union of a cylinder of length 2 * halfHeight and
-        with the given radius centered at the origin and extending along the x axis, and two hemispherical ends.]],
+        with the given radius centered at the origin and extending along the Y axis, and two hemispherical ends.]],
         manualEditFunction = true,
         manualAddFunction = true,
         manualParseFunction = true,

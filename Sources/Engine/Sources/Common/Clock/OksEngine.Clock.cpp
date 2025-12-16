@@ -20,6 +20,7 @@ namespace OksEngine
 		CreateComponent<TimeSinceEpoch>(entityId, microsecondsSinceEpoch.count());
 
 		CreateComponent<EngineStartTimePoint>(entityId, nowTimePoint);
+		CreateComponent<FrameStartTimePoint>(entityId, nowTimePoint);
 	}
 
 	void UpdateTimeSinceEpoch::Update(ECS2::Entity::Id entity0id, TimeSinceEpoch* timeSinceEpoch0) {
@@ -39,6 +40,15 @@ namespace OksEngine
 		const auto microsecondsSinceEngineStart = std::chrono::duration_cast<std::chrono::microseconds>(durationSinceEngineStart);
 
 		timeSinceEngineStart0->microseconds_ = microsecondsSinceEngineStart.count();
+
+	}
+
+	void UpdateFrameStartTimePoint::Update(
+		ECS2::Entity::Id entity0id,
+		FrameStartTimePoint* frameStartTimePoint0) {
+
+		const auto nowTimePoint = std::chrono::high_resolution_clock::now();
+		frameStartTimePoint0->timepoint_ = nowTimePoint;
 
 	}
 

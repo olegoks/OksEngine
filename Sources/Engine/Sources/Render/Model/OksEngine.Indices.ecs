@@ -1,4 +1,5 @@
 IndicesComponent = {
     serializable = false,
+    manualEditFunction = true,
     fields = { { type="Geom::IndexBuffer<Geom::Index32>", name="indices" } }
 }

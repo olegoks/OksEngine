@@ -32,7 +32,9 @@ namespace PhysX {
 			body_ = createInfo.physics_->createRigidDynamic(t);
 			ASSERT_FMSG(body_ != nullptr,
 				"Error while creating rigid body.");
+			
 			body_->attachShape(*shape->GetPxShape());
+			body_->setMaxLinearVelocity(100);
 			body_->setLinearDamping(createInfo.palCreateInfo_.linearDamping_);
 			body_->setAngularDamping(createInfo.palCreateInfo_.angularDamping_);
 			body_->setName(createInfo.palCreateInfo_.rbCreateInfo_.name_.c_str());
@@ -63,6 +65,12 @@ namespace PhysX {
 			return body_;
 		}
 
+		[[nodiscard]]
+		const physx::PxRigidDynamic* GetBody() const {
+			OS::Assert(body_ != nullptr);
+			return body_;
+		}
+
 		virtual const glm::mat4 GetTransform() override {
 
 			const physx::PxTransform transform = GetBody()->getGlobalPose();
@@ -80,7 +88,15 @@ namespace PhysX {
 
 		}
 
-		virtual void SetLinearVelocity(const glm::vec3& direction, float velocity) {
+		virtual glm::vec3 GetLinearVelocity() const override {
+
+			const physx::PxVec3 linearVelocity = GetBody()->getLinearVelocity();
+
+			return glm::vec3{ linearVelocity.x, linearVelocity.y, linearVelocity.z };
+
+		}
+
+		virtual void SetLinearVelocity(const glm::vec3& direction, float velocity) override {
 
 			glm::vec3 velocityVector = glm::normalize(direction) * velocity;
 

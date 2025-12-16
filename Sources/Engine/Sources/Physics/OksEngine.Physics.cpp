@@ -52,6 +52,15 @@ namespace OksEngine
 
 			ImGui::PushID(ShapeGeometryData::GetTypeId());
 
+			
+			ImGui::PushStyleVar(ImGuiStyleVar_DisabledAlpha, ImGui::GetStyle().Alpha * 0.5f);
+			//ImGui::PushItemFlag(ImGuiItemFlags_, true);
+			ImGui::Checkbox("convexGeometry", &shapeGeometryData->convexGeometry_);
+			//ImGui::PopItemFlag();
+			ImGui::PopStyleVar();
+
+			
+
 			// Choose fill color
 			static bool set_fill_color = true;
 			static ImVec4 fill_color = ImVec4(0.8f, 0.8f, 0.2f, 0.6f);
@@ -141,6 +150,10 @@ namespace OksEngine
 
 			if (ImGui::CollapsingHeader("Create info"))
 			{
+
+				bool convex = true;
+				ImGui::Checkbox("Convex", &convex);
+
 				ImGui::Text("Shape Type:");
 				static bool cubeMesh = false;
 				static bool sphere = false;
@@ -210,7 +223,7 @@ namespace OksEngine
 				{
 					if (!ecsWorld->IsComponentExist<ShapeGeometryData>(entityId))
 					{
-						ecsWorld->CreateComponent<ShapeGeometryData>(entityId, vertices, indices);
+						ecsWorld->CreateComponent<ShapeGeometryData>(entityId, convex, vertices, indices);
 					}
 				}
 			}
@@ -221,6 +234,11 @@ namespace OksEngine
 
 			std::vector<ShapeVertex> vertices;
 			std::vector<Common::UInt16> indices;
+
+			bool convexGeometry = true;
+			if (!shapeGeometryDataRef["convexGeometry"].isNil()) {
+				convexGeometry = shapeGeometryDataRef["convexGeometry"].cast<bool>().value();
+			}
 
 			if (!shapeGeometryDataRef["box"].isNil()) {
 				luabridge::LuaRef boxRef = shapeGeometryDataRef["box"];
@@ -371,7 +389,7 @@ namespace OksEngine
 
 			}
 
-			return ShapeGeometryData{ vertices,indices };
+			return ShapeGeometryData{ convexGeometry, vertices,indices };
 		}
 
 		std::string SerializeShapeGeometryData(const ShapeGeometryData* shapeGeometryData) {
@@ -399,6 +417,27 @@ namespace OksEngine
 		}
 
 		std::string SerializeSetVelocityRequests(const SetVelocityRequests* setVelocityRequests) {
+			return {};
+		}
+
+		//AddVelocityRequests
+		void BindAddVelocityRequests(::Lua::Context& context) {
+			context.GetGlobalNamespace()
+				.beginClass<AddVelocityRequests>("AddVelocityRequests")
+				.addFunction("AddAddVelocityRequest", [](AddVelocityRequests* self, float dirX, float dirY, float dirZ, float velocity) {
+				self->requests_.push_back(
+					AddVelocityRequest{ glm::vec3{ dirX, dirY, dirZ }, velocity }
+				);
+					})
+				.endClass();
+		}
+
+		AddVelocityRequests ParseAddVelocityRequests(luabridge::LuaRef& addVelocityRequestsRef) {
+
+			return AddVelocityRequests{};
+		}
+
+		std::string SerializeAddVelocityRequests(const AddVelocityRequests* addVelocityRequests) {
 			return {};
 		}
 
@@ -565,6 +604,7 @@ namespace OksEngine
 
 			PAL::Shape::CreateInfoMesh shapeCreateInfo{
 				.material_ = material,
+				.convexGeometry_ = shapeGeometryData1->convexGeometry_,
 				.vertices_ = vertices,
 				.indices_ = indices
 			};
@@ -779,24 +819,54 @@ namespace OksEngine
 			auto rb = Common::pointer_cast<PAL::DynamicRigidBody>(world0->world_->GetRigidBodyById(dynamicRigidBodyId1->id_));
 
 			const SetVelocityRequest& request = setVelocityRequests1->requests_.back();
+			//rb->
 			rb->SetLinearVelocity(request.direction_, request.velocity_);
 
 			setVelocityRequests1->requests_.clear();
 
 		}
 
+		void AddVelocityToDynamicRigidBody::Update(
+			ECS2::Entity::Id entity0id,
+			Physics::World* world0, ECS2::Entity::Id entity1id,
+			const Physics::DynamicRigidBody* dynamicRigidBody1,
+			const Physics::DynamicRigidBodyId* dynamicRigidBodyId1, const Physics::PhysicsShape* physicsShape1,
+			Physics::AddVelocityRequests* addVelocityRequests1) {
+
+			if (addVelocityRequests1->requests_.empty()) return;
+
+			auto rb = Common::pointer_cast<PAL::DynamicRigidBody>(world0->world_->GetRigidBodyById(dynamicRigidBodyId1->id_));
+
+			const AddVelocityRequest& request = addVelocityRequests1->requests_.back();
+			glm::vec3 linearVelocity = rb->GetLinearVelocity();
+
+			for (auto& request : addVelocityRequests1->requests_) {
+				request.direction_ = glm::normalize(request.direction_);
+				request.direction_ *= request.velocity_;
+				linearVelocity += request.direction_;
+			}
+
+			rb->SetLinearVelocity(glm::normalize(linearVelocity), linearVelocity.length());
+
+			addVelocityRequests1->requests_.clear();
+
+		}
+
+
+
 		void SimulatePhysics::Update(ECS2::Entity::Id entity0id, Engine* physicsEngine0) {
 
 			using namespace std::chrono_literals;
 			static std::chrono::high_resolution_clock::time_point previousUpdate = std::chrono::high_resolution_clock::now();
 			static std::chrono::high_resolution_clock::duration remainder = 0ms;
-			const auto simulationGranularity = 1ms;
+			const auto simulationGranularity = 3ms;
 			const auto now = std::chrono::high_resolution_clock::now();
 			const auto delta = (now - previousUpdate);
 			auto toSimulate = delta + remainder;
 
 			while (toSimulate >= simulationGranularity) {
-				physicsEngine0->engine_->GetWorld()->Simulate(simulationGranularity.count() / 1000.f);
+				const Common::Size msToSimulate = simulationGranularity.count();
+				physicsEngine0->engine_->GetWorld()->Simulate(msToSimulate/ 1000.0);
 				toSimulate -= simulationGranularity;
 			}
 			remainder = toSimulate;

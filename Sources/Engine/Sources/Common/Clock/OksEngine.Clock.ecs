@@ -28,6 +28,13 @@ TimeSinceEpochComponent = {
     }
 }
 
+FrameStartTimePointComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::chrono::high_resolution_clock::time_point", name = "timepoint" }
+    }
+}
+
 CreateClockEntitySystem = {
     type = "Initialize",
     updateMethod = {
@@ -38,7 +45,26 @@ CreateClockEntitySystem = {
                     "Clock",
                     "TimeSinceEpoch",
                     "TimeSinceEngineStart",
-                    "EngineStartTimePoint"
+                    "EngineStartTimePoint",
+                    "FrameStartTimePoint"
+                }
+            }
+        }
+    }
+}
+
+UpdateFrameStartTimePointSystem = {
+    callOrder = {
+        
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "FrameStartTimePoint", readonly = false }
+                },
+                excludes = {
+                    "PauseClock"
                 }
             }
         }

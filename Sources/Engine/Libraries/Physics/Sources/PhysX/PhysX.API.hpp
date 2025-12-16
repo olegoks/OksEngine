@@ -8,6 +8,8 @@
 #include <PxPhysics.h>
 #include <PhysX.World.hpp>
 #include <PhysX.Shape.hpp>
+#include <physx/pvd/PxPvdTransport.h>
+#include <physx/extensions/PxDefaultErrorCallback.h>
 
 namespace PhysX {
 
@@ -37,9 +39,12 @@ namespace PhysX {
 			physx::PxPvdTransport* transport = physx::PxDefaultPvdSocketTransportCreate("localhost", 5425, 10);
 			pvd_->connect(*transport, PxPvdInstrumentationFlag::eALL);
 
+			physx::PxTolerancesScale scale;
+			scale.length = 1.0f;    // 1 метр = 1 единица в физике
+			scale.speed = 10.0f;    // 10 м/с = 1 единица скорости
 
 			physics_ = PxCreatePhysics(PX_PHYSICS_VERSION, *foundation_,
-				PxTolerancesScale(), recordMemoryAllocations, pvd_);
+				scale, recordMemoryAllocations, pvd_);
 			OS::Assert(physics_ != nullptr);
 			//physx::PxCreateCooking(PX_PHYSICS_VERSION, *foundation_, PxCookingParams(physx::PxTolerancesScale()));
 			/*OS::Assert(mPhysics != nullptr);

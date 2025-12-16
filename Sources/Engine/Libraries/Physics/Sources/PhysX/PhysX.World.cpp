@@ -30,7 +30,7 @@ namespace PhysX {
 		}
 
 		controllerManager_ = PxCreateControllerManager(*scene);
-
+		ASSERT(controllerManager_ != nullptr);
 	}
 
 	PAL::DynamicRigidBody::Id World::CreateDynamicRigidBody(const PAL::DynamicRigidBody::CreateInfo& drbCreateInfo)

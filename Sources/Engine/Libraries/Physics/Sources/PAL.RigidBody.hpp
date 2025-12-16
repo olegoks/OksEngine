@@ -60,6 +60,7 @@ namespace PAL {
 		}
 
 		virtual void ApplyForce(const glm::vec3& direction, float force) = 0;
+		virtual glm::vec3 GetLinearVelocity() const = 0;
 		virtual void SetLinearVelocity(const glm::vec3& direction, float velocity) = 0;
 		virtual void SetAngularVelocity(const glm::vec3& axis, float angleInDegrees) = 0;
 

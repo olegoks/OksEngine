@@ -48,7 +48,7 @@ namespace PhysX {
 		physx::PxShape* shape = createInfo.physics_->createShape(
 			physx::PxCapsuleGeometry(
 				createInfo.palCreateInfo_.radius_,
-				createInfo.palCreateInfo_.height_),
+				createInfo.palCreateInfo_.height_ / 2),
 			*material);
 
 
@@ -56,7 +56,7 @@ namespace PhysX {
 		physx::PxQuat rotation(physx::PxPi / 2, physx::PxVec3(0.0f, 0.0f, 1.0f));
 		physx::PxTransform localTransform = shape->getLocalPose();
 
-		localTransform.p = physx::PxVec3{ 0, 3, 0};
+		localTransform.p = physx::PxVec3{ 0, createInfo.palCreateInfo_.height_ / 2, 0 };
 		localTransform.q = rotation;
 
 		shape->setLocalPose(localTransform);
@@ -76,107 +76,95 @@ namespace PhysX {
 			createInfo.physics_,
 			createInfo.palCreateInfo_.material_);
 
-		//		Geom::Box< Geom::Index16> box{ 5 };
-		//		Geom::Vertex3f vertices[3] = {
-		//			{ 0.f, 0.f, 0.f },
-		//			{ 1.f, 0.f, 0.f },
-		//			{ 0.f, 1.f, 0.f }
-		//		};
-		//		Geom::Index16 indices[3] = { 0, 1, 2 };
-		//		physx::PxTriangleMeshDesc meshDesc{};
-		//		{
-		//			meshDesc.points.count = /*box.GetVerticesNumber();*//*static_cast<physx::PxU32>(box.GetVerticesNumber());*/static_cast<physx::PxU32>(createInfo.palCreateInfo_.vertices_.GetVerticesNumber());
-		//			meshDesc.points.stride = sizeof(Geom::Vertex3f);
-		//			OS::Assert(sizeof(physx::PxVec3) == sizeof(Geom::Vertex3f));
-		//			meshDesc.points.data = /*box.GetVertices().GetData();*//*box.GetVertices().GetData();*/createInfo.palCreateInfo_.vertices_.GetData();
-		//
-		//			meshDesc.triangles.count = /*box.GetIndices().GetIndicesNumber() /3 ;*/static_cast<physx::PxU32>(createInfo.palCreateInfo_.indices_.GetIndicesNumber()) / 3;
-		//			meshDesc.triangles.stride = 3 * sizeof(physx::PxU16);
-		//			meshDesc.triangles.data = /*box.GetIndices().GetData(); */ createInfo.palCreateInfo_.indices_.GetData();
-		//
-		//			meshDesc.flags |= (physx::PxMeshFlag::e16_BIT_INDICES/* | physx::PxMeshFlag::eFLIPNORMALS*/);
-		//		}
-		//		OS::Assert(meshDesc.isValid());
-		//
-		//		//physx::PxConvexMeshDesc convexMesh{};
-		//		//{
-		//		//	convexMesh.points.count = box.GetVerticesNumber();/*static_cast<physx::PxU32>(box.GetVerticesNumber());*///static_cast<physx::PxU32>(createInfo.palCreateInfo_.vertices_.GetVerticesNumber());
-		//		//	convexMesh.points.stride = sizeof(Geom::Vertex3f);
-		//		//	OS::Assert(sizeof(physx::PxVec3) == sizeof(Geom::Vertex3f));
-		//		//	convexMesh.points.data = box.GetVertices().GetData();/*box.GetVertices().GetData();*///createInfo.palCreateInfo_.vertices_.GetData();
-		//
-		//		//	convexMesh.polygons.count = box.GetIndices().GetIndicesNumber() / 3;//1;*//*static_cast<physx::PxU32>(box.GetIndicesNumber()) / 3;*/static_cast<physx::PxU32>(createInfo.palCreateInfo_.indices_.GetIndicesNumber()) / 3;
-		//		//	convexMesh.polygons.stride = 3 * sizeof(physx::PxU16);
-		//		//	convexMesh.polygons.data = box.GetIndices().GetData(); //indices;// createInfo.palCreateInfo_.indices_.GetData();//
-		//		//	convexMesh.indices.data = box.GetIndices().GetData();
-		//		//	convexMesh.indices.count = box.GetIndices().GetIndicesNumber();
-		//		//	convexMesh.indices.stride = sizeof(physx::PxU16);
-		//		//	convexMesh.flags |= (physx::PxConvexFlag::e16_BIT_INDICES/* | physx::PxMeshFlag::eFLIPNORMALS*/);
-		//		//}
-		//		//OS::Assert(convexMesh.isValid());
-		//
-		//		physx::PxTolerancesScale scale;
-		//		physx::PxCookingParams params(scale);
-		//		{
-		//			// disable mesh cleaning - perform mesh validation on development configurations
-		//			//params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
-		//			// disable edge precompute, edges are set for each triangle, slows contact generation
-		//			//params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
-		//		}
-		//#ifdef _DEBUG
-		//		// mesh should be validated before cooked without the mesh cleaning
-		//		//bool res = PxValidateTriangleMesh(params, meshDesc);
-		//		//ASSERT_FMSG(res, "Attempt to use invalid mesh to create static rigid body.");
-		//#endif
-		//		physx::PxDefaultMemoryOutputStream writeBuffer;
-		//		physx::PxTriangleMeshCookingResult::Enum result;
-		//		//physx::PxConvexMeshCookingResult::Enum result;
-		//		bool status = PxCookTriangleMesh(params, meshDesc, writeBuffer, &result);
-		//		OS::Assert(status);
-		//
-		//		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		//		physx::PxTriangleMesh* triangleMesh = createInfo.physics_->createTriangleMesh(readBuffer);
-		//		
-		//		physx::PxShape* pxShape = createInfo.physics_->createShape(/*physx::PxBoxGeometry(1, 1, 1)*/physx::PxTriangleMeshGeometry{ triangleMesh }, *material);
-		using namespace physx;
-		PxConvexMeshDesc convexDesc;
-		convexDesc.points.count = createInfo.palCreateInfo_.vertices_.GetVerticesNumber();
-		convexDesc.points.stride = sizeof(PxVec3);
-		convexDesc.points.data = createInfo.palCreateInfo_.vertices_.GetData();
-		convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX;
-		convexDesc.vertexLimit = 255;
+		if (!createInfo.palCreateInfo_.convexGeometry_) {
 
-		physx::PxTolerancesScale scale;
-		physx::PxCookingParams params(scale);
-		{
-			// disable mesh cleaning - perform mesh validation on development configurations
-			//params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
-			// disable edge precompute, edges are set for each triangle, slows contact generation
-			//params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+					physx::PxTriangleMeshDesc meshDesc{};
+					{
+						meshDesc.points.count = /*box.GetVerticesNumber();*//*static_cast<physx::PxU32>(box.GetVerticesNumber());*/static_cast<physx::PxU32>(createInfo.palCreateInfo_.vertices_.GetVerticesNumber());
+						meshDesc.points.stride = sizeof(Geom::Vertex3f);
+						OS::Assert(sizeof(physx::PxVec3) == sizeof(Geom::Vertex3f));
+						meshDesc.points.data = /*box.GetVertices().GetData();*//*box.GetVertices().GetData();*/createInfo.palCreateInfo_.vertices_.GetData();
+			
+						meshDesc.triangles.count = /*box.GetIndices().GetIndicesNumber() /3 ;*/static_cast<physx::PxU32>(createInfo.palCreateInfo_.indices_.GetIndicesNumber()) / 3;
+						meshDesc.triangles.stride = 3 * sizeof(physx::PxU16);
+						meshDesc.triangles.data = /*box.GetIndices().GetData(); */ createInfo.palCreateInfo_.indices_.GetData();
+			
+						meshDesc.flags |= (physx::PxMeshFlag::e16_BIT_INDICES/* | physx::PxMeshFlag::eFLIPNORMALS*/);
+					}
+					OS::Assert(meshDesc.isValid());
+			
+			
+					physx::PxTolerancesScale scale;
+					physx::PxCookingParams params(scale);
+					{
+						// disable mesh cleaning - perform mesh validation on development configurations
+						//params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+						// disable edge precompute, edges are set for each triangle, slows contact generation
+						//params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+					}
+			#ifdef _DEBUG
+					// mesh should be validated before cooked without the mesh cleaning
+					//bool res = PxValidateTriangleMesh(params, meshDesc);
+					//ASSERT_FMSG(res, "Attempt to use invalid mesh to create static rigid body.");
+			#endif
+					physx::PxDefaultMemoryOutputStream writeBuffer;
+					physx::PxTriangleMeshCookingResult::Enum result;
+					//physx::PxConvexMeshCookingResult::Enum result;
+					bool status = PxCookTriangleMesh(params, meshDesc, writeBuffer, &result);
+					OS::Assert(status);
+			
+					physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+					physx::PxTriangleMesh* triangleMesh = createInfo.physics_->createTriangleMesh(readBuffer);
+			
+					physx::PxShape* pxShape = createInfo.physics_->createShape(/*physx::PxBoxGeometry(1, 1, 1)*/physx::PxTriangleMeshGeometry{ triangleMesh }, *material);
+					shape_ = pxShape;
+			
+					ASSERT_FMSG(pxShape != nullptr, "Error while creating physx shape.");
+					material_ = material;
 		}
-		PxDefaultMemoryOutputStream writeBuffer;
-		bool cookResult = PxCookConvexMesh(params, convexDesc, writeBuffer);
-		ASSERT_MSG(cookResult, "Invalid mesh data to create phys shape.");
+		else {
 
-		physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
-		physx::PxConvexMesh* convexMesh = createInfo.physics_->createConvexMesh(readBuffer);
-		PxConvexMeshGeometry convexGeometry{ convexMesh };
-		PxTransform localTransform(PxVec3(0, 0, 0));
-		physx::PxShape* pxShape = createInfo.physics_->createShape(convexGeometry, *material);
-		pxShape->setLocalPose(localTransform);
+			//Workable convex mesh creation.
+			using namespace physx;
+			PxConvexMeshDesc convexDesc;
+			{
+				convexDesc.points.count = createInfo.palCreateInfo_.vertices_.GetVerticesNumber();
+				convexDesc.points.stride = sizeof(PxVec3);
+				STATIC_ASSERT_MSG(sizeof(PxVec3) == sizeof(decltype(createInfo.palCreateInfo_.vertices_[0])), "");
+				convexDesc.points.data = createInfo.palCreateInfo_.vertices_.GetData();
+				convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX | PxConvexFlag::eCHECK_ZERO_AREA_TRIANGLES;
+				convexDesc.vertexLimit = 255;
+			}
 
-		physx::PxReal mass;
-		physx::PxMat33 inertia;
-		physx::PxVec3 massCenter;
+			physx::PxCookingParams params(physx::PxTolerancesScale{});
+			{
+				// disable mesh cleaning - perform mesh validation on development configurations
+				params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_CLEAN_MESH;
+				// disable edge precompute, edges are set for each triangle, slows contact generation
+				params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
+			}
+			PxDefaultMemoryOutputStream writeBuffer;
+			bool cookResult = PxCookConvexMesh(params, convexDesc, writeBuffer);
+			ASSERT_MSG(cookResult, "Invalid mesh data to create phys shape.");
 
-		convexMesh->getMassInformation(mass, inertia, massCenter);
+			physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());
+			physx::PxConvexMesh* convexMesh = createInfo.physics_->createConvexMesh(readBuffer);
+			PxConvexMeshGeometry convexGeometry{ convexMesh };
+			PxTransform localTransform(PxVec3(0, 0, 0));
+			physx::PxShape* pxShape = createInfo.physics_->createShape(convexGeometry, *material);
+			pxShape->setLocalPose(localTransform);
 
-		ASSERT_FMSG(pxShape != nullptr, "Error while creating physx shape.");
+			physx::PxReal mass;
+			physx::PxMat33 inertia;
+			physx::PxVec3 massCenter;
 
-		//physx::PxShape* shape = createInfo.physics_->createShape(physx::PxBoxGeometry(1, 1, 1), *material);
+			convexMesh->getMassInformation(mass, inertia, massCenter);
 
-		material_ = material;
-		shape_ = pxShape;
+			ASSERT_FMSG(pxShape != nullptr, "Error while creating physx shape.");
+			material_ = material;
+			shape_ = pxShape;
+		}
+
 	}
 
 }

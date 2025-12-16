@@ -1416,73 +1416,76 @@ namespace OksEngine
 								material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &diffuseTexturePath);
 
 								const aiTexture* texture = scene->GetEmbeddedTexture(diffuseTexturePath.C_Str());
+								if (texture != nullptr) {
+									Common::UInt32 textureWidth = texture->mWidth;
+									Common::UInt32 textureHeight = texture->mHeight;
+									if (textureHeight > 0) {
+										CreateComponent<Render::DiffuseMap::TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
+										CreateComponent<Render::DiffuseMap::TextureData>(
+											meshEntityId,
+											textureWidth, textureHeight,
+											std::vector<Geom::Color4b>{
+											(Geom::Color4b*)texture->pcData,
+												(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
+									}
+									else {
+										//Texture is compressed
+										const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
 
-								Common::UInt32 textureWidth = texture->mWidth;
-								Common::UInt32 textureHeight = texture->mHeight;
-								if (textureHeight > 0) {
-									CreateComponent<Render::DiffuseMap::TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
-									CreateComponent<Render::DiffuseMap::TextureData>(
-										meshEntityId,
-										textureWidth, textureHeight,
-										std::vector<Geom::Color4b>{
-										(Geom::Color4b*)texture->pcData,
-											(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
-								}
-								else {
-									//Texture is compressed
-									const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
+										int width, height, channels;
 
-									int width, height, channels;
-
-									unsigned char* pixels = stbi_load_from_memory(
-										compressed_data,
-										texture->mWidth,
-										&width, &height, &channels,
-										STBI_rgb_alpha
-									);
-									CreateComponent<Render::DiffuseMap::TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
-									CreateComponent<Render::DiffuseMap::TextureData>(
-										meshEntityId,
-										width, height,
-										std::vector<Geom::Color4b>{
-										(Geom::Color4b*)pixels,
-											(Geom::Color4b*)pixels + width * height});
+										unsigned char* pixels = stbi_load_from_memory(
+											compressed_data,
+											texture->mWidth,
+											&width, &height, &channels,
+											STBI_rgb_alpha
+										);
+										CreateComponent<Render::DiffuseMap::TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
+										CreateComponent<Render::DiffuseMap::TextureData>(
+											meshEntityId,
+											width, height,
+											std::vector<Geom::Color4b>{
+											(Geom::Color4b*)pixels,
+												(Geom::Color4b*)pixels + width * height});
+									}
 								}
 							}
 							{
 								aiString normalTexturePath;
 								material->GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &normalTexturePath);
 								const aiTexture* normalTexture = scene->GetEmbeddedTexture(normalTexturePath.C_Str());
-								Common::UInt32 textureWidth = normalTexture->mWidth;
-								Common::UInt32 textureHeight = normalTexture->mHeight;
-								if (textureHeight > 0) {
-									CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
-									CreateComponent<Render::NormalMap::TextureData>(
-										meshEntityId,
-										textureWidth, textureHeight,
-										std::vector<Geom::Color4b>{
-										(Geom::Color4b*)normalTexture->pcData,
-											(Geom::Color4b*)normalTexture->pcData + textureWidth * textureHeight});
-								}
-								else {
-									//Texture is compressed
-									const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(normalTexture->pcData);
+								if (normalTexture != nullptr) {
+									Common::UInt32 textureWidth = normalTexture->mWidth;
+									Common::UInt32 textureHeight = normalTexture->mHeight;
+									if (textureHeight > 0) {
+										CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
+										CreateComponent<Render::NormalMap::TextureData>(
+											meshEntityId,
+											textureWidth, textureHeight,
+											std::vector<Geom::Color4b>{
+											(Geom::Color4b*)normalTexture->pcData,
+												(Geom::Color4b*)normalTexture->pcData + textureWidth * textureHeight});
+									}
+									else {
+										//Texture is compressed
+										const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(normalTexture->pcData);
 
-									int width, height, channels;
+										int width, height, channels;
 
-									unsigned char* pixels = stbi_load_from_memory(
-										compressed_data,
-										normalTexture->mWidth,
-										&width, &height, &channels,
-										STBI_rgb_alpha
-									);
-									CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
-									CreateComponent<Render::NormalMap::TextureData>(
-										meshEntityId,
-										width, height,
-										std::vector<Geom::Color4b>{
-										(Geom::Color4b*)pixels,
-											(Geom::Color4b*)pixels + width * height});
+										unsigned char* pixels = stbi_load_from_memory(
+											compressed_data,
+											normalTexture->mWidth,
+											&width, &height, &channels,
+											STBI_rgb_alpha
+										);
+										CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
+										CreateComponent<Render::NormalMap::TextureData>(
+											meshEntityId,
+											width, height,
+											std::vector<Geom::Color4b>{
+											(Geom::Color4b*)pixels,
+												(Geom::Color4b*)pixels + width * height});
+									}
 								}
 							}
 							{
@@ -3203,6 +3206,12 @@ namespace OksEngine
 					VertexBones>()) {
 					continue;
 				}
+				if (!meshComponentsFilter.IsSet <
+					Render::DiffuseMap::TextureResource/*,
+					Render::NormalMap::TextureResource*/> ()) {
+					continue;
+				}
+
 				driver->BindVertexBuffer(vertexBuffer->id_, 0);
 				driver->BindIndexBuffer(indexBuffer->id_, 0);
 

@@ -15,18 +15,21 @@ function TestGameObjectUpdater:Update(object, deltaMs)
     local modelEntityId = ECSWorld:GetRender_Mdl_ModelEntity(objectEntityId)
     local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(objectEntityId)
     local rbEntityId = rigidBodyEntityId.id
-    local setVelocityRequests = ECSWorld:GetPhysics_SetVelocityRequests(rbEntityId)
+    local addVelocityRequests = ECSWorld:GetPhysics_AddVelocityRequests(rbEntityId)
     local direction = ECSWorld:GetDirection3D(objectEntityId)
 
     if object.movingForward then
-        setVelocityRequests:AddSetVelocityRequest(direction.x, direction.y, direction.z, 2.0)
+        addVelocityRequests:AddAddVelocityRequest(direction.x,  
+            --direction.y, 
+            -1.0,
+            direction.z, 2.0)
         if not ECSWorld:IsComponentExist(modelEntityId.id,  "AnimationInProgress") then
-            ECSWorld:CreateRunModelAnimation(modelEntityId.id, "Walk")
+            ECSWorld:CreateRunModelAnimation(modelEntityId.id, "Walking")--"Walk")
         end
     else 
-        setVelocityRequests:AddSetVelocityRequest(direction.x, direction.y, direction.z, 0.0)
+        --setVelocityRequests:AddSetVelocityRequest(direction.x, direction.y, direction.z, 0.0)
         if not ECSWorld:IsComponentExist(modelEntityId.id,  "AnimationInProgress") then
-            ECSWorld:CreateRunModelAnimation(modelEntityId.id, "Idle")
+            ECSWorld:CreateRunModelAnimation(modelEntityId.id, "Idle") --"Idle")
         end
     end
 
@@ -45,7 +48,7 @@ function TestGameObjectInputProcessor:ProcessKeyboardInput(object, Key, Event)
             if ECSWorld:IsComponentExist(modelEntityId.id,  "AnimationInProgress") then
                 ECSWorld:RemoveComponent(modelEntityId.id, "AnimationInProgress")
             end
-            ECSWorld:CreateRunModelAnimation(modelEntityId.id, "Walk")
+            ECSWorld:CreateRunModelAnimation(modelEntityId.id, "Walking")--"Walk")
             
             --print("camera.movingForward = true")
         elseif Event == "Released" then
@@ -53,7 +56,7 @@ function TestGameObjectInputProcessor:ProcessKeyboardInput(object, Key, Event)
             if ECSWorld:IsComponentExist(modelEntityId.id,  "AnimationInProgress") then
                 ECSWorld:RemoveComponent(modelEntityId.id, "AnimationInProgress")
             end
-            ECSWorld:CreateRunModelAnimation(modelEntityId.id, "Idle")
+            -- ECSWorld:CreateRunModelAnimation(modelEntityId.id, "Idle")
             --print("camera.movingForward = false")
         end
     end
