@@ -379,12 +379,10 @@ namespace ECSGenerator2 {
 
 			//auto accessesEntities = parseAccessesEntities(system);
 
-#pragma region Assert
 			ASSERT_FMSG(
 				((updateMethodInfo == nullptr) && (type == ParsedSystem::Type::Initialize)) ||
 				((updateMethodInfo != nullptr) && ((type == ParsedSystem::Type::FrameToFrame) || (type == ParsedSystem::Type::Initialize))),
 				"System description doesn't contain updateMethod decription.");
-#pragma endregion
 
 			ParsedSystem::CreateInfo ci{
 				.isEnabled_ = isEnabled,

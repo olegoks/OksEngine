@@ -91,13 +91,13 @@ target_link_libraries(ECSGenerator2
     )
     
 
-# Log all cmake variables.
+# SHOW ALL CMAKE VARIABLES FOR DEBUG
 
-get_cmake_property(_variableNames VARIABLES)
+# get_cmake_property(_variableNames VARIABLES)
 
-foreach (_variableName ${_variableNames})
-message(STATUS "${_variableName}=${${_variableName}}")
-endforeach()
+# foreach (_variableName ${_variableNames})
+# message(STATUS "${_variableName}=${${_variableName}}")
+# endforeach()
 
 find_package(ZLIB REQUIRED)
 target_link_libraries(ECSGenerator2 PUBLIC ZLIB::ZLIB)

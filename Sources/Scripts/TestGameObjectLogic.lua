@@ -48,7 +48,7 @@ function TestGameObjectInputProcessor:ProcessKeyboardInput(object, Key, Event)
             if ECSWorld:IsComponentExist(modelEntityId.id,  "AnimationInProgress") then
                 ECSWorld:RemoveComponent(modelEntityId.id, "AnimationInProgress")
             end
-            ECSWorld:CreateRunModelAnimation(modelEntityId.id, "Walking")--"Walk")
+            --ECSWorld:CreateRunModelAnimation(modelEntityId.id, "Walking")--"Walk")
             
             --print("camera.movingForward = true")
         elseif Event == "Released" then

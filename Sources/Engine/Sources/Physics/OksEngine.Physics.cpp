@@ -397,6 +397,13 @@ namespace OksEngine
 			return "";
 		}
 
+		void BindVelocity(::Lua::Context& context) {
+			context.GetGlobalNamespace()
+				.beginClass<Velocity>("Velocity")
+				.addProperty("velocity", &Velocity::value_)
+				.endClass();
+		}
+
 		//SetVelocityRequests
 
 

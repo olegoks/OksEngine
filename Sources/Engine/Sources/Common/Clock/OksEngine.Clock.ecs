@@ -35,6 +35,13 @@ FrameStartTimePointComponent = {
     }
 }
 
+PreviousFrameDurationComponent = {
+    serializable = false,
+    fields = { 
+        { type = "Common::UInt64", name = "microseconds" }
+    }
+}
+
 CreateClockEntitySystem = {
     type = "Initialize",
     updateMethod = {
@@ -46,7 +53,8 @@ CreateClockEntitySystem = {
                     "TimeSinceEpoch",
                     "TimeSinceEngineStart",
                     "EngineStartTimePoint",
-                    "FrameStartTimePoint"
+                    "FrameStartTimePoint",
+                    "PreviousFrameDuration"
                 }
             }
         }
@@ -55,7 +63,8 @@ CreateClockEntitySystem = {
 
 UpdateFrameStartTimePointSystem = {
     callOrder = {
-        
+            runAfter = "SystemMarks::FRAME_HEAD_START",
+            runBefore = "SystemMarks::FRAME_HEAD_END"
     },
     updateMethod = {
         processesEntities = {
@@ -72,6 +81,10 @@ UpdateFrameStartTimePointSystem = {
 }
 
 UpdateTimeSinceEpochSystem = {
+    callOrder = {
+            runAfter = "SystemMarks::FRAME_HEAD_START",
+            runBefore = "SystemMarks::FRAME_HEAD_END"
+    },
     updateMethod = {
         processesEntities = {
             {
@@ -87,6 +100,10 @@ UpdateTimeSinceEpochSystem = {
 }
 
 UpdateTimeSinceEngineStartSystem = {
+    callOrder = {
+            runAfter = "SystemMarks::FRAME_HEAD_START",
+            runBefore = "SystemMarks::FRAME_HEAD_END"
+    },
     updateMethod = {
         processesEntities = {
             {
@@ -96,6 +113,26 @@ UpdateTimeSinceEngineStartSystem = {
                 },
                 excludes = {
                     "PauseClock"
+                }
+            }
+        }
+    }
+}
+
+UpdatePreviousFrameDurationSystem = {
+    description = "Use previous frame start point to calculate Previous frame duration.",
+    callOrder = {
+            runAfter = "SystemMarks::FRAME_HEAD_START",
+            runBefore = { 
+                "SystemMarks::FRAME_HEAD_END",
+                "UpdateFrameStartTimePoint" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "PreviousFrameDuration", readonly = false },
+                    "FrameStartTimePoint"
                 }
             }
         }

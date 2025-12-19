@@ -52,4 +52,17 @@ namespace OksEngine
 
 	}
 
+	void UpdatePreviousFrameDuration::Update(
+		ECS2::Entity::Id entity0id,
+		PreviousFrameDuration* previousFrameDuration0,
+		const FrameStartTimePoint* frameStartTimePoint0) {
+
+		const auto durationSincePreviousFrameStart = std::chrono::high_resolution_clock::now() - frameStartTimePoint0->timepoint_;
+
+		const auto microsecondsSincePreviousFrameStart = std::chrono::duration_cast<std::chrono::microseconds>(durationSincePreviousFrameStart);
+
+		previousFrameDuration0->microseconds_ = microsecondsSincePreviousFrameStart.count();
+
+	}
+
 }
