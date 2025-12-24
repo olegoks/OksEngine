@@ -5,7 +5,7 @@
 
 namespace Math {
 
-	constexpr static Common::Double epsilon = 0.0001;
+	constexpr static Common::Double epsilon = 0.000001;
 
 	[[nodiscard]]
 	inline bool IsEqual(Common::Float first, Common::Float second) noexcept {

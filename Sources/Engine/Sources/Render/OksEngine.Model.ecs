@@ -488,7 +488,8 @@ RenderNamespace = {
                     {
                         processesComponents = {
                             "Clock",
-                            "TimeSinceEngineStart"
+                            "TimeSinceEngineStart",
+                            "FrameStartTimePoint"
                         }
                     },
                     {

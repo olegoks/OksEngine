@@ -21,6 +21,8 @@ namespace OksEngine
 
 		CreateComponent<EngineStartTimePoint>(entityId, nowTimePoint);
 		CreateComponent<FrameStartTimePoint>(entityId, nowTimePoint);
+
+		CreateComponent<PreviousFrameDuration>(entityId, 0);
 	}
 
 	void UpdateTimeSinceEpoch::Update(ECS2::Entity::Id entity0id, TimeSinceEpoch* timeSinceEpoch0) {

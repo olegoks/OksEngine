@@ -493,6 +493,7 @@ namespace OksEngine
 
 			auto physicsEngine = std::make_shared<PE::PhysicsEngine>();
 			CreateComponent<Engine>(physicsEngineEntity, physicsEngine);
+			CreateComponent<SimulationGranularity>(physicsEngineEntity, 1);
 
 		}
 
@@ -861,23 +862,40 @@ namespace OksEngine
 
 
 
-		void SimulatePhysics::Update(ECS2::Entity::Id entity0id, Engine* physicsEngine0) {
+		void SimulatePhysics::Update(
+			ECS2::Entity::Id entity0id,
+			const Clock* clock0, 
+			const FrameStartTimePoint* frameStartTimePoint0,
+			const PreviousFrameDuration* previousFrameDuration0,
 
-			using namespace std::chrono_literals;
-			static std::chrono::high_resolution_clock::time_point previousUpdate = std::chrono::high_resolution_clock::now();
-			static std::chrono::high_resolution_clock::duration remainder = 0ms;
-			const auto simulationGranularity = 3ms;
-			const auto now = std::chrono::high_resolution_clock::now();
-			const auto delta = (now - previousUpdate);
-			auto toSimulate = delta + remainder;
+			ECS2::Entity::Id entity1id,
+			Engine* engine1, 
+			const SimulationGranularity* simulationGranularity1) {
+			//using namespace std::chrono_literals;
+			//static std::chrono::high_resolution_clock::time_point previousUpdate = std::chrono::high_resolution_clock::now();
+			//static std::chrono::high_resolution_clock::duration remainder = 0ms;
+			//const auto simulationGranularity = 3ms;
+			//const auto now = std::chrono::high_resolution_clock::now();
+			//const auto delta = (now - previousUpdate);
+			//auto toSimulate = delta + remainder;
+			//while (toSimulate >= simulationGranularity) {
+			//	const Common::Size msToSimulate = simulationGranularity.count();
+			//	engine1->engine_->GetWorld()->Simulate(msToSimulate / 1000.0);
+			//	toSimulate -= simulationGranularity;
+			//}
+			//remainder = toSimulate;
+			//previousUpdate = std::chrono::high_resolution_clock::now();
+			const float fullMsToSimulate = previousFrameDuration0->microseconds_ / 1000.0f;
+			float msLeftToSimulate = fullMsToSimulate;
 
-			while (toSimulate >= simulationGranularity) {
-				const Common::Size msToSimulate = simulationGranularity.count();
-				physicsEngine0->engine_->GetWorld()->Simulate(msToSimulate/ 1000.0);
-				toSimulate -= simulationGranularity;
+			while (msLeftToSimulate >= simulationGranularity1->ms_) {
+				engine1->engine_->GetWorld()->Simulate(simulationGranularity1->ms_ / 1000.0f);
+				msLeftToSimulate -= simulationGranularity1->ms_;
 			}
-			remainder = toSimulate;
-			previousUpdate = std::chrono::high_resolution_clock::now();
+
+			if (!Math::IsEqual(msLeftToSimulate / 1000.0f, 0.0f)) {
+				engine1->engine_->GetWorld()->Simulate(msLeftToSimulate / 1000.0f);
+			}
 		};
 
 	}

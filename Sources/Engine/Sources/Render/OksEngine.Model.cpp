@@ -138,19 +138,14 @@ namespace OksEngine
 
 		void ProcessModel::Update(
 
-			ECS2::Entity::Id entity0id,
-			const Clock* clock0,
-			const TimeSinceEngineStart* timeSinceEngineStart0,
+			ECS2::Entity::Id entity0id, const Clock* clock0, const TimeSinceEngineStart* timeSinceEngineStart0,
+			const FrameStartTimePoint* frameStartTimePoint0, ECS2::Entity::Id entity1id,
+			const Render::Mdl::Model* mdl__Model1, const WorldPosition3D* worldPosition3D1,
+			const WorldRotation3D* worldRotation3D1, const WorldScale3D* worldScale3D1,
+			const Render::Mdl::ModelDataEntityId* mdl__ModelDataEntityId1,
+			const Render::Mdl::ChildModelNodeEntities* childModelNodeEntities1) {
 
-			ECS2::Entity::Id entityId1,
-			const Mdl::Model* model1,
-			const WorldPosition3D* worldPosition3D1,
-			const WorldRotation3D* worldRotation3D1,
-			const WorldScale3D* worldScale3D1,
-			const Render::Mdl::ModelDataEntityId* render__Model__ModelDataEntityId1,
-			const Mdl::ChildModelNodeEntities* childModelNodeEntities1) {
-
-			ECS2::Entity::Id modelEntityId = entityId1;
+			ECS2::Entity::Id modelEntityId = entity1id;
 
 			BEGIN_PROFILE("Processing model with entity id %d.", modelEntityId);
 
@@ -164,7 +159,7 @@ namespace OksEngine
 
 			auto modelComponentsFilter = GetComponentsFilter(modelEntityId);
 
-			const auto* modelDataEntityId = render__Model__ModelDataEntityId1;
+			const auto* modelDataEntityId = mdl__ModelDataEntityId1;
 			const auto* modelAnimations = GetComponent<ModelAnimations>(modelDataEntityId->modelDataEntityId_);
 
 
@@ -172,12 +167,13 @@ namespace OksEngine
 			const bool needToRunAnimation = modelComponentsFilter.IsSet<RunModelAnimation>();
 
 			auto* animationInProgress = std::get<AnimationInProgress*>(components);
-			const bool needToProcessAnimation = modelComponentsFilter.IsSet<AnimationInProgress>();
+			bool needToProcessAnimation = modelComponentsFilter.IsSet<AnimationInProgress>();
 
 			const auto* pauseAnimation = std::get<PauseAnimation*>(components);
 			const bool animationPaused = modelComponentsFilter.IsSet<PauseAnimation>();
 
-			ASSERT(!(needToRunAnimation && needToProcessAnimation));
+			//Run of new animation has more priority than process current.
+			needToProcessAnimation = !needToRunAnimation && needToProcessAnimation;
 
 			//PROSESS RUNNING ANIMATION
 			ModelAnimation runningModelAnimation;

@@ -7,14 +7,24 @@ PhysicsNamespace = {
             { type = "std::shared_ptr<PE::PhysicsEngine>", name = "engine" }
         }
     },
+    SimulationGranularityComponent = {
+        bindable = false,
+        serializable = false,
+        fields = {
+            { type = "Common::UInt64", name = "ms" }
+        }
+    },
+    -- TODO: read simualtion granularity froim config
     CreateEngineSystem = {
+        
         type = "Initialize",
 
         updateMethod = {
             createsEntities = {
                 {
                     createsComponents = {
-                        "Engine"
+                        "Engine",
+                        "SimulationGranularity"
                     }
                 }
             }
@@ -408,13 +418,17 @@ PhysicsNamespace = {
         },
         updateMethod = {
             processesEntities = {
-                -- {
-                --     "Clock",
-
-                -- },
                 {
                     processesComponents = {
-                        { name = "Engine", readonly = false }
+                        "Clock",
+                        "FrameStartTimePoint",
+                        "PreviousFrameDuration"
+                    }
+                },
+                {
+                    processesComponents = {
+                        { name = "Engine", readonly = false },
+                        "SimulationGranularity"
                     }
                 }
             }
