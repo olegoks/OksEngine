@@ -77,8 +77,9 @@ namespace OS {
 			Common::DiscardUnusedParameter(format);
 			using namespace std::string_literals;
 
+			//TODO: use severity
 			logger_->info("Location: "s + location.file_name() + " " + static_cast<std::string>(format));
-			//LOG_F(INFO, ();
+			
 		}
 
 	private:

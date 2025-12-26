@@ -1,5 +1,7 @@
 #pragma once 
 
+#include <queue>
+
 #include <System/ECSGenerator2.SystemCodeStructureGenerator.hpp>
 #include <Component/ECSGenerator2.ComponentCodeGenerator.hpp>
 #include <Struct/ECSGenerator2.StructCodeStructureGenerator.hpp>
@@ -2509,6 +2511,72 @@ namespace ECSGenerator2 {
 			}
 		}
 
+		// Вспомогательная функция для проверки существования альтернативного пути
+		bool hasAlternativePath(Agraph_t* graph, Agnode_t* source, Agnode_t* target) {
+			// BFS для поиска пути, исключая прямое ребро source->target
+			std::unordered_set<Agnode_t*> visited;
+			std::queue<Agnode_t*> q;
+
+			visited.insert(source);
+
+			// Начинаем с соседей source (кроме target)
+			for (Agedge_t* e = agfstout(graph, source); e; e = agnxtout(graph, e)) {
+				Agnode_t* neighbor = aghead(e);
+				if (neighbor != target) {
+					visited.insert(neighbor);
+					q.push(neighbor);
+				}
+			}
+
+			while (!q.empty()) {
+				Agnode_t* current = q.front();
+				q.pop();
+
+				if (current == target) {
+					return true; // Найден альтернативный путь
+				}
+
+				for (Agedge_t* e = agfstout(graph, current); e; e = agnxtout(graph, e)) {
+					Agnode_t* neighbor = aghead(e);
+					if (visited.find(neighbor) == visited.end()) {
+						visited.insert(neighbor);
+						q.push(neighbor);
+					}
+				}
+			}
+
+			return false; // Альтернативный путь не найден
+		}
+
+		// Основная функция для удаления транзитивных рёбер
+		void removeTransitiveEdges(Agraph_t* graph) {
+			if (!graph) return;
+
+			std::set<Agedge_t*> edgesToRemove;
+
+			// Собираем все рёбра для проверки
+			for (Agnode_t* source = agfstnode(graph); source; source = agnxtnode(graph, source)) {
+				for (Agedge_t* e = agfstout(graph, source); e; e = agnxtout(graph, e)) {
+					Agnode_t* target = aghead(e);
+
+					// Проверяем, есть ли альтернативный путь от source к target
+					if (hasAlternativePath(graph, source, target)) {
+						edgesToRemove.insert(e);
+					}
+				}
+			}
+
+			// Удаляем найденные транзитивные рёбра
+			for (Agedge_t* e : edgesToRemove) {
+				agdelete(graph, e);
+				/*std::cout << "Removed edge: "
+					<< agnameof(agtail(e)) << " -> "
+					<< agnameof(aghead(e)) << std::endl;*/
+			}
+
+			std::cout << "Всего удалено рёбер: " << edgesToRemove.size() << std::endl;
+		}
+
 		// Функция для поиска и раскраски циклов в красный цвет
 		void findAndColorCycles(Agraph_t* graph) {
 			if (!graph) return;
@@ -2567,8 +2635,10 @@ namespace ECSGenerator2 {
 				}
 			}
 
-			// Выводим информацию о найденных циклах
-			std::cout << "Found edges in cycles" << cycleEdges.size() << std::endl;
+			if (!cycleEdges.empty()) {
+				// Выводим информацию о найденных циклах
+				OS::LogError("systems_graph", "FOUND LOOP/S IN SYSTEMS GRAPH!!! CHECK .dot graph.");
+			}
 		}
 
 		std::shared_ptr<CodeStructure::File>
@@ -2786,7 +2856,7 @@ namespace ECSGenerator2 {
 
 					return true;
 					});
-
+				removeTransitiveEdges(g);
 				findAndColorCycles(g);
 				//Parse .dot
 				{
