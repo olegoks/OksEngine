@@ -483,6 +483,14 @@ RenderNamespace = {
             }
         },
         ProcessModelSystem = {
+            callOrder = {
+                runAfter = {
+                    "RigidBodyWorldPositionToModelWorldPositionMapper"
+                },
+                runBefore = {
+                    "StartRender"
+                }
+            },
             updateMethod = {
                 processesEntities = {
                     {
@@ -858,8 +866,7 @@ GPGPUECSNamespace = {
     StorageBufferNamespace = {
 WriteComponentsToGPUSystem = {
     callOrder = {
-        runAfter = "StartRender",
-        runBefore = "BeginRenderPass"
+        runBefore = "StartRender"
     },
     updateMethod = {
         processesEntities = {
@@ -942,7 +949,10 @@ ComputeNamespace = {
         }
     },
     CalculateAnimationsSystem = {
-        runAfter = "ProcessModel",
+        callOrder = {
+            runAfter = {  "GPGPUECS::StorageBuffer::WriteComponentsToGPU"},
+            runBefore = { "Render::Mdl::ProcessModel","StartRender" }
+        },
         updateMethod = {
             processesEntities = {
                 {

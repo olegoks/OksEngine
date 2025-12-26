@@ -414,6 +414,7 @@ PhysicsNamespace = {
     },
     SimulatePhysicsSystem = {
         callOrder = {
+            runAfter = "SystemMarks::FRAME_BODY_START",
             runBefore = "StartRender"
         },
         updateMethod = {
@@ -455,6 +456,12 @@ PhysicsNamespace = {
                 }
             }
         }
+    },
+
+    --CONSTRAINTS
+    
+    ConstraintComponent = {
+        
     },
 
     CharacterNamespace = {

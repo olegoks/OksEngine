@@ -779,6 +779,7 @@ namespace ECSGenerator2 {
 			//	GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i])
 			
 			//Render render{ world };
+			realization.Add("MT_ASSERT();");
 			realization.Add(std::format(
 				"{} {}{{ world }};",
 				system->GetName(),

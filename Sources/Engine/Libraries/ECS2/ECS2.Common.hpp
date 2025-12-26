@@ -3,7 +3,7 @@
 #include <optional>
 #include <memory>
 
-#include <OS.Assert.hpp>
+#include <OS.Assert.MTCheck.hpp>
 
 namespace ECS2 {
 

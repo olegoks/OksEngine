@@ -887,7 +887,7 @@ namespace OksEngine
 			//previousUpdate = std::chrono::high_resolution_clock::now();
 			const float fullMsToSimulate = previousFrameDuration0->microseconds_ / 1000.0f;
 			float msLeftToSimulate = fullMsToSimulate;
-
+			
 			while (msLeftToSimulate >= simulationGranularity1->ms_) {
 				engine1->engine_->GetWorld()->Simulate(simulationGranularity1->ms_ / 1000.0f);
 				msLeftToSimulate -= simulationGranularity1->ms_;

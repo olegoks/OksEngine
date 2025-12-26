@@ -16,6 +16,20 @@ void RigidBodyWorldPositionToModelWorldPositionMapper::Update(
     glm::vec3 rbPositionVec{ rbPosition->x_, rbPosition->y_, rbPosition->z_ };
     glm::vec3 modelPositionVec{ modelPosition->x_, modelPosition->y_, modelPosition->z_ };
 
+    if (true) {
+
+        modelPosition->x_ = rbPosition->x_;
+        modelPosition->y_ = rbPosition->y_;
+        modelPosition->z_ = rbPosition->z_;
+
+        modelRotation->w_ = rbRotation->w_;
+        modelRotation->x_ = rbRotation->x_;
+        modelRotation->y_ = rbRotation->y_;
+        modelRotation->z_ = rbRotation->z_;
+
+        return;
+    }
+
     glm::vec3 offsetVec = rbPositionVec - modelPositionVec;
     
     ASSERT(!std::isnan(offsetVec.x) &&
@@ -51,11 +65,13 @@ void RigidBodyWorldPositionToModelWorldPositionMapper::Update(
         modelPosition->z_ += offsetVec.z;
 
 
-        modelRotation->w_ = rbRotation->w_;
-        modelRotation->x_ = rbRotation->x_;
-        modelRotation->y_ = rbRotation->y_;
-        modelRotation->z_ = rbRotation->z_;
+        
     }
+
+    modelRotation->w_ = rbRotation->w_;
+    modelRotation->x_ = rbRotation->x_;
+    modelRotation->y_ = rbRotation->y_;
+    modelRotation->z_ = rbRotation->z_;
 
     };
 

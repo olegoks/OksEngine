@@ -2489,6 +2489,88 @@ namespace ECSGenerator2 {
 
 		}
 
+
+		void dfs(Agnode_t* node, std::unordered_map<Agnode_t*, bool>& visited, std::vector<Agnode_t*>& component, Agraph_t* g) {
+			visited[node] = true;
+			component.push_back(node);
+
+			for (Agedge_t* edge = agfstout(g, node); edge; edge = agnxtout(g, edge)) {
+				Agnode_t* neighbor = aghead(edge);
+				if (!visited[neighbor]) {
+					dfs(neighbor, visited, component, g);
+				}
+			}
+
+			for (Agedge_t* edge = agfstin(g, node); edge; edge = agnxtin(g, edge)) {
+				Agnode_t* neighbor = agtail(edge);
+				if (!visited[neighbor]) {
+					dfs(neighbor, visited, component, g);
+				}
+			}
+		}
+
+		// Функция для поиска и раскраски циклов в красный цвет
+		void findAndColorCycles(Agraph_t* graph) {
+			if (!graph) return;
+
+			// Структуры для хранения состояния узлов
+			std::unordered_map<Agnode_t*, int> nodeState; // 0 - не посещен, 1 - в обработке, 2 - обработан
+			std::unordered_map<Agnode_t*, Agnode_t*> parent;
+			std::vector<std::pair<Agnode_t*, Agnode_t*>> cycleEdges;
+
+			// Рекурсивная функция DFS для поиска циклов
+			std::function<void(Agnode_t*)> dfs = [&](Agnode_t* node) {
+				nodeState[node] = 1; // Узел в обработке
+
+				// Обход всех исходящих рёбер
+				for (Agedge_t* edge = agfstout(graph, node); edge; edge = agnxtout(graph, edge)) {
+					Agnode_t* neighbor = aghead(edge);
+
+					if (nodeState[neighbor] == 0) {
+						// Соседний узел не посещен
+						parent[neighbor] = node;
+						dfs(neighbor);
+					}
+					else if (nodeState[neighbor] == 1) {
+						// Найден цикл! Добавляем ребро в список
+						cycleEdges.push_back({ node, neighbor });
+
+						// Прокручиваем назад по родителям, чтобы найти все рёбра цикла
+						Agnode_t* current = node;
+						while (current != neighbor && parent.find(current) != parent.end()) {
+							cycleEdges.push_back({ parent[current], current });
+							current = parent[current];
+						}
+					}
+				}
+
+				nodeState[node] = 2; // Узел полностью обработан
+				};
+
+			// Запускаем DFS для всех узлов
+			for (Agnode_t* node = agfstnode(graph); node; node = agnxtnode(graph, node)) {
+				if (nodeState[node] == 0) {
+					dfs(node);
+				}
+			}
+
+			// Раскрашиваем рёбра циклов в красный цвет
+			for (const auto& edgePair : cycleEdges) {
+				// Ищем ребро между узлами
+				Agedge_t* edge = agedge(graph, edgePair.first, edgePair.second, nullptr, 0);
+				if (edge) {
+					// Устанавливаем атрибут цвета
+					agsafeset(edge, (char*)"color", (char*)"red", (char*)"");
+
+					// Можно также сделать ребро толще для лучшей видимости
+					agsafeset(edge, (char*)"penwidth", (char*)"3.0", (char*)"");
+				}
+			}
+
+			// Выводим информацию о найденных циклах
+			std::cout << "Found edges in cycles" << cycleEdges.size() << std::endl;
+		}
+
 		std::shared_ptr<CodeStructure::File>
 			GenerateRunSystemsCppFile(std::vector<std::shared_ptr<ParsedECSFile>> parsedECSFiles) {
 
@@ -2705,7 +2787,7 @@ namespace ECSGenerator2 {
 					return true;
 					});
 
-
+				findAndColorCycles(g);
 				//Parse .dot
 				{
 					GVC_t* gvc = gvContext();

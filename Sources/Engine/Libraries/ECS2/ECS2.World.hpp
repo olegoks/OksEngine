@@ -3,6 +3,7 @@
 #include <utility>
 #include <memory>
 #include <mutex>
+#include <ECS2.Common.hpp>
 #include <ECS2.Entity.hpp>
 #include <ECS2.SystemsManager.hpp>
 #include <ECS2.ComponentsManager.hpp>
