@@ -1,0 +1,70 @@
+
+FPSLimitComponent = {
+    serializable = false,
+    bindable = false,
+    fields = {
+        { type = "Common::UInt64", name = "value" }
+    }
+}
+
+CurrentFrameIndexComponent = {
+    serializable = false,
+    bindable = false,
+    fields = {
+        { type = "Common::UInt64", name = "value" }
+    }
+}
+
+CreateFPSSettingsEntitySystem = {
+    type = "Initialize",
+    updateMethod = {
+        createsEntities = {
+            {
+                createsComponents = {
+                    "FPSLimit",
+                    "CurrentFrameIndex"
+                }
+            }
+        }
+    }
+}
+
+UpdateCurrentFrameIndexSystem = {
+    callOrder = {
+        runAfter = { "SystemMarks::FRAME_HEAD_START" },
+        runBefore = { "SystemMarks::FRAME_HEAD_END" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "CurrentFrameIndex", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+ExtendPreviousFrameDurationSystem = {
+    callOrder = {
+        runAfter = { "SystemMarks::FRAME_TAIL_START" },
+        runBefore = { "SystemMarks::FRAME_TAIL_END" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "Clock",
+                    "PreviousFrameDuration",
+                    "FrameEndTimePoint"
+                }
+            },
+            {
+                processesComponents = {
+                    "FPSLimit"
+                }
+            }
+        }
+    }
+}
+

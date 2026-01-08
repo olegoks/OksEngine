@@ -96,7 +96,9 @@ namespace OksEngine
 		const Render::Mdl::BoneNode* boneNode1,
 		const Render::Mdl::ModelNode* modelNode1,
 		const WorldPosition3D* worldPosition3D1,
-		const Render::Mdl::ChildModelNodeEntities* childModelNodeEntities1) {
+		const Render::Mdl::ChildModelNodeEntities* childModelNodeEntities1,
+		
+		ECS2::Entity::Id entity2id, const CurrentFrameIndex* currentFrameIndex2) {
 
 
 		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->childEntityIds_;

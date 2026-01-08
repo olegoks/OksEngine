@@ -1027,7 +1027,24 @@ namespace Render::Vulkan {
 
 
 			GCB_->Begin();
-			
+
+			VkMemoryBarrier barrier{
+				.sType = VK_STRUCTURE_TYPE_MEMORY_BARRIER,
+				.srcAccessMask = VK_ACCESS_HOST_WRITE_BIT,    // Запись с хоста
+				.dstAccessMask = VK_ACCESS_SHADER_READ_BIT   // Чтение в шейдере
+			};
+
+			vkCmdPipelineBarrier(
+				GCB_->GetHandle(),
+				VK_PIPELINE_STAGE_HOST_BIT,              // srcStageMask: Ждем завершения записи хоста
+				VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,     // dstStageMask: Блокируем вершинный шейдер
+				0,
+				1, // memoryBarrierCount
+				&barrier,
+				0, nullptr, // bufferMemoryBarrierCount
+				0, nullptr  // imageMemoryBarrierCount
+			);
+
 		}
 
 
@@ -1612,7 +1629,7 @@ namespace Render::Vulkan {
 
 		std::shared_ptr<Vulkan::StorageBuffer> GetStorageBuffer(StorageBuffer::Id SBId) {
 			auto SB = SBs_[SBId];
-			return SB[(currentFrame == 0) ? (1) : (0)];
+			return SB[0/*(currentFrame == 0) ? (1) : (0)*/];
 		}
 
 		void RemoveStorageBuffer(StorageBuffer::Id SBId) {

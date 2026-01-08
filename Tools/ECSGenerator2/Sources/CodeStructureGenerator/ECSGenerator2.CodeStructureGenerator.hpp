@@ -2795,9 +2795,7 @@ namespace ECSGenerator2 {
 						system->ci_.callOrderInfo_->ForEachRunAfterSystem([&](const ParsedSystem::CallOrderInfo::System& afterSystem) {
 							auto parsedSystem = afterSystem.ptr_;
 
-#pragma region Assert
 							ASSERT_FMSG(parsedSystem != nullptr, "");
-#pragma endregion
 
 							DS::Graph<System>::Node::Id afterSystemNodeId = getCreateSystemNode(thread.callGraph_, parsedSystem);
 							thread.callGraph_.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
@@ -2808,9 +2806,7 @@ namespace ECSGenerator2 {
 						system->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const ParsedSystem::CallOrderInfo::System& beforeSystem) {
 
 							auto parsedSystem = beforeSystem.ptr_;
-#pragma region Assert
 							ASSERT_FMSG(parsedSystem != nullptr, "");
-#pragma endregion
 							DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, parsedSystem);
 
 

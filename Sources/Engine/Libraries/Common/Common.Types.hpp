@@ -74,4 +74,17 @@ namespace Common {
 		}
 	};
 
+	inline Common::Size CalculateAlignedSize(Common::Size originalSize, Common::Size align) {
+
+		const bool needAlign = (originalSize % align) != 0;
+
+		Common::Size resultSize = originalSize;
+
+		if (needAlign) {
+			resultSize = (originalSize / align) * align + align;
+		}
+
+		return resultSize;
+	}
+
 }

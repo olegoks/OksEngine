@@ -389,6 +389,7 @@ scene = {
                   dynamicRigidBody = {},
                   --capsuleController = {},
                   lockAngularX = {},
+                  lockAngularY = {},
                   lockAngularZ = {},
                   setVelocityRequests = {},
                   addVelocityRequests = {},

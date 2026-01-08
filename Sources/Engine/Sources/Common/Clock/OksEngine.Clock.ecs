@@ -35,6 +35,13 @@ FrameStartTimePointComponent = {
     }
 }
 
+FrameEndTimePointComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::chrono::high_resolution_clock::time_point", name = "timepoint" }
+    }
+}
+
 PreviousFrameDurationComponent = {
     serializable = false,
     fields = { 
@@ -74,6 +81,22 @@ UpdateFrameStartTimePointSystem = {
                 },
                 excludes = {
                     "PauseClock"
+                }
+            }
+        }
+    }
+}
+
+UpdateFrameEndTimePointSystem = {
+    callOrder = {
+            runAfter = "SystemMarks::FRAME_TAIL_START",
+            runBefore = "SystemMarks::FRAME_TAIL_END"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "FrameEndTimePoint", readonly = false }
                 }
             }
         }

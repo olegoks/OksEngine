@@ -16,6 +16,7 @@ namespace Render::Vulkan {
 	public:
 
 		struct CreateInfo {
+			std::shared_ptr<PhysicalDevice> PD_ = nullptr;
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			VkMemoryRequirements requirements_ = { 0 };
 			uint32_t memoryTypeIndex_ = 0;
@@ -39,6 +40,46 @@ namespace Render::Vulkan {
 
 		[[nodiscard]]
 		Common::Size GetSize() const noexcept { return createInfo_.requirements_.size; }
+
+		void WriteFlush(Common::Size offsetInBytes, const void* memory, Common::Size bytesNumber) noexcept {
+
+			ASSERT(memory != nullptr);
+			ASSERT(bytesNumber > 0);
+			ASSERT_FMSG(offsetInBytes + bytesNumber <= GetSize(), "Attempt to write to device memory more or less bytes than device memory size.");
+
+
+			const Common::Size alignedBytesToFlush = Common::CalculateAlignedSize(bytesNumber, createInfo_.PD_->GetProperties().limits.nonCoherentAtomSize);
+
+			ASSERT(alignedBytesToFlush <= createInfo_.requirements_.size);
+
+			void* pointerToMappedMemory = nullptr;
+			{
+				VK_CALL(vkMapMemory(
+					createInfo_.LD_->GetHandle(),
+					GetHandle(),
+					offsetInBytes,
+					alignedBytesToFlush,//bytesNumber,
+					0,
+					&pointerToMappedMemory),
+					"Error while mapping buffer to device memory.");
+			}
+			std::memcpy(pointerToMappedMemory, memory, (size_t)bytesNumber);
+
+
+			VkMappedMemoryRange memoryRange = {
+				.sType = VK_STRUCTURE_TYPE_MAPPED_MEMORY_RANGE,
+				.memory = GetHandle(),
+				.offset = offsetInBytes,
+				.size = alignedBytesToFlush,
+			};
+
+			VK_CALL(vkFlushMappedMemoryRanges(createInfo_.LD_->GetHandle(), 1, &memoryRange),
+				"Error while Flushing buffer data.");
+
+			{
+				vkUnmapMemory(createInfo_.LD_->GetHandle(), GetHandle());
+			}
+		}
 
 		void Write(Common::Size offsetInBytes, const void* memory, Common::Size bytesNumber) noexcept {
 

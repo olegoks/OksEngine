@@ -76,7 +76,8 @@ layout(push_constant) uniform PushConstants {
     // uint64_t nodeDataEntitiesNumber_;   // Node data entities number.
     // uint64_t nodeEntitiesNumber_;       // Node entities number.
     // uint64_t modelEntitiesNumber_;     
-    // uint64_t modelDataEntitiesNumber_;     
+    // uint64_t modelDataEntitiesNumber_; 
+    uint64_t frameIndex_;    
     uint64_t meshComponentsIndex_;      // Components index for current mesh.
 };
 
@@ -188,7 +189,14 @@ vec4 TakeBoneIntoAccount(vec4 position, vec4 vertexPosition, uint modelComponent
         ASSERT_FMSG_3(nodeComponentsIndex != -1, 
          "ASSERT: Invalid bone component index calculated for bone entity id %d. Vertex bone index %d. Bone index in model space %d.",
           uint(nodeEntityId), bone, boneIndexInModelSpace);
+
+        uint vertexIndex = gl_VertexIndex;
         vec3 translate = vec3(positions_[nodeComponentsIndex].position_.x, positions_[nodeComponentsIndex].position_.y, positions_[nodeComponentsIndex].position_.z);
+        
+        // if(bone == 0 && 68 == nodeEntityId && vertexIndex == 5304){
+        //     LOG_FMSG_4("Frame %d nodeEntityId: %d componentIndex_: %d X: %f", uint(frameIndex_),uint(nodeEntityId), nodeComponentsIndex, translate.x);
+        // }
+        
         vec4 rotation = rotations_[nodeComponentsIndex].rotation_;
         vec3 scale = vec3(scales_[nodeComponentsIndex].scale_.x, scales_[nodeComponentsIndex].scale_.y, scales_[nodeComponentsIndex].scale_.z);
 

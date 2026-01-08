@@ -24,12 +24,13 @@ namespace Render::Vulkan {
 			std::shared_ptr<LogicDevice> LD_;
 			Common::Size size_;
 			VkBufferUsageFlags usage_;
-			VkMemoryPropertyFlags properties_;
+			VkMemoryPropertyFlags memoryProperties_;
 		};
 
 		Buffer(const CreateInfo& createInfo);
 
 		void Write(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept;
+		void WriteFlush(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept;
 		void Read(Common::Size offset, void* data, Common::Size sizeInBytes) noexcept;
 
 		static void DataCopy(

@@ -103,8 +103,15 @@ PhysicsNamespace = {
     },
     DynamicRigidBodyComponent = {
     },
+
+    LockLinearXComponent = { },
+    LockLinearYComponent = { },
+    LockLinearZComponent = { }, 
+
     LockAngularXComponent = { },
+    LockAngularYComponent = { },
     LockAngularZComponent = { }, 
+    
     DynamicRigidBodyIdComponent = {
         serializable = false,
 

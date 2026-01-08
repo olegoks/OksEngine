@@ -10,6 +10,13 @@ namespace Render::Vulkan
 	Buffer::Buffer(const CreateInfo& createInfo) :
 		createInfo_{ createInfo } {
 
+		[[maybe_unused]]
+		const bool isCoherentMemory = createInfo.memoryProperties_ & VK_MEMORY_PROPERTY_HOST_COHERENT_BIT;
+
+		ASSERT_MSG(isCoherentMemory ||
+			(!isCoherentMemory && (createInfo.size_ % createInfo.physicalDevice_->GetProperties().limits.nonCoherentAtomSize == 0)),
+			"Attempt to use not aligned buffer size with non coherent usage.");
+
 		VkBufferCreateInfo bufferInfo{};
 		{
 			bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
@@ -28,6 +35,12 @@ namespace Render::Vulkan
 		ASSERT(memory_ != nullptr);
 		ASSERT(offset + sizeInBytes <= memory_->GetSize());
 		memory_->Write(offset, data, sizeInBytes);
+	}
+
+	void Buffer::WriteFlush(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept {
+		ASSERT(memory_ != nullptr);
+		ASSERT(offset + sizeInBytes <= memory_->GetSize());
+		memory_->WriteFlush(offset, data, sizeInBytes);
 	}
 
 	void Buffer::Read(Common::Size offsetInBytes, void* memory, Common::Size bytesNumber) noexcept {
@@ -104,9 +117,10 @@ namespace Render::Vulkan
 		OS::Assert(memory_ == nullptr);
 
 		const VkMemoryRequirements memoryRequirements = GetMemoryRequirements();
-		const uint32_t memoryType = FindSuitableMemoryType(createInfo_.physicalDevice_, memoryRequirements.memoryTypeBits, createInfo_.properties_);
+		const uint32_t memoryType = FindSuitableMemoryType(createInfo_.physicalDevice_, memoryRequirements.memoryTypeBits, createInfo_.memoryProperties_);
 
 		DeviceMemory::CreateInfo memoryCreateInfo{
+			.PD_ = createInfo_.physicalDevice_,
 			.LD_ = createInfo_.LD_,
 			.requirements_ = memoryRequirements,
 			.memoryTypeIndex_ = memoryType

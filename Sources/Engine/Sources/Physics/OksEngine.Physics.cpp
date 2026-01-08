@@ -788,6 +788,7 @@ namespace OksEngine
 				.linearDamping_ = linearDamping,
 				.angularDamping_ = angularDamping,
 				.lockAngularX_ = rbComponentsFilter.IsSet<LockAngularX>(),
+				.lockAngularY_ = rbComponentsFilter.IsSet<LockAngularY>(),
 				.lockAngularZ_ = rbComponentsFilter.IsSet<LockAngularZ>()
 			};
 			PAL::DRB::Id drbId = world0->world_->CreateDynamicRigidBody(createInfo);

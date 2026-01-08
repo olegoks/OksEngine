@@ -124,7 +124,11 @@ bool IsEqual(float first, float second) {
 #define LOG_FMSG_2(message, arg1, arg2)\
     debugPrintfEXT(message, arg1, arg2); 
 
+    #define LOG_FMSG_3(message, arg1, arg2, arg3)\
+    debugPrintfEXT(message, arg1, arg2, arg3); 
 
+    #define LOG_FMSG_4(message, arg1, arg2, arg3, arg4)\
+    debugPrintfEXT(message, arg1, arg2, arg3, arg4); 
 
 #define INVALID_ENTITY_ID uint64_t(-1)
 

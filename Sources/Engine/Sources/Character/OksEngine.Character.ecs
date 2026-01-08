@@ -39,12 +39,6 @@ CharacterNamespace = {
                         "Direction3D"
                     }
                 }
-                -- },
-                -- {
-                --     accessingComponents = {
-                --         ""
-                --     }
-                -- }
             }
         }
     },
@@ -68,13 +62,7 @@ CharacterNamespace = {
                         "WorldRotation3D"
                     }
                 }
-                -- },
-                -- {
-                --     accessingComponents = {
-                --         ""
-                --     }
-                -- }
             }
         }
-    }
+    },
 }

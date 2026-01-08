@@ -866,6 +866,8 @@ GPGPUECSNamespace = {
     StorageBufferNamespace = {
 WriteComponentsToGPUSystem = {
     callOrder = {
+        runAfter = { 
+            "SystemMarks::FRAME_BODY_START"},
         runBefore = "StartRender"
     },
     updateMethod = {
@@ -888,6 +890,133 @@ WriteComponentsToGPUSystem = {
                 }
             }
         },
+        accessingEntities = {
+            {
+                archetype = "Render::Mdl::Node",
+            },
+            {
+                archetype = "Render::Mdl::Node_Data"
+            },
+            {
+                archetype = "Model"
+            },
+            {
+                archetype = "Model_Data"
+            },
+            {
+                archetype = "Mesh"
+            }
+        }
+
+    }
+
+},
+
+WriteComponentsToGPU2System = {
+    callOrder = {
+        runAfter = { 
+            "Render::Mdl::ProcessModel"},
+        runBefore = "StartRender"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false },
+                    "GPGPUECS::StorageBuffer::MeshNodeEntityIndices",
+                    "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
+                    "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
+                    "GPGPUECS::StorageBuffer::ModelEntityIds",
+                    "GPGPUECS::StorageBuffer::WorldPositions3D",
+                    "GPGPUECS::StorageBuffer::WorldRotations3D",
+                    "GPGPUECS::StorageBuffer::WorldScales3D",
+                    "GPGPUECS::StorageBuffer::BoneNodeEntities",
+                    "GPGPUECS::StorageBuffer::ModelNodeEntityIds",
+                    "GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices"
+                }
+            },
+            {
+                processesComponents = {
+                    "CurrentFrameIndex"
+                }
+            }
+        },
+        accessingEntities = {
+            {
+                archetype = "Render::Mdl::Node",
+            },
+            {
+                archetype = "Render::Mdl::Node_Data"
+            },
+            {
+                archetype = "Model"
+            },
+            {
+                archetype = "Model_Data"
+            },
+            {
+                archetype = "Mesh"
+            }
+        }
+
+    }
+
+},
+WriteWorldPositions3DToGPUSystem = {
+    callOrder = {
+        runAfter = { 
+            "Render::Mdl::ProcessModel"},
+        runBefore = "StartRender"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false },
+                    "GPGPUECS::StorageBuffer::WorldPositions3D"
+                }
+            }
+        },
+        --TODO: Remove unused archetypes
+        accessingEntities = {
+            {
+                archetype = "Render::Mdl::Node",
+            },
+            {
+                archetype = "Render::Mdl::Node_Data"
+            },
+            {
+                archetype = "Model"
+            },
+            {
+                archetype = "Model_Data"
+            },
+            {
+                archetype = "Mesh"
+            }
+        }
+
+    }
+
+},
+WriteWorldRotations3DToGPUSystem = {
+    callOrder = {
+        runAfter = { 
+            "Render::Mdl::ProcessModel"},
+        runBefore = "StartRender"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false },
+                    "GPGPUECS::StorageBuffer::WorldRotations3D"
+                }
+            }
+        },
+        --TODO: Remove unused archetypes
         accessingEntities = {
             {
                 archetype = "Render::Mdl::Node",
@@ -1096,6 +1225,12 @@ AddSkeletonModelToRenderSystem = {
                     "Active",
                     "DriverViewProjectionUniformBuffer",
                     "CameraTransformResource"
+                }
+            },
+            --Move this entity in the begin because its singleton
+            {
+                processesComponents = {
+                    "CurrentFrameIndex"
                 }
             },
         },

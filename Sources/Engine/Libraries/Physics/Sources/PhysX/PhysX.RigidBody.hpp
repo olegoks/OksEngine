@@ -44,8 +44,22 @@ namespace PhysX {
 
 			physx::PxRigidDynamicLockFlags axisLockFlags;
 			{
+
+				if (createInfo.palCreateInfo_.lockLinearX_) {
+					axisLockFlags |= physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_X;
+				}
+				if (createInfo.palCreateInfo_.lockLinearY_) {
+					axisLockFlags |= physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Y;
+				}
+				if (createInfo.palCreateInfo_.lockLinearZ_) {
+					axisLockFlags |= physx::PxRigidDynamicLockFlag::eLOCK_LINEAR_Z;
+				}
+
 				if (createInfo.palCreateInfo_.lockAngularX_) {
 					axisLockFlags |= physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_X;
+				}
+				if (createInfo.palCreateInfo_.lockAngularY_) {
+					axisLockFlags |= physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Y;
 				}
 				if (createInfo.palCreateInfo_.lockAngularZ_) {
 					axisLockFlags |= physx::PxRigidDynamicLockFlag::eLOCK_ANGULAR_Z;

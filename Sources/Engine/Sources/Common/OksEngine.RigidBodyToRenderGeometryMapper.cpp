@@ -6,6 +6,12 @@ namespace OksEngine
 void RigidBodyWorldPositionToModelWorldPositionMapper::Update(
     ECS2::Entity::Id entity0id, const Physics::RigidBodyEntityId *physics__RigidBodyEntityId0,
     const Render::Mdl::ModelEntity *render__Mdl__ModelEntity0) {
+    
+    const ECS2::ComponentsFilter rigidBodyFilter = GetComponentsFilter(physics__RigidBodyEntityId0->id_);
+
+    if (rigidBodyFilter.IsSet<Physics::StaticRigidBody>()) {
+        return;
+    }
 
     auto* modelPosition = GetComponent<WorldPosition3D>(render__Mdl__ModelEntity0->id_);
     auto* modelRotation = GetComponent<WorldRotation3D>(render__Mdl__ModelEntity0->id_);

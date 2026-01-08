@@ -17,7 +17,10 @@ namespace Render::Vulkan {
 		
 
 		[[nodiscard]]
-		const VkAbstractionType& GetHandle() const noexcept { return handle_; }
+		const VkAbstractionType& GetHandle() const noexcept { 
+			/*ASSERT(IsHandleValid());*/
+			return handle_;
+		}
 
 		[[nodiscard]]
 		bool IsNullHandle() const noexcept {

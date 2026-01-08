@@ -120,7 +120,7 @@ struct ModelNodeAnimation {
 };
 
 struct ModelNodeAnimations {
-    ModelNodeAnimation animations_[8];
+    ModelNodeAnimation animations_[12];
 };
 
 layout(std430, set = 0, binding = 0) buffer Positions {

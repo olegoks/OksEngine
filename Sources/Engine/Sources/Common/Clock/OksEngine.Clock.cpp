@@ -21,6 +21,7 @@ namespace OksEngine
 
 		CreateComponent<EngineStartTimePoint>(entityId, nowTimePoint);
 		CreateComponent<FrameStartTimePoint>(entityId, nowTimePoint);
+		CreateComponent<FrameEndTimePoint>(entityId, nowTimePoint);
 
 		CreateComponent<PreviousFrameDuration>(entityId, 0);
 	}
@@ -51,6 +52,15 @@ namespace OksEngine
 
 		const auto nowTimePoint = std::chrono::high_resolution_clock::now();
 		frameStartTimePoint0->timepoint_ = nowTimePoint;
+
+	}
+
+	void UpdateFrameEndTimePoint::Update(
+		ECS2::Entity::Id entity0id,
+		FrameEndTimePoint* frameEndTimePoint0) {
+
+		const auto nowTimePoint = std::chrono::high_resolution_clock::now();
+		frameEndTimePoint0->timepoint_ = nowTimePoint;
 
 	}
 

@@ -64,15 +64,12 @@ function TestGameObjectInputProcessor:ProcessKeyboardInput(object, Key, Event)
 end
 
 function TestGameObjectInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY, scroll)
-    --print("TestGameObjectInputProcessor:ProcessMouseInput(")
-    local cameraEntityId = camera:GetIdValue()
-    local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(cameraEntityId)
-    local rbEntityId = rigidBodyEntityId.id
+    -- local cameraEntityId = camera:GetIdValue()
+    -- local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(cameraEntityId)
+    -- local rbEntityId = rigidBodyEntityId.id
 
-    local setAngularVelocityRequests = ECSWorld:GetPhysics_SetAngularVelocityRequests(rbEntityId)
-    --print("local setAngularVelocityRequests = ECSWorld:GetPhysics_SetAngularVelocityRequests(rbEntityId)")
-    if offsetX ~= 0 then
-        setAngularVelocityRequests:AddSetAngularVelocityRequest(0.0, 1.0, 0.0, 2.0 * offsetX * 0.02)
-    end
-    --print("setAngularVelocityRequests:AddSetAngularVelocityRequest(0.0, 1.0, 0.0, 2.0)")
+    -- local setAngularVelocityRequests = ECSWorld:GetPhysics_SetAngularVelocityRequests(rbEntityId)
+    -- if offsetX ~= 0 then
+    --     setAngularVelocityRequests:AddSetAngularVelocityRequest(0.0, 1.0, 0.0, 2.0 * offsetX * 0.02)
+    -- end
 end
