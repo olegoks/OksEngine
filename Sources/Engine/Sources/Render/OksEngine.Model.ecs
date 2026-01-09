@@ -1135,6 +1135,7 @@ AddModelToRenderSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
+                    "Render::EnableRegularRender",
                     "Render::MainRenderPass",
                     "Render::Pipeline",
                     "GPGPUECS::StorageBuffer::WorldPositions3D",
@@ -1205,6 +1206,7 @@ AddSkeletonModelToRenderSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
+                    "Render::EnableRegularRender",
                     "Render::MainRenderPass",
                     "Render::SkeletonModelPipeline",
                     "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",

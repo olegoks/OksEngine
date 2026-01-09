@@ -367,6 +367,10 @@ namespace Render::Vulkan {
 				return Vertex3fc::GetBindingDescription();
 				break;
 			}
+			case VertexType::VF3_NF3_CF4: {
+				return Vertex3fnc::GetBindingDescription();
+				break;
+			}
 			case VertexType::VF2_TF2_CF4: {
 				return Vertex2ftc::GetBindingDescription();
 				break;
@@ -389,6 +393,10 @@ namespace Render::Vulkan {
 			}
 			case VertexType::VF3_CF4: {
 				return Vertex3fc::GetAttributeDescriptions();
+				break;
+			}
+			case VertexType::VF3_NF3_CF4: {
+				return Vertex3fnc::GetAttributeDescriptions();
 				break;
 			}
 			case VertexType::VF2_TF2_CF4: {
@@ -2009,6 +2017,10 @@ namespace Render::Vulkan {
 			}
 			case VertexType::VF3_CF4: {
 				return sizeof(Vertex3fc);
+				break;
+			}
+			case VertexType::VF3_NF3_CF4: {
+				return sizeof(Vertex3fnc);
 				break;
 			}
 			default: {

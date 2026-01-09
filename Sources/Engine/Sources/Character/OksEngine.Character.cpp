@@ -6,7 +6,8 @@ namespace OksEngine
 
 	namespace Character
 	{
-		void UpdateBindedCameraPosition::Update(ECS2::Entity::Id entity0id, const Character::CharacterEntity* characterEntity0,
+		void UpdateBindedCameraPosition::Update(
+			ECS2::Entity::Id entity0id, const Character::CharacterEntity* characterEntity0,
 			const Character::BindedCameraEntityId* bindedCameraEntityId0,
 			const Character::BindedCameraOffset* bindedCameraOffset0,
 			const Physics::RigidBodyEntityId* physics__RigidBodyEntityId0) {
@@ -44,16 +45,16 @@ namespace OksEngine
 			ECS2::Entity::Id entity0id, const Character::CharacterEntity* characterEntity0,
 			Direction3D* direction3D0, const Physics::RigidBodyEntityId* physics__RigidBodyEntityId0) {
 
-			auto* worldRotation3D = GetComponent<WorldRotation3D>(physics__RigidBodyEntityId0->id_);
+			//auto* worldRotation3D = GetComponent<WorldRotation3D>(physics__RigidBodyEntityId0->id_);
 
-			glm::quat rbRotation{ worldRotation3D->w_, worldRotation3D->x_, worldRotation3D->y_, worldRotation3D->z_ };
-			//HACK
-			glm::vec3 startDirection{ 0.0, 0.0, -1.0 };
+			//glm::quat rbRotation{ worldRotation3D->w_, worldRotation3D->x_, worldRotation3D->y_, worldRotation3D->z_ };
+			////HACK
+			//glm::vec3 startDirection{ 0.0, 0.0, -1.0 };
 
-			glm::vec3 actualDirection = rbRotation * startDirection;
-			direction3D0->x_ = actualDirection.x;
-			direction3D0->y_ = actualDirection.y;
-			direction3D0->z_ = actualDirection.z;
+			//glm::vec3 actualDirection = rbRotation * startDirection;
+			//direction3D0->x_ = actualDirection.x;
+			//direction3D0->y_ = actualDirection.y;
+			//direction3D0->z_ = actualDirection.z;
 
 		}
 

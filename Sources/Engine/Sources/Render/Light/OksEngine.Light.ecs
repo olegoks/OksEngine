@@ -9,6 +9,10 @@ RenderNamespace = {
             }
         },
         PointLightComponent = {
+            alignment = 16,
+            fields = {
+                { type = "float", name = "radius" }
+            }
         }
     }
 }

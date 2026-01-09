@@ -1,0 +1,25 @@
+CharacterNamespace = {
+    DebugNamespace = {
+
+        DebuggerComponent = { },
+        
+        CreateDebuggerSystem = {
+            type = "Initialize",
+            callOrder = {
+                runBefore = {
+                    "CreateRenderDriver"
+                }
+            },
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "Debugger"
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+}

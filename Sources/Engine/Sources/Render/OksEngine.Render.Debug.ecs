@@ -1,0 +1,240 @@
+-- Renderer to draw low poly geometry
+
+RenderNamespace = {
+
+    DebugNamespace = {
+
+        RendererComponent = {},
+        EnableComponent = {},
+        CreateRendererSystem = {
+            type = "Initialize",
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "Renderer"
+                        }
+                    }
+                }
+            }
+        },
+
+        VertexBufferComponent = {
+            serializable = false,
+            fields = { { type = "Geom::VertexCloud<Geom::Vertex3fnc>", name = "vertices" } }
+        },
+
+        -- CreateVertexBufferSystem = {
+        --     type = "Initialize",
+        --     callOrder = {
+        --         runAfter = {
+        --             "CreateRenderer",
+        --             "CreateRenderDriver" }
+        --     },
+        --     updateMethod = {
+        --         processesEntities = {
+        --             {
+        --                 processesComponents = {
+        --                     "Renderer"
+        --                 },
+        --                 createsComponents = {
+        --                     "VertexBuffer"
+        --                 },
+        --                 excludes = { "VertexBuffer" }
+        --             },
+        --             {
+        --                 processesComponents = {
+        --                     { name = "RenderDriver", readonly = false }
+        --                 }
+        --             }
+        --         }
+        --     }
+        -- },
+
+        -- UpdateDebugVertexBufferSystem = {
+        --     updateMethod = {
+        --         processesEntities = {
+        --             {
+        --                 processesComponents = {
+        --                     "DebugRenderer",
+        --                     { name = "DebugVertexBuffer", readonly = false }
+        --                 }
+        --             },
+        --             {
+        --                 processesComponents = {
+        --                     "DebugText2D"
+        --                 }
+        --             }
+        --         }
+        --     }
+        -- },
+
+
+        DriverVertexBufferComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::VertexBuffer::Id", name = "id" },
+                { type = "Common::Size",                name = "capacity" },
+                { type = "Common::Size",                name = "size" }
+            }
+        },
+
+        CreateDriverVertexBufferSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = {
+                    "CreateRenderer",
+                    "CreateRenderDriver" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Renderer"
+                        },
+                        createsComponents = {
+                            "DriverVertexBuffer"
+                        },
+                        excludes = { "DriverVertexBuffer" }
+                    },
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false }
+                        }
+                    }
+                }
+            }
+        },
+
+        UpdateDriverVertexBufferSystem = {
+            callOrder = {
+                runBefore = { "StartRender" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Renderer",
+                            { name = "VertexBuffer",       readonly = false },
+                            { name = "DriverVertexBuffer", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false }
+                        }
+                    }
+                }
+            }
+        },
+
+        ClearVertexBufferSystem = {
+            callOrder = {
+                runAfter = { "SystemMarks::FRAME_TAIL_START" },
+                runBefore = { "SystemMarks::FRAME_TAIL_END" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Renderer",
+                            { name = "VertexBuffer", readonly = false }
+                        }
+                    }
+                }
+            }
+        },
+
+        RenderPassComponent = {
+            serializable = false,
+            fields = {
+                { type = "Common::Id", name = "rpId" }
+                -- { type = "Common::Id", name = "attachmentsSetId" }, -- Synonym of VkFramebuffer
+                -- { type = "std::vector<Common::Id>", name = "textureIds" }
+            }
+        },
+
+
+        PipelineComponent = {
+            serializable = false,
+            fields = {
+                { type = "Common::Id", name = "id" }
+            }
+        },
+
+
+
+        CreatePipelineSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = {
+                    "CreateRenderDriver",
+                    "CreateResourceSystem",
+                    "CreateRenderer",
+                    "CreateRenderPass"
+                }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "RenderDriver",
+                            "Render::MainRenderPass"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "ResourceSystem"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Renderer"
+                        },
+                        excludes = {
+                            "Pipeline"
+                        },
+                        createsComponents = {
+                            "Pipeline"
+                        }
+                    }
+                }
+            }
+        },
+
+
+        DrawSystem = {
+            callOrder = {
+                runAfter = "BeginRenderPass",
+                runBefore = "EndRenderPass"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false },
+                            "Render::MainRenderPass"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Camera",
+                            "Active",
+                            "DriverViewProjectionUniformBuffer",
+                            "CameraTransformResource"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Renderer",
+                            "Enable",
+                            "Pipeline",
+                            "VertexBuffer",
+                            "DriverVertexBuffer"
+                        }
+                    }        
+                }
+            }
+        }
+    }
+}

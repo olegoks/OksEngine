@@ -1,0 +1,63 @@
+PhysicsNamespace = {
+    DebugNamespace = {
+        AddToRenderDynamicRigidBodyShapeSystem = {
+            callOrder = {
+                runBefore = { "Render::Debug::UpdateDriverVertexBuffer" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                        "Render::Debug::Renderer",
+                        { name = "Render::Debug::VertexBuffer", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "WorldPosition3D",
+                            "WorldRotation3D",
+                            "WorldScale3D",
+                            "DynamicRigidBody",
+                            "DynamicRigidBodyId",
+                            "PhysicsShape"
+                        },
+                        accessingComponents = {
+                            --TODO: add another shape data
+                            "ShapeGeometryData",
+                            "ShapeGeometryCapsule"
+                        }
+                    }
+                }
+            }
+        },
+        AddToRenderStaticRigidBodyShapeSystem = {
+            callOrder = {
+                runBefore = { "Render::Debug::UpdateDriverVertexBuffer" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                        "Render::Debug::Renderer",
+                        { name = "Render::Debug::VertexBuffer", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "WorldPosition3D",
+                            "WorldRotation3D",
+                            "WorldScale3D",
+                            "StaticRigidBody",
+                            "StaticRigidBodyId",
+                            "PhysicsShape"
+                        },
+                        accessingComponents = {
+                            --TODO: add another shape data
+                            "ShapeGeometryData"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

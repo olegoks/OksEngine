@@ -45,6 +45,7 @@ namespace OksEngine
 
 		const ECS2::Entity::Id driverEntityId = CreateEntity();
 		CreateComponent<RenderDriver>(driverEntityId, driver);
+		CreateComponent<Render::EnableRegularRender>(driverEntityId);
 
 		//Animation
 		{

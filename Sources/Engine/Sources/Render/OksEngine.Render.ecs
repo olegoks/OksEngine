@@ -7,6 +7,9 @@ RenderDriverComponent = {
 }
 
 RenderNamespace = {
+
+    EnableRegularRenderComponent = {},
+
     TextureResourceComponent = {
         serializable = false,
         fields = {
@@ -27,6 +30,35 @@ RenderNamespace = {
             { type = "Common::Id", name = "rpId" }
         }
     },
+
+    BindingStruct = {
+        description = "",
+        fields = {
+            { type = "Common::Id", name = "binding" },
+            { type = "std::string", name = "type" },
+            { type = "std::string", name = "stage" }
+        }
+    },
+
+    PipelineDescriptionComponent = {
+        bindable = false,
+        --TODO: manual
+        serializable = false,
+        fields = {
+            { type = "std::string", name = "vertexShaderPath" },
+            { type = "std::string", name = "fragmentShaderPath" },
+            { type = "std::vector<Binding>", name = "bindings" },
+            --"TriangleList", "LineList"
+            { type = "std::string", name = "topology" },
+            --"VF3_NF3_TF2", "VF3_NF3_TF2_BIDUB4_WUB4", "VF3_CF4", "VF2_TF2_CF4",
+            { type = "std::string", name = "vertexType" },
+            --"UI16", "UI32"
+            { type = "std::string", name = "indexType" },
+            --"Front", "Back", "FrontAndBack"
+            { type = "std::string", name = "cullMode" },
+        }
+    },
+
     PipelineIdComponent = {
         serializable = false,
         fields = {
@@ -80,6 +112,7 @@ CreateRenderDriverSystem = {
             {
                 createsComponents = {
                     "RenderDriver",
+                    "Render::EnableRegularRender",
                     "Animation::DriverLocalPosition3DComponents",
                     "Animation::LocalPosition3DComponentsResource",
                     "DriverWorldPosition3DComponents",
@@ -144,7 +177,8 @@ StartRenderSystem = {
 
 EndRenderSystem = {
     callOrder = {
-        runAfter = "StartRender"
+        runAfter = "StartRender",
+        runBefore = "SystemMarks::FRAME_BODY_END"
     },
     updateMethod = {
         processesEntities = {

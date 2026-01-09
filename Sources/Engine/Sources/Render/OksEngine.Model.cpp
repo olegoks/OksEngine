@@ -3347,6 +3347,7 @@ namespace OksEngine
 
 	void AddModelToRender::Update(
 		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0,
+		const Render::EnableRegularRender* render__EnableRegularRender0,
 		const Render::MainRenderPass* render__MainRenderPass0, const Render::Pipeline* render__Pipeline0,
 		const GPGPUECS::StorageBuffer::WorldPositions3D* gPGPUECS__StorageBuffer__WorldPositions3D0,
 		const GPGPUECS::StorageBuffer::WorldRotations3D* gPGPUECS__StorageBuffer__WorldRotations3D0,
@@ -3692,24 +3693,27 @@ namespace OksEngine
 
 
 	void AddSkeletonModelToRender::Update(
-		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const Render::MainRenderPass* renderPass0,
-		const Render::SkeletonModelPipeline* skeletonModelPipeline0,
-		const GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0,
+		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0,
+		const Render::EnableRegularRender* render__EnableRegularRender0,
+		const Render::MainRenderPass* render__MainRenderPass0,
+		const Render::SkeletonModelPipeline* render__SkeletonModelPipeline0,
+		const GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices
+		* gPGPUECS__StorageBuffer__NodeDataEntityIdsToComponentIndices0,
 		const GPGPUECS::StorageBuffer::ModelNodeDataEntityIds* gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0,
-		const GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
-		const GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices* gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0,
+		const GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices
+		* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
+		const GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices
+		* gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0,
 		const GPGPUECS::StorageBuffer::ModelEntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
 		const GPGPUECS::StorageBuffer::WorldPositions3D* gPGPUECS__StorageBuffer__WorldPositions3D0,
 		const GPGPUECS::StorageBuffer::WorldRotations3D* gPGPUECS__StorageBuffer__WorldRotations3D0,
 		const GPGPUECS::StorageBuffer::WorldScales3D* gPGPUECS__StorageBuffer__WorldScales3D0,
 		const GPGPUECS::StorageBuffer::BoneNodeEntities* gPGPUECS__StorageBuffer__BoneNodeEntities0,
-		const GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices* gPGPUECS__StorageBuffer__BoneInverseBindPoseMatrices0,
-		ECS2::Entity::Id entity1id,
-		const Camera* camera1,
-		const Active* active1,
+		const GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices
+		* gPGPUECS__StorageBuffer__BoneInverseBindPoseMatrices0,
+		ECS2::Entity::Id entity1id, const Camera* camera1, const Active* active1,
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
-		const CameraTransformResource* cameraTransformResource1,
-		ECS2::Entity::Id entity2id,
+		const CameraTransformResource* cameraTransformResource1, ECS2::Entity::Id entity2id,
 		const CurrentFrameIndex* currentFrameIndex2) {
 
 		auto createEntityIndices = [](ECS2::Entity::Id* entityIds, Common::Size entitiesNumber) {
@@ -3753,9 +3757,9 @@ namespace OksEngine
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
-		driver->BindPipeline(skeletonModelPipeline0->id_);
+		driver->BindPipeline(render__SkeletonModelPipeline0->id_);
 
-		driver->Bind(skeletonModelPipeline0->id_, 2,
+		driver->Bind(render__SkeletonModelPipeline0->id_, 2,
 			{
 			gPGPUECS__StorageBuffer__WorldPositions3D0->resourceSetId_,						// set 2
 			gPGPUECS__StorageBuffer__WorldRotations3D0->resourceSetId_,						// set 3
@@ -3801,14 +3805,14 @@ namespace OksEngine
 
 				auto* modelEntityIds = meshModelEntityIds + i;
 
-				driver->Bind(skeletonModelPipeline0->id_, 0,
+				driver->Bind(render__SkeletonModelPipeline0->id_, 0,
 					{
 						cameraTransformResource1->id_,													// set 0
 						textureResource->id_															// set 1
 
 					});
 
-				driver->Bind(skeletonModelPipeline0->id_, 12,
+				driver->Bind(render__SkeletonModelPipeline0->id_, 12,
 					{
 						(meshNormalTextureResources + i)->id_												// set 12
 					});
@@ -3832,7 +3836,7 @@ namespace OksEngine
 
 
 				driver->PushConstants(
-					skeletonModelPipeline0->id_,
+					render__SkeletonModelPipeline0->id_,
 					RAL::Driver::Shader::Stage::VertexShader,
 					sizeof(Render::MeshData),
 					&meshInfo);

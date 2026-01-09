@@ -147,6 +147,9 @@ namespace Geometry {
 		Vertex3fnc() noexcept = default;
 		Vertex3fnc(const Vector3f& position, const Normal3f& normal, const Color3f& color) noexcept :
 			Vertex3fn{ position, normal }, color_ { color } { }
+		//Vertex3fnc(Vector3f position, Normal3f normal, Color3f color) noexcept :
+		//	Vertex3fn{ position, normal }, color_{ color } { }
+
 		Vertex3fnc(const Vertex3fc& vertex3fc, const Normal3f& normal) noexcept :
 			Vertex3fn{ vertex3fc.position_, normal }, color_{ vertex3fc.color_ } { }
 
