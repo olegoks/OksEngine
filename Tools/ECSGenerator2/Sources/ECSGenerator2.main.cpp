@@ -330,6 +330,23 @@ int main(int argc, char** argv) {
 							return true;
 							});
 
+						entity.ForEachAccess([&](ECSGenerator2::ParsedSystem::Access& remove, bool isLast) {
+
+							const auto componentName = remove.GetName();
+
+							//at first lets find run after system in namespace of current system.
+							const auto parsedComponentName = ECSGenerator2::ParseFullName(componentName);
+
+							remove.ptr_ = Common::pointer_cast<ECSGenerator2::ParsedComponent>(
+								getTableByFullName2(
+									parsedECSFiles,
+									parsedSystem,
+									parsedComponentName,
+									ECSGenerator2::ParsedTable::Type::Component));
+
+							return true;
+							});
+
 						return true;
 					});
 

@@ -89,11 +89,11 @@ namespace ECSGenerator2 {
 				bool isLast) {
 
 					ParsedArchetype::ProcessComponentRecursive processComponentName = [&](ParsedArchetype::Component& component) {
-						
+
 						ASSERT(component.ptr_->GetType() == ParsedTable::Type::Component);
 
 						requiredComponentNames.insert(Common::pointer_cast<ParsedComponent>(component.ptr_));
-						
+
 						};
 
 					if (entity.archetype_ != nullptr) {
@@ -315,12 +315,47 @@ namespace ECSGenerator2 {
 
 				return createArchetypeEntityMethod;
 				};
-			
-			
+
+
 			auto generateGetComponentsMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				CodeStructure::Code getComponentsCode;
 				{
+
+					{
+						std::vector<std::string> accessingComponents;
+						systemEcsFile->ci_.updateMethod_->ForEachProcessEntity(
+							[&](const ECSGenerator2::ParsedSystem::ProcessedEntity& entity, bool isLast)->bool {
+								entity.ForEachAccess([&](const ECSGenerator2::ParsedSystem::Access& access, bool isLast) {
+									accessingComponents.push_back(access.GetFullName());
+									return true;
+									});
+								return true;
+							});
+
+						if (!accessingComponents.empty()) {
+
+							getComponentsCode.Add("STATIC_ASSERT_MSG(");
+							getComponentsCode.Add("(");
+							getComponentsCode.Add("Common::IsAnyOf<Components, ");
+							for (Common::Index i = 0; i < accessingComponents.size(); i++) {
+
+								getComponentsCode.Add(accessingComponents[i]);
+
+								if (i < accessingComponents.size() - 1) {
+									getComponentsCode.Add(",");
+								}
+							}
+							getComponentsCode.Add(">() && ...");
+							getComponentsCode.Add(")");
+							getComponentsCode.Add(
+								", \"Attempt to access component that system("
+								+ systemEcsFile->GetName() +
+								") can't access. Added access entities description to .ecs file that corresponds to system\");"
+							);
+						}
+
+					}
 
 					if (!systemEcsFile->ci_.updateMethod_->randomAccessesEntities_.empty()) {
 						//Add Assert.
@@ -348,7 +383,7 @@ namespace ECSGenerator2 {
 						}
 					}
 					getComponentsCode.Add("return world_->GetComponents<Components...>();");
-				}	
+				}
 				CodeStructure::Function::CreateInfo getComponentsCI{
 					.name_ = "GetComponents",
 					.parameters_ = {},
@@ -368,6 +403,41 @@ namespace ECSGenerator2 {
 
 				CodeStructure::Code getComponentsCode;
 				{
+					{
+						std::vector<std::string> accessingComponents;
+						systemEcsFile->ci_.updateMethod_->ForEachProcessEntity(
+							[&](const ECSGenerator2::ParsedSystem::ProcessedEntity& entity, bool isLast)->bool {
+								entity.ForEachAccess([&](const ECSGenerator2::ParsedSystem::Access& access, bool isLast) {
+									accessingComponents.push_back(access.GetFullName());
+									return true;
+									});
+								return true;
+							});
+
+						if (!accessingComponents.empty()) {
+
+							getComponentsCode.Add("STATIC_ASSERT_MSG(");
+							getComponentsCode.Add("(");
+							getComponentsCode.Add("Common::IsAnyOf<Components, ");
+							for (Common::Index i = 0; i < accessingComponents.size(); i++) {
+
+								getComponentsCode.Add(accessingComponents[i]);
+
+								if (i < accessingComponents.size() - 1) {
+									getComponentsCode.Add(",");
+								}
+							}
+							getComponentsCode.Add(">() && ...");
+							getComponentsCode.Add(")");
+							getComponentsCode.Add(
+								", \"Attempt to access component that system("
+								+ systemEcsFile->GetName() +
+								") can't access. Added access entities description to .ecs file that corresponds to system\");"
+							);
+						}
+
+					}
+
 					if (!systemEcsFile->ci_.updateMethod_->randomAccessesEntities_.empty()) {
 						//Add Assert.
 						{
@@ -416,6 +486,39 @@ namespace ECSGenerator2 {
 
 				CodeStructure::Code getComponentCode;
 				{
+
+					{
+						std::vector<std::string> accessingComponents;
+						systemEcsFile->ci_.updateMethod_->ForEachProcessEntity(
+							[&](const ECSGenerator2::ParsedSystem::ProcessedEntity& entity, bool isLast)->bool {
+								entity.ForEachAccess([&](const ECSGenerator2::ParsedSystem::Access& access, bool isLast) {
+									accessingComponents.push_back(access.GetFullName());
+									return true;
+									});
+								return true;
+							});
+
+						if (!accessingComponents.empty()) {
+							getComponentCode.Add("STATIC_ASSERT_MSG(");
+							getComponentCode.Add("(");
+							for (Common::Index i = 0; i < accessingComponents.size(); i++) {
+
+								getComponentCode.Add(std::format("std::is_same_v<Component, {}>", accessingComponents[i]));
+
+								if (i < accessingComponents.size() - 1) {
+									getComponentCode.Add(" || ");
+								}
+							}
+							getComponentCode.Add(")");
+							getComponentCode.Add(
+								", \"Attempt to access component{} that system("
+								+ systemEcsFile->GetName() +
+								") can't access. Added access entities description to .ecs file that corresponds to system\");"
+							);
+						}
+
+					}
+
 					if (!systemEcsFile->ci_.updateMethod_->randomAccessesEntities_.empty()) {
 						//Add Assert.
 						{
@@ -615,7 +718,19 @@ namespace ECSGenerator2 {
 				methods.push_back(generateAfterUpdateMethodPrototype(system));
 			}
 
-			if (!system->ci_.updateMethod_->randomAccessesEntities_.empty()) {
+			bool accessingComponents = false;
+			{
+				system->ci_.updateMethod_->ForEachProcessEntity(
+					[&](const ECSGenerator2::ParsedSystem::ProcessedEntity& entity, bool isLast)->bool {
+						entity.ForEachAccess([&](const ECSGenerator2::ParsedSystem::Access& access, bool isLast) {
+							accessingComponents = true;
+							return false;
+							});
+						return true;
+					});
+			}
+
+			if (!system->ci_.updateMethod_->randomAccessesEntities_.empty() || accessingComponents) {
 				methods.push_back(generateGetComponentsMethodRealization(system));
 				methods.push_back(generateGetComponentMethodRealization(system));
 				methods.push_back(generateGetEntityComponentsMethodRealization(system));
@@ -777,7 +892,7 @@ namespace ECSGenerator2 {
 			//	"END_PROFILE();",
 			//	GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i]),
 			//	GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i])
-			
+
 			//Render render{ world };
 			realization.Add("MT_ASSERT();");
 			realization.Add(std::format(

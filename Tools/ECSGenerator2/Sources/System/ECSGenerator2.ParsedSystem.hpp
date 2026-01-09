@@ -90,6 +90,15 @@ namespace ECSGenerator2 {
 			}
 		};
 
+		struct Access : public Dependence {
+			std::string name_;
+
+			[[nodiscard]]
+			const std::string& GetName() const noexcept {
+				return name_;
+			}
+		};
+
 		struct Remove : public Dependence {
 			std::string name_;
 
@@ -210,6 +219,7 @@ namespace ECSGenerator2 {
 			std::vector<Exclude> excludes_;
 			std::vector<Create> creates_;
 			std::vector<Remove> removes_;
+			std::vector<Access> accesses_;
 			bool randomAccessComponents_ = false; // Process components that are not required using IsComponentExist()/GetComponentsFilter() and GetComponent()
 
 			using ProcessInclude = std::function<bool(Include& include, bool isLast)>;
@@ -239,6 +249,28 @@ namespace ECSGenerator2 {
 				for (Common::Index i = 0; i < excludes_.size(); i++) {
 					Exclude& include = excludes_[i];
 					if (!processExclude(include, (i == excludes_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+			using ProcessAccess = std::function<bool(Access& include, bool isLast)>;
+
+			void ForEachAccess(ProcessAccess&& processExclude) {
+				for (Common::Index i = 0; i < accesses_.size(); i++) {
+					Access& include = accesses_[i];
+					if (!processExclude(include, (i == accesses_.size() - 1))) {
+						break;
+					}
+				}
+			}
+
+			using ProcessConstAccess = std::function<bool(const Access& include, bool isLast)>;
+
+			void ForEachAccess(ProcessConstAccess&& processExclude) const {
+				for (Common::Index i = 0; i < accesses_.size(); i++) {
+					const Access& include = accesses_[i];
+					if (!processExclude(include, (i == accesses_.size() - 1))) {
 						break;
 					}
 				}

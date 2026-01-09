@@ -235,6 +235,23 @@ namespace ECSGenerator2 {
 						return parsedEntityExcludes;
 
 						};
+					auto parseAccessingComponents = [](luabridge::LuaRef luaRef) {
+
+						luabridge::LuaRef entityExcludes = luaRef["accessingComponents"];
+
+						std::vector<ParsedSystem::Access> parsedEntityExcludes;
+						if (!entityExcludes.isNil()) {
+							for (luabridge::Iterator it(entityExcludes); !it.isNil(); ++it) {
+								luabridge::LuaRef exclude = it.value();
+								parsedEntityExcludes.push_back({ nullptr, exclude.cast<std::string>().value() });
+
+								ASSERT_FMSG(std::isupper(parsedEntityExcludes.back().name_[0]), "");
+
+							}
+						}
+						return parsedEntityExcludes;
+
+						};
 
 					std::vector<ParsedSystem::ProcessedEntity> parsedEntities;
 
@@ -262,13 +279,16 @@ namespace ECSGenerator2 {
 						std::vector<ParsedSystem::Create> createsComponents = parseCreatesComponents(entity);
 
 						std::vector<ParsedSystem::Remove> removesComponents = parseRemovesComponents(entity);
+						std::vector<ParsedSystem::Access> accessingComponents = parseAccessingComponents(entity);
+
 
 						ParsedSystem::ProcessedEntity parsedEntity{
 							.includes_ = parsedEntityIncludes,
 							.processesAllCombinations_ = !processesAllCombinations.isNil(),
 							.excludes_ = parsedEntityExcludes,
 							.creates_ = createsComponents,
-							.removes_ = removesComponents
+							.removes_ = removesComponents,
+							.accesses_ = accessingComponents
 						};
 						parsedEntities.push_back(parsedEntity);
 
