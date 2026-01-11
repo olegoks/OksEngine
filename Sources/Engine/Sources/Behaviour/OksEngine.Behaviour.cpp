@@ -23,11 +23,11 @@ namespace OksEngine
 
 			Resources::ResourceData scriptResourceData
 				= resourceSystem0->system_->GetResourceSynch(
-					Subsystem::Type::ChildThread, "Root/" + scriptName1->name_);
+					Subsystem::Type::Engine, "Root/" + scriptName1->name_);
 
 			Resources::ResourceData entityResourceData
 				= resourceSystem0->system_->GetResourceSynch(
-					Subsystem::Type::ChildThread, "Root/Entity.lua");
+					Subsystem::Type::Engine, "Root/Entity.lua");
 
 			//Resources::ResourceData math3DResourceData
 			//	= resourceSystem0->system_->GetResourceSynch(

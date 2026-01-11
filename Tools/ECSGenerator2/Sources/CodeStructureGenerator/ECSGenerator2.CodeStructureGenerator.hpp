@@ -2712,7 +2712,9 @@ namespace ECSGenerator2 {
 						if (parsedSystem->ci_.type_ == ParsedSystem::Type::FrameToFrame) {
 
 							if (parsedSystem->GetThread() == ParsedSystem::Thread::Child) {
-								childThread.systems_.push_back(parsedSystem);
+								// HACK to add all systems to main thread for tests
+								// TODO: revert changes
+								mainThread.systems_.push_back(parsedSystem);
 							}
 							if (parsedSystem->GetThread() == ParsedSystem::Thread::Main) {
 								mainThread.systems_.push_back(parsedSystem);

@@ -115,7 +115,7 @@ namespace OksEngine
 		//resourceSystem2->system_->CreateNewFile(Subsystem::Type::ChildThread, createSceneFileTask);
 
 		const bool isSuccess = resourceSystem2->system_->CreateNewFileSynch(
-			Subsystem::Type::ChildThread,
+			Subsystem::Type::Engine,
 			scenesRootDirectory / ("OksEngine.Test.scn"),
 			std::move(sceneFileData));
 
@@ -165,7 +165,7 @@ namespace OksEngine
 
 		auto sceneFileData =
 			resourceSystem1->system_->GetResourceSynch(
-				Subsystem::Type::ChildThread,
+				Subsystem::Type::Engine,
 				"Root/" + loadSceneRequest0->sceneName_);
 
 		CreateComponent<LuaScript>(entity0id,

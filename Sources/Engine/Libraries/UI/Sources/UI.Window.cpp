@@ -24,8 +24,12 @@ namespace UI {
 
 		glfwMakeContextCurrent(createdWindow);
 
+		// урсор скрыт
+		//  урсор захвачен окном(не может покинуть его)
+		// ѕри движении мыши курсор остаетс€ в центре окна
+		//  оординаты мыши сообщаютс€ как относительные смещени€(deltas)
 		glfwSetInputMode(createdWindow, GLFW_CURSOR, GLFW_CURSOR_DISABLED);/*GLFW_CURSOR_HIDDEN);*///GLFW_CURSOR_NORMAL);
-
+		freeCursor_ = false;
 
 		//Keyboard callback.
 		glfwSetKeyCallback(createdWindow, [](::GLFWwindow* window, int key, int scancode, int action, int mods) {
@@ -53,6 +57,10 @@ namespace UI {
 		glfwSetCursorPosCallback(createdWindow,
 			[](::GLFWwindow* window, double xpos, double ypos) {
 
+				int mode = glfwGetInputMode(window, GLFW_CURSOR);
+				if (mode == GLFW_CURSOR_NORMAL) {
+					return;
+				}
 				//OS::LogInfo("cursor_pos", { "X: {}, Y: {}", xpos, ypos });
 
 				static double xPrevious = xpos;
@@ -122,6 +130,7 @@ namespace UI {
 		ImGui::CreateContext();
 		//ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		ImGuiIO& io = ImGui::GetIO();
+		io.DisplaySize = ImGui::GetMainViewport()->Size;
 		//io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;
 		//io.ConfigFlags |= ImGuiConfigFlags_DockingEnable;
 		//io.WantCaptureMouse = true;
@@ -163,15 +172,18 @@ namespace UI {
 
 	void Window::DisableCursor() {
 		//glfwSetWindowAttrib(reinterpret_cast<::GLFWwindow*>(window_), GLFW_FOCUSED, GLFW_TRUE);
+
 		glfwSetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+		int value = glfwGetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR);
+		ASSERT(value == GLFW_CURSOR_DISABLED);
 
 	}
 
 	void Window::EnableCursor() {
-
-		glfwSetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR, GLFW_CURSOR_CAPTURED);
-
-
+		
+		glfwSetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+		int value = glfwGetInputMode(reinterpret_cast<::GLFWwindow*>(window_), GLFW_CURSOR);
+		ASSERT(value == GLFW_CURSOR_NORMAL);
 	}
 
 	[[nodiscard]]

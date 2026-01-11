@@ -555,7 +555,7 @@ namespace OksEngine
 		}
 
 		Assimp::IOStream* Open(const char* fileName, const char* /*pMode*/ = "rb") override {
-			auto data = resourceSystem_->GetResourceSynch(Subsystem::Type::ChildThread, "Root/" + std::string(fileName));
+			auto data = resourceSystem_->GetResourceSynch(Subsystem::Type::Engine, "Root/" + std::string(fileName));
 			data_ = std::move(data.data_);
 			return new MyIOStream(data_.GetData(), data_.GetSize());
 		}
@@ -644,7 +644,7 @@ namespace OksEngine
 			else {
 
 				Resources::ResourceData resourceData = resourceSystem2->system_->GetResourceSynch(
-					Subsystem::Type::ChildThread,
+					Subsystem::Type::Engine,
 					"Root/" + modelFile3->fileName_);
 
 				auto importer = std::make_shared<Assimp::Importer>();

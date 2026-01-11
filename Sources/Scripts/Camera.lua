@@ -184,7 +184,7 @@ function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
 
     if Key == "CAMERA_DISABLE" then
         if Event == "Pressed" then
-            camera.Disable = not camera.Disable
+            --camera.Disable = not camera.Disable
         end
     elseif Key == "CAMERA_FORWARD" then
         if Event == "Pressed" then
@@ -236,7 +236,6 @@ function CameraInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, off
     if camera.Disable then
         return
     end
-
     camera.SpeedBoostFactor = camera.SpeedBoostFactor + scroll / 5
 
     if camera.SpeedBoostFactor < 2.0 then

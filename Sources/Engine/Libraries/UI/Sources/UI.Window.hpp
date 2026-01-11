@@ -44,6 +44,7 @@ namespace UI {
 		}
 
 	private:
+		bool freeCursor_ = false;
 		class GLFWwindow* window_ = nullptr;
 
 	};

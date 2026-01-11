@@ -700,6 +700,7 @@ namespace ECSGenerator2 {
 
 		}
 
+		[[deprecated]]
 		std::pair<std::filesystem::path, std::shared_ptr<CodeStructure::File>>
 			GenerateRunSystemsCppFile(/*std::vector<std::vector<Agnode_t*>> clusters,*/ std::vector<std::shared_ptr<ParsedECSFile>> parsedECSFiles) {
 
