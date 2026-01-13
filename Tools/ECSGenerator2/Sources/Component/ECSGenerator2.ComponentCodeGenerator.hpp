@@ -132,14 +132,30 @@ namespace ECSGenerator2 {
 
 				componentPtr->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 
-					realization.Add(std::format("{}.{}_ = {}Ref[\"{}\"].cast<{}>().value();",
-						component->GetLowerName(),
-						fieldInfo.GetName(),
-						component->GetLowerName(),
-						fieldInfo.GetName(),
+					if (fieldInfo.GetTypeName() == "std::vector<ECS2::Entity::Id>") {
+
+						realization.Add(std::format("{}.{}_ = {}Ref[\"{}\"].cast<{}>().value();",
+							component->GetLowerName(),
+							fieldInfo.GetName(),
+							component->GetLowerName(),
+							fieldInfo.GetName(),
 
 
-						(fieldInfo.GetTypeName() != "ECS2::Entity::Id") ? (fieldInfo.GetTypeName()) : ("Common::Index")));
+							(fieldInfo.GetTypeName() != "ECS2::Entity::Id") ? (fieldInfo.GetTypeName()) : ("Common::Index")));
+
+					}
+					else {
+
+						realization.Add(std::format("{}.{}_ = {}Ref[\"{}\"].cast<{}>().value();",
+							component->GetLowerName(),
+							fieldInfo.GetName(),
+							component->GetLowerName(),
+							fieldInfo.GetName(),
+
+
+							(fieldInfo.GetTypeName() != "ECS2::Entity::Id") ? (fieldInfo.GetTypeName()) : ("Common::Index")));
+					}
+					
 
 					return true;
 					});
@@ -233,7 +249,22 @@ namespace ECSGenerator2 {
 							component->GetLowerName(),
 							fieldInfo.GetName()));
 					}
-					else {
+					/*else if (fieldInfo.GetTypeName() == "std::vector<ECS2::Entity::Id>") {
+						
+						convertValueToStringCode.Add(
+							"{"
+							"for(ECS2::Entity::Id id : {}->{}_){"
+								
+							"}"
+							"}", component->GetLowerName(),
+							fieldInfo.GetName());
+
+
+						convertValueToStringCode.Add(std::format("\"\\\"\"s + {}->{}_ + \"\\\"\"",
+							component->GetLowerName(),
+							fieldInfo.GetName()));
+
+					}*/ else {
 						convertValueToStringCode.Add(std::format("std::to_string({}->{}_)",
 							component->GetLowerName(),
 							fieldInfo.GetName()));

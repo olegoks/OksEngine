@@ -17,6 +17,12 @@ namespace PhysX {
 
 		virtual PAL::DynamicRigidBody::Id CreateDynamicRigidBody(const PAL::DynamicRigidBody::CreateInfo& drbCreateInfo) override;
 		virtual PAL::StaticRigidBody::Id CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& srbCreateInfo) override;
+
+		
+
+		virtual PAL::Constraint::Id CreateFixedConstraint(
+			const PAL::FixedConstraint::CI& ci) override;
+
 		[[nodiscard]]
 		virtual PAL::CapsuleController::Id CreateCapsuleController(const PAL::CapsuleController::CreateInfo& srbCreateInfo) override;
 

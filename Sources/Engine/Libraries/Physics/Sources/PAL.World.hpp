@@ -3,6 +3,7 @@
 #include <Math.Vector.hpp>
 
 #include <PAL.RigidBody.hpp>
+#include <PAL.Constraint.hpp>
 
 namespace PAL {
 
@@ -32,11 +33,17 @@ namespace PAL {
 		[[nodiscard]]
 		virtual PAL::StaticRigidBody::Id CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& srbCreateInfo) = 0;
 
+		virtual PAL::Constraint::Id CreateFixedConstraint(
+			const FixedConstraint::CI& ci) = 0;
+
 		[[nodiscard]]
 		virtual PAL::CapsuleController::Id CreateCapsuleController(const PAL::CapsuleController::CreateInfo& srbCreateInfo) = 0;
 
 		[[nodiscard]]
 		std::shared_ptr<RigidBody> GetRigidBodyById(RigidBody::Id drbid);
+
+		[[nodiscard]]
+		std::shared_ptr<Constraint> GetConstraintById(Constraint::Id drbid);
 
 		virtual void ApplyForce(PAL::DynamicRigidBody::Id drbId) = 0;
 
@@ -53,12 +60,18 @@ namespace PAL {
 	protected:
 
 		[[nodiscard]]
-		RigidBody::Id GenerateId(std::shared_ptr<RigidBody> drbPtr);
+		RigidBody::Id GenerateRbId(std::shared_ptr<RigidBody> drbPtr);
+
+		[[nodiscard]]
+		Constraint::Id GenerateConstraintId(std::shared_ptr<PAL::Constraint> drbPtr);
 
 	private:
 		CreateInfo createInfo_;
 		Common::IdGenerator rbIdGenerator_;
-		std::map<PAL::RigidBody::Id, std::shared_ptr<RigidBody>> IdRb_;
+		std::map<PAL::RigidBody::Id, std::shared_ptr<PAL::RigidBody>> IdRb_;
+
+		Common::IdGenerator constraintIdGenerator_;
+		std::map<PAL::Constraint::Id, std::shared_ptr<PAL::Constraint>> IdConstraint_;
 
 
 	};

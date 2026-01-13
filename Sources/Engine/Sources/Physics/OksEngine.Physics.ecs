@@ -64,7 +64,21 @@ PhysicsNamespace = {
             { type = "ECS2::Entity::Id", name = "id" }
         }
     },
+    RigidBodyEntityIdsComponent = {
+        manualEditFunction = true,
+        manualSerializeFunction = true,
+        manualParseFunction = true,
+        manualBindFunction = true,
+        fields = {
+            { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+        }
+    },
     StaticRigidBodyComponent = {
+    },
+    RigidBodyIdComponent = {
+        serializable = false,
+        fields = {
+            { type = "PAL::RigidBody::Id", name = "id" } }
     },
     StaticRigidBodyIdComponent = {
         serializable = false,
@@ -94,9 +108,9 @@ PhysicsNamespace = {
                         "PhysicsShape",
                     },
                     createsComponents = {
-                        "StaticRigidBodyId"
+                        "RigidBodyId"
                     },
-                    excludes = { "StaticRigidBodyId" }
+                    excludes = { "RigidBodyId" }
                 }
             }
         }
@@ -150,7 +164,7 @@ PhysicsNamespace = {
                 {
                     processesComponents = {
                         "DynamicRigidBody",
-                        "DynamicRigidBodyId",
+                        "RigidBodyId",
                         "PhysicsShape",
                         { name = "SetVelocityRequests", readonly = false }
                     }
@@ -186,7 +200,7 @@ PhysicsNamespace = {
                 {
                     processesComponents = {
                         "DynamicRigidBody",
-                        "DynamicRigidBodyId",
+                        "RigidBodyId",
                         "PhysicsShape",
                         { name = "AddVelocityRequests", readonly = false }
                     }
@@ -234,7 +248,7 @@ PhysicsNamespace = {
                 {
                     processesComponents = {
                         "DynamicRigidBody",
-                        "DynamicRigidBodyId",
+                        "RigidBodyId",
                         "PhysicsShape",
                         { name = "SetAngularVelocityRequests", readonly = false }
                     }
@@ -344,6 +358,7 @@ PhysicsNamespace = {
     },
 
     CreatePhysicsShapeForDynamicRigidBodySystem = {
+        disable = true,
         updateMethod = {
             processesEntities = {
                 {
@@ -384,9 +399,9 @@ PhysicsNamespace = {
                         "PhysicsShape"
                     },
                     createsComponents = {
-                        "DynamicRigidBodyId"
+                        "RigidBodyId"
                     },
-                    excludes = { "DynamicRigidBodyId" },
+                    excludes = { "RigidBodyId" },
                     
                 }
             },
@@ -458,7 +473,7 @@ PhysicsNamespace = {
                     processesComponents = {
                         { name = "WorldPosition3D", readonly = false },
                         { name = "WorldRotation3D", readonly = false },
-                        "DynamicRigidBodyId"
+                        "RigidBodyId"
                     }
                 }
             }
@@ -466,10 +481,6 @@ PhysicsNamespace = {
     },
 
     --CONSTRAINTS
-    
-    ConstraintComponent = {
-        
-    },
 
     CharacterNamespace = {
         CapsuleControllerComponent = { },
@@ -535,7 +546,7 @@ PhysicsNamespace = {
         components = {
             "Mass",
             "DynamicRigidBody",
-            "DynamicRigidBodyId",
+            "RigidBodyId",
         },
         archetypes = {
             "Rigid_Body"
@@ -544,7 +555,7 @@ PhysicsNamespace = {
     Static_Rigid_BodyArchetype = {
         components = {
             "StaticRigidBody",
-            "StaticRigidBodyId",
+            "RigidBodyId",
         },
         archetypes = {
             "Rigid_Body"

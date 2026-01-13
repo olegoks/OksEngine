@@ -1,6 +1,7 @@
 
 #include <PhysX.World.hpp>
 #include <PhysX.RigidBody.hpp>
+#include <PhysX.Constraint.hpp>
 #include <OS.Assert.hpp>
 #include <PxPhysicsAPI.h>
 #include <PxPhysics.h>
@@ -40,7 +41,7 @@ namespace PhysX {
 				.physics_ = physics_
 		};
 		auto drbPtr = std::make_shared<PhysX::DynamicRigidBody>(physxCreateInfo);
-		return GenerateId(drbPtr);
+		return GenerateRbId(drbPtr);
 	}
 
 	PAL::StaticRigidBody::Id World::CreateStaticRigidBody(const PAL::StaticRigidBody::CreateInfo& srbCreateInfo)
@@ -50,8 +51,57 @@ namespace PhysX {
 			.physics_ = physics_
 		};
 		auto srbPtr = std::make_shared<PhysX::StaticRigidBody>(physxCreateInfo);
-		return GenerateId(srbPtr);
+		return GenerateRbId(srbPtr);
 	}
+
+	PAL::Constraint::Id World::CreateFixedConstraint(
+		const PAL::FixedConstraint::CI& ci) {
+
+		physx::PxRigidActor* physxFirst = nullptr;
+		physx::PxRigidActor* physxSecond = nullptr;
+
+		auto firstRb = Common::pointer_cast<PAL::RigidBody>(GetRigidBodyById(ci.first_));
+		auto secondRb = Common::pointer_cast<PAL::RigidBody>(GetRigidBodyById(ci.second_));
+
+		if (firstRb->GetType() == PAL::RigidBody::Type::Dynamic) {
+			physxFirst = Common::pointer_cast<PhysX::DynamicRigidBody>(firstRb)->GetBody();
+		}
+		else {
+			physxFirst = Common::pointer_cast<PhysX::StaticRigidBody>(firstRb)->GetBody();
+		}
+
+		if (secondRb->GetType() == PAL::RigidBody::Type::Dynamic) {
+			physxSecond = Common::pointer_cast<PhysX::DynamicRigidBody>(secondRb)->GetBody();
+		}
+		else {
+			physxSecond = Common::pointer_cast<PhysX::StaticRigidBody>(secondRb)->GetBody();
+		}
+
+		//TODO: use user transforms
+		physx::PxTransform firstTR{ physx::PxIDENTITY::PxIdentity };
+		firstTR.p.y = -3.0;
+		physx::PxTransform secondTR{ physx::PxIDENTITY::PxIdentity };
+
+		PhysX::FixedConstraint::CreateInfo physxCI{
+			.physics_ = physics_,
+			.first_ = physxFirst,
+			.firstTr_ = firstTR,
+			.second_ = physxSecond,
+			.secondTr_ = secondTR
+		};
+
+		auto constraintPtr = std::make_shared<PhysX::FixedConstraint>(physxCI);
+
+		if (ci.isBreakable_) {
+			constraintPtr->joint_->setBreakForce(ci.breakForce_, 1000.0);
+		}
+
+
+
+		return GenerateConstraintId(constraintPtr);
+
+	}
+
 
 	PAL::CapsuleController::Id World::CreateCapsuleController(const PAL::CapsuleController::CreateInfo& srbCreateInfo)
 	{

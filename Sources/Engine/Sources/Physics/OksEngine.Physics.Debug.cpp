@@ -134,7 +134,7 @@ namespace OksEngine
 				Render::Debug::VertexBuffer* render__Debug__VertexBuffer0, ECS2::Entity::Id entity1id,
 				const WorldPosition3D* worldPosition3D1, const WorldRotation3D* worldRotation3D1,
 				const WorldScale3D* worldScale3D1, const Physics::DynamicRigidBody* dynamicRigidBody1,
-				const Physics::DynamicRigidBodyId* dynamicRigidBodyId1, const Physics::PhysicsShape* physicsShape1) {
+				const Physics::RigidBodyId* rigidBodyId1, const Physics::PhysicsShape* physicsShape1) {
 
 				const glm::vec3 translate{ worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ };
 				const glm::quat rotation{ worldRotation3D1->w_, worldRotation3D1->x_, worldRotation3D1->y_, worldRotation3D1->z_ };
@@ -266,7 +266,7 @@ namespace OksEngine
 				Render::Debug::VertexBuffer* render__Debug__VertexBuffer0, ECS2::Entity::Id entity1id,
 				const WorldPosition3D* worldPosition3D1, const WorldRotation3D* worldRotation3D1,
 				const WorldScale3D* worldScale3D1, const Physics::StaticRigidBody* staticRigidBody1,
-				const Physics::StaticRigidBodyId* staticRigidBodyId1, const Physics::PhysicsShape* physicsShape1) {
+				const Physics::RigidBodyId* rigidBodyId1, const Physics::PhysicsShape* physicsShape1) {
 
 
 				const glm::vec3 translate{ worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ };

@@ -486,6 +486,25 @@ namespace OksEngine
 				.endClass();
 		}
 
+		//RigidBodyEntityIds
+		void EditRigidBodyEntityIds(std::shared_ptr<ECS2::World> ecsWorld, RigidBodyEntityIds* rigidBodyEntityIds) {
+			NOT_IMPLEMENTED();
+		}
+		void BindRigidBodyEntityIds(::Lua::Context& context) {
+			context.GetGlobalNamespace()
+				.beginClass<RigidBodyEntityIds>("RigidBodyEntityIds")
+				.endClass();
+		}
+
+		RigidBodyEntityIds ParseRigidBodyEntityIds(luabridge::LuaRef& rigidBodyEntityIdsRef) {
+			NOT_IMPLEMENTED();
+			return RigidBodyEntityIds{};
+		}
+
+		std::string SerializeRigidBodyEntityIds(const RigidBodyEntityIds* rigidBodyEntityIds) {
+			NOT_IMPLEMENTED();
+			return "";
+		}
 
 		void CreateEngine::Update() {
 
@@ -534,7 +553,7 @@ namespace OksEngine
 			const PAL::StaticRigidBody::Id srbId = world0->world_->CreateStaticRigidBody(srbCreateInfo);
 			world0->world_->AddStaticRigidBody(srbId);
 
-			CreateComponent<StaticRigidBodyId>(entity1id, srbId);
+			CreateComponent<RigidBodyId>(entity1id, srbId);
 
 
 		};
@@ -661,7 +680,7 @@ namespace OksEngine
 
 		void UpdateDynamicRigidBodyTransform::Update(ECS2::Entity::Id entity0id, const Physics::World* world0, ECS2::Entity::Id entity1id,
 			WorldPosition3D* worldPosition3D1, WorldRotation3D* worldRotation3D1,
-			const Physics::DynamicRigidBodyId* dynamicRigidBodyId1) {
+			const Physics::RigidBodyId* dynamicRigidBodyId1) {
 
 			Math::Vector3f position = world0->world_->GetRigidBodyPosition(dynamicRigidBodyId1->id_);
 
@@ -794,20 +813,20 @@ namespace OksEngine
 			PAL::DRB::Id drbId = world0->world_->CreateDynamicRigidBody(createInfo);
 			world0->world_->AddDynamicRigidBody(drbId);
 
-			CreateComponent<DynamicRigidBodyId>(entity1id, drbId);
+			CreateComponent<RigidBodyId>(entity1id, drbId);
 
 
 		};
 
 		void SetAngularVelocityToDynamicRigidBody::Update(
 			ECS2::Entity::Id entity0id, Physics::World* world0, ECS2::Entity::Id entity1id,
-			const Physics::DynamicRigidBody* dynamicRigidBody1,
-			const Physics::DynamicRigidBodyId* dynamicRigidBodyId1, const Physics::PhysicsShape* physicsShape1,
-			SetAngularVelocityRequests* setAngularVelocityRequests1) {
+			const Physics::DynamicRigidBody* dynamicRigidBody1, const Physics::RigidBodyId* rigidBodyId1,
+			const Physics::PhysicsShape* physicsShape1,
+			Physics::SetAngularVelocityRequests* setAngularVelocityRequests1) {
 
 			if (setAngularVelocityRequests1->requests_.empty()) return;
 
-			auto rb = Common::pointer_cast<PAL::DynamicRigidBody>(world0->world_->GetRigidBodyById(dynamicRigidBodyId1->id_));
+			auto rb = Common::pointer_cast<PAL::DynamicRigidBody>(world0->world_->GetRigidBodyById(rigidBodyId1->id_));
 
 			const SetAngularVelocityRequest& request = setAngularVelocityRequests1->requests_.back();
 			rb->SetAngularVelocity(request.axis_, request.degreesInSecond_);
@@ -817,15 +836,13 @@ namespace OksEngine
 		}
 
 		void SetVelocityToDynamicRigidBody::Update(
-			ECS2::Entity::Id entity0id, 
-			Physics::World* world0, ECS2::Entity::Id entity1id,
-			const Physics::DynamicRigidBody* dynamicRigidBody1,
-			const Physics::DynamicRigidBodyId* dynamicRigidBodyId1, const Physics::PhysicsShape* physicsShape1,
-			Physics::SetVelocityRequests* setVelocityRequests1) {
+			ECS2::Entity::Id entity0id, Physics::World* world0, ECS2::Entity::Id entity1id,
+			const Physics::DynamicRigidBody* dynamicRigidBody1, const Physics::RigidBodyId* rigidBodyId1,
+			const Physics::PhysicsShape* physicsShape1, Physics::SetVelocityRequests* setVelocityRequests1) {
 
 			if (setVelocityRequests1->requests_.empty()) return;
 
-			auto rb = Common::pointer_cast<PAL::DynamicRigidBody>(world0->world_->GetRigidBodyById(dynamicRigidBodyId1->id_));
+			auto rb = Common::pointer_cast<PAL::DynamicRigidBody>(world0->world_->GetRigidBodyById(rigidBodyId1->id_));
 
 			const SetVelocityRequest& request = setVelocityRequests1->requests_.back();
 			//rb->
@@ -836,15 +853,13 @@ namespace OksEngine
 		}
 
 		void AddVelocityToDynamicRigidBody::Update(
-			ECS2::Entity::Id entity0id,
-			Physics::World* world0, ECS2::Entity::Id entity1id,
-			const Physics::DynamicRigidBody* dynamicRigidBody1,
-			const Physics::DynamicRigidBodyId* dynamicRigidBodyId1, const Physics::PhysicsShape* physicsShape1,
-			Physics::AddVelocityRequests* addVelocityRequests1) {
+			ECS2::Entity::Id entity0id, Physics::World* world0, ECS2::Entity::Id entity1id,
+			const Physics::DynamicRigidBody* dynamicRigidBody1, const Physics::RigidBodyId* rigidBodyId1,
+			const Physics::PhysicsShape* physicsShape1, Physics::AddVelocityRequests* addVelocityRequests1) {
 
 			if (addVelocityRequests1->requests_.empty()) return;
 
-			auto rb = Common::pointer_cast<PAL::DynamicRigidBody>(world0->world_->GetRigidBodyById(dynamicRigidBodyId1->id_));
+			auto rb = Common::pointer_cast<PAL::DynamicRigidBody>(world0->world_->GetRigidBodyById(rigidBodyId1->id_));
 
 			const AddVelocityRequest& request = addVelocityRequests1->requests_.back();
 			glm::vec3 linearVelocity = rb->GetLinearVelocity();

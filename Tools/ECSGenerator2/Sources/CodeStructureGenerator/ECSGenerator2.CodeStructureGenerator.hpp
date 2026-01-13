@@ -354,7 +354,7 @@ namespace ECSGenerator2 {
 								bases.push_back(bindCreateComponentFunction);
 								bases.push_back(bindFunction);
 							}
-							
+
 						}
 						{
 							auto parseFunction
@@ -768,6 +768,19 @@ namespace ECSGenerator2 {
 								code.Add(std::format("getNewId({}.{}_)",
 									component->GetLowerName(),
 									fieldInfo.GetName()));
+							}
+							else if (fieldInfo.typeName_ == "std::vector<ECS2::Entity::Id>") {
+
+								code.Add(std::format("[&]() {{"
+									"std::vector<ECS2::Entity::Id> newIds;"
+									"for (ECS2::Entity::Id oldId : {}.{}_) {{"
+									"newIds.push_back(getNewId(oldId));"
+									"}}"
+									"return newIds;"
+									"}}()",
+									component->GetLowerName(),
+									fieldInfo.GetName()));
+
 							}
 							else {
 								code.Add(std::format("{}.{}_",
@@ -2335,7 +2348,7 @@ namespace ECSGenerator2 {
 								fullName += "_";
 							}
 						}
-		                              
+
 						code.Add(".addFunction(\"Get{}\", \n[](ECS2::World* world, ECS2::Entity::Id::ValueType entityId) {{\n", fullName);
 						code.Add("	auto* componentPtr = world->GetComponent<{}>(entityId);\n", parsedComponent->GetFullName());
 						code.Add("	return componentPtr;\n");

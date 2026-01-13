@@ -201,4 +201,7 @@ namespace Common {
 #define END_PROFILE() ((void)0)
 
 #endif
+
+
+#define AI_GENERATED
 }

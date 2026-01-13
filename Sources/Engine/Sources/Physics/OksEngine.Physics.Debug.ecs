@@ -18,7 +18,7 @@ PhysicsNamespace = {
                             "WorldRotation3D",
                             "WorldScale3D",
                             "DynamicRigidBody",
-                            "DynamicRigidBodyId",
+                            "RigidBodyId",
                             "PhysicsShape"
                         },
                         accessingComponents = {
@@ -48,7 +48,7 @@ PhysicsNamespace = {
                             "WorldRotation3D",
                             "WorldScale3D",
                             "StaticRigidBody",
-                            "StaticRigidBodyId",
+                            "RigidBodyId",
                             "PhysicsShape"
                         },
                         accessingComponents = {

@@ -330,6 +330,16 @@ scene = {
                   }
             },
 
+            {
+                  ID = 67,
+                  constraint = {},
+                  fixedConstraint = {},
+                  constraintedRigidBodyEntityIds = {
+                        first = 66,
+                        second = 76
+                  }
+            },
+
             -- {
             --       ID = 28,
             --       name = { value = "rock_terrain.glb" },

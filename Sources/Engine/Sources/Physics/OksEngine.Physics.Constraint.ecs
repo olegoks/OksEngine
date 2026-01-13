@@ -1,0 +1,85 @@
+PhysicsNamespace = {
+    ConstraintComponent = {},
+    InvMassScaleComponent = {
+        description = "Add this component to set inv mass scaling on constraint creation.",
+        fields = {
+            { type = "float", name = "first" },
+            { type = "float", name = "second" }
+        }
+    },
+    BreakableComponent = {
+        description = "Add this component to make constraint breakable.",
+    },
+    BreakForceComponent = {
+        description = "Add this component to set break force to contraint on creation.",
+        fields = {
+            { type = "float", name = "value" }
+        }
+    },
+    FixedConstraintComponent = {},
+    ConstraintIdComponent = {
+        description = "Id of constraint from PAL physics interface.",
+        serializable = false,
+        fields = {
+            { type = "PAL::Constraint::Id", name = "id" }
+        }
+    },
+    ConstraintedRigidBodyEntityIdsComponent = {
+        description = "Rigid bodies entity ids that constrained by this constraint.",
+        fields = {
+            { type = "ECS2::Entity::Id", name = "first" },
+            { type = "ECS2::Entity::Id", name = "second" }
+        }
+    },    
+    ConstraintEntityIdComponent = {
+        description = "Entity id of constraint entity.",
+        fields = {
+            { type = "ECS2::Entity::Id", name = "id" }
+        }
+    },
+    ConstraintEntityIdsComponent = {
+        description = "If rigid body has more than one constraint.",
+        manualEditFunction = true,
+        manualSerializeFunction = true,
+        manualParseFunction = true,
+        manualBindFunction = true,
+        fields = {
+            { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+        }
+    },
+    CreateConstraintSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "World", readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        "Constraint",
+                        "ConstraintedRigidBodyEntityIds"
+                    },
+                    accessingComponents = {
+                        "InvMassScale",
+                        "Breakable",
+                        "BreakForce"
+                    },
+                    createsComponents = {
+                        "ConstraintId"
+                    },
+                    excludes = { "ConstraintId" },
+                    
+                }
+            },
+            accessingEntities = {
+                {
+                    accessingComponents = {
+                        "RigidBodyId"
+                    }
+                }
+            }
+        }
+    },
+
+}
