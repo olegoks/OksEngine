@@ -274,6 +274,10 @@ namespace Render::Vulkan {
 				return EShLanguage::EShLangVertex;
 				break;
 			}
+			case Type::Geometry: {
+				return EShLanguage::EShLangGeometry;
+				break;
+			}
 			case Type::Fragment: {
 				return EShLanguage::EShLangFragment;
 				break;

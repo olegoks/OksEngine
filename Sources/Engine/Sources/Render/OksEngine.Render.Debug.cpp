@@ -102,11 +102,13 @@ namespace OksEngine
 
 				Resources::ResourceData vertexShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/flatShaded.vert");
 				Resources::ResourceData fragmentShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/flatShaded.frag");
+				Resources::ResourceData geometryShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/flatShaded.geom");
 
 				auto driver = renderDriver0->driver_;
 
 				std::string imguiVertexShader{ vertexShaderResource.GetData<Common::Byte>(), vertexShaderResource.GetSize() };
 				std::string imguiFragmentShader{ fragmentShaderResource.GetData<Common::Byte>(), fragmentShaderResource.GetSize() };
+				std::string imGuiGeometryShader{ geometryShaderResource.GetData<Common::Byte>(), geometryShaderResource.GetSize() };
 
 				RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
 					.name_ = "FlatShadedVertexShader",
@@ -121,6 +123,13 @@ namespace OksEngine
 					.code_ = imguiFragmentShader
 				};
 				auto fragmentShader = driver->CreateShader(fragmentShaderCreateInfo);
+
+				RAL::Driver::Shader::CreateInfo geometryShaderCreateInfo{
+					.name_ = "FlatShadedGeometryShader",
+					.type_ = RAL::Driver::Shader::Type::Geometry,
+					.code_ = imGuiGeometryShader
+				};
+				auto geometryShader = driver->CreateShader(geometryShaderCreateInfo);
 
 				std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
 
@@ -139,6 +148,7 @@ namespace OksEngine
 					.name_ = "Flat shaded Pipeline",
 					.renderPassId_ = render__MainRenderPass0->rpId_,
 					.vertexShader_ = vertexShader,
+					.geometryShader_ = geometryShader,
 					.fragmentShader_ = fragmentShader,
 					.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
 					.vertexType_ = RAL::Driver::VertexType::VF3_NF3_CF4,

@@ -299,6 +299,7 @@ namespace RAL {
 			Shader() noexcept = default;
 			enum class Type {
 				Vertex,
+				Geometry,
 				Fragment,
 				Compute,
 				Undefined
@@ -542,6 +543,7 @@ namespace RAL {
 				std::string name_ = "";
 				RP::Id renderPassId_ = RP::Id::Invalid();
 				std::shared_ptr<Shader> vertexShader_ = nullptr;
+				std::shared_ptr<Shader> geometryShader_ = nullptr;
 				std::shared_ptr<Shader> fragmentShader_ = nullptr;
 				Pipeline_Topology topologyType_ = Pipeline_Topology::Undefined;
 				VertexType vertexType_ = VertexType::Undefined;

@@ -18,7 +18,7 @@ void main() {
      if(intensity < 0.0) {
         intensity = intensity * -1.0 - 1.0;
      }
-    fragColor = inColor * intensity;
+    fragColor = inColor;// * intensity;
 
     gl_Position = camera.proj * camera.view * vec4(inPosition, 1.0);
 }

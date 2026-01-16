@@ -774,6 +774,10 @@ namespace Render::Vulkan {
 					objects_.LD_,
 					Common::pointer_cast<Vulkan::Shader>(pipelineCI.vertexShader_)->GetSpirv()
 					}),
+				.geometryShader_ = (pipelineCI.geometryShader_ != nullptr) ? (std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					objects_.LD_,
+					Common::pointer_cast<Vulkan::Shader>(pipelineCI.geometryShader_)->GetSpirv()
+					})) : (nullptr),
 				.fragmentShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
 					createInfo.LD_,
 					Common::pointer_cast<Vulkan::Shader>(pipelineCI.fragmentShader_)->GetSpirv()

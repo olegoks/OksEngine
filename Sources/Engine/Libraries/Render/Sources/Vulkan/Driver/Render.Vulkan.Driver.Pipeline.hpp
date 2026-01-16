@@ -47,6 +47,7 @@ namespace Render::Vulkan {
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 
 			std::shared_ptr<ShaderModule> vertexShader_ = nullptr;
+			std::shared_ptr<ShaderModule> geometryShader_ = nullptr;
 			std::shared_ptr<ShaderModule> fragmentShader_ = nullptr;
 			std::shared_ptr<DepthTestInfo> depthTestInfo_ = nullptr;
 			glm::u32vec2 colorAttachmentSize_ = { 0, 0 };
@@ -94,7 +95,22 @@ namespace Render::Vulkan {
 				fragShaderStageInfo.pName = "main";
 			}
 
-			VkPipelineShaderStageCreateInfo shaderStages[] = { vertShaderStageInfo, fragShaderStageInfo };
+
+
+			std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
+			{
+				shaderStages.reserve(3);
+				shaderStages.push_back(vertShaderStageInfo);
+				shaderStages.push_back(fragShaderStageInfo);
+				if (createInfo.geometryShader_ != nullptr) {
+					shaderStages.push_back(VkPipelineShaderStageCreateInfo{
+						.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO,
+						.stage = VK_SHADER_STAGE_GEOMETRY_BIT,
+						.module = *createInfo.geometryShader_,
+						.pName = "main"
+						});
+				}
+			}
 
 
 			const bool isThereVertexInput = createInfo.vertexInfo_ != nullptr;
@@ -222,8 +238,8 @@ namespace Render::Vulkan {
 			VkGraphicsPipelineCreateInfo pipelineInfo{};
 			{
 				pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
-				pipelineInfo.stageCount = 2;
-				pipelineInfo.pStages = shaderStages;
+				pipelineInfo.stageCount = shaderStages.size();
+				pipelineInfo.pStages = shaderStages.data();
 				pipelineInfo.pVertexInputState = &vertexInputInfo;
 				pipelineInfo.pInputAssemblyState = &inputAssembly;
 				pipelineInfo.pViewportState = &viewportState;

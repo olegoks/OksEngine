@@ -128,7 +128,7 @@ namespace Render::Vulkan {
 					deviceFeatures.alphaToOne = VK_FALSE;               
 					deviceFeatures.multiViewport = VK_FALSE;            
 					deviceFeatures.tessellationShader = VK_FALSE;       
-					deviceFeatures.geometryShader = VK_FALSE;           
+					deviceFeatures.geometryShader = VK_TRUE;           
 					deviceFeatures.dualSrcBlend = VK_FALSE;             
 					deviceFeatures.logicOp = VK_FALSE;                  
 				}
