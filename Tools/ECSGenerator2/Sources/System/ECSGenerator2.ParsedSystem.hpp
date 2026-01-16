@@ -61,7 +61,7 @@ namespace ECSGenerator2 {
 					}
 				}
 
-				return fullNamespace;
+				return "OksEngine::" + fullNamespace;
 
 			}
 

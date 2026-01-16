@@ -681,7 +681,7 @@ namespace ECSGenerator2 {
 
 					realization.Add("ecsWorld->CreateComponent<" + component->GetName() + ">(entityId");
 					if (component->CanBeCreatedFromImGui()) {
-						if (component->AreThereFields()) {
+						if (component->AreThereFields() || (component->ci_.aliasFor_ != nullptr && component->ci_.aliasFor_->AreThereFields())) {
 							realization.Add(", ");
 						}
 						component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {

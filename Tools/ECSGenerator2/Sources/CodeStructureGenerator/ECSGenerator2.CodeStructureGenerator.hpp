@@ -482,10 +482,10 @@ namespace ECSGenerator2 {
 							entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
 								CodeStructure::Function::Parameter parameter;
 								if (include.IsReadonly()) {
-									parameter.inputType_ = std::format("const {}*", include.GetName());
+									parameter.inputType_ = std::format("const {}*", include.GetFullName());
 								}
 								else {
-									parameter.inputType_ = std::format("{}*", include.GetName());
+									parameter.inputType_ = std::format("{}*", include.GetFullName());
 								}
 
 								parameter.valueName_ = std::format("{}{}", include.GetLowerName(), currentEntityIndex);

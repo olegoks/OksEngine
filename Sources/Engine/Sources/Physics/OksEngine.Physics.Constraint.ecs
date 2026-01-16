@@ -16,7 +16,16 @@ PhysicsNamespace = {
             { type = "float", name = "value" }
         }
     },
+
     FixedConstraintComponent = {},
+    RevoluteConstraintComponent = {},
+    RevoluteAxisComponent = {
+        fields = {
+            { type = "float", name = "x" },
+            { type = "float", name = "y" },
+            { type = "float", name = "z" }
+        }
+    },
     ConstraintIdComponent = {
         description = "Id of constraint from PAL physics interface.",
         serializable = false,
@@ -24,13 +33,43 @@ PhysicsNamespace = {
             { type = "PAL::Constraint::Id", name = "id" }
         }
     },
+
+
+
     ConstraintedRigidBodyEntityIdsComponent = {
         description = "Rigid bodies entity ids that constrained by this constraint.",
         fields = {
             { type = "ECS2::Entity::Id", name = "first" },
             { type = "ECS2::Entity::Id", name = "second" }
         }
-    },    
+    },   
+
+    FirstConstraintedRigidBodyEntityIdComponent = {
+        fields = {
+            { type = "ECS2::Entity::Id", name = "id" },
+        }
+    },
+
+    SecondConstraintedRigidBodyEntityIdComponent = {
+        fields = {
+            { type = "ECS2::Entity::Id", name = "id" },
+        }
+    },
+
+    FirstConstraintedRigidBodyJointPosition3DComponent = "LocalPosition3D";
+    FirstConstraintedRigidBodyJointRotation3DComponent = "LocalRotation3D";
+
+    SecondConstraintedRigidBodyJointPosition3DComponent = "LocalPosition3D";
+    SecondConstraintedRigidBodyJointRotation3DComponent = "LocalRotation3D";
+
+    ConstraintedRigidBodyJointComponent = {
+        description = "Rigid bodies entity ids that constrained by this constraint.",
+        fields = {
+            { type = "ECS2::Entity::Id", name = "first" },
+            { type = "ECS2::Entity::Id", name = "second" }
+        }
+    }, 
+    
     ConstraintEntityIdComponent = {
         description = "Entity id of constraint entity.",
         fields = {
@@ -58,12 +97,18 @@ PhysicsNamespace = {
                 {
                     processesComponents = {
                         "Constraint",
-                        "ConstraintedRigidBodyEntityIds"
+                        "FirstConstraintedRigidBodyEntityId",
+                        "FirstConstraintedRigidBodyJointPosition3D",
+                        "FirstConstraintedRigidBodyJointRotation3D",
+                        "SecondConstraintedRigidBodyEntityId",
+                        "SecondConstraintedRigidBodyJointPosition3D",
+                        "SecondConstraintedRigidBodyJointRotation3D",
                     },
                     accessingComponents = {
                         "InvMassScale",
                         "Breakable",
-                        "BreakForce"
+                        "BreakForce",
+                        "RevoluteAxis"
                     },
                     createsComponents = {
                         "ConstraintId"

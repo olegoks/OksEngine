@@ -291,6 +291,23 @@ PhysicsNamespace = {
             { type = "float", name = "rings" }
         }
     },
+    ShapeGeometryBoxComponent = {
+        description = [[]],
+        fields = {
+            { type = "float", name = "lenght" },
+            { type = "float", name = "width" },
+            { type = "float", name = "height" }
+        }
+    },
+
+    ShapeGeometryCylinderComponent = {
+        description = [[]],
+        fields = {
+            { type = "float", name = "height" },
+            { type = "float", name = "radius" }
+        }
+    },
+
     PhysicsShapeComponent = {
         bindable = false,
         serializable = false,
@@ -349,39 +366,84 @@ PhysicsNamespace = {
             }
         }
     },
-    StaticRigidBodyCustomMeshShapeComponent = {
-        fields = {}
-    },
-    DynamicRigidBodyCustomMeshShapeComponent = {
-        fields = {
-        }
-    },
 
-    CreatePhysicsShapeForDynamicRigidBodySystem = {
-        disable = true,
+    CreatePhysicsShapeBoxSystem = {
+
         updateMethod = {
             processesEntities = {
                 {
                     processesComponents = {
-                        "Material",
-                        "Vertices3D",
-                        "Indices",
-                        "DynamicRigidBodyCustomMeshShape"
-                    },
-                    createsComponents = {
-                        "DynamicRigidBodyId"
-                    },
-                    excludes = {
-                        "PhysicsShape",
-                        "DynamicRigidBodyId"
+                        { name = "Engine", readonly = false }
                     }
                 },
                 {
-                    processesComponents = { { name = "Engine", readonly = false } }
-                }
+                    processesComponents = {
+                        "Material",
+                        "ShapeGeometryBox"
+                    },
+                    createsComponents = {
+                        "PhysicsShape"
+                    },
+                    excludes = {
+                        "PhysicsShape"
+                    }
+                },
+
             }
         }
     },
+
+    CreatePhysicsShapeCylinderSystem = {
+
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "Engine", readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        "Material",
+                        "ShapeGeometryCylinder"
+                    },
+                    createsComponents = {
+                        "PhysicsShape"
+                    },
+                    excludes = {
+                        "PhysicsShape"
+                    }
+                },
+
+            }
+        }
+    },
+
+    -- CreatePhysicsShapeForDynamicRigidBodySystem = {
+    --     disable = true,
+    --     updateMethod = {
+    --         processesEntities = {
+    --             {
+    --                 processesComponents = {
+    --                     "Material",
+    --                     "Vertices3D",
+    --                     "Indices",
+    --                     "DynamicRigidBodyCustomMeshShape"
+    --                 },
+    --                 createsComponents = {
+    --                     "DynamicRigidBodyId"
+    --                 },
+    --                 excludes = {
+    --                     "PhysicsShape",
+    --                     "DynamicRigidBodyId"
+    --                 }
+    --             },
+    --             {
+    --                 processesComponents = { { name = "Engine", readonly = false } }
+    --             }
+    --         }
+    --     }
+    -- },
     CreateDynamicRigidBodySystem = {
         updateMethod = {
             processesEntities = {

@@ -3,12 +3,13 @@
 
 namespace OksEngine
 {
-
+	AI_GENERATED
 	struct Vertex {
 		glm::vec3 position;
 		glm::vec3 normal;
 	};
 
+	AI_GENERATED
 	std::vector<Vertex> generateCapsuleVertices(float radius, float height, int segments, int rings) {
 		std::vector<Vertex> vertices;
 
@@ -92,7 +93,7 @@ namespace OksEngine
 
 		return vertices;
 	}
-
+	AI_GENERATED
 	std::vector<Vertex> generateCapsuleTriangles(float radius, float height, int segments, int rings) {
 		auto vertices = generateCapsuleVertices(radius, height, segments, rings);
 		std::vector<Vertex> triangles;
@@ -130,22 +131,28 @@ namespace OksEngine
 	{
 		namespace Debug
 		{
-			void AddToRenderDynamicRigidBodyShape::Update(ECS2::Entity::Id entity0id, const Render::Debug::Renderer* render__Debug__Renderer0,
-				Render::Debug::VertexBuffer* render__Debug__VertexBuffer0, ECS2::Entity::Id entity1id,
-				const WorldPosition3D* worldPosition3D1, const WorldRotation3D* worldRotation3D1,
-				const WorldScale3D* worldScale3D1, const Physics::DynamicRigidBody* dynamicRigidBody1,
-				const Physics::RigidBodyId* rigidBodyId1, const Physics::PhysicsShape* physicsShape1) {
+			void AddToRenderDynamicRigidBodyShape::Update(ECS2::Entity::Id entity0id, const OksEngine::Render::Debug::Debugger* render__Debug__Debugger0,
+				OksEngine::Render::Debug::VertexBuffer* render__Debug__VertexBuffer0, ECS2::Entity::Id entity1id,
+				const OksEngine::Physics::Debug::Debugger* debugger1,
+				const OksEngine::Physics::Debug::EnableDebugRender* enableDebugRender1,
+				const OksEngine::Physics::Debug::CommonParameters* commonParameters1,
+				const OksEngine::Physics::Debug::ConstraintsParameters* constraintsParameters1,
+				ECS2::Entity::Id entity2id, const OksEngine::WorldPosition3D* worldPosition3D2,
+				const OksEngine::WorldRotation3D* worldRotation3D2, const OksEngine::WorldScale3D* worldScale3D2,
+				const OksEngine::Physics::DynamicRigidBody* dynamicRigidBody2,
+				const OksEngine::Physics::RigidBodyId* rigidBodyId2,
+				const OksEngine::Physics::PhysicsShape* physicsShape2) {
 
-				const glm::vec3 translate{ worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ };
-				const glm::quat rotation{ worldRotation3D1->w_, worldRotation3D1->x_, worldRotation3D1->y_, worldRotation3D1->z_ };
+				const glm::vec3 translate{ worldPosition3D2->x_, worldPosition3D2->y_, worldPosition3D2->z_ };
+				const glm::quat rotation{ worldRotation3D2->w_, worldRotation3D2->x_, worldRotation3D2->y_, worldRotation3D2->z_ };
 
 
-				const ECS2::ComponentsFilter filter = GetComponentsFilter(entity1id);
+				const ECS2::ComponentsFilter filter = GetComponentsFilter(entity2id);
 
 				Geom::VertexCloud<Geom::Vertex3fnc> vertices;
 
 				if (filter.IsSet<Physics::ShapeGeometryData>()) {
-					const auto* shapeData = GetComponent<Physics::ShapeGeometryData>(entity1id);
+					const auto* shapeData = GetComponent<Physics::ShapeGeometryData>(entity2id);
 
 					ASSERT((shapeData->indices_.size() % 3) == 0);
 
@@ -168,7 +175,7 @@ namespace OksEngine
 
 						const glm::vec3 faceNormal = glm::cross(edge0, edge1);
 
-						const glm::vec3 scale{ worldScale3D1->x_, worldScale3D1->y_, worldScale3D1->z_ };
+						const glm::vec3 scale{ worldScale3D2->x_, worldScale3D2->y_, worldScale3D2->z_ };
 
 						const glm::vec3 transformedV0 = translate + rotation * (scale * v0);
 						const glm::vec3 transformedV1 = translate + rotation * (scale * v1);
@@ -201,7 +208,7 @@ namespace OksEngine
 
 				}
 				else if (filter.IsSet<Physics::ShapeGeometryCapsule>()) {
-					const auto* shapeData = GetComponent<Physics::ShapeGeometryCapsule>(entity1id);
+					const auto* shapeData = GetComponent<Physics::ShapeGeometryCapsule>(entity2id);
 					auto capsuleVertices = generateCapsuleTriangles(shapeData->radius_, shapeData->height_, shapeData->segments_, shapeData->rings_);
 
 					for (Common::Index i = 0; i < capsuleVertices.size(); i += 3) {
@@ -219,7 +226,7 @@ namespace OksEngine
 
 						const glm::vec3 faceNormal = glm::cross(edge0, edge1);
 
-						const glm::vec3 scale{ worldScale3D1->x_, worldScale3D1->y_, worldScale3D1->z_ };
+						const glm::vec3 scale{ worldScale3D2->x_, worldScale3D2->y_, worldScale3D2->z_ };
 
 						const glm::vec3 transformedV0 = translate + rotation * (scale * v0);
 						const glm::vec3 transformedV1 = translate + rotation * (scale * v1);
@@ -262,23 +269,29 @@ namespace OksEngine
 	{
 		namespace Debug
 		{
-			void AddToRenderStaticRigidBodyShape::Update(ECS2::Entity::Id entity0id, const Render::Debug::Renderer* render__Debug__Renderer0,
-				Render::Debug::VertexBuffer* render__Debug__VertexBuffer0, ECS2::Entity::Id entity1id,
-				const WorldPosition3D* worldPosition3D1, const WorldRotation3D* worldRotation3D1,
-				const WorldScale3D* worldScale3D1, const Physics::StaticRigidBody* staticRigidBody1,
-				const Physics::RigidBodyId* rigidBodyId1, const Physics::PhysicsShape* physicsShape1) {
+			void AddToRenderStaticRigidBodyShape::Update(ECS2::Entity::Id entity0id, const OksEngine::Physics::Debug::Debugger* debugger0,
+				const OksEngine::Physics::Debug::EnableDebugRender* enableDebugRender0,
+				const OksEngine::Physics::Debug::CommonParameters* commonParameters0,
+				const OksEngine::Physics::Debug::ConstraintsParameters* constraintsParameters0,
+				ECS2::Entity::Id entity1id, const OksEngine::Render::Debug::Debugger* render__Debug__Debugger1,
+				OksEngine::Render::Debug::VertexBuffer* render__Debug__VertexBuffer1, ECS2::Entity::Id entity2id,
+				const OksEngine::WorldPosition3D* worldPosition3D2, const OksEngine::WorldRotation3D* worldRotation3D2,
+				const OksEngine::WorldScale3D* worldScale3D2,
+				const OksEngine::Physics::StaticRigidBody* staticRigidBody2,
+				const OksEngine::Physics::RigidBodyId* rigidBodyId2,
+				const OksEngine::Physics::PhysicsShape* physicsShape2) {
 
 
-				const glm::vec3 translate{ worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ };
-				const glm::quat rotation{ worldRotation3D1->w_, worldRotation3D1->x_, worldRotation3D1->y_, worldRotation3D1->z_ };
+				const glm::vec3 translate{ worldPosition3D2->x_, worldPosition3D2->y_, worldPosition3D2->z_ };
+				const glm::quat rotation{ worldRotation3D2->w_, worldRotation3D2->x_, worldRotation3D2->y_, worldRotation3D2->z_ };
 
 
-				const ECS2::ComponentsFilter filter = GetComponentsFilter(entity1id);
+				const ECS2::ComponentsFilter filter = GetComponentsFilter(entity2id);
 
 				Geom::VertexCloud<Geom::Vertex3fnc> vertices;
 
 				if (filter.IsSet<Physics::ShapeGeometryData>()) {
-					const auto* shapeData = GetComponent<Physics::ShapeGeometryData>(entity1id);
+					const auto* shapeData = GetComponent<Physics::ShapeGeometryData>(entity2id);
 
 					ASSERT((shapeData->indices_.size() % 3) == 0);
 
@@ -301,7 +314,7 @@ namespace OksEngine
 
 						const glm::vec3 faceNormal = glm::cross(edge0, edge1);
 
-						const glm::vec3 scale{ worldScale3D1->x_, worldScale3D1->y_, worldScale3D1->z_ };
+						const glm::vec3 scale{ worldScale3D2->x_, worldScale3D2->y_, worldScale3D2->z_ };
 
 						const glm::vec3 transformedV0 = translate + rotation * (scale * v0);
 						const glm::vec3 transformedV1 = translate + rotation * (scale * v1);
@@ -330,7 +343,7 @@ namespace OksEngine
 
 					}
 
-					render__Debug__VertexBuffer0->vertices_.Add(vertices.GetData(), vertices.GetVerticesNumber());
+					render__Debug__VertexBuffer1->vertices_.Add(vertices.GetData(), vertices.GetVerticesNumber());
 
 				}
 

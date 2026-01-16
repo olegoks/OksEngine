@@ -5,13 +5,12 @@ void BeginECSMenu::Update(
 	ECS2::Entity::Id entity0id, 
 	const ImGUI::State* imGuiState0,
 	const MainMenuBar* mainMenuBar0,
-	ECSMenu* eCSMenu0
-						  ) {
+	ECSMenu* eCSMenu0) {
 		
         eCSMenu0->show_ = false;                    
 		if (ImGui::BeginMenu("ECS")) {
 			eCSMenu0->show_ = true;
 		}
 
-                          };
+    };
 }

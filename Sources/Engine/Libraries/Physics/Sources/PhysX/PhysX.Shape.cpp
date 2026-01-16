@@ -37,6 +37,28 @@ namespace PhysX {
 		shape_ = shape;
 
 	}
+
+	//Shape::Shape(const CreateInfoCylinder& createInfo) :
+	//	PAL::Shape{ createInfo.palCreateInfo_ }{
+
+	//	physx::PxMaterial* material = CreateMaterial(
+	//		createInfo.physics_,
+	//		createInfo.palCreateInfo_.material_);
+
+	//	physx::PxShape* shape = createInfo.physics_->createShape(
+	//		physx::PxCapsuleGeometry(
+	//			createInfo.palCreateInfo_.radius_,
+	//			createInfo.palCreateInfo_.height_ / 2),
+	//		*material);
+
+	//	ASSERT_FMSG(shape != nullptr,
+	//		"Error while creating physx shape.");
+
+	//	material_ = material;
+	//	shape_ = shape;
+
+	//}
+
 	Shape::Shape(const CreateInfoCapsule& createInfo) :
 		PAL::Shape{ createInfo.palCreateInfo_ }{
 
@@ -129,10 +151,10 @@ namespace PhysX {
 			PxConvexMeshDesc convexDesc;
 			{
 				convexDesc.points.count = createInfo.palCreateInfo_.vertices_.GetVerticesNumber();
-				convexDesc.points.stride = sizeof(PxVec3);
-				STATIC_ASSERT_MSG(sizeof(PxVec3) == sizeof(decltype(createInfo.palCreateInfo_.vertices_[0])), "");
+				convexDesc.points.stride = sizeof(Geom::Vertex3f);
+				STATIC_ASSERT_MSG(sizeof(Geom::Vertex3f) == sizeof(decltype(createInfo.palCreateInfo_.vertices_[0])), "");
 				convexDesc.points.data = createInfo.palCreateInfo_.vertices_.GetData();
-				convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX | PxConvexFlag::eCHECK_ZERO_AREA_TRIANGLES;
+				convexDesc.flags = PxConvexFlag::eCOMPUTE_CONVEX/* | PxConvexFlag::eCHECK_ZERO_AREA_TRIANGLES*/;
 				convexDesc.vertexLimit = 255;
 			}
 
@@ -144,7 +166,8 @@ namespace PhysX {
 				params.meshPreprocessParams |= physx::PxMeshPreprocessingFlag::eDISABLE_ACTIVE_EDGES_PRECOMPUTE;
 			}
 			PxDefaultMemoryOutputStream writeBuffer;
-			bool cookResult = PxCookConvexMesh(params, convexDesc, writeBuffer);
+			physx::PxConvexMeshCookingResult::Enum cookingResult;
+			bool cookResult = PxCookConvexMesh(params, convexDesc, writeBuffer, &cookingResult);
 			ASSERT_MSG(cookResult, "Invalid mesh data to create phys shape.");
 
 			physx::PxDefaultMemoryInputData readBuffer(writeBuffer.getData(), writeBuffer.getSize());

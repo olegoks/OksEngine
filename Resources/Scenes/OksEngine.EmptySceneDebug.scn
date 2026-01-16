@@ -329,14 +329,111 @@ scene = {
                         }
                   }
             },
+            
+            --CAAAR
+            { -- BODY
+                  ID = 96,
+                  name = { value = "Car_Body" },
+                  worldPosition3D = { x = 3, y = 3.0, z = 0, w = 0.0 },
+                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  dynamicRigidBody = {},
+                  mass = { value = 2000.0 },
+                  material = {
+                        staticFriction = 0.5,
+                        dynamicFriction = 0.5,
+                        restitution = 0.0
+                  },
+                  angularDamping = {
+                        value = 1.0
+                  },
+                  linearDamping = {
+                        value = 1.0
+                  },
+                  shapeGeometryBox = {
+                       lenght = 2,
+                       width = 1,
+                       height = 0.5
+                  },
+            },
+            { --WHEEL FORWARD RIGHT
+            ID = 97,
+            name = { value = "Wheel_foraward_right" },
+            worldPosition3D = { x = 4, y = 3.0, z = 0, w = 0.0 },
+            worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+            worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+            dynamicRigidBody = {},
+            mass = { value = 400.0 },
+            material = {
+                  staticFriction = 0.5,
+                  dynamicFriction = 0.5,
+                  restitution = 0.0
+            },
+            angularDamping = {
+                  value = 1.0
+            },
+            linearDamping = {
+                  value = 1.0
+            },
+            shapeGeometryCylinder = {
+                  radius = 0.6,
+                  height = 0.1
+            },
+
+            },
+            {
+                  ID = 98,
+                  constraint = {},
+                  revoluteConstraint = {},
+                  revoluteAxis = {
+                        x = 0.0,
+                        y = 0.0,
+                        z = 1.0
+                  },
+                  invMassScale = {
+                        first = 0.1,
+                        second = 1000
+                  },
+                  firstConstraintedRigidBodyEntityId = { id = 96 },
+                  firstConstraintedRigidBodyJointPosition3D = {
+                        x = 1.0,
+                        y = 0.1,
+                        z = 2.0,
+                        w = 0.0
+                  },
+                  firstConstraintedRigidBodyJointRotation3D = {
+                        x = 1.0,
+                        y = 0.0,
+                        z = 0.0,
+                        w = 0.0
+                  },
+                  secondConstraintedRigidBodyJointPosition3D = {
+                        x = 0.0,
+                        y = 0.0,
+                        z = 0.0,
+                        w = 0.0
+                  },
+                  secondConstraintedRigidBodyJointRotation3D = {
+                        w = 1.0,
+                        x = 0.0,
+                        y = 0.0,
+                        z = 0.0,
+
+                  },
+                  secondConstraintedRigidBodyEntityId = { id = 97 }
+            },
+
+            --CAAR
 
             {
                   ID = 67,
                   constraint = {},
                   fixedConstraint = {},
-                  constraintedRigidBodyEntityIds = {
-                        first = 66,
-                        second = 76
+                  firstConstraintedRigidBodyEntityId = {
+                        id = 66
+                  },
+                  secondConstraintedRigidBodyEntityId = {
+                        id = 76
                   }
             },
 

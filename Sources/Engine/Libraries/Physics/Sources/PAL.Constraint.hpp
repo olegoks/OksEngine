@@ -9,6 +9,7 @@ namespace PAL {
 
 		enum class Type {
 			Fixed,
+			Revolute,
 			Undefined
 		};
 		Constraint(Type type) : type_{ type } {
@@ -29,7 +30,9 @@ namespace PAL {
 
 		struct CreateInfo {
 			PAL::RigidBody::Id first_;
+			glm::mat4 firstRelativeTr_ = glm::mat4{ 1 };
 			PAL::RigidBody::Id second_;
+			glm::mat4 secondRelativeTr_ = glm::mat4{ 1 };
 			bool isBreakable_ = false;
 			float breakForce_ = 1.0;
 			float invMassScaleFirst_ = 1.0;
@@ -39,6 +42,27 @@ namespace PAL {
 		using CI = CreateInfo;
 
 		FixedConstraint() : Constraint{ Type::Fixed } {
+
+		}
+
+	};
+
+	class RevoluteConstraint : public Constraint {
+	public:
+		struct CreateInfo {
+			PAL::RigidBody::Id first_;
+			glm::mat4 firstRelativeTr_ = glm::mat4{ 1 };
+			PAL::RigidBody::Id second_;
+			glm::mat4 secondRelativeTr_ = glm::mat4{ 1 };
+			glm::vec3 rotateAxis_ = { 0.0, 1.0, 0.0 };
+			bool isBreakable_ = false;
+			float breakForce_ = 1.0;
+			float invMassScaleFirst_ = Common::Limits<float>::Max();
+			float invMassScaleSecond_ = Common::Limits<float>::Max();
+		};
+		using CI = CreateInfo;
+
+		RevoluteConstraint() : Constraint{ Type::Revolute } {
 
 		}
 

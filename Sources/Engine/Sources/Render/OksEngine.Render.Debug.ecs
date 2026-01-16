@@ -4,15 +4,15 @@ RenderNamespace = {
 
     DebugNamespace = {
 
-        RendererComponent = {},
+        DebuggerComponent = {},
         EnableComponent = {},
-        CreateRendererSystem = {
+        CreateDebuggerSystem = {
             type = "Initialize",
             updateMethod = {
                 createsEntities = {
                     {
                         createsComponents = {
-                            "Renderer"
+                            "Debugger"
                         }
                     }
                 }
@@ -83,14 +83,14 @@ RenderNamespace = {
             type = "Initialize",
             callOrder = {
                 runAfter = {
-                    "CreateRenderer",
+                    "CreateDebugger",
                     "CreateRenderDriver" }
             },
             updateMethod = {
                 processesEntities = {
                     {
                         processesComponents = {
-                            "Renderer"
+                            "Debugger"
                         },
                         createsComponents = {
                             "DriverVertexBuffer"
@@ -114,7 +114,7 @@ RenderNamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
-                            "Renderer",
+                            "Debugger",
                             { name = "VertexBuffer",       readonly = false },
                             { name = "DriverVertexBuffer", readonly = false }
                         }
@@ -137,7 +137,7 @@ RenderNamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
-                            "Renderer",
+                            "Debugger",
                             { name = "VertexBuffer", readonly = false }
                         }
                     }
@@ -170,7 +170,7 @@ RenderNamespace = {
                 runAfter = {
                     "CreateRenderDriver",
                     "CreateResourceSystem",
-                    "CreateRenderer",
+                    "CreateDebugger",
                     "CreateRenderPass"
                 }
             },
@@ -189,7 +189,7 @@ RenderNamespace = {
                     },
                     {
                         processesComponents = {
-                            "Renderer"
+                            "Debugger"
                         },
                         excludes = {
                             "Pipeline"
@@ -226,7 +226,7 @@ RenderNamespace = {
                     },
                     {
                         processesComponents = {
-                            "Renderer",
+                            "Debugger",
                             "Enable",
                             "Pipeline",
                             "VertexBuffer",

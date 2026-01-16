@@ -1,0 +1,209 @@
+RenderNamespace = {
+    DebugNamespace = {
+        ImGUINamespace = {
+            RenderMenuComponent = {
+                fields = { { type = "bool", name = "show",  } }
+            },
+            
+            CreateRenderMenuSystem = {
+                callOrder = {
+                    runBefore = "Input::ClearKeyboardEvents"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State",
+                                "Input::HandleKeyboardEvents",
+                                "Input::KeyboardEvents"
+                            },
+                            excludes = {
+                                "RenderMenu"
+                            },
+                            createsComponents = {
+                                "RenderMenu"
+                            }
+                        }
+                    }
+                }
+            },
+            DebugRenderMenuItemComponent = {
+            },        
+            DebugRenderWindowComponent = {
+                fields = { { type = "bool", name = "show" } }
+            },
+            CreateDebugRenderMenuItemSystem = {
+                updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "ImGUI::State",
+                            "MainMenuBar",
+                            "RenderMenu"
+                        },
+                        createsComponents = {
+                            "DebugRenderMenuItem"
+                        },
+                        excludes = {
+                            "DebugRenderMenuItem"
+                        }
+                    }
+                }
+                }
+            },            
+
+            BeginRenderMenuSystem = {
+                callOrder = {
+                    runAfter = "BeginMainMenuBar",
+                    runBefore = "EndRenderMenu"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                        processesComponents = { 
+                            "ImGUI::State", 
+                            "MainMenuBar",
+                            { name = "RenderMenu", readonly = false }
+                        }
+                        }
+                    }
+                }
+            },
+            ProcessDebugRenderMenuItemSystem = {
+                callOrder = {
+                    runAfter = "BeginRenderMenu",
+                    runBefore = "EndRenderMenu"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                        processesComponents = { 
+                            "MainMenuBar",
+                            "ImGUI::State",
+                            "RenderMenu",
+                            "DebugRenderMenuItem"
+                        },
+                        createsComponents = {
+                            "DebugRenderWindow"
+                        },
+                        excludes = {
+                            "DebugRenderWindow"
+                        }
+                        }
+                    },
+                    createsEntities = {
+                        {
+                            createsComponents = {
+                                "Debugger"
+                            }
+                        }
+                    }
+                }
+            },
+
+            BeginDebugRenderWindowSystem = {
+                callOrder = {
+                    runAfter = "EndMainMenuBar",
+                    runBefore = "EndDebugRenderWindow"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = { 
+                                "ImGUI::State", 
+                                "MainMenuBar",
+                                "RenderMenu",
+                                "DebugRenderMenuItem",
+                                { name = "DebugRenderWindow", readonly = false }
+                            },
+                            removesComponents = {
+                                "DebugRenderWindow"
+                            }
+                        },
+                        {
+                            processesComponents = {
+                                "Debugger"
+                            }
+                        }
+                    }
+                }
+            },
+
+            ShowRenderParametersSystem = {
+                callOrder = {
+                    runAfter = { "BeginDebugRenderWindow" },
+                    runBefore = { "EndDebugRenderWindow" }
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State",
+                                "MainMenuBar",
+                                "RenderMenu",
+                                "DebugRenderMenuItem",
+                                "DebugRenderWindow"
+                            }
+                        },
+                        {
+                            processesComponents = {
+                                "Debugger"
+                            },
+                            removesComponents = {
+                                "Enable",
+                                "EnableRegularRender"
+                            },
+                            createsComponents = {
+                                "Enable",
+                                "EnableRegularRender"
+                            }
+                        },
+                        {
+                            processesComponents = {
+                                "RenderDriver"
+                            }
+                        }
+                    },
+                }
+            },
+
+            EndDebugRenderWindowSystem = {
+                callOrder = {
+                    runAfter = "BeginDebugRenderWindow",
+                    runBefore = "ImGUI::EndFrame"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = { 
+                                "ImGUI::State", 
+                                "MainMenuBar",
+                                "RenderMenu",
+                                "DebugRenderMenuItem",
+                                "DebugRenderWindow"
+                            }
+                        }
+                    }
+                }
+            },
+            
+            EndRenderMenuSystem = {
+                callOrder = {
+                    runAfter = "BeginRenderMenu",
+                    runBefore = "EndMainMenuBar"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = { 
+                                "ImGUI::State", 
+                                "MainMenuBar",
+                                "RenderMenu"
+                            }
+                        }
+                    }
+                }
+            }  
+        }
+    }
+}

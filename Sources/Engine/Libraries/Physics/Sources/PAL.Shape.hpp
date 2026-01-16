@@ -26,6 +26,12 @@ namespace PAL {
 			float height_ = 2.f;
 		};
 
+		//struct CreateInfoCylinder {
+		//	Material material_;
+		//	float radius_ = 0.5f;
+		//	float height_ = 2.f;
+		//};
+
 		struct CreateInfoMesh {
 			Material material_;
 			bool convexGeometry_ = true;
@@ -34,6 +40,7 @@ namespace PAL {
 		};
 
 		Shape(const CreateInfoBox& createInfo) {}
+		//Shape(const CreateInfoCylinder& createInfo) {}
 		Shape(const CreateInfoCapsule& createInfo) {}
 		Shape(const CreateInfoMesh& createInfo) {}
 

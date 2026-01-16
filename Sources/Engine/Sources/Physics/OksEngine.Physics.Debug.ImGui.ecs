@@ -1,0 +1,205 @@
+PhysicsNamespace = {
+    DebugNamespace = {
+        ImGUINamespace = {
+            PhysicsMenuComponent = {
+                fields = { { type = "bool", name = "show",  } }
+            },
+            
+            CreatePhysicsMenuSystem = {
+                callOrder = {
+                    runBefore = "Input::ClearKeyboardEvents"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State",
+                                "Input::HandleKeyboardEvents",
+                                "Input::KeyboardEvents"
+                            },
+                            excludes = {
+                                "PhysicsMenu"
+                            },
+                            createsComponents = {
+                                "PhysicsMenu"
+                            }
+                        }
+                    }
+                }
+            },
+            DebugRenderMenuItemComponent = {
+            },        
+            DebugRenderWindowComponent = {
+                fields = { { type = "bool", name = "show" } }
+            },
+            CreateDebugRenderMenuItemSystem = {
+                updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "ImGUI::State",
+                            "MainMenuBar",
+                            "PhysicsMenu"
+                        },
+                        createsComponents = {
+                            "DebugRenderMenuItem"
+                        },
+                        excludes = {
+                            "DebugRenderMenuItem"
+                        }
+                    }
+                }
+                }
+            },            
+
+            BeginPhysicsMenuSystem = {
+                callOrder = {
+                    runAfter = "BeginMainMenuBar",
+                    runBefore = "EndPhysicsMenu"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                        processesComponents = { 
+                            "ImGUI::State", 
+                            "MainMenuBar",
+                            { name = "PhysicsMenu", readonly = false }
+                        }
+                        }
+                    }
+                }
+            },
+            ProcessDebugRenderMenuItemSystem = {
+                callOrder = {
+                    runAfter = "BeginPhysicsMenu",
+                    runBefore = "EndPhysicsMenu"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                        processesComponents = { 
+                            "MainMenuBar",
+                            "ImGUI::State",
+                            "PhysicsMenu",
+                            "DebugRenderMenuItem"
+                        },
+                        createsComponents = {
+                            "DebugRenderWindow"
+                        },
+                        excludes = {
+                            "DebugRenderWindow"
+                        }
+                        }
+                    },
+                    createsEntities = {
+                        {
+                            createsComponents = {
+                                "Debugger",
+                                "ConstraintsParameters"
+                            }
+                        }
+                    }
+                }
+            },
+
+            BeginDebugRenderWindowSystem = {
+                callOrder = {
+                    runAfter = "EndMainMenuBar",
+                    runBefore = "EndDebugRenderWindow"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = { 
+                                "ImGUI::State", 
+                                "MainMenuBar",
+                                "PhysicsMenu",
+                                "DebugRenderMenuItem",
+                                { name = "DebugRenderWindow", readonly = false }
+                            },
+                            removesComponents = {
+                                "DebugRenderWindow"
+                            }
+                        },
+                        {
+                            processesComponents = {
+                                "Debugger"
+                            }
+                        }
+                    }
+                }
+            },
+
+            ShowConstraintsParametersSystem = {
+                callOrder = {
+                    runAfter = { "BeginDebugRenderWindow" },
+                    runBefore = { "EndDebugRenderWindow" }
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State",
+                                "MainMenuBar",
+                                "PhysicsMenu",
+                                "DebugRenderMenuItem",
+                                "DebugRenderWindow"
+                            }
+                        },
+                        {
+                            processesComponents = {
+                                "Debugger",
+                                { name = "CommonParameters", readonly = false },
+                                { name = "ConstraintsParameters", readonly = false }
+                            },
+                            removesComponents = {
+                                "EnableDebugRender"
+                            },
+                            createsComponents = {
+                                "EnableDebugRender"
+                            }
+                        }
+                    },
+                }
+            },
+
+            EndDebugRenderWindowSystem = {
+                callOrder = {
+                    runAfter = "BeginDebugRenderWindow",
+                    runBefore = "ImGUI::EndFrame"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = { 
+                                "ImGUI::State", 
+                                "MainMenuBar",
+                                "PhysicsMenu",
+                                "DebugRenderMenuItem",
+                                "DebugRenderWindow"
+                            }
+                        }
+                    }
+                }
+            },
+            
+            EndPhysicsMenuSystem = {
+                callOrder = {
+                    runAfter = "BeginPhysicsMenu",
+                    runBefore = "EndMainMenuBar"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = { 
+                                "ImGUI::State", 
+                                "MainMenuBar",
+                                "PhysicsMenu"
+                            }
+                        }
+                    }
+                }
+            }  
+        }
+    }
+}

@@ -35,6 +35,7 @@ namespace PAL {
 
 		virtual PAL::Constraint::Id CreateFixedConstraint(
 			const FixedConstraint::CI& ci) = 0;
+		virtual PAL::Constraint::Id CreateRevoluteConstraint(const PAL::RevoluteConstraint::CI& ci) = 0;
 
 		[[nodiscard]]
 		virtual PAL::CapsuleController::Id CreateCapsuleController(const PAL::CapsuleController::CreateInfo& srbCreateInfo) = 0;

@@ -9,10 +9,10 @@ namespace OksEngine
 	{
 		namespace Debug
 		{
-			void CreateRenderer::Update() {
+			void CreateDebugger::Update() {
 
 				const ECS2::Entity::Id rendererId = CreateEntity();
-				CreateComponent<Renderer>(rendererId);
+				CreateComponent<Debugger>(rendererId);
 				CreateComponent<VertexBuffer>(rendererId);
 
 			};
@@ -25,7 +25,7 @@ namespace OksEngine
 	{
 		namespace Debug
 		{
-			void CreateDriverVertexBuffer::Update(ECS2::Entity::Id entity0id, const Renderer* renderer0, ECS2::Entity::Id entity1id,
+			void CreateDriverVertexBuffer::Update(ECS2::Entity::Id entity0id, const Debugger* renderer0, ECS2::Entity::Id entity1id,
 				RenderDriver* renderDriver1) {
 
 				auto driver = renderDriver1->driver_;
@@ -52,7 +52,7 @@ namespace OksEngine
 		namespace Debug
 		{
 			void UpdateDriverVertexBuffer::Update(
-				ECS2::Entity::Id entity0id, const Render::Debug::Renderer* renderer0,
+				ECS2::Entity::Id entity0id, const Render::Debug::Debugger* renderer0,
 				Render::Debug::VertexBuffer* vertexBuffer0, Render::Debug::DriverVertexBuffer* driverVertexBuffer0,
 				ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
@@ -96,7 +96,7 @@ namespace OksEngine
 			void CreatePipeline::Update(ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0,
 				const Render::MainRenderPass* render__MainRenderPass0, ECS2::Entity::Id entity1id,
 				const ResourceSystem* resourceSystem1, ECS2::Entity::Id entity2id,
-				const Render::Debug::Renderer* renderer2) {
+				const Render::Debug::Debugger* renderer2) {
 
 
 
@@ -167,7 +167,7 @@ namespace OksEngine
 	{
 		namespace Debug
 		{
-			void ClearVertexBuffer::Update(ECS2::Entity::Id entity0id, const Render::Debug::Renderer* renderer0,
+			void ClearVertexBuffer::Update(ECS2::Entity::Id entity0id, const Render::Debug::Debugger* renderer0,
 				Render::Debug::VertexBuffer* vertexBuffer0) {
 
 				vertexBuffer0->vertices_.Clear();
@@ -187,7 +187,7 @@ namespace OksEngine
 				const Camera* camera1, const Active* active1,
 				const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
 				const CameraTransformResource* cameraTransformResource1, ECS2::Entity::Id entity2id,
-				const Render::Debug::Renderer* renderer2, const Render::Debug::Enable* enable2,
+				const Render::Debug::Debugger* renderer2, const Render::Debug::Enable* enable2,
 				const Render::Debug::Pipeline* pipeline2, const Render::Debug::VertexBuffer* vertexBuffer2,
 				const Render::Debug::DriverVertexBuffer* driverVertexBuffer2) {
 

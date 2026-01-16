@@ -84,9 +84,12 @@ namespace ECSGenerator2 {
 		void ForEachField(ProcessField&& processField) const {
 			for (Common::Index i = 0; i < ci_.fields_.size(); i++) {
 				const FieldInfo info = ci_.fields_[i];
-				if (!processField(info, (i == ci_.fields_.size() - 1))) {
+				if (!processField(info, (i == ci_.fields_.size() - 1) && (ci_.aliasFor_ == nullptr || !ci_.aliasFor_->AreThereFields()))) {
 					break;
 				}
+			}
+			if (ci_.aliasFor_ != nullptr) {
+				ci_.aliasFor_->ForEachField(std::move(processField));
 			}
 		}
 

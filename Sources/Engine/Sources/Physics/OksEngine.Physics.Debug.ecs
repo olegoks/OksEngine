@@ -1,5 +1,20 @@
 PhysicsNamespace = {
     DebugNamespace = {
+
+        DebuggerComponent = {},
+        EnableDebugRenderComponent = { },
+        CommonParametersComponent = {
+            fields = {
+                { type = "bool", name = "enable" },
+            }
+        },
+        ConstraintsParametersComponent = {
+            fields = {
+                { type = "bool", name = "enable" },
+
+            }
+        },
+
         AddToRenderDynamicRigidBodyShapeSystem = {
             callOrder = {
                 runBefore = { "Render::Debug::UpdateDriverVertexBuffer" }
@@ -8,8 +23,16 @@ PhysicsNamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
-                        "Render::Debug::Renderer",
+                        "Render::Debug::Debugger",
                         { name = "Render::Debug::VertexBuffer", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Debugger",
+                            "EnableDebugRender",
+                            "CommonParameters",
+                            "ConstraintsParameters"
                         }
                     },
                     {
@@ -38,7 +61,15 @@ PhysicsNamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
-                        "Render::Debug::Renderer",
+                            "Debugger",
+                            "EnableDebugRender",
+                            "CommonParameters",
+                            "ConstraintsParameters"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                        "Render::Debug::Debugger",
                         { name = "Render::Debug::VertexBuffer", readonly = false }
                         }
                     },
@@ -58,6 +89,8 @@ PhysicsNamespace = {
                     }
                 }
             }
-        }
-    }
+        },
+
+    },
+    
 }

@@ -20,7 +20,10 @@ namespace PhysX {
 		physx::PxDefaultCpuDispatcher* dispatcher = physx::PxDefaultCpuDispatcherCreate(2);
 		sceneDescription.cpuDispatcher = dispatcher;
 		sceneDescription.filterShader = physx::PxDefaultSimulationFilterShader;
+
 		physx::PxScene* scene = pxCreateInfo.physics_->createScene(sceneDescription);
+		scene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
+		scene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
 		OS::Assert(scene != nullptr);
 		scene_ = scene;
 		physx::PxPvdSceneClient* pvdClient = scene->getScenePvdClient();
@@ -54,33 +57,27 @@ namespace PhysX {
 		return GenerateRbId(srbPtr);
 	}
 
-	PAL::Constraint::Id World::CreateFixedConstraint(
-		const PAL::FixedConstraint::CI& ci) {
+	[[nodiscard]]
+	physx::PxRigidActor* World::GetRigidBodyActor(PAL::RigidBody::Id rbId) {
 
-		physx::PxRigidActor* physxFirst = nullptr;
-		physx::PxRigidActor* physxSecond = nullptr;
-
-		auto firstRb = Common::pointer_cast<PAL::RigidBody>(GetRigidBodyById(ci.first_));
-		auto secondRb = Common::pointer_cast<PAL::RigidBody>(GetRigidBodyById(ci.second_));
+		auto firstRb = Common::pointer_cast<PAL::RigidBody>(GetRigidBodyById(rbId));
 
 		if (firstRb->GetType() == PAL::RigidBody::Type::Dynamic) {
-			physxFirst = Common::pointer_cast<PhysX::DynamicRigidBody>(firstRb)->GetBody();
+			return Common::pointer_cast<PhysX::DynamicRigidBody>(firstRb)->GetBody();
 		}
 		else {
-			physxFirst = Common::pointer_cast<PhysX::StaticRigidBody>(firstRb)->GetBody();
+			return Common::pointer_cast<PhysX::StaticRigidBody>(firstRb)->GetBody();
 		}
 
-		if (secondRb->GetType() == PAL::RigidBody::Type::Dynamic) {
-			physxSecond = Common::pointer_cast<PhysX::DynamicRigidBody>(secondRb)->GetBody();
-		}
-		else {
-			physxSecond = Common::pointer_cast<PhysX::StaticRigidBody>(secondRb)->GetBody();
-		}
+	}
 
-		//TODO: use user transforms
-		physx::PxTransform firstTR{ physx::PxIDENTITY::PxIdentity };
-		firstTR.p.y = -3.0;
-		physx::PxTransform secondTR{ physx::PxIDENTITY::PxIdentity };
+	PAL::Constraint::Id World::CreateFixedConstraint(const PAL::FixedConstraint::CI& ci) {
+
+		physx::PxRigidActor* physxFirst = GetRigidBodyActor(ci.first_);
+		physx::PxRigidActor* physxSecond = GetRigidBodyActor(ci.second_);
+
+		physx::PxTransform firstTR{ convertToPxMat44(ci.firstRelativeTr_)};
+		physx::PxTransform secondTR{ convertToPxMat44(ci.secondRelativeTr_) };
 
 		PhysX::FixedConstraint::CreateInfo physxCI{
 			.physics_ = physics_,
@@ -93,10 +90,42 @@ namespace PhysX {
 		auto constraintPtr = std::make_shared<PhysX::FixedConstraint>(physxCI);
 
 		if (ci.isBreakable_) {
-			constraintPtr->joint_->setBreakForce(ci.breakForce_, 1000.0);
+			constraintPtr->SetBreakForce(ci.breakForce_);
 		}
 
 
+		return GenerateConstraintId(constraintPtr);
+
+	}
+
+	PAL::Constraint::Id World::CreateRevoluteConstraint(const PAL::RevoluteConstraint::CI& ci) {
+
+		physx::PxRigidActor* physxFirst = GetRigidBodyActor(ci.first_);
+		physx::PxRigidActor* physxSecond = GetRigidBodyActor(ci.second_);
+
+		physx::PxTransform firstTR{ convertToPxMat44(ci.firstRelativeTr_) };
+		physx::PxTransform secondTR{ convertToPxMat44(ci.secondRelativeTr_) };
+
+		PhysX::RevoluteConstraint::CreateInfo physxCI{
+			.physics_ = physics_,
+			.first_ = physxFirst,
+			.firstTr_ = firstTR,
+			.second_ = physxSecond,
+			.secondTr_ = secondTR
+		};
+
+		auto constraintPtr = std::make_shared<PhysX::RevoluteConstraint>(physxCI);
+
+		if (ci.isBreakable_) {
+			constraintPtr->SetBreakForce(ci.breakForce_);
+		}
+
+		if (ci.invMassScaleFirst_ != Common::Limits<float>::Max()) {
+			constraintPtr->SetInvMassScale0(ci.invMassScaleFirst_);
+		}
+		if (ci.invMassScaleSecond_ != Common::Limits<float>::Max()) {
+			constraintPtr->SetInvMassScale1(ci.invMassScaleSecond_);
+		}
 
 		return GenerateConstraintId(constraintPtr);
 
@@ -130,6 +159,10 @@ namespace PhysX {
 		ASSERT_FMSG(!Math::IsEqual(ms, 0.f), "Invalid simulation time");
 		scene_->simulate(ms);
 		scene_->fetchResults(true);
+
+		physx::PxSimulationStatistics statistics;
+		scene_->getSimulationStatistics(statistics);
+		//statistics.
 	}
 
 	void World::ApplyForce(PAL::DynamicRigidBody::Id drbId) {
