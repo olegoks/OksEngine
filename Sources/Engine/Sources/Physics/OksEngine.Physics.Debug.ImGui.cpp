@@ -144,47 +144,68 @@ namespace OksEngine
 	} // namespace Physics
 
 	namespace Physics::Debug::ImGUI {
-		void ShowConstraintsParameters::Update(ECS2::Entity::Id entity0id, const OksEngine::ImGUI::State* imGUI__State0,
+		void ShowParameters::Update(
+			ECS2::Entity::Id entity0id, const OksEngine::ImGUI::State* imGUI__State0,
 			const OksEngine::MainMenuBar* mainMenuBar0,
 			const OksEngine::Physics::Debug::ImGUI::PhysicsMenu* physicsMenu0,
 			const OksEngine::Physics::Debug::ImGUI::DebugRenderMenuItem* debugRenderMenuItem0,
 			const OksEngine::Physics::Debug::ImGUI::DebugRenderWindow* debugRenderWindow0,
-			ECS2::Entity::Id entity1id, const OksEngine::Physics::Debug::Debugger* debugger1,
-			OksEngine::Physics::Debug::CommonParameters* commonParameters1,
-			OksEngine::Physics::Debug::ContactPointsParameters* contactPointsParameters1,
-			OksEngine::Physics::Debug::ConstraintsParameters* constraintsParameters1) {
+			ECS2::Entity::Id entity1id,
+			const OksEngine::Physics::Engine* engine1,
+			const OksEngine::Physics::SimulationGranularity* simulationGranularity1,
+			
+			ECS2::Entity::Id entity2id,
+			const OksEngine::Physics::Debug::Debugger* debugger2,
+			OksEngine::Physics::Debug::CommonParameters* commonParameters2,
+			OksEngine::Physics::Debug::ContactPointsParameters* contactPointsParameters2,
+			OksEngine::Physics::Debug::ConstraintsParameters* constraintsParameters2) {
 
-			const ECS2::ComponentsFilter debuggerFilter = GetComponentsFilter(entity1id);
+			const ECS2::ComponentsFilter debuggerFilter = GetComponentsFilter(entity2id);
+			const ECS2::ComponentsFilter engineFilter = GetComponentsFilter(entity1id);
 
 			ImGui::SeparatorText("Common:");
+
+			if (engineFilter.IsSet<EnableSimulation>()) {
+				if (ImGui::Button("Disable simulation")) {
+					RemoveComponent<EnableSimulation>(entity1id);
+				}
+			}
+			else {
+				if (ImGui::Button("Enable simulation")) {
+					CreateComponent<EnableSimulation>(entity1id);
+				}
+			}
+
+			ImGui::TextDisabled("Granularity %d ms", simulationGranularity1->ms_);
+
 			if (debuggerFilter.IsSet<EnableDebugRender>()) {
 				if (ImGui::Button("Disable render")) {
-					RemoveComponent<EnableDebugRender>(entity1id);
+					RemoveComponent<EnableDebugRender>(entity2id);
 				}
 			}
 			else {
 				if (ImGui::Button("Enable render")) {
-					CreateComponent<EnableDebugRender>(entity1id);
+					CreateComponent<EnableDebugRender>(entity2id);
 				}
 			}
 
-			ImGui::Checkbox("Draw normals", &commonParameters1->drawNormals_);
-			ImGui::Checkbox("Draw AABB", &commonParameters1->drawAABB_);
-			ImGui::Checkbox("Draw edges", &commonParameters1->drawEdges_);
-			ImGui::Checkbox("Draw body axes", &commonParameters1->drawBodyAxes_);
-			ImGui::Checkbox("Draw actor axes", &commonParameters1->drawActorAxes_);
-			ImGui::Checkbox("Draw world axes", &commonParameters1->drawWorldAxes_);
-			ImGui::Checkbox("Draw collision static", &commonParameters1->drawCollisionStatic_);
-			ImGui::Checkbox("Draw collision dynamic", &commonParameters1->drawCollisionDynamic_);
+			ImGui::Checkbox("Draw normals", &commonParameters2->drawNormals_);
+			ImGui::Checkbox("Draw AABB", &commonParameters2->drawAABB_);
+			ImGui::Checkbox("Draw edges", &commonParameters2->drawEdges_);
+			ImGui::Checkbox("Draw body axes", &commonParameters2->drawBodyAxes_);
+			ImGui::Checkbox("Draw actor axes", &commonParameters2->drawActorAxes_);
+			ImGui::Checkbox("Draw world axes", &commonParameters2->drawWorldAxes_);
+			ImGui::Checkbox("Draw collision static", &commonParameters2->drawCollisionStatic_);
+			ImGui::Checkbox("Draw collision dynamic", &commonParameters2->drawCollisionDynamic_);
 
 			ImGui::SeparatorText("Constraints:");
-			ImGui::Checkbox("Enable constraints debug", &constraintsParameters1->enable_);
-			ImGui::Checkbox("Draw joint local frames", &constraintsParameters1->drawJointLocalFrames_);
-			ImGui::Checkbox("Draw joint limits", &constraintsParameters1->drawJointLimits_);
+			ImGui::Checkbox("Enable constraints debug", &constraintsParameters2->enable_);
+			ImGui::Checkbox("Draw joint local frames", &constraintsParameters2->drawJointLocalFrames_);
+			ImGui::Checkbox("Draw joint limits", &constraintsParameters2->drawJointLimits_);
 
 			ImGui::SeparatorText("Contact points:");
-			ImGui::Checkbox("Draw contact points", &contactPointsParameters1->drawContactPoints_);
-			ImGui::Checkbox("Draw contact normals", &contactPointsParameters1->drawContactNormal_);
+			ImGui::Checkbox("Draw contact points", &contactPointsParameters2->drawContactPoints_);
+			ImGui::Checkbox("Draw contact normals", &contactPointsParameters2->drawContactNormal_);
 
 		}
 		

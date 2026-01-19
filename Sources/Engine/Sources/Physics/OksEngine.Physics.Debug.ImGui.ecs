@@ -130,7 +130,7 @@ PhysicsNamespace = {
                 }
             },
 
-            ShowConstraintsParametersSystem = {
+            ShowParametersSystem = {
                 callOrder = {
                     runAfter = { "BeginDebugRenderWindow" },
                     runBefore = { "EndDebugRenderWindow" }
@@ -144,6 +144,18 @@ PhysicsNamespace = {
                                 "PhysicsMenu",
                                 "DebugRenderMenuItem",
                                 "DebugRenderWindow"
+                            }
+                        },
+                        {
+                            processesComponents = {
+                                "Engine",
+                                "SimulationGranularity"
+                            },
+                            removesComponents = {
+                                "EnableSimulation"
+                            },
+                            createsComponents = {
+                                "EnableSimulation"
                             }
                         },
                         {

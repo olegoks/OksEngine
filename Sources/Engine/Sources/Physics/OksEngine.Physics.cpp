@@ -989,14 +989,11 @@ namespace OksEngine
 
 
 		void SimulatePhysics::Update(
-			ECS2::Entity::Id entity0id,
-			const Clock* clock0,
-			const FrameStartTimePoint* frameStartTimePoint0,
-			const PreviousFrameDuration* previousFrameDuration0,
-
-			ECS2::Entity::Id entity1id,
-			Engine* engine1,
-			const SimulationGranularity* simulationGranularity1) {
+			ECS2::Entity::Id entity0id, const OksEngine::Clock* clock0,
+			const OksEngine::FrameStartTimePoint* frameStartTimePoint0,
+			const OksEngine::PreviousFrameDuration* previousFrameDuration0, ECS2::Entity::Id entity1id,
+			OksEngine::Physics::Engine* engine1, const OksEngine::Physics::EnableSimulation* enableSimulation1,
+			const OksEngine::Physics::SimulationGranularity* simulationGranularity1) {
 			//using namespace std::chrono_literals;
 			//static std::chrono::high_resolution_clock::time_point previousUpdate = std::chrono::high_resolution_clock::now();
 			//static std::chrono::high_resolution_clock::duration remainder = 0ms;
