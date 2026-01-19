@@ -7,6 +7,7 @@ PhysicsNamespace = {
             { type = "std::shared_ptr<PE::PhysicsEngine>", name = "engine" }
         }
     },
+    EnableSimulationComponent = { },
     SimulationGranularityComponent = {
         bindable = false,
         serializable = false,
@@ -24,7 +25,8 @@ PhysicsNamespace = {
                 {
                     createsComponents = {
                         "Engine",
-                        "SimulationGranularity"
+                        "SimulationGranularity",
+                        "EnableSimulation"
                     }
                 }
             }

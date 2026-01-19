@@ -150,6 +150,7 @@ PhysicsNamespace = {
                             processesComponents = {
                                 "Debugger",
                                 { name = "CommonParameters", readonly = false },
+                                { name = "ContactPointsParameters", readonly = false },
                                 { name = "ConstraintsParameters", readonly = false }
                             },
                             removesComponents = {

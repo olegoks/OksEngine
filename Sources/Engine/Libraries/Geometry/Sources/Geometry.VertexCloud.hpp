@@ -81,6 +81,10 @@ namespace Geometry {
 
 		}
 
+		[[nodiscard]]
+		VertexType& operator[](Common::Index index) noexcept {
+			return vertices_[index];
+		}
 
 		[[nodiscard]]
 		const VertexType& operator[](Common::Index index) const noexcept {

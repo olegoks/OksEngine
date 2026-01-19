@@ -5,26 +5,37 @@ PhysicsNamespace = {
         EnableDebugRenderComponent = { },
         CommonParametersComponent = {
             fields = {
-                { type = "bool", name = "enable" },
+                { type = "bool", name = "enablePhysXDebugRenderBuffer" },
+                { type = "bool", name = "drawNormals" },
+                { type = "bool", name = "drawAABB" },
+                { type = "bool", name = "drawEdges" },
+                { type = "bool", name = "drawBodyAxes" },
+                { type = "bool", name = "drawActorAxes" },
+                { type = "bool", name = "drawWorldAxes" },
+                { type = "bool", name = "drawCollisionStatic" },
+                { type = "bool", name = "drawCollisionDynamic" },
+            }
+        },
+        ContactPointsParametersComponent = {
+            fields = {
+                { type = "bool", name = "drawContactPoints" },
+                { type = "bool", name = "drawContactNormal" }
             }
         },
         ConstraintsParametersComponent = {
             fields = {
                 { type = "bool", name = "enable" },
-
+                { type = "bool", name = "drawJointLocalFrames" },
+                { type = "bool", name = "drawJointLimits" },
             }
         },
 
-        AddToRenderDynamicRigidBodyShapeSystem = {
-            callOrder = {
-                runBefore = { "Render::Debug::UpdateDriverVertexBuffer" }
-            },
+        UpdateVisualizationParametersSystem = {
             updateMethod = {
                 processesEntities = {
                     {
                         processesComponents = {
-                        "Render::Debug::Debugger",
-                        { name = "Render::Debug::VertexBuffer", readonly = false }
+                            { name = "World", readonly = false }
                         }
                     },
                     {
@@ -32,6 +43,67 @@ PhysicsNamespace = {
                             "Debugger",
                             "EnableDebugRender",
                             "CommonParameters",
+                            "ContactPointsParameters",
+                            "ConstraintsParameters"
+                        }
+                    }
+                }
+
+            }
+        },
+
+        RenderPhysXDebugRenderBufferSystem = {
+            callOrder = {
+                runBefore = { 
+                    "Render::Debug::FlatShade::UpdateDriverVertexBuffer",
+                    "Render::Debug::Lines::UpdateDriverVertexBuffer"
+                 }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "World"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                        "Render::Debug::Debugger",
+                        { name = "Render::Debug::FlatShade::VertexBuffer", readonly = false },
+                        { name = "Render::Debug::Lines::VertexBuffer", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Debugger",
+                            "EnableDebugRender",
+                            "CommonParameters",
+                            "ContactPointsParameters",
+                            "ConstraintsParameters"
+                        }
+                    }
+                }
+            }
+        },
+
+        AddToRenderDynamicRigidBodyShapeSystem = {
+            callOrder = {
+                runBefore = { "Render::Debug::FlatShade::UpdateDriverVertexBuffer" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                        "Render::Debug::Debugger",
+                        { name = "Render::Debug::FlatShade::VertexBuffer", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Debugger",
+                            "EnableDebugRender",
+                            "CommonParameters",
+                            "ContactPointsParameters",
                             "ConstraintsParameters"
                         }
                     },
@@ -47,7 +119,9 @@ PhysicsNamespace = {
                         accessingComponents = {
                             --TODO: add another shape data
                             "ShapeGeometryData",
-                            "ShapeGeometryCapsule"
+                            "ShapeGeometryCapsule",
+                            "ShapeGeometryBox",
+                            "ShapeGeometryCylinder"
                         }
                     }
                 }
@@ -55,7 +129,7 @@ PhysicsNamespace = {
         },
         AddToRenderStaticRigidBodyShapeSystem = {
             callOrder = {
-                runBefore = { "Render::Debug::UpdateDriverVertexBuffer" }
+                runBefore = { "Render::Debug::FlatShade::UpdateDriverVertexBuffer" }
             },
             updateMethod = {
                 processesEntities = {
@@ -70,7 +144,7 @@ PhysicsNamespace = {
                     {
                         processesComponents = {
                         "Render::Debug::Debugger",
-                        { name = "Render::Debug::VertexBuffer", readonly = false }
+                        { name = "Render::Debug::FlatShade::VertexBuffer", readonly = false }
                         }
                     },
                     {
@@ -90,7 +164,50 @@ PhysicsNamespace = {
                 }
             }
         },
-
+        AddToRenderRevoluteConstraintSystem = {
+            callOrder = {
+                runBefore = { "Render::Debug::Lines::UpdateDriverVertexBuffer" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Debugger",
+                            "EnableDebugRender",
+                            "CommonParameters",
+                            "ContactPointsParameters",
+                            "ConstraintsParameters"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                        "Render::Debug::Debugger",
+                        { name = "Render::Debug::Lines::VertexBuffer", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Constraint",
+                            "ConstraintId",
+                            "RevoluteConstraint",
+                            "RevoluteAxis",
+                            "FirstConstraintedRigidBodyEntityId",
+                            "SecondConstraintedRigidBodyEntityId",
+                            "FirstConstraintedRigidBodyJointPosition3D",
+                            "FirstConstraintedRigidBodyJointRotation3D",
+                            "SecondConstraintedRigidBodyJointPosition3D",
+                            "SecondConstraintedRigidBodyJointRotation3D"
+                        },
+                        accessingComponents = {
+                            --TODO: add another shape data
+                            "WorldPosition3D",
+                            "WorldRotation3D",
+                            "WorldScale3D"
+                        }
+                    }
+                }
+            }
+        },
     },
     
 }

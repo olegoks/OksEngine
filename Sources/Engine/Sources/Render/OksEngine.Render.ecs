@@ -45,7 +45,9 @@ RenderNamespace = {
         --TODO: manual
         serializable = false,
         fields = {
+            { type = "std::string", name = "name" },
             { type = "std::string", name = "vertexShaderPath" },
+            { type = "std::string", name = "geometryShaderPath" },
             { type = "std::string", name = "fragmentShaderPath" },
             { type = "std::vector<Binding>", name = "bindings" },
             --"TriangleList", "LineList"
@@ -56,6 +58,10 @@ RenderNamespace = {
             { type = "std::string", name = "indexType" },
             --"Front", "Back", "FrontAndBack"
             { type = "std::string", name = "cullMode" },
+            { type = "std::string", name = "frontFace" },
+            { type = "bool", name = "enableDepthTest" },
+            { type = "std::string", name = "depthBufferCompareOperation" },
+            { type = "std::string", name = "samplesCount" }
         }
     },
 

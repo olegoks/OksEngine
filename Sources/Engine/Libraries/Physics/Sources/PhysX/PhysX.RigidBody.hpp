@@ -40,6 +40,8 @@ namespace PhysX {
 			body_->setName(createInfo.palCreateInfo_.rbCreateInfo_.name_.c_str());
 			body_->setMass(createInfo.palCreateInfo_.mass_);
 			
+
+			body_->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
 			//body_->setmass
 
 			physx::PxRigidDynamicLockFlags axisLockFlags;
@@ -168,6 +170,8 @@ namespace PhysX {
 				"Error while creating rigid body.");
 			body_->attachShape(*shape->GetPxShape());
 			body_->setName(createInfo.palCreateInfo_.rbCreateInfo_.name_.c_str());
+
+			body_->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);
 		}
 
 		[[nodiscard]]

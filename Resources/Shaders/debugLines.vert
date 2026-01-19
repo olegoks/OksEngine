@@ -12,7 +12,7 @@ layout(set = 0, binding = 0) uniform Camera {
 
 void main() {
 
-    fragColor = vec3(0, 0, 0);
+    fragColor = inColor;
 
     gl_Position = camera.proj * camera.view * vec4(inPosition, 1.0);
 }

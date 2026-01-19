@@ -41,6 +41,67 @@ namespace PhysX {
 			IdCapsuleController_[rbId] = controller;
 			return rbId;
 		}
+
+		virtual void SetDebugRenderParameters(DebugRenderParameters parameter, bool value) noexcept override;
+
+		virtual void GetDebugRenderBufferPoints() const noexcept override {
+
+		}
+
+		virtual Geom::VertexCloud<Geom::Vertex3fc> GetDebugRenderBufferTriangles() const noexcept override {
+
+			const physx::PxDebugTriangle* triangles = scene_->getRenderBuffer().getTriangles();
+			const Common::UInt32 trianglesNumber = scene_->getRenderBuffer().getNbTriangles();
+
+			Geom::VertexCloud<Geom::Vertex3fc> vertices;
+			vertices.Reserve(trianglesNumber * 3);
+			for (Common::Index i = 0; i < trianglesNumber; i++) {
+				const physx::PxDebugTriangle* triangle = triangles + i;
+				vertices.Add(
+					{ Geom::Vertex3f{ triangle->pos0.x, triangle->pos0.y, triangle->pos0.z  },
+					Geom::Color3f{ 0.0, 1.0, 0.0 }
+					//Geom::Color3f{ triangle->color0 >> 24, (triangle->color0 << 8) >> 32, (triangle->color0 << 16) >> 32 } 
+					});
+				vertices.Add(
+					{ Geom::Vertex3f{ triangle->pos1.x, triangle->pos1.y, triangle->pos1.z  },
+					Geom::Color3f{ 0.0, 1.0, 0.0 }
+					//Geom::Color3f{ triangle->color1 >> 24, (triangle->color1 << 8) >> 32, (triangle->color1 << 16) >> 32} 
+					});
+				vertices.Add(
+					{ Geom::Vertex3f{ triangle->pos2.x, triangle->pos2.y, triangle->pos2.z  },
+					Geom::Color3f{ 0.0, 1.0, 0.0 }
+					//Geom::Color3f{ triangle->color2 >> 24, (triangle->color2 << 8) >> 32, (triangle->color2 << 16) >> 32}
+					});
+			}
+
+			return vertices;
+
+		}
+		virtual Geom::VertexCloud<Geom::Vertex3fc> GetDebugRenderBufferLines() const noexcept override {
+
+			const physx::PxDebugLine* lines = scene_->getRenderBuffer().getLines();
+			const Common::UInt32 linesNumber = scene_->getRenderBuffer().getNbLines();
+
+			Geom::VertexCloud<Geom::Vertex3fc> vertices;
+
+			vertices.Reserve(linesNumber * 2);
+			for (Common::Index i = 0; i < linesNumber; i++) {
+				const physx::PxDebugLine* line = lines + i;
+				vertices.Add(
+					{ Geom::Vertex3f{ line->pos0.x, line->pos0.y, line->pos0.z  },
+					Geom::Color3f{ 1.0, 0.0, 0.0 }
+					//Geom::Color3f{ triangle->color0 >> 24, (triangle->color0 << 8) >> 32, (triangle->color0 << 16) >> 32 } 
+					});
+				vertices.Add(
+					{ Geom::Vertex3f{ line->pos1.x, line->pos1.y, line->pos1.z  },
+					Geom::Color3f{ 1.0, 0.0, 0.0 }
+					//Geom::Color3f{ triangle->color1 >> 24, (triangle->color1 << 8) >> 32, (triangle->color1 << 16) >> 32} 
+					});
+			}
+
+			return vertices;
+		}
+
 	private:
 		physx::PxScene* scene_ = nullptr;
 		physx::PxPhysics* physics_ = nullptr;

@@ -80,6 +80,8 @@ namespace PhysX {
 
 			revoluteJoint->setConstraintFlag(physx::PxConstraintFlag::eVISUALIZATION, true);
 
+			
+
 			SetPtr(revoluteJoint);
 		}
 	};

@@ -5,6 +5,7 @@
 #include <PAL.RigidBody.hpp>
 #include <PAL.Constraint.hpp>
 
+
 namespace PAL {
 
 	class CapsuleController {
@@ -57,6 +58,158 @@ namespace PAL {
 
 		virtual void Simulate(float ms) = 0;
 
+		enum class DebugRenderParameters {
+
+			eENABLE,
+			eWORLD_AXES,
+		
+	/* Body visualizations */
+
+		/**
+		\brief Visualize a bodies axes.
+
+		\see PxActor.globalPose PxActor
+		*/
+		eBODY_AXES,
+		
+		/**
+		\brief Visualize a body's mass axes.
+
+		This visualization is also useful for visualizing the sleep state of bodies. Sleeping bodies are drawn in
+		black, while awake bodies are drawn in white. If the body is sleeping and part of a sleeping group, it is
+		drawn in red.
+
+		\see PxBodyDesc.massLocalPose PxActor
+		*/
+		eBODY_MASS_AXES,
+		
+		/**
+		\brief Visualize the bodies linear velocity.
+
+		\see PxBodyDesc.linearVelocity PxActor
+		*/
+		eBODY_LIN_VELOCITY,
+		
+		/**
+		\brief Visualize the bodies angular velocity.
+
+		\see PxBodyDesc.angularVelocity PxActor
+		*/
+		eBODY_ANG_VELOCITY,
+
+	/* Contact visualisations */
+
+		/**
+		\brief  Visualize contact points. Will enable contact information.
+		*/
+		eCONTACT_POINT,
+		
+		/**
+		\brief Visualize contact normals. Will enable contact information.
+		*/
+		eCONTACT_NORMAL,
+		
+		/**
+		\brief  Visualize contact errors. Will enable contact information.
+		*/
+		eCONTACT_ERROR,
+		
+		/**
+		\brief Visualize Contact impulses. Will enable contact information.
+		*/
+		eCONTACT_IMPULSE,
+
+		/**
+		\brief  Visualize friction points. Will enable contact information.
+		*/
+		eFRICTION_POINT,
+
+		/**
+		\brief Visualize friction normals. Will enable contact information.
+		*/
+		eFRICTION_NORMAL,
+
+		/**
+		\brief Visualize friction impulses. Will enable contact information.
+		*/
+		eFRICTION_IMPULSE,
+
+		/**
+		\brief Visualize actor axes.
+
+		\see PxRigidStatic PxRigidDynamic PxArticulationLink
+		*/
+		eACTOR_AXES,
+
+		/**
+		\brief Visualize bounds (AABBs in world space)
+		*/
+		eCOLLISION_AABBS,
+		
+		/**
+		\brief Shape visualization
+
+		\see PxShape
+		*/
+		eCOLLISION_SHAPES,
+		
+		/**
+		\brief Shape axis visualization
+
+		\see PxShape
+		*/
+		eCOLLISION_AXES,
+
+		/**
+		\brief Compound visualization (compound AABBs in world space)
+		*/
+		eCOLLISION_COMPOUNDS,
+
+		/**
+		\brief Mesh & convex face normals
+
+		\see PxTriangleMesh PxConvexMesh
+		*/
+		eCOLLISION_FNORMALS,
+		
+		/**
+		\brief Active edges for meshes
+
+		\see PxTriangleMesh
+		*/
+		eCOLLISION_EDGES,
+
+		/**
+		\brief Static pruning structures
+		*/
+		eCOLLISION_STATIC,
+
+		/**
+		\brief Dynamic pruning structures
+		*/
+		eCOLLISION_DYNAMIC,
+
+		/**
+		\brief Joint local axes
+		*/
+		eJOINT_LOCAL_FRAMES,
+
+		/** 
+		\brief Joint limits
+		*/
+		eJOINT_LIMITS,
+	
+		/**
+		\brief Visualize culling box
+		*/
+		eCULL_BOX
+		};
+
+		virtual void SetDebugRenderParameters(DebugRenderParameters parameter, bool value) noexcept = 0;
+
+		virtual void GetDebugRenderBufferPoints() const noexcept = 0;
+		virtual Geom::VertexCloud<Geom::Vertex3fc> GetDebugRenderBufferTriangles() const noexcept = 0;
+		virtual Geom::VertexCloud<Geom::Vertex3fc> GetDebugRenderBufferLines() const noexcept = 0;
 
 	protected:
 

@@ -30,6 +30,8 @@ namespace PhysX {
 				createInfo.palCreateInfo_.halfExtentZ_),
 			*material);
 
+
+		shape->setFlag(physx::PxShapeFlag::Enum::eVISUALIZATION, true);
 		ASSERT_FMSG(shape != nullptr,
 			"Error while creating physx shape.");
 
@@ -85,6 +87,8 @@ namespace PhysX {
 
 		ASSERT_FMSG(shape != nullptr,
 			"Error while creating physx shape.");
+
+		shape->setFlag(physx::PxShapeFlag::Enum::eVISUALIZATION, true);
 
 		material_ = material;
 		shape_ = shape;
@@ -176,7 +180,7 @@ namespace PhysX {
 			PxTransform localTransform(PxVec3(0, 0, 0));
 			physx::PxShape* pxShape = createInfo.physics_->createShape(convexGeometry, *material);
 			pxShape->setLocalPose(localTransform);
-
+			pxShape->setFlag(physx::PxShapeFlag::Enum::eVISUALIZATION, true);
 			physx::PxReal mass;
 			physx::PxMat33 inertia;
 			physx::PxVec3 massCenter;

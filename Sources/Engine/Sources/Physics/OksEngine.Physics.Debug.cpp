@@ -4,13 +4,13 @@
 namespace OksEngine
 {
 	AI_GENERATED
-	struct Vertex {
+		struct Vertex {
 		glm::vec3 position;
 		glm::vec3 normal;
 	};
 
 	AI_GENERATED
-	std::vector<Vertex> generateCapsuleVertices(float radius, float height, int segments, int rings) {
+		std::vector<Vertex> generateCapsuleVertices(float radius, float height, int segments, int rings) {
 		std::vector<Vertex> vertices;
 
 		// Общая высота капсулы = высота цилиндра + 2 * радиус полусфер
@@ -94,7 +94,7 @@ namespace OksEngine
 		return vertices;
 	}
 	AI_GENERATED
-	std::vector<Vertex> generateCapsuleTriangles(float radius, float height, int segments, int rings) {
+		std::vector<Vertex> generateCapsuleTriangles(float radius, float height, int segments, int rings) {
 		auto vertices = generateCapsuleVertices(radius, height, segments, rings);
 		std::vector<Vertex> triangles;
 
@@ -131,11 +131,46 @@ namespace OksEngine
 	{
 		namespace Debug
 		{
-			void AddToRenderDynamicRigidBodyShape::Update(ECS2::Entity::Id entity0id, const OksEngine::Render::Debug::Debugger* render__Debug__Debugger0,
-				OksEngine::Render::Debug::VertexBuffer* render__Debug__VertexBuffer0, ECS2::Entity::Id entity1id,
+
+			void UpdateVisualizationParameters::Update(ECS2::Entity::Id entity0id, OksEngine::Physics::World* world0, ECS2::Entity::Id entity1id,
 				const OksEngine::Physics::Debug::Debugger* debugger1,
 				const OksEngine::Physics::Debug::EnableDebugRender* enableDebugRender1,
 				const OksEngine::Physics::Debug::CommonParameters* commonParameters1,
+				const OksEngine::Physics::Debug::ContactPointsParameters* contactPointsParameters1,
+				const OksEngine::Physics::Debug::ConstraintsParameters* constraintsParameters1) {
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eCOLLISION_AABBS, commonParameters1->drawAABB_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eCOLLISION_FNORMALS, commonParameters1->drawNormals_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eCOLLISION_EDGES, commonParameters1->drawEdges_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eBODY_AXES, commonParameters1->drawBodyAxes_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eACTOR_AXES, commonParameters1->drawActorAxes_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eWORLD_AXES, commonParameters1->drawWorldAxes_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eCOLLISION_STATIC, commonParameters1->drawCollisionStatic_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eCOLLISION_DYNAMIC, commonParameters1->drawCollisionDynamic_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eCONTACT_POINT, contactPointsParameters1->drawContactPoints_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eCONTACT_NORMAL, contactPointsParameters1->drawContactNormal_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eJOINT_LOCAL_FRAMES, constraintsParameters1->drawJointLocalFrames_);
+
+				world0->world_->SetDebugRenderParameters(PAL::World::DebugRenderParameters::eJOINT_LIMITS, constraintsParameters1->drawJointLimits_);
+
+			}
+
+			void AddToRenderDynamicRigidBodyShape::Update(ECS2::Entity::Id entity0id, const OksEngine::Render::Debug::Debugger* render__Debug__Debugger0,
+				OksEngine::Render::Debug::FlatShade::VertexBuffer* render__Debug__FlatShade__VertexBuffer0,
+				ECS2::Entity::Id entity1id, const OksEngine::Physics::Debug::Debugger* debugger1,
+				const OksEngine::Physics::Debug::EnableDebugRender* enableDebugRender1,
+				const OksEngine::Physics::Debug::CommonParameters* commonParameters1,
+				const OksEngine::Physics::Debug::ContactPointsParameters* contactPointsParameters1,
 				const OksEngine::Physics::Debug::ConstraintsParameters* constraintsParameters1,
 				ECS2::Entity::Id entity2id, const OksEngine::WorldPosition3D* worldPosition3D2,
 				const OksEngine::WorldRotation3D* worldRotation3D2, const OksEngine::WorldScale3D* worldScale3D2,
@@ -145,11 +180,11 @@ namespace OksEngine
 
 				const glm::vec3 translate{ worldPosition3D2->x_, worldPosition3D2->y_, worldPosition3D2->z_ };
 				const glm::quat rotation{ worldRotation3D2->w_, worldRotation3D2->x_, worldRotation3D2->y_, worldRotation3D2->z_ };
-
+				const glm::vec3 scale{ worldScale3D2->x_, worldScale3D2->y_, worldScale3D2->z_ };
 
 				const ECS2::ComponentsFilter filter = GetComponentsFilter(entity2id);
 
-				Geom::VertexCloud<Geom::Vertex3fnc> vertices;
+				Geom::VertexCloud<Geom::Vertex3fc> vertices;
 
 				if (filter.IsSet<Physics::ShapeGeometryData>()) {
 					const auto* shapeData = GetComponent<Physics::ShapeGeometryData>(entity2id);
@@ -170,10 +205,10 @@ namespace OksEngine
 						const glm::vec3 v1 = glm::vec3{ shapeVertex1.x_, shapeVertex1.y_, shapeVertex1.z_ };
 						const glm::vec3 v2 = glm::vec3{ shapeVertex2.x_, shapeVertex2.y_, shapeVertex2.z_ };
 
-						const glm::vec3 edge0 = v1 - v0;
-						const glm::vec3 edge1 = v2 - v0;
+						//const glm::vec3 edge0 = v1 - v0;
+						//const glm::vec3 edge1 = v2 - v0;
 
-						const glm::vec3 faceNormal = glm::cross(edge0, edge1);
+						//const glm::vec3 faceNormal = glm::cross(edge0, edge1);
 
 						const glm::vec3 scale{ worldScale3D2->x_, worldScale3D2->y_, worldScale3D2->z_ };
 
@@ -184,27 +219,27 @@ namespace OksEngine
 						vertices.Add(
 							{
 								Geom::Vector3f{ transformedV0.x,transformedV0.y, transformedV0.z },
-								Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },
+								/*Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },*/
 								Geom::Color3f{ 0.0, 1.0, 0.0 }
 							});
 
 						vertices.Add(
 							{
 								Geom::Vector3f{ transformedV1.x,transformedV1.y, transformedV1.z },
-								Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },
+								/*Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },*/
 								Geom::Color3f{ 0.0, 1.0, 0.0 }
 							});
 
 						vertices.Add(
 							{
 								Geom::Vector3f{ transformedV2.x,transformedV2.y, transformedV2.z },
-								Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },
+								/*Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },*/
 								Geom::Color3f{ 0.0, 1.0, 0.0 }
 							});
-						
+
 					}
 
-					render__Debug__VertexBuffer0->vertices_.Add(vertices.GetData(), vertices.GetVerticesNumber());
+					render__Debug__FlatShade__VertexBuffer0->vertices_.Add(vertices.GetData(), vertices.GetVerticesNumber());
 
 				}
 				else if (filter.IsSet<Physics::ShapeGeometryCapsule>()) {
@@ -221,12 +256,12 @@ namespace OksEngine
 						const glm::vec3 v1 = shapeVertex1.position;
 						const glm::vec3 v2 = shapeVertex2.position;
 
-						const glm::vec3 edge0 = v1 - v0;
-						const glm::vec3 edge1 = v2 - v0;
+						//const glm::vec3 edge0 = v1 - v0;
+						//const glm::vec3 edge1 = v2 - v0;
 
-						const glm::vec3 faceNormal = glm::cross(edge0, edge1);
+						//const glm::vec3 faceNormal = glm::cross(edge0, edge1);
 
-						const glm::vec3 scale{ worldScale3D2->x_, worldScale3D2->y_, worldScale3D2->z_ };
+
 
 						const glm::vec3 transformedV0 = translate + rotation * (scale * v0);
 						const glm::vec3 transformedV1 = translate + rotation * (scale * v1);
@@ -235,46 +270,166 @@ namespace OksEngine
 						vertices.Add(
 							{
 								Geom::Vector3f{ transformedV0.x,transformedV0.y, transformedV0.z },
-								Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },
+								/*Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },*/
 								Geom::Color3f{ 0.0, 1.0, 0.0 }
 							});
 
 						vertices.Add(
 							{
 								Geom::Vector3f{ transformedV1.x,transformedV1.y, transformedV1.z },
-								Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },
+								/*Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },*/
 								Geom::Color3f{ 0.0, 1.0, 0.0 }
 							});
 
 						vertices.Add(
 							{
 								Geom::Vector3f{ transformedV2.x,transformedV2.y, transformedV2.z },
-								Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },
+								/*Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },*/
 								Geom::Color3f{ 0.0, 1.0, 0.0 }
 							});
 
 					}
 
-					render__Debug__VertexBuffer0->vertices_.Add(vertices.GetData(), vertices.GetVerticesNumber());
+					render__Debug__FlatShade__VertexBuffer0->vertices_.Add(vertices.GetData(), vertices.GetVerticesNumber());
 
 				}
+				else if (filter.IsSet<Physics::ShapeGeometryBox>()) {
 
+
+					const auto* shapeData = GetComponent<Physics::ShapeGeometryBox>(entity2id);
+
+					float halfW = shapeData->lenght_ * 0.5f;
+					float halfH = shapeData->height_ * 0.5f;
+					float halfD = shapeData->width_ * 0.5f;
+
+					// 8 уникальных вершин куба
+					Geom::Vertex3fc uniqueVertices[8] = {
+						// Передняя грань
+						{ Geom::Vertex3f(-halfW, -halfH,  halfD), Geom::Color3f{ 0.0, 1.0, 0.0 }},// 0: лево-низ-перед
+						{Geom::Vertex3f(halfW, -halfH,  halfD), Geom::Color3f{ 0.0, 1.0, 0.0 } }, // 1: право-низ-перед
+						{Geom::Vertex3f(halfW,  halfH,  halfD), Geom::Color3f{ 0.0, 1.0, 0.0 } },// 2: право-верх-перед
+						{Geom::Vertex3f(-halfW,  halfH,  halfD),Geom::Color3f{ 0.0, 1.0, 0.0 } }, // 3: лево-верх-перед
+
+						// Задняя грань
+						{Geom::Vertex3f(-halfW, -halfH, -halfD),Geom::Color3f{ 0.0, 1.0, 0.0 } }, // 4: лево-низ-зад
+						{Geom::Vertex3f(halfW, -halfH, -halfD), Geom::Color3f{ 0.0, 1.0, 0.0 } },// 5: право-низ-зад
+						{Geom::Vertex3f(halfW,  halfH, -halfD), Geom::Color3f{ 0.0, 1.0, 0.0 } },// 6: право-верх-зад
+						{Geom::Vertex3f(-halfW,  halfH, -halfD), Geom::Color3f{ 0.0, 1.0, 0.0 } } // 7: лево-верх-зад
+					};
+
+					// 12 треугольников (2 на каждую грань) напрямую как вершины
+					Geom::VertexCloud<Geom::Vertex3fc> result;
+
+					Geom::Vertex3fc boxVertices[] = {
+						// Передняя грань (2 треугольника)
+						{ uniqueVertices[0] }, { uniqueVertices[1] }, { uniqueVertices[2] }, // Треугольник 1
+						{ uniqueVertices[2] }, { uniqueVertices[3] }, { uniqueVertices[0] }, // Треугольник 2
+
+						// Правая грань
+					{ uniqueVertices[1] }, { uniqueVertices[5] }, { uniqueVertices[6] },
+					{ uniqueVertices[6] }, { uniqueVertices[2] }, { uniqueVertices[1] },
+
+					// Задняя грань
+				{ uniqueVertices[5] }, { uniqueVertices[4] }, { uniqueVertices[7] },
+				{ uniqueVertices[7] }, { uniqueVertices[6] }, { uniqueVertices[5] },
+
+				// Левая грань
+			{ uniqueVertices[4] }, { uniqueVertices[0] }, { uniqueVertices[3] },
+			{ uniqueVertices[3] }, { uniqueVertices[7] }, { uniqueVertices[4] },
+
+			// Верхняя грань
+		{ uniqueVertices[3] }, { uniqueVertices[2] }, { uniqueVertices[6] },
+		{ uniqueVertices[6] }, { uniqueVertices[7] }, { uniqueVertices[3] },
+
+		// Нижняя грань
+	{ uniqueVertices[0] }, { uniqueVertices[4] }, { uniqueVertices[5] },
+	{ uniqueVertices[5] }, { uniqueVertices[1] }, { uniqueVertices[0] }
+					};
+
+					for (Common::Index i = 0; i < 36; i++) {
+						glm::vec3 position = glm::vec3{ boxVertices[i].position_.GetX(),  boxVertices[i].position_.GetY(), boxVertices[i].position_.GetZ() };
+						const glm::vec3 transformedV0 = translate + rotation * (scale * position);
+						boxVertices[i].position_.GetX() = transformedV0.x;
+						boxVertices[i].position_.GetY() = transformedV0.y;
+						boxVertices[i].position_.GetZ() = transformedV0.z;
+					}
+
+					result.Add(boxVertices, 36);
+
+
+
+					render__Debug__FlatShade__VertexBuffer0->vertices_.Add(result.GetData(), result.GetVerticesNumber());
+
+				}
+				else if (filter.IsSet<Physics::ShapeGeometryCylinder>()) {
+					const auto* shapeData = GetComponent<Physics::ShapeGeometryCylinder>(entity2id);
+					float numSides = 16;
+					AI_GENERATED
+						std::vector<glm::vec3> cylinderVertices;
+					cylinderVertices.reserve(numSides * 12);
+
+					float halfHeight = shapeData->height_ * 0.5f;
+
+					// Боковая поверхность
+					for (int i = 0; i < numSides; ++i) {
+						float a1 = 2.0f * glm::pi<float>() * i / numSides;
+						float a2 = 2.0f * glm::pi<float>() * (i + 1) / numSides;
+
+						glm::vec3 v0(shapeData->radius_ * cos(a1), -halfHeight, shapeData->radius_ * sin(a1));
+						glm::vec3 v1(shapeData->radius_ * cos(a2), -halfHeight, shapeData->radius_ * sin(a2));
+						glm::vec3 v2(shapeData->radius_ * cos(a2), halfHeight, shapeData->radius_ * sin(a2));
+						glm::vec3 v3(shapeData->radius_ * cos(a1), halfHeight, shapeData->radius_ * sin(a1));
+
+						// Два треугольника на сегмент
+						cylinderVertices.push_back(v2);
+
+						cylinderVertices.push_back(v1);
+						cylinderVertices.push_back(v0);
+
+						cylinderVertices.push_back(v0);
+						cylinderVertices.push_back(v3);
+						cylinderVertices.push_back(v2);
+					}
+
+					// Верхняя крышка
+					glm::vec3 topCenter(0.0f, halfHeight, 0.0f);
+					for (int i = 0; i < numSides; ++i) {
+						float a1 = 2.0f * glm::pi<float>() * i / numSides;
+						float a2 = 2.0f * glm::pi<float>() * (i + 1) / numSides;
+
+						cylinderVertices.push_back(glm::vec3(shapeData->radius_ * cos(a2), halfHeight, shapeData->radius_ * sin(a2)));
+						cylinderVertices.push_back(glm::vec3(shapeData->radius_ * cos(a1), halfHeight, shapeData->radius_ * sin(a1)));
+
+						cylinderVertices.push_back(topCenter);
+					}
+
+					// Нижняя крышка
+					glm::vec3 bottomCenter(0.0f, -halfHeight, 0.0f);
+					for (int i = 0; i < numSides; ++i) {
+						float a1 = 2.0f * glm::pi<float>() * i / numSides;
+						float a2 = 2.0f * glm::pi<float>() * (i + 1) / numSides;
+
+						cylinderVertices.push_back(glm::vec3(shapeData->radius_ * cos(a1), -halfHeight, shapeData->radius_ * sin(a1)));
+						cylinderVertices.push_back(glm::vec3(shapeData->radius_ * cos(a2), -halfHeight, shapeData->radius_ * sin(a2)));
+						cylinderVertices.push_back(bottomCenter);
+					}
+
+					for (Common::Index i = 0; i < cylinderVertices.size(); i++) {
+						glm::vec3 position = glm::vec3{ cylinderVertices[i].x,  cylinderVertices[i].y, cylinderVertices[i].z };
+						const glm::vec3 transformedV0 = translate + rotation * (scale * position);
+
+						render__Debug__FlatShade__VertexBuffer0->vertices_.Add(Geom::Vertex3fc{ {transformedV0.x, transformedV0.y, transformedV0.z}, Geom::Color3f{ 0.0, 1.0, 0.0 } });
+
+					}
+				}
 			};
 
-		}
-
-	} // namespace Physics
-
-	namespace Physics
-	{
-		namespace Debug
-		{
 			void AddToRenderStaticRigidBodyShape::Update(ECS2::Entity::Id entity0id, const OksEngine::Physics::Debug::Debugger* debugger0,
 				const OksEngine::Physics::Debug::EnableDebugRender* enableDebugRender0,
 				const OksEngine::Physics::Debug::CommonParameters* commonParameters0,
 				const OksEngine::Physics::Debug::ConstraintsParameters* constraintsParameters0,
 				ECS2::Entity::Id entity1id, const OksEngine::Render::Debug::Debugger* render__Debug__Debugger1,
-				OksEngine::Render::Debug::VertexBuffer* render__Debug__VertexBuffer1, ECS2::Entity::Id entity2id,
+				OksEngine::Render::Debug::FlatShade::VertexBuffer* render__Debug__VertexBuffer1, ECS2::Entity::Id entity2id,
 				const OksEngine::WorldPosition3D* worldPosition3D2, const OksEngine::WorldRotation3D* worldRotation3D2,
 				const OksEngine::WorldScale3D* worldScale3D2,
 				const OksEngine::Physics::StaticRigidBody* staticRigidBody2,
@@ -288,7 +443,7 @@ namespace OksEngine
 
 				const ECS2::ComponentsFilter filter = GetComponentsFilter(entity2id);
 
-				Geom::VertexCloud<Geom::Vertex3fnc> vertices;
+				Geom::VertexCloud<Geom::Vertex3fc> vertices;
 
 				if (filter.IsSet<Physics::ShapeGeometryData>()) {
 					const auto* shapeData = GetComponent<Physics::ShapeGeometryData>(entity2id);
@@ -309,10 +464,10 @@ namespace OksEngine
 						const glm::vec3 v1 = glm::vec3{ shapeVertex1.x_, shapeVertex1.y_, shapeVertex1.z_ };
 						const glm::vec3 v2 = glm::vec3{ shapeVertex2.x_, shapeVertex2.y_, shapeVertex2.z_ };
 
-						const glm::vec3 edge0 = v1 - v0;
-						const glm::vec3 edge1 = v2 - v0;
+						//const glm::vec3 edge0 = v1 - v0;
+						//const glm::vec3 edge1 = v2 - v0;
 
-						const glm::vec3 faceNormal = glm::cross(edge0, edge1);
+						//const glm::vec3 faceNormal = glm::cross(edge0, edge1);
 
 						const glm::vec3 scale{ worldScale3D2->x_, worldScale3D2->y_, worldScale3D2->z_ };
 
@@ -323,22 +478,22 @@ namespace OksEngine
 						vertices.Add(
 							{
 								Geom::Vector3f{ transformedV0.x,transformedV0.y, transformedV0.z },
-								Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },
-								Geom::Color3f{ 0.0, 1.0, 0.0 }
+								/*Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },*/
+								Geom::Color3f{ 0.5, 0.5, 0.5 }
 							});
 
 						vertices.Add(
 							{
 								Geom::Vector3f{ transformedV1.x,transformedV1.y, transformedV1.z },
-								Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },
-								Geom::Color3f{ 0.0, 1.0, 0.0 }
+								/*Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },*/
+								Geom::Color3f{ 0.5, 0.5, 0.5 }
 							});
 
 						vertices.Add(
 							{
 								Geom::Vector3f{ transformedV2.x,transformedV2.y, transformedV2.z },
-								Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },
-								Geom::Color3f{ 0.0, 1.0, 0.0 }
+								/*Geom::Normal3f{ faceNormal.x, faceNormal.y, faceNormal.z },*/
+								Geom::Color3f{ 0.5, 0.5, 0.5 }
 							});
 
 					}
@@ -349,6 +504,59 @@ namespace OksEngine
 
 
 			};
+
+			void AddToRenderRevoluteConstraint::Update(ECS2::Entity::Id entity0id, const OksEngine::Physics::Debug::Debugger* debugger0,
+				const OksEngine::Physics::Debug::EnableDebugRender* enableDebugRender0,
+				const OksEngine::Physics::Debug::CommonParameters* commonParameters0,
+				const OksEngine::Physics::Debug::ContactPointsParameters* contactPointsParameters0,
+				const OksEngine::Physics::Debug::ConstraintsParameters* constraintsParameters0, ECS2::Entity::Id entity1id,
+				const OksEngine::Render::Debug::Debugger* render__Debug__Debugger1,
+				OksEngine::Render::Debug::Lines::VertexBuffer* render__Debug__Lines__VertexBuffer1, ECS2::Entity::Id entity2id,
+				const OksEngine::Physics::Constraint* constraint2, const OksEngine::Physics::ConstraintId* constraintId2,
+				const OksEngine::Physics::RevoluteConstraint* revoluteConstraint2,
+				const OksEngine::Physics::RevoluteAxis* revoluteAxis2,
+				const OksEngine::Physics::FirstConstraintedRigidBodyEntityId* firstConstraintedRigidBodyEntityId2,
+				const OksEngine::Physics::SecondConstraintedRigidBodyEntityId* secondConstraintedRigidBodyEntityId2,
+				const OksEngine::Physics::FirstConstraintedRigidBodyJointPosition3D* firstConstraintedRigidBodyJointPosition3D2,
+				const OksEngine::Physics::FirstConstraintedRigidBodyJointRotation3D* firstConstraintedRigidBodyJointRotation3D2,
+				const OksEngine::Physics::SecondConstraintedRigidBodyJointPosition3D
+				* secondConstraintedRigidBodyJointPosition3D2,
+				const OksEngine::Physics::SecondConstraintedRigidBodyJointRotation3D
+				* secondConstraintedRigidBodyJointRotation3D2) {
+
+				const ECS2::ComponentsFilter firstRBFilter = GetComponentsFilter(firstConstraintedRigidBodyEntityId2->id_);
+				const ECS2::ComponentsFilter secondRBFilter = GetComponentsFilter(secondConstraintedRigidBodyEntityId2->id_);
+
+				if (!firstRBFilter.IsSet<RigidBodyId>() || !secondRBFilter.IsSet<RigidBodyId>()) {
+					return;
+				}
+
+				//auto& firstRB
+
+
+			};
+
+			void RenderPhysXDebugRenderBuffer::Update(ECS2::Entity::Id entity0id, const OksEngine::Physics::World* world0, ECS2::Entity::Id entity1id,
+				const OksEngine::Render::Debug::Debugger* render__Debug__Debugger1,
+				OksEngine::Render::Debug::FlatShade::VertexBuffer* render__Debug__FlatShade__VertexBuffer1,
+				OksEngine::Render::Debug::Lines::VertexBuffer* render__Debug__Lines__VertexBuffer1,
+				ECS2::Entity::Id entity2id, const OksEngine::Physics::Debug::Debugger* debugger2,
+				const OksEngine::Physics::Debug::EnableDebugRender* enableDebugRender2,
+				const OksEngine::Physics::Debug::CommonParameters* commonParameters2,
+				const OksEngine::Physics::Debug::ContactPointsParameters* contactPointsParameters2,
+				const OksEngine::Physics::Debug::ConstraintsParameters* constraintsParameters2) {
+
+				auto bufferLines = world0->world_->GetDebugRenderBufferLines();
+				if (bufferLines.GetVerticesNumber() > 0) {
+					render__Debug__Lines__VertexBuffer1->vertices_.Add(bufferLines.GetData(), bufferLines.GetVerticesNumber());
+				}
+
+				auto buffer = world0->world_->GetDebugRenderBufferTriangles();
+				if (buffer.GetVerticesNumber() > 0) {
+					render__Debug__FlatShade__VertexBuffer1->vertices_.Add(buffer.GetData(), buffer.GetVerticesNumber());
+				}
+			}
+
 
 		}
 

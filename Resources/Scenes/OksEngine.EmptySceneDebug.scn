@@ -348,7 +348,7 @@ scene = {
                         value = 1.0
                   },
                   linearDamping = {
-                        value = 1.0
+                        value = 1000.0
                   },
                   shapeGeometryBox = {
                        lenght = 2,
@@ -398,7 +398,7 @@ scene = {
                   firstConstraintedRigidBodyJointPosition3D = {
                         x = 1.0,
                         y = 0.1,
-                        z = 2.0,
+                        z = 0.5,
                         w = 0.0
                   },
                   firstConstraintedRigidBodyJointRotation3D = {

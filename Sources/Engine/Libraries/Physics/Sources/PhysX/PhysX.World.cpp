@@ -20,10 +20,10 @@ namespace PhysX {
 		physx::PxDefaultCpuDispatcher* dispatcher = physx::PxDefaultCpuDispatcherCreate(2);
 		sceneDescription.cpuDispatcher = dispatcher;
 		sceneDescription.filterShader = physx::PxDefaultSimulationFilterShader;
+		
 
 		physx::PxScene* scene = pxCreateInfo.physics_->createScene(sceneDescription);
-		scene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LOCAL_FRAMES, 1.0f);
-		scene->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, 1.0f);
+		scene->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, 1.0);
 		OS::Assert(scene != nullptr);
 		scene_ = scene;
 		physx::PxPvdSceneClient* pvdClient = scene->getScenePvdClient();
@@ -33,8 +33,55 @@ namespace PhysX {
 			pvdClient->setScenePvdFlag(physx::PxPvdSceneFlag::eTRANSMIT_SCENEQUERIES, true);
 		}
 
+		
+
 		controllerManager_ = PxCreateControllerManager(*scene);
 		ASSERT(controllerManager_ != nullptr);
+	}
+
+	void World::SetDebugRenderParameters(DebugRenderParameters parameter, bool value) noexcept  {
+		if (parameter == DebugRenderParameters::eCOLLISION_FNORMALS) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_FNORMALS, (value)?(1.0):(0.0));
+		}
+		else if (parameter == DebugRenderParameters::eENABLE) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eSCALE, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eCOLLISION_AABBS) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_AABBS, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eCOLLISION_EDGES) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_EDGES, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eBODY_AXES) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eBODY_AXES, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eACTOR_AXES) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eACTOR_AXES, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eWORLD_AXES) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eWORLD_AXES, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eCOLLISION_STATIC) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_STATIC, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eCOLLISION_DYNAMIC) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eCOLLISION_DYNAMIC, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eCONTACT_POINT) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eCONTACT_POINT, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eCONTACT_NORMAL) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eCONTACT_NORMAL, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eJOINT_LOCAL_FRAMES) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LOCAL_FRAMES, (value) ? (1.0) : (0.0));
+		}
+		else if (parameter == DebugRenderParameters::eJOINT_LIMITS) {
+			scene_->setVisualizationParameter(physx::PxVisualizationParameter::eJOINT_LIMITS, (value) ? (1.0) : (0.0));
+		}
+		else {
+			NOT_IMPLEMENTED();
+		}
 	}
 
 	PAL::DynamicRigidBody::Id World::CreateDynamicRigidBody(const PAL::DynamicRigidBody::CreateInfo& drbCreateInfo)

@@ -43,22 +43,6 @@ namespace OksEngine
 		};
 		shaderBindings.push_back(cameraBinding);
 
-		//RAL::Driver::Shader::Binding::Layout transformBinding{
-		//	.binding_ = 0,
-		//	.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
-		//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
-		//};
-
-		//RAL::Driver::Shader::Binding::Layout samplerBinding{
-		//	.binding_ = 0,
-		//	.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-		//	.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-		//};
-
-		//shaderBindings.push_back(transformBinding);
-		//shaderBindings.push_back(samplerBinding);
-
-
 		auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
 		{
 			multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;

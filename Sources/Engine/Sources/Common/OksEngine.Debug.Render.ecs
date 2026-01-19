@@ -308,7 +308,7 @@ CreateDebugTextPipelineSystem = {
 
 BeginDebugTextRenderPassSystem = {
     callOrder = {
-        runAfter = { "StartRender" },
+        runAfter = { "StartRender", "EndRenderPass" },
         runBefore = { "DrawDebugText2D" }
     },
     updateMethod = {
