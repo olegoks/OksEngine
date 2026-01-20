@@ -686,7 +686,7 @@ namespace OksEngine
 							secondConstraintedRigidBodyJointPosition3D2->z_ };
 
 					auto* requests = GetComponent<SetAngularVelocityRequests>(secondConstraintedRigidBodyEntityId2->id_);
-					//requests->requests_.push_back({ glm::vec3{ 1.0, 0.0, 0.0 }, 50.0 });
+					requests->requests_.push_back({ glm::vec3{ 1.0, 0.0, 0.0 }, -50.0 });
 					//Axis start
 					render__Debug__Lines__VertexBuffer1->vertices_.Add(
 						{
