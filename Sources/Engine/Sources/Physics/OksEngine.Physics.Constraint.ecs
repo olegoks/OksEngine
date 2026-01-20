@@ -57,10 +57,28 @@ PhysicsNamespace = {
     },
 
     FirstConstraintedRigidBodyJointPosition3DComponent = "LocalPosition3D";
-    FirstConstraintedRigidBodyJointRotation3DComponent = "LocalRotation3D";
+    FirstConstraintedRigidBodyJointRotation3DComponent = {
+    manualParseFunction = true,
+    manualEditFunction = true,
+    fields = { 
+        { type = "float", name = "w" },
+        { type = "float", name = "x" },
+        { type = "float", name = "y" },
+        { type = "float", name = "z" }
+    }
+},
 
     SecondConstraintedRigidBodyJointPosition3DComponent = "LocalPosition3D";
-    SecondConstraintedRigidBodyJointRotation3DComponent = "LocalRotation3D";
+    SecondConstraintedRigidBodyJointRotation3DComponent = {
+        manualParseFunction = true,
+        manualEditFunction = true,
+        fields = { 
+            { type = "float", name = "w" },
+            { type = "float", name = "x" },
+            { type = "float", name = "y" },
+            { type = "float", name = "z" }
+        }
+    },
 
     ConstraintedRigidBodyJointComponent = {
         description = "Rigid bodies entity ids that constrained by this constraint.",

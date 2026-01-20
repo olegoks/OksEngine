@@ -5,6 +5,7 @@ PhysicsNamespace = {
         EnableDebugRenderComponent = { },
         CommonParametersComponent = {
             fields = {
+                { type = "bool", name = "oneFrameSimulateMode" },
                 { type = "bool", name = "enablePhysXDebugRenderBuffer" },
                 { type = "bool", name = "drawNormals" },
                 { type = "bool", name = "drawAABB" },
@@ -202,7 +203,8 @@ PhysicsNamespace = {
                             --TODO: add another shape data
                             "WorldPosition3D",
                             "WorldRotation3D",
-                            "WorldScale3D"
+                            "WorldScale3D",
+                            "SetAngularVelocityRequests"
                         }
                     }
                 }

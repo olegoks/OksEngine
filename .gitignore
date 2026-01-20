@@ -78,3 +78,9 @@ Resources/Models/animatedHero/animatedHero.geom
 Resources/Models/animatedHero/animatedHero.fbx
 .vs/slnx.sqlite
 .vs/slnx.sqlite-journal
+*.glb
+*.mtl
+Resources/Models/Truck/error_hull_show
+*.blend
+*.obj
+*.blend1

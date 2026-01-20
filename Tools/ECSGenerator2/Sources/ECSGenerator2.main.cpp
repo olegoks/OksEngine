@@ -507,7 +507,7 @@ int main(int argc, char** argv) {
 	{
 		for (auto parsedECSFile : parsedECSFiles) {
 
-			if (parsedECSFile->GetName() == "OksEngine.Behaviour") {
+			if (parsedECSFile->GetName() == "OksEngine.Rotation3D") {
 				Common::BreakPointLine();
 			}
 
@@ -528,6 +528,9 @@ int main(int argc, char** argv) {
 
 				parsedECSFile->ForEachComponent([&](ECSGenerator2::ParsedComponentPtr parsedComponent) {
 
+					if (needToRealizeHelpFunctions) {
+						return false;
+					}
 					needToRealizeHelpFunctions = parsedComponent->IsNeedToImplementHelpFunction();
 					if (needToRealizeHelpFunctions) {
 						return false;

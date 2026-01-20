@@ -8,6 +8,8 @@ Rotation3DComponent = {
 }
 
 WorldRotation3DComponent = {
+    manualParseFunction = true,
+    manualEditFunction = true,
     fields = { 
         { type = "float", name = "w" },
         { type = "float", name = "x" },

@@ -89,7 +89,7 @@ namespace OksEngine
 								CreateComponent<CommonParameters>(debuggerEntityId,
 									false, false, false,
 									false, false, false,
-									false, false, false);
+									false, false, false, false);
 								CreateComponent<ContactPointsParameters>(debuggerEntityId,
 									false,
 									false);
@@ -164,6 +164,19 @@ namespace OksEngine
 			const ECS2::ComponentsFilter engineFilter = GetComponentsFilter(entity1id);
 
 			ImGui::SeparatorText("Common:");
+
+
+			ImGui::Checkbox("One frame simulation mode", &commonParameters2->oneFrameSimulateMode_);
+			if (commonParameters2->oneFrameSimulateMode_) {
+				if (ImGui::Button("One step")) {
+					if (!engineFilter.IsSet<EnableSimulation>()) {
+						CreateComponent<EnableSimulation>(entity1id);
+					}
+				}
+				if (engineFilter.IsSet<EnableSimulation>()) {
+					RemoveComponent<EnableSimulation>(entity1id);
+				}
+			}
 
 			if (engineFilter.IsSet<EnableSimulation>()) {
 				if (ImGui::Button("Disable simulation")) {

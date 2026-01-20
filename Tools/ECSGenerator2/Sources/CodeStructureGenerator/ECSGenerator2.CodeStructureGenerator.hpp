@@ -458,7 +458,7 @@ namespace ECSGenerator2 {
 			const std::filesystem::path& includeDirectory,
 			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
 
-			if (parsedECSFile->GetName() == "OksEngine.Behaviour") {
+			if (parsedECSFile->GetName() == "OksEngine.Rotation3D") {
 				Common::BreakPointLine();
 			}
 			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");

@@ -531,6 +531,12 @@ PhysicsNamespace = {
             processesEntities = {
                 {
                     processesComponents = {
+                    "Engine",
+                    "EnableSimulation"
+                    }
+                },
+                {
+                    processesComponents = {
                         "World"
                     }
                 },

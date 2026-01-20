@@ -788,23 +788,25 @@ namespace OksEngine
 
 		};
 
-		void UpdateDynamicRigidBodyTransform::Update(ECS2::Entity::Id entity0id, const Physics::World* world0, ECS2::Entity::Id entity1id,
-			WorldPosition3D* worldPosition3D1, WorldRotation3D* worldRotation3D1,
-			const Physics::RigidBodyId* dynamicRigidBodyId1) {
+		void UpdateDynamicRigidBodyTransform::Update(ECS2::Entity::Id entity0id, const OksEngine::Physics::Engine* engine0,
+			const OksEngine::Physics::EnableSimulation* enableSimulation0, ECS2::Entity::Id entity1id,
+			const OksEngine::Physics::World* world1, ECS2::Entity::Id entity2id,
+			OksEngine::WorldPosition3D* worldPosition3D2, OksEngine::WorldRotation3D* worldRotation3D2,
+			const OksEngine::Physics::RigidBodyId* rigidBodyId2) {
 
-			Math::Vector3f position = world0->world_->GetRigidBodyPosition(dynamicRigidBodyId1->id_);
+			Math::Vector3f position = world1->world_->GetRigidBodyPosition(rigidBodyId2->id_);
 
-			worldPosition3D1->x_ = position.GetX();
-			worldPosition3D1->y_ = position.GetY();
-			worldPosition3D1->z_ = position.GetZ();
+			worldPosition3D2->x_ = position.GetX();
+			worldPosition3D2->y_ = position.GetY();
+			worldPosition3D2->z_ = position.GetZ();
 
 			//Move to separate system or rename this function
-			glm::quat rotation = world0->world_->GetRigidBodyRotation(dynamicRigidBodyId1->id_);
+			glm::quat rotation = world1->world_->GetRigidBodyRotation(rigidBodyId2->id_);
 
-			worldRotation3D1->w_ = rotation.w;
-			worldRotation3D1->x_ = rotation.x;
-			worldRotation3D1->y_ = rotation.y;
-			worldRotation3D1->z_ = rotation.z;
+			worldRotation3D2->w_ = rotation.w;
+			worldRotation3D2->x_ = rotation.x;
+			worldRotation3D2->y_ = rotation.y;
+			worldRotation3D2->z_ = rotation.z;
 
 		}
 

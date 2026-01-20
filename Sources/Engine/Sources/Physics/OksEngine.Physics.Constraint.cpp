@@ -1,11 +1,127 @@
 #pragma once
 #include <Physics\auto_OksEngine.Physics.Constraint.hpp>
 
+#define GLM_ENABLE_EXPERIMENTAL
 namespace OksEngine
 {
 
 	namespace Physics
 	{
+
+		FirstConstraintedRigidBodyJointRotation3D ParseFirstConstraintedRigidBodyJointRotation3D(
+			luabridge::LuaRef& firstConstraintedRigidBodyJointRotation3DRef) {
+
+
+
+			FirstConstraintedRigidBodyJointRotation3D worldRotation3D;
+
+			if (
+				!firstConstraintedRigidBodyJointRotation3DRef["w"].isNil() &&
+				!firstConstraintedRigidBodyJointRotation3DRef["x"].isNil() &&
+				!firstConstraintedRigidBodyJointRotation3DRef["y"].isNil() &&
+				!firstConstraintedRigidBodyJointRotation3DRef["z"].isNil()) {
+				worldRotation3D.w_ = firstConstraintedRigidBodyJointRotation3DRef["w"].cast<float>().value();
+				worldRotation3D.x_ = firstConstraintedRigidBodyJointRotation3DRef["x"].cast<float>().value();
+				worldRotation3D.y_ = firstConstraintedRigidBodyJointRotation3DRef["y"].cast<float>().value();
+				worldRotation3D.z_ = firstConstraintedRigidBodyJointRotation3DRef["z"].cast<float>().value();
+			}
+			else if (!firstConstraintedRigidBodyJointRotation3DRef["aroundX"].isNil() &&
+				!firstConstraintedRigidBodyJointRotation3DRef["aroundY"].isNil() &&
+				!firstConstraintedRigidBodyJointRotation3DRef["aroundZ"].isNil()) {
+
+
+				float xRad = glm::radians(firstConstraintedRigidBodyJointRotation3DRef["aroundX"].cast<float>().value());
+				float yRad = glm::radians(firstConstraintedRigidBodyJointRotation3DRef["aroundY"].cast<float>().value());
+				float zRad = glm::radians(firstConstraintedRigidBodyJointRotation3DRef["aroundZ"].cast<float>().value());
+
+				// Создаем отдельные кватернионы для каждой оси
+				glm::quat qx = glm::angleAxis(xRad, glm::vec3(1.0f, 0.0f, 0.0f));
+				glm::quat qy = glm::angleAxis(yRad, glm::vec3(0.0f, 1.0f, 0.0f));
+				glm::quat qz = glm::angleAxis(zRad, glm::vec3(0.0f, 0.0f, 1.0f));
+
+				glm::quat result = qz * qy * qx;
+
+				worldRotation3D.w_ = result.w;
+				worldRotation3D.x_ = result.x;
+				worldRotation3D.y_ = result.y;
+				worldRotation3D.z_ = result.z;
+
+			}
+
+			return worldRotation3D;
+
+		}
+
+		void EditSecondConstraintedRigidBodyJointRotation3D(
+			std::shared_ptr<ECS2::World> ecsWorld,
+			SecondConstraintedRigidBodyJointRotation3D* secondConstraintedRigidBodyJointRotation3D) {
+
+			ImGui::PushID(SecondConstraintedRigidBodyJointRotation3D::GetTypeId());
+			ImGui::InputScalar("w", ImGuiDataType_Float, &secondConstraintedRigidBodyJointRotation3D->w_);
+			ImGui::InputScalar("x", ImGuiDataType_Float, &secondConstraintedRigidBodyJointRotation3D->x_);
+			ImGui::InputScalar("y", ImGuiDataType_Float, &secondConstraintedRigidBodyJointRotation3D->y_);
+			ImGui::InputScalar("z", ImGuiDataType_Float, &secondConstraintedRigidBodyJointRotation3D->z_);
+
+			ImGui::PopID();
+
+		}
+
+		void EditFirstConstraintedRigidBodyJointRotation3D(
+			std::shared_ptr<ECS2::World> ecsWorld,
+			FirstConstraintedRigidBodyJointRotation3D* firstConstraintedRigidBodyJointRotation3D) {
+
+			ImGui::PushID(FirstConstraintedRigidBodyJointRotation3D::GetTypeId());
+			ImGui::InputScalar("w", ImGuiDataType_Float, &firstConstraintedRigidBodyJointRotation3D->w_);
+			ImGui::InputScalar("x", ImGuiDataType_Float, &firstConstraintedRigidBodyJointRotation3D->x_);
+			ImGui::InputScalar("y", ImGuiDataType_Float, &firstConstraintedRigidBodyJointRotation3D->y_);
+			ImGui::InputScalar("z", ImGuiDataType_Float, &firstConstraintedRigidBodyJointRotation3D->z_);
+
+			ImGui::PopID();
+
+		}
+
+		SecondConstraintedRigidBodyJointRotation3D ParseSecondConstraintedRigidBodyJointRotation3D(
+			luabridge::LuaRef& secondConstraintedRigidBodyJointRotation3DRef) {
+
+
+			SecondConstraintedRigidBodyJointRotation3D worldRotation3D;
+
+			if (
+				!secondConstraintedRigidBodyJointRotation3DRef["w"].isNil() &&
+				!secondConstraintedRigidBodyJointRotation3DRef["x"].isNil() &&
+				!secondConstraintedRigidBodyJointRotation3DRef["y"].isNil() &&
+				!secondConstraintedRigidBodyJointRotation3DRef["z"].isNil()) {
+				worldRotation3D.w_ = secondConstraintedRigidBodyJointRotation3DRef["w"].cast<float>().value();
+				worldRotation3D.x_ = secondConstraintedRigidBodyJointRotation3DRef["x"].cast<float>().value();
+				worldRotation3D.y_ = secondConstraintedRigidBodyJointRotation3DRef["y"].cast<float>().value();
+				worldRotation3D.z_ = secondConstraintedRigidBodyJointRotation3DRef["z"].cast<float>().value();
+			}
+			else if (!secondConstraintedRigidBodyJointRotation3DRef["aroundX"].isNil() &&
+				!secondConstraintedRigidBodyJointRotation3DRef["aroundY"].isNil() &&
+				!secondConstraintedRigidBodyJointRotation3DRef["aroundZ"].isNil()) {
+
+
+				float xRad = glm::radians(secondConstraintedRigidBodyJointRotation3DRef["aroundX"].cast<float>().value());
+				float yRad = glm::radians(secondConstraintedRigidBodyJointRotation3DRef["aroundY"].cast<float>().value());
+				float zRad = glm::radians(secondConstraintedRigidBodyJointRotation3DRef["aroundZ"].cast<float>().value());
+
+				// Создаем отдельные кватернионы для каждой оси
+				glm::quat qx = glm::angleAxis(xRad, glm::vec3(1.0f, 0.0f, 0.0f));
+				glm::quat qy = glm::angleAxis(yRad, glm::vec3(0.0f, 1.0f, 0.0f));
+				glm::quat qz = glm::angleAxis(zRad, glm::vec3(0.0f, 0.0f, 1.0f));
+
+				glm::quat result = qz * qy * qx;
+
+				worldRotation3D.w_ = result.w;
+				worldRotation3D.x_ = result.x;
+				worldRotation3D.y_ = result.y;
+				worldRotation3D.z_ = result.z;
+
+			}
+
+			return worldRotation3D;
+
+		}
 
 		void EditConstraintEntityIds(std::shared_ptr<ECS2::World> ecsWorld, ConstraintEntityIds* constraintEntityIds) {
 			NOT_IMPLEMENTED();

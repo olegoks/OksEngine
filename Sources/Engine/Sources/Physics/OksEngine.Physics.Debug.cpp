@@ -531,6 +531,136 @@ namespace OksEngine
 					return;
 				}
 
+				{
+					glm::vec3 xAxis{ 3.0, 0.0, 0.0 };
+					glm::vec3 yAxis{ 0.0, 3.0, 0.0 };
+					glm::vec3 zAxis{ 0.0, 0.0, 3.0 };
+
+					Geom::VertexCloud<Geom::Vertex3fc> lines;
+
+					auto firstRBPosition3D = GetComponent<WorldPosition3D>(firstConstraintedRigidBodyEntityId2->id_);
+					auto firstRBRotation3D = GetComponent<WorldRotation3D>(firstConstraintedRigidBodyEntityId2->id_);
+
+					glm::vec3 worldPosition{ firstRBPosition3D->x_, firstRBPosition3D->y_, firstRBPosition3D->z_ };
+					glm::quat worldRotation{ firstRBRotation3D->w_, firstRBRotation3D->x_, firstRBRotation3D->y_, firstRBRotation3D->z_};
+
+					{
+						glm::vec3 start = worldPosition;
+						glm::vec3 endX = worldPosition + (worldRotation * xAxis);
+
+						lines.Add(Geom::Vertex3fc{
+							{ start.x, start.y, start.z },
+							Geom::Color3f{ 1.0, 0.0, 0.0 }
+							});
+
+						lines.Add(Geom::Vertex3fc{
+							{ endX.x, endX.y, endX.z },
+							Geom::Color3f{ 1.0, 0.0, 0.0 }
+							});
+
+						glm::vec3 endY = worldPosition + (worldRotation * yAxis);
+
+						lines.Add(Geom::Vertex3fc{
+							{ start.x, start.y, start.z },
+							Geom::Color3f{ 0.0, 1.0, 0.0 }
+							});
+
+						lines.Add(Geom::Vertex3fc{
+							{ endY.x, endY.y, endY.z },
+							Geom::Color3f{ 0.0, 1.0, 0.0 }
+							});
+
+						glm::vec3 endZ = worldPosition + (worldRotation * zAxis);
+
+						lines.Add(Geom::Vertex3fc{
+							{ start.x, start.y, start.z },
+							Geom::Color3f{ 0.0, 1.0, 0.0 }
+							});
+
+						lines.Add(Geom::Vertex3fc{
+							{ endZ.x, endZ.y, endZ.z },
+							Geom::Color3f{ 0.0, 0.0, 1.0 }
+							});
+
+						render__Debug__Lines__VertexBuffer1->vertices_.Add(lines.GetData(), lines.GetVerticesNumber());
+					}
+
+					glm::quat localRotation{ 
+						firstConstraintedRigidBodyJointRotation3D2->w_,
+						firstConstraintedRigidBodyJointRotation3D2->x_,
+						firstConstraintedRigidBodyJointRotation3D2->y_,
+						firstConstraintedRigidBodyJointRotation3D2->z_ };
+
+					glm::quat rotation = worldRotation * localRotation;
+
+					glm::vec3 position = 
+						worldPosition + worldRotation * glm::vec3{
+						firstConstraintedRigidBodyJointPosition3D2->x_,
+						firstConstraintedRigidBodyJointPosition3D2->y_,
+						firstConstraintedRigidBodyJointPosition3D2->z_ };
+
+					
+
+
+					//Axis start
+					render__Debug__Lines__VertexBuffer1->vertices_.Add(
+						{
+							Geom::Vertex3f{ position.x, position.y, position.z},
+							Geom::Color3f{ 1.0, 0.0, 0.0 }
+						}
+					);
+
+					//Axis end
+					glm::vec3 axisEnd = position + (rotation * glm::vec3{ 1.0, 0.0, 0.0 });
+					render__Debug__Lines__VertexBuffer1->vertices_.Add(
+						{
+							Geom::Vertex3f{axisEnd.x, axisEnd.y, axisEnd.z},
+							Geom::Color3f{ 1.0, 1.0, 1.0 }
+						}
+					);
+				}
+				{
+					auto firstRBPosition3D = GetComponent<WorldPosition3D>(secondConstraintedRigidBodyEntityId2->id_);
+					auto firstRBRotation3D = GetComponent<WorldRotation3D>(secondConstraintedRigidBodyEntityId2->id_);
+
+					glm::quat worldRotation{ firstRBRotation3D->w_, firstRBRotation3D->x_, firstRBRotation3D->y_, firstRBRotation3D->z_ };
+
+					glm::quat localRotation{
+						secondConstraintedRigidBodyJointRotation3D2->w_,
+						secondConstraintedRigidBodyJointRotation3D2->x_, 
+						secondConstraintedRigidBodyJointRotation3D2->y_, 
+						secondConstraintedRigidBodyJointRotation3D2->z_ };
+
+					glm::quat rotation = worldRotation * localRotation;
+					glm::vec3 position =
+						glm::vec3{ firstRBPosition3D->x_, firstRBPosition3D->y_, firstRBPosition3D->z_ }
+						+ worldRotation * glm::vec3{
+							secondConstraintedRigidBodyJointPosition3D2->x_,
+							secondConstraintedRigidBodyJointPosition3D2->y_,
+							secondConstraintedRigidBodyJointPosition3D2->z_ };
+
+					glm::vec3 xAxis{ 1.0, 0.0, 0.0 };
+
+
+					auto* requests = GetComponent<SetAngularVelocityRequests>(secondConstraintedRigidBodyEntityId2->id_);
+					//requests->requests_.push_back({ glm::vec3{ 1.0, 0.0, 0.0 }, 50.0 });
+					//Axis start
+					render__Debug__Lines__VertexBuffer1->vertices_.Add(
+						{
+							Geom::Vertex3f{ position.x, position.y, position.z},
+							Geom::Color3f{ 1.0, 0.0, 0.0 }
+						}
+					);
+
+					//Axis end
+					glm::vec3 axisEnd = position + (rotation * xAxis);
+					render__Debug__Lines__VertexBuffer1->vertices_.Add(
+						{
+							Geom::Vertex3f{axisEnd.x, axisEnd.y, axisEnd.z},
+							Geom::Color3f{ 1.0, 1.0, 1.0 }
+						}
+					);
+				}
 				//auto& firstRB
 
 
