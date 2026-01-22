@@ -398,7 +398,6 @@ namespace OksEngine
 			debugTextAttachmentSet1->attachmentSetId_,
 			{},
 			{ 0, 0 }, { 2560, 1440 });
-		driver->BeginSubpass();
 
 	}
 
@@ -471,7 +470,6 @@ namespace OksEngine
 
 		auto driver = renderDriver0->driver_;
 
-		driver->EndSubpass();
 		driver->EndRenderPass();
 
 	}

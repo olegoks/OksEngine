@@ -31,7 +31,7 @@ RenderNamespace = {
         CreateAttachmentSetSystem = {
             type = "Initialize",
             callOrder = {
-                runAfter = { "CreateIdsAttachment" },
+                runAfter = { "CreateIdsAttachment", "Render::CreateRenderAttachment" },
                 runBefore = {}
             },
             updateMethod = {
@@ -39,7 +39,8 @@ RenderNamespace = {
                     {
                         processesComponents = {
                             "RenderDriver",
-                            "IdsAttachment"
+                            "IdsAttachment",
+                            "Render::RenderAttachment"
                         }
                     },
                     {
@@ -211,6 +212,43 @@ RenderNamespace = {
             }
         },
         
+        BeginRenderOutlineSubpassSystem = {
+            callOrder = {
+                runAfter = { "BeginRenderPass" },
+                runBefore = { "RenderModelIds" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false },
+                            "RenderPassId",
+                            "AttachmentSet",
+                            "PipelineId"
+                        }
+                    }
+                }
+            }
+        },
+
+        RenderOutlineSystem = {
+            callOrder = {
+                runAfter = { "BeginRenderOutlineSubpass" },
+                runBefore = { "EndRenderPass" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false },
+                            "RenderPassId",
+                            "AttachmentSet",
+                            "PipelineId"
+                        }
+                    }
+                }
+            }
+        },
 
         EndRenderPassSystem = {
             callOrder = {

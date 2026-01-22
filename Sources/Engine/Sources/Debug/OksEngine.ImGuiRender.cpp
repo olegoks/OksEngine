@@ -161,7 +161,6 @@ namespace OksEngine
 				imGuiRenderPass0->rpId_,
 				imGuiAttachmentSet0->attachmentsSetId_,
 				{}, { 0, 0 }, { 2560, 1440 });
-			driver->BeginSubpass();
 
 		}
 
@@ -201,8 +200,6 @@ namespace OksEngine
 			ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
 			auto driver = renderDriver1->driver_;
-
-			driver->EndSubpass();
 			driver->EndRenderPass();
 
 		}

@@ -2832,85 +2832,87 @@ namespace ECSGenerator2 {
 				}
 
 				///CREATE GRAPHVIZ CALL GRAPH
-
-				// �������� ������ �����
-				Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
-
-				thread.callGraph_.ForEachNode([&](DS::Graph<ParsedSystemPtr>::NodeId nodeId, DS::Graph<ParsedSystemPtr>::Node& node) {
-
-					if (node.HasLinksFrom() || node.HasLinksTo()) {
-
-						Agnode_t* gSystemNode = agnode(g, (char*)node.GetValue()->GetFullName().c_str(), 1);
-						agsafeset(gSystemNode, (char*)"shape", (char*)"rect", (char*)"");
-
-						node.ForEachLinksFrom([&](DS::Graph<System>::NodeId nodeId) {
-							const DS::Graph<ParsedSystemPtr>::Node& fromNode = thread.callGraph_.GetNode(nodeId);
-
-							Agnode_t* gFromNode = agnode(g, (char*)fromNode.GetValue()->GetFullName().c_str(), 1);
-
-							Agedge_t* gEdge = agedge(g, gFromNode, gSystemNode, nullptr, 1);
-
-							return true;
-							});
-
-						node.ForEachLinksTo([&](DS::Graph<System>::NodeId nodeId) {
-							const DS::Graph<ParsedSystemPtr>::Node& toNode = thread.callGraph_.GetNode(nodeId);
-
-							Agnode_t* gToNode = agnode(g, (char*)toNode.GetValue()->GetFullName().c_str(), 1);
-
-							Agedge_t* gEdge = agedge(g, gSystemNode, gToNode, nullptr, 1);
-
-							return true;
-							});
-					}
-
-
-					return true;
-					});
-				removeTransitiveEdges(g);
-				findAndColorCycles(g);
-				//Parse .dot
+				/*
 				{
-					GVC_t* gvc = gvContext();
+					// �������� ������ �����
+					Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
+
+					thread.callGraph_.ForEachNode([&](DS::Graph<ParsedSystemPtr>::NodeId nodeId, DS::Graph<ParsedSystemPtr>::Node& node) {
+
+						if (node.HasLinksFrom() || node.HasLinksTo()) {
+
+							Agnode_t* gSystemNode = agnode(g, (char*)node.GetValue()->GetFullName().c_str(), 1);
+							agsafeset(gSystemNode, (char*)"shape", (char*)"rect", (char*)"");
+
+							node.ForEachLinksFrom([&](DS::Graph<System>::NodeId nodeId) {
+								const DS::Graph<ParsedSystemPtr>::Node& fromNode = thread.callGraph_.GetNode(nodeId);
+
+								Agnode_t* gFromNode = agnode(g, (char*)fromNode.GetValue()->GetFullName().c_str(), 1);
+
+								Agedge_t* gEdge = agedge(g, gFromNode, gSystemNode, nullptr, 1);
+
+								return true;
+								});
+
+							node.ForEachLinksTo([&](DS::Graph<System>::NodeId nodeId) {
+								const DS::Graph<ParsedSystemPtr>::Node& toNode = thread.callGraph_.GetNode(nodeId);
+
+								Agnode_t* gToNode = agnode(g, (char*)toNode.GetValue()->GetFullName().c_str(), 1);
+
+								Agedge_t* gEdge = agedge(g, gSystemNode, gToNode, nullptr, 1);
+
+								return true;
+								});
+						}
 
 
-					//Get path
-					//auto randomEcsFilePath = parsedECSFiles[0]->GetPath();
+						return true;
+						});
+					removeTransitiveEdges(g);
+					findAndColorCycles(g);
+					//Parse .dot
+					{
+						GVC_t* gvc = gvContext();
 
-					//std::filesystem::path includeDirFullPath;
 
-					//std::filesystem::path::iterator includeDirIt;
-					//for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
-					//	auto folder = *it;
-					//	if (folder == projectContext->includeDirectory_) {
-					//		includeDirIt = it;
-					//		break;
-					//	}
-					//}
+						//Get path
+						//auto randomEcsFilePath = parsedECSFiles[0]->GetPath();
 
-					//for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
-					//	includeDirFullPath /= *it;
-					//}
+						//std::filesystem::path includeDirFullPath;
 
-					//includeDirFullPath /= *includeDirIt;
-					//Get path
+						//std::filesystem::path::iterator includeDirIt;
+						//for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
+						//	auto folder = *it;
+						//	if (folder == projectContext->includeDirectory_) {
+						//		includeDirIt = it;
+						//		break;
+						//	}
+						//}
 
-					static int clusterIndex = 0;
-					auto dotfile = std::make_shared<OS::TextFile>("D:/OksEngine/auto_ECSSystemsCallGraph" + std::to_string(clusterIndex) + ".dot");
-					clusterIndex++;
-					char* dotData = nullptr;
-					unsigned int length = 0;
+						//for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
+						//	includeDirFullPath /= *it;
+						//}
 
-					gvLayout(gvc, g, "dot");
-					gvRenderData(gvc, g, "dot", &dotData, &length);
+						//includeDirFullPath /= *includeDirIt;
+						//Get path
 
-					agclose(g);
-					gvFreeContext(gvc);
-					dotfile->Create();
-					std::string dotText{ dotData };
-					(*dotfile) << dotText;
-					dotfile->Close();
-				}
+						static int clusterIndex = 0;
+						auto dotfile = std::make_shared<OS::TextFile>("D:/OksEngine/auto_ECSSystemsCallGraph" + std::to_string(clusterIndex) + ".dot");
+						clusterIndex++;
+						char* dotData = nullptr;
+						unsigned int length = 0;
+
+						gvLayout(gvc, g, "dot");
+						gvRenderData(gvc, g, "dot", &dotData, &length);
+
+						agclose(g);
+						gvFreeContext(gvc);
+						dotfile->Create();
+						std::string dotText{ dotData };
+						(*dotfile) << dotText;
+						dotfile->Close();
+					}
+				}*/
 				////
 
 				};

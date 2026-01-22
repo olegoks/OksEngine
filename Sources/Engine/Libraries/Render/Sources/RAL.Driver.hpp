@@ -607,7 +607,7 @@ namespace RAL {
 			std::pair<Common::Int32, Common::Int32> offset,
 			std::pair<Common::UInt32, Common::UInt32> area) = 0;
 
-		virtual void BeginSubpass() = 0;
+		virtual void NextSubpass() = 0;
 		virtual void BindPipeline(RAL::Driver::Pipeline::Id pipelineId) = 0;
 
 		virtual void BindVertexBuffer(
@@ -629,7 +629,6 @@ namespace RAL {
 			Common::UInt32 firstInstance = 0,
 			Common::UInt32 instanceCount = 1) = 0;
 		virtual void Draw(Common::Size verticesNumber) = 0;
-		virtual void EndSubpass() = 0;
 		virtual void EndRenderPass() = 0;
 		virtual void Show(RAL::Driver::Texture::Id textureId) = 0;
 

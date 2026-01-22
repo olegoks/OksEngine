@@ -1101,8 +1101,8 @@ namespace Render::Vulkan {
 			GCB_->BeginRenderPass(renderPass, framebuffer, { offset.first, offset.second }, { area.first, area.second }, vkClearValues);
 		}
 
-		virtual void BeginSubpass() override {
-
+		virtual void NextSubpass() override {
+			GCB_->NextSubpass();
 		}
 
 		virtual void SetViewport(
@@ -1247,9 +1247,6 @@ namespace Render::Vulkan {
 			GCB_->Draw(verticesNumber);
 		}
 
-		virtual void EndSubpass() override {
-
-		}
 		virtual void EndRenderPass() override {
 
 			if (GCB_ == nullptr) {

@@ -3858,7 +3858,6 @@ namespace OksEngine
 
 		auto driver = renderDriver0->driver_;
 
-		driver->EndSubpass();
 		driver->EndRenderPass();
 
 		//driver->Show(renderPass0->textureIds_[1]);

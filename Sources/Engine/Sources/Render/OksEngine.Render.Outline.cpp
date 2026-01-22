@@ -37,12 +37,13 @@ namespace OksEngine
 		{
 			void CreateAttachmentSet::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0,
 				const OksEngine::Render::Outline::IdsAttachment* idsAttachment0,
-				ECS2::Entity::Id entity1id, const OksEngine::RenderDriver* renderDriver1,
+				const OksEngine::Render::RenderAttachment* render__RenderAttachment0, ECS2::Entity::Id entity1id,
+				const OksEngine::RenderDriver* renderDriver1,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId1) {
 
 				RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
 					.rpId_ = renderPassId1->rpId_,
-					.textures_ = { idsAttachment0->textureId_ },
+					.textures_ = { idsAttachment0->textureId_, render__RenderAttachment0->textureId_ },
 					.size_ = glm::u32vec2{ 2560, 1440 }
 				};
 
@@ -67,7 +68,7 @@ namespace OksEngine
 
 				std::vector<RAL::Driver::RP::AttachmentUsage> attachmentsUsage;
 				{
-					RAL::Driver::RP::AttachmentUsage attachment{
+					RAL::Driver::RP::AttachmentUsage idsAttachment{
 						.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
 						.initialState_ = RAL::Driver::Texture::State::DataForColorWrite,
 						.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
@@ -75,15 +76,30 @@ namespace OksEngine
 						.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
 						.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
 					};
-					attachmentsUsage.push_back(attachment);
+					attachmentsUsage.push_back(idsAttachment);
+
+					RAL::Driver::RP::AttachmentUsage renderAttachment{
+						.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
+						.initialState_ = RAL::Driver::Texture::State::DataForColorWrite,
+						.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Load,
+						.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
+						.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
+						.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
+					};
+					attachmentsUsage.push_back(renderAttachment);
+
 				}
 
 				std::vector<RAL::Driver::RP::Subpass> subpasses;
 				{
-					RAL::Driver::RP::Subpass subpass{
+					RAL::Driver::RP::Subpass subpass0{
 						.colorAttachments_ = { 0 } // Ids attachment.
 					};
-					subpasses.push_back(subpass);
+					subpasses.push_back(subpass0);
+					RAL::Driver::RP::Subpass subpass1{
+						.colorAttachments_ = { 1 } // Ids attachment.
+					};
+					subpasses.push_back(subpass1);
 				}
 
 				RAL::Driver::RP::CI rpCI{
@@ -215,7 +231,6 @@ namespace OksEngine
 					renderPassId0->rpId_,
 					attachmentSet0->attachmentsSetId_,
 					clearValues, { 0, 0 }, { 2560, 1440 });
-				driver->BeginSubpass();
 			
 			};
 
@@ -274,6 +289,22 @@ namespace OksEngine
 	{
 		namespace Outline
 		{
+
+			void BeginRenderOutlineSubpass::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
+				const OksEngine::Render::Outline::RenderPassId* renderPassId0,
+				const OksEngine::Render::Outline::AttachmentSet* attachmentSet0,
+				const OksEngine::Render::Outline::PipelineId* pipelineId0) {
+
+				renderDriver0->driver_->NextSubpass();
+			}
+
+			void RenderOutline::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
+				const OksEngine::Render::Outline::RenderPassId* renderPassId0,
+				const OksEngine::Render::Outline::AttachmentSet* attachmentSet0,
+				const OksEngine::Render::Outline::PipelineId* pipelineId0) {
+
+			}
+
 			void EndRenderPass::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId0,
 				const OksEngine::Render::Outline::PipelineId* pipelineId0) {
@@ -281,7 +312,6 @@ namespace OksEngine
 
 				auto driver = renderDriver0->driver_;
 
-				driver->EndSubpass();
 				driver->EndRenderPass();
 
 			
