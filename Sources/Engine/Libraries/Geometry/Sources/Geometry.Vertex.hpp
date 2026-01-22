@@ -49,8 +49,29 @@ namespace Geometry {
 		Vector<size, BaseType> position_{ 0, 0, 0 };
 	};
 
-	using Vertex3f = Vertex<3, float>;
 	using Vertex2f = Vertex<2, float>;
+
+	class Vertex3f : public Vertex<3, float> {
+	public:
+		Vertex3f() noexcept = default;
+		Vertex3f(float x, float y, float z) noexcept :
+			Vertex<3, float>{ x, y, z }{ }
+		Vertex3f(const Vector3f& position) noexcept :
+			Vertex<3, float>{ position.GetX(), position.GetY(), position.GetZ() } {}
+
+		struct Hash {
+			[[nodiscard]]
+			Common::UInt64 operator()(const Vertex3f& vertex) const noexcept {
+				return
+					vertex.position_.GetHash();
+			}
+		};
+
+		[[nodiscard]]
+		bool operator==(const Vertex3f& vertex) const noexcept {
+			return (position_ == vertex.position_);
+		}
+	};
 
 	class Vertex2ft : public Vertex2f {
 	public:

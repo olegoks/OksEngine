@@ -19,6 +19,7 @@ PhysicsNamespace = {
 
     FixedConstraintComponent = {},
     RevoluteConstraintComponent = {},
+    D6ConstraintComponent = {},
     RevoluteAxisComponent = {
         fields = {
             { type = "float", name = "x" },
@@ -34,7 +35,7 @@ PhysicsNamespace = {
         }
     },
 
-
+    DisableCollisionComponent = {},
 
     ConstraintedRigidBodyEntityIdsComponent = {
         description = "Rigid bodies entity ids that constrained by this constraint.",

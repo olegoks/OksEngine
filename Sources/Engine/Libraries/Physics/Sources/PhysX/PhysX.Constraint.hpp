@@ -24,6 +24,11 @@ namespace PhysX {
 			joint_->setInvMassScale1(invMassScale);
 		}
 
+		void DisableCollision(bool isDisable) {
+			ASSERT(joint_ != nullptr);
+			joint_->setConstraintFlag(physx::PxConstraintFlag::eCOLLISION_ENABLED, !isDisable);
+		}
+
 	protected:
 
 		void SetPtr(physx::PxJoint* joint) {

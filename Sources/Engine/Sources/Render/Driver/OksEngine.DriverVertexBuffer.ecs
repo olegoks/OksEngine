@@ -3,6 +3,53 @@ DriverVertexBufferComponent = {
     fields = { { type="RAL::Driver::VertexBuffer::Id", name="id" } }
 }
 
+CreateDriverVertexBufferV3System = {
+    updateMethod = {
+    processesEntities = {
+        {
+            processesComponents = { "Vertices3D", "Indices" },
+                
+            createsComponents = { "DriverVertexBuffer" },
+            excludes = {
+                "Colors",
+                "Normals", 
+                "UVs",
+                "VertexBones",
+                "DriverVertexBuffer"
+            }
+        },
+        {
+             processesComponents = { { name = "RenderDriver", readonly = false } }
+        }
+
+    }
+    }
+
+}
+
+CreateDriverVertexBufferV3C3System = {
+    updateMethod = {
+    processesEntities = {
+        {
+            processesComponents = { "Vertices3D", "Indices", "Colors" },
+                
+            createsComponents = { "DriverVertexBuffer" },
+            excludes = {
+                "Normals", 
+                "UVs",
+                "VertexBones",
+                "DriverVertexBuffer"
+            }
+        },
+        {
+             processesComponents = { { name = "RenderDriver", readonly = false } }
+        }
+
+    }
+    }
+
+}
+
 CreateDriverVertexBufferSystem = {
     updateMethod = {
     processesEntities = {

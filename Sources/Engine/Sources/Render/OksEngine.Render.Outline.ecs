@@ -1,0 +1,235 @@
+RenderNamespace = {
+    OutlineNamespace = {
+                
+        IdsAttachmentComponent = "Render::Attachment",
+
+        CreateIdsAttachmentSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "CreateRenderPass" },
+                runBefore = {}
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "RenderDriver"
+                        },
+                        excludes = {
+                            "IdsAttachment"
+                        },
+                        createsComponents = {
+                            "IdsAttachment"
+                        }
+                    }
+                }
+            }
+        },
+
+        AttachmentSetComponent = "Render::AttachmentSet",
+
+        CreateAttachmentSetSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "CreateIdsAttachment" },
+                runBefore = {}
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "RenderDriver",
+                            "IdsAttachment"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "RenderDriver",
+                            "RenderPassId"
+                        },
+                        excludes = {
+                            "AttachmentSet"
+                        },
+                        createsComponents = {
+                            "AttachmentSet"
+                        }
+                    }
+                }
+            }
+        },
+
+        RenderPassIdComponent = {
+            serializable = false,
+            fields = {
+                { type = "Common::Id", name = "rpId" }
+            }
+        },
+        CreateRenderPassIdSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = {
+                    "CreateRenderDriver"
+                }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "RenderDriver"
+                        },
+                        excludes = {
+                            "RenderPassId"
+                        },
+                        createsComponents = {
+                            "RenderPassId"
+                        }
+                    }
+                }
+            }
+        },
+
+        PipelineIdComponent = {
+            serializable = false,
+            fields = {
+                { type = "Common::Id", name = "id" }
+            }
+        },
+
+        CreatePipelineSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = {
+                    "CreateRenderDriver",
+                    "CreateResourceSystem",
+                    "ConfigureResourceSystem",
+                    "CreateRenderPass"
+                }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "RenderDriver",
+                            "RenderPassId"
+                        },
+                        excludes = {
+                            "PipelineId"
+                        },
+                        createsComponents = {
+                            "PipelineId"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "ResourceSystem"
+                        }
+                    }
+                }
+            }
+        },
+
+
+
+        
+
+        BeginRenderPassSystem = {
+            callOrder = {
+                runAfter = { "StartRender", "::EndRenderPass" },
+                runBefore = { "RenderModelIds" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false },
+                            "RenderPassId",
+                            "AttachmentSet",
+                            "PipelineId"
+                        }
+                    }
+                }
+            }
+        },
+
+        RenderModelIdsSystem = {
+            callOrder = {
+                runAfter = "BeginRenderPass",
+                runBefore = "EndRenderPass"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false },
+                            "Render::EnableRegularRender",
+                            "RenderPassId",
+                            "PipelineId",
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Debug::Debugger",
+                            "Debug::Enable",
+                            "Debug::Lines::VertexBuffer",
+                            "Debug::Lines::DriverVertexBuffer",
+                            "Debug::FlatShade::VertexBuffer",
+                            "Debug::FlatShade::DriverVertexBuffer"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Camera",
+                            "Active",
+                            "DriverViewProjectionUniformBuffer",
+                            "CameraTransformResource"
+                        }
+                    },       
+                },
+                accessingEntities = {
+                    {
+                        archetype = "Mesh"
+                    },
+                    {
+                        accessingComponents = {
+                            "WorldPosition3D",
+                            "WorldRotation3D",
+                            "WorldScale3D"
+                        }
+                    },
+                    {
+                        accessingComponents = {
+                            "Render::Mdl::ModelNodeEntityIds"
+                        }
+                    },
+                    {
+                        accessingComponents = {
+                            "DriverTransform3D",
+                            "Transform3DResource"
+                        }
+                    }
+                }
+            }
+        },
+        
+
+        EndRenderPassSystem = {
+            callOrder = {
+                runBefore = { "BeginDebugTextRenderPass" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false },
+                            "RenderPassId",
+                            "PipelineId"
+                        }
+                    }
+                }
+            }
+        }
+
+    },
+
+
+}

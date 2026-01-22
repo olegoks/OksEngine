@@ -3,6 +3,74 @@
 
 namespace OksEngine
 {
+	void CreateDriverVertexBufferV3::Update(
+		ECS2::Entity::Id entity0id,
+		const OksEngine::Vertices3D* vertices3D0,
+		const OksEngine::Indices* indices0, 
+		
+		ECS2::Entity::Id entity1id, 
+		OksEngine::RenderDriver* renderDriver1) {
+
+
+		auto driver = renderDriver1->driver_;
+
+		std::vector<RAL::Vertex3f> vertices2ftc;
+		vertices2ftc.reserve(vertices3D0->vertices_.GetVerticesNumber());
+		for (Common::Index i = 0; i < vertices3D0->vertices_.GetVerticesNumber(); i++) {
+			RAL::Vertex3fc vertex;
+			vertex.position_ = vertices3D0->vertices_[i].position_;
+			vertices2ftc.push_back(vertex);
+
+		}
+
+
+		RAL::Driver::VertexBuffer::CreateInfo1 VBCI{
+			.verticesNumber_ = vertices3D0->vertices_.GetVerticesNumber(),
+			.vertexType_ = RAL::Driver::VertexType::VF3,
+			.type_ = RAL::Driver::VertexBuffer::Type::Const
+		};
+		RAL::Driver::VertexBuffer::Id VBId = driver->CreateVertexBuffer(VBCI);
+		driver->FillVertexBuffer(VBId, 0, vertices2ftc.data(), vertices2ftc.size());
+		CreateComponent<DriverVertexBuffer>(entity0id, VBId);
+
+	}
+
+	void CreateDriverVertexBufferV3C3::Update(
+		ECS2::Entity::Id entity0id,
+		const OksEngine::Vertices3D* vertices3D0,
+		const OksEngine::Indices* indices0,
+		const OksEngine::Colors* colors0,
+
+		ECS2::Entity::Id entity1id,
+		OksEngine::RenderDriver* renderDriver1) {
+
+		auto driver = renderDriver1->driver_;
+
+		std::vector<RAL::Vertex3fc> vertices2ftc;
+		vertices2ftc.reserve(vertices3D0->vertices_.GetVerticesNumber());
+		for (Common::Index i = 0; i < vertices3D0->vertices_.GetVerticesNumber(); i++) {
+			RAL::Vertex3fc vertex;
+			vertex.position_ = vertices3D0->vertices_[i].position_;
+			vertex.color_ = Geom::Color3f{
+				colors0->colors_[i][0] / 255.f,
+				colors0->colors_[i][1] / 255.f,
+				colors0->colors_[i][2] / 255.f };
+			vertices2ftc.push_back(vertex);
+
+		}
+
+
+		RAL::Driver::VertexBuffer::CreateInfo1 VBCI{
+			.verticesNumber_ = vertices3D0->vertices_.GetVerticesNumber(),
+			.vertexType_ = RAL::Driver::VertexType::VF3_CF3,
+			.type_ = RAL::Driver::VertexBuffer::Type::Const
+		};
+		RAL::Driver::VertexBuffer::Id VBId = driver->CreateVertexBuffer(VBCI);
+		driver->FillVertexBuffer(VBId, 0, vertices2ftc.data(), vertices2ftc.size());
+		CreateComponent<DriverVertexBuffer>(entity0id, VBId);
+
+	}
+
 	void UpdateDriverVertexBuffer::Update(ECS2::Entity::Id entity0id, const Vertices2D* vertices2D0,
 		const Indices* indices0, const UVs* uVs0, DriverVertexBuffer* driverVertexBuffer0,
 		ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
@@ -38,14 +106,12 @@ namespace OksEngine
 
 		ECS2::Entity::Id entity0id,
 		const Vertices2D* vertices2D0,
-		const Indices* indices0, 
-		const Colors* colors0, 
+		const Indices* indices0,
+		const Colors* colors0,
 		const UVs* uVs0,
 
 		ECS2::Entity::Id entity1id,
 		RenderDriver* renderDriver1) {
-
-
 
 		auto driver = renderDriver1->driver_;
 
@@ -62,7 +128,7 @@ namespace OksEngine
 
 		RAL::Driver::VertexBuffer::CreateInfo1 VBCI{
 			.verticesNumber_ = vertices2D0->vertices_.GetVerticesNumber(),
-			.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF4,
+			.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF3,
 			.type_ = RAL::Driver::VertexBuffer::Type::Const
 		};
 		RAL::Driver::VertexBuffer::Id VBId = driver->CreateVertexBuffer(VBCI);
@@ -120,7 +186,7 @@ namespace OksEngine
 			vertex.uv_ = uVs0->uvs_[i];
 
 			const glm::u32vec4 boneIndices = vertexBones0->vertexBonesInfos_[i].boneEntityIndices_;
-			vertex.boneIds_ = { boneIndices[0], boneIndices[1], boneIndices[2], boneIndices[3]};
+			vertex.boneIds_ = { boneIndices[0], boneIndices[1], boneIndices[2], boneIndices[3] };
 
 			const glm::vec4 weights = vertexBones0->vertexBonesInfos_[i].boneWeights_;
 			vertex.weights_ = { weights[0], weights[1], weights[2], weights[3] };

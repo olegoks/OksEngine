@@ -3777,7 +3777,6 @@ namespace OksEngine
 		for (Common::Index i = 0; i < meshEntitiesNumber; i++) {
 			if (meshEntitiesIds[i].IsValid()) {
 
-				auto* textureResource = meshTextureResources + i;
 				const ECS2::ComponentsFilter meshComponentsFilter = GetComponentsFilter(meshEntitiesIds[i]);
 				if (!meshComponentsFilter.IsSet<
 					DriverVertexBuffer,
@@ -3790,6 +3789,8 @@ namespace OksEngine
 					continue;
 				}
 
+
+				auto* textureResource = meshTextureResources + i;
 				//TODO: need assert
 				if (textureResource->id_.IsInvalid()) {
 					continue;

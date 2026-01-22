@@ -118,6 +118,57 @@ int main(int argc, char** argv) {
 				std::shared_ptr<ECSGenerator2::ParsedTable> foundTable = nullptr;
 				//From child to root.
 				// 
+
+				// If user used full(name starts with ::) ECS abstraction(system/component) name we dont need to find target namespace.
+				if (findTable[0] == "") {
+					for (auto parsedECSFile : parsedECSFiles) {
+
+						if (foundTable != nullptr) {
+							break;
+						}
+						parsedECSFile->ForEachRootTable([&](std::shared_ptr<ECSGenerator2::ParsedTable> parsedTable) {
+
+
+							if (foundTable != nullptr) {
+								return false;
+							}
+
+							if (parsedTable->GetName() == "EndRenderPass") {
+								Common::BreakPointLine();
+							}
+
+
+							parsedTable->ForEachTablePath([&](std::vector<std::shared_ptr<ECSGenerator2::ParsedTable>>& path) {
+
+								if (findTable.size() - 1 /*minus ""*/ == path.size() && path.back()->GetType() == findTableType) {
+									for (Common::Index k = 1; k < findTable.size(); k++) {
+										if (findTable[k] != path[k - 1]->GetName()) {
+											return true;
+										}
+									}
+									ECSGenerator2::ParsedTablePtr table = path.back();
+									foundTable = table;
+								}
+								else {
+									return true;
+								}
+
+								});
+
+							return true;
+
+
+							return true;
+							});
+
+					}
+
+				}
+				
+				if (foundTable != nullptr) {
+					return foundTable;
+				}
+
 				auto usageNamespace = usageTable->GetNamespace();
 
 				for (Common::Int64 i = usageNamespace.size(); i >= 0; --i) {
@@ -454,6 +505,10 @@ int main(int argc, char** argv) {
 
 					for (auto& runAfterSystem : parsedSystem->ci_.callOrderInfo_->runAfter_) {
 						//at first lets find run after system in namespace of current system.
+
+						if (runAfterSystem.name_ == "::EndRenderPass") {
+							Common::BreakPointLine();
+						}
 						const auto runAfterName = ECSGenerator2::ParseFullName(runAfterSystem.name_);
 
 						if (runAfterSystem.name_ == "SendWindowKeyboardEvents") {

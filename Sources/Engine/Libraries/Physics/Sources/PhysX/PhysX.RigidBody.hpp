@@ -32,13 +32,14 @@ namespace PhysX {
 			body_ = createInfo.physics_->createRigidDynamic(t);
 			ASSERT_FMSG(body_ != nullptr,
 				"Error while creating rigid body.");
-			
+
 			body_->attachShape(*shape->GetPxShape());
 			body_->setMaxLinearVelocity(100);
 			body_->setLinearDamping(createInfo.palCreateInfo_.linearDamping_);
 			body_->setAngularDamping(createInfo.palCreateInfo_.angularDamping_);
 			body_->setName(createInfo.palCreateInfo_.rbCreateInfo_.name_.c_str());
 			body_->setMass(createInfo.palCreateInfo_.mass_);
+			
 			
 
 			body_->setActorFlag(physx::PxActorFlag::eVISUALIZATION, true);

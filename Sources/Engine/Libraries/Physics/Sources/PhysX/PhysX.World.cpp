@@ -167,6 +167,8 @@ namespace PhysX {
 			constraintPtr->SetBreakForce(ci.breakForce_);
 		}
 
+		constraintPtr->DisableCollision(ci.disableCollision_);
+
 		if (ci.invMassScaleFirst_ != Common::Limits<float>::Max()) {
 			constraintPtr->SetInvMassScale0(ci.invMassScaleFirst_);
 		}
@@ -203,12 +205,14 @@ namespace PhysX {
 
 
 	void World::Simulate(float ms) {
+		BEGIN_PROFILE("Step %f", ms);
 		ASSERT_FMSG(!Math::IsEqual(ms, 0.f), "Invalid simulation time");
 		scene_->simulate(ms);
 		scene_->fetchResults(true);
-
+		END_PROFILE();
 		physx::PxSimulationStatistics statistics;
 		scene_->getSimulationStatistics(statistics);
+		
 		//statistics.
 	}
 

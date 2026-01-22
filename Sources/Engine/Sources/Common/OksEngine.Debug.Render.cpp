@@ -75,7 +75,7 @@ namespace OksEngine
 
 		RAL::Driver::VertexBuffer::CreateInfo1 VBCI{
 			.verticesNumber_ = capacity,
-			.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF4,
+			.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF3,
 			.type_ = RAL::Driver::VertexBuffer::Type::Const
 		};
 		RAL::Driver::VertexBuffer::Id VBId = driver->CreateVertexBuffer(VBCI);
@@ -363,7 +363,7 @@ namespace OksEngine
 			.vertexShader_ = vertexShader,
 			.fragmentShader_ = fragmentShader,
 			.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
-			.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF4,
+			.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF3,
 			.indexType_ = RAL::Driver::IndexType::UI32,
 			.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
 			.cullMode_ = RAL::Driver::CullMode::None,

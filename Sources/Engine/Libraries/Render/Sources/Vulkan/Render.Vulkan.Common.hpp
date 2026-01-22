@@ -47,6 +47,37 @@ inline void VkCall(VkResult nativeAPICallResult, const char* message) noexcept {
 	using Color3f = Geom::Color3f;
 	using Normal3f = Geom::Normal3f;
 
+	class Vertex3f : public Geometry::Vertex3f {
+	public:
+		static VkVertexInputBindingDescription GetBindingDescription() {
+			VkVertexInputBindingDescription bindingDescription{};
+
+			bindingDescription.binding = 0;
+			bindingDescription.stride = sizeof(Vertex3f);
+			bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
+
+			return bindingDescription;
+		}
+
+		static std::vector<VkVertexInputAttributeDescription> GetAttributeDescriptions() {
+			std::vector<VkVertexInputAttributeDescription> attributeDescriptions{};
+
+			{
+				VkVertexInputAttributeDescription attributeDescription;
+				{
+					attributeDescription.binding = 0;
+					attributeDescription.location = 0;
+					attributeDescription.format = VK_FORMAT_R32G32B32_SFLOAT;
+					attributeDescription.offset = offsetof(Vertex3f, position_);
+				}
+				attributeDescriptions.push_back(attributeDescription);
+			}
+
+			return attributeDescriptions;
+		}
+
+	};
+
 	class Vertex2ftc : public Geometry::Vertex2ftc {
 	public:
 

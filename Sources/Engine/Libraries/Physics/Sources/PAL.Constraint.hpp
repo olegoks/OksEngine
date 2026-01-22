@@ -57,6 +57,7 @@ namespace PAL {
 			glm::vec3 rotateAxis_ = { 0.0, 1.0, 0.0 };
 			bool isBreakable_ = false;
 			float breakForce_ = 1.0;
+			bool disableCollision_ = false;
 			float invMassScaleFirst_ = Common::Limits<float>::Max();
 			float invMassScaleSecond_ = Common::Limits<float>::Max();
 		};

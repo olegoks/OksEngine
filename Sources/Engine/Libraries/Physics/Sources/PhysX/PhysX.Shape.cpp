@@ -30,7 +30,6 @@ namespace PhysX {
 				createInfo.palCreateInfo_.halfExtentZ_),
 			*material);
 
-
 		shape->setFlag(physx::PxShapeFlag::Enum::eVISUALIZATION, true);
 		ASSERT_FMSG(shape != nullptr,
 			"Error while creating physx shape.");

@@ -355,6 +355,10 @@ namespace Render::Vulkan {
 
 		static VkVertexInputBindingDescription GetVertexBindingDescription(VertexType vertexType) {
 			switch (vertexType) {
+			case VertexType::VF3: {
+				return Vertex3f::GetBindingDescription();
+				break;
+			}
 			case VertexType::VF3_NF3_TF2: {
 				return Vertex3fnt::GetBindingDescription();
 				break;
@@ -363,7 +367,7 @@ namespace Render::Vulkan {
 				return Vertex3fntbw::GetBindingDescription();
 				break;
 			}
-			case VertexType::VF3_CF4: {
+			case VertexType::VF3_CF3: {
 				return Vertex3fc::GetBindingDescription();
 				break;
 			}
@@ -371,7 +375,7 @@ namespace Render::Vulkan {
 				return Vertex3fnc::GetBindingDescription();
 				break;
 			}
-			case VertexType::VF2_TF2_CF4: {
+			case VertexType::VF2_TF2_CF3: {
 				return Vertex2ftc::GetBindingDescription();
 				break;
 			}
@@ -383,6 +387,10 @@ namespace Render::Vulkan {
 
 		static std::vector<VkVertexInputAttributeDescription> GetVertexAttributeDescriptions(VertexType vertexType) {
 			switch (vertexType) {
+			case VertexType::VF3: {
+				return Vertex3f::GetAttributeDescriptions();
+				break;
+			}
 			case VertexType::VF3_NF3_TF2: {
 				return Vertex3fnt::GetAttributeDescriptions();
 				break;
@@ -391,7 +399,7 @@ namespace Render::Vulkan {
 				return Vertex3fntbw::GetAttributeDescriptions();
 				break;
 			}
-			case VertexType::VF3_CF4: {
+			case VertexType::VF3_CF3: {
 				return Vertex3fc::GetAttributeDescriptions();
 				break;
 			}
@@ -399,7 +407,7 @@ namespace Render::Vulkan {
 				return Vertex3fnc::GetAttributeDescriptions();
 				break;
 			}
-			case VertexType::VF2_TF2_CF4: {
+			case VertexType::VF2_TF2_CF3: {
 				return Vertex2ftc::GetAttributeDescriptions();
 				break;
 			}
@@ -2007,6 +2015,10 @@ namespace Render::Vulkan {
 		[[nodiscard]]
 		Common::Size VertexTypeToSize(VertexType vertexType) {
 			switch (vertexType) {
+			case  VertexType::VF3: {
+				return sizeof(Vertex3f);
+				break;
+			}
 			case  VertexType::VF3_NF3_TF2: {
 				return sizeof(Vertex3fnt);
 				break;
@@ -2015,11 +2027,11 @@ namespace Render::Vulkan {
 				return sizeof(Vertex3fntbw);
 				break;
 			}
-			case  VertexType::VF2_TF2_CF4: {
+			case  VertexType::VF2_TF2_CF3: {
 				return sizeof(Vertex2ftc);
 				break;
 			}
-			case VertexType::VF3_CF4: {
+			case VertexType::VF3_CF3: {
 				return sizeof(Vertex3fc);
 				break;
 			}

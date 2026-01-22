@@ -219,7 +219,7 @@ namespace OksEngine
 					}
 					const glm::vec3& he{ cubeHalfExtents[0], cubeHalfExtents[1], cubeHalfExtents[2] };
 
-					// 8 вершин куба
+					// 8 пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 					vertices = {
 						{-he.x, -he.y, -he.z}, { he.x, -he.y, -he.z},
 						{ he.x,  he.y, -he.z}, {-he.x,  he.y, -he.z},
@@ -227,17 +227,17 @@ namespace OksEngine
 						{ he.x,  he.y,  he.z}, {-he.x,  he.y,  he.z}
 					};
 					indices = {
-						// задняя грань
+						// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 						0, 2, 1, 0, 3, 2,
-						// передняя грань
+						// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 						4, 5, 6, 4, 6, 7,
-						// левая грань
+						// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 						0, 4, 7, 0, 7, 3,
-						// правая грань
+						// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 						1, 2, 6, 1, 6, 5,
-						// нижняя грань
+						// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 						0, 1, 5, 0, 5, 4,
-						// верхняя грань
+						// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 						3, 7, 6, 3, 6, 2
 					};
 				}
@@ -289,7 +289,7 @@ namespace OksEngine
 
 				const glm::vec3& he{ cubeHalfExtents[0], cubeHalfExtents[1], cubeHalfExtents[2] };
 
-				// 8 вершин куба
+				// 8 пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ
 				vertices = {
 					{-he.x, -he.y, -he.z}, { he.x, -he.y, -he.z},
 					{ he.x,  he.y, -he.z}, {-he.x,  he.y, -he.z},
@@ -297,17 +297,17 @@ namespace OksEngine
 					{ he.x,  he.y,  he.z}, {-he.x,  he.y,  he.z}
 				};
 				indices = {
-					// задняя грань
+					// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 					0, 2, 1, 0, 3, 2,
-					// передняя грань
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 					4, 5, 6, 4, 6, 7,
-					// левая грань
+					// пїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 					0, 4, 7, 0, 7, 3,
-					// правая грань
+					// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 					1, 2, 6, 1, 6, 5,
-					// нижняя грань
+					// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 					0, 1, 5, 0, 5, 4,
-					// верхняя грань
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 					3, 7, 6, 3, 6, 2
 				};
 			}
@@ -342,16 +342,16 @@ namespace OksEngine
 				float rings = capsuleRef["rings"].cast<float>().value();
 
 				float halfHeight = height * 0.5f;
-				int totalRings = rings * 2 + 1; // +1 для центрального кольца
+				int totalRings = rings * 2 + 1; // +1 пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 
-				// Генерация вертексов
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				for (int ring = 0; ring <= totalRings; ++ring) {
-					// Нормализованная координата по высоте от -1 до 1
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ -1 пїЅпїЅ 1
 					float v = static_cast<float>(ring) / totalRings;
 					float y = (v - 0.5f) * 2.0f;
 
 					for (int segment = 0; segment <= segments; ++segment) {
-						// Угол вокруг оси Y
+						// пїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ Y
 						float u = static_cast<float>(segment) / segments;
 						float angle = u * 2.0f * 3.14;
 
@@ -363,8 +363,8 @@ namespace OksEngine
 						//glm::vec2 texCoord(u, 1.0f - v);
 
 						if (y > 0.5f) {
-							// Верхняя полусфера
-							float sphereY = (y - 0.5f) * 2.0f; // Преобразуем к диапазону [0,1]
+							// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+							float sphereY = (y - 0.5f) * 2.0f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ [0,1]
 							float phi = acosf(sphereY);
 							float cosPhi = cosf(phi);
 							float sinPhi = sinf(phi);
@@ -377,8 +377,8 @@ namespace OksEngine
 							//normal = glm::vec3(sinPhi * cosA, sphereY, sinPhi * sinA);
 						}
 						else if (y < -0.5f) {
-							// Нижняя полусфера
-							float sphereY = (y + 0.5f) * -2.0f; // Преобразуем к диапазону [0,1]
+							// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+							float sphereY = (y + 0.5f) * -2.0f; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ [0,1]
 							float phi = acosf(sphereY);
 							float cosPhi = cosf(phi);
 							float sinPhi = sinf(phi);
@@ -391,7 +391,7 @@ namespace OksEngine
 							//normal = glm::vec3(sinPhi * cosA, -sphereY, sinPhi * sinA);
 						}
 						else {
-							// Цилиндрическая часть
+							// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 							vertex = glm::vec3(
 								radius * cosA,
 								y * height,
@@ -406,7 +406,7 @@ namespace OksEngine
 					}
 				}
 
-				// Генерация индексов
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				int verticesPerRing = segments + 1;
 
 				for (int ring = 0; ring < totalRings; ++ring) {
@@ -414,12 +414,12 @@ namespace OksEngine
 						int current = ring * verticesPerRing + segment;
 						int next = current + verticesPerRing;
 
-						// Первый треугольник
+						// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 						indices.push_back(current);
 						indices.push_back(next);
 						indices.push_back(current + 1);
 
-						// Второй треугольник
+						// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 						indices.push_back(current + 1);
 						indices.push_back(next);
 						indices.push_back(next + 1);
@@ -640,7 +640,66 @@ namespace OksEngine
 			auto shape = engine0->engine_->CreateShape(shapeCreateInfo);
 			CreateComponent<PhysicsShape>(entity1id, shape);
 
-		}
+			const auto* shapeData = shapeGeometryBox1;
+
+			float halfW = shapeData->lenght_ * 0.5f;
+			float halfH = shapeData->height_ * 0.5f;
+			float halfD = shapeData->width_ * 0.5f;
+
+			// 8 СѓРЅРёРєР°Р»СЊРЅС‹С… РІРµСЂС€РёРЅ РєСѓР±Р°
+			Geom::Vertex3f uniqueVertices[8] = {
+				// РџРµСЂРµРґРЅСЏСЏ РіСЂР°РЅСЊ
+				{ Geom::Vertex3f(-halfW, -halfH,  halfD) },// 0: Р»РµРІРѕ-РЅРёР·-РїРµСЂРµРґ
+				{Geom::Vertex3f(halfW, -halfH,  halfD)  }, // 1: РїСЂР°РІРѕ-РЅРёР·-РїРµСЂРµРґ
+				{Geom::Vertex3f(halfW,  halfH,  halfD)  },// 2: РїСЂР°РІРѕ-РІРµСЂС…-РїРµСЂРµРґ
+				{Geom::Vertex3f(-halfW,  halfH,  halfD) }, // 3: Р»РµРІРѕ-РІРµСЂС…-РїРµСЂРµРґ
+
+				// Р—Р°РґРЅСЏСЏ РіСЂР°РЅСЊ
+				{Geom::Vertex3f(-halfW, -halfH, -halfD)}, // 4: Р»РµРІРѕ-РЅРёР·-Р·Р°Рґ
+				{Geom::Vertex3f(halfW, -halfH, -halfD) },// 5: РїСЂР°РІРѕ-РЅРёР·-Р·Р°Рґ
+				{Geom::Vertex3f(halfW,  halfH, -halfD) },// 6: РїСЂР°РІРѕ-РІРµСЂС…-Р·Р°Рґ
+				{Geom::Vertex3f(-halfW,  halfH, -halfD) } // 7: Р»РµРІРѕ-РІРµСЂС…-Р·Р°Рґ
+			};
+
+			// 12 С‚СЂРµСѓРіРѕР»СЊРЅРёРєРѕРІ (2 РЅР° РєР°Р¶РґСѓСЋ РіСЂР°РЅСЊ) РЅР°РїСЂСЏРјСѓСЋ РєР°Рє РІРµСЂС€РёРЅС‹
+			Geom::VertexCloud<Geom::Vertex3f> result;
+
+			Geom::Vertex3f boxVertices[] = {
+				// РџРµСЂРµРґРЅСЏСЏ РіСЂР°РЅСЊ (2 С‚СЂРµСѓРіРѕР»СЊРЅРёРєР°)
+				{ uniqueVertices[0] }, { uniqueVertices[1] }, { uniqueVertices[2] }, // РўСЂРµСѓРіРѕР»СЊРЅРёРє 1
+				{ uniqueVertices[2] }, { uniqueVertices[3] }, { uniqueVertices[0] }, // РўСЂРµСѓРіРѕР»СЊРЅРёРє 2
+
+				// РџСЂР°РІР°СЏ РіСЂР°РЅСЊ
+				{ uniqueVertices[1] }, { uniqueVertices[5] }, { uniqueVertices[6] },
+				{ uniqueVertices[6] }, { uniqueVertices[2] }, { uniqueVertices[1] },
+
+				// Р—Р°РґРЅСЏСЏ РіСЂР°РЅСЊ
+				{ uniqueVertices[5] }, { uniqueVertices[4] }, { uniqueVertices[7] },
+				{ uniqueVertices[7] }, { uniqueVertices[6] }, { uniqueVertices[5] },
+
+				// Р›РµРІР°СЏ РіСЂР°РЅСЊ
+				{ uniqueVertices[4] }, { uniqueVertices[0] }, { uniqueVertices[3] },
+				{ uniqueVertices[3] }, { uniqueVertices[7] }, { uniqueVertices[4] },
+
+				// Р’РµСЂС…РЅСЏСЏ РіСЂР°РЅСЊ
+				{ uniqueVertices[3] }, { uniqueVertices[2] }, { uniqueVertices[6] },
+				{ uniqueVertices[6] }, { uniqueVertices[7] }, { uniqueVertices[3] },
+
+				// РќРёР¶РЅСЏСЏ РіСЂР°РЅСЊ
+				{ uniqueVertices[0] }, { uniqueVertices[4] }, { uniqueVertices[5] },
+				{ uniqueVertices[5] }, { uniqueVertices[1] }, { uniqueVertices[0] }
+			};
+
+			result.Add(boxVertices, 36);
+
+			CreateComponent<Vertices3D>(entity1id, result);
+			Geom::IndexBuffer<Geom::Index32> indices;
+			for (Common::Index i = 0; i < result.GetVerticesNumber(); i++) {
+				indices.Add(i);
+			}
+			CreateComponent<Indices>(entity1id, indices);
+
+		}	
 
 		void CreatePhysicsShapeCylinder::Update(ECS2::Entity::Id entity0id, Physics::Engine* engine0, ECS2::Entity::Id entity1id,
 			const Physics::Material* material1, const Physics::ShapeGeometryCylinder* shapeGeometryCylinder1) {
@@ -652,26 +711,26 @@ namespace OksEngine
 			};
 
 			AI_GENERATED
-			// Создание вершин цилиндра
-			Geometry::VertexCloud<Geom::Vertex3f> vertices;
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+				Geometry::VertexCloud<Geom::Vertex3f> vertices;
 			//Geom::IndexBuffer<Geom::Index16> indices;
 			{
 				Common::Size numSides = 16;
-				vertices.Reserve(2 * numSides + 2); // +2 для центров оснований
+				vertices.Reserve(2 * numSides + 2); // +2 пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
-				// Центры оснований
-				vertices.Add({ 0, -shapeGeometryCylinder1->height_ / 2, 0 });  // Нижний центр
-				vertices.Add({ 0, shapeGeometryCylinder1->height_ / 2, 0 });   // Верхний центр
+				// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
+				vertices.Add({ 0, -shapeGeometryCylinder1->height_ / 2, 0 });  // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
+				vertices.Add({ 0, shapeGeometryCylinder1->height_ / 2, 0 });   // пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 
-				// Вершины боковой поверхности
+				// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 				for (int i = 0; i < numSides; ++i) {
 					float angle = 2.0f * Math::pi * i / numSides;
 					float x = shapeGeometryCylinder1->radius_ * cos(angle);
 					float z = shapeGeometryCylinder1->radius_ * sin(angle);
 
-					// Нижнее основание
+					// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 					vertices.Add({ x, -shapeGeometryCylinder1->height_, z });
-					// Верхнее основание
+					// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 					vertices.Add({ x, shapeGeometryCylinder1->height_, z });
 				}
 				//for (Common::Index i = 0; i < 2 * numSides + 2; i++) {
@@ -689,6 +748,12 @@ namespace OksEngine
 			auto shape = engine0->engine_->CreateShape(shapeCreateInfo);
 			CreateComponent<PhysicsShape>(entity1id, shape);
 
+			Geom::IndexBuffer<Geom::Index32> indices;
+			for (Common::Index i = 0; i < vertices.GetVerticesNumber(); i++) {
+				indices.Add(i);
+			}
+			CreateComponent<Vertices3D>(entity1id, vertices);
+			CreateComponent<Indices>(entity1id, indices);
 
 		}
 
@@ -733,9 +798,9 @@ namespace OksEngine
 				vertices.Add({ vertex.x_, vertex.y_, vertex.z_ });
 			}
 
-			Geom::IndexBuffer<Geom::Index16> indices;
-			indices.Reserve(shapeGeometryData1->indices_.size());
-			indices.Add(
+			Geom::IndexBuffer<Geom::Index16> indices16;
+			indices16.Reserve(shapeGeometryData1->indices_.size());
+			indices16.Add(
 				shapeGeometryData1->indices_.data(),
 				shapeGeometryData1->indices_.size());
 
@@ -743,48 +808,18 @@ namespace OksEngine
 				.material_ = material,
 				.convexGeometry_ = shapeGeometryData1->convexGeometry_,
 				.vertices_ = vertices,
-				.indices_ = indices
+				.indices_ = indices16
 			};
 
 			auto shape = engine0->engine_->CreateShape(shapeCreateInfo);
 			CreateComponent<PhysicsShape>(entity1id, shape);
 
-			//		//{
-			////	DynamicRigidBodyCustomMeshShape* dynamicRigidBody = world->GetComponent<DynamicRigidBodyCustomMeshShape>(entityId);
-			//
-			////	if (dynamicRigidBody != nullptr) {
-			////		auto physicsSubsystem = GetContext().GetPhysicsSubsystem();
-			////		if (dynamicRigidBody->id_ == Common::Limits<Common::Index>::Max()) {
-			////			auto modelGeom = physicsSubsystem->GetGeom(dynamicRigidBody->meshName_);
-			////			PAL::Shape::CreateInfoMesh shapeCreateInfo{
-			////				.material_ = PAL::Shape::Material{
-			////					.staticFriction_ = dynamicRigidBody->material_.staticFriction_,
-			////					.dynamicFriction_ = dynamicRigidBody->material_.dynamicFriction_,
-			////					.restitution_ = dynamicRigidBody->material_.restitution_
-			////				},
-			////				.shape_ = *(modelGeom->begin())
-			////			};
-			//
-			////			auto shape = physicsSubsystem->CreateShape(shapeCreateInfo);
-			////			PAL::RigidBody::CreateInfo createInfo{
-			////				.transform_ = dynamicRigidBody->transform_,
-			////				.shape_ = shape
-			////			};
-			////			dynamicRigidBody->id_ = physicsSubsystem->CreateRigidBody(createInfo);
-			////			physicsSubsystem->AddRigidBodyToWorld(dynamicRigidBody->id_);
-			////		}
-			//
-			////		//}
-			////		//auto rbTransform = physicsSubsystem->GetRigidBodyTransform(rigidBodyCapsule->id_);
-			////		////Delete rotate component
-			////		//rbTransform[0][0] = 1.0f; rbTransform[0][1] = 0.0f; rbTransform[0][2] = 0.0f;
-			////		//rbTransform[1][0] = 0.0f; rbTransform[1][1] = 1.f; rbTransform[1][2] = 0.0f;
-			////		//rbTransform[2][0] = 0.0f; rbTransform[2][1] = 0.0f; rbTransform[2][2] = 1.0f;
-			////		//rbTransform = glm::rotate(rbTransform, glm::radians(90.f), glm::vec3(0.f, 0.f, 1.f));
-			////		//physicsSubsystem->SetRigidBodyTransform(rigidBodyCapsule->id_, rbTransform);
-			////		//rigidBodyCapsule->SetTransform(rbTransform);
-			////	}
-			////}
+			Geom::IndexBuffer<Geom::Index32> indices32;
+			for (Common::Index i = 0; i < indices16.GetIndicesNumber(); i++) {
+				indices32.Add(indices16[i]);
+			}
+			CreateComponent<Indices>(entity1id, indices32);
+			CreateComponent<Vertices3D>(entity1id, vertices);
 
 		};
 
@@ -1013,6 +1048,7 @@ namespace OksEngine
 			const float fullMsToSimulate = previousFrameDuration0->microseconds_ / 1000.0f;
 			float msLeftToSimulate = fullMsToSimulate;
 
+			BEGIN_PROFILE("Simulate %f", fullMsToSimulate);
 			while (msLeftToSimulate >= simulationGranularity1->ms_) {
 				engine1->engine_->GetWorld()->Simulate(simulationGranularity1->ms_ / 1000.0f);
 				msLeftToSimulate -= simulationGranularity1->ms_;
@@ -1021,6 +1057,7 @@ namespace OksEngine
 			if (!Math::IsEqual(msLeftToSimulate / 1000.0f, 0.0f)) {
 				engine1->engine_->GetWorld()->Simulate(msLeftToSimulate / 1000.0f);
 			}
+			END_PROFILE();
 		};
 
 	}

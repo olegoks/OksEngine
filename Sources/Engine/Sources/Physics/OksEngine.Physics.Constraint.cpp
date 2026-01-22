@@ -265,6 +265,7 @@ namespace OksEngine
 
 						return 0;
 					}(),
+					.disableCollision_ = constraintFilter.IsSet<Physics::DisableCollision>(),
 					.invMassScaleFirst_ = [&]() -> float {
 						if (constraintFilter.IsSet<Physics::InvMassScale>()) {
 							return GetComponent<Physics::InvMassScale>(entity1id)->first_;

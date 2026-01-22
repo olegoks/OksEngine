@@ -7,7 +7,7 @@ PhysicsNamespace = {
             { type = "std::shared_ptr<PE::PhysicsEngine>", name = "engine" }
         }
     },
-    EnableSimulationComponent = { },
+    EnableSimulationComponent = {},
     SimulationGranularityComponent = {
         bindable = false,
         serializable = false,
@@ -17,7 +17,7 @@ PhysicsNamespace = {
     },
     -- TODO: read simualtion granularity froim config
     CreateEngineSystem = {
-        
+
         type = "Initialize",
 
         updateMethod = {
@@ -120,14 +120,14 @@ PhysicsNamespace = {
     DynamicRigidBodyComponent = {
     },
 
-    LockLinearXComponent = { },
-    LockLinearYComponent = { },
-    LockLinearZComponent = { }, 
+    LockLinearXComponent = {},
+    LockLinearYComponent = {},
+    LockLinearZComponent = {},
 
-    LockAngularXComponent = { },
-    LockAngularYComponent = { },
-    LockAngularZComponent = { }, 
-    
+    LockAngularXComponent = {},
+    LockAngularYComponent = {},
+    LockAngularZComponent = {},
+
     DynamicRigidBodyIdComponent = {
         serializable = false,
 
@@ -140,7 +140,7 @@ PhysicsNamespace = {
     SetVelocityRequestStruct = {
         fields = {
             { type = "glm::vec3", name = "direction" },
-            { type = "float", name = "velocity" },
+            { type = "float",     name = "velocity" },
         }
     },
 
@@ -178,7 +178,7 @@ PhysicsNamespace = {
     AddVelocityRequestStruct = {
         fields = {
             { type = "glm::vec3", name = "direction" },
-            { type = "float", name = "velocity" },
+            { type = "float",     name = "velocity" },
         }
     },
 
@@ -216,7 +216,7 @@ PhysicsNamespace = {
         manualBindFunction = true,
         fields = {
             { type = "glm::vec3", name = "direction" },
-            { type = "float", name = "value" }
+            { type = "float",     name = "value" }
         }
     },
 
@@ -224,7 +224,7 @@ PhysicsNamespace = {
     SetAngularVelocityRequestStruct = {
         fields = {
             { type = "glm::vec3", name = "axis" },
-            { type = "float", name = "degreesInSecond" },
+            { type = "float",     name = "degreesInSecond" },
         }
     },
 
@@ -268,13 +268,14 @@ PhysicsNamespace = {
         }
     },
     ShapeGeometryDataComponent = {
-        description = "Shape geometry data. If convexGeometry is set Physics engine will try to create convex shape using given geometry.",
+        description =
+        "Shape geometry data. If convexGeometry is set Physics engine will try to create convex shape using given geometry.",
         manualEditFunction = true,
         manualAddFunction = true,
         manualParseFunction = true,
         manualSerializeFunction = true,
         fields = {
-            { type = "bool", name = "convexGeometry", defaultValue = "true" },
+            { type = "bool",                        name = "convexGeometry", defaultValue = "true" },
             { type = "std::vector<ShapeVertex>",    name = "vertices" },
             { type = "std::vector<Common::UInt16>", name = "indices" }
         }
@@ -332,10 +333,15 @@ PhysicsNamespace = {
                         "ShapeGeometryData"
                     },
                     createsComponents = {
-                        "PhysicsShape"
+                        "PhysicsShape",
+                        "Vertices3D",
+                        "Indices"
                     },
                     excludes = {
-                        "PhysicsShape"
+                        "PhysicsShape",
+                        "Vertices3D",
+                        "Indices"
+
                     }
                 },
 
@@ -358,10 +364,15 @@ PhysicsNamespace = {
                         "ShapeGeometryCapsule"
                     },
                     createsComponents = {
-                        "PhysicsShape"
+                        "PhysicsShape",
+                        "Vertices3D",
+                        "Indices"
                     },
                     excludes = {
-                        "PhysicsShape"
+                        "PhysicsShape",
+                        "Vertices3D",
+                        "Indices"
+
                     }
                 },
 
@@ -384,10 +395,15 @@ PhysicsNamespace = {
                         "ShapeGeometryBox"
                     },
                     createsComponents = {
-                        "PhysicsShape"
+                        "PhysicsShape",
+                        "Vertices3D",
+                        "Indices"
                     },
                     excludes = {
-                        "PhysicsShape"
+                        "PhysicsShape",
+                        "Vertices3D",
+                        "Indices"
+
                     }
                 },
 
@@ -410,10 +426,15 @@ PhysicsNamespace = {
                         "ShapeGeometryCylinder"
                     },
                     createsComponents = {
-                        "PhysicsShape"
+                        "PhysicsShape",
+                        "Vertices3D",
+                        "Indices"
                     },
                     excludes = {
-                        "PhysicsShape"
+                        "PhysicsShape",
+                        "Vertices3D",
+                        "Indices"
+
                     }
                 },
 
@@ -466,7 +487,7 @@ PhysicsNamespace = {
                         "RigidBodyId"
                     },
                     excludes = { "RigidBodyId" },
-                    
+
                 }
             },
             accessingEntities = {
@@ -531,8 +552,8 @@ PhysicsNamespace = {
             processesEntities = {
                 {
                     processesComponents = {
-                    "Engine",
-                    "EnableSimulation"
+                        "Engine",
+                        "EnableSimulation"
                     }
                 },
                 {
@@ -554,7 +575,7 @@ PhysicsNamespace = {
     --CONSTRAINTS
 
     CharacterNamespace = {
-        CapsuleControllerComponent = { },
+        CapsuleControllerComponent = {},
         CapsuleControllerIdComponent = {
             serializable = false,
 
