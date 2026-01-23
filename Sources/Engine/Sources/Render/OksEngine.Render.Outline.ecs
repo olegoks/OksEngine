@@ -152,10 +152,23 @@ RenderNamespace = {
             }
         },
 
+        MeshInfoStruct = {
+            fields = {
+                { type = "ECS2::Entity::Id::ValueType", name = "id"},
+                { type = "float", name = "posX" },
+                { type = "float", name = "posY" },
+                { type = "float", name = "posZ" },
+                { type = "float", name = "w" },
+                { type = "float", name = "x" },
+                { type = "float", name = "y" },
+                { type = "float", name = "z" },
+            }
+        },
+
         RenderModelIdsSystem = {
             callOrder = {
                 runAfter = "BeginRenderPass",
-                runBefore = "EndRenderPass"
+                runBefore = "BeginRenderOutlineSubpass"
             },
             updateMethod = {
                 processesEntities = {
@@ -169,53 +182,33 @@ RenderNamespace = {
                     },
                     {
                         processesComponents = {
-                            "Debug::Debugger",
-                            "Debug::Enable",
-                            "Debug::Lines::VertexBuffer",
-                            "Debug::Lines::DriverVertexBuffer",
-                            "Debug::FlatShade::VertexBuffer",
-                            "Debug::FlatShade::DriverVertexBuffer"
-                        }
-                    },
-                    {
-                        processesComponents = {
                             "Camera",
                             "Active",
                             "DriverViewProjectionUniformBuffer",
                             "CameraTransformResource"
                         }
-                    },       
-                },
-                accessingEntities = {
+                    },   
                     {
-                        archetype = "Mesh"
-                    },
-                    {
-                        accessingComponents = {
+                        processesComponents = {
                             "WorldPosition3D",
                             "WorldRotation3D",
-                            "WorldScale3D"
-                        }
-                    },
-                    {
-                        accessingComponents = {
-                            "Render::Mdl::ModelNodeEntityIds"
-                        }
-                    },
-                    {
-                        accessingComponents = {
-                            "DriverTransform3D",
-                            "Transform3DResource"
+                            "WorldScale3D",
+                            "Physics::DynamicRigidBody",
+                            "Physics::RigidBodyId",
+                            "Physics::PhysicsShape",
+                            "DriverVertexBuffer",
+                            "DriverIndexBuffer",
+                            "Vertices3D",
+                            "Indices"
                         }
                     }
                 }
             }
         },
-        
         BeginRenderOutlineSubpassSystem = {
             callOrder = {
-                runAfter = { "BeginRenderPass" },
-                runBefore = { "RenderModelIds" }
+                runAfter = { "RenderModelIds" },
+                runBefore = { "RenderOutline" }
             },
             updateMethod = {
                 processesEntities = {

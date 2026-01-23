@@ -50,7 +50,7 @@ namespace OksEngine
 				RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = renderDriver0->driver_->CreateAttachmentSet(attachmentSetCI);
 
 				CreateComponent<AttachmentSet>(entity1id, rpAttachmentsSetId);
-			
+
 			};
 
 		}
@@ -62,7 +62,7 @@ namespace OksEngine
 		namespace Outline
 		{
 			void CreateRenderPassId::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0) {
-			
+
 
 				auto driver = renderDriver0->driver_;
 
@@ -111,7 +111,7 @@ namespace OksEngine
 				const RAL::Driver::RP::Id renderPassId = driver->CreateRenderPass(rpCI);
 
 				CreateComponent<RenderPassId>(entity0id, renderPassId);
-			
+
 			};
 
 		}
@@ -125,7 +125,7 @@ namespace OksEngine
 			void CreatePipeline::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId0, ECS2::Entity::Id entity1id,
 				const OksEngine::ResourceSystem* resourceSystem1) {
-			
+
 
 				auto driver = renderDriver0->driver_;
 
@@ -165,7 +165,7 @@ namespace OksEngine
 					RAL::Driver::PushConstant pushConstant{
 						.shaderStage_ = RAL::Driver::Shader::Stage::VertexShader,
 						.offset_ = 0,
-						.size_ = sizeof(ECS2::Entity::Id::ValueType)
+						.size_ = sizeof(MeshInfo)
 					};
 					pushConstants.emplace_back(pushConstant);
 				}
@@ -187,6 +187,7 @@ namespace OksEngine
 					.indexType_ = RAL::Driver::IndexType::UI32,
 					.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
 					.cullMode_ = RAL::Driver::CullMode::Back,
+					.pushConstants_ = pushConstants,
 					.shaderBindings_ = shaderBindings,
 					.enableDepthTest_ = true,
 					.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
@@ -196,7 +197,7 @@ namespace OksEngine
 				const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipelineCI);
 
 				CreateComponent<PipelineId>(entity0id, pipelineId);
-			
+
 			};
 
 		}
@@ -211,7 +212,7 @@ namespace OksEngine
 				const OksEngine::Render::Outline::RenderPassId* renderPassId0,
 				const OksEngine::Render::Outline::AttachmentSet* attachmentSet0,
 				const OksEngine::Render::Outline::PipelineId* pipelineId0) {
-			
+
 
 				auto driver = renderDriver0->driver_;
 
@@ -231,7 +232,7 @@ namespace OksEngine
 					renderPassId0->rpId_,
 					attachmentSet0->attachmentsSetId_,
 					clearValues, { 0, 0 }, { 2560, 1440 });
-			
+
 			};
 
 		}
@@ -242,43 +243,64 @@ namespace OksEngine
 	{
 		namespace Outline
 		{
-			void RenderModelIds::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
+			void RenderModelIds::Update(
+				ECS2::Entity::Id entity0id,
+				OksEngine::RenderDriver* renderDriver0,
 				const OksEngine::Render::EnableRegularRender* render__EnableRegularRender0,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId0,
-				const OksEngine::Render::Outline::PipelineId* pipelineId0, ECS2::Entity::Id entity1id,
-				const OksEngine::Render::Debug::Debugger* debug__Debugger1,
-				const OksEngine::Render::Debug::Enable* debug__Enable1,
-				const OksEngine::Render::Debug::Lines::VertexBuffer* debug__Lines__VertexBuffer1,
-				const OksEngine::Render::Debug::Lines::DriverVertexBuffer* debug__Lines__DriverVertexBuffer1,
-				const OksEngine::Render::Debug::FlatShade::VertexBuffer* debug__FlatShade__VertexBuffer1,
-				const OksEngine::Render::Debug::FlatShade::DriverVertexBuffer* debug__FlatShade__DriverVertexBuffer1,
-				ECS2::Entity::Id entity2id, 
-				const OksEngine::Camera* camera2, 
-				const OksEngine::Active* active2,
-				const OksEngine::DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer2,
-				const OksEngine::CameraTransformResource* cameraTransformResource2) {
-			
+				const OksEngine::Render::Outline::PipelineId* pipelineId0,
 
-	//			auto driver = renderDriver0->driver_;
+				ECS2::Entity::Id entity1id,
+				const OksEngine::Camera* camera1,
+				const OksEngine::Active* active1,
+				const OksEngine::DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
+				const OksEngine::CameraTransformResource* cameraTransformResource1,
 
-	//			driver->BindPipeline(pipelineId0->id_);
-
-	//			driver->Bind(pipelineId0->id_, 0,
-	//				{
-	//					cameraTransformResource2->id_
-	//				}
-	//			);
-
-	///*			driver->PushConstants(pipelineId0->id_, RAL::Driver::Shader::Stage::FragmentShader, 
-	//				
-	//				);*/
-
-	//			driver->BindVertexBuffer(debug__FlatShade__DriverVertexBuffer1->id_, 0);
+				ECS2::Entity::Id entity2id,
+				const OksEngine::WorldPosition3D* worldPosition3D2,
+				const OksEngine::WorldRotation3D* worldRotation3D2,
+				const OksEngine::WorldScale3D* worldScale3D2,
+				const OksEngine::Physics::DynamicRigidBody* physics__DynamicRigidBody2,
+				const OksEngine::Physics::RigidBodyId* physics__RigidBodyId2,
+				const OksEngine::Physics::PhysicsShape* physics__PhysicsShape2,
+				const OksEngine::DriverVertexBuffer* driverVertexBuffer2,
+				const OksEngine::DriverIndexBuffer* driverIndexBuffer2,
+				const OksEngine::Vertices3D* vertices3D2,
+				const OksEngine::Indices* indices2) {
 
 
-	//			driver->Draw(debug__FlatShade__VertexBuffer1->vertices_.GetVerticesNumber());
+				MeshInfo meshInfo{
+					entity2id.GetRawValue(),
+					worldPosition3D2->x_,
+					worldPosition3D2->y_,
+					worldPosition3D2->z_,
+					worldRotation3D2->w_,
+					worldRotation3D2->x_,
+					worldRotation3D2->y_,
+					worldRotation3D2->z_
+				};
 
-			
+				auto driver = renderDriver0->driver_;
+
+				driver->BindPipeline(pipelineId0->id_);
+
+				driver->Bind(pipelineId0->id_, 0,
+					{
+						cameraTransformResource1->id_
+					}
+				);
+
+				driver->PushConstants(
+					pipelineId0->id_,
+					RAL::Driver::Shader::Stage::VertexShader,
+					sizeof(meshInfo), &meshInfo);
+
+				driver->BindVertexBuffer(driverVertexBuffer2->id_, 0);
+
+
+				driver->Draw(vertices3D2->vertices_.GetVerticesNumber());
+
+
 			};
 
 		}
@@ -308,13 +330,13 @@ namespace OksEngine
 			void EndRenderPass::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId0,
 				const OksEngine::Render::Outline::PipelineId* pipelineId0) {
-			
+
 
 				auto driver = renderDriver0->driver_;
 
 				driver->EndRenderPass();
 
-			
+
 			};
 
 		}

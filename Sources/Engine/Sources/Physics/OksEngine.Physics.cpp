@@ -597,6 +597,131 @@ namespace OksEngine
 
 		};
 
+		AI_GENERATED
+			struct Vertex {
+			glm::vec3 position;
+			glm::vec3 normal;
+		};
+
+
+		AI_GENERATED
+			std::vector<Vertex> generateCapsuleVertices(float radius, float height, int segments, int rings) {
+			std::vector<Vertex> vertices;
+
+			// Общая высота капсулы = высота цилиндра + 2 * радиус полусфер
+			float cylinderHeight = height - 2.0f * radius;
+			if (cylinderHeight < 0) cylinderHeight = 0; // если высота меньше диаметра
+
+			// 1. Генерация верхней полусферы
+			for (int i = 0; i <= rings; ++i) {
+				float phi = (float)i / rings * (3.14 / 2.0f); // от 0 до π/2
+				float y = cos(phi) * radius + cylinderHeight / 2.0f;
+				float sliceRadius = sin(phi) * radius;
+
+				for (int j = 0; j <= segments; ++j) {
+					float theta = (float)j / segments * 2.0f * 3.14;
+
+					Vertex vertex;
+					vertex.position.x = sliceRadius * cos(theta);
+					vertex.position.z = sliceRadius * sin(theta);
+					vertex.position.y = y;
+
+					// Нормаль для полусферы (направлена от центра)
+					vertex.normal = glm::normalize(vertex.position - glm::vec3(0, cylinderHeight / 2, 0));
+
+					//// Текстурные координаты (опционально)
+					//vertex.texCoord.x = (float)j / segments;
+					//vertex.texCoord.y = (float)i / rings * 0.5f; // верхняя половина текстуры
+
+					vertices.push_back(vertex);
+				}
+			}
+
+			// 2. Генерация цилиндрической части
+			int cylinderRings = rings / 2; // количество разбиений по высоте цилиндра
+			for (int i = 0; i <= cylinderRings; ++i) {
+				float y = cylinderHeight / 2.0f - (float)i / cylinderRings * cylinderHeight;
+
+				for (int j = 0; j <= segments; ++j) {
+					float theta = (float)j / segments * 2.0f * 3.14;
+
+					Vertex vertex;
+					vertex.position.x = radius * cos(theta);
+					vertex.position.z = radius * sin(theta);
+					vertex.position.y = y;
+
+					// Нормаль для цилиндра (перпендикулярна оси Y)
+					vertex.normal = glm::normalize(glm::vec3(cos(theta), 0, sin(theta)));
+
+					//// Текстурные координаты
+					//vertex.texCoord.x = (float)j / segments;
+					//vertex.texCoord.y = 0.5f + (float)i / cylinderRings * 0.5f;
+
+					vertices.push_back(vertex);
+				}
+			}
+
+			// 3. Генерация нижней полусферы
+			for (int i = 0; i <= rings; ++i) {
+				float phi = (float)i / rings * (3.14 / 2.0f); // от 0 до π/2
+				float y = -cos(phi) * radius - cylinderHeight / 2.0f;
+				float sliceRadius = sin(phi) * radius;
+
+				for (int j = 0; j <= segments; ++j) {
+					float theta = (float)j / segments * 2.0f * 3.14;
+
+					Vertex vertex;
+					vertex.position.x = sliceRadius * cos(theta);
+					vertex.position.z = sliceRadius * sin(theta);
+					vertex.position.y = y;
+
+					// Нормаль для нижней полусферы
+					vertex.normal = glm::normalize(vertex.position - glm::vec3(0, -cylinderHeight / 2, 0));
+
+					//// Текстурные координаты
+					//vertex.texCoord.x = (float)j / segments;
+					//vertex.texCoord.y = 1.0f - (float)i / rings * 0.5f;
+
+					vertices.push_back(vertex);
+				}
+			}
+
+			return vertices;
+		}
+		AI_GENERATED
+			std::vector<Vertex> generateCapsuleTriangles(float radius, float height, int segments, int rings) {
+			auto vertices = generateCapsuleVertices(radius, height, segments, rings);
+			std::vector<Vertex> triangles;
+
+			int totalRings = rings * 2 + rings / 2; // полусферы + цилиндр
+
+			// Создаем треугольники из вершин
+			for (int i = 0; i < totalRings; ++i) {
+				for (int j = 0; j < segments; ++j) {
+					// Индексы четырех вершин текущего квада
+					int i0 = i * (segments + 1) + j;
+					int i1 = i * (segments + 1) + j + 1;
+					int i2 = (i + 1) * (segments + 1) + j;
+					int i3 = (i + 1) * (segments + 1) + j + 1;
+
+					// Проверяем, что индексы в пределах массива
+					if (i2 < vertices.size() && i3 < vertices.size()) {
+						// Первый треугольник
+						triangles.push_back(vertices[i0]);
+						triangles.push_back(vertices[i1]);
+						triangles.push_back(vertices[i2]);
+
+						// Второй треугольник
+						triangles.push_back(vertices[i1]);
+						triangles.push_back(vertices[i3]);
+						triangles.push_back(vertices[i2]);
+					}
+				}
+			}
+
+			return triangles;
+		}
+
 		void CreatePhysicsShapeCapsule::Update(
 			ECS2::Entity::Id entity0id,
 			Physics::Engine* engine0,
@@ -619,6 +744,49 @@ namespace OksEngine
 
 			auto shape = engine0->engine_->CreateShape(shapeCreateInfo);
 			CreateComponent<PhysicsShape>(entity1id, shape);
+
+			Geom::VertexCloud<Geom::Vertex3f> vertices;
+
+			auto capsuleVertices = generateCapsuleTriangles(
+				shapeGeometryCapsule1->radius_,
+				shapeGeometryCapsule1->height_,
+				shapeGeometryCapsule1->segments_,
+				shapeGeometryCapsule1->rings_);
+
+			for (Common::Index i = 0; i < capsuleVertices.size(); i += 3) {
+
+				const Vertex& shapeVertex0 = capsuleVertices[i];
+				const Vertex& shapeVertex1 = capsuleVertices[i + 1];
+				const Vertex& shapeVertex2 = capsuleVertices[i + 2];
+
+				const glm::vec3 v0 = shapeVertex0.position;
+				const glm::vec3 v1 = shapeVertex1.position;
+				const glm::vec3 v2 = shapeVertex2.position;
+
+				vertices.Add(
+					{
+						Geom::Vector3f{ v0.x,v0.y, v0.z }
+					});
+
+				vertices.Add(
+					{
+						Geom::Vector3f{ v1.x,v1.y, v1.z }
+					});
+
+				vertices.Add(
+					{
+						Geom::Vector3f{ v2.x,v2.y, v2.z }
+					});
+
+			}
+			Geom::IndexBuffer<Geom::Index32> indices;
+			for (Common::Index i = 0; i < vertices.GetVerticesNumber(); i++) {
+				indices.Add(i);
+			}
+			CreateComponent<Vertices3D>(entity1id, vertices);
+			CreateComponent<Indices>(entity1id, indices);
+
+
 		}
 
 		void CreatePhysicsShapeBox::Update(ECS2::Entity::Id entity0id, Physics::Engine* engine0, ECS2::Entity::Id entity1id,
