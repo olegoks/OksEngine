@@ -3,10 +3,30 @@ HandleCursorEventsComponent = {
     fields = { }
 }
 
+CursorPositionStruct = {
+    fields = {
+        { type = "int", name = "x" },
+        { type = "int", name = "y" }
+    }
+}
+
+CursorOffsetStruct = {
+    fields = {
+        { type = "int", name = "x" },
+        { type = "int", name = "y" }
+    }
+}
+
+CursorEventStruct = {
+    fields = {
+        { type = "CursorPosition", name = "position" },
+        { type = "CursorOffset", name = "offset" }
+    }
+}
 
 CursorEventsComponent = {
     serializable = false,
     fields = { 
-        { type = "std::queue<UIAL::Window::CursorEvent>", name = "events" }
+        { type = "std::queue<CursorEvent>", name = "events" }
      }
 }

@@ -16,7 +16,7 @@ namespace OksEngine
 		CursorEvents* cursorEvents0) {
 	
 
-		cursorEvents0->events_ = std::queue<UIAL::Window::CursorEvent>{};
+		cursorEvents0->events_ = std::queue<CursorEvent>{};
 	};
 
 	void SendWindowCursorEvents::Update(
@@ -39,7 +39,16 @@ namespace OksEngine
 	
 		while (auto event = mainWindow0->window_->GetCursorEvent()) {
 			if (event.has_value()) {
-				cursorEvents0->events_.push(event.value());
+				const UIAL::Window::CursorEvent& cursorEvent = event.value();
+				cursorEvents0->events_.push(CursorEvent{
+					{ 
+						cursorEvent.position_.x,
+						cursorEvent.position_.y	},
+					{	
+						cursorEvent.offset_.x,
+						cursorEvent.offset_.y
+					}					
+					});
 			}
 		}
 	

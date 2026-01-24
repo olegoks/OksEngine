@@ -1,6 +1,50 @@
 RenderNamespace = {
     OutlineNamespace = {
-                
+
+        StateComponent = {},
+        SelectedEntityIdComponent = {
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+
+        CreateStateSystem = {
+            type = "Initialize",
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "State",
+                            "SelectedEntityId"
+                        }
+                    }
+                }
+            }
+        },
+
+        GetSelectedEntityIdSystem = {
+            callOrder = {
+                runAfter = { "EndRender"  }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "State",
+                            { name = "SelectedEntityId", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "RenderDriver",
+                            "DataStorageBuffer"
+                        }
+                    }
+                }
+            }
+        },
+
+
         IdsAttachmentComponent = "Render::Attachment",
 
         CreateIdsAttachmentSystem = {
@@ -28,18 +72,21 @@ RenderNamespace = {
         
         DataStruct = {
             fields = {
-                { type = "unsigned int", name = "cursorPosX"},
-                { type = "unsigned int", name = "cursorPosY"},
+                { type = "int", name = "cursorPosX"},
+                { type = "int", name = "cursorPosY"},
                 { type = "ECS2::Entity::Id::ValueType", name = "selectedId" }
             }
         },
 
-        DataUniformBufferComponent = "UniformBuffer",
-        DataUniformBufferResourceComponent = {
+        DataStorageBufferComponent  = {
+            serializable = false,
+            fields = { { type = "RAL::Driver::StorageBuffer::Id", name = "id" } }
+        },
+        DataStorageBufferResourceComponent = {
             serializable = false,
             fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
         },
-        CreateDataUniformBufferResourceSystem = {
+        CreateDataStorageBufferResourceSystem = {
             type = "Initialize",
             callOrder = {
                 runAfter = { "CreateRenderDriver" }
@@ -51,12 +98,12 @@ RenderNamespace = {
                             { name = "RenderDriver", readonly = false }
                         },
                         createsComponents = {
-                            "DataUniformBuffer",
-                            "DataUniformBufferResource"
+                            "DataStorageBuffer",
+                            "DataStorageBufferResource"
                         },
                         excludes = {
-                            "DataUniformBuffer",
-                            "DataUniformBufferResource"
+                            "DataStorageBuffer",
+                            "DataStorageBufferResource"
                         }
                     }
                 }
@@ -240,8 +287,11 @@ RenderNamespace = {
                             "Render::EnableRegularRender",
                             "RenderPassId",
                             "PipelineId",
-                            "DataUniformBuffer",
-                            "DataUniformBufferResource"
+                            "DataStorageBuffer",
+                            "DataStorageBufferResource",
+                            "CursorEvents",
+                            "MouseEvents"
+
                         }
                     },
                     {

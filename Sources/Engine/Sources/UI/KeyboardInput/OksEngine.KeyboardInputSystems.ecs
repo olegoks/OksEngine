@@ -16,6 +16,10 @@ InputNamespace = {
 
 
     GetWindowKeyboardEventsSystem = {
+        callOrder = {
+            runAfter = { "SystemMarks::FRAME_HEAD_START", "ProcessInput" },
+            runBefore = { "SystemMarks::FRAME_HEAD_END", "SendWindowKeyboardEvents" }
+        },
         updateMethod = {
             processesEntities = {
                 {
@@ -30,7 +34,12 @@ InputNamespace = {
 
     SendWindowKeyboardEventsSystem = {
         callOrder = {
-            runAfter = "Input::GetWindowKeyboardEvents"
+            runAfter = { 
+                "SystemMarks::FRAME_HEAD_START",
+                "Input::GetWindowKeyboardEvents" },
+            runBefore = { 
+                "SystemMarks::FRAME_HEAD_END",
+                "ClearKeyboardEvents" }
         },
         updateMethod = {
             processesEntities = {
@@ -55,7 +64,8 @@ InputNamespace = {
 
     ClearKeyboardEventsSystem = {
         callOrder = {
-            runAfter = "ImGUI::EndFrame"
+            runAfter = { "SystemMarks::FRAME_TAIL_START" },
+            runBefore = { "SystemMarks::FRAME_TAIL_END" }
         },
         updateMethod = {
             processesEntities = {

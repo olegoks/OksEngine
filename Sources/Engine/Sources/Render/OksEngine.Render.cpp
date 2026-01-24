@@ -374,6 +374,10 @@ namespace OksEngine
 			}
 
 		}
+
+
+		CreateComponent<HandleCursorEvents>(driverEntityId);
+		CreateComponent<HandleMouseEvents>(driverEntityId);
 	};
 
 

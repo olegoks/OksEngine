@@ -1,18 +1,4 @@
 
-GetWindowCursorEventsSystem = {
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    { name = "MainWindow", readonly = false },
-                    { name = "CursorEvents", readonly = false }
-                }
-            }
-        }
-    }
-}
-
-
 CreateCursorEventsSystem = {
     updateMethod = {
         processesEntities = {
@@ -27,10 +13,35 @@ CreateCursorEventsSystem = {
     }
 }
 
+GetWindowCursorEventsSystem = {
+    callOrder = {
+            runAfter = { "SystemMarks::FRAME_HEAD_START", "ProcessInput" },
+            runBefore = { "SystemMarks::FRAME_HEAD_END", "SendWindowCursorEvents" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MainWindow", readonly = false },
+                    { name = "CursorEvents", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+
+
+
 SendWindowCursorEventsSystem = {
     callOrder = {
-        runAfter = "GetWindowCursorEvents"
-    },
+            runAfter = { 
+                "SystemMarks::FRAME_HEAD_START",
+                "GetWindowCursorEvents" },
+            runBefore = { 
+                "SystemMarks::FRAME_HEAD_END",
+                "ClearCursorEvents" }
+        },
     updateMethod = {
          processesEntities = {
             {
@@ -55,7 +66,8 @@ SendWindowCursorEventsSystem = {
 
 ClearCursorEventsSystem = {
     callOrder = {
-        runAfter = "ImGUI::EndFrame"
+        runAfter = { "SystemMarks::FRAME_TAIL_START" },
+        runBefore = { "SystemMarks::FRAME_TAIL_END" }
     },
     updateMethod = {
         processesEntities = {

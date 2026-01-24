@@ -200,6 +200,10 @@ namespace UIAL {
 			float scroll_ = 0.0f;
 		};
 
+		enum class CursorMode {
+			//TODO: need to realize after ECS enums
+		};
+
 		struct CursorEvent {
 			glm::ivec2 position_{ 0, 0 };
 			glm::ivec2 offset_{ 0, 0 };

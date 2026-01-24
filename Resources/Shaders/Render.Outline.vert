@@ -8,15 +8,11 @@ layout(set = 0, binding = 0) uniform Camera {
     mat4 proj;
 } camera;
 
-layout(set = 1, binding = 0) uniform Data {
-    uint cursorPosX_;
-    uint cursorPosY_;
-    uint64_t selectedId_;
-} data;
 
 layout(location = 0) in vec3 inPosition;
 
 layout(location = 0) out vec4 outColor;
+layout(location = 1) out flat uint id;
 
 layout(push_constant) uniform PushConstants { 
     uint64_t id_;      // Components index for current mesh.
@@ -46,6 +42,7 @@ vec4 idToColor(uint id) {
 
 void main() {
     outColor = idToColor(uint(id_));
+    id = uint(id_);
     // outColor = vec4(
     //     float(id_) / 255.0,  // R
     //     1.0 - (float(id_) / 255.0),                      // G

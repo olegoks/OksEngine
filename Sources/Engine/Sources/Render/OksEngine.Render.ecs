@@ -40,6 +40,7 @@ RenderNamespace = {
         }
     },
 
+    --TODO: need to realize
     PipelineDescriptionComponent = {
         bindable = false,
         --TODO: manual
@@ -136,7 +137,9 @@ CreateRenderDriverSystem = {
                     "GPGPUECS::StorageBuffer::WorldPositions3D",
                     "GPGPUECS::StorageBuffer::WorldRotations3D",
                     "GPGPUECS::StorageBuffer::WorldScales3D",
-                    "GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices"
+                    "GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices",
+                    "HandleCursorEvents",   -- for outline feature
+                    "HandleMouseEvents"     -- for outline feature
                 }
             }
         }

@@ -101,6 +101,7 @@ namespace RAL {
 			struct CreateInfo {
 				Common::Size size_ = 0;
 			};
+			using CI = CreateInfo;
 		};
 		using SB = StorageBuffer;
 

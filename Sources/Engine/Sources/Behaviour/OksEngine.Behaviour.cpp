@@ -223,7 +223,7 @@ namespace OksEngine
 				std::string mouseEvent = "";
 				//mouseKey = magic_enum::enum_name(event.key_).data();		// "LEFT_BUTTON"
 				//mouseEvent = magic_enum::enum_name(event.event_).data();	// "Pressed"
-				const auto result = processMouseInputMethod(luaObjectInputProcessor, luaObject, mouseKey, mouseEvent, event.offset_.x, event.offset_.y, 0.0f);
+				const auto result = processMouseInputMethod(luaObjectInputProcessor, luaObject, mouseKey, mouseEvent, event.offset_.x_, event.offset_.y_, 0.0f);
 				ASSERT_MSG(!result.hasFailed() && result.wasOk(), (result.errorCode().message() + result.errorMessage()).c_str());
 				cursorEvents.pop();
 			}

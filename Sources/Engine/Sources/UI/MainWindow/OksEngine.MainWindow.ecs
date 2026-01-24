@@ -38,6 +38,10 @@ CreateMainWindowSystem = {
 
 ProcessInputSystem = {
     thread = "Main",
+    callOrder = {
+        runAfter = { "SystemMarks::FRAME_HEAD_START" },
+        runBefore = { "SystemMarks::FRAME_HEAD_END" }
+    },
     updateMethod = {
         processesEntities = {
             {

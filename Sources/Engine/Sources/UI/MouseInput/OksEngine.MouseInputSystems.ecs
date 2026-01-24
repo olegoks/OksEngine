@@ -56,7 +56,8 @@ SendWindowMouseEventsSystem = {
 
 ClearMouseEventsSystem = {
     callOrder = {
-        runAfter = "ImGUI::EndFrame"
+        runAfter = { "SystemMarks::FRAME_TAIL_START" },
+        runBefore = { "SystemMarks::FRAME_TAIL_END" }
     },
     updateMethod = {
         processesEntities = {

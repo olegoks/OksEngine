@@ -9,33 +9,62 @@ namespace OksEngine
 		namespace Outline
 		{
 
-			void CreateDataUniformBufferResource::Update(
+			void CreateState::Update() {
+
+				const ECS2::Entity::Id stateEntityId = CreateEntity();
+
+				CreateComponent<State>(stateEntityId);
+				CreateComponent<SelectedEntityId>(stateEntityId, ECS2::Entity::Id::invalid_);
+
+			}
+
+			void GetSelectedEntityId::Update(
+				ECS2::Entity::Id entity0id, 
+				const OksEngine::Render::Outline::State* state0,
+				OksEngine::Render::Outline::SelectedEntityId* selectedEntityId0, 
+				
+				ECS2::Entity::Id entity1id,
+				const OksEngine::RenderDriver* renderDriver1,
+				const OksEngine::Render::Outline::DataStorageBuffer* dataStorageBuffer1) {
+
+
+				Data data;
+
+				renderDriver1->driver_->StorageBufferRead(
+					dataStorageBuffer1->id_,
+					0, sizeof(Data),
+					&data);
+
+				selectedEntityId0->id_ = ECS2::Entity::Id{ data.selectedId_ };
+
+			}
+
+			void CreateDataStorageBufferResource::Update(
 				ECS2::Entity::Id entity0id,
 				OksEngine::RenderDriver* renderDriver0) {
 
 
-				RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
-					.size_ = sizeof(Data),
-					.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+				RAL::Driver::SB::CI SBCreateInfo{
+					.size_ = sizeof(Data)
 				};
-				RAL::Driver::UniformBuffer::Id UBId = renderDriver0->driver_->CreateUniformBuffer(UBCreateInfo);
+				RAL::Driver::SB::Id SBId = renderDriver0->driver_->CreateStorageBuffer(SBCreateInfo);
 
-				CreateComponent<DataUniformBuffer>(entity0id, UBId);
+				CreateComponent<DataStorageBuffer>(entity0id, SBId);
 
 
 
-				RAL::Driver::ResourceSet::Binding dataUBBinding
+				RAL::Driver::ResourceSet::Binding dataSBBinding
 				{
-					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.stage_ = RAL::Driver::Shader::Stage::FragmentShader,
 					.binding_ = 0,
-					.ubid_ = UBId,
+					.sbid_ = SBId,
 					.offset_ = 0,
 					.size_ = sizeof(Data)
 				};
 
-				RAL::Driver::Resource::Id resourceId = renderDriver0->driver_->CreateResource(dataUBBinding);
+				RAL::Driver::Resource::Id resourceId = renderDriver0->driver_->CreateResource(dataSBBinding);
 
-				CreateComponent<DataUniformBufferResource>(entity0id, resourceId);
+				CreateComponent<DataStorageBufferResource>(entity0id, resourceId);
 			}
 
 			void CreateIdsAttachment::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0) {
@@ -204,8 +233,8 @@ namespace OksEngine
 
 				RAL::Driver::Shader::Binding::Layout dataBinding{
 					.binding_ = 0,
-					.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
-					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+					.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+					.stage_ = RAL::Driver::Shader::Stage::FragmentShader
 				};
 
 				std::vector<RAL::Driver::PushConstant> pushConstants;
@@ -218,8 +247,8 @@ namespace OksEngine
 					pushConstants.emplace_back(pushConstant);
 				}
 
-				shaderBindings.push_back(dataBinding);
 				shaderBindings.push_back(cameraBinding);
+				shaderBindings.push_back(dataBinding);
 
 				auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
 				{
@@ -296,8 +325,9 @@ namespace OksEngine
 				const OksEngine::Render::EnableRegularRender* render__EnableRegularRender0,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId0,
 				const OksEngine::Render::Outline::PipelineId* pipelineId0,
-				const OksEngine::Render::Outline::DataUniformBuffer* dataUniformBuffer0,
-				const OksEngine::Render::Outline::DataUniformBufferResource* dataUniformBufferResource0,
+				const OksEngine::Render::Outline::DataStorageBuffer* dataStorageBuffer0,
+				const OksEngine::Render::Outline::DataStorageBufferResource* dataStorageBufferResource0,
+				const OksEngine::CursorEvents* cursorEvents0, const OksEngine::MouseEvents* mouseEvents0,
 				ECS2::Entity::Id entity1id, const OksEngine::Camera* camera1, const OksEngine::Active* active1,
 				const OksEngine::DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
 				const OksEngine::CameraTransformResource* cameraTransformResource1, ECS2::Entity::Id entity2id,
@@ -324,12 +354,26 @@ namespace OksEngine
 
 				auto driver = renderDriver0->driver_;
 
+				Data data{
+					-1,
+					-1,
+					0
+				};
+
+				if (!cursorEvents0->events_.empty()) {
+					data.cursorPosX_ = cursorEvents0->events_.back().position_.x_;
+					data.cursorPosY_ = cursorEvents0->events_.back().position_.y_;
+				}
+
+				driver->StorageBufferWrite(
+					dataStorageBuffer0->id_, 0, &data ,sizeof(Data));
+
 				driver->BindPipeline(pipelineId0->id_);
 
 				driver->Bind(pipelineId0->id_, 0,
 					{
 						cameraTransformResource1->id_,
-						dataUniformBufferResource0->id_
+						dataStorageBufferResource0->id_
 					}
 				);
 
