@@ -8,6 +8,12 @@ layout(set = 0, binding = 0) uniform Camera {
     mat4 proj;
 } camera;
 
+layout(set = 1, binding = 0) uniform Data {
+    uint cursorPosX_;
+    uint cursorPosY_;
+    uint64_t selectedId_;
+} data;
+
 layout(location = 0) in vec3 inPosition;
 
 layout(location = 0) out vec4 outColor;

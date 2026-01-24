@@ -25,6 +25,67 @@ RenderNamespace = {
                 }
             }
         },
+        
+        DataStruct = {
+            fields = {
+                { type = "unsigned int", name = "cursorPosX"},
+                { type = "unsigned int", name = "cursorPosY"},
+                { type = "ECS2::Entity::Id::ValueType", name = "selectedId" }
+            }
+        },
+
+        DataUniformBufferComponent = "UniformBuffer",
+        DataUniformBufferResourceComponent = {
+            serializable = false,
+            fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
+        },
+        CreateDataUniformBufferResourceSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "CreateRenderDriver" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false }
+                        },
+                        createsComponents = {
+                            "DataUniformBuffer",
+                            "DataUniformBufferResource"
+                        },
+                        excludes = {
+                            "DataUniformBuffer",
+                            "DataUniformBufferResource"
+                        }
+                    }
+                }
+            }
+        },
+
+        DepthAttachmentComponent = "Render::Attachment",
+        CreateDepthAttachmentSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "CreateRenderPass" },
+                runBefore = {}
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "RenderDriver"
+                        },
+                        excludes = {
+                            "DepthAttachment"
+                        },
+                        createsComponents = {
+                            "DepthAttachment"
+                        }
+                    }
+                }
+            }
+        },
 
         AttachmentSetComponent = "Render::AttachmentSet",
 
@@ -40,6 +101,7 @@ RenderNamespace = {
                         processesComponents = {
                             "RenderDriver",
                             "IdsAttachment",
+                            "DepthAttachment",
                             "Render::RenderAttachment"
                         }
                     },
@@ -178,6 +240,8 @@ RenderNamespace = {
                             "Render::EnableRegularRender",
                             "RenderPassId",
                             "PipelineId",
+                            "DataUniformBuffer",
+                            "DataUniformBufferResource"
                         }
                     },
                     {

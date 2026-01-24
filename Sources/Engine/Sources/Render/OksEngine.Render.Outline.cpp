@@ -8,6 +8,36 @@ namespace OksEngine
 	{
 		namespace Outline
 		{
+
+			void CreateDataUniformBufferResource::Update(
+				ECS2::Entity::Id entity0id,
+				OksEngine::RenderDriver* renderDriver0) {
+
+
+				RAL::Driver::UniformBuffer::CreateInfo UBCreateInfo{
+					.size_ = sizeof(Data),
+					.type_ = RAL::Driver::UniformBuffer::Type::Mutable
+				};
+				RAL::Driver::UniformBuffer::Id UBId = renderDriver0->driver_->CreateUniformBuffer(UBCreateInfo);
+
+				CreateComponent<DataUniformBuffer>(entity0id, UBId);
+
+
+
+				RAL::Driver::ResourceSet::Binding dataUBBinding
+				{
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader,
+					.binding_ = 0,
+					.ubid_ = UBId,
+					.offset_ = 0,
+					.size_ = sizeof(Data)
+				};
+
+				RAL::Driver::Resource::Id resourceId = renderDriver0->driver_->CreateResource(dataUBBinding);
+
+				CreateComponent<DataUniformBufferResource>(entity0id, resourceId);
+			}
+
 			void CreateIdsAttachment::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0) {
 
 				RAL::Driver::Texture::CreateInfo1 renderBufferCreateInfo{
@@ -27,23 +57,40 @@ namespace OksEngine
 
 			};
 
-		}
+			void CreateDepthAttachment::Update(
+				ECS2::Entity::Id entity0id,
+				const OksEngine::RenderDriver* renderDriver0) {
 
-	} // namespace Render
 
-	namespace Render
-	{
-		namespace Outline
-		{
+				//DEPTH BUFFER
+				RAL::Driver::Texture::CreateInfo1 depthBufferCreateInfo{
+					.name_ = "Depth IDs buffer",
+					.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
+					.size_ = { 2560, 1440 },
+					.targetState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+					.targetAccess_ = RAL::Driver::Texture::Access::DepthStencilWrite,
+					.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::EarlyFragmentTests, RAL::Driver::Pipeline::Stage::LateFragmentTests },
+					.usages_ = { RAL::Driver::Texture::Usage::DepthStencilAttachment },
+					.mipLevels_ = 1,
+					.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
+				};
+
+				const RAL::Driver::Texture::Id depthBufferId = renderDriver0->driver_->CreateTexture(depthBufferCreateInfo);
+
+				CreateComponent<DepthAttachment>(entity0id, depthBufferId);
+
+			}
+
 			void CreateAttachmentSet::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0,
 				const OksEngine::Render::Outline::IdsAttachment* idsAttachment0,
+				const OksEngine::Render::Outline::DepthAttachment* depthAttachment0,
 				const OksEngine::Render::RenderAttachment* render__RenderAttachment0, ECS2::Entity::Id entity1id,
 				const OksEngine::RenderDriver* renderDriver1,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId1) {
 
 				RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
 					.rpId_ = renderPassId1->rpId_,
-					.textures_ = { idsAttachment0->textureId_, render__RenderAttachment0->textureId_ },
+					.textures_ = { idsAttachment0->textureId_, render__RenderAttachment0->textureId_, depthAttachment0->textureId_ },
 					.size_ = glm::u32vec2{ 2560, 1440 }
 				};
 
@@ -53,14 +100,6 @@ namespace OksEngine
 
 			};
 
-		}
-
-	} // namespace Render
-
-	namespace Render
-	{
-		namespace Outline
-		{
 			void CreateRenderPassId::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0) {
 
 
@@ -88,16 +127,27 @@ namespace OksEngine
 					};
 					attachmentsUsage.push_back(renderAttachment);
 
+					RAL::Driver::RP::AttachmentUsage depthTestAttachment{
+						.format_ = RAL::Driver::Texture::Format::D_32_SFLOAT,
+						.initialState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+						.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Clear,
+						.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
+						.finalState_ = RAL::Driver::Texture::State::DataForDepthStencilWrite,
+						.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
+					};
+					attachmentsUsage.push_back(depthTestAttachment);
+
 				}
 
 				std::vector<RAL::Driver::RP::Subpass> subpasses;
 				{
 					RAL::Driver::RP::Subpass subpass0{
-						.colorAttachments_ = { 0 } // Ids attachment.
+						.colorAttachments_ = { 0 },// Ids attachment.
+						.depthStencilAttachment_ = 2
 					};
 					subpasses.push_back(subpass0);
 					RAL::Driver::RP::Subpass subpass1{
-						.colorAttachments_ = { 1 } // Ids attachment.
+						.colorAttachments_ = { 1 } 
 					};
 					subpasses.push_back(subpass1);
 				}
@@ -114,14 +164,6 @@ namespace OksEngine
 
 			};
 
-		}
-
-	} // namespace Render
-
-	namespace Render
-	{
-		namespace Outline
-		{
 			void CreatePipeline::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId0, ECS2::Entity::Id entity1id,
 				const OksEngine::ResourceSystem* resourceSystem1) {
@@ -160,6 +202,12 @@ namespace OksEngine
 					.stage_ = RAL::Driver::Shader::Stage::VertexShader
 				};
 
+				RAL::Driver::Shader::Binding::Layout dataBinding{
+					.binding_ = 0,
+					.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
 				std::vector<RAL::Driver::PushConstant> pushConstants;
 				{
 					RAL::Driver::PushConstant pushConstant{
@@ -170,6 +218,7 @@ namespace OksEngine
 					pushConstants.emplace_back(pushConstant);
 				}
 
+				shaderBindings.push_back(dataBinding);
 				shaderBindings.push_back(cameraBinding);
 
 				auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
@@ -200,14 +249,6 @@ namespace OksEngine
 
 			};
 
-		}
-
-	} // namespace Render
-
-	namespace Render
-	{
-		namespace Outline
-		{
 			void BeginRenderPass::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId0,
 				const OksEngine::Render::Outline::AttachmentSet* attachmentSet0,
@@ -218,6 +259,15 @@ namespace OksEngine
 
 				std::vector<RAL::Driver::RP::ClearValue> clearValues;
 				{
+					RAL::Driver::RP::ClearValue idsClearValue;
+					{
+						idsClearValue.color_.uint32[0] = 0;
+						idsClearValue.color_.uint32[1] = 0;
+						idsClearValue.color_.uint32[2] = 0;
+						idsClearValue.color_.uint32[3] = 255;
+					}
+					clearValues.push_back(idsClearValue);
+
 					RAL::Driver::RP::ClearValue clearValue;
 					{
 						clearValue.color_.uint32[0] = 0;
@@ -226,6 +276,12 @@ namespace OksEngine
 						clearValue.color_.uint32[3] = 255;
 					}
 					clearValues.push_back(clearValue);
+
+					RAL::Driver::RP::ClearValue depthClearValue;
+					{
+						depthClearValue.depthStencil_.depth_ = 1.0f;
+					}
+					clearValues.push_back(depthClearValue);
 				}
 
 				driver->BeginRenderPass(
@@ -235,37 +291,23 @@ namespace OksEngine
 
 			};
 
-		}
-
-	} // namespace Render
-
-	namespace Render
-	{
-		namespace Outline
-		{
 			void RenderModelIds::Update(
-				ECS2::Entity::Id entity0id,
-				OksEngine::RenderDriver* renderDriver0,
+				ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
 				const OksEngine::Render::EnableRegularRender* render__EnableRegularRender0,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId0,
 				const OksEngine::Render::Outline::PipelineId* pipelineId0,
-
-				ECS2::Entity::Id entity1id,
-				const OksEngine::Camera* camera1,
-				const OksEngine::Active* active1,
+				const OksEngine::Render::Outline::DataUniformBuffer* dataUniformBuffer0,
+				const OksEngine::Render::Outline::DataUniformBufferResource* dataUniformBufferResource0,
+				ECS2::Entity::Id entity1id, const OksEngine::Camera* camera1, const OksEngine::Active* active1,
 				const OksEngine::DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
-				const OksEngine::CameraTransformResource* cameraTransformResource1,
-
-				ECS2::Entity::Id entity2id,
-				const OksEngine::WorldPosition3D* worldPosition3D2,
-				const OksEngine::WorldRotation3D* worldRotation3D2,
+				const OksEngine::CameraTransformResource* cameraTransformResource1, ECS2::Entity::Id entity2id,
+				const OksEngine::WorldPosition3D* worldPosition3D2, const OksEngine::WorldRotation3D* worldRotation3D2,
 				const OksEngine::WorldScale3D* worldScale3D2,
 				const OksEngine::Physics::DynamicRigidBody* physics__DynamicRigidBody2,
 				const OksEngine::Physics::RigidBodyId* physics__RigidBodyId2,
 				const OksEngine::Physics::PhysicsShape* physics__PhysicsShape2,
 				const OksEngine::DriverVertexBuffer* driverVertexBuffer2,
-				const OksEngine::DriverIndexBuffer* driverIndexBuffer2,
-				const OksEngine::Vertices3D* vertices3D2,
+				const OksEngine::DriverIndexBuffer* driverIndexBuffer2, const OksEngine::Vertices3D* vertices3D2,
 				const OksEngine::Indices* indices2) {
 
 
@@ -286,7 +328,8 @@ namespace OksEngine
 
 				driver->Bind(pipelineId0->id_, 0,
 					{
-						cameraTransformResource1->id_
+						cameraTransformResource1->id_,
+						dataUniformBufferResource0->id_
 					}
 				);
 
@@ -296,21 +339,13 @@ namespace OksEngine
 					sizeof(meshInfo), &meshInfo);
 
 				driver->BindVertexBuffer(driverVertexBuffer2->id_, 0);
+				driver->BindIndexBuffer(driverIndexBuffer2->id_, 0);
 
 
-				driver->Draw(vertices3D2->vertices_.GetVerticesNumber());
+				driver->DrawIndexed(indices2->indices_.GetIndicesNumber());
 
 
 			};
-
-		}
-
-	} // namespace Render
-
-	namespace Render
-	{
-		namespace Outline
-		{
 
 			void BeginRenderOutlineSubpass::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
 				const OksEngine::Render::Outline::RenderPassId* renderPassId0,

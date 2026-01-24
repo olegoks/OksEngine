@@ -867,7 +867,7 @@ namespace OksEngine
 			}
 			CreateComponent<Indices>(entity1id, indices);
 
-		}	
+		}
 
 		void CreatePhysicsShapeCylinder::Update(ECS2::Entity::Id entity0id, Physics::Engine* engine0, ECS2::Entity::Id entity1id,
 			const Physics::Material* material1, const Physics::ShapeGeometryCylinder* shapeGeometryCylinder1) {
@@ -879,27 +879,23 @@ namespace OksEngine
 			};
 
 			AI_GENERATED
-				// �������� ������ ��������
-				Geometry::VertexCloud<Geom::Vertex3f> vertices;
-			//Geom::IndexBuffer<Geom::Index16> indices;
+			Geometry::VertexCloud<Geom::Vertex3f> convexVertices;
 			{
 				Common::Size numSides = 16;
-				vertices.Reserve(2 * numSides + 2); // +2 ��� ������� ���������
+				convexVertices.Reserve(2 * numSides + 2);
 
-				// ������ ���������
-				vertices.Add({ 0, -shapeGeometryCylinder1->height_ / 2, 0 });  // ������ �����
-				vertices.Add({ 0, shapeGeometryCylinder1->height_ / 2, 0 });   // ������� �����
+				
+				convexVertices.Add({ 0, -shapeGeometryCylinder1->height_ / 2, 0 });
+				convexVertices.Add({ 0, shapeGeometryCylinder1->height_ / 2, 0 });
 
-				// ������� ������� �����������
+				
 				for (int i = 0; i < numSides; ++i) {
 					float angle = 2.0f * Math::pi * i / numSides;
 					float x = shapeGeometryCylinder1->radius_ * cos(angle);
 					float z = shapeGeometryCylinder1->radius_ * sin(angle);
 
-					// ������ ���������
-					vertices.Add({ x, -shapeGeometryCylinder1->height_, z });
-					// ������� ���������
-					vertices.Add({ x, shapeGeometryCylinder1->height_, z });
+					convexVertices.Add({ x, -shapeGeometryCylinder1->height_, z });
+					convexVertices.Add({ x, shapeGeometryCylinder1->height_, z });
 				}
 				//for (Common::Index i = 0; i < 2 * numSides + 2; i++) {
 				//	indices.Add(i);
@@ -909,12 +905,78 @@ namespace OksEngine
 			PAL::Shape::CreateInfoMesh shapeCreateInfo{
 				.material_ = material,
 				.convexGeometry_ = true,
-				.vertices_ = vertices,
+				.vertices_ = convexVertices,
 				//.indices_ = indices
 			};
 
+
 			auto shape = engine0->engine_->CreateShape(shapeCreateInfo);
 			CreateComponent<PhysicsShape>(entity1id, shape);
+
+			auto* shapeData = shapeGeometryCylinder1;
+
+			float numSides = 16;
+			AI_GENERATED
+				std::vector<glm::vec3> cylinderVertices;
+			{
+				cylinderVertices.reserve(numSides * 12);
+
+
+
+				float halfHeight = shapeData->height_ * 0.5f;
+
+				// Боковая поверхность
+				for (int i = 0; i < numSides; ++i) {
+					float a1 = 2.0f * glm::pi<float>() * i / numSides;
+					float a2 = 2.0f * glm::pi<float>() * (i + 1) / numSides;
+
+					glm::vec3 v0(shapeData->radius_ * cos(a1), -halfHeight, shapeData->radius_ * sin(a1));
+					glm::vec3 v1(shapeData->radius_ * cos(a2), -halfHeight, shapeData->radius_ * sin(a2));
+					glm::vec3 v2(shapeData->radius_ * cos(a2), halfHeight, shapeData->radius_ * sin(a2));
+					glm::vec3 v3(shapeData->radius_ * cos(a1), halfHeight, shapeData->radius_ * sin(a1));
+
+					// Два треугольника на сегмент
+					cylinderVertices.push_back(v2);
+
+					cylinderVertices.push_back(v1);
+					cylinderVertices.push_back(v0);
+
+					cylinderVertices.push_back(v0);
+					cylinderVertices.push_back(v3);
+					cylinderVertices.push_back(v2);
+				}
+
+				// Верхняя крышка
+				glm::vec3 topCenter(0.0f, halfHeight, 0.0f);
+				for (int i = 0; i < numSides; ++i) {
+					float a1 = 2.0f * glm::pi<float>() * i / numSides;
+					float a2 = 2.0f * glm::pi<float>() * (i + 1) / numSides;
+
+					cylinderVertices.push_back(glm::vec3(shapeData->radius_ * cos(a2), halfHeight, shapeData->radius_ * sin(a2)));
+					cylinderVertices.push_back(glm::vec3(shapeData->radius_ * cos(a1), halfHeight, shapeData->radius_ * sin(a1)));
+
+					cylinderVertices.push_back(topCenter);
+				}
+
+				// Нижняя крышка
+				glm::vec3 bottomCenter(0.0f, -halfHeight, 0.0f);
+				for (int i = 0; i < numSides; ++i) {
+					float a1 = 2.0f * glm::pi<float>() * i / numSides;
+					float a2 = 2.0f * glm::pi<float>() * (i + 1) / numSides;
+
+					cylinderVertices.push_back(glm::vec3(shapeData->radius_ * cos(a1), -halfHeight, shapeData->radius_ * sin(a1)));
+					cylinderVertices.push_back(glm::vec3(shapeData->radius_ * cos(a2), -halfHeight, shapeData->radius_ * sin(a2)));
+					cylinderVertices.push_back(bottomCenter);
+				}
+			}
+			Geometry::VertexCloud<Geom::Vertex3f> vertices;
+
+			for (Common::Index i = 0; i < cylinderVertices.size(); i++) {
+				glm::vec3 position = glm::vec3{ cylinderVertices[i].x,  cylinderVertices[i].y, cylinderVertices[i].z };
+				vertices.Add(Geom::Vertex3f{ position.x, position.y, position.z});
+
+			}
+
 
 			Geom::IndexBuffer<Geom::Index32> indices;
 			for (Common::Index i = 0; i < vertices.GetVerticesNumber(); i++) {
