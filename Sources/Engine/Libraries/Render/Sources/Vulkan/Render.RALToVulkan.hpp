@@ -347,9 +347,7 @@ namespace Render::Vulkan {
 			return VK_ACCESS_SHADER_WRITE_BIT;
 		default:
 
-#pragma region Assert
-			OS::AssertFail();
-#pragma endregion
+			ASSERT_FAIL_MSG("Invalid texture access value!");
 			return VK_ACCESS_FLAG_BITS_MAX_ENUM;
 		}
 	}

@@ -28,6 +28,15 @@ namespace Render::Vulkan {
 
 		Texture(const CreateInfo1& createInfo);
 
+		void TextureMemoryBarrier(
+			std::shared_ptr<class CommandBuffer> commandBuffer,
+			VkImageLayout fromLayout,
+			VkImageLayout toLayout,
+			VkAccessFlags fromAccess,
+			VkAccessFlags toAccess,
+			VkPipelineStageFlags fromStage,
+			VkPipelineStageFlags toStage);
+
 		[[nodiscard]]
 		auto GetSampler() {
 			return sampler_;

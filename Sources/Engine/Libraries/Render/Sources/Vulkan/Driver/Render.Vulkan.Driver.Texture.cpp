@@ -35,10 +35,7 @@ namespace Render::Vulkan {
 			return VK_IMAGE_ASPECT_STENCIL_BIT;
 
 		default:
-
-#pragma region Assert
-			OS::AssertFail();
-#pragma endregion
+			ASSERT_FAIL_MSG("Unknown format to get aspect.");
 			return VK_IMAGE_ASPECT_FLAG_BITS_MAX_ENUM;
 		}
 
@@ -77,10 +74,8 @@ namespace Render::Vulkan {
 
 			textureStagingBuffer->Allocate();
 
-#pragma region Assert
 			ASSERT_FMSG((createInfo.data_.size() % pixelSize) == 0, "");
 			ASSERT_FMSG((createInfo.data_.size() / pixelSize) == pixelsNumber, "");
-#pragma endregion
 
 			textureStagingBuffer->Write(0, createInfo.data_.data(), pixelsNumber * pixelSize);
 
@@ -254,6 +249,28 @@ namespace Render::Vulkan {
 		image_ = image;
 		imageView_ = imageView;
 		sampler_ = sampler;
+	}
+
+
+	void Texture::TextureMemoryBarrier(
+		std::shared_ptr<CommandBuffer> commandBuffer,
+		VkImageLayout fromLayout,
+		VkImageLayout toLayout,
+		VkAccessFlags fromAccess,
+		VkAccessFlags toAccess,
+		VkPipelineStageFlags fromStage,
+		VkPipelineStageFlags toStage) {
+
+		commandBuffer->ImageMemoryBarrier(
+			GetImage(),
+			0,
+			ci1_.mipLevels_,
+			GetAspectByFormat(ci1_.format_),
+			fromLayout,
+			toLayout,
+			fromAccess, toAccess,
+			fromStage, toStage
+		);
 	}
 
 

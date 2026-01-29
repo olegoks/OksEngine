@@ -63,7 +63,7 @@ function TestGameObjectInputProcessor:ProcessKeyboardInput(object, Key, Event)
 
 end
 
-function TestGameObjectInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY, scroll)
+function TestGameObjectInputProcessor:ProcessMouseInput(camera, Mode, Key, Event, offsetX, offsetY, scroll)
     -- local cameraEntityId = camera:GetIdValue()
     -- local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(cameraEntityId)
     -- local rbEntityId = rigidBodyEntityId.id

@@ -3,6 +3,16 @@ HandleCursorEventsComponent = {
     fields = { }
 }
 
+CursorModeEnum = {
+    values = {
+        "Normal",
+        "Hidden",
+        "Disabled",
+        "Captured",
+        "Undefined"
+    }
+}
+
 CursorPositionStruct = {
     fields = {
         { type = "int", name = "x" },
@@ -19,6 +29,7 @@ CursorOffsetStruct = {
 
 CursorEventStruct = {
     fields = {
+        { type = "CursorMode", name = "mode" },
         { type = "CursorPosition", name = "position" },
         { type = "CursorOffset", name = "offset" }
     }

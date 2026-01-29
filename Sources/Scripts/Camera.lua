@@ -231,7 +231,11 @@ function CameraInputProcessor:ProcessKeyboardInput(camera, Key, Event)
     end
 end
 
-function CameraInputProcessor:ProcessMouseInput(camera, Key, Event, offsetX, offsetY, scroll)
+function CameraInputProcessor:ProcessMouseInput(camera, Mode, Key, Event, offsetX, offsetY, scroll)
+
+    if Mode == "Normal" then
+        return;
+    end
 
     if camera.Disable then
         return

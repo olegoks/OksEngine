@@ -11,6 +11,27 @@
 
 namespace UI {
 
+	UIAL::Window::CursorMode Window::ConvertCursorMode(int glfwMode) {
+
+		if (glfwMode == GLFW_CURSOR_NORMAL) {
+			return UIAL::Window::CursorMode::Normal;
+		}
+		else if (glfwMode == GLFW_CURSOR_HIDDEN) {
+			return UIAL::Window::CursorMode::Hidden;
+		}
+		else if (glfwMode == GLFW_CURSOR_CAPTURED) {
+			return UIAL::Window::CursorMode::Captured;
+		}
+		else if (glfwMode == GLFW_CURSOR_DISABLED) {
+			return UIAL::Window::CursorMode::Disabled;
+		}
+		else {
+			ASSERT_FAIL_MSG("Invalid glfw mode.");
+			return UIAL::Window::CursorMode::Undefined;
+		}
+
+	}
+
 	Window::Window(const Window::CreateInfo& createInfo) : UIAL::Window{ createInfo } {
 		const int initResult = glfwInit();
 		ASSERT_FMSG(initResult != GLFW_FALSE, "Error while initializing GLFW.");
@@ -58,10 +79,6 @@ namespace UI {
 			[](::GLFWwindow* window, double xpos, double ypos) {
 
 				int mode = glfwGetInputMode(window, GLFW_CURSOR);
-				if (mode == GLFW_CURSOR_NORMAL) {
-					return;
-				}
-				//OS::LogInfo("cursor_pos", { "X: {}, Y: {}", xpos, ypos });
 
 				static double xPrevious = xpos;
 				static double yPrevious = ypos;
@@ -72,6 +89,7 @@ namespace UI {
 					yPrevious = ypos;
 					Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
 					CursorEvent event;
+					event.mode_ = ConvertCursorMode(mode);
 					event.position_ = { xpos, ypos };
 					event.offset_ = { deltaX, deltaY };
 					windowPtr->PushEvent(event);
@@ -148,11 +166,25 @@ namespace UI {
 
 		glfwSetWindowUserPointer(createdWindow, this);
 
+
 		glfwSetFramebufferSizeCallback(createdWindow, [](::GLFWwindow* window, int width, int height) {
 
 			Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
 
 			UIAL::Window::FrameBufferResizeEvent event{
+				width,
+				height
+			};
+
+			windowPtr->PushEvent(event);
+
+			});
+
+		glfwSetWindowSizeCallback(createdWindow, [](::GLFWwindow* window, int width, int height) {
+
+			Window* windowPtr = (Window*)glfwGetWindowUserPointer(window);
+
+			UIAL::Window::WorkAreaResizeEvent event{
 				width,
 				height
 			};
@@ -195,14 +227,28 @@ namespace UI {
 			info.param1_ = reinterpret_cast<::GLFWwindow*>(window_);
 			info.param2_ = count;
 			info.param3_ = extensions;
-			info.size_ = GetSize();
+			info.size_ = GetWorkAreaSize();
 			info.subsystem_ = UIAL::Subsystem::GLFW;
 		}
 		return info;
 	}
 
 	[[nodiscard]]
-	glm::u32vec2 Window::GetSize() const noexcept {
+	glm::u32vec2 Window::GetFramebufferSize() const noexcept {
+
+		int width = -1;
+		int height = -1;
+
+		glfwGetFramebufferSize(
+			reinterpret_cast<::GLFWwindow*>(window_),
+			&width, &height);
+
+		return { width, height };
+
+	}
+
+	[[nodiscard]]
+	glm::u32vec2 Window::GetWorkAreaSize() const noexcept {
 		int width = 0;
 		int height = 0;
 		glfwGetWindowSize(reinterpret_cast<::GLFWwindow*>(window_), &width, &height);

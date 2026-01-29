@@ -64,7 +64,7 @@ namespace Render::Vulkan {
 			nameInfo.objectHandle = (uint64_t)image;   // Объект, которому назначается имя
 			nameInfo.pObjectName = createInfo.name_.c_str();      // Имя объекта
 #if !defined(NDEBUG)
-			SetObjectName(*createInfo.LD_, &nameInfo);
+			vkCreateDebugUtilsMessengerEXT(*createInfo.LD_, &nameInfo);
 #endif
 			SetHandle(image);
 		}

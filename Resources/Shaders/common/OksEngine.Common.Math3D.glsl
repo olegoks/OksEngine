@@ -1,4 +1,5 @@
 #extension GL_ARB_gpu_shader_int64 : enable
+#extension GL_EXT_debug_printf : enable
 
 mat4 RTS_to_mat4_optimized(vec3 translation, vec4 rotation, vec3 scale) {
     float w = rotation.x;

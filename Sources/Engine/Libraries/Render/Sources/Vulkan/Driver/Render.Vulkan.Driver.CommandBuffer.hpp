@@ -1,6 +1,7 @@
 #pragma once
 
 #include <memory>
+#include <format>
 #include <vulkan/vulkan.hpp>
 
 #include <Common.Types.hpp>
@@ -43,6 +44,24 @@ namespace Render::Vulkan {
 
 		}
 
+
+		template<class ...Args>
+		void BeginDebugLabel(const DebugColor& color, const char* label) {
+			VkDebugUtilsLabelEXT labelInfo = {};
+			labelInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+			labelInfo.pLabelName = label;
+			labelInfo.color[0] = color.color_[0];
+			labelInfo.color[1] = color.color_[1];
+			labelInfo.color[2] = color.color_[2];
+			labelInfo.color[3] = color.color_[3];
+			vkCmdBeginDebugUtilsLabelEXT(GetHandle(), &labelInfo);
+		}
+
+		void EndDebugLabel() {
+			vkCmdEndDebugUtilsLabelEXT(GetHandle());
+		}
+
+
 		void Begin() noexcept {
 			VkCommandBufferBeginInfo beginInfo{};
 			{
@@ -61,7 +80,7 @@ namespace Render::Vulkan {
 		};
 
 		void BeginRenderPass(
-			std::shared_ptr<RenderPass2> renderPass, 
+			std::shared_ptr<RenderPass2> renderPass,
 			std::shared_ptr<FrameBuffer> frameBuffer,
 			VkOffset2D offset,
 			VkExtent2D extent,
@@ -208,7 +227,7 @@ namespace Render::Vulkan {
 
 		void PushConstants(
 			std::shared_ptr<PipelineLayout> pipelineLayout,
-			RAL::Driver::Shader::Stage shaderType, 
+			RAL::Driver::Shader::Stage shaderType,
 			Common::Size dataSizeInBytes,
 			void* data) {
 
@@ -248,15 +267,15 @@ namespace Render::Vulkan {
 		void Draw(Common::Size verticesNumber) {
 			vkCmdDraw(
 				GetHandle(),
-				static_cast<uint32_t>(verticesNumber), 
+				static_cast<uint32_t>(verticesNumber),
 				1,
-				0, 
+				0,
 				0);
 		}
 
 		void DrawIndexed(Common::Size indicesNumber, Common::UInt32 firstInstance, Common::UInt32 instanceCount) {
 			vkCmdDrawIndexed(
-				GetHandle(), 
+				GetHandle(),
 				static_cast<uint32_t>(indicesNumber),
 				instanceCount,
 				0, 0,
@@ -273,8 +292,8 @@ namespace Render::Vulkan {
 
 		void Dispatch(Common::Size groupCountX, Common::Size groupCountY, Common::Size groupCountZ) noexcept {
 
-			vkCmdDispatch(GetHandle(), 
-				static_cast<uint32_t>(groupCountX), 
+			vkCmdDispatch(GetHandle(),
+				static_cast<uint32_t>(groupCountX),
 				static_cast<uint32_t>(groupCountY),
 				static_cast<uint32_t>(groupCountZ));
 
@@ -495,26 +514,6 @@ namespace Render::Vulkan {
 
 			vkDeviceWaitIdle(createInfo_.LD_->GetHandle());
 
-		}
-
-		void BeginDebug(const char* labelString) {
-			Common::DiscardUnusedParameter(labelString);
-#if !defined(NDEBUG)
-			//VkDebugUtilsLabelEXT label{
-			//	.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT,
-			//	.pLabelName = labelString
-			//};
-
-			//vkCmdBeginDebugUtilsLabelEXT(GetHandle(), &label);
-
-#endif
-		}
-
-		void EndDebug() {
-
-#if !defined(NDEBUG)
-				//vkCmdEndDebugUtilsLabelEXT(GetHandle());
-#endif
 		}
 
 		~CommandBuffer() noexcept {

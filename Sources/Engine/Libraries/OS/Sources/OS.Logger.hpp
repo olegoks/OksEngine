@@ -7,6 +7,7 @@
 #include <Common.hpp>
 #include <Common.Format.hpp>
 #include <iostream>
+#include <filesystem>
 
 #define FMT_UNICODE 0
 #include <spdlog/spdlog.h>
@@ -77,8 +78,24 @@ namespace OS {
 			Common::DiscardUnusedParameter(format);
 			using namespace std::string_literals;
 
+			const std::filesystem::path fullPath{ location.file_name() };
+
+			const std::string fileName = fullPath.filename().generic_string();
+
+			if (severity == Severity::Info) {
+				logger_->info("File: "s + fileName + " " + static_cast<std::string>(format));
+			}
+			else if (severity == Severity::Error) {
+				logger_->error("File: "s + fileName + " " + static_cast<std::string>(format));
+			}
+			else if (severity == Severity::Warning) {
+				logger_->warn("File: "s + fileName + " " + static_cast<std::string>(format));
+			}
+			else {
+				logger_->info("File: "s + fileName + " " + static_cast<std::string>(format));
+			}
 			//TODO: use severity
-			logger_->info("Location: "s + location.file_name() + " " + static_cast<std::string>(format));
+			
 			
 		}
 

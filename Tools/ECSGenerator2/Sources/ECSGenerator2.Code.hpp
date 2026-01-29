@@ -96,6 +96,7 @@ namespace ECSGenerator2::CodeStructure {
 			Struct,
 			Scope,
 			File,
+			Enum,
 			Variable,
 			CodeBlock,
 			Undefined
@@ -176,6 +177,23 @@ namespace ECSGenerator2::CodeStructure {
 
 		virtual Type GetType() const noexcept override {
 			return Type::Variable;
+		}
+
+		CreateInfo ci_;
+	};
+
+	class Enum : public Base {
+	public:
+
+		struct CreateInfo {
+			std::string name_;
+			std::vector<std::string> values_;
+		};
+		Enum(const CreateInfo& createInfo)
+			: ci_{ createInfo } { }
+
+		virtual Type GetType() const noexcept override {
+			return Type::Enum;
 		}
 
 		CreateInfo ci_;

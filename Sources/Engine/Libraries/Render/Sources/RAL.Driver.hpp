@@ -44,7 +44,7 @@ namespace RAL {
 			VF3_CF3,
 			VF3_NF3_CF4,
 			VF2_TF2_CF3,
-			Undefined,
+			Undefined, // No vertex buffer binding
 			Size
 		};
 
@@ -390,6 +390,15 @@ namespace RAL {
 		[[nodiscard]]
 		virtual Texture::Id CreateTexture(const RAL::Driver::Texture::CreateInfo1& createInfo) = 0;
 
+		virtual void TextureMemoryBarrier(
+			const RAL::Driver::Texture::Id textureId,
+			Texture::State fromState,
+			Texture::State toState,
+			Texture::Access fromAccess,
+			Texture::Access toAccess,
+			Pipeline_Stage fromStage,
+			Pipeline_Stage toStage) = 0;
+
 		[[nodiscard]]
 		virtual bool IsTextureExist(RAL::Driver::Texture::Id textureId) const noexcept = 0;
 
@@ -488,17 +497,39 @@ namespace RAL {
 
 			using RS = ResourceSet;
 
+			struct AttachmentReference {
+				Common::UInt32 index_ = Common::Limits<Common::UInt32>::Max();	// Attachment set attachment index.
+				Texture::State state_;	// Attachment state during subpass.
+			};
+
 			struct Subpass {
-				std::vector<Common::UInt32> inputAttachments_;
-				std::vector<Common::UInt32> colorAttachments_;
-				Common::UInt32 resolveAttachment_ = Common::Limits<Common::UInt32>::Max();
-				Common::UInt32 depthStencilAttachment_ = Common::Limits<Common::UInt32>::Max();
+
+				static constexpr Common::UInt32 external_ = Common::Limits< Common::UInt32>::Max();
+
+
+				struct Dependency { 
+					Common::UInt32 fromSubpassIndex_;
+					Pipeline_Stage fromPipelineStage_;
+					Texture::Access fromAccess_;
+					Common::UInt32 toSubpassIndex_;
+					Pipeline_Stage toPipelineStage_;
+					Texture::Access toAccess_;
+
+
+
+				};
+
+				std::vector<AttachmentReference> inputAttachments_;
+				std::vector<AttachmentReference> colorAttachments_;
+				AttachmentReference resolveAttachment_;
+				AttachmentReference depthStencilAttachment_;
 			};
 
 			struct CreateInfo {
 				std::string name_ = "No name";
 				std::vector<AttachmentUsage> attachments_;
 				std::vector<Subpass> subpasses_;
+				std::vector<Subpass::Dependency> subpassDependecies_;
 			};
 			using CI = CreateInfo;
 		};
@@ -544,6 +575,7 @@ namespace RAL {
 			struct CreateInfo {
 				std::string name_ = "";
 				RP::Id renderPassId_ = RP::Id::Invalid();
+				Common::UInt32 subpassIndex_ = 0;
 				std::shared_ptr<Shader> vertexShader_ = nullptr;
 				std::shared_ptr<Shader> geometryShader_ = nullptr;
 				std::shared_ptr<Shader> fragmentShader_ = nullptr;
@@ -588,6 +620,11 @@ namespace RAL {
 		virtual void StartRender() = 0;
 		virtual void EndRender() = 0;
 		virtual void WaitRenderEnd() = 0;
+
+		virtual void BeginDebugLabel(const Color3f& color, const char* labelText) = 0;
+
+		virtual void EndDebugLabel() = 0;
+
 
 		virtual void SetViewport(
 			Common::UInt32 x,

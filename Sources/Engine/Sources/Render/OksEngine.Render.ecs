@@ -151,14 +151,14 @@ ResizeFrameBuffersSystem = {
     serializable = false,
     callOrder = {
         runBefore = "StartRender",
-        runAfter = "GetWindowResizeEvents"
+        runAfter = "GetWindowFramebufferResizeEvents"
     },
     updateMethod = {
         processesEntities = {
             {
             processesComponents = { 
 		        "MainWindow", 
-                "MainWindowResizeEvent"
+                "MainWindowFramebufferResizeEvent"
             }
             },
             {

@@ -5,11 +5,13 @@
 #include <System/ECSGenerator2.SystemCodeStructureGenerator.hpp>
 #include <Component/ECSGenerator2.ComponentCodeGenerator.hpp>
 #include <Struct/ECSGenerator2.StructCodeStructureGenerator.hpp>
+#include <Enum/ECSGenerator2.EnumCodeStructureGenerator.hpp>
 #include <Constant/ECSGenerator2.ConstantCodeGenerator.hpp>
 #include <Archetype/ECSGenerator2.ArchetypeCodeGenerator.hpp>
 #include <ECSGenerator2.CodeGenerator.hpp>
 
 #include <Namespace/ECSGenerator2.ParsedNamespace.hpp>
+#include <Enum/ECSGenerator2.ParsedEnum.hpp>
 
 extern "C" {
 #include <graphviz/gvc.h>
@@ -237,6 +239,23 @@ namespace ECSGenerator2 {
 						bases.push_back(structCodeStructure);
 						auto structsIncludes = structGenerator.GenerateIncludes(parsedStruct);
 						includes.paths_.insert(structsIncludes.paths_.begin(), structsIncludes.paths_.end());
+
+						return bases;
+
+					}
+					else if (tableType == ParsedTable::Type::Enum) {
+
+						const auto parsedEnum = Common::pointer_cast<ParsedEnum>(parsedTable);
+
+						EnumCodeStructureGenerator::CreateInfo scgci{
+							.includeDirectory_ = includeDirectory
+						};
+
+						EnumCodeStructureGenerator structGenerator{ scgci };
+
+						auto enumCodeStructure = structGenerator.GenerateEnumCodeStructure(parsedEnum);
+						std::vector<std::shared_ptr<CodeStructure::Base>> bases;
+						bases.push_back(enumCodeStructure);
 
 						return bases;
 
@@ -1584,9 +1603,11 @@ namespace ECSGenerator2 {
 #pragma endregion
 						if (i != order_.size() - 1) {
 							order_.insert(order_.begin() + i + 1, system);
+							addedSystems_.insert(system);
 						}
 						else {
 							order_.push_back(system);
+							addedSystems_.insert(system);
 						}
 					}
 
@@ -1608,9 +1629,11 @@ namespace ECSGenerator2 {
 #pragma endregion
 							if (i != order_.size() - 1) {
 								order_.insert(order_.begin() + i + 1, system);
+								addedSystems_.insert(system);
 							}
 							else {
 								order_.push_back(system);
+								addedSystems_.insert(system);
 							}
 						}
 					}
@@ -1652,9 +1675,11 @@ namespace ECSGenerator2 {
 #pragma endregion
 							if (i != order_.size() - 1) {
 								order_.insert(order_.begin() + i + 1, system);
+								addedSystems_.insert(system);
 							}
 							else {
 								order_.push_back(system);
+								addedSystems_.insert(system);
 							}
 						}
 					}
@@ -1664,15 +1689,10 @@ namespace ECSGenerator2 {
 			}
 
 			bool IsSystemAdded(ParsedSystemPtr system) {
-				for (Common::Index i = 0; i < order_.size(); i++) {
-					const ParsedSystemPtr& currentSystem = order_[i];
-					if (currentSystem == system) {
-						return true;
-					}
-				}
-				return false;
+				return addedSystems_.contains(system);
 			}
 
+			std::unordered_set<ParsedSystemPtr> addedSystems_;
 			std::vector<ParsedSystemPtr> order_;
 		};
 
@@ -2441,9 +2461,7 @@ namespace ECSGenerator2 {
 			bool isFrom = false) {
 
 			auto& node = graph.GetNode(nodeId);
-			if (node.HasLinks()) {
-				isFrom = isFrom;
-			}
+
 			std::unordered_set<ParsedSystemPtr> systemsFrom;
 			node.ForEachLinksFrom([&](DS::Graph<ParsedSystemPtr>::Node::Id fromNodeToId) {
 				auto& fromNode = graph.GetNode(fromNodeToId);
@@ -2498,6 +2516,7 @@ namespace ECSGenerator2 {
 
 			for (auto rootNodeId : roots) {
 				auto rootNode = thread.callGraph_.GetNode(rootNodeId);
+				OS::LogInfo("log", { "Processing root system {}...", rootNode.GetValue()->GetFullName() } );
 				ProcessNode(thread.systemsOrder_, thread.callGraph_, rootNodeId);
 
 			}
@@ -2833,87 +2852,87 @@ namespace ECSGenerator2 {
 
 				///CREATE GRAPHVIZ CALL GRAPH
 				
-				//{
-				//	// �������� ������ �����
-				//	Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
+				{
+					// �������� ������ �����
+					Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
 
-				//	thread.callGraph_.ForEachNode([&](DS::Graph<ParsedSystemPtr>::NodeId nodeId, DS::Graph<ParsedSystemPtr>::Node& node) {
+					thread.callGraph_.ForEachNode([&](DS::Graph<ParsedSystemPtr>::NodeId nodeId, DS::Graph<ParsedSystemPtr>::Node& node) {
 
-				//		if (node.HasLinksFrom() || node.HasLinksTo()) {
+						if (node.HasLinksFrom() || node.HasLinksTo()) {
 
-				//			Agnode_t* gSystemNode = agnode(g, (char*)node.GetValue()->GetFullName().c_str(), 1);
-				//			agsafeset(gSystemNode, (char*)"shape", (char*)"rect", (char*)"");
+							Agnode_t* gSystemNode = agnode(g, (char*)node.GetValue()->GetFullName().c_str(), 1);
+							agsafeset(gSystemNode, (char*)"shape", (char*)"rect", (char*)"");
 
-				//			node.ForEachLinksFrom([&](DS::Graph<System>::NodeId nodeId) {
-				//				const DS::Graph<ParsedSystemPtr>::Node& fromNode = thread.callGraph_.GetNode(nodeId);
+							node.ForEachLinksFrom([&](DS::Graph<System>::NodeId nodeId) {
+								const DS::Graph<ParsedSystemPtr>::Node& fromNode = thread.callGraph_.GetNode(nodeId);
 
-				//				Agnode_t* gFromNode = agnode(g, (char*)fromNode.GetValue()->GetFullName().c_str(), 1);
+								Agnode_t* gFromNode = agnode(g, (char*)fromNode.GetValue()->GetFullName().c_str(), 1);
 
-				//				Agedge_t* gEdge = agedge(g, gFromNode, gSystemNode, nullptr, 1);
+								Agedge_t* gEdge = agedge(g, gFromNode, gSystemNode, nullptr, 1);
 
-				//				return true;
-				//				});
+								return true;
+								});
 
-				//			node.ForEachLinksTo([&](DS::Graph<System>::NodeId nodeId) {
-				//				const DS::Graph<ParsedSystemPtr>::Node& toNode = thread.callGraph_.GetNode(nodeId);
+							node.ForEachLinksTo([&](DS::Graph<System>::NodeId nodeId) {
+								const DS::Graph<ParsedSystemPtr>::Node& toNode = thread.callGraph_.GetNode(nodeId);
 
-				//				Agnode_t* gToNode = agnode(g, (char*)toNode.GetValue()->GetFullName().c_str(), 1);
+								Agnode_t* gToNode = agnode(g, (char*)toNode.GetValue()->GetFullName().c_str(), 1);
 
-				//				Agedge_t* gEdge = agedge(g, gSystemNode, gToNode, nullptr, 1);
+								Agedge_t* gEdge = agedge(g, gSystemNode, gToNode, nullptr, 1);
 
-				//				return true;
-				//				});
-				//		}
-
-
-				//		return true;
-				//		});
-				//	removeTransitiveEdges(g);
-				//	findAndColorCycles(g);
-				//	//Parse .dot
-				//	{
-				//		GVC_t* gvc = gvContext();
+								return true;
+								});
+						}
 
 
-				//		//Get path
-				//		//auto randomEcsFilePath = parsedECSFiles[0]->GetPath();
+						return true;
+						});
+					removeTransitiveEdges(g);
+					findAndColorCycles(g);
+					//Parse .dot
+					{
+						GVC_t* gvc = gvContext();
 
-				//		//std::filesystem::path includeDirFullPath;
 
-				//		//std::filesystem::path::iterator includeDirIt;
-				//		//for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
-				//		//	auto folder = *it;
-				//		//	if (folder == projectContext->includeDirectory_) {
-				//		//		includeDirIt = it;
-				//		//		break;
-				//		//	}
-				//		//}
+						//Get path
+						//auto randomEcsFilePath = parsedECSFiles[0]->GetPath();
 
-				//		//for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
-				//		//	includeDirFullPath /= *it;
-				//		//}
+						//std::filesystem::path includeDirFullPath;
 
-				//		//includeDirFullPath /= *includeDirIt;
-				//		//Get path
+						//std::filesystem::path::iterator includeDirIt;
+						//for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
+						//	auto folder = *it;
+						//	if (folder == projectContext->includeDirectory_) {
+						//		includeDirIt = it;
+						//		break;
+						//	}
+						//}
 
-				//		static int clusterIndex = 0;
-				//		auto dotfile = std::make_shared<OS::TextFile>("D:/OksEngine/auto_ECSSystemsCallGraph" + std::to_string(clusterIndex) + ".dot");
-				//		clusterIndex++;
-				//		char* dotData = nullptr;
-				//		unsigned int length = 0;
+						//for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
+						//	includeDirFullPath /= *it;
+						//}
 
-				//		gvLayout(gvc, g, "dot");
-				//		gvRenderData(gvc, g, "dot", &dotData, &length);
+						//includeDirFullPath /= *includeDirIt;
+						//Get path
 
-				//		agclose(g);
-				//		gvFreeContext(gvc);
-				//		dotfile->Create();
-				//		std::string dotText{ dotData };
-				//		(*dotfile) << dotText;
-				//		dotfile->Close();
-				//	}
-				//}
-				////
+						static int clusterIndex = 0;
+						auto dotfile = std::make_shared<OS::TextFile>("D:/OksEngine/auto_ECSSystemsCallGraph" + std::to_string(clusterIndex) + ".dot");
+						clusterIndex++;
+						char* dotData = nullptr;
+						unsigned int length = 0;
+
+						gvLayout(gvc, g, "dot");
+						gvRenderData(gvc, g, "dot", &dotData, &length);
+
+						agclose(g);
+						gvFreeContext(gvc);
+						dotfile->Create();
+						std::string dotText{ dotData };
+						(*dotfile) << dotText;
+						dotfile->Close();
+					}
+				}
+				//
 
 				};
 

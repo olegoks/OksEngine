@@ -27,7 +27,9 @@ CreateMainWindowSystem = {
                 "Input::KeyboardEvents",
                 "MouseEvents",
                 "CursorEvents",
-                "MainWindowResizeEvent"
+                "MainWindowFramebufferResizeEvent",
+                "MainWindowWorkAreaSize",
+                "MainWindowFramebufferSize"
             }
         }
     }
@@ -53,18 +55,35 @@ ProcessInputSystem = {
     }
 }
 
+MainWindowWorkAreaSizeComponent = {
+    fields = {
+        { type = "Common::UInt64", name = "width" },
+        { type = "Common::UInt64", name = "height" }
+    }
+}
 
-MainWindowResizeEventComponent = {
+MainWindowFramebufferSizeComponent = {
+    fields = {
+        { type = "Common::UInt64", name = "width" },
+        { type = "Common::UInt64", name = "height" }
+    }
+}
+
+MainWindowFramebufferResizeEventComponent = {
     serializable = false,
     fields = { 
         { type = "std::queue<UIAL::Window::FrameBufferResizeEvent>", name = "events" }
      }
 }
 
-GetWindowResizeEventsSystem = {
+
+GetWindowFramebufferResizeEventsSystem = {
     callOrder = {
+        runAfter = {
+            "SystemMarks::FRAME_HEAD_START"
+        },
         runBefore = {
-            "StartRender"
+            "SystemMarks::FRAME_HEAD_END"
         }
     },
     updateMethod = {
@@ -72,17 +91,21 @@ GetWindowResizeEventsSystem = {
             {
                 processesComponents = {
                     "MainWindow",
-                    { name = "MainWindowResizeEvent", readonly = false }
+                    { name = "MainWindowFramebufferResizeEvent", readonly = false },
+                    { name = "MainWindowFramebufferSize", readonly = false }
                 }
             }
         }
     }
 }
 
-ClearWindowResizeEventsSystem = {
+ClearWindowFramebufferResizeEventsSystem = {
     callOrder = {
         runAfter = {
-            "EndRender"
+            "SystemMarks::FRAME_TAIL_START"
+        },
+        runBefore = {
+            "SystemMarks::FRAME_TAIL_END"
         }
     },
     updateMethod = {
@@ -90,7 +113,57 @@ ClearWindowResizeEventsSystem = {
             {
                 processesComponents = {
                     "MainWindow",
-                    { name = "MainWindowResizeEvent", readonly = false }
+                    { name = "MainWindowFramebufferResizeEvent", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+MainWindowWorkAreaResizeEventComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::queue<UIAL::Window::WorkAreaResizeEvent>", name = "events" }
+     }
+}
+
+GetWindowWorkAreaResizeEventsSystem = {
+    callOrder = {
+        runAfter = {
+            "SystemMarks::FRAME_HEAD_START"
+        },
+        runBefore = {
+            "SystemMarks::FRAME_HEAD_END"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    { name = "MainWindowWorkAreaResizeEvent", readonly = false },
+                    { name = "MainWindowWorkAreaSize", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+ClearWindowWorkAreaResizeEventsSystem = {
+    callOrder = {
+        runAfter = {
+            "SystemMarks::FRAME_TAIL_START"
+        },
+        runBefore = {
+            "SystemMarks::FRAME_TAIL_END"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    { name = "MainWindowWorkAreaResizeEvent", readonly = false }
                 }
             }
         }

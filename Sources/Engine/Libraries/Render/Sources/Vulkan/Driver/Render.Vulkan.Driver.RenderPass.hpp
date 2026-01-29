@@ -242,7 +242,7 @@ namespace Render::Vulkan {
 				nameInfo.objectType = VK_OBJECT_TYPE_RENDER_PASS; // Тип объекта,, VK_OBJECT_TYPE_BUFFER
 				nameInfo.objectHandle = (uint64_t)renderPass;   // Объект, которому назначается имя
 				nameInfo.pObjectName = createInfo.name_.c_str();      // Имя объекта
-				SetObjectName(*createInfo.LD_, &nameInfo);
+				vkCreateDebugUtilsMessengerEXT(*createInfo.LD_, &nameInfo);
 
 				SetHandle(renderPass);
 
@@ -367,6 +367,7 @@ namespace Render::Vulkan {
 					.dstStageMask = dependency.dstStageMask_,
 					.srcAccessMask = dependency.srcAccessMask_,
 					.dstAccessMask = dependency.dstAccessMask_,
+					.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT
 					});
 			}
 
@@ -392,7 +393,7 @@ namespace Render::Vulkan {
 				.pObjectName = createInfo.name_.c_str()
 			};
 #if !defined(NDEBUG)
-			SetObjectName(*createInfo.LD_, &nameInfo);
+			vkCreateDebugUtilsMessengerEXT(*createInfo.LD_, &nameInfo);
 #endif
 			SetHandle(renderPass);
 

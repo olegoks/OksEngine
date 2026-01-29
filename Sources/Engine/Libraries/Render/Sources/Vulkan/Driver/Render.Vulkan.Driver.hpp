@@ -450,10 +450,13 @@ namespace Render::Vulkan {
 				instanceCreateInfo.requiredValidationLayers_ = requiredValidationLayers;
 				objects_.instance_ = std::make_shared<Instance>(instanceCreateInfo);
 			}
-
-			SetObjectName = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(*objects_.instance_, "vkSetDebugUtilsObjectNameEXT");
-
-
+#if !defined(NDEBUG)
+			vkCreateDebugUtilsMessengerEXT = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(*objects_.instance_, "vkSetDebugUtilsObjectNameEXT");
+			vkCmdBeginDebugUtilsLabelEXT = (PFN_vkCmdBeginDebugUtilsLabelEXT)vkGetInstanceProcAddr(*objects_.instance_, "vkCmdBeginDebugUtilsLabelEXT");
+			vkCmdEndDebugUtilsLabelEXT = (PFN_vkCmdEndDebugUtilsLabelEXT)vkGetInstanceProcAddr(*objects_.instance_, "vkCmdEndDebugUtilsLabelEXT");
+			vkCmdInsertDebugUtilsLabelEXT = (PFN_vkCmdInsertDebugUtilsLabelEXT)vkGetInstanceProcAddr(*objects_.instance_, "vkCmdInsertDebugUtilsLabelEXT");
+			vkSetDebugUtilsObjectNameEXT = (PFN_vkSetDebugUtilsObjectNameEXT)vkGetInstanceProcAddr(*objects_.instance_, "vkSetDebugUtilsObjectNameEXT");
+#endif
 			WindowSurface::CreateInfo windowSurfaceCreateInfo;
 			{
 				windowSurfaceCreateInfo.instance_ = objects_.instance_;
@@ -707,26 +710,27 @@ namespace Render::Vulkan {
 
 			//Descriptor set layouts
 			std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
-			for (auto& binding : pipelineCI.shaderBindings_) {
-				std::vector<VkDescriptorSetLayoutBinding> bindings;
-				VkDescriptorSetLayoutBinding vBinding{
-					binding.binding_,
-					ToVulkanType(binding.type_),
-					1,
-					static_cast<VkFlags>(ToVulkanType(binding.stage_)),
-					nullptr
-				};
-				bindings.push_back(vBinding);
+			{
+				for (auto& binding : pipelineCI.shaderBindings_) {
+					std::vector<VkDescriptorSetLayoutBinding> bindings;
+					VkDescriptorSetLayoutBinding vBinding{
+						binding.binding_,
+						ToVulkanType(binding.type_),
+						1,
+						static_cast<VkFlags>(ToVulkanType(binding.stage_)),
+						nullptr
+					};
+					bindings.push_back(vBinding);
 
-				auto DSL = std::make_shared<DescriptorSetLayout>(
-					DescriptorSetLayout::CreateInfo{
-						binding.name_,
-						objects_.LD_,
-						bindings
-					});
-				DSLs.push_back(DSL);
+					auto DSL = std::make_shared<DescriptorSetLayout>(
+						DescriptorSetLayout::CreateInfo{
+							binding.name_,
+							objects_.LD_,
+							bindings
+						});
+					DSLs.push_back(DSL);
+				}
 			}
-
 			//Push constants
 			std::vector<VkPushConstantRange> vkPushConstantRanges;
 			for (auto ralPushConstant : pipelineCI.pushConstants_) {
@@ -741,13 +745,14 @@ namespace Render::Vulkan {
 				vkPushConstantRanges.push_back(vkPushConstantRange);
 			}
 
+			//Depth buffer 
 			std::shared_ptr<Vulkan::Pipeline::DepthTestInfo> depthTestData;
-			//if (pipelineCI.enableDepthTest_) {
-			depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
-			depthTestData->enable_ = pipelineCI.enableDepthTest_;
-			depthTestData->bufferFormat_ = VK_FORMAT_D32_SFLOAT;// objects_.depthTestData_->image_->GetFormat();
-			depthTestData->compareOperation_ = ToVulkanType(pipelineCI.dbCompareOperation_);
-			//}
+			{
+				depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
+				depthTestData->enable_ = pipelineCI.enableDepthTest_;
+				depthTestData->bufferFormat_ = VK_FORMAT_D32_SFLOAT;// objects_.depthTestData_->image_->GetFormat();
+				depthTestData->compareOperation_ = ToVulkanType(pipelineCI.dbCompareOperation_);
+			}
 
 			/*std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo;
 			{
@@ -756,7 +761,7 @@ namespace Render::Vulkan {
 			}*/
 
 			std::shared_ptr<Vulkan::Pipeline::VertexInfo> vertexInfo = nullptr;
-			if(pipelineCI.vertexType_ != VertexType::Undefined){
+			if (pipelineCI.vertexType_ != VertexType::Undefined) {
 				vertexInfo = std::make_shared<Vulkan::Pipeline::VertexInfo>(
 					GetVertexBindingDescription(pipelineCI.vertexType_),
 					GetVertexAttributeDescriptions(pipelineCI.vertexType_)
@@ -794,7 +799,7 @@ namespace Render::Vulkan {
 				.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
 				.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
 				.multisampleInfo_ = multisampleInfo,
-				.subpassIndex_ = 0,
+				.subpassIndex_ = pipelineCI.subpassIndex_,
 				.vertexInfo_ = vertexInfo,
 				.topology_ = ToVulkanType(pipelineCI.topologyType_),
 				.frontFace_ = ToVulkanType(pipelineCI.frontFace_),
@@ -875,7 +880,7 @@ namespace Render::Vulkan {
 					.storeOp = ToVulkanType(attachmentUsage.storeOperation_),
 					.initialLayout = ToVulkanType(attachmentUsage.initialState_),
 					.finalLayout = ToVulkanType(attachmentUsage.finalState_),
-					
+
 				};
 
 				return swapChainAttachment;
@@ -890,43 +895,17 @@ namespace Render::Vulkan {
 
 			std::vector<Vulkan::RP::Subpass::Dependency> subpassDependecies;
 			{
-				Vulkan::RP::Subpass::Dependency inExternalToFirstSubpassDependency{
-					.srcSubpass_ = VK_SUBPASS_EXTERNAL,
-					.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-					.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-					.dstSubpass_ = 0,
-					.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-					.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
-				};
-				subpassDependecies.push_back(inExternalToFirstSubpassDependency);
-
-				if (rpCI.subpasses_.size() > 1) {
-					for (Common::UInt32 i = 1; i < rpCI.subpasses_.size(); i++) {
-
-						Vulkan::RP::Subpass::Dependency dependency{
-						.srcSubpass_ = i - 1,
-						.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-						.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-						.dstSubpass_ = i,
-						.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-						.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT,
-						};
-
-						subpassDependecies.push_back(dependency);
-					}
+				for (const auto& dependency : rpCI.subpassDependecies_) {
+					Vulkan::RP::Subpass::Dependency vkDependency{
+					.srcSubpass_ = (dependency.fromSubpassIndex_ != RAL::Driver::RP::Subpass::external_) ? (dependency.fromSubpassIndex_) : (VK_SUBPASS_EXTERNAL),
+					.srcStageMask_ = ToVulkanType(dependency.fromPipelineStage_),
+					.srcAccessMask_ = ToVulkanType(dependency.fromAccess_),
+					.dstSubpass_ = (dependency.toSubpassIndex_ != RAL::Driver::RP::Subpass::external_) ? (dependency.toSubpassIndex_) : (VK_SUBPASS_EXTERNAL),
+					.dstStageMask_ = ToVulkanType(dependency.toPipelineStage_),
+					.dstAccessMask_ = ToVulkanType(dependency.toAccess_),
+					};
+					subpassDependecies.push_back(vkDependency);
 				}
-
-				Vulkan::RP::Subpass::Dependency lastSubpassToOutExternalDependency{
-					.srcSubpass_ = static_cast<Common::UInt32>(rpCI.subpasses_.size()) - 1,
-					.srcStageMask_ = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
-					.srcAccessMask_ = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT,
-					.dstSubpass_ = VK_SUBPASS_EXTERNAL,
-					.dstStageMask_ = VK_PIPELINE_STAGE_VERTEX_SHADER_BIT,
-					.dstAccessMask_ = VK_ACCESS_SHADER_READ_BIT
-				};
-
-
-				subpassDependecies.push_back(lastSubpassToOutExternalDependency);
 			}
 
 			std::vector<Vulkan::RP::Subpass> vkSubpasses;
@@ -934,19 +913,19 @@ namespace Render::Vulkan {
 				for (const auto& subpass : rpCI.subpasses_) {
 
 					std::vector<VkAttachmentReference> colorAttachmentRefs;
-					for (const auto& index : subpass.colorAttachments_) {
+					for (const auto& attachmentReference : subpass.colorAttachments_) {
 						colorAttachmentRefs.push_back(VkAttachmentReference{
-							.attachment = index,
-							.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+							.attachment = attachmentReference.index_,
+							.layout = ToVulkanType(attachmentReference.state_)
 							});
 					}
 
 
 					std::vector<VkAttachmentReference> inputAttachmentRefs;
-					for (const auto& index : subpass.inputAttachments_) {
+					for (const auto& attachmentReference : subpass.inputAttachments_) {
 						inputAttachmentRefs.push_back(VkAttachmentReference{
-							.attachment = index,
-							.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL
+							.attachment = attachmentReference.index_,
+							.layout = ToVulkanType(attachmentReference.state_)
 							});
 					}
 
@@ -955,11 +934,13 @@ namespace Render::Vulkan {
 						.inputAttachments_ = { inputAttachmentRefs },
 						.colorAttachments_ = { colorAttachmentRefs },
 						.resolveAttachment_
-						= (subpass.resolveAttachment_ != Common::Limits<Common::UInt32>::Max())
-						? (std::make_shared<VkAttachmentReference>(subpass.resolveAttachment_,VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)) : (nullptr),
+						= (subpass.resolveAttachment_.index_ != Common::Limits<Common::UInt32>::Max())
+						? (std::make_shared<VkAttachmentReference>(
+							subpass.resolveAttachment_.index_,
+							VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL)) : (nullptr),
 						.depthStencilAttachment_
-						= (subpass.depthStencilAttachment_ != Common::Limits<Common::UInt32>::Max())
-						? (std::make_shared<VkAttachmentReference>(subpass.depthStencilAttachment_, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)) : (nullptr)
+						= (subpass.depthStencilAttachment_.index_ != Common::Limits<Common::UInt32>::Max())
+						? (std::make_shared<VkAttachmentReference>(subpass.depthStencilAttachment_.index_, VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL)) : (nullptr)
 					};
 					vkSubpasses.push_back(vkSubpass);
 				}
@@ -1067,6 +1048,16 @@ namespace Render::Vulkan {
 
 		}
 
+		virtual void BeginDebugLabel(const Color3f& color, const char* labelText) override {
+			GCB_->BeginDebugLabel(
+				DebugColor{
+					{ color.GetX(),color.GetY(),color.GetZ(), 0.0 }
+				}, labelText);
+		}
+
+		virtual void EndDebugLabel() override {
+			GCB_->EndDebugLabel();
+		}
 
 
 		virtual void BeginRenderPass(
@@ -1087,7 +1078,7 @@ namespace Render::Vulkan {
 			std::vector<VkClearValue> vkClearValues;
 			{
 				for (const auto& clearValue : clearValues) {
-					VkClearValue vkClearValue{0};
+					VkClearValue vkClearValue{ 0 };
 					{
 						vkClearValue.color.float32[0] = clearValue.color_.float32[0];
 						vkClearValue.color.float32[1] = clearValue.color_.float32[1];
@@ -1286,7 +1277,7 @@ namespace Render::Vulkan {
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT,
 				VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT);
 
- 			GCB_->ImageMemoryBarrier(image, 0, 1,
+			GCB_->ImageMemoryBarrier(image, 0, 1,
 				VK_IMAGE_ASPECT_COLOR_BIT,
 				VK_IMAGE_LAYOUT_UNDEFINED,
 				VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
@@ -1338,7 +1329,7 @@ namespace Render::Vulkan {
 			//}
 
 			//CB_->EndRenderPass();
-			GCB_->End(); 
+			GCB_->End();
 
 
 			objects_.commandBuffers_[currentFrame] = std::move(GCB_);
@@ -1350,6 +1341,7 @@ namespace Render::Vulkan {
 			END_PROFILE();
 			BEGIN_PROFILE("Submit new frame.");
 			currentFrame_->Render();
+			currentFrame_->WaitForQueueIdle();
 			END_PROFILE();
 			BEGIN_PROFILE("Show image.");
 			currentFrame_->ShowImage();
@@ -1450,7 +1442,6 @@ namespace Render::Vulkan {
 
 
 			CCB_->Begin();
-			CCB_->BeginDebug("Compute pipeline");
 		}
 
 
@@ -1512,13 +1503,12 @@ namespace Render::Vulkan {
 
 		void EndCompute() override {
 
-			CCB_->EndDebug();
 			CCB_->End();
 
-			Fence::CreateInfo fenceCI {
+			Fence::CreateInfo fenceCI{
 				.LD_ = objects_.LD_
 			};
-			
+
 			auto computeEndedFence = std::make_shared<Fence>(fenceCI);
 
 			computeEndedFence->Reset();
@@ -1999,6 +1989,39 @@ namespace Render::Vulkan {
 			return textureId;
 		}
 
+		virtual void TextureMemoryBarrier(
+			const RAL::Driver::Texture::Id textureId,
+			Texture::State fromState,
+			Texture::State toState,
+			Texture::Access fromAccess,
+			Texture::Access toAccess,
+			Pipeline_Stage fromStage,
+			Pipeline_Stage toStage) {
+
+			if (GCB_ == nullptr) {
+				return;
+			}
+
+			VkDebugUtilsLabelEXT barrierLabel = {};
+			barrierLabel.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
+			barrierLabel.pLabelName = "Image Layout Transition: COLOR_ATTACHMENT -> SHADER_READ_ONLY";
+			barrierLabel.color[0] = 1.0f;
+			barrierLabel.color[1] = 0.0f;
+			barrierLabel.color[2] = 0.0f;
+			barrierLabel.color[3] = 1.0f;
+
+			if (vkCmdBeginDebugUtilsLabelEXT) {
+				vkCmdBeginDebugUtilsLabelEXT(GCB_->GetHandle(), &barrierLabel);
+			}
+
+			auto texture = textures_[textureId];
+			texture->TextureMemoryBarrier(
+				GCB_,
+				ToVulkanType(fromState), ToVulkanType(toState),
+				ToVulkanType(fromAccess), ToVulkanType(toAccess),
+				ToVulkanType(fromStage), ToVulkanType(toStage));
+
+		}
 
 		[[nodiscard]]
 		virtual bool IsTextureExist(RAL::Driver::Texture::Id textureId) const noexcept {

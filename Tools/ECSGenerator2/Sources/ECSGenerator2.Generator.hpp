@@ -846,7 +846,7 @@ namespace ECSGenerator2 {
 				///CREATE GRAPHVIZ CALL GRAPH
 
 				// �������� ������ �����
-			/*	Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
+				Agraph_t* = agopen((char*)"G", Agstrictdirected, nullptr);
 
 				thread.callGraph_.ForEachNode([&](DS::Graph<System>::NodeId nodeId, DS::Graph<System>::Node& node) {
 
@@ -878,52 +878,52 @@ namespace ECSGenerator2 {
 
 
 					return true;
-					});*/
+					});
 
 
 				//Parse .dot
-				//{
-				//	GVC_t* gvc = gvContext();
+				{
+					GVC_t* gvc = gvContext();
 
 
-				//	//Get path
-				//	auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
+					//Get path
+					auto randomEcsFilePath = projectContext->nameEcsFile_.begin()->second->GetPath();
 
-				//	std::filesystem::path includeDirFullPath;
+					std::filesystem::path includeDirFullPath;
 
-				//	std::filesystem::path::iterator includeDirIt;
-				//	for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
-				//		auto folder = *it;
-				//		if (folder == projectContext->includeDirectory_) {
-				//			includeDirIt = it;
-				//			break;
-				//		}
-				//	}
+					std::filesystem::path::iterator includeDirIt;
+					for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
+						auto folder = *it;
+						if (folder == projectContext->includeDirectory_) {
+							includeDirIt = it;
+							break;
+						}
+					}
 
-				//	for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
-				//		includeDirFullPath /= *it;
-				//	}
+					for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
+						includeDirFullPath /= *it;
+					}
 
-				//	includeDirFullPath /= *includeDirIt;
-				//	//Get path
+					includeDirFullPath /= *includeDirIt;
+					//Get path
 
 
-				//	auto dotfile = std::make_shared<OS::TextFile>(includeDirFullPath / "auto_ECSSystemsCallGraph.dot");
+					auto dotfile = std::make_shared<OS::TextFile>(includeDirFullPath / "auto_ECSSystemsCallGraph.dot");
 
-				//	char* dotData = nullptr;
-				//	unsigned int length = 0;
+					char* dotData = nullptr;
+					unsigned int length = 0;
 
-				//	gvLayout(gvc, g, "dot");
-				//	gvRenderData(gvc, g, "dot", &dotData, &length);
+					gvLayout(gvc, g, "dot");
+					gvRenderData(gvc, g, "dot", &dotData, &length);
 
-				//	agclose(g);
-				//	gvFreeContext(gvc);
-				//	dotfile->Create();
-				//	std::string dotText{ dotData };
-				//	(*dotfile) << dotText;
-				//	dotfile->Close();
-				//}
-				//////
+					agclose(g);
+					gvFreeContext(gvc);
+					dotfile->Create();
+					std::string dotText{ dotData };
+					(*dotfile) << dotText;
+					dotfile->Close();
+				}
+				////
 
 				};
 

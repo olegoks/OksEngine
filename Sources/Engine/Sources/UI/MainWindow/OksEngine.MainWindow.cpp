@@ -30,7 +30,13 @@ namespace OksEngine
 		CreateComponent<Input::KeyboardEvents>(mainWindowEntity);
 		CreateComponent<MouseEvents>(mainWindowEntity);
 		CreateComponent<CursorEvents>(mainWindowEntity);
-		CreateComponent<MainWindowResizeEvent>(mainWindowEntity);
+		CreateComponent<MainWindowFramebufferResizeEvent>(mainWindowEntity);
+
+		const glm::u32vec2 workAreaSize = window->GetWorkAreaSize();
+		CreateComponent<MainWindowWorkAreaSize>(mainWindowEntity, workAreaSize.x, workAreaSize.y);
+
+		const glm::u32vec2 frameBufferSize = window->GetFramebufferSize();
+		CreateComponent<MainWindowFramebufferSize>(mainWindowEntity, frameBufferSize.x, frameBufferSize.y);
 
 	};
 
@@ -40,25 +46,46 @@ namespace OksEngine
 
 	};
 
-	void GetWindowResizeEvents::Update(
-		ECS2::Entity::Id entity0id,
-		const MainWindow* mainWindow0,
-		MainWindowResizeEvent* frameBufferResizeEvents0) {
+	void GetWindowFramebufferResizeEvents::Update(
+		ECS2::Entity::Id entity0id, const OksEngine::MainWindow* mainWindow0,
+		OksEngine::MainWindowFramebufferResizeEvent* mainWindowFramebufferResizeEvent0,
+		OksEngine::MainWindowFramebufferSize* mainWindowFramebufferSize0) {
 
 		std::optional<UIAL::Window::FrameBufferResizeEvent> maybeEvent = mainWindow0->window_->GetFrameBufferResizeEvent();
 		if (maybeEvent.has_value()) {
-			frameBufferResizeEvents0->events_.push(maybeEvent.value());
+			mainWindowFramebufferResizeEvent0->events_.push(maybeEvent.value());
 		}
 	}
 
-	void ClearWindowResizeEvents::Update(ECS2::Entity::Id entity0id, const MainWindow* mainWindow0,
-		MainWindowResizeEvent* mainWindowResizeEvent0) {
+	void ClearWindowFramebufferResizeEvents::Update(ECS2::Entity::Id entity0id, const MainWindow* mainWindow0,
+		MainWindowFramebufferResizeEvent* mainWindowResizeEvent0) {
 
 		while (!mainWindowResizeEvent0->events_.empty()) {
 			mainWindowResizeEvent0->events_.pop();
 		}
 		
 		
+	}
+
+	void GetWindowWorkAreaResizeEvents::Update(
+		ECS2::Entity::Id entity0id, const OksEngine::MainWindow* mainWindow0,
+		OksEngine::MainWindowWorkAreaResizeEvent* mainWindowWorkAreaResizeEvent0,
+		OksEngine::MainWindowWorkAreaSize* mainWindowWorkAreaSize0) {
+
+		std::optional<UIAL::Window::WorkAreaResizeEvent> maybeEvent = mainWindow0->window_->GetWorkAreaResizeEvent();
+		if (maybeEvent.has_value()) {
+			mainWindowWorkAreaResizeEvent0->events_.push(maybeEvent.value());
+		}
+	}
+
+	void ClearWindowWorkAreaResizeEvents::Update(ECS2::Entity::Id entity0id, const OksEngine::MainWindow* mainWindow0,
+		OksEngine::MainWindowWorkAreaResizeEvent* mainWindowWorkAreaResizeEvent0) {
+
+		while (!mainWindowWorkAreaResizeEvent0->events_.empty()) {
+			mainWindowWorkAreaResizeEvent0->events_.pop();
+		}
+
+
 	}
 
 } // namespace OksEngine

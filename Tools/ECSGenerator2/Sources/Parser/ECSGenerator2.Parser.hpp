@@ -12,7 +12,7 @@
 #include <Constant/ECSGenerator2.ConstantParser.hpp>
 #include <Archetype/ECSGenerator2.ArchetypeParser.hpp>
 #include <Struct/ECSGenerator2.StructParser.hpp>
-
+#include <Enum/ECSGenerator2.EnumParser.hpp>
 
 namespace ECSGenerator2 {
 
@@ -140,6 +140,13 @@ namespace ECSGenerator2 {
 							auto parsedStruct = structParser.Parse(table,
 								name.substr(0, name.rfind("Struct")));
 							return parsedStruct;
+						}
+						else if (name.ends_with("Enum")) {
+
+							EnumParser enumParser;
+							auto parsedEnum = enumParser.Parse(table,
+								name.substr(0, name.rfind("Enum")));
+							return parsedEnum;
 						} else if (name.ends_with("Component")) {
 
 							ComponentParser componentParser;
@@ -307,10 +314,11 @@ namespace ECSGenerator2 {
 
 							switch (type) {
 							case ParsedTable::Type::Constant:		return 0; // Âûסרטי ןנטמנטעוע
-							case ParsedTable::Type::Struct:			return 1; // Âûסרטי ןנטמנטעוע
-							case ParsedTable::Type::Component:		return 2;
-							case ParsedTable::Type::Archetype:		return 3; // Âûסרטי ןנטמנטעוע
-							case ParsedTable::Type::System:			return 4; // Íטחרטי ןנטמנטעוע
+							case ParsedTable::Type::Enum:			return 1; // Âûסרטי ןנטמנטעוע
+							case ParsedTable::Type::Struct:			return 2; // Âûסרטי ןנטמנטעוע
+							case ParsedTable::Type::Component:		return 3;
+							case ParsedTable::Type::Archetype:		return 4; // Âûסרטי ןנטמנטעוע
+							case ParsedTable::Type::System:			return 5; // Íטחרטי ןנטמנטעוע
 							default:
 								ASSERT_FAIL_MSG("Unknown table type!");
 							}

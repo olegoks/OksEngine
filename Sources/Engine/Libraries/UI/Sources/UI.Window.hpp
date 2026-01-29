@@ -27,14 +27,17 @@ namespace UI {
 		[[nodiscard]]
 		Info GetInfo(UIAL::Render render) const noexcept;
 
+		virtual glm::u32vec2 GetFramebufferSize() const noexcept override;
 		[[nodiscard]]
-		virtual glm::u32vec2 GetSize() const noexcept override;
+		virtual glm::u32vec2 GetWorkAreaSize() const noexcept override;
 
 		virtual void SetTitle(const std::string& title) noexcept override;
 
 		virtual void Show() override;
 
 		virtual void ProcessInput() override;
+
+		static UIAL::Window::CursorMode ConvertCursorMode(int glfwMode);
 
 		~Window();
 

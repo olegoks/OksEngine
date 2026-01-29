@@ -46,6 +46,11 @@ namespace UIAL {
 			int newHeight_ = 0;
 		};
 
+		struct WorkAreaResizeEvent {
+			int newWidth_ = 0;
+			int newHeight_ = 0;
+		};
+
 		enum class KeyboardKey : int {
 			// Functional keys
 			ESCAPE = 256,          // GLFW_KEY_ESCAPE
@@ -201,10 +206,15 @@ namespace UIAL {
 		};
 
 		enum class CursorMode {
-			//TODO: need to realize after ECS enums
+			Normal,
+			Hidden,
+			Disabled,
+			Captured,
+			Undefined
 		};
 
 		struct CursorEvent {
+			CursorMode mode_ = CursorMode::Undefined;
 			glm::ivec2 position_{ 0, 0 };
 			glm::ivec2 offset_{ 0, 0 };
 		};
@@ -254,9 +264,19 @@ namespace UIAL {
 			return event;
 		}
 
+		[[nodiscard]]
+		std::optional<WorkAreaResizeEvent> GetWorkAreaResizeEvent() noexcept {
+			if (workAreaResizeEvents_.empty()) return {};
+			WorkAreaResizeEvent event = workAreaResizeEvents_.front();
+			workAreaResizeEvents_.erase(workAreaResizeEvents_.begin());
+			return event;
+		}
 
 		[[nodiscard]]
-		virtual glm::u32vec2 GetSize() const noexcept = 0;
+		virtual glm::u32vec2 GetFramebufferSize() const noexcept = 0;
+
+		[[nodiscard]]
+		virtual glm::u32vec2 GetWorkAreaSize() const noexcept = 0;
 		virtual void SetTitle(const std::string& title) noexcept = 0;
 		virtual void Show() = 0;
 		virtual void ProcessInput() = 0;
@@ -276,9 +296,13 @@ namespace UIAL {
 		void PushEvent(const FrameBufferResizeEvent& event) noexcept {
 			frameBufferResizeEvents_.push_back(event);
 		}
+		void PushEvent(const WorkAreaResizeEvent& event) noexcept {
+			workAreaResizeEvents_.push_back(event);
+		}
 
 	private:
 		std::vector<FrameBufferResizeEvent> frameBufferResizeEvents_;
+		std::vector<WorkAreaResizeEvent> workAreaResizeEvents_;
 		std::vector<KeyboardEvent> keyboardEvents_;
 		std::vector<MouseEvent> mouseEvents_;
 		std::vector<CursorEvent> cursorEvents_;

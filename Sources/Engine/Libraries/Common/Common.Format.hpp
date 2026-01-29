@@ -16,21 +16,21 @@ namespace Common {
 
 		template<class ...Args>
 		Format(const char* format, Args&& ...args) {
-			if (IsDebug()) {
+			//if (IsDebug()) {
 				text_ = std::vformat(format, std::make_format_args(args...));
-			}
+			//}
 		}
 
 		Format(const std::string format) {
-			if (IsDebug()) {
+			//if (IsDebug()) {
 				text_ = format;
-			}
+			//}
 		}
 
 		Format(const char* format) {
-			if (IsDebug()) {
+			//if (IsDebug()) {
 				text_ = format;
-			}
+			//}
 		}
 
 

@@ -110,6 +110,23 @@ namespace ECSGenerator2 {
 			return code;
 		}
 
+		CodeStructure::Code GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::Enum> enumObject) {
+			CodeStructure::Code code;
+
+			code.Add("enum class {} {{", enumObject->ci_.name_);
+
+			for (Common::Index i = 0; i < enumObject->ci_.values_.size(); i++) {
+				code.Add("{}", enumObject->ci_.values_[i]);
+				if (i < enumObject->ci_.values_.size() - 1) {
+					code.Add(",");
+				}
+			}
+
+			code.Add("};");
+
+			return code;
+		}
+
 		CodeStructure::Code GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::Namespace> namespaceObject) {
 			CodeStructure::Code code;
 
@@ -234,6 +251,10 @@ namespace ECSGenerator2 {
 			else if (base->GetType() == CodeStructure::Base::Type::Struct) {
 				auto structObject = Common::pointer_cast<CodeStructure::Struct>(base);
 				code = GenerateECSCXXFilesStructure(structObject);
+			}
+			else if (base->GetType() == CodeStructure::Base::Type::Enum) {
+				auto enumObject = Common::pointer_cast<CodeStructure::Enum>(base);
+				code = GenerateECSCXXFilesStructure(enumObject);
 			}
 			else if (base->GetType() == CodeStructure::Base::Type::Function) {
 				auto functionObject = Common::pointer_cast<CodeStructure::Function>(base);

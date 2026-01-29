@@ -40,7 +40,26 @@ namespace OksEngine
 		while (auto event = mainWindow0->window_->GetCursorEvent()) {
 			if (event.has_value()) {
 				const UIAL::Window::CursorEvent& cursorEvent = event.value();
+
+
 				cursorEvents0->events_.push(CursorEvent{
+					[&cursorEvent]() ->CursorMode {
+						if (cursorEvent.mode_ == UIAL::Window::CursorMode::Captured) {
+							return CursorMode::Captured;
+						} else if (cursorEvent.mode_ == UIAL::Window::CursorMode::Disabled) {
+							return CursorMode::Disabled;
+						}
+						else if (cursorEvent.mode_ == UIAL::Window::CursorMode::Hidden) {
+							return CursorMode::Hidden;
+						}
+						else if (cursorEvent.mode_ == UIAL::Window::CursorMode::Normal) {
+							return CursorMode::Normal;
+						}
+						else {
+							ASSERT_FAIL_MSG("Invalid cursor mode.");
+							return CursorMode::Undefined;
+						}
+					}(),
 					{ 
 						cursorEvent.position_.x,
 						cursorEvent.position_.y	},

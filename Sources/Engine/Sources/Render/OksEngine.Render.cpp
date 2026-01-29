@@ -397,7 +397,7 @@ namespace OksEngine
 	void ResizeFrameBuffers::Update(
 		ECS2::Entity::Id entity0id,
 		const MainWindow* mainWindow0,
-		const MainWindowResizeEvent* frameBufferResizeEvents0,
+		const MainWindowFramebufferResizeEvent* frameBufferResizeEvents0,
 
 		ECS2::Entity::Id entity1id,
 		const RenderDriver* renderDriver1) {

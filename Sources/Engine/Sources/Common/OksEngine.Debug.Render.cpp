@@ -278,31 +278,48 @@ namespace OksEngine
 		std::vector<RAL::Driver::RP::Subpass> subpasses;
 		{
 			RAL::Driver::RP::Subpass subpass{
-				.colorAttachments_ = { 0 } // Index of attachment.
+				.colorAttachments_ = { { 0, RAL::Driver::Texture_State::DataForColorWrite } } // Index of attachment.
 			};
 			subpasses.push_back(subpass);
+		}
+
+		std::vector<RAL::Driver::RP::Subpass::Dependency> dependencies;
+		{
+			{
+				RAL::Driver::RP::Subpass::Dependency fromExternalToFirst{
+					.fromSubpassIndex_ = RAL::Driver::RP::Subpass::external_,
+					.fromPipelineStage_ = RAL::Driver::Pipeline::Stage::ColorAttachmentOutput,
+					.fromAccess_ = RAL::Driver::Texture::Access::ColorWrite,
+
+					.toSubpassIndex_ = 0,
+					.toPipelineStage_ = RAL::Driver::Pipeline::Stage::VertexShader,
+					.toAccess_ = RAL::Driver::Texture::Access::ShaderRead,
+				};
+				dependencies.push_back(fromExternalToFirst);
+			}
+			{
+				RAL::Driver::RP::Subpass::Dependency fromFirstToExternal{
+					.fromSubpassIndex_ = 0,
+					.fromPipelineStage_ = RAL::Driver::Pipeline::Stage::ColorAttachmentOutput,
+					.fromAccess_ = RAL::Driver::Texture::Access::ColorWrite,
+
+					.toSubpassIndex_ = RAL::Driver::RP::Subpass::external_,
+					.toPipelineStage_ = RAL::Driver::Pipeline::Stage::VertexShader, // First potencial use of attachments.
+					.toAccess_ = RAL::Driver::Texture::Access::ShaderRead,
+				};
+				dependencies.push_back(fromFirstToExternal);
+			}
 		}
 
 		RAL::Driver::RP::CI rpCI{
 			.name_ = "DebugTextRenderPass",
 			.attachments_ = attachmentsUsage,
-			.subpasses_ = subpasses
+			.subpasses_ = subpasses,
+			.subpassDependecies_ = dependencies
 		};
 
 		const RAL::Driver::RP::Id renderPassId = driver->CreateRenderPass(rpCI);
 
-		//RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
-		//	.name_ = "ImGui render buffer",
-		//	.format_ = RAL::Driver::Texture::Format::BGRA_32_UNORM,
-		//	.size_ = { 2560, 1440 },
-		//	.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
-		//	.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
-		//	.targetStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
-		//	.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment, RAL::Driver::Texture::Usage::TransferSource },
-		//	.mipLevels_ = 1
-		//	
-		//};
-		//const RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
 
 
 		CreateComponent<DebugTextRenderPass>(entity1id,

@@ -594,8 +594,33 @@ inline void VkCall(VkResult nativeAPICallResult, const char* message) noexcept {
 	};
 
 
-	inline PFN_vkSetDebugUtilsObjectNameEXT SetObjectName = nullptr;
-	
+	inline PFN_vkSetDebugUtilsObjectNameEXT vkCreateDebugUtilsMessengerEXT = nullptr;
+	inline PFN_vkCmdBeginDebugUtilsLabelEXT vkCmdBeginDebugUtilsLabelEXT = nullptr;
+	inline PFN_vkCmdEndDebugUtilsLabelEXT vkCmdEndDebugUtilsLabelEXT = nullptr;
+	inline PFN_vkCmdInsertDebugUtilsLabelEXT vkCmdInsertDebugUtilsLabelEXT = nullptr;
+	inline PFN_vkSetDebugUtilsObjectNameEXT vkSetDebugUtilsObjectNameEXT = nullptr;
+	inline PFN_vkDestroyDebugUtilsMessengerEXT vkDestroyDebugUtilsMessengerEXT = nullptr;
+
+
+	struct DebugColor {
+		float color_[4]{ 1.0, 0.0, 0.0, 0.0 };
+		[[nodiscard]]
+		static constexpr DebugColor Red() noexcept {
+			return DebugColor{
+				{ 1.0, 0.0, 0.0, 0.0 }
+			};
+		}
+		static constexpr DebugColor Green() noexcept {
+			return DebugColor{
+				{ 0.0, 1.0, 0.0, 0.0 }
+			};
+		}
+		static constexpr DebugColor Blue() noexcept {
+			return DebugColor{
+				{ 0.0, 0.0, 1.0, 0.0 }
+			};
+		}
+	};
 
 	[[nodiscard]]
 	static inline VkIndexType IndexSizeToVulkanType(Common::Size indexSize) {
