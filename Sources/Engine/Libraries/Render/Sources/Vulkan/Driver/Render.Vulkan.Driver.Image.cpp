@@ -68,6 +68,7 @@ namespace Render::Vulkan {
 
 		CommandBuffer::CreateInfo commandBufferCreateInfo;
 		{
+			commandBufferCreateInfo.name_ = "Buffer to image copy command buffer";
 			commandBufferCreateInfo.LD_ = logicDevice;
 			commandBufferCreateInfo.commandPool_ = commandPool;
 			commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;

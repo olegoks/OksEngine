@@ -32,6 +32,7 @@ namespace Render::Vulkan {
 
 
 		struct CreateInfo {
+			const char* name_ = "No name";
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::shared_ptr<CommandPool> commandPool_ = nullptr;
 			VkCommandBufferLevel level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_MAX_ENUM;
@@ -537,6 +538,16 @@ namespace Render::Vulkan {
 			VK_CALL(vkAllocateCommandBuffers(logicDevice, &allocInfo, &commandBuffer),
 				"Command buffer allocation error.");
 			SetHandle(commandBuffer);
+
+			VkDebugUtilsObjectNameInfoEXT nameInfo{
+				.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+				.objectType = VK_OBJECT_TYPE_COMMAND_BUFFER,
+				.objectHandle = (uint64_t)GetHandle(),
+				.pObjectName = createInfo_.name_
+			};
+#if !defined(NDEBUG)
+			vkCreateDebugUtilsMessengerEXT(*createInfo_.LD_, &nameInfo);
+#endif
 
 		}
 

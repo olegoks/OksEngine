@@ -185,7 +185,6 @@ namespace OksEngine
 			const AttachmentSet* imGuiAttachmentSet0, ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
 			auto driver = renderDriver1->driver_;
-
 			driver->BeginRenderPass(
 				imGuiRenderPass0->rpId_,
 				imGuiAttachmentSet0->attachmentsSetId_,

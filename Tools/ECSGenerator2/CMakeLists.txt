@@ -33,6 +33,11 @@ find_package(PkgConfig REQUIRED)
 
 pkg_check_modules(GRAPHVIZ REQUIRED libgvc)
 message(STATUS "${GRAPHVIZ_INCLUDE_DIRS}")
+
+# set(ZLIB_USE_STATIC_LIBS ON)
+# find_package(ZLIB REQUIRED)
+# target_link_libraries(ECSGenerator2 PUBLIC ZLIB::ZLIB)
+
 target_include_directories(ECSGenerator2  PUBLIC ${GRAPHVIZ_INCLUDE_DIRS})
     
 message(STATUS "${GRAPHVIZ_LIBRARY_DIRS}")
@@ -99,11 +104,21 @@ target_link_libraries(ECSGenerator2
 # message(STATUS "${_variableName}=${${_variableName}}")
 # endforeach()
 
-find_package(ZLIB REQUIRED)
-target_link_libraries(ECSGenerator2 PUBLIC ZLIB::ZLIB)
+
+message("ZLIB_FOUND: ${ZLIB_FOUND}")
+message("ZLIB_INCLUDE_DIRS: ${ZLIB_INCLUDE_DIRS}")
+message("ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")
+message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
+message("ZLIB_LIBRARY: ${ZLIB_LIBRARY_RELEASE}")
+message("ZLIB_LIBRARY_DEBUG: ${ZLIB_LIBRARY_DEBUG}")
+# target_link_libraries(ECSGenerator2 PUBLIC
+#     ${ZLIB_LIBRARIES} # Используйте эту переменную, она уже содержит нужные флаги
+# )
 
 add_custom_command(TARGET ECSGenerator2 POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+    "${ZLIB_LIBRARY_RELEASE}"
+    "${ZLIB_LIBRARY_DEBUG}"
     "${GRAPHVIZ_PREFIX}/bin/cdt.dll"
     "${GRAPHVIZ_PREFIX}/bin/cgraph.dll"
     "${GRAPHVIZ_PREFIX}/bin/config6"

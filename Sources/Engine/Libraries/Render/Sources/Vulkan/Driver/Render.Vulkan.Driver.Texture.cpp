@@ -82,6 +82,7 @@ namespace Render::Vulkan {
 			//Change image layout(all mip map levels) to VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL.
 			CommandBuffer::CreateInfo commandBufferCreateInfo;
 			{
+				commandBufferCreateInfo.name_ = "Change image layout command buffer";
 				commandBufferCreateInfo.LD_ = createInfo.LD_;
 				commandBufferCreateInfo.commandPool_ = createInfo.commandPool_;
 				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -121,6 +122,7 @@ namespace Render::Vulkan {
 
 			CommandBuffer::CreateInfo commandBufferCreateInfo;
 			{
+				commandBufferCreateInfo.name_ = "Generating image mip maps command buffer";
 				commandBufferCreateInfo.LD_ = createInfo.LD_;
 				commandBufferCreateInfo.commandPool_ = createInfo.commandPool_;
 				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -211,6 +213,7 @@ namespace Render::Vulkan {
 
 			CommandBuffer::CreateInfo commandBufferCreateInfo;
 			{
+				commandBufferCreateInfo.name_ = "Set image target layout command buffer";
 				commandBufferCreateInfo.LD_ = createInfo.LD_;
 				commandBufferCreateInfo.commandPool_ = createInfo.commandPool_;
 				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -235,6 +238,16 @@ namespace Render::Vulkan {
 
 		auto imageView = CreateImageViewByImage(createInfo.LD_, image, GetAspectByFormat(createInfo.format_), createInfo.mipLevels_);
 
+		VkDebugUtilsObjectNameInfoEXT nameInfo{
+			.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_OBJECT_NAME_INFO_EXT,
+			.objectType = VK_OBJECT_TYPE_IMAGE,
+			.objectHandle = (uint64_t)image->GetHandle(),
+			.pObjectName = createInfo.name_.c_str()
+		};
+		#if !defined(NDEBUG)
+			vkCreateDebugUtilsMessengerEXT(*createInfo.LD_, &nameInfo);
+		#endif
+	
 		Sampler::CreateInfo samplerCreateInfo;
 		{
 			samplerCreateInfo.LD_ = createInfo.LD_;

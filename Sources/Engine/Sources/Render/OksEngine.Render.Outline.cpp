@@ -187,7 +187,7 @@ namespace OksEngine
 					std::vector<RAL::Driver::RP::Subpass> subpasses;
 					{
 						RAL::Driver::RP::Subpass subpass0{
-							.colorAttachments_ = { { 0, RAL::Driver::Texture_State::DataForColorWrite}  },// Ids attachment.
+							.colorAttachments_ = { { 0, RAL::Driver::Texture_State::DataForColorWrite }  },// Ids attachment.
 							.depthStencilAttachment_ = { 1, RAL::Driver::Texture_State::DataForDepthStencilWrite }
 						};
 						subpasses.push_back(subpass0);
@@ -202,8 +202,8 @@ namespace OksEngine
 								.fromAccess_ = RAL::Driver::Texture::Access::ColorWrite,
 
 								.toSubpassIndex_ = 0,
-								.toPipelineStage_ = RAL::Driver::Pipeline::Stage::VertexShader,
-								.toAccess_ = RAL::Driver::Texture::Access::ShaderRead,
+								.toPipelineStage_ = RAL::Driver::Pipeline::Stage::ColorAttachmentOutput,
+								.toAccess_ = RAL::Driver::Texture::Access::ColorWrite,
 							};
 							dependencies.push_back(fromExternalToFirst);
 						}
@@ -326,14 +326,19 @@ namespace OksEngine
 					const OksEngine::Render::Outline::IdsTextureRender::IdsAttachment* idsAttachment0,
 					const OksEngine::Render::Outline::IdsTextureRender::PipelineId* pipelineId0) {
 
-
 					auto driver = renderDriver0->driver_;
 
-					renderDriver0->driver_->TextureMemoryBarrier(
-						idsAttachment0->textureId_,
-						RAL::Driver::Texture::State::DataForShaderRead, RAL::Driver::Texture::State::DataForColorWrite,
-						RAL::Driver::Texture::Access::ShaderRead, RAL::Driver::Texture::Access::ColorWrite,
-						RAL::Driver::Pipeline::Stage::FragmentShader, RAL::Driver::Pipeline::Stage::ColorAttachmentOutput);
+					//renderDriver0->driver_->TextureMemoryBarrier(
+					//	idsAttachment0->textureId_,
+					//	RAL::Driver::Texture::State::DataForShaderRead, RAL::Driver::Texture::State::DataForColorWrite,
+					//	RAL::Driver::Texture::Access::ShaderRead, RAL::Driver::Texture::Access::ColorWrite,
+					//	RAL::Driver::Pipeline::Stage::FragmentShader, RAL::Driver::Pipeline::Stage::ColorAttachmentOutput);
+
+					//renderDriver0->driver_->TextureMemoryBarrier(
+					//	idsAttachment0->textureId_,
+					//	RAL::Driver::Texture::State::DataForColorWrite, RAL::Driver::Texture::State::DataForShaderRead,
+					//	RAL::Driver::Texture::Access::ColorWrite, RAL::Driver::Texture::Access::ShaderRead,
+					//	RAL::Driver::Pipeline::Stage::ColorAttachmentOutput, RAL::Driver::Pipeline::Stage::FragmentShader);
 
 					std::vector<RAL::Driver::RP::ClearValue> clearValues;
 					{
@@ -395,7 +400,6 @@ namespace OksEngine
 					const OksEngine::DriverVertexBuffer* driverVertexBuffer3,
 					const OksEngine::DriverIndexBuffer* driverIndexBuffer3, const OksEngine::Vertices3D* vertices3D3,
 					const OksEngine::Indices* indices3) {
-
 
 					MeshInfo meshInfo{
 						entity3id.GetRawValue(),
@@ -472,7 +476,6 @@ namespace OksEngine
 					const OksEngine::Render::Outline::IdsTextureRender::PipelineId* pipelineId0,
 					const OksEngine::Render::Outline::IdsTextureRender::IdsAttachment* idsAttachment0) {
 
-
 					auto driver = renderDriver0->driver_;
 
 					driver->EndRenderPass();
@@ -484,6 +487,11 @@ namespace OksEngine
 						RAL::Driver::Texture::State::DataForColorWrite, RAL::Driver::Texture::State::DataForShaderRead,
 						RAL::Driver::Texture::Access::ColorWrite, RAL::Driver::Texture::Access::ShaderRead,
 						RAL::Driver::Pipeline::Stage::ColorAttachmentOutput, RAL::Driver::Pipeline::Stage::FragmentShader);
+					//renderDriver0->driver_->TextureMemoryBarrier(
+					//	idsAttachment0->textureId_,
+					//	RAL::Driver::Texture::State::DataForColorWrite, RAL::Driver::Texture::State::DataForShaderRead,
+					//	RAL::Driver::Texture::Access::ColorWrite, RAL::Driver::Texture::Access::ShaderRead,
+					//	RAL::Driver::Pipeline::Stage::ColorAttachmentOutput, RAL::Driver::Pipeline::Stage::FragmentShader);
 
 					/*renderDriver0->driver_->TextureMemoryBarrier(
 						idsAttachment0->textureId_,
@@ -564,8 +572,8 @@ namespace OksEngine
 								.fromAccess_ = RAL::Driver::Texture::Access::ColorWrite,
 
 								.toSubpassIndex_ = RAL::Driver::RP::Subpass::external_,
-								.toPipelineStage_ = RAL::Driver::Pipeline::Stage::VertexShader, // First potencial use of attachments.
-								.toAccess_ = RAL::Driver::Texture::Access::ShaderRead,
+								.toPipelineStage_ = RAL::Driver::Pipeline::Stage::ColorAttachmentOutput, // First potencial use of attachments.
+								.toAccess_ = RAL::Driver::Texture::Access::ColorWrite,
 							};
 							dependencies.push_back(fromFirstToExternal);
 						}
@@ -681,6 +689,7 @@ namespace OksEngine
 
 					std::vector<RAL::Driver::RP::ClearValue> clearValues;
 
+			/*		return;*/
 					driver->BeginRenderPass(
 						renderPassId0->rpId_,
 						attachmentSet0->attachmentsSetId_,
@@ -699,7 +708,7 @@ namespace OksEngine
 					const OksEngine::Render::Outline::OutlineRender::PipelineId* pipelineId0) {
 
 					auto driver = renderDriver0->driver_;
-
+					
 					driver->BindPipeline(pipelineId0->id_);
 
 
@@ -727,11 +736,11 @@ namespace OksEngine
 					const OksEngine::Render::Outline::OutlineRender::PipelineId* pipelineId0,
 					const OksEngine::Render::Outline::IdsTextureRender::IdsAttachment* idsTextureRender__IdsAttachment0) {
 
-
+					
 					auto driver = renderDriver0->driver_;
-
 					driver->EndRenderPass();
 
+					//Return ids buffer state to RAL::Driver::Texture::State::DataForColorWrite for the next frame.
 					renderDriver0->driver_->TextureMemoryBarrier(
 						idsTextureRender__IdsAttachment0->textureId_,
 						RAL::Driver::Texture::State::DataForShaderRead, RAL::Driver::Texture::State::DataForColorWrite,

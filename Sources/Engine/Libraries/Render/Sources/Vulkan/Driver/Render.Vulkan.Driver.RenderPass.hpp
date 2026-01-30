@@ -367,7 +367,7 @@ namespace Render::Vulkan {
 					.dstStageMask = dependency.dstStageMask_,
 					.srcAccessMask = dependency.srcAccessMask_,
 					.dstAccessMask = dependency.dstAccessMask_,
-					.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT
+					//.dependencyFlags = VK_DEPENDENCY_BY_REGION_BIT
 					});
 			}
 

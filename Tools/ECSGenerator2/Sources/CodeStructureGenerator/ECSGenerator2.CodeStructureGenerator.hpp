@@ -2507,9 +2507,7 @@ namespace ECSGenerator2 {
 			for (auto rootNodeId : roots) {
 				auto rootNode = thread.callGraph_.GetNode(rootNodeId);
 
-#pragma region Assert
 				ASSERT_FMSG(rootNode.GetValue() != nullptr, "");
-#pragma endregion
 
 				thread.systemsOrder_.order_.push_back(rootNode.GetValue());
 			}

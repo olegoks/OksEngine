@@ -1020,6 +1020,7 @@ namespace Render::Vulkan {
 
 			CommandBuffer::CreateInfo commandBufferCreateInfo;
 			{
+				commandBufferCreateInfo.name_ = "Main render command buffer";
 				commandBufferCreateInfo.LD_ = objects_.LD_;
 				commandBufferCreateInfo.commandPool_ = objects_.commandPool_;
 				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;
@@ -1434,6 +1435,7 @@ namespace Render::Vulkan {
 
 			CommandBuffer::CreateInfo commandBufferCreateInfo;
 			{
+				commandBufferCreateInfo.name_ = "Compute command buffer";
 				commandBufferCreateInfo.LD_ = objects_.LD_;
 				commandBufferCreateInfo.commandPool_ = objects_.commandPool_;
 				commandBufferCreateInfo.level_ = VkCommandBufferLevel::VK_COMMAND_BUFFER_LEVEL_PRIMARY;

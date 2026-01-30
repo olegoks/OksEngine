@@ -1,8 +1,8 @@
 #pragma once
 #include <Common\auto_OksEngine.Debug.Render.hpp>
 
-#include <ft2build.h>  // Основной заголовочный файл FreeType
-#include FT_FREETYPE_H // Заголовок с основными структурами и функциями
+#include <ft2build.h>  // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅ FreeType
+#include FT_FREETYPE_H // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 
 #define STB_IMAGE_WRITE_IMPLEMENTATION
 #include "stb_image_write.h"
@@ -34,11 +34,11 @@ namespace OksEngine
 		float x = debugText2D1->x_;
 		float y = debugText2D1->y_;
 		const float scale = 1.0;
-		// Для каждого символа в тексте
+		// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		for (char c : debugText2D1->text_) {
 			const SymbolMetadata& ch = (symbolsMetadata0->symbolsMetadata_.find(c))->second;
 
-			// Вычисляем позицию и размеры символа
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			float cx = x + ch.bearing_.x;
 			float cy = y - (/*ch.size_.y - */ch.bearing_.y) /*- ch.advanceY_*/;
 			float w = ch.size_.x * scale;
@@ -55,7 +55,7 @@ namespace OksEngine
 			vertices.Add({ { ((cx + w) - screenHalfX) / screenHalfX, ((cy + h) - screenHalfY) / screenHalfY }, { ch.uvMax_.x, ch.uvMax_.y }, Geom::Color4b::Zero() });
 			vertices.Add({ { (cx - screenHalfX) / screenHalfX, ((cy + h) - screenHalfY) / screenHalfY }, { ch.uvMin_.x, ch.uvMax_.y }, Geom::Color4b::Zero() });
 
-			// Сдвигаем позицию для следующего символа
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			x += (ch.advanceX_) * scale;
 		}
 
@@ -144,12 +144,12 @@ namespace OksEngine
 			throw std::runtime_error("Failed to load font");
 		}
 
-		// Установка размера шрифта
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		FT_Set_Pixel_Sizes(face, 0, 18);
 
-		constexpr int atlasWidth = 1024; // Ширина атласа
-		constexpr int atlasHeight = 1024; // Высота атласа
-		std::vector<Geom::Color4b> atlasData(atlasWidth * atlasHeight, Geom::Color4b{ 0, 0, 0, 0 }); // Чёрный фон
+		constexpr int atlasWidth = 1024; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+		constexpr int atlasHeight = 1024; // пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
+		std::vector<Geom::Color4b> atlasData(atlasWidth * atlasHeight, Geom::Color4b{ 0, 0, 0, 0 }); // ЧёпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ
 
 		int x = 0, y = 0;
 		int maxRowHeight = 0;
@@ -159,7 +159,7 @@ namespace OksEngine
 
 
 
-		for (char c = 32; c < 127; c++) { // ASCII-символы
+		for (char c = 32; c < 127; c++) { // ASCII-пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 			const FT_Error error = FT_Load_Char(face, c, FT_LOAD_RENDER);
 
 #pragma region Assert
@@ -168,7 +168,7 @@ namespace OksEngine
 			//Symbol bitmap.
 			FT_Bitmap& bitmap = face->glyph->bitmap;
 
-			// Проверяем, помещается ли символ в текущую строку
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 			if (x + bitmap.width > atlasWidth) {
 				x = 0;
 				y += maxRowHeight;
@@ -176,7 +176,7 @@ namespace OksEngine
 			}
 
 			//TODO: make texture with only one byte for pixel
-			// Копируем пиксели символа в атлас
+			// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅ
 			for (int row = 0; row < bitmap.rows; row++) {
 				for (int col = 0; col < bitmap.width; col++) {
 					atlasData[(y + row) * atlasWidth + (x + col)] = Geom::Color4b{
@@ -206,7 +206,7 @@ namespace OksEngine
 			symbolsMetadata[c] = metadata;
 
 
-			//// Сохраняем метаданные символа (позицию в атласе, смещение и т. д.)
+			//// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ, пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅ. пїЅ.)
 			//characters[c] = {
 			//	.textureCoords = {x, y, bitmap.width, bitmap.rows},
 			//	.bearing = {face->glyph->bitmap_left, face->glyph->bitmap_top},
@@ -223,7 +223,7 @@ namespace OksEngine
 
 		//debug
 		int channels = 4; // RGBA
-		int quality = 90; // Качество JPG (1-100)
+		int quality = 90; // пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ JPG (1-100)
 		int result = stbi_write_jpg("FontsAtlas.png", atlasWidth, atlasHeight, channels, atlasData.data(), quality);
 
 		CreateComponent<SymbolsMetadata>(entity1id, std::move(symbolsMetadata));
@@ -432,25 +432,25 @@ namespace OksEngine
 		driver->SetViewport(0, 0, 2560, 1440);
 		driver->SetScissor(0, 0, 2560, 1440);
 
-		// Активируем пайплайн для рендеринга текста
+		// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		driver->BindPipeline(debugTextPipeline1->id_);
 		driver->Bind(debugTextPipeline1->id_, 0, { textureResource1->id_ });
 		driver->BindVertexBuffer(debugTextDriverVertexBuffer1->id_, 0);
 		//static Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
 
 
-		//// Для каждого символа в тексте
+		//// пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅ
 		//for (auto c : name2->value_) {
 		//	const SymbolMetadata& ch = symbolsMetadata1->symbolsMetadata_[c];
 
-		//	// Вычисляем позицию и размеры символа
+		//	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		//	float xpos = x + ch.bearing_.x * 1.0;
 		//	float ypos = y - (ch.size_.y - ch.bearing_.y) * 1.0;
 
 		//	float w = ch.size_.x * 1.0;
 		//	float h = ch.size_.y * 1.0;
 
-		//	// Вершины квадрата для символа
+		//	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		//	std::array<Vertex, 4> vertices = {
 		//		Vertex{{xpos,     ypos + h}, {ch.texCoordMin.x, ch.texCoordMax.y}},
 		//		Vertex{{xpos,     ypos},     {ch.texCoordMin.x, ch.texCoordMin.y}},
@@ -460,13 +460,13 @@ namespace OksEngine
 
 
 
-		//	// Обновляем вершинный буфер
+		//	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅ
 		//	updateVertexBuffer(vertices.data(), vertices.size() * sizeof(Vertex));
 
-		//	// Рисуем квадрат (2 треугольника)
+		//	// пїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ (2 пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ)
 		driver->Draw(debugTextDriverVertexBuffer1->size_ / sizeof(RAL::Vertex2ftc));
 
-		//	// Сдвигаем позицию для следующего символа
+		//	// пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅпїЅ пїЅпїЅпїЅпїЅпїЅпїЅпїЅ
 		//	x += (ch.advance >> 6) * scale;
 		//}
 		//driver->BindVertexBuffer()
