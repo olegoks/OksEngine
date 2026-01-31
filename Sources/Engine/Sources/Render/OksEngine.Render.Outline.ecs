@@ -293,7 +293,6 @@ RenderNamespace = {
                         {
                             processesComponents = {
                                 { name = "RenderDriver", readonly = false },
-                                "Render::EnableRegularRender",
                                 "RenderPassId",
                                 "PipelineId",
                                 "DataStorageBuffer",

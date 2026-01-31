@@ -380,7 +380,6 @@ namespace OksEngine
 
 				void RenderModelIds::Update(
 					ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
-					const OksEngine::Render::EnableRegularRender* render__EnableRegularRender0,
 					const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId0,
 					const OksEngine::Render::Outline::IdsTextureRender::PipelineId* pipelineId0,
 					const OksEngine::Render::Outline::DataStorageBuffer* dataStorageBuffer0,
