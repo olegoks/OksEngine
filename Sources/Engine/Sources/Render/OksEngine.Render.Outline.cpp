@@ -369,7 +369,7 @@ namespace OksEngine
 
 					driver->BeginDebugLabel(
 						RAL::Color3f{ 1.0, 0.0, 0.0 },
-						"Begin Ids texture render pass.");
+						"Begin outline texture render pass.");
 
 					driver->BeginRenderPass(
 						renderPassId0->rpId_,
@@ -507,14 +507,14 @@ namespace OksEngine
 			namespace OutlineRender {
 
 				void CreateAttachmentSet::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0,
-					const OksEngine::Render::RenderAttachment* render__RenderAttachment0, ECS2::Entity::Id entity1id,
-					const OksEngine::RenderDriver* renderDriver1,
+					const OksEngine::Render::MultisamplingAttachment* render__MultisamplingAttachment0,
+					ECS2::Entity::Id entity1id, const OksEngine::RenderDriver* renderDriver1,
 					const OksEngine::Render::Outline::OutlineRender::RenderPassId* renderPassId1) {
 
 					RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
 						.rpId_ = renderPassId1->rpId_,
 						.textures_ = {
-							render__RenderAttachment0->textureId_
+							render__MultisamplingAttachment0->textureId_
 						},
 						.size_ = glm::u32vec2{ 2560, 1440 }
 					};
@@ -538,7 +538,7 @@ namespace OksEngine
 							.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Load,
 							.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
 							.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
-							.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8
+							.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
 						};
 						attachmentsUsage.push_back(renderAttachment);
 					}
@@ -652,7 +652,7 @@ namespace OksEngine
 
 					auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
 					{
-						multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
+						multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1;
 					}
 
 					RAL::Driver::Pipeline::CI pipelineCI{
@@ -664,11 +664,11 @@ namespace OksEngine
 						.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
 						.vertexType_ = RAL::Driver::VertexType::Undefined,
 						.indexType_ = RAL::Driver::IndexType::Undefined,
-						.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
-						.cullMode_ = RAL::Driver::CullMode::Back,
+						.frontFace_ = RAL::Driver::FrontFace::Clockwise,
+						.cullMode_ = RAL::Driver::CullMode::None,
 						.pushConstants_ = pushConstants,
 						.shaderBindings_ = shaderBindings,
-						.enableDepthTest_ = true,
+						.enableDepthTest_ = false,
 						.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Always,
 						.multisamplingInfo_ = multisamplingInfo
 					};

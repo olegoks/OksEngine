@@ -361,7 +361,7 @@ RenderNamespace = {
             CreateAttachmentSetSystem = {
                 type = "Initialize",
                 callOrder = {
-                    runAfter = { "Render::CreateRenderAttachment" },
+                    runAfter = { "Render::CreateMultisamplingAttachment" },
                     runBefore = {}
                 },
                 updateMethod = {
@@ -369,7 +369,7 @@ RenderNamespace = {
                         {
                             processesComponents = {
                                 "RenderDriver",
-                                "Render::RenderAttachment"
+                                "Render::MultisamplingAttachment"
                             }
                         },
                         {

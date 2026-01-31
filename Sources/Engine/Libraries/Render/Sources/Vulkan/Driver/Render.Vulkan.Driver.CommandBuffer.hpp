@@ -48,6 +48,7 @@ namespace Render::Vulkan {
 
 		template<class ...Args>
 		void BeginDebugLabel(const DebugColor& color, const char* label) {
+#if !defined(NDEBUG)
 			VkDebugUtilsLabelEXT labelInfo = {};
 			labelInfo.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
 			labelInfo.pLabelName = label;
@@ -56,10 +57,13 @@ namespace Render::Vulkan {
 			labelInfo.color[2] = color.color_[2];
 			labelInfo.color[3] = color.color_[3];
 			vkCmdBeginDebugUtilsLabelEXT(GetHandle(), &labelInfo);
+#endif
 		}
 
 		void EndDebugLabel() {
+#if !defined(NDEBUG)
 			vkCmdEndDebugUtilsLabelEXT(GetHandle());
+#endif
 		}
 
 

@@ -2004,17 +2004,9 @@ namespace Render::Vulkan {
 				return;
 			}
 
-			VkDebugUtilsLabelEXT barrierLabel = {};
-			barrierLabel.sType = VK_STRUCTURE_TYPE_DEBUG_UTILS_LABEL_EXT;
-			barrierLabel.pLabelName = "Image Layout Transition: COLOR_ATTACHMENT -> SHADER_READ_ONLY";
-			barrierLabel.color[0] = 1.0f;
-			barrierLabel.color[1] = 0.0f;
-			barrierLabel.color[2] = 0.0f;
-			barrierLabel.color[3] = 1.0f;
-
-			if (vkCmdBeginDebugUtilsLabelEXT) {
-				vkCmdBeginDebugUtilsLabelEXT(GCB_->GetHandle(), &barrierLabel);
-			}
+			BeginDebugLabel(
+				RAL::Color3f{ 1.0, 0.0, 0.0 },
+				"Texture memory barrier");
 
 			auto texture = textures_[textureId];
 			texture->TextureMemoryBarrier(
@@ -2023,6 +2015,7 @@ namespace Render::Vulkan {
 				ToVulkanType(fromAccess), ToVulkanType(toAccess),
 				ToVulkanType(fromStage), ToVulkanType(toStage));
 
+			EndDebugLabel();
 		}
 
 		[[nodiscard]]
