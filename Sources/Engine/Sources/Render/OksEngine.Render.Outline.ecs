@@ -2,9 +2,12 @@ RenderNamespace = {
     OutlineNamespace = {
 
         StateComponent = {},
-        SelectedEntityIdComponent = {
+        EnableSelectionComponent = {},
+        SelectedEntityIdsComponent = {
+            serializable = false,
+            manualEditFunction = true,
             fields = {
-                { type = "ECS2::Entity::Id", name = "id" }
+                { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
             }
         },
 
@@ -15,23 +18,32 @@ RenderNamespace = {
                     {
                         createsComponents = {
                             "State",
-                            "SelectedEntityId"
+                            "EnableSelection",
+                            "SelectedEntityIds",
+                            "HandleCursorEvents",
+                            "HandleMouseEvents",
+                            "Input::HandleKeyboardEvents"
                         }
                     }
                 }
             }
         },
 
-        GetSelectedEntityIdSystem = {
+        GetSelectedEntityIdsSystem = {
             callOrder = {
-                runAfter = { "EndRender" }
+                runAfter = { "EndRender" },
+                runBefore = { "SystemMarks::FRAME_BODY_END" }
             },
             updateMethod = {
                 processesEntities = {
                     {
                         processesComponents = {
                             "State",
-                            { name = "SelectedEntityId", readonly = false }
+                            "EnableSelection",
+                            "CursorEvents",
+                            { name = "MouseEvents",readonly = false },
+                            "Input::KeyboardEvents",
+                            { name = "SelectedEntityIds", readonly = false }
                         }
                     },
                     {
@@ -50,7 +62,8 @@ RenderNamespace = {
             fields = {
                 { type = "int",                         name = "cursorPosX" },
                 { type = "int",                         name = "cursorPosY" },
-                { type = "ECS2::Entity::Id::ValueType", name = "selectedId" }
+                { type = "ECS2::Entity::Id::ValueType", name = "potencialSelectedId" },
+                { type = "std::array<ECS2::Entity::Id::ValueType, 16>", name = "selectedIds" }
             }
         },
 
@@ -88,7 +101,7 @@ RenderNamespace = {
 
 
         --Render pass for rendering IdsAttachment
-        IdsTextureRenderNamespace             = {
+        IdsTextureRenderNamespace = {
 
             IdsAttachmentComponent         = "Render::Attachment",
 
@@ -124,8 +137,8 @@ RenderNamespace = {
                 }
             },
 
-            DepthAttachmentComponent              = "Render::Attachment",
-            CreateDepthAttachmentSystem           = {
+            DepthAttachmentComponent       = "Render::Attachment",
+            CreateDepthAttachmentSystem    = {
                 type = "Initialize",
                 callOrder = {
                     runAfter = { "CreateRenderPass" },
@@ -148,9 +161,9 @@ RenderNamespace = {
                 }
             },
 
-            AttachmentSetComponent = "Render::AttachmentSet",
+            AttachmentSetComponent         = "Render::AttachmentSet",
 
-            CreateAttachmentSetSystem = {
+            CreateAttachmentSetSystem      = {
                 type = "Initialize",
                 callOrder = {
                     runAfter = { "CreateIdsAttachment", "Render::CreateRenderAttachment" },
@@ -181,13 +194,13 @@ RenderNamespace = {
                     }
                 }
             },
-            RenderPassIdComponent = {
+            RenderPassIdComponent          = {
                 serializable = false,
                 fields = {
                     { type = "Common::Id", name = "rpId" }
                 }
             },
-            CreateRenderPassIdSystem = {
+            CreateRenderPassIdSystem       = {
                 type = "Initialize",
                 callOrder = {
                     runAfter = {
@@ -211,14 +224,14 @@ RenderNamespace = {
                 }
             },
 
-            PipelineIdComponent = {
+            PipelineIdComponent            = {
                 serializable = false,
                 fields = {
                     { type = "Common::Id", name = "id" }
                 }
             },
 
-            CreatePipelineSystem = {
+            CreatePipelineSystem           = {
                 type = "Initialize",
                 callOrder = {
                     runAfter = {
@@ -250,13 +263,19 @@ RenderNamespace = {
                     }
                 }
             },
-            BeginRenderPassSystem = {
+            BeginRenderPassSystem          = {
                 callOrder = {
                     runAfter = { "StartRender", "::EndRenderPass" },
                     runBefore = { "RenderModelIds" }
                 },
                 updateMethod = {
                     processesEntities = {
+                        {
+                            processesComponents = {
+                                "State",
+                                "EnableSelection"
+                            }
+                        },
                         {
                             processesComponents = {
                                 { name = "RenderDriver", readonly = false },
@@ -270,7 +289,7 @@ RenderNamespace = {
                 }
             },
 
-            MeshInfoStruct = {
+            MeshInfoStruct                 = {
                 fields = {
                     { type = "ECS2::Entity::Id::ValueType", name = "id" },
                     { type = "float",                       name = "posX" },
@@ -283,7 +302,7 @@ RenderNamespace = {
                 }
             },
 
-            RenderModelIdsSystem = {
+            RenderModelIdsSystem           = {
                 callOrder = {
                     runAfter = "BeginRenderPass",
                     runBefore = "EndRenderPass"
@@ -292,14 +311,19 @@ RenderNamespace = {
                     processesEntities = {
                         {
                             processesComponents = {
+                                "State",
+                                "EnableSelection",
+                                "CursorEvents",
+                                "MouseEvents"
+                            }
+                        },
+                        {
+                            processesComponents = {
                                 { name = "RenderDriver", readonly = false },
                                 "RenderPassId",
                                 "PipelineId",
                                 "DataStorageBuffer",
-                                "DataStorageBufferResource",
-                                "CursorEvents",
-                                "MouseEvents"
-
+                                "DataStorageBufferResource"
                             }
                         },
                         {
@@ -334,12 +358,18 @@ RenderNamespace = {
                     }
                 }
             },
-            EndRenderPassSystem = {
+            EndRenderPassSystem            = {
                 callOrder = {
                     runBefore = { "BeginDebugTextRenderPass" }
                 },
                 updateMethod = {
                     processesEntities = {
+                        {
+                            processesComponents = {
+                                "State",
+                                "EnableSelection"
+                            }
+                        },
                         {
                             processesComponents = {
                                 { name = "RenderDriver", readonly = false },
@@ -353,7 +383,7 @@ RenderNamespace = {
             }
         },
 
-        OutlineRenderNamespace = {
+        OutlineRenderNamespace    = {
 
             AttachmentSetComponent = "Render::AttachmentSet",
 
@@ -473,6 +503,12 @@ RenderNamespace = {
                     processesEntities = {
                         {
                             processesComponents = {
+                                "State",
+                                "EnableSelection"
+                            }
+                        },
+                        {
+                            processesComponents = {
                                 { name = "RenderDriver", readonly = false },
                                 "RenderPassId",
                                 "AttachmentSet",
@@ -490,6 +526,12 @@ RenderNamespace = {
                 },
                 updateMethod = {
                     processesEntities = {
+                        {
+                            processesComponents = {
+                                "State",
+                                "EnableSelection"
+                            }
+                        },
                         {
                             processesComponents = {
                                 { name = "RenderDriver", readonly = false },
@@ -512,6 +554,12 @@ RenderNamespace = {
                 },
                 updateMethod = {
                     processesEntities = {
+                        {
+                            processesComponents = {
+                                "State",
+                                "EnableSelection"
+                            }
+                        },
                         {
                             processesComponents = {
                                 { name = "RenderDriver", readonly = false },

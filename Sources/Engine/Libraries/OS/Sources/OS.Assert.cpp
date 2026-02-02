@@ -12,7 +12,7 @@ namespace OS {
 			return;
 		}
 		LogError("/assert/", message, location);
-		__debugbreak();
+		//__debugbreak();
 		assert(expression);
 
 	}

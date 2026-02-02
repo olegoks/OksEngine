@@ -66,6 +66,10 @@ namespace UI {
 			}
 			else if (action == GLFW_RELEASE) {
 				event = KeyAction::Released;
+
+			} 
+			else if (action == GLFW_REPEAT) {
+				event = KeyAction::Hold;
 			}
 			else {
 				return;
@@ -107,6 +111,9 @@ namespace UI {
 				}
 				else if (action == GLFW_RELEASE) {
 					event.event_ = KeyAction::Released;
+				}
+				else if (action == GLFW_REPEAT) {
+					event.event_ = KeyAction::Hold;
 				}
 				else {
 					return;

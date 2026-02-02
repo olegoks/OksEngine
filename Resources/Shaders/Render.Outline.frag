@@ -11,7 +11,8 @@ layout(set = 0, binding = 0) uniform sampler2D texSampler;
 layout(set = 1, binding = 0) buffer Data {
     int cursorPosX_;
     int cursorPosY_;
-    uint64_t selectedId_;
+    uint64_t potencialSelectedId_;
+    uint64_t selectedIds_[16]; // size of array must corresponds to size in the CPU struct !!!
 } data;
 
 layout(push_constant) uniform PushConstants { 
@@ -41,7 +42,8 @@ vec3 idToColor(uint id) {
 
 void main() {
 
-    vec3 selectedColor = idToColor(uint(data.selectedId_));
+    bool needToDiscard = true;
+
 
     ivec2 fragmentPosCenter = ivec2(gl_FragCoord.xy);
     ivec2 fragmentPosRight = ivec2(fragmentPosCenter.x + 1, fragmentPosCenter.y);
@@ -54,23 +56,38 @@ void main() {
     vec3 idColorLeft = texelFetch(texSampler, fragmentPosLeft, 0).rgb;
     vec3 idColorTop = texelFetch(texSampler, fragmentPosTop, 0).rgb;
     vec3 idColorBottom = texelFetch(texSampler, fragmentPosBottom, 0).rgb;
-
-    if(colorsEqual(selectedColor, idColorCenter)) {
-        if(!colorsEqual(selectedColor, idColorRight)) {
-             outColor = vec4(1.0, 1.0, 0.0, 1.0);
-        } else if(!colorsEqual(selectedColor, idColorLeft)) {
-            outColor = vec4(1.0, 1.0, 0.0, 1.0);
-        } else if(!colorsEqual(selectedColor, idColorTop)) {
-            outColor = vec4(1.0, 1.0, 0.0, 1.0);
-        } else if(!colorsEqual(selectedColor, idColorBottom)) {
-            outColor = vec4(1.0, 1.0, 0.0, 1.0);
-        } else {
-            discard;
+    
+    for(int i = 0; i < 16; i++){
+        if(uint(data.selectedIds_[i]) == 0) {
+            continue;
         }
-    }else {
+        vec3 selectedColor = idToColor(uint(data.selectedIds_[i]));
+
+        if(colorsEqual(selectedColor, idColorCenter)) {
+            if(!colorsEqual(selectedColor, idColorRight)) {
+                outColor = vec4(1.0, 1.0, 0.0, 1.0);
+                needToDiscard = false;
+            } else if(!colorsEqual(selectedColor, idColorLeft)) {
+                outColor = vec4(1.0, 1.0, 0.0, 1.0);
+                needToDiscard = false;
+            } else if(!colorsEqual(selectedColor, idColorTop)) {
+                outColor = vec4(1.0, 1.0, 0.0, 1.0);
+                needToDiscard = false;
+            } else if(!colorsEqual(selectedColor, idColorBottom)) {
+                outColor = vec4(1.0, 1.0, 0.0, 1.0);
+                needToDiscard = false;
+            } else {
+                //needToDiscard = true;
+            }
+        }
+        // } else {
+            
+        // }
+    }
+
+    if(needToDiscard){
         discard;
     }
-    
     //outColor = vec4(0.0, 0.0, 0.0, 1.0);
    
 }

@@ -1,6 +1,10 @@
 
 -- Mouse keys
 GetWindowMouseEventsSystem = {
+    callOrder = {
+            runAfter = { "SystemMarks::FRAME_HEAD_START", "ProcessInput" },
+            runBefore = { "SystemMarks::FRAME_HEAD_END", "SendWindowMouseEvents" }
+    },
     updateMethod = {
         processesEntities = {
             {
@@ -30,8 +34,13 @@ CreateMouseEventsSystem = {
 
 SendWindowMouseEventsSystem = {
     callOrder = {
-        runAfter = "GetWindowMouseEvents"
-    },
+            runAfter = { 
+                "SystemMarks::FRAME_HEAD_START",
+                "GetWindowMouseEvents" },
+            runBefore = { 
+                "SystemMarks::FRAME_HEAD_END",
+                "ClearMouseEvents" }
+        },
     updateMethod = {
          processesEntities = {
             {

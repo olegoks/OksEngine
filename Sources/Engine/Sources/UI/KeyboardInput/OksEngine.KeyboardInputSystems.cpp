@@ -53,9 +53,9 @@ namespace OksEngine
 
 					}
 				}
-				if (isCursorEnabled) {
-					continue;
-				}
+				//if (isCursorEnabled) {
+				//	continue;
+				//}
 				keyboardEvents0->events_.push_back({ event.value().key_, event.value().action_ });
 			}
 

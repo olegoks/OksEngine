@@ -189,9 +189,10 @@ namespace UIAL {
 		};
 
 		enum class KeyAction : Common::UInt64 {
-			Pressed = 1,  // GLFW_PRESS (клавиша нажата)
-			Released = 0,  // GLFW_RELEASE (клавиша отпущена)
-			Undefined = 2   // Ќеопределенное действие (не используетс€ в GLFW)
+			Pressed = 0,  // GLFW_PRESS (клавиша нажата)
+			Released = 1,  // GLFW_RELEASE (клавиша отпущена)
+			Hold = 2,
+			Undefined = 3   // Ќеопределенное действие (не используетс€ в GLFW)
 		};
 
 		struct KeyboardEvent {

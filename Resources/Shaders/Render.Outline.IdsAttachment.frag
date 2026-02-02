@@ -15,7 +15,8 @@ layout(location = 0) out vec4 outColor;
 layout(set = 1, binding = 0) buffer Data {
     int cursorPosX_;
     int cursorPosY_;
-    uint64_t selectedId_;
+    uint64_t potencialSelectedId_;
+    uint64_t selectedIds[16];
 } data;
 
 void main() {
@@ -23,7 +24,7 @@ void main() {
     ivec2 fragmentPos = ivec2(gl_FragCoord.xy);
 
     if(fragmentPos.x == data.cursorPosX_ && fragmentPos.y == data.cursorPosY_) {
-        data.selectedId_ = id;
+        data.potencialSelectedId_ = id;
         //LOG_FMSG_3("Selected id %d, frag x %d, frag y %d", id, fragmentPos.x, fragmentPos.y);
     }
 

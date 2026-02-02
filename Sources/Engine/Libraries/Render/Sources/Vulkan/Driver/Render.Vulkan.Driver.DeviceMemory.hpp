@@ -49,7 +49,8 @@ namespace Render::Vulkan {
 
 
 			const Common::Size alignedBytesToFlush = Common::CalculateAlignedSize(bytesNumber, createInfo_.PD_->GetProperties().limits.nonCoherentAtomSize);
-
+			
+			ASSERT(offsetInBytes % createInfo_.PD_->GetProperties().limits.nonCoherentAtomSize == 0);
 			ASSERT(alignedBytesToFlush <= createInfo_.requirements_.size);
 
 			void* pointerToMappedMemory = nullptr;

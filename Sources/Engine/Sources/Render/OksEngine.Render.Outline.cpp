@@ -9,20 +9,43 @@ namespace OksEngine
 		namespace Outline
 		{
 
+
+			void EditSelectedEntityIds(
+				std::shared_ptr<ECS2::World> ecsWorld,
+				SelectedEntityIds* selectedEntityIds) {
+
+				ImGui::PushID(SelectedEntityIds::GetTypeId());
+				ImGui::Indent(20);
+				for (ECS2::Entity::Id entityId : selectedEntityIds->ids_) {
+					EditEntity(ecsWorld, entityId);
+				}
+				ImGui::Unindent(20);
+				ImGui::PopID();
+
+			}
+
 			void CreateState::Update() {
 
 				const ECS2::Entity::Id stateEntityId = CreateEntity();
 
 				CreateComponent<State>(stateEntityId);
-				CreateComponent<SelectedEntityId>(stateEntityId, ECS2::Entity::Id::invalid_);
+				CreateComponent<EnableSelection>(stateEntityId);
+				CreateComponent<SelectedEntityIds>(stateEntityId);
+				CreateComponent<HandleCursorEvents>(stateEntityId);
+				CreateComponent<HandleMouseEvents>(stateEntityId);
+				CreateComponent<Input::HandleKeyboardEvents>(stateEntityId);
 
 			}
 
-			void GetSelectedEntityId::Update(
-				ECS2::Entity::Id entity0id, 
+			void GetSelectedEntityIds::Update(
+				ECS2::Entity::Id entity0id,
 				const OksEngine::Render::Outline::State* state0,
-				OksEngine::Render::Outline::SelectedEntityId* selectedEntityId0, 
-				
+				const OksEngine::Render::Outline::EnableSelection* enableSelection0,
+				const OksEngine::CursorEvents* cursorEvents0,
+				OksEngine::MouseEvents* mouseEvents0,
+				const OksEngine::Input::KeyboardEvents* input__KeyboardEvents0,
+				OksEngine::Render::Outline::SelectedEntityIds* selectedEntityIds0,
+
 				ECS2::Entity::Id entity1id,
 				const OksEngine::RenderDriver* renderDriver1,
 				const OksEngine::Render::Outline::DataStorageBuffer* dataStorageBuffer1) {
@@ -35,7 +58,72 @@ namespace OksEngine
 					0, sizeof(Data),
 					&data);
 
-				selectedEntityId0->id_ = ECS2::Entity::Id{ data.selectedId_ };
+				bool isLeftButtonClicked = false;
+				{
+					while (!mouseEvents0->events_.empty()) {
+						const auto& event = mouseEvents0->events_.back();
+						if (event.key_ == UIAL::Window::MouseKey::Left &&
+							(event.event_ == UIAL::Window::KeyAction::Pressed || event.event_ == UIAL::Window::KeyAction::Hold)) {
+							isLeftButtonClicked = true;
+							break;
+						}
+						mouseEvents0->events_.pop();
+					}
+				}
+
+				bool isShiftPressed = false;
+				for (const auto& keyboardEvent : input__KeyboardEvents0->events_) {
+					if (keyboardEvent.first == UIAL::Window::KeyboardKey::LEFT_SHIFT &&
+						(keyboardEvent.second == UIAL::Window::KeyAction::Pressed || keyboardEvent.second == UIAL::Window::KeyAction::Hold)) {
+						isShiftPressed = true;
+						break;
+					}
+				}
+
+				if (isLeftButtonClicked && !isShiftPressed) {
+					if (data.potencialSelectedId_ != 0) {
+						selectedEntityIds0->ids_ = { data.potencialSelectedId_ };
+					}
+					else {
+						selectedEntityIds0->ids_.clear();
+					}
+				}
+				else if (!selectedEntityIds0->ids_.empty() && isLeftButtonClicked && isShiftPressed) {
+					bool containsYet = false;
+					{
+						for (const auto& id : selectedEntityIds0->ids_) {
+							if (ECS2::Entity::Id{ data.potencialSelectedId_ } == id) {
+								containsYet = true;
+								break;
+							}
+						}
+					}
+					if (data.potencialSelectedId_ != 0) {
+						if (!containsYet) {
+							selectedEntityIds0->ids_.push_back(ECS2::Entity::Id{ data.potencialSelectedId_ });
+						}
+					}
+					else {
+						selectedEntityIds0->ids_.clear();
+					}
+					
+				}
+
+
+
+				if (selectedEntityIds0->ids_.size() > data.selectedIds_.max_size()) {
+					selectedEntityIds0->ids_.resize(data.selectedIds_.max_size());
+					OS::LogWarning("render/outline", "Reached max limit of selected entities.");
+				}
+				data.selectedIds_ = { 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0 };
+				std::memcpy(
+					data.selectedIds_.data(),
+					selectedEntityIds0->ids_.data(),
+					selectedEntityIds0->ids_.size() * sizeof(ECS2::Entity::Id::ValueType));
+
+				renderDriver1->driver_->StorageBufferWrite(
+					dataStorageBuffer1->id_, 0,
+					&data, sizeof(Data));
 
 			}
 
@@ -320,13 +408,15 @@ namespace OksEngine
 
 				};
 
-				void BeginRenderPass::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
-					const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId0,
-					const OksEngine::Render::Outline::IdsTextureRender::AttachmentSet* attachmentSet0,
-					const OksEngine::Render::Outline::IdsTextureRender::IdsAttachment* idsAttachment0,
-					const OksEngine::Render::Outline::IdsTextureRender::PipelineId* pipelineId0) {
+				void BeginRenderPass::Update(ECS2::Entity::Id entity0id, const OksEngine::Render::Outline::State* state0,
+					const OksEngine::Render::Outline::EnableSelection* enableSelection0, ECS2::Entity::Id entity1id,
+					OksEngine::RenderDriver* renderDriver1,
+					const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId1,
+					const OksEngine::Render::Outline::IdsTextureRender::AttachmentSet* attachmentSet1,
+					const OksEngine::Render::Outline::IdsTextureRender::IdsAttachment* idsAttachment1,
+					const OksEngine::Render::Outline::IdsTextureRender::PipelineId* pipelineId1) {
 
-					auto driver = renderDriver0->driver_;
+					auto driver = renderDriver1->driver_;
 
 					//renderDriver0->driver_->TextureMemoryBarrier(
 					//	idsAttachment0->textureId_,
@@ -372,117 +462,122 @@ namespace OksEngine
 						"Begin outline texture render pass.");
 
 					driver->BeginRenderPass(
-						renderPassId0->rpId_,
-						attachmentSet0->attachmentsSetId_,
+						renderPassId1->rpId_,
+						attachmentSet1->attachmentsSetId_,
 						clearValues, { 0, 0 }, { 2560, 1440 });
 
 				};
 
 				void RenderModelIds::Update(
-					ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
-					const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId0,
-					const OksEngine::Render::Outline::IdsTextureRender::PipelineId* pipelineId0,
-					const OksEngine::Render::Outline::DataStorageBuffer* dataStorageBuffer0,
-					const OksEngine::Render::Outline::DataStorageBufferResource* dataStorageBufferResource0,
-					const OksEngine::CursorEvents* cursorEvents0, const OksEngine::MouseEvents* mouseEvents0,
-					ECS2::Entity::Id entity1id, const OksEngine::MainWindow* mainWindow1,
-					const OksEngine::MainWindowFramebufferSize* mainWindowFramebufferSize1,
-					const OksEngine::MainWindowWorkAreaSize* mainWindowWorkAreaSize1, ECS2::Entity::Id entity2id,
-					const OksEngine::Camera* camera2, const OksEngine::Active* active2,
-					const OksEngine::DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer2,
-					const OksEngine::CameraTransformResource* cameraTransformResource2, ECS2::Entity::Id entity3id,
-					const OksEngine::WorldPosition3D* worldPosition3D3, const OksEngine::WorldRotation3D* worldRotation3D3,
-					const OksEngine::WorldScale3D* worldScale3D3,
-					const OksEngine::Physics::DynamicRigidBody* physics__DynamicRigidBody3,
-					const OksEngine::Physics::RigidBodyId* physics__RigidBodyId3,
-					const OksEngine::Physics::PhysicsShape* physics__PhysicsShape3,
-					const OksEngine::DriverVertexBuffer* driverVertexBuffer3,
-					const OksEngine::DriverIndexBuffer* driverIndexBuffer3, const OksEngine::Vertices3D* vertices3D3,
-					const OksEngine::Indices* indices3) {
+
+					ECS2::Entity::Id entity0id,
+					const OksEngine::Render::Outline::State* state0,
+					const OksEngine::Render::Outline::EnableSelection* enableSelection0,
+					const OksEngine::CursorEvents* cursorEvents0,
+					const OksEngine::MouseEvents* mouseEvents0,
+
+					ECS2::Entity::Id entity1id,
+					OksEngine::RenderDriver* renderDriver1,
+					const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId1,
+					const OksEngine::Render::Outline::IdsTextureRender::PipelineId* pipelineId1,
+					const OksEngine::Render::Outline::DataStorageBuffer* dataStorageBuffer1,
+					const OksEngine::Render::Outline::DataStorageBufferResource* dataStorageBufferResource1,
+
+					ECS2::Entity::Id entity2id,
+					const OksEngine::MainWindow* mainWindow2,
+					const OksEngine::MainWindowFramebufferSize* mainWindowFramebufferSize2,
+					const OksEngine::MainWindowWorkAreaSize* mainWindowWorkAreaSize2,
+
+					ECS2::Entity::Id entity3id,
+					const OksEngine::Camera* camera3, const OksEngine::Active* active3,
+					const OksEngine::DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer3,
+					const OksEngine::CameraTransformResource* cameraTransformResource3,
+
+					ECS2::Entity::Id entity4id,
+					const OksEngine::WorldPosition3D* worldPosition3D4, const OksEngine::WorldRotation3D* worldRotation3D4,
+					const OksEngine::WorldScale3D* worldScale3D4,
+					const OksEngine::Physics::DynamicRigidBody* physics__DynamicRigidBody4,
+					const OksEngine::Physics::RigidBodyId* physics__RigidBodyId4,
+					const OksEngine::Physics::PhysicsShape* physics__PhysicsShape4,
+					const OksEngine::DriverVertexBuffer* driverVertexBuffer4,
+					const OksEngine::DriverIndexBuffer* driverIndexBuffer4, const OksEngine::Vertices3D* vertices3D4,
+					const OksEngine::Indices* indices4) {
 
 					MeshInfo meshInfo{
-						entity3id.GetRawValue(),
-						worldPosition3D3->x_,
-						worldPosition3D3->y_,
-						worldPosition3D3->z_,
-						worldRotation3D3->w_,
-						worldRotation3D3->x_,
-						worldRotation3D3->y_,
-						worldRotation3D3->z_
+						entity4id.GetRawValue(),
+						worldPosition3D4->x_,
+						worldPosition3D4->y_,
+						worldPosition3D4->z_,
+						worldRotation3D4->w_,
+						worldRotation3D4->x_,
+						worldRotation3D4->y_,
+						worldRotation3D4->z_
 					};
 
-					auto driver = renderDriver0->driver_;
+					auto driver = renderDriver1->driver_;
 
 					Data data{
 						-1,
 						-1,
-						0
+						0,
+						{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0 }
 					};
-
-					//В GLFW координаты курсора(glfwGetCursorPos) возвращаются в оконной системе координат :
-					//	Начало координат(0, 0) — верхний левый угол окна
-					//	Ось X направлена вправо(положительные значения)
-					//	Ось Y направлена вниз(положительные значения)
-					//	Единицы измерения — пиксели экрана(не обязательно целые, могут быть дробные при HiDPI)
-
-					//Координатная система gl_FragCoord.xy
-					//	В шейдере gl_FragCoord.xy использует систему координат OpenGL :
-					//	Начало координат(0, 0) — нижний левый угол окна / фреймбуфера
-					//	Ось X направлена вправо(положительные значения)
-					//	Ось Y направлена вниз(положительные значения)
-					//	Единицы измерения — пиксели(с учетом viewport)
 
 					if (!cursorEvents0->events_.empty()) {
 
 
-						float scaleX = 2560/*(float)mainWindowFramebufferSize1->width_*/ / (float)mainWindowWorkAreaSize1->width_;
-						float scaleY = 1440/*(float)mainWindowFramebufferSize1->height_*/ / (float)mainWindowWorkAreaSize1->height_;
+						float scaleX = 2560/*(float)mainWindowFramebufferSize1->width_*/ / (float)mainWindowWorkAreaSize2->width_;
+						float scaleY = 1440/*(float)mainWindowFramebufferSize1->height_*/ / (float)mainWindowWorkAreaSize2->height_;
 
 						// Вариант 1: Координаты в пикселях фреймбуфера (для прямого сравнения с gl_FragCoord)
 						data.cursorPosX_ = cursorEvents0->events_.back().position_.x_ * scaleX;
 						data.cursorPosY_ = (/*mainWindowWorkAreaSize1->height_ - */cursorEvents0->events_.back().position_.y_) * scaleY; // Инвертируем Y
-
+						driver->StorageBufferWrite(
+							dataStorageBuffer1->id_, 0, &data,
+							//Write only cursor info.
+							offsetof(Data, Data::selectedIds_));
 					}
 
-					driver->StorageBufferWrite(
-						dataStorageBuffer0->id_, 0, &data, offsetof(Data, Data::selectedId_));
+					
 
-					driver->BindPipeline(pipelineId0->id_);
+					driver->BindPipeline(pipelineId1->id_);
 
-					driver->Bind(pipelineId0->id_, 0,
+					driver->Bind(pipelineId1->id_, 0,
 						{
-							cameraTransformResource2->id_,
-							dataStorageBufferResource0->id_
+							cameraTransformResource3->id_,
+							dataStorageBufferResource1->id_
 						}
 					);
 
 					driver->PushConstants(
-						pipelineId0->id_,
+						pipelineId1->id_,
 						RAL::Driver::Shader::Stage::VertexShader,
 						sizeof(meshInfo), &meshInfo);
 
-					driver->BindVertexBuffer(driverVertexBuffer3->id_, 0);
-					driver->BindIndexBuffer(driverIndexBuffer3->id_, 0);
+					driver->BindVertexBuffer(driverVertexBuffer4->id_, 0);
+					driver->BindIndexBuffer(driverIndexBuffer4->id_, 0);
 
 
-					driver->DrawIndexed(indices3->indices_.GetIndicesNumber());
+					driver->DrawIndexed(indices4->indices_.GetIndicesNumber());
 
 
 				};
 
-				void EndRenderPass::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
-					const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId0,
-					const OksEngine::Render::Outline::IdsTextureRender::PipelineId* pipelineId0,
-					const OksEngine::Render::Outline::IdsTextureRender::IdsAttachment* idsAttachment0) {
+				void EndRenderPass::Update(ECS2::Entity::Id entity0id, const OksEngine::Render::Outline::State* state0,
+					const OksEngine::Render::Outline::EnableSelection* enableSelection0, ECS2::Entity::Id entity1id,
+					OksEngine::RenderDriver* renderDriver1,
+					const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId1,
+					const OksEngine::Render::Outline::IdsTextureRender::PipelineId* pipelineId1,
+					const OksEngine::Render::Outline::IdsTextureRender::IdsAttachment* idsAttachment1) {
 
-					auto driver = renderDriver0->driver_;
+					auto driver = renderDriver1->driver_;
 
 					driver->EndRenderPass();
 
 					driver->EndDebugLabel();
 
-					renderDriver0->driver_->TextureMemoryBarrier(
-						idsAttachment0->textureId_,
+					renderDriver1->driver_->TextureMemoryBarrier(
+						idsAttachment1->textureId_,
 						RAL::Driver::Texture::State::DataForColorWrite, RAL::Driver::Texture::State::DataForShaderRead,
 						RAL::Driver::Texture::Access::ColorWrite, RAL::Driver::Texture::Access::ShaderRead,
 						RAL::Driver::Pipeline::Stage::ColorAttachmentOutput, RAL::Driver::Pipeline::Stage::FragmentShader);
@@ -678,43 +773,47 @@ namespace OksEngine
 
 				}
 
-				void BeginRenderPass::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
-					const OksEngine::Render::Outline::OutlineRender::RenderPassId* renderPassId0,
-					const OksEngine::Render::Outline::OutlineRender::AttachmentSet* attachmentSet0,
-					const OksEngine::Render::Outline::OutlineRender::PipelineId* pipelineId0) {
+				void BeginRenderPass::Update(ECS2::Entity::Id entity0id, const OksEngine::Render::Outline::State* state0,
+					const OksEngine::Render::Outline::EnableSelection* enableSelection0, ECS2::Entity::Id entity1id,
+					OksEngine::RenderDriver* renderDriver1,
+					const OksEngine::Render::Outline::OutlineRender::RenderPassId* renderPassId1,
+					const OksEngine::Render::Outline::OutlineRender::AttachmentSet* attachmentSet1,
+					const OksEngine::Render::Outline::OutlineRender::PipelineId* pipelineId1) {
 
 
-					auto driver = renderDriver0->driver_;
+					auto driver = renderDriver1->driver_;
 
 					std::vector<RAL::Driver::RP::ClearValue> clearValues;
 
-			/*		return;*/
+					/*		return;*/
 					driver->BeginRenderPass(
-						renderPassId0->rpId_,
-						attachmentSet0->attachmentsSetId_,
+						renderPassId1->rpId_,
+						attachmentSet1->attachmentsSetId_,
 						clearValues, { 0, 0 }, { 2560, 1440 });
 
 				}
-				
 
-				void RenderOutline::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
-					const OksEngine::Render::Outline::DataStorageBuffer* dataStorageBuffer0,
-					const OksEngine::Render::Outline::DataStorageBufferResource* dataStorageBufferResource0,
-					const OksEngine::Render::Outline::OutlineRender::RenderPassId* renderPassId0,
+
+				void RenderOutline::Update(ECS2::Entity::Id entity0id, const OksEngine::Render::Outline::State* state0,
+					const OksEngine::Render::Outline::EnableSelection* enableSelection0, ECS2::Entity::Id entity1id,
+					OksEngine::RenderDriver* renderDriver1,
+					const OksEngine::Render::Outline::DataStorageBuffer* dataStorageBuffer1,
+					const OksEngine::Render::Outline::DataStorageBufferResource* dataStorageBufferResource1,
+					const OksEngine::Render::Outline::OutlineRender::RenderPassId* renderPassId1,
 					const OksEngine::Render::Outline::IdsTextureRender::IdsAttachmentResource
-					* idsTextureRender__IdsAttachmentResource0,
-					const OksEngine::Render::Outline::OutlineRender::AttachmentSet* attachmentSet0,
-					const OksEngine::Render::Outline::OutlineRender::PipelineId* pipelineId0) {
+					* idsTextureRender__IdsAttachmentResource1,
+					const OksEngine::Render::Outline::OutlineRender::AttachmentSet* attachmentSet1,
+					const OksEngine::Render::Outline::OutlineRender::PipelineId* pipelineId1) {
 
-					auto driver = renderDriver0->driver_;
-					
-					driver->BindPipeline(pipelineId0->id_);
+					auto driver = renderDriver1->driver_;
+
+					driver->BindPipeline(pipelineId1->id_);
 
 
-					driver->Bind(pipelineId0->id_, 0,
+					driver->Bind(pipelineId1->id_, 0,
 						{
-							idsTextureRender__IdsAttachmentResource0->id_,
-							dataStorageBufferResource0->id_
+							idsTextureRender__IdsAttachmentResource1->id_,
+							dataStorageBufferResource1->id_
 						}
 					);
 
@@ -723,25 +822,27 @@ namespace OksEngine
 					};
 
 					driver->PushConstants(
-						pipelineId0->id_,
+						pipelineId1->id_,
 						RAL::Driver::Shader::Stage::FragmentShader,
 						sizeof(OutlineSettings), &outlineSettings);
 
 					driver->Draw(3);
 				}
 
-				void EndRenderPass::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
-					const OksEngine::Render::Outline::OutlineRender::RenderPassId* renderPassId0,
-					const OksEngine::Render::Outline::OutlineRender::PipelineId* pipelineId0,
-					const OksEngine::Render::Outline::IdsTextureRender::IdsAttachment* idsTextureRender__IdsAttachment0) {
+				void EndRenderPass::Update(ECS2::Entity::Id entity0id, const OksEngine::Render::Outline::State* state0,
+					const OksEngine::Render::Outline::EnableSelection* enableSelection0, ECS2::Entity::Id entity1id,
+					OksEngine::RenderDriver* renderDriver1,
+					const OksEngine::Render::Outline::OutlineRender::RenderPassId* renderPassId1,
+					const OksEngine::Render::Outline::OutlineRender::PipelineId* pipelineId1,
+					const OksEngine::Render::Outline::IdsTextureRender::IdsAttachment* idsTextureRender__IdsAttachment1) {
 
-					
-					auto driver = renderDriver0->driver_;
+
+					auto driver = renderDriver1->driver_;
 					driver->EndRenderPass();
 
 					//Return ids buffer state to RAL::Driver::Texture::State::DataForColorWrite for the next frame.
-					renderDriver0->driver_->TextureMemoryBarrier(
-						idsTextureRender__IdsAttachment0->textureId_,
+					renderDriver1->driver_->TextureMemoryBarrier(
+						idsTextureRender__IdsAttachment1->textureId_,
 						RAL::Driver::Texture::State::DataForShaderRead, RAL::Driver::Texture::State::DataForColorWrite,
 						RAL::Driver::Texture::Access::ShaderRead, RAL::Driver::Texture::Access::ColorWrite,
 						RAL::Driver::Pipeline::Stage::FragmentShader, RAL::Driver::Pipeline::Stage::ColorAttachmentOutput);
@@ -765,11 +866,11 @@ namespace OksEngine
 				renderDriver0->driver_->NextSubpass();
 			}*/
 
-			
 
-			
 
-			
+
+
+
 
 		}
 

@@ -32,7 +32,10 @@ namespace OksEngine
 		const HandleMouseEvents* handleMouseInput1,
 		MouseEvents* mouseInput1) {
 
-		mouseInput1->events_ = mouseInput0->events_;
+		if (!mouseInput0->events_.empty()) {
+			mouseInput1->events_ = mouseInput0->events_;
+		}
+		
 
 	};
 
