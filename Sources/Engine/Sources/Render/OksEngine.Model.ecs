@@ -737,8 +737,7 @@ RenderNamespace = {
     CreateMultisamplingAttachmentSystem = {
         type = "Initialize",
         callOrder = {
-            runAfter = { "CreateRenderPass" },
-            runBefore = {}
+            runAfter = { "CreateRenderPass" }
         },
         updateMethod = {
             processesEntities = {
@@ -760,8 +759,10 @@ RenderNamespace = {
     CreateAttachmentSetSystem = {
         type = "Initialize",
         callOrder = {
-            runAfter = { "CreateRenderAttachment", "CreateDepthAttachment" },
-            runBefore = {}
+            runAfter = { 
+                "CreateRenderAttachment", 
+                "CreateDepthAttachment",
+                "CreateMultisamplingAttachment" }
         },
         updateMethod = {
             processesEntities = {

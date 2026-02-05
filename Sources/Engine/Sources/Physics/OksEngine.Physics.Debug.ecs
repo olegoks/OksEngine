@@ -2,7 +2,7 @@ PhysicsNamespace = {
     DebugNamespace = {
 
         DebuggerComponent = {},
-        EnableDebugRenderComponent = { },
+        EnableDebugRenderComponent = {},
         CommonParametersComponent = {
             fields = {
                 { type = "bool", name = "oneFrameSimulateMode" },
@@ -55,10 +55,10 @@ PhysicsNamespace = {
 
         RenderPhysXDebugRenderBufferSystem = {
             callOrder = {
-                runBefore = { 
+                runBefore = {
                     "Render::Debug::FlatShade::UpdateDriverVertexBuffer",
                     "Render::Debug::Lines::UpdateDriverVertexBuffer"
-                 }
+                }
             },
             updateMethod = {
                 processesEntities = {
@@ -69,9 +69,9 @@ PhysicsNamespace = {
                     },
                     {
                         processesComponents = {
-                        "Render::Debug::Debugger",
-                        { name = "Render::Debug::FlatShade::VertexBuffer", readonly = false },
-                        { name = "Render::Debug::Lines::VertexBuffer", readonly = false }
+                            "Render::Debug::Debugger",
+                            { name = "Render::Debug::FlatShade::VertexBuffer", readonly = false },
+                            { name = "Render::Debug::Lines::VertexBuffer",     readonly = false }
                         }
                     },
                     {
@@ -97,8 +97,8 @@ PhysicsNamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
-                        "Render::Debug::Debugger",
-                        { name = "Render::Debug::FlatShade::VertexBuffer", readonly = false }
+                            "Render::Debug::Debugger",
+                            { name = "Render::Debug::FlatShade::VertexBuffer", readonly = false }
                         }
                     },
                     {
@@ -146,8 +146,8 @@ PhysicsNamespace = {
                     },
                     {
                         processesComponents = {
-                        "Render::Debug::Debugger",
-                        { name = "Render::Debug::FlatShade::VertexBuffer", readonly = false }
+                            "Render::Debug::Debugger",
+                            { name = "Render::Debug::FlatShade::VertexBuffer", readonly = false }
                         }
                     },
                     {
@@ -184,8 +184,8 @@ PhysicsNamespace = {
                     },
                     {
                         processesComponents = {
-                        "Render::Debug::Debugger",
-                        { name = "Render::Debug::Lines::VertexBuffer", readonly = false }
+                            "Render::Debug::Debugger",
+                            { name = "Render::Debug::Lines::VertexBuffer", readonly = false }
                         }
                     },
                     {
@@ -212,6 +212,64 @@ PhysicsNamespace = {
                 }
             }
         },
+
+
+        AddRigidBodyToSelectionSystem = {
+            callOrder = {
+                runAfter = "Render::Outline::IdsTextureRender::BeginRenderPass",
+                runBefore = "Render::Outline::IdsTextureRender::EndRenderPass"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Render::Outline::State",
+                            "Render::Outline::EnableSelection",
+                            "CursorEvents",
+                            "MouseEvents"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false },
+                            "Render::Outline::IdsTextureRender::RenderPassId",
+                            "Render::Outline::IdsTextureRender::PipelineId",
+                            "Render::Outline::DataStorageBuffer",
+                            "Render::Outline::DataStorageBufferResource"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "MainWindow",
+                            "MainWindowFramebufferSize",
+                            "MainWindowWorkAreaSize"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Camera",
+                            "Active",
+                            "DriverViewProjectionUniformBuffer",
+                            "CameraTransformResource"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "WorldPosition3D",
+                            "WorldRotation3D",
+                            "WorldScale3D",
+                            "Physics::DynamicRigidBody",
+                            "Physics::RigidBodyId",
+                            "Physics::PhysicsShape",
+                            "DriverVertexBuffer",
+                            "DriverIndexBuffer",
+                            "Vertices3D",
+                            "Indices"
+                        }
+                    }
+                }
+            }
+        },
     },
-    
+
 }

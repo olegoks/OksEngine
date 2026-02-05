@@ -41,7 +41,7 @@ RenderNamespace = {
                             "State",
                             "EnableSelection",
                             "CursorEvents",
-                            { name = "MouseEvents",readonly = false },
+                            { name = "MouseEvents",       readonly = false },
                             "Input::KeyboardEvents",
                             { name = "SelectedEntityIds", readonly = false }
                         }
@@ -60,9 +60,9 @@ RenderNamespace = {
 
         DataStruct                            = {
             fields = {
-                { type = "int",                         name = "cursorPosX" },
-                { type = "int",                         name = "cursorPosY" },
-                { type = "ECS2::Entity::Id::ValueType", name = "potencialSelectedId" },
+                { type = "int",                                         name = "cursorPosX" },
+                { type = "int",                                         name = "cursorPosY" },
+                { type = "ECS2::Entity::Id::ValueType",                 name = "potencialSelectedId" },
                 { type = "std::array<ECS2::Entity::Id::ValueType, 16>", name = "selectedIds" }
             }
         },
@@ -266,7 +266,7 @@ RenderNamespace = {
             BeginRenderPassSystem          = {
                 callOrder = {
                     runAfter = { "StartRender", "::EndRenderPass" },
-                    runBefore = { "RenderModelIds" }
+                    runBefore = { "EndRenderPass" }
                 },
                 updateMethod = {
                     processesEntities = {
@@ -302,62 +302,7 @@ RenderNamespace = {
                 }
             },
 
-            RenderModelIdsSystem           = {
-                callOrder = {
-                    runAfter = "BeginRenderPass",
-                    runBefore = "EndRenderPass"
-                },
-                updateMethod = {
-                    processesEntities = {
-                        {
-                            processesComponents = {
-                                "State",
-                                "EnableSelection",
-                                "CursorEvents",
-                                "MouseEvents"
-                            }
-                        },
-                        {
-                            processesComponents = {
-                                { name = "RenderDriver", readonly = false },
-                                "RenderPassId",
-                                "PipelineId",
-                                "DataStorageBuffer",
-                                "DataStorageBufferResource"
-                            }
-                        },
-                        {
-                            processesComponents = {
-                                "MainWindow",
-                                "MainWindowFramebufferSize",
-                                "MainWindowWorkAreaSize"
-                            }
-                        },
-                        {
-                            processesComponents = {
-                                "Camera",
-                                "Active",
-                                "DriverViewProjectionUniformBuffer",
-                                "CameraTransformResource"
-                            }
-                        },
-                        {
-                            processesComponents = {
-                                "WorldPosition3D",
-                                "WorldRotation3D",
-                                "WorldScale3D",
-                                "Physics::DynamicRigidBody",
-                                "Physics::RigidBodyId",
-                                "Physics::PhysicsShape",
-                                "DriverVertexBuffer",
-                                "DriverIndexBuffer",
-                                "Vertices3D",
-                                "Indices"
-                            }
-                        }
-                    }
-                }
-            },
+
             EndRenderPassSystem            = {
                 callOrder = {
                     runBefore = { "BeginDebugTextRenderPass" }
