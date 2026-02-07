@@ -54,7 +54,7 @@ RenderNamespace = {
 
             BeginRenderMenuSystem = {
                 callOrder = {
-                    runAfter = "BeginMainMenuBar",
+                    runAfter = { "BeginMainMenuBar", "Physics::Debug::ImGUI::EndPhysicsMenu" },
                     runBefore = "EndRenderMenu"
                 },
                 updateMethod = {
@@ -103,7 +103,7 @@ RenderNamespace = {
 
             BeginDebugRenderWindowSystem = {
                 callOrder = {
-                    runAfter = "EndMainMenuBar",
+                    runAfter = { "EndMainMenuBar", "EndECSEditorWindow" },
                     runBefore = "EndDebugRenderWindow"
                 },
                 updateMethod = {

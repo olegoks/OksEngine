@@ -132,7 +132,7 @@ ShowEntitiesInfoSystem = {
 EndECSInspectorWindowSystem = {
     callOrder = {
         runAfter = "BeginECSInspectorWindow",
-        runBefore = "ImGUI::EndFrame"
+        runBefore = { "ImGUI::EndFrame", "BeginECSEditorWindow" }
     },
     updateMethod = {
         processesEntities = {

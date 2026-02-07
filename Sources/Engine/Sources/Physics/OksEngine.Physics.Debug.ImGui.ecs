@@ -54,7 +54,7 @@ PhysicsNamespace = {
 
             BeginPhysicsMenuSystem = {
                 callOrder = {
-                    runAfter = "BeginMainMenuBar",
+                    runAfter = { "BeginMainMenuBar", "EndECSMenu" },
                     runBefore = "EndPhysicsMenu"
                 },
                 updateMethod = {
@@ -104,7 +104,7 @@ PhysicsNamespace = {
 
             BeginDebugRenderWindowSystem = {
                 callOrder = {
-                    runAfter = "EndMainMenuBar",
+                    runAfter = { "EndMainMenuBar", "Render::Debug::ImGUI::EndDebugRenderWindow" },
                     runBefore = "EndDebugRenderWindow"
                 },
                 updateMethod = {
@@ -199,7 +199,7 @@ PhysicsNamespace = {
             EndPhysicsMenuSystem = {
                 callOrder = {
                     runAfter = "BeginPhysicsMenu",
-                    runBefore = "EndMainMenuBar"
+                    runBefore = { "EndMainMenuBar", "Render::Debug::ImGUI::BeginRenderMenu" }
                 },
                 updateMethod = {
                     processesEntities = {

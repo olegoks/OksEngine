@@ -79,7 +79,7 @@ CreateEnginePerformanceSystem = {
 
 BeginEnginePerformanceWindowSystem = {
     callOrder = {
-        runAfter = "ImGUI::StartFrame",
+        runAfter = { "ImGUI::StartFrame", "EndMainMenuBar" },
         runBefore = "EndEnginePerformanceWindow"
     },
     updateMethod = {
@@ -188,7 +188,7 @@ ShowFPSPlotSystem = {
 EndEnginePerformanceWindowSystem = {
     callOrder = {
         runAfter = "BeginEnginePerformanceWindow",
-        runBefore = "ImGUI::EndFrame"
+        runBefore = { "ImGUI::EndFrame", "BeginECSInspectorWindow" }
     },
     updateMethod = {
         processesEntities = {
