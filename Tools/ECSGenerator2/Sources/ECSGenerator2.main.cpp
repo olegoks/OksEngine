@@ -148,6 +148,7 @@ int main(int argc, char** argv) {
 									}
 									ECSGenerator2::ParsedTablePtr table = path.back();
 									foundTable = table;
+									return false;
 								}
 								else {
 									return true;
@@ -208,6 +209,7 @@ int main(int argc, char** argv) {
 									}
 									ECSGenerator2::ParsedTablePtr table = path.back();
 									foundTable = table;
+									return false;
 								}
 								else {
 									return true;

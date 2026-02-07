@@ -321,6 +321,7 @@ namespace ECSGenerator2 {
 							case ParsedTable::Type::System:			return 5; // Низший приоритет
 							default:
 								ASSERT_FAIL_MSG("Unknown table type!");
+								return -1;
 							}
 							};
 

@@ -155,7 +155,9 @@ UpdateDebugTextDriverVertexBufferSystem = {
 CreateDebugTextAtlasSystem = {
     type = "Initialize",
     callOrder = {
-        runAfter = "CreateDebugTextRenderer"
+        runAfter = { 
+            "CreateDebugTextRenderer",
+            "ConfigureResourceSystem" }
     },
     updateMethod = {
         -- TODO: read fonts atlas from Config

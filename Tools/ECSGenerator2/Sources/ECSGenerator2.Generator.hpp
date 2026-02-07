@@ -629,6 +629,7 @@ namespace ECSGenerator2 {
 			//return { systemCppFileFullPath, file };
 		}
 
+#ifdef 0
 		void ProcessNode(
 			SystemsOrder& systemsOrder,
 			const DS::Graph<System>& graph,
@@ -666,7 +667,7 @@ namespace ECSGenerator2 {
 			}
 
 		}
-
+#endif
 		void CalculateSystemsCallOrder(Thread& thread) {
 
 			//Find systems that root of dependence and generate code.

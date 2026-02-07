@@ -1,6 +1,7 @@
 #pragma once 
 
 #include <queue>
+#include <list>
 
 #include <System/ECSGenerator2.SystemCodeStructureGenerator.hpp>
 #include <Component/ECSGenerator2.ComponentCodeGenerator.hpp>
@@ -1589,111 +1590,128 @@ namespace ECSGenerator2 {
 		class SystemsOrder {
 		public:
 
+			//Use this function if system must be call after only ONE afterSystem.
 			void AddSystemAfter(ParsedSystemPtr system, ParsedSystemPtr afterSystem) {
 
-#pragma region Assert
+				BEGIN_PROFILE("AddSystemAfter");
+
 				ASSERT_FMSG(afterSystem != nullptr, "");
-#pragma endregion
+				ASSERT_MSG(IsSystemAdded(afterSystem), "After system must be added yet.");
+				ASSERT_MSG(!IsSystemAdded(system), "System to add was added yet.");
 
-				for (Common::Index i = 0; i < order_.size(); i++) {
-					const ParsedSystemPtr& currentSystem = order_[i];
-					if (currentSystem == afterSystem) {
-#pragma region Assert
-						ASSERT_FMSG(system != nullptr, "");
-#pragma endregion
-						if (i != order_.size() - 1) {
-							order_.insert(order_.begin() + i + 1, system);
-							addedSystems_.insert(system);
-						}
-						else {
-							order_.push_back(system);
-							addedSystems_.insert(system);
-						}
-					}
-
+				auto orderIt = placeInOrderList_[afterSystem];
+				if (orderIt != --orderList_.end()) {
+					auto insertIt = orderList_.insert(++orderIt, system);
+					placeInOrderList_[system] = insertIt;
+					addedSystems_.insert(system);
+				}
+				else {
+					orderList_.push_back(system);
+					placeInOrderList_[system] = --orderList_.end();
+					addedSystems_.insert(system);
 				}
 
+				//for (auto it = orderList_.begin(); it != orderList_.end(); ++it) {
+				//	const ParsedSystemPtr& currentSystem = *it;
+				//	if (currentSystem == afterSystem) {
+				//		ASSERT_FMSG(system != nullptr, "");
+				//		if (it != --orderList_.end()) {
+				//			auto insertIt = orderList_.insert(++it, system);
+				//			placeInOrderList_[system] = insertIt;
+				//			addedSystems_.insert(system);
+				//		}
+				//		else {
+				//			orderList_.emplace_back(system);
+				//			placeInOrderList_[system] = --orderList_.end();
+				//			addedSystems_.insert(system);
+				//		}
+				//		break;
+				//	}
+				//}
+				END_PROFILE();
 			}
 
-			void AddSystemAfter(ParsedSystemPtr system, std::unordered_set<ParsedSystemPtr> afterSystems) {
+			void AddSystemToEnd(const ParsedSystemPtr system) {
+				orderList_.push_front(system);
+				placeInOrderList_[system] = --orderList_.end();;
+				addedSystems_.insert(system);
+			}
+
+			void AddSystemAfter(const ParsedSystemPtr system, const std::unordered_set<ParsedSystemPtr>& afterSystems) {
 
 
-				std::unordered_set<ParsedSystemPtr> checkedSystems;
-				for (Common::Index i = 0; i < order_.size(); i++) {
-					const ParsedSystemPtr& currentSystem = order_[i];
+				BEGIN_PROFILE("AddSystemAfter");
+
+#if !defined(NDEBUG)
+				for (const auto& afterSystem : afterSystems) {
+					ASSERT_MSG(IsSystemAdded(afterSystem),
+						"All after systems should already be added.");
+				}
+#endif
+				for (auto it = orderList_.rbegin(); it != orderList_.rend(); ++it) {
+					const ParsedSystemPtr& currentSystem = *it;
 					if (afterSystems.contains(currentSystem)) {
-						checkedSystems.insert(currentSystem);
-						if (checkedSystems.size() == afterSystems.size()) {
-#pragma region Assert
-							ASSERT_FMSG(system != nullptr, "");
-#pragma endregion
-							if (i != order_.size() - 1) {
-								order_.insert(order_.begin() + i + 1, system);
-								addedSystems_.insert(system);
-							}
-							else {
-								order_.push_back(system);
-								addedSystems_.insert(system);
-							}
-						}
+						AddSystemAfter(system, currentSystem);
+						break;
 					}
-
 				}
+				END_PROFILE();
 
 			}
 
-			void AddSystem(ParsedSystemPtr system, std::unordered_set<ParsedSystemPtr> afterSystems, std::unordered_set<ParsedSystemPtr> beforeSystems) {
+			//void AddSystem(ParsedSystemPtr system, std::unordered_set<ParsedSystemPtr> afterSystems, std::unordered_set<ParsedSystemPtr> beforeSystems) {
 
-				auto findLastAfterSystem = [](
-					const std::vector<System>& systems,
-					const std::unordered_set<System>& afterSystems) {
+			//	auto findLastAfterSystem = [](
+			//		const std::vector<System>& systems,
+			//		const std::unordered_set<System>& afterSystems) {
 
-						Common::UInt64 bestCandidate = 0;
-
-
-
-
-					};
-
-				auto findFirstBeforeSystem = [](
-					const std::vector<ParsedSystemPtr>& systems,
-					const std::unordered_set<ParsedSystemPtr>& afterSystems) {
-
-					};
-
-				std::unordered_set<ParsedSystemPtr> checkedSystems;
+			//			Common::UInt64 bestCandidate = 0;
 
 
 
-				for (Common::Index i = 0; i < order_.size(); i++) {
-					const ParsedSystemPtr& currentSystem = order_[i];
-					if (afterSystems.contains(currentSystem)) {
-						checkedSystems.insert(currentSystem);
-						if (checkedSystems.size() == afterSystems.size()) {
-#pragma region Assert
-							ASSERT_FMSG(system != nullptr, "");
-#pragma endregion
-							if (i != order_.size() - 1) {
-								order_.insert(order_.begin() + i + 1, system);
-								addedSystems_.insert(system);
-							}
-							else {
-								order_.push_back(system);
-								addedSystems_.insert(system);
-							}
-						}
-					}
 
-				}
+			//		};
 
-			}
+			//	auto findFirstBeforeSystem = [](
+			//		const std::vector<ParsedSystemPtr>& systems,
+			//		const std::unordered_set<ParsedSystemPtr>& afterSystems) {
+
+			//		};
+
+			//	std::unordered_set<ParsedSystemPtr> checkedSystems;
+
+
+
+			//	for (Common::Index i = 0; i < order_.size(); i++) {
+			//		const ParsedSystemPtr& currentSystem = order_[i];
+			//		if (afterSystems.contains(currentSystem)) {
+			//			checkedSystems.insert(currentSystem);
+			//			if (checkedSystems.size() == afterSystems.size()) {
+			//				ASSERT_FMSG(system != nullptr, "");
+			//				if (i != order_.size() - 1) {
+			//					order_.insert(order_.begin() + i + 1, system);
+			//					addedSystems_.insert(system);
+			//				}
+			//				else {
+			//					order_.push_back(system);
+			//					addedSystems_.insert(system);
+			//				}
+			//			}
+			//		}
+
+			//	}
+
+			//}
 
 			bool IsSystemAdded(ParsedSystemPtr system) {
 				return addedSystems_.contains(system);
 			}
 
 			std::unordered_set<ParsedSystemPtr> addedSystems_;
-			std::vector<ParsedSystemPtr> order_;
+			//std::vector<ParsedSystemPtr> order_;
+			std::list<ParsedSystemPtr> orderList_;
+			//System to iterator in order list for fast access by ptr.
+			std::map<const ParsedSystemPtr, std::list<ParsedSystemPtr>::iterator> placeInOrderList_;
 		};
 
 		struct Thread {
@@ -1716,16 +1734,25 @@ namespace ECSGenerator2 {
 			return runSystemCode;
 		}
 
+
+		static inline Common::Size processNodeCalls = 0;
 		std::shared_ptr<CodeStructure::Function> GenerateRunInitSystemsFunctionRealization(std::vector<ParsedSystemPtr> parsedSystems) {
 
+			BEGIN_PROFILE("Create initialize graph");
 			DS::Graph<ParsedSystemPtr> initCallGraph;
+			Common::Size initSystemsNumber = 0;
 			for (auto parsedSystem : parsedSystems) {
 				ASSERT(parsedSystem != nullptr);
 				if (parsedSystem->ci_.type_ == ParsedSystem::Type::Initialize) {
+
 					DS::Graph<ParsedSystemPtr>::Node::Id currentSystemNodeId = DS::Graph<ParsedSystemPtr>::Node::invalidId_;
+					if (parsedSystem->GetName() == "CreateAttachmentSet") {
+						Common::BreakPointLine();
+					}
 					if (!initCallGraph.IsNodeExist(parsedSystem)) {
 
 						currentSystemNodeId = initCallGraph.AddNode(parsedSystem);
+						++initSystemsNumber;
 					}
 					else {
 						currentSystemNodeId = initCallGraph.FindNode(parsedSystem);
@@ -1748,6 +1775,7 @@ namespace ECSGenerator2 {
 							if (!initCallGraph.IsNodeExist(afterSystemPtr)) {
 
 								afterSystemNodeId = initCallGraph.AddNode(afterSystemPtr);
+								++initSystemsNumber;
 							}
 							else {
 								afterSystemNodeId = initCallGraph.FindNode(afterSystemPtr);
@@ -1772,6 +1800,7 @@ namespace ECSGenerator2 {
 							if (!initCallGraph.IsNodeExist(beforeSystemPtr)) {
 								ASSERT(beforeSystemPtr != nullptr);
 								beforeSystemNodeId = initCallGraph.AddNode(beforeSystemPtr);
+								++initSystemsNumber;
 							}
 							else {
 								beforeSystemNodeId = initCallGraph.FindNode(beforeSystemPtr);
@@ -1783,7 +1812,81 @@ namespace ECSGenerator2 {
 				}
 			}
 
-			//Find systems that root of dependence and generate code.
+			END_PROFILE();
+
+
+#if !defined(NDEBUG)
+			//CREATE GRAPHVIZ CALL GRAPH
+			{
+				// �������� ������ �����
+				Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
+
+				initCallGraph.ForEachNode([&](DS::Graph<ParsedSystemPtr>::NodeId nodeId, DS::Graph<ParsedSystemPtr>::Node& node) {
+
+					if (node.HasLinksFrom() || node.HasLinksTo()) {
+
+						Agnode_t* gSystemNode = agnode(g, (char*)node.GetValue()->GetFullName().c_str(), 1);
+						agsafeset(gSystemNode, (char*)"shape", (char*)"rect", (char*)"");
+
+						node.ForEachLinksFrom([&](DS::Graph<System>::NodeId nodeId) {
+							const DS::Graph<ParsedSystemPtr>::Node& fromNode = initCallGraph.GetNode(nodeId);
+
+							Agnode_t* gFromNode = agnode(g, (char*)fromNode.GetValue()->GetFullName().c_str(), 1);
+
+							Agedge_t* gEdge = agedge(g, gFromNode, gSystemNode, nullptr, 1);
+
+							return true;
+							});
+
+						node.ForEachLinksTo([&](DS::Graph<System>::NodeId nodeId) {
+							const DS::Graph<ParsedSystemPtr>::Node& toNode = initCallGraph.GetNode(nodeId);
+
+							Agnode_t* gToNode = agnode(g, (char*)toNode.GetValue()->GetFullName().c_str(), 1);
+
+							Agedge_t* gEdge = agedge(g, gSystemNode, gToNode, nullptr, 1);
+
+							return true;
+							});
+					}
+
+
+					return true;
+					});
+				removeTransitiveEdges(g);
+				findAndColorCycles(g);
+				//Parse .dot
+				{
+					GVC_t* gvc = gvContext();
+					static int clusterIndex = 0;
+					auto dotfile = std::make_shared<OS::TextFile>("D:/OksEngine/auto_InitECSSystemsCallGraph" + std::to_string(clusterIndex) + ".dot");
+					clusterIndex++;
+					char* dotData = nullptr;
+					unsigned int length = 0;
+
+					gvLayout(gvc, g, "dot");
+					gvRenderData(gvc, g, "dot", &dotData, &length);
+
+					agclose(g);
+					gvFreeContext(gvc);
+					dotfile->Create();
+					std::string dotText{ dotData };
+					(*dotfile) << dotText;
+					dotfile->Close();
+				}
+			}
+#endif
+			
+			auto systemsOrder = GetTopologicalOrder(initCallGraph);
+
+			SystemsOrder systemsOrderStruct;
+			for (auto system : systemsOrder) {
+				systemsOrderStruct.orderList_.push_back(system);
+			}
+#if 0
+			/*ASSERT_MSG(initCallGraph.GetNodesNumber() == initSystemsNumber,
+				"Number of init system in .ecs files must be equal to graph.");*/
+
+				//Find systems that root of dependence and generate code.
 			auto findRoots = [&](DS::Graph<ParsedSystemPtr>& graph) {
 				std::unordered_set<DS::Graph<ParsedSystemPtr>::NodeId> roots;
 				graph.ForEachNode([&](
@@ -1800,23 +1903,32 @@ namespace ECSGenerator2 {
 				return roots;
 				};
 
+			BEGIN_PROFILE("Find initialize roots");
 			std::unordered_set<DS::Graph<ParsedSystemPtr>::Node::Id> roots = findRoots(initCallGraph);
+			END_PROFILE();
 
+			BEGIN_PROFILE("Add to order initilize root system");
 			SystemsOrder systemsOrder;
+			processNodeCalls = 0;
 			for (auto rootNodeId : roots) {
 				auto rootNode = initCallGraph.GetNode(rootNodeId);
 
 				ASSERT_FMSG(rootNode.GetValue() != nullptr, "");
-
-				systemsOrder.order_.push_back(rootNode.GetValue());
+				systemsOrder.AddSystemToEnd(rootNode.GetValue());
 			}
+			END_PROFILE();
 
 			for (auto rootNodeId : roots) {
 				auto rootNode = initCallGraph.GetNode(rootNodeId);
 				ProcessNode(systemsOrder, initCallGraph, rootNodeId);
 
 			}
+			OS::LogInfo("log", { "Process node calls {}", processNodeCalls });
+#endif
 
+		
+			/*ASSERT_MSG(systemsOrder.orderList_.size() == initSystemsNumber,
+				"Number of init system in .ecs files must be equal to graph.");*/
 			CodeStructure::Code runInitSystemsCode;
 			runInitSystemsCode.Add(
 				"BEGIN_PROFILE( \"Start initialize frame\");"
@@ -1838,8 +1950,7 @@ namespace ECSGenerator2 {
 				};
 
 			//Generate code to run systems that process all entities.
-			for (auto& systemName : systemsOrder.order_) {
-				auto parsedSystem = systemName;
+			for (auto& parsedSystem : systemsOrderStruct.orderList_) {
 
 				runInitSystemsCode.Add(GenerateRunSystemCode(parsedSystem));
 
@@ -1868,7 +1979,7 @@ namespace ECSGenerator2 {
 				}
 			};
 
-			runInitSystemsCode.Add("BEGIN_PROFILE( \"End enitialize frame\");");
+			runInitSystemsCode.Add("BEGIN_PROFILE( \"End initialize frame\");");
 			runInitSystemsCode.Add("world2->EndFrame();");
 			runInitSystemsCode.Add("END_PROFILE();");
 
@@ -1945,15 +2056,15 @@ namespace ECSGenerator2 {
 
 
 					CodeStructure::Code runThreadSystems;
-					for (Common::Index i = 0; i < thread.systemsOrder_.order_.size(); i++) {
+					for (auto it = thread.systemsOrder_.orderList_.begin(); it != thread.systemsOrder_.orderList_.end(); ++it) {
 						runThreadSystems.Add(std::format(
 							"BEGIN_PROFILE( \"{}\");"
 							"{}System(world2);"
 							"END_PROFILE();",
-							GetFullTableNameWithNamespace(thread.systemsOrder_.order_[i]),
-							GetFullTableNameWithNamespace(thread.systemsOrder_.order_[i])
+							GetFullTableNameWithNamespace(*it),
+							GetFullTableNameWithNamespace(*it)
 						));
-						if (i != thread.systemsOrder_.order_.size() - 1) {
+						if (it != --thread.systemsOrder_.orderList_.end()) {
 							runThreadSystems.NewLine();
 						}
 					}
@@ -2453,39 +2564,331 @@ namespace ECSGenerator2 {
 
 		}
 
-
+#if 0 
 		void ProcessNode(
 			SystemsOrder& systemsOrder,
 			const DS::Graph<ParsedSystemPtr>& graph,
 			const DS::Graph<ParsedSystemPtr>::Node::Id& nodeId,
-			bool isFrom = false) {
+			bool isFromSystem = false) {
 
-			auto& node = graph.GetNode(nodeId);
+			BEGIN_PROFILE("ProcessNode");
+			processNodeCalls++;
+			const auto& systemNode = graph.GetNode(nodeId);
 
-			std::unordered_set<ParsedSystemPtr> systemsFrom;
-			node.ForEachLinksFrom([&](DS::Graph<ParsedSystemPtr>::Node::Id fromNodeToId) {
-				auto& fromNode = graph.GetNode(fromNodeToId);
-				if (!systemsOrder.IsSystemAdded(fromNode.GetValue())) {
-					ProcessNode(systemsOrder, graph, fromNodeToId, true);
+			if (systemNode.GetValue()->GetFullName() == "SystemMarks::FRAME_TAIL_START") {
+				Common::BreakPointLine();
+			}
+			OS::LogInfo("call_graph", { "Processing node {}: {}", processNodeCalls, systemNode.GetValue()->GetFullName() });
+			BEGIN_PROFILE("Process links from");
+
+
+			if (systemNode.GetLinksToNumber() == 0) {
+				if (!systemsOrder.IsSystemAdded(systemNode.GetValue())) {
+					systemsOrder.AddSystemToEnd(systemNode.GetValue());
 				}
-				systemsFrom.insert(fromNode.GetValue());
+			}
+			systemNode.ForEachLinksTo([&](DS::Graph<System>::Node::Id nodeToId) {
+				const auto& toNode = graph.GetNode(nodeToId);
+				const auto& toNodeValue = toNode.GetValue();
+				if (!systemsOrder.IsSystemAdded(graph.GetNode(nodeToId).GetValue())) {
+					ProcessNode(systemsOrder, graph, nodeToId, false);
+				}
 				return true;
 				});
 
-			if (!systemsFrom.empty() && !systemsOrder.IsSystemAdded(node.GetValue())) {
-				systemsOrder.AddSystemAfter(node.GetValue(), systemsFrom);
+			END_PROFILE();
+
+			BEGIN_PROFILE("Process links to");
+			std::unordered_set<ParsedSystemPtr> systemsFrom;
+			systemsFrom.reserve(systemNode.GetLinksFromNumber());
+			systemNode.ForEachLinksFrom([&](DS::Graph<ParsedSystemPtr>::Node::Id fromNodeToId) {
+				const auto& fromSystemNode = graph.GetNode(fromNodeToId);
+				const auto& fromSystem = fromSystemNode.GetValue();
+				if (!systemsOrder.IsSystemAdded(fromSystem)) {
+					ProcessNode(systemsOrder, graph, fromNodeToId, true);
+				}
+				systemsFrom.insert(fromSystem);
+				return true;
+				});
+
+			if (!systemsOrder.IsSystemAdded(systemNode.GetValue())) {
+				systemsOrder.AddSystemAfter(systemNode.GetValue(), systemsFrom);
 			}
-			if (!isFrom) {
-				node.ForEachLinksTo([&](DS::Graph<System>::Node::Id nodeToId) {
-					ProcessNode(systemsOrder, graph, nodeToId);
+			END_PROFILE();
+
+
+			END_PROFILE();
+
+		}
+#endif
+		/**
+	* Топологическая сортировка с циклической проверкой (DFS алгоритм)
+	*/
+		AI_GENERATED
+		static std::vector<ParsedSystemPtr>
+			GetTopologicalOrderDFS(const DS::Graph<ParsedSystemPtr>& graph) {
+			using NodeId = typename DS::Graph<ParsedSystemPtr>::NodeId;
+
+			std::vector<ParsedSystemPtr> result;
+			//result.reserve(graph.GetNodeCount());
+
+			// Состояния узлов: 0 - не посещен, 1 - посещается, 2 - посещен
+			std::unordered_map<NodeId, int> state;
+			bool hasCycle = false;
+
+			// Инициализация состояний
+			graph.ForEachNode([&](NodeId nodeId, const auto&) {
+				state[nodeId] = 0;
+				return true;
+				});
+
+			// Функция DFS для посещения узлов
+			std::function<bool(NodeId)> dfs = [&](NodeId nodeId) -> bool {
+				if (state[nodeId] == 1) {
+					hasCycle = true; // Обнаружен цикл
+					return false;
+				}
+
+				if (state[nodeId] == 2) {
+					return true; // Уже обработан
+				}
+
+				state[nodeId] = 1; // Начинаем обработку
+
+				const auto& node = graph.GetNode(nodeId);
+				bool success = true;
+				node.ForEachLinksTo([&](NodeId neighborId) {
+					if (!dfs(neighborId)) {
+						success = false;
+						return false; // Прерываем цикл
+					}
+					return true;
+					});
+
+				if (!success) {
+					return false;
+				}
+
+				state[nodeId] = 2; // Завершили обработку
+				result.push_back(graph.GetNode(nodeId).GetValue());
+				return true;
+				};
+
+			// Запускаем DFS для всех узлов
+			graph.ForEachNode([&](NodeId nodeId, const auto&) {
+				if (state[nodeId] == 0) {
+					if (!dfs(nodeId)) {
+						return false;
+					}
+				}
+				return true;
+				});
+
+			if (hasCycle) {
+				return {};
+			}
+
+			// Переворачиваем результат (DFS дает обратный порядок)
+			std::reverse(result.begin(), result.end());
+			return result;
+		}
+
+		AI_GENERATED
+		/**
+	 * Проверка на наличие циклов в графе
+	 */
+		static bool HasCycles(const	DS::Graph<ParsedSystemPtr>& graph) {
+			using NodeId = typename DS::Graph<ParsedSystemPtr>::NodeId;
+
+			std::unordered_map<NodeId, int> state;
+			bool hasCycle = false;
+
+			graph.ForEachNode([&](NodeId nodeId, const auto&) {
+				state[nodeId] = 0;
+				return true;
+				});
+
+			std::function<void(NodeId)> dfs = [&](NodeId nodeId) {
+				if (state[nodeId] == 1) {
+					hasCycle = true;
+					return;
+				}
+
+				if (state[nodeId] == 2) {
+					return;
+				}
+
+				state[nodeId] = 1;
+
+				const auto& node = graph.GetNode(nodeId);
+				node.ForEachLinksTo([&](NodeId neighborId) {
+					dfs(neighborId);
+					return !hasCycle; // Продолжаем, если цикл не найден
+					});
+
+				state[nodeId] = 2;
+				};
+
+			graph.ForEachNode([&](NodeId nodeId, const auto&) {
+				if (state[nodeId] == 0) {
+					dfs(nodeId);
+				}
+				return !hasCycle; // Продолжаем, если цикл не найден
+				});
+
+			return hasCycle;
+		}
+
+		AI_GENERATED
+		/**
+	 * Поиск критических узлов (узлов, через которые проходят все пути)
+	 * Используется для поиска узлов-бутылочных горлышек
+	 */
+		static std::vector<typename DS::Graph<ParsedSystemPtr>::NodeId>
+			FindCriticalNodes(const DS::Graph<ParsedSystemPtr>& graph) {
+			using NodeId = typename DS::Graph<ParsedSystemPtr>::NodeId;
+
+			std::vector<NodeId> criticalNodes;
+
+			// Простой алгоритм: узлы с максимальным количеством зависимостей
+			size_t maxDependencies = 0;
+
+			graph.ForEachNode([&](NodeId nodeId, const auto& node) {
+				size_t totalDeps = node.GetLinksFromNumber() + node.GetLinksToNumber();
+				if (totalDeps > maxDependencies) {
+					maxDependencies = totalDeps;
+					criticalNodes.clear();
+					criticalNodes.push_back(nodeId);
+				}
+				else if (totalDeps == maxDependencies && maxDependencies > 0) {
+					criticalNodes.push_back(nodeId);
+				}
+				return true;
+				});
+
+			return criticalNodes;
+		}
+
+		AI_GENERATED
+		/**
+	 * Группировка систем по уровням (топологическим уровням)
+	 * Все системы на одном уровне могут выполняться параллельно
+	 */
+		static std::vector<std::vector<typename DS::Graph<ParsedSystemPtr>::NodeId>>
+			GroupByTopologicalLevels(const DS::Graph<ParsedSystemPtr>& graph) {
+			using NodeId = typename DS::Graph<ParsedSystemPtr>::NodeId;
+
+			std::vector<std::vector<NodeId>> levels;
+
+			// Алгоритм BFS-based leveling
+			std::unordered_map<NodeId, size_t> inDegree;
+			std::queue<NodeId> currentLevel;
+
+			// Инициализация
+			graph.ForEachNode([&](NodeId nodeId, const auto& node) {
+				size_t incoming = node.GetLinksFromNumber();
+				inDegree[nodeId] = incoming;
+
+				if (incoming == 0) {
+					currentLevel.push(nodeId);
+				}
+				return true;
+				});
+
+			while (!currentLevel.empty()) {
+				std::vector<NodeId> levelNodes;
+				std::queue<NodeId> nextLevel;
+
+				// Обрабатываем текущий уровень
+				while (!currentLevel.empty()) {
+					NodeId nodeId = currentLevel.front();
+					currentLevel.pop();
+					levelNodes.push_back(nodeId);
+
+					// Уменьшаем inDegree соседей и добавляем на следующий уровень
+					const auto& node = graph.GetNode(nodeId);
+					node.ForEachLinksTo([&](NodeId neighborId) {
+						auto it = inDegree.find(neighborId);
+						if (it != inDegree.end() && it->second > 0) {
+							it->second--;
+							if (it->second == 0) {
+								nextLevel.push(neighborId);
+							}
+						}
+						return true;
+						});
+				}
+
+				if (!levelNodes.empty()) {
+					levels.push_back(std::move(levelNodes));
+				}
+
+				currentLevel = std::move(nextLevel);
+			}
+
+			return levels;
+		}
+
+		//Топологическая сортировка (алгоритм Кана)
+		AI_GENERATED
+		static std::vector<ParsedSystemPtr>
+			GetTopologicalOrder(const DS::Graph<ParsedSystemPtr>& graph) {
+			using NodeId = typename DS::Graph<ParsedSystemPtr>::NodeId;
+
+			std::vector<ParsedSystemPtr> result;
+			//result.reserve(graph.GetNodeCount());
+
+			// 1. Вычисляем количество входящих ребер для каждого узла
+			std::unordered_map<NodeId, size_t> inDegree;
+			std::queue<NodeId> zeroInDegreeNodes;
+
+			// Инициализация inDegree и поиск узлов без входящих ребер
+			graph.ForEachNode([&](NodeId nodeId, const typename DS::Graph<ParsedSystemPtr>::Node& node) {
+				size_t incomingCount = node.GetLinksFromNumber();
+				inDegree[nodeId] = incomingCount;
+
+				if (incomingCount == 0) {
+					zeroInDegreeNodes.push(nodeId);
+				}
+				return true;
+				});
+
+			// 2. Алгоритм Кана
+			while (!zeroInDegreeNodes.empty()) {
+				NodeId currentId = zeroInDegreeNodes.front();
+				zeroInDegreeNodes.pop();
+				result.push_back(graph.GetNode(currentId).GetValue());
+
+				// Уменьшаем inDegree для всех соседей
+				const auto& currentNode = graph.GetNode(currentId);
+				currentNode.ForEachLinksTo([&](NodeId neighborId) {
+					auto it = inDegree.find(neighborId);
+					if (it != inDegree.end() && it->second > 0) {
+						it->second--;
+						if (it->second == 0) {
+							zeroInDegreeNodes.push(neighborId);
+						}
+					}
 					return true;
 					});
 			}
 
-		}
+			// 3. Проверка на циклы
+			//if (result.size() != graph.GetNodeCount()) {
+			//	return {}; // Обнаружен цикл
+			//}
 
+			return result;
+		}
 		void CalculateSystemsCallOrder(Thread& thread) {
 
+			auto systemsOrder = GetTopologicalOrder(thread.callGraph_);
+			for (auto system : systemsOrder) {
+				thread.systemsOrder_.orderList_.push_back(system);
+			}
+			
+			return;
+#if 0
 			//Find systems that root of dependence and generate code.
 			auto findRoots = [](const Thread& thread) {
 				std::unordered_set<DS::Graph<ParsedSystemPtr>::Node::Id> roots;
@@ -2509,19 +2912,21 @@ namespace ECSGenerator2 {
 
 				ASSERT_FMSG(rootNode.GetValue() != nullptr, "");
 
-				thread.systemsOrder_.order_.push_back(rootNode.GetValue());
+				thread.systemsOrder_.AddSystemToEnd(rootNode.GetValue());
 			}
-
+			processNodeCalls = 0;
 			for (auto rootNodeId : roots) {
 				auto rootNode = thread.callGraph_.GetNode(rootNodeId);
-				OS::LogInfo("log", { "Processing root system {}...", rootNode.GetValue()->GetFullName() } );
+				OS::LogInfo("log", { "Processing root system {}...", rootNode.GetValue()->GetFullName() });
 				ProcessNode(thread.systemsOrder_, thread.callGraph_, rootNodeId);
 
 			}
-
+			OS::LogInfo("log", { "Process node calls {}", processNodeCalls });
+#endif
 		}
 
 
+		AI_GENERATED
 		void dfs(Agnode_t* node, std::unordered_map<Agnode_t*, bool>& visited, std::vector<Agnode_t*>& component, Agraph_t* g) {
 			visited[node] = true;
 			component.push_back(node);
@@ -2541,6 +2946,7 @@ namespace ECSGenerator2 {
 			}
 		}
 
+		AI_GENERATED
 		// Вспомогательная функция для проверки существования альтернативного пути
 		bool hasAlternativePath(Agraph_t* graph, Agnode_t* source, Agnode_t* target) {
 			// BFS для поиска пути, исключая прямое ребро source->target
@@ -2578,6 +2984,7 @@ namespace ECSGenerator2 {
 			return false; // Альтернативный путь не найден
 		}
 
+		AI_GENERATED
 		// Основная функция для удаления транзитивных рёбер
 		void removeTransitiveEdges(Agraph_t* graph) {
 			if (!graph) return;
@@ -2607,6 +3014,7 @@ namespace ECSGenerator2 {
 			std::cout << "Всего удалено рёбер: " << edgesToRemove.size() << std::endl;
 		}
 
+		AI_GENERATED
 		// Функция для поиска и раскраски циклов в красный цвет
 		void findAndColorCycles(Agraph_t* graph) {
 			if (!graph) return;
@@ -2673,64 +3081,6 @@ namespace ECSGenerator2 {
 
 		std::shared_ptr<CodeStructure::File>
 			GenerateRunSystemsCppFile(std::vector<std::shared_ptr<ParsedECSFile>> parsedECSFiles) {
-
-			////Systems and which components they use.
-			//std::map<ParsedSystemPtr, std::set<ParsedComponentPtr>> componentSystem;
-			//{
-			//	for (auto parsedECSFile : parsedECSFiles) {
-			//		parsedECSFile->ForEachSystem([&](std::shared_ptr<ParsedSystem> parsedSystem) {
-
-			//			if (parsedSystem->IsInitializeSystem()) {
-			//				return true;
-			//			}
-
-			//			const std::string systemName = parsedSystem->GetName();
-			//			for (auto& entity : parsedSystem->ci_.updateMethod_->processesEntities_) {
-			//				entity.ForEachInclude([&](const ParsedSystem::Include& include, bool isLast) {
-
-			//					const std::string includeName = include.GetName();
-
-			//					//"Behaviour::ScriptName::X" -> "Behaviour", "ScriptName", "X"
-			//					auto parseIncludeName = [](const std::string& name) {
-			//						std::vector<std::string> result;
-			//						size_t start = 0;
-			//						size_t end = name.find("::");
-
-			//						while (end != std::string::npos) {
-			//							result.push_back(name.substr(start, end - start));
-			//							start = end + 2; // Пропускаем "::"
-			//							end = name.find("::", start);
-			//						}
-
-			//						// Добавляем последнюю часть
-			//						result.push_back(name.substr(start));
-
-			//						return result;
-			//						};
-
-			//					
-			//					//if (componentSystem.find(include.name_) != componentSystem.end()) {
-			//					//	componentSystem.insert({});
-			//					//}
-			//					//componentSystem[include.name_].insert(systemName);
-			//					return true;
-			//					});
-			//			}
-			//			return true;
-			//			});
-			//	}
-			//}
-
-			////Systems and which components they use
-			//std::map<std::string, std::set<std::string>> systemComponents;
-			//{
-			//	for (auto& [component, systems] : componentSystem) {
-			//		for (const auto& system : systems) {
-			//			//systemComponents[system].insert(component);
-			//		}
-			//	}
-			//}
-
 			//Separate systems on threads.
 			std::vector<Thread> childThreads;
 
@@ -2754,53 +3104,6 @@ namespace ECSGenerator2 {
 					});
 			}
 			childThreads.push_back(childThread);
-
-			//{
-			//	for (auto& clusterSystems : clusters) {
-			//		bool isMainThread = false;
-			//		for (Agnode_t* systemNode : clusterSystems) {
-			//			std::string systemName = agnameof(systemNode);
-			//			const auto ecsFile = projectContext->GetEcsFileByName(systemName);
-			//			auto systemEcsFile = Common::pointer_cast<ParsedSystem>(ecsFile);
-			//			if (systemEcsFile->IsInitializeSystem()) {
-			//				continue;
-			//			}
-			//			if (systemEcsFile->ci_.thread_ == ParsedSystem::Thread::Main) {
-			//				isMainThread = true;
-			//			}
-			//			//projectContext->ForEachSystemEcsFile([&](std::shared_ptr<ParsedECSFile> ecsFile) {
-			//			//	//if ("OksEngine.ProcessInput.ecs" == ecsFile->GetPath().filename()) {
-			//			//	//	//__debugbreak();
-			//			//	//}
-			//			//	
-			//			//	if (systemName == systemEcsFile->GetName() && systemEcsFile->ci_.thread_ == ParsedSystemECSFile::Thread::Main) {
-			//			//		
-			//			//		return false;
-			//			//	}
-			//			//	return true;
-			//			//	});
-			//		}
-			//		Thread clusterThread;
-			//		std::map<std::string, DS::Graph<std::string>::Node::Id> systemNameToNode;
-			//		for (Agnode_t* systemNode : clusterSystems) {
-			//			std::string systemName = agnameof(systemNode);
-
-			//			clusterThread.systems_[systemName] = componentSystem[systemName];
-
-			//		}
-			//		if (isMainThread) {
-			//			/*				mainThread.systems_.insert(
-			//								clusterThread.systems_.begin(),
-			//								clusterThread.systems_.end());*/
-			//			mainThread = clusterThread;
-
-			//		}
-			//		else {
-			//			childThreads.push_back(clusterThread);
-			//		}
-			//	}
-			//}
-
 
 			//Create call graph for each thread.
 			auto createClusterSystemsCallGraph =
@@ -2848,89 +3151,91 @@ namespace ECSGenerator2 {
 					}
 				}
 
-				///CREATE GRAPHVIZ CALL GRAPH
 				
-				//{
-				//	// �������� ������ �����
-				//	Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
 
-				//	thread.callGraph_.ForEachNode([&](DS::Graph<ParsedSystemPtr>::NodeId nodeId, DS::Graph<ParsedSystemPtr>::Node& node) {
+#if !defined(NDEBUG)
+				//CREATE GRAPHVIZ CALL GRAPH
+				{
+					// �������� ������ �����
+					Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
 
-				//		if (node.HasLinksFrom() || node.HasLinksTo()) {
+					thread.callGraph_.ForEachNode([&](DS::Graph<ParsedSystemPtr>::NodeId nodeId, DS::Graph<ParsedSystemPtr>::Node& node) {
 
-				//			Agnode_t* gSystemNode = agnode(g, (char*)node.GetValue()->GetFullName().c_str(), 1);
-				//			agsafeset(gSystemNode, (char*)"shape", (char*)"rect", (char*)"");
+						if (node.HasLinksFrom() || node.HasLinksTo()) {
 
-				//			node.ForEachLinksFrom([&](DS::Graph<System>::NodeId nodeId) {
-				//				const DS::Graph<ParsedSystemPtr>::Node& fromNode = thread.callGraph_.GetNode(nodeId);
+							Agnode_t* gSystemNode = agnode(g, (char*)node.GetValue()->GetFullName().c_str(), 1);
+							agsafeset(gSystemNode, (char*)"shape", (char*)"rect", (char*)"");
 
-				//				Agnode_t* gFromNode = agnode(g, (char*)fromNode.GetValue()->GetFullName().c_str(), 1);
+							node.ForEachLinksFrom([&](DS::Graph<System>::NodeId nodeId) {
+								const DS::Graph<ParsedSystemPtr>::Node& fromNode = thread.callGraph_.GetNode(nodeId);
 
-				//				Agedge_t* gEdge = agedge(g, gFromNode, gSystemNode, nullptr, 1);
+								Agnode_t* gFromNode = agnode(g, (char*)fromNode.GetValue()->GetFullName().c_str(), 1);
 
-				//				return true;
-				//				});
+								Agedge_t* gEdge = agedge(g, gFromNode, gSystemNode, nullptr, 1);
 
-				//			node.ForEachLinksTo([&](DS::Graph<System>::NodeId nodeId) {
-				//				const DS::Graph<ParsedSystemPtr>::Node& toNode = thread.callGraph_.GetNode(nodeId);
+								return true;
+								});
 
-				//				Agnode_t* gToNode = agnode(g, (char*)toNode.GetValue()->GetFullName().c_str(), 1);
+							node.ForEachLinksTo([&](DS::Graph<System>::NodeId nodeId) {
+								const DS::Graph<ParsedSystemPtr>::Node& toNode = thread.callGraph_.GetNode(nodeId);
 
-				//				Agedge_t* gEdge = agedge(g, gSystemNode, gToNode, nullptr, 1);
+								Agnode_t* gToNode = agnode(g, (char*)toNode.GetValue()->GetFullName().c_str(), 1);
 
-				//				return true;
-				//				});
-				//		}
+								Agedge_t* gEdge = agedge(g, gSystemNode, gToNode, nullptr, 1);
 
-
-				//		return true;
-				//		});
-				//	removeTransitiveEdges(g);
-				//	findAndColorCycles(g);
-				//	//Parse .dot
-				//	{
-				//		GVC_t* gvc = gvContext();
+								return true;
+								});
+						}
 
 
-				//		//Get path
-				//		//auto randomEcsFilePath = parsedECSFiles[0]->GetPath();
+						return true;
+						});
+					removeTransitiveEdges(g);
+					findAndColorCycles(g);
+					//Parse .dot
+					{
+						GVC_t* gvc = gvContext();
 
-				//		//std::filesystem::path includeDirFullPath;
 
-				//		//std::filesystem::path::iterator includeDirIt;
-				//		//for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
-				//		//	auto folder = *it;
-				//		//	if (folder == projectContext->includeDirectory_) {
-				//		//		includeDirIt = it;
-				//		//		break;
-				//		//	}
-				//		//}
+						//Get path
+						//auto randomEcsFilePath = parsedECSFiles[0]->GetPath();
 
-				//		//for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
-				//		//	includeDirFullPath /= *it;
-				//		//}
+						//std::filesystem::path includeDirFullPath;
 
-				//		//includeDirFullPath /= *includeDirIt;
-				//		//Get path
+						//std::filesystem::path::iterator includeDirIt;
+						//for (auto it = randomEcsFilePath.end(); it != randomEcsFilePath.begin(); --it) {
+						//	auto folder = *it;
+						//	if (folder == projectContext->includeDirectory_) {
+						//		includeDirIt = it;
+						//		break;
+						//	}
+						//}
 
-				//		static int clusterIndex = 0;
-				//		auto dotfile = std::make_shared<OS::TextFile>("D:/OksEngine/auto_ECSSystemsCallGraph" + std::to_string(clusterIndex) + ".dot");
-				//		clusterIndex++;
-				//		char* dotData = nullptr;
-				//		unsigned int length = 0;
+						//for (auto it = randomEcsFilePath.begin(); it != includeDirIt; it++) {
+						//	includeDirFullPath /= *it;
+						//}
 
-				//		gvLayout(gvc, g, "dot");
-				//		gvRenderData(gvc, g, "dot", &dotData, &length);
+						//includeDirFullPath /= *includeDirIt;
+						//Get path
 
-				//		agclose(g);
-				//		gvFreeContext(gvc);
-				//		dotfile->Create();
-				//		std::string dotText{ dotData };
-				//		(*dotfile) << dotText;
-				//		dotfile->Close();
-				//	}
-				//}
-				//
+						static int clusterIndex = 0;
+						auto dotfile = std::make_shared<OS::TextFile>("D:/OksEngine/auto_ECSSystemsCallGraph" + std::to_string(clusterIndex) + ".dot");
+						clusterIndex++;
+						char* dotData = nullptr;
+						unsigned int length = 0;
+
+						gvLayout(gvc, g, "dot");
+						gvRenderData(gvc, g, "dot", &dotData, &length);
+
+						agclose(g);
+						gvFreeContext(gvc);
+						dotfile->Create();
+						std::string dotText{ dotData };
+						(*dotfile) << dotText;
+						dotfile->Close();
+					}
+				}
+#endif
 
 				};
 
@@ -2940,34 +3245,6 @@ namespace ECSGenerator2 {
 			}
 			createClusterSystemsCallGraph(mainThread);
 			CalculateSystemsCallOrder(mainThread);
-
-
-			//Group threads systems to get less threads.
-			//{
-			//	const Common::UInt64 threadsNumber = 10;// projectContext->GetConfig()->GetValueAs<Common::UInt64>("Multithreading.threadsNumber");
-
-			//	auto optimize = [](std::vector<Thread>& threads) {
-
-			//		std::sort(threads.begin(), threads.end(), [](const Thread& first, const Thread& second) {
-
-			//			return first.systems_.size() > second.systems_.size();
-
-			//			});
-			//		auto lastIt = --threads.end();
-			//		auto preLastIt = lastIt--;
-			//		for (auto& [system, components] : lastIt->systems_) {
-			//			preLastIt->systems_[system] = components;
-			//		}
-			//		threads.erase(lastIt);
-			//		};
-
-			//	while (childThreads.size() > threadsNumber) {
-
-			//		optimize(childThreads);
-
-			//	}
-			//}
-
 
 			using namespace std::string_literals;
 
@@ -3070,15 +3347,18 @@ namespace ECSGenerator2 {
 				//Generate code to run main thread systems.
 				{
 					CodeStructure::Code runMainThreadSystems;
-					for (Common::Index i = 0; i < mainThread.systemsOrder_.order_.size(); i++) {
+					for (
+						auto it = mainThread.systemsOrder_.orderList_.begin();
+						it != mainThread.systemsOrder_.orderList_.end();
+						++it) {
 						runMainThreadSystems.Add(std::format(
 							"BEGIN_PROFILE( \"{}\");"
 							"{}System(world2);"
 							"END_PROFILE();",
-							GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i]),
-							GetFullTableNameWithNamespace(mainThread.systemsOrder_.order_[i])
+							GetFullTableNameWithNamespace(*it),
+							GetFullTableNameWithNamespace(*it)
 						));
-						if (i != mainThread.systemsOrder_.order_.size() - 1) {
+						if (it != --mainThread.systemsOrder_.orderList_.end()) {
 							runMainThreadSystems.NewLine();
 						}
 					}

@@ -5,7 +5,7 @@ ConfigComponent = {
 LoadConfigFileSystem = {
     type = "Initialize",
     callOrder = {
-        runAfter = "CreateResourceSystem"
+        runAfter = { "CreateResourceSystem" }
     },
     updateMethod = {
     processesEntities = {

@@ -106,7 +106,7 @@ namespace DataStructures {
 
 		[[nodiscard]]
 		Type& Get(Common::Index index) {
-			OS::Assert(index < GetSize());
+			ASSERT(index < GetSize());
 			return data_[index];
 		}
 
