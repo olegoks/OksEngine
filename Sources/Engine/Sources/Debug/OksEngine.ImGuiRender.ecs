@@ -1,10 +1,246 @@
 ImGUINamespace = {
-        RenderPassComponent = "Render::RenderPassId",
-        CreateRenderPassSystem = {
+    RenderPassComponent = "Render::RenderPassId",
+    CreateRenderPassSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = {
+                "ImGUI::CreateState",
+                "CreateRenderDriver"
+            }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State"
+                    },
+                    excludes = {
+                        "RenderPass"
+                    },
+                    createsComponents = {
+                        "RenderPass"
+                    }
+                },
+                {
+                    processesComponents = {
+                        "RenderDriver"
+                    }
+                }
+            }
+        }
+    },
+    PipelineComponent = "Render::PipelineId",
+    CreatePipelineSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = {
+                "CreateRenderDriver",
+                "CreateRenderPass"
+            }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State",
+                        "RenderPass"
+                    },
+                    excludes = {
+                        "Pipeline"
+                    },
+                    createsComponents = {
+                        "Pipeline"
+                    }
+                },
+                {
+                    processesComponents = {
+                        "RenderDriver"
+                    }
+                },
+                {
+                    processesComponents = {
+                        "ResourceSystem"
+                    }
+                }
+            }
+        }
+    },
+    -- Buffer for rendered ImGui ui
+    RenderBufferAttachmentComponent = "Render::Attachment",
+    AttachmentSetComponent = "Render::AttachmentSet",
+    CreateAttachmentSetSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = { "Render::CreateRenderAttachment" },
+            runBefore = {}
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "RenderDriver",
+                        "Render::MultisamplingAttachment"
+                    }
+                },
+                {
+                    processesComponents = {
+                        "State",
+                        "RenderPass"
+                    },
+                    excludes = {
+                        "AttachmentSet"
+                    },
+                    createsComponents = {
+                        "AttachmentSet"
+                    }
+                }
+            }
+        }
+    },
+    DriverIndexBufferComponent = {
+        serializable = false,
+        fields = {
+            { type = "RAL::Driver::IndexBuffer::Id", name = "id" },
+            { type = "Common::Size",                 name = "capacity" },
+            { type = "Common::Size",                 name = "size" }
+        }
+    },
+    CreateDriverIndexBufferSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = { "CreateState", "CreateRenderDriver" }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State"
+                    },
+                    createsComponents = {
+                        "DriverIndexBuffer"
+                    },
+                    excludes = { "DriverIndexBuffer" }
+                },
+                {
+                    processesComponents = {
+                        { name = "RenderDriver", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+    DriverVertexBufferComponent = {
+        serializable = false,
+        fields = {
+            { type = "RAL::Driver::VertexBuffer::Id", name = "id" },
+            { type = "Common::Size",                  name = "capacity" },
+            { type = "Common::Size",                  name = "size" }
+        }
+    },
+    CreateDriverVertexBufferSystem = {
+        type = "Initialize",
+        callOrder = {
+            runAfter = {
+                "CreateState",
+                "CreateRenderDriver" }
+
+
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State"
+                    },
+                    createsComponents = {
+                        "DriverVertexBuffer"
+                    },
+                    excludes = { "DriverVertexBuffer" }
+                },
+                {
+                    processesComponents = {
+                        { name = "RenderDriver", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+    CreateDriverTransform2DSystem = {
+        type = "Initialize",
+        callOrder = {
+
+            runAfter = { "CreateState", "CreateRenderDriver" }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State"
+                    },
+                    excludes = { "DriverTransform2D" },
+                    createsComponents = {
+                        "DriverTransform2D"
+                    }
+                },
+                {
+                    processesComponents = {
+                        { name = "RenderDriver", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+    UpdateDriverTransform2DSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State",
+                        "DriverTransform2D"
+                    },
+                },
+                {
+                    processesComponents = {
+                        { name = "RenderDriver", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+    AtlasNamespace = {
+        TextureDataComponent = {
+            serializable = false,
+            fields = {
+                { type = "Common::Size",               name = "width" },
+                { type = "Common::Size",               name = "height" },
+                { type = "std::vector<Geom::Color4b>", name = "pixels" } }
+        },
+
+        CreateTextureDataSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = "ImGUI::CreateState"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "State", readonly = false }
+                        },
+                        excludes = { "TextureData" },
+                        createsComponents = { "TextureData" }
+                    }
+                }
+            }
+        },
+        TextureResourceComponent = "Render::TextureResource",
+
+        CreateAtlasTextureResourceSystem = {
             type = "Initialize",
             callOrder = {
                 runAfter = {
-                    "ImGUI::CreateState",
+                    "CreateState",
+                    "CreateTextureData",
                     "CreateRenderDriver"
                 }
             },
@@ -12,339 +248,11 @@ ImGUINamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
-                            "State"
-                        },
-                        excludes = {
-                            "RenderPass"
-                        },
-                        createsComponents = {
-                            "RenderPass"
-                        }
-                    },
-                    {
-                        processesComponents = {
-                            "RenderDriver"
-                        }
-                    }
-                }
-            }
-        },
-        PipelineComponent = "Render::PipelineId",
-        CreatePipelineSystem = {
-            type = "Initialize",
-            callOrder = {
-                runAfter = {
-                    "CreateRenderDriver",
-                    "CreateRenderPass"
-                }
-            },
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
                             "State",
-                            "RenderPass"
+                            "TextureData"
                         },
-                        excludes = {
-                            "Pipeline"
-                        },
-                        createsComponents = {
-                            "Pipeline"
-                        }
-                    },
-                    {
-                        processesComponents = {
-                            "RenderDriver"
-                        }
-                    },
-                    {
-                        processesComponents = {
-                            "ResourceSystem"
-                        }
-                    }
-                }
-            }
-        },
-        -- Buffer for rendered ImGui ui
-        RenderBufferAttachmentComponent = "Render::Attachment",
-        AttachmentSetComponent = "Render::AttachmentSet",
-        CreateAttachmentSetSystem = {
-            type = "Initialize",
-            callOrder = {
-                runAfter = { "Render::CreateRenderAttachment" },
-                runBefore = {}
-            },
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            "RenderDriver",
-                            "Render::MultisamplingAttachment"
-                        }
-                    },
-                    {
-                        processesComponents = {
-                            "State",
-                            "RenderPass"
-                        },
-                        excludes = {
-                            "AttachmentSet"
-                        },
-                        createsComponents = {
-                            "AttachmentSet"
-                        }
-                    }
-                }
-            }
-        },
-        DriverIndexBufferComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::IndexBuffer::Id", name = "id" },
-                { type = "Common::Size",                 name = "capacity" },
-                { type = "Common::Size",                 name = "size" }
-            }
-        },
-        CreateDriverIndexBufferSystem = {
-            type = "Initialize",
-            callOrder = {
-                runAfter = { "CreateState", "CreateRenderDriver" }
-            },
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            "State"
-                        },
-                        createsComponents = {
-                            "DriverIndexBuffer"
-                        },
-                        excludes = { "DriverIndexBuffer" }
-                    },
-                    {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false }
-                        }
-                    }
-                }
-            }
-        },
-        DriverVertexBufferComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::VertexBuffer::Id", name = "id" },
-                { type = "Common::Size",                  name = "capacity" },
-                { type = "Common::Size",                  name = "size" }
-            }
-        },
-        CreateDriverVertexBufferSystem = {
-            type = "Initialize",
-            callOrder = {
-                runAfter = {
-                    "CreateState",
-                    "CreateRenderDriver" }
-
-
-            },
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            "State"
-                        },
-                        createsComponents = {
-                            "DriverVertexBuffer"
-                        },
-                        excludes = { "DriverVertexBuffer" }
-                    },
-                    {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false }
-                        }
-                    }
-                }
-            }
-        },
-        CreateDriverTransform2DSystem = {
-            type = "Initialize",
-            callOrder = {
-
-                runAfter = { "CreateState", "CreateRenderDriver" }
-            },
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            "State"
-                        },
-                        excludes = { "DriverTransform2D" },
-                        createsComponents = {
-                            "DriverTransform2D"
-                        }
-                    },
-                    {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false }
-                        }
-                    }
-                }
-            }
-        },
-        UpdateDriverTransform2DSystem = {
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            "State",
-                            "DriverTransform2D"
-                        },
-                    },
-                    {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false }
-                        }
-                    }
-                }
-            }
-        },
-        AtlasNamespace = {
-            TextureDataComponent = {
-                serializable = false,
-                fields = {
-                    { type = "Common::Size",               name = "width" },
-                    { type = "Common::Size",               name = "height" },
-                    { type = "std::vector<Geom::Color4b>", name = "pixels" } }
-            },
-
-            CreateTextureDataSystem = {
-                type = "Initialize",
-                callOrder = {
-                    runAfter = "ImGUI::CreateState"
-                },
-                updateMethod = {
-                    processesEntities = {
-                        {
-                            processesComponents = {
-                                { name = "State", readonly = false }
-                            },
-                            excludes = { "TextureData" },
-                            createsComponents = { "TextureData" }
-                        }
-                    }
-                }
-            },
-            TextureResourceComponent = "Render::TextureResource",
-
-            CreateAtlasTextureResourceSystem = {
-                type = "Initialize",
-                callOrder = {
-                    runAfter = {
-                        "CreateState",
-                        "CreateTextureData",
-                        "CreateRenderDriver"
-                    }
-                },
-                updateMethod = {
-                    processesEntities = {
-                        {
-                            processesComponents = {
-                                "State",
-                                "TextureData"
-                            },
-                            createsComponents = { "TextureResource" },
-                            excludes = { "TextureResource" }
-                        },
-                        {
-                            processesComponents = {
-                                { name = "RenderDriver", readonly = false }
-                            }
-                        }
-                    }
-                }
-            }
-        },
-        BeginRenderPassSystem = {
-            callOrder = {
-                runAfter = "StartRender",
-                runBefore = "EndRender"
-            },
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            "State",
-                            "RenderPass",
-                            "AttachmentSet"
-                        }
-                    },
-                    {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false }
-                        }
-                    }
-                }
-            }
-        },
-        UpdateRenderDataSystem = {
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            { name = "State",              readonly = true },
-                            { name = "DriverVertexBuffer", readonly = false },
-                            { name = "DriverIndexBuffer",  readonly = false }
-                        }
-                    },
-                    {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false }
-                        }
-                    }
-                }
-            }
-        },
-        AddMeshToRenderSystem = {
-            callOrder = {
-                runAfter = "BeginRenderPass",
-                runBefore = "EndRenderPass"
-            },
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            "State",
-                            "Pipeline",
-                            "RenderPass",
-                            "MainMenuBar",
-                            "Transform2DResource",
-                            "Render::DiffuseMap::TextureResource",
-                            "DriverIndexBuffer",
-                            "DriverVertexBuffer"
-                        }
-                    },
-                    {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false }
-                        }
-                    }
-                }
-            }
-        },
-        EndRenderPassSystem = {
-            callOrder = {
-                runAfter = {
-                    "StartRender",
-                    "BeginRenderPass"
-                },
-                runBefore = "EndRender"
-            },
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            "State",
-                            "RenderPass"
-                        }
+                        createsComponents = { "TextureResource" },
+                        excludes = { "TextureResource" }
                     },
                     {
                         processesComponents = {
@@ -354,6 +262,147 @@ ImGUINamespace = {
                 }
             }
         }
+    },
+    BeginRenderPassSystem = {
+        callOrder = {
+            runAfter = "StartRender",
+            runBefore = "EndRender"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State",
+                        "RenderPass",
+                        "AttachmentSet"
+                    }
+                },
+                {
+                    processesComponents = {
+                        { name = "RenderDriver", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+    UpdateRenderDataSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "State",              readonly = true },
+                        { name = "DriverVertexBuffer", readonly = false },
+                        { name = "DriverIndexBuffer",  readonly = false }
+                    }
+                },
+                {
+                    processesComponents = {
+                        { name = "RenderDriver", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+    AddMeshToRenderSystem = {
+        callOrder = {
+            runAfter = "BeginRenderPass",
+            runBefore = "EndRenderPass"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State",
+                        "Pipeline",
+                        "RenderPass",
+                        "MainMenuBar",
+                        "Transform2DResource",
+                        "Render::DiffuseMap::TextureResource",
+                        "DriverIndexBuffer",
+                        "DriverVertexBuffer"
+                    }
+                },
+                {
+                    processesComponents = {
+                        { name = "RenderDriver", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+    EndRenderPassSystem = {
+        callOrder = {
+            runAfter = {
+                "StartRender",
+                "BeginRenderPass"
+            },
+            runBefore = "EndRender"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "State",
+                        "RenderPass"
+                    }
+                },
+                {
+                    processesComponents = {
+                        { name = "RenderDriver", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+
+    --Outline feature
+    
+    RemoveUIFromSelectionSystem = {
+        callOrder = {
+            runAfter = "Render::Outline::IdsTextureRender::BeginRenderPass",
+            runBefore = "Render::Outline::IdsTextureRender::EndRenderPass"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Render::Outline::State",
+                        "Render::Outline::EnableSelection",
+                        "CursorEvents",
+                        "MouseEvents"
+                    }
+                },
+                {
+                    processesComponents = {
+                        { name = "RenderDriver", readonly = false },
+                        "Render::Outline::IdsTextureRender::RenderPassId",
+                        "Render::Outline::IdsTextureRender::UI::PipelineId",
+                        "Render::Outline::DataStorageBuffer",
+                        "Render::Outline::DataStorageBufferResource"
+                    }
+                },
+                {
+                    processesComponents = {
+                        "MainWindow",
+                        "MainWindowFramebufferSize",
+                        "MainWindowWorkAreaSize"
+                    }
+                },
+                {
+                    processesComponents = {
+                        "State",
+                        "Pipeline",
+                        "RenderPass",
+                        "MainMenuBar",
+                        "Transform2DResource",
+                        "Render::DiffuseMap::TextureResource",
+                        "DriverIndexBuffer",
+                        "DriverVertexBuffer"
+                    }
+                },
+            }
+        }
+    },
 }
 
 

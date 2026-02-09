@@ -102,7 +102,61 @@ RenderNamespace = {
 
         --Render pass for rendering IdsAttachment
         IdsTextureRenderNamespace = {
+            -- We should not use ui in selection 
+            UINamespace = {
+                
+                IdConstant = {
+                    type = "ECS2::Entity::Id::ValueType",
+                    value = "0"
+                },
 
+                TransformStruct = {
+                    fields = {
+                        { type= "glm::vec2", name = "scale" },
+                        { type= "glm::vec2", name = "translate" }
+                    }
+                },
+
+                PipelineIdComponent = {
+                    serializable = false,
+                    fields = {
+                        { type = "Common::Id", name = "id" }
+                    }
+                },
+    
+                CreatePipelineSystem = {
+                    type = "Initialize",
+                    callOrder = {
+                        runAfter = {
+                            "CreateRenderDriver",
+                            "CreateResourceSystem",
+                            "ConfigureResourceSystem",
+                            "CreateRenderPass"
+                        }
+                    },
+                    updateMethod = {
+                        processesEntities = {
+                            {
+                                processesComponents = {
+                                    "RenderDriver",
+                                    "RenderPassId"
+                                },
+                                excludes = {
+                                    "PipelineId"
+                                },
+                                createsComponents = {
+                                    "PipelineId"
+                                }
+                            },
+                            {
+                                processesComponents = {
+                                    "ResourceSystem"
+                                }
+                            }
+                        }
+                    }
+                },
+            },
             IdsAttachmentComponent         = "Render::Attachment",
 
             IdsAttachmentResourceComponent = {
@@ -431,7 +485,7 @@ RenderNamespace = {
                     }
                 }
             },
-
+            
 
             OutlineSettingsStruct = {
                 fields = {

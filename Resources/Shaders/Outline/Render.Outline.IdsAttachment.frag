@@ -24,7 +24,9 @@ void main() {
     ivec2 fragmentPos = ivec2(gl_FragCoord.xy);
 
     if(fragmentPos.x == data.cursorPosX_ && fragmentPos.y == data.cursorPosY_) {
+        if(id != 0){
         data.potencialSelectedId_ = id;
+        }
         //LOG_FMSG_3("Selected id %d, frag x %d, frag y %d", id, fragmentPos.x, fragmentPos.y);
     }
 

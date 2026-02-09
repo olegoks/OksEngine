@@ -1,6 +1,8 @@
 #pragma once
 #include <Render\auto_OksEngine.Render.Outline.hpp>
 
+#include <Debug\OksEngine.ImGuiTransform.hpp>
+
 namespace OksEngine
 {
 
@@ -85,7 +87,7 @@ namespace OksEngine
 						selectedEntityIds0->ids_ = { data.potencialSelectedId_ };
 					}
 					else {
-						selectedEntityIds0->ids_.clear();
+						//selectedEntityIds0->ids_.clear();
 					}
 				}
 				else if (!selectedEntityIds0->ids_.empty() && isLeftButtonClicked && isShiftPressed) {
@@ -104,7 +106,7 @@ namespace OksEngine
 						}
 					}
 					else {
-						selectedEntityIds0->ids_.clear();
+						//selectedEntityIds0->ids_.clear();
 					}
 					
 				}
@@ -156,6 +158,96 @@ namespace OksEngine
 			}
 
 			namespace IdsTextureRender {
+
+				namespace UI {
+					void CreatePipeline::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0,
+						const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId0,
+						ECS2::Entity::Id entity1id, const OksEngine::ResourceSystem* resourceSystem1) {
+
+
+						auto driver = renderDriver0->driver_;
+
+						Resources::ResourceData imguiVertexShaderResource
+							= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/Render.Outline.IdsAttachment.UI.vert");
+						Resources::ResourceData imguiFragmentShaderResource
+							= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/Render.Outline.IdsAttachment.UI.frag");
+
+						std::string imguiVertexShader{ imguiVertexShaderResource.GetData<Common::Byte>(), imguiVertexShaderResource.GetSize() };
+						std::string imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };
+
+
+						RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
+							.name_ = "ImGuiOutlineVertexShader",
+							.type_ = RAL::Driver::Shader::Type::Vertex,
+							.code_ = imguiVertexShader
+						};
+						auto vertexShader = driver->CreateShader(vertexShaderCreateInfo);
+
+						RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
+							.name_ = "ImGuiOutlineFragmentShader",
+							.type_ = RAL::Driver::Shader::Type::Fragment,
+							.code_ = imguiFragmentShader
+						};
+						auto fragmentShader = driver->CreateShader(fragmentShaderCreateInfo);
+
+						std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
+
+						RAL::Driver::Shader::Binding::Layout dataBinding{
+							.binding_ = 0,
+							.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+							.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+						};
+
+						RAL::Driver::Shader::Binding::Layout transformBinding{
+							.binding_ = 0,
+							.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+							.stage_ = RAL::Driver::Shader::Stage::VertexShader
+						};
+
+						std::vector<RAL::Driver::PushConstant> pushConstants;
+						/*{
+							RAL::Driver::PushConstant transform{
+								.shaderStage_ = RAL::Driver::Shader::Stage::VertexShader,
+								.offset_ = 0,
+								.size_ = sizeof(ImGuiTransform)
+							};
+							pushConstants.push_back(transform);
+						}*/
+
+
+
+						shaderBindings.push_back(dataBinding);
+						shaderBindings.push_back(transformBinding);
+
+						auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
+						{
+							multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1;
+						}
+
+						RAL::Driver::Pipeline::CI pipelineCI{
+							.name_ = "ImGui Outline Pipeline",
+							.renderPassId_ = renderPassId0->rpId_,
+							.vertexShader_ = vertexShader,
+							.fragmentShader_ = fragmentShader,
+							.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
+							//TODO: change vertex type to VF2
+							.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF3,
+							.indexType_ = RAL::Driver::IndexType::UI32,
+							.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
+							.cullMode_ = RAL::Driver::CullMode::None,
+							.pushConstants_ = pushConstants,
+							.shaderBindings_ = shaderBindings,
+							.enableDepthTest_ = true,
+							.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Always,
+							//.multisamplingInfo_ = multisamplingInfo
+						};
+
+						const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipelineCI);
+
+						CreateComponent<PipelineId>(entity0id, pipelineId);
+
+					}
+				}
 
 				void CreateIdsAttachment::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0) {
 

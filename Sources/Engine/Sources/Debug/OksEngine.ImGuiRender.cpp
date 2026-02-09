@@ -498,5 +498,80 @@ namespace OksEngine
 			imGuiDriverIndexBuffer->size_ = indices.GetSizeInBytes();
 
 		};
+
+
+		void RemoveUIFromSelection::Update(
+			ECS2::Entity::Id entity0id,
+			const OksEngine::Render::Outline::State* render__Outline__State0,
+			const OksEngine::Render::Outline::EnableSelection* render__Outline__EnableSelection0,
+			const OksEngine::CursorEvents* cursorEvents0,
+			const OksEngine::MouseEvents* mouseEvents0,
+
+			ECS2::Entity::Id entity1id,
+			OksEngine::RenderDriver* renderDriver1,
+			const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* render__Outline__IdsTextureRender__RenderPassId1,
+			const OksEngine::Render::Outline::IdsTextureRender::UI::PipelineId* render__Outline__IdsTextureRender__PipelineId1,
+			const OksEngine::Render::Outline::DataStorageBuffer* render__Outline__DataStorageBuffer1,
+			const OksEngine::Render::Outline::DataStorageBufferResource* render__Outline__DataStorageBufferResource1,
+			
+			ECS2::Entity::Id entity2id, 
+			const OksEngine::MainWindow* mainWindow2,
+			const OksEngine::MainWindowFramebufferSize* mainWindowFramebufferSize2,
+			const OksEngine::MainWindowWorkAreaSize* mainWindowWorkAreaSize2, 
+			
+			ECS2::Entity::Id entity3id,
+			const OksEngine::ImGUI::State* state3,
+			const OksEngine::ImGUI::Pipeline* pipeline3,
+			const OksEngine::ImGUI::RenderPass* renderPass3, 
+			const OksEngine::MainMenuBar* mainMenuBar3,
+			const OksEngine::Transform2DResource* transform2DResource3,
+			const OksEngine::Render::DiffuseMap::TextureResource* render__DiffuseMap__TextureResource3,
+			const OksEngine::ImGUI::DriverIndexBuffer* driverIndexBuffer3,
+			const OksEngine::ImGUI::DriverVertexBuffer* driverVertexBuffer3) {
+
+			auto driver = renderDriver1->driver_;
+
+			Render::Outline::Data data{
+				-1,
+				-1,
+				0,
+				{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,0, 0, 0, 0 }
+			};
+
+			if (!cursorEvents0->events_.empty()) {
+
+
+				float scaleX = 2560/*(float)mainWindowFramebufferSize1->width_*/ / (float)mainWindowWorkAreaSize2->width_;
+				float scaleY = 1440/*(float)mainWindowFramebufferSize1->height_*/ / (float)mainWindowWorkAreaSize2->height_;
+
+				// Вариант 1: Координаты в пикселях фреймбуфера (для прямого сравнения с gl_FragCoord)
+				data.cursorPosX_ = cursorEvents0->events_.back().position_.x_ * scaleX;
+				data.cursorPosY_ = (/*mainWindowWorkAreaSize1->height_ - */cursorEvents0->events_.back().position_.y_) * scaleY; // Инвертируем Y
+				driver->StorageBufferWrite(
+					render__Outline__DataStorageBuffer1->id_, 0, &data,
+					//Write only cursor info.
+					offsetof(Render::Outline::Data, Render::Outline::Data::selectedIds_));
+			}
+
+			driver->BindPipeline(render__Outline__IdsTextureRender__PipelineId1->id_);
+
+			
+
+			driver->Bind(render__Outline__IdsTextureRender__PipelineId1->id_, 0,
+				{
+					render__Outline__DataStorageBufferResource1->id_,
+					transform2DResource3->id_
+				}
+			);
+
+
+			driver->BindVertexBuffer(driverVertexBuffer3->id_, 0);
+			driver->BindIndexBuffer(driverIndexBuffer3->id_, 0);
+
+
+			driver->DrawIndexed(driverIndexBuffer3->size_ / sizeof(Common::UInt32));
+
+		}
+
 	}
 }
