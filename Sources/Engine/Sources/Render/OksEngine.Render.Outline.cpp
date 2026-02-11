@@ -10,7 +10,19 @@ namespace OksEngine
 	{
 		namespace Outline
 		{
+			glm::vec4 idToColor(uint32_t id) {
+				// »спользуем золотое сечение дл€ генерации HUE
+				float hue = glm::fract(static_cast<float>(id) * 0.618033988749895f);
 
+				// HSV to RGB преобразование
+				glm::vec3 rgb = glm::clamp(
+					glm::abs(glm::mod(hue * 6.0f + glm::vec3(0.0f, 4.0f, 2.0f), 6.0f) - 3.0f) - 1.0f,
+					0.0f, 1.0f
+				);
+
+				// ƒелаем цвета насыщенными и €ркими
+				return glm::vec4(rgb * 0.8f + 0.2f, 1.0f);
+			}
 
 			void EditSelectedEntityIds(
 				std::shared_ptr<ECS2::World> ecsWorld,
@@ -158,7 +170,92 @@ namespace OksEngine
 			}
 
 			namespace IdsTextureRender {
+				namespace EmptyArea {
+					void CreatePipeline::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0,
+						const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId0,
+						ECS2::Entity::Id entity1id, const OksEngine::ResourceSystem* resourceSystem1) {
 
+						auto driver = renderDriver0->driver_;
+
+						Resources::ResourceData imguiVertexShaderResource
+							= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/Render.Outline.IdsAttachment.EmptyArea.vert");
+						Resources::ResourceData imguiFragmentShaderResource
+							= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/Render.Outline.IdsAttachment.EmptyArea.frag");
+
+						std::string imguiVertexShader{ imguiVertexShaderResource.GetData<Common::Byte>(), imguiVertexShaderResource.GetSize() };
+						std::string imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };
+
+
+						RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
+							.name_ = "RenderIdsBufferEmptyAreaVertexShader",
+							.type_ = RAL::Driver::Shader::Type::Vertex,
+							.code_ = imguiVertexShader
+						};
+						auto vertexShader = driver->CreateShader(vertexShaderCreateInfo);
+
+						RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
+							.name_ = "RenderIdsBufferEmptyAreaFragmentShader",
+							.type_ = RAL::Driver::Shader::Type::Fragment,
+							.code_ = imguiFragmentShader
+						};
+						auto fragmentShader = driver->CreateShader(fragmentShaderCreateInfo);
+
+						std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
+
+						//RAL::Driver::Shader::Binding::Layout dataBinding{
+						//	.binding_ = 0,
+						//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+						//	.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+						//};
+
+						//shaderBindings.push_back(dataBinding);
+
+						auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
+						{
+							multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1;
+						}
+
+						RAL::Driver::Pipeline::CI pipelineCI{
+							.name_ = "Outline render ids buffer empty area pipeline",
+							.renderPassId_ = renderPassId0->rpId_,
+							.subpassIndex_ = 0,
+							.vertexShader_ = vertexShader,
+							.fragmentShader_ = fragmentShader,
+							.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
+							.vertexType_ = RAL::Driver::VertexType::Undefined,
+							.indexType_ = RAL::Driver::IndexType::Undefined,
+							.frontFace_ = RAL::Driver::FrontFace::Clockwise,
+							.cullMode_ = RAL::Driver::CullMode::None,
+							.shaderBindings_ = shaderBindings,
+							.enableDepthTest_ = true,
+							.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
+							.multisamplingInfo_ = multisamplingInfo
+						};
+
+						const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipelineCI);
+
+						CreateComponent<PipelineId>(entity0id, pipelineId);
+					}
+					void Render::Update(ECS2::Entity::Id entity0id, const OksEngine::Render::Outline::State* state0,
+						const OksEngine::Render::Outline::EnableSelection* enableSelection0, ECS2::Entity::Id entity1id,
+						OksEngine::RenderDriver* renderDriver1,
+						const OksEngine::Render::Outline::DataStorageBuffer* dataStorageBuffer1,
+						const OksEngine::Render::Outline::DataStorageBufferResource* dataStorageBufferResource1,
+						const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId1,
+						const OksEngine::Render::Outline::IdsTextureRender::IdsAttachmentResource
+						* idsTextureRender__IdsAttachmentResource1,
+						const OksEngine::Render::Outline::IdsTextureRender::AttachmentSet* attachmentSet1,
+						const OksEngine::Render::Outline::IdsTextureRender::EmptyArea::PipelineId* pipelineId1) {
+
+
+						auto driver = renderDriver1->driver_;
+
+						driver->BindPipeline(pipelineId1->id_);
+
+						driver->Draw(3);
+
+					}
+				}
 				namespace UI {
 					void CreatePipeline::Update(ECS2::Entity::Id entity0id, const OksEngine::RenderDriver* renderDriver0,
 						const OksEngine::Render::Outline::IdsTextureRender::RenderPassId* renderPassId0,
@@ -403,7 +500,7 @@ namespace OksEngine
 
 
 					RAL::Driver::RP::CI rpCI{
-						.name_ = "Outline render pass",
+						.name_ = "Outline render Ids texture render pass",
 						.attachments_ = attachmentsUsage,
 						.subpasses_ = subpasses,
 						.subpassDependecies_ = dependencies
@@ -526,10 +623,19 @@ namespace OksEngine
 					{
 						RAL::Driver::RP::ClearValue idsClearValue;
 						{
-							idsClearValue.color_.uint32[0] = 0;
-							idsClearValue.color_.uint32[1] = 0;
-							idsClearValue.color_.uint32[2] = 0;
-							idsClearValue.color_.uint32[3] = 255;
+							//Color that corresponds to 0 id
+							/*idsClearValue.color_.uint32[0] = 0xFF;
+							idsClearValue.color_.uint32[1] = 0x33;
+							idsClearValue.color_.uint32[2] = 0x33;
+							idsClearValue.color_.uint32[3] = 255;*/
+
+							
+							glm::vec4 resetColor = idToColor(ResetSelectionId);
+
+							idsClearValue.color_.float32[0] = 0;// resetColor[0];
+							idsClearValue.color_.float32[1] = 0;//resetColor[1];
+							idsClearValue.color_.float32[2] = 0;//resetColor[2];
+							idsClearValue.color_.float32[3] = 255;//resetColor[3];
 						}
 						clearValues.push_back(idsClearValue);
 
@@ -551,7 +657,7 @@ namespace OksEngine
 
 					driver->BeginDebugLabel(
 						RAL::Color3f{ 1.0, 0.0, 0.0 },
-						"Begin outline texture render pass.");
+						"Begin outline ids texture render pass.");
 
 					driver->BeginRenderPass(
 						renderPassId1->rpId_,

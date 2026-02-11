@@ -102,6 +102,86 @@ RenderNamespace = {
 
         --Render pass for rendering IdsAttachment
         IdsTextureRenderNamespace = {
+
+            ResetSelectionIdConstant = {
+                type = "ECS2::Entity::Id::ValueType",
+                value = "1"
+            },
+            
+            EmptyAreaNamespace = {
+                IdConstant = {
+                    type = "ECS2::Entity::Id::ValueType",
+                    value = "1"
+                },
+                PipelineIdComponent = {
+                    serializable = false,
+                    fields = {
+                        { type = "Common::Id", name = "id" }
+                    }
+                },
+    
+                CreatePipelineSystem = {
+                    type = "Initialize",
+                    callOrder = {
+                        runAfter = {
+                            "CreateRenderDriver",
+                            "CreateResourceSystem",
+                            "ConfigureResourceSystem",
+                            "CreateRenderPass"
+                        }
+                    },
+                    updateMethod = {
+                        processesEntities = {
+                            {
+                                processesComponents = {
+                                    "RenderDriver",
+                                    "RenderPassId"
+                                },
+                                excludes = {
+                                    "PipelineId"
+                                },
+                                createsComponents = {
+                                    "PipelineId"
+                                }
+                            },
+                            {
+                                processesComponents = {
+                                    "ResourceSystem"
+                                }
+                            }
+                        }
+                    }
+                },
+                RenderSystem = {
+                    description = "Fill empty area by id == 1. This value will be use to detect selection reset. If user clicks on the area, buffer with selected ids will be clear.",
+                    callOrder = {
+                        runAfter = { "BeginRenderPass" },
+                        runBefore = { "EndRenderPass" }
+                    },
+                    updateMethod = {
+                        processesEntities = {
+                            {
+                                processesComponents = {
+                                    "State",
+                                    "EnableSelection"
+                                }
+                            },
+                            {
+                                processesComponents = {
+                                    { name = "RenderDriver", readonly = false },
+                                    "DataStorageBuffer",
+                                    "DataStorageBufferResource",
+                                    "RenderPassId",
+                                    "IdsTextureRender::IdsAttachmentResource",
+                                    "AttachmentSet",
+                                    "PipelineId"
+                                }
+                            }
+                        }
+                    }
+                },
+            },
+
             -- We should not use ui in selection 
             UINamespace = {
                 

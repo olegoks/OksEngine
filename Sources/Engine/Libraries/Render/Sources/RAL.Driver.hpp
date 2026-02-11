@@ -498,7 +498,8 @@ namespace RAL {
 			using RS = ResourceSet;
 
 			struct AttachmentReference {
-				Common::UInt32 index_ = Common::Limits<Common::UInt32>::Max();	// Attachment set attachment index.
+				static constexpr Common::UInt32 invalidIndex_ = Common::Limits<Common::UInt32>::Max();
+				Common::UInt32 index_ = invalidIndex_;	// Attachment set attachment index.
 				Texture::State state_;	// Attachment state during subpass.
 			};
 
@@ -508,15 +509,12 @@ namespace RAL {
 
 
 				struct Dependency { 
-					Common::UInt32 fromSubpassIndex_;
+					Common::UInt32 fromSubpassIndex_ = external_;
 					Pipeline_Stage fromPipelineStage_;
 					Texture::Access fromAccess_;
-					Common::UInt32 toSubpassIndex_;
+					Common::UInt32 toSubpassIndex_ = external_;
 					Pipeline_Stage toPipelineStage_;
 					Texture::Access toAccess_;
-
-
-
 				};
 
 				std::vector<AttachmentReference> inputAttachments_;
@@ -630,7 +628,8 @@ namespace RAL {
 			Common::UInt32 x,
 			Common::UInt32 y,
 			Common::UInt32 width,
-			Common::UInt32 height) = 0;
+			Common::UInt32 height,
+			float minDepth = 0.0f, float maxDepth = 1.0f) = 0;
 
 		virtual void SetScissor(
 			Common::Int32 x,

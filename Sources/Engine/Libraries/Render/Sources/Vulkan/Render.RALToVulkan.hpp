@@ -71,6 +71,10 @@ namespace Render::Vulkan {
 			return VkCompareOp::VK_COMPARE_OP_ALWAYS;
 			break;
 		}
+		case RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Greater: {
+			return VkCompareOp::VK_COMPARE_OP_GREATER;
+			break;
+		}
 		default:
 			ASSERT_FAIL_MSG("Invalid Depth buffer compare operation value used.");
 			return VkCompareOp::VK_COMPARE_OP_MAX_ENUM;

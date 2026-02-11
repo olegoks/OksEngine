@@ -1101,7 +1101,8 @@ namespace Render::Vulkan {
 			Common::UInt32 x,
 			Common::UInt32 y,
 			Common::UInt32 width,
-			Common::UInt32 height) override {
+			Common::UInt32 height,
+			float minDepth, float maxDepth) override {
 
 			if (GCB_ == nullptr) {
 				return;
@@ -1112,8 +1113,8 @@ namespace Render::Vulkan {
 				.y = (float)y,
 				.width = static_cast<float>(width),
 				.height = static_cast<float>(height),
-				.minDepth = 0.0f,
-				.maxDepth = 1.0f
+				.minDepth = minDepth,
+				.maxDepth = maxDepth
 			};
 			GCB_->SetViewport(viewport);
 
