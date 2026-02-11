@@ -1,7 +1,13 @@
 #version 450
-
+#extension GL_ARB_gpu_shader_int64 : enable
 layout(location = 0) out vec4 outColor;
 
+layout(set = 0, binding = 0) buffer Data {
+    int cursorPosX_;
+    int cursorPosY_;
+    uint64_t potencialSelectedId_;
+    uint64_t selectedIds[16];
+} data;
 
 vec4 idToColor(uint id) {
     // Используем золотое сечение для генерации HUE
@@ -18,5 +24,13 @@ vec4 idToColor(uint id) {
 }
 
 void main() {
+
+    ivec2 fragmentPos = ivec2(gl_FragCoord.xy);
+
+    if(fragmentPos.x == data.cursorPosX_ && fragmentPos.y == data.cursorPosY_) {
+        data.potencialSelectedId_ = 1;
+        //LOG_FMSG_3("Selected id %d, frag x %d, frag y %d", id, fragmentPos.x, fragmentPos.y);
+    }
+
     outColor = idToColor(1);
 }

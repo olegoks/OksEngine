@@ -95,11 +95,11 @@ namespace OksEngine
 				}
 
 				if (isLeftButtonClicked && !isShiftPressed) {
-					if (data.potencialSelectedId_ != 0) {
+					if (data.potencialSelectedId_ != IdsTextureRender::UI::Id && data.potencialSelectedId_ != IdsTextureRender::EmptyArea::Id) {
 						selectedEntityIds0->ids_ = { data.potencialSelectedId_ };
 					}
-					else {
-						//selectedEntityIds0->ids_.clear();
+					else if(data.potencialSelectedId_ == IdsTextureRender::EmptyArea::Id){
+						selectedEntityIds0->ids_.clear();
 					}
 				}
 				else if (!selectedEntityIds0->ids_.empty() && isLeftButtonClicked && isShiftPressed) {
@@ -112,13 +112,13 @@ namespace OksEngine
 							}
 						}
 					}
-					if (data.potencialSelectedId_ != 0) {
+					if (data.potencialSelectedId_ != IdsTextureRender::UI::Id && data.potencialSelectedId_ != IdsTextureRender::EmptyArea::Id) {
 						if (!containsYet) {
 							selectedEntityIds0->ids_.push_back(ECS2::Entity::Id{ data.potencialSelectedId_ });
 						}
 					}
-					else {
-						//selectedEntityIds0->ids_.clear();
+					else if (data.potencialSelectedId_ == IdsTextureRender::EmptyArea::Id) {
+						selectedEntityIds0->ids_.clear();
 					}
 					
 				}
@@ -202,13 +202,13 @@ namespace OksEngine
 
 						std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
 
-						//RAL::Driver::Shader::Binding::Layout dataBinding{
-						//	.binding_ = 0,
-						//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-						//	.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-						//};
+						RAL::Driver::Shader::Binding::Layout dataBinding{
+							.binding_ = 0,
+							.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+							.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+						};
 
-						//shaderBindings.push_back(dataBinding);
+						shaderBindings.push_back(dataBinding);
 
 						auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
 						{
@@ -249,6 +249,12 @@ namespace OksEngine
 
 
 						auto driver = renderDriver1->driver_;
+
+						driver->Bind(pipelineId1->id_, 0,
+							{
+								dataStorageBufferResource1->id_
+							}
+						);
 
 						driver->BindPipeline(pipelineId1->id_);
 
