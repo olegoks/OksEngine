@@ -12,5 +12,20 @@ PresetNamespace = {
             "Physics::Dynamic_Rigid_Body",
             "Model"
         }
+    },
+
+
+    World_Pos_RotArchetype = {
+        components = {
+            "::WorldPosition3D",
+            "::WorldRotation3D"
+        }
+    },
+    World_Pos_Rot_ScaleArchetype = {
+        components = {
+            "::WorldPosition3D",
+            "::WorldRotation3D",
+            "::WorldScale3D"
+        }
     }
 }

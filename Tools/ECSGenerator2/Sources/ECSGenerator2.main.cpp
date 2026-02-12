@@ -263,7 +263,7 @@ int main(int argc, char** argv) {
 				const auto archetypeNamespace = ECSGenerator2::GetArchetypeNamespace(parsedArchetype);
 				const auto archetypeName = parsedArchetype->GetName();
 
-				if (archetypeName == "Static_Rigid_Body") {
+				if (archetypeName == "World_Pos_Rot") {
 					Common::BreakPointLine();
 				}
 				parsedArchetype->ForEachComponent([&](ECSGenerator2::ParsedArchetype::Component& component, bool isLast) {

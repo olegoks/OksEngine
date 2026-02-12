@@ -1,0 +1,123 @@
+ImGUINamespace = {
+
+    GizmoNamespace = {
+
+        StateComponent = {},
+        OperationEnum = {
+            values = {
+                "Translate",
+                "Rotate",
+                "Scale"
+            }
+        },
+        CurrentOperationComponent = {
+            serializable = false,
+            fields = {
+                { type = "Operation", name = "operation" }
+            }
+        },
+        CreateStateSystem = {
+            type = "Initialize",
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "State",
+                            "CurrentOperation"
+                        }
+                    }
+                }
+            }
+        },
+
+        DrawOperationSelectionWindowSystem = {
+            callOrder = {
+                runAfter = { "ImGUI::StartFrame", "EndMainMenuBar" },
+                runBefore = { "ImGUI::EndFrame", "BeginEnginePerformanceWindow" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "State",
+                            { name = "CurrentOperation", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "ImGUI::State",
+                        }
+                    },
+                }
+            }
+        },
+
+        ProcessSystem = {
+            callOrder = {
+                runAfter = {
+                    "ImGUI::StartFrame",
+                    "Behaviour::CallCursorEventsProcessor",
+                    "Behaviour::CallMouseEventsProcessor",
+                    "Behaviour::CallKeyboardEventsProcessor" },
+                runBefore = "ImGUI::EndFrame"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "ImGUI::State",
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "State",
+                            "CurrentOperation"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "MainWindow",
+                            "MainWindowFramebufferSize",
+                            "MainWindowWorkAreaSize"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Camera",
+                            "Active",
+                            "WorldPosition3D",
+                            "Direction3D",
+                            "Up3D",
+                            "ZNear",
+                            "ZFar",
+                            "Width",
+                            "Height"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Render::Outline::State",
+                            "Render::Outline::EnableSelection",
+                            "Render::Outline::SelectedEntityIds"
+                        },
+                    },
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false }
+                        }
+                    }
+                },
+                accessingEntities = {
+                    {
+                        accessingComponents = {
+                            "WorldPosition3D",
+                            "WorldRotation3D",
+                            "WorldScale3D"
+                        }
+                    }
+                }
+
+            }
+        }
+    }
+}

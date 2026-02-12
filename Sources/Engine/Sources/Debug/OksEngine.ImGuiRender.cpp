@@ -6,7 +6,6 @@
 #include <Common.StringLiterals.hpp>
 #include <Geometry.IndexBuffer.hpp>
 
-
 namespace OksEngine
 {
 	namespace ImGUI {
@@ -180,6 +179,7 @@ namespace OksEngine
 
 			CreateComponent<AttachmentSet>(entity1id, rpAttachmentsSetId);
 		}
+
 
 		void BeginRenderPass::Update(ECS2::Entity::Id entity0id, const State* imGuiState0, const RenderPass* imGuiRenderPass0,
 			const AttachmentSet* imGuiAttachmentSet0, ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
