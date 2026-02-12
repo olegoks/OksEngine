@@ -204,6 +204,19 @@ namespace OksEngine
 							};
 							glm::mat4 model = glm::scale(scale);
 
+							if (selectedEntityComponentFilter.IsSet<WorldPosition3D>()) {
+
+								auto* worldPosition3D = GetComponent<WorldPosition3D>(selectedEntityId);
+
+								const glm::vec3 translate{
+									worldPosition3D->x_,
+									worldPosition3D->y_,
+									worldPosition3D->z_
+								};
+
+								model = glm::translate(glm::mat4(1.0f), translate) * glm::scale(scale);
+							}
+
 							ImGuizmo::Manipulate(
 								glm::value_ptr(view),
 								glm::value_ptr(proj),
