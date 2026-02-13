@@ -1,0 +1,78 @@
+RenderNamespace = {
+    WaterNamespace = {
+        TagComponent = {},
+        PipelineIdComponent = {
+            serializable = false,
+            fields = {
+                { type = "Common::Id", name = "id" }
+            }
+        },
+        CreatePipelineSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = {
+                    "CreateRenderDriver",
+                    "CreateResourceSystem",
+                    "ConfigureResourceSystem",
+                    "CreateRenderPass"
+                }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "RenderDriver",
+                            "MainRenderPass"
+                        },
+                        excludes = {
+                            "PipelineId"
+                        },
+                        createsComponents = {
+                            "PipelineId"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "ResourceSystem"
+                        }
+                    }
+                }
+            }
+        },
+        RenderSystem = {
+            callOrder = {
+                runAfter = { "BeginRenderPass" },
+                runBefore = { "EndRenderPass" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false },
+                            "MainRenderPass",
+                            "AttachmentSet",
+                            "PipelineId"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Camera",
+                            "Active",
+                            "DriverViewProjectionUniformBuffer",
+                            "CameraTransformResource"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Water::Tag",
+                            "Water::PipelineId",
+                            "Render::DiffuseMap::Resource",
+                            "Render::NormalMap::TextureResource",
+                            "Render::AmbientMap::TextureResource",
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
