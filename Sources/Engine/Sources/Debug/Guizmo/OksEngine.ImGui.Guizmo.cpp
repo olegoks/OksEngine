@@ -33,17 +33,17 @@ namespace OksEngine
 				if (ImGui::Begin("Transformation Modes", nullptr, flags))
 				{
 					// √оризонтальное расположение кнопок
-					if (ImGui::Button("Translate"))
+					if (ImGui::Button("T"))
 						currentOperation0->operation_ = Operation::Translate;
 
 					ImGui::SameLine();
 
-					if (ImGui::Button("Rotate"))
+					if (ImGui::Button("R"))
 						currentOperation0->operation_ = Operation::Rotate;
 
 					ImGui::SameLine();
 
-					if (ImGui::Button("Scale"))
+					if (ImGui::Button("S"))
 						currentOperation0->operation_ = Operation::Scale;
 
 					// ƒополнительно: индикаци€ активного режима
@@ -53,9 +53,9 @@ namespace OksEngine
 					ImGui::SameLine();
 					switch (currentOperation0->operation_)
 					{
-					case Operation::Translate: ImGui::Text("Translate"); break;
-					case Operation::Rotate:    ImGui::Text("Rotate");    break;
-					case Operation::Scale:     ImGui::Text("Scale");     break;
+					case Operation::Translate: ImGui::Text("T"); break;
+					case Operation::Rotate:    ImGui::Text("R"); break;
+					case Operation::Scale:     ImGui::Text("S"); break;
 					}
 				}
 				ImGui::End();
