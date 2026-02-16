@@ -1315,7 +1315,7 @@ scene = {
             {
                   ID = "ID:scene/truck",
                   name = { value = "Truck" },
-                  modelEntity = { id = 41 },
+                  modelEntity = { id = "ID:scene/truck/truck_model" },
                   rigidBodyEntityId = { id = 103 },
                   mapRigidBodyWorldPositionToModelWorldPosition = {}
             },

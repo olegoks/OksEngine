@@ -237,6 +237,7 @@ namespace OksEngine
 			return matches;
 			};
 
+		//"ID:example_string" -> 123
 		std::unordered_map<std::string, ECS2::Entity::Id::ValueType> stringIdToNumberId = generateNumberIds(text);
 
 		for (auto it = stringIdToNumberId.begin(); it != stringIdToNumberId.end(); ++it) {
