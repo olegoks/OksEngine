@@ -227,8 +227,8 @@ namespace OksEngine
 		int result = stbi_write_jpg("FontsAtlas.png", atlasWidth, atlasHeight, channels, atlasData.data(), quality);
 
 		CreateComponent<SymbolsMetadata>(entity1id, std::move(symbolsMetadata));
-		CreateComponent<Render::DiffuseMap::TextureInfo>(entity1id, "FontAtlasTexture");
-		CreateComponent<Render::DiffuseMap::TextureData>(entity1id, atlasWidth, atlasHeight, atlasData);
+		CreateComponent<Render::Material::DiffuseMap::Info>(entity1id, "FontAtlasTexture");
+		CreateComponent<Render::Material::DiffuseMap::Data>(entity1id, atlasWidth, atlasHeight, atlasData);
 
 	}
 
@@ -424,7 +424,7 @@ namespace OksEngine
 		const DebugTextRenderPass* debugTextRenderPass1, const DebugTextPipeline* debugTextPipeline1,
 		const SymbolsMetadata* symbolsMetadata1,
 		const DebugTextDriverVertexBuffer* debugTextDriverVertexBuffer1,
-		const Render::DiffuseMap::TextureResource* textureResource1, ECS2::Entity::Id entity2id, const DebugText2D* debugText2D2) {
+		const Render::Material::DiffuseMap::Resource* textureResource1, ECS2::Entity::Id entity2id, const DebugText2D* debugText2D2) {
 
 		auto driver = renderDriver0->driver_;
 

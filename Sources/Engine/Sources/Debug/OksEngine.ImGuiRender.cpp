@@ -200,7 +200,7 @@ namespace OksEngine
 			const RenderPass* imGuiRenderPass0,
 			const MainMenuBar* mainMenuBar0,
 			const Transform2DResource* transform2DResource0,
-			const Render::DiffuseMap::TextureResource* textureResource0,
+			const Render::Material::DiffuseMap::Resource* textureResource0,
 			const DriverIndexBuffer* imGuiDriverIndexBuffer0,
 			const DriverVertexBuffer* imGuiDriverVertexBuffer0,
 
@@ -389,7 +389,7 @@ namespace OksEngine
 
 				const RAL::Driver::Resource::Id textureResourceId = driver->CreateResource(textureBinding);
 
-				CreateComponent<Render::DiffuseMap::TextureResource>(entity0id, textureId, textureResourceId);
+				CreateComponent<Render::Material::DiffuseMap::Resource>(entity0id, textureId, textureResourceId);
 			}
 
 		}
@@ -525,7 +525,7 @@ namespace OksEngine
 			const OksEngine::ImGUI::RenderPass* renderPass3, 
 			const OksEngine::MainMenuBar* mainMenuBar3,
 			const OksEngine::Transform2DResource* transform2DResource3,
-			const OksEngine::Render::DiffuseMap::TextureResource* render__DiffuseMap__TextureResource3,
+			const OksEngine::Render::Material::DiffuseMap::Resource* render__DiffuseMap__TextureResource3,
 			const OksEngine::ImGUI::DriverIndexBuffer* driverIndexBuffer3,
 			const OksEngine::ImGUI::DriverVertexBuffer* driverVertexBuffer3) {
 

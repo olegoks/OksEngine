@@ -216,8 +216,8 @@ AiNamespace = {
                         "Normals",
                         "UVs",
                         "VertexBones",
-                        "Render::DiffuseMap::TextureInfo",
-                        "Render::DiffuseMap::TextureData"
+                        "Render::Material::DiffuseMap::Info",
+                        "Render::Material::DiffuseMap::Data"
                     }
                 },
                 {
@@ -1162,7 +1162,7 @@ AddModelToRenderSystem = {
             --         "Indices",
             --         "DriverIndexBuffer",
             --         "DriverVertexBuffer",
-            --         "Render::DiffuseMap::TextureResource",
+            --         "Render::Material::DiffuseMap::Resource",
             --         "Render::Mdl::ModelEntityIds",
             --         "Render::Mdl::ModelNodeEntityIndices"
             --     },
@@ -1331,15 +1331,15 @@ MeshArchetype = {
         "Normals",
         "UVs",
         "VertexBones",
-        "Render::DiffuseMap::TextureInfo",
-        "Render::DiffuseMap::TextureData",
-        "Render::DiffuseMap::TextureResource",
-        "Render::NormalMap::TextureInfo",
-        "Render::NormalMap::TextureData",
-        "Render::NormalMap::TextureResource",
-        "Render::AmbientMap::TextureInfo",
-        "Render::AmbientMap::TextureData",
-        "Render::AmbientMap::TextureResource"
+        "Render::Material::DiffuseMap::Info",
+        "Render::Material::DiffuseMap::Data",
+        "Render::Material::DiffuseMap::Resource",
+        "Render::Material::NormalMap::Info",
+        "Render::Material::NormalMap::Data",
+        "Render::Material::NormalMap::Resource",
+        "Render::Material::AmbientMap::Info",
+        "Render::Material::AmbientMap::Data",
+        "Render::Material::AmbientMap::Resource"
     }
 }
 

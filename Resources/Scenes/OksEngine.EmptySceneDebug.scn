@@ -47,7 +47,7 @@ scene = {
 
 
             {
-                  ID = 176,
+                  ID = "ID:scene/editor/phys_plane",
                   name = { value = "Physics plane" },
                   worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -78,14 +78,14 @@ scene = {
             --TEST LEVEL_GEOM
 
             {
-                  ID = 78,
+                  ID = "ID:scene/test_level",--78,
                   name = { value = "TestLevelGeom" },
-                  modelEntity = { id = 79 },
-                  rigidBodyEntityId = { id = 76 },
+                  modelEntity = { id = "ID:scene/test_level/model" },
+                  rigidBodyEntityId = { id = "ID:scene/test_level/static_body" },
                   mapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
-                  ID = 79,
+                  ID = "ID:scene/test_level/model",
                   ARCHETYPE = "Model",
                   name = { value = "TestLevelGeom.glb" },
                   worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
@@ -95,7 +95,7 @@ scene = {
                   modelFile = { fileName = "TestLevelGeom.glb" }
             },
             {
-                  ID = 76,
+                  ID = "ID:scene/test_level/static_body",
                   name = { value = "TestLevelGeom" },
                   worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -1313,14 +1313,14 @@ scene = {
                   secondConstraintedRigidBodyEntityId = { id = 101 }
             },
             {
-                  ID = 40,
+                  ID = "ID:scene/truck",
                   name = { value = "Truck" },
                   modelEntity = { id = 41 },
                   rigidBodyEntityId = { id = 103 },
                   mapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
-                  ID = 41,
+                  ID = "ID:scene/truck/truck_model",
                   ARCHETYPE = "Model",
                   name = { value = "Wheel" },
                   worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
@@ -1637,13 +1637,13 @@ scene = {
             -- },
 
             {
-                  ID = 5,
+                  ID = "ID:scene/soldier",
                   name = { value = "Soldier" },
                   characterEntity = {},
                   bindedCameraOffset = { x = 0.0, y = 2.0, z = 3.0 },
                   bindedCameraEntityId = { id = 14 },
-                  modelEntity = { id = 1 },
-                  rigidBodyEntityId = { id = 6 },
+                  modelEntity = { id = "ID:scene/soldier/model" },
+                  rigidBodyEntityId = { id = "ID:scene/soldier/capsule" },
                   direction3D = { x = 0.0, y = 0.0, z = -1.0 },
                   scriptName = { name = "TestGameObjectLogic.lua" },
                   objectName = { name = "TestGameObject" },
@@ -1659,7 +1659,7 @@ scene = {
                   mapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
-                  ID = 6,
+                  ID ="ID:scene/soldier/capsule",
                   name = { value = "Soldier" },
                   worldPosition3D = { x = 0, y = 2.0, z = 0, w = 0.0 },
                   worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -1692,7 +1692,7 @@ scene = {
                   },
             },
             {
-                  ID = 1,
+                  ID = "ID:scene/soldier/model",
                   ARCHETYPE = "Model",
                   name = { value = "Man" },
                   worldPosition3D = { x = 0, y = 0.0, z = 3, w = 0.0 },

@@ -265,8 +265,6 @@ ImGUINamespace = {
     },
 
     
-
-
     BeginRenderPassSystem = {
         callOrder = {
             runAfter = "StartRender",
@@ -322,7 +320,7 @@ ImGUINamespace = {
                         "RenderPass",
                         "MainMenuBar",
                         "Transform2DResource",
-                        "Render::DiffuseMap::TextureResource",
+                        "Render::Material::DiffuseMap::Resource",
                         "DriverIndexBuffer",
                         "DriverVertexBuffer"
                     }
@@ -400,7 +398,7 @@ ImGUINamespace = {
                         "RenderPass",
                         "MainMenuBar",
                         "Transform2DResource",
-                        "Render::DiffuseMap::TextureResource",
+                        "Render::Material::DiffuseMap::Resource",
                         "DriverIndexBuffer",
                         "DriverVertexBuffer"
                     }

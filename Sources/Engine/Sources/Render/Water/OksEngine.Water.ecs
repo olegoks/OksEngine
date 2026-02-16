@@ -66,9 +66,9 @@ RenderNamespace = {
                         processesComponents = {
                             "Water::Tag",
                             "Water::PipelineId",
-                            "Render::DiffuseMap::Resource",
-                            "Render::NormalMap::TextureResource",
-                            "Render::AmbientMap::TextureResource",
+                            "Render::Material::DiffuseMap::Resource",
+                            "Render::Material::NormalMap::Resource",
+                            "Render::Material::AmbientMap::Resource",
                         }
                     }
                 }

@@ -6,6 +6,8 @@
 
 #include <auto_OksEngine.Utils.hpp>
 
+#include <regex>
+
 namespace OksEngine
 {
 
@@ -182,25 +184,103 @@ namespace OksEngine
 		const LoadSceneRequest* loadSceneRequest0,
 		const LuaScript* luaScript0) {
 
+		//ID = "ID:example_name" regex
+		std::regex setStringIdRegex("ID\\s*=\\s*(\"ID:[^\"]*\")");
+		//ID = 10
+		std::regex setNumberIdRegex(R"(ID\s*=\s*(\d+))");
+
+		//Preprocess entity ids/names. Replace "ID:phys_plane"(example) with new entity id.
+		std::string text = luaScript0->text_;
+
+		auto findUsedSceneIds = [&setNumberIdRegex](const std::string& text) {
+			std::unordered_set<ECS2::Entity::Id::ValueType> usedSceneIds;
+
+			auto begin = std::sregex_iterator(text.begin(), text.end(), setNumberIdRegex);
+			auto end = std::sregex_iterator();
+
+			for (auto it = begin; it != end; ++it) {
+				std::smatch match = *it;
+				// match[1] содержит строку с числом
+				int number = std::stoull(match[1].str());
+				usedSceneIds.insert(number);
+			}
+			return usedSceneIds;
+			};
+
+		std::unordered_set<ECS2::Entity::Id::ValueType> usedSceneIds = findUsedSceneIds(text);
+
+		auto getUniqueSceneId = [](std::unordered_set<ECS2::Entity::Id::ValueType>& usedSceneIds) -> ECS2::Entity::Id::ValueType {
+
+			for (ECS2::Entity::Id::ValueType i = 0;
+				i < Common::Limits<ECS2::Entity::Id::ValueType>::Max();
+				i++) {
+				if (!usedSceneIds.contains(i)) {
+					usedSceneIds.insert(i);
+					return i;
+				}
+			}
+
+			ASSERT_FAIL();
+			return ECS2::Entity::Id::invalid_.GetRawValue();
+			};
+
+		auto generateNumberIds = [&](const std::string& text) {
+
+			auto begin = std::sregex_iterator(text.begin(), text.end(), setStringIdRegex);
+			auto end = std::sregex_iterator();
+
+			std::unordered_map<std::string, ECS2::Entity::Id::ValueType> matches;
+			for (auto it = begin; it != end; ++it) {
+				matches[(*it)[1].str()] = getUniqueSceneId(usedSceneIds);
+			}
+
+			return matches;
+			};
+
+		std::unordered_map<std::string, ECS2::Entity::Id::ValueType> stringIdToNumberId = generateNumberIds(text);
+
+		for (auto it = stringIdToNumberId.begin(); it != stringIdToNumberId.end(); ++it) {
+
+			const std::string& stringId = it->first;
+			const ECS2::Entity::Id::ValueType numberId = it->second;
+
+			std::regex stringIdRegex(stringId);
+
+			auto begin = std::sregex_iterator(text.begin(), text.end(), stringIdRegex);
+			auto end = std::sregex_iterator();
+
+			std::vector<std::pair<size_t, size_t>> positions; // {начало, длина}
+
+			for (auto it = begin; it != end; ++it) {
+				std::smatch match = *it;
+				positions.push_back({ match.position(0), match.length() });
+			}
+
+			for (int i = positions.size() - 1; i >= 0; --i) {
+				size_t pos = positions[i].first;
+				size_t len = positions[i].second;
+				std::string replacement = std::to_string(numberId); // число = порядковый номер
+				text.replace(pos, len, replacement);
+			}
+
+		}
 
 		::Lua::Context context;
 
-		::Lua::Script script{ luaScript0->text_ };
+		::Lua::Script script{ text/*luaScript0->text_*/ };
 		context.LoadScript(script);
 
 		luabridge::LuaRef scene = context.GetGlobalAsRef("scene");
 
-
 		luabridge::LuaRef entities = scene["entities"];
 
 		std::map<ECS2::Entity::Id, ECS2::Entity::Id> oldToNewId;
+		std::map<std::string, ECS2::Entity::Id> entityNameToNewId;
 		std::vector<std::pair<luabridge::LuaRef, ECS2::Entity::Id>> entityLuaRefNewIds;
 
 		for (luabridge::Iterator it(entities); !it.isNil(); ++it) {
 
 			luabridge::LuaRef entity = it.value();
-
-			const ECS2::Entity::Id oldId = entity["ID"].cast<Common::Index>().value();
 
 			ECS2::Entity::Id newEntityId = ECS2::Entity::Id::invalid_;
 			if (!entity["ARCHETYPE"].isNil()) {
@@ -211,13 +291,23 @@ namespace OksEngine
 				newEntityId = world_->CreateEntity(archetypeComponentsFilter);
 
 			}
-			
+
 			if (newEntityId.IsInvalid()) {
 				newEntityId = CreateEntity();
 			}
 
+			luabridge::LuaRef id = entity["ID"];
 
+			//if (id.isNumber()) {
+			const ECS2::Entity::Id oldId = entity["ID"].cast<ECS2::Entity::Id::ValueType>().value();
 			oldToNewId[oldId] = newEntityId;
+			//}
+			/*else if (id.isString()) {
+				const std::string entityName = entity["ID"].cast<std::string>().value();
+				entityNameToNewId[entityName] = newEntityId
+			}*/
+
+
 			entityLuaRefNewIds.push_back({ entity, newEntityId });
 		}
 
@@ -238,13 +328,13 @@ namespace OksEngine
 	void CreateLoadSceneRequest::Update(
 		ECS2::Entity::Id entity0id,
 		const CommandLineParameters* commandLineParameters0,
-		const SceneParameter* sceneParameter0, 
-		
+		const SceneParameter* sceneParameter0,
+
 		ECS2::Entity::Id entity1id,
 		const ECSController* eCSController1) {
 
 		const std::filesystem::path scenePath = sceneParameter0->path_;
-		
+
 
 		CreateComponent<LoadSceneRequest>(entity1id, scenePath.filename().string(), entity0id);
 

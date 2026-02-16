@@ -1416,8 +1416,8 @@ namespace OksEngine
 									Common::UInt32 textureWidth = texture->mWidth;
 									Common::UInt32 textureHeight = texture->mHeight;
 									if (textureHeight > 0) {
-										CreateComponent<Render::DiffuseMap::TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
-										CreateComponent<Render::DiffuseMap::TextureData>(
+										CreateComponent<Render::Material::DiffuseMap::Info>(meshEntityId, diffuseTexturePath.C_Str());
+										CreateComponent<Render::Material::DiffuseMap::Data>(
 											meshEntityId,
 											textureWidth, textureHeight,
 											std::vector<Geom::Color4b>{
@@ -1436,8 +1436,8 @@ namespace OksEngine
 											&width, &height, &channels,
 											STBI_rgb_alpha
 										);
-										CreateComponent<Render::DiffuseMap::TextureInfo>(meshEntityId, diffuseTexturePath.C_Str());
-										CreateComponent<Render::DiffuseMap::TextureData>(
+										CreateComponent<Render::Material::DiffuseMap::Info>(meshEntityId, diffuseTexturePath.C_Str());
+										CreateComponent<Render::Material::DiffuseMap::Data>(
 											meshEntityId,
 											width, height,
 											std::vector<Geom::Color4b>{
@@ -1454,8 +1454,8 @@ namespace OksEngine
 									Common::UInt32 textureWidth = normalTexture->mWidth;
 									Common::UInt32 textureHeight = normalTexture->mHeight;
 									if (textureHeight > 0) {
-										CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
-										CreateComponent<Render::NormalMap::TextureData>(
+										CreateComponent<Render::Material::NormalMap::Info>(meshEntityId, normalTexturePath.C_Str());
+										CreateComponent<Render::Material::NormalMap::Data>(
 											meshEntityId,
 											textureWidth, textureHeight,
 											std::vector<Geom::Color4b>{
@@ -1474,8 +1474,8 @@ namespace OksEngine
 											&width, &height, &channels,
 											STBI_rgb_alpha
 										);
-										CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, normalTexturePath.C_Str());
-										CreateComponent<Render::NormalMap::TextureData>(
+										CreateComponent<Render::Material::NormalMap::Info>(meshEntityId, normalTexturePath.C_Str());
+										CreateComponent<Render::Material::NormalMap::Data>(
 											meshEntityId,
 											width, height,
 											std::vector<Geom::Color4b>{
@@ -1493,8 +1493,8 @@ namespace OksEngine
 									Common::UInt32 textureWidth = ambientTexture->mWidth;
 									Common::UInt32 textureHeight = ambientTexture->mHeight;
 									if (textureHeight > 0) {
-										CreateComponent<Render::NormalMap::TextureInfo>(meshEntityId, ambientTexturePath.C_Str());
-										CreateComponent<Render::NormalMap::TextureData>(
+										CreateComponent<Render::Material::NormalMap::Info>(meshEntityId, ambientTexturePath.C_Str());
+										CreateComponent<Render::Material::NormalMap::Data>(
 											meshEntityId,
 											textureWidth, textureHeight,
 											std::vector<Geom::Color4b>{
@@ -1513,8 +1513,8 @@ namespace OksEngine
 											&width, &height, &channels,
 											STBI_rgb_alpha
 										);
-										CreateComponent<Render::AmbientMap::TextureInfo>(meshEntityId, ambientTexturePath.C_Str());
-										CreateComponent<Render::AmbientMap::TextureData>(
+										CreateComponent<Render::Material::AmbientMap::Info>(meshEntityId, ambientTexturePath.C_Str());
+										CreateComponent<Render::Material::AmbientMap::Data>(
 											meshEntityId,
 											width, height,
 											std::vector<Geom::Color4b>{
@@ -2538,8 +2538,8 @@ namespace OksEngine
 		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
 		auto* meshModelEntityIndices = std::get<Render::Mdl::ModelNodeEntityIndices*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
-		auto* meshTextureResources = std::get<Render::DiffuseMap::TextureResource*>(meshComponents);
-		auto* meshNormalTextureResources = std::get<Render::NormalMap::TextureResource*>(meshComponents);
+		auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
+		auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
@@ -2708,8 +2708,8 @@ namespace OksEngine
 		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
 		auto* meshModelEntityIndices = std::get<Render::Mdl::ModelNodeEntityIndices*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
-		auto* meshTextureResources = std::get<Render::DiffuseMap::TextureResource*>(meshComponents);
-		auto* meshNormalTextureResources = std::get<Render::NormalMap::TextureResource*>(meshComponents);
+		auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
+		auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
@@ -3421,8 +3421,8 @@ namespace OksEngine
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
 		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
-		auto* meshTextureResources = std::get<Render::DiffuseMap::TextureResource*>(meshComponents);
-		auto* meshNormalTextureResources = std::get<Render::NormalMap::TextureResource*>(meshComponents);
+		auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
+		auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
 
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 
@@ -3453,8 +3453,8 @@ namespace OksEngine
 					continue;
 				}
 				if (!meshComponentsFilter.IsSet <
-					Render::DiffuseMap::TextureResource/*,
-					Render::NormalMap::TextureResource*/> ()) {
+					Render::Material::DiffuseMap::Resource/*,
+					Render::Material::NormalMap::Resource*/> ()) {
 					continue;
 				}
 
@@ -3781,8 +3781,8 @@ namespace OksEngine
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
 		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
-		auto* meshTextureResources = std::get<Render::DiffuseMap::TextureResource*>(meshComponents);
-		auto* meshNormalTextureResources = std::get<Render::NormalMap::TextureResource*>(meshComponents);
+		auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
+		auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
@@ -3810,8 +3810,8 @@ namespace OksEngine
 				if (!meshComponentsFilter.IsSet<
 					DriverVertexBuffer,
 					DriverIndexBuffer,
-					Render::DiffuseMap::TextureResource,
-					Render::NormalMap::TextureResource,
+					Render::Material::DiffuseMap::Resource,
+					Render::Material::NormalMap::Resource,
 					Render::Mdl::ModelEntityIds,
 					VertexBones,
 					Indices>()) {

@@ -3,7 +3,7 @@
 -- LINES
 
 -- TEXT
-DebugTextRendererComponent = { }
+DebugTextRendererComponent = {}
 
 CreateDebugTextRendererSystem = {
     type = "Initialize",
@@ -22,10 +22,10 @@ CreateDebugTextRendererSystem = {
 SymbolMetadataStruct = {
 
     fields = {
-        { type = "glm::vec2", name = "uvMin" },
-        { type = "glm::vec2", name = "uvMax" },
-        { type = "glm::ivec2", name = "size" },
-        { type = "glm::ivec2", name = "bearing" },
+        { type = "glm::vec2",      name = "uvMin" },
+        { type = "glm::vec2",      name = "uvMax" },
+        { type = "glm::ivec2",     name = "size" },
+        { type = "glm::ivec2",     name = "bearing" },
         { type = "Common::UInt32", name = "advanceX" },
         { type = "Common::UInt32", name = "advanceY" }
     }
@@ -34,7 +34,7 @@ SymbolMetadataStruct = {
 SymbolsMetadataComponent = {
     serializable = false,
     fields = {
-        { type = "std::map<char, SymbolMetadata>", name = "symbolsMetadata"}
+        { type = "std::map<char, SymbolMetadata>", name = "symbolsMetadata" }
     }
 }
 
@@ -46,9 +46,9 @@ DebugTextVertexBufferComponent = {
 CreateDebugTextVertexBufferSystem = {
     type = "Initialize",
     callOrder = {
-        runAfter = { 
-        "CreateDebugTextRenderer",
-        "CreateRenderDriver" }
+        runAfter = {
+            "CreateDebugTextRenderer",
+            "CreateRenderDriver" }
     },
     updateMethod = {
         processesEntities = {
@@ -62,8 +62,8 @@ CreateDebugTextVertexBufferSystem = {
                 excludes = { "DebugTextVertexBuffer" }
             },
             {
-                processesComponents = { 
-                    { name = "RenderDriver", readonly = false } 
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
                 }
             }
         }
@@ -92,70 +92,70 @@ UpdateDebugTextVertexBufferSystem = {
 
 DebugTextDriverVertexBufferComponent = {
     serializable = false,
-    fields = { 
-        { type="RAL::Driver::VertexBuffer::Id", name="id" },
-        { type="Common::Size", name="capacity" },
-        { type="Common::Size", name="size" }
+    fields = {
+        { type = "RAL::Driver::VertexBuffer::Id", name = "id" },
+        { type = "Common::Size",                name = "capacity" },
+        { type = "Common::Size",                name = "size" }
     }
 }
 
 CreateTextDriverVertexBufferSystem = {
     type = "Initialize",
     callOrder = {
-        runAfter = { 
-        "CreateDebugTextRenderer",
-        "CreateRenderDriver" }
+        runAfter = {
+            "CreateDebugTextRenderer",
+            "CreateRenderDriver" }
 
-    
+
     },
     updateMethod = {
-     processesEntities = {
-        {
-            processesComponents = {
-                "DebugTextRenderer"
+        processesEntities = {
+            {
+                processesComponents = {
+                    "DebugTextRenderer"
+                },
+                createsComponents = {
+                    "DebugTextDriverVertexBuffer"
+                },
+                excludes = { "DebugTextDriverVertexBuffer" }
             },
-            createsComponents = {
-                "DebugTextDriverVertexBuffer"
-            },
-            excludes = { "DebugTextDriverVertexBuffer" }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
             }
         }
-    }
     }
 }
 
 UpdateDebugTextDriverVertexBufferSystem = {
     updateMethod = {
-     processesEntities = {
-        {
-            processesComponents = {
-                "DebugTextRenderer",
-                { name = "DebugTextVertexBuffer",readonly = false },
-                { name = "DebugTextDriverVertexBuffer", readonly = false }
-            }
-        },
-        {
-            processesComponents = { 
-                { name = "RenderDriver", readonly = false } 
-            }
-        },
-        {
-            processesComponents = { 
-                "DebugText2D"
+        processesEntities = {
+            {
+                processesComponents = {
+                    "DebugTextRenderer",
+                    { name = "DebugTextVertexBuffer",       readonly = false },
+                    { name = "DebugTextDriverVertexBuffer", readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    { name = "RenderDriver", readonly = false }
+                }
+            },
+            {
+                processesComponents = {
+                    "DebugText2D"
+                }
             }
         }
-    }
     }
 }
 
 CreateDebugTextAtlasSystem = {
     type = "Initialize",
     callOrder = {
-        runAfter = { 
+        runAfter = {
             "CreateDebugTextRenderer",
             "ConfigureResourceSystem" }
     },
@@ -205,7 +205,7 @@ CreateDebugTextRenderPassSystem = {
                     "Render::Pipeline"
                 }
             },
-            {   
+            {
                 processesComponents = {
                     "DebugTextRenderer"
                 },
@@ -230,8 +230,8 @@ DebugTextAttachmentSetComponent = {
 CreateDebugTextAttachmentSetSystem = {
     type = "Initialize",
     callOrder = {
-        runAfter = { 
-            "Render::CreateRenderAttachment", 
+        runAfter = {
+            "Render::CreateRenderAttachment",
             "Render::CreateDepthAttachment",
             "CreateDebugTextRenderer",
             "CreateDebugTextRenderPass" },
@@ -282,7 +282,7 @@ CreateDebugTextPipelineSystem = {
     },
     updateMethod = {
         processesEntities = {
-             {
+            {
                 processesComponents = {
                     "RenderDriver"
                 }
@@ -292,7 +292,7 @@ CreateDebugTextPipelineSystem = {
                     "ResourceSystem"
                 }
             },
-            {   
+            {
                 processesComponents = {
                     "DebugTextRenderer",
                     "DebugTextRenderPass"
@@ -317,7 +317,7 @@ BeginDebugTextRenderPassSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    { name = "RenderDriver", readonly = false}
+                    { name = "RenderDriver", readonly = false }
                 }
             },
             {
@@ -332,7 +332,7 @@ BeginDebugTextRenderPassSystem = {
     }
 }
 
- DrawDebugText2DSystem = {
+DrawDebugText2DSystem = {
     callOrder = {
         runAfter = "BeginDebugTextRenderPass",
         runBefore = "EndDebugTextRenderPass"
@@ -341,7 +341,7 @@ BeginDebugTextRenderPassSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    { name = "RenderDriver", readonly = false},
+                    { name = "RenderDriver", readonly = false },
                     "Render::MainRenderPass",
                     "Render::Pipeline"
                 }
@@ -353,7 +353,7 @@ BeginDebugTextRenderPassSystem = {
                     "DebugTextPipeline",
                     "SymbolsMetadata",
                     "DebugTextDriverVertexBuffer",
-                    "Render::DiffuseMap::TextureResource"
+                    "Render::Material::DiffuseMap::Resource"
                 }
             },
             {
@@ -374,7 +374,7 @@ EndDebugTextRenderPassSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    { name = "RenderDriver", readonly = false},
+                    { name = "RenderDriver", readonly = false },
                     "Render::MainRenderPass",
                     "Render::Pipeline"
                 }
