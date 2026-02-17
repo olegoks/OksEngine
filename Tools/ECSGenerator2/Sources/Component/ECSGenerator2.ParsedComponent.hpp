@@ -129,6 +129,8 @@ namespace ECSGenerator2 {
 			return ci_.name_;
 		}
 
+		//objectName
+		//loadLuaScriptRequest
 		[[nodiscard]]
 		std::string GetLowerName() {
 			return std::string{ static_cast<char>(std::tolower(GetName()[0])) } + GetName().substr(1);

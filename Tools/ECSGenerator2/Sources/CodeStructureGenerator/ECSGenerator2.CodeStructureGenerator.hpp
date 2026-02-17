@@ -18,6 +18,8 @@ extern "C" {
 #include <graphviz/gvc.h>
 }
 
+#include <regex>
+
 namespace ECSGenerator2 {
 
 	class CodeStructureGenerator {
@@ -762,10 +764,16 @@ namespace ECSGenerator2 {
 
 						CodeStructure::Code code;
 
+						std::string lowerFullName = component->GetFullName();
+						lowerFullName = std::regex_replace(lowerFullName, std::regex("::"), "__");
+
 						code.Add(std::format(
 							"luabridge::LuaRef {}Ref = entity[\"{}\"];",
 							component->GetLowerName(),
-							component->GetLowerName()));
+							lowerFullName
+							//component->GetLowerName()
+							)
+						);
 
 						code.Add(std::format(
 							"if (!{}Ref.isNil()) {{",

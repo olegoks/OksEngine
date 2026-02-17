@@ -30,6 +30,7 @@ PhysicsNamespace = {
             DebugRenderMenuItemComponent = {
             },        
             DebugRenderWindowComponent = {
+                serializable = false,
                 fields = { { type = "bool", name = "show" } }
             },
             CreateDebugRenderMenuItemSystem = {

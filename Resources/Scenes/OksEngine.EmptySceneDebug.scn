@@ -45,20 +45,19 @@ scene = {
             --     modelFile = { fileName = "7F82YHYEX1M01RF8TJOBED87E.glb" }
             --},
 
-
             {
                   ID = "ID:scene/editor/phys_plane",
-                  name = { value = "Physics plane" },
-                  worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  staticRigidBody = {},
-                  material = {
+                  Name = { value = "Physics plane" },
+                  WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Physics__StaticRigidBody = {},
+                  Physics__Material = {
                         staticFriction = 0.5,
                         dynamicFriction = 0.5,
                         restitution = 0.0
                   },
-                  shapeGeometryData = {
+                  Physics__ShapeGeometryData = {
                         mesh = {
                               vertices = {
                                     { x = -50.000000, y = 0.000002, z = 50.000000 },
@@ -79,34 +78,34 @@ scene = {
 
             {
                   ID = "ID:scene/test_level",--78,
-                  name = { value = "TestLevelGeom" },
-                  modelEntity = { id = "ID:scene/test_level/model" },
-                  rigidBodyEntityId = { id = "ID:scene/test_level/static_body" },
-                  mapRigidBodyWorldPositionToModelWorldPosition = {}
+                  Name = { value = "TestLevelGeom" },
+                  Render__Mdl__ModelEntity = { id = "ID:scene/test_level/model" },
+                  Physics__RigidBodyEntityId = { id = "ID:scene/test_level/static_body" },
+                  MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
                   ID = "ID:scene/test_level/model",
                   ARCHETYPE = "Model",
-                  name = { value = "TestLevelGeom.glb" },
-                  worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  model = {},
-                  modelFile = { fileName = "TestLevelGeom.glb" }
+                  Name = { value = "TestLevelGeom.glb" },
+                  WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Render__Mdl__Model = {},
+                  Render__Mdl__ModelFile = { fileName = "TestLevelGeom.glb" }
             },
             {
                   ID = "ID:scene/test_level/static_body",
-                  name = { value = "TestLevelGeom" },
-                  worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  staticRigidBody = {},
-                  material = {
+                  Name = { value = "TestLevelGeom" },
+                  WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Physics__StaticRigidBody = {},
+                  Physics__Material = {
                         staticFriction = 0.5,
                         dynamicFriction = 0.5,
                         restitution = 0.0
                   },
-                  shapeGeometryData = {
+                  Physics__ShapeGeometryData = {
                         convexGeometry = false,
                         mesh = {
                               vertices = {
@@ -125,39 +124,39 @@ scene = {
             --TRUCK BODY
             {
                   ID = 20,
-                  name = { value = "Truck" },
-                  modelEntity = { id = 21 },
-                  rigidBodyEntityId = { id = 96 },
-                  mapRigidBodyWorldPositionToModelWorldPosition = {}
+                  Name = { value = "Truck" },
+                  Render__Mdl__ModelEntity = { id = 21 },
+                  Physics__RigidBodyEntityId = { id = 96 },
+                  MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             --truck
             {
                   ID = 21,
                   ARCHETYPE = "Model",
-                  name = { value = "Truck" },
-                  worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  model = {},
-                  modelFile = { fileName = "Truck.glb" }
+                  Name = { value = "Truck" },
+                  WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Render__Mdl__Model = {},
+                  Render__Mdl__ModelFile = { fileName = "Truck.glb" }
             },
             { -- BODY
                   ID = 96,
-                  name = { value = "Car_Body" },
-                  worldPosition3D = { x = 3, y = 1.5, z = -3, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  dynamicRigidBody = {},
-                  mass = { value = 1000.0 },
-                  material = {
+                  Name = { value = "Car_Body" },
+                  WorldPosition3D = { x = 3, y = 1.5, z = -3, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Physics__DynamicRigidBody = {},
+                  Physics__Mass = { value = 1000.0 },
+                  Physics__Material = {
                         staticFriction = 0.1,
                         dynamicFriction = 0.1,
                         restitution = 0.0
                   },
-                  angularDamping = {
+                  Physics__AngularDamping = {
                         value = 1.0
                   },
-                  linearDamping = {
+                  Physics__LinearDamping = {
                         value = 1.0
                   },
                   -- shapeGeometryBox = {
@@ -165,7 +164,7 @@ scene = {
                   --      width = 1.0,
                   --      height = 0.5
                   -- },
-                  shapeGeometryData = {
+                  Physics__ShapeGeometryData = {
                         mesh = {
                               vertices = {
                                     { x = -1.996030, y = 0.132138, z = 0.882485 },
@@ -464,47 +463,47 @@ scene = {
             --WHEEL FORWARD RIGHT
             {
                   ID = 30,
-                  name = { value = "Truck" },
-                  modelEntity = { id = 31 },
-                  rigidBodyEntityId = { id = 97 },
-                  mapRigidBodyWorldPositionToModelWorldPosition = {}
+                  Name = { value = "Truck" },
+                  Render__Mdl__ModelEntity = { id = 31 },
+                  Physics__RigidBodyEntityId = { id = 97 },
+                  MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
                   ID = 31,
                   ARCHETYPE = "Model",
-                  name = { value = "Wheel" },
-                  worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  model = {},
-                  modelFile = { fileName = "TruckWheel.glb" }
+                  Name = { value = "Wheel" },
+                  WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Render__Mdl__Model = {},
+                  Render__Mdl__ModelFile = { fileName = "TruckWheel.glb" }
             },
             {
                   ID = 97,
-                  name = { value = "Wheel_forward_right" },
-                  worldPosition3D = { x = 4.7, y = 1.6, z = -2.1, w = 0.0 },
-                  worldRotation3D = {
+                  Name = { value = "Wheel_forward_right" },
+                  WorldPosition3D = { x = 4.7, y = 1.6, z = -2.1, w = 0.0 },
+                  WorldRotation3D = {
                         aroundX = 90.0,
                         aroundY = 0.0,
                         aroundZ = 0.0
 
                   },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  dynamicRigidBody = {},
-                  mass = { value = 40.0 },
-                  material = {
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Physics__DynamicRigidBody = {},
+                  Physics__Mass = { value = 40.0 },
+                  Physics__Material = {
                         staticFriction = 0.1,
                         dynamicFriction = 0.1,
                         restitution = 0.0
                   },
-                  setAngularVelocityRequests = {},
-                  angularDamping = {
+                  Physics__SetAngularVelocityRequests = {},
+                  Physics__AngularDamping = {
                         value = 1.0
                   },
-                  linearDamping = {
+                  Physics__LinearDamping = {
                         value = 10.0
                   },
-                  shapeGeometryData = {
+                  Physics__ShapeGeometryData = {
                         mesh = {
                               vertices = {
                                     { x = -0.087914, y = 0.248074,  z = -0.001452 },
@@ -705,90 +704,90 @@ scene = {
             },
             {
                   ID = 98,
-                  constraint = {},
-                  revoluteConstraint = {},
-                  revoluteAxis = {
+                  Physics__Constraint = {},
+                  Physics__RevoluteConstraint = {},
+                  Physics__RevoluteAxis = {
                         x = 0.0,
                         y = 0.0,
                         z = 1.0
                   },
-                  disableCollision = {},
-                  invMassScale = {
+                  Physics__DisableCollision = {},
+                  Physics__InvMassScale = {
                         first = 0.01,
                         second = 0.1
                   },
-                  firstConstraintedRigidBodyEntityId = { id = 96 },
-                  firstConstraintedRigidBodyJointPosition3D = {
+                  Physics__FirstConstraintedRigidBodyEntityId = { id = 96 },
+                  Physics__FirstConstraintedRigidBodyJointPosition3D = {
                         x = 1.7,
                         y = 0.1,
                         z = 0.9,
                         w = 0.0
                   },
-                  firstConstraintedRigidBodyJointRotation3D = {
+                  Physics__FirstConstraintedRigidBodyJointRotation3D = {
                         aroundX = 0.0,
                         aroundY = -90.0,
                         aroundZ = 0.0
                   },
-                  secondConstraintedRigidBodyJointPosition3D = {
+                  Physics__SecondConstraintedRigidBodyJointPosition3D = {
                         x = 0.0,
                         y = 0.0,
                         z = 0.0,
                         w = 0.0
                   },
-                  secondConstraintedRigidBodyJointRotation3D = {
+                  Physics__SecondConstraintedRigidBodyJointRotation3D = {
                         aroundX = 0.0,
                         aroundY = 0.0,
                         aroundZ = 0.0
 
                   },
-                  secondConstraintedRigidBodyEntityId = { id = 97 }
+                  Physics__SecondConstraintedRigidBodyEntityId = { id = 97 }
             },
 
             {
                   ID = 34,
-                  name = { value = "Truck" },
-                  modelEntity = { id = 35 },
-                  rigidBodyEntityId = { id = 99 },
-                  mapRigidBodyWorldPositionToModelWorldPosition = {}
+                  Name = { value = "Truck" },
+                  Render__Mdl__ModelEntity = { id = 35 },
+                  Physics__RigidBodyEntityId = { id = 99 },
+                  MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
                   ID = 35,
                   ARCHETYPE = "Model",
-                  name = { value = "Wheel" },
-                  worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  model = {},
-                  modelFile = { fileName = "TruckWheel.glb" }
+                  Name = { value = "Wheel" },
+                  WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Render__Mdl__Model = {},
+                  Render__Mdl__ModelFile = { fileName = "TruckWheel.glb" }
             },
             --WHEEL FORWARD Left
 
             {
                   ID = 99,
-                  name = { value = "Wheel_foraward_left" },
-                  worldPosition3D = { x = 4.7, y = 1.6, z = -3.9, w = 0.0 },
-                  worldRotation3D = {
+                  Name = { value = "Wheel_foraward_left" },
+                  WorldPosition3D = { x = 4.7, y = 1.6, z = -3.9, w = 0.0 },
+                  WorldRotation3D = {
                         aroundX = 90.0,
                         aroundY = 180.0,
                         aroundZ = 0.0
 
                   },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  dynamicRigidBody = {},
-                  mass = { value = 40.0 },
-                  material = {
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Physics__DynamicRigidBody = {},
+                  Physics__Mass = { value = 40.0 },
+                  Physics__Material = {
                         staticFriction = 0.1,
                         dynamicFriction = 0.1,
                         restitution = 0.0
                   },
-                  setAngularVelocityRequests = {},
-                  angularDamping = {
+                  Physics__SetAngularVelocityRequests = {},
+                  Physics__AngularDamping = {
                         value = 1.0
                   },
-                  linearDamping = {
+                  Physics__LinearDamping = {
                         value = 10.0
                   },
-                  shapeGeometryData = {
+                  Physics__ShapeGeometryData = {
                         mesh = {
                               vertices = {
                                     { x = -0.087914, y = 0.248074,  z = -0.001452 },
@@ -989,89 +988,89 @@ scene = {
             },
             {
                   ID = 100,
-                  constraint = {},
-                  revoluteConstraint = {},
-                  revoluteAxis = {
+                  Physics__Constraint = {},
+                  Physics__RevoluteConstraint = {},
+                  Physics__RevoluteAxis = {
                         x = 0.0,
                         y = 0.0,
                         z = 1.0
                   },
-                  disableCollision = {},
-                  invMassScale = {
+                  Physics__DisableCollision = {},
+                  Physics__InvMassScale = {
                         first = 0.01,
                         second = 0.1
                   },
-                  firstConstraintedRigidBodyEntityId = { id = 96 },
-                  firstConstraintedRigidBodyJointPosition3D = {
+                  Physics__FirstConstraintedRigidBodyEntityId = { id = 96 },
+                  Physics__FirstConstraintedRigidBodyJointPosition3D = {
                         x = 1.7,
                         y = 0.1,
                         z = -0.9,
                         w = 0.0
                   },
-                  firstConstraintedRigidBodyJointRotation3D = {
+                  Physics__FirstConstraintedRigidBodyJointRotation3D = {
                         aroundX = 0.0,
                         aroundY = 90.0,
                         aroundZ = 0.0
                   },
-                  secondConstraintedRigidBodyJointPosition3D = {
+                  Physics__SecondConstraintedRigidBodyJointPosition3D = {
                         x = 0.0,
                         y = 0.0,
                         z = 0.0,
                         w = 0.0
                   },
-                  secondConstraintedRigidBodyJointRotation3D = {
+                  Physics__SecondConstraintedRigidBodyJointRotation3D = {
                         aroundX = 00.0,
                         aroundY = 00.0,
                         aroundZ = 0.0
 
                   },
-                  secondConstraintedRigidBodyEntityId = { id = 99 }
+                  Physics__SecondConstraintedRigidBodyEntityId = { id = 99 }
             },
 
 
             {
                   ID = 37,
-                  name = { value = "Truck" },
-                  modelEntity = { id = 38 },
-                  rigidBodyEntityId = { id = 101 },
-                  mapRigidBodyWorldPositionToModelWorldPosition = {}
+                  Name = { value = "Truck" },
+                  Render__Mdl__ModelEntity = { id = 38 },
+                  Physics__RigidBodyEntityId = { id = 101 },
+                  MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
                   ID = 38,
                   ARCHETYPE = "Model",
-                  name = { value = "Wheel" },
-                  worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  model = {},
-                  modelFile = { fileName = "TruckWheel.glb" }
+                  Name = { value = "Wheel" },
+                  WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Render__Mdl__Model = {},
+                  Render__Mdl__ModelFile = { fileName = "TruckWheel.glb" }
             },
             { --WHEEL BACK Left
                   ID = 101,
-                  name = { value = "Wheel_back_left" },
-                  worldPosition3D = { x = 2.1, y = 1.6, z = -3.9, w = 0.0 },
-                  worldRotation3D = {
+                  Name = { value = "Wheel_back_left" },
+                  WorldPosition3D = { x = 2.1, y = 1.6, z = -3.9, w = 0.0 },
+                  WorldRotation3D = {
                         aroundX = 90.0,
                         aroundY = 180.0,
                         aroundZ = 0.0
 
                   },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  dynamicRigidBody = {},
-                  mass = { value = 40.0 },
-                  material = {
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Physics__DynamicRigidBody = {},
+                  Physics__Mass = { value = 40.0 },
+                  Physics__Material = {
                         staticFriction = 0.1,
                         dynamicFriction = 0.1,
                         restitution = 0.0
                   },
-                  setAngularVelocityRequests = {},
-                  angularDamping = {
+                  Physics__SetAngularVelocityRequests = {},
+                  Physics__AngularDamping = {
                         value = 1.0
                   },
-                  linearDamping = {
+                  Physics__LinearDamping = {
                         value = 10.0
                   },
-                  shapeGeometryData = {
+                  Physics__ShapeGeometryData = {
                         mesh = {
                               vertices = {
                                     { x = -0.087914, y = 0.248074,  z = -0.001452 },
@@ -1274,87 +1273,87 @@ scene = {
 
             {
                   ID = 102,
-                  constraint = {},
-                  revoluteConstraint = {},
-                  revoluteAxis = {
+                  Physics__Constraint = {},
+                  Physics__RevoluteConstraint = {},
+                  Physics__RevoluteAxis = {
                         x = 0.0,
                         y = 0.0,
                         z = 1.0
                   },
-                  invMassScale = {
+                  Physics__InvMassScale = {
                         first = 0.01,
                         second = 0.1
                   },
-                  disableCollision = {},
-                  firstConstraintedRigidBodyEntityId = { id = 96 },
-                  firstConstraintedRigidBodyJointPosition3D = {
+                  Physics__DisableCollision = {},
+                  Physics__FirstConstraintedRigidBodyEntityId = { id = 96 },
+                  Physics__FirstConstraintedRigidBodyJointPosition3D = {
                         x = -0.9,
                         y = 0.1,
                         z = -0.9,
                         w = 0.0
                   },
-                  firstConstraintedRigidBodyJointRotation3D = {
+                  Physics__FirstConstraintedRigidBodyJointRotation3D = {
                         aroundX = 0.0,
                         aroundY = 90.0,
                         aroundZ = 0.0
                   },
-                  secondConstraintedRigidBodyJointPosition3D = {
+                  Physics__SecondConstraintedRigidBodyJointPosition3D = {
                         x = 0.0,
                         y = 0.0,
                         z = 0.0,
                         w = 0.0
                   },
-                  secondConstraintedRigidBodyJointRotation3D = {
+                  Physics__SecondConstraintedRigidBodyJointRotation3D = {
                         aroundX = 00.0,
                         aroundY = 00.0,
                         aroundZ = 0.0
 
                   },
-                  secondConstraintedRigidBodyEntityId = { id = 101 }
+                  Physics__SecondConstraintedRigidBodyEntityId = { id = 101 }
             },
             {
                   ID = "ID:scene/truck",
-                  name = { value = "Truck" },
-                  modelEntity = { id = "ID:scene/truck/truck_model" },
-                  rigidBodyEntityId = { id = 103 },
-                  mapRigidBodyWorldPositionToModelWorldPosition = {}
+                  Name = { value = "Truck" },
+                  Render__Mdl__ModelEntity = { id = "ID:scene/truck/truck_model" },
+                  Physics__RigidBodyEntityId = { id = 103 },
+                  MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
                   ID = "ID:scene/truck/truck_model",
                   ARCHETYPE = "Model",
-                  name = { value = "Wheel" },
-                  worldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  model = {},
-                  modelFile = { fileName = "TruckWheel.glb" }
+                  Name = { value = "Wheel" },
+                  WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Render__Mdl__Model = {},
+                  Render__Mdl__ModelFile = { fileName = "TruckWheel.glb" }
             },
             { --WHEEL BACK RIGHT
                   ID = 103,
-                  name = { value = "Wheel_back_right" },
-                  worldPosition3D = { x = 2.1, y = 1.6, z = -2.1, w = 0.0 },
-                  worldRotation3D = {
+                  Name = { value = "Wheel_back_right" },
+                  WorldPosition3D = { x = 2.1, y = 1.6, z = -2.1, w = 0.0 },
+                  WorldRotation3D = {
                         aroundX = 90.0,
                         aroundY = 0.0,
                         aroundZ = 0.0
 
                   },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  dynamicRigidBody = {},
-                  mass = { value = 40.0 },
-                  material = {
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Physics__DynamicRigidBody = {},
+                  Physics__Mass = { value = 40.0 },
+                  Physics__Material = {
                         staticFriction = 0.1,
                         dynamicFriction = 0.1,
                         restitution = 0.0
                   },
-                  setAngularVelocityRequests = {},
-                  angularDamping = {
+                  Physics__SetAngularVelocityRequests = {},
+                  Physics__AngularDamping = {
                         value = 1.0
                   },
-                  linearDamping = {
+                  Physics__LinearDamping = {
                         value = 10.0
                   },
-                  shapeGeometryData = {
+                  Physics__ShapeGeometryData = {
                         mesh = {
                               vertices = {
                                     { x = -0.087914, y = 0.248074,  z = -0.001452 },
@@ -1555,43 +1554,43 @@ scene = {
             },
             {
                   ID = 104,
-                  constraint = {},
-                  revoluteConstraint = {},
-                  revoluteAxis = {
+                  Physics__Constraint = {},
+                  Physics__RevoluteConstraint = {},
+                  Physics__RevoluteAxis = {
                         x = 0.0,
                         y = 0.0,
                         z = 1.0
                   },
-                  invMassScale = {
+                  Physics__InvMassScale = {
                         first = 0.01,
                         second = 0.1
                   },
-                  disableCollision = {},
-                  firstConstraintedRigidBodyEntityId = { id = 96 },
-                  firstConstraintedRigidBodyJointPosition3D = {
+                  Physics__DisableCollision = {},
+                  Physics__FirstConstraintedRigidBodyEntityId = { id = 96 },
+                  Physics__FirstConstraintedRigidBodyJointPosition3D = {
                         x = -0.9,
                         y = 0.1,
                         z = 0.9,
                         w = 0.0
                   },
-                  firstConstraintedRigidBodyJointRotation3D = {
+                  Physics__FirstConstraintedRigidBodyJointRotation3D = {
                         aroundX = 0.0,
                         aroundY = -90.0,
                         aroundZ = 0.0
                   },
-                  secondConstraintedRigidBodyJointPosition3D = {
+                  Physics__SecondConstraintedRigidBodyJointPosition3D = {
                         x = 0.0,
                         y = 0.0,
                         z = 0.0,
                         w = 0.0
                   },
-                  secondConstraintedRigidBodyJointRotation3D = {
+                  Physics__SecondConstraintedRigidBodyJointRotation3D = {
                         aroundX = 0.0,
                         aroundY = 0.0,
                         aroundZ = 0.0
 
                   },
-                  secondConstraintedRigidBodyEntityId = { id = 103 }
+                  Physics__SecondConstraintedRigidBodyEntityId = { id = 103 }
             },
 
             --CAAR
@@ -1638,53 +1637,53 @@ scene = {
 
             {
                   ID = "ID:scene/soldier",
-                  name = { value = "Soldier" },
-                  characterEntity = {},
-                  bindedCameraOffset = { x = 0.0, y = 2.0, z = 3.0 },
-                  bindedCameraEntityId = { id = 14 },
-                  modelEntity = { id = "ID:scene/soldier/model" },
-                  rigidBodyEntityId = { id = "ID:scene/soldier/capsule" },
-                  direction3D = { x = 0.0, y = 0.0, z = -1.0 },
-                  scriptName = { name = "TestGameObjectLogic.lua" },
-                  objectName = { name = "TestGameObject" },
-                  handleKeyboardEvents = {},
-                  handleCursorEvents = {},
-                  keyMappings = {
+                  Name = { value = "Soldier" },
+                  Character__CharacterEntity = {},
+                  Character__BindedCameraOffset = { x = 0.0, y = 2.0, z = 3.0 },
+                  Character__BindedCameraEntityId = { id = 14 },
+                  Render__Mdl__ModelEntity = { id = "ID:scene/soldier/model" },
+                  Physics__RigidBodyEntityId = { id = "ID:scene/soldier/capsule" },
+                  Direction3D = { x = 0.0, y = 0.0, z = -1.0 },
+                  Behaviour__ScriptName = { name = "TestGameObjectLogic.lua" },
+                  Behaviour__ObjectName = { name = "TestGameObject" },
+                  Input__HandleKeyboardEvents = {},
+                  HandleCursorEvents = {},
+                  Input__KeyMappings = {
                         { key = "W", value = "MOVE_FORWARD" },
                         { key = "S", value = "MOVE_BACK" },
                         { key = "A", value = "MOVE_LEFT" },
                         { key = "D", value = "MOVE_RIGHT" },
                         { key = "E", value = "MOVE_UP" }
                   },
-                  mapRigidBodyWorldPositionToModelWorldPosition = {}
+                  MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
             {
                   ID ="ID:scene/soldier/capsule",
-                  name = { value = "Soldier" },
-                  worldPosition3D = { x = 0, y = 2.0, z = 0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  dynamicRigidBody = {},
+                  Name = { value = "Soldier" },
+                  WorldPosition3D = { x = 0, y = 2.0, z = 0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Physics__DynamicRigidBody = {},
                   --capsuleController = {},
-                  lockAngularX = {},
-                  lockAngularY = {},
-                  lockAngularZ = {},
-                  setVelocityRequests = {},
-                  addVelocityRequests = {},
-                  setAngularVelocityRequests = {},
-                  mass = { value = 80.0 },
-                  material = {
+                  Physics__LockAngularX = {},
+                  Physics__LockAngularY = {},
+                  Physics__LockAngularZ = {},
+                  Physics__SetVelocityRequests = {},
+                  Physics__AddVelocityRequests = {},
+                  Physics__SetAngularVelocityRequests = {},
+                  Physics__Mass = { value = 80.0 },
+                  Physics__Material = {
                         staticFriction = 0.5,
                         dynamicFriction = 0.5,
                         restitution = 0.5
                   },
-                  angularDamping = {
+                  Physics__AngularDamping = {
                         value = 3.0
                   },
-                  linearDamping = {
+                  Physics__LinearDamping = {
                         value = 0.1
                   },
-                  shapeGeometryCapsule = {
+                  Physics__ShapeGeometryCapsule = {
                         radius = 0.30,
                         height = 1.70,
                         segments = 8,
@@ -1694,51 +1693,51 @@ scene = {
             {
                   ID = "ID:scene/soldier/model",
                   ARCHETYPE = "Model",
-                  name = { value = "Man" },
-                  worldPosition3D = { x = 0, y = 0.0, z = 3, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  model = {},
+                  Name = { value = "Man" },
+                  WorldPosition3D = { x = 0, y = 0.0, z = 3, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  Render__Mdl__Model = {},
                   --runModelAnimation = { animationName = "Walk" },
-                  modelFile = { fileName = "SoldierWithAnimation.glb" }
+                  Render__Mdl__ModelFile = { fileName = "SoldierWithAnimation.glb" }
             },
             {
                   ID = 14,
-                  camera = {},
-                  name = { value = "Camera" },
-                  worldPosition3D = { x = 0.0, y = 4.0, z = -10.0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  zFar = { value = 1000.0 },
-                  zNear = { value = 0.1 },
-                  direction3D = { x = 0.0, y = -0.0, z = -20.0 },
-                  up3D = { x = 0, y = 1, z = 0 },
-                  width = { value = 2560 },
-                  height = { value = 1440 },
+                  Camera = {},
+                  Name = { value = "Camera" },
+                  WorldPosition3D = { x = 0.0, y = 4.0, z = -10.0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  ZFar = { value = 1000.0 },
+                  ZNear = { value = 0.1 },
+                  Direction3D = { x = 0.0, y = -0.0, z = -20.0 },
+                  Up3D = { x = 0, y = 1, z = 0 },
+                  Width = { value = 2560 },
+                  Height = { value = 1440 },
                   --active = {},
 
             },
             {
                   ID = 4,
-                  camera = {},
-                  name = { value = "Camera" },
-                  worldPosition3D = { x = 0.0, y = 4.0, z = -10.0, w = 0.0 },
-                  worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
-                  worldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
-                  zFar = { value = 1000.0 },
-                  zNear = { value = 0.1 },
-                  direction3D = { x = 0.0, y = -0.3, z = 1.0 },
-                  up3D = { x = 0, y = 1, z = 0 },
-                  width = { value = 2560 },
-                  height = { value = 1440 },
+                  Camera = {},
+                  Name = { value = "Camera" },
+                  WorldPosition3D = { x = 0.0, y = 4.0, z = -10.0, w = 0.0 },
+                  WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
+                  WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
+                  ZFar = { value = 1000.0 },
+                  ZNear = { value = 0.1 },
+                  Direction3D = { x = 0.0, y = -0.3, z = 1.0 },
+                  Up3D = { x = 0, y = 1, z = 0 },
+                  Width = { value = 2560 },
+                  Height = { value = 1440 },
 
-                  active = {},
-                  scriptName = { name = "Camera.lua" },
-                  objectName = { name = "Camera" },
-                  handleKeyboardEvents = {},
-                  handleMouseEvents = {},
-                  handleCursorEvents = {},
-                  keyMappings = {
+                  Active = {},
+                  Behaviour__ScriptName = { name = "Camera.lua" },
+                  Behaviour__ObjectName = { name = "Camera" },
+                  Input__HandleKeyboardEvents = {},
+                  HandleMouseEvents = {},
+                  HandleCursorEvents = {},
+                  Input__KeyMappings = {
                         { key = "F5",         value = "CAMERA_DISABLE" },
                         { key = "W",          value = "CAMERA_FORWARD" },
                         { key = "S",          value = "CAMERA_BACK" },

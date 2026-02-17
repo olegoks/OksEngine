@@ -22,10 +22,10 @@ namespace OksEngine
 				const OksEngine::DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
 				const OksEngine::CameraTransformResource* cameraTransformResource1, ECS2::Entity::Id entity2id,
 				const OksEngine::Render::Water::Tag* water__Tag2,
-				const OksEngine::Render::Water::PipelineId* water__PipelineId2,
+				const OksEngine::Render::Water::PipelineId* water__PipelineId2/*,
 				const OksEngine::Render::Material::DiffuseMap::Resource* render__DiffuseMap__TextureResource2,
 				const OksEngine::Render::Material::NormalMap::Resource* render__NormalMap__TextureResource2,
-				const OksEngine::Render::Material::AmbientMap::Resource* render__AmbientMap__TextureResource2) {};
+				const OksEngine::Render::Material::AmbientMap::Resource* render__AmbientMap__TextureResource2*/) {};
 
 		}
 	}
