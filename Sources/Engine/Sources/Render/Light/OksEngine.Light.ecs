@@ -1,7 +1,13 @@
 RenderNamespace = {
 
     LightNamespace = {
-        LightComponent = {
+        TagComponent = {
+        },
+        TypeEnum = {
+            values = {
+                "Point",
+                "Directional"
+            }
         },
         IntensityComponent = {
             fields = {

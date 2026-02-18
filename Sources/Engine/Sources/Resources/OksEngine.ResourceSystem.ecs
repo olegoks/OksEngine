@@ -1,7 +1,74 @@
 ResourceSystemComponent = {
-    bindable = false,
-    serializable = false,
-    fields = {         
+	bindable = false,
+	serializable = false,
+	fields = {
 		{ type = "std::shared_ptr<AsyncResourceSubsystem>", name = "system" }
+	}
+}
+
+ResourceNamespace = {
+	ManagerNamespace = {
+		TagComponent = {
+			bindable = false,
+			serializable = false
+		},
+		CreateSystem = {
+			type = "Initialize",
+			updateMethod = {
+				createsEntities = {
+					{
+						createsComponents = {
+							"Resource::Manager::Tag"
+						}
+					}
+				}
+			}
+		},
+		RequestNamespace = {
+			TagComponent = {
+				bindable = false,
+				serializable = false
+			},
+			EntityIdComponent = {
+				bindable = false,
+				serializable = false,
+				fields = { { type = "ECS2::Entity::Id", name = "id" } }
+			},
+			LoadFileInfoComponent = {
+				bindable = false,
+				serializable = false,
+				fields = {
+					{ type = "std::string", name = "fileName" },
+				}
+			}
+		},
+		ProcessRequestSystem = {
+			updateMethod = {
+				processesEntities = {
+					{
+						processesComponents = {
+							"Manager::Tag"
+						}
+					},
+					{
+						processesComponents = {
+							"Request::Tag"
+						},
+						accessingComponents = {
+							"Request::LoadFileInfo"
+						}
+					}
+				},
+				createsEntities = {
+					{
+						createsComponents = {
+							"Async::Manager::Task::Tag",
+							"Async::Manager::Task::InProgress",
+							"Async::Manager::Task::Info"
+						}
+					}
+				}
+			}
 		}
+	}
 }

@@ -115,25 +115,25 @@ RemoveLinkSystem = {
         }
     }
 }
-RemoveSceneLoadedSystem = {
-    callOrder = {
-        runAfter = "SetNodePosition",
-        runBefore = "DrawNodes"
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = { 
-                    "ImGUI::State",
-                    "EditorContext",
-                    "SceneLoaded"},
-                removesComponents = {
-                    "SceneLoaded"
-                }
-            }
-        }
-    }
-}
+-- RemoveSceneLoadedSystem = {
+--     callOrder = {
+--         runAfter = "SetNodePosition",
+--         runBefore = "DrawNodes"
+--     },
+--     updateMethod = {
+--         processesEntities = {
+--             {
+--                 processesComponents = { 
+--                     "ImGUI::State",
+--                     "EditorContext",
+--                     "SceneLoaded"},
+--                 removesComponents = {
+--                     "SceneLoaded"
+--                 }
+--             }
+--         }
+--     }
+-- }
 RootNodeComponent = {
 
 }
@@ -158,7 +158,7 @@ SavedNodePosition2DComponent = {
 SetNodePositionSystem = {
     callOrder = {
         runAfter = "CreateEditorContext",
-        runBefore = "RemoveSceneLoaded"
+        --runBefore = "RemoveSceneLoaded"
     },
     updateMethod = {
         processesEntities = {
@@ -166,8 +166,7 @@ SetNodePositionSystem = {
                 processesComponents = {
                     "ImGUI::State",
                     "ECSEditorWindow",
-                    "EditorContext",
-                    "SceneLoaded"
+                    "EditorContext"
                 }
             },
             {

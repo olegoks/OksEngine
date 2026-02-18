@@ -1,256 +1,395 @@
-
-SceneLoadedComponent = { }
-
-SaveSceneRequestComponent = {
-    fields = { 
-        -- { type = "ECS2::ComponentsFilter", name = "componentsFilter" },
-        { type = "std::string", name = "sceneName" }
-    }
-}
-
-LoadSceneRequestComponent = {
-    fields = {
-        { type = "std::string", name = "sceneName" },
-        { type = "ECS2::Entity::Id", name = "callerId" }
-    }
-}
-
-CreateSceneFileStartSystem = {
-    callOrder = {
-    runAfter = "StartWorldSceneSaving",
-    runBefore = "CreateSceneFile"
+SceneNamespace = {
+    TagComponent = {
+        bindable = false,
+        serializable = false
     },
-    updateMethod = {
-    processesEntities  = {
-        {
-            processesComponents = { 
-                "ECSController",
-                "SaveSceneRequest",
-                { name = "LuaScript", readonly = false }
-            }            
+    EntityIdComponent = {
+        bindable = false,
+        serializable = false,
+        description = "Id to Scene entity. Its need to find entities that need to remove if requested to Unload scene.",
+        fields = {
+            { type = "ECS2::Entity::Id", name = "id" }
         }
-    }
-    }
-}
-
-CreateSceneFileSystem = {
-    callOrder = {
-    runAfter = "CreateSceneFileStart",
-    runBefore = "CreateSceneFileEnd"
     },
-    updateMethod = {
-    processesEntities = {
-        {
-            processesComponents = {
-                "Serializable"
-            },
-            randomAccessComponents = true
+    StateEnum = {
+        "Loaded",
+        "Unloaded"
+    },
+    InfoComponent = {
+        bindable = false,
+        serializable = false,
+        fields = {
+            { type = "std::string", name = "name" },
+            { type = "State",       name = "state" },
+            { type = "std::string", name = "script" },
+        }
+    },
+    ManagerNamespace = {
+        TagComponent = {
+            bindable = false,
+            serializable = false
         },
-        {
-            processesComponents = {
-                "ECSController",
-                "SaveSceneRequest",
-                { name = "LuaScript", readonly = false }
-            }
-        }
-    }
-    }
-}
-
-
-CreateSceneFileEndSystem = {
-    callOrder = {
-    runAfter = "CreateSceneFile",
-    runBefore = "EndWorldSceneSaving"
-    },
-    updateMethod = {
-    processesEntities  = {
-        {
-            processesComponents = { 
-                "ECSController",
-                "SaveSceneRequest",
-                { name = "LuaScript", readonly = false }
-            }
-        }
-    }
-    }
-}
-
-FindScenesSystem = {
-    type = "Initialize",
-    callOrder = {
-        runAfter = "ConfigureResourceSystem",
-    },
-    updateMethod = {
-        processesEntities  = {
-            {
-                processesComponents = { { name = "ResourceSystem", readonly = false } }
-            }
-        },
-        createsEntities = {
-            {
-                createsComponents = {
-                    "Scene",
-                    "ResourcePath"
+        CreateManagerSystem = {
+            type = "Initialize",
+            callOrder = {},
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "Scene::Manager::Tag"
+                        }
+                    }
                 }
             }
-        }
-    }
-}
-
-
-SaveSceneFileSystem = {
-    callOrder ={
-    runAfter = "CreateSceneFileEnd",
-    runBefore = "EndWorldSceneSaving"
-    },
-    updateMethod = {
-    processesEntities  = {
-         { 
-            processesComponents = {
-                "CommandLineParameters",
-                "ConfigFilePath"
-            }
         },
-        {
-            processesComponents = { 
-                "ECSController",
-                "SaveSceneRequest",
-                "LuaScript"
-            }
+        RequestNamespace = {
+            TagComponent = {
+                bindable = false,
+                serializable = false,
+            },
+            TypeEnum = {
+                values = {
+                    "Load",
+                    "Unload",
+                    "Save"
+                }
+            },
+            StateEnum = {
+                values = {
+                    "Pending",
+                    "InProgress",
+                    "Finished"
+                }
+            },
+            InfoComponent = {
+                bindable = false,
+                serializable = false,
+                fields = {
+                    { type = "Type",        name = "type" },
+                    { type = "State",       name = "state" },
+                    { type = "std::string", name = "sceneName" }
+                }
+            },
         },
-        {
-            processesComponents = {
-                { name = "ResourceSystem", readonly = false }
-            }
-        },
-        {
-            processesComponents = {
-                "Config",
-                "LuaScript"
-            }
-        }
-    }
-    }
-}
 
-SceneComponent = {
-    serializable = false
-}
-
-
-StartWorldSceneSavingSystem = {
-    updateMethod = {
-    processesEntities  = {
-        {
-            processesComponents = { 
-                "ECSController",
-                "SaveSceneRequest"
+        ProcessRequestSystem = {
+            callOrder = {
+                runAfter = "SystemMarks::FRAME_TAIL_START",
+                runBefore = "SystemMarks::FRAME_TAIL_END"
             },
-            createsComponents = {
-                "LuaScript"
-            },
-            excludes = { "LuaScript" }
-        }
-    }
-    }
-}
-
-
-EndWorldSceneSavingSystem = {
-    callOrder = {
-        runAfter = "SaveSceneFile"
-    },
-    updateMethod = {
-    processesEntities  = {
-        {
-            processesComponents = { 
-                "ECSController",
-                "SaveSceneRequest",
-                "LuaScript"
-            },
-            removesComponents = {
-                "LuaScript",
-                "SaveSceneRequest"
-            }
-        }
-    }
-    }
-}
-
-CreateLoadSceneRequestSystem = {
-    type = "Initialize",
-    callOrder = {
-        runAfter = "CreateECSController"
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-              processesComponents = {
-                "CommandLineParameters",
-                "SceneParameter"
-              }  
-            },
-            {
-                processesComponents = {
-                    "ECSController"
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Scene::Manager::Tag"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Scene::Manager::Request::Tag",
+                            "Scene::Manager::Request::Info"
+                        }
+                    }
                 },
-                createsComponents = {
-                    "LoadSceneRequest"
-                }
-            }
-        }
-    }
-}
-
-LoadSceneFileSystem = {
-    updateMethod = {
-    processesEntities  = {
-        {
-            processesComponents = { 
-                "ECSController",
-                "LoadSceneRequest"
-            },
-            createsComponents = {
-                "LuaScript"
-            },
-            excludes = { "LuaScript" }
-        },
-        {
-            processesComponents = {
-                { name = "ResourceSystem", readonly = false }
-            }        
-        }
-    }
-    }
-}
-
-CreateSceneEntitiesSystem = {
-    updateMethod = {
-        processesEntities  = {
-            {   
-                processesComponents = { 
-                    "ECSController",
-                    "LoadSceneRequest",
-                    "LuaScript"
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "Scene::Tag",
+                            "Scene::Info"
+                        }
+                    },
+                    -- {
+                    --     createsComponents = {
+                    --         --SUBSET OF ALL SERIALIZABLE COMPONENTS
+                    --     }
+                    -- }
                 },
-                createsComponents = { "SceneLoaded" },
-                removesComponents = {
-                    "LoadSceneRequest",
-                    "LuaScript"
-                }
+                randomAccessComponents = true
             }
         },
-        createsEntities = {
-            {
-                createsComponents = {
-                    "Serializable"
+        CreateLoadCommandLineSceneRequestSystem = {
+            type = "Initialize",
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "CommandLineParameters",
+                            "SceneParameter"
+                        }
+                    }
+                },
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "Scene::Manager::Request::Tag",
+                            "Scene::Manager::Request::Info"
+                        }
+                    }
                 }
             }
+
+
         }
     }
 }
 
+SceneArchetype = {
+    components = {
+        "Scene::Tag",
+        "Scene::Info"
+    }
+}
+
+-- SceneLoadedComponent = { }
+
+-- SaveSceneRequestComponent = {
+--     fields = {
+--         -- { type = "ECS2::ComponentsFilter", name = "componentsFilter" },
+--         { type = "std::string", name = "sceneName" }
+--     }
+-- }
+
+-- LoadSceneRequestComponent = {
+--     fields = {
+--         { type = "std::string", name = "sceneName" },
+--         { type = "ECS2::Entity::Id", name = "callerId" }
+--     }
+-- }
 
 
 
+-- CreateSceneFileStartSystem = {
+--     callOrder = {
+--         runAfter = "StartWorldSceneSaving",
+--         runBefore = "CreateSceneFile"
+--     },
+--     updateMethod = {
+--     processesEntities  = {
+--         {
+--             processesComponents = {
+--                 "ECSController",
+--                 "SaveSceneRequest",
+--                 { name = "LuaScript", readonly = false }
+--             }
+--         }
+--     }
+--     }
+-- }
+
+-- CreateSceneFileSystem = {
+--     callOrder = {
+--     runAfter = "CreateSceneFileStart",
+--     runBefore = "CreateSceneFileEnd"
+--     },
+--     updateMethod = {
+--     processesEntities = {
+--         {
+--             processesComponents = {
+--                 "Serializable"
+--             },
+--             randomAccessComponents = true
+--         },
+--         {
+--             processesComponents = {
+--                 "ECSController",
+--                 "SaveSceneRequest",
+--                 { name = "LuaScript", readonly = false }
+--             }
+--         }
+--     }
+--     }
+-- }
+
+
+-- CreateSceneFileEndSystem = {
+--     callOrder = {
+--     runAfter = "CreateSceneFile",
+--     runBefore = "EndWorldSceneSaving"
+--     },
+--     updateMethod = {
+--     processesEntities  = {
+--         {
+--             processesComponents = {
+--                 "ECSController",
+--                 "SaveSceneRequest",
+--                 { name = "LuaScript", readonly = false }
+--             }
+--         }
+--     }
+--     }
+-- }
+
+-- FindScenesSystem = {
+--     type = "Initialize",
+--     callOrder = {
+--         runAfter = "ConfigureResourceSystem",
+--     },
+--     updateMethod = {
+--         processesEntities  = {
+--             {
+--                 processesComponents = { { name = "ResourceSystem", readonly = false } }
+--             }
+--         },
+--         createsEntities = {
+--             {
+--                 createsComponents = {
+--                     "Scene",
+--                     "ResourcePath"
+--                 }
+--             }
+--         }
+--     }
+-- }
+
+
+-- SaveSceneFileSystem = {
+--     callOrder ={
+--     runAfter = "CreateSceneFileEnd",
+--     runBefore = "EndWorldSceneSaving"
+--     },
+--     updateMethod = {
+--     processesEntities  = {
+--          {
+--             processesComponents = {
+--                 "CommandLineParameters",
+--                 "ConfigFilePath"
+--             }
+--         },
+--         {
+--             processesComponents = {
+--                 "ECSController",
+--                 "SaveSceneRequest",
+--                 "LuaScript"
+--             }
+--         },
+--         {
+--             processesComponents = {
+--                 { name = "ResourceSystem", readonly = false }
+--             }
+--         },
+--         {
+--             processesComponents = {
+--                 "Config",
+--                 "LuaScript"
+--             }
+--         }
+--     }
+--     }
+-- }
+
+-- SceneComponent = {
+--     serializable = false
+-- }
+
+
+-- StartWorldSceneSavingSystem = {
+--     updateMethod = {
+--     processesEntities  = {
+--         {
+--             processesComponents = {
+--                 "ECSController",
+--                 "SaveSceneRequest"
+--             },
+--             createsComponents = {
+--                 "LuaScript"
+--             },
+--             excludes = { "LuaScript" }
+--         }
+--     }
+--     }
+-- }
+
+
+-- EndWorldSceneSavingSystem = {
+--     callOrder = {
+--         runAfter = "SaveSceneFile"
+--     },
+--     updateMethod = {
+--     processesEntities  = {
+--         {
+--             processesComponents = {
+--                 "ECSController",
+--                 "SaveSceneRequest",
+--                 "LuaScript"
+--             },
+--             removesComponents = {
+--                 "LuaScript",
+--                 "SaveSceneRequest"
+--             }
+--         }
+--     }
+--     }
+-- }
+
+-- CreateLoadSceneRequestSystem = {
+--     type = "Initialize",
+--     callOrder = {
+--         runAfter = "CreateECSController"
+--     },
+--     updateMethod = {
+--         processesEntities = {
+--             {
+--               processesComponents = {
+--                 "CommandLineParameters",
+--                 "SceneParameter"
+--               }
+--             },
+--             {
+--                 processesComponents = {
+--                     "ECSController"
+--                 },
+--                 createsComponents = {
+--                     "LoadSceneRequest"
+--                 }
+--             }
+--         }
+--     }
+-- }
+
+-- LoadSceneFileSystem = {
+--     updateMethod = {
+--     processesEntities  = {
+--         {
+--             processesComponents = {
+--                 "ECSController",
+--                 "LoadSceneRequest"
+--             },
+--             createsComponents = {
+--                 "LuaScript"
+--             },
+--             excludes = { "LuaScript" }
+--         },
+--         {
+--             processesComponents = {
+--                 { name = "ResourceSystem", readonly = false }
+--             }
+--         }
+--     }
+--     }
+-- }
+
+-- CreateSceneEntitiesSystem = {
+--     updateMethod = {
+--         processesEntities  = {
+--             {
+--                 processesComponents = {
+--                     "ECSController",
+--                     "LoadSceneRequest",
+--                     "LuaScript"
+--                 },
+--                 createsComponents = { "SceneLoaded" },
+--                 removesComponents = {
+--                     "LoadSceneRequest",
+--                     "LuaScript"
+--                 }
+--             }
+--         },
+--         createsEntities = {
+--             {
+--                 createsComponents = {
+--                     "Serializable"
+--                 }
+--             }
+--         }
+--     }
+-- }

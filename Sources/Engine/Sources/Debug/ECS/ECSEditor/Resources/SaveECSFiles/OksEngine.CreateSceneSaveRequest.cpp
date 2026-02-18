@@ -2,13 +2,12 @@
 
 namespace OksEngine {
 void CreateSceneSaveRequest::Update(
-    ECS2::Entity::Id entity1Id, const ImGUI::State* imGuiState,
-    const ECSEditorWindow* editorContext,
-    const SaveECSFilesButtonPressed* loadECSFilesButtonPressed,
-    ECS2::Entity::Id entity2Id, const ECSController* eCSController) {
+    ECS2::Entity::Id entity0id, const OksEngine::ImGUI::State* imGUI__State0,
+    const OksEngine::ECSEditorWindow* eCSEditorWindow0,
+    const OksEngine::SaveECSFilesButtonPressed* saveECSFilesButtonPressed0) {
 
-    CreateComponent<SaveSceneRequest>(entity2Id);
-    RemoveComponent<SaveECSFilesButtonPressed>(entity1Id);
+    //CreateComponent<SaveSceneRequest>(entity2Id);
+    //RemoveComponent<SaveECSFilesButtonPressed>(entity1Id);
 
 };
 }

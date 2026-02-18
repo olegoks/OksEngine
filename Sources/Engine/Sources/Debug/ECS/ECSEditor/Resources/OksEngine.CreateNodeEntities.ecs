@@ -18,7 +18,6 @@ CreateNodeEntitiesSystem = {
             "Position2D",
             "RootNode",
             "FilesystemPath",
-            "ResourcePath",
             "Name",
             "RunBefore",
             "RunAfter"

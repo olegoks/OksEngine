@@ -36,10 +36,8 @@ namespace ECS2 {
 
 		void Resize(Common::Size newSize) noexcept {
 			const Common::Size oldSize = components_.size();
-#pragma region Assert
 			ASSERT_FMSG(newSize > oldSize,
 				"New size must be more than previous.");
-#pragma endregion
 
 			components_.resize(newSize);
 
@@ -59,14 +57,12 @@ namespace ECS2 {
 
 		[[nodiscard]]
 		ComponentType* operator[](ComponentIndex index) noexcept {
-#pragma region Assert
 			//ASSERT_FMSG(
 			//	!IsComponentIndexFree(index),
 			//	"Attempt to get component by index but component with this index was removed.");
 			//ASSERT_FMSG(
 			//	index < components_.size(),
 			//	"Attempt to use incorrect component index.");
-#pragma endregion
 			return &components_[index];
 		}
 		
@@ -180,7 +176,6 @@ namespace ECS2 {
 		}
 
 		template<class ...Args>
-		[[nodiscard]]
 		void CreateComponent(Entity::Id entityId, Args&&... args) noexcept {
 			auto freeComponentIndexIt = freeComponentIndices_.begin();
 			if (freeComponentIndexIt == freeComponentIndices_.end()) {

@@ -1,27 +1,28 @@
 CreateSceneSaveRequestSystem = {
     callOrder = {
-    runAfter = "GraphEditorBegin",
-    runBefore = "GraphEditorEnd"
+        runAfter = "GraphEditorBegin",
+        runBefore = "GraphEditorEnd"
     },
     updateMethod = {
-    processesEntities = {
-        {
-            processesComponents = { 
-                "ImGUI::State",
-                "ECSEditorWindow",
-                "SaveECSFilesButtonPressed"
-            },
-            removesComponents = {
-                "SaveECSFilesButtonPressed"
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGUI::State",
+                    "ECSEditorWindow",
+                    "SaveECSFilesButtonPressed"
+                },
+                removesComponents = {
+                    "SaveECSFilesButtonPressed"
+                }
             }
         },
-        {
-            processesComponents = { 
-                "ECSController"
-            },
-            createsComponents= { "SaveSceneRequest" },
-            excludes = { "SaveSceneRequest" }
+        createsEntities = {
+            {
+                createsComponents = {
+                    "Scene::Manager::Request::Tag",
+                    "Scene::Manager::Request::Info"
+                }
+            }
         }
-    }
     }
 }

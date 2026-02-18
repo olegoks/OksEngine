@@ -227,8 +227,16 @@ int main(int argc, char** argv) {
 				}
 
 				if (foundTable == nullptr) {
+
+					std::string fullFindTable;
+					for (Common::Index j = 0; j < findTable.size(); j++) {
+						fullFindTable += findTable[j];
+						if (j != findTable.size() - 1) {
+							fullFindTable += "::";
+						}
+					}
 					OS::LogError("", { "Can't find required ECS abstraction {}, in {}",
-						findTable.back(),
+						fullFindTable,
 						usageTable->GetFullName() });
 				}
 				//ASSERT_FMSG(,

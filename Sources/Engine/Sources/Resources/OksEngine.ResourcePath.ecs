@@ -1,6 +1,0 @@
-ResourcePathComponent = {
-    serializable = false,
-    fields = {         
-		{ type = "std::filesystem::path", name = "path" }
-	}
-}

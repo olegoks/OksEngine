@@ -1,0 +1,132 @@
+-- RenderNamespace = {
+
+--     PipelineNamespace = {
+--         TagComponent = {},
+--         VertexShaderComponent = {
+--             bindable = false,
+--             manualParseFunction = true,
+--             fields = {
+--                 { type = "std::string", name = "name" }
+--             }
+--         },
+--         FragmentShaderComponent = {
+--             bindable = false,
+--             manualParseFunction = true,
+--             fields = {
+--                 { type = "std::string", name = "name" }
+--             }
+--         },
+--         GeometryShaderComponent = {
+--             bindable = false,
+--             manualParseFunction = true,
+--             fields = {
+--                 { type = "std::string", name = "name" }
+--             }
+--         },
+
+--         StageEnum = {
+--             values = {
+--                 "GeometryShader",
+--                 "VertexShader",
+--                 "FragmentShader",
+--                 "ComputeShader"
+--             }
+--         },
+--         ResourceTypeEnum = {
+--             values = {
+--                 "Uniform",
+--                 "Storage",
+--                 "Sampler",
+--                 "InputAttachment"
+--             }
+--         },
+--         BindingStruct = {
+--             fields = {
+--                 { type = "Common::UInt64", name = "binding" },
+--                 { type = "ResourceType",   name = "resourceType" },
+--                 { type = "Stage",          name = "stage" },
+--             }
+--         },
+--         BindingsComponent = {
+--             bindable = false,
+--             manualParseFunction = true,
+--             fields = {
+--                 { type = "std::vector<Binding>", name = "bindings" }
+--             }
+--         },
+
+--         VertexTypeEnum = {
+--             values = {
+--                 "VF3",
+--                 "VF3_NF3_TF2",
+--                 "VF3_NF3_TF2_BIDUB4_WUB4", --Vertex float 3, normal float 3, bone ids unsigned byte 4, weight unsigned byte 4
+--                 "VF3_CF3",
+--                 "VF3_NF3_CF4",
+--                 "VF2_TF2_CF3",
+--                 "Undefined"
+--             }
+--         },
+
+--         IndexTypeEnum = {
+--             values = {
+--             "UI16",
+--             "UI32"
+--             }
+--         },
+--         FrontFaceEnum = {
+--             values = {
+--             "Clockwise",
+--             "CounterClockwise"
+--             }
+--         },
+--         CullModeEnum = {
+--             values = {
+--             "None",
+--             "Front",
+--             "Back",
+--             "FrontAndBack"
+--             }
+--         },
+
+--         InputAssemblerComponent = {
+--             bindable = false,
+--             manualParseFunction = true,
+--             fields = {
+--                 { type = "VertexType", name = "vertexType" },
+--                 { type = "IndexType",  name = "indexType" },
+--                 { type = "FrontFace",  name = "frontFace" },
+--                 { type = "CullMode",   name = "cullMode" },
+--             }
+--         },
+
+--         DepthBufferCompareOperationEnum = {
+--             values = {
+--                 "Never",
+--                 "Less",
+--                 "Equal",
+--                 "LessOrEqual",
+--                 "Greater",
+--                 "NotEqual",
+--                 "GreaterOrEqual",
+--                 "Always"
+--             }
+--         },
+--         MultisamplingComponent = {
+--             bindable = false,
+--             manualParseFunction = true,
+--             fields = {
+--                 { type = "Common::UInt16", name = "samplesCount" }
+--             }
+--         },
+--         DepthTestComponent = {
+--             bindable = false,
+--             manualParseFunction = true,
+--             fields = {
+--                 { type = "bool",                        name = "enable" },
+--                 { type = "DepthBufferCompareOperation", name = "compareOperation" }
+--             }
+--         }
+
+--     },
+
+-- }

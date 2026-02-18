@@ -134,15 +134,15 @@ namespace OksEngine
 
 
 
-	void RemoveSceneLoaded::Update(ECS2::Entity::Id entity0id, const ImGUI::State* imGUI__State0,
-		const EditorContext* editorContext0, const SceneLoaded* sceneLoaded0) {
-		RemoveComponent<SceneLoaded>(entity0id);
+	//void RemoveSceneLoaded::Update(ECS2::Entity::Id entity0id, const ImGUI::State* imGUI__State0,
+	//	const EditorContext* editorContext0, const SceneLoaded* sceneLoaded0) {
+	//	RemoveComponent<SceneLoaded>(entity0id);
 
-	};
+	//};
 
 	void SetNodePosition::Update(ECS2::Entity::Id entity0id, const ImGUI::State* imGUI__State0,
 		const ECSEditorWindow* eCSEditorWindow0, const EditorContext* editorContext0,
-		const SceneLoaded* sceneLoaded0, ECS2::Entity::Id entity1id,
+		 ECS2::Entity::Id entity1id,
 		const CallGraphNode* callGraphNode1, const Position2D* position2D1) {
 
 

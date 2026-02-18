@@ -113,6 +113,12 @@ namespace ECSGenerator2 {
 					if (fieldInfo.GetTypeName().find("glm::quat") != std::string::npos) {
 						includes.paths_.insert("glm/gtc/quaternion.hpp");
 					}
+					if (fieldInfo.GetTypeName().find("std::future") != std::string::npos) {
+						includes.paths_.insert("future");
+					}
+					if (fieldInfo.GetTypeName().find("std::any") != std::string::npos) {
+						includes.paths_.insert("any");
+					}
 					if (fieldInfo.GetTypeName().find("PE") != std::string::npos) {
 						includes.paths_.insert("PE.PhysicsEngine.hpp");
 					}

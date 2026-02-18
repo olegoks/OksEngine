@@ -4,21 +4,21 @@ CreateSceneLoadRequestSystem = {
         runBefore = "GraphEditorEnd"
     },
     updateMethod = {
-    processesEntities = {
-        {
-            processesComponents = { 
-                "ImGUI::State",
-                "ECSEditorWindow",
-                "LoadingECSFiles"
+        processesEntities = {
+            {
+                processesComponents = {
+                    "ImGUI::State",
+                    "ECSEditorWindow",
+                    "LoadingECSFiles"
+                }
             }
         },
-        {
-            processesComponents = { 
-                "ECSController"
-            },
-            createsComponents= { "LoadSceneRequest" },
-            excludes = { "LoadSceneRequest" }
+        createsEntities = {
+            {
+                createsComponents = {
+                    "Scene::Manager::Request::Tag",
+                    "Scene::Manager::Request::Info" }
+            }
         }
-    }
     }
 }

@@ -1,0 +1,73 @@
+AsyncNamespace = {
+
+    ManagerNamespace = {
+        TagComponent = {
+            bindable = false,
+            serializable = false,
+        },
+
+        CreateSystem = {
+            type = "Initialize",
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "Async::Manager::Tag"
+                        }
+                    }
+                }
+            }
+        },
+
+        TaskNamespace = {
+            TagComponent = {
+                bindable = false,
+                serializable = false,
+            },
+            EntityIdComponent = {
+                bindable = false,
+                serializable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "id" }
+                }
+            },
+            InProgressComponent = {
+                bindable = false,
+                serializable = false,
+            },
+            FinishedComponent = {
+                bindable = false,
+                serializable = false,
+            },
+            InfoComponent = {
+                bindable = false,
+                serializable = false,
+                fields = {
+                    { type = "std::future<std::any>", name = "future", copyable = false }
+                }
+            }
+        },
+
+        CheckTaskFinishedSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Task::Tag",
+                            "Task::InProgress",
+                            "Task::Info"
+                        },
+                        removesComponents = {
+                            "Task::InProgress"
+                        },
+                        createsComponents = {
+                            "Task::Finished"
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+}

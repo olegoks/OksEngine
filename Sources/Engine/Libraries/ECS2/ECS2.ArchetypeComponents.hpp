@@ -110,7 +110,7 @@ namespace ECS2 {
 		inline void CreateComponent(Entity::Id entityId, Args&&... args) {
 			const ComponentIndex entityComponentIndex = entityIdComponentIndex_[entityId];
 			auto container = GetContainer<Component>();
-			container->CreateComponent<Component>(entityComponentIndex, args...);
+			container->CreateComponent<Component>(entityComponentIndex, std::forward<Args>(args)...);
 			entityIdComponentsFilter_[entityId].SetBits<Component>();
 		}
 

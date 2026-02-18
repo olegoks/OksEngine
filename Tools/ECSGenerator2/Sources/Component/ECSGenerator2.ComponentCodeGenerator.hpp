@@ -685,7 +685,13 @@ namespace ECSGenerator2 {
 							realization.Add(", ");
 						}
 						component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
-							realization.Add(fieldInfo.GetName());
+							if (fieldInfo.typeName_ == "std::string") {
+								realization.Add("std::string{" + fieldInfo.GetName() + "}");
+							}
+							else {
+								realization.Add(fieldInfo.GetName());
+							}
+
 							if (!isLast) {
 								realization.Add(", ");
 							}

@@ -10,6 +10,8 @@
 #include <ECS2.EntitiesManager.hpp>
 #include <ECS2.Archetype.hpp>
 
+#include <future>
+
 namespace ECS2 {
 
 	class [[nodiscard]] World final {
@@ -247,8 +249,14 @@ namespace ECS2 {
 		void CreateComponent(Entity::Id entityId, const char* callerSystemName, Args&&... args) noexcept {
 			std::lock_guard lock{ addRequestMutex_ };
 			ASSERT(entityId.IsValid());
+			//auto argsTuple = std::forward_as_tuple(std::forward<Args>(args)...);
 
-			requests_.emplace_back([callerSystemName, entityId, componentCreateArgs = std::make_tuple(std::forward<Args>(args)...), this]() mutable {
+
+			auto argsTuple = std::tuple<std::decay_t<Args>...>(std::forward<Args>(args)...);
+
+			auto request = [callerSystemName, entityId, componentCreateArgs = std::move(argsTuple), this]() mutable {
+				
+				
 				std::apply([&](auto&&... unpackedArgs) {
 					//Archetype entity.
 					if (archetypeEntitiesComponents_.contains(entityId)) {
@@ -257,22 +265,22 @@ namespace ECS2 {
 
 						ASSERT_FMSG(archetypeComponentsFilter.IsSet<ComponentType>(),
 							"Attempt to add component {} by {} to an archetype|{}| entity with id {} "
-							"that can't contain this component", 
-							ComponentType::GetName(), 
-							callerSystemName, 
+							"that can't contain this component",
+							ComponentType::GetName(),
+							callerSystemName,
 							archetypeComponentsFilter.GetComponentsList(),
 							entityId.GetRawValue());
-						
+
 						auto archetypeComponentsIt = archetypeComponents_.find(archetypeComponentsFilter);
 						std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponentsIt->second;
-						archetypeComponents->CreateComponent<ComponentType>(entityId, unpackedArgs...);
+						archetypeComponents->CreateComponent<ComponentType>(entityId, std::move(unpackedArgs)...);
 					}
 					else {
 						ASSERT_FMSG([&]() {
 							auto it = dynamicEntitiesComponentFilters_.find(entityId);
 							return (it != dynamicEntitiesComponentFilters_.cend());
 							}(),
-							"Attempt to add component by system \"{}\" to the entity that was already added.", callerSystemName);
+								"Attempt to add component by system \"{}\" to the entity that was already added.", callerSystemName);
 
 						ASSERT_FMSG(
 							!dynamicEntitiesComponentFilters_[entityId].IsSet<ComponentType>(),
@@ -284,11 +292,25 @@ namespace ECS2 {
 							dynamicEntitiesContainers_[ComponentType::GetTypeId()] = newContainer;
 							container = newContainer;
 						}
-						container->CreateComponent(entityId, unpackedArgs...);
+						container->CreateComponent(entityId, std::move(unpackedArgs)...);
 						dynamicEntitiesComponentFilters_[entityId].SetBits<ComponentType>();
 					}
-					}, componentCreateArgs);
+					}, std::move(componentCreateArgs));
+				
+				
+				
+				};
+
+			auto sharedLambda = std::make_shared<decltype(request)>(std::move(request));
+			requests_.emplace_back([sharedLambda]() {
+					
+				(*sharedLambda)();
+				
 				});
+
+
+
+				
 		}
 
 		template<class ComponentType, class ...Args>
