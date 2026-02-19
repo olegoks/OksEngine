@@ -4,3 +4,11 @@ FilesystemPathComponent = {
 		{ type = "std::filesystem::path", name = "path" }
 	}
 }
+
+ResourceSystemComponent = {
+	bindable = false,
+	serializable = false,
+	fields = {
+		{ type = "std::shared_ptr<AsyncResourceSubsystem>", name = "system" }
+	}
+}

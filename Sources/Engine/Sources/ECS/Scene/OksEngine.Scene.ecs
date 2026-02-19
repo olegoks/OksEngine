@@ -12,8 +12,10 @@ SceneNamespace = {
         }
     },
     StateEnum = {
-        "Loaded",
-        "Unloaded"
+        values = {
+            "Loaded",
+            "Unloaded"
+        }
     },
     InfoComponent = {
         bindable = false,
@@ -47,32 +49,28 @@ SceneNamespace = {
                 bindable = false,
                 serializable = false,
             },
-            TypeEnum = {
-                values = {
-                    "Load",
-                    "Unload",
-                    "Save"
-                }
-            },
-            StateEnum = {
-                values = {
-                    "Pending",
-                    "InProgress",
-                    "Finished"
-                }
-            },
-            InfoComponent = {
+            LoadSceneComponent = {
                 bindable = false,
                 serializable = false,
                 fields = {
-                    { type = "Type",        name = "type" },
-                    { type = "State",       name = "state" },
                     { type = "std::string", name = "sceneName" }
                 }
             },
+            StateNamespace = {
+                PendingComponent = {},
+                InProgressComponent = {},
+                FinishedComponent = {}
+            },
+            StatesArchetype = {
+                components = {
+                    "State::Pending",
+                    "State::InProgress",
+                    "State::Finished"
+                }
+            }
         },
 
-        ProcessRequestSystem = {
+        ProcessLoadSceneRequestSystem = {
             callOrder = {
                 runAfter = "SystemMarks::FRAME_TAIL_START",
                 runBefore = "SystemMarks::FRAME_TAIL_END"
@@ -87,7 +85,23 @@ SceneNamespace = {
                     {
                         processesComponents = {
                             "Scene::Manager::Request::Tag",
-                            "Scene::Manager::Request::Info"
+                            "Scene::Manager::Request::LoadScene"
+                        },
+                        createsComponents = {
+                            "Request::State::Pending",
+                            "Request::State::InProgress",
+                            "Request::State::Finished",
+                            "Resource::Manager::Request::EntityId"
+                        },
+                        removesComponents = {
+                            "Request::State::Pending",
+                            "Request::State::InProgress",
+                            "Request::State::Finished"
+                        },
+                        accessingComponents = {
+                            "Resource::Manager::Request::EntityId",
+                            "Resource::EntityId",
+                            "Resource::Data"
                         }
                     }
                 },
@@ -103,9 +117,8 @@ SceneNamespace = {
                     --         --SUBSET OF ALL SERIALIZABLE COMPONENTS
                     --     }
                     -- }
-                },
-                randomAccessComponents = true
-            }
+                }
+            } 
         },
         CreateLoadCommandLineSceneRequestSystem = {
             type = "Initialize",
@@ -122,13 +135,11 @@ SceneNamespace = {
                     {
                         createsComponents = {
                             "Scene::Manager::Request::Tag",
-                            "Scene::Manager::Request::Info"
+                            "Scene::Manager::Request::LoadScene"
                         }
                     }
                 }
             }
-
-
         }
     }
 }

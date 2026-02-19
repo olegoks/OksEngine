@@ -406,11 +406,10 @@ namespace ECS2 {
 				return archetypeComponents->GetComponent<ComponentType>(entityId);
 			}
 			else {
-#pragma region Assert
 				ASSERT_FMSG(
 					dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
 					"Attempt to get component that doesn't exist.");
-#pragma endregion	
+
 				auto containerIt = dynamicEntitiesContainers_.find(ComponentType::GetTypeId());
 				if (containerIt != dynamicEntitiesContainers_.end()) {
 					auto container = Common::pointer_cast<Container<ComponentType>>(containerIt->second);

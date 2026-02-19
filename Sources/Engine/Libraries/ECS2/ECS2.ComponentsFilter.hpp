@@ -128,6 +128,11 @@ namespace ECS2 {
 			return filter_.test(componentTypeId);
 		}
 
+		template<class ...ComponentType>
+		bool IsSetOnlyOneOf() const {
+			return (0 + ... + (IsSet(ComponentType::GetTypeId()) ? 1 : 0)) == 1;
+		}
+
 
 		template<class ...ComponentType>
 		bool IsNotSet() const {

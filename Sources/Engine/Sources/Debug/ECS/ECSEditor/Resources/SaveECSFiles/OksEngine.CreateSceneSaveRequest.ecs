@@ -1,28 +1,28 @@
-CreateSceneSaveRequestSystem = {
-    callOrder = {
-        runAfter = "GraphEditorBegin",
-        runBefore = "GraphEditorEnd"
-    },
-    updateMethod = {
-        processesEntities = {
-            {
-                processesComponents = {
-                    "ImGUI::State",
-                    "ECSEditorWindow",
-                    "SaveECSFilesButtonPressed"
-                },
-                removesComponents = {
-                    "SaveECSFilesButtonPressed"
-                }
-            }
-        },
-        createsEntities = {
-            {
-                createsComponents = {
-                    "Scene::Manager::Request::Tag",
-                    "Scene::Manager::Request::Info"
-                }
-            }
-        }
-    }
-}
+-- CreateSceneSaveRequestSystem = {
+--     callOrder = {
+--         runAfter = "GraphEditorBegin",
+--         runBefore = "GraphEditorEnd"
+--     },
+--     updateMethod = {
+--         processesEntities = {
+--             {
+--                 processesComponents = {
+--                     "ImGUI::State",
+--                     "ECSEditorWindow",
+--                     "SaveECSFilesButtonPressed"
+--                 },
+--                 removesComponents = {
+--                     "SaveECSFilesButtonPressed"
+--                 }
+--             }
+--         },
+--         createsEntities = {
+--             {
+--                 createsComponents = {
+--                     "Scene::Manager::Request::Tag",
+--                     "Scene::Manager::Request::Info"
+--                 }
+--             }
+--         }
+--     }
+-- }

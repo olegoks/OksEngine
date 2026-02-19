@@ -31,37 +31,65 @@ AsyncNamespace = {
                     { type = "ECS2::Entity::Id", name = "id" }
                 }
             },
-            InProgressComponent = {
-                bindable = false,
-                serializable = false,
+            StateNamespace = {
+                PendingComponent = {
+                    bindable = false,
+                    serializable = false,
+                },
+                InProgressComponent = {
+                    bindable = false,
+                    serializable = false,
+                },
+                FinishedComponent = {
+                    bindable = false,
+                    serializable = false,
+                },
             },
-            FinishedComponent = {
-                bindable = false,
-                serializable = false,
+            StatesArchetype = {
+                components = {
+                    "State::Pending",
+                    "State::InProgress",
+                    "State::Finished"
+                }
             },
             InfoComponent = {
                 bindable = false,
                 serializable = false,
                 fields = {
-                    { type = "std::future<std::any>", name = "future", copyable = false }
+                    {
+                        type = "std::future<std::any>",
+                        name = "future",
+                        copyable = false
+                    }
                 }
             }
         },
-
-        CheckTaskFinishedSystem = {
+        TaskArchetype = {
+            archetypes = {
+                "Task::States"
+            },
+            components = {
+                "Task::Tag",
+                "Task::Info"
+            }
+        },
+        ChangeTaskStateSystem = {
             updateMethod = {
                 processesEntities = {
                     {
                         processesComponents = {
                             "Task::Tag",
-                            "Task::InProgress",
                             "Task::Info"
                         },
                         removesComponents = {
-                            "Task::InProgress"
+                            "Task::State::Pending",
+                            "Task::State::InProgress",
+                            "Task::State::Finished"
                         },
                         createsComponents = {
-                            "Task::Finished"
+                            "Task::State::Pending",
+                            "Task::State::InProgress",
+                            "Task::State::Finished"
                         }
                     }
                 }
