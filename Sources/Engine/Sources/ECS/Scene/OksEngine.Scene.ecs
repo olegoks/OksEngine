@@ -69,7 +69,15 @@ SceneNamespace = {
                 }
             }
         },
-
+        RequestArchetype = {
+            archetypes = {
+                "Request::States"
+            },
+            components = {
+                "Request::Tag",
+                "Request::LoadScene"
+            }
+        },
         ProcessLoadSceneRequestSystem = {
             callOrder = {
                 runAfter = "SystemMarks::FRAME_TAIL_START",

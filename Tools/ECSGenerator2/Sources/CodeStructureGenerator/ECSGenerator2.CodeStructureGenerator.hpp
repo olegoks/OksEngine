@@ -183,7 +183,7 @@ namespace ECSGenerator2 {
 
 						SystemStructureGenerator systemGenerator{ ssgci };
 
-						if (parsedSystem->GetName() == "LoadConfigFile") {
+						if (parsedSystem->GetName() == "SaveResourceEntity") {
 							Common::BreakPointLine();
 						}
 						//Add include components.
@@ -854,7 +854,7 @@ namespace ECSGenerator2 {
 
 						auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
 
-						if (!componentPtr->ci_.serializable_) {
+						if (!componentPtr->ci_.serializable_ && !componentPtr->ci_.manualParseFunction_) {
 							return;
 						}
 

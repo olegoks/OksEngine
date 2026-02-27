@@ -1,0 +1,55 @@
+--Render Pipelines
+
+scene = {
+    entities = {
+
+        {
+            ID = "ID:Render/ImGui/VertexShader",
+            Name = { value = "Render/ImGui/VertexShader" },
+            Render__Shader__Tag = {},
+            Render__Shader__Type__VertexShader = {},
+            Render__Shader__ResourcePath = { resourcePath = "resource:/Shaders/imgui.vert" }
+        },
+        {
+            ID = "ID:Render/ImGui/FragmentShader",
+            Name = { value = "Render/ImGui/FragmentShader" },
+            Render__Shader__Tag = {},
+            Render__Shader__Type__FragmentShader = {},
+            Render__Shader__ResourcePath = { resourcePath = "resource:/Shaders/imgui.frag" }
+        },
+        {
+            ID = "ID:scene/ImGuiRenderPipeline",
+            Name = { value = "ImGuiRenderPipeline" },
+            Render__PipelineDescription__Tag = { },
+            
+            Render__PipelineDescription__FragmentShader__EntityId = { id = "ID:Render/ImGui/FragmentShader" },
+            Render__PipelineDescription__VertexShader__EntityId = { id = "ID:Render/ImGui/VertexShader" },
+
+            -- Render__PipelineDescription__Bindings = {
+            --     bindings = {
+            --         { 
+            --             binding = 0,
+            --             resourceType = "Uniform",
+            --             stage = "VertexShader"
+            --         },
+            --         {
+            --             binding = 0,
+            --             resourceType = "Sampler",
+            --             stage = "FragmentShader"
+            --         }
+            --     }
+            -- },
+            Render__PipelineDescription__InputAssembler = {
+                vertexType = "VF2_TF2_CF3",
+                indexType = "UI32",
+                frontFace = "CounterClockwise",
+                cullMode = "None"
+            },
+            Render__PipelineDescription__DepthTest = {
+                enable = true,
+                compareOperation = "Always"
+            }
+
+        }
+    }
+}

@@ -122,6 +122,9 @@ namespace ECSGenerator2 {
 				for (auto componentInclude : entity.includes_) {
 					requiredComponentNames.insert(componentInclude.ptr_);
 				}
+				for (auto componentAccesses : entity.accesses_) {
+					requiredComponentNames.insert(componentAccesses.ptr_);
+				}
 				for (auto componentCreates : entity.creates_) {
 					requiredComponentNames.insert(componentCreates.ptr_);
 				}
@@ -133,12 +136,7 @@ namespace ECSGenerator2 {
 				}
 			}
 
-
-#pragma region Assert
-
 			ASSERT_FMSG(!requiredComponentNames.contains(nullptr), "");
-#pragma endregion
-
 
 			return requiredComponentNames;
 		}
@@ -577,6 +575,7 @@ namespace ECSGenerator2 {
 			auto generateCreateComponentMethodRealization = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 
+				//TODO: generate assert with check of created components, need to create only components that was described in .ecs.
 				CodeStructure::Code createComponentCode;
 				//If entity is archetype check if entity can contain this component.
 				{

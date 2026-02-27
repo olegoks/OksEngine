@@ -194,18 +194,14 @@ namespace ECS2 {
 		[[maybe_unused]]
 		[[nodiscard]]
 		virtual bool IsComponentExist(ComponentIndex index) const noexcept override {
-#pragma region Assert
 			ASSERT_FMSG(index < components_.size(),
 				"Invalid component index.");
-#pragma endregion
 			return componentIndexToEntityId_[index] != Entity::Id::invalid_;
 		}
 
 		ComponentType* GetComponent(Entity::Id entityId) {
-//#pragma region Assert
 //			ASSERT_FMSG(entityIdComponentIndex_.contains(entityId), 
 //				"Container doesn't contain component of this entity.");
-//#pragma endregion
 			auto componentIndexIt = entityIdComponentIndex_.find(entityId);
 			if (componentIndexIt != entityIdComponentIndex_.end()) {
 				return components_.data() + componentIndexIt->second;

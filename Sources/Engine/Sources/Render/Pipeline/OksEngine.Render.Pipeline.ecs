@@ -1,132 +1,463 @@
--- RenderNamespace = {
+RenderNamespace = {
 
---     PipelineNamespace = {
---         TagComponent = {},
---         VertexShaderComponent = {
---             bindable = false,
---             manualParseFunction = true,
---             fields = {
---                 { type = "std::string", name = "name" }
---             }
---         },
---         FragmentShaderComponent = {
---             bindable = false,
---             manualParseFunction = true,
---             fields = {
---                 { type = "std::string", name = "name" }
---             }
---         },
---         GeometryShaderComponent = {
---             bindable = false,
---             manualParseFunction = true,
---             fields = {
---                 { type = "std::string", name = "name" }
---             }
---         },
+    PipelineDescriptionNamespace = {
 
---         StageEnum = {
---             values = {
---                 "GeometryShader",
---                 "VertexShader",
---                 "FragmentShader",
---                 "ComputeShader"
---             }
---         },
---         ResourceTypeEnum = {
---             values = {
---                 "Uniform",
---                 "Storage",
---                 "Sampler",
---                 "InputAttachment"
---             }
---         },
---         BindingStruct = {
---             fields = {
---                 { type = "Common::UInt64", name = "binding" },
---                 { type = "ResourceType",   name = "resourceType" },
---                 { type = "Stage",          name = "stage" },
---             }
---         },
---         BindingsComponent = {
---             bindable = false,
---             manualParseFunction = true,
---             fields = {
---                 { type = "std::vector<Binding>", name = "bindings" }
---             }
---         },
+        --1. Load scenes with pipeline descriptions
+        --2. Create resource request to load shader resources
+        --3. Save resource entities of shaders to pipeline descriptions entities
+        --4. Check if pipeline description loaded all resources and create ResourcesLoaded component
+        --5. Add pipeline descriptions with loaded resources to Manager::Pipelines and create Ready component
 
---         VertexTypeEnum = {
---             values = {
---                 "VF3",
---                 "VF3_NF3_TF2",
---                 "VF3_NF3_TF2_BIDUB4_WUB4", --Vertex float 3, normal float 3, bone ids unsigned byte 4, weight unsigned byte 4
---                 "VF3_CF3",
---                 "VF3_NF3_CF4",
---                 "VF2_TF2_CF3",
---                 "Undefined"
---             }
---         },
+        ManagerNamespace = {
+            TagComponent = {},
+            PipelinesComponent = {
+                description = "All pipeline descriptions that loaded their resources and ready for use.",
+                bindable = false,
+                serializable = false,
+                manualEditFunction = true,
+                fields = {
+                    { type = "std::unordered_map<std::string, ECS2::Entity::Id>", name = "nameToId" }
+                }
+            },
+            CreateSystem = {
+                type = "Initialize",
+                updateMethod = {
+                    createsEntities = {
+                        {
+                            createsComponents = {
+                                "Manager::Tag",
+                                "Manager::Pipelines"
+                            }
+                        }
+                    }
+                }
+            },
 
---         IndexTypeEnum = {
---             values = {
---             "UI16",
---             "UI32"
---             }
---         },
---         FrontFaceEnum = {
---             values = {
---             "Clockwise",
---             "CounterClockwise"
---             }
---         },
---         CullModeEnum = {
---             values = {
---             "None",
---             "Front",
---             "Back",
---             "FrontAndBack"
---             }
---         },
+            LoadPipelineDescriptionsSystem = {
+                description = "Create request to load scenes with pipeline descriptions.",
+                type = "Initialize",
+                callOrder = {
+                    runAfter = "CreateRenderDriver"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "Manager::Tag",
+                            }
+                        }
+                    },
+                    createsEntities = {
+                        {
+                            archetype = "Scene::Manager::Request"
+                        }
+                    }
+                }
+            },
+            -- CreateResourcesLoadedSystem = {
+            --     description = "Check if all pipeline description resources loaded and create Ready component.",
+            --     updateMethod = {
+            --         processesEntities = {
+            --             {
+            --                 processesComponents = {
+            --                     "Manager::Tag",
+            --                     { name = "Manager::Pipelines", readonly = false }
+            --                 }
+            --             },
+            --             {
+            --                 processesComponents = {
+            --                     "PipelineDescription::Tag"
+            --                 },
+            --                 excludes = {
+            --                     "PipelineDescription::ResourcesLoaded"
+            --                 },
+            --                 createsComponents = {
+            --                     "PipelineDescription::ResourcesLoaded"
+            --                 }
+            --             }
+            --         }
+            --     }
+            -- }
 
---         InputAssemblerComponent = {
---             bindable = false,
---             manualParseFunction = true,
---             fields = {
---                 { type = "VertexType", name = "vertexType" },
---                 { type = "IndexType",  name = "indexType" },
---                 { type = "FrontFace",  name = "frontFace" },
---                 { type = "CullMode",   name = "cullMode" },
---             }
---         },
+        },
+        TagComponent = {
+            bindable = false,
+        },
+        ResourcesLoadedComponent = {
+            description = "All pipeline description resources(shaders) loaded.",
+            bindable = false,
+            serializable = false
+        },
+        ReadyComponent = {
+            description = "Pipeline description added to Manager::Pipelines",
+            bindable = false,
+            serializable = false
+        },
 
---         DepthBufferCompareOperationEnum = {
---             values = {
---                 "Never",
---                 "Less",
---                 "Equal",
---                 "LessOrEqual",
---                 "Greater",
---                 "NotEqual",
---                 "GreaterOrEqual",
---                 "Always"
---             }
---         },
---         MultisamplingComponent = {
---             bindable = false,
---             manualParseFunction = true,
---             fields = {
---                 { type = "Common::UInt16", name = "samplesCount" }
---             }
---         },
---         DepthTestComponent = {
---             bindable = false,
---             manualParseFunction = true,
---             fields = {
---                 { type = "bool",                        name = "enable" },
---                 { type = "DepthBufferCompareOperation", name = "compareOperation" }
---             }
---         }
+        -- CreateReadyComponentSystem = {
+        --     description = "Add pipeline description to manager if all resources loaded.",
+        --     updateMethod = {
+        --         processesEntities = {
+        --             {
+        --                 processesComponents = {
+        --                     "Manager::Tag",
+        --                     { name = "Manager::Pipelines", readonly = false }
+        --                 }
+        --             },
+        --             {
+        --                 processesComponents = {
+        --                     "PipelineDescription::Tag",
+        --                     "Name"
+        --                 },
+        --                 excludes = {
+        --                     "PipelineDescription::Ready"
+        --                 },
+        --                 createsComponents = {
+        --                     "PipelineDescription::Ready",
+        --                 }
+        --             }
+        --         }
+        --     }
+        -- },
+        GeometryShaderNamespace = {
+            EntityIdComponent = {
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "id" }
+                }
+            }
+        },
+        VertexShaderNamespace = {
+            EntityIdComponent = {
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "id" }
+                }
+            }
+        },
+        FragmentShaderNamespace = {
+            EntityIdComponent = {
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "id" }
+                }
+            }
+        },
 
---     },
+        -- VertexShaderNamespace = {
+        --     ResourcePathComponent = {
+        --         bindable = false,
+        --         manualParseFunction = true,
+        --         serializable = false,
+        --         fields = {
+        --             { type = "std::string", name = "resourcePath" }
+        --         }
+        --     },
+        --     ResourceEntityIdComponent = {
+        --         bindable = false,
+        --         serializable = false,
+        --         fields = {
+        --             { type = "ECS2::Entity::Id", name = "id" }
+        --         }
+        --     },
+        --     ResourceRequestEntityIdComponent = {
+        --         bindable = false,
+        --         serializable = false,
+        --         fields = {
+        --             { type = "ECS2::Entity::Id", name = "id" }
+        --         }
+        --     },
+        --     CreateResourceRequestSystem = {
+        --         updateMethod = {
+        --             processesEntities = {
+        --                 {
+        --                     processesComponents = {
+        --                         "Manager::Tag",
+        --                         "Manager::Pipelines"
+        --                     }
+        --                 },
+        --                 {
+        --                     processesComponents = {
+        --                         "Render::PipelineDescription::Tag",
+        --                         "PipelineDescription::VertexShader::ResourcePath",
+        --                     },
+        --                     excludes = {
+        --                         "VertexShader::ResourceRequestEntityId",
+        --                         "VertexShader::ResourceEntityId"
+        --                     }
+        --                 }
+        --             },
+        --             createsEntities = {
+        --                 {
+        --                     archetype = "Resource::Manager::Request"
+        --                 }
+        --             }
+        --         }
+        --     },
+        --     SaveResourceEntitySystem = {
+        --         updateMethod = {
+        --             processesEntities = {
+        --                 {
+        --                     processesComponents = {
+        --                         "Manager::Tag",
+        --                         { name = "Manager::Pipelines", readonly = false }
+        --                     }
+        --                 },
+        --                 {
+        --                     processesComponents = {
+        --                         "Render::PipelineDescription::Tag",
+        --                         "VertexShader::ResourcePath",
+        --                         "VertexShader::ResourceRequestEntityId"
+        --                     },
+        --                     excludes = {
+        --                         "VertexShader::ResourceEntityId"
+        --                     },
+        --                     removesComponents = {
+        --                         "VertexShader::ResourceRequestEntityId"
+        --                     },
+        --                     accessingComponents = {
+        --                         "Resource::EntityId"
+        --                     }
+        --                 }
+        --             },
+        --             createsEntities = {
+        --                 {
+        --                     archetype = "Resource::Resource"
+        --                 }
+        --             }
+        --         }
+        --     }
+        -- },
 
--- }
+        -- FragmentShaderNamespace = {
+        --     ResourcePathComponent = {
+        --         bindable = false,
+        --         manualParseFunction = true,
+        --         serializable = false,
+        --         fields = {
+        --             { type = "std::string", name = "resourcePath" }
+        --         }
+        --     },
+        --     ResourceEntityIdComponent = {
+        --         bindable = false,
+        --         serializable = false,
+        --         fields = {
+        --             { type = "ECS2::Entity::Id", name = "id" }
+        --         }
+        --     },
+        --     ResourceRequestEntityIdComponent = {
+        --         bindable = false,
+        --         serializable = false,
+        --         fields = {
+        --             { type = "ECS2::Entity::Id", name = "id" }
+        --         }
+        --     },
+        --     CreateResourceRequestSystem = {
+        --         updateMethod = {
+        --             processesEntities = {
+        --                 {
+        --                     processesComponents = {
+        --                         "Manager::Tag",
+        --                         "Manager::Pipelines"
+        --                     }
+        --                 },
+        --                 {
+        --                     processesComponents = {
+        --                         "Render::PipelineDescription::Tag",
+        --                         "PipelineDescription::FragmentShader::ResourcePath",
+        --                     },
+        --                     excludes = {
+        --                         "FragmentShader::ResourceRequestEntityId",
+        --                         "FragmentShader::ResourceEntityId"
+        --                     }
+        --                 }
+        --             },
+        --             createsEntities = {
+        --                 {
+        --                     archetype = "Resource::Manager::Request"
+        --                 }
+        --             }
+        --         }
+        --     },
+        --     SaveResourceEntitySystem = {
+        --         updateMethod = {
+        --             processesEntities = {
+        --                 {
+        --                     processesComponents = {
+        --                         "Manager::Tag",
+        --                         { name = "Manager::Pipelines", readonly = false }
+        --                     }
+        --                 },
+        --                 {
+        --                     processesComponents = {
+        --                         "Render::PipelineDescription::Tag",
+        --                         "FragmentShader::ResourcePath",
+        --                         "FragmentShader::ResourceRequestEntityId"
+        --                     },
+        --                     excludes = {
+        --                         "FragmentShader::ResourceEntityId"
+        --                     },
+        --                     removesComponents = {
+        --                         "FragmentShader::ResourceRequestEntityId"
+        --                     },
+        --                     accessingComponents = {
+        --                         "Resource::EntityId"
+        --                     }
+        --                 }
+        --             },
+        --             createsEntities = {
+        --                 {
+        --                     archetype = "Resource::Resource"
+        --                 }
+        --             }
+        --         }
+        --     }
+        -- },
+
+        -- StageEnum = {
+        --     values = {
+        --         "GeometryShader",
+        --         "VertexShader",
+        --         "FragmentShader",
+        --         "ComputeShader"
+        --     }
+        -- },
+        -- ResourceTypeEnum = {
+        --     values = {
+        --         "Uniform",
+        --         "Storage",
+        --         "Sampler",
+        --         "InputAttachment"
+        --     }
+        -- },
+        -- BindingStruct = {
+        --     fields = {
+        --         { type = "Common::UInt64", name = "binding" },
+        --         { type = "ResourceType",   name = "resourceType" },
+        --         { type = "Stage",          name = "stage" },
+        --     }
+        -- },
+        -- BindingsComponent = {
+        --     bindable = false,
+        --     manualParseFunction = true,
+        --     serializable = false,
+        --     fields = {
+        --         { type = "std::vector<Binding>", name = "bindings" }
+        --     }
+        -- },
+
+        -- PushConstantsComponent = {
+        --     bindable = false,
+        --     manualParseFunction = true,
+        --     serializable = false,
+        --     fields = {
+        --         { type = "Stage",          name = "stage" },
+        --         { type = "Common::UInt32", name = "offset" },
+        --         { type = "Common::UInt32", name = "size" }
+        --     }
+        -- },
+
+        VertexTypeEnum = {
+            values = {
+                "VF3",
+                "VF3_NF3_TF2",
+                "VF3_NF3_TF2_BIDUB4_WUB4", --Vertex float 3, normal float 3, bone ids unsigned byte 4, weight unsigned byte 4
+                "VF3_CF3",
+                "VF3_NF3_CF4",
+                "VF2_TF2_CF3",
+                "Undefined"
+            }
+        },
+
+        IndexTypeEnum = {
+            values = {
+                "UI16",
+                "UI32"
+            }
+        },
+        FrontFaceEnum = {
+            values = {
+                "Clockwise",
+                "CounterClockwise"
+            }
+        },
+        CullModeEnum = {
+            values = {
+                "None",
+                "Front",
+                "Back",
+                "FrontAndBack"
+            }
+        },
+
+        InputAssemblerComponent = {
+            bindable = false,
+            manualParseFunction = true,
+            serializable = false,
+            fields = {
+                { type = "VertexType", name = "vertexType" },
+                { type = "IndexType",  name = "indexType" },
+                { type = "FrontFace",  name = "frontFace" },
+                { type = "CullMode",   name = "cullMode" },
+            }
+        },
+
+        DepthBufferCompareOperationEnum = {
+            values = {
+                "Never",
+                "Less",
+                "Equal",
+                "LessOrEqual",
+                "Greater",
+                "NotEqual",
+                "GreaterOrEqual",
+                "Always"
+            }
+        },
+        SamplesCountEnum = {
+            values = {
+                "SamplesCount_1",
+                "SamplesCount_2",
+                "SamplesCount_4",
+                "SamplesCount_8",
+                "SamplesCount_16",
+                "SamplesCount_32",
+                "SamplesCount_64"
+            }
+        },
+        MultisamplingComponent = {
+            bindable = false,
+            manualParseFunction = true,
+            serializable = false,
+            fields = {
+                { type = "SamplesCount", name = "samplesCount" }
+            }
+        },
+        DepthTestComponent = {
+            bindable = false,
+            manualParseFunction = true,
+            serializable = false,
+            fields = {
+                { type = "bool",                        name = "enable" },
+                { type = "DepthBufferCompareOperation", name = "compareOperation" }
+            }
+        }
+
+    },
+
+    Pipeline_DescriptionArchetype = {
+        components = {
+            "PipelineDescription::GeometryShader::EntityId",
+            "PipelineDescription::VertexShader::EntityId",
+            "PipelineDescription::FragmentShader::EntityId",
+            -- "PipelineDescription::Bindings",
+            -- "PipelineDescription::PushConstants",
+            "PipelineDescription::InputAssembler",
+            "PipelineDescription::Multisampling",
+            "PipelineDescription::DepthTest",
+            "PipelineDescription::ResourcesLoaded"
+        }
+    },
+
+
+}

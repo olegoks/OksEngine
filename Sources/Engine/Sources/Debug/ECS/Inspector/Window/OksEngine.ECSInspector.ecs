@@ -43,11 +43,6 @@ ProcessCreateEntityButtonSystem = {
                     "ECSInspectorWindow"
                 }
             }
-        },
-        createsEntities = {
-            createsComponents = {
-                
-            }
         }
     }
 }

@@ -332,8 +332,19 @@ namespace ECSGenerator2 {
 						for (luabridge::Iterator it(createsEntity); !it.isNil(); ++it) {
 
 							std::vector<ParsedSystem::Create> createsComponents = parseCreatesComponents(it.value());
+							
+							luabridge::LuaRef archetypeRef = it.value()["archetype"];
+							std::shared_ptr<ParsedSystem::Archetype> archetype = nullptr;
+							if (!archetypeRef.isNil()) {
+								archetype = std::make_shared<ParsedSystem::Archetype>(archetypeRef.cast<std::string>().value(), nullptr);
+							}
 
-							createsEntities_.push_back(ParsedSystem::CreatesEntity{ createsComponents });
+							ASSERT_MSG(
+								(createsComponents.empty() && archetype != nullptr) ||
+								(!createsComponents.empty() && archetype == nullptr),
+								"Access entity can't creates archetype components and raw components at one time.");
+
+							createsEntities_.push_back(ParsedSystem::CreatesEntity{ createsComponents, archetype });
 						}
 					}
 					return createsEntities_;

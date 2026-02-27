@@ -491,6 +491,14 @@ int main(int argc, char** argv) {
 				parsedSystem->ci_.updateMethod_->ForEachCreateEntity(
 					[&](ECSGenerator2::ParsedSystem::CreatesEntity& entity, bool isLast) {
 
+						if (entity.archetype_ != nullptr) {
+							entity.archetype_->ptr_ = Common::pointer_cast<ECSGenerator2::ParsedArchetype>(getTableByFullName2(
+								parsedECSFiles,
+								parsedSystem,
+								ECSGenerator2::ParseFullName(entity.archetype_->name_),
+								ECSGenerator2::ParsedTable::Type::Archetype));
+						}
+
 						entity.ForEachCreate([&](ECSGenerator2::ParsedSystem::Create& create, bool isLast) {
 
 							const auto componentName = create.GetName();

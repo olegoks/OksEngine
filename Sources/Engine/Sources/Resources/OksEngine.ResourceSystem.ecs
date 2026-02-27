@@ -1,5 +1,3 @@
-
-
 ResourceNamespace = {
 
 	TagComponent = {
@@ -11,7 +9,7 @@ ResourceNamespace = {
 		serializable = false,
 		description = "Path must be in format \"resource:{path_to_file_relative_to_resources_path}\"",
 		fields = {
-			{ type = "std::filesystem::path", name = "path" }
+			{ type = "std::string", name = "path" }
 		}
 	},
 	DataComponent = {
@@ -38,11 +36,31 @@ ResourceNamespace = {
 			bindable = false,
 			serializable = false
 		},
-		ResourcesPathComponent = {
+		ResourcesRootPathComponent = {
 			bindable = false,
 			serializable = false,
 			fields = {
 				{ type = "std::filesystem::path", name = "path" }
+			}
+		},
+		ResourcesComponent = {
+			bindable = false,
+			serializable = false,
+			fields = {
+				{
+					type = "std::unordered_map<std::string, ECS2::Entity::Id>",
+					name = "resourcePathToResourceEntityId"
+				}
+			}
+		},
+		RequestsComponent = {
+			bindable = false,
+			serializable = false,
+			fields = {
+				{
+					type = "std::unordered_map<std::string, ECS2::Entity::Id>",
+					name = "resourceRequestToRequestEntityId"
+				}
 			}
 		},
 		CreateSystem = {
@@ -69,7 +87,8 @@ ResourceNamespace = {
 					{
 						createsComponents = {
 							"Manager::Tag",
-							"ResourcesPath"
+							"Manager::ResourcesRootPath",
+							"Manager::Resources"
 						}
 					}
 				}
@@ -86,22 +105,22 @@ ResourceNamespace = {
 				fields = { { type = "ECS2::Entity::Id", name = "id" } }
 			},
 			StateNamespace = {
-				PendingComponent = { },
-				InProgressComponent = { },
-				FinishedComponent = { },
+				PendingComponent = {},
+				InProgressComponent = {},
+				FinishedComponent = {},
 			},
 			StatesArchetype = {
-                components = {
-                    "State::Pending",
-                    "State::InProgress",
-                    "State::Finished"
-                }
-            },
+				components = {
+					"State::Pending",
+					"State::InProgress",
+					"State::Finished"
+				}
+			},
 			LoadResourceComponent = {
 				bindable = false,
 				serializable = false,
 				fields = {
-					{ type = "std::filesystem::path", name = "resourcePath" }
+					{ type = "std::string", name = "resourcePath" }
 				}
 			}
 		},
@@ -119,7 +138,9 @@ ResourceNamespace = {
 				processesEntities = {
 					{
 						processesComponents = {
-							"Manager::Tag"
+							"Manager::Tag",
+							"Manager::ResourcesRootPath",
+							"Manager::Resources"
 						}
 					},
 					{
@@ -129,13 +150,13 @@ ResourceNamespace = {
 						},
 						removesComponents = {
 							"Request::State::Pending",
-                            "Request::State::InProgress",
-                            "Request::State::Finished"
+							"Request::State::InProgress",
+							"Request::State::Finished"
 						},
 						createsComponents = {
 							"Request::State::Pending",
-                            "Request::State::InProgress",
-                            "Request::State::Finished",
+							"Request::State::InProgress",
+							"Request::State::Finished",
 							"Async::Manager::Task::EntityId"
 						},
 						accessingComponents = {
@@ -146,13 +167,10 @@ ResourceNamespace = {
 				},
 				createsEntities = {
 					{
-						archetype = {
-							"Async::Manager::Task"
-						}
+						archetype = "Async::Manager::Task"
 					}
 				}
 			}
 		}
 	}
 }
-

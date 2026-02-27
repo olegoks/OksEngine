@@ -1,0 +1,228 @@
+RenderNamespace = {
+
+    ShaderNamespace = {
+        TagComponent = {
+        },
+        TypeNamespace = {
+            GeometryShaderComponent = {},
+            VertexShaderComponent = {},
+            FragmentShaderComponent = {}
+        },
+        -- StageEnum = {
+        --     values = {
+        --         "GeometryShader",
+        --         "VertexShader",
+        --         "FragmentShader",
+        --         "ComputeShader"
+        --     }
+        -- },
+        ResourceTypeEnum = {
+            values = {
+                "Uniform",
+                "Storage",
+                "Sampler",
+                "InputAttachment",
+                "Undefined"
+            }
+        },
+        BindingStruct = {
+            fields = {
+                { type = "std::string", name = "name" },
+                { type = "Common::UInt64", name = "set" },
+                { type = "Common::UInt64", name = "binding" },
+                { type = "Common::UInt64", name = "count" },
+                { type = "ResourceType",   name = "resourceType" },
+                -- { type = "Stage",          name = "stage" },
+            }
+        },
+        BindingsComponent = {
+            bindable = false,
+            serializable = false,
+            manualEditFunction = true,
+            fields = {
+                { type = "std::vector<Binding>", name = "bindings" }
+            }
+        },
+
+        PushConstantStruct = {
+            fields = {
+                -- { type = "Stage",          name = "stage" },
+                { type = "std::string",     name = "name" },
+                { type = "Common::UInt32",  name = "offset" },
+                { type = "Common::UInt32",  name = "size" }
+            }
+        },
+
+        PushConstantsComponent = {
+            bindable = false,
+            serializable = false,
+            manualEditFunction = true,
+            fields = {
+                { type = "std::vector<PushConstant>", name = "constants" }
+            }
+        },
+        ResourcePathComponent = {
+            bindable = false,
+            manualParseFunction = true,
+            serializable = false,
+            fields = {
+                { type = "std::string", name = "resourcePath" }
+            }
+        },
+        ResourceEntityIdComponent = {
+            bindable = false,
+            serializable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+        CompileTaskEntityIdComponent = {
+            bindable = false,
+            serializable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+        BinaryComponent = {
+            bindable = false,
+            serializable = false,
+            fields = {
+                { type = "std::vector<Common::UInt32>", name = "data", copyable = false }
+            }
+        },
+
+        ResourceRequestEntityIdComponent = {
+            bindable = false,
+            serializable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+        CreateResourceRequestSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Shader::Tag",
+                            "Shader::ResourcePath",
+                        },
+                        excludes = {
+                            "Shader::ResourceRequestEntityId",
+                            "Shader::ResourceEntityId"
+                        },
+                        createsComponents = {
+                            "Shader::ResourceRequestEntityId",
+                        }
+                    }
+                },
+                createsEntities = {
+                    {
+                        archetype = "Resource::Manager::Request"
+                    }
+                }
+            }
+        },
+        SaveResourceEntitySystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Shader::Tag",
+                            "Shader::ResourcePath",
+                            "Shader::ResourceRequestEntityId"
+                        },
+                        excludes = {
+                            "Shader::ResourceEntityId"
+                        },
+                        removesComponents = {
+                            "Shader::ResourceRequestEntityId"
+                        },
+                        createsComponents = {
+                            "Shader::ResourceEntityId"
+                        },
+                        accessingComponents = {
+                            "Resource::EntityId"
+                        }
+                    }
+                }
+            }
+        },
+        CreateCompileShaderAsyncTaskSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Shader::Tag",
+                            "Name",
+                            "Shader::ResourceEntityId",
+                        },
+                        excludes = {
+                            "Shader::CompileTaskEntityId",
+                            "Shader::Binary"
+                        },
+                        createsComponents = {
+                            "Shader::CompileTaskEntityId",
+                        }
+                    }
+                },
+                accessingEntities = {
+                    {
+                        accessingComponents = {
+                            "Resource::Data"
+                        }
+                    }
+                },
+                createsEntities = {
+                    {
+                        archetype = "Async::Manager::Task"
+                    }
+                }
+            }
+        },
+        SaveBinaryShaderSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Shader::Tag",
+                            "Shader::CompileTaskEntityId"
+                        },
+                        excludes = {
+                            "Shader::Binary"
+                        },
+                        removesComponents = {
+                            "Shader::CompileTaskEntityId"
+                        },
+                        createsComponents = {
+                            "Shader::Binary"
+                        },
+                        accessingComponents = {
+                            "Async::Manager::Task::Info"
+                        }
+                    }
+                }
+            }
+        },
+        ShaderReflectionSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Shader::Tag",
+                            "Shader::Binary"
+                        },
+                        excludes = {
+                            "Shader::Bindings",
+                            "Shader::PushConstants"
+                        },
+                        createsComponents = {
+                            "Shader::Bindings",
+                            "Shader::PushConstants"
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+}

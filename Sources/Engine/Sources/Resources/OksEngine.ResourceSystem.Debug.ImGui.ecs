@@ -1,0 +1,187 @@
+ResourceNamespace = {
+    DebugNamespace = {
+        ImGUINamespace = {
+            MenuComponent = {
+                fields = { { type = "bool", name = "show", } }
+            },
+
+            CreateMenuSystem = {
+                callOrder = {
+                    runBefore = "Input::ClearKeyboardEvents"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State"
+                            },
+                            excludes = {
+                                "Menu"
+                            },
+                            createsComponents = {
+                                "Menu"
+                            }
+                        }
+                    }
+                }
+            },
+            MenuItemComponent = {},
+            WindowComponent = {
+                serializable = false,
+                fields = { { type = "bool", name = "show" } }
+            },
+            CreateMenuItemSystem = {
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State",
+                                "MainMenuBar",
+                                "Menu"
+                            },
+                            createsComponents = {
+                                "MenuItem"
+                            },
+                            excludes = {
+                                "MenuItem"
+                            }
+                        }
+                    }
+                }
+            },
+
+            BeginMenuSystem = {
+                callOrder = {
+                    runAfter = { "BeginMainMenuBar", "EndECSMenu" },
+                    runBefore = "EndMenu"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State",
+                                "MainMenuBar",
+                                { name = "Menu", readonly = false }
+                            }
+                        }
+                    }
+                }
+            },
+            ProcessMenuItemSystem = {
+                callOrder = {
+                    runAfter = "BeginMenu",
+                    runBefore = "EndMenu"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "MainMenuBar",
+                                "ImGUI::State",
+                                "Menu",
+                                "MenuItem"
+                            },
+                            createsComponents = {
+                                "Window"
+                            },
+                            excludes = {
+                                "Window"
+                            }
+                        }
+                    }
+                }
+            },
+
+            BeginWindowSystem = {
+                callOrder = {
+                    runAfter = { 
+                        "EndMainMenuBar",
+                        "Render::Debug::ImGUI::EndDebugRenderWindow"
+                    },
+                    runBefore = "EndWindow"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State",
+                                "MainMenuBar",
+                                "Menu",
+                                "MenuItem",
+                                { name = "Window", readonly = false }
+                            },
+                            removesComponents = {
+                                "Window"
+                            }
+                        }
+                    }
+                }
+            },
+
+            ShowResourcesSystem = {
+                callOrder = {
+                    runAfter = { "BeginWindow" },
+                    runBefore = { "EndWindow" }
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State",
+                                "MainMenuBar",
+                                "Menu",
+                                "MenuItem",
+                                "Window"
+                            }
+                        },
+                        {
+                            processesComponents = {
+                                "Resource::Tag",
+                                "Resource::Path",
+                                "Resource::Data"
+                            }
+                        }
+                    },
+                }
+            },
+
+            EndWindowSystem = {
+                callOrder = {
+                    runAfter = "BeginWindow",
+                    runBefore = "ImGUI::EndFrame"
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State",
+                                "MainMenuBar",
+                                "Menu",
+                                "MenuItem",
+                                "Window"
+                            }
+                        }
+                    }
+                }
+            },
+
+            EndMenuSystem = {
+                callOrder = {
+                    runAfter = "BeginMenu",
+                    runBefore = { "EndMainMenuBar", "Render::Debug::ImGUI::BeginRenderMenu" }
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ImGUI::State",
+                                "MainMenuBar",
+                                "Menu"
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

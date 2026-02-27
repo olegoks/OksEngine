@@ -264,11 +264,15 @@ namespace RAL {
 		//Pipeline
 		//Forward declaration section.
 
+
+
+
 		//Shader
 		class Shader {
 		public:
 
 			enum class Stage {
+				GeometryShader,
 				VertexShader,
 				FragmentShader,
 				ComputeShader,
@@ -312,16 +316,33 @@ namespace RAL {
 				std::string code_;
 			};
 
+			class Compiler {
+			public:
+				struct Parameters {
+					Type type_ = Type::Undefined;
+					std::string name_ = "No name";
+					std::string text_ = "";
+				};
+				virtual std::vector<Common::UInt32> Compile(const Parameters& parameters) const noexcept = 0;
+
+				static std::shared_ptr<Compiler> Create();
+			};
+
 			Shader(const CreateInfo& createInfo) : createInfo_{ createInfo } {}
 
 			Shader(const Shader& copyShader) {
 				createInfo_ = copyShader.createInfo_;
 			}
 
+			
+
 			[[nodiscard]]
 			const std::string& GetCode() const noexcept {
 				return createInfo_.code_;
 			}
+
+			[[nodiscard]]
+			virtual std::vector<Common::UInt32> GetBinary() const noexcept = 0;
 
 			[[nodiscard]]
 			const std::string& GetName() const noexcept {

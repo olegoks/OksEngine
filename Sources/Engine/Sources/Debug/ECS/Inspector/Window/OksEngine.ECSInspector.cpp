@@ -30,7 +30,9 @@ namespace OksEngine
 		const ECSInspectorWindow* eCSInspectorWindow0) {
 
 		if (ImGui::Button("Create entity")) {
-			CreateEntity();
+
+			//TODO: return functionality
+			world_->CreateEntity();
 		}
 
 

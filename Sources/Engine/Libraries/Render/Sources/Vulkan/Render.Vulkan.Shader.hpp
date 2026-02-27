@@ -160,6 +160,92 @@ namespace Render::Vulkan {
 	class Shader : public RAL::Driver::Shader {
 	public:
 
+		class Compiler : public RAL::Driver::Shader::Compiler {
+		public:
+			virtual std::vector<Common::UInt32> Compile(const Parameters& parameters) const noexcept override {
+				glslang::InitializeProcess();
+
+				const char* shaderStrings[1];
+				shaderStrings[0] = parameters.text_.c_str();
+
+				EShMessages messages = (EShMessages)(EShMsgSpvRules | EShMsgVulkanRules/* | EShMsgDebugInfo*/);
+
+				//TODO: take shaders include dir from config
+				std::vector<std::string> includePaths = {
+					"D:/OksEngine/Resources/Shaders/"
+				};
+				TBuiltInResource resources;
+				initResources(resources);
+
+
+				Includer includer(includePaths);
+
+
+				glslang::TShader shader(TypeToStage(parameters.type_));
+				shader.setStrings(shaderStrings, 1);
+#if !defined(NDEBUG)
+				shader.setDebugInfo(true);
+#endif
+				//shader.setSourceFile(GetName().c_str());
+				// 
+				// 
+				//shader.addSourceText(GetCode().c_str(), GetCode().size());
+
+				//shader.addProcesses
+				//shader.preprocess();
+				//shader.setSourceEntryPoint("main");
+				std::string preprocessedCode;
+				[[maybe_unused]]
+				const bool result = shader.preprocess(&resources, 450, ENoProfile, false, false, messages, &preprocessedCode, includer);
+
+				ASSERT_FMSG(result, "Errors while preprocessing glsl shader: {}", shader.getInfoLog());
+
+
+				if (!shader.parse(&resources, 450, false, messages, includer)) {
+
+					ASSERT_FAIL_FMSG("Shader {} compilation failed: {}", parameters.name_, shader.getInfoLog());
+					glslang::FinalizeProcess();
+
+				}
+
+
+				glslang::TProgram program;
+				//program.ы
+				program.addShader(&shader);
+
+				if (!program.link(messages)) {
+					ASSERT_FAIL_FMSG("Shader linking failed: {}", program.getInfoDebugLog());
+					glslang::FinalizeProcess();
+				}
+
+				spv::SpvBuildLogger logger;
+				glslang::SpvOptions spvOptions;
+
+				// Критически важные настройки для NonSemantic.Shader.DebugInfo.100
+#if !defined(NDEBUG)
+				spvOptions.generateDebugInfo = true;
+				spvOptions.stripDebugInfo = false;
+				spvOptions.disableOptimizer = true;
+				spvOptions.validate = true;
+				spvOptions.optimizeSize = false;
+#else
+				spvOptions.generateDebugInfo = false;
+				spvOptions.stripDebugInfo = true;
+				spvOptions.disableOptimizer = false;
+				spvOptions.validate = false;
+				spvOptions.optimizeSize = true;
+#endif
+				std::vector<unsigned> spirv;
+				glslang::GlslangToSpv(*program.getIntermediate(TypeToStage(parameters.type_)), spirv, &logger, &spvOptions);
+
+				OS::LogInfo("render/shader_compile", logger.getAllMessages());
+				glslang::FinalizeProcess();
+
+				return spirv;
+
+			}
+		};
+
 		struct CreateInfo {
 			RAL::Driver::Shader::CreateInfo ralCreateInfo_;
 		};
@@ -218,6 +304,7 @@ namespace Render::Vulkan {
 			//shader.preprocess();
 			//shader.setSourceEntryPoint("main");
 			std::string preprocessedCode;
+			[[maybe_unused]]
 			const bool result = shader.preprocess(&resources, 450, ENoProfile, false, false, messages, &preprocessedCode, includer);
 			
 			ASSERT_FMSG(result, "Errors while preprocessing glsl shader: {}", shader.getInfoLog());
@@ -294,8 +381,15 @@ namespace Render::Vulkan {
 
 		}
 
+		virtual std::vector<Common::UInt32> GetBinary() const noexcept {
+			return GetSpirv();
+		}
+
 	private:
 		std::vector<Common::UInt32> spirv_;
 	};
 
+
+
 }
+

@@ -122,7 +122,7 @@ namespace ECSGenerator2 {
 		//PARSE FUNCTION
 		std::shared_ptr<CodeStructure::Function> GenerateParseFunctionRealization(std::shared_ptr<ParsedComponent> component) {
 			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
-			if (componentPtr->ci_.serializable_) {
+			if (componentPtr->ci_.serializable_ || componentPtr->ci_.manualParseFunction_) {
 
 				CodeStructure::Code realization;
 
@@ -209,7 +209,7 @@ namespace ECSGenerator2 {
 		std::shared_ptr<CodeStructure::Function> GenerateParseFunctionPrototype(std::shared_ptr<ParsedComponent> component) {
 
 			auto componentPtr = (component->ci_.aliasFor_) ? (component->ci_.aliasFor_) : (component);
-			if (componentPtr->ci_.serializable_) {
+			if (componentPtr->ci_.serializable_ || componentPtr->ci_.manualParseFunction_) {
 
 				CodeStructure::Function::CreateInfo fci{
 					.name_ = "Parse" + component->GetName(),

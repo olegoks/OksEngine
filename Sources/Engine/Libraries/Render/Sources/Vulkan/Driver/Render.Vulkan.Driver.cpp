@@ -1,7 +1,13 @@
 
 #include <Render.Vulkan.Driver.hpp>
 
+
+std::shared_ptr<RAL::Driver::Shader::Compiler> RAL::Driver::Shader::Compiler::Create() {
+	return std::make_shared<Render::Vulkan::Shader::Compiler>();
+}
+
 namespace Render::Vulkan {
+
 
 	[[nodiscard]]
 	PhysicalDevice::Formats Driver::GetAvailablePhysicalDeviceSurfaceFormats(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {

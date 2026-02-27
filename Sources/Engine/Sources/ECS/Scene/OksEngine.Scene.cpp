@@ -20,13 +20,10 @@ namespace OksEngine
 			const ECS2::Entity::Id  managerEntityId = CreateEntity();
 			CreateComponent<Tag>(managerEntityId);
 		}
-		
-		static void CreateSceneEntities(std::shared_ptr<ECS2::World> world, const std::string& sceneText) {
-
-		}
 
 		void ProcessLoadSceneRequest::Update(
-			ECS2::Entity::Id entity0id, const OksEngine::Scene::Manager::Tag* scene__Manager__Tag0,
+			ECS2::Entity::Id entity0id,
+			const OksEngine::Scene::Manager::Tag* scene__Manager__Tag0,
 			ECS2::Entity::Id entity1id,
 			const OksEngine::Scene::Manager::Request::Tag* scene__Manager__Request__Tag1,
 			const OksEngine::Scene::Manager::Request::LoadScene* scene__Manager__Request__LoadScene1) {

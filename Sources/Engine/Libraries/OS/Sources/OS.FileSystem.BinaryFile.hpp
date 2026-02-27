@@ -39,9 +39,8 @@ namespace OS {
 			fstream_ = std::make_unique<std::fstream>();
 			fstream_->open(fullPath.c_str(), std::ios::ate | std::ios::binary | std::ios::in | std::ios::out);
 				const std::error_condition errorCondition = std::system_category().default_error_condition(errno);
-#pragma region Assert
+
 				ASSERT_FMSG(IsOpened(), "Error while openning file. {} with path {}.", errorCondition.message(), fullPath.string());
-#pragma endregion
 
 			//OS::LogInfo("/OS/File/", { "File %s was opened successfuly.", GetPath().filename().string().c_str() });
 		}

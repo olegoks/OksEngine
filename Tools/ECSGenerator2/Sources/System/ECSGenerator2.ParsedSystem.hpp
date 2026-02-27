@@ -80,7 +80,7 @@ namespace ECSGenerator2 {
 				return name_;
 			}
 		};
-		
+
 		struct Create : public Dependence {
 			std::string name_;
 
@@ -142,7 +142,7 @@ namespace ECSGenerator2 {
 
 			using ProcessInclude = std::function<bool(Include& include, bool isLast)>;
 
-			void ForEachInclude(ProcessInclude&& processInclude){
+			void ForEachInclude(ProcessInclude&& processInclude) {
 				for (Common::Index i = 0; i < includes_.size(); i++) {
 					Include& include = includes_[i];
 					if (!processInclude(include, (i == includes_.size() - 1))) {
@@ -173,7 +173,7 @@ namespace ECSGenerator2 {
 			}
 
 			[[nodiscard]]
-			bool IsProcessesComponent(std::string& component){
+			bool IsProcessesComponent(std::string& component) {
 				bool isProcessesComponent = false;
 				ForEachInclude([&](const ParsedSystem::Include& dependenceSystemInclude, bool isLast) {
 					if (dependenceSystemInclude.name_ == component) {
@@ -350,10 +350,34 @@ namespace ECSGenerator2 {
 		};
 
 		struct CreatesEntity {
+			
 			std::vector<Create> creates_;
+			std::shared_ptr<Archetype> archetype_ = nullptr;
 
 			using ProcessCreate = std::function<bool(Create& create, bool isLast)>;
 			void ForEachCreate(const ProcessCreate& processCreate) {
+
+				
+				//if (archetype_ != nullptr) {
+				//	ASSERT(archetype_->ptr_ != nullptr);
+				//	archetype_->ptr_->ForEachComponent(
+				//		[&](ParsedArchetype::Component& component, bool isLast) {
+
+				//			Create create;
+				//			create.name_ = component.name_;
+				//			create.ptr_ = Common::pointer_cast<ParsedComponent>(component.ptr_);
+				//			const bool isContinue = processCreate(create, isLast);
+				//			if (!isContinue) {
+				//				return false;
+				//			};
+				//			return true;
+				//		});
+				//}
+
+				//ASSERT(
+				//	(archetype_ == nullptr && !creates_.empty()) ||
+				//	(archetype_ != nullptr && creates_.empty()));
+
 				for (Common::Index i = 0; i < creates_.size(); i++) {
 					Create& create = creates_[i];
 					const bool isContinue = processCreate(create, (i == creates_.size() - 1));
@@ -452,8 +476,8 @@ namespace ECSGenerator2 {
 					});
 
 				ForEachCreateEntity([&](CreatesEntity& entity, bool isLast) {
-					
-					if (!entity.creates_.empty()) {
+
+					if (!entity.creates_.empty() || entity.archetype_ != nullptr) {
 						isCreatesComponents = true;
 						return false;
 					}
@@ -482,7 +506,7 @@ namespace ECSGenerator2 {
 			[[deprecated]]
 			[[nodiscard]]
 			bool IsProcessesComponent(std::string& component);
-		
+
 			[[deprecated]]
 			bool IsAccessesComponentByRandomAccess(const std::string& componentName);
 
@@ -573,11 +597,11 @@ namespace ECSGenerator2 {
 		std::vector<std::string> systemNamespace;
 
 		parsedSystem->ForEachParentTable([&](ParsedTablePtr parsedTable) {
-			
+
 			systemNamespace.insert(systemNamespace.begin(), parsedTable->GetName());
 
 			return true;
-			
+
 			});
 
 		return systemNamespace;

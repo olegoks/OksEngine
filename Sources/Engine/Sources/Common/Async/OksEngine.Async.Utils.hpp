@@ -11,3 +11,9 @@
 		CreateComponent<Async::Manager::Task::State::Pending>(taskEntityId);				\
 		return taskEntityId;																\
 	}(lamda);
+
+
+#define COMMON__ASYNC__IS_TASK_FINISHED(taskEntityId)								\
+	[this](ECS2::Entity::Id entityId){												\
+		return IsComponentExist<Async::Manager::Task::State::Finished>(entityId);	\
+	}(taskEntityId)

@@ -31,15 +31,20 @@ ImGUINamespace = {
     },
     PipelineComponent = "Render::PipelineId",
     CreatePipelineSystem = {
-        type = "Initialize",
-        callOrder = {
-            runAfter = {
-                "CreateRenderDriver",
-                "CreateRenderPass"
-            }
-        },
+        -- callOrder = {
+        --     runAfter = {
+        --         "CreateRenderDriver",
+        --         "CreateRenderPass"
+        --     }
+        -- },
         updateMethod = {
             processesEntities = {
+                {
+                    processesComponents = {
+                        "Render::PipelineDescription::Manager::Tag",
+                        "Render::PipelineDescription::Manager::Pipelines"
+                    }
+                },
                 {
                     processesComponents = {
                         "State",
@@ -61,6 +66,14 @@ ImGUINamespace = {
                     processesComponents = {
                         "ResourceSystem"
                     }
+                }
+            },
+            accessingEntities = {
+                {
+                    archetype = "Render::Pipeline_Description"
+                },
+                {
+                    archetype = "Resource::Resource"
                 }
             }
         }
@@ -264,7 +277,7 @@ ImGUINamespace = {
         }
     },
 
-    
+
     BeginRenderPassSystem = {
         callOrder = {
             runAfter = "StartRender",
@@ -359,7 +372,7 @@ ImGUINamespace = {
     },
 
     --Outline feature
-    
+
     RemoveUIFromSelectionSystem = {
         callOrder = {
             runAfter = "Render::Outline::IdsTextureRender::BeginRenderPass",

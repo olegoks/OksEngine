@@ -43,8 +43,8 @@ namespace OksEngine
 				auto scenesFilesRootPath = context.GetGlobalAs<std::string>("scenesRootDirectory");
 				auto scenesFilesFullResourcesPath = configFileOsPath.parent_path() / scenesFilesRootPath;
 
-				CreateComponent<ResourcesPath>(entityId, fullResourcesPath);
-
+				CreateComponent<ResourcesRootPath>(entityId, fullResourcesPath);
+				CreateComponent<Resources>(entityId);
 
 				//resourceSystem->system_->SetRoot(Subsystem::Type::Engine,
 				//	{ scenesFilesFullResourcesPath,
@@ -56,8 +56,13 @@ namespace OksEngine
 
 
 			void ProcessLoadResourceRequest::Update(
-				ECS2::Entity::Id entity0id, const OksEngine::Resource::Manager::Tag* manager__Tag0,
-				ECS2::Entity::Id entity1id, const OksEngine::Resource::Manager::Request::Tag* request__Tag1,
+				ECS2::Entity::Id entity0id,
+				const OksEngine::Resource::Manager::Tag* manager__Tag0,
+				const OksEngine::Resource::Manager::ResourcesRootPath* manager__ResourcesRootPath0,
+				const OksEngine::Resource::Manager::Resources* manager__Resources0, 
+				
+				ECS2::Entity::Id entity1id,
+				const OksEngine::Resource::Manager::Request::Tag* request__Tag1,
 				const OksEngine::Resource::Manager::Request::LoadResource* request__LoadResource1) {
 
 				const ECS2::ComponentsFilter requestCF = GetComponentsFilter(entity1id);
@@ -66,23 +71,42 @@ namespace OksEngine
 					"Request must contain one of state components.");
 
 				if (requestCF.IsSet<Request::State::Pending>()) {
+					BEGIN_PROFILE("Process pending state")
 					RemoveComponent<Request::State::Pending>(entity1id);
 					CreateComponent<Request::State::InProgress>(entity1id);
-					std::filesystem::path resourcePath = request__LoadResource1->resourcePath_;
-					const ECS2::Entity::Id taskEntityId = COMMON__ASYNC__CREATE_TASK([resourcePath]() {
 
-						auto file = std::make_unique<OS::BinaryFile>(resourcePath);
-						file->Open();
-						file->Load();
-						const Common::Byte* data = file->GetData();
-						Common::Size size = file->GetSize();
+					ASSERT(Resource::IsResourcePath(request__LoadResource1->resourcePath_));
 
-						return std::any(std::vector<Common::Byte>(data, data + size));
-						});
-					CreateComponent<Async::Manager::Task::EntityId>(entity1id, taskEntityId);
+					auto resourceIt = manager__Resources0->resourcePathToResourceEntityId_.find(request__LoadResource1->resourcePath_);
+					const bool isResourceLoaded = (resourceIt != manager__Resources0->resourcePathToResourceEntityId_.end());
+					if (!isResourceLoaded) {
+						const std::filesystem::path relativePath = GetRelativePath(request__LoadResource1->resourcePath_);
+						std::filesystem::path resourcePath = manager__ResourcesRootPath0->path_ / relativePath;
 
+						const ECS2::Entity::Id taskEntityId = COMMON__ASYNC__CREATE_TASK([resourcePath]() {
+
+							BEGIN_PROFILE("Loading resource %s", resourcePath.c_str());
+							auto file = std::make_unique<OS::BinaryFile>(resourcePath);
+							file->Open();
+							file->Load();
+							const Common::Byte* data = file->GetData();
+							Common::Size size = file->GetSize();
+							END_PROFILE();
+							return std::any(std::vector<Common::Byte>(data, data + size));
+							});
+						CreateComponent<Async::Manager::Task::EntityId>(entity1id, taskEntityId);
+					}
+					else {
+						const ECS2::Entity::Id resourceEntityId = resourceIt->second;
+						CreateComponent<Resource::EntityId>(entity1id, resourceEntityId);
+						RemoveComponent<Request::State::Pending>(entity1id);
+						CreateComponent<Request::State::Finished>(entity1id);
+					}
+					END_PROFILE();
 				}
 				else if (requestCF.IsSet<Request::State::InProgress>()) {
+
+					BEGIN_PROFILE("Process in progress state")
 					ASSERT_FMSG(requestCF.IsSet<Async::Manager::Task::EntityId>(),
 						"If request in progress it must contain async task id.");
 
@@ -94,10 +118,11 @@ namespace OksEngine
 						auto* taskInfo = GetComponent<Async::Manager::Task::Info>(asyncTaskEntityId);
 						std::any result = taskInfo->future_._Get_value();
 						std::vector<Common::Byte> loadedData = std::any_cast<std::vector<Common::Byte>>(result);
-						
+
 						const ECS2::Entity::Id resourceEntityId = RESOURCE__CREATE_RESOURCE(
 							request__LoadResource1->resourcePath_,
 							loadedData);
+
 						CreateComponent<Resource::EntityId>(entity1id, resourceEntityId);
 
 						//Change state to Finished
@@ -106,7 +131,7 @@ namespace OksEngine
 
 					}
 
-
+					END_PROFILE();
 				}
 
 			}
