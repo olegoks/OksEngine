@@ -3,6 +3,14 @@ RenderNamespace = {
     ShaderNamespace = {
         TagComponent = {
         },
+        TextComponent = {
+            bindable = false,
+            serializable = false,
+            fields = {
+                { type = "std::string", name = "text" },
+            }
+        },
+       
         TypeNamespace = {
             GeometryShaderComponent = {},
             VertexShaderComponent = {},
@@ -25,6 +33,8 @@ RenderNamespace = {
                 "Undefined"
             }
         },
+        
+        ReadyComponent = {},
         BindingStruct = {
             fields = {
                 { type = "std::string", name = "name" },
@@ -147,21 +157,19 @@ RenderNamespace = {
                 }
             }
         },
-        CreateCompileShaderAsyncTaskSystem = {
+        SaveTextSystem = {
             updateMethod = {
                 processesEntities = {
                     {
                         processesComponents = {
                             "Shader::Tag",
-                            "Name",
                             "Shader::ResourceEntityId",
                         },
                         excludes = {
-                            "Shader::CompileTaskEntityId",
-                            "Shader::Binary"
+                            "Shader::Text"
                         },
                         createsComponents = {
-                            "Shader::CompileTaskEntityId",
+                            "Shader::Text",
                         }
                     }
                 },
@@ -169,6 +177,25 @@ RenderNamespace = {
                     {
                         accessingComponents = {
                             "Resource::Data"
+                        }
+                    }
+                }
+            }
+        },
+        CreateCompileShaderAsyncTaskSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Shader::Tag",
+                            "Name",
+                            "Shader::Text",
+                        },
+                        excludes = {
+                            "Shader::CompileTaskEntityId"
+                        },
+                        createsComponents = {
+                            "Shader::CompileTaskEntityId",
                         }
                     }
                 },
@@ -217,10 +244,28 @@ RenderNamespace = {
                         },
                         createsComponents = {
                             "Shader::Bindings",
-                            "Shader::PushConstants"
+                            "Shader::PushConstants",
+                            "Shader::Ready"
                         }
                     }
                 }
+            }
+        },
+        ShaderArchetype = {
+            components = {
+                "Shader::Tag",
+                "Shader::Text",
+                "Shader::ResourcePath",
+                "Shader::Type::GeometryShader",
+                "Shader::Type::VertexShader",
+                "Shader::Type::FragmentShader",
+                "Shader::Bindings",
+                "Shader::PushConstants",
+                "Shader::CompileTaskEntityId",
+                "Shader::ResourceRequestEntityId",
+                "Shader::ResourceEntityId",
+                "Shader::Binary",
+                "Shader::Ready"
             }
         }
     }

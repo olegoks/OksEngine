@@ -16,6 +16,14 @@ RenderNamespace = {
                 { type = "ECS2::Entity::Id", name = "id" }
             }
         },
+        ResourceSetComponent = {
+            serializable = false,
+            bindable = false,
+            -- fields = {
+            --     { type = "Common::Size",               name = "width" },
+            --     { type = "Common::Size",               name = "height" },
+            --     { type = "std::vector<Geom::Color4b>", name = "pixels" } }
+        },
         DiffuseMapNamespace = {
             TagComponent = {},
             EntityIdComponent = {

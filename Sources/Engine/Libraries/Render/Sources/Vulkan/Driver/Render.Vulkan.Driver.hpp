@@ -814,6 +814,115 @@ namespace Render::Vulkan {
 			return pipelineId;
 		}
 
+		
+		virtual Pipeline::Id CreatePipeline(const Pipeline::CI2& pipelineCI) override {
+
+			//Descriptor set layouts
+			std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
+			{
+				for (auto& binding : pipelineCI.shaderBindings_) {
+					std::vector<VkDescriptorSetLayoutBinding> bindings;
+					VkDescriptorSetLayoutBinding vBinding{
+						binding.binding_,
+						ToVulkanType(binding.type_),
+						1,
+						static_cast<VkFlags>(ToVulkanType(binding.stage_)),
+						nullptr
+					};
+					bindings.push_back(vBinding);
+
+					auto DSL = std::make_shared<DescriptorSetLayout>(
+						DescriptorSetLayout::CreateInfo{
+							binding.name_,
+							objects_.LD_,
+							bindings
+						});
+					DSLs.push_back(DSL);
+				}
+			}
+			//Push constants
+			std::vector<VkPushConstantRange> vkPushConstantRanges;
+			for (auto ralPushConstant : pipelineCI.pushConstants_) {
+
+				VkPushConstantRange vkPushConstantRange{
+					ToVulkanType(ralPushConstant.shaderStage_),
+					ralPushConstant.offset_,
+					ralPushConstant.size_
+
+				};
+
+				vkPushConstantRanges.push_back(vkPushConstantRange);
+			}
+
+			//Depth buffer 
+			std::shared_ptr<Vulkan::Pipeline::DepthTestInfo> depthTestData;
+			{
+				depthTestData = std::make_shared<Vulkan::Pipeline::DepthTestInfo>();
+				depthTestData->enable_ = pipelineCI.enableDepthTest_;
+				depthTestData->bufferFormat_ = VK_FORMAT_D32_SFLOAT;// objects_.depthTestData_->image_->GetFormat();
+				depthTestData->compareOperation_ = ToVulkanType(pipelineCI.dbCompareOperation_);
+			}
+
+			/*std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo;
+			{
+				multisampleInfo = std::make_shared<Vulkan::Pipeline::MultisampleInfo>();
+				multisampleInfo->samplesCount_ = objects_.physicalDevice_->GetMaxUsableSampleCount();
+			}*/
+
+			std::shared_ptr<Vulkan::Pipeline::VertexInfo> vertexInfo = nullptr;
+			if (pipelineCI.vertexType_ != VertexType::Undefined) {
+				vertexInfo = std::make_shared<Vulkan::Pipeline::VertexInfo>(
+					GetVertexBindingDescription(pipelineCI.vertexType_),
+					GetVertexAttributeDescriptions(pipelineCI.vertexType_)
+				);
+			}
+
+			auto renderPass = idRenderPass_[pipelineCI.renderPassId_];
+
+			//Multisampling info.
+			std::shared_ptr<Vulkan::Pipeline::MultisampleInfo> multisampleInfo = nullptr;
+			if (pipelineCI.multisamplingInfo_ != nullptr) {
+				multisampleInfo = std::make_shared<Vulkan::Pipeline::MultisampleInfo>();
+				multisampleInfo->samplesCount_ = ToVulkanType(pipelineCI.multisamplingInfo_->samplesCount_);
+			}
+
+			Vulkan::Pipeline::CreateInfo createInfo{
+				.physicalDevice_ = objects_.physicalDevice_,
+				.LD_ = objects_.LD_,
+				.renderPass_ = renderPass,//(pipelineCI.name_ != "ImGui Pipeline") ? (render_->renderPasses_[0].renderPass_) : (render_->renderPasses_[2].renderPass_),//objects_.renderPass_,
+				.pushConstants_ = vkPushConstantRanges,
+				.descriptorSetLayouts_ = DSLs,
+				.vertexShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					objects_.LD_,
+					pipelineCI.vertexShaderBinary_
+					}),
+				.geometryShader_ = (!pipelineCI.geometryShaderBinary_.empty()) ? (std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					objects_.LD_,
+					pipelineCI.geometryShaderBinary_
+					})) : (nullptr),
+				.fragmentShader_ = std::make_shared<ShaderModule>(ShaderModule::CreateInfo{
+					createInfo.LD_,
+					pipelineCI.fragmentShaderBinary_
+					}),
+				.depthTestInfo_ = depthTestData,
+				.colorAttachmentSize_ = objects_.swapChain_->GetSize(),
+				.colorAttachmentFormat_ = objects_.swapChain_->GetFormat().format,
+				.multisampleInfo_ = multisampleInfo,
+				.subpassIndex_ = pipelineCI.subpassIndex_,
+				.vertexInfo_ = vertexInfo,
+				.topology_ = ToVulkanType(pipelineCI.topologyType_),
+				.frontFace_ = ToVulkanType(pipelineCI.frontFace_),
+				.cullMode_ = ToVulkanType(pipelineCI.cullMode_),
+				.dynamicStates_ = {  VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR }
+			};
+
+			const Pipeline::Id pipelineId = pipelineIdsGenerator_.Generate();
+
+			idPipeline_[pipelineId] = std::make_shared<Vulkan::Pipeline>(createInfo);
+
+			return pipelineId;
+		}
+
 		virtual ComputePipeline::Id CreateComputePipeline(const ComputePipeline::CI& pipelineCI) override {
 
 			std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;

@@ -295,7 +295,7 @@ namespace RAL {
 					RAL::Driver::Texture_Id textureId_ = RAL::Driver::Texture_Id::Invalid();
 				};
 				struct Layout {
-					std::string name_ = "";
+					std::string name_ = "Empty layout";
 					Common::UInt32 binding_ = 0;
 					Type type_ = Type::Undefined;
 					Stage stage_ = Stage::Undefined;
@@ -610,6 +610,26 @@ namespace RAL {
 				std::shared_ptr<MultisamplingInfo> multisamplingInfo_ = nullptr;
 			};
 			using CI = CreateInfo;
+
+			struct CreateInfo2 {
+				std::string name_ = "";
+				RP::Id renderPassId_ = RP::Id::Invalid();
+				Common::UInt32 subpassIndex_ = 0;
+				std::vector<Common::UInt32> vertexShaderBinary_;
+				std::vector<Common::UInt32> geometryShaderBinary_;
+				std::vector<Common::UInt32> fragmentShaderBinary_;
+				Pipeline_Topology topologyType_ = Pipeline_Topology::Undefined;
+				VertexType vertexType_ = VertexType::Undefined;
+				IndexType indexType_ = IndexType::Undefined;
+				FrontFace frontFace_ = FrontFace::Undefined;
+				CullMode cullMode_ = CullMode::Undefined;
+				std::vector<PushConstant> pushConstants_;
+				std::vector<Shader::Binding::Layout> shaderBindings_;
+				bool enableDepthTest_ = true;
+				DB::CompareOperation dbCompareOperation_ = DB::CompareOperation::Undefined;
+				std::shared_ptr<MultisamplingInfo> multisamplingInfo_ = nullptr;
+			};
+			using CI2 = CreateInfo2;
 		};
 
 		struct ComputePipeline {
@@ -624,6 +644,8 @@ namespace RAL {
 			using CI = CreateInfo;
 		};
 
+		virtual Pipeline::Id CreatePipeline(const Pipeline::CI2& pipelineCI2) = 0;
+		[[deprecated]]
 		virtual Pipeline::Id CreatePipeline(const Pipeline::CI& pipelineCI) = 0;
 		virtual ComputePipeline::Id CreateComputePipeline(const ComputePipeline::CI& pipelineCI) = 0;
 		//Pipeline

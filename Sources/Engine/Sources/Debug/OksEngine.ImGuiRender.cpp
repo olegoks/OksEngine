@@ -7,6 +7,7 @@
 #include <Geometry.IndexBuffer.hpp>
 
 #include <Render/Pipeline/OksEngine.Render.Pipeline.Utils.hpp>
+#include <Render/Pipeline/OksEngine.Render.Shader.Utils.hpp>
 
 namespace OksEngine
 {
@@ -31,159 +32,180 @@ namespace OksEngine
 			std::string imguiVertexShader{ imguiVertexShaderResource.GetData<Common::Byte>(), imguiVertexShaderResource.GetSize() };
 			std::string imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };
 
-			/*auto pipelineIt = render__PipelineDescription__Manager__Pipelines0->nameToId_.find("ImGuiRenderPipeline");
+			auto pipelineIt = render__PipelineDescription__Manager__Pipelines0->nameToId_.find("ImGuiRenderPipeline");
 
 			if (pipelineIt == render__PipelineDescription__Manager__Pipelines0->nameToId_.end()) {
 				return;
 			}
 			const ECS2::Entity::Id pipelineDescriptionEntityId = pipelineIt->second;
 			const ECS2::ComponentsFilter pipelineDescriptionCF = GetComponentsFilter(pipelineDescriptionEntityId);
-			RAL::Driver::Pipeline::CI pipeline;
-			{
-				if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::GeometryShader::ResourceEntityId>()) {
-					const ECS2::Entity::Id resourceEntityId = GetComponent<Render::PipelineDescription::GeometryShader::ResourceEntityId>(pipelineDescriptionEntityId)->id_;
-					const std::string shaderName = GetComponent<Render::PipelineDescription::GeometryShader::ResourcePath>(pipelineDescriptionEntityId)->resourcePath_;
-					const Resource::Data* data = GetComponent<Resource::Data>(resourceEntityId);
-					std::string geometryShaderText{ data->data_.data(), data->data_.size() };
-					RAL::Driver::Shader::CreateInfo geometryShaderCreateInfo{
-						.name_ = shaderName,
-						.type_ = RAL::Driver::Shader::Type::Geometry,
-						.code_ = geometryShaderText
-					};
-					auto geometryShader = driver->CreateShader(geometryShaderCreateInfo);
-					pipeline.geometryShader_ = geometryShader;
-				}
-				if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::VertexShader::ResourceEntityId>()) {
-					const ECS2::Entity::Id resourceEntityId = GetComponent<Render::PipelineDescription::VertexShader::ResourceEntityId>(pipelineDescriptionEntityId)->id_;
-					const std::string shaderName = GetComponent<Render::PipelineDescription::VertexShader::ResourcePath>(pipelineDescriptionEntityId)->resourcePath_;
-					const Resource::Data* data = GetComponent<Resource::Data>(resourceEntityId);
-					std::string vertexShaderText{ data->data_.data(), data->data_.size() };
-					RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
-						.name_ = shaderName,
-						.type_ = RAL::Driver::Shader::Type::Vertex,
-						.code_ = vertexShaderText
-					};
-					auto vertexShader = driver->CreateShader(vertexShaderCreateInfo);
-					pipeline.vertexShader_ = vertexShader;
-				}
-				if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::FragmentShader::ResourceEntityId>()) {
-					const ECS2::Entity::Id resourceEntityId = GetComponent<Render::PipelineDescription::FragmentShader::ResourceEntityId>(pipelineDescriptionEntityId)->id_;
-					const std::string shaderName = GetComponent<Render::PipelineDescription::FragmentShader::ResourcePath>(pipelineDescriptionEntityId)->resourcePath_;
-					const Resource::Data* data = GetComponent<Resource::Data>(resourceEntityId);
-					std::string fragmentShaderText{ data->data_.data(), data->data_.size() };
-					RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
-						.name_ = shaderName,
-						.type_ = RAL::Driver::Shader::Type::Fragment,
-						.code_ = fragmentShaderText
-					};
-					auto fragmentShader = driver->CreateShader(fragmentShaderCreateInfo);
-					pipeline.fragmentShader_ = fragmentShader;
-				}
-				if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::PushConstants>()) {
-					const auto* pushConstants = GetComponent<Render::PipelineDescription::PushConstants>(pipelineDescriptionEntityId);
-					pipeline.pushConstants_ = std::vector<RAL::Driver::PushConstant>{
-						RAL::Driver::PushConstant{
-							.shaderStage_ = Render::PipelineDescription::ToRALType(pushConstants->stage_),
-							.offset_ = pushConstants->offset_,
-							.size_ = pushConstants->size_,
-						}
-					};
-				}
-				if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::Bindings>()) {
-					const auto* bindings = GetComponent<Render::PipelineDescription::Bindings>(pipelineDescriptionEntityId);
-
-					std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
-					for (const auto& [binding, resourceType, stage] : bindings->bindings_) {
-						RAL::Driver::Shader::Binding::Layout bindingLayout{
-							.binding_ = (Common::UInt32)binding,
-							.type_ = Render::PipelineDescription::ToRALType(resourceType),
-							.stage_ = Render::PipelineDescription::ToRALType(stage)
-						};
-						shaderBindings.push_back(bindingLayout);
-					}
-					pipeline.shaderBindings_ = shaderBindings;
-				}
-				pipeline.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList;
-				if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::InputAssembler>()) {
-					const auto* inputAssembler = GetComponent<Render::PipelineDescription::InputAssembler>(pipelineDescriptionEntityId);
-					pipeline.vertexType_ = Render::PipelineDescription::ToRALType(inputAssembler->vertexType_);
-					pipeline.indexType_ = Render::PipelineDescription::ToRALType(inputAssembler->indexType_);
-					pipeline.frontFace_ = Render::PipelineDescription::ToRALType(inputAssembler->frontFace_);
-					pipeline.cullMode_ = Render::PipelineDescription::ToRALType(inputAssembler->cullMode_);
-				}
-				if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::Multisampling>()) {
-					const auto* multisampling = GetComponent<Render::PipelineDescription::Multisampling>(pipelineDescriptionEntityId);
-
-					auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
-					{
-						multisamplingInfo->samplesCount_ = Render::PipelineDescription::ToRALType(multisampling->samplesCount_);
-					}
-				}
-
-
-				if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::DepthTest>()) {
-					const auto* depthTest = GetComponent<Render::PipelineDescription::DepthTest>(pipelineDescriptionEntityId);
-					pipeline.enableDepthTest_ = depthTest->enable_;
-					pipeline.dbCompareOperation_ = Render::PipelineDescription::ToRALType(depthTest->compareOperation_);
-
-				}
-				pipeline.renderPassId_ = renderPass1->rpId_;
-				const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipeline);
-
-				CreateComponent<Pipeline>(entity1id, pipelineId);
-			}*/
-
-
-			RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
-				.name_ = "ImGuiVertexShader",
-				.type_ = RAL::Driver::Shader::Type::Vertex,
-				.code_ = imguiVertexShader
-			};
-			auto vertexShader = driver->CreateShader(vertexShaderCreateInfo);
-
-			RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
-				.name_ = "ImGuiFragmentShader",
-				.type_ = RAL::Driver::Shader::Type::Fragment,
-				.code_ = imguiFragmentShader
-			};
-			auto fragmentShader = driver->CreateShader(fragmentShaderCreateInfo);
-
-			std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
-
-			RAL::Driver::Shader::Binding::Layout transformBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout samplerBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-				.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-			};
-
-			shaderBindings.push_back(transformBinding);
-			shaderBindings.push_back(samplerBinding);
-
-			RAL::Driver::Pipeline::CI pipelineCI{
-				.name_ = "ImGui Pipeline",
-				.renderPassId_ = renderPass1->rpId_,
-				.vertexShader_ = vertexShader,
-				.fragmentShader_ = fragmentShader,
-				.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
-				.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF3,
-				.indexType_ = RAL::Driver::IndexType::UI32,
-				.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
-				.cullMode_ = RAL::Driver::CullMode::None,
-				.shaderBindings_ = shaderBindings,
-				.enableDepthTest_ = true,
-				.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Always,
-				//.multisamplingInfo_ = multisamplingInfo
-			};
-
-			const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipelineCI);
+			RAL::Driver::Pipeline::CI2 pipeline = RENDER__PIPELINEDESCRIPTION__CREATE_PIPELINE_CREATE_INFO(pipelineDescriptionEntityId, renderPass1->rpId_);
+			const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipeline);
 
 			CreateComponent<Pipeline>(entity1id, pipelineId);
+			//{
+			//	std::vector<RAL::Driver::PushConstant> pushConstants;
+			//	std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
+
+			//	auto addBindings = [&pushConstants, &shaderBindings, this](ECS2::Entity::Id shaderEntityId) {
+
+			//		const ECS2::ComponentsFilter cf = GetComponentsFilter(shaderEntityId);
+			//		const RAL::Driver::Shader::Stage shaderStage = RENDER__SHADER__GET_SHADER_STAGE(shaderEntityId);
+			//		if (cf.IsSet<Render::Shader::PushConstants>()) {
+			//			const auto* ecsPushConstants = GetComponent<Render::Shader::PushConstants>(shaderEntityId);
+			//			for (auto ecsPushConstant : ecsPushConstants->constants_) {
+			//				pushConstants.emplace_back(
+			//						shaderStage,
+			//						ecsPushConstant.offset_,
+			//						ecsPushConstant.size_
+			//					);
+			//			}
+			//		}
+
+			//		if (cf.IsSet<Render::Shader::Bindings>()) {
+			//			const auto* ecsBindings = GetComponent<Render::Shader::Bindings>(shaderEntityId);
+			//			for (auto ecsBinding : ecsBindings->bindings_) {
+
+			//				shaderBindings.resize(ecsBinding.set_ + 1, RAL::Driver::Shader::Binding::Layout{});
+
+			//				shaderBindings[ecsBinding.set_] = RAL::Driver::Shader::Binding::Layout(
+			//					
+			//						ecsBinding.name_,
+			//						(Common::UInt32)ecsBinding.binding_,
+			//						Render::Shader::ToRALType(ecsBinding.resourceType_),
+			//						shaderStage
+			//					);
+			//			}
+			//		}
+
+			//		};
+
+			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::GeometryShader::EntityId>()) {
+			//		const ECS2::Entity::Id shaderEntityId = GetComponent<Render::PipelineDescription::GeometryShader::EntityId>(pipelineDescriptionEntityId)->id_;
+			//		const std::string shaderName = GetComponent<Render::Shader::ResourcePath>(pipelineDescriptionEntityId)->resourcePath_;
+			//		const std::string shaderText = GetComponent<Render::Shader::Text>(pipelineDescriptionEntityId)->text_;
+			//		RAL::Driver::Shader::CreateInfo geometryShaderCreateInfo{
+			//			.name_ = shaderName,
+			//			.type_ = RAL::Driver::Shader::Type::Geometry,
+			//			.code_ = shaderText
+			//		};
+			//		auto geometryShader = driver->CreateShader(geometryShaderCreateInfo);
+			//		pipeline.geometryShader_ = geometryShader;
+
+			//		addBindings(shaderEntityId);
+			//	}
+
+
+			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::VertexShader::EntityId>()) {
+			//		const ECS2::Entity::Id shaderEntityId = GetComponent<Render::PipelineDescription::VertexShader::EntityId>(pipelineDescriptionEntityId)->id_;
+			//		const std::string shaderName = GetComponent<Render::Shader::ResourcePath>(shaderEntityId)->resourcePath_;
+			//		const std::string shaderText = GetComponent<Render::Shader::Text>(shaderEntityId)->text_;
+			//		RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
+			//			.name_ = shaderName,
+			//			.type_ = RAL::Driver::Shader::Type::Vertex,
+			//			.code_ = shaderText
+			//		};
+			//		auto vertexShader = driver->CreateShader(vertexShaderCreateInfo);
+			//		pipeline.vertexShader_ = vertexShader;
+			//		addBindings(shaderEntityId);
+			//	}
+			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::FragmentShader::EntityId>()) {
+			//		const ECS2::Entity::Id shaderEntityId = GetComponent<Render::PipelineDescription::FragmentShader::EntityId>(pipelineDescriptionEntityId)->id_;
+			//		const std::string shaderName = GetComponent<Render::Shader::ResourcePath>(shaderEntityId)->resourcePath_;
+			//		const std::string shaderText = GetComponent<Render::Shader::Text>(shaderEntityId)->text_;
+
+			//		RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
+			//			.name_ = shaderName,
+			//			.type_ = RAL::Driver::Shader::Type::Fragment,
+			//			.code_ = shaderText
+			//		};
+			//		auto fragmentShader = driver->CreateShader(fragmentShaderCreateInfo);
+			//		pipeline.fragmentShader_ = fragmentShader;
+			//		addBindings(shaderEntityId);
+			//	}
+
+			//	pipeline.pushConstants_ = pushConstants;
+			//	pipeline.shaderBindings_ = shaderBindings;
+
+
+			//	pipeline.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList;
+			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::InputAssembler>()) {
+			//		const auto* inputAssembler = GetComponent<Render::PipelineDescription::InputAssembler>(pipelineDescriptionEntityId);
+			//		pipeline.vertexType_ = Render::PipelineDescription::ToRALType(inputAssembler->vertexType_);
+			//		pipeline.indexType_ = Render::PipelineDescription::ToRALType(inputAssembler->indexType_);
+			//		pipeline.frontFace_ = Render::PipelineDescription::ToRALType(inputAssembler->frontFace_);
+			//		pipeline.cullMode_ = Render::PipelineDescription::ToRALType(inputAssembler->cullMode_);
+			//	}
+			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::Multisampling>()) {
+			//		const auto* multisampling = GetComponent<Render::PipelineDescription::Multisampling>(pipelineDescriptionEntityId);
+
+			//		auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
+			//		{
+			//			multisamplingInfo->samplesCount_ = Render::PipelineDescription::ToRALType(multisampling->samplesCount_);
+			//		}
+			//	}
+
+
+			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::DepthTest>()) {
+			//		const auto* depthTest = GetComponent<Render::PipelineDescription::DepthTest>(pipelineDescriptionEntityId);
+			//		pipeline.enableDepthTest_ = depthTest->enable_;
+			//		pipeline.dbCompareOperation_ = Render::PipelineDescription::ToRALType(depthTest->compareOperation_);
+
+			//	}
+			//	pipeline.renderPassId_ = renderPass1->rpId_;
+			//	
+			//}
+
+			//RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
+			//	.name_ = "ImGuiVertexShader",
+			//	.type_ = RAL::Driver::Shader::Type::Vertex,
+			//	.code_ = imguiVertexShader
+			//};
+			//auto vertexShader = driver->CreateShader(vertexShaderCreateInfo);
+
+			//RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
+			//	.name_ = "ImGuiFragmentShader",
+			//	.type_ = RAL::Driver::Shader::Type::Fragment,
+			//	.code_ = imguiFragmentShader
+			//};
+			//auto fragmentShader = driver->CreateShader(fragmentShaderCreateInfo);
+
+			//std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
+
+			//RAL::Driver::Shader::Binding::Layout transformBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout samplerBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+			//	.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+			//};
+
+			//shaderBindings.push_back(transformBinding);
+			//shaderBindings.push_back(samplerBinding);
+
+			//RAL::Driver::Pipeline::CI pipelineCI{
+			//	.name_ = "ImGui Pipeline",
+			//	.renderPassId_ = renderPass1->rpId_,
+			//	.vertexShader_ = vertexShader,
+			//	.fragmentShader_ = fragmentShader,
+			//	.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
+			//	.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF3,
+			//	.indexType_ = RAL::Driver::IndexType::UI32,
+			//	.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
+			//	.cullMode_ = RAL::Driver::CullMode::None,
+			//	.shaderBindings_ = shaderBindings,
+			//	.enableDepthTest_ = true,
+			//	.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Always,
+			//	//.multisamplingInfo_ = multisamplingInfo
+			//};
+
+			//const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipelineCI);
+
+			//CreateComponent<Pipeline>(entity1id, pipelineId);
 
 		};
 

@@ -1,6 +1,8 @@
 ﻿#pragma once
 #include <Render\Pipeline\auto_OksEngine.Render.Pipeline.hpp>
 
+#include <Render/Pipeline/OksEngine.Render.Shader.Utils.hpp>
+
 #include <ECS/Scene/auto_OksEngine.Scene.hpp>
 #include <ECS/Scene/OksEngine.Scene.Utils.hpp>
 
@@ -197,6 +199,43 @@ namespace OksEngine
 
 			}
 
+			void CreateReadyComponent::Update(
+				ECS2::Entity::Id entity0id,
+				const OksEngine::Render::PipelineDescription::Manager::Tag* manager__Tag0,
+				OksEngine::Render::PipelineDescription::Manager::Pipelines* manager__Pipelines0,
+				ECS2::Entity::Id entity1id,
+				const OksEngine::Render::PipelineDescription::Tag* pipelineDescription__Tag1,
+				const OksEngine::Name* name1) {
+
+				const auto allShadersReady = [this](ECS2::Entity::Id pipelineDescriptionEntityId) {
+					const ECS2::ComponentsFilter cf = GetComponentsFilter(pipelineDescriptionEntityId);
+					if (cf.IsSet<GeometryShader::EntityId>()) {
+						const ECS2::Entity::Id shaderEntityId = GetComponent<GeometryShader::EntityId>(pipelineDescriptionEntityId)->id_;
+						if (!RENDER__SHADER__IS_SHADER_READY(shaderEntityId)) {
+							return false;
+						}
+					}
+					if (cf.IsSet<VertexShader::EntityId>()) {
+						const ECS2::Entity::Id shaderEntityId = GetComponent<VertexShader::EntityId>(pipelineDescriptionEntityId)->id_;
+						if (!RENDER__SHADER__IS_SHADER_READY(shaderEntityId)) {
+							return false;
+						}
+					}
+					if (cf.IsSet<FragmentShader::EntityId>()) {
+						const ECS2::Entity::Id shaderEntityId = GetComponent<FragmentShader::EntityId>(pipelineDescriptionEntityId)->id_;
+						if (!RENDER__SHADER__IS_SHADER_READY(shaderEntityId)) {
+							return false;
+						}
+					}
+					return true;
+					};
+
+				if (allShadersReady(entity1id)) {
+					manager__Pipelines0->nameToId_[name1->value_] = entity1id;
+					CreateComponent<PipelineDescription::Ready>(entity1id);
+				}
+
+			}
 
 			//void CreateReadyComponent::Update(
 			//	ECS2::Entity::Id entity0id, const OksEngine::Render::PipelineDescription::Manager::Tag* manager__Tag0,

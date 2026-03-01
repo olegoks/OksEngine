@@ -94,31 +94,36 @@ RenderNamespace = {
             serializable = false
         },
 
-        -- CreateReadyComponentSystem = {
-        --     description = "Add pipeline description to manager if all resources loaded.",
-        --     updateMethod = {
-        --         processesEntities = {
-        --             {
-        --                 processesComponents = {
-        --                     "Manager::Tag",
-        --                     { name = "Manager::Pipelines", readonly = false }
-        --                 }
-        --             },
-        --             {
-        --                 processesComponents = {
-        --                     "PipelineDescription::Tag",
-        --                     "Name"
-        --                 },
-        --                 excludes = {
-        --                     "PipelineDescription::Ready"
-        --                 },
-        --                 createsComponents = {
-        --                     "PipelineDescription::Ready",
-        --                 }
-        --             }
-        --         }
-        --     }
-        -- },
+        CreateReadyComponentSystem = {
+            description = "Add pipeline description to manager if all resources loaded.",
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Manager::Tag",
+                            { name = "Manager::Pipelines", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "PipelineDescription::Tag",
+                            "Name"
+                        },
+                        excludes = {
+                            "PipelineDescription::Ready"
+                        },
+                        createsComponents = {
+                            "PipelineDescription::Ready",
+                        }
+                    }
+                },
+                accessingEntities = {
+                    {
+                        archetype = "ShaderEntityIds"
+                    }
+                }
+            }
+        },
         GeometryShaderNamespace = {
             EntityIdComponent = {
                 bindable = false,
@@ -141,6 +146,13 @@ RenderNamespace = {
                 fields = {
                     { type = "ECS2::Entity::Id", name = "id" }
                 }
+            }
+        },
+        ShaderEntityIdsArchetype = {
+            components = {
+                "GeometryShader::EntityId",
+                "VertexShader::EntityId",
+                "FragmentShader::EntityId"
             }
         },
 
@@ -320,40 +332,6 @@ RenderNamespace = {
         --         "VertexShader",
         --         "FragmentShader",
         --         "ComputeShader"
-        --     }
-        -- },
-        -- ResourceTypeEnum = {
-        --     values = {
-        --         "Uniform",
-        --         "Storage",
-        --         "Sampler",
-        --         "InputAttachment"
-        --     }
-        -- },
-        -- BindingStruct = {
-        --     fields = {
-        --         { type = "Common::UInt64", name = "binding" },
-        --         { type = "ResourceType",   name = "resourceType" },
-        --         { type = "Stage",          name = "stage" },
-        --     }
-        -- },
-        -- BindingsComponent = {
-        --     bindable = false,
-        --     manualParseFunction = true,
-        --     serializable = false,
-        --     fields = {
-        --         { type = "std::vector<Binding>", name = "bindings" }
-        --     }
-        -- },
-
-        -- PushConstantsComponent = {
-        --     bindable = false,
-        --     manualParseFunction = true,
-        --     serializable = false,
-        --     fields = {
-        --         { type = "Stage",          name = "stage" },
-        --         { type = "Common::UInt32", name = "offset" },
-        --         { type = "Common::UInt32", name = "size" }
         --     }
         -- },
 

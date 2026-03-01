@@ -73,7 +73,7 @@ ImGUINamespace = {
                     archetype = "Render::Pipeline_Description"
                 },
                 {
-                    archetype = "Resource::Resource"
+                    archetype = "Render::Shader::Shader"
                 }
             }
         }

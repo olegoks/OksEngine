@@ -99,7 +99,6 @@ namespace Render::Vulkan {
 
 			std::vector<VkPipelineShaderStageCreateInfo> shaderStages;
 			{
-				shaderStages.reserve(3);
 				shaderStages.push_back(vertShaderStageInfo);
 				shaderStages.push_back(fragShaderStageInfo);
 				if (createInfo.geometryShader_ != nullptr) {

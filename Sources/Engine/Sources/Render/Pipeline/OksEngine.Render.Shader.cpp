@@ -86,33 +86,38 @@ namespace OksEngine
 
 			};
 
-
-			void CreateCompileShaderAsyncTask::Update(
-				ECS2::Entity::Id entity0id,
+			void SaveText::Update(
+				ECS2::Entity::Id entity0id, 
 				const OksEngine::Render::Shader::Tag* shader__Tag0,
-				const OksEngine::Name* name0,
 				const OksEngine::Render::Shader::ResourceEntityId* shader__ResourceEntityId0) {
 
-				const auto* data = GetComponent<Resource::Data>(shader__ResourceEntityId0->id_);
+				const auto* resourceData = GetComponent<Resource::Data>(shader__ResourceEntityId0->id_);
+				CreateComponent<Shader::Text>(entity0id, std::string{ resourceData->data_.data(), resourceData->data_.size() });
+
+			}
 
 
-				std::string shaderText{ data->data_.data(), data->data_.size() };
+			void CreateCompileShaderAsyncTask::Update(
+				ECS2::Entity::Id entity0id, const OksEngine::Render::Shader::Tag* shader__Tag0,
+				const OksEngine::Name* name0, const OksEngine::Render::Shader::Text* shader__Text0) {
+
+
+
 				const RAL::Driver::Shader::Type shaderType = RENDER__SHADER__GET_SHADER_TYPE(entity0id);
 				const ECS2::Entity::Id compileTaskEntityId = COMMON__ASYNC__CREATE_TASK(
-					([resourceData = data->data_, shaderType, name = name0->value_]() -> std::any {
+					([text = shader__Text0->text_, shaderType, name = name0->value_]() -> std::any {
 
-						std::string shaderText{ resourceData.data(), resourceData.size() };
-
+						BEGIN_PROFILE("Compiling shader %s", name.c_str());
 						auto compiler = RAL::Driver::Shader::Compiler::Create();
-						
+
 						RAL::Driver::Shader::Compiler::Parameters parameters{
 							.type_ = shaderType,
 							.name_ = name,
-							.text_ = shaderText
+							.text_ = text
 						};
 
 						auto byteCode = compiler->Compile(parameters);
-
+						END_PROFILE();
 						return std::any{ std::move(byteCode) };
 						}));
 
@@ -169,20 +174,6 @@ namespace OksEngine
 					}
 
 					auto toECSDescriptorType = [](SpvReflectDescriptorType descriptor_type) {
-						//typedef enum SpvReflectDescriptorType {
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLER = 0,        // = VK_DESCRIPTOR_TYPE_SAMPLER
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER = 1,        // = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_SAMPLED_IMAGE = 2,        // = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_IMAGE = 3,        // = VK_DESCRIPTOR_TYPE_STORAGE_IMAGE
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER = 4,        // = VK_DESCRIPTOR_TYPE_UNIFORM_TEXEL_BUFFER
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER = 5,        // = VK_DESCRIPTOR_TYPE_STORAGE_TEXEL_BUFFER
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER = 6,        // = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER = 7,        // = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC = 8,        // = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC = 9,        // = VK_DESCRIPTOR_TYPE_STORAGE_BUFFER_DYNAMIC
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_INPUT_ATTACHMENT = 10,        // = VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT
-						//	SPV_REFLECT_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR = 1000150000 // = VK_DESCRIPTOR_TYPE_ACCELERATION_STRUCTURE_KHR
-						//} SpvReflectDescriptorType;
 
 						if (descriptor_type == SPV_REFLECT_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
 							return ResourceType::Sampler;
@@ -198,7 +189,7 @@ namespace OksEngine
 							return ResourceType::Undefined;
 						}
 
-						
+
 						};
 
 
@@ -251,6 +242,7 @@ namespace OksEngine
 				}
 
 				spvReflectDestroyShaderModule(&module);
+				CreateComponent<Shader::Ready>(entity0id);
 				//return true;
 
 			}
