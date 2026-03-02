@@ -24,14 +24,6 @@ namespace OksEngine
 
 			auto driver = renderDriver2->driver_;
 
-			Resources::ResourceData imguiVertexShaderResource
-				= resourceSystem3->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/imgui.vert");
-			Resources::ResourceData imguiFragmentShaderResource
-				= resourceSystem3->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/imgui.frag");
-
-			std::string imguiVertexShader{ imguiVertexShaderResource.GetData<Common::Byte>(), imguiVertexShaderResource.GetSize() };
-			std::string imguiFragmentShader{ imguiFragmentShaderResource.GetData<Common::Byte>(), imguiFragmentShaderResource.GetSize() };
-
 			auto pipelineIt = render__PipelineDescription__Manager__Pipelines0->nameToId_.find("ImGuiRenderPipeline");
 
 			if (pipelineIt == render__PipelineDescription__Manager__Pipelines0->nameToId_.end()) {

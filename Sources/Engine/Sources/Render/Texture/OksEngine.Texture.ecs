@@ -16,13 +16,34 @@ RenderNamespace = {
                 { type = "ECS2::Entity::Id", name = "id" }
             }
         },
+        TextureIdComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "RAL::Driver::Texture_Id", name = "id" }
+            }
+        },
         ResourceSetComponent = {
             serializable = false,
             bindable = false,
-            -- fields = {
-            --     { type = "Common::Size",               name = "width" },
-            --     { type = "Common::Size",               name = "height" },
-            --     { type = "std::vector<Geom::Color4b>", name = "pixels" } }
+            fields = {
+                { type = "RAL::Driver::ResourceSet::Id", name = "id" }
+            }
+        },
+
+        CreateResourceSetSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "RenderDriver"
+                        }
+                    },
+                    {
+
+                    }
+                }
+            }
         },
         DiffuseMapNamespace = {
             TagComponent = {},
@@ -52,8 +73,8 @@ RenderNamespace = {
                             processesComponents = {
                                 "Info", "Data"
                             },
-                            createsComponents = { "Resource" },
-                            excludes = { "Resource" }
+                            createsComponents = { "Resource", "Texture_Id" },
+                            excludes = { "Resource", "Texture_Id" }
                         }
                     }
                 }
@@ -87,8 +108,8 @@ RenderNamespace = {
                             processesComponents = {
                                 "Info", "Data"
                             },
-                            createsComponents = { "Resource" },
-                            excludes = { "Resource" }
+                            createsComponents = { "Resource", "Texture_Id" },
+                            excludes = { "Resource", "Texture_Id" }
                         }
                     }
                 }
@@ -122,8 +143,8 @@ RenderNamespace = {
                             processesComponents = {
                                 "Info", "Data"
                             },
-                            createsComponents = { "Resource" },
-                            excludes = { "Resource" }
+                            createsComponents = { "Resource", "Texture_Id" },
+                            excludes = { "Resource", "Texture_Id" }
                         }
                     }
                 }

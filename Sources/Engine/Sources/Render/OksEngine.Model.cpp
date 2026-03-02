@@ -1403,22 +1403,40 @@ namespace OksEngine
 					ECS2::Entity::Id meshEntityId) {
 
 						//Create texture.
-						auto createDiffuseTexture = [&](ECS2::Entity::Id meshEntityId) {
+						auto createTextures = [&](ECS2::Entity::Id meshEntityId) {
 
 							//TODO: remove copy-paste
 							aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
+
+							ECS2::Entity::Id materialEntity = CreateEntity();
+							CreateComponent<Render::Material::Tag>(materialEntity);
+							CreateComponent<Render::Material::EntityId>(meshEntityId, materialEntity);
 							{
 								aiString diffuseTexturePath;
 								material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &diffuseTexturePath);
 
 								const aiTexture* texture = scene->GetEmbeddedTexture(diffuseTexturePath.C_Str());
 								if (texture != nullptr) {
+									
+									ECS2::Entity::Id diffuseMapEntityId = CreateEntity();
+									CreateComponent<Render::Material::DiffuseMap::Tag>(diffuseMapEntityId);
+									CreateComponent<Render::Material::DiffuseMap::EntityId>(materialEntity, diffuseMapEntityId);
+
 									Common::UInt32 textureWidth = texture->mWidth;
 									Common::UInt32 textureHeight = texture->mHeight;
 									if (textureHeight > 0) {
+										//Deprecated
 										CreateComponent<Render::Material::DiffuseMap::Info>(meshEntityId, diffuseTexturePath.C_Str());
 										CreateComponent<Render::Material::DiffuseMap::Data>(
 											meshEntityId,
+											textureWidth, textureHeight,
+											std::vector<Geom::Color4b>{
+											(Geom::Color4b*)texture->pcData,
+												(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
+										//New way
+										CreateComponent<Render::Material::DiffuseMap::Info>(diffuseMapEntityId, diffuseTexturePath.C_Str());
+										CreateComponent<Render::Material::DiffuseMap::Data>(
+											diffuseMapEntityId,
 											textureWidth, textureHeight,
 											std::vector<Geom::Color4b>{
 											(Geom::Color4b*)texture->pcData,
@@ -1436,9 +1454,18 @@ namespace OksEngine
 											&width, &height, &channels,
 											STBI_rgb_alpha
 										);
+										//Deprecated
 										CreateComponent<Render::Material::DiffuseMap::Info>(meshEntityId, diffuseTexturePath.C_Str());
 										CreateComponent<Render::Material::DiffuseMap::Data>(
 											meshEntityId,
+											width, height,
+											std::vector<Geom::Color4b>{
+											(Geom::Color4b*)pixels,
+												(Geom::Color4b*)pixels + width * height});
+										//New way
+										CreateComponent<Render::Material::DiffuseMap::Info>(diffuseMapEntityId, diffuseTexturePath.C_Str());
+										CreateComponent<Render::Material::DiffuseMap::Data>(
+											diffuseMapEntityId,
 											width, height,
 											std::vector<Geom::Color4b>{
 											(Geom::Color4b*)pixels,
@@ -1525,7 +1552,7 @@ namespace OksEngine
 							}
 
 							};
-						createDiffuseTexture(meshEntityId);
+						createTextures(meshEntityId);
 
 						//Create vertices, normals, uvs, indices, vertex bones
 						auto createMeshData = [&](ECS2::Entity::Id meshEntityId) {
@@ -3838,7 +3865,7 @@ namespace OksEngine
 				driver->Bind(render__SkeletonModelPipeline0->id_, 0,
 					{
 						cameraTransformResource1->id_,													// set 0
-						textureResource->id_															// set 1
+						675->id_															// set 1
 
 					});
 

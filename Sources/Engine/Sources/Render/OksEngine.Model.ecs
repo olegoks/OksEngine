@@ -1331,6 +1331,7 @@ MeshArchetype = {
         "Normals",
         "UVs",
         "VertexBones",
+        "Render::Material::EntityId",
         "Render::Material::DiffuseMap::Info",
         "Render::Material::DiffuseMap::Data",
         "Render::Material::DiffuseMap::Resource",
