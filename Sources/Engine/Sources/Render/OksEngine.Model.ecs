@@ -216,8 +216,9 @@ AiNamespace = {
                         "Normals",
                         "UVs",
                         "VertexBones",
-                        "Render::Material::DiffuseMap::Info",
-                        "Render::Material::DiffuseMap::Data"
+                        "Render::Material::EntityId",
+                        -- "Render::Material::DiffuseMap::Info",
+                        -- "Render::Material::DiffuseMap::Data"
                     }
                 },
                 {
@@ -1176,6 +1177,9 @@ AddModelToRenderSystem = {
                 archetype = "Mesh"
             },
             {
+                archetype = "Render::Material::Material"
+            },
+            {
                 accessingComponents = {
                     "WorldPosition3D",
                     "WorldRotation3D",
@@ -1250,6 +1254,9 @@ AddSkeletonModelToRenderSystem = {
             -- {
             --     archetype = "Model_Data"
             -- },
+            {
+                archetype = "Render::Material::Material"
+            },
             {
                 archetype = "Mesh"
             }
@@ -1332,15 +1339,15 @@ MeshArchetype = {
         "UVs",
         "VertexBones",
         "Render::Material::EntityId",
-        "Render::Material::DiffuseMap::Info",
-        "Render::Material::DiffuseMap::Data",
-        "Render::Material::DiffuseMap::Resource",
-        "Render::Material::NormalMap::Info",
-        "Render::Material::NormalMap::Data",
-        "Render::Material::NormalMap::Resource",
-        "Render::Material::AmbientMap::Info",
-        "Render::Material::AmbientMap::Data",
-        "Render::Material::AmbientMap::Resource"
+        -- "Render::Material::DiffuseMap::Info",
+        -- "Render::Material::DiffuseMap::Data",
+        -- "Render::Material::DiffuseMap::Resource",
+        -- "Render::Material::NormalMap::Info",
+        -- "Render::Material::NormalMap::Data",
+        -- "Render::Material::NormalMap::Resource",
+        -- "Render::Material::AmbientMap::Info",
+        -- "Render::Material::AmbientMap::Data",
+        -- "Render::Material::AmbientMap::Resource"
     }
 }
 

@@ -171,8 +171,8 @@ CreateDebugTextAtlasSystem = {
                 processesComponents = {
                     "DebugTextRenderer"
                 },
-                excludes = { "Texture" },
-                createsComponents = { "Texture" }
+                excludes = { "Render::Material::EntityId" },
+                createsComponents = { "Render::Material::EntityId" }
             }
         }
     }
@@ -353,7 +353,8 @@ DrawDebugText2DSystem = {
                     "DebugTextPipeline",
                     "SymbolsMetadata",
                     "DebugTextDriverVertexBuffer",
-                    "Render::Material::DiffuseMap::Resource"
+                    "Render::Material::EntityId",
+                    "Render::Material::ResourceSet"
                 }
             },
             {

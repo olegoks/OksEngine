@@ -1,3 +1,170 @@
+-- TextureComponent = {
+--     serializable = false,
+--     fields = {
+--         { type = "Common::Size",               name = "width" },
+--         { type = "Common::Size",               name = "height" },
+--         { type = "std::vector<Geom::Color4b>", name = "pixels" } }
+-- }
+
+
 RenderNamespace = {
-    
+
+    --
+
+    MaterialNamespace = {
+        TagComponent = {},
+        EntityIdComponent = {
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+
+        ResourceSetComponent = {
+            description = "Vulkan: description set with all textures.",
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "RAL::Driver::ResourceSet::Id", name = "id" }
+            }
+        },
+
+        CreateResourceSetSystem = {
+            description = "All textures must be added in the frame when material entity created. Otherwise description set will be created without some textures.",
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Material::Tag"
+                        },
+                        excludes = {
+                            "ResourceSet"
+                        },
+                        createsComponents = {
+                            "ResourceSet"
+                        }
+                    }
+                }
+            }
+        },
+        -- DiffuseMapNamespace = {
+        --     TagComponent = {},
+        --     EntityIdComponent = {
+        --         fields = {
+        --             { type = "ECS2::Entity::Id", name = "id" }
+        --         }
+        --     },
+        --     InfoComponent = "DynamicString",
+        --     DataComponent = {
+        --         serializable = false,
+        --         fields = {
+        --             { type = "Common::Size",               name = "width" },
+        --             { type = "Common::Size",               name = "height" },
+        --             { type = "std::vector<Geom::Color4b>", name = "pixels" } }
+        --     },
+        --     ResourceComponent = "Render::TextureResource",
+        --     CreateResourceSystem = {
+        --         updateMethod = {
+        --             processesEntities = {
+        --                 {
+        --                     processesComponents = {
+        --                         { name = "RenderDriver", readonly = false }
+        --                     }
+        --                 },
+        --                 {
+        --                     processesComponents = {
+        --                         "Info", "Data"
+        --                     },
+        --                     createsComponents = { "Resource", "Texture_Id" },
+        --                     excludes = { "Resource", "Texture_Id" }
+        --                 }
+        --             }
+        --         }
+        --     }
+        -- },
+        -- NormalMapNamespace = {
+        --     TagComponent = {},
+        --     EntityIdComponent = {
+        --         fields = {
+        --             { type = "ECS2::Entity::Id", name = "id" }
+        --         }
+        --     },
+        --     InfoComponent = "DynamicString",
+        --     DataComponent = {
+        --         serializable = false,
+        --         fields = {
+        --             { type = "Common::Size",               name = "width" },
+        --             { type = "Common::Size",               name = "height" },
+        --             { type = "std::vector<Geom::Color4b>", name = "pixels" } }
+        --     },
+        --     ResourceComponent = "Render::TextureResource",
+        --     CreateResourceSystem = {
+        --         updateMethod = {
+        --             processesEntities = {
+        --                 {
+        --                     processesComponents = {
+        --                         { name = "RenderDriver", readonly = false }
+        --                     }
+        --                 },
+        --                 {
+        --                     processesComponents = {
+        --                         "Info", "Data"
+        --                     },
+        --                     createsComponents = { "Resource", "Texture_Id" },
+        --                     excludes = { "Resource", "Texture_Id" }
+        --                 }
+        --             }
+        --         }
+        --     }
+        -- },
+        -- AmbientMapNamespace = {
+        --     TagComponent = {},
+        --     EntityIdComponent = {
+        --         fields = {
+        --             { type = "ECS2::Entity::Id", name = "id" }
+        --         }
+        --     },
+        --     InfoComponent = "DynamicString",
+        --     DataComponent = {
+        --         serializable = false,
+        --         fields = {
+        --             { type = "Common::Size",               name = "width" },
+        --             { type = "Common::Size",               name = "height" },
+        --             { type = "std::vector<Geom::Color4b>", name = "pixels" } }
+        --     },
+        --     ResourceComponent = "Render::TextureResource",
+        --     CreateResourceSystem = {
+        --         updateMethod = {
+        --             processesEntities = {
+        --                 {
+        --                     processesComponents = {
+        --                         { name = "RenderDriver", readonly = false }
+        --                     }
+        --                 },
+        --                 {
+        --                     processesComponents = {
+        --                         "Info", "Data"
+        --                     },
+        --                     createsComponents = { "Resource", "Texture_Id" },
+        --                     excludes = { "Resource", "Texture_Id" }
+        --                 }
+        --             }
+        --         }
+        --     }
+        -- },
+        MaterialArchetype = {
+            components = {
+                "Material::Tag",
+                "Material::ResourceSet",
+                "Texture::Type::DiffuseMap::EntityId",
+                "Texture::Type::NormalMap::EntityId",
+                "Texture::Type::AmbientMap::EntityId"
+            }
+        }
+    }
+
 }

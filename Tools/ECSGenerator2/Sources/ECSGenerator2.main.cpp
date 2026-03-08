@@ -285,7 +285,9 @@ int main(int argc, char** argv) {
 							parsedArchetype,
 							parsedComponentName, ECSGenerator2::ParsedTable::Type::Component));
 
-					ASSERT(component.ptr_ != nullptr);
+					if (component.ptr_ == nullptr) {
+						OS::LogError("archetype", { "Archetype \"{}\" contains unknown component \"{}\"",parsedArchetype->GetConcatedNamespace() + parsedArchetype->GetName(), component.name_ });
+					}
 
 					});
 
@@ -300,7 +302,10 @@ int main(int argc, char** argv) {
 							parsedArchetype,
 							parsedArchetypeName, ECSGenerator2::ParsedTable::Type::Archetype));
 
-					ASSERT(archetype.ptr_ != nullptr);
+					if (archetype.ptr_ == nullptr) {
+						OS::LogError("archetype", { "Archetype \"{}\" contains unknown reference archetype \"{}\"",
+							parsedArchetype->GetConcatedNamespace() + parsedArchetype->GetName(), archetypeRefName});
+					}
 
 					});
 

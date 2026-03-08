@@ -238,6 +238,11 @@ ImGUINamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
+                            { name = "RenderDriver", readonly = false }
+                        } 
+                    },
+                    {
+                        processesComponents = {
                             { name = "State", readonly = false }
                         },
                         excludes = { "TextureData" },
@@ -333,7 +338,8 @@ ImGUINamespace = {
                         "RenderPass",
                         "MainMenuBar",
                         "Transform2DResource",
-                        "Render::Material::DiffuseMap::Resource",
+                        "Render::Material::EntityId",
+                        "Render::Material::ResourceSet",
                         "DriverIndexBuffer",
                         "DriverVertexBuffer"
                     }
@@ -411,7 +417,7 @@ ImGUINamespace = {
                         "RenderPass",
                         "MainMenuBar",
                         "Transform2DResource",
-                        "Render::Material::DiffuseMap::Resource",
+                        "Render::Material::EntityId",
                         "DriverIndexBuffer",
                         "DriverVertexBuffer"
                     }

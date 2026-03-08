@@ -42,6 +42,10 @@ namespace OS {
 
 //#define USE_ASSERTS
 
+#define ABORT()			\
+	do {				\
+		std::abort();	\
+	} while(0)
 
 #define STATIC_ASSERT_MSG(expression, message)\
 	static_assert(expression, message)

@@ -1,0 +1,197 @@
+RenderNamespace = {
+
+    TextureNamespace = {
+        TagComponent = {
+            description = "Tag component that marks an entity as a texture entity."
+        },
+
+        EntityIdComponent = {
+            description = "Identifier of the texture entity. Used to link textures from other ECS contexts.",
+            fields = { { type = "ECS2::Entity::Id", name = "id" } }
+        },
+        DriverIdComponent = {
+            serializable = false,
+            bindable = false,
+            description = "Identifier of the texture in render driver.",
+            fields = {
+                { type = "RAL::Driver::Texture::Id", name = "id" }
+            }
+        },
+        ResourceIdComponent = {
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::Resource::Id", name = "id" }
+            }
+        },
+        TypeNamespace = {
+            DiffuseMapNamespace = {
+                TagComponent = {
+                    description = "Marker component that indicates this texture is used as a diffuse (albedo) map."
+                },
+                EntityIdComponent = {
+                    description =
+                    "Reference from material to a texture entity id that is used as a diffuse (albedo) map.",
+                    serializable = false,
+                    bindable = false,
+                    fields = { { type = "ECS2::Entity::Id", name = "id" } }
+                }
+            },
+            NormalMapNamespace = {
+                TagComponent = {
+                    description = "Marker component that indicates this texture is used as a normal map."
+                },
+                EntityIdComponent = {
+                    description = "Reference from material to a texture entity id that is used as a normal map.",
+                    serializable = false,
+                    bindable = false,
+                    fields = { { type = "ECS2::Entity::Id", name = "id" } }
+                }
+            },
+            AmbientMapNamespace = {
+                TagComponent = {
+                    description =
+                    "Marker component that indicates this texture is used as an ambient/ambient occlusion map."
+                },
+                EntityIdComponent = {
+                    description =
+                    "Reference from material to a texture entity id that is used as an ambient/ambient occlusion map.",
+                    serializable = false,
+                    bindable = false,
+                    fields = { { type = "ECS2::Entity::Id", name = "id" } },
+                }
+            },
+            MetallicMapNamespace = {
+                TagComponent = {
+                    description = "Marker component that indicates this texture is used as a metallic map."
+                },
+                EntityIdComponent = {
+                    description = "Reference from material to a texture entity id that is used as a metallic map.",
+                    serializable = false,
+                    bindable = false,
+                    fields = { { type = "ECS2::Entity::Id", name = "id" } }
+                }
+            },
+
+            SpecularMapNamespace = {
+                TagComponent = {
+                    description = "Marker component that indicates this texture is used as a specular map."
+                },
+                EntityIdComponent = {
+                    description = "Reference from material to a texture entity id that is used as a specular map.",
+                    serializable = false,
+                    bindable = false,
+                    fields = { { type = "ECS2::Entity::Id", name = "id" } }
+                }
+            }
+        },
+
+        TypesArchetype = {
+            components = {
+                "Texture::Type::DiffuseMap::Tag",
+                "Texture::Type::NormalMap::Tag",
+                "Texture::Type::AmbientMap::Tag",
+                "Texture::Type::SpecularMap::Tag",
+                "Texture::Type::MetallicMap::Tag"
+            }
+        },
+
+        InfoComponent = {
+            description =
+            "Texture metadata such as name and file path. Texture type is determined by marker components from TypeNamespace.",
+            fields = {
+                { type = "std::string", name = "name" }
+            }
+        },
+
+        DataComponent = {
+            description = "Raw texture pixel data stored on CPU side, not intended for serialization.",
+            serializable = false,
+            fields = {
+                { type = "Common::Size",               name = "width" },
+                { type = "Common::Size",               name = "height" },
+                { type = "std::vector<Geom::Color4b>", name = "pixels" }
+            }
+        },
+
+        ResourceComponent = "Render::TextureResource",
+
+        CreateTextureResourceSystem = {
+            description = "Creates a GPU texture resource from CPU-side texture info and data.",
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false }
+                        }
+                    }, {
+                    processesComponents = { "Texture::Info", "Texture::Data" },
+                    createsComponents = { "Texture::Resource" },
+                    excludes = { "Texture::Resource" }
+                }
+                }
+            }
+        },
+
+    },
+
+    -- MaterialNamespace = {
+    --     TagComponent = {
+    --         description = "Tag component that marks an entity as a material entity."
+    --     },
+
+    --     EntityIdComponent = {
+    --         description =
+    --         "Identifier of the material entity. Used to reference the material from meshes and other systems.",
+    --         fields = { { type = "ECS2::Entity::Id", name = "id" } }
+    --     },
+
+    --     InfoComponent = {
+    --         description = "Basic material information such as human-readable name.",
+    --         fields = { { type = "std::string", name = "name" } }
+    --     },
+
+    --     ResourceSetComponent = {
+    --         description = "Driver resource set that binds all GPU texture resources used by this material.",
+    --         serializable = false,
+    --         bindable = false,
+    --         fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
+    --     },
+
+    --     CreateMaterialResourceSetSystem = {
+    --         description = "Creates a driver resource set for the material using already created texture GPU resources.",
+    --         updateMethod = {
+    --             processesEntities = {
+    --                 {
+    --                     processesComponents = {
+    --                         { name = "RenderDriver", readonly = false }
+    --                     }
+    --                 }, {
+    --                 processesComponents = { "Material::Info" },
+    --                 createsComponents = { "Material::ResourceSet" },
+    --                 excludes = { "Material::ResourceSet" }
+    --             }
+    --             },
+    --             accessingEntities = {
+    --                 {
+    --                     accessingComponents = {
+    --                         "Texture::Tag", "Texture::Info", "Texture::Resource"
+    --                     }
+    --                 }
+    --             }
+    --         }
+    --     },
+
+    --     MaterialArchetype = {
+    --         description =
+    --         "Archetype that defines a complete material entity with metadata, texture references and driver resource set.",
+    --         components = {
+    --             "Material::Tag", "Material::Info",
+    --             "Texture::DiffuseTexture::TextureEntityId",
+    --             "Texture::NormalTexture::TextureEntityId",
+    --             "Texture::AmbientTexture::TextureEntityId",
+    --             "Material::ResourceSet"
+    --         }
+    --     }
+    -- }
+
+}

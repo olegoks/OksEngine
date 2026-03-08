@@ -227,8 +227,18 @@ namespace OksEngine
 		int result = stbi_write_jpg("FontsAtlas.png", atlasWidth, atlasHeight, channels, atlasData.data(), quality);
 
 		CreateComponent<SymbolsMetadata>(entity1id, std::move(symbolsMetadata));
-		CreateComponent<Render::Material::DiffuseMap::Info>(entity1id, "FontAtlasTexture");
-		CreateComponent<Render::Material::DiffuseMap::Data>(entity1id, atlasWidth, atlasHeight, atlasData);
+
+		//TODO: update system description
+		const ECS2::Entity::Id materialEntityId = world_->CreateEntity();
+		CreateComponent<Render::Material::Tag>(materialEntityId);
+		CreateComponent<Render::Material::EntityId>(entity1id, materialEntityId);
+		
+		const ECS2::Entity::Id textureEntityId = world_->CreateEntity();
+		CreateComponent<Render::Texture::Type::DiffuseMap::EntityId>(materialEntityId, textureEntityId);
+
+		CreateComponent<Render::Texture::Type::DiffuseMap::Tag>(textureEntityId);
+		CreateComponent<Render::Texture::Info>(textureEntityId, "Root/timesnewromanpsmt.ttf");
+		CreateComponent<Render::Texture::Data>(textureEntityId, atlasWidth, atlasHeight, atlasData);
 
 	}
 
@@ -419,12 +429,17 @@ namespace OksEngine
 	}
 
 	void DrawDebugText2D::Update(
-		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const Render::MainRenderPass* renderPass0,
-		const Render::Pipeline* pipeline0, ECS2::Entity::Id entity1id, const DebugTextRenderer* debugTextRenderer1,
-		const DebugTextRenderPass* debugTextRenderPass1, const DebugTextPipeline* debugTextPipeline1,
-		const SymbolsMetadata* symbolsMetadata1,
-		const DebugTextDriverVertexBuffer* debugTextDriverVertexBuffer1,
-		const Render::Material::DiffuseMap::Resource* textureResource1, ECS2::Entity::Id entity2id, const DebugText2D* debugText2D2) {
+		ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
+		const OksEngine::Render::MainRenderPass* render__MainRenderPass0,
+		const OksEngine::Render::Pipeline* render__Pipeline0, ECS2::Entity::Id entity1id,
+		const OksEngine::DebugTextRenderer* debugTextRenderer1,
+		const OksEngine::DebugTextRenderPass* debugTextRenderPass1,
+		const OksEngine::DebugTextPipeline* debugTextPipeline1,
+		const OksEngine::SymbolsMetadata* symbolsMetadata1,
+		const OksEngine::DebugTextDriverVertexBuffer* debugTextDriverVertexBuffer1,
+		const OksEngine::Render::Material::EntityId* render__Material__EntityId1,
+		const OksEngine::Render::Material::ResourceSet* render__Material__ResourceSet1,
+		ECS2::Entity::Id entity2id, const OksEngine::DebugText2D* debugText2D2) {
 
 		auto driver = renderDriver0->driver_;
 
@@ -434,7 +449,7 @@ namespace OksEngine
 
 		// ���������� �������� ��� ���������� ������
 		driver->BindPipeline(debugTextPipeline1->id_);
-		driver->Bind(debugTextPipeline1->id_, 0, { textureResource1->id_ });
+		driver->Bind(debugTextPipeline1->id_, 0, { render__Material__ResourceSet1->id_ });
 		driver->BindVertexBuffer(debugTextDriverVertexBuffer1->id_, 0);
 		//static Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
 

@@ -136,7 +136,13 @@ namespace ECSGenerator2 {
 				}
 			}
 
-			ASSERT_FMSG(!requiredComponentNames.contains(nullptr), "");
+			if (requiredComponentNames.contains(nullptr)) {
+				OS::LogError("updateMethod",
+					"Can't find all required system update method components. "
+					"See errors above. "
+					"Generation terminated." );
+				ABORT();
+			}
 
 			return requiredComponentNames;
 		}

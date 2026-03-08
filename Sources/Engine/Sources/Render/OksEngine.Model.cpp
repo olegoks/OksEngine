@@ -14,7 +14,7 @@
 //DEBUG
 #include <random>
 
-#include <Render/Texture/auto_OksEngine.Texture.hpp>
+#include <Render/Texture/OksEngine.Render.Texture.Utils.hpp>
 
 
 #include <Common/auto_OksEngine.Debug.Position3D.hpp>
@@ -1418,138 +1418,103 @@ namespace OksEngine
 								const aiTexture* texture = scene->GetEmbeddedTexture(diffuseTexturePath.C_Str());
 								if (texture != nullptr) {
 									
-									ECS2::Entity::Id diffuseMapEntityId = CreateEntity();
-									CreateComponent<Render::Material::DiffuseMap::Tag>(diffuseMapEntityId);
-									CreateComponent<Render::Material::DiffuseMap::EntityId>(materialEntity, diffuseMapEntityId);
+									const ECS2::Entity::Id diffuseMapEntityId = RENDER__TEXTURE__CREATE_DIFFUSE_MAP(diffuseTexturePath.C_Str(), texture);
 
-									Common::UInt32 textureWidth = texture->mWidth;
-									Common::UInt32 textureHeight = texture->mHeight;
-									if (textureHeight > 0) {
-										//Deprecated
-										CreateComponent<Render::Material::DiffuseMap::Info>(meshEntityId, diffuseTexturePath.C_Str());
-										CreateComponent<Render::Material::DiffuseMap::Data>(
-											meshEntityId,
-											textureWidth, textureHeight,
-											std::vector<Geom::Color4b>{
-											(Geom::Color4b*)texture->pcData,
-												(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
-										//New way
-										CreateComponent<Render::Material::DiffuseMap::Info>(diffuseMapEntityId, diffuseTexturePath.C_Str());
-										CreateComponent<Render::Material::DiffuseMap::Data>(
-											diffuseMapEntityId,
-											textureWidth, textureHeight,
-											std::vector<Geom::Color4b>{
-											(Geom::Color4b*)texture->pcData,
-												(Geom::Color4b*)texture->pcData + textureWidth * textureHeight});
-									}
-									else {
-										//Texture is compressed
-										const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(texture->pcData);
+									CreateComponent<Render::Texture::Type::DiffuseMap::EntityId>(materialEntity, diffuseMapEntityId);
 
-										int width, height, channels;
-
-										unsigned char* pixels = stbi_load_from_memory(
-											compressed_data,
-											texture->mWidth,
-											&width, &height, &channels,
-											STBI_rgb_alpha
-										);
-										//Deprecated
-										CreateComponent<Render::Material::DiffuseMap::Info>(meshEntityId, diffuseTexturePath.C_Str());
-										CreateComponent<Render::Material::DiffuseMap::Data>(
-											meshEntityId,
-											width, height,
-											std::vector<Geom::Color4b>{
-											(Geom::Color4b*)pixels,
-												(Geom::Color4b*)pixels + width * height});
-										//New way
-										CreateComponent<Render::Material::DiffuseMap::Info>(diffuseMapEntityId, diffuseTexturePath.C_Str());
-										CreateComponent<Render::Material::DiffuseMap::Data>(
-											diffuseMapEntityId,
-											width, height,
-											std::vector<Geom::Color4b>{
-											(Geom::Color4b*)pixels,
-												(Geom::Color4b*)pixels + width * height});
-									}
 								}
 							}
+
 							{
 								aiString normalTexturePath;
 								material->GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &normalTexturePath);
-								const aiTexture* normalTexture = scene->GetEmbeddedTexture(normalTexturePath.C_Str());
-								if (normalTexture != nullptr) {
-									Common::UInt32 textureWidth = normalTexture->mWidth;
-									Common::UInt32 textureHeight = normalTexture->mHeight;
-									if (textureHeight > 0) {
-										CreateComponent<Render::Material::NormalMap::Info>(meshEntityId, normalTexturePath.C_Str());
-										CreateComponent<Render::Material::NormalMap::Data>(
-											meshEntityId,
-											textureWidth, textureHeight,
-											std::vector<Geom::Color4b>{
-											(Geom::Color4b*)normalTexture->pcData,
-												(Geom::Color4b*)normalTexture->pcData + textureWidth * textureHeight});
-									}
-									else {
-										//Texture is compressed
-										const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(normalTexture->pcData);
 
-										int width, height, channels;
+								const aiTexture* texture = scene->GetEmbeddedTexture(normalTexturePath.C_Str());
+								if (texture != nullptr) {
 
-										unsigned char* pixels = stbi_load_from_memory(
-											compressed_data,
-											normalTexture->mWidth,
-											&width, &height, &channels,
-											STBI_rgb_alpha
-										);
-										CreateComponent<Render::Material::NormalMap::Info>(meshEntityId, normalTexturePath.C_Str());
-										CreateComponent<Render::Material::NormalMap::Data>(
-											meshEntityId,
-											width, height,
-											std::vector<Geom::Color4b>{
-											(Geom::Color4b*)pixels,
-												(Geom::Color4b*)pixels + width * height});
-									}
+									const ECS2::Entity::Id normalMapEntityId = RENDER__TEXTURE__CREATE_NORMAL_MAP(normalTexturePath.C_Str(), texture);
+
+									CreateComponent<Render::Texture::Type::NormalMap::EntityId>(materialEntity, normalMapEntityId);
+
 								}
 							}
-							{
-								aiString ambientTexturePath;
-								//material->
-								aiReturn isAmbientExist = material->GetTexture(aiTextureType::aiTextureType_AMBIENT, 0, &ambientTexturePath);
-								if (isAmbientExist == aiReturn_SUCCESS) {
-									const aiTexture* ambientTexture = scene->GetEmbeddedTexture(ambientTexturePath.C_Str());
-									Common::UInt32 textureWidth = ambientTexture->mWidth;
-									Common::UInt32 textureHeight = ambientTexture->mHeight;
-									if (textureHeight > 0) {
-										CreateComponent<Render::Material::NormalMap::Info>(meshEntityId, ambientTexturePath.C_Str());
-										CreateComponent<Render::Material::NormalMap::Data>(
-											meshEntityId,
-											textureWidth, textureHeight,
-											std::vector<Geom::Color4b>{
-											(Geom::Color4b*)ambientTexture->pcData,
-												(Geom::Color4b*)ambientTexture->pcData + textureWidth * textureHeight});
-									}
-									else {
-										//Texture is compressed
-										const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(ambientTexture->pcData);
+							//{
+							//	aiString normalTexturePath;
+							//	material->GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &normalTexturePath);
+							//	const aiTexture* normalTexture = scene->GetEmbeddedTexture(normalTexturePath.C_Str());
+							//	if (normalTexture != nullptr) {
+							//		Common::UInt32 textureWidth = normalTexture->mWidth;
+							//		Common::UInt32 textureHeight = normalTexture->mHeight;
+							//		if (textureHeight > 0) {
+							//			CreateComponent<Render::Material::NormalMap::Info>(meshEntityId, normalTexturePath.C_Str());
+							//			CreateComponent<Render::Material::NormalMap::Data>(
+							//				meshEntityId,
+							//				textureWidth, textureHeight,
+							//				std::vector<Geom::Color4b>{
+							//				(Geom::Color4b*)normalTexture->pcData,
+							//					(Geom::Color4b*)normalTexture->pcData + textureWidth * textureHeight});
+							//		}
+							//		else {
+							//			//Texture is compressed
+							//			const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(normalTexture->pcData);
 
-										int width, height, channels;
+							//			int width, height, channels;
 
-										unsigned char* pixels = stbi_load_from_memory(
-											compressed_data,
-											ambientTexture->mWidth,
-											&width, &height, &channels,
-											STBI_rgb_alpha
-										);
-										CreateComponent<Render::Material::AmbientMap::Info>(meshEntityId, ambientTexturePath.C_Str());
-										CreateComponent<Render::Material::AmbientMap::Data>(
-											meshEntityId,
-											width, height,
-											std::vector<Geom::Color4b>{
-											(Geom::Color4b*)pixels,
-												(Geom::Color4b*)pixels + width * height});
-									}
-								}
-							}
+							//			unsigned char* pixels = stbi_load_from_memory(
+							//				compressed_data,
+							//				normalTexture->mWidth,
+							//				&width, &height, &channels,
+							//				STBI_rgb_alpha
+							//			);
+							//			CreateComponent<Render::Material::NormalMap::Info>(meshEntityId, normalTexturePath.C_Str());
+							//			CreateComponent<Render::Material::NormalMap::Data>(
+							//				meshEntityId,
+							//				width, height,
+							//				std::vector<Geom::Color4b>{
+							//				(Geom::Color4b*)pixels,
+							//					(Geom::Color4b*)pixels + width * height});
+							//		}
+							//	}
+							//}
+							//{
+							//	aiString ambientTexturePath;
+							//	//material->
+							//	aiReturn isAmbientExist = material->GetTexture(aiTextureType::aiTextureType_AMBIENT, 0, &ambientTexturePath);
+							//	if (isAmbientExist == aiReturn_SUCCESS) {
+							//		const aiTexture* ambientTexture = scene->GetEmbeddedTexture(ambientTexturePath.C_Str());
+							//		Common::UInt32 textureWidth = ambientTexture->mWidth;
+							//		Common::UInt32 textureHeight = ambientTexture->mHeight;
+							//		if (textureHeight > 0) {
+							//			CreateComponent<Render::Material::NormalMap::Info>(meshEntityId, ambientTexturePath.C_Str());
+							//			CreateComponent<Render::Material::NormalMap::Data>(
+							//				meshEntityId,
+							//				textureWidth, textureHeight,
+							//				std::vector<Geom::Color4b>{
+							//				(Geom::Color4b*)ambientTexture->pcData,
+							//					(Geom::Color4b*)ambientTexture->pcData + textureWidth * textureHeight});
+							//		}
+							//		else {
+							//			//Texture is compressed
+							//			const unsigned char* compressed_data = reinterpret_cast<const unsigned char*>(ambientTexture->pcData);
+
+							//			int width, height, channels;
+
+							//			unsigned char* pixels = stbi_load_from_memory(
+							//				compressed_data,
+							//				ambientTexture->mWidth,
+							//				&width, &height, &channels,
+							//				STBI_rgb_alpha
+							//			);
+							//			CreateComponent<Render::Material::AmbientMap::Info>(meshEntityId, ambientTexturePath.C_Str());
+							//			CreateComponent<Render::Material::AmbientMap::Data>(
+							//				meshEntityId,
+							//				width, height,
+							//				std::vector<Geom::Color4b>{
+							//				(Geom::Color4b*)pixels,
+							//					(Geom::Color4b*)pixels + width * height});
+							//		}
+							//	}
+							//}
 
 							};
 						createTextures(meshEntityId);
@@ -2565,8 +2530,8 @@ namespace OksEngine
 		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
 		auto* meshModelEntityIndices = std::get<Render::Mdl::ModelNodeEntityIndices*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
-		auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
-		auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
+		//auto* meshMaterialEntityIds = std::get<Render::Material::EntityId*>(meshComponents);
+		//auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
@@ -2735,8 +2700,8 @@ namespace OksEngine
 		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
 		auto* meshModelEntityIndices = std::get<Render::Mdl::ModelNodeEntityIndices*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
-		auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
-		auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
+		//auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
+		//auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
@@ -3448,8 +3413,8 @@ namespace OksEngine
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
 		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
-		auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
-		auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
+		auto* meshMaterialEntityIds = std::get<Render::Material::EntityId*>(meshComponents);
+		//auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
 
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 
@@ -3464,7 +3429,7 @@ namespace OksEngine
 		for (Common::Index i = 0; i < meshEntitiesNumber; i++) {
 			if (meshEntitiesIds[i].IsValid()) {
 
-				auto* textureResource = meshTextureResources + i;
+				auto* materialEntityId = meshMaterialEntityIds + i;
 				auto* vertexBuffer = meshVertexBuffers + i;
 				auto* indexBuffer = meshIndexBuffers + i;
 				auto* modelEntityIds = meshModelEntityIds + i;
@@ -3480,10 +3445,15 @@ namespace OksEngine
 					continue;
 				}
 				if (!meshComponentsFilter.IsSet <
-					Render::Material::DiffuseMap::Resource/*,
+					Render::Material::EntityId/*,
 					Render::Material::NormalMap::Resource*/> ()) {
 					continue;
 				}
+
+				if (!IsComponentExist<Render::Material::ResourceSet>(materialEntityId->id_)) {
+					continue;
+				}
+				auto* materialResourceSet = GetComponent<Render::Material::ResourceSet>(materialEntityId->id_);
 
 				driver->BindVertexBuffer(vertexBuffer->id_, 0);
 				driver->BindIndexBuffer(indexBuffer->id_, 0);
@@ -3491,7 +3461,7 @@ namespace OksEngine
 				driver->Bind(render__Pipeline0->id_, 0,
 					{
 						cameraTransformResource1->id_,												// set 0
-						textureResource->id_,														// set 1
+						materialResourceSet->id_,													// set 1
 						gPGPUECS__StorageBuffer__ModelEntityIds0->resourceSetId_,					// set 2 to get model ids from mesh
 						gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->resourceSetId_, // set 3 to get model components index
 						gPGPUECS__StorageBuffer__ModelNodeEntityIds0->resourceSetId_,				// set 4 to get node ids that model contain
@@ -3808,8 +3778,7 @@ namespace OksEngine
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
 		auto* meshModelEntityIds = std::get<Render::Mdl::ModelEntityIds*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
-		auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
-		auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
+		auto* meshMaterialEntityIds = std::get<Render::Material::EntityId*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
@@ -3837,8 +3806,7 @@ namespace OksEngine
 				if (!meshComponentsFilter.IsSet<
 					DriverVertexBuffer,
 					DriverIndexBuffer,
-					Render::Material::DiffuseMap::Resource,
-					Render::Material::NormalMap::Resource,
+					Render::Material::EntityId,
 					Render::Mdl::ModelEntityIds,
 					VertexBones,
 					Indices>()) {
@@ -3846,11 +3814,17 @@ namespace OksEngine
 				}
 
 
-				auto* textureResource = meshTextureResources + i;
+				auto* materialEntityId = meshMaterialEntityIds + i;
 				//TODO: need assert
-				if (textureResource->id_.IsInvalid()) {
+				if (materialEntityId->id_.IsInvalid()) {
 					continue;
 				}
+
+				if (!IsComponentExist<Render::Material::ResourceSet>(materialEntityId->id_)) {
+					continue;
+				}
+				auto* materialResourceSet = GetComponent<Render::Material::ResourceSet>(materialEntityId->id_);
+
 
 				auto* driverVertexBuffer = meshVertexBuffers + i;
 				driver->BindVertexBuffer(driverVertexBuffer->id_, 0);
@@ -3865,14 +3839,14 @@ namespace OksEngine
 				driver->Bind(render__SkeletonModelPipeline0->id_, 0,
 					{
 						cameraTransformResource1->id_,													// set 0
-						675->id_															// set 1
+						materialResourceSet->id_															// set 1
 
 					});
 
-				driver->Bind(render__SkeletonModelPipeline0->id_, 12,
-					{
-						(meshNormalTextureResources + i)->id_												// set 12
-					});
+				//driver->Bind(render__SkeletonModelPipeline0->id_, 12,
+				//	{
+				//		(meshNormalTextureResources + i)->id_												// set 12
+				//	});
 
 				auto invalidEntityIdIt = std::find(
 					modelEntityIds->modelEntityIds_.begin(),

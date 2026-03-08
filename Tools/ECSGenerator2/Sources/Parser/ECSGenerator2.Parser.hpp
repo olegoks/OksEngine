@@ -114,10 +114,17 @@ namespace ECSGenerator2 {
 										const std::string tableName = key.tostring();
 										//TODO: move setting of child table to processTable function.
 										auto parsedTable = processTable(tableName, value);
-										ASSERT_FMSG(parsedTable != nullptr, 
+										if (parsedTable != nullptr) {
+											parsedNamespaceTables.push_back(parsedTable);
+										}
+										else {
+											OS::LogError("parse", { "Can't parse table \"{}\" in \"{}\". Maybe it doesn't have keyword as Component/System/Archetype/Struct...",
+											tableName, ecsFilePath.string() });
+										}
+										/*ASSERT_FMSG(parsedTable != nullptr, 
 											"Can't parse table {} in {}. Maybe it doesn't have keyword as Component/System/Archetype/Struct...",
-											tableName, ecsFilePath.string());
-										parsedNamespaceTables.push_back(parsedTable);
+											tableName, ecsFilePath.string());*/
+										
 									}
 								}
 							}
