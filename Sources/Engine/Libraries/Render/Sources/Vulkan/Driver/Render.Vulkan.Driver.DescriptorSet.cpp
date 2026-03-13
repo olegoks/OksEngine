@@ -11,7 +11,9 @@ namespace Render::Vulkan {
 		std::vector<VkWriteDescriptorSet> writes;
 		std::vector<VkDescriptorBufferInfo> descriptorBufferInfos;
 		std::vector<VkDescriptorImageInfo> descriptorImageInfos;
-		writes.reserve(infos.size());
+		descriptorBufferInfos.reserve(16);
+		descriptorImageInfos.reserve(16);
+		writes.reserve(16);
 
 		for (const UpdateDescriptorInfo& info : infos) {
 			VkWriteDescriptorSet descriptorWrite;
@@ -27,10 +29,10 @@ namespace Render::Vulkan {
 					descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 					descriptorWrite.pNext = nullptr;
 					descriptorWrite.dstSet = GetHandle();
-					descriptorWrite.dstBinding = info.binding_; // Descriptor binding that we want to update.
-					descriptorWrite.dstArrayElement = 0; // Descriptors can be arrrays. We also need to specify the first index in the array that we want to update.
-					descriptorWrite.descriptorType = info.type_; //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-					descriptorWrite.descriptorCount = 1; //Specifies how many array elements you want to update.
+					descriptorWrite.dstBinding = info.binding_;		// Descriptor binding that we want to update.
+					descriptorWrite.dstArrayElement = 0;			// Descriptors can be arrays. We also need to specify the first index in the array that we want to update.
+					descriptorWrite.descriptorType = info.type_;	//VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+					descriptorWrite.descriptorCount = 1;			//Specifies how many array elements you want to update.
 					descriptorWrite.pBufferInfo = &descriptorBufferInfos.back();
 					descriptorWrite.pImageInfo = nullptr;
 					descriptorWrite.pTexelBufferView = nullptr;
@@ -49,12 +51,12 @@ namespace Render::Vulkan {
 					descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 					descriptorWrite.pNext = nullptr;
 					descriptorWrite.dstSet = GetHandle();
-					descriptorWrite.dstBinding = info.binding_; // Descriptor binding that we want to update.
-					descriptorWrite.dstArrayElement = 0; // Descriptors can be arrrays. We also need to specify the first index in the array that we want to update.
-					descriptorWrite.descriptorType = info.type_; //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-					descriptorWrite.descriptorCount = 1; //Specifies how many array elements you want to update.
+					descriptorWrite.dstBinding = info.binding_;		// Descriptor binding that we want to update.
+					descriptorWrite.dstArrayElement = 0;			// Descriptors can be arrays. We also need to specify the first index in the array that we want to update.
+					descriptorWrite.descriptorType = info.type_;	//VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+					descriptorWrite.descriptorCount = 1;			//Specifies how many array elements you want to update.
 					descriptorWrite.pBufferInfo = nullptr;
-					descriptorWrite.pImageInfo = &descriptorImageInfos.back();
+					descriptorWrite.pImageInfo = descriptorImageInfos.data() + descriptorImageInfos.size() - 1;
 					descriptorWrite.pTexelBufferView = nullptr;
 				}
 			}
@@ -80,10 +82,14 @@ namespace Render::Vulkan {
 				}
 			}
 			else {
-				OS::NotImplemented();
+				NOT_IMPLEMENTED();
 			}
 
 			writes.push_back(descriptorWrite);
+		}
+
+		if (writes.size() == 2) {
+			Common::BreakPointLine();
 		}
 
 		vkUpdateDescriptorSets(

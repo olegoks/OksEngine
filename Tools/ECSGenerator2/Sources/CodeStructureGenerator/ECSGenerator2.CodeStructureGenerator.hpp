@@ -3145,6 +3145,9 @@ namespace ECSGenerator2 {
 							auto parsedSystem = afterSystem.ptr_;
 
 							ASSERT_FMSG(parsedSystem != nullptr, "");
+							if (system->ci_.type_ != parsedSystem->ci_.type_) {
+								ABORT_FMSG("Systems with call order dependecies must have the same type. See errors above");
+							}
 
 							DS::Graph<System>::Node::Id afterSystemNodeId = getCreateSystemNode(thread.callGraph_, parsedSystem);
 							thread.callGraph_.AddLinkFromTo(afterSystemNodeId, currentSystemNodeId);
@@ -3155,7 +3158,12 @@ namespace ECSGenerator2 {
 						system->ci_.callOrderInfo_->ForEachRunBeforeSystem([&](const ParsedSystem::CallOrderInfo::System& beforeSystem) {
 
 							auto parsedSystem = beforeSystem.ptr_;
+							
 							ASSERT_FMSG(parsedSystem != nullptr, "");
+							if (system->ci_.type_ != parsedSystem->ci_.type_) {
+								ABORT_FMSG("Systems with call order dependecies must have the same type. See errors above");
+							}
+
 							DS::Graph<System>::Node::Id beforeSystemNodeId = getCreateSystemNode(thread.callGraph_, parsedSystem);
 
 

@@ -195,12 +195,14 @@ namespace OksEngine
 
 					std::vector<Binding> ecsBindings;
 					for (const auto* binding : bindings) {
-						printf("Binding: set=%u, binding=%u, name=%s, type=%d, count=%u\n",
-							binding->set,
-							binding->binding,
-							binding->name,
-							binding->descriptor_type,
-							binding->count);
+						
+						//
+						//printf("Binding: set=%u, binding=%u, name=%s, type=%d, count=%u\n",
+						//	binding->set,
+						//	binding->binding,
+						//	binding->name,
+						//	binding->descriptor_type,
+						//	binding->count);
 
 						Binding ecsBinding{
 							binding->name,
@@ -209,6 +211,9 @@ namespace OksEngine
 							binding->count,
 							toECSDescriptorType(binding->descriptor_type)
 						};
+						if (binding->name == "EmptyLayout") {
+							Common::BreakPointLine();
+						}
 						ecsBindings.emplace_back(ecsBinding);
 					}
 					if (!ecsBindings.empty()) {

@@ -17,12 +17,36 @@ RenderNamespace = {
                 { type = "RAL::Driver::Texture::Id", name = "id" }
             }
         },
-        ResourceIdComponent = {
-            serializable = false,
-            fields = {
-                { type = "RAL::Driver::Resource::Id", name = "id" }
+        CreateDriverTextureSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "RenderDriver", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "Texture::Tag",
+                            "Texture::Data",
+                            "Texture::Info"
+                        },
+                        excludes = {
+                            "Texture::DriverId"
+                        },
+                        createsComponents = {
+                            "Texture::DriverId"
+                        }
+                    }
+                }
             }
         },
+        -- ResourceIdComponent = {
+        --     serializable = false,
+        --     fields = {
+        --         { type = "RAL::Driver::Resource::Id", name = "id" }
+        --     }
+        -- },
         TypeNamespace = {
             DiffuseMapNamespace = {
                 TagComponent = {
@@ -113,24 +137,35 @@ RenderNamespace = {
             }
         },
 
-        ResourceComponent = "Render::TextureResource",
-
-        CreateTextureResourceSystem = {
-            description = "Creates a GPU texture resource from CPU-side texture info and data.",
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false }
-                        }
-                    }, {
-                    processesComponents = { "Texture::Info", "Texture::Data" },
-                    createsComponents = { "Texture::Resource" },
-                    excludes = { "Texture::Resource" }
-                }
-                }
+        TextureArchetype = {
+            archetypes = {
+                "Texture::Types"
+            },
+            components = {
+                "Texture::Tag",
+                "Texture::Data",
+                "Texture::Info",
+                "Texture::DriverId"
             }
         },
+        -- ResourceComponent = "Render::TextureResource",
+
+        -- CreateTextureResourceSystem = {
+        --     description = "Creates a GPU texture resource from CPU-side texture info and data.",
+        --     updateMethod = {
+        --         processesEntities = {
+        --             {
+        --                 processesComponents = {
+        --                     { name = "RenderDriver", readonly = false }
+        --                 }
+        --             }, {
+        --             processesComponents = { "Texture::Info", "Texture::Data" },
+        --             createsComponents = { "Texture::Resource" },
+        --             excludes = { "Texture::Resource" }
+        --         }
+        --         }
+        --     }
+        -- },
 
     },
 

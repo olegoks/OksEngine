@@ -42,9 +42,15 @@ namespace OS {
 
 //#define USE_ASSERTS
 
-#define ABORT()			\
-	do {				\
-		std::abort();	\
+#define ABORT_FMSG(message, ...)									\
+	do {															\
+		OS::LogError("abort", {message, __VA_ARGS__ });				\
+		std::abort();												\
+	} while(0)
+
+#define ABORT()														\
+	do {															\
+		std::abort();												\
 	} while(0)
 
 #define STATIC_ASSERT_MSG(expression, message)\

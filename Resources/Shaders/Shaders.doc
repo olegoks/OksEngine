@@ -1,0 +1,3 @@
+set 0 - material 
+    binding 0 - diffuse map
+    binding 1 - normal map

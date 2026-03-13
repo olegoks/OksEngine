@@ -39,6 +39,13 @@ namespace Render::Vulkan {
 			std::vector<VkVertexInputAttributeDescription> attributeDescriptions_;
 		};
 
+		//Only for dynamic rendering.
+		struct AttachmentsInfo {
+			std::vector<VkFormat>	colorAttachmentFormats_;
+			VkFormat				depthAttachmentFormat = VkFormat::VK_FORMAT_UNDEFINED;
+			VkFormat				stencilAttachmentFormat = VkFormat::VK_FORMAT_UNDEFINED;
+		};
+
 		struct CreateInfo {
 			std::shared_ptr<PhysicalDevice> physicalDevice_ = nullptr;
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
@@ -59,10 +66,13 @@ namespace Render::Vulkan {
 			VkFrontFace frontFace_ = VK_FRONT_FACE_MAX_ENUM;
 			VkCullModeFlags cullMode_ = VK_CULL_MODE_BACK_BIT;
 			std::vector<VkDynamicState> dynamicStates_;
+			std::shared_ptr<AttachmentsInfo> attachmentsInfo_ = nullptr;
+
 		};
 
 		Pipeline(const CreateInfo& createInfo) :
 			createInfo_{ createInfo } {
+
 
 			VkPipelineDepthStencilStateCreateInfo depthStencilState{};
 			{
@@ -248,11 +258,40 @@ namespace Render::Vulkan {
 				pipelineInfo.pColorBlendState = &colorBlending;
 				pipelineInfo.pDynamicState = &dynamicState;
 				pipelineInfo.layout = *pipelineLayout_;
+
+
+
 				pipelineInfo.renderPass = *createInfo_.renderPass_;
 				pipelineInfo.subpass = createInfo.subpassIndex_;
 				pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 				pipelineInfo.basePipelineIndex = -1;
 			}
+
+			//Do not use classical approach and dynamic rendering at the same time.
+			ASSERT_FMSG(
+				(createInfo_.attachmentsInfo_ != nullptr)
+				? (createInfo_.renderPass_ == nullptr)
+				: (createInfo_.renderPass_ != nullptr), "");
+
+			VkPipelineRenderingCreateInfo renderingCreateInfo;
+
+			if (createInfo_.attachmentsInfo_ != nullptr) {
+				//Pipeline for dynamic rendering
+				
+				renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
+
+				renderingCreateInfo.colorAttachmentCount = createInfo_.attachmentsInfo_->colorAttachmentFormats_.size();
+				renderingCreateInfo.pColorAttachmentFormats = createInfo_.attachmentsInfo_->colorAttachmentFormats_.data();
+
+				renderingCreateInfo.depthAttachmentFormat = createInfo_.attachmentsInfo_->depthAttachmentFormat;
+
+				renderingCreateInfo.stencilAttachmentFormat = createInfo_.attachmentsInfo_->stencilAttachmentFormat;
+
+
+				pipelineInfo.pNext = &renderingCreateInfo;
+			}
+			
+
 			VkPipeline pipeline = VK_NULL_HANDLE;
 			VK_CALL(vkCreateGraphicsPipelines(
 				createInfo.LD_->GetHandle(),

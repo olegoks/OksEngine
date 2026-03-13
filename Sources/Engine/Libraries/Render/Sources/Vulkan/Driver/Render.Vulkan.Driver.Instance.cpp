@@ -50,7 +50,7 @@ namespace Render::Vulkan {
 				appInfo.applicationVersion = VK_MAKE_VERSION(1, 0, 0);
 				appInfo.pEngineName = "OksEngine";
 				appInfo.engineVersion = VK_MAKE_VERSION(1, 0, 0);
-				appInfo.apiVersion = VK_API_VERSION_1_0;
+				appInfo.apiVersion = VK_API_VERSION_1_3;
 			}
 
 			createInfo.pApplicationInfo = &appInfo;

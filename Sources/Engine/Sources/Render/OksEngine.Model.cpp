@@ -15,7 +15,7 @@
 #include <random>
 
 #include <Render/Texture/OksEngine.Render.Texture.Utils.hpp>
-
+#include <Render/Pipeline/OksEngine.Render.Pipeline.Utils.hpp>
 
 #include <Common/auto_OksEngine.Debug.Position3D.hpp>
 #include <pix3.h>
@@ -3383,7 +3383,7 @@ namespace OksEngine
 		ECS2::Entity::Id entity1id, const Camera* camera1, const Active* active1,
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
 		const CameraTransformResource* cameraTransformResource1) {
-
+		return;
 		auto createEntityIndices = [](ECS2::Entity::Id* entityIds, Common::Size entitiesNumber) {
 			std::vector<Common::UInt64> indices;
 			for (Common::Index i = 0; i < entitiesNumber; i++) {
@@ -3552,167 +3552,184 @@ namespace OksEngine
 
 	namespace Render {
 		void CreateSkeletonModelPipeline::Update(
-			ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0, const Render::MainRenderPass* renderPass0,
-			ECS2::Entity::Id entity1id, const ResourceSystem* resourceSystem1) {
+			ECS2::Entity::Id entity0id,
+			const OksEngine::Render::PipelineDescription::Manager::Tag* render__PipelineDescription__Manager__Tag0,
+			const OksEngine::Render::PipelineDescription::Manager::Pipelines* render__PipelineDescription__Manager__Pipelines0,
+			
+			ECS2::Entity::Id entity1id,
+			const OksEngine::RenderDriver* renderDriver1,
+			const OksEngine::Render::MainRenderPass* mainRenderPass1) {
 
 
-			Resources::ResourceData vertexTextureShaderResource
-				= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/skeleton.vert");
-			Resources::ResourceData fragmentTextureShaderResource
-				= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/skeleton.frag");
+			auto pipelineIt = render__PipelineDescription__Manager__Pipelines0->nameToId_.find("SkeletonRenderPipeline");
 
-			std::string vertexShaderCode{
-				vertexTextureShaderResource.GetData<Common::Byte>(),
-				vertexTextureShaderResource.GetSize() };
-
-			std::string fragmentShaderCode{
-				fragmentTextureShaderResource.GetData<Common::Byte>(),
-				fragmentTextureShaderResource.GetSize() };
-
-			RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
-				.name_ = "SkeletonVertexShader",
-				.type_ = RAL::Driver::Shader::Type::Vertex,
-				.code_ = vertexShaderCode
-			};
-			auto vertexShader = renderDriver0->driver_->CreateShader(vertexShaderCreateInfo);
-
-			RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
-				.name_ = "SkeletonFragmentShader",
-				.type_ = RAL::Driver::Shader::Type::Fragment,
-				.code_ = fragmentShaderCode
-			};
-			auto fragmentShader = renderDriver0->driver_->CreateShader(fragmentShaderCreateInfo);
-
-			std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
-
-			RAL::Driver::Shader::Binding::Layout cameraBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout samplerBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-				.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout worldPositionsBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout worldRotationsBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout worldScalesBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout modelNodeEntityIdsBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout boneInverseBindPoseMaticesBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout nodeIdsToIndicesBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout modelIdsToIndicesBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout modelEntityIdsBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout modelNodeDataEntityIds{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout modelNodeDataEntityIdsToComponentIndices{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout normalSamplerBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-				.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-			};
-
-			std::vector<RAL::Driver::PushConstant> pushConstants;
-			{
-				RAL::Driver::PushConstant pushConstant{
-					.shaderStage_ = RAL::Driver::Shader::Stage::VertexShader,
-					.offset_ = 0,
-					.size_ = sizeof(MeshData)
-				};
-				pushConstants.emplace_back(pushConstant);
+			if (pipelineIt == render__PipelineDescription__Manager__Pipelines0->nameToId_.end()) {
+				return;
 			}
+			const ECS2::Entity::Id pipelineDescriptionEntityId = pipelineIt->second;
+			const ECS2::ComponentsFilter pipelineDescriptionCF = GetComponentsFilter(pipelineDescriptionEntityId);
+			RAL::Driver::Pipeline::CI2 pipeline = RENDER__PIPELINEDESCRIPTION__CREATE_PIPELINE_CREATE_INFO(pipelineDescriptionEntityId, mainRenderPass1->rpId_);
+			const RAL::Driver::Pipeline::Id pipelineId = renderDriver1->driver_->CreatePipeline(pipeline);
 
-			shaderBindings.push_back(cameraBinding);
-			shaderBindings.push_back(samplerBinding);
-			shaderBindings.push_back(worldPositionsBinding);
-			shaderBindings.push_back(worldRotationsBinding);
-			shaderBindings.push_back(worldScalesBinding);
-			shaderBindings.push_back(modelNodeEntityIdsBinding);
-			shaderBindings.push_back(boneInverseBindPoseMaticesBinding);
-			shaderBindings.push_back(nodeIdsToIndicesBinding);
-			shaderBindings.push_back(modelIdsToIndicesBinding);
-			shaderBindings.push_back(modelEntityIdsBinding);
-			shaderBindings.push_back(modelNodeDataEntityIds);
-			shaderBindings.push_back(modelNodeDataEntityIdsToComponentIndices);
-			shaderBindings.push_back(normalSamplerBinding);
+			CreateComponent<SkeletonModelPipeline>(entity1id, pipelineId);
+
+			//Resources::ResourceData vertexTextureShaderResource
+			//	= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/skeleton.vert");
+			//Resources::ResourceData fragmentTextureShaderResource
+			//	= resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/skeleton.frag");
+
+			//std::string vertexShaderCode{
+			//	vertexTextureShaderResource.GetData<Common::Byte>(),
+			//	vertexTextureShaderResource.GetSize() };
+
+			//std::string fragmentShaderCode{
+			//	fragmentTextureShaderResource.GetData<Common::Byte>(),
+			//	fragmentTextureShaderResource.GetSize() };
+
+			//RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
+			//	.name_ = "SkeletonVertexShader",
+			//	.type_ = RAL::Driver::Shader::Type::Vertex,
+			//	.code_ = vertexShaderCode
+			//};
+			//auto vertexShader = renderDriver0->driver_->CreateShader(vertexShaderCreateInfo);
+
+			//RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
+			//	.name_ = "SkeletonFragmentShader",
+			//	.type_ = RAL::Driver::Shader::Type::Fragment,
+			//	.code_ = fragmentShaderCode
+			//};
+			//auto fragmentShader = renderDriver0->driver_->CreateShader(fragmentShaderCreateInfo);
+
+			//std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
+
+			//RAL::Driver::Shader::Binding::Layout cameraBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout samplerBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+			//	.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout worldPositionsBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout worldRotationsBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout worldScalesBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout modelNodeEntityIdsBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout boneInverseBindPoseMaticesBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout nodeIdsToIndicesBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout modelIdsToIndicesBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout modelEntityIdsBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout modelNodeDataEntityIds{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout modelNodeDataEntityIdsToComponentIndices{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			//};
+
+			//RAL::Driver::Shader::Binding::Layout normalSamplerBinding{
+			//	.binding_ = 0,
+			//	.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+			//	.stage_ = RAL::Driver::Shader::Stage::FragmentShader
+			//};
+
+			//std::vector<RAL::Driver::PushConstant> pushConstants;
+			//{
+			//	RAL::Driver::PushConstant pushConstant{
+			//		.shaderStage_ = RAL::Driver::Shader::Stage::VertexShader,
+			//		.offset_ = 0,
+			//		.size_ = sizeof(MeshData)
+			//	};
+			//	pushConstants.emplace_back(pushConstant);
+			//}
+
+			//shaderBindings.push_back(cameraBinding);
+			//shaderBindings.push_back(samplerBinding);
+			//shaderBindings.push_back(worldPositionsBinding);
+			//shaderBindings.push_back(worldRotationsBinding);
+			//shaderBindings.push_back(worldScalesBinding);
+			//shaderBindings.push_back(modelNodeEntityIdsBinding);
+			//shaderBindings.push_back(boneInverseBindPoseMaticesBinding);
+			//shaderBindings.push_back(nodeIdsToIndicesBinding);
+			//shaderBindings.push_back(modelIdsToIndicesBinding);
+			//shaderBindings.push_back(modelEntityIdsBinding);
+			//shaderBindings.push_back(modelNodeDataEntityIds);
+			//shaderBindings.push_back(modelNodeDataEntityIdsToComponentIndices);
+			//shaderBindings.push_back(normalSamplerBinding);
 
 
-			auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
-			{
-				multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
-			}
+			//auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
+			//{
+			//	multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
+			//}
 
-			RAL::Driver::Pipeline::CI pipelineCI{
-				.name_ = "Skeleton Pipeline",
-				.renderPassId_ = renderPass0->rpId_,
-				.vertexShader_ = vertexShader,
-				.fragmentShader_ = fragmentShader,
-				.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
-				.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2_BIDUB4_WUB4,
-				.indexType_ = RAL::Driver::IndexType::UI32,
-				.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
-				.cullMode_ = RAL::Driver::CullMode::Back,
-				.pushConstants_ = pushConstants,
-				.shaderBindings_ = shaderBindings,
-				.enableDepthTest_ = true,
-				.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
-				.multisamplingInfo_ = multisamplingInfo
-			};
+			//RAL::Driver::Pipeline::CI pipelineCI{
+			//	.name_ = "Skeleton Pipeline",
+			//	.renderPassId_ = renderPass0->rpId_,
+			//	.vertexShader_ = vertexShader,
+			//	.fragmentShader_ = fragmentShader,
+			//	.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
+			//	.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2_BIDUB4_WUB4,
+			//	.indexType_ = RAL::Driver::IndexType::UI32,
+			//	.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
+			//	.cullMode_ = RAL::Driver::CullMode::Back,
+			//	.pushConstants_ = pushConstants,
+			//	.shaderBindings_ = shaderBindings,
+			//	.enableDepthTest_ = true,
+			//	.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
+			//	.multisamplingInfo_ = multisamplingInfo
+			//};
 
-			const RAL::Driver::Pipeline::Id pipelineId = renderDriver0->driver_->CreatePipeline(pipelineCI);
+			//const RAL::Driver::Pipeline::Id pipelineId = renderDriver0->driver_->CreatePipeline(pipelineCI);
 
-			CreateComponent<SkeletonModelPipeline>(entity0id, pipelineId);
+			//CreateComponent<SkeletonModelPipeline>(entity0id, pipelineId);
 
 		}
 	}

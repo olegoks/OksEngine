@@ -135,9 +135,9 @@ namespace OksEngine
 
 			Multisampling ParseMultisampling(luabridge::LuaRef& multisamplingRef) {
 
-				NOT_IMPLEMENTED();
+				const SamplesCount samplesCount = magic_enum::enum_cast<SamplesCount>(multisamplingRef["samplesCount"].cast<std::string>().value()).value();
 
-				return Multisampling{};
+				return Multisampling{ samplesCount };
 			};
 
 			DepthTest ParseDepthTest(luabridge::LuaRef& depthTestRef) {
@@ -160,6 +160,9 @@ namespace OksEngine
 
 					std::string pipelines{ "resource:/Scenes/Pipelines/OksEngine.Pipelines.rpl" };
 					SCENE__MANAGER__CREATE_LOAD_SCENE_REQUEST(pipelines);
+
+					std::string spipelines{ "resource:/Scenes/Pipelines/OksEngine.SkeletonPipeline.rpl" };
+					SCENE__MANAGER__CREATE_LOAD_SCENE_REQUEST(spipelines);
 
 				}
 				/*void CreateResourcesLoaded::Update(

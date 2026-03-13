@@ -824,19 +824,25 @@ RenderNamespace = {
     SkeletonModelPipelineComponent = "Render::PipelineId",
 
     CreateSkeletonModelPipelineSystem = {
-        type = "Initialize",
-        callOrder = {
-            runAfter = {
-                "CreateRenderDriver",
-                "CreateResourceSystem",
-                "ConfigureResourceSystem",
-                "CreateRenderPass",
-                "CreateDepthAttachment",
-                "CreateRenderAttachment"
-            }
-        },
+        --type = "Initialize",
+        -- callOrder = {
+        --     runAfter = {
+        --         "CreateRenderDriver",
+        --         "CreateResourceSystem",
+        --         "ConfigureResourceSystem",
+        --         "CreateRenderPass",
+        --         "CreateDepthAttachment",
+        --         "CreateRenderAttachment"
+        --     }
+        -- },
         updateMethod = {
             processesEntities = {
+                {
+                    processesComponents = {
+                        "Render::PipelineDescription::Manager::Tag",
+                        "Render::PipelineDescription::Manager::Pipelines"
+                    }
+                },
                 {
                     processesComponents = {
                         "RenderDriver",
@@ -848,11 +854,14 @@ RenderNamespace = {
                     createsComponents = {
                         "SkeletonModelPipeline"
                     }
+                }
+            },
+            accessingEntities = {
+                {
+                    archetype = "Render::Pipeline_Description"
                 },
                 {
-                    processesComponents = {
-                        "ResourceSystem"
-                    }
+                    archetype = "Render::Shader::Shader"
                 }
             }
         }

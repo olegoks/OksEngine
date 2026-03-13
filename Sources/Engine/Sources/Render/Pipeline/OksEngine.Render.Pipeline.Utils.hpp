@@ -2,7 +2,7 @@
 
 #include <RAL.Driver.hpp>
 #include <Render/Pipeline/auto_OksEngine.Render.Pipeline.hpp>
-
+#include <Render/Pipeline/OksEngine.Render.Shader.Utils.hpp>
 
 namespace OksEngine::Render::PipelineDescription {
 
@@ -33,7 +33,7 @@ namespace OksEngine::Render::PipelineDescription {
 #define RENDER__PIPELINEDESCRIPTION__CREATE_PIPELINE_CREATE_INFO(pipelineDescriptionEntityId, RPId)																							\
 	[this](ECS2::Entity::Id entityId, RAL::Driver::RP::Id renderPassId){																													\
 		const ECS2::ComponentsFilter pipelineDescriptionCF = GetComponentsFilter(entityId);																									\
-	RAL::Driver::Pipeline::CI2 pipeline;																																						\
+	RAL::Driver::Pipeline::CI2 pipeline;																																					\
 	{																																														\
 		std::vector<RAL::Driver::PushConstant> pushConstants;																																\
 		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;																													\
@@ -56,16 +56,13 @@ namespace OksEngine::Render::PipelineDescription {
 			if (cf.IsSet<Render::Shader::Bindings>()) {																																		\
 				const auto* ecsBindings = GetComponent<Render::Shader::Bindings>(shaderEntityId);																							\
 				for (auto ecsBinding : ecsBindings->bindings_) {																															\
-																																															\
-					shaderBindings.resize(ecsBinding.set_ + 1, RAL::Driver::Shader::Binding::Layout{});																						\
-																																															\
-					shaderBindings[ecsBinding.set_] = RAL::Driver::Shader::Binding::Layout(																									\
-																																															\
+					shaderBindings.push_back(RAL::Driver::Shader::Binding::Layout(																											\
 						ecsBinding.name_,																																					\
+						ecsBinding.set_,																																					\
 						(Common::UInt32)ecsBinding.binding_,																																\
 						Render::Shader::ToRALType(ecsBinding.resourceType_),																												\
 						shaderStage																																							\
-					);																																										\
+					));																																										\
 				}																																											\
 			}																																												\
 		};																																													\
@@ -100,13 +97,13 @@ namespace OksEngine::Render::PipelineDescription {
 				pipeline.frontFace_ = Render::PipelineDescription::ToRALType(inputAssembler->frontFace_);																				\
 				pipeline.cullMode_ = Render::PipelineDescription::ToRALType(inputAssembler->cullMode_);																					\
 		}																																												\
-		if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::Multisampling>()) {																							\
-				const auto* multisampling = GetComponent<Render::PipelineDescription::Multisampling>(entityId);																		\
-				auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();																				\
-			{																																										\
-				multisamplingInfo->samplesCount_ = Render::PipelineDescription::ToRALType(multisampling->samplesCount_);															\
-			}																																										\
-		}																																											\
+		if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::Multisampling>()) {																								\
+				const auto* multisampling = GetComponent<Render::PipelineDescription::Multisampling>(entityId);																			\
+				auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();																					\
+																																														\
+				multisamplingInfo->samplesCount_ = Render::PipelineDescription::ToRALType(multisampling->samplesCount_);																\
+				pipeline.multisamplingInfo_ = multisamplingInfo;																																							\
+		}																																												\
 		if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::DepthTest>()) {																										\
 			const auto* depthTest = GetComponent<Render::PipelineDescription::DepthTest>(entityId);																							\
 			pipeline.enableDepthTest_ = depthTest->enable_;																																	\
@@ -119,7 +116,7 @@ namespace OksEngine::Render::PipelineDescription {
 	}(pipelineDescriptionEntityId, RPId);
 
 
-	RAL::Driver::Pipeline::DepthBuffer::CompareOperation ToRALType(DepthBufferCompareOperation op) {
+	inline RAL::Driver::Pipeline::DepthBuffer::CompareOperation ToRALType(DepthBufferCompareOperation op) {
 		switch (op) {
 		case DepthBufferCompareOperation::Never:          return RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Never;
 		case DepthBufferCompareOperation::Less:           return RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less;
@@ -134,7 +131,7 @@ namespace OksEngine::Render::PipelineDescription {
 		return RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Undefined;
 	}
 
-	RAL::Driver::VertexType ToRALType(VertexType type) {
+	inline RAL::Driver::VertexType ToRALType(VertexType type) {
 		switch (type) {
 		case VertexType::VF3:                           return RAL::Driver::VertexType::VF3;
 		case VertexType::VF3_NF3_TF2:                    return RAL::Driver::VertexType::VF3_NF3_TF2;
@@ -148,7 +145,7 @@ namespace OksEngine::Render::PipelineDescription {
 		return RAL::Driver::VertexType::Undefined;
 	}
 
-	RAL::Driver::FrontFace ToRALType(FrontFace face) {
+	inline RAL::Driver::FrontFace ToRALType(FrontFace face) {
 		switch (face) {
 		case FrontFace::Clockwise:        return RAL::Driver::FrontFace::Clockwise;
 		case FrontFace::CounterClockwise: return RAL::Driver::FrontFace::CounterClockwise;
@@ -157,7 +154,7 @@ namespace OksEngine::Render::PipelineDescription {
 		return RAL::Driver::FrontFace::Undefined;
 	}
 
-	RAL::Driver::IndexType ToRALType(IndexType type) {
+	inline RAL::Driver::IndexType ToRALType(IndexType type) {
 		switch (type) {
 		case IndexType::UI16: return RAL::Driver::IndexType::UI16;
 		case IndexType::UI32: return RAL::Driver::IndexType::UI32;
@@ -166,7 +163,7 @@ namespace OksEngine::Render::PipelineDescription {
 		return RAL::Driver::IndexType::Undefined;
 	}
 
-	RAL::Driver::CullMode ToRALType(CullMode mode) {
+	inline RAL::Driver::CullMode ToRALType(CullMode mode) {
 		switch (mode) {
 		case CullMode::None:          return RAL::Driver::None;
 		case CullMode::Front:         return RAL::Driver::Front;
@@ -177,7 +174,7 @@ namespace OksEngine::Render::PipelineDescription {
 		return RAL::Driver::Undefined;
 	}
 
-	RAL::Driver::SamplesCount ToRALType(SamplesCount samplesCount) {
+	inline RAL::Driver::SamplesCount ToRALType(SamplesCount samplesCount) {
 		switch (samplesCount) {
 		case SamplesCount::SamplesCount_1:		return RAL::Driver::SamplesCount::SamplesCount_1;
 		case SamplesCount::SamplesCount_2:		return RAL::Driver::SamplesCount::SamplesCount_2;

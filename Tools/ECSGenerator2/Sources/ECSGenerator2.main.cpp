@@ -529,6 +529,10 @@ int main(int argc, char** argv) {
 					for (auto& runAfterSystem : parsedSystem->ci_.callOrderInfo_->runAfter_) {
 						//at first lets find run after system in namespace of current system.
 
+						if (parsedSystem->GetName() == "CreateSkeletonModelPipeline") {
+							Common::BreakPointLine();
+						}
+
 						if (runAfterSystem.name_ == "::EndRenderPass") {
 							Common::BreakPointLine();
 						}
@@ -544,6 +548,20 @@ int main(int argc, char** argv) {
 								parsedSystem, 
 								runAfterName,
 								ECSGenerator2::ParsedTable::Type::System));
+
+						if (parsedSystem->ci_.type_ != runAfterSystem.ptr_->ci_.type_) {
+							OS::LogError("system", { 
+								"Dependence: {}({}) runs after {}({})."
+								"Types of systems with dependencies must be the same.",
+
+								parsedSystem->GetFullName(),
+								magic_enum::enum_name(parsedSystem->ci_.type_).data(),
+
+								runAfterSystem.ptr_->GetFullName(),
+								magic_enum::enum_name(runAfterSystem.ptr_->ci_.type_).data()
+								});
+						}
+						
 
 					}
 
@@ -561,7 +579,18 @@ int main(int argc, char** argv) {
 								parsedSystem,
 								runBeforeName,
 								ECSGenerator2::ParsedTable::Type::System));
+						if (parsedSystem->ci_.type_ != runBeforeSystem.ptr_->ci_.type_) {
+							OS::LogError("system", {
+								"Dependence: {}({}) runs before {}({})."
+								"Types of systems with dependencies must be the same.",
 
+								parsedSystem->GetFullName(),
+								magic_enum::enum_name(parsedSystem->ci_.type_).data(),
+
+								runBeforeSystem.ptr_->GetFullName(),
+								magic_enum::enum_name(runBeforeSystem.ptr_->ci_.type_).data()
+								});
+						}
 					}
 
 				}

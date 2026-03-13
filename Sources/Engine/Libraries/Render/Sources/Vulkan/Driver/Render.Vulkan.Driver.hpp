@@ -814,32 +814,62 @@ namespace Render::Vulkan {
 			return pipelineId;
 		}
 
-		
+
 		virtual Pipeline::Id CreatePipeline(const Pipeline::CI2& pipelineCI) override {
 
-			//Descriptor set layouts
-			std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
-			{
-				for (auto& binding : pipelineCI.shaderBindings_) {
-					std::vector<VkDescriptorSetLayoutBinding> bindings;
-					VkDescriptorSetLayoutBinding vBinding{
-						binding.binding_,
-						ToVulkanType(binding.type_),
-						1,
-						static_cast<VkFlags>(ToVulkanType(binding.stage_)),
-						nullptr
-					};
-					bindings.push_back(vBinding);
+			std::unordered_map<Common::UInt32, std::vector<VkDescriptorSetLayoutBinding>> setToBindings;
+			
+			for (auto& binding : pipelineCI.shaderBindings_) {
 
-					auto DSL = std::make_shared<DescriptorSetLayout>(
-						DescriptorSetLayout::CreateInfo{
-							binding.name_,
-							objects_.LD_,
-							bindings
-						});
-					DSLs.push_back(DSL);
-				}
+				VkDescriptorSetLayoutBinding vBinding{
+					binding.binding_,
+					ToVulkanType(binding.type_),
+					1,
+					static_cast<VkFlags>(ToVulkanType(binding.stage_)),
+					nullptr
+				};
+				setToBindings[binding.set_].push_back(vBinding);
 			}
+
+			std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
+			DSLs.resize(setToBindings.size());
+			//Index of array is descriptor set index
+			for (const auto& [set, bindings] : setToBindings) {
+
+				auto DSL = std::make_shared<DescriptorSetLayout>(
+					DescriptorSetLayout::CreateInfo{
+						"No name",
+						objects_.LD_,
+						bindings
+					});
+				DSLs[set] = DSL;
+			}
+
+			//OLD DS per resource
+			//Descriptor set layouts
+			//std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
+			//{
+			//	for (auto& binding : pipelineCI.shaderBindings_) {
+			//		std::vector<VkDescriptorSetLayoutBinding> bindings;
+			//		VkDescriptorSetLayoutBinding vBinding{
+			//			binding.binding_,
+			//			ToVulkanType(binding.type_),
+			//			1,
+			//			static_cast<VkFlags>(ToVulkanType(binding.stage_)),
+			//			nullptr
+			//		};
+			//		bindings.push_back(vBinding);
+
+			//		auto DSL = std::make_shared<DescriptorSetLayout>(
+			//			DescriptorSetLayout::CreateInfo{
+			//				binding.name_,
+			//				objects_.LD_,
+			//				bindings
+			//			});
+			//		DSLs.push_back(DSL);
+			//	}
+			//}
+			// //OLD
 			//Push constants
 			std::vector<VkPushConstantRange> vkPushConstantRanges;
 			for (auto ralPushConstant : pipelineCI.pushConstants_) {
@@ -924,7 +954,7 @@ namespace Render::Vulkan {
 		}
 
 		virtual ComputePipeline::Id CreateComputePipeline(const ComputePipeline::CI& pipelineCI) override {
-
+			
 			std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
 			for (auto& binding : pipelineCI.shaderBindings_) {
 				std::vector<VkDescriptorSetLayoutBinding> bindings;
@@ -2248,6 +2278,9 @@ namespace Render::Vulkan {
 			for (Common::Index i = 0; i < ci.bindingsNumber_; i++) {
 				const RAL::Driver::ResourceSet::Binding& binding = ci.bindings_[i];
 
+				if (binding.binding_ == Common::Limits<Common::UInt32>::Max()) {
+					continue;
+				}
 
 				VkDescriptorType type{};
 				if (!binding.ubid_.IsInvalid()) {
@@ -2285,7 +2318,7 @@ namespace Render::Vulkan {
 				DSCreateInfo.LD_ = objects_.LD_;
 			}
 
-			std::array<std::shared_ptr<DescriptorSet>, concurrentFramesNumber > dss;
+			std::array<std::shared_ptr<DescriptorSet>, concurrentFramesNumber> dss;
 
 			for (Common::Index i = 0; i < concurrentFramesNumber; i++) {
 
@@ -2298,6 +2331,10 @@ namespace Render::Vulkan {
 				std::vector<DS::UpdateDescriptorInfo> updateDSsInfo;
 				for (Common::Index i = 0; i < ci.bindingsNumber_; i++) {
 					const RAL::Driver::ResourceSet::Binding& binding = ci.bindings_[i];
+
+					if (binding.binding_ == Common::Limits<Common::UInt32>::Max()) {
+						continue;
+					}
 					DescriptorSet::UpdateDescriptorInfo updateInfo;
 					{
 						updateInfo.binding_ = binding.binding_;

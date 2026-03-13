@@ -296,7 +296,8 @@ namespace RAL {
 				};
 				struct Layout {
 					std::string name_ = "Empty layout";
-					Common::UInt32 binding_ = 0;
+					Common::UInt32 set_ = Common::Limits<Common::UInt32>::Max();
+					Common::UInt32 binding_ = Common::Limits<Common::UInt32>::Max();
 					Type type_ = Type::Undefined;
 					Stage stage_ = Stage::Undefined;
 				};

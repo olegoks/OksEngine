@@ -1,0 +1,57 @@
+
+scene = {
+    entities = {
+
+        {
+            ID = "ID:Render/Skeleton/VertexShader",
+            Name = { value = "Render/Skeleton/VertexShader" },
+            Render__Shader__Tag = {},
+            Render__Shader__Type__VertexShader = {},
+            Render__Shader__ResourcePath = { resourcePath = "resource:/Shaders/skeleton.vert" }
+        },
+        {
+            ID = "ID:Render/Skeleton/FragmentShader",
+            Name = { value = "Render/Skeleton/FragmentShader" },
+            Render__Shader__Tag = {},
+            Render__Shader__Type__FragmentShader = {},
+            Render__Shader__ResourcePath = { resourcePath = "resource:/Shaders/skeleton.frag" }
+        },
+        {
+            ID = "ID:scene/SkeletonRenderPipeline",
+            Name = { value = "SkeletonRenderPipeline" },
+            Render__PipelineDescription__Tag = { },
+            
+            Render__PipelineDescription__FragmentShader__EntityId = { id = "ID:Render/Skeleton/FragmentShader" },
+            Render__PipelineDescription__VertexShader__EntityId = { id = "ID:Render/Skeleton/VertexShader" },
+
+            -- Render__PipelineDescription__Bindings = {
+            --     bindings = {
+            --         { 
+            --             binding = 0,
+            --             resourceType = "Uniform",
+            --             stage = "VertexShader"
+            --         },
+            --         {
+            --             binding = 0,
+            --             resourceType = "Sampler",
+            --             stage = "FragmentShader"
+            --         }
+            --     }
+            -- },
+            Render__PipelineDescription__InputAssembler = {
+                vertexType = "VF3_NF3_TF2_BIDUB4_WUB4",
+                indexType = "UI32",
+                frontFace = "CounterClockwise",
+                cullMode = "Back"
+            },
+            Render__PipelineDescription__Multisampling = {
+                samplesCount = "SamplesCount_8"
+            },
+            Render__PipelineDescription__DepthTest = {
+                enable = true,
+                compareOperation = "Less"
+            }
+
+        }
+    }
+}

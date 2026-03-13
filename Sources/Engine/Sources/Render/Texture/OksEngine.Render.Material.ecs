@@ -42,11 +42,19 @@ RenderNamespace = {
                             "Material::Tag"
                         },
                         excludes = {
-                            "ResourceSet"
+                            "Material::ResourceSet"
                         },
                         createsComponents = {
-                            "ResourceSet"
+                            "Material::ResourceSet"
                         }
+                    }
+                },
+                accessingEntities = {
+                    {
+                        archetype = "Render::Texture::Texture"
+                    },
+                    {
+                        archetype = "Render::Material::Material"
                     }
                 }
             }
@@ -162,6 +170,7 @@ RenderNamespace = {
                 "Material::ResourceSet",
                 "Texture::Type::DiffuseMap::EntityId",
                 "Texture::Type::NormalMap::EntityId",
+                "Texture::Type::MetallicMap::EntityId",
                 "Texture::Type::AmbientMap::EntityId"
             }
         }
