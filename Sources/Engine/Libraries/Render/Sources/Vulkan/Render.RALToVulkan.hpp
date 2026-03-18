@@ -125,6 +125,18 @@ namespace Render::Vulkan {
 		};
 	}
 
+	inline VkClearValue		ToVulkanType(RAL::Driver::RP::ClearValue clearValue) {
+		VkClearValue vkClearValue{ 0 };
+		{
+			vkClearValue.color.float32[0] = clearValue.color_.float32[0];
+			vkClearValue.color.float32[1] = clearValue.color_.float32[1];
+			vkClearValue.color.float32[2] = clearValue.color_.float32[2];
+			vkClearValue.color.float32[3] = clearValue.color_.float32[3];
+			vkClearValue.depthStencil.depth = clearValue.depthStencil_.depth_;
+		}
+		return vkClearValue;
+	}
+
 	inline VkAttachmentLoadOp		ToVulkanType(RAL::Driver::RP::AttachmentUsage::LoadOperation loadOperation) {
 		switch (loadOperation) {
 		case RAL::Driver::RP::AttachmentUsage::LoadOperation::Load: {

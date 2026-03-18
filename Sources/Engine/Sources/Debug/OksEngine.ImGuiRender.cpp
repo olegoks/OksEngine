@@ -31,7 +31,10 @@ namespace OksEngine
 			}
 			const ECS2::Entity::Id pipelineDescriptionEntityId = pipelineIt->second;
 			const ECS2::ComponentsFilter pipelineDescriptionCF = GetComponentsFilter(pipelineDescriptionEntityId);
-			RAL::Driver::Pipeline::CI2 pipeline = RENDER__PIPELINEDESCRIPTION__CREATE_PIPELINE_CREATE_INFO(pipelineDescriptionEntityId, renderPass1->rpId_);
+			RAL::Driver::Pipeline::CI2 pipeline = RENDER__PIPELINEDESCRIPTION__CREATE_PIPELINE_CREATE_INFO2(pipelineDescriptionEntityId, 
+				std::vector<RAL::Driver::Texture::Format>{ RAL::Driver::Texture::Format::RGBA_32_UNORM }, 
+				RAL::Driver::Texture::Format::D_32_SFLOAT,
+				RAL::Driver::Texture::Format::Undefined);
 			const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipeline);
 
 			CreateComponent<Pipeline>(entity1id, pipelineId);
@@ -304,14 +307,34 @@ namespace OksEngine
 		}
 
 
-		void BeginRenderPass::Update(ECS2::Entity::Id entity0id, const State* imGuiState0, const RenderPass* imGuiRenderPass0,
-			const AttachmentSet* imGuiAttachmentSet0, ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
+		void BeginRenderPass::Update(ECS2::Entity::Id entity0id, const OksEngine::ImGUI::State* state0,
+			const OksEngine::ImGUI::RenderPass* renderPass0, const OksEngine::ImGUI::AttachmentSet* attachmentSet0,
+			ECS2::Entity::Id entity1id, OksEngine::RenderDriver* renderDriver1,
+			const OksEngine::Render::MultisamplingAttachment* render__MultisamplingAttachment1) {
 
 			auto driver = renderDriver1->driver_;
-			driver->BeginRenderPass(
-				imGuiRenderPass0->rpId_,
-				imGuiAttachmentSet0->attachmentsSetId_,
-				{}, { 0, 0 }, { 2560, 1440 });
+
+			RAL::Driver::RenderPassInfo rpInfo;
+			{
+				rpInfo.renderOffset_ = { 0, 0 };
+				rpInfo.renderArea_ = { 2560, 1440 };
+				rpInfo.colorAttachments_ = {
+					RAL::Driver::RenderPassAttachmentInfo{
+						render__MultisamplingAttachment1->textureId_,
+						RAL::Driver::Texture::State::DataForColorWrite,
+						RAL::Driver::RP::AttachmentUsage::LoadOperation::Load,
+						RAL::Driver::RP::AttachmentUsage::StoreOperation::Store
+					}
+				};
+			}
+
+			driver->BeginRenderPass2(rpInfo);
+
+			//deprecated
+			//driver->BeginRenderPass(
+			//	renderPass0->rpId_,
+			//	attachmentSet0->attachmentsSetId_,
+			//	{}, { 0, 0 }, { 2560, 1440 });
 
 		}
 
@@ -347,7 +370,10 @@ namespace OksEngine
 			ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
 			auto driver = renderDriver1->driver_;
-			driver->EndRenderPass();
+			
+			driver->EndRenderPass2();
+			//deprecated
+			//driver->EndRenderPass();
 
 		}
 

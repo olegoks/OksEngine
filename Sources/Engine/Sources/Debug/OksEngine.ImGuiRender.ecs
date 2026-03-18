@@ -293,13 +293,14 @@ ImGUINamespace = {
                 {
                     processesComponents = {
                         "State",
-                        "RenderPass",
-                        "AttachmentSet"
+                        "RenderPass",-- deprecated
+                        "AttachmentSet" -- deprecated
                     }
                 },
                 {
                     processesComponents = {
-                        { name = "RenderDriver", readonly = false }
+                        { name = "RenderDriver", readonly = false },
+                        "Render::MultisamplingAttachment"
                     }
                 }
             }

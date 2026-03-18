@@ -818,7 +818,7 @@ namespace Render::Vulkan {
 		virtual Pipeline::Id CreatePipeline(const Pipeline::CI2& pipelineCI) override {
 
 			std::unordered_map<Common::UInt32, std::vector<VkDescriptorSetLayoutBinding>> setToBindings;
-			
+
 			for (auto& binding : pipelineCI.shaderBindings_) {
 
 				VkDescriptorSetLayoutBinding vBinding{
@@ -916,6 +916,25 @@ namespace Render::Vulkan {
 				multisampleInfo->samplesCount_ = ToVulkanType(pipelineCI.multisamplingInfo_->samplesCount_);
 			}
 
+			std::shared_ptr<Vulkan::Pipeline::AttachmentsInfo> attachmentsInfo = nullptr;
+			if(pipelineCI.attachmentsInfo_ != nullptr){
+
+				std::vector<VkFormat> colorAttachmentFormats;
+				for (const auto& colorAttachmentFormat : pipelineCI.attachmentsInfo_->colorAttachmentFormats_) {
+					colorAttachmentFormats.push_back(ToVulkanType(colorAttachmentFormat));
+				}
+
+				attachmentsInfo = std::make_shared<Vulkan::Pipeline::AttachmentsInfo>(
+					colorAttachmentFormats,
+					(pipelineCI.attachmentsInfo_->depthAttachmentFormat != RAL::Driver::Texture::Format::Undefined)
+					? (ToVulkanType(pipelineCI.attachmentsInfo_->depthAttachmentFormat))
+					: (VkFormat::VK_FORMAT_UNDEFINED),
+					(pipelineCI.attachmentsInfo_->stencilAttachmentFormat != RAL::Driver::Texture::Format::Undefined)
+					?(ToVulkanType(pipelineCI.attachmentsInfo_->stencilAttachmentFormat))
+					:(VkFormat::VK_FORMAT_UNDEFINED)
+				);
+			}
+
 			Vulkan::Pipeline::CreateInfo createInfo{
 				.physicalDevice_ = objects_.physicalDevice_,
 				.LD_ = objects_.LD_,
@@ -943,7 +962,8 @@ namespace Render::Vulkan {
 				.topology_ = ToVulkanType(pipelineCI.topologyType_),
 				.frontFace_ = ToVulkanType(pipelineCI.frontFace_),
 				.cullMode_ = ToVulkanType(pipelineCI.cullMode_),
-				.dynamicStates_ = {  VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR }
+				.dynamicStates_ = {  VK_DYNAMIC_STATE_VIEWPORT, VK_DYNAMIC_STATE_SCISSOR },
+				.attachmentsInfo_ = attachmentsInfo
 			};
 
 			const Pipeline::Id pipelineId = pipelineIdsGenerator_.Generate();
@@ -954,7 +974,7 @@ namespace Render::Vulkan {
 		}
 
 		virtual ComputePipeline::Id CreateComputePipeline(const ComputePipeline::CI& pipelineCI) override {
-			
+
 			std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
 			for (auto& binding : pipelineCI.shaderBindings_) {
 				std::vector<VkDescriptorSetLayoutBinding> bindings;
@@ -1099,9 +1119,7 @@ namespace Render::Vulkan {
 
 			const RenderPass::Id rpId = renderPassIdsGenerator_.Generate();
 
-#pragma region Assert
 			ASSERT_FMSG(!idRenderPass_.contains(rpId), "");
-#pragma endregion
 
 			idRenderPass_[rpId] = renderPass;
 
@@ -1186,6 +1204,105 @@ namespace Render::Vulkan {
 				0, nullptr  // imageMemoryBarrierCount
 			);
 
+		}
+
+
+		//typedef struct VkRenderingAttachmentInfo {
+		//	VkStructureType          sType;
+		//	const void* pNext;
+		//	VkImageView              imageView;
+		//	VkImageLayout            imageLayout;
+		//	VkResolveModeFlagBits    resolveMode;
+		//	VkImageView              resolveImageView;
+		//	VkImageLayout            resolveImageLayout;
+		//	VkAttachmentLoadOp       loadOp;
+		//	VkAttachmentStoreOp      storeOp;
+		//	VkClearValue             clearValue;
+		//} VkRenderingAttachmentInfo;
+
+		class DynamicRendering {
+			friend class RenderDriver;
+		public:
+			struct AttachmentInfo {
+				std::shared_ptr<Vulkan::Texture> texture_ = nullptr;
+				VkImageLayout textureLayout_ = VkImageLayout::VK_IMAGE_LAYOUT_MAX_ENUM;
+				VkAttachmentLoadOp loadOperation_ = VkAttachmentLoadOp::VK_ATTACHMENT_LOAD_OP_MAX_ENUM;
+				VkAttachmentStoreOp storeOperation_ = VkAttachmentStoreOp::VK_ATTACHMENT_STORE_OP_MAX_ENUM;
+				VkClearValue clearValue_;
+
+			};
+			struct RenderingInfo {
+				VkRect2D						renderArea = { {0, 0}, { 1920, 1080 } };
+				std::vector<AttachmentInfo>		colorAttachments_;
+				std::shared_ptr<AttachmentInfo> depthAttachment_ = nullptr;
+				std::shared_ptr<AttachmentInfo> stencilAttachment_ = nullptr;
+			};
+			void BeginRendering(const RenderingInfo& renderingInfo);
+
+			void EndRendering();
+
+			DynamicRendering(class Driver* renderDriver) : driver_{ renderDriver } { }
+			class Driver* driver_ = nullptr;
+		};
+
+		auto GetDynamicRendering() { return dynamicRenderingFeature_; }
+
+		std::shared_ptr<DynamicRendering> dynamicRenderingFeature_ = std::make_shared<DynamicRendering>(this);
+
+		virtual void BeginRenderPass2(const RenderPassInfo& renderPassInfo) override {
+
+			DynamicRendering::RenderingInfo vkRenderingInfo;
+			//render area
+			vkRenderingInfo.renderArea.offset = { renderPassInfo.renderOffset_.first,  renderPassInfo.renderOffset_.second };
+			vkRenderingInfo.renderArea.extent = { renderPassInfo.renderArea_.first,  renderPassInfo.renderArea_.second };
+
+			for (const auto& colorAttachment : renderPassInfo.colorAttachments_) {
+				DynamicRendering::AttachmentInfo vkAttachmentInfo;
+
+				vkAttachmentInfo.clearValue_ = ToVulkanType(colorAttachment.clearValue_);
+
+				vkAttachmentInfo.texture_ = GetTextureById(colorAttachment.id_);
+				vkAttachmentInfo.textureLayout_ = ToVulkanType(colorAttachment.state_);
+				vkAttachmentInfo.loadOperation_ = ToVulkanType(colorAttachment.loadOperation_);
+				vkAttachmentInfo.storeOperation_ = ToVulkanType(colorAttachment.storeOperation_);
+
+				vkRenderingInfo.colorAttachments_.push_back(vkAttachmentInfo);
+			}
+
+
+			if (renderPassInfo.depthAttachment_ != nullptr) {
+				DynamicRendering::AttachmentInfo vkDepthAttachmentInfo;
+
+				vkDepthAttachmentInfo.clearValue_ = ToVulkanType(renderPassInfo.depthAttachment_->clearValue_);
+
+				vkDepthAttachmentInfo.texture_ = GetTextureById(renderPassInfo.depthAttachment_->id_);
+				vkDepthAttachmentInfo.textureLayout_ = ToVulkanType(renderPassInfo.depthAttachment_->state_);
+				vkDepthAttachmentInfo.loadOperation_ = ToVulkanType(renderPassInfo.depthAttachment_->loadOperation_);
+				vkDepthAttachmentInfo.storeOperation_ = ToVulkanType(renderPassInfo.depthAttachment_->storeOperation_);
+
+				vkRenderingInfo.depthAttachment_ = std::make_shared<DynamicRendering::AttachmentInfo>(vkDepthAttachmentInfo);
+			}
+
+
+
+			if (renderPassInfo.stencilAttachment_ != nullptr) {
+				DynamicRendering::AttachmentInfo vkStencilAttachmentInfo;
+
+				vkStencilAttachmentInfo.clearValue_ = ToVulkanType(renderPassInfo.stencilAttachment_->clearValue_);
+
+				vkStencilAttachmentInfo.texture_ = GetTextureById(renderPassInfo.stencilAttachment_->id_);
+				vkStencilAttachmentInfo.textureLayout_ = ToVulkanType(renderPassInfo.stencilAttachment_->state_);
+				vkStencilAttachmentInfo.loadOperation_ = ToVulkanType(renderPassInfo.stencilAttachment_->loadOperation_);
+				vkStencilAttachmentInfo.storeOperation_ = ToVulkanType(renderPassInfo.stencilAttachment_->storeOperation_);
+
+				vkRenderingInfo.stencilAttachment_ = std::make_shared<DynamicRendering::AttachmentInfo>(vkStencilAttachmentInfo);
+			}
+
+
+			GetDynamicRendering()->BeginRendering(vkRenderingInfo);
+		}
+		virtual void EndRenderPass2() override {
+			GetDynamicRendering()->EndRendering();
 		}
 
 		virtual void BeginDebugLabel(const Color3f& color, const char* labelText) override {
@@ -2499,6 +2616,7 @@ namespace Render::Vulkan {
 
 		[[nodiscard]]
 		std::shared_ptr<Vulkan::Texture> GetTextureById(RAL::Driver::Texture::Id id) noexcept {
+			ASSERT(!id.IsInvalid());
 			return textures_[id];
 		}
 

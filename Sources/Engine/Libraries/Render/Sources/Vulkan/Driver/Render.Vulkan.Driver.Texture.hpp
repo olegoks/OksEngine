@@ -59,8 +59,13 @@ namespace Render::Vulkan {
 			return ci1_.size_.y;
 		}
 
+		VkImageLayout GetCurrentLayout() {
+			return currentLayout_;
+		}
+
 	private:
 		CI1 ci1_;
+		VkImageLayout currentLayout_ = VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
 		std::shared_ptr<class Image> image_ = nullptr;
 		std::shared_ptr<class ImageView> imageView_ = nullptr;
 		std::shared_ptr<class Sampler> sampler_ = nullptr;

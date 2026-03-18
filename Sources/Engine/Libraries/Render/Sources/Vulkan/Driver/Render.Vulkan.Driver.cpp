@@ -9,6 +9,70 @@ std::shared_ptr<RAL::Driver::Shader::Compiler> RAL::Driver::Shader::Compiler::Cr
 namespace Render::Vulkan {
 
 
+	void Driver::DynamicRendering::BeginRendering(const Driver::DynamicRendering::RenderingInfo& renderingInfo) {
+
+		std::vector<VkRenderingAttachmentInfo> vkColorAttachments;
+
+		for (const auto& colorAttachment : renderingInfo.colorAttachments_) {
+			VkRenderingAttachmentInfo vkColorAttachment;
+			vkColorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			vkColorAttachment.pNext = nullptr;
+			vkColorAttachment.clearValue = colorAttachment.clearValue_;
+			vkColorAttachment.imageLayout = colorAttachment.textureLayout_;
+			vkColorAttachment.imageView = colorAttachment.texture_->GetImageView()->GetHandle();
+			vkColorAttachment.resolveMode = VkResolveModeFlagBits::VK_RESOLVE_MODE_NONE;
+			vkColorAttachment.resolveImageLayout = VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
+			vkColorAttachment.resolveImageView = VK_NULL_HANDLE;
+			vkColorAttachment.loadOp = colorAttachment.loadOperation_;
+			vkColorAttachment.storeOp = colorAttachment.storeOperation_;
+			vkColorAttachments.push_back(vkColorAttachment);
+		}
+
+		VkRenderingInfo vkRenderingInfo{};
+		vkRenderingInfo.sType = VK_STRUCTURE_TYPE_RENDERING_INFO;
+		vkRenderingInfo.renderArea = { renderingInfo.renderArea };  // Область рендера
+		vkRenderingInfo.layerCount = 1;                            // Количество слоев
+		vkRenderingInfo.colorAttachmentCount = vkColorAttachments.size();                  // Количество color-аттачментов
+		vkRenderingInfo.pColorAttachments = vkColorAttachments.data();      // Указатель на массив
+
+		VkRenderingAttachmentInfo vkDepthAttachment;
+		if (renderingInfo.depthAttachment_ != nullptr) {
+			vkDepthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			vkDepthAttachment.pNext = nullptr;
+			vkDepthAttachment.clearValue = renderingInfo.depthAttachment_->clearValue_;
+			vkDepthAttachment.imageLayout = renderingInfo.depthAttachment_->textureLayout_;
+			vkDepthAttachment.imageView = renderingInfo.depthAttachment_->texture_->GetImageView()->GetHandle();
+			vkDepthAttachment.resolveMode = VkResolveModeFlagBits::VK_RESOLVE_MODE_NONE;
+			vkDepthAttachment.resolveImageLayout = VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
+			vkDepthAttachment.resolveImageView = VK_NULL_HANDLE;
+			vkDepthAttachment.loadOp = renderingInfo.depthAttachment_->loadOperation_;
+			vkDepthAttachment.storeOp = renderingInfo.depthAttachment_->storeOperation_;
+			vkRenderingInfo.pDepthAttachment = &vkDepthAttachment;
+		}
+
+		VkRenderingAttachmentInfo vkStencilAttachment;
+		if (renderingInfo.stencilAttachment_ != nullptr) {
+			vkStencilAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
+			vkStencilAttachment.pNext = nullptr;
+			vkStencilAttachment.clearValue = renderingInfo.stencilAttachment_->clearValue_;
+			vkStencilAttachment.imageLayout = renderingInfo.stencilAttachment_->textureLayout_;
+			vkStencilAttachment.imageView = renderingInfo.stencilAttachment_->texture_->GetImageView()->GetHandle();
+			vkStencilAttachment.resolveMode = VkResolveModeFlagBits::VK_RESOLVE_MODE_NONE;
+			vkStencilAttachment.resolveImageLayout = VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
+			vkStencilAttachment.resolveImageView = VK_NULL_HANDLE;
+			vkStencilAttachment.loadOp = renderingInfo.stencilAttachment_->loadOperation_;
+			vkStencilAttachment.storeOp = renderingInfo.stencilAttachment_->storeOperation_;
+			vkRenderingInfo.pStencilAttachment = &vkStencilAttachment;
+		}
+		// 3. Начинаем проход рендера!
+		vkCmdBeginRendering(driver_->GCB_->GetHandle(), &vkRenderingInfo);
+
+	}
+
+	void Driver::DynamicRendering::EndRendering() {
+		vkCmdEndRendering(driver_->GCB_->GetHandle());
+	}
+
 	[[nodiscard]]
 	PhysicalDevice::Formats Driver::GetAvailablePhysicalDeviceSurfaceFormats(std::shared_ptr<PhysicalDevice> physicalDevice, std::shared_ptr<WindowSurface> windowSurface) noexcept {
 

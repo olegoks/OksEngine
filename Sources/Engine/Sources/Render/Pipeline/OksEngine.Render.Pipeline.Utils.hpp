@@ -116,6 +116,105 @@ namespace OksEngine::Render::PipelineDescription {
 	}(pipelineDescriptionEntityId, RPId);
 
 
+#define RENDER__PIPELINEDESCRIPTION__CREATE_PIPELINE_CREATE_INFO2(pipelineDescriptionEntityId, colorAttachmentFormats_, depthAttachmentFormat_, stencilAttachmentFormat_)						\
+	[this](ECS2::Entity::Id entityId,																																							\
+std::vector<RAL::Driver::Texture::Format> colorAttachmentFormats,																															\
+RAL::Driver::Texture::Format  depthAttachmentFormat,																																		\
+RAL::Driver::Texture::Format stencilAttachmentFormat){																																		\
+		const ECS2::ComponentsFilter pipelineDescriptionCF = GetComponentsFilter(entityId);																									\
+	RAL::Driver::Pipeline::CI2 pipeline;																																					\
+	{																																														\
+		std::vector<RAL::Driver::PushConstant> pushConstants;																																\
+		std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;																													\
+																																															\
+		auto addBindings = [&pushConstants, &shaderBindings, this](ECS2::Entity::Id shaderEntityId) {																						\
+																																															\
+			const ECS2::ComponentsFilter cf = GetComponentsFilter(shaderEntityId);																											\
+			const RAL::Driver::Shader::Stage shaderStage = RENDER__SHADER__GET_SHADER_STAGE(shaderEntityId);																				\
+			if (cf.IsSet<Render::Shader::PushConstants>()) {																																\
+				const auto* ecsPushConstants = GetComponent<Render::Shader::PushConstants>(shaderEntityId);																					\
+				for (auto ecsPushConstant : ecsPushConstants->constants_) {																													\
+					pushConstants.emplace_back(																																				\
+						shaderStage,																																						\
+						ecsPushConstant.offset_,																																			\
+						ecsPushConstant.size_																																				\
+					);																																										\
+				}																																											\
+			}																																												\
+																																															\
+			if (cf.IsSet<Render::Shader::Bindings>()) {																																		\
+				const auto* ecsBindings = GetComponent<Render::Shader::Bindings>(shaderEntityId);																							\
+				for (auto ecsBinding : ecsBindings->bindings_) {																															\
+					shaderBindings.push_back(RAL::Driver::Shader::Binding::Layout(																											\
+						ecsBinding.name_,																																					\
+						ecsBinding.set_,																																					\
+						(Common::UInt32)ecsBinding.binding_,																																\
+						Render::Shader::ToRALType(ecsBinding.resourceType_),																												\
+						shaderStage																																							\
+					));																																										\
+				}																																											\
+			}																																												\
+		};																																													\
+		if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::GeometryShader::EntityId>()) {																							\
+			const ECS2::Entity::Id shaderEntityId = GetComponent<Render::PipelineDescription::GeometryShader::EntityId>(entityId)->id_;														\
+			const std::string shaderName = GetComponent<Render::Shader::ResourcePath>(entityId)->resourcePath_;																				\
+			const std::vector<Common::UInt32> shaderBinary = GetComponent<Render::Shader::Binary>(shaderEntityId)->data_;																	\
+			pipeline.geometryShaderBinary_ = shaderBinary;																																	\
+			addBindings(shaderEntityId);																																					\
+		}																																													\
+		if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::VertexShader::EntityId>()) {																							\
+				const ECS2::Entity::Id shaderEntityId = GetComponent<Render::PipelineDescription::VertexShader::EntityId>(entityId)->id_;													\
+				const std::string shaderName = GetComponent<Render::Shader::ResourcePath>(shaderEntityId)->resourcePath_;																	\
+				const std::vector<Common::UInt32> shaderBinary = GetComponent<Render::Shader::Binary>(shaderEntityId)->data_;																\
+				pipeline.vertexShaderBinary_ = shaderBinary;																																\
+				addBindings(shaderEntityId);																																				\
+		}																																													\
+		if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::FragmentShader::EntityId>()) {																							\
+			const ECS2::Entity::Id shaderEntityId = GetComponent<Render::PipelineDescription::FragmentShader::EntityId>(entityId)->id_;														\
+			const std::string shaderName = GetComponent<Render::Shader::ResourcePath>(shaderEntityId)->resourcePath_;																		\
+			const std::vector<Common::UInt32> shaderBinary = GetComponent<Render::Shader::Binary>(shaderEntityId)->data_;																	\
+			pipeline.fragmentShaderBinary_ = shaderBinary;																																	\
+			addBindings(shaderEntityId);																																					\
+		}																																													\
+		pipeline.pushConstants_ = pushConstants;																																		\
+		pipeline.shaderBindings_ = shaderBindings;																																		\
+		pipeline.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList;																											\
+																																												\
+																																																\
+																																																		\
+		if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::InputAssembler>()) {																								\
+				const auto* inputAssembler = GetComponent<Render::PipelineDescription::InputAssembler>(entityId);																		\
+				pipeline.vertexType_ = Render::PipelineDescription::ToRALType(inputAssembler->vertexType_);																				\
+				pipeline.indexType_ = Render::PipelineDescription::ToRALType(inputAssembler->indexType_);																				\
+				pipeline.frontFace_ = Render::PipelineDescription::ToRALType(inputAssembler->frontFace_);																				\
+				pipeline.cullMode_ = Render::PipelineDescription::ToRALType(inputAssembler->cullMode_);																					\
+		}																																												\
+		if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::Multisampling>()) {																								\
+				const auto* multisampling = GetComponent<Render::PipelineDescription::Multisampling>(entityId);																			\
+				auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();																					\
+																																														\
+				multisamplingInfo->samplesCount_ = Render::PipelineDescription::ToRALType(multisampling->samplesCount_);																\
+				pipeline.multisamplingInfo_ = multisamplingInfo;																														\
+		}																																												\
+		if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::DepthTest>()) {																										\
+			const auto* depthTest = GetComponent<Render::PipelineDescription::DepthTest>(entityId);																							\
+			pipeline.enableDepthTest_ = depthTest->enable_;																																	\
+			pipeline.dbCompareOperation_ = Render::PipelineDescription::ToRALType(depthTest->compareOperation_);																			\
+																																															\
+		}																																													\
+																																															\
+		pipeline.attachmentsInfo_ = std::make_shared<RAL::Driver::Pipeline::AttachmentsInfo>(																								\
+			colorAttachmentFormats,																																							\
+			depthAttachmentFormat,																																							\
+			stencilAttachmentFormat																																							\
+		);																																													\
+																																															\
+																																															\
+	}																																														\
+	return pipeline;																																										\
+	}(pipelineDescriptionEntityId, colorAttachmentFormats_, depthAttachmentFormat_, stencilAttachmentFormat_);
+
+
 	inline RAL::Driver::Pipeline::DepthBuffer::CompareOperation ToRALType(DepthBufferCompareOperation op) {
 		switch (op) {
 		case DepthBufferCompareOperation::Never:          return RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Never;

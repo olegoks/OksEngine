@@ -233,9 +233,9 @@ namespace RAL {
 			Undefined
 		};
 		//Texture
-		
+
 		//Pipeline
-		
+
 		enum class Pipeline_Stage {
 			Top,
 			DrawIndirect,
@@ -335,7 +335,7 @@ namespace RAL {
 				createInfo_ = copyShader.createInfo_;
 			}
 
-			
+
 
 			[[nodiscard]]
 			const std::string& GetCode() const noexcept {
@@ -530,7 +530,7 @@ namespace RAL {
 				static constexpr Common::UInt32 external_ = Common::Limits< Common::UInt32>::Max();
 
 
-				struct Dependency { 
+				struct Dependency {
 					Common::UInt32 fromSubpassIndex_ = external_;
 					Pipeline_Stage fromPipelineStage_;
 					Texture::Access fromAccess_;
@@ -556,7 +556,10 @@ namespace RAL {
 
 		using RP = RenderPass;
 
+		[[deprecated]]
 		virtual RP::Id CreateRenderPass(const RP::CI& rpCI) = 0;
+
+		[[deprecated]]
 		virtual RP::AttachmentSet::Id CreateAttachmentSet(const RP::AttachmentSet::CI& attachmentSetCI) = 0;
 		//Render pass
 
@@ -612,6 +615,12 @@ namespace RAL {
 			};
 			using CI = CreateInfo;
 
+			struct AttachmentsInfo {
+				std::vector<Texture::Format>	colorAttachmentFormats_;
+				Texture::Format					depthAttachmentFormat = Texture::Format::Undefined;
+				Texture::Format					stencilAttachmentFormat = Texture::Format::Undefined;
+			};
+
 			struct CreateInfo2 {
 				std::string name_ = "";
 				RP::Id renderPassId_ = RP::Id::Invalid();
@@ -629,6 +638,8 @@ namespace RAL {
 				bool enableDepthTest_ = true;
 				DB::CompareOperation dbCompareOperation_ = DB::CompareOperation::Undefined;
 				std::shared_ptr<MultisamplingInfo> multisamplingInfo_ = nullptr;
+				std::shared_ptr<AttachmentsInfo> attachmentsInfo_ = nullptr;
+
 			};
 			using CI2 = CreateInfo2;
 		};
@@ -681,12 +692,33 @@ namespace RAL {
 			Common::UInt32 width,
 			Common::UInt32 height) = 0;
 
+		[[deprecated]]
 		virtual void BeginRenderPass(
 			RP::Id renderPassId,
 			RP::AttachmentSet::Id attachmentsId,
 			const std::vector<RP::ClearValue>& clearValues,
 			std::pair<Common::Int32, Common::Int32> offset,
 			std::pair<Common::UInt32, Common::UInt32> area) = 0;
+
+
+		//Vulkan dynamic rendering
+		struct RenderPassAttachmentInfo {
+			Texture::Id id_ = Texture::Id::Invalid();
+			Texture::State state_ = Texture::State::Undefined; // Renderer waits texture with this state.
+			RP::AttachmentUsage::LoadOperation loadOperation_ = RP::AttachmentUsage::LoadOperation::Undefined;
+			RP::AttachmentUsage::StoreOperation storeOperation_ = RP::AttachmentUsage::StoreOperation::Undefined;
+			RP::ClearValue clearValue_;
+		};
+		struct RenderPassInfo {
+			std::pair<Common::Int32, Common::Int32> renderOffset_;
+			std::pair<Common::UInt32, Common::UInt32> renderArea_;
+			std::vector<RenderPassAttachmentInfo> colorAttachments_;
+			std::shared_ptr<RenderPassAttachmentInfo> depthAttachment_ = nullptr;
+			std::shared_ptr<RenderPassAttachmentInfo> stencilAttachment_ = nullptr;
+		};
+		virtual void BeginRenderPass2(const RenderPassInfo& renderPass) = 0;
+		virtual void EndRenderPass2() = 0;
+
 
 		virtual void NextSubpass() = 0;
 		virtual void BindPipeline(RAL::Driver::Pipeline::Id pipelineId) = 0;

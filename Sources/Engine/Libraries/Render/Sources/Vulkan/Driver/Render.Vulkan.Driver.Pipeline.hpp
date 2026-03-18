@@ -259,9 +259,9 @@ namespace Render::Vulkan {
 				pipelineInfo.pDynamicState = &dynamicState;
 				pipelineInfo.layout = *pipelineLayout_;
 
-
-
-				pipelineInfo.renderPass = *createInfo_.renderPass_;
+				if (createInfo_.renderPass_ != nullptr) {
+					pipelineInfo.renderPass = *createInfo_.renderPass_;
+				}
 				pipelineInfo.subpass = createInfo.subpassIndex_;
 				pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
 				pipelineInfo.basePipelineIndex = -1;
@@ -279,7 +279,8 @@ namespace Render::Vulkan {
 				//Pipeline for dynamic rendering
 				
 				renderingCreateInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_RENDERING_CREATE_INFO;
-
+				renderingCreateInfo.pNext = nullptr;
+				renderingCreateInfo.viewMask = 0;
 				renderingCreateInfo.colorAttachmentCount = createInfo_.attachmentsInfo_->colorAttachmentFormats_.size();
 				renderingCreateInfo.pColorAttachmentFormats = createInfo_.attachmentsInfo_->colorAttachmentFormats_.data();
 

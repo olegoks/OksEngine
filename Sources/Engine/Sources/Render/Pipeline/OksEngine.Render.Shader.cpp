@@ -9,6 +9,8 @@
 
 #include <Render/Pipeline/SPIRV-Reflect/spirv_reflect.h>
 
+#include <Render/Pipeline/auto_OksEngine.Render.Attachment.hpp>
+
 namespace OksEngine
 {
 
@@ -141,6 +143,35 @@ namespace OksEngine
 
 			};
 
+			//not in use now
+			static Attachment_::Format ConvertSpvReflectFormatToEnum(SpvReflectFormat spvFormat) {
+				switch (spvFormat) {
+				case SPV_REFLECT_FORMAT_R16_UINT:           return Attachment_::Format::R16_UINT;
+				case SPV_REFLECT_FORMAT_R16_SINT:           return Attachment_::Format::R16_SINT;
+				case SPV_REFLECT_FORMAT_R16_SFLOAT:         return Attachment_::Format::R16_SFLOAT;
+				case SPV_REFLECT_FORMAT_R16G16_UINT:        return Attachment_::Format::R16G16_UINT;
+				case SPV_REFLECT_FORMAT_R16G16_SINT:        return Attachment_::Format::R16G16_SINT;
+				case SPV_REFLECT_FORMAT_R16G16_SFLOAT:      return Attachment_::Format::R16G16_SFLOAT;
+				case SPV_REFLECT_FORMAT_R16G16B16A16_UINT:  return Attachment_::Format::R16G16B16A16_UINT;
+				case SPV_REFLECT_FORMAT_R16G16B16A16_SINT:  return Attachment_::Format::R16G16B16A16_SINT;
+				case SPV_REFLECT_FORMAT_R16G16B16A16_SFLOAT:return Attachment_::Format::R16G16B16A16_SFLOAT;
+				case SPV_REFLECT_FORMAT_R32_UINT:           return Attachment_::Format::R32_UINT;
+				case SPV_REFLECT_FORMAT_R32_SINT:           return Attachment_::Format::R32_SINT;
+				case SPV_REFLECT_FORMAT_R32_SFLOAT:         return Attachment_::Format::R32_SFLOAT;
+				case SPV_REFLECT_FORMAT_R32G32_UINT:        return Attachment_::Format::R32G32_UINT;
+				case SPV_REFLECT_FORMAT_R32G32_SINT:        return Attachment_::Format::R32G32_SINT;
+				case SPV_REFLECT_FORMAT_R32G32_SFLOAT:      return Attachment_::Format::R32G32_SFLOAT;
+				case SPV_REFLECT_FORMAT_R32G32B32A32_UINT:  return Attachment_::Format::R32G32B32A32_UINT;
+				case SPV_REFLECT_FORMAT_R32G32B32A32_SINT:  return Attachment_::Format::R32G32B32A32_SINT;
+				case SPV_REFLECT_FORMAT_R32G32B32A32_SFLOAT:return Attachment_::Format::R32G32B32A32_SFLOAT;
+					// Depth/stencil форматы в SPIRV-Reflect обычно не представлены,
+					// но если есть соответствующие константы, добавить. Иначе - Undefined.
+				default:                                     
+					ASSERT_FAIL();
+					return Attachment_::Format::Undefined;
+				}
+			}
+
 			void ShaderReflection::Update(
 				ECS2::Entity::Id entity0id,
 				const OksEngine::Render::Shader::Tag* shader__Tag0,
@@ -152,11 +183,39 @@ namespace OksEngine
 				SpvReflectShaderModule module;
 				SpvReflectResult result = spvReflectCreateShaderModule(
 					spirvCode.size() * sizeof(uint32_t),
-					spirvCode.data(),
+					spirvCode.data(), 
 					&module
 				);
 
 				ASSERT(result == SPV_REFLECT_RESULT_SUCCESS);
+
+				//not in use now
+				{
+					// После того как вы загрузили модуль (spvReflectCreateShaderModule)
+					uint32_t output_count = 0;
+					spvReflectEnumerateOutputVariables(&module, &output_count, nullptr);
+					std::vector<SpvReflectInterfaceVariable*> outputs(output_count);
+					spvReflectEnumerateOutputVariables(&module, &output_count, outputs.data());
+
+					for (size_t i = 0; i < outputs.size(); ++i) {
+						SpvReflectInterfaceVariable* output = outputs[i];
+						// location — это индекс color attachment, с которым ассоциирована переменная
+						uint32_t location = output->location;
+						// Имя переменной (например, "fColor")
+						const char* name = output->name;
+						// Информация о типе (через output->type_description)
+						SpvReflectTypeDescription* type_desc = output->type_description;
+						// Например, type_desc->op указывает на тип (OpTypeFloat, OpTypeVector и т.д.)
+						// Для векторов можно узнать количество компонентов:
+						uint32_t component_count = 0;
+						if (type_desc->type_flags & SPV_REFLECT_TYPE_FLAG_VECTOR) {
+							component_count = type_desc->traits.numeric.vector.component_count;
+						}
+						// Также можно получить базовый скалярный тип (float, int, uint)
+						// и использовать эту информацию для выбора формата Vulkan.
+					}
+				}
+				//Descriptor sets
 				{
 					uint32_t bindingCount = 0;
 					result = spvReflectEnumerateDescriptorBindings(&module, &bindingCount, nullptr);
@@ -220,6 +279,7 @@ namespace OksEngine
 						CreateComponent<Bindings>(entity0id, ecsBindings);
 					}
 				}
+				//Push constants
 				{
 					uint32_t pushConstantCount = 0;
 					SpvReflectResult result = spvReflectEnumeratePushConstantBlocks(&module, &pushConstantCount, nullptr);

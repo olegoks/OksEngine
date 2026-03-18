@@ -130,9 +130,17 @@ namespace Render::Vulkan {
 					deviceFeatures.tessellationShader = VK_FALSE;       
 					deviceFeatures.geometryShader = VK_TRUE;           
 					deviceFeatures.dualSrcBlend = VK_FALSE;             
-					deviceFeatures.logicOp = VK_FALSE;                  
+					deviceFeatures.logicOp = VK_FALSE;           
+					
 				}
 				logicDeviceCreateInfo.pEnabledFeatures = &deviceFeatures;
+
+				VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
+				dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+				dynamicRenderingFeatures.dynamicRendering = VK_TRUE; 
+
+				ASSERT(logicDeviceCreateInfo.pNext == nullptr);
+				logicDeviceCreateInfo.pNext = &dynamicRenderingFeatures;
 
 				std::vector<const char*> rawExtensionsNames = createInfo.requiredExtensions_.GetRawNames();
 				{
