@@ -3383,7 +3383,7 @@ namespace OksEngine
 		ECS2::Entity::Id entity1id, const Camera* camera1, const Active* active1,
 		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
 		const CameraTransformResource* cameraTransformResource1) {
-		return;
+
 		auto createEntityIndices = [](ECS2::Entity::Id* entityIds, Common::Size entitiesNumber) {
 			std::vector<Common::UInt64> indices;
 			for (Common::Index i = 0; i < entitiesNumber; i++) {
@@ -3492,59 +3492,6 @@ namespace OksEngine
 
 			}
 		}
-
-		return;
-
-		//
-
-		//driver->BindPipeline(render__Pipeline0->id_);
-
-		//driver->BindVertexBuffer(driverVertexBuffer2->id_, 0);
-		//driver->BindIndexBuffer(driverIndexBuffer2->id_, 0);
-
-		//driver->Bind(render__Pipeline0->id_, 0,
-		//	{
-		//		cameraTransformResource1->id_,	// set 0
-		//		render__DiffuseMap__TextureResource2->id_			// set 1
-		//	});
-
-		//const std::vector<Common::Index>& nodeEntityIndices = render__Mdl__ModelNodeEntityIndices2->nodeEntityIndices_;
-		//struct RTS {
-		//	alignas(16) float rotation[4];
-		//	alignas(16) float transform[3]; // + 4 padding
-		//	alignas(16) float scale[3];		// + 4 padding
-		//} rts;
-
-		//for (ECS2::Entity::Id modelEntityId : render__Mdl__ModelEntityIds2->modelEntityIds_) {
-		//	const auto* modelNodeEntityIds = GetComponent<Render::Mdl::ModelNodeEntityIds>(modelEntityId);
-		//	for (Common::Index nodeEntityIndex : nodeEntityIndices) {
-
-		//		const ECS2::Entity::Id modelNodeEntity = modelNodeEntityIds->nodeEntityIds_[nodeEntityIndex];
-
-		//		const auto* position = GetComponent<WorldPosition3D>(modelNodeEntity);
-		//		const auto* rotation = GetComponent<WorldRotation3D>(modelNodeEntity);
-		//		const auto* scale = GetComponent<WorldScale3D>(modelNodeEntity);
-
-		//		rts.rotation[0] = rotation->w_;
-		//		rts.rotation[1] = rotation->x_;
-		//		rts.rotation[2] = rotation->y_;
-		//		rts.rotation[3] = rotation->z_;
-
-		//		rts.transform[0] = position->x_;
-		//		rts.transform[1] = position->y_;
-		//		rts.transform[2] = position->z_;
-
-		//		//driver->PushConstants(
-		//		//	pipeline2->id_,
-		//		//	RAL::Driver::Shader::Stage::VertexShader, );
-		//		//driver->Bind(pipeline2->id_, 2,
-		//		//	{
-		//		//		transform3DResource->id_, // set 2
-		//		//	});
-		//		//driver->DrawIndexed(indices1->indices_.GetIndicesNumber());
-
-		//	}
-		//}
 
 	}
 

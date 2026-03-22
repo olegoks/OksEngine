@@ -3,6 +3,7 @@
 #include <map>
 #include <utility>
 #include <type_traits>
+#include <ranges>
 
 #include <Render.Vulkan.Common.hpp>
 
@@ -917,7 +918,7 @@ namespace Render::Vulkan {
 			}
 
 			std::shared_ptr<Vulkan::Pipeline::AttachmentsInfo> attachmentsInfo = nullptr;
-			if(pipelineCI.attachmentsInfo_ != nullptr){
+			if (pipelineCI.attachmentsInfo_ != nullptr) {
 
 				std::vector<VkFormat> colorAttachmentFormats;
 				for (const auto& colorAttachmentFormat : pipelineCI.attachmentsInfo_->colorAttachmentFormats_) {
@@ -930,8 +931,8 @@ namespace Render::Vulkan {
 					? (ToVulkanType(pipelineCI.attachmentsInfo_->depthAttachmentFormat))
 					: (VkFormat::VK_FORMAT_UNDEFINED),
 					(pipelineCI.attachmentsInfo_->stencilAttachmentFormat != RAL::Driver::Texture::Format::Undefined)
-					?(ToVulkanType(pipelineCI.attachmentsInfo_->stencilAttachmentFormat))
-					:(VkFormat::VK_FORMAT_UNDEFINED)
+					? (ToVulkanType(pipelineCI.attachmentsInfo_->stencilAttachmentFormat))
+					: (VkFormat::VK_FORMAT_UNDEFINED)
 				);
 			}
 
@@ -2387,6 +2388,122 @@ namespace Render::Vulkan {
 		std::map<Common::Id, std::shared_ptr<ResourceSet>> resources_;
 		Common::IdGenerator resourcesIdsGenerator_;
 
+
+
+		virtual RAL::Driver::RS::Id CreateResourceSet(const RAL::Driver::RS::CI3& ci) override {
+
+			ASSERT_SCOPE(
+				[](const RAL::Driver::RS::CI3& ci) {
+					ASSERT(!ci.bindings_.empty());
+					for (const auto& binding : ci.bindings_) {
+						ASSERT(binding.binding_ != Common::Limits<decltype(binding.binding_)>::Max());
+						ASSERT(binding.count_ != Common::Limits<decltype(binding.binding_)>::Max());
+						ASSERT(binding.stage_ != RAL::Driver::Pipeline_Stage::Undefined);
+						ASSERT(binding.type_ != RAL::Driver::ResourceSet::BindingLayout::Type::Undefined);
+					}
+				}(ci));
+
+			std::vector<VkDescriptorSetLayoutBinding> vkBindings;
+
+			for (const auto& binding : ci.bindings_) {
+				VkDescriptorSetLayoutBinding vkBinding;
+				{
+					vkBinding.binding = binding.binding_;
+					vkBinding.descriptorType = ToVulkanType(binding.type_);
+					vkBinding.descriptorCount = binding.count_;
+					vkBinding.stageFlags = ToVulkanType(binding.stage_);
+
+					//TODO: learn this field usage.
+					vkBinding.pImmutableSamplers = nullptr;
+				}
+			}
+
+			auto dsl = std::make_shared<DescriptorSetLayout>(
+				DescriptorSetLayout::CreateInfo{
+					"No name", // TODO: Add name for DSL.
+					objects_.LD_,
+					vkBindings
+				});
+
+			DescriptorSet::CreateInfo DSCreateInfo;
+			{
+				DSCreateInfo.DP_ = objects_.DP_;
+				DSCreateInfo.DSL_ = dsl;
+				DSCreateInfo.LD_ = objects_.LD_;
+			}
+
+			//Create separate descriptor sets for each frame.
+			std::array<std::shared_ptr<DescriptorSet>, concurrentFramesNumber> dss;
+
+			for (Common::Index i = 0; i < concurrentFramesNumber; i++) {
+
+				auto ds = std::make_shared<DescriptorSet>(DSCreateInfo);
+				dss[i] = ds;
+
+			}
+
+			const RS::Id rsId = resourcesIdsGenerator_.Generate();
+			const RS::CI rsci{
+				.dss_ = dss
+			};
+
+			resources_[rsId] = std::make_shared<RS>(rsci);
+
+			return rsId;
+		}
+
+		virtual void UpdateResourceSet(const RAL::Driver::RS::UpdateInfo& RSUpdateInfo) override {
+
+			for (Common::Index concurrentFrameIndex : std::views::iota(0u, concurrentFramesNumber)) {
+
+				std::vector<DS::Binding::UpdateInfo> updateDSsInfo;
+				for (const auto& binding : RSUpdateInfo.bindings_) {
+					DS::Binding::UpdateInfo DSUpdateInfo;
+					{
+						DSUpdateInfo.binding_ = binding.binding_;
+						DSUpdateInfo.arrayElement_ = binding.arrayElement_;
+						DSUpdateInfo.type_ = ToVulkanType(RAL::Driver::RS::BindingLayout::Type::Sampler);
+
+						for (const auto& imageInfo : binding.imageInfos_) {
+							DS::Binding::UpdateInfo::ImageInfo vkImageInfo;
+							{
+								auto texture = GetTextureById(imageInfo.textureId_);
+								vkImageInfo.imageView_ = texture->GetImageView();
+								vkImageInfo.imageLayout_ = ToVulkanType(imageInfo.state_);
+								vkImageInfo.sampler_ = texture->GetSampler();
+
+							}
+							DSUpdateInfo.imageInfos_.push_back(vkImageInfo);
+						}
+
+						for (const auto& bufferInfo : binding.SBInfo_) {
+							DS::Binding::UpdateInfo::BufferInfo vkBufferInfo;
+							{
+								vkBufferInfo.buffer_ = SBs_[bufferInfo.sbid_][currentFrame];
+								vkBufferInfo.offset_ = bufferInfo.offset_;
+								vkBufferInfo.range_ = bufferInfo.size_;
+							}
+						}
+
+						for (const auto& bufferInfo : binding.UBInfo_) {
+							DS::Binding::UpdateInfo::BufferInfo vkBufferInfo;
+							{
+								vkBufferInfo.buffer_ = UBs_[bufferInfo.ubid_][currentFrame];
+								vkBufferInfo.offset_ = bufferInfo.offset_;
+								vkBufferInfo.range_ = bufferInfo.size_;
+							}
+						}
+
+					}
+
+					updateDSsInfo.push_back(DSUpdateInfo);
+
+				}
+
+				resources_[RSUpdateInfo.id_]->dss_[concurrentFrameIndex]->Update(updateDSsInfo);
+			}
+		}
+
 		virtual RAL::Driver::RS::Id CreateResourceSet(const RAL::Driver::RS::CI1& ci) override {
 
 			std::vector<VkDescriptorSetLayoutBinding> bindings;
@@ -2445,14 +2562,14 @@ namespace Render::Vulkan {
 			}
 
 			for (Common::Index concurrentFrameIndex = 0; concurrentFrameIndex < concurrentFramesNumber; concurrentFrameIndex++) {
-				std::vector<DS::UpdateDescriptorInfo> updateDSsInfo;
+				std::vector<DS::Binding::UpdateInfo> updateDSsInfo;
 				for (Common::Index i = 0; i < ci.bindingsNumber_; i++) {
 					const RAL::Driver::ResourceSet::Binding& binding = ci.bindings_[i];
 
 					if (binding.binding_ == Common::Limits<Common::UInt32>::Max()) {
 						continue;
 					}
-					DescriptorSet::UpdateDescriptorInfo updateInfo;
+					DescriptorSet::Binding::UpdateInfo updateInfo;
 					{
 						updateInfo.binding_ = binding.binding_;
 
@@ -2460,24 +2577,44 @@ namespace Render::Vulkan {
 							updateInfo.type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 							auto& ubsPerFrame = UBs_[binding.ubid_];
 							std::shared_ptr<Vulkan::UniformBuffer> ub = ubsPerFrame[concurrentFrameIndex];
-							updateInfo.bufferInfo_.buffer_ = ub;
-							updateInfo.bufferInfo_.offset_ = binding.offset_;
-							updateInfo.bufferInfo_.range_ = binding.size_;
+
+							DescriptorSet::Binding::UpdateInfo::BufferInfo bufferInfo;
+							{
+								bufferInfo.buffer_ = ub;
+								bufferInfo.offset_ = binding.offset_;
+								bufferInfo.range_ = binding.size_;
+
+							}
+							updateInfo.bufferInfos_.push_back(bufferInfo);
 						}
 						else if (!binding.textureId_.IsInvalid()) {
+
 							updateInfo.type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 							auto texture = textures_[binding.textureId_];
-							updateInfo.imageInfo_.imageLayout_ = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-							updateInfo.imageInfo_.sampler_ = texture->GetSampler();
-							updateInfo.imageInfo_.imageView_ = texture->GetImageView();
+
+							DescriptorSet::Binding::UpdateInfo::ImageInfo imageInfo;
+
+							imageInfo.imageLayout_ = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
+							imageInfo.sampler_ = texture->GetSampler();
+							imageInfo.imageView_ = texture->GetImageView();
+
+							updateInfo.imageInfos_.push_back(imageInfo);
 						}
 						else if (!binding.sbid_.IsInvalid()) {
 							updateInfo.type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-							std::shared_ptr<Vulkan::StorageBuffer> sb = GetStorageBuffer(binding.sbid_);//SBs_[binding.sbid_][0];
-							updateInfo.bufferInfo_.buffer_ = sb;
-							updateInfo.bufferInfo_.offset_ = binding.offset_;
-							updateInfo.bufferInfo_.range_ = binding.size_;
+
+							std::shared_ptr<Vulkan::StorageBuffer> sb = GetStorageBuffer(binding.sbid_);
+
+							DescriptorSet::Binding::UpdateInfo::BufferInfo bufferInfo;
+							{
+								bufferInfo.buffer_ = sb;
+								bufferInfo.offset_ = binding.offset_;
+								bufferInfo.range_ = binding.size_;
+
+							}
+							updateInfo.bufferInfos_.push_back(bufferInfo);
 						}
+
 					}
 
 					updateDSsInfo.push_back(updateInfo);

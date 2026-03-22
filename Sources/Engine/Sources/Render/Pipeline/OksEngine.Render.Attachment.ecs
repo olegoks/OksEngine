@@ -59,6 +59,15 @@ RenderNamespace = {
                 -- Undefined / неизвестный формат
                 "Undefined"
             }
-        }
+        },
+        TypeNamespace = {
+            MultisamplingComponent = {},
+            DepthComponent = {}
+        },
+        -- MipMapLivelsCountComponent = {
+        --     fields = {
+        --         { type = "Common::UInt64", name = "count" }
+        --     }
+        -- }
     }
 }

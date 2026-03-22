@@ -43,23 +43,32 @@ namespace Render::Vulkan {
 
 		}
 
-		struct UpdateDescriptorInfo {
-			Common::UInt32 binding_ = Common::Limits<Common::UInt32>::Max();
-			VkDescriptorType type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
-			struct BufferInfo {
-				std::shared_ptr<class Buffer> buffer_ = nullptr;
-				Common::Size offset_ = 0;
-				Common::Size range_ = Common::Limits<Common::Size>::Max();
-			} bufferInfo_;
-			struct ImageInfo {
-				std::shared_ptr<class ImageView> imageView_;
-				VkImageLayout imageLayout_;
-				std::shared_ptr<class Sampler> sampler_;
-			} imageInfo_;
+		struct Binding {
+			struct UpdateInfo {
+				Common::UInt32 binding_ = Common::Limits<Common::UInt32>::Max();
+				VkDescriptorType type_ = VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
+				Common::UInt32 arrayElement_ = 0;
 
+				struct BufferInfo {
+					std::shared_ptr<class Buffer> buffer_ = nullptr;
+					Common::Size offset_ = 0;
+					Common::Size range_ = Common::Limits<Common::Size>::Max();
+				};
+
+				std::vector<BufferInfo> bufferInfos_;
+
+				struct ImageInfo {
+					std::shared_ptr<class ImageView> imageView_;
+					//Поле imageLayout в ней указывает, в каком layout должно находиться изображение в момент чтения/записи через этот дескриптор.
+					VkImageLayout imageLayout_;
+					std::shared_ptr<class Sampler> sampler_;
+				};
+				std::vector<ImageInfo> imageInfos_;
+
+			};
 		};
 
-		void Update(const std::vector<UpdateDescriptorInfo>& info);
+		void Update(const std::vector<Binding::UpdateInfo>& info);
 
 		//Update the contents of a descriptor set object
 		void UpdateBufferWriteConfiguration(

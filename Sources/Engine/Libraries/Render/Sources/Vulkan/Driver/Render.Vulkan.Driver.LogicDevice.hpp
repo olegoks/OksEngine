@@ -135,12 +135,27 @@ namespace Render::Vulkan {
 				}
 				logicDeviceCreateInfo.pEnabledFeatures = &deviceFeatures;
 
+				//Dynamic rendering feature.
 				VkPhysicalDeviceDynamicRenderingFeatures dynamicRenderingFeatures{};
-				dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
-				dynamicRenderingFeatures.dynamicRendering = VK_TRUE; 
+				{
+					dynamicRenderingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DYNAMIC_RENDERING_FEATURES;
+					dynamicRenderingFeatures.dynamicRendering = VK_TRUE;
+				}
 
 				ASSERT(logicDeviceCreateInfo.pNext == nullptr);
 				logicDeviceCreateInfo.pNext = &dynamicRenderingFeatures;
+
+				//Bindless resources feature.
+				VkPhysicalDeviceDescriptorIndexingFeatures indexingFeatures{};
+				{
+					indexingFeatures.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_DESCRIPTOR_INDEXING_FEATURES;
+					indexingFeatures.descriptorBindingPartiallyBound = VK_TRUE;         // Частично заполненные массивы
+					indexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE; // Переменный размер массива
+					indexingFeatures.runtimeDescriptorArray = VK_TRUE;                   // Массивы дескрипторов в шейдере
+					indexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE; // Не-uniform индексация (для текстур)
+				}
+				VkDeviceCreateInfo deviceInfo{};
+				dynamicRenderingFeatures.pNext = &indexingFeatures; // Добавляем в цепочку
 
 				std::vector<const char*> rawExtensionsNames = createInfo.requiredExtensions_.GetRawNames();
 				{

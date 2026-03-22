@@ -18,11 +18,11 @@ namespace Render::Vulkan {
 			vkColorAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			vkColorAttachment.pNext = nullptr;
 			vkColorAttachment.clearValue = colorAttachment.clearValue_;
-			vkColorAttachment.imageLayout = colorAttachment.textureLayout_;
+			vkColorAttachment.imageLayout = colorAttachment.textureLayout_;// <- render to this image
 			vkColorAttachment.imageView = colorAttachment.texture_->GetImageView()->GetHandle();
 			vkColorAttachment.resolveMode = VkResolveModeFlagBits::VK_RESOLVE_MODE_NONE;
 			vkColorAttachment.resolveImageLayout = VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
-			vkColorAttachment.resolveImageView = VK_NULL_HANDLE;
+			vkColorAttachment.resolveImageView = VK_NULL_HANDLE;// <- resolve to this image
 			vkColorAttachment.loadOp = colorAttachment.loadOperation_;
 			vkColorAttachment.storeOp = colorAttachment.storeOperation_;
 			vkColorAttachments.push_back(vkColorAttachment);
@@ -40,11 +40,11 @@ namespace Render::Vulkan {
 			vkDepthAttachment.sType = VK_STRUCTURE_TYPE_RENDERING_ATTACHMENT_INFO;
 			vkDepthAttachment.pNext = nullptr;
 			vkDepthAttachment.clearValue = renderingInfo.depthAttachment_->clearValue_;
-			vkDepthAttachment.imageLayout = renderingInfo.depthAttachment_->textureLayout_;
+			vkDepthAttachment.imageLayout = renderingInfo.depthAttachment_->textureLayout_; 
 			vkDepthAttachment.imageView = renderingInfo.depthAttachment_->texture_->GetImageView()->GetHandle();
 			vkDepthAttachment.resolveMode = VkResolveModeFlagBits::VK_RESOLVE_MODE_NONE;
 			vkDepthAttachment.resolveImageLayout = VkImageLayout::VK_IMAGE_LAYOUT_UNDEFINED;
-			vkDepthAttachment.resolveImageView = VK_NULL_HANDLE;
+			vkDepthAttachment.resolveImageView = VK_NULL_HANDLE; 
 			vkDepthAttachment.loadOp = renderingInfo.depthAttachment_->loadOperation_;
 			vkDepthAttachment.storeOp = renderingInfo.depthAttachment_->storeOperation_;
 			vkRenderingInfo.pDepthAttachment = &vkDepthAttachment;
@@ -64,7 +64,7 @@ namespace Render::Vulkan {
 			vkStencilAttachment.storeOp = renderingInfo.stencilAttachment_->storeOperation_;
 			vkRenderingInfo.pStencilAttachment = &vkStencilAttachment;
 		}
-		// 3. Начинаем проход рендера!
+		
 		vkCmdBeginRendering(driver_->GCB_->GetHandle(), &vkRenderingInfo);
 
 	}

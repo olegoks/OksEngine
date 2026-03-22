@@ -251,6 +251,7 @@ namespace RAL {
 			ComputeShader,
 			Transfer,
 			Bottom,
+			AllGraphics,
 			Undefined
 		};
 
@@ -412,6 +413,8 @@ namespace RAL {
 		[[nodiscard]]
 		virtual Texture::Id CreateTexture(const RAL::Driver::Texture::CreateInfo1& createInfo) = 0;
 
+
+
 		virtual void TextureMemoryBarrier(
 			const RAL::Driver::Texture::Id textureId,
 			Texture::State fromState,
@@ -454,11 +457,74 @@ namespace RAL {
 			using CreateInfo2 = Binding;
 			using CI2 = Binding;
 
+			struct BindingLayout {
+				Common::UInt64 binding_ = Common::Limits<Common::UInt64>::Max();
+				enum class Type {
+					Uniform,
+					Storage,
+					Sampler,
+					InputAttachment,
+					Undefined
+				};
+				Type type_ = Type::Undefined;
+				Common::UInt64 count_ = Common::Limits<Common::UInt64>::Max();
+				Pipeline_Stage stage_ = Pipeline_Stage::Undefined;
+
+			};
+
+			struct CreateInfo3 {
+				std::vector<BindingLayout> bindings_;
+			};
+
+			using CI3 = CreateInfo3;
+
+			struct UpdateInfo {
+
+				struct Image {
+					Texture_Id textureId_ = Texture_Id::Invalid();
+					//Поле state_ в ней указывает, в каком state_ должно находиться изображение в момент чтения/записи через этот дескриптор.
+					Texture::State state_ = Texture::State::Undefined;
+				};
+				struct UniformBuffer {
+					UB::Id ubid_ = UB::Id::Invalid();
+					Common::UInt64 offset_ = 0;
+					Common::UInt64 size_ = Common::Limits<Common::UInt64>::Max();
+				};
+				struct StorageBuffer {
+					SB::Id sbid_ = SB::Id::Invalid();
+					Common::UInt64 offset_ = 0;
+					Common::UInt64 size_ = Common::Limits<Common::UInt64>::Max();
+				};
+				struct Binding {
+					
+					Common::UInt64 binding_ = Common::Limits<decltype(binding_)>::Max();
+					Common::UInt64 arrayElement_ = Common::Limits<decltype(arrayElement_)>::Max(); // like offset in buffer
+					Common::UInt64 resourcesCount_ = Common::Limits<decltype(resourcesCount_)>::Max();
+					BindingLayout::Type type_ = BindingLayout::Type::Undefined;
+
+					//size must be equal to resourcesCount_.
+					std::vector<Image> imageInfos_;
+					std::vector<UniformBuffer> UBInfo_;
+					std::vector<StorageBuffer> SBInfo_;
+				};
+				ResourceSet::Id id_ = ResourceSet::Id::Invalid();
+				std::vector<Binding> bindings_;
+			};
+
 		};
 		using RS = ResourceSet;
 		using Resource = RS;
 
 		virtual ResourceSet::Id CreateResourceSet(const ResourceSet::CI1& createInfo) = 0;
+
+		//Resource set for VULKAN API bindless resources
+		virtual ResourceSet::Id CreateResourceSet(const ResourceSet::CI3& createInfo) = 0;
+		virtual void UpdateResourceSet(const RS::UpdateInfo& RSUpdateInfo) = 0;
+
+
+		//For ImGUI Image() rendering.
+		//virtual Common::UInt64 GetResourceSetNativeHandle(ResourceSet::Id RSId) = 0;
+
 		virtual Resource::Id CreateResource(const Resource::CI2& createInfo) = 0;
 
 		//Resource

@@ -105,6 +105,30 @@ namespace Render::Vulkan {
 		};
 	}
 
+	inline VkDescriptorType			ToVulkanType(RAL::Driver::ResourceSet::BindingLayout::Type bindingType) {
+		switch (bindingType) {
+		case RAL::Driver::ResourceSet::BindingLayout::Type::Sampler: {
+			return VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+			break;
+		}
+		case RAL::Driver::ResourceSet::BindingLayout::Type::Uniform: {
+			return VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+			break;
+		}
+		case RAL::Driver::ResourceSet::BindingLayout::Type::InputAttachment: {
+			return VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+			break;
+		}
+		case RAL::Driver::ResourceSet::BindingLayout::Type::Storage: {
+			return VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+			break;
+		}
+		default:
+			ASSERT_FAIL_MSG("Invalid ShaderBinding::Type value used.");
+			return VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
+		};
+	}
+
 	inline VkShaderStageFlags	ToVulkanType(RAL::Driver::Shader::Stage stage) {
 		switch (stage) {
 		case RAL::Driver::Shader::Stage::VertexShader: {

@@ -58,6 +58,10 @@ namespace OS {
 
 #if !defined(NDEBUG) || defined(USE_ASSERTS) 
 
+#define ASSERT_SCOPE(check_code)	\
+	do {							\
+		check_code;					\
+	} while (0);					\
 
 #define ASSERT_MSG(expression, message)\
 	OS::AssertMessage(expression, message, std::source_location::current())

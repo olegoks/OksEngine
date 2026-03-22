@@ -7,77 +7,72 @@
 namespace Render::Vulkan {
 
 
-	void DescriptorSet::Update(const std::vector<UpdateDescriptorInfo>& infos) {
-		std::vector<VkWriteDescriptorSet> writes;
-		std::vector<VkDescriptorBufferInfo> descriptorBufferInfos;
-		std::vector<VkDescriptorImageInfo> descriptorImageInfos;
-		descriptorBufferInfos.reserve(16);
-		descriptorImageInfos.reserve(16);
-		writes.reserve(16);
+	void DescriptorSet::Update(const std::vector<Binding::UpdateInfo>& infos) {
 
-		for (const UpdateDescriptorInfo& info : infos) {
+		for (const Binding::UpdateInfo& info : infos) {
 			VkWriteDescriptorSet descriptorWrite;
-			if (info.type_ == VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER) {
-				VkDescriptorBufferInfo bufferInfo{};
-				{
-					bufferInfo.buffer = *info.bufferInfo_.buffer_;
-					bufferInfo.offset = info.bufferInfo_.offset_;
-					bufferInfo.range = info.bufferInfo_.range_;
+			
+			std::vector<VkDescriptorBufferInfo> descriptorBufferInfos;
+			descriptorBufferInfos.reserve(info.bufferInfos_.size());
+			std::vector<VkDescriptorImageInfo> descriptorImageInfos;
+			descriptorImageInfos.reserve(info.imageInfos_.size());
+
+			//Reuse buffers.
+			descriptorBufferInfos.clear();
+			descriptorImageInfos.clear();
+
+			if (info.type_ == VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER ||
+				info.type_ == VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) {
+				
+				ASSERT(info.imageInfos_.empty());
+
+				for (const auto& bufferInfo : info.bufferInfos_) {
+					VkDescriptorBufferInfo vkBufferInfo;
+					{
+						vkBufferInfo.buffer = bufferInfo.buffer_->GetHandle();
+						vkBufferInfo.offset = bufferInfo.offset_;
+						vkBufferInfo.range = bufferInfo.range_;
+					}
+					descriptorBufferInfos.push_back(vkBufferInfo);
 				}
-				descriptorBufferInfos.push_back(bufferInfo);
+
 				{
 					descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 					descriptorWrite.pNext = nullptr;
 					descriptorWrite.dstSet = GetHandle();
-					descriptorWrite.dstBinding = info.binding_;		// Descriptor binding that we want to update.
-					descriptorWrite.dstArrayElement = 0;			// Descriptors can be arrays. We also need to specify the first index in the array that we want to update.
-					descriptorWrite.descriptorType = info.type_;	//VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-					descriptorWrite.descriptorCount = 1;			//Specifies how many array elements you want to update.
+					descriptorWrite.dstBinding = info.binding_;						// Descriptor binding that we want to update.
+					descriptorWrite.dstArrayElement = info.arrayElement_;							// Descriptors can be arrays. We also need to specify the first index in the array that we want to update.
+					descriptorWrite.descriptorType = info.type_;					//VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+					descriptorWrite.descriptorCount = descriptorBufferInfos.size();	//Specifies how many array elements you want to update.
 					descriptorWrite.pBufferInfo = &descriptorBufferInfos.back();
 					descriptorWrite.pImageInfo = nullptr;
 					descriptorWrite.pTexelBufferView = nullptr;
-				}
+				}  
 			}
 			else if(info.type_ == VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER) {
 
-				VkDescriptorImageInfo imageInfo{};
-				{
-					imageInfo.imageView = *info.imageInfo_.imageView_;
-					imageInfo.imageLayout = info.imageInfo_.imageLayout_;
-					imageInfo.sampler = (info.imageInfo_.sampler_ != nullptr) ? (*info.imageInfo_.sampler_) : (nullptr);
+				ASSERT(info.bufferInfos_.empty());
+
+				for (const auto& imageInfo : info.imageInfos_) {
+					VkDescriptorImageInfo vkImageInfo{};
+					{
+						vkImageInfo.imageView = imageInfo.imageView_->GetHandle();
+						vkImageInfo.imageLayout = imageInfo.imageLayout_;
+						vkImageInfo.sampler = (imageInfo.sampler_ != nullptr) ? (imageInfo.sampler_->GetHandle()) : (VK_NULL_HANDLE);
+					}
+					descriptorImageInfos.push_back(vkImageInfo);
 				}
-				descriptorImageInfos.push_back(imageInfo);
+
 				{
 					descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
 					descriptorWrite.pNext = nullptr;
 					descriptorWrite.dstSet = GetHandle();
 					descriptorWrite.dstBinding = info.binding_;		// Descriptor binding that we want to update.
-					descriptorWrite.dstArrayElement = 0;			// Descriptors can be arrays. We also need to specify the first index in the array that we want to update.
+					descriptorWrite.dstArrayElement = info.arrayElement_;			// Descriptors can be arrays. We also need to specify the first index in the array that we want to update.
 					descriptorWrite.descriptorType = info.type_;	//VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-					descriptorWrite.descriptorCount = 1;			//Specifies how many array elements you want to update.
+					descriptorWrite.descriptorCount = descriptorImageInfos.size();			//Specifies how many array elements you want to update.
 					descriptorWrite.pBufferInfo = nullptr;
 					descriptorWrite.pImageInfo = descriptorImageInfos.data() + descriptorImageInfos.size() - 1;
-					descriptorWrite.pTexelBufferView = nullptr;
-				}
-			}
-			else if (info.type_ == VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER) {
-				VkDescriptorBufferInfo bufferInfo{};
-				{
-					bufferInfo.buffer = *info.bufferInfo_.buffer_;
-					bufferInfo.offset = info.bufferInfo_.offset_;
-					bufferInfo.range = info.bufferInfo_.range_;
-				}
-				descriptorBufferInfos.push_back(bufferInfo);
-				{
-					descriptorWrite.sType = VK_STRUCTURE_TYPE_WRITE_DESCRIPTOR_SET;
-					descriptorWrite.pNext = nullptr;
-					descriptorWrite.dstSet = GetHandle();
-					descriptorWrite.dstBinding = info.binding_; // Descriptor binding that we want to update.
-					descriptorWrite.dstArrayElement = 0; // Descriptors can be arrrays. We also need to specify the first index in the array that we want to update.
-					descriptorWrite.descriptorType = info.type_; //VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-					descriptorWrite.descriptorCount = 1; //Specifies how many array elements you want to update.
-					descriptorWrite.pBufferInfo = &descriptorBufferInfos.back();
-					descriptorWrite.pImageInfo = nullptr;
 					descriptorWrite.pTexelBufferView = nullptr;
 				}
 			}
@@ -85,18 +80,12 @@ namespace Render::Vulkan {
 				NOT_IMPLEMENTED();
 			}
 
-			writes.push_back(descriptorWrite);
+			//Update each binding separately.
+			vkUpdateDescriptorSets(
+				*createInfo_.LD_,
+				1, &descriptorWrite,
+				0, nullptr);
 		}
-
-		if (writes.size() == 2) {
-			Common::BreakPointLine();
-		}
-
-		vkUpdateDescriptorSets(
-			*createInfo_.LD_,
-			static_cast<uint32_t>(writes.size()), writes.data(),
-			0, nullptr);
-
 
 	}
 
