@@ -1146,6 +1146,7 @@ AddModelToRenderSystem = {
             {
                 processesComponents = {
                     { name = "RenderDriver", readonly = false },
+                    "Render::Material::ResourceSet_",
                     "Render::EnableRegularRender",
                     "Render::MainRenderPass",
                     "Render::Pipeline",

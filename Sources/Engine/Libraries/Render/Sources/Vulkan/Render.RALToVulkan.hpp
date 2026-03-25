@@ -105,29 +105,29 @@ namespace Render::Vulkan {
 		};
 	}
 
-	inline VkDescriptorType			ToVulkanType(RAL::Driver::ResourceSet::BindingLayout::Type bindingType) {
-		switch (bindingType) {
-		case RAL::Driver::ResourceSet::BindingLayout::Type::Sampler: {
-			return VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-			break;
-		}
-		case RAL::Driver::ResourceSet::BindingLayout::Type::Uniform: {
-			return VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
-			break;
-		}
-		case RAL::Driver::ResourceSet::BindingLayout::Type::InputAttachment: {
-			return VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
-			break;
-		}
-		case RAL::Driver::ResourceSet::BindingLayout::Type::Storage: {
-			return VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
-			break;
-		}
-		default:
-			ASSERT_FAIL_MSG("Invalid ShaderBinding::Type value used.");
-			return VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
-		};
-	}
+	//inline VkDescriptorType			ToVulkanType(RAL::Driver::ResourceSet::BindingLayout::Type bindingType) {
+	//	switch (bindingType) {
+	//	case RAL::Driver::ResourceSet::BindingLayout::Type::Sampler: {
+	//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+	//		break;
+	//	}
+	//	case RAL::Driver::ResourceSet::BindingLayout::Type::Uniform: {
+	//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+	//		break;
+	//	}
+	//	case RAL::Driver::ResourceSet::BindingLayout::Type::InputAttachment: {
+	//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
+	//		break;
+	//	}
+	//	case RAL::Driver::ResourceSet::BindingLayout::Type::Storage: {
+	//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
+	//		break;
+	//	}
+	//	default:
+	//		ASSERT_FAIL_MSG("Invalid ShaderBinding::Type value used.");
+	//		return VkDescriptorType::VK_DESCRIPTOR_TYPE_MAX_ENUM;
+	//	};
+	//}
 
 	inline VkShaderStageFlags	ToVulkanType(RAL::Driver::Shader::Stage stage) {
 		switch (stage) {
@@ -141,6 +141,10 @@ namespace Render::Vulkan {
 		}
 		case RAL::Driver::Shader::Stage::ComputeShader: {
 			return VkShaderStageFlagBits::VK_SHADER_STAGE_COMPUTE_BIT;
+			break;
+		}
+		case RAL::Driver::Shader::Stage::AllShaders: {
+			return VkShaderStageFlagBits::VK_SHADER_STAGE_ALL;
 			break;
 		}
 		default:
@@ -227,12 +231,13 @@ namespace Render::Vulkan {
 			return VK_PIPELINE_STAGE_TRANSFER_BIT;
 		case RAL::Driver::Pipeline::Stage::Bottom:
 			return VK_PIPELINE_STAGE_BOTTOM_OF_PIPE_BIT;
+		case RAL::Driver::Pipeline::Stage::AllGraphics:
+			return VK_PIPELINE_STAGE_ALL_GRAPHICS_BIT;
+		//case RAL::Driver::Pipeline::Stage::AllShaderStages:
+		//	return VK_PIPELINE_;
 		case RAL::Driver::Pipeline::Stage::Undefined:
 		default:
-
-#pragma region Assert
-			OS::AssertFail();
-#pragma endregion
+			ASSERT_FAIL();
 
 			return VK_PIPELINE_STAGE_FLAG_BITS_MAX_ENUM; // или 0, если предпочитаете
 		}

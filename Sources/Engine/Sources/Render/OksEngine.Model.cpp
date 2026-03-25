@@ -3367,22 +3367,25 @@ namespace OksEngine
 	};
 
 	void AddModelToRender::Update(
-		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0,
-		const Render::EnableRegularRender* render__EnableRegularRender0,
-		const Render::MainRenderPass* render__MainRenderPass0, const Render::Pipeline* render__Pipeline0,
-		const GPGPUECS::StorageBuffer::WorldPositions3D* gPGPUECS__StorageBuffer__WorldPositions3D0,
-		const GPGPUECS::StorageBuffer::WorldRotations3D* gPGPUECS__StorageBuffer__WorldRotations3D0,
-		const GPGPUECS::StorageBuffer::WorldScales3D* gPGPUECS__StorageBuffer__WorldScales3D0,
-		const GPGPUECS::StorageBuffer::ModelEntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
-		const GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices
+		ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
+		const OksEngine::Render::Material::ResourceSet_* render__Material__ResourceSet_0,
+		const OksEngine::Render::EnableRegularRender* render__EnableRegularRender0,
+		const OksEngine::Render::MainRenderPass* render__MainRenderPass0,
+		const OksEngine::Render::Pipeline* render__Pipeline0,
+		const OksEngine::GPGPUECS::StorageBuffer::WorldPositions3D* gPGPUECS__StorageBuffer__WorldPositions3D0,
+		const OksEngine::GPGPUECS::StorageBuffer::WorldRotations3D* gPGPUECS__StorageBuffer__WorldRotations3D0,
+		const OksEngine::GPGPUECS::StorageBuffer::WorldScales3D* gPGPUECS__StorageBuffer__WorldScales3D0,
+		const OksEngine::GPGPUECS::StorageBuffer::ModelEntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
+		const OksEngine::GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices
 		* gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0,
-		const GPGPUECS::StorageBuffer::ModelNodeEntityIds* gPGPUECS__StorageBuffer__ModelNodeEntityIds0,
-		const GPGPUECS::StorageBuffer::MeshNodeEntityIndices* gPGPUECS__StorageBuffer__MeshNodeEntityIndices0,
-		const GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices
+		const OksEngine::GPGPUECS::StorageBuffer::ModelNodeEntityIds* gPGPUECS__StorageBuffer__ModelNodeEntityIds0,
+		const OksEngine::GPGPUECS::StorageBuffer::MeshNodeEntityIndices
+		* gPGPUECS__StorageBuffer__MeshNodeEntityIndices0,
+		const OksEngine::GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices
 		* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
-		ECS2::Entity::Id entity1id, const Camera* camera1, const Active* active1,
-		const DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
-		const CameraTransformResource* cameraTransformResource1) {
+		ECS2::Entity::Id entity1id, const OksEngine::Camera* camera1, const OksEngine::Active* active1,
+		const OksEngine::DriverViewProjectionUniformBuffer* driverViewProjectionUniformBuffer1,
+		const OksEngine::CameraTransformResource* cameraTransformResource1) {
 
 		auto createEntityIndices = [](ECS2::Entity::Id* entityIds, Common::Size entitiesNumber) {
 			std::vector<Common::UInt64> indices;
@@ -3453,6 +3456,7 @@ namespace OksEngine
 				if (!IsComponentExist<Render::Material::ResourceSet>(materialEntityId->id_)) {
 					continue;
 				}
+
 				auto* materialResourceSet = GetComponent<Render::Material::ResourceSet>(materialEntityId->id_);
 
 				driver->BindVertexBuffer(vertexBuffer->id_, 0);

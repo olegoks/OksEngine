@@ -25,11 +25,24 @@ namespace Render::Vulkan {
 
 			ASSERT_FMSG(createInfo.name_ != CreateInfo::defaultDSLName_, "Please, set name to descriptor set layout create info.");
 			ASSERT_FMSG(createInfo.LD_ != nullptr, "Please, set Physical Device to descriptor set layout create info.");
+			
+			std::vector<VkDescriptorBindingFlags> bindingFlags(createInfo.bindings_.size());
+			std::fill(bindingFlags.begin(), bindingFlags.end(),
+				VK_DESCRIPTOR_BINDING_PARTIALLY_BOUND_BIT |
+				VK_DESCRIPTOR_BINDING_UPDATE_AFTER_BIND_BIT);
 
+			VkDescriptorSetLayoutBindingFlagsCreateInfo bindingFlagsInfo{};
+			{
+				bindingFlagsInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_BINDING_FLAGS_CREATE_INFO;
+				bindingFlagsInfo.bindingCount = static_cast<Common::UInt32>(createInfo.bindings_.size());
+				bindingFlagsInfo.pBindingFlags = bindingFlags.data();
+			}
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			{
 				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+				layoutInfo.pNext = &bindingFlagsInfo;
 				layoutInfo.bindingCount = static_cast<Common::UInt32>(createInfo.bindings_.size());
+				layoutInfo.flags = VK_DESCRIPTOR_SET_LAYOUT_CREATE_UPDATE_AFTER_BIND_POOL_BIT;
 				layoutInfo.pBindings = (!createInfo.bindings_.empty()) ? (createInfo.bindings_.data()) : (nullptr);
 			}
 			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;

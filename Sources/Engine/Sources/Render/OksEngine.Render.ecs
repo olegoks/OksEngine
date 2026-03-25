@@ -2,11 +2,14 @@ RenderDriverComponent = {
     bindable = false,
     serializable = false,
     fields = { 
-		  { type = "std::shared_ptr<RAL::Driver>", name = "driver" } 
+		  { type = "std::shared_ptr<RAL::Driver>", name = "driver" }
 		}
 }
 
 RenderNamespace = {
+
+
+
 
     EnableRegularRenderComponent = {},
 
@@ -96,6 +99,7 @@ CreateRenderDriverSystem = {
                 createsComponents = {
                     "RenderDriver",
                     "Render::EnableRegularRender",
+                    -- "Render::Material::ResourceSet_",
                     "Animation::DriverLocalPosition3DComponents",
                     "Animation::LocalPosition3DComponentsResource",
                     "DriverWorldPosition3DComponents",

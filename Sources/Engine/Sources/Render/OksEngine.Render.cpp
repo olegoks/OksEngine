@@ -47,6 +47,7 @@ namespace OksEngine
 		CreateComponent<RenderDriver>(driverEntityId, driver);
 		CreateComponent<Render::EnableRegularRender>(driverEntityId);
 
+
 		//Animation
 		{
 			Common::Size preallocatedEntitiesNumber = 65'536;

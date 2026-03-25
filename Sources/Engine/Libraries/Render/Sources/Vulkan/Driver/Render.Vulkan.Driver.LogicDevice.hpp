@@ -153,6 +153,10 @@ namespace Render::Vulkan {
 					indexingFeatures.descriptorBindingVariableDescriptorCount = VK_TRUE; // Переменный размер массива
 					indexingFeatures.runtimeDescriptorArray = VK_TRUE;                   // Массивы дескрипторов в шейдере
 					indexingFeatures.shaderSampledImageArrayNonUniformIndexing = VK_TRUE; // Не-uniform индексация (для текстур)
+					indexingFeatures.descriptorBindingStorageBufferUpdateAfterBind = VK_TRUE;
+					indexingFeatures.descriptorBindingSampledImageUpdateAfterBind = VK_TRUE;
+					indexingFeatures.descriptorBindingUniformBufferUpdateAfterBind = VK_TRUE;
+					
 				}
 				VkDeviceCreateInfo deviceInfo{};
 				dynamicRenderingFeatures.pNext = &indexingFeatures; // Добавляем в цепочку

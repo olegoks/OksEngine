@@ -109,6 +109,12 @@ RenderNamespace = {
             }
         },
 
+        BindingArrayIndexComponent = {
+            fields = {
+                { type = "Common::UInt32", name = "index" }
+            }
+        },
+
         TypesArchetype = {
             components = {
                 "Texture::Type::DiffuseMap::Tag",

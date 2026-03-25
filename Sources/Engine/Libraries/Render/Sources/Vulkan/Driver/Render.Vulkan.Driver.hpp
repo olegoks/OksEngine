@@ -2398,8 +2398,8 @@ namespace Render::Vulkan {
 					for (const auto& binding : ci.bindings_) {
 						ASSERT(binding.binding_ != Common::Limits<decltype(binding.binding_)>::Max());
 						ASSERT(binding.count_ != Common::Limits<decltype(binding.binding_)>::Max());
-						ASSERT(binding.stage_ != RAL::Driver::Pipeline_Stage::Undefined);
-						ASSERT(binding.type_ != RAL::Driver::ResourceSet::BindingLayout::Type::Undefined);
+						ASSERT(binding.stage_ != RAL::Driver::Shader::Stage::Undefined);
+						ASSERT(binding.type_ != RAL::Driver::Shader::Binding::Type::Undefined);
 					}
 				}(ci));
 
@@ -2416,6 +2416,7 @@ namespace Render::Vulkan {
 					//TODO: learn this field usage.
 					vkBinding.pImmutableSamplers = nullptr;
 				}
+				vkBindings.push_back(vkBinding);
 			}
 
 			auto dsl = std::make_shared<DescriptorSetLayout>(
@@ -2457,12 +2458,12 @@ namespace Render::Vulkan {
 			for (Common::Index concurrentFrameIndex : std::views::iota(0u, concurrentFramesNumber)) {
 
 				std::vector<DS::Binding::UpdateInfo> updateDSsInfo;
-				for (const auto& binding : RSUpdateInfo.bindings_) {
+				for (const auto& binding : RSUpdateInfo.bindingUpdateInfos_) {
 					DS::Binding::UpdateInfo DSUpdateInfo;
 					{
 						DSUpdateInfo.binding_ = binding.binding_;
 						DSUpdateInfo.arrayElement_ = binding.arrayElement_;
-						DSUpdateInfo.type_ = ToVulkanType(RAL::Driver::RS::BindingLayout::Type::Sampler);
+						DSUpdateInfo.type_ = ToVulkanType(binding.type_);
 
 						for (const auto& imageInfo : binding.imageInfos_) {
 							DS::Binding::UpdateInfo::ImageInfo vkImageInfo;
@@ -2483,6 +2484,7 @@ namespace Render::Vulkan {
 								vkBufferInfo.offset_ = bufferInfo.offset_;
 								vkBufferInfo.range_ = bufferInfo.size_;
 							}
+							DSUpdateInfo.bufferInfos_.push_back(vkBufferInfo);
 						}
 
 						for (const auto& bufferInfo : binding.UBInfo_) {
@@ -2492,6 +2494,7 @@ namespace Render::Vulkan {
 								vkBufferInfo.offset_ = bufferInfo.offset_;
 								vkBufferInfo.range_ = bufferInfo.size_;
 							}
+							DSUpdateInfo.bufferInfos_.push_back(vkBufferInfo);
 						}
 
 					}
@@ -2504,6 +2507,7 @@ namespace Render::Vulkan {
 			}
 		}
 
+		[[deprecated]]
 		virtual RAL::Driver::RS::Id CreateResourceSet(const RAL::Driver::RS::CI1& ci) override {
 
 			std::vector<VkDescriptorSetLayoutBinding> bindings;
