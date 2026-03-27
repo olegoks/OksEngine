@@ -11,17 +11,8 @@ layout(location = 1) in vec2 inUV;
 
 layout(location = 0) out vec4 outColor;
 
-layout(set = MATERIAL_SET, binding = MATERIAL_DIFFUSE_MAP_BINDING) uniform sampler2D diffuseMaps[];
-layout(set = MATERIAL_SET, binding = MATERIAL_NORMAL_MAP_BINDING) uniform sampler2D normalMaps[];
-layout(set = MATERIAL_SET, binding = MATERIAL_METALLIC_MAP_BINDING) uniform sampler2D metallicMaps[];
-
-layout(set = MATERIAL_INFO_SET, binding = MATERIAL_INFO_BINDING) uniform MaterialInfoBlock {
-    uint diffuseMapIndex;
-    uint normalMapIndex;
-    uint metallicMapIndex;
-} materialInfo;
-
+SHADER_USE_MATERIAL
 
 void main() {
-    outColor = texture(diffuseMaps[nonuniformEXT(materialInfo.diffuseMapIndex)], inUV);
+    outColor = texture(MATERIAL_GET_DIFFUSE_MAP, inUV);
 }

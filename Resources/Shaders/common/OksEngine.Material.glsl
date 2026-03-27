@@ -8,8 +8,15 @@
 #define MATERIAL_INFO_SET 2
 #define MATERIAL_INFO_BINDING 0
 
-struct MaterialInfo {
-    uint diffuseMapIndex;
-    uint normalMapIndex;
-    uint metallicMapIndex;
-};
+#define SHADER_USE_MATERIAL                                                                             \
+layout(set = MATERIAL_SET, binding = MATERIAL_DIFFUSE_MAP_BINDING) uniform sampler2D diffuseMaps[];     \
+layout(set = MATERIAL_SET, binding = MATERIAL_NORMAL_MAP_BINDING) uniform sampler2D normalMaps[];       \
+layout(set = MATERIAL_SET, binding = MATERIAL_METALLIC_MAP_BINDING) uniform sampler2D metallicMaps[];   \
+                                                                                                        \
+layout(set = MATERIAL_INFO_SET, binding = MATERIAL_INFO_BINDING) uniform MaterialInfoBlock {            \
+    uint diffuseMapIndex;                                                                               \
+    uint normalMapIndex;                                                                                \
+    uint metallicMapIndex;                                                                              \
+} materialInfo;                                                                                         \
+
+#define MATERIAL_GET_DIFFUSE_MAP diffuseMaps[nonuniformEXT(materialInfo.diffuseMapIndex)]

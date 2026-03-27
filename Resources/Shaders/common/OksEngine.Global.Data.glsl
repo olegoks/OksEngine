@@ -1,0 +1,3 @@
+
+#define GLOBAL_DATA_SET 0
+#define CAMERA_BINDING 0
