@@ -174,11 +174,14 @@ namespace OksEngine
 
 			void ShaderReflection::Update(
 				ECS2::Entity::Id entity0id,
-				const OksEngine::Render::Shader::Tag* shader__Tag0,
-				const OksEngine::Render::Shader::Binary* shader__Binary0) {
+				const OksEngine::RenderDriver* renderDriver0,
+				
+				ECS2::Entity::Id entity1id,
+				const OksEngine::Render::Shader::Tag* shader__Tag1,
+				const OksEngine::Render::Shader::Binary* shader__Binary1) {
 
 
-				std::vector<Common::UInt32> spirvCode = shader__Binary0->data_;
+				std::vector<Common::UInt32> spirvCode = shader__Binary1->data_;
 
 				SpvReflectShaderModule module;
 				SpvReflectResult result = spvReflectCreateShaderModule(
@@ -217,6 +220,17 @@ namespace OksEngine
 				}
 				//Descriptor sets
 				{
+					uint32_t count = 0;
+					result = spvReflectEnumerateDescriptorSets(&module, &count, NULL);
+					assert(result == SPV_REFLECT_RESULT_SUCCESS);
+
+					std::vector<SpvReflectDescriptorSet*> sets(count);
+					result = spvReflectEnumerateDescriptorSets(&module, &count, sets.data());
+					assert(result == SPV_REFLECT_RESULT_SUCCESS);
+
+
+
+
 					uint32_t bindingCount = 0;
 					result = spvReflectEnumerateDescriptorBindings(&module, &bindingCount, nullptr);
 					if (result != SPV_REFLECT_RESULT_SUCCESS) {
@@ -254,29 +268,27 @@ namespace OksEngine
 
 					std::vector<Binding> ecsBindings;
 					for (const auto* binding : bindings) {
-						
-						//
-						//printf("Binding: set=%u, binding=%u, name=%s, type=%d, count=%u\n",
-						//	binding->set,
-						//	binding->binding,
-						//	binding->name,
-						//	binding->descriptor_type,
-						//	binding->count);
-
 						Binding ecsBinding{
 							binding->name,
 							binding->set,
 							binding->binding,
-							binding->count,
+							(binding->count != 0) ?(binding->count):(4096/*renderDriver0->driver_->GetLimits().maxResourceSetSampledTextures_*/),
 							toECSDescriptorType(binding->descriptor_type)
 						};
-						if (binding->name == "EmptyLayout") {
-							Common::BreakPointLine();
+
+						if (binding->type_description->op == SpvOp::SpvOpTypeRuntimeArray) {
+							ecsBinding.count_ = 4096;
 						}
+
+						if (binding->type_description->op == SpvOp::SpvOpTypeArray && binding->count == 1) {
+							//hiddent bindless array.
+							ecsBinding.count_ = 4096;
+						}
+
 						ecsBindings.emplace_back(ecsBinding);
 					}
 					if (!ecsBindings.empty()) {
-						CreateComponent<Bindings>(entity0id, ecsBindings);
+						CreateComponent<Bindings>(entity1id, ecsBindings);
 					}
 				}
 				//Push constants
@@ -302,12 +314,12 @@ namespace OksEngine
 						ecsPushConstants.emplace_back(ecsPushConstant);
 					}
 					if (!ecsPushConstants.empty()) {
-						CreateComponent<PushConstants>(entity0id, ecsPushConstants);
+						CreateComponent<PushConstants>(entity1id, ecsPushConstants);
 					}
 				}
 
 				spvReflectDestroyShaderModule(&module);
-				CreateComponent<Shader::Ready>(entity0id);
+				CreateComponent<Shader::Ready>(entity1id);
 				//return true;
 
 			}

@@ -113,7 +113,7 @@ namespace OksEngine
 
 					RAL::Driver::Shader::Binding::Layout cameraBinding{
 						.binding_ = 0,
-						.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+						.type_ = RAL::Driver::Shader::Binding::Type::UniformBuffer,
 						.stage_ = RAL::Driver::Shader::Stage::VertexShader
 					};
 					shaderBindings.push_back(cameraBinding);
@@ -279,7 +279,7 @@ namespace OksEngine
 
 					RAL::Driver::Shader::Binding::Layout cameraBinding{
 						.binding_ = 0,
-						.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+						.type_ = RAL::Driver::Shader::Binding::Type::UniformBuffer,
 						.stage_ = RAL::Driver::Shader::Stage::VertexShader
 					};
 					shaderBindings.push_back(cameraBinding);

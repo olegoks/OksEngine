@@ -37,6 +37,7 @@ namespace Render::Vulkan {
 				bindingFlagsInfo.bindingCount = static_cast<Common::UInt32>(createInfo.bindings_.size());
 				bindingFlagsInfo.pBindingFlags = bindingFlags.data();
 			}
+
 			VkDescriptorSetLayoutCreateInfo layoutInfo{};
 			{
 				layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;

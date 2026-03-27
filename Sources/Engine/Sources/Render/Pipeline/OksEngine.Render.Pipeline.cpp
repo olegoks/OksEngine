@@ -164,6 +164,9 @@ namespace OksEngine
 					std::string spipelines{ "resource:/Scenes/Pipelines/OksEngine.SkeletonPipeline.rpl" };
 					SCENE__MANAGER__CREATE_LOAD_SCENE_REQUEST(spipelines);
 
+					std::string tpipelines{ "resource:/Scenes/Pipelines/OksEngine.TexturedPipeline.rpl" };
+					SCENE__MANAGER__CREATE_LOAD_SCENE_REQUEST(tpipelines);
+
 				}
 				/*void CreateResourcesLoaded::Update(
 					ECS2::Entity::Id entity0id,

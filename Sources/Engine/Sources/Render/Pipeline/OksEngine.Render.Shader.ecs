@@ -33,7 +33,6 @@ RenderNamespace = {
                 "Undefined"
             }
         },
-        
         ReadyComponent = {},
         BindingStruct = {
             fields = {
@@ -233,6 +232,11 @@ RenderNamespace = {
         ShaderReflectionSystem = {
             updateMethod = {
                 processesEntities = {
+                    {
+                        processesComponents = {
+                            "RenderDriver"
+                        },
+                    },
                     {
                         processesComponents = {
                             "Shader::Tag",

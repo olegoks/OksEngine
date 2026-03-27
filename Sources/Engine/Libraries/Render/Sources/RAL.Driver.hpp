@@ -37,6 +37,13 @@ namespace RAL {
 	class Driver {
 	public:
 
+		struct Limits {
+			Common::UInt32 maxResourceSetSampledTextures_;
+			Common::UInt32 maxPerStageResourceSetSampledTextures_;
+		};
+
+		virtual Limits GetLimits() const noexcept = 0;
+
 		enum class VertexType : Common::UInt64 {
 			VF3,
 			VF3_NF3_TF2,
@@ -284,8 +291,8 @@ namespace RAL {
 
 			struct Binding {
 				enum class Type {
-					Uniform,
-					Storage,
+					UniformBuffer,
+					StorageBuffer,
 					Sampler,
 					InputAttachment,
 					Undefined
@@ -301,6 +308,7 @@ namespace RAL {
 					std::string name_ = "Empty layout";
 					Common::UInt32 set_ = Common::Limits<Common::UInt32>::Max();
 					Common::UInt32 binding_ = Common::Limits<Common::UInt32>::Max();
+					Common::UInt32 resourcesCount_ = 1;
 					Type type_ = Type::Undefined;
 					Stage stage_ = Stage::Undefined;
 				};

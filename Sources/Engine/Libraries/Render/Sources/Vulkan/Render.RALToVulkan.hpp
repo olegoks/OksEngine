@@ -87,7 +87,7 @@ namespace Render::Vulkan {
 			return VkDescriptorType::VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
 			break;
 		}
-		case RAL::Driver::Shader::Binding::Type::Uniform: {
+		case RAL::Driver::Shader::Binding::Type::UniformBuffer: {
 			return VkDescriptorType::VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
 			break;
 		}
@@ -95,7 +95,7 @@ namespace Render::Vulkan {
 			return VkDescriptorType::VK_DESCRIPTOR_TYPE_INPUT_ATTACHMENT;
 			break;
 		}
-		case RAL::Driver::Shader::Binding::Type::Storage: {
+		case RAL::Driver::Shader::Binding::Type::StorageBuffer: {
 			return VkDescriptorType::VK_DESCRIPTOR_TYPE_STORAGE_BUFFER;
 			break;
 		}

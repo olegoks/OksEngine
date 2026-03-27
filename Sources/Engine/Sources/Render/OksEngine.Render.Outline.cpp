@@ -204,7 +204,7 @@ namespace OksEngine
 
 						RAL::Driver::Shader::Binding::Layout dataBinding{
 							.binding_ = 0,
-							.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+							.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 							.stage_ = RAL::Driver::Shader::Stage::FragmentShader
 						};
 
@@ -258,6 +258,9 @@ namespace OksEngine
 
 						driver->BindPipeline(pipelineId1->id_);
 
+						
+						driver->SetViewport(0, 0, 2560, 1440);
+						driver->SetScissor(0, 0, 2560, 1440);
 						driver->Draw(3);
 
 					}
@@ -297,13 +300,13 @@ namespace OksEngine
 
 						RAL::Driver::Shader::Binding::Layout dataBinding{
 							.binding_ = 0,
-							.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+							.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 							.stage_ = RAL::Driver::Shader::Stage::FragmentShader
 						};
 
 						RAL::Driver::Shader::Binding::Layout transformBinding{
 							.binding_ = 0,
-							.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+							.type_ = RAL::Driver::Shader::Binding::Type::UniformBuffer,
 							.stage_ = RAL::Driver::Shader::Stage::VertexShader
 						};
 
@@ -552,13 +555,13 @@ namespace OksEngine
 
 					RAL::Driver::Shader::Binding::Layout cameraBinding{
 						.binding_ = 0,
-						.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+						.type_ = RAL::Driver::Shader::Binding::Type::UniformBuffer,
 						.stage_ = RAL::Driver::Shader::Stage::VertexShader
 					};
 
 					RAL::Driver::Shader::Binding::Layout dataBinding{
 						.binding_ = 0,
-						.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+						.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 						.stage_ = RAL::Driver::Shader::Stage::FragmentShader
 					};
 
@@ -837,7 +840,7 @@ namespace OksEngine
 
 					RAL::Driver::Shader::Binding::Layout dataBinding{
 						.binding_ = 0,
-						.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+						.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 						.stage_ = RAL::Driver::Shader::Stage::FragmentShader
 					};
 

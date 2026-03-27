@@ -2239,14 +2239,33 @@ namespace OksEngine
 
 		void CreatePipeline::Update(
 			ECS2::Entity::Id entity0id,
-			const RenderDriver* renderDriver0,
-			const MainRenderPass* renderPass0,
+			const OksEngine::Render::PipelineDescription::Manager::Tag* render__PipelineDescription__Manager__Tag0,
+			const OksEngine::Render::PipelineDescription::Manager::Pipelines
+			* render__PipelineDescription__Manager__Pipelines0,
 
 			ECS2::Entity::Id entity1id,
-			const ResourceSystem* resourceSystem1) {
+			const OksEngine::RenderDriver* renderDriver1,
+			const OksEngine::Render::MainRenderPass* mainRenderPass1, ECS2::Entity::Id entity2id,
+			const OksEngine::ResourceSystem* resourceSystem2) {
 
-			Resources::ResourceData vertexTextureShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.vert");
-			Resources::ResourceData fragmentTextureShaderResource = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.frag");
+			auto pipelineIt = render__PipelineDescription__Manager__Pipelines0->nameToId_.find("TexturedRenderPipeline");
+
+			if (pipelineIt == render__PipelineDescription__Manager__Pipelines0->nameToId_.end()) {
+				return;
+			}
+			const ECS2::Entity::Id pipelineDescriptionEntityId = pipelineIt->second;
+			const ECS2::ComponentsFilter pipelineDescriptionCF = GetComponentsFilter(pipelineDescriptionEntityId);
+			//RAL::Driver::Pipeline::CI2 pipeline = RENDER__PIPELINEDESCRIPTION__CREATE_PIPELINE_CREATE_INFO(pipelineDescriptionEntityId, mainRenderPass1->rpId_);
+			RAL::Driver::Pipeline::CI2 pipeline = RENDER__PIPELINEDESCRIPTION__CREATE_PIPELINE_CREATE_INFO(pipelineDescriptionEntityId, mainRenderPass1->rpId_);
+			const RAL::Driver::Pipeline::Id pipelineId = renderDriver1->driver_->CreatePipeline(pipeline);
+
+			CreateComponent<Pipeline>(entity1id, pipelineId);
+
+
+			return;
+
+			Resources::ResourceData vertexTextureShaderResource = resourceSystem2->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.vert");
+			Resources::ResourceData fragmentTextureShaderResource = resourceSystem2->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.frag");
 
 			std::string vertexShaderCode{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
 			std::string fragmentShaderCode{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
@@ -2257,81 +2276,88 @@ namespace OksEngine
 				.type_ = RAL::Driver::Shader::Type::Vertex,
 				.code_ = vertexShaderCode
 			};
-			auto vertexShader = renderDriver0->driver_->CreateShader(vertexShaderCreateInfo);
+			auto vertexShader = renderDriver1->driver_->CreateShader(vertexShaderCreateInfo);
 
 			RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
 				.name_ = "TexturedFragmentShader",
 				.type_ = RAL::Driver::Shader::Type::Fragment,
 				.code_ = fragmentShaderCode
 			};
-			auto fragmentShader = renderDriver0->driver_->CreateShader(fragmentShaderCreateInfo);
+			auto fragmentShader = renderDriver1->driver_->CreateShader(fragmentShaderCreateInfo);
 
 			std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
 
 			RAL::Driver::Shader::Binding::Layout cameraBinding{
 				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
+				.type_ = RAL::Driver::Shader::Binding::Type::UniformBuffer,
 				.stage_ = RAL::Driver::Shader::Stage::VertexShader
 			};
 
 
 			RAL::Driver::Shader::Binding::Layout samplerBinding{
 				.binding_ = 0,
+				.resourcesCount_ = 4096,
 				.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
 				.stage_ = RAL::Driver::Shader::Stage::FragmentShader
 			};
 
 
-
-			RAL::Driver::Shader::Binding::Layout ModelEntityIdentifires{
+			RAL::Driver::Shader::Binding::Layout materialInfoBinding{
 				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				.type_ = RAL::Driver::Shader::Binding::Type::UniformBuffer,
+				.stage_ = RAL::Driver::Shader::Stage::FragmentShader
 			};
+
 
 			RAL::Driver::Shader::Binding::Layout ModelEntityIdsToComponentIndices{
 				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 				.stage_ = RAL::Driver::Shader::Stage::VertexShader
 			};
 
 			RAL::Driver::Shader::Binding::Layout ModelsNodeEntityIds{
 				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 				.stage_ = RAL::Driver::Shader::Stage::VertexShader
 			};
 
 			RAL::Driver::Shader::Binding::Layout ModelsNodeEntityIndices{
 				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 				.stage_ = RAL::Driver::Shader::Stage::VertexShader
 			};
 
 			RAL::Driver::Shader::Binding::Layout NodeEntityIdsToComponentIndices{
 				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 				.stage_ = RAL::Driver::Shader::Stage::VertexShader
 			};
 
 			RAL::Driver::Shader::Binding::Layout WorldPositions3D{
 				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 				.stage_ = RAL::Driver::Shader::Stage::VertexShader
 			};
 
 			RAL::Driver::Shader::Binding::Layout WorldRotations3D{
 				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 				.stage_ = RAL::Driver::Shader::Stage::VertexShader
 			};
 			RAL::Driver::Shader::Binding::Layout WorldScales3D{
 				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 				.stage_ = RAL::Driver::Shader::Stage::VertexShader
 			};
+			RAL::Driver::Shader::Binding::Layout ModelEntityIdentifires{
+				.binding_ = 0,
+				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+				.stage_ = RAL::Driver::Shader::Stage::VertexShader
+			};
+
 			shaderBindings.push_back(cameraBinding);					//set 0
 			shaderBindings.push_back(samplerBinding);					//set 1
-			shaderBindings.push_back(ModelEntityIdentifires);			//set 2
+			shaderBindings.push_back(materialInfoBinding);			//set 2
 			shaderBindings.push_back(ModelEntityIdsToComponentIndices);	//set 3
 			shaderBindings.push_back(ModelsNodeEntityIds);				//set 4
 			shaderBindings.push_back(ModelsNodeEntityIndices);			//set 5 
@@ -2339,7 +2365,7 @@ namespace OksEngine
 			shaderBindings.push_back(WorldPositions3D);					//set 7
 			shaderBindings.push_back(WorldRotations3D);					//set 8
 			shaderBindings.push_back(WorldScales3D);					//set 9
-
+			shaderBindings.push_back(ModelEntityIdentifires);
 			std::vector<RAL::Driver::PushConstant> pushConstants;
 			{
 				RAL::Driver::PushConstant pushConstant{
@@ -2358,7 +2384,7 @@ namespace OksEngine
 
 			RAL::Driver::Pipeline::CI pipelineCI{
 				.name_ = "Textured Pipeline",
-				.renderPassId_ = renderPass0->rpId_,
+				.renderPassId_ = mainRenderPass1->rpId_,
 				.vertexShader_ = vertexShader,
 				.fragmentShader_ = fragmentShader,
 				.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
@@ -2374,9 +2400,9 @@ namespace OksEngine
 
 			};
 
-			const RAL::Driver::Pipeline::Id pipelineId = renderDriver0->driver_->CreatePipeline(pipelineCI);
+			const RAL::Driver::Pipeline::Id deprecatedPipelineId = renderDriver1->driver_->CreatePipeline(pipelineCI);
 
-			CreateComponent<Pipeline>(entity0id, pipelineId);
+			CreateComponent<Pipeline>(entity1id, deprecatedPipelineId);
 
 		}
 
@@ -2799,42 +2825,42 @@ namespace OksEngine
 
 		RAL::Driver::Shader::Binding::Layout localPositionsBinding{
 			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
 		};
 		shaderBindings.push_back(localPositionsBinding);
 
 		RAL::Driver::Shader::Binding::Layout localRotationsBinding{
 			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
 		};
 		shaderBindings.push_back(localRotationsBinding);
 
 		RAL::Driver::Shader::Binding::Layout modelNodeAnimationStatesBinding{
 			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
 		};
 		shaderBindings.push_back(modelNodeAnimationStatesBinding);
 
 		RAL::Driver::Shader::Binding::Layout modelNodeAnimationsBinding{
 			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
 		};
 		shaderBindings.push_back(modelNodeAnimationsBinding);
 
 		RAL::Driver::Shader::Binding::Layout modelNodeDataEntityIdsBinding{
 			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
 		};
 		shaderBindings.push_back(modelNodeDataEntityIdsBinding);
 
 		RAL::Driver::Shader::Binding::Layout nodeDataEntityIdsToComponentIndicesBinding{
 			.binding_ = 0,
-			.type_ = RAL::Driver::Shader::Binding::Type::Storage,
+			.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
 			.stage_ = RAL::Driver::Shader::Stage::ComputeShader
 		};
 		shaderBindings.push_back(nodeDataEntityIdsToComponentIndicesBinding);
@@ -3195,7 +3221,7 @@ namespace OksEngine
 	void BeginRenderPass::Update(
 		ECS2::Entity::Id entity0id, RenderDriver* renderDriver0,
 		const Render::MainRenderPass* render__MainRenderPass0,
-		const Render::AttachmentSet* render__AttachmentSet0, const Render::Pipeline* render__Pipeline0) {
+		const Render::AttachmentSet* render__AttachmentSet0) {
 
 		auto driver = renderDriver0->driver_;
 
@@ -3428,7 +3454,7 @@ namespace OksEngine
 
 
 		driver->BindPipeline(render__Pipeline0->id_);
-
+		driver->SetViewport(0, 0, 2560, 1440);
 		for (Common::Index i = 0; i < meshEntitiesNumber; i++) {
 			if (meshEntitiesIds[i].IsValid()) {
 
@@ -3448,16 +3474,19 @@ namespace OksEngine
 					continue;
 				}
 				if (!meshComponentsFilter.IsSet <
-					Render::Material::EntityId/*,
-					Render::Material::NormalMap::Resource*/> ()) {
+					Render::Material::EntityId> ()) {
 					continue;
 				}
 
-				if (!IsComponentExist<Render::Material::ResourceSet>(materialEntityId->id_)) {
+				//TODO:: remove after full transfer to bindless textures.
+				if (!IsComponentExist<Render::Material::ResourceSet>(materialEntityId->id_) || !IsComponentExist<Render::Material::InfoResourceSet>(materialEntityId->id_)) {
 					continue;
 				}
 
+				//TODO:: remove after full transfer to bindless textures.
 				auto* materialResourceSet = GetComponent<Render::Material::ResourceSet>(materialEntityId->id_);
+
+				auto* materialInfoResourceSet = GetComponent<Render::Material::InfoResourceSet>(materialEntityId->id_);
 
 				driver->BindVertexBuffer(vertexBuffer->id_, 0);
 				driver->BindIndexBuffer(indexBuffer->id_, 0);
@@ -3465,8 +3494,8 @@ namespace OksEngine
 				driver->Bind(render__Pipeline0->id_, 0,
 					{
 						cameraTransformResource1->id_,												// set 0
-						materialResourceSet->id_,													// set 1
-						gPGPUECS__StorageBuffer__ModelEntityIds0->resourceSetId_,					// set 2 to get model ids from mesh
+						render__Material__ResourceSet_0->id_,										// set 1 RS with all material textures
+						materialInfoResourceSet->RSId_,												// set 2 material info resource set
 						gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->resourceSetId_, // set 3 to get model components index
 						gPGPUECS__StorageBuffer__ModelNodeEntityIds0->resourceSetId_,				// set 4 to get node ids that model contain
 						gPGPUECS__StorageBuffer__MeshNodeEntityIndices0->resourceSetId_,			// set 5
@@ -3474,6 +3503,7 @@ namespace OksEngine
 						gPGPUECS__StorageBuffer__WorldPositions3D0->resourceSetId_,					// set 7
 						gPGPUECS__StorageBuffer__WorldRotations3D0->resourceSetId_,					// set 8
 						gPGPUECS__StorageBuffer__WorldScales3D0->resourceSetId_,					// set 9
+						gPGPUECS__StorageBuffer__ModelEntityIds0->resourceSetId_					//set 10
 					});
 
 
@@ -3519,6 +3549,7 @@ namespace OksEngine
 			}
 			const ECS2::Entity::Id pipelineDescriptionEntityId = pipelineIt->second;
 			const ECS2::ComponentsFilter pipelineDescriptionCF = GetComponentsFilter(pipelineDescriptionEntityId);
+			//RAL::Driver::Pipeline::CI2 pipeline = RENDER__PIPELINEDESCRIPTION__CREATE_PIPELINE_CREATE_INFO(pipelineDescriptionEntityId, mainRenderPass1->rpId_);
 			RAL::Driver::Pipeline::CI2 pipeline = RENDER__PIPELINEDESCRIPTION__CREATE_PIPELINE_CREATE_INFO(pipelineDescriptionEntityId, mainRenderPass1->rpId_);
 			const RAL::Driver::Pipeline::Id pipelineId = renderDriver1->driver_->CreatePipeline(pipeline);
 
@@ -3851,8 +3882,10 @@ namespace OksEngine
 	}
 
 
-	void EndRenderPass::Update(ECS2::Entity::Id entity0id, RenderDriver* renderDriver0, const Render::MainRenderPass* renderPass0,
-		const Render::Pipeline* pipeline0) {
+	void EndRenderPass::Update(
+		ECS2::Entity::Id entity0id, 
+		RenderDriver* renderDriver0, 
+		const Render::MainRenderPass* renderPass0) {
 
 		auto driver = renderDriver0->driver_;
 

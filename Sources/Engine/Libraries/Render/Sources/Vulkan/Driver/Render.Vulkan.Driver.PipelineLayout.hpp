@@ -15,6 +15,8 @@ namespace Render::Vulkan {
 		struct CreateInfo {
 			std::shared_ptr<LogicDevice> LD_ = nullptr;
 			std::vector<VkPushConstantRange> pushConstants_;
+
+			//Index of element - descriptor set index.
 			std::vector<std::shared_ptr<DescriptorSetLayout>> descriptorSetLayouts_;
 		};
 
@@ -26,7 +28,13 @@ namespace Render::Vulkan {
 				pipelineLayoutInfo.setLayoutCount = static_cast<Common::UInt32>(createInfo.descriptorSetLayouts_.size()); // Optional
 				std::vector<VkDescriptorSetLayout> descriptorSetLayoutsHandles;
 				for (auto descriptorSetLayout : createInfo.descriptorSetLayouts_) {
-					descriptorSetLayoutsHandles.push_back(*descriptorSetLayout);
+
+					if (descriptorSetLayout != nullptr) {
+						descriptorSetLayoutsHandles.push_back(*descriptorSetLayout);
+					}
+					else {
+						descriptorSetLayoutsHandles.push_back(VK_NULL_HANDLE);
+					}
 				}
 				pipelineLayoutInfo.pSetLayouts = descriptorSetLayoutsHandles.data(); // Optional
 				pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)createInfo.pushConstants_.size(); // Optional

@@ -8,8 +8,8 @@ namespace OksEngine::Render::Shader {
 
 	inline RAL::Driver::Shader::Binding::Type ToRALType(ResourceType type) {
 		switch (type) {
-		case ResourceType::Uniform:          return RAL::Driver::Shader::Binding::Type::Uniform;
-		case ResourceType::Storage:          return RAL::Driver::Shader::Binding::Type::Storage;
+		case ResourceType::Uniform:          return RAL::Driver::Shader::Binding::Type::UniformBuffer;
+		case ResourceType::Storage:          return RAL::Driver::Shader::Binding::Type::StorageBuffer;
 		case ResourceType::Sampler:          return RAL::Driver::Shader::Binding::Type::Sampler;
 		case ResourceType::InputAttachment:  return RAL::Driver::Shader::Binding::Type::InputAttachment;
 		}

@@ -13,12 +13,14 @@ namespace Common {
 		using BitIndex = decltype(bitsNumber);
 		constexpr static inline BitIndex invalidIndex_ = -1;
 
-		void SetBit(BitIndex bitIndex) {
+		Bitset& SetBit(BitIndex bitIndex) {
 			childBitsets_[bitIndex / childBitsetSize].set(bitIndex % childBitsetSize);
+			return *this;
 		}
 
-		void ResetBit(BitIndex bitIndex) {
+		Bitset& ResetBit(BitIndex bitIndex) {
 			childBitsets_[bitIndex / childBitsetSize].reset(bitIndex % childBitsetSize);
+			return *this;
 		}
 
 		[[nodiscard]]
@@ -42,5 +44,8 @@ namespace Common {
 	private:
 		std::array<std::bitset<childBitsetSize>, bitsNumber / childBitsetSize> childBitsets_;
 	};
+
+	
+
 
 }

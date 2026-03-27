@@ -10,7 +10,7 @@ layout(set = 0, binding = 0) uniform Camera {
     mat4 proj;
 } camera;
 
-layout(std430, set = 2, binding = 0) buffer ModelEntityIdentifires{
+ layout(std430, set = 10, binding = 0) buffer ModelEntityIdentifires{
     ModelEntityIds meshModelIds_[];
 };
 

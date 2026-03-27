@@ -691,6 +691,15 @@ namespace Render::Vulkan {
 			OS::LogInfo("/render/vulkan/driver/", "Vulkan driver initialized successfuly.");
 		}
 
+		virtual Limits GetLimits() const noexcept override {
+			const VkPhysicalDeviceProperties vkProperties = objects_.physicalDevice_->GetProperties();
+
+			return Limits{
+				vkProperties.limits.maxDescriptorSetSampledImages,
+				vkProperties.limits.maxPerStageDescriptorSampledImages
+			};
+		}
+
 		std::shared_ptr<FrameContext> currentFrame_ = nullptr;
 		std::shared_ptr<ImageContext> image_ = nullptr;
 		std::shared_ptr<CommandBuffer> GCB_ = nullptr; // Graphics Command buffer
@@ -717,7 +726,7 @@ namespace Render::Vulkan {
 					VkDescriptorSetLayoutBinding vBinding{
 						binding.binding_,
 						ToVulkanType(binding.type_),
-						1,
+						binding.resourcesCount_,
 						static_cast<VkFlags>(ToVulkanType(binding.stage_)),
 						nullptr
 					};
@@ -820,21 +829,27 @@ namespace Render::Vulkan {
 
 			std::unordered_map<Common::UInt32, std::vector<VkDescriptorSetLayoutBinding>> setToBindings;
 
+			Common::UInt32 maxSetIndex = 0;
+
 			for (auto& binding : pipelineCI.shaderBindings_) {
 
 				VkDescriptorSetLayoutBinding vBinding{
 					binding.binding_,
 					ToVulkanType(binding.type_),
-					1,
+					binding.resourcesCount_,
 					static_cast<VkFlags>(ToVulkanType(binding.stage_)),
 					nullptr
 				};
 				setToBindings[binding.set_].push_back(vBinding);
+
+				maxSetIndex = std::max(maxSetIndex, binding.set_);
+
 			}
 
 			std::vector<std::shared_ptr<DescriptorSetLayout>> DSLs;
-			DSLs.resize(setToBindings.size());
-			//Index of array is descriptor set index
+			DSLs.resize(maxSetIndex + 1);
+
+			//Index of array is descriptor set index.
 			for (const auto& [set, bindings] : setToBindings) {
 
 				auto DSL = std::make_shared<DescriptorSetLayout>(
@@ -1442,11 +1457,7 @@ namespace Render::Vulkan {
 
 			for (Resource::Id resourceId : resourceIds) {
 				std::shared_ptr<Vulkan::Driver::ResourceSet> resource = resources_[resourceId];
-
-#pragma region Assert
 				ASSERT_FMSG(resource != nullptr, "Attempt to bind resource with incorrect id.");
-#pragma endregion
-
 				std::shared_ptr<DescriptorSet> ds = resource->dss_[currentFrame];
 				dss.push_back(ds);
 			}

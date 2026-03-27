@@ -13,12 +13,26 @@ RenderNamespace = {
         InfoStruct = {
             description = "",
             fields = {
-                { type = "Common::UInt32", name = "infoIndex", defaultValue = "0" },
                 { type = "Common::UInt32", name = "diffuseMapIndex", defaultValue = "0" },
                 { type = "Common::UInt32", name = "normalMapIndex", defaultValue = "0" },
                 { type = "Common::UInt32", name = "metallicMapIndex", defaultValue = "0" }
             }
         },
+        InfoResourceSetComponent = {
+            description = "",
+            serializable = false,
+            fields = {
+                { type = "RAL::Driver::UB::Id", name = "UBBId" },
+                { type = "RAL::Driver::ResourceSet::Id", name = "RSId" },
+            }
+        },
+        -- InfoBindingArrayIndexComponent = {
+        --     fields = {
+        --         { type = "Common::UInt32", name = "index" }
+        --     }
+        -- },
+        
+
         ResourceSet_Component = {
             description 
                 = [[Vulkan: resource set with all textures.\n
@@ -30,15 +44,15 @@ RenderNamespace = {
             bindable = false,
             fields = {
                 { type = "RAL::Driver::ResourceSet::Id", name = "id" },
-                { type = "RAL::Driver::SB::Id", name = "infosSBId" },
-                { type = "Common::Bitset<4096>", name = "infoBinding" },
+                -- { type = "RAL::Driver::SB::Id", name = "infosSBId" },
+                -- { type = "Common::Bitset<4096>", name = "infoBinding" },
                 { type = "Common::Bitset<4096>", name = "diffuseMapBinding" },
                 { type = "Common::Bitset<4096>", name = "normalMapBinding" },
                 { type = "Common::Bitset<4096>", name = "metallicMapBinding" },
 
             }
         },
-        CreateMaterialResourceSetSystem = {
+        CreateTexturesResourceSetSystem = {
             type = "Initialize",
             callOrder = {
                 runAfter = "CreateRenderDriver"
@@ -49,7 +63,9 @@ RenderNamespace = {
                         processesComponents = {
                             { name = "RenderDriver", readonly = false }
                         },
-                        excludes = { "Material::ResourceSet_" },
+                        excludes = { 
+                            "Material::ResourceSet_"
+                         },
                         createsComponents = {
                             "Material::ResourceSet_"
                         }
@@ -68,7 +84,7 @@ RenderNamespace = {
             }
         },
 
-        CreateResourceSetSystem = {
+        CreateInfoResourceSetSystem = {
             description = "All textures must be added in the frame when material entity created. Otherwise description set will be created without some textures.",
             updateMethod = {
                 processesEntities = {
@@ -82,17 +98,14 @@ RenderNamespace = {
                         processesComponents = {
                             "Material::Tag"
                         },
-                        --[[deprecated]]
-                        --Resource set per material 
                         excludes = {
-                            "Texture::BindingArrayIndex",
-                            "Material::ResourceSet"
+                            "Material::InfoResourceSet", -- Info per material
+                            "Material::ResourceSet"--Resource set per material 
                         },
                         createsComponents = {
-                            "Texture::BindingArrayIndex",
-                            "Material::ResourceSet"
+                            "Material::InfoResourceSet",-- Info per material
+                            "Material::ResourceSet"--Resource set per material 
                         }
-                        --[[deprecated]]
                     }
                 },
                 accessingEntities = {
@@ -108,7 +121,8 @@ RenderNamespace = {
         MaterialArchetype = {
             components = {
                 "Material::Tag",
-                "Material::ResourceSet",
+                "Material::ResourceSet", -- deprecated
+                "Material::InfoResourceSet",
                 "Texture::Type::DiffuseMap::EntityId",
                 "Texture::Type::NormalMap::EntityId",
                 "Texture::Type::MetallicMap::EntityId",

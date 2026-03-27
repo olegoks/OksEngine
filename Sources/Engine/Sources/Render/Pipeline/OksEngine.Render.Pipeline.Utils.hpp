@@ -60,6 +60,7 @@ namespace OksEngine::Render::PipelineDescription {
 						ecsBinding.name_,																																					\
 						ecsBinding.set_,																																					\
 						(Common::UInt32)ecsBinding.binding_,																																\
+						ecsBinding.count_,																																					\
 						Render::Shader::ToRALType(ecsBinding.resourceType_),																												\
 						shaderStage																																							\
 					));																																										\
@@ -149,6 +150,7 @@ RAL::Driver::Texture::Format stencilAttachmentFormat){																										
 						ecsBinding.name_,																																					\
 						ecsBinding.set_,																																					\
 						(Common::UInt32)ecsBinding.binding_,																																\
+						ecsBinding.count_,																																				\
 						Render::Shader::ToRALType(ecsBinding.resourceType_),																												\
 						shaderStage																																							\
 					));																																										\

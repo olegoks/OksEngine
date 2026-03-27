@@ -1,0 +1,43 @@
+
+scene = {
+    entities = {
+
+        {
+            ID = "ID:Render/Textured/VertexShader",
+            Name = { value = "Render/Textured/VertexShader" },
+            Render__Shader__Tag = {},
+            Render__Shader__Type__VertexShader = {},
+            Render__Shader__ResourcePath = { resourcePath = "resource:/Shaders/textured.vert" }
+        },
+        {
+            ID = "ID:Render/Textured/FragmentShader",
+            Name = { value = "Render/Textured/FragmentShader" },
+            Render__Shader__Tag = {},
+            Render__Shader__Type__FragmentShader = {},
+            Render__Shader__ResourcePath = { resourcePath = "resource:/Shaders/textured.frag" }
+        },
+        {
+            ID = "ID:scene/TexturedRenderPipeline",
+            Name = { value = "TexturedRenderPipeline" },
+            Render__PipelineDescription__Tag = { },
+            
+            Render__PipelineDescription__FragmentShader__EntityId = { id = "ID:Render/Textured/FragmentShader" },
+            Render__PipelineDescription__VertexShader__EntityId = { id = "ID:Render/Textured/VertexShader" },
+
+            Render__PipelineDescription__InputAssembler = {
+                vertexType = "VF3_NF3_TF2",
+                indexType = "UI32",
+                frontFace = "CounterClockwise",
+                cullMode = "Back"
+            },
+            Render__PipelineDescription__Multisampling = {
+                samplesCount = "SamplesCount_8"
+            },
+            Render__PipelineDescription__DepthTest = {
+                enable = true,
+                compareOperation = "Less"
+            }
+
+        }
+    }
+}

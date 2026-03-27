@@ -50,6 +50,7 @@ EditorNamespace = {
                         processesComponents = {
                             { name = "RenderDriver", readonly = false },
                             "Render::MainRenderPass",
+                            "Render::AttachmentSet",
                             "Pipeline"
                         }
                     },

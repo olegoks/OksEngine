@@ -95,11 +95,16 @@ namespace OksEngine
 		namespace InfiniteGrid
 		{
 			void AddToRender::Update(
-				ECS2::Entity::Id entity0id, RenderDriver* renderDriver0,
-				const Render::MainRenderPass* render__MainRenderPass0, const Pipeline* render__Pipeline0,
-				ECS2::Entity::Id entity1id, const Camera* camera1, const Direction3D* direction3D1,
-				const WorldPosition3D* worldPosition3D1, const Up3D* up3D1, const ZNear* zNear1, const ZFar* zFar1,
-				const Width* width1, const Height* height1, const Active* active1) {
+				ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0,
+				const OksEngine::Render::MainRenderPass* render__MainRenderPass0,
+				const OksEngine::Render::AttachmentSet* render__AttachmentSet0,
+				const OksEngine::Editor::InfiniteGrid::Pipeline* pipeline0,
+				
+				ECS2::Entity::Id entity1id,
+				const OksEngine::Camera* camera1, const OksEngine::Direction3D* direction3D1,
+				const OksEngine::WorldPosition3D* worldPosition3D1, const OksEngine::Up3D* up3D1,
+				const OksEngine::ZNear* zNear1, const OksEngine::ZFar* zFar1, const OksEngine::Width* width1,
+				const OksEngine::Height* height1, const OksEngine::Active* active1) {
 
 				const glm::mat4 view = glm::lookAt(
 					glm::vec3(worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_),
@@ -122,10 +127,10 @@ namespace OksEngine
 
 				auto driver = renderDriver0->driver_;
 
-				driver->BindPipeline(render__Pipeline0->id_);
+				driver->BindPipeline(pipeline0->id_);
 
 				driver->PushConstants(
-					render__Pipeline0->id_,
+					pipeline0->id_,
 					RAL::Driver::Shader::Stage::VertexShader,
 					sizeof(CameraPushConstant),
 					&cameraInfo);
