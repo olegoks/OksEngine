@@ -23,7 +23,6 @@ UpdateHierarchicalNodeDriverTransform3DSystem = {
 }
 
 
-
 BoneInverseBindPoseMatrixComponent = {
     serializable = false,
     fields = {
@@ -72,50 +71,6 @@ AnimationInProgressComponent = {
 PauseAnimationComponent = {
     serializable = false
 }
-
-
--- ProcessModelAnimationSystem = {
-
---     updateMethod = {
---         processesEntities = {
---             {
---                 processesComponents = {
---                     "Model",
---                     "ModelAnimations",
---                     "AnimationInProgress",
---                     "ChildModelNodeEntities"
---                 },
---                 removesComponents = {
---                     "AnimationInProgress"
---                 },
---                 -- Debug
---                 createsComponents = {
---                     "RunModelAnimation"
---                 }
---             },
---             {
---                 processesComponents = {
---                     "Clock",
---                     "TimeSinceEngineStart"
---                 }
---             }
---         },
---         accessingEntities = {
---             {
---                 accessingComponents = {
---                     "ModelNodeAnimation",
---                     "LocalPosition3D",
---                     "LocalRotation3D",
---                     "LocalScale3D",
---                     "ChildModelNodeEntities"
---                 },
---                 removesComponents = {
---                     "Animation::Model::Node::RunningState"
---                 }
---             }
---         }
---     }
--- }
 
 
 AiNamespace = {
