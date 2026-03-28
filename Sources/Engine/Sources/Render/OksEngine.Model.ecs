@@ -128,8 +128,8 @@ AiNamespace = {
                 },
                 {
                     processesComponents = {
-                        "Render::Model::Msh::MeshsController",
-                        { name = "Render::Model::Msh::MeshNameToEntity", readonly = false }
+                        "Render::Model::Mesh::MeshsController",
+                        { name = "Render::Model::Mesh::MeshNameToEntity", readonly = false }
                     }
                 },
                 {
@@ -148,7 +148,7 @@ AiNamespace = {
                     createsComponents = {
                         "Render::Model::Tag",
                         "Ai::Scene",
-                        "Render::Model::Msh::MeshNames"
+                        "Render::Model::Mesh::MeshNames"
                     }
                 },
                 {
@@ -161,9 +161,9 @@ AiNamespace = {
             createsEntities = {
                 {
                     createsComponents = {
-                        "Render::Model::Msh::Mesh",
+                        "Render::Model::Mesh::Tag",
                         "Name",
-                        "Render::Model::Msh::MeshNodes",
+                        "Render::Model::Mesh::MeshNodes",
                         "Vertices3D",
                         "Indices",
                         "Normals",
@@ -185,7 +185,7 @@ AiNamespace = {
                         "Render::Model::BoneNode",
                         "BoneInverseBindPoseMatrix",
                         "Render::Model::ChildModelNodeEntities",
-                        "Render::Model::Msh::MeshInfos",
+                        "Render::Model::Mesh::MeshInfos",
                         "Animation::Model::Node::Animations",
                         --"MeshEntities",
                         "LocalPosition3D",
@@ -416,8 +416,8 @@ RenderNamespace = {
                     {
                         processesComponents = {
                             "Render::Model::Tag",
-                            "Render::Model::Msh::MeshNames",
-                            { name = "Render::Model::Msh::MeshEntities", readonly = false }
+                            "Render::Model::Mesh::MeshNames",
+                            { name = "Render::Model::Mesh::MeshEntities", readonly = false }
                         },
                         excludes = {
                             "Render::Model::MeshsFound"
@@ -428,7 +428,7 @@ RenderNamespace = {
                     },
                     {
                         processesComponents = {
-                            "Render::Model::Msh::Mesh",
+                            "Render::Model::Mesh::Tag",
                             "Name",
                             { name = "Render::Model::ModelEntityIds", readonly = false }
                         }
@@ -521,8 +521,8 @@ RenderNamespace = {
             }
         },
 
-        MshNamespace = {
-            MeshComponent = {
+        MeshNamespace = {
+            TagComponent = {
                 serializable = false
             },
 
@@ -1277,8 +1277,8 @@ ModelArchetype = {
         "AnimationInProgress",
         "PauseAnimation",
         "Render::Model::ChildModelNodeEntities",
-        "Render::Model::Msh::MeshNames",
-        "Render::Model::Msh::MeshEntities",
+        "Render::Model::Mesh::MeshNames",
+        "Render::Model::Mesh::MeshEntities",
         "Render::Model::MeshsFound",
         "Render::Model::ModelDataEntityId",
 
@@ -1303,7 +1303,7 @@ Model_DataArchetype = {
 --Skeleton mesh
 MeshArchetype = {
     components = {
-        "Render::Model::Msh::Mesh",
+        "Render::Model::Mesh::Tag",
         "Name",
         "Render::Model::ModelName",
         "Render::Model::ModelEntityIds",

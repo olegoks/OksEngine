@@ -576,8 +576,8 @@ namespace OksEngine
 			Ai::Cache* ai__Cache0,
 
 			ECS2::Entity::Id entity1id,
-			const Render::Model::Msh::MeshsController* meshsController1,
-			Render::Model::Msh::MeshNameToEntity* meshNameToEntity1,
+			const Render::Model::Mesh::MeshsController* meshsController1,
+			Render::Model::Mesh::MeshNameToEntity* meshNameToEntity1,
 
 			ECS2::Entity::Id entity2id,
 			const ResourceSystem* resourceSystem2,
@@ -1693,7 +1693,7 @@ namespace OksEngine
 						//Create mesh info.
 						const ECS2::Entity::Id meshEntity = CreateEntity<MESH>();
 
-						CreateComponent<Render::Model::Msh::Mesh>(meshEntity);
+						CreateComponent<Render::Model::Mesh::Tag>(meshEntity);
 						CreateComponent<Name>(meshEntity, meshName);
 						CreateComponent<Render::Model::ModelName>(meshEntity, modelFile3->fileName_ + scene->mName.C_Str());
 						CreateComponent<Render::Model::ModelEntityIds>(meshEntity, std::array<ECS2::Entity::Id, Render::Model::MeshMaxModelsNumber>{ modelEntityId });
@@ -1709,8 +1709,8 @@ namespace OksEngine
 					}
 				}
 
-				CreateComponent<Render::Model::Msh::MeshNames>(modelEntityId, meshNames);
-				CreateComponent<Render::Model::Msh::MeshEntities>(modelEntityId, meshEntityIds);
+				CreateComponent<Render::Model::Mesh::MeshNames>(modelEntityId, meshNames);
+				CreateComponent<Render::Model::Mesh::MeshEntities>(modelEntityId, meshEntityIds);
 
 				Common::Size foundMeshsCount = 0;
 				for (Common::Index i = 0; i < meshEntityIds.size(); i++) {
@@ -1775,11 +1775,11 @@ namespace OksEngine
 		void FindModelMeshs::Update(
 			ECS2::Entity::Id entity0id,
 			const Model::Tag* model0,
-			const Render::Model::Msh::MeshNames* meshNames0,
-			Render::Model::Msh::MeshEntities* meshEntities0,
+			const Render::Model::Mesh::MeshNames* meshNames0,
+			Render::Model::Mesh::MeshEntities* meshEntities0,
 
 			ECS2::Entity::Id entity1id,
-			const Render::Model::Msh::Mesh* mesh1,
+			const Render::Model::Mesh::Tag* mesh1,
 			const Name* name1,
 			ModelEntityIds* modelEntityIds1) {
 
@@ -1830,7 +1830,7 @@ namespace OksEngine
 		}
 	}
 
-	namespace Render::Model::Msh {
+	namespace Render::Model::Mesh {
 		void CreateMeshsController::Update() {
 
 			const ECS2::Entity::Id meshsControllerEntity = CreateEntity();
