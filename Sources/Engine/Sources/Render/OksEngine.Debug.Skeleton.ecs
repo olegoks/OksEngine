@@ -60,7 +60,7 @@ CreateDebugDrawBonesPipelineSystem = {
 
 AddBoneVerticesSystem = {
     callOrder = {
-        runAfter = "Render::Mdl::ProcessModel"
+        runAfter = "Render::Model::ProcessModel"
     },
     updateMethod = {
         processesEntities = {
@@ -72,10 +72,10 @@ AddBoneVerticesSystem = {
             },
             {
                 processesComponents = {
-                    "Render::Mdl::BoneNode",
-                    "Render::Mdl::ModelNode",
+                    "Render::Model::BoneNode",
+                    "Render::Model::ModelNode",
                     "WorldPosition3D",
-                    "Render::Mdl::ChildModelNodeEntities"
+                    "Render::Model::ChildModelNodeEntities"
                 }
             },
                         --Move this entity in the begin because its singleton

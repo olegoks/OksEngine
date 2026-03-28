@@ -10,7 +10,7 @@ UpdateHierarchicalNodeDriverTransform3DSystem = {
                     { name = "DriverTransform3D", readonly = false }
                 },
                 excludes = {
-                    "Render::Mdl::BoneNode"
+                    "Render::Model::BoneNode"
                 }
             },
             {
@@ -173,8 +173,8 @@ AiNamespace = {
                 },
                 {
                     processesComponents = {
-                        "Render::Mdl::Msh::MeshsController",
-                        { name = "Render::Mdl::Msh::MeshNameToEntity", readonly = false }
+                        "Render::Model::Msh::MeshsController",
+                        { name = "Render::Model::Msh::MeshNameToEntity", readonly = false }
                     }
                 },
                 {
@@ -184,31 +184,31 @@ AiNamespace = {
                 },
                 {
                     processesComponents = {
-                        "Render::Mdl::ModelFile"
+                        "Render::Model::ModelFile"
                     },
                     excludes = {
-                        "Render::Mdl::Model",
+                        "Render::Model::Tag",
                         "Ai::Scene"
                     },
                     createsComponents = {
-                        "Render::Mdl::Model",
+                        "Render::Model::Tag",
                         "Ai::Scene",
-                        "Render::Mdl::Msh::MeshNames"
+                        "Render::Model::Msh::MeshNames"
                     }
                 },
                 {
                     processesComponents = {
-                        "Render::Mdl::DataController",
-                        { name = "Render::Mdl::ModelNameToModelDataEntityId", readonly = false }
+                        "Render::Model::DataController",
+                        { name = "Render::Model::ModelNameToModelDataEntityId", readonly = false }
                     }
                 }
             },
             createsEntities = {
                 {
                     createsComponents = {
-                        "Render::Mdl::Msh::Mesh",
+                        "Render::Model::Msh::Mesh",
                         "Name",
-                        "Render::Mdl::Msh::MeshNodes",
+                        "Render::Model::Msh::MeshNodes",
                         "Vertices3D",
                         "Indices",
                         "Normals",
@@ -221,17 +221,17 @@ AiNamespace = {
                 },
                 {
                     createsComponents = {
-                        "Render::Mdl::ModelNode",
-                        "Render::Mdl::ModelEntity",
-                        "Render::Mdl::ModelNodeEntityIds",
-                        "Render::Mdl::ModelNodeEntityIndices",
+                        "Render::Model::ModelNode",
+                        "Render::Model::ModelEntity",
+                        "Render::Model::ModelNodeEntityIds",
+                        "Render::Model::ModelNodeEntityIndices",
                         "Ai::Node",
                         --"Ai::Meshes",
-                        "Render::Mdl::BoneNode",
+                        "Render::Model::BoneNode",
                         "BoneInverseBindPoseMatrix",
-                        "Render::Mdl::ChildModelNodeEntities",
-                        "Render::Mdl::Msh::MeshInfos",
-                        "Animation::Mdl::Node::Animations",
+                        "Render::Model::ChildModelNodeEntities",
+                        "Render::Model::Msh::MeshInfos",
+                        "Animation::Model::Node::Animations",
                         --"MeshEntities",
                         "LocalPosition3D",
                         "LocalRotation3D",
@@ -248,7 +248,7 @@ AiNamespace = {
 RenderNamespace = {
 
 
-    MdlNamespace = {
+    ModelNamespace = {
         NodeArchetype = {
             components = {
                 "ModelNode",
@@ -263,12 +263,12 @@ RenderNamespace = {
                 "WorldScale3D",
                 "ChildModelNodeEntities",
                 "DebugText2D",
-                "Animation::Mdl::Node::RunningState",
+                "Animation::Model::Node::RunningState",
                 "ModelDataEntityId",
                 "ModelNodeDataEntityId"
             }
         },
-        ModelComponent = {
+        TagComponent = {
             serializable = false
         },
         ModelEntityComponent = {
@@ -427,7 +427,7 @@ RenderNamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
-                            "Model",
+                            "Model::Tag",
                             "ModelFile",
                             "ModelNodeEntityIds"
                         },
@@ -460,22 +460,22 @@ RenderNamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
-                            "Render::Mdl::Model",
-                            "Render::Mdl::Msh::MeshNames",
-                            { name = "Render::Mdl::Msh::MeshEntities", readonly = false }
+                            "Render::Model::Tag",
+                            "Render::Model::Msh::MeshNames",
+                            { name = "Render::Model::Msh::MeshEntities", readonly = false }
                         },
                         excludes = {
-                            "Render::Mdl::MeshsFound"
+                            "Render::Model::MeshsFound"
                         },
                         createsComponents = {
-                            "Render::Mdl::MeshsFound"
+                            "Render::Model::MeshsFound"
                         }
                     },
                     {
                         processesComponents = {
-                            "Render::Mdl::Msh::Mesh",
+                            "Render::Model::Msh::Mesh",
                             "Name",
-                            { name = "Render::Mdl::ModelEntityIds", readonly = false }
+                            { name = "Render::Model::ModelEntityIds", readonly = false }
                         }
                     }
                 }
@@ -501,11 +501,11 @@ RenderNamespace = {
                     },
                     {
                         processesComponents = {
-                            "Mdl::Model",
+                            "Model::Tag",
                             "WorldPosition3D",
                             "WorldRotation3D",
                             "WorldScale3D",
-                            "Mdl::ModelDataEntityId",
+                            "Model::ModelDataEntityId",
                             "ChildModelNodeEntities"
                         },
                         createsComponents = {
@@ -514,7 +514,7 @@ RenderNamespace = {
                         removesComponents = {
                             "RunModelAnimation",
                             "AnimationInProgress",
-                            "Animation::Mdl::Node::RunningState"
+                            "Animation::Model::Node::RunningState"
                         }
                     },
 
@@ -549,18 +549,18 @@ RenderNamespace = {
                             "WorldRotation3D",
                             "LocalScale3D",
                             "WorldScale3D",
-                            "Animation::Mdl::Node::RunningState",
+                            "Animation::Model::Node::RunningState",
                             "ChildModelNodeEntities"
                         },
                         removesComponents = {
-                            "Animation::Mdl::Node::RunningState"
+                            "Animation::Model::Node::RunningState"
                         },
                         createsComponents = {
-                            "Animation::Mdl::Node::RunningState"
+                            "Animation::Model::Node::RunningState"
                         }
                     },
                     {
-                        archetype = "Render::Mdl::Node",
+                        archetype = "Render::Model::Node",
                     },
                 }
             }
@@ -917,10 +917,10 @@ GPGPUECSNamespace = {
                 },
                 accessingEntities = {
                     {
-                        archetype = "Render::Mdl::Node",
+                        archetype = "Render::Model::Node",
                     },
                     {
-                        archetype = "Render::Mdl::Node_Data"
+                        archetype = "Render::Model::Node_Data"
                     },
                     {
                         archetype = "Model"
@@ -940,7 +940,7 @@ GPGPUECSNamespace = {
         WriteComponentsToGPU2System = {
             callOrder = {
                 runAfter = {
-                    "Render::Mdl::ProcessModel" },
+                    "Render::Model::ProcessModel" },
                 runBefore = "StartRender"
             },
             updateMethod = {
@@ -970,10 +970,10 @@ GPGPUECSNamespace = {
                 },
                 accessingEntities = {
                     {
-                        archetype = "Render::Mdl::Node",
+                        archetype = "Render::Model::Node",
                     },
                     {
-                        archetype = "Render::Mdl::Node_Data"
+                        archetype = "Render::Model::Node_Data"
                     },
                     {
                         archetype = "Model"
@@ -992,7 +992,7 @@ GPGPUECSNamespace = {
         WriteWorldPositions3DToGPUSystem = {
             callOrder = {
                 runAfter = {
-                    "Render::Mdl::ProcessModel" },
+                    "Render::Model::ProcessModel" },
                 runBefore = "StartRender"
             },
             updateMethod = {
@@ -1007,10 +1007,10 @@ GPGPUECSNamespace = {
                 --TODO: Remove unused archetypes
                 accessingEntities = {
                     {
-                        archetype = "Render::Mdl::Node",
+                        archetype = "Render::Model::Node",
                     },
                     {
-                        archetype = "Render::Mdl::Node_Data"
+                        archetype = "Render::Model::Node_Data"
                     },
                     {
                         archetype = "Model"
@@ -1029,7 +1029,7 @@ GPGPUECSNamespace = {
         WriteWorldRotations3DToGPUSystem = {
             callOrder = {
                 runAfter = {
-                    "Render::Mdl::ProcessModel" },
+                    "Render::Model::ProcessModel" },
                 runBefore = "StartRender"
             },
             updateMethod = {
@@ -1044,10 +1044,10 @@ GPGPUECSNamespace = {
                 --TODO: Remove unused archetypes
                 accessingEntities = {
                     {
-                        archetype = "Render::Mdl::Node",
+                        archetype = "Render::Model::Node",
                     },
                     {
-                        archetype = "Render::Mdl::Node_Data"
+                        archetype = "Render::Model::Node_Data"
                     },
                     {
                         archetype = "Model"
@@ -1105,7 +1105,7 @@ ComputeNamespace = {
     CalculateAnimationsSystem = {
         callOrder = {
             runAfter = { "GPGPUECS::StorageBuffer::WriteComponentsToGPU" },
-            runBefore = { "Render::Mdl::ProcessModel", "StartRender" }
+            runBefore = { "Render::Model::ProcessModel", "StartRender" }
         },
         updateMethod = {
             processesEntities = {
@@ -1115,10 +1115,10 @@ ComputeNamespace = {
                         "Pipeline",
                         "Animation::ModelNodeDataEntityIds",
                         "Animation::NodeDataEntityIdsToComponentIndices",
-                        "Animation::Mdl::Node::DriverAnimationsComponents",
-                        "Animation::Mdl::Node::AnimationsComponentsResource",
-                        "Animation::Mdl::Node::DriverRunningStates",
-                        "Animation::Mdl::Node::RunningStatesResource",
+                        "Animation::Model::Node::DriverAnimationsComponents",
+                        "Animation::Model::Node::AnimationsComponentsResource",
+                        "Animation::Model::Node::DriverRunningStates",
+                        "Animation::Model::Node::RunningStatesResource",
                         "Animation::DriverLocalPosition3DComponents",
                         "Animation::LocalPosition3DComponentsResource",
                         "Animation::DriverLocalRotation3DComponents",
@@ -1187,8 +1187,8 @@ AddModelToRenderSystem = {
             --         "DriverIndexBuffer",
             --         "DriverVertexBuffer",
             --         "Render::Material::DiffuseMap::Resource",
-            --         "Render::Mdl::ModelEntityIds",
-            --         "Render::Mdl::ModelNodeEntityIndices"
+            --         "Render::Model::ModelEntityIds",
+            --         "Render::Model::ModelNodeEntityIndices"
             --     },
             --     excludes = {
             --         "VertexBones"
@@ -1211,7 +1211,7 @@ AddModelToRenderSystem = {
             },
             {
                 accessingComponents = {
-                    "Render::Mdl::ModelNodeEntityIds"
+                    "Render::Model::ModelNodeEntityIds"
                 }
             },
             {
@@ -1266,10 +1266,10 @@ AddSkeletonModelToRenderSystem = {
         },
         accessingEntities = {
             -- {
-            --     archetype = "Render::Mdl::Node",
+            --     archetype = "Render::Model::Node",
             -- },
             -- {
-            --     archetype = "Render::Mdl::Node_Data"
+            --     archetype = "Render::Model::Node_Data"
             -- },
             -- {
             --     archetype = "Model"
@@ -1314,18 +1314,18 @@ ModelArchetype = {
         "WorldScale3D",
         "DriverTransform3D",
         "Transform3DResource",
-        "Render::Mdl::ModelFile",
-        "Render::Mdl::Model",
-        "Render::Mdl::ModelNodeEntityIds",
-        "Render::Mdl::BoneNodeEntities",
+        "Render::Model::ModelFile",
+        "Render::Model::Tag",
+        "Render::Model::ModelNodeEntityIds",
+        "Render::Model::BoneNodeEntities",
         "RunModelAnimation",
         "AnimationInProgress",
         "PauseAnimation",
-        "Render::Mdl::ChildModelNodeEntities",
-        "Render::Mdl::Msh::MeshNames",
-        "Render::Mdl::Msh::MeshEntities",
-        "Render::Mdl::MeshsFound",
-        "Render::Mdl::ModelDataEntityId",
+        "Render::Model::ChildModelNodeEntities",
+        "Render::Model::Msh::MeshNames",
+        "Render::Model::Msh::MeshEntities",
+        "Render::Model::MeshsFound",
+        "Render::Model::ModelDataEntityId",
 
     },
     -- --TEST component
@@ -1337,22 +1337,22 @@ ModelArchetype = {
 Model_DataArchetype = {
     components = {
         "Name",
-        "Render::Mdl::Model",
-        "Render::Mdl::BoneNodeEntities",
-        "Render::Mdl::ModelNodeEntityIds",
+        "Render::Model::Tag",
+        "Render::Model::BoneNodeEntities",
+        "Render::Model::ModelNodeEntityIds",
         "ModelAnimations",
-        "Render::Mdl::ChildModelNodeEntities",
+        "Render::Model::ChildModelNodeEntities",
     }
 }
 
 --Skeleton mesh
 MeshArchetype = {
     components = {
-        "Render::Mdl::Msh::Mesh",
+        "Render::Model::Msh::Mesh",
         "Name",
-        "Render::Mdl::ModelName",
-        "Render::Mdl::ModelEntityIds",
-        "Render::Mdl::ModelNodeEntityIndices",
+        "Render::Model::ModelName",
+        "Render::Model::ModelEntityIds",
+        "Render::Model::ModelNodeEntityIndices",
         "Vertices3D",
         "DriverVertexBuffer",
         "Indices",

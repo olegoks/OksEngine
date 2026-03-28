@@ -5,7 +5,7 @@ namespace OksEngine
 {
 void RigidBodyWorldPositionToModelWorldPositionMapper::Update(
     ECS2::Entity::Id entity0id, const Physics::RigidBodyEntityId *physics__RigidBodyEntityId0,
-    const Render::Mdl::ModelEntity *render__Mdl__ModelEntity0) {
+    const Render::Model::ModelEntity *render__Mdl__ModelEntity0) {
     
     const ECS2::ComponentsFilter rigidBodyFilter = GetComponentsFilter(physics__RigidBodyEntityId0->id_);
 
