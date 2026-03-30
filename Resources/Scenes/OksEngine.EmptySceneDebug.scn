@@ -79,7 +79,7 @@ scene = {
             {
                   ID = "ID:scene/test_level",--78,
                   Name = { value = "TestLevelGeom" },
-                  Render__Model__ModelEntity = { id = "ID:scene/test_level/model" },
+                  Render__Model__EntityId = { id = "ID:scene/test_level/model" },
                   Physics__RigidBodyEntityId = { id = "ID:scene/test_level/static_body" },
                   MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
@@ -91,7 +91,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__ModelFile = { fileName = "TestLevelGeom.glb" }
+                  Render__Model__File = { fileName = "TestLevelGeom.glb" }
             },
             {
                   ID = "ID:scene/test_level/static_body",
@@ -125,7 +125,7 @@ scene = {
             {
                   ID = 20,
                   Name = { value = "Truck" },
-                  Render__Model__ModelEntity = { id = 21 },
+                  Render__Model__EntityId = { id = 21 },
                   Physics__RigidBodyEntityId = { id = 96 },
                   MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
@@ -138,7 +138,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__ModelFile = { fileName = "Truck.glb" }
+                  Render__Model__File = { fileName = "Truck.glb" }
             },
             { -- BODY
                   ID = 96,
@@ -464,7 +464,7 @@ scene = {
             {
                   ID = 30,
                   Name = { value = "Truck" },
-                  Render__Model__ModelEntity = { id = 31 },
+                  Render__Model__EntityId = { id = 31 },
                   Physics__RigidBodyEntityId = { id = 97 },
                   MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
@@ -476,7 +476,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__ModelFile = { fileName = "TruckWheel.glb" }
+                  Render__Model__File = { fileName = "TruckWheel.glb" }
             },
             {
                   ID = 97,
@@ -746,7 +746,7 @@ scene = {
             {
                   ID = 34,
                   Name = { value = "Truck" },
-                  Render__Model__ModelEntity = { id = 35 },
+                  Render__Model__EntityId = { id = 35 },
                   Physics__RigidBodyEntityId = { id = 99 },
                   MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
@@ -758,7 +758,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__ModelFile = { fileName = "TruckWheel.glb" }
+                  Render__Model__File = { fileName = "TruckWheel.glb" }
             },
             --WHEEL FORWARD Left
 
@@ -1031,7 +1031,7 @@ scene = {
             {
                   ID = 37,
                   Name = { value = "Truck" },
-                  Render__Model__ModelEntity = { id = 38 },
+                  Render__Model__EntityId = { id = 38 },
                   Physics__RigidBodyEntityId = { id = 101 },
                   MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
@@ -1043,7 +1043,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__ModelFile = { fileName = "TruckWheel.glb" }
+                  Render__Model__File = { fileName = "TruckWheel.glb" }
             },
             { --WHEEL BACK Left
                   ID = 101,
@@ -1314,7 +1314,7 @@ scene = {
             {
                   ID = "ID:scene/truck",
                   Name = { value = "Truck" },
-                  Render__Model__ModelEntity = { id = "ID:scene/truck/truck_model" },
+                  Render__Model__EntityId = { id = "ID:scene/truck/truck_model" },
                   Physics__RigidBodyEntityId = { id = 103 },
                   MapRigidBodyWorldPositionToModelWorldPosition = {}
             },
@@ -1326,7 +1326,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__ModelFile = { fileName = "TruckWheel.glb" }
+                  Render__Model__File = { fileName = "TruckWheel.glb" }
             },
             { --WHEEL BACK RIGHT
                   ID = 103,
@@ -1641,7 +1641,7 @@ scene = {
                   Character__CharacterEntity = {},
                   Character__BindedCameraOffset = { x = 0.0, y = 2.0, z = 3.0 },
                   Character__BindedCameraEntityId = { id = 14 },
-                  Render__Model__ModelEntity = { id = "ID:scene/soldier/model" },
+                  Render__Model__EntityId = { id = "ID:scene/soldier/model" },
                   Physics__RigidBodyEntityId = { id = "ID:scene/soldier/capsule" },
                   Direction3D = { x = 0.0, y = 0.0, z = -1.0 },
                   Behaviour__ScriptName = { name = "TestGameObjectLogic.lua" },
@@ -1699,7 +1699,7 @@ scene = {
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
                   --runModelAnimation = { animationName = "Walk" },
-                  Render__Model__ModelFile = { fileName = "SoldierWithAnimation.glb" }
+                  Render__Model__File = { fileName = "SoldierWithAnimation.glb" }
             },
             {
                   ID = 14,

@@ -16,7 +16,7 @@ RigidBodyWorldPositionToModelWorldPositionMapperSystem = {
             {
                 processesComponents = { 
                     "Physics::RigidBodyEntityId", 
-                    "Render::Model::ModelEntity"
+                    "Render::Model::EntityId"
                 }
             }
         },

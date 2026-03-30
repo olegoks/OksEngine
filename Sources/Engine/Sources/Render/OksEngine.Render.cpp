@@ -342,7 +342,7 @@ namespace OksEngine
 
 			{
 				RAL::Driver::StorageBuffer::CreateInfo SBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::ModelEntityIds)
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::EntityIds)
 				};
 				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
 
@@ -354,7 +354,7 @@ namespace OksEngine
 				};
 				RAL::Driver::ResourceSet::Id SBResId = driver->CreateResource(storageBinding);
 
-				CreateComponent<GPGPUECS::StorageBuffer::ModelEntityIds>(driverEntityId, SBId, SBResId);
+				CreateComponent<GPGPUECS::StorageBuffer::EntityIds>(driverEntityId, SBId, SBResId);
 			}
 
 			{

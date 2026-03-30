@@ -12,7 +12,7 @@ TestGameObjectUpdater = {}
 
 function TestGameObjectUpdater:Update(object, deltaMs)
     local objectEntityId = object:GetIdValue()
-    local modelEntityId = ECSWorld:GetRender_Model_ModelEntity(objectEntityId)
+    local modelEntityId = ECSWorld:GetRender_Model_EntityId(objectEntityId)
     local rigidBodyEntityId = ECSWorld:GetPhysics_RigidBodyEntityId(objectEntityId)
     local rbEntityId = rigidBodyEntityId.id
     local addVelocityRequests = ECSWorld:GetPhysics_AddVelocityRequests(rbEntityId)
@@ -40,7 +40,7 @@ TestGameObjectInputProcessor = {}
 function TestGameObjectInputProcessor:ProcessKeyboardInput(object, Key, Event)
 
     local objectEntityId = object:GetIdValue()
-    local modelEntityId = ECSWorld:GetRender_Model_ModelEntity(objectEntityId)
+    local modelEntityId = ECSWorld:GetRender_Model_EntityId(objectEntityId)
     if Key == "MOVE_FORWARD" then
         if Event == "Pressed" then
             object.movingForward = true

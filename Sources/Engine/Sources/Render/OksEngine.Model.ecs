@@ -139,14 +139,15 @@ AiNamespace = {
                 },
                 {
                     processesComponents = {
-                        "Render::Model::ModelFile"
+                        "Render::Model::File"
                     },
                     excludes = {
-                        "Render::Model::Tag",
+                        --"Render::Model::Tag",
+                        "Render::Model::ModelDataEntityId",
                         "Ai::Scene"
                     },
                     createsComponents = {
-                        "Render::Model::Tag",
+                        --"Render::Model::Tag",
                         "Ai::Scene",
                         "Render::Model::Mesh::MeshNames"
                     }
@@ -177,7 +178,7 @@ AiNamespace = {
                 {
                     createsComponents = {
                         "Render::Model::ModelNode",
-                        "Render::Model::ModelEntity",
+                        "Render::Model::EntityId",
                         "Render::Model::ModelNodeEntityIds",
                         "Render::Model::ModelNodeEntityIndices",
                         "Ai::Node",
@@ -208,8 +209,8 @@ RenderNamespace = {
             components = {
                 "ModelNode",
                 "BoneNode",
-                "Name",
-                "ModelEntity",
+                "::Name",
+                "Model::EntityId",
                 "LocalPosition3D",
                 "WorldPosition3D",
                 "LocalRotation3D",
@@ -224,9 +225,8 @@ RenderNamespace = {
             }
         },
         TagComponent = {
-            serializable = false
         },
-        ModelEntityComponent = {
+        EntityIdComponent = {
             manualBindFunction = true,
             fields = {
                 { type = "ECS2::Entity::Id", name = "id" }
@@ -238,7 +238,7 @@ RenderNamespace = {
             value = "1024"
         },
 
-        ModelEntityIdsComponent = {
+        EntityIdsComponent = {
             bindable = false,
             serializable = false,
             fields = {
@@ -246,7 +246,7 @@ RenderNamespace = {
             }
         },
 
-        ModelNameComponent = {
+        NameComponent = {
             serializable = false,
             fields = {
                 { type = "std::string", name = "modelName" }
@@ -306,7 +306,7 @@ RenderNamespace = {
         },
 
 
-        ModelFileComponent = {
+        FileComponent = {
             fields = {
                 { type = "std::string", name = "fileName" } }
         },
@@ -319,8 +319,8 @@ RenderNamespace = {
         Node_DataArchetype = {
             components = {
                 "ModelNode",
-                "Name",
-                "ModelEntity",
+                "::Name",
+                "Model::EntityId",
                 "ChildModelNodeEntities",
                 "ModelDataEntityId", -- Data model entity id
                 "BoneNode",
@@ -383,7 +383,7 @@ RenderNamespace = {
                     {
                         processesComponents = {
                             "Model::Tag",
-                            "ModelFile",
+                            "File",
                             "ModelNodeEntityIds"
                         },
                         excludes = {
@@ -429,8 +429,8 @@ RenderNamespace = {
                     {
                         processesComponents = {
                             "Render::Model::Mesh::Tag",
-                            "Name",
-                            { name = "Render::Model::ModelEntityIds", readonly = false }
+                            "::Name",
+                            { name = "Render::Model::EntityIds", readonly = false }
                         }
                     }
                 }
@@ -860,7 +860,7 @@ GPGPUECSNamespace = {
                             "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
                             "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
                             "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
-                            "GPGPUECS::StorageBuffer::ModelEntityIds",
+                            "GPGPUECS::StorageBuffer::EntityIds",
                             "GPGPUECS::StorageBuffer::WorldPositions3D",
                             "GPGPUECS::StorageBuffer::WorldRotations3D",
                             "GPGPUECS::StorageBuffer::WorldScales3D",
@@ -908,7 +908,7 @@ GPGPUECSNamespace = {
                             "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
                             "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
                             "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
-                            "GPGPUECS::StorageBuffer::ModelEntityIds",
+                            "GPGPUECS::StorageBuffer::EntityIds",
                             "GPGPUECS::StorageBuffer::WorldPositions3D",
                             "GPGPUECS::StorageBuffer::WorldRotations3D",
                             "GPGPUECS::StorageBuffer::WorldScales3D",
@@ -1121,7 +1121,7 @@ AddModelToRenderSystem = {
                     "GPGPUECS::StorageBuffer::WorldPositions3D",
                     "GPGPUECS::StorageBuffer::WorldRotations3D",
                     "GPGPUECS::StorageBuffer::WorldScales3D",
-                    "GPGPUECS::StorageBuffer::ModelEntityIds",
+                    "GPGPUECS::StorageBuffer::EntityIds",
                     "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
                     "GPGPUECS::StorageBuffer::ModelNodeEntityIds",
                     "GPGPUECS::StorageBuffer::MeshNodeEntityIndices",
@@ -1196,7 +1196,7 @@ AddSkeletonModelToRenderSystem = {
                     "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
                     "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
                     "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
-                    "GPGPUECS::StorageBuffer::ModelEntityIds",
+                    "GPGPUECS::StorageBuffer::EntityIds",
                     "GPGPUECS::StorageBuffer::WorldPositions3D",
                     "GPGPUECS::StorageBuffer::WorldRotations3D",
                     "GPGPUECS::StorageBuffer::WorldScales3D",
@@ -1269,7 +1269,7 @@ ModelArchetype = {
         "WorldScale3D",
         "DriverTransform3D",
         "Transform3DResource",
-        "Render::Model::ModelFile",
+        "Render::Model::File",
         "Render::Model::Tag",
         "Render::Model::ModelNodeEntityIds",
         "Render::Model::BoneNodeEntities",
@@ -1305,8 +1305,8 @@ MeshArchetype = {
     components = {
         "Render::Model::Mesh::Tag",
         "Name",
-        "Render::Model::ModelName",
-        "Render::Model::ModelEntityIds",
+        "Render::Model::Name",
+        "Render::Model::EntityIds",
         "Render::Model::ModelNodeEntityIndices",
         "Vertices3D",
         "DriverVertexBuffer",

@@ -1,5 +1,6 @@
 #pragma once
 #include <Render\auto_OksEngine.Model.hpp>
+#include <Render\OksEngine.Model.Utils.hpp>
 
 #include <assimp/Importer.hpp>
 #include <assimp/scene.h>
@@ -8,8 +9,6 @@
 #include <stb_image.h>
 
 #include <glm/gtc/quaternion.hpp>
-
-
 
 //DEBUG
 #include <random>
@@ -25,116 +24,7 @@
 namespace OksEngine
 {
 
-
-	void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, AnimationInProgress* animationInProgress) {
-		ImGui::PushID(AnimationInProgress::GetTypeId());
-
-		ImGui::TextDisabled("Animation index %d", animationInProgress->animationIndex_);
-		ImGui::TextDisabled("Duration in ticks %f", animationInProgress->durationInTicks_);
-		ImGui::TextDisabled("Current tick %f", animationInProgress->currentTick_);
-		ImGui::TextDisabled("Ticks per second %f", animationInProgress->ticksPerSecond_);
-		ImGui::TextDisabled("Duration in seconds %f", animationInProgress->durationInTicks_ / animationInProgress->ticksPerSecond_);
-
-		//animationInProgress->durationInTicks_
-		double min = 0.0;
-		ImGui::SliderScalar("", ImGuiDataType_Double, &animationInProgress->currentTick_, &min, &animationInProgress->durationInTicks_, "%.3f");
-		//ImGui::SliderDouble("Scale", &scale, 1.0f, max_scale, "%.3f", ImGuiSliderFlags_Logarithmic);
-
-		ImGui::PopID();
-	}
-
-	void EditModelAnimations(std::shared_ptr<ECS2::World> ecsWorld, ModelAnimations* modelAnimations) {
-		ImGui::PushID(ModelAnimations::GetTypeId());
-		for (const auto& animation : modelAnimations->animations_) {
-			ImGui::Indent(20.f);
-			ImGui::TextDisabled("Animation name %s", animation.name_.c_str());
-			ImGui::TextDisabled("Duration in ticks %f", animation.durationInTicks_);
-			ImGui::TextDisabled("Ticks per second %f", animation.ticksPerSecond_);
-			ImGui::TextDisabled("Duration in seconds %f", animation.durationInTicks_ / animation.ticksPerSecond_);
-			ImGui::Unindent(20.f);
-			ImGui::Separator();
-		}
-		ImGui::PopID();
-	}
-
 	namespace Render::Model {
-		void EditModelNodeEntityIds(std::shared_ptr<ECS2::World> ecsWorld, Render::Model::ModelNodeEntityIds* modelNodeEntityIds) {
-			ImGui::PushID(Render::Model::ChildModelNodeEntities::GetTypeId());
-			for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeEntityIds_) {
-				if (modelNodeEntityId.IsInvalid()) {
-					const std::string idString = std::to_string(modelNodeEntityId);
-					ImGui::TextDisabled(idString.c_str());
-					continue;
-				}
-				ImGui::Indent(20.f);
-				EditEntity(ecsWorld, modelNodeEntityId);
-				ImGui::Unindent(20.0f);
-			}
-			ImGui::PopID();
-		}
-		void EditModelNodeEntityIndices(std::shared_ptr<ECS2::World> ecsWorld, ModelNodeEntityIndices* modelNodeEntityIndices) {
-			ImGui::PushID(Render::Model::ModelNodeEntityIndices::GetTypeId());
-
-			//auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);
-			//nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
-
-			auto firstInvalidIndexIt = std::find(
-				modelNodeEntityIndices->nodeEntityIndices_.begin(),
-				modelNodeEntityIndices->nodeEntityIndices_.end(), 
-				Common::Limits<Common::UInt64>::Max());
-
-			Common::UInt64 firstInvalidIndexIndex = 
-				(firstInvalidIndexIt != modelNodeEntityIndices->nodeEntityIndices_.end()) 
-				? (std::distance(modelNodeEntityIndices->nodeEntityIndices_.begin(), firstInvalidIndexIt)) 
-				: modelNodeEntityIndices->nodeEntityIndices_.max_size();
-
-			ImGui::Begin("Mesh node indices.");
-			for (int i = 0; i < firstInvalidIndexIndex; i++) {
-				ImGui::Text("Index %d", i, modelNodeEntityIndices->nodeEntityIndices_[i]);
-			}
-			ImGui::End();
-
-			ImGui::PopID();
-		}
-	}
-
-	void BindModelAnimations(::Lua::Context& context) {
-		context.GetGlobalNamespace()
-			.beginClass<ModelAnimations>("ModelAnimations")
-			.addFunction("GetAnimationsNumber", [](const ModelAnimations* modelAnimations) {
-			ASSERT(!modelAnimations->animations_.empty());
-			return modelAnimations->animations_.size();
-				})
-			.addFunction("GetAnimationName", [](const ModelAnimations* modelAnimations, Common::UInt64 animationIndex) {
-			ASSERT(animationIndex < modelAnimations->animations_.size());
-			return modelAnimations->animations_[animationIndex];
-				})
-			.endClass();
-	}
-
-	void BindRunModelAnimation(::Lua::Context& context) {
-		context.GetGlobalNamespace()
-			.beginClass<RunModelAnimation>("RunModelAnimation")
-			.endClass();
-	}
-	namespace Render::Model {
-
-		void BindModelEntity(::Lua::Context& context)
-		{
-
-			context.GetGlobalNamespace()
-				.beginClass<ModelEntity>("Render_Mdl_ModelEntity")
-				.addProperty("id",
-					[](const ModelEntity* modelEntity) {
-						return modelEntity->id_.GetRawValue();
-					},
-					[](ModelEntity* modelEntity, ECS2::Entity::Id::ValueType value) {
-						return modelEntity->id_ = value;
-					}
-				)
-				.endClass();
-		};
-
 
 		void ProcessModel::Update(
 
@@ -583,7 +473,7 @@ namespace OksEngine
 			const ResourceSystem* resourceSystem2,
 
 			ECS2::Entity::Id entity3id,
-			const Render::Model::ModelFile* modelFile3,
+			const Render::Model::File* modelFile3,
 
 			ECS2::Entity::Id entity4id,
 			const Render::Model::DataController* render__Model__Data__DataController4,
@@ -604,24 +494,6 @@ namespace OksEngine
 
 				nodeName = modelFile3->fileName_ + "/" + scene->mName.C_Str() + "/" + nodeName;
 				return nodeName;
-				};
-
-
-			auto aiMatrixToGlmMatrix = [](const aiMatrix4x4& aiMatrix) {
-
-				aiVector3D position3D;
-				aiQuaternion rotation3D;
-				aiVector3D scale3D;
-				aiMatrix4x4 flipYtoZ;
-				aiMatrix.Decompose(scale3D, rotation3D, position3D);
-
-				const glm::mat4 translateMatrix = glm::mat4{ glm::translate(glm::vec3(position3D.x, position3D.y, position3D.z)) };
-				const glm::mat4 rotationMatrix = glm::toMat4(glm::quat{ rotation3D.w, rotation3D.x, rotation3D.y, rotation3D.z });;
-				const glm::mat4 scaleMatrix = glm::scale(glm::vec3(scale3D.x, scale3D.y, scale3D.z));
-
-				glm::mat4 transform = glm::mat4{ 1 }  *translateMatrix * rotationMatrix * scaleMatrix;
-
-				return transform;
 				};
 
 
@@ -673,7 +545,7 @@ namespace OksEngine
 				scene = readScene;
 			}
 
-			CreateComponent<Render::Model::Tag>(modelEntityId);
+			//CreateComponent<Render::Model::Tag>(modelEntityId);
 
 
 			//Get bone node names.
@@ -1332,7 +1204,7 @@ namespace OksEngine
 					if (std::ranges::find(boneNames, node->mName.C_Str()) != boneNames.end()) {
 
 						const aiBone* bone = nameToBone[node->mName.C_Str()];
-						glm::mat4 transform = aiMatrixToGlmMatrix(bone->mOffsetMatrix);
+						glm::mat4 transform = Render::Model::AssimpToGlmMatrix(bone->mOffsetMatrix);
 
 						CreateComponent<Render::Model::BoneNode>(nodeEntityId);
 
@@ -1355,7 +1227,7 @@ namespace OksEngine
 
 					CreateComponent<Render::Model::ModelNode>(nodeEntityId);
 					CreateComponent<Name>(nodeEntityId, getNodeFullName(scene, node));
-					CreateComponent<Render::Model::ModelEntity>(nodeEntityId, modelEntityId);
+					CreateComponent<Render::Model::EntityId>(nodeEntityId, modelEntityId);
 
 					createNodeComponents(scene, node, nodeEntityId);
 
@@ -1685,7 +1557,6 @@ namespace OksEngine
 					auto it = meshNameToEntity1->meshNameToEntityId_.find(meshName);
 
 					if (it != meshNameToEntity1->meshNameToEntityId_.end()) {
-
 						continue;
 					}
 
@@ -1695,8 +1566,8 @@ namespace OksEngine
 
 						CreateComponent<Render::Model::Mesh::Tag>(meshEntity);
 						CreateComponent<Name>(meshEntity, meshName);
-						CreateComponent<Render::Model::ModelName>(meshEntity, modelFile3->fileName_ + scene->mName.C_Str());
-						CreateComponent<Render::Model::ModelEntityIds>(meshEntity, std::array<ECS2::Entity::Id, Render::Model::MeshMaxModelsNumber>{ modelEntityId });
+						CreateComponent<Render::Model::Name>(meshEntity, modelFile3->fileName_ + scene->mName.C_Str());
+						CreateComponent<Render::Model::EntityIds>(meshEntity, std::array<ECS2::Entity::Id, Render::Model::MeshMaxModelsNumber>{ modelEntityId });
 
 						createMeshComponents(scene, mesh, meshEntity);
 
@@ -1743,7 +1614,7 @@ namespace OksEngine
 		void FindModelData::Update(
 			ECS2::Entity::Id entity0id,
 			const Model::Tag* model0,
-			const ModelFile* modelFile0,
+			const File* modelFile0,
 			const ModelNodeEntityIds* modelNodeEntityIds0,
 
 			ECS2::Entity::Id entity1id,
@@ -1773,42 +1644,42 @@ namespace OksEngine
 
 
 		void FindModelMeshs::Update(
-			ECS2::Entity::Id entity0id,
-			const Model::Tag* model0,
-			const Render::Model::Mesh::MeshNames* meshNames0,
-			Render::Model::Mesh::MeshEntities* meshEntities0,
+			ECS2::Entity::Id entity0id, 
+			const OksEngine::Render::Model::Tag* render__Model__Tag0,
+			const OksEngine::Render::Model::Mesh::MeshNames* render__Model__Mesh__MeshNames0,
+			OksEngine::Render::Model::Mesh::MeshEntities* render__Model__Mesh__MeshEntities0,
 
 			ECS2::Entity::Id entity1id,
-			const Render::Model::Mesh::Tag* mesh1,
-			const Name* name1,
-			ModelEntityIds* modelEntityIds1) {
+			const OksEngine::Render::Model::Mesh::Tag* render__Model__Mesh__Tag1,
+			const OksEngine::Name* __Name1,
+			OksEngine::Render::Model::EntityIds* render__Model__EntityIds1) {
 
 			const ECS2::Entity::Id& modelEntityId = entity0id;
 			const ECS2::Entity::Id& meshEntityId = entity1id;
 
-			ASSERT(meshNames0->meshNames_.size() == meshEntities0->meshEntityIds_.size());
+			ASSERT(render__Model__Mesh__MeshNames0->meshNames_.size() == render__Model__Mesh__MeshEntities0->meshEntityIds_.size());
 
 
 			if (
 				std::find(
-					meshEntities0->meshEntityIds_.begin(),
-					meshEntities0->meshEntityIds_.end(),
-					ECS2::Entity::Id::invalid_) == meshEntities0->meshEntityIds_.end()) {
+					render__Model__Mesh__MeshEntities0->meshEntityIds_.begin(),
+					render__Model__Mesh__MeshEntities0->meshEntityIds_.end(),
+					ECS2::Entity::Id::invalid_) == render__Model__Mesh__MeshEntities0->meshEntityIds_.end()) {
 
 				//Skip models that already have all required meshs
 				return;
 			}
 
-			for (Common::Index i = 0; i < meshNames0->meshNames_.size(); i++) {
+			for (Common::Index i = 0; i < render__Model__Mesh__MeshNames0->meshNames_.size(); i++) {
 				if (
-					meshEntities0->meshEntityIds_[i].IsInvalid() &&
-					meshNames0->meshNames_[i] == name1->value_) {
-					meshEntities0->meshEntityIds_[i] = meshEntityId;
+					render__Model__Mesh__MeshEntities0->meshEntityIds_[i].IsInvalid() &&
+					render__Model__Mesh__MeshNames0->meshNames_[i] == __Name1->value_) {
+					render__Model__Mesh__MeshEntities0->meshEntityIds_[i] = meshEntityId;
 
 					bool isFoundFreeCell = false;
-					for (Common::Index j = 0; j < modelEntityIds1->modelEntityIds_.max_size(); j++) {
-						if (modelEntityIds1->modelEntityIds_[j].IsInvalid()) {
-							modelEntityIds1->modelEntityIds_[j] = modelEntityId;
+					for (Common::Index j = 0; j < render__Model__EntityIds1->modelEntityIds_.max_size(); j++) {
+						if (render__Model__EntityIds1->modelEntityIds_[j].IsInvalid()) {
+							render__Model__EntityIds1->modelEntityIds_[j] = modelEntityId;
 							isFoundFreeCell = true;
 							break;
 						}
@@ -1819,9 +1690,9 @@ namespace OksEngine
 			}
 			if (
 				std::find(
-					meshEntities0->meshEntityIds_.begin(),
-					meshEntities0->meshEntityIds_.end(),
-					ECS2::Entity::Id::invalid_) == meshEntities0->meshEntityIds_.end()) {
+					render__Model__Mesh__MeshEntities0->meshEntityIds_.begin(),
+					render__Model__Mesh__MeshEntities0->meshEntityIds_.end(),
+					ECS2::Entity::Id::invalid_) == render__Model__Mesh__MeshEntities0->meshEntityIds_.end()) {
 
 				ASSERT(!IsComponentExist<MeshsFound>(modelEntityId));
 
@@ -2412,7 +2283,7 @@ namespace OksEngine
 		* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
 		const GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices
 		* gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0,
-		const GPGPUECS::StorageBuffer::ModelEntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
+		const GPGPUECS::StorageBuffer::EntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
 		const GPGPUECS::StorageBuffer::WorldPositions3D* gPGPUECS__StorageBuffer__WorldPositions3D0,
 		const GPGPUECS::StorageBuffer::WorldRotations3D* gPGPUECS__StorageBuffer__WorldRotations3D0,
 		const GPGPUECS::StorageBuffer::WorldScales3D* gPGPUECS__StorageBuffer__WorldScales3D0,
@@ -2545,7 +2416,7 @@ namespace OksEngine
 		auto meshComponents = GetComponents<MESH>();
 		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
-		auto* meshModelEntityIds = std::get<Render::Model::ModelEntityIds*>(meshComponents);
+		auto* meshModelEntityIds = std::get<Render::Model::EntityIds*>(meshComponents);
 		auto* meshModelEntityIndices = std::get<Render::Model::ModelNodeEntityIndices*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
 		//auto* meshMaterialEntityIds = std::get<Render::Material::EntityId*>(meshComponents);
@@ -2559,7 +2430,7 @@ namespace OksEngine
 				gPGPUECS__StorageBuffer__ModelEntityIds0->sbid_,
 				0,
 				meshModelEntityIds,
-				meshEntitiesNumber * sizeof(Render::Model::ModelEntityIds));
+				meshEntitiesNumber * sizeof(Render::Model::EntityIds));
 
 			driver->StorageBufferWrite(
 				gPGPUECS__StorageBuffer__MeshNodeEntityIndices0->sbid_,
@@ -2581,7 +2452,7 @@ namespace OksEngine
 		* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
 		const GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices
 		* gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0,
-		const GPGPUECS::StorageBuffer::ModelEntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
+		const GPGPUECS::StorageBuffer::EntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
 		const GPGPUECS::StorageBuffer::WorldPositions3D* gPGPUECS__StorageBuffer__WorldPositions3D0,
 		const GPGPUECS::StorageBuffer::WorldRotations3D* gPGPUECS__StorageBuffer__WorldRotations3D0,
 		const GPGPUECS::StorageBuffer::WorldScales3D* gPGPUECS__StorageBuffer__WorldScales3D0,
@@ -2715,7 +2586,7 @@ namespace OksEngine
 		auto meshComponents = GetComponents<MESH>();
 		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
-		auto* meshModelEntityIds = std::get<Render::Model::ModelEntityIds*>(meshComponents);
+		auto* meshModelEntityIds = std::get<Render::Model::EntityIds*>(meshComponents);
 		auto* meshModelEntityIndices = std::get<Render::Model::ModelNodeEntityIndices*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
 		//auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
@@ -2729,7 +2600,7 @@ namespace OksEngine
 				gPGPUECS__StorageBuffer__ModelEntityIds0->sbid_,
 				0,
 				meshModelEntityIds,
-				meshEntitiesNumber * sizeof(Render::Model::ModelEntityIds));
+				meshEntitiesNumber * sizeof(Render::Model::EntityIds));
 
 			driver->StorageBufferWrite(
 				gPGPUECS__StorageBuffer__MeshNodeEntityIndices0->sbid_,
@@ -3393,7 +3264,7 @@ namespace OksEngine
 		const OksEngine::GPGPUECS::StorageBuffer::WorldPositions3D* gPGPUECS__StorageBuffer__WorldPositions3D0,
 		const OksEngine::GPGPUECS::StorageBuffer::WorldRotations3D* gPGPUECS__StorageBuffer__WorldRotations3D0,
 		const OksEngine::GPGPUECS::StorageBuffer::WorldScales3D* gPGPUECS__StorageBuffer__WorldScales3D0,
-		const OksEngine::GPGPUECS::StorageBuffer::ModelEntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
+		const OksEngine::GPGPUECS::StorageBuffer::EntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
 		const OksEngine::GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices
 		* gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0,
 		const OksEngine::GPGPUECS::StorageBuffer::ModelNodeEntityIds* gPGPUECS__StorageBuffer__ModelNodeEntityIds0,
@@ -3432,7 +3303,7 @@ namespace OksEngine
 		auto meshComponents = GetComponents<MESH>();
 		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
-		auto* meshModelEntityIds = std::get<Render::Model::ModelEntityIds*>(meshComponents);
+		auto* meshModelEntityIds = std::get<Render::Model::EntityIds*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
 		auto* meshMaterialEntityIds = std::get<Render::Material::EntityId*>(meshComponents);
 		//auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
@@ -3721,7 +3592,7 @@ namespace OksEngine
 		* gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0,
 		const GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices
 		* gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0,
-		const GPGPUECS::StorageBuffer::ModelEntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
+		const GPGPUECS::StorageBuffer::EntityIds* gPGPUECS__StorageBuffer__ModelEntityIds0,
 		const GPGPUECS::StorageBuffer::WorldPositions3D* gPGPUECS__StorageBuffer__WorldPositions3D0,
 		const GPGPUECS::StorageBuffer::WorldRotations3D* gPGPUECS__StorageBuffer__WorldRotations3D0,
 		const GPGPUECS::StorageBuffer::WorldScales3D* gPGPUECS__StorageBuffer__WorldScales3D0,
@@ -3767,7 +3638,7 @@ namespace OksEngine
 		auto meshComponents = GetComponents<MESH>();
 		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
-		auto* meshModelEntityIds = std::get<Render::Model::ModelEntityIds*>(meshComponents);
+		auto* meshModelEntityIds = std::get<Render::Model::EntityIds*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
 		auto* meshMaterialEntityIds = std::get<Render::Material::EntityId*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
@@ -3798,7 +3669,7 @@ namespace OksEngine
 					DriverVertexBuffer,
 					DriverIndexBuffer,
 					Render::Material::EntityId,
-					Render::Model::ModelEntityIds,
+					Render::Model::EntityIds,
 					VertexBones,
 					Indices>()) {
 					continue;
