@@ -177,6 +177,69 @@ namespace OksEngine
 					}
 
 					for (auto& [entityLuaRef, newEntityId] : entityLuaRefNewIds) {
+
+						for (luabridge::Iterator componentIt(entityLuaRef); !componentIt.isNil(); ++componentIt) {
+							std::string fieldName = componentIt.key().tostring();
+
+							ASSERT_FMSG(allowedSceneComponents.contains(fieldName), 
+								"Scene: {}. Unknown scene entity component name {}. " 
+								"Maybe you changed component name in .ecs and you must update this in .scn files."
+								"Maybe you mean: {}",
+								scene__Manager__Request__LoadScene1->sceneName_,
+								fieldName, [&fieldName]() ->std::string {
+								
+									std::string target = fieldName;
+									AI_GENERATED
+									// Функция вычисления расстояния Левенштейна (итеративная версия)
+
+									
+									// Поиск строки с минимальным расстоянием
+									auto it = std::min_element(allowedSceneComponents.begin(), allowedSceneComponents.end(),
+										[target](const std::string& a, const std::string& b) {
+
+											auto levenshteinDistance = [](const std::string& s1, const std::string& s2) ->size_t {
+												const size_t m = s1.size();
+												const size_t n = s2.size();
+
+												// Если одна из строк пустая, расстояние равно длине другой
+												if (m == 0) return n;
+												if (n == 0) return m;
+
+												std::vector<size_t> prev(n + 1);
+												std::vector<size_t> curr(n + 1);
+
+												for (size_t j = 0; j <= n; ++j)
+													prev[j] = j;
+
+												for (size_t i = 1; i <= m; ++i) {
+													curr[0] = i;
+													for (size_t j = 1; j <= n; ++j) {
+														if (s1[i - 1] == s2[j - 1])
+															curr[j] = prev[j - 1];
+														else
+															curr[j] = 1 + std::min({ prev[j], curr[j - 1], prev[j - 1] });
+													}
+													std::swap(prev, curr);
+												}
+												return prev[n];
+												};
+
+
+											return levenshteinDistance(a, target) < levenshteinDistance(b, target);
+										});
+
+									if (it != allowedSceneComponents.end()) {
+										return *it;
+										/*std::cout << "Most similar: " << *it
+											<< " (distance = " << levenshteinDistance(*it, target) << ")\n";*/
+									}
+
+									return "<not_found>";
+								
+								}());
+
+						}
+
 						ParseEntity(world_, entityLuaRef, newEntityId, oldToNewId);
 					}
 

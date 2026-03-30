@@ -847,6 +847,8 @@ namespace ECSGenerator2 {
 				"	return oldToNewId.at(oldId);\n"
 				"};");
 
+			std::vector<std::string> allAllowedNames{ "ID", "ARCHETYPE" };
+
 			for (auto ecsFile : ecsFiles) {
 
 				//New generation.
@@ -882,6 +884,12 @@ namespace ECSGenerator2 {
 							code.Add("using namespace {};", fullNamespace);
 						}
 
+
+						std::string lowerFullName = component->GetFullName();
+						lowerFullName = std::regex_replace(lowerFullName, std::regex("::"), "__");
+
+						allAllowedNames.push_back(lowerFullName);
+
 						code.Add(generateParseComponentCode(component));
 						code.Add("}");
 
@@ -916,9 +924,29 @@ namespace ECSGenerator2 {
 
 			auto editEntityFunctionObject = std::make_shared<CodeStructure::Function>(editEntityFunction);
 
-			//namespaceObject->Add(generateParseEntityFunctionRealization(allParsedComponents));
-			namespaceObject->Add(editEntityFunctionObject);
+			CodeStructure::Variable::CreateInfo allowedSceneComponentsVariable{
+				.type_ = "std::set<std::string>",
+				.name_ = "allowedSceneComponents",
+				.initValue_ = [&allAllowedNames]() -> std::string {
+					std::string value;
+					for (Common::Index i = 0; i < allAllowedNames.size(); i++) {
+						value += "\"" + allAllowedNames[i] + "\"";
+						if (i != allAllowedNames.size() - 1) { value += ",\n"; }
+					}
+					return value;
+				} (),
+				.isStatic_ = true,
+				.isInline_ = true
+			};
 
+			auto allowedSceneComponentsVariableObject = std::make_shared<CodeStructure::Variable>(allowedSceneComponentsVariable);
+
+
+			//namespaceObject->Add(generateParseEntityFunctionRealization(allParsedComponents));
+			namespaceObject->Add(allowedSceneComponentsVariableObject);
+
+			namespaceObject->Add(editEntityFunctionObject);
+			
 			CodeStructure::File::Includes includes{ };
 			includes.paths_.insert("ECS2.World.hpp");
 			includes.paths_.insert("OksEngine.ECS.hpp");

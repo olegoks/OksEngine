@@ -153,7 +153,12 @@ namespace ECSGenerator2 {
 
 		CodeStructure::Code GenerateECSCXXFilesStructure(std::shared_ptr<CodeStructure::Variable> variableObject) {
 			CodeStructure::Code code;
+			if (variableObject->ci_.isStatic_) {
+				Common::BreakPointLine();
+			}
 			code.Add(
+				((variableObject->ci_.isStatic_) ? (std::string{ "static " }) : (std::string{ "" })) +
+				((variableObject->ci_.isInline_) ? (std::string{ "inline " }) : (std::string{ "" })) +
 				variableObject->ci_.type_ +
 				" " +
 				variableObject->ci_.name_ +

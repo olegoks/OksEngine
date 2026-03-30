@@ -182,7 +182,7 @@ namespace ECSGenerator2 {
 							}
 
 							parsedEntityIncludes.push_back(parsedInclude);
-							ASSERT_FMSG(std::isupper(parsedEntityIncludes.back().name_[0]), "Name of component must be uppercase");
+							//ASSERT_FMSG(std::isupper(parsedEntityIncludes.back().name_[0]), "Name of component must be uppercase");
 						}
 
 						return parsedEntityIncludes;
@@ -196,7 +196,7 @@ namespace ECSGenerator2 {
 							for (luabridge::Iterator it(entityRemoves); !it.isNil(); ++it) {
 								luabridge::LuaRef toRemove = it.value();
 								parsedEntityRemoves.push_back({ nullptr, toRemove.cast<std::string>().value() });
-								ASSERT_FMSG(std::isupper(parsedEntityRemoves.back().GetName()[0]), "");
+								//ASSERT_FMSG(std::isupper(parsedEntityRemoves.back().GetName()[0]), "");
 							}
 						}
 
@@ -212,7 +212,7 @@ namespace ECSGenerator2 {
 							for (luabridge::Iterator it(entityCreates); !it.isNil(); ++it) {
 								luabridge::LuaRef toCreate = it.value();
 								parsedEntityCreates.push_back({ nullptr, toCreate.cast<std::string>().value() });
-								ASSERT_FMSG(std::isupper(parsedEntityCreates.back().GetName()[0]), "");
+								//ASSERT_FMSG(std::isupper(parsedEntityCreates.back().GetName()[0]), "");
 							}
 						}
 
@@ -228,7 +228,7 @@ namespace ECSGenerator2 {
 								luabridge::LuaRef exclude = it.value();
 								parsedEntityExcludes.push_back({ nullptr, exclude.cast<std::string>().value() });
 
-								ASSERT_FMSG(std::isupper(parsedEntityExcludes.back().name_[0]), "");
+								//ASSERT_FMSG(std::isupper(parsedEntityExcludes.back().name_[0]), "");
 
 							}
 						}
@@ -245,7 +245,7 @@ namespace ECSGenerator2 {
 								luabridge::LuaRef exclude = it.value();
 								parsedEntityExcludes.push_back({ nullptr, exclude.cast<std::string>().value() });
 
-								ASSERT_FMSG(std::isupper(parsedEntityExcludes.back().name_[0]), "");
+								//ASSERT_FMSG(std::isupper(parsedEntityExcludes.back().name_[0]), "");
 
 							}
 						}

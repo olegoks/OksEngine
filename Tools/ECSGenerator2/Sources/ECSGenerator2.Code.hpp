@@ -171,6 +171,8 @@ namespace ECSGenerator2::CodeStructure {
 			std::string type_;
 			std::string name_;
 			std::string initValue_;
+			bool isStatic_ = false;
+			bool isInline_ = false;
 		};
 		Variable(const CreateInfo& createInfo) 
 			: ci_{ createInfo } { }
