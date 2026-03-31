@@ -1048,12 +1048,7 @@ ComputeNamespace = {
                     createsComponents = {
                         "Pipeline"
                     }
-                } -- },
-                -- {
-                --     processesComponents = {
-
-                --     }
-                -- }
+                }
             }
         }
     },
@@ -1136,19 +1131,6 @@ AddModelToRenderSystem = {
                     "CameraTransformResource"
                 }
             },
-            -- {
-            --     processesComponents = {
-            --         "Indices",
-            --         "DriverIndexBuffer",
-            --         "DriverVertexBuffer",
-            --         "Render::Material::DiffuseMap::Resource",
-            --         "Render::Model::ModelEntityIds",
-            --         "Render::Model::ModelNodeEntityIndices"
-            --     },
-            --     excludes = {
-            --         "VertexBones"
-            --     }
-            -- }
         },
         accessingEntities = {
             {
@@ -1220,18 +1202,6 @@ AddSkeletonModelToRenderSystem = {
             },
         },
         accessingEntities = {
-            -- {
-            --     archetype = "Render::Model::Node",
-            -- },
-            -- {
-            --     archetype = "Render::Model::Node_Data"
-            -- },
-            -- {
-            --     archetype = "Model"
-            -- },
-            -- {
-            --     archetype = "Model_Data"
-            -- },
             {
                 archetype = "Render::Material::Material"
             },
@@ -1327,34 +1297,3 @@ MeshArchetype = {
         -- "Render::Material::AmbientMap::Resource"
     }
 }
-
-
-
--- BoneArchetype = {
---     components = {
---         "BoneNode",
---         "BoneInverseBindPoseMatrix"
---     }
--- }
-
--- Node_AnimatedArchetype = {
---     archetypes = {
---         "Render::Model::Node",
---         "Animation::Animation"
---     }
--- }
-
--- Node_BoneArchetype = {
---     archetypes = {
---         "Render::Model::Node",
---         "Bone"
---     }
--- }
-
--- Node_Bone_AnimatedArchetype = {
---     archetypes = {
---         "Render::Model::Node",
---         "Bone",
---         "Animation::Animation"
---     }
--- }

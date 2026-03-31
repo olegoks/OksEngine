@@ -1,4 +1,18 @@
 GPGPUECSNamespace = {
+
+    -- MeshNamespace = {
+    --     ResourceSetComponent = {
+    --         serializable = false,
+    --         fields = {
+    --             { type = "RAL::Driver::ResourceSet::Id",   name = "resourceSetId" },
+    --             { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+    --             { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+    --             { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+    --             { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+    --             { type = "RAL::Driver::StorageBuffer::Id", name = "sbid" },
+    --         }
+    --     }
+    -- },
     StorageBufferNamespace = {
 
         BufferInfoComponent = {

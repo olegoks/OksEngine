@@ -584,15 +584,16 @@ namespace OksEngine
 			DriverIndexBuffer* imGuiDriverIndexBuffer,
 			ECS2::Entity::Id entity2Id, RenderDriver* renderDriver) {
 
-			static Common::UInt64 skipedFrames = 5;
-			static Common::UInt64 currentFrame = 0;
-			if (currentFrame != 4) {
-				++currentFrame;
-				return;
-			}
-			else {
-				currentFrame = 0;
-			}
+			//
+			//static Common::UInt64 skipedFrames = 5;
+			//static Common::UInt64 currentFrame = 0;
+			//if (currentFrame != 4) {
+			//	++currentFrame;
+			//	return;
+			//}
+			//else {
+			//	currentFrame = 0;
+			//}
 
 
 			ImDrawData* draw_data = ImGui::GetDrawData();

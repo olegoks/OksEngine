@@ -2414,13 +2414,9 @@ namespace OksEngine
 		//MESHS
 		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<MESH>();
 		auto meshComponents = GetComponents<MESH>();
-		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
-		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
 		auto* meshModelEntityIds = std::get<Render::Model::EntityIds*>(meshComponents);
 		auto* meshModelEntityIndices = std::get<Render::Model::ModelNodeEntityIndices*>(meshComponents);
-		auto* meshIndices = std::get<Indices*>(meshComponents);
-		//auto* meshMaterialEntityIds = std::get<Render::Material::EntityId*>(meshComponents);
-		//auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
+
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
 		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
@@ -2563,29 +2559,22 @@ namespace OksEngine
 				modelsBoneNodesIds,
 				modelEntitiesNumber * sizeof(Render::Model::BoneNodeEntities));
 			driver->StorageBufferWrite(
-				gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
-				0,
-				modelsBoneNodesIds,
-				modelEntitiesNumber * sizeof(Render::Model::BoneNodeEntities));
-			driver->StorageBufferWrite(
 				gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->sbid_,
 				0,
 				modelIndices.data(),
 				modelIndices.size() * sizeof(ECS2::Entity::Id));
 		}
 
-		//MODELS DATA
-		Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<MODEL_DATA>();
-		auto modelDataComponents = GetComponents<MODEL_DATA>();
-		auto* modelDataBoneNodesIds = std::get<Render::Model::BoneNodeEntities*>(modelDataComponents);
-		auto* modelDataEntitiesIds = std::get<ECS2::Entity::Id*>(modelDataComponents);
-		std::vector<Common::UInt64> modelDataIndices = createEntityIndices(modelDataEntitiesIds, modelDataEntitiesNumber);
+		////MODELS DATA
+		//Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<MODEL_DATA>();
+		//auto modelDataComponents = GetComponents<MODEL_DATA>();
+		//auto* modelDataBoneNodesIds = std::get<Render::Model::BoneNodeEntities*>(modelDataComponents);
+		//auto* modelDataEntitiesIds = std::get<ECS2::Entity::Id*>(modelDataComponents);
+		//std::vector<Common::UInt64> modelDataIndices = createEntityIndices(modelDataEntitiesIds, modelDataEntitiesNumber);
 
 		//MESHS
 		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<MESH>();
 		auto meshComponents = GetComponents<MESH>();
-		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
-		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
 		auto* meshModelEntityIds = std::get<Render::Model::EntityIds*>(meshComponents);
 		auto* meshModelEntityIndices = std::get<Render::Model::ModelNodeEntityIndices*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
