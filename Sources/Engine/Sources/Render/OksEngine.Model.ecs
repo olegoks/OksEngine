@@ -612,7 +612,26 @@ RenderNamespace = {
                 fields = {
                     { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
                 }
-            }
+            },
+            
+            MeshArchetype = {
+                components = {
+                    "Render::Model::Mesh::Tag",
+                    "::Name",
+                    "Render::Model::Name",
+                    "Render::Model::EntityIds",
+                    "Render::Model::Node::EntityIndices",
+                    "Vertices3D",
+                    "DriverVertexBuffer",
+                    "Indices",
+                    "DriverIndexBuffer",
+                    "Normals",
+                    "UVs",
+                    "VertexBones",
+                    "Render::Material::EntityId",
+            }           
+        }
+
         }
     },
     MainRenderPassComponent = 'Render::RenderPassId',
@@ -890,7 +909,7 @@ GPGPUECSNamespace = {
                         archetype = "Model_Data"
                     },
                     {
-                        archetype = "Mesh"
+                        archetype = "Render::Model::Mesh::Mesh"
                     }
                 }
 
@@ -943,7 +962,7 @@ GPGPUECSNamespace = {
                         archetype = "Model_Data"
                     },
                     {
-                        archetype = "Mesh"
+                        archetype = "Render::Model::Mesh::Mesh"
                     }
                 }
 
@@ -980,7 +999,7 @@ GPGPUECSNamespace = {
                         archetype = "Model_Data"
                     },
                     {
-                        archetype = "Mesh"
+                        archetype = "Render::Model::Mesh::Mesh"
                     }
                 }
 
@@ -1140,7 +1159,7 @@ AddModelToRenderSystem = {
         },
         accessingEntities = {
             {
-                archetype = "Mesh"
+                archetype = "Render::Model::Mesh::Mesh"
             },
             {
                 archetype = "Render::Material::Material"
@@ -1212,7 +1231,7 @@ AddSkeletonModelToRenderSystem = {
                 archetype = "Render::Material::Material"
             },
             {
-                archetype = "Mesh"
+                archetype = "Render::Model::Mesh::Mesh"
             }
         }
 
@@ -1273,33 +1292,5 @@ Model_DataArchetype = {
         "Render::Model::Node::EntityIds",
         "ModelAnimations",
         "Render::Model::ChildModelNodeEntities",
-    }
-}
-
---Skeleton mesh
-MeshArchetype = {
-    components = {
-        "Render::Model::Mesh::Tag",
-        "Name",
-        "Render::Model::Name",
-        "Render::Model::EntityIds",
-        "Render::Model::Node::EntityIndices",
-        "Vertices3D",
-        "DriverVertexBuffer",
-        "Indices",
-        "DriverIndexBuffer",
-        "Normals",
-        "UVs",
-        "VertexBones",
-        "Render::Material::EntityId",
-        -- "Render::Material::DiffuseMap::Info",
-        -- "Render::Material::DiffuseMap::Data",
-        -- "Render::Material::DiffuseMap::Resource",
-        -- "Render::Material::NormalMap::Info",
-        -- "Render::Material::NormalMap::Data",
-        -- "Render::Material::NormalMap::Resource",
-        -- "Render::Material::AmbientMap::Info",
-        -- "Render::Material::AmbientMap::Data",
-        -- "Render::Material::AmbientMap::Resource"
     }
 }

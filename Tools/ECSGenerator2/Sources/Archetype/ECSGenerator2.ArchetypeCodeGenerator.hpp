@@ -87,7 +87,7 @@ namespace ECSGenerator2 {
 			std::string defineComponentsList;
 
 			archetype->ForEachComponent([&](ParsedArchetype::Component& component, bool isLast) {
-				defineComponentsList += component.ptr_->GetFullName();
+				defineComponentsList += ("OksEngine::" + component.ptr_->GetFullName());
 				if (!isLast || !archetype->ci_.archetypes_.empty()) {
 					defineComponentsList += ",\\\n";
 				}

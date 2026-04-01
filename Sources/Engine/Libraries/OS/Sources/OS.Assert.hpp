@@ -86,6 +86,8 @@ namespace OS {
 
 #else
 
+#define ASSERT_SCOPE(check_code)((void)0)
+
 #define ASSERT_MSG(expression, message) ((void)0)
 
 #define ASSERT_FMSG(expression, message, ...) ((void)0)

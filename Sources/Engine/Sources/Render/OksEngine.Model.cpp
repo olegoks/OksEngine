@@ -1562,7 +1562,7 @@ namespace OksEngine
 
 					if (!meshNameToEntity1->meshNameToEntityId_.contains(meshName)) {
 						//Create mesh info.
-						const ECS2::Entity::Id meshEntity = CreateEntity<MESH>();
+						const ECS2::Entity::Id meshEntity = CreateEntity<RENDER__MODEL__MESH__MESH>();
 
 						CreateComponent<Render::Model::Mesh::Tag>(meshEntity);
 						CreateComponent<Name>(meshEntity, meshName);
@@ -2412,8 +2412,8 @@ namespace OksEngine
 		std::vector<Common::UInt64> modelDataIndices = createEntityIndices(modelDataEntitiesIds, modelDataEntitiesNumber);
 
 		//MESHS
-		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<MESH>();
-		auto meshComponents = GetComponents<MESH>();
+		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MESH__MESH>();
+		auto meshComponents = GetComponents<RENDER__MODEL__MESH__MESH>();
 		auto* meshModelEntityIds = std::get<Render::Model::EntityIds*>(meshComponents);
 		auto* meshModelEntityIndices = std::get<Render::Model::Node::EntityIndices*>(meshComponents);
 
@@ -2572,8 +2572,8 @@ namespace OksEngine
 		//std::vector<Common::UInt64> modelDataIndices = createEntityIndices(modelDataEntitiesIds, modelDataEntitiesNumber);
 
 		//MESHS
-		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<MESH>();
-		auto meshComponents = GetComponents<MESH>();
+		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MESH__MESH>();
+		auto meshComponents = GetComponents<RENDER__MODEL__MESH__MESH>();
 		auto* meshModelEntityIds = std::get<Render::Model::EntityIds*>(meshComponents);
 		auto* meshModelEntityIndices = std::get<Render::Model::Node::EntityIndices*>(meshComponents);
 		auto* meshIndices = std::get<Indices*>(meshComponents);
@@ -3287,8 +3287,8 @@ namespace OksEngine
 		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
 
 		////MESHS
-		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<MESH>();
-		auto meshComponents = GetComponents<MESH>();
+		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MESH__MESH>();
+		auto meshComponents = GetComponents<RENDER__MODEL__MESH__MESH>();
 		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
 		auto* meshModelEntityIds = std::get<Render::Model::EntityIds*>(meshComponents);
@@ -3622,8 +3622,8 @@ namespace OksEngine
 		Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<MODEL_DATA>();
 
 		////MESHS
-		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<MESH>();
-		auto meshComponents = GetComponents<MESH>();
+		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MESH__MESH>();
+		auto meshComponents = GetComponents<RENDER__MODEL__MESH__MESH>();
 		auto* meshVertexBuffers = std::get<DriverVertexBuffer*>(meshComponents);
 		auto* meshIndexBuffers = std::get<DriverIndexBuffer*>(meshComponents);
 		auto* meshModelEntityIds = std::get<Render::Model::EntityIds*>(meshComponents);

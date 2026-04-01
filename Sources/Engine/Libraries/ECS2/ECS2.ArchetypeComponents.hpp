@@ -235,10 +235,10 @@ namespace ECS2 {
 
 		template<class ComponentType>
 		inline void CreateContainer(Common::Size startSize) {
-#pragma region Assert
+
 			ASSERT_FMSG(!containers_.contains(ComponentType::GetTypeId()),
 				"Attempt to create container in the archetype components structure that exist.");
-#pragma endregion
+
 			containers_[ComponentType::GetTypeId()] = std::make_shared<ArchetypeContainer<ComponentType>>(startSize);
 		}
 
