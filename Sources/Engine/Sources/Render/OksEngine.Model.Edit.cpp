@@ -57,55 +57,56 @@ namespace OksEngine
 
 	namespace Render::Model {
 
-		void EditModelNodeEntityIds(std::shared_ptr<ECS2::World> ecsWorld, Render::Model::ModelNodeEntityIds* modelNodeEntityIds) {
-			ImGui::PushID(Render::Model::ChildModelNodeEntities::GetTypeId());
-			for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeEntityIds_) {
-				if (modelNodeEntityId.IsInvalid()) {
-					const std::string idString = std::to_string(modelNodeEntityId);
-					ImGui::TextDisabled(idString.c_str());
-					continue;
+		namespace Node {
+			void EditEntityIds(std::shared_ptr<ECS2::World> ecsWorld, Render::Model::Node::EntityIds* modelNodeEntityIds) {
+				ImGui::PushID(Render::Model::ChildModelNodeEntities::GetTypeId());
+				for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeEntityIds_) {
+					if (modelNodeEntityId.IsInvalid()) {
+						const std::string idString = std::to_string(modelNodeEntityId);
+						ImGui::TextDisabled(idString.c_str());
+						continue;
+					}
+					ImGui::Indent(20.f);
+					EditEntity(ecsWorld, modelNodeEntityId);
+					ImGui::Unindent(20.0f);
 				}
-				ImGui::Indent(20.f);
-				EditEntity(ecsWorld, modelNodeEntityId);
-				ImGui::Unindent(20.0f);
+				ImGui::PopID();
 			}
-			ImGui::PopID();
-		}
-		
-		void EditModelNodeEntityIndices(std::shared_ptr<ECS2::World> ecsWorld, ModelNodeEntityIndices* modelNodeEntityIndices) {
-			ImGui::PushID(Render::Model::ModelNodeEntityIndices::GetTypeId());
 
-			//auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);
-			//nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
+			void EditEntityIndices(std::shared_ptr<ECS2::World> ecsWorld, Node::EntityIndices* modelNodeEntityIndices) {
+				ImGui::PushID(Render::Model::Node::EntityIndices::GetTypeId());
 
-			auto firstInvalidIndexIt = std::find(
-				modelNodeEntityIndices->nodeEntityIndices_.begin(),
-				modelNodeEntityIndices->nodeEntityIndices_.end(),
-				Common::Limits<Common::UInt64>::Max());
+				//auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);
+				//nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
 
-			Common::UInt64 firstInvalidIndexIndex =
-				(firstInvalidIndexIt != modelNodeEntityIndices->nodeEntityIndices_.end())
-				? (std::distance(modelNodeEntityIndices->nodeEntityIndices_.begin(), firstInvalidIndexIt))
-				: modelNodeEntityIndices->nodeEntityIndices_.max_size();
+				auto firstInvalidIndexIt = std::find(
+					modelNodeEntityIndices->nodeEntityIndices_.begin(),
+					modelNodeEntityIndices->nodeEntityIndices_.end(),
+					Common::Limits<Common::UInt64>::Max());
 
-			ImGui::Begin("Mesh node indices.");
-			for (int i = 0; i < firstInvalidIndexIndex; i++) {
-				ImGui::Text("Index %d", i, modelNodeEntityIndices->nodeEntityIndices_[i]);
+				Common::UInt64 firstInvalidIndexIndex =
+					(firstInvalidIndexIt != modelNodeEntityIndices->nodeEntityIndices_.end())
+					? (std::distance(modelNodeEntityIndices->nodeEntityIndices_.begin(), firstInvalidIndexIt))
+					: modelNodeEntityIndices->nodeEntityIndices_.max_size();
+
+				ImGui::Begin("Mesh node indices.");
+				for (int i = 0; i < firstInvalidIndexIndex; i++) {
+					ImGui::Text("Index %d", i, modelNodeEntityIndices->nodeEntityIndices_[i]);
+				}
+				ImGui::End();
+
+				ImGui::PopID();
 			}
-			ImGui::End();
-
-			ImGui::PopID();
 		}
-
 		void BindEntityId(::Lua::Context& context) {
 
 			context.GetGlobalNamespace()
-				.beginClass<EntityId>("Render_Model_ModelEntity")
+				.beginClass<Model::EntityId>("Render_Model_EntityId")
 				.addProperty("id",
-					[](const EntityId* modelEntity) {
+					[](const Model::EntityId* modelEntity) {
 						return modelEntity->id_.GetRawValue();
 					},
-					[](EntityId* modelEntity, ECS2::Entity::Id::ValueType value) {
+					[](Model::EntityId* modelEntity, ECS2::Entity::Id::ValueType value) {
 						return modelEntity->id_ = value;
 					}
 				)

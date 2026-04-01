@@ -10,7 +10,7 @@ UpdateHierarchicalNodeDriverTransform3DSystem = {
                     { name = "DriverTransform3D", readonly = false }
                 },
                 excludes = {
-                    "Render::Model::BoneNode"
+                    "Render::Model::Node::Bone"
                 }
             },
             {
@@ -128,8 +128,8 @@ AiNamespace = {
                 },
                 {
                     processesComponents = {
-                        "Render::Model::Mesh::MeshsController",
-                        { name = "Render::Model::Mesh::MeshNameToEntity", readonly = false }
+                        "Render::Model::Mesh::Controller",
+                        { name = "Render::Model::Mesh::NameToEntityId", readonly = false }
                     }
                 },
                 {
@@ -149,7 +149,7 @@ AiNamespace = {
                     createsComponents = {
                         --"Render::Model::Tag",
                         "Ai::Scene",
-                        "Render::Model::Mesh::MeshNames"
+                        "Render::Model::Mesh::Names"
                     }
                 },
                 {
@@ -177,16 +177,16 @@ AiNamespace = {
                 },
                 {
                     createsComponents = {
-                        "Render::Model::ModelNode",
+                        "Render::Model::Node::Tag",
                         "Render::Model::EntityId",
-                        "Render::Model::ModelNodeEntityIds",
-                        "Render::Model::ModelNodeEntityIndices",
+                        "Render::Model::Node::EntityIds",
+                        "Render::Model::Node::EntityIndices",
                         "Ai::Node",
                         --"Ai::Meshes",
-                        "Render::Model::BoneNode",
+                        "Render::Model::Node::Bone",
                         "BoneInverseBindPoseMatrix",
                         "Render::Model::ChildModelNodeEntities",
-                        "Render::Model::Mesh::MeshInfos",
+                        "Render::Model::Mesh::Infos",
                         "Animation::Model::Node::Animations",
                         --"MeshEntities",
                         "LocalPosition3D",
@@ -205,27 +205,77 @@ RenderNamespace = {
 
 
     ModelNamespace = {
-        NodeArchetype = {
-            components = {
-                "ModelNode",
-                "BoneNode",
-                "::Name",
-                "Model::EntityId",
-                "LocalPosition3D",
-                "WorldPosition3D",
-                "LocalRotation3D",
-                "WorldRotation3D",
-                "LocalScale3D",
-                "WorldScale3D",
-                "ChildModelNodeEntities",
-                "DebugText2D",
-                "Animation::Model::Node::RunningState",
-                "ModelDataEntityId",
-                "ModelNodeDataEntityId"
-            }
+
+        NodeNamespace = {
+            TagComponent = { },
+            BoneComponent = {
+                serializable = false
+            },
+            EntityIdComponent = {
+                serializable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "nodeEntityId" }
+                }
+            },
+            EntityIndicesComponent = {
+                bindable = false,
+                serializable = false,
+                manualEditFunction = true,
+                fields = {
+                    { type = "std::array<Common::Index, 16>", name = "nodeEntityIndices" }
+                }
+            },
+            EntityIdsComponent = {
+                bindable = false,
+                serializable = false,
+                manualEditFunction = true,
+                fields = {
+                    { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "nodeEntityIds" }
+                }
+            },
+            DataNamespace = {
+                DataArchetype = {
+                    components = {
+                        "Model::Node::Tag",
+                        "::Name",
+                        "Model::EntityId",
+                        "ChildModelNodeEntities",
+                        "ModelDataEntityId", -- Data model entity id
+                        "Model::Node::Bone",
+                        "BoneInverseBindPoseMatrix"
+                    },
+                    archetypes = {
+                        "Animation::Animation"
+                    }
+                },
+            },
+            NodeArchetype = {
+                components = {
+                    "Model::Node::Tag",
+                    "Node::Bone",
+                    "::Name",
+                    "Model::EntityId",
+                    "LocalPosition3D",
+                    "WorldPosition3D",
+                    "LocalRotation3D",
+                    "WorldRotation3D",
+                    "LocalScale3D",
+                    "WorldScale3D",
+                    "ChildModelNodeEntities",
+                    "DebugText2D",
+                    "Animation::Model::Node::RunningState",
+                    "ModelDataEntityId",
+                    "ModelNodeDataEntityId"
+                }
+            },
         },
-        TagComponent = {
+        
+        DataNamespace = {
+            TagComponent = {
+                serializable = false
+            },
         },
+        TagComponent = { },
         EntityIdComponent = {
             manualBindFunction = true,
             fields = {
@@ -253,10 +303,10 @@ RenderNamespace = {
             }
         },
 
-        ModelNodeComponent = {
-            serializable = false
+        -- ModelNodeComponent = {
+        --     serializable = false
 
-        },
+        -- },
 
         ModelNodesMaxNumberConstant = {
             type = "Common::Size",
@@ -280,59 +330,15 @@ RenderNamespace = {
                 { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "boneEntityIds" }
             }
         },
-        ModelNodeEntityIdComponent = {
-            serializable = false,
-            fields = {
-                { type = "ECS2::Entity::Id", name = "nodeEntityId" }
-            }
-        },
-
-        ModelNodeEntityIdsComponent = {
-            bindable = false,
-            serializable = false,
-            manualEditFunction = true,
-            fields = {
-                { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "nodeEntityIds" }
-            }
-        },
-
-        ModelNodeEntityIndicesComponent = {
-            bindable = false,
-            serializable = false,
-            manualEditFunction = true,
-            fields = {
-                { type = "std::array<Common::Index, 16>", name = "nodeEntityIndices" }
-            }
-        },
-
 
         FileComponent = {
             fields = {
                 { type = "std::string", name = "fileName" } }
         },
-        BoneNodeComponent = {
-            serializable = false
-        },
         MeshsFoundComponent = {
             serializable = false
         },
-        Node_DataArchetype = {
-            components = {
-                "ModelNode",
-                "::Name",
-                "Model::EntityId",
-                "ChildModelNodeEntities",
-                "ModelDataEntityId", -- Data model entity id
-                "BoneNode",
-                "BoneInverseBindPoseMatrix"
-            },
-            archetypes = {
-                "Animation::Animation"
-            }
-        },
-        ModelDataComponent = {
-            serializable = false
-        },
+
         ModelNodeDataEntityIdComponent = {
             description =
             "This component will have node entity to have access to node data like animations, bone inverse bind pose matrix.",
@@ -384,7 +390,7 @@ RenderNamespace = {
                         processesComponents = {
                             "Model::Tag",
                             "File",
-                            "ModelNodeEntityIds"
+                            "Model::Node::EntityIds"
                         },
                         excludes = {
                             "ModelDataEntityId"
@@ -403,7 +409,7 @@ RenderNamespace = {
                 accessingEntities = {
                     {
                         accessingComponents = {
-                            "ModelNodeEntityIds"
+                            "Model::Node::EntityIds"
                         }
                     }
                 }
@@ -416,8 +422,8 @@ RenderNamespace = {
                     {
                         processesComponents = {
                             "Render::Model::Tag",
-                            "Render::Model::Mesh::MeshNames",
-                            { name = "Render::Model::Mesh::MeshEntities", readonly = false }
+                            "Render::Model::Mesh::Names",
+                            { name = "Render::Model::Mesh::EntityIds", readonly = false }
                         },
                         excludes = {
                             "Render::Model::MeshsFound"
@@ -515,7 +521,7 @@ RenderNamespace = {
                         }
                     },
                     {
-                        archetype = "Render::Model::Node",
+                        archetype = "Render::Model::Node::Node",
                     },
                 }
             }
@@ -526,14 +532,14 @@ RenderNamespace = {
                 serializable = false
             },
 
-            MeshNamesComponent = {
+            NamesComponent = {
                 serializable = false,
                 fields = {
                     { type = "std::vector<std::string>", name = "meshNames" }
                 }
             },
 
-            MeshEntitiesComponent = {
+            EntityIdsComponent = {
                 bindable = false,
                 serializable = false,
                 fields = {
@@ -541,11 +547,11 @@ RenderNamespace = {
                 }
             },
 
-            MeshsControllerComponent = {
+            ControllerComponent = {
                 serializable = false
             },
 
-            MeshNameToEntityComponent = {
+            NameToEntityIdComponent = {
                 bindable = false,
                 serializable = false,
                 fields = {
@@ -553,32 +559,32 @@ RenderNamespace = {
                 }
             },
 
-            CreateMeshsControllerSystem = {
+            CreateControllerSystem = {
                 type = "Initialize",
                 updateMethod = {
                     createsEntities = {
                         {
                             createsComponents = {
-                                "MeshsController",
-                                "MeshNameToEntity"
+                                "Mesh::Controller",
+                                "Mesh::NameToEntityId"
                             }
                         }
                     }
                 }
             },
 
-            MeshInfoStruct = {
+            InfoStruct = {
                 fields = {
                     { type = "std::string",      name = "name" },
                     { type = "ECS2::Entity::Id", name = "meshEntityId" }
                 }
             },
 
-            MeshInfosComponent = {
+            InfosComponent = {
                 bindable = false,
                 serializable = false,
                 fields = {
-                    { type = "std::vector<MeshInfo>", name = "meshInfos" }
+                    { type = "std::vector<Info>", name = "meshInfos" }
                 }
             },
 
@@ -872,10 +878,10 @@ GPGPUECSNamespace = {
                 },
                 accessingEntities = {
                     {
-                        archetype = "Render::Model::Node",
+                        archetype = "Render::Model::Node::Node",
                     },
                     {
-                        archetype = "Render::Model::Node_Data"
+                        archetype = "Render::Model::Node::Data::Data"
                     },
                     {
                         archetype = "Model"
@@ -925,10 +931,10 @@ GPGPUECSNamespace = {
                 },
                 accessingEntities = {
                     {
-                        archetype = "Render::Model::Node",
+                        archetype = "Render::Model::Node::Node",
                     },
                     {
-                        archetype = "Render::Model::Node_Data"
+                        archetype = "Render::Model::Node::Data::Data"
                     },
                     {
                         archetype = "Model"
@@ -962,10 +968,10 @@ GPGPUECSNamespace = {
                 --TODO: Remove unused archetypes
                 accessingEntities = {
                     {
-                        archetype = "Render::Model::Node",
+                        archetype = "Render::Model::Node::Node",
                     },
                     {
-                        archetype = "Render::Model::Node_Data"
+                        archetype = "Render::Model::Node::Data::Data"
                     },
                     {
                         archetype = "Model"
@@ -981,43 +987,43 @@ GPGPUECSNamespace = {
             }
 
         },
-        WriteWorldRotations3DToGPUSystem = {
-            callOrder = {
-                runAfter = {
-                    "Render::Model::ProcessModel" },
-                runBefore = "StartRender"
-            },
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false },
-                            "GPGPUECS::StorageBuffer::WorldRotations3D"
-                        }
-                    }
-                },
-                --TODO: Remove unused archetypes
-                accessingEntities = {
-                    {
-                        archetype = "Render::Model::Node",
-                    },
-                    {
-                        archetype = "Render::Model::Node_Data"
-                    },
-                    {
-                        archetype = "Model"
-                    },
-                    {
-                        archetype = "Model_Data"
-                    },
-                    {
-                        archetype = "Mesh"
-                    }
-                }
+        -- WriteWorldRotations3DToGPUSystem = {
+        --     callOrder = {
+        --         runAfter = {
+        --             "Render::Model::ProcessModel" },
+        --         runBefore = "StartRender"
+        --     },
+        --     updateMethod = {
+        --         processesEntities = {
+        --             {
+        --                 processesComponents = {
+        --                     { name = "RenderDriver", readonly = false },
+        --                     "GPGPUECS::StorageBuffer::WorldRotations3D"
+        --                 }
+        --             }
+        --         },
+        --         --TODO: Remove unused archetypes
+        --         accessingEntities = {
+        --             {
+        --                 archetype = "Render::Model::Node::Node",
+        --             },
+        --             {
+        --                 archetype = "Render::Model::Node::Data::Data"
+        --             },
+        --             {
+        --                 archetype = "Model"
+        --             },
+        --             {
+        --                 archetype = "Model::Data::Data"
+        --             },
+        --             {
+        --                 archetype = "Mesh"
+        --             }
+        --         }
 
-            }
+        --     }
 
-        }
+        -- }
     }
 }
 
@@ -1148,7 +1154,7 @@ AddModelToRenderSystem = {
             },
             {
                 accessingComponents = {
-                    "Render::Model::ModelNodeEntityIds"
+                    "Render::Model::Node::EntityIds"
                 }
             },
             {
@@ -1241,14 +1247,14 @@ ModelArchetype = {
         "Transform3DResource",
         "Render::Model::File",
         "Render::Model::Tag",
-        "Render::Model::ModelNodeEntityIds",
+        "Render::Model::Node::EntityIds",
         "Render::Model::BoneNodeEntities",
         "RunModelAnimation",
         "AnimationInProgress",
         "PauseAnimation",
         "Render::Model::ChildModelNodeEntities",
-        "Render::Model::Mesh::MeshNames",
-        "Render::Model::Mesh::MeshEntities",
+        "Render::Model::Mesh::Names",
+        "Render::Model::Mesh::EntityIds",
         "Render::Model::MeshsFound",
         "Render::Model::ModelDataEntityId",
 
@@ -1264,7 +1270,7 @@ Model_DataArchetype = {
         "Name",
         "Render::Model::Tag",
         "Render::Model::BoneNodeEntities",
-        "Render::Model::ModelNodeEntityIds",
+        "Render::Model::Node::EntityIds",
         "ModelAnimations",
         "Render::Model::ChildModelNodeEntities",
     }
@@ -1277,7 +1283,7 @@ MeshArchetype = {
         "Name",
         "Render::Model::Name",
         "Render::Model::EntityIds",
-        "Render::Model::ModelNodeEntityIndices",
+        "Render::Model::Node::EntityIndices",
         "Vertices3D",
         "DriverVertexBuffer",
         "Indices",

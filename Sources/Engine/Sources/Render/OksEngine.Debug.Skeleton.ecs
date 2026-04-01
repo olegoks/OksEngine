@@ -72,8 +72,8 @@ AddBoneVerticesSystem = {
             },
             {
                 processesComponents = {
-                    "Render::Model::BoneNode",
-                    "Render::Model::ModelNode",
+                    "Render::Model::Node::Bone",
+                    "Render::Model::Node::Tag",
                     "WorldPosition3D",
                     "Render::Model::ChildModelNodeEntities"
                 }

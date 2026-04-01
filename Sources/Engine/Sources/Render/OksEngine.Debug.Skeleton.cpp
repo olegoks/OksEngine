@@ -77,8 +77,8 @@ namespace OksEngine
 		Vertices3D* vertices3D0,
 
 		ECS2::Entity::Id entity1id,
-		const Render::Model::BoneNode* boneNode1,
-		const Render::Model::ModelNode* modelNode1,
+		const Render::Model::Node::Bone* boneNode1,
+		const Render::Model::Node::Tag* modelNode1,
 		const WorldPosition3D* worldPosition3D1,
 		const Render::Model::ChildModelNodeEntities* childModelNodeEntities1,
 		
