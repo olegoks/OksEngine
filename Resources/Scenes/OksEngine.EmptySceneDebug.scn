@@ -24,7 +24,7 @@ scene = {
 
             -- {
             --       ID = 4,
-            --       ARCHETYPE = "Model",
+            --       ARCHETYPE = "Render__Model__Model",
             --       name = { value = "Taunt" },
             --       worldPosition3D = { x = 0.0, y = 0.0, z = 0.0, w = 0.0 },
             --       worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -35,7 +35,7 @@ scene = {
             -- },
             --{
             --     ID = 37,
-            --     ARCHETYPE = "Model",
+            --     ARCHETYPE = "Render__Model__Model",
             --     name = { value = "Man" },
             --     worldPosition3D = { x = 5, y = 0.0, z = 0, w = 0 },
             --     worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -85,13 +85,13 @@ scene = {
             },
             {
                   ID = "ID:scene/test_level/model",
-                  ARCHETYPE = "Model",
-                  Name = { value = "TestLevelGeom.glb" },
+                  ARCHETYPE = "Render__Model__Model",
+                  Render__Model__Name = { value = "TestLevelGeom.glb" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__File = { fileName = "TestLevelGeom.glb" }
+                  Resource__Path = { path = "TestLevelGeom.glb" }
             },
             {
                   ID = "ID:scene/test_level/static_body",
@@ -132,13 +132,13 @@ scene = {
             --truck
             {
                   ID = 21,
-                  ARCHETYPE = "Model",
-                  Name = { value = "Truck" },
+                  ARCHETYPE = "Render__Model__Model",
+                  Render__Model__Name = { value = "Truck" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__File = { fileName = "Truck.glb" }
+                  Resource__Path = { path = "Truck.glb" }
             },
             { -- BODY
                   ID = 96,
@@ -228,7 +228,7 @@ scene = {
             -- },
             -- {
             --       ID = 39,
-            --       ARCHETYPE = "Model",
+            --       ARCHETYPE = "Render__Model__Model",
             --       name = { value = "Barrel.glb" },
             --       worldPosition3D = { x = 20, y = 0.0, z = 3, w = 0.0 },
             --       worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -470,13 +470,13 @@ scene = {
             },
             {
                   ID = 31,
-                  ARCHETYPE = "Model",
-                  Name = { value = "Wheel" },
+                  ARCHETYPE = "Render__Model__Model",
+                  Render__Model__Name = { value = "Wheel" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__File = { fileName = "TruckWheel.glb" }
+                  Resource__Path = { path = "TruckWheel.glb" }
             },
             {
                   ID = 97,
@@ -752,13 +752,13 @@ scene = {
             },
             {
                   ID = 35,
-                  ARCHETYPE = "Model",
-                  Name = { value = "Wheel" },
+                  ARCHETYPE = "Render__Model__Model",
+                  Render__Model__Name = { value = "Wheel" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__File = { fileName = "TruckWheel.glb" }
+                  Resource__Path = { path = "TruckWheel.glb" }
             },
             --WHEEL FORWARD Left
 
@@ -1037,13 +1037,13 @@ scene = {
             },
             {
                   ID = 38,
-                  ARCHETYPE = "Model",
-                  Name = { value = "Wheel" },
+                  ARCHETYPE = "Render__Model__Model",
+                  Render__Model__Name = { value = "Wheel" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__File = { fileName = "TruckWheel.glb" }
+                  Resource__Path = { path = "TruckWheel.glb" }
             },
             { --WHEEL BACK Left
                   ID = 101,
@@ -1320,13 +1320,13 @@ scene = {
             },
             {
                   ID = "ID:scene/truck/truck_model",
-                  ARCHETYPE = "Model",
-                  Name = { value = "Wheel" },
+                  ARCHETYPE = "Render__Model__Model",
+                  Render__Model__Name = { value = "Wheel" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Render__Model__File = { fileName = "TruckWheel.glb" }
+                  Resource__Path = { path = "TruckWheel.glb" }
             },
             { --WHEEL BACK RIGHT
                   ID = 103,
@@ -1616,7 +1616,7 @@ scene = {
             -- },
             -- {
             --       ID = 29,
-            --       ARCHETYPE = "Model",
+            --       ARCHETYPE = "Render__Model__Model",
             --       name = { value = "rock_terrain.glb" },
             --       worldPosition3D = { x = 10, y = 0.0, z = 3, w = 0.0 },
             --       worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -1626,7 +1626,7 @@ scene = {
             -- },
             -- {
             --       ID = 9,
-            --       ARCHETYPE = "Model",
+            --       ARCHETYPE = "Render__Model__Model",
             --       name = { value = "Car" },
             --       worldPosition3D = { x = 0, y = 0.0, z = 3, w = 0.0 },
             --       worldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -1692,14 +1692,14 @@ scene = {
             },
             {
                   ID = "ID:scene/soldier/model",
-                  ARCHETYPE = "Model",
-                  Name = { value = "Man" },
+                  ARCHETYPE = "Render__Model__Model",
+                  Render__Model__Name = { value = "Man" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 3, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
                   --runModelAnimation = { animationName = "Walk" },
-                  Render__Model__File = { fileName = "SoldierWithAnimation.glb" }
+                  Resource__Path = { path = "SoldierWithAnimation.glb" }
             },
             {
                   ID = 14,

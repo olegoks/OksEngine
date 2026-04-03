@@ -32,8 +32,8 @@ namespace OksEngine
 			const FrameStartTimePoint* frameStartTimePoint0, ECS2::Entity::Id entity1id,
 			const Render::Model::Tag* mdl__Model1, const WorldPosition3D* worldPosition3D1,
 			const WorldRotation3D* worldRotation3D1, const WorldScale3D* worldScale3D1,
-			const Render::Model::ModelDataEntityId* mdl__ModelDataEntityId1,
-			const Render::Model::ChildModelNodeEntities* childModelNodeEntities1) {
+			const Render::Model::Data::EntityId* mdl__ModelDataEntityId1,
+			const Render::Model::Node::ChildNodeEntityIds* childModelNodeEntities1) {
 
 			ECS2::Entity::Id modelEntityId = entity1id;
 
@@ -177,7 +177,7 @@ namespace OksEngine
 							LocalScale3D,
 							WorldScale3D,
 							Animation::Model::Node::RunningState,
-							ChildModelNodeEntities
+							Model::Node::ChildNodeEntityIds
 						>(nodeEntityId);
 
 						//PROSESS RUNNING ANIMATION
@@ -185,7 +185,7 @@ namespace OksEngine
 
 
 							auto* animationRunningState = std::get<Animation::Model::Node::RunningState*>(components);
-							auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
+							auto* childModelNodeEntities = std::get<Model::Node::ChildNodeEntityIds*>(components);
 
 							if (animationRunningState != nullptr) {
 								animationRunningState->animationIndex_ = animationInProgress->animationIndex_;
@@ -262,7 +262,7 @@ namespace OksEngine
 
 
 						//UPDATE WORLD POSITION
-						auto* childModelNodeEntities = std::get<ChildModelNodeEntities*>(components);
+						auto* childModelNodeEntities = std::get<Model::Node::ChildNodeEntityIds*>(components);
 
 						if (childModelNodeEntities != nullptr) {
 
@@ -270,7 +270,7 @@ namespace OksEngine
 							const glm::quat currentNodeRotation3D = { worldNodeRotation3D->w_, worldNodeRotation3D->x_, worldNodeRotation3D->y_, worldNodeRotation3D->z_ };
 							const glm::fvec3 currentNodeScale3D = { worldNodeScale3D->x_, worldNodeScale3D->y_, worldNodeScale3D->z_ };
 
-							const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->childEntityIds_;
+							const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities->entityIds_;
 							for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
 
 								processModelNode(childModelNodeEntityId, currentNodePosition3D, currentNodeRotation3D, currentNodeScale3D);
@@ -285,7 +285,7 @@ namespace OksEngine
 			const glm::fvec3 position3D = { worldPosition3D1->x_, worldPosition3D1->y_, worldPosition3D1->z_ };
 			const glm::quat rotation3D = { worldRotation3D1->w_, worldRotation3D1->x_, worldRotation3D1->y_, worldRotation3D1->z_ };
 			const glm::fvec3 scale3D = { worldScale3D1->x_, worldScale3D1->y_, worldScale3D1->z_ };
-			const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->childEntityIds_;
+			const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->entityIds_;
 			for (ECS2::Entity::Id childModelNodeEntityId : childEntityIds) {
 				processModelNode(childModelNodeEntityId, position3D, rotation3D, scale3D);
 			}
@@ -462,25 +462,26 @@ namespace OksEngine
 		}
 
 		void CreateModel::Update(
-			ECS2::Entity::Id entity0id,
-			Ai::Cache* ai__Cache0,
-
+			ECS2::Entity::Id entity0id, 
+			OksEngine::Ai::Cache* ai__Cache0,
+			
 			ECS2::Entity::Id entity1id,
-			const Render::Model::Mesh::Controller* meshsController1,
-			Render::Model::Mesh::NameToEntityId* meshNameToEntity1,
+			const OksEngine::Render::Model::Mesh::Controller* render__Model__Mesh__Controller1,
+			OksEngine::Render::Model::Mesh::NameToEntityId* render__Model__Mesh__NameToEntityId1,
 
-			ECS2::Entity::Id entity2id,
-			const ResourceSystem* resourceSystem2,
+			ECS2::Entity::Id entity2id, 
+			const OksEngine::ResourceSystem* resourceSystem2,
 
-			ECS2::Entity::Id entity3id,
-			const Render::Model::File* modelFile3,
+			ECS2::Entity::Id entity3id, 
+			const OksEngine::Render::Model::Tag* render__Model__Tag3,
+			const OksEngine::Resource::Path* resource__Path3,
 
 			ECS2::Entity::Id entity4id,
-			const Render::Model::DataController* render__Model__Data__DataController4,
-			Render::Model::ModelNameToModelDataEntityId* render__Model__Data__ModelNameToDataEntityId4) {
+			const OksEngine::Render::Model::Data::Controller* render__Model__DataController4,
+			OksEngine::Render::Model::ModelNameToModelDataEntityId* render__Model__ModelNameToModelDataEntityId4) {
 
 
-			auto getNodeFullName = [modelFile3](const aiScene* scene, const aiNode* node) {
+			auto getNodeFullName = [resource__Path3](const aiScene* scene, const aiNode* node) {
 				std::string nodeName;
 
 				const aiNode* currentNode = node;
@@ -492,7 +493,7 @@ namespace OksEngine
 					currentNode = currentNode->mParent;
 				}
 
-				nodeName = modelFile3->fileName_ + "/" + scene->mName.C_Str() + "/" + nodeName;
+				nodeName = resource__Path3->path_ + "/" + scene->mName.C_Str() + "/" + nodeName;
 				return nodeName;
 				};
 
@@ -502,14 +503,14 @@ namespace OksEngine
 			const aiScene* scene = nullptr;
 
 			//GET OR CREATE aiScene*
-			if (ai__Cache0->nametToScene_.contains(modelFile3->fileName_)) {
-				scene = ai__Cache0->nametToScene_[modelFile3->fileName_].get();
+			if (ai__Cache0->nametToScene_.contains(resource__Path3->path_)) {
+				scene = ai__Cache0->nametToScene_[resource__Path3->path_].get();
 			}
 			else {
 
 				Resources::ResourceData resourceData = resourceSystem2->system_->GetResourceSynch(
 					Subsystem::Type::Engine,
-					"Root/" + modelFile3->fileName_);
+					"Root/" + resource__Path3->path_);
 
 				auto importer = std::make_shared<Assimp::Importer>();
 
@@ -540,7 +541,7 @@ namespace OksEngine
 
 				std::shared_ptr<const aiScene> scenePtr(readScene, [importer](const aiScene* scene) { importer->FreeScene(); });
 
-				ai__Cache0->nametToScene_[modelFile3->fileName_] = scenePtr;
+				ai__Cache0->nametToScene_[resource__Path3->path_] = scenePtr;
 
 				scene = readScene;
 			}
@@ -669,7 +670,7 @@ namespace OksEngine
 
 			CreateComponent<Render::Model::Node::EntityIds>(modelEntityId, modelNodeEntityIds);
 
-			decltype(Render::Model::BoneNodeEntities::boneEntityIds_) boneEntityIds;
+			decltype(Render::Model::Node::BoneEntityIds::boneEntityIds_) boneEntityIds;
 			boneEntityIds.fill(ECS2::Entity::Id::invalid_);
 			for (Common::Index i = 0; i < boneNames.size(); i++) {
 				const auto& boneName = boneNames[i];
@@ -677,17 +678,17 @@ namespace OksEngine
 			}
 
 			if (!boneEntityIds.empty()) {
-				CreateComponent<Render::Model::BoneNodeEntities>(modelEntityId, boneEntityIds);
+				CreateComponent<Render::Model::Node::BoneEntityIds>(modelEntityId, boneEntityIds);
 			}
 
 
 			//CREATE MODEL DATA AND MODEL DATA NODES
 			{
-				ASSERT_MSG(!IsComponentExist<Render::Model::ModelDataEntityId>(modelEntityId),
+				ASSERT_MSG(!IsComponentExist<Render::Model::Data::EntityId>(modelEntityId),
 					"ModelDataEntityId cant exist in the creating model step.");
 
-				auto modelDataIt = render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_.find(modelFile3->fileName_);
-				if (modelDataIt == render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_.end()) {
+				auto modelDataIt = render__Model__ModelNameToModelDataEntityId4->modelNameToModelDataEntityId_.find(resource__Path3->path_);
+				if (modelDataIt == render__Model__ModelNameToModelDataEntityId4->modelNameToModelDataEntityId_.end()) {
 					//Controller doesnt contain model data.
 
 					ECS2::Entity::Id modelDataEntityId = CreateEntity<MODEL_DATA>();
@@ -1111,7 +1112,7 @@ namespace OksEngine
 							CreateComponent<Render::Model::Node::Tag>(dataNodeEntityId);
 
 							//Model node -> model data node.
-							CreateComponent<Render::Model::ModelNodeDataEntityId>(nodeEntityId, dataNodeEntityId);
+							CreateComponent<Render::Model::Node::Data::EntityId>(nodeEntityId, dataNodeEntityId);
 
 							auto getNodeFullName = [&]() {
 								std::string nodeName;
@@ -1125,12 +1126,12 @@ namespace OksEngine
 									currentNode = currentNode->mParent;
 								}
 
-								nodeName = modelFile3->fileName_ + "/" + scene->mName.C_Str() + "/" + nodeName;
+								nodeName = resource__Path3->path_ + "/" + scene->mName.C_Str() + "/" + nodeName;
 								return nodeName;
 								};
 
 							CreateComponent<Name>(dataNodeEntityId, getNodeFullName());
-							CreateComponent<Render::Model::ModelDataEntityId>(dataNodeEntityId, modelEntityId);
+							CreateComponent<Render::Model::Data::EntityId>(dataNodeEntityId, modelEntityId);
 
 							ASSERT_FMSG(dataNodeEntityId.IsValid(), "");
 
@@ -1146,7 +1147,7 @@ namespace OksEngine
 							}
 
 							if (!childNodeEntityIds.empty()) {
-								CreateComponent<Render::Model::ChildModelNodeEntities>(dataNodeEntityId, childNodeEntityIds);
+								CreateComponent<Render::Model::Node::ChildNodeEntityIds>(dataNodeEntityId, childNodeEntityIds);
 							}
 							return dataNodeEntityId;
 							};
@@ -1172,18 +1173,18 @@ namespace OksEngine
 
 						const ECS2::Entity::Id rootNodeEntityId = nodeToEntityId[scene->mRootNode];
 
-						CreateComponent<Render::Model::ChildModelNodeEntities>(modelDataEntityId, std::vector{ rootNodeEntityId });
+						CreateComponent<Render::Model::Node::ChildNodeEntityIds>(modelDataEntityId, std::vector{ rootNodeEntityId });
 
 						};
 
 					createDataNodesHierarchy();
 
-					render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_[modelFile3->fileName_] = modelDataEntityId;
+					render__Model__ModelNameToModelDataEntityId4->modelNameToModelDataEntityId_[resource__Path3->path_] = modelDataEntityId;
 
 
-					CreateComponent<Render::Model::ModelDataEntityId>(
+					CreateComponent<Render::Model::Data::EntityId>(
 						modelEntityId,
-						render__Model__Data__ModelNameToDataEntityId4->modelNameToModelDataEntityId_[modelFile3->fileName_]);
+						render__Model__ModelNameToModelDataEntityId4->modelNameToModelDataEntityId_[resource__Path3->path_]);
 				}
 
 
@@ -1243,7 +1244,7 @@ namespace OksEngine
 					}
 
 					if (!childNodeEntityIds.empty()) {
-						CreateComponent<Render::Model::ChildModelNodeEntities>(nodeEntityId, childNodeEntityIds);
+						CreateComponent<Render::Model::Node::ChildNodeEntityIds>(nodeEntityId, childNodeEntityIds);
 					}
 					return nodeEntityId;
 					};
@@ -1252,7 +1253,7 @@ namespace OksEngine
 
 				const ECS2::Entity::Id rootNodeEntityId = nodeToEntityId[scene->mRootNode];
 
-				CreateComponent<Render::Model::ChildModelNodeEntities>(modelEntityId, std::vector{ rootNodeEntityId });
+				CreateComponent<Render::Model::Node::ChildNodeEntityIds>(modelEntityId, std::vector{ rootNodeEntityId });
 
 				};
 
@@ -1397,10 +1398,10 @@ namespace OksEngine
 								VertexBonesInfo{
 									//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
 									{
-										Render::Model::ModelNodesMaxNumber,
-										Render::Model::ModelNodesMaxNumber,
-										Render::Model::ModelNodesMaxNumber,
-										Render::Model::ModelNodesMaxNumber
+										Render::Model::Node::MaxNumberPerModel,
+										Render::Model::Node::MaxNumberPerModel,
+										Render::Model::Node::MaxNumberPerModel,
+										Render::Model::Node::MaxNumberPerModel
 									},
 									{ 0.0f, 0.0f, 0.0f, 0.0f }	// no influence on vertex by default  
 								});
@@ -1431,7 +1432,7 @@ namespace OksEngine
 													}
 												}
 												ASSERT(boneEntityIdIndex != Common::Limits<Common::Index>::Max());
-												ASSERT(boneEntityIdIndex < Render::Model::ModelNodesMaxNumber);
+												ASSERT(boneEntityIdIndex < Render::Model::Node::MaxNumberPerModel);
 
 												vertexBonesInfos[weight->mVertexId].boneEntityIndices_[k] = boneEntityIdIndex;
 #pragma region Assert
@@ -1550,28 +1551,28 @@ namespace OksEngine
 				for (Common::Index i = 0; i < scene->mNumMeshes; i++) {
 					aiMesh* mesh = scene->mMeshes[i];
 
-					std::string meshName = modelFile3->fileName_ + scene->mName.C_Str() + std::string{ mesh->mName.C_Str() };
+					std::string meshName = resource__Path3->path_ + scene->mName.C_Str() + std::string{ mesh->mName.C_Str() };
 
 					meshNames.push_back(meshName);
 
-					auto it = meshNameToEntity1->meshNameToEntityId_.find(meshName);
+					auto it = render__Model__Mesh__NameToEntityId1->meshNameToEntityId_.find(meshName);
 
-					if (it != meshNameToEntity1->meshNameToEntityId_.end()) {
+					if (it != render__Model__Mesh__NameToEntityId1->meshNameToEntityId_.end()) {
 						continue;
 					}
 
-					if (!meshNameToEntity1->meshNameToEntityId_.contains(meshName)) {
+					if (!render__Model__Mesh__NameToEntityId1->meshNameToEntityId_.contains(meshName)) {
 						//Create mesh info.
 						const ECS2::Entity::Id meshEntity = CreateEntity<RENDER__MODEL__MESH__MESH>();
 
 						CreateComponent<Render::Model::Mesh::Tag>(meshEntity);
 						CreateComponent<Name>(meshEntity, meshName);
-						CreateComponent<Render::Model::Name>(meshEntity, modelFile3->fileName_ + scene->mName.C_Str());
-						CreateComponent<Render::Model::EntityIds>(meshEntity, std::array<ECS2::Entity::Id, Render::Model::MeshMaxModelsNumber>{ modelEntityId });
+						CreateComponent<Render::Model::Name>(meshEntity, resource__Path3->path_ + scene->mName.C_Str());
+						CreateComponent<Render::Model::EntityIds>(meshEntity, std::array<ECS2::Entity::Id, Render::Model::Mesh::MaxModelsNumberPerMesh>{ modelEntityId });
 
 						createMeshComponents(scene, mesh, meshEntity);
 
-						meshNameToEntity1->meshNameToEntityId_[meshName] = meshEntity;
+						render__Model__Mesh__NameToEntityId1->meshNameToEntityId_[meshName] = meshEntity;
 						meshEntityIds[i] = (meshEntity);
 
 					}
@@ -1604,7 +1605,7 @@ namespace OksEngine
 	namespace Render::Model {
 		void CreateDataController::Update() {
 			const ECS2::Entity::Id modelDataControllerEntity = CreateEntity();
-			CreateComponent<DataController>(modelDataControllerEntity);
+			CreateComponent<Model::Data::Controller>(modelDataControllerEntity);
 			CreateComponent<ModelNameToModelDataEntityId>(modelDataControllerEntity, std::map<std::string, ECS2::Entity::Id>{});
 		}
 
@@ -1614,14 +1615,14 @@ namespace OksEngine
 		void FindModelData::Update(
 			ECS2::Entity::Id entity0id,
 			const Model::Tag* model0,
-			const File* modelFile0,
+			const OksEngine::Resource::Path* resource__Path0,
 			const Node::EntityIds* modelNodeEntityIds0,
 
 			ECS2::Entity::Id entity1id,
-			const Render::Model::DataController* render__Model__DataController1,
+			const Render::Model::Data::Controller* render__Model__DataController1,
 			const Render::Model::ModelNameToModelDataEntityId* render__Model__ModelNameToModelDataEntityId1) {
 
-			auto modelDataIt = render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.find(modelFile0->fileName_);
+			auto modelDataIt = render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.find(resource__Path0->path_);
 			if (modelDataIt != render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.end()) {
 				const ECS2::Entity::Id modelDataEntityId = modelDataIt->second;
 				if (IsEntityExist(modelDataEntityId)) {
@@ -1631,12 +1632,12 @@ namespace OksEngine
 					for (Common::Index i = 0; i < modelNodeEntityIds0->nodeEntityIds_.size(); i++) {
 						const ECS2::Entity::Id nodeEntityId = modelNodeEntityIds0->nodeEntityIds_[i];
 						if (nodeEntityId.IsValid()) {
-							ASSERT(!IsComponentExist<Render::Model::ModelNodeDataEntityId>(nodeEntityId));
-							CreateComponent<Render::Model::ModelNodeDataEntityId>(nodeEntityId, modelDataNodeEntityIds->nodeEntityIds_[i]);
+							ASSERT(!IsComponentExist<Render::Model::Node::Data::EntityId>(nodeEntityId));
+							CreateComponent<Render::Model::Node::Data::EntityId>(nodeEntityId, modelDataNodeEntityIds->nodeEntityIds_[i]);
 
 						}
 					}
-					CreateComponent<Render::Model::ModelDataEntityId>(entity0id, modelDataEntityId);
+					CreateComponent<Render::Model::Data::EntityId>(entity0id, modelDataEntityId);
 				}
 			}
 
@@ -2127,146 +2128,6 @@ namespace OksEngine
 
 			return;
 
-			Resources::ResourceData vertexTextureShaderResource = resourceSystem2->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.vert");
-			Resources::ResourceData fragmentTextureShaderResource = resourceSystem2->system_->GetResourceSynch(Subsystem::Type::Engine, "Root/textured.frag");
-
-			std::string vertexShaderCode{ vertexTextureShaderResource.GetData<Common::Byte>(), vertexTextureShaderResource.GetSize() };
-			std::string fragmentShaderCode{ fragmentTextureShaderResource.GetData<Common::Byte>(), fragmentTextureShaderResource.GetSize() };
-
-
-			RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
-				.name_ = "TexturedVertexShader",
-				.type_ = RAL::Driver::Shader::Type::Vertex,
-				.code_ = vertexShaderCode
-			};
-			auto vertexShader = renderDriver1->driver_->CreateShader(vertexShaderCreateInfo);
-
-			RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
-				.name_ = "TexturedFragmentShader",
-				.type_ = RAL::Driver::Shader::Type::Fragment,
-				.code_ = fragmentShaderCode
-			};
-			auto fragmentShader = renderDriver1->driver_->CreateShader(fragmentShaderCreateInfo);
-
-			std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
-
-			RAL::Driver::Shader::Binding::Layout cameraBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::UniformBuffer,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-
-			RAL::Driver::Shader::Binding::Layout samplerBinding{
-				.binding_ = 0,
-				.resourcesCount_ = 4096,
-				.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-				.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-			};
-
-
-			RAL::Driver::Shader::Binding::Layout materialInfoBinding{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::UniformBuffer,
-				.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-			};
-
-
-			RAL::Driver::Shader::Binding::Layout ModelEntityIdsToComponentIndices{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout ModelsNodeEntityIds{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout ModelsNodeEntityIndices{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout NodeEntityIdsToComponentIndices{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout WorldPositions3D{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			RAL::Driver::Shader::Binding::Layout WorldRotations3D{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-			RAL::Driver::Shader::Binding::Layout WorldScales3D{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-			RAL::Driver::Shader::Binding::Layout ModelEntityIdentifires{
-				.binding_ = 0,
-				.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
-				.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			};
-
-			shaderBindings.push_back(cameraBinding);					//set 0
-			shaderBindings.push_back(samplerBinding);					//set 1
-			shaderBindings.push_back(materialInfoBinding);			//set 2
-			shaderBindings.push_back(ModelEntityIdsToComponentIndices);	//set 3
-			shaderBindings.push_back(ModelsNodeEntityIds);				//set 4
-			shaderBindings.push_back(ModelsNodeEntityIndices);			//set 5 
-			shaderBindings.push_back(NodeEntityIdsToComponentIndices);	//set 6
-			shaderBindings.push_back(WorldPositions3D);					//set 7
-			shaderBindings.push_back(WorldRotations3D);					//set 8
-			shaderBindings.push_back(WorldScales3D);					//set 9
-			shaderBindings.push_back(ModelEntityIdentifires);
-			std::vector<RAL::Driver::PushConstant> pushConstants;
-			{
-				RAL::Driver::PushConstant pushConstant{
-					.shaderStage_ = RAL::Driver::Shader::Stage::VertexShader,
-					.offset_ = 0,
-					.size_ = sizeof(MeshData)
-				};
-				pushConstants.emplace_back(pushConstant);
-			}
-
-			auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
-			{
-				multisamplingInfo->samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_8;
-			}
-
-
-			RAL::Driver::Pipeline::CI pipelineCI{
-				.name_ = "Textured Pipeline",
-				.renderPassId_ = mainRenderPass1->rpId_,
-				.vertexShader_ = vertexShader,
-				.fragmentShader_ = fragmentShader,
-				.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
-				.vertexType_ = RAL::Driver::VertexType::VF3_NF3_TF2,
-				.indexType_ = RAL::Driver::IndexType::UI32,
-				.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
-				.cullMode_ = RAL::Driver::CullMode::Back,
-				.pushConstants_ = pushConstants,
-				.shaderBindings_ = shaderBindings,
-				.enableDepthTest_ = true,
-				.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Less,
-				.multisamplingInfo_ = multisamplingInfo
-
-			};
-
-			const RAL::Driver::Pipeline::Id deprecatedPipelineId = renderDriver1->driver_->CreatePipeline(pipelineCI);
-
-			CreateComponent<Pipeline>(entity1id, deprecatedPipelineId);
-
 		}
 
 	}
@@ -2296,7 +2157,7 @@ namespace OksEngine
 		auto driver = renderDriver0->driver_;
 
 		auto createEntityIndices = [](ECS2::Entity::Id* entityIds, Common::Size entitiesNumber) {
-			std::vector<Common::UInt64> indices;
+			std::vector<ECS2::ComponentIndex> indices;
 			for (Common::Index i = 0; i < entitiesNumber; i++) {
 
 				const ECS2::Entity::Id entityId = entityIds[i];
@@ -2317,8 +2178,8 @@ namespace OksEngine
 		auto* worldPositions = std::get<WorldPosition3D*>(nodesComponents);
 		auto* worldRotations = std::get<WorldRotation3D*>(nodesComponents);
 		auto* worldScales = std::get<WorldScale3D*>(nodesComponents);
-		auto* nodesDataEntityIds = std::get<Render::Model::ModelNodeDataEntityId*>(nodesComponents);
-		std::vector<Common::UInt64> modelNodeIndices = createEntityIndices(nodeEntitiesIds, nodesEntitiesNumber);
+		auto* nodesDataEntityIds = std::get<Render::Model::Node::Data::EntityId*>(nodesComponents);
+		std::vector<ECS2::ComponentIndex> modelNodeIndices = createEntityIndices(nodeEntitiesIds, nodesEntitiesNumber);
 
 		if (nodesEntitiesNumber > 0) {
 
@@ -2348,7 +2209,7 @@ namespace OksEngine
 				gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0->sbid_,
 				0,
 				nodesDataEntityIds,
-				nodesEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId));
+				nodesEntitiesNumber * sizeof(Render::Model::Node::Data::EntityId));
 		}
 
 		//Model nodes data.
@@ -2356,7 +2217,7 @@ namespace OksEngine
 		auto nodesDataComponents = GetComponents<RENDER__MODEL__NODE__DATA__DATA>();
 		auto* nodeDataEntitiesIds = std::get<ECS2::Entity::Id*>(nodesDataComponents);
 		auto* boneInverseBindPoseMatrix = std::get<BoneInverseBindPoseMatrix*>(nodesDataComponents);
-		std::vector<Common::UInt64> modelNodeDataIndices = createEntityIndices(nodeDataEntitiesIds, nodesDataEntitiesNumber);
+		std::vector<ECS2::ComponentIndex> modelNodeDataIndices = createEntityIndices(nodeDataEntitiesIds, nodesDataEntitiesNumber);
 
 		if (nodesDataEntitiesNumber > 0) {
 			driver->StorageBufferWrite(
@@ -2372,13 +2233,13 @@ namespace OksEngine
 		}
 
 		//MODELS
-		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
-		auto modelComponents = GetComponents<MODEL>();
+		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MODEL>();
+		auto modelComponents = GetComponents<RENDER__MODEL__MODEL>();
 
 		auto* modelNodeEntityIds = std::get<Render::Model::Node::EntityIds*>(modelComponents);
-		auto* modelsBoneNodesIds = std::get<Render::Model::BoneNodeEntities*>(modelComponents);
+		auto* modelsBoneNodesIds = std::get<Render::Model::Node::BoneEntityIds*>(modelComponents);
 		auto* modelEntitiesIds = std::get<ECS2::Entity::Id*>(modelComponents);
-		std::vector<Common::UInt64> modelIndices = createEntityIndices(modelEntitiesIds, modelEntitiesNumber);
+		std::vector<ECS2::ComponentIndex> modelIndices = createEntityIndices(modelEntitiesIds, modelEntitiesNumber);
 		if (modelEntitiesNumber > 0) {
 
 			driver->StorageBufferWrite(
@@ -2391,12 +2252,12 @@ namespace OksEngine
 				gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
 				0,
 				modelsBoneNodesIds,
-				modelEntitiesNumber * sizeof(Render::Model::BoneNodeEntities));
+				modelEntitiesNumber * sizeof(Render::Model::Node::EntityIds));
 			driver->StorageBufferWrite(
 				gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
 				0,
 				modelsBoneNodesIds,
-				modelEntitiesNumber * sizeof(Render::Model::BoneNodeEntities));
+				modelEntitiesNumber * sizeof(Render::Model::Node::EntityIds));
 			driver->StorageBufferWrite(
 				gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->sbid_,
 				0,
@@ -2405,11 +2266,11 @@ namespace OksEngine
 		}
 
 		//MODELS DATA
-		Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<MODEL_DATA>();
-		auto modelDataComponents = GetComponents<MODEL_DATA>();
-		auto* modelDataBoneNodesIds = std::get<Render::Model::BoneNodeEntities*>(modelDataComponents);
-		auto* modelDataEntitiesIds = std::get<ECS2::Entity::Id*>(modelDataComponents);
-		std::vector<Common::UInt64> modelDataIndices = createEntityIndices(modelDataEntitiesIds, modelDataEntitiesNumber);
+		//Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<MODEL_DATA>();
+		//auto modelDataComponents = GetComponents<MODEL_DATA>();
+		//auto* modelDataBoneNodesIds = std::get<Render::Model::BoneNodeEntities*>(modelDataComponents);
+		//auto* modelDataEntitiesIds = std::get<ECS2::Entity::Id*>(modelDataComponents);
+		//std::vector<Common::UInt64> modelDataIndices = createEntityIndices(modelDataEntitiesIds, modelDataEntitiesNumber);
 
 		//MESHS
 		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MESH__MESH>();
@@ -2418,7 +2279,7 @@ namespace OksEngine
 		auto* meshModelEntityIndices = std::get<Render::Model::Node::EntityIndices*>(meshComponents);
 
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
-		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
+		std::vector<ECS2::ComponentIndex> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
 		if (meshEntitiesNumber > 0) {
 
@@ -2461,7 +2322,7 @@ namespace OksEngine
 		auto driver = renderDriver0->driver_;
 
 		auto createEntityIndices = [](ECS2::Entity::Id* entityIds, Common::Size entitiesNumber) {
-			std::vector<Common::UInt64> indices;
+			std::vector<ECS2::ComponentIndex> indices;
 			for (Common::Index i = 0; i < entitiesNumber; i++) {
 
 				const ECS2::Entity::Id entityId = entityIds[i];
@@ -2482,8 +2343,8 @@ namespace OksEngine
 		auto* worldPositions = std::get<WorldPosition3D*>(nodesComponents);
 		auto* worldRotations = std::get<WorldRotation3D*>(nodesComponents);
 		auto* worldScales = std::get<WorldScale3D*>(nodesComponents);
-		auto* nodesDataEntityIds = std::get<Render::Model::ModelNodeDataEntityId*>(nodesComponents);
-		std::vector<Common::UInt64> modelNodeIndices = createEntityIndices(nodeEntitiesIds, nodesEntitiesNumber);
+		auto* nodesDataEntityIds = std::get<Render::Model::Node::Data::EntityId*>(nodesComponents);
+		std::vector<ECS2::ComponentIndex> modelNodeIndices = createEntityIndices(nodeEntitiesIds, nodesEntitiesNumber);
 
 		if (nodesEntitiesNumber > 0) {
 
@@ -2513,7 +2374,7 @@ namespace OksEngine
 				gPGPUECS__StorageBuffer__ModelNodeDataEntityIds0->sbid_,
 				0,
 				nodesDataEntityIds,
-				nodesEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId));
+				nodesEntitiesNumber * sizeof(Render::Model::Node::Data::EntityId));
 		}
 
 		//Model nodes data.
@@ -2521,7 +2382,7 @@ namespace OksEngine
 		auto nodesDataComponents = GetComponents<RENDER__MODEL__NODE__DATA__DATA>();
 		auto* nodeDataEntitiesIds = std::get<ECS2::Entity::Id*>(nodesDataComponents);
 		auto* boneInverseBindPoseMatrix = std::get<BoneInverseBindPoseMatrix*>(nodesDataComponents);
-		std::vector<Common::UInt64> modelNodeDataIndices = createEntityIndices(nodeDataEntitiesIds, nodesDataEntitiesNumber);
+		std::vector<ECS2::ComponentIndex> modelNodeDataIndices = createEntityIndices(nodeDataEntitiesIds, nodesDataEntitiesNumber);
 
 		if (nodesDataEntitiesNumber > 0) {
 			driver->StorageBufferWrite(
@@ -2537,13 +2398,13 @@ namespace OksEngine
 		}
 
 		//MODELS
-		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
-		auto modelComponents = GetComponents<MODEL>();
+		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MODEL>();
+		auto modelComponents = GetComponents<RENDER__MODEL__MODEL>();
 
 		auto* modelNodeEntityIds = std::get<Render::Model::Node::EntityIds*>(modelComponents);
-		auto* modelsBoneNodesIds = std::get<Render::Model::BoneNodeEntities*>(modelComponents);
+		auto* modelsBoneNodesIds = std::get<Render::Model::Node::BoneEntityIds*>(modelComponents);
 		auto* modelEntitiesIds = std::get<ECS2::Entity::Id*>(modelComponents);
-		std::vector<Common::UInt64> modelIndices = createEntityIndices(modelEntitiesIds, modelEntitiesNumber);
+		std::vector<ECS2::ComponentIndex> modelIndices = createEntityIndices(modelEntitiesIds, modelEntitiesNumber);
 		if (modelEntitiesNumber > 0) {
 
 			driver->StorageBufferWrite(
@@ -2556,7 +2417,7 @@ namespace OksEngine
 				gPGPUECS__StorageBuffer__BoneNodeEntities0->sbid_,
 				0,
 				modelsBoneNodesIds,
-				modelEntitiesNumber * sizeof(Render::Model::BoneNodeEntities));
+				modelEntitiesNumber * sizeof(Render::Model::Node::BoneEntityIds));
 			driver->StorageBufferWrite(
 				gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->sbid_,
 				0,
@@ -2580,7 +2441,7 @@ namespace OksEngine
 		//auto* meshTextureResources = std::get<Render::Material::DiffuseMap::Resource*>(meshComponents);
 		//auto* meshNormalTextureResources = std::get<Render::Material::NormalMap::Resource*>(meshComponents);
 		auto* meshEntitiesIds = std::get<ECS2::Entity::Id*>(meshComponents);
-		std::vector<Common::UInt64> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
+		std::vector<ECS2::ComponentIndex> meshComponentsIndices = createEntityIndices(meshEntitiesIds, meshEntitiesNumber);
 
 		if (meshEntitiesNumber > 0) {
 
@@ -2920,7 +2781,7 @@ namespace OksEngine
 				auto* localPositions = std::get<LocalPosition3D*>(nodesComponents);
 				auto* localRotations = std::get<LocalRotation3D*>(nodesComponents);
 				auto* modelNodeAnimationStates = std::get<Animation::Model::Node::RunningState*>(nodesComponents);
-				auto* modelNodeDataEntityIds = std::get<Render::Model::ModelNodeDataEntityId*>(nodesComponents);
+				auto* modelNodeDataEntityIds = std::get<Render::Model::Node::Data::EntityId*>(nodesComponents);
 
 				//Model nodes data.
 				Common::Size nodeDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE__DATA__DATA>();
@@ -2930,8 +2791,8 @@ namespace OksEngine
 				std::vector<Common::UInt64> nodesDataIds = createEntityIndices(nodesDataEntityIds, nodeDataEntitiesNumber);
 
 				//Models.
-				Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
-				auto modelsComponents = world_->GetComponents<MODEL>();
+				Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MODEL>();
+				auto modelsComponents = world_->GetComponents<RENDER__MODEL__MODEL>();
 				auto* modelsEntityIds = std::get<ECS2::Entity::Id*>(modelsComponents);
 				auto* animationInProgressEntityIds = std::get<AnimationInProgress*>(modelsComponents);
 
@@ -2984,7 +2845,7 @@ namespace OksEngine
 					animation__ModelNodeDataEntityIds0->sbid_,
 					0,
 					modelNodeDataEntityIds,
-					nodeEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId));
+					nodeEntitiesNumber * sizeof(Render::Model::Node::Data::EntityId));
 
 				driver->StorageBufferWrite(
 					animation__NodeDataEntityIdsToComponentIndices0->sbid_,
@@ -3284,7 +3145,7 @@ namespace OksEngine
 		Common::Size nodesEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE__NODE>();
 
 		////MODELS
-		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
+		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MODEL>();
 
 		////MESHS
 		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MESH__MESH>();
@@ -3616,7 +3477,7 @@ namespace OksEngine
 		Common::Size nodesDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__NODE__DATA__DATA>();
 
 		////MODELS
-		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<MODEL>();
+		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MODEL>();
 
 		////MODELS DATA
 		Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<MODEL_DATA>();

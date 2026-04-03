@@ -763,11 +763,12 @@ namespace ECSGenerator2 {
 
 		}
 
+		//TODO: Optimize parsing lua tables: use iterators to process only tables that entity has.
 		std::shared_ptr<CodeStructure::File>
 			GenerateParseEntityHppFile(std::vector<std::shared_ptr<ParsedECSFile>> ecsFiles) {
 
 			auto generateParseComponentCode
-				= [](
+				= [](const std::string& fullNamespace,
 					std::shared_ptr<ParsedComponent> component) -> CodeStructure::Code {
 
 						CodeStructure::Code code;
@@ -779,7 +780,6 @@ namespace ECSGenerator2 {
 							"luabridge::LuaRef {}Ref = entity[\"{}\"];",
 							component->GetLowerName(),
 							lowerFullName
-							//component->GetLowerName()
 							)
 						);
 
@@ -787,14 +787,15 @@ namespace ECSGenerator2 {
 							"if (!{}Ref.isNil()) {{",
 							component->GetLowerName()));
 
-						code.Add(std::format("{} {} = Parse{}({}Ref);",
-							component->GetName(),
+						code.Add(std::format("{} {} = {}Parse{}({}Ref);",
+							fullNamespace + component->GetName(),
 							component->GetLowerName(),
+							fullNamespace,
 							component->GetName(),
 							component->GetLowerName()));
 
 						code.Add(std::format("world->CreateComponent<{}>(newEntityId",
-							component->GetName()));
+							fullNamespace + component->GetName()));
 
 						component->ForEachField([&](const ParsedComponent::FieldInfo& fieldInfo, bool isLast) {
 
@@ -864,33 +865,40 @@ namespace ECSGenerator2 {
 
 						code.Add("{");
 
-						std::vector<std::string> namespaceStrings;
-						for (auto childTable : childTables) {
-							if (childTable->GetType() == ParsedTable::Type::Namespace) {
-								auto parsedNamespace = Common::pointer_cast<ParsedNamespace>(childTable);
-								namespaceStrings.push_back(parsedNamespace->GetName());
-							}
+						//std::vector<std::string> namespaceStrings;
+						//for (auto childTable : childTables) {
+						//	if (childTable->GetType() == ParsedTable::Type::Namespace) {
+						//		auto parsedNamespace = Common::pointer_cast<ParsedNamespace>(childTable);
+						//		namespaceStrings.push_back(parsedNamespace->GetName());
+						//	}
+						//}
+
+
+
+						//if (!namespaceStrings.empty()) {
+						//	std::string fullNamespace;
+						//	for (Common::Index i = 0; i < namespaceStrings.size(); i++) {
+						//		fullNamespace += namespaceStrings[i];
+						//		if (i != namespaceStrings.size() - 1) {
+						//			fullNamespace += "::";
+						//		}
+						//	}
+
+						//	code.Add("using namespace {};", fullNamespace);
+						//}
+
+						std::string fullComponentNamespace = "OksEngine::";
+
+						for (Common::Index i = 0; i < childTables.size(); i++) {
+							fullComponentNamespace += (childTables[i]->GetName() + "::");
 						}
-
-						if (!namespaceStrings.empty()) {
-							std::string fullNamespace;
-							for (Common::Index i = 0; i < namespaceStrings.size(); i++) {
-								fullNamespace += namespaceStrings[i];
-								if (i != namespaceStrings.size() - 1) {
-									fullNamespace += "::";
-								}
-							}
-
-							code.Add("using namespace {};", fullNamespace);
-						}
-
 
 						std::string lowerFullName = component->GetFullName();
 						lowerFullName = std::regex_replace(lowerFullName, std::regex("::"), "__");
 
 						allAllowedNames.push_back(lowerFullName);
 
-						code.Add(generateParseComponentCode(component));
+						code.Add(generateParseComponentCode(fullComponentNamespace, component));
 						code.Add("}");
 
 						code.NewLine();
@@ -1002,29 +1010,21 @@ namespace ECSGenerator2 {
 							return;
 						}
 
-						std::string fullComponentNamespace;
+						std::string fullComponentNamespace = "OksEngine::";
 
 						for (Common::Index i = 0; i < childTables.size(); i++) {
-							fullComponentNamespace += childTables[i]->GetName();
-							if (i != childTables.size() - 1) {
-								fullComponentNamespace += "::";
-							}
-						}
-
-						code.Add("{");
-						if (!childTables.empty()) {
-							code.Add("using namespace {};", fullComponentNamespace);
+							fullComponentNamespace += (childTables[i]->GetName() + "::");
 						}
 						code.Add(std::format(
 							"if (components.IsSet<{}>()) {{"
 							"	const auto* component = world->GetComponent<{}>(entityId);"
-							"	serializedEntity += \"\\t\\t\" +Serialize{}(component);",
-							component->GetName(),
-							component->GetName(),
+							"	serializedEntity += \"\\t\\t\" + {}Serialize{}(component);",
+							fullComponentNamespace + component->GetName(),
+							fullComponentNamespace + component->GetName(),
+							fullComponentNamespace,
 							component->GetName()));
 
 						code.Add("	serializedEntity += \",\\n\";");
-						code.Add("}");
 						code.Add("}");
 
 					});

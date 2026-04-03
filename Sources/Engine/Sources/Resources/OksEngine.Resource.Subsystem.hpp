@@ -263,6 +263,11 @@ namespace OksEngine {
 		[[nodiscard]]
 		Task::Id GetResource(Subsystem::Type subsystemType, std::filesystem::path resourcePath) {
 			//OS::LogInfo("Engine/Render", { "Task added to MT system. sender subsystem type: %d", subsystemType });
+
+			if (resourcePath == "Root/resource:/Scenes/OksEngine.EmptySceneDebug.scn") {
+				Common::BreakPointLine();
+			}
+
 			return AddTask(
 				subsystemType,
 				Subsystem::Type::Resource,
@@ -280,6 +285,11 @@ namespace OksEngine {
 
 		[[nodiscard]]
 		Resources::ResourceData GetResourceSynch(Subsystem::Type subsystemType, std::filesystem::path resourcePath) {
+
+			if (resourcePath == "Root/resource:/Scenes/OksEngine.EmptySceneDebug.scn") {
+				Common::BreakPointLine();
+			}
+
 			Task::Id taskId = GetResource(subsystemType, resourcePath);
 			Task task = WaitForTask(subsystemType, taskId);
 			GetResourceResult getResourceResult = std::move(task.GetData<GetResourceResult>());

@@ -226,7 +226,7 @@ namespace OksEngine
 			{
 
 				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::BoneNodeEntities)
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::Node::BoneEntityIds)
 				};
 				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
 
@@ -258,7 +258,7 @@ namespace OksEngine
 			}
 			{
 				RAL::Driver::StorageBuffer::CreateInfo SBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId)
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::Node::Data::EntityId)
 				};
 				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
 
@@ -291,7 +291,7 @@ namespace OksEngine
 			}
 			{
 				RAL::Driver::StorageBuffer::CreateInfo SBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::ModelNodeDataEntityId)
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::Node::Data::EntityId)
 				};
 				const RAL::Driver::StorageBuffer::Id SBId = driver->CreateStorageBuffer(SBCI);
 

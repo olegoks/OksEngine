@@ -4,13 +4,13 @@ PresetNamespace = {
     Static_Game_ObjectArchetype = {
         archetypes = {
             "Physics::Static_Rigid_Body",
-            "Model"
+            "Render::Model::Model"
         }
     },
     Dynamic_Game_ObjectArchetype = {
         archetypes = {
             "Physics::Dynamic_Rigid_Body",
-            "Model"
+            "Render::Model::Model"
         }
     },
 

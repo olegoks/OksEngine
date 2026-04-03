@@ -80,12 +80,12 @@ namespace OksEngine
 		const Render::Model::Node::Bone* boneNode1,
 		const Render::Model::Node::Tag* modelNode1,
 		const WorldPosition3D* worldPosition3D1,
-		const Render::Model::ChildModelNodeEntities* childModelNodeEntities1,
+		const Render::Model::Node::ChildNodeEntityIds* childModelNodeEntities1,
 		
 		ECS2::Entity::Id entity2id, const CurrentFrameIndex* currentFrameIndex2) {
 
 
-		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->childEntityIds_;
+		const std::vector<ECS2::Entity::Id>& childEntityIds = childModelNodeEntities1->entityIds_;
 
 		const Common::Size childModelNodeEntitiesNumber = childEntityIds.size();
 

@@ -75,7 +75,7 @@ AddBoneVerticesSystem = {
                     "Render::Model::Node::Bone",
                     "Render::Model::Node::Tag",
                     "WorldPosition3D",
-                    "Render::Model::ChildModelNodeEntities"
+                    "Render::Model::Node::ChildNodeEntityIds"
                 }
             },
                         --Move this entity in the begin because its singleton

@@ -59,7 +59,7 @@ namespace OksEngine
 
 		namespace Node {
 			void EditEntityIds(std::shared_ptr<ECS2::World> ecsWorld, Render::Model::Node::EntityIds* modelNodeEntityIds) {
-				ImGui::PushID(Render::Model::ChildModelNodeEntities::GetTypeId());
+				ImGui::PushID(Render::Model::Node::ChildNodeEntityIds::GetTypeId());
 				for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeEntityIds_) {
 					if (modelNodeEntityId.IsInvalid()) {
 						const std::string idString = std::to_string(modelNodeEntityId);

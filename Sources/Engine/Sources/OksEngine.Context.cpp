@@ -48,7 +48,7 @@ namespace OksEngine
 
 		//Preallocate archetype entities containers.
 		{
-			world2_->PreallocateArchetypeEntities<MODEL>();
+			world2_->PreallocateArchetypeEntities<RENDER__MODEL__MODEL>();
 			world2_->PreallocateArchetypeEntities<PRESET__STATIC_GAME_OBJECT>();
 			world2_->PreallocateArchetypeEntities<PRESET__DYNAMIC_GAME_OBJECT>();
 		}

@@ -139,11 +139,12 @@ AiNamespace = {
                 },
                 {
                     processesComponents = {
-                        "Render::Model::File"
+                        "Render::Model::Tag",
+                        "Resource::Path"
                     },
                     excludes = {
                         --"Render::Model::Tag",
-                        "Render::Model::ModelDataEntityId",
+                        "Render::Model::Data::EntityId",
                         "Ai::Scene"
                     },
                     createsComponents = {
@@ -154,7 +155,7 @@ AiNamespace = {
                 },
                 {
                     processesComponents = {
-                        "Render::Model::DataController",
+                        "Render::Model::Data::Controller",
                         { name = "Render::Model::ModelNameToModelDataEntityId", readonly = false }
                     }
                 }
@@ -170,9 +171,7 @@ AiNamespace = {
                         "Normals",
                         "UVs",
                         "VertexBones",
-                        "Render::Material::EntityId",
-                        -- "Render::Material::DiffuseMap::Info",
-                        -- "Render::Material::DiffuseMap::Data"
+                        "Render::Material::EntityId"
                     }
                 },
                 {
@@ -182,13 +181,11 @@ AiNamespace = {
                         "Render::Model::Node::EntityIds",
                         "Render::Model::Node::EntityIndices",
                         "Ai::Node",
-                        --"Ai::Meshes",
                         "Render::Model::Node::Bone",
                         "BoneInverseBindPoseMatrix",
-                        "Render::Model::ChildModelNodeEntities",
+                        "Render::Model::Node::ChildNodeEntityIds",
                         "Render::Model::Mesh::Infos",
                         "Animation::Model::Node::Animations",
-                        --"MeshEntities",
                         "LocalPosition3D",
                         "LocalRotation3D",
                         "LocalScale3D"
@@ -207,9 +204,16 @@ RenderNamespace = {
     ModelNamespace = {
 
         NodeNamespace = {
-            TagComponent = { },
+            TagComponent = {},
             BoneComponent = {
                 serializable = false
+            },
+
+            BoneEntityIdsComponent = {
+                serializable = false,
+                fields = {
+                    { type = "std::array<ECS2::Entity::Id, MaxNumberPerModel>", name = "boneEntityIds" }
+                }
             },
             EntityIdComponent = {
                 serializable = false,
@@ -218,6 +222,7 @@ RenderNamespace = {
                 }
             },
             EntityIndicesComponent = {
+                description = "Indices of nodes in model array with ids of nodes.",
                 bindable = false,
                 serializable = false,
                 manualEditFunction = true,
@@ -225,27 +230,55 @@ RenderNamespace = {
                     { type = "std::array<Common::Index, 16>", name = "nodeEntityIndices" }
                 }
             },
+
+            MaxNumberPerModelConstant = {
+                type = "Common::Size",
+                value = "512"
+            },
+
             EntityIdsComponent = {
                 bindable = false,
                 serializable = false,
                 manualEditFunction = true,
                 fields = {
-                    { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "nodeEntityIds" }
+                    { type = "std::array<ECS2::Entity::Id, MaxNumberPerModel>", name = "nodeEntityIds" }
                 }
             },
+
+
+            ChildNodeEntityIdsMaxNumberConstant = {
+                type = "Common::Size",
+                value = "32"
+            },
+
+            ChildNodeEntityIdsComponent = {
+                serializable = false,
+                fields = {
+                    { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                }
+            },
+
             DataNamespace = {
                 DataArchetype = {
                     components = {
                         "Model::Node::Tag",
                         "::Name",
                         "Model::EntityId",
-                        "ChildModelNodeEntities",
-                        "ModelDataEntityId", -- Data model entity id
+                        "ChildNodeEntityIds",
+                        "Model::Data::EntityId", -- Data model entity id
                         "Model::Node::Bone",
                         "BoneInverseBindPoseMatrix"
                     },
                     archetypes = {
                         "Animation::Animation"
+                    }
+                },
+                EntityIdComponent = {
+                    description =
+                    "This component will have node entity to have access to node data like animations, bone inverse bind pose matrix.",
+                    serializable = false,
+                    fields = {
+                        { type = "ECS2::Entity::Id", name = "modelNodeDataEntityId" }
                     }
                 },
             },
@@ -261,21 +294,30 @@ RenderNamespace = {
                     "WorldRotation3D",
                     "LocalScale3D",
                     "WorldScale3D",
-                    "ChildModelNodeEntities",
+                    "ChildNodeEntityIds",
                     "DebugText2D",
                     "Animation::Model::Node::RunningState",
-                    "ModelDataEntityId",
-                    "ModelNodeDataEntityId"
+                    "Model::Data::EntityId",
+                    "Model::Node::Data::EntityId"
                 }
             },
         },
-        
+
         DataNamespace = {
             TagComponent = {
                 serializable = false
             },
+            EntityIdComponent = {
+                description =
+                "This component will have model entity to have access to model data like animations, mesh data.",
+                serializable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "modelDataEntityId" }
+                }
+            },
+            ControllerComponent = {},
         },
-        TagComponent = { },
+        TagComponent = {},
         EntityIdComponent = {
             manualBindFunction = true,
             fields = {
@@ -283,52 +325,44 @@ RenderNamespace = {
             }
         },
 
-        MeshMaxModelsNumberConstant = {
-            type = "Common::Size",
-            value = "1024"
-        },
-
         EntityIdsComponent = {
             bindable = false,
             serializable = false,
             fields = {
-                { type = "std::array<ECS2::Entity::Id, MeshMaxModelsNumber>", name = "modelEntityIds" }
+                { type = "std::array<ECS2::Entity::Id, Mesh::MaxModelsNumberPerMesh>", name = "modelEntityIds" }
             }
         },
 
         NameComponent = {
-            serializable = false,
+            serializable = true,
             fields = {
-                { type = "std::string", name = "modelName" }
+                { type = "std::string", name = "value" }
             }
         },
 
-        -- ModelNodeComponent = {
-        --     serializable = false
+        ModelArchetype = {
+            components = {
+                "Name",
+                "WorldPosition3D",
+                "WorldRotation3D",
+                "WorldScale3D",
+                "DriverTransform3D",
+                "Transform3DResource",
+                "Resource::Path",
+                "Render::Model::Tag",
+                "Render::Model::Node::EntityIds",
+                "Render::Model::Node::BoneEntityIds",
+                "RunModelAnimation",
+                "AnimationInProgress",
+                "PauseAnimation",
+                "Render::Model::Node::ChildNodeEntityIds",
+                "Render::Model::Mesh::Names",
+                "Render::Model::Mesh::EntityIds",
+                "Render::Model::MeshsFound",
+                "Render::Model::Data::EntityId",
 
-        -- },
+            },
 
-        ModelNodesMaxNumberConstant = {
-            type = "Common::Size",
-            value = "512"
-        },
-
-        ChildModelNodeEntitiesMaxNumberConstant = {
-            type = "Common::Size",
-            value = "32"
-        },
-
-        ChildModelNodeEntitiesComponent = {
-            serializable = false,
-            fields = {
-                { type = "std::vector<ECS2::Entity::Id>", name = "childEntityIds" }
-            }
-        },
-        BoneNodeEntitiesComponent = {
-            serializable = false,
-            fields = {
-                { type = "std::array<ECS2::Entity::Id, ModelNodesMaxNumber>", name = "boneEntityIds" }
-            }
         },
 
         FileComponent = {
@@ -339,23 +373,6 @@ RenderNamespace = {
             serializable = false
         },
 
-        ModelNodeDataEntityIdComponent = {
-            description =
-            "This component will have node entity to have access to node data like animations, bone inverse bind pose matrix.",
-            serializable = false,
-            fields = {
-                { type = "ECS2::Entity::Id", name = "modelNodeDataEntityId" }
-            }
-        },
-        ModelDataEntityIdComponent = {
-            description =
-            "This component will have model entity to have access to model data like animations, mesh data.",
-            serializable = false,
-            fields = {
-                { type = "ECS2::Entity::Id", name = "modelDataEntityId" }
-            }
-        },
-        DataControllerComponent = {},
         ModelNameToModelDataEntityIdComponent = {
             description =
             "Controller for models data. It will be used by model loader to find model data and take it if model was loaded early or to add model data if it is not exist.",
@@ -374,7 +391,7 @@ RenderNamespace = {
                 createsEntities = {
                     {
                         createsComponents = {
-                            "DataController",
+                            "Model::Data::Controller",
                             "ModelNameToModelDataEntityId"
                         }
                     }
@@ -389,19 +406,19 @@ RenderNamespace = {
                     {
                         processesComponents = {
                             "Model::Tag",
-                            "File",
+                            "Resource::Path",
                             "Model::Node::EntityIds"
                         },
                         excludes = {
-                            "ModelDataEntityId"
+                            "Model::Data::EntityId"
                         },
                         createsComponents = {
-                            "ModelDataEntityId"
+                            "Model::Data::EntityId"
                         }
                     },
                     {
                         processesComponents = {
-                            "DataController",
+                            "Model::Data::Controller",
                             "ModelNameToModelDataEntityId"
                         }
                     }
@@ -466,8 +483,8 @@ RenderNamespace = {
                             "WorldPosition3D",
                             "WorldRotation3D",
                             "WorldScale3D",
-                            "Model::ModelDataEntityId",
-                            "ChildModelNodeEntities"
+                            "Model::Data::EntityId",
+                            "Model::Node::ChildNodeEntityIds"
                         },
                         createsComponents = {
                             "AnimationInProgress"
@@ -511,7 +528,7 @@ RenderNamespace = {
                             "LocalScale3D",
                             "WorldScale3D",
                             "Animation::Model::Node::RunningState",
-                            "ChildModelNodeEntities"
+                            "Model::Node::ChildNodeEntityIds"
                         },
                         removesComponents = {
                             "Animation::Model::Node::RunningState"
@@ -600,6 +617,12 @@ RenderNamespace = {
                 }
             },
 
+            MaxModelsNumberPerMeshConstant = {
+                type = "Common::Size",
+                value = "1024"
+            },
+
+
             NodeMeshesComponent = {
                 serializable = false,
                 fields = {
@@ -613,7 +636,7 @@ RenderNamespace = {
                     { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
                 }
             },
-            
+
             MeshArchetype = {
                 components = {
                     "Render::Model::Mesh::Tag",
@@ -629,8 +652,8 @@ RenderNamespace = {
                     "UVs",
                     "VertexBones",
                     "Render::Material::EntityId",
-            }           
-        }
+                }
+            }
 
         }
     },
@@ -803,7 +826,7 @@ RenderNamespace = {
                 },
 
             },
-            
+
             accessingEntities = {
                 {
                     archetype = "Render::Pipeline_Description"
@@ -903,7 +926,7 @@ GPGPUECSNamespace = {
                         archetype = "Render::Model::Node::Data::Data"
                     },
                     {
-                        archetype = "Model"
+                        archetype = "Render::Model::Model"
                     },
                     {
                         archetype = "Model_Data"
@@ -956,7 +979,7 @@ GPGPUECSNamespace = {
                         archetype = "Render::Model::Node::Data::Data"
                     },
                     {
-                        archetype = "Model"
+                        archetype = "Render::Model::Model"
                     },
                     {
                         archetype = "Model_Data"
@@ -993,7 +1016,7 @@ GPGPUECSNamespace = {
                         archetype = "Render::Model::Node::Data::Data"
                     },
                     {
-                        archetype = "Model"
+                        archetype = "Render::Model::Model"
                     },
                     {
                         archetype = "Model_Data"
@@ -1256,41 +1279,13 @@ EndRenderPassSystem = {
     }
 }
 
-ModelArchetype = {
-    components = {
-        "Name",
-        "WorldPosition3D",
-        "WorldRotation3D",
-        "WorldScale3D",
-        "DriverTransform3D",
-        "Transform3DResource",
-        "Render::Model::File",
-        "Render::Model::Tag",
-        "Render::Model::Node::EntityIds",
-        "Render::Model::BoneNodeEntities",
-        "RunModelAnimation",
-        "AnimationInProgress",
-        "PauseAnimation",
-        "Render::Model::ChildModelNodeEntities",
-        "Render::Model::Mesh::Names",
-        "Render::Model::Mesh::EntityIds",
-        "Render::Model::MeshsFound",
-        "Render::Model::ModelDataEntityId",
-
-    },
-    -- --TEST component
-    -- archetypes = {
-    --     "Physics::Rigid_Body"
-    -- }
-}
-
 Model_DataArchetype = {
     components = {
         "Name",
         "Render::Model::Tag",
-        "Render::Model::BoneNodeEntities",
+        "Render::Model::Node::BoneEntityIds",
         "Render::Model::Node::EntityIds",
         "ModelAnimations",
-        "Render::Model::ChildModelNodeEntities",
+        "Render::Model::Node::ChildNodeEntityIds",
     }
 }
