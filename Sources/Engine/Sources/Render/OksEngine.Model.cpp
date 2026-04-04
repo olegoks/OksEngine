@@ -478,7 +478,7 @@ namespace OksEngine
 
 			ECS2::Entity::Id entity4id,
 			const OksEngine::Render::Model::Data::Controller* render__Model__DataController4,
-			OksEngine::Render::Model::ModelNameToModelDataEntityId* render__Model__ModelNameToModelDataEntityId4) {
+			OksEngine::Render::Model::Data::ModelNameToDataEntityId* render__Model__ModelNameToModelDataEntityId4) {
 
 
 			auto getNodeFullName = [resource__Path3](const aiScene* scene, const aiNode* node) {
@@ -691,9 +691,9 @@ namespace OksEngine
 				if (modelDataIt == render__Model__ModelNameToModelDataEntityId4->modelNameToModelDataEntityId_.end()) {
 					//Controller doesnt contain model data.
 
-					ECS2::Entity::Id modelDataEntityId = CreateEntity<MODEL_DATA>();
+					ECS2::Entity::Id modelDataEntityId = CreateEntity<RENDER__MODEL__DATA__DATA>();
 
-					CreateComponent<Name>(modelDataEntityId, "ModelData");
+					CreateComponent<Render::Model::Name>(modelDataEntityId, "ModelData");
 
 					std::map<const aiNode*, ECS2::Entity::Id> dataNodeToEntityId;
 					decltype(Render::Model::Node::EntityIds::nodeEntityIds_) dataNodeEntityIds;
@@ -1602,80 +1602,83 @@ namespace OksEngine
 		}
 	}
 
-	namespace Render::Model {
-		void CreateDataController::Update() {
+	namespace Render::Model::Data {
+		void CreateController::Update() {
 			const ECS2::Entity::Id modelDataControllerEntity = CreateEntity();
 			CreateComponent<Model::Data::Controller>(modelDataControllerEntity);
-			CreateComponent<ModelNameToModelDataEntityId>(modelDataControllerEntity, std::map<std::string, ECS2::Entity::Id>{});
+			CreateComponent<ModelNameToDataEntityId>(modelDataControllerEntity, std::map<std::string, ECS2::Entity::Id>{});
 		}
 
 	}
 
-	namespace Render::Model {
-		void FindModelData::Update(
-			ECS2::Entity::Id entity0id,
-			const Model::Tag* model0,
-			const OksEngine::Resource::Path* resource__Path0,
-			const Node::EntityIds* modelNodeEntityIds0,
+	namespace Render::Model{
 
-			ECS2::Entity::Id entity1id,
-			const Render::Model::Data::Controller* render__Model__DataController1,
-			const Render::Model::ModelNameToModelDataEntityId* render__Model__ModelNameToModelDataEntityId1) {
+		namespace Data {
+			void FindModelData::Update(
+				ECS2::Entity::Id entity0id,
+				const Model::Tag* model0,
+				const OksEngine::Resource::Path* resource__Path0,
+				const Node::EntityIds* modelNodeEntityIds0,
 
-			auto modelDataIt = render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.find(resource__Path0->path_);
-			if (modelDataIt != render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.end()) {
-				const ECS2::Entity::Id modelDataEntityId = modelDataIt->second;
-				if (IsEntityExist(modelDataEntityId)) {
+				ECS2::Entity::Id entity1id,
+				const Render::Model::Data::Controller* render__Model__DataController1,
+				const Render::Model::Data::ModelNameToDataEntityId* render__Model__ModelNameToModelDataEntityId1) {
 
-					auto* modelDataNodeEntityIds = GetComponent<Model::Node::EntityIds>(modelDataEntityId);
+				auto modelDataIt = render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.find(resource__Path0->path_);
+				if (modelDataIt != render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.end()) {
+					const ECS2::Entity::Id modelDataEntityId = modelDataIt->second;
+					if (IsEntityExist(modelDataEntityId)) {
 
-					for (Common::Index i = 0; i < modelNodeEntityIds0->nodeEntityIds_.size(); i++) {
-						const ECS2::Entity::Id nodeEntityId = modelNodeEntityIds0->nodeEntityIds_[i];
-						if (nodeEntityId.IsValid()) {
-							ASSERT(!IsComponentExist<Render::Model::Node::Data::EntityId>(nodeEntityId));
-							CreateComponent<Render::Model::Node::Data::EntityId>(nodeEntityId, modelDataNodeEntityIds->nodeEntityIds_[i]);
+						auto* modelDataNodeEntityIds = GetComponent<Model::Node::EntityIds>(modelDataEntityId);
 
+						for (Common::Index i = 0; i < modelNodeEntityIds0->nodeEntityIds_.size(); i++) {
+							const ECS2::Entity::Id nodeEntityId = modelNodeEntityIds0->nodeEntityIds_[i];
+							if (nodeEntityId.IsValid()) {
+								ASSERT(!IsComponentExist<Render::Model::Node::Data::EntityId>(nodeEntityId));
+								CreateComponent<Render::Model::Node::Data::EntityId>(nodeEntityId, modelDataNodeEntityIds->nodeEntityIds_[i]);
+
+							}
 						}
+						CreateComponent<Render::Model::Data::EntityId>(entity0id, modelDataEntityId);
 					}
-					CreateComponent<Render::Model::Data::EntityId>(entity0id, modelDataEntityId);
 				}
-			}
 
+			}
 		}
 
 
 		void FindModelMeshs::Update(
-			ECS2::Entity::Id entity0id, 
+			ECS2::Entity::Id entity0id,
 			const OksEngine::Render::Model::Tag* render__Model__Tag0,
-			const OksEngine::Render::Model::Mesh::Names* render__Model__Mesh__MeshNames0,
-			OksEngine::Render::Model::Mesh::EntityIds* render__Model__Mesh__MeshEntities0,
-
+			const OksEngine::Render::Model::Mesh::Names* render__Model__Mesh__Names0,
+			OksEngine::Render::Model::Mesh::EntityIds* render__Model__Mesh__EntityIds0, 
+			
 			ECS2::Entity::Id entity1id,
-			const OksEngine::Render::Model::Mesh::Tag* render__Model__Mesh__Tag1,
+			const OksEngine::Render::Model::Mesh::Tag* render__Model__Mesh__Tag1, 
 			const OksEngine::Name* __Name1,
 			OksEngine::Render::Model::EntityIds* render__Model__EntityIds1) {
 
 			const ECS2::Entity::Id& modelEntityId = entity0id;
 			const ECS2::Entity::Id& meshEntityId = entity1id;
 
-			ASSERT(render__Model__Mesh__MeshNames0->meshNames_.size() == render__Model__Mesh__MeshEntities0->meshEntityIds_.size());
+			ASSERT(render__Model__Mesh__Names0->meshNames_.size() == render__Model__Mesh__EntityIds0->meshEntityIds_.size());
 
 
 			if (
 				std::find(
-					render__Model__Mesh__MeshEntities0->meshEntityIds_.begin(),
-					render__Model__Mesh__MeshEntities0->meshEntityIds_.end(),
-					ECS2::Entity::Id::invalid_) == render__Model__Mesh__MeshEntities0->meshEntityIds_.end()) {
+					render__Model__Mesh__EntityIds0->meshEntityIds_.begin(),
+					render__Model__Mesh__EntityIds0->meshEntityIds_.end(),
+					ECS2::Entity::Id::invalid_) == render__Model__Mesh__EntityIds0->meshEntityIds_.end()) {
 
 				//Skip models that already have all required meshs
 				return;
 			}
 
-			for (Common::Index i = 0; i < render__Model__Mesh__MeshNames0->meshNames_.size(); i++) {
+			for (Common::Index i = 0; i < render__Model__Mesh__Names0->meshNames_.size(); i++) {
 				if (
-					render__Model__Mesh__MeshEntities0->meshEntityIds_[i].IsInvalid() &&
-					render__Model__Mesh__MeshNames0->meshNames_[i] == __Name1->value_) {
-					render__Model__Mesh__MeshEntities0->meshEntityIds_[i] = meshEntityId;
+					render__Model__Mesh__EntityIds0->meshEntityIds_[i].IsInvalid() &&
+					render__Model__Mesh__Names0->meshNames_[i] == __Name1->value_) {
+					render__Model__Mesh__EntityIds0->meshEntityIds_[i] = meshEntityId;
 
 					bool isFoundFreeCell = false;
 					for (Common::Index j = 0; j < render__Model__EntityIds1->modelEntityIds_.max_size(); j++) {
@@ -1691,9 +1694,9 @@ namespace OksEngine
 			}
 			if (
 				std::find(
-					render__Model__Mesh__MeshEntities0->meshEntityIds_.begin(),
-					render__Model__Mesh__MeshEntities0->meshEntityIds_.end(),
-					ECS2::Entity::Id::invalid_) == render__Model__Mesh__MeshEntities0->meshEntityIds_.end()) {
+					render__Model__Mesh__EntityIds0->meshEntityIds_.begin(),
+					render__Model__Mesh__EntityIds0->meshEntityIds_.end(),
+					ECS2::Entity::Id::invalid_) == render__Model__Mesh__EntityIds0->meshEntityIds_.end()) {
 
 				ASSERT(!IsComponentExist<MeshsFound>(modelEntityId));
 
@@ -3480,7 +3483,7 @@ namespace OksEngine
 		Common::Size modelEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MODEL>();
 
 		////MODELS DATA
-		Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<MODEL_DATA>();
+		Common::Size modelDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__DATA__DATA>();
 
 		////MESHS
 		Common::Size meshEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MESH__MESH>();

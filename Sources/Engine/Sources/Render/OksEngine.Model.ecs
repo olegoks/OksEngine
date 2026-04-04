@@ -156,7 +156,7 @@ AiNamespace = {
                 {
                     processesComponents = {
                         "Render::Model::Data::Controller",
-                        { name = "Render::Model::ModelNameToModelDataEntityId", readonly = false }
+                        { name = "Render::Model::Data::ModelNameToDataEntityId", readonly = false }
                     }
                 }
             },
@@ -316,6 +316,79 @@ RenderNamespace = {
                 }
             },
             ControllerComponent = {},
+            ModelNameToDataEntityIdComponent = {
+                description =
+                "Controller for models data. It will be used by model loader to find model data and take it if model was loaded early or to add model data if it is not exist.",
+                bindable = false,
+                serializable = false,
+                fields = {
+                    {
+                        type = "std::map<std::string, ECS2::Entity::Id>",
+                        name = "modelNameToModelDataEntityId"
+                    }
+                }
+            },
+
+            DataArchetype = {
+                components = {
+                    "Name",
+                    "Render::Model::Tag",
+                    "Render::Model::Node::BoneEntityIds",
+                    "Render::Model::Node::EntityIds",
+                    "ModelAnimations",
+                    "Render::Model::Node::ChildNodeEntityIds",
+                }
+            },
+
+            CreateControllerSystem = {
+                type = "Initialize",
+                updateMethod = {
+                    createsEntities = {
+                        {
+                            createsComponents = {
+                                "Model::Data::Controller",
+                                "Model::Data::ModelNameToDataEntityId"
+                            }
+                        }
+                    }
+                }
+            },
+            FindModelDataSystem = {
+                description =
+                "Find model data for models and set nodes data entity ids for model nodes to have fast acces to animations and bone inverse bind matices.",
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "Model::Tag",
+                                "Resource::Path",
+                                "Model::Node::EntityIds"
+                            },
+                            excludes = {
+                                "Model::Data::EntityId"
+                            },
+                            createsComponents = {
+                                "Model::Data::EntityId"
+                            }
+                        },
+                        {
+                            processesComponents = {
+                                "Model::Data::Controller",
+                                "Model::Data::ModelNameToDataEntityId"
+                            }
+                        }
+                    },
+                    accessingEntities = {
+                        {
+                            accessingComponents = {
+                                "Model::Node::EntityIds"
+                            }
+                        }
+                    }
+                }
+            },
+    
+
         },
         TagComponent = {},
         EntityIdComponent = {
@@ -365,73 +438,14 @@ RenderNamespace = {
 
         },
 
-        FileComponent = {
-            fields = {
-                { type = "std::string", name = "fileName" } }
-        },
+        -- FileComponent = {
+        --     fields = {
+        --         { type = "std::string", name = "fileName" } }
+        -- },
         MeshsFoundComponent = {
             serializable = false
         },
 
-        ModelNameToModelDataEntityIdComponent = {
-            description =
-            "Controller for models data. It will be used by model loader to find model data and take it if model was loaded early or to add model data if it is not exist.",
-            bindable = false,
-            serializable = false,
-            fields = {
-                {
-                    type = "std::map<std::string, ECS2::Entity::Id>",
-                    name = "modelNameToModelDataEntityId"
-                }
-            }
-        },
-        CreateDataControllerSystem = {
-            type = "Initialize",
-            updateMethod = {
-                createsEntities = {
-                    {
-                        createsComponents = {
-                            "Model::Data::Controller",
-                            "ModelNameToModelDataEntityId"
-                        }
-                    }
-                }
-            }
-        },
-        FindModelDataSystem = {
-            description =
-            "Find model data for models and set nodes data entity ids for model nodes to have fast acces to animations and bone inverse bind matices.",
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            "Model::Tag",
-                            "Resource::Path",
-                            "Model::Node::EntityIds"
-                        },
-                        excludes = {
-                            "Model::Data::EntityId"
-                        },
-                        createsComponents = {
-                            "Model::Data::EntityId"
-                        }
-                    },
-                    {
-                        processesComponents = {
-                            "Model::Data::Controller",
-                            "ModelNameToModelDataEntityId"
-                        }
-                    }
-                },
-                accessingEntities = {
-                    {
-                        accessingComponents = {
-                            "Model::Node::EntityIds"
-                        }
-                    }
-                }
-            }
-        },
 
         FindModelMeshsSystem = {
             updateMethod = {
@@ -929,7 +943,7 @@ GPGPUECSNamespace = {
                         archetype = "Render::Model::Model"
                     },
                     {
-                        archetype = "Model_Data"
+                        archetype = "Render::Model::Data::Data"
                     },
                     {
                         archetype = "Render::Model::Mesh::Mesh"
@@ -982,7 +996,7 @@ GPGPUECSNamespace = {
                         archetype = "Render::Model::Model"
                     },
                     {
-                        archetype = "Model_Data"
+                        archetype = "Render::Model::Data::Data"
                     },
                     {
                         archetype = "Render::Model::Mesh::Mesh"
@@ -1019,7 +1033,7 @@ GPGPUECSNamespace = {
                         archetype = "Render::Model::Model"
                     },
                     {
-                        archetype = "Model_Data"
+                        archetype = "Render::Model::Data::Data"
                     },
                     {
                         archetype = "Render::Model::Mesh::Mesh"
@@ -1276,16 +1290,5 @@ EndRenderPassSystem = {
                 }
             }
         }
-    }
-}
-
-Model_DataArchetype = {
-    components = {
-        "Name",
-        "Render::Model::Tag",
-        "Render::Model::Node::BoneEntityIds",
-        "Render::Model::Node::EntityIds",
-        "ModelAnimations",
-        "Render::Model::Node::ChildNodeEntityIds",
     }
 }
