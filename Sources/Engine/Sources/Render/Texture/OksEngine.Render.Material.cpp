@@ -23,7 +23,7 @@ namespace OksEngine
 				//	.stage_ = RAL::Driver::Shader::Stage::AllShaders,
 				//};
 
-				//Diffuse maps binding array.
+				//All textures.
 				RAL::Driver::RS::Binding_::Layout diffuseMapsBindingLayout{
 					.binding_ = 0,
 					.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
@@ -31,28 +31,28 @@ namespace OksEngine
 					.stage_ = RAL::Driver::Shader::Stage::FragmentShader,
 				};
 
-				//Normal maps binding array.
-				RAL::Driver::RS::Binding_::Layout normalMapsBindingLayout{
-					.binding_ = 1,
-					.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-					.count_ = 4096,
-					.stage_ = RAL::Driver::Shader::Stage::FragmentShader,
-				};
+				////Normal maps binding array.
+				//RAL::Driver::RS::Binding_::Layout normalMapsBindingLayout{
+				//	.binding_ = 1,
+				//	.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+				//	.count_ = 4096,
+				//	.stage_ = RAL::Driver::Shader::Stage::FragmentShader,
+				//};
 
-				//Metallic maps binding array.
-				RAL::Driver::RS::Binding_::Layout metallicMapsBindingLayout{
-					.binding_ = 2,
-					.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-					.count_ = 4096,
-					.stage_ = RAL::Driver::Shader::Stage::FragmentShader,
-				};
+				////Metallic maps binding array.
+				//RAL::Driver::RS::Binding_::Layout metallicMapsBindingLayout{
+				//	.binding_ = 2,
+				//	.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
+				//	.count_ = 4096,
+				//	.stage_ = RAL::Driver::Shader::Stage::FragmentShader,
+				//};
 
 				RAL::Driver::RS::CI3 ci{
 					.bindings_ = {
 						//infosBindingLayout,
-						diffuseMapsBindingLayout,
+						diffuseMapsBindingLayout/*,
 						normalMapsBindingLayout,
-						metallicMapsBindingLayout }
+						metallicMapsBindingLayout*/ }
 				};
 
 				////Create material resource set.
@@ -96,8 +96,6 @@ namespace OksEngine
 					//SBId,
 					////Reserve binding array element with invalid index.
 					//Common::Bitset<4096>{}.SetBit(Material::InvalidArrayIndex),
-					Common::Bitset<4096>{}.SetBit(Material::InvalidArrayIndex),
-					Common::Bitset<4096>{}.SetBit(Material::InvalidArrayIndex),
 					Common::Bitset<4096>{}.SetBit(Material::InvalidArrayIndex));
 
 
@@ -182,7 +180,7 @@ namespace OksEngine
 					}
 					const Texture::DriverId* diffuseDriverId = GetComponent<Texture::DriverId>(diffuseMapEntityId);
 
-					Common::Bitset<4096>::BitIndex freeIndex = render__Material__ResourceSet_0->diffuseMapBinding_.FindFirstResettedBit();
+					Common::Bitset<4096>::BitIndex freeIndex = render__Material__ResourceSet_0->freeElements_.FindFirstResettedBit();
 
 					RAL::Driver::RS::Binding_::UpdateInfo::Image image{
 						.textureId_ = diffuseDriverId->id_,
@@ -190,13 +188,13 @@ namespace OksEngine
 					};
 
 					RAL::Driver::RS::Binding_::UpdateInfo bindingUpdateInfo{
-						.binding_ = 0,
+						.binding_ = 0,// one binding for all textures.
 						.arrayElement_ = freeIndex,
 						.resourcesCount_ = 1,
 						.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
 						.imageInfos_ = {image}
 					};
-					render__Material__ResourceSet_0->diffuseMapBinding_.SetBit(freeIndex);
+					render__Material__ResourceSet_0->freeElements_.SetBit(freeIndex);
 					materialInfo.diffuseMapIndex_ = freeIndex;
 					updateInfo.bindingUpdateInfos_.push_back(bindingUpdateInfo);
 					CreateComponent<Render::Texture::BindingArrayIndex>(diffuseMapEntityId, freeIndex);
@@ -210,7 +208,7 @@ namespace OksEngine
 					}
 					const Texture::DriverId* diffuseDriverId = GetComponent<Texture::DriverId>(normalMapEntityId);
 
-					Common::Bitset<4096>::BitIndex freeIndex = render__Material__ResourceSet_0->normalMapBinding_.FindFirstResettedBit();
+					Common::Bitset<4096>::BitIndex freeIndex = render__Material__ResourceSet_0->freeElements_.FindFirstResettedBit();
 
 					RAL::Driver::RS::Binding_::UpdateInfo::Image image{
 						.textureId_ = diffuseDriverId->id_,
@@ -218,13 +216,13 @@ namespace OksEngine
 					};
 
 					RAL::Driver::RS::Binding_::UpdateInfo bindingUpdateInfo{
-						.binding_ = 1,
+						.binding_ = 0, // one binding for all textures.
 						.arrayElement_ = freeIndex,
 						.resourcesCount_ = 1,
 						.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
 						.imageInfos_ = {image}
 					};
-					render__Material__ResourceSet_0->normalMapBinding_.SetBit(freeIndex);
+					render__Material__ResourceSet_0->freeElements_.SetBit(freeIndex);
 					materialInfo.normalMapIndex_ = freeIndex;
 					updateInfo.bindingUpdateInfos_.push_back(bindingUpdateInfo);
 					CreateComponent<Render::Texture::BindingArrayIndex>(normalMapEntityId, freeIndex);
@@ -298,7 +296,11 @@ namespace OksEngine
 				};
 
 				renderDriver0->driver_->UpdateResourceSet(materialInfoRSUpdateInfo);
-
+				if (entity1id == 28) {
+					Common::BreakPointLine();
+				}
+				ASSERT(!materialInfoUBId.IsInvalid());
+				ASSERT(!rsId.IsInvalid());
 				CreateComponent<Material::InfoResourceSet>(entity1id, materialInfoUBId, rsId);
 
 			};

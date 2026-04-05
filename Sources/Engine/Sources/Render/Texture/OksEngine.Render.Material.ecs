@@ -46,9 +46,9 @@ RenderNamespace = {
                 { type = "RAL::Driver::ResourceSet::Id", name = "id" },
                 -- { type = "RAL::Driver::SB::Id", name = "infosSBId" },
                 -- { type = "Common::Bitset<4096>", name = "infoBinding" },
-                { type = "Common::Bitset<4096>", name = "diffuseMapBinding" },
-                { type = "Common::Bitset<4096>", name = "normalMapBinding" },
-                { type = "Common::Bitset<4096>", name = "metallicMapBinding" },
+                { type = "Common::Bitset<4096>", name = "freeElements" }
+                --{ type = "Common::Bitset<4096>", name = "normalMapBinding" },
+                --{ type = "Common::Bitset<4096>", name = "metallicMapBinding" },
 
             }
         },

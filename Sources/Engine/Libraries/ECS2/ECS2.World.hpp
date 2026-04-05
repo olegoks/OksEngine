@@ -401,7 +401,7 @@ namespace ECS2 {
 			//Archetype entity.
 			if (archetypeEntitiesComponents_.contains(entityId)) {
 				const ComponentsFilter componentsFilter = archetypeEntitiesComponents_[entityId];
-
+				ASSERT(componentsFilter.IsSet<ComponentType>());
 				std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponents_[componentsFilter];
 				return archetypeComponents->GetComponent<ComponentType>(entityId);
 			}

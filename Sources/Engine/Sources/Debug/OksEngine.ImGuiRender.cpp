@@ -340,26 +340,44 @@ namespace OksEngine
 
 
 		void AddMeshToRender::Update(
-			ECS2::Entity::Id entity0id, const OksEngine::ImGUI::State* state0,
-			const OksEngine::ImGUI::Pipeline* pipeline0, const OksEngine::ImGUI::RenderPass* renderPass0,
-			const OksEngine::MainMenuBar* mainMenuBar0, const OksEngine::Transform2DResource* transform2DResource0,
+			ECS2::Entity::Id entity0id,
+			const OksEngine::ImGUI::State* state0,
+			const OksEngine::ImGUI::Pipeline* pipeline0, 
+			const OksEngine::ImGUI::RenderPass* renderPass0,
+			const OksEngine::MainMenuBar* mainMenuBar0,
+			const OksEngine::Transform2DResource* transform2DResource0,
 			const OksEngine::Render::Material::EntityId* render__Material__EntityId0,
-			const OksEngine::Render::Material::ResourceSet* render__Material__ResourceSet0,
+			//const OksEngine::Render::Material::ResourceSet* render__Material__ResourceSet0,
 			const OksEngine::ImGUI::DriverIndexBuffer* driverIndexBuffer0,
-			const OksEngine::ImGUI::DriverVertexBuffer* driverVertexBuffer0, ECS2::Entity::Id entity1id,
-			OksEngine::RenderDriver* renderDriver1) {
+			const OksEngine::ImGUI::DriverVertexBuffer* driverVertexBuffer0,
+			
+			ECS2::Entity::Id entity1id,
+			OksEngine::RenderDriver* renderDriver1,
+			const OksEngine::Render::Material::ResourceSet_* render__Material__ResourceSet_1) {
 
 			auto driver = renderDriver1->driver_;
 
+			const ECS2::ComponentsFilter materialComponentsFilter = GetComponentsFilter(render__Material__EntityId0->id_);
+
+			//const ECS2::ComponentsFilter textureComponentsFilter = GetComponentsFilter(GetComponent<Render::Texture::Type::DiffuseMap::EntityId>(render__Material__EntityId0->id_)->id_);
+
+			if (!materialComponentsFilter.IsSet<Render::Material::InfoResourceSet>()) {
+				return;
+			}
+
 			driver->SetViewport(0, 0, 2560, 1440);
-			driver->SetScissor(0, 0, 2560, 1440);
+			driver->SetScissor(0, 0, 2560, 1440);	
 			driver->BindPipeline(pipeline0->id_);
 			driver->BindVertexBuffer(driverVertexBuffer0->id_, 0);
 			driver->BindIndexBuffer(driverIndexBuffer0->id_, 0);
+
+			
+			auto* materialInfoResourceSet = GetComponent<Render::Material::InfoResourceSet>(render__Material__EntityId0->id_);
 			driver->Bind(pipeline0->id_, 0,
 				{
-					transform2DResource0->id_,
-					render__Material__ResourceSet0->id_
+					transform2DResource0->id_,				//set 0
+					render__Material__ResourceSet_1->id_,	// set 1
+					materialInfoResourceSet->RSId_			// set 2
 				});
 			driver->DrawIndexed(driverIndexBuffer0->size_ / sizeof(Common::UInt32));
 
@@ -476,7 +494,11 @@ namespace OksEngine
 
 		namespace Atlas {
 
-			void CreateTextureData::Update(ECS2::Entity::Id entity0id, OksEngine::RenderDriver* renderDriver0, ECS2::Entity::Id entity1id,
+			void CreateTextureData::Update(
+				ECS2::Entity::Id entity0id,
+				OksEngine::RenderDriver* renderDriver0,
+
+				ECS2::Entity::Id entity1id,
 				OksEngine::ImGUI::State* state1) {
 
 				ImGuiIO& io = ImGui::GetIO();
@@ -490,7 +512,7 @@ namespace OksEngine
 				pixelsRGBA.resize(width * height);
 				std::memcpy(pixelsRGBA.data(), pixels, width * height * sizeof(RAL::Color4b));
 
-				const ECS2::Entity::Id materialEntityId = world_->CreateEntity();
+				const ECS2::Entity::Id materialEntityId = world_->CreateEntity<RENDER__MATERIAL__MATERIAL>();
 				CreateComponent<Render::Material::EntityId>(entity1id, materialEntityId);
 				
 				CreateComponent<Render::Material::Tag>(materialEntityId);
@@ -498,39 +520,40 @@ namespace OksEngine
 				const ECS2::Entity::Id textureEntityId = world_->CreateEntity();
 				CreateComponent<Render::Texture::Type::DiffuseMap::EntityId>(materialEntityId, textureEntityId);
 
+				CreateComponent<Render::Texture::Tag>(textureEntityId);
 				CreateComponent<Render::Texture::Type::DiffuseMap::Tag>(textureEntityId);
 				CreateComponent<Render::Texture::Info>(textureEntityId, "ImGuiFontsAtlas");
 				CreateComponent<Render::Texture::Data>(textureEntityId, width, height, pixelsRGBA);
 
 
-				RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
-					.name_ = "",
-					.format_ = RAL::Driver::Texture::Format::BGRA_32_UNORM,
-					.data_ = std::vector<Common::Byte>{
-						(const Common::Byte*)pixelsRGBA.data(),
-						(const Common::Byte*)pixelsRGBA.data() + pixelsRGBA.size() * 4},
-					.size_ = {
-						width,
-						height },
-					.targetState_ = RAL::Driver::Texture::State::DataForShaderRead,
-					.targetAccess_ = RAL::Driver::Texture::Access::ShaderRead,
-					.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::FragmentShader, RAL::Driver::Pipeline::Stage::VertexShader},
-					.usages_ = { RAL::Driver::Texture::Usage::Sampled, RAL::Driver::Texture::Usage::TransferDestination },
-					.mipLevels_ = 1,
-					.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
-				};
-				RAL::Driver::Texture::Id textureId = renderDriver0->driver_->CreateTexture(textureCreateInfo);
+				//RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
+				//	.name_ = "",
+				//	.format_ = RAL::Driver::Texture::Format::BGRA_32_UNORM,
+				//	.data_ = std::vector<Common::Byte>{
+				//		(const Common::Byte*)pixelsRGBA.data(),
+				//		(const Common::Byte*)pixelsRGBA.data() + pixelsRGBA.size() * 4},
+				//	.size_ = {
+				//		width,
+				//		height },
+				//	.targetState_ = RAL::Driver::Texture::State::DataForShaderRead,
+				//	.targetAccess_ = RAL::Driver::Texture::Access::ShaderRead,
+				//	.targetPipelineStages_ = { RAL::Driver::Pipeline::Stage::FragmentShader, RAL::Driver::Pipeline::Stage::VertexShader},
+				//	.usages_ = { RAL::Driver::Texture::Usage::Sampled, RAL::Driver::Texture::Usage::TransferDestination },
+				//	.mipLevels_ = 1,
+				//	.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
+				//};
+				//RAL::Driver::Texture::Id textureId = renderDriver0->driver_->CreateTexture(textureCreateInfo);
 
-				RAL::Driver::ResourceSet::Binding textureBinding
-				{
-					.stage_ = RAL::Driver::Shader::Stage::FragmentShader,
-					.binding_ = 0,
-					.textureId_ = textureId
-				};
+				//RAL::Driver::ResourceSet::Binding textureBinding
+				//{
+				//	.stage_ = RAL::Driver::Shader::Stage::FragmentShader,
+				//	.binding_ = 0,
+				//	.textureId_ = textureId
+				//};
 
-				const RAL::Driver::Resource::Id textureResourceId = renderDriver0->driver_->CreateResource(textureBinding);
+				//const RAL::Driver::Resource::Id textureResourceId = renderDriver0->driver_->CreateResource(textureBinding);
 
-				CreateComponent<Render::Material::ResourceSet>(entity1id, textureResourceId);
+				//CreateComponent<Render::Material::ResourceSet>(entity1id, textureResourceId);
 
 
 			};

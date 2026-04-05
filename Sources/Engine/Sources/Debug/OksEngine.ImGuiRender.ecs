@@ -340,14 +340,18 @@ ImGUINamespace = {
                         "MainMenuBar",
                         "Transform2DResource",
                         "Render::Material::EntityId",
-                        "Render::Material::ResourceSet",
+                        -- "Render::Material::ResourceSet",
                         "DriverIndexBuffer",
                         "DriverVertexBuffer"
                     }
                 },
                 {
                     processesComponents = {
-                        { name = "RenderDriver", readonly = false }
+                        { name = "RenderDriver", readonly = false },
+                        "Render::Material::ResourceSet_",
+                    },
+                    accessingComponents = {
+                        "Render::Material::InfoResourceSet"
                     }
                 }
             }

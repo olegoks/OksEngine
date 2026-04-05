@@ -729,25 +729,6 @@ namespace OksEngine
 					CreateComponent<Render::Model::Node::EntityIds>(modelDataEntityId, dataNodeEntityIds);
 
 					auto createDataNodesHierarchy = [&]() {
-
-
-						auto aiMatrixToGlmMatrix = [](const aiMatrix4x4& aiMatrix) {
-
-							aiVector3D position3D;
-							aiQuaternion rotation3D;
-							aiVector3D scale3D;
-							aiMatrix4x4 flipYtoZ;
-							aiMatrix.Decompose(scale3D, rotation3D, position3D);
-
-							const glm::mat4 translateMatrix = glm::mat4{ glm::translate(glm::vec3(position3D.x, position3D.y, position3D.z)) };
-							const glm::mat4 rotationMatrix = glm::toMat4(glm::quat{ rotation3D.w, rotation3D.x, rotation3D.y, rotation3D.z });;
-							const glm::mat4 scaleMatrix = glm::scale(glm::vec3(scale3D.x, scale3D.y, scale3D.z));
-
-							glm::mat4 transform = glm::mat4{ 1 }  *translateMatrix * rotationMatrix * scaleMatrix;
-
-							return transform;
-							};
-
 						auto createDataNodeComponents = [&](const aiScene* scene, const aiNode* node, ECS2::Entity::Id dataNodeEntityId) {
 
 							aiVector3D position3D;
@@ -1095,7 +1076,7 @@ namespace OksEngine
 							if (std::ranges::find(boneNames, node->mName.C_Str()) != boneNames.end()) {
 
 								const aiBone* bone = nameToBone[node->mName.C_Str()];
-								glm::mat4 transform = aiMatrixToGlmMatrix(bone->mOffsetMatrix);
+								glm::mat4 transform = Render::Model::AssimpToGlmMatrix(bone->mOffsetMatrix);
 
 								CreateComponent<BoneInverseBindPoseMatrix>(dataNodeEntityId, transform);
 								CreateComponent<Render::Model::Node::Bone>(dataNodeEntityId);
@@ -1273,7 +1254,7 @@ namespace OksEngine
 							//TODO: remove copy-paste
 							aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
 
-							ECS2::Entity::Id materialEntity = CreateEntity();
+							ECS2::Entity::Id materialEntity = CreateEntity<RENDER__MATERIAL__MATERIAL>();
 							CreateComponent<Render::Material::Tag>(materialEntity);
 							CreateComponent<Render::Material::EntityId>(meshEntityId, materialEntity);
 							{
