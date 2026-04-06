@@ -1426,25 +1426,25 @@ namespace Render::Vulkan {
 
 		virtual void BindVertexBuffer(
 			VertexBuffer::Id VBId,
-			Common::UInt64 offset) override {
+			Common::UInt64 offsetVertices) override {
 
 			if (GCB_ == nullptr) {
 				return;
 			}
 
-			GCB_->BindBuffer(GetVB(VBId), offset);
+			GCB_->BindBuffer(GetVB(VBId), offsetVertices);
 		}
 
 		virtual void BindIndexBuffer(
 			IndexBuffer::Id IBId,
-			Common::UInt64 offset) override {
+			Common::UInt64 offsetIndices) override {
 
 			if (GCB_ == nullptr) {
 				return;
 			}
 
 
-			GCB_->BindBuffer(GetIB(IBId), offset);
+			GCB_->BindBuffer(GetIB(IBId), offsetIndices);
 		}
 
 		virtual void Bind(RAL::Driver::Pipeline::Id pipelineId, Common::UInt32 firstResourceIndex, const std::vector<Resource::Id>& resourceIds) override {
@@ -2014,15 +2014,15 @@ namespace Render::Vulkan {
 			return id;
 		}
 
-		virtual void FillVertexBuffer(VertexBuffer::Id id, Common::Size offset, const void* vertices, Common::Size verticesNumber) override {
+		virtual void FillVertexBuffer(VertexBuffer::Id id, Common::Size offsetVertices, const void* vertices, Common::Size verticesNumber) override {
 
 			std::vector<std::shared_ptr<HostVisibleVertexBuffer>>& vb = VBs_[id];
 			if (vb.size() == 1) {
-				vb[0]->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
+				vb[0]->FillData(offsetVertices, vertices, verticesNumber, objects_.commandPool_);
 			}
 			else {
 				ASSERT_FMSG(vb.size() == concurrentFramesNumber, "Incorrect number of vbs.");
-				vb[currentFrame]->FillData(offset, vertices, verticesNumber, objects_.commandPool_);
+				vb[currentFrame]->FillData(offsetVertices, vertices, verticesNumber, objects_.commandPool_);
 			}
 		}
 
@@ -2157,15 +2157,15 @@ namespace Render::Vulkan {
 			return id;
 		}
 
-		virtual void FillIndexBuffer(IndexBuffer::Id id, Common::Size offset, const void* indices, Common::Size indicesNumber) override {
+		virtual void FillIndexBuffer(IndexBuffer::Id id, Common::Size offsetIndices, const void* indices, Common::Size indicesNumber) override {
 
 			std::vector<std::shared_ptr<HostVisibleIndexBuffer>>& ib = IBs_[id];
 			if (ib.size() == 1) {
-				ib[0]->FillData(offset, indices, indicesNumber, objects_.commandPool_);
+				ib[0]->FillData(offsetIndices, indices, indicesNumber, objects_.commandPool_);
 			}
 			else {
 				ASSERT_FMSG(ib.size() == concurrentFramesNumber, "Incorrect number of vbs.");
-				ib[currentFrame]->FillData(offset, indices, indicesNumber, objects_.commandPool_);
+				ib[currentFrame]->FillData(offsetIndices, indices, indicesNumber, objects_.commandPool_);
 			}
 		}
 

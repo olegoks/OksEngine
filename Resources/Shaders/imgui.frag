@@ -10,8 +10,14 @@ SHADER_USE_MATERIAL
 
 layout(location = 0) in struct { vec4 Color; vec2 UV; } In;
 
+layout(push_constant) uniform TextureIndex {
+  
+    uint textureIndex_;    
+};
+
+
 void main()
 {
-    fColor = In.Color * texture(MATERIAL_GET_DIFFUSE_MAP, In.UV.st);
+    fColor = In.Color * texture(textures[nonuniformEXT(textureIndex_)], In.UV.st);
     
 }

@@ -21,7 +21,7 @@ namespace OksEngine
 
 
 
-			void EditBindings(std::shared_ptr<ECS2::World> ecsWorld, Bindings* bindings) {
+			void EditBindings(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Bindings* bindings) {
 				ImGui::PushID(Bindings::GetTypeId());
 				for (const auto& binding : bindings->bindings_) {
 					ImGui::Indent(20.f);
@@ -36,7 +36,7 @@ namespace OksEngine
 				ImGui::PopID();
 			}
 
-			void EditPushConstants(std::shared_ptr<ECS2::World> ecsWorld, PushConstants* pushConstants) {
+			void EditPushConstants(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, PushConstants* pushConstants) {
 				ImGui::PushID(Bindings::GetTypeId());
 				for (const auto& pushConstant : pushConstants->constants_) {
 					ImGui::Indent(20.f);

@@ -8,7 +8,7 @@ namespace OksEngine
 	namespace Physics
 	{
 		//Capsule
-		void EditShapeGeometryCapsule(std::shared_ptr<ECS2::World> ecsWorld, ShapeGeometryCapsule* shapeGeometryCapsule) {
+		void EditShapeGeometryCapsule(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, ShapeGeometryCapsule* shapeGeometryCapsule) {
 
 			ImGui::PushID(ShapeGeometryCapsule::GetTypeId());
 
@@ -87,7 +87,7 @@ namespace OksEngine
 		//}
 
 		//Custom mesh shape
-		void EditShapeGeometryData(std::shared_ptr<ECS2::World> ecsWorld, ShapeGeometryData* shapeGeometryData) {
+		void EditShapeGeometryData(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, ShapeGeometryData* shapeGeometryData) {
 
 			ImGui::PushID(ShapeGeometryData::GetTypeId());
 
@@ -526,7 +526,7 @@ namespace OksEngine
 		}
 
 		//RigidBodyEntityIds
-		void EditRigidBodyEntityIds(std::shared_ptr<ECS2::World> ecsWorld, RigidBodyEntityIds* rigidBodyEntityIds) {
+		void EditRigidBodyEntityIds(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, RigidBodyEntityIds* rigidBodyEntityIds) {
 			NOT_IMPLEMENTED();
 		}
 		void BindRigidBodyEntityIds(::Lua::Context& context) {

@@ -301,7 +301,7 @@ namespace OksEngine
 				}
 				ASSERT(!materialInfoUBId.IsInvalid());
 				ASSERT(!rsId.IsInvalid());
-				CreateComponent<Material::InfoResourceSet>(entity1id, materialInfoUBId, rsId);
+				CreateComponent<Material::InfoResourceSet>(entity1id, materialInfo, materialInfoUBId, rsId);
 
 			};
 

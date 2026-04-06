@@ -31,10 +31,10 @@ namespace Render::Vulkan
 		SetHandle(buffer);
 	}
 
-	void Buffer::Write(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept {
+	void Buffer::Write(Common::Size offsetInBytes, const void* data, Common::Size sizeInBytes) noexcept {
 		ASSERT(memory_ != nullptr);
-		ASSERT(offset + sizeInBytes <= memory_->GetSize());
-		memory_->Write(offset, data, sizeInBytes);
+		ASSERT(offsetInBytes + sizeInBytes <= memory_->GetSize());
+		memory_->Write(offsetInBytes, data, sizeInBytes);
 	}
 
 	void Buffer::WriteFlush(Common::Size offset, const void* data, Common::Size sizeInBytes) noexcept {

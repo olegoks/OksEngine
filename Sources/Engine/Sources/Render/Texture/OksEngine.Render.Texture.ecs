@@ -110,6 +110,7 @@ RenderNamespace = {
         },
 
         BindingArrayIndexComponent = {
+            manualEditFunction = true,
             fields = {
                 { type = "Common::UInt32", name = "index" }
             }

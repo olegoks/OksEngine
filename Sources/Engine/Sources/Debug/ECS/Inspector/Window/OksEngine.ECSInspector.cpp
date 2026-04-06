@@ -216,7 +216,7 @@ namespace OksEngine
                 if (ImGui::CollapsingHeader(ComponentType::GetName(), &isExist))
                 {
                     ComponentType* component = world->GetComponent<ComponentType>(id);
-                    Edit<ComponentType>(world, component);
+                    Edit<ComponentType>(world, id, component);
                     ImGui::Spacing();
                 }
                 if (!isExist)

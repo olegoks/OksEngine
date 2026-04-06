@@ -3,7 +3,7 @@
 
 namespace OksEngine
 {
-void EditVertices3D(std::shared_ptr<ECS2::World> ecsWorld, Vertices3D *vertices3D) {
+void EditVertices3D(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Vertices3D *vertices3D) {
 
 	ImGui::PushID(Vertices3D::GetTypeId());
 

@@ -384,6 +384,7 @@ namespace ECSGenerator2 {
 				.name_ = "Edit" + component->GetName(), 
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
+					{  "ECS2::Entity::Id", "ecsEntityId" },
 					{ component->GetName() + "*", component->GetLowerName()}
 				},
 				.returnType_ = "void",
@@ -405,6 +406,7 @@ namespace ECSGenerator2 {
 				.name_ = "Edit" + component->GetName(),
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
+					{ "ECS2::Entity::Id", "ecsEntityId" },
 					{ component->GetName() + "*", component->GetLowerName()}
 				},
 				.returnType_ = "void",
@@ -424,6 +426,7 @@ namespace ECSGenerator2 {
 				.name_ = "Edit" + component->GetName(),
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
+					{ "ECS2::Entity::Id", "ecsEntityId" },
 					{ component->GetName() + "*", component->GetLowerName()}
 				},
 				.returnType_ = "void",
@@ -441,13 +444,14 @@ namespace ECSGenerator2 {
 
 			//Template variant
 			CodeStructure::Function::CreateInfo fci2{
-				.name_ = "::OksEngine::Edit",//Exlicit OksEngine namespace to overload default Edit Function
+				.name_ = "::OksEngine::Edit",//Explicit OksEngine namespace to overload default Edit Function
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
+					{ "ECS2::Entity::Id", "ecsEntityId" },
 					{ component->GetName() + "*", component->GetLowerName()}
 				},
 				.returnType_ = "void",
-				.code_ = std::format("Edit{}(ecsWorld,{});", component->GetName(), component->GetLowerName()),
+				.code_ = std::format("Edit{}(ecsWorld, ecsEntityId, {});", component->GetName(), component->GetLowerName()),
 				.inlineModifier_ = true,
 				.templateParameters_ = {},
 				.specializedTemplateParameters_ = { component->GetName() }
@@ -476,10 +480,11 @@ namespace ECSGenerator2 {
 				.name_ = "Edit",//Exlicit OksEngine namespace to overload default Edit Function
 				.parameters_ = {
 					{ "std::shared_ptr<ECS2::World>", "ecsWorld" },
+					{ "ECS2::Entity::Id", "ecsEntityId" },
 					{ forTypeName + component->GetName() + "*", component->GetLowerName()}
 				},
 				.returnType_ = "void",
-				.code_ = std::format("{}Edit{}(ecsWorld,{});", forTypeName, component->GetName(), component->GetLowerName()),
+				.code_ = std::format("{}Edit{}(ecsWorld, ecsEntityId, {});", forTypeName, component->GetName(), component->GetLowerName()),
 				.inlineModifier_ = true,
 				.templateParameters_ = {},
 				.specializedTemplateParameters_ = { forTypeName + component->GetName() }

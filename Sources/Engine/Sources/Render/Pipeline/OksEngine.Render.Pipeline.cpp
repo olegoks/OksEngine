@@ -27,7 +27,7 @@ namespace OksEngine
 					CreateComponent<Manager::Pipelines>(managerEntityId);
 				}
 
-				void EditPipelines(std::shared_ptr<ECS2::World> ecsWorld, Pipelines* pipelines) {
+				void EditPipelines(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Pipelines* pipelines) {
 
 					ImGui::Indent(20.f);
 

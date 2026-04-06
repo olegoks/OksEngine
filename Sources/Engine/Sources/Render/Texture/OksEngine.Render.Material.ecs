@@ -21,7 +21,9 @@ RenderNamespace = {
         InfoResourceSetComponent = {
             description = "",
             serializable = false,
+            manualEditFunction = true,
             fields = {
+                { type = "Info", name = "info" },
                 { type = "RAL::Driver::UB::Id", name = "UBBId" },
                 { type = "RAL::Driver::ResourceSet::Id", name = "RSId" },
             }

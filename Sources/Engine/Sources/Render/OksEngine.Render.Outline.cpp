@@ -26,6 +26,7 @@ namespace OksEngine
 
 			void EditSelectedEntityIds(
 				std::shared_ptr<ECS2::World> ecsWorld,
+				ECS2::Entity::Id ecsEntityId,
 				SelectedEntityIds* selectedEntityIds) {
 
 				ImGui::PushID(SelectedEntityIds::GetTypeId());

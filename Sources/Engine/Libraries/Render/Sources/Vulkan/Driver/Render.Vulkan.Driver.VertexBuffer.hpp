@@ -160,7 +160,7 @@ namespace Render::Vulkan {
 
 		void FillData(Common::Size verticesOffset, const void* vertices, Common::Size verticesNumber, std::shared_ptr<CommandPool> commandPool) {
 			stagingBuffer_->Write(
-				verticesOffset,
+				0,
 				vertices,
 				createInfo_.vertexSize_ * verticesNumber);
 			Buffer::DataCopy(*stagingBuffer_, *this, 0, verticesOffset * createInfo_.vertexSize_, verticesNumber * createInfo_.vertexSize_, createInfo_.LD_, commandPool);

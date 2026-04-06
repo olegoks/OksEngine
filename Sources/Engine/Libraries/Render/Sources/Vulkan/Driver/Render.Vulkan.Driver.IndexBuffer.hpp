@@ -105,13 +105,13 @@ namespace Render::Vulkan {
 
 		}
 
-		void FillData(Common::Size offset, const void* indices, Common::Size indicesNumber, std::shared_ptr<CommandPool> commandPool) {
+		void FillData(Common::Size offsetIndices, const void* indices, Common::Size indicesNumber, std::shared_ptr<CommandPool> commandPool) {
 
 			stagingBuffer_->Write(0, indices, indicesNumber * GetIndexSize());
 
 			Buffer::DataCopy(
 				*stagingBuffer_, *this,
-				0, offset,
+				0, offsetIndices * GetIndexSize(),
 				indicesNumber * GetIndexSize(),
 				createInfo_.LD_,
 				commandPool);

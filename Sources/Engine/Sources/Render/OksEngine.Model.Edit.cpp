@@ -4,7 +4,7 @@
 
 namespace OksEngine
 {
-	void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, AnimationInProgress* animationInProgress) {
+	void EditAnimationInProgress(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, AnimationInProgress* animationInProgress) {
 		ImGui::PushID(AnimationInProgress::GetTypeId());
 
 		ImGui::TextDisabled("Animation index %d", animationInProgress->animationIndex_);
@@ -21,7 +21,7 @@ namespace OksEngine
 		ImGui::PopID();
 	}
 
-	void EditModelAnimations(std::shared_ptr<ECS2::World> ecsWorld, ModelAnimations* modelAnimations) {
+	void EditModelAnimations(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, ModelAnimations* modelAnimations) {
 		ImGui::PushID(ModelAnimations::GetTypeId());
 		for (const auto& animation : modelAnimations->animations_) {
 			ImGui::Indent(20.f);
@@ -58,7 +58,7 @@ namespace OksEngine
 	namespace Render::Model {
 
 		namespace Node {
-			void EditEntityIds(std::shared_ptr<ECS2::World> ecsWorld, Render::Model::Node::EntityIds* modelNodeEntityIds) {
+			void EditEntityIds(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Render::Model::Node::EntityIds* modelNodeEntityIds) {
 				ImGui::PushID(Render::Model::Node::ChildNodeEntityIds::GetTypeId());
 				for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeEntityIds_) {
 					if (modelNodeEntityId.IsInvalid()) {
@@ -73,7 +73,7 @@ namespace OksEngine
 				ImGui::PopID();
 			}
 
-			void EditEntityIndices(std::shared_ptr<ECS2::World> ecsWorld, Node::EntityIndices* modelNodeEntityIndices) {
+			void EditEntityIndices(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Node::EntityIndices* modelNodeEntityIndices) {
 				ImGui::PushID(Render::Model::Node::EntityIndices::GetTypeId());
 
 				//auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);

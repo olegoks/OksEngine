@@ -54,6 +54,7 @@ namespace OksEngine
 
 		void EditSecondConstraintedRigidBodyJointRotation3D(
 			std::shared_ptr<ECS2::World> ecsWorld,
+			ECS2::Entity::Id ecsEntityId,
 			SecondConstraintedRigidBodyJointRotation3D* secondConstraintedRigidBodyJointRotation3D) {
 
 			ImGui::PushID(SecondConstraintedRigidBodyJointRotation3D::GetTypeId());
@@ -68,6 +69,7 @@ namespace OksEngine
 
 		void EditFirstConstraintedRigidBodyJointRotation3D(
 			std::shared_ptr<ECS2::World> ecsWorld,
+			ECS2::Entity::Id ecsEntityId,
 			FirstConstraintedRigidBodyJointRotation3D* firstConstraintedRigidBodyJointRotation3D) {
 
 			ImGui::PushID(FirstConstraintedRigidBodyJointRotation3D::GetTypeId());
@@ -123,7 +125,7 @@ namespace OksEngine
 
 		}
 
-		void EditConstraintEntityIds(std::shared_ptr<ECS2::World> ecsWorld, ConstraintEntityIds* constraintEntityIds) {
+		void EditConstraintEntityIds(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, ConstraintEntityIds* constraintEntityIds) {
 			NOT_IMPLEMENTED();
 		}
 

@@ -13,7 +13,7 @@ namespace OksEngine {
 	
 
 	template<class Component>
-	inline void Edit(std::shared_ptr<ECS2::World>, Component* component) {
+	inline void Edit(std::shared_ptr<ECS2::World>, ECS2::Entity::Id entityId, Component* component) {
 
 	}
 

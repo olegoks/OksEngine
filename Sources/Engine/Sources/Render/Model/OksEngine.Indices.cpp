@@ -3,7 +3,7 @@
 
 namespace OksEngine
 {
-	void EditIndices(std::shared_ptr<ECS2::World> ecsWorld, Indices* indices) {
+	void EditIndices(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Indices* indices) {
 		ImGui::PushID(Indices::GetTypeId());
 
 		std::string text;

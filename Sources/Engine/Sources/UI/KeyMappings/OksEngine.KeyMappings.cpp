@@ -5,7 +5,7 @@ namespace OksEngine
 {
 	namespace Input
 	{
-		void EditKeyMappings(std::shared_ptr<ECS2::World> ecsWorld, KeyMappings* keyMappings) {
+		void EditKeyMappings(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id, KeyMappings* keyMappings) {
 			
 			if (ImGui::BeginTable("KeyMappings", 2, ImGuiTableFlags_Borders | ImGuiTableFlags_RowBg)) {
 				// ��������� �������

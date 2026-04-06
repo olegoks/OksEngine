@@ -7,7 +7,7 @@
 
 namespace OksEngine
 {
-	void EditWorldRotation3D(std::shared_ptr<ECS2::World> ecsWorld, WorldRotation3D* worldRotation3D) {
+	void EditWorldRotation3D(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, WorldRotation3D* worldRotation3D) {
 
 		ImGui::PushID(WorldRotation3D::GetTypeId());
 		ImGui::InputScalar("w", ImGuiDataType_Float, &worldRotation3D->w_);

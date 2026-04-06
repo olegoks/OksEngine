@@ -339,6 +339,114 @@ namespace OksEngine
 		}
 
 
+		void UpdateRenderData::Update(
+			ECS2::Entity::Id entity1Id, const State* imGuiState,
+			DriverVertexBuffer* imGuiDriverVertexBuffer,
+			DriverIndexBuffer* imGuiDriverIndexBuffer,
+			ECS2::Entity::Id entity2Id, RenderDriver* renderDriver) {
+
+			//
+			//static Common::UInt64 skipedFrames = 5;
+			//static Common::UInt64 currentFrame = 0;
+			//if (currentFrame != 4) {
+			//	++currentFrame;
+			//	return;
+			//}
+			//else {
+			//	currentFrame = 0;
+			//}
+			return;
+
+			ImDrawData* draw_data = ImGui::GetDrawData();
+			if (draw_data == nullptr) {
+				return;
+			}
+			// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
+			int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
+			int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
+			if (fb_width <= 0 || fb_height <= 0)
+				return;
+
+			//TODO: Move to component.
+			static Geom::IndexBuffer<Common::UInt32> indices;
+
+			using namespace Common;
+			indices.Reserve(10_MB / indices.GetIndexSize());
+			indices.Clear();
+
+			static Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
+
+			vertices2ftc.Reserve(30_MB / vertices2ftc.GetVertexSize());
+			vertices2ftc.Clear();
+
+
+			for (int n = 0; n < draw_data->CmdListsCount; n++) {
+				const ImDrawList* cmd_list = draw_data->CmdLists[n];
+				for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
+				{
+					const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+					{
+
+						const Common::Size verticesNumber = cmd_list->VtxBuffer.Size - pcmd->VtxOffset;
+
+						indices.AddNextMesh(
+							vertices2ftc.GetVerticesNumber(),
+							cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
+							cmd_list->IdxBuffer.Size - pcmd->IdxOffset);
+
+						const ImDrawVert* imVertices = cmd_list->VtxBuffer.Data + pcmd->VtxOffset;
+						vertices2ftc.Add((RAL::Vertex2ftc*)imVertices, verticesNumber);
+
+					}
+				}
+			}
+			if (vertices2ftc.GetVerticesNumber() == 0) {
+				return;
+			}
+
+			auto driver = renderDriver->driver_;
+
+			//Resize buffers if need.
+			if (vertices2ftc.GetSizeInBytes() > renderDriver->driver_->GetVBSizeInBytes(imGuiDriverVertexBuffer->id_)) {
+				renderDriver->driver_->ResizeVertexBuffer(
+					imGuiDriverVertexBuffer->id_,
+					vertices2ftc.GetSizeInBytes());
+				imGuiDriverVertexBuffer->capacity_ = vertices2ftc.GetSizeInBytes();
+			}
+			if (indices.GetSizeInBytes() > renderDriver->driver_->GetIBSizeInBytes(imGuiDriverIndexBuffer->id_)) {
+				renderDriver->driver_->ResizeIndexBuffer(
+					imGuiDriverIndexBuffer->id_,
+					indices.GetSizeInBytes());
+
+				imGuiDriverIndexBuffer->capacity_ = vertices2ftc.GetSizeInBytes();
+			}
+
+
+			//Send vertices and indices data to GPU only if they changed.
+			bool isDataChanged = false;
+
+			//if()
+
+
+			//Fill data.
+			renderDriver->driver_->FillVertexBuffer(
+				imGuiDriverVertexBuffer->id_,
+				0,
+				vertices2ftc.GetData(),
+				vertices2ftc.GetVerticesNumber());
+			imGuiDriverVertexBuffer->size_ = vertices2ftc.GetSizeInBytes();
+
+			driver->FillIndexBuffer(
+				imGuiDriverIndexBuffer->id_,
+				0,
+				indices.GetData(),
+				indices.GetIndicesNumber());
+
+			imGuiDriverIndexBuffer->size_ = indices.GetSizeInBytes();
+
+		};
+
+
 		void AddMeshToRender::Update(
 			ECS2::Entity::Id entity0id,
 			const OksEngine::ImGUI::State* state0,
@@ -357,22 +465,119 @@ namespace OksEngine
 
 			auto driver = renderDriver1->driver_;
 
+			ImDrawData* draw_data = ImGui::GetDrawData();
+			if (draw_data == nullptr) {
+				return;
+			}
+
+			// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
+			int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
+			int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
+			if (fb_width <= 0 || fb_height <= 0)
+				return;
+
+			//Skip rendering if main ImGui atlas is not created.
 			const ECS2::ComponentsFilter materialComponentsFilter = GetComponentsFilter(render__Material__EntityId0->id_);
-
-			//const ECS2::ComponentsFilter textureComponentsFilter = GetComponentsFilter(GetComponent<Render::Texture::Type::DiffuseMap::EntityId>(render__Material__EntityId0->id_)->id_);
-
 			if (!materialComponentsFilter.IsSet<Render::Material::InfoResourceSet>()) {
 				return;
 			}
 
+			//TODO: Move to component.
+			static Geom::IndexBuffer<Common::UInt32> indices;
+
+			using namespace Common;
+			indices.Reserve(10_MB / indices.GetIndexSize());
+			indices.Clear();
+
+			static Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
+
+			vertices2ftc.Reserve(30_MB / vertices2ftc.GetVertexSize());
+			vertices2ftc.Clear();
+
+
+			driver->SetViewport(0, 0, 2560, 1440);
+			driver->BindPipeline(pipeline0->id_);
+
+			auto* materialInfoResourceSet = GetComponent<Render::Material::InfoResourceSet>(render__Material__EntityId0->id_);
+			ImGuiIO& io = ImGui::GetIO();
+			ImTextureData* texData = io.Fonts->TexData;
+			texData->SetTexID(materialInfoResourceSet->info_.diffuseMapIndex_);
+
+			Common::Size offsetVB = 0;
+			Common::Size offsetIB = 0;
+
+
+			for (int n = 0; n < draw_data->CmdListsCount; n++) {
+				ImDrawList* cmd_list = draw_data->CmdLists[n];
+
+
+				driver->FillVertexBuffer(
+					driverVertexBuffer0->id_,
+					offsetVB,
+					cmd_list->VtxBuffer.Data,
+					cmd_list->VtxBuffer.Size);
+
+				driver->FillIndexBuffer(
+					driverIndexBuffer0->id_,
+					offsetIB,
+					cmd_list->IdxBuffer.Data,
+					cmd_list->IdxBuffer.Size);
+				
+
+
+				for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
+				{
+					const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
+					{
+
+
+						driver->BindVertexBuffer(driverVertexBuffer0->id_, offsetVB + pcmd->VtxOffset);
+						driver->BindIndexBuffer(driverIndexBuffer0->id_, offsetIB + pcmd->IdxOffset);
+
+
+						Common::UInt32 textureId = pcmd->GetTexID();//materialInfoResourceSet->info_.diffuseMapIndex_;//pcmd->TexRef._TexID;
+
+
+						driver->PushConstants(
+							pipeline0->id_,
+							RAL::Driver::Shader::Stage::FragmentShader,
+							sizeof(Common::UInt32),
+							&textureId);
+
+
+
+						driver->Bind(pipeline0->id_, 0,
+							{
+								transform2DResource0->id_,				//set 0
+								render__Material__ResourceSet_1->id_,	// set 1 // ALL TEXTURES
+								materialInfoResourceSet->RSId_			// set 2 // 
+							});
+
+
+						driver->DrawIndexed(pcmd->ElemCount);
+
+					}
+				}
+
+				offsetVB += cmd_list->VtxBuffer.Size;
+				offsetIB += cmd_list->IdxBuffer.Size;
+			}
+
+
+
+
+			//const ECS2::ComponentsFilter textureComponentsFilter = GetComponentsFilter(GetComponent<Render::Texture::Type::DiffuseMap::EntityId>(render__Material__EntityId0->id_)->id_);
+
+
+
 			driver->SetViewport(0, 0, 2560, 1440);
 			driver->SetScissor(0, 0, 2560, 1440);	
-			driver->BindPipeline(pipeline0->id_);
+			
 			driver->BindVertexBuffer(driverVertexBuffer0->id_, 0);
 			driver->BindIndexBuffer(driverIndexBuffer0->id_, 0);
 
 			
-			auto* materialInfoResourceSet = GetComponent<Render::Material::InfoResourceSet>(render__Material__EntityId0->id_);
+			
 			driver->Bind(pipeline0->id_, 0,
 				{
 					transform2DResource0->id_,				//set 0
@@ -425,7 +630,7 @@ namespace OksEngine
 
 			using namespace Common;
 
-			constexpr Common::UInt64 capacity = 30_MB;
+			constexpr Common::UInt64 capacity = 128_MB;
 
 			RAL::Driver::IndexBuffer::CreateInfo1 IBCI{
 				.indicesNumber_ = capacity,
@@ -507,6 +712,8 @@ namespace OksEngine
 				unsigned char* pixels;
 				int width, height;
 				io.Fonts->GetTexDataAsRGBA32(&pixels, &width, &height);
+
+
 
 				std::vector<RAL::Color4b> pixelsRGBA;
 				pixelsRGBA.resize(width * height);
@@ -600,112 +807,6 @@ namespace OksEngine
 			}
 
 		}
-
-		void UpdateRenderData::Update(
-			ECS2::Entity::Id entity1Id, const State* imGuiState,
-			DriverVertexBuffer* imGuiDriverVertexBuffer,
-			DriverIndexBuffer* imGuiDriverIndexBuffer,
-			ECS2::Entity::Id entity2Id, RenderDriver* renderDriver) {
-
-			//
-			//static Common::UInt64 skipedFrames = 5;
-			//static Common::UInt64 currentFrame = 0;
-			//if (currentFrame != 4) {
-			//	++currentFrame;
-			//	return;
-			//}
-			//else {
-			//	currentFrame = 0;
-			//}
-
-
-			ImDrawData* draw_data = ImGui::GetDrawData();
-			if (draw_data == nullptr) {
-				return;
-			}
-			// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
-			int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
-			int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
-			if (fb_width <= 0 || fb_height <= 0)
-				return;
-
-			//TODO: Move to component.
-			static Geom::IndexBuffer<Common::UInt32> indices;
-
-			using namespace Common;
-			indices.Reserve(10_MB / indices.GetIndexSize());
-			indices.Clear();
-
-			static Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
-
-			vertices2ftc.Reserve(30_MB / vertices2ftc.GetVertexSize());
-			vertices2ftc.Clear();
-
-			for (int n = 0; n < draw_data->CmdListsCount; n++) {
-				const ImDrawList* cmd_list = draw_data->CmdLists[n];
-				for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
-				{
-					const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-					{
-
-						const Common::Size verticesNumber = cmd_list->VtxBuffer.Size - pcmd->VtxOffset;
-
-						indices.AddNextMesh(
-							vertices2ftc.GetVerticesNumber(),
-							cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
-							cmd_list->IdxBuffer.Size - pcmd->IdxOffset);
-
-						const ImDrawVert* imVertices = cmd_list->VtxBuffer.Data + pcmd->VtxOffset;
-						vertices2ftc.Add((RAL::Vertex2ftc*)imVertices, verticesNumber);
-
-					}
-				}
-			}
-			if (vertices2ftc.GetVerticesNumber() == 0) {
-				return;
-			}
-
-			auto driver = renderDriver->driver_;
-
-			//Resize buffers if need.
-			if (vertices2ftc.GetSizeInBytes() > renderDriver->driver_->GetVBSizeInBytes(imGuiDriverVertexBuffer->id_)) {
-				renderDriver->driver_->ResizeVertexBuffer(
-					imGuiDriverVertexBuffer->id_,
-					vertices2ftc.GetSizeInBytes());
-				imGuiDriverVertexBuffer->capacity_ = vertices2ftc.GetSizeInBytes();
-			}
-			if (indices.GetSizeInBytes() > renderDriver->driver_->GetIBSizeInBytes(imGuiDriverIndexBuffer->id_)) {
-				renderDriver->driver_->ResizeIndexBuffer(
-					imGuiDriverIndexBuffer->id_,
-					indices.GetSizeInBytes());
-
-				imGuiDriverIndexBuffer->capacity_ = vertices2ftc.GetSizeInBytes();
-			}
-
-
-			//Send vertices and indices data to GPU only if they changed.
-			bool isDataChanged = false;
-
-			//if()
-
-
-			//Fill data.
-			renderDriver->driver_->FillVertexBuffer(
-				imGuiDriverVertexBuffer->id_,
-				0,
-				vertices2ftc.GetData(),
-				vertices2ftc.GetVerticesNumber());
-			imGuiDriverVertexBuffer->size_ = vertices2ftc.GetSizeInBytes();
-
-			driver->FillIndexBuffer(
-				imGuiDriverIndexBuffer->id_,
-				0,
-				indices.GetData(),
-				indices.GetIndicesNumber());
-
-			imGuiDriverIndexBuffer->size_ = indices.GetSizeInBytes();
-
-		};
 
 
 		void RemoveUIFromSelection::Update(

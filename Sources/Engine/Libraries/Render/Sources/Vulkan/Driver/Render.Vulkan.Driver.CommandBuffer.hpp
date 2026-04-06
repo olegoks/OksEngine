@@ -186,9 +186,9 @@ namespace Render::Vulkan {
 
 		void BindBuffer(
 			std::shared_ptr<VertexBuffer2> vertexBuffer,
-			Common::Size offset) noexcept {
+			Common::Size offsetVertices) noexcept {
 
-			VkDeviceSize offsets[] = { offset };
+			VkDeviceSize offsets[] = { offsetVertices * vertexBuffer->GetVertexSize() };
 			vkCmdBindVertexBuffers(
 				GetHandle(),
 				0,
@@ -200,11 +200,11 @@ namespace Render::Vulkan {
 
 		void BindBuffer(
 			std::shared_ptr<IndexBuffer2> indexBuffer,
-			Common::Size offset) noexcept {
+			Common::Size offsetIndices) noexcept {
 			vkCmdBindIndexBuffer(
 				GetHandle(),
 				*indexBuffer,
-				offset,
+				offsetIndices * indexBuffer->GetIndexSize(),
 				IndexSizeToVulkanType(indexBuffer->GetIndexSize()));
 		}
 
