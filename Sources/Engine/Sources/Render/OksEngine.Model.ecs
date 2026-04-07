@@ -435,8 +435,10 @@ RenderNamespace = {
                 "Render::Model::Data::EntityId",
 
             },
-
         },
+
+
+
 
         -- FileComponent = {
         --     fields = {
@@ -906,53 +908,53 @@ RenderNamespace = {
 
 GPGPUECSNamespace = {
     StorageBufferNamespace = {
-        WriteComponentsToGPUSystem = {
-            callOrder = {
-                runAfter = {
-                    "SystemMarks::FRAME_BODY_START" },
-                runBefore = "StartRender"
-            },
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false },
-                            "GPGPUECS::StorageBuffer::MeshNodeEntityIndices",
-                            "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",
-                            "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
-                            "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
-                            "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
-                            "GPGPUECS::StorageBuffer::EntityIds",
-                            "GPGPUECS::StorageBuffer::WorldPositions3D",
-                            "GPGPUECS::StorageBuffer::WorldRotations3D",
-                            "GPGPUECS::StorageBuffer::WorldScales3D",
-                            "GPGPUECS::StorageBuffer::BoneNodeEntities",
-                            "GPGPUECS::StorageBuffer::ModelNodeEntityIds",
-                            "GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices"
-                        }
-                    }
-                },
-                accessingEntities = {
-                    {
-                        archetype = "Render::Model::Node::Node",
-                    },
-                    {
-                        archetype = "Render::Model::Node::Data::Data"
-                    },
-                    {
-                        archetype = "Render::Model::Model"
-                    },
-                    {
-                        archetype = "Render::Model::Data::Data"
-                    },
-                    {
-                        archetype = "Render::Model::Mesh::Mesh"
-                    }
-                }
+        -- WriteComponentsToGPUSystem = {
+        --     callOrder = {
+        --         runAfter = {
+        --             "SystemMarks::FRAME_BODY_START" },
+        --         runBefore = "StartRender"
+        --     },
+        --     updateMethod = {
+        --         processesEntities = {
+        --             {
+        --                 processesComponents = {
+        --                     { name = "RenderDriver", readonly = false },
+        --                     "GPGPUECS::StorageBuffer::MeshNodeEntityIndices",
+        --                     "GPGPUECS::StorageBuffer::NodeDataEntityIdsToComponentIndices",
+        --                     "GPGPUECS::StorageBuffer::ModelNodeDataEntityIds",
+        --                     "GPGPUECS::StorageBuffer::NodeEntityIdsToComponentIndices",
+        --                     "GPGPUECS::StorageBuffer::ModelEntityIdsToComponentIndices",
+        --                     "GPGPUECS::StorageBuffer::EntityIds",
+        --                     "GPGPUECS::StorageBuffer::WorldPositions3D",
+        --                     "GPGPUECS::StorageBuffer::WorldRotations3D",
+        --                     "GPGPUECS::StorageBuffer::WorldScales3D",
+        --                     "GPGPUECS::StorageBuffer::BoneNodeEntities",
+        --                     "GPGPUECS::StorageBuffer::ModelNodeEntityIds",
+        --                     "GPGPUECS::StorageBuffer::BoneInverseBindPoseMatrices"
+        --                 }
+        --             }
+        --         },
+        --         accessingEntities = {
+        --             {
+        --                 archetype = "Render::Model::Node::Node",
+        --             },
+        --             {
+        --                 archetype = "Render::Model::Node::Data::Data"
+        --             },
+        --             {
+        --                 archetype = "Render::Model::Model"
+        --             },
+        --             {
+        --                 archetype = "Render::Model::Data::Data"
+        --             },
+        --             {
+        --                 archetype = "Render::Model::Mesh::Mesh"
+        --             }
+        --         }
 
-            }
+        --     }
 
-        },
+        -- },
 
         WriteComponentsToGPU2System = {
             callOrder = {
@@ -1116,7 +1118,7 @@ ComputeNamespace = {
     },
     CalculateAnimationsSystem = {
         callOrder = {
-            runAfter = { "GPGPUECS::StorageBuffer::WriteComponentsToGPU" },
+            runAfter = { "SystemMarks::FRAME_BODY_START" },
             runBefore = { "Render::Model::ProcessModel", "StartRender" }
         },
         updateMethod = {

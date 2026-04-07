@@ -152,7 +152,8 @@ RenderNamespace = {
                 "Texture::Tag",
                 "Texture::Data",
                 "Texture::Info",
-                "Texture::DriverId"
+                "Texture::DriverId",
+                "Texture::BindingArrayIndex"
             }
         },
         -- ResourceComponent = "Render::TextureResource",

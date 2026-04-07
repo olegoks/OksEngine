@@ -17,9 +17,13 @@ namespace OksEngine
 			const OksEngine::Render::PipelineDescription::Manager::Tag* render__PipelineDescription__Manager__Tag0,
 			const OksEngine::Render::PipelineDescription::Manager::Pipelines
 			* render__PipelineDescription__Manager__Pipelines0,
-			ECS2::Entity::Id entity1id, const OksEngine::ImGUI::State* state1,
-			const OksEngine::ImGUI::RenderPass* renderPass1, ECS2::Entity::Id entity2id,
-			const OksEngine::RenderDriver* renderDriver2, ECS2::Entity::Id entity3id,
+			ECS2::Entity::Id entity1id,
+			const OksEngine::ImGUI::State* state1,
+			
+			ECS2::Entity::Id entity2id,
+			const OksEngine::RenderDriver* renderDriver2,
+			
+			ECS2::Entity::Id entity3id,
 			const OksEngine::ResourceSystem* resourceSystem3) {
 
 			auto driver = renderDriver2->driver_;
@@ -38,277 +42,11 @@ namespace OksEngine
 			const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipeline);
 
 			CreateComponent<Pipeline>(entity1id, pipelineId);
-			//{
-			//	std::vector<RAL::Driver::PushConstant> pushConstants;
-			//	std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
-
-			//	auto addBindings = [&pushConstants, &shaderBindings, this](ECS2::Entity::Id shaderEntityId) {
-
-			//		const ECS2::ComponentsFilter cf = GetComponentsFilter(shaderEntityId);
-			//		const RAL::Driver::Shader::Stage shaderStage = RENDER__SHADER__GET_SHADER_STAGE(shaderEntityId);
-			//		if (cf.IsSet<Render::Shader::PushConstants>()) {
-			//			const auto* ecsPushConstants = GetComponent<Render::Shader::PushConstants>(shaderEntityId);
-			//			for (auto ecsPushConstant : ecsPushConstants->constants_) {
-			//				pushConstants.emplace_back(
-			//						shaderStage,
-			//						ecsPushConstant.offset_,
-			//						ecsPushConstant.size_
-			//					);
-			//			}
-			//		}
-
-			//		if (cf.IsSet<Render::Shader::Bindings>()) {
-			//			const auto* ecsBindings = GetComponent<Render::Shader::Bindings>(shaderEntityId);
-			//			for (auto ecsBinding : ecsBindings->bindings_) {
-
-			//				shaderBindings.resize(ecsBinding.set_ + 1, RAL::Driver::Shader::Binding::Layout{});
-
-			//				shaderBindings[ecsBinding.set_] = RAL::Driver::Shader::Binding::Layout(
-			//					
-			//						ecsBinding.name_,
-			//						(Common::UInt32)ecsBinding.binding_,
-			//						Render::Shader::ToRALType(ecsBinding.resourceType_),
-			//						shaderStage
-			//					);
-			//			}
-			//		}
-
-			//		};
-
-			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::GeometryShader::EntityId>()) {
-			//		const ECS2::Entity::Id shaderEntityId = GetComponent<Render::PipelineDescription::GeometryShader::EntityId>(pipelineDescriptionEntityId)->id_;
-			//		const std::string shaderName = GetComponent<Render::Shader::ResourcePath>(pipelineDescriptionEntityId)->resourcePath_;
-			//		const std::string shaderText = GetComponent<Render::Shader::Text>(pipelineDescriptionEntityId)->text_;
-			//		RAL::Driver::Shader::CreateInfo geometryShaderCreateInfo{
-			//			.name_ = shaderName,
-			//			.type_ = RAL::Driver::Shader::Type::Geometry,
-			//			.code_ = shaderText
-			//		};
-			//		auto geometryShader = driver->CreateShader(geometryShaderCreateInfo);
-			//		pipeline.geometryShader_ = geometryShader;
-
-			//		addBindings(shaderEntityId);
-			//	}
-
-
-			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::VertexShader::EntityId>()) {
-			//		const ECS2::Entity::Id shaderEntityId = GetComponent<Render::PipelineDescription::VertexShader::EntityId>(pipelineDescriptionEntityId)->id_;
-			//		const std::string shaderName = GetComponent<Render::Shader::ResourcePath>(shaderEntityId)->resourcePath_;
-			//		const std::string shaderText = GetComponent<Render::Shader::Text>(shaderEntityId)->text_;
-			//		RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
-			//			.name_ = shaderName,
-			//			.type_ = RAL::Driver::Shader::Type::Vertex,
-			//			.code_ = shaderText
-			//		};
-			//		auto vertexShader = driver->CreateShader(vertexShaderCreateInfo);
-			//		pipeline.vertexShader_ = vertexShader;
-			//		addBindings(shaderEntityId);
-			//	}
-			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::FragmentShader::EntityId>()) {
-			//		const ECS2::Entity::Id shaderEntityId = GetComponent<Render::PipelineDescription::FragmentShader::EntityId>(pipelineDescriptionEntityId)->id_;
-			//		const std::string shaderName = GetComponent<Render::Shader::ResourcePath>(shaderEntityId)->resourcePath_;
-			//		const std::string shaderText = GetComponent<Render::Shader::Text>(shaderEntityId)->text_;
-
-			//		RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
-			//			.name_ = shaderName,
-			//			.type_ = RAL::Driver::Shader::Type::Fragment,
-			//			.code_ = shaderText
-			//		};
-			//		auto fragmentShader = driver->CreateShader(fragmentShaderCreateInfo);
-			//		pipeline.fragmentShader_ = fragmentShader;
-			//		addBindings(shaderEntityId);
-			//	}
-
-			//	pipeline.pushConstants_ = pushConstants;
-			//	pipeline.shaderBindings_ = shaderBindings;
-
-
-			//	pipeline.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList;
-			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::InputAssembler>()) {
-			//		const auto* inputAssembler = GetComponent<Render::PipelineDescription::InputAssembler>(pipelineDescriptionEntityId);
-			//		pipeline.vertexType_ = Render::PipelineDescription::ToRALType(inputAssembler->vertexType_);
-			//		pipeline.indexType_ = Render::PipelineDescription::ToRALType(inputAssembler->indexType_);
-			//		pipeline.frontFace_ = Render::PipelineDescription::ToRALType(inputAssembler->frontFace_);
-			//		pipeline.cullMode_ = Render::PipelineDescription::ToRALType(inputAssembler->cullMode_);
-			//	}
-			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::Multisampling>()) {
-			//		const auto* multisampling = GetComponent<Render::PipelineDescription::Multisampling>(pipelineDescriptionEntityId);
-
-			//		auto multisamplingInfo = std::make_shared<RAL::Driver::Pipeline::MultisamplingInfo>();
-			//		{
-			//			multisamplingInfo->samplesCount_ = Render::PipelineDescription::ToRALType(multisampling->samplesCount_);
-			//		}
-			//	}
-
-
-			//	if (pipelineDescriptionCF.IsSet<Render::PipelineDescription::DepthTest>()) {
-			//		const auto* depthTest = GetComponent<Render::PipelineDescription::DepthTest>(pipelineDescriptionEntityId);
-			//		pipeline.enableDepthTest_ = depthTest->enable_;
-			//		pipeline.dbCompareOperation_ = Render::PipelineDescription::ToRALType(depthTest->compareOperation_);
-
-			//	}
-			//	pipeline.renderPassId_ = renderPass1->rpId_;
-			//	
-			//}
-
-			//RAL::Driver::Shader::CreateInfo vertexShaderCreateInfo{
-			//	.name_ = "ImGuiVertexShader",
-			//	.type_ = RAL::Driver::Shader::Type::Vertex,
-			//	.code_ = imguiVertexShader
-			//};
-			//auto vertexShader = driver->CreateShader(vertexShaderCreateInfo);
-
-			//RAL::Driver::Shader::CreateInfo fragmentShaderCreateInfo{
-			//	.name_ = "ImGuiFragmentShader",
-			//	.type_ = RAL::Driver::Shader::Type::Fragment,
-			//	.code_ = imguiFragmentShader
-			//};
-			//auto fragmentShader = driver->CreateShader(fragmentShaderCreateInfo);
-
-			//std::vector<RAL::Driver::Shader::Binding::Layout> shaderBindings;
-
-			//RAL::Driver::Shader::Binding::Layout transformBinding{
-			//	.binding_ = 0,
-			//	.type_ = RAL::Driver::Shader::Binding::Type::Uniform,
-			//	.stage_ = RAL::Driver::Shader::Stage::VertexShader
-			//};
-
-			//RAL::Driver::Shader::Binding::Layout samplerBinding{
-			//	.binding_ = 0,
-			//	.type_ = RAL::Driver::Shader::Binding::Type::Sampler,
-			//	.stage_ = RAL::Driver::Shader::Stage::FragmentShader
-			//};
-
-			//shaderBindings.push_back(transformBinding);
-			//shaderBindings.push_back(samplerBinding);
-
-			//RAL::Driver::Pipeline::CI pipelineCI{
-			//	.name_ = "ImGui Pipeline",
-			//	.renderPassId_ = renderPass1->rpId_,
-			//	.vertexShader_ = vertexShader,
-			//	.fragmentShader_ = fragmentShader,
-			//	.topologyType_ = RAL::Driver::Pipeline::Topology::TriangleList,
-			//	.vertexType_ = RAL::Driver::VertexType::VF2_TF2_CF3,
-			//	.indexType_ = RAL::Driver::IndexType::UI32,
-			//	.frontFace_ = RAL::Driver::FrontFace::CounterClockwise,
-			//	.cullMode_ = RAL::Driver::CullMode::None,
-			//	.shaderBindings_ = shaderBindings,
-			//	.enableDepthTest_ = true,
-			//	.dbCompareOperation_ = RAL::Driver::Pipeline::DepthBuffer::CompareOperation::Always,
-			//	//.multisamplingInfo_ = multisamplingInfo
-			//};
-
-			//const RAL::Driver::Pipeline::Id pipelineId = driver->CreatePipeline(pipelineCI);
-
-			//CreateComponent<Pipeline>(entity1id, pipelineId);
-
+		
 		};
-
-		void CreateRenderPass::Update(
-			ECS2::Entity::Id entity0id,
-			const State* imGuiState0,
-
-			ECS2::Entity::Id entity1id,
-			const RenderDriver* renderDriver1) {
-
-			auto driver = renderDriver1->driver_;
-
-			std::vector<RAL::Driver::RP::AttachmentUsage> attachmentsUsage;
-			{
-				RAL::Driver::RP::AttachmentUsage attachment{
-					.format_ = RAL::Driver::Texture::Format::RGBA_32_UNORM,
-					.initialState_ = RAL::Driver::Texture::State::DataForColorWrite,
-					.loadOperation_ = RAL::Driver::RP::AttachmentUsage::LoadOperation::Ignore,
-					.storeOperation_ = RAL::Driver::RP::AttachmentUsage::StoreOperation::Store,
-					.finalState_ = RAL::Driver::Texture::State::DataForColorWrite,
-					.samplesCount_ = RAL::Driver::SamplesCount::SamplesCount_1
-				};
-				attachmentsUsage.push_back(attachment);
-			}
-
-			std::vector<RAL::Driver::RP::Subpass> subpasses;
-			{
-				RAL::Driver::RP::Subpass subpass{
-					.colorAttachments_ = { { 0, RAL::Driver::Texture_State::DataForColorWrite}  } // Index of attachment.
-				};
-				subpasses.push_back(subpass);
-			}
-
-			std::vector<RAL::Driver::RP::Subpass::Dependency> dependencies;
-			{
-				{
-					RAL::Driver::RP::Subpass::Dependency fromExternalToFirst{
-						.fromSubpassIndex_ = RAL::Driver::RP::Subpass::external_,
-						.fromPipelineStage_ = RAL::Driver::Pipeline::Stage::ColorAttachmentOutput,
-						.fromAccess_ = RAL::Driver::Texture::Access::ColorWrite,
-
-						.toSubpassIndex_ = 0,
-						.toPipelineStage_ = RAL::Driver::Pipeline::Stage::VertexShader,
-						.toAccess_ = RAL::Driver::Texture::Access::ShaderRead,
-					};
-					dependencies.push_back(fromExternalToFirst);
-				}
-				{
-					RAL::Driver::RP::Subpass::Dependency fromFirstToExternal{
-						.fromSubpassIndex_ = 0,
-						.fromPipelineStage_ = RAL::Driver::Pipeline::Stage::ColorAttachmentOutput,
-						.fromAccess_ = RAL::Driver::Texture::Access::ColorWrite,
-
-						.toSubpassIndex_ = RAL::Driver::RP::Subpass::external_,
-						.toPipelineStage_ = RAL::Driver::Pipeline::Stage::VertexShader, // First potencial use of attachments.
-						.toAccess_ = RAL::Driver::Texture::Access::ShaderRead,
-					};
-					dependencies.push_back(fromFirstToExternal);
-				}
-			}
-
-			RAL::Driver::RP::CI rpCI{
-				.name_ = "ImGuiRenderPass",
-				.attachments_ = attachmentsUsage,
-				.subpasses_ = subpasses,
-				.subpassDependecies_ = dependencies
-			};
-
-			const RAL::Driver::RP::Id renderPassId = driver->CreateRenderPass(rpCI);
-
-			//RAL::Driver::Texture::CreateInfo1 textureCreateInfo{
-			//	.name_ = "ImGui render buffer",
-			//	.format_ = RAL::Driver::Texture::Format::BGRA_32_UNORM,
-			//	.size_ = { 2560, 1440 },
-			//	.targetState_ = RAL::Driver::Texture::State::DataForColorWrite,
-			//	.targetAccess_ = RAL::Driver::Texture::Access::ColorWrite,
-			//	.targetStages_ = { RAL::Driver::Pipeline::Stage::ColorAttachmentOutput },
-			//	.usages_ = { RAL::Driver::Texture::Usage::ColorAttachment, RAL::Driver::Texture::Usage::TransferSource },
-			//	.mipLevels_ = 1
-			//	
-			//};
-			//const RAL::Driver::Texture::Id textureId = driver->CreateTexture(textureCreateInfo);
-
-
-			CreateComponent<RenderPass>(entity0id, renderPassId);
-
-		}
-
-		void CreateAttachmentSet::Update(
-			ECS2::Entity::Id entity0id, const RenderDriver* renderDriver0,
-			const Render::MultisamplingAttachment* multisamplingAttachment0, ECS2::Entity::Id entity1id,
-			const State* imGuiState1, const RenderPass* imGuiRenderPass1) {
-
-
-			RAL::Driver::RP::AttachmentSet::CI attachmentSetCI{
-				.rpId_ = imGuiRenderPass1->rpId_,
-				.textures_ = { multisamplingAttachment0->textureId_ },
-				.size_ = glm::u32vec2{ 2560, 1440 }
-			};
-
-			RAL::Driver::RP::AttachmentSet::Id rpAttachmentsSetId = renderDriver0->driver_->CreateAttachmentSet(attachmentSetCI);
-
-			CreateComponent<AttachmentSet>(entity1id, rpAttachmentsSetId);
-		}
 
 
 		void BeginRenderPass::Update(ECS2::Entity::Id entity0id, const OksEngine::ImGUI::State* state0,
-			const OksEngine::ImGUI::RenderPass* renderPass0, const OksEngine::ImGUI::AttachmentSet* attachmentSet0,
 			ECS2::Entity::Id entity1id, OksEngine::RenderDriver* renderDriver1,
 			const OksEngine::Render::MultisamplingAttachment* render__MultisamplingAttachment1) {
 
@@ -330,132 +68,14 @@ namespace OksEngine
 
 			driver->BeginRenderPass2(rpInfo);
 
-			//deprecated
-			//driver->BeginRenderPass(
-			//	renderPass0->rpId_,
-			//	attachmentSet0->attachmentsSetId_,
-			//	{}, { 0, 0 }, { 2560, 1440 });
-
 		}
 
-
-		void UpdateRenderData::Update(
-			ECS2::Entity::Id entity1Id, const State* imGuiState,
-			DriverVertexBuffer* imGuiDriverVertexBuffer,
-			DriverIndexBuffer* imGuiDriverIndexBuffer,
-			ECS2::Entity::Id entity2Id, RenderDriver* renderDriver) {
-
-			//
-			//static Common::UInt64 skipedFrames = 5;
-			//static Common::UInt64 currentFrame = 0;
-			//if (currentFrame != 4) {
-			//	++currentFrame;
-			//	return;
-			//}
-			//else {
-			//	currentFrame = 0;
-			//}
-			return;
-
-			ImDrawData* draw_data = ImGui::GetDrawData();
-			if (draw_data == nullptr) {
-				return;
-			}
-			// Avoid rendering when minimized, scale coordinates for retina displays (screen coordinates != framebuffer coordinates)
-			int fb_width = (int)(draw_data->DisplaySize.x * draw_data->FramebufferScale.x);
-			int fb_height = (int)(draw_data->DisplaySize.y * draw_data->FramebufferScale.y);
-			if (fb_width <= 0 || fb_height <= 0)
-				return;
-
-			//TODO: Move to component.
-			static Geom::IndexBuffer<Common::UInt32> indices;
-
-			using namespace Common;
-			indices.Reserve(10_MB / indices.GetIndexSize());
-			indices.Clear();
-
-			static Geom::VertexCloud<RAL::Vertex2ftc> vertices2ftc;
-
-			vertices2ftc.Reserve(30_MB / vertices2ftc.GetVertexSize());
-			vertices2ftc.Clear();
-
-
-			for (int n = 0; n < draw_data->CmdListsCount; n++) {
-				const ImDrawList* cmd_list = draw_data->CmdLists[n];
-				for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
-				{
-					const ImDrawCmd* pcmd = &cmd_list->CmdBuffer[cmd_i];
-					{
-
-						const Common::Size verticesNumber = cmd_list->VtxBuffer.Size - pcmd->VtxOffset;
-
-						indices.AddNextMesh(
-							vertices2ftc.GetVerticesNumber(),
-							cmd_list->IdxBuffer.Data + pcmd->IdxOffset,
-							cmd_list->IdxBuffer.Size - pcmd->IdxOffset);
-
-						const ImDrawVert* imVertices = cmd_list->VtxBuffer.Data + pcmd->VtxOffset;
-						vertices2ftc.Add((RAL::Vertex2ftc*)imVertices, verticesNumber);
-
-					}
-				}
-			}
-			if (vertices2ftc.GetVerticesNumber() == 0) {
-				return;
-			}
-
-			auto driver = renderDriver->driver_;
-
-			//Resize buffers if need.
-			if (vertices2ftc.GetSizeInBytes() > renderDriver->driver_->GetVBSizeInBytes(imGuiDriverVertexBuffer->id_)) {
-				renderDriver->driver_->ResizeVertexBuffer(
-					imGuiDriverVertexBuffer->id_,
-					vertices2ftc.GetSizeInBytes());
-				imGuiDriverVertexBuffer->capacity_ = vertices2ftc.GetSizeInBytes();
-			}
-			if (indices.GetSizeInBytes() > renderDriver->driver_->GetIBSizeInBytes(imGuiDriverIndexBuffer->id_)) {
-				renderDriver->driver_->ResizeIndexBuffer(
-					imGuiDriverIndexBuffer->id_,
-					indices.GetSizeInBytes());
-
-				imGuiDriverIndexBuffer->capacity_ = vertices2ftc.GetSizeInBytes();
-			}
-
-
-			//Send vertices and indices data to GPU only if they changed.
-			bool isDataChanged = false;
-
-			//if()
-
-
-			//Fill data.
-			renderDriver->driver_->FillVertexBuffer(
-				imGuiDriverVertexBuffer->id_,
-				0,
-				vertices2ftc.GetData(),
-				vertices2ftc.GetVerticesNumber());
-			imGuiDriverVertexBuffer->size_ = vertices2ftc.GetSizeInBytes();
-
-			driver->FillIndexBuffer(
-				imGuiDriverIndexBuffer->id_,
-				0,
-				indices.GetData(),
-				indices.GetIndicesNumber());
-
-			imGuiDriverIndexBuffer->size_ = indices.GetSizeInBytes();
-
-		};
-
-
-		void AddMeshToRender::Update(
+		void RenderDrawData::Update(
 			ECS2::Entity::Id entity0id,
 			const OksEngine::ImGUI::State* state0,
 			const OksEngine::ImGUI::Pipeline* pipeline0, 
-			const OksEngine::ImGUI::RenderPass* renderPass0,
-			const OksEngine::MainMenuBar* mainMenuBar0,
 			const OksEngine::Transform2DResource* transform2DResource0,
 			const OksEngine::Render::Material::EntityId* render__Material__EntityId0,
-			//const OksEngine::Render::Material::ResourceSet* render__Material__ResourceSet0,
 			const OksEngine::ImGUI::DriverIndexBuffer* driverIndexBuffer0,
 			const OksEngine::ImGUI::DriverVertexBuffer* driverVertexBuffer0,
 			
@@ -522,7 +142,6 @@ namespace OksEngine
 					offsetIB,
 					cmd_list->IdxBuffer.Data,
 					cmd_list->IdxBuffer.Size);
-				
 
 
 				for (int cmd_i = 0; cmd_i < cmd_list->CmdBuffer.Size; cmd_i++)
@@ -535,7 +154,7 @@ namespace OksEngine
 						driver->BindIndexBuffer(driverIndexBuffer0->id_, offsetIB + pcmd->IdxOffset);
 
 
-						Common::UInt32 textureId = pcmd->GetTexID();//materialInfoResourceSet->info_.diffuseMapIndex_;//pcmd->TexRef._TexID;
+						Common::UInt32 textureId = pcmd->GetTexID();
 
 
 						driver->PushConstants(
@@ -589,14 +208,13 @@ namespace OksEngine
 		}
 
 
-		void EndRenderPass::Update(ECS2::Entity::Id entity0id, const State* imGuiState0, const RenderPass* imGuiRenderPass0,
+		void EndRenderPass::Update(ECS2::Entity::Id entity0id, const State* imGuiState0,
 			ECS2::Entity::Id entity1id, RenderDriver* renderDriver1) {
 
 			auto driver = renderDriver1->driver_;
 			
 			driver->EndRenderPass2();
-			//deprecated
-			//driver->EndRenderPass();
+
 
 		}
 
@@ -724,7 +342,7 @@ namespace OksEngine
 				
 				CreateComponent<Render::Material::Tag>(materialEntityId);
 				
-				const ECS2::Entity::Id textureEntityId = world_->CreateEntity();
+				const ECS2::Entity::Id textureEntityId = world_->CreateEntity<RENDER__TEXTURE__TEXTURE>();
 				CreateComponent<Render::Texture::Type::DiffuseMap::EntityId>(materialEntityId, textureEntityId);
 
 				CreateComponent<Render::Texture::Tag>(textureEntityId);
@@ -831,7 +449,6 @@ namespace OksEngine
 			ECS2::Entity::Id entity3id,
 			const OksEngine::ImGUI::State* state3, 
 			const OksEngine::ImGUI::Pipeline* pipeline3,
-			const OksEngine::ImGUI::RenderPass* renderPass3,
 			const OksEngine::MainMenuBar* mainMenuBar3,
 			const OksEngine::Transform2DResource* transform2DResource3,
 			const OksEngine::Render::Material::EntityId* render__Material__EntityId3,

@@ -1,34 +1,4 @@
 ImGUINamespace = {
-    RenderPassComponent = "Render::RenderPassId",
-    CreateRenderPassSystem = {
-        type = "Initialize",
-        callOrder = {
-            runAfter = {
-                "ImGUI::CreateState",
-                "CreateRenderDriver"
-            }
-        },
-        updateMethod = {
-            processesEntities = {
-                {
-                    processesComponents = {
-                        "State"
-                    },
-                    excludes = {
-                        "RenderPass"
-                    },
-                    createsComponents = {
-                        "RenderPass"
-                    }
-                },
-                {
-                    processesComponents = {
-                        "RenderDriver"
-                    }
-                }
-            }
-        }
-    },
     PipelineComponent = "Render::PipelineId",
     CreatePipelineSystem = {
         -- callOrder = {
@@ -48,7 +18,7 @@ ImGUINamespace = {
                 {
                     processesComponents = {
                         "State",
-                        "RenderPass"
+                        -- "RenderPass"
                     },
                     excludes = {
                         "Pipeline"
@@ -74,38 +44,6 @@ ImGUINamespace = {
                 },
                 {
                     archetype = "Render::Shader::Shader"
-                }
-            }
-        }
-    },
-    -- Buffer for rendered ImGui ui
-    RenderBufferAttachmentComponent = "Render::Attachment",
-    AttachmentSetComponent = "Render::AttachmentSet",
-    CreateAttachmentSetSystem = {
-        type = "Initialize",
-        callOrder = {
-            runAfter = { "Render::CreateRenderAttachment" },
-            runBefore = {}
-        },
-        updateMethod = {
-            processesEntities = {
-                {
-                    processesComponents = {
-                        "RenderDriver",
-                        "Render::MultisamplingAttachment"
-                    }
-                },
-                {
-                    processesComponents = {
-                        "State",
-                        "RenderPass"
-                    },
-                    excludes = {
-                        "AttachmentSet"
-                    },
-                    createsComponents = {
-                        "AttachmentSet"
-                    }
                 }
             }
         }
@@ -282,7 +220,6 @@ ImGUINamespace = {
         }
     },
 
-
     BeginRenderPassSystem = {
         callOrder = {
             runAfter = "StartRender",
@@ -293,8 +230,8 @@ ImGUINamespace = {
                 {
                     processesComponents = {
                         "State",
-                        "RenderPass",-- deprecated
-                        "AttachmentSet" -- deprecated
+                        -- "RenderPass",-- deprecated
+                        -- "AttachmentSet" -- deprecated
                     }
                 },
                 {
@@ -306,26 +243,8 @@ ImGUINamespace = {
             }
         }
     },
-    UpdateRenderDataSystem = {
-        updateMethod = {
-            processesEntities = {
-                {
-                    processesComponents = {
-                        { name = "State",              readonly = true },
-                        { name = "DriverVertexBuffer", readonly = false },
-                        { name = "DriverIndexBuffer",  readonly = false }
-                    }
-                },
-                {
-                    processesComponents = {
-                        { name = "RenderDriver", readonly = false }
-                    }
-                }
-            }
-        }
-    },
 
-    AddMeshToRenderSystem = {
+    RenderDrawDataSystem = {
         callOrder = {
             runAfter = "BeginRenderPass",
             runBefore = "EndRenderPass"
@@ -336,8 +255,8 @@ ImGUINamespace = {
                     processesComponents = {
                         "State",
                         "Pipeline",
-                        "RenderPass",
-                        "MainMenuBar",
+                        -- "RenderPass",
+                        -- "MainMenuBar",
                         "Transform2DResource",
                         "Render::Material::EntityId",
                         -- "Render::Material::ResourceSet",
@@ -370,7 +289,7 @@ ImGUINamespace = {
                 {
                     processesComponents = {
                         "State",
-                        "RenderPass"
+                        -- "RenderPass"
                     }
                 },
                 {
@@ -419,7 +338,7 @@ ImGUINamespace = {
                     processesComponents = {
                         "State",
                         "Pipeline",
-                        "RenderPass",
+                        -- "RenderPass",
                         "MainMenuBar",
                         "Transform2DResource",
                         "Render::Material::EntityId",

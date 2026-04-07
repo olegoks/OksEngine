@@ -41,7 +41,7 @@
 	[this](																										\
 		const std::string& resourcePath,																		\
 		const aiTexture* texture) {																				\
-			ECS2::Entity::Id diffuseMapEntityId = CreateEntity();												\
+			ECS2::Entity::Id diffuseMapEntityId = CreateEntity<RENDER__TEXTURE__TEXTURE>();												\
 			CreateComponent<Render::Texture::Tag>(diffuseMapEntityId);											\
 			CreateComponent<Render::Texture::Type::DiffuseMap::Tag>(diffuseMapEntityId);						\
 			RENDER__TEXTURE__CREATE_TEXTURE_DATA(diffuseMapEntityId, resourcePath, texture);					\
@@ -52,7 +52,7 @@
 	[this](																										\
 		const std::string& resourcePath,																		\
 		const aiTexture* texture) {																				\
-			ECS2::Entity::Id diffuseMapEntityId = CreateEntity();												\
+			ECS2::Entity::Id diffuseMapEntityId = CreateEntity<RENDER__TEXTURE__TEXTURE>();												\
 			CreateComponent<Render::Texture::Tag>(diffuseMapEntityId);											\
 			CreateComponent<Render::Texture::Type::NormalMap::Tag>(diffuseMapEntityId);							\
 			RENDER__TEXTURE__CREATE_TEXTURE_DATA(diffuseMapEntityId, resourcePath, texture);					\
