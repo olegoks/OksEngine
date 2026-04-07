@@ -66,7 +66,7 @@ namespace ECSGenerator2 {
 				return true;
 				});
 			if (needToIncludeEditEntity) {
-				includes.paths_.insert("auto_OksEngine.EditEntity.hpp");
+				includes.paths_.insert("OksEngine.Utils.hpp");
 			}
 
 			parsedECSFile->ForEachComponent([&](std::shared_ptr<ParsedComponent> parsedComponent) {
@@ -144,10 +144,6 @@ namespace ECSGenerator2 {
 
 				return true;
 				});
-
-			if (parsedECSFile->GetName() == "OksEngine.Behaviour") {
-				Common::BreakPointLine();
-			}
 
 			//New code generation
 			std::vector<std::shared_ptr<CodeStructure::Base>> bases;
@@ -488,9 +484,6 @@ namespace ECSGenerator2 {
 			const std::filesystem::path& includeDirectory,
 			const std::shared_ptr<ParsedECSFile> parsedECSFile) {
 
-			if (parsedECSFile->GetName() == "OksEngine.Rotation3D") {
-				Common::BreakPointLine();
-			}
 			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 			{
 				using namespace std::string_literals;
@@ -1411,7 +1404,7 @@ namespace ECSGenerator2 {
 			includes.paths_.insert("imgui.h");
 			includes.paths_.insert("auto_OksEngine.ECS.hpp");
 			includes.paths_.insert("magic_enum/magic_enum.hpp");
-			includes.paths_.insert("auto_OksEngine.EditEntity.hpp");
+			includes.paths_.insert("OksEngine.Utils.hpp");
 
 			//hpp file
 			CodeStructure::File::CreateInfo fci{

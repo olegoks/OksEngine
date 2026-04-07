@@ -186,8 +186,9 @@ namespace OksEngine
             .c_str()))
         {
 			ImGui::Indent(20.f);
+			//TODO: Show archetype name.
 			//Show entity Archetype components for archetype entities.
-			{
+			/*{
 				const ECS2::Entity::Type entityType = world_->GetEntityType(entity1id);
 				ASSERT_MSG(
 					entityType != ECS2::Entity::Type::Undefined, 
@@ -207,25 +208,41 @@ namespace OksEngine
 					ImGui::TextDisabled(archetypeComponentsList.c_str());
 				}
 
-			}
+			}*/
 
 
             
             auto editComponent = []<class ComponentType>(std::shared_ptr<ECS2::World> world, ECS2::Entity::Id id) {
-                bool isExist = world->IsComponentExist<ComponentType>(id);
-                if (ImGui::CollapsingHeader(ComponentType::GetName(), &isExist))
-                {
-                    ComponentType* component = world->GetComponent<ComponentType>(id);
-                    Edit<ComponentType>(world, id, component);
-                    ImGui::Spacing();
-                }
-                if (!isExist)
-                {
-                    if (world->IsComponentExist<ComponentType>(id))
-                    {
-                        world->RemoveComponent<ComponentType>(id);
-                    }
-                }
+				bool isExistInECS = world->IsComponentExist<ComponentType>(id);
+				if (isExistInECS) {
+					bool isExistInInspector = isExistInECS;
+					if (ImGui::CollapsingHeader(ComponentType::GetName(), &isExistInInspector))
+					{
+						ComponentType* component = world->GetComponent<ComponentType>(id);
+						Edit<ComponentType>(world, id, component);
+						ImGui::Spacing();
+					}
+					if (!isExistInInspector)
+					{
+						//If user removes component in Inspector, but component exists in ECS need to remove component.
+						if (world->IsComponentExist<ComponentType>(id))
+						{
+							world->RemoveComponent<ComponentType>(id);
+						}
+					}
+				}
+				else {
+					if (world->IsArchetypeEntity(id)) {
+						const ECS2::ComponentsFilter archetypeComponents = world->GetArchetypeComponents(id);
+						if (archetypeComponents.IsSet<ComponentType>()) {
+							const char* missingComponentName = GetComponentNameByTypeId(ComponentType::GetTypeId());
+							ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyle().Colors[ImGuiCol_TextDisabled]);
+							if (ImGui::CollapsingHeader(missingComponentName)) {}
+							ImGui::PopStyleColor();
+						}
+						
+					}
+				}
             };
             {
                 ImGui::PushID("Edit");

@@ -609,10 +609,6 @@ int main(int argc, char** argv) {
 	{
 		for (auto parsedECSFile : parsedECSFiles) {
 
-			if (parsedECSFile->GetName() == "OksEngine.Rotation3D") {
-				Common::BreakPointLine();
-			}
-
 			//Generate system hpp file.
 			//Always generate .hpp files.
 			auto systemHppFile = codeStructureGenerator.GenerateECSFileHppFile(includeDirArgv, parsedECSFile);
@@ -669,19 +665,19 @@ int main(int argc, char** argv) {
 		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.SerializeEntity.hpp",
 		serializeEntityCodeStructure };
 
-	auto editEntityHppCodeStructure = codeStructureGenerator.GenerateEditEntityHppFile(parsedECSFiles);
-	std::pair<
-		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToEditHppEntity{
-		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.hpp",
-		editEntityHppCodeStructure };
+	//auto editEntityHppCodeStructure = codeStructureGenerator.GenerateEditEntityHppFile(parsedECSFiles);
+	//std::pair<
+	//	std::filesystem::path,
+	//	std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToEditHppEntity{
+	//	std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.hpp",
+	//	editEntityHppCodeStructure };
 
-	auto editEntityCppCodeStructure = codeStructureGenerator.GenerateEditEntityCppFile(parsedECSFiles);
-	std::pair<
-		std::filesystem::path,
-		std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToEditCppEntity{
-		std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.cpp",
-		editEntityCppCodeStructure };
+	//auto editEntityCppCodeStructure = codeStructureGenerator.GenerateEditEntityCppFile(parsedECSFiles);
+	//std::pair<
+	//	std::filesystem::path,
+	//	std::shared_ptr<ECSGenerator2::CodeStructure::File>> pathToEditCppEntity{
+	//	std::filesystem::path{ includeDirArgv } / "auto_OksEngine.EditEntity.cpp",
+	//	editEntityCppCodeStructure };
 
 
 	auto hppRunSystemsCodeStructure = codeStructureGenerator.GenerateRunSystemsHppFile();
@@ -720,8 +716,8 @@ int main(int argc, char** argv) {
 
 	allFilesCodeStructure.insert(pathToParsedEntity);
 	allFilesCodeStructure.insert(pathToSerializeEntity);
-	allFilesCodeStructure.insert(pathToEditHppEntity);
-	allFilesCodeStructure.insert(pathToEditCppEntity);
+	//allFilesCodeStructure.insert(pathToEditHppEntity);
+	//allFilesCodeStructure.insert(pathToEditCppEntity);
 	allFilesCodeStructure.insert(pathToHppRunSystems);
 	allFilesCodeStructure.insert(pathToCppRunSystems);
 	allFilesCodeStructure.insert(pathToHppUtils);
