@@ -90,8 +90,6 @@ namespace ECSGenerator2 {
 				}
 			}
 
-			//BRK_IF(ecsFilePath == "D:/OksEngine/Tools/ECSGenerator2/../../Sources/Engine/Sources/Render/Texture/OksEngine.Texture.ecs");
-
 			std::vector<std::shared_ptr<ParsedTable>> parsedTables;
 
 			std::function<std::shared_ptr<ParsedTable>(const std::string&, luabridge::LuaRef)> processTable
@@ -174,10 +172,6 @@ namespace ECSGenerator2 {
 							return parsedArchetype;
 						} else if (name.ends_with("System")) {
 
-							if (name == "CreateResourceSystemSystem") {
-								Common::BreakPointLine();
-							}
-
 							SystemParser systemParser;
 							auto parsedSystem = systemParser.Parse(table,
 								name.substr(0, name.rfind("System")));
@@ -240,9 +234,8 @@ namespace ECSGenerator2 {
 
 				parsedTable->ForEachChildlessTable([&](ParsedTablePtr childlessTable) {
 
-#pragma region Assert
 					ASSERT_FMSG(!childlessTable->HasChilds(), "");
-#pragma endregion							
+						
 					auto parentTables = childlessTable->GetParentTables();
 
 					std::vector<std::shared_ptr<ParsedTable>> clonedTables;

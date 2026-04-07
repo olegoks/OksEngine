@@ -77,7 +77,7 @@ int main(int argc, char** argv) {
 		for (const ECSFileInfo& ecsFileInfo : ecsFileInfos) {
 			Resources::ResourceData resourceData = resourceSystem.GetResourceData(ecsFileInfo.resourceSystemPath_);
 			const std::string ecsFileText{ resourceData.GetData<Common::Byte>(), resourceData.GetSize() };
-			//PARSING ECS FILE.
+//->			//PARSING ECS FILE.
 			auto ecsFile = ecsFileParser.Parse(ecsFileInfo.filesystemPath_, ecsFileText);
 			if (ecsFile != nullptr) {
 				parsedECSFiles.push_back(ecsFile);
@@ -132,11 +132,6 @@ int main(int argc, char** argv) {
 							if (foundTable != nullptr) {
 								return false;
 							}
-
-							if (parsedTable->GetName() == "EndRenderPass") {
-								Common::BreakPointLine();
-							}
-
 
 							parsedTable->ForEachTablePath([&](std::vector<std::shared_ptr<ECSGenerator2::ParsedTable>>& path) {
 

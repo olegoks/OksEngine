@@ -159,14 +159,6 @@ ImGUINamespace = {
         }
     },
     AtlasNamespace = {
-        TextureDataComponent = {
-            serializable = false,
-            fields = {
-                { type = "Common::Size",               name = "width" },
-                { type = "Common::Size",               name = "height" },
-                { type = "std::vector<Geom::Color4b>", name = "pixels" } }
-        },
-
         CreateTextureDataSystem = {
             type = "Initialize",
             callOrder = {
@@ -183,37 +175,16 @@ ImGUINamespace = {
                         processesComponents = {
                             { name = "State", readonly = false }
                         },
-                        excludes = { "TextureData" },
-                        createsComponents = { "TextureData" }
+                        excludes = { "Render::Material::EntityId" },
+                        createsComponents = { "Render::Material::EntityId" }
                     }
-                }
-            }
-        },
-        TextureResourceComponent = "Render::TextureResource",
-
-        CreateAtlasTextureResourceSystem = {
-            type = "Initialize",
-            callOrder = {
-                runAfter = {
-                    "CreateState",
-                    "CreateTextureData",
-                    "CreateRenderDriver"
-                }
-            },
-            updateMethod = {
-                processesEntities = {
+                },
+                createsEntities = {
                     {
-                        processesComponents = {
-                            "State",
-                            "TextureData"
-                        },
-                        createsComponents = { "TextureResource" },
-                        excludes = { "TextureResource" }
+                        archetype = "Render::Material::Material"
                     },
                     {
-                        processesComponents = {
-                            { name = "RenderDriver", readonly = false }
-                        }
+                        archetype = "Render::Texture::Texture"
                     }
                 }
             }
@@ -255,11 +226,8 @@ ImGUINamespace = {
                     processesComponents = {
                         "State",
                         "Pipeline",
-                        -- "RenderPass",
-                        -- "MainMenuBar",
                         "Transform2DResource",
                         "Render::Material::EntityId",
-                        -- "Render::Material::ResourceSet",
                         "DriverIndexBuffer",
                         "DriverVertexBuffer"
                     }
@@ -289,7 +257,6 @@ ImGUINamespace = {
                 {
                     processesComponents = {
                         "State",
-                        -- "RenderPass"
                     }
                 },
                 {
