@@ -63,9 +63,17 @@ namespace ECS2 {
 			return *this;
 		}
 
+		static inline ComponentsFilter GetEmpty() {
+			static ComponentsFilter empty_;
+			return empty_;
+		}
 
 		void SetAllBits() {
 			filter_.set();
+		}
+
+		void ResetAllBits() {
+			filter_.reset();
 		}
 
 		template<class ...ComponentType>

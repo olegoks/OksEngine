@@ -2214,7 +2214,7 @@ namespace ECSGenerator2 {
 
 			auto namespaceObject = std::make_shared<CodeStructure::Namespace>("OksEngine");
 
-
+			//COMPONENTS NAMES DEFINE
 			{
 				CodeStructure::Code code;
 				code.Add("\n#define FOR_EACH_COMPONENT(prefix, postfix) \\\n");
@@ -2459,6 +2459,7 @@ namespace ECSGenerator2 {
 				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
 			}
 
+			//ARCHETYPE NAME BY COMPONENTS FILTER
 			{
 				CodeStructure::Code code;
 
@@ -2503,6 +2504,34 @@ namespace ECSGenerator2 {
 
 				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
 
+			}
+			//ARCHETYPE NAME BY COMPONENTS FILTER
+			{
+				CodeStructure::Code code;
+				code.Add("\n#define ARCHETYPES_LIST_NAMES() \\\n");
+
+				for (auto parsedECSFile : parsedECSFiles) {
+
+					parsedECSFile->ForEachArchetype([&](ParsedArchetypePtr parsedArchetype) {
+
+
+
+						std::string concatedNamespace = parsedArchetype->GetConcatedNamespace();
+						if (concatedNamespace.empty()) {
+							
+							code.Add("\t\"{}\",\\\n", parsedArchetype->GetFullName("::"));
+						}
+						else {
+							
+							code.Add("\t\"{}\",\\\n", parsedArchetype->GetFullName("::"));
+						}
+
+						return true;
+						});
+				}
+				auto defineForEachComponent = std::make_shared<CodeStructure::CodeBlock>(code);
+
+				namespaceObject->Add(defineForEachComponent);
 			}
 
 			CodeStructure::File::Includes includes{ };

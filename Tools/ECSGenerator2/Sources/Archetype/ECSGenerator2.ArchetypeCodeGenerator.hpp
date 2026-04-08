@@ -73,11 +73,6 @@ namespace ECSGenerator2 {
 		std::shared_ptr<CodeStructure::CodeBlock> GenerateArchetypeDefine(std::shared_ptr<ParsedArchetype> archetype) {
 
 			CodeStructure::Code code;
-
-			if (archetype->GetName() == "Static_Game_Object") {
-				Common::BreakPointLine();
-			}
-
 			code.Add("// clang-format off\n");
 			std::string archetypeFullName = archetype->GetFullName();
 

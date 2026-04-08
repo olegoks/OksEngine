@@ -52,6 +52,8 @@ ProcessCreateEntityButtonSystem = {
 EntityFilterComponent = {
     serializable = false,
     fields = {
+        { type = "Common::Size", name = "selectedEntitiesNumber"},
+        { type = "ECS2::ComponentsFilter", name = "archetype"},
         { type = "ECS2::ComponentsFilter", name = "includes" },
         { type = "ECS2::ComponentsFilter", name = "excludes" }
     }

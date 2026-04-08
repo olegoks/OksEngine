@@ -35,10 +35,6 @@ namespace OksEngine {
 					name));
 			}();
 
-
-
-
-
 		if (ImGui::CollapsingHeader(headerText.c_str()))
 		{
 			ImGui::Indent(20.f);
