@@ -91,12 +91,12 @@ namespace ECSGenerator2 {
 		//Where: 
 		// Render::Model::Data - namespace
 		// ModelNode - archetypeName
-		std::string GetFullName() {
+		std::string GetFullName(const std::string delimiter = "__") {
 			std::string archetypeName; /*= archetype->ci_.name_;*/
 
 			std::vector<std::string> namespaceStrings = GetNamespace();
 			for (std::string namespaceString : namespaceStrings) {
-				archetypeName += namespaceString + "__";
+				archetypeName += namespaceString + delimiter;
 			}
 
 			archetypeName += GetName();

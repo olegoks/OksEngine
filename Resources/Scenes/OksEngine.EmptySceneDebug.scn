@@ -85,7 +85,7 @@ scene = {
             },
             {
                   ID = "ID:scene/test_level/model",
-                  ARCHETYPE = "Render__Model__Model",
+                  ARCHETYPE = "Render::Model::Model",
                   Render__Model__Name = { value = "TestLevelGeom.glb" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -132,7 +132,7 @@ scene = {
             --truck
             {
                   ID = 21,
-                  ARCHETYPE = "Render__Model__Model",
+                  ARCHETYPE = "Render::Model::Model",
                   Render__Model__Name = { value = "Truck" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -470,7 +470,7 @@ scene = {
             },
             {
                   ID = 31,
-                  ARCHETYPE = "Render__Model__Model",
+                  ARCHETYPE = "Render::Model::Model",
                   Render__Model__Name = { value = "Wheel" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -752,7 +752,7 @@ scene = {
             },
             {
                   ID = 35,
-                  ARCHETYPE = "Render__Model__Model",
+                  ARCHETYPE = "Render::Model::Model",
                   Render__Model__Name = { value = "Wheel" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -1037,7 +1037,7 @@ scene = {
             },
             {
                   ID = 38,
-                  ARCHETYPE = "Render__Model__Model",
+                  ARCHETYPE = "Render::Model::Model",
                   Render__Model__Name = { value = "Wheel" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -1320,7 +1320,7 @@ scene = {
             },
             {
                   ID = "ID:scene/truck/truck_model",
-                  ARCHETYPE = "Render__Model__Model",
+                  ARCHETYPE = "Render::Model::Model",
                   Render__Model__Name = { value = "Wheel" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
@@ -1692,7 +1692,7 @@ scene = {
             },
             {
                   ID = "ID:scene/soldier/model",
-                  ARCHETYPE = "Render__Model__Model",
+                  ARCHETYPE = "Render::Model::Model",
                   Render__Model__Name = { value = "Man" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 3, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },

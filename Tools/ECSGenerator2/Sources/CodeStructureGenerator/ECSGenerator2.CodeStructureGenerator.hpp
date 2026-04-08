@@ -2425,7 +2425,7 @@ namespace ECSGenerator2 {
 
 					parsedECSFile->ForEachArchetype([&](ParsedArchetypePtr parsedArchetype) {
 
-						code.Add("\nif({} == \"{}\") {{\n", "archetypeName", parsedArchetype->GetFullName());
+						code.Add("\nif({} == \"{}\") {{\n", "archetypeName", parsedArchetype->GetFullName("::"));
 
 						std::string concatedNamespace = parsedArchetype->GetConcatedNamespace();
 						if (concatedNamespace.empty()) {
@@ -2457,6 +2457,52 @@ namespace ECSGenerator2 {
 				};
 
 				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
+			}
+
+			{
+				CodeStructure::Code code;
+
+				for (auto parsedECSFile : parsedECSFiles) {
+
+					parsedECSFile->ForEachArchetype([&](ParsedArchetypePtr parsedArchetype) {
+
+						
+
+						std::string concatedNamespace = parsedArchetype->GetConcatedNamespace();
+						if (concatedNamespace.empty()) {
+							code.Add("\nif({} == {}ArchetypeComponentsFilter) {{\n", "archetypeComponentsFilter", parsedArchetype->GetName());
+							code.Add("return \"{}\";", parsedArchetype->GetFullName("::"));
+						}
+						else {
+							code.Add("\nif({} == {}::{}ArchetypeComponentsFilter) {{\n", "archetypeComponentsFilter", parsedArchetype->GetConcatedNamespace(), parsedArchetype->GetName());
+							code.Add("return \"{}\";", parsedArchetype->GetFullName("::"));
+						}
+
+
+						code.Add("}\n");
+
+						return true;
+						});
+				}
+
+
+				code.Add("ASSERT_FAIL_MSG(\"Attempt to use components filter that is not archetype.\");");
+				code.Add("return \"\";");
+
+				CodeStructure::Function::CreateInfo cppRunSystemsFunction{
+					.name_ = "GetArchetypeNameByArchetypeComponentsFilter",
+					.parameters_ = {
+						{ "const ECS2::ComponentsFilter&", "archetypeComponentsFilter" }
+					},
+					.returnType_ = "const char*",
+					.code_ = {code},
+					.isPrototype_ = false,
+					.inlineModifier_ = true,
+					.descriptionComment_ = "Archetype components filter to archetype full name"
+				};
+
+				namespaceObject->Add(std::make_shared<CodeStructure::Function>(cppRunSystemsFunction));
+
 			}
 
 			CodeStructure::File::Includes includes{ };
