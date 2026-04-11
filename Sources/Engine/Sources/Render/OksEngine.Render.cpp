@@ -191,7 +191,7 @@ namespace OksEngine
 			{
 
 				RAL::Driver::StorageBuffer::CreateInfo worldPositionsSBCI{
-					.size_ = preallocatedEntitiesNumber * sizeof(BoneInverseBindPoseMatrix)
+					.size_ = preallocatedEntitiesNumber * sizeof(Render::Model::Node::Data::BoneInverseBindPoseMatrix)
 				};
 				const RAL::Driver::StorageBuffer::Id worldPositionsSBId = driver->CreateStorageBuffer(worldPositionsSBCI);
 

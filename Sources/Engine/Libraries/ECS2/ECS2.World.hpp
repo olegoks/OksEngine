@@ -259,9 +259,9 @@ namespace ECS2 {
 				
 				std::apply([&](auto&&... unpackedArgs) {
 					//Archetype entity.
-					if (archetypeEntitiesComponents_.contains(entityId)) {
-
-						const ComponentsFilter archetypeComponentsFilter = archetypeEntitiesComponents_[entityId];
+					if (IsArchetypeEntity(entityId)) {
+						
+						const ComponentsFilter archetypeComponentsFilter = GetArchetypeComponents(entityId);;
 
 						ASSERT_FMSG(archetypeComponentsFilter.IsSet<ComponentType>(),
 							"Attempt to add component {} by {} to an archetype|{}| entity with id {} "

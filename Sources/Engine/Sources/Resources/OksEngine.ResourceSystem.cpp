@@ -46,12 +46,6 @@ namespace OksEngine
 				CreateComponent<ResourcesRootPath>(entityId, fullResourcesPath);
 				CreateComponent<Resources>(entityId);
 
-				//resourceSystem->system_->SetRoot(Subsystem::Type::Engine,
-				//	{ scenesFilesFullResourcesPath,
-				//		scriptsFullResourcesPath,
-				//		fullResourcesPath,
-				//		ecsFilesFullResourcesPath });
-
 			};
 
 
@@ -69,6 +63,8 @@ namespace OksEngine
 
 				ASSERT_FMSG(requestCF.IsSetOnlyOneOf<RESOURCE__MANAGER__REQUEST__STATES>(),
 					"Request must contain one of state components.");
+				
+
 
 				if (requestCF.IsSet<Request::State::Pending>()) {
 					BEGIN_PROFILE("Process pending state")

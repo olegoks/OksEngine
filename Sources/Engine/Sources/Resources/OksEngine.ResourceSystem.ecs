@@ -121,7 +121,8 @@ ResourceNamespace = {
 				fields = {
 					{ type = "std::string", name = "resourcePath" }
 				}
-			}
+			},
+			
 		},
 		RequestArchetype = {
 			archetypes = {

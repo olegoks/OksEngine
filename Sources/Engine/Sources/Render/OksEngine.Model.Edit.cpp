@@ -58,6 +58,47 @@ namespace OksEngine
 	namespace Render::Model {
 
 		namespace Node {
+
+			namespace Data {
+				void EditEntityIds(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Render::Model::Node::Data::EntityIds* modelNodeEntityIds) {
+					ImGui::PushID(Render::Model::Node::ChildNodeEntityIds::GetTypeId());
+					for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeDataEntityIds_) {
+						if (modelNodeEntityId.IsInvalid()) {
+							const std::string idString = std::to_string(modelNodeEntityId);
+							ImGui::TextDisabled(idString.c_str());
+							continue;
+						}
+						ImGui::Indent(20.f);
+						EditEntity(ecsWorld, modelNodeEntityId);
+						ImGui::Unindent(20.0f);
+					}
+					ImGui::PopID();
+				}
+				void EditEntityIdIndices(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Node::Data::EntityIdIndices* modelNodeEntityIndices) {
+					ImGui::PushID(Render::Model::Node::EntityIndices::GetTypeId());
+
+					//auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);
+					//nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
+
+					auto firstInvalidIndexIt = std::find(
+						modelNodeEntityIndices->indices_.begin(),
+						modelNodeEntityIndices->indices_.end(),
+						Common::Limits<Common::UInt64>::Max());
+
+					Common::UInt64 firstInvalidIndexIndex =
+						(firstInvalidIndexIt != modelNodeEntityIndices->indices_.end())
+						? (std::distance(modelNodeEntityIndices->indices_.begin(), firstInvalidIndexIt))
+						: modelNodeEntityIndices->indices_.max_size();
+
+					ImGui::Begin("Mesh node indices.");
+					for (int i = 0; i < firstInvalidIndexIndex; i++) {
+						ImGui::Text("Index %d", i, modelNodeEntityIndices->indices_[i]);
+					}
+					ImGui::End();
+
+					ImGui::PopID();
+				}
+			}
 			void EditEntityIds(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Render::Model::Node::EntityIds* modelNodeEntityIds) {
 				ImGui::PushID(Render::Model::Node::ChildNodeEntityIds::GetTypeId());
 				for (ECS2::Entity::Id modelNodeEntityId : modelNodeEntityIds->nodeEntityIds_) {

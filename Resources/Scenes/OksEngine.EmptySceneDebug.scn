@@ -86,12 +86,12 @@ scene = {
             {
                   ID = "ID:scene/test_level/model",
                   ARCHETYPE = "Render::Model::Model",
-                  Render__Model__Name = { value = "TestLevelGeom.glb" },
+                  Render__Model__Name = { value = "resource:/Models/TestLevelGeom/TestLevelGeom.glb" },
                   WorldPosition3D = { x = 0, y = 0.0, z = 0, w = 0.0 },
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Resource__Path = { path = "TestLevelGeom.glb" }
+                  Resource__Path = { path = "resource:/Models/TestLevelGeom/TestLevelGeom.glb" }
             },
             {
                   ID = "ID:scene/test_level/static_body",
@@ -138,7 +138,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Resource__Path = { path = "Truck.glb" }
+                  Resource__Path = { path = "resource:/Models/Truck/Truck.glb" }
             },
             { -- BODY
                   ID = 96,
@@ -476,7 +476,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Resource__Path = { path = "TruckWheel.glb" }
+                  Resource__Path = { path = "resource:/Models/Truck/TruckWheel.glb" }
             },
             {
                   ID = 97,
@@ -758,7 +758,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Resource__Path = { path = "TruckWheel.glb" }
+                  Resource__Path = { path = "resource:/Models/Truck/TruckWheel.glb" }
             },
             --WHEEL FORWARD Left
 
@@ -1043,7 +1043,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Resource__Path = { path = "TruckWheel.glb" }
+                  Resource__Path = { path = "resource:/Models/Truck/TruckWheel.glb" }
             },
             { --WHEEL BACK Left
                   ID = 101,
@@ -1326,7 +1326,7 @@ scene = {
                   WorldRotation3D = { w = 1.0, x = 0.0, y = 0.0, z = 0.0 },
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
-                  Resource__Path = { path = "TruckWheel.glb" }
+                  Resource__Path = { path = "resource:/Models/Truck/TruckWheel.glb" }
             },
             { --WHEEL BACK RIGHT
                   ID = 103,
@@ -1699,7 +1699,7 @@ scene = {
                   WorldScale3D = { x = 1.0, y = 1.0, z = 1.0 },
                   Render__Model__Tag = {},
                   --runModelAnimation = { animationName = "Walk" },
-                  Resource__Path = { path = "SoldierWithAnimation.glb" }
+                  Resource__Path = { path = "resource:/Models/Soldier/SoldierWithAnimation.glb" }
             },
             {
                   ID = 14,
