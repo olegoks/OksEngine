@@ -139,7 +139,7 @@ namespace ECS2 {
 				"Attempt to get component of entity but component doesn't exist.");
 
 			ASSERT_FMSG(entityIdComponentsFilter_.contains(entityId), "");
-			ASSERT_FMSG(entityIdComponentsFilter_[entityId].IsSet<Component>(), "Archetype entity doesn't containt component.");
+			ASSERT_FMSG(entityIdComponentsFilter_[entityId].IsSet<Component>(), "Archetype entity doesn't contain component.");
 
 			auto container = Common::pointer_cast<ArchetypeContainer<Component>>(containers_[Component::GetTypeId()]);
 			return (*container)[componentIndex];

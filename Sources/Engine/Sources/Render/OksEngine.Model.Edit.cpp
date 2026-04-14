@@ -57,6 +57,85 @@ namespace OksEngine
 
 	namespace Render::Model {
 
+		namespace Mesh {
+			namespace Data {
+
+				void EditEntityIds(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Mesh::Data::EntityIds* modelNodeEntityIndices) {
+					ImGui::PushID(Mesh::Data::EntityIds::GetTypeId());
+
+					//auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);
+					//nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
+
+					auto firstInvalidIndexIt = std::find(
+						modelNodeEntityIndices->ids_.begin(),
+						modelNodeEntityIndices->ids_.end(),
+						Common::Limits<Common::UInt64>::Max());
+
+					const Common::UInt64 firstInvalidIndexIndex =
+						(firstInvalidIndexIt != modelNodeEntityIndices->ids_.end())
+						? (std::distance(modelNodeEntityIndices->ids_.begin(), firstInvalidIndexIt))
+						: modelNodeEntityIndices->ids_.max_size();
+
+					ImGui::Begin("Mesh node indices.");
+					for (int i = 0; i < firstInvalidIndexIndex; i++) {
+						ImGui::Text("Index %d", modelNodeEntityIndices->ids_[i]);
+					}
+					ImGui::End();
+
+					ImGui::PopID();
+				}
+
+				void EditBoneNodeDataEntityIdIndices(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Mesh::Data::BoneNodeDataEntityIdIndices* modelNodeEntityIndices) {
+					ImGui::PushID(Render::Model::Mesh::Data::BoneNodeDataEntityIdIndices::GetTypeId());
+
+					//auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);
+					//nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
+
+					auto firstInvalidIndexIt = std::find(
+						modelNodeEntityIndices->indices_.begin(),
+						modelNodeEntityIndices->indices_.end(),
+						Common::Limits<Common::UInt64>::Max());
+
+					const Common::UInt64 firstInvalidIndexIndex =
+						(firstInvalidIndexIt != modelNodeEntityIndices->indices_.end())
+						? (std::distance(modelNodeEntityIndices->indices_.begin(), firstInvalidIndexIt))
+						: modelNodeEntityIndices->indices_.max_size();
+
+					ImGui::Begin("Mesh node indices.");
+					for (int i = 0; i < firstInvalidIndexIndex; i++) {
+						ImGui::Text("Index %d", modelNodeEntityIndices->indices_[i]);
+					}
+					ImGui::End();
+
+					ImGui::PopID();
+				}
+
+				void EditNodeDataEntityIdIndices(std::shared_ptr<ECS2::World> ecsWorld, ECS2::Entity::Id ecsEntityId, Mesh::Data::NodeDataEntityIdIndices* modelNodeEntityIndices) {
+					ImGui::PushID(Render::Model::Mesh::Data::NodeDataEntityIdIndices::GetTypeId());
+
+					//auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);
+					//nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
+
+					auto firstInvalidIndexIt = std::find(
+						modelNodeEntityIndices->indices_.begin(),
+						modelNodeEntityIndices->indices_.end(),
+						Common::Limits<Common::UInt64>::Max());
+
+					const Common::UInt64 firstInvalidIndexIndex =
+						(firstInvalidIndexIt != modelNodeEntityIndices->indices_.end())
+						? (std::distance(modelNodeEntityIndices->indices_.begin(), firstInvalidIndexIt))
+						: modelNodeEntityIndices->indices_.max_size();
+
+					ImGui::Begin("Mesh node indices.");
+					for (int i = 0; i < firstInvalidIndexIndex; i++) {
+						ImGui::Text("Index %d", modelNodeEntityIndices->indices_[i]);
+					}
+					ImGui::End();
+
+					ImGui::PopID();
+				}
+			}
+		}
 		namespace Node {
 
 			namespace Data {

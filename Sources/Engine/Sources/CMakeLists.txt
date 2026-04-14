@@ -38,7 +38,7 @@ target_compile_definitions(OksEngine PUBLIC USE_PIX)
 #Test code
 
 function(get_source_files DIRECTORY FILE_LIST)
-    file(GLOB_RECURSE TEMP_FILES "${DIRECTORY}/*.cpp" "${DIRECTORY}/*.c" "${DIRECTORY}/*.hpp" "${DIRECTORY}/*.h" "${DIRECTORY}/*.inl" "${DIRECTORY}/*.ecs")
+    file(GLOB_RECURSE TEMP_FILES "${DIRECTORY}/*.glsl" "${DIRECTORY}/*.cpp" "${DIRECTORY}/*.c" "${DIRECTORY}/*.hpp" "${DIRECTORY}/*.h" "${DIRECTORY}/*.inl" "${DIRECTORY}/*.ecs")
     set(${FILE_LIST} ${TEMP_FILES} PARENT_SCOPE)
 
 endfunction()

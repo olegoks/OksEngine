@@ -77,7 +77,15 @@ namespace OksEngine
 					const bool isResourceLoaded = (resourceIt != manager__Resources0->resourcePathToResourceEntityId_.end());
 					if (!isResourceLoaded) {
 						const std::filesystem::path relativePath = GetRelativePath(request__LoadResource1->resourcePath_);
+
 						std::filesystem::path resourcePath = manager__ResourcesRootPath0->path_ / relativePath;
+
+						//HACK: default root resources path for shader is not valid.
+						std::unordered_set<std::string> renderFilesExtensions{ ".glsl", ".vert", ".geom", ".frag" };
+						if (renderFilesExtensions.contains(relativePath.extension().generic_string())) {
+							resourcePath = std::filesystem::path{ "D:/OksEngine/"} / relativePath;
+						}
+						
 
 						const ECS2::Entity::Id taskEntityId = COMMON__ASYNC__CREATE_TASK([resourcePath]() {
 

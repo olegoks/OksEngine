@@ -66,43 +66,6 @@ PauseAnimationComponent = {
 
 
 AiNamespace = {
-    SceneComponent = {
-        bindable = false,
-        serializable = false,
-        fields = {
-            { type = "std::shared_ptr<const aiScene>", name = "scene" }
-        }
-    },
-
-    -- CacheComponent = {
-    --     bindable = false,
-    --     serializable = false,
-    --     fields = {
-    --         { type = "std::map<std::string, std::shared_ptr<const aiScene>>", name = "nametToScene" }
-    --     }
-    -- },
-
-    -- CreateCacheSystem = {
-    --     type = "Initialize",
-    --     updateMethod = {
-    --         createsEntities = {
-    --             {
-    --                 createsComponents = {
-    --                     "Ai::Cache"
-    --                 }
-    --             }
-    --         }
-    --     }
-    -- },
-
-    NodeComponent = {
-        bindable = false,
-        serializable = false,
-        fields = {
-            { type = "std::shared_ptr<const aiNode>", name = "node" }
-        }
-    },
-
     MeshsComponent = {
         bindable = false,
         serializable = false,
@@ -134,41 +97,6 @@ AiNamespace = {
             }
         }
     },
-    -- CreateModelDataSystem = {
-    --     updateMethod = {
-    --         processesEntities = {
-    --             {
-    --                 processesComponents = {
-    --                     "Render::Model::Data::Controller",
-    --                     { name = "Render::Model::Data::ModelNameToDataEntityId", readonly = false }
-    --                 }
-    --             },
-    --             {
-    --                 processesComponents = {
-    --                     "Render::Model::Tag",
-    --                     "Resource::Path",
-    --                     {
-    --                         name = "Resource::Manager::Request::EntityId",
-    --                         readonly = true
-    --                         -- TODO: Check if Request entity id contains needed component(Request::State::Ready) and then call this system.
-    --                     }
-    --                 },
-    --                 excludes = {
-    --                     --"Render::Model::Tag",
-    --                     "Render::Model::Data::EntityId",
-    --                     -- "Ai::Scene"
-    --                 },
-    --                 createsComponents = {
-    --                     "Render::Model::Data::EntityId",
-    --                     --"Render::Model::Tag",
-    --                     -- "Ai::Scene",
-    --                     --"Render::Model::Mesh::Names"
-    --                 }
-    --             },
-    --         },
-    --     }
-    -- },
-
     CreateModelDataSystem = {
         updateMethod = {
             processesEntities = {
@@ -291,6 +219,9 @@ AiNamespace = {
                     archetype = "Resource::Resource"
                 },
                 {
+                    archetype = "Render::Model::Node::Data::Data"
+                },
+                {
                     archetype = "Resource::Manager::Request"
                 },
                 {
@@ -332,7 +263,18 @@ RenderNamespace = {
             BoneComponent = {
                 serializable = false
             },
-
+            ResourceSetComponent = {
+                description = "",
+                serializable = false,
+                fields = {
+                    { type = "RAL::Driver::RS::Id", name = "rsId" },
+                    { type = "RAL::Driver::SB::Id", name = "entityIdToComponentIndex" },
+                    { type = "RAL::Driver::SB::Id", name = "worldPosition3D" },
+                    { type = "RAL::Driver::SB::Id", name = "worldRotation3D" },
+                    { type = "RAL::Driver::SB::Id", name = "worldScale3D" },
+                    { type = "RAL::Driver::SB::Id", name = "modelNodeDataEntityId" }
+                }
+            },
             BoneEntityIdsComponent = {
                 serializable = false,
                 fields = {
@@ -369,7 +311,6 @@ RenderNamespace = {
                 }
             },
 
-
             ChildNodeEntityIdsMaxNumberConstant = {
                 type = "Common::Size",
                 value = "32"
@@ -384,6 +325,15 @@ RenderNamespace = {
 
             DataNamespace = {
                 TagComponent = {},
+                ResourceSetComponent = {
+                    description = "",
+                    serializable = false,
+                    fields = {
+                        { type = "RAL::Driver::RS::Id", name = "rsId" },
+                        { type = "RAL::Driver::SB::Id", name = "entityIdToComponentIndex" },
+                        { type = "RAL::Driver::SB::Id", name = "boneInverseBindPoseMatrices" }
+                    }
+                },
                 DataArchetype = {
                     components = {
                         "Model::Node::Data::Tag",
@@ -401,12 +351,6 @@ RenderNamespace = {
                         "Animation::Animation"
                     }
                 },
-                -- BoneEntityIdsComponent = {
-                --     serializable = false,
-                --     fields = {
-                --         { type = "std::array<ECS2::Entity::Id, MaxNumberPerModel>", name = "boneEntityIds" }
-                --     }
-                -- },
                 EntityIdComponent = {
                     description =
                     "This component will have node entity to have access to node data like animations, bone inverse bind pose matrix.",
@@ -482,9 +426,20 @@ RenderNamespace = {
             EntityIdComponent = {
                 description =
                 "This component will have model entity to have access to model data like animations, mesh data.",
-                serializable = false,
                 fields = {
                     { type = "ECS2::Entity::Id", name = "modelDataEntityId" }
+                }
+            },
+            ResourceSetComponent = {
+                description = "",
+                serializable = false,
+                fields = {
+                    { type = "RAL::Driver::RS::Id", name = "rsId" },
+                    { type = "RAL::Driver::SB::Id", name = "entityIdToComponentIndex" },
+                    { type = "RAL::Driver::SB::Id", name = "modelEntityIds" },
+                    { type = "RAL::Driver::SB::Id", name = "meshDataEntityIds" },
+                    { type = "RAL::Driver::SB::Id", name = "nodeDataEntityIds" },
+                    { type = "RAL::Driver::SB::Id", name = "animations" }
                 }
             },
             ControllerComponent = {},
@@ -500,25 +455,19 @@ RenderNamespace = {
                     }
                 }
             },
-            NameComponent = {
-                serializable = true,
-                fields = {
-                    { type = "std::string", name = "value" }
-                }
-            },
-            DataArchetype = {
-                components = {
-                    "Name",
-                    "Render::Model::Data::Tag",
-                    "Render::Model::Node::Data::EntityIds",
-                    "ModelAnimations",
-                    "Render::Model::Node::Data::ChildNodeDataEntityIds",
-                }
-            },
-
             CreateControllerSystem = {
                 type = "Initialize",
+                callOrder = {
+                    runAfter = { "CreateRenderDriver" }
+                },
                 updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "RenderDriver"
+                            }
+                        }
+                    },
                     createsEntities = {
                         {
                             createsComponents = {
@@ -529,42 +478,24 @@ RenderNamespace = {
                     }
                 }
             },
-            FindModelDataSystem = {
-                description =
-                "Find model data for models and set nodes data entity ids for model nodes to have fast acces to animations and bone inverse bind matices.",
-                updateMethod = {
-                    processesEntities = {
-                        {
-                            processesComponents = {
-                                "Model::Tag",
-                                "Resource::Path",
-                                "Model::Node::EntityIds"
-                            },
-                            excludes = {
-                                "Model::Data::EntityId"
-                            },
-                            createsComponents = {
-                                "Model::Data::EntityId"
-                            }
-                        },
-                        {
-                            processesComponents = {
-                                "Model::Data::Controller",
-                                "Model::Data::ModelNameToDataEntityId"
-                            }
-                        }
-                    },
-                    accessingEntities = {
-                        {
-                            accessingComponents = {
-                                "Model::Node::EntityIds"
-                            }
-                        }
-                    }
+            NameComponent = {
+                serializable = true,
+                fields = {
+                    { type = "std::string", name = "value" }
                 }
             },
-
-
+            DataArchetype = {
+                components = {
+                    "Name",
+                    "Render::Model::Data::Tag",
+                    "Render::Model::EntityIds",
+                    "Render::Model::Mesh::Data::EntityIds",
+                    "Render::Model::Node::Data::EntityIds",
+                    "ModelAnimations",
+                    "Render::Model::Node::Data::ChildNodeDataEntityIds",
+                }
+            },
+           
         },
         TagComponent = {},
         EntityIdComponent = {
@@ -608,49 +539,9 @@ RenderNamespace = {
                 "Render::Model::Node::ChildNodeEntityIds",
                 "Render::Model::Mesh::Names",
                 "Render::Model::Mesh::EntityIds",
-                "Render::Model::MeshsFound",
                 "Render::Model::Data::EntityId",
 
             },
-        },
-
-
-
-
-        -- FileComponent = {
-        --     fields = {
-        --         { type = "std::string", name = "fileName" } }
-        -- },
-        MeshsFoundComponent = {
-            serializable = false
-        },
-
-
-        FindModelMeshsSystem = {
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            "Render::Model::Tag",
-                            "Render::Model::Mesh::Names",
-                            { name = "Render::Model::Mesh::EntityIds", readonly = false }
-                        },
-                        excludes = {
-                            "Render::Model::MeshsFound"
-                        },
-                        createsComponents = {
-                            "Render::Model::MeshsFound"
-                        }
-                    },
-                    {
-                        processesComponents = {
-                            "Render::Model::Mesh::Tag",
-                            "::Name",
-                            { name = "Render::Model::EntityIds", readonly = false }
-                        }
-                    }
-                }
-            }
         },
         ProcessModelSystem = {
             callOrder = {
@@ -754,8 +645,27 @@ RenderNamespace = {
                 EntityIdsComponent = {
                     bindable = false,
                     serializable = false,
+                    manualEditFunction = true,
                     fields = {
-                        { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+                        { type = "std::array<ECS2::Entity::Id, 64>", name = "ids" }
+                    }
+                },
+                BoneNodeDataEntityIdIndicesComponent = {
+                    description = "Indices of nodes data in model array with ids of nodes data.",
+                    bindable = false,
+                    serializable = false,
+                    manualEditFunction = true,
+                    fields = {
+                        { type = "std::array<Common::Index, 16>", name = "indices" }
+                    }
+                },
+                NodeDataEntityIdIndicesComponent = {
+                    description = "Indices of nodes data in model array with ids of nodes data.",
+                    bindable = false,
+                    serializable = false,
+                    manualEditFunction = true,
+                    fields = {
+                        { type = "std::array<Common::Index, 16>", name = "indices" }
                     }
                 },
                 NameComponent = "::Name",
@@ -763,7 +673,9 @@ RenderNamespace = {
                     components = {
                         "Render::Model::Mesh::Data::Tag",
                         "Render::Model::Mesh::Data::Name",
-                        "Render::Model::Node::Data::EntityIdIndices", -- For hier animations, save node data entity ids in model space.
+                        "Render::Model::Mesh::Data::BoneNodeDataEntityIdIndices", -- For skeleton animation
+                        "Render::Model::Mesh::Data::NodeDataEntityIdIndices", -- For hier animation
+                        "Render::Model::Data::EntityId",
                         "Vertices3D",
                         "DriverVertexBuffer",
                         "Indices",

@@ -7,14 +7,14 @@ scene = {
             Name = { value = "Render/Skeleton/VertexShader" },
             Render__Shader__Tag = {},
             Render__Shader__Type__VertexShader = {},
-            Render__Shader__ResourcePath = { resourcePath = "resource:/Shaders/skeleton.vert" }
+            Render__Shader__ResourcePath = { resourcePath = "resource:/Sources/Engine/Sources/Shaders/skeleton.vert" }
         },
         {
             ID = "ID:Render/Skeleton/FragmentShader",
             Name = { value = "Render/Skeleton/FragmentShader" },
             Render__Shader__Tag = {},
             Render__Shader__Type__FragmentShader = {},
-            Render__Shader__ResourcePath = { resourcePath = "resource:/Shaders/skeleton.frag" }
+            Render__Shader__ResourcePath = { resourcePath = "resource:/Sources/Engine/Sources/Shaders/skeleton.frag" }
         },
         {
             ID = "ID:scene/SkeletonRenderPipeline",

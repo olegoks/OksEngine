@@ -19,7 +19,7 @@
 #include <Common/auto_OksEngine.Debug.Position3D.hpp>
 #include <pix3.h>
 
-
+//#include <Shaders/common/OksEngine.Model.glsl>
 
 namespace OksEngine
 {
@@ -50,20 +50,24 @@ namespace OksEngine
 			auto modelComponentsFilter = GetComponentsFilter(modelEntityId);
 
 			const auto* modelDataEntityId = mdl__ModelDataEntityId1;
-			const auto* modelAnimations = GetComponent<ModelAnimations>(modelDataEntityId->modelDataEntityId_);
+			const bool isModelHasSkeletonAnimations = IsComponentExist<ModelAnimations>(modelDataEntityId->modelDataEntityId_);
 
+			ModelAnimations* modelAnimations = nullptr;
+			if (isModelHasSkeletonAnimations) {
+				modelAnimations = GetComponent<ModelAnimations>(modelDataEntityId->modelDataEntityId_);
+			}
 
 			const auto* runModelAnimation = std::get<RunModelAnimation*>(components);
-			const bool needToRunAnimation = modelComponentsFilter.IsSet<RunModelAnimation>();
+			const bool needToRunAnimation = isModelHasSkeletonAnimations && modelComponentsFilter.IsSet<RunModelAnimation>();
 
 			auto* animationInProgress = std::get<AnimationInProgress*>(components);
-			bool needToProcessAnimation = modelComponentsFilter.IsSet<AnimationInProgress>();
+			bool needToProcessAnimation = isModelHasSkeletonAnimations && modelComponentsFilter.IsSet<AnimationInProgress>();
 
 			const auto* pauseAnimation = std::get<PauseAnimation*>(components);
 			const bool animationPaused = modelComponentsFilter.IsSet<PauseAnimation>();
 
 			//Run of new animation has more priority than process current.
-			needToProcessAnimation = !needToRunAnimation && needToProcessAnimation;
+			needToProcessAnimation = isModelHasSkeletonAnimations && !needToRunAnimation && needToProcessAnimation;
 
 			//PROSESS RUNNING ANIMATION
 			ModelAnimation runningModelAnimation;
@@ -126,16 +130,14 @@ namespace OksEngine
 			}
 
 			//PROSESS RUNNING ANIMATION
-
-			//PROCESS ANIMATION START
-
-			Common::UInt32 animationIndex = 0;
-			auto modelAnimationIt = modelAnimations->animations_.cend();
 			ECS2::ComponentsFilter animationComponentsFilter;
 			animationComponentsFilter.SetBits<Animation::Model::Node::Animations>();
+			Common::UInt32 animationIndex = 0;
+			//PROCESS ANIMATION START
 			if (needToRunAnimation) {
+
 				//Find needed animation.
-				modelAnimationIt = std::find_if(
+				auto modelAnimationIt = std::find_if(
 					modelAnimations->animations_.cbegin(),
 					modelAnimations->animations_.cend(),
 					[&](const ModelAnimation& modelAnimation) {
@@ -183,7 +185,6 @@ namespace OksEngine
 						//PROSESS RUNNING ANIMATION
 						if (needToProcessAnimation) {
 
-
 							auto* animationRunningState = std::get<Animation::Model::Node::RunningState*>(components);
 							auto* childModelNodeEntities = std::get<Model::Node::ChildNodeEntityIds*>(components);
 
@@ -213,7 +214,7 @@ namespace OksEngine
 								CreateComponent<Animation::Model::Node::RunningState>(
 									nodeEntityId,
 									animationIndex,
-									modelAnimationIt->durationInTicks_,
+									modelAnimations->animations_[animationIndex].durationInTicks_,
 									0.0);
 							}
 						}
@@ -346,7 +347,6 @@ namespace OksEngine
 					return;
 				}
 
-
 				const ECS2::Entity::Id resourceEntityId = GetComponent<Resource::EntityId>(resource__Manager__Request__EntityId2->id_)->id_;
 				ASSERT(IsComponentExist<Resource::Data>(resourceEntityId));
 				auto* resourceData = GetComponent<Resource::Data>(resourceEntityId);
@@ -359,9 +359,10 @@ namespace OksEngine
 				Render::Model::AssimpScene scene{ assimpCI };
 
 				ECS2::Entity::Id modelDataEntityId = CreateEntity<RENDER__MODEL__DATA__DATA>();
-
+				CreateComponent<Render::Model::Data::Tag>(modelDataEntityId);
 				CreateComponent<Render::Model::Data::Name>(modelDataEntityId, resource__Path2->path_ + "/" + scene.GetSceneName());
 
+				CreateComponent<Render::Model::EntityIds>(modelDataEntityId, decltype(Render::Model::EntityIds::modelEntityIds_){ entity2id });
 				//Create node data entities.
 				std::map<const aiNode*, ECS2::Entity::Id> nodeToNodeDataEntityId;
 				decltype(Render::Model::Node::Data::EntityIds::nodeDataEntityIds_) modelDataNodeEntityIds;
@@ -823,16 +824,16 @@ namespace OksEngine
 
 				//Create mesh data entities.
 				{
-					std::vector<ECS2::Entity::Id> meshEntityIds;
+					decltype(Render::Model::Mesh::Data::EntityIds::ids_) meshDataEntityIds;
+					std::fill(meshDataEntityIds.begin(), meshDataEntityIds.end(), ECS2::Entity::Id::invalid_);
 
-					meshEntityIds.resize(scene.GetMeshesNumber(), ECS2::Entity::Id::invalid_);
-					Common::Index meshEntityIdIndex = 0;
 					scene.ForEachMesh([&](const aiMesh* mesh) {
 
 						const ECS2::Entity::Id meshDataEntity = CreateEntity<RENDER__MODEL__MESH__DATA__DATA>();
 
 						CreateComponent<Render::Model::Mesh::Data::Tag>(meshDataEntity);
 						CreateComponent<Render::Model::Mesh::Data::Name>(meshDataEntity, resource__Path2->path_ + "/" + scene.GetMeshFullName(mesh));
+						CreateComponent<Render::Model::Data::EntityId>(meshDataEntity, modelDataEntityId);
 
 						auto createMeshComponents = [&](
 							const aiMesh* mesh,
@@ -996,7 +997,7 @@ namespace OksEngine
 												nodeEntityIndices.push_back(std::distance(modelDataNodeEntityIds.begin(), nodeEntityIdIt));
 											}
 
-											decltype(Render::Model::Node::Data::EntityIdIndices::indices_) meshNodeEntityIndices;
+											decltype(Render::Model::Mesh::Data::NodeDataEntityIdIndices::indices_) meshNodeEntityIndices;
 											meshNodeEntityIndices.fill(Common::Limits<Common::UInt64>::Max());
 
 											ASSERT(nodeEntityIndices.size() <= meshNodeEntityIndices.max_size());
@@ -1005,7 +1006,7 @@ namespace OksEngine
 												meshNodeEntityIndices[j] = nodeEntityIndices[j];
 											}
 
-											CreateComponent<Render::Model::Node::Data::EntityIdIndices>(meshEntityId, meshNodeEntityIndices);
+											CreateComponent<Render::Model::Mesh::Data::NodeDataEntityIdIndices>(meshEntityId, meshNodeEntityIndices);
 
 										}
 									}
@@ -1047,17 +1048,22 @@ namespace OksEngine
 							};
 
 						createMeshComponents(mesh, meshDataEntity);
-						++meshEntityIdIndex;
+
+						auto freeSlot = std::find_if(meshDataEntityIds.begin(), meshDataEntityIds.end(), [](ECS2::Entity::Id entityId) {
+							return entityId == ECS2::Entity::Id::invalid_;
+							});
+						ASSERT(freeSlot != meshDataEntityIds.end());
+						*freeSlot = meshDataEntity;
 
 						});
+
+
+					CreateComponent<Render::Model::Mesh::Data::EntityIds>(modelDataEntityId, meshDataEntityIds);
+
 				}
 
 				render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_[resource__Path2->path_] = modelDataEntityId;
 
-
-				/*CreateComponent<Render::Model::Data::EntityId>(
-					modelEntityId,
-					render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_[resource__Path2->path_]);*/
 			}
 
 
@@ -1093,1021 +1099,1529 @@ namespace OksEngine
 			ASSERT(world_->IsArchetypeEntity(modelDataEntityId));
 			ASSERT(world_->GetArchetypeComponents(modelDataEntityId) == Render::Model::Data::DataArchetypeComponentsFilter);
 
+			auto* modelEntityIds = GetComponent<Render::Model::EntityIds>(modelDataEntityId);
+			auto freeSlotIt = std::find_if(modelEntityIds->modelEntityIds_.begin(), modelEntityIds->modelEntityIds_.end(), [&](ECS2::Entity::Id entityId) {
+				return entityId == ECS2::Entity::Id::invalid_;
+				});
+			*freeSlotIt = modelEntityId;
 
+			CreateComponent<Render::Model::Data::EntityId>(modelEntityId, modelDataEntityId);
 
+			std::function<ECS2::Entity::Id(ECS2::Entity::Id)> createNodeComponents =
+				[&](ECS2::Entity::Id nodeDataEntityId) -> ECS2::Entity::Id {
+
+				const ECS2::Entity::Id nodeEntityId = CreateEntity<RENDER__MODEL__NODE__NODE>();
+				CreateComponent<Render::Model::Node::Tag>(nodeEntityId);
+				CreateComponent<Render::Model::Node::Data::EntityId>(nodeEntityId, nodeDataEntityId);
+
+				const auto* localPoisition3D = GetComponent<LocalPosition3D>(nodeDataEntityId);
+				CreateComponent<LocalPosition3D>(nodeEntityId,
+					localPoisition3D->x_,
+					localPoisition3D->y_,
+					localPoisition3D->z_,
+					0.0);
+				CreateComponent<WorldPosition3D>(nodeEntityId, 0.0f, 0.0f, 0.0f, 0.0f);
+
+				const auto* localRotation3D = GetComponent<LocalPosition3D>(nodeDataEntityId);
+				CreateComponent<LocalRotation3D>(nodeEntityId,
+					localRotation3D->w_,
+					localRotation3D->x_,
+					localRotation3D->y_,
+					localRotation3D->z_);
+				CreateComponent<WorldRotation3D>(nodeEntityId, 1.0f, 0.0f, 0.0f, 0.0f);
+
+				const auto* localScale3D = GetComponent<LocalPosition3D>(nodeDataEntityId);
+				CreateComponent<LocalScale3D>(nodeEntityId,
+					localScale3D->x_,
+					localScale3D->y_,
+					localScale3D->z_);
+				CreateComponent<WorldScale3D>(nodeEntityId, 0.0f, 0.0f, 0.0f);
+
+				if (IsComponentExist<Render::Model::Node::Data::ChildNodeDataEntityIds>(nodeDataEntityId)) {
+					const auto* childNodeDataEntityIds = GetComponent<Render::Model::Node::Data::ChildNodeDataEntityIds>(nodeDataEntityId);
+
+					decltype(Render::Model::Node::ChildNodeEntityIds::entityIds_) childNodeEntityIds;
+					for (const ECS2::Entity::Id childNodeDataEntityId : childNodeDataEntityIds->entityIds_) {
+						const ECS2::Entity::Id nodeEntityId = createNodeComponents(childNodeDataEntityId);
+						childNodeEntityIds.push_back(nodeEntityId);
+					}
+
+				}
+				return nodeEntityId;
+				};
+
+			const auto* rootNodeDataEntityIds = GetComponent<Render::Model::Node::Data::EntityIds>(modelDataEntityId);
+
+			decltype(Render::Model::Node::ChildNodeEntityIds::entityIds_) childNodeEntityIds;
+
+			for (const ECS2::Entity::Id rootNodeDataEntityId : rootNodeDataEntityIds->nodeDataEntityIds_) {
+				if (rootNodeDataEntityId.IsInvalid()) {
+					continue;
+				}
+				ASSERT(world_->GetArchetypeComponents(rootNodeDataEntityId) == Render::Model::Node::Data::DataArchetypeComponentsFilter);
+				const ECS2::Entity::Id rootNodeEntityId = createNodeComponents(rootNodeDataEntityId);
+				childNodeEntityIds.push_back(rootNodeEntityId);
+			}
+			CreateComponent<Render::Model::Node::ChildNodeEntityIds>(modelEntityId, std::move(childNodeEntityIds));
 
 			return;
 
-			auto modelDataIt = render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_.find(resource__Path2->path_);
+			//auto modelDataIt = render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_.find(resource__Path2->path_);
 
-			if (modelDataIt == render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_.end()) {
+			//if (modelDataIt == render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_.end()) {
 
-				//Wait for resource loaded.
-				if (!RESOURCE__MANAGER__IS_REQUEST_FINISHED(resource__Manager__Request__EntityId2->id_)) {
-					return;
-				}
+			//	//Wait for resource loaded.
+			//	if (!RESOURCE__MANAGER__IS_REQUEST_FINISHED(resource__Manager__Request__EntityId2->id_)) {
+			//		return;
+			//	}
 
-				const ECS2::Entity::Id resourceEntityId = GetComponent<Resource::EntityId>(resource__Manager__Request__EntityId2->id_)->id_;
-				ASSERT(IsComponentExist<Resource::Data>(resourceEntityId));
-				auto* resourceData = GetComponent<Resource::Data>(resourceEntityId);
+			//	const ECS2::Entity::Id resourceEntityId = GetComponent<Resource::EntityId>(resource__Manager__Request__EntityId2->id_)->id_;
+			//	ASSERT(IsComponentExist<Resource::Data>(resourceEntityId));
+			//	auto* resourceData = GetComponent<Resource::Data>(resourceEntityId);
 
-				Render::Model::AssimpScene::CI assimpCI{
-					.data_ = resourceData->data_
-				};
+			//	Render::Model::AssimpScene::CI assimpCI{
+			//		.data_ = resourceData->data_
+			//	};
 
-				Render::Model::AssimpScene scene{ assimpCI };
+			//	Render::Model::AssimpScene scene{ assimpCI };
 
 
-				decltype(Render::Model::Node::EntityIds::nodeEntityIds_) modelNodeEntityIds;
-				modelNodeEntityIds.fill(ECS2::Entity::Id::invalid_);
+			//	decltype(Render::Model::Node::EntityIds::nodeEntityIds_) modelNodeEntityIds;
+			//	modelNodeEntityIds.fill(ECS2::Entity::Id::invalid_);
 
-				std::map<const aiNode*, ECS2::Entity::Id> nodeToEntityId;
+			//	std::map<const aiNode*, ECS2::Entity::Id> nodeToEntityId;
 
 
-				[[maybe_unused]]
-				Common::Size nodesNumber = 0;
-				std::vector<ECS2::Entity::Id> foundNodesEntityIds;
-				{
+			//	[[maybe_unused]]
+			//	Common::Size nodesNumber = 0;
+			//	std::vector<ECS2::Entity::Id> foundNodesEntityIds;
+			//	{
 
-					scene.ForEachNode([&](const aiNode* node) {
+			//		scene.ForEachNode([&](const aiNode* node) {
 
-						ECS2::Entity::Id nodeEntityId = ECS2::Entity::Id::invalid_;
+			//			ECS2::Entity::Id nodeEntityId = ECS2::Entity::Id::invalid_;
 
-						nodeEntityId = CreateEntity<RENDER__MODEL__NODE__NODE>();
+			//			nodeEntityId = CreateEntity<RENDER__MODEL__NODE__NODE>();
 
-						foundNodesEntityIds.push_back(nodeEntityId);
-						nodeToEntityId[node] = nodeEntityId;
+			//			foundNodesEntityIds.push_back(nodeEntityId);
+			//			nodeToEntityId[node] = nodeEntityId;
 
-						});
+			//			});
 
 
-					ASSERT(foundNodesEntityIds.size() <= modelNodeEntityIds.max_size());
-					std::copy(
-						foundNodesEntityIds.begin(),
-						foundNodesEntityIds.end(),
-						modelNodeEntityIds.begin());
-				}
+			//		ASSERT(foundNodesEntityIds.size() <= modelNodeEntityIds.max_size());
+			//		std::copy(
+			//			foundNodesEntityIds.begin(),
+			//			foundNodesEntityIds.end(),
+			//			modelNodeEntityIds.begin());
+			//	}
 
-				CreateComponent<Render::Model::Node::EntityIds>(modelEntityId, modelNodeEntityIds);
+			//	CreateComponent<Render::Model::Node::EntityIds>(modelEntityId, modelNodeEntityIds);
 
-				decltype(Render::Model::Node::BoneEntityIds::boneEntityIds_) boneEntityIds;
-				boneEntityIds.fill(ECS2::Entity::Id::invalid_);
-				Common::Index boneEntityIndex = 0;
-				scene.ForEachBoneNode([&](const aiNode* boneNode) {
-					boneEntityIds[boneEntityIndex++] = nodeToEntityId[boneNode];
-					});
-				if (!boneEntityIds.empty()) {
-					CreateComponent<Render::Model::Node::BoneEntityIds>(modelEntityId, boneEntityIds);
-				}
+			//	decltype(Render::Model::Node::BoneEntityIds::boneEntityIds_) boneEntityIds;
+			//	boneEntityIds.fill(ECS2::Entity::Id::invalid_);
+			//	Common::Index boneEntityIndex = 0;
+			//	scene.ForEachBoneNode([&](const aiNode* boneNode) {
+			//		boneEntityIds[boneEntityIndex++] = nodeToEntityId[boneNode];
+			//		});
+			//	if (!boneEntityIds.empty()) {
+			//		CreateComponent<Render::Model::Node::BoneEntityIds>(modelEntityId, boneEntityIds);
+			//	}
 
-				auto createNodesHierarchy = [&]() {
+			//	auto createNodesHierarchy = [&]() {
 
-					auto createNodeComponents = [&](const aiNode* node, ECS2::Entity::Id nodeEntityId) {
+			//		auto createNodeComponents = [&](const aiNode* node, ECS2::Entity::Id nodeEntityId) {
 
-						aiVector3D position3D;
-						aiQuaternion rotation3D;
-						aiVector3D scale3D;
-						aiMatrix4x4 flipYtoZ;
-						node->mTransformation.Decompose(scale3D, rotation3D, position3D);
+			//			aiVector3D position3D;
+			//			aiQuaternion rotation3D;
+			//			aiVector3D scale3D;
+			//			aiMatrix4x4 flipYtoZ;
+			//			node->mTransformation.Decompose(scale3D, rotation3D, position3D);
 
-						//Mark that this node is Bone
-						if (scene.IsThereBoneWithName(node->mName.C_Str())) {
-							CreateComponent<Render::Model::Node::Bone>(nodeEntityId);
-						}
+			//			//Mark that this node is Bone
+			//			if (scene.IsThereBoneWithName(node->mName.C_Str())) {
+			//				CreateComponent<Render::Model::Node::Bone>(nodeEntityId);
+			//			}
 
-						CreateComponent<LocalPosition3D>(nodeEntityId, position3D.x, position3D.y, position3D.z, 0.0);
-						CreateComponent<WorldPosition3D>(nodeEntityId, 0.0f, 0.0f, 0.0f, 0.0f);
+			//			CreateComponent<LocalPosition3D>(nodeEntityId, position3D.x, position3D.y, position3D.z, 0.0);
+			//			CreateComponent<WorldPosition3D>(nodeEntityId, 0.0f, 0.0f, 0.0f, 0.0f);
 
-						CreateComponent<LocalRotation3D>(nodeEntityId, rotation3D.w, rotation3D.x, rotation3D.y, rotation3D.z);
-						CreateComponent<WorldRotation3D>(nodeEntityId, 1.0f, 0.0f, 0.0f, 0.0f);
+			//			CreateComponent<LocalRotation3D>(nodeEntityId, rotation3D.w, rotation3D.x, rotation3D.y, rotation3D.z);
+			//			CreateComponent<WorldRotation3D>(nodeEntityId, 1.0f, 0.0f, 0.0f, 0.0f);
 
-						CreateComponent<LocalScale3D>(nodeEntityId, scale3D.x, scale3D.y, scale3D.z);
-						CreateComponent<WorldScale3D>(nodeEntityId, 0.0f, 0.0f, 0.0f);
+			//			CreateComponent<LocalScale3D>(nodeEntityId, scale3D.x, scale3D.y, scale3D.z);
+			//			CreateComponent<WorldScale3D>(nodeEntityId, 0.0f, 0.0f, 0.0f);
 
-						};
+			//			};
 
-					std::function<void(const aiNode*)> processChildrenNode = [&](const aiNode* node) {
+			//		std::function<void(const aiNode*)> processChildrenNode = [&](const aiNode* node) {
 
-						const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
+			//			const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
 
-						CreateComponent<Render::Model::Node::Tag>(nodeEntityId);
-						CreateComponent<Name>(nodeEntityId, resource__Path2->path_ + "/" + scene.GetNodeFullName(node));
-						CreateComponent<Render::Model::EntityId>(nodeEntityId, modelEntityId);
+			//			CreateComponent<Render::Model::Node::Tag>(nodeEntityId);
+			//			CreateComponent<Name>(nodeEntityId, resource__Path2->path_ + "/" + scene.GetNodeFullName(node));
+			//			CreateComponent<Render::Model::EntityId>(nodeEntityId, modelEntityId);
 
-						createNodeComponents(node, nodeEntityId);
+			//			createNodeComponents(node, nodeEntityId);
 
-						std::vector<ECS2::Entity::Id> childNodeEntityIds;
-						for (Common::Index i = 0; i < node->mNumChildren; i++) {
-							aiNode* childrenNode = node->mChildren[i];
-							processChildrenNode(childrenNode);
-							const ECS2::Entity::Id childNodeEntityId = nodeToEntityId[childrenNode];
+			//			std::vector<ECS2::Entity::Id> childNodeEntityIds;
+			//			for (Common::Index i = 0; i < node->mNumChildren; i++) {
+			//				aiNode* childrenNode = node->mChildren[i];
+			//				processChildrenNode(childrenNode);
+			//				const ECS2::Entity::Id childNodeEntityId = nodeToEntityId[childrenNode];
 
-							ASSERT_FMSG(childNodeEntityId.IsValid(), "");
+			//				ASSERT_FMSG(childNodeEntityId.IsValid(), "");
 
-							childNodeEntityIds.push_back(childNodeEntityId);
-						}
+			//				childNodeEntityIds.push_back(childNodeEntityId);
+			//			}
 
-						if (!childNodeEntityIds.empty()) {
-							CreateComponent<Render::Model::Node::ChildNodeEntityIds>(nodeEntityId, childNodeEntityIds);
-						}
-						return nodeEntityId;
-						};
+			//			if (!childNodeEntityIds.empty()) {
+			//				CreateComponent<Render::Model::Node::ChildNodeEntityIds>(nodeEntityId, childNodeEntityIds);
+			//			}
+			//			return nodeEntityId;
+			//			};
 
-					processChildrenNode(scene.GetRootNode());
+			//		processChildrenNode(scene.GetRootNode());
 
-					const ECS2::Entity::Id rootNodeEntityId = nodeToEntityId[scene.GetRootNode()];
-
-					CreateComponent<Render::Model::Node::ChildNodeEntityIds>(modelEntityId, std::vector{ rootNodeEntityId });
+			//		const ECS2::Entity::Id rootNodeEntityId = nodeToEntityId[scene.GetRootNode()];
+
+			//		CreateComponent<Render::Model::Node::ChildNodeEntityIds>(modelEntityId, std::vector{ rootNodeEntityId });
 
-					};
+			//		};
 
-				createNodesHierarchy();
+			//	createNodesHierarchy();
 
-				//CREATE MESHES
-				auto createMeshEntities = [&]() {
+			//	//CREATE MESHES
+			//	auto createMeshEntities = [&]() {
 
-					auto createMeshComponents = [&](
-						const aiMesh* mesh,
-						ECS2::Entity::Id meshEntityId) {
+			//		auto createMeshComponents = [&](
+			//			const aiMesh* mesh,
+			//			ECS2::Entity::Id meshEntityId) {
 
-							//Create texture.
-							auto createTextures = [&](ECS2::Entity::Id meshEntityId) {
-								aiMaterial* material = scene.scene_->mMaterials[mesh->mMaterialIndex];
+			//				//Create texture.
+			//				auto createTextures = [&](ECS2::Entity::Id meshEntityId) {
+			//					aiMaterial* material = scene.scene_->mMaterials[mesh->mMaterialIndex];
 
-								ECS2::Entity::Id materialEntity = CreateEntity<RENDER__MATERIAL__MATERIAL>();
-								CreateComponent<Render::Material::Tag>(materialEntity);
-								CreateComponent<Render::Material::EntityId>(meshEntityId, materialEntity);
-								{
-									aiString diffuseTexturePath;
-									material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &diffuseTexturePath);
-
-									const aiTexture* texture = scene.scene_->GetEmbeddedTexture(diffuseTexturePath.C_Str());
-									if (texture != nullptr) {
-
-										const ECS2::Entity::Id diffuseMapEntityId = RENDER__TEXTURE__CREATE_DIFFUSE_MAP(diffuseTexturePath.C_Str(), texture);
-
-										CreateComponent<Render::Texture::Type::DiffuseMap::EntityId>(materialEntity, diffuseMapEntityId);
-
-									}
-								}
-
-								{
-									aiString normalTexturePath;
-									material->GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &normalTexturePath);
-
-									const aiTexture* texture = scene.scene_->GetEmbeddedTexture(normalTexturePath.C_Str());
-									if (texture != nullptr) {
-
-										const ECS2::Entity::Id normalMapEntityId = RENDER__TEXTURE__CREATE_NORMAL_MAP(normalTexturePath.C_Str(), texture);
-
-										CreateComponent<Render::Texture::Type::NormalMap::EntityId>(materialEntity, normalMapEntityId);
-
-									}
-								}
-
-								};
-							createTextures(meshEntityId);
-
-							//			//Create vertices, normals, uvs, indices, vertex bones
-							auto createMeshData = [&](ECS2::Entity::Id meshEntityId) {
-
-								static Geom::VertexCloud<Geom::Vertex3f>	vertices;
-								static DS::Vector<Geom::Normal3f>			normals;
-								static DS::Vector<Geom::UV2f>		        uvs;
-								static Geom::IndexBuffer<Geom::Index32>		indices;
-								static std::vector<VertexBonesInfo>			vertexBonesInfos;
-
-
-								vertexBonesInfos.resize(mesh->mNumVertices,
-									VertexBonesInfo{
-										//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
-										{
-											Render::Model::Node::MaxNumberPerModel,
-											Render::Model::Node::MaxNumberPerModel,
-											Render::Model::Node::MaxNumberPerModel,
-											Render::Model::Node::MaxNumberPerModel
-										},
-										{ 0.0f, 0.0f, 0.0f, 0.0f }	// no influence on vertex by default  
-									});
-
-								{
-									for (Common::Index i = 0; i < mesh->mNumBones; i++) {
-										//Save vertex bone info
-										aiBone* bone = mesh->mBones[i];
-										for (Common::Index j = 0; j < bone->mNumWeights; j++) {
-											const aiVertexWeight* weight = bone->mWeights + j;
-											if (Math::IsEqual(weight->mWeight, 0.0f)) {
-												//Skip bones with zero weight. We will use zero weight to mark empty cells.
-												continue;
-											}
-											//Find free cell and set value
-											[[maybe_unused]]
-											bool isFind = false;
-											for (Common::Index k = 0; k < VertexMaxBonesNumber; k++) {
-												if (vertexBonesInfos[weight->mVertexId].boneWeights_[k] == 0) {
-													//Free cell found.
-
-
-													const ECS2::Entity::Id boneEntityId = nodeToEntityId[scene.GetBoneNodeByName(bone->mName.C_Str())];
-													Common::Index boneEntityIdIndex = Common::Limits<Common::Index>::Max();
-													for (Common::Index l = 0; l < boneEntityIds.size(); l++) {
-														if (boneEntityId == boneEntityIds[l]) {
-															boneEntityIdIndex = l;
-														}
-													}
-													ASSERT(boneEntityIdIndex != Common::Limits<Common::Index>::Max());
-													ASSERT(boneEntityIdIndex < Render::Model::Node::MaxNumberPerModel);
-
-													vertexBonesInfos[weight->mVertexId].boneEntityIndices_[k] = boneEntityIdIndex;
-
-													ASSERT_FMSG(Math::IsLess(weight->mWeight, 1.0), "");
-
-													vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight;
-													isFind = true;
-													break;
-												}
-											}
-
-											ASSERT_FMSG(isFind, "");
-
-										}
-
-										//Save ids of bones entities for the mesh entity.
-										const aiNode* boneNode = scene.GetBoneNodeByName(bone->mName.C_Str());
-										const ECS2::Entity::Id boneEntityId = nodeToEntityId[boneNode];
-										ASSERT(boneEntityId.IsValid());
-										//boneEntityIds.push_back(boneEntityId);
-									}
-									if (mesh->mNumBones > 0) {
-										//	CreateComponent<BoneNodeEntities>(meshEntityId, boneEntityIds);
-										CreateComponent<VertexBones>(meshEntityId, std::move(vertexBonesInfos));
-									}
-								}
-								{
-									//Иерархическая анимация
-									if (mesh->mNumBones == 0) {
-
-
-										//Find all nodes that connected with current mesh.
-										std::vector<ECS2::Entity::Id> meshNodeEntityIds;
-										for (auto [node, entityId] : nodeToEntityId) {
-											for (Common::Index k = 0; k < node->mNumMeshes; k++) {
-												aiMesh* maybeThisMesh = scene.scene_->mMeshes[node->mMeshes[k]];
-												if (maybeThisMesh == mesh) {
-													meshNodeEntityIds.push_back(entityId);
-												}
-											}
-										}
-										std::vector<Common::Index> nodeEntityIndices;
-										for (ECS2::Entity::Id nodeEntityId : meshNodeEntityIds) {
-											auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);
-											nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
-										}
-
-										decltype(Render::Model::Node::EntityIndices::nodeEntityIndices_) meshNodeEntityIndices;
-										meshNodeEntityIndices.fill(Common::Limits<Common::UInt64>::Max());
-
-										ASSERT(nodeEntityIndices.size() <= meshNodeEntityIndices.max_size());
-
-										for (Common::Index j = 0; j < nodeEntityIndices.size(); j++) {
-											meshNodeEntityIndices[j] = nodeEntityIndices[j];
-										}
-
-										CreateComponent<Render::Model::Node::EntityIndices>(meshEntityId, meshNodeEntityIndices);
+			//					ECS2::Entity::Id materialEntity = CreateEntity<RENDER__MATERIAL__MATERIAL>();
+			//					CreateComponent<Render::Material::Tag>(materialEntity);
+			//					CreateComponent<Render::Material::EntityId>(meshEntityId, materialEntity);
+			//					{
+			//						aiString diffuseTexturePath;
+			//						material->GetTexture(aiTextureType::aiTextureType_DIFFUSE, 0, &diffuseTexturePath);
+
+			//						const aiTexture* texture = scene.scene_->GetEmbeddedTexture(diffuseTexturePath.C_Str());
+			//						if (texture != nullptr) {
+
+			//							const ECS2::Entity::Id diffuseMapEntityId = RENDER__TEXTURE__CREATE_DIFFUSE_MAP(diffuseTexturePath.C_Str(), texture);
+
+			//							CreateComponent<Render::Texture::Type::DiffuseMap::EntityId>(materialEntity, diffuseMapEntityId);
+
+			//						}
+			//					}
+
+			//					{
+			//						aiString normalTexturePath;
+			//						material->GetTexture(aiTextureType::aiTextureType_NORMALS, 0, &normalTexturePath);
+
+			//						const aiTexture* texture = scene.scene_->GetEmbeddedTexture(normalTexturePath.C_Str());
+			//						if (texture != nullptr) {
+
+			//							const ECS2::Entity::Id normalMapEntityId = RENDER__TEXTURE__CREATE_NORMAL_MAP(normalTexturePath.C_Str(), texture);
+
+			//							CreateComponent<Render::Texture::Type::NormalMap::EntityId>(materialEntity, normalMapEntityId);
+
+			//						}
+			//					}
+
+			//					};
+			//				createTextures(meshEntityId);
+
+			//				//			//Create vertices, normals, uvs, indices, vertex bones
+			//				auto createMeshData = [&](ECS2::Entity::Id meshEntityId) {
+
+			//					static Geom::VertexCloud<Geom::Vertex3f>	vertices;
+			//					static DS::Vector<Geom::Normal3f>			normals;
+			//					static DS::Vector<Geom::UV2f>		        uvs;
+			//					static Geom::IndexBuffer<Geom::Index32>		indices;
+			//					static std::vector<VertexBonesInfo>			vertexBonesInfos;
+
+
+			//					vertexBonesInfos.resize(mesh->mNumVertices,
+			//						VertexBonesInfo{
+			//							//If vertex has bones, will be at least one bone and we will be use this for empty cells of array: we will be use first bone with 0.0 weight.
+			//							{
+			//								Render::Model::Node::MaxNumberPerModel,
+			//								Render::Model::Node::MaxNumberPerModel,
+			//								Render::Model::Node::MaxNumberPerModel,
+			//								Render::Model::Node::MaxNumberPerModel
+			//							},
+			//							{ 0.0f, 0.0f, 0.0f, 0.0f }	// no influence on vertex by default  
+			//						});
+
+			//					{
+			//						for (Common::Index i = 0; i < mesh->mNumBones; i++) {
+			//							//Save vertex bone info
+			//							aiBone* bone = mesh->mBones[i];
+			//							for (Common::Index j = 0; j < bone->mNumWeights; j++) {
+			//								const aiVertexWeight* weight = bone->mWeights + j;
+			//								if (Math::IsEqual(weight->mWeight, 0.0f)) {
+			//									//Skip bones with zero weight. We will use zero weight to mark empty cells.
+			//									continue;
+			//								}
+			//								//Find free cell and set value
+			//								[[maybe_unused]]
+			//								bool isFind = false;
+			//								for (Common::Index k = 0; k < VertexMaxBonesNumber; k++) {
+			//									if (vertexBonesInfos[weight->mVertexId].boneWeights_[k] == 0) {
+			//										//Free cell found.
+
+
+			//										const ECS2::Entity::Id boneEntityId = nodeToEntityId[scene.GetBoneNodeByName(bone->mName.C_Str())];
+			//										Common::Index boneEntityIdIndex = Common::Limits<Common::Index>::Max();
+			//										for (Common::Index l = 0; l < boneEntityIds.size(); l++) {
+			//											if (boneEntityId == boneEntityIds[l]) {
+			//												boneEntityIdIndex = l;
+			//											}
+			//										}
+			//										ASSERT(boneEntityIdIndex != Common::Limits<Common::Index>::Max());
+			//										ASSERT(boneEntityIdIndex < Render::Model::Node::MaxNumberPerModel);
+
+			//										vertexBonesInfos[weight->mVertexId].boneEntityIndices_[k] = boneEntityIdIndex;
+
+			//										ASSERT_FMSG(Math::IsLess(weight->mWeight, 1.0), "");
+
+			//										vertexBonesInfos[weight->mVertexId].boneWeights_[k] = weight->mWeight;
+			//										isFind = true;
+			//										break;
+			//									}
+			//								}
+
+			//								ASSERT_FMSG(isFind, "");
+
+			//							}
+
+			//							//Save ids of bones entities for the mesh entity.
+			//							const aiNode* boneNode = scene.GetBoneNodeByName(bone->mName.C_Str());
+			//							const ECS2::Entity::Id boneEntityId = nodeToEntityId[boneNode];
+			//							ASSERT(boneEntityId.IsValid());
+			//							//boneEntityIds.push_back(boneEntityId);
+			//						}
+			//						if (mesh->mNumBones > 0) {
+			//							//	CreateComponent<BoneNodeEntities>(meshEntityId, boneEntityIds);
+			//							CreateComponent<VertexBones>(meshEntityId, std::move(vertexBonesInfos));
+			//						}
+			//					}
+			//					{
+			//						//Иерархическая анимация
+			//						if (mesh->mNumBones == 0) {
+
+
+			//							//Find all nodes that connected with current mesh.
+			//							std::vector<ECS2::Entity::Id> meshNodeEntityIds;
+			//							for (auto [node, entityId] : nodeToEntityId) {
+			//								for (Common::Index k = 0; k < node->mNumMeshes; k++) {
+			//									aiMesh* maybeThisMesh = scene.scene_->mMeshes[node->mMeshes[k]];
+			//									if (maybeThisMesh == mesh) {
+			//										meshNodeEntityIds.push_back(entityId);
+			//									}
+			//								}
+			//							}
+			//							std::vector<Common::Index> nodeEntityIndices;
+			//							for (ECS2::Entity::Id nodeEntityId : meshNodeEntityIds) {
+			//								auto nodeEntityIdIt = std::find(modelNodeEntityIds.begin(), modelNodeEntityIds.end(), nodeEntityId);
+			//								nodeEntityIndices.push_back(std::distance(modelNodeEntityIds.begin(), nodeEntityIdIt));
+			//							}
+
+			//							decltype(Render::Model::Node::EntityIndices::nodeEntityIndices_) meshNodeEntityIndices;
+			//							meshNodeEntityIndices.fill(Common::Limits<Common::UInt64>::Max());
+
+			//							ASSERT(nodeEntityIndices.size() <= meshNodeEntityIndices.max_size());
+
+			//							for (Common::Index j = 0; j < nodeEntityIndices.size(); j++) {
+			//								meshNodeEntityIndices[j] = nodeEntityIndices[j];
+			//							}
+
+			//							CreateComponent<Render::Model::Node::EntityIndices>(meshEntityId, meshNodeEntityIndices);
 
-									}
-								}
-
-
-								//std::vector<Draw> drawInfos;
-								//{
-								//	std::vector<glm::mat4> palette;
-								//	palette.resize(128, glm::mat4{ 1 });
-								//	Draw draw{
-								//		boneEntityIds,
-								//		palette
-								//	};
-								//	drawInfos.push_back(draw);
-								//	vertexBonesInfos.clear();
+			//						}
+			//					}
+
+
+			//					//std::vector<Draw> drawInfos;
+			//					//{
+			//					//	std::vector<glm::mat4> palette;
+			//					//	palette.resize(128, glm::mat4{ 1 });
+			//					//	Draw draw{
+			//					//		boneEntityIds,
+			//					//		palette
+			//					//	};
+			//					//	drawInfos.push_back(draw);
+			//					//	vertexBonesInfos.clear();
 
-								//	CreateComponent<DrawInfos>(meshEntityId, drawInfos);
-								//}
+			//					//	CreateComponent<DrawInfos>(meshEntityId, drawInfos);
+			//					//}
 
-								vertices.Reserve(mesh->mNumVertices);
-								normals.Reserve(mesh->mNumVertices);
-								uvs.Reserve(mesh->mNumVertices);
-								for (unsigned j = 0; j < mesh->mNumVertices; j++) {
-									vertices.Add(Geometry::Vertex3f{ mesh->mVertices[j].x,
-																		mesh->mVertices[j].y,
-																		mesh->mVertices[j].z });
-									normals.PushBack(Geom::Normal3f{ mesh->mVertices[j].x,
-																			mesh->mVertices[j].y,
-																			mesh->mVertices[j].z });
-									uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x,
-																	mesh->mTextureCoords[0][j].y });
-								}
+			//					vertices.Reserve(mesh->mNumVertices);
+			//					normals.Reserve(mesh->mNumVertices);
+			//					uvs.Reserve(mesh->mNumVertices);
+			//					for (unsigned j = 0; j < mesh->mNumVertices; j++) {
+			//						vertices.Add(Geometry::Vertex3f{ mesh->mVertices[j].x,
+			//															mesh->mVertices[j].y,
+			//															mesh->mVertices[j].z });
+			//						normals.PushBack(Geom::Normal3f{ mesh->mVertices[j].x,
+			//																mesh->mVertices[j].y,
+			//																mesh->mVertices[j].z });
+			//						uvs.PushBack(Geom::UV2f{ mesh->mTextureCoords[0][j].x,
+			//														mesh->mTextureCoords[0][j].y });
+			//					}
 
-								indices.Reserve(mesh->mNumFaces * 3);
-								for (unsigned j = 0; j < mesh->mNumFaces; j++) {
-									indices.Add(mesh->mFaces[j].mIndices[0]);
-									indices.Add(mesh->mFaces[j].mIndices[1]);
-									indices.Add(mesh->mFaces[j].mIndices[2]);
-								}
-								CreateComponent<Vertices3D>(meshEntityId, vertices);
-								CreateComponent<Normals>(meshEntityId, normals);
-								CreateComponent<UVs>(meshEntityId, uvs);
-								CreateComponent<Indices>(meshEntityId, indices);
+			//					indices.Reserve(mesh->mNumFaces * 3);
+			//					for (unsigned j = 0; j < mesh->mNumFaces; j++) {
+			//						indices.Add(mesh->mFaces[j].mIndices[0]);
+			//						indices.Add(mesh->mFaces[j].mIndices[1]);
+			//						indices.Add(mesh->mFaces[j].mIndices[2]);
+			//					}
+			//					CreateComponent<Vertices3D>(meshEntityId, vertices);
+			//					CreateComponent<Normals>(meshEntityId, normals);
+			//					CreateComponent<UVs>(meshEntityId, uvs);
+			//					CreateComponent<Indices>(meshEntityId, indices);
 
 
 
-								vertices.Clear();
-								normals.Clear();
-								uvs.Clear();
-								indices.Clear();
+			//					vertices.Clear();
+			//					normals.Clear();
+			//					uvs.Clear();
+			//					indices.Clear();
 
-								};
-							createMeshData(meshEntityId);
-						};
+			//					};
+			//				createMeshData(meshEntityId);
+			//			};
 
 
-					std::vector<std::string> meshNames;
-					meshNames.reserve(scene.GetMeshesNumber());
+			//		std::vector<std::string> meshNames;
+			//		meshNames.reserve(scene.GetMeshesNumber());
 
-					std::vector<ECS2::Entity::Id> meshEntityIds;
+			//		std::vector<ECS2::Entity::Id> meshEntityIds;
 
-					meshEntityIds.resize(scene.GetMeshesNumber(), ECS2::Entity::Id::invalid_);
-					Common::Index meshEntityIdIndex = 0;
-					scene.ForEachMesh([&](const aiMesh* mesh) {
+			//		meshEntityIds.resize(scene.GetMeshesNumber(), ECS2::Entity::Id::invalid_);
+			//		Common::Index meshEntityIdIndex = 0;
+			//		scene.ForEachMesh([&](const aiMesh* mesh) {
 
 
 
-						std::string meshName = resource__Path2->path_ + scene.GetMeshFullName(mesh);
+			//			std::string meshName = resource__Path2->path_ + scene.GetMeshFullName(mesh);
 
-						meshNames.push_back(meshName);
+			//			meshNames.push_back(meshName);
 
-						auto it = render__Model__Mesh__NameToEntityId1->meshNameToEntityId_.find(meshName);
+			//			auto it = render__Model__Mesh__NameToEntityId1->meshNameToEntityId_.find(meshName);
 
-						if (it != render__Model__Mesh__NameToEntityId1->meshNameToEntityId_.end()) {
-							return;
-						}
+			//			if (it != render__Model__Mesh__NameToEntityId1->meshNameToEntityId_.end()) {
+			//				return;
+			//			}
 
-						if (!render__Model__Mesh__NameToEntityId1->meshNameToEntityId_.contains(meshName)) {
-							//Create mesh info.
-							const ECS2::Entity::Id meshEntity = CreateEntity<RENDER__MODEL__MESH__MESH>();
+			//			if (!render__Model__Mesh__NameToEntityId1->meshNameToEntityId_.contains(meshName)) {
+			//				//Create mesh info.
+			//				const ECS2::Entity::Id meshEntity = CreateEntity<RENDER__MODEL__MESH__MESH>();
 
-							CreateComponent<Render::Model::Mesh::Tag>(meshEntity);
-							CreateComponent<Name>(meshEntity, meshName);
-							CreateComponent<Render::Model::Name>(meshEntity, resource__Path2->path_ + scene.GetSceneName());
-							CreateComponent<Render::Model::EntityIds>(meshEntity, std::array<ECS2::Entity::Id, Render::Model::Mesh::MaxModelsNumberPerMesh>{ modelEntityId });
+			//				CreateComponent<Render::Model::Mesh::Tag>(meshEntity);
+			//				CreateComponent<Name>(meshEntity, meshName);
+			//				CreateComponent<Render::Model::Name>(meshEntity, resource__Path2->path_ + scene.GetSceneName());
+			//				CreateComponent<Render::Model::EntityIds>(meshEntity, std::array<ECS2::Entity::Id, Render::Model::Mesh::MaxModelsNumberPerMesh>{ modelEntityId });
 
-							createMeshComponents(mesh, meshEntity);
+			//				createMeshComponents(mesh, meshEntity);
 
-							render__Model__Mesh__NameToEntityId1->meshNameToEntityId_[meshName] = meshEntity;
-							meshEntityIds[meshEntityIdIndex] = (meshEntity);
+			//				render__Model__Mesh__NameToEntityId1->meshNameToEntityId_[meshName] = meshEntity;
+			//				meshEntityIds[meshEntityIdIndex] = (meshEntity);
 
-						}
-						++meshEntityIdIndex;
+			//			}
+			//			++meshEntityIdIndex;
 
-						});
+			//			});
 
-					CreateComponent<Render::Model::Mesh::Names>(modelEntityId, meshNames);
-					CreateComponent<Render::Model::Mesh::EntityIds>(modelEntityId, meshEntityIds);
+			//		CreateComponent<Render::Model::Mesh::Names>(modelEntityId, meshNames);
+			//		CreateComponent<Render::Model::Mesh::EntityIds>(modelEntityId, meshEntityIds);
 
-					Common::Size foundMeshsCount = 0;
-					for (Common::Index i = 0; i < meshEntityIds.size(); i++) {
-						if (meshEntityIds[i].IsValid()) {
-							foundMeshsCount++;
-						}
-					}
-					if (foundMeshsCount == scene.GetMeshesNumber()) {
-						CreateComponent<Render::Model::MeshsFound>(modelEntityId);
-					}
+			//		Common::Size foundMeshsCount = 0;
+			//		for (Common::Index i = 0; i < meshEntityIds.size(); i++) {
+			//			if (meshEntityIds[i].IsValid()) {
+			//				foundMeshsCount++;
+			//			}
+			//		}
+			//		if (foundMeshsCount == scene.GetMeshesNumber()) {
+			//			CreateComponent<Render::Model::MeshsFound>(modelEntityId);
+			//		}
 
-					};
+			//		};
 
-				createMeshEntities();
+			//	createMeshEntities();
 
 
 
-				//CREATE MODEL DATA AND MODEL DATA NODES
-				{
-					ASSERT_MSG(!IsComponentExist<Render::Model::Data::EntityId>(modelEntityId),
-						"ModelDataEntityId cant exist in the creating model step.");
+			//	//CREATE MODEL DATA AND MODEL DATA NODES
+			//	{
+			//		ASSERT_MSG(!IsComponentExist<Render::Model::Data::EntityId>(modelEntityId),
+			//			"ModelDataEntityId cant exist in the creating model step.");
 
-					auto modelDataIt = render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_.find(resource__Path2->path_);
-					if (modelDataIt == render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_.end()) {
-						//Controller doesnt contain model data.
+			//		auto modelDataIt = render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_.find(resource__Path2->path_);
+			//		if (modelDataIt == render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_.end()) {
+			//			//Controller doesnt contain model data.
 
-						ECS2::Entity::Id modelDataEntityId = CreateEntity<RENDER__MODEL__DATA__DATA>();
+			//			ECS2::Entity::Id modelDataEntityId = CreateEntity<RENDER__MODEL__DATA__DATA>();
 
-						CreateComponent<Render::Model::Name>(modelDataEntityId, "ModelData");
+			//			CreateComponent<Render::Model::Name>(modelDataEntityId, "ModelData");
 
-						std::map<const aiNode*, ECS2::Entity::Id> dataNodeToEntityId;
-						decltype(Render::Model::Node::EntityIds::nodeEntityIds_) dataNodeEntityIds;
-						dataNodeEntityIds.fill(ECS2::Entity::Id::invalid_);
+			//			std::map<const aiNode*, ECS2::Entity::Id> dataNodeToEntityId;
+			//			decltype(Render::Model::Node::EntityIds::nodeEntityIds_) dataNodeEntityIds;
+			//			dataNodeEntityIds.fill(ECS2::Entity::Id::invalid_);
 
-						std::vector<ECS2::Entity::Id> foundDataNodesEntityIds;
-						std::function<void(const aiNode*)> createNodeDataEntity = [&](const aiNode* node) {
+			//			std::vector<ECS2::Entity::Id> foundDataNodesEntityIds;
+			//			std::function<void(const aiNode*)> createNodeDataEntity = [&](const aiNode* node) {
 
-							const bool isNodeBone = scene.IsThereBoneWithName(node->mName.C_Str());
-							const bool isAnimatedNode = scene.IsNodeHasAnimation(node);
+			//				const bool isNodeBone = scene.IsThereBoneWithName(node->mName.C_Str());
+			//				const bool isAnimatedNode = scene.IsNodeHasAnimation(node);
 
-							ECS2::Entity::Id nodeEntityId = ECS2::Entity::Id::invalid_;
+			//				ECS2::Entity::Id nodeEntityId = ECS2::Entity::Id::invalid_;
 
-							nodeEntityId = CreateEntity<RENDER__MODEL__NODE__DATA__DATA>();
-							foundDataNodesEntityIds.push_back(nodeEntityId);
-							dataNodeToEntityId[node] = nodeEntityId;
+			//				nodeEntityId = CreateEntity<RENDER__MODEL__NODE__DATA__DATA>();
+			//				foundDataNodesEntityIds.push_back(nodeEntityId);
+			//				dataNodeToEntityId[node] = nodeEntityId;
 
-							for (Common::Index i = 0; i < node->mNumChildren; i++) {
-								aiNode* childrenNode = node->mChildren[i];
-								createNodeDataEntity(childrenNode);
-							}
+			//				for (Common::Index i = 0; i < node->mNumChildren; i++) {
+			//					aiNode* childrenNode = node->mChildren[i];
+			//					createNodeDataEntity(childrenNode);
+			//				}
 
-							};
+			//				};
 
-						createNodeDataEntity(scene.GetRootNode());
+			//			createNodeDataEntity(scene.GetRootNode());
 
-						ASSERT(foundDataNodesEntityIds.size() <= dataNodeEntityIds.max_size());
-						std::copy(
-							foundDataNodesEntityIds.begin(),
-							foundDataNodesEntityIds.end(),
-							dataNodeEntityIds.begin());
+			//			ASSERT(foundDataNodesEntityIds.size() <= dataNodeEntityIds.max_size());
+			//			std::copy(
+			//				foundDataNodesEntityIds.begin(),
+			//				foundDataNodesEntityIds.end(),
+			//				dataNodeEntityIds.begin());
 
-						CreateComponent<Render::Model::Node::EntityIds>(modelDataEntityId, dataNodeEntityIds);
+			//			CreateComponent<Render::Model::Node::EntityIds>(modelDataEntityId, dataNodeEntityIds);
 
-						auto createDataNodesHierarchy = [&]() {
-							auto createDataNodeComponents = [&](const aiNode* node, ECS2::Entity::Id dataNodeEntityId) {
+			//			auto createDataNodesHierarchy = [&]() {
+			//				auto createDataNodeComponents = [&](const aiNode* node, ECS2::Entity::Id dataNodeEntityId) {
 
-								aiVector3D position3D;
-								aiQuaternion rotation3D;
-								aiVector3D scale3D;
-								aiMatrix4x4 flipYtoZ;
-								node->mTransformation.Decompose(scale3D, rotation3D, position3D);
+			//					aiVector3D position3D;
+			//					aiQuaternion rotation3D;
+			//					aiVector3D scale3D;
+			//					aiMatrix4x4 flipYtoZ;
+			//					node->mTransformation.Decompose(scale3D, rotation3D, position3D);
 
-								auto createDataNodeAnimationChannel = [&scene, &dataNodeToEntityId, this](const aiNode* node) {
+			//					auto createDataNodeAnimationChannel = [&scene, &dataNodeToEntityId, this](const aiNode* node) {
 
-									{
-										decltype(Animation::Model::Node::Animations::animations_) animationChannels;
-										Common::Size nodeAnimationsNumber = 0;
-										const ECS2::Entity::Id nodeEntityId = dataNodeToEntityId[node];
-										//ASSERT_MSG(scene->mNumAnimations % animationChannels.max_size() , "Unsupported number of animations per model.");
-										for (Common::Index i = 0; i < std::clamp((size_t)scene.GetAnimationsNumber(), (size_t)0, animationChannels.max_size()); i++) {
-											aiAnimation* animation = scene.scene_->mAnimations[i];
+			//						{
+			//							decltype(Animation::Model::Node::Animations::animations_) animationChannels;
+			//							Common::Size nodeAnimationsNumber = 0;
+			//							const ECS2::Entity::Id nodeEntityId = dataNodeToEntityId[node];
+			//							//ASSERT_MSG(scene->mNumAnimations % animationChannels.max_size() , "Unsupported number of animations per model.");
+			//							for (Common::Index i = 0; i < std::clamp((size_t)scene.GetAnimationsNumber(), (size_t)0, animationChannels.max_size()); i++) {
+			//								aiAnimation* animation = scene.scene_->mAnimations[i];
 
-											for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
-												aiNodeAnim* nodeAnim = animation->mChannels[channelIndex];
-												if (nodeAnim->mNodeName == node->mName) {
-													++nodeAnimationsNumber;
-													ASSERT_MSG(nodeAnimationsNumber <= animationChannels.max_size(), "Unsupported number of animations per mode node.");
-													Animation::Model::Node::Animation modelNodeAnimation;
-
-													STATIC_ASSERT_MSG(modelNodeAnimation.position3DKeys_.keys_.max_size() > 2, "");
-													STATIC_ASSERT_MSG(modelNodeAnimation.rotationKeys_.keys_.max_size() > 2, "");
-													STATIC_ASSERT_MSG(modelNodeAnimation.scale3DKeys_.keys_.max_size() > 2, "");
-
-													{	//Position keys
-														//avoid not important keys.
-														if (nodeAnim->mNumPositionKeys > modelNodeAnimation.position3DKeys_.keys_.max_size()) {
-															auto calculateKeyImportance = [](
-																aiVectorKey previous,
-																aiVectorKey current,
-																aiVectorKey next) {
-
-																	const glm::vec3 previousValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
-																	const glm::vec3 currentValue{ current.mValue.x, current.mValue.y, current.mValue.z };
-																	const glm::vec3 nextValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
-
-																	const glm::vec3 middleValue = glm::mix(previousValue, nextValue, 0.5);
-
-																	const float distance = glm::distance(middleValue, currentValue);
-
-																	const float distanceFactor = std::abs(1.0 / distance);
-																	const float timeFactor = 1.0f / (next.mTime - previous.mTime);
-
-																	return distanceFactor * timeFactor;
-
-																};
-
-															std::vector<std::pair<Common::Index, float>> keyIndexImportance;
-
-															//Calculte importance for keys except first and last.
-															for (Common::Index positionKeyIndex = 1; positionKeyIndex < nodeAnim->mNumPositionKeys - 1; positionKeyIndex++) {
-																keyIndexImportance.push_back({ positionKeyIndex , calculateKeyImportance(
-																	nodeAnim->mPositionKeys[positionKeyIndex - 1],
-																	nodeAnim->mPositionKeys[positionKeyIndex],
-																	nodeAnim->mPositionKeys[positionKeyIndex + 1]
-																) });
-															}
-
-															//Sort by importance.
-
-															std::ranges::sort(keyIndexImportance,
-																[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-																	return first.second > second.second;
-																});
-
-															keyIndexImportance.resize(modelNodeAnimation.position3DKeys_.keys_.max_size() - 2); // minus first and last
-
-															//Sort by index
-															std::ranges::sort(keyIndexImportance,
-																[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-																	return first.first < second.first;
-																});
-
-															//Set first.
-															aiVectorKey firstPositionKey = nodeAnim->mPositionKeys[0];
-															modelNodeAnimation.position3DKeys_.keys_[0] = {
-																static_cast<float>(firstPositionKey.mTime),
-																firstPositionKey.mValue.x, firstPositionKey.mValue.y, firstPositionKey.mValue.z };
-
-															for (Common::Index resultPositionKeyIndex = 1; resultPositionKeyIndex < modelNodeAnimation.position3DKeys_.keys_.max_size() - 1; resultPositionKeyIndex++) {
-
-																Common::Index positionKeyIndex = keyIndexImportance[resultPositionKeyIndex - 1].first;
-
-																aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
-
-																modelNodeAnimation.position3DKeys_.keys_[resultPositionKeyIndex] = {
-																	static_cast<float>(positionKey.mTime),
-																	positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z };
-															}
-
-															//Set last.
-															aiVectorKey lastPositionKey = nodeAnim->mPositionKeys[nodeAnim->mNumPositionKeys - 1];
-															modelNodeAnimation.position3DKeys_.keys_[modelNodeAnimation.position3DKeys_.keys_.max_size() - 1] = {
-																static_cast<float>(lastPositionKey.mTime),
-																lastPositionKey.mValue.x, lastPositionKey.mValue.y, lastPositionKey.mValue.z };
-
-														}
-														else {
-															//Fill with last position key.	
-															aiVectorKey lastPositionKey = nodeAnim->mPositionKeys[nodeAnim->mNumPositionKeys - 1];
-															modelNodeAnimation.position3DKeys_.keys_.fill(
-																{
-																	static_cast<float>(lastPositionKey.mTime),
-																	lastPositionKey.mValue.x,
-																	lastPositionKey.mValue.y,
-																	lastPositionKey.mValue.z
-																});
-
-															for (Common::Index positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
-																aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
-																modelNodeAnimation.position3DKeys_.keys_[positionKeyIndex] = {
-																	static_cast<float>(positionKey.mTime),
-																	positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z };
-															}
-														}
-													}
-													{//Rotation keys
-														//fill empty keys with last key
-
-														if (nodeAnim->mNumRotationKeys > modelNodeAnimation.rotationKeys_.keys_.max_size()) {
-
-															auto calculateRotationImportanceByAxis = [](
-																aiQuatKey prevKey,
-																aiQuatKey currentKey,
-																aiQuatKey nextKey) {
-
-																	// 1. Извлекаем оси вращения для каждого интервала
-																	aiQuaternion delta1 = currentKey.mValue * prevKey.mValue.Conjugate();
-																	aiQuaternion delta2 = nextKey.mValue * currentKey.mValue.Conjugate();
-
-																	// Нормализуем для извлечения осей
-																	delta1.Normalize();
-																	delta2.Normalize();
-
-																	// 2. Оси вращения (vector part)
-																	aiVector3D axis1(delta1.x, delta1.y, delta1.z);
-																	aiVector3D axis2(delta2.x, delta2.y, delta2.z);
-
-																	// 3. Углы вращения
-																	float angle1 = 2.0f * std::acos(std::abs(delta1.w));
-																	float angle2 = 2.0f * std::acos(std::abs(delta2.w));
-
-																	// 4. Изменение оси вращения (dot product осей)
-																	float axisChange = 0.0f;
-																	if (axis1.Length() > 0.001f && axis2.Length() > 0.001f) {
-																		axis1.Normalize();
-																		axis2.Normalize();
-																		float dot = axis1 * axis2; // dot product
-																		axisChange = 1.0f - std::abs(dot); // 0 = одинаковые оси, 1 = перпендикулярные
-																	}
-
-																	// 5. Изменение угловой скорости
-																	float time1 = currentKey.mTime - prevKey.mTime;
-																	float time2 = nextKey.mTime - currentKey.mTime;
-																	float velocity1 = (time1 > 0.0f) ? angle1 / time1 : 0.0f;
-																	float velocity2 = (time2 > 0.0f) ? angle2 / time2 : 0.0f;
-																	float velocityChange = std::abs(velocity2 - velocity1);
-
-																	return axisChange * 0.6f + velocityChange * 0.4f;
-																};
-
-
-															std::vector<std::pair<Common::Index, float>> keyIndexImportance;
-
-															//Calculte importance for keys except first and last.
-															for (Common::Index rotationKeyIndex = 1; rotationKeyIndex < nodeAnim->mNumRotationKeys - 1; rotationKeyIndex++) {
-																keyIndexImportance.push_back({ rotationKeyIndex , calculateRotationImportanceByAxis(
-																	nodeAnim->mRotationKeys[rotationKeyIndex - 1],
-																	nodeAnim->mRotationKeys[rotationKeyIndex],
-																	nodeAnim->mRotationKeys[rotationKeyIndex + 1]
-																) });
-															}
-
-															//Sort by importance.
-
-															std::ranges::sort(keyIndexImportance,
-																[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-																	return first.second > second.second;
-																});
-
-															keyIndexImportance.resize(modelNodeAnimation.rotationKeys_.keys_.max_size() - 2); // minus first and last
-
-															//Sort by index
-															std::ranges::sort(keyIndexImportance,
-																[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-																	return first.first < second.first;
-																});
-
-															//Set first.
-															aiQuatKey firstRotationKey = nodeAnim->mRotationKeys[0];
-															modelNodeAnimation.rotationKeys_.keys_[0] = {
-																static_cast<float>(firstRotationKey.mTime),
-																firstRotationKey.mValue.w, firstRotationKey.mValue.x, firstRotationKey.mValue.y, firstRotationKey.mValue.z };
-
-															for (Common::Index resultRotationKeyIndex = 1; resultRotationKeyIndex < modelNodeAnimation.rotationKeys_.keys_.max_size() - 1; resultRotationKeyIndex++) {
-
-																Common::Index rotationKeyIndex = keyIndexImportance[resultRotationKeyIndex - 1].first;
-
-																aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
-
-																modelNodeAnimation.rotationKeys_.keys_[resultRotationKeyIndex] = {
-																	static_cast<float>(rotationKey.mTime),
-																	rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z };
-															}
-
-															//Set last.
-															aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
-															modelNodeAnimation.rotationKeys_.keys_[modelNodeAnimation.rotationKeys_.keys_.max_size() - 1] = {
-																static_cast<float>(lastRotationKey.mTime),
-																lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z };
-
-
-														}
-														else {
-															aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
-															modelNodeAnimation.rotationKeys_.keys_.fill({
-																	static_cast<float>(lastRotationKey.mTime),
-																	lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z });
-
-															for (Common::Index rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
-																aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
-																modelNodeAnimation.rotationKeys_.keys_[rotationKeyIndex] = {
-																	static_cast<float>(rotationKey.mTime),
-																	rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z };
-															}
-														}
-													}
-													{ // Scake keys
-														//fill empty keys with last key
-														if (nodeAnim->mNumScalingKeys > modelNodeAnimation.scale3DKeys_.keys_.max_size()) {
-															auto calculateKeyImportance = [](
-																aiVectorKey previous,
-																aiVectorKey current,
-																aiVectorKey next) {
-
-																	const glm::vec3 previousValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
-																	const glm::vec3 currentValue{ current.mValue.x, current.mValue.y, current.mValue.z };
-																	const glm::vec3 nextValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
-
-																	const glm::vec3 middleValue = glm::mix(previousValue, nextValue, 0.5);
-
-																	const float distance = glm::distance(middleValue, currentValue);
-
-																	const float distanceFactor = std::abs(1.0 / distance);
-																	const float timeFactor = 1.0f / (next.mTime - previous.mTime);
-
-																	return distanceFactor * timeFactor;
-
-																};
-
-															std::vector<std::pair<Common::Index, float>> keyIndexImportance;
-
-															//Calculte importance for keys except first and last.
-															for (Common::Index scaleKeyIndex = 1; scaleKeyIndex < nodeAnim->mNumScalingKeys - 1; scaleKeyIndex++) {
-																keyIndexImportance.push_back({ scaleKeyIndex , calculateKeyImportance(
-																	nodeAnim->mScalingKeys[scaleKeyIndex - 1],
-																	nodeAnim->mScalingKeys[scaleKeyIndex],
-																	nodeAnim->mScalingKeys[scaleKeyIndex + 1]
-																) });
-															}
-
-															//Sort by importance.
-
-															std::ranges::sort(keyIndexImportance,
-																[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-																	return first.second > second.second;
-																});
-
-															keyIndexImportance.resize(modelNodeAnimation.scale3DKeys_.keys_.max_size() - 2); // minus first and last
-
-															//Sort by index
-															std::ranges::sort(keyIndexImportance,
-																[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
-																	return first.first < second.first;
-																});
-
-															//Set first.
-															aiVectorKey firstScaleKey = nodeAnim->mScalingKeys[0];
-															modelNodeAnimation.scale3DKeys_.keys_[0] = {
-																static_cast<float>(firstScaleKey.mTime),
-																firstScaleKey.mValue.x, firstScaleKey.mValue.y, firstScaleKey.mValue.z };
-
-															for (Common::Index resultScaleKeyIndex = 1; resultScaleKeyIndex < modelNodeAnimation.scale3DKeys_.keys_.max_size() - 1; resultScaleKeyIndex++) {
-
-																Common::Index scaleKeyIndex = keyIndexImportance[resultScaleKeyIndex - 1].first;
-
-																aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
-
-																modelNodeAnimation.scale3DKeys_.keys_[resultScaleKeyIndex] = {
-																	static_cast<float>(scaleKey.mTime),
-																	scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z };
-															}
-
-															//Set last.
-															aiVectorKey lastScaleKey = nodeAnim->mScalingKeys[nodeAnim->mNumScalingKeys - 1];
-															modelNodeAnimation.scale3DKeys_.keys_[modelNodeAnimation.scale3DKeys_.keys_.max_size() - 1] = {
-																static_cast<float>(lastScaleKey.mTime),
-																lastScaleKey.mValue.x, lastScaleKey.mValue.y, lastScaleKey.mValue.z };
-														}
-														else {
-															aiVectorKey lastScaleKey = nodeAnim->mScalingKeys[nodeAnim->mNumScalingKeys - 1];
-															for (Common::Index scaleKeyIndex = nodeAnim->mNumScalingKeys; scaleKeyIndex < modelNodeAnimation.scale3DKeys_.keys_.max_size(); scaleKeyIndex++) {
-
-																modelNodeAnimation.scale3DKeys_.keys_[scaleKeyIndex] = {
-																	static_cast<float>(lastScaleKey.mTime),
-																	lastScaleKey.mValue.x, lastScaleKey.mValue.y, lastScaleKey.mValue.z };
-															}
-															for (Common::Index scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumScalingKeys; scaleKeyIndex++) {
-																aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
-																modelNodeAnimation.scale3DKeys_.keys_[scaleKeyIndex] = {
-																	static_cast<float>(scaleKey.mTime),
-																	scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z };
-															}
-														}
-													}
-													if (
-														nodeAnim->mNumPositionKeys > 0 ||
-														nodeAnim->mNumRotationKeys > 0 ||
-														nodeAnim->mNumScalingKeys > 0) {
-
-														animationChannels[i] = modelNodeAnimation;
-													}
-												}
-											}
-										}
-										if (nodeAnimationsNumber > 0) {
-											CreateComponent<Animation::Model::Node::Animations>(nodeEntityId, animationChannels);
-										}
-									}
-									};
-
-
-
-								//Parse animations.
-								if (scene.GetAnimationsNumber() > 0) {
-									createDataNodeAnimationChannel(node);
-								}
-
-								//Mark that this node is Bone
-								if (scene.IsThereBoneWithName(node->mName.C_Str())) {
-
-									const aiBone* bone = scene.GetBoneByName(node->mName.C_Str());
-									glm::mat4 transform = Render::Model::AssimpToGlmMatrix(bone->mOffsetMatrix);
-
-									CreateComponent<Render::Model::Node::Data::BoneInverseBindPoseMatrix>(dataNodeEntityId, transform);
-									CreateComponent<Render::Model::Node::Bone>(dataNodeEntityId);
-
-								}
-
-								};
-
-							std::function<void(const aiNode*)> processChildrenDataNode = [&](const aiNode* node) {
-
-								const ECS2::Entity::Id dataNodeEntityId = dataNodeToEntityId[node];
-								const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
-
-								CreateComponent<Render::Model::Node::Tag>(dataNodeEntityId);
+			//								for (Common::Index channelIndex = 0; channelIndex < animation->mNumChannels; channelIndex++) {
+			//									aiNodeAnim* nodeAnim = animation->mChannels[channelIndex];
+			//									if (nodeAnim->mNodeName == node->mName) {
+			//										++nodeAnimationsNumber;
+			//										ASSERT_MSG(nodeAnimationsNumber <= animationChannels.max_size(), "Unsupported number of animations per mode node.");
+			//										Animation::Model::Node::Animation modelNodeAnimation;
+
+			//										STATIC_ASSERT_MSG(modelNodeAnimation.position3DKeys_.keys_.max_size() > 2, "");
+			//										STATIC_ASSERT_MSG(modelNodeAnimation.rotationKeys_.keys_.max_size() > 2, "");
+			//										STATIC_ASSERT_MSG(modelNodeAnimation.scale3DKeys_.keys_.max_size() > 2, "");
+
+			//										{	//Position keys
+			//											//avoid not important keys.
+			//											if (nodeAnim->mNumPositionKeys > modelNodeAnimation.position3DKeys_.keys_.max_size()) {
+			//												auto calculateKeyImportance = [](
+			//													aiVectorKey previous,
+			//													aiVectorKey current,
+			//													aiVectorKey next) {
+
+			//														const glm::vec3 previousValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
+			//														const glm::vec3 currentValue{ current.mValue.x, current.mValue.y, current.mValue.z };
+			//														const glm::vec3 nextValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
+
+			//														const glm::vec3 middleValue = glm::mix(previousValue, nextValue, 0.5);
+
+			//														const float distance = glm::distance(middleValue, currentValue);
+
+			//														const float distanceFactor = std::abs(1.0 / distance);
+			//														const float timeFactor = 1.0f / (next.mTime - previous.mTime);
+
+			//														return distanceFactor * timeFactor;
+
+			//													};
+
+			//												std::vector<std::pair<Common::Index, float>> keyIndexImportance;
+
+			//												//Calculte importance for keys except first and last.
+			//												for (Common::Index positionKeyIndex = 1; positionKeyIndex < nodeAnim->mNumPositionKeys - 1; positionKeyIndex++) {
+			//													keyIndexImportance.push_back({ positionKeyIndex , calculateKeyImportance(
+			//														nodeAnim->mPositionKeys[positionKeyIndex - 1],
+			//														nodeAnim->mPositionKeys[positionKeyIndex],
+			//														nodeAnim->mPositionKeys[positionKeyIndex + 1]
+			//													) });
+			//												}
+
+			//												//Sort by importance.
+
+			//												std::ranges::sort(keyIndexImportance,
+			//													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+			//														return first.second > second.second;
+			//													});
+
+			//												keyIndexImportance.resize(modelNodeAnimation.position3DKeys_.keys_.max_size() - 2); // minus first and last
+
+			//												//Sort by index
+			//												std::ranges::sort(keyIndexImportance,
+			//													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+			//														return first.first < second.first;
+			//													});
+
+			//												//Set first.
+			//												aiVectorKey firstPositionKey = nodeAnim->mPositionKeys[0];
+			//												modelNodeAnimation.position3DKeys_.keys_[0] = {
+			//													static_cast<float>(firstPositionKey.mTime),
+			//													firstPositionKey.mValue.x, firstPositionKey.mValue.y, firstPositionKey.mValue.z };
+
+			//												for (Common::Index resultPositionKeyIndex = 1; resultPositionKeyIndex < modelNodeAnimation.position3DKeys_.keys_.max_size() - 1; resultPositionKeyIndex++) {
+
+			//													Common::Index positionKeyIndex = keyIndexImportance[resultPositionKeyIndex - 1].first;
+
+			//													aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
+
+			//													modelNodeAnimation.position3DKeys_.keys_[resultPositionKeyIndex] = {
+			//														static_cast<float>(positionKey.mTime),
+			//														positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z };
+			//												}
+
+			//												//Set last.
+			//												aiVectorKey lastPositionKey = nodeAnim->mPositionKeys[nodeAnim->mNumPositionKeys - 1];
+			//												modelNodeAnimation.position3DKeys_.keys_[modelNodeAnimation.position3DKeys_.keys_.max_size() - 1] = {
+			//													static_cast<float>(lastPositionKey.mTime),
+			//													lastPositionKey.mValue.x, lastPositionKey.mValue.y, lastPositionKey.mValue.z };
+
+			//											}
+			//											else {
+			//												//Fill with last position key.	
+			//												aiVectorKey lastPositionKey = nodeAnim->mPositionKeys[nodeAnim->mNumPositionKeys - 1];
+			//												modelNodeAnimation.position3DKeys_.keys_.fill(
+			//													{
+			//														static_cast<float>(lastPositionKey.mTime),
+			//														lastPositionKey.mValue.x,
+			//														lastPositionKey.mValue.y,
+			//														lastPositionKey.mValue.z
+			//													});
+
+			//												for (Common::Index positionKeyIndex = 0; positionKeyIndex < nodeAnim->mNumPositionKeys; positionKeyIndex++) {
+			//													aiVectorKey positionKey = nodeAnim->mPositionKeys[positionKeyIndex];
+			//													modelNodeAnimation.position3DKeys_.keys_[positionKeyIndex] = {
+			//														static_cast<float>(positionKey.mTime),
+			//														positionKey.mValue.x, positionKey.mValue.y, positionKey.mValue.z };
+			//												}
+			//											}
+			//										}
+			//										{//Rotation keys
+			//											//fill empty keys with last key
+
+			//											if (nodeAnim->mNumRotationKeys > modelNodeAnimation.rotationKeys_.keys_.max_size()) {
+
+			//												auto calculateRotationImportanceByAxis = [](
+			//													aiQuatKey prevKey,
+			//													aiQuatKey currentKey,
+			//													aiQuatKey nextKey) {
+
+			//														// 1. Извлекаем оси вращения для каждого интервала
+			//														aiQuaternion delta1 = currentKey.mValue * prevKey.mValue.Conjugate();
+			//														aiQuaternion delta2 = nextKey.mValue * currentKey.mValue.Conjugate();
+
+			//														// Нормализуем для извлечения осей
+			//														delta1.Normalize();
+			//														delta2.Normalize();
+
+			//														// 2. Оси вращения (vector part)
+			//														aiVector3D axis1(delta1.x, delta1.y, delta1.z);
+			//														aiVector3D axis2(delta2.x, delta2.y, delta2.z);
+
+			//														// 3. Углы вращения
+			//														float angle1 = 2.0f * std::acos(std::abs(delta1.w));
+			//														float angle2 = 2.0f * std::acos(std::abs(delta2.w));
+
+			//														// 4. Изменение оси вращения (dot product осей)
+			//														float axisChange = 0.0f;
+			//														if (axis1.Length() > 0.001f && axis2.Length() > 0.001f) {
+			//															axis1.Normalize();
+			//															axis2.Normalize();
+			//															float dot = axis1 * axis2; // dot product
+			//															axisChange = 1.0f - std::abs(dot); // 0 = одинаковые оси, 1 = перпендикулярные
+			//														}
+
+			//														// 5. Изменение угловой скорости
+			//														float time1 = currentKey.mTime - prevKey.mTime;
+			//														float time2 = nextKey.mTime - currentKey.mTime;
+			//														float velocity1 = (time1 > 0.0f) ? angle1 / time1 : 0.0f;
+			//														float velocity2 = (time2 > 0.0f) ? angle2 / time2 : 0.0f;
+			//														float velocityChange = std::abs(velocity2 - velocity1);
+
+			//														return axisChange * 0.6f + velocityChange * 0.4f;
+			//													};
+
+
+			//												std::vector<std::pair<Common::Index, float>> keyIndexImportance;
+
+			//												//Calculte importance for keys except first and last.
+			//												for (Common::Index rotationKeyIndex = 1; rotationKeyIndex < nodeAnim->mNumRotationKeys - 1; rotationKeyIndex++) {
+			//													keyIndexImportance.push_back({ rotationKeyIndex , calculateRotationImportanceByAxis(
+			//														nodeAnim->mRotationKeys[rotationKeyIndex - 1],
+			//														nodeAnim->mRotationKeys[rotationKeyIndex],
+			//														nodeAnim->mRotationKeys[rotationKeyIndex + 1]
+			//													) });
+			//												}
+
+			//												//Sort by importance.
+
+			//												std::ranges::sort(keyIndexImportance,
+			//													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+			//														return first.second > second.second;
+			//													});
+
+			//												keyIndexImportance.resize(modelNodeAnimation.rotationKeys_.keys_.max_size() - 2); // minus first and last
+
+			//												//Sort by index
+			//												std::ranges::sort(keyIndexImportance,
+			//													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+			//														return first.first < second.first;
+			//													});
+
+			//												//Set first.
+			//												aiQuatKey firstRotationKey = nodeAnim->mRotationKeys[0];
+			//												modelNodeAnimation.rotationKeys_.keys_[0] = {
+			//													static_cast<float>(firstRotationKey.mTime),
+			//													firstRotationKey.mValue.w, firstRotationKey.mValue.x, firstRotationKey.mValue.y, firstRotationKey.mValue.z };
+
+			//												for (Common::Index resultRotationKeyIndex = 1; resultRotationKeyIndex < modelNodeAnimation.rotationKeys_.keys_.max_size() - 1; resultRotationKeyIndex++) {
+
+			//													Common::Index rotationKeyIndex = keyIndexImportance[resultRotationKeyIndex - 1].first;
+
+			//													aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
+
+			//													modelNodeAnimation.rotationKeys_.keys_[resultRotationKeyIndex] = {
+			//														static_cast<float>(rotationKey.mTime),
+			//														rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z };
+			//												}
+
+			//												//Set last.
+			//												aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
+			//												modelNodeAnimation.rotationKeys_.keys_[modelNodeAnimation.rotationKeys_.keys_.max_size() - 1] = {
+			//													static_cast<float>(lastRotationKey.mTime),
+			//													lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z };
+
+
+			//											}
+			//											else {
+			//												aiQuatKey lastRotationKey = nodeAnim->mRotationKeys[nodeAnim->mNumRotationKeys - 1];
+			//												modelNodeAnimation.rotationKeys_.keys_.fill({
+			//														static_cast<float>(lastRotationKey.mTime),
+			//														lastRotationKey.mValue.w, lastRotationKey.mValue.x, lastRotationKey.mValue.y, lastRotationKey.mValue.z });
+
+			//												for (Common::Index rotationKeyIndex = 0; rotationKeyIndex < nodeAnim->mNumRotationKeys; rotationKeyIndex++) {
+			//													aiQuatKey rotationKey = nodeAnim->mRotationKeys[rotationKeyIndex];
+			//													modelNodeAnimation.rotationKeys_.keys_[rotationKeyIndex] = {
+			//														static_cast<float>(rotationKey.mTime),
+			//														rotationKey.mValue.w, rotationKey.mValue.x, rotationKey.mValue.y, rotationKey.mValue.z };
+			//												}
+			//											}
+			//										}
+			//										{ // Scake keys
+			//											//fill empty keys with last key
+			//											if (nodeAnim->mNumScalingKeys > modelNodeAnimation.scale3DKeys_.keys_.max_size()) {
+			//												auto calculateKeyImportance = [](
+			//													aiVectorKey previous,
+			//													aiVectorKey current,
+			//													aiVectorKey next) {
+
+			//														const glm::vec3 previousValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
+			//														const glm::vec3 currentValue{ current.mValue.x, current.mValue.y, current.mValue.z };
+			//														const glm::vec3 nextValue{ previous.mValue.x, previous.mValue.y , previous.mValue.z };
+
+			//														const glm::vec3 middleValue = glm::mix(previousValue, nextValue, 0.5);
+
+			//														const float distance = glm::distance(middleValue, currentValue);
+
+			//														const float distanceFactor = std::abs(1.0 / distance);
+			//														const float timeFactor = 1.0f / (next.mTime - previous.mTime);
+
+			//														return distanceFactor * timeFactor;
+
+			//													};
+
+			//												std::vector<std::pair<Common::Index, float>> keyIndexImportance;
+
+			//												//Calculte importance for keys except first and last.
+			//												for (Common::Index scaleKeyIndex = 1; scaleKeyIndex < nodeAnim->mNumScalingKeys - 1; scaleKeyIndex++) {
+			//													keyIndexImportance.push_back({ scaleKeyIndex , calculateKeyImportance(
+			//														nodeAnim->mScalingKeys[scaleKeyIndex - 1],
+			//														nodeAnim->mScalingKeys[scaleKeyIndex],
+			//														nodeAnim->mScalingKeys[scaleKeyIndex + 1]
+			//													) });
+			//												}
+
+			//												//Sort by importance.
+
+			//												std::ranges::sort(keyIndexImportance,
+			//													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+			//														return first.second > second.second;
+			//													});
+
+			//												keyIndexImportance.resize(modelNodeAnimation.scale3DKeys_.keys_.max_size() - 2); // minus first and last
+
+			//												//Sort by index
+			//												std::ranges::sort(keyIndexImportance,
+			//													[](std::pair<Common::Index, float>& first, std::pair<Common::Index, float>& second) {
+			//														return first.first < second.first;
+			//													});
+
+			//												//Set first.
+			//												aiVectorKey firstScaleKey = nodeAnim->mScalingKeys[0];
+			//												modelNodeAnimation.scale3DKeys_.keys_[0] = {
+			//													static_cast<float>(firstScaleKey.mTime),
+			//													firstScaleKey.mValue.x, firstScaleKey.mValue.y, firstScaleKey.mValue.z };
+
+			//												for (Common::Index resultScaleKeyIndex = 1; resultScaleKeyIndex < modelNodeAnimation.scale3DKeys_.keys_.max_size() - 1; resultScaleKeyIndex++) {
+
+			//													Common::Index scaleKeyIndex = keyIndexImportance[resultScaleKeyIndex - 1].first;
+
+			//													aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
+
+			//													modelNodeAnimation.scale3DKeys_.keys_[resultScaleKeyIndex] = {
+			//														static_cast<float>(scaleKey.mTime),
+			//														scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z };
+			//												}
+
+			//												//Set last.
+			//												aiVectorKey lastScaleKey = nodeAnim->mScalingKeys[nodeAnim->mNumScalingKeys - 1];
+			//												modelNodeAnimation.scale3DKeys_.keys_[modelNodeAnimation.scale3DKeys_.keys_.max_size() - 1] = {
+			//													static_cast<float>(lastScaleKey.mTime),
+			//													lastScaleKey.mValue.x, lastScaleKey.mValue.y, lastScaleKey.mValue.z };
+			//											}
+			//											else {
+			//												aiVectorKey lastScaleKey = nodeAnim->mScalingKeys[nodeAnim->mNumScalingKeys - 1];
+			//												for (Common::Index scaleKeyIndex = nodeAnim->mNumScalingKeys; scaleKeyIndex < modelNodeAnimation.scale3DKeys_.keys_.max_size(); scaleKeyIndex++) {
+
+			//													modelNodeAnimation.scale3DKeys_.keys_[scaleKeyIndex] = {
+			//														static_cast<float>(lastScaleKey.mTime),
+			//														lastScaleKey.mValue.x, lastScaleKey.mValue.y, lastScaleKey.mValue.z };
+			//												}
+			//												for (Common::Index scaleKeyIndex = 0; scaleKeyIndex < nodeAnim->mNumScalingKeys; scaleKeyIndex++) {
+			//													aiVectorKey scaleKey = nodeAnim->mScalingKeys[scaleKeyIndex];
+			//													modelNodeAnimation.scale3DKeys_.keys_[scaleKeyIndex] = {
+			//														static_cast<float>(scaleKey.mTime),
+			//														scaleKey.mValue.x, scaleKey.mValue.y, scaleKey.mValue.z };
+			//												}
+			//											}
+			//										}
+			//										if (
+			//											nodeAnim->mNumPositionKeys > 0 ||
+			//											nodeAnim->mNumRotationKeys > 0 ||
+			//											nodeAnim->mNumScalingKeys > 0) {
+
+			//											animationChannels[i] = modelNodeAnimation;
+			//										}
+			//									}
+			//								}
+			//							}
+			//							if (nodeAnimationsNumber > 0) {
+			//								CreateComponent<Animation::Model::Node::Animations>(nodeEntityId, animationChannels);
+			//							}
+			//						}
+			//						};
+
+
+
+			//					//Parse animations.
+			//					if (scene.GetAnimationsNumber() > 0) {
+			//						createDataNodeAnimationChannel(node);
+			//					}
+
+			//					//Mark that this node is Bone
+			//					if (scene.IsThereBoneWithName(node->mName.C_Str())) {
+
+			//						const aiBone* bone = scene.GetBoneByName(node->mName.C_Str());
+			//						glm::mat4 transform = Render::Model::AssimpToGlmMatrix(bone->mOffsetMatrix);
+
+			//						CreateComponent<Render::Model::Node::Data::BoneInverseBindPoseMatrix>(dataNodeEntityId, transform);
+			//						CreateComponent<Render::Model::Node::Bone>(dataNodeEntityId);
+
+			//					}
+
+			//					};
+
+			//				std::function<void(const aiNode*)> processChildrenDataNode = [&](const aiNode* node) {
+
+			//					const ECS2::Entity::Id dataNodeEntityId = dataNodeToEntityId[node];
+			//					const ECS2::Entity::Id nodeEntityId = nodeToEntityId[node];
+
+			//					CreateComponent<Render::Model::Node::Tag>(dataNodeEntityId);
 
-								//Model node -> model data node.
-								CreateComponent<Render::Model::Node::Data::EntityId>(nodeEntityId, dataNodeEntityId);
+			//					//Model node -> model data node.
+			//					CreateComponent<Render::Model::Node::Data::EntityId>(nodeEntityId, dataNodeEntityId);
 
-								auto getNodeFullName = [&]() {
-									std::string nodeName;
+			//					auto getNodeFullName = [&]() {
+			//						std::string nodeName;
 
-									const aiNode* currentNode = node;
-									while (currentNode != nullptr) {
+			//						const aiNode* currentNode = node;
+			//						while (currentNode != nullptr) {
 
-										nodeName = ("/") + nodeName;
-										nodeName = currentNode->mName.C_Str() + nodeName;
+			//							nodeName = ("/") + nodeName;
+			//							nodeName = currentNode->mName.C_Str() + nodeName;
 
-										currentNode = currentNode->mParent;
-									}
+			//							currentNode = currentNode->mParent;
+			//						}
 
-									nodeName = resource__Path2->path_ + "/" + scene.GetSceneName() + "/" + nodeName;
-									return nodeName;
-									};
+			//						nodeName = resource__Path2->path_ + "/" + scene.GetSceneName() + "/" + nodeName;
+			//						return nodeName;
+			//						};
 
-								CreateComponent<Name>(dataNodeEntityId, resource__Path2->path_ + scene.GetNodeFullName(node));
-								CreateComponent<Render::Model::Data::EntityId>(dataNodeEntityId, modelEntityId);
+			//					CreateComponent<Name>(dataNodeEntityId, resource__Path2->path_ + scene.GetNodeFullName(node));
+			//					CreateComponent<Render::Model::Data::EntityId>(dataNodeEntityId, modelEntityId);
 
-								ASSERT_FMSG(dataNodeEntityId.IsValid(), "");
+			//					ASSERT_FMSG(dataNodeEntityId.IsValid(), "");
 
-								createDataNodeComponents(node, dataNodeEntityId);
+			//					createDataNodeComponents(node, dataNodeEntityId);
 
-								std::vector<ECS2::Entity::Id> childNodeEntityIds;
-								for (Common::Index i = 0; i < node->mNumChildren; i++) {
-									const aiNode* childrenNode = node->mChildren[i];
-									processChildrenDataNode(childrenNode);
-									const ECS2::Entity::Id childDataNodeEntityId = dataNodeToEntityId[childrenNode];
-									ASSERT_FMSG(childDataNodeEntityId.IsValid(), "");
-									childNodeEntityIds.push_back(childDataNodeEntityId);
-								}
+			//					std::vector<ECS2::Entity::Id> childNodeEntityIds;
+			//					for (Common::Index i = 0; i < node->mNumChildren; i++) {
+			//						const aiNode* childrenNode = node->mChildren[i];
+			//						processChildrenDataNode(childrenNode);
+			//						const ECS2::Entity::Id childDataNodeEntityId = dataNodeToEntityId[childrenNode];
+			//						ASSERT_FMSG(childDataNodeEntityId.IsValid(), "");
+			//						childNodeEntityIds.push_back(childDataNodeEntityId);
+			//					}
 
-								if (!childNodeEntityIds.empty()) {
-									CreateComponent<Render::Model::Node::Data::ChildNodeDataEntityIds>(dataNodeEntityId, childNodeEntityIds);
-								}
-								return dataNodeEntityId;
-								};
+			//					if (!childNodeEntityIds.empty()) {
+			//						CreateComponent<Render::Model::Node::Data::ChildNodeDataEntityIds>(dataNodeEntityId, childNodeEntityIds);
+			//					}
+			//					return dataNodeEntityId;
+			//					};
 
-							processChildrenDataNode(scene.GetRootNode());
+			//				processChildrenDataNode(scene.GetRootNode());
 
-							//Create ModelAnimations.
-							{
-								std::vector<ModelAnimation> modelAnimations;
-								modelAnimations.reserve(scene.GetAnimationsNumber());
+			//				//Create ModelAnimations.
+			//				{
+			//					std::vector<ModelAnimation> modelAnimations;
+			//					modelAnimations.reserve(scene.GetAnimationsNumber());
 
-								for (Common::Index i = 0; i < std::clamp((size_t)scene.GetAnimationsNumber(), (size_t)0, (size_t)Animation::Model::AnimationsMaxNumber); i++) {
-									aiAnimation* animation = scene.scene_->mAnimations[i];
-									ModelAnimation modelAnimation{
-										animation->mName.C_Str(),
-										animation->mDuration,
-										animation->mTicksPerSecond
-									};
-									modelAnimations.push_back(std::move(modelAnimation));
-								}
-								CreateComponent<ModelAnimations>(modelDataEntityId, std::move(modelAnimations));
-							}
+			//					for (Common::Index i = 0; i < std::clamp((size_t)scene.GetAnimationsNumber(), (size_t)0, (size_t)Animation::Model::AnimationsMaxNumber); i++) {
+			//						aiAnimation* animation = scene.scene_->mAnimations[i];
+			//						ModelAnimation modelAnimation{
+			//							animation->mName.C_Str(),
+			//							animation->mDuration,
+			//							animation->mTicksPerSecond
+			//						};
+			//						modelAnimations.push_back(std::move(modelAnimation));
+			//					}
+			//					CreateComponent<ModelAnimations>(modelDataEntityId, std::move(modelAnimations));
+			//				}
 
-							const ECS2::Entity::Id rootNodeEntityId = nodeToEntityId[scene.GetRootNode()];
+			//				const ECS2::Entity::Id rootNodeEntityId = nodeToEntityId[scene.GetRootNode()];
 
-							CreateComponent<Render::Model::Node::Data::ChildNodeDataEntityIds>(modelDataEntityId, std::vector{ rootNodeEntityId });
+			//				CreateComponent<Render::Model::Node::Data::ChildNodeDataEntityIds>(modelDataEntityId, std::vector{ rootNodeEntityId });
 
-							};
+			//				};
 
-						createDataNodesHierarchy();
+			//			createDataNodesHierarchy();
 
-						render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_[resource__Path2->path_] = modelDataEntityId;
+			//			render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_[resource__Path2->path_] = modelDataEntityId;
 
 
-						/*CreateComponent<Render::Model::Data::EntityId>(
-							modelEntityId,
-							render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_[resource__Path2->path_]);*/
-					}
+			//			/*CreateComponent<Render::Model::Data::EntityId>(
+			//				modelEntityId,
+			//				render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_[resource__Path2->path_]);*/
+			//		}
 
 
-				}
+			//	}
 
-			}
+			//}
 
-			if (modelDataIt != render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_.end()) {
-				const ECS2::Entity::Id modelDataEntityId = modelDataIt->second;
+			//if (modelDataIt != render__Model__Data__ModelNameToDataEntityId0->modelNameToModelDataEntityId_.end()) {
+			//	const ECS2::Entity::Id modelDataEntityId = modelDataIt->second;
 
-				if (!IsEntityExist(modelDataEntityId)) {
-					// Model data entity was created in current frame and we can't access it. Need to wait next frame.
-					return;
-				}
+			//	if (!IsEntityExist(modelDataEntityId)) {
+			//		// Model data entity was created in current frame and we can't access it. Need to wait next frame.
+			//		return;
+			//	}
 
-				ASSERT_FMSG(modelDataEntityId.IsValid(), "");
-				ASSERT_FMSG(IsEntityExist(modelDataEntityId), "Model data entity id is found but entity is not exist.");
-				ASSERT_FMSG(world_->GetArchetypeComponents(modelDataEntityId) == ECS2::ComponentsFilter{}.SetBits<RENDER__MODEL__DATA__DATA>(), "");
+			//	ASSERT_FMSG(modelDataEntityId.IsValid(), "");
+			//	ASSERT_FMSG(IsEntityExist(modelDataEntityId), "Model data entity id is found but entity is not exist.");
+			//	ASSERT_FMSG(world_->GetArchetypeComponents(modelDataEntityId) == ECS2::ComponentsFilter{}.SetBits<RENDER__MODEL__DATA__DATA>(), "");
 
-				//Need to save model data entity id and connect with model entity.
+			//	//Need to save model data entity id and connect with model entity.
 
-				//Save model data entity id
-				CreateComponent<Render::Model::Data::EntityId>(modelEntityId, modelDataEntityId);
+			//	//Save model data entity id
+			//	CreateComponent<Render::Model::Data::EntityId>(modelEntityId, modelDataEntityId);
 
-				//Connect model and node with data.
+			//	//Connect model and node with data.
 
-				const auto* rootChildNodes = GetComponent<Render::Model::Node::Data::ChildNodeDataEntityIds>(modelDataEntityId);
+			//	const auto* rootChildNodes = GetComponent<Render::Model::Node::Data::ChildNodeDataEntityIds>(modelDataEntityId);
 
 
-			}
+			//}
 
 		}
 	}
 
 	namespace Render::Model::Data {
-		void CreateController::Update() {
+		void CreateController::Update(
+			ECS2::Entity::Id entity0id,
+			const OksEngine::RenderDriver* renderDriver0) {
+
 			const ECS2::Entity::Id modelDataControllerEntity = CreateEntity();
 			CreateComponent<Model::Data::Controller>(modelDataControllerEntity);
 			CreateComponent<ModelNameToDataEntityId>(modelDataControllerEntity, std::map<std::string, ECS2::Entity::Id>{});
+
+
+			auto driver = renderDriver0->driver_;
+
+			auto createModelDataResourceSet = [&]() {
+				constexpr Common::Size modelDataEntitiesNumber = 4096;
+
+				//Model data entities Entity id -> component index buffer
+
+				RAL::Driver::RS::Binding_::Layout idsToComponentIndicesBindingLayout{
+					.binding_ = 0,//RENDER__MODEL__DATA__IDS_TO_COMPONENT_INDICES_BINDING,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI idsToComponentIndicesSBCI{
+					.size_ = sizeof(ECS2::Entity::Id) * modelDataEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id idsToComponentIndicesSBId = driver->CreateStorageBuffer(idsToComponentIndicesSBCI);
+
+				RAL::Driver::RS::Binding_::UpdateInfo idsToComponentIndicesBindingUpdateInfo{
+					.binding_ = 0,//RENDER__MODEL__DATA__IDS_TO_COMPONENT_INDICES_BINDING,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							idsToComponentIndicesSBId,
+							0, sizeof(ECS2::Entity::Id) * modelDataEntitiesNumber
+						}}
+				};
+
+				//Model entity ids 
+
+				RAL::Driver::RS::Binding_::Layout modelEntityIdsBindingLayout{
+					.binding_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI modelEntityIdsSBCI{
+					.size_ = sizeof(OksEngine::Render::Model::EntityIds) * modelDataEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id modelEntityIdsSBId = driver->CreateStorageBuffer(modelEntityIdsSBCI);
+
+				RAL::Driver::RS::Binding_::UpdateInfo modelEntityIdsBindingUpdateInfo{
+					.binding_ = 1,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							modelEntityIdsSBId,
+							0, sizeof(OksEngine::Render::Model::EntityIds) * modelDataEntitiesNumber
+						}}
+				};
+
+				//Mesh data entity ids
+
+				RAL::Driver::RS::Binding_::Layout meshDataEntityIdsBindingLayout{
+					.binding_ = 2,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI meshDataEntityIdsSBCI{
+					.size_ = sizeof(OksEngine::Render::Model::Mesh::Data::EntityIds) * modelDataEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id meshDataEntityIdsSBId = driver->CreateStorageBuffer(meshDataEntityIdsSBCI);
+				RAL::Driver::RS::Binding_::UpdateInfo meshDataEntityIdsBindingUpdateInfo{
+					.binding_ = 2,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							meshDataEntityIdsSBId,
+							0, sizeof(OksEngine::Render::Model::Mesh::Data::EntityIds) * modelDataEntitiesNumber
+					}}
+				};
+
+				//Node data entity ids
+
+				RAL::Driver::RS::Binding_::Layout nodeDataEntityIdsBindingLayout{
+					.binding_ = 3,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI nodeDataEntityIdsSBCI{
+					.size_ = sizeof(OksEngine::Render::Model::Node::Data::EntityIds) * modelDataEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id nodeDataEntityIdsSBId = driver->CreateStorageBuffer(nodeDataEntityIdsSBCI);
+
+				RAL::Driver::RS::Binding_::UpdateInfo nodeDataEntityIdsBindingUpdateInfo{
+					.binding_ = 3,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							nodeDataEntityIdsSBId,
+							0, sizeof(OksEngine::Render::Model::Node::Data::EntityIds) * modelDataEntitiesNumber
+					}}
+				};
+
+				//Animations
+
+				RAL::Driver::RS::Binding_::Layout animationsBindingLayout{
+					.binding_ = 4,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI animationsSBCI{
+					.size_ = sizeof(Animation::Model::Node::Animations) * modelDataEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id animationsSBId = driver->CreateStorageBuffer(animationsSBCI);
+
+				RAL::Driver::RS::Binding_::UpdateInfo animationsBindingUpdateInfo{
+					.binding_ = 4,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							animationsSBId,
+							0, sizeof(Animation::Model::Node::Animations) * modelDataEntitiesNumber
+					}}
+				};
+
+				RAL::Driver::RS::CI3 rsCI{
+					.bindings_ = {
+						idsToComponentIndicesBindingLayout,
+						modelEntityIdsBindingLayout,
+						meshDataEntityIdsBindingLayout,
+						nodeDataEntityIdsBindingLayout,
+						animationsBindingLayout
+					}
+				};
+
+				const RAL::Driver::RS::Id rsId = driver->CreateResourceSet(rsCI);
+
+				std::vector<RAL::Driver::RS::Binding_::UpdateInfo> rsBindingUpdateInfos;
+
+				RAL::Driver::RS::UpdateInfo rsUpdateInfo{
+					.id_ = rsId,
+					.bindingUpdateInfos_ = {
+						idsToComponentIndicesBindingUpdateInfo,
+						modelEntityIdsBindingUpdateInfo,
+						meshDataEntityIdsBindingUpdateInfo,
+						nodeDataEntityIdsBindingUpdateInfo,
+						animationsBindingUpdateInfo
+					}
+				};
+
+				driver->UpdateResourceSet(rsUpdateInfo);
+
+				CreateComponent<Render::Model::Data::ResourceSet>(modelDataControllerEntity,
+					rsId,
+					idsToComponentIndicesSBId,
+					modelEntityIdsSBId,
+					meshDataEntityIdsSBId,
+					nodeDataEntityIdsSBId,
+					animationsSBId);
+
+				};
+
+
+			auto createModelNodeResourceSet = [&]() {
+				constexpr Common::Size modelNodeEntitiesNumber = 4096;
+
+				//Model data entities Entity id -> component index buffer
+
+				RAL::Driver::RS::Binding_::Layout idsToComponentIndicesBindingLayout{
+					.binding_ = 0,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI idsToComponentIndicesSBCI{
+					.size_ = sizeof(ECS2::Entity::Id) * modelNodeEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id idsToComponentIndicesSBId = driver->CreateStorageBuffer(idsToComponentIndicesSBCI);
+
+				RAL::Driver::RS::Binding_::UpdateInfo idsToComponentIndicesBindingUpdateInfo{
+					.binding_ = 0,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							idsToComponentIndicesSBId,
+							0, sizeof(ECS2::Entity::Id) * modelNodeEntitiesNumber
+						}}
+				};
+
+				//World positions
+
+				RAL::Driver::RS::Binding_::Layout worldPosition3DBindingLayout{
+					.binding_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI worldPosition3DSBCI{
+					.size_ = sizeof(OksEngine::WorldPosition3D) * modelNodeEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id worldPosition3DSBId = driver->CreateStorageBuffer(worldPosition3DSBCI);
+
+				RAL::Driver::RS::Binding_::UpdateInfo worldPosition3DBindingUpdateInfo{
+					.binding_ = 1,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							worldPosition3DSBId,
+							0, sizeof(OksEngine::WorldPosition3D) * modelNodeEntitiesNumber
+						}}
+				};
+
+				//World rotations
+
+				RAL::Driver::RS::Binding_::Layout worldRotation3DBindingLayout{
+					.binding_ = 2,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI worldRotation3DSBCI{
+					.size_ = sizeof(OksEngine::WorldRotation3D) * modelNodeEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id worldRotation3DSBId = driver->CreateStorageBuffer(worldRotation3DSBCI);
+
+				RAL::Driver::RS::Binding_::UpdateInfo worldRotation3DBindingUpdateInfo{
+					.binding_ = 2,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							worldRotation3DSBId,
+							0, sizeof(OksEngine::WorldRotation3D) * modelNodeEntitiesNumber
+						}}
+				};
+
+				//World scales
+
+				RAL::Driver::RS::Binding_::Layout worldScale3DBindingLayout{
+					.binding_ = 3,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI worldScale3DSBCI{
+					.size_ = sizeof(OksEngine::WorldScale3D) * modelNodeEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id worldScale3DSBId = driver->CreateStorageBuffer(worldScale3DSBCI);
+
+				RAL::Driver::RS::Binding_::UpdateInfo worldScale3DBindingUpdateInfo{
+					.binding_ = 3,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							worldScale3DSBId,
+							0, sizeof(OksEngine::WorldScale3D) * modelNodeEntitiesNumber
+						}}
+				};
+
+				//Model node data entity id
+
+				RAL::Driver::RS::Binding_::Layout modelNodeDataEntityIdBindingLayout{
+					.binding_ = 4,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI modelNodeDataEntityIdSBCI{
+					.size_ = sizeof(ECS2::Entity::Id) * modelNodeEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id modelNodeDataEntityIdSBId = driver->CreateStorageBuffer(modelNodeDataEntityIdSBCI);
+				RAL::Driver::RS::Binding_::UpdateInfo modelNodeDataEntityIdBindingUpdateInfo{
+					.binding_ = 4,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							modelNodeDataEntityIdSBId,
+							0, sizeof(ECS2::Entity::Id) * modelNodeEntitiesNumber
+					}}
+				};
+
+				RAL::Driver::RS::CI3 rsCI{
+					.bindings_ = {
+						idsToComponentIndicesBindingLayout,
+						worldPosition3DBindingLayout,
+						worldRotation3DBindingLayout,
+						worldScale3DBindingLayout,
+						modelNodeDataEntityIdBindingLayout
+					}
+				};
+
+				const RAL::Driver::RS::Id rsId = driver->CreateResourceSet(rsCI);
+
+				std::vector<RAL::Driver::RS::Binding_::UpdateInfo> rsBindingUpdateInfos;
+
+				RAL::Driver::RS::UpdateInfo rsUpdateInfo{
+					.id_ = rsId,
+					.bindingUpdateInfos_ = {
+						idsToComponentIndicesBindingUpdateInfo,
+						worldPosition3DBindingUpdateInfo,
+						worldRotation3DBindingUpdateInfo,
+						worldScale3DBindingUpdateInfo,
+						modelNodeDataEntityIdBindingUpdateInfo
+					}
+				};
+
+				driver->UpdateResourceSet(rsUpdateInfo);
+
+				CreateComponent<Render::Model::Node::ResourceSet>(modelDataControllerEntity,
+					rsId,
+					idsToComponentIndicesSBId,
+					worldPosition3DSBId,
+					worldRotation3DSBId,
+					worldScale3DSBId,
+					modelNodeDataEntityIdSBId);
+
+				};
+
+			auto createModelNodeDataResourceSet = [&]() {
+
+				constexpr Common::Size modelNodeDataEntitiesNumber = 4096;
+
+				//Model data entities Entity id -> component index buffer
+
+				RAL::Driver::RS::Binding_::Layout idsToComponentIndicesBindingLayout{
+					.binding_ = 0,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI idsToComponentIndicesSBCI{
+					.size_ = sizeof(ECS2::Entity::Id) * modelNodeDataEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id idsToComponentIndicesSBId = driver->CreateStorageBuffer(idsToComponentIndicesSBCI);
+
+				RAL::Driver::RS::Binding_::UpdateInfo idsToComponentIndicesBindingUpdateInfo{
+					.binding_ = 0,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							idsToComponentIndicesSBId,
+							0, sizeof(ECS2::Entity::Id) * modelNodeDataEntitiesNumber
+						}}
+				};
+
+				//Bone inverse bind pose matrices
+
+				RAL::Driver::RS::Binding_::Layout boneInverseBindPoseMatricesBindingLayout{
+					.binding_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.count_ = 1,
+					.stage_ = RAL::Driver::Shader::Stage::VertexShader
+				};
+
+				RAL::Driver::SB::CI boneInverseBindPoseMatricesSBCI{
+					.size_ = sizeof(OksEngine::Render::Model::Node::Data::BoneInverseBindPoseMatrix) * modelNodeDataEntitiesNumber
+				};
+
+				const RAL::Driver::SB::Id boneInverseBindPoseMatricesSBId = driver->CreateStorageBuffer(boneInverseBindPoseMatricesSBCI);
+
+				RAL::Driver::RS::Binding_::UpdateInfo boneInverseBindPoseMatricesBindingUpdateInfo{
+					.binding_ = 1,
+					.arrayElement_ = 0,
+					.resourcesCount_ = 1,
+					.type_ = RAL::Driver::Shader::Binding::Type::StorageBuffer,
+					.SBInfo_ = std::vector{
+						RAL::Driver::RS::Binding_::UpdateInfo::StorageBuffer{
+							boneInverseBindPoseMatricesSBId,
+							0, sizeof(OksEngine::Render::Model::Node::Data::BoneInverseBindPoseMatrix) * modelNodeDataEntitiesNumber
+						}}
+				};
+
+				RAL::Driver::RS::CI3 rsCI{
+					.bindings_ = {
+						idsToComponentIndicesBindingLayout,
+						boneInverseBindPoseMatricesBindingLayout
+					}
+				};
+
+				const RAL::Driver::RS::Id rsId = driver->CreateResourceSet(rsCI);
+
+				std::vector<RAL::Driver::RS::Binding_::UpdateInfo> rsBindingUpdateInfos;
+
+				RAL::Driver::RS::UpdateInfo rsUpdateInfo{
+					.id_ = rsId,
+					.bindingUpdateInfos_ = {
+						idsToComponentIndicesBindingUpdateInfo,
+						boneInverseBindPoseMatricesBindingUpdateInfo
+					}
+				};
+
+				driver->UpdateResourceSet(rsUpdateInfo);
+
+				CreateComponent<Render::Model::Node::Data::ResourceSet>(modelDataControllerEntity,
+					rsId,
+					idsToComponentIndicesSBId,
+					boneInverseBindPoseMatricesSBId);
+
+
+				};
+
+			createModelDataResourceSet();
+			createModelNodeDataResourceSet();
+			createModelNodeResourceSet();
 		}
 
 	}
 
 	namespace Render::Model {
 
-		namespace Data {
-			void FindModelData::Update(
-				ECS2::Entity::Id entity0id,
-				const Model::Tag* model0,
-				const OksEngine::Resource::Path* resource__Path0,
-				const Node::EntityIds* modelNodeEntityIds0,
+		//namespace Data {
+		//	void FindModelData::Update(
+		//		ECS2::Entity::Id entity0id,
+		//		const Model::Tag* model0,
+		//		const OksEngine::Resource::Path* resource__Path0,
+		//		const Node::EntityIds* modelNodeEntityIds0,
 
-				ECS2::Entity::Id entity1id,
-				const Render::Model::Data::Controller* render__Model__DataController1,
-				const Render::Model::Data::ModelNameToDataEntityId* render__Model__ModelNameToModelDataEntityId1) {
+		//		ECS2::Entity::Id entity1id,
+		//		const Render::Model::Data::Controller* render__Model__DataController1,
+		//		const Render::Model::Data::ModelNameToDataEntityId* render__Model__ModelNameToModelDataEntityId1) {
 
-				auto modelDataIt = render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.find(resource__Path0->path_);
-				if (modelDataIt != render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.end()) {
-					const ECS2::Entity::Id modelDataEntityId = modelDataIt->second;
-					if (IsEntityExist(modelDataEntityId)) {
+		//		auto modelDataIt = render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.find(resource__Path0->path_);
+		//		if (modelDataIt != render__Model__ModelNameToModelDataEntityId1->modelNameToModelDataEntityId_.end()) {
+		//			const ECS2::Entity::Id modelDataEntityId = modelDataIt->second;
+		//			if (IsEntityExist(modelDataEntityId)) {
 
-						auto* modelDataNodeEntityIds = GetComponent<Model::Node::EntityIds>(modelDataEntityId);
+		//				auto* modelDataNodeEntityIds = GetComponent<Model::Node::EntityIds>(modelDataEntityId);
 
-						for (Common::Index i = 0; i < modelNodeEntityIds0->nodeEntityIds_.size(); i++) {
-							const ECS2::Entity::Id nodeEntityId = modelNodeEntityIds0->nodeEntityIds_[i];
-							if (nodeEntityId.IsValid()) {
-								ASSERT(!IsComponentExist<Render::Model::Node::Data::EntityId>(nodeEntityId));
-								CreateComponent<Render::Model::Node::Data::EntityId>(nodeEntityId, modelDataNodeEntityIds->nodeEntityIds_[i]);
+		//				for (Common::Index i = 0; i < modelNodeEntityIds0->nodeEntityIds_.size(); i++) {
+		//					const ECS2::Entity::Id nodeEntityId = modelNodeEntityIds0->nodeEntityIds_[i];
+		//					if (nodeEntityId.IsValid()) {
+		//						ASSERT(!IsComponentExist<Render::Model::Node::Data::EntityId>(nodeEntityId));
+		//						CreateComponent<Render::Model::Node::Data::EntityId>(nodeEntityId, modelDataNodeEntityIds->nodeEntityIds_[i]);
 
-							}
-						}
-						CreateComponent<Render::Model::Data::EntityId>(entity0id, modelDataEntityId);
-					}
-				}
+		//					}
+		//				}
+		//				CreateComponent<Render::Model::Data::EntityId>(entity0id, modelDataEntityId);
+		//			}
+		//		}
 
-			}
-		}
-
-
-		void FindModelMeshs::Update(
-			ECS2::Entity::Id entity0id,
-			const OksEngine::Render::Model::Tag* render__Model__Tag0,
-			const OksEngine::Render::Model::Mesh::Names* render__Model__Mesh__Names0,
-			OksEngine::Render::Model::Mesh::EntityIds* render__Model__Mesh__EntityIds0,
-
-			ECS2::Entity::Id entity1id,
-			const OksEngine::Render::Model::Mesh::Tag* render__Model__Mesh__Tag1,
-			const OksEngine::Name* __Name1,
-			OksEngine::Render::Model::EntityIds* render__Model__EntityIds1) {
-
-			const ECS2::Entity::Id& modelEntityId = entity0id;
-			const ECS2::Entity::Id& meshEntityId = entity1id;
-
-			ASSERT(render__Model__Mesh__Names0->meshNames_.size() == render__Model__Mesh__EntityIds0->meshEntityIds_.size());
+		//	}
+		//}
 
 
-			if (
-				std::find(
-					render__Model__Mesh__EntityIds0->meshEntityIds_.begin(),
-					render__Model__Mesh__EntityIds0->meshEntityIds_.end(),
-					ECS2::Entity::Id::invalid_) == render__Model__Mesh__EntityIds0->meshEntityIds_.end()) {
+		//void FindModelMeshs::Update(
+		//	ECS2::Entity::Id entity0id,
+		//	const OksEngine::Render::Model::Tag* render__Model__Tag0,
+		//	const OksEngine::Render::Model::Mesh::Names* render__Model__Mesh__Names0,
+		//	OksEngine::Render::Model::Mesh::EntityIds* render__Model__Mesh__EntityIds0,
 
-				//Skip models that already have all required meshs
-				return;
-			}
+		//	ECS2::Entity::Id entity1id,
+		//	const OksEngine::Render::Model::Mesh::Tag* render__Model__Mesh__Tag1,
+		//	const OksEngine::Name* __Name1,
+		//	OksEngine::Render::Model::EntityIds* render__Model__EntityIds1) {
 
-			for (Common::Index i = 0; i < render__Model__Mesh__Names0->meshNames_.size(); i++) {
-				if (
-					render__Model__Mesh__EntityIds0->meshEntityIds_[i].IsInvalid() &&
-					render__Model__Mesh__Names0->meshNames_[i] == __Name1->value_) {
-					render__Model__Mesh__EntityIds0->meshEntityIds_[i] = meshEntityId;
+		//	const ECS2::Entity::Id& modelEntityId = entity0id;
+		//	const ECS2::Entity::Id& meshEntityId = entity1id;
 
-					bool isFoundFreeCell = false;
-					for (Common::Index j = 0; j < render__Model__EntityIds1->modelEntityIds_.max_size(); j++) {
-						if (render__Model__EntityIds1->modelEntityIds_[j].IsInvalid()) {
-							render__Model__EntityIds1->modelEntityIds_[j] = modelEntityId;
-							isFoundFreeCell = true;
-							break;
-						}
-					}
-					ASSERT(isFoundFreeCell);
-					//modelEntityIds1->modelEntityIds_.push_back(entity0id);
-				}
-			}
-			if (
-				std::find(
-					render__Model__Mesh__EntityIds0->meshEntityIds_.begin(),
-					render__Model__Mesh__EntityIds0->meshEntityIds_.end(),
-					ECS2::Entity::Id::invalid_) == render__Model__Mesh__EntityIds0->meshEntityIds_.end()) {
+		//	ASSERT(render__Model__Mesh__Names0->meshNames_.size() == render__Model__Mesh__EntityIds0->meshEntityIds_.size());
 
-				ASSERT(!IsComponentExist<MeshsFound>(modelEntityId));
 
-				CreateComponent<MeshsFound>(modelEntityId);
-			}
-		}
+		//	if (
+		//		std::find(
+		//			render__Model__Mesh__EntityIds0->meshEntityIds_.begin(),
+		//			render__Model__Mesh__EntityIds0->meshEntityIds_.end(),
+		//			ECS2::Entity::Id::invalid_) == render__Model__Mesh__EntityIds0->meshEntityIds_.end()) {
+
+		//		//Skip models that already have all required meshs
+		//		return;
+		//	}
+
+		//	for (Common::Index i = 0; i < render__Model__Mesh__Names0->meshNames_.size(); i++) {
+		//		if (
+		//			render__Model__Mesh__EntityIds0->meshEntityIds_[i].IsInvalid() &&
+		//			render__Model__Mesh__Names0->meshNames_[i] == __Name1->value_) {
+		//			render__Model__Mesh__EntityIds0->meshEntityIds_[i] = meshEntityId;
+
+		//			bool isFoundFreeCell = false;
+		//			for (Common::Index j = 0; j < render__Model__EntityIds1->modelEntityIds_.max_size(); j++) {
+		//				if (render__Model__EntityIds1->modelEntityIds_[j].IsInvalid()) {
+		//					render__Model__EntityIds1->modelEntityIds_[j] = modelEntityId;
+		//					isFoundFreeCell = true;
+		//					break;
+		//				}
+		//			}
+		//			ASSERT(isFoundFreeCell);
+		//			//modelEntityIds1->modelEntityIds_.push_back(entity0id);
+		//		}
+		//	}
+		//	if (
+		//		std::find(
+		//			render__Model__Mesh__EntityIds0->meshEntityIds_.begin(),
+		//			render__Model__Mesh__EntityIds0->meshEntityIds_.end(),
+		//			ECS2::Entity::Id::invalid_) == render__Model__Mesh__EntityIds0->meshEntityIds_.end()) {
+
+		//		ASSERT(!IsComponentExist<MeshsFound>(modelEntityId));
+
+		//		CreateComponent<MeshsFound>(modelEntityId);
+		//	}
+		//}
 	}
 
 	namespace Render::Model::Mesh {
@@ -3572,79 +4086,87 @@ namespace OksEngine
 
 		//return;
 
+		//Common::Size meshDataEntitiesNumber = world_->GetEntitiesNumber<RENDER__MODEL__MESH__DATA__DATA>();
+		//auto meshDataComponents = GetComponents<RENDER__MODEL__MESH__DATA__DATA>();
+
+
 
 		driver->BindPipeline(render__Pipeline0->id_);
 		driver->SetViewport(0, 0, 2560, 1440);
 		for (Common::Index i = 0; i < meshEntitiesNumber; i++) {
+			
 			if (meshEntitiesIds[i].IsValid()) {
-
-				auto* materialEntityId = meshMaterialEntityIds + i;
-				auto* vertexBuffer = meshVertexBuffers + i;
-				auto* indexBuffer = meshIndexBuffers + i;
-				auto* modelEntityIds = meshModelEntityIds + i;
-				auto invalidModelEntityIdIt = std::find(
-					modelEntityIds->modelEntityIds_.begin(),
-					modelEntityIds->modelEntityIds_.end(),
-					ECS2::Entity::Id::invalid_);
-				auto* indices = meshIndices + i;
-
-				const ECS2::ComponentsFilter meshComponentsFilter = GetComponentsFilter(meshEntitiesIds[i]);
-				if (meshComponentsFilter.IsSet<
-					VertexBones>()) {
-					continue;
-				}
-				if (!meshComponentsFilter.IsSet <
-					Render::Material::EntityId>()) {
-					continue;
-				}
-
-				//TODO:: remove after full transfer to bindless textures.
-				if (!IsComponentExist<Render::Material::ResourceSet>(materialEntityId->id_) || !IsComponentExist<Render::Material::InfoResourceSet>(materialEntityId->id_)) {
-					continue;
-				}
-
-				//TODO:: remove after full transfer to bindless textures.
-				auto* materialResourceSet = GetComponent<Render::Material::ResourceSet>(materialEntityId->id_);
-
-				auto* materialInfoResourceSet = GetComponent<Render::Material::InfoResourceSet>(materialEntityId->id_);
-
-				driver->BindVertexBuffer(vertexBuffer->id_, 0);
-				driver->BindIndexBuffer(indexBuffer->id_, 0);
-
-				driver->Bind(render__Pipeline0->id_, 0,
-					{
-						cameraTransformResource1->id_,												// set 0
-						render__Material__ResourceSet_0->id_,										// set 1 RS with all material textures
-						materialInfoResourceSet->RSId_,												// set 2 material info resource set
-						gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->resourceSetId_, // set 3 to get model components index
-						gPGPUECS__StorageBuffer__ModelNodeEntityIds0->resourceSetId_,				// set 4 to get node ids that model contain
-						gPGPUECS__StorageBuffer__MeshNodeEntityIndices0->resourceSetId_,			// set 5
-						gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->resourceSetId_,	// set 6 to get components index of node to get Pos, rot, sacle of node
-						gPGPUECS__StorageBuffer__WorldPositions3D0->resourceSetId_,					// set 7
-						gPGPUECS__StorageBuffer__WorldRotations3D0->resourceSetId_,					// set 8
-						gPGPUECS__StorageBuffer__WorldScales3D0->resourceSetId_,					// set 9
-						gPGPUECS__StorageBuffer__ModelEntityIds0->resourceSetId_					//set 10
-					});
-
-
-				struct MeshInfo {
-					Common::UInt64 meshIndex_ = Common::Limits<Common::UInt64>::Max();
-				} meshInfo{
-					.meshIndex_ = i
-				};
-
-				driver->PushConstants(
-					render__Pipeline0->id_,
-					RAL::Driver::Shader::Stage::VertexShader,
-					sizeof(MeshInfo),
-					&meshInfo);
-				auto meshModelEntitiesNumber = std::distance(modelEntityIds->modelEntityIds_.begin(), invalidModelEntityIdIt);
-				driver->DrawIndexed(
-					indices->indices_.GetIndicesNumber(),
-					0,
-					meshModelEntitiesNumber);
-
+				continue;
 			}
+			
+			auto* materialEntityId = meshMaterialEntityIds + i;
+			auto* vertexBuffer = meshVertexBuffers + i;
+			auto* indexBuffer = meshIndexBuffers + i;
+			auto* modelEntityIds = meshModelEntityIds + i;
+
+			auto invalidModelEntityIdIt = std::find(
+				modelEntityIds->modelEntityIds_.begin(),
+				modelEntityIds->modelEntityIds_.end(),
+				ECS2::Entity::Id::invalid_);
+			auto* indices = meshIndices + i;
+
+			const ECS2::ComponentsFilter meshComponentsFilter = GetComponentsFilter(meshEntitiesIds[i]);
+			if (meshComponentsFilter.IsSet<
+				VertexBones>()) {
+				continue;
+			}
+			if (!meshComponentsFilter.IsSet <
+				Render::Material::EntityId>()) {
+				continue;
+			}
+
+			//TODO:: remove after full transfer to bindless textures.
+			if (!IsComponentExist<Render::Material::ResourceSet>(materialEntityId->id_) || !IsComponentExist<Render::Material::InfoResourceSet>(materialEntityId->id_)) {
+				continue;
+			}
+
+			//TODO:: remove after full transfer to bindless textures.
+			auto* materialResourceSet = GetComponent<Render::Material::ResourceSet>(materialEntityId->id_);
+
+			auto* materialInfoResourceSet = GetComponent<Render::Material::InfoResourceSet>(materialEntityId->id_);
+
+			driver->BindVertexBuffer(vertexBuffer->id_, 0);
+			driver->BindIndexBuffer(indexBuffer->id_, 0);
+
+			driver->Bind(render__Pipeline0->id_, 0,
+				{
+					cameraTransformResource1->id_,												// set 0
+					render__Material__ResourceSet_0->id_,										// set 1 RS with all material textures
+					materialInfoResourceSet->RSId_,												// set 2 material info resource set
+					gPGPUECS__StorageBuffer__ModelEntityIdsToComponentIndices0->resourceSetId_, // set 3 to get model components index
+					gPGPUECS__StorageBuffer__ModelNodeEntityIds0->resourceSetId_,				// set 4 to get node ids that model contain
+					gPGPUECS__StorageBuffer__MeshNodeEntityIndices0->resourceSetId_,			// set 5
+					gPGPUECS__StorageBuffer__NodeEntityIdsToComponentIndices0->resourceSetId_,	// set 6 to get components index of node to get Pos, rot, sacle of node
+					gPGPUECS__StorageBuffer__WorldPositions3D0->resourceSetId_,					// set 7
+					gPGPUECS__StorageBuffer__WorldRotations3D0->resourceSetId_,					// set 8
+					gPGPUECS__StorageBuffer__WorldScales3D0->resourceSetId_,					// set 9
+					gPGPUECS__StorageBuffer__ModelEntityIds0->resourceSetId_					//set 10
+				});
+
+
+			struct MeshInfo {
+				Common::UInt64 meshIndex_ = Common::Limits<Common::UInt64>::Max();
+			} meshInfo{
+				.meshIndex_ = i
+			};
+
+			driver->PushConstants(
+				render__Pipeline0->id_,
+				RAL::Driver::Shader::Stage::VertexShader,
+				sizeof(MeshInfo),
+				&meshInfo);
+			auto meshModelEntitiesNumber = std::distance(modelEntityIds->modelEntityIds_.begin(), invalidModelEntityIdIt);
+			driver->DrawIndexed(
+				indices->indices_.GetIndicesNumber(),
+				0,
+				meshModelEntitiesNumber);
+
+
 		}
 
 	}

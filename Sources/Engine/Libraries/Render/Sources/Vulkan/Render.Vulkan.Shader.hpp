@@ -172,7 +172,7 @@ namespace Render::Vulkan {
 
 				//TODO: take shaders include dir from config
 				std::vector<std::string> includePaths = {
-					"D:/OksEngine/Resources/Shaders/"
+					"D:/OksEngine/Sources/Engine/Sources/Shaders/"
 				};
 				TBuiltInResource resources;
 				initResources(resources);
@@ -283,7 +283,7 @@ namespace Render::Vulkan {
 
 			//TODO: take shaders include dir from config
 			std::vector<std::string> includePaths = {
-				"D:/OksEngine/Resources/Shaders/"
+				"D:/OksEngine/Sources/Engine/Sources/Shaders/"
 			};
 			TBuiltInResource resources;
 			initResources(resources);
