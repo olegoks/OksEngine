@@ -1,0 +1,40 @@
+TelegramNamespace = {
+    BotNamespace = {
+        TagComponent = {
+            serializable = false
+        },
+        TokenComponent = {
+            serializable = false,
+            fields = {
+                { type = "std::string", name = "token" }
+            }
+        },
+        CreateSystem = {
+            type = "Initialize",
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "Telegram::Bot::Tag",
+                            "Telegram::Bot::Token"
+                        }
+                    }
+                }
+            }
+        },
+        ProcessSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Telegram::Bot::Tag",
+                            "Telegram::Bot::Token"
+                        }
+                    }
+                }
+            }
+        }
+
+
+    }
+}

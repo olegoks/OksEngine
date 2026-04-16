@@ -35,5 +35,9 @@ echo $(pwd)
 ./vcpkg.exe install assimp
 ./vcpkg.exe install freetype
 ./vcpkg.exe install vulkan-utility-libraries
+./vcpkg.exe install boost openssl rapidjson
+./vcpkg.exe install openssl 
+./vcpkg.exe install rapidjson 
+./vcpkg install tgbot-cpp:x64-windows
 cd ../Scripts/
 

@@ -1,4 +1,4 @@
-cmake_minimum_required(VERSION  3.26.4)
+cmake_minimum_required(VERSION 3.26.4)
 
 
 set(CMAKE_CXX_STANDARD 20)
@@ -7,23 +7,21 @@ set(CMAKE_CXX_EXTENSIONS OFF)
 
 
 
-add_library(OksEngine STATIC)   
-
-
+add_library(OksEngine STATIC)
 if(MSVC)
-  #target_compile_options(OksEngine PUBLIC "/MP" "/bigobj")
+    #target_compile_options(OksEngine PUBLIC "/MP" "/bigobj")
     string(TIMESTAMP CURRENT_HOUR "%H")
     if(FALSE)
-    #if(CURRENT_HOUR GREATER_EQUAL "00" AND CURRENT_HOUR LESS "03")
+        #if(CURRENT_HOUR GREATER_EQUAL "00" AND CURRENT_HOUR LESS "03")
         target_compile_options(OksEngine PUBLIC "/bigobj")
         message(STATUS "Ночной режим активирован (00:00–03:00)")
     else()
         target_compile_options(OksEngine PUBLIC "/MP" "/bigobj")
         message(STATUS "Дневной режим (03:00–23:59)")
     endif()
-  
+
     target_compile_options(OksEngine PUBLIC "/MP 8")
-  target_link_options(OksEngine PUBLIC "/INCREMENTAL")
+    target_link_options(OksEngine PUBLIC "/INCREMENTAL")
 endif()
 #TODO: Move this definition to code.
 target_compile_definitions(OksEngine PUBLIC USE_PIX)
@@ -49,7 +47,7 @@ function(organize_source_files DIRECTORY FILES)
         # Убираем корневую часть пути к файлу
         file(RELATIVE_PATH REL_PATH "${DIRECTORY}" ${FILE_PATH})
         # Извлекаем родительский путь
- get_filename_component(PARENT_DIR "${REL_PATH}" DIRECTORY)
+        get_filename_component(PARENT_DIR "${REL_PATH}" DIRECTORY)
         # Заменяем '/' на '\\' в пути, для правильной работы source_group
         string(REPLACE "/" "\\" GROUP_NAME "Sources/${PARENT_DIR}")
         # Создаем source_group
@@ -66,8 +64,8 @@ organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
 
 target_sources(OksEngine
     PUBLIC
-        ${PROJECT_SOURCES}
-    )
+    ${PROJECT_SOURCES}
+)
 
 find_package(Boost REQUIRED COMPONENTS asio)
 
@@ -84,13 +82,29 @@ target_include_directories(OksEngine PRIVATE ${Stb_INCLUDE_DIR})
 find_package(Freetype REQUIRED)
 target_include_directories(OksEngine PRIVATE ${FREETYPE_INCLUDE_DIRS})
 
+find_package(Boost REQUIRED)
+find_package(OpenSSL REQUIRED)
+find_package(RapidJSON REQUIRED)
+
+target_include_directories(OksEngine PRIVATE ${Boost_INCLUDE_DIRS})
+target_include_directories(OksEngine PRIVATE ${OPENSSL_INCLUDE_DIR})
+target_include_directories(OksEngine PRIVATE ${RAPIDJSON_INCLUDE_DIRS})
+
+target_link_libraries(OksEngine PRIVATE 
+    OpenSSL::SSL 
+    OpenSSL::Crypto
+)
+
+add_compile_definitions(CCAPI_ENABLE_SERVICE_MARKET_DATA)
+add_compile_definitions(CCAPI_ENABLE_EXCHANGE_BYBIT)
+
 target_link_libraries(OksEngine
     PUBLIC
     Boost::asio
 
     SFML::Audio
     SFML::System
-    
+
     yaml-cpp::yaml-cpp
     ${FREETYPE_LIBRARIES}
     # imgui::imgui
@@ -107,8 +121,12 @@ target_link_libraries(OksEngine
     OS
     UI
     Resources
-    )
+)
+
+
+target_include_directories(OksEngine PRIVATE "${VCPKG_INSTALLED_DIR}/include")
+target_link_libraries(OksEngine PRIVATE "${VCPKG_INSTALLED_DIR}/x64-windows/lib/TgBot.lib")
 
 target_include_directories(OksEngine
     PUBLIC
-        ${CMAKE_CURRENT_LIST_DIR})
+    ${CMAKE_CURRENT_LIST_DIR})
