@@ -1,5 +1,5 @@
-#ifndef INCLUDE_CCAPI_CPP_CCAPI_REQUEST_H_
-#define INCLUDE_CCAPI_CPP_CCAPI_REQUEST_H_
+#pragma once
+
 #include <condition_variable>
 #include <map>
 #include <mutex>
@@ -16,16 +16,19 @@
 #define CCAPI_REQUEST_OPERATION_TYPE_EXECUTION_MANAGEMENT 0x600
 #define CCAPI_REQUEST_OPERATION_TYPE_EXECUTION_MANAGEMENT_ORDER CCAPI_REQUEST_OPERATION_TYPE_EXECUTION_MANAGEMENT
 #define CCAPI_REQUEST_OPERATION_TYPE_EXECUTION_MANAGEMENT_ACCOUNT 0x700
+
 namespace ccapi {
+
 /**
  * A single request. Request objects are created using Request constructors. They are used with Session::sendRequest() or Session::sendRequestByWebsocket() or
  * Session::sendRequestByFix(). The Request object contains the parameters for a single request. Once a Request has been created its fields can be further
- * modified using the convenience functions appendParam() or appendParamFix() or setParamList() or setParamListFix(). A correlation id can be used as the unique
+ * modified using the convenience functions appendParam() or appendFixParam() or setParamList() or setParamListFix(). A correlation id can be used as the unique
  * identifier to tag all data associated with this request.
  */
-class Request CCAPI_FINAL {
+class Request {
  public:
   enum class Operation {
+    UNKNOWN = 0,
     CUSTOM = CCAPI_REQUEST_OPERATION_TYPE_CUSTOM,
     GENERIC_PUBLIC_REQUEST = CCAPI_REQUEST_OPERATION_TYPE_GENERIC_PUBLIC_REQUEST,
     GENERIC_PRIVATE_REQUEST = CCAPI_REQUEST_OPERATION_TYPE_GENERIC_PRIVATE_REQUEST,
@@ -37,8 +40,11 @@ class Request CCAPI_FINAL {
     GET_RECENT_CANDLESTICKS,
     GET_HISTORICAL_CANDLESTICKS,
     GET_MARKET_DEPTH,
+    GET_SERVER_TIME,
     GET_INSTRUMENT,
     GET_INSTRUMENTS,
+    GET_BBOS,
+    GET_TICKERS,
     CREATE_ORDER = CCAPI_REQUEST_OPERATION_TYPE_EXECUTION_MANAGEMENT_ORDER,
     CANCEL_ORDER,
     GET_ORDER,
@@ -48,11 +54,15 @@ class Request CCAPI_FINAL {
     GET_ACCOUNT_BALANCES,
     GET_ACCOUNT_POSITIONS,
   };
+
   static std::string operationToString(Operation operation) {
     std::string output;
     switch (operation) {
       case Operation::CUSTOM:
         output = "CUSTOM";
+        break;
+      case Operation::UNKNOWN:
+        output = "UNKNOWN";
         break;
       case Operation::GENERIC_PUBLIC_REQUEST:
         output = "GENERIC_PUBLIC_REQUEST";
@@ -84,11 +94,20 @@ class Request CCAPI_FINAL {
       case Operation::GET_MARKET_DEPTH:
         output = "GET_MARKET_DEPTH";
         break;
+      case Operation::GET_SERVER_TIME:
+        output = "GET_SERVER_TIME";
+        break;
       case Operation::GET_INSTRUMENT:
         output = "GET_INSTRUMENT";
         break;
       case Operation::GET_INSTRUMENTS:
         output = "GET_INSTRUMENTS";
+        break;
+      case Operation::GET_BBOS:
+        output = "GET_BBOS";
+        break;
+      case Operation::GET_TICKERS:
+        output = "GET_TICKERS";
         break;
       case Operation::CREATE_ORDER:
         output = "CREATE_ORDER";
@@ -115,13 +134,13 @@ class Request CCAPI_FINAL {
         output = "GET_ACCOUNT_POSITIONS";
         break;
       default:
-        CCAPI_LOGGER_FATAL(CCAPI_UNSUPPORTED_VALUE);
+        CCAPI_LOGGER_FATAL(std::string(CCAPI_UNSUPPORTED_VALUE) + " " + std::to_string(static_cast<int>(operation)));
     }
     return output;
   }
-  Request() {}
-  Request(Operation operation, std::string exchange, std::string instrument = "", std::string correlationId = "",
-          std::map<std::string, std::string> credential = {})
+
+  explicit Request(Operation operation = Operation::UNKNOWN, const std::string& exchange = "", const std::string& instrument = "",
+                   const std::string& correlationId = "", const std::map<std::string, std::string>& credential = {})
       : operation(operation), exchange(exchange), instrument(instrument), correlationId(correlationId), credential(credential) {
     if (operation == Operation::CUSTOM) {
       this->serviceName = CCAPI_UNKNOWN;
@@ -138,37 +157,51 @@ class Request CCAPI_FINAL {
       this->correlationId = UtilString::generateRandomString(CCAPI_CORRELATION_ID_GENERATED_LENGTH);
     }
   }
+
   std::string toString() const {
     std::map<std::string, std::string> shortCredential;
     for (const auto& x : credential) {
       shortCredential.insert(std::make_pair(x.first, UtilString::firstNCharacter(x.second, CCAPI_CREDENTIAL_DISPLAY_LENGTH)));
     }
     std::string output =
-        "Request [exchange = " + exchange + ", marginType = " + marginType + ", instrument = " + instrument + ", serviceName = " + serviceName +
-        ", correlationId = " + correlationId + ", secondaryCorrelationId = " + secondaryCorrelationId +
+        "Request [operation = " + operationToString(operation) + ", exchange = " + exchange + ", marginType = " + marginType + ", instrument = " + instrument +
+        ", serviceName = " + serviceName + ", correlationId = " + correlationId +
         (this->serviceName == CCAPI_FIX ? ", paramListFix = " + ccapi::toString(paramListFix) : ", paramList = " + ccapi::toString(paramList)) +
-        ", credential = " + ccapi::toString(shortCredential) + ", operation = " + operationToString(operation) +
-        ", timeSent = " + UtilTime::getISOTimestamp(timeSent) + ", index = " + ccapi::toString(index) + ", localIpAddress = " + localIpAddress +
-        ", baseUrl = " + baseUrl + "]";
+        ", credential = " + ccapi::toString(shortCredential) + ", timeSent = " + UtilTime::getISOTimestamp(timeSent) + ", index = " + ccapi::toString(index) +
+        ", localIpAddress = " + localIpAddress + ", baseUrl = " + baseUrl + "]";
     return output;
   }
+
   const std::string& getCorrelationId() const { return correlationId; }
-  const std::string& getSecondaryCorrelationId() const { return secondaryCorrelationId; }
+
   const std::string& getExchange() const { return exchange; }
+
   const std::string& getMarginType() const { return marginType; }
+
   const std::string& getInstrument() const { return instrument; }
+
   const std::map<std::string, std::string>& getCredential() const { return credential; }
+
   const std::string& getServiceName() const { return serviceName; }
+
   void appendParam(const std::map<std::string, std::string>& param) { this->paramList.push_back(param); }
-  void appendParamFix(const std::vector<std::pair<int, std::string> >& param) { this->paramListFix.push_back(param); }
-  void appendParamListFix(const std::vector<std::vector<std::pair<int, std::string> > >& paramList) {
+
+  void appendFixParam(const std::vector<std::pair<int, std::string>>& param) { this->paramListFix.push_back(param); }
+
+  void appendParamListFix(const std::vector<std::vector<std::pair<int, std::string>>>& paramList) {
     this->paramListFix.insert(std::end(this->paramListFix), std::begin(paramList), std::end(paramList));
   }
-  void setParamListFix(const std::vector<std::vector<std::pair<int, std::string> > >& paramListFix) { this->paramListFix = paramListFix; }
+
+  void setParamListFix(const std::vector<std::vector<std::pair<int, std::string>>>& paramListFix) { this->paramListFix = paramListFix; }
+
   Operation getOperation() const { return operation; }
-  const std::vector<std::map<std::string, std::string> >& getParamList() const { return paramList; }
-  const std::vector<std::vector<std::pair<int, std::string> > >& getParamListFix() const { return paramListFix; }
-  void setParamList(const std::vector<std::map<std::string, std::string> >& paramList) { this->paramList = paramList; }
+
+  const std::vector<std::map<std::string, std::string>>& getParamList() const { return paramList; }
+
+  const std::vector<std::vector<std::pair<int, std::string>>>& getParamListFix() const { return paramListFix; }
+
+  void setParamList(const std::vector<std::map<std::string, std::string>>& paramList) { this->paramList = paramList; }
+
   std::map<std::string, std::string> getFirstParamWithDefault(const std::map<std::string, std::string> defaultValue = {}) const {
     if (this->paramList.empty()) {
       return defaultValue;
@@ -176,26 +209,45 @@ class Request CCAPI_FINAL {
       return this->paramList.front();
     }
   }
+
   // 'getTimeSent' only works in C++. For other languages, please use 'getTimeSentISO'.
   TimePoint getTimeSent() const { return timeSent; }
+
   std::string getTimeSentISO() const { return UtilTime::getISOTimestamp(timeSent); }
+
   std::pair<long long, long long> getTimeSentPair() const { return UtilTime::divide(timeSent); }
+
   void setTimeSent(TimePoint timeSent) { this->timeSent = timeSent; }
+
   int getIndex() const { return index; }
+
   const std::string& getLocalIpAddress() const { return localIpAddress; }
+
   const std::string& getBaseUrl() const { return baseUrl; }
+
   const std::string& getHost() const { return host; }
+
   const std::string& getPort() const { return port; }
+
+  void setExchange(const std::string& exchange) { this->exchange = exchange; }
+
+  void setInstrument(const std::string& instrument) { this->instrument = instrument; }
+
   void setIndex(int index) { this->index = index; }
+
   void setCredential(const std::map<std::string, std::string>& credential) { this->credential = credential; }
+
   void setCorrelationId(const std::string& correlationId) { this->correlationId = correlationId; }
-  void setSecondaryCorrelationId(const std::string& secondaryCorrelationId) { this->secondaryCorrelationId = secondaryCorrelationId; }
+
   void setMarginType(const std::string& marginType) { this->marginType = marginType; }
+
   void setLocalIpAddress(const std::string& localIpAddress) { this->localIpAddress = localIpAddress; }
+
   void setBaseUrl(const std::string& baseUrl) {
     this->baseUrl = baseUrl;
     this->setBaseUrlParts();
   }
+
   void setBaseUrlParts() {
     auto splitted1 = UtilString::split(this->baseUrl, "://");
     if (splitted1.size() >= 2) {
@@ -212,20 +264,51 @@ class Request CCAPI_FINAL {
       }
     }
   }
+
+  std::string generateNextClientOrderId() {
+    static int64_t lastClientOrderIdUnixTimestampInSeconds = 0;
+    static int64_t lastClientOrderIdSequenceNumber = 0;
+
+    const auto& now = UtilTime::now();
+    const auto& unixTimestampInSeconds = std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count();
+
+    if (lastClientOrderIdUnixTimestampInSeconds != unixTimestampInSeconds) {
+      lastClientOrderIdUnixTimestampInSeconds = unixTimestampInSeconds;
+      lastClientOrderIdSequenceNumber = 0;
+    } else {
+      ++lastClientOrderIdSequenceNumber;
+    }
+
+    std::string nextClientOrderId;
+    if (this->exchange == CCAPI_EXCHANGE_NAME_BINANCE) {
+      nextClientOrderId += "x-";
+      nextClientOrderId += CCAPI_BINANCE_API_LINK_ID;
+      nextClientOrderId += "-";
+    } else if (this->exchange == CCAPI_EXCHANGE_NAME_BINANCE_USDS_FUTURES || this->exchange == CCAPI_EXCHANGE_NAME_BINANCE_COIN_FUTURES) {
+      nextClientOrderId += "x-";
+      nextClientOrderId += CCAPI_BINANCE_USDS_FUTURES_API_LINK_ID;
+      nextClientOrderId += "-";
+    } else if (this->exchange == CCAPI_EXCHANGE_NAME_HUOBI) {
+      nextClientOrderId += CCAPI_HTX_BROKER_ID;
+      nextClientOrderId += "-";
+    }
+    nextClientOrderId += std::to_string(lastClientOrderIdUnixTimestampInSeconds);
+    nextClientOrderId += UtilString::leftPadTo(std::to_string(lastClientOrderIdSequenceNumber), CCAPI_EM_CLIENT_ORDER_ID_SEQUENCE_NUMBER_PAD_TO_LENGTH, '0');
+    return nextClientOrderId;
+  }
 #ifndef CCAPI_EXPOSE_INTERNAL
 
  private:
 #endif
+  Operation operation{Operation::UNKNOWN};
   std::string exchange;
   std::string marginType;
   std::string instrument;
   std::string serviceName;
   std::string correlationId;
-  std::string secondaryCorrelationId;
-  std::vector<std::map<std::string, std::string> > paramList;
+  std::vector<std::map<std::string, std::string>> paramList;
   std::map<std::string, std::string> credential;
-  Operation operation;
-  std::vector<std::vector<std::pair<int, std::string> > > paramListFix;
+  std::vector<std::vector<std::pair<int, std::string>>> paramListFix;
   TimePoint timeSent{std::chrono::seconds{0}};
   int index{};
   std::string localIpAddress;
@@ -233,5 +316,5 @@ class Request CCAPI_FINAL {
   std::string host;
   std::string port;
 };
+
 } /* namespace ccapi */
-#endif  // INCLUDE_CCAPI_CPP_CCAPI_REQUEST_H_

@@ -25,7 +25,7 @@ if(MSVC)
 endif()
 #TODO: Move this definition to code.
 target_compile_definitions(OksEngine PUBLIC USE_PIX)
-
+target_compile_definitions(OksEngine PUBLIC WIN32_LEAN_AND_MEAN )
 # target_compile_options(OksEngine INTERFACE
 #     $<$<CONFIG:Release>:
 #         -Ot
@@ -94,9 +94,6 @@ target_link_libraries(OksEngine PRIVATE
     OpenSSL::SSL 
     OpenSSL::Crypto
 )
-
-add_compile_definitions(CCAPI_ENABLE_SERVICE_MARKET_DATA)
-add_compile_definitions(CCAPI_ENABLE_EXCHANGE_BYBIT)
 
 target_link_libraries(OksEngine
     PUBLIC

@@ -1,10 +1,12 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_FIX_SERVICE_FTX_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_FIX_SERVICE_FTX_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_FIX
 #ifdef CCAPI_ENABLE_EXCHANGE_FTX
 #include "ccapi_cpp/ccapi_hmac.h"
 #include "ccapi_cpp/service/ccapi_fix_service_ftx_base.h"
+
 namespace ccapi {
+
 class FixServiceFtx : public FixServiceFtxBase {
  public:
   FixServiceFtx(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
@@ -23,11 +25,12 @@ class FixServiceFtx : public FixServiceFtxBase {
       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
     }
     this->protocolVersion = CCAPI_FIX_PROTOCOL_VERSION_FTX;
-    this->targetCompID = "FTX";
+    this->targetCompId = "FTX";
   }
+
   virtual ~FixServiceFtx() {}
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_FIX_SERVICE_FTX_H_

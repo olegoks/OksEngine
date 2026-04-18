@@ -1,9 +1,11 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_FTX_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_FTX_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_EXECUTION_MANAGEMENT
 #ifdef CCAPI_ENABLE_EXCHANGE_FTX
 #include "ccapi_cpp/service/ccapi_execution_management_service_ftx_base.h"
+
 namespace ccapi {
+
 class ExecutionManagementServiceFtx : public ExecutionManagementServiceFtxBase {
  public:
   ExecutionManagementServiceFtx(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
@@ -13,20 +15,19 @@ class ExecutionManagementServiceFtx : public ExecutionManagementServiceFtxBase {
     this->baseUrlWs = sessionConfigs.getUrlWebsocketBase().at(this->exchangeName) + "/ws";
     this->baseUrlRest = sessionConfigs.getUrlRestBase().at(this->exchangeName);
     this->setHostRestFromUrlRest(this->baseUrlRest);
-    this->setHostWsFromUrlWs(this->baseUrlWs);
+    // this->setHostWsFromUrlWs(this->baseUrlWs);
     try {
       this->tcpResolverResultsRest = this->resolver.resolve(this->hostRest, this->portRest);
     } catch (const std::exception& e) {
       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
     }
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-#else
+
     try {
       this->tcpResolverResultsWs = this->resolverWs.resolve(this->hostWs, this->portWs);
     } catch (const std::exception& e) {
       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
     }
-#endif
+
     this->apiKeyName = CCAPI_FTX_API_KEY;
     this->apiSecretName = CCAPI_FTX_API_SECRET;
     this->apiSubaccountName = CCAPI_FTX_API_SUBACCOUNT;
@@ -34,6 +35,7 @@ class ExecutionManagementServiceFtx : public ExecutionManagementServiceFtxBase {
     this->getAccountPositionsTarget = "/api/positions";
     this->ftx = "FTX";
   }
+
   virtual ~ExecutionManagementServiceFtx() {}
 #ifndef CCAPI_EXPOSE_INTERNAL
 
@@ -54,6 +56,7 @@ class ExecutionManagementServiceFtx : public ExecutionManagementServiceFtxBase {
         ExecutionManagementServiceFtxBase::convertRequestForRest(req, request, now, symbolId, credential);
     }
   }
+
   void extractAccountInfoFromRequest(std::vector<Element>& elementList, const Request& request, const Request::Operation operation,
                                      const rj::Document& document) override {
     switch (request.getOperation()) {
@@ -72,7 +75,7 @@ class ExecutionManagementServiceFtx : public ExecutionManagementServiceFtxBase {
     }
   }
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_FTX_H_

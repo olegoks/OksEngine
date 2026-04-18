@@ -1,10 +1,12 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_KRAKEN_FUTURES_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_KRAKEN_FUTURES_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_EXECUTION_MANAGEMENT
 #ifdef CCAPI_ENABLE_EXCHANGE_KRAKEN_FUTURES
 #include "ccapi_cpp/service/ccapi_execution_management_service.h"
 #include "openssl/evp.h"
+
 namespace ccapi {
+
 class ExecutionManagementServiceKrakenFutures : public ExecutionManagementService {
  public:
   ExecutionManagementServiceKrakenFutures(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
@@ -14,20 +16,7 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
     this->baseUrlWs = sessionConfigs.getUrlWebsocketBase().at(this->exchangeName) + "/ws/v1";
     this->baseUrlRest = sessionConfigs.getUrlRestBase().at(this->exchangeName);
     this->setHostRestFromUrlRest(this->baseUrlRest);
-    this->setHostWsFromUrlWs(this->baseUrlWs);
-    //     try {
-    //       this->tcpResolverResultsRest = this->resolver.resolve(this->hostRest, this->portRest);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-    // #else
-    //     try {
-    //       this->tcpResolverResultsWs = this->resolverWs.resolve(this->hostWs, this->portWs);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #endif
+    // this->setHostWsFromUrlWs(this->baseUrlWs);
     this->apiKeyName = CCAPI_KRAKEN_FUTURES_API_KEY;
     this->apiSecretName = CCAPI_KRAKEN_FUTURES_API_SECRET;
     this->setupCredential({this->apiKeyName, this->apiSecretName});
@@ -46,18 +35,20 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
     this->getAccountPositionsTarget = prefix + "/openpositions";
     this->getAccountPositionsPath = prefix_2 + "/openpositions";
   }
+
   virtual ~ExecutionManagementServiceKrakenFutures() {}
 #ifndef CCAPI_EXPOSE_INTERNAL
 
  protected:
 #endif
-  bool doesHttpBodyContainError(const std::string& body) override { return body.find(R"("result":"success")") == std::string::npos; }
+  bool doesHttpBodyContainError(boost::beast::string_view bodyView) override { return bodyView.find(R"("result":"success")") == std::string::npos; }
+
   void signReqeustForRestGenericPrivateRequest(http::request<http::string_body>& req, const Request& request, std::string& methodString,
                                                std::string& headerString, std::string& path, std::string& queryString, std::string& body, const TimePoint& now,
                                                const std::map<std::string, std::string>& credential) override {
     auto apiSecret = mapGetWithDefault(credential, this->apiSecretName);
     std::string preSignedText = queryString;
-    preSignedText += req.base().at("Nonce").to_string();
+    preSignedText += std::string(req.base().at("Nonce"));
     ;
     preSignedText += path;
     std::string preSignedTextSha256 = UtilAlgorithm::computeHash(UtilAlgorithm::ShaVersion::SHA256, preSignedText);
@@ -67,6 +58,7 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
     }
     headerString += "Authent:" + signature;
   }
+
   void signRequest(http::request<http::string_body>& req, const std::string& path, const std::string& postData,
                    const std::map<std::string, std::string>& credential, const std::string& nonce) {
     auto apiSecret = mapGetWithDefault(credential, this->apiSecretName);
@@ -77,10 +69,12 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
     auto signature = UtilAlgorithm::base64Encode(Hmac::hmac(Hmac::ShaVersion::SHA512, UtilAlgorithm::base64Decode(apiSecret), preSignedTextSha256));
     req.set("Authent", signature);
   }
+
   std::string generateNonce(const TimePoint& now, int requestIndex) {
     int64_t nonce = std::chrono::duration_cast<std::chrono::microseconds>(now.time_since_epoch()).count() + requestIndex;
     return std::to_string(nonce);
   }
+
   void appendParam(std::string& postData, const std::map<std::string, std::string>& param,
                    const std::map<std::string, std::string> standardizationMap = {
                        {CCAPI_EM_ORDER_SIDE, "side"},
@@ -102,11 +96,13 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
       postData += "&";
     }
   }
+
   void appendSymbolId(std::string& postData, const std::string& symbolId) {
     postData += "symbol=";
     postData += Url::urlEncode(symbolId);
     postData += "&";
   }
+
   void convertRequestForRest(http::request<http::string_body>& req, const Request& request, const TimePoint& now, const std::string& symbolId,
                              const std::map<std::string, std::string>& credential) override {
     auto apiKey = mapGetWithDefault(credential, this->apiKeyName);
@@ -176,9 +172,10 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
         this->convertRequestForRestCustom(req, request, now, symbolId, credential);
     }
   }
+
   void extractOrderInfoFromRequest(std::vector<Element>& elementList, const Request& request, const Request::Operation operation,
                                    const rj::Document& document) override {
-    const std::map<std::string, std::pair<std::string, JsonDataType> >& extractionFieldNameMap = {
+    const std::map<std::string_view, std::pair<std::string_view, JsonDataType>>& extractionFieldNameMap = {
         {CCAPI_EM_ORDER_ID, std::make_pair("orderId", JsonDataType::STRING)},
         {CCAPI_EM_CLIENT_ORDER_ID, std::make_pair("cliOrdId", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_SIDE, std::make_pair("side", JsonDataType::STRING)},
@@ -221,6 +218,7 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
       }
     }
   }
+
   void extractAccountInfoFromRequest(std::vector<Element>& elementList, const Request& request, const Request::Operation operation,
                                      const rj::Document& document) override {
     switch (request.getOperation()) {
@@ -257,8 +255,9 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
         CCAPI_LOGGER_FATAL(CCAPI_UNSUPPORTED_VALUE);
     }
   }
-  std::vector<std::string> createSendStringListFromSubscription(const WsConnection& wsConnection, const Subscription& subscription, const TimePoint& now,
-                                                                const std::map<std::string, std::string>& credential) override {
+
+  std::vector<std::string> createSendStringListFromSubscription(std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription,
+                                                                const TimePoint& now, const std::map<std::string, std::string>& credential) override {
     std::vector<std::string> sendStringList;
     rj::Document document;
     document.SetObject();
@@ -273,37 +272,20 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
     sendStringList.push_back(sendString);
     return sendStringList;
   }
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-  void onTextMessage(wspp::connection_hdl hdl, const std::string& textMessage, const TimePoint& timeReceived) override {
-    WsConnection& wsConnection = this->getWsConnectionFromConnectionPtr(this->serviceContextPtr->tlsClientPtr->get_con_from_hdl(hdl));
-    auto subscription = wsConnection.subscriptionList.at(0);
-    rj::Document document;
-    document.Parse<rj::kParseNumbersAsStringsFlag>(textMessage.c_str());
-    Event event = this->createEvent(wsConnection, hdl, subscription, textMessage, document, timeReceived);
-    if (!event.getMessageList().empty()) {
-      this->eventHandler(event, nullptr);
-    }
-  }
-#else
+
   void onTextMessage(std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription, boost::beast::string_view textMessageView,
                      const TimePoint& timeReceived) override {
-    std::string textMessage(textMessageView);
-    rj::Document document;
-    document.Parse<rj::kParseNumbersAsStringsFlag>(textMessage.c_str());
+    this->jsonDocumentAllocator.Clear();
+    rj::Document document(&this->jsonDocumentAllocator);
+    document.Parse<rj::kParseNumbersAsStringsFlag>(textMessageView.data(), textMessageView.size());
     Event event = this->createEvent(wsConnectionPtr, subscription, textMessageView, document, timeReceived);
     if (!event.getMessageList().empty()) {
       this->eventHandler(event, nullptr);
     }
   }
-#endif
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-  Event createEvent(const WsConnection& wsConnection, wspp::connection_hdl hdl, const Subscription& subscription, const std::string& textMessage,
-                    const rj::Document& document, const TimePoint& timeReceived) {
-#else
+
   Event createEvent(const std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription, boost::beast::string_view textMessageView,
                     const rj::Document& document, const TimePoint& timeReceived) {
-    std::string textMessage(textMessageView);
-#endif
     Event event;
     std::vector<Message> messageList;
     if (document.FindMember("event") == document.MemberEnd()) {
@@ -333,12 +315,12 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
                   element.insert(CCAPI_EM_ORDER_LAST_EXECUTED_PRICE, x["price"].GetString());
                   element.insert(CCAPI_EM_ORDER_LAST_EXECUTED_SIZE, x["qty"].GetString());
                   element.insert(CCAPI_EM_ORDER_SIDE, x["buy"].GetBool() ? CCAPI_EM_ORDER_SIDE_BUY : CCAPI_EM_ORDER_SIDE_SELL);
-                  element.insert(CCAPI_EM_ORDER_ID, std::string(x["order_id"].GetString()));
-                  element.insert(CCAPI_EM_CLIENT_ORDER_ID, std::string(x["cli_ord_id"].GetString()));
-                  element.insert(CCAPI_IS_MAKER, std::string(x["fill_type"].GetString()) == "maker" ? "1" : "0");
+                  element.insert(CCAPI_EM_ORDER_ID, x["order_id"].GetString());
+                  element.insert(CCAPI_EM_CLIENT_ORDER_ID, x["cli_ord_id"].GetString());
+                  element.insert(CCAPI_IS_MAKER, std::string_view(x["fill_type"].GetString()) == "maker" ? "1" : "0");
                   element.insert(CCAPI_EM_ORDER_INSTRUMENT, instrument);
-                  element.insert(CCAPI_EM_ORDER_FEE_QUANTITY, std::string(x["fee_paid"].GetString()));
-                  element.insert(CCAPI_EM_ORDER_FEE_ASSET, std::string(x["fee_currency"].GetString()));
+                  element.insert(CCAPI_EM_ORDER_FEE_QUANTITY, x["fee_paid"].GetString());
+                  element.insert(CCAPI_EM_ORDER_FEE_ASSET, x["fee_currency"].GetString());
                   elementList.emplace_back(std::move(element));
                   message.setElementList(elementList);
                   messageList.emplace_back(std::move(message));
@@ -360,7 +342,7 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
                 element.insert(CCAPI_EM_ORDER_CUMULATIVE_FILLED_QUANTITY, x["filled"].GetString());
                 element.insert(CCAPI_EM_ORDER_LIMIT_PRICE, x["limit_price"].GetString());
                 element.insert(CCAPI_EM_ORDER_ID, x["order_id"].GetString());
-                element.insert(CCAPI_EM_ORDER_SIDE, std::string(x["direction"].GetString()) == "0" ? CCAPI_EM_ORDER_SIDE_BUY : CCAPI_EM_ORDER_SIDE_SELL);
+                element.insert(CCAPI_EM_ORDER_SIDE, std::string_view(x["direction"].GetString()) == "0" ? CCAPI_EM_ORDER_SIDE_BUY : CCAPI_EM_ORDER_SIDE_SELL);
                 element.insert("is_cancel", document["is_cancel"].GetBool() ? "1" : "0");
                 elementList.emplace_back(std::move(element));
                 message.setElementList(elementList);
@@ -420,11 +402,9 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
         }
         for (const auto& sendString : sendStringList) {
           ErrorCode ec;
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-          this->send(hdl, sendString, wspp::frame::opcode::text, ec);
-#else
+
           this->send(wsConnectionPtr, sendString, ec);
-#endif
+
           if (ec) {
             this->onError(Event::Type::SUBSCRIPTION_STATUS, Message::Type::SUBSCRIPTION_FAILURE, ec, "subscribe");
           }
@@ -436,7 +416,7 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
         message.setCorrelationIdList({subscription.getCorrelationId()});
         message.setType(eventType == "subscribed" ? Message::Type::SUBSCRIPTION_STARTED : Message::Type::SUBSCRIPTION_FAILURE);
         Element element;
-        element.insert(eventType == "subscribed" ? CCAPI_INFO_MESSAGE : CCAPI_ERROR_MESSAGE, textMessage);
+        element.insert(eventType == "subscribed" ? CCAPI_INFO_MESSAGE : CCAPI_ERROR_MESSAGE, textMessageView);
         message.setElementList({element});
         messageList.emplace_back(std::move(message));
       }
@@ -444,6 +424,7 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
     event.setMessageList(messageList);
     return event;
   }
+
   std::string createOrderPath;
   std::string cancelOrderPath;
   std::string getOpenOrdersPath;
@@ -451,7 +432,7 @@ class ExecutionManagementServiceKrakenFutures : public ExecutionManagementServic
   std::string getAccountsPath;
   std::string getAccountPositionsPath;
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_KRAKEN_FUTURES_H_

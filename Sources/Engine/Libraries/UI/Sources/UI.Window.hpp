@@ -12,7 +12,7 @@
 
 #include <UIAL.Window.hpp>
 
-namespace UI {
+namespace UI_ {
 
 
 	class Window: public UIAL::Window  {

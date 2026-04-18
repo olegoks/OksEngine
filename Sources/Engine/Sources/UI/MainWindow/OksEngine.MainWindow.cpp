@@ -13,8 +13,8 @@ namespace OksEngine
 		::Lua::Script script{ luaScript0->text_ };
 		context.LoadScript(script);
 
-		auto api = std::make_shared<UI::API>();
-		UI::Window::CreateInfo windowCreateInfo;
+		auto api = std::make_shared<UI_::API>();
+		UI_::Window::CreateInfo windowCreateInfo;
 		{
 			windowCreateInfo.title_ = context.GetGlobalAs<std::string>("UI.Window.Title");
 			windowCreateInfo.windowSize_ = {

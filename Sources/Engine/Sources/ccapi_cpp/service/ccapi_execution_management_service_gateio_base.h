@@ -1,34 +1,30 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_GATEIO_BASE_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_GATEIO_BASE_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_EXECUTION_MANAGEMENT
 #if defined(CCAPI_ENABLE_EXCHANGE_GATEIO) || defined(CCAPI_ENABLE_EXCHANGE_GATEIO_PERPETUAL_FUTURES)
 #include "ccapi_cpp/service/ccapi_execution_management_service.h"
+
 namespace ccapi {
+
 class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
  public:
   ExecutionManagementServiceGateioBase(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
                                        ServiceContextPtr serviceContextPtr)
       : ExecutionManagementService(eventHandler, sessionOptions, sessionConfigs, serviceContextPtr) {}
+
   virtual ~ExecutionManagementServiceGateioBase() {}
 #ifndef CCAPI_EXPOSE_INTERNAL
 
  protected:
 #endif
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-  void pingOnApplicationLevel(wspp::connection_hdl hdl, ErrorCode& ec) override {
-    auto now = UtilTime::now();
-    this->send(hdl,
-               "{\"time\":" + std::to_string(UtilTime::getUnixTimestamp(now)) + ",\"channel\":\"" + (this->isDerivatives ? "futures" : "spot") + ".ping\"}",
-               wspp::frame::opcode::text, ec);
-  }
-#else
+
   void pingOnApplicationLevel(std::shared_ptr<WsConnection> wsConnectionPtr, ErrorCode& ec) override {
     auto now = UtilTime::now();
     this->send(wsConnectionPtr,
                "{\"time\":" + std::to_string(UtilTime::getUnixTimestamp(now)) + ",\"channel\":\"" + (this->isDerivatives ? "futures" : "spot") + ".ping\"}",
                ec);
   }
-#endif
+
   void signReqeustForRestGenericPrivateRequest(http::request<http::string_body>& req, const Request& request, std::string& methodString,
                                                std::string& headerString, std::string& path, std::string& queryString, std::string& body, const TimePoint& now,
                                                const std::map<std::string, std::string>& credential) override {
@@ -41,13 +37,14 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
     preSignedText += "\n";
     preSignedText += UtilAlgorithm::computeHash(UtilAlgorithm::ShaVersion::SHA512, body, true);
     preSignedText += "\n";
-    preSignedText += req.base().at("TIMESTAMP").to_string();
+    preSignedText += std::string(req.base().at("TIMESTAMP"));
     auto signature = Hmac::hmac(Hmac::ShaVersion::SHA512, apiSecret, preSignedText, true);
     if (!headerString.empty()) {
       headerString += "\r\n";
     }
     headerString += "SIGN:" + signature;
   }
+
   void signRequest(http::request<http::string_body>& req, const std::string& path, const std::string& queryString, const std::string& body,
                    const std::map<std::string, std::string>& credential) {
     auto apiSecret = mapGetWithDefault(credential, this->apiSecretName);
@@ -59,13 +56,14 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
     preSignedText += "\n";
     preSignedText += UtilAlgorithm::computeHash(UtilAlgorithm::ShaVersion::SHA512, body, true);
     preSignedText += "\n";
-    preSignedText += req.base().at("TIMESTAMP").to_string();
+    preSignedText += std::string(req.base().at("TIMESTAMP"));
     auto signature = Hmac::hmac(Hmac::ShaVersion::SHA512, apiSecret, preSignedText, true);
     req.set("SIGN", signature);
     req.target(queryString.empty() ? path : path + "?" + queryString);
     req.body() = body;
     req.prepare_payload();
   }
+
   void appendParam(std::string& queryString, const std::map<std::string, std::string>& param,
                    const std::map<std::string, std::string> standardizationMap = {}) {
     for (const auto& kv : param) {
@@ -75,12 +73,14 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
       queryString += "&";
     }
   }
+
   void appendSymbolId(std::string& queryString, const std::string& symbolId) {
     queryString += this->symbolName;
     queryString += "=";
     queryString += Url::urlEncode(symbolId);
     queryString += "&";
   }
+
   void appendParam(rj::Document& document, rj::Document::AllocatorType& allocator, const std::map<std::string, std::string>& param,
                    const std::map<std::string, std::string> standardizationMap) {
     for (const auto& kv : param) {
@@ -98,6 +98,7 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
       }
     }
   }
+
   void appendParam(rj::Document& document, rj::Document::AllocatorType& allocator, const std::map<std::string, std::string>& param) {
     this->appendParam(document, allocator, param,
                       {
@@ -109,14 +110,16 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
                           {CCAPI_EM_ACCOUNT_TYPE, "account"},
                       });
   }
+
   void appendSymbolId(rj::Document& document, rj::Document::AllocatorType& allocator, const std::string& symbolId) {
     document.AddMember(rj::Value(symbolName.c_str(), allocator).Move(), rj::Value(symbolId.c_str(), allocator).Move(), allocator);
   }
+
   void substituteParamSettle(std::string& target, const std::map<std::string, std::string>& param, const std::string& symbolId) {
     this->substituteParam(target, param,
                           {
                               {"settle", "{settle}"},
-                              {CCAPI_MARGIN_ASSET, "{settle}"},
+                              {CCAPI_SETTLE_ASSET, "{settle}"},
                           });
     std::string settle;
     if (UtilString::endsWith(symbolId, "_USD")) {
@@ -128,6 +131,7 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
                                       {"{settle}", settle},
                                   });
   }
+
   void prepareReq(http::request<http::string_body>& req, const TimePoint& now, const std::map<std::string, std::string>& credential) {
     req.set("Accept", "application/json");
     req.set(beast::http::field::content_type, "application/json");
@@ -135,6 +139,7 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
     req.set("KEY", apiKey);
     req.set("TIMESTAMP", std::to_string(std::chrono::duration_cast<std::chrono::seconds>(now.time_since_epoch()).count()));
   }
+
   void convertRequestForRest(http::request<http::string_body>& req, const Request& request, const TimePoint& now, const std::string& symbolId,
                              const std::map<std::string, std::string>& credential) override {
     this->prepareReq(req, now, credential);
@@ -265,6 +270,7 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
         this->convertRequestForRestCustom(req, request, now, symbolId, credential);
     }
   }
+
   void extractAccountInfoFromRequest(std::vector<Element>& elementList, const Request& request, const Request::Operation operation,
                                      const rj::Document& document) override {
     switch (request.getOperation()) {
@@ -282,9 +288,10 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
         CCAPI_LOGGER_FATAL(CCAPI_UNSUPPORTED_VALUE);
     }
   }
+
   void extractOrderInfoFromRequest(std::vector<Element>& elementList, const Request& request, const Request::Operation operation,
                                    const rj::Document& document) override {
-    const std::map<std::string, std::pair<std::string, JsonDataType> >& extractionFieldNameMap = {
+    const std::map<std::string_view, std::pair<std::string_view, JsonDataType>>& extractionFieldNameMap = {
         {CCAPI_EM_ORDER_ID, std::make_pair("id", JsonDataType::STRING)},
         {CCAPI_EM_CLIENT_ORDER_ID, std::make_pair("text", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_SIDE, std::make_pair("side", JsonDataType::STRING)},
@@ -307,8 +314,9 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
       elementList.emplace_back(std::move(element));
     }
   }
-  std::vector<std::string> createSendStringListFromSubscription(const WsConnection& wsConnection, const Subscription& subscription, const TimePoint& now,
-                                                                const std::map<std::string, std::string>& credential) override {
+
+  std::vector<std::string> createSendStringListFromSubscription(std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription,
+                                                                const TimePoint& now, const std::map<std::string, std::string>& credential) override {
     std::vector<std::string> sendStringList;
     auto apiKey = mapGetWithDefault(credential, this->apiKeyName);
     auto apiSecret = mapGetWithDefault(credential, this->apiSecretName);
@@ -352,37 +360,20 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
     }
     return sendStringList;
   }
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-  void onTextMessage(wspp::connection_hdl hdl, const std::string& textMessage, const TimePoint& timeReceived) override {
-    WsConnection& wsConnection = this->getWsConnectionFromConnectionPtr(this->serviceContextPtr->tlsClientPtr->get_con_from_hdl(hdl));
-    auto subscription = wsConnection.subscriptionList.at(0);
-    rj::Document document;
-    document.Parse<rj::kParseNumbersAsStringsFlag>(textMessage.c_str());
-    Event event = this->createEvent(wsConnection, hdl, subscription, textMessage, document, timeReceived);
-    if (!event.getMessageList().empty()) {
-      this->eventHandler(event, nullptr);
-    }
-  }
-#else
+
   void onTextMessage(std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription, boost::beast::string_view textMessageView,
                      const TimePoint& timeReceived) override {
-    std::string textMessage(textMessageView);
-    rj::Document document;
-    document.Parse<rj::kParseNumbersAsStringsFlag>(textMessage.c_str());
+    this->jsonDocumentAllocator.Clear();
+    rj::Document document(&this->jsonDocumentAllocator);
+    document.Parse<rj::kParseNumbersAsStringsFlag>(textMessageView.data(), textMessageView.size());
     Event event = this->createEvent(wsConnectionPtr, subscription, textMessageView, document, timeReceived);
     if (!event.getMessageList().empty()) {
       this->eventHandler(event, nullptr);
     }
   }
-#endif
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-  Event createEvent(const WsConnection& wsConnection, wspp::connection_hdl hdl, const Subscription& subscription, const std::string& textMessage,
-                    const rj::Document& document, const TimePoint& timeReceived) {
-#else
+
   Event createEvent(const std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription, boost::beast::string_view textMessageView,
                     const rj::Document& document, const TimePoint& timeReceived) {
-    std::string textMessage(textMessageView);
-#endif
     Event event;
     std::vector<Message> messageList;
     Message message;
@@ -412,14 +403,14 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
               message.setType(Message::Type::EXECUTION_MANAGEMENT_EVENTS_PRIVATE_TRADE);
               std::vector<Element> elementList;
               Element element;
-              element.insert(CCAPI_TRADE_ID, std::string(x["id"].GetString()));
+              element.insert(CCAPI_TRADE_ID, x["id"].GetString());
               element.insert(CCAPI_EM_ORDER_ID, x["order_id"].GetString());
               element.insert(CCAPI_EM_CLIENT_ORDER_ID, x["text"].GetString());
-              element.insert(CCAPI_EM_ORDER_SIDE, std::string(x["side"].GetString()) == "buy" ? CCAPI_EM_ORDER_SIDE_BUY : CCAPI_EM_ORDER_SIDE_SELL);
+              element.insert(CCAPI_EM_ORDER_SIDE, std::string_view(x["side"].GetString()) == "buy" ? CCAPI_EM_ORDER_SIDE_BUY : CCAPI_EM_ORDER_SIDE_SELL);
               element.insert(CCAPI_EM_ORDER_LAST_EXECUTED_PRICE, x["price"].GetString());
               element.insert(CCAPI_EM_ORDER_LAST_EXECUTED_SIZE, x[this->amountName.c_str()].GetString());
               std::string takerSide = x["side"].GetString();
-              element.insert(CCAPI_IS_MAKER, std::string(x["role"].GetString()) == "maker" ? "1" : "0");
+              element.insert(CCAPI_IS_MAKER, std::string_view(x["role"].GetString()) == "maker" ? "1" : "0");
               element.insert(CCAPI_EM_ORDER_INSTRUMENT, instrument);
               elementList.emplace_back(std::move(element));
               message.setElementList(elementList);
@@ -430,7 +421,7 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
               message.setTimeReceived(timeReceived);
               message.setCorrelationIdList({subscription.getCorrelationId()});
               message.setType(Message::Type::EXECUTION_MANAGEMENT_EVENTS_ORDER_UPDATE);
-              const std::map<std::string, std::pair<std::string, JsonDataType> >& extractionFieldNameMap = {
+              const std::map<std::string_view, std::pair<std::string_view, JsonDataType>>& extractionFieldNameMap = {
                   {CCAPI_EM_ORDER_ID, std::make_pair("id", JsonDataType::STRING)},
                   {CCAPI_EM_CLIENT_ORDER_ID, std::make_pair("text", JsonDataType::STRING)},
                   {CCAPI_EM_ORDER_SIDE, std::make_pair("side", JsonDataType::STRING)},
@@ -456,20 +447,21 @@ class ExecutionManagementServiceGateioBase : public ExecutionManagementService {
       event.setType(Event::Type::SUBSCRIPTION_STATUS);
       message.setType(hasError ? Message::Type::SUBSCRIPTION_FAILURE : Message::Type::SUBSCRIPTION_STARTED);
       Element element;
-      element.insert(hasError ? CCAPI_ERROR_MESSAGE : CCAPI_INFO_MESSAGE, textMessage);
+      element.insert(hasError ? CCAPI_ERROR_MESSAGE : CCAPI_INFO_MESSAGE, textMessageView);
       message.setElementList({element});
       messageList.emplace_back(std::move(message));
     }
     event.setMessageList(messageList);
     return event;
   }
+
   bool isDerivatives{};
   std::string symbolName;
   std::string websocketChannelUserTrades;
   std::string websocketChannelOrders;
   std::string amountName;
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_GATEIO_BASE_H_

@@ -106,7 +106,7 @@ namespace ECSGenerator2 {
 					if (fieldInfo.GetTypeName().find("UIAL::Window") != std::string::npos) {
 						includes.paths_.insert("UIAL.Window.hpp");
 					}
-					if (fieldInfo.GetTypeName().find("UI::Window") != std::string::npos) {
+					if (fieldInfo.GetTypeName().find("UI_::Window") != std::string::npos) {
 						includes.paths_.insert("UI.Window.hpp");
 					}
 					if (fieldInfo.GetTypeName().find("sf") != std::string::npos) {
@@ -137,6 +137,12 @@ namespace ECSGenerator2 {
 						includes.paths_.insert("assimp/Importer.hpp");
 						includes.paths_.insert("assimp/scene.h");
 						includes.paths_.insert("assimp/postprocess.h");
+					}
+					if (fieldInfo.GetTypeName().find("TgBot") != std::string::npos) {
+						includes.paths_.insert("tgbot/tgbot.h");
+					}
+					if (fieldInfo.GetTypeName().find("ccapi") != std::string::npos) {
+						includes.paths_.insert("ccapi_cpp/ccapi_session.h");
 					}
 
 					return true;

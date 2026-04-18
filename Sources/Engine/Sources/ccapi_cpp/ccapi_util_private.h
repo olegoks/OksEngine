@@ -1,5 +1,5 @@
-#ifndef INCLUDE_CCAPI_CPP_CCAPI_UTIL_PRIVATE_H_
-#define INCLUDE_CCAPI_CPP_CCAPI_UTIL_PRIVATE_H_
+#pragma once
+
 #ifdef _WIN32
 #define timegm _mkgmtime
 #endif
@@ -7,20 +7,25 @@
 
 #include <algorithm>
 #include <array>
+#include <charconv>
 #include <cmath>
 #include <cstdint>
+#include <cstring>
 #include <ctime>
+#include <fstream>
 #include <iomanip>
 #include <iostream>
 #include <iterator>
 #include <map>
 #include <numeric>
+#include <optional>
 #include <random>
 #include <regex>
 #include <set>
 #include <sstream>
 #include <stdexcept>
 #include <string>
+#include <string_view>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
@@ -28,12 +33,19 @@
 #include "ccapi_cpp/ccapi_macro.h"
 #include "ccapi_cpp/ccapi_util.h"
 #include "openssl/evp.h"
+#include "openssl/pem.h"
+
 namespace ccapi {
+
 /**
  * Utilities.
  */
-class UtilString CCAPI_FINAL {
+class UtilString {
  public:
+  static bool startsWith(const std::string& str, const std::string& prefix) {
+    return str.size() >= prefix.size() && std::memcmp(str.data(), prefix.data(), prefix.size()) == 0;
+  }
+
   static std::string roundInputBySignificantFigure(double input, int numSignificantFigure, int roundDirection) {
     const auto& splitted = UtilString::split(UtilString::printDoubleScientific(input), 'e');
     double a = std::stod(splitted.at(0)) * std::pow(10, numSignificantFigure - 1);
@@ -55,12 +67,16 @@ class UtilString CCAPI_FINAL {
       output += ".";
       output += c.substr(c.size() + exponent);
     } else {
-      output = std::string(-exponent - c.size() + 1, '0');
-      output += ".";
-      output += c;
+      //      output = std::string(-exponent - c.size() + 1, '0');
+      //      output += ".";
+      //      output += c;  // use these three code, roundInputBySignificantFigure(0.00123456, 3, 1), output is  "000.124"
+      output = "0.";
+      output += std::string(-exponent - c.size(), '0');
+      output += c;  // use these three code, roundInputBySignificantFigure(0.00123456, 3, 1), output is  "0.00124"
     }
     return output;
   }
+
   static std::string replaceFirstOccurrence(std::string& s, const std::string& toReplace, const std::string& replaceWith) {
     std::size_t pos = s.find(toReplace);
     if (pos == std::string::npos) {
@@ -68,6 +84,7 @@ class UtilString CCAPI_FINAL {
     };
     return s.replace(pos, toReplace.length(), replaceWith);
   }
+
   static bool endsWith(const std::string& mainStr, const std::string& toMatch) {
     if (mainStr.size() >= toMatch.size() && mainStr.compare(mainStr.size() - toMatch.size(), toMatch.size(), toMatch) == 0) {
       return true;
@@ -75,15 +92,18 @@ class UtilString CCAPI_FINAL {
       return false;
     }
   }
+
   static std::string printDoubleScientific(double number, int precision = CCAPI_PRINT_DOUBLE_PRECISION_DEFAULT) {
     std::stringstream ss;
     ss << std::setprecision(precision) << std::scientific << number;
     // ss << number;
     return ss.str();
   }
+
   static bool isNumber(const std::string& s) {
     return !s.empty() && std::find_if(s.begin(), s.end(), [](unsigned char c) { return !std::isdigit(c); }) == s.end();
   }
+
   // https://stackoverflow.com/questions/440133/how-do-i-create-a-random-alpha-numeric-string-in-c
   static std::string generateRandomString(const size_t length) {
     static const auto ch_set = std::vector<char>({'0', '1', '2', '3', '4', '5', '6', '7', '8', '9', 'A', 'B', 'C', 'D', 'E', 'F', 'G', 'H', 'I', 'J', 'K',
@@ -96,6 +116,7 @@ class UtilString CCAPI_FINAL {
     std::generate_n(str.begin(), length, randchar);
     return str;
   }
+
   static std::string generateUuidV4() {
     static std::random_device rd;
     static std::mt19937 gen(rd());
@@ -126,6 +147,7 @@ class UtilString CCAPI_FINAL {
     };
     return ss.str();
   }
+
   static std::vector<std::string> split(const std::string& in, char sep) {
     std::vector<std::string> r;
     r.reserve(std::count(in.begin(), in.end(), sep) + 1);
@@ -138,6 +160,7 @@ class UtilString CCAPI_FINAL {
       }
     }
   }
+
   static std::vector<std::string> split(const std::string& original, const std::string& delimiter) {
     std::string s = original;
     std::vector<std::string> output;
@@ -151,6 +174,7 @@ class UtilString CCAPI_FINAL {
     output.emplace_back(std::move(s));
     return output;
   }
+
   static std::set<std::string> splitToSet(const std::string& original, const std::string& delimiter) {
     std::string s = original;
     std::set<std::string> output;
@@ -164,12 +188,13 @@ class UtilString CCAPI_FINAL {
     output.insert(std::move(s));
     return output;
   }
+
   static std::string join(const std::vector<std::string>& strings, const std::string& delimiter) {
     switch (strings.size()) {
       case 0:
         return "";
       case 1:
-        return strings[0];
+        return strings.at(0);
       default:
         std::ostringstream joined;
         std::copy(strings.begin(), strings.end() - 1, std::ostream_iterator<std::string>(joined, delimiter.c_str()));
@@ -177,50 +202,76 @@ class UtilString CCAPI_FINAL {
         return joined.str();
     }
   }
+
+  static std::string join(const std::set<std::string>& strings, const std::string& delimiter) {
+    std::vector<std::string> strings_vector(strings.begin(), strings.end());
+    return join(strings_vector, delimiter);
+  }
+
   static std::string toUpper(const std::string& input) {
     std::string output(input);
     std::transform(output.begin(), output.end(), output.begin(), ::toupper);
     return output;
   }
+
   static std::string toLower(const std::string& input) {
     std::string output(input);
     std::transform(output.begin(), output.end(), output.begin(), ::tolower);
     return output;
   }
+
   static std::string ltrim(const std::string& original, const std::string& chars = "\t\n\v\f\r ") {
     std::string str = original;
     str.erase(0, str.find_first_not_of(chars));
     return str;
   }
+
   static std::string ltrim(const std::string& original, char c) {
     std::string str = original;
     str.erase(0, str.find_first_not_of(c));
     return str;
   }
+
   static void ltrimInPlace(std::string& str, const std::string& chars = "\t\n\v\f\r ") { str.erase(0, str.find_first_not_of(chars)); }
+
   static void ltrimInPlace(std::string& str, char c) { str.erase(0, str.find_first_not_of(c)); }
+
   static std::string rtrim(const std::string& original, const std::string& chars = "\t\n\v\f\r ") {
     std::string str = original;
     str.erase(str.find_last_not_of(chars) + 1);
     return str;
   }
+
   static std::string rtrim(const std::string& original, char c) {
     std::string str = original;
     str.erase(str.find_last_not_of(c) + 1);
     return str;
   }
+
+  static std::string_view rtrim(std::string_view str, char c) {
+    std::size_t end = str.find_last_not_of(c);
+    if (end == std::string_view::npos) return {};  // All characters were 'c' — return empty view
+    return str.substr(0, end + 1);
+  }
+
   static void rtrimInPlace(std::string& str, const std::string& chars = "\t\n\v\f\r ") { str.erase(str.find_last_not_of(chars) + 1); }
+
   static void rtrimInPlace(std::string& str, char c) { str.erase(str.find_last_not_of(c) + 1); }
+
   static std::string trim(const std::string& original, const std::string& chars = "\t\n\v\f\r ") { return ltrim(rtrim(original, chars), chars); }
+
   static std::string trim(const std::string& original, char c) { return ltrim(rtrim(original, c), c); }
+
   static void trimInPlace(std::string& str, const std::string& chars = "\t\n\v\f\r ") {
     rtrimInPlace(str, chars);
     ltrimInPlace(str, chars);
   }
+
   static void trimInPlace(std::string& str, char c) {
     rtrimInPlace(str, c);
     ltrimInPlace(str, c);
   }
+
   static std::string firstNCharacter(const std::string& str, const size_t n) {
     if (str.length() > n) {
       return str.substr(0, n) + "...";
@@ -228,8 +279,9 @@ class UtilString CCAPI_FINAL {
       return str;
     }
   }
+
   static std::string normalizeDecimalString(const std::string& original) {
-    if (original.find('.') != std::string::npos) {
+    if (original.find('.') != std::string::npos && original.find_first_of("Ee") == std::string::npos) {
       std::string str(original);
       rtrimInPlace(str, "0");
       rtrimInPlace(str, ".");
@@ -238,14 +290,36 @@ class UtilString CCAPI_FINAL {
       return original;
     }
   }
-  static std::string normalizeDecimalString(const char* data) {
-    std::string str(data);
-    if (str.find('.') != std::string::npos) {
-      rtrimInPlace(str, "0");
-      rtrimInPlace(str, ".");
+
+  //   static std::string normalizeDecimalStringView(const char* data) {
+  //     std::string str(data);
+  //     if (str.find('.') != std::string::npos) {
+  //       rtrimInPlace(str, "0");
+  //       rtrimInPlace(str, ".");
+  //     }
+  //     return str;
+  //   }
+
+  static std::string_view normalizeDecimalStringView(std::string_view input) {
+    // Quick check for dot
+    size_t dotPos = input.find('.');
+    if (dotPos == std::string_view::npos || input.find_first_of("Ee") != std::string::npos) return input;
+
+    size_t end = input.size();
+
+    // Remove trailing '0's
+    while (end > dotPos && input[end - 1] == '0') {
+      --end;
     }
-    return str;
+
+    // Remove trailing '.' if all decimals were zeros
+    if (end > dotPos && input[end - 1] == '.') {
+      --end;
+    }
+
+    return input.substr(0, end);
   }
+
   static std::string leftPadTo(const std::string& str, const size_t padToLength, const char paddingChar) {
     std::string copy = str;
     if (padToLength > copy.size()) {
@@ -253,6 +327,7 @@ class UtilString CCAPI_FINAL {
     }
     return copy;
   }
+
   static std::string rightPadTo(const std::string& str, const size_t padToLength, const char paddingChar) {
     std::string copy = str;
     if (padToLength > copy.size()) {
@@ -261,7 +336,8 @@ class UtilString CCAPI_FINAL {
     return copy;
   }
 };
-class UtilTime CCAPI_FINAL {
+
+class UtilTime {
  public:
   static std::string convertFIXTimeToISO(const std::string& fixTime) {
     //  convert 20200925-15:55:28.093490622 to 2020-09-25T15:55:28.093490622Z
@@ -276,6 +352,7 @@ class UtilTime CCAPI_FINAL {
     output += "Z";
     return output;
   }
+
   static std::string convertTimePointToFIXTime(const TimePoint& tp) {
     int year, month, day, hour, minute, second, millisecond;
     timePointToParts(tp, year, month, day, hour, minute, second, millisecond);
@@ -305,6 +382,7 @@ class UtilTime CCAPI_FINAL {
     output += millisecondStr;
     return output;
   }
+
   template <typename T = std::chrono::milliseconds>
   static void timePointToParts(TimePoint tp, int& year, int& month, int& day, int& hour, int& minute, int& second, int& fractionalSecond) {
     auto epoch_sec = std::chrono::time_point_cast<std::chrono::seconds>(tp).time_since_epoch().count();
@@ -336,6 +414,7 @@ class UtilTime CCAPI_FINAL {
     auto now = std::chrono::system_clock::now();
     return TimePoint(now);
   }
+
   static TimePoint parse(const std::string& input) {
     std::tm time{};
     time.tm_year = std::strtol(&input[0], nullptr, 10) - 1900;
@@ -362,16 +441,19 @@ class UtilTime CCAPI_FINAL {
     }
     return TimePoint(std::chrono::system_clock::from_time_t(timegm(&time))) + std::chrono::nanoseconds(nanoseconds);
   }
+
   static TimePoint makeTimePoint(const std::pair<long long, long long>& timePair) {
     auto tp = TimePoint(std::chrono::duration<int64_t>(timePair.first));
     tp += std::chrono::nanoseconds(timePair.second);
     return tp;
   }
+
   static TimePoint makeTimePointMilli(const std::pair<long long, long long>& timePair) {
     auto tp = TimePoint(std::chrono::milliseconds(timePair.first));
     tp += std::chrono::nanoseconds(timePair.second);
     return tp;
   }
+
   static std::pair<long long, long long> divide(const TimePoint& tp) {
     auto then = tp.time_since_epoch();
     auto s = std::chrono::duration_cast<std::chrono::seconds>(then);
@@ -379,6 +461,7 @@ class UtilTime CCAPI_FINAL {
     auto ns = std::chrono::duration_cast<std::chrono::nanoseconds>(then);
     return std::make_pair(s.count(), ns.count());
   }
+
   static std::pair<long long, long long> divide(const std::string& seconds) {
     if (seconds.find('.') != std::string::npos) {
       std::string secondsCopy = seconds;
@@ -391,6 +474,7 @@ class UtilTime CCAPI_FINAL {
       return std::make_pair(std::stoll(seconds), 0);
     }
   }
+
   static std::pair<long long, long long> divideMilli(const std::string& milliseconds) {
     if (milliseconds.find('.') != std::string::npos) {
       std::string millisecondsCopy = milliseconds;
@@ -403,6 +487,7 @@ class UtilTime CCAPI_FINAL {
       return std::make_pair(std::stoll(milliseconds), 0);
     }
   }
+
   static std::string convertMillisecondsStrToSecondsStr(const std::string& milliseconds) {
     std::string output;
     if (milliseconds.length() >= 4) {
@@ -416,9 +501,11 @@ class UtilTime CCAPI_FINAL {
     }
     return output;
   }
+
   static std::pair<long long, long long> divideNanoWhole(const std::string& nanoseconds) {
     return std::make_pair(std::stoll(nanoseconds.substr(0, nanoseconds.length() - 9)), std::stoll(nanoseconds.substr(nanoseconds.length() - 9)));
   }
+
   template <typename T = std::chrono::nanoseconds>
   static std::string getISOTimestamp(const TimePoint& tp) {
     int year, month, day, hour, minute, second, fractionalSecond;
@@ -463,15 +550,19 @@ class UtilTime CCAPI_FINAL {
     output += "Z";
     return output;
   }
+
   static int getUnixTimestamp(const TimePoint& tp) {
     auto then = tp.time_since_epoch();
     auto s = std::chrono::duration_cast<std::chrono::seconds>(then);
     return s.count();
   }
+
   static TimePoint makeTimePointFromMilliseconds(long long milliseconds) { return TimePoint(std::chrono::milliseconds(milliseconds)); }
+
   static TimePoint makeTimePointFromSeconds(long seconds) { return TimePoint(std::chrono::seconds(seconds)); }
 };
-class UtilAlgorithm CCAPI_FINAL {
+
+class UtilAlgorithm {
  public:
   enum class ShaVersion {
     UNKNOWN,
@@ -480,6 +571,23 @@ class UtilAlgorithm CCAPI_FINAL {
   };
 
  public:
+  static std::string toBase62(size_t value) {
+    static constexpr char kBase62Chars[] = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz";
+
+    std::string result;
+    do {
+      result += kBase62Chars[value % 62];
+      value /= 62;
+    } while (value);
+    std::reverse(result.begin(), result.end());
+    return result;
+  }
+
+  static std::string shortBase62Hash(const std::string& input) {
+    std::hash<std::string> hasher;
+    return toBase62(hasher(input));
+  }
+
   static std::string computeHash(const ShaVersion shaVersion, const std::string& unhashed, bool returnHex = false) {
     EVP_MD_CTX* context = EVP_MD_CTX_new();
     switch (shaVersion) {
@@ -490,6 +598,8 @@ class UtilAlgorithm CCAPI_FINAL {
         EVP_DigestInit_ex(context, EVP_sha512(), NULL);
         break;
       default:
+        // Release the context, adding an extra line here to avoid potential memory leaks that may occur in computeHash
+        EVP_MD_CTX_free(context);
         throw std::invalid_argument("invalid shaVersion");
     }
     EVP_DigestUpdate(context, unhashed.c_str(), unhashed.length());
@@ -509,6 +619,7 @@ class UtilAlgorithm CCAPI_FINAL {
     }
     return ss.str();
   }
+
   static std::string stringToHex(const std::string& input) {
     static const char hex_digits[] = "0123456789abcdef";
     std::string output;
@@ -519,6 +630,7 @@ class UtilAlgorithm CCAPI_FINAL {
     }
     return output;
   }
+
   static int hexValue(unsigned char hex_digit) {
     static const signed char hex_values[256] = {
         -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1,
@@ -533,6 +645,7 @@ class UtilAlgorithm CCAPI_FINAL {
     if (value == -1) throw std::invalid_argument("invalid hex digit");
     return value;
   }
+
   static std::string hexToString(const std::string& input) {
     const auto len = input.length();
     if (len & 1) throw std::invalid_argument("odd length");
@@ -545,6 +658,7 @@ class UtilAlgorithm CCAPI_FINAL {
     }
     return output;
   }
+
   // https://stackoverflow.com/questions/342409/how-do-i-base64-encode-decode-in-c
   static std::string base64Encode(const std::string& input) {
     static const unsigned char base64_table[65] = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
@@ -581,6 +695,7 @@ class UtilAlgorithm CCAPI_FINAL {
     }
     return outStr;
   }
+
   static std::string base64Decode(const std::string& in) {
     static const int B64index[256] = {0, 0, 0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0,  0, 0,
                                       0, 0, 0,  0, 0,  0,  0,  0,  0,  0,  0,  0,  62, 63, 62, 62, 63, 52, 53, 54, 55, 56, 57, 58, 59, 60, 61, 0,  0,  0, 0,
@@ -610,10 +725,12 @@ class UtilAlgorithm CCAPI_FINAL {
     }
     return str;
   }
+
   //  https://github.com/brianloveswords/base64url
   static std::string base64UrlFromBase64(const std::string& base64) {
     return std::regex_replace(std::regex_replace(std::regex_replace(base64, std::regex("="), ""), std::regex("\\+"), "-"), std::regex("\\/"), "_");
   }
+
   static std::string base64FromBase64Url(const std::string& base64Url) {
     auto segmentLength = 4;
     auto stringLength = base64Url.size();
@@ -626,12 +743,111 @@ class UtilAlgorithm CCAPI_FINAL {
     paddedBase64Url += std::string(padLength, '=');
     return std::regex_replace(std::regex_replace(paddedBase64Url, std::regex("\\-"), "+"), std::regex("_"), "/");
   }
+
   static std::string base64UrlEncode(const std::string& in) { return base64UrlFromBase64(base64Encode(in)); }
+
   static std::string base64UrlDecode(const std::string& in) { return base64Decode(base64FromBase64Url(in)); }
+
   static double exponentialBackoff(double initial, double multiplier, double base, double exponent) { return initial + multiplier * (pow(base, exponent) - 1); }
+
   template <typename InputIterator>
   static uint_fast32_t crc(InputIterator first, InputIterator last);
+
+  static EVP_PKEY* loadPrivateKey(const std::string& keyPem, const std::string& password = "") {
+    BIO* bio = BIO_new_mem_buf(keyPem.data(), static_cast<int>(keyPem.size()));
+    if (!bio) return nullptr;
+
+    const EVP_PKEY_ASN1_METHOD* meth = EVP_PKEY_asn1_find_str(nullptr, "ED25519", -1);
+    if (!meth) {
+      throw std::runtime_error("ED25519 is NOT supported in this OpenSSL build.");
+    }
+
+    EVP_PKEY* pkey = nullptr;
+    if (password.empty()) {
+      pkey = PEM_read_bio_PrivateKey(bio, nullptr, nullptr, nullptr);
+    } else {
+      pkey = PEM_read_bio_PrivateKey(bio, nullptr, nullptr, const_cast<char*>(password.c_str()));
+    }
+
+    BIO_free(bio);
+    return pkey;
+  }
+
+  static std::string readFile(const std::string& path) {
+    std::ifstream file(path, std::ios::binary);
+    if (!file.is_open()) {
+      throw std::runtime_error("Failed to open file: " + path);
+    }
+
+    std::ostringstream oss;
+    oss << file.rdbuf();
+    return oss.str();
+  }
+
+  static std::string base64Encode(const std::vector<unsigned char>& input) {
+    BIO *bio, *b64;
+    BUF_MEM* bufferPtr;
+    b64 = BIO_new(BIO_f_base64());
+    bio = BIO_new(BIO_s_mem());
+    b64 = BIO_push(b64, bio);
+    BIO_set_flags(b64, BIO_FLAGS_BASE64_NO_NL);
+    BIO_write(b64, input.data(), static_cast<int>(input.size()));
+    BIO_flush(b64);
+    BIO_get_mem_ptr(b64, &bufferPtr);
+    std::string result(bufferPtr->data, bufferPtr->length);
+    BIO_free_all(b64);
+    return result;
+  }
+
+  static std::string signPayload(EVP_PKEY* pkey, const std::string& payload) {
+    EVP_MD_CTX* ctx = EVP_MD_CTX_new();
+    if (!ctx) throw std::runtime_error("Failed to create EVP_MD_CTX");
+
+    const int key_type = EVP_PKEY_base_id(pkey);
+    const bool is_ed25519 = key_type == EVP_PKEY_ED25519;
+
+    if (EVP_DigestSignInit(ctx, nullptr, is_ed25519 ? nullptr : EVP_sha256(), nullptr, pkey) != 1) throw std::runtime_error("EVP_DigestSignInit failed");
+
+    size_t sigLen = 0;
+
+    if (is_ed25519) {
+      // One-shot sign for Ed25519
+      if (EVP_DigestSign(ctx, nullptr, &sigLen, reinterpret_cast<const unsigned char*>(payload.data()), payload.size()) != 1)
+        throw std::runtime_error("EVP_DigestSign (get length) failed");
+
+      std::vector<unsigned char> signature(sigLen);
+      if (EVP_DigestSign(ctx, signature.data(), &sigLen, reinterpret_cast<const unsigned char*>(payload.data()), payload.size()) != 1)
+        throw std::runtime_error("EVP_DigestSign failed");
+      signature.resize(sigLen);
+      EVP_MD_CTX_free(ctx);
+      return base64Encode(signature);
+    } else {
+      // Traditional sign (e.g., RSA)
+      if (EVP_DigestSignUpdate(ctx, payload.data(), payload.size()) != 1) throw std::runtime_error("EVP_DigestSignUpdate failed");
+
+      if (EVP_DigestSignFinal(ctx, nullptr, &sigLen) != 1) throw std::runtime_error("EVP_DigestSignFinal (get length) failed");
+
+      std::vector<unsigned char> signature(sigLen);
+      if (EVP_DigestSignFinal(ctx, signature.data(), &sigLen) != 1) throw std::runtime_error("EVP_DigestSignFinal failed");
+
+      signature.resize(sigLen);
+      EVP_MD_CTX_free(ctx);
+      return base64Encode(signature);
+    }
+  }
+
+  static const EVP_MD* getDigest(const ShaVersion version) {
+    switch (version) {
+      case ShaVersion::SHA256:
+        return EVP_sha256();
+      case ShaVersion::SHA512:
+        return EVP_sha512();
+      default:
+        throw std::invalid_argument("Unsupported SHA version");
+    }
+  }
 };
+
 template <typename InputIterator>
 inline uint_fast32_t UtilAlgorithm::crc(InputIterator first, InputIterator last) {
   static auto const table = []() {
@@ -656,17 +872,19 @@ inline uint_fast32_t UtilAlgorithm::crc(InputIterator first, InputIterator last)
          ~std::accumulate(first, last, ~uint_fast32_t{0} & uint_fast32_t{0xFFFFFFFFuL},
                           [](uint_fast32_t checksum, std::uint_fast8_t value) { return table[(checksum ^ value) & 0xFFu] ^ (checksum >> 8); });
 }
-class UtilSystem CCAPI_FINAL {
+
+class UtilSystem {
  public:
-  static bool getEnvAsBool(const std::string variableName, const bool defaultValue = false) {
+  static bool getEnvAsBool(const std::string& variableName, const bool defaultValue = false) {
     const char* env_p = std::getenv(variableName.c_str());
     if (env_p) {
-      return UtilString::toLower(std::string(env_p)) == "true";
+      return UtilString::toLower(env_p) == "true";
     } else {
       return defaultValue;
     }
   }
-  static std::string getEnvAsString(const std::string variableName, const std::string defaultValue = "") {
+
+  static std::string getEnvAsString(const std::string& variableName, const std::string& defaultValue = "") {
     const char* env_p = std::getenv(variableName.c_str());
     if (env_p) {
       return std::string(env_p);
@@ -674,7 +892,8 @@ class UtilSystem CCAPI_FINAL {
       return defaultValue;
     }
   }
-  static int getEnvAsInt(const std::string variableName, const int defaultValue = 0) {
+
+  static int getEnvAsInt(const std::string& variableName, const int defaultValue = 0) {
     const char* env_p = std::getenv(variableName.c_str());
     if (env_p) {
       return std::stoi(std::string(env_p));
@@ -682,7 +901,8 @@ class UtilSystem CCAPI_FINAL {
       return defaultValue;
     }
   }
-  static long getEnvAsLong(const std::string variableName, const long defaultValue = 0) {
+
+  static long getEnvAsLong(const std::string& variableName, const long defaultValue = 0) {
     const char* env_p = std::getenv(variableName.c_str());
     if (env_p) {
       return std::stol(std::string(env_p));
@@ -690,7 +910,8 @@ class UtilSystem CCAPI_FINAL {
       return defaultValue;
     }
   }
-  static float getEnvAsFloat(const std::string variableName, const float defaultValue = 0) {
+
+  static float getEnvAsFloat(const std::string& variableName, const float defaultValue = 0) {
     const char* env_p = std::getenv(variableName.c_str());
     if (env_p) {
       return std::stof(std::string(env_p));
@@ -698,7 +919,8 @@ class UtilSystem CCAPI_FINAL {
       return defaultValue;
     }
   }
-  static double getEnvAsDouble(const std::string variableName, const double defaultValue = 0) {
+
+  static double getEnvAsDouble(const std::string& variableName, const double defaultValue = 0) {
     const char* env_p = std::getenv(variableName.c_str());
     if (env_p) {
       return std::stod(std::string(env_p));
@@ -706,6 +928,7 @@ class UtilSystem CCAPI_FINAL {
       return defaultValue;
     }
   }
+
   static bool checkEnvExist(const std::string& variableName) {
     const char* env_p = std::getenv(variableName.c_str());
     if (env_p) {
@@ -715,17 +938,486 @@ class UtilSystem CCAPI_FINAL {
     }
   }
 };
+
+/**
+ * This class provides a numeric type for representing an arbitrary precision decimal number. It is minimalistic for the purpose of high performance.
+ * Furthermore, unlike double, it is suitable for being used as the key of a map. boost::multiprecision::cpp_dec_float can also be used, but based on
+ * test it does lead to nearly 100% increase in cpu usage!
+ */
+class Decimal {
+ public:
+  Decimal() {}
+
+  template <typename T, typename = std::enable_if_t<std::is_integral_v<T>>>
+  Decimal(T value) {
+    if (value < 0) {
+      this->sign = false;
+      this->before = -value;
+    } else if (value > 0) {
+      this->before = value;
+    }
+  }
+
+  explicit Decimal(std::string_view originalValue) {
+    if (originalValue.empty()) {
+      throw std::invalid_argument("Decimal constructor input value cannot be empty");
+    }
+    if (originalValue.at(0) == '-') {
+      this->sign = false;
+    }
+    auto foundE = originalValue.find('E');
+    if (foundE != std::string::npos || originalValue.find('e') != std::string::npos) {
+      if (foundE == std::string::npos) {
+        foundE = originalValue.find('e');
+      }
+      std::string fixedPointValue = std::string(originalValue.substr(this->sign ? 0 : 1, this->sign ? foundE : foundE - 1));
+      auto foundDot = fixedPointValue.find('.');
+      if (foundDot != std::string::npos) {
+        fixedPointValue.erase(fixedPointValue.find_last_not_of('0') + 1);
+        fixedPointValue.erase(fixedPointValue.find_last_not_of('.') + 1);
+      }
+      std::string exponent = std::string(originalValue.substr(foundE + 1));
+      if (exponent.at(0) == '+') {
+        exponent.erase(0, 1);
+      }
+      exponent.erase(0, exponent.find_first_not_of('0'));
+      if (exponent.empty()) {
+        exponent = "0";
+      }
+      if (exponent != "0") {
+        foundDot = fixedPointValue.find('.');
+        if (foundDot != std::string::npos) {
+          if (exponent.at(0) != '-') {
+            if (std::stoi(exponent) < fixedPointValue.substr(foundDot + 1).length()) {
+              fixedPointValue = fixedPointValue.substr(0, foundDot) + fixedPointValue.substr(foundDot + 1).substr(0, std::stoi(exponent)) + "." +
+                                fixedPointValue.substr(foundDot + 1).substr(std::stoi(exponent));
+            } else {
+              fixedPointValue = fixedPointValue.substr(0, foundDot) + fixedPointValue.substr(foundDot + 1) +
+                                std::string(std::stoi(exponent) - fixedPointValue.substr(foundDot + 1).length(), '0');
+            }
+          } else {
+            fixedPointValue = "0." + std::string(-std::stoi(exponent) - 1, '0') + fixedPointValue.substr(0, foundDot) + fixedPointValue.substr(foundDot + 1);
+          }
+        } else {
+          if (exponent.at(0) != '-') {
+            fixedPointValue += std::string(std::stoi(exponent), '0');
+          } else {
+            fixedPointValue = "0." + std::string(-std::stoi(exponent) - 1, '0') + fixedPointValue;
+          }
+        }
+      }
+      foundDot = fixedPointValue.find('.');
+      std::string numPart = fixedPointValue.substr(0, foundDot);
+      if (!numPart.empty() && numPart[0] == '+') {
+        numPart.erase(0, 1);
+      }
+      auto [_, ec] = std::from_chars(numPart.data(), numPart.data() + numPart.size(), this->before);
+      if (ec != std::errc()) {
+        throw std::invalid_argument("Invalid numeric input: " + std::string(numPart));
+      }
+      if (foundDot != std::string::npos) {
+        this->frac = fixedPointValue.substr(foundDot + 1);
+        // if (!keepTrailingZero) {
+        this->frac.erase(this->frac.find_last_not_of('0') + 1);
+        // }
+      }
+    } else {
+      auto found = originalValue.find('.');
+      std::string numPart = std::string(originalValue.substr(this->sign ? 0 : 1, found));
+      if (!numPart.empty() && numPart[0] == '+') {
+        numPart.erase(0, 1);
+      }
+      auto [_, ec] = std::from_chars(numPart.data(), numPart.data() + numPart.size(), this->before);
+      if (ec != std::errc()) {
+        throw std::invalid_argument("Invalid numeric input: " + std::string(numPart));
+      }
+      if (found != std::string::npos) {
+        this->frac = originalValue.substr(found + 1);
+        // if (!keepTrailingZero) {
+        this->frac.erase(this->frac.find_last_not_of('0') + 1);
+        // }
+      }
+    }
+
+    if (!this->sign && this->before == 0 && this->frac.empty()
+        // ((keepTrailingZero && std::all_of(this->frac.begin(), this->frac.end(), [](char c) { return c == '0'; })) ||
+        //  (!keepTrailingZero && this->frac.empty()))
+    ) {
+      this->sign = true;
+    }
+  }
+
+  std::string toString() const {
+    if (!this->cachedToString) {
+      std::string stringValue;
+      if (!this->sign) {
+        stringValue += "-";
+      }
+      stringValue += std::to_string(this->before);
+      if (!this->frac.empty()) {
+        stringValue += ".";
+        stringValue += this->frac;
+      }
+      cachedToString.emplace(stringValue);
+    }
+    return *this->cachedToString;
+  }
+
+  double toDouble() const {
+    if (!this->cachedToDouble) {
+      cachedToDouble.emplace(std::stod(this->toString()));
+    }
+    return *this->cachedToDouble;
+  }
+
+  friend bool operator<(const Decimal& l, const Decimal& r) {
+    if (l.sign && r.sign) {
+      if (l.before < r.before) {
+        return true;
+      } else if (l.before > r.before) {
+        return false;
+      } else {
+        return l.frac < r.frac;
+      }
+    } else if (l.sign && !r.sign) {
+      return false;
+    } else if (!l.sign && r.sign) {
+      return true;
+    } else {
+      Decimal nl = l;
+      nl.sign = true;
+      Decimal nr = r;
+      nr.sign = true;
+      return nl > nr;
+    }
+  }
+
+  friend bool operator>(const Decimal& l, const Decimal& r) { return r < l; }
+
+  friend bool operator<=(const Decimal& l, const Decimal& r) { return !(l > r); }
+
+  friend bool operator>=(const Decimal& l, const Decimal& r) { return !(l < r); }
+
+  friend bool operator==(const Decimal& l, const Decimal& r) { return !(l > r) && !(l < r); }
+
+  friend bool operator!=(const Decimal& l, const Decimal& r) { return !(l == r); }
+
+  /* ----------  Arithmetic operators  ---------- */
+
+  // unary ––––––––––––––––––––––––––––––––––––––
+  ///  -x   (flip the sign)
+  Decimal operator-() const {
+    Decimal tmp = *this;
+    if (!(tmp.before == 0 && tmp.frac.empty())) {  // keep “–0” positive
+      tmp.sign = !tmp.sign;
+    }
+    return tmp;
+  }
+
+  // binary –––––––––––––––––––––––––––––––––––––
+  ///  x + y
+  friend Decimal operator+(const Decimal& lhs, const Decimal& rhs) {
+    return lhs.add(rhs);  // reuse the pre-existing logic
+  }
+
+  ///  x - y
+  friend Decimal operator-(const Decimal& lhs, const Decimal& rhs) {
+    return lhs.subtract(rhs);  // reuse the pre-existing logic
+  }
+
+  // compound-assignment ––––––––––––––––––––––––
+  Decimal& operator+=(const Decimal& rhs) {
+    *this = *this + rhs;
+    return *this;
+  }
+
+  Decimal& operator-=(const Decimal& rhs) {
+    *this = *this - rhs;
+    return *this;
+  }
+
+  template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
+  friend Decimal operator*(const Decimal& lhs, T rhs) {
+    return lhs.multiply(rhs);
+  }
+
+  template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
+  friend Decimal operator*(T lhs, const Decimal& rhs) {
+    return rhs.multiply(lhs);
+  }
+
+  template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
+  Decimal& operator*=(T x) {
+    *this = this->multiply(x);
+    return *this;
+  }
+
+  Decimal negate() const {
+    Decimal o;
+    o.sign = !this->sign;
+    o.before = this->before;
+    o.frac = this->frac;
+    return o;
+  }
+
+  Decimal abs() const {
+    if (!this->sign) {  // if the input is negative
+      return -*this;    // negate it
+    }
+    return *this;  // already positive
+  }
+
+  Decimal add(const Decimal& x) const {
+    /* ----------------  Same-sign fast path  ---------------- */
+    if (this->sign && x.sign) {
+      Decimal o;
+      o.sign = true;                       // result always positive here
+      o.before = this->before + x.before;  // integer parts
+
+      // === Fractional part ===
+      std::string_view f1 = this->frac;
+      std::string_view f2 = x.frac;
+      if (f1.empty()) {  // 0.xxx + 0
+        o.frac = f2;
+        return o;
+      }
+      if (f2.empty()) {  // 0 + 0.xxx
+        o.frac = f1;
+        return o;
+      }
+
+      std::size_t l1 = f1.size();
+      std::size_t l2 = f2.size();
+      std::size_t lmax = std::max(l1, l2);
+
+      /* ---- pad to same length (stack buffer, max 64 digits) ---- */
+      char buf1[64]{}, buf2[64]{};
+      std::memcpy(buf1, f1.data(), l1);
+      std::fill(buf1 + l1, buf1 + lmax, '0');
+      std::memcpy(buf2, f2.data(), l2);
+      std::fill(buf2 + l2, buf2 + lmax, '0');
+
+      /* ---- convert to integers ---- */
+      uint64_t n1 = 0, n2 = 0;
+      auto [p1, ec1] = std::from_chars(buf1, buf1 + lmax, n1);
+      auto [p2, ec2] = std::from_chars(buf2, buf2 + lmax, n2);
+      if (ec1 != std::errc() || ec2 != std::errc()) {
+        throw std::invalid_argument("Decimal::add – fractional overflow");
+      }
+
+      uint64_t sum = n1 + n2;
+      bool carry = sum >= static_cast<uint64_t>(std::pow(10, lmax));
+
+      if (carry) {
+        sum -= static_cast<uint64_t>(std::pow(10, lmax));
+        ++o.before;  // propagate carry to integer part
+      }
+
+      /* ---- build fractional string ---- */
+      std::string frac = std::to_string(sum);
+      if (frac.length() < lmax) {  // left-pad with zeros
+        frac.insert(0, lmax - frac.length(), '0');
+      }
+      frac.erase(frac.find_last_not_of('0') + 1);  // trim trailing zeros
+      o.frac = frac;
+
+      return o;
+    }
+
+    /* ----------------  Mixed-sign cases  ---------------- */
+    if (this->sign && !x.sign) return this->subtract(x.negate());
+    if (!this->sign && x.sign) return x.subtract(this->negate());
+    /* both negative */
+    return (this->negate().add(x.negate())).negate();
+  }
+
+  Decimal subtract(const Decimal& x) const {
+    /* ------------------------------------------------
+       Case 1: both operands positive
+       ------------------------------------------------ */
+    if (this->sign && x.sign) {
+      if (*this >= x) {
+        Decimal o;
+        o.sign = true;
+
+        /* ---- Prep integer difference (may be adjusted by borrow) ---- */
+        o.before = this->before - x.before;
+
+        /* ---- Fast exit if no fractional digits at all ---- */
+        if (this->frac.empty() && x.frac.empty()) return o;
+
+        /* ---- Determine max fractional length ---- */
+        std::string_view f1 = this->frac;
+        std::string_view f2 = x.frac;
+        const std::size_t l1 = f1.size();
+        const std::size_t l2 = f2.size();
+        const std::size_t lmax = std::max(l1, l2);
+
+        /* ---- Ensure temporary buffer big enough ---- */
+        std::vector<char> buf1(lmax, '0');
+        std::vector<char> buf2(lmax, '0');
+
+        std::memcpy(buf1.data(), f1.data(), l1);
+        std::memcpy(buf2.data(), f2.data(), l2);
+
+        /* ---- Parse to integers with from_chars ---- */
+        uint64_t n1 = 0, n2 = 0;
+        auto [p1, ec1] = std::from_chars(buf1.data(), buf1.data() + lmax, n1);
+        auto [p2, ec2] = std::from_chars(buf2.data(), buf2.data() + lmax, n2);
+        if (ec1 != std::errc() || ec2 != std::errc()) {
+          throw std::invalid_argument("Decimal::subtract – fractional overflow");
+        }
+
+        /* ---- Borrow logic ---- */
+        uint64_t base = 1;
+        for (std::size_t i = 0; i < lmax; ++i) base *= 10;  // 10^lmax
+
+        uint64_t diff;
+        if (n1 >= n2) {
+          diff = n1 - n2;
+        } else {
+          diff = base + n1 - n2;
+          --o.before;  // borrow 1 from integer part
+        }
+
+        /* ---- Build normalized fractional string ---- */
+        std::string frac = std::to_string(diff);
+        if (frac.length() < lmax) frac.insert(0, lmax - frac.length(), '0');  // left-pad
+        frac.erase(frac.find_last_not_of('0') + 1);                           // trim trailing zeros
+        o.frac = std::move(frac);
+
+        return o;
+      }
+
+      /*  if *this < x  ->  -(x - *this)  */
+      return x.subtract(*this).negate();
+    }
+
+    /* ------------------------------------------------
+       Mixed sign cases re-use add()/negate()
+       ------------------------------------------------ */
+    if (!this->sign && x.sign) return this->negate().add(x).negate();  // (-a)-(+b) = -(a+b)
+    if (this->sign && !x.sign) return this->add(x.negate());           // (+a)-(-b) = a+b
+
+    /* both negative: (-a)-(-b) = b-a */
+    return x.negate().subtract(this->negate());
+  }
+
+  template <typename T, std::enable_if_t<std::is_integral_v<T>, int> = 0>
+  Decimal multiply(T x) const {
+    Decimal result;
+
+    if (x == 0) return result;  // default constructed Decimal = 0
+
+    result.sign = (this->sign == (x >= 0));  // XOR logic for sign
+    T abs_x = x < 0 ? -x : x;
+
+    // Integer part multiplication
+    result.before = this->before * static_cast<uint64_t>(abs_x);
+
+    if (!this->frac.empty()) {
+      std::string paddedFrac = this->frac;
+      std::size_t fracLen = paddedFrac.length();
+
+      // Pad to avoid truncation
+      std::string_view fracPart = paddedFrac;
+
+      // Convert frac string to integer
+      uint64_t fracVal = 0;
+      auto [p, ec] = std::from_chars(fracPart.data(), fracPart.data() + fracPart.size(), fracVal);
+      if (ec != std::errc()) {
+        throw std::invalid_argument("Decimal::multiply - fractional overflow");
+      }
+
+      // Multiply
+      uint64_t prod = fracVal * static_cast<uint64_t>(abs_x);
+
+      // Total fractional scale: keep `fracLen` digits
+      std::string s = std::to_string(prod);
+
+      if (s.length() <= fracLen) {
+        s.insert(0, fracLen - s.length(), '0');  // left pad
+        result.frac = UtilString::rtrim(s, "0");
+      } else {
+        // overflow into integer part
+        std::string over = s.substr(0, s.length() - fracLen);
+        std::string fracOnly = s.substr(s.length() - fracLen);
+
+        result.before += std::stoull(over);
+        result.frac = UtilString::rtrim(fracOnly, "0");
+      }
+    }
+
+    return result;
+  }
+
+  static const Decimal zero;
+#ifndef CCAPI_EXPOSE_INTERNAL
+
+ private:
+#endif
+  // false means negative sign needed
+  bool sign{true};
+  // {-}bbbb.aaaa
+  uint64_t before{};
+  std::string frac;
+
+  mutable std::optional<std::string> cachedToString;
+  mutable std::optional<double> cachedToDouble;
+};
+
+inline const Decimal Decimal::zero = Decimal(0);  // define after full class body
+
+inline std::string ConvertDecimalToString(const Decimal& input, bool normalize = true) {
+  //   constexpr unsigned precision = GetCppDecFloatDigits<Decimal::backend_type>::value;
+
+  //   // Always generate fixed-format string
+  //   std::string s = input.str(precision, std::ios_base::fixed);
+
+  //   // Fast path: normalization is OFF
+  //   if (!normalize) {
+  //     return s;
+  //   }
+
+  //   // Fast trimming: remove trailing zeros after the decimal
+  //   const std::size_t dot_pos = s.find('.');
+  //   if (dot_pos == std::string::npos) {
+  //     return s;  // No decimal point
+  //   }
+
+  //   std::size_t end = s.size();
+
+  //   // Find last non-zero character after the decimal
+  //   while (end > dot_pos + 1 && s[end - 1] == '0') {
+  //     --end;
+  //   }
+
+  //   // Remove decimal point if it's the last remaining character
+  //   if (end == dot_pos + 1) {
+  //     --end;
+  //   }
+
+  //   s.resize(end);
+  return input.toString();
+}
+
+inline Decimal ConvertDecimalToAbs(const Decimal& input) { return input.abs(); }
+
+inline double ConvertDecimalToDouble(const Decimal& input) { return input.toDouble(); }
+
 inline std::string size_tToString(const size_t& t) {
   std::stringstream ss;
   ss << t;
   return ss.str();
 }
+
 template <typename T>
 std::string intToHex(T i) {
   std::stringstream stream;
   stream << std::hex << i;
   return stream.str();
 }
+
 template <typename T>
 int ceilSearch(const std::vector<T>& c, int low, int high, T x) {
   int i = 0;
@@ -742,22 +1434,27 @@ int ceilSearch(const std::vector<T>& c, int low, int high, T x) {
   }
   return -1;
 }
+
 template <typename T>
 struct reversion_wrapper {
   T& iterable;
 };
+
 template <typename T>
 auto begin(reversion_wrapper<T> w) {
   return std::rbegin(w.iterable);
 }
+
 template <typename T>
 auto end(reversion_wrapper<T> w) {
   return std::rend(w.iterable);
 }
+
 template <typename T>
 reversion_wrapper<T> reverse(T&& iterable) {
   return {iterable};
 }
+
 template <typename K, typename V>
 bool firstNSame(const std::map<K, V>& c1, const std::map<K, V>& c2, size_t n) {
   if (c1.empty() || c2.empty()) {
@@ -778,6 +1475,7 @@ bool firstNSame(const std::map<K, V>& c1, const std::map<K, V>& c2, size_t n) {
   }
   return true;
 }
+
 template <typename K, typename V>
 bool lastNSame(const std::map<K, V>& c1, const std::map<K, V>& c2, size_t n) {
   if (c1.empty() || c2.empty()) {
@@ -798,6 +1496,7 @@ bool lastNSame(const std::map<K, V>& c1, const std::map<K, V>& c2, size_t n) {
   }
   return true;
 }
+
 template <typename K, typename V>
 void keepFirstN(std::map<K, V>& c, size_t n) {
   if (!c.empty()) {
@@ -806,6 +1505,7 @@ void keepFirstN(std::map<K, V>& c, size_t n) {
     c.erase(it, c.end());
   }
 }
+
 template <typename K, typename V>
 void keepLastN(std::map<K, V>& c, size_t n) {
   if (!c.empty()) {
@@ -814,26 +1514,31 @@ void keepLastN(std::map<K, V>& c, size_t n) {
     c.erase(c.begin(), it);
   }
 }
+
 template <typename T>
 typename std::enable_if<std::is_same<decltype(std::declval<const T&>().toString()), std::string>::value, std::string>::type toString(const T& t) {
   return t.toString();
 }
+
 template <typename T>
-typename std::enable_if<std::is_same<decltype(std::declval<const T&>().toStringPretty()), std::string>::value, std::string>::type toStringPretty(
+typename std::enable_if<std::is_same<decltype(std::declval<const T&>().toPrettyString()), std::string>::value, std::string>::type toPrettyString(
     const T& t, const int space = 2, const int leftToIndent = 0, const bool indentFirstLine = true) {
-  return t.toStringPretty(space, leftToIndent, indentFirstLine);
+  return t.toPrettyString(space, leftToIndent, indentFirstLine);
 }
+
 template <typename T>
 typename std::enable_if<std::is_integral<T>::value, std::string>::type toString(const T& t) {
   return std::to_string(t);
 }
+
 template <typename T>
-typename std::enable_if<std::is_same<decltype(std::to_string(std::declval<T&>())), std::string>::value, std::string>::type toStringPretty(
+typename std::enable_if<std::is_same<decltype(std::to_string(std::declval<T&>())), std::string>::value, std::string>::type toPrettyString(
     const T& t, const int space = 2, const int leftToIndent = 0, const bool indentFirstLine = true) {
   std::string sl(leftToIndent, ' ');
   std::string output = (indentFirstLine ? sl : "") + std::to_string(t);
   return output;
 }
+
 template <typename T>
 typename std::enable_if<std::is_floating_point<T>::value, std::string>::type toString(const T& t) {
   std::stringstream ss;
@@ -842,22 +1547,55 @@ typename std::enable_if<std::is_floating_point<T>::value, std::string>::type toS
   ss << t;
   return ss.str();
 }
+
 template <typename T>
 typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type toString(const T& t) {
   return t;
 }
+
 template <typename T>
-typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type toStringPretty(const T& t, const int space = 2, const int leftToIndent = 0,
+typename std::enable_if<std::is_same<T, std::string_view>::value, std::string>::type toString(const T& t) {
+  return std::string(t);
+}
+
+// template <typename T>
+// typename std::enable_if<std::is_same<T, Decimal>::value, std::string>::type toString(const T& t) {
+//   return ConvertDecimalToString(t);
+// }
+
+template <typename T>
+typename std::enable_if<std::is_same<T, std::string>::value, std::string>::type toPrettyString(const T& t, const int space = 2, const int leftToIndent = 0,
                                                                                                const bool indentFirstLine = true) {
   std::string sl(leftToIndent, ' ');
   std::string output = (indentFirstLine ? sl : "") + t;
   return output;
 }
+
+template <typename T>
+typename std::enable_if<std::is_same<T, std::string_view>::value, std::string>::type toPrettyString(const T& t, const int space = 2, const int leftToIndent = 0,
+                                                                                                    const bool indentFirstLine = true) {
+  std::string sl(leftToIndent, ' ');
+  std::string output = (indentFirstLine ? sl : "") + std::string(t);
+  return output;
+}
+
+template <typename T>
+typename std::enable_if<std::is_same<T, std::pair<int, std::string>>::value, std::string>::type toPrettyString(const T& p, const int space = 2,
+                                                                                                               const int leftToIndent = 0,
+                                                                                                               const bool indentFirstLine = true) {
+  std::string indent(leftToIndent, ' ');
+  std::string result;
+  if (indentFirstLine) result += indent;
+  result += "(" + std::to_string(p.first) + ", \"" + p.second + "\")";
+  return result;
+}
+
 template <typename T>
 typename std::enable_if<std::is_same<T, TimePoint>::value, std::string>::type toString(const T& t) {
   auto timePair = UtilTime::divide(t);
   return "(" + std::to_string(timePair.first) + "," + std::to_string(timePair.second) + ")";
 }
+
 template <typename T>
 typename std::string toString(const T* a, const size_t n) {
   std::string output = "[";
@@ -870,6 +1608,7 @@ typename std::string toString(const T* a, const size_t n) {
   output += "]";
   return output;
 }
+
 template <typename T, typename... Args>
 std::string toString(const std::unordered_set<T, Args...>& c);
 template <typename T, typename... Args>
@@ -886,6 +1625,7 @@ template <typename T>
 std::string toString(const std::vector<T>& c);
 template <typename T>
 std::string firstNToString(const std::vector<T>& c, const size_t n);
+
 template <typename U, typename V>
 std::string toString(const std::pair<U, V>& c) {
   std::string output = "(";
@@ -895,6 +1635,7 @@ std::string toString(const std::pair<U, V>& c) {
   output += ")";
   return output;
 }
+
 template <typename T, typename... Args>
 inline std::string toString(const std::unordered_set<T, Args...>& c) {
   std::string output = "[";
@@ -910,6 +1651,7 @@ inline std::string toString(const std::unordered_set<T, Args...>& c) {
   output += "]";
   return output;
 }
+
 template <typename T, typename... Args>
 inline std::string toString(const std::set<T, Args...>& c) {
   std::string output = "[";
@@ -925,6 +1667,7 @@ inline std::string toString(const std::set<T, Args...>& c) {
   output += "]";
   return output;
 }
+
 template <typename K, typename V>
 inline std::string toString(const std::map<K, V>& c) {
   std::string output = "{";
@@ -942,16 +1685,17 @@ inline std::string toString(const std::map<K, V>& c) {
   output += "}";
   return output;
 }
+
 template <typename K, typename V>
-std::string toStringPretty(const std::map<K, V>& c, const int space = 2, const int leftToIndent = 0, const bool indentFirstLine = true) {
+std::string toPrettyString(const std::map<K, V>& c, const int space = 2, const int leftToIndent = 0, const bool indentFirstLine = true) {
   std::string sl(leftToIndent, ' ');
   std::string output = (indentFirstLine ? sl : "") + "{\n";
   auto size = c.size();
   auto i = 0;
   for (const auto& elem : c) {
-    output += toStringPretty(elem.first, space, space + leftToIndent, true);
+    output += toPrettyString(elem.first, space, space + leftToIndent, true);
     output += " = ";
-    output += toStringPretty(elem.second, space, space + leftToIndent, false);
+    output += toPrettyString(elem.second, space, space + leftToIndent, false);
     if (i < size - 1) {
       output += ",\n";
     }
@@ -960,6 +1704,7 @@ std::string toStringPretty(const std::map<K, V>& c, const int space = 2, const i
   output += "\n" + sl + "}";
   return output;
 }
+
 template <typename K, typename V, typename... Args>
 inline std::string toString(const std::unordered_map<K, V, Args...>& c) {
   std::string output = "{";
@@ -977,6 +1722,7 @@ inline std::string toString(const std::unordered_map<K, V, Args...>& c) {
   output += "}";
   return output;
 }
+
 template <typename K, typename V>
 inline std::string firstNToString(const std::map<K, V>& c, const size_t n) {
   std::string output = "{";
@@ -1000,6 +1746,7 @@ inline std::string firstNToString(const std::map<K, V>& c, const size_t n) {
   output += "}";
   return output;
 }
+
 template <typename K, typename V>
 inline std::string lastNToString(const std::map<K, V>& c, const size_t n) {
   std::string output = "{";
@@ -1023,6 +1770,7 @@ inline std::string lastNToString(const std::map<K, V>& c, const size_t n) {
   output += "}";
   return output;
 }
+
 template <typename T>
 inline std::string toString(const std::vector<T>& c) {
   std::string output = "[ ";
@@ -1038,14 +1786,15 @@ inline std::string toString(const std::vector<T>& c) {
   output += " ]";
   return output;
 }
+
 template <typename T>
-std::string toStringPretty(const std::vector<T>& c, const int space = 2, const int leftToIndent = 0, const bool indentFirstLine = true) {
+std::string toPrettyString(const std::vector<T>& c, const int space = 2, const int leftToIndent = 0, const bool indentFirstLine = true) {
   std::string sl(leftToIndent, ' ');
   std::string output = (indentFirstLine ? sl : "") + "[\n";
   auto size = c.size();
   auto i = 0;
   for (const auto& elem : c) {
-    output += toStringPretty(elem, space, space + leftToIndent, true);
+    output += toPrettyString(elem, space, space + leftToIndent, true);
     if (i < size - 1) {
       output += ",\n";
     }
@@ -1054,6 +1803,7 @@ std::string toStringPretty(const std::vector<T>& c, const int space = 2, const i
   output += "\n" + sl + "]";
   return output;
 }
+
 template <typename T>
 inline std::string firstNToString(const std::vector<T>& c, const size_t n) {
   std::string output = "[ ";
@@ -1075,6 +1825,7 @@ inline std::string firstNToString(const std::vector<T>& c, const size_t n) {
   output += " ]";
   return output;
 }
+
 template <typename T>
 std::string firstNToStringPretty(const std::vector<T>& c, const size_t n, const int space = 2, const int leftToIndent = 0, const bool indentFirstLine = true) {
   std::string sl(leftToIndent, ' ');
@@ -1085,7 +1836,7 @@ std::string firstNToStringPretty(const std::vector<T>& c, const size_t n, const 
     if (i >= n) {
       break;
     }
-    output += toStringPretty(elem, space, space + leftToIndent, true);
+    output += toPrettyString(elem, space, space + leftToIndent, true);
     if (i < size - 1) {
       output += ",\n";
     }
@@ -1097,14 +1848,16 @@ std::string firstNToStringPretty(const std::vector<T>& c, const size_t n, const 
   output += "\n" + sl + "]";
   return output;
 }
+
 template <typename K, typename V>
-std::map<V, std::vector<K> > invertMapMulti(const std::map<K, V>& c) {
-  std::map<V, std::vector<K> > output;
+std::map<V, std::vector<K>> invertMapMulti(const std::map<K, V>& c) {
+  std::map<V, std::vector<K>> output;
   for (const auto& elem : c) {
     output[elem.second].push_back(elem.first);
   }
   return output;
 }
+
 template <typename K, typename V>
 std::map<V, K> invertMap(const std::map<K, V>& c) {
   std::map<V, K> output;
@@ -1113,6 +1866,7 @@ std::map<V, K> invertMap(const std::map<K, V>& c) {
   }
   return output;
 }
+
 template <template <class, class, class...> class C, typename K, typename V, typename... Args>
 V mapGetWithDefault(const C<K, V, Args...>& m, const K& key, const V defaultValue = {}) {
   typename C<K, V, Args...>::const_iterator it = m.find(key);
@@ -1121,5 +1875,5 @@ V mapGetWithDefault(const C<K, V, Args...>& m, const K& key, const V defaultValu
   }
   return it->second;
 }
+
 } /* namespace ccapi */
-#endif  // INCLUDE_CCAPI_CPP_CCAPI_UTIL_PRIVATE_H_

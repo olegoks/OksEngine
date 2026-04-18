@@ -9,6 +9,14 @@ TelegramNamespace = {
                 { type = "std::string", name = "token" }
             }
         },
+        InstanceComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "std::shared_ptr<TgBot::Bot>", name = "bot" },
+                { type = "std::shared_ptr<TgBot::TgLongPoll>", name = "longPoll" }
+            }
+        },
         CreateSystem = {
             type = "Initialize",
             updateMethod = {
@@ -16,7 +24,8 @@ TelegramNamespace = {
                     {
                         createsComponents = {
                             "Telegram::Bot::Tag",
-                            "Telegram::Bot::Token"
+                            "Telegram::Bot::Token",
+                            "Telegram::Bot::Instance"
                         }
                     }
                 }
@@ -28,7 +37,8 @@ TelegramNamespace = {
                     {
                         processesComponents = {
                             "Telegram::Bot::Tag",
-                            "Telegram::Bot::Token"
+                            "Telegram::Bot::Token",
+                            "Telegram::Bot::Instance"
                         }
                     }
                 }

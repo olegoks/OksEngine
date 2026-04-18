@@ -1,9 +1,11 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_COINBASE_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_COINBASE_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_EXECUTION_MANAGEMENT
 #ifdef CCAPI_ENABLE_EXCHANGE_COINBASE
 #include "ccapi_cpp/service/ccapi_execution_management_service.h"
+
 namespace ccapi {
+
 class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
  public:
   ExecutionManagementServiceCoinbase(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
@@ -13,20 +15,7 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
     this->baseUrlWs = sessionConfigs.getUrlWebsocketBase().at(this->exchangeName);
     this->baseUrlRest = sessionConfigs.getUrlRestBase().at(this->exchangeName);
     this->setHostRestFromUrlRest(this->baseUrlRest);
-    this->setHostWsFromUrlWs(this->baseUrlWs);
-    //     try {
-    //       this->tcpResolverResultsRest = this->resolver.resolve(this->hostRest, this->portRest);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-    // #else
-    //     try {
-    //       this->tcpResolverResultsWs = this->resolverWs.resolve(this->hostWs, this->portWs);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #endif
+    // this->setHostWsFromUrlWs(this->baseUrlWs);
     this->apiKeyName = CCAPI_COINBASE_API_KEY;
     this->apiSecretName = CCAPI_COINBASE_API_SECRET;
     this->apiPassphraseName = CCAPI_COINBASE_API_PASSPHRASE;
@@ -39,6 +28,7 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
     this->getAccountsTarget = "/accounts";
     this->getAccountBalancesTarget = "/accounts/<account-id>";
   }
+
   virtual ~ExecutionManagementServiceCoinbase() {}
 #ifndef CCAPI_EXPOSE_INTERNAL
 
@@ -48,7 +38,7 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
                                                std::string& headerString, std::string& path, std::string& queryString, std::string& body, const TimePoint& now,
                                                const std::map<std::string, std::string>& credential) override {
     auto apiSecret = mapGetWithDefault(credential, this->apiSecretName);
-    auto preSignedText = req.base().at("CB-ACCESS-TIMESTAMP").to_string();
+    auto preSignedText = std::string(req.base().at("CB-ACCESS-TIMESTAMP"));
     preSignedText += methodString;
     std::string target = path;
     if (!queryString.empty()) {
@@ -62,17 +52,19 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
     }
     headerString += "CB-ACCESS-SIGN:" + signature;
   }
+
   void signRequest(http::request<http::string_body>& req, const std::string& body, const std::map<std::string, std::string>& credential) {
     auto apiSecret = mapGetWithDefault(credential, this->apiSecretName);
-    auto preSignedText = req.base().at("CB-ACCESS-TIMESTAMP").to_string();
+    auto preSignedText = std::string(req.base().at("CB-ACCESS-TIMESTAMP"));
     preSignedText += std::string(req.method_string());
-    preSignedText += req.target().to_string();
+    preSignedText += std::string(req.target());
     preSignedText += body;
     auto signature = UtilAlgorithm::base64Encode(Hmac::hmac(Hmac::ShaVersion::SHA256, UtilAlgorithm::base64Decode(apiSecret), preSignedText));
     req.set("CB-ACCESS-SIGN", signature);
     req.body() = body;
     req.prepare_payload();
   }
+
   void appendParam(rj::Document& document, rj::Document::AllocatorType& allocator, const std::map<std::string, std::string>& param,
                    const std::map<std::string, std::string> standardizationMap = {
                        {CCAPI_EM_ORDER_SIDE, "side"},
@@ -89,9 +81,11 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
       document.AddMember(rj::Value(key.c_str(), allocator).Move(), rj::Value(value.c_str(), allocator).Move(), allocator);
     }
   }
+
   void appendSymbolId(rj::Document& document, rj::Document::AllocatorType& allocator, const std::string& symbolId) {
     document.AddMember("product_id", rj::Value(symbolId.c_str(), allocator).Move(), allocator);
   }
+
   void convertRequestForRest(http::request<http::string_body>& req, const Request& request, const TimePoint& now, const std::string& symbolId,
                              const std::map<std::string, std::string>& credential) override {
     req.set(beast::http::field::content_type, "application/json");
@@ -183,16 +177,17 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
         this->convertRequestForRestCustom(req, request, now, symbolId, credential);
     }
   }
+
   void extractOrderInfoFromRequest(std::vector<Element>& elementList, const Request& request, const Request::Operation operation,
                                    const rj::Document& document) override {
-    const std::map<std::string, std::pair<std::string, JsonDataType> >& extractionFieldNameMap = {
+    const std::map<std::string_view, std::pair<std::string_view, JsonDataType>>& extractionFieldNameMap = {
         {CCAPI_EM_ORDER_ID, std::make_pair("id", JsonDataType::STRING)},
         {CCAPI_EM_CLIENT_ORDER_ID, std::make_pair("client_oid", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_SIDE, std::make_pair("side", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_QUANTITY, std::make_pair("size", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_LIMIT_PRICE, std::make_pair("price", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_CUMULATIVE_FILLED_QUANTITY, std::make_pair("filled_size", JsonDataType::STRING)},
-        {CCAPI_EM_ORDER_CUMULATIVE_FILLED_PRICE_TIMES_QUANTITY, std::make_pair("executed_value", JsonDataType::STRING)},
+        {CCAPI_EM_ORDER_CUMULATIVE_FILLED_QUOTE_QUANTITY, std::make_pair("executed_value", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_STATUS, std::make_pair("status", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_INSTRUMENT, std::make_pair("product_id", JsonDataType::STRING)}};
     if (operation == Request::Operation::CANCEL_ORDER) {
@@ -219,6 +214,7 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
       }
     }
   }
+
   void extractAccountInfoFromRequest(std::vector<Element>& elementList, const Request& request, const Request::Operation operation,
                                      const rj::Document& document) override {
     switch (request.getOperation()) {
@@ -241,8 +237,9 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
         CCAPI_LOGGER_FATAL(CCAPI_UNSUPPORTED_VALUE);
     }
   }
-  std::vector<std::string> createSendStringListFromSubscription(const WsConnection& wsConnection, const Subscription& subscription, const TimePoint& now,
-                                                                const std::map<std::string, std::string>& credential) override {
+
+  std::vector<std::string> createSendStringListFromSubscription(std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription,
+                                                                const TimePoint& now, const std::map<std::string, std::string>& credential) override {
     auto apiKey = mapGetWithDefault(credential, this->apiKeyName);
     auto apiSecret = mapGetWithDefault(credential, this->apiSecretName);
     auto apiPassphrase = mapGetWithDefault(credential, this->apiPassphraseName);
@@ -293,37 +290,20 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
     sendStringList.push_back(sendString);
     return sendStringList;
   }
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-  void onTextMessage(wspp::connection_hdl hdl, const std::string& textMessage, const TimePoint& timeReceived) override {
-    WsConnection& wsConnection = this->getWsConnectionFromConnectionPtr(this->serviceContextPtr->tlsClientPtr->get_con_from_hdl(hdl));
-    auto subscription = wsConnection.subscriptionList.at(0);
-    rj::Document document;
-    document.Parse<rj::kParseNumbersAsStringsFlag>(textMessage.c_str());
-    Event event = this->createEvent(wsConnection, hdl, subscription, textMessage, document, timeReceived);
-    if (!event.getMessageList().empty()) {
-      this->eventHandler(event, nullptr);
-    }
-  }
-#else
+
   void onTextMessage(std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription, boost::beast::string_view textMessageView,
                      const TimePoint& timeReceived) override {
-    std::string textMessage(textMessageView);
-    rj::Document document;
-    document.Parse<rj::kParseNumbersAsStringsFlag>(textMessage.c_str());
+    this->jsonDocumentAllocator.Clear();
+    rj::Document document(&this->jsonDocumentAllocator);
+    document.Parse<rj::kParseNumbersAsStringsFlag>(textMessageView.data(), textMessageView.size());
     Event event = this->createEvent(wsConnectionPtr, subscription, textMessageView, document, timeReceived);
     if (!event.getMessageList().empty()) {
       this->eventHandler(event, nullptr);
     }
   }
-#endif
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-  Event createEvent(const WsConnection& wsConnection, wspp::connection_hdl hdl, const Subscription& subscription, const std::string& textMessage,
-                    const rj::Document& document, const TimePoint& timeReceived) {
-#else
+
   Event createEvent(const std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription, boost::beast::string_view textMessageView,
                     const rj::Document& document, const TimePoint& timeReceived) {
-    std::string textMessage(textMessageView);
-#endif
     Event event;
     std::vector<Message> messageList;
     Message message;
@@ -348,7 +328,7 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
             message.setType(Message::Type::EXECUTION_MANAGEMENT_EVENTS_PRIVATE_TRADE);
             std::vector<Element> elementList;
             Element element;
-            element.insert(CCAPI_TRADE_ID, std::string(document["trade_id"].GetString()));
+            element.insert(CCAPI_TRADE_ID, document["trade_id"].GetString());
             std::string priceStr = document["price"].GetString();
             std::string sizeStr = document["size"].GetString();
             element.insert(CCAPI_EM_ORDER_LAST_EXECUTED_PRICE, priceStr);
@@ -358,16 +338,14 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
               element.insert(CCAPI_EM_ORDER_SIDE, makerSide == "buy" ? CCAPI_EM_ORDER_SIDE_SELL : CCAPI_EM_ORDER_SIDE_BUY);
               element.insert(CCAPI_IS_MAKER, "0");
               element.insert(CCAPI_EM_ORDER_ID, document["taker_order_id"].GetString());
-              element.insert(CCAPI_EM_ORDER_FEE_QUANTITY, Decimal(UtilString::printDoubleScientific(std::stod(priceStr) * std::stod(sizeStr) *
-                                                                                                    std::stod(document["taker_fee_rate"].GetString())))
-                                                              .toString());
+              element.insert(CCAPI_EM_ORDER_FEE_QUANTITY, ConvertDecimalToString(Decimal(UtilString::printDoubleScientific(
+                                                              std::stod(priceStr) * std::stod(sizeStr) * std::stod(document["taker_fee_rate"].GetString())))));
             } else if (document.FindMember("maker_user_id") != document.MemberEnd()) {
               element.insert(CCAPI_EM_ORDER_SIDE, makerSide == "buy" ? CCAPI_EM_ORDER_SIDE_BUY : CCAPI_EM_ORDER_SIDE_SELL);
               element.insert(CCAPI_IS_MAKER, "1");
               element.insert(CCAPI_EM_ORDER_ID, document["maker_order_id"].GetString());
-              element.insert(CCAPI_EM_ORDER_FEE_QUANTITY, Decimal(UtilString::printDoubleScientific(std::stod(priceStr) * std::stod(sizeStr) *
-                                                                                                    std::stod(document["maker_fee_rate"].GetString())))
-                                                              .toString());
+              element.insert(CCAPI_EM_ORDER_FEE_QUANTITY, ConvertDecimalToString(Decimal(UtilString::printDoubleScientific(
+                                                              std::stod(priceStr) * std::stod(sizeStr) * std::stod(document["maker_fee_rate"].GetString())))));
             }
             element.insert(CCAPI_EM_ORDER_INSTRUMENT, instrument);
             elementList.emplace_back(std::move(element));
@@ -376,7 +354,7 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
           }
           if (fieldSet.find(CCAPI_EM_ORDER_UPDATE) != fieldSet.end()) {
             message.setType(Message::Type::EXECUTION_MANAGEMENT_EVENTS_ORDER_UPDATE);
-            std::map<std::string, std::pair<std::string, JsonDataType> > extractionFieldNameMap = {
+            std::map<std::string_view, std::pair<std::string_view, JsonDataType>> extractionFieldNameMap = {
                 {CCAPI_EM_ORDER_ID, std::make_pair("order_id", JsonDataType::STRING)},
                 {CCAPI_EM_CLIENT_ORDER_ID, std::make_pair("client_oid", JsonDataType::STRING)},
                 {CCAPI_EM_ORDER_SIDE, std::make_pair("side", JsonDataType::STRING)},
@@ -386,9 +364,9 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
                 {CCAPI_EM_ORDER_INSTRUMENT, std::make_pair("product_id", JsonDataType::STRING)},
             };
             if (type == "change") {
-              extractionFieldNameMap.insert({CCAPI_EM_ORDER_QUANTITY, std::make_pair("new_size", JsonDataType::STRING)});
+              extractionFieldNameMap.emplace(CCAPI_EM_ORDER_QUANTITY, std::make_pair("new_size", JsonDataType::STRING));
             } else {
-              extractionFieldNameMap.insert({CCAPI_EM_ORDER_QUANTITY, std::make_pair("size", JsonDataType::STRING)});
+              extractionFieldNameMap.emplace(CCAPI_EM_ORDER_QUANTITY, std::make_pair("size", JsonDataType::STRING));
             }
             Element info;
             this->extractOrderInfo(info, document, extractionFieldNameMap);
@@ -403,24 +381,24 @@ class ExecutionManagementServiceCoinbase : public ExecutionManagementService {
       event.setType(Event::Type::SUBSCRIPTION_STATUS);
       message.setType(Message::Type::SUBSCRIPTION_STARTED);
       Element element;
-      element.insert(CCAPI_INFO_MESSAGE, textMessage);
+      element.insert(CCAPI_INFO_MESSAGE, textMessageView);
       message.setElementList({element});
       messageList.emplace_back(std::move(message));
     } else if (type == "error") {
       event.setType(Event::Type::SUBSCRIPTION_STATUS);
       message.setType(Message::Type::SUBSCRIPTION_FAILURE);
       Element element;
-      element.insert(CCAPI_ERROR_MESSAGE, textMessage);
+      element.insert(CCAPI_ERROR_MESSAGE, textMessageView);
       message.setElementList({element});
       messageList.emplace_back(std::move(message));
     }
     event.setMessageList(messageList);
     return event;
   }
-  std::string apiPassphraseName;
+
   std::set<std::string> websocketFullChannelTypeSet{"received", "open", "done", "match", "change", "activate"};
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_COINBASE_H_

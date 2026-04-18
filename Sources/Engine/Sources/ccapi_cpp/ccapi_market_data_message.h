@@ -1,10 +1,12 @@
-#ifndef INCLUDE_CCAPI_CPP_CCAPI_MARKET_DATA_MESSAGE_H_
-#define INCLUDE_CCAPI_CPP_CCAPI_MARKET_DATA_MESSAGE_H_
+#pragma once
+
 #include "ccapi_cpp/ccapi_logger.h"
 #include "ccapi_cpp/ccapi_util_private.h"
+
 // #include "ccapi_message.h"
 namespace ccapi {
-class MarketDataMessage CCAPI_FINAL {
+
+class MarketDataMessage {
   /**
    * A handle to a single market data message. Each MarketDataMessage is associated with one 'exchangeSubscriptionId' value. The MarketDataMessage contents are
    * represented in its 'data' attribute. Each MarketDataMessage object consists of an Type attribute and a RecapType attribute. The exchange timestamp (if any)
@@ -23,6 +25,7 @@ class MarketDataMessage CCAPI_FINAL {
     NONE,       // normal data tick; not a recap
     SOLICITED,  // generated on request by subscriber
   };
+
   static std::string recapTypeToString(RecapType recapType) {
     std::string output;
     switch (recapType) {
@@ -47,6 +50,7 @@ class MarketDataMessage CCAPI_FINAL {
     AGG_TRADE = 3,
     CANDLESTICK = 4,
   };
+
   static std::string dataTypeToString(DataType dataType) {
     std::string output;
     switch (dataType) {
@@ -84,6 +88,7 @@ class MarketDataMessage CCAPI_FINAL {
     VOLUME = 10,
     QUOTE_VOLUME = 11,
   };
+
   static std::string dataFieldTypeToString(DataFieldType dataFieldType) {
     std::string output;
     switch (dataFieldType) {
@@ -128,48 +133,103 @@ class MarketDataMessage CCAPI_FINAL {
     }
     return output;
   }
-  typedef std::map<DataFieldType, std::string> TypeForDataPoint;
-  typedef std::map<DataType, std::vector<std::map<DataFieldType, std::string> > > TypeForData;
-  static std::string dataToString(const TypeForData& data) {
+
+  typedef std::map<DataFieldType, std::string_view> TypeForDataPoint;
+  typedef std::map<DataType, std::vector<TypeForDataPoint>> TypeForData;
+
+  typedef std::map<DataFieldType, std::string> TypeForOwingDataPoint;
+  typedef std::map<DataType, std::vector<TypeForOwingDataPoint>> TypeForOwingData;
+
+  static TypeForOwingData ConvertDataToOwingData(const TypeForData& input) {
+    TypeForOwingData output;
+    for (const auto& [dataType, dataPoints] : input) {
+      for (const auto& dataPoint : dataPoints) {
+        output[dataType].push_back(ConvertDataPointToOwingDataPoint(dataPoint));
+      }
+    }
+    return output;
+  }
+
+  static TypeForData ConvertOwningDataToData(const TypeForOwingData& input) {
+    TypeForData output;
+    for (const auto& [dataType, dataPoints] : input) {
+      for (const auto& dataPoint : dataPoints) {
+        output[dataType].push_back(ConvertOwningDataPointToDataPoint(dataPoint));
+      }
+    }
+    return output;
+  }
+
+  static TypeForOwingDataPoint ConvertDataPointToOwingDataPoint(const TypeForDataPoint& input) {
+    TypeForOwingDataPoint output;
+    for (const auto& [dataFieldType, dataFieldValue] : input) {
+      output.emplace(dataFieldType, std::string(dataFieldValue));
+    }
+    return output;
+  }
+
+  static TypeForDataPoint ConvertOwningDataPointToDataPoint(const TypeForOwingDataPoint& input) {
+    TypeForDataPoint output;
+    for (const auto& [dataFieldType, dataFieldValue] : input) {
+      output.emplace(dataFieldType, std::string_view(dataFieldValue));
+    }
+    return output;
+  }
+
+  template <typename DataMap>
+  static std::string dataToString(const DataMap& data) {
     std::string output1 = "{";
     auto size1 = data.size();
     auto i1 = 0;
+
     for (const auto& elem1 : data) {
       output1 += dataTypeToString(elem1.first);
       output1 += "=";
+
       std::string output2 = "[ ";
       auto size2 = elem1.second.size();
       auto i2 = 0;
+
       for (const auto& elem2 : elem1.second) {
         std::string output3 = "{";
         auto size3 = elem2.size();
         auto i3 = 0;
+
         for (const auto& elem3 : elem2) {
           output3 += dataFieldTypeToString(elem3.first);
           output3 += "=";
+
+          // Works for std::string, std::string_view, or any type
           output3 += ccapi::toString(elem3.second);
+
           if (i3 < size3 - 1) {
             output3 += ", ";
           }
           ++i3;
         }
+
         output3 += "}";
         output2 += output3;
+
         if (i2 < size2 - 1) {
           output2 += ", ";
         }
         ++i2;
       }
+
       output2 += " ]";
       output1 += output2;
+
       if (i1 < size1 - 1) {
         output1 += ", ";
       }
       ++i1;
     }
+
     output1 += "}";
     return output1;
   }
+
   static std::string typeToString(Type type) {
     std::string output;
     switch (type) {
@@ -193,16 +253,18 @@ class MarketDataMessage CCAPI_FINAL {
     }
     return output;
   }
+
   std::string toString() const {
     std::string output = "MarketDataMessage [type = " + typeToString(type) + ", recapType = " + recapTypeToString(recapType) + ", tp = " + ccapi::toString(tp) +
-                         ", exchangeSubscriptionId = " + exchangeSubscriptionId + ", data = " + dataToString(data) + "]";
+                         ", exchangeSubscriptionId = " + exchangeSubscriptionId + ", data = " + dataToString<TypeForData>(data) + "]";
     return output;
   }
+
   Type type{Type::UNKNOWN};
   RecapType recapType{RecapType::UNKNOWN};
   TimePoint tp{std::chrono::seconds{0}};
   std::string exchangeSubscriptionId;
   TypeForData data;
 };
+
 } /* namespace ccapi */
-#endif  // INCLUDE_CCAPI_CPP_CCAPI_MARKET_DATA_MESSAGE_H_

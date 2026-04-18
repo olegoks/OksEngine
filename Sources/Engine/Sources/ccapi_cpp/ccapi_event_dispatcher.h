@@ -1,5 +1,5 @@
-#ifndef INCLUDE_CCAPI_CPP_CCAPI_EVENT_DISPATCHER_H_
-#define INCLUDE_CCAPI_CPP_CCAPI_EVENT_DISPATCHER_H_
+#pragma once
+
 #include <stddef.h>
 
 #include <atomic>
@@ -12,14 +12,16 @@
 
 #include "ccapi_cpp/ccapi_logger.h"
 #include "ccapi_cpp/ccapi_util_private.h"
+
 namespace ccapi {
+
 /**
  * Dispatches events from one or more Sessions through callbacks. EventDispatcher objects are optionally specified when Session objects are constructed. A
  * single EventDispatcher can be shared by multiple Session objects. The EventDispatcher provides an event-driven interface, generating callbacks from one or
  * more internal threads for one or more sessions.
  */
 
-class EventDispatcher CCAPI_FINAL {
+class EventDispatcher {
  public:
   explicit EventDispatcher(const int numDispatcherThreads = 1) : numDispatcherThreads(numDispatcherThreads) {
     CCAPI_LOGGER_FUNCTION_ENTER;
@@ -27,10 +29,12 @@ class EventDispatcher CCAPI_FINAL {
     this->start();
     CCAPI_LOGGER_FUNCTION_EXIT;
   }
+
   ~EventDispatcher() {
     CCAPI_LOGGER_FUNCTION_ENTER;
     CCAPI_LOGGER_FUNCTION_EXIT;
   }
+
   void dispatch(const std::function<void()>& op) {
     CCAPI_LOGGER_FUNCTION_ENTER;
     if (this->shouldContinue.load()) {
@@ -46,14 +50,18 @@ class EventDispatcher CCAPI_FINAL {
     }
     CCAPI_LOGGER_FUNCTION_EXIT;
   }
+
   void start() {
     this->shouldContinue = true;
     for (size_t i = 0; i < numDispatcherThreads; i++) {
       this->dispatcherThreads.push_back(std::thread(&EventDispatcher::dispatch_thread_handler, this));
     }
   }
+
   void resume() { this->shouldContinue = true; }
+
   void pause() { this->shouldContinue = false; }
+
   void stop() {
     std::unique_lock<std::mutex> lock(this->lock);
     this->quit = true;
@@ -85,13 +93,14 @@ class EventDispatcher CCAPI_FINAL {
     } while (!this->quit);
     CCAPI_LOGGER_FUNCTION_EXIT;
   }
-  size_t numDispatcherThreads;
+
+  size_t numDispatcherThreads{};
   std::atomic<bool> shouldContinue{};
   std::vector<std::thread> dispatcherThreads;
   std::mutex lock;
-  std::queue<std::function<void()> > queue;
+  std::queue<std::function<void()>> queue;
   std::condition_variable cv;
   bool quit{};
 };
+
 } /* namespace ccapi */
-#endif  // INCLUDE_CCAPI_CPP_CCAPI_EVENT_DISPATCHER_H_

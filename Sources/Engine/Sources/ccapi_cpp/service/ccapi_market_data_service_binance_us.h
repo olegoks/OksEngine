@@ -1,9 +1,11 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_MARKET_DATA_SERVICE_BINANCE_US_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_MARKET_DATA_SERVICE_BINANCE_US_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_MARKET_DATA
 #ifdef CCAPI_ENABLE_EXCHANGE_BINANCE_US
 #include "ccapi_cpp/service/ccapi_market_data_service_binance_base.h"
+
 namespace ccapi {
+
 class MarketDataServiceBinanceUs : public MarketDataServiceBinanceBase {
  public:
   MarketDataServiceBinanceUs(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
@@ -13,20 +15,7 @@ class MarketDataServiceBinanceUs : public MarketDataServiceBinanceBase {
     this->baseUrlWs = sessionConfigs.getUrlWebsocketBase().at(this->exchangeName) + "/stream";
     this->baseUrlRest = sessionConfigs.getUrlRestBase().at(this->exchangeName);
     this->setHostRestFromUrlRest(this->baseUrlRest);
-    this->setHostWsFromUrlWs(this->baseUrlWs);
-    //     try {
-    //       this->tcpResolverResultsRest = this->resolver.resolve(this->hostRest, this->portRest);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-    // #else
-    //     try {
-    //       this->tcpResolverResultsWs = this->resolverWs.resolve(this->hostWs, this->portWs);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #endif
+    // this->setHostWsFromUrlWs(this->baseUrlWs);
     this->apiKeyName = CCAPI_BINANCE_US_API_KEY;
     this->setupCredential({this->apiKeyName});
     this->getRecentTradesTarget = "/api/v3/trades";
@@ -36,12 +25,15 @@ class MarketDataServiceBinanceUs : public MarketDataServiceBinanceBase {
     this->getRecentCandlesticksTarget = "/api/v3/klines";
     this->getHistoricalCandlesticksTarget = "/api/v3/klines";
     this->getMarketDepthTarget = "/api/v3/depth";
+    this->getServerTimeTarget = "/api/v3/time";
     this->getInstrumentTarget = "/api/v3/exchangeInfo";
     this->getInstrumentsTarget = "/api/v3/exchangeInfo";
+    this->getBbosTarget = "/api/v3/ticker/bookTicker";
   }
+
   virtual ~MarketDataServiceBinanceUs() {}
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_MARKET_DATA_SERVICE_BINANCE_US_H_

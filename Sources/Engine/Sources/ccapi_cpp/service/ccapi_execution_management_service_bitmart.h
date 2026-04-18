@@ -1,9 +1,11 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_BITMART_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_BITMART_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_EXECUTION_MANAGEMENT
 #ifdef CCAPI_ENABLE_EXCHANGE_BITMART
 #include "ccapi_cpp/service/ccapi_execution_management_service.h"
+
 namespace ccapi {
+
 class ExecutionManagementServiceBitmart : public ExecutionManagementService {
  public:
   ExecutionManagementServiceBitmart(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
@@ -13,20 +15,7 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
     this->baseUrlWs = sessionConfigs.getUrlWebsocketBase().at(this->exchangeName) + "/user?protocol=1.1";
     this->baseUrlRest = sessionConfigs.getUrlRestBase().at(this->exchangeName);
     this->setHostRestFromUrlRest(this->baseUrlRest);
-    this->setHostWsFromUrlWs(this->baseUrlWs);
-    //     try {
-    //       this->tcpResolverResultsRest = this->resolver.resolve(this->hostRest, this->portRest);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-    // #else
-    //     try {
-    //       this->tcpResolverResultsWs = this->resolverWs.resolve(this->hostWs, this->portWs);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #endif
+    // this->setHostWsFromUrlWs(this->baseUrlWs);
     this->apiKeyName = CCAPI_BITMART_API_KEY;
     this->apiSecretName = CCAPI_BITMART_API_SECRET;
     this->apiMemoName = CCAPI_BITMART_API_MEMO;
@@ -38,31 +27,29 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
     this->cancelOpenOrdersTarget = "/spot/v1/cancel_orders";
     this->getAccountBalancesTarget = "/spot/v1/wallet";
     this->needDecompressWebsocketMessage = true;
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-    ErrorCode ec = this->inflater.init(false);
-#else
     ErrorCode ec = this->inflater.init();
-#endif
     if (ec) {
       CCAPI_LOGGER_FATAL(ec.message());
     }
   }
+
   virtual ~ExecutionManagementServiceBitmart() {}
 #ifndef CCAPI_EXPOSE_INTERNAL
 
  private:
 #endif
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-  void pingOnApplicationLevel(wspp::connection_hdl hdl, ErrorCode& ec) override { this->send(hdl, "ping", wspp::frame::opcode::text, ec); }
-#else
+
   void pingOnApplicationLevel(std::shared_ptr<WsConnection> wsConnectionPtr, ErrorCode& ec) override { this->send(wsConnectionPtr, "ping", ec); }
-#endif
-  bool doesHttpBodyContainError(const std::string& body) override { return !std::regex_search(body, std::regex("\"code\":\\s*1000")); }
+
+  bool doesHttpBodyContainError(boost::beast::string_view bodyView) override {
+    return !std::regex_search(bodyView.begin(), bodyView.end(), std::regex("\"code\":\\s*1000"));
+  }
+
   void signReqeustForRestGenericPrivateRequest(http::request<http::string_body>& req, const Request& request, std::string& methodString,
                                                std::string& headerString, std::string& path, std::string& queryString, std::string& body, const TimePoint& now,
                                                const std::map<std::string, std::string>& credential) override {
     auto apiSecret = mapGetWithDefault(credential, this->apiSecretName);
-    auto preSignedText = req.base().at("X-BM-TIMESTAMP").to_string();
+    auto preSignedText = std::string(req.base().at("X-BM-TIMESTAMP"));
     preSignedText += "#";
     preSignedText += mapGetWithDefault(credential, this->apiMemoName);
     preSignedText += "#";
@@ -79,9 +66,10 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
     }
     headerString += "X-BM-SIGN:" + signature;
   }
+
   void signRequest(http::request<http::string_body>& req, const std::string& paramString, const std::map<std::string, std::string>& credential) {
     auto apiSecret = mapGetWithDefault(credential, this->apiSecretName);
-    auto preSignedText = req.base().at("X-BM-TIMESTAMP").to_string();
+    auto preSignedText = std::string(req.base().at("X-BM-TIMESTAMP"));
     preSignedText += "#";
     preSignedText += mapGetWithDefault(credential, this->apiMemoName);
     preSignedText += "#";
@@ -89,6 +77,7 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
     auto signature = Hmac::hmac(Hmac::ShaVersion::SHA256, apiSecret, preSignedText, true);
     req.set("X-BM-SIGN", signature);
   }
+
   void appendParam(Request::Operation operation, rj::Value& rjValue, rj::Document::AllocatorType& allocator, const std::map<std::string, std::string>& param,
                    const std::map<std::string, std::string> standardizationMap = {
                        {CCAPI_EM_ORDER_SIDE, "side"},
@@ -107,6 +96,7 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
       rjValue.AddMember(rj::Value(key.c_str(), allocator).Move(), rj::Value(value.c_str(), allocator).Move(), allocator);
     }
   }
+
   void appendParam(std::string& queryString, const std::map<std::string, std::string>& param,
                    const std::map<std::string, std::string> standardizationMap = {
                        {CCAPI_EM_ORDER_ID, "order_id"},
@@ -119,14 +109,17 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
       queryString += "&";
     }
   }
+
   void appendSymbolId(rj::Value& rjValue, rj::Document::AllocatorType& allocator, const std::string& symbolId) {
     rjValue.AddMember("symbol", rj::Value(symbolId.c_str(), allocator).Move(), allocator);
   }
+
   void appendSymbolId(std::string& queryString, const std::string& symbolId) {
     queryString += "symbol=";
     queryString += Url::urlEncode(symbolId);
     queryString += "&";
   }
+
   void convertRequestForRest(http::request<http::string_body>& req, const Request& request, const TimePoint& now, const std::string& symbolId,
                              const std::map<std::string, std::string>& credential) override {
     req.set(beast::http::field::content_type, "application/json");
@@ -141,6 +134,7 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
       case Request::Operation::CREATE_ORDER: {
         req.method(http::verb::post);
         req.target(this->createOrderTarget);
+        req.set("X-BM-BROKER-ID", CCAPI_BITMART_BROKER_ID);
         const std::map<std::string, std::string> param = request.getFirstParamWithDefault();
         rj::Document document;
         document.SetObject();
@@ -233,16 +227,17 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
         this->convertRequestForRestCustom(req, request, now, symbolId, credential);
     }
   }
+
   void extractOrderInfoFromRequest(std::vector<Element>& elementList, const Request& request, const Request::Operation operation,
                                    const rj::Document& document) override {
-    const std::map<std::string, std::pair<std::string, JsonDataType> >& extractionFieldNameMap = {
+    const std::map<std::string_view, std::pair<std::string_view, JsonDataType>>& extractionFieldNameMap = {
         {CCAPI_EM_ORDER_ID, std::make_pair("order_id", JsonDataType::STRING)},
         {CCAPI_EM_CLIENT_ORDER_ID, std::make_pair("client_order_id", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_SIDE, std::make_pair("side", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_QUANTITY, std::make_pair("size", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_LIMIT_PRICE, std::make_pair("price", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_CUMULATIVE_FILLED_QUANTITY, std::make_pair("filled_size", JsonDataType::STRING)},
-        {CCAPI_EM_ORDER_CUMULATIVE_FILLED_PRICE_TIMES_QUANTITY, std::make_pair("filled_notional", JsonDataType::STRING)},
+        {CCAPI_EM_ORDER_CUMULATIVE_FILLED_QUOTE_QUANTITY, std::make_pair("filled_notional", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_STATUS, std::make_pair("state", JsonDataType::STRING)},
         {CCAPI_EM_ORDER_INSTRUMENT, std::make_pair("symbol", JsonDataType::STRING)}};
     const rj::Value& data = document["data"];
@@ -259,6 +254,7 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
       elementList.emplace_back(std::move(element));
     }
   }
+
   void extractAccountInfoFromRequest(std::vector<Element>& elementList, const Request& request, const Request::Operation operation,
                                      const rj::Document& document) override {
     switch (request.getOperation()) {
@@ -269,7 +265,7 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
           std::string available = x["available"].GetString();
           std::string frozen = x["frozen"].GetString();
           element.insert(CCAPI_EM_QUANTITY_AVAILABLE_FOR_TRADING, available);
-          element.insert(CCAPI_EM_QUANTITY_TOTAL, (Decimal(available).add(Decimal(frozen))).toString());
+          element.insert(CCAPI_EM_QUANTITY_TOTAL, (ConvertDecimalToString(Decimal(available) + (Decimal(frozen)))));
           elementList.emplace_back(std::move(element));
         }
       } break;
@@ -277,8 +273,9 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
         CCAPI_LOGGER_FATAL(CCAPI_UNSUPPORTED_VALUE);
     }
   }
-  std::vector<std::string> createSendStringListFromSubscription(const WsConnection& wsConnection, const Subscription& subscription, const TimePoint& now,
-                                                                const std::map<std::string, std::string>& credential) override {
+
+  std::vector<std::string> createSendStringListFromSubscription(std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription,
+                                                                const TimePoint& now, const std::map<std::string, std::string>& credential) override {
     std::vector<std::string> sendStringList;
     rj::Document document;
     document.SetObject();
@@ -301,18 +298,13 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
     sendStringList.push_back(sendString);
     return sendStringList;
   }
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-  void onTextMessage(const WsConnection& wsConnection, const Subscription& subscription, const std::string& textMessage,
-                     const TimePoint& timeReceived) override {
-#else
+
   void onTextMessage(std::shared_ptr<WsConnection> wsConnectionPtr, const Subscription& subscription, boost::beast::string_view textMessageView,
                      const TimePoint& timeReceived) override {
-    WsConnection& wsConnection = *wsConnectionPtr;
-    std::string textMessage(textMessageView);
-#endif
-    if (textMessage != "pong") {
-      rj::Document document;
-      document.Parse<rj::kParseNumbersAsStringsFlag>(textMessage.c_str());
+    if (textMessageView != "pong") {
+      this->jsonDocumentAllocator.Clear();
+      rj::Document document(&this->jsonDocumentAllocator);
+      document.Parse<rj::kParseNumbersAsStringsFlag>(textMessageView.data(), textMessageView.size());
       auto it = document.FindMember("errorCode");
       std::string errorCode = it != document.MemberEnd() ? it->value.GetString() : "";
       Event event;
@@ -338,41 +330,15 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
           document.Accept(writerSubscribe);
           std::string sendString = stringBufferSubscribe.GetString();
           ErrorCode ec;
-#ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-          this->send(wsConnection.hdl, sendString, wspp::frame::opcode::text, ec);
-#else
+
           this->send(wsConnectionPtr, sendString, ec);
-#endif
+
           if (ec) {
             this->onError(Event::Type::SUBSCRIPTION_STATUS, Message::Type::SUBSCRIPTION_FAILURE, ec, "subscribe");
           }
-          // else {
-          //   this->serviceContextPtr->tlsClientPtr->set_timer(1000,
-          //        [wsConnection,correlationId,sendString,that=this](ErrorCode const& ec) {
-          //          auto timeReceived=UtilTime::now();
-          //          if (ec) {
-          //            that->onError(Event::Type::SUBSCRIPTION_STATUS, Message::Type::GENERIC_ERROR, ec, "timer");
-          //          } else {
-          //            if (!that->subscriptionFailedByConnectionIdCorrelationIdMap[wsConnection.id][correlationId]){
-          //              Event event;
-          //              event.setType(Event::Type::SUBSCRIPTION_STATUS);
-          //              std::vector<Message> messageList;
-          //              Message message;
-          //              message.setTimeReceived(timeReceived);
-          //              message.setCorrelationIdList({correlationId});
-          //              message.setType(Message::Type::SUBSCRIPTION_STARTED);
-          //              Element element;
-          //              element.insert(CCAPI_INFO_MESSAGE, sendString);
-          //              message.setElementList({element});
-          //              messageList.emplace_back(std::move(message));
-          //              event.addMessages(messageList);
-          //              that->eventHandler(event, nullptr);
-          //            }
-          //          }
-          //        });
-          // }
+
         } else {
-          event = this->createEvent(subscription, textMessage, document, eventStr, timeReceived);
+          event = this->createEvent(subscription, textMessageView, document, eventStr, timeReceived);
         }
       } else {
         std::string eventStr = document["event"].GetString();
@@ -383,12 +349,12 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
           message.setTimeReceived(timeReceived);
           message.setType(Message::Type::SUBSCRIPTION_FAILURE);
           Element element;
-          element.insert(CCAPI_ERROR_MESSAGE, textMessage);
+          element.insert(CCAPI_ERROR_MESSAGE, textMessageView);
           message.setElementList({element});
           message.setCorrelationIdList({correlationId});
           messageList.emplace_back(std::move(message));
           event.setMessageList(messageList);
-          // this->subscriptionFailedByConnectionIdCorrelationIdMap[wsConnection.id][correlationId] = true;
+          // this->subscriptionFailedByConnectionIdCorrelationIdMap[wsConnectionPtr->id][correlationId] = true;
         }
       }
       if (!event.getMessageList().empty()) {
@@ -396,7 +362,8 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
       }
     }
   }
-  Event createEvent(const Subscription& subscription, const std::string& textMessage, const rj::Document& document, const std::string& eventStr,
+
+  Event createEvent(const Subscription& subscription, const std::string& textMessageView, const rj::Document& document, const std::string& eventStr,
                     const TimePoint& timeReceived) {
     Event event;
     std::vector<Message> messageList;
@@ -410,7 +377,7 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
       event.setType(Event::Type::SUBSCRIPTION_STATUS);
       message.setType(Message::Type::SUBSCRIPTION_STARTED);
       Element element;
-      element.insert(CCAPI_INFO_MESSAGE, textMessage);
+      element.insert(CCAPI_INFO_MESSAGE, textMessageView);
       message.setElementList({element});
       messageList.emplace_back(std::move(message));
     } else {
@@ -434,17 +401,17 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
                   std::vector<Element> elementList;
                   Element element;
                   element.insert(CCAPI_TRADE_ID, tradeId);
-                  element.insert(CCAPI_EM_ORDER_LAST_EXECUTED_PRICE, std::string(x["last_fill_price"].GetString()));
-                  element.insert(CCAPI_EM_ORDER_LAST_EXECUTED_SIZE, std::string(x["last_fill_count"].GetString()));
-                  element.insert(CCAPI_EM_ORDER_SIDE, std::string(x["side"].GetString()) == "buy" ? CCAPI_EM_ORDER_SIDE_BUY : CCAPI_EM_ORDER_SIDE_SELL);
-                  element.insert(CCAPI_IS_MAKER, std::string(x["exec_type"].GetString()) == "M" ? "1" : "0");
-                  element.insert(CCAPI_EM_ORDER_ID, std::string(x["order_id"].GetString()));
+                  element.insert(CCAPI_EM_ORDER_LAST_EXECUTED_PRICE, x["last_fill_price"].GetString());
+                  element.insert(CCAPI_EM_ORDER_LAST_EXECUTED_SIZE, x["last_fill_count"].GetString());
+                  element.insert(CCAPI_EM_ORDER_SIDE, std::string_view(x["side"].GetString()) == "buy" ? CCAPI_EM_ORDER_SIDE_BUY : CCAPI_EM_ORDER_SIDE_SELL);
+                  element.insert(CCAPI_IS_MAKER, std::string_view(x["exec_type"].GetString()) == "M" ? "1" : "0");
+                  element.insert(CCAPI_EM_ORDER_ID, x["order_id"].GetString());
                   const auto& itClientOrderId = x.FindMember("client_order_id");
                   if (itClientOrderId != x.MemberEnd() && !itClientOrderId->value.IsNull()) {
-                    element.insert(CCAPI_EM_CLIENT_ORDER_ID, std::string(itClientOrderId->value.GetString()));
+                    element.insert(CCAPI_EM_CLIENT_ORDER_ID, itClientOrderId->value.GetString());
                   }
                   element.insert(CCAPI_EM_ORDER_INSTRUMENT, instrument);
-                  element.insert(CCAPI_EM_ORDER_FEE_QUANTITY, std::string(x["dealFee"].GetString()));
+                  element.insert(CCAPI_EM_ORDER_FEE_QUANTITY, x["dealFee"].GetString());
                   elementList.emplace_back(std::move(element));
                   message.setElementList(elementList);
                   messageList.emplace_back(std::move(message));
@@ -457,14 +424,14 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
               message.setCorrelationIdList({subscription.getCorrelationId()});
               message.setTime(UtilTime::makeTimePointFromMilliseconds(std::stoll(std::string(x["ms_t"].GetString()))));
               message.setType(Message::Type::EXECUTION_MANAGEMENT_EVENTS_ORDER_UPDATE);
-              const std::map<std::string, std::pair<std::string, JsonDataType> >& extractionFieldNameMap = {
+              const std::map<std::string_view, std::pair<std::string_view, JsonDataType>>& extractionFieldNameMap = {
                   {CCAPI_EM_ORDER_ID, std::make_pair("order_id", JsonDataType::STRING)},
                   {CCAPI_EM_CLIENT_ORDER_ID, std::make_pair("client_order_id", JsonDataType::STRING)},
                   {CCAPI_EM_ORDER_SIDE, std::make_pair("side", JsonDataType::STRING)},
                   {CCAPI_EM_ORDER_LIMIT_PRICE, std::make_pair("price", JsonDataType::STRING)},
                   {CCAPI_EM_ORDER_QUANTITY, std::make_pair("size", JsonDataType::STRING)},
                   {CCAPI_EM_ORDER_CUMULATIVE_FILLED_QUANTITY, std::make_pair("filled_size", JsonDataType::STRING)},
-                  {CCAPI_EM_ORDER_CUMULATIVE_FILLED_PRICE_TIMES_QUANTITY, std::make_pair("filled_notional", JsonDataType::STRING)},
+                  {CCAPI_EM_ORDER_CUMULATIVE_FILLED_QUOTE_QUANTITY, std::make_pair("filled_notional", JsonDataType::STRING)},
                   {CCAPI_EM_ORDER_STATUS, std::make_pair("state", JsonDataType::STRING)},
               };
               Element info;
@@ -482,15 +449,16 @@ class ExecutionManagementServiceBitmart : public ExecutionManagementService {
     event.setMessageList(messageList);
     return event;
   }
+
   // void onClose(wspp::connection_hdl hdl) override {
   //   WsConnection& wsConnection = this->getWsConnectionFromConnectionPtr(this->serviceContextPtr->tlsClientPtr->get_con_from_hdl(hdl));
-  //   this->subscriptionFailedByConnectionIdCorrelationIdMap.erase(wsConnection.id);
+  //   this->subscriptionFailedByConnectionIdCorrelationIdMap.erase(wsConnectionPtr->id);
   //   ExecutionManagementService::onClose(hdl);
   // }
   std::string apiMemoName;
   // std::map<std::string, std::map<std::string, bool>> subscriptionFailedByConnectionIdCorrelationIdMap;
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_BITMART_H_

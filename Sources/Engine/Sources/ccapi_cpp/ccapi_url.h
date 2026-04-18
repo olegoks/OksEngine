@@ -1,15 +1,17 @@
-#ifndef INCLUDE_CCAPI_CPP_CCAPI_URL_H_
-#define INCLUDE_CCAPI_CPP_CCAPI_URL_H_
+#pragma once
+
 #include <regex>
 #include <string>
 
 #include "ccapi_cpp/ccapi_macro.h"
 #include "ccapi_cpp/ccapi_util_private.h"
+
 namespace ccapi {
+
 /**
  * This class represents a url.
  */
-class Url CCAPI_FINAL {
+class Url {
  public:
   explicit Url(std::string urlStr) {
     std::regex ex("^(.*:)//([A-Za-z0-9\\-\\.]+)(:[0-9]+)?(.*)$");
@@ -21,12 +23,15 @@ class Url CCAPI_FINAL {
       this->target = std::string(what[4].first, what[4].second);
     }
   }
+
   Url(std::string protocol, std::string host, std::string port, std::string target) : protocol(protocol), host(host), port(port), target(target) {}
+
   std::string toString() const {
     std::string output = "Url [protocol = " + protocol + ", host = " + host + ", port = " + port + ", target = " + target + "]";
     return output;
   }
-  static std::string urlEncode(const std::string &value) {
+
+  static std::string urlEncode(const std::string& value) {
     std::ostringstream escaped;
     escaped.fill('0');
     escaped << std::hex;
@@ -44,7 +49,8 @@ class Url CCAPI_FINAL {
     }
     return escaped.str();
   }
-  static std::string urlDecode(const std::string &value) {
+
+  static std::string urlDecode(const std::string& value) {
     std::string ret;
     char ch;
     int i, ii;
@@ -60,17 +66,19 @@ class Url CCAPI_FINAL {
     }
     return (ret);
   }
-  static std::map<std::string, std::string> convertQueryStringToMap(const std::string &input) {
+
+  static std::map<std::string, std::string> convertQueryStringToMap(const std::string& input) {
     std::map<std::string, std::string> output;
-    for (const auto &x : UtilString::split(input, "&")) {
+    for (const auto& x : UtilString::split(input, "&")) {
       auto y = UtilString::split(x, "=");
       output.insert(std::make_pair(y.at(0), Url::urlDecode(y.at(1))));
     }
     return output;
   }
-  static std::string convertMapToQueryString(const std::map<std::string, std::string> &input) {
+
+  static std::string convertMapToQueryString(const std::map<std::string, std::string>& input) {
     std::string output;
-    for (const auto &x : input) {
+    for (const auto& x : input) {
       output += x.first;
       output += "=";
       output += x.second;
@@ -81,10 +89,11 @@ class Url CCAPI_FINAL {
     }
     return output;
   }
-  static std::string convertMapToFormUrlEncoded(const std::map<std::string, std::string> &input) {
+
+  static std::string convertMapToFormUrlEncoded(const std::map<std::string, std::string>& input) {
     std::string output;
     int i = 0;
-    for (const auto &x : input) {
+    for (const auto& x : input) {
       output += Url::urlEncode(x.first);
       output += "=";
       output += Url::urlEncode(x.second);
@@ -94,18 +103,20 @@ class Url CCAPI_FINAL {
     }
     return output;
   }
-  static std::map<std::string, std::string> convertFormUrlEncodedToMap(const std::string &input) {
+
+  static std::map<std::string, std::string> convertFormUrlEncodedToMap(const std::string& input) {
     std::map<std::string, std::string> output;
-    for (const auto &x : UtilString::split(input, "&")) {
+    for (const auto& x : UtilString::split(input, "&")) {
       auto y = UtilString::split(x, "=");
       output.insert(std::make_pair(Url::urlDecode(y.at(0)), Url::urlDecode(y.at(1))));
     }
     return output;
   }
+
   std::string protocol;
   std::string host;
   std::string port;
   std::string target;  // should be url-encoded
 };
+
 } /* namespace ccapi */
-#endif  // INCLUDE_CCAPI_CPP_CCAPI_URL_H_

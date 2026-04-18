@@ -1,9 +1,11 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_MARKET_DATA_SERVICE_HUOBI_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_MARKET_DATA_SERVICE_HUOBI_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_MARKET_DATA
 #ifdef CCAPI_ENABLE_EXCHANGE_HUOBI
 #include "ccapi_cpp/service/ccapi_market_data_service_huobi_base.h"
+
 namespace ccapi {
+
 class MarketDataServiceHuobi : public MarketDataServiceHuobiBase {
  public:
   MarketDataServiceHuobi(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
@@ -13,26 +15,15 @@ class MarketDataServiceHuobi : public MarketDataServiceHuobiBase {
     this->baseUrlWs = sessionConfigs.getUrlWebsocketBase().at(this->exchangeName);
     this->baseUrlRest = sessionConfigs.getUrlRestBase().at(this->exchangeName);
     this->setHostRestFromUrlRest(this->baseUrlRest);
-    this->setHostWsFromUrlWs(this->baseUrlWs);
-    //     try {
-    //       this->tcpResolverResultsRest = this->resolver.resolve(this->hostRest, this->portRest);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-    // #else
-    //     try {
-    //       this->tcpResolverResultsWs = this->resolverWs.resolve(this->hostWs, this->portWs);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #endif
+    // this->setHostWsFromUrlWs(this->baseUrlWs);
     this->getRecentTradesTarget = "/market/history/trade";
     this->getInstrumentTarget = "/v1/common/symbols";
     this->getInstrumentsTarget = "/v1/common/symbols";
   }
+
   virtual ~MarketDataServiceHuobi() {}
-  void prepareSubscriptionDetail(std::string& channelId, std::string& symbolId, const std::string& field, const WsConnection& wsConnection,
+
+  void prepareSubscriptionDetail(std::string& channelId, std::string& symbolId, const std::string& field, std::shared_ptr<WsConnection> wsConnectionPtr,
                                  const Subscription& subscription, const std::map<std::string, std::string> optionMap) override {
     auto marketDepthRequested = std::stoi(optionMap.at(CCAPI_MARKET_DEPTH_MAX));
     auto conflateIntervalMilliseconds = std::stoi(optionMap.at(CCAPI_CONFLATE_INTERVAL_MILLISECONDS));
@@ -45,7 +36,7 @@ class MarketDataServiceHuobi : public MarketDataServiceHuobiBase {
           int marketDepthSubscribedToExchange = 1;
           marketDepthSubscribedToExchange = this->calculateMarketDepthAllowedByExchange(marketDepthRequested, std::vector<int>({5, 10, 20}));
           channelId += std::string("?") + CCAPI_MARKET_DEPTH_SUBSCRIBED_TO_EXCHANGE + "=" + std::to_string(marketDepthSubscribedToExchange);
-          this->marketDepthSubscribedToExchangeByConnectionIdChannelIdSymbolIdMap[wsConnection.id][channelId][symbolId] = marketDepthSubscribedToExchange;
+          this->marketDepthSubscribedToExchangeByConnectionIdChannelIdSymbolIdMap[wsConnectionPtr->id][channelId][symbolId] = marketDepthSubscribedToExchange;
         }
       } else if (conflateIntervalMilliseconds < 1000) {
         if (marketDepthRequested == 1) {
@@ -58,7 +49,9 @@ class MarketDataServiceHuobi : public MarketDataServiceHuobiBase {
       }
     }
   }
-  bool doesHttpBodyContainError(const std::string& body) override { return body.find("err-code") != std::string::npos; }
+
+  bool doesHttpBodyContainError(boost::beast::string_view bodyView) override { return bodyView.find("err-code") != std::string::npos; }
+
   void convertRequestForRest(http::request<http::string_body>& req, const Request& request, const TimePoint& now, const std::string& symbolId,
                              const std::map<std::string, std::string>& credential) override {
     switch (request.getOperation()) {
@@ -76,17 +69,19 @@ class MarketDataServiceHuobi : public MarketDataServiceHuobiBase {
         MarketDataServiceHuobiBase::convertRequestForRest(req, request, now, symbolId, credential);
     }
   }
-  void convertTextMessageToMarketDataMessage(const Request& request, const std::string& textMessage, const TimePoint& timeReceived, Event& event,
+
+  void convertTextMessageToMarketDataMessage(const Request& request, boost::beast::string_view textMessageView, const TimePoint& timeReceived, Event& event,
                                              std::vector<MarketDataMessage>& marketDataMessageList) override {
     switch (request.getOperation()) {
       case Request::Operation::GET_INSTRUMENT: {
-        rj::Document document;
-        document.Parse<rj::kParseNumbersAsStringsFlag>(textMessage.c_str());
+        this->jsonDocumentAllocator.Clear();
+        rj::Document document(&this->jsonDocumentAllocator);
+        document.Parse<rj::kParseNumbersAsStringsFlag>(textMessageView.data(), textMessageView.size());
         Message message;
         message.setTimeReceived(timeReceived);
         message.setType(this->requestOperationToMessageTypeMap.at(request.getOperation()));
         for (const auto& x : document["data"].GetArray()) {
-          if (std::string(x["symbol"].GetString()) == request.getInstrument()) {
+          if (std::string_view(x["symbol"].GetString()) == request.getInstrument()) {
             Element element;
             this->extractInstrumentInfo(element, x);
             message.setElementList({element});
@@ -97,8 +92,9 @@ class MarketDataServiceHuobi : public MarketDataServiceHuobiBase {
         event.addMessages({message});
       } break;
       case Request::Operation::GET_INSTRUMENTS: {
-        rj::Document document;
-        document.Parse<rj::kParseNumbersAsStringsFlag>(textMessage.c_str());
+        this->jsonDocumentAllocator.Clear();
+        rj::Document document(&this->jsonDocumentAllocator);
+        document.Parse<rj::kParseNumbersAsStringsFlag>(textMessageView.data(), textMessageView.size());
         Message message;
         message.setTimeReceived(timeReceived);
         message.setType(this->requestOperationToMessageTypeMap.at(request.getOperation()));
@@ -113,11 +109,11 @@ class MarketDataServiceHuobi : public MarketDataServiceHuobiBase {
         event.addMessages({message});
       } break;
       default:
-        MarketDataServiceHuobiBase::convertTextMessageToMarketDataMessage(request, textMessage, timeReceived, event, marketDataMessageList);
+        MarketDataServiceHuobiBase::convertTextMessageToMarketDataMessage(request, textMessageView, timeReceived, event, marketDataMessageList);
     }
   }
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_MARKET_DATA_SERVICE_HUOBI_H_

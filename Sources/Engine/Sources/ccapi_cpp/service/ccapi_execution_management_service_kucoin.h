@@ -1,9 +1,11 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_KUCOIN_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_KUCOIN_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_EXECUTION_MANAGEMENT
 #ifdef CCAPI_ENABLE_EXCHANGE_KUCOIN
 #include "ccapi_cpp/service/ccapi_execution_management_service_kucoin_base.h"
+
 namespace ccapi {
+
 class ExecutionManagementServiceKucoin : public ExecutionManagementServiceKucoinBase {
  public:
   ExecutionManagementServiceKucoin(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
@@ -12,19 +14,6 @@ class ExecutionManagementServiceKucoin : public ExecutionManagementServiceKucoin
     this->exchangeName = CCAPI_EXCHANGE_NAME_KUCOIN;
     this->baseUrlRest = sessionConfigs.getUrlRestBase().at(this->exchangeName);
     this->setHostRestFromUrlRest(this->baseUrlRest);
-    // try {
-    //   this->tcpResolverResultsRest = this->resolver.resolve(this->hostRest, this->portRest);
-    // } catch (const std::exception& e) {
-    //   CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    // }
-    // #ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-    // #else
-    //     try {
-    //       this->tcpResolverResultsWs = this->resolverWs.resolve(this->hostWs, this->portWs);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #endif
     this->apiKeyName = CCAPI_KUCOIN_API_KEY;
     this->apiSecretName = CCAPI_KUCOIN_API_SECRET;
     this->apiPassphraseName = CCAPI_KUCOIN_API_PASSPHRASE;
@@ -40,6 +29,7 @@ class ExecutionManagementServiceKucoin : public ExecutionManagementServiceKucoin
     this->topicTradeOrders = "/spotMarket/tradeOrders";
     this->createOrderMarginTarget = "/api/v1/margin/order";
   }
+
   virtual ~ExecutionManagementServiceKucoin() {}
 #ifndef CCAPI_EXPOSE_INTERNAL
 
@@ -72,7 +62,7 @@ class ExecutionManagementServiceKucoin : public ExecutionManagementServiceKucoin
     }
   }
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_EXECUTION_MANAGEMENT_SERVICE_KUCOIN_H_

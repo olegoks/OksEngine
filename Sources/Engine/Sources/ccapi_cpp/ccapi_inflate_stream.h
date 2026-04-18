@@ -1,14 +1,16 @@
-#ifndef INCLUDE_CCAPI_CPP_CCAPI_INFLATE_STREAM_H_
-#define INCLUDE_CCAPI_CPP_CCAPI_INFLATE_STREAM_H_
+#pragma once
+
 #ifndef CCAPI_DECOMPRESS_BUFFER_SIZE
-#define CCAPI_DECOMPRESS_BUFFER_SIZE 1 << 20
+#define CCAPI_DECOMPRESS_BUFFER_SIZE (1 << 20)
 #endif
 #include "zlib.h"
+
 namespace ccapi {
+
 /**
  * Due to Huobi using gzip instead of zip in data compression, we cannot use beast::zboost::system::inflate_stream. Therefore we have to create our own.
  */
-class InflateStream CCAPI_FINAL {
+class InflateStream {
  public:
   explicit InflateStream() {
     this->windowBits = 15;
@@ -20,10 +22,12 @@ class InflateStream CCAPI_FINAL {
     this->istate.next_in = Z_NULL;
     this->decompressBufferSize = CCAPI_DECOMPRESS_BUFFER_SIZE;
   }
+
   std::string toString() const {
     std::string output = "InflateStream [windowBits = " + ccapi::toString(windowBits) + "]";
     return output;
   }
+
   virtual ~InflateStream() {
     if (!this->initialized) {
       return;
@@ -33,7 +37,9 @@ class InflateStream CCAPI_FINAL {
       CCAPI_LOGGER_ERROR("error cleaning up zlib decompression state");
     }
   }
+
   void setWindowBitsOverride(int windowBitsOverride) { this->windowBitsOverride = windowBitsOverride; }
+
   boost::system::error_code init() {
     int ret;
     if (this->windowBitsOverride == 0) {
@@ -51,14 +57,15 @@ class InflateStream CCAPI_FINAL {
     this->initialized = true;
     return boost::system::error_code();
   }
-  boost::system::error_code decompress(uint8_t const *buf, size_t len, std::string &out) {
+
+  boost::system::error_code decompress(uint8_t const* buf, size_t len, std::string& out) {
     if (!this->initialized) {
       CCAPI_LOGGER_ERROR("decompress error");
       return boost::system::error_code();
     }
-    int ret;
+
     this->istate.avail_in = len;
-    this->istate.next_in = const_cast<unsigned char *>(buf);
+    this->istate.next_in = const_cast<unsigned char*>(buf);
     do {
       this->istate.avail_out = this->decompressBufferSize;
       this->istate.next_out = this->buffer.get();
@@ -67,10 +74,11 @@ class InflateStream CCAPI_FINAL {
         CCAPI_LOGGER_ERROR("decompress error");
         return boost::system::error_code();
       }
-      out.append(reinterpret_cast<char *>(this->buffer.get()), this->decompressBufferSize - this->istate.avail_out);
+      out.append(reinterpret_cast<char*>(this->buffer.get()), this->decompressBufferSize - this->istate.avail_out);
     } while (this->istate.avail_out == 0);
     return boost::system::error_code();
   }
+
   boost::system::error_code inflate_reset() {
     int ret = inflateReset(&this->istate);
     if (ret != Z_OK) {
@@ -83,13 +91,12 @@ class InflateStream CCAPI_FINAL {
 
  private:
 #endif
-  int windowBits;
-  int windowBitsOverride;
-  bool initialized;
-  std::unique_ptr<unsigned char[]> buffer;
+  int windowBits{};
+  int windowBitsOverride{};
+  bool initialized{};
+  std::unique_ptr<unsigned char[]> buffer{nullptr};
   z_stream istate;
-  size_t decompressBufferSize;
+  size_t decompressBufferSize{};
 };
 
 } /* namespace ccapi */
-#endif  // INCLUDE_CCAPI_CPP_CCAPI_INFLATE_STREAM_H_

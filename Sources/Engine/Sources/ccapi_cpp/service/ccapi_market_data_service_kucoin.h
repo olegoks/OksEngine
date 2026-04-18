@@ -1,9 +1,11 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_MARKET_DATA_SERVICE_KUCOIN_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_MARKET_DATA_SERVICE_KUCOIN_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_MARKET_DATA
 #if defined(CCAPI_ENABLE_EXCHANGE_KUCOIN)
 #include "ccapi_cpp/service/ccapi_market_data_service_kucoin_base.h"
+
 namespace ccapi {
+
 class MarketDataServiceKucoin : public MarketDataServiceKucoinBase {
  public:
   MarketDataServiceKucoin(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
@@ -13,20 +15,6 @@ class MarketDataServiceKucoin : public MarketDataServiceKucoinBase {
     this->baseUrlWs = sessionConfigs.getUrlWebsocketBase().at(this->exchangeName);
     this->baseUrlRest = sessionConfigs.getUrlRestBase().at(this->exchangeName);
     this->setHostRestFromUrlRest(this->baseUrlRest);
-    // this->setHostWsFromUrlWs(this->baseUrlWs);
-    // try {
-    //   this->tcpResolverResultsRest = this->resolver.resolve(this->hostRest, this->portRest);
-    // } catch (const std::exception& e) {
-    //   CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    // }
-    // #ifdef CCAPI_LEGACY_USE_WEBSOCKETPP
-    // #else
-    //     try {
-    //       this->tcpResolverResultsWs = this->resolverWs.resolve(this->hostWs, this->portWs);
-    //     } catch (const std::exception& e) {
-    //       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
-    //     }
-    // #endif
     this->apiKeyName = CCAPI_KUCOIN_API_KEY;
     this->apiSecretName = CCAPI_KUCOIN_API_SECRET;
     this->apiPassphraseName = CCAPI_KUCOIN_API_PASSPHRASE;
@@ -51,6 +39,7 @@ class MarketDataServiceKucoin : public MarketDataServiceKucoinBase {
     this->level2Subject = "level2";
     this->recentTradesTimeKey = "time";
   }
+
   virtual ~MarketDataServiceKucoin() {}
 #ifndef CCAPI_EXPOSE_INTERNAL
 
@@ -63,10 +52,10 @@ class MarketDataServiceKucoin : public MarketDataServiceKucoinBase {
     element.insert(CCAPI_ORDER_PRICE_INCREMENT, x["priceIncrement"].GetString());
     element.insert(CCAPI_ORDER_QUANTITY_INCREMENT, x["baseIncrement"].GetString());
     element.insert(CCAPI_ORDER_QUANTITY_MIN, x["baseMinSize"].GetString());
-    element.insert(CCAPI_ORDER_PRICE_TIMES_QUANTITY_MIN, x["quoteMinSize"].GetString());
+    element.insert(CCAPI_ORDER_QUOTE_QUANTITY_MIN, x["quoteMinSize"].GetString());
   }
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_MARKET_DATA_SERVICE_KUCOIN_H_

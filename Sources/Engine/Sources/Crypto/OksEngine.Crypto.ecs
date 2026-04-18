@@ -1,0 +1,92 @@
+CryptoNamespace = {
+    SessionNamespace = {
+        TagComponent = {
+            serializable = false
+        },
+        InstanceComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "std::shared_ptr<ccapi::Session>", name = "session" }
+            }
+        },
+        EventsQueueComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "std::shared_ptr<ccapi::Queue<ccapi::Event>>", name = "queue" }
+            }
+        },
+        CreateSystem = {
+            type = "Initialize",
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "Session::Tag",
+                            "Session::Instance",
+                            "Session::EventsQueue"
+                        }
+                    }
+                }
+            }
+        },
+        CreatePriceRequestSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Session::Tag",
+                            { name = "Session::Instance",    readonly = false },
+                            { name = "Session::EventsQueue", readonly = false }
+                        }
+                    }
+                }
+            }
+        },
+        ProcessRequestsSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Session::Tag",
+                            { name = "Session::Instance",    readonly = false },
+                            { name = "Session::EventsQueue", readonly = false }
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "State::Tag",
+                            { name = "State::CurrentPrice",    readonly = false }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    StateNamespace = {
+        TagComponent = {
+            serializable = false
+        },
+        CreateSystem = {
+            type = "Initialize",
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "State::Tag",
+                            "State::CurrentPrice"
+                        }
+                    }
+                }
+            }
+        },
+        CurrentPriceComponent = {
+            serializable = false,
+            fields = {
+                { type = "float", name = "price" }
+            }
+        }
+    }
+
+}

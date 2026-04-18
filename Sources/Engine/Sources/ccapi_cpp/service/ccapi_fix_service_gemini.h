@@ -1,9 +1,11 @@
-#ifndef INCLUDE_CCAPI_CPP_SERVICE_CCAPI_FIX_SERVICE_GEMINI_H_
-#define INCLUDE_CCAPI_CPP_SERVICE_CCAPI_FIX_SERVICE_GEMINI_H_
+#pragma once
+
 #ifdef CCAPI_ENABLE_SERVICE_FIX
 #ifdef CCAPI_ENABLE_EXCHANGE_GEMINI
 #include "ccapi_cpp/service/ccapi_fix_service.h"
+
 namespace ccapi {
+
 class FixServiceGemini : public FixService<beast::tcp_stream> {
  public:
   FixServiceGemini(std::function<void(Event&, Queue<Event>*)> eventHandler, SessionOptions sessionOptions, SessionConfigs sessionConfigs,
@@ -18,9 +20,10 @@ class FixServiceGemini : public FixService<beast::tcp_stream> {
       CCAPI_LOGGER_FATAL(std::string("e.what() = ") + e.what());
     }
     this->protocolVersion = CCAPI_FIX_PROTOCOL_VERSION_GEMINI;
-    this->senderCompID = CCAPI_GEMINI_API_SENDER_COMP_ID;
-    this->targetCompID = CCAPI_GEMINI_API_TARGET_COMP_ID;
+    this->senderCompId = CCAPI_GEMINI_API_SENDER_COMP_ID;
+    this->targetCompId = CCAPI_GEMINI_API_TARGET_COMP_ID;
   }
+
   virtual ~FixServiceGemini() {}
 #ifndef CCAPI_EXPOSE_INTERNAL
 
@@ -30,10 +33,11 @@ class FixServiceGemini : public FixService<beast::tcp_stream> {
     return {
         {hff::tag::SenderCompID, CCAPI_GEMINI_API_SENDER_COMP_ID},
         {hff::tag::TargetCompID, CCAPI_GEMINI_API_TARGET_COMP_ID},
-        {hff::tag::MsgSeqNum, std::to_string(++this->sequenceSentByConnectionIdMap[connectionId])},
+        {hff::tag::MsgSeqNum, std::to_string(++this->fixMsgSeqNumByConnectionIdMap[connectionId])},
         {hff::tag::SendingTime, nowFixTimeStr},
     };
   }
+
   virtual std::vector<std::pair<int, std::string>> createLogonParam(const std::string& connectionId, const std::string& nowFixTimeStr,
                                                                     const std::map<int, std::string> logonOptionMap = {}) {
     std::vector<std::pair<int, std::string>> param;
@@ -48,7 +52,7 @@ class FixServiceGemini : public FixService<beast::tcp_stream> {
     return param;
   }
 };
+
 } /* namespace ccapi */
 #endif
 #endif
-#endif  // INCLUDE_CCAPI_CPP_SERVICE_CCAPI_FIX_SERVICE_GEMINI_H_

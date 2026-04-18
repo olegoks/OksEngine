@@ -9,7 +9,7 @@
 #include <imgui_impl_glfw.h>
 
 
-namespace UI {
+namespace UI_ {
 
 	UIAL::Window::CursorMode Window::ConvertCursorMode(int glfwMode) {
 
