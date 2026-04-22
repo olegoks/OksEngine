@@ -1,5 +1,5 @@
 #pragma once
-#include <Common\auto_OksEngine.RigidBodyToRenderGeometryMapper.hpp>
+#include <Physics\auto_OksEngine.RigidBodyToRenderGeometryMapper.hpp>
 
 namespace OksEngine
 {

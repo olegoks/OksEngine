@@ -12,8 +12,8 @@
     layout(                 \
         std430,                         \
         set = RENDER__MODEL__DATA__SET,                                                 \
-        binding = RENDER__MODEL__DATA__IDS_TO_COMPONENT_INDICES_BINDING) buffer NodeEntityIdsToComponentIndices {    \
-        uint64_t nodeComponentsIndices_[];                                                           \
+        binding = RENDER__MODEL__DATA__IDS_TO_COMPONENT_INDICES_BINDING) buffer {    \
+        uint64_t modelDataIdToComponentIndex_[];                                                           \
     };                                       \
                                                                                                                                                                 \
     layout(std430,

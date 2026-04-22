@@ -31,6 +31,7 @@ namespace OksEngine
 		{
 			void Create::Update() {
 
+				return;
 				::ccapi::SessionOptions sessionOptions;
 				::ccapi::SessionConfigs sessionConfigs;
 				sessionConfigs.setUrlRestBase({ { "bybit", "https://api.bybit.com" } });
@@ -132,6 +133,7 @@ namespace OksEngine
 				const OksEngine::Crypto::State::Tag* state__Tag1,
 				OksEngine::Crypto::State::CurrentPrice* state__CurrentPrice1) {
 
+				return;
 				while (!session__Instance0->session_->getEventQueue().empty()) {
 
 					const auto& event = session__Instance0->session_->getEventQueue().popBack();

@@ -1,5 +1,5 @@
 #pragma once
-#include <Common\auto_OksEngine.Debug.Render.hpp>
+#include <Render\auto_OksEngine.Debug.Render.hpp>
 
 #include <ft2build.h>  // �������� ������������ ���� FreeType
 #include FT_FREETYPE_H // ��������� � ��������� ����������� � ���������

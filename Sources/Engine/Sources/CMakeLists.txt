@@ -58,23 +58,23 @@ endfunction()
 
 # Получаем список всех файлов
 get_source_files(${CMAKE_CURRENT_LIST_DIR} PROJECT_SOURCES)
+#get_source_files("${CMAKE_SOURCE_DIR}/Shared/Sources" PROJECT_SHARED_SOURCES)
 
+#message(STATUS "${PROJECT_SHARED_SOURCES}")
+#organize_source_files("${CMAKE_SOURCE_DIR}/Shared/Sources" "${PROJECT_SHARED_SOURCES}")
 # Организуем файлы по группам
 organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
 
 target_sources(OksEngine
     PUBLIC
     ${PROJECT_SOURCES}
+    ${PROJECT_SHARED_SOURCES}
 )
 
 find_package(Boost REQUIRED COMPONENTS asio)
 
 find_package(SFML COMPONENTS Network Graphics Window Audio System CONFIG REQUIRED)
-# find_package(imgui CONFIG REQUIRED)
-#find_package(unofficial-imgui-node-editor CONFIG REQUIRED)
-#find_package(implot3d CONFIG REQUIRED)
 find_package(yaml-cpp CONFIG REQUIRED)
-#find_package(imguizmo CONFIG REQUIRED)
 
 find_package(Stb REQUIRED)
 target_include_directories(OksEngine PRIVATE ${Stb_INCLUDE_DIR})
@@ -98,17 +98,11 @@ target_link_libraries(OksEngine PRIVATE
 target_link_libraries(OksEngine
     PUBLIC
     Boost::asio
-
     SFML::Audio
     SFML::System
-
     yaml-cpp::yaml-cpp
     ${FREETYPE_LIBRARIES}
-    # imgui::imgui
     ImGui
-    #unofficial::imgui-node-editor::imgui-node-editor
-    #implot3d::implot3d
-    #imguizmo::imguizmo
     Geometry
     ECS2
     LuaLayer
@@ -126,4 +120,5 @@ target_link_libraries(OksEngine PRIVATE "${VCPKG_INSTALLED_DIR}/x64-windows/lib/
 
 target_include_directories(OksEngine
     PUBLIC
+    "${CMAKE_SOURCE_DIR}/Shared/Sources"
     ${CMAKE_CURRENT_LIST_DIR})

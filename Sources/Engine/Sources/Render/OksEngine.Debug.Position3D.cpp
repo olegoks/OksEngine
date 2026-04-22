@@ -1,5 +1,5 @@
 #pragma once
-#include <Common\auto_OksEngine.Debug.Position3D.hpp>
+#include <Render\auto_OksEngine.Debug.Position3D.hpp>
 
 namespace OksEngine
 {

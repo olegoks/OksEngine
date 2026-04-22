@@ -153,4 +153,5 @@ find_package(GTest CONFIG REQUIRED)
  add_subdirectory(Sources)
 
  add_subdirectory(Tools/ECSGenerator2)
+ add_subdirectory(Tools/ECSGenerator3)
 

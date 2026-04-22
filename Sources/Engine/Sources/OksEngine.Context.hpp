@@ -7,8 +7,6 @@
 
 #include <ECS2.World.hpp>
 
-#include <Geometry.Storage.hpp>
-#include <Geometry.Texture.hpp>
 #include <Lua.Context.hpp>
 
 namespace OksEngine {

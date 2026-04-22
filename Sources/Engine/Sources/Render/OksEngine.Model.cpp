@@ -16,7 +16,7 @@
 #include <Render/Texture/OksEngine.Render.Texture.Utils.hpp>
 #include <Render/Pipeline/OksEngine.Render.Pipeline.Utils.hpp>
 #include <Resources/OksEngine.ResourceSystem.Utils.hpp>
-#include <Common/auto_OksEngine.Debug.Position3D.hpp>
+#include <Render/auto_OksEngine.Debug.Position3D.hpp>
 #include <pix3.h>
 
 //#include <Shaders/common/OksEngine.Model.glsl>
