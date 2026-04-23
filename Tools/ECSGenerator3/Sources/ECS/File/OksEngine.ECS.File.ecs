@@ -1,0 +1,8 @@
+ECSNamespace = {
+    FileNamespace = {
+        TagComponent = {
+            serializable = false,
+            bindable = false
+        }
+    }
+}

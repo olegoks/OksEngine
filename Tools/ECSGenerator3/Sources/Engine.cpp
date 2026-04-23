@@ -6,8 +6,6 @@
 
 #include <Engine.hpp>
 
-#include <OksEngine.Context.hpp>
-
 #include <Common/CommandLineParameters/auto_OksEngine.CommandLineParameters.hpp>
 
 namespace OksEngine {

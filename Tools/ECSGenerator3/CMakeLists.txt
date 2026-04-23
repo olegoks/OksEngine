@@ -23,11 +23,8 @@ endfunction()
 
 # Получаем список всех файлов
 get_source_files(${CMAKE_CURRENT_LIST_DIR} PROJECT_SOURCES)
-get_source_files("${CMAKE_SOURCE_DIR}/Sources/Engine/Sources/Common" NEEDED_ENGINE_SOURCES)
-
 # Организуем файлы по группам
 organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
-organize_source_files("${CMAKE_SOURCE_DIR}/Sources/Engine/Sources/" "${NEEDED_ENGINE_SOURCES}")
 
 add_executable(ECSGenerator3)
 
@@ -36,25 +33,16 @@ find_package(PkgConfig REQUIRED)
 pkg_check_modules(GRAPHVIZ REQUIRED libgvc)
 message(STATUS "${GRAPHVIZ_INCLUDE_DIRS}")
 
-# set(ZLIB_USE_STATIC_LIBS ON)
-# find_package(ZLIB REQUIRED)
-# target_link_libraries(ECSGenerator2 PUBLIC ZLIB::ZLIB)
-
 target_include_directories(ECSGenerator3  PUBLIC ${GRAPHVIZ_INCLUDE_DIRS})
     
 message(STATUS "${GRAPHVIZ_LIBRARY_DIRS}")
 target_link_directories(ECSGenerator3 PUBLIC ${GRAPHVIZ_LIBRARY_DIRS})
-    
 
-# Поиск LLVM и Clang
 find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
 
-# Добавляем необходимые библиотеки
 llvm_map_components_to_libnames(LLVM_LIBS core irreader support)
 
-
-# Добавляем необходимые библиотеки
 set(CLANG_LIBS
     clangFormat
     clangToolingCore
@@ -82,14 +70,12 @@ target_include_directories(ECSGenerator3
 target_sources(ECSGenerator3
     PUBLIC
         ${PROJECT_SOURCES}
-        ${NEEDED_ENGINE_SOURCES}
 
     PRIVATE
     )
 
 target_include_directories(ECSGenerator3
     PUBLIC
-    "${CMAKE_SOURCE_DIR}/Sources/Engine/Sources/"
     ${CMAKE_CURRENT_LIST_DIR})
 
 
@@ -104,16 +90,6 @@ target_link_libraries(ECSGenerator3
     ECS2
     ImGui
     )
-    
-
-# SHOW ALL CMAKE VARIABLES FOR DEBUG
-
-# get_cmake_property(_variableNames VARIABLES)
-
-# foreach (_variableName ${_variableNames})
-# message(STATUS "${_variableName}=${${_variableName}}")
-# endforeach()
-
 
 message("ZLIB_FOUND: ${ZLIB_FOUND}")
 message("ZLIB_INCLUDE_DIRS: ${ZLIB_INCLUDE_DIRS}")
@@ -121,9 +97,6 @@ message("ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")
 message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
 message("ZLIB_LIBRARY: ${ZLIB_LIBRARY_RELEASE}")
 message("ZLIB_LIBRARY_DEBUG: ${ZLIB_LIBRARY_DEBUG}")
-# target_link_libraries(ECSGenerator2 PUBLIC
-#     ${ZLIB_LIBRARIES} # Используйте эту переменную, она уже содержит нужные флаги
-# )
 
 add_custom_command(TARGET ECSGenerator3 POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
@@ -145,5 +118,5 @@ add_custom_command(TARGET ECSGenerator3 POST_BUILD
     "${GRAPHVIZ_PREFIX}/bin/gvplugin_webp.dll"
     "${GRAPHVIZ_PREFIX}/bin/pathplan.dll"
     "${GRAPHVIZ_PREFIX}/bin/xdot.dll"
-     $<TARGET_FILE_DIR:ECSGenerator2>)
+     $<TARGET_FILE_DIR:ECSGenerator3>)
 

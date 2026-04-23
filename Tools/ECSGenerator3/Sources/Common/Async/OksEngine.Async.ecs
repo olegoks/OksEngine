@@ -1,0 +1,101 @@
+AsyncNamespace = {
+
+    ManagerNamespace = {
+        TagComponent = {
+            bindable = false,
+            serializable = false,
+        },
+
+        CreateSystem = {
+            type = "Initialize",
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "Async::Manager::Tag"
+                        }
+                    }
+                }
+            }
+        },
+
+        TaskNamespace = {
+            TagComponent = {
+                bindable = false,
+                serializable = false,
+            },
+            EntityIdComponent = {
+                bindable = false,
+                serializable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "id" }
+                }
+            },
+            StateNamespace = {
+                PendingComponent = {
+                    bindable = false,
+                    serializable = false,
+                },
+                InProgressComponent = {
+                    bindable = false,
+                    serializable = false,
+                },
+                FinishedComponent = {
+                    bindable = false,
+                    serializable = false,
+                },
+            },
+            StatesArchetype = {
+                components = {
+                    "State::Pending",
+                    "State::InProgress",
+                    "State::Finished"
+                }
+            },
+            InfoComponent = {
+                bindable = false,
+                serializable = false,
+                fields = {
+                    {
+                        type = "std::future<std::any>",
+                        name = "future",
+                        copyable = false
+                    }
+                }
+            }
+        },
+        TaskArchetype = {
+            archetypes = {
+                "Task::States"
+            },
+            components = {
+                "Task::Tag",
+                "Task::Info"
+            }
+        },
+        ChangeTaskStateSystem = {
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "Task::Tag",
+                            "Task::Info"
+                        },
+                        removesComponents = {
+                            "Task::State::Pending",
+                            "Task::State::InProgress",
+                            "Task::State::Finished"
+                        },
+                        createsComponents = {
+                            "Task::State::Pending",
+                            "Task::State::InProgress",
+                            "Task::State::Finished"
+                        }
+                    }
+                }
+            }
+        }
+
+    }
+
+}

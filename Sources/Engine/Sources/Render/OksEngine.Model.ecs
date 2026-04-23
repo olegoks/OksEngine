@@ -1,14 +1,4 @@
 
-DriverWorldPosition3DComponentsComponent = {
-    serializable = false,
-    fields = { { type = "RAL::Driver::StorageBuffer::Id", name = "id" } }
-}
-
-WorldPosition3DComponentsResourceComponent = {
-    serializable = false,
-    fields = { { type = "RAL::Driver::ResourceSet::Id", name = "id" } }
-}
-
 
 UpdateHierarchicalNodeDriverTransform3DSystem = {
     disable = true,
