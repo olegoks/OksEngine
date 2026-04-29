@@ -134,7 +134,7 @@ namespace ECSGenerator2 {
 				.fields_ = parsedFields
 			};
 			auto parsedComponentFile = std::make_shared<ParsedComponent>(ci);
-			ASSERT_FMSG(std::isupper(parsedComponentFile->GetName()[0]), "First component name symbol must be uppercase.");
+			
 			return parsedComponentFile;
 		}
 

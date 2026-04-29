@@ -4,32 +4,24 @@ ConfigComponent = {
 
 LoadConfigFileSystem = {
     type = "Initialize",
-    callOrder = {
-        runAfter = { "CreateResourceSystem" }
-    },
+
     updateMethod = {
-    processesEntities = {
-         {
-            processesComponents = { 
-                "CommandLineParameters",
-                "ConfigFilePath"
+        processesEntities = {
+            {
+                processesComponents = {
+                    "CommandLineParameters",
+                    "ConfigFilePath"
+                }
             }
         },
-        {
-            processesComponents = {
-                { name = "ResourceSystem", readonly = false }
+        createsEntities = {
+            {
+                createsComponents = {
+                    "Config",
+                    "LuaScript"
+                }
             }
         }
-    },
-    createsEntities = {
-        {
-            createsComponents = {
-                "Config",
-                "LuaScript"
-            }
-        }
-    }
     }
 }
-
 

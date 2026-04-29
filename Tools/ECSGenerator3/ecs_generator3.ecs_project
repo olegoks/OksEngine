@@ -1,0 +1,37 @@
+
+
+ECS = {
+    -- Modules paths relates to .ecs_project file.
+    Modules = {
+        './Sources/Common/',
+        './Sources/Config/',
+        './Sources/ECS/',
+        './Sources/Resources/'
+    },
+    --if type has Entry need to include Header 
+    Includes = {
+    { Entries = { "std::string" }, Headers = { "string" } },
+    { Entries = { "Common" }, Headers = { "Common.hpp" } },
+    { Entries = { "std::chrono" }, Headers = { "chrono" } },
+    { Entries = { "PAL" }, Headers = { "PAL.hpp" } },
+    { Entries = { "glm" }, Headers = { "glm/glm.hpp" } },
+    { Entries = { "std::queue" }, Headers = { "queue" } },
+    { Entries = { "std::vector" }, Headers = { "vector" } },
+    { Entries = { "RAL" }, Headers = { "RAL.hpp" } },
+    { Entries = { "Geom:" }, Headers = { "Geometry.hpp" } },
+    { Entries = { "std::map" }, Headers = { "map" } },
+    { Entries = { "UIAL::Window" }, Headers = { "UIAL.Window.hpp" } },
+    { Entries = { "UI_::Window" }, Headers = { "UI.Window.hpp" } },
+    { Entries = { "sf" }, Headers = { "SFML/Audio.hpp" } },
+    { Entries = { "glm::quat" }, Headers = { "glm/gtc/quaternion.hpp" } },
+    { Entries = { "std::future" }, Headers = { "future" } },
+    { Entries = { "std::any" }, Headers = { "any" } },
+    { Entries = { "PE" }, Headers = { "PE.PhysicsEngine.hpp" } },
+    { Entries = { "AsyncResourceSubsystem" }, Headers = { "Resources/OksEngine.Resource.Subsystem.hpp" } },
+    { Entries = { "ImGui" }, Headers = { "imgui/imgui.h" } },
+    { Entries = { "ImPlot" }, Headers = { "implot/implot.h" } },
+    { Entries = { "ai" }, Headers = { "assimp/Importer.hpp", "assimp/scene.h", "assimp/postprocess.h" } },
+    { Entries = { "TgBot" }, Headers = { "tgbot/tgbot.h" } },
+    { Entries = { "ccapi" }, Headers = { "ccapi_cpp/ccapi_session.h" } },
+}
+}

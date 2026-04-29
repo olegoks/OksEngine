@@ -7,11 +7,13 @@
 #include <Engine.hpp>
 
 #include <Common/CommandLineParameters/auto_OksEngine.CommandLineParameters.hpp>
+#include <ECS/File/auto_OksEngine.ECS.File.hpp>
 
 namespace OksEngine {
 
 	Engine::Engine(const CreateInfo& createInfo) noexcept {
 
+		OS::InitializeLogger(createInfo.argc_, createInfo.argv_);
 		world2_ = std::make_shared<ECS2::World>();
 
 		{
@@ -32,6 +34,9 @@ namespace OksEngine {
 				if (value == "-scn"s) {
 					world2_->CreateComponent<SceneParameter>(commandLineParametersEntity, argv[i + 1]);
 				}
+				if (value == "-ecs_project_file"s) {
+					world2_->CreateComponent<ECS::ProjectFilePath>(commandLineParametersEntity, argv[i + 1]);
+				}
 			}
 
 		}
@@ -42,7 +47,7 @@ namespace OksEngine {
 
 		HRESULT r;
 		r = SetThreadDescription(GetCurrentThread(), L"Main thread");
-	
+
 		CreateThreads(world2_);
 
 		RunInitializeSystems(world2_);

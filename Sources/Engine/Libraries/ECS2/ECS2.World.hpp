@@ -43,6 +43,8 @@ namespace ECS2 {
 
 		Entity::Id GetFreeEntityId() {
 			auto freeIdIt = freeEntityIds_.begin();
+			ASSERT_MSG(freeIdIt != freeEntityIds_.end(), 
+				"There are no free entity ids. Maybe you use CreateEntity in infinite loop.");
 			const Entity::Id freeId = *freeIdIt;
 			freeEntityIds_.erase(freeIdIt);
 			return freeId;
@@ -242,8 +244,6 @@ namespace ECS2 {
 				archetypeEntitiesComponents_.contains(entityId);
 
 		}
-
-
 
 		template<class ComponentType, class ...Args>
 		void CreateComponent(Entity::Id entityId, const char* callerSystemName, Args&&... args) noexcept {

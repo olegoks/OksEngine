@@ -1,21 +1,24 @@
 #pragma once
-#include <Common\Config\auto_OksEngine.Config.hpp>
+#include <Config/auto_OksEngine.Config.hpp>
+#include <Resources/OksEngine.ResourceSystem.Utils.hpp>
+
 
 namespace OksEngine
 {
-void LoadConfigFile::Update(ECS2::Entity::Id entity0id, const CommandLineParameters *commandLineParameters0,
-                            const ConfigFilePath *configFilePath0, ECS2::Entity::Id entity1id,
-                            ResourceSystem *resourceSystem1) {
+	void LoadConfigFile::Update(
+		ECS2::Entity::Id entity0id, const OksEngine::CommandLineParameters* commandLineParameters0,
+		const OksEngine::ConfigFilePath* configFilePath0) {
 
-    auto resourceData = resourceSystem1->system_->GetResourceSynch(Subsystem::Type::Engine, configFilePath0->path_);
+		ASSERT(Resource::IsResourcePath(configFilePath0->path_));
+		std::vector<Common::Byte> resourceData = Resource::GetResourceContent(configFilePath0->path_);
 
-    const ECS2::Entity::Id entityId = CreateEntity();
+		const ECS2::Entity::Id entityId = CreateEntity();
 
-    CreateComponent<Config>(entityId);
-    CreateComponent<LuaScript>(entityId,
-        std::string{ resourceData.GetData<Common::Byte>(), resourceData.GetSize() });
+		CreateComponent<Config>(entityId);
+		CreateComponent<LuaScript>(entityId,
+			std::string{ resourceData.data(), resourceData.size() });
 
 
-};
+	};
 
 }

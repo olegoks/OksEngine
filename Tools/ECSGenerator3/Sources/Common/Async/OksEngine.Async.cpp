@@ -1,4 +1,4 @@
-
+#pragma once
 #include <Common\Async\auto_OksEngine.Async.hpp>
 
 namespace OksEngine

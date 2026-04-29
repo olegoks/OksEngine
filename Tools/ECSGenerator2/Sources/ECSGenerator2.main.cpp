@@ -42,15 +42,9 @@ int main(int argc, char** argv) {
 
 	std::vector<ECSFileInfo> ecsFileInfos;
 	{
-		std::filesystem::path dotSystemPath_;
 		const std::filesystem::path root = "Root";
 		resourceSystem.ForEachAddedResource([&](const std::filesystem::path resourceData) ->bool {
 			const bool ecsFile = resourceData.extension() == ".ecs"; // Systems and components
-			const bool dotFile = resourceData.extension() == ".dot"; //Systems graph
-			const bool cfgFile = resourceData.extension() == ".cfg";
-			if (dotFile) {
-				dotSystemPath_ = resourceData;
-			}
 			if (ecsFile) {
 				ecsFileInfos.push_back(ECSFileInfo{
 						.resourceSystemPath_ = resourceData,

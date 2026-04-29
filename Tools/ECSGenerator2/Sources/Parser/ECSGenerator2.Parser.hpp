@@ -183,19 +183,6 @@ namespace ECSGenerator2 {
 						return nullptr;
 				};
 
-			//Get all global tables in the script.
-			std::vector<std::string> tableNames;
-			{
-				for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
-					luabridge::LuaRef key = it.key();
-					luabridge::LuaRef value = it.value();
-
-					if (value.isTable() && key.isString()) {
-						tableNames.push_back(key.tostring());
-					}
-				}
-			}
-
 			for (auto it = luabridge::pairs(ecsFile).begin(); !it.isNil(); ++it) {
 
 				luabridge::LuaRef key = it.key();

@@ -29,7 +29,7 @@ organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
 add_executable(ECSGenerator3)
 
 find_package(PkgConfig REQUIRED) 
-
+target_compile_options(ECSGenerator3 PUBLIC "/MP" "/bigobj")
 pkg_check_modules(GRAPHVIZ REQUIRED libgvc)
 message(STATUS "${GRAPHVIZ_INCLUDE_DIRS}")
 
@@ -58,9 +58,11 @@ set(CLANG_LIBS
 )
 
 set_target_properties(ECSGenerator3
-    PROPERTIES
+        PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
-        "-workDir ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources -cfg ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/ecs_gen_config.lua -includeDir ${CMAKE_CURRENT_LIST_DIR}/../../Sources/Engine/Sources/")
+        "$<$<CONFIG:Debug>: -ecs_project_file D:/OksEngine/Tools/ECSGenerator3/ecs_generator3.ecs_project>$<$<CONFIG:Release>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptyScene.scn>$<$<CONFIG:RelWithDebInfo>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn resource:/Scenes/OksEngine.EmptyScene.scn>"
+    )
+
 target_include_directories(ECSGenerator3
     PUBLIC
         ${LLVM_INCLUDE_DIRS} 

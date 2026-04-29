@@ -1,0 +1,271 @@
+CPPNamespace = {
+    FileNamespace = {
+        TagComponent = {
+            serializable = false,
+            bindable = false
+        },
+        EntityIdComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+        EntityIdsComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+            }
+        },     
+        TypeNamespace = {
+            CppComponent = {
+                serializable = false,
+                bindable = false
+            },
+            HppComponent = {
+                serializable = false,
+                bindable = false
+            }
+        },
+        PathComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "std::string", name = "path" }
+            }
+        },
+        NameComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "std::string", name = "name" }
+            }
+        },
+        PragmaOnceComponent = {
+            serializable = false,
+            bindable = false
+        },
+        IncludeNamespace = {
+            TagComponent = {
+                serializable = false,
+                bindable = false
+            },
+            EntityIdComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "id" }
+                }
+            },
+            EntityIdsComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+                }
+            },     
+            PathComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "path" }
+                }
+            }
+        },
+        FileArchetype = {
+            components = {
+                "File::Tag",
+                "File::Type::Cpp",
+                "File::Type::Hpp",
+                "File::Path",
+                "File::Name",
+                "File::Include::EntityIds"
+            }
+        }
+    },
+    TreeNamespace = {
+        DeclarationNamespace = {
+            TagComponent = {
+                serializable = false,
+                bindable = false
+            },
+            EntityIdComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "id" }
+                }
+            },
+            EntityIdsComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+                }
+            },     
+            TypeNamespace = {
+                Struct_Component = {
+                    serializable = false,
+                    bindable = false
+                },
+                Class_Component = {
+                    serializable = false,
+                    bindable = false
+                },
+                Enum_Component = {
+                    serializable = false,
+                    bindable = false
+                },
+                Method_Component = {
+                    serializable = false,
+                    bindable = false
+                },
+                Function_Component = {
+                    serializable = false,
+                    bindable = false
+                }
+            },
+            NameComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "name" }
+                }
+            },
+            MethodNamespace = {
+                TagComponent = {
+                    serializable = false,
+                    bindable = false
+                },
+                EntityIdComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "ECS2::Entity::Id", name = "id" }
+                    }
+                },
+                EntityIdsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+                    }
+                },                
+                StorageClassNamespace = {
+                    Static_Component = {
+                        serializable = false,
+                        bindable = false
+                    },
+                },
+                ReturnValueComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::string", name = "name" }
+                    }
+                },
+                AccessNamespace = {
+                    Private_Component = {
+                        serializable = false,
+                        bindable = false
+                    },
+                    Public_Component = {
+                        serializable = false,
+                        bindable = false
+                    },
+                    Protected_Component = {
+                        serializable = false,
+                        bindable = false
+                    },
+                },
+                QualifierNamespace = {
+                    Const_Component = {
+                        serializable = false,
+                        bindable = false,
+                    },
+                },
+                NameComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::string", name = "name" }
+                    }
+                }
+            },
+            FieldNamespace = {
+                TagComponent = {
+                    serializable = false,
+                    bindable = false
+                },
+                EntityIdComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "ECS2::Entity::Id", name = "id" }
+                    }
+                },
+                EntityIdsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+                    }
+                },
+                StorageClassNamespace = {
+                    Static_Component = {
+                        serializable = false,
+                        bindable = false
+                    },
+                },
+                TypeComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::string", name = "name" }
+                    }
+                },
+                DefaultValueComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::string", name = "name" }
+                    }
+                },
+                QualifierNamespace = {
+                    Const_Component = {
+                        serializable = false,
+                        bindable = false,
+                    },
+                    Volatile_Component = {
+                        serializable = false,
+                        bindable = false,
+                    }
+                },
+                AccessNamespace = {
+                    Private_Component = {
+                        serializable = false,
+                        bindable = false
+                    },
+                    Public_Component = {
+                        serializable = false,
+                        bindable = false
+                    },
+                    Protected_Component = {
+                        serializable = false,
+                        bindable = false
+                    },
+                },
+                NameComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::string", name = "name" }
+                    }
+                },
+            }
+
+
+        }
+    }
+}

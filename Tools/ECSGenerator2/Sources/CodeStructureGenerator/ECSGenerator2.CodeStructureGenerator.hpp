@@ -199,9 +199,6 @@ namespace ECSGenerator2 {
 						//Generate includes using include directory.
 						for (const ParsedComponentPtr component : systemIncludeComponents) {
 							for (auto ecsFile : ci_.ecsFiles_) {
-								if (ecsFile->GetName() == "OksEngine.Behaviour" && component->GetName() == "LuaScript") {
-									Common::BreakPointLine();
-								}
 								//Skip component include if ecs file contains defintion of the component.
 								if (parsedECSFile->IsContainsComponent(component)) {
 									continue;

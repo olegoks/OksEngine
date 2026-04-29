@@ -10,12 +10,12 @@ namespace ECSGenerator2 {
 			luabridge::LuaRef component,
 			const std::string& componentName) {
 
-			bool serializable = true;
-			luabridge::LuaRef serializableRef = component["serializable"];
-			if (!serializableRef.isNil()) {
-				serializable = serializableRef.cast<bool>().value();
-			}
-			
+			//bool serializable = true;
+			//luabridge::LuaRef serializableRef = component["serializable"];
+			//if (!serializableRef.isNil()) {
+			//	serializable = serializableRef.cast<bool>().value();
+			//}
+			//
 			//Alignment
 			Common::Size alignment = Common::Limits<Common::Size>::Max();
 			luabridge::LuaRef alignmentRef = component["alignment"];

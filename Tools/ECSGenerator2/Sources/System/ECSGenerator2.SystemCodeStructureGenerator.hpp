@@ -209,10 +209,6 @@ namespace ECSGenerator2 {
 
 		std::shared_ptr<CodeStructure::Struct> GenerateSystemStructCode(std::shared_ptr<ParsedSystem> system) {
 
-			if (system->GetName() == "DrawNodes") {
-				Common::BreakPointLine();
-			}
-
 			auto generateGetComponentsFilter = [](std::shared_ptr<ParsedSystem> systemEcsFile) {
 
 				//CreateEntity method.
