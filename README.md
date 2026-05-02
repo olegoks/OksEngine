@@ -69,21 +69,21 @@ OksEngine is an experimental real-time engine designed to explore cutting-edge g
    git clone https://github.com/olegoks/OksEngine.git
    cd OksEngine
 
-### Project Structure
+## 📁 Project Structure
 
 OksEngine/
 ├── Sources/
-│   ├── Engine/            # Engine core (C++)
-│   │   ├── Sources/       # ECS systems (*.ecs files)
-│   │   ├── Libraries/     # Third‑party dependencies (via vcpkg)
-│   │   └── Tests/         # Unit tests
-│   ├── Scripts/           # Lua gameplay scripts
-│   └── main.cpp           # Entry point
-├── Scripts/               # Shell scripts (build automation)
+│ ├── Engine/ # Engine core (C++)
+│ │ ├── Sources/ # ECS systems (*.ecs files)
+│ │ ├── Libraries/ # Third‑party dependencies (via vcpkg)
+│ │ └── Tests/ # Unit tests
+│ ├── Scripts/ # Lua gameplay scripts
+│ └── main.cpp # Entry point
+├── Scripts/ # Shell scripts (build automation)
 ├── Tools/
-│   ├── ECSGenerator2/     # Custom ECS code generator
-│   └── Control/           # Development utilities
-├── Documents/             # Detailed specs (e.g. OBJ format)
-├── KnowledgeDB/           # Developer’s personal Obsidian notes
-├── config.lua             # Engine configuration
+│ ├── ECSGenerator2/ # Custom ECS code generator
+│ └── Control/ # Development utilities
+├── Documents/ # Detailed specs (e.g. OBJ format)
+├── KnowledgeDB/ # Developer’s personal Obsidian notes
+├── config.lua # Engine configuration
 └── CMakeLists.txt
