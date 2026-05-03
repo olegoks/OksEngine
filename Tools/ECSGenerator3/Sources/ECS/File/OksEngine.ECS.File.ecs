@@ -698,6 +698,8 @@ ECSNamespace = {
                     components = {
                         "Table::Tag",
                         "Constant::Tag",
+                        "Constant::TypeName",
+                        "Constant::Value",
                         "Table::Name",
                         "Table::ParentTableEntityId",
                         "Table::ChildTablesEntityIds",

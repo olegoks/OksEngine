@@ -6,7 +6,8 @@ ECS = {
         './Sources/Common/',
         './Sources/Config/',
         './Sources/ECS/',
-        './Sources/Resources/'
+        './Sources/Resources/',
+        './Sources/Test/'
     },
     --if type has Entry need to include Header 
     Includes = {

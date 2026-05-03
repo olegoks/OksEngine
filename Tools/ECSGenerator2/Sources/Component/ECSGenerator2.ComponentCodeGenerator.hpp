@@ -114,7 +114,7 @@ namespace ECSGenerator2 {
 				return code;
 			}
 
-			OS::NotImplemented();
+			NOT_IMPLEMENTED();
 
 			return {};
 		}

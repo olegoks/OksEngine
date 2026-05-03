@@ -1,0 +1,14 @@
+TestNamespace = {
+    MaxNumberConstant = {
+        type = "Common::Size",
+        value = "32"
+    },
+    ModelAnimationStruct = {
+        serializable = false,
+        fields = {
+            { type = "std::string", name = "name" },
+            { type = "double",      name = "durationInTicks" },
+            { type = "double",      name = "ticksPerSecond" }
+        }
+    }
+}
