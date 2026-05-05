@@ -10,5 +10,43 @@ TestNamespace = {
             { type = "double",      name = "durationInTicks" },
             { type = "double",      name = "ticksPerSecond" }
         }
-    }
+    },
+    BComponent = {
+        serializable = false, 
+        fields = {
+            { type = "std::string", name = "name" },
+            { type = "double",      name = "durationInTicks" },
+            { type = "double",      name = "ticksPerSecond" }
+        }
+    },
+    AComponent = {
+        serializable = false, 
+        fields = {
+            { type = "std::string", name = "name" },
+            { type = "double",      name = "durationInTicks" },
+            { type = "double",      name = "ticksPerSecond" }
+        }
+    },
+    DEnum = {
+        values = {
+            "First",
+            "Second"
+        }
+    },
+    CreateSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "A"
+                    }
+                },
+                {
+                    processesComponents = {
+                        "B"
+                    }
+                }
+            }
+        }
+    },
 }

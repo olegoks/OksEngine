@@ -154,4 +154,5 @@ find_package(GTest CONFIG REQUIRED)
 
  add_subdirectory(Tools/ECSGenerator2)
  add_subdirectory(Tools/ECSGenerator3)
+ add_subdirectory(Tools/TgBot)
 

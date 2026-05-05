@@ -3,10 +3,10 @@
 ECS = {
     -- Modules paths relates to .ecs_project file.
     Modules = {
-        './Sources/Common/',
-        './Sources/Config/',
-        './Sources/ECS/',
-        './Sources/Resources/',
+        --'./Sources/Common/',
+        --'./Sources/Config/',
+        --'./Sources/ECS/',
+        --'./Sources/Resources/',
         './Sources/Test/'
     },
     --if type has Entry need to include Header 

@@ -404,18 +404,28 @@ CPPNamespace = {
                     { type = "std::string", name = "name" }
                 }
             },
+            BuiltinTypesEnum = {
+                values = {
+                    "Void",
+                    "Int",
+                    "Float",
+                    "Char",
+                    "Bool"
+                --...
+                }
+            },
             BuiltinTypeComponent   = {
                 serializable = false,
                 bindable = false,
                 fields = {
-                    { type = "Common::UInt64", name = "kind" } -- 0=void, 1=int, 2=float, 3=char, 4=bool и т.д.
+                    { type = "BuiltinTypes", name = "type" } -- 0=void, 1=int, 2=float, 3=char, 4=bool и т.д.
                 }
             },
             PointerTypeComponent   = {
                 serializable = false,
                 bindable = false,
                 fields = {
-                    { type = "ECS2::Entity::Id", name = "pointee" }
+                    { type = "ECS2::Entity::Id", name = "pointer" }
                 }
             },
             ReferenceTypeComponent = {
@@ -441,6 +451,14 @@ CPPNamespace = {
                     { type = "ECS2::Entity::Id",              name = "returnType" },
                     { type = "std::vector<ECS2::Entity::Id>", name = "paramTypes" },
                     { type = "bool",                          name = "isVariadic" }
+                }
+            },
+            TemplateSpecializationTypeComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "baseType" },                -- NamedType для std::shared_ptr
+                    { type = "std::vector<ECS2::Entity::Id>", name = "templateArgs" } -- аргументы шаблона (типы)
                 }
             },
             -- cv-квалификаторы — вешаются как теги на сущность типа
@@ -582,6 +600,7 @@ CPPNamespace = {
                             "CPP::Tree::Type::ArrayType",
                             "CPP::Tree::Type::FunctionType",
                             "CPP::Tree::Type::ConstType",
+                            "CPP::Tree::Type::TemplateSpecializationType",
                             "CPP::Tree::Type::VolatileType",
                             "CPP::Tree::Access::Private_",
                             "CPP::Tree::Access::Public_",
@@ -622,6 +641,9 @@ CPPNamespace = {
                     },
                     {
                         archetype = "ECS::File::Table::Struct::Struct"
+                    },
+                    {
+                        archetype = "ECS::File::Table::Enum::Enum"
                     },
                     {
                         archetype = "ECS::File::Table::Archetype::Archetype"

@@ -437,7 +437,7 @@ namespace OksEngine::ECS::File {
 
 										CreateComponent<Table::Tag>(systemEntityId);
 										CreateComponent<Table::System::Tag>(systemEntityId);
-										CreateComponent<Table::Name>(systemEntityId, systemName);
+										CreateComponent<Table::Name>(systemEntityId, systemName.substr(0, systemName.rfind("System")));
 
 
 										if (system["disable"].cast<bool>().value()) {
@@ -766,6 +766,7 @@ namespace OksEngine::ECS::File {
 
 										return systemEntityId;
 									}(table, name);
+									return systemEntityId;
 							}
 							
 							
