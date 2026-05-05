@@ -1,0 +1,74 @@
+ECSNamespace = {
+
+    GeneratorNamespace = {
+        GenerateTreesSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "ECS::File::Table::Parse" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "CommandLineParameters",
+                            "ProjectFilePath"
+                        }
+                    }
+                },
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "CPP::File::Tag",
+                            "CPP::File::Type::Cpp",
+                            "CPP::File::Type::Hpp",
+                            "CPP::File::Include::EntityIds"
+                        }
+                    }
+                },
+                accessingEntities = {
+                    {
+                        accessingComponents = {
+                            "CPP::Tree::Decl::Parameter"
+                        }
+                    },
+                    {
+                        archetype = "File::Table::System::System"
+                    },
+                    {
+                        accessingComponents = {
+                            "File::Table::System::CallOrder::EntityId",
+                            "File::Table::System::CallOrder::Tag",
+                            "File::Table::System::CallOrder::RunAfter",
+                            "File::Table::System::CallOrder::RunBefore",
+                        }
+                    },
+                    {
+                        archetype = "File::File"
+                    },
+                    {
+                        archetype = "File::Table::Component::Component"
+                    },
+                    {
+                        archetype = "File::Table::Component::Field::Field"
+                    },
+                    {
+                        archetype = "File::Table::Struct::Struct"
+                    },
+                    {
+                        archetype = "File::Table::Enum::Enum"
+                    },
+                    {
+                        archetype = "File::Table::Struct::Field::Field"
+                    },
+                    {
+                        archetype = "File::Table::Archetype::Archetype"
+                    },
+                    {
+                        archetype = "File::Table::Constant::Constant"
+                    }
+                }
+            }
+        },
+    }
+
+}

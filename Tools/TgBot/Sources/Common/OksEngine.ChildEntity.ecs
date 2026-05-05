@@ -1,0 +1,6 @@
+ChildEntityComponent = {
+    serializable = false,
+    fields = { 
+        { type = "ECS2::Entity::Id", name = "childEntityId" }
+     }
+}

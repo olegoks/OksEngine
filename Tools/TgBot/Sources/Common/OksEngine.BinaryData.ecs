@@ -1,0 +1,6 @@
+BinaryDataComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::vector<Common::Byte>", name = "data" }
+    }
+}

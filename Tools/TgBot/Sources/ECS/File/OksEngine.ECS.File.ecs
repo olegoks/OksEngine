@@ -1,0 +1,789 @@
+ECSNamespace = {
+
+    FileNamespace = {
+        TagComponent = {
+            serializable = false,
+            bindable = false
+        },
+        PathComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "std::string", name = "path" }
+            }
+        },
+
+        EntityIdComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+        LoadSystem = {
+            type = "Initialize",
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "CommandLineParameters",
+                            "ProjectFilePath"
+                        }
+                    }
+                },
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "ECS::File::Tag",
+                            "ECS::File::Path",
+                            "LuaScript"
+                        }
+                    }
+                }
+            }
+        },
+        FileArchetype = {
+            components = {
+                "File::Tag",
+                "File::Path",
+                "LuaScript",
+                "File::Table::EntityIds"
+            }
+        },
+        TableNamespace = {
+            TagComponent = {},
+            EntityIdsComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                }
+            },
+            ChildTablesEntityIdsComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                }
+            },
+            ParentTableEntityIdComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "id" }
+                }
+            },
+            NameComponent = {
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "name" }
+                }
+            },
+            NamespaceNamespace = {
+                TagComponent = {
+                    serializable = false,
+                    bindable = false,
+                },
+                EntityIdComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "ECS2::Entity::Id", name = "id" }
+                    }
+                },
+                EntityIdsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                    }
+                },
+
+                NamespaceArchetype = {
+                    components = {
+                        "Table::Tag",
+                        "Namespace::Tag",
+                        "Table::Name",
+                        "Table::ParentTableEntityId",
+                        "Table::ChildTablesEntityIds",
+                        "File::EntityId"
+                    }
+                }
+            },
+            ComponentNamespace = {
+                TagComponent = {
+                    serializable = false,
+                    bindable = false,
+                },
+                AliesForComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::string", name = "componentRelativeName" }
+                    }
+                },
+                EntityIdComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "ECS2::Entity::Id", name = "id" }
+                    }
+                },
+                EntityIdsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                    }
+                },
+                AlignmentComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "Common::Size", name = "alignment" }
+                    }
+                },
+                SerializableComponent = {
+                    serializable = false,
+                    bindable = false
+                },
+                BindableComponent = {
+                    serializable = false,
+                    bindable = false
+                },
+                ManualEditFunctionComponent = {
+                    serializable = false,
+                    bindable = false
+                },
+                ManualBindFunctionComponent = {
+                    serializable = false,
+                    bindable = false
+                },
+                ManualAddFunctionComponent = {
+                    serializable = false,
+                    bindable = false
+                },
+                ManualParseFunctionComponent = {
+                    serializable = false,
+                    bindable = false
+                },
+                ManualSerializeFunctionComponent = {
+                    serializable = false,
+                    bindable = false
+                },
+                FieldNamespace = {
+                    TagComponent = {
+                        serializable = false,
+                        bindable = false
+                    },
+                    EntityIdsComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                        }
+                    },
+                    TypeComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "std::string", name = "name" }
+                        }
+                    },
+                    NameComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "std::string", name = "name" }
+                        }
+                    },
+                    DefaultValueComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "std::string", name = "value" }
+                        }
+                    },
+                    AlignmentComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "Common::Size", name = "alignment" }
+                        }
+                    },
+                    CopyableComponent = {
+                        serializable = false,
+                        bindable = false,
+                    },
+                    FieldArchetype = {
+                        components = {
+                            "Field::Tag",
+                            "Field::Type",
+                            "Field::Name",
+                            "Field::DefaultValue",
+                            "Field::Alignment",
+                            "Field::Copyable"
+                        }
+                    }
+                },
+                ComponentArchetype = {
+                    components = {
+                        "Table::Tag",
+                        "Component::Tag",
+                        "Component::AliesFor",
+                        "Component::Alignment",
+                        "Component::Serializable",
+                        "Component::Bindable",
+                        "Component::ManualEditFunction",
+                        "Component::ManualBindFunction",
+                        "Component::ManualAddFunction",
+                        "Component::ManualParseFunction",
+                        "Component::ManualSerializeFunction",
+                        "Table::Name",
+                        "Table::ParentTableEntityId",
+                        "Table::Component::Field::EntityIds",
+                        "File::EntityId"
+                    }
+                }
+            },
+            EnumNamespace = {
+                TagComponent = {
+                    serializable = false,
+                    bindable = false,
+                },
+                EntityIdComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "ECS2::Entity::Id", name = "id" }
+                    }
+                },
+                EntityIdsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                    }
+                },
+                ValuesComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<std::string>", name = "values" }
+                    }
+                },
+                EnumArchetype = {
+                    components = {
+                        "Table::Tag",
+                        "Enum::Tag",
+                        "Table::Name",
+                        "Enum::Values",
+                        "Table::ParentTableEntityId",
+                        "File::EntityId"
+                    }
+                }
+            },
+            StructNamespace = {
+                TagComponent = {
+                    serializable = false,
+                    bindable = false,
+                },
+                EntityIdComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "ECS2::Entity::Id", name = "id" }
+                    }
+                },
+                EntityIdsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                    }
+                },
+                AlignmentComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "Common::Size", name = "alignment" }
+                    }
+                },
+
+                FieldNamespace = {
+                    TagComponent = {
+                        serializable = false,
+                        bindable = false
+                    },
+                    EntityIdsComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                        }
+                    },
+                    TypeComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "std::string", name = "name" }
+                        }
+                    },
+                    NameComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "std::string", name = "name" }
+                        }
+                    },
+                    DefaultValueComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "std::string", name = "value" }
+                        }
+                    },
+                    AlignmentComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "Common::Size", name = "alignment" }
+                        }
+                    },
+                    CopyableComponent = {
+                        serializable = false,
+                        bindable = false,
+                    },
+                    FieldArchetype = {
+                        components = {
+                            "Field::Tag",
+                            "Field::Type",
+                            "Field::Name",
+                            "Field::DefaultValue",
+                            "Field::Alignment",
+                            "Field::Copyable"
+                        }
+                    }
+                },
+                StructArchetype = {
+                    components = {
+                        "Table::Tag",
+                        "Struct::Tag",
+                        "Table::Name",
+                        "Struct::Field::EntityIds",
+                        "Table::ParentTableEntityId",
+                        "File::EntityId"
+                    }
+                }
+            },
+            SystemNamespace = {
+                TagComponent = {
+                    serializable = false,
+                    bindable = false,
+                },
+                EntityIdComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "ECS2::Entity::Id", name = "id" }
+                    }
+                },
+                EntityIdsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                    }
+                },
+                DisabledComponent = {
+                    serializable = false,
+                    bindable = false,
+                },
+                ThreadComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::string", name = "thread" }
+                    }
+                },
+                TypeComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::string", name = "type" }
+                    }
+                },
+                CallOrderNamespace = {
+                    TagComponent = {
+                        serializable = false,
+                        bindable = false,
+                    },
+                    EntityIdComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "ECS2::Entity::Id", name = "id" }
+                        }
+                    },
+                    SystemInfoStruct = {
+                        fields = {
+                            { type = "ECS2::Entity::Id", name = "id",  defaultValue = "ECS2::Entity::Id::invalid_" },
+                            { type = "std::string",      name = "name" }
+                        }
+                    },
+                    RunAfterComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "std::vector<SystemInfo>", name = "systems" }
+                        }
+                    },
+                    RunBeforeComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "std::vector<SystemInfo>", name = "systems" }
+                        }
+                    }
+                },
+                UpdateMethodNamespace = {
+                    TagComponent = {
+                        serializable = false,
+                        bindable = false,
+                    },
+                    EntityIdComponent = {
+                        serializable = false,
+                        bindable = false,
+                        fields = {
+                            { type = "ECS2::Entity::Id", name = "id" }
+                        }
+                    },
+                    ProcessNamespace = {
+
+                        EntityNamespace = {
+                            TagComponent = {
+                                serializable = false,
+                                bindable = false,
+                            },
+                            EntityIdComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "ECS2::Entity::Id", name = "id" }
+                                }
+                            },
+                            EntityIdsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                                }
+                            },
+                            ProcessAllCombinationsComponent = {
+                                serializable = false,
+                                bindable = false,
+                            },
+                            ComponentInfoStruct = {
+                                fields = {
+                                    { type = "std::string", name = "name" },
+                                    { type = "bool",        name = "readonly" } -- for const pointer to component, need for multithreading
+                                }
+                            },
+                            ProcessComponentsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<ComponentInfo>", name = "componentInfos" }
+                                }
+                            },
+                            --TODO: need to realize in new ECSGenerator3. If System need entity that have this components, but not processes it.
+                            IncludeComponentsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<std::string>", name = "components" }
+                                }
+                            },
+                            --if entity doesnt have this components system will take it.
+                            ExcludeComponentsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<std::string>", name = "components" }
+                                }
+                            },
+                            --System can create this components for this entity.
+                            CreateComponentsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<std::string>", name = "components" }
+                                }
+                            },
+                            RemoveComponentsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<std::string>", name = "components" }
+                                }
+                            },
+                            --Systen can access this components of entity or not. But they will not put to Update method paramters.
+                            AccessComponentsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<std::string>", name = "components" }
+                                }
+                            },
+                            
+                            EntityArchetype = {
+                                components = {
+                                    "Entity::Tag",
+                                    "Entity::ProcessComponents",
+                                    "Entity::IncludeComponents",
+                                    "Entity::AccessComponents",
+                                    "Entity::CreateComponents",
+                                    "Entity::RemoveComponents",
+                                    "Entity::ExcludeComponents"
+                                }
+                            }
+                        }
+                    },
+                    CreateNamespace = {
+                        EntityNamespace = {
+                            TagComponent = {
+                                serializable = false,
+                                bindable = false,
+                            },
+                            EntityIdComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "ECS2::Entity::Id", name = "id" }
+                                }
+                            },
+                            EntityIdsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                                }
+                            },
+                            CreateComponentsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<std::string>", name = "components" }
+                                }
+                            },
+                            ArchetypeComponent = {
+                                fields = {
+                                    { type = "ECS2::Entity::Id", name = "id",  defaultValue = "ECS2::Entity::Id::invalid_" },
+                                    { type = "std::string", name = "name" }
+                                }
+                            },
+                            EntityArchetype = {
+                                components = {
+                                    "Entity::Tag",
+                                    "Entity::CreateComponents",
+                                    "Entity::Archetype"
+                                }
+                            }
+                        }
+                    },
+                    AccessNamespace = {
+                        EntityNamespace = {
+                            TagComponent = {
+                                serializable = false,
+                                bindable = false,
+                            },
+                            EntityIdsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                                }
+                            },
+                            ComponentInfoStruct = {
+                                fields = {
+                                    { type = "std::string", name = "name" },
+                                    { type = "bool",        name = "readonly" } -- for const pointer to component, need for multithreading
+                                }
+                            },
+                            AccessComponentsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<ComponentInfo>", name = "components" }
+                                }
+                            },
+                            --System can create this components for this entity.
+                            CreateComponentsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<std::string>", name = "components" }
+                                }
+                            },
+                            RemoveComponentsComponent = {
+                                serializable = false,
+                                bindable = false,
+                                fields = {
+                                    { type = "std::vector<std::string>", name = "components" }
+                                }
+                            },
+                            ArchetypeComponent = {
+                                fields = {
+                                    { type = "ECS2::Entity::Id", name = "id",  defaultValue = "ECS2::Entity::Id::invalid_" },
+                                    { type = "std::string", name = "name" }
+                                }
+                            },
+                            EntityArchetype = {
+                                components = {
+                                    "Entity::Tag",
+                                    "Entity::AccessComponents",
+                                    "Entity::CreateComponents",
+                                    "Entity::RemoveComponents",
+                                    "Entity::Archetype"
+                                }
+                            }
+                        }
+                    }
+                },
+                SystemArchetype = {
+                    components = {
+                        "Table::Tag",
+                        "System::Tag",
+                        "Table::Name",
+                        "System::Type",
+                        "System::Thread",
+                        "CallOrder::EntityId",
+                        "Table::ParentTableEntityId",
+                        "Table::System::UpdateMethod::EntityId",
+                        "File::EntityId"
+                    }
+                }
+            },
+            ConstantNamespace = {
+                TagComponent = {
+                    serializable = false,
+                    bindable = false,
+                },
+                EntityIdComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "ECS2::Entity::Id", name = "id" }
+                    }
+                },
+                EntityIdsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                    }
+                },
+                TypeNameComponent = {
+                    fields = {
+                        { type = "std::string", name = "type" }
+                    }
+                },
+                ValueComponent = {
+                    fields = {
+                        { type = "std::string", name = "value" }
+                    }
+                },
+                ConstantArchetype = {
+                    components = {
+                        "Table::Tag",
+                        "Constant::Tag",
+                        "Constant::TypeName",
+                        "Constant::Value",
+                        "Table::Name",
+                        "Table::ParentTableEntityId",
+                        "Table::ChildTablesEntityIds",
+                        "File::EntityId"
+                    }
+                }
+            },
+            ArchetypeNamespace = {
+                TagComponent = {
+                    serializable = false,
+                    bindable = false,
+                },
+                EntityIdComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "ECS2::Entity::Id", name = "id" }
+                    }
+                },
+                EntityIdsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
+                    }
+                },
+                ComponentsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" },
+                        { type = "std::vector<std::string>",      name = "components" }
+                    }
+                },
+                ArchetypesComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" },
+                        { type = "std::vector<std::string>",      name = "archetypes" }
+                    }
+                },
+                ArchetypeArchetype = {
+                    components = {
+                        "Table::Tag",
+                        "Archetype::Tag",
+                        "Table::Name",
+                        "Archetype::Components",
+                        "Archetype::Archetypes",
+                        "Table::ParentTableEntityId",
+                        "File::EntityId"
+                    }
+                }
+            },
+            ParseSystem = {
+                type = "Initialize",
+                callOrder = {
+                    runAfter = { "File::Load" }
+                },  
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ECS::File::Tag",
+                                "ECS::File::Path",
+                                "LuaScript"
+                            }
+                        }
+                    },
+                    createsEntities = {
+                        {
+                            archetype = "Constant::Constant"
+
+                        }
+                    }
+                }
+            },
+        }
+
+    },
+    ProjectFilePathComponent = {
+        fields = {
+            { type = "std::string", name = "path" }
+        }
+    },
+
+}
