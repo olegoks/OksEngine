@@ -143,9 +143,101 @@ CPPNamespace = {
         -- ── Базовые маркеры иерархии Clang ────────────────────────
 
 
-
+        PreprocessorNamespace = {
+            TagComponent = {
+                serializable = false,
+                bindable = false
+            },
+            DefineComponent = {
+                description = "#define (object-like или function-like)",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "name" },
+                    { type = "std::vector<std::string>", name = "params" },  -- пуст для object-like
+                    { type = "std::string", name = "body" },
+                    { type = "bool", name = "isFunctionLike" }
+                }
+            },
+            IncludeComponent = {
+                description = "#include",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "path" },
+                    { type = "bool", name = "isLocal" }   -- true для "file", false для <file>
+                }
+            },
+            IfdefComponent = {
+                description = "#ifdef",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "macroName" }
+                }
+            },
+            IfndefComponent = {
+                description = "#ifndef",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "macroName" }
+                }
+            },
+            IfComponent = {
+                description = "#if",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "condition" }
+                }
+            },
+            ElseComponent = {
+                description = "#else",
+                serializable = false,
+                bindable = false
+            },
+            EndifComponent = {
+                description = "#endif",
+                serializable = false,
+                bindable = false
+            },
+            PragmaComponent = {
+                description = "#pragma",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "text" }
+                }
+            },
+            UndefComponent = {
+                description = "#undef",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "name" }
+                }
+            },
+            ErrorComponent = {
+                description = "#error",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "message" }
+                }
+            },
+            LineComponent = {
+                description = "#line",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "Common::UInt64", name = "line" },
+                    { type = "std::string", name = "file" }
+                }
+            }
+        },
         -- ── Decl: конкретные виды объявлений ─────────────────────
-        DeclNamespace         = {
+        DeclNamespace                   = {
             TagComponent = {
                 serializable = false,
                 bindable = false
@@ -234,7 +326,7 @@ CPPNamespace = {
         },
 
         -- ── Stmt: инструкции ────────────────────────────────────
-        StmtNamespace         = {
+        StmtNamespace                   = {
             TagComponent            = { -- Любая инструкция (if, for, блок...)
                 serializable = false,
                 bindable = false
@@ -305,7 +397,7 @@ CPPNamespace = {
         },
 
         -- ── Expr: выражения ────────────────────────────────────
-        ExprNamespace         = {
+        ExprNamespace                   = {
             TagComponent            = { -- Любое выражение (a+b, вызов функции...)
                 serializable = false,
                 bindable = false
@@ -391,13 +483,13 @@ CPPNamespace = {
         },
 
         -- ── Type: представление типов ──────────────────────────
-        TypeNamespace         = {
+        TypeNamespace                   = {
             TagComponent           = { -- Маркер сущности, описывающей тип
                 serializable = false,
                 bindable = false
             },
             --For string type name. Bad practice, need to remove after transfer generator to abstract types.
-            NameComponent = {
+            NameComponent          = {
                 serializable = false,
                 bindable = false,
                 fields = {
@@ -450,7 +542,7 @@ CPPNamespace = {
 
         -- ── Инфраструктура инициализаторов конструктора ──────
         -- ✦ Компонент-контейнер: вешается на сущность конструктора
-        ConstructorInitListComponent = {
+        ConstructorInitListComponent    = {
             serializable = false,
             bindable = false,
             fields = {
@@ -467,27 +559,27 @@ CPPNamespace = {
             }
         },
         -- ── Модификаторы / спецификаторы (теги) ─────────────────
-        AccessNamespace       = {
+        AccessNamespace                 = {
             Private_Component   = { serializable = false, bindable = false },
             Public_Component    = { serializable = false, bindable = false },
             Protected_Component = { serializable = false, bindable = false }
         },
-        StorageClassNamespace = {
+        StorageClassNamespace           = {
             Static_Component      = { serializable = false, bindable = false },
             Extern_Component      = { serializable = false, bindable = false },
             ThreadLocal_Component = { serializable = false, bindable = false },
             Mutable_Component     = { serializable = false, bindable = false }
         },
         -- Другие модификаторы
-        Const_Component       = { serializable = false, bindable = false },
-        Volatile_Component    = { serializable = false, bindable = false },
-        Constexpr_Component   = { serializable = false, bindable = false },
-        Virtual_Component     = { serializable = false, bindable = false },
-        Override_Component    = { serializable = false, bindable = false },
-        Final_Component       = { serializable = false, bindable = false },
-        Inline_Component      = { serializable = false, bindable = false },
-        Explicit_Component    = { serializable = false, bindable = false },
-        Noexcept_Component    = {
+        Const_Component                 = { serializable = false, bindable = false },
+        Volatile_Component              = { serializable = false, bindable = false },
+        Constexpr_Component             = { serializable = false, bindable = false },
+        Virtual_Component               = { serializable = false, bindable = false },
+        Override_Component              = { serializable = false, bindable = false },
+        Final_Component                 = { serializable = false, bindable = false },
+        Inline_Component                = { serializable = false, bindable = false },
+        Explicit_Component              = { serializable = false, bindable = false },
+        Noexcept_Component              = {
             serializable = false,
             bindable = false,
             fields = {
@@ -495,7 +587,7 @@ CPPNamespace = {
             }
         },
 
-        GenerateCodeSystem    = {
+        GenerateCodeSystem              = {
             type = "Initialize",
             callOrder = {
                 runAfter = { "ECS::Generator::GenerateTrees" }
@@ -539,7 +631,7 @@ CPPNamespace = {
                             "CPP::Tree::Decl::Tag",
 
 
-                           
+
                             "CPP::Tree::Decl::Function",
                             "CPP::Tree::Decl::Class_",
                             "CPP::Tree::Decl::Enum_",
@@ -601,6 +693,21 @@ CPPNamespace = {
                             "CPP::Tree::Inline_",
                             "CPP::Tree::Explicit_",
                             "CPP::Tree::Noexcept_",
+                            "CPP::Preprocessor::Tag",
+                            "CPP::Preprocessor::Define",
+                            "CPP::Preprocessor::Include",
+                            "CPP::Preprocessor::Ifdef",
+                            "CPP::Preprocessor::Ifndef",
+                            "CPP::Preprocessor::If_",
+                            "CPP::Preprocessor::Else_",
+                            "CPP::Preprocessor::Endif_",
+                            "CPP::Preprocessor::Pragma_",
+                            "CPP::Preprocessor::Undef",
+                            "CPP::Preprocessor::Error",
+                            "CPP::Preprocessor::Line",
+                            "CPP::Tree::Expr::MacroInvocation",
+                            "CPP::Tree::Expr::LambdaExpr",
+                            "CPP::Tree::Stmt::DeclStmt",
                         }
                     },
                     {
@@ -634,6 +741,6 @@ CPPNamespace = {
                     }
                 }
             }
-        },
+        }
     }
 }

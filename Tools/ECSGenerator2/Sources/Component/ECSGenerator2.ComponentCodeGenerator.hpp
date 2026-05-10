@@ -59,11 +59,11 @@ namespace ECSGenerator2 {
 				return code;
 			}
 			else if (typeName == "std::vector<ECS2::Entity::Id>") {
-				code.Add("static ECS2::Entity::Id refEntityId = ECS2::Entity::Id::invalid_;");
-				code.Add("ImGui::InputScalar(\"refEntityId\", " + GetImGuiType("ECS2::Entity::Id") + ", &refEntityId);");
-				code.Add("if(ImGui::Button(\"Add refEntity\")){{");
-				code.Add("	");
-				code.Add("}}");
+				//code.Add("static ECS2::Entity::Id refEntityId = ECS2::Entity::Id::invalid_;");
+				//code.Add("ImGui::InputScalar(\"refEntityId\", " + GetImGuiType("ECS2::Entity::Id") + ", &refEntityId);");
+				//code.Add("if(ImGui::Button(\"Add refEntity\")){{");
+				//code.Add("	");
+				//code.Add("}}");
 				return code;
 			}
 			OS::NotImplemented();
@@ -639,6 +639,10 @@ namespace ECSGenerator2 {
 
 		//ADD FUNCTION
 		std::shared_ptr<CodeStructure::Function> GenerateAddFunctionRealization(std::shared_ptr<ParsedComponent> component) {
+
+			if (component->GetName() == "CallExpr") {
+				Common::BreakPointLine();
+			}
 
 			CodeStructure::Code realization;
 			if (component->CanBeCreatedFromImGui()) {

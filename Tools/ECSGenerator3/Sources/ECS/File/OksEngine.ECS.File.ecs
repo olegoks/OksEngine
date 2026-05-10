@@ -487,7 +487,7 @@ ECSNamespace = {
                             ComponentInfoStruct = {
                                 fields = {
                                     { type = "std::string", name = "name" },
-                                    { type = "bool",        name = "readonly" } -- for const pointer to component, need for multithreading
+                                    { type = "bool",        name = "readonly", defaultValue = "true" } -- for const pointer to component, need for multithreading
                                 }
                             },
                             ProcessComponentsComponent = {
@@ -648,6 +648,14 @@ ECSNamespace = {
                                     "Entity::Archetype"
                                 }
                             }
+                        }
+                    },
+                    UpdateMethodArchetype = {
+                        components = {
+                            "Tag",
+                            "Process::Entity::EntityIds",
+                            "Create::Entity::EntityIds",
+                            "Access::Entity::EntityIds"
                         }
                     }
                 },

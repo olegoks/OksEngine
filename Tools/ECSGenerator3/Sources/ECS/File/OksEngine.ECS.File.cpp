@@ -761,7 +761,9 @@ namespace OksEngine::ECS::File {
 													}
 													return createsEntities_;
 													};
+												CreateComponent<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId, updateMethodEntityId);
 												}(updateMethodRef);
+
 										}
 
 										return systemEntityId;

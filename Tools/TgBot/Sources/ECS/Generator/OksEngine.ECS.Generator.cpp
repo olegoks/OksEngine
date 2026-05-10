@@ -7,7 +7,7 @@
 
 namespace OksEngine::ECS::Generator
 {
-#define GET_TABLE_NAMESPACE(entityId, delimiterString, isNamespaceUppercase)\
+#define ECS__FILE__TABLE__GET_FULL_NAMESPACE_STRING(entityId, delimiterString, isNamespaceUppercase)\
 		[this](ECS2::Entity::Id tableEntityId, const char* delimiter, bool isUppercase) {\
 			ECS2::ComponentsFilter beginTableCF = GetComponentsFilter(tableEntityId);\
 			std::vector<std::string> namespaceStrings;\
@@ -51,7 +51,7 @@ namespace OksEngine::ECS::Generator
 			}(entityId,delimiterString,isNamespaceUppercase)
 
 
-#define GET_TABLE_FULL_NAME(entityId, delimiterString, isNamespaceUppercase)\
+#define ECS__FILE__TABLE__GET_FULL_NAME(entityId, delimiterString, isNamespaceUppercase)\
 			[this](ECS2::Entity::Id tableEntityId, const char* delimiter, bool isUppercase) {\
 				ASSERT(IsComponentExist<File::Table::Tag>(tableEntityId));\
 				ASSERT(IsComponentExist<File::Table::Name>(tableEntityId));\
@@ -60,7 +60,7 @@ namespace OksEngine::ECS::Generator
 					std::transform(tableName.begin(), tableName.end(), tableName.begin(),\
 						[](unsigned char c) { return std::toupper(c); });\
 				}\
-				const std::string tableNamespace = GET_TABLE_NAMESPACE(tableEntityId, delimiter, isUppercase);\
+				const std::string tableNamespace = ECS__FILE__TABLE__GET_FULL_NAMESPACE_STRING(tableEntityId, delimiter, isUppercase);\
 				if (tableNamespace != "") {\
 					return tableNamespace + delimiter + tableName;\
 				}\
@@ -70,7 +70,7 @@ namespace OksEngine::ECS::Generator
 			}(entityId, delimiterString, isNamespaceUppercase)
 
 
-#define GET_TABLE_PARENTS(entityId)\
+#define ECS__FILE__TABLE__GET_TABLE_PARENTS(entityId)\
 			[this](ECS2::Entity::Id tableEntityId)->std::vector<ECS2::Entity::Id> {\
 				ASSERT(IsComponentExist<File::Table::Tag>(tableEntityId));\
 				if (!IsComponentExist<File::Table::ParentTableEntityId>(tableEntityId)) {\
@@ -92,7 +92,7 @@ namespace OksEngine::ECS::Generator
 				}\
 			}(entityId)
 
-#define CPP_TREE_CREATE_NAMESPACE(namespaceName)\
+#define CPP__TREE__DECL__CREATE_NAMESPACE(namespaceName)\
 	[this](const std::string& name){\
 			const ECS2::Entity::Id namespaceEntityId = CreateEntity();\
 			CreateComponent<CPP::Tree::Node::Tag>(namespaceEntityId);\
@@ -104,14 +104,14 @@ namespace OksEngine::ECS::Generator
 
 	//If cppTableEntity id has only one parent namespace firstNamespaceEntityId == lastNamespaceEntityId == valid ECS2::Entity::Id
 	//If cppTableEntity has no parents firstNamespaceEntityId == lastNamespaceEntityId == ECS2::Entity::Id::invalid_
-#define CREATE_CPP_NAMESPACES(parentEntityIds, entityId)\
+#define CPP__TREE__CREATE_CPP_NAMESPACES(parentEntityIds, entityId)\
 		[this](const std::vector<ECS2::Entity::Id>& parentTableEntityIds, ECS2::Entity::Id cppTableEntityId) ->std::pair<ECS2::Entity::Id, ECS2::Entity::Id> {\
 			ECS2::Entity::Id firstNamespaceEntityId = ECS2::Entity::Id::invalid_;\
 			ECS2::Entity::Id lastNamespaceEntityId = ECS2::Entity::Id::invalid_;\
 			std::vector<ECS2::Entity::Id> cppNamespaceEntityIds;\
 			for (Common::Index i = 0; i < parentTableEntityIds.size(); i++) {\
 				ECS2::Entity::Id parentTableEntityId = parentTableEntityIds[i]; \
-				const ECS2::Entity::Id namespaceEntityId = CPP_TREE_CREATE_NAMESPACE(GetComponent<File::Table::Name>(parentTableEntityId)->name_);\
+				const ECS2::Entity::Id namespaceEntityId = CPP__TREE__DECL__CREATE_NAMESPACE(GetComponent<File::Table::Name>(parentTableEntityId)->name_);\
 				cppNamespaceEntityIds.push_back(namespaceEntityId);\
 			}\
 			for (Common::Index i = 0; i < parentTableEntityIds.size(); i++) {\
@@ -137,7 +137,7 @@ namespace OksEngine::ECS::Generator
 			return { firstNamespaceEntityId, lastNamespaceEntityId };\
 		}(parentEntityIds, entityId)
 
-#define CREATE_CPP_VARIABLE(variableTypeName, variableFieldName, variableInitializeValue)\
+#define CPP__TREE__DECL__CREATE_VARIABLE(variableTypeName, variableFieldName, variableInitializeValue)\
 		[this](const std::string& typeName, const std::string& fieldName, const std::string& initValue) {\
 			ECS2::Entity::Id variableEntityId = CreateEntity();\
 			CreateComponent<CPP::Tree::Node::Tag>(variableEntityId);\
@@ -261,8 +261,8 @@ namespace OksEngine::ECS::Generator
 
 
 				const ECS2::Entity::Id cppConstantEntityId = CreateEntity();
-				const auto parentTables = GET_TABLE_PARENTS(constantEntityId);
-				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CREATE_CPP_NAMESPACES(parentTables, cppConstantEntityId);
+				const auto parentTables = ECS__FILE__TABLE__GET_TABLE_PARENTS(constantEntityId);
+				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CPP__TREE__CREATE_CPP_NAMESPACES(parentTables, cppConstantEntityId);
 				CreateComponent<CPP::Tree::Node::Tag>(cppConstantEntityId);
 				CreateComponent<CPP::Tree::Decl::Tag>(cppConstantEntityId);
 				{
@@ -299,8 +299,8 @@ namespace OksEngine::ECS::Generator
 				ASSERT(structCF.IsSet<File::Table::Struct::Tag>());
 
 				const ECS2::Entity::Id cppStructEntityId = CreateEntity();
-				const auto ecsParentTables = GET_TABLE_PARENTS(structEntityId);
-				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CREATE_CPP_NAMESPACES(ecsParentTables, cppStructEntityId);
+				const auto ecsParentTables = ECS__FILE__TABLE__GET_TABLE_PARENTS(structEntityId);
+				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CPP__TREE__CREATE_CPP_NAMESPACES(ecsParentTables, cppStructEntityId);
 
 				{
 					CreateComponent<CPP::Tree::Node::Tag>(cppStructEntityId);
@@ -439,8 +439,8 @@ namespace OksEngine::ECS::Generator
 				ASSERT(componentCF.IsSet<File::Table::Component::Tag>());
 
 				const ECS2::Entity::Id cppComponentEntityId = CreateEntity();
-				const auto ecsParentTables = GET_TABLE_PARENTS(componentEntityId);
-				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CREATE_CPP_NAMESPACES(ecsParentTables, cppComponentEntityId);
+				const auto ecsParentTables = ECS__FILE__TABLE__GET_TABLE_PARENTS(componentEntityId);
+				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CPP__TREE__CREATE_CPP_NAMESPACES(ecsParentTables, cppComponentEntityId);
 
 				{
 					CreateComponent<CPP::Tree::Node::Tag>(cppComponentEntityId);
@@ -599,7 +599,7 @@ namespace OksEngine::ECS::Generator
 									CreateComponent<CPP::Tree::Expr::Tag>(exprEntityId);
 									CreateComponent<CPP::Tree::Expr::Literal>(exprEntityId,
 										Common::Limits<Common::UInt64>::Max(),
-										"\"" + GET_TABLE_FULL_NAME(componentEntityId, "::", false) + "\"");
+										"\"" + ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false) + "\"");
 								}
 								CreateComponent<CPP::Tree::Stmt::ReturnStmt>(returnStmtEntityId, exprEntityId);
 							}
@@ -673,8 +673,8 @@ namespace OksEngine::ECS::Generator
 				ASSERT(enumCF.IsSet<File::Table::Enum::Tag>());
 
 				const ECS2::Entity::Id cppEnumEntityId = CreateEntity();
-				const auto ecsParentTables = GET_TABLE_PARENTS(enumEntityId);
-				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CREATE_CPP_NAMESPACES(ecsParentTables, cppEnumEntityId);
+				const auto ecsParentTables = ECS__FILE__TABLE__GET_TABLE_PARENTS(enumEntityId);
+				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CPP__TREE__CREATE_CPP_NAMESPACES(ecsParentTables, cppEnumEntityId);
 				
 				CreateComponent<CPP::Tree::Node::Tag>(cppEnumEntityId);
 				CreateComponent<CPP::Tree::Decl::Tag>(cppEnumEntityId);
@@ -710,8 +710,8 @@ namespace OksEngine::ECS::Generator
 				ASSERT(systemCF.IsSet<File::Table::System::Tag>());
 
 				const ECS2::Entity::Id cppSystemEntityId = CreateEntity();
-				const auto ecsParentTables = GET_TABLE_PARENTS(systemEntityId);
-				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CREATE_CPP_NAMESPACES(ecsParentTables, cppSystemEntityId);
+				const auto ecsParentTables = ECS__FILE__TABLE__GET_TABLE_PARENTS(systemEntityId);
+				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CPP__TREE__CREATE_CPP_NAMESPACES(ecsParentTables, cppSystemEntityId);
 
 				CreateComponent<CPP::Tree::Node::Tag>(cppSystemEntityId);
 				CreateComponent<CPP::Tree::Decl::Tag>(cppSystemEntityId);

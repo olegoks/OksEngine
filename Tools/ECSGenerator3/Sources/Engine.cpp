@@ -48,15 +48,15 @@ namespace OksEngine {
 		HRESULT r;
 		r = SetThreadDescription(GetCurrentThread(), L"Main thread");
 
-		CreateThreads(world2_);
+		//CreateThreads(world2_);
 
 		RunInitializeSystems(world2_);
 
-		while (IsRunning()) {
+		/*while (IsRunning()) {
 
 			RunSystems(world2_);
 
-		}
+		}*/
 
 	}
 

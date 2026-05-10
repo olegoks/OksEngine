@@ -476,6 +476,7 @@ namespace ECS2 {
 				return std::make_tuple(
 					nullptr,
 					[]() -> Components* {
+						NOT_IMPLEMENTED();
 						return nullptr;
 					}()...
 						);

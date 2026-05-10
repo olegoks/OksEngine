@@ -232,8 +232,101 @@ CPPNamespace = {
                 }
             }
         },
-
+        PreprocessorNamespace = {
+            TagComponent = {
+                serializable = false,
+                bindable = false
+            },
+            Define_Component = {
+                description = "#define (object-like или function-like)",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "name" },
+                    { type = "std::vector<std::string>", name = "params" },  -- пуст для object-like
+                    { type = "std::string", name = "body" },
+                    { type = "bool", name = "isFunctionLike" }
+                }
+            },
+            Include_Component = {
+                description = "#include",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "path" },
+                    { type = "bool", name = "isLocal" }   -- true для "file", false для <file>
+                }
+            },
+            Ifdef_Component = {
+                description = "#ifdef",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "macroName" }
+                }
+            },
+            Ifndef_Component = {
+                description = "#ifndef",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "macroName" }
+                }
+            },
+            If_Component = {
+                description = "#if",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "condition" }
+                }
+            },
+            Else_Component = {
+                description = "#else",
+                serializable = false,
+                bindable = false
+            },
+            Endif_Component = {
+                description = "#endif",
+                serializable = false,
+                bindable = false
+            },
+            Pragma_Component = {
+                description = "#pragma",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "text" }
+                }
+            },
+            Undef_Component = {
+                description = "#undef",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "name" }
+                }
+            },
+            Error_Component = {
+                description = "#error",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "message" }
+                }
+            },
+            Line_Component = {
+                description = "#line",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "Common::UInt64", name = "line" },
+                    { type = "std::string", name = "file" }
+                }
+            }
+        },
         -- ── Stmt: инструкции ────────────────────────────────────
+        --это инструкция: законченная единица действия, управляющая потоком выполнения. Например, составной блок {...}, if, return, while, for.
         StmtNamespace         = {
             TagComponent            = { -- Любая инструкция (if, for, блок...)
                 serializable = false,
@@ -305,6 +398,8 @@ CPPNamespace = {
         },
 
         -- ── Expr: выражения ────────────────────────────────────
+        --это выражение: фрагмент кода, который вычисляет значение и обладает типом
+        --Например, a + b, foo(), 5, world->ForEachEntity<...>(...).
         ExprNamespace         = {
             TagComponent            = { -- Любое выражение (a+b, вызов функции...)
                 serializable = false,
@@ -348,9 +443,35 @@ CPPNamespace = {
             CallExprComponent       = {
                 serializable = false,
                 bindable = false,
+                
                 fields = {
                     { type = "ECS2::Entity::Id",              name = "callee" },
+                    { type = "std::vector<ECS2::Entity::Id>", name = "templateArgs" }, -- Tree::Type::Tag
                     { type = "std::vector<ECS2::Entity::Id>", name = "arguments" }
+                }
+            },
+            CaptureTypeEnum = {
+                values = {
+                    "ByReference",
+                    "ByValue",
+                    "Undefined"
+                }
+            },
+            LambdaCaptureStruct = {
+                fields = {
+                    { type = "CaptureType", name = "captureType" },    -- true для &x, false для x
+                    { type = "ECS2::Entity::Id", name = "decl" }
+                }
+            },
+            LambdaComponent = {
+                description = "Лямбда-выражение",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "CaptureType", name = "captureType" },
+                    { type = "std::vector<LambdaCapture>", name = "captureList" },  -- 0=нет, 1=&, 2==
+                    { type = "std::vector<ECS2::Entity::Id>", name = "parameters" }, -- Parameter сущности
+                    { type = "ECS2::Entity::Id", name = "body" }                     -- CompoundStmt
                 }
             },
             MemberAccessComponent   = {
@@ -484,6 +605,17 @@ CPPNamespace = {
                 { type = "ECS2::Entity::Id", name = "initExpr" }
             }
         },
+        MacroInvocationComponent = {
+            description = "Вызов макроса: MACRO_NAME(args...)",
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "std::string", name = "name" },               -- имя макроса
+                { type = "std::vector<ECS2::Entity::Id>", name = "arguments" }, -- аргументы (Expr)
+                { type = "ECS2::Entity::Id", name = "macro" }          -- (опционально) ссылка на Define, может быть invalid_
+            }
+        },
+
         -- ── Модификаторы / спецификаторы (теги) ─────────────────
         AccessNamespace       = {
             Private_Component   = { serializable = false, bindable = false },
@@ -556,7 +688,18 @@ CPPNamespace = {
                             "CPP::Tree::Node::ResolvedRef",
                             "CPP::Tree::Decl::Tag",
 
-
+                            "CPP::Tree::Preprocessor::Tag",
+                            "CPP::Tree::Preprocessor::Define_",
+                            "CPP::Tree::Preprocessor::Include_",
+                            "CPP::Tree::Preprocessor::Ifdef_",
+                            "CPP::Tree::Preprocessor::Ifndef_",
+                            "CPP::Tree::Preprocessor::If_",
+                            "CPP::Tree::Preprocessor::Else_",
+                            "CPP::Tree::Preprocessor::Endif_",
+                            "CPP::Tree::Preprocessor::Pragma_",
+                            "CPP::Tree::Preprocessor::Undef_",
+                            "CPP::Tree::Preprocessor::Error_",
+                            "CPP::Tree::Preprocessor::Line_",
                            
                             "CPP::Tree::Decl::Function",
                             "CPP::Tree::Decl::Class_",
@@ -587,6 +730,7 @@ CPPNamespace = {
                             "CPP::Tree::Expr::BinaryOp",
                             "CPP::Tree::Expr::UnaryOp",
                             "CPP::Tree::Expr::CallExpr",
+                            "CPP::Tree::Expr::Lambda",
                             "CPP::Tree::Expr::MemberAccess",
                             "CPP::Tree::Expr::ArraySubscript",
                             "CPP::Tree::Expr::Ternary",

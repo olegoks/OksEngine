@@ -1,3 +1,21 @@
+ZComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::string", name = "name" },
+        { type = "double",      name = "durationInTicks" },
+        { type = "double",      name = "ticksPerSecond" }
+    }
+}
+
+BComponent = {
+    serializable = false,
+    fields = {
+        { type = "std::string", name = "name" },
+        { type = "double",      name = "durationInTicks" },
+        { type = "double",      name = "ticksPerSecond" }
+    }
+}
+
 TestNamespace = {
     MaxNumberConstant = {
         type = "Common::Size",
@@ -12,20 +30,22 @@ TestNamespace = {
         }
     },
     BComponent = {
-        serializable = false, 
+        serializable = false,
         fields = {
             { type = "std::string", name = "name" },
             { type = "double",      name = "durationInTicks" },
             { type = "double",      name = "ticksPerSecond" }
         }
     },
-    AComponent = {
-        serializable = false, 
-        fields = {
-            { type = "std::string", name = "name" },
-            { type = "double",      name = "durationInTicks" },
-            { type = "double",      name = "ticksPerSecond" }
-        }
+    XNamespace = {
+        AComponent = {
+            serializable = false,
+            fields = {
+                { type = "std::string", name = "name" },
+                { type = "double",      name = "durationInTicks" },
+                { type = "double",      name = "ticksPerSecond" }
+            }
+        },
     },
     DEnum = {
         values = {
@@ -38,15 +58,37 @@ TestNamespace = {
             processesEntities = {
                 {
                     processesComponents = {
-                        "A"
+                        "X::A"
                     }
                 },
                 {
                     processesComponents = {
-                        "B"
+                        "B",
+                        "Z"
                     }
                 }
             }
         }
     },
+}
+CreateSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "Test::X::A"
+                },
+                excludes = {
+                    "Z",
+                    "Test::B"
+                }
+            },
+            {
+                processesComponents = {
+                    "Test::B",
+                    "Z"
+                }
+            }
+        }
+    }
 }

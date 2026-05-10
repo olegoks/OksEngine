@@ -52,6 +52,16 @@ ECSNamespace = {
         },
         TableNamespace = {
             TagComponent = {},
+            TypeEnum = {
+                values = {
+                    "Component",
+                    "System",
+                    "Enum",
+                    "Struct",
+                    "Archetype",
+                    "Constant"
+                }
+            },
             EntityIdsComponent = {
                 serializable = false,
                 bindable = false,

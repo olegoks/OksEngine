@@ -21,9 +21,9 @@ namespace OksEngine {
 
 		void Run() {
 			isRunning_ = true;
-			while (IsRunning()) {
+			//while (IsRunning()) {
 				Update();
-			}
+			//}
 
 		}
 

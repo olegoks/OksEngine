@@ -1,6 +1,7 @@
 #pragma once
 
 #include <string>
+#include <regex>
 #include <luabridge3/LuaBridge/LuaBridge.h>
 
 namespace OksEngine::ECS::File::Table {
@@ -17,6 +18,6 @@ namespace OksEngine::ECS::File::Table {
         CreateComponent<Constant::TypeName>(constantEntityId, type.cast<std::string>().value());\
         CreateComponent<Constant::Value>(constantEntityId, value.cast<std::string>().value());\
         return  constantEntityId;       \
-    }(luaRef, name);                                                                            \
+    }(luaRef, name);
 
 }

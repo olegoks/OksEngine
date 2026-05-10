@@ -1,42 +1,12 @@
 ﻿#pragma once
-#include <CPP\auto_OksEngine.CPP.ClangTree.hpp>
+
+#include <CPP/OksEngine.CPP.Tree.Utils.hpp>
 #include <OS.FileSystem.TextFile.hpp>
 #include <format>
 #include <memory>
 
 #include <clang/Format/Format.h>
 
-using namespace std::string_literals;
-
-#define CPP_CONSTEXPR "constexpr"
-#define CPP_CONSTEXPR_STR "constexpr"s
-
-#define CPP_CONST "const"
-#define CPP_CONST_STR "const"s
-
-#define CPP_VOID "void"
-#define CPP_VOID_STR "void"s
-
-#define CPP_ENUM "enum"
-#define CPP_ENUM_STR "enum"s
-
-#define CPP_RETURN "return"
-#define CPP_RETURN_STR "return"s
-
-#define CPP_STATIC "static"
-#define CPP_STATIC_STR "static"s
-
-#define CPP_SPACE " "
-#define CPP_SPACE_STR " "s
-
-#define CPP_CLASS "class"
-#define CPP_CLASS_STR "class"s
-
-#define CPP_PUBLIC "public:"
-#define CPP_PUBLIC_STR "public:"s
-
-#define CPP_PRIVATE "private:"
-#define CPP_PRIVATE_STR "private:"s
 
 namespace OksEngine
 {
@@ -61,27 +31,6 @@ namespace OksEngine
 
 				const ECS2::ComponentsFilter cppfileCF = GetComponentsFilter(fileEntityId);
 
-				if (cppfileCF.IsSet<CPP::File::Type::Hpp>()) {
-					code += "#pragma once\n";
-				}
-
-				//INCLUDES
-				if (cppfileCF.IsSet<CPP::File::Include::EntityIds>()) {
-
-					const auto* includesEntityIds = GetComponent<CPP::File::Include::EntityIds>(fileEntityId);
-
-					for (ECS2::Entity::Id includeEntityId : includesEntityIds->ids_) {
-
-						ASSERT(IsComponentExist<CPP::File::Include::Tag>(includeEntityId));
-						ASSERT(IsComponentExist<CPP::File::Include::Path>(includeEntityId));
-
-						const std::string includePath = GetComponent<CPP::File::Include::Path>(includeEntityId)->path_;
-
-						code += std::vformat("#include<{}>\n", std::make_format_args(includePath));
-					}
-
-				}
-
 				if (!IsComponentExist<CPP::Tree::Node::ChildEntityIds>(fileEntityId)) {
 					return;
 				}
@@ -90,9 +39,16 @@ namespace OksEngine
 					[&processNode, this, &code](ECS2::Entity::Id entityId) {
 
 					const ECS2::ComponentsFilter nodeCF = GetComponentsFilter(entityId);
-
-					//ASSERT(nodeCF.IsSet<CPP::Tree::Node::Tag>());
-					if (nodeCF.IsSet<CPP::Tree::Decl::Namespace_>()) {
+					if (nodeCF.IsSet<CPP::Tree::Preprocessor::Tag>()) {
+						code += "#";
+						if (nodeCF.IsSet<CPP::Tree::Preprocessor::Pragma_>()) {
+							code += "pragma" + CPP_SPACE_STR + GetComponent<CPP::Tree::Preprocessor::Pragma_>(entityId)->text_ + CPP_NEWLINE_STR;
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Preprocessor::Include_>()) {
+							code += "include<" + GetComponent<CPP::Tree::Preprocessor::Include_>(entityId)->path_ + ">" + CPP_NEWLINE_STR;
+						}
+					}
+					else if (nodeCF.IsSet<CPP::Tree::Decl::Namespace_>()) {
 						ASSERT(nodeCF.IsSet<CPP::Tree::Decl::Tag>());
 
 						code += "namespace " + GetComponent<CPP::Tree::Node::Name>(entityId)->name_ + "{";
@@ -131,15 +87,21 @@ namespace OksEngine
 						processNode(variable->type_);
 						code += CPP_SPACE_STR;
 						code += GetComponent<CPP::Tree::Node::Name>(entityId)->name_;
-						
+
 						//Initializer.
-						if (variable->initializer_ != ECS2::Entity::Id::invalid_) {
-							code += "{" + GetComponent<CPP::Tree::Expr::Literal>(variable->initializer_)->value_ + "}";
+						if (variable->initializer_.IsValid()) {
+							code += "{";
+							processNode(variable->initializer_);
+							code += "}";
 						}
 						code += ";";
 
 					}
 					else if (nodeCF.IsSet<CPP::Tree::Type::Tag>()) {
+						if (IsComponentExist<CPP::Tree::Type::ConstType>(entityId)) {
+							code += CPP_CONST_STR;
+							code += CPP_SPACE_STR;
+						}
 						if (nodeCF.IsSet<CPP::Tree::Type::Name>()) {
 							code += GetComponent<CPP::Tree::Type::Name>(entityId)->name_;
 						}
@@ -157,14 +119,22 @@ namespace OksEngine
 							}
 							code += ">";
 						}
-						else if(nodeCF.IsSet<CPP::Tree::Type::BuiltinType>()){
+						else if (nodeCF.IsSet<CPP::Tree::Type::BuiltinType>()) {
 							const auto* builtinType = GetComponent<CPP::Tree::Type::BuiltinType>(entityId);
 							if (builtinType->type_ == CPP::Tree::Type::BuiltinTypes::Void) {
 								code += CPP_VOID_STR;
 							}
+							else if (builtinType->type_ == CPP::Tree::Type::BuiltinTypes::Char) {
+								code += CPP_CHAR_STR;
+							}
 							else {
 								NOT_IMPLEMENTED();
 							}
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Type::PointerType>()) {
+							const auto* pointerType = GetComponent<CPP::Tree::Type::PointerType>(entityId);
+							processNode(pointerType->pointer_);
+							code += "*";
 						}
 						else {
 							NOT_IMPLEMENTED();
@@ -176,6 +146,14 @@ namespace OksEngine
 						}
 						if (nodeCF.IsSet<CPP::Tree::Access::Private_>()) {
 							code += CPP_PRIVATE_STR + CPP_SPACE_STR;
+						}
+
+						if (nodeCF.IsSet<CPP::Tree::StorageClass::Static_>()) {
+							code += CPP_STATIC_STR + CPP_SPACE_STR;
+						}
+
+						if (nodeCF.IsSet<CPP::Tree::Inline_>()) {
+							code += CPP_INLINE_STR + CPP_SPACE_STR;
 						}
 
 						//For constructor returnType_ will be ECS2::Entity::Id::invalid_.
@@ -202,11 +180,7 @@ namespace OksEngine
 									if (!isFirst) {
 										code += ",";
 									}
-
-									processNode(nameTypeInitializer->type_);
-									code += CPP_SPACE_STR;
-									code += nameTypeInitializer->name_;
-
+									processNode(maybeConstructorParameter);
 									isFirst = false;
 
 								}
@@ -232,7 +206,6 @@ namespace OksEngine
 									ECS2::Entity::Id exprEntityId = GetComponent<CPP::Tree::ConstructorInitializer>(initializer)->initExpr_;
 
 									if (IsComponentExist<CPP::Tree::Expr::Identifier>(exprEntityId)) {
-										ASSERT(IsComponentExist<CPP::Tree::Node::ResolvedRef>(exprEntityId));
 										code += GetComponent<CPP::Tree::Expr::Identifier>(exprEntityId)->name_;
 									}
 									else  if (IsComponentExist<CPP::Tree::Node::ResolvedRef>(exprEntityId)) {
@@ -252,8 +225,6 @@ namespace OksEngine
 
 							}
 						}
-
-						
 						if (IsComponentExist<CPP::Tree::Node::ChildEntityIds>(entityId)) {
 							//Parameters.
 							bool isFirst = true;
@@ -266,8 +237,6 @@ namespace OksEngine
 								}
 							}
 						}
-						
-
 						code += ";";
 					}
 					else if (nodeCF.IsSet<CPP::Tree::Decl::Class_>()) {
@@ -320,11 +289,126 @@ namespace OksEngine
 							processNode(returnExpr);
 							code += ";";
 						}
+						else if (nodeCF.IsSet<CPP::Tree::Stmt::ExpressionStmt>()) {
+							ECS2::Entity::Id exprEntityId = GetComponent<CPP::Tree::Stmt::ExpressionStmt>(entityId)->expr_;
+							ASSERT(exprEntityId.IsValid());
+							processNode(exprEntityId);
+							code += ";";
+						}
+						else {
+							NOT_IMPLEMENTED();
+						}
 					}
 					else if (nodeCF.IsSet<CPP::Tree::Expr::Tag>()) {
 						if (nodeCF.IsSet<CPP::Tree::Expr::Literal>()) {
 							code += GetComponent<CPP::Tree::Expr::Literal>(entityId)->value_;
 						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::Identifier>()) {
+							code += GetComponent<CPP::Tree::Expr::Identifier>(entityId)->name_;
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::Lambda>()) {
+							const auto* lambda = GetComponent<CPP::Tree::Expr::Lambda>(entityId);
+							code += "[";
+							{//Capture list
+								if (lambda->captureType_ != CPP::Tree::Expr::CaptureType::Undefined) {
+									if (lambda->captureType_ == CPP::Tree::Expr::CaptureType::ByReference) {
+										code += "&";
+									}
+									else if (lambda->captureType_ == CPP::Tree::Expr::CaptureType::ByValue) {
+										code += "=";
+									}
+									if (!lambda->captureList_.empty()) {
+										code += ",";
+									}
+								}
+								bool isFirst = true;
+								for (const auto& capture : lambda->captureList_) {
+									if (!isFirst) {
+										code += ",";
+									}
+									isFirst = false;
+									if (capture.captureType_ == CPP::Tree::Expr::CaptureType::ByReference) {
+										code += "&";
+									}
+									else if (capture.captureType_ == CPP::Tree::Expr::CaptureType::ByValue) {
+										//Do nothing.
+									}
+									else {
+										ASSERT_FAIL();
+									}
+									processNode(capture.decl_);
+								}
+							}
+							code += "]";
+							code += "(";
+
+							{//Parameters
+								bool isFirst = true;
+								for (const auto& parameterEntityId : lambda->parameters_) {
+									if (!isFirst) {
+										code += ",";
+									}
+									isFirst = false;
+
+									processNode(parameterEntityId);
+								}
+							}
+							code += ")";
+							code += "{";
+							{
+								processNode(lambda->body_);
+							}
+							code += "}";
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::CallExpr>()) {
+							const auto* callExpr = GetComponent<CPP::Tree::Expr::CallExpr>(entityId);
+							processNode(callExpr->callee_);
+							if (!callExpr->templateArgs_.empty()) {
+								code += "<";
+								bool isFirst = true;
+								for (ECS2::Entity::Id typeEntityId : callExpr->templateArgs_) {
+									if (!isFirst) {
+										code += ",";
+									}
+									isFirst = false;
+									processNode(typeEntityId);
+								}
+								code += ">";
+							}
+							code += "(";
+							bool isFirst = true;
+							for (ECS2::Entity::Id argEntityId : callExpr->arguments_) {
+								if (!isFirst) {
+									code += ",";
+								}
+								isFirst = false;
+								processNode(argEntityId);
+							}
+							code += ")";
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::MemberAccess>()) {
+							const auto* memberAccess = GetComponent<CPP::Tree::Expr::MemberAccess>(entityId);
+							processNode(memberAccess->object_);
+							if (memberAccess->isArrow_) {
+								code += "->";
+							}
+							else {
+								code += ".";
+							}
+							code += memberAccess->memberName_;
+						}
+						else {
+							NOT_IMPLEMENTED();
+						}
+					}
+					else if (nodeCF.IsSet<CPP::Tree::Decl::Parameter>()) {
+						const auto* nameTypeInitializer = GetComponent<CPP::Tree::Decl::Parameter>(entityId);
+						processNode(nameTypeInitializer->type_);
+						code += CPP_SPACE_STR;
+						code += nameTypeInitializer->name_;
+					}
+					else {
+						NOT_IMPLEMENTED();
 					}
 
 
@@ -369,7 +453,7 @@ namespace OksEngine
 				const auto* path = GetComponent<CPP::File::Path>(fileEntityId);
 				const auto* name = GetComponent<CPP::File::Name>(fileEntityId);
 
-				auto osFile = std::make_shared<OS::TextFile>(path->path_ + "/auto_" + name->name_ + std::string{ (cppfileCF.IsSet<CPP::File::Type::Hpp>()) ? (".hpp") : (".cpp") });
+				auto osFile = std::make_shared<OS::TextFile>(path->path_ / std::filesystem::path(name->name_ + std::string{ (cppfileCF.IsSet<CPP::File::Type::Hpp>()) ? (".hpp") : (".cpp") }));
 				osFile->Create();
 				*osFile << code;
 
