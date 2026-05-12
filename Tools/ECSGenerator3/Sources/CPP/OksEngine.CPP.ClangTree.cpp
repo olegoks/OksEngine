@@ -127,6 +127,9 @@ namespace OksEngine
 							else if (builtinType->type_ == CPP::Tree::Type::BuiltinTypes::Char) {
 								code += CPP_CHAR_STR;
 							}
+							else if (builtinType->type_ == CPP::Tree::Type::BuiltinTypes::Bool) {
+								code += CPP_BOOL_STR;
+							}
 							else {
 								NOT_IMPLEMENTED();
 							}
@@ -141,12 +144,45 @@ namespace OksEngine
 						}
 					}
 					else if (nodeCF.IsSet<CPP::Tree::Decl::Function>()) {
+
 						if (nodeCF.IsSet<CPP::Tree::Access::Public_>()) {
 							code += CPP_PUBLIC_STR + CPP_SPACE_STR;
 						}
 						if (nodeCF.IsSet<CPP::Tree::Access::Private_>()) {
 							code += CPP_PRIVATE_STR + CPP_SPACE_STR;
 						}
+
+
+						if (IsComponentExist<CPP::Tree::Decl::TemplateDecl>(entityId)) {
+							ASSERT(!nodeCF.IsSet<CPP::Tree::Decl::Constructor>());
+							std::vector<ECS2::Entity::Id> templateParamEntityIds = GetComponent<CPP::Tree::Decl::TemplateDecl>(entityId)->templateParams_;
+							if (!templateParamEntityIds.empty()) {
+								code += "template";
+								code += "<";
+								bool isFirst = true;
+								for (ECS2::Entity::Id templateParamEntityId : templateParamEntityIds) {
+									if (!isFirst) {
+										code += ",";
+									}
+									isFirst = false;
+									const auto* templateTypeParam = GetComponent<CPP::Tree::Decl::TemplateTypeParam>(templateParamEntityId);
+									code += CPP_CLASS_STR;
+									if (templateTypeParam->isParameterPack_) {
+										code += "...";
+										ASSERT(templateTypeParam->defaultType_.IsInvalid());
+									}
+									code += CPP_SPACE_STR;
+									processNode(templateParamEntityId);
+									if (templateTypeParam->defaultType_.IsValid()) {
+										code += "=";
+										code += CPP_SPACE_STR;
+										processNode(templateTypeParam->defaultType_);
+									}
+								}
+								code += ">";
+							}
+						}
+
 
 						if (nodeCF.IsSet<CPP::Tree::StorageClass::Static_>()) {
 							code += CPP_STATIC_STR + CPP_SPACE_STR;
@@ -163,6 +199,7 @@ namespace OksEngine
 							processNode(returnTypeEntityId);//TODO: replace with PointerType
 							code += CPP_SPACE_STR;
 						}
+						
 						code += GetComponent<CPP::Tree::Node::Name>(entityId)->name_;
 						code += "(";
 						if (IsComponentExist<CPP::Tree::Node::ChildEntityIds>(entityId)) {
@@ -238,6 +275,10 @@ namespace OksEngine
 							}
 						}
 						code += ";";
+					}
+					else if (nodeCF.IsSet<CPP::Tree::Decl::TemplateTypeParam>()) {
+						const auto* templateTypeParam = GetComponent<CPP::Tree::Decl::TemplateTypeParam>(entityId);
+						code += templateTypeParam->name_;
 					}
 					else if (nodeCF.IsSet<CPP::Tree::Decl::Class_>()) {
 						ASSERT(nodeCF.IsSet<CPP::Tree::Decl::Tag>());
@@ -372,6 +413,12 @@ namespace OksEngine
 									}
 									isFirst = false;
 									processNode(typeEntityId);
+									if (IsComponentExist<CPP::Tree::Decl::TemplateTypeParam>(typeEntityId)) {
+										const auto* templateTypeParam = GetComponent<CPP::Tree::Decl::TemplateTypeParam>(typeEntityId);
+										if (templateTypeParam->isParameterPack_) {
+											code += "...";
+										}
+									}
 								}
 								code += ">";
 							}

@@ -219,7 +219,8 @@ CPPNamespace = {
                 bindable = false,
                 fields = {
                     { type = "std::string",      name = "name" },
-                    { type = "ECS2::Entity::Id", name = "defaultType" }
+                    { type = "ECS2::Entity::Id", name = "defaultType" },
+                    { type = "bool", name = "isParameterPack" }
                 }
             },
             TemplateNonTypeParamComponent = {
@@ -563,6 +564,14 @@ CPPNamespace = {
                 fields = {
                     { type = "ECS2::Entity::Id", name = "elementType" },
                     { type = "ECS2::Entity::Id", name = "sizeExpr" } -- null если не указан
+                }
+            },
+            PackExpansionTypeComponent = {
+                description = "Раскрытие пакета параметров в контексте типа",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "pattern" }  -- ссылка на TemplateTypeParam / TemplateNonTypeParam
                 }
             },
             FunctionTypeComponent  = {

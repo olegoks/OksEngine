@@ -450,7 +450,7 @@ namespace OksEngine::ECS::File {
 											if (!callOrderRef.isNil()) {
 
 												ECS2::Entity::Id callOrderEntityId = CreateEntity();
-												
+
 												//Parse runAfter
 												[&](luabridge::LuaRef systemRef) {
 													std::vector<System::CallOrder::SystemInfo> runAfterSystems;
@@ -768,10 +768,10 @@ namespace OksEngine::ECS::File {
 
 										return systemEntityId;
 									}(table, name);
-									return systemEntityId;
+								return systemEntityId;
 							}
-							
-							
+
+
 
 							return ECS2::Entity::Id::invalid_;
 					};
@@ -794,13 +794,24 @@ namespace OksEngine::ECS::File {
 					const std::string keyString = key.tostring();
 					luabridge::LuaRef table = key;
 
-					
+
 
 					const ECS2::Entity::Id parsedTableEntityId = processTable(keyString, ecsFile[key.tostring()]);
 					if (parsedTableEntityId.IsValid()) {
-						CreateComponent<File::EntityId>(parsedTableEntityId, entity0id);
-						parsedTables.push_back(parsedTableEntityId);
+						ECS2::Entity::Id namespaceTableEntityId = CreateEntity<ECS__FILE__TABLE__NAMESPACE__NAMESPACE>();
+						CreateComponent<ECS::File::Table::Tag>(namespaceTableEntityId);
+						CreateComponent<ECS::File::Table::Namespace::Tag>(namespaceTableEntityId);
+						CreateComponent<ECS::File::Table::Name>(namespaceTableEntityId, "OksEngine");
+						CreateComponent<ECS::File::Table::ChildTablesEntityIds>(
+							namespaceTableEntityId,
+							std::vector{ parsedTableEntityId });
+
+						CreateComponent<ECS::File::Table::ParentTableEntityId>(parsedTableEntityId, namespaceTableEntityId);
+
+						CreateComponent<File::EntityId>(namespaceTableEntityId, entity0id);
+						parsedTables.push_back(namespaceTableEntityId);
 					}
+					
 					//Separate namespace tables:
 					//namespace {
 					//	struct{}
