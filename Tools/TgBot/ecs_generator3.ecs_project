@@ -1,13 +1,23 @@
 
 
 ECS = {
+    --Relative to .ecs_project path.
+    IncludePaths = { 
+        "./Sources/"
+    },
     -- Modules paths relates to .ecs_project file.
     Modules = {
         --'./Sources/Common/',
         --'./Sources/Config/',
         --'./Sources/ECS/',
         --'./Sources/Resources/',
-        './Sources/Test/'
+        { 
+            IncludePath = './Sources',
+            Paths = { 
+                './Sources/Test/Test.ecs_module'
+            }
+        }
+        
     },
     --if type has Entry need to include Header 
     Includes = {

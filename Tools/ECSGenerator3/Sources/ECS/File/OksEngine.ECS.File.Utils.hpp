@@ -201,5 +201,29 @@ namespace OksEngine::ECS::File::Table {
 		return applicants.front().second;\
 	}.operator()<tableTag>(scope, name);\
 
+#define ECS__FILE__TABLE__GET_TABLE_FILE_ENTITY(table)\
+	[this](ECS2::Entity::Id tableEntityId){\
+		return GetComponent<ECS::File::EntityId>(tableEntityId)->id_;\
+	}(table)
+
+#define ECS__FILE__GET_FILE_INCLUDE_PATH(file, projectFilePath, extension)\
+	[this](ECS2::Entity::Id fileEntityId, std::filesystem::path projectFileFullPath, std::string extensionStr){\
+		auto projectFilePathIt = projectFileFullPath.begin();\
+		const std::filesystem::path componentFilePath = GetComponent<ECS::File::Path>(fileEntityId)->path_;\
+		auto hppFilePathIt = componentFilePath.begin();\
+		while (*projectFilePathIt == *hppFilePathIt) {\
+			++projectFilePathIt;\
+			++hppFilePathIt;\
+		}\
+		std::filesystem::path hppFileRelativePath;\
+		ASSERT(*hppFilePathIt == "Sources");\
+		++hppFilePathIt;\
+		while (hppFilePathIt != componentFilePath.end()) {\
+			hppFileRelativePath /= *hppFilePathIt;\
+			++hppFilePathIt;\
+		}\
+		hppFileRelativePath = hppFileRelativePath.parent_path() / ("auto_" + hppFileRelativePath.stem().string() + extensionStr);\
+		return hppFileRelativePath;\
+	}(file, projectFilePath, extension)
 
 }

@@ -1,0 +1,13 @@
+ECSNamespace = {
+    FileNamespace = {
+        FileArchetype = {
+            components = {
+                "File::Tag",
+                "File::Path",
+                "Module::EntityId",
+                "LuaScript",
+                "File::Table::EntityIds"
+            }
+        },
+    }
+}

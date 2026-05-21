@@ -10,8 +10,9 @@ ECSNamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
-                            "CommandLineParameters",
-                            "ProjectFilePath"
+                            "ECS::Project::Tag",
+                            "ECS::Project::Path",
+                            "LuaScript"
                         }
                     }
                 },

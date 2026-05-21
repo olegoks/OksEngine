@@ -42,14 +42,6 @@ ECSNamespace = {
                 }
             }
         },
-        FileArchetype = {
-            components = {
-                "File::Tag",
-                "File::Path",
-                "LuaScript",
-                "File::Table::EntityIds"
-            }
-        },
         TableNamespace = {
             TagComponent = {},
             EntityIdsComponent = {
@@ -765,7 +757,7 @@ ECSNamespace = {
             ParseSystem = {
                 type = "Initialize",
                 callOrder = {
-                    runAfter = { "File::Load" }
+                    runAfter = { "ECS::Module::CreateFileEntities" }
                 },  
                 updateMethod = {
                     processesEntities = {

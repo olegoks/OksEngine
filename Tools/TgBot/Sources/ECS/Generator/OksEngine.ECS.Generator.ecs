@@ -11,7 +11,7 @@ ECSNamespace = {
                     {
                         processesComponents = {
                             "CommandLineParameters",
-                            "ProjectFilePath"
+                            "ECS::Project::Path"
                         }
                     }
                 },
@@ -26,6 +26,11 @@ ECSNamespace = {
                     }
                 },
                 accessingEntities = {
+                    {
+                        accessingComponents = {
+                            
+                        }
+                    },
                     {
                         accessingComponents = {
                             "CPP::Tree::Decl::Parameter"

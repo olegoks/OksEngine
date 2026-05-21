@@ -11,46 +11,46 @@ namespace OksEngine::ECS::File {
 		const OksEngine::CommandLineParameters* commandLineParameters0,
 		const OksEngine::ECS::ProjectFilePath* projectFilePath0) {
 
-		const auto projectFilePath = std::filesystem::path{ projectFilePath0->path_ };
+		//const auto projectFilePath = std::filesystem::path{ projectFilePath0->path_ };
 
-		std::vector<Common::Byte> data = Resource::LoadFileAndGetContent(projectFilePath.string());
+		//std::vector<Common::Byte> data = Resource::LoadFileAndGetContent(projectFilePath.string());
 
-		::Lua::Context context;
-		::Lua::Script script{ std::string{ data.data(), data.size() } };
-		context.LoadScript(script);
+		//::Lua::Context context;
+		//::Lua::Script script{ std::string{ data.data(), data.size() } };
+		//context.LoadScript(script);
 
-		luabridge::LuaRef ecsTable = luabridge::getGlobal(context.state_, "ECS");
+		//luabridge::LuaRef ecsTable = luabridge::getGlobal(context.state_, "ECS");
 
-		ASSERT_FMSG(ecsTable.isTable() || ecsTable["Modules"].isTable(), "");
+		//ASSERT_FMSG(ecsTable.isTable() || ecsTable["Modules"].isTable(), "");
 
-		luabridge::LuaRef modulesTable = ecsTable["Modules"];
+		//luabridge::LuaRef modulesTable = ecsTable["Modules"];
 
-		std::vector<std::filesystem::path> modulePaths;
+		//std::vector<std::filesystem::path> modulePaths;
 
-		int len = modulesTable.length();
-		for (int i = 1; i <= len; ++i) {
-			if (modulesTable[i].isString()) {
-				std::filesystem::path modulePath = projectFilePath.parent_path() / modulesTable[i].cast<std::string>().value();
-				modulePaths.push_back(modulePath.lexically_normal());
-			}
-		}
+		//int len = modulesTable.length();
+		//for (int i = 1; i <= len; ++i) {
+		//	if (modulesTable[i].isString()) {
+		//		std::filesystem::path modulePath = projectFilePath.parent_path() / modulesTable[i].cast<std::string>().value();
+		//		modulePaths.push_back(modulePath.lexically_normal());
+		//	}
+		//}
 
-		for (Common::Index i = 0; i < modulePaths.size(); i++) {
-			const std::filesystem::path modulePath = modulePaths[i];
-			for (const auto& entry : std::filesystem::recursive_directory_iterator(modulePath)) {
-				if (std::filesystem::is_regular_file(entry)) {
-					if (entry.path().extension().string() == ".ecs") {
+		//for (Common::Index i = 0; i < modulePaths.size(); i++) {
+		//	const std::filesystem::path modulePath = modulePaths[i];
+		//	for (const auto& entry : std::filesystem::recursive_directory_iterator(modulePath)) {
+		//		if (std::filesystem::is_regular_file(entry)) {
+		//			if (entry.path().extension().string() == ".ecs") {
 
-						std::vector<Common::Byte> data = Resource::LoadFileAndGetContent(entry.path().string());
+		//				std::vector<Common::Byte> data = Resource::LoadFileAndGetContent(entry.path().string());
 
-						const ECS2::Entity::Id fileEntityId = CreateEntity<ECS__FILE__FILE>();
-						CreateComponent<ECS::File::Tag>(fileEntityId);
-						CreateComponent<ECS::File::Path>(fileEntityId, entry.path().string());
-						CreateComponent<LuaScript>(fileEntityId, std::string{ data.data(), data.size() });
-					}
-				}
-			}
-		}
+		//				const ECS2::Entity::Id fileEntityId = CreateEntity<ECS__FILE__FILE>();
+		//				CreateComponent<ECS::File::Tag>(fileEntityId);
+		//				CreateComponent<ECS::File::Path>(fileEntityId, entry.path().string());
+		//				CreateComponent<LuaScript>(fileEntityId, std::string{ data.data(), data.size() });
+		//			}
+		//		}
+		//	}
+		//}
 	};
 
 	namespace Table {
@@ -390,6 +390,8 @@ namespace OksEngine::ECS::File {
 									const std::string& archetypeName) {
 
 										ECS2::Entity::Id archetypeEntityId = CreateEntity<ECS__FILE__TABLE__ARCHETYPE__ARCHETYPE>();
+										CreateComponent<ECS::File::Table::Tag>(archetypeEntityId);
+										CreateComponent<ECS::File::Table::Archetype::Tag>(archetypeEntityId);
 										luabridge::LuaRef components = archetype["components"];
 										CreateComponent<Table::Name>(archetypeEntityId, archetypeName.substr(0, archetypeName.rfind("Archetype")));
 
@@ -797,7 +799,9 @@ namespace OksEngine::ECS::File {
 
 
 					const ECS2::Entity::Id parsedTableEntityId = processTable(keyString, ecsFile[key.tostring()]);
+					
 					if (parsedTableEntityId.IsValid()) {
+						CreateComponent<File::EntityId>(parsedTableEntityId, entity0id);
 						ECS2::Entity::Id namespaceTableEntityId = CreateEntity<ECS__FILE__TABLE__NAMESPACE__NAMESPACE>();
 						CreateComponent<ECS::File::Table::Tag>(namespaceTableEntityId);
 						CreateComponent<ECS::File::Table::Namespace::Tag>(namespaceTableEntityId);

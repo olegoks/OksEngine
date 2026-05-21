@@ -239,13 +239,14 @@ CPPNamespace = {
                 bindable = false
             },
             Define_Component = {
-                description = "#define (object-like или function-like)",
+                description = "#define",
                 serializable = false,
                 bindable = false,
                 fields = {
                     { type = "std::string", name = "name" },
-                    { type = "std::vector<std::string>", name = "params" },  -- пуст для object-like
-                    { type = "std::string", name = "body" },
+                    { type = "std::vector<std::string>", name = "params" },   -- пусто для object-like
+                    { type = "std::string", name = "rawBody" },              -- всегда храним оригинальную строку
+                    { type = "ECS2::Entity::Id", name = "bodyEntity" },      -- опционально: разобранное AST
                     { type = "bool", name = "isFunctionLike" }
                 }
             },
@@ -451,6 +452,27 @@ CPPNamespace = {
                     { type = "std::vector<ECS2::Entity::Id>", name = "arguments" }
                 }
             },
+            MacroInvocationComponent = {
+                description = "Вызов макроса: MACRO_NAME(args...)",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "name" },               -- имя макроса
+                    { type = "std::vector<ECS2::Entity::Id>", name = "arguments" }, -- аргументы (Expr)
+                    { type = "ECS2::Entity::Id", name = "macro" }          -- (опционально) ссылка на Define, может быть invalid_
+                }
+            },
+            --std::is_same_v<>
+            --Common::IsAnyOf<>
+            TemplateIdExprComponent = {
+                description = "Обращение к шаблонной сущности (переменной, функции) с явными типовыми аргументами без вызова",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string",              name = "name" },           -- имя сущности (например, "std::is_same_v")
+                    { type = "std::vector<ECS2::Entity::Id>", name = "templateArgs" } -- типы-аргументы шаблона
+                }
+            },
             CaptureTypeEnum = {
                 values = {
                     "ByReference",
@@ -614,16 +636,6 @@ CPPNamespace = {
                 { type = "ECS2::Entity::Id", name = "initExpr" }
             }
         },
-        MacroInvocationComponent = {
-            description = "Вызов макроса: MACRO_NAME(args...)",
-            serializable = false,
-            bindable = false,
-            fields = {
-                { type = "std::string", name = "name" },               -- имя макроса
-                { type = "std::vector<ECS2::Entity::Id>", name = "arguments" }, -- аргументы (Expr)
-                { type = "ECS2::Entity::Id", name = "macro" }          -- (опционально) ссылка на Define, может быть invalid_
-            }
-        },
 
         -- ── Модификаторы / спецификаторы (теги) ─────────────────
         AccessNamespace       = {
@@ -661,12 +673,6 @@ CPPNamespace = {
             },
             updateMethod = {
                 processesEntities = {
-                    {
-                        processesComponents = {
-                            "CommandLineParameters",
-                            "ECS::ProjectFilePath"
-                        }
-                    },
                     {
                         processesComponents = {
                             "CPP::File::Tag"
@@ -741,6 +747,8 @@ CPPNamespace = {
                             "CPP::Tree::Expr::CallExpr",
                             "CPP::Tree::Expr::Lambda",
                             "CPP::Tree::Expr::MemberAccess",
+                            "CPP::Tree::Expr::MacroInvocation",
+                            "CPP::Tree::Expr::TemplateIdExpr",
                             "CPP::Tree::Expr::ArraySubscript",
                             "CPP::Tree::Expr::Ternary",
                             "CPP::Tree::Expr::CastExpr",

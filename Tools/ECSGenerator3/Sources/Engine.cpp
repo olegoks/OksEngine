@@ -35,10 +35,9 @@ namespace OksEngine {
 					world2_->CreateComponent<SceneParameter>(commandLineParametersEntity, argv[i + 1]);
 				}
 				if (value == "-ecs_project_file"s) {
-					world2_->CreateComponent<ECS::ProjectFilePath>(commandLineParametersEntity, argv[i + 1]);
+					world2_->CreateComponent<ECS::Project::Path>(commandLineParametersEntity, argv[i + 1]);
 				}
 			}
-
 		}
 
 	}

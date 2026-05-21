@@ -1,6 +1,6 @@
 #!/bin/bash
 
-cd ../Tools/ECSGenerator3/Sources/
+cd ../Tools/TgBot/Sources/
 
 find . -type f -name "auto_*" -exec rm -f {} +
 

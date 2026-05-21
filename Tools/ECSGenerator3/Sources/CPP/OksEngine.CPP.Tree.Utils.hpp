@@ -291,6 +291,15 @@ using namespace std::string_literals;
 	}(type, name)
 
 /*						EXPRESSION							*/
+
+#define CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(name, args, macro)\
+	[this](const std::string& macroName, std::vector<ECS2::Entity::Id> arguments, ECS2::Entity::Id macroEntityId){\
+		ECS2::Entity::Id macroInvocationEntityId = CreateEntity();\
+		CreateComponent<CPP::Tree::Expr::Tag>(macroInvocationEntityId);\
+		CreateComponent<CPP::Tree::Expr::MacroInvocation>(macroInvocationEntityId, macroName, arguments, macroEntityId);\
+		return macroInvocationEntityId;\
+	}(name, args, macro)
+
 #define CPP__TREE__EXPR__CREATE_LITERAL_EXPR(text)\
 	[this](const std::string& literal){\
 		ECS2::Entity::Id literalEntityId = CreateEntity();\

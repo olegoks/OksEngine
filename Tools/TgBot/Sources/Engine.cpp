@@ -38,7 +38,6 @@ namespace OksEngine {
 					world2_->CreateComponent<ECS::ProjectFilePath>(commandLineParametersEntity, argv[i + 1]);
 				}
 			}
-
 		}
 
 	}

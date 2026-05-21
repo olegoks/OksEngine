@@ -596,12 +596,6 @@ CPPNamespace = {
                 processesEntities = {
                     {
                         processesComponents = {
-                            "CommandLineParameters",
-                            "ECS::ProjectFilePath"
-                        }
-                    },
-                    {
-                        processesComponents = {
                             "CPP::File::Tag"
                         }
                     }

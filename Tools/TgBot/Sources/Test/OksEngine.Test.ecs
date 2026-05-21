@@ -21,7 +21,16 @@ TestNamespace = {
         type = "Common::Size",
         value = "32"
     },
+    
     ModelAnimationStruct = {
+        serializable = false,
+        fields = {
+            { type = "std::string", name = "name" },
+            { type = "double",      name = "durationInTicks" },
+            { type = "double",      name = "ticksPerSecond" }
+        }
+    },
+    AComponent = {
         serializable = false,
         fields = {
             { type = "std::string", name = "name" },
@@ -53,6 +62,19 @@ TestNamespace = {
             "Second"
         }
     },
+    TestArchetype = {
+        components = {
+            "A"
+        }
+    },
+    Test2Archetype = {
+        components = {
+            "B"
+        },
+        archetypes = {
+            "Test"
+        }
+    },
     CreateSystem = {
         updateMethod = {
             processesEntities = {
@@ -76,7 +98,8 @@ CreateSystem = {
         processesEntities = {
             {
                 processesComponents = {
-                    "Test::X::A"
+                    "Test::X::A",
+                    "Test::Dependency"
                 },
                 excludes = {
                     "Z",

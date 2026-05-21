@@ -1,0 +1,6 @@
+ECS = {
+    Files = {
+        "./OksEngine.Test.ecs",
+        "./OksEngine.Test.FileDependency.ecs"
+    }
+}

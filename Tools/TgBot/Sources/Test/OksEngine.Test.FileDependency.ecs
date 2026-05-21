@@ -1,0 +1,7 @@
+TestNamespace = {
+    DependencyComponent = {
+        fields = {
+            { type = "float", name = "test" }
+        }
+    }
+}

@@ -18,10 +18,6 @@ namespace OksEngine
 
 
 			void GenerateCode::Update(
-				ECS2::Entity::Id entity0id,
-				const OksEngine::CommandLineParameters* commandLineParameters0,
-				const OksEngine::ECS::ProjectFilePath* projectFilePath0,
-
 				ECS2::Entity::Id entity1id,
 				const OksEngine::CPP::File::Tag* cPP__File__Tag1) {
 
@@ -46,6 +42,23 @@ namespace OksEngine
 						}
 						else if (nodeCF.IsSet<CPP::Tree::Preprocessor::Include_>()) {
 							code += "include<" + GetComponent<CPP::Tree::Preprocessor::Include_>(entityId)->path_ + ">" + CPP_NEWLINE_STR;
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Preprocessor::Define_>()) {
+							auto* define = GetComponent<CPP::Tree::Preprocessor::Define_>(entityId);
+							code += "define";
+							code += CPP_SPACE_STR;
+							code += define->name_;
+							if (define->bodyEntity_.IsValid()) {
+								processNode(define->bodyEntity_);
+							}
+							else {
+								code += CPP_SPACE_STR;
+								code += define->rawBody_;
+								code += "\n";
+							}
+						}
+						else {
+							NOT_IMPLEMENTED();
 						}
 					}
 					else if (nodeCF.IsSet<CPP::Tree::Decl::Namespace_>()) {
@@ -199,7 +212,7 @@ namespace OksEngine
 							processNode(returnTypeEntityId);//TODO: replace with PointerType
 							code += CPP_SPACE_STR;
 						}
-						
+
 						code += GetComponent<CPP::Tree::Node::Name>(entityId)->name_;
 						code += "(";
 						if (IsComponentExist<CPP::Tree::Node::ChildEntityIds>(entityId)) {
@@ -265,13 +278,19 @@ namespace OksEngine
 						if (IsComponentExist<CPP::Tree::Node::ChildEntityIds>(entityId)) {
 							//Parameters.
 							bool isFirst = true;
+							bool openBracket = false;
 							for (ECS2::Entity::Id maybeBody : GetComponent<CPP::Tree::Node::ChildEntityIds>(entityId)->ids_) {
 								if (IsComponentExist<CPP::Tree::Stmt::Tag>(maybeBody)) {
-									code += "{";
+									if (!openBracket) {
+										code += "{";
+										openBracket = true;
+									}
 									processNode(maybeBody);
-									code += "}";
-									break;
+									
 								}
+							}
+							if (openBracket) {
+								code += "}";
 							}
 						}
 						code += ";";
@@ -443,6 +462,34 @@ namespace OksEngine
 								code += ".";
 							}
 							code += memberAccess->memberName_;
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::MacroInvocation>()) {
+							const auto* invocation = GetComponent<CPP::Tree::Expr::MacroInvocation>(entityId);
+							code += invocation->name_;
+							code += "(";
+							bool isFirst = true;
+							for (auto& argument : invocation->arguments_) {
+								if (!isFirst) {
+									code += ", ";
+								}
+								isFirst = false;
+								processNode(argument);
+							}
+							code += ")";
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::TemplateIdExpr>()) {
+							const auto* templateId = GetComponent<CPP::Tree::Expr::TemplateIdExpr>(entityId);
+							code += templateId->name_;
+							code += "<";
+							bool isFirst = true;
+							for (auto& argument : templateId->templateArgs_) {
+								if (!isFirst) {
+									code += ", ";
+								}
+								isFirst = false;
+								processNode(argument);
+							}
+							code += ">";
 						}
 						else {
 							NOT_IMPLEMENTED();

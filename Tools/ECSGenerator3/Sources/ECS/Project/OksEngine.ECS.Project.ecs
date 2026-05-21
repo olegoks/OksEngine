@@ -1,0 +1,45 @@
+ECSNamespace = {
+    ProjectNamespace = {
+        TagComponent = {
+            serializable = false,
+            bindable = false
+        },
+        EntityIdComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+        PathComponent = {
+            fields = {
+                { type = "std::string", name = "path" }
+            }
+        },
+        CreateSystem = {
+            type = "Initialize",
+            -- callOrder = {
+            --     runBefore = "ECS::"
+            -- },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "CommandLineParameters",
+                            "ECS::Project::Path",
+                        }
+                    }
+                },
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "ECS::Project::Tag",
+                            "ECS::Project::Path",
+                            "LuaScript"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

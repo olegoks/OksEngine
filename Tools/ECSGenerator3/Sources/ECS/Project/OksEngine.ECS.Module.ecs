@@ -1,0 +1,88 @@
+ECSNamespace = {
+    ModuleNamespace = {
+        TagComponent = {
+            serializable = false,
+            bindable = false
+        },
+        EntityIdComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+        EntityIdsComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+            }
+        },
+        PathComponent = {
+            fields = {
+                { type = "std::string", name = "path" }
+            }
+        },
+        IncludePathComponent = {
+            fields = {
+                { type = "std::string", name = "path" }
+            } 
+        },
+        ModuleArchetype = {
+            components = {
+                "Module::Tag",
+                "Module::Path",
+                "Module::IncludePath",
+                "LuaScript"
+            }
+        },  
+        CreateModulesSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "ECS::Project::Create" }
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "ECS::Project::Tag",
+                            "ECS::Project::Path",
+                            "LuaScript"
+                        }
+                    }
+                },
+                createsEntities = {
+                    {
+                        archetype = "Module::Module"
+                    }
+                }
+            }
+        },
+        CreateFileEntitiesSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "ECS::Module::CreateModules" }
+            }, 
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "ECS::Module::Tag",
+                            "ECS::Module::Path",
+                            "LuaScript"
+                        }
+                    }
+                },
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "ECS::File::Tag",
+                            "ECS::File::Path",
+                            "LuaScript"
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
