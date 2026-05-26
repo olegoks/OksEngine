@@ -45,17 +45,29 @@ namespace OksEngine
 						}
 						else if (nodeCF.IsSet<CPP::Tree::Preprocessor::Define_>()) {
 							auto* define = GetComponent<CPP::Tree::Preprocessor::Define_>(entityId);
-							code += "define";
+							code += CPP_DEFINE;
 							code += CPP_SPACE_STR;
 							code += define->name_;
+							if (!define->params_.empty()) {
+								code += "(";
+								bool isFirst = true;
+								for (std::string paramName : define->params_) {
+									if (!isFirst) {
+										code += CPP_COMMA_STR;
+									}
+									isFirst = false;
+									code += paramName;
+								}
+								code += ")";
+							}
 							if (define->bodyEntity_.IsValid()) {
 								processNode(define->bodyEntity_);
 							}
 							else {
 								code += CPP_SPACE_STR;
 								code += define->rawBody_;
-								code += "\n";
 							}
+							code += CPP_NEWLINE_STR;
 						}
 						else {
 							NOT_IMPLEMENTED();
@@ -166,10 +178,14 @@ namespace OksEngine
 						}
 
 
-						if (IsComponentExist<CPP::Tree::Decl::TemplateDecl>(entityId)) {
+						if (IsComponentExist<CPP::Tree::Decl::TemplateDecl>(entityId) || IsComponentExist<CPP::Tree::Decl::ExplicitTemplateArgs>(entityId)) {
 							ASSERT(!nodeCF.IsSet<CPP::Tree::Decl::Constructor>());
-							std::vector<ECS2::Entity::Id> templateParamEntityIds = GetComponent<CPP::Tree::Decl::TemplateDecl>(entityId)->templateParams_;
-							if (!templateParamEntityIds.empty()) {
+							std::vector<ECS2::Entity::Id> templateParamEntityIds;
+							if (IsComponentExist<CPP::Tree::Decl::TemplateDecl>(entityId)) {
+								templateParamEntityIds = GetComponent<CPP::Tree::Decl::TemplateDecl>(entityId)->templateParams_;
+							}
+	
+							if (!templateParamEntityIds.empty() || IsComponentExist<CPP::Tree::Decl::ExplicitTemplateArgs>(entityId)) {
 								code += "template";
 								code += "<";
 								bool isFirst = true;
@@ -214,6 +230,27 @@ namespace OksEngine
 						}
 
 						code += GetComponent<CPP::Tree::Node::Name>(entityId)->name_;
+
+
+						if (IsComponentExist<CPP::Tree::Decl::ExplicitTemplateArgs>(entityId)) {
+							ASSERT(!nodeCF.IsSet<CPP::Tree::Decl::Constructor>());
+							std::vector<ECS2::Entity::Id> explicitTemplateParamEntityIds = GetComponent<CPP::Tree::Decl::ExplicitTemplateArgs>(entityId)->templateArgs_;
+							if (!explicitTemplateParamEntityIds.empty()) {
+								code += "<";
+								bool isFirst = true;
+								for (ECS2::Entity::Id explicitTemplateParamEntityId : explicitTemplateParamEntityIds) {
+									if (!isFirst) {
+										code += ",";
+										code += CPP_SPACE_STR;
+									}
+									isFirst = false;
+									processNode(explicitTemplateParamEntityId);
+								}
+								code += ">";
+							}
+						}
+
+
 						code += "(";
 						if (IsComponentExist<CPP::Tree::Node::ChildEntityIds>(entityId)) {
 							//Parameters.

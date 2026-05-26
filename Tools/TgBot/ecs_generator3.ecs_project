@@ -12,7 +12,7 @@ ECS = {
         --'./Sources/ECS/',
         --'./Sources/Resources/',
         { 
-            IncludePath = './Sources',
+            IncludePath = '/Sources',
             Paths = { 
                 './Sources/Test/Test.ecs_module'
             }

@@ -71,11 +71,47 @@ ECSNamespace = {
                         archetype = "File::Table::Archetype::Archetype"
                     },
                     {
+                        archetype = "File::Table::Bundle::Bundle"
+                    },
+                    {
                         archetype = "File::Table::Constant::Constant"
                     }
                 }
             }
         },
+        CreateIncludeFileSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "ECS::Module::CreateModules" }
+            }, 
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "ECS::Project::Tag",
+                            "ECS::Project::Path",
+                            "LuaScript"
+                        }
+                    },
+                    {
+                        processesComponents = {
+                            "ECS::Module::Tag",
+                            "ECS::Module::Path",
+                            "ECS::Module::IncludePath",
+                            "LuaScript"
+                        }
+                    },
+                    
+                },
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "CPP::File::Tag"
+                        }
+                    }
+                }
+            }
+        }
     }
 
 }

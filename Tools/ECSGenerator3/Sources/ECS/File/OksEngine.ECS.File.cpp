@@ -384,6 +384,7 @@ namespace OksEngine::ECS::File {
 								const ECS2::Entity::Id constantEntityId = ECS__FILE__TABLE__PARSE_CONSTANT(table, name.substr(0, name.rfind("Constant")));
 								return constantEntityId;
 							}
+							//deprecated
 							else if (name.ends_with("Archetype")) {
 								ASSERT_FMSG(std::isupper(name[0]), "Table name symbol must be uppercase.");
 								ECS2::Entity::Id archetypeEntityId = [this](luabridge::LuaRef archetype,
@@ -419,6 +420,51 @@ namespace OksEngine::ECS::File {
 													});
 											}
 											CreateComponent<Table::Archetype::Archetypes>(
+												archetypeEntityId,
+												std::vector<ECS2::Entity::Id>{ ECS2::Entity::Id::invalid_, archetypeRefArchetypes.size() },
+												archetypeRefArchetypes);
+										}
+										return archetypeEntityId;
+
+									}(table, name);
+
+								return archetypeEntityId;
+							}
+							else if (name.ends_with("Bundle")) {
+								ASSERT_FMSG(std::isupper(name[0]), "Table name symbol must be uppercase.");
+								ECS2::Entity::Id archetypeEntityId = [this](luabridge::LuaRef archetype,
+									const std::string& archetypeName) {
+
+										ECS2::Entity::Id archetypeEntityId = CreateEntity<ECS__FILE__TABLE__BUNDLE__BUNDLE>();
+										CreateComponent<ECS::File::Table::Tag>(archetypeEntityId);
+										CreateComponent<ECS::File::Table::Bundle::Tag>(archetypeEntityId);
+										luabridge::LuaRef components = archetype["components"];
+										CreateComponent<Table::Name>(archetypeEntityId, archetypeName.substr(0, archetypeName.rfind("Bundle")));
+
+										if (!components.isNil()) {
+											std::vector<std::string> archetypeComponents;
+											for (luabridge::Iterator itJ(components); !itJ.isNil(); ++itJ) {
+												luabridge::LuaRef componentRef = itJ.value();
+												archetypeComponents.push_back({ componentRef.cast<std::string>().value() });
+											}
+											CreateComponent<Table::Bundle::Components>(
+												archetypeEntityId,
+												std::vector<ECS2::Entity::Id>{ ECS2::Entity::Id::invalid_, archetypeComponents.size() },
+												archetypeComponents);
+										}
+
+										luabridge::LuaRef archetypes = archetype["bundles"];
+
+										if (!archetypes.isNil()) {
+											std::vector<std::string> archetypeRefArchetypes;
+											for (luabridge::Iterator itJ(archetypes); !itJ.isNil(); ++itJ) {
+												luabridge::LuaRef archetypeRef = itJ.value();
+												archetypeRefArchetypes.push_back(
+													{
+														archetypeRef.cast<std::string>().value()
+													});
+											}
+											CreateComponent<Table::Bundle::Bundles>(
 												archetypeEntityId,
 												std::vector<ECS2::Entity::Id>{ ECS2::Entity::Id::invalid_, archetypeRefArchetypes.size() },
 												archetypeRefArchetypes);

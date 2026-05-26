@@ -34,6 +34,8 @@ using namespace std::string_literals;
 
 #define CPP_SPACE " "
 #define CPP_SPACE_STR " "s
+#define CPP_COMMA ","
+#define CPP_COMMA_STR ","s
 
 #define CPP_NEWLINE "\n"
 #define CPP_NEWLINE_STR "\n"s
@@ -46,6 +48,9 @@ using namespace std::string_literals;
 
 #define CPP_PRIVATE "private:"
 #define CPP_PRIVATE_STR "private:"s
+
+#define CPP_DEFINE "define"
+#define CPP_DEFINE_STR "define"s
 
 /*					PREPROCESSOR					*/
 #define CPP__TREE__PREPROCESSOR__CREATE_PRAGMA(str)\
@@ -379,12 +384,13 @@ using namespace std::string_literals;
 
 
 /*						FUNCTION					*/
-#define CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(function, returnValue, templateParams, name, parent, childs)\
+#define CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(function, returnValue, templateParams, name, templateExplicitParams, parent, childs)\
 	[this](\
 		ECS2::Entity::Id functionEntityId,\
 		ECS2::Entity::Id returnValueEntityId,\
 		std::vector<ECS2::Entity::Id> templateParameters,\
 		const std::string& funcName,\
+		std::vector<ECS2::Entity::Id> templateExplicitParameters,\
 		ECS2::Entity::Id parentEntityId,\
 		std::vector<ECS2::Entity::Id> childEntityIds){\
 			CreateComponent<CPP::Tree::Node::Tag>(functionEntityId);\
@@ -394,12 +400,15 @@ using namespace std::string_literals;
 			if(!templateParameters.empty()){\
 				CreateComponent<CPP::Tree::Decl::TemplateDecl>(functionEntityId, templateParameters);\
 			}\
+			if(!templateExplicitParameters.empty()){\
+				CreateComponent<CPP::Tree::Decl::ExplicitTemplateArgs>(functionEntityId, templateExplicitParameters);\
+			}\
 			if(parentEntityId.IsValid()){\
 				CreateComponent<CPP::Tree::Node::ParentEntityId>(functionEntityId, parentEntityId); \
 			}\
 			CreateComponent<CPP::Tree::Node::ChildEntityIds>(functionEntityId, childEntityIds);\
 			return functionEntityId;\
-		}(function, returnValue, templateParams, name, parent, childs)
+		}(function, returnValue, templateParams, name,templateExplicitParams, parent, childs)
 
 #define CPP__TREE__DECL__CREATE_CONSTRUCTOR(name, initializers, parent, childs)\
 	[this](\
@@ -413,6 +422,7 @@ using namespace std::string_literals;
 			ECS2::Entity::Id::invalid_,\
 			std::vector<ECS2::Entity::Id>{},\
 			constructorName,\
+			std::vector<ECS2::Entity::Id>{},\
 			parentEntityId,\
 			childEntityId\
 			);\
@@ -455,16 +465,18 @@ using namespace std::string_literals;
 			returnValueEntityId,\
 			std::vector<ECS2::Entity::Id>{},\
 			funcName,\
+			std::vector<ECS2::Entity::Id>{},\
 			parentEntityId,\
 			childEntityIds\
 			);\
 		return functionEntityId;\
 		}(returnValue, name, parent, childs)
 
-#define CPP__TREE__DECL__CREATE_TEMPLATE_FUNCTION(returnValue, templateParams, name, parent, childs)\
+#define CPP__TREE__DECL__CREATE_TEMPLATE_FUNCTION(returnValue, templateParams, name, templateExplicitParams, parent, childs)\
 	[this](ECS2::Entity::Id returnValueEntityId,\
 		std::vector<ECS2::Entity::Id> templateParams,\
 		const std::string& funcName,\
+		std::vector<ECS2::Entity::Id> templateExplicitParameters,\
 		ECS2::Entity::Id parentEntityId,\
 		std::vector<ECS2::Entity::Id> childEntityIds){\
 		ECS2::Entity::Id functionEntityId = CreateEntity();\
@@ -473,11 +485,12 @@ using namespace std::string_literals;
 			returnValueEntityId,\
 			templateParams,\
 			funcName,\
+			templateExplicitParameters,\
 			parentEntityId,\
 			childEntityIds\
 			);\
 		return functionEntityId;\
-		}(returnValue, name, parent, childs)
+		}(returnValue, name, templateExplicitParams, parent, childs)
 
 
 #define CPP__TREE__DECL__CREATE_PUBLIC_METHOD(returnValue, name, parent, childs)\

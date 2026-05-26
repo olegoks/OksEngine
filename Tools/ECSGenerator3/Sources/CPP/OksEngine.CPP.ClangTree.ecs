@@ -213,6 +213,14 @@ CPPNamespace = {
                     { type = "std::vector<ECS2::Entity::Id>", name = "templateParams" }
                 }
             },
+            ExplicitTemplateArgsComponent = {
+                description = "Явные шаблонные аргументы специализации функции или класса",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::vector<ECS2::Entity::Id>", name = "templateArgs" }
+                }
+            },
             -- Параметры шаблона
             TemplateTypeParamComponent = {
                 serializable = false,
@@ -724,6 +732,7 @@ CPPNamespace = {
                             "CPP::Tree::Decl::Parameter",
                             "CPP::Tree::Decl::Namespace_",
                             "CPP::Tree::Decl::TemplateDecl",
+                            "CPP::Tree::Decl::ExplicitTemplateArgs",
                             "CPP::Tree::Decl::TemplateTypeParam",
                             "CPP::Tree::Decl::TemplateNonTypeParam",
                             "CPP::Tree::Stmt::Tag",

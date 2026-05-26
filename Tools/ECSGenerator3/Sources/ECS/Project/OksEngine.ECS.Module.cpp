@@ -47,6 +47,7 @@ namespace OksEngine::ECS::Module
 								const ECS2::Entity::Id fileEntityId = CreateEntity();
 								CreateComponent<ECS::Module::Tag>(fileEntityId);
 								CreateComponent<ECS::Module::Path>(fileEntityId, entry.path().string());
+								CreateComponent<ECS::Module::IncludePath>(fileEntityId, includePath);
 								CreateComponent<ECS::Project::EntityId>(fileEntityId, entity0id);
 								CreateComponent<LuaScript>(fileEntityId, std::string{ data.data(), data.size() });
 							}

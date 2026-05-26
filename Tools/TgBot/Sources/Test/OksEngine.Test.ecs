@@ -62,16 +62,16 @@ TestNamespace = {
             "Second"
         }
     },
-    TestArchetype = {
+    TestBundle = {
         components = {
             "A"
         }
     },
-    Test2Archetype = {
+    Test2Bundle = {
         components = {
             "B"
         },
-        archetypes = {
+        bundles = {
             "Test"
         }
     },

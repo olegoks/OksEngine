@@ -5,6 +5,16 @@
 #include <ECS/File/OksEngine.ECS.File.Utils.hpp>
 #include <ECS/File/auto_OksEngine.ECS.File.Archetype.hpp>
 
+#define ECS__GENERATOR__CREATE_WORLD_PARAMETER()\
+	[this](){\
+ECS2::Entity::Id worldParameterEntityId = CPP__TREE__DECL__CREATE_PARAMETER(\
+	CPP__TREE__TYPE__CREATE_TEMPLATE_SPECIALIZATION_TYPE(\
+		CPP__TREE__TYPE__CREATE_NAMED_TYPE("std::shared_ptr"),\
+		std::vector{ CPP__TREE__TYPE__CREATE_NAMED_TYPE("ECS2::World") }),\
+	"world");\
+	return worldParameterEntityId;\
+	}()
+
 namespace OksEngine::ECS::Generator
 {
 
@@ -79,7 +89,8 @@ namespace OksEngine::ECS::Generator
 			std::vector<ECS2::Entity::Id> fileComponents;
 			std::vector<ECS2::Entity::Id> fileSystems;
 			std::vector<ECS2::Entity::Id> fileEnums;
-			std::vector<ECS2::Entity::Id> fileArchetypes;
+			std::vector<ECS2::Entity::Id> fileArchetypes;//deprecated
+			std::vector<ECS2::Entity::Id> fileBundles;
 
 			std::function<void(ECS2::Entity::Id)> getFileTables = [&](ECS2::Entity::Id entityId) {
 				const ECS2::ComponentsFilter tableComponentsFilter = GetComponentsFilter(entityId);
@@ -102,8 +113,12 @@ namespace OksEngine::ECS::Generator
 				else if (tableComponentsFilter.IsSet<File::Table::Constant::Tag>()) {
 					fileConstants.push_back(entityId);
 				}
+				//deprecated
 				else if (tableComponentsFilter.IsSet<File::Table::Archetype::Tag>()) {
 					fileArchetypes.push_back(entityId);
+				}
+				else if (tableComponentsFilter.IsSet<File::Table::Bundle::Tag>()) {
+					fileBundles.push_back(entityId);
 				}
 				else if (tableComponentsFilter.IsSet<File::Table::Enum::Tag>()) {
 					fileEnums.push_back(entityId);
@@ -369,8 +384,11 @@ namespace OksEngine::ECS::Generator
 				ASSERT(componentCF.IsSet<File::Table::Component::Tag>());
 
 				const ECS2::Entity::Id cppComponentEntityId = CreateEntity();
+				ECS2::Entity::Id editComponentFunctionEntityId = CreateEntity();
 				const auto ecsParentTables = ECS__FILE__TABLE__GET_TABLE_PARENTS(componentEntityId);
-				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CPP__TREE__CREATE_CPP_NAMESPACES(ecsParentTables, std::vector<ECS2::Entity::Id>{cppComponentEntityId});
+
+				std::vector<ECS2::Entity::Id> namespaceChilds{ cppComponentEntityId, editComponentFunctionEntityId };
+				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CPP__TREE__CREATE_CPP_NAMESPACES(ecsParentTables, namespaceChilds);
 
 				{
 					CreateComponent<CPP::Tree::Node::Tag>(cppComponentEntityId);
@@ -494,15 +512,108 @@ namespace OksEngine::ECS::Generator
 
 					CreateComponent<CPP::Tree::Node::ChildEntityIds>(cppComponentEntityId, childEntityIds);
 				}
-				if (lastNamespaceEntityId.IsValid()) {
-					CreateComponent<CPP::Tree::Node::ParentEntityId>(cppComponentEntityId, lastNamespaceEntityId);
+
+				{
+					std::vector<ECS2::Entity::Id> functionChilds;
+
+					//Parameter: std::shared_ptr<ECS2::World> world
+					ECS2::Entity::Id worldParameterEntityId = ECS__GENERATOR__CREATE_WORLD_PARAMETER();
+
+					ECS2::Entity::Id ecsEntityIdParameterEntityId = CPP__TREE__DECL__CREATE_PARAMETER(
+						CPP__TREE__TYPE__CREATE_NAMED_TYPE("ECS2::Entity::Id"), "ecsEntityId");
+
+					functionChilds.push_back(worldParameterEntityId);
+					functionChilds.push_back(ecsEntityIdParameterEntityId);
+
+					//Body. if manualEditFunction create prototype else generate realization.
+					if (!componentCF.IsSet<ECS::File::Table::Component::ManualEditFunction>()) {
+						ECS2::Entity::Id bodyCompoundStmtEntityId = CreateEntity();
+
+						bodyCompoundStmtEntityId = CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT_COMPONENTS(
+							bodyCompoundStmtEntityId,
+							std::vector<ECS2::Entity::Id>{});
+
+						functionChilds.push_back(bodyCompoundStmtEntityId);
+					}
+
+					CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(
+						editComponentFunctionEntityId,
+						CPP__TREE__TYPE__CREATE_VOID_TYPE(),
+						std::vector<ECS2::Entity::Id>{ },
+						"Edit" + GetComponent<File::Table::Name>(componentEntityId)->name_,
+						std::vector<ECS2::Entity::Id> {},
+						lastNamespaceEntityId,
+						functionChilds
+					);
+
+					if (firstNamespaceEntityId.IsValid()) {
+						hppFileNodeEntityIds.push_back(firstNamespaceEntityId);
+					}
+					else {
+						hppFileNodeEntityIds.push_back(editComponentFunctionEntityId);
+					}
 				}
-				if (firstNamespaceEntityId.IsValid()) {
-					hppFileNodeEntityIds.push_back(firstNamespaceEntityId);
+
+				//Template Edit Specialization.
+				ECS2::Entity::Id templateEditSpecialization = CreateEntity();
+				{
+					std::vector<ECS2::Entity::Id> functionChilds;
+
+					ECS2::Entity::Id worldParameterEntityId = ECS__GENERATOR__CREATE_WORLD_PARAMETER();
+					ECS2::Entity::Id ecsEntityIdParameterEntityId = CPP__TREE__DECL__CREATE_PARAMETER(
+						CPP__TREE__TYPE__CREATE_NAMED_TYPE("ECS2::Entity::Id"), "ecsEntityId");
+					ECS2::Entity::Id componentPointerParameter = CPP__TREE__DECL__CREATE_PARAMETER(
+						CPP__TREE__TYPE__CREATE_POINTER_TYPE(
+							CPP__TREE__TYPE__CREATE_NAMED_TYPE(
+								ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false)
+							)
+						),
+						ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "__", false)
+					);
+
+					functionChilds.push_back(worldParameterEntityId);
+					functionChilds.push_back(ecsEntityIdParameterEntityId);
+					functionChilds.push_back(componentPointerParameter);
+					//Body
+					{
+						ECS2::Entity::Id bodyCompoundStmtEntityId = CreateEntity();
+
+						std::vector<ECS2::Entity::Id> bodyChilds;
+
+						ECS2::Entity::Id editCallExprEntityId = CPP__TREE__EXPR__CREATE_CALL_EXPR(
+							CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
+								ECS__FILE__TABLE__GET_FULL_NAMESPACE_STRING(componentEntityId, "::", false) + "::Edit" + ECS__FILE__TABLE__GET_NAME(componentEntityId, false)
+							),
+							std::vector<ECS2::Entity::Id>{},
+							(std::vector<ECS2::Entity::Id>{
+								CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("ecsWorld"),
+								CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("ecsEntityId"),
+								CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "__", false))
+							})
+						);
+
+						bodyCompoundStmtEntityId = CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT_COMPONENTS(
+							bodyCompoundStmtEntityId,
+							std::vector<ECS2::Entity::Id>{editCallExprEntityId});
+
+						functionChilds.push_back(bodyCompoundStmtEntityId);
+					}
+					CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(
+						templateEditSpecialization,
+						CPP__TREE__TYPE__CREATE_VOID_TYPE(),
+						std::vector<ECS2::Entity::Id>{ },
+						"Edit",
+						std::vector<ECS2::Entity::Id>{ 
+							CPP__TREE__TYPE__CREATE_NAMED_TYPE(
+								ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false)
+							)
+						},
+						lastNamespaceEntityId,
+						functionChilds
+					);
+					hppFileNodeEntityIds.push_back(templateEditSpecialization);
 				}
-				else {
-					hppFileNodeEntityIds.push_back(cppComponentEntityId);
-				}
+
 			}
 
 			//Generate Enums code tree.
@@ -691,6 +802,7 @@ namespace OksEngine::ECS::Generator
 								CPP__TREE__TYPE__CREATE_BOOL_TYPE(),
 								std::vector<ECS2::Entity::Id>{ componentTemplateTypEntityId },
 								"IsComponentExist",
+								std::vector<ECS2::Entity::Id>{ },
 								cppSystemClassEntityId,
 								childs);
 
@@ -727,6 +839,7 @@ namespace OksEngine::ECS::Generator
 								CPP__TREE__TYPE__CREATE_BOOL_TYPE(),
 								std::vector<ECS2::Entity::Id>{ componentTemplateTypEntityId },
 								"IsEntityExist",
+								std::vector<ECS2::Entity::Id>{ },
 								cppSystemClassEntityId,
 								childs);
 
@@ -762,6 +875,7 @@ namespace OksEngine::ECS::Generator
 								CPP__TREE__TYPE__CREATE_BOOL_TYPE(),
 								std::vector<ECS2::Entity::Id>{ },
 								"IsEntityExist",
+								std::vector<ECS2::Entity::Id>{ },
 								cppSystemClassEntityId,
 								childs);
 
@@ -832,6 +946,7 @@ namespace OksEngine::ECS::Generator
 								CPP__TREE__TYPE__CREATE_POINTER_TYPE(componentTemplateTypEntityId),
 								std::vector<ECS2::Entity::Id>{ componentTemplateTypEntityId },
 								"GetComponent",
+								std::vector<ECS2::Entity::Id>{ },
 								cppSystemClassEntityId,
 								childs);
 
@@ -911,6 +1026,7 @@ namespace OksEngine::ECS::Generator
 							CPP__TREE__TYPE__CREATE_VOID_TYPE(),
 							std::vector<ECS2::Entity::Id>{ },
 							GetComponent<File::Table::Name>(systemEntityId)->name_ + "System",
+							std::vector<ECS2::Entity::Id>{ },
 							lastNamespaceEntityId,
 							std::vector{ worldParameterEntityId }
 						);
@@ -1085,6 +1201,7 @@ namespace OksEngine::ECS::Generator
 						CPP__TREE__TYPE__CREATE_VOID_TYPE(),
 						std::vector<ECS2::Entity::Id>{ },
 						GetComponent<File::Table::Name>(systemEntityId)->name_ + "System",
+						std::vector<ECS2::Entity::Id>{ },
 						lastNamespaceEntityId,
 						functionChilds
 					);
@@ -1127,13 +1244,6 @@ namespace OksEngine::ECS::Generator
 				}
 
 				const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(archetypeEntityId, "::", false);
-
-				const ECS2::Entity::Id cppArchetypeEntityId = CreateEntity();
-				const auto ecsParentTables = ECS__FILE__TABLE__GET_TABLE_PARENTS(archetypeEntityId);
-				const auto [firstNamespaceEntityId, lastNamespaceEntityId] = CPP__TREE__CREATE_CPP_NAMESPACES(
-					ecsParentTables,
-					std::vector<ECS2::Entity::Id>{cppArchetypeEntityId});
-				
 				const std::string namespaceStr = ECS__FILE__TABLE__GET_FULL_NAME(archetypeEntityId, "__", true);
 
 				std::string macrosBody;
@@ -1161,28 +1271,135 @@ namespace OksEngine::ECS::Generator
 				CreateComponent<CPP::Tree::Preprocessor::Define_>(defineEntityId, namespaceStr, std::vector<std::string>{}, macrosBody, ECS2::Entity::Id::invalid_, false);
 
 				hppFileNodeEntityIds.push_back(defineEntityId);
-
-				//if (firstNamespaceEntityId.IsInvalid()) {
-				//	cppFileNodeEntityIds.push_back(runSystemFunctionRealizationEntityId);
-				//}
-
-				//if (firstNamespaceEntityId.IsValid()) {
-				//	cppFileNodeEntityIds.push_back(firstNamespaceEntityId);
-				//}
 			}
 
+			//Generate archetypes macroses
+			for (ECS2::Entity::Id bundleEntityId : fileBundles) {
+
+				const ECS2::ComponentsFilter bundleCF = GetComponentsFilter(bundleEntityId);
+				ASSERT(bundleCF.IsSet<File::Table::Bundle::Tag>());
+
+				std::vector<ECS2::Entity::Id> componentEntityIds;
+				if (bundleCF.IsSet<ECS::File::Table::Bundle::Components>()) {
+					auto* components = GetComponent<ECS::File::Table::Bundle::Components>(bundleEntityId);
+					for (std::string component : components->components_) {
+						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, bundleEntityId, component);
+						componentEntityIds.push_back(componentEntityId);
+					}
+				}
+
+				std::vector<ECS2::Entity::Id> bundleEntityIds;
+				if (bundleCF.IsSet<ECS::File::Table::Bundle::Bundles>()) {
+					auto* bundles = GetComponent<ECS::File::Table::Bundle::Bundles>(bundleEntityId);
+					for (std::string bundle : bundles->bundles_) {
+						ECS2::Entity::Id refBundleEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Bundle::Tag, bundleEntityId, bundle);
+						bundleEntityIds.push_back(refBundleEntityId);
+					}
+				}
+
+				const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(bundleEntityId, "::", false);
+				const std::string namespaceStr = ECS__FILE__TABLE__GET_FULL_NAME(bundleEntityId, "__", true);
+
+				std::string macrosBody;
+				bool isFirst = true;
+				for (ECS2::Entity::Id componentEntityId : componentEntityIds) {
+					const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false);
+					if (!isFirst) {
+						macrosBody += ",";
+					}
+					isFirst = false;
+					macrosBody += componentFullName;
+				}
+				for (ECS2::Entity::Id bundleEntityId : bundleEntityIds) {
+					const std::string bundleFullName = ECS__FILE__TABLE__GET_FULL_NAME(bundleEntityId, "__", true);
+					if (!isFirst) {
+						macrosBody += ",";
+					}
+					isFirst = false;
+					macrosBody += bundleFullName;
+				}
+
+
+				ECS2::Entity::Id defineEntityId = CreateEntity();
+				CreateComponent<CPP::Tree::Preprocessor::Tag>(defineEntityId);
+				CreateComponent<CPP::Tree::Preprocessor::Define_>(defineEntityId, namespaceStr, std::vector<std::string>{}, macrosBody, ECS2::Entity::Id::invalid_, false);
+
+				hppFileNodeEntityIds.push_back(defineEntityId);
+			}
 
 			CreateComponent<CPP::Tree::Node::ChildEntityIds>(hppFileEntityId, hppFileNodeEntityIds);
 			CreateComponent<CPP::Tree::Node::ChildEntityIds>(cppFileEntityId, cppFileNodeEntityIds);
 		}
 
 
-		const auto allComponents = GetComponents<ECS__FILE__TABLE__COMPONENT__COMPONENT>();
-		const Common::Size allComponentsNumber = world_->GetEntitiesNumber<ECS__FILE__TABLE__COMPONENT__COMPONENT>();
+		//const auto allComponents = GetComponents<ECS__FILE__TABLE__COMPONENT__COMPONENT>();
+		//const Common::Size allComponentsNumber = world_->GetEntitiesNumber<ECS__FILE__TABLE__COMPONENT__COMPONENT>();
 
-		const auto allSystems = GetComponents<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
-		const Common::Size allSystemsNumber = world_->GetEntitiesNumber<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
+		//const auto allSystems = GetComponents<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
+		//const Common::Size allSystemsNumber = world_->GetEntitiesNumber<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
 
+	}
+
+	void CreateIncludeFile::Update(
+
+		ECS2::Entity::Id entity0id,
+		const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
+		const OksEngine::ECS::Project::Path* eCS__Project__Path0,
+		const OksEngine::LuaScript* luaScript0,
+
+		ECS2::Entity::Id entity1id,
+		const OksEngine::ECS::Module::Tag* eCS__Module__Tag1,
+		const OksEngine::ECS::Module::Path* eCS__Module__Path1,
+		const OksEngine::ECS::Module::IncludePath* eCS__Module__IncludePath1,
+		const OksEngine::LuaScript* luaScript1) {
+
+		ECS2::Entity::Id hppFileEntityId = CreateEntity<CPP__FILE__FILE>();
+		std::vector<ECS2::Entity::Id> hppFileNodeEntityIds;
+		{
+			CreateComponent<CPP::File::Tag>(hppFileEntityId);
+			CreateComponent<CPP::File::Type::Hpp>(hppFileEntityId);
+			//File PATH and NAME
+			std::string filePath = std::filesystem::path{ eCS__Module__Path1->path_ }.remove_filename().string();
+			CreateComponent<CPP::File::Path>(hppFileEntityId, filePath);
+			std::string fileName = "auto_" + std::filesystem::path{ eCS__Module__Path1->path_ }.stem().string() + ".Module";
+			CreateComponent<CPP::File::Name>(hppFileEntityId, fileName);
+
+			hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_PRAGMA_ONCE());
+
+			const auto moduleIncludePath = std::filesystem::path{ eCS__Module__IncludePath1->path_ };
+
+			//.ecs module path relative to project path.
+			const auto modulePath = std::filesystem::path{ eCS__Module__Path1->path_ };
+
+			const auto projectPath = std::filesystem::path{ eCS__Project__Path0->path_ };
+
+			::Lua::Context context;
+			::Lua::Script script{ luaScript1->text_ };
+			context.LoadScript(script);
+
+			luabridge::LuaRef ecsTable = luabridge::getGlobal(context.state_, "ECS");
+
+			ASSERT_FMSG(ecsTable.isTable() || ecsTable["Files"].isTable(), "");
+
+			luabridge::LuaRef moduleFilesTable = ecsTable["Files"];
+
+			int filesNumber = moduleFilesTable.length();
+			for (int i = 1; i <= filesNumber; ++i) {
+				luabridge::LuaRef filePathTable = moduleFilesTable[i];
+
+				//.ecs file path relative to module path.
+				const auto filePath = std::filesystem::path{ filePathTable.cast<std::string>().value() };
+
+				std::filesystem::path moduleRelativePath = modulePath.parent_path().lexically_relative(projectPath.parent_path());
+
+				std::filesystem::path fileIncludePath = moduleRelativePath.lexically_relative(moduleIncludePath.relative_path());
+
+				fileIncludePath = fileIncludePath / filePath.parent_path() / ("auto_" + filePath.stem().string() + ".hpp");
+				fileIncludePath = fileIncludePath.lexically_normal();
+				hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(fileIncludePath.string()));
+			}
+		}
+		CreateComponent<CPP::Tree::Node::ChildEntityIds>(hppFileEntityId, hppFileNodeEntityIds);
 	}
 
 

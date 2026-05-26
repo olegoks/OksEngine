@@ -124,8 +124,8 @@ namespace OksEngine::ECS::File::Table {
 			return resultNamespace;\
 			}(entityId,delimiterString,isNamespaceUppercase)
 
-#define ECS__FILE__TABLE__GET_FULL_NAME(entityId, delimiterString, isNamespaceUppercase)\
-			[this](ECS2::Entity::Id tableEntityId, const char* delimiter, bool isUppercase) {\
+#define ECS__FILE__TABLE__GET_NAME(entityId, isNamespaceUppercase)\
+			[this](ECS2::Entity::Id tableEntityId, bool isUppercase) {\
 				ASSERT(IsComponentExist<File::Table::Tag>(tableEntityId));\
 				ASSERT(IsComponentExist<File::Table::Name>(tableEntityId));\
 				std::string tableName = GetComponent<File::Table::Name>(tableEntityId)->name_;\
@@ -133,6 +133,12 @@ namespace OksEngine::ECS::File::Table {
 					std::transform(tableName.begin(), tableName.end(), tableName.begin(),\
 						[](unsigned char c) { return std::toupper(c); });\
 				}\
+				return tableName;\
+			}(entityId, isNamespaceUppercase)
+
+#define ECS__FILE__TABLE__GET_FULL_NAME(entityId, delimiterString, isNamespaceUppercase)\
+			[this](ECS2::Entity::Id tableEntityId, const char* delimiter, bool isUppercase) {\
+				std::string tableName = ECS__FILE__TABLE__GET_NAME(tableEntityId, isNamespaceUppercase);\
 				const std::string tableNamespace = ECS__FILE__TABLE__GET_FULL_NAMESPACE_STRING(tableEntityId, delimiter, isUppercase);\
 				return tableNamespace + delimiter + tableName;\
 			}(entityId, delimiterString, isNamespaceUppercase)
