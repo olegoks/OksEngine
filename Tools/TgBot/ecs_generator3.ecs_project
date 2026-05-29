@@ -1,6 +1,7 @@
 
 
 ECS = {
+    GlobalNamespace = "OksEngine",
     --Relative to .ecs_project path.
     IncludePaths = { 
         "./Sources/"

@@ -239,6 +239,14 @@ CPPNamespace = {
                     { type = "ECS2::Entity::Id", name = "type" },
                     { type = "ECS2::Entity::Id", name = "defaultValue" }
                 }
+            },
+            UsingDirectiveComponent = {
+                description = "using namespace <имя>;",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::string", name = "namespaceName" }  -- имя вносимого пространства имён
+                }
             }
         },
         PreprocessorNamespace = {
@@ -421,7 +429,8 @@ CPPNamespace = {
                 bindable = false,
                 fields = {
                     { type = "Common::UInt64", name = "kind" }, -- 0=Common::UInt64,1=float,2=char,3=string,4=bool,5=nullptr
-                    { type = "std::string",    name = "value" }
+                    { type = "std::string",    name = "value" },
+                    { type = "std::string",    name = "suffix" }   -- пользовательский суффикс, например "s", "sv", "i"
                 }
             },
             IdentifierComponent     = {
@@ -433,20 +442,32 @@ CPPNamespace = {
                     -- Семантическая связь добавляется отдельным ResolvedRefComponent
                 }
             },
+            BinaryOpTypeEnum = {
+                values = {
+                    "Plus",
+                    "PlusAssign",
+                    "Assign"
+                }
+            },
             BinaryOpComponent       = {
                 serializable = false,
                 bindable = false,
                 fields = {
-                    { type = "Common::UInt64",   name = "opCode" },
+                    { type = "BinaryOpType",   name = "operation" },
                     { type = "ECS2::Entity::Id", name = "left" },
                     { type = "ECS2::Entity::Id", name = "right" }
+                }
+            },
+            UnaryOpTypeEnum = {
+                values = {
+                    "AddressOf"
                 }
             },
             UnaryOpComponent        = {
                 serializable = false,
                 bindable = false,
                 fields = {
-                    { type = "Common::UInt64",   name = "opCode" },
+                    { type = "UnaryOpType",   name = "operation" },
                     { type = "ECS2::Entity::Id", name = "operand" }
                 }
             },
@@ -735,6 +756,9 @@ CPPNamespace = {
                             "CPP::Tree::Decl::ExplicitTemplateArgs",
                             "CPP::Tree::Decl::TemplateTypeParam",
                             "CPP::Tree::Decl::TemplateNonTypeParam",
+                            "CPP::Tree::Decl::UsingDirective",
+
+
                             "CPP::Tree::Stmt::Tag",
                             "CPP::Tree::Stmt::CompoundStmt",
                             "CPP::Tree::Stmt::IfStmt",

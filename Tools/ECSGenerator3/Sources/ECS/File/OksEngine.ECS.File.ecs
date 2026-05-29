@@ -811,6 +811,13 @@ ECSNamespace = {
                     processesEntities = {
                         {
                             processesComponents = {
+                                "ECS::Project::Tag",
+                                "ECS::Project::Path",
+                                "LuaScript"
+                            }
+                        },
+                        {
+                            processesComponents = {
                                 "ECS::File::Tag",
                                 "ECS::File::Path",
                                 "LuaScript"

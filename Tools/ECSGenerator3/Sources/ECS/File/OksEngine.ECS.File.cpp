@@ -56,11 +56,16 @@ namespace OksEngine::ECS::File {
 	namespace Table {
 		void Parse::Update(
 			ECS2::Entity::Id entity0id,
-			const OksEngine::ECS::File::Tag* eCS__File__Tag0,
-			const OksEngine::ECS::File::Path* eCS__File__Path0,
-			const OksEngine::LuaScript* luaScript0) {
+			const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
+			const OksEngine::ECS::Project::Path* eCS__Project__Path0,
+			const OksEngine::LuaScript* luaScript0,
 
-			::Lua::Script script{ luaScript0->text_ };
+			ECS2::Entity::Id entity1id,
+			const OksEngine::ECS::File::Tag* eCS__File__Tag1,
+			const OksEngine::ECS::File::Path* eCS__File__Path1,
+			const OksEngine::LuaScript* luaScript1) {
+
+			::Lua::Script script{ luaScript1->text_ };
 
 			::Lua::Context context;
 			context.LoadScript(script);
@@ -124,7 +129,7 @@ namespace OksEngine::ECS::File {
 					}
 					};
 				std::string line;
-				std::stringstream stream{ luaScript0->text_ };
+				std::stringstream stream{ luaScript1->text_ };
 				while (std::getline(stream, line)) {
 					processLine(line);
 				}
@@ -159,7 +164,7 @@ namespace OksEngine::ECS::File {
 											ECS2::Entity::Id parsedTable = processTable(tableName, value);
 											if (parsedTable.IsValid()) {
 												CreateComponent<ECS::File::Table::ParentTableEntityId>(parsedTable, namespaceTableEntityId);
-												CreateComponent<File::EntityId>(parsedTable, entity0id);
+												CreateComponent<File::EntityId>(parsedTable, entity1id);
 												parsedNamespaceTables.push_back(parsedTable);
 											}
 
@@ -847,19 +852,29 @@ namespace OksEngine::ECS::File {
 					const ECS2::Entity::Id parsedTableEntityId = processTable(keyString, ecsFile[key.tostring()]);
 					
 					if (parsedTableEntityId.IsValid()) {
-						CreateComponent<File::EntityId>(parsedTableEntityId, entity0id);
-						ECS2::Entity::Id namespaceTableEntityId = CreateEntity<ECS__FILE__TABLE__NAMESPACE__NAMESPACE>();
-						CreateComponent<ECS::File::Table::Tag>(namespaceTableEntityId);
-						CreateComponent<ECS::File::Table::Namespace::Tag>(namespaceTableEntityId);
-						CreateComponent<ECS::File::Table::Name>(namespaceTableEntityId, "OksEngine");
-						CreateComponent<ECS::File::Table::ChildTablesEntityIds>(
-							namespaceTableEntityId,
-							std::vector{ parsedTableEntityId });
 
-						CreateComponent<ECS::File::Table::ParentTableEntityId>(parsedTableEntityId, namespaceTableEntityId);
+						::Lua::Script projectScript{ luaScript0->text_ };
 
-						CreateComponent<File::EntityId>(namespaceTableEntityId, entity0id);
-						parsedTables.push_back(namespaceTableEntityId);
+						::Lua::Context projectContext;
+						projectContext.LoadScript(projectScript);
+						luabridge::LuaRef ecsTable = luabridge::getGlobal(projectContext.state_, "ECS");
+
+						if (!ecsTable["GlobalNamespace"].isNil()) {
+							CreateComponent<File::EntityId>(parsedTableEntityId, entity1id);
+							ECS2::Entity::Id namespaceTableEntityId = CreateEntity<ECS__FILE__TABLE__NAMESPACE__NAMESPACE>();
+							CreateComponent<ECS::File::Table::Tag>(namespaceTableEntityId);
+							CreateComponent<ECS::File::Table::Namespace::Tag>(namespaceTableEntityId);
+							CreateComponent<ECS::File::Table::Name>(namespaceTableEntityId, ecsTable["GlobalNamespace"].cast<std::string>().value());
+							CreateComponent<ECS::File::Table::ChildTablesEntityIds>(
+								namespaceTableEntityId,
+								std::vector{ parsedTableEntityId });
+
+							CreateComponent<ECS::File::Table::ParentTableEntityId>(parsedTableEntityId, namespaceTableEntityId);
+
+							CreateComponent<File::EntityId>(namespaceTableEntityId, entity1id);
+							parsedTables.push_back(namespaceTableEntityId);
+						}
+						
 					}
 					
 					//Separate namespace tables:
@@ -925,7 +940,7 @@ namespace OksEngine::ECS::File {
 				}
 
 			}
-			CreateComponent<ECS::File::Table::EntityIds>(entity0id, parsedTables);
+			CreateComponent<ECS::File::Table::EntityIds>(entity1id, parsedTables);
 		}
 	}
 } // namespace OksEngine

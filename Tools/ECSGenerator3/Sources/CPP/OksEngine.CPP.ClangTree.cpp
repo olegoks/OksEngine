@@ -155,6 +155,9 @@ namespace OksEngine
 							else if (builtinType->type_ == CPP::Tree::Type::BuiltinTypes::Bool) {
 								code += CPP_BOOL_STR;
 							}
+							else if (builtinType->type_ == CPP::Tree::Type::BuiltinTypes::Float) {
+								code += CPP_FLOAT_STR;
+							}
 							else {
 								NOT_IMPLEMENTED();
 							}
@@ -163,6 +166,11 @@ namespace OksEngine
 							const auto* pointerType = GetComponent<CPP::Tree::Type::PointerType>(entityId);
 							processNode(pointerType->pointer_);
 							code += "*";
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Type::ReferenceType>()) {
+							const auto* referenceType = GetComponent<CPP::Tree::Type::ReferenceType>(entityId);
+							processNode(referenceType->id_);
+							code += "&";
 						}
 						else {
 							NOT_IMPLEMENTED();
@@ -176,7 +184,6 @@ namespace OksEngine
 						if (nodeCF.IsSet<CPP::Tree::Access::Private_>()) {
 							code += CPP_PRIVATE_STR + CPP_SPACE_STR;
 						}
-
 
 						if (IsComponentExist<CPP::Tree::Decl::TemplateDecl>(entityId) || IsComponentExist<CPP::Tree::Decl::ExplicitTemplateArgs>(entityId)) {
 							ASSERT(!nodeCF.IsSet<CPP::Tree::Decl::Constructor>());
@@ -336,11 +343,17 @@ namespace OksEngine
 						const auto* templateTypeParam = GetComponent<CPP::Tree::Decl::TemplateTypeParam>(entityId);
 						code += templateTypeParam->name_;
 					}
+					else if (nodeCF.IsSet<CPP::Tree::Decl::UsingDirective>()) {
+						const auto* usingDirective = GetComponent<CPP::Tree::Decl::UsingDirective>(entityId);
+						code += "using namespace" + CPP_SPACE_STR + usingDirective->namespaceName_ + ";";
+					}
 					else if (nodeCF.IsSet<CPP::Tree::Decl::Class_>()) {
 						ASSERT(nodeCF.IsSet<CPP::Tree::Decl::Tag>());
 						code += CPP_CLASS_STR + CPP_SPACE_STR + GetComponent<CPP::Tree::Node::Name>(entityId)->name_ + "{";
 
-						for (ECS2::Entity::Id classChildEntityId : GetComponent<CPP::Tree::Node::ChildEntityIds>(entityId)->ids_) {
+						auto classChilds = GetComponent<CPP::Tree::Node::ChildEntityIds>(entityId)->ids_;
+
+						for (ECS2::Entity::Id classChildEntityId : classChilds) {
 							ECS2::ComponentsFilter childComponentsFilter = GetComponentsFilter(classChildEntityId);
 							if (childComponentsFilter.IsSet<CPP::Tree::Decl::Variable>()) {
 								processNode(classChildEntityId);
@@ -527,6 +540,46 @@ namespace OksEngine
 								processNode(argument);
 							}
 							code += ">";
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::UnaryOp>()) {
+							const auto* unaryOp = GetComponent<CPP::Tree::Expr::UnaryOp>(entityId);
+							if (unaryOp->operation_ == CPP::Tree::Expr::UnaryOpType::AddressOf) {
+								code += "&";
+							}
+							else {
+								NOT_IMPLEMENTED();
+							}
+							processNode(unaryOp->operand_);
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::BinaryOp>()) {
+							const auto* binaryOp = GetComponent<CPP::Tree::Expr::BinaryOp>(entityId);
+							ASSERT(binaryOp->left_.IsValid());
+							ASSERT(binaryOp->right_.IsValid());
+							if (binaryOp->operation_ == CPP::Tree::Expr::BinaryOpType::Plus) {
+								processNode(binaryOp->left_);
+								code += "+";
+								processNode(binaryOp->right_);
+							}
+							else if (binaryOp->operation_ == CPP::Tree::Expr::BinaryOpType::PlusAssign) {
+								processNode(binaryOp->left_);
+								code += "+=";
+								processNode(binaryOp->right_);
+							}
+							else if (binaryOp->operation_ == CPP::Tree::Expr::BinaryOpType::Assign) {
+								processNode(binaryOp->left_);
+								code += "=";
+								processNode(binaryOp->right_);
+							}
+							else {
+								NOT_IMPLEMENTED();
+							}
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::ArraySubscript>()) {
+							const auto* arraySubscript = GetComponent<CPP::Tree::Expr::ArraySubscript>(entityId);
+							processNode(arraySubscript->array_);
+							code += "[";
+							processNode(arraySubscript->index_);
+							code += "]";
 						}
 						else {
 							NOT_IMPLEMENTED();
