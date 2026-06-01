@@ -79,6 +79,84 @@ ECSNamespace = {
                 }
             }
         },
+        
+        GenerateComponentUtilsFileSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "ECS::Generator::GenerateTrees" },
+                runBefore = { "CPP::Tree::GenerateCode" }
+            }, 
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "ECS::Project::Tag",
+                            "ECS::Project::Path",
+                            "LuaScript"
+                        }
+                    }                    
+                },
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "CPP::File::Tag"
+                        }
+                    }
+                },
+                accessingEntities = {
+                    {
+                        accessingComponents = {
+                            "CPP::Tree::Decl::Parameter"
+                        }
+                    },
+                    {
+                        archetype = "File::Table::System::System"
+                    },
+                    {
+                        archetype = "File::Table::System::UpdateMethod::UpdateMethod"
+                    },
+                    {
+                        archetype = "File::Table::System::UpdateMethod::Process::Entity::Entity"
+                    },
+                    {
+                        accessingComponents = {
+                            "File::Table::System::CallOrder::EntityId",
+                            "File::Table::System::CallOrder::Tag",
+                            "File::Table::System::CallOrder::RunAfter",
+                            "File::Table::System::CallOrder::RunBefore",
+                        }
+                    },
+                    {
+                        archetype = "File::File"
+                    },
+                    {
+                        archetype = "File::Table::Component::Component"
+                    },
+                    {
+                        archetype = "File::Table::Component::Field::Field"
+                    },
+                    {
+                        archetype = "File::Table::Struct::Struct"
+                    },
+                    {
+                        archetype = "File::Table::Enum::Enum"
+                    },
+                    {
+                        archetype = "File::Table::Struct::Field::Field"
+                    },
+                    {
+                        archetype = "File::Table::Archetype::Archetype"
+                    },
+                    {
+                        archetype = "File::Table::Bundle::Bundle"
+                    },
+                    {
+                        archetype = "File::Table::Constant::Constant"
+                    }
+                }
+            }
+        },
+
         CreateIncludeFileSystem = {
             type = "Initialize",
             callOrder = {

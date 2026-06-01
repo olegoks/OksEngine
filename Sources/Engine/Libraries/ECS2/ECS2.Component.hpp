@@ -8,6 +8,8 @@
 
 #include <Common.Types.hpp>
 
+//#include <ECS2.hpp>
+
 namespace ECS2 {
 
 	using ComponentTypeId = Common::TypeId;

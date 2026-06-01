@@ -480,20 +480,42 @@ namespace OksEngine::ECS::Generator
 					childEntityIds.push_back(constructorWithParametersEntityId);
 
 					//GetName static Function
-					//static const char* GetName()
+					//static const char* GetFullName()
 					//{
 					//	return "Config::Tag";
 					//};
 					{
 						ECS2::Entity::Id getNameFunctionEntityId = CPP__TREE__DECL__CREATE_PUBLIC_STATIC_METHOD(
 							CPP__TREE__TYPE__CREATE_POINTER_TYPE(CPP__TREE__TYPE__CREATE_CONST_CHAR_TYPE()),
-							"GetName",
+							"GetFullName",
 							hppComponentClassEntityId,
 							std::vector<ECS2::Entity::Id>{
 							CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(
 								std::vector<ECS2::Entity::Id>{
 								CPP__TREE__STMT__CREATE_RETURN_STATEMENT(
 									CPP__TREE__EXPR__CREATE_LITERAL_EXPR("\"" + ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "::", false) + "\"", "")
+								)
+							}
+							)
+						}
+						);
+						childEntityIds.push_back(getNameFunctionEntityId);
+					}
+					//GetName static Function
+					//static const char* GetName()
+					//{
+					//	return "Tag";
+					//};
+					{
+						ECS2::Entity::Id getNameFunctionEntityId = CPP__TREE__DECL__CREATE_PUBLIC_STATIC_METHOD(
+							CPP__TREE__TYPE__CREATE_POINTER_TYPE(CPP__TREE__TYPE__CREATE_CONST_CHAR_TYPE()),
+							"GetFullName",
+							hppComponentClassEntityId,
+							std::vector<ECS2::Entity::Id>{
+							CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(
+								std::vector<ECS2::Entity::Id>{
+								CPP__TREE__STMT__CREATE_RETURN_STATEMENT(
+									CPP__TREE__EXPR__CREATE_LITERAL_EXPR("\"" + ECS__FILE__TABLE__GET_NAME(ecsComponentEntityId, false) + "\"", "")
 								)
 							}
 							)
@@ -519,6 +541,8 @@ namespace OksEngine::ECS::Generator
 							)
 						}
 						);
+						CreateComponent<ECS::File::Table::Component::TypeId>(ecsComponentEntityId, componentTypeId);
+
 						childEntityIds.push_back(getTypeIdFunctionEntityId);
 					}
 
@@ -931,18 +955,18 @@ namespace OksEngine::ECS::Generator
 
 							//position3D.x_ = position3DRef["x"].cast<float>().value();
 							ECS2::Entity::Id saveCastValueEntityId = CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
-									CPP__TREE__EXPR__CREATE_BINARY_OPERATION(
-										CPP::Tree::Expr::BinaryOpType::Assign,
-										CPP__TREE__EXPR__CREATE_MEMBER_ACCESS_EXPR(
-											CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
-												"component"//ECS__FILE__TABLE__GET_NAME(ecsComponentEntityId, false)
-											),
-											fieldName + "_",
-											false
+								CPP__TREE__EXPR__CREATE_BINARY_OPERATION(
+									CPP::Tree::Expr::BinaryOpType::Assign,
+									CPP__TREE__EXPR__CREATE_MEMBER_ACCESS_EXPR(
+										CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
+											"component"//ECS__FILE__TABLE__GET_NAME(ecsComponentEntityId, false)
 										),
-										valueCallEntityId
-									)
-								);
+										fieldName + "_",
+										false
+									),
+									valueCallEntityId
+								)
+							);
 
 							bodyChilds.push_back(
 								saveCastValueEntityId
@@ -1047,10 +1071,14 @@ namespace OksEngine::ECS::Generator
 								CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "__", false))
 						})
 						);
-
 						bodyCompoundStmtEntityId = CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT_COMPONENTS(
 							bodyCompoundStmtEntityId,
-							std::vector<ECS2::Entity::Id>{editCallExprEntityId});
+							CPP__TREE__CREATE_ENTITIES_VECTOR(
+								CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+									editCallExprEntityId
+								)
+							)
+						);
 
 						functionChilds.push_back(bodyCompoundStmtEntityId);
 					}
@@ -1068,6 +1096,132 @@ namespace OksEngine::ECS::Generator
 						functionChilds
 					);
 					hppFileNodeEntityIds.push_back(templateEditSpecialization);
+				}
+
+				//Template Serialize Specialization.
+				ECS2::Entity::Id templateSerializeSpecialization = CreateEntity();
+				{
+					std::vector<ECS2::Entity::Id> functionChilds;
+					ECS2::Entity::Id componentPointerParameter = CPP__TREE__DECL__CREATE_PARAMETER(
+						CPP__TREE__TYPE__CREATE_POINTER_TYPE(
+							CPP__TREE__TYPE__CREATE_NAMED_TYPE(
+								ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "::", false)
+							)
+						),
+						ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "__", false)
+					);
+
+					functionChilds.push_back(componentPointerParameter);
+					//Body
+					{
+						ECS2::Entity::Id bodyCompoundStmtEntityId = CreateEntity();
+
+						std::vector<ECS2::Entity::Id> bodyChilds;
+
+						ECS2::Entity::Id serializeCallExprEntityId = CPP__TREE__EXPR__CREATE_CALL_EXPR(
+							CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
+								ECS__FILE__TABLE__GET_FULL_NAMESPACE_STRING(ecsComponentEntityId, "::", false) + "::Serialize" + ECS__FILE__TABLE__GET_NAME(ecsComponentEntityId, false)
+							),
+							CPP__TREE__CREATE_ENTITIES_VECTOR(),
+							CPP__TREE__CREATE_ENTITIES_VECTOR(
+								CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
+									ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "__", false)
+								)
+							)
+						);
+						
+						bodyCompoundStmtEntityId = CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT_COMPONENTS(
+							bodyCompoundStmtEntityId,
+							CPP__TREE__CREATE_ENTITIES_VECTOR(
+								CPP__TREE__STMT__CREATE_RETURN_STATEMENT(
+									serializeCallExprEntityId
+								)
+							)
+						);
+
+						functionChilds.push_back(bodyCompoundStmtEntityId);
+					}
+					CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(
+						templateSerializeSpecialization,
+						CPP__TREE__TYPE__CREATE_NAMED_TYPE("std::string"),
+						CPP__TREE__CREATE_ENTITIES_VECTOR(),
+						"Serialize",
+						CPP__TREE__CREATE_ENTITIES_VECTOR(
+							CPP__TREE__TYPE__CREATE_NAMED_TYPE(
+								ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "::", false)
+							)
+						),
+						hppLastNamespaceEntityId,
+						functionChilds
+					);
+					hppFileNodeEntityIds.push_back(templateSerializeSpecialization);
+				}
+
+				//Template Parse Specialization.
+				ECS2::Entity::Id templateParseSpecialization = CreateEntity();
+				{
+					std::vector<ECS2::Entity::Id> functionChilds;
+
+					ECS2::Entity::Id luaRefParameter = CPP__TREE__DECL__CREATE_PARAMETER(
+						CPP__TREE__TYPE__CREATE_REFERENCE_TYPE(
+							CPP__TREE__TYPE__CREATE_NAMED_TYPE("luabridge::LuaRef"), false
+						),
+						ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "__", false)
+					);
+
+					//ECS2::Entity::Id componentPointerParameter = CPP__TREE__DECL__CREATE_PARAMETER(
+					//	CPP__TREE__TYPE__CREATE_POINTER_TYPE(
+					//		CPP__TREE__TYPE__CREATE_NAMED_TYPE(
+					//			ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "::", false)
+					//		)
+					//	),
+					//	ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "__", false)
+					//);
+
+					functionChilds.push_back(luaRefParameter);
+					//Body
+					{
+						ECS2::Entity::Id bodyCompoundStmtEntityId = CreateEntity();
+
+						std::vector<ECS2::Entity::Id> bodyChilds;
+
+						ECS2::Entity::Id parseCallExprEntityId = CPP__TREE__EXPR__CREATE_CALL_EXPR(
+							CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
+								ECS__FILE__TABLE__GET_FULL_NAMESPACE_STRING(ecsComponentEntityId, "::", false) + "::Parse" + ECS__FILE__TABLE__GET_NAME(ecsComponentEntityId, false)
+							),
+							CPP__TREE__CREATE_ENTITIES_VECTOR(),
+							CPP__TREE__CREATE_ENTITIES_VECTOR(
+								CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
+									ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "__", false)
+								)
+							)
+						);
+
+						bodyCompoundStmtEntityId = CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT_COMPONENTS(
+							bodyCompoundStmtEntityId,
+							CPP__TREE__CREATE_ENTITIES_VECTOR(
+								CPP__TREE__STMT__CREATE_RETURN_STATEMENT(parseCallExprEntityId)
+							)
+						);
+
+						functionChilds.push_back(bodyCompoundStmtEntityId);
+					}
+					CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(
+						templateParseSpecialization,
+						CPP__TREE__TYPE__CREATE_NAMED_TYPE(
+							ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "::", false)
+						),
+						std::vector<ECS2::Entity::Id>{ },
+						"Parse",
+						std::vector<ECS2::Entity::Id>{
+						CPP__TREE__TYPE__CREATE_NAMED_TYPE(
+							ECS__FILE__TABLE__GET_FULL_NAME(ecsComponentEntityId, "::", false)
+						)
+					},
+						hppLastNamespaceEntityId,
+						functionChilds
+					);
+					hppFileNodeEntityIds.push_back(templateParseSpecialization);
 				}
 
 
@@ -1794,6 +1948,184 @@ namespace OksEngine::ECS::Generator
 
 		//const auto allSystems = GetComponents<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
 		//const Common::Size allSystemsNumber = world_->GetEntitiesNumber<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
+
+	}
+
+	void GenerateComponentUtilsFile::Update(
+		ECS2::Entity::Id entity0id,
+		const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
+		const OksEngine::ECS::Project::Path* eCS__Project__Path0,
+		const OksEngine::LuaScript* luaScript0) {
+
+
+		const char* fileName = "auto_OksEngine.ECS.Component.Utils";
+
+		//HPP File
+		ECS2::Entity::Id hppFileEntityId = CreateEntity<CPP__FILE__FILE>();
+		std::vector<ECS2::Entity::Id> hppFileNodeEntityIds;
+		{
+			CreateComponent<CPP::File::Tag>(hppFileEntityId);
+			CreateComponent<CPP::File::Type::Hpp>(hppFileEntityId);
+			//File PATH and NAME
+			CreateComponent<CPP::File::Path>(hppFileEntityId, std::filesystem::path{ eCS__Project__Path0->path_ }.parent_path().string());
+			CreateComponent<CPP::File::Name>(hppFileEntityId, fileName);
+
+			hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_PRAGMA_ONCE());
+			hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE("ECS2.hpp"));
+		}
+
+		//CPP File
+		ECS2::Entity::Id cppFileEntityId = CreateEntity<CPP__FILE__FILE>();
+		std::vector<ECS2::Entity::Id> cppFileNodeEntityIds;
+		{
+			CreateComponent<CPP::File::Tag>(cppFileEntityId);
+			CreateComponent<CPP::File::Type::Cpp>(cppFileEntityId);
+
+			//File PATH and NAME
+			CreateComponent<CPP::File::Path>(cppFileEntityId, std::filesystem::path{ eCS__Project__Path0->path_ }.parent_path().string());
+			CreateComponent<CPP::File::Name>(cppFileEntityId, fileName);
+
+			//Generate .hpp file include.
+			{
+				cppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE("auto_OksEngine.ECS.Component.Utils.hpp"));
+			}
+		}
+
+		ECS2::Entity::Id getComponentTypeIdByFullName = CreateEntity();
+		ECS2::Entity::Id getFullNameByComponentTypeId = CreateEntity();
+
+
+		ECS2::Entity::Id componentNameParameterEntityId = CPP__TREE__DECL__CREATE_PARAMETER(
+			CPP__TREE__TYPE__CREATE_CONST_CHAR_POINTER_TYPE(),
+			"componentName"
+		);
+
+		ECS2::Entity::Id componentTypeIdParameterEntityId = CPP__TREE__DECL__CREATE_PARAMETER(
+			CPP__TREE__TYPE__CREATE_NAMED_TYPE("ECS2::ComponentTypeId"),
+			"componentTypeId"
+		);
+
+		ECS2::Entity::Id componentTypeIdType = CPP__TREE__TYPE__CREATE_NAMED_TYPE("ECS2::ComponentTypeId");
+
+
+		std::vector<ECS2::Entity::Id> fullComponentNameToIdPairs{};
+		std::vector<ECS2::Entity::Id> idToFullComponentNamePairs{};
+
+		const auto allComponents = GetComponents<ECS__FILE__TABLE__COMPONENT__COMPONENT>();
+		const Common::Size allComponentsNumber = world_->GetEntitiesNumber<ECS__FILE__TABLE__COMPONENT__COMPONENT>();
+
+		for (Common::Index i = 0; i < allComponentsNumber; i++) {
+			ECS2::Entity::Id componentEntityId = *(std::get<ECS2::Entity::Id*>(allComponents) + i);
+			const auto* path = std::get<ECS::File::Table::Name*>(allComponents) + i;
+			const auto* typeId = std::get<ECS::File::Table::Component::TypeId*>(allComponents) + i;
+			const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false);
+			const std::string componentName = ECS__FILE__TABLE__GET_NAME(componentEntityId, false);
+
+
+			fullComponentNameToIdPairs.push_back(
+				CPP__TREE__EXPR__CREATE_INIT_LIST(
+					CPP__TREE__CREATE_ENTITIES_VECTOR(
+						CPP__TREE__EXPR__CREATE_LITERAL_EXPR("\"" + componentFullName + "\"", ""),
+						CPP__TREE__EXPR__CREATE_CALL_EXPR_NO_ARGS(
+							CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(componentFullName + "::GetTypeId")
+						)
+					)
+				)
+			);
+
+			idToFullComponentNamePairs.push_back(
+				CPP__TREE__EXPR__CREATE_INIT_LIST(
+					CPP__TREE__CREATE_ENTITIES_VECTOR(
+						CPP__TREE__EXPR__CREATE_CALL_EXPR_NO_ARGS(
+							CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(componentFullName + "::GetTypeId")
+						),
+						CPP__TREE__EXPR__CREATE_LITERAL_EXPR("\"" + componentFullName + "\"", "")
+					)
+				)
+			);
+
+		}
+
+		ECS2::Entity::Id fullNameToComponentTypeIdVariable = CPP__TREE__DECL__CREATE_STATIC_VARIABLE(
+			CPP__TREE__TYPE__CREATE_TEMPLATE_SPECIALIZATION_TYPE(
+				CPP__TREE__TYPE__CREATE_NAMED_TYPE("std::unordered_map"),
+				CPP__TREE__TYPE__CREATE_NAMED_TYPE_ENTITIES_VECTOR("std::string", "ECS2::ComponentTypeId")
+			),
+			"fullNameToComponentTypeId",
+			CPP__TREE__EXPR__CREATE_INIT_LIST(
+				CPP__TREE__CREATE_ENTITIES_VECTOR(fullComponentNameToIdPairs)
+			),
+			ECS2::Entity::Id::invalid_
+		);
+
+		ECS2::Entity::Id componentTypeIdToFullNameToVariable = CPP__TREE__DECL__CREATE_STATIC_VARIABLE(
+			CPP__TREE__TYPE__CREATE_TEMPLATE_SPECIALIZATION_TYPE(
+				CPP__TREE__TYPE__CREATE_NAMED_TYPE("std::unordered_map"),
+				CPP__TREE__TYPE__CREATE_NAMED_TYPE_ENTITIES_VECTOR("ECS2::ComponentTypeId", "std::string")
+			),
+			"fullNameToComponentTypeId",
+			CPP__TREE__EXPR__CREATE_INIT_LIST(
+				CPP__TREE__CREATE_ENTITIES_VECTOR(idToFullComponentNamePairs)
+			),
+			ECS2::Entity::Id::invalid_
+		);
+
+		ECS2::Entity::Id getComponentTypeIdByFullNameBody = CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(
+			CPP__TREE__CREATE_ENTITIES_VECTOR(fullNameToComponentTypeIdVariable)
+		);
+
+		ECS2::Entity::Id getFullNameByComponentTypeIdBody = CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(
+			CPP__TREE__CREATE_ENTITIES_VECTOR(componentTypeIdToFullNameToVariable)
+		);
+
+
+		CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(
+			getComponentTypeIdByFullName,
+			componentTypeIdType,
+			CPP__TREE__CREATE_ENTITIES_VECTOR(),
+			"GetComponentTypeIdByFullName",
+			CPP__TREE__CREATE_ENTITIES_VECTOR(),
+			ECS2::Entity::Id::invalid_,
+			CPP__TREE__CREATE_ENTITIES_VECTOR(
+				componentNameParameterEntityId,
+				getComponentTypeIdByFullNameBody
+			)
+		);
+
+		CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(
+			getFullNameByComponentTypeId,
+			CPP__TREE__TYPE__CREATE_NAMED_TYPE("std::string"),
+			CPP__TREE__CREATE_ENTITIES_VECTOR(),
+			"GetFullNameByComponentTypeId",
+			CPP__TREE__CREATE_ENTITIES_VECTOR(),
+			ECS2::Entity::Id::invalid_,
+			CPP__TREE__CREATE_ENTITIES_VECTOR(
+				componentTypeIdParameterEntityId,
+				getFullNameByComponentTypeIdBody
+			)
+		);
+
+
+		cppFileNodeEntityIds.push_back(getComponentTypeIdByFullName);
+		cppFileNodeEntityIds.push_back(getFullNameByComponentTypeId);
+
+		const auto allFiles = GetComponents<ECS__FILE__FILE>();
+		const Common::Size allFilesNumber = world_->GetEntitiesNumber<ECS__FILE__FILE>();
+
+		for (Common::Index i = 0; i < allFilesNumber; i++) {
+
+			const auto* path = std::get<ECS::File::Path*>(allFiles) + i;
+			ECS2::Entity::Id fileEntityId = *(std::get<ECS2::Entity::Id*>(allFiles) + i);
+
+
+
+		}
+
+
+		CreateComponent<CPP::Tree::Node::ChildEntityIds>(hppFileEntityId, hppFileNodeEntityIds);
+		CreateComponent<CPP::Tree::Node::ChildEntityIds>(cppFileEntityId, cppFileNodeEntityIds);
+
+
 
 	}
 

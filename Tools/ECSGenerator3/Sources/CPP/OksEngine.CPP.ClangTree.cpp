@@ -27,9 +27,7 @@ namespace OksEngine
 
 				const ECS2::ComponentsFilter cppfileCF = GetComponentsFilter(fileEntityId);
 
-				if (!IsComponentExist<CPP::Tree::Node::ChildEntityIds>(fileEntityId)) {
-					return;
-				}
+				
 
 				std::function<void(ECS2::Entity::Id)> processNode =
 					[&processNode, this, &code](ECS2::Entity::Id entityId) {
@@ -115,9 +113,14 @@ namespace OksEngine
 
 						//Initializer.
 						if (variable->initializer_.IsValid()) {
-							code += "{";
-							processNode(variable->initializer_);
-							code += "}";
+							if (IsComponentExist<CPP::Tree::Expr::InitList>(variable->initializer_)) {
+								processNode(variable->initializer_);
+							}
+							else {
+								ASSERT(IsComponentExist<CPP::Tree::Expr::Tag>(variable->initializer_));
+								code += "=";
+								processNode(variable->initializer_);
+							}
 						}
 						code += ";";
 
@@ -581,6 +584,19 @@ namespace OksEngine
 							processNode(arraySubscript->index_);
 							code += "]";
 						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::InitList>()) {
+							code += "{";
+							const auto* initList = GetComponent<CPP::Tree::Expr::InitList>(entityId);
+							bool isFirst = true;
+							for (auto element : initList->elements_) {
+								if (!isFirst) {
+									code += ",";
+								}
+								isFirst = false;
+								processNode(element);
+							}
+							code += "}";
+						}
 						else {
 							NOT_IMPLEMENTED();
 						}
@@ -598,39 +614,41 @@ namespace OksEngine
 
 					};
 
-				const auto* fileRootNodes = GetComponent<CPP::Tree::Node::ChildEntityIds>(fileEntityId);
+				if (IsComponentExist<CPP::Tree::Node::ChildEntityIds>(fileEntityId)) {
+					const auto* fileRootNodes = GetComponent<CPP::Tree::Node::ChildEntityIds>(fileEntityId);
 
-				for (ECS2::Entity::Id rootNodeEntityId : fileRootNodes->ids_) {
-					processNode(rootNodeEntityId);
-				}
+					for (ECS2::Entity::Id rootNodeEntityId : fileRootNodes->ids_) {
+						processNode(rootNodeEntityId);
+					}
 
-				//FORMATTIG
-				{
-					clang::format::FormatStyle style = clang::format::getMicrosoftStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);
+					//FORMATTIG
 					{
-						style.AlignEscapedNewlines = clang::format::FormatStyle::EscapedNewlineAlignmentStyle::ENAS_DontAlign;
-						style.NamespaceIndentation = clang::format::FormatStyle::NI_All;
-						style.BreakBeforeBraces = clang::format::FormatStyle::BS_Custom;
-						style.BraceWrapping.AfterNamespace = false; // Скобка namespace на той же строке
-						style.BraceWrapping.AfterClass = false;     // Скобка class на той же строке
-						style.BraceWrapping.AfterStruct = false;    // Скобка struct на той же строке
-						style.BraceWrapping.AfterEnum = false;      // Скобка enum на той же строке
-						style.BraceWrapping.AfterFunction = false;
-						//style.MacroBlockBegin
-						//style.AlignConsecutiveMacros 
-						//style.ColumnLimit
+						clang::format::FormatStyle style = clang::format::getMicrosoftStyle(clang::format::FormatStyle::LanguageKind::LK_Cpp);
+						{
+							style.AlignEscapedNewlines = clang::format::FormatStyle::EscapedNewlineAlignmentStyle::ENAS_DontAlign;
+							style.NamespaceIndentation = clang::format::FormatStyle::NI_All;
+							style.BreakBeforeBraces = clang::format::FormatStyle::BS_Custom;
+							style.BraceWrapping.AfterNamespace = false; // Скобка namespace на той же строке
+							style.BraceWrapping.AfterClass = false;     // Скобка class на той же строке
+							style.BraceWrapping.AfterStruct = false;    // Скобка struct на той же строке
+							style.BraceWrapping.AfterEnum = false;      // Скобка enum на той же строке
+							style.BraceWrapping.AfterFunction = false;
+							//style.MacroBlockBegin
+							//style.AlignConsecutiveMacros 
+							//style.ColumnLimit
+						}
+
+						llvm::StringRef codeToFormat = code.c_str();  // ������ ������ ����
+
+						// ���������� �������� ��� ����� ����
+						clang::tooling::Replacements replacements = clang::format::reformat(style, codeToFormat, { clang::tooling::Range(0, codeToFormat.size()) });
+
+						auto formattedCode = clang::tooling::applyAllReplacements(codeToFormat, replacements);
+						if (!formattedCode) {
+							llvm::errs() << "Error formatting the code.\n";
+						}
+						code = *formattedCode;
 					}
-
-					llvm::StringRef codeToFormat = code.c_str();  // ������ ������ ����
-
-					// ���������� �������� ��� ����� ����
-					clang::tooling::Replacements replacements = clang::format::reformat(style, codeToFormat, { clang::tooling::Range(0, codeToFormat.size()) });
-
-					auto formattedCode = clang::tooling::applyAllReplacements(codeToFormat, replacements);
-					if (!formattedCode) {
-						llvm::errs() << "Error formatting the code.\n";
-					}
-					code = *formattedCode;
 				}
 
 				//CREATE FILE.

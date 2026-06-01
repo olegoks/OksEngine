@@ -55,6 +55,9 @@ using namespace std::string_literals;
 #define CPP_DEFINE "define"
 #define CPP_DEFINE_STR "define"s
 
+#define CPP__TREE__CREATE_ENTITIES_VECTOR(...)std::vector<ECS2::Entity::Id>{__VA_ARGS__}
+	
+
 /*					PREPROCESSOR					*/
 #define CPP__TREE__PREPROCESSOR__CREATE_PRAGMA(str)\
 	[this](const std::string& text){\
@@ -118,6 +121,21 @@ using namespace std::string_literals;
 				parentEntityId);\
 			return variableEntityId;\
 			}(type, name, initialize, parent)
+
+#define CPP__TREE__DECL__CREATE_STATIC_VARIABLE(type, name, initialize, parent)\
+	[this](\
+		ECS2::Entity::Id typeEntityId,\
+		const std::string& variableName,\
+		ECS2::Entity::Id initializeEntityId,\
+		ECS2::Entity::Id parentEntityId){\
+			ECS2::Entity::Id variableEntityId = CPP__TREE__DECL__CREATE_VARIABLE(\
+				typeEntityId,\
+				variableName,\
+				initializeEntityId,\
+				parentEntityId);\
+			CreateComponent<CPP::Tree::StorageClass::Static_>(variableEntityId);\
+			return variableEntityId;\
+	}(type, name, initialize, parent)
 
 
 #define CPP__TREE__DECL__CREATE_STATIC_CONSTEXPR_VARIABLE(type, name, initialize, parent)\
@@ -191,6 +209,16 @@ using namespace std::string_literals;
 		return typeEntityId;\
 	}(typeName)
 
+//returns std::vector<ECS2::Entity::Id>
+#define CPP__TREE__TYPE__CREATE_NAMED_TYPE_ENTITIES_VECTOR(...)\
+	[this](const std::vector<std::string> names){\
+	std::vector<ECS2::Entity::Id> typeEntityIds;\
+	for(std::string name : names){\
+		typeEntityIds.push_back(CPP__TREE__TYPE__CREATE_NAMED_TYPE(name));\
+	}\
+	return typeEntityIds;\
+	}(std::vector<std::string>{__VA_ARGS__})
+
 //Example: 
 //std::shared_ptr
 //ECS2::World
@@ -242,6 +270,13 @@ using namespace std::string_literals;
 		CreateComponent<CPP::Tree::Type::PointerType>(typeEntityId, pointerToTypeEntityId);\
 		return typeEntityId;\
 	}(type)
+
+#define CPP__TREE__TYPE__CREATE_CONST_CHAR_POINTER_TYPE()\
+	[this](){\
+		return CPP__TREE__TYPE__CREATE_POINTER_TYPE(\
+			CPP__TREE__TYPE__CREATE_CONST_CHAR_TYPE()\
+		);\
+	}()\
 
 #define CPP__TREE__TYPE__CREATE_REFERENCE_TYPE(type, rvalue)\
 	[this](ECS2::Entity::Id referenceToTypeEntityId, bool isRvalue){\
@@ -419,6 +454,16 @@ using namespace std::string_literals;
 		return callExprEntityId;\
 	}(callee, templateArgs, args)
 
+#define CPP__TREE__EXPR__CREATE_CALL_EXPR_NO_ARGS(callee)\
+	[this](ECS2::Entity::Id calleeEntityId){\
+		ECS2::Entity::Id callExprEntityId = CreateEntity();\
+		CPP__TREE__EXPR__CREATE_CALL_EXPR_COMPONENTS(\
+			callExprEntityId,\
+			calleeEntityId,\
+			std::vector<ECS2::Entity::Id>{}, std::vector<ECS2::Entity::Id>{});\
+		return callExprEntityId;\
+	}(callee)
+
 #define CPP__TREE__EXPR__CREATE_ARRAY_SUBSCRIPT(array_, index)\
 	[this](ECS2::Entity::Id arrayEntityId, ECS2::Entity::Id indexEntityId){\
 		ECS2::Entity::Id arraySubscriptEntityId = CreateEntity();\
@@ -426,6 +471,14 @@ using namespace std::string_literals;
 		CreateComponent<CPP::Tree::Expr::ArraySubscript>(arraySubscriptEntityId, arrayEntityId, indexEntityId);\
 		return arraySubscriptEntityId;\
 	}(array_, index)
+
+#define CPP__TREE__EXPR__CREATE_INIT_LIST(inits)\
+	[this](std::vector<ECS2::Entity::Id> initEntityIds){\
+		ECS2::Entity::Id initListEntityId = CreateEntity();\
+		CreateComponent<CPP::Tree::Expr::Tag>(initListEntityId);\
+		CreateComponent<CPP::Tree::Expr::InitList>(initListEntityId, initEntityIds);\
+		return initListEntityId;\
+	}(inits)
 
 /*						FUNCTION					*/
 #define CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(function, returnValue, templateParams, name, templateExplicitParams, parent, childs)\

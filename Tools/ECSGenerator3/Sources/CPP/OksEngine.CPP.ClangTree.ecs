@@ -560,6 +560,14 @@ CPPNamespace = {
                     { type = "ECS2::Entity::Id", name = "type" },
                     { type = "ECS2::Entity::Id", name = "expr" }
                 }
+            },
+            InitListComponent = {
+                description = "Initialization list (braced-init-list): {expr1, expr2, ...}. Creates {}.",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "std::vector<ECS2::Entity::Id>", name = "elements" }
+                }
             }
         },
 
@@ -785,6 +793,7 @@ CPPNamespace = {
                             "CPP::Tree::Expr::ArraySubscript",
                             "CPP::Tree::Expr::Ternary",
                             "CPP::Tree::Expr::CastExpr",
+                            "CPP::Tree::Expr::InitList",
 
                             "CPP::Tree::Type::Tag",
                             "CPP::Tree::Type::BuiltinType",

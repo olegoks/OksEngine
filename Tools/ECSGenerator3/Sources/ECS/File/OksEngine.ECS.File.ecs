@@ -108,6 +108,13 @@ ECSNamespace = {
                     serializable = false,
                     bindable = false,
                 },
+                TypeIdComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "Common::UInt64", name = "id" }
+                    }
+                },
                 AliesForComponent = {
                     serializable = false,
                     bindable = false,
@@ -223,6 +230,7 @@ ECSNamespace = {
                     components = {
                         "Table::Tag",
                         "Component::Tag",
+                        "Component::TypeId",
                         "Component::AliesFor",
                         "Component::Alignment",
                         "Component::Serializable",
