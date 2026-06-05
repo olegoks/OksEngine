@@ -1,0 +1,29 @@
+ECS = {
+    Files = {
+        "./Config/OksEngine.Config.ecs",
+        "./Async/OksEngine.Async.ecs",
+        "./CommandLineParameters/OksEngine.CommandLineParameters.ecs",
+        "./OksEngine.Active.ecs",
+        "./OksEngine.BinaryData.ecs",
+        "./OksEngine.ChildEntities.ecs",
+        "./OksEngine.ChildEntity.ecs",
+        "./OksEngine.Completed.ecs",
+        "./OksEngine.Counter.ecs",
+        "./OksEngine.Direction3D.ecs",
+        "./OksEngine.GameObject.ecs",
+        "./OksEngine.Height.ecs",
+        "./OksEngine.LuaScript.ecs",
+        "./OksEngine.Name.ecs",
+        "./OksEngine.Position2D.ecs",
+        "./OksEngine.Position3D.ecs",
+        "./OksEngine.Rotation2D.ecs",
+        "./OksEngine.Rotation3D.ecs",
+        "./OksEngine.Scale2D.ecs",
+        "./OksEngine.Scale3D.ecs",
+        "./OksEngine.Serializable.ecs",
+        "./OksEngine.String.ecs",
+        "./OksEngine.Text.ecs",
+        "./OksEngine.Width.ecs",
+        "./OksEngine.YAML.ecs"
+    }
+}

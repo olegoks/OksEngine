@@ -71,6 +71,19 @@ namespace OksEngine
 							NOT_IMPLEMENTED();
 						}
 					}
+					else if (nodeCF.IsSet<CPP::Tree::Comment>()) {
+						auto* comment = GetComponent<CPP::Tree::Comment>(entityId);
+						if (comment->type_ == CPP::Tree::CommentType::OneLine) {
+							code += "\n//" + comment->text_ + CPP_NEWLINE;
+						}
+						else if (comment->type_ == CPP::Tree::CommentType::Multiline) {
+							code += "/*" + comment->text_ + "*/";
+						}
+						else {
+							NOT_IMPLEMENTED();
+						}
+						
+					}
 					else if (nodeCF.IsSet<CPP::Tree::Decl::Namespace_>()) {
 						ASSERT(nodeCF.IsSet<CPP::Tree::Decl::Tag>());
 
@@ -596,6 +609,14 @@ namespace OksEngine
 								processNode(element);
 							}
 							code += "}";
+						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::MemberPtrExpr>()) {
+
+							auto* memberPtrExpr = GetComponent<CPP::Tree::Expr::MemberPtrExpr>(entityId);
+							code += "&";
+							processNode(memberPtrExpr->classType_);
+							code += "::";
+							code += memberPtrExpr->memberName_;
 						}
 						else {
 							NOT_IMPLEMENTED();

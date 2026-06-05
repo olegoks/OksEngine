@@ -142,8 +142,21 @@ CPPNamespace = {
 
         -- ── Базовые маркеры иерархии Clang ────────────────────────
 
-
-
+        CommentTypeEnum = {
+            values = {
+                "Multiline",
+                "OneLine"
+            }
+        },
+        CommentComponent = {
+            description = "Однострочный или блочный комментарий",
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "std::string", name = "text" },  -- текст комментария (без маркеров // или /* */)
+                { type = "CommentType",         name = "type" }  
+            }
+        },
         -- ── Decl: конкретные виды объявлений ─────────────────────
         DeclNamespace         = {
             TagComponent = {
@@ -535,6 +548,15 @@ CPPNamespace = {
                     { type = "bool",             name = "isArrow" }
                 }
             },
+            MemberPtrExprComponent = {
+                description = "Указатель на член класса: &ClassName::member",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "classType" },  -- сущность типа (класс)
+                    { type = "std::string",      name = "memberName" }
+                }
+            },
             ArraySubscriptComponent = {
                 serializable = false,
                 bindable = false,
@@ -739,6 +761,8 @@ CPPNamespace = {
                             "CPP::Tree::Node::TypeEntityReference",
                             "CPP::Tree::Node::ResolvedRef",
                             "CPP::Tree::Decl::Tag",
+                            
+                            "CPP::Tree::Comment",
 
                             "CPP::Tree::Preprocessor::Tag",
                             "CPP::Tree::Preprocessor::Define_",
@@ -794,6 +818,7 @@ CPPNamespace = {
                             "CPP::Tree::Expr::Ternary",
                             "CPP::Tree::Expr::CastExpr",
                             "CPP::Tree::Expr::InitList",
+                            "CPP::Tree::Expr::MemberPtrExpr",
 
                             "CPP::Tree::Type::Tag",
                             "CPP::Tree::Type::BuiltinType",

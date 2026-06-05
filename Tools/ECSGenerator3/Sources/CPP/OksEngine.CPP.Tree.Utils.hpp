@@ -55,8 +55,16 @@ using namespace std::string_literals;
 #define CPP_DEFINE "define"
 #define CPP_DEFINE_STR "define"s
 
+
 #define CPP__TREE__CREATE_ENTITIES_VECTOR(...)std::vector<ECS2::Entity::Id>{__VA_ARGS__}
-	
+
+/*					COMMENTS						*/
+#define CPP__TREE__COMMENT__CREATE_ONE_LINE_COMMENT(str)\
+	[this](const std::string& text){\
+		ECS2::Entity::Id comment = CreateEntity();\
+		CreateComponent<CPP::Tree::Comment>(comment, text, CPP::Tree::CommentType::OneLine);\
+		return comment;\
+	}(str)
 
 /*					PREPROCESSOR					*/
 #define CPP__TREE__PREPROCESSOR__CREATE_PRAGMA(str)\
@@ -91,6 +99,13 @@ using namespace std::string_literals;
 		return includeEntityId;\
 	}(str)
 
+#define CPP__TREE__PREPROCESSOR__CREATE_DEFINE(name, params, bodyStr, bodyEntity, isFunction)\
+	[this](const std::string& nameStr, const std::vector<std::string>& parameters, const std::string& bodyString, ECS2::Entity::Id bodyEntityId, bool isFunctionLike){\
+		ECS2::Entity::Id macrosEntityId = CreateEntity();\
+		CreateComponent<CPP::Tree::Preprocessor::Tag>(macrosEntityId);\
+		CreateComponent<CPP::Tree::Preprocessor::Define_>(macrosEntityId,nameStr, parameters, bodyString, bodyEntityId, isFunctionLike);\
+		return macrosEntityId;\
+	}(name, params, bodyStr, bodyEntity, isFunction)
 
 
 /*						VARIABLE DECLARATION						*/
@@ -208,6 +223,14 @@ using namespace std::string_literals;
 		CreateComponent<CPP::Tree::Type::Name>(typeEntityId, name);\
 		return typeEntityId;\
 	}(typeName)
+
+#define CPP__TREE__TYPE__CREATE_AUTO_TYPE()\
+	[this](){\
+		ECS2::Entity::Id typeEntityId = CreateEntity();\
+		CreateComponent<CPP::Tree::Type::Tag>(typeEntityId);\
+		CreateComponent<CPP::Tree::Type::Name>(typeEntityId, "auto");\
+		return typeEntityId;\
+	}()
 
 //returns std::vector<ECS2::Entity::Id>
 #define CPP__TREE__TYPE__CREATE_NAMED_TYPE_ENTITIES_VECTOR(...)\
@@ -370,6 +393,14 @@ using namespace std::string_literals;
 			literal, suffixStr);\
 		return literalEntityId;\
 	}(text, suffix)
+
+#define CPP__TREE__EXPR__CREATE_MEMBER_PTR_EXPR(type, member)\
+	[this](ECS2::Entity::Id typeEntityId, const std::string& memberName){\
+		ECS2::Entity::Id memberPtrExprEntityId = CreateEntity();\
+		CreateComponent<CPP::Tree::Expr::Tag>(memberPtrExprEntityId);\
+		CreateComponent<CPP::Tree::Expr::MemberPtrExpr>(memberPtrExprEntityId, typeEntityId, memberName);\
+		return memberPtrExprEntityId;\
+	}(type, member)
 
 #define CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(identifier)\
 	[this](const std::string& identifierName){\

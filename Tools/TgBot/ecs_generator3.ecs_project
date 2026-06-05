@@ -17,6 +17,12 @@ ECS = {
             Paths = { 
                 './Sources/Test/Test.ecs_module'
             }
+        },
+        { 
+            IncludePath = '/Sources',
+            Paths = { 
+                './Sources/Common/Common.ecs_module'
+            }
         }
         
     },

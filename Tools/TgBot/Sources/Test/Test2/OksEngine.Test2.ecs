@@ -1,5 +1,7 @@
+
 Test2Namespace = {
     Test2Component = {
+        bindable = true,
         fields = {
             { type = "float", name = "x" },
             { type = "Common::UInt64", name = "t" },
