@@ -74,7 +74,7 @@ namespace OksEngine
 					else if (nodeCF.IsSet<CPP::Tree::Comment>()) {
 						auto* comment = GetComponent<CPP::Tree::Comment>(entityId);
 						if (comment->type_ == CPP::Tree::CommentType::OneLine) {
-							code += "\n//" + comment->text_ + CPP_NEWLINE;
+							code += CPP_NEWLINE_STR + "//" + comment->text_ + CPP_NEWLINE_STR;
 						}
 						else if (comment->type_ == CPP::Tree::CommentType::Multiline) {
 							code += "/*" + comment->text_ + "*/";

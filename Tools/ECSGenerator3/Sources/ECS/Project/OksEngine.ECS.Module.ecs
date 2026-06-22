@@ -33,6 +33,7 @@ ECSNamespace = {
                 "Module::Tag",
                 "Module::Path",
                 "Module::IncludePath",
+                "Project::EntityId",
                 "LuaScript"
             }
         },  

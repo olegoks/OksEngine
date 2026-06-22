@@ -66,6 +66,21 @@ using namespace std::string_literals;
 		return comment;\
 	}(str)
 
+#define CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_OFF_COMMENT()\
+	[this](){\
+		ECS2::Entity::Id comment = CreateEntity();\
+		CreateComponent<CPP::Tree::Comment>(comment, " clang-format off", CPP::Tree::CommentType::OneLine);\
+		return comment;\
+	}()
+
+#define CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_ON_COMMENT()\
+	[this](){\
+		ECS2::Entity::Id comment = CreateEntity();\
+		CreateComponent<CPP::Tree::Comment>(comment, " clang format on", CPP::Tree::CommentType::OneLine);\
+		return comment;\
+	}()
+
+
 /*					PREPROCESSOR					*/
 #define CPP__TREE__PREPROCESSOR__CREATE_PRAGMA(str)\
 	[this](const std::string& text){\

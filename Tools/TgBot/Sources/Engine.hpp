@@ -7,6 +7,8 @@
 
 #include <ECS2.World.hpp>
 
+#include <OksEngine.ECS.Component.Utils.hpp>
+
 namespace OksEngine {
 
 	class Engine {
@@ -20,6 +22,7 @@ namespace OksEngine {
 		explicit Engine(const CreateInfo& createInfo) noexcept;
 
 		void Run() {
+			COMPONENT_TYPES_LIST();
 			isRunning_ = true;
 			while (IsRunning()) {
 				Update();

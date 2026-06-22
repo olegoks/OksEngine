@@ -8,6 +8,7 @@
 
 #include <Common/CommandLineParameters/auto_OksEngine.CommandLineParameters.hpp>
 #include <ECS/File/auto_OksEngine.ECS.File.hpp>
+#include <Test/auto_Test.Module.hpp>
 
 namespace OksEngine {
 
@@ -47,15 +48,15 @@ namespace OksEngine {
 		HRESULT r;
 		r = SetThreadDescription(GetCurrentThread(), L"Main thread");
 
-		CreateThreads(world2_);
+		//CreateThreads(world2_);
 
-		RunInitializeSystems(world2_);
+		//RunInitializeSystems(world2_);
 
-		while (IsRunning()) {
+		//while (IsRunning()) {
 
-			RunSystems(world2_);
+		//	RunSystems(world2_);
 
-		}
+		//}
 
 	}
 

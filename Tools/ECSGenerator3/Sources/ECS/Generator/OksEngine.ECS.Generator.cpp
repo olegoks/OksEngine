@@ -2479,40 +2479,42 @@ namespace OksEngine::ECS::Generator
 		{
 
 			hppFileNodeEntityIds.push_back(
-				CPP__TREE__COMMENT__CREATE_ONE_LINE_COMMENT(" clang-format off")
+				CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_OFF_COMMENT()
 			);
 
 
-			std::string macrosBody = "\\\n";
-			const auto allComponents = GetComponents<ECS__FILE__TABLE__COMPONENT__COMPONENT>();
-			const Common::Size allComponentsNumber = world_->GetEntitiesNumber<ECS__FILE__TABLE__COMPONENT__COMPONENT>();
+			const std::string macrosBody = [this]() -> std::string {
+				std::string text = "\\\n";
 
-			for (Common::Index componentIndex = 0; componentIndex < allComponentsNumber; componentIndex++) {
-				ECS2::Entity::Id componentEntityId = *(std::get<ECS2::Entity::Id*>(allComponents) + componentIndex);
-				macrosBody += "prefix " + ECS__FILE__TABLE__GET_NAME(componentEntityId, false) + " postfix\\\n";
-			}
+				const auto allComponents = GetComponents<ECS__FILE__TABLE__COMPONENT__COMPONENT>();
+				const Common::Size allComponentsNumber = world_->GetEntitiesNumber<ECS__FILE__TABLE__COMPONENT__COMPONENT>();
 
+				for (Common::Index componentIndex = 0; componentIndex < allComponentsNumber - 1; componentIndex++) {
+					ECS2::Entity::Id componentEntityId = *(std::get<ECS2::Entity::Id*>(allComponents) + componentIndex);
 
+					text += "DO(" + ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false) + ")";
+
+					//if (componentIndex != allComponentsNumber - 1) {
+						text += "\\\n";
+					//}
+				}
+
+				//Process last
+				ECS2::Entity::Id componentEntityId = *(std::get<ECS2::Entity::Id*>(allComponents) + allComponentsNumber - 1);
+				text += "DO_LAST(" + ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false) + ")";
+				return text;
+				}();
 
 			hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_DEFINE(
-				"FOR_EACH_COMPONENTS",
-				(std::vector<std::string>{"prefix", "posfix"}),
+				"FOR_EACH_COMPONENT",
+				(std::vector<std::string>{"DO", "DO_LAST"}),
 				macrosBody,
-				ECS2::Entity::Id::invalid_, 
+				ECS2::Entity::Id::invalid_,
 				true));
 			hppFileNodeEntityIds.push_back(
-				CPP__TREE__COMMENT__CREATE_ONE_LINE_COMMENT(" clang-format on")
+				CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_OFF_COMMENT()
 			);
-			/*for (auto parsedECSFile : parsedECSFiles) {
-				parsedECSFile->ForEachComponent([&](ParsedComponentPtr parsedComponent) {
 
-					using namespace std::string_literals;
-					std::string format = "\tprefix {} postfix \\\n";
-					code.Add(format, parsedComponent->GetFullName());
-
-					return true;
-					});
-			}*/
 		}
 
 
@@ -2521,7 +2523,7 @@ namespace OksEngine::ECS::Generator
 
 	}
 
-	void CreateIncludeFile::Update(
+	void CreateModuleIncludeFile::Update(
 
 		ECS2::Entity::Id entity0id,
 		const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
@@ -2583,5 +2585,44 @@ namespace OksEngine::ECS::Generator
 		CreateComponent<CPP::Tree::Node::ChildEntityIds>(hppFileEntityId, hppFileNodeEntityIds);
 	}
 
+
+	void CreateProjectIncludeFile::Update(
+		ECS2::Entity::Id entity0id,
+		const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
+		const OksEngine::ECS::Project::Path* eCS__Project__Path0,
+		const OksEngine::LuaScript* luaScript0) {
+
+		ECS2::Entity::Id hppProjectFileEntityId = CreateEntity<CPP__FILE__FILE>();
+		CreateComponent<CPP::File::Tag>(hppProjectFileEntityId);
+		CreateComponent<CPP::File::Type::Hpp>(hppProjectFileEntityId);
+
+		std::string filePath = std::filesystem::path{ eCS__Project__Path0->path_ }.remove_filename().string();
+		CreateComponent<CPP::File::Path>(hppProjectFileEntityId, filePath);
+		std::string fileName = "auto_" + std::filesystem::path{ eCS__Project__Path0->path_ }.stem().string() + ".Project";
+		CreateComponent<CPP::File::Name>(hppProjectFileEntityId, fileName);
+
+		std::vector<ECS2::Entity::Id> hppFileNodeEntityIds;
+		hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_PRAGMA_ONCE());
+
+		const auto allModules = GetComponents<ECS__MODULE__MODULE>();
+		const Common::Size allModulesNumber = world_->GetEntitiesNumber<ECS__MODULE__MODULE>();
+
+		for (int i = 0; i < allModulesNumber; ++i) {
+			const std::filesystem::path modulePath = (std::get<OksEngine::ECS::Module::Path*>(allModules) + i)->path_;
+			std::filesystem::path moduleIncludePath = (std::get<OksEngine::ECS::Module::IncludePath*>(allModules) + i)->path_;
+
+			std::filesystem::path moduleRelativePath = modulePath.parent_path().lexically_relative(std::filesystem::path{ eCS__Project__Path0->path_ }.parent_path());
+			std::filesystem::path fileIncludePath = moduleRelativePath.lexically_relative(moduleIncludePath.relative_path());
+
+			std::filesystem::path fileName = "auto_" + modulePath.stem().string() + ".Module.hpp";
+			
+			hppFileNodeEntityIds.push_back(
+				CPP__TREE__PREPROCESSOR__CREATE_INCLUDE((fileIncludePath / fileName).string())
+			);
+
+		}
+
+		CreateComponent<CPP::Tree::Node::ChildEntityIds>(hppProjectFileEntityId, hppFileNodeEntityIds);
+	}
 
 }; // namespace OksEngine::ECS::Generator

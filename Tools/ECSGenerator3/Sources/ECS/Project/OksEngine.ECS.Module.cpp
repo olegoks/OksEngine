@@ -44,7 +44,7 @@ namespace OksEngine::ECS::Module
 
 								std::vector<Common::Byte> data = Resource::LoadFileAndGetContent(entry.path().string());
 
-								const ECS2::Entity::Id fileEntityId = CreateEntity();
+								const ECS2::Entity::Id fileEntityId = CreateEntity<ECS__MODULE__MODULE>();
 								CreateComponent<ECS::Module::Tag>(fileEntityId);
 								CreateComponent<ECS::Module::Path>(fileEntityId, entry.path().string());
 								CreateComponent<ECS::Module::IncludePath>(fileEntityId, includePath);

@@ -157,7 +157,7 @@ ECSNamespace = {
             }
         },
 
-        CreateIncludeFileSystem = {
+        CreateModuleIncludeFileSystem = {
             type = "Initialize",
             callOrder = {
                 runAfter = { "ECS::Module::CreateModules" }
@@ -181,6 +181,35 @@ ECSNamespace = {
                     },
                     
                 },
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "CPP::File::Tag"
+                        }
+                    }
+                }
+            }
+        },
+        CreateProjectIncludeFileSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "ECS::Generator::CreateModuleIncludeFile" }
+            }, 
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "ECS::Project::Tag",
+                            "ECS::Project::Path",
+                            "LuaScript"
+                        }
+                    },
+                },
+                accessingEntities = {
+                    {
+                        archetype = "ECS::Module::Module"
+                    }
+                },  
                 createsEntities = {
                     {
                         createsComponents = {
