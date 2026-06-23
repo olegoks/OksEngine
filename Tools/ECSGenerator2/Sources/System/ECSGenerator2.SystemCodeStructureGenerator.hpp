@@ -500,9 +500,19 @@ namespace ECSGenerator2 {
 				{
 
 					{
+						if (systemEcsFile->GetName() == "CreateProjectIncludeFile") {
+							Common::BreakPointLine();
+						}
+
 						std::vector<std::string> accessingComponents;
 						systemEcsFile->ci_.updateMethod_->ForEachProcessEntity(
 							[&](const ECSGenerator2::ParsedSystem::ProcessedEntity& entity, bool isLast)->bool {
+
+								entity.ForEachInclude([&](const ECSGenerator2::ParsedSystem::Include& access, bool isLast) {
+									accessingComponents.push_back(access.GetFullName());
+									return true;
+									});
+
 								entity.ForEachAccess([&](const ECSGenerator2::ParsedSystem::Access& access, bool isLast) {
 									accessingComponents.push_back(access.GetFullName());
 									return true;
