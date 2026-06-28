@@ -235,6 +235,9 @@ namespace OksEngine
 							}
 						}
 
+						if (nodeCF.IsSet<CPP::Tree::Constexpr_>()) {
+							code += CPP_CONSTEXPR_STR + CPP_SPACE_STR;
+						}
 
 						if (nodeCF.IsSet<CPP::Tree::StorageClass::Static_>()) {
 							code += CPP_STATIC_STR + CPP_SPACE_STR;

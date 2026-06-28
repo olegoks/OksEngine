@@ -33,6 +33,7 @@ namespace ECS::Generator {
 		std::filesystem::path{ GetComponent<OksEngine::ECS::Project::Path>(projectEntityId)->path_ }.stem().string() + ".Project";\
 	}(project)
 
+// auto_{module_name}.Module
 #define ECS__GENERATOR__GET_MODULE_INCLUDE_FILE_NAME(moduleId)\
 	[this](ECS2::Entity::Id moduleEntityId){\
 	return "auto_" + \

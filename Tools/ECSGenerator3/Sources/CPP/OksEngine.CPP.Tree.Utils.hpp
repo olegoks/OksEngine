@@ -29,6 +29,9 @@ using namespace std::string_literals;
 #define CPP_RETURN "return"
 #define CPP_RETURN_STR "return"s
 
+#define CPP_CONSTEXPR "constexpr"
+#define CPP_CONSTEXPR_STR "constexpr"s
+
 #define CPP_STATIC "static"
 #define CPP_STATIC_STR "static"s
 
