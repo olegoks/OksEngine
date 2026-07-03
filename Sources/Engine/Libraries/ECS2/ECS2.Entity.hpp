@@ -165,6 +165,10 @@ namespace ECS2 {
 				return ++value_;
 			}
 
+			bool operator==(Id& id) noexcept {
+				return id.GetRawValue() == value_;
+			}
+
 			struct Hash {
 				Common::Size operator()(const Id id) const noexcept {
 					return id.value_;

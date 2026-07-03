@@ -497,6 +497,12 @@ namespace OksEngine::ECS::File {
 											CreateComponent<Table::System::Disabled>(systemEntityId);
 										}
 
+										if (!system["type"].isNil()) {
+											std::string typeStr = system["type"].cast<std::string>().value();
+											ASSERT(typeStr == "Initialize");
+											CreateComponent<Table::System::Type>(systemEntityId, typeStr);
+										}
+
 										//Parse Call Order.
 										[&](luabridge::LuaRef luaRef) {
 											luabridge::LuaRef callOrderRef = luaRef["callOrder"];

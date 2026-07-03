@@ -2976,6 +2976,7 @@ namespace ECSGenerator2 {
 
 				// Уменьшаем inDegree для всех соседей
 				const auto& currentNode = graph.GetNode(currentId);
+				
 				currentNode.ForEachLinksTo([&](NodeId neighborId) {
 					auto it = inDegree.find(neighborId);
 					if (it != inDegree.end() && it->second > 0) {

@@ -8,5 +8,17 @@ Test2Namespace = {
             { type = "Common::UInt64", name = "t" },
             { type = "std::string", name = "str" }
         }
+    },
+    InitTestSystem = {
+        type = "Initialize",
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Test2"
+                    }
+                }
+            }
+        }
     }
 }
