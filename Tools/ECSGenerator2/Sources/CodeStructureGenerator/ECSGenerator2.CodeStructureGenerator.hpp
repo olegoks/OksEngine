@@ -3569,5 +3569,4 @@ namespace ECSGenerator2 {
 		CreateInfo ci_;
 	};
 
-
 }

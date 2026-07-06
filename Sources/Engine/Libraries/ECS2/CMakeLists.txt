@@ -42,6 +42,7 @@ source_group("Sources"
     ${PUBLIC_SOURCES}
     ${PRIVATE_SOURCES})
 
+find_package(Taskflow CONFIG REQUIRED)
 
 target_link_libraries(ECS2
     PUBLIC

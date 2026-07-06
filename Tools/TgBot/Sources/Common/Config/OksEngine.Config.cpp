@@ -1,6 +1,6 @@
 #pragma once
 
-#include <Config/auto_OksEngine.Config.hpp>
+#include <Common/Config/auto_OksEngine.Config.hpp>
 #include <Resources/OksEngine.ResourceSystem.Utils.hpp>
 
 namespace OksEngine

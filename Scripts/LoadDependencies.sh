@@ -39,5 +39,6 @@ echo $(pwd)
 ./vcpkg.exe install openssl 
 ./vcpkg.exe install rapidjson 
 ./vcpkg install tgbot-cpp:x64-windows
+./vcpkg.exe install taskflow
 cd ../Scripts/
 

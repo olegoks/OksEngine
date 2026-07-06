@@ -339,21 +339,12 @@ namespace OksEngine
 							}
 						}
 						if (IsComponentExist<CPP::Tree::Node::ChildEntityIds>(entityId)) {
-							//Parameters.
-							bool isFirst = true;
-							bool openBracket = false;
 							for (ECS2::Entity::Id maybeBody : GetComponent<CPP::Tree::Node::ChildEntityIds>(entityId)->ids_) {
 								if (IsComponentExist<CPP::Tree::Stmt::Tag>(maybeBody)) {
-									if (!openBracket) {
-										code += "{";
-										openBracket = true;
-									}
+									ASSERT(IsComponentExist<CPP::Tree::Stmt::CompoundStmt>(maybeBody));
 									processNode(maybeBody);
 									
 								}
-							}
-							if (openBracket) {
-								code += "}";
 							}
 						}
 						code += ";";
@@ -408,9 +399,11 @@ namespace OksEngine
 					}
 					else if (nodeCF.IsSet<CPP::Tree::Stmt::Tag>()) {
 						if (nodeCF.IsSet<CPP::Tree::Stmt::CompoundStmt>()) {
+							code += "{";
 							for (ECS2::Entity::Id childStmtEntityId : GetComponent<CPP::Tree::Node::ChildEntityIds>(entityId)->ids_) {
 								processNode(childStmtEntityId);
 							}
+							code += "}";
 						}
 						else if (nodeCF.IsSet<CPP::Tree::Stmt::ReturnStmt>()) {
 							code += CPP_RETURN_STR + CPP_SPACE_STR;
@@ -483,11 +476,11 @@ namespace OksEngine
 								}
 							}
 							code += ")";
-							code += "{";
+							//code += "{";
 							{
 								processNode(lambda->body_);
 							}
-							code += "}";
+							//code += "}";
 						}
 						else if (nodeCF.IsSet<CPP::Tree::Expr::CallExpr>()) {
 							const auto* callExpr = GetComponent<CPP::Tree::Expr::CallExpr>(entityId);

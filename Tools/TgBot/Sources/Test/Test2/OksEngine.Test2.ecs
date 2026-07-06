@@ -20,5 +20,60 @@ Test2Namespace = {
                 }
             }
         }
-    }
+    },
+    TestMain1System = {
+        thread = "Main",
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Test2"
+                    }
+                }
+            }
+        }
+    },
+    TestChild1System = {
+        callOrder = {
+            runAfter = "TestMain1"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Test2"
+                    }
+                }
+            }
+        }
+    },
+    TestMain2System = {
+        thread = "Main",
+        callOrder = {
+            runAfter = "TestChild1"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Test2"
+                    }
+                }
+            }
+        }
+    },
+    TestChild2System = {
+        callOrder = {
+            runAfter = "TestChild1"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Test2"
+                    }
+                }
+            }
+        }
+    },
 }

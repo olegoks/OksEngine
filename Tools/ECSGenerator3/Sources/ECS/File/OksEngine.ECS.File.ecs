@@ -840,6 +840,45 @@ ECSNamespace = {
                     }
                 }
             },
+            CreateCallOrderAdditionalDependenciesSystem = {
+                type = "Initialize",
+                callOrder = {
+                    runAfter = { "ECS::File::Table::Parse" }
+                },  
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ECS::File::Table::Tag",
+                                "ECS::File::Table::System::Tag"
+                            }
+                        }
+                    },
+                    accessingEntities = {
+                        {
+                            archetype = "File::Table::System::System"
+                        },
+                        {
+                            accessingComponents = {
+                                "ECS::File::Table::System::CallOrder::EntityId",
+                                "ECS::File::Table::System::CallOrder::RunAfter",
+                                "ECS::File::Table::System::CallOrder::RunBefore",
+                                "ECS::File::Table::ParentTableEntityId",
+                                "ECS::File::Table::Name"
+                            }
+                        }
+                    },
+                    createsEntities = {
+                        {
+                            createsComponents = {
+                                "ECS::File::Table::System::CallOrder::EntityId",
+                                "ECS::File::Table::System::CallOrder::RunAfter",
+                                "ECS::File::Table::System::CallOrder::RunBefore",
+                            }
+                        }
+                    }
+                }
+            },
         }
 
     },

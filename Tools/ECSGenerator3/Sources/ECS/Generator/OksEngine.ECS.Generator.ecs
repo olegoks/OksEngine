@@ -4,7 +4,7 @@ ECSNamespace = {
         GenerateTreesSystem = {
             type = "Initialize",
             callOrder = {
-                runAfter = { "ECS::File::Table::Parse" }
+                runAfter = { "ECS::File::Table::CreateCallOrderAdditionalDependencies" }
             },
             updateMethod = {
                 processesEntities = {
@@ -160,7 +160,7 @@ ECSNamespace = {
         CreateModuleIncludeFileSystem = {
             type = "Initialize",
             callOrder = {
-                runAfter = { "ECS::Module::CreateModules" }
+                runAfter = { "ECS::File::Table::CreateCallOrderAdditionalDependencies" }
             }, 
             updateMethod = {
                 processesEntities = {
@@ -193,7 +193,7 @@ ECSNamespace = {
         CreateProjectIncludeFileSystem = {
             type = "Initialize",
             callOrder = {
-                runAfter = { "ECS::Generator::CreateModuleIncludeFile" }
+                runAfter = { "ECS::File::Table::CreateCallOrderAdditionalDependencies" }
             }, 
             updateMethod = {
                 processesEntities = {
@@ -223,7 +223,7 @@ ECSNamespace = {
         GenerateRunSystemsFileSystem = {
             type = "Initialize",
             callOrder = {
-                runAfter = { "ECS::Generator::CreateProjectIncludeFile" }
+                runAfter = { "ECS::File::Table::CreateCallOrderAdditionalDependencies" }
             }, 
             updateMethod = {
                 processesEntities = {
