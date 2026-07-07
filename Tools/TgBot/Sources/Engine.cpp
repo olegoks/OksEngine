@@ -4,6 +4,8 @@
 //#include <pix3.h>
 
 #include <Engine.hpp>
+
+#include <Test/auto_Test.Module.hpp>
 //
 //#include <Common/CommandLineParameters/auto_OksEngine.CommandLineParameters.hpp>
 //#include <ECS/File/auto_OksEngine.ECS.File.hpp>
@@ -21,6 +23,7 @@ namespace OksEngine {
 			char** argv = createInfo.argv_;
 
 			const ECS2::Entity::Id commandLineParametersEntity = world2_->CreateEntity();
+			world2_->CreateComponent<OksEngine::Test2::Test2>(commandLineParametersEntity);
 			//world2_->CreateComponent<CommandLineParameters>(commandLineParametersEntity);
 			//world2_->CreateComponent<ExecutablePath>(commandLineParametersEntity, argv[0]);
 
@@ -38,6 +41,8 @@ namespace OksEngine {
 			//		world2_->CreateComponent<ECS::ProjectFilePath>(commandLineParametersEntity, argv[i + 1]);
 			//	}
 			//}
+
+			
 		}
 
 	}
@@ -50,9 +55,13 @@ namespace OksEngine {
 		RunInitializeSystems(world2_);
 
 		while (IsRunning()) {
-
+			BEGIN_PROFILE("Frame");
 			RunSystems(world2_);
-
+			BEGIN_PROFILE("Apply delayed requests");
+			world2_->ApplyDelayedRequests();
+			END_PROFILE();
+			std::cout << "newFrame" << std::endl;
+			END_PROFILE();
 		}
 
 	}

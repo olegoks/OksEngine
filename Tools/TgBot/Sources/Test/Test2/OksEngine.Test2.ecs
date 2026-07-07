@@ -64,7 +64,7 @@ Test2Namespace = {
     },
     TestChild2System = {
         callOrder = {
-            runAfter = "TestChild1"
+            runAfter = { "TestChild1", "TestMain2" }
         },
         updateMethod = {
             processesEntities = {

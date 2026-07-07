@@ -457,8 +457,8 @@ namespace OksEngine::ECS::Generator
 									ECS2::Entity::Id initializer = CPP__TREE__CREATE_CONSTRUCTOR_INITIALIZER(
 										cppFieldEntityIds[i],
 										(IsComponentExist<File::Table::Component::Field::Copyable>(fieldEntityId))
-										?(CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(GetComponent<ECS::File::Table::Component::Field::Name>(fieldEntityId)->name_))
-										:(CPP__TREE__EXPR__CREATE_CALL_EXPR(
+										? (CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(GetComponent<ECS::File::Table::Component::Field::Name>(fieldEntityId)->name_))
+										: (CPP__TREE__EXPR__CREATE_CALL_EXPR(
 											CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("std::move"),
 											CPP__TREE__CREATE_ENTITIES_VECTOR(),
 											CPP__TREE__CREATE_ENTITIES_VECTOR(
@@ -466,7 +466,7 @@ namespace OksEngine::ECS::Generator
 													GetComponent<ECS::File::Table::Component::Field::Name>(fieldEntityId)->name_
 												)
 											)
-										))	
+										))
 									);
 									initializerEntityIds.push_back(initializer);
 								}
@@ -481,8 +481,8 @@ namespace OksEngine::ECS::Generator
 											CPP__TREE__DECL__CREATE_PARAMETER(
 
 												(IsComponentExist<File::Table::Component::Field::Copyable>(fieldEntityId))
-												?(CPP__TREE__TYPE__CREATE_NAMED_TYPE(GetComponent<File::Table::Component::Field::Type>(fieldEntityId)->name_))
-												:(CPP__TREE__TYPE__CREATE_REFERENCE_TYPE(
+												? (CPP__TREE__TYPE__CREATE_NAMED_TYPE(GetComponent<File::Table::Component::Field::Type>(fieldEntityId)->name_))
+												: (CPP__TREE__TYPE__CREATE_REFERENCE_TYPE(
 													CPP__TREE__TYPE__CREATE_NAMED_TYPE(GetComponent<File::Table::Component::Field::Type>(fieldEntityId)->name_),
 													true
 												)),
@@ -1091,7 +1091,7 @@ namespace OksEngine::ECS::Generator
 						hppLastNamespaceEntityId,
 						hppFunctionChilds
 					);
-					
+
 					hppChilds.push_back(hppParseComponentFunctionPrototypeEntityId);
 
 
@@ -3203,9 +3203,28 @@ namespace OksEngine::ECS::Generator
 							return std::pair{ orderedMainThreadSystems,orderedChildThreadSystems };
 
 							}();
-
-
 						std::vector<ECS2::Entity::Id> runSystemsRealization;
+						//Main thread system code generation.
+						for (auto mainSystemEntityId : mainThreadSystems) {
+							const std::string systemFullName = ECS__FILE__TABLE__GET_FULL_NAME(mainSystemEntityId, "::", false);
+							//static std::mutex OksEngine__Test2__TestMain1FinishedMutex;
+
+							runSystemsRealization.push_back(
+								CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+									CPP__TREE__EXPR__CREATE_BINARY_OPERATION(
+										CPP::Tree::Expr::BinaryOpType::Assign,
+										CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
+											ECS__FILE__TABLE__GET_FULL_NAME(mainSystemEntityId, "__", false) + "FinishedFlag"
+										),
+										CPP__TREE__EXPR__CREATE_LITERAL_EXPR("false", "")
+									)
+								)
+							);
+
+						}
+
+
+
 						runSystemsRealization.push_back(
 							CPP__TREE__COMMENT__CREATE_ONE_LINE_COMMENT("Run main thread systems.")
 						);
@@ -3316,12 +3335,34 @@ namespace OksEngine::ECS::Generator
 
 							taskLambdaBodyChilds.push_back(
 								CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+									CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(
+										"BEGIN_PROFILE",
+										CPP__TREE__CREATE_ENTITIES_VECTOR(
+											CPP__TREE__EXPR__CREATE_LITERAL_EXPR("\"" + systemFullName + "\"", "")
+										),
+										ECS2::Entity::Id::invalid_
+									)
+								)
+							);
+
+							taskLambdaBodyChilds.push_back(
+								CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
 									CPP__TREE__EXPR__CREATE_CALL_EXPR(
 										CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(systemFullName + "System"),
 										CPP__TREE__CREATE_ENTITIES_VECTOR(),
 										CPP__TREE__CREATE_ENTITIES_VECTOR(
 											CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("world")
 										)
+									)
+								)
+							);
+
+							taskLambdaBodyChilds.push_back(
+								CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+									CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(
+										"END_PROFILE",
+										CPP__TREE__CREATE_ENTITIES_VECTOR(),
+										ECS2::Entity::Id::invalid_
 									)
 								)
 							);
@@ -3360,8 +3401,29 @@ namespace OksEngine::ECS::Generator
 								)
 							);
 
+							//OksEngine__Test2__TestChild1Task.name("OksEngine::Test2::TestChild1");
+							runSystemsRealization.push_back(
+								CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+									CPP__TREE__EXPR__CREATE_CALL_EXPR(
+										CPP__TREE__EXPR__CREATE_MEMBER_ACCESS_EXPR(
+											CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
+												ECS__FILE__TABLE__GET_FULL_NAME(childSystemEntityId, "__", false) + "Task"
+											),
+											"name",
+											false
+										),
+										CPP__TREE__CREATE_ENTITIES_VECTOR(),
+										CPP__TREE__CREATE_ENTITIES_VECTOR(
+											CPP__TREE__EXPR__CREATE_LITERAL_EXPR("\"" + ECS__FILE__TABLE__GET_FULL_NAME(childSystemEntityId, "::", false) + "\"", "")
+										)
+									)
+								)
+							);
+
+
 						}
 
+						//OksEngine__Test2__TestChild1Task.precede(OksEngine__Test2__TestChild2Task);
 						for (auto childSystemEntityId : childThreadSystems) {
 							const std::string systemFullName = ECS__FILE__TABLE__GET_FULL_NAME(childSystemEntityId, "::", false);
 
@@ -3467,6 +3529,21 @@ namespace OksEngine::ECS::Generator
 									ECS2::Entity::Id::invalid_
 								)
 							);
+
+							runSystemsRealization.push_back(
+								CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+									CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(
+										"BEGIN_PROFILE",
+										CPP__TREE__CREATE_ENTITIES_VECTOR(
+											CPP__TREE__EXPR__CREATE_LITERAL_EXPR("\"" + systemFullName + "\"", "")
+										),
+										ECS2::Entity::Id::invalid_
+									)
+								)
+							);
+
+
+
 							runSystemsRealization.push_back(
 								CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
 									CPP__TREE__EXPR__CREATE_CALL_EXPR(
@@ -3478,6 +3555,16 @@ namespace OksEngine::ECS::Generator
 									)
 								)
 							);
+							runSystemsRealization.push_back(
+								CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+									CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(
+										"END_PROFILE",
+										CPP__TREE__CREATE_ENTITIES_VECTOR(),
+										ECS2::Entity::Id::invalid_
+									)
+								)
+							);
+
 							runSystemsRealization.push_back(
 								CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(
 									CPP__TREE__CREATE_ENTITIES_VECTOR(
@@ -3527,7 +3614,7 @@ namespace OksEngine::ECS::Generator
 
 						}
 
-
+						//future.wait();
 						runSystemsRealization.push_back(
 							CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
 								CPP__TREE__EXPR__CREATE_CALL_EXPR(
@@ -3542,7 +3629,7 @@ namespace OksEngine::ECS::Generator
 							)
 						);
 
-
+						//RunSystems function
 						ECS2::Entity::Id body = CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(runSystemsRealization);
 						return CPP__TREE__DECL__CREATE_FUNCTION(
 							CPP__TREE__TYPE__CREATE_VOID_TYPE(),
