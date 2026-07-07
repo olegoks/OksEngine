@@ -27,7 +27,7 @@ namespace OksEngine
 
 				const ECS2::ComponentsFilter cppfileCF = GetComponentsFilter(fileEntityId);
 
-				
+
 
 				std::function<void(ECS2::Entity::Id)> processNode =
 					[&processNode, this, &code](ECS2::Entity::Id entityId) {
@@ -82,7 +82,7 @@ namespace OksEngine
 						else {
 							NOT_IMPLEMENTED();
 						}
-						
+
 					}
 					else if (nodeCF.IsSet<CPP::Tree::Decl::Namespace_>()) {
 						ASSERT(nodeCF.IsSet<CPP::Tree::Decl::Tag>());
@@ -186,7 +186,12 @@ namespace OksEngine
 						else if (nodeCF.IsSet<CPP::Tree::Type::ReferenceType>()) {
 							const auto* referenceType = GetComponent<CPP::Tree::Type::ReferenceType>(entityId);
 							processNode(referenceType->id_);
-							code += "&";
+							if (referenceType->isRValue_) {
+								code += "&&";
+							}
+							else {
+								code += "&";
+							}
 						}
 						else {
 							NOT_IMPLEMENTED();
@@ -207,7 +212,7 @@ namespace OksEngine
 							if (IsComponentExist<CPP::Tree::Decl::TemplateDecl>(entityId)) {
 								templateParamEntityIds = GetComponent<CPP::Tree::Decl::TemplateDecl>(entityId)->templateParams_;
 							}
-	
+
 							if (!templateParamEntityIds.empty() || IsComponentExist<CPP::Tree::Decl::ExplicitTemplateArgs>(entityId)) {
 								code += "template";
 								code += "<";
@@ -343,7 +348,7 @@ namespace OksEngine
 								if (IsComponentExist<CPP::Tree::Stmt::Tag>(maybeBody)) {
 									ASSERT(IsComponentExist<CPP::Tree::Stmt::CompoundStmt>(maybeBody));
 									processNode(maybeBody);
-									
+
 								}
 							}
 						}
@@ -614,6 +619,11 @@ namespace OksEngine
 							code += "::";
 							code += memberPtrExpr->memberName_;
 						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::PackExpansion>()) {
+							ECS2::Entity::Id pattern = GetComponent<CPP::Tree::Expr::PackExpansion>(entityId)->pattern_;
+							processNode(pattern);
+							code += "...";
+						}
 						else {
 							NOT_IMPLEMENTED();
 						}
@@ -621,8 +631,12 @@ namespace OksEngine
 					else if (nodeCF.IsSet<CPP::Tree::Decl::Parameter>()) {
 						const auto* nameTypeInitializer = GetComponent<CPP::Tree::Decl::Parameter>(entityId);
 						processNode(nameTypeInitializer->type_);
+						if (nameTypeInitializer->isParameterPack_) {
+							code += "...";
+						}
 						code += CPP_SPACE_STR;
 						code += nameTypeInitializer->name_;
+						
 					}
 					else {
 						NOT_IMPLEMENTED();

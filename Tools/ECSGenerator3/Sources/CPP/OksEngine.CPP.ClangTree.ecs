@@ -211,7 +211,8 @@ CPPNamespace = {
                 fields = {
                     { type = "std::string", name = "name" },
                     { type = "ECS2::Entity::Id", name = "type" },
-                    { type = "ECS2::Entity::Id", name = "defaultValue" } -- null, если нет
+                    { type = "ECS2::Entity::Id", name = "defaultValue" },
+                    { type = "bool",             name = "isParameterPack" }
                 }
             },
             Namespace_Component = {
@@ -590,6 +591,14 @@ CPPNamespace = {
                 fields = {
                     { type = "std::vector<ECS2::Entity::Id>", name = "elements" }
                 }
+            },
+            PackExpansionComponent = {
+                description = "Раскрытие пакета в выражении: pattern...",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "pattern" }  -- выражение, которое будет развёрнуто
+                }
             }
         },
 
@@ -819,6 +828,7 @@ CPPNamespace = {
                             "CPP::Tree::Expr::CastExpr",
                             "CPP::Tree::Expr::InitList",
                             "CPP::Tree::Expr::MemberPtrExpr",
+                            "CPP::Tree::Expr::PackExpansion",
 
                             "CPP::Tree::Type::Tag",
                             "CPP::Tree::Type::BuiltinType",

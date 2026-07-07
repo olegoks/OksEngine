@@ -1,7 +1,7 @@
 #pragma once
 
 #include <Common/Config/auto_OksEngine.Config.hpp>
-#include <Resources/OksEngine.ResourceSystem.Utils.hpp>
+//#include <Resources/OksEngine.ResourceSystem.Utils.hpp>
 
 namespace OksEngine
 {
@@ -10,13 +10,13 @@ namespace OksEngine
 			ECS2::Entity::Id entity0id, const OksEngine::CommandLineParameters* commandLineParameters0,
 			const OksEngine::ConfigFilePath* configFilePath0) {
 
-			std::vector<Common::Byte> resourceData = Resource::LoadFileAndGetContent(configFilePath0->path_);
+			//std::vector<Common::Byte> resourceData = Resource::LoadFileAndGetContent(configFilePath0->path_);
 
-			const ECS2::Entity::Id entityId = CreateEntity();
+			//const ECS2::Entity::Id entityId = CreateEntity();
 
-			CreateComponent<Config::Tag>(entityId);
-			CreateComponent<LuaScript>(entityId,
-				std::string{ resourceData.data(), resourceData.size() });
+			//CreateComponent<Config::Tag>(entityId);
+			//CreateComponent<LuaScript>(entityId,
+			//	std::string{ resourceData.data(), resourceData.size() });
 
 
 		};

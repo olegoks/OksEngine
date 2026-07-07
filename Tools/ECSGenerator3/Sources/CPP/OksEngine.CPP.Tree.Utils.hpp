@@ -387,12 +387,36 @@ using namespace std::string_literals;
 		CreateComponent<CPP::Tree::Decl::Parameter>(parameterEntityId,\
 			parameterName,\
 			typeEntityId,\
-			ECS2::Entity::Id::invalid_\
+			ECS2::Entity::Id::invalid_,\
+			false\
+		);\
+		return parameterEntityId;\
+	}(type, name)
+
+//Type...
+#define CPP__TREE__DECL__CREATE_PARAMETER_PACK_PARAMETER(type, name)\
+	[this](ECS2::Entity::Id typeEntityId, std::string parameterName){\
+		ECS2::Entity::Id parameterEntityId = CreateEntity();\
+		CreateComponent<CPP::Tree::Node::Tag>(parameterEntityId);\
+		CreateComponent<CPP::Tree::Decl::Tag>(parameterEntityId);\
+		CreateComponent<CPP::Tree::Decl::Parameter>(parameterEntityId,\
+			parameterName,\
+			typeEntityId,\
+			ECS2::Entity::Id::invalid_,\
+			true\
 		);\
 		return parameterEntityId;\
 	}(type, name)
 
 /*						EXPRESSION							*/
+
+#define CPP__TREE__EXPR__CREATE_PACK_EXPANSION(pattern)\
+	[this](ECS2::Entity::Id patternEntityId){\
+		ECS2::Entity::Id packExpansionEntityId = CreateEntity();\
+		CreateComponent<CPP::Tree::Expr::Tag>(packExpansionEntityId);\
+		CreateComponent<CPP::Tree::Expr::PackExpansion>(packExpansionEntityId, patternEntityId);\
+		return packExpansionEntityId;\
+	}(pattern)
 
 #define CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(name, args, macro)\
 	[this](const std::string& macroName, std::vector<ECS2::Entity::Id> arguments, ECS2::Entity::Id macroEntityId){\
