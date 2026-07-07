@@ -322,21 +322,22 @@ namespace OksEngine
 
 									code += "{";
 									ECS2::Entity::Id exprEntityId = GetComponent<CPP::Tree::ConstructorInitializer>(initializer)->initExpr_;
-
-									if (IsComponentExist<CPP::Tree::Expr::Identifier>(exprEntityId)) {
-										code += GetComponent<CPP::Tree::Expr::Identifier>(exprEntityId)->name_;
-									}
-									else  if (IsComponentExist<CPP::Tree::Node::ResolvedRef>(exprEntityId)) {
-										ECS2::Entity::Id parameterEntityId = GetComponent<CPP::Tree::Node::ResolvedRef>(exprEntityId)->targetDecl_;
-										code += GetComponent<CPP::Tree::Decl::Parameter>(parameterEntityId)->name_;
-									}
-									else if (IsComponentExist<CPP::Tree::Expr::Literal>(exprEntityId)) {
-										code += GetComponent<CPP::Tree::Expr::Literal>(exprEntityId)->value_;
-										//TODO: add types validation.
-									}
-									else {
-										NOT_IMPLEMENTED();
-									}
+									processNode(exprEntityId);
+									//ECS2::ComponentsFilter exprCF = GetComponentsFilter(exprEntityId);
+									//if (IsComponentExist<CPP::Tree::Expr::Identifier>(exprEntityId)) {
+									//	code += GetComponent<CPP::Tree::Expr::Identifier>(exprEntityId)->name_;
+									//}
+									//else  if (IsComponentExist<CPP::Tree::Node::ResolvedRef>(exprEntityId)) {
+									//	ECS2::Entity::Id parameterEntityId = GetComponent<CPP::Tree::Node::ResolvedRef>(exprEntityId)->targetDecl_;
+									//	code += GetComponent<CPP::Tree::Decl::Parameter>(parameterEntityId)->name_;
+									//}
+									//else if (IsComponentExist<CPP::Tree::Expr::Literal>(exprEntityId)) {
+									//	code += GetComponent<CPP::Tree::Expr::Literal>(exprEntityId)->value_;
+									//	//TODO: add types validation.
+									//}
+									//else {
+									//	NOT_IMPLEMENTED();
+									//}
 									code += "}";
 
 								}

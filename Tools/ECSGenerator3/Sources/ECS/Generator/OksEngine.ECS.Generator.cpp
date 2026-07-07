@@ -456,7 +456,17 @@ namespace OksEngine::ECS::Generator
 									//fieldEntityIds[i]{ parameterEntityIds[i] }
 									ECS2::Entity::Id initializer = CPP__TREE__CREATE_CONSTRUCTOR_INITIALIZER(
 										cppFieldEntityIds[i],
-										CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(GetComponent<ECS::File::Table::Component::Field::Name>(fieldEntityId)->name_)
+										(IsComponentExist<File::Table::Component::Field::Copyable>(fieldEntityId))
+										?(CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(GetComponent<ECS::File::Table::Component::Field::Name>(fieldEntityId)->name_))
+										:(CPP__TREE__EXPR__CREATE_CALL_EXPR(
+											CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("std::move"),
+											CPP__TREE__CREATE_ENTITIES_VECTOR(),
+											CPP__TREE__CREATE_ENTITIES_VECTOR(
+												CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
+													GetComponent<ECS::File::Table::Component::Field::Name>(fieldEntityId)->name_
+												)
+											)
+										))	
 									);
 									initializerEntityIds.push_back(initializer);
 								}
@@ -469,7 +479,13 @@ namespace OksEngine::ECS::Generator
 									for (ECS2::Entity::Id fieldEntityId : GetComponent<ECS::File::Table::Component::Field::EntityIds>(ecsComponentEntityId)->entityIds_) {
 										parameterEntityIds.push_back(
 											CPP__TREE__DECL__CREATE_PARAMETER(
-												CPP__TREE__TYPE__CREATE_NAMED_TYPE(GetComponent<File::Table::Component::Field::Type>(fieldEntityId)->name_),
+
+												(IsComponentExist<File::Table::Component::Field::Copyable>(fieldEntityId))
+												?(CPP__TREE__TYPE__CREATE_NAMED_TYPE(GetComponent<File::Table::Component::Field::Type>(fieldEntityId)->name_))
+												:(CPP__TREE__TYPE__CREATE_REFERENCE_TYPE(
+													CPP__TREE__TYPE__CREATE_NAMED_TYPE(GetComponent<File::Table::Component::Field::Type>(fieldEntityId)->name_),
+													true
+												)),
 												GetComponent<ECS::File::Table::Component::Field::Name>(fieldEntityId)->name_
 											)
 										);
@@ -1075,7 +1091,7 @@ namespace OksEngine::ECS::Generator
 						hppLastNamespaceEntityId,
 						hppFunctionChilds
 					);
-
+					
 					hppChilds.push_back(hppParseComponentFunctionPrototypeEntityId);
 
 
@@ -1351,6 +1367,7 @@ namespace OksEngine::ECS::Generator
 						hppLastNamespaceEntityId,
 						functionChilds
 					);
+					CreateComponent<CPP::Tree::Inline_>(templateEditSpecialization);
 					hppFileNodeEntityIds.push_back(templateEditSpecialization);
 				}
 
@@ -1412,6 +1429,7 @@ namespace OksEngine::ECS::Generator
 						hppLastNamespaceEntityId,
 						functionChilds
 					);
+					CreateComponent<CPP::Tree::Inline_>(templateSerializeSpecialization);
 					hppFileNodeEntityIds.push_back(templateSerializeSpecialization);
 				}
 
@@ -1471,6 +1489,7 @@ namespace OksEngine::ECS::Generator
 						hppLastNamespaceEntityId,
 						functionChilds
 					);
+					CreateComponent<CPP::Tree::Inline_>(templateParseSpecialization);
 					hppFileNodeEntityIds.push_back(templateParseSpecialization);
 				}
 
@@ -1528,6 +1547,7 @@ namespace OksEngine::ECS::Generator
 						hppLastNamespaceEntityId,
 						functionChilds
 					);
+					CreateComponent<CPP::Tree::Inline_>(templateBindSpecialization);
 					hppFileNodeEntityIds.push_back(templateBindSpecialization);
 				}
 			}
@@ -1768,6 +1788,66 @@ namespace OksEngine::ECS::Generator
 																)
 															)
 														)
+													)
+												)
+											)
+										)
+									)
+								));
+							CreateComponent<CPP::Tree::Access::Public_>(functionEntityId);
+
+							systemClassChildEntityIds.push_back(functionEntityId);
+						}
+
+						/*template <class Component, class... Args> void RemoveComponent(ECS2::Entity::Id entityId, Args &&...args)
+						{
+							STATIC_ASSERT_MSG((std::is_same_v<Component, Async::Manager::Task::State::Pending> ||
+								std::is_same_v<Component, Async::Manager::Task::State::InProgress> ||
+								std::is_same_v<Component, Async::Manager::Task::State::Finished>),
+								"Attempt to remove component that system(ChangeTaskState) can't remove. Added access "
+								"entities description to .ecs file that corresponds to system");
+							world_->RemoveComponent<Component>(entityId, "Async::Manager::ChangeTaskState", std::forward<Args>(args)...);
+						};*/
+
+						//TODO:
+						{
+							ECS2::Entity::Id componentTemplateTypeEntityId
+								= CPP__TREE__DECL__CREATE_TEMPLATE_TYPE_PARAMETER(
+									"Component",
+									ECS2::Entity::Id::invalid_,
+									false);
+							ECS2::Entity::Id functionEntityId = CreateEntity();
+
+							CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(
+								functionEntityId,
+								CPP__TREE__TYPE__CREATE_VOID_TYPE(), //Return value
+								CPP__TREE__CREATE_ENTITIES_VECTOR(componentTemplateTypeEntityId),
+								"RemoveComponent",
+								CPP__TREE__CREATE_ENTITIES_VECTOR(),
+								cppSystemClassEntityId,
+								CPP__TREE__CREATE_ENTITIES_VECTOR(
+									//1 method parameter
+									CPP__TREE__DECL__CREATE_PARAMETER(
+										CPP__TREE__TYPE__CREATE_NAMED_TYPE("ECS2::Entity::Id"),
+										"entityId"
+									),
+									//Body
+									CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(
+										CPP__TREE__CREATE_ENTITIES_VECTOR(
+											CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+												CPP__TREE__EXPR__CREATE_CALL_EXPR(
+													CPP__TREE__EXPR__CREATE_MEMBER_ACCESS_EXPR(
+														CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("world_"),
+														"RemoveComponent",
+														true
+													),
+													//<Component> template parameter
+													CPP__TREE__CREATE_ENTITIES_VECTOR(
+														CPP__TREE__TYPE__CREATE_NAMED_TYPE("Component")
+													),
+
+													CPP__TREE__CREATE_ENTITIES_VECTOR(
+														CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("entityId")
 													)
 												)
 											)
@@ -2646,7 +2726,7 @@ namespace OksEngine::ECS::Generator
 						CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
 							CPP__TREE__EXPR__CREATE_CALL_EXPR(
 								CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(
-									ECS__FILE__TABLE__GET_FULL_NAMESPACE_STRING(componentEntityId, "::", false) + "::Bind" + ECS__FILE__TABLE__GET_NAME(componentEntityId, false)
+									ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false) + "Bind"
 								),
 								CPP__TREE__CREATE_ENTITIES_VECTOR(),
 								CPP__TREE__CREATE_ENTITIES_VECTOR(

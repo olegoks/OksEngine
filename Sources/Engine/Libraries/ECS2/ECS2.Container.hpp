@@ -212,16 +212,12 @@ namespace ECS2 {
 		}
 		
 		virtual void RemoveComponent(Entity::Id entityId) noexcept override {
-#pragma region Assert
 			ASSERT_FMSG(
 				entityIdComponentIndex_.contains(entityId),
 				"Attempt to remove component, but this entity doesnt' have component of this type.");
-#pragma endregion
 			const ComponentIndex componentIndex = entityIdComponentIndex_[entityId];
-#pragma region Assert
 			ASSERT_FMSG(!freeComponentIndices_.contains(componentIndex), 
 				"Attempt to remove component with index that was remove early.");
-#pragma endregion
 			freeComponentIndices_.insert(componentIndex);
 			entityIdComponentIndex_.erase(entityId);
 			componentIndexToEntityId_[componentIndex] = Entity::Id::invalid_;

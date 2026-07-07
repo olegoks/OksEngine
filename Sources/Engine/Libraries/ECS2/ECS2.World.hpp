@@ -175,24 +175,16 @@ namespace ECS2 {
 					archetypeEntitiesComponents_.erase(entityId);
 				}
 				else {
-
-#pragma region Assert
 					ASSERT_FMSG(
 						dynamicEntitiesComponentFilters_.contains(entityId),
 						"");
-#pragma endregion
-
 					const ComponentsFilter componentsFilter = dynamicEntitiesComponentFilters_[entityId];
 
 					//Remove entity components in containers.
 					componentsFilter.ForEachSetComponent([&](ComponentTypeId componentTypeId, bool isLast) {
-
-#pragma region Assert
 						ASSERT_FMSG(
 							dynamicEntitiesContainers_.contains(componentTypeId),
 							"Attempt to get component that doesn't exist.");
-#pragma endregion
-
 						std::shared_ptr<IContainer> container = dynamicEntitiesContainers_[componentTypeId];
 						container->RemoveComponent(entityId);
 						});

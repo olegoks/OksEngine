@@ -18,7 +18,7 @@ std::string GetFullNameByComponentTypeId(ECS2::ComponentTypeId componentTypeId);
 		Bind<type>(state);\
 	}
 
-void BindComponents(lua_State* state) {
+inline void BindComponents(lua_State* state) {
 	FOR_EACH_COMPONENT(BIND_COMPONENT, BIND_COMPONENT);
 }
 
@@ -33,7 +33,7 @@ void BindComponents(lua_State* state) {
 		return componentPtr;\
 	})
 
-void BindWorld(lua_State* state) {
+inline void BindWorld(lua_State* state) {
 	luabridge::Namespace namespaceGlobal = luabridge::getGlobalNamespace(state);
 	namespaceGlobal.beginClass<ECS2::World>("ECSWorld")
 		.addConstructor<void(*)()>()

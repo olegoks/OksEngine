@@ -21,7 +21,7 @@ namespace OksEngine
 				const ECS2::ComponentsFilter taskCF = GetComponentsFilter(entity0id);
 
 				ASSERT_FMSG(
-					taskCF.IsSetOnlyOneOf<ASYNC__MANAGER__TASK__STATES>(),
+					taskCF.IsSetOnlyOneOf<OKSENGINE__ASYNC__MANAGER__TASK__STATES>(),
 					"Task must contain one of state components.");
 
 				if (taskCF.IsSet<Task::State::InProgress>()) {

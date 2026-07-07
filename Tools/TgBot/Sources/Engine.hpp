@@ -22,7 +22,6 @@ namespace OksEngine {
 		explicit Engine(const CreateInfo& createInfo) noexcept;
 
 		void Run() {
-			COMPONENT_TYPES_LIST();
 			isRunning_ = true;
 			while (IsRunning()) {
 				Update();

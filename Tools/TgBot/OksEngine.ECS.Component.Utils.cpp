@@ -1,3 +1,4 @@
+
 #include <OksEngine.ECS.Component.Utils.hpp>
 
 #define COMPONENT_TYPE_ID_TO_FULL_NAME_LAST(type)\
@@ -12,7 +13,7 @@
 #define COMPONENT_FULL_NAME_TO_TYPE_ID(type)\
     COMPONENT_FULL_NAME_TO_TYPE_ID__LAST(type),
 
-void BindComponents(lua_State* state);
+//void BindComponents(lua_State* state);
 void BindWorld(lua_State* state);
 
 
