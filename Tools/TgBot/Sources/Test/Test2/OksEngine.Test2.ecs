@@ -1,5 +1,14 @@
 
 Test2Namespace = {
+    Test1Component = {
+        bindable = true,
+        serializable = true,
+        fields = {
+            { type = "float", name = "x" },
+            { type = "Common::UInt64", name = "t" },
+            { type = "std::string", name = "str" }
+        }
+    },
     Test2Component = {
         bindable = true,
         serializable = true,
@@ -34,8 +43,22 @@ Test2Namespace = {
         }
     },
     TestChild1System = {
+        -- callOrder = {
+        --     runAfter = "TestMain1"
+        -- },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Test1"
+                    }
+                }
+            }
+        }
+    },
+    TestChild2System = {
         callOrder = {
-            runAfter = "TestMain1"
+            runAfter = { "TestMain1" }
         },
         updateMethod = {
             processesEntities = {
@@ -50,30 +73,17 @@ Test2Namespace = {
     TestMain2System = {
         thread = "Main",
         callOrder = {
-            runAfter = "TestChild1"
+            runAfter = { "TestChild1", "TestChild2" }
         },
         updateMethod = {
             processesEntities = {
                 {
                     processesComponents = {
-                        "Test2"
+                        { name = "Test2", readonly = false  }
                     }
                 }
             }
         }
     },
-    TestChild2System = {
-        callOrder = {
-            runAfter = { "TestChild1", "TestMain2" }
-        },
-        updateMethod = {
-            processesEntities = {
-                {
-                    processesComponents = {
-                        "Test2"
-                    }
-                }
-            }
-        }
-    },
+    
 }

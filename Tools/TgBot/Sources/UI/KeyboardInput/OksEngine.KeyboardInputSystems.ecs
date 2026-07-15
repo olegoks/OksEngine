@@ -1,0 +1,80 @@
+InputNamespace = {
+
+    CreateKeyboardEventsSystem = {
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "Input::HandleKeyboardEvents"
+                    },
+                    createsComponents = { "Input::KeyboardEvents" },
+                    excludes = { "Input::KeyboardEvents" }
+                }
+            }
+        }
+    },
+
+
+    GetWindowKeyboardEventsSystem = {
+        callOrder = {
+            runAfter = { "SystemMarks::FRAME_HEAD_START", "ProcessInput" },
+            runBefore = { "SystemMarks::FRAME_HEAD_END", "SendWindowKeyboardEvents" }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "MainWindow",     readonly = false },
+                        { name = "Input::KeyboardEvents", readonly = false }
+                    }
+                }
+            }
+        }
+    },
+
+    SendWindowKeyboardEventsSystem = {
+        callOrder = {
+            runAfter = { 
+                "SystemMarks::FRAME_HEAD_START",
+                "Input::GetWindowKeyboardEvents" },
+            runBefore = { 
+                "SystemMarks::FRAME_HEAD_END",
+                "ClearKeyboardEvents" }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "MainWindow",
+                        "Input::KeyboardEvents"
+                    }
+                },
+                {
+                    processesComponents = {
+                        "Input::HandleKeyboardEvents",
+                        { name = "Input::KeyboardEvents", readonly = false }
+                    },
+                    createsComponents = { "Input::KeyboardEvents" }
+                }
+            }
+        }
+
+    },
+
+
+    ClearKeyboardEventsSystem = {
+        callOrder = {
+            runAfter = { "SystemMarks::FRAME_TAIL_START" },
+            runBefore = { "SystemMarks::FRAME_TAIL_END" }
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        { name = "Input::KeyboardEvents", readonly = false }
+                    }
+                }
+            }
+        }
+    }
+}

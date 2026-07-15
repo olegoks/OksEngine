@@ -1,0 +1,7 @@
+ECS = {
+    Files = {
+        "./OksEngine.SystemMarks.ecs",
+        "./OksEngine.FPS.ecs",
+        "./FramesCounter/OksEngine.FramesCounter.ecs"
+    }
+}

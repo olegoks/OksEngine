@@ -1,0 +1,27 @@
+ConfigComponent = {
+
+}
+
+LoadConfigFileSystem = {
+    type = "Initialize",
+
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "CommandLineParameters",
+                    "ConfigFilePath"
+                }
+            }
+        },
+        createsEntities = {
+            {
+                createsComponents = {
+                    "Config",
+                    "LuaScript"
+                }
+            }
+        }
+    }
+}
+

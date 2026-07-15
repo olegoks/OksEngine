@@ -1,0 +1,81 @@
+
+-- Mouse keys
+GetWindowMouseEventsSystem = {
+    callOrder = {
+            runAfter = { "SystemMarks::FRAME_HEAD_START", "ProcessInput" },
+            runBefore = { "SystemMarks::FRAME_HEAD_END", "SendWindowMouseEvents" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MainWindow", readonly = false },
+                    { name = "MouseEvents", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+
+CreateMouseEventsSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "HandleMouseEvents"
+                },
+                createsComponents = { "MouseEvents" },
+                excludes = { "MouseEvents" }
+            }
+        }
+    }
+}
+
+SendWindowMouseEventsSystem = {
+    callOrder = {
+            runAfter = { 
+                "SystemMarks::FRAME_HEAD_START",
+                "GetWindowMouseEvents" },
+            runBefore = { 
+                "SystemMarks::FRAME_HEAD_END",
+                "ClearMouseEvents" }
+        },
+    updateMethod = {
+         processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    "MouseEvents"
+                }
+            },
+            {
+                processesComponents = {
+                    "HandleMouseEvents",
+                    { name = "MouseEvents", readonly = false }
+                },
+                createsComponents = { "MouseEvents" }
+            }
+        }
+    }
+   
+}
+
+
+
+ClearMouseEventsSystem = {
+    callOrder = {
+        runAfter = { "SystemMarks::FRAME_TAIL_START" },
+        runBefore = { "SystemMarks::FRAME_TAIL_END" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MouseEvents", readonly = false }
+                }
+            }
+        }
+    }
+}
+-- CUrsor

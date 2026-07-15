@@ -11,13 +11,13 @@ namespace OksEngine {
                 j++;
             }
         }
-        void TestChild1::Update(ECS2::Entity::Id entity0Id, const OksEngine::Test2::Test2* oKSENGINE__TEST2__TEST2) {
+        void TestChild1::Update(ECS2::Entity::Id entity0Id, const OksEngine::Test2::Test1* oKSENGINE__TEST2__TEST2) {
             Common::UInt64 j = 0;
             for (Common::Index i = 0; i < 100'000'000; i++) {
                 j++;
             }
         }
-        void TestMain2::Update(ECS2::Entity::Id entity0Id, const OksEngine::Test2::Test2* oKSENGINE__TEST2__TEST2) {
+        void TestMain2::Update(ECS2::Entity::Id entity0Id, OksEngine::Test2::Test2* oKSENGINE__TEST2__TEST2) {
             Common::UInt64 j = 0;
             for (Common::Index i = 0; i < 700'000'000; i++) {
                 j++;

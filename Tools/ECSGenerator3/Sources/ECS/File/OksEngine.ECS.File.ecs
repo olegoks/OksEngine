@@ -445,6 +445,13 @@ ECSNamespace = {
                         fields = {
                             { type = "std::vector<SystemInfo>", name = "systems" }
                         }
+                    },
+                    CallOrderArchetype = {
+                        components = {
+                            "CallOrder::Tag",
+                            "CallOrder::RunAfter",
+                            "CallOrder::RunBefore"
+                        }
                     }
                 },
                 UpdateMethodNamespace = {
@@ -651,15 +658,25 @@ ECSNamespace = {
                         }
                     },
                     UpdateMethodArchetype = {
+                        archetypes = {
+                            "Process::Entity::Entity",
+                            "Create::Entity::Entity",
+                            "Access::Entity::Entity"
+                        },
                         components = {
                             "Tag",
                             "Process::Entity::EntityIds",
                             "Create::Entity::EntityIds",
-                            "Access::Entity::EntityIds"
+                            "Access::Entity::EntityIds",
+                            
                         }
                     }
                 },
                 SystemArchetype = {
+                    archetypes = {
+                        "System::UpdateMethod::UpdateMethod",
+                        "System::CallOrder::CallOrder"
+                    },
                     components = {
                         "Table::Tag",
                         "System::Tag",
@@ -840,7 +857,8 @@ ECSNamespace = {
                     }
                 }
             },
-            CreateCallOrderAdditionalDependenciesSystem = {
+            ValidateCallOrderDependeciesSystem = {
+                description = "Find and set Entity ids in SystemInfo in RunAfter and RunBefore.",
                 type = "Initialize",
                 callOrder = {
                     runAfter = { "ECS::File::Table::Parse" }
@@ -857,6 +875,41 @@ ECSNamespace = {
                     accessingEntities = {
                         {
                             archetype = "File::Table::System::System"
+                        }
+                    },
+                    createsEntities = {
+                        {
+                            createsComponents = {
+                                "ECS::File::Table::System::CallOrder::EntityId",
+                                "ECS::File::Table::System::CallOrder::RunAfter",
+                                "ECS::File::Table::System::CallOrder::RunBefore",
+                            }
+                        }
+                    }
+                }
+            },
+
+            CreateCallOrderAdditionalDependenciesSystem = {
+                type = "Initialize",
+                callOrder = {
+                    runAfter = { "ECS::File::Table::ValidateCallOrderDependecies" }
+                },  
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ECS::Project::Tag",
+                                "ECS::Project::Path",
+                                "LuaScript"
+                            }
+                        },
+                    },
+                    accessingEntities = {
+                        {
+                            archetype = "File::Table::System::System"
+                        },
+                        {
+                            archetype = "File::Table::System::UpdateMethod::UpdateMethod"
                         },
                         {
                             accessingComponents = {

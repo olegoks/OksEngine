@@ -145,6 +145,7 @@ namespace OksEngine::ECS::File::Table {
 
 #define ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(tableTag, scope, name)\
 	[this]<typename TableTag>(ECS2::Entity::Id usageTableEntityId, const std::string& findingFullTableName) {\
+		BEGIN_PROFILE("ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME");\
 		ASSERT(OksEngine::ECS::File::Table::IsValidName(findingFullTableName));\
 		const std::string findingComponentName = ECS::File::Table::GetName(findingFullTableName);\
 		std::vector<std::string> systemNamespaceNames = ECS__FILE__TABLE__GET_SPLITED_NAMESPACE_NAMES(usageTableEntityId);\
@@ -198,12 +199,13 @@ namespace OksEngine::ECS::File::Table {
 			}\
 			});\
 		if (applicants.empty()) {\
-			ASSERT_FAIL();\
+			ASSERT_FAIL_FMSG("Can't find {} in context {}.", findingFullTableName, ECS__FILE__TABLE__GET_FULL_NAME(usageTableEntityId, "::", false));\
 		}\
 		std::sort(applicants.begin(), applicants.end(),\
 			[](std::pair<Common::Size, ECS2::Entity::Id>& first, std::pair<Common::Size, ECS2::Entity::Id>& second) {\
 				return	first.first < second.first;\
 			});\
+		END_PROFILE();\
 		return applicants.front().second;\
 	}.operator()<tableTag>(scope, name);\
 
@@ -231,5 +233,145 @@ namespace OksEngine::ECS::File::Table {
 		hppFileRelativePath = hppFileRelativePath.parent_path() / ("auto_" + hppFileRelativePath.stem().string() + extensionStr);\
 		return hppFileRelativePath;\
 	}(file, projectFilePath, extension)
+
+#define ECS__FILE__TABLE__SYSTEM__GET_WRITE_COMPONENT_ENTITY_IDS(system)																											\
+	[this](ECS2::Entity::Id systemEntityId){																																		\
+		ASSERT(IsComponentExist<ECS::File::Table::System::Tag>(systemEntityId));																									\
+		std::vector<ECS2::Entity::Id> writeComponents;																																\
+		if (IsComponentExist<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId)) {																					\
+			ECS2::Entity::Id updateMethodEntityId																																	\
+			= GetComponent<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId)->id_;																					\
+			ECS2::ComponentsFilter updateMethodCF = GetComponentsFilter(updateMethodEntityId);																						\
+			if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)) {														\
+				std::vector<ECS2::Entity::Id> processesEntities																														\
+					= GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)->entityIds_;											\
+				for (ECS2::Entity::Id processesEntity : processesEntities) {																										\
+					const auto& processComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::ProcessComponents>(processesEntity)->componentInfos_;	\
+					for (auto& processComponentInfo : processComponentInfos) {																										\
+						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(																			\
+							ECS::File::Table::Component::Tag,																														\
+							systemEntityId,																																			\
+							processComponentInfo.name_);																															\
+						if (!processComponentInfo.readonly_) {																														\
+							writeComponents.push_back(componentEntityId);																											\
+						}																																							\
+					}																																								\
+				}																																									\
+			}																																										\
+			if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Access::Entity::EntityIds>(updateMethodEntityId)) {														\
+				std::vector<ECS2::Entity::Id> accessesEntities																														\
+					= GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::EntityIds>(updateMethodEntityId)->entityIds_;											\
+				for (ECS2::Entity::Id accessEntity : accessesEntities) {																											\
+					const auto& accessComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::AccessComponents>(accessEntity)->components_;			\
+					for (auto& accessComponentInfo : accessComponentInfos) {																										\
+						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(																			\
+							ECS::File::Table::Component::Tag,																														\
+							systemEntityId,																																			\
+							accessComponentInfo.name_);																																\
+						if (!accessComponentInfo.readonly_) {																														\
+							writeComponents.push_back(componentEntityId);																											\
+						}																																							\
+					}																																								\
+				}																																									\
+			}																																										\
+		}																																											\
+		return writeComponents;																																						\
+	}(system)
+
+
+#define ECS__FILE__TABLE__SYSTEM__GET_READ_COMPONENT_ENTITY_IDS(system)																												\
+	[this](ECS2::Entity::Id systemEntityId){																																		\
+		ASSERT(IsComponentExist<ECS::File::Table::System::Tag>(systemEntityId));																									\
+		std::vector<ECS2::Entity::Id> readComponents;																																\
+		if (IsComponentExist<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId)) {																					\
+			ECS2::Entity::Id updateMethodEntityId																																	\
+			= GetComponent<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId)->id_;																					\
+			ECS2::ComponentsFilter updateMethodCF = GetComponentsFilter(updateMethodEntityId);																						\
+			if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)) {														\
+				std::vector<ECS2::Entity::Id> processesEntities																														\
+					= GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)->entityIds_;											\
+				for (ECS2::Entity::Id processesEntity : processesEntities) {																										\
+					const auto& processComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::ProcessComponents>(processesEntity)->componentInfos_;	\
+					for (auto& processComponentInfo : processComponentInfos) {																										\
+						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(																			\
+							ECS::File::Table::Component::Tag,																														\
+							systemEntityId,																																			\
+							processComponentInfo.name_);																															\
+						if (processComponentInfo.readonly_) {																														\
+							readComponents.push_back(componentEntityId);																											\
+						}																																							\
+					}																																								\
+				}																																									\
+			}																																										\
+			if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Access::Entity::EntityIds>(updateMethodEntityId)) {														\
+				std::vector<ECS2::Entity::Id> accessesEntities																														\
+					= GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::EntityIds>(updateMethodEntityId)->entityIds_;											\
+				for (ECS2::Entity::Id accessEntity : accessesEntities) {																											\
+					const auto& accessComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::AccessComponents>(accessEntity)->components_;			\
+					for (auto& accessComponentInfo : accessComponentInfos) {																										\
+						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(																			\
+							ECS::File::Table::Component::Tag,																														\
+							systemEntityId,																																			\
+							accessComponentInfo.name_);																																\
+						if (accessComponentInfo.readonly_) {																														\
+							readComponents.push_back(componentEntityId);																											\
+						}																																							\
+					}																																								\
+				}																																									\
+			}																																										\
+		}																																											\
+		return readComponents;																																						\
+	}(system)
+
+#define ECS__FILE__TABLE__SYSTEM__HAS_RUN_BEFORE_SYSTEMS(systemE)																									\
+	[this](ECS2::Entity::Id systemEntityId) -> bool {																												\
+		ECS2::Entity::Id callOrderEntityId = GetComponent<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(systemEntityId)->id_;							\
+		const ECS::File::Table::System::CallOrder::RunBefore* systemRunBefore = GetComponent<ECS::File::Table::System::CallOrder::RunBefore>(callOrderEntityId);	\
+		return !systemRunBefore->systems_.empty();																													\
+	}(systemE)
+
+#define ECS__FILE__TABLE__SYSTEM__HAS_RUN_AFTER_SYSTEMS(systemE)																									\
+	[this](ECS2::Entity::Id systemEntityId) -> bool {																												\
+		ECS2::Entity::Id callOrderEntityId = GetComponent<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(systemEntityId)->id_;							\
+		const ECS::File::Table::System::CallOrder::RunAfter* systemRunAfter = GetComponent<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId);		\
+		return !systemRunAfter->systems_.empty();																													\
+	}(systemE)
+
+
+#define ECS__FILE__TABLE__SYSTEM__ADD_RUN_BEFORE_SYSTEM(systemE, runBeforeSystem)																					\
+	[this](ECS2::Entity::Id systemEntityId, ECS2::Entity::Id runBeforeSystemEntityId) {																				\
+		if(IsComponentExist<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(systemEntityId)){																\
+			ECS2::Entity::Id callOrderEntityId = GetComponent<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(systemEntityId)->id_;						\
+			if (IsComponentExist<ECS::File::Table::System::CallOrder::RunBefore>(callOrderEntityId)) {																\
+				ECS::File::Table::System::CallOrder::RunBefore* systemRunBefore = GetComponent<ECS::File::Table::System::CallOrder::RunBefore>(callOrderEntityId);	\
+				auto it = std::find_if(systemRunBefore->systems_.begin(), systemRunBefore->systems_.end(), [runBeforeSystemEntityId](auto& systemInfo){				\
+					ASSERT(systemInfo.id_.IsValid());																												\
+					ASSERT(OksEngine::ECS::File::Table::IsValidName(systemInfo.name_));																				\
+					return systemInfo.id_ == runBeforeSystemEntityId;																								\
+				});																																					\
+				if(it == systemRunBefore->systems_.end()){																											\
+					systemRunBefore->systems_.push_back({ runBeforeSystemEntityId, ECS__FILE__TABLE__GET_FULL_NAME(runBeforeSystemEntityId, "::", false) });		\
+				}																																					\
+			}																																						\
+		}																																							\
+	}(systemE, runBeforeSystem)
+
+#define ECS__FILE__TABLE__SYSTEM__ADD_RUN_AFTER_SYSTEM(systemE, runAfterSystem)																						\
+	[this](ECS2::Entity::Id systemEntityId, ECS2::Entity::Id runAfterSystemEntityId) {																				\
+		if(IsComponentExist<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(systemEntityId)){																\
+			ECS2::Entity::Id callOrderEntityId = GetComponent<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(systemEntityId)->id_;						\
+			if (IsComponentExist<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId)) {																\
+				ECS::File::Table::System::CallOrder::RunAfter* systemRunAfter = GetComponent<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId);		\
+				auto it = std::find_if(systemRunAfter->systems_.begin(), systemRunAfter->systems_.end(), [runAfterSystemEntityId](auto& systemInfo){				\
+					ASSERT(systemInfo.id_.IsValid());																												\
+					ASSERT(OksEngine::ECS::File::Table::IsValidName(systemInfo.name_));																				\
+					return systemInfo.id_ == runAfterSystemEntityId;																								\
+				});																																					\
+				if(it == systemRunAfter->systems_.end()){																											\
+					systemRunAfter->systems_.push_back({ runAfterSystemEntityId, ECS__FILE__TABLE__GET_FULL_NAME(runAfterSystemEntityId, "::", false) });			\
+				}																																					\
+			}																																						\
+		}																																							\
+	}(systemE, runAfterSystem)
 
 }

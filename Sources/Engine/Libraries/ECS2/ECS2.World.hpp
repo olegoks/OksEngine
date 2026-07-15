@@ -397,10 +397,12 @@ namespace ECS2 {
 				std::shared_ptr<IArchetypeComponents> archetypeComponents = archetypeComponents_[componentsFilter];
 				return archetypeComponents->GetComponent<ComponentType>(entityId);
 			}
+			//Dynamic entity.
 			else {
 				ASSERT_FMSG(
 					dynamicEntitiesContainers_.contains(ComponentType::GetTypeId()),
 					"Attempt to get component that doesn't exist.");
+				ASSERT_FMSG(IsComponentExist<ComponentType>(entityId), "Dynamic entity with id {} doesnt have need component {}", entityId.GetRawValue(), ComponentType::GetName());
 
 				auto containerIt = dynamicEntitiesContainers_.find(ComponentType::GetTypeId());
 				if (containerIt != dynamicEntitiesContainers_.end()) {

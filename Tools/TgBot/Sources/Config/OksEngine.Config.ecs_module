@@ -1,0 +1,5 @@
+ECS = {
+    Files = {
+        "./OksEngine.Config.ecs"
+    }
+}

@@ -21,6 +21,30 @@ ECS = {
         { 
             IncludePath = '/Sources',
             Paths = { 
+                './Sources/UI/OksEngine.UI.ecs_module'
+            }
+        },
+        { 
+            IncludePath = '/Sources',
+            Paths = { 
+                './Sources/Clock/OksEngine.Clock.ecs_module'
+            }
+        },
+        { 
+            IncludePath = '/Sources',
+            Paths = { 
+                './Sources/Config/OksEngine.Config.ecs_module'
+            }
+        },
+        { 
+            IncludePath = '/Sources',
+            Paths = { 
+                './Sources/Engine/OksEngine.Engine.ecs_module'
+            }
+        },
+        { 
+            IncludePath = '/Sources',
+            Paths = { 
                 './Sources/Common/Common.ecs_module'
             }
         }

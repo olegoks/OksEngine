@@ -1,0 +1,69 @@
+UINamespace = {
+    WindowNamespace = {
+        TagComponent = {
+            serializable = false
+        },
+        EntityIdComponent = {
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+        EntityIdsComponent = {
+            fields = {
+                { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+            }
+        },
+        HandleComponent = {
+            serializable = false,
+            fields = {
+                { type = "class ::GLFWwindow*", name = "glfwWindowPtr" }
+            }
+        },
+        --Initialize components.
+        ConfigNamespace = {
+            TagComponent = {
+                serializable = false
+            },
+            EntityIdComponent = {
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "id" }
+                }
+            },
+            EntityIdsComponent = {
+                fields = {
+                    { type = "std::vector<ECS2::Entity::Id>", name = "ids" }
+                }
+            },
+            TitleComponent = {
+                fields = {
+                    { type = "std::string", name = "text" }
+                }
+            },
+            SizeComponent = {
+                fields = {
+                    { type = "Common::UInt64", name = "width" },
+                    { type = "Common::UInt64", name = "height" }
+                }
+            },
+            ConfigArchetype = {
+                components = {
+                    "Config::Tag",
+                    "Window::EntityId",
+                    "Config::Title",
+                    "Config::Size"
+                }
+            }
+        },
+        WindowArchetype = {
+            components = {
+                "Window::Tag",
+                "Window::Handle",
+                "Window::Config::EntityId"
+            },
+            archetypes = {
+                "Window::Config::Config"
+            }
+        },
+
+    }
+}

@@ -262,7 +262,6 @@ namespace OksEngine
 
 						code += GetComponent<CPP::Tree::Node::Name>(entityId)->name_;
 
-
 						if (IsComponentExist<CPP::Tree::Decl::ExplicitTemplateArgs>(entityId)) {
 							ASSERT(!nodeCF.IsSet<CPP::Tree::Decl::Constructor>());
 							std::vector<ECS2::Entity::Id> explicitTemplateParamEntityIds = GetComponent<CPP::Tree::Decl::ExplicitTemplateArgs>(entityId)->templateArgs_;

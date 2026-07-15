@@ -1,0 +1,166 @@
+
+ClockComponent = {
+    serializable = false,
+}
+
+PauseClockComponent = {
+    serializable = false
+}
+
+EngineStartTimePointComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::chrono::high_resolution_clock::time_point", name = "timepoint" }
+    }
+}
+
+TimeSinceEngineStartComponent = {
+    serializable = false,
+    fields = { 
+        { type = "Common::UInt64", name = "microseconds" }
+    }
+}
+
+TimeSinceEpochComponent = {
+    serializable = false,
+    fields = { 
+        { type = "Common::UInt64", name = "microseconds" }
+    }
+}
+
+FrameStartTimePointComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::chrono::high_resolution_clock::time_point", name = "timepoint" }
+    }
+}
+
+FrameEndTimePointComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::chrono::high_resolution_clock::time_point", name = "timepoint" }
+    }
+}
+
+PreviousFrameDurationComponent = {
+    serializable = false,
+    fields = { 
+        { type = "Common::UInt64", name = "microseconds" }
+    }
+}
+
+CreateClockEntitySystem = {
+    type = "Initialize",
+    updateMethod = {
+        createsEntities = {
+            {
+                createsComponents = {
+                    "Name",
+                    "Clock",
+                    "TimeSinceEpoch",
+                    "TimeSinceEngineStart",
+                    "EngineStartTimePoint",
+                    "FrameStartTimePoint",
+                    "PreviousFrameDuration"
+                }
+            }
+        }
+    }
+}
+
+UpdateFrameStartTimePointSystem = {
+    callOrder = {
+            runAfter = "SystemMarks::FRAME_HEAD_START",
+            runBefore = "SystemMarks::FRAME_HEAD_END"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "FrameStartTimePoint", readonly = false }
+                },
+                excludes = {
+                    "PauseClock"
+                }
+            }
+        }
+    }
+}
+
+UpdateFrameEndTimePointSystem = {
+    callOrder = {
+            runAfter = "SystemMarks::FRAME_TAIL_START",
+            runBefore = "SystemMarks::FRAME_TAIL_END"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "FrameEndTimePoint", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+UpdateTimeSinceEpochSystem = {
+    callOrder = {
+            runAfter = "SystemMarks::FRAME_HEAD_START",
+            runBefore = "SystemMarks::FRAME_HEAD_END"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "TimeSinceEpoch", readonly = false }
+                },
+                excludes = {
+                    "PauseClock"
+                }
+            }
+        }
+    }
+}
+
+UpdateTimeSinceEngineStartSystem = {
+    callOrder = {
+            runAfter = "SystemMarks::FRAME_HEAD_START",
+            runBefore = { "SystemMarks::FRAME_HEAD_END",
+            --test
+            --"SystemMarks::FRAME_HEAD_START"
+             }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "TimeSinceEngineStart", readonly = false },
+                    "EngineStartTimePoint"
+                },
+                excludes = {
+                    "PauseClock"
+                }
+            }
+        }
+    }
+}
+
+UpdatePreviousFrameDurationSystem = {
+    description = "Use previous frame start point to calculate Previous frame duration.",
+    callOrder = {
+            runAfter = "SystemMarks::FRAME_HEAD_START",
+            runBefore = { 
+                "SystemMarks::FRAME_HEAD_END",
+                "UpdateFrameStartTimePoint" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = { 
+                    { name = "PreviousFrameDuration", readonly = false },
+                    "FrameStartTimePoint"
+                }
+            }
+        }
+    }
+}

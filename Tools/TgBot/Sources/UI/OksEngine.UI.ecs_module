@@ -1,0 +1,14 @@
+ECS = {
+    Files = {
+        "CursorInput/OksEngine.CursorInput.ecs",
+        "CursorInput/OksEngine.CursorInputSystems.ecs",
+        "KeyboardInput/OksEngine.KeyboardInput.ecs",
+        "KeyboardInput/OksEngine.KeyboardInputSystems.ecs",
+        "KeyMappings/OksEngine.KeyMappings.ecs",
+        "MainWindow/OksEngine.MainWindow.ecs",
+        "MainWindow/OksEngine.Window.ecs",
+        "MouseInput/OksEngine.MouseInput.ecs",
+        "MouseInput/OksEngine.MouseInputSystems.ecs",
+        "Window/UI.Window.ecs"
+    }
+}

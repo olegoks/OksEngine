@@ -1,0 +1,81 @@
+
+CreateCursorEventsSystem = {
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "HandleCursorEvents"
+                },
+                createsComponents = { "CursorEvents" },
+                excludes = { "CursorEvents" }
+            }
+        }
+    }
+}
+
+GetWindowCursorEventsSystem = {
+    callOrder = {
+            runAfter = { "SystemMarks::FRAME_HEAD_START", "ProcessInput" },
+            runBefore = { "SystemMarks::FRAME_HEAD_END", "SendWindowCursorEvents" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MainWindow", readonly = false },
+                    { name = "CursorEvents", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+
+
+
+SendWindowCursorEventsSystem = {
+    callOrder = {
+            runAfter = { 
+                "SystemMarks::FRAME_HEAD_START",
+                "GetWindowCursorEvents" },
+            runBefore = { 
+                "SystemMarks::FRAME_HEAD_END",
+                "ClearCursorEvents" }
+        },
+    updateMethod = {
+         processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    "CursorEvents"
+                }
+            },
+            {
+                processesComponents = {
+                    "HandleCursorEvents",
+                    { name = "CursorEvents", readonly = false }
+                },
+                createsComponents = { "CursorEvents" }
+            }
+        }
+    }
+   
+}
+
+
+
+ClearCursorEventsSystem = {
+    callOrder = {
+        runAfter = { "SystemMarks::FRAME_TAIL_START" },
+        runBefore = { "SystemMarks::FRAME_TAIL_END" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "CursorEvents", readonly = false }
+                }
+            }
+        }
+    }
+}

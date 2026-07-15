@@ -258,6 +258,9 @@ ECSNamespace = {
                         archetype = "File::Table::System::UpdateMethod::Process::Entity::Entity"
                     },
                     {
+                        archetype = "File::Table::System::UpdateMethod::Access::Entity::Entity"
+                    },
+                    {
                         accessingComponents = {
                             "File::Table::System::CallOrder::EntityId",
                             "File::Table::System::CallOrder::Tag",

@@ -1,0 +1,111 @@
+-- Empty systems with no realization to simplify systems execution graph creation.
+
+    SystemMarksNamespace = {
+
+        ConnectionComponent = {
+        },
+        CreateConnectionEntitySystem = {
+            type = "Initialize",
+            updateMethod = {
+                createsEntities = {
+                    {
+                        createsComponents = {
+                            "Connection"
+                        }
+                    }
+                }
+            }
+        },
+
+        --Frame start
+        FRAME_HEAD_STARTSystem = {
+
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "Connection" }
+                        }
+                    }
+                }
+            }
+        },
+
+        FRAME_HEAD_ENDSystem = {
+            callOrder = {
+                runAfter = "FRAME_HEAD_START"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "Connection" }
+                        }
+                    }
+                }
+            }
+        },
+
+        --Frame body
+        FRAME_BODY_STARTSystem = {
+            callOrder = {
+                runAfter = "FRAME_HEAD_END"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "Connection" }
+                        }
+                    }
+                }
+            }
+        },
+
+        FRAME_BODY_ENDSystem = {
+            callOrder = {
+                runAfter = "FRAME_BODY_START"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "Connection" }
+                        }
+                    }
+                }
+            }
+        },
+
+        --Frame end
+        FRAME_TAIL_STARTSystem = {
+            callOrder = {
+                runAfter = "FRAME_BODY_END"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "Connection" }
+                        }
+                    }
+                }
+            }
+        },
+
+        FRAME_TAIL_ENDSystem = {
+            callOrder = {
+                runAfter = "FRAME_TAIL_START"
+            },
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            { name = "Connection" }
+                        }
+                    }
+                }
+            }
+        },
+
+    }

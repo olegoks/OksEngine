@@ -1,0 +1,171 @@
+MainWindowComponent = {
+    bindable = false,
+    serializable = false,
+    fields = { 
+        { type = "std::shared_ptr<UI_::Window>", name = "window" }
+     }
+}
+
+CreateMainWindowSystem = {
+    type = "Initialize",
+    callOrder = {
+        runAfter = "LoadConfigFile"
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                 processesComponents = {
+                    "Config",
+                    "LuaScript"
+                }
+            }
+        },
+        createsEntities = { 
+        {
+            createsComponents = {
+                "MainWindow",
+                "Input::KeyboardEvents",
+                "MouseEvents",
+                "CursorEvents",
+                "MainWindowFramebufferResizeEvent",
+                "MainWindowWorkAreaSize",
+                "MainWindowFramebufferSize"
+            }
+        }
+    }
+    }
+    
+}
+
+
+ProcessInputSystem = {
+    thread = "Main",
+    callOrder = {
+        runAfter = { "SystemMarks::FRAME_HEAD_START" },
+        runBefore = { "SystemMarks::FRAME_HEAD_END" }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    { name = "MainWindow", readonly = false}
+                }
+            }
+        }
+    }
+}
+
+MainWindowWorkAreaSizeComponent = {
+    fields = {
+        { type = "Common::UInt64", name = "width" },
+        { type = "Common::UInt64", name = "height" }
+    }
+}
+
+MainWindowFramebufferSizeComponent = {
+    fields = {
+        { type = "Common::UInt64", name = "width" },
+        { type = "Common::UInt64", name = "height" }
+    }
+}
+
+MainWindowFramebufferResizeEventComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::queue<UIAL::Window::FrameBufferResizeEvent>", name = "events" }
+     }
+}
+
+
+GetWindowFramebufferResizeEventsSystem = {
+    callOrder = {
+        runAfter = {
+            "SystemMarks::FRAME_HEAD_START"
+        },
+        runBefore = {
+            "SystemMarks::FRAME_HEAD_END"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    { name = "MainWindowFramebufferResizeEvent", readonly = false },
+                    { name = "MainWindowFramebufferSize", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+ClearWindowFramebufferResizeEventsSystem = {
+    callOrder = {
+        runAfter = {
+            "SystemMarks::FRAME_TAIL_START"
+        },
+        runBefore = {
+            "SystemMarks::FRAME_TAIL_END"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    { name = "MainWindowFramebufferResizeEvent", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+MainWindowWorkAreaResizeEventComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::queue<UIAL::Window::WorkAreaResizeEvent>", name = "events" }
+     }
+}
+
+GetWindowWorkAreaResizeEventsSystem = {
+    callOrder = {
+        runAfter = {
+            "SystemMarks::FRAME_HEAD_START"
+        },
+        runBefore = {
+            "SystemMarks::FRAME_HEAD_END"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    { name = "MainWindowWorkAreaResizeEvent", readonly = false },
+                    { name = "MainWindowWorkAreaSize", readonly = false }
+                }
+            }
+        }
+    }
+}
+
+ClearWindowWorkAreaResizeEventsSystem = {
+    callOrder = {
+        runAfter = {
+            "SystemMarks::FRAME_TAIL_START"
+        },
+        runBefore = {
+            "SystemMarks::FRAME_TAIL_END"
+        }
+    },
+    updateMethod = {
+        processesEntities = {
+            {
+                processesComponents = {
+                    "MainWindow",
+                    { name = "MainWindowWorkAreaResizeEvent", readonly = false }
+                }
+            }
+        }
+    }
+}
