@@ -260,6 +260,14 @@ namespace OksEngine
 							code += CPP_SPACE_STR;
 						}
 
+						if (nodeCF.IsSet<CPP::Tree::Decl::Constructor>()) {
+							const ECS2::Entity::Id parentEntityId = GetComponent<CPP::Tree::Decl::Constructor>(entityId)->parentDecl_;
+							if (parentEntityId.IsValid()) {
+								code += GetComponent<CPP::Tree::Node::Name>(parentEntityId)->name_;
+								code += "::";
+							}
+						}
+
 						code += GetComponent<CPP::Tree::Node::Name>(entityId)->name_;
 
 						if (IsComponentExist<CPP::Tree::Decl::ExplicitTemplateArgs>(entityId)) {
@@ -364,21 +372,27 @@ namespace OksEngine
 					}
 					else if (nodeCF.IsSet<CPP::Tree::Decl::Class_>()) {
 						ASSERT(nodeCF.IsSet<CPP::Tree::Decl::Tag>());
-						code += CPP_CLASS_STR + CPP_SPACE_STR + GetComponent<CPP::Tree::Node::Name>(entityId)->name_ + "{";
+						code += CPP_CLASS_STR + CPP_SPACE_STR + GetComponent<CPP::Tree::Node::Name>(entityId)->name_;
 
-						auto classChilds = GetComponent<CPP::Tree::Node::ChildEntityIds>(entityId)->ids_;
+						if (IsComponentExist<CPP::Tree::Node::ChildEntityIds>(entityId)) {
+							auto classChilds = GetComponent<CPP::Tree::Node::ChildEntityIds>(entityId)->ids_;
+							if (!classChilds.empty()) {
+								code += "{";
+								for (ECS2::Entity::Id classChildEntityId : classChilds) {
+									ECS2::ComponentsFilter childComponentsFilter = GetComponentsFilter(classChildEntityId);
+									if (childComponentsFilter.IsSet<CPP::Tree::Decl::Variable>()) {
+										processNode(classChildEntityId);
+									}
+									else if (childComponentsFilter.IsSet<CPP::Tree::Decl::Function>()) {
+										processNode(classChildEntityId);
+									}
 
-						for (ECS2::Entity::Id classChildEntityId : classChilds) {
-							ECS2::ComponentsFilter childComponentsFilter = GetComponentsFilter(classChildEntityId);
-							if (childComponentsFilter.IsSet<CPP::Tree::Decl::Variable>()) {
-								processNode(classChildEntityId);
-							}
-							else if (childComponentsFilter.IsSet<CPP::Tree::Decl::Function>()) {
-								processNode(classChildEntityId);
+								}
+								code += "}";
 							}
 
 						}
-						code += "};";
+						code += ";";
 					}
 					else if (nodeCF.IsSet<CPP::Tree::Decl::Enum_>()) {
 						ASSERT(nodeCF.IsSet<CPP::Tree::Decl::Tag>());
@@ -636,7 +650,7 @@ namespace OksEngine
 						}
 						code += CPP_SPACE_STR;
 						code += nameTypeInitializer->name_;
-						
+
 					}
 					else {
 						NOT_IMPLEMENTED();

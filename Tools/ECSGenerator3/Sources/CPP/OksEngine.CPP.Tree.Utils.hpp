@@ -580,11 +580,12 @@ using namespace std::string_literals;
 			return functionEntityId;\
 		}(function, returnValue, templateParams, name,templateExplicitParams, parent, childs)
 
-#define CPP__TREE__DECL__CREATE_CONSTRUCTOR(name, initializers, parent, childs)\
+#define CPP__TREE__DECL__CREATE_CONSTRUCTOR(name, initializers, parent, parentDecl, childs)\
 	[this](\
 		const std::string& constructorName,\
 		std::vector<ECS2::Entity::Id> initializerEntityIds,\
 		ECS2::Entity::Id parentEntityId,\
+		ECS2::Entity::Id parentDeclEntityId, \
 		std::vector<ECS2::Entity::Id> childEntityId){\
 		ECS2::Entity::Id constructorEntityId = CreateEntity();\
 		CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(\
@@ -596,32 +597,32 @@ using namespace std::string_literals;
 			parentEntityId,\
 			childEntityId\
 			);\
-		CreateComponent<CPP::Tree::Decl::Constructor>(constructorEntityId);\
+		CreateComponent<CPP::Tree::Decl::Constructor>(constructorEntityId, parentDeclEntityId);\
 		if(!initializerEntityIds.empty()) {\
 			CreateComponent<CPP::Tree::ConstructorInitList>(constructorEntityId, initializerEntityIds);\
 		}\
 		return constructorEntityId;\
-		}(name, initializers, parent, childs)
+		}(name, initializers, parent, parentDecl, childs)
 
-#define CPP__TREE__DECL__CREATE_EMPTY_CONSTRUCTOR(name, parent)\
-	[this](const std::string& constructorName,ECS2::Entity::Id parentEntityId){\
+#define CPP__TREE__DECL__CREATE_EMPTY_CONSTRUCTOR(name, parent, parentDecl)\
+	[this](const std::string& constructorName,ECS2::Entity::Id parentEntityId, ECS2::Entity::Id parentDeclEntityId){\
 		ECS2::Entity::Id constructorEntityId = CreateEntity();\
 		CPP__TREE__DECL__CREATE_CONSTRUCTOR(\
 			constructorName,\
 			std::vector<ECS2::Entity::Id>{},\
-			parentEntityId, std::vector<ECS2::Entity::Id>{CPP__TREE__STMT__CREATE_EMPTY_COMPOUND_STATEMENT()});\
+			parentEntityId, parentDeclEntityId, std::vector<ECS2::Entity::Id>{CPP__TREE__STMT__CREATE_EMPTY_COMPOUND_STATEMENT()});\
 		return constructorEntityId;\
-		}(name, parent)
+		}(name, parent, parentDecl)
 
-#define CPP__TREE__DECL__CREATE_PUBLIC_EMPTY_CONSTRUCTOR(name, parent)\
-	[this](const std::string& constructorName,ECS2::Entity::Id parentEntityId){\
+#define CPP__TREE__DECL__CREATE_PUBLIC_EMPTY_CONSTRUCTOR(name, parent, parentDecl)\
+	[this](const std::string& constructorName,ECS2::Entity::Id parentEntityId, ECS2::Entity::Id parentDeclEntityId){\
 		ECS2::Entity::Id constructorEntityId = CPP__TREE__DECL__CREATE_CONSTRUCTOR(\
 			constructorName,\
 			std::vector<ECS2::Entity::Id>{},\
-			parentEntityId, std::vector<ECS2::Entity::Id>{CPP__TREE__STMT__CREATE_EMPTY_COMPOUND_STATEMENT()});\
+			parentEntityId,parentDeclEntityId, std::vector<ECS2::Entity::Id>{CPP__TREE__STMT__CREATE_EMPTY_COMPOUND_STATEMENT()});\
 		CreateComponent<CPP::Tree::Access::Public_>(constructorEntityId);\
 		return constructorEntityId;\
-		}(name, parent)
+		}(name, parent, parentDecl)
 
 
 

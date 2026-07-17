@@ -1,5 +1,5 @@
 #pragma once
-#include <Common\Clock\auto_OksEngine.Clock.hpp>
+#include <Clock\auto_OksEngine.Clock.hpp>
 
 #include <chrono>
 
@@ -9,7 +9,6 @@ namespace OksEngine
 		
 		const ECS2::Entity::Id entityId = CreateEntity();
 
-		CreateComponent<Name>(entityId, "Clock");
 		CreateComponent<Clock>(entityId);
 		CreateComponent<TimeSinceEngineStart>(entityId, 0);
 

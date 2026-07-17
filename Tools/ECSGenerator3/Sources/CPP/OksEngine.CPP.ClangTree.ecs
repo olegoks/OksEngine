@@ -172,7 +172,16 @@ CPPNamespace = {
             },
             ConstructorComponent = {
                 serializable = false,
-                bindable = false
+                bindable = false,
+                description = 
+                    [[
+                        Set parentDecl entity to generate owner prefix: Type:: before constructor name.
+                        With: Type::Type().
+                        Without Type().
+                    ]],
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "parentDecl" } -- 
+                }
             },
             Class_Component = {
                 serializable = false,
@@ -792,6 +801,7 @@ CPPNamespace = {
                             "CPP::Tree::Decl::Enumerator",
                             "CPP::Tree::Decl::Variable",
                             "CPP::Tree::Decl::Parameter",
+                            "CPP::Tree::Decl::Constructor",
                             "CPP::Tree::Decl::Namespace_",
                             "CPP::Tree::Decl::TemplateDecl",
                             "CPP::Tree::Decl::ExplicitTemplateArgs",
