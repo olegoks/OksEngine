@@ -51,6 +51,12 @@ ECSNamespace = {
                     { type = "std::vector<ECS2::Entity::Id>", name = "entityIds" }
                 }
             },
+            DefinitionOrderComponent = {
+                description = "Need for correct cpp code generation, to follow .ecs abtractions order in .cpp/.hpp files.",
+                fields = {
+                    { type = "Common::Index", name = "orderIndex" }
+                }
+            },
             ChildTablesEntityIdsComponent = {
                 serializable = false,
                 bindable = false,
@@ -241,6 +247,7 @@ ECSNamespace = {
                         "Component::ManualParseFunction",
                         "Component::ManualSerializeFunction",
                         "Table::Name",
+                        "Table::DefinitionOrder",
                         "Table::ParentTableEntityId",
                         "Table::Component::Field::EntityIds",
                         "File::EntityId"
@@ -278,6 +285,7 @@ ECSNamespace = {
                         "Table::Tag",
                         "Enum::Tag",
                         "Table::Name",
+                        "Table::DefinitionOrder",
                         "Enum::Values",
                         "Table::ParentTableEntityId",
                         "File::EntityId"
@@ -371,6 +379,7 @@ ECSNamespace = {
                         "Table::Tag",
                         "Struct::Tag",
                         "Table::Name",
+                        "Table::DefinitionOrder",
                         "Struct::Field::EntityIds",
                         "Table::ParentTableEntityId",
                         "File::EntityId"
@@ -681,6 +690,7 @@ ECSNamespace = {
                         "Table::Tag",
                         "System::Tag",
                         "Table::Name",
+                        "Table::DefinitionOrder",
                         "System::Type",
                         "System::Thread",
                         "CallOrder::EntityId",
@@ -726,6 +736,7 @@ ECSNamespace = {
                         "Constant::TypeName",
                         "Constant::Value",
                         "Table::Name",
+                        "Table::DefinitionOrder",
                         "Table::ParentTableEntityId",
                         "Table::ChildTablesEntityIds",
                         "File::EntityId"
@@ -773,6 +784,7 @@ ECSNamespace = {
                         "Table::Tag",
                         "Archetype::Tag",
                         "Table::Name",
+                        "Table::DefinitionOrder",
                         "Archetype::Components",
                         "Archetype::Archetypes",
                         "Table::ParentTableEntityId",
@@ -820,6 +832,7 @@ ECSNamespace = {
                         "Table::Tag",
                         "Bundle::Tag",
                         "Table::Name",
+                        "Table::DefinitionOrder",
                         "Bundle::Components",
                         "Bundle::Bundles",
                         "Table::ParentTableEntityId",

@@ -91,6 +91,7 @@ target_link_libraries(TgBot
     Config
     ECS2
     ImGui
+    UI
     )
 
 message("ZLIB_FOUND: ${ZLIB_FOUND}")

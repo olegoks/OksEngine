@@ -37,7 +37,7 @@ namespace OksEngine
 		
 		};
 
-		void BindKeyMappings(::Lua::Context& context) {
+		void BindKeyMappings(lua_State& state) {
 		
 		
 		

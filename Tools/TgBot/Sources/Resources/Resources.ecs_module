@@ -1,0 +1,6 @@
+ECS = {
+    Files = {
+        "./OksEngine.Resource.Path.ecs",
+        "./OksEngine.ResourceSystem.ecs",
+    }
+}

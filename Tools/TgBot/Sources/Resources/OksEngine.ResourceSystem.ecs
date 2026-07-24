@@ -1,0 +1,169 @@
+ResourceNamespace = {
+
+	TagComponent = {
+		bindable = false,
+		serializable = false
+	},
+	DataComponent = {
+		bindable = false,
+		serializable = false,
+		fields = {
+			{ type = "std::vector<Common::Byte>", name = "data" }
+		}
+	},
+	ResourceArchetype = {
+		components = {
+			"Resource::Tag",
+			"Resource::Path",
+			"Resource::Data"
+		}
+	},
+	EntityIdComponent = {
+		bindable = false,
+		serializable = false,
+		fields = { { type = "ECS2::Entity::Id", name = "id" } }
+	},
+	ManagerNamespace = {
+		TagComponent = {
+			bindable = false,
+			serializable = false
+		},
+		ResourcesRootPathComponent = {
+			bindable = false,
+			serializable = false,
+			fields = {
+				{ type = "std::filesystem::path", name = "path" }
+			}
+		},
+		ResourcesComponent = {
+			bindable = false,
+			serializable = false,
+			fields = {
+				{
+					type = "std::unordered_map<std::string, ECS2::Entity::Id>",
+					name = "resourcePathToResourceEntityId"
+				}
+			}
+		},
+		RequestsComponent = {
+			bindable = false,
+			serializable = false,
+			fields = {
+				{
+					type = "std::unordered_map<std::string, ECS2::Entity::Id>",
+					name = "resourceRequestToRequestEntityId"
+				}
+			}
+		},
+		CreateSystem = {
+			type = "Initialize",
+			callOrder = {
+				runAfter = "Config::Load"
+			},
+			updateMethod = {
+				processesEntities = {
+					{
+						processesComponents = {
+							"CommandLineParameters",
+							"ConfigFilePath"
+						}
+					},
+					{
+						processesComponents = {
+							"Config::Tag",
+							"LuaScript"
+						}
+					}
+				},
+				createsEntities = {
+					{
+						createsComponents = {
+							"Manager::Tag",
+							"Manager::ResourcesRootPath",
+							"Manager::Resources"
+						}
+					}
+				}
+			}
+		},
+		RequestNamespace = {
+			TagComponent = {
+				bindable = false,
+				serializable = false
+			},
+			EntityIdComponent = {
+				bindable = false,
+				serializable = false,
+				fields = { { type = "ECS2::Entity::Id", name = "id" } }
+			},
+			StateNamespace = {
+				PendingComponent = {},
+				InProgressComponent = {},
+				FinishedComponent = {},
+			},
+			StatesArchetype = {
+				components = {
+					"State::Pending",
+					"State::InProgress",
+					"State::Finished"
+				}
+			},
+			LoadResourceComponent = {
+				bindable = false,
+				serializable = false,
+				fields = {
+					{ type = "std::string", name = "resourcePath" }
+				}
+			},
+			
+		},
+		RequestArchetype = {
+			archetypes = {
+				"Request::States"
+			},
+			components = {
+				"Resource::Manager::Request::Tag",
+				"Resource::Manager::Request::LoadResource",
+			}
+		},
+		ProcessLoadResourceRequestSystem = {
+			updateMethod = {
+				processesEntities = {
+					{
+						processesComponents = {
+							"Manager::Tag",
+							"Manager::ResourcesRootPath",
+							"Manager::Resources"
+						}
+					},
+					{
+						processesComponents = {
+							"Request::Tag",
+							"Request::LoadResource"
+						},
+						removesComponents = {
+							"Request::State::Pending",
+							"Request::State::InProgress",
+							"Request::State::Finished"
+						},
+						createsComponents = {
+							"Request::State::Pending",
+							"Request::State::InProgress",
+							"Request::State::Finished",
+							"Async::Manager::Task::EntityId"
+						},
+						accessingComponents = {
+							"Async::Manager::Task::EntityId",
+							"Async::Manager::Task::Info"
+						}
+					}
+				},
+				createsEntities = {
+					{
+						archetype = "Async::Manager::Task"
+					}
+				}
+			}
+		}
+	}
+}

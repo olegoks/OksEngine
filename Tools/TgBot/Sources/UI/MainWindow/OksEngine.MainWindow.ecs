@@ -9,13 +9,13 @@ MainWindowComponent = {
 CreateMainWindowSystem = {
     type = "Initialize",
     callOrder = {
-        runAfter = "LoadConfigFile"
+        runAfter = "Config::Load"
     },
     updateMethod = {
         processesEntities = {
             {
                  processesComponents = {
-                    "Config",
+                    "::OksEngine::Config::Tag",
                     "LuaScript"
                 }
             }

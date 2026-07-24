@@ -1,6 +1,6 @@
 ECS = {
     Files = {
-        "./Config/OksEngine.Config.ecs",
+        --"./Config/OksEngine.Config.ecs",
         "./Async/OksEngine.Async.ecs",
         "./CommandLineParameters/OksEngine.CommandLineParameters.ecs",
         "./OksEngine.Active.ecs",

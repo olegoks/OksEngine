@@ -139,10 +139,30 @@ namespace OksEngine::ECS::Generator
 				};
 
 
-			const auto* fileTables = std::get<ECS::File::Table::EntityIds*>(allFiles) + i;
+			auto* fileTables = std::get<ECS::File::Table::EntityIds*>(allFiles) + i;
+
 			for (ECS2::Entity::Id tableEntityId : fileTables->entityIds_) {
+				//ASSERT(IsComponentExist<ECS::File::Table::DefinitionOrder>(tableEntityId));
+
 				getFileTables(tableEntityId);
 			}
+			//Sort structs by theire definition order.
+			std::sort(fileStructs.begin(), fileStructs.end(),
+				[this](ECS2::Entity::Id first, ECS2::Entity::Id second) {
+					const ECS2::ComponentsFilter firstCF = GetComponentsFilter(first);
+					const Common::Index firstOrderIndex = GetComponent<ECS::File::Table::DefinitionOrder>(first)->orderIndex_;
+					const ECS2::ComponentsFilter secondCF = GetComponentsFilter(second);
+					const Common::Index secondOrderIndex = GetComponent<ECS::File::Table::DefinitionOrder>(second)->orderIndex_;
+					return firstOrderIndex < secondOrderIndex;
+				});
+			std::sort(fileArchetypes.begin(), fileArchetypes.end(),
+				[this](ECS2::Entity::Id first, ECS2::Entity::Id second) {
+					const ECS2::ComponentsFilter firstCF = GetComponentsFilter(first);
+					const Common::Index firstOrderIndex = GetComponent<ECS::File::Table::DefinitionOrder>(first)->orderIndex_;
+					const ECS2::ComponentsFilter secondCF = GetComponentsFilter(second);
+					const Common::Index secondOrderIndex = GetComponent<ECS::File::Table::DefinitionOrder>(second)->orderIndex_;
+					return firstOrderIndex < secondOrderIndex;
+				});
 
 			{
 				std::unordered_set<std::string> requiredIncludes;
@@ -233,7 +253,7 @@ namespace OksEngine::ECS::Generator
 
 									for (const auto& componentInfo : processComponentInfos) {
 
-										if (componentInfo.name_ == "Test::Dependency") {
+										if (componentInfo.name_ == "::Config::Tag") {
 											Common::BreakPointLine();
 										}
 										ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, systemEntityId, componentInfo.name_);
@@ -353,6 +373,7 @@ namespace OksEngine::ECS::Generator
 
 
 			//Generate structs code tree.
+
 			for (ECS2::Entity::Id structEntityId : fileStructs) {
 
 				const ECS2::ComponentsFilter structCF = GetComponentsFilter(structEntityId);
@@ -473,8 +494,8 @@ namespace OksEngine::ECS::Generator
 						ECS2::Entity::Id constructorPrototypeEntityId = CPP__TREE__DECL__CREATE_CONSTRUCTOR(
 							GetComponent<File::Table::Name>(structEntityId)->name_,
 							CPP__TREE__CREATE_ENTITIES_VECTOR(),
-								lastNamespaceEntityId,
-								ECS2::Entity::Id::invalid_,
+							lastNamespaceEntityId,
+							ECS2::Entity::Id::invalid_,
 							[&]() {
 								std::vector<ECS2::Entity::Id> parameterEntityIds;
 								for (ECS2::Entity::Id fieldEntityId : GetComponent<ECS::File::Table::Struct::Field::EntityIds>(structEntityId)->entityIds_) {
@@ -499,7 +520,7 @@ namespace OksEngine::ECS::Generator
 
 							}());
 
-							childEntityIds.push_back(constructorPrototypeEntityId);
+						childEntityIds.push_back(constructorPrototypeEntityId);
 
 					}
 
@@ -2230,7 +2251,7 @@ namespace OksEngine::ECS::Generator
 
 											updateCallParametersEntityIds.push_back(CPP__TREE__DECL__CREATE_PARAMETER(
 												CPP__TREE__TYPE__CREATE_POINTER_TYPE(componentTypeEntityId),
-												componentParameterFullName
+												componentParameterFullName + std::to_string(entityIndex)
 											));
 										}
 										entityIndex++;
@@ -2396,9 +2417,27 @@ namespace OksEngine::ECS::Generator
 												CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(std::string{ (char)std::tolower(systemName[0]) } + systemName.substr(1)),
 												"Update",
 												false);
+
+											childForEachCallStmt.push_back(CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+												CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(
+													"BEGIN_PROFILE",
+													CPP__TREE__CREATE_ENTITIES_VECTOR(
+														CPP__TREE__EXPR__CREATE_LITERAL_EXPR("\"" + systemName + "::Update\"", "")
+													),
+													ECS2::Entity::Id::invalid_
+												)
+											));
 											childForEachCallStmt.push_back(CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
 												CPP__TREE__EXPR__CREATE_CALL_EXPR(systemObjectMemberAccessExprEntityId, std::vector<ECS2::Entity::Id>{}, updateCallArgumentsIdentifierExprEntityIds)
 											));
+											childForEachCallStmt.push_back(CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+												CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(
+													"END_PROFILE",
+													CPP__TREE__CREATE_ENTITIES_VECTOR(),
+													ECS2::Entity::Id::invalid_
+												)
+											));
+
 										}
 										lambdaEntityId = CPP__TREE__EXPR__CREATE_LAMBDA(
 											CPP::Tree::Expr::CaptureType::ByReference,
@@ -2516,7 +2555,9 @@ namespace OksEngine::ECS::Generator
 				CreateComponent<CPP::Tree::Preprocessor::Tag>(defineEntityId);
 				CreateComponent<CPP::Tree::Preprocessor::Define_>(defineEntityId, namespaceStr, std::vector<std::string>{}, macrosBody, ECS2::Entity::Id::invalid_, false);
 
+				hppFileNodeEntityIds.push_back(CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_OFF_COMMENT());
 				hppFileNodeEntityIds.push_back(defineEntityId);
+				hppFileNodeEntityIds.push_back(CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_ON_COMMENT());
 			}
 
 			//Generate archetypes macroses

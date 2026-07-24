@@ -1,10 +1,109 @@
-#pragma once
+﻿#pragma once
 
 #include <ECS\File\auto_OksEngine.ECS.File.hpp>
 #include <ECS\File\OksEngine.ECS.File.Utils.hpp>
 #include <Resources/OksEngine.ResourceSystem.Utils.hpp>
 
 #include <queue>
+#include <stack>
+void remove_spaces_and_newlines(std::string& s) {
+	std::size_t write = 0;                     // позиция записи
+	for (std::size_t read = 0; read < s.size(); ++read) {
+		char c = s[read];
+		// Удаляем пробел, табуляцию, переводы строки, возврат каретки и др.
+		if (c != ' ' && c != '\n' && c != '\r' &&
+			c != '\t' && c != '\v' && c != '\f') {
+			s[write++] = c;                   // перемещаем нужный символ вперёд
+		}
+	}
+	s.erase(write);                           // урезаем строку до новой длины
+}
+
+#include <regex>
+#include <string>
+#include <vector>
+#include <functional>
+#include <iostream>
+
+// Вспомогательная функция: найти позицию парной закрывающей скобки
+static std::size_t findClosingBrace(const std::string& s, std::size_t openPos) {
+	int depth = 1;
+	for (std::size_t i = openPos + 1; i < s.size(); ++i) {
+		if (s[i] == '{') depth++;
+		else if (s[i] == '}') {
+			depth--;
+			if (depth == 0) return i;
+		}
+	}
+	return std::string::npos;
+}
+
+std::vector<std::string> GetTablesOrder(const std::string& script) {
+	// Удаляем пробелы и переносы строк (как в вашем коде)
+	std::string scriptCopy = script;
+	// remove_spaces_and_newlines(scriptCopy); // ваша функция – должна быть реализована
+
+	std::vector<std::string> order;
+	std::vector<std::string> namespaceStack;   // стек имён вложенных Namespace
+
+	// Регулярки для поиска
+	std::regex namespacePattern(R"(([A-Za-z0-9_]+)Namespace\s*=\s*\{)");   // имя + "Namespace={"
+	std::regex abstractionPattern(R"(([A-Za-z0-9_]+?)(?:Struct|Archetype|Component|System|Constant|Enum)\s*=)");
+
+	// Рекурсивная функция для обработки области видимости
+	std::function<void(const std::string&)> processScope = [&](const std::string& scope) {
+		std::size_t pos = 0;
+		while (pos < scope.size()) {
+			std::smatch match;
+			std::string remaining = scope.substr(pos);
+
+			// 1. Ищем вложенный Namespace
+			if (std::regex_search(remaining, match, namespacePattern)) {
+				std::size_t matchPos = pos + match.position();
+				std::size_t openBrace = matchPos + match.length() - 1; // позиция '{'
+				std::size_t closeBrace = findClosingBrace(scope, openBrace);
+				if (closeBrace == std::string::npos) {
+					// Нет закрывающей скобки – игнорируем и продолжаем
+					pos = openBrace + 1;
+					continue;
+				}
+
+				std::string namespaceName = match[1].str();
+				std::string innerScope = scope.substr(openBrace + 1, closeBrace - openBrace - 1);
+
+				// Заходим в Namespace
+				namespaceStack.push_back(namespaceName);
+				processScope(innerScope);
+				namespaceStack.pop_back();
+
+				pos = closeBrace + 1;   // продолжаем после закрывающей скобки
+				continue;
+			}
+
+			// 2. Ищем определение абстракции (Struct, Component и т.д.)
+			if (std::regex_search(remaining, match, abstractionPattern)) {
+				std::size_t matchPos = pos + match.position();
+				std::string name = match[1].str();
+
+				// Собираем полное имя с учётом пространства имён
+				std::string fullName;
+				for (const auto& ns : namespaceStack)
+					fullName += ns + "::";
+				fullName += name;
+				order.push_back(fullName);
+
+				pos = matchPos + match.length();  // продвигаемся после знака "="
+				continue;
+			}
+
+			// Ничего не найдено – выходим, чтобы избежать бесконечного цикла
+			break;
+		}
+		};
+
+	processScope(scriptCopy);
+	return order;
+}
 
 namespace OksEngine::ECS::File {
 
@@ -70,78 +169,39 @@ namespace OksEngine::ECS::File {
 			::Lua::Script script{ luaScript1->text_ };
 
 			::Lua::Context context;
+			auto abtractionDefinionsOrder = GetTablesOrder(luaScript1->text_);
+			std::unordered_map<std::string, Common::Index> abstractionNameToOrderIndex;
+			auto getFullName = [](const std::vector<std::string>& namespaceNames, const std::string& abstractionName) {
+				std::string fullName;
+				for (const auto& namespaceName : namespaceNames) {
+					fullName = fullName + namespaceName + "::";
+				}
+				return fullName + abstractionName;
+				};
+			for (Common::Index i = 0; i < abtractionDefinionsOrder.size(); i++) {
+				abstractionNameToOrderIndex[abtractionDefinionsOrder[i]] = i;
+			}
 			context.LoadScript(script);
 			luabridge::LuaRef ecsFile = luabridge::getGlobal(context.state_, "_G");
 
-			std::vector<std::string> abstractionsOrder;
-			// Get ECS abstraction order from .lua script source.
-			//TODO: Take into account namespaces and their heir
+
+			//std::map<std::string, int> abstractionToOrder = GetStructDeclarationOrder(luaScript1->text_);
+
+
+
+
+
+			if (!abtractionDefinionsOrder.empty()) {
+				Common::BreakPointLine();
+			}
+
 			std::vector<ECS2::Entity::Id> parsedTables;
 			{
-
-				auto processLine = [&](const std::string& line) {
-					std::smatch match;
-					std::regex systemRegex{ R"(\w+System\s*=\s*\{)" };
-					std::regex componentRegex{ R"(\w+Component\s*=\s*\{)" };
-					std::regex structRegex{ R"(\w+Struct\s*=\s*\{)" };
-					std::regex constantRegex{ R"(\w+Constant\s*=\s*\{)" };
-					std::regex archetypeRegex{ R"(\w+Archetype\s*=\s*\{)" };
-					// ���� System
-					if (std::regex_search(line, match, systemRegex)) {
-						std::string name = match[0].str();
-						name = name.substr(0, name.find("=")); // ������� "= {"
-						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
-						name.erase(name.size() - sizeof("System") + 1, name.size());
-						abstractionsOrder.push_back(name);
-					}
-					// ���� Component
-					else if (std::regex_search(line, match, componentRegex)) {
-						std::string name = match[0].str();
-						name = name.substr(0, name.find("="));
-						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
-						name.erase(name.size() - sizeof("Component") + 1, name.size());
-						abstractionsOrder.push_back(name);
-					}
-					// ���� Struct
-					else if (std::regex_search(line, match, structRegex)) {
-						std::string name = match[0].str();
-						name = name.substr(0, name.find("="));
-						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
-
-						name.erase(name.size() - sizeof("Struct") + 1, name.size());
-						abstractionsOrder.push_back(name);
-					}
-					// ���� Constant
-					else if (std::regex_search(line, match, constantRegex)) {
-						std::string name = match[0].str();
-						name = name.substr(0, name.find("="));
-						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
-
-						name.erase(name.size() - sizeof("Constant") + 1, name.size());
-						abstractionsOrder.push_back(name);
-					}
-					// ���� Archetype
-					else if (std::regex_search(line, match, archetypeRegex)) {
-						std::string name = match[0].str();
-						name = name.substr(0, name.find("="));
-						name.erase(std::remove_if(name.begin(), name.end(), ::isspace), name.end());
-
-						name.erase(name.size() - sizeof("Archetype") + 1, name.size());
-						abstractionsOrder.push_back(name);
-					}
-					};
-				std::string line;
-				std::stringstream stream{ luaScript1->text_ };
-				while (std::getline(stream, line)) {
-					processLine(line);
-				}
-
-
-
-				std::function<ECS2::Entity::Id(const std::string&, luabridge::LuaRef)> processTable
+				std::function<ECS2::Entity::Id(const std::string&, luabridge::LuaRef, std::vector<std::string>&)> processTable
 					= [&](
 						const std::string& name,
-						luabridge::LuaRef table) {
+						luabridge::LuaRef table,
+						std::vector<std::string>& fullName) {
 
 							if (name.ends_with("Namespace")) {
 								ASSERT_FMSG(std::isupper(name[0]), "Table name symbol must be uppercase.");
@@ -151,6 +211,7 @@ namespace OksEngine::ECS::File {
 								CreateComponent<ECS::File::Table::Tag>(namespaceTableEntityId);
 								CreateComponent<ECS::File::Table::Namespace::Tag>(namespaceTableEntityId);
 								CreateComponent<ECS::File::Table::Name>(namespaceTableEntityId, namespaceName);
+								fullName.push_back(namespaceName);
 
 								std::vector<ECS2::Entity::Id> parsedNamespaceTables;
 
@@ -163,7 +224,7 @@ namespace OksEngine::ECS::File {
 										if (key.isString()) {
 											const std::string tableName = key.tostring();
 											//TODO: move setting of child table to processTable function.
-											ECS2::Entity::Id parsedTable = processTable(tableName, value);
+											ECS2::Entity::Id parsedTable = processTable(tableName, value, fullName);
 											if (parsedTable.IsValid()) {
 												CreateComponent<ECS::File::Table::ParentTableEntityId>(parsedTable, namespaceTableEntityId);
 												CreateComponent<File::EntityId>(parsedTable, entity1id);
@@ -173,6 +234,9 @@ namespace OksEngine::ECS::File {
 										}
 									}
 								}
+								fullName.pop_back();
+								
+
 								CreateComponent<ECS::File::Table::ChildTablesEntityIds>(
 									namespaceTableEntityId,
 									parsedNamespaceTables);
@@ -181,7 +245,7 @@ namespace OksEngine::ECS::File {
 							}
 							else if (name.ends_with("Struct")) {
 								ASSERT_FMSG(std::isupper(name[0]), "Table name symbol must be uppercase.");
-								ECS2::Entity::Id structEntityId = [this](luabridge::LuaRef component,
+								ECS2::Entity::Id structEntityId = [&](luabridge::LuaRef component,
 									const std::string& structName) {
 
 
@@ -189,6 +253,7 @@ namespace OksEngine::ECS::File {
 										CreateComponent<Table::Tag>(structEntityId);
 										CreateComponent<Table::Struct::Tag>(structEntityId);
 										CreateComponent<Table::Name>(structEntityId, structName.substr(0, structName.rfind("Struct")));
+										CreateComponent<Table::DefinitionOrder>(structEntityId, abstractionNameToOrderIndex[getFullName(fullName, structName.substr(0, structName.rfind("Struct")))]);
 
 										Common::Size alignment = Common::Limits<Common::Size>::Max();
 										luabridge::LuaRef alignmentRef = component["alignment"];
@@ -237,14 +302,14 @@ namespace OksEngine::ECS::File {
 							}
 							else if (name.ends_with("Enum")) {
 								ASSERT_FMSG(std::isupper(name[0]), "Table name symbol must be uppercase.");
-								ECS2::Entity::Id enumEntityId = [this](luabridge::LuaRef enumRef,
+								ECS2::Entity::Id enumEntityId = [&](luabridge::LuaRef enumRef,
 									const std::string& enumName) {
 
 										ECS2::Entity::Id enumEntityId = CreateEntity<ECS__FILE__TABLE__ENUM__ENUM>();
 										CreateComponent<Table::Enum::Tag>(enumEntityId);
 										CreateComponent<Table::Tag>(enumEntityId);
 										CreateComponent<Table::Name>(enumEntityId, enumName.substr(0, enumName.rfind("Enum")));
-
+										CreateComponent<Table::DefinitionOrder>(enumEntityId, abstractionNameToOrderIndex[getFullName(fullName, enumName.substr(0, enumName.rfind("Enum")))]);
 										luabridge::LuaRef values = enumRef["values"];
 
 										std::vector<std::string> parsedValues;
@@ -263,7 +328,7 @@ namespace OksEngine::ECS::File {
 							}
 							else if (name.ends_with("Component")) {
 								ASSERT_FMSG(std::isupper(name[0]), "Table name symbol must be uppercase.");
-								ECS2::Entity::Id componentEntityId = [this](luabridge::LuaRef component,
+								ECS2::Entity::Id componentEntityId = [&](luabridge::LuaRef component,
 									const std::string& componentName) {
 
 										ASSERT_FMSG(std::isupper(componentName[0]), "First component name symbol must be uppercase.");
@@ -272,7 +337,7 @@ namespace OksEngine::ECS::File {
 										CreateComponent<Table::Tag>(componentEntityId);
 										CreateComponent<Table::Component::Tag>(componentEntityId);
 										CreateComponent<Table::Name>(componentEntityId, componentName.substr(0, componentName.rfind("Component")));
-
+										CreateComponent<Table::DefinitionOrder>(componentEntityId, abstractionNameToOrderIndex[getFullName(fullName, componentName.substr(0, componentName.rfind("Component")))]);
 
 										bool isString = component.isString();
 										auto castResult = component.cast<std::string>();
@@ -389,12 +454,13 @@ namespace OksEngine::ECS::File {
 							else if (name.ends_with("Constant")) {
 								ASSERT_FMSG(std::isupper(name[0]), "Table name symbol must be uppercase.");
 								const ECS2::Entity::Id constantEntityId = ECS__FILE__TABLE__PARSE_CONSTANT(table, name.substr(0, name.rfind("Constant")));
+								CreateComponent<Table::DefinitionOrder>(constantEntityId, abstractionNameToOrderIndex[getFullName(fullName, name.substr(0, name.rfind("Constant")))]);
 								return constantEntityId;
 							}
 							//deprecated
 							else if (name.ends_with("Archetype")) {
 								ASSERT_FMSG(std::isupper(name[0]), "Table name symbol must be uppercase.");
-								ECS2::Entity::Id archetypeEntityId = [this](luabridge::LuaRef archetype,
+								ECS2::Entity::Id archetypeEntityId = [&](luabridge::LuaRef archetype,
 									const std::string& archetypeName) {
 
 										ECS2::Entity::Id archetypeEntityId = CreateEntity<ECS__FILE__TABLE__ARCHETYPE__ARCHETYPE>();
@@ -402,7 +468,7 @@ namespace OksEngine::ECS::File {
 										CreateComponent<ECS::File::Table::Archetype::Tag>(archetypeEntityId);
 										luabridge::LuaRef components = archetype["components"];
 										CreateComponent<Table::Name>(archetypeEntityId, archetypeName.substr(0, archetypeName.rfind("Archetype")));
-
+										CreateComponent<Table::DefinitionOrder>(archetypeEntityId, abstractionNameToOrderIndex[getFullName(fullName, archetypeName.substr(0, archetypeName.rfind("Archetype")))]);
 										if (!components.isNil()) {
 											std::vector<std::string> archetypeComponents;
 											for (luabridge::Iterator itJ(components); !itJ.isNil(); ++itJ) {
@@ -439,7 +505,7 @@ namespace OksEngine::ECS::File {
 							}
 							else if (name.ends_with("Bundle")) {
 								ASSERT_FMSG(std::isupper(name[0]), "Table name symbol must be uppercase.");
-								ECS2::Entity::Id archetypeEntityId = [this](luabridge::LuaRef archetype,
+								ECS2::Entity::Id archetypeEntityId = [&](luabridge::LuaRef archetype,
 									const std::string& archetypeName) {
 
 										ECS2::Entity::Id archetypeEntityId = CreateEntity<ECS__FILE__TABLE__BUNDLE__BUNDLE>();
@@ -447,7 +513,7 @@ namespace OksEngine::ECS::File {
 										CreateComponent<ECS::File::Table::Bundle::Tag>(archetypeEntityId);
 										luabridge::LuaRef components = archetype["components"];
 										CreateComponent<Table::Name>(archetypeEntityId, archetypeName.substr(0, archetypeName.rfind("Bundle")));
-
+										CreateComponent<Table::DefinitionOrder>(archetypeEntityId, abstractionNameToOrderIndex[getFullName(fullName, archetypeName.substr(0, archetypeName.rfind("Bundle")))]);
 										if (!components.isNil()) {
 											std::vector<std::string> archetypeComponents;
 											for (luabridge::Iterator itJ(components); !itJ.isNil(); ++itJ) {
@@ -484,7 +550,7 @@ namespace OksEngine::ECS::File {
 							}
 							else if (name.ends_with("System")) {
 								ASSERT_FMSG(std::isupper(name[0]), "Table name symbol must be uppercase.");
-								ECS2::Entity::Id systemEntityId = [this](
+								ECS2::Entity::Id systemEntityId = [&](
 									luabridge::LuaRef system,
 									const std::string& systemName) {
 
@@ -493,7 +559,7 @@ namespace OksEngine::ECS::File {
 										CreateComponent<Table::Tag>(systemEntityId);
 										CreateComponent<Table::System::Tag>(systemEntityId);
 										CreateComponent<Table::Name>(systemEntityId, systemName.substr(0, systemName.rfind("System")));
-
+										CreateComponent<Table::DefinitionOrder>(systemEntityId, abstractionNameToOrderIndex[getFullName(fullName, systemName.substr(0, systemName.rfind("System")))]);
 
 										if (system["disable"].cast<bool>().value()) {
 											CreateComponent<Table::System::Disabled>(systemEntityId);
@@ -888,9 +954,11 @@ namespace OksEngine::ECS::File {
 					const std::string keyString = key.tostring();
 					luabridge::LuaRef table = key;
 
+					std::vector<std::string> fullName;
 
 
-					const ECS2::Entity::Id parsedTableEntityId = processTable(keyString, ecsFile[key.tostring()]);
+
+					const ECS2::Entity::Id parsedTableEntityId = processTable(keyString, ecsFile[key.tostring()], fullName);
 
 					if (parsedTableEntityId.IsValid()) {
 
@@ -1059,15 +1127,15 @@ namespace OksEngine::ECS::File {
 
 			}
 
-			// 2. �������� ����
+			// 2. Алгоритм Кана
 			while (!rootSystems.empty()) {
 				ECS2::Entity::Id currentId = rootSystems.front();
 				const std::string systemName = ECS__FILE__TABLE__GET_FULL_NAME(currentId, "::", false);
 				rootSystems.pop();
 				systemsOrder.push_back(currentId);
 				orederedSystemIdToIndex[currentId] = systemsOrder.size() - 1;
-				
-				// ��������� inDegree ��� ���� �������
+
+				// Уменьшаем inDegree для всех соседей
 				ECS2::Entity::Id callOrderEntityId = GetComponent<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(currentId)->id_;
 
 				const auto* runBefore = GetComponent<ECS::File::Table::System::CallOrder::RunBefore>(callOrderEntityId);
@@ -1177,7 +1245,7 @@ namespace OksEngine::ECS::File {
 						}
 						else {
 							ECS__FILE__TABLE__SYSTEM__ADD_RUN_BEFORE_SYSTEM(dependenceSystem, systemEntityId);
-							
+
 						}
 					}
 
@@ -1186,7 +1254,7 @@ namespace OksEngine::ECS::File {
 
 			}
 
-			
+
 
 
 			for (Common::Index i = 0; i < allSystemsNumber; i++) {

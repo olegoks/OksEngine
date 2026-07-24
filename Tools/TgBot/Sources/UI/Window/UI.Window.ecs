@@ -16,7 +16,7 @@ UINamespace = {
         HandleComponent = {
             serializable = false,
             fields = {
-                { type = "class ::GLFWwindow*", name = "glfwWindowPtr" }
+                { type = "class GLFWwindow*", name = "glfwWindowPtr" }
             }
         },
         --Initialize components.

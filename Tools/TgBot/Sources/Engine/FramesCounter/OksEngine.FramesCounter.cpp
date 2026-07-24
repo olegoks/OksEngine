@@ -1,5 +1,5 @@
 #pragma once
-#include <Common\FramesCounter\auto_OksEngine.FramesCounter.hpp>
+#include <Engine\FramesCounter\auto_OksEngine.FramesCounter.hpp>
 
 namespace OksEngine
 {

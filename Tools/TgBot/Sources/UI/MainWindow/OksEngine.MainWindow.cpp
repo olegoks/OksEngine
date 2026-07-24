@@ -1,11 +1,17 @@
 #pragma once
 #include <UI\MainWindow\auto_OksEngine.MainWindow.hpp>
+#include <UI/KeyboardInput/auto_OksEngine.KeyboardInput.hpp>
+#include <UI/MouseInput/auto_OksEngine.MouseInput.hpp>
+#include <UI/CursorInput/auto_OksEngine.CursorInput.hpp>
+
+#include <Lua.Context.hpp>
+
 
 namespace OksEngine
 {
 #undef CreateWindow
 
-	void CreateMainWindow::Update(ECS2::Entity::Id entity0id, const Config* config0, const LuaScript* luaScript0) {
+	void CreateMainWindow::Update(ECS2::Entity::Id entity0id, const Config::Tag* config0, const LuaScript* luaScript0) {
 
 
 		::Lua::Context context;
@@ -29,7 +35,7 @@ namespace OksEngine
 		CreateComponent<MainWindow>(mainWindowEntity, window);
 		CreateComponent<Input::KeyboardEvents>(mainWindowEntity);
 		CreateComponent<MouseEvents>(mainWindowEntity);
-		CreateComponent<CursorEvents>(mainWindowEntity);
+		CreateComponent<Input::CursorEvents>(mainWindowEntity);
 		CreateComponent<MainWindowFramebufferResizeEvent>(mainWindowEntity);
 
 		const glm::u32vec2 workAreaSize = window->GetWorkAreaSize();

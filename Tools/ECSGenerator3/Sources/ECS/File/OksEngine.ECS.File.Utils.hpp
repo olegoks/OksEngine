@@ -143,11 +143,11 @@ namespace OksEngine::ECS::File::Table {
 				return tableNamespace + delimiter + tableName;\
 			}(entityId, delimiterString, isNamespaceUppercase)
 
+
 #define ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(tableTag, scope, name)\
 	[this]<typename TableTag>(ECS2::Entity::Id usageTableEntityId, const std::string& findingFullTableName) {\
 		BEGIN_PROFILE("ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME");\
 		ASSERT(OksEngine::ECS::File::Table::IsValidName(findingFullTableName));\
-		const std::string findingComponentName = ECS::File::Table::GetName(findingFullTableName);\
 		std::vector<std::string> systemNamespaceNames = ECS__FILE__TABLE__GET_SPLITED_NAMESPACE_NAMES(usageTableEntityId);\
 		systemNamespaceNames.insert(systemNamespaceNames.begin(), "Root");\
 		std::vector<std::string> findingTableSplitedFullName = ECS::File::Table::SplitName(findingFullTableName);\
@@ -169,7 +169,9 @@ namespace OksEngine::ECS::File::Table {
 			}\
 			std::vector<std::string> tableSplitedNamespaces = ECS__FILE__TABLE__GET_SPLITED_NAMESPACE_NAMES(tableEntityId);\
 			tableSplitedNamespaces.insert(tableSplitedNamespaces.begin(), "Root");\
-			bool isFindingAndCurrentTablesHasCommonNamespace = [](const std::vector<std::string>& first, const std::vector<std::string>& second) {\
+			bool isFindingAndCurrentTablesHasCommonNamespace = [](\
+				const std::vector<std::string>& first,\
+				const std::vector<std::string>& second) {\
 				if (second.empty()) {\
 					return true;\
 				}\

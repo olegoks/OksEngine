@@ -1,7 +1,7 @@
 #pragma once
 #include <UI\CursorInput\auto_OksEngine.CursorInputSystems.hpp>
 
-namespace OksEngine
+namespace OksEngine::Input
 {
 	void CreateCursorEvents::Update(
 		ECS2::Entity::Id entity0id,
@@ -22,11 +22,11 @@ namespace OksEngine
 	void SendWindowCursorEvents::Update(
 		ECS2::Entity::Id entity0id, 
 		const MainWindow* mainWindow0,
-		const CursorEvents* cursorEvents0,
+		const Input::CursorEvents* cursorEvents0,
 		
 		ECS2::Entity::Id entity1id,
-		const HandleCursorEvents* handleCursorEvents1,
-		CursorEvents* cursorEvents1) {
+		const Input::HandleCursorEvents* handleCursorEvents1,
+		Input::CursorEvents* cursorEvents1) {
 	
 		cursorEvents1->events_ = cursorEvents0->events_;
 
@@ -35,14 +35,14 @@ namespace OksEngine
 	void GetWindowCursorEvents::Update(
 		ECS2::Entity::Id entity0id, 
 		MainWindow* mainWindow0, 
-		CursorEvents* cursorEvents0) {
+		Input::CursorEvents* cursorEvents0) {
 	
 		while (auto event = mainWindow0->window_->GetCursorEvent()) {
 			if (event.has_value()) {
 				const UIAL::Window::CursorEvent& cursorEvent = event.value();
 
 
-				cursorEvents0->events_.push(CursorEvent{
+				cursorEvents0->events_.push(Input::CursorEvent{
 					[&cursorEvent]() ->CursorMode {
 						if (cursorEvent.mode_ == UIAL::Window::CursorMode::Captured) {
 							return CursorMode::Captured;

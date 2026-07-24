@@ -1,0 +1,10 @@
+ResourceNamespace = {
+
+	PathComponent = {
+		bindable = false,
+		description = "Path must be in format \"resource:{path_to_file_relative_to_resources_path}\"",
+		fields = {
+			{ type = "std::string", name = "path" }
+		}
+	}
+}
