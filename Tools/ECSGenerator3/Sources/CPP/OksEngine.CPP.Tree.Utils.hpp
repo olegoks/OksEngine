@@ -754,3 +754,12 @@ using namespace std::string_literals;
 	}(name)
 
 
+
+/*Help*/
+
+#define CPP__TREE__EXPR__CREATE_CALL_EXPR_NO_PARAMETERS(identifire)\
+CPP__TREE__EXPR__CREATE_CALL_EXPR(\
+	CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(identifire),\
+	CPP__TREE__CREATE_ENTITIES_VECTOR(),\
+	CPP__TREE__CREATE_ENTITIES_VECTOR()\
+)

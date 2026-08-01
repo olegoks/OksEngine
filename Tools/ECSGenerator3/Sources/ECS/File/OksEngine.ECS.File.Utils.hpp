@@ -264,20 +264,22 @@ namespace OksEngine::ECS::File::Table {
 				std::vector<ECS2::Entity::Id> accessesEntities																														\
 					= GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::EntityIds>(updateMethodEntityId)->entityIds_;											\
 				for (ECS2::Entity::Id accessEntity : accessesEntities) {																											\
-					const auto& accessComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::AccessComponents>(accessEntity)->components_;			\
-					for (auto& accessComponentInfo : accessComponentInfos) {																										\
-						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(																			\
-							ECS::File::Table::Component::Tag,																														\
-							systemEntityId,																																			\
+					if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Access::Entity::AccessComponents>(accessEntity)) {													\
+						const auto& accessComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::AccessComponents>(accessEntity)->components_;		\
+						for (auto& accessComponentInfo : accessComponentInfos) {\
+							ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(\
+							ECS::File::Table::Component::Tag, \
+							systemEntityId, \
 							accessComponentInfo.name_);																																\
-						if (!accessComponentInfo.readonly_) {																														\
-							writeComponents.push_back(componentEntityId);																											\
-						}																																							\
-					}																																								\
+							if (!accessComponentInfo.readonly_) {\
+								writeComponents.push_back(componentEntityId);																										\
+							}																																						\
+						}\
+					}\
 				}																																									\
 			}																																										\
 		}																																											\
-		return writeComponents;																																						\
+	return writeComponents;																																						\
 	}(system)
 
 
@@ -308,7 +310,8 @@ namespace OksEngine::ECS::File::Table {
 			if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Access::Entity::EntityIds>(updateMethodEntityId)) {														\
 				std::vector<ECS2::Entity::Id> accessesEntities																														\
 					= GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::EntityIds>(updateMethodEntityId)->entityIds_;											\
-				for (ECS2::Entity::Id accessEntity : accessesEntities) {																											\
+				for (ECS2::Entity::Id accessEntity : accessesEntities) {\
+					if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Access::Entity::AccessComponents>(accessEntity)) {\
 					const auto& accessComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::AccessComponents>(accessEntity)->components_;			\
 					for (auto& accessComponentInfo : accessComponentInfos) {																										\
 						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(																			\
@@ -318,7 +321,8 @@ namespace OksEngine::ECS::File::Table {
 						if (accessComponentInfo.readonly_) {																														\
 							readComponents.push_back(componentEntityId);																											\
 						}																																							\
-					}																																								\
+					}\
+					}\
 				}																																									\
 			}																																										\
 		}																																											\

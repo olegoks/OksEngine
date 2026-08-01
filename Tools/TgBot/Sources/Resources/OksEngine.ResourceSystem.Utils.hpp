@@ -7,6 +7,8 @@
 #include <OS.Assert.hpp>
 #include <OS.FileSystem.BinaryFile.hpp>
 
+#include <Resources/auto_Resources.Module.hpp>
+
 #define RESOURCE__MANAGER__CREATE_LOAD_RESOURCE_REQUEST(resourcePath)							\
 	[this](const std::string& path){													\
 		const ECS2::Entity::Id requestEntityId = CreateEntity();								\

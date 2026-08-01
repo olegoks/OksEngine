@@ -5,6 +5,10 @@
 #include <Common/Async/auto_OksEngine.Async.hpp>
 #include <Common/Async/OksEngine.Async.Utils.hpp>
 
+#include <Config/auto_OksEngine.Config.Module.hpp>
+
+#include <Lua.Context.hpp>
+
 namespace OksEngine
 {
 	namespace Resource
@@ -60,7 +64,7 @@ namespace OksEngine
 
 				const ECS2::ComponentsFilter requestCF = GetComponentsFilter(entity1id);
 
-				ASSERT_FMSG(requestCF.IsSetOnlyOneOf<RESOURCE__MANAGER__REQUEST__STATES>(),
+				ASSERT_FMSG(requestCF.IsSetOnlyOneOf<OKSENGINE__RESOURCE__MANAGER__REQUEST__STATES>(),
 					"Request must contain one of state components.");
 				
 
@@ -109,10 +113,10 @@ namespace OksEngine
 				}
 				else if (requestCF.IsSet<Request::State::InProgress>()) {
 
-					BEGIN_PROFILE("Process in progress state")
+					BEGIN_PROFILE("Process in progress state");
 					ASSERT_FMSG(requestCF.IsSet<Async::Manager::Task::EntityId>(),
 						"If request in progress it must contain async task id.");
-
+					
 					const ECS2::Entity::Id asyncTaskEntityId = GetComponent<Async::Manager::Task::EntityId>(entity1id)->id_;
 
 					const ECS2::ComponentsFilter asyncTaskCF = GetComponentsFilter(asyncTaskEntityId);

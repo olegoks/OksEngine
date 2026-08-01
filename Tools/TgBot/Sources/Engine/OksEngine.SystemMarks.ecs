@@ -19,16 +19,6 @@
 
         --Frame start
         FRAME_HEAD_STARTSystem = {
-
-            updateMethod = {
-                processesEntities = {
-                    {
-                        processesComponents = {
-                            { name = "Connection" }
-                        }
-                    }
-                }
-            }
         },
 
         FRAME_HEAD_ENDSystem = {

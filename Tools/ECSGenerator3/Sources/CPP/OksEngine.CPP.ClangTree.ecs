@@ -593,6 +593,14 @@ CPPNamespace = {
                     { type = "ECS2::Entity::Id", name = "expr" }
                 }
             },
+            ParentExprComponent = {
+                description = "Круглые скобки вокруг выражения: (expr)",
+                serializable = false,
+                bindable = false,
+                fields = {
+                    { type = "ECS2::Entity::Id", name = "innerExpr" }
+                }
+            },
             InitListComponent = {
                 description = "Initialization list (braced-init-list): {expr1, expr2, ...}. Creates {}.",
                 serializable = false,
@@ -839,6 +847,7 @@ CPPNamespace = {
                             "CPP::Tree::Expr::InitList",
                             "CPP::Tree::Expr::MemberPtrExpr",
                             "CPP::Tree::Expr::PackExpansion",
+                            "CPP::Tree::Expr::ParentExpr",
 
                             "CPP::Tree::Type::Tag",
                             "CPP::Tree::Type::BuiltinType",

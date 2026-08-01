@@ -298,6 +298,60 @@ ECSNamespace = {
                 }
             }
         },
+        GenerateDotGraphSystem = {
+            type = "Initialize",
+            callOrder = {
+                runAfter = { "ECS::Generator::GenerateRunSystemsFile" }
+            }, 
+            updateMethod = {
+                processesEntities = {
+                    {
+                        processesComponents = {
+                            "ECS::Project::Tag",
+                            "ECS::Project::Path",
+                            "LuaScript"
+                        }
+                    }                    
+                },
+                accessingEntities = {
+                    {
+                        accessingComponents = {
+                            "CPP::Tree::Decl::Parameter"
+                        }
+                    },
+                    {
+                        archetype = "File::Table::System::System"
+                    },
+                    {
+                        archetype = "File::File"
+                    },
+                    {
+                        archetype = "File::Table::Component::Component"
+                    },
+                    {
+                        archetype = "File::Table::Component::Field::Field"
+                    },
+                    {
+                        archetype = "File::Table::Struct::Struct"
+                    },
+                    {
+                        archetype = "File::Table::Enum::Enum"
+                    },
+                    {
+                        archetype = "File::Table::Struct::Field::Field"
+                    },
+                    {
+                        archetype = "File::Table::Archetype::Archetype"
+                    },
+                    {
+                        archetype = "File::Table::Bundle::Bundle"
+                    },
+                    {
+                        archetype = "File::Table::Constant::Constant"
+                    }
+                }
+            }
+        }
     }
 
 }

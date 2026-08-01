@@ -131,7 +131,7 @@ ResourceNamespace = {
 				processesEntities = {
 					{
 						processesComponents = {
-							"Manager::Tag",
+							"Resource::Manager::Tag",
 							"Manager::ResourcesRootPath",
 							"Manager::Resources"
 						}

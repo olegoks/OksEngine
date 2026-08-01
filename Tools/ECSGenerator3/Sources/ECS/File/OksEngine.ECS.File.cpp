@@ -664,15 +664,21 @@ namespace OksEngine::ECS::File {
 												[&](luabridge::LuaRef systemRef) {
 													//Access entities by id.
 													luabridge::LuaRef accessingEntities = systemRef["accessingEntities"];
+
 													if (!accessingEntities.isNil()) {
 														std::vector<ECS2::Entity::Id> accessingEntityIds;
 														for (luabridge::Iterator it(accessingEntities); !it.isNil(); ++it) {
 
 															ECS2::Entity::Id accessEntityId = CreateEntity<ECS__FILE__TABLE__SYSTEM__UPDATEMETHOD__ACCESS__ENTITY__ENTITY>();
+															accessingEntityIds.push_back(accessEntityId);
 															CreateComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::Tag>(accessEntityId);
 															std::string archetype;
 															luabridge::LuaRef toAccess = it.value();
 															luabridge::LuaRef accessingComponentsRef = toAccess["accessingComponents"];
+
+															if (systemName == "ProcessLoadResourceRequestSystem") {
+ 																Common::BreakPointLine();
+															}
 
 															//Parse accessingComponents
 															if (!accessingComponentsRef.isNil()) {
@@ -740,6 +746,7 @@ namespace OksEngine::ECS::File {
 																		removesComponents);
 																}
 															}
+															
 														}
 														CreateComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::EntityIds>(
 															updateMethodEntityId,

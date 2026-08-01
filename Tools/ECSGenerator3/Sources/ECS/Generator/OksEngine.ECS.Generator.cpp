@@ -1,4 +1,4 @@
-#pragma once
+﻿#pragma once
 #include <ECS\Generator\OksEngine.ECS.Generator.Utils.hpp>
 #include <Resources/OksEngine.ResourceSystem.Utils.hpp>
 #include <CPP/OksEngine.CPP.Tree.Utils.hpp>
@@ -7,6 +7,13 @@
 
 #include <queue>
 #include <tuple>
+
+extern "C" {
+#include <graphviz/gvc.h>
+}
+
+#include <OS.FileSystem.TextFile.hpp>
+
 
 #define ECS__GENERATOR__CREATE_WORLD_PARAMETER()\
 	[this](){\
@@ -17,6 +24,26 @@
 			"world");\
 	return worldParameterEntityId;\
 	}()
+
+#define CREATE_BEGIN_PROFILE_EXPR_STATEMENT(str)\
+CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(\
+	CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(\
+		"BEGIN_PROFILE",\
+		CPP__TREE__CREATE_ENTITIES_VECTOR(\
+			CPP__TREE__EXPR__CREATE_LITERAL_EXPR(str, "")\
+		),\
+		ECS2::Entity::Id::invalid_\
+	)\
+)\
+
+#define CREATE_END_PROFILE_EXPR_STATEMENT() \
+CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(\
+	CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(\
+		"END_PROFILE",\
+		CPP__TREE__CREATE_ENTITIES_VECTOR(),\
+		ECS2::Entity::Id::invalid_\
+	)\
+)
 
 namespace OksEngine::ECS::Generator
 {
@@ -70,6 +97,7 @@ namespace OksEngine::ECS::Generator
 				hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE("Common.Bitset.hpp"));
 				hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE("lua.hpp"));
 				hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE("luabridge3/LuaBridge/LuaBridge.h"));
+				hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE("OS.Assert.hpp"));
 			}
 
 			//CPP File
@@ -173,17 +201,17 @@ namespace OksEngine::ECS::Generator
 					if (includesTable.isTable()) {
 
 						for (luabridge::Iterator it(includesTable); !it.isNil(); ++it) {
-							// ������ ������� ������� � ��� LuaRef, ������� ������ ���� ��������
+							// Каждый элемент таблицы — это LuaRef, который должен быть таблицей
 							luabridge::LuaRef ruleTable = it.value();
 
 							if (ruleTable.isTable()) {
 
 								bool needToIncludeHeader = false;
-								// ��������� ������ "Entries"
+								// Извлекаем массив "Entries"
 								luabridge::LuaRef entriesRef = ruleTable["Entries"];
 								if (entriesRef.isTable()) {
 									for (luabridge::Iterator entIt(entriesRef); !entIt.isNil(); ++entIt) {
-										// �������� ������ ���� �������
+										// Значение должно быть строкой
 										if (entIt.value().isString()) {
 											std::string key = entIt.value().cast<std::string>().value();
 											if (typeName.find(key) != std::string::npos) {
@@ -193,7 +221,7 @@ namespace OksEngine::ECS::Generator
 									}
 								}
 
-								// ���������� ��������� ������ "Headers"
+								// Аналогично извлекаем массив "Headers"
 								luabridge::LuaRef headersRef = ruleTable["Headers"];
 								if (headersRef.isTable()) {
 									for (luabridge::Iterator hdrIt(headersRef); !hdrIt.isNil(); ++hdrIt) {
@@ -240,36 +268,55 @@ namespace OksEngine::ECS::Generator
 				}
 
 				for (ECS2::Entity::Id systemEntityId : fileSystems) {
-					if (IsComponentExist<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId)) {
-						ECS2::Entity::Id updateMethodEntityId = GetComponent<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId)->id_;
-						if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)) {
 
-							const auto processEntityIds = GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)->entityIds_;
+					const auto readComponents = ECS__FILE__TABLE__SYSTEM__GET_READ_COMPONENT_ENTITY_IDS(systemEntityId);
+					const auto writeComponents = ECS__FILE__TABLE__SYSTEM__GET_WRITE_COMPONENT_ENTITY_IDS(systemEntityId);
 
-							if (!processEntityIds.empty()) {
-								Common::Index entityIndex = 0;
-								for (ECS2::Entity::Id processEntityId : processEntityIds) {
-									auto processComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::ProcessComponents>(processEntityId)->componentInfos_;
+					std::vector<ECS2::Entity::Id> allComponents = readComponents;
+					allComponents.insert(allComponents.end(), writeComponents.begin(), writeComponents.end());
 
-									for (const auto& componentInfo : processComponentInfos) {
-
-										if (componentInfo.name_ == "::Config::Tag") {
-											Common::BreakPointLine();
-										}
-										ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, systemEntityId, componentInfo.name_);
-										ECS2::Entity::Id ecsFileEntityId = ECS__FILE__TABLE__GET_TABLE_FILE_ENTITY(componentEntityId);
-										if (ecsFileEntityId == fileEntityId) {
-											continue;
-										}
-										const std::filesystem::path ecsFileIncludePath = ECS__FILE__GET_FILE_INCLUDE_PATH(ecsFileEntityId, projectFilePath, ".hpp");
-
-										hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(ecsFileIncludePath.string()));
-									}
-
-								}
-							}
+					for (const ECS2::Entity::Id componentEntityId : allComponents) {
+						ECS2::Entity::Id ecsFileEntityId = ECS__FILE__TABLE__GET_TABLE_FILE_ENTITY(componentEntityId);
+						if (ecsFileEntityId == fileEntityId) {
+							continue;
 						}
+						const std::filesystem::path ecsFileIncludePath = ECS__FILE__GET_FILE_INCLUDE_PATH(ecsFileEntityId, projectFilePath, ".hpp");
+
+						hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(ecsFileIncludePath.string()));
 					}
+
+					//if (IsComponentExist<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId)) {
+					//	ECS2::Entity::Id updateMethodEntityId = GetComponent<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId)->id_;
+					//	if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)) {
+
+					//		const auto processEntityIds = GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)->entityIds_;
+
+					//		if (!processEntityIds.empty()) {
+					//			Common::Index entityIndex = 0;
+					//			for (ECS2::Entity::Id processEntityId : processEntityIds) {
+
+
+					//				auto processComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::ProcessComponents>(processEntityId)->componentInfos_;
+
+					//				for (const auto& componentInfo : processComponentInfos) {
+
+					//					if (componentInfo.name_ == "::Config::Tag") {
+					//						Common::BreakPointLine();
+					//					}
+					//					ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, systemEntityId, componentInfo.name_);
+					//					ECS2::Entity::Id ecsFileEntityId = ECS__FILE__TABLE__GET_TABLE_FILE_ENTITY(componentEntityId);
+					//					if (ecsFileEntityId == fileEntityId) {
+					//						continue;
+					//					}
+					//					const std::filesystem::path ecsFileIncludePath = ECS__FILE__GET_FILE_INCLUDE_PATH(ecsFileEntityId, projectFilePath, ".hpp");
+
+					//					hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(ecsFileIncludePath.string()));
+					//				}
+
+					//			}
+					//		}
+					//	}
+					//}
 				}
 
 				for (const auto& include : requiredIncludes) {
@@ -371,9 +418,7 @@ namespace OksEngine::ECS::Generator
 				}
 			}
 
-
 			//Generate structs code tree.
-
 			for (ECS2::Entity::Id structEntityId : fileStructs) {
 
 				const ECS2::ComponentsFilter structCF = GetComponentsFilter(structEntityId);
@@ -537,8 +582,6 @@ namespace OksEngine::ECS::Generator
 					hppFileNodeEntityIds.push_back(cppStructEntityId);
 				}
 			}
-
-
 
 			//Generate components code tree.
 			for (ECS2::Entity::Id ecsComponentEntityId : fileComponents) {
@@ -825,12 +868,9 @@ namespace OksEngine::ECS::Generator
 								CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("ImGui::PushID"),
 								CPP__TREE__CREATE_ENTITIES_VECTOR(),
 								CPP__TREE__CREATE_ENTITIES_VECTOR(
-									CPP__TREE__EXPR__CREATE_CALL_EXPR(
-										CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(ECS__FILE__TABLE__GET_NAME(ecsComponentEntityId, false) + "::" + "GetTypeId"),
-										CPP__TREE__CREATE_ENTITIES_VECTOR(),
-										CPP__TREE__CREATE_ENTITIES_VECTOR()
+									CPP__TREE__EXPR__CREATE_CALL_EXPR_NO_PARAMETERS(
+										(ECS__FILE__TABLE__GET_NAME(ecsComponentEntityId, false) + "::" + "GetTypeId")
 									)
-
 								)
 							)));
 
@@ -934,11 +974,7 @@ namespace OksEngine::ECS::Generator
 							}
 						}
 						bodyChilds.push_back(CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
-							CPP__TREE__EXPR__CREATE_CALL_EXPR(
-								CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("ImGui::PopID"),
-								CPP__TREE__CREATE_ENTITIES_VECTOR(),
-								CPP__TREE__CREATE_ENTITIES_VECTOR()
-							)
+							CPP__TREE__EXPR__CREATE_CALL_EXPR_NO_PARAMETERS("ImGui::PopID")
 						)
 						);
 
@@ -2148,14 +2184,19 @@ namespace OksEngine::ECS::Generator
 							ECS2::Entity::Id componentTemplateTypEntityId = CPP__TREE__DECL__CREATE_TEMPLATE_TYPE_PARAMETER("Component", ECS2::Entity::Id::invalid_, false);
 							std::vector<ECS2::Entity::Id> childs;
 							if (IsComponentExist<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId)) {
+
+								std::vector<ECS2::Entity::Id> isAnyOfArgs;
+								isAnyOfArgs.push_back(componentTemplateTypEntityId);
 								ECS2::Entity::Id updateMethodEntityId = GetComponent<ECS::File::Table::System::UpdateMethod::EntityId>(systemEntityId)->id_;
 								if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)) {
 
 									const auto processEntityIds = GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)->entityIds_;
 
 									if (!processEntityIds.empty()) {
-										std::vector<ECS2::Entity::Id> isAnyOfArgs;
-										isAnyOfArgs.push_back(componentTemplateTypEntityId);
+										
+										if (systemName == "ProcessLoadResourceRequest") {
+											Common::BreakPointLine();
+										}
 										Common::Index entityIndex = 0;
 										for (ECS2::Entity::Id processEntityId : processEntityIds) {
 											auto processComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::ProcessComponents>(processEntityId)->componentInfos_;
@@ -2166,27 +2207,72 @@ namespace OksEngine::ECS::Generator
 												isAnyOfArgs.push_back(CPP__TREE__TYPE__CREATE_NAMED_TYPE(componentName));
 											}
 										}
-										ECS2::Entity::Id templateIdExprEntityId = CreateEntity();
-										CreateComponent<CPP::Tree::Expr::Tag>(templateIdExprEntityId);
-										CreateComponent<CPP::Tree::Expr::TemplateIdExpr>(templateIdExprEntityId, "Common::IsAnyOf", isAnyOfArgs);
-
-										std::vector<ECS2::Entity::Id> macroArgEntityId{
-											templateIdExprEntityId,
-												CPP__TREE__EXPR__CREATE_LITERAL_EXPR(
-													"\"Attempt to access component{} that system(GenerateCode) can't access. Added access entities description "
-													"to .ecs file that corresponds to system\"", "")
-										};
-
-										ECS2::Entity::Id macroCallEntityId = CPP__TREE__EXPR__CREATE_MACRO_INVOCATION("STATIC_ASSERT",
-											macroArgEntityId, ECS2::Entity::Id::invalid_);
-
-										childs.push_back(CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(std::vector<ECS2::Entity::Id>{CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(macroCallEntityId)}));
+										
 									}
 								}
+
+								if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Access::Entity::EntityIds>(updateMethodEntityId)) {
+
+									const auto accessEntityIds = GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::EntityIds>(updateMethodEntityId)->entityIds_;
+
+									if (!accessEntityIds.empty()) {
+
+										if (systemName == "ProcessLoadResourceRequest") {
+											Common::BreakPointLine();
+										}
+										Common::Index entityIndex = 0;
+										for (ECS2::Entity::Id accessEntityId : accessEntityIds) {
+											//components
+											if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Access::Entity::AccessComponents>(accessEntityId)) {
+												auto accessComponentInfos = GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::AccessComponents>(accessEntityId)->components_;
+
+												for (const auto& componentInfo : accessComponentInfos) {
+													ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, systemEntityId, componentInfo.name_);
+													const std::string componentName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false);
+													isAnyOfArgs.push_back(CPP__TREE__TYPE__CREATE_NAMED_TYPE(componentName));
+												}
+											}
+											//archetype
+											if (IsComponentExist<ECS::File::Table::System::UpdateMethod::Access::Entity::Archetype>(accessEntityId)) {
+												const std::string archetypeLocalName = GetComponent<ECS::File::Table::System::UpdateMethod::Access::Entity::Archetype>(accessEntityId)->name_;
+												ECS2::Entity::Id archetypeEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Archetype::Tag, systemEntityId, archetypeLocalName);
+												const std::string namespaceStr = ECS__FILE__TABLE__GET_FULL_NAME(archetypeEntityId, "__", true);
+												isAnyOfArgs.push_back(CPP__TREE__TYPE__CREATE_NAMED_TYPE(namespaceStr));
+											
+											}
+										}
+
+									}
+								}
+
+
+
+
+								ECS2::Entity::Id templateIdExprEntityId = CPP__TREE__EXPR__CREATE_CALL_EXPR(
+									CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("Common::IsAnyOf"),
+									isAnyOfArgs,
+									CPP__TREE__CREATE_ENTITIES_VECTOR()
+								);
+
+								ECS2::Entity::Id parentExprEntityId = CreateEntity();
+								CreateComponent<CPP::Tree::Expr::Tag>(parentExprEntityId);
+								CreateComponent<CPP::Tree::Expr::ParentExpr>(parentExprEntityId, templateIdExprEntityId);
+
+								std::vector<ECS2::Entity::Id> macroArgEntityId{
+									parentExprEntityId,
+										CPP__TREE__EXPR__CREATE_LITERAL_EXPR(
+											"\"Attempt to access component{} that system(GenerateCode) can't access. Added access entities description "
+											"to .ecs file that corresponds to system\"", "")
+								};
+
+								ECS2::Entity::Id macroCallEntityId = CPP__TREE__EXPR__CREATE_MACRO_INVOCATION("STATIC_ASSERT_MSG",
+									macroArgEntityId, ECS2::Entity::Id::invalid_);
+
+								childs.push_back(CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(std::vector<ECS2::Entity::Id>{CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(macroCallEntityId)}));
+
 							}
 
 							childs.push_back(
-
 								CPP__TREE__STMT__CREATE_RETURN_STATEMENT(
 									CPP__TREE__EXPR__CREATE_CALL_EXPR(
 										CPP__TREE__EXPR__CREATE_MEMBER_ACCESS_EXPR(
@@ -2195,7 +2281,9 @@ namespace OksEngine::ECS::Generator
 											true
 										),
 										std::vector<ECS2::Entity::Id>{componentTemplateTypEntityId},
-										std::vector<ECS2::Entity::Id>{}
+										CPP__TREE__CREATE_ENTITIES_VECTOR(
+											CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("entityId")
+										)
 									)
 
 								));
@@ -2208,9 +2296,15 @@ namespace OksEngine::ECS::Generator
 								CPP__TREE__TYPE__CREATE_POINTER_TYPE(componentTemplateTypEntityId),
 								std::vector<ECS2::Entity::Id>{ componentTemplateTypEntityId },
 								"GetComponent",
-								std::vector<ECS2::Entity::Id>{ },
+								CPP__TREE__CREATE_ENTITIES_VECTOR(
+									
+								),
 								cppSystemClassEntityId,
 								CPP__TREE__CREATE_ENTITIES_VECTOR(
+									CPP__TREE__DECL__CREATE_PARAMETER(
+										CPP__TREE__TYPE__CREATE_NAMED_TYPE("ECS2::Entity::Id"),
+										"entityId"
+									),
 									CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(
 										childs
 									)
@@ -2236,7 +2330,9 @@ namespace OksEngine::ECS::Generator
 											CPP__TREE__TYPE__CREATE_NAMED_TYPE("ECS2::Entity::Id"),
 											"entity" + std::to_string(entityIndex) + "Id")
 										);
-
+										if (systemName == "ProcessLoadResourceRequest") {
+											Common::BreakPointLine();
+										}
 										for (const auto& componentInfo : processComponentInfos) {
 											ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, systemEntityId, componentInfo.name_);
 											const std::string componentTypeFullName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false);
@@ -2418,25 +2514,19 @@ namespace OksEngine::ECS::Generator
 												"Update",
 												false);
 
-											childForEachCallStmt.push_back(CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
-												CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(
-													"BEGIN_PROFILE",
-													CPP__TREE__CREATE_ENTITIES_VECTOR(
-														CPP__TREE__EXPR__CREATE_LITERAL_EXPR("\"" + systemName + "::Update\"", "")
-													),
-													ECS2::Entity::Id::invalid_
+											childForEachCallStmt.push_back(
+												CREATE_BEGIN_PROFILE_EXPR_STATEMENT(
+													("\"" + systemName + "::Update\"")
 												)
-											));
+											);
 											childForEachCallStmt.push_back(CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
-												CPP__TREE__EXPR__CREATE_CALL_EXPR(systemObjectMemberAccessExprEntityId, std::vector<ECS2::Entity::Id>{}, updateCallArgumentsIdentifierExprEntityIds)
-											));
-											childForEachCallStmt.push_back(CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
-												CPP__TREE__EXPR__CREATE_MACRO_INVOCATION(
-													"END_PROFILE",
+												CPP__TREE__EXPR__CREATE_CALL_EXPR(
+													systemObjectMemberAccessExprEntityId,
 													CPP__TREE__CREATE_ENTITIES_VECTOR(),
-													ECS2::Entity::Id::invalid_
+													updateCallArgumentsIdentifierExprEntityIds
 												)
 											));
+											childForEachCallStmt.push_back(CREATE_END_PROFILE_EXPR_STATEMENT());
 
 										}
 										lambdaEntityId = CPP__TREE__EXPR__CREATE_LAMBDA(
@@ -2472,6 +2562,30 @@ namespace OksEngine::ECS::Generator
 								ECS2::Entity::Id forEachExprStmtEntityId = createForEachCall(processEntityIds[0], 0);
 								bodyChilds.push_back(forEachExprStmtEntityId);
 							}
+							else {
+								//No process entities need to call update method once.
+								ECS2::Entity::Id systemObjectMemberAccessExprEntityId = CPP__TREE__EXPR__CREATE_MEMBER_ACCESS_EXPR(
+									CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR(std::string{ (char)std::tolower(systemName[0]) } + systemName.substr(1)),
+									"Update",
+									false);
+
+								bodyChilds.push_back(
+									CREATE_BEGIN_PROFILE_EXPR_STATEMENT(
+										("\"" + systemName + "::Update\"")
+									)
+								);
+								bodyChilds.push_back(CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+									CPP__TREE__EXPR__CREATE_CALL_EXPR(
+										systemObjectMemberAccessExprEntityId,
+										CPP__TREE__CREATE_ENTITIES_VECTOR(),
+										CPP__TREE__CREATE_ENTITIES_VECTOR()
+									)
+								));
+								bodyChilds.push_back(CREATE_END_PROFILE_EXPR_STATEMENT());
+							}
+						}
+						else {
+							// No update method. This system is mark for systems graph.
 						}
 
 						bodyCompoundStmtEntityId = CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT_COMPONENTS(
@@ -3180,13 +3294,13 @@ namespace OksEngine::ECS::Generator
 								}
 							}
 
-							// 2. �������� ����
+							// 2. Алгоритм Кана
 							while (!zeroInDegreeNodes.empty()) {
 								ECS2::Entity::Id currentId = zeroInDegreeNodes.front();
 								zeroInDegreeNodes.pop();
 								initSystemsOrder.push_back(currentId);
 								//
-									// ��������� inDegree ��� ���� �������
+									// Уменьшаем inDegree для всех соседей
 
 								if (IsComponentExist<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(currentId)) {
 									ECS2::Entity::Id callOrderEntityId = GetComponent<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(currentId)->id_;
@@ -3293,7 +3407,7 @@ namespace OksEngine::ECS::Generator
 
 							}
 
-							// 2. �������� ����
+							// 2. Алгоритм Кана
 							while (!zeroInDegreeNodes.empty()) {
 								ECS2::Entity::Id currentId = zeroInDegreeNodes.front();
 								const std::string systemName = ECS__FILE__TABLE__GET_FULL_NAME(currentId, "::", false);
@@ -3302,7 +3416,7 @@ namespace OksEngine::ECS::Generator
 								orderedSystemIdToIndex[currentId] = systemsOrder.size() - 1;
 
 								//
-									// ��������� inDegree ��� ���� �������
+									// Уменьшаем inDegree для всех соседей
 
 
 								ECS2::Entity::Id callOrderEntityId = GetComponent<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(currentId)->id_;
@@ -4021,6 +4135,227 @@ namespace OksEngine::ECS::Generator
 		}
 
 
+
+	}
+
+	AI_GENERATED
+		// Вспомогательная функция для проверки существования альтернативного пути
+		bool hasAlternativePath(Agraph_t* graph, Agnode_t* source, Agnode_t* target) {
+		// BFS для поиска пути, исключая прямое ребро source->target
+		std::unordered_set<Agnode_t*> visited;
+		std::queue<Agnode_t*> q;
+
+		visited.insert(source);
+
+		// Начинаем с соседей source (кроме target)
+		for (Agedge_t* e = agfstout(graph, source); e; e = agnxtout(graph, e)) {
+			Agnode_t* neighbor = aghead(e);
+			if (neighbor != target) {
+				visited.insert(neighbor);
+				q.push(neighbor);
+			}
+		}
+
+		while (!q.empty()) {
+			Agnode_t* current = q.front();
+			q.pop();
+
+			if (current == target) {
+				return true; // Найден альтернативный путь
+			}
+
+			for (Agedge_t* e = agfstout(graph, current); e; e = agnxtout(graph, e)) {
+				Agnode_t* neighbor = aghead(e);
+				if (visited.find(neighbor) == visited.end()) {
+					visited.insert(neighbor);
+					q.push(neighbor);
+				}
+			}
+		}
+
+		return false; // Альтернативный путь не найден
+	}
+
+
+	AI_GENERATED
+		// Основная функция для удаления транзитивных рёбер
+		void removeTransitiveEdges(Agraph_t* graph) {
+		if (!graph) return;
+
+		std::set<Agedge_t*> edgesToRemove;
+
+		// Собираем все рёбра для проверки
+		for (Agnode_t* source = agfstnode(graph); source; source = agnxtnode(graph, source)) {
+			for (Agedge_t* e = agfstout(graph, source); e; e = agnxtout(graph, e)) {
+				Agnode_t* target = aghead(e);
+
+				// Проверяем, есть ли альтернативный путь от source к target
+				if (hasAlternativePath(graph, source, target)) {
+					edgesToRemove.insert(e);
+				}
+			}
+		}
+
+		// Удаляем найденные транзитивные рёбра
+		for (Agedge_t* e : edgesToRemove) {
+			agdelete(graph, e);
+			/*std::cout << "Removed edge: "
+				<< agnameof(agtail(e)) << " -> "
+				<< agnameof(aghead(e)) << std::endl;*/
+		}
+
+		std::cout << "Всего удалено рёбер: " << edgesToRemove.size() << std::endl;
+	}
+
+	AI_GENERATED
+		// Функция для поиска и раскраски циклов в красный цвет
+		void findAndColorCycles(Agraph_t* graph) {
+		if (!graph) return;
+
+		// Структуры для хранения состояния узлов
+		std::unordered_map<Agnode_t*, int> nodeState; // 0 - не посещен, 1 - в обработке, 2 - обработан
+		std::unordered_map<Agnode_t*, Agnode_t*> parent;
+		std::vector<std::pair<Agnode_t*, Agnode_t*>> cycleEdges;
+
+		// Рекурсивная функция DFS для поиска циклов
+		std::function<void(Agnode_t*)> dfs = [&](Agnode_t* node) {
+			nodeState[node] = 1; // Узел в обработке
+
+			// Обход всех исходящих рёбер
+			for (Agedge_t* edge = agfstout(graph, node); edge; edge = agnxtout(graph, edge)) {
+				Agnode_t* neighbor = aghead(edge);
+
+				if (nodeState[neighbor] == 0) {
+					// Соседний узел не посещен
+					parent[neighbor] = node;
+					dfs(neighbor);
+				}
+				else if (nodeState[neighbor] == 1) {
+					// Найден цикл! Добавляем ребро в список
+					cycleEdges.push_back({ node, neighbor });
+
+					// Прокручиваем назад по родителям, чтобы найти все рёбра цикла
+					Agnode_t* current = node;
+					while (current != neighbor && parent.find(current) != parent.end()) {
+						cycleEdges.push_back({ parent[current], current });
+						current = parent[current];
+					}
+				}
+			}
+
+			nodeState[node] = 2; // Узел полностью обработан
+			};
+
+		// Запускаем DFS для всех узлов
+		for (Agnode_t* node = agfstnode(graph); node; node = agnxtnode(graph, node)) {
+			if (nodeState[node] == 0) {
+				dfs(node);
+			}
+		}
+
+		// Раскрашиваем рёбра циклов в красный цвет
+		for (const auto& edgePair : cycleEdges) {
+			// Ищем ребро между узлами
+			Agedge_t* edge = agedge(graph, edgePair.first, edgePair.second, nullptr, 0);
+			if (edge) {
+				// Устанавливаем атрибут цвета
+				agsafeset(edge, (char*)"color", (char*)"red", (char*)"");
+
+				// Можно также сделать ребро толще для лучшей видимости
+				agsafeset(edge, (char*)"penwidth", (char*)"3.0", (char*)"");
+			}
+		}
+
+		if (!cycleEdges.empty()) {
+			// Выводим информацию о найденных циклах
+			OS::LogError("systems_graph", "FOUND LOOP/S IN SYSTEMS GRAPH!!! CHECK .dot graph.");
+		}
+	}
+
+
+	void GenerateDotGraph::Update(
+		ECS2::Entity::Id entity0id,
+		const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
+		const OksEngine::ECS::Project::Path* eCS__Project__Path0,
+		const OksEngine::LuaScript* luaScript0) {
+
+		Agraph_t* g = agopen((char*)"G", Agstrictdirected, nullptr);
+
+		const auto systemComponents = GetComponents<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
+		const Common::Size allSystemsNumber = world_->GetEntitiesNumber<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
+
+		std::unordered_map<ECS2::Entity::Id, Agnode_t*, ECS2::Entity::Id::Hash> systemToNode;
+
+
+		std::unordered_set<std::string> names;
+
+
+		//Create nodes for all systems.
+		for (Common::Index i = 0; i < allSystemsNumber; i++) {
+
+			const auto systemType = *(std::get<ECS::File::Table::System::Type*>(systemComponents) + i);
+			if (systemType.type_ != "Initialize") {
+
+				ECS2::Entity::Id systemEntityId = *(std::get<ECS2::Entity::Id*>(systemComponents) + i);
+
+				const ECS2::ComponentsFilter systemCF = GetComponentsFilter(systemEntityId);
+
+
+				std::string fullSystemName = ECS__FILE__TABLE__GET_FULL_NAME(systemEntityId, "::", false);
+
+				names.insert(fullSystemName);
+
+				Agnode_t* systemNode = agnode(g, (char*)fullSystemName.c_str(), 1);
+
+				if (!systemCF.IsSet<ECS::File::Table::System::UpdateMethod::EntityId>()) {
+					//System  - mark
+					agsafeset(systemNode, (char*)"color", (char*)"red", (char*)"");
+				}
+
+				const auto [it, wasInserted] = systemToNode.insert({ systemEntityId, systemNode });
+				ASSERT(wasInserted);
+
+			}
+		}
+
+		ASSERT(names.size() == systemToNode.size());
+
+		//Create edges between nodes.
+		for (Common::Index i = 0; i < allSystemsNumber; i++) {
+
+			const auto systemType = *(std::get<ECS::File::Table::System::Type*>(systemComponents) + i);
+			if (systemType.type_ != "Initialize") {
+				const ECS2::Entity::Id systemEntityId = *(std::get<ECS2::Entity::Id*>(systemComponents) + i);
+				Agnode_t* systemNode = systemToNode[systemEntityId];
+				std::string fullSystemName = ECS__FILE__TABLE__GET_FULL_NAME(systemEntityId, "::", false);
+				const ECS2::Entity::Id callOrderEntityId = (*(std::get<ECS::File::Table::System::CallOrder::EntityId*>(systemComponents) + i)).id_;
+				ASSERT(callOrderEntityId.IsValid());
+				if (IsComponentExist<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId)) {
+					const auto& runAfterSystems = GetComponent<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId)->systems_;
+					for (const auto& systemInfo : runAfterSystems) {
+						ASSERT(systemInfo.id_.IsValid());
+						Agnode_t* afterSystemNode = systemToNode[systemInfo.id_];
+						Agedge_t* gEdge = agedge(g, afterSystemNode, systemNode, nullptr, 1);
+					}
+				}
+
+			}
+		}
+		removeTransitiveEdges(g);
+		findAndColorCycles(g);
+		{
+			GVC_t* gvc = gvContext();
+			char* dotData = nullptr;
+			unsigned int length = 0;
+
+			gvLayout(gvc, g, "dot");
+			gvRenderData(gvc, g, "dot", &dotData, &length);
+			std::filesystem::path projectFilePath = eCS__Project__Path0->path_;
+			OksEngine::Resource::CreateFileAndSaveContent((projectFilePath.parent_path() / "auto_ECSSystemsCallGraph.dot").string(), dotData, length);
+			agclose(g);
+			gvFreeContext(gvc);
+
+		}
 
 	}
 

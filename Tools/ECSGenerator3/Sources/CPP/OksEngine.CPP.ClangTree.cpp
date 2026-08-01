@@ -638,6 +638,12 @@ namespace OksEngine
 							processNode(pattern);
 							code += "...";
 						}
+						else if (nodeCF.IsSet<CPP::Tree::Expr::ParentExpr>()) {
+							ECS2::Entity::Id innerExpr = GetComponent<CPP::Tree::Expr::ParentExpr>(entityId)->innerExpr_;
+							code += "(";
+							processNode(innerExpr);
+							code += ")";
+						}
 						else {
 							NOT_IMPLEMENTED();
 						}
