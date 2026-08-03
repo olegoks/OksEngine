@@ -35,7 +35,7 @@
 		return requestCF.IsSet<Resource::Manager::Request::State::Finished>();										\
 	}(requestEntityId)
 
-namespace OksEngine::Resource {
+namespace Resource {
 
 	static const char* prefix_ = "resource:/";
 

@@ -57,18 +57,18 @@ set(CLANG_LIBS
     LLVMSupport
 )
 
-# find_package(CURL REQUIRED)
-# find_package(libzip REQUIRED)
-# find_package(nlohmann_json REQUIRED)
 
-# add_executable(ecs-pm main.cpp)
-# target_link_libraries(ecs-pm PRIVATE CURL::libcurl libzip::zip nlohmann_json::nlohmann_json)
-# target_compile_features(ecs-pm PRIVATE cxx_std_17)
+find_package(CURL REQUIRED)
+find_package(libzip REQUIRED)
+find_package(nlohmann_json REQUIRED)
+
+
+target_link_libraries(TgBot PRIVATE CURL::libcurl libzip::zip nlohmann_json::nlohmann_json)
 
 set_target_properties(TgBot
         PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
-        "$<$<CONFIG:Debug>: -ecs_project_file D:/OksEngine/Tools/TgBot/ECSGenerator3.ecs_project>$<$<CONFIG:Release>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptyScene.scn>$<$<CONFIG:RelWithDebInfo>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn resource:/Scenes/OksEngine.EmptyScene.scn>"
+        "$<$<CONFIG:Debug>: -ecs_project_file D:/OksEngine/Tools/PMTest/PMTest.ecs_project>$<$<CONFIG:Release>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptyScene.scn>$<$<CONFIG:RelWithDebInfo>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn resource:/Scenes/OksEngine.EmptyScene.scn>"
     )
 
 target_include_directories(TgBot

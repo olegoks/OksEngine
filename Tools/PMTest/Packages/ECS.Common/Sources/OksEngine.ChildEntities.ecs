@@ -1,0 +1,6 @@
+ChildEntitiesComponent = {
+    serializable = false,
+    fields = { 
+        { type = "std::vector<ECS2::Entity::Id>", name = "processesEntitiesIds" }
+     }
+}

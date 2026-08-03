@@ -70,7 +70,7 @@ ResourceNamespace = {
 					},
 					{
 						processesComponents = {
-							"::OksEngine::Config::Tag",
+							"::Config::Tag",
 							"LuaScript"
 						}
 					}

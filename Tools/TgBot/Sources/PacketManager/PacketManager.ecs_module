@@ -1,0 +1,6 @@
+ECS = {
+    Files = {
+        "./PacketManager.ecs",
+        "./PacketManager.Version.ecs"
+    }
+}

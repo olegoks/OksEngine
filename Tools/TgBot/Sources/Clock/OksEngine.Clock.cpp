@@ -3,77 +3,73 @@
 
 #include <chrono>
 
-namespace OksEngine
-{
-	void CreateClockEntity::Update() {
-		
-		const ECS2::Entity::Id entityId = CreateEntity();
+void CreateClockEntity::Update() {
 
-		CreateComponent<Clock>(entityId);
-		CreateComponent<TimeSinceEngineStart>(entityId, 0);
+	const ECS2::Entity::Id entityId = CreateEntity();
 
-		const auto nowTimePoint = std::chrono::high_resolution_clock::now();
-		const auto timeSinceEpoch = nowTimePoint.time_since_epoch();
-		const auto microsecondsSinceEpoch = std::chrono::duration_cast<std::chrono::microseconds>(timeSinceEpoch);
-		
-		CreateComponent<TimeSinceEpoch>(entityId, microsecondsSinceEpoch.count());
+	CreateComponent<Clock>(entityId);
+	CreateComponent<TimeSinceEngineStart>(entityId, 0);
 
-		CreateComponent<EngineStartTimePoint>(entityId, nowTimePoint);
-		CreateComponent<FrameStartTimePoint>(entityId, nowTimePoint);
-		CreateComponent<FrameEndTimePoint>(entityId, nowTimePoint);
+	const auto nowTimePoint = std::chrono::high_resolution_clock::now();
+	const auto timeSinceEpoch = nowTimePoint.time_since_epoch();
+	const auto microsecondsSinceEpoch = std::chrono::duration_cast<std::chrono::microseconds>(timeSinceEpoch);
 
-		CreateComponent<PreviousFrameDuration>(entityId, 0);
-	}
+	CreateComponent<TimeSinceEpoch>(entityId, microsecondsSinceEpoch.count());
 
-	void UpdateTimeSinceEpoch::Update(ECS2::Entity::Id entity0id, TimeSinceEpoch* timeSinceEpoch0) {
+	CreateComponent<EngineStartTimePoint>(entityId, nowTimePoint);
+	CreateComponent<FrameStartTimePoint>(entityId, nowTimePoint);
+	CreateComponent<FrameEndTimePoint>(entityId, nowTimePoint);
 
-		const auto timeSinceEpoch = std::chrono::high_resolution_clock::now().time_since_epoch();
-		const auto microsecondsSinceEpoch = std::chrono::duration_cast<std::chrono::microseconds>(timeSinceEpoch);
-		timeSinceEpoch0->microseconds_ = microsecondsSinceEpoch.count();
+	CreateComponent<PreviousFrameDuration>(entityId, 0);
+}
 
-	}
+void UpdateTimeSinceEpoch::Update(ECS2::Entity::Id entity0id, TimeSinceEpoch* timeSinceEpoch0) {
 
-	void UpdateTimeSinceEngineStart::Update(
-		ECS2::Entity::Id entity0id,
-		TimeSinceEngineStart* timeSinceEngineStart0,
-		const EngineStartTimePoint* engineStartTimePoint0) {
+	const auto timeSinceEpoch = std::chrono::high_resolution_clock::now().time_since_epoch();
+	const auto microsecondsSinceEpoch = std::chrono::duration_cast<std::chrono::microseconds>(timeSinceEpoch);
+	timeSinceEpoch0->microseconds_ = microsecondsSinceEpoch.count();
 
-		const auto durationSinceEngineStart = std::chrono::high_resolution_clock::now() - engineStartTimePoint0->timepoint_;
-		const auto microsecondsSinceEngineStart = std::chrono::duration_cast<std::chrono::microseconds>(durationSinceEngineStart);
+}
 
-		timeSinceEngineStart0->microseconds_ = microsecondsSinceEngineStart.count();
+void UpdateTimeSinceEngineStart::Update(
+	ECS2::Entity::Id entity0id,
+	TimeSinceEngineStart* timeSinceEngineStart0,
+	const EngineStartTimePoint* engineStartTimePoint0) {
 
-	}
+	const auto durationSinceEngineStart = std::chrono::high_resolution_clock::now() - engineStartTimePoint0->timepoint_;
+	const auto microsecondsSinceEngineStart = std::chrono::duration_cast<std::chrono::microseconds>(durationSinceEngineStart);
 
-	void UpdateFrameStartTimePoint::Update(
-		ECS2::Entity::Id entity0id,
-		FrameStartTimePoint* frameStartTimePoint0) {
+	timeSinceEngineStart0->microseconds_ = microsecondsSinceEngineStart.count();
 
-		const auto nowTimePoint = std::chrono::high_resolution_clock::now();
-		frameStartTimePoint0->timepoint_ = nowTimePoint;
+}
 
-	}
+void UpdateFrameStartTimePoint::Update(
+	ECS2::Entity::Id entity0id,
+	FrameStartTimePoint* frameStartTimePoint0) {
 
-	void UpdateFrameEndTimePoint::Update(
-		ECS2::Entity::Id entity0id,
-		FrameEndTimePoint* frameEndTimePoint0) {
+	const auto nowTimePoint = std::chrono::high_resolution_clock::now();
+	frameStartTimePoint0->timepoint_ = nowTimePoint;
 
-		const auto nowTimePoint = std::chrono::high_resolution_clock::now();
-		frameEndTimePoint0->timepoint_ = nowTimePoint;
+}
 
-	}
+void UpdateFrameEndTimePoint::Update(
+	ECS2::Entity::Id entity0id,
+	FrameEndTimePoint* frameEndTimePoint0) {
 
-	void UpdatePreviousFrameDuration::Update(
-		ECS2::Entity::Id entity0id,
-		PreviousFrameDuration* previousFrameDuration0,
-		const FrameStartTimePoint* frameStartTimePoint0) {
+	const auto nowTimePoint = std::chrono::high_resolution_clock::now();
+	frameEndTimePoint0->timepoint_ = nowTimePoint;
 
-		const auto durationSincePreviousFrameStart = std::chrono::high_resolution_clock::now() - frameStartTimePoint0->timepoint_;
+}
 
-		const auto microsecondsSincePreviousFrameStart = std::chrono::duration_cast<std::chrono::microseconds>(durationSincePreviousFrameStart);
+void UpdatePreviousFrameDuration::Update(
+	ECS2::Entity::Id entity0id,
+	PreviousFrameDuration* previousFrameDuration0,
+	const FrameStartTimePoint* frameStartTimePoint0) {
 
-		previousFrameDuration0->microseconds_ = microsecondsSincePreviousFrameStart.count();
+	const auto durationSincePreviousFrameStart = std::chrono::high_resolution_clock::now() - frameStartTimePoint0->timepoint_;
 
-	}
+	const auto microsecondsSincePreviousFrameStart = std::chrono::duration_cast<std::chrono::microseconds>(durationSincePreviousFrameStart);
+
+	previousFrameDuration0->microseconds_ = microsecondsSincePreviousFrameStart.count();
 
 }

@@ -1,7 +1,0 @@
-ECS = {
-    Files = {
-        --"./OksEngine.Test.ecs",
-        "./Test2/OksEngine.Test2.ecs",
-        --"./OksEngine.Test.FileDependency.ecs"
-    }
-}

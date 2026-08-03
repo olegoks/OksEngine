@@ -1,9 +1,6 @@
 #pragma once
 #include <Engine\FramesCounter\auto_OksEngine.FramesCounter.hpp>
 
-namespace OksEngine
-{
-
 void CreateFramesCounterEntity::Update() {
 
     ECS2::Entity::Id entityId = CreateEntity();
@@ -18,6 +15,3 @@ void IncreaseFramesCounter::Update(ECS2::Entity::Id entity0id, FramesCounter *fr
 
 };
 
-
-
-} // namespace OksEngine

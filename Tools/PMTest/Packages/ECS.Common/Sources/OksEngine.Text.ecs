@@ -1,0 +1,5 @@
+TextComponent = {
+    fields = { 
+        { type = "std::string", name = "value" }
+    }
+}

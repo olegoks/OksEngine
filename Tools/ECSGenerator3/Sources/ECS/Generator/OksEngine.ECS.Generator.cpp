@@ -254,7 +254,6 @@ namespace OksEngine::ECS::Generator
 							for (auto include : includes) {
 								requiredIncludes.insert(include);
 							}
-
 						}
 					}
 				}
@@ -2094,6 +2093,48 @@ namespace OksEngine::ECS::Generator
 							systemClassChildEntityIds.push_back(createEntityMethodEntityId);
 						}
 
+						//template <class... Components> ECS2::Entity::Id CreateEntity()
+						//{
+						//	return world_->CreateEntity<Components...>();
+						//};
+						{
+							ECS2::Entity::Id componentsTemplateTypEntityId = CPP__TREE__DECL__CREATE_TEMPLATE_TYPE_PARAMETER("Component", ECS2::Entity::Id::invalid_, true);
+							std::vector<ECS2::Entity::Id> childs;
+
+							childs.push_back(
+								CPP__TREE__STMT__CREATE_COMPOUND_STATEMENT(
+									CPP__TREE__CREATE_ENTITIES_VECTOR(
+										CPP__TREE__STMT__CREATE_RETURN_STATEMENT(
+											CPP__TREE__EXPR__CREATE_CALL_EXPR(
+												CPP__TREE__EXPR__CREATE_MEMBER_ACCESS_EXPR(
+													CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("world_"),
+													"CreateEntity",
+													true
+												),
+												CPP__TREE__CREATE_ENTITIES_VECTOR(componentsTemplateTypEntityId),
+												CPP__TREE__CREATE_ENTITIES_VECTOR()
+											)
+										)
+									)
+								)
+							);
+
+							ECS2::Entity::Id functionEntityId = CreateEntity();
+
+							CPP__TREE__DECL__CREATE_FUNCTION_COMPONENTS(
+								functionEntityId,
+								CPP__TREE__TYPE__CREATE_NAMED_TYPE("ECS2::Entity::Id"),
+								CPP__TREE__CREATE_ENTITIES_VECTOR(componentsTemplateTypEntityId),
+								"CreateEntity",
+								CPP__TREE__CREATE_ENTITIES_VECTOR(),
+								cppSystemClassEntityId,
+								childs);
+
+							CreateComponent<CPP::Tree::Access::Public_>(functionEntityId);
+
+							systemClassChildEntityIds.push_back(functionEntityId);
+						}
+
 
 						//IsEntityExist
 						//template <class... Components> bool IsEntityExist()
@@ -2193,7 +2234,7 @@ namespace OksEngine::ECS::Generator
 									const auto processEntityIds = GetComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::EntityIds>(updateMethodEntityId)->entityIds_;
 
 									if (!processEntityIds.empty()) {
-										
+
 										if (systemName == "ProcessLoadResourceRequest") {
 											Common::BreakPointLine();
 										}
@@ -2207,7 +2248,7 @@ namespace OksEngine::ECS::Generator
 												isAnyOfArgs.push_back(CPP__TREE__TYPE__CREATE_NAMED_TYPE(componentName));
 											}
 										}
-										
+
 									}
 								}
 
@@ -2238,7 +2279,7 @@ namespace OksEngine::ECS::Generator
 												ECS2::Entity::Id archetypeEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Archetype::Tag, systemEntityId, archetypeLocalName);
 												const std::string namespaceStr = ECS__FILE__TABLE__GET_FULL_NAME(archetypeEntityId, "__", true);
 												isAnyOfArgs.push_back(CPP__TREE__TYPE__CREATE_NAMED_TYPE(namespaceStr));
-											
+
 											}
 										}
 
@@ -2297,7 +2338,7 @@ namespace OksEngine::ECS::Generator
 								std::vector<ECS2::Entity::Id>{ componentTemplateTypEntityId },
 								"GetComponent",
 								CPP__TREE__CREATE_ENTITIES_VECTOR(
-									
+
 								),
 								cppSystemClassEntityId,
 								CPP__TREE__CREATE_ENTITIES_VECTOR(
@@ -3336,6 +3377,20 @@ namespace OksEngine::ECS::Generator
 										CPP__TREE__CREATE_ENTITIES_VECTOR(
 											CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("world")
 										)
+									)
+								)
+							);
+							// world2->ApplyDelayedRequests();
+							systemUpdateCalls.push_back(
+								CPP__TREE__STMT__CREATE_EXPRESSION_STATEMENT(
+									CPP__TREE__EXPR__CREATE_CALL_EXPR(
+										CPP__TREE__EXPR__CREATE_MEMBER_ACCESS_EXPR(
+											CPP__TREE__EXPR__CREATE_IDENTIFIER_EXPR("world"),
+											"ApplyDelayedRequests",
+											true
+										),
+										CPP__TREE__CREATE_ENTITIES_VECTOR(),
+										CPP__TREE__CREATE_ENTITIES_VECTOR()
 									)
 								)
 							);

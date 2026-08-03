@@ -990,7 +990,11 @@ namespace OksEngine::ECS::File {
 							CreateComponent<File::EntityId>(namespaceTableEntityId, entity1id);
 							parsedTables.push_back(namespaceTableEntityId);
 						}
-
+						else {
+							CreateComponent<File::EntityId>(parsedTableEntityId, entity1id);
+							parsedTables.push_back(parsedTableEntityId);
+						}
+						
 					}
 
 					//Separate namespace tables:

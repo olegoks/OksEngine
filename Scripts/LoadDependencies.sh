@@ -40,5 +40,8 @@ echo $(pwd)
 ./vcpkg.exe install rapidjson 
 ./vcpkg install tgbot-cpp:x64-windows
 ./vcpkg.exe install taskflow
+./vcpkg.exe install curl
+./vcpkg.exe install libzip
+./vcpkg.exe install nlohmann-json
 cd ../Scripts/
 

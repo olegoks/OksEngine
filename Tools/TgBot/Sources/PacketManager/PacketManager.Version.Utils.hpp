@@ -1,0 +1,1 @@
+#include <PacketManager/auto_PacketManager.Version.hpp>

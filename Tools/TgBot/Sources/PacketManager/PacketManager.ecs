@@ -1,0 +1,56 @@
+PacketManagerNamespace = {
+    TagComponent = {},
+    RequiredPackagesComponent = {
+        fields = {
+            { type = "std::vector<ECS2::Entity::Id>", name = "required" },
+        }
+    },
+    ECSProjectFilePathComponent = {
+        fields = {
+            { type = "std::string", name = "path" }
+        }
+    },
+    PackageNamespace = {
+        TagComponent = {},
+        VersionComponent = {
+            fields = {
+                { type = "Common::UInt64", name = "major", defaultValue = "0" },
+                { type = "Common::UInt64", name = "minor", defaultValue = "0" },
+                { type = "Common::UInt64", name = "patch", defaultValue = "0" }
+            }
+        },
+        NameComponent = {
+            fields = {
+                { type = "std::string", name = "name" },
+            }
+        },
+        DependenciesComponent = {
+            fields = {
+                { type = "std::vector<ECS2::Entity::Id>", name = "dependecies" },
+            }
+        },
+        PackageArchetype = {
+            components = {
+                "Tag",
+                "Name",
+                "Dependencies",
+                "Version"
+            }
+        }
+    },
+
+    LoadPacketsSystem = {
+        type = "Initialize",
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "CommandLineParameters",
+                        "ExecutablePath",
+                        "ECSProjectFilePath"
+                    }
+                }
+            }
+        }
+    }
+}

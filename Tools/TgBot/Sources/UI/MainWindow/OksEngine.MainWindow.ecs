@@ -15,7 +15,7 @@ CreateMainWindowSystem = {
         processesEntities = {
             {
                  processesComponents = {
-                    "::OksEngine::Config::Tag",
+                    "::Config::Tag",
                     "LuaScript"
                 }
             }

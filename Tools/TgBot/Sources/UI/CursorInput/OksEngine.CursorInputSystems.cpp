@@ -1,7 +1,7 @@
 #pragma once
 #include <UI\CursorInput\auto_OksEngine.CursorInputSystems.hpp>
 
-namespace OksEngine::Input
+namespace Input
 {
 	void CreateCursorEvents::Update(
 		ECS2::Entity::Id entity0id,
