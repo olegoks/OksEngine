@@ -1,4 +1,5 @@
-#include <PacketManager/auto_PacketManager.hpp>
+п»ї#include <PacketManager/auto_PacketManager.hpp>
+#include <PacketManager/PacketManager.Version.Utils.hpp>
 
 #include <Resources/OksEngine.ResourceSystem.Utils.hpp>
 
@@ -9,13 +10,13 @@
 #include <curl/curl.h>
 #include <zip.h>
 
-#include <cstdlib>  // для getenv
+#include <cstdlib>  // РґР»СЏ getenv
 
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 namespace fs = std::filesystem;
 
-// =============== Вспомогательные функции ===============
+// =============== Р’СЃРїРѕРјРѕРіР°С‚РµР»СЊРЅС‹Рµ С„СѓРЅРєС†РёРё ===============
 AI_GENERATED
 namespace {
 
@@ -33,9 +34,19 @@ namespace {
 			curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_to_string);
 			curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response);
 			curl_easy_setopt(curl, CURLOPT_FOLLOWLOCATION, 1L);
-			curl_easy_setopt(curl, CURLOPT_USERAGENT, "ecs-pm/1.0"); // GitHub требует User-Agent
-			curl_easy_perform(curl);
+			curl_easy_setopt(curl, CURLOPT_USERAGENT, "ecs-pm/1.0");
+
+			CURLcode res = curl_easy_perform(curl);
+
+			long http_code = 0;
+			curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &http_code);
 			curl_easy_cleanup(curl);
+
+			if (res != CURLE_OK || http_code != 200) {
+				std::cerr << "HTTP request failed: " << url
+					<< " (status: " << http_code << ")\n";
+				return "";
+			}
 		}
 		return response;
 	}
@@ -43,11 +54,11 @@ namespace {
 	std::string get_release_asset_url(const std::string& owner,
 		const std::string& repo,
 		const std::string& version) {
-		// Запрос к API: https://api.github.com/repos/owner/repo/releases/tags/v1.1.2
+		// Р—Р°РїСЂРѕСЃ Рє API: https://api.github.com/repos/owner/repo/releases/tags/v1.1.2
 		std::string api_url = "https://api.github.com/repos/" + owner + "/" + repo
 			+ "/releases/tags/v" + version;
 
-		std::string response = http_get_string(api_url);  // нужно реализовать http_get_string
+		std::string response = http_get_string(api_url);  // РЅСѓР¶РЅРѕ СЂРµР°Р»РёР·РѕРІР°С‚СЊ http_get_string
 		if (response.empty()) {
 			std::cerr << "Empty response from GitHub API\n";
 			return "";
@@ -55,7 +66,7 @@ namespace {
 
 		auto release = json::parse(response);
 		if (release.contains("assets") && !release["assets"].empty()) {
-			// Берём первый zip-ассет (или можно отфильтровать по имени)
+			// Р‘РµСЂС‘Рј РїРµСЂРІС‹Р№ zip-Р°СЃСЃРµС‚ (РёР»Рё РјРѕР¶РЅРѕ РѕС‚С„РёР»СЊС‚СЂРѕРІР°С‚СЊ РїРѕ РёРјРµРЅРё)
 			for (const auto& asset : release["assets"]) {
 				std::string name = asset["name"];
 				if (name.size() >= 4 && name.substr(name.size() - 4) == ".zip") {
@@ -66,14 +77,14 @@ namespace {
 		return "";
 	}
 
-	// Запись данных, полученных curl, в файл
+	// Р—Р°РїРёСЃСЊ РґР°РЅРЅС‹С…, РїРѕР»СѓС‡РµРЅРЅС‹С… curl, РІ С„Р°Р№Р»
 	size_t write_file(void* ptr, size_t size, size_t nmemb, void* stream) {
 		std::ofstream* out = static_cast<std::ofstream*>(stream);
 		out->write(static_cast<char*>(ptr), size * nmemb);
 		return size * nmemb;
 	}
 
-	// Скачать файл по URL в указанный путь
+	// РЎРєР°С‡Р°С‚СЊ С„Р°Р№Р» РїРѕ URL РІ СѓРєР°Р·Р°РЅРЅС‹Р№ РїСѓС‚СЊ
 	bool DownloadFile(const std::string& url, const std::string& output_path) {
 		CURL* curl = curl_easy_init();
 		if (!curl) {
@@ -115,7 +126,7 @@ namespace {
 		return true;
 	}
 
-	// Распаковать zip-архив в указанную директорию
+	// Р Р°СЃРїР°РєРѕРІР°С‚СЊ zip-Р°СЂС…РёРІ РІ СѓРєР°Р·Р°РЅРЅСѓСЋ РґРёСЂРµРєС‚РѕСЂРёСЋ
 	bool ExtractZip(const std::string& zip_path, const std::string& dest_dir) {
 		int err;
 		zip_t* archive = zip_open(zip_path.c_str(), ZIP_RDONLY, &err);
@@ -124,7 +135,7 @@ namespace {
 			return false;
 		}
 
-		// Создаём целевую директорию, если её нет
+		// РЎРѕР·РґР°С‘Рј С†РµР»РµРІСѓСЋ РґРёСЂРµРєС‚РѕСЂРёСЋ, РµСЃР»Рё РµС‘ РЅРµС‚
 		fs::create_directories(dest_dir);
 
 		int num_entries = zip_get_num_entries(archive, 0);
@@ -134,16 +145,16 @@ namespace {
 
 			fs::path out_path = fs::path(dest_dir) / name;
 
-			// Если это директория (имя заканчивается на '/'), создаём её
+			// Р•СЃР»Рё СЌС‚Рѕ РґРёСЂРµРєС‚РѕСЂРёСЏ (РёРјСЏ Р·Р°РєР°РЅС‡РёРІР°РµС‚СЃСЏ РЅР° '/'), СЃРѕР·РґР°С‘Рј РµС‘
 			if (name[strlen(name) - 1] == '/') {
 				fs::create_directories(out_path);
 				continue;
 			}
 
-			// Создаём родительскую директорию файла
+			// РЎРѕР·РґР°С‘Рј СЂРѕРґРёС‚РµР»СЊСЃРєСѓСЋ РґРёСЂРµРєС‚РѕСЂРёСЋ С„Р°Р№Р»Р°
 			fs::create_directories(out_path.parent_path());
 
-			// Открываем файл внутри архива
+			// РћС‚РєСЂС‹РІР°РµРј С„Р°Р№Р» РІРЅСѓС‚СЂРё Р°СЂС…РёРІР°
 			zip_file_t* zfile = zip_fopen_index(archive, i, 0);
 			if (!zfile) {
 				std::cerr << "Failed to open file in archive: " << name << '\n';
@@ -172,7 +183,7 @@ namespace {
 	}
 
 	fs::path GetCacheDir() {
-		// Пробуем XDG_CACHE_HOME (Linux/macOS)
+		// РџСЂРѕР±СѓРµРј XDG_CACHE_HOME (Linux/macOS)
 		const char* xdg_cache = getenv("XDG_CACHE_HOME");
 		if (xdg_cache) {
 			return fs::path(xdg_cache) / "ecs-pm";
@@ -189,19 +200,19 @@ namespace {
 		if (local_app_data) {
 			return fs::path(local_app_data) / "ecs-pm";
 		}
-		// Если по какой-то причине нет LOCALAPPDATA, пробуем USERPROFILE
+		// Р•СЃР»Рё РїРѕ РєР°РєРѕР№-С‚Рѕ РїСЂРёС‡РёРЅРµ РЅРµС‚ LOCALAPPDATA, РїСЂРѕР±СѓРµРј USERPROFILE
 		const char* user_profile = getenv("USERPROFILE");
 		if (user_profile) {
 			return fs::path(user_profile) / ".ecs-cache";
 		}
 #endif
-		// Последний fallback — просто текущая директория/.ecs-cache
+		// РџРѕСЃР»РµРґРЅРёР№ fallback вЂ” РїСЂРѕСЃС‚Рѕ С‚РµРєСѓС‰Р°СЏ РґРёСЂРµРєС‚РѕСЂРёСЏ/.ecs-cache
 		return fs::current_path() / ".ecs-cache";
 	}
 
-	// =============== Основная команда install ===============
+	// =============== РћСЃРЅРѕРІРЅР°СЏ РєРѕРјР°РЅРґР° install ===============
 	int InstallPackage(const std::string& package_spec, const fs::path& packageInstallPath) {
-		// Разбор строки owner/repo@version
+		// Р Р°Р·Р±РѕСЂ СЃС‚СЂРѕРєРё owner/repo@version
 		size_t at_pos = package_spec.find('@');
 		if (at_pos == std::string::npos) {
 			std::cerr << "Usage: ecs-pm install owner/repo@version\n";
@@ -218,12 +229,12 @@ namespace {
 		std::string owner = owner_repo.substr(0, slash);
 		std::string repo = owner_repo.substr(slash + 1);
 
-		// Убираем возможную 'v' в версии (если пользователь ввёл v1.2.3)
+		// РЈР±РёСЂР°РµРј РІРѕР·РјРѕР¶РЅСѓСЋ 'v' РІ РІРµСЂСЃРёРё (РµСЃР»Рё РїРѕР»СЊР·РѕРІР°С‚РµР»СЊ РІРІС‘Р» v1.2.3)
 		std::string version_clean = version_str;
 		if (!version_clean.empty() && version_clean[0] == 'v')
 			version_clean.erase(0, 1);
 
-		// Формируем URL релиза
+		// Р¤РѕСЂРјРёСЂСѓРµРј URL СЂРµР»РёР·Р°
 		std::string zip_name = repo + "-" + version_clean + ".zip";
 		std::string url = get_release_asset_url(owner, repo, version_clean);
 		if (url.empty()) {
@@ -231,15 +242,15 @@ namespace {
 			return 1;
 		}
 
-		// Пути кэша и установки
+		// РџСѓС‚Рё РєСЌС€Р° Рё СѓСЃС‚Р°РЅРѕРІРєРё
 		fs::path cache_dir = GetCacheDir();
 		fs::create_directories(cache_dir);
 		fs::path zip_path = cache_dir / zip_name;
 
-		// Папка в проекте, куда распаковываем пакет
+		// РџР°РїРєР° РІ РїСЂРѕРµРєС‚Рµ, РєСѓРґР° СЂР°СЃРїР°РєРѕРІС‹РІР°РµРј РїР°РєРµС‚
 		fs::path dest_dir = packageInstallPath / "Packages" / repo;
-		// Можно добавить версию в имя папки: ecs_packages/<repo>-<version>
-		// Но пока просто имя, чтобы проще подключать в коде.
+		// РњРѕР¶РЅРѕ РґРѕР±Р°РІРёС‚СЊ РІРµСЂСЃРёСЋ РІ РёРјСЏ РїР°РїРєРё: ecs_packages/<repo>-<version>
+		// РќРѕ РїРѕРєР° РїСЂРѕСЃС‚Рѕ РёРјСЏ, С‡С‚РѕР±С‹ РїСЂРѕС‰Рµ РїРѕРґРєР»СЋС‡Р°С‚СЊ РІ РєРѕРґРµ.
 
 		std::cout << "Downloading " << url << " ...\n";
 		if (!DownloadFile(url, zip_path.string())) {
@@ -248,7 +259,7 @@ namespace {
 		}
 
 		std::cout << "Extracting to " << dest_dir << " ...\n";
-		// Удалим старую версию, если есть
+		// РЈРґР°Р»РёРј СЃС‚Р°СЂСѓСЋ РІРµСЂСЃРёСЋ, РµСЃР»Рё РµСЃС‚СЊ
 		if (fs::exists(dest_dir))
 			fs::remove_all(dest_dir);
 		fs::create_directories(dest_dir);
@@ -258,7 +269,7 @@ namespace {
 			return 1;
 		}
 
-		// Удаляем временный zip (опционально)
+		// РЈРґР°Р»СЏРµРј РІСЂРµРјРµРЅРЅС‹Р№ zip (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ)
 		// fs::remove(zip_path);
 
 		std::cout << "Package " << repo << " installed successfully.\n";
@@ -268,38 +279,53 @@ namespace {
 
 
 namespace PacketManager {
-	void LoadPackets::Update(
-		ECS2::Entity::Id entity0Id, const CommandLineParameters* oKSENGINE__COMMANDLINEPARAMETERS0,
-		const ExecutablePath* oKSENGINE__EXECUTABLEPATH0,
-		const PacketManager::ECSProjectFilePath* oKSENGINE__PACKETMANAGER__ECSPROJECTFILEPATH0) {
+	void GetRequiredPackets::Update(ECS2::Entity::Id entity0Id, const ::CommandLineParameters* __CommandLineParameters0,
+		const ::ExecutablePath* __ExecutablePath0,
+		const PacketManager::ECSProjectFilePath* packetManager__ECSProjectFilePath0) {
 
-		const auto content = Resource::LoadFileAndGetContent(oKSENGINE__PACKETMANAGER__ECSPROJECTFILEPATH0->path_);
-		const std::string script{ content.data(), content.size() };
-		{
-			lua_State* state_ = luaL_newstate();
-			ASSERT_MSG(state_ != nullptr, "Error while creating Lua context.");
-			luaL_openlibs(state_);
-			if (luaL_dostring(state_, script.c_str())) {
-				OS::LogError("lua/", lua_tostring(state_, -1));
-				lua_pop(state_, 1);
-				ASSERT_FAIL_MSG("Error while loading config script.");
-			};
-			luabridge::LuaRef ecsTable = luabridge::getGlobal(state_, "ECS");
-			ASSERT(!ecsTable.isNil());
-			luabridge::LuaRef packagesTable = ecsTable["Packages"];
 
-			ASSERT(packagesTable.isTable());
-			for (luabridge::Iterator it(packagesTable); !it.isNil(); ++it) {
-				luabridge::LuaRef packageDescTable = it.value();
-				ASSERT(packageDescTable.isTable());
-				const std::string packageName = packageDescTable["Name"].cast<std::string>().value();
-				ECS2::Entity::Id requiredEntityId = CreateEntity<PACKETMANAGER__PACKAGE__PACKAGE>();
-				//CreateComponent<PacketManager::Package::Tag>()
+		auto getRequiredPackages = [&]() {
+
+			std::vector<ECS2::Entity::Id> requiredPackages;
+
+			const auto content = Resource::LoadFileAndGetContent(packetManager__ECSProjectFilePath0->path_);
+			const std::string script{ content.data(), content.size() };
+			{
+				lua_State* state_ = luaL_newstate();
+				ASSERT_MSG(state_ != nullptr, "Error while creating Lua context.");
+				luaL_openlibs(state_);
+				if (luaL_dostring(state_, script.c_str())) {
+					OS::LogError("lua/", lua_tostring(state_, -1));
+					lua_pop(state_, 1);
+					ASSERT_FAIL_MSG("Error while loading config script.");
+				};
+				luabridge::LuaRef ecsTable = luabridge::getGlobal(state_, "ECS");
+				ASSERT(!ecsTable.isNil());
+				luabridge::LuaRef packagesTable = ecsTable["Packages"];
+
+				ASSERT(packagesTable.isTable());
+				for (luabridge::Iterator it(packagesTable); !it.isNil(); ++it) {
+					luabridge::LuaRef packageDescTable = it.value();
+					ASSERT(packageDescTable.isTable());
+					const std::string packageName = packageDescTable["Name"].cast<std::string>().value();
+					ECS2::Entity::Id requiredPackageEntityId = CreateEntity<PACKETMANAGER__PACKAGE__PACKAGE>();
+					CreateComponent<PacketManager::Package::Tag>(requiredPackageEntityId);
+					CreateComponent<PacketManager::Package::Name>(requiredPackageEntityId, packageName);
+					requiredPackages.push_back(requiredPackageEntityId);
+				}
 
 			}
+			return requiredPackages;
+			};
 
-		}
 
+		std::vector<ECS2::Entity::Id>  requiredPackages = getRequiredPackages();
+
+
+		ECS2::Entity::Id packetManagerEntityId = CreateEntity();
+		CreateComponent<PacketManager::Tag>(packetManagerEntityId);
+		CreateComponent<PacketManager::RequiredPackages>(packetManagerEntityId, requiredPackages);
+		//CreateComponent<PacketManager::>
 		//::Lua::Context context;
 		//::Lua::Script script{ std::string{ content.data(), content.size() } };
 		//context.LoadScript(script);
@@ -315,6 +341,307 @@ namespace PacketManager {
 
 		//InstallPackage("olegoks/ECS.Common@1.1.2", packageInstallPath);
 
+	}
+
+	inline
+		std::string GetPackageReleasesUrl(const std::string& owner, const std::string& repo) {
+
+		return "https://api.github.com/repos/" + owner + "/ECS." + repo + "/releases";
+	}
+
+	inline
+		std::string GetPackageManifestUrl(
+			const std::string& owner,
+			const std::string& repo,
+			const Package::Version& version,
+			const std::string& filename) {
+		return "https://github.com/" + owner + "/ECS." + repo + "/releases/download/" + Package::VersionToString(version) + "/" + filename;
+	}
+
+	// Р’РЅСѓС‚СЂРё namespace PacketManager:
+
+	using ResolvedMap = std::unordered_map<std::string, Package::Version>;
+	using ProcessingSet = std::unordered_set<std::string>;
+	using AvailableCache = std::unordered_map<std::string, std::vector<Package::Version>>;
+	using ManifestCache = std::unordered_map<std::string, std::unordered_map<std::string, std::string>>;
+
+	std::vector<Package::Version> FetchAvailableVersions(const std::string& owner, const std::string& name) {
+		std::string url = GetPackageReleasesUrl(owner, name);
+		std::string response = http_get_string(url);
+		std::vector<Package::Version> versions;
+		if (response.empty()) return versions;
+		try {
+			auto json = nlohmann::json::parse(response);
+			for (const auto& release : json) {
+				if (release.value("draft", false) || release.value("prerelease", false)) continue;
+				std::string tag = release.value("tag_name", "");
+				if (tag.empty()) continue;
+				versions.push_back(Package::ParseVersionString(tag));
+			}
+		}
+		catch (...) {}
+		std::sort(versions.begin(), versions.end(), std::greater<Package::Version>());
+		return versions;
+	}
+
+	std::string FetchManifest(const std::string& owner, const std::string& repo, const Package::Version& version) {
+		std::string url = GetPackageManifestUrl(owner, repo, version, "ECS." + repo + ".ecs_package");
+		return http_get_string(url);
+	}
+
+	/**
+ * РР·РІР»РµРєР°РµС‚ Р·Р°РІРёСЃРёРјРѕСЃС‚Рё РёР· Lua-РјР°РЅРёС„РµСЃС‚Р° (С„Р°Р№Р» .ecs_package).
+ * РћР¶РёРґР°РµС‚ РіР»РѕР±Р°Р»СЊРЅСѓСЋ С‚Р°Р±Р»РёС†Сѓ "Package" СЃ РїРѕР»РµРј "Dependecies".
+ * Р’РѕР·РІСЂР°С‰Р°РµС‚ РєР°СЂС‚Сѓ: РёРјСЏ_Р·Р°РІРёСЃРёРјРѕСЃС‚Рё в†’ СЃС‚СЂРѕРєР°_РґРёР°РїР°Р·РѕРЅР°.
+ */
+	std::unordered_map<std::string, std::string> ParseDependenciesFromManifest(const std::string& luaScript) {
+		std::unordered_map<std::string, std::string> deps;
+
+		// 1. РЎРѕР·РґР°С‘Рј Lua-СЃРѕСЃС‚РѕСЏРЅРёРµ
+		lua_State* L = luaL_newstate();
+		{
+			if (!L) {
+				std::cerr << "[PacketManager] Failed to create Lua state for manifest parsing.\n";
+				return deps;
+			}
+			luaL_openlibs(L);
+
+			// 2. Р’С‹РїРѕР»РЅСЏРµРј СЃРєСЂРёРїС‚
+			if (luaL_dostring(L, luaScript.c_str()) != LUA_OK) {
+				std::cerr << "[PacketManager] Lua error: " << lua_tostring(L, -1) << std::endl;
+				lua_close(L);
+				return deps;
+			}
+
+			// 3. РџРѕР»СѓС‡Р°РµРј С‚Р°Р±Р»РёС†Сѓ Package
+			luabridge::LuaRef packageTable = luabridge::getGlobal(L, "Package");
+			if (!packageTable.isTable()) {
+				std::cerr << "[PacketManager] Manifest does not contain 'Package' table.\n";
+				lua_close(L);
+				return deps;
+			}
+
+			// 4. РџРѕР»СѓС‡Р°РµРј РїРѕР»Рµ Dependecies (РІ РјР°РЅРёС„РµСЃС‚Рµ РѕРїРµС‡Р°С‚РєР°)
+			luabridge::LuaRef dependencies = packageTable["Dependecies"];
+			if (dependencies.isTable()) {
+				for (luabridge::Iterator it(dependencies); !it.isNil(); ++it) {
+					auto key = it.key();
+					auto value = it.value();
+
+					// РљР»СЋС‡ РґРѕР»Р¶РµРЅ Р±С‹С‚СЊ СЃС‚СЂРѕРєРѕР№ (РёРјСЏ РїР°РєРµС‚Р°)
+					if (!key.isString()) {
+						std::cerr << "[PacketManager] Dependency key is not a string, skipping.\n";
+						continue;
+					}
+					std::string depName = key.tostring();
+
+					// Р—РЅР°С‡РµРЅРёРµ вЂ“ СЃС‚СЂРѕРєР° РґРёР°РїР°Р·РѕРЅР° РІРµСЂСЃРёР№
+					if (value.isString()) {
+						deps[depName] = value.tostring();
+					}
+					else {
+						std::cerr << "[PacketManager] Dependency value for '" << depName << "' is not a string, skipping.\n";
+					}
+				}
+			}
+			else if (!dependencies.isNil()) {
+				std::cerr << "[PacketManager] 'Dependecies' is not a table.\n";
+			}
+		}
+		lua_close(L);
+		return deps;
+	}
+
+	bool ResolveRecursive(const std::string& name,
+		const VersionRange& range,
+		ResolvedMap& resolved,
+		ProcessingSet& processing,
+		AvailableCache& availableCache,
+		ManifestCache& manifestCache,
+		const std::string& owner = "olegoks")
+	{
+		if (processing.count(name)) return false; // С†РёРєР»
+
+		auto it = resolved.find(name);
+		if (it != resolved.end()) {
+			return range.Satisfies(it->second);
+		}
+
+		processing.insert(name);
+
+		if (availableCache.find(name) == availableCache.end()) {
+			availableCache[name] = FetchAvailableVersions(owner, name);
+		}
+		const auto& versions = availableCache[name];
+		if (versions.empty()) {
+			processing.erase(name);
+			return false;
+		}
+
+		for (const auto& ver : versions) {
+			if (!range.Satisfies(ver)) continue;
+
+			std::string manifestKey = name + "@" + std::to_string(ver.major_) + "." + std::to_string(ver.minor_) + "." + std::to_string(ver.patch_);
+			if (manifestCache.find(manifestKey) == manifestCache.end()) {
+				std::string manifestContent = FetchManifest(owner, name, ver);
+				if (manifestContent.empty()) continue;
+				manifestCache[manifestKey] = ParseDependenciesFromManifest(manifestContent);
+			}
+
+			const auto& deps = manifestCache[manifestKey];
+			auto snapshot = resolved;
+			resolved[name] = ver;
+			bool success = true;
+			for (const auto& [depName, depRangeStr] : deps) {
+				auto depRange = VersionRange::Parse(depRangeStr);
+				if (!depRange) { success = false; break; }
+				if (!ResolveRecursive(depName, *depRange, resolved, processing, availableCache, manifestCache, owner)) {
+					success = false; break;
+				}
+			}
+			if (success) {
+				processing.erase(name);
+				return true;
+			}
+			resolved = std::move(snapshot);
+		}
+		processing.erase(name);
+		return false;
+	}
+
+	ResolvedMap ResolveAll(const std::vector<std::pair<std::string, std::optional<Package::Version>>>& requirements,
+		const std::string& owner = "olegoks") {
+		ResolvedMap resolved;
+		ProcessingSet processing;
+		AvailableCache availableCache;
+		ManifestCache manifestCache;
+		for (const auto& [pkgName, optVer] : requirements) {
+			VersionRange range;
+			if (optVer.has_value()) {
+				range = VersionRange::Parse(VersionToString(optVer.value())).value(); // С‚РѕС‡РЅР°СЏ
+			}
+			else {
+				range = *VersionRange::Parse("latest");
+			}
+			if (!ResolveRecursive(pkgName, range, resolved, processing, availableCache, manifestCache, owner)) {
+				return {}; // РѕС€РёР±РєР°
+			}
+		}
+		return resolved;
+	}
+
+	void GetPacketsToDownload::Update(
+		ECS2::Entity::Id entity0Id,
+		const PacketManager::Tag* packetManager__Tag0,
+		const PacketManager::RequiredPackages* packetManager__RequiredPackages0) {
+
+		std::vector<std::pair<std::string, std::optional<PacketManager::Package::Version>>> requirements;
+		for (ECS2::Entity::Id requiredPacket : packetManager__RequiredPackages0->required_) {
+			const ECS2::ComponentsFilter cf = GetComponentsFilter(requiredPacket);
+			std::string name = GetComponent<Package::Name>(requiredPacket)->name_;
+			std::optional<PacketManager::Package::Version> ver;
+			if (cf.IsSet<Package::Version>()) {
+				ver = *GetComponent<Package::Version>(requiredPacket);
+			}
+			requirements.emplace_back(name, ver);
+		}
+
+		auto resolvedMap = ResolveAll(requirements, "olegoks");
+		if (resolvedMap.empty()) {
+			OS::LogError("PacketManager", "Dependency resolution failed");
+			return;
+		}
+
+		std::unordered_map<std::string, std::tuple<Common::UInt64, Common::UInt64, Common::UInt64>> resolvedLocal;
+
+		for (auto& [key, value] : resolvedMap) {
+			resolvedLocal[key] = std::tuple{ value.major_, value.minor_, value.patch_ };
+		}
+
+		CreateComponent<PacketManager::ResolvedPackages>(entity0Id, std::move(resolvedLocal));
+
+
+		//std::unordered_map<std::string, std::vector<Package::Version>> packetToAvailableVersions;
+
+		//auto getAvailableVersions = [](const std::string& name) {
+		//	std::string response = http_get_string(GetPackageReleasesUrl("olegoks", "ECS." + name));
+		//	ASSERT(!response.empty());
+		//	std::vector<Package::Version> versions;
+		//	auto json = nlohmann::json::parse(response);
+		//	// response вЂ“ СЌС‚Рѕ РјР°СЃСЃРёРІ СЂРµР»РёР·РѕРІ
+		//	for (const auto& release : json) {
+		//		// РџСЂРѕРїСѓСЃРєР°РµРј С‡РµСЂРЅРѕРІРёРєРё Рё РїСЂРµ-СЂРµР»РёР·С‹, РµСЃР»Рё РЅСѓР¶РЅРѕ (РѕРїС†РёРѕРЅР°Р»СЊРЅРѕ)
+		//		if (release.value("draft", false) || release.value("prerelease", false)) continue;
+
+		//		std::string tag = release.value("tag_name", "");
+		//		if (tag.empty()) continue;
+		//		const Package::Version version = PacketManager::Package::ParseVersionString(tag);
+		//		versions.push_back(version);
+		//		//auto ver = Version::parse(tag);
+		//		//if (ver) {
+		//		//	versions.push_back(*ver);
+		//		//}
+		//		//else {
+		//		//	std::cerr << "Warning: can't parse version tag: " << tag << "\n";
+		//		//}
+		//	}
+
+		//	std::sort(versions.begin(), versions.end(),
+		//		[](const Package::Version& first, const Package::Version& second) {
+		//			// РЎРЅР°С‡Р°Р»Р° СЃСЂР°РІРЅРёРІР°РµРј major
+		//			if (first.major_ != second.major_) {
+		//				return first.major_ > second.major_;  // Р±РѕР»СЊС€Рµ в†’ СЂР°РЅСЊС€Рµ
+		//			}
+		//			// РџРѕС‚РѕРј minor
+		//			if (first.minor_ != second.minor_) {
+		//				return first.minor_ > second.minor_;
+		//			}
+		//			// РџРѕС‚РѕРј patch
+		//			return first.patch_ > second.patch_;
+
+		//		});
+
+		//	return versions;
+		//	};
+
+		//for (ECS2::Entity::Id requiredPacket : packetManager__RequiredPackages0->required_) {
+		//	const ECS2::ComponentsFilter cf = GetComponentsFilter(requiredPacket);
+		//	std::string name = GetComponent<Package::Name>(requiredPacket)->name_;
+		//	if (cf.IsSet<Package::Version>()) {
+		//		const auto* version = GetComponent<Package::Version>(requiredPacket);
+		//		packetToAvailableVersions[name] = std::vector{ *version };
+		//	}
+		//	else {
+		//		packetToAvailableVersions[name] = getAvailableVersions(name);
+		//	}
+		//	
+		//	
+		//	/*std::string manifest_url = "https://github.com/olegoks/ECS." + name +
+		//		"/releases/download/" + version_tag + "/" + repo + ".ecs_package";*/
+
+		//}
+
+		//// 1. РЎРѕР±РёСЂР°РµРј РєРѕСЂРЅРµРІС‹Рµ С‚СЂРµР±РѕРІР°РЅРёСЏ
+		//std::vector<std::pair<std::string, std::optional<Package::Version>>> requirements;
+		//for (ECS2::Entity::Id requiredPacket : packetManager__RequiredPackages0->required_) {
+		//	const ECS2::ComponentsFilter cf = GetComponentsFilter(requiredPacket);
+		//	std::string name = GetComponent<Package::Name>(requiredPacket)->name_;
+		//	std::optional<Package::Version> ver;
+		//	if (cf.IsSet<Package::Version>()) {
+		//		ver = *GetComponent<Package::Version>(requiredPacket);
+		//	}
+		//	requirements.emplace_back(name, ver);
+		//}
+
+		//// 2. Р—Р°РїСѓСЃРєР°РµРј СЂР°Р·СЂРµС€РµРЅРёРµ
+		//auto resolved = ResolveAll(requirements, "olegoks"); // РІР»Р°РґРµР»СЊС†Р° РјРѕР¶РЅРѕ РІС‹РЅРµСЃС‚Рё РІ РєРѕРЅС„РёРі
+		//if (resolved.empty()) {
+		//	std::cerr << "Dependency resolution failed" << std::endl;
+		//	return;
+		//}
+
+		//// 3. РЎРѕС…СЂР°РЅСЏРµРј СЂРµР·СѓР»СЊС‚Р°С‚ РІ РєРѕРјРїРѕРЅРµРЅС‚
+		//CreateComponent<PacketManager::ResolvedPackages>(entity0Id, std::move(resolved));
 	}
 
 } // namespace PacketManager

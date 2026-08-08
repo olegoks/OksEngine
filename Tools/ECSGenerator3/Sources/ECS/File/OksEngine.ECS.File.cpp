@@ -433,7 +433,13 @@ namespace OksEngine::ECS::File {
 												}
 
 												if (!field["copyable"].isNil()) {
-													CreateComponent<Component::Field::Alignment>(fieldEntityId, field["copyable"].cast<bool>().value());
+													const bool copyable = field["copyable"].cast<bool>().value();
+													if (copyable) {
+														CreateComponent<Component::Field::Copyable>(fieldEntityId);
+													}
+												}
+												else {
+													CreateComponent<Component::Field::Copyable>(fieldEntityId);
 												}
 
 												parsedFieldsEntityIds.push_back(fieldEntityId);
@@ -1106,10 +1112,16 @@ namespace OksEngine::ECS::File {
 			std::unordered_map<ECS2::Entity::Id, Common::Size, ECS2::Entity::Id::Hash> inDegree;
 			std::queue<ECS2::Entity::Id> rootSystems;
 
+			//Get REGULAR ROOT systems 
 			for (Common::Index i = 0; i < allSystemsNumber; i++) {
 
 				ECS2::Entity::Id systemEntityId = *(std::get<ECS2::Entity::Id*>(systemComponents) + i);
 				const std::string systemName = ECS__FILE__TABLE__GET_FULL_NAME(systemEntityId, "::", false);
+
+				if (systemName == "PacketManager::GetRequiredPackets") {
+					Common::BreakPointLine();
+				}
+
 				if (IsComponentExist<ECS::File::Table::System::Type>(systemEntityId)) {
 					const auto systemType = *(std::get<ECS::File::Table::System::Type*>(systemComponents) + i);
 					if (systemType.type_ == "Initialize") {
@@ -1265,18 +1277,25 @@ namespace OksEngine::ECS::File {
 
 			}
 
-
+			//If System1 runs before System2 need to add System2 runs after System1
 
 
 			for (Common::Index i = 0; i < allSystemsNumber; i++) {
 				ECS2::Entity::Id systemEntityId = *(std::get<ECS2::Entity::Id*>(systemComponents) + i);
-				if (IsComponentExist<ECS::File::Table::System::Type>(systemEntityId)) {
+				/*if (IsComponentExist<ECS::File::Table::System::Type>(systemEntityId)) {
 					const auto systemType = *(std::get<ECS::File::Table::System::Type*>(systemComponents) + i);
 					if (systemType.type_ == "Initialize") {
 						continue;
 					}
-				}
+				}*/
 				const std::string systemFullName = ECS__FILE__TABLE__GET_FULL_NAME(systemEntityId, "::", false);
+
+				if (systemFullName == "PacketManager::GetRequiredPackets") {
+					Common::BreakPointLine();
+				}
+				if (systemFullName == "PacketManager::GetPacketsToDownload") {
+					Common::BreakPointLine();
+				}
 
 				ECS2::Entity::Id callOrderEntityId = GetComponent<ECS::File::Table::System::CallOrder::EntityId>(systemEntityId)->id_;
 
@@ -1287,6 +1306,7 @@ namespace OksEngine::ECS::File {
 						OksEngine::ECS::File::Table::System::Tag,
 						systemEntityId,
 						runAfterSystemName.name_);
+
 					ECS__FILE__TABLE__SYSTEM__ADD_RUN_BEFORE_SYSTEM(runAfterEntityId, systemEntityId);
 
 				}

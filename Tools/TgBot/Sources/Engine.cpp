@@ -14,12 +14,14 @@
 
 Engine::Engine(const CreateInfo& createInfo) noexcept {
 
-	//OS::InitializeLogger(createInfo.argc_, createInfo.argv_);
+	
 	world2_ = std::make_shared<ECS2::World>();
 
 	{
 		const int argc = createInfo.argc_;
 		char** argv = createInfo.argv_;
+		
+		OS::InitializeLogger(argc, argv);
 
 		const ECS2::Entity::Id commandLineParametersEntity = world2_->CreateEntity();
 
@@ -40,7 +42,7 @@ Engine::Engine(const CreateInfo& createInfo) noexcept {
 				world2_->CreateComponent<PacketManager::ECSProjectFilePath>(commandLineParametersEntity, argv[i + 1]);
 			}
 		}
-
+		world2_->ApplyDelayedRequests();
 
 	}
 

@@ -1,0 +1,11 @@
+PacketManagerNamespace = {
+    PackageNamespace = {
+        VersionComponent = {
+            fields = {
+                { type = "Common::UInt64", name = "major", defaultValue = "0" },
+                { type = "Common::UInt64", name = "minor", defaultValue = "0" },
+                { type = "Common::UInt64", name = "patch", defaultValue = "0" }
+            }
+        },
+    }
+}

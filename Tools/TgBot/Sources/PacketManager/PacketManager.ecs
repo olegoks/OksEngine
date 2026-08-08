@@ -1,8 +1,23 @@
 PacketManagerNamespace = {
     TagComponent = {},
+    RepositoryOwnerComponent = {
+        fields = {
+            { type = "std::string", name = "owner" }
+        }
+    },
+    RepositoryNameComponent = {
+        fields = {
+            { type = "std::string", name = "name" }
+        }
+    },
     RequiredPackagesComponent = {
         fields = {
             { type = "std::vector<ECS2::Entity::Id>", name = "required" },
+        }
+    },
+    ResolvedPackagesComponent = {
+        fields = {
+            { type = "std::unordered_map<std::string, std::tuple<Common::UInt64, Common::UInt64, Common::UInt64>>", name = "resolved" },
         }
     },
     ECSProjectFilePathComponent = {
@@ -12,13 +27,6 @@ PacketManagerNamespace = {
     },
     PackageNamespace = {
         TagComponent = {},
-        VersionComponent = {
-            fields = {
-                { type = "Common::UInt64", name = "major", defaultValue = "0" },
-                { type = "Common::UInt64", name = "minor", defaultValue = "0" },
-                { type = "Common::UInt64", name = "patch", defaultValue = "0" }
-            }
-        },
         NameComponent = {
             fields = {
                 { type = "std::string", name = "name" },
@@ -31,7 +39,7 @@ PacketManagerNamespace = {
         },
         PackageArchetype = {
             components = {
-                "Tag",
+                "Package::Tag",
                 "Name",
                 "Dependencies",
                 "Version"
@@ -39,7 +47,7 @@ PacketManagerNamespace = {
         }
     },
 
-    LoadPacketsSystem = {
+    GetRequiredPacketsSystem = {
         type = "Initialize",
         updateMethod = {
             processesEntities = {
@@ -49,6 +57,29 @@ PacketManagerNamespace = {
                         "ExecutablePath",
                         "ECSProjectFilePath"
                     }
+                }
+            }
+        }
+    },
+
+    GetPacketsToDownloadSystem = {
+        description = "Check packets dependecies, and get packets and their versions and need to download",
+        type = "Initialize",
+        callOrder = {
+            runAfter = "GetRequiredPackets"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "PacketManager::Tag",
+                        "PacketManager::RequiredPackages"
+                    }
+                }
+            },
+            accessingEntities = {
+                {
+                    archetype = "Package::Package"
                 }
             }
         }

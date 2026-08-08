@@ -81,6 +81,8 @@ namespace OksEngine::ECS::Generator
 			//HPP File
 			ECS2::Entity::Id hppFileEntityId = CreateEntity<CPP__FILE__FILE>();
 			std::vector<ECS2::Entity::Id> hppFileNodeEntityIds;
+
+			//HPP File Add base includes.
 			{
 				CreateComponent<CPP::File::Tag>(hppFileEntityId);
 				CreateComponent<CPP::File::Type::Hpp>(hppFileEntityId);
@@ -174,6 +176,7 @@ namespace OksEngine::ECS::Generator
 
 				getFileTables(tableEntityId);
 			}
+
 			//Sort structs by theire definition order.
 			std::sort(fileStructs.begin(), fileStructs.end(),
 				[this](ECS2::Entity::Id first, ECS2::Entity::Id second) {
@@ -192,6 +195,7 @@ namespace OksEngine::ECS::Generator
 					return firstOrderIndex < secondOrderIndex;
 				});
 
+			//Add includes to HPP files with needed components and systems
 			{
 				std::unordered_set<std::string> requiredIncludes;
 
@@ -263,6 +267,36 @@ namespace OksEngine::ECS::Generator
 					auto includes = getIncludesByTypeName(typeName);
 					for (auto include : includes) {
 						requiredIncludes.insert(include);
+					}
+				}
+
+
+				for (ECS2::Entity::Id archetypeEntityId : fileArchetypes) {
+					const ECS2::ComponentsFilter archetypeCF = GetComponentsFilter(archetypeEntityId);
+					ASSERT(archetypeCF.IsSet<File::Table::Archetype::Tag>());
+
+					std::vector<ECS2::Entity::Id> componentEntityIds;
+					if (archetypeCF.IsSet<ECS::File::Table::Archetype::Components>()) {
+						auto* components = GetComponent<ECS::File::Table::Archetype::Components>(archetypeEntityId);
+						for (std::string component : components->components_) {
+							ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, archetypeEntityId, component);
+							ECS2::Entity::Id ecsFileEntityId = ECS__FILE__TABLE__GET_TABLE_FILE_ENTITY(componentEntityId);
+							const std::filesystem::path ecsFileIncludePath = ECS__FILE__GET_FILE_INCLUDE_PATH(ecsFileEntityId, projectFilePath, ".hpp");
+
+							hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(ecsFileIncludePath.string()));
+						}
+					}
+
+					std::vector<ECS2::Entity::Id> archetypeEntityIds;
+					if (archetypeCF.IsSet<ECS::File::Table::Archetype::Archetypes>()) {
+						auto* archetypes = GetComponent<ECS::File::Table::Archetype::Archetypes>(archetypeEntityId);
+						for (std::string archetype : archetypes->archetypes_) {
+							ECS2::Entity::Id refArchetypeEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Archetype::Tag, archetypeEntityId, archetype);
+							ECS2::Entity::Id ecsFileEntityId = ECS__FILE__TABLE__GET_TABLE_FILE_ENTITY(refArchetypeEntityId);
+							const std::filesystem::path ecsFileIncludePath = ECS__FILE__GET_FILE_INCLUDE_PATH(ecsFileEntityId, projectFilePath, ".hpp");
+
+							hppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(ecsFileIncludePath.string()));
+						}
 					}
 				}
 
@@ -1746,6 +1780,115 @@ namespace OksEngine::ECS::Generator
 				}
 			}
 
+			//Generate archetypes macroses
+			for (ECS2::Entity::Id archetypeEntityId : fileArchetypes) {
+
+				const ECS2::ComponentsFilter archetypeCF = GetComponentsFilter(archetypeEntityId);
+				ASSERT(archetypeCF.IsSet<File::Table::Archetype::Tag>());
+
+				std::vector<ECS2::Entity::Id> componentEntityIds;
+				if (archetypeCF.IsSet<ECS::File::Table::Archetype::Components>()) {
+					auto* components = GetComponent<ECS::File::Table::Archetype::Components>(archetypeEntityId);
+					for (std::string component : components->components_) {
+						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, archetypeEntityId, component);
+						componentEntityIds.push_back(componentEntityId);
+					}
+				}
+
+				std::vector<ECS2::Entity::Id> archetypeEntityIds;
+				if (archetypeCF.IsSet<ECS::File::Table::Archetype::Archetypes>()) {
+					auto* archetypes = GetComponent<ECS::File::Table::Archetype::Archetypes>(archetypeEntityId);
+					for (std::string archetype : archetypes->archetypes_) {
+						ECS2::Entity::Id refArchetypeEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Archetype::Tag, archetypeEntityId, archetype);
+						archetypeEntityIds.push_back(refArchetypeEntityId);
+					}
+				}
+
+				const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(archetypeEntityId, "::", false);
+				const std::string namespaceStr = ECS__FILE__TABLE__GET_FULL_NAME(archetypeEntityId, "__", true);
+
+				std::string macrosBody;
+				bool isFirst = true;
+				for (ECS2::Entity::Id componentEntityId : componentEntityIds) {
+					const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false);
+					if (!isFirst) {
+						macrosBody += ",";
+					}
+					isFirst = false;
+					macrosBody += componentFullName;
+				}
+				for (ECS2::Entity::Id archetypeEntityId : archetypeEntityIds) {
+					const std::string archetypeFullName = ECS__FILE__TABLE__GET_FULL_NAME(archetypeEntityId, "__", true);
+					if (!isFirst) {
+						macrosBody += ",";
+					}
+					isFirst = false;
+					macrosBody += archetypeFullName;
+				}
+
+
+				ECS2::Entity::Id defineEntityId = CreateEntity();
+				CreateComponent<CPP::Tree::Preprocessor::Tag>(defineEntityId);
+				CreateComponent<CPP::Tree::Preprocessor::Define_>(defineEntityId, namespaceStr, std::vector<std::string>{}, macrosBody, ECS2::Entity::Id::invalid_, false);
+
+				hppFileNodeEntityIds.push_back(CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_OFF_COMMENT());
+				hppFileNodeEntityIds.push_back(defineEntityId);
+				hppFileNodeEntityIds.push_back(CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_ON_COMMENT());
+			}
+
+			//Generate archetypes macroses
+			for (ECS2::Entity::Id bundleEntityId : fileBundles) {
+
+				const ECS2::ComponentsFilter bundleCF = GetComponentsFilter(bundleEntityId);
+				ASSERT(bundleCF.IsSet<File::Table::Bundle::Tag>());
+
+				std::vector<ECS2::Entity::Id> componentEntityIds;
+				if (bundleCF.IsSet<ECS::File::Table::Bundle::Components>()) {
+					auto* components = GetComponent<ECS::File::Table::Bundle::Components>(bundleEntityId);
+					for (std::string component : components->components_) {
+						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, bundleEntityId, component);
+						componentEntityIds.push_back(componentEntityId);
+					}
+				}
+
+				std::vector<ECS2::Entity::Id> bundleEntityIds;
+				if (bundleCF.IsSet<ECS::File::Table::Bundle::Bundles>()) {
+					auto* bundles = GetComponent<ECS::File::Table::Bundle::Bundles>(bundleEntityId);
+					for (std::string bundle : bundles->bundles_) {
+						ECS2::Entity::Id refBundleEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Bundle::Tag, bundleEntityId, bundle);
+						bundleEntityIds.push_back(refBundleEntityId);
+					}
+				}
+
+				const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(bundleEntityId, "::", false);
+				const std::string namespaceStr = ECS__FILE__TABLE__GET_FULL_NAME(bundleEntityId, "__", true);
+
+				std::string macrosBody;
+				bool isFirst = true;
+				for (ECS2::Entity::Id componentEntityId : componentEntityIds) {
+					const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false);
+					if (!isFirst) {
+						macrosBody += ",";
+					}
+					isFirst = false;
+					macrosBody += componentFullName;
+				}
+				for (ECS2::Entity::Id bundleEntityId : bundleEntityIds) {
+					const std::string bundleFullName = ECS__FILE__TABLE__GET_FULL_NAME(bundleEntityId, "__", true);
+					if (!isFirst) {
+						macrosBody += ",";
+					}
+					isFirst = false;
+					macrosBody += bundleFullName;
+				}
+
+
+				ECS2::Entity::Id defineEntityId = CreateEntity();
+				CreateComponent<CPP::Tree::Preprocessor::Tag>(defineEntityId);
+				CreateComponent<CPP::Tree::Preprocessor::Define_>(defineEntityId, namespaceStr, std::vector<std::string>{}, macrosBody, ECS2::Entity::Id::invalid_, false);
+
+				hppFileNodeEntityIds.push_back(defineEntityId);
+			}
 			//Generate Systems code tree.
 			BEGIN_PROFILE("Generate systems code tree for file %s", path->path_.c_str());
 			for (ECS2::Entity::Id systemEntityId : fileSystems) {
@@ -2377,7 +2520,7 @@ namespace OksEngine::ECS::Generator
 										for (const auto& componentInfo : processComponentInfos) {
 											ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, systemEntityId, componentInfo.name_);
 											const std::string componentTypeFullName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false);
-											std::string componentParameterFullName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "__", true);
+											std::string componentParameterFullName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "__", false);
 											componentParameterFullName = std::string{ (char)std::tolower(componentParameterFullName[0]) } + componentParameterFullName.substr(1);
 
 											ECS2::Entity::Id componentTypeEntityId = CPP__TREE__TYPE__CREATE_NAMED_TYPE(componentTypeFullName);
@@ -2659,115 +2802,6 @@ namespace OksEngine::ECS::Generator
 			}
 			END_PROFILE();
 
-			//Generate archetypes macroses
-			for (ECS2::Entity::Id archetypeEntityId : fileArchetypes) {
-
-				const ECS2::ComponentsFilter archetypeCF = GetComponentsFilter(archetypeEntityId);
-				ASSERT(archetypeCF.IsSet<File::Table::Archetype::Tag>());
-
-				std::vector<ECS2::Entity::Id> componentEntityIds;
-				if (archetypeCF.IsSet<ECS::File::Table::Archetype::Components>()) {
-					auto* components = GetComponent<ECS::File::Table::Archetype::Components>(archetypeEntityId);
-					for (std::string component : components->components_) {
-						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, archetypeEntityId, component);
-						componentEntityIds.push_back(componentEntityId);
-					}
-				}
-
-				std::vector<ECS2::Entity::Id> archetypeEntityIds;
-				if (archetypeCF.IsSet<ECS::File::Table::Archetype::Archetypes>()) {
-					auto* archetypes = GetComponent<ECS::File::Table::Archetype::Archetypes>(archetypeEntityId);
-					for (std::string archetype : archetypes->archetypes_) {
-						ECS2::Entity::Id refArchetypeEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Archetype::Tag, archetypeEntityId, archetype);
-						archetypeEntityIds.push_back(refArchetypeEntityId);
-					}
-				}
-
-				const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(archetypeEntityId, "::", false);
-				const std::string namespaceStr = ECS__FILE__TABLE__GET_FULL_NAME(archetypeEntityId, "__", true);
-
-				std::string macrosBody;
-				bool isFirst = true;
-				for (ECS2::Entity::Id componentEntityId : componentEntityIds) {
-					const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false);
-					if (!isFirst) {
-						macrosBody += ",";
-					}
-					isFirst = false;
-					macrosBody += componentFullName;
-				}
-				for (ECS2::Entity::Id archetypeEntityId : archetypeEntityIds) {
-					const std::string archetypeFullName = ECS__FILE__TABLE__GET_FULL_NAME(archetypeEntityId, "__", true);
-					if (!isFirst) {
-						macrosBody += ",";
-					}
-					isFirst = false;
-					macrosBody += archetypeFullName;
-				}
-
-
-				ECS2::Entity::Id defineEntityId = CreateEntity();
-				CreateComponent<CPP::Tree::Preprocessor::Tag>(defineEntityId);
-				CreateComponent<CPP::Tree::Preprocessor::Define_>(defineEntityId, namespaceStr, std::vector<std::string>{}, macrosBody, ECS2::Entity::Id::invalid_, false);
-
-				hppFileNodeEntityIds.push_back(CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_OFF_COMMENT());
-				hppFileNodeEntityIds.push_back(defineEntityId);
-				hppFileNodeEntityIds.push_back(CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_ON_COMMENT());
-			}
-
-			//Generate archetypes macroses
-			for (ECS2::Entity::Id bundleEntityId : fileBundles) {
-
-				const ECS2::ComponentsFilter bundleCF = GetComponentsFilter(bundleEntityId);
-				ASSERT(bundleCF.IsSet<File::Table::Bundle::Tag>());
-
-				std::vector<ECS2::Entity::Id> componentEntityIds;
-				if (bundleCF.IsSet<ECS::File::Table::Bundle::Components>()) {
-					auto* components = GetComponent<ECS::File::Table::Bundle::Components>(bundleEntityId);
-					for (std::string component : components->components_) {
-						ECS2::Entity::Id componentEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Component::Tag, bundleEntityId, component);
-						componentEntityIds.push_back(componentEntityId);
-					}
-				}
-
-				std::vector<ECS2::Entity::Id> bundleEntityIds;
-				if (bundleCF.IsSet<ECS::File::Table::Bundle::Bundles>()) {
-					auto* bundles = GetComponent<ECS::File::Table::Bundle::Bundles>(bundleEntityId);
-					for (std::string bundle : bundles->bundles_) {
-						ECS2::Entity::Id refBundleEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(ECS::File::Table::Bundle::Tag, bundleEntityId, bundle);
-						bundleEntityIds.push_back(refBundleEntityId);
-					}
-				}
-
-				const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(bundleEntityId, "::", false);
-				const std::string namespaceStr = ECS__FILE__TABLE__GET_FULL_NAME(bundleEntityId, "__", true);
-
-				std::string macrosBody;
-				bool isFirst = true;
-				for (ECS2::Entity::Id componentEntityId : componentEntityIds) {
-					const std::string componentFullName = ECS__FILE__TABLE__GET_FULL_NAME(componentEntityId, "::", false);
-					if (!isFirst) {
-						macrosBody += ",";
-					}
-					isFirst = false;
-					macrosBody += componentFullName;
-				}
-				for (ECS2::Entity::Id bundleEntityId : bundleEntityIds) {
-					const std::string bundleFullName = ECS__FILE__TABLE__GET_FULL_NAME(bundleEntityId, "__", true);
-					if (!isFirst) {
-						macrosBody += ",";
-					}
-					isFirst = false;
-					macrosBody += bundleFullName;
-				}
-
-
-				ECS2::Entity::Id defineEntityId = CreateEntity();
-				CreateComponent<CPP::Tree::Preprocessor::Tag>(defineEntityId);
-				CreateComponent<CPP::Tree::Preprocessor::Define_>(defineEntityId, namespaceStr, std::vector<std::string>{}, macrosBody, ECS2::Entity::Id::invalid_, false);
-
-				hppFileNodeEntityIds.push_back(defineEntityId);
-			}
 
 			CreateComponent<CPP::Tree::Node::ChildEntityIds>(hppFileEntityId, hppFileNodeEntityIds);
 			CreateComponent<CPP::Tree::Node::ChildEntityIds>(cppFileEntityId, cppFileNodeEntityIds);
@@ -3315,6 +3349,12 @@ namespace OksEngine::ECS::Generator
 
 									ECS2::Entity::Id systemEntityId = *(std::get<ECS2::Entity::Id*>(systemComponents) + i);
 
+									std::string fullName = ECS__FILE__TABLE__GET_FULL_NAME(systemEntityId, "::", false);
+
+									if (fullName == "PacketManager::GetPacketsToDownload") {
+										Common::BreakPointLine();
+									}
+
 									ECS2::Entity::Id callOrderEntityId = (std::get<OksEngine::ECS::File::Table::System::CallOrder::EntityId*>(systemComponents) + i)->id_;
 									if (callOrderEntityId.IsValid()) {
 										if (IsComponentExist<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId)) {
@@ -3342,10 +3382,10 @@ namespace OksEngine::ECS::Generator
 								initSystemsOrder.push_back(currentId);
 								//
 									// Уменьшаем inDegree для всех соседей
-
+								std::string fullName = ECS__FILE__TABLE__GET_FULL_NAME(currentId, "::", false);
 								if (IsComponentExist<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(currentId)) {
 									ECS2::Entity::Id callOrderEntityId = GetComponent<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(currentId)->id_;
-									if (IsComponentExist<OksEngine::ECS::File::Table::System::CallOrder::EntityId>(callOrderEntityId)) {
+									if (IsComponentExist<OksEngine::ECS::File::Table::System::CallOrder::RunBefore>(callOrderEntityId)) {
 										const auto* runBefore = GetComponent<ECS::File::Table::System::CallOrder::RunBefore>(callOrderEntityId);
 										for (const auto& runBeforeSystemInfo : runBefore->systems_) {
 											const ECS2::Entity::Id runBeforeSystemEntityId
@@ -4193,141 +4233,142 @@ namespace OksEngine::ECS::Generator
 
 	}
 
-	AI_GENERATED
-		// Вспомогательная функция для проверки существования альтернативного пути
-		bool hasAlternativePath(Agraph_t* graph, Agnode_t* source, Agnode_t* target) {
-		// BFS для поиска пути, исключая прямое ребро source->target
-		std::unordered_set<Agnode_t*> visited;
-		std::queue<Agnode_t*> q;
+	namespace {
+		AI_GENERATED
+			// Вспомогательная функция для проверки существования альтернативного пути
+			bool hasAlternativePath(Agraph_t* graph, Agnode_t* source, Agnode_t* target) {
+			// BFS для поиска пути, исключая прямое ребро source->target
+			std::unordered_set<Agnode_t*> visited;
+			std::queue<Agnode_t*> q;
 
-		visited.insert(source);
+			visited.insert(source);
 
-		// Начинаем с соседей source (кроме target)
-		for (Agedge_t* e = agfstout(graph, source); e; e = agnxtout(graph, e)) {
-			Agnode_t* neighbor = aghead(e);
-			if (neighbor != target) {
-				visited.insert(neighbor);
-				q.push(neighbor);
-			}
-		}
-
-		while (!q.empty()) {
-			Agnode_t* current = q.front();
-			q.pop();
-
-			if (current == target) {
-				return true; // Найден альтернативный путь
-			}
-
-			for (Agedge_t* e = agfstout(graph, current); e; e = agnxtout(graph, e)) {
+			// Начинаем с соседей source (кроме target)
+			for (Agedge_t* e = agfstout(graph, source); e; e = agnxtout(graph, e)) {
 				Agnode_t* neighbor = aghead(e);
-				if (visited.find(neighbor) == visited.end()) {
+				if (neighbor != target) {
 					visited.insert(neighbor);
 					q.push(neighbor);
 				}
 			}
-		}
 
-		return false; // Альтернативный путь не найден
-	}
+			while (!q.empty()) {
+				Agnode_t* current = q.front();
+				q.pop();
 
-
-	AI_GENERATED
-		// Основная функция для удаления транзитивных рёбер
-		void removeTransitiveEdges(Agraph_t* graph) {
-		if (!graph) return;
-
-		std::set<Agedge_t*> edgesToRemove;
-
-		// Собираем все рёбра для проверки
-		for (Agnode_t* source = agfstnode(graph); source; source = agnxtnode(graph, source)) {
-			for (Agedge_t* e = agfstout(graph, source); e; e = agnxtout(graph, e)) {
-				Agnode_t* target = aghead(e);
-
-				// Проверяем, есть ли альтернативный путь от source к target
-				if (hasAlternativePath(graph, source, target)) {
-					edgesToRemove.insert(e);
+				if (current == target) {
+					return true; // Найден альтернативный путь
 				}
-			}
-		}
 
-		// Удаляем найденные транзитивные рёбра
-		for (Agedge_t* e : edgesToRemove) {
-			agdelete(graph, e);
-			/*std::cout << "Removed edge: "
-				<< agnameof(agtail(e)) << " -> "
-				<< agnameof(aghead(e)) << std::endl;*/
-		}
-
-		std::cout << "Всего удалено рёбер: " << edgesToRemove.size() << std::endl;
-	}
-
-	AI_GENERATED
-		// Функция для поиска и раскраски циклов в красный цвет
-		void findAndColorCycles(Agraph_t* graph) {
-		if (!graph) return;
-
-		// Структуры для хранения состояния узлов
-		std::unordered_map<Agnode_t*, int> nodeState; // 0 - не посещен, 1 - в обработке, 2 - обработан
-		std::unordered_map<Agnode_t*, Agnode_t*> parent;
-		std::vector<std::pair<Agnode_t*, Agnode_t*>> cycleEdges;
-
-		// Рекурсивная функция DFS для поиска циклов
-		std::function<void(Agnode_t*)> dfs = [&](Agnode_t* node) {
-			nodeState[node] = 1; // Узел в обработке
-
-			// Обход всех исходящих рёбер
-			for (Agedge_t* edge = agfstout(graph, node); edge; edge = agnxtout(graph, edge)) {
-				Agnode_t* neighbor = aghead(edge);
-
-				if (nodeState[neighbor] == 0) {
-					// Соседний узел не посещен
-					parent[neighbor] = node;
-					dfs(neighbor);
-				}
-				else if (nodeState[neighbor] == 1) {
-					// Найден цикл! Добавляем ребро в список
-					cycleEdges.push_back({ node, neighbor });
-
-					// Прокручиваем назад по родителям, чтобы найти все рёбра цикла
-					Agnode_t* current = node;
-					while (current != neighbor && parent.find(current) != parent.end()) {
-						cycleEdges.push_back({ parent[current], current });
-						current = parent[current];
+				for (Agedge_t* e = agfstout(graph, current); e; e = agnxtout(graph, e)) {
+					Agnode_t* neighbor = aghead(e);
+					if (visited.find(neighbor) == visited.end()) {
+						visited.insert(neighbor);
+						q.push(neighbor);
 					}
 				}
 			}
 
-			nodeState[node] = 2; // Узел полностью обработан
-			};
+			return false; // Альтернативный путь не найден
+		}
 
-		// Запускаем DFS для всех узлов
-		for (Agnode_t* node = agfstnode(graph); node; node = agnxtnode(graph, node)) {
-			if (nodeState[node] == 0) {
-				dfs(node);
+
+		AI_GENERATED
+			// Основная функция для удаления транзитивных рёбер
+			void removeTransitiveEdges(Agraph_t* graph) {
+			if (!graph) return;
+
+			std::set<Agedge_t*> edgesToRemove;
+
+			// Собираем все рёбра для проверки
+			for (Agnode_t* source = agfstnode(graph); source; source = agnxtnode(graph, source)) {
+				for (Agedge_t* e = agfstout(graph, source); e; e = agnxtout(graph, e)) {
+					Agnode_t* target = aghead(e);
+
+					// Проверяем, есть ли альтернативный путь от source к target
+					if (hasAlternativePath(graph, source, target)) {
+						edgesToRemove.insert(e);
+					}
+				}
+			}
+
+			// Удаляем найденные транзитивные рёбра
+			for (Agedge_t* e : edgesToRemove) {
+				agdelete(graph, e);
+				/*std::cout << "Removed edge: "
+					<< agnameof(agtail(e)) << " -> "
+					<< agnameof(aghead(e)) << std::endl;*/
+			}
+
+			std::cout << "Всего удалено рёбер: " << edgesToRemove.size() << std::endl;
+		}
+
+		AI_GENERATED
+			// Функция для поиска и раскраски циклов в красный цвет
+			void findAndColorCycles(Agraph_t* graph) {
+			if (!graph) return;
+
+			// Структуры для хранения состояния узлов
+			std::unordered_map<Agnode_t*, int> nodeState; // 0 - не посещен, 1 - в обработке, 2 - обработан
+			std::unordered_map<Agnode_t*, Agnode_t*> parent;
+			std::vector<std::pair<Agnode_t*, Agnode_t*>> cycleEdges;
+
+			// Рекурсивная функция DFS для поиска циклов
+			std::function<void(Agnode_t*)> dfs = [&](Agnode_t* node) {
+				nodeState[node] = 1; // Узел в обработке
+
+				// Обход всех исходящих рёбер
+				for (Agedge_t* edge = agfstout(graph, node); edge; edge = agnxtout(graph, edge)) {
+					Agnode_t* neighbor = aghead(edge);
+
+					if (nodeState[neighbor] == 0) {
+						// Соседний узел не посещен
+						parent[neighbor] = node;
+						dfs(neighbor);
+					}
+					else if (nodeState[neighbor] == 1) {
+						// Найден цикл! Добавляем ребро в список
+						cycleEdges.push_back({ node, neighbor });
+
+						// Прокручиваем назад по родителям, чтобы найти все рёбра цикла
+						Agnode_t* current = node;
+						while (current != neighbor && parent.find(current) != parent.end()) {
+							cycleEdges.push_back({ parent[current], current });
+							current = parent[current];
+						}
+					}
+				}
+
+				nodeState[node] = 2; // Узел полностью обработан
+				};
+
+			// Запускаем DFS для всех узлов
+			for (Agnode_t* node = agfstnode(graph); node; node = agnxtnode(graph, node)) {
+				if (nodeState[node] == 0) {
+					dfs(node);
+				}
+			}
+
+			// Раскрашиваем рёбра циклов в красный цвет
+			for (const auto& edgePair : cycleEdges) {
+				// Ищем ребро между узлами
+				Agedge_t* edge = agedge(graph, edgePair.first, edgePair.second, nullptr, 0);
+				if (edge) {
+					// Устанавливаем атрибут цвета
+					agsafeset(edge, (char*)"color", (char*)"red", (char*)"");
+
+					// Можно также сделать ребро толще для лучшей видимости
+					agsafeset(edge, (char*)"penwidth", (char*)"3.0", (char*)"");
+				}
+			}
+
+			if (!cycleEdges.empty()) {
+				// Выводим информацию о найденных циклах
+				OS::LogError("systems_graph", "FOUND LOOP/S IN SYSTEMS GRAPH!!! CHECK .dot graph.");
 			}
 		}
 
-		// Раскрашиваем рёбра циклов в красный цвет
-		for (const auto& edgePair : cycleEdges) {
-			// Ищем ребро между узлами
-			Agedge_t* edge = agedge(graph, edgePair.first, edgePair.second, nullptr, 0);
-			if (edge) {
-				// Устанавливаем атрибут цвета
-				agsafeset(edge, (char*)"color", (char*)"red", (char*)"");
-
-				// Можно также сделать ребро толще для лучшей видимости
-				agsafeset(edge, (char*)"penwidth", (char*)"3.0", (char*)"");
-			}
-		}
-
-		if (!cycleEdges.empty()) {
-			// Выводим информацию о найденных циклах
-			OS::LogError("systems_graph", "FOUND LOOP/S IN SYSTEMS GRAPH!!! CHECK .dot graph.");
-		}
 	}
-
-
 	void GenerateDotGraph::Update(
 		ECS2::Entity::Id entity0id,
 		const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
