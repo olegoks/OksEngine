@@ -115,8 +115,11 @@ namespace OksEngine::ECS::Generator
 
 				//Generate .hpp file include.
 				{
-					const std::filesystem::path correspondingHppFileIncludePath = ECS__FILE__GET_FILE_INCLUDE_PATH(fileEntityId, projectFilePath, ".hpp");
-					cppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(correspondingHppFileIncludePath.string()));
+					const std::filesystem::path filePath = GetComponent<ECS::File::Path>(fileEntityId)->path_;
+						const std::filesystem::path correspondingHppFileIncludePath = ECS__FILE__GET_FILE_INCLUDE_PATH(fileEntityId, projectFilePath, ".hpp");
+					std::string correspondingHppFileIncludePathStr = correspondingHppFileIncludePath.generic_string();
+					std::replace(correspondingHppFileIncludePathStr.begin(), correspondingHppFileIncludePathStr.end(), '\\', '/');
+					cppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(correspondingHppFileIncludePathStr));
 					cppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE("imgui.h"));
 					cppFileNodeEntityIds.push_back(CPP__TREE__PREPROCESSOR__CREATE_INCLUDE("misc/cpp/imgui_stdlib.h"));
 
@@ -3247,6 +3250,31 @@ namespace OksEngine::ECS::Generator
 
 			CreateComponent<CPP::Tree::Node::ChildEntityIds>(hppProjectFileEntityId, hppFileNodeEntityIds);
 		}
+	}
+
+
+	void GenerateCMakeFile::Update(
+		ECS2::Entity::Id entity0id,
+		const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
+		const OksEngine::ECS::Project::Path* eCS__Project__Path0,
+		const OksEngine::LuaScript* luaScript0) {
+
+		//std::filesystem::path cmakeFilePath = eCS__Project__Path0->path_;
+		//cmakeFilePath.remove_filename();
+
+		//auto osFile = std::make_shared<OS::TextFile>(cmakeFilePath / "auto_Packages.cmake");
+		//osFile->Create();
+
+		////Generate cmake text.
+		//std::string text;
+		//{
+
+
+		//}
+
+		////*osFile << code;
+
+
 	}
 
 	void GenerateRunSystemsFile::Update(

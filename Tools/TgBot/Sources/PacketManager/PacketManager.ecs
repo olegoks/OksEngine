@@ -1,13 +1,8 @@
 PacketManagerNamespace = {
     TagComponent = {},
-    RepositoryOwnerComponent = {
+    SettingsComponent = {
         fields = {
-            { type = "std::string", name = "owner" }
-        }
-    },
-    RepositoryNameComponent = {
-        fields = {
-            { type = "std::string", name = "name" }
+            { type = "std::string", name = "repositoryOwner" }
         }
     },
     RequiredPackagesComponent = {
@@ -21,6 +16,11 @@ PacketManagerNamespace = {
         }
     },
     ECSProjectFilePathComponent = {
+        fields = {
+            { type = "std::string", name = "path" }
+        }
+    }, 
+    InstallPathComponent = {
         fields = {
             { type = "std::string", name = "path" }
         }
@@ -83,5 +83,25 @@ PacketManagerNamespace = {
                 }
             }
         }
-    }
+    },
+
+    DownloadAndInstallPacketsSystem = {
+        description = "Get resolved packets, download them and install",
+        type = "Initialize",
+        callOrder = {
+            runAfter = "GetPacketsToDownload"
+        },
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "PacketManager::Tag",
+                        "PacketManager::InstallPath",
+                        "PacketManager::ResolvedPackages"
+                    }
+                }
+            }
+        }
+    },
+
 }

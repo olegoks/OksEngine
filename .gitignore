@@ -84,3 +84,4 @@ Resources/Models/Truck/error_hull_show
 *.blend
 *.obj
 *.blend1
+/Tools/PMTest/CMakeFiles

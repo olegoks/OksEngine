@@ -1,0 +1,10 @@
+Package = {
+    Name = "Common",
+    Version = "1.0.1",
+    FrameworkVersion = "1.0.0",
+    Dependecies = {},
+    Modules = {
+        { "Sources/OksEngine.Common.ecs_module" }
+    }
+
+}

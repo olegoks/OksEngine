@@ -26,7 +26,7 @@ namespace PacketManager {
             // fallback через sscanf, если regex не подошёл (на всякий случай)
             Version v;
             std::string s = (str.size() > 0 && str[0] == 'v') ? str.substr(1) : str;
-            sscanf(s.c_str(), "%" SCNu64 ".%" SCNu64 ".%" SCNu64, &v.major_, &v.minor_, &v.patch_);
+            sscanf_s(s.c_str(), "%" SCNu64 ".%" SCNu64 ".%" SCNu64, &v.major_, &v.minor_, &v.patch_);
             return v;
         }
 

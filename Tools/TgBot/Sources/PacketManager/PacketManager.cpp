@@ -325,6 +325,8 @@ namespace PacketManager {
 		ECS2::Entity::Id packetManagerEntityId = CreateEntity();
 		CreateComponent<PacketManager::Tag>(packetManagerEntityId);
 		CreateComponent<PacketManager::RequiredPackages>(packetManagerEntityId, requiredPackages);
+		std::filesystem::path installPath = std::filesystem::path{ packetManager__ECSProjectFilePath0->path_ }.parent_path();
+		CreateComponent<PacketManager::InstallPath>(packetManagerEntityId, installPath.string());
 		//CreateComponent<PacketManager::>
 		//::Lua::Context context;
 		//::Lua::Script script{ std::string{ content.data(), content.size() } };
@@ -642,6 +644,79 @@ namespace PacketManager {
 
 		//// 3. Сохраняем результат в компонент
 		//CreateComponent<PacketManager::ResolvedPackages>(entity0Id, std::move(resolved));
+	}
+
+	// Устанавливает один пакет по owner, repo, версии.
+	// installBasePath – папка проекта (где будет создана подпапка Packages/имя_пакета).
+	bool InstallSinglePackage(const std::string& owner,
+		const std::string& repo,
+		const PacketManager::Package::Version& version,
+		const std::filesystem::path& installBasePath)
+	{
+		std::string version_str = PacketManager::Package::VersionToString(version); // "v1.2.3"
+		std::string version_clean = version_str.substr(1);                         // "1.2.3"
+
+		// Пытаемся получить URL ассета через API
+		std::string url = get_release_asset_url(owner, "ECS." + repo, version_clean);
+		if (url.empty()) {
+			// Fallback – прямой URL, если ассет назван стандартно: repo-version.zip
+			url = "https://github.com/" + owner + "/ECS." + repo + "/releases/download/"
+				+ version_str + "/" + repo + "-" + version_clean + ".zip";
+		}
+
+		// Путь к кэшу
+		std::filesystem::path cache_dir = GetCacheDir();
+		std::filesystem::create_directories(cache_dir);
+		std::string zip_name = repo + "-" + version_clean + ".zip";
+		std::filesystem::path zip_path = cache_dir / zip_name;
+
+		// Папка, куда распакуем пакет
+		std::filesystem::path dest_dir = installBasePath / "Packages" / repo;
+		
+		LOG_INFO("PacketManager", "Downloading {} ...", url);
+
+		if (!DownloadFile(url, zip_path.string())) {
+			std::cerr << "Download failed for " << repo << "@" << version_clean << "\n";
+			return false;
+		}
+		LOG_INFO("PacketManager", "Extracting to {} ...", dest_dir.string());
+		if (std::filesystem::exists(dest_dir))
+			std::filesystem::remove_all(dest_dir);
+		std::filesystem::create_directories(dest_dir);
+
+		if (!ExtractZip(zip_path.string(), dest_dir.string())) {
+			std::cerr << "Extraction failed for " << repo << "\n";
+			return false;
+		}
+
+		LOG_INFO("PacketManager", "Package {} installed successfully.", repo);
+		return true;
+	}
+
+	void DownloadAndInstallPackets::Update(
+		ECS2::Entity::Id entity0Id, const PacketManager::Tag* packetManager__Tag0,
+		const PacketManager::InstallPath* packetManager__InstallPath0,
+		const PacketManager::ResolvedPackages* packetManager__ResolvedPackages0) {
+
+		const std::string owner = "olegoks";  // TODO: вынести в конфигурацию
+
+		for (const auto& [packageName, version] : packetManager__ResolvedPackages0->resolved_) {
+			bool ok = InstallSinglePackage(
+				owner, 
+				packageName,
+				Package::Version{ 
+					std::get<0>(version), 
+					std::get<1>(version),
+					std::get<2>(version) 
+				},
+				packetManager__InstallPath0->path_
+			);
+			ASSERT_FMSG(ok, "Failed to install package: {}", packageName);
+		}
+
+		LOG_INFO("PacketManager", "All packages installed.");
+
+
 	}
 
 } // namespace PacketManager

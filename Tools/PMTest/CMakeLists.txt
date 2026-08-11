@@ -22,64 +22,67 @@ function(organize_source_files DIRECTORY FILES)
 endfunction()
 
 # Получаем список всех файлов
-get_source_files(${CMAKE_CURRENT_LIST_DIR} PROJECT_SOURCES)
+get_source_files("${CMAKE_CURRENT_LIST_DIR}/Packages" PACKAGES_SOURCES)
+get_source_files("${CMAKE_CURRENT_LIST_DIR}/Sources" SOURCES)
 # Организуем файлы по группам
-organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
+organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PACKAGES_SOURCES}")
+organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${SOURCES}")
 
 add_executable(PMTest)
 
-find_package(PkgConfig REQUIRED) 
+#find_package(PkgConfig REQUIRED) 
 target_compile_options(PMTest PUBLIC "/MP" "/bigobj")
-pkg_check_modules(GRAPHVIZ REQUIRED libgvc)
-message(STATUS "${GRAPHVIZ_INCLUDE_DIRS}")
+#pkg_check_modules(GRAPHVIZ REQUIRED libgvc)
+#message(STATUS "${GRAPHVIZ_INCLUDE_DIRS}")
 
-target_include_directories(PMTest  PUBLIC ${GRAPHVIZ_INCLUDE_DIRS})
+#target_include_directories(PMTest  PUBLIC ${GRAPHVIZ_INCLUDE_DIRS})
     
-message(STATUS "${GRAPHVIZ_LIBRARY_DIRS}")
-target_link_directories(PMTest PUBLIC ${GRAPHVIZ_LIBRARY_DIRS})
+#message(STATUS "${GRAPHVIZ_LIBRARY_DIRS}")
+#target_link_directories(PMTest PUBLIC ${GRAPHVIZ_LIBRARY_DIRS})
 
-find_package(LLVM REQUIRED CONFIG)
-find_package(Clang REQUIRED CONFIG)
+# find_package(LLVM REQUIRED CONFIG)
+# find_package(Clang REQUIRED CONFIG)
 
-llvm_map_components_to_libnames(LLVM_LIBS core irreader support)
+# llvm_map_components_to_libnames(LLVM_LIBS core irreader support)
 
-set(CLANG_LIBS
-    clangFormat
-    clangToolingCore
-    clangBasic
-    clangLex
-    clangSerialization
-    clangRewrite
-    clangAST
-    clangSupport
-    clangFrontend
-    clangDriver
-    LLVMSupport
-)
-
-
-find_package(CURL REQUIRED)
-find_package(libzip REQUIRED)
-find_package(nlohmann_json REQUIRED)
+# set(CLANG_LIBS
+#     clangFormat
+#     clangToolingCore
+#     clangBasic
+#     clangLex
+#     clangSerialization
+#     clangRewrite
+#     clangAST
+#     clangSupport
+#     clangFrontend
+#     clangDriver
+#     LLVMSupport
+# )
 
 
-target_link_libraries(PMTest PRIVATE CURL::libcurl libzip::zip nlohmann_json::nlohmann_json)
+# find_package(CURL REQUIRED)
+# find_package(libzip REQUIRED)
+# find_package(nlohmann_json REQUIRED)
 
-set_target_properties(PMTest
-        PROPERTIES
-        VS_DEBUGGER_COMMAND_ARGUMENTS
-        "$<$<CONFIG:Debug>: -ecs_project_file D:/OksEngine/Tools/PMTest/ECSGenerator3.ecs_project>$<$<CONFIG:Release>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptyScene.scn>$<$<CONFIG:RelWithDebInfo>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn resource:/Scenes/OksEngine.EmptyScene.scn>"
-    )
+
+# target_link_libraries(PMTest PRIVATE CURL::libcurl libzip::zip nlohmann_json::nlohmann_json)
+
+# set_target_properties(PMTest
+#         PROPERTIES
+#         VS_DEBUGGER_COMMAND_ARGUMENTS
+#         "$<$<CONFIG:Debug>: -ecs_project_file D:/OksEngine/Tools/PMTest/ECSGenerator3.ecs_project>$<$<CONFIG:Release>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptyScene.scn>$<$<CONFIG:RelWithDebInfo>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn resource:/Scenes/OksEngine.EmptyScene.scn>"
+#     )
 
 target_include_directories(PMTest
     PUBLIC
-        ${LLVM_INCLUDE_DIRS} 
-        ${CLANG_INCLUDE_DIRS}
+        #${LLVM_INCLUDE_DIRS} 
+        #${CLANG_INCLUDE_DIRS}
         ${CMAKE_CURRENT_LIST_DIR}/Sources/)
 
 target_sources(PMTest
     PUBLIC
-        ${PROJECT_SOURCES}
+        ${SOURCES}
+        ${PACKAGES_SOURCES}
 
     PRIVATE
     )
@@ -88,32 +91,32 @@ target_include_directories(PMTest
     PUBLIC
     ${CMAKE_CURRENT_LIST_DIR})
 
-message("ZLIB_FOUND: ${ZLIB_FOUND}")
-message("ZLIB_INCLUDE_DIRS: ${ZLIB_INCLUDE_DIRS}")
-message("ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")
-message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
-message("ZLIB_LIBRARY: ${ZLIB_LIBRARY_RELEASE}")
-message("ZLIB_LIBRARY_DEBUG: ${ZLIB_LIBRARY_DEBUG}")
+# message("ZLIB_FOUND: ${ZLIB_FOUND}")
+# message("ZLIB_INCLUDE_DIRS: ${ZLIB_INCLUDE_DIRS}")
+# message("ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")
+# message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
+# message("ZLIB_LIBRARY: ${ZLIB_LIBRARY_RELEASE}")
+# message("ZLIB_LIBRARY_DEBUG: ${ZLIB_LIBRARY_DEBUG}")
 
-add_custom_command(TARGET PMTest POST_BUILD
-    COMMAND ${CMAKE_COMMAND} -E copy_if_different
-    "${ZLIB_LIBRARY_RELEASE}"
-    "${ZLIB_LIBRARY_DEBUG}"
-    "${GRAPHVIZ_PREFIX}/bin/cdt.dll"
-    "${GRAPHVIZ_PREFIX}/bin/cgraph.dll"
-    "${GRAPHVIZ_PREFIX}/bin/config6"
-    "${GRAPHVIZ_PREFIX}/bin/gvc.dll"
-    "${GRAPHVIZ_PREFIX}/bin/gvplugin_core.dll" 
-    "${GRAPHVIZ_PREFIX}/bin/gvplugin_dot_layout.dll"
-    "${GRAPHVIZ_PREFIX}/bin/gvplugin_gd.dll"
-    "${GRAPHVIZ_PREFIX}/bin/gvplugin_gdiplus.dll"
-    "${GRAPHVIZ_PREFIX}/bin/gvplugin_kitty.dll"
-    "${GRAPHVIZ_PREFIX}/bin/gvplugin_neato_layout.dll"
-    "${GRAPHVIZ_PREFIX}/bin/gvplugin_pango.dll"
-    "${GRAPHVIZ_PREFIX}/bin/gvplugin_rsvg.dll "
-    "${GRAPHVIZ_PREFIX}/bin/gvplugin_vt.dll"
-    "${GRAPHVIZ_PREFIX}/bin/gvplugin_webp.dll"
-    "${GRAPHVIZ_PREFIX}/bin/pathplan.dll"
-    "${GRAPHVIZ_PREFIX}/bin/xdot.dll"
-     $<TARGET_FILE_DIR:PMTest>)
+# add_custom_command(TARGET PMTest POST_BUILD
+#     COMMAND ${CMAKE_COMMAND} -E copy_if_different
+#     "${ZLIB_LIBRARY_RELEASE}"
+#     "${ZLIB_LIBRARY_DEBUG}"
+#     "${GRAPHVIZ_PREFIX}/bin/cdt.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/cgraph.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/config6"
+#     "${GRAPHVIZ_PREFIX}/bin/gvc.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/gvplugin_core.dll" 
+#     "${GRAPHVIZ_PREFIX}/bin/gvplugin_dot_layout.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/gvplugin_gd.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/gvplugin_gdiplus.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/gvplugin_kitty.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/gvplugin_neato_layout.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/gvplugin_pango.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/gvplugin_rsvg.dll "
+#     "${GRAPHVIZ_PREFIX}/bin/gvplugin_vt.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/gvplugin_webp.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/pathplan.dll"
+#     "${GRAPHVIZ_PREFIX}/bin/xdot.dll"
+#      $<TARGET_FILE_DIR:PMTest>)
 

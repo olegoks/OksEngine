@@ -27,6 +27,24 @@ namespace OksEngine::ECS::Module
 
 		std::filesystem::path projectFilePath = eCS__Project__Path0->path_;
 
+		auto processModulePath = [&](std::filesystem::path modulePath, const std::string includePath) {
+			for (const auto& entry : std::filesystem::recursive_directory_iterator(modulePath.parent_path())) {
+				if (std::filesystem::is_regular_file(entry)) {
+					if (entry.path().extension().string() == ".ecs_module") {
+
+						std::vector<Common::Byte> data = Resource::LoadFileAndGetContent(entry.path().string());
+
+						const ECS2::Entity::Id fileEntityId = CreateEntity<ECS__MODULE__MODULE>();
+						CreateComponent<ECS::Module::Tag>(fileEntityId);
+						CreateComponent<ECS::Module::Path>(fileEntityId, entry.path().string());
+						CreateComponent<ECS::Module::IncludePath>(fileEntityId, includePath);
+						CreateComponent<ECS::Project::EntityId>(fileEntityId, entity0id);
+						CreateComponent<LuaScript>(fileEntityId, std::string{ data.data(), data.size() });
+					}
+				}
+			}
+			};
+
 		int len = modulesTable.length();
 		for (int i = 1; i <= len; ++i) {
 			luabridge::LuaRef desc = modulesTable[i];
@@ -38,21 +56,7 @@ namespace OksEngine::ECS::Module
 				for (Common::Index j = 1; j <= pathsNumber; ++j) {
 					const std::string path = pathsRef[j].cast<std::string>().value();
 					std::filesystem::path modulePath = (projectFilePath.parent_path() / path).lexically_normal();
-					for (const auto& entry : std::filesystem::recursive_directory_iterator(modulePath.parent_path())) {
-						if (std::filesystem::is_regular_file(entry)) {
-							if (entry.path().extension().string() == ".ecs_module") {
-
-								std::vector<Common::Byte> data = Resource::LoadFileAndGetContent(entry.path().string());
-
-								const ECS2::Entity::Id fileEntityId = CreateEntity<ECS__MODULE__MODULE>();
-								CreateComponent<ECS::Module::Tag>(fileEntityId);
-								CreateComponent<ECS::Module::Path>(fileEntityId, entry.path().string());
-								CreateComponent<ECS::Module::IncludePath>(fileEntityId, includePath);
-								CreateComponent<ECS::Project::EntityId>(fileEntityId, entity0id);
-								CreateComponent<LuaScript>(fileEntityId, std::string{ data.data(), data.size() });
-							}
-						}
-					}
+					processModulePath(modulePath, includePath);
 
 
 				}
@@ -61,6 +65,21 @@ namespace OksEngine::ECS::Module
 			}
 		}
 
+
+		//
+		if (std::filesystem::exists(projectFilePath.parent_path() / "Packages")) {
+			std::vector<std::filesystem::path> result;
+			for (const auto& entry : std::filesystem::recursive_directory_iterator(projectFilePath.parent_path() / "Packages")) {
+				if (entry.is_regular_file() && entry.path().extension() == ".ecs_module") {
+					result.push_back(entry.path());
+				}
+			}
+
+			for (const auto modulePath : result) {
+				processModulePath(modulePath, "./Sources");
+			}
+		}
+		
 
 	};
 

@@ -1077,6 +1077,8 @@ namespace OksEngine::ECS::File {
 
 			ECS2::Entity::Id callOrderEntityId = GetComponent<ECS::File::Table::System::CallOrder::EntityId>(entity0id)->id_;
 
+			std::string systemName = ECS__FILE__TABLE__GET_FULL_NAME(entity0id, "::", false);
+
 			auto& runAfterSystems = GetComponent<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId)->systems_;
 			for (auto& systemInfo : runAfterSystems) {
 				ECS2::Entity::Id runAfterSystemEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(

@@ -1,0 +1,9 @@
+PMTestNamespace = {
+
+    TestComponent = {
+        fields = {
+            { type = "Common::UInt64", name = "test" }
+        }
+    }
+
+}

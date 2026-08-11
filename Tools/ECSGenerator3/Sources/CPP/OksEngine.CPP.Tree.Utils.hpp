@@ -79,7 +79,7 @@ using namespace std::string_literals;
 #define CPP__TREE__COMMENT__CREATE_CLANG_FORMAT_ON_COMMENT()\
 	[this](){\
 		ECS2::Entity::Id comment = CreateEntity();\
-		CreateComponent<CPP::Tree::Comment>(comment, " clang format on", CPP::Tree::CommentType::OneLine);\
+		CreateComponent<CPP::Tree::Comment>(comment, " clang-format on\n", CPP::Tree::CommentType::OneLine);\
 		return comment;\
 	}()
 

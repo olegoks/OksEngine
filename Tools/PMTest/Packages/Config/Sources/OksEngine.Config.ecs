@@ -1,0 +1,28 @@
+ConfigNamespace = {
+    TagComponent = {
+        bindable = false,
+        serializable = false
+    },
+    LoadSystem = {
+        type = "Initialize",
+        updateMethod = {
+            processesEntities = {
+                {
+                    processesComponents = {
+                        "CommandLineParameters",
+                        "ConfigFilePath"
+                    }
+                }
+            },
+            createsEntities = {
+                {
+                    createsComponents = {
+                        "Config::Tag",
+                        "LuaScript"
+                    }
+                }
+            }
+        }
+    }
+
+}

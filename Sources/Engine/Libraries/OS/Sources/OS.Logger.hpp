@@ -126,4 +126,8 @@ namespace OS {
 		Common::Format&& format,
 		std::source_location location = std::source_location::current());
 
+#define LOG_INFO(path, message, ...)\
+	OS::LogInfo(path, { message, __VA_ARGS__ });
+
+
 }

@@ -48,22 +48,22 @@ Engine::Engine(const CreateInfo& createInfo) noexcept {
 
 }
 
-void Engine::Update() noexcept {
+void Engine::Run() noexcept {
 
 	HRESULT r;
 	r = SetThreadDescription(GetCurrentThread(), L"Main thread");
 
 	RunInitializeSystems(world2_);
 
-	while (IsRunning()) {
-		BEGIN_PROFILE("Frame");
-		RunSystems(world2_);
-		BEGIN_PROFILE("Apply delayed requests");
-		world2_->ApplyDelayedRequests();
-		END_PROFILE();
-		std::cout << "newFrame" << std::endl;
-		END_PROFILE();
-	}
+	//while (IsRunning()) {
+	//	BEGIN_PROFILE("Frame");
+	//	RunSystems(world2_);
+	//	BEGIN_PROFILE("Apply delayed requests");
+	//	world2_->ApplyDelayedRequests();
+	//	END_PROFILE();
+	//	std::cout << "newFrame" << std::endl;
+	//	END_PROFILE();
+	//}
 
 }
 
