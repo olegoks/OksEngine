@@ -3384,6 +3384,7 @@ namespace OksEngine::ECS::Generator
 					text += ")\n";
 
 					text += "list(APPEND ALL_SOURCES ${" + sourcesVariable + "})\n";
+					text += "target_include_directories(" + projectName + "  PUBLIC \"" + includePath +"\")\n";
 				}
 				
 				text += "set(${SOURCES} ${ALL_SOURCES})\n";

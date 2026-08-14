@@ -29,21 +29,21 @@ cmake_minimum_required(VERSION  3.26.4)
 
 include(auto_Modules.cmake)
 
+
+add_executable(PacketManager)
 GetModuleSources(MODULE_SOURCES)
 # Организуем файлы по группам
 message(STATUS "Module sources: ${MODULE_SOURCES}")
-add_executable(TgBot)
-
 
 find_package(PkgConfig REQUIRED) 
-target_compile_options(TgBot PUBLIC "/MP" "/bigobj")
+target_compile_options(PacketManager PUBLIC "/MP" "/bigobj")
 pkg_check_modules(GRAPHVIZ REQUIRED libgvc)
 message(STATUS "${GRAPHVIZ_INCLUDE_DIRS}")
 
-target_include_directories(TgBot  PUBLIC ${GRAPHVIZ_INCLUDE_DIRS})
+target_include_directories(PacketManager  PUBLIC ${GRAPHVIZ_INCLUDE_DIRS})
     
 message(STATUS "${GRAPHVIZ_LIBRARY_DIRS}")
-target_link_directories(TgBot PUBLIC ${GRAPHVIZ_LIBRARY_DIRS})
+target_link_directories(PacketManager PUBLIC ${GRAPHVIZ_LIBRARY_DIRS})
 
 find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
@@ -70,31 +70,50 @@ find_package(libzip REQUIRED)
 find_package(nlohmann_json REQUIRED)
 
 
-target_link_libraries(TgBot PRIVATE CURL::libcurl libzip::zip nlohmann_json::nlohmann_json)
+target_link_libraries(PacketManager PRIVATE CURL::libcurl libzip::zip nlohmann_json::nlohmann_json)
 
-set_target_properties(TgBot
+set_target_properties(PacketManager
         PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
         "$<$<CONFIG:Debug>: -ecs_project_file D:/OksEngine/Tools/PMTest/PMTest.ecs_project>$<$<CONFIG:Release>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn ${CMAKE_CURRENT_LIST_DIR}/../Resources/Scenes/OksEngine.EmptyScene.scn>$<$<CONFIG:RelWithDebInfo>: -cfg ${CMAKE_CURRENT_LIST_DIR}/../config.lua -scn resource:/Scenes/OksEngine.EmptyScene.scn>"
     )
 
-target_include_directories(TgBot
+target_include_directories(PacketManager
     PUBLIC
         ${LLVM_INCLUDE_DIRS} 
         ${CLANG_INCLUDE_DIRS}
         ${CMAKE_CURRENT_LIST_DIR}/Sources/)
 
-target_sources(TgBot
+set(PROJECT_SOURCES "")
+get_source_files(ALL_LOCAL_SOURCES
+    ${CMAKE_CURRENT_LIST_DIR}
+)
+list(REMOVE_ITEM ALL_LOCAL_SOURCES ${MODULE_SOURCES})
+message(STATE "Module Sources: ${MODULE_SOURCES}")
+message(STATE "Local Sources: ${ALL_LOCAL_SOURCES}")
+
+
+organize_source_files(
+    ${CMAKE_CURRENT_LIST_DIR}
+    ${ALL_LOCAL_SOURCES}
+)
+
+
+list(APPEND PROJECT_SOURCES ${MODULE_SOURCES})
+list(APPEND PROJECT_SOURCES ${ALL_LOCAL_SOURCES})
+list(REMOVE_DUPLICATES PROJECT_SOURCES)
+
+target_sources(PacketManager
     PUBLIC
-        ${MODULE_SOURCES}
+        ${PROJECT_SOURCES}
     )
 
-target_include_directories(TgBot
+target_include_directories(PacketManager
     PUBLIC
     ${CMAKE_CURRENT_LIST_DIR})
 
 
-target_link_libraries(TgBot
+target_link_libraries(PacketManager
     PUBLIC
     ${GRAPHVIZ_LIBRARIES}
     ${CLANG_LIBS}
@@ -107,6 +126,7 @@ target_link_libraries(TgBot
     UI
     )
 
+
 message("ZLIB_FOUND: ${ZLIB_FOUND}")
 message("ZLIB_INCLUDE_DIRS: ${ZLIB_INCLUDE_DIRS}")
 message("ZLIB_LIBRARIES: ${ZLIB_LIBRARIES}")
@@ -114,7 +134,7 @@ message("ZLIB_LIBRARY: ${ZLIB_LIBRARY}")
 message("ZLIB_LIBRARY: ${ZLIB_LIBRARY_RELEASE}")
 message("ZLIB_LIBRARY_DEBUG: ${ZLIB_LIBRARY_DEBUG}")
 
-add_custom_command(TARGET TgBot POST_BUILD
+add_custom_command(TARGET PacketManager POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_if_different
     "${ZLIB_LIBRARY_RELEASE}"
     "${ZLIB_LIBRARY_DEBUG}"
@@ -134,5 +154,5 @@ add_custom_command(TARGET TgBot POST_BUILD
     "${GRAPHVIZ_PREFIX}/bin/gvplugin_webp.dll"
     "${GRAPHVIZ_PREFIX}/bin/pathplan.dll"
     "${GRAPHVIZ_PREFIX}/bin/xdot.dll"
-     $<TARGET_FILE_DIR:TgBot>)
+     $<TARGET_FILE_DIR:PacketManager>)
 
