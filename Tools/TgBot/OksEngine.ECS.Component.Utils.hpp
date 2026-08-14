@@ -3,7 +3,7 @@
 #include <regex>
 
 #include <auto_OksEngine.ECS.Component.Utils.hpp>
-#include <auto_ECSGenerator3.Project.hpp>
+#include <auto_PacketManager.Project.hpp>
 
 #define COMPONENT_TYPE_COMMA(type) type,
 #define COMPONENT_TYPE(type) type

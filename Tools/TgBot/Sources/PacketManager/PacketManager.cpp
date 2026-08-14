@@ -486,7 +486,10 @@ namespace PacketManager {
 			std::string manifestKey = name + "@" + std::to_string(ver.major_) + "." + std::to_string(ver.minor_) + "." + std::to_string(ver.patch_);
 			if (manifestCache.find(manifestKey) == manifestCache.end()) {
 				std::string manifestContent = FetchManifest(owner, name, ver);
-				if (manifestContent.empty()) continue;
+				if (manifestContent.empty()) {
+					ASSERT_FAIL_FMSG("Can't find manifest file for package {} {}", name, manifestKey);
+					continue;
+				}
 				manifestCache[manifestKey] = ParseDependenciesFromManifest(manifestContent);
 			}
 
@@ -551,6 +554,7 @@ namespace PacketManager {
 		auto resolvedMap = ResolveAll(requirements, "olegoks");
 		if (resolvedMap.empty()) {
 			OS::LogError("PacketManager", "Dependency resolution failed");
+			ASSERT_FAIL();
 			return;
 		}
 

@@ -1,0 +1,6 @@
+#pragma once
+#include <string>
+namespace Generated {
+    static const std::string projectCppFile = R"(@PROJECT_CPP_CONTENT@)";
+    static const std::string projectHppFile = R"(@PROJECT_HPP_CONTENT@)";
+}

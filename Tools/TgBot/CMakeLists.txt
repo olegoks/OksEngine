@@ -1,32 +1,39 @@
 cmake_minimum_required(VERSION  3.26.4)
 
-function(get_source_files DIRECTORY FILE_LIST)
-    file(GLOB_RECURSE TEMP_FILES "${DIRECTORY}/*.cpp" "${DIRECTORY}/*.hpp")
-    set(${FILE_LIST} ${TEMP_FILES} PARENT_SCOPE)
+# function(get_source_files DIRECTORY FILE_LIST)
+#     file(GLOB_RECURSE TEMP_FILES "${DIRECTORY}/*.cpp" "${DIRECTORY}/*.hpp")
+#     set(${FILE_LIST} ${TEMP_FILES} PARENT_SCOPE)
 
-endfunction()
+# endfunction()
 
-# Функция для создания source_group для в соответствии с их местоположением относительно корневой директории
-function(organize_source_files DIRECTORY FILES)
-    foreach(FILE_PATH IN LISTS FILES)
-        # Убираем корневую часть пути к файлу
-        file(RELATIVE_PATH REL_PATH "${DIRECTORY}" ${FILE_PATH})
-        # Извлекаем родительский путь
- get_filename_component(PARENT_DIR "${REL_PATH}" DIRECTORY)
-        # Заменяем '/' на '\\' в пути, для правильной работы source_group
-        string(REPLACE "/" "\\" GROUP_NAME "Sources/${PARENT_DIR}")
-        # Создаем source_group
-        source_group("${GROUP_NAME}" FILES "${FILE_PATH}")
-        #message(STATUS "${GROUP_NAME}=${${GROUP_NAME}} ${FILE_PATH}=${${FILE_PATH}} ")
-    endforeach()
-endfunction()
+# # Функция для создания source_group для в соответствии с их местоположением относительно корневой директории
+# function(organize_source_files DIRECTORY FILES)
+#     foreach(FILE_PATH IN LISTS FILES)
+#         # Убираем корневую часть пути к файлу
+#         file(RELATIVE_PATH REL_PATH "${DIRECTORY}" ${FILE_PATH})
+#         # Извлекаем родительский путь
+#  get_filename_component(PARENT_DIR "${REL_PATH}" DIRECTORY)
+#         # Заменяем '/' на '\\' в пути, для правильной работы source_group
+#         string(REPLACE "/" "\\" GROUP_NAME "Sources/${PARENT_DIR}")
+#         # Создаем source_group
+#         source_group("${GROUP_NAME}" FILES "${FILE_PATH}")
+#         #message(STATUS "${GROUP_NAME}=${${GROUP_NAME}} ${FILE_PATH}=${${FILE_PATH}} ")
+#     endforeach()
+# endfunction()
 
 # Получаем список всех файлов
-get_source_files(${CMAKE_CURRENT_LIST_DIR} PROJECT_SOURCES)
-# Организуем файлы по группам
-organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
+# get_source_files(${CMAKE_CURRENT_LIST_DIR} PROJECT_SOURCES)
 
+# include(auto_Help.cmake)
+
+
+include(auto_Modules.cmake)
+
+GetModuleSources(MODULE_SOURCES)
+# Организуем файлы по группам
+message(STATUS "Module sources: ${MODULE_SOURCES}")
 add_executable(TgBot)
+
 
 find_package(PkgConfig REQUIRED) 
 target_compile_options(TgBot PUBLIC "/MP" "/bigobj")
@@ -41,8 +48,8 @@ target_link_directories(TgBot PUBLIC ${GRAPHVIZ_LIBRARY_DIRS})
 find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
 
-
 llvm_map_components_to_libnames(LLVM_LIBS core irreader support)
+
 
 set(CLANG_LIBS
     clangFormat
@@ -57,7 +64,6 @@ set(CLANG_LIBS
     clangDriver
     LLVMSupport
 )
-
 
 find_package(CURL REQUIRED)
 find_package(libzip REQUIRED)
@@ -80,9 +86,7 @@ target_include_directories(TgBot
 
 target_sources(TgBot
     PUBLIC
-        ${PROJECT_SOURCES}
-
-    PRIVATE
+        ${MODULE_SOURCES}
     )
 
 target_include_directories(TgBot

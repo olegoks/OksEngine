@@ -1,0 +1,5 @@
+#pragma once
+#include <string>
+namespace Generated {
+    static const std::string cmakeHelpFile = R"(@CONTENT@)";
+}

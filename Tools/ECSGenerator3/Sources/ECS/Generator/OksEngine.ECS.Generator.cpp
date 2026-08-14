@@ -8,6 +8,8 @@
 #include <queue>
 #include <tuple>
 
+#include <CMakeTemplates_generated/Help.h>
+
 extern "C" {
 #include <graphviz/gvc.h>
 }
@@ -3241,7 +3243,6 @@ namespace OksEngine::ECS::Generator
 					includeEntityIds.push_back(
 						CPP__TREE__PREPROCESSOR__CREATE_INCLUDE((includePath / fileName).string())
 					);
-
 				}
 				return includeEntityIds;
 				}();
@@ -3259,20 +3260,208 @@ namespace OksEngine::ECS::Generator
 		const OksEngine::ECS::Project::Path* eCS__Project__Path0,
 		const OksEngine::LuaScript* luaScript0) {
 
-		//std::filesystem::path cmakeFilePath = eCS__Project__Path0->path_;
-		//cmakeFilePath.remove_filename();
+		using namespace std::string_literals;
+		std::filesystem::path cmakeFilePath = eCS__Project__Path0->path_;
+		const std::string projectName = cmakeFilePath.filename().stem().string();
+		cmakeFilePath.remove_filename();
 
-		//auto osFile = std::make_shared<OS::TextFile>(cmakeFilePath / "auto_Packages.cmake");
-		//osFile->Create();
+		
 
-		////Generate cmake text.
-		//std::string text;
-		//{
+		//Generate help file.
+		const auto helpCMakeFileName = "auto_Help.cmake"s;
+		{
+			auto file = std::make_shared<OS::TextFile>(cmakeFilePath / (helpCMakeFileName));
+			file->Create();
+			std::string text;
+			{
+				text += Generated::cmakeHelpFile;
+			}
+			*file << text;
+		}
+
+		//Generate cmake to find modules sources.
+		{
+			auto modules = GetComponents<ECS__MODULE__MODULE>();
+			const Common::Size allModulesNumber = world_->GetEntitiesNumber<ECS__MODULE__MODULE>();
 
 
-		//}
+			const auto* entityIds = std::get<ECS2::Entity::Id*>(modules);
+			const auto* modulePaths = std::get<ECS::Module::Path*>(modules);
+			const auto* moduleIncludePaths = std::get<ECS::Module::IncludePath*>(modules);
 
-		////*osFile << code;
+			auto file = std::make_shared<OS::TextFile>(cmakeFilePath / "auto_Modules.cmake");
+			file->Create();
+
+			//Generate cmake text.
+			std::string text;
+			{
+				text += "include(" + helpCMakeFileName + ")\n";
+				text += "macro(GetModuleSources SOURCES)\n";
+				
+				text += " set(ALL_SOURCES \"\")\n";
+
+				for (Common::Index i = 0; i < allModulesNumber; i++) {
+					text += "get_source_files(";
+					std::filesystem::path moduleFilePath = (modulePaths + i)->path_;
+
+					std::string sourcesVariable = [&]() {
+						std::string result = moduleFilePath.filename().stem().string();
+						std::transform(result.begin(), result.end(), result.begin(),
+							[](unsigned char c) { return std::toupper(c); });
+						return result;
+						}() + "_SOURCES";
+
+					text += sourcesVariable + "\n";
+					std::filesystem::path moduleIncludePath = (moduleIncludePaths + i)->path_;
+					std::string moduleFilePathStr = moduleFilePath.parent_path().string();
+					std::replace(moduleFilePathStr.begin(), moduleFilePathStr.end(), '\\', '/');
+					text += "\t\"" + moduleFilePathStr + "\"\n";
+					text += ")\n";
+
+					text += "organize_source_files(\n";
+					std::string includePath = [](std::filesystem::path includePath, std::filesystem::path modulePath) {
+						// Разбиваем пути на компоненты
+						std::vector<std::filesystem::path> marker_parts;
+						std::vector<std::filesystem::path> path_parts;
+
+						for (const auto& comp : includePath) {
+							if (!comp.empty() && comp != "/") {
+								marker_parts.push_back(comp);
+							}
+						}
+
+						for (const auto& comp : modulePath) {
+							if (!comp.empty() && comp != "/") {
+								path_parts.push_back(comp);
+							}
+						}
+
+						// Если маркер пустой или путь короче маркера
+						if (marker_parts.empty() || path_parts.size() < marker_parts.size()) {
+							ASSERT_FAIL();
+						}
+
+						// Ищем последовательность компонентов маркера в полном пути
+						for (size_t i = 0; i <= path_parts.size() - marker_parts.size(); ++i) {
+							bool found = true;
+
+							// Проверяем все компоненты маркера
+							for (size_t j = 0; j < marker_parts.size(); ++j) {
+								if (path_parts[i + j] != marker_parts[j]) {
+									found = false;
+									break;
+								}
+							}
+
+							if (found) {
+								// Строим результат: путь до маркера + сам маркер
+								std::filesystem::path result;
+								for (size_t j = 0; j < i + marker_parts.size(); ++j) {
+									std::string comp_str = path_parts[j].string();
+
+									// Проверяем, является ли компонент буквой диска (например, "D:")
+									if (comp_str.length() == 2 && comp_str[1] == ':') {
+										// Добавляем как есть, filesystem сам добавит разделитель
+										result = std::filesystem::path(comp_str);
+									}
+									else {
+										result /= path_parts[j];
+									}
+								}
+								return result;
+							}
+						}
+
+						// Маркер не найден
+						ASSERT_FAIL();
+						}(moduleIncludePath, moduleFilePath).string();
+					//HACK: to escape lost /  after D:
+					includePath.insert(includePath.begin() + 2, '/');
+					//HACK
+					std::replace(includePath.begin(), includePath.end(), '\\', '/');
+					text += "\"" + includePath + "\"" + "\n";
+					text += "${" + sourcesVariable + "}\n";
+					text += ")\n";
+
+					text += "list(APPEND ALL_SOURCES ${" + sourcesVariable + "})\n";
+				}
+				
+				text += "set(${SOURCES} ${ALL_SOURCES})\n";
+				
+
+				text += "endmacro()\n";
+
+			}
+
+			*file << text;
+
+		}
+
+
+		//Generate Packages cmake  file.
+		const auto packagesCMakeFileName = "auto_Packages.cmake"s;
+		{
+			auto file = std::make_shared<OS::TextFile>(cmakeFilePath / (packagesCMakeFileName));
+			file->Create();
+
+			//Generate cmake text.
+			std::string text;
+			{
+				text += "include(" + helpCMakeFileName + ")\n";
+
+				text += "get_source_files(\"${CMAKE_CURRENT_LIST_DIR} / Packages\" PACKAGES_SOURCES)\n";
+				text += "organize_source_files(${CMAKE_CURRENT_LIST_DIR} \"${PACKAGES_SOURCES}\")\n";
+			}
+
+			*file << text;
+		}
+
+		//Generate CMakeLists.txt
+		if(!std::filesystem::exists(cmakeFilePath / "CMakeLists.txt"))
+		{
+			auto file = std::make_shared<OS::TextFile>(cmakeFilePath / "CMakeLists.txt");
+			file->Create();
+
+			//Generate cmake text.
+			std::string text;
+			{	
+				text += "cmake_minimum_required(VERSION  3.26.4)\n";
+				text += "include(" + packagesCMakeFileName + ")\n";
+				text += "get_source_files(\"${CMAKE_CURRENT_LIST_DIR}/Sources\" SOURCES)\n";
+				text += "organize_source_files(${CMAKE_CURRENT_LIST_DIR} \"${SOURCES}\")\n";
+				text += "add_executable(" + projectName + ")\n";
+
+				//Compile options.
+				text += "target_compile_options(" + projectName + " PUBLIC \"/MP\" \"/bigobj\")\n";
+
+				//Include directories.
+				text += "target_include_directories(" + projectName + " PUBLIC ";
+				if (std::filesystem::exists(cmakeFilePath / "Packages")) {
+					text += " ${CMAKE_CURRENT_LIST_DIR}/Packages/";
+				}
+				text += "${CMAKE_CURRENT_LIST_DIR}/Sources/)\n";
+
+				//Project sources.
+				text += "target_sources(" + projectName +
+					" PUBLIC "
+					"${SOURCES}"
+					"${PACKAGES_SOURCES})\n";
+				
+			}
+
+			*file << text;
+		}
+
+
+	}
+
+	void GenerateProjectCPPTemplateFiles::Update(
+		ECS2::Entity::Id entity0id,
+		const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
+		const OksEngine::ECS::Project::Path* eCS__Project__Path0, 
+		const OksEngine::LuaScript* luaScript0) {
+
+
 
 
 	}

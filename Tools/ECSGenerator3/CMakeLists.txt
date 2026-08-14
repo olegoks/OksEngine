@@ -1,9 +1,13 @@
 cmake_minimum_required(VERSION  3.26.4)
 
-function(get_source_files DIRECTORY FILE_LIST)
-    file(GLOB_RECURSE TEMP_FILES "${DIRECTORY}/*.cpp" "${DIRECTORY}/*.hpp")
+function(get_source_files FILE_LIST)
+    set(TEMP_FILES "")
+    foreach(DIR ${ARGN})
+        file(GLOB_RECURSE DIR_FILES "${DIR}/*.cpp" "${DIR}/*.hpp")
+        list(APPEND TEMP_FILES ${DIR_FILES})
+    endforeach()
+    #message(STATUS "Total files: ${TEMP_FILES}")
     set(${FILE_LIST} ${TEMP_FILES} PARENT_SCOPE)
-
 endfunction()
 
 # Функция для создания source_group для в соответствии с их местоположением относительно корневой директории
@@ -12,7 +16,7 @@ function(organize_source_files DIRECTORY FILES)
         # Убираем корневую часть пути к файлу
         file(RELATIVE_PATH REL_PATH "${DIRECTORY}" ${FILE_PATH})
         # Извлекаем родительский путь
- get_filename_component(PARENT_DIR "${REL_PATH}" DIRECTORY)
+        get_filename_component(PARENT_DIR "${REL_PATH}" DIRECTORY)
         # Заменяем '/' на '\\' в пути, для правильной работы source_group
         string(REPLACE "/" "\\" GROUP_NAME "Sources/${PARENT_DIR}")
         # Создаем source_group
@@ -21,19 +25,84 @@ function(organize_source_files DIRECTORY FILES)
     endforeach()
 endfunction()
 
+
 # Получаем список всех файлов
-get_source_files(${CMAKE_CURRENT_LIST_DIR} PROJECT_SOURCES)
+get_source_files(
+    PROJECT_SOURCES
+        "${CMAKE_CURRENT_LIST_DIR}/Sources"
+        "${CMAKE_CURRENT_LIST_DIR}/Packages" 
+    )
+
 # Организуем файлы по группам
 organize_source_files(${CMAKE_CURRENT_LIST_DIR} "${PROJECT_SOURCES}")
 
 add_executable(ECSGenerator3)
+
+#Generate cpp includes with cmake files
+
+function(GenerateTemplates TEMPLATE_PATH DEST_PATH)
+    # Пропускаем первые два аргумента (TEMPLATE_PATH и DEST_PATH)
+    set(INDEX 2)
+    while(INDEX LESS ${ARGC})
+        math(EXPR NAME_INDEX "${INDEX}")
+        math(EXPR PATH_INDEX "${INDEX} + 1")
+        
+        list(GET ARGV ${NAME_INDEX} VAR_NAME)
+        list(GET ARGV ${PATH_INDEX} FILE_PATH)
+        
+        message(STATUS "Processing: ${VAR_NAME} = ${FILE_PATH}")
+        
+        if(EXISTS "${FILE_PATH}")
+            file(READ "${FILE_PATH}" CONTENT)
+            #string(REPLACE "\\" "\\\\" CONTENT "${CONTENT}")
+            #string(REPLACE "\"" "\\\"" CONTENT "${CONTENT}")
+            set(${VAR_NAME} "${CONTENT}")
+        else()
+            message(WARNING "File not found: ${FILE_PATH} — using empty content")
+            set(${VAR_NAME} "")
+        endif()
+        
+        math(EXPR INDEX "${INDEX} + 2")
+    endwhile()
+    
+    # Создаём выходную директорию, если её нет
+    get_filename_component(DEST_DIR "${DEST_PATH}" DIRECTORY)
+    file(MAKE_DIRECTORY "${DEST_DIR}")
+    
+    configure_file(
+        "${TEMPLATE_PATH}"
+        "${DEST_PATH}"
+        @ONLY
+    )
+endfunction()
+
+
+GenerateTemplates(
+    "${CMAKE_CURRENT_SOURCE_DIR}/CMakeTemplates/Help.h.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Sources/CMakeTemplates_generated/Help.h"
+    "CONTENT" "${CMAKE_CURRENT_SOURCE_DIR}/CMakeTemplates/Help.cmake" 
+)
+
+GenerateTemplates(
+    "${CMAKE_CURRENT_SOURCE_DIR}/CPPTemplates/Project.hpp.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Sources/auto_Project.hpp"
+    "PROJECT_HPP_CONTENT" "${CMAKE_CURRENT_SOURCE_DIR}/CPPTemplates/Project.hpp"
+    "PROJECT_CPP_CONTENT" "${CMAKE_CURRENT_SOURCE_DIR}/CPPTemplates/Project.cpp"
+)
+
 
 find_package(PkgConfig REQUIRED) 
 target_compile_options(ECSGenerator3 PUBLIC "/MP" "/bigobj")
 pkg_check_modules(GRAPHVIZ REQUIRED libgvc)
 message(STATUS "${GRAPHVIZ_INCLUDE_DIRS}")
 
-target_include_directories(ECSGenerator3  PUBLIC ${GRAPHVIZ_INCLUDE_DIRS})
+
+
+target_include_directories(
+    ECSGenerator3  
+    PUBLIC
+        ${GRAPHVIZ_INCLUDE_DIRS}
+        "${CMAKE_BINARY_DIR}/CMakeTemplates_generated")
     
 message(STATUS "${GRAPHVIZ_LIBRARY_DIRS}")
 target_link_directories(ECSGenerator3 PUBLIC ${GRAPHVIZ_LIBRARY_DIRS})
