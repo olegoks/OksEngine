@@ -26,11 +26,11 @@ endfunction()
 
 
 # Функция для создания source_group для в соответствии с их местоположением относительно корневой директории
-function(organize_source_files DIRECTORY FILES)
+function(organize_source_files DIRECTORY)
     # Все аргументы после DIRECTORY - это файлы
-    set(FILES ${ARGN})
+    set(FILE_LIST ${ARGN})
     
-    foreach(FILE_PATH IN LISTS FILES)
+    foreach(FILE_PATH IN LISTS FILE_LIST)
         # Убираем корневую часть пути к файлу
         file(RELATIVE_PATH REL_PATH "${DIRECTORY}" ${FILE_PATH})
         # Извлекаем родительский путь
@@ -38,7 +38,7 @@ function(organize_source_files DIRECTORY FILES)
         
         # Заменяем '/' на '\\' в пути, для правильной работы source_group
         string(REPLACE "/" "\\" GROUP_NAME "Sources/${PARENT_DIR}")
-        message(STATUS "Source group: ${GROUP_NAME}")
+        message(STATUS "Source group: ${GROUP_NAME} for: ${FILE_PATH}")
         # Создаем source_group
         source_group("${GROUP_NAME}" FILES "${FILE_PATH}")
     endforeach()

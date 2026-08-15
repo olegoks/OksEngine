@@ -129,7 +129,7 @@ set(CLANG_LIBS
 set_target_properties(ECSGenerator3
         PROPERTIES
         VS_DEBUGGER_COMMAND_ARGUMENTS
-        "$<$<CONFIG:Debug>: -ecs_project_file D:/OksEngine/Tools/TgBot/ECSGenerator3.ecs_project>$<$<CONFIG:Release>: -ecs_project_file D:/OksEngine/Tools/TgBot/ECSGenerator3.ecs_project>$<$<CONFIG:RelWithDebInfo>: -ecs_project_file D:/OksEngine/Tools/TgBot/ECSGenerator3.ecs_project>"
+        "$<$<CONFIG:Debug>: -ecs_project_file D:/OksEngine/Tools/TgBot/PacketManager.ecs_project>$<$<CONFIG:Release>: -ecs_project_file D:/OksEngine/Tools/TgBot/PacketManager.ecs_project>$<$<CONFIG:RelWithDebInfo>: -ecs_project_file D:/OksEngine/Tools/TgBot/PacketManager.ecs_project>"
     )
 
 target_include_directories(ECSGenerator3

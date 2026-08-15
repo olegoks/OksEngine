@@ -1,5 +1,0 @@
-ECS = {
-    Files = {
-        "./OksEngine.Clock.ecs"
-    }
-}

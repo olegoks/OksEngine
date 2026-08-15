@@ -1,8 +1,0 @@
-Rotation2DComponent = {
-    fields = { 
-        { type = "float", name = "w" },
-        { type = "float", name = "x" },
-        { type = "float", name = "y" },
-        { type = "float", name = "z" }
-    }
-}

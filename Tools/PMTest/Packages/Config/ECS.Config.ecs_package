@@ -1,11 +1,11 @@
 Package = {
     Name = "Config",
-    Version = "1.0.0",
+    Version = "1.0.1",
     FrameworkVersion = "1.0.0",
     Dependecies = {
         {
             Name = "Common",
-            Version = "1.0.0"
+            Version = "1.0.1"
         }
     },
     Modules = {

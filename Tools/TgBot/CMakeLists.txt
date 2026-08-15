@@ -26,14 +26,16 @@ cmake_minimum_required(VERSION  3.26.4)
 
 # include(auto_Help.cmake)
 
-
 include(auto_Modules.cmake)
-
-
 add_executable(PacketManager)
 GetModuleSources(MODULE_SOURCES)
 # Организуем файлы по группам
 message(STATUS "Module sources: ${MODULE_SOURCES}")
+
+foreach(ITEM ${MODULE_SOURCES})
+    message(STATUS "  ${ITEM}")
+endforeach()
+
 
 find_package(PkgConfig REQUIRED) 
 target_compile_options(PacketManager PUBLIC "/MP" "/bigobj")
@@ -49,7 +51,6 @@ find_package(LLVM REQUIRED CONFIG)
 find_package(Clang REQUIRED CONFIG)
 
 llvm_map_components_to_libnames(LLVM_LIBS core irreader support)
-
 
 set(CLANG_LIBS
     clangFormat
@@ -84,14 +85,14 @@ target_include_directories(PacketManager
         ${CLANG_INCLUDE_DIRS}
         ${CMAKE_CURRENT_LIST_DIR}/Sources/)
 
+
 set(PROJECT_SOURCES "")
 get_source_files(ALL_LOCAL_SOURCES
     ${CMAKE_CURRENT_LIST_DIR}
 )
 list(REMOVE_ITEM ALL_LOCAL_SOURCES ${MODULE_SOURCES})
-message(STATE "Module Sources: ${MODULE_SOURCES}")
-message(STATE "Local Sources: ${ALL_LOCAL_SOURCES}")
-
+#message(STATE "Module Sources: ${MODULE_SOURCES}")
+#message(STATE "Local Sources: ${ALL_LOCAL_SOURCES}")
 
 organize_source_files(
     ${CMAKE_CURRENT_LIST_DIR}
@@ -111,7 +112,6 @@ target_sources(PacketManager
 target_include_directories(PacketManager
     PUBLIC
     ${CMAKE_CURRENT_LIST_DIR})
-
 
 target_link_libraries(PacketManager
     PUBLIC

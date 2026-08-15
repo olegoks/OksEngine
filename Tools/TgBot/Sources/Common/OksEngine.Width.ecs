@@ -1,6 +1,0 @@
-WidthComponent = {
-    fields = { 
-        { type = "Common::UInt64", name = "value" }
-       
-     }
-}

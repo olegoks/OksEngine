@@ -16,22 +16,6 @@ ECS = {
     },
     -- Modules paths relates to .ecs_project file.
     Modules = {
-        --'./Sources/Common/',
-        --'./Sources/Config/',
-        --'./Sources/ECS/',
-        --'./Sources/Resources/',
-        -- {
-        --     IncludePath = '/Sources',
-        --     Paths = {
-        --         './Sources/Test/Test.ecs_module'
-        --     }
-        -- },
-        -- {
-        --     IncludePath = '/Sources',
-        --     Paths = {
-        --         './Sources/PacketManager/PacketManager.ecs_module'
-        --     }
-        -- },
         {
             IncludePath = 'D:/Downloads/Desktop/ECS.PacketManager/',
             Paths = {
@@ -39,39 +23,27 @@ ECS = {
             }
         },
         {
-            IncludePath = '/Sources',
+            IncludePath = 'D:/Downloads/Desktop/ECS.Window',
             Paths = {
-                './Sources/UI/OksEngine.UI.ecs_module'
+                'D:/Downloads/Desktop/ECS.Window/Window/OksEngine.Window.ecs_module'
             }
         },
         {
-            IncludePath = '/Sources',
+            IncludePath = 'D:/Downloads/Desktop/ECS.Config',
             Paths = {
-                './Sources/Clock/OksEngine.Clock.ecs_module'
+                'D:/Downloads/Desktop/ECS.Config/Config/OksEngine.Config.ecs_module'
             }
         },
         {
-            IncludePath = '/Sources',
+            IncludePath = 'D:/Downloads/Desktop/ECS.Common/',
             Paths = {
-                './Sources/Config/OksEngine.Config.ecs_module'
+                'D:/Downloads/Desktop/ECS.Common/Common/OksEngine.Common.ecs_module'
             }
         },
         {
-            IncludePath = '/Sources',
+            IncludePath = 'D:/Downloads/Desktop/ECS.Resource',
             Paths = {
-                './Sources/Engine/OksEngine.Engine.ecs_module'
-            }
-        },
-        {
-            IncludePath = '/Sources',
-            Paths = {
-                './Sources/Common/Common.ecs_module'
-            }
-        },
-        {
-            IncludePath = '/Sources',
-            Paths = {
-                './Sources/Resources/Resources.ecs_module'
+                'D:/Downloads/Desktop/ECS.Resource/Resource/Resource.ecs_module'
             }
         }
 
