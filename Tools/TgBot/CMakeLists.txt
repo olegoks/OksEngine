@@ -99,10 +99,10 @@ organize_source_files(
     ${ALL_LOCAL_SOURCES}
 )
 
-
 list(APPEND PROJECT_SOURCES ${MODULE_SOURCES})
 list(APPEND PROJECT_SOURCES ${ALL_LOCAL_SOURCES})
 list(REMOVE_DUPLICATES PROJECT_SOURCES)
+
 
 target_sources(PacketManager
     PUBLIC

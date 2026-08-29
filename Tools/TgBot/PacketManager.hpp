@@ -20,13 +20,6 @@ public:
 	explicit Engine(const CreateInfo& createInfo) noexcept;
 
 	void Run()noexcept;
-
-	//inline bool IsRunning() const noexcept {
-	//	return isRunning_;
-	//}
-
-	//void Update() noexcept;
-
 private:
 
 	std::shared_ptr<class ECS2::World> world2_ = nullptr;

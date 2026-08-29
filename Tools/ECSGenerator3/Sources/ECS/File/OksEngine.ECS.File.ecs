@@ -693,6 +693,7 @@ ECSNamespace = {
                         "Table::DefinitionOrder",
                         "System::Type",
                         "System::Thread",
+                        "System::Disabled",
                         "CallOrder::EntityId",
                         "Table::ParentTableEntityId",
                         "Table::System::UpdateMethod::EntityId",

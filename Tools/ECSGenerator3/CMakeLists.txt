@@ -54,8 +54,6 @@ function(GenerateTemplates TEMPLATE_PATH DEST_PATH)
         
         if(EXISTS "${FILE_PATH}")
             file(READ "${FILE_PATH}" CONTENT)
-            #string(REPLACE "\\" "\\\\" CONTENT "${CONTENT}")
-            #string(REPLACE "\"" "\\\"" CONTENT "${CONTENT}")
             set(${VAR_NAME} "${CONTENT}")
         else()
             message(WARNING "File not found: ${FILE_PATH} — using empty content")
@@ -69,34 +67,33 @@ function(GenerateTemplates TEMPLATE_PATH DEST_PATH)
     get_filename_component(DEST_DIR "${DEST_PATH}" DIRECTORY)
     file(MAKE_DIRECTORY "${DEST_DIR}")
     
+    message(STATUS "Configure file: ${DEST_PATH}")
     configure_file(
         "${TEMPLATE_PATH}"
         "${DEST_PATH}"
         @ONLY
     )
-endfunction()
 
+endfunction()
 
 GenerateTemplates(
     "${CMAKE_CURRENT_SOURCE_DIR}/CMakeTemplates/Help.h.in"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Sources/CMakeTemplates_generated/Help.h"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Sources/CMakeTemplates_Generated/Help.h"
     "CONTENT" "${CMAKE_CURRENT_SOURCE_DIR}/CMakeTemplates/Help.cmake" 
 )
 
 GenerateTemplates(
-    "${CMAKE_CURRENT_SOURCE_DIR}/CPPTemplates/Project.hpp.in"
-    "${CMAKE_CURRENT_SOURCE_DIR}/Sources/auto_Project.hpp"
+    "${CMAKE_CURRENT_SOURCE_DIR}/CPPTemplates/CPP.hpp.in"
+    "${CMAKE_CURRENT_SOURCE_DIR}/Sources/CPPTemplates_Generated/auto_CPP.hpp"
+    "MAIN_CPP_CONTENT" "${CMAKE_CURRENT_SOURCE_DIR}/CPPTemplates/main.cpp"
     "PROJECT_HPP_CONTENT" "${CMAKE_CURRENT_SOURCE_DIR}/CPPTemplates/Project.hpp"
     "PROJECT_CPP_CONTENT" "${CMAKE_CURRENT_SOURCE_DIR}/CPPTemplates/Project.cpp"
 )
-
 
 find_package(PkgConfig REQUIRED) 
 target_compile_options(ECSGenerator3 PUBLIC "/MP" "/bigobj")
 pkg_check_modules(GRAPHVIZ REQUIRED libgvc)
 message(STATUS "${GRAPHVIZ_INCLUDE_DIRS}")
-
-
 
 target_include_directories(
     ECSGenerator3  

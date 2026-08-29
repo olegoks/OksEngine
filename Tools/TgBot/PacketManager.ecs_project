@@ -5,6 +5,12 @@ ECS = {
         },
         {
             Name = "PacketManager"
+        },
+        {
+            Name = "Inspector",
+            disableTags = {
+                "Render.ImGui.Inspector.Physics"
+            }
         }
     },
 
@@ -45,11 +51,18 @@ ECS = {
             Paths = {
                 'D:/Downloads/Desktop/ECS.Resource/Resource/Resource.ecs_module'
             }
+        },
+        {
+            IncludePath = 'D:/Downloads/Desktop/ECS.Render3D',
+            Paths = {
+                'D:/Downloads/Desktop/ECS.Render3D/Render3D/Render3D.ecs_module'
+            }
         }
 
     },
     --if type has Entry need to include Header
     Includes = {
+        { Entries = { "Common::Handle" },         Headers = { "Common/Handle.hpp" } },
         { Entries = { "std::string" },            Headers = { "string" } },
         { Entries = { "Common" },                 Headers = { "Common.hpp" } },
         { Entries = { "std::chrono" },            Headers = { "chrono" } },

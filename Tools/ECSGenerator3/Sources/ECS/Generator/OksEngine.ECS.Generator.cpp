@@ -8,7 +8,8 @@
 #include <queue>
 #include <tuple>
 
-#include <CMakeTemplates_generated/Help.h>
+#include <CMakeTemplates_Generated/Help.h>
+#include <CPPTemplates_Generated/auto_CPP.hpp>
 
 extern "C" {
 #include <graphviz/gvc.h>
@@ -3463,7 +3464,32 @@ namespace OksEngine::ECS::Generator
 		const OksEngine::LuaScript* luaScript0) {
 
 
-
+		using namespace std::string_literals;
+		std::filesystem::path projectFilePath = eCS__Project__Path0->path_;
+		const std::string projectName = projectFilePath.filename().stem().string();
+		projectFilePath.remove_filename();
+		
+		//Generate project template  files.
+		{
+			if(!std::filesystem::exists(projectFilePath / (projectName + ".hpp"))){
+				auto fileHpp = std::make_shared<OS::TextFile>(projectFilePath / (projectName + ".hpp"));
+				fileHpp->Create();
+				std::string text;
+				{
+					text += Generated::projectHppFile;
+				}
+				*fileHpp << text;
+			}
+			if (!std::filesystem::exists(projectFilePath / (projectName + ".cpp"))) {
+				auto fileCpp = std::make_shared<OS::TextFile>(projectFilePath / (projectName + ".cpp"));
+				fileCpp->Create();
+				std::string text;
+				{
+					text += Generated::projectCppFile;
+				}
+				*fileCpp << text;
+			}
+		}
 
 	}
 

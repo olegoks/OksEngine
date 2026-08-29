@@ -3,7 +3,7 @@
 //
 //#include <pix3.h>
 
-#include <Engine.hpp>
+#include <PacketManager.hpp>
 
 //
 //#include <Common/CommandLineParameters/auto_OksEngine.CommandLineParameters.hpp>
@@ -54,16 +54,6 @@ void Engine::Run() noexcept {
 	r = SetThreadDescription(GetCurrentThread(), L"Main thread");
 
 	RunInitializeSystems(world2_);
-
-	//while (IsRunning()) {
-	//	BEGIN_PROFILE("Frame");
-	//	RunSystems(world2_);
-	//	BEGIN_PROFILE("Apply delayed requests");
-	//	world2_->ApplyDelayedRequests();
-	//	END_PROFILE();
-	//	std::cout << "newFrame" << std::endl;
-	//	END_PROFILE();
-	//}
 
 }
 
