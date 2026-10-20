@@ -2,6 +2,9 @@ CreateECSMenuSystem = {
     callOrder = {
         runBefore = "Input::ClearKeyboardEvents"
     },
+    tags = {
+        'ECS.Inspector'
+    },
     updateMethod = {
         processesEntities = {
             {

@@ -1,18 +1,18 @@
 
-#include <auto_OksEngine.RunSystems.hpp>
-#include <Engine.hpp>
+#include <auto_{}.RunSystems.hpp>
+#include <{}.hpp>
 
 #include <Common/CommandLineParameters/auto_OksEngine.CommandLineParameters.hpp>
 #include <ECS/File/auto_OksEngine.ECS.File.hpp>
 
-namespace OksEngine {
+namespace OksEngine {{
 
-	Engine::Engine(const CreateInfo& createInfo) noexcept {
+	{}::{}(const CreateInfo& createInfo) noexcept {{
 
 		OS::InitializeLogger(createInfo.argc_, createInfo.argv_);
 		world2_ = std::make_shared<ECS2::World>();
 
-		{
+		{{
 			const int argc = createInfo.argc_;
 			char** argv = createInfo.argv_;
 
@@ -20,25 +20,25 @@ namespace OksEngine {
 			world2_->CreateComponent<CommandLineParameters>(commandLineParametersEntity);
 			world2_->CreateComponent<ExecutablePath>(commandLineParametersEntity, argv[0]);
 
-			for (int i = 1; i < argc; i++) {
+			for (int i = 1; i < argc; i++) {{
 
 				const char* value = argv[i];
 				using namespace std::string_literals;
-				if (value == "-cfg"s) {
+				if (value == "-cfg"s) {{
 					world2_->CreateComponent<ConfigFilePath>(commandLineParametersEntity, argv[i + 1]);
-				}
-				if (value == "-scn"s) {
+				}}
+				if (value == "-scn"s) {{
 					world2_->CreateComponent<SceneParameter>(commandLineParametersEntity, argv[i + 1]);
-				}
-				if (value == "-ecs_project_file"s) {
+				}}
+				if (value == "-ecs_project_file"s) {{
 					world2_->CreateComponent<ECS::Project::Path>(commandLineParametersEntity, argv[i + 1]);
-				}
-			}
-		}
+				}}
+			}}
+		}}
 
-	}
+	}}
 
-	void Engine::Update() noexcept {
+	void {}::Update() noexcept {{
 
 		HRESULT r;
 		r = SetThreadDescription(GetCurrentThread(), L"Main thread");
@@ -47,13 +47,13 @@ namespace OksEngine {
 
 		RunInitializeSystems(world2_);
 
-		/*while (IsRunning()) {
+		/*while (IsRunning()) {{
 
 			RunSystems(world2_);
 
-		}*/
+		}}*/
 
-	}
+	}}
 
 
-}
+}}

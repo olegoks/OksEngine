@@ -1,0 +1,10 @@
+ECS = {
+    Files = {
+        './File/OksEngine.ECS.File.Archetype.ecs',
+        './File/OksEngine.ECS.File.ecs',
+        './Generator/OksEngine.ECS.Generator.ecs',
+        './Project/OksEngine.ECS.Module.ecs',
+        './Project/ECS.Module.EntityId.ecs',
+        './Project/OksEngine.ECS.Project.ecs'
+    }
+}

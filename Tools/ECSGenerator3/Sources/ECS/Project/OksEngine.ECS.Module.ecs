@@ -4,13 +4,6 @@ ECSNamespace = {
             serializable = false,
             bindable = false
         },
-        EntityIdComponent = {
-            serializable = false,
-            bindable = false,
-            fields = {
-                { type = "ECS2::Entity::Id", name = "id" }
-            }
-        },
         EntityIdsComponent = {
             serializable = false,
             bindable = false,
@@ -26,17 +19,24 @@ ECSNamespace = {
         IncludePathComponent = {
             fields = {
                 { type = "std::string", name = "path" }
-            } 
+            }
+        },
+        DisableTagsComponent = {
+            serializable = false,
+            fields = {
+                { type = "std::vector<std::string>", name = "disableTags" }
+            }
         },
         ModuleArchetype = {
             components = {
                 "Module::Tag",
                 "Module::Path",
                 "Module::IncludePath",
+                "Module::DisableTags",
                 "Project::EntityId",
                 "LuaScript"
             }
-        },  
+        },
         CreateModulesSystem = {
             type = "Initialize",
             callOrder = {
@@ -63,7 +63,7 @@ ECSNamespace = {
             type = "Initialize",
             callOrder = {
                 runAfter = { "ECS::Module::CreateModules" }
-            }, 
+            },
             updateMethod = {
                 processesEntities = {
                     {
@@ -71,6 +71,13 @@ ECSNamespace = {
                             "ECS::Module::Tag",
                             "ECS::Module::Path",
                             "LuaScript"
+                        }
+                    }
+                },
+                accessingEntities = {
+                    {
+                        accessingComponents = {
+                            "ECS::Module::DisableTags"
                         }
                     }
                 },
@@ -85,6 +92,6 @@ ECSNamespace = {
                 }
             }
         },
-        
+
     }
 }

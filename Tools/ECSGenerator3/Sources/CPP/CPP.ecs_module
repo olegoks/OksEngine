@@ -1,0 +1,6 @@
+ECS = {
+    Files = {
+        './OksEngine.CPP.ClangTree.ecs',
+        './OksEngine.CPP.Tree.ecs'
+    }
+}

@@ -1,11 +1,42 @@
 ECS = {
     -- Modules paths relates to .ecs_project file.
-    Modules = {
-        --'./Sources/Common/',
-        --'./Sources/Config/',
-        --'./Sources/ECS/',
-        --'./Sources/Resources/',
-        './Sources/Test/'
+     Packages = {
+        {
+            IncludePath = 'D:/Downloads/Desktop/ECS.Config',
+            ModulePaths = {
+                'D:/Downloads/Desktop/ECS.Config/Config/OksEngine.Config.ecs_module'
+            }
+        },
+        {
+            IncludePath = 'D:/Downloads/Desktop/ECS.Common/',
+            ModulePaths = {
+                'D:/Downloads/Desktop/ECS.Common/Common/OksEngine.Common.ecs_module'
+            },
+            DisableTags = {
+                'ECS.Inspector',
+                'ECS.Editor',
+                'Behaviour',
+                'Render.ImGui.Gizmo'
+            }
+        },
+        {
+            IncludePath = 'D:/Downloads/Desktop/ECS.Resource',
+            ModulePaths = {
+                'D:/Downloads/Desktop/ECS.Resource/Resource/Resource.ecs_module'
+            },
+        },
+        {
+            IncludePath = './Sources/ECS',
+            ModulePaths = {
+                './Sources/ECS/ECS.ecs_module'
+            }
+        },
+        {
+            IncludePath = './Sources/CPP',
+            ModulePaths = {
+                './Sources/CPP/CPP.ecs_module'
+            }
+        }
     },
     --if type has Entry need to include Header
     Includes = {

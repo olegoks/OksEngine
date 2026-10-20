@@ -164,6 +164,7 @@ namespace OksEngine::ECS::File {
 			ECS2::Entity::Id entity1id,
 			const OksEngine::ECS::File::Tag* eCS__File__Tag1,
 			const OksEngine::ECS::File::Path* eCS__File__Path1,
+			const OksEngine::ECS::Module::EntityId* eCS__Module__EntityId1,
 			const OksEngine::LuaScript* luaScript1) {
 
 			::Lua::Script script{ luaScript1->text_ };
@@ -187,8 +188,11 @@ namespace OksEngine::ECS::File {
 
 			//std::map<std::string, int> abstractionToOrder = GetStructDeclarationOrder(luaScript1->text_);
 
-
-
+			std::vector<std::string> disableTags;
+			if (IsComponentExist<ECS::File::DisableTags>(entity1id)) {
+				disableTags = GetComponent<ECS::File::DisableTags>(entity1id)->disableTags_;
+			}
+			
 
 
 			if (!abtractionDefinionsOrder.empty()) {
@@ -565,10 +569,13 @@ namespace OksEngine::ECS::File {
 										CreateComponent<Table::Tag>(systemEntityId);
 										CreateComponent<Table::System::Tag>(systemEntityId);
 										CreateComponent<Table::Name>(systemEntityId, systemName.substr(0, systemName.rfind("System")));
-										CreateComponent<Table::DefinitionOrder>(systemEntityId, abstractionNameToOrderIndex[getFullName(fullName, systemName.substr(0, systemName.rfind("System")))]);
+										const std::string systemFullName = getFullName(fullName, systemName.substr(0, systemName.rfind("System")));
+										CreateComponent<Table::DefinitionOrder>(systemEntityId, abstractionNameToOrderIndex[systemFullName]);
 
+										bool disableSystem = false;
 										if (system["disable"].cast<bool>().value()) {
-											CreateComponent<Table::System::Disabled>(systemEntityId);
+											disableSystem = true;
+											
 										}
 
 										if (!system["type"].isNil()) {
@@ -580,6 +587,24 @@ namespace OksEngine::ECS::File {
 											CreateComponent<Table::System::Type>(systemEntityId, "FrameToFrame");
 										}
 
+										if (!system["tags"].isNil()) {
+											luabridge::LuaRef tagsRef = system["tags"];
+											std::vector<std::string> tags;
+											for (luabridge::Iterator it(tagsRef); !it.isNil(); ++it) {
+												luabridge::LuaRef tagRef = it.value();
+												tags.push_back(tagRef.cast<std::string>().value());
+											}
+
+											if (!disableSystem/*optimization*/ && ECS::File::Table::Tags::SystemMatchesAny(tags, disableTags)) {
+												disableSystem = true;
+											}
+
+											CreateComponent<Table::System::Tags>(systemEntityId, tags);
+
+										}
+										
+										
+
 										if (!system["thread"].isNil()) {
 											std::string typeStr = system["thread"].cast<std::string>().value();
 											ASSERT(typeStr == "Main" || typeStr == "Child");
@@ -587,6 +612,11 @@ namespace OksEngine::ECS::File {
 										}
 										else {
 											CreateComponent<Table::System::Thread>(systemEntityId, "Child");
+										}
+
+										if (disableSystem) {
+											LOG_INFO("", "System {} disabled.", systemFullName);
+											CreateComponent<Table::System::Disabled>(systemEntityId);
 										}
 
 										//Parse Call Order.
@@ -777,6 +807,11 @@ namespace OksEngine::ECS::File {
 
 														luabridge::LuaRef processesAllCombinations = entity["processesAllCombinations"];
 
+														const bool processAllCombinations = processesAllCombinations.cast<bool>().value();
+
+														if (processAllCombinations) {
+															CreateComponent<ECS::File::Table::System::UpdateMethod::Process::Entity::ProcessAllCombinations>(proccessEntityId);
+														}
 														//Parse processesComponents.
 														[&](luabridge::LuaRef luaRef) {
 
@@ -1069,32 +1104,53 @@ namespace OksEngine::ECS::File {
 			CreateComponent<ECS::File::Table::EntityIds>(entity1id, parsedTables);
 		}
 
+		void CreateFakeSystems::Update(
+			ECS2::Entity::Id entity0id, 
+			const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
+			const OksEngine::ECS::Project::Path* eCS__Project__Path0,
+			const OksEngine::LuaScript* luaScript0) {
+
+			world_->ForEachEntity<File::Table::System::Tag>([](ECS2::Entity::Id systemEntityId) {
+				
+
+
+				
+				});
+
+		}
+
 
 		void ValidateCallOrderDependecies::Update(
 			ECS2::Entity::Id entity0id,
 			const OksEngine::ECS::File::Table::Tag* eCS__File__Table__Tag0,
 			const OksEngine::ECS::File::Table::System::Tag* eCS__File__Table__System__Tag0) {
 
+			if (IsComponentExist<ECS::File::Table::System::Disabled>(entity0id)) {
+
+			}
+
 			ECS2::Entity::Id callOrderEntityId = GetComponent<ECS::File::Table::System::CallOrder::EntityId>(entity0id)->id_;
 
-			std::string systemName = ECS__FILE__TABLE__GET_FULL_NAME(entity0id, "::", false);
+			std::string systemName = File::Table::ECS__FILE__TABLE__GET_FULL_NAME(this, entity0id, "::", false);
 
 			auto& runAfterSystems = GetComponent<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId)->systems_;
 			for (auto& systemInfo : runAfterSystems) {
-				ECS2::Entity::Id runAfterSystemEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(
-					ECS::File::Table::System::Tag,
+				ECS2::Entity::Id runAfterSystemEntityId = File::Table::ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME_OR_INVALID_ID<ValidateCallOrderDependecies, ECS::File::Table::System::Tag>(
+					this,
 					entity0id,
 					systemInfo.name_);
+				ASSERT(runAfterSystemEntityId.IsValid());
 				systemInfo.id_ = runAfterSystemEntityId;
 
 			}
 
 			auto& runBeforeSystems = GetComponent<ECS::File::Table::System::CallOrder::RunBefore>(callOrderEntityId)->systems_;
 			for (auto& systemInfo : runBeforeSystems) {
-				ECS2::Entity::Id runBeforeSystemEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(
-					ECS::File::Table::System::Tag,
+				ECS2::Entity::Id runBeforeSystemEntityId = File::Table::ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME_OR_INVALID_ID<ValidateCallOrderDependecies, ECS::File::Table::System::Tag>(
+					this,
 					entity0id,
 					systemInfo.name_);
+				ASSERT(runBeforeSystemEntityId.IsValid());
 				systemInfo.id_ = runBeforeSystemEntityId;
 
 			}
@@ -1104,11 +1160,11 @@ namespace OksEngine::ECS::File {
 			ECS2::Entity::Id entity0id, const OksEngine::ECS::Project::Tag* eCS__Project__Tag0,
 			const OksEngine::ECS::Project::Path* eCS__Project__Path0, const OksEngine::LuaScript* luaScript0) {
 
-			const auto systemComponents = GetComponents<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
 			const Common::Size allSystemsNumber = world_->GetEntitiesNumber<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
+			ASSERT_FMSG(allSystemsNumber > 0, "No systems to process. Check .ecs file or project setup.");
+			const auto systemComponents = GetComponents<ECS__FILE__TABLE__SYSTEM__SYSTEM>();
 
 			//Add dependencies between systems that has conflicts.
-
 			std::vector<ECS2::Entity::Id> systemsOrder;
 			std::unordered_map<ECS2::Entity::Id, Common::Index, ECS2::Entity::Id::Hash> orederedSystemIdToIndex;
 			std::unordered_map<ECS2::Entity::Id, Common::Size, ECS2::Entity::Id::Hash> inDegree;
@@ -1118,24 +1174,31 @@ namespace OksEngine::ECS::File {
 			for (Common::Index i = 0; i < allSystemsNumber; i++) {
 
 				ECS2::Entity::Id systemEntityId = *(std::get<ECS2::Entity::Id*>(systemComponents) + i);
-				const std::string systemName = ECS__FILE__TABLE__GET_FULL_NAME(systemEntityId, "::", false);
+				const std::string systemName = File::Table::ECS__FILE__TABLE__GET_FULL_NAME(this, systemEntityId, "::", false);
 
 				if (systemName == "PacketManager::GetRequiredPackets") {
 					Common::BreakPointLine();
 				}
 
+				//Skip Initialize systems.
 				if (IsComponentExist<ECS::File::Table::System::Type>(systemEntityId)) {
 					const auto systemType = *(std::get<ECS::File::Table::System::Type*>(systemComponents) + i);
 					if (systemType.type_ == "Initialize") {
 						continue;
 					}
 				}
-				const auto systemType = *(std::get<ECS::File::Table::System::Type*>(systemComponents) + i);
 
+				//Skip disabled systems.
+				if (IsComponentExist<ECS::File::Table::System::Disabled>(systemEntityId)) {
+					LOG_INFO("", "Skiped disabled system {}", systemName);
+					continue;
+				}
+
+				//Add system to root systems if there are no RunAfter systems.
 				ECS2::Entity::Id callOrderEntityId = (std::get<OksEngine::ECS::File::Table::System::CallOrder::EntityId*>(systemComponents) + i)->id_;
 				if (callOrderEntityId.IsValid()) {
 					if (IsComponentExist<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId)) {
-						ECS::File::Table::System::CallOrder::RunAfter* systemRunAfter = GetComponent<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId);
+						const ECS::File::Table::System::CallOrder::RunAfter* systemRunAfter = GetComponent<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId);
 						inDegree[systemEntityId] = systemRunAfter->systems_.size();
 						if (systemRunAfter->systems_.size() == 0) {
 							rootSystems.push(systemEntityId);
@@ -1155,7 +1218,7 @@ namespace OksEngine::ECS::File {
 			// 2. Алгоритм Кана
 			while (!rootSystems.empty()) {
 				ECS2::Entity::Id currentId = rootSystems.front();
-				const std::string systemName = ECS__FILE__TABLE__GET_FULL_NAME(currentId, "::", false);
+				const std::string systemName = File::Table::ECS__FILE__TABLE__GET_FULL_NAME(this, currentId, "::", false);
 				rootSystems.pop();
 				systemsOrder.push_back(currentId);
 				orederedSystemIdToIndex[currentId] = systemsOrder.size() - 1;
@@ -1166,6 +1229,10 @@ namespace OksEngine::ECS::File {
 				const auto* runBefore = GetComponent<ECS::File::Table::System::CallOrder::RunBefore>(callOrderEntityId);
 				for (const auto& runBeforeSystemInfo : runBefore->systems_) {
 					const ECS2::Entity::Id runBeforeSystemEntityId = runBeforeSystemInfo.id_;
+					//Skip disabled systems.
+					if (runBeforeSystemEntityId.IsInvalid()) {
+						continue;
+					}
 					auto it = inDegree.find(runBeforeSystemEntityId);
 					if (it != inDegree.end() && it->second > 0) {
 						it->second--;
@@ -1184,10 +1251,12 @@ namespace OksEngine::ECS::File {
 			for (ECS2::Entity::Id systemEntityId : systemsOrder) {
 				ECS2::ComponentsFilter systemCF = GetComponentsFilter(systemEntityId);
 
-				std::string systemName = ECS__FILE__TABLE__GET_FULL_NAME(systemEntityId, "::", false);
+				ASSERT_FMSG(systemEntityId.IsValid(), "Invalid system entity id in systens order.");
 
-				const auto writeComponents = ECS__FILE__TABLE__SYSTEM__GET_WRITE_COMPONENT_ENTITY_IDS(systemEntityId);
-				const auto readComponents = ECS__FILE__TABLE__SYSTEM__GET_READ_COMPONENT_ENTITY_IDS(systemEntityId);
+				std::string systemName = File::Table::ECS__FILE__TABLE__GET_FULL_NAME(this, systemEntityId, "::", false);
+
+				const auto writeComponents = File::Table::ECS__FILE__TABLE__SYSTEM__GET_WRITE_COMPONENT_ENTITY_IDS(this, systemEntityId);
+				const auto readComponents = File::Table::ECS__FILE__TABLE__SYSTEM__GET_READ_COMPONENT_ENTITY_IDS(this, systemEntityId);
 
 				for (ECS2::Entity::Id writeComponent : writeComponents) {
 					componentToSystems[writeComponent].insert(systemEntityId);
@@ -1241,7 +1310,7 @@ namespace OksEngine::ECS::File {
 			std::vector<ECS2::Entity::Id> orderedChildThreadSystems;
 
 			for (ECS2::Entity::Id systemEntityId : systemsOrder) {
-				const std::string systemName = ECS__FILE__TABLE__GET_FULL_NAME(systemEntityId, "::", false);
+				const std::string systemName = File::Table::ECS__FILE__TABLE__GET_FULL_NAME(this, systemEntityId, "::", false);
 				if (IsComponentExist<OksEngine::ECS::File::Table::System::Thread>(systemEntityId)) {
 					const std::string thread = GetComponent<OksEngine::ECS::File::Table::System::Thread>(systemEntityId)->thread_;
 					if (thread == "Main") {
@@ -1260,16 +1329,16 @@ namespace OksEngine::ECS::File {
 						if (dependenceSystem == systemEntityId) {
 							continue;
 						}
-						std::string name = ECS__FILE__TABLE__GET_FULL_NAME(dependenceSystem, "::", false);
+						std::string name = File::Table::ECS__FILE__TABLE__GET_FULL_NAME(this, dependenceSystem, "::", false);
 
 						Common::Index dependenceSystemIndex = orederedSystemIdToIndex[dependenceSystem];
 						Common::Index currentSystemIndex = orederedSystemIdToIndex[systemEntityId];
 						ASSERT(dependenceSystemIndex != currentSystemIndex);
 						if (currentSystemIndex < dependenceSystemIndex) {
-							ECS__FILE__TABLE__SYSTEM__ADD_RUN_AFTER_SYSTEM(dependenceSystem, systemEntityId);
+							File::Table::ECS__FILE__TABLE__SYSTEM__ADD_RUN_AFTER_SYSTEM(this, dependenceSystem, systemEntityId);
 						}
 						else {
-							ECS__FILE__TABLE__SYSTEM__ADD_RUN_BEFORE_SYSTEM(dependenceSystem, systemEntityId);
+							File::Table::ECS__FILE__TABLE__SYSTEM__ADD_RUN_BEFORE_SYSTEM(this, dependenceSystem, systemEntityId);
 
 						}
 					}
@@ -1280,8 +1349,6 @@ namespace OksEngine::ECS::File {
 			}
 
 			//If System1 runs before System2 need to add System2 runs after System1
-
-
 			for (Common::Index i = 0; i < allSystemsNumber; i++) {
 				ECS2::Entity::Id systemEntityId = *(std::get<ECS2::Entity::Id*>(systemComponents) + i);
 				/*if (IsComponentExist<ECS::File::Table::System::Type>(systemEntityId)) {
@@ -1290,7 +1357,7 @@ namespace OksEngine::ECS::File {
 						continue;
 					}
 				}*/
-				const std::string systemFullName = ECS__FILE__TABLE__GET_FULL_NAME(systemEntityId, "::", false);
+				const std::string systemFullName = File::Table::ECS__FILE__TABLE__GET_FULL_NAME(this, systemEntityId, "::", false);
 
 				if (systemFullName == "PacketManager::GetRequiredPackets") {
 					Common::BreakPointLine();
@@ -1304,21 +1371,24 @@ namespace OksEngine::ECS::File {
 				//Create reverse dependences.
 				auto dependenceRunAfterSystems = GetComponent<ECS::File::Table::System::CallOrder::RunAfter>(callOrderEntityId)->systems_;
 				for (auto runAfterSystemName : dependenceRunAfterSystems) {
-					ECS2::Entity::Id runAfterEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(
-						OksEngine::ECS::File::Table::System::Tag,
+					ECS2::Entity::Id runAfterEntityId = File::Table::ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME_OR_INVALID_ID<CreateCallOrderAdditionalDependencies, OksEngine::ECS::File::Table::System::Tag>(
+						this,
 						systemEntityId,
 						runAfterSystemName.name_);
 
-					ECS__FILE__TABLE__SYSTEM__ADD_RUN_BEFORE_SYSTEM(runAfterEntityId, systemEntityId);
-
+					if (runAfterEntityId.IsValid()) {
+						File::Table::ECS__FILE__TABLE__SYSTEM__ADD_RUN_BEFORE_SYSTEM(this, runAfterEntityId, systemEntityId);
+					}
 				}
 				auto dependenceRunBeforeSystems = GetComponent<ECS::File::Table::System::CallOrder::RunBefore>(callOrderEntityId)->systems_;
 				for (auto runBeforeSystemName : dependenceRunBeforeSystems) {
-					ECS2::Entity::Id runBeforeEntityId = ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME(
-						OksEngine::ECS::File::Table::System::Tag,
+					ECS2::Entity::Id runBeforeEntityId = File::Table::ECS__FILE__TABLE__GET_TABLE_ENTITY_ID_BY_NAME_OR_INVALID_ID<CreateCallOrderAdditionalDependencies, OksEngine::ECS::File::Table::System::Tag>(
+						this,
 						systemEntityId,
 						runBeforeSystemName.name_);
-					ECS__FILE__TABLE__SYSTEM__ADD_RUN_AFTER_SYSTEM(runBeforeEntityId, systemEntityId);
+					if (runBeforeEntityId.IsValid()) {
+						File::Table::ECS__FILE__TABLE__SYSTEM__ADD_RUN_AFTER_SYSTEM(this, runBeforeEntityId, systemEntityId);
+					}
 				}
 			}
 

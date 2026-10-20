@@ -7,35 +7,35 @@
 
 #include <ECS2.World.hpp>
 
-namespace OksEngine {
+namespace OksEngine {{
 
-	class Engine {
+	class {} {{
 	public:
 
-		struct CreateInfo {
+		struct CreateInfo {{
 			int argc_ = 0;
 			char** argv_ = nullptr;
-		};
+		}};
 
-		explicit Engine(const CreateInfo& createInfo) noexcept;
+		explicit {}(const CreateInfo& createInfo) noexcept;
 
-		void Run() {
+		void Run() {{
 			isRunning_ = true;
-			//while (IsRunning()) {
+			//while (IsRunning()) {{
 				Update();
-			//}
+			//}}
 
-		}
+		}}
 
-		inline bool IsRunning() const noexcept {
+		inline bool IsRunning() const noexcept {{
 			return isRunning_;
-		}
+		}}
 
 		void Update() noexcept;
 
 	private:
 		bool isRunning_ = false;
 		std::shared_ptr<class ECS2::World> world2_ = nullptr;
-	};
+	}};
 
-}
+}}

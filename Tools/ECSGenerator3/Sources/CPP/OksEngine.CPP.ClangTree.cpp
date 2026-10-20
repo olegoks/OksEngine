@@ -659,7 +659,8 @@ namespace OksEngine
 
 					}
 					else {
-						NOT_IMPLEMENTED();
+						LOG_ERROR("", "Empty entity in CPP tree.");
+						//NOT_IMPLEMENTED();
 					}
 
 

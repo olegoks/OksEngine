@@ -1,0 +1,11 @@
+ECSNamespace = {
+    ModuleNamespace = {
+        EntityIdComponent = {
+            serializable = false,
+            bindable = false,
+            fields = {
+                { type = "ECS2::Entity::Id", name = "id" }
+            }
+        },
+    }
+}

@@ -109,13 +109,21 @@ using namespace std::string_literals;
 		return pragmaOptimize;\
 	}()
 
-#define CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(str)\
-	[this](const std::string& text){\
-		ECS2::Entity::Id includeEntityId = CreateEntity();\
-		CreateComponent<CPP::Tree::Preprocessor::Tag>(includeEntityId);\
-		CreateComponent<CPP::Tree::Preprocessor::Include_>(includeEntityId, text, false);\
-		return includeEntityId;\
-	}(str)
+//#define CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(str)\
+//	[this](const std::string& text){\
+//		ECS2::Entity::Id includeEntityId = CreateEntity();\
+//		CreateComponent<CPP::Tree::Preprocessor::Tag>(includeEntityId);\
+//		CreateComponent<CPP::Tree::Preprocessor::Include_>(includeEntityId, text, false);\
+//		return includeEntityId;\
+//	}(str)
+
+template<class System>
+ECS2::Entity::Id CPP__TREE__PREPROCESSOR__CREATE_INCLUDE(System* system, const std::string& text) {
+	ECS2::Entity::Id includeEntityId = system->CreateEntity();
+	system->template CreateComponent<OksEngine::CPP::Tree::Preprocessor::Tag>(includeEntityId);
+	system->template CreateComponent<OksEngine::CPP::Tree::Preprocessor::Include_>(includeEntityId, text, false);
+	return includeEntityId;
+}
 
 #define CPP__TREE__PREPROCESSOR__CREATE_DEFINE(name, params, bodyStr, bodyEntity, isFunction)\
 	[this](const std::string& nameStr, const std::vector<std::string>& parameters, const std::string& bodyString, ECS2::Entity::Id bodyEntityId, bool isFunctionLike){\

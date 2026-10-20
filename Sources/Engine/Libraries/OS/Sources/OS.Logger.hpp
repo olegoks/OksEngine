@@ -129,5 +129,8 @@ namespace OS {
 #define LOG_INFO(path, message, ...)\
 	OS::LogInfo(path, { message, __VA_ARGS__ });
 
+#define LOG_ERROR(path, message, ...)\
+	OS::LogError(path, { message, __VA_ARGS__ });
+
 
 }

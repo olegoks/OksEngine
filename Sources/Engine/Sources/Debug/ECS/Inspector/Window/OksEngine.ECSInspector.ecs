@@ -99,6 +99,9 @@ ShowEntitiesInfoSystem = {
         runAfter = { "BeginECSInspectorWindow" },
         runBefore = { "EndECSInspectorWindow" }
     },
+    tags = {
+        'ECS.Inspector'
+    },
     updateMethod = {
         processesEntities = {
             {

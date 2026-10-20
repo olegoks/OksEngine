@@ -86,3 +86,4 @@ Resources/Models/Truck/error_hull_show
 *.blend1
 /Tools/PMTest/CMakeFiles
 /Tools/ECSGenerator3/Sources/CMakeTemplates_generated
+/Builds

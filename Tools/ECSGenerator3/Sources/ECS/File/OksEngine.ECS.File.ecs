@@ -12,7 +12,12 @@ ECSNamespace = {
                 { type = "std::string", name = "path" }
             }
         },
-
+        DisableTagsComponent = {
+            serializable = false,
+            fields = {
+                { type = "std::vector<std::string>", name = "disableTags" }
+            }
+        },
         EntityIdComponent = {
             serializable = false,
             bindable = false,
@@ -409,6 +414,13 @@ ECSNamespace = {
                     serializable = false,
                     bindable = false,
                 },
+                TagsComponent = {
+                    serializable = false,
+                    bindable = false,
+                    fields = {
+                        { type = "std::vector<std::string>", name = "tags" }
+                    }
+                },
                 ThreadComponent = {
                     serializable = false,
                     bindable = false,
@@ -497,6 +509,7 @@ ECSNamespace = {
                                 }
                             },
                             ProcessAllCombinationsComponent = {
+                                description = 'It means that system will take ECS2::Entity::Id of all entities as parameter with no components',
                                 serializable = false,
                                 bindable = false,
                             },
@@ -556,6 +569,7 @@ ECSNamespace = {
                             EntityArchetype = {
                                 components = {
                                     "Entity::Tag",
+                                    "Entity::ProcessAllCombinations",
                                     "Entity::ProcessComponents",
                                     "Entity::IncludeComponents",
                                     "Entity::AccessComponents",
@@ -694,6 +708,7 @@ ECSNamespace = {
                         "System::Type",
                         "System::Thread",
                         "System::Disabled",
+                        "System::Tags",
                         "CallOrder::EntityId",
                         "Table::ParentTableEntityId",
                         "Table::System::UpdateMethod::EntityId",
@@ -859,7 +874,15 @@ ECSNamespace = {
                             processesComponents = {
                                 "ECS::File::Tag",
                                 "ECS::File::Path",
+                                "ECS::Module::EntityId",
                                 "LuaScript"
+                            }
+                        }
+                    },
+                    accessingEntities = {
+                        {
+                            accessingComponents = {
+                                "ECS::File::DisableTags"
                             }
                         }
                     },
@@ -867,6 +890,35 @@ ECSNamespace = {
                         {
                             archetype = "Constant::Constant"
 
+                        }
+                    }
+                }
+            },
+            
+            CreateFakeSystemsSystem = {
+                description = "Create fake system entities for unknown system names from RunAfter RunBefore",
+                type = "Initialize",
+                callOrder = {
+                    runAfter = { "ECS::File::Table::Parse" }
+                },
+                updateMethod = {
+                    processesEntities = {
+                        {
+                            processesComponents = {
+                                "ECS::Project::Tag",
+                                "ECS::Project::Path",
+                                "LuaScript"
+                            }
+                        },
+                    },
+                    accessingEntities = {
+                        {
+                            archetype = "File::Table::System::System"
+                        }
+                    },
+                    createsEntities = {
+                        {
+                            archetype = "File::Table::System::System"
                         }
                     }
                 }

@@ -7,7 +7,7 @@ git clone https://github.com/microsoft/vcpkg.git
 cd ./vcpkg
 ./bootstrap-vcpkg.bat
 echo $(pwd)
-#./vcpkg.exe install llvm
+./vcpkg.exe install llvm:x64-windows
 ./vcpkg.exe install zlib
 ./vcpkg.exe install winpixevent
 ./vcpkg.exe install sfml
@@ -43,5 +43,6 @@ echo $(pwd)
 ./vcpkg.exe install curl
 ./vcpkg.exe install libzip
 ./vcpkg.exe install nlohmann-json
+./vcpkg.exe install pkgconf
 cd ../Scripts/
 
